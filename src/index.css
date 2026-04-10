@@ -1,0 +1,205 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+==========================================================================
+【AI HANDOVER NOTE】
+1. DESIGN PHILOSOPHY:
+   - Atmosphere-First: Futuristic tech meets luxury grooming - a premium SaaS platform that bridges traditional barbering with cutting-edge location technology
+   - Visual Style: Tech-Luxe Glassmorphism - combining deep teal/navy gradients with glowing cyan accents, gold rim-lighting, and map-based network visualizations
+   - Rationale: The platform serves Saudi Arabian barbers and customers, requiring a design that conveys both technological sophistication (GPS/mapping) and premium service quality (gold accents, verified badges). The dark teal base (#0D9488) represents trust and professionalism, while gold (#D4AF37) signifies luxury and excellence in grooming services.
+
+2. TYPOGRAPHY:
+   - Sans: Tajawal as primary - a modern Arabic typeface with excellent readability at all sizes, geometric structure that complements the tech aesthetic, and strong presence for hero headings. IBM Plex Sans Arabic as secondary for UI elements, offering superior legibility in forms and dense information displays.
+   - Mono: JetBrains Mono for coordinates display (latitude/longitude), booking time slots, subscription pricing tables, and barber verification codes - maintaining technical precision.
+
+3. COLOR SYSTEM:
+   - Brand Primary: Teal (#0D9488, H:174°) - represents trust, technology, and the map/location core feature. This hue evokes both water (fluidity of service) and tech (digital interfaces).
+   - Brand Accent: Gold (#D4AF37, H:45°) - luxury, premium subscriptions (Diamond tier), verified badges, and call-to-action highlights.
+   - Mapping: --brand → --primary (teal for interactive map elements, location pins), --accent (gold for premium barber markers, verified badges), --ring (cyan glow #00D4FF for focus states and network connections).
+   - Semantic Colors: Success (green H:150°) for booking confirmations and verification checkmarks; Warning (amber H:45°) for subscription renewals; Destructive (red-orange H:15°) for cancellations.
+
+4. USAGE GUIDE:
+   - Layout: Full-width dashboard with map-based hero section, Bento-style barber cards with glassmorphic overlays, sidebar navigation for barber/owner dashboards.
+   - Effects: backdrop-blur-xl for floating cards over map backgrounds, cyan rim-light (box-shadow with --ring color) on interactive elements, subtle glow effects on location pins and network lines.
+   - RTL Support: All layouts must support Arabic right-to-left reading direction. Navigation, forms, and card layouts flip horizontally.
+   - Special Rules: Gold accents reserved for premium features (Diamond subscription badges, verified status); Teal gradients for backgrounds; Cyan glows for interactive states and real-time chat indicators; Dark mode as primary (light mode for accessibility only).
+==========================================================================
+*/
+
+:root {
+  /* Typography */
+  --font-sans: 'Tajawal', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Core UI Tokens */
+  --background: oklch(0.98 0.005 174);
+  --foreground: oklch(0.15 0.02 220);
+  --card: oklch(0.99 0.003 174);
+  --card-foreground: oklch(0.18 0.02 220);
+  --popover: oklch(0.99 0.003 174);
+  --popover-foreground: oklch(0.15 0.02 220);
+  --primary: oklch(0.52 0.14 174);
+  --primary-foreground: oklch(0.98 0.005 174);
+  --secondary: oklch(0.92 0.01 174);
+  --secondary-foreground: oklch(0.22 0.02 220);
+  --muted: oklch(0.94 0.008 174);
+  --muted-foreground: oklch(0.48 0.015 220);
+  --accent: oklch(0.68 0.12 45);
+  --accent-foreground: oklch(0.15 0.02 220);
+  --destructive: oklch(0.58 0.22 15);
+  --destructive-foreground: oklch(0.98 0.005 15);
+  --border: oklch(0.88 0.01 174);
+  --input: oklch(0.88 0.01 174);
+  --ring: oklch(0.62 0.18 195);
+  
+  /* Chart Tokens */
+  --chart-1: oklch(0.52 0.14 174);
+  --chart-2: oklch(0.68 0.12 45);
+  --chart-3: oklch(0.58 0.16 150);
+  --chart-4: oklch(0.62 0.18 195);
+  --chart-5: oklch(0.48 0.12 280);
+  
+  /* Sidebar Tokens */
+  --sidebar: oklch(0.96 0.006 174);
+  --sidebar-foreground: oklch(0.22 0.02 220);
+  --sidebar-primary: oklch(0.52 0.14 174);
+  --sidebar-primary-foreground: oklch(0.98 0.005 174);
+  --sidebar-accent: oklch(0.68 0.12 45);
+  --sidebar-accent-foreground: oklch(0.15 0.02 220);
+  --sidebar-border: oklch(0.88 0.01 174);
+  --sidebar-ring: oklch(0.62 0.18 195);
+}
+
+.dark {
+  --background: oklch(0.12 0.03 220);
+  --foreground: oklch(0.92 0.01 174);
+  --card: oklch(0.16 0.035 210);
+  --card-foreground: oklch(0.92 0.01 174);
+  --popover: oklch(0.14 0.032 215);
+  --popover-foreground: oklch(0.92 0.01 174);
+  --primary: oklch(0.58 0.16 174);
+  --primary-foreground: oklch(0.12 0.03 220);
+  --secondary: oklch(0.22 0.04 210);
+  --secondary-foreground: oklch(0.88 0.015 174);
+  --muted: oklch(0.20 0.038 215);
+  --muted-foreground: oklch(0.62 0.02 174);
+  --accent: oklch(0.72 0.14 45);
+  --accent-foreground: oklch(0.12 0.03 220);
+  --destructive: oklch(0.62 0.24 15);
+  --destructive-foreground: oklch(0.95 0.01 15);
+  --border: oklch(0.26 0.04 210);
+  --input: oklch(0.26 0.04 210);
+  --ring: oklch(0.68 0.22 195);
+  
+  /* Chart Tokens */
+  --chart-1: oklch(0.58 0.16 174);
+  --chart-2: oklch(0.72 0.14 45);
+  --chart-3: oklch(0.62 0.18 150);
+  --chart-4: oklch(0.68 0.22 195);
+  --chart-5: oklch(0.58 0.16 280);
+  
+  /* Sidebar Tokens */
+  --sidebar: oklch(0.14 0.032 215);
+  --sidebar-foreground: oklch(0.88 0.015 174);
+  --sidebar-primary: oklch(0.58 0.16 174);
+  --sidebar-primary-foreground: oklch(0.12 0.03 220);
+  --sidebar-accent: oklch(0.72 0.14 45);
+  --sidebar-accent-foreground: oklch(0.12 0.03 220);
+  --sidebar-border: oklch(0.26 0.04 210);
+  --sidebar-ring: oklch(0.68 0.22 195);
+}
+
+@theme inline {
+  /* Shadcn Core Mapping */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Charts Mapping */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar Mapping */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Typography */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  /* Radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans min-h-screen;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  code, pre {
+    @apply font-mono;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
+  }
+}
