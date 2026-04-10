@@ -649,7 +649,18 @@ export function RegistrationForm() {
                 <div className="space-y-3">
                   <Label>صور خارجية *</Label>
                   <div
-                    onClick={() => document.getElementById('exterior')?.click()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById('exterior')?.click();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        document.getElementById('exterior')?.click();
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
                   >
                     <input
@@ -657,7 +668,10 @@ export function RegistrationForm() {
                       type="file"
                       accept="image/*"
                       multiple
-                      onChange={(e) => handleImageUpload('exterior', e.target.files)}
+                      onChange={(e) => {
+                        handleImageUpload('exterior', e.target.files);
+                        e.target.value = '';
+                      }}
                       className="hidden"
                     />
                     <div className="flex flex-col items-center gap-3">
@@ -691,7 +705,18 @@ export function RegistrationForm() {
                 <div className="space-y-3">
                   <Label>صور داخلية *</Label>
                   <div
-                    onClick={() => document.getElementById('interior')?.click()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById('interior')?.click();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        document.getElementById('interior')?.click();
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
                   >
                     <input
@@ -699,7 +724,10 @@ export function RegistrationForm() {
                       type="file"
                       accept="image/*"
                       multiple
-                      onChange={(e) => handleImageUpload('interior', e.target.files)}
+                      onChange={(e) => {
+                        handleImageUpload('interior', e.target.files);
+                        e.target.value = '';
+                      }}
                       className="hidden"
                     />
                     <div className="flex flex-col items-center gap-3">
@@ -844,9 +872,9 @@ export function RegistrationForm() {
                     <div className="space-y-2">
                       <h4 className="font-semibold">معلومات التحويل البنكي:</h4>
                       <div className="text-sm space-y-1">
-                        <p>البنك: البنك الأهلي السعودي</p>
-                        <p>رقم الحساب: SA1234567890123456789012</p>
-                        <p>اسم المستفيد: شركة حلاق ماب</p>
+                        <p>البنك: البنك العربي الوطني (ANB)</p>
+                        <p>رقم الحساب: SA5430400108037273420021</p>
+                        <p>اسم المستفيد: AHMED ABDULLAH</p>
                       </div>
                     </div>
                     <div className="space-y-2">
