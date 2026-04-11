@@ -20,6 +20,7 @@ import {
   saveLastOrderConfirmation,
 } from '@/lib/subscriptionRequestStorage';
 import { BANK_TRANSFER } from '@/config/bankTransfer';
+import { getBankTransferPayableAmountSar, getBankTransferPlanSummaryAr } from '@/config/subscriptionPricing';
 import {
   Check,
   Upload,
@@ -360,14 +361,16 @@ export function RegistrationForm() {
         categories: [...formData.categories],
       };
 
-      appendSubscriptionRequest(request);
+      await appendSubscriptionRequest(request);
 
       const plan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
       const tierName = plan?.name ?? String(formData.tier);
       const payLabel =
-        formData.payment.method === 'bank_transfer'
-          ? `تحويل بنكي (6 أشهر)${plan ? ` — المبلغ المقدر: ${(plan.price * 6 * 0.9).toFixed(0)} ر.س` : ''}`
-          : 'اشتراك شهري';
+        formData.payment.method === 'bank_transfer' && plan
+          ? `تحويل بنكي — ${getBankTransferPlanSummaryAr(plan.tier)}`
+          : formData.payment.method === 'bank_transfer'
+            ? 'تحويل بنكي'
+            : 'اشتراك شهري';
 
       const summaryForDownload =
         `حلاق ماب — طلب اشتراك جديد\n` +
@@ -1007,13 +1010,15 @@ export function RegistrationForm() {
                   <label className="flex items-center space-x-3 space-x-reverse border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
                     <RadioGroupItem value="bank_transfer" id="bank_transfer" />
                     <div className="flex-1">
-                      <div className="font-semibold">تحويل بنكي (6 أشهر)</div>
+                      <div className="font-semibold">تحويل بنكي (6 أشهر مقدماً)</div>
                       <p className="text-sm text-muted-foreground">
-                        دفع مقدم لـ 6 أشهر - وفر 10% من قيمة الاشتراك
+                        خلال فترة العرض: خصم 10% على إجمالي 6 أشهر + شهران إضافيان (8 أشهر صلاحية). بعد انتهاء
+                        العرض: السعر الكامل لـ 6 أشهر فقط.
                       </p>
                       {selectedPlan && (
                         <p className="text-sm font-semibold text-primary mt-1">
-                          المبلغ المطلوب: {(selectedPlan.price * 6 * 0.9).toFixed(0)} ريال
+                          المبلغ المطلوب الآن: {getBankTransferPayableAmountSar(selectedPlan.tier)} ريال —{' '}
+                          {getBankTransferPlanSummaryAr(selectedPlan.tier)}
                         </p>
                       )}
                     </div>

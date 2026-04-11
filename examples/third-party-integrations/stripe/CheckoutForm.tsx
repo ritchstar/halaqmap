@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
-import { supabase } from '@/integrations/supabase/client';
+import { getSupabaseClient } from '@/integrations/supabase/client';
 
 // ==================== Stripe Initialization Section ====================
 // ✅ Get public key from environment variables (secure)
@@ -115,6 +115,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
     setErrorMessage(null);
 
     try {
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        throw new Error('Supabase is not configured (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)');
+      }
+
       // ✅ Step 1: Create payment intent
       console.log('🔄 Creating payment intent...');
       const { data, error } = await supabase.functions.invoke('create-payment-intent', {

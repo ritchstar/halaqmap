@@ -42,6 +42,8 @@ coverage/
 .nyc_output/
 
 # --- Build outputs / caches ---
+*.tar.gz
+*.tgz
 dist/
 build/
 electron-dist/
@@ -99,10 +101,6 @@ Thumbs.db
 # --- Uploaded Files ---
 uploaded_files/
 
-<<<<<<< HEAD
-=======
 # --- Secret Admin Files ---
 ADMIN_ACCESS.md
 SECRET_*.md
-
->>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed

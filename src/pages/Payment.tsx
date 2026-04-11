@@ -24,6 +24,12 @@ import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { BANK_TRANSFER } from '@/config/bankTransfer';
+import {
+  getBankTransferPayableAmountSar,
+  getBankTransferCoveredMonths,
+  getSixMonthGrossSar,
+  isBankTransferPromoActive,
+} from '@/config/subscriptionPricing';
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -58,6 +64,11 @@ export default function Payment() {
   const price = prices[tier];
   const tierName = tierNames[tier];
   const tierColor = tierColors[tier];
+
+  const bankTransferDue = getBankTransferPayableAmountSar(tier);
+  const bankTransferMonths = getBankTransferCoveredMonths();
+  const bankTransferGrossSix = getSixMonthGrossSar(tier);
+  const bankPromoOn = isBankTransferPromoActive();
 
   const IBAN = BANK_TRANSFER.iban;
   const BANK_NAME = BANK_TRANSFER.bankDisplayAr;
@@ -231,7 +242,9 @@ export default function Payment() {
                         <div className="flex items-center gap-2 mb-1">
                           <Building2 className="w-5 h-5 text-primary" />
                           <h3 className="font-semibold">تحويل بنكي</h3>
-                          <Badge variant="outline" className="text-xs">6 أشهر مقدماً</Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {bankPromoOn ? '6 أشهر + عرض' : '6 أشهر مقدماً'}
+                          </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           حوّل المبلغ إلى حسابنا البنكي وارفع الإيصال
@@ -251,7 +264,20 @@ export default function Payment() {
                       <Alert>
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                          <strong>ملاحظة:</strong> التحويل البنكي يتطلب دفع 6 أشهر مقدماً ({price * 6} ر.س)
+                          <strong>ملاحظة:</strong>{' '}
+                          {bankPromoOn ? (
+                            <>
+                              فترة العرض: حوّل <strong>{bankTransferDue} ر.س</strong> (خصم 10% على إجمالي{' '}
+                              {bankTransferGrossSix} ر.س لستة أشهر) لتحصل على صلاحية{' '}
+                              <strong>{bankTransferMonths} أشهر</strong> (6 مدفوعة + شهران إضافيان). بعد انتهاء
+                              فترة العرض ينطبق سعر 6 أشهر كاملة ({bankTransferGrossSix} ر.س).
+                            </>
+                          ) : (
+                            <>
+                              التحويل البنكي: دفع مقدم لـ <strong>6 أشهر</strong> — المبلغ{' '}
+                              <strong>{bankTransferDue} ر.س</strong> (برونزي 600، ذهبي 900، ماسي 1200 حسب الباقة).
+                            </>
+                          )}
                         </AlertDescription>
                       </Alert>
 
@@ -297,8 +323,13 @@ export default function Payment() {
                           </div>
                           <div>
                             <Label className="text-sm text-muted-foreground">المبلغ المطلوب</Label>
-                            <p className="text-2xl font-bold text-primary">{price * 6} ر.س</p>
-                            <p className="text-xs text-muted-foreground">لمدة 6 أشهر</p>
+                            <p className="text-2xl font-bold text-primary">{bankTransferDue} ر.س</p>
+                            <p className="text-xs text-muted-foreground">
+                              لمدة {bankTransferMonths} أشهر
+                              {bankPromoOn
+                                ? ` (عرض: خصم 10% على ${bankTransferGrossSix} ر.س + شهران هدية)`
+                                : ' (سعر 6 أشهر كامل)'}
+                            </p>
                           </div>
                         </CardContent>
                       </Card>

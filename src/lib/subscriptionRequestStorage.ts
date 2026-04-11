@@ -1,4 +1,8 @@
 import type { SubscriptionRequest, SubscriptionTier } from '@/lib/index';
+import {
+  fetchRegistrationSubmissionsFromRemote,
+  insertRegistrationSubmissionRemote,
+} from '@/lib/registrationSubmissionsRemote';
 
 const STORAGE_KEY = 'halaqmap_subscription_requests_v1';
 
@@ -13,11 +17,31 @@ export function loadStoredSubscriptionRequests(): SubscriptionRequest[] {
   }
 }
 
-export function appendSubscriptionRequest(request: SubscriptionRequest): void {
+/** دمج الطلبات من السحابة (إن وُجدت) ثم المحلية دون تكرار id (السحابة أولاً). */
+export async function loadMergedSubscriptionRequests(): Promise<SubscriptionRequest[]> {
+  const remote = await fetchRegistrationSubmissionsFromRemote();
+  const local = loadStoredSubscriptionRequests();
+  const seen = new Set(remote.map((r) => r.id));
+  const out = [...remote];
+  for (const r of local) {
+    if (!seen.has(r.id)) {
+      seen.add(r.id);
+      out.push(r);
+    }
+  }
+  return out;
+}
+
+export async function appendSubscriptionRequest(request: SubscriptionRequest): Promise<void> {
   const prev = loadStoredSubscriptionRequests();
   prev.unshift(request);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(prev));
   window.dispatchEvent(new Event('halaqmap-subscription-requests-changed'));
+
+  const remote = await insertRegistrationSubmissionRemote(request);
+  if (!remote.ok && import.meta.env.DEV) {
+    console.warn('[halaqmap] فشل حفظ الطلب في Supabase:', remote.error);
+  }
 }
 
 export function generateRegistrationOrderId(): string {

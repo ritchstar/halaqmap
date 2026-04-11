@@ -51,7 +51,8 @@ import {
 } from '@/components/ui/dialog';
 import { ROUTE_PATHS, SubscriptionRequest, Payment, AdminStats, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
-import { loadStoredSubscriptionRequests } from '@/lib/subscriptionRequestStorage';
+import { loadMergedSubscriptionRequests } from '@/lib/subscriptionRequestStorage';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
 
 const BASE_ADMIN_STATS: AdminStats = {
   totalBarbers: 156,
@@ -115,7 +116,7 @@ export default function AdminDashboard() {
   const [storedSubscriptionRequests, setStoredSubscriptionRequests] = useState<SubscriptionRequest[]>([]);
 
   const refreshStoredRequests = () => {
-    setStoredSubscriptionRequests(loadStoredSubscriptionRequests());
+    void loadMergedSubscriptionRequests().then(setStoredSubscriptionRequests);
   };
 
   useEffect(() => {
@@ -522,6 +523,14 @@ function RequestsSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
+      {isSupabaseConfigured() ? (
+        <p className="text-sm text-muted-foreground mb-4 rounded-lg border border-border bg-muted/40 px-4 py-3 leading-relaxed">
+          الطلبات تُحفظ في السحابة (جدول registration_submissions). لعرضها هنا من أي جهاز، أضف لاحقاً سياسة
+          SELECT آمنة أو واجهة خادم؛ حتى ذلك الحين قد تظهر فقط ما في المتصفح الحالي (localStorage) أو في
+          محرر جداول Supabase.
+        </p>
+      ) : null}
+
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">طلبات الاشتراك</h2>
         <div className="flex gap-2">

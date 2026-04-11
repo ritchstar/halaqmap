@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Sparkles } from 'lucide-react';
+import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { Barber, FilterState, SubscriptionTier, filterBarbersByDistance } from '@/lib/index';
 import { mockBarbers } from '@/data/index';
 import { LocationButton } from '@/components/LocationButton';
@@ -33,7 +33,6 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {/* Hero Background Image with Pulse Animation */}
           <motion.div
             className="absolute inset-0"
             style={{
@@ -41,104 +40,181 @@ export default function Home() {
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
-            animate={{
-              scale: [1, 1.03, 1],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            animate={{ scale: [1, 1.025, 1] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
           />
-          
-          {/* Overlay Gradient for Text Readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
-          
-          {/* Animated Glow Effect */}
+
+          {/* تظليل أقوى خلف منطقة النص لتفادي تداخل أضواء الخريطة */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/92 via-background/65 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-background/75" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_85%_65%_at_50%_32%,rgba(0,0,0,0.22),transparent_62%)] dark:bg-[radial-gradient(ellipse_85%_65%_at_50%_32%,rgba(0,0,0,0.45),transparent_60%)]" />
+
           <motion.div
-            className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(13,148,136,0.15),transparent_70%)]"
-            animate={{
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(13,148,136,0.18),transparent_55%)]"
+            animate={{ opacity: [0.35, 0.65, 0.35] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
           />
-          
-          {/* Floating Particles */}
-          {[...Array(12)].map((_, i) => (
+
+          {[...Array(10)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1.5 h-1.5 bg-ring/60 rounded-full blur-[1px]"
+              className="absolute w-1 h-1 rounded-full bg-accent/50 shadow-[0_0_8px_rgba(212,175,55,0.5)]"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                left: `${(i * 17 + 13) % 92}%`,
+                top: `${(i * 23 + 7) % 88}%`,
               }}
               animate={{
-                scale: [0, 1.5, 0],
-                opacity: [0, 0.8, 0],
-                y: [0, -30, 0],
+                scale: [0.6, 1.2, 0.6],
+                opacity: [0.2, 0.85, 0.2],
+                y: [0, -18, 0],
               }}
               transition={{
-                duration: 4,
+                duration: 3.5 + i * 0.2,
                 repeat: Infinity,
-                delay: i * 0.3,
+                delay: i * 0.35,
                 ease: 'easeInOut',
               }}
             />
           ))}
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 py-24">
+        <div className="relative z-10 container mx-auto px-4 py-20 md:py-28">
           <motion.div
-            className="text-center max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
+            className="max-w-3xl mx-auto text-center"
+            initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
+            transition={{ duration: 0.75, ease: 'easeOut' }}
           >
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/15 border border-primary/30 mb-8 relative"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{
+                opacity: 1,
+                scale: [1, 1.02, 1],
+                boxShadow: [
+                  '0 0 0 0 color-mix(in srgb, var(--primary) 35%, transparent)',
+                  '0 0 0 10px color-mix(in srgb, var(--primary) 0%, transparent)',
+                  '0 0 0 0 color-mix(in srgb, var(--primary) 35%, transparent)',
+                ],
+              }}
+              transition={{
+                delay: 0.15,
+                duration: 0.6,
+                boxShadow: { duration: 2.2, repeat: Infinity, ease: 'easeOut' },
+                scale: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+              }}
             >
-              <Sparkles className="w-4 h-4 text-accent" />
-              <span className="text-sm font-medium text-primary">منصة حلاق ماب الذكية</span>
+              <motion.span
+                animate={{ rotate: [0, 12, -12, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Sparkles className="w-4 h-4 text-accent" />
+              </motion.span>
+              <span className="text-sm font-semibold text-primary tracking-wide">
+                منصة حلاق ماب الذكية
+              </span>
             </motion.div>
 
-            <motion.h1
-              className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            >
-              أول منصة عربية ذكية
-              <br />
-              <span className="text-foreground">تربط الحلاقين المحترفين بالعملاء</span>
-            </motion.h1>
+            <div className="rounded-3xl border border-border bg-card/95 text-card-foreground backdrop-blur-xl shadow-[0_24px_64px_-12px_rgba(0,0,0,0.18)] dark:bg-card/95 dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.45)] px-6 py-10 md:px-12 md:py-12">
+              <motion.h1
+                className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-5 text-card-foreground leading-[1.15]"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.7 }}
+              >
+                أول منصة عربية ذكية
+                <br />
+                <span className="text-primary">تربط الحلاقين المحترفين بالعملاء</span>
+              </motion.h1>
 
-            <motion.p
-              className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-            >
-              اكتشف أقرب الحلاقين المحترفين إليك بضغطة زر واحدة. نظام خرائط متقدم، حجز فوري، وتقييمات موثوقة.
-            </motion.p>
+              <motion.div
+                className="mb-4 max-w-2xl mx-auto rounded-2xl border border-border bg-secondary px-5 py-4 text-secondary-foreground shadow-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.7 }}
+              >
+                <p className="text-base md:text-lg font-semibold leading-relaxed text-pretty">
+                  اكتشف أقرب الحلاقين المحترفين بضغطة زر. خرائط ذكية، فلترة بالمسافة والباقة والتقييم، ثم تواصل
+                  مباشرة — موقعك أولاً دائماً.
+                </p>
+              </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.8 }}
-            >
-              {!userLocation ? (
+              <motion.p
+                className="text-sm mb-8 max-w-xl mx-auto flex items-center justify-center gap-2 flex-wrap font-medium text-muted-foreground"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.48, duration: 0.6 }}
+              >
+                <Shield className="w-4 h-4 text-accent shrink-0" aria-hidden />
+                <span>باقات للمحترفين · أولوية للمشتركين · تجربة عربية بالكامل</span>
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.65 }}
+              >
                 <LocationButton onLocationDetected={handleLocationDetected} />
-              ) : (
-                <LocationButton onLocationDetected={handleLocationDetected} />
-              )}
-            </motion.div>
+              </motion.div>
+
+              <motion.div
+                className="mt-10 pt-8 border-t border-border/60"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.75, duration: 0.6 }}
+              >
+                <p className="text-sm font-semibold text-primary mb-4 tracking-wide">
+                  كيف تعمل المنصة؟
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-right text-card-foreground">
+                  {[
+                    {
+                      step: '١',
+                      icon: MapPin,
+                      title: 'حدّد موقعك',
+                      desc: 'نستخدم موقعك لإظهار الحلاقين الأقرب إليك فعلياً.',
+                    },
+                    {
+                      step: '٢',
+                      icon: Search,
+                      title: 'قارن وتصفّح',
+                      desc: 'فلترة بالمسافة، الباقة، التقييم، ونوع الخدمة.',
+                    },
+                    {
+                      step: '٣',
+                      icon: MessageCircle,
+                      title: 'تواصل أو احجز',
+                      desc: 'اتصال، واتساب، وخرائط — حسب ما يوفره الصالون.',
+                    },
+                  ].map((item, index) => {
+                    const StepIcon = item.icon;
+                    return (
+                    <motion.div
+                      key={item.step}
+                      className="rounded-2xl bg-secondary/80 border border-border p-4 text-center sm:text-right text-secondary-foreground hover:border-primary/40 transition-colors"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.82 + index * 0.08, duration: 0.45 }}
+                    >
+                      <div className="flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary font-bold text-sm border border-primary/20">
+                          {item.step}
+                        </div>
+                        <StepIcon className="w-5 h-5 text-accent sm:hidden" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                            <StepIcon className="hidden sm:block w-4 h-4 text-accent shrink-0" />
+                            <h3 className="font-semibold text-secondary-foreground text-sm md:text-base">{item.title}</h3>
+                          </div>
+                          <p className="text-xs md:text-sm text-muted-foreground leading-snug">{item.desc}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>
