@@ -41,7 +41,11 @@ export default function Privacy() {
     {
       icon: Mail,
       title: "معلومات الاتصال",
+<<<<<<< HEAD
       content: "إذا كان لديك أي أسئلة أو استفسارات حول سياسة الخصوصية أو ممارساتنا، يرجى التواصل معنا:\n\n**البريد الإلكتروني:** privacy@halaqmap.com\n**الهاتف:** +966 50 123 4567\n**العنوان:** الرياض، المملكة العربية السعودية\n\nفريق الدعم متاح من السبت إلى الخميس، من 9 صباحاً إلى 6 مساءً (بتوقيت الرياض). سنرد على استفساراتك خلال 48 ساعة عمل."
+=======
+      content: "إذا كان لديك أي أسئلة أو استفسارات حول سياسة الخصوصية أو ممارساتنا، يرجى التواصل معنا:\n\n**البريد الإلكتروني:** admin@halaqmap.com\n**الهاتف:** 0559602685\n**العنوان:** الرياض، المملكة العربية السعودية\n\nفريق الدعم متاح من السبت إلى الخميس، من 9 صباحاً إلى 6 مساءً (بتوقيت الرياض). سنرد على استفساراتك خلال 48 ساعة عمل."
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
     }
   ];
 
@@ -123,11 +127,36 @@ export default function Privacy() {
                             );
                           }
                           if (paragraph.trim()) {
+<<<<<<< HEAD
                             return (
                               <p key={pIndex} className="text-muted-foreground leading-relaxed mb-4">
                                 {paragraph.split('**').map((part, i) => 
                                   i % 2 === 0 ? part : <strong key={i} className="text-foreground">{part}</strong>
                                 )}
+=======
+                            // Check if paragraph contains phone number
+                            const hasPhoneNumber = paragraph.includes('الهاتف:');
+                            return (
+                              <p key={pIndex} className="text-muted-foreground leading-relaxed mb-4">
+                                {paragraph.split('**').map((part, i) => {
+                                  if (i % 2 === 0) {
+                                    // Check if this part contains a phone number
+                                    if (hasPhoneNumber && /\d{10}/.test(part)) {
+                                      const parts = part.split(/\d{10}/);
+                                      const phoneMatch = part.match(/\d{10}/);
+                                      return (
+                                        <>
+                                          {parts[0]}
+                                          {phoneMatch && <span dir="ltr">{phoneMatch[0]}</span>}
+                                          {parts[1]}
+                                        </>
+                                      );
+                                    }
+                                    return part;
+                                  }
+                                  return <strong key={i} className="text-foreground">{part}</strong>;
+                                })}
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                               </p>
                             );
                           }

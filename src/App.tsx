@@ -4,6 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+<<<<<<< HEAD
+=======
+import { ScrollToTop } from "@/components/ScrollToTop";
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
 import Home from "@/pages/Home";
 import Register from "@/pages/Register";
 import About from "@/pages/About";
@@ -13,6 +17,10 @@ import BarberLogin from "@/pages/BarberLogin";
 import BarberDashboard from "@/pages/BarberDashboard";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
+<<<<<<< HEAD
+=======
+import Payment from "@/pages/Payment";
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
 import { ROUTE_PATHS } from "@/lib/index";
 
 const queryClient = new QueryClient();
@@ -41,6 +49,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
+<<<<<<< HEAD
+=======
+        <ScrollToTop />
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
         <Routes>
           <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
           <Route path={ROUTE_PATHS.REGISTER} element={<Layout><Register /></Layout>} />
@@ -51,6 +63,10 @@ const App = () => (
           <Route path={ROUTE_PATHS.BARBER_DASHBOARD} element={<BarberDashboard />} />
           <Route path={ROUTE_PATHS.ADMIN_LOGIN} element={<AdminLogin />} />
           <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminDashboard />} />
+<<<<<<< HEAD
+=======
+          <Route path={ROUTE_PATHS.PAYMENT} element={<Payment />} />
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
           <Route path="*" element={<NotFound />} />
         </Routes>
       </HashRouter>

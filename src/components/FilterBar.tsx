@@ -60,9 +60,15 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
   };
 
   const categories = [
+<<<<<<< HEAD
     { id: "رجالي", label: "رجالي" },
     { id: "أطفال", label: "أطفال" },
     { id: "تقليدي", label: "تقليدي" },
+=======
+    { id: "men", label: "رجالي" },
+    { id: "kids", label: "أطفال" },
+    { id: "traditional", label: "تقليدي" },
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
   ];
 
   const ratingOptions = [0, 3, 4, 4.5];

@@ -644,6 +644,7 @@ export function RegistrationForm() {
                 <CardTitle className="text-2xl">صور المحل</CardTitle>
                 <CardDescription>ارفع صور واضحة للمحل من الخارج والداخل</CardDescription>
               </CardHeader>
+<<<<<<< HEAD
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="exterior">صور خارجية *</Label>
@@ -679,6 +680,125 @@ export function RegistrationForm() {
                   <ImageIcon className="h-4 w-4" />
                   <AlertDescription>
                     الصور عالية الجودة تزيد من فرص جذب العملاء. يُفضل رفع 4-8 صور متنوعة
+=======
+              <CardContent className="space-y-6">
+                {/* Exterior Images */}
+                <div className="space-y-3">
+                  <Label>صور خارجية *</Label>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById('exterior')?.click();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        document.getElementById('exterior')?.click();
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
+                  >
+                    <input
+                      id="exterior"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => {
+                        handleImageUpload('exterior', e.target.files);
+                        e.target.value = '';
+                      }}
+                      className="hidden"
+                    />
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-base font-medium text-foreground mb-1">
+                          الصور عالية الجودة تزيد من فرص جذب العملاء. تفضل رفع 4-8 صور متنوعة
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          اضغط هنا لرفع الصور أو اسحب الصور إلى هذه المنطقة
+                        </p>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        PNG, JPG, JPEG حتى 10MB
+                      </Badge>
+                    </div>
+                  </div>
+                  {formData.images.exterior.length > 0 && (
+                    <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <Check className="w-5 h-5 text-green-600" />
+                      <p className="text-sm font-medium text-green-600">
+                        تم رفع {formData.images.exterior.length} صورة خارجية
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Interior Images */}
+                <div className="space-y-3">
+                  <Label>صور داخلية *</Label>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById('interior')?.click();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        document.getElementById('interior')?.click();
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
+                  >
+                    <input
+                      id="interior"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => {
+                        handleImageUpload('interior', e.target.files);
+                        e.target.value = '';
+                      }}
+                      className="hidden"
+                    />
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-base font-medium text-foreground mb-1">
+                          الصور عالية الجودة تزيد من فرص جذب العملاء. تفضل رفع 4-8 صور متنوعة
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          اضغط هنا لرفع الصور أو اسحب الصور إلى هذه المنطقة
+                        </p>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        PNG, JPG, JPEG حتى 10MB
+                      </Badge>
+                    </div>
+                  </div>
+                  {formData.images.interior.length > 0 && (
+                    <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <Check className="w-5 h-5 text-green-600" />
+                      <p className="text-sm font-medium text-green-600">
+                        تم رفع {formData.images.interior.length} صورة داخلية
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    💡 <strong>نصيحة:</strong> الصور الواضحة والمتنوعة تزيد من فرص ظهور محلك في نتائج البحث الأولى
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -790,9 +910,15 @@ export function RegistrationForm() {
                     <div className="space-y-2">
                       <h4 className="font-semibold">معلومات التحويل البنكي:</h4>
                       <div className="text-sm space-y-1">
+<<<<<<< HEAD
                         <p>البنك: البنك الأهلي السعودي</p>
                         <p>رقم الحساب: SA1234567890123456789012</p>
                         <p>اسم المستفيد: شركة حلاق ماب</p>
+=======
+                        <p>البنك: البنك العربي الوطني (ANB)</p>
+                        <p>رقم الحساب: SA5430400108037273420021</p>
+                        <p>اسم المستفيد: AHMED ABDULLAH</p>
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                       </div>
                     </div>
                     <div className="space-y-2">

@@ -64,11 +64,22 @@ export const IMAGES = {
   HALAQMAP_BARBER_BANNER_1_41: "/images/halaqmap_barber_banner_1.png",
   HALAQMAP_BARBER_BANNER_1_45: "/images/halaqmap_barber_banner_1.png",
   HALAQMAP_HERO_JPG_50: "/images/halaqmap-hero.jpg.png",
+<<<<<<< HEAD
+=======
+  HALAQMAP_LOGO_20260409_073322_83: "/images/halaqmap_logo_20260409_073322.png",
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
   IMAGE_4142826B_43: "/images/image_4142826b.png",
   IMAGE_4142826B_47: "/images/image_4142826b.png",
   IMAGE_9BBCC3E5_44: "/images/image_9bbcc3e5.png",
   IMAGE_9BBCC3E5_48: "/images/image_9bbcc3e5.png",
   SCREENSHOT1407_78: "/images/Screenshot1407.png",
+<<<<<<< HEAD
+=======
+  SCREENSHOT1908_82: "/images/Screenshot1908.png",
+  SCREENSHOT2099_87: "/images/Screenshot2099.png",
+  SCREENSHOT2786_88: "/images/Screenshot2786.png",
+  SCREENSHOT3369_86: "/images/Screenshot3369.png",
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
   SCREENSHOT3596_77: "/images/Screenshot3596.png",
   SCREENSHOT3705_76: "/images/Screenshot3705.jpeg",
   SCREENSHOT3874_42: "/images/Screenshot3874.png",
@@ -76,9 +87,21 @@ export const IMAGES = {
   SCREENSHOT4144_49: "/images/Screenshot4144.png",
   SCREENSHOT4191_52: "/images/Screenshot4191.png",
   SCREENSHOT4288_73: "/images/Screenshot4288.png",
+<<<<<<< HEAD
   SCREENSHOT5028_79: "/images/Screenshot5028.png",
   SCREENSHOT8589_74: "/images/Screenshot8589.png",
   SCREENSHOT8818_51: "/images/Screenshot8818.png",
+=======
+  SCREENSHOT4414_80: "/images/Screenshot4414.png",
+  SCREENSHOT5028_79: "/images/Screenshot5028.png",
+  SCREENSHOT6438_89: "/images/Screenshot6438.png",
+  SCREENSHOT6659_81: "/images/Screenshot6659.png",
+  SCREENSHOT6850_84: "/images/Screenshot6850.png",
+  SCREENSHOT8439_85: "/images/Screenshot8439.jpeg",
+  SCREENSHOT8589_74: "/images/Screenshot8589.png",
+  SCREENSHOT8818_51: "/images/Screenshot8818.png",
+  SCREENSHOT9327_90: "/images/Screenshot9327.png",
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
   SCREENSHOT9905_75: "/images/Screenshot9905.png",
 } as const;
 

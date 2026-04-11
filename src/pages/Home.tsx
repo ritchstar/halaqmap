@@ -13,7 +13,11 @@ export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [filters, setFilters] = useState<FilterState>({
+<<<<<<< HEAD
     maxDistance: 5,
+=======
+    maxDistance: 50,
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
     tiers: [],
     openNow: false,
     minRating: 0,
@@ -223,7 +227,11 @@ export default function Home() {
                 </motion.div>
                 <h3 className="text-2xl font-bold mb-3">لا توجد حلاقين في هذا النطاق 🔍</h3>
                 <p className="text-muted-foreground text-lg mb-6">
+<<<<<<< HEAD
                   جرّب زيادة نطاق البحث إلى <span className="font-bold text-primary">5 كم</span> (الحد الأقصى في الشريط) أو إلغاء الفلاتر
+=======
+                  جرب زيادة نطاق البحث إلى <span className="font-bold text-primary">50 كم</span> أو إلغاء الفلاتر
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                 </p>
                 <div className="bg-muted/30 rounded-xl p-6 space-y-3">
                   <p className="text-sm text-muted-foreground">💡 <strong>نصيحة:</strong></p>
@@ -231,7 +239,11 @@ export default function Home() {
                     <li>• تأكد من أن موقعك محدد بشكل صحيح</li>
                     <li>• قم بزيادة نطاق البحث من شريط الفلاتر أعلاه</li>
                     <li>• ألغِ فلتر "مفتوح الآن" إذا كان مفعّلاً</li>
+<<<<<<< HEAD
                     <li>• جرّب إلغاء فلتر الباقة أو نوع الخدمة لرؤية المزيد من النتائج</li>
+=======
+                    <li>• جرّب إلغاء فلتر الباقة لرؤية جميع الحلاقين</li>
+>>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                   </ul>
                 </div>
               </motion.div>
