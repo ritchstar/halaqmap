@@ -19,6 +19,7 @@ import {
   saPhoneToInternational,
   saveLastOrderConfirmation,
 } from '@/lib/subscriptionRequestStorage';
+import { BANK_TRANSFER } from '@/config/bankTransfer';
 import {
   Check,
   Upload,
@@ -1023,9 +1024,9 @@ export function RegistrationForm() {
                     <div className="space-y-2">
                       <h4 className="font-semibold">معلومات التحويل البنكي:</h4>
                       <div className="text-sm space-y-1">
-                        <p>البنك: البنك العربي الوطني (ANB)</p>
-                        <p>رقم الحساب: SA5430400108037273420021</p>
-                        <p>اسم المستفيد: AHMED ABDULLAH</p>
+                        <p>البنك: {BANK_TRANSFER.bankDisplayAr}</p>
+                        <p>رقم الحساب (IBAN): {BANK_TRANSFER.iban}</p>
+                        <p>اسم المستفيد: {BANK_TRANSFER.beneficiaryDisplay}</p>
                       </div>
                     </div>
                     <div className="space-y-2">

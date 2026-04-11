@@ -23,6 +23,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
+import { BANK_TRANSFER } from '@/config/bankTransfer';
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -58,10 +59,9 @@ export default function Payment() {
   const tierName = tierNames[tier];
   const tierColor = tierColors[tier];
 
-  // Bank details
-  const IBAN = 'SA5430400108037273420021';
-  const BANK_NAME = 'البنك العربي الوطني';
-  const ACCOUNT_NAME = 'حلاق ماب';
+  const IBAN = BANK_TRANSFER.iban;
+  const BANK_NAME = BANK_TRANSFER.bankDisplayAr;
+  const ACCOUNT_NAME = BANK_TRANSFER.beneficiaryDisplay;
 
   const handleCopyIban = () => {
     navigator.clipboard.writeText(IBAN);
