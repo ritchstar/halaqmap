@@ -29,11 +29,7 @@ export function Layout({ children }: LayoutProps) {
             <NavLink to={ROUTE_PATHS.HOME} className="flex items-center gap-3 group">
               <div className="relative w-12 h-12 rounded-full overflow-hidden ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
                 <img
-<<<<<<< HEAD
-                  src={IMAGES.SCREENSHOT3874_42}
-=======
                   src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
->>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                   alt="حلاق ماب"
                   className="w-full h-full object-cover"
                 />
@@ -134,7 +130,7 @@ export function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-3">
                 <div className="relative w-12 h-12 rounded-full overflow-hidden ring-2 ring-primary/20">
                   <img
-                    src={IMAGES.SCREENSHOT3874_42}
+                    src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
                     alt="حلاق ماب"
                     className="w-full h-full object-cover"
                   />
@@ -161,7 +157,6 @@ export function Layout({ children }: LayoutProps) {
                   تسجيل حلاق
                 </NavLink>
                 <NavLink
-<<<<<<< HEAD
                   to={ROUTE_PATHS.BARBER_LOGIN}
                   className="block text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
@@ -174,8 +169,6 @@ export function Layout({ children }: LayoutProps) {
                   👑 لوحة تحكم المالك
                 </NavLink>
                 <NavLink
-=======
->>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                   to={ROUTE_PATHS.ABOUT}
                   className="block text-sm text-muted-foreground hover:text-primary transition-colors"
                 >

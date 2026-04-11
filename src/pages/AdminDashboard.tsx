@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -51,6 +51,59 @@ import {
 } from '@/components/ui/dialog';
 import { ROUTE_PATHS, SubscriptionRequest, Payment, AdminStats, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
+import { loadStoredSubscriptionRequests } from '@/lib/subscriptionRequestStorage';
+
+const BASE_ADMIN_STATS: AdminStats = {
+  totalBarbers: 156,
+  bronzeBarbers: 89,
+  goldBarbers: 45,
+  diamondBarbers: 22,
+  totalRevenue: 456800,
+  monthlyRevenue: 38900,
+  activeSubscriptions: 142,
+  expiredSubscriptions: 14,
+  pendingRequests: 8,
+  pendingPayments: 12,
+  totalAppointments: 3456,
+  totalUsers: 12890,
+};
+
+const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
+  {
+    id: 'req1',
+    barberName: 'صالون الفخامة',
+    email: 'luxury@example.com',
+    phone: '+966501234567',
+    whatsapp: '+966501234567',
+    location: {
+      lat: 24.7136,
+      lng: 46.6753,
+      address: 'حي العليا، الرياض',
+    },
+    tier: SubscriptionTier.DIAMOND,
+    documents: [IMAGES.BARBER_SHOP_1, IMAGES.BARBER_SHOP_2],
+    shopImages: [IMAGES.BARBER_INTERIOR_1, IMAGES.BARBER_INTERIOR_2, IMAGES.BARBER_INTERIOR_3],
+    status: 'pending',
+    submittedAt: '2026-04-07 10:30',
+  },
+  {
+    id: 'req2',
+    barberName: 'حلاق الأناقة',
+    email: 'elegance@example.com',
+    phone: '+966502345678',
+    whatsapp: '+966502345678',
+    location: {
+      lat: 24.6877,
+      lng: 46.7219,
+      address: 'حي النسيم، الرياض',
+    },
+    tier: SubscriptionTier.GOLD,
+    documents: [IMAGES.BARBER_SHOP_3],
+    shopImages: [IMAGES.BARBER_INTERIOR_4, IMAGES.BARBER_INTERIOR_5],
+    status: 'pending',
+    submittedAt: '2026-04-07 14:15',
+  },
+];
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -59,6 +112,11 @@ export default function AdminDashboard() {
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [storedSubscriptionRequests, setStoredSubscriptionRequests] = useState<SubscriptionRequest[]>([]);
+
+  const refreshStoredRequests = () => {
+    setStoredSubscriptionRequests(loadStoredSubscriptionRequests());
+  };
 
   useEffect(() => {
     // التحقق من تسجيل الدخول
@@ -70,64 +128,35 @@ export default function AdminDashboard() {
     setAdminData(JSON.parse(auth));
   }, [navigate]);
 
+  useEffect(() => {
+    refreshStoredRequests();
+    const onChange = () => refreshStoredRequests();
+    window.addEventListener('halaqmap-subscription-requests-changed', onChange);
+    return () => window.removeEventListener('halaqmap-subscription-requests-changed', onChange);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
     navigate(ROUTE_PATHS.HOME);
   };
 
-  // بيانات وهمية للإحصائيات
-  const stats: AdminStats = {
-    totalBarbers: 156,
-    bronzeBarbers: 89,
-    goldBarbers: 45,
-    diamondBarbers: 22,
-    totalRevenue: 456800,
-    monthlyRevenue: 38900,
-    activeSubscriptions: 142,
-    expiredSubscriptions: 14,
-    pendingRequests: 8,
-    pendingPayments: 12,
-    totalAppointments: 3456,
-    totalUsers: 12890,
-  };
+  const subscriptionRequests = useMemo(
+    () => [...storedSubscriptionRequests, ...MOCK_SUBSCRIPTION_REQUESTS],
+    [storedSubscriptionRequests]
+  );
 
-  // طلبات اشتراك وهمية
-  const subscriptionRequests: SubscriptionRequest[] = [
-    {
-      id: 'req1',
-      barberName: 'صالون الفخامة',
-      email: 'luxury@example.com',
-      phone: '+966501234567',
-      whatsapp: '+966501234567',
-      location: {
-        lat: 24.7136,
-        lng: 46.6753,
-        address: 'حي العليا، الرياض',
-      },
-      tier: SubscriptionTier.DIAMOND,
-      documents: [IMAGES.BARBER_SHOP_1, IMAGES.BARBER_SHOP_2],
-      shopImages: [IMAGES.BARBER_INTERIOR_1, IMAGES.BARBER_INTERIOR_2, IMAGES.BARBER_INTERIOR_3],
-      status: 'pending',
-      submittedAt: '2026-04-07 10:30',
-    },
-    {
-      id: 'req2',
-      barberName: 'حلاق الأناقة',
-      email: 'elegance@example.com',
-      phone: '+966502345678',
-      whatsapp: '+966502345678',
-      location: {
-        lat: 24.6877,
-        lng: 46.7219,
-        address: 'حي النسيم، الرياض',
-      },
-      tier: SubscriptionTier.GOLD,
-      documents: [IMAGES.BARBER_SHOP_3],
-      shopImages: [IMAGES.BARBER_INTERIOR_4, IMAGES.BARBER_INTERIOR_5],
-      status: 'pending',
-      submittedAt: '2026-04-07 14:15',
-    },
-  ];
+  const livePendingCount = useMemo(
+    () => storedSubscriptionRequests.filter((r) => r.status === 'pending').length,
+    [storedSubscriptionRequests]
+  );
+
+  const stats: AdminStats = useMemo(
+    () => ({
+      ...BASE_ADMIN_STATS,
+      pendingRequests: BASE_ADMIN_STATS.pendingRequests + livePendingCount,
+    }),
+    [livePendingCount]
+  );
 
   // مدفوعات وهمية
   const payments: Payment[] = [
@@ -472,6 +501,14 @@ function StatsCard({
 }
 
 // Requests Section
+function isVisualAssetUrl(ref: string): boolean {
+  return (
+    /^https?:\/\//i.test(ref) ||
+    ref.startsWith('/') ||
+    ref.startsWith('data:image/')
+  );
+}
+
 function RequestsSection({
   requests,
   onViewRequest,
@@ -501,16 +538,27 @@ function RequestsSection({
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex gap-4 flex-1">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden">
-                    <img
-                      src={request.shopImages[0]}
-                      alt={request.barberName}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0">
+                    {request.shopImages[0] && isVisualAssetUrl(request.shopImages[0]) ? (
+                      <img
+                        src={request.shopImages[0]}
+                        alt={request.barberName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground p-1 text-center">
+                        بدون صورة
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <h3 className="text-lg font-bold">{request.barberName}</h3>
+                      {request.source === 'registration' && (
+                        <Badge variant="outline" className="text-xs border-primary/50 text-primary">
+                          من نموذج التسجيل
+                        </Badge>
+                      )}
                       <Badge
                         variant={
                           request.tier === SubscriptionTier.DIAMOND
@@ -653,14 +701,82 @@ function RequestReviewDialog({
           {/* Documents */}
           <div>
             <h3 className="text-lg font-semibold mb-3">المستندات النظامية</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {request.documents.map((doc, index) => (
-                <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
-                  <img src={doc} alt={`مستند ${index + 1}`} className="w-full h-full object-cover" />
-                </div>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {request.documents.map((doc, index) =>
+                isVisualAssetUrl(doc) ? (
+                  <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
+                    <img src={doc} alt={`مستند ${index + 1}`} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div
+                    key={index}
+                    className="rounded-lg border border-border p-4 flex items-start gap-3 text-sm min-h-[5rem]"
+                  >
+                    <FileText className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <span className="break-all text-muted-foreground">{doc}</span>
+                  </div>
+                )
+              )}
             </div>
           </div>
+
+          {(request.paymentMethod || request.receiptFileName || request.servicesSummary) && (
+            <div>
+              <h3 className="text-lg font-semibold mb-3">الدفع والخدمات (من نموذج التسجيل)</h3>
+              <div className="space-y-3 rounded-lg border border-border p-4 bg-muted/20">
+                {request.paymentMethod && (
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">طريقة الدفع: </span>
+                    <span className="font-medium">
+                      {request.paymentMethod === 'bank_transfer'
+                        ? 'تحويل بنكي (6 أشهر)'
+                        : 'اشتراك شهري'}
+                    </span>
+                  </p>
+                )}
+                {request.receiptFileName && (
+                  <p className="text-sm break-all">
+                    <span className="text-muted-foreground">ملف الإيصال: </span>
+                    <span dir="ltr" className="font-medium inline-block">
+                      {request.receiptFileName}
+                    </span>
+                  </p>
+                )}
+                {request.receiptDataUrl && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">معاينة الإيصال</p>
+                    {request.receiptDataUrl.startsWith('data:image/') ? (
+                      <img
+                        src={request.receiptDataUrl}
+                        alt="إيصال"
+                        className="max-h-64 rounded-lg border border-border object-contain"
+                      />
+                    ) : (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={request.receiptDataUrl} target="_blank" rel="noopener noreferrer">
+                          فتح ملف الإيصال في نافذة جديدة
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                )}
+                {request.servicesSummary && (
+                  <div>
+                    <p className="text-sm font-medium mb-1">الخدمات والأسعار</p>
+                    <pre className="text-xs whitespace-pre-wrap bg-background rounded-md p-3 border border-border">
+                      {request.servicesSummary}
+                    </pre>
+                  </div>
+                )}
+                {request.categories && request.categories.length > 0 && (
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">التصنيفات: </span>
+                    {request.categories.join('، ')}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Shop Images */}
           <div>

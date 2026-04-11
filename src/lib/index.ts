@@ -1,6 +1,7 @@
 export const ROUTE_PATHS = {
   HOME: '/',
   REGISTER: '/register',
+  REGISTER_SUCCESS: '/register/success',
   ABOUT: '/about',
   PRIVACY: '/privacy',
   SUBSCRIPTION_POLICY: '/subscription-policy',
@@ -8,10 +9,7 @@ export const ROUTE_PATHS = {
   BARBER_DASHBOARD: '/barber/dashboard',
   ADMIN_LOGIN: '/admin/login',
   ADMIN_DASHBOARD: '/admin/dashboard',
-<<<<<<< HEAD
-=======
   PAYMENT: '/payment',
->>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
 } as const;
 
 export enum SubscriptionTier {
@@ -134,6 +132,14 @@ export interface SubscriptionRequest {
   submittedAt: string;
   reviewedAt?: string;
   reviewedBy?: string;
+  /** طلبات نموذج التسجيل */
+  source?: 'registration';
+  paymentMethod?: 'monthly' | 'bank_transfer';
+  receiptFileName?: string;
+  /** معاينة إيصال (صورة صغيرة أو PDF كـ data URL — قد يُحذف لاحقاً لتوفير المساحة) */
+  receiptDataUrl?: string;
+  servicesSummary?: string;
+  categories?: string[];
 }
 
 export interface Payment {

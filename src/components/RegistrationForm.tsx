@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { SubscriptionTier } from '@/lib/index';
+import { SubscriptionTier, ROUTE_PATHS, type SubscriptionRequest } from '@/lib/index';
+import {
+  appendSubscriptionRequest,
+  generateRegistrationOrderId,
+  formatSubmissionDateTimeAr,
+  saPhoneToInternational,
+  saveLastOrderConfirmation,
+} from '@/lib/subscriptionRequestStorage';
 import {
   Check,
   Upload,
@@ -124,7 +132,19 @@ const CATEGORIES = [
   'عناية بالبشرة',
 ];
 
+function readFileAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+const MAX_RECEIPT_STORAGE_BYTES = 600 * 1024;
+
 export function RegistrationForm() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -267,9 +287,140 @@ export function RegistrationForm() {
   };
 
   const handleSubmit = async () => {
+    if (!formData.tier) {
+      alert('يرجى اختيار الباقة');
+      return;
+    }
+    if (!formData.payment.method) {
+      alert('يرجى اختيار طريقة الدفع');
+      return;
+    }
+    if (formData.payment.method === 'bank_transfer' && !formData.payment.receipt) {
+      alert('يرجى رفع إيصال التحويل البنكي');
+      return;
+    }
+
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
+    try {
+      const orderId = generateRegistrationOrderId();
+      const submittedAtLabel = formatSubmissionDateTimeAr();
+      const submittedAtIso = new Date().toISOString();
+
+      const docLabels: string[] = [];
+      if (formData.documents.commercialRegistry) {
+        docLabels.push(`سجل تجاري: ${formData.documents.commercialRegistry.name}`);
+      }
+      if (formData.documents.municipalLicense) {
+        docLabels.push(`رخصة بلدية: ${formData.documents.municipalLicense.name}`);
+      }
+      if (formData.documents.healthCertificates) {
+        docLabels.push(`شهادات صحية: ${formData.documents.healthCertificates.name}`);
+      }
+
+      const servicesSummary = formData.services
+        .filter((s) => s.name.trim())
+        .map((s) => `${s.name.trim()} — ${s.price || '—'} ر.س`)
+        .join('\n');
+
+      let receiptDataUrl: string | undefined;
+      const receiptFile = formData.payment.receipt;
+      if (receiptFile && receiptFile.size <= MAX_RECEIPT_STORAGE_BYTES) {
+        try {
+          receiptDataUrl = await readFileAsDataURL(receiptFile);
+        } catch {
+          receiptDataUrl = undefined;
+        }
+      }
+
+      const lat = parseFloat(formData.location.lat) || 0;
+      const lng = parseFloat(formData.location.lng) || 0;
+
+      const request: SubscriptionRequest = {
+        id: orderId,
+        barberName: formData.shopName,
+        email: formData.email,
+        phone: saPhoneToInternational(formData.phone),
+        whatsapp: saPhoneToInternational(formData.whatsapp),
+        location: {
+          lat,
+          lng,
+          address: formData.location.address || '—',
+        },
+        tier: formData.tier as SubscriptionTier,
+        documents: docLabels.length > 0 ? docLabels : ['لم يُرفع أسماء ملفات (تحقق من الخطوات السابقة)'],
+        shopImages: ['/placeholder.svg'],
+        status: 'pending',
+        submittedAt: submittedAtLabel,
+        source: 'registration',
+        paymentMethod: formData.payment.method,
+        receiptFileName: receiptFile?.name,
+        receiptDataUrl,
+        servicesSummary: servicesSummary || '—',
+        categories: [...formData.categories],
+      };
+
+      appendSubscriptionRequest(request);
+
+      const plan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
+      const tierName = plan?.name ?? String(formData.tier);
+      const payLabel =
+        formData.payment.method === 'bank_transfer'
+          ? `تحويل بنكي (6 أشهر)${plan ? ` — المبلغ المقدر: ${(plan.price * 6 * 0.9).toFixed(0)} ر.س` : ''}`
+          : 'اشتراك شهري';
+
+      const summaryForDownload =
+        `حلاق ماب — طلب اشتراك جديد\n` +
+        `================================\n` +
+        `رقم الطلب: ${orderId}\n` +
+        `تاريخ التقديم: ${submittedAtLabel}\n` +
+        `\n` +
+        `اسم المحل: ${formData.shopName}\n` +
+        `البريد: ${formData.email}\n` +
+        `الهاتف: ${formData.phone}\n` +
+        `الواتساب: ${formData.whatsapp}\n` +
+        `الباقة: ${tierName}\n` +
+        `تصنيفات: ${formData.categories.join('، ') || '—'}\n` +
+        `طريقة الدفع: ${payLabel}\n` +
+        (receiptFile ? `ملف الإيصال: ${receiptFile.name}\n` : '') +
+        `\n` +
+        `العنوان: ${formData.location.address || '—'}\n` +
+        `الإحداثيات: ${formData.location.lat || '—'}, ${formData.location.lng || '—'}\n` +
+        `\n` +
+        `الخدمات والأسعار:\n${servicesSummary || '—'}\n` +
+        `\n` +
+        `المستندات (أسماء الملفات):\n${docLabels.join('\n') || '—'}\n` +
+        `\n` +
+        `صور المحل: خارجي ${formData.images.exterior.length} — داخلي ${formData.images.interior.length}\n` +
+        `\n` +
+        `— نهاية الملخص —\n`;
+
+      const mailtoBodyShort =
+        `رقم الطلب: ${orderId}\n` +
+        `التقديم: ${submittedAtLabel}\n` +
+        `المحل: ${formData.shopName}\n` +
+        `الباقة: ${tierName}\n` +
+        `الدفع: ${payLabel}\n` +
+        `\n` +
+        `للاطلاع على التفاصيل الكاملة استخدم زر «تحميل ملخص الطلب» في صفحة التأكيد.\n`;
+
+      saveLastOrderConfirmation({
+        orderId,
+        submittedAtLabel,
+        submittedAtIso,
+        email: formData.email,
+        shopName: formData.shopName,
+        tier: formData.tier as SubscriptionTier,
+        paymentMethod: formData.payment.method,
+        receiptFileName: receiptFile?.name,
+        summaryForDownload,
+        mailtoBodyShort,
+      });
+
+      await new Promise((r) => setTimeout(r, 600));
+      navigate(ROUTE_PATHS.REGISTER_SUCCESS);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const selectedPlan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
@@ -644,43 +795,6 @@ export function RegistrationForm() {
                 <CardTitle className="text-2xl">صور المحل</CardTitle>
                 <CardDescription>ارفع صور واضحة للمحل من الخارج والداخل</CardDescription>
               </CardHeader>
-<<<<<<< HEAD
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="exterior">صور خارجية *</Label>
-                  <Input
-                    id="exterior"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleImageUpload('exterior', e.target.files)}
-                  />
-                  {formData.images.exterior.length > 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      تم رفع {formData.images.exterior.length} صورة
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="interior">صور داخلية *</Label>
-                  <Input
-                    id="interior"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleImageUpload('interior', e.target.files)}
-                  />
-                  {formData.images.interior.length > 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      تم رفع {formData.images.interior.length} صورة
-                    </p>
-                  )}
-                </div>
-                <Alert>
-                  <ImageIcon className="h-4 w-4" />
-                  <AlertDescription>
-                    الصور عالية الجودة تزيد من فرص جذب العملاء. يُفضل رفع 4-8 صور متنوعة
-=======
               <CardContent className="space-y-6">
                 {/* Exterior Images */}
                 <div className="space-y-3">
@@ -798,7 +912,6 @@ export function RegistrationForm() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     💡 <strong>نصيحة:</strong> الصور الواضحة والمتنوعة تزيد من فرص ظهور محلك في نتائج البحث الأولى
->>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -910,15 +1023,9 @@ export function RegistrationForm() {
                     <div className="space-y-2">
                       <h4 className="font-semibold">معلومات التحويل البنكي:</h4>
                       <div className="text-sm space-y-1">
-<<<<<<< HEAD
-                        <p>البنك: البنك الأهلي السعودي</p>
-                        <p>رقم الحساب: SA1234567890123456789012</p>
-                        <p>اسم المستفيد: شركة حلاق ماب</p>
-=======
                         <p>البنك: البنك العربي الوطني (ANB)</p>
                         <p>رقم الحساب: SA5430400108037273420021</p>
                         <p>اسم المستفيد: AHMED ABDULLAH</p>
->>>>>>> a1ca71944eb7ea0da8228012067b818dd84e32ed
                       </div>
                     </div>
                     <div className="space-y-2">
