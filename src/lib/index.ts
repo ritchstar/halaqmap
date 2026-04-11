@@ -1,0 +1,230 @@
+export const ROUTE_PATHS = {
+  HOME: '/',
+  REGISTER: '/register',
+  ABOUT: '/about',
+  PRIVACY: '/privacy',
+  SUBSCRIPTION_POLICY: '/subscription-policy',
+  BARBER_LOGIN: '/barber/login',
+  BARBER_DASHBOARD: '/barber/dashboard',
+  ADMIN_LOGIN: '/admin/login',
+  ADMIN_DASHBOARD: '/admin/dashboard',
+} as const;
+
+export enum SubscriptionTier {
+  BRONZE = 'bronze',
+  GOLD = 'gold',
+  DIAMOND = 'diamond',
+}
+
+export interface Subscription {
+  tier: SubscriptionTier;
+  price: number;
+  features: string[];
+  priority: number;
+}
+
+export interface Barber {
+  id: string;
+  name: string;
+  phone: string;
+  whatsapp: string;
+  location: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
+  subscription: SubscriptionTier;
+  rating: number;
+  reviewCount: number;
+  images: string[];
+  services: {
+    name: string;
+    price: number;
+  }[];
+  workingHours: {
+    day: string;
+    open: string;
+    close: string;
+  }[];
+  isOpen: boolean;
+  verified: boolean;
+  categories: string[];
+}
+
+export interface Appointment {
+  id: string;
+  barberId: string;
+  customerName: string;
+  customerPhone: string;
+  date: string;
+  time: string;
+  service: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  qrCode?: string;
+}
+
+export interface Review {
+  id: string;
+  barberId: string;
+  customerName: string;
+  rating: number;
+  comment: string;
+  date: string;
+  verified: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  barberId: string;
+  customerId: string;
+  sender: 'customer' | 'barber';
+  message: string;
+  messageType: 'text' | 'image' | 'audio';
+  mediaUrl?: string;
+  timestamp: string;
+  read: boolean;
+  translated?: string;
+}
+
+export interface Post {
+  id: string;
+  barberId: string;
+  title: string;
+  content: string;
+  images: string[];
+  type: 'offer' | 'announcement' | 'gallery';
+  discount?: number;
+  validUntil?: string;
+  createdAt: string;
+  likes: number;
+  views: number;
+}
+
+export interface BarberStats {
+  totalAppointments: number;
+  completedAppointments: number;
+  cancelledAppointments: number;
+  totalRevenue: number;
+  averageRating: number;
+  totalReviews: number;
+  totalViews: number;
+  totalChats: number;
+}
+
+export interface SubscriptionRequest {
+  id: string;
+  barberName: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  location: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
+  tier: SubscriptionTier;
+  documents: string[];
+  shopImages: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+}
+
+export interface Payment {
+  id: string;
+  barberId: string;
+  barberName: string;
+  amount: number;
+  tier: SubscriptionTier;
+  method: 'bank_transfer' | 'card';
+  receipt?: string;
+  status: 'pending' | 'confirmed' | 'rejected';
+  period: string;
+  submittedAt: string;
+  confirmedAt?: string;
+}
+
+export interface AdminStats {
+  totalBarbers: number;
+  bronzeBarbers: number;
+  goldBarbers: number;
+  diamondBarbers: number;
+  totalRevenue: number;
+  monthlyRevenue: number;
+  activeSubscriptions: number;
+  expiredSubscriptions: number;
+  pendingRequests: number;
+  pendingPayments: number;
+  totalAppointments: number;
+  totalUsers: number;
+}
+
+export function calculateDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+export interface FilterState {
+  maxDistance: number;
+  tiers: SubscriptionTier[];
+  openNow: boolean;
+  minRating: number;
+  categories: string[];
+}
+
+export function filterBarbersByDistance(
+  barbers: Barber[],
+  userLocation: { lat: number; lng: number },
+  filters: FilterState
+): (Barber & { distance: number })[] {
+  return barbers
+    .map((barber) => ({
+      ...barber,
+      distance: calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        barber.location.lat,
+        barber.location.lng
+      ),
+    }))
+    .filter((barber) => {
+      if (barber.distance > filters.maxDistance) return false;
+      if (filters.tiers.length > 0 && !filters.tiers.includes(barber.subscription)) return false;
+      if (filters.openNow && !barber.isOpen) return false;
+      if (barber.rating < filters.minRating) return false;
+      if (filters.categories.length > 0) {
+        const hasCategory = filters.categories.some((cat) =>
+          barber.categories.includes(cat)
+        );
+        if (!hasCategory) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const tierPriority = {
+        [SubscriptionTier.DIAMOND]: 3,
+        [SubscriptionTier.GOLD]: 2,
+        [SubscriptionTier.BRONZE]: 1,
+      };
+      if (tierPriority[a.subscription] !== tierPriority[b.subscription]) {
+        return tierPriority[b.subscription] - tierPriority[a.subscription];
+      }
+      return a.distance - b.distance;
+    });
+}
