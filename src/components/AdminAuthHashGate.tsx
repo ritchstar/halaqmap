@@ -1,49 +1,94 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSupabaseClient } from '@/integrations/supabase/client';
-import { isAllowedAdminEmail } from '@/config/adminAuth';
-import { ROUTE_PATHS } from '@/lib';
+import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { getAdminDashboardPath, getAdminLoginPath, isAllowedAdminEmail } from '@/config/adminAuth';
+
+function authReturnNeedsHandling(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (!isSupabaseConfigured()) return false;
+  const h = window.location.hash;
+  const s = window.location.search;
+  return (
+    h.includes('access_token') ||
+    h.includes('error=') ||
+    h.includes('error_description') ||
+    s.includes('code=')
+  );
+}
+
+function replaceHashOnly(route: string) {
+  const path = window.location.pathname || '/';
+  window.history.replaceState(null, '', `${path}#${route}`);
+}
 
 /**
- * عند عودة رابط السحر من البريد، يضع Supabase الرموز في الـ hash (#access_token=...)
- * وهذا يتعارض مع HashRouter؛ نسترد الجلسة ثم نعيد التوجيه إلى مسار صالح.
+ * استرداد جلسة من عنوان الرجوع (استعادة كلمة مرور أو روابط OAuth إن أُضيفت لاحقاً):
+ * يعالج #access_token أو ?code= قبل مطابقة HashRouter لتفادي 404.
  */
 export function AdminAuthHashGate({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
-  const doneRef = useRef(false);
+  const handledRef = useRef(false);
   const [gate, setGate] = useState<'checking' | 'done'>(() =>
-    typeof window !== 'undefined' && window.location.hash.includes('access_token') ? 'checking' : 'done'
+    authReturnNeedsHandling() ? 'checking' : 'done'
   );
 
   useLayoutEffect(() => {
-    if (gate !== 'checking' || doneRef.current) return;
-    if (!window.location.hash.includes('access_token')) {
+    if (gate !== 'checking' || handledRef.current) return;
+
+    const hasImplicit =
+      window.location.hash.includes('access_token') ||
+      window.location.hash.includes('error=') ||
+      window.location.hash.includes('error_description');
+    const hasPkce = window.location.search.includes('code=');
+
+    if (!hasImplicit && !hasPkce) {
       setGate('done');
       return;
     }
 
     const client = getSupabaseClient();
     if (!client) {
-      doneRef.current = true;
-      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${ROUTE_PATHS.ADMIN_LOGIN}`);
+      handledRef.current = true;
+      replaceHashOnly(getAdminLoginPath());
+      navigate(getAdminLoginPath(), { replace: true });
       setGate('done');
-      navigate(ROUTE_PATHS.ADMIN_LOGIN, { replace: true });
       return;
     }
 
-    void (async () => {
-      const { data: { session }, error } = await client.auth.getSession();
-      doneRef.current = true;
+    handledRef.current = true;
 
-      if (error || !session?.user?.email || !isAllowedAdminEmail(session.user.email)) {
-        await client.auth.signOut();
-        window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${ROUTE_PATHS.ADMIN_LOGIN}`);
-        navigate(ROUTE_PATHS.ADMIN_LOGIN, { replace: true });
-      } else {
-        window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${ROUTE_PATHS.ADMIN_DASHBOARD}`);
-        navigate(ROUTE_PATHS.ADMIN_DASHBOARD, { replace: true });
+    void (async () => {
+      try {
+        if (hasPkce) {
+          const { error: exchangeErr } = await client.auth.exchangeCodeForSession(window.location.href);
+          if (exchangeErr) {
+            const { data: retrySession } = await client.auth.getSession();
+            if (!retrySession.session) {
+              await client.auth.signOut();
+              replaceHashOnly(getAdminLoginPath());
+              navigate(getAdminLoginPath(), { replace: true });
+              setGate('done');
+              return;
+            }
+          }
+        }
+
+        const {
+          data: { session },
+          error,
+        } = await client.auth.getSession();
+
+        if (error || !session?.user?.email || !isAllowedAdminEmail(session.user.email)) {
+          await client.auth.signOut();
+          replaceHashOnly(getAdminLoginPath());
+          navigate(getAdminLoginPath(), { replace: true });
+        } else {
+          replaceHashOnly(getAdminDashboardPath());
+          navigate(getAdminDashboardPath(), { replace: true });
+        }
+      } finally {
+        setGate('done');
       }
-      setGate('done');
     })();
   }, [gate, navigate]);
 

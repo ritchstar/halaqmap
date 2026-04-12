@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Shield, Send } from 'lucide-react';
+import { Lock, Mail, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminAllowedEmail } from '@/config/adminAuth';
+import { getAdminAllowedEmail, getAdminDashboardPath } from '@/config/adminAuth';
 import { toast } from '@/components/ui/sonner';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [isSending, setIsSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const adminEmail = getAdminAllowedEmail();
 
   useEffect(() => {
@@ -22,12 +23,12 @@ export default function AdminLogin() {
     if (!client) return;
     void client.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.email?.toLowerCase() === adminEmail) {
-        navigate(ROUTE_PATHS.ADMIN_DASHBOARD, { replace: true });
+        navigate(getAdminDashboardPath(), { replace: true });
       }
     });
   }, [adminEmail, navigate]);
 
-  const handleSendMagicLink = async (e: React.FormEvent) => {
+  const handlePasswordSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isSupabaseConfigured()) {
       toast.error('لم يُضبط Supabase. أضف VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY في البيئة.');
@@ -38,27 +39,31 @@ export default function AdminLogin() {
       toast.error('تعذر تهيئة عميل Supabase.');
       return;
     }
-
-    setIsSending(true);
-    const redirectTo = `${window.location.origin}/`;
-
-    const { error } = await client.auth.signInWithOtp({
-      email: adminEmail,
-      options: {
-        emailRedirectTo: redirectTo,
-        shouldCreateUser: true,
-      },
-    });
-
-    setIsSending(false);
-
-    if (error) {
-      toast.error(error.message || 'تعذر إرسال الرابط. تحقق من إعدادات Auth في Supabase.');
+    if (!password.trim()) {
+      toast.error('أدخل كلمة المرور.');
       return;
     }
 
-    setSent(true);
-    toast.success('تم إرسال رابط الدخول إلى بريد الإدارة المعتمد.');
+    setSubmitting(true);
+    const { data, error } = await client.auth.signInWithPassword({
+      email: adminEmail,
+      password: password.trim(),
+    });
+    setSubmitting(false);
+
+    if (error || !data.session?.user?.email) {
+      toast.error(error?.message || 'فشل تسجيل الدخول. تحقق من البريد وكلمة المرور في Supabase Auth.');
+      return;
+    }
+
+    if (data.session.user.email.trim().toLowerCase() !== adminEmail) {
+      await client.auth.signOut();
+      toast.error('هذا الحساب غير مصرح له بالوصول إلى لوحة الإدارة.');
+      return;
+    }
+
+    toast.success('تم تسجيل الدخول.');
+    navigate(getAdminDashboardPath(), { replace: true });
   };
 
   return (
@@ -92,73 +97,79 @@ export default function AdminLogin() {
               <Shield className="w-10 h-10 text-white" />
             </motion.div>
             <h1 className="text-3xl font-bold mb-2">لوحة تحكم الإدارة</h1>
-            <p className="text-muted-foreground">دخول آمن برابط يُرسل إلى البريد المعتمد فقط</p>
+            <p className="text-muted-foreground">دخول بكلمة مرور عبر Supabase Auth — لا يوجد رابط لهذه الصفحة في المنصة العامة</p>
           </div>
 
           {!isSupabaseConfigured() ? (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-900 dark:text-amber-100 leading-relaxed">
               يجب ضبط متغيرات البيئة <span dir="ltr">VITE_SUPABASE_URL</span> و{' '}
-              <span dir="ltr">VITE_SUPABASE_ANON_KEY</span> (محلياً أو على Vercel) لتفعيل رابط الدخول.
-            </div>
-          ) : sent ? (
-            <div className="space-y-4 text-center">
-              <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm leading-relaxed">
-                <p className="font-semibold text-foreground mb-2">تحقق من صندوق الوارد</p>
-                <p className="text-muted-foreground">
-                  أرسلنا رابطاً لمرة واحدة إلى{' '}
-                  <span className="font-mono text-foreground" dir="ltr">
-                    {adminEmail}
-                  </span>
-                  . اضغط الرابط في البريد لفتح لوحة الإدارة.
-                </p>
-              </div>
-              <Button type="button" variant="outline" className="w-full" onClick={() => setSent(false)}>
-                إعادة إرسال الرابط
-              </Button>
+              <span dir="ltr">VITE_SUPABASE_ANON_KEY</span> (محلياً أو على الاستضافة).
             </div>
           ) : (
-            <form onSubmit={handleSendMagicLink} className="space-y-6">
+            <form onSubmit={(e) => void handlePasswordSignIn(e)} className="space-y-6">
               <div className="space-y-2">
-                <Label className="text-base">البريد المعتمد للإدارة</Label>
-                <div className="relative flex items-center gap-2 rounded-md border border-input bg-muted/40 px-3 py-3 text-sm">
-                  <Mail className="w-5 h-5 text-muted-foreground shrink-0" />
-                  <span className="font-mono break-all" dir="ltr">
-                    {adminEmail}
-                  </span>
+                <Label htmlFor="admin-email-readonly">البريد المعتمد</Label>
+                <div className="relative">
+                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="admin-email-readonly"
+                    readOnly
+                    dir="ltr"
+                    className="pr-10 font-mono text-sm bg-muted/50"
+                    value={adminEmail}
+                  />
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  لتغيير البريد لاحقاً، عيّن المتغير <span dir="ltr">VITE_ADMIN_EMAIL</span> في البيئة ثم أعد البناء.
+                  يُضبط من <span dir="ltr">VITE_ADMIN_EMAIL</span>. أنشئ نفس المستخدم في Supabase → Authentication → Users مع تفعيل البريد وكلمة مرور قوية.
                 </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="admin-password">كلمة المرور</Label>
+                <div className="relative">
+                  <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="admin-password"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    className="pr-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
               </div>
 
               <Button
                 type="submit"
-                disabled={isSending}
+                disabled={submitting}
                 className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
               >
-                {isSending ? (
+                {submitting ? (
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       className="w-5 h-5 border-2 border-white border-t-transparent rounded-full ml-2"
                     />
-                    جاري الإرسال...
+                    جاري الدخول...
                   </>
                 ) : (
-                  <>
-                    <Send className="w-5 h-5 ml-2" />
-                    إرسال رابط الدخول إلى البريد
-                  </>
+                  'تسجيل الدخول'
                 )}
               </Button>
             </form>
           )}
 
-          <div className="mt-6 p-4 bg-muted/50 border border-border rounded-lg text-xs text-muted-foreground leading-relaxed">
-            في لوحة Supabase → Authentication → URL configuration أضف عنوان الموقع (مثل{' '}
-            <span dir="ltr">https://halaqmap.com</span> و <span dir="ltr">http://127.0.0.1:5173</span>) ضمن{' '}
-            <strong>Redirect URLs</strong> حتى يعمل الرابط المرسل بالبريد.
+          <div className="mt-6 p-4 bg-muted/50 border border-border rounded-lg text-xs text-muted-foreground leading-relaxed space-y-2">
+            <p>
+              مسار الدخول يُحدَّد من <span dir="ltr">VITE_ADMIN_PORTAL_BASE</span> (مثال:{' '}
+              <span dir="ltr">/x7k-m9q2</span>) ثم <span dir="ltr">…/in</span> للدخول و<span dir="ltr">…/ctrl</span> للوحة؛
+              لا تضع رابط الإدارة في القوائم أو التذييل.
+            </p>
+            <p className="text-amber-800 dark:text-amber-200">
+              لا تخزّن كلمة المرور في متغيرات Vite؛ أدخلها هنا فقط. الحماية: كلمة مرور قوية + سياسات RLS في قاعدة البيانات.
+            </p>
           </div>
 
           <div className="mt-6 text-center">

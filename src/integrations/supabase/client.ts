@@ -15,7 +15,15 @@ export function getSupabaseClient(): SupabaseClient | null {
   if (!browserClient) {
     browserClient = createClient(
       import.meta.env.VITE_SUPABASE_URL!,
-      import.meta.env.VITE_SUPABASE_ANON_KEY!
+      import.meta.env.VITE_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          /** PKCE: رابط السحر يعيد ?code= — يجب استبداله بجلسة قبل أن يفسّر HashRouter المسار خطأً */
+          flowType: 'pkce',
+          detectSessionInUrl: true,
+          persistSession: true,
+        },
+      }
     );
   }
   return browserClient;

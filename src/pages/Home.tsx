@@ -11,6 +11,9 @@ import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
+import { getSiteOrigin } from '@/config/siteOrigin';
+
+const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 
 export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -26,6 +29,43 @@ export default function Home() {
     minRating: 0,
     categories: [],
   });
+
+  useEffect(() => {
+    const origin = getSiteOrigin();
+    const orgId = `${origin}/#organization`;
+    const graph = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebSite',
+          '@id': `${origin}/#website`,
+          name: 'حلاق ماب',
+          alternateName: 'HALAQ MAP',
+          url: `${origin}/`,
+          description:
+            'منصة عربية ذكية لربط العملاء بأقرب الحلاقين المحترفين عبر خريطة تفاعلية وتصفية ذكية.',
+          inLanguage: 'ar',
+          publisher: { '@id': orgId },
+        },
+        {
+          '@type': 'Organization',
+          '@id': orgId,
+          name: 'حلاق ماب',
+          url: origin,
+          logo: `${origin}/favicon.svg`,
+        },
+      ],
+    };
+
+    let script = document.getElementById(JSON_LD_SCRIPT_ID) as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = JSON_LD_SCRIPT_ID;
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(graph);
+  }, []);
 
   useEffect(() => {
     if (!isSupabaseConfigured()) return;

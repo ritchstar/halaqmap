@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -22,6 +22,8 @@ import {
   Send,
   Mic,
   Paperclip,
+  QrCode,
+  Copy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,8 +32,15 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ROUTE_PATHS, Post, Appointment, ChatMessage, BarberStats } from '@/lib';
+import QRCode from 'react-qr-code';
+import { ROUTE_PATHS, Post, Appointment, ChatMessage, BarberStats, Review } from '@/lib';
 import { IMAGES } from '@/assets/images';
+import { mockBarbers } from '@/data/index';
+import { buildRatingInviteUrl } from '@/lib/ratingInvite';
+import { getAllMergedReviewsForBarberManage, updateStoredQrReview } from '@/lib/qrReviewsStorage';
+import { RATING_QR_BARBER_GUIDE, RATING_QR_FEATURE_TITLE } from '@/config/ratingQrInvite';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 
 export default function BarberDashboard() {
   const navigate = useNavigate();
@@ -39,13 +48,22 @@ export default function BarberDashboard() {
   const [barberData, setBarberData] = useState<any>(null);
 
   useEffect(() => {
-    // التحقق من تسجيل الدخول
     const auth = localStorage.getItem('barberAuth');
     if (!auth) {
       navigate(ROUTE_PATHS.BARBER_LOGIN);
       return;
     }
-    setBarberData(JSON.parse(auth));
+    const parsed = JSON.parse(auth) as {
+      id: string;
+      name?: string;
+      email?: string;
+      ratingInviteToken?: string;
+    };
+    const row = mockBarbers.find((b) => b.id === parsed.id);
+    setBarberData({
+      ...parsed,
+      ratingInviteToken: row?.ratingInviteToken ?? parsed.ratingInviteToken ?? '',
+    });
   }, [navigate]);
 
   const handleLogout = () => {
@@ -194,7 +212,7 @@ export default function BarberDashboard() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1.5 bg-muted/40 p-1.5 sm:gap-2">
             <TabsTrigger value="overview" className="gap-2">
               <TrendingUp className="w-4 h-4" />
               <span className="hidden sm:inline">نظرة عامة</span>
@@ -219,6 +237,10 @@ export default function BarberDashboard() {
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">الإعدادات</span>
+            </TabsTrigger>
+            <TabsTrigger value="qr-ratings" className="gap-2">
+              <QrCode className="w-4 h-4" />
+              <span className="hidden sm:inline">QR والتقييمات</span>
             </TabsTrigger>
           </TabsList>
 
@@ -295,9 +317,183 @@ export default function BarberDashboard() {
           <TabsContent value="settings" className="space-y-6">
             <SettingsSection barberData={barberData} />
           </TabsContent>
+
+          <TabsContent value="qr-ratings" className="space-y-6">
+            <QrRatingsSection barberId={barberData.id} ratingInviteToken={barberData.ratingInviteToken} />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
+  );
+}
+
+function QrRatingsSection({
+  barberId,
+  ratingInviteToken,
+}: {
+  barberId: string;
+  ratingInviteToken: string;
+}) {
+  const ratingUrl = useMemo(
+    () => (ratingInviteToken ? buildRatingInviteUrl(barberId, ratingInviteToken) : ''),
+    [barberId, ratingInviteToken],
+  );
+
+  const [reviews, setReviews] = useState<Review[]>(() => getAllMergedReviewsForBarberManage(barberId));
+
+  const refresh = useCallback(() => {
+    setReviews(getAllMergedReviewsForBarberManage(barberId));
+  }, [barberId]);
+
+  useEffect(() => {
+    refresh();
+    window.addEventListener('halaqmap-qr-reviews', refresh);
+    return () => window.removeEventListener('halaqmap-qr-reviews', refresh);
+  }, [refresh]);
+
+  const copyLink = () => {
+    if (!ratingUrl) return;
+    void navigator.clipboard.writeText(ratingUrl).then(() => toast.success('تم نسخ رابط التقييم'));
+  };
+
+  const isStoredQr = (r: Review) => r.id.startsWith('qr-');
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
+      <div>
+        <h2 className="text-2xl font-bold mb-2">{RATING_QR_FEATURE_TITLE}</h2>
+        <p className="text-muted-foreground text-sm max-w-2xl">
+          متاح لجميع الباقات (برونزي، ذهبي، ماسي). اطبع الرمز أو انسخ الرابط واطلب من الزبون مسحه بعد
+          الزيارة عبر حلاق ماب.
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <QrCode className="w-5 h-5" />
+            رمزك ورابط التقييم
+          </CardTitle>
+          <CardDescription>
+            الرابط يتضمن رمزاً سرّياً لا يُشارك علناً — فقط على ملصق في المحل أو رسالة مباشرة للعميل.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {ratingUrl ? (
+            <>
+              <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
+                <div className="rounded-2xl bg-white p-4 shadow-inner ring-1 ring-border">
+                  <QRCode value={ratingUrl} size={200} />
+                </div>
+                <div className="flex-1 space-y-3 text-sm text-muted-foreground max-w-xl">
+                  <p className="font-semibold text-foreground">كيف تستخدمه؟</p>
+                  <ul className="list-disc pr-5 space-y-2">
+                    {RATING_QR_BARBER_GUIDE.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <Button type="button" variant="outline" className="gap-2" onClick={copyLink}>
+                      <Copy className="w-4 h-4" />
+                      نسخ الرابط
+                    </Button>
+                  </div>
+                  <p className="text-xs break-all opacity-80" dir="ltr">
+                    {ratingUrl}
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">تعذر بناء الرابط — تأكد من ربط حسابك ببيانات الصالون.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>إدارة ظهور التقييمات</CardTitle>
+          <CardDescription>
+            التقييمات القادمة عبر QR تظهر هنا. يمكنك إخفاء تقييم عن الملف العام أو إبرازه في الأعلى.
+            التقييمات التجريبية الثابتة في العرض التجريبي لا تُعدّل من هنا.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {reviews.length === 0 ? (
+            <p className="text-sm text-muted-foreground">لا توجد تقييمات بعد.</p>
+          ) : (
+            reviews.map((review) => (
+              <div
+                key={review.id}
+                className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="space-y-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold">{review.customerName}</span>
+                    {review.viaQrInvite && (
+                      <Badge variant="secondary" className="text-xs">
+                        QR
+                      </Badge>
+                    )}
+                    <span className="text-xs text-muted-foreground">{review.date}</span>
+                  </div>
+                  <div className="flex gap-0.5" dir="ltr">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        className={`w-4 h-4 ${s <= review.rating ? 'fill-amber-400 text-amber-500' : 'text-muted/40'}`}
+                      />
+                    ))}
+                  </div>
+                  {review.comment ? (
+                    <p className="text-sm text-muted-foreground line-clamp-2">{review.comment}</p>
+                  ) : null}
+                </div>
+                {isStoredQr(review) ? (
+                  <div className="flex flex-col gap-3 sm:items-end shrink-0">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor={`pub-${review.id}`} className="text-sm whitespace-nowrap">
+                        إظهار للجمهور
+                      </Label>
+                      <Switch
+                        id={`pub-${review.id}`}
+                        checked={review.isPublished !== false}
+                        onCheckedChange={(checked) => {
+                          updateStoredQrReview(review.id, { isPublished: checked });
+                          refresh();
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor={`hi-${review.id}`} className="text-sm whitespace-nowrap">
+                        إبراز في الأعلى
+                      </Label>
+                      <Switch
+                        id={`hi-${review.id}`}
+                        checked={!!review.isHighlighted}
+                        onCheckedChange={(checked) => {
+                          updateStoredQrReview(review.id, { isHighlighted: checked });
+                          refresh();
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <Badge variant="outline" className="w-fit text-xs">
+                    تجريبي ثابت
+                  </Badge>
+                )}
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 

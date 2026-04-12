@@ -26,6 +26,7 @@ import {
   Phone,
   Mail,
   AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,7 +54,46 @@ import { ROUTE_PATHS, SubscriptionRequest, Payment, AdminStats, SubscriptionTier
 import { IMAGES } from '@/assets/images';
 import { loadMergedSubscriptionRequests } from '@/lib/subscriptionRequestStorage';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { isAllowedAdminEmail } from '@/config/adminAuth';
+import { getAdminLoginPath, isAllowedAdminEmail } from '@/config/adminAuth';
+import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
+import { fetchAdminStats } from '@/lib/adminStatsRemote';
+import { fetchPaymentsForAdmin, updatePaymentStatusRemote } from '@/lib/adminPaymentsRemote';
+import {
+  listBarbersForAdmin,
+  setBarberActiveRemote,
+  type AdminBarberRow,
+} from '@/lib/adminBarbersRemote';
+import { patchRegistrationSubmissionPayloadRemote } from '@/lib/registrationSubmissionsRemote';
+import {
+  calcVatBreakdown,
+  getPlatformVatSettings,
+  savePlatformVatSettings,
+} from '@/lib/platformVatSettings';
+import { toast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+const EMPTY_ADMIN_STATS: AdminStats = {
+  totalBarbers: 0,
+  bronzeBarbers: 0,
+  goldBarbers: 0,
+  diamondBarbers: 0,
+  totalRevenue: 0,
+  monthlyRevenue: 0,
+  activeSubscriptions: 0,
+  expiredSubscriptions: 0,
+  pendingRequests: 0,
+  pendingPayments: 0,
+  totalAppointments: 0,
+  totalUsers: 0,
+};
 
 const BASE_ADMIN_STATS: AdminStats = {
   totalBarbers: 156,
@@ -107,6 +147,33 @@ const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
   },
 ];
 
+const MOCK_PAYMENTS: Payment[] = [
+  {
+    id: 'pay-mock-1',
+    barberId: '1',
+    barberName: 'صالون النخبة الماسي',
+    amount: 200,
+    tier: SubscriptionTier.DIAMOND,
+    method: 'bank_transfer',
+    receipt: IMAGES.DASHBOARD_BG_1,
+    status: 'pending',
+    period: 'أبريل 2026',
+    submittedAt: '2026-04-08 09:00',
+  },
+  {
+    id: 'pay-mock-2',
+    barberId: '3',
+    barberName: 'حلاق الملوك الذهبي',
+    amount: 150,
+    tier: SubscriptionTier.GOLD,
+    method: 'bank_transfer',
+    receipt: IMAGES.DASHBOARD_BG_2,
+    status: 'pending',
+    period: 'أبريل 2026',
+    submittedAt: '2026-04-08 11:30',
+  },
+];
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
@@ -115,6 +182,11 @@ export default function AdminDashboard() {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [storedSubscriptionRequests, setStoredSubscriptionRequests] = useState<SubscriptionRequest[]>([]);
+  const [remoteStats, setRemoteStats] = useState<AdminStats | null>(null);
+  const [remotePayments, setRemotePayments] = useState<Payment[]>([]);
+  const [dataRefreshNonce, setDataRefreshNonce] = useState(0);
+
+  const bumpRemoteData = () => setDataRefreshNonce((n) => n + 1);
 
   const refreshStoredRequests = () => {
     void loadMergedSubscriptionRequests().then(setStoredSubscriptionRequests);
@@ -122,12 +194,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
-      navigate(ROUTE_PATHS.ADMIN_LOGIN, { replace: true });
+      navigate(getAdminLoginPath(), { replace: true });
       return;
     }
     const client = getSupabaseClient();
     if (!client) {
-      navigate(ROUTE_PATHS.ADMIN_LOGIN, { replace: true });
+      navigate(getAdminLoginPath(), { replace: true });
       return;
     }
 
@@ -136,7 +208,7 @@ export default function AdminDashboard() {
     const applySession = (session: { user: { id: string; email?: string | null } } | null) => {
       if (cancelled) return;
       if (!session?.user?.email || !isAllowedAdminEmail(session.user.email)) {
-        navigate(ROUTE_PATHS.ADMIN_LOGIN, { replace: true });
+        navigate(getAdminLoginPath(), { replace: true });
         return;
       }
       setAdminData({
@@ -160,6 +232,28 @@ export default function AdminDashboard() {
   }, [navigate]);
 
   useEffect(() => {
+    if (!adminData) return;
+    let cancelled = false;
+    void fetchAdminStats().then((s) => {
+      if (!cancelled) setRemoteStats(s);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [adminData, dataRefreshNonce]);
+
+  useEffect(() => {
+    if (!adminData) return;
+    let cancelled = false;
+    void fetchPaymentsForAdmin().then((list) => {
+      if (!cancelled) setRemotePayments(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [adminData, dataRefreshNonce]);
+
+  useEffect(() => {
     refreshStoredRequests();
     const onChange = () => refreshStoredRequests();
     window.addEventListener('halaqmap-subscription-requests-changed', onChange);
@@ -172,51 +266,38 @@ export default function AdminDashboard() {
     navigate(ROUTE_PATHS.HOME);
   };
 
-  const subscriptionRequests = useMemo(
-    () => [...storedSubscriptionRequests, ...MOCK_SUBSCRIPTION_REQUESTS],
-    [storedSubscriptionRequests]
+  const subscriptionRequests = useMemo(() => {
+    const base = [...storedSubscriptionRequests];
+    if (shouldShowAdminMocks()) return [...base, ...MOCK_SUBSCRIPTION_REQUESTS];
+    return base;
+  }, [storedSubscriptionRequests]);
+
+  const pendingRequestCount = useMemo(
+    () => subscriptionRequests.filter((r) => r.status === 'pending').length,
+    [subscriptionRequests]
   );
 
-  const livePendingCount = useMemo(
-    () => storedSubscriptionRequests.filter((r) => r.status === 'pending').length,
-    [storedSubscriptionRequests]
+  const displayPayments = useMemo(() => {
+    if (shouldShowAdminMocks()) return [...remotePayments, ...MOCK_PAYMENTS];
+    return remotePayments;
+  }, [remotePayments]);
+
+  const pendingPaymentCount = useMemo(
+    () => displayPayments.filter((p) => p.status === 'pending').length,
+    [displayPayments]
   );
 
-  const stats: AdminStats = useMemo(
-    () => ({
-      ...BASE_ADMIN_STATS,
-      pendingRequests: BASE_ADMIN_STATS.pendingRequests + livePendingCount,
-    }),
-    [livePendingCount]
-  );
-
-  // مدفوعات وهمية
-  const payments: Payment[] = [
-    {
-      id: 'pay1',
-      barberId: '1',
-      barberName: 'صالون النخبة الماسي',
-      amount: 200,
-      tier: SubscriptionTier.DIAMOND,
-      method: 'bank_transfer',
-      receipt: IMAGES.DASHBOARD_BG_1,
-      status: 'pending',
-      period: 'أبريل 2026',
-      submittedAt: '2026-04-08 09:00',
-    },
-    {
-      id: 'pay2',
-      barberId: '3',
-      barberName: 'حلاق الملوك الذهبي',
-      amount: 150,
-      tier: SubscriptionTier.GOLD,
-      method: 'bank_transfer',
-      receipt: IMAGES.DASHBOARD_BG_2,
-      status: 'pending',
-      period: 'أبريل 2026',
-      submittedAt: '2026-04-08 11:30',
-    },
-  ];
+  const stats: AdminStats = useMemo(() => {
+    const base =
+      shouldShowAdminMocks() && remoteStats === null
+        ? BASE_ADMIN_STATS
+        : (remoteStats ?? EMPTY_ADMIN_STATS);
+    return {
+      ...base,
+      pendingRequests: pendingRequestCount,
+      pendingPayments: pendingPaymentCount,
+    };
+  }, [remoteStats, pendingRequestCount, pendingPaymentCount]);
 
   if (!adminData) {
     return null;
@@ -303,13 +384,13 @@ export default function AdminDashboard() {
 
           {/* Barbers Tab */}
           <TabsContent value="barbers" className="space-y-6">
-            <BarbersSection stats={stats} />
+            <BarbersSection refreshNonce={dataRefreshNonce} onStatsNeedRefresh={bumpRemoteData} />
           </TabsContent>
 
           {/* Payments Tab */}
           <TabsContent value="payments" className="space-y-6">
             <PaymentsSection
-              payments={payments}
+              payments={displayPayments}
               onViewPayment={setSelectedPayment}
             />
           </TabsContent>
@@ -330,9 +411,17 @@ export default function AdminDashboard() {
       {selectedRequest && (
         <RequestReviewDialog
           request={selectedRequest}
-          onClose={() => setSelectedRequest(null)}
+          reviewerEmail={adminData.email as string}
+          onClose={() => {
+            setSelectedRequest(null);
+            setRejectionReason('');
+          }}
           rejectionReason={rejectionReason}
           setRejectionReason={setRejectionReason}
+          onAfterDecision={() => {
+            refreshStoredRequests();
+            bumpRemoteData();
+          }}
         />
       )}
 
@@ -341,6 +430,9 @@ export default function AdminDashboard() {
         <PaymentReviewDialog
           payment={selectedPayment}
           onClose={() => setSelectedPayment(null)}
+          onAfterDecision={() => {
+            bumpRemoteData();
+          }}
         />
       )}
     </div>
@@ -556,9 +648,8 @@ function RequestsSection({
     >
       {isSupabaseConfigured() ? (
         <p className="text-sm text-muted-foreground mb-4 rounded-lg border border-border bg-muted/40 px-4 py-3 leading-relaxed">
-          الطلبات تُحفظ في السحابة (جدول registration_submissions). لعرضها هنا من أي جهاز، أضف لاحقاً سياسة
-          SELECT آمنة أو واجهة خادم؛ حتى ذلك الحين قد تظهر فقط ما في المتصفح الحالي (localStorage) أو في
-          محرر جداول Supabase.
+          الطلبات من جدول <code className="text-xs">registration_submissions</code> بعد تسجيل دخول الإدارة وتطبيق
+          سياسات RLS (راجع <code className="text-xs">15_admin_jwt_platform_rls.sql</code> في المستودع).
         </p>
       ) : null}
 
@@ -649,29 +740,92 @@ function RequestsSection({
 // Request Review Dialog
 function RequestReviewDialog({
   request,
+  reviewerEmail,
   onClose,
   rejectionReason,
   setRejectionReason,
+  onAfterDecision,
 }: {
   request: SubscriptionRequest;
+  reviewerEmail: string;
   onClose: () => void;
   rejectionReason: string;
   setRejectionReason: (reason: string) => void;
+  onAfterDecision: () => void;
 }) {
   const [showRejectForm, setShowRejectForm] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleApprove = () => {
-    alert('تم قبول الطلب بنجاح!');
-    onClose();
-  };
+  const isMockRow =
+    shouldShowAdminMocks() && MOCK_SUBSCRIPTION_REQUESTS.some((m) => m.id === request.id);
 
-  const handleReject = () => {
-    if (!rejectionReason.trim()) {
-      alert('يرجى إدخال سبب الرفض');
+  useEffect(() => {
+    setShowRejectForm(false);
+    setSaving(false);
+  }, [request.id]);
+
+  const handleApprove = async () => {
+    if (request.status !== 'pending') {
+      toast({ title: 'لا يمكن المعالجة', description: 'هذا الطلب ليس قيد الانتظار.', variant: 'destructive' });
       return;
     }
-    alert('تم رفض الطلب');
+    setSaving(true);
+    const reviewedAt = new Date().toISOString();
+    if (isMockRow) {
+      toast({ title: 'تم القبول (تجريبي)', description: 'هذا الطلب من العرض التجريبي المحلي فقط.' });
+      setSaving(false);
+      onClose();
+      onAfterDecision();
+      return;
+    }
+    const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
+      status: 'approved',
+      reviewedAt,
+      reviewedBy: reviewerEmail,
+      rejectionReason: undefined,
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast({ title: 'فشل الحفظ', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'تم قبول الطلب', description: 'تم تحديث السجل في Supabase.' });
     onClose();
+    onAfterDecision();
+  };
+
+  const handleReject = async () => {
+    if (request.status !== 'pending') {
+      toast({ title: 'لا يمكن المعالجة', description: 'هذا الطلب ليس قيد الانتظار.', variant: 'destructive' });
+      return;
+    }
+    if (!rejectionReason.trim()) {
+      toast({ title: 'سبب الرفض', description: 'يرجى إدخال سبب الرفض.', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    const reviewedAt = new Date().toISOString();
+    if (isMockRow) {
+      toast({ title: 'تم الرفض (تجريبي)', description: 'هذا الطلب من العرض التجريبي المحلي فقط.' });
+      setSaving(false);
+      onClose();
+      onAfterDecision();
+      return;
+    }
+    const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
+      status: 'rejected',
+      reviewedAt,
+      reviewedBy: reviewerEmail,
+      rejectionReason: rejectionReason.trim(),
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast({ title: 'فشل الحفظ', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'تم رفض الطلب', description: 'تم تحديث السجل في Supabase.' });
+    onClose();
+    onAfterDecision();
   };
 
   return (
@@ -846,22 +1000,27 @@ function RequestReviewDialog({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
             إلغاء
           </Button>
           {!showRejectForm ? (
             <>
-              <Button variant="destructive" onClick={() => setShowRejectForm(true)}>
+              <Button variant="destructive" onClick={() => setShowRejectForm(true)} disabled={saving || request.status !== 'pending'}>
                 <XCircle className="w-4 h-4 ml-2" />
                 رفض الطلب
               </Button>
-              <Button onClick={handleApprove} className="bg-green-600 hover:bg-green-700">
-                <CheckCircle2 className="w-4 h-4 ml-2" />
+              <Button
+                onClick={() => void handleApprove()}
+                disabled={saving || request.status !== 'pending'}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 ml-2" />}
                 قبول الطلب
               </Button>
             </>
           ) : (
-            <Button variant="destructive" onClick={handleReject}>
+            <Button variant="destructive" onClick={() => void handleReject()} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : null}
               تأكيد الرفض
             </Button>
           )}
@@ -872,7 +1031,44 @@ function RequestReviewDialog({
 }
 
 // Barbers Section
-function BarbersSection({ stats }: { stats: AdminStats }) {
+function BarbersSection({
+  refreshNonce,
+  onStatsNeedRefresh,
+}: {
+  refreshNonce: number;
+  onStatsNeedRefresh: () => void;
+}) {
+  const [rows, setRows] = useState<AdminBarberRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    void listBarbersForAdmin().then((list) => {
+      if (!cancelled) {
+        setRows(list);
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshNonce]);
+
+  const onToggleActive = async (row: AdminBarberRow, next: boolean) => {
+    setUpdatingId(row.id);
+    const res = await setBarberActiveRemote(row.id, next);
+    setUpdatingId(null);
+    if (!res.ok) {
+      toast({ title: 'تعذر التحديث', description: res.error, variant: 'destructive' });
+      return;
+    }
+    setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, is_active: next } : r)));
+    toast({ title: next ? 'تم التفعيل' : 'تم التعطيل', description: row.name });
+    onStatsNeedRefresh();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -882,9 +1078,57 @@ function BarbersSection({ stats }: { stats: AdminStats }) {
       <h2 className="text-2xl font-bold mb-6">إدارة الحلاقين</h2>
       <Card>
         <CardContent className="p-6">
-          <p className="text-muted-foreground text-center py-8">
-            قريباً: جدول شامل لجميع الحلاقين مع إمكانية التعديل والتعطيل
-          </p>
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              جاري التحميل…
+            </div>
+          ) : rows.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">لا توجد صفوف في جدول الحلاقين أو RLS يمنع القراءة.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>الاسم</TableHead>
+                  <TableHead>البريد</TableHead>
+                  <TableHead>المدينة</TableHead>
+                  <TableHead>الباقة</TableHead>
+                  <TableHead>موثّق</TableHead>
+                  <TableHead className="text-center">ظهور للعامة</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className="font-medium">{row.name}</TableCell>
+                    <TableCell className="max-w-[140px] truncate" title={row.email}>
+                      {row.email}
+                    </TableCell>
+                    <TableCell>{row.city ?? '—'}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {row.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
+                        {row.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
+                        {row.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{row.is_verified ? 'نعم' : 'لا'}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <Switch
+                          checked={row.is_active}
+                          disabled={updatingId === row.id}
+                          onCheckedChange={(v) => void onToggleActive(row, v)}
+                          aria-label={row.is_active ? 'تعطيل الظهور' : 'تفعيل الظهور'}
+                        />
+                        {updatingId === row.id ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </motion.div>
@@ -908,6 +1152,13 @@ function PaymentsSection({
       <h2 className="text-2xl font-bold mb-6">إدارة المدفوعات</h2>
 
       <div className="space-y-4">
+        {payments.length === 0 ? (
+          <Card>
+            <CardContent className="py-10 text-center text-muted-foreground">
+              لا توجد مدفوعات للعرض. عند تعطيل البيانات التجريبية يظهر هنا ما في جدول payments بعد ضبط RLS.
+            </CardContent>
+          </Card>
+        ) : null}
         {payments.map((payment) => (
           <Card key={payment.id}>
             <CardContent className="p-6">
@@ -945,18 +1196,61 @@ function PaymentsSection({
 function PaymentReviewDialog({
   payment,
   onClose,
+  onAfterDecision,
 }: {
   payment: Payment;
   onClose: () => void;
+  onAfterDecision: () => void;
 }) {
-  const handleConfirm = () => {
-    alert('تم تأكيد الدفع بنجاح!');
+  const [saving, setSaving] = useState(false);
+  const isMockRow = shouldShowAdminMocks() && MOCK_PAYMENTS.some((p) => p.id === payment.id);
+
+  const handleConfirm = async () => {
+    if (payment.status !== 'pending') {
+      toast({ title: 'لا يمكن المعالجة', description: 'هذه العملية ليست قيد الانتظار.', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    if (isMockRow) {
+      toast({ title: 'تأكيد تجريبي', description: 'هذه دفعة من العرض التجريبي فقط.' });
+      setSaving(false);
+      onClose();
+      onAfterDecision();
+      return;
+    }
+    const res = await updatePaymentStatusRemote(payment.id, 'confirmed');
+    setSaving(false);
+    if (!res.ok) {
+      toast({ title: 'فشل التحديث', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'تم تأكيد الدفع' });
     onClose();
+    onAfterDecision();
   };
 
-  const handleReject = () => {
-    alert('تم رفض الدفع');
+  const handleReject = async () => {
+    if (payment.status !== 'pending') {
+      toast({ title: 'لا يمكن المعالجة', description: 'هذه العملية ليست قيد الانتظار.', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    if (isMockRow) {
+      toast({ title: 'رفض تجريبي', description: 'هذه دفعة من العرض التجريبي فقط.' });
+      setSaving(false);
+      onClose();
+      onAfterDecision();
+      return;
+    }
+    const res = await updatePaymentStatusRemote(payment.id, 'rejected');
+    setSaving(false);
+    if (!res.ok) {
+      toast({ title: 'فشل التحديث', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'تم رفض الدفع' });
     onClose();
+    onAfterDecision();
   };
 
   return (
@@ -996,23 +1290,35 @@ function PaymentReviewDialog({
           {payment.receipt && (
             <div>
               <Label className="mb-2 block">إيصال التحويل البنكي</Label>
-              <div className="aspect-video rounded-lg overflow-hidden border border-border">
-                <img src={payment.receipt} alt="إيصال" className="w-full h-full object-cover" />
-              </div>
+              {isVisualAssetUrl(payment.receipt) ? (
+                <div className="aspect-video rounded-lg overflow-hidden border border-border">
+                  <img src={payment.receipt} alt="إيصال" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <Button variant="outline" size="sm" asChild>
+                  <a href={payment.receipt} target="_blank" rel="noopener noreferrer">
+                    فتح الإيصال في نافذة جديدة
+                  </a>
+                </Button>
+              )}
             </div>
           )}
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
             إلغاء
           </Button>
-          <Button variant="destructive" onClick={handleReject}>
-            <XCircle className="w-4 h-4 ml-2" />
+          <Button variant="destructive" onClick={() => void handleReject()} disabled={saving || payment.status !== 'pending'}>
+            {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <XCircle className="w-4 h-4 ml-2" />}
             رفض الدفع
           </Button>
-          <Button onClick={handleConfirm} className="bg-green-600 hover:bg-green-700">
-            <CheckCircle2 className="w-4 h-4 ml-2" />
+          <Button
+            onClick={() => void handleConfirm()}
+            disabled={saving || payment.status !== 'pending'}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 ml-2" />}
             تأكيد الدفع
           </Button>
         </DialogFooter>
@@ -1043,13 +1349,44 @@ function MessagesSection() {
 
 // Settings Section
 function SettingsSection() {
+  const [vatEnabled, setVatEnabled] = useState(() => getPlatformVatSettings().enabled);
+  const [vatRateInput, setVatRateInput] = useState(() => String(getPlatformVatSettings().ratePercent));
+
+  useEffect(() => {
+    const sync = () => {
+      const s = getPlatformVatSettings();
+      setVatEnabled(s.enabled);
+      setVatRateInput(String(s.ratePercent));
+    };
+    window.addEventListener('halaqmap-vat-settings', sync);
+    return () => window.removeEventListener('halaqmap-vat-settings', sync);
+  }, []);
+
+  const parsedRate = parseFloat(String(vatRateInput).replace(',', '.'));
+  const rateForPreview = Number.isFinite(parsedRate) ? parsedRate : 15;
+  const preview = calcVatBreakdown(100, { enabled: vatEnabled, ratePercent: rateForPreview });
+
+  const handleSaveVat = () => {
+    savePlatformVatSettings({
+      enabled: vatEnabled,
+      ratePercent: rateForPreview,
+    });
+    toast({
+      title: 'تم حفظ إعدادات الضريبة',
+      description: vatEnabled
+        ? `مفعّلة — النسبة المعروضة ${rateForPreview}% (تُحسب تلقائياً في صفحات الدفع).`
+        : 'معطّلة — تُعرض أتعاب الاشتراك فقط دون ضريبة في الواجهة.',
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="space-y-6"
     >
-      <h2 className="text-2xl font-bold mb-6">إعدادات المنصة</h2>
+      <h2 className="text-2xl font-bold mb-2">إعدادات المنصة</h2>
       <Card>
         <CardHeader>
           <CardTitle>الإعدادات العامة</CardTitle>
@@ -1068,6 +1405,59 @@ function SettingsSection() {
             <Input type="tel" defaultValue="+966559602685" dir="ltr" />
           </div>
           <Button className="w-full">حفظ التغييرات</Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-primary/25">
+        <CardHeader>
+          <CardTitle>ضريبة القيمة المضافة (عرض الدفع)</CardTitle>
+          <CardDescription>
+            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كأتعاب اشتراك فقط (مناسب
+            لتقديم بوابات مثل ميسر). عند التوسع بسجل تجاري ورقم ضريبي فعّل الاحتسب هنا وحدّث النسبة عند تغيير
+            الأنظمة.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
+            <div>
+              <p className="font-medium">تفعيل احتساب الضريبة في الواجهة</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة الاشتراك.
+              </p>
+            </div>
+            <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} />
+          </div>
+          <div className="space-y-2 max-w-xs">
+            <Label htmlFor="vat-rate">نسبة ضريبة القيمة المضافة (%)</Label>
+            <Input
+              id="vat-rate"
+              type="number"
+              min={0}
+              max={50}
+              step={0.5}
+              dir="ltr"
+              value={vatRateInput}
+              onChange={(e) => setVatRateInput(e.target.value)}
+              disabled={!vatEnabled}
+            />
+            <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
+          </div>
+          <div className="rounded-lg bg-muted/50 p-4 text-sm">
+            <p className="font-medium mb-2">معاينة على 100 ر.س (أتعاب اشتراك)</p>
+            <p className="text-muted-foreground">
+              {!vatEnabled || preview.vat === 0 ? (
+                <>الإجمالي المعروض: <strong>{preview.total} ر.س</strong> (بدون ضريبة)</>
+              ) : (
+                <>
+                  الأتعاب: {preview.subtotal} ر.س + الضريبة ({rateForPreview}%): {preview.vat} ر.س ={' '}
+                  <strong>{preview.total} ر.س</strong>
+                </>
+              )}
+            </p>
+          </div>
+          <Button type="button" className="w-full" onClick={handleSaveVat}>
+            حفظ إعدادات الضريبة
+          </Button>
         </CardContent>
       </Card>
     </motion.div>

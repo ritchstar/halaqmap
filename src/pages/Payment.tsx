@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
+import { calcVatBreakdown } from '@/lib/platformVatSettings';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -33,6 +35,7 @@ import {
 
 export default function Payment() {
   const navigate = useNavigate();
+  const vatSettings = usePlatformVatSettings();
   const [searchParams] = useSearchParams();
   const tier = searchParams.get('tier') as SubscriptionTier || SubscriptionTier.BRONZE;
   const requestId = searchParams.get('requestId') || 'REQ-' + Date.now();
@@ -65,7 +68,10 @@ export default function Payment() {
   const tierName = tierNames[tier];
   const tierColor = tierColors[tier];
 
+  const monthlyBreakdown = calcVatBreakdown(price, vatSettings);
+
   const bankTransferDue = getBankTransferPayableAmountSar(tier);
+  const bankTransferBreakdown = calcVatBreakdown(bankTransferDue, vatSettings);
   const bankTransferMonths = getBankTransferCoveredMonths();
   const bankTransferGrossSix = getSixMonthGrossSar(tier);
   const bankPromoOn = isBankTransferPromoActive();
@@ -166,9 +172,24 @@ export default function Payment() {
                         <p className="text-sm text-muted-foreground">اشتراك شهري</p>
                       </div>
                     </div>
-                    <div className="text-left">
-                      <p className="text-2xl font-bold text-primary">{price} ر.س</p>
-                      <p className="text-xs text-muted-foreground">شهرياً</p>
+                    <div className="text-left space-y-1">
+                      {vatSettings.enabled && monthlyBreakdown.vat > 0 ? (
+                        <>
+                          <p className="text-xs text-muted-foreground">
+                            أتعاب الاشتراك: {monthlyBreakdown.subtotal} ر.س
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {monthlyBreakdown.vat} ر.س
+                          </p>
+                          <p className="text-2xl font-bold text-primary">{monthlyBreakdown.total} ر.س</p>
+                          <p className="text-xs text-muted-foreground">الإجمالي شهرياً</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-2xl font-bold text-primary">{price} ر.س</p>
+                          <p className="text-xs text-muted-foreground">شهرياً (دون ضريبة قيمة مضافة)</p>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -322,13 +343,36 @@ export default function Payment() {
                           </div>
                           <div>
                             <Label className="text-sm text-muted-foreground">المبلغ المطلوب</Label>
-                            <p className="text-2xl font-bold text-primary">{bankTransferDue} ر.س</p>
-                            <p className="text-xs text-muted-foreground">
-                              لمدة {bankTransferMonths} أشهر
-                              {bankPromoOn
-                                ? ` (عرض: خصم 10% على ${bankTransferGrossSix} ر.س + شهران هدية)`
-                                : ' (سعر 6 أشهر كامل)'}
-                            </p>
+                            {vatSettings.enabled && bankTransferBreakdown.vat > 0 ? (
+                              <div className="space-y-1 mt-1">
+                                <p className="text-sm text-muted-foreground">
+                                  أتعاب الاشتراك: {bankTransferBreakdown.subtotal} ر.س
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  ضريبة القيمة المضافة ({vatSettings.ratePercent}%):{' '}
+                                  {bankTransferBreakdown.vat} ر.س
+                                </p>
+                                <p className="text-2xl font-bold text-primary">
+                                  {bankTransferBreakdown.total} ر.س
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  الإجمالي للتحويل — لمدة {bankTransferMonths} أشهر
+                                  {bankPromoOn
+                                    ? ` (عرض: خصم 10% على ${bankTransferGrossSix} ر.س + شهران هدية)`
+                                    : ' (سعر 6 أشهر كامل)'}
+                                </p>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="text-2xl font-bold text-primary">{bankTransferDue} ر.س</p>
+                                <p className="text-xs text-muted-foreground">
+                                  لمدة {bankTransferMonths} أشهر
+                                  {bankPromoOn
+                                    ? ` (عرض: خصم 10% على ${bankTransferGrossSix} ر.س + شهران هدية)`
+                                    : ' (سعر 6 أشهر كامل)'}
+                                </p>
+                              </>
+                            )}
                           </div>
                         </CardContent>
                       </Card>

@@ -7,9 +7,9 @@ export const ROUTE_PATHS = {
   SUBSCRIPTION_POLICY: '/subscription-policy',
   BARBER_LOGIN: '/barber/login',
   BARBER_DASHBOARD: '/barber/dashboard',
-  ADMIN_LOGIN: '/admin/login',
-  ADMIN_DASHBOARD: '/admin/dashboard',
   PAYMENT: '/payment',
+  /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
+  RATE_BARBER: '/rate/:barberId',
 } as const;
 
 export enum SubscriptionTier {
@@ -51,6 +51,8 @@ export interface Barber {
   isOpen: boolean;
   verified: boolean;
   categories: string[];
+  /** سرّي لبناء رابط دعوة التقييم عبر QR — لا يُجلب في قوائم الخريطة العامة */
+  ratingInviteToken?: string;
 }
 
 export interface Appointment {
@@ -73,6 +75,12 @@ export interface Review {
   comment: string;
   date: string;
   verified: boolean;
+  /** سجّل عبر رابط دعوة QR */
+  viaQrInvite?: boolean;
+  /** false = مخفي عن الملف العام (يتحكم الحلاق) */
+  isPublished?: boolean;
+  /** يُعرَض في أعلى القائمة عند التفعيل */
+  isHighlighted?: boolean;
 }
 
 export interface ChatMessage {

@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Barber, SubscriptionTier } from '@/lib/index';
-import { mockReviews } from '@/data/index';
+import { getMergedReviewsForBarber } from '@/lib/qrReviewsStorage';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -7,9 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Phone, MapPin, MessageCircle, Calendar, Star, Shield, Clock } from 'lucide-react';
+import { Phone, MapPin, MessageCircle, Calendar, Star, Shield, Clock, QrCode } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
 
 interface BarberDetailModalProps {
   barber: Barber;
@@ -18,7 +20,17 @@ interface BarberDetailModalProps {
 }
 
 export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModalProps) {
-  const barberReviews = mockReviews.filter(r => r.barberId === barber.id);
+  const [barberReviews, setBarberReviews] = useState(() => getMergedReviewsForBarber(barber.id));
+
+  useEffect(() => {
+    setBarberReviews(getMergedReviewsForBarber(barber.id));
+  }, [barber.id, isOpen]);
+
+  useEffect(() => {
+    const onRefresh = () => setBarberReviews(getMergedReviewsForBarber(barber.id));
+    window.addEventListener('halaqmap-qr-reviews', onRefresh);
+    return () => window.removeEventListener('halaqmap-qr-reviews', onRefresh);
+  }, [barber.id]);
 
   const handleLocationClick = () => {
     const url = `https://www.google.com/maps/search/?api=1&query=${barber.location.lat},${barber.location.lng}`;
@@ -117,7 +129,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-lg"
             >
               <MapPin className="w-5 h-5 ml-2" />
-              عرض الموقع على الخريطة
+              {CUSTOMER_MAP_CTA}
             </Button>
             <Button
               onClick={handlePhoneClick}
@@ -221,6 +233,12 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                             <Badge variant="outline" className="text-xs border-primary text-primary">
                               <Shield className="w-3 h-3 ml-1" />
                               موثق
+                            </Badge>
+                          )}
+                          {review.viaQrInvite && (
+                            <Badge variant="secondary" className="text-xs gap-1">
+                              <QrCode className="w-3 h-3" />
+                              عبر دعوة QR
                             </Badge>
                           )}
                         </div>

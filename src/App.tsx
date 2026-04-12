@@ -16,7 +16,9 @@ import BarberDashboard from "@/pages/BarberDashboard";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Payment from "@/pages/Payment";
+import RateBarber from "@/pages/RateBarber";
 import { ROUTE_PATHS } from "@/lib/index";
+import { getAdminLoginPath, getAdminDashboardPath } from "@/config/adminAuth";
 import { AdminAuthHashGate } from "@/components/AdminAuthHashGate";
 
 const queryClient = new QueryClient();
@@ -56,9 +58,10 @@ const App = () => (
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<Layout><SubscriptionPolicy /></Layout>} />
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<BarberLogin />} />
           <Route path={ROUTE_PATHS.BARBER_DASHBOARD} element={<BarberDashboard />} />
-          <Route path={ROUTE_PATHS.ADMIN_LOGIN} element={<AdminLogin />} />
-          <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminDashboard />} />
+          <Route path={getAdminLoginPath()} element={<AdminLogin />} />
+          <Route path={getAdminDashboardPath()} element={<AdminDashboard />} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<Payment />} />
+          <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </AdminAuthHashGate>

@@ -41,6 +41,7 @@ export const mockBarbers: Barber[] = [
     isOpen: true,
     verified: true,
     categories: ['رجالي', 'أطفال', 'تقليدي'],
+    ratingInviteToken: '7f9a2c4e8b1d0e3f6a5c9e2b7d4f1a08',
   },
   // 💎 ماسي #2
   {
@@ -83,6 +84,7 @@ export const mockBarbers: Barber[] = [
     isOpen: true,
     verified: true,
     categories: ['رجالي', 'أطفال'],
+    ratingInviteToken: '3c5e7a9b1d4f6e8a0c2e4b6d8f0a2c4e',
   },
   // 🥇 ذهبي #1
   {
@@ -121,6 +123,7 @@ export const mockBarbers: Barber[] = [
     isOpen: true,
     verified: true,
     categories: ['رجالي', 'تقليدي'],
+    ratingInviteToken: '9a0b1c2d3e4f5061728394a5b6c7d8e9',
   },
   // 🥇 ذهبي #2
   {
@@ -159,6 +162,7 @@ export const mockBarbers: Barber[] = [
     isOpen: true,
     verified: true,
     categories: ['رجالي'],
+    ratingInviteToken: '1f2e3d4c5b6a79808172635445362718',
   },
   // 🥉 برونزي #1
   {
@@ -235,6 +239,7 @@ export const mockBarbers: Barber[] = [
     isOpen: false,
     verified: false,
     categories: ['رجالي', 'أطفال', 'تقليدي'],
+    ratingInviteToken: 'fedcba9876543210fedcba9876543210',
   },
 ];
 

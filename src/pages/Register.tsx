@@ -1,12 +1,25 @@
 import { Link } from 'react-router-dom';
-import { Check, X } from 'lucide-react';
+import { Check, X, MapPin } from 'lucide-react';
 import { RegistrationForm } from '@/components/RegistrationForm';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
 import { motion } from 'framer-motion';
 import { springPresets, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
+import { MAP_FEATURE_HERO } from '@/config/subscriptionPlanHero';
+import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 
-const subscriptionPlans = [
+type RegisterPlanRow = { kind: 'row'; text: string; included: boolean };
+type RegisterPlanFeature = { kind: 'map_hero' } | RegisterPlanRow;
+
+const subscriptionPlans: {
+  tier: SubscriptionTier;
+  name: string;
+  price: number;
+  color: string;
+  borderColor: string;
+  popular?: boolean;
+  features: RegisterPlanFeature[];
+}[] = [
   {
     tier: SubscriptionTier.BRONZE,
     name: 'برونزي',
@@ -14,17 +27,17 @@ const subscriptionPlans = [
     color: 'from-amber-700 to-amber-900',
     borderColor: 'border-amber-700/30',
     features: [
-      { text: '4 صور مصغرة للمحل', included: true },
-      { text: 'عرض الموقع على الخريطة', included: true },
-      { text: 'رقم الهاتف للتواصل', included: true },
-      { text: 'معلومات أساسية (الاسم، العنوان، ساعات العمل)', included: true },
-      { text: 'بنر موسع للمحل', included: false },
-      { text: 'رابط واتساب مباشر', included: false },
-      { text: 'شات مباشر مع العملاء', included: false },
-      { text: 'نظام حجز المواعيد', included: false },
-      { text: 'شارة التحقق الماسية', included: false },
-      { text: 'أولوية الظهور في النتائج', included: false },
-      { text: 'ترجمة تلقائية في الشات', included: false },
+      { kind: 'map_hero' },
+      { kind: 'row', text: '4 صور مصغرة للمحل', included: true },
+      { kind: 'row', text: 'رقم الهاتف للتواصل', included: true },
+      { kind: 'row', text: 'معلومات أساسية (الاسم، العنوان، ساعات العمل)', included: true },
+      { kind: 'row', text: 'بنر موسع للمحل', included: false },
+      { kind: 'row', text: 'رابط واتساب مباشر', included: false },
+      { kind: 'row', text: 'شات مباشر مع العملاء', included: false },
+      { kind: 'row', text: 'نظام حجز المواعيد', included: false },
+      { kind: 'row', text: 'شارة التحقق الماسية', included: false },
+      { kind: 'row', text: 'أولوية الظهور في النتائج', included: false },
+      { kind: 'row', text: 'ترجمة تلقائية في الشات', included: false },
     ],
   },
   {
@@ -35,17 +48,16 @@ const subscriptionPlans = [
     borderColor: 'border-accent/50',
     popular: true,
     features: [
-      { text: '4 صور مصغرة للمحل', included: true },
-      { text: 'عرض الموقع على الخريطة', included: true },
-      { text: 'رقم الهاتف للتواصل', included: true },
-      { text: 'معلومات أساسية (الاسم، العنوان، ساعات العمل)', included: true },
-      { text: 'بنر موسع للمحل', included: true },
-      { text: 'رابط واتساب مباشر', included: true },
-      { text: 'شات مباشر مع العملاء', included: true },
-      { text: 'نظام حجز المواعيد', included: false },
-      { text: 'شارة التحقق الماسية', included: false },
-      { text: 'أولوية الظهور في النتائج', included: false },
-      { text: 'ترجمة تلقائية في الشات', included: false },
+      { kind: 'map_hero' },
+      { kind: 'row', text: RATING_QR_PLAN_LINE, included: true },
+      { kind: 'row', text: 'جميع مزايا الباقة البرونزية', included: true },
+      { kind: 'row', text: 'بنر موسع للمحل بصور متعددة', included: true },
+      { kind: 'row', text: 'رابط واتساب مباشر', included: true },
+      { kind: 'row', text: 'شات مباشر مع العملاء', included: true },
+      { kind: 'row', text: 'أولوية في الظهور على الخريطة والبحث', included: true },
+      { kind: 'row', text: 'نظام حجز المواعيد', included: false },
+      { kind: 'row', text: 'شارة التحقق الماسية', included: false },
+      { kind: 'row', text: 'ترجمة تلقائية في الشات', included: false },
     ],
   },
   {
@@ -55,17 +67,13 @@ const subscriptionPlans = [
     color: 'from-primary to-cyan-600',
     borderColor: 'border-primary/50',
     features: [
-      { text: '4 صور مصغرة للمحل', included: true },
-      { text: 'عرض الموقع على الخريطة', included: true },
-      { text: 'رقم الهاتف للتواصل', included: true },
-      { text: 'معلومات أساسية (الاسم، العنوان، ساعات العمل)', included: true },
-      { text: 'بنر موسع للمحل', included: true },
-      { text: 'رابط واتساب مباشر', included: true },
-      { text: 'شات مباشر مع العملاء', included: true },
-      { text: 'نظام حجز المواعيد', included: true },
-      { text: 'شارة التحقق الماسية', included: true },
-      { text: 'أولوية الظهور في النتائج', included: true },
-      { text: 'ترجمة تلقائية في الشات', included: true },
+      { kind: 'map_hero' },
+      { kind: 'row', text: RATING_QR_PLAN_LINE, included: true },
+      { kind: 'row', text: 'جميع مزايا الباقة الذهبية', included: true },
+      { kind: 'row', text: 'شارة ماسية مميزة على الخريطة', included: true },
+      { kind: 'row', text: 'أولوية قصوى في الظهور على الخريطة والبحث', included: true },
+      { kind: 'row', text: 'نظام حجز المواعيد', included: true },
+      { kind: 'row', text: 'ترجمة تلقائية في الشات', included: true },
     ],
   },
 ];
@@ -147,23 +155,47 @@ export default function Register() {
                       <span className="text-5xl font-bold text-foreground">{plan.price}</span>
                       <span className="text-xl text-muted-foreground mr-2">ريال / شهرياً</span>
                     </div>
-                    <ul className="space-y-3">
-                      {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          {feature.included ? (
-                            <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                          ) : (
-                            <X className="w-5 h-5 text-muted-foreground/40 flex-shrink-0 mt-0.5" />
-                          )}
-                          <span
-                            className={`text-sm ${
-                              feature.included ? 'text-foreground' : 'text-muted-foreground/60'
-                            }`}
-                          >
-                            {feature.text}
-                          </span>
-                        </li>
-                      ))}
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      {plan.features.map((feature, idx) =>
+                        feature.kind === 'map_hero' ? (
+                          <li key={idx} className="mb-4 list-none">
+                            <div className="rounded-2xl border-2 border-primary/45 bg-gradient-to-br from-primary/20 via-primary/[0.07] to-cyan-500/15 p-4 shadow-[0_12px_40px_-12px] shadow-primary/25 ring-1 ring-primary/10">
+                              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
+                                <div className="mx-auto flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-cyan-600 text-white shadow-lg ring-4 ring-background/80 sm:mx-0">
+                                  <MapPin className="h-9 w-9" strokeWidth={2.25} aria-hidden />
+                                </div>
+                                <div className="min-w-0 flex-1 space-y-1.5 text-center sm:text-right">
+                                  <p className="text-base font-bold leading-snug text-foreground md:text-lg">
+                                    {MAP_FEATURE_HERO.title}
+                                  </p>
+                                  <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                                    {MAP_FEATURE_HERO.subtitle}
+                                  </p>
+                                </div>
+                                <Check
+                                  className="mx-auto h-7 w-7 shrink-0 text-primary sm:mx-0"
+                                  aria-label="مشمول"
+                                />
+                              </div>
+                            </div>
+                          </li>
+                        ) : (
+                          <li key={idx} className="flex items-start gap-3">
+                            {feature.included ? (
+                              <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                            ) : (
+                              <X className="w-5 h-5 text-muted-foreground/40 flex-shrink-0 mt-0.5" />
+                            )}
+                            <span
+                              className={`text-sm ${
+                                feature.included ? 'text-foreground' : 'text-muted-foreground/60'
+                              }`}
+                            >
+                              {feature.text}
+                            </span>
+                          </li>
+                        )
+                      )}
                     </ul>
                   </div>
                 </motion.div>

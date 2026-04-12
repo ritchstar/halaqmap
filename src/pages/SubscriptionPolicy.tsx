@@ -1,23 +1,38 @@
 import { motion } from "framer-motion";
 import { springPresets, fadeInUp, staggerContainer, staggerItem } from "@/lib/motion";
-import { CheckCircle2, XCircle, AlertCircle, Phone, Mail, MessageSquare } from "lucide-react";
+import { CheckCircle2, XCircle, AlertCircle, Phone, Mail, MessageSquare, MapPin } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { MAP_FEATURE_HERO } from "@/config/subscriptionPlanHero";
+import { RATING_QR_PLAN_LINE } from "@/config/ratingQrInvite";
+import { usePlatformVatSettings } from "@/hooks/usePlatformVatSettings";
+import { getSubscriptionPricingVatClauseAr } from "@/lib/platformVatSettings";
+
+type SubscriptionTierFeature = { kind: "map_hero" } | { kind: "text"; value: string };
 
 export default function SubscriptionPolicy() {
-  const subscriptionTiers = [
+  const vatSettings = usePlatformVatSettings();
+  const subscriptionTiers: Array<{
+    name: string;
+    price: string;
+    period: string;
+    color: string;
+    features: SubscriptionTierFeature[];
+  }> = [
     {
       name: "برونزي",
       price: "100",
       period: "شهرياً",
       color: "bg-gradient-to-br from-amber-700 to-amber-900",
       features: [
-        "4 صور مصغرة للمحل",
-        "عرض الموقع ورقم الهاتف",
-        "ظهور في نتائج البحث",
-        "تحديث المعلومات الأساسية"
-      ]
+        { kind: "map_hero" },
+        { kind: "text", value: RATING_QR_PLAN_LINE },
+        { kind: "text", value: "4 صور مصغرة للمحل" },
+        { kind: "text", value: "رقم الهاتف وبيانات التواصل من بطاقة المحل" },
+        { kind: "text", value: "ظهور في نتائج البحث" },
+        { kind: "text", value: "تحديث المعلومات الأساسية" },
+      ],
     },
     {
       name: "ذهبي",
@@ -25,13 +40,15 @@ export default function SubscriptionPolicy() {
       period: "شهرياً",
       color: "bg-gradient-to-br from-accent to-yellow-600",
       features: [
-        "كل مميزات البرونزي",
-        "بنر موسع بصور متعددة",
-        "رابط واتساب مباشر",
-        "شات مباشر مع العملاء",
-        "أولوية في نتائج البحث",
-        "إحصائيات المشاهدات"
-      ]
+        { kind: "map_hero" },
+        { kind: "text", value: RATING_QR_PLAN_LINE },
+        { kind: "text", value: "كل مميزات البرونزي" },
+        { kind: "text", value: "بنر موسع بصور متعددة" },
+        { kind: "text", value: "رابط واتساب مباشر" },
+        { kind: "text", value: "شات مباشر مع العملاء" },
+        { kind: "text", value: "أولوية في نتائج البحث" },
+        { kind: "text", value: "إحصائيات المشاهدات" },
+      ],
     },
     {
       name: "ماسي",
@@ -39,15 +56,16 @@ export default function SubscriptionPolicy() {
       period: "شهرياً",
       color: "bg-gradient-to-br from-primary to-cyan-600",
       features: [
-        "كل مميزات الذهبي",
-        "شارة ماسية مميزة",
-        "أولوية قصوى في الظهور",
-        "نظام حجز المواعيد",
-        "ترجمة تلقائية في الشات",
-        "تقييمات ذكية عبر QR Code",
-        "دعم فني مخصص 24/7"
-      ]
-    }
+        { kind: "map_hero" },
+        { kind: "text", value: RATING_QR_PLAN_LINE },
+        { kind: "text", value: "كل مميزات الذهبي" },
+        { kind: "text", value: "شارة ماسية مميزة" },
+        { kind: "text", value: "أولوية قصوى في الظهور" },
+        { kind: "text", value: "نظام حجز المواعيد" },
+        { kind: "text", value: "ترجمة تلقائية في الشات" },
+        { kind: "text", value: "دعم فني مخصص 24/7" },
+      ],
+    },
   ];
 
   const paymentMethods = [
@@ -160,13 +178,37 @@ export default function SubscriptionPolicy() {
                     <CardDescription>{tier.period}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-3">
-                      {tier.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      {tier.features.map((feature, idx) =>
+                        feature.kind === "map_hero" ? (
+                          <li key={idx} className="mb-1 list-none">
+                            <div className="rounded-xl border-2 border-primary/40 bg-gradient-to-br from-primary/18 via-primary/[0.06] to-cyan-500/12 p-3 shadow-md shadow-primary/15">
+                              <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-3 sm:text-right">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-cyan-600 text-white shadow-md ring-2 ring-primary/15">
+                                  <MapPin className="h-6 w-6" strokeWidth={2.25} aria-hidden />
+                                </div>
+                                <div className="min-w-0 flex-1 space-y-0.5 text-center sm:text-right">
+                                  <p className="text-sm font-bold text-foreground leading-snug">
+                                    {MAP_FEATURE_HERO.title}
+                                  </p>
+                                  <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                                    {MAP_FEATURE_HERO.subtitle}
+                                  </p>
+                                </div>
+                                <CheckCircle2
+                                  className="h-5 w-5 shrink-0 text-primary"
+                                  aria-label="مشمول"
+                                />
+                              </div>
+                            </div>
+                          </li>
+                        ) : (
+                          <li key={idx} className="flex items-start gap-2">
+                            <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                            <span className="text-sm">{feature.value}</span>
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </CardContent>
                 </Card>
@@ -430,7 +472,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">1</span>
                   </div>
                   <p className="text-sm">
-                    جميع الأسعار المذكورة بالريال السعودي وتشمل ضريبة القيمة المضافة (15%).
+                    {getSubscriptionPricingVatClauseAr(vatSettings)}
                   </p>
                 </li>
                 <li className="flex items-start gap-3">

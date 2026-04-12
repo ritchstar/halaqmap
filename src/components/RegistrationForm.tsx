@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,16 @@ import {
 } from '@/lib/subscriptionRequestStorage';
 import { BANK_TRANSFER } from '@/config/bankTransfer';
 import { getBankTransferPayableAmountSar, getBankTransferPlanSummaryAr } from '@/config/subscriptionPricing';
+import { MAP_FEATURE_HERO } from '@/config/subscriptionPlanHero';
+import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
+import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
+import { calcVatBreakdown } from '@/lib/platformVatSettings';
+import {
+  SaudiRegionCityDistrictFields,
+  composeSaudiLocationLine,
+  type SaudiLocationSelection,
+} from '@/components/SaudiRegionCityDistrictFields';
+import { loadSaudiGeoLite, OTHER_DISTRICT_VALUE } from '@/lib/saudiGeoData';
 import {
   Check,
   Upload,
@@ -56,6 +66,8 @@ interface FormData {
     lat: string;
     lng: string;
     address: string;
+    /** من بيانات العنوان الوطني (ملفات lite) */
+    saudi: SaudiLocationSelection;
   };
   images: {
     exterior: File[];
@@ -81,17 +93,28 @@ const STEPS = [
   { id: 7, title: 'الدفع', icon: CreditCard },
 ];
 
-const SUBSCRIPTION_PLANS = [
+type FormPlanFeature = { kind: 'map_hero' } | { kind: 'line'; text: string };
+
+const SUBSCRIPTION_PLANS: {
+  tier: SubscriptionTier;
+  name: string;
+  price: number;
+  color: string;
+  features: FormPlanFeature[];
+  popular?: boolean;
+  premium?: boolean;
+}[] = [
   {
     tier: SubscriptionTier.BRONZE,
     name: 'برونزي',
     price: 100,
     color: 'from-amber-700 to-amber-900',
     features: [
-      '4 صور مصغرة للمحل',
-      'عرض الموقع على الخريطة',
-      'رقم الهاتف للتواصل',
-      'ظهور في نتائج البحث',
+      { kind: 'map_hero' },
+      { kind: 'line', text: RATING_QR_PLAN_LINE },
+      { kind: 'line', text: '4 صور مصغرة للمحل' },
+      { kind: 'line', text: 'رقم الهاتف للتواصل' },
+      { kind: 'line', text: 'ظهور في نتائج البحث والخريطة' },
     ],
   },
   {
@@ -100,11 +123,13 @@ const SUBSCRIPTION_PLANS = [
     price: 150,
     color: 'from-accent to-yellow-600',
     features: [
-      'كل مميزات البرونزي',
-      'بنر موسع بصور متعددة',
-      'رابط واتساب مباشر',
-      'شات مباشر مع العملاء',
-      'أولوية في الظهور',
+      { kind: 'map_hero' },
+      { kind: 'line', text: RATING_QR_PLAN_LINE },
+      { kind: 'line', text: 'جميع مزايا الباقة البرونزية' },
+      { kind: 'line', text: 'بنر موسع بصور متعددة' },
+      { kind: 'line', text: 'رابط واتساب مباشر' },
+      { kind: 'line', text: 'شات مباشر مع العملاء' },
+      { kind: 'line', text: 'أولوية في الظهور على الخريطة والبحث' },
     ],
     popular: true,
   },
@@ -114,12 +139,12 @@ const SUBSCRIPTION_PLANS = [
     price: 200,
     color: 'from-primary to-cyan-600',
     features: [
-      'كل مميزات الذهبي',
-      'شارة ماسية مميزة',
-      'أولوية قصوى في الظهور',
-      'نظام حجز المواعيد',
-      'ترجمة تلقائية في الشات',
-      'تقييمات ذكية بـ QR Code',
+      { kind: 'map_hero' },
+      { kind: 'line', text: 'جميع مزايا الباقة الذهبية' },
+      { kind: 'line', text: 'شارة ماسية مميزة على الخريطة' },
+      { kind: 'line', text: 'أولوية قصوى في الظهور على الخريطة والبحث' },
+      { kind: 'line', text: 'نظام حجز المواعيد' },
+      { kind: 'line', text: 'ترجمة تلقائية في الشات' },
     ],
     premium: true,
   },
@@ -147,6 +172,7 @@ const MAX_RECEIPT_STORAGE_BYTES = 600 * 1024;
 
 export function RegistrationForm() {
   const navigate = useNavigate();
+  const vatSettings = usePlatformVatSettings();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -166,6 +192,12 @@ export function RegistrationForm() {
       lat: '',
       lng: '',
       address: '',
+      saudi: {
+        regionId: '',
+        cityId: '',
+        districtId: '',
+        districtOther: '',
+      },
     },
     images: {
       exterior: [],
@@ -208,6 +240,28 @@ export function RegistrationForm() {
         return;
       }
     }
+    if (currentStep === 4) {
+      const { saudi, address, lat, lng } = formData.location;
+      if (!saudi.regionId || !saudi.cityId || !saudi.districtId) {
+        alert('يرجى اختيار المنطقة والمدينة والحي من القوائم.');
+        return;
+      }
+      if (saudi.districtId === OTHER_DISTRICT_VALUE && !saudi.districtOther.trim()) {
+        alert('يرجى كتابة اسم الحي عند اختيار «حي غير مدرج».');
+        return;
+      }
+      if (!address.trim()) {
+        alert('يرجى إدخال العنوان التفصيلي (الشارع أو المعلم القريب).');
+        return;
+      }
+      const latN = parseFloat(lat);
+      const lngN = parseFloat(lng);
+      if (!lat.trim() || !lng.trim() || Number.isNaN(latN) || Number.isNaN(lngN)) {
+        alert('يرجى إدخال خطي العرض والطول بشكل صحيح أو استخدام «حدد موقعي الحالي».');
+        return;
+      }
+    }
+
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
     }
@@ -387,7 +441,7 @@ export function RegistrationForm() {
         `طريقة الدفع: ${payLabel}\n` +
         (receiptFile ? `ملف الإيصال: ${receiptFile.name}\n` : '') +
         `\n` +
-        `العنوان: ${formData.location.address || '—'}\n` +
+        `العنوان: ${composedAddress || formData.location.address || '—'}\n` +
         `الإحداثيات: ${formData.location.lat || '—'}, ${formData.location.lng || '—'}\n` +
         `\n` +
         `الخدمات والأسعار:\n${servicesSummary || '—'}\n` +
@@ -428,6 +482,10 @@ export function RegistrationForm() {
   };
 
   const selectedPlan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
+  const monthlyPriceBreakdown = useMemo(
+    () => (selectedPlan ? calcVatBreakdown(selectedPlan.price, vatSettings) : null),
+    [selectedPlan, vatSettings],
+  );
 
   return (
     <div className="w-full max-w-4xl mx-auto py-8 px-4">
@@ -537,13 +595,34 @@ export function RegistrationForm() {
                               </div>
                             </div>
                           </div>
-                          <ul className="space-y-2">
-                            {plan.features.map((feature, index) => (
-                              <li key={index} className="flex items-center gap-2 text-sm">
-                                <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                                <span>{feature}</span>
-                              </li>
-                            ))}
+                          <ul className="space-y-2 list-none p-0 m-0">
+                            {plan.features.map((feature, index) =>
+                              feature.kind === 'map_hero' ? (
+                                <li key={index} className="mb-3 list-none">
+                                  <div className="rounded-xl border-2 border-primary/40 bg-gradient-to-br from-primary/18 via-primary/[0.06] to-cyan-500/12 p-3 shadow-md shadow-primary/15">
+                                    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-3 sm:text-right">
+                                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-cyan-600 text-white shadow-md ring-2 ring-primary/15">
+                                        <MapPin className="h-6 w-6" strokeWidth={2.25} aria-hidden />
+                                      </div>
+                                      <div className="min-w-0 flex-1 space-y-0.5 text-center sm:text-right">
+                                        <p className="text-sm font-bold text-foreground leading-snug">
+                                          {MAP_FEATURE_HERO.title}
+                                        </p>
+                                        <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                                          {MAP_FEATURE_HERO.subtitle}
+                                        </p>
+                                      </div>
+                                      <Check className="h-5 w-5 shrink-0 text-primary" aria-label="مشمول" />
+                                    </div>
+                                  </div>
+                                </li>
+                              ) : (
+                                <li key={index} className="flex items-center gap-2 text-sm">
+                                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                                  <span>{feature.text}</span>
+                                </li>
+                              )
+                            )}
                           </ul>
                         </CardContent>
                       </Card>
@@ -712,6 +791,16 @@ export function RegistrationForm() {
                 <CardDescription>حدد موقع محلك بدقة على الخريطة</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <SaudiRegionCityDistrictFields
+                  value={formData.location.saudi}
+                  onChange={(saudi) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      location: { ...prev.location, saudi },
+                    }))
+                  }
+                  disabled={isSubmitting}
+                />
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
@@ -749,10 +838,10 @@ export function RegistrationForm() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="address">العنوان التفصيلي *</Label>
+                  <Label htmlFor="address">العنوان التفصيلي (الشارع / المبنى / علامة مميزة) *</Label>
                   <Textarea
                     id="address"
-                    placeholder="مثال: حي النخيل، شارع الملك فهد، بجوار مركز التسوق"
+                    placeholder="مثال: شارع الأمير سلطان، مجمع النخيل، مدخل B"
                     value={formData.location.address}
                     onChange={(e) =>
                       setFormData((prev) => ({
@@ -984,7 +1073,22 @@ export function RegistrationForm() {
                   <Alert className="bg-primary/10 border-primary">
                     <Star className="h-4 w-4" />
                     <AlertDescription>
-                      الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price}{' '}ريال شهرياً
+                      {vatSettings.enabled && monthlyPriceBreakdown && monthlyPriceBreakdown.vat > 0 ? (
+                        <>
+                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — أتعاب الاشتراك{' '}
+                          {monthlyPriceBreakdown.subtotal} ر.س شهرياً + ضريبة القيمة المضافة (
+                          {vatSettings.ratePercent}%){' '}
+                          {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
+                          <strong>{monthlyPriceBreakdown.total} ر.س شهرياً</strong>
+                        </>
+                      ) : (
+                        <>
+                          الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price} ريال شهرياً
+                          <span className="block text-xs mt-1 opacity-90">
+                            المبلغ المعروض أتعاب اشتراك فقط دون ضريبة قيمة مضافة في الوضع الحالي.
+                          </span>
+                        </>
+                      )}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -1015,12 +1119,28 @@ export function RegistrationForm() {
                         خلال فترة العرض: خصم 10% على إجمالي 6 أشهر + شهران إضافيان (8 أشهر صلاحية). بعد انتهاء
                         العرض: السعر الكامل لـ 6 أشهر فقط.
                       </p>
-                      {selectedPlan && (
-                        <p className="text-sm font-semibold text-primary mt-1">
-                          المبلغ المطلوب الآن: {getBankTransferPayableAmountSar(selectedPlan.tier)} ريال —{' '}
-                          {getBankTransferPlanSummaryAr(selectedPlan.tier)}
-                        </p>
-                      )}
+                      {selectedPlan && (() => {
+                        const base = getBankTransferPayableAmountSar(selectedPlan.tier);
+                        const bd = calcVatBreakdown(base, vatSettings);
+                        return (
+                          <div className="text-sm font-semibold text-primary mt-1 space-y-1">
+                            <p>
+                              المبلغ المطلوب الآن للتحويل:{' '}
+                              {vatSettings.enabled && bd.vat > 0 ? (
+                                <>
+                                  {bd.total} ريال (يشمل ضريبة القيمة المضافة {vatSettings.ratePercent}%:{' '}
+                                  {bd.vat} ريال على أتعاب {bd.subtotal} ريال)
+                                </>
+                              ) : (
+                                <>{base} ريال (أتعاب اشتراك دون ضريبة قيمة مضافة)</>
+                              )}
+                            </p>
+                            <p className="text-xs font-normal text-muted-foreground">
+                              {getBankTransferPlanSummaryAr(selectedPlan.tier)}
+                            </p>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </label>
                 </RadioGroup>

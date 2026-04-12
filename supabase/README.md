@@ -35,6 +35,9 @@
 11_create_categories_table.sql        - التصنيفات
 12_create_subscription_requests_table.sql - طلبات الاشتراك
 13_create_storage.sql                 - تخزين الصور
+14_registration_submissions_public.sql - قراءة عامة لطلبات التسجيل (حسب الحاجة)
+15_admin_jwt_platform_rls.sql         - صلاحيات أدمن JWT للمنصّة
+16_rating_invite_qr_reviews.sql       - رمز دعوة التقييم (barbers) + حقول التقييم (reviews)
 ```
 
 ### الأدلة:

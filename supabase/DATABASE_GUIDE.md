@@ -56,7 +56,13 @@ https://supabase.com/dashboard/project/lqzuhkzfhdhaosstduas/sql
 11. 11_create_categories_table.sql
 12. 12_create_subscription_requests_table.sql
 13. 13_create_storage.sql
+14. 14_registration_submissions_public.sql
+15. 15_admin_jwt_platform_rls.sql
+16. 16_rating_invite_qr_reviews.sql
 ```
+
+**ملخص 16:** يضيف `rating_invite_token` لجدول `barbers` (رابط/QR تقييم خاص بكل حلاق)، ويضيف لجدول
+`reviews` الحقول `via_qr_invite` و`is_public` و`is_highlighted` لربط الواجهة لاحقاً بسياسة العرض.
 
 ---
 

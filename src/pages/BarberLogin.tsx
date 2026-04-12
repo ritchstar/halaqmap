@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
+import { mockBarbers } from '@/data/index';
 import { IMAGES } from '@/assets/images';
 
 export default function BarberLogin() {
@@ -20,13 +21,15 @@ export default function BarberLogin() {
 
     // محاكاة تسجيل الدخول
     setTimeout(() => {
-      // حفظ بيانات الحلاق في localStorage
+      const demo = mockBarbers.find((b) => b.id === '1');
+      // حفظ بيانات الحلاق في localStorage (تجريبي — يربط بحلاق id=1 ورمز الدعوة)
       localStorage.setItem('barberAuth', JSON.stringify({
         id: '1',
-        name: 'صالون النخبة الماسي',
+        name: demo?.name ?? 'صالون النخبة الماسي',
         email: email,
         subscription: 'diamond',
         loggedIn: true,
+        ratingInviteToken: demo?.ratingInviteToken ?? '',
       }));
       
       setIsLoading(false);

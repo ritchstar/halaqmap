@@ -58,3 +58,26 @@ export async function fetchRegistrationSubmissionsFromRemote(): Promise<Subscrip
   }
   return out;
 }
+
+export async function patchRegistrationSubmissionPayloadRemote(
+  rowId: string,
+  patch: Partial<
+    Pick<SubscriptionRequest, 'status' | 'rejectionReason' | 'reviewedAt' | 'reviewedBy'>
+  >
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
+
+  const { data: row, error: fetchErr } = await client.from(TABLE).select('payload').eq('id', rowId).maybeSingle();
+
+  if (fetchErr) return { ok: false, error: fetchErr.message };
+  if (!row || typeof row.payload !== 'object' || row.payload === null) {
+    return { ok: false, error: 'السجل غير موجود' };
+  }
+
+  const merged = { ...(row.payload as Record<string, unknown>), ...patch };
+  const { error } = await client.from(TABLE).update({ payload: merged }).eq('id', rowId);
+
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
