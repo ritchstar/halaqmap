@@ -221,7 +221,7 @@ export default function Home() {
                 transition={{ delay: 0.48, duration: 0.6 }}
               >
                 <Shield className="w-4 h-4 text-accent shrink-0" aria-hidden />
-                <span>باقات للمحترفين · أولوية للمشتركين · تجربة عربية بالكامل</span>
+                <span>باقات للمحترفين · أولوية للمشتركين · تجربة سعودية بالكامل</span>
               </motion.p>
 
               <motion.div
