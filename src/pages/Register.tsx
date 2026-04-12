@@ -5,7 +5,12 @@ import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
 import { motion } from 'framer-motion';
 import { springPresets, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
-import { MAP_FEATURE_HERO } from '@/config/subscriptionPlanHero';
+import {
+  BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
+  BARBER_DASHBOARD_GOLD_LINE,
+  BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
+  MAP_FEATURE_HERO,
+} from '@/config/subscriptionPlanHero';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 
 type RegisterPlanRow = { kind: 'row'; text: string; included: boolean };
@@ -55,6 +60,7 @@ const subscriptionPlans: {
       { kind: 'row', text: 'رابط واتساب مباشر', included: true },
       { kind: 'row', text: 'شات مباشر مع العملاء', included: true },
       { kind: 'row', text: 'أولوية في الظهور على الخريطة والبحث', included: true },
+      { kind: 'row', text: BARBER_DASHBOARD_GOLD_LINE, included: true },
       { kind: 'row', text: 'نظام حجز المواعيد', included: false },
       { kind: 'row', text: 'شارة التحقق الماسية', included: false },
       { kind: 'row', text: 'ترجمة تلقائية في الشات', included: false },
@@ -72,7 +78,8 @@ const subscriptionPlans: {
       { kind: 'row', text: 'جميع مزايا الباقة الذهبية', included: true },
       { kind: 'row', text: 'شارة ماسية مميزة على الخريطة', included: true },
       { kind: 'row', text: 'أولوية قصوى في الظهور على الخريطة والبحث', included: true },
-      { kind: 'row', text: 'نظام حجز المواعيد', included: true },
+      { kind: 'row', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE, included: true },
+      { kind: 'row', text: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE, included: true },
       { kind: 'row', text: 'ترجمة تلقائية في الشات', included: true },
     ],
   },

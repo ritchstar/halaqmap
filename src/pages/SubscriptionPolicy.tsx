@@ -4,7 +4,12 @@ import { CheckCircle2, XCircle, AlertCircle, Phone, Mail, MessageSquare, MapPin 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { MAP_FEATURE_HERO } from "@/config/subscriptionPlanHero";
+import {
+  BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
+  BARBER_DASHBOARD_GOLD_LINE,
+  BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
+  MAP_FEATURE_HERO,
+} from "@/config/subscriptionPlanHero";
 import { RATING_QR_PLAN_LINE } from "@/config/ratingQrInvite";
 import { usePlatformVatSettings } from "@/hooks/usePlatformVatSettings";
 import { getSubscriptionPricingVatClauseAr } from "@/lib/platformVatSettings";
@@ -48,6 +53,7 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: "شات مباشر مع العملاء" },
         { kind: "text", value: "أولوية في نتائج البحث" },
         { kind: "text", value: "إحصائيات المشاهدات" },
+        { kind: "text", value: BARBER_DASHBOARD_GOLD_LINE },
       ],
     },
     {
@@ -61,7 +67,8 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: "كل مميزات الذهبي" },
         { kind: "text", value: "شارة ماسية مميزة" },
         { kind: "text", value: "أولوية قصوى في الظهور" },
-        { kind: "text", value: "نظام حجز المواعيد" },
+        { kind: "text", value: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
+        { kind: "text", value: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
         { kind: "text", value: "ترجمة تلقائية في الشات" },
         { kind: "text", value: "دعم فني مخصص 24/7" },
       ],

@@ -21,7 +21,12 @@ import {
 } from '@/lib/subscriptionRequestStorage';
 import { BANK_TRANSFER } from '@/config/bankTransfer';
 import { getBankTransferPayableAmountSar, getBankTransferPlanSummaryAr } from '@/config/subscriptionPricing';
-import { MAP_FEATURE_HERO } from '@/config/subscriptionPlanHero';
+import {
+  BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
+  BARBER_DASHBOARD_GOLD_LINE,
+  BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
+  MAP_FEATURE_HERO,
+} from '@/config/subscriptionPlanHero';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
@@ -130,6 +135,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'رابط واتساب مباشر' },
       { kind: 'line', text: 'شات مباشر مع العملاء' },
       { kind: 'line', text: 'أولوية في الظهور على الخريطة والبحث' },
+      { kind: 'line', text: BARBER_DASHBOARD_GOLD_LINE },
     ],
     popular: true,
   },
@@ -140,10 +146,12 @@ const SUBSCRIPTION_PLANS: {
     color: 'from-primary to-cyan-600',
     features: [
       { kind: 'map_hero' },
+      { kind: 'line', text: RATING_QR_PLAN_LINE },
       { kind: 'line', text: 'جميع مزايا الباقة الذهبية' },
+      { kind: 'line', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
+      { kind: 'line', text: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
       { kind: 'line', text: 'شارة ماسية مميزة على الخريطة' },
       { kind: 'line', text: 'أولوية قصوى في الظهور على الخريطة والبحث' },
-      { kind: 'line', text: 'نظام حجز المواعيد' },
       { kind: 'line', text: 'ترجمة تلقائية في الشات' },
     ],
     premium: true,
