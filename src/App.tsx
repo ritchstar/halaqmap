@@ -17,6 +17,7 @@ import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Payment from "@/pages/Payment";
 import { ROUTE_PATHS } from "@/lib/index";
+import { AdminAuthHashGate } from "@/components/AdminAuthHashGate";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
+        <AdminAuthHashGate>
         <ScrollToTop />
         <Routes>
           <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
@@ -59,6 +61,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PAYMENT} element={<Payment />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </AdminAuthHashGate>
       </HashRouter>
     </TooltipProvider>
   </QueryClientProvider>

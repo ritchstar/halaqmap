@@ -108,8 +108,7 @@ export default function Payment() {
     }
 
     setIsProcessing(false);
-    // Navigate to success page or dashboard
-    navigate(ROUTE_PATHS.BARBER_DASHBOARD);
+    navigate(ROUTE_PATHS.HOME);
   };
 
   return (

@@ -52,7 +52,8 @@ import {
 import { ROUTE_PATHS, SubscriptionRequest, Payment, AdminStats, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { loadMergedSubscriptionRequests } from '@/lib/subscriptionRequestStorage';
-import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { isAllowedAdminEmail } from '@/config/adminAuth';
 
 const BASE_ADMIN_STATS: AdminStats = {
   totalBarbers: 156,
@@ -120,13 +121,42 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    // التحقق من تسجيل الدخول
-    const auth = localStorage.getItem('adminAuth');
-    if (!auth) {
-      navigate(ROUTE_PATHS.ADMIN_LOGIN);
+    if (!isSupabaseConfigured()) {
+      navigate(ROUTE_PATHS.ADMIN_LOGIN, { replace: true });
       return;
     }
-    setAdminData(JSON.parse(auth));
+    const client = getSupabaseClient();
+    if (!client) {
+      navigate(ROUTE_PATHS.ADMIN_LOGIN, { replace: true });
+      return;
+    }
+
+    let cancelled = false;
+
+    const applySession = (session: { user: { id: string; email?: string | null } } | null) => {
+      if (cancelled) return;
+      if (!session?.user?.email || !isAllowedAdminEmail(session.user.email)) {
+        navigate(ROUTE_PATHS.ADMIN_LOGIN, { replace: true });
+        return;
+      }
+      setAdminData({
+        id: session.user.id,
+        name: 'لوحة الإدارة',
+        email: session.user.email,
+        role: 'admin',
+      });
+    };
+
+    void client.auth.getSession().then(({ data: { session } }) => applySession(session));
+
+    const { data: sub } = client.auth.onAuthStateChange((_event, session) => {
+      applySession(session);
+    });
+
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
   }, [navigate]);
 
   useEffect(() => {
@@ -136,8 +166,9 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('halaqmap-subscription-requests-changed', onChange);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
+  const handleLogout = async () => {
+    const client = getSupabaseClient();
+    await client?.auth.signOut();
     navigate(ROUTE_PATHS.HOME);
   };
 
@@ -204,7 +235,7 @@ export default function AdminDashboard() {
               <div>
                 <h1 className="text-xl font-bold">{adminData.name}</h1>
                 <Badge variant="secondary" className="bg-gradient-to-r from-red-500/20 to-red-600/20 text-red-600 border-red-500/30">
-                  👑 مدير المنصة
+                  لوحة الإدارة
                 </Badge>
               </div>
             </div>

@@ -157,18 +157,6 @@ export function Layout({ children }: LayoutProps) {
                   تسجيل حلاق
                 </NavLink>
                 <NavLink
-                  to={ROUTE_PATHS.BARBER_LOGIN}
-                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  💎 لوحة تحكم الحلاق
-                </NavLink>
-                <NavLink
-                  to={ROUTE_PATHS.ADMIN_LOGIN}
-                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  👑 لوحة تحكم المالك
-                </NavLink>
-                <NavLink
                   to={ROUTE_PATHS.ABOUT}
                   className="block text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
