@@ -209,8 +209,12 @@ function cdnPrefixImages(): Plugin {
 export default defineConfig(({ mode }) => {
   return {
     server: {
-      host: "::",
-      port: 8080,
+      // 127.0.0.1 يقلّل مشاكل localhost/IPv6 على ويندوز؛ strictPort يمنع الالتفاف لمنفذ آخر دون أن تدري
+      host: '127.0.0.1',
+      port: 5173,
+      strictPort: true,
+      // يفتح المتصفح على الرابط الصحيح تلقائياً عند npm run dev
+      open: true,
     },
     plugins: [
       tailwindcss(),

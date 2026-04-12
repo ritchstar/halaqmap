@@ -1,17 +1,24 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
-import { Barber, FilterState, SubscriptionTier, filterBarbersByDistance } from '@/lib/index';
+import { Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { mockBarbers } from '@/data/index';
 import { LocationButton } from '@/components/LocationButton';
 import { FilterBar } from '@/components/FilterBar';
 import { BarberCard } from '@/components/BarberCards';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { IMAGES } from '@/assets/images';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { fetchPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { toast } from '@/components/ui/sonner';
 
 export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
+  const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
+  const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>(() =>
+    isSupabaseConfigured() ? 'loading' : 'unused'
+  );
   const [filters, setFilters] = useState<FilterState>({
     maxDistance: 5,
     tiers: [],
@@ -20,10 +27,38 @@ export default function Home() {
     categories: [],
   });
 
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await fetchPublicBarbersFromSupabase();
+        if (cancelled) return;
+        setRemoteBarbers(list);
+        setRemoteStatus('ready');
+      } catch {
+        if (cancelled) return;
+        toast.error('تعذر تحميل قائمة الحلاقين من السيرفر. سيتم عرض بيانات تجريبية مؤقتاً.');
+        setRemoteStatus('error');
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const catalogBarbers = useMemo(() => {
+    if (!isSupabaseConfigured() || remoteStatus === 'error') return mockBarbers;
+    if (remoteStatus === 'loading') return mockBarbers;
+    return remoteBarbers;
+  }, [remoteBarbers, remoteStatus]);
+
   const filteredBarbers = useMemo(() => {
     if (!userLocation) return [];
-    return filterBarbersByDistance(mockBarbers, userLocation, filters);
-  }, [userLocation, filters]);
+    return filterBarbersByDistance(catalogBarbers, userLocation, filters);
+  }, [userLocation, filters, catalogBarbers]);
 
   const handleLocationDetected = (location: { lat: number; lng: number }) => {
     setUserLocation(location);
