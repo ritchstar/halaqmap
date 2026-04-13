@@ -18,12 +18,12 @@ export function registrationSubmissionErrorForToast(message: string): string {
     return (
       'تعذّر حفظ الطلب في قاعدة البيانات.\n' +
       'سياسات الأمان ترفض الإدراج في جدول طلبات التسجيل.\n\n' +
-      'التنفيذ في لوحة Supabase:\n' +
+      'اتبع الخطوات التالية من لوحة تحكم Supabase لديك:\n' +
       ltrBlock([
-        'SQL Editor → run:',
-        'supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
-        'OR supabase/migrations/14_registration_submissions_public.sql',
-        'Policy must allow INSERT for role anon on registration_submissions',
+        'SQL Editor: paste and run ONE of:',
+        '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
+        '  OR supabase/migrations/14_registration_submissions_public.sql',
+        'Required: INSERT policy for role anon on table registration_submissions',
       ])
     );
   }
@@ -31,11 +31,11 @@ export function registrationSubmissionErrorForToast(message: string): string {
     return (
       'تعذّر حفظ الطلب في قاعدة البيانات.\n' +
       'حجم بيانات الطلب لا يمر بسياسة الإدراج الحالية.\n\n' +
-      'التنفيذ في لوحة Supabase:\n' +
+      'اتبع الخطوات التالية من لوحة تحكم Supabase لديك:\n' +
       ltrBlock([
-        'SQL Editor → run:',
-        'supabase/migrations/19_registration_submissions_payload_limit.sql',
-        '(raises payload limit to 5 MB in insert policy)',
+        'SQL Editor: paste and run:',
+        '  supabase/migrations/19_registration_submissions_payload_limit.sql',
+        '  (raises payload limit to 5 MB in the insert policy)',
       ])
     );
   }

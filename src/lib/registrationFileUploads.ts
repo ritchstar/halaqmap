@@ -24,12 +24,12 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
     return (
       'تعذّر رفع الملفات إلى السيرفر.\n' +
       'سبب محتمل: حاوية تخزين مرفقات التسجيل غير مُنشأة في المشروع.\n\n' +
-      'التنفيذ في لوحة Supabase (الأسماء بالإنجليزية كما في الواجهة):\n' +
+      'اتبع الخطوات التالية من لوحة تحكم Supabase لديك:\n' +
       ltrBlock([
-        '1) Open SQL Editor',
-        '2) Run the full script from your repo:',
-        '   supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
-        '   (creates bucket registration-uploads + policies)',
+        'Step 1 — Open SQL Editor',
+        'Step 2 — Paste and run the full file from your repo:',
+        '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
+        '  (creates bucket registration-uploads + policies)',
       ])
     );
   }
@@ -42,13 +42,13 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
     return (
       'تعذّر رفع الملفات إلى السيرفر.\n' +
       'رفض الخادم الرفع بسبب سياسات الأمان على التخزين.\n\n' +
-      'التنفيذ في لوحة Supabase (الأسماء بالإنجليزية كما في الواجهة):\n' +
+      'اتبع الخطوات التالية من لوحة تحكم Supabase لديك:\n' +
       ltrBlock([
-        '1) SQL Editor → run:',
-        '   supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
-        '   OR supabase/migrations/17_registration_uploads_storage.sql',
-        '2) If already applied: Storage → Policies',
-        '   → confirm INSERT policy for role anon on bucket registration-uploads',
+        'Step 1 — SQL Editor: paste and run ONE of:',
+        '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
+        '  OR supabase/migrations/17_registration_uploads_storage.sql',
+        'Step 2 — If scripts already ran: open Storage, then Policies',
+        '  Confirm INSERT is allowed for role anon on bucket registration-uploads',
       ])
     );
   }
