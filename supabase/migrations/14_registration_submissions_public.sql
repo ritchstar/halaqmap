@@ -24,7 +24,7 @@ CREATE POLICY "anon_insert_registration_submissions"
   TO anon
   WITH CHECK (
     char_length(id) <= 80
-    AND octet_length(payload::text) <= 1048576
+    AND octet_length(payload::text) <= 5242880
   );
 
 -- لا سياسة SELECT للـ anon افتراضياً (تجنب تسريب بيانات عبر مفتاح الواجهة).
@@ -33,4 +33,5 @@ CREATE POLICY "anon_insert_registration_submissions"
 --   • سياسة SELECT مرتبطة بـ auth.uid() للأدمن فقط، أو
 --   • راجع البيانات من Supabase → Table Editor.
 --
--- لرفع حد حجم JSON (payload) بعد الطلبات الكبيرة: نفّذ أيضاً 19_registration_submissions_payload_limit.sql
+-- الحد الحالي لحجم payload: 5 ميجابايت. إن كان مشروعك قديماً وما زال عند 1 ميجابايت، نفّذ 19_registration_submissions_payload_limit.sql
+-- أو نفّذ مرة واحدة: ../REGISTRATION_PUBLIC_FULL_SETUP.sql
