@@ -5,6 +5,24 @@ export const REGISTRATION_UPLOADS_BUCKET = 'registration-uploads';
 
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 
+/** رسالة عربية أوضح عند فشل الرفع (خاصة إعداد Supabase Storage). */
+export function describeRegistrationUploadFailure(serverMessage: string): string {
+  const m = serverMessage.toLowerCase();
+  if (m.includes('bucket not found') || m.includes('bucket does not exist')) {
+    return (
+      `حاوية التخزين «${REGISTRATION_UPLOADS_BUCKET}» غير موجودة في مشروع Supabase. ` +
+      'افتح SQL Editor ونفّذ محتوى الملف supabase/migrations/17_registration_uploads_storage.sql (أو أنشئ الـ bucket يدوياً بنفس الاسم مع سياسات الرفع للتسجيل).'
+    );
+  }
+  if (m.includes('new row violates row-level security') || m.includes('row-level security')) {
+    return (
+      'رفض الخادم الرفع بسبب سياسات الأمان (RLS). تأكد من تنفيذ ترحيل التخزين 17_registration_uploads_storage.sql كاملاً.'
+    );
+  }
+  return serverMessage;
+}
+
+
 function safeFileSegment(name: string): string {
   const base = name.replace(/[^\w.\u0600-\u06FF-]/g, '_').slice(0, 120);
   return base || 'file';
