@@ -8,11 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Phone, MapPin, MessageCircle, Calendar, Star, Shield, Clock, QrCode } from 'lucide-react';
+import { Phone, MapPin, MessageCircle, Star, Shield, Clock, QrCode } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
 import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
+import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
+import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
 
 interface BarberDetailModalProps {
   barber: Barber;
@@ -21,6 +23,7 @@ interface BarberDetailModalProps {
 }
 
 export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModalProps) {
+  const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
   const [barberReviews, setBarberReviews] = useState(() => getMergedReviewsForBarber(barber.id));
 
   useEffect(() => {
@@ -161,13 +164,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
             </div>
           )}
 
-          {barber.subscription === SubscriptionTier.DIAMOND && (
-            <Button
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-6 text-lg"
-            >
-              <Calendar className="w-5 h-5 ml-2" />
-              احجز موعدك الآن
-            </Button>
+          {barber.subscription === SubscriptionTier.DIAMOND && showDiamondScheduling && (
+            <DiamondAppointmentBooking barberId={barber.id} barberName={barber.name} />
           )}
 
           <Separator />

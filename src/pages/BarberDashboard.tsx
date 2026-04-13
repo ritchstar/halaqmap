@@ -43,6 +43,10 @@ import {
 } from '@/lib/saudiWorkingWeek';
 import { buildRatingInviteUrl } from '@/lib/ratingInvite';
 import { getAllMergedReviewsForBarberManage, updateStoredQrReview } from '@/lib/qrReviewsStorage';
+import {
+  readDiamondSchedulingPublicLocal,
+  setDiamondSchedulingPublicLocal,
+} from '@/lib/diamondSchedulingVisibility';
 import { RATING_QR_BARBER_GUIDE, RATING_QR_FEATURE_TITLE } from '@/config/ratingQrInvite';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
@@ -775,6 +779,12 @@ function SettingsSection({
   const showWeeklyEditor =
     subscriptionTier === SubscriptionTier.GOLD || subscriptionTier === SubscriptionTier.DIAMOND;
 
+  const [diamondSchedulePublic, setDiamondSchedulePublic] = useState(() => {
+    const fromLs = readDiamondSchedulingPublicLocal(barberId);
+    if (fromLs !== null) return fromLs;
+    return mockRow?.diamondAppointmentSchedulingEnabled !== false;
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -838,6 +848,42 @@ function SettingsSection({
             <Button type="button" className="w-full" onClick={saveWorkingHours}>
               حفظ أوقات العمل
             </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {subscriptionTier === SubscriptionTier.DIAMOND && (
+        <Card className="mb-6 border-accent/40 bg-gradient-to-br from-accent/5 to-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Calendar className="w-5 h-5 text-accent" />
+              جدولة المواعيد (ماسي)
+            </CardTitle>
+            <CardDescription>
+              تحكم بإظهار أو إخفاء كتلة الحجز على بطاقة صالونك ونافذة التفاصيل في خريطة حلاق ماب. يختار العميل
+              تاريخاً ووقتاً ويُرسل رقم جوال لاعتماد الطلب — للمعاينة يُحفظ الإعداد في هذا المتصفح.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-muted/20 p-4">
+              <div className="space-y-1">
+                <p className="text-sm font-medium">إظهار جدولة المواعيد للعملاء</p>
+                <p className="text-xs text-muted-foreground">
+                  عند الإيقاف تختفي الكتلة من الخريطة والقائمة لزوار التطبيق (نفس الجهاز).
+                </p>
+              </div>
+              <Switch
+                id="diamond-schedule-public"
+                checked={diamondSchedulePublic}
+                onCheckedChange={(checked) => {
+                  setDiamondSchedulePublic(checked);
+                  setDiamondSchedulingPublicLocal(barberId, checked);
+                  toast.success(
+                    checked ? 'ظهرت جدولة المواعيد للعملاء على الخريطة' : 'أُخفيت جدولة المواعيد عن العملاء'
+                  );
+                }}
+              />
+            </div>
           </CardContent>
         </Card>
       )}

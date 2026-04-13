@@ -57,6 +57,11 @@ export interface Barber {
   ratingInviteToken?: string;
   /** بطاقة ببنر علوي (عرض تصميم للباقة البرونزية مثل الذهبي/الماسي) */
   showcaseTopBanner?: boolean;
+  /**
+   * باقة ماسية فقط: إظهار كتلة جدولة المواعيد للعملاء على البطاقة والتفاصيل.
+   * إذا وُضعت `false` تُخفى من البيانات؛ يمكن أيضاً الإخفاء من لوحة الحلاق (محلي في المتصفح للمعاينة).
+   */
+  diamondAppointmentSchedulingEnabled?: boolean;
 }
 
 export interface Appointment {

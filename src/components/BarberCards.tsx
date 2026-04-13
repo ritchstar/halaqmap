@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Star, MapPin, Phone, MessageCircle, Shield, Sparkles } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { Barber, SubscriptionTier, calculateDistance } from "@/lib/index";
+import { useDiamondAppointmentSchedulingShown } from "@/lib/diamondSchedulingVisibility";
+import { DiamondAppointmentBooking } from "@/components/DiamondAppointmentBooking";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,6 +20,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
     barber.location.lat,
     barber.location.lng
   );
+  const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
 
   const openGoogleMaps = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${barber.location.lat},${barber.location.lng}`;
@@ -352,6 +355,11 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
               <MessageCircle className="w-5 h-5" />
             </Button>
           </div>
+          {showDiamondScheduling && (
+            <div className="mt-4">
+              <DiamondAppointmentBooking barberId={barber.id} barberName={barber.name} compact />
+            </div>
+          )}
         </div>
       </Card>
     </motion.div>
