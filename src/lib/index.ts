@@ -163,6 +163,8 @@ export interface SubscriptionRequest {
   receiptDataUrl?: string;
   /** روابط المرفقات على Supabase Storage عند الرفع الناجح */
   registrationAttachmentUrls?: RegistrationAttachmentUrls;
+  /** أسبوع كامل (سبعة أيام) كما أُرسل مع طلب التسجيل */
+  weeklyWorkingHours?: { day: string; open: string; close: string }[];
   servicesSummary?: string;
   categories?: string[];
 }

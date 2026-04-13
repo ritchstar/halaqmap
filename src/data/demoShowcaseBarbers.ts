@@ -1,5 +1,6 @@
 import { Barber, SubscriptionTier } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
+import { STANDARD_MOCK_WORKING_HOURS } from '@/lib/saudiWorkingWeek';
 
 /** حلاق واحد لكل باقة — للعرض التجريبي على الصفحة الرئيسية فقط */
 export const demoShowcaseBarbers: Barber[] = [
@@ -25,10 +26,9 @@ export const demoShowcaseBarbers: Barber[] = [
       { name: 'قصة شعر رجالي', price: 50 },
       { name: 'حلاقة ذقن', price: 30 },
     ],
-    workingHours: [
-      { day: 'السبت', open: '09:00', close: '23:00' },
-      { day: 'الأحد', open: '09:00', close: '23:00' },
-    ],
+    workingHours: STANDARD_MOCK_WORKING_HOURS.map((h) =>
+      h.day === 'الجمعة' ? { ...h, open: '14:00', close: '23:00' } : { ...h, close: '23:00' }
+    ),
     isOpen: true,
     verified: true,
     categories: ['رجالي', 'أطفال', 'تقليدي'],
@@ -56,10 +56,9 @@ export const demoShowcaseBarbers: Barber[] = [
       { name: 'قصة شعر رجالي', price: 45 },
       { name: 'حلاقة ذقن', price: 25 },
     ],
-    workingHours: [
-      { day: 'السبت', open: '10:00', close: '22:00' },
-      { day: 'الأحد', open: '10:00', close: '22:00' },
-    ],
+    workingHours: STANDARD_MOCK_WORKING_HOURS.map((h) =>
+      h.day === 'الجمعة' ? { ...h, open: '15:00' } : { ...h, open: '10:00' }
+    ),
     isOpen: true,
     verified: true,
     categories: ['رجالي', 'تقليدي'],
@@ -87,10 +86,9 @@ export const demoShowcaseBarbers: Barber[] = [
       { name: 'قصة شعر رجالي', price: 35 },
       { name: 'حلاقة ذقن', price: 20 },
     ],
-    workingHours: [
-      { day: 'السبت', open: '11:00', close: '21:00' },
-      { day: 'الأحد', open: '11:00', close: '21:00' },
-    ],
+    workingHours: STANDARD_MOCK_WORKING_HOURS.map((h) =>
+      h.day === 'الجمعة' ? { ...h, open: '16:00', close: '21:00' } : { ...h, open: '11:00', close: '21:00' }
+    ),
     isOpen: true,
     verified: false,
     categories: ['رجالي'],

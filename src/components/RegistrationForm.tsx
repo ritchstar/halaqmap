@@ -45,6 +45,11 @@ import { getSupabaseClient } from '@/integrations/supabase/client';
 import { uploadRegistrationAttachments } from '@/lib/registrationFileUploads';
 import { toast } from '@/components/ui/sonner';
 import {
+  createInitialWorkingWeekForm,
+  workingWeekFormToPayload,
+  type WorkingWeekFormRow,
+} from '@/lib/saudiWorkingWeek';
+import {
   Check,
   Upload,
   MapPin,
@@ -61,6 +66,7 @@ import {
   Sparkles,
   AlertCircle,
   Loader2,
+  Clock,
 } from 'lucide-react';
 
 interface FormData {
@@ -95,6 +101,8 @@ interface FormData {
     name: string;
     price: string;
   }[];
+  /** سبعة أيام — للباقة البرونزية يُحدَّد هنا ويُثبَّت في العرض */
+  workingWeek: WorkingWeekFormRow[];
   payment: {
     method: 'monthly' | 'bank_transfer' | '';
     receipt: File | null;
@@ -107,8 +115,9 @@ const STEPS = [
   { id: 3, title: 'المستندات', icon: Upload },
   { id: 4, title: 'الموقع', icon: MapPin },
   { id: 5, title: 'الصور', icon: ImageIcon },
-  { id: 6, title: 'المنيو', icon: FileText },
-  { id: 7, title: 'الدفع', icon: CreditCard },
+  { id: 6, title: 'أوقات العمل', icon: Clock },
+  { id: 7, title: 'المنيو', icon: FileText },
+  { id: 8, title: 'الدفع', icon: CreditCard },
 ];
 
 type FormPlanFeature = { kind: 'map_hero' } | { kind: 'line'; text: string };
@@ -130,6 +139,7 @@ const SUBSCRIPTION_PLANS: {
     features: [
       { kind: 'map_hero' },
       { kind: 'line', text: 'صورتان أساسيتان (خارجي وداخل المحل) وأربع صور للبنر مع الطلب' },
+      { kind: 'line', text: 'جدول أسبوعي كامل لأوقات العمل (إلزامي مع الطلب ويُعرَض للعملاء)' },
       { kind: 'line', text: 'رقم الهاتف للتواصل' },
       { kind: 'line', text: 'ظهور في نتائج البحث والخريطة' },
     ],
@@ -145,6 +155,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'جميع مزايا الباقة البرونزية' },
       { kind: 'line', text: 'بنر موسع بصور متعددة' },
       { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
+      { kind: 'line', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)' },
       { kind: 'line', text: 'رابط واتساب مباشر' },
       { kind: 'line', text: 'شات مباشر مع العملاء' },
       { kind: 'line', text: 'أولوية في الظهور على الخريطة والبحث' },
@@ -165,6 +176,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
       { kind: 'line', text: 'شارة ماسية مميزة على الخريطة' },
       { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
+      { kind: 'line', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)' },
       { kind: 'line', text: 'أولوية قصوى في الظهور على الخريطة والبحث' },
       { kind: 'line', text: 'ترجمة تلقائية في الشات' },
     ],
@@ -227,6 +239,7 @@ export function RegistrationForm() {
       bannerImages: [null, null, null, null],
     },
     services: [{ name: '', price: '' }],
+    workingWeek: createInitialWorkingWeekForm(),
     payment: {
       method: '',
       receipt: null,
@@ -304,6 +317,18 @@ export function RegistrationForm() {
         return;
       }
     }
+    if (currentStep === 6) {
+      if (formData.tier === SubscriptionTier.BRONZE) {
+        for (const row of formData.workingWeek) {
+          if (!row.closed && (!row.open.trim() || !row.close.trim())) {
+            alert(
+              'الباقة البرونزية: يرجى تحديد وقت الفتح والإغلاق لكل يوم مفتوح، أو تفعيل «مغلق» لأيام الإجازة.'
+            );
+            return;
+          }
+        }
+      }
+    }
 
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
@@ -314,6 +339,13 @@ export function RegistrationForm() {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const patchWorkingWeekRow = (index: number, patch: Partial<WorkingWeekFormRow>) => {
+    setFormData((prev) => ({
+      ...prev,
+      workingWeek: prev.workingWeek.map((r, i) => (i === index ? { ...r, ...patch } : r)),
+    }));
   };
 
   const handleLegalDocumentUpload = (field: 'commercialRegistry' | 'municipalLicense', file: File | null) => {
@@ -450,6 +482,14 @@ export function RegistrationForm() {
       alert('يرجى إكمال خطوة الصور: أربع صور للبنر إلزامية.');
       return;
     }
+    if (formData.tier === SubscriptionTier.BRONZE) {
+      for (const row of formData.workingWeek) {
+        if (!row.closed && (!row.open.trim() || !row.close.trim())) {
+          alert('يرجى إكمال أوقات العمل: لكل يوم مفتوح حدّد وقت الفتح والإغلاق (الباقة البرونزية إلزامية).');
+          return;
+        }
+      }
+    }
 
     setIsSubmitting(true);
     try {
@@ -478,6 +518,11 @@ export function RegistrationForm() {
       const servicesSummary = formData.services
         .filter((s) => s.name.trim())
         .map((s) => `${s.name.trim()} — ${s.price || '—'} ر.س`)
+        .join('\n');
+
+      const weeklyWorkingHoursPayload = workingWeekFormToPayload(formData.workingWeek);
+      const workingHoursSummaryText = weeklyWorkingHoursPayload
+        .map((h) => `${h.day}: ${h.open === 'مغلق' ? 'مغلق' : `${h.open} – ${h.close}`}`)
         .join('\n');
 
       let registrationAttachmentUrls: RegistrationAttachmentUrls | undefined;
@@ -545,6 +590,7 @@ export function RegistrationForm() {
         receiptFileName: receiptFile?.name,
         receiptDataUrl,
         registrationAttachmentUrls,
+        weeklyWorkingHours: weeklyWorkingHoursPayload,
         servicesSummary: servicesSummary || '—',
         categories: [...formData.categories],
       };
@@ -579,6 +625,8 @@ export function RegistrationForm() {
         `الإحداثيات: ${formData.location.lat || '—'}, ${formData.location.lng || '—'}\n` +
         `\n` +
         `الخدمات والأسعار:\n${servicesSummary || '—'}\n` +
+        `\n` +
+        `أوقات العمل (أسبوع كامل):\n${workingHoursSummaryText}\n` +
         `\n` +
         `المستندات (أسماء الملفات):\n${docLabels.join('\n') || '—'}\n` +
         `\n` +
@@ -1177,6 +1225,81 @@ export function RegistrationForm() {
           {currentStep === 6 && (
             <Card>
               <CardHeader>
+                <CardTitle className="text-2xl">أوقات العمل (الأسبوع كاملاً)</CardTitle>
+                <CardDescription>
+                  من السبت إلى الجمعة — صفٌّ مضغوط لكل يوم. الباقة البرونزية: إلزامي ويُعرَض للعملاء كما تُدخله هنا.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(formData.tier === SubscriptionTier.GOLD || formData.tier === SubscriptionTier.DIAMOND) && (
+                  <Alert className="border-primary/40 bg-primary/5">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-sm leading-relaxed">
+                      باقتك تتيح لك بعد التفعيل <strong>تحكّماً كاملاً</strong> في أوقات العمل لكل يوم من{' '}
+                      <strong>لوحة التحكم</strong> (جدول أسبوعي). ما تُدخله الآن يُستخدم لمراجعة الطلب؛ يمكنك
+                      تعديله لاحقاً بحرية.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {formData.tier === SubscriptionTier.BRONZE && (
+                  <Alert>
+                    <Clock className="h-4 w-4" />
+                    <AlertDescription className="text-sm">
+                      <strong>الباقة البرونزية:</strong> أوقات العمل هنا <strong>إلزامية</strong> وتُثبَّت في بطاقة
+                      المحل للعملاء. عيّن «مغلق» لأيام الراحة.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <div className="rounded-lg border border-border divide-y divide-border overflow-hidden">
+                  {formData.workingWeek.map((row, index) => (
+                    <div
+                      key={row.day}
+                      className="flex flex-col gap-2 p-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 bg-muted/20"
+                    >
+                      <div className="flex items-center gap-3 min-w-[7rem]">
+                        <span className="text-sm font-semibold text-foreground">{row.day}</span>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id={`closed-${index}`}
+                            checked={row.closed}
+                            onCheckedChange={(checked) =>
+                              patchWorkingWeekRow(index, { closed: checked === true })
+                            }
+                          />
+                          <Label htmlFor={`closed-${index}`} className="text-xs text-muted-foreground cursor-pointer">
+                            مغلق
+                          </Label>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                        <Input
+                          type="time"
+                          value={row.open}
+                          disabled={row.closed}
+                          onChange={(e) => patchWorkingWeekRow(index, { open: e.target.value })}
+                          className="w-[7.5rem] h-9 text-sm"
+                          aria-label={`${row.day} من`}
+                        />
+                        <span className="text-xs text-muted-foreground hidden sm:inline">—</span>
+                        <Input
+                          type="time"
+                          value={row.close}
+                          disabled={row.closed}
+                          onChange={(e) => patchWorkingWeekRow(index, { close: e.target.value })}
+                          className="w-[7.5rem] h-9 text-sm"
+                          aria-label={`${row.day} إلى`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {currentStep === 7 && (
+            <Card>
+              <CardHeader>
                 <CardTitle className="text-2xl">منيو الحلاقة والأسعار</CardTitle>
                 <CardDescription>أضف الخدمات المتوفرة وأسعارها</CardDescription>
               </CardHeader>
@@ -1225,7 +1348,7 @@ export function RegistrationForm() {
             </Card>
           )}
 
-          {currentStep === 7 && (
+          {currentStep === 8 && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl">طريقة الدفع</CardTitle>

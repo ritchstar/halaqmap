@@ -65,6 +65,7 @@ import {
   type AdminBarberRow,
 } from '@/lib/adminBarbersRemote';
 import { patchRegistrationSubmissionPayloadRemote } from '@/lib/registrationSubmissionsRemote';
+import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 import {
   calcVatBreakdown,
   getPlatformVatSettings,
@@ -910,6 +911,31 @@ function RequestReviewDialog({
               </Button>
             </div>
           </div>
+
+          {request.weeklyWorkingHours && request.weeklyWorkingHours.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-2">أوقات العمل (من الطلب)</h3>
+              <p className="text-xs text-muted-foreground mb-2">أسبوع كامل كما سجّل مقدّم الطلب</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 rounded-lg border border-border p-2 bg-muted/20">
+                {getOrderedWeekHoursForDisplay(request.weeklyWorkingHours).map(({ day, line, closed }) => (
+                  <div
+                    key={day}
+                    className={`rounded-md border px-2 py-1.5 text-center sm:text-right ${
+                      closed ? 'bg-muted/40 border-border/60' : 'bg-background border-border'
+                    }`}
+                  >
+                    <div className="text-[10px] sm:text-xs font-semibold leading-tight">{day}</div>
+                    <div
+                      className={`text-[10px] sm:text-xs font-mono leading-tight ${closed ? 'text-muted-foreground' : ''}`}
+                      dir="ltr"
+                    >
+                      {line}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Documents */}
           <div>

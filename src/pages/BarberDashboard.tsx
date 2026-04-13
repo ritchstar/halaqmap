@@ -33,9 +33,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import QRCode from 'react-qr-code';
-import { ROUTE_PATHS, Post, Appointment, ChatMessage, BarberStats, Review } from '@/lib';
+import { ROUTE_PATHS, Post, Appointment, ChatMessage, BarberStats, Review, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { mockBarbers } from '@/data/index';
+import {
+  createInitialWorkingWeekForm,
+  workingSlotsToFormRows,
+  type WorkingWeekFormRow,
+} from '@/lib/saudiWorkingWeek';
 import { buildRatingInviteUrl } from '@/lib/ratingInvite';
 import { getAllMergedReviewsForBarberManage, updateStoredQrReview } from '@/lib/qrReviewsStorage';
 import { RATING_QR_BARBER_GUIDE, RATING_QR_FEATURE_TITLE } from '@/config/ratingQrInvite';
@@ -63,6 +68,7 @@ export default function BarberDashboard() {
     setBarberData({
       ...parsed,
       ratingInviteToken: row?.ratingInviteToken ?? parsed.ratingInviteToken ?? '',
+      subscription: row?.subscription ?? SubscriptionTier.BRONZE,
     });
   }, [navigate]);
 
@@ -195,8 +201,19 @@ export default function BarberDashboard() {
               </div>
               <div>
                 <h1 className="text-xl font-bold">{barberData.name}</h1>
-                <Badge variant="secondary" className="bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 text-yellow-600 border-yellow-500/30">
-                  💎 باقة ماسية
+                <Badge
+                  variant="secondary"
+                  className={
+                    barberData.subscription === SubscriptionTier.DIAMOND
+                      ? 'bg-gradient-to-r from-cyan-500/15 to-primary/20 text-primary border-primary/30'
+                      : barberData.subscription === SubscriptionTier.GOLD
+                        ? 'bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 text-yellow-700 border-yellow-500/30'
+                        : 'bg-muted text-muted-foreground border-border'
+                  }
+                >
+                  {barberData.subscription === SubscriptionTier.DIAMOND && '💎 باقة ماسية'}
+                  {barberData.subscription === SubscriptionTier.GOLD && '🥇 باقة ذهبية'}
+                  {barberData.subscription === SubscriptionTier.BRONZE && '🥉 باقة برونزية'}
                 </Badge>
               </div>
             </div>
@@ -315,7 +332,11 @@ export default function BarberDashboard() {
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
-            <SettingsSection barberData={barberData} />
+            <SettingsSection
+              barberId={barberData.id}
+              barberData={barberData}
+              subscriptionTier={barberData.subscription as SubscriptionTier}
+            />
           </TabsContent>
 
           <TabsContent value="qr-ratings" className="space-y-6">
@@ -717,7 +738,43 @@ function PostsSection({ posts }: { posts: Post[] }) {
 }
 
 // Settings Section
-function SettingsSection({ barberData }: { barberData: any }) {
+function SettingsSection({
+  barberId,
+  barberData,
+  subscriptionTier,
+}: {
+  barberId: string;
+  barberData: { name?: string; email?: string };
+  subscriptionTier: SubscriptionTier;
+}) {
+  const mockRow = mockBarbers.find((b) => b.id === barberId);
+  const storageKey = `halaqmap_barber_dashboard_hours_${barberId}`;
+
+  const [workingRows, setWorkingRows] = useState<WorkingWeekFormRow[]>(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) return JSON.parse(raw) as WorkingWeekFormRow[];
+    } catch {
+      /* ignore */
+    }
+    if (mockRow?.workingHours?.length) {
+      return workingSlotsToFormRows(mockRow.workingHours);
+    }
+    return createInitialWorkingWeekForm();
+  });
+
+  const patchRow = (index: number, patch: Partial<WorkingWeekFormRow>) => {
+    setWorkingRows((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  };
+
+  const saveWorkingHours = () => {
+    localStorage.setItem(storageKey, JSON.stringify(workingRows));
+    toast.success('تم حفظ جدول أوقات العمل');
+  };
+
+  const showWeeklyEditor =
+    subscriptionTier === SubscriptionTier.GOLD || subscriptionTier === SubscriptionTier.DIAMOND;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -725,6 +782,77 @@ function SettingsSection({ barberData }: { barberData: any }) {
       transition={{ duration: 0.5 }}
     >
       <h2 className="text-2xl font-bold mb-6">الإعدادات</h2>
+
+      {showWeeklyEditor && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              جدول أوقات العمل الأسبوعي
+            </CardTitle>
+            <CardDescription>
+              حدّد ساعات العمل لكل يوم من السبت إلى الجمعة. يمكنك تعديل الجدول في أي وقت؛ التغييرات تُحفظ في
+              المتصفح لهذا العرض التجريبي.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg border border-border divide-y divide-border overflow-hidden">
+              {workingRows.map((row, index) => (
+                <div
+                  key={row.day}
+                  className="flex flex-col gap-2 p-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 bg-muted/20"
+                >
+                  <div className="flex items-center gap-3 min-w-[7rem]">
+                    <span className="text-sm font-semibold">{row.day}</span>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id={`dash-closed-${index}`}
+                        checked={row.closed}
+                        onCheckedChange={(checked) => patchRow(index, { closed: checked })}
+                      />
+                      <Label htmlFor={`dash-closed-${index}`} className="text-xs text-muted-foreground cursor-pointer">
+                        مغلق
+                      </Label>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <Input
+                      type="time"
+                      value={row.open}
+                      disabled={row.closed}
+                      onChange={(e) => patchRow(index, { open: e.target.value })}
+                      className="w-[7.5rem] h-9 text-sm"
+                    />
+                    <span className="text-xs text-muted-foreground hidden sm:inline">—</span>
+                    <Input
+                      type="time"
+                      value={row.close}
+                      disabled={row.closed}
+                      onChange={(e) => patchRow(index, { close: e.target.value })}
+                      className="w-[7.5rem] h-9 text-sm"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button type="button" className="w-full" onClick={saveWorkingHours}>
+              حفظ أوقات العمل
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {!showWeeklyEditor && (
+        <Card className="mb-6 border-dashed">
+          <CardHeader>
+            <CardTitle className="text-base">أوقات العمل</CardTitle>
+            <CardDescription>
+              في الباقة البرونزية تُحدَّد أوقات العمل عند تقديم طلب الاشتراك وتُعرَف للعملاء كما سجّلتها. للتعديل
+              لاحقاً يمكن الترقية إلى باقة ذهبية أو ماسية.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

@@ -34,6 +34,7 @@ const subscriptionPlans: {
     features: [
       { kind: 'map_hero' },
       { kind: 'row', text: 'صورتان أساسيتان (خارجي وداخل) وأربع صور للبنر مع الطلب', included: true },
+      { kind: 'row', text: 'جدول أسبوعي كامل لأوقات العمل مع الطلب (إلزامي للبرونزي)', included: true },
       { kind: 'row', text: 'رقم الهاتف للتواصل', included: true },
       { kind: 'row', text: 'معلومات أساسية (الاسم، العنوان، ساعات العمل)', included: true },
       { kind: 'row', text: 'بنر موسع للمحل', included: false },
@@ -58,6 +59,7 @@ const subscriptionPlans: {
       { kind: 'row', text: 'جميع مزايا الباقة البرونزية', included: true },
       { kind: 'row', text: 'بنر موسع للمحل بصور متعددة', included: true },
       { kind: 'row', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل', included: true },
+      { kind: 'row', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)', included: true },
       { kind: 'row', text: 'رابط واتساب مباشر', included: true },
       { kind: 'row', text: 'شات مباشر مع العملاء', included: true },
       { kind: 'row', text: 'أولوية في الظهور على الخريطة والبحث', included: true },
@@ -79,6 +81,7 @@ const subscriptionPlans: {
       { kind: 'row', text: 'جميع مزايا الباقة الذهبية', included: true },
       { kind: 'row', text: 'شارة ماسية مميزة على الخريطة', included: true },
       { kind: 'row', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل', included: true },
+      { kind: 'row', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)', included: true },
       { kind: 'row', text: 'أولوية قصوى في الظهور على الخريطة والبحث', included: true },
       { kind: 'row', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE, included: true },
       { kind: 'row', text: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE, included: true },

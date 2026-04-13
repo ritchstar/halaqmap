@@ -33,6 +33,7 @@ export default function SubscriptionPolicy() {
       features: [
         { kind: "map_hero" },
         { kind: "text", value: "صورتان أساسيتان (خارجي وداخل) وأربع صور للبنر مع طلب الاشتراك" },
+        { kind: "text", value: "جدول أسبوعي كامل لأوقات العمل مع الطلب (إلزامي ويُعرَض للعملاء)" },
         { kind: "text", value: "رقم الهاتف وبيانات التواصل من بطاقة المحل" },
         { kind: "text", value: "ظهور في نتائج البحث" },
         { kind: "text", value: "تحديث المعلومات الأساسية" },
@@ -49,6 +50,7 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: "كل مميزات البرونزي" },
         { kind: "text", value: "بنر موسع بصور متعددة" },
         { kind: "text", value: "إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل" },
+        { kind: "text", value: "جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)" },
         { kind: "text", value: "رابط واتساب مباشر" },
         { kind: "text", value: "شات مباشر مع العملاء" },
         { kind: "text", value: "أولوية في نتائج البحث" },
@@ -67,6 +69,7 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: "كل مميزات الذهبي" },
         { kind: "text", value: "شارة ماسية مميزة" },
         { kind: "text", value: "إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل" },
+        { kind: "text", value: "جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)" },
         { kind: "text", value: "أولوية قصوى في الظهور" },
         { kind: "text", value: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
         { kind: "text", value: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },

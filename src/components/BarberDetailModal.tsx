@@ -12,6 +12,7 @@ import { Phone, MapPin, MessageCircle, Calendar, Star, Shield, Clock, QrCode } f
 import { SiWhatsapp } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
+import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 
 interface BarberDetailModalProps {
   barber: Barber;
@@ -200,15 +201,26 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
           <Separator />
 
           <div>
-            <h3 className="text-xl font-bold mb-4">أوقات العمل</h3>
+            <h3 className="text-lg font-bold mb-2">أوقات العمل</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              جدول الأسبوع كاملاً (من السبت إلى الجمعة)
+            </p>
             <Card>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {barber.workingHours.map((schedule, index) => (
-                    <div key={index} className="flex justify-between items-center p-2 rounded-lg bg-muted/50">
-                      <span className="font-semibold">{schedule.day}</span>
-                      <span className="text-muted-foreground" dir="ltr">
-                        {schedule.open} - {schedule.close}
+              <CardContent className="p-3 sm:p-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 sm:gap-2">
+                  {getOrderedWeekHoursForDisplay(barber.workingHours).map(({ day, line, closed }) => (
+                    <div
+                      key={day}
+                      className={`flex flex-col gap-0.5 rounded-md border px-2 py-1.5 text-center sm:text-right ${
+                        closed ? 'bg-muted/40 border-border/60' : 'bg-muted/50 border-border'
+                      }`}
+                    >
+                      <span className="text-[10px] sm:text-xs font-semibold text-foreground leading-tight">{day}</span>
+                      <span
+                        className={`text-[10px] sm:text-xs font-mono leading-tight ${closed ? 'text-muted-foreground' : 'text-foreground'}`}
+                        dir="ltr"
+                      >
+                        {line}
                       </span>
                     </div>
                   ))}
