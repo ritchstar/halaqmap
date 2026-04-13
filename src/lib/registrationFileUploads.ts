@@ -8,20 +8,29 @@ export const REGISTRATION_STORAGE_ORDER_ID_RE = /^HM-\d{8}-[A-Z0-9]{6}$/;
 
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 
-/** عزل اتجاه النص: يمنع اختلال ترتيب الكلمات العربية عند وجود مقاطع لاتينية داخل الرسالة. */
+/** كتلة LTR معزولة — لا تُدمج داخل جمل عربية حتى لا يختل ترتيب الكلمات في واجهة RTL. */
 const LRI = '\u2066';
 const PDI = '\u2069';
 
-/** رسالة واحدة جاهزة للعرض في التنبيه (بدون دمج جملتين قد يفسد ترتيبها في واجهة RTL). */
+function ltrBlock(lines: string[]): string {
+  return `${LRI}${lines.join('\n')}${PDI}`;
+}
+
+/** عربي واضح ثم تعليمات تقنية معزولة اتجاهياً. */
 export function registrationUploadErrorForToast(serverMessage: string): string {
   const m = serverMessage.toLowerCase();
-  const migration = `${LRI}17_registration_uploads_storage.sql${PDI}`;
-  const bucket = `${LRI}${REGISTRATION_UPLOADS_BUCKET}${PDI}`;
 
   if (m.includes('bucket not found') || m.includes('bucket does not exist')) {
     return (
-      `تعذّر رفع الملفات إلى السيرفر: حاوية التخزين ${bucket} غير موجودة في مشروع Supabase. ` +
-      `افتح SQL Editor ونفّذ محتوى الملف ${migration} من مجلد ${LRI}supabase/migrations${PDI} في المشروع، أو أنشئ الحاوية يدوياً بنفس الاسم مع سياسات الرفع للتسجيل.`
+      'تعذّر رفع الملفات إلى السيرفر.\n' +
+      'سبب محتمل: حاوية تخزين مرفقات التسجيل غير مُنشأة في المشروع.\n\n' +
+      'التنفيذ في لوحة Supabase (الأسماء بالإنجليزية كما في الواجهة):\n' +
+      ltrBlock([
+        '1) Open SQL Editor',
+        '2) Run the full script from your repo:',
+        '   supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
+        '   (creates bucket registration-uploads + policies)',
+      ])
     );
   }
   if (
@@ -31,11 +40,22 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
     m.includes('permission denied')
   ) {
     return (
-      `تعذّر رفع الملفات إلى السيرفر: رفض الخادم الرفع بسبب سياسات الأمان على التخزين. ` +
-      `نفّذ في SQL Editor محتوى الملف ${migration} كاملاً (ينشئ الحاوية ${bucket} وسياسات الإدراج والقراءة). إن كان الترحيل منفّذا مسبقاً، راجع تبويب Storage ثم Policies للتأكد من وجود سياسة إدراج لدور ${LRI}anon${PDI}.`
+      'تعذّر رفع الملفات إلى السيرفر.\n' +
+      'رفض الخادم الرفع بسبب سياسات الأمان على التخزين.\n\n' +
+      'التنفيذ في لوحة Supabase (الأسماء بالإنجليزية كما في الواجهة):\n' +
+      ltrBlock([
+        '1) SQL Editor → run:',
+        '   supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
+        '   OR supabase/migrations/17_registration_uploads_storage.sql',
+        '2) If already applied: Storage → Policies',
+        '   → confirm INSERT policy for role anon on bucket registration-uploads',
+      ])
     );
   }
-  return `تعذّر رفع الملفات إلى السيرفر. ${LRI}${serverMessage}${PDI}`;
+  return (
+    'تعذّر رفع الملفات إلى السيرفر.\n\n' +
+    ltrBlock([`Server message: ${serverMessage}`])
+  );
 }
 
 
