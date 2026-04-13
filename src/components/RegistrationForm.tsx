@@ -42,6 +42,7 @@ import {
 } from '@/components/SaudiRegionCityDistrictFields';
 import { loadSaudiGeoLite, OTHER_DISTRICT_VALUE } from '@/lib/saudiGeoData';
 import { getSupabaseClient } from '@/integrations/supabase/client';
+import { registrationSubmissionErrorForToast } from '@/lib/registrationSubmissionsRemote';
 import {
   uploadRegistrationAttachments,
   registrationUploadErrorForToast,
@@ -629,7 +630,12 @@ export function RegistrationForm() {
         categories: [...formData.categories],
       };
 
-      await appendSubscriptionRequest(request);
+      const appended = await appendSubscriptionRequest(request);
+      if (!appended.ok) {
+        const ref = `\u2066${orderId}\u2069`;
+        toast.error(`${registrationSubmissionErrorForToast(appended.error)} (مرجع الطلب: ${ref})`);
+        return;
+      }
 
       const plan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
       const tierName = plan?.name ?? String(formData.tier);

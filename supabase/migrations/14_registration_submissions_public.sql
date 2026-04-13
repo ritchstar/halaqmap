@@ -32,3 +32,5 @@ CREATE POLICY "anon_insert_registration_submissions"
 --   • أضف Edge Function مع service_role، أو
 --   • سياسة SELECT مرتبطة بـ auth.uid() للأدمن فقط، أو
 --   • راجع البيانات من Supabase → Table Editor.
+--
+-- لرفع حد حجم JSON (payload) بعد الطلبات الكبيرة: نفّذ أيضاً 19_registration_submissions_payload_limit.sql

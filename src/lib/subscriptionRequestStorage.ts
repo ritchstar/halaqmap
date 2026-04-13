@@ -1,4 +1,5 @@
 import type { SubscriptionRequest, SubscriptionTier } from '@/lib/index';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import {
   fetchRegistrationSubmissionsFromRemote,
   insertRegistrationSubmissionRemote,
@@ -32,16 +33,33 @@ export async function loadMergedSubscriptionRequests(): Promise<SubscriptionRequ
   return out;
 }
 
-export async function appendSubscriptionRequest(request: SubscriptionRequest): Promise<void> {
-  const prev = loadStoredSubscriptionRequests();
-  prev.unshift(request);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(prev));
-  window.dispatchEvent(new Event('halaqmap-subscription-requests-changed'));
-
-  const remote = await insertRegistrationSubmissionRemote(request);
-  if (!remote.ok && import.meta.env.DEV) {
-    console.warn('[halaqmap] فشل حفظ الطلب في Supabase:', remote.error);
+/**
+ * عند تهيئة Supabase: يجب نجاح الإدراج في قاعدة البيانات قبل النسخ المحلي أو اعتبار الطلب مكتملاً.
+ * بدون تهيئة: يُحفظ محلياً فقط (بيئة تطوير أو نشر بدون متغيرات).
+ */
+export async function appendSubscriptionRequest(
+  request: SubscriptionRequest
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (isSupabaseConfigured()) {
+    const remote = await insertRegistrationSubmissionRemote(request);
+    if (!remote.ok) {
+      return remote;
+    }
   }
+
+  try {
+    const prev = loadStoredSubscriptionRequests();
+    prev.unshift(request);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prev));
+    window.dispatchEvent(new Event('halaqmap-subscription-requests-changed'));
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.warn('[halaqmap] فشل النسخ المحلي بعد نجاح السيرفر:', e);
+    }
+    /* لا نُرجع فشلاً إن كان السيرفر قد قبل الطلب */
+  }
+
+  return { ok: true };
 }
 
 export function generateRegistrationOrderId(): string {
@@ -49,8 +67,14 @@ export function generateRegistrationOrderId(): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
-  return `HM-${y}${m}${day}-${rand}`;
+  const datePart = `${y}${m}${day}`;
+  /** يجب أن يطابق سياسة التخزين في 17_registration_uploads_storage.sql: 6 أحرف من [A-Z0-9] */
+  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let suffix = '';
+  for (let i = 0; i < 6; i++) {
+    suffix += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return `HM-${datePart}-${suffix}`;
 }
 
 export function formatSubmissionDateTimeAr(): string {

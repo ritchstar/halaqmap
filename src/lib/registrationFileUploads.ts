@@ -3,6 +3,9 @@ import type { RegistrationAttachmentUrls } from '@/lib/index';
 
 export const REGISTRATION_UPLOADS_BUCKET = 'registration-uploads';
 
+/** يجب أن يطابق سياسة المجلد الأول في 17_registration_uploads_storage.sql */
+export const REGISTRATION_STORAGE_ORDER_ID_RE = /^HM-\d{8}-[A-Z0-9]{6}$/;
+
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 
 /** عزل اتجاه النص: يمنع اختلال ترتيب الكلمات العربية عند وجود مقاطع لاتينية داخل الرسالة. */
@@ -79,6 +82,13 @@ export async function uploadRegistrationAttachments(
     receipt: File | null;
   }
 ): Promise<{ ok: true; urls: RegistrationAttachmentUrls } | { ok: false; error: string }> {
+  if (!REGISTRATION_STORAGE_ORDER_ID_RE.test(orderId)) {
+    return {
+      ok: false,
+      error: `رمز الطلب لا يطابق نمط التخزين المطلوب: ${orderId}`,
+    };
+  }
+
   const cr = await uploadOne(client, orderId, 'documents', files.commercialRegistry);
   if (!cr.ok) return cr;
 

@@ -3,6 +3,28 @@ import { getSupabaseClient } from '@/integrations/supabase/client';
 
 const TABLE = 'registration_submissions';
 
+const LRI = '\u2066';
+const PDI = '\u2069';
+
+/** رسالة عربية واحدة عند فشل إدراج طلب التسجيل في قاعدة البيانات. */
+export function registrationSubmissionErrorForToast(message: string): string {
+  const m = message.toLowerCase();
+  const p14 = `${LRI}14_registration_submissions_public.sql${PDI}`;
+  const p19 = `${LRI}19_registration_submissions_payload_limit.sql${PDI}`;
+
+  if (m.includes('row-level security') || m.includes('violates row-level')) {
+    return (
+      `تعذّر حفظ الطلب في قاعدة البيانات: سياسات الأمان ترفض الإدراج. نفّذ ترحيل ${p14} في SQL Editor وتأكد من سياسة الإدراج لدور ${LRI}anon${PDI} على جدول ${LRI}registration_submissions${PDI}.`
+    );
+  }
+  if (m.includes('octet_length') || m.includes('violates check') || m.includes('check constraint')) {
+    return (
+      `تعذّر حفظ الطلب: حجم بيانات الطلب لا يمر بسياسة الإدراج. نفّذ ترحيل ${p19} في SQL Editor لرفع الحد، أو راجع سياسة ${LRI}anon_insert_registration_submissions${PDI}.`
+    );
+  }
+  return `تعذّر حفظ الطلب في قاعدة البيانات. ${LRI}${message}${PDI}`;
+}
+
 function payloadForInsert(request: SubscriptionRequest): Record<string, unknown> {
   const { receiptDataUrl: _omit, ...rest } = request;
   return rest as Record<string, unknown>;
@@ -19,7 +41,9 @@ export async function insertRegistrationSubmissionRemote(
   request: SubscriptionRequest
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const client = getSupabaseClient();
-  if (!client) return { ok: true };
+  if (!client) {
+    return { ok: false, error: 'عميل Supabase غير متوفر رغم ظهور التهيئة.' };
+  }
 
   const payload = payloadForInsert(request);
   const { error } = await client.from(TABLE).insert({
