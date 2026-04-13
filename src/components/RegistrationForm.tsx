@@ -44,7 +44,7 @@ import { loadSaudiGeoLite, OTHER_DISTRICT_VALUE } from '@/lib/saudiGeoData';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import {
   uploadRegistrationAttachments,
-  describeRegistrationUploadFailure,
+  registrationUploadErrorForToast,
 } from '@/lib/registrationFileUploads';
 import { toast } from '@/components/ui/sonner';
 import {
@@ -573,7 +573,7 @@ export function RegistrationForm() {
           receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
         });
         if (!up.ok) {
-          toast.error(`تعذر رفع الملفات إلى السيرفر. ${describeRegistrationUploadFailure(up.error)}`);
+          toast.error(registrationUploadErrorForToast(up.error));
           return;
         }
         registrationAttachmentUrls = up.urls;

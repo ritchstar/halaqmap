@@ -5,21 +5,34 @@ export const REGISTRATION_UPLOADS_BUCKET = 'registration-uploads';
 
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 
-/** رسالة عربية أوضح عند فشل الرفع (خاصة إعداد Supabase Storage). */
-export function describeRegistrationUploadFailure(serverMessage: string): string {
+/** عزل اتجاه النص: يمنع اختلال ترتيب الكلمات العربية عند وجود مقاطع لاتينية داخل الرسالة. */
+const LRI = '\u2066';
+const PDI = '\u2069';
+
+/** رسالة واحدة جاهزة للعرض في التنبيه (بدون دمج جملتين قد يفسد ترتيبها في واجهة RTL). */
+export function registrationUploadErrorForToast(serverMessage: string): string {
   const m = serverMessage.toLowerCase();
+  const migration = `${LRI}17_registration_uploads_storage.sql${PDI}`;
+  const bucket = `${LRI}${REGISTRATION_UPLOADS_BUCKET}${PDI}`;
+
   if (m.includes('bucket not found') || m.includes('bucket does not exist')) {
     return (
-      `حاوية التخزين «${REGISTRATION_UPLOADS_BUCKET}» غير موجودة في مشروع Supabase. ` +
-      'افتح SQL Editor ونفّذ محتوى الملف supabase/migrations/17_registration_uploads_storage.sql (أو أنشئ الـ bucket يدوياً بنفس الاسم مع سياسات الرفع للتسجيل).'
+      `تعذّر رفع الملفات إلى السيرفر: حاوية التخزين ${bucket} غير موجودة في مشروع Supabase. ` +
+      `افتح SQL Editor ونفّذ محتوى الملف ${migration} من مجلد ${LRI}supabase/migrations${PDI} في المشروع، أو أنشئ الحاوية يدوياً بنفس الاسم مع سياسات الرفع للتسجيل.`
     );
   }
-  if (m.includes('new row violates row-level security') || m.includes('row-level security')) {
+  if (
+    m.includes('new row violates row-level security') ||
+    m.includes('row-level security') ||
+    m.includes('rls') ||
+    m.includes('permission denied')
+  ) {
     return (
-      'رفض الخادم الرفع بسبب سياسات الأمان (RLS). تأكد من تنفيذ ترحيل التخزين 17_registration_uploads_storage.sql كاملاً.'
+      `تعذّر رفع الملفات إلى السيرفر: رفض الخادم الرفع بسبب سياسات الأمان على التخزين. ` +
+      `نفّذ في SQL Editor محتوى الملف ${migration} كاملاً (ينشئ الحاوية ${bucket} وسياسات الإدراج والقراءة). إن كان الترحيل منفّذا مسبقاً، راجع تبويب Storage ثم Policies للتأكد من وجود سياسة إدراج لدور ${LRI}anon${PDI}.`
     );
   }
-  return serverMessage;
+  return `تعذّر رفع الملفات إلى السيرفر. ${LRI}${serverMessage}${PDI}`;
 }
 
 
