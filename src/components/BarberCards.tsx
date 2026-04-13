@@ -4,6 +4,7 @@ import { SiWhatsapp } from "react-icons/si";
 import { Barber, SubscriptionTier, calculateDistance } from "@/lib/index";
 import { useDiamondAppointmentSchedulingShown } from "@/lib/diamondSchedulingVisibility";
 import { DiamondAppointmentBooking } from "@/components/DiamondAppointmentBooking";
+import { CustomerBarberChatPreview } from "@/components/CustomerBarberChatPreview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -354,6 +355,9 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             >
               <MessageCircle className="w-5 h-5" />
             </Button>
+          </div>
+          <div className="mt-4">
+            <CustomerBarberChatPreview tier={SubscriptionTier.DIAMOND} barberName={barber.name} compact />
           </div>
           {showDiamondScheduling && (
             <div className="mt-4">

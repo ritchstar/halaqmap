@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Barber, SubscriptionTier } from '@/lib/index';
 import { getMergedReviewsForBarber } from '@/lib/qrReviewsStorage';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,6 +15,7 @@ import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
 import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
+import { CustomerBarberChatPreview } from '@/components/CustomerBarberChatPreview';
 
 interface BarberDetailModalProps {
   barber: Barber;
@@ -24,6 +25,7 @@ interface BarberDetailModalProps {
 
 export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModalProps) {
   const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
+  const chatPreviewRef = useRef<HTMLDivElement>(null);
   const [barberReviews, setBarberReviews] = useState(() => getMergedReviewsForBarber(barber.id));
 
   useEffect(() => {
@@ -155,12 +157,30 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                 واتساب
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 className="w-full py-6 text-lg font-semibold border-primary text-primary hover:bg-primary/10"
+                onClick={() =>
+                  chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
               >
                 <MessageCircle className="w-5 h-5 ml-2" />
-                شات مباشر
+                شات مباشر — انتقل للمعاينة
               </Button>
+            </div>
+          )}
+
+          {(barber.subscription === SubscriptionTier.GOLD ||
+            barber.subscription === SubscriptionTier.DIAMOND) && (
+            <div ref={chatPreviewRef} className="scroll-mt-4">
+              <CustomerBarberChatPreview
+                tier={
+                  barber.subscription === SubscriptionTier.DIAMOND
+                    ? SubscriptionTier.DIAMOND
+                    : SubscriptionTier.GOLD
+                }
+                barberName={barber.name}
+              />
             </div>
           )}
 
