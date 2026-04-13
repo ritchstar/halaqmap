@@ -76,7 +76,8 @@ function shouldAttemptServerUpload(): boolean {
 
 /**
  * رفع عبر دالة Vercel بمفتاح الخدمة (لا يعتمد على سياسات تخزين anon).
- * يُرجع fallback: true عند 503/404/أخطاء شبكة أو فشل غير حاسم ليُجرّب الرفع المباشر من المتصفح.
+ * fallback: true فقط عند 503 (غير مهيأ) أو 404 (لا يوجد مسار) أو فشل شبكة — حتى لا نخفي أخطاء 401/5xx
+ * برسالة RLS مضللة بعد الرجوع للرفع المباشر من المتصفح.
  */
 async function tryServerUpload(
   orderId: string,
@@ -113,26 +114,65 @@ async function tryServerUpload(
   if (res.ok) {
     const data = (await res.json()) as { publicUrl?: string };
     if (data.publicUrl) return { ok: true, url: data.publicUrl };
-    return { ok: false, fallback: true };
-  }
-
-  if (res.status === 400) {
-    const data = (await res.json().catch(() => ({}))) as { error?: string };
-    return { ok: false, fallback: false, error: data.error || 'طلب غير صالح' };
-  }
-
-  if (res.status === 413) {
-    const data = (await res.json().catch(() => ({}))) as { error?: string };
     return {
       ok: false,
       fallback: false,
       error:
-        data.error ||
+        'استجابة غير متوقعة من سيرفر الرفع (لا يوجد publicUrl). راجِع نشر Vercel ومسار api/register-upload-file.',
+    };
+  }
+
+  const rawText = await res.text();
+  let parsed: { error?: string; hint?: string } = {};
+  try {
+    parsed = JSON.parse(rawText) as { error?: string; hint?: string };
+  } catch {
+    /* ليست JSON */
+  }
+
+  if (res.status === 404) return { ok: false, fallback: true };
+
+  if (res.status === 400) {
+    return { ok: false, fallback: false, error: parsed.error || 'طلب غير صالح' };
+  }
+
+  if (res.status === 413) {
+    return {
+      ok: false,
+      fallback: false,
+      error:
+        parsed.error ||
         `حجم الملف يتجاوز الحد المسموح (${MAX_FILE_BYTES / 1024 / 1024} ميجابايت): ${file.name}`,
     };
   }
 
-  return { ok: false, fallback: true };
+  if (res.status === 401) {
+    const parts = [parsed.error, parsed.hint].filter(Boolean);
+    return {
+      ok: false,
+      fallback: false,
+      error:
+        (parts.length ? parts.join('\n') : '') ||
+        'رفض السيرفر التحقق (401). على Vercel أضِف SUPABASE_ANON_KEY بنفس قيمة مفتاح anon من Supabase، أو تأكّد أن VITE_SUPABASE_ANON_KEY مطابق تماماً (بدون مسافات زائدة).',
+    };
+  }
+
+  if (res.status >= 500) {
+    const base =
+      parsed.error ||
+      `فشل رفع الملف عبر السيرفر (${res.status}). راجِع سجلات الدالة في Vercel وحاوية registration-uploads.`;
+    return {
+      ok: false,
+      fallback: false,
+      error: rawText && rawText.length < 400 && !parsed.error ? `${base}\n${rawText}` : base,
+    };
+  }
+
+  return {
+    ok: false,
+    fallback: false,
+    error: parsed.error || `رفض السيرفر الطلب (${res.status}).`,
+  };
 }
 
 async function uploadOne(
@@ -152,8 +192,12 @@ async function uploadOne(
 
   if (shouldAttemptServerUpload()) {
     const server = await tryServerUpload(orderId, storageSubpath, file);
-    if (server.ok) return { ok: true, url: server.url };
-    if (!server.fallback) return { ok: false, error: server.error };
+    if (server.ok === true) {
+      return { ok: true, url: server.url };
+    }
+    if (server.fallback === false) {
+      return { ok: false, error: server.error };
+    }
   }
 
   const { error } = await client.storage.from(REGISTRATION_UPLOADS_BUCKET).upload(path, file, {
@@ -189,35 +233,35 @@ export async function uploadRegistrationAttachments(
   }
 
   const cr = await uploadOne(client, orderId, 'documents', files.commercialRegistry);
-  if (!cr.ok) return cr;
+  if (cr.ok === false) return { ok: false, error: cr.error };
 
   const ml = await uploadOne(client, orderId, 'documents', files.municipalLicense);
-  if (!ml.ok) return ml;
+  if (ml.ok === false) return { ok: false, error: ml.error };
 
   const healthCertificates: string[] = [];
   for (const f of files.healthCertificates) {
     const h = await uploadOne(client, orderId, 'health', f);
-    if (!h.ok) return h;
+    if (h.ok === false) return { ok: false, error: h.error };
     healthCertificates.push(h.url);
   }
 
   const ex = await uploadOne(client, orderId, 'shop', files.shopExterior);
-  if (!ex.ok) return ex;
+  if (ex.ok === false) return { ok: false, error: ex.error };
 
   const inn = await uploadOne(client, orderId, 'shop', files.shopInterior);
-  if (!inn.ok) return inn;
+  if (inn.ok === false) return { ok: false, error: inn.error };
 
   const banners: string[] = [];
   for (const f of files.bannerImages) {
     const b = await uploadOne(client, orderId, 'banners', f);
-    if (!b.ok) return b;
+    if (b.ok === false) return { ok: false, error: b.error };
     banners.push(b.url);
   }
 
   let receipt: string | undefined;
   if (files.receipt) {
     const rec = await uploadOne(client, orderId, 'receipt', files.receipt);
-    if (!rec.ok) return rec;
+    if (rec.ok === false) return { ok: false, error: rec.error };
     receipt = rec.url;
   }
 

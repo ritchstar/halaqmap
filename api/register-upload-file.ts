@@ -13,7 +13,7 @@ function corsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('origin');
   return {
     'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers':
       'Content-Type, x-order-id, x-storage-subpath, x-supabase-anon, x-file-content-type',
     'Access-Control-Max-Age': '86400',
@@ -28,6 +28,27 @@ function validateStorageSubpath(sub: string): boolean {
 
 export async function OPTIONS(request: Request): Promise<Response> {
   return new Response(null, { status: 204, headers: corsHeaders(request) });
+}
+
+/** تشخيص بلا أسرار — افتح في المتصفح: /api/register-upload-file */
+export async function GET(request: Request): Promise<Response> {
+  const headers = corsHeaders(request);
+  const url = Boolean((process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim());
+  const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
+  const anon = Boolean(
+    (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
+  );
+  return Response.json(
+    {
+      ok: true,
+      route: 'register-upload-file',
+      supabaseUrlSet: url,
+      serviceRoleKeySet: serviceRole,
+      anonKeySetForVerification: anon,
+      ready: url && serviceRole && anon,
+    },
+    { headers }
+  );
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -62,7 +83,14 @@ export async function POST(request: Request): Promise<Response> {
       : '');
 
   if (providedAnon !== expectedAnon) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401, headers });
+    return Response.json(
+      {
+        error: 'Unauthorized',
+        hint:
+          'On Vercel, set SUPABASE_ANON_KEY to the same value as the Supabase anon key, or ensure VITE_SUPABASE_ANON_KEY matches exactly (no extra spaces). The browser sends x-supabase-anon; the server must match it.',
+      },
+      { status: 401, headers }
+    );
   }
 
   const orderId = request.headers.get('x-order-id')?.trim() || '';
