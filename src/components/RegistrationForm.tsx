@@ -359,14 +359,37 @@ export function RegistrationForm() {
   };
 
   const handleHealthCertificatesAdd = (files: FileList | null) => {
-    if (!files?.length) return;
-    setFormData((prev) => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        healthCertificates: [...prev.documents.healthCertificates, ...Array.from(files)],
-      },
-    }));
+    if (!files?.length) {
+      toast.error('لم يتم التقاط أي ملف. حاول اختيار الملف مرة أخرى.');
+      return;
+    }
+    const incoming = Array.from(files);
+    let addedCount = 0;
+    setFormData((prev) => {
+      const next = [
+        ...prev.documents.healthCertificates,
+        ...incoming.filter((f) => {
+          const exists = prev.documents.healthCertificates.some(
+            (p) => p.name === f.name && p.size === f.size && p.lastModified === f.lastModified
+          );
+          if (!exists) addedCount += 1;
+          return !exists;
+        }),
+      ];
+      return {
+        ...prev,
+        documents: {
+          ...prev.documents,
+          // دمج مع منع تكرار نفس الملف (name + size + lastModified)
+          healthCertificates: next,
+        },
+      };
+    });
+    if (addedCount > 0) {
+      toast.success(`تمت إضافة ${addedCount} ملف/ملفات للشهادات الصحية`);
+    } else {
+      toast.error('هذا الملف مضاف مسبقاً. اختر ملفاً آخر أو احذف القديم أولاً.');
+    }
   };
 
   const removeHealthCertificate = (index: number) => {
@@ -985,10 +1008,16 @@ export function RegistrationForm() {
                     accept=".pdf,.jpg,.jpeg,.png"
                     multiple
                     onChange={(e) => {
-                      handleHealthCertificatesAdd(e.target.files);
-                      e.target.value = '';
+                      handleHealthCertificatesAdd(e.currentTarget.files);
+                      // يسمح بإعادة اختيار نفس الملف لاحقاً ويمنع تعلّق الحالة في بعض المتصفحات
+                      e.currentTarget.value = '';
                     }}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    {formData.documents.healthCertificates.length > 0
+                      ? `تمت إضافة ${formData.documents.healthCertificates.length} ملف/ملفات للشهادات الصحية`
+                      : 'لم تتم إضافة ملفات للشهادات الصحية بعد'}
+                  </p>
                   {formData.documents.healthCertificates.length > 0 && (
                     <ul className="rounded-lg border border-border bg-muted/30 p-3 space-y-2 text-sm">
                       {formData.documents.healthCertificates.map((file, idx) => (
