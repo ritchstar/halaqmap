@@ -11,7 +11,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { SubscriptionTier, ROUTE_PATHS, type SubscriptionRequest } from '@/lib/index';
+import {
+  SubscriptionTier,
+  ROUTE_PATHS,
+  type SubscriptionRequest,
+  type RegistrationAttachmentUrls,
+} from '@/lib/index';
 import {
   appendSubscriptionRequest,
   generateRegistrationOrderId,
@@ -36,6 +41,9 @@ import {
   type SaudiLocationSelection,
 } from '@/components/SaudiRegionCityDistrictFields';
 import { loadSaudiGeoLite, OTHER_DISTRICT_VALUE } from '@/lib/saudiGeoData';
+import { getSupabaseClient } from '@/integrations/supabase/client';
+import { uploadRegistrationAttachments } from '@/lib/registrationFileUploads';
+import { toast } from '@/components/ui/sonner';
 import {
   Check,
   Upload,
@@ -65,7 +73,8 @@ interface FormData {
   documents: {
     commercialRegistry: File | null;
     municipalLicense: File | null;
-    healthCertificates: File | null;
+    /** شهادات صحية للعاملين — ملف واحد أو أكثر (إلزامي) */
+    healthCertificates: File[];
   };
   location: {
     lat: string;
@@ -75,8 +84,12 @@ interface FormData {
     saudi: SaudiLocationSelection;
   };
   images: {
-    exterior: File[];
-    interior: File[];
+    /** صورة واحدة لواجهة المحل من الخارج — إلزامي لجميع الباقات */
+    shopExterior: File | null;
+    /** صورة واحدة من داخل المحل — إلزامي لجميع الباقات */
+    shopInterior: File | null;
+    /** أربع صور للبنر — إلزامي لجميع الباقات */
+    bannerImages: [File | null, File | null, File | null, File | null];
   };
   services: {
     name: string;
@@ -116,7 +129,7 @@ const SUBSCRIPTION_PLANS: {
     color: 'from-amber-700 to-amber-900',
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: '4 صور مصغرة للمحل' },
+      { kind: 'line', text: 'صورتان أساسيتان (خارجي وداخل المحل) وأربع صور للبنر مع الطلب' },
       { kind: 'line', text: 'رقم الهاتف للتواصل' },
       { kind: 'line', text: 'ظهور في نتائج البحث والخريطة' },
     ],
@@ -131,6 +144,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: RATING_QR_PLAN_LINE },
       { kind: 'line', text: 'جميع مزايا الباقة البرونزية' },
       { kind: 'line', text: 'بنر موسع بصور متعددة' },
+      { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
       { kind: 'line', text: 'رابط واتساب مباشر' },
       { kind: 'line', text: 'شات مباشر مع العملاء' },
       { kind: 'line', text: 'أولوية في الظهور على الخريطة والبحث' },
@@ -150,6 +164,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
       { kind: 'line', text: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
       { kind: 'line', text: 'شارة ماسية مميزة على الخريطة' },
+      { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
       { kind: 'line', text: 'أولوية قصوى في الظهور على الخريطة والبحث' },
       { kind: 'line', text: 'ترجمة تلقائية في الشات' },
     ],
@@ -193,7 +208,7 @@ export function RegistrationForm() {
     documents: {
       commercialRegistry: null,
       municipalLicense: null,
-      healthCertificates: null,
+      healthCertificates: [],
     },
     location: {
       lat: '',
@@ -207,8 +222,9 @@ export function RegistrationForm() {
       },
     },
     images: {
-      exterior: [],
-      interior: [],
+      shopExterior: null,
+      shopInterior: null,
+      bannerImages: [null, null, null, null],
     },
     services: [{ name: '', price: '' }],
     payment: {
@@ -247,6 +263,16 @@ export function RegistrationForm() {
         return;
       }
     }
+    if (currentStep === 3) {
+      if (!formData.documents.commercialRegistry || !formData.documents.municipalLicense) {
+        alert('يرجى رفع السجل التجاري والرخصة البلدية (إلزامي).');
+        return;
+      }
+      if (formData.documents.healthCertificates.length === 0) {
+        alert('يرجى رفع شهادة صحية واحدة على الأقل للعاملين في المحل (إلزامي مع المستندات الرسمية).');
+        return;
+      }
+    }
     if (currentStep === 4) {
       const { saudi, address, lat, lng } = formData.location;
       if (!saudi.regionId || !saudi.cityId || !saudi.districtId) {
@@ -268,6 +294,16 @@ export function RegistrationForm() {
         return;
       }
     }
+    if (currentStep === 5) {
+      if (!formData.images.shopExterior || !formData.images.shopInterior) {
+        alert('يرجى رفع صورة واحدة لواجهة المحل من الخارج وصورة واحدة من الداخل (إلزامي لجميع الباقات).');
+        return;
+      }
+      if (formData.images.bannerImages.some((f) => !f)) {
+        alert('يرجى رفع أربع صور للبنر (كل خانة إلزامية) لعرض محلك في البطاقة.');
+        return;
+      }
+    }
 
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
@@ -280,7 +316,7 @@ export function RegistrationForm() {
     }
   };
 
-  const handleFileUpload = (field: string, file: File | null) => {
+  const handleLegalDocumentUpload = (field: 'commercialRegistry' | 'municipalLicense', file: File | null) => {
     setFormData((prev) => ({
       ...prev,
       documents: {
@@ -290,16 +326,52 @@ export function RegistrationForm() {
     }));
   };
 
-  const handleImageUpload = (type: 'exterior' | 'interior', files: FileList | null) => {
-    if (files) {
-      setFormData((prev) => ({
-        ...prev,
-        images: {
-          ...prev.images,
-          [type]: [...prev.images[type], ...Array.from(files)],
-        },
-      }));
-    }
+  const handleHealthCertificatesAdd = (files: FileList | null) => {
+    if (!files?.length) return;
+    setFormData((prev) => ({
+      ...prev,
+      documents: {
+        ...prev.documents,
+        healthCertificates: [...prev.documents.healthCertificates, ...Array.from(files)],
+      },
+    }));
+  };
+
+  const removeHealthCertificate = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      documents: {
+        ...prev.documents,
+        healthCertificates: prev.documents.healthCertificates.filter((_, i) => i !== index),
+      },
+    }));
+  };
+
+  const setShopExterior = (file: File | null) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: { ...prev.images, shopExterior: file },
+    }));
+  };
+
+  const setShopInterior = (file: File | null) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: { ...prev.images, shopInterior: file },
+    }));
+  };
+
+  const setBannerImage = (index: 0 | 1 | 2 | 3, file: File | null) => {
+    setFormData((prev) => {
+      const next: [File | null, File | null, File | null, File | null] = [...prev.images.bannerImages] as [
+        File | null,
+        File | null,
+        File | null,
+        File | null,
+      ];
+      next[index] = file;
+      return { ...prev, images: { ...prev.images, bannerImages: next } };
+    });
   };
 
   const handleGetLocation = () => {
@@ -362,10 +434,33 @@ export function RegistrationForm() {
       alert('يرجى رفع إيصال التحويل البنكي');
       return;
     }
+    if (!formData.documents.commercialRegistry || !formData.documents.municipalLicense) {
+      alert('يرجى إكمال خطوة المستندات: السجل التجاري والرخصة البلدية إلزاميان.');
+      return;
+    }
+    if (formData.documents.healthCertificates.length === 0) {
+      alert('يرجى إكمال خطوة المستندات: رفع شهادة صحية واحدة على الأقل للعاملين.');
+      return;
+    }
+    if (!formData.images.shopExterior || !formData.images.shopInterior) {
+      alert('يرجى إكمال خطوة الصور: صورة خارجية وصورة داخلية إلزاميتان.');
+      return;
+    }
+    if (formData.images.bannerImages.some((f) => !f)) {
+      alert('يرجى إكمال خطوة الصور: أربع صور للبنر إلزامية.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
       const orderId = generateRegistrationOrderId();
+      const geoBundle = await loadSaudiGeoLite();
+      const composedAddress = composeSaudiLocationLine(
+        geoBundle,
+        formData.location.saudi,
+        formData.location.address || ''
+      );
+
       const submittedAtLabel = formatSubmissionDateTimeAr();
       const submittedAtIso = new Date().toISOString();
 
@@ -376,18 +471,37 @@ export function RegistrationForm() {
       if (formData.documents.municipalLicense) {
         docLabels.push(`رخصة بلدية: ${formData.documents.municipalLicense.name}`);
       }
-      if (formData.documents.healthCertificates) {
-        docLabels.push(`شهادات صحية: ${formData.documents.healthCertificates.name}`);
-      }
+      formData.documents.healthCertificates.forEach((f, i) => {
+        docLabels.push(`شهادة صحية للعاملين (${i + 1}): ${f.name}`);
+      });
 
       const servicesSummary = formData.services
         .filter((s) => s.name.trim())
         .map((s) => `${s.name.trim()} — ${s.price || '—'} ر.س`)
         .join('\n');
 
-      let receiptDataUrl: string | undefined;
+      let registrationAttachmentUrls: RegistrationAttachmentUrls | undefined;
+      const supabase = getSupabaseClient();
       const receiptFile = formData.payment.receipt;
-      if (receiptFile && receiptFile.size <= MAX_RECEIPT_STORAGE_BYTES) {
+      if (supabase) {
+        const up = await uploadRegistrationAttachments(supabase, orderId, {
+          commercialRegistry: formData.documents.commercialRegistry!,
+          municipalLicense: formData.documents.municipalLicense!,
+          healthCertificates: formData.documents.healthCertificates,
+          shopExterior: formData.images.shopExterior!,
+          shopInterior: formData.images.shopInterior!,
+          bannerImages: formData.images.bannerImages.filter(Boolean) as File[],
+          receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
+        });
+        if (!up.ok) {
+          toast.error(`تعذر رفع الملفات إلى السيرفر. ${up.error}`);
+          return;
+        }
+        registrationAttachmentUrls = up.urls;
+      }
+
+      let receiptDataUrl: string | undefined;
+      if (!registrationAttachmentUrls?.receipt && receiptFile && receiptFile.size <= MAX_RECEIPT_STORAGE_BYTES) {
         try {
           receiptDataUrl = await readFileAsDataURL(receiptFile);
         } catch {
@@ -411,13 +525,26 @@ export function RegistrationForm() {
         },
         tier: formData.tier as SubscriptionTier,
         documents: docLabels.length > 0 ? docLabels : ['لم يُرفع أسماء ملفات (تحقق من الخطوات السابقة)'],
-        shopImages: ['/placeholder.svg'],
+        shopImages: registrationAttachmentUrls
+          ? [
+              registrationAttachmentUrls.shopExterior!,
+              registrationAttachmentUrls.shopInterior!,
+              ...(registrationAttachmentUrls.banners ?? []),
+            ]
+          : [
+              `خارجي: ${formData.images.shopExterior?.name ?? '—'}`,
+              `داخلي: ${formData.images.shopInterior?.name ?? '—'}`,
+              ...formData.images.bannerImages.map((f, i) =>
+                f ? `بنر ${i + 1}: ${f.name}` : `بنر ${i + 1}: —`
+              ),
+            ],
         status: 'pending',
         submittedAt: submittedAtLabel,
         source: 'registration',
         paymentMethod: formData.payment.method,
         receiptFileName: receiptFile?.name,
         receiptDataUrl,
+        registrationAttachmentUrls,
         servicesSummary: servicesSummary || '—',
         categories: [...formData.categories],
       };
@@ -455,7 +582,27 @@ export function RegistrationForm() {
         `\n` +
         `المستندات (أسماء الملفات):\n${docLabels.join('\n') || '—'}\n` +
         `\n` +
-        `صور المحل: خارجي ${formData.images.exterior.length} — داخلي ${formData.images.interior.length}\n` +
+        `صور المحل (أسماء الملفات):\n` +
+        `  — خارجي: ${formData.images.shopExterior?.name ?? '—'}\n` +
+        `  — داخلي: ${formData.images.shopInterior?.name ?? '—'}\n` +
+        `  — بنر (4): ${formData.images.bannerImages
+          .filter(Boolean)
+          .map((f) => f!.name)
+          .join('، ')}\n` +
+        (registrationAttachmentUrls
+          ? `\nروابط المرفقات على السيرفر:\n` +
+            `- السجل التجاري: ${registrationAttachmentUrls.commercialRegistry}\n` +
+            `- الرخصة البلدية: ${registrationAttachmentUrls.municipalLicense}\n` +
+            `- الشهادات الصحية:\n${(registrationAttachmentUrls.healthCertificates ?? [])
+              .map((u, i) => `    ${i + 1}. ${u}`)
+              .join('\n')}\n` +
+            `- صورة خارجية: ${registrationAttachmentUrls.shopExterior}\n` +
+            `- صورة داخلية: ${registrationAttachmentUrls.shopInterior}\n` +
+            `- بنرات: ${(registrationAttachmentUrls.banners ?? []).join(' | ')}\n` +
+            (registrationAttachmentUrls.receipt
+              ? `- إيصال التحويل: ${registrationAttachmentUrls.receipt}\n`
+              : '')
+          : '') +
         `\n` +
         `— نهاية الملخص —\n`;
 
@@ -730,13 +877,21 @@ export function RegistrationForm() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl">رفع المستندات</CardTitle>
-                <CardDescription>يرجى رفع المستندات الرسمية المطلوبة</CardDescription>
+                <CardDescription>
+                  مستندات إلزامية لجميع الباقات قبل مراجعة الطلب وتفعيل الحساب
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Alert>
                   <Shield className="h-4 w-4" />
-                  <AlertDescription>
-                    جميع المستندات سيتم مراجعتها والتحقق منها قبل تفعيل الحساب
+                  <AlertDescription className="space-y-2 text-sm leading-relaxed">
+                    <p>
+                      <strong>شرط أساسي:</strong> السجل التجاري، ورخصة البلدية، و<strong>شهادات صحية للعاملين</strong>{' '}
+                      في المحل. يمكن رفع أكثر من ملف للشهادات (صورة أو PDF لكل عامل أو ملف مجمّع).
+                    </p>
+                    <p className="text-muted-foreground">
+                      سيتم مراجعة المستندات والتحقق منها؛ الطلبات الناقصة لا تُعتمد.
+                    </p>
                   </AlertDescription>
                 </Alert>
                 <div className="space-y-2">
@@ -747,45 +902,66 @@ export function RegistrationForm() {
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) =>
-                        handleFileUpload('commercialRegistry', e.target.files?.[0] || null)
+                        handleLegalDocumentUpload('commercialRegistry', e.target.files?.[0] || null)
                       }
                     />
                     {formData.documents.commercialRegistry && (
-                      <Check className="w-5 h-5 text-primary" />
+                      <Check className="w-5 h-5 text-primary shrink-0" aria-hidden />
                     )}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="municipalLicense">الرخصة البلدية *</Label>
+                  <Label htmlFor="municipalLicense">رخصة البلدية *</Label>
                   <div className="flex items-center gap-2">
                     <Input
                       id="municipalLicense"
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) =>
-                        handleFileUpload('municipalLicense', e.target.files?.[0] || null)
+                        handleLegalDocumentUpload('municipalLicense', e.target.files?.[0] || null)
                       }
                     />
                     {formData.documents.municipalLicense && (
-                      <Check className="w-5 h-5 text-primary" />
+                      <Check className="w-5 h-5 text-primary shrink-0" aria-hidden />
                     )}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="healthCertificates">الشهادات الصحية *</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="healthCertificates"
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleFileUpload('healthCertificates', e.target.files?.[0] || null)
-                      }
-                    />
-                    {formData.documents.healthCertificates && (
-                      <Check className="w-5 h-5 text-primary" />
-                    )}
-                  </div>
+                  <Label htmlFor="healthCertificates">الشهادات الصحية للعاملين *</Label>
+                  <p className="text-xs text-muted-foreground">
+                    أرفق شهادةً صحيةً سارية لكل من يقدّم خدمة الحلاقة في المحل (يمكن اختيار عدة ملفات دفعة واحدة).
+                  </p>
+                  <Input
+                    id="healthCertificates"
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    multiple
+                    onChange={(e) => {
+                      handleHealthCertificatesAdd(e.target.files);
+                      e.target.value = '';
+                    }}
+                  />
+                  {formData.documents.healthCertificates.length > 0 && (
+                    <ul className="rounded-lg border border-border bg-muted/30 p-3 space-y-2 text-sm">
+                      {formData.documents.healthCertificates.map((file, idx) => (
+                        <li key={`${file.name}-${idx}`} className="flex items-center justify-between gap-2">
+                          <span className="flex items-center gap-2 min-w-0">
+                            <Check className="w-4 h-4 text-primary shrink-0" aria-hidden />
+                            <span className="truncate">{file.name}</span>
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="shrink-0 text-destructive hover:text-destructive"
+                            onClick={() => removeHealthCertificate(idx)}
+                          >
+                            إزالة
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -892,126 +1068,106 @@ export function RegistrationForm() {
           {currentStep === 5 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">صور المحل</CardTitle>
-                <CardDescription>ارفع صور واضحة للمحل من الخارج والداخل</CardDescription>
+                <CardTitle className="text-2xl">صور المحل والبنر</CardTitle>
+                <CardDescription>
+                  لجميع الباقات: صورتان أساسيتان (خارج وداخل) وأربع صور مخصّصة لمنطقة البنر في بطاقة المحل
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Exterior Images */}
+                {(formData.tier === SubscriptionTier.GOLD || formData.tier === SubscriptionTier.DIAMOND) && (
+                  <Alert className="border-primary/40 bg-primary/5">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-sm leading-relaxed">
+                      بعد تفعيل اشتراكك يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
+                      <strong>لوحة التحكم</strong> في أي وقت. ما ترفعه هنا هو المعتمد لمراجعة الطلب الأولى.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="space-y-3">
-                  <Label>صور خارجية *</Label>
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      document.getElementById('exterior')?.click();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        document.getElementById('exterior')?.click();
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
-                  >
-                    <input
-                      id="exterior"
+                  <Label htmlFor="shop-exterior">صورة واحدة — واجهة المحل من الخارج *</Label>
+                  <p className="text-xs text-muted-foreground">
+                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات الاشتراك.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Input
+                      id="shop-exterior"
                       type="file"
                       accept="image/*"
-                      multiple
                       onChange={(e) => {
-                        handleImageUpload('exterior', e.target.files);
+                        setShopExterior(e.target.files?.[0] || null);
                         e.target.value = '';
                       }}
-                      className="hidden"
                     />
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-base font-medium text-foreground mb-1">
-                          الصور عالية الجودة تزيد من فرص جذب العملاء. تفضل رفع 4-8 صور متنوعة
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          اضغط هنا لرفع الصور أو اسحب الصور إلى هذه المنطقة
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        PNG, JPG, JPEG حتى 10MB
-                      </Badge>
-                    </div>
+                    {formData.images.shopExterior && (
+                      <span className="text-sm text-primary flex items-center gap-1">
+                        <Check className="w-4 h-4" />
+                        {formData.images.shopExterior.name}
+                      </span>
+                    )}
                   </div>
-                  {formData.images.exterior.length > 0 && (
-                    <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <Check className="w-5 h-5 text-green-600" />
-                      <p className="text-sm font-medium text-green-600">
-                        تم رفع {formData.images.exterior.length} صورة خارجية
-                      </p>
-                    </div>
-                  )}
                 </div>
 
-                {/* Interior Images */}
                 <div className="space-y-3">
-                  <Label>صور داخلية *</Label>
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      document.getElementById('interior')?.click();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        document.getElementById('interior')?.click();
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
-                  >
-                    <input
-                      id="interior"
+                  <Label htmlFor="shop-interior">صورة واحدة — داخل المحل *</Label>
+                  <p className="text-xs text-muted-foreground">
+                    صورة للداخل (الكراسي، الممر، أو أجواء العمل)؛ إلزامية لجميع الباقات.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Input
+                      id="shop-interior"
                       type="file"
                       accept="image/*"
-                      multiple
                       onChange={(e) => {
-                        handleImageUpload('interior', e.target.files);
+                        setShopInterior(e.target.files?.[0] || null);
                         e.target.value = '';
                       }}
-                      className="hidden"
                     />
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-base font-medium text-foreground mb-1">
-                          الصور عالية الجودة تزيد من فرص جذب العملاء. تفضل رفع 4-8 صور متنوعة
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          اضغط هنا لرفع الصور أو اسحب الصور إلى هذه المنطقة
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        PNG, JPG, JPEG حتى 10MB
-                      </Badge>
-                    </div>
+                    {formData.images.shopInterior && (
+                      <span className="text-sm text-primary flex items-center gap-1">
+                        <Check className="w-4 h-4" />
+                        {formData.images.shopInterior.name}
+                      </span>
+                    )}
                   </div>
-                  {formData.images.interior.length > 0 && (
-                    <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <Check className="w-5 h-5 text-green-600" />
-                      <p className="text-sm font-medium text-green-600">
-                        تم رفع {formData.images.interior.length} صورة داخلية
-                      </p>
-                    </div>
-                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <Label>أربع صور للبنر (عرض البطاقة) *</Label>
+                  <p className="text-xs text-muted-foreground">
+                    ارفع أربع صور منفصلة؛ تُعرض في شبكة البنر (الباقة البرونزية تعتمد على هذه الصور مع الطلب،
+                    والباقتان الأعلى يمكن تطويرها لاحقاً من لوحة التحكم).
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {([0, 1, 2, 3] as const).map((slot) => (
+                      <div key={slot} className="space-y-2 rounded-lg border border-border p-3 bg-muted/20">
+                        <Label htmlFor={`banner-slot-${slot}`} className="text-sm">
+                          صورة البنر {slot + 1} *
+                        </Label>
+                        <Input
+                          id={`banner-slot-${slot}`}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            setBannerImage(slot, e.target.files?.[0] || null);
+                            e.target.value = '';
+                          }}
+                        />
+                        {formData.images.bannerImages[slot] && (
+                          <p className="text-xs text-primary flex items-center gap-1 truncate">
+                            <Check className="w-3 h-3 shrink-0" />
+                            {formData.images.bannerImages[slot]!.name}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    💡 <strong>نصيحة:</strong> الصور الواضحة والمتنوعة تزيد من فرص ظهور محلك في نتائج البحث الأولى
+                    نفضّل صوراً جيدة الإضاءة وبدون تشويش؛ ذلك يساعد في قبول الطلب وظهور محلك بشكل احترافي.
                   </AlertDescription>
                 </Alert>
               </CardContent>

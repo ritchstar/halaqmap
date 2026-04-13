@@ -32,7 +32,7 @@ export default function SubscriptionPolicy() {
       color: "bg-gradient-to-br from-amber-700 to-amber-900",
       features: [
         { kind: "map_hero" },
-        { kind: "text", value: "4 صور مصغرة للمحل" },
+        { kind: "text", value: "صورتان أساسيتان (خارجي وداخل) وأربع صور للبنر مع طلب الاشتراك" },
         { kind: "text", value: "رقم الهاتف وبيانات التواصل من بطاقة المحل" },
         { kind: "text", value: "ظهور في نتائج البحث" },
         { kind: "text", value: "تحديث المعلومات الأساسية" },
@@ -48,6 +48,7 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: RATING_QR_PLAN_LINE },
         { kind: "text", value: "كل مميزات البرونزي" },
         { kind: "text", value: "بنر موسع بصور متعددة" },
+        { kind: "text", value: "إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل" },
         { kind: "text", value: "رابط واتساب مباشر" },
         { kind: "text", value: "شات مباشر مع العملاء" },
         { kind: "text", value: "أولوية في نتائج البحث" },
@@ -65,6 +66,7 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: RATING_QR_PLAN_LINE },
         { kind: "text", value: "كل مميزات الذهبي" },
         { kind: "text", value: "شارة ماسية مميزة" },
+        { kind: "text", value: "إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل" },
         { kind: "text", value: "أولوية قصوى في الظهور" },
         { kind: "text", value: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
         { kind: "text", value: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
@@ -510,7 +512,8 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">5</span>
                   </div>
                   <p className="text-sm">
-                    يجب تقديم مستندات صحيحة وسارية المفعول (سجل تجاري، رخصة بلدية). المستندات المزورة تؤدي لإلغاء فوري.
+                    يجب تقديم مستندات صحيحة وسارية المفعول: السجل التجاري، ورخصة البلدية، وشهادات صحية للعاملين في
+                    المحل. المستندات المزورة أو الناقصة تؤدي إلى رفض الطلب أو إلغاء فوري بعد التحقق.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">

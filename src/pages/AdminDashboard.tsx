@@ -27,6 +27,7 @@ import {
   Mail,
   AlertCircle,
   Loader2,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -633,6 +634,15 @@ function isVisualAssetUrl(ref: string): boolean {
   );
 }
 
+function attachmentLooksLikePdf(url: string): boolean {
+  return /\.pdf(\?|#|$)/i.test(url);
+}
+
+/** صورة يمكن عرضها في وسم img (يستثني روابط PDF) */
+function isRenderableImageAssetUrl(ref: string): boolean {
+  return isVisualAssetUrl(ref) && !attachmentLooksLikePdf(ref);
+}
+
 function RequestsSection({
   requests,
   onViewRequest,
@@ -664,15 +674,23 @@ function RequestsSection({
       </div>
 
       <div className="space-y-4">
-        {requests.map((request) => (
+        {requests.map((request) => {
+          const thumb =
+            request.registrationAttachmentUrls?.shopExterior &&
+            isRenderableImageAssetUrl(request.registrationAttachmentUrls.shopExterior)
+              ? request.registrationAttachmentUrls.shopExterior
+              : request.shopImages[0] && isRenderableImageAssetUrl(request.shopImages[0])
+                ? request.shopImages[0]
+                : null;
+          return (
           <Card key={request.id}>
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex gap-4 flex-1">
                   <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0">
-                    {request.shopImages[0] && isVisualAssetUrl(request.shopImages[0]) ? (
+                    {thumb ? (
                       <img
-                        src={request.shopImages[0]}
+                        src={thumb}
                         alt={request.barberName}
                         className="w-full h-full object-cover"
                       />
@@ -731,7 +749,8 @@ function RequestsSection({
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
     </motion.div>
   );
@@ -895,9 +914,80 @@ function RequestReviewDialog({
           {/* Documents */}
           <div>
             <h3 className="text-lg font-semibold mb-3">المستندات النظامية</h3>
+            {request.registrationAttachmentUrls ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                {request.registrationAttachmentUrls.commercialRegistry && (
+                  <div className="rounded-lg border border-border p-4 space-y-2">
+                    <Label className="text-primary">السجل التجاري</Label>
+                    {isRenderableImageAssetUrl(request.registrationAttachmentUrls.commercialRegistry) ? (
+                      <div className="aspect-video rounded-md overflow-hidden border border-border">
+                        <img
+                          src={request.registrationAttachmentUrls.commercialRegistry}
+                          alt="سجل تجاري"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <a
+                        href={request.registrationAttachmentUrls.commercialRegistry}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="gap-2"
+                      >
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                        فتح الملف
+                      </a>
+                    </Button>
+                  </div>
+                )}
+                {request.registrationAttachmentUrls.municipalLicense && (
+                  <div className="rounded-lg border border-border p-4 space-y-2">
+                    <Label className="text-primary">رخصة البلدية</Label>
+                    {isRenderableImageAssetUrl(request.registrationAttachmentUrls.municipalLicense) ? (
+                      <div className="aspect-video rounded-md overflow-hidden border border-border">
+                        <img
+                          src={request.registrationAttachmentUrls.municipalLicense}
+                          alt="رخصة بلدية"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <a
+                        href={request.registrationAttachmentUrls.municipalLicense}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="gap-2"
+                      >
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                        فتح الملف
+                      </a>
+                    </Button>
+                  </div>
+                )}
+                {(request.registrationAttachmentUrls.healthCertificates ?? []).map((url, idx) => (
+                  <div key={`${idx}-${url}`} className="rounded-lg border border-border p-4 space-y-2">
+                    <Label className="text-primary">شهادة صحية ({idx + 1})</Label>
+                    {isRenderableImageAssetUrl(url) ? (
+                      <div className="aspect-video rounded-md overflow-hidden border border-border">
+                        <img src={url} alt={`شهادة ${idx + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                    ) : null}
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="gap-2">
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                        فتح الملف
+                      </a>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            <p className="text-xs text-muted-foreground mb-2">وصف الملفات كما أُرسل مع الطلب:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {request.documents.map((doc, index) =>
-                isVisualAssetUrl(doc) ? (
+                isRenderableImageAssetUrl(doc) ? (
                   <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
                     <img src={doc} alt={`مستند ${index + 1}`} className="w-full h-full object-cover" />
                   </div>
@@ -914,7 +1004,10 @@ function RequestReviewDialog({
             </div>
           </div>
 
-          {(request.paymentMethod || request.receiptFileName || request.servicesSummary) && (
+          {(request.paymentMethod ||
+            request.receiptFileName ||
+            request.registrationAttachmentUrls?.receipt ||
+            request.servicesSummary) && (
             <div>
               <h3 className="text-lg font-semibold mb-3">الدفع والخدمات (من نموذج التسجيل)</h3>
               <div className="space-y-3 rounded-lg border border-border p-4 bg-muted/20">
@@ -935,6 +1028,22 @@ function RequestReviewDialog({
                       {request.receiptFileName}
                     </span>
                   </p>
+                )}
+                {request.registrationAttachmentUrls?.receipt && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">إيصال التحويل (مرفوع)</p>
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={request.registrationAttachmentUrls.receipt}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="gap-2"
+                      >
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                        فتح إيصال التحويل
+                      </a>
+                    </Button>
+                  </div>
                 )}
                 {request.receiptDataUrl && (
                   <div className="space-y-2">
@@ -975,12 +1084,34 @@ function RequestReviewDialog({
           {/* Shop Images */}
           <div>
             <h3 className="text-lg font-semibold mb-3">صور المحل</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {request.shopImages.map((image, index) => (
-                <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
-                  <img src={image} alt={`صورة ${index + 1}`} className="w-full h-full object-cover" />
-                </div>
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {request.shopImages.map((image, index) =>
+                isRenderableImageAssetUrl(image) ? (
+                  <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
+                    <img src={image} alt={`صورة ${index + 1}`} className="w-full h-full object-cover" />
+                  </div>
+                ) : isVisualAssetUrl(image) ? (
+                  <div
+                    key={index}
+                    className="aspect-video rounded-lg border border-border p-3 flex flex-col justify-center gap-2"
+                  >
+                    <span className="text-xs text-muted-foreground">ملف / رابط</span>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={image} target="_blank" rel="noopener noreferrer" className="gap-2">
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                        فتح
+                      </a>
+                    </Button>
+                  </div>
+                ) : (
+                  <div
+                    key={index}
+                    className="rounded-lg border border-border p-3 text-xs text-muted-foreground break-all"
+                  >
+                    {image}
+                  </div>
+                )
+              )}
             </div>
           </div>
 

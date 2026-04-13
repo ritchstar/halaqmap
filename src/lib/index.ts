@@ -125,6 +125,17 @@ export interface BarberStats {
   totalChats: number;
 }
 
+/** روابط ملفات مرفوعة إلى Storage بعد إتمام migration 17 وتهيئة الحاوية registration-uploads */
+export interface RegistrationAttachmentUrls {
+  commercialRegistry?: string;
+  municipalLicense?: string;
+  healthCertificates?: string[];
+  shopExterior?: string;
+  shopInterior?: string;
+  banners?: string[];
+  receipt?: string;
+}
+
 export interface SubscriptionRequest {
   id: string;
   barberName: string;
@@ -150,6 +161,8 @@ export interface SubscriptionRequest {
   receiptFileName?: string;
   /** معاينة إيصال (صورة صغيرة أو PDF كـ data URL — قد يُحذف لاحقاً لتوفير المساحة) */
   receiptDataUrl?: string;
+  /** روابط المرفقات على Supabase Storage عند الرفع الناجح */
+  registrationAttachmentUrls?: RegistrationAttachmentUrls;
   servicesSummary?: string;
   categories?: string[];
 }
