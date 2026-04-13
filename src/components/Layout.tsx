@@ -26,14 +26,40 @@ export function Layout({ children }: LayoutProps) {
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <NavLink to={ROUTE_PATHS.HOME} className="flex items-center gap-3 group">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
-                <img
-                  src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-                  alt="حلاق ماب"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+            <NavLink
+              to={ROUTE_PATHS.HOME}
+              className="flex items-center gap-3 group [perspective:640px]"
+            >
+              <motion.div
+                className="relative shrink-0 [transform-style:preserve-3d]"
+                animate={{ scale: [1, 1.06, 1] }}
+                transition={{
+                  duration: 2.6,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+                whileHover={{ scale: 1.08, rotateY: -10 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                <div
+                  className="relative h-12 w-12 overflow-hidden rounded-full
+                    ring-2 ring-primary/40 ring-offset-2 ring-offset-background
+                    shadow-[0_14px_32px_-8px_color-mix(in_srgb,var(--primary)_50%,transparent),0_6px_16px_-4px_rgba(0,0,0,0.22),inset_0_2px_6px_rgba(255,255,255,0.55)]
+                    transition-[box-shadow,ring-color] duration-300
+                    group-hover:ring-primary/60
+                    group-hover:shadow-[0_18px_40px_-10px_color-mix(in_srgb,var(--primary)_60%,transparent),0_8px_20px_-4px_rgba(0,0,0,0.28),inset_0_2px_8px_rgba(255,255,255,0.65)]"
+                >
+                  <span
+                    className="pointer-events-none absolute inset-x-1 top-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/50 to-transparent opacity-90"
+                    aria-hidden
+                  />
+                  <img
+                    src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
+                    alt="حلاق ماب"
+                    className="relative z-[1] h-full w-full object-cover [transform:translateZ(6px)]"
+                  />
+                </div>
+              </motion.div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
                   حلاق ماب
@@ -127,12 +153,21 @@ export function Layout({ children }: LayoutProps) {
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 rounded-full overflow-hidden ring-2 ring-primary/20">
+              <div className="flex items-center gap-3 [perspective:640px]">
+                <div
+                  className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full
+                    ring-2 ring-primary/30 ring-offset-2 ring-offset-background
+                    shadow-[0_12px_28px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent),0_4px_14px_-4px_rgba(0,0,0,0.18),inset_0_2px_5px_rgba(255,255,255,0.5)]
+                    [transform-style:preserve-3d] [transform:rotateX(4deg)]"
+                >
+                  <span
+                    className="pointer-events-none absolute inset-x-1 top-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/45 to-transparent opacity-90"
+                    aria-hidden
+                  />
                   <img
                     src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
                     alt="حلاق ماب"
-                    className="w-full h-full object-cover"
+                    className="relative z-[1] h-full w-full object-cover"
                   />
                 </div>
                 <div className="flex flex-col">
