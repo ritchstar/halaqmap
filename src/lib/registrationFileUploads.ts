@@ -27,9 +27,10 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
       'اتبع الخطوات التالية من لوحة تحكم Supabase لديك:\n' +
       ltrBlock([
         'Step 1 — Open SQL Editor',
-        'Step 2 — Paste and run the full file from your repo:',
+        'Step 2 — Paste and run:',
         '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
-        '  (creates bucket registration-uploads + policies)',
+        '  If the bucket exists but upload still fails, run:',
+        '  supabase/migrations/21_registration_storage_path_policy_fix.sql',
       ])
     );
   }
@@ -47,8 +48,9 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
         'Step 1 — SQL Editor: paste and run ONE of:',
         '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
         '  OR supabase/migrations/17_registration_uploads_storage.sql',
-        'Step 2 — If scripts already ran: open Storage, then Policies',
-        '  Confirm INSERT is allowed for role anon on bucket registration-uploads',
+        '  If still failing after that, run:',
+        '  supabase/migrations/21_registration_storage_path_policy_fix.sql',
+        'Step 2 — Storage → Policies: INSERT for role anon on registration-uploads',
       ])
     );
   }

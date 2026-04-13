@@ -538,15 +538,39 @@ export function RegistrationForm() {
     setIsSubmitting(true);
     try {
       const orderId = generateRegistrationOrderId();
+      const submittedAtLabel = formatSubmissionDateTimeAr();
+      const submittedAtIso = new Date().toISOString();
+
+      let registrationAttachmentUrls: RegistrationAttachmentUrls | undefined;
+      const supabase = getSupabaseClient();
+      const receiptFile = formData.payment.receipt;
+      /* 1) رفع المرفقات أولاً — يتطلب orderId مطابقاً لسياسة التخزين؛ فشل مبكر دون تحميل بيانات إضافية */
+      if (supabase) {
+        const up = await uploadRegistrationAttachments(supabase, orderId, {
+          commercialRegistry: formData.documents.commercialRegistry!,
+          municipalLicense: formData.documents.municipalLicense!,
+          healthCertificates: formData.documents.healthCertificates,
+          shopExterior: formData.images.shopExterior!,
+          shopInterior: formData.images.shopInterior!,
+          bannerImages: formData.images.bannerImages.filter(Boolean) as File[],
+          receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
+        });
+        if (!up.ok) {
+          toast.error(registrationUploadErrorForToast(up.error));
+          window.requestAnimationFrame(() =>
+            formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          );
+          return;
+        }
+        registrationAttachmentUrls = up.urls;
+      }
+
       const geoBundle = await loadSaudiGeoLite();
       const composedAddress = composeSaudiLocationLine(
         geoBundle,
         formData.location.saudi,
         formData.location.address || ''
       );
-
-      const submittedAtLabel = formatSubmissionDateTimeAr();
-      const submittedAtIso = new Date().toISOString();
 
       const docLabels: string[] = [];
       if (formData.documents.commercialRegistry) {
@@ -569,26 +593,7 @@ export function RegistrationForm() {
         .map((h) => `${h.day}: ${h.open === 'مغلق' ? 'مغلق' : `${h.open} – ${h.close}`}`)
         .join('\n');
 
-      let registrationAttachmentUrls: RegistrationAttachmentUrls | undefined;
-      const supabase = getSupabaseClient();
-      const receiptFile = formData.payment.receipt;
-      if (supabase) {
-        const up = await uploadRegistrationAttachments(supabase, orderId, {
-          commercialRegistry: formData.documents.commercialRegistry!,
-          municipalLicense: formData.documents.municipalLicense!,
-          healthCertificates: formData.documents.healthCertificates,
-          shopExterior: formData.images.shopExterior!,
-          shopInterior: formData.images.shopInterior!,
-          bannerImages: formData.images.bannerImages.filter(Boolean) as File[],
-          receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
-        });
-        if (!up.ok) {
-          toast.error(registrationUploadErrorForToast(up.error));
-          return;
-        }
-        registrationAttachmentUrls = up.urls;
-      }
-
+      /* 2) إيصال احتياطي محلي صغير إن لم يُرفع للتخزين */
       let receiptDataUrl: string | undefined;
       if (!registrationAttachmentUrls?.receipt && receiptFile && receiptFile.size <= MAX_RECEIPT_STORAGE_BYTES) {
         try {
@@ -639,10 +644,14 @@ export function RegistrationForm() {
         categories: [...formData.categories],
       };
 
+      /* 3) حفظ الطلب في قاعدة البيانات ثم النسخ المحلي (عند تهيئة Supabase) */
       const appended = await appendSubscriptionRequest(request);
       if (!appended.ok) {
         const ref = `\u2066${orderId}\u2069`;
         toast.error(`${registrationSubmissionErrorForToast(appended.error)} (مرجع الطلب: ${ref})`);
+        window.requestAnimationFrame(() =>
+          formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        );
         return;
       }
 
@@ -1512,10 +1521,18 @@ export function RegistrationForm() {
                         }
                       />
                       {formData.payment.receipt && (
-                        <p className="text-sm text-primary flex items-center gap-1">
-                          <Check className="w-4 h-4" />
-                          تم رفع الإيصال
-                        </p>
+                        <div className="space-y-1 text-sm">
+                          <p className="flex items-center gap-2 text-foreground min-w-0">
+                            <Check className="w-4 h-4 shrink-0 text-primary" aria-hidden />
+                            <span className="text-muted-foreground">تم اختيار الملف:</span>
+                            <span className="font-medium truncate" dir="ltr">
+                              {formData.payment.receipt.name}
+                            </span>
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed pr-6">
+                            الرفع إلى السيرفر يتم فقط عند الضغط على «إرسال الطلب» — لا يُعتبر الملف مرفوعاً قبل نجاح الإرسال.
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>

@@ -16,7 +16,7 @@ CREATE POLICY "anon_insert_registration_uploads"
   ON storage.objects FOR INSERT TO anon
   WITH CHECK (
     bucket_id = 'registration-uploads'
-    AND (storage.foldername(name))[1] ~ '^HM-[0-9]{8}-[A-Z0-9]{6}$'
+    AND split_part(name, '/', 1) ~ '^HM-[0-9]{8}-[A-Z0-9]{6}$'
   );
 
 -- قراءة عامة بالرابط المباشر (الروابط تُخزَّن في payload الطلب وليست قابلة للتخمين بسهولة)
