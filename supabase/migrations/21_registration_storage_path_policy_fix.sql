@@ -1,14 +1,13 @@
 -- =====================================================
--- إصلاح سياسة إدراج مرفقات التسجيل في التخزين
--- استبدال storage.foldername(name)[1] بـ split_part(name, '/', 1)
--- لأن بعض إصدارات/إعدادات Supabase لا تُرجع المجلد الأول كما يُتوقع في WITH CHECK.
--- نفّذ في SQL Editor إذا بقي رفض الرفع رغم تشغيل 17 أو REGISTRATION_PUBLIC_FULL_SETUP.sql
+-- سياسة إدراج مبسّطة — مرفقات التسجيل في التخزين
+-- يستبدل أي سياسة سابقة كانت تفرض شكلاً على المسار (foldername / split_part / regex)
+-- لأن ذلك تسبب برفض رفع شرعي من الواجهة في بيئات Supabase مختلفة.
+--
+-- الأمان التشغيلي: الحاوية registration-uploads مخصصة لهذا المسار فقط؛ لا تُستخدم لبيانات الحلاقين المصدّقة.
+-- نفّذ في SQL Editor إذا استمر رفض الرفع بعد التحديثات السابقة.
 -- =====================================================
 
 DROP POLICY IF EXISTS "anon_insert_registration_uploads" ON storage.objects;
 CREATE POLICY "anon_insert_registration_uploads"
   ON storage.objects FOR INSERT TO anon
-  WITH CHECK (
-    bucket_id = 'registration-uploads'
-    AND split_part(name, '/', 1) ~ '^HM-[0-9]{8}-[A-Z0-9]{6}$'
-  );
+  WITH CHECK (bucket_id = 'registration-uploads');

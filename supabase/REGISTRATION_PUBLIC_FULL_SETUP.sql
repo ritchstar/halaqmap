@@ -8,7 +8,7 @@
 --   19_registration_submissions_payload_limit.sql (حد payload 5 ميجابايت في سياسة الإدراج)
 --
 -- متطلب: وجود تخزين Supabase (عادة بعد 13_create_storage.sql أو المشروع الافتراضي).
--- إن بقي رفض الرفع بعد التنفيذ: شغّل migrations/21_registration_storage_path_policy_fix.sql (نفس شرط المسار، إصلاح ترقية من إصدارات قديمة).
+-- سياسة الرفع: السماح لـ anon بالإدراج في هذه الحاوية فقط (بدون التحقق من شكل المسار) لموثوقية التشغيل.
 -- =====================================================
 
 -- ─── 1) جدول طلبات التسجيل + RLS + إدراج anon (حد payload 5 MB) ───
@@ -42,14 +42,10 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('registration-uploads', 'registration-uploads', true)
 ON CONFLICT (id) DO NOTHING;
 
--- شرط المسار: أول جزء من name داخل الحاوية = رقم الطلب (split_part أوثق من storage.foldername في بعض مشاريع Supabase)
 DROP POLICY IF EXISTS "anon_insert_registration_uploads" ON storage.objects;
 CREATE POLICY "anon_insert_registration_uploads"
   ON storage.objects FOR INSERT TO anon
-  WITH CHECK (
-    bucket_id = 'registration-uploads'
-    AND split_part(name, '/', 1) ~ '^HM-[0-9]{8}-[A-Z0-9]{6}$'
-  );
+  WITH CHECK (bucket_id = 'registration-uploads');
 
 DROP POLICY IF EXISTS "public_read_registration_uploads" ON storage.objects;
 CREATE POLICY "public_read_registration_uploads"

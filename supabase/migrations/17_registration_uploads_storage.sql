@@ -10,14 +10,11 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('registration-uploads', 'registration-uploads', true)
 ON CONFLICT (id) DO NOTHING;
 
--- رفع من نموذج التسجيل بدون تسجيل دخول: المجلد الأول يجب أن يطابق رقم الطلب
+-- رفع من نموذج التسجيل بدون تسجيل دخول؛ تنظيم المسارات في الواجهة بـ orderId (RLS لا يفرض شكل المسار)
 DROP POLICY IF EXISTS "anon_insert_registration_uploads" ON storage.objects;
 CREATE POLICY "anon_insert_registration_uploads"
   ON storage.objects FOR INSERT TO anon
-  WITH CHECK (
-    bucket_id = 'registration-uploads'
-    AND split_part(name, '/', 1) ~ '^HM-[0-9]{8}-[A-Z0-9]{6}$'
-  );
+  WITH CHECK (bucket_id = 'registration-uploads');
 
 -- قراءة عامة بالرابط المباشر (الروابط تُخزَّن في payload الطلب وليست قابلة للتخمين بسهولة)
 DROP POLICY IF EXISTS "public_read_registration_uploads" ON storage.objects;

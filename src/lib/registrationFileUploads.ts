@@ -3,7 +3,7 @@ import type { RegistrationAttachmentUrls } from '@/lib/index';
 
 export const REGISTRATION_UPLOADS_BUCKET = 'registration-uploads';
 
-/** يجب أن يطابق سياسة المجلد الأول في 17_registration_uploads_storage.sql */
+/** تنسيق رقم الطلب في مسارات التخزين (الواجهة) — مستقل عن سياسة RLS المبسّطة على الحاوية */
 export const REGISTRATION_STORAGE_ORDER_ID_RE = /^HM-\d{8}-[A-Z0-9]{6}$/;
 
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
@@ -26,11 +26,8 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
       'سبب محتمل: حاوية تخزين مرفقات التسجيل غير مُنشأة في المشروع.\n\n' +
       'اتبع الخطوات التالية من لوحة تحكم Supabase لديك:\n' +
       ltrBlock([
-        'Step 1 — Open SQL Editor',
-        'Step 2 — Paste and run:',
+        'SQL Editor — paste and run:',
         '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
-        '  If the bucket exists but upload still fails, run:',
-        '  supabase/migrations/21_registration_storage_path_policy_fix.sql',
       ])
     );
   }
@@ -45,12 +42,11 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
       'رفض الخادم الرفع بسبب سياسات الأمان على التخزين.\n\n' +
       'اتبع الخطوات التالية من لوحة تحكم Supabase لديك:\n' +
       ltrBlock([
-        'Step 1 — SQL Editor: paste and run ONE of:',
+        'SQL Editor — run (creates bucket + simple anon INSERT policy):',
         '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
-        '  OR supabase/migrations/17_registration_uploads_storage.sql',
-        '  If still failing after that, run:',
+        'Or replace only the INSERT policy:',
         '  supabase/migrations/21_registration_storage_path_policy_fix.sql',
-        'Step 2 — Storage → Policies: INSERT for role anon on registration-uploads',
+        'Check: Storage → Policies → INSERT allowed for anon on registration-uploads',
       ])
     );
   }
