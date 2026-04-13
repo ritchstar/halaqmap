@@ -193,6 +193,17 @@ type LeadRuntimeState = {
 };
 
 const COMMAND_CENTER_STATE_KEY = 'halaqmap_command_center_lead_state_v1';
+const COMMAND_CENTER_SOP_CHECK_KEY = 'halaqmap_command_center_sop_check_v1';
+
+const WEEKLY_SOP_PLAN = [
+  { day: 'الأحد', focus: 'استهداف صالونات ماسية', target: 12, note: 'ابدأ بالرياض وجدة للحالات عالية العائد.' },
+  { day: 'الإثنين', focus: 'استهداف ذهبي سريع الإغلاق', target: 18, note: 'ركز على الصالونات الصغيرة والمتوسطة.' },
+  { day: 'الثلاثاء', focus: 'متابعة بانتظار الرد', target: 20, note: 'رفع التحويل عبر متابعة اليوم + المتأخرة.' },
+  { day: 'الأربعاء', focus: 'إغلاق مدفوعات وطلبات', target: 10, note: 'تصفية المعلّق وتحويله إلى اشتراك فعلي.' },
+  { day: 'الخميس', focus: 'توسّع مناطق جديدة', target: 15, note: 'الدمام/الخبر/المدينة + تحديث قاعدة الأهداف.' },
+  { day: 'الجمعة', focus: 'تشغيل خفيف + دعم', target: 8, note: 'التركيز على الدعم والمتابعة السريعة فقط.' },
+  { day: 'السبت', focus: 'مراجعة أسبوعية', target: 0, note: 'تقييم الأداء وتحديث خطة الأسبوع القادم.' },
+] as const;
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -1533,7 +1544,12 @@ function CommandCenterSection({
   const [tierFilter, setTierFilter] = useState<'all' | CommandCenterLead['tierFit']>('all');
   const [onlyDue, setOnlyDue] = useState(false);
   const [leadState, setLeadState] = useState<Record<string, LeadRuntimeState>>({});
+  const [sopChecks, setSopChecks] = useState<Record<string, boolean>>({});
   const todayIso = new Date().toISOString().slice(0, 10);
+  const jsDay = new Date().getDay();
+  const sundayFirstToSaturday = [0, 1, 2, 3, 4, 5, 6];
+  const dayPlan = WEEKLY_SOP_PLAN[sundayFirstToSaturday.indexOf(jsDay)];
+  const sopKeyToday = `${todayIso}-${dayPlan.day}`;
 
   useEffect(() => {
     try {
@@ -1548,6 +1564,28 @@ function CommandCenterSection({
   useEffect(() => {
     localStorage.setItem(COMMAND_CENTER_STATE_KEY, JSON.stringify(leadState));
   }, [leadState]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(COMMAND_CENTER_SOP_CHECK_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Record<string, Record<string, boolean>>;
+      setSopChecks(parsed[sopKeyToday] ?? {});
+    } catch {
+      /* ignore invalid stored checklist */
+    }
+  }, [sopKeyToday]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(COMMAND_CENTER_SOP_CHECK_KEY);
+      const parsed = raw ? (JSON.parse(raw) as Record<string, Record<string, boolean>>) : {};
+      parsed[sopKeyToday] = sopChecks;
+      localStorage.setItem(COMMAND_CENTER_SOP_CHECK_KEY, JSON.stringify(parsed));
+    } catch {
+      /* ignore storage failure */
+    }
+  }, [sopChecks, sopKeyToday]);
 
   const regionOptions = useMemo(
     () => Array.from(new Set(leads.map((l) => l.region))).sort((a, b) => a.localeCompare(b, 'ar')),
@@ -1580,6 +1618,16 @@ function CommandCenterSection({
     });
     return { dueToday, overdue };
   }, [leads, leadState, todayIso]);
+
+  const contactBase = pipelineCounts.contacted + pipelineCounts.waiting + pipelineCounts.won + pipelineCounts.lost;
+  const winRate = contactBase > 0 ? Math.round((pipelineCounts.won / contactBase) * 100) : 0;
+  const pendingTouch = pipelineCounts.new + pipelineCounts.waiting + dueSummary.overdue;
+
+  const sopChecklistItems = [
+    { id: 'open-due', label: 'مراجعة الحالات المستحقة (اليوم + المتأخرة)' },
+    { id: 'execute-outreach', label: `تنفيذ هدف اليوم: ${dayPlan.target} تواصل` },
+    { id: 'close-loop', label: 'تحديث الحالات والتواريخ وتصدير CSV بنهاية الجلسة' },
+  ];
 
   const csvEscape = (value: string): string => {
     if (value.includes(',') || value.includes('"') || value.includes('\n')) {
@@ -1723,6 +1771,47 @@ function CommandCenterSection({
           </p>
         </div>
       </div>
+
+      <Card className="mb-6 border-primary/25">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">SOP التشغيل الأسبوعي</CardTitle>
+          <CardDescription>
+            خطة اليوم: <span className="font-semibold text-foreground">{dayPlan.day}</span> — {dayPlan.focus}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground mb-1">هدف تواصل اليوم</p>
+              <p className="text-2xl font-bold">{dayPlan.target}</p>
+              <p className="text-xs text-muted-foreground mt-1">{dayPlan.note}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground mb-1">معدل الإغلاق الحالي</p>
+              <p className="text-2xl font-bold text-green-600">{winRate}%</p>
+              <p className="text-xs text-muted-foreground mt-1">اعتمادًا على الحالات المتابعة</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground mb-1">أولوية العمل الآن</p>
+              <p className="text-2xl font-bold text-amber-600">{pendingTouch}</p>
+              <p className="text-xs text-muted-foreground mt-1">جديد + بانتظار الرد + متأخر</p>
+            </div>
+          </div>
+
+          <div className="rounded-lg border p-3 space-y-2">
+            <p className="text-sm font-semibold">Checklist اليوم</p>
+            {sopChecklistItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-2">
+                <span className="text-sm">{item.label}</span>
+                <Switch
+                  checked={!!sopChecks[item.id]}
+                  onCheckedChange={(checked) => setSopChecks((prev) => ({ ...prev, [item.id]: checked }))}
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatsCard title="طلبات بانتظار المراجعة" value={stats.pendingRequests} icon={FileText} color="yellow" />
