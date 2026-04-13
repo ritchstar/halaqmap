@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -211,6 +211,7 @@ const MAX_RECEIPT_STORAGE_BYTES = 600 * 1024;
 export function RegistrationForm() {
   const navigate = useNavigate();
   const vatSettings = usePlatformVatSettings();
+  const formTopRef = useRef<HTMLDivElement>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -249,6 +250,14 @@ export function RegistrationForm() {
       receipt: null,
     },
   });
+
+  /** عند الانتقال بين خطوات التسجيل يُمرَّر العرض لأعلى النموذج (وليس للفوتر). */
+  useEffect(() => {
+    const id = window.requestAnimationFrame(() => {
+      formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [currentStep]);
 
   const progress = (currentStep / STEPS.length) * 100;
 
@@ -730,7 +739,10 @@ export function RegistrationForm() {
   );
 
   return (
-    <div className="w-full max-w-4xl mx-auto py-8 px-4">
+    <div
+      ref={formTopRef}
+      className="w-full max-w-4xl mx-auto py-8 px-4 scroll-mt-24"
+    >
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           {STEPS.map((step, index) => {
