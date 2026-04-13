@@ -9,24 +9,26 @@ import { ROUTE_PATHS } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { getAdminAllowedEmail, getAdminDashboardPath } from '@/config/adminAuth';
+import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { toast } from '@/components/ui/sonner';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState(getAdminAllowedEmail());
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const adminEmail = getAdminAllowedEmail();
 
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
     const client = getSupabaseClient();
     if (!client) return;
     void client.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user?.email?.toLowerCase() === adminEmail) {
-        navigate(getAdminDashboardPath(), { replace: true });
-      }
+      if (!session?.user?.email) return;
+      void resolveAdminAccess(session.user.email).then((access) => {
+        if (access.allowed) navigate(getAdminDashboardPath(), { replace: true });
+      });
     });
-  }, [adminEmail, navigate]);
+  }, [navigate]);
 
   const handlePasswordSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +48,7 @@ export default function AdminLogin() {
 
     setSubmitting(true);
     const { data, error } = await client.auth.signInWithPassword({
-      email: adminEmail,
+      email: email.trim().toLowerCase(),
       password: password.trim(),
     });
     setSubmitting(false);
@@ -56,7 +58,8 @@ export default function AdminLogin() {
       return;
     }
 
-    if (data.session.user.email.trim().toLowerCase() !== adminEmail) {
+    const access = await resolveAdminAccess(data.session.user.email);
+    if (!access.allowed) {
       await client.auth.signOut();
       toast.error('هذا الحساب غير مصرح له بالوصول إلى لوحة الإدارة.');
       return;
@@ -108,19 +111,19 @@ export default function AdminLogin() {
           ) : (
             <form onSubmit={(e) => void handlePasswordSignIn(e)} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="admin-email-readonly">البريد المعتمد</Label>
+                <Label htmlFor="admin-email">البريد الإداري</Label>
                 <div className="relative">
                   <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="admin-email-readonly"
-                    readOnly
+                    id="admin-email"
                     dir="ltr"
-                    className="pr-10 font-mono text-sm bg-muted/50"
-                    value={adminEmail}
+                    className="pr-10 font-mono text-sm"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  يُضبط من <span dir="ltr">VITE_ADMIN_EMAIL</span>. أنشئ نفس المستخدم في Supabase → Authentication → Users مع تفعيل البريد وكلمة مرور قوية.
+                  أنشئ المستخدم في Supabase → Authentication → Users ثم امنحه صلاحيات من لوحة الإدارة.
                 </p>
               </div>
 

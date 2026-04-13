@@ -56,7 +56,7 @@ import { ROUTE_PATHS, SubscriptionRequest, Payment, AdminStats, SubscriptionTier
 import { IMAGES } from '@/assets/images';
 import { loadMergedSubscriptionRequests } from '@/lib/subscriptionRequestStorage';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminLoginPath, isAllowedAdminEmail } from '@/config/adminAuth';
+import { getAdminLoginPath } from '@/config/adminAuth';
 import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
 import { fetchAdminStats } from '@/lib/adminStatsRemote';
 import { fetchPaymentsForAdmin, updatePaymentStatusRemote } from '@/lib/adminPaymentsRemote';
@@ -89,6 +89,20 @@ import {
   type CommandLeadChannel,
   type CommandLeadStatus,
 } from '@/lib/adminCommandCenter';
+import {
+  ADMIN_PERMISSION_LABELS,
+  ADMIN_PERMISSION_KEYS,
+  FULL_ADMIN_PERMISSIONS,
+  type AdminPermissionKey,
+  type AdminPermissions,
+} from '@/lib/adminPermissions';
+import {
+  deleteAdminRoleByEmail,
+  listAdminRoles,
+  resolveAdminAccess,
+  upsertAdminRole,
+  type AdminRoleRow,
+} from '@/lib/adminAccessRemote';
 
 const EMPTY_ADMIN_STATS: AdminStats = {
   totalBarbers: 0,
@@ -205,10 +219,19 @@ const WEEKLY_SOP_PLAN = [
   { day: 'السبت', focus: 'مراجعة أسبوعية', target: 0, note: 'تقييم الأداء وتحديث خطة الأسبوع القادم.' },
 ] as const;
 
+type AdminSessionInfo = {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin';
+  permissions: AdminPermissions;
+  bootstrap: boolean;
+};
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  const [adminData, setAdminData] = useState<any>(null);
+  const [adminData, setAdminData] = useState<AdminSessionInfo | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -238,15 +261,24 @@ export default function AdminDashboard() {
 
     const applySession = (session: { user: { id: string; email?: string | null } } | null) => {
       if (cancelled) return;
-      if (!session?.user?.email || !isAllowedAdminEmail(session.user.email)) {
+      if (!session?.user?.email) {
         navigate(getAdminLoginPath(), { replace: true });
         return;
       }
-      setAdminData({
-        id: session.user.id,
-        name: 'لوحة الإدارة',
-        email: session.user.email,
-        role: 'admin',
+      void resolveAdminAccess(session.user.email).then((access) => {
+        if (cancelled) return;
+        if (!access.allowed) {
+          navigate(getAdminLoginPath(), { replace: true });
+          return;
+        }
+        setAdminData({
+          id: session.user.id,
+          name: access.displayName || 'لوحة الإدارة',
+          email: access.email,
+          role: 'admin',
+          permissions: access.permissions,
+          bootstrap: access.bootstrap,
+        });
       });
     };
 
@@ -291,6 +323,18 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('halaqmap-subscription-requests-changed', onChange);
   }, []);
 
+  const refreshAdmins = async () => {
+    if (!canManageAdmins) return;
+    setAdminLoading(true);
+    const list = await listAdminRoles();
+    setAdminRows(list);
+    setAdminLoading(false);
+  };
+
+  useEffect(() => {
+    void refreshAdmins();
+  }, [canManageAdmins]);
+
   const handleLogout = async () => {
     const client = getSupabaseClient();
     await client?.auth.signOut();
@@ -330,6 +374,26 @@ export default function AdminDashboard() {
     };
   }, [remoteStats, pendingRequestCount, pendingPaymentCount]);
 
+  const can = (perm: AdminPermissionKey) => Boolean(adminData?.permissions?.[perm]);
+  const allowedTabs = useMemo(() => {
+    const out: string[] = [];
+    if (can('view_overview')) out.push('overview');
+    if (can('view_requests')) out.push('requests');
+    if (can('view_barbers')) out.push('barbers');
+    if (can('view_payments')) out.push('payments');
+    if (can('view_command_center')) out.push('command-center');
+    if (can('view_messages')) out.push('messages');
+    if (can('view_settings')) out.push('settings');
+    return out;
+  }, [adminData]);
+
+  useEffect(() => {
+    if (!adminData) return;
+    if (!allowedTabs.includes(activeTab)) {
+      setActiveTab(allowedTabs[0] ?? 'overview');
+    }
+  }, [adminData, activeTab, allowedTabs]);
+
   if (!adminData) {
     return null;
   }
@@ -364,10 +428,13 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
+            {can('view_overview') && (
             <TabsTrigger value="overview" className="gap-2">
               <TrendingUp className="w-4 h-4" />
               <span className="hidden sm:inline">نظرة عامة</span>
             </TabsTrigger>
+            )}
+            {can('view_requests') && (
             <TabsTrigger value="requests" className="gap-2">
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">الطلبات</span>
@@ -377,10 +444,14 @@ export default function AdminDashboard() {
                 </Badge>
               )}
             </TabsTrigger>
+            )}
+            {can('view_barbers') && (
             <TabsTrigger value="barbers" className="gap-2">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">الحلاقين</span>
             </TabsTrigger>
+            )}
+            {can('view_payments') && (
             <TabsTrigger value="payments" className="gap-2">
               <CreditCard className="w-4 h-4" />
               <span className="hidden sm:inline">المدفوعات</span>
@@ -390,72 +461,86 @@ export default function AdminDashboard() {
                 </Badge>
               )}
             </TabsTrigger>
+            )}
+            {can('view_command_center') && (
             <TabsTrigger value="command-center" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">غرفة القيادة</span>
             </TabsTrigger>
+            )}
+            {can('view_messages') && (
             <TabsTrigger value="messages" className="gap-2">
               <MessageSquare className="w-4 h-4" />
               <span className="hidden sm:inline">الرسائل</span>
             </TabsTrigger>
+            )}
+            {can('view_settings') && (
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">الإعدادات</span>
             </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
+          {can('view_overview') && <TabsContent value="overview" className="space-y-6">
             <OverviewSection stats={stats} />
-          </TabsContent>
+          </TabsContent>}
 
           {/* Requests Tab */}
-          <TabsContent value="requests" className="space-y-6">
+          {can('view_requests') && <TabsContent value="requests" className="space-y-6">
             <RequestsSection
               requests={subscriptionRequests}
               onViewRequest={setSelectedRequest}
+              canReview={can('review_requests')}
             />
-          </TabsContent>
+          </TabsContent>}
 
           {/* Barbers Tab */}
-          <TabsContent value="barbers" className="space-y-6">
-            <BarbersSection refreshNonce={dataRefreshNonce} onStatsNeedRefresh={bumpRemoteData} />
-          </TabsContent>
+          {can('view_barbers') && <TabsContent value="barbers" className="space-y-6">
+            <BarbersSection refreshNonce={dataRefreshNonce} onStatsNeedRefresh={bumpRemoteData} canManage={can('manage_barbers')} />
+          </TabsContent>}
 
           {/* Payments Tab */}
-          <TabsContent value="payments" className="space-y-6">
+          {can('view_payments') && <TabsContent value="payments" className="space-y-6">
             <PaymentsSection
               payments={displayPayments}
               onViewPayment={setSelectedPayment}
+              canReview={can('review_payments')}
             />
-          </TabsContent>
+          </TabsContent>}
 
-          <TabsContent value="command-center" className="space-y-6">
+          {can('view_command_center') && <TabsContent value="command-center" className="space-y-6">
             <CommandCenterSection
               leads={COMMAND_CENTER_LEADS}
               stats={stats}
               requests={subscriptionRequests}
               payments={displayPayments}
+              canManage={can('manage_command_center')}
             />
-          </TabsContent>
+          </TabsContent>}
 
           {/* Messages Tab */}
-          <TabsContent value="messages" className="space-y-6">
+          {can('view_messages') && <TabsContent value="messages" className="space-y-6">
             <MessagesSection />
-          </TabsContent>
+          </TabsContent>}
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
-            <SettingsSection />
-          </TabsContent>
+          {can('view_settings') && <TabsContent value="settings" className="space-y-6">
+            <SettingsSection
+              adminEmail={adminData.email}
+              canManageAdmins={can('manage_admins')}
+              bootstrapAdmin={adminData.bootstrap}
+            />
+          </TabsContent>}
         </Tabs>
       </div>
 
       {/* Request Review Dialog */}
-      {selectedRequest && (
+      {selectedRequest && can('review_requests') && (
         <RequestReviewDialog
           request={selectedRequest}
-          reviewerEmail={adminData.email as string}
+          reviewerEmail={adminData.email}
           onClose={() => {
             setSelectedRequest(null);
             setRejectionReason('');
@@ -470,7 +555,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Payment Review Dialog */}
-      {selectedPayment && (
+      {selectedPayment && can('review_payments') && (
         <PaymentReviewDialog
           payment={selectedPayment}
           onClose={() => setSelectedPayment(null)}
@@ -689,9 +774,11 @@ function isRenderableImageAssetUrl(ref: string): boolean {
 function RequestsSection({
   requests,
   onViewRequest,
+  canReview,
 }: {
   requests: SubscriptionRequest[];
   onViewRequest: (request: SubscriptionRequest) => void;
+  canReview: boolean;
 }) {
   return (
     <motion.div
@@ -785,9 +872,9 @@ function RequestsSection({
                     </div>
                   </div>
                 </div>
-                <Button onClick={() => onViewRequest(request)}>
+                <Button onClick={() => onViewRequest(request)} disabled={!canReview}>
                   <Eye className="w-4 h-4 ml-2" />
-                  مراجعة الطلب
+                  {canReview ? 'مراجعة الطلب' : 'عرض فقط'}
                 </Button>
               </div>
             </CardContent>
@@ -1233,9 +1320,11 @@ function RequestReviewDialog({
 function BarbersSection({
   refreshNonce,
   onStatsNeedRefresh,
+  canManage,
 }: {
   refreshNonce: number;
   onStatsNeedRefresh: () => void;
+  canManage: boolean;
 }) {
   const [rows, setRows] = useState<AdminBarberRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1316,7 +1405,7 @@ function BarbersSection({
                       <div className="flex items-center justify-center gap-2">
                         <Switch
                           checked={row.is_active}
-                          disabled={updatingId === row.id}
+                          disabled={!canManage || updatingId === row.id}
                           onCheckedChange={(v) => void onToggleActive(row, v)}
                           aria-label={row.is_active ? 'تعطيل الظهور' : 'تفعيل الظهور'}
                         />
@@ -1338,9 +1427,11 @@ function BarbersSection({
 function PaymentsSection({
   payments,
   onViewPayment,
+  canReview,
 }: {
   payments: Payment[];
   onViewPayment: (payment: Payment) => void;
+  canReview: boolean;
 }) {
   return (
     <motion.div
@@ -1378,9 +1469,9 @@ function PaymentsSection({
                     <p>تاريخ التقديم: {payment.submittedAt}</p>
                   </div>
                 </div>
-                <Button onClick={() => onViewPayment(payment)}>
+                <Button onClick={() => onViewPayment(payment)} disabled={!canReview}>
                   <Eye className="w-4 h-4 ml-2" />
-                  مراجعة الإيصال
+                  {canReview ? 'مراجعة الإيصال' : 'عرض فقط'}
                 </Button>
               </div>
             </CardContent>
@@ -1531,11 +1622,13 @@ function CommandCenterSection({
   stats,
   requests,
   payments,
+  canManage,
 }: {
   leads: CommandCenterLead[];
   stats: AdminStats;
   requests: SubscriptionRequest[];
   payments: Payment[];
+  canManage: boolean;
 }) {
   const [query, setQuery] = useState('');
   const [region, setRegion] = useState<'all' | string>('all');
@@ -1897,9 +1990,9 @@ function CommandCenterSection({
             </Button>
             <div className="flex items-center justify-between rounded-md border px-3">
               <span className="text-sm text-muted-foreground">فقط مستحقات المتابعة</span>
-              <Switch checked={onlyDue} onCheckedChange={setOnlyDue} />
+                <Switch checked={onlyDue} onCheckedChange={setOnlyDue} disabled={!canManage} />
             </div>
-            <Button variant="outline" onClick={downloadCsv}>
+            <Button variant="outline" onClick={downloadCsv} disabled={!canManage}>
               <Download className="w-4 h-4 ml-2" />
               تصدير CSV
             </Button>
@@ -1946,11 +2039,11 @@ function CommandCenterSection({
                   </div>
 
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:w-56">
-                    <Button onClick={() => openLeadChannel(lead)}>
+                    <Button onClick={() => openLeadChannel(lead)} disabled={!canManage}>
                       <ExternalLink className="w-4 h-4 ml-2" />
                       فتح قناة التواصل
                     </Button>
-                    <Button variant="outline" onClick={() => void copyLeadPitch(lead)}>
+                    <Button variant="outline" onClick={() => void copyLeadPitch(lead)} disabled={!canManage}>
                       <Copy className="w-4 h-4 ml-2" />
                       نسخ رسالة جاهزة
                     </Button>
@@ -1963,6 +2056,7 @@ function CommandCenterSection({
                     onValueChange={(value) =>
                       setLeadPatch(lead.id, { status: value as CommandLeadStatus, lastContactAt: new Date().toLocaleString('ar-SA') })
                     }
+                    disabled={!canManage}
                   >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -1977,16 +2071,19 @@ function CommandCenterSection({
                     value={state?.assignedTo ?? ''}
                     onChange={(e) => setLeadPatch(lead.id, { assignedTo: e.target.value })}
                     placeholder="المسؤول (اختياري)"
+                    disabled={!canManage}
                   />
                   <Input
                     value={state?.notes ?? ''}
                     onChange={(e) => setLeadPatch(lead.id, { notes: e.target.value })}
                     placeholder="ملاحظة مختصرة"
+                    disabled={!canManage}
                   />
                   <Input
                     type="date"
                     value={state?.followUpDate ?? ''}
                     onChange={(e) => setLeadPatch(lead.id, { followUpDate: e.target.value })}
+                    disabled={!canManage}
                   />
                 </div>
               </CardContent>
@@ -2019,9 +2116,22 @@ function MessagesSection() {
 }
 
 // Settings Section
-function SettingsSection() {
+function SettingsSection({
+  adminEmail,
+  canManageAdmins,
+  bootstrapAdmin,
+}: {
+  adminEmail: string;
+  canManageAdmins: boolean;
+  bootstrapAdmin: boolean;
+}) {
   const [vatEnabled, setVatEnabled] = useState(() => getPlatformVatSettings().enabled);
   const [vatRateInput, setVatRateInput] = useState(() => String(getPlatformVatSettings().ratePercent));
+  const [adminRows, setAdminRows] = useState<AdminRoleRow[]>([]);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminName, setNewAdminName] = useState('');
+  const [newAdminPermissions, setNewAdminPermissions] = useState<AdminPermissions>(FULL_ADMIN_PERMISSIONS);
 
   useEffect(() => {
     const sync = () => {
@@ -2050,6 +2160,75 @@ function SettingsSection() {
     });
   };
 
+  const createOrUpdateAdmin = async () => {
+    if (!canManageAdmins) return;
+    if (!newAdminEmail.trim()) {
+      toast({ title: 'أدخل بريد الأدمن', variant: 'destructive' });
+      return;
+    }
+    const res = await upsertAdminRole({
+      email: newAdminEmail,
+      displayName: newAdminName,
+      isActive: true,
+      permissions: newAdminPermissions,
+      createdByEmail: adminEmail,
+    });
+    if (!res.ok) {
+      toast({ title: 'تعذر حفظ الأدمن', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'تم حفظ الأدمن وصلاحياته' });
+    setNewAdminEmail('');
+    setNewAdminName('');
+    setNewAdminPermissions(FULL_ADMIN_PERMISSIONS);
+    await refreshAdmins();
+  };
+
+  const toggleAdminPermission = async (row: AdminRoleRow, permission: AdminPermissionKey, checked: boolean) => {
+    const nextPermissions: AdminPermissions = { ...row.permissions, [permission]: checked };
+    const res = await upsertAdminRole({
+      email: row.email,
+      displayName: row.display_name ?? undefined,
+      isActive: row.is_active,
+      permissions: nextPermissions,
+      createdByEmail: adminEmail,
+    });
+    if (!res.ok) {
+      toast({ title: 'تعذر تحديث الصلاحية', description: res.error, variant: 'destructive' });
+      return;
+    }
+    setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, permissions: nextPermissions } : r)));
+  };
+
+  const toggleAdminActive = async (row: AdminRoleRow, checked: boolean) => {
+    const res = await upsertAdminRole({
+      email: row.email,
+      displayName: row.display_name ?? undefined,
+      isActive: checked,
+      permissions: row.permissions,
+      createdByEmail: adminEmail,
+    });
+    if (!res.ok) {
+      toast({ title: 'تعذر تحديث حالة الأدمن', description: res.error, variant: 'destructive' });
+      return;
+    }
+    setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, is_active: checked } : r)));
+  };
+
+  const removeAdmin = async (emailToDelete: string) => {
+    if (emailToDelete.toLowerCase() === adminEmail.toLowerCase()) {
+      toast({ title: 'لا يمكنك حذف حسابك الحالي', variant: 'destructive' });
+      return;
+    }
+    const res = await deleteAdminRoleByEmail(emailToDelete);
+    if (!res.ok) {
+      toast({ title: 'تعذر حذف الأدمن', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'تم حذف الأدمن' });
+    await refreshAdmins();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -2058,6 +2237,114 @@ function SettingsSection() {
       className="space-y-6"
     >
       <h2 className="text-2xl font-bold mb-2">إعدادات المنصة</h2>
+
+      <Card className="border-primary/25">
+        <CardHeader>
+          <CardTitle>إدارة المدراء والصلاحيات</CardTitle>
+          <CardDescription>
+            تعيين أدمن جديد مع صلاحيات دقيقة. {bootstrapAdmin ? 'أنت في وضع Bootstrap بصلاحية كاملة.' : 'تحتاج صلاحية إدارة المدراء للتعديل.'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {!canManageAdmins ? (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-900 dark:text-amber-100">
+              لا تملك صلاحية <strong>إدارة المدراء</strong>. يمكنك طلبها من Admin Root.
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-3 md:grid-cols-3">
+                <Input
+                  type="email"
+                  dir="ltr"
+                  placeholder="admin2@halaqmap.com"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                />
+                <Input
+                  placeholder="اسم عرض الأدمن (اختياري)"
+                  value={newAdminName}
+                  onChange={(e) => setNewAdminName(e.target.value)}
+                />
+                <Button type="button" onClick={() => void createOrUpdateAdmin()}>
+                  إضافة/تحديث أدمن
+                </Button>
+              </div>
+
+              <div className="rounded-lg border p-3">
+                <p className="font-medium text-sm mb-3">صلاحيات الأدمن الجديد</p>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {ADMIN_PERMISSION_KEYS.map((key) => (
+                    <div key={key} className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-2">
+                      <span className="text-sm">{ADMIN_PERMISSION_LABELS[key]}</span>
+                      <Switch
+                        checked={newAdminPermissions[key]}
+                        onCheckedChange={(checked) =>
+                          setNewAdminPermissions((prev) => ({ ...prev, [key]: checked }))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-medium text-sm">الأدمن الحاليون</p>
+                  <Button variant="outline" size="sm" onClick={() => void refreshAdmins()}>
+                    تحديث
+                  </Button>
+                </div>
+                {adminLoading ? (
+                  <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+                ) : adminRows.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">لا توجد صفوف في جدول الصلاحيات بعد.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {adminRows.map((row) => (
+                      <div key={row.id} className="rounded-md border p-3 space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <p className="font-semibold" dir="ltr">{row.email}</p>
+                            <p className="text-xs text-muted-foreground">{row.display_name || 'بدون اسم عرض'}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">نشط</span>
+                            <Switch
+                              checked={row.is_active}
+                              onCheckedChange={(checked) => void toggleAdminActive(row, checked)}
+                            />
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => void removeAdmin(row.email)}
+                            >
+                              حذف
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="grid gap-2 md:grid-cols-2">
+                          {ADMIN_PERMISSION_KEYS.map((key) => (
+                            <div key={key} className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-2">
+                              <span className="text-xs">{ADMIN_PERMISSION_LABELS[key]}</span>
+                              <Switch
+                                checked={row.permissions[key]}
+                                onCheckedChange={(checked) =>
+                                  void toggleAdminPermission(row, key, checked)
+                                }
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>الإعدادات العامة</CardTitle>

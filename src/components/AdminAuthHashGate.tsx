@@ -1,7 +1,8 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminDashboardPath, getAdminLoginPath, isAllowedAdminEmail } from '@/config/adminAuth';
+import { getAdminDashboardPath, getAdminLoginPath } from '@/config/adminAuth';
+import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 
 function authReturnNeedsHandling(): boolean {
   if (typeof window === 'undefined') return false;
@@ -78,7 +79,8 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
           error,
         } = await client.auth.getSession();
 
-        if (error || !session?.user?.email || !isAllowedAdminEmail(session.user.email)) {
+        const access = session?.user?.email ? await resolveAdminAccess(session.user.email) : { allowed: false };
+        if (error || !session?.user?.email || !access.allowed) {
           await client.auth.signOut();
           replaceHashOnly(getAdminLoginPath());
           navigate(getAdminLoginPath(), { replace: true });
