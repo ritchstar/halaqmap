@@ -28,6 +28,7 @@ import {
   AlertCircle,
   Loader2,
   ExternalLink,
+  Copy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -81,6 +82,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  COMMAND_CENTER_LEADS,
+  buildWaDeepLink,
+  type CommandCenterLead,
+  type CommandLeadChannel,
+  type CommandLeadStatus,
+} from '@/lib/adminCommandCenter';
 
 const EMPTY_ADMIN_STATS: AdminStats = {
   totalBarbers: 0,
@@ -175,6 +183,16 @@ const MOCK_PAYMENTS: Payment[] = [
     submittedAt: '2026-04-08 11:30',
   },
 ];
+
+type LeadRuntimeState = {
+  status: CommandLeadStatus;
+  assignedTo?: string;
+  notes?: string;
+  lastContactAt?: string;
+  followUpDate?: string;
+};
+
+const COMMAND_CENTER_STATE_KEY = 'halaqmap_command_center_lead_state_v1';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -334,7 +352,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview" className="gap-2">
               <TrendingUp className="w-4 h-4" />
               <span className="hidden sm:inline">نظرة عامة</span>
@@ -360,6 +378,10 @@ export default function AdminDashboard() {
                   {stats.pendingPayments}
                 </Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="command-center" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">غرفة القيادة</span>
             </TabsTrigger>
             <TabsTrigger value="messages" className="gap-2">
               <MessageSquare className="w-4 h-4" />
@@ -394,6 +416,15 @@ export default function AdminDashboard() {
             <PaymentsSection
               payments={displayPayments}
               onViewPayment={setSelectedPayment}
+            />
+          </TabsContent>
+
+          <TabsContent value="command-center" className="space-y-6">
+            <CommandCenterSection
+              leads={COMMAND_CENTER_LEADS}
+              stats={stats}
+              requests={subscriptionRequests}
+              payments={displayPayments}
             />
           </TabsContent>
 
@@ -1481,6 +1512,400 @@ function PaymentReviewDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CommandCenterSection({
+  leads,
+  stats,
+  requests,
+  payments,
+}: {
+  leads: CommandCenterLead[];
+  stats: AdminStats;
+  requests: SubscriptionRequest[];
+  payments: Payment[];
+}) {
+  const [query, setQuery] = useState('');
+  const [region, setRegion] = useState<'all' | string>('all');
+  const [channel, setChannel] = useState<'all' | CommandLeadChannel>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | CommandLeadStatus>('all');
+  const [tierFilter, setTierFilter] = useState<'all' | CommandCenterLead['tierFit']>('all');
+  const [onlyDue, setOnlyDue] = useState(false);
+  const [leadState, setLeadState] = useState<Record<string, LeadRuntimeState>>({});
+  const todayIso = new Date().toISOString().slice(0, 10);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(COMMAND_CENTER_STATE_KEY);
+      if (!raw) return;
+      setLeadState(JSON.parse(raw) as Record<string, LeadRuntimeState>);
+    } catch {
+      /* ignore invalid persisted state */
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(COMMAND_CENTER_STATE_KEY, JSON.stringify(leadState));
+  }, [leadState]);
+
+  const regionOptions = useMemo(
+    () => Array.from(new Set(leads.map((l) => l.region))).sort((a, b) => a.localeCompare(b, 'ar')),
+    [leads]
+  );
+
+  const pipelineCounts = useMemo(() => {
+    const init: Record<CommandLeadStatus, number> = {
+      new: 0,
+      contacted: 0,
+      waiting: 0,
+      won: 0,
+      lost: 0,
+    };
+    leads.forEach((lead) => {
+      const st = leadState[lead.id]?.status ?? 'new';
+      init[st] += 1;
+    });
+    return init;
+  }, [leads, leadState]);
+
+  const dueSummary = useMemo(() => {
+    let dueToday = 0;
+    let overdue = 0;
+    leads.forEach((lead) => {
+      const d = leadState[lead.id]?.followUpDate;
+      if (!d) return;
+      if (d === todayIso) dueToday += 1;
+      if (d < todayIso) overdue += 1;
+    });
+    return { dueToday, overdue };
+  }, [leads, leadState, todayIso]);
+
+  const csvEscape = (value: string): string => {
+    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+      return `"${value.replaceAll('"', '""')}"`;
+    }
+    return value;
+  };
+
+  const filteredLeads = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return leads.filter((lead) => {
+      const state = leadState[lead.id];
+      const st = state?.status ?? 'new';
+      const matchesRegion = region === 'all' || lead.region === region;
+      const matchesChannel = channel === 'all' || lead.channel === channel;
+      const matchesStatus = statusFilter === 'all' || st === statusFilter;
+      const matchesTier = tierFilter === 'all' || lead.tierFit === tierFilter;
+      const followUpDate = state?.followUpDate;
+      const matchesDue = !onlyDue || (!!followUpDate && followUpDate <= todayIso);
+      const matchesQuery =
+        q.length === 0 ||
+        lead.name.toLowerCase().includes(q) ||
+        lead.city.toLowerCase().includes(q) ||
+        (lead.instagram ?? '').toLowerCase().includes(q) ||
+        (lead.phone ?? '').includes(q) ||
+        (state?.notes ?? '').toLowerCase().includes(q);
+      return matchesRegion && matchesChannel && matchesStatus && matchesTier && matchesDue && matchesQuery;
+    });
+  }, [leads, leadState, query, region, channel, statusFilter, tierFilter, onlyDue, todayIso]);
+
+  const setLeadPatch = (id: string, patch: Partial<LeadRuntimeState>) => {
+    setLeadState((prev) => ({
+      ...prev,
+      [id]: {
+        status: prev[id]?.status ?? 'new',
+        ...prev[id],
+        ...patch,
+      },
+    }));
+  };
+
+  const outreachMessage =
+    'السلام عليكم، معكم فريق منصة حلاق ماب. نرغب بدعوتكم للانضمام للمنصة وزيادة الظهور المحلي للعملاء القريبين. هل يمكن إرسال التفاصيل؟';
+
+  const copyLeadPitch = async (lead: CommandCenterLead) => {
+    const text = `مرحباً ${lead.name}،\n${outreachMessage}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: 'تم نسخ الرسالة', description: `جاهزة للإرسال إلى ${lead.name}` });
+    } catch {
+      toast({ title: 'تعذر النسخ', description: 'انسخ الرسالة يدوياً.', variant: 'destructive' });
+    }
+  };
+
+  const openLeadChannel = (lead: CommandCenterLead) => {
+    if (lead.phone) {
+      window.open(buildWaDeepLink(lead.phone, outreachMessage), '_blank');
+      return;
+    }
+    if (lead.instagram) {
+      window.open(`https://instagram.com/${lead.instagram.replace('@', '')}`, '_blank');
+      return;
+    }
+    if (lead.email) {
+      window.open(
+        `mailto:${lead.email}?subject=${encodeURIComponent('دعوة انضمام إلى منصة حلاق ماب')}&body=${encodeURIComponent(outreachMessage)}`,
+        '_blank'
+      );
+      return;
+    }
+    if (lead.website) {
+      window.open(lead.website, '_blank');
+    }
+  };
+
+  const downloadCsv = () => {
+    const headers = [
+      'name',
+      'city',
+      'region',
+      'tier_fit',
+      'channel',
+      'status',
+      'phone',
+      'email',
+      'instagram',
+      'website',
+      'assigned_to',
+      'follow_up_date',
+      'last_contact_at',
+      'notes',
+    ];
+
+    const rows = filteredLeads.map((lead) => {
+      const state = leadState[lead.id];
+      const status = state?.status ?? 'new';
+      return [
+        lead.name,
+        lead.city,
+        lead.region,
+        lead.tierFit,
+        lead.channel,
+        status,
+        lead.phone ?? '',
+        lead.email ?? '',
+        lead.instagram ?? '',
+        lead.website ?? '',
+        state?.assignedTo ?? '',
+        state?.followUpDate ?? '',
+        state?.lastContactAt ?? '',
+        state?.notes ?? '',
+      ].map((v) => csvEscape(v));
+    });
+
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `command-center-${todayIso}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: 'تم تصدير CSV', description: `${filteredLeads.length} جهة اتصال` });
+  };
+
+  const statusMeta: Record<CommandLeadStatus, { label: string; className: string }> = {
+    new: { label: 'جديد', className: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
+    contacted: { label: 'تم التواصل', className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
+    waiting: { label: 'بانتظار الرد', className: 'bg-purple-500/10 text-purple-600 border-purple-500/30' },
+    won: { label: 'تم الاشتراك', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
+    lost: { label: 'تعذر الإغلاق', className: 'bg-red-500/10 text-red-600 border-red-500/30' },
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">غرفة القيادة</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            متابعة حملة التواصل، التحويل، والقرارات التشغيلية اليومية من مكان واحد.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
+        <StatsCard title="طلبات بانتظار المراجعة" value={stats.pendingRequests} icon={FileText} color="yellow" />
+        <StatsCard title="مدفوعات بانتظار التأكيد" value={stats.pendingPayments} icon={CreditCard} color="purple" />
+        <StatsCard title="أهداف التواصل" value={leads.length} subtitle="قائمة قابلة للتوسع" icon={Users} color="blue" />
+        <StatsCard
+          title="إشغال اليوم"
+          value={requests.filter((r) => r.status === 'pending').length + payments.filter((p) => p.status === 'pending').length}
+          subtitle="طلبات + مدفوعات تحتاج قرار"
+          icon={AlertCircle}
+          color="green"
+        />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-7 mb-6">
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">جديد</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم التواصل</p><p className="text-2xl font-bold">{pipelineCounts.contacted}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">بانتظار الرد</p><p className="text-2xl font-bold">{pipelineCounts.waiting}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم الاشتراك</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تعذر الإغلاق</p><p className="text-2xl font-bold text-red-600">{pipelineCounts.lost}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متابعة اليوم</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متأخرة</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
+      </div>
+
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="بحث بالاسم/المدينة/الانستقرام..." />
+            <Select value={region} onValueChange={setRegion}>
+              <SelectTrigger><SelectValue placeholder="المنطقة" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">كل المناطق</SelectItem>
+                {regionOptions.map((r) => (
+                  <SelectItem key={r} value={r}>{r}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={channel} onValueChange={(value) => setChannel(value as 'all' | CommandLeadChannel)}>
+              <SelectTrigger><SelectValue placeholder="قناة التواصل" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">كل القنوات</SelectItem>
+                <SelectItem value="whatsapp">واتساب</SelectItem>
+                <SelectItem value="instagram">انستقرام</SelectItem>
+                <SelectItem value="email">بريد</SelectItem>
+                <SelectItem value="website">موقع</SelectItem>
+                <SelectItem value="phone">اتصال</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | CommandLeadStatus)}>
+              <SelectTrigger><SelectValue placeholder="حالة المتابعة" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">كل الحالات</SelectItem>
+                <SelectItem value="new">جديد</SelectItem>
+                <SelectItem value="contacted">تم التواصل</SelectItem>
+                <SelectItem value="waiting">بانتظار الرد</SelectItem>
+                <SelectItem value="won">تم الاشتراك</SelectItem>
+                <SelectItem value="lost">تعذر الإغلاق</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={tierFilter} onValueChange={(value) => setTierFilter(value as 'all' | CommandCenterLead['tierFit'])}>
+              <SelectTrigger><SelectValue placeholder="ملاءمة الباقة" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">كل الباقات</SelectItem>
+                <SelectItem value="gold">ذهبي</SelectItem>
+                <SelectItem value="diamond">ماسي</SelectItem>
+                <SelectItem value="mixed">ذهبي/ماسي</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              onClick={async () => {
+                const lines = filteredLeads.map((lead) => `${lead.name} | ${lead.city} | ${lead.phone ?? lead.instagram ?? lead.email ?? lead.website ?? '—'}`);
+                try {
+                  await navigator.clipboard.writeText(lines.join('\n'));
+                  toast({ title: 'تم نسخ القائمة', description: `${filteredLeads.length} جهة اتصال` });
+                } catch {
+                  toast({ title: 'تعذر النسخ', variant: 'destructive' });
+                }
+              }}
+            >
+              <Copy className="w-4 h-4 ml-2" />
+              نسخ القائمة الحالية
+            </Button>
+            <div className="flex items-center justify-between rounded-md border px-3">
+              <span className="text-sm text-muted-foreground">فقط مستحقات المتابعة</span>
+              <Switch checked={onlyDue} onCheckedChange={setOnlyDue} />
+            </div>
+            <Button variant="outline" onClick={downloadCsv}>
+              <Download className="w-4 h-4 ml-2" />
+              تصدير CSV
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-4">
+        {filteredLeads.map((lead) => {
+          const state = leadState[lead.id];
+          const status = state?.status ?? 'new';
+          const followUp = state?.followUpDate;
+          const isOverdue = !!followUp && followUp < todayIso;
+          const isDueToday = !!followUp && followUp === todayIso;
+          return (
+            <Card
+              key={lead.id}
+              className={isOverdue ? 'border-red-500/40' : isDueToday ? 'border-amber-500/40' : undefined}
+            >
+              <CardContent className="p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-2 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-lg">{lead.name}</h3>
+                      <Badge variant="outline">{lead.region} — {lead.city}</Badge>
+                      <Badge className={statusMeta[status].className}>{statusMeta[status].label}</Badge>
+                      <Badge variant="secondary">
+                        {lead.tierFit === 'diamond' ? 'ملائم للماسي' : lead.tierFit === 'gold' ? 'ملائم للذهبي' : 'ذهبي/ماسي'}
+                      </Badge>
+                      {isOverdue ? <Badge variant="destructive">متابعة متأخرة</Badge> : null}
+                      {!isOverdue && isDueToday ? <Badge className="bg-amber-500 text-white">متابعة اليوم</Badge> : null}
+                    </div>
+                    <div className="text-sm text-muted-foreground flex gap-3 flex-wrap">
+                      {lead.phone ? <span dir="ltr">📞 {lead.phone}</span> : null}
+                      {lead.email ? <span dir="ltr">✉️ {lead.email}</span> : null}
+                      {lead.instagram ? <span dir="ltr">{lead.instagram}</span> : null}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      آخر تواصل: {state?.lastContactAt ?? 'لم يتم بعد'}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      متابعة قادمة: {state?.followUpDate ?? 'غير محددة'}
+                    </div>
+                  </div>
+
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:w-56">
+                    <Button onClick={() => openLeadChannel(lead)}>
+                      <ExternalLink className="w-4 h-4 ml-2" />
+                      فتح قناة التواصل
+                    </Button>
+                    <Button variant="outline" onClick={() => void copyLeadPitch(lead)}>
+                      <Copy className="w-4 h-4 ml-2" />
+                      نسخ رسالة جاهزة
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 mt-4 md:grid-cols-4">
+                  <Select
+                    value={status}
+                    onValueChange={(value) =>
+                      setLeadPatch(lead.id, { status: value as CommandLeadStatus, lastContactAt: new Date().toLocaleString('ar-SA') })
+                    }
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">جديد</SelectItem>
+                      <SelectItem value="contacted">تم التواصل</SelectItem>
+                      <SelectItem value="waiting">بانتظار الرد</SelectItem>
+                      <SelectItem value="won">تم الاشتراك</SelectItem>
+                      <SelectItem value="lost">تعذر الإغلاق</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    value={state?.assignedTo ?? ''}
+                    onChange={(e) => setLeadPatch(lead.id, { assignedTo: e.target.value })}
+                    placeholder="المسؤول (اختياري)"
+                  />
+                  <Input
+                    value={state?.notes ?? ''}
+                    onChange={(e) => setLeadPatch(lead.id, { notes: e.target.value })}
+                    placeholder="ملاحظة مختصرة"
+                  />
+                  <Input
+                    type="date"
+                    value={state?.followUpDate ?? ''}
+                    onChange={(e) => setLeadPatch(lead.id, { followUpDate: e.target.value })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </motion.div>
   );
 }
 
