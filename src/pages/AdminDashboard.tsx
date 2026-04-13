@@ -1894,6 +1894,41 @@ function CommandCenterSection({
         </CardContent>
       </Card>
 
+      <Card className="mb-6 border-red-500/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg text-red-600">بطاقة طوارئ لوحة التحكم (5 دقائق)</CardTitle>
+          <CardDescription>
+            مرجع سريع وقت الأزمات — الهدف استعادة الوصول أولًا ثم التحليل.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="rounded-md border border-border p-3 space-y-1">
+            <p className="text-sm font-semibold">1) احتواء فوري (دقيقة)</p>
+            <p className="text-xs text-muted-foreground">
+              أوقف أي نشر/تعديل جديد وحدد نوع العطل: 404 / شاشة بيضاء / فشل دخول / صلاحيات.
+            </p>
+          </div>
+          <div className="rounded-md border border-border p-3 space-y-1">
+            <p className="text-sm font-semibold">2) استعادة سريعة (2-3 دقائق)</p>
+            <p className="text-xs text-muted-foreground">
+              نفّذ Rollback لآخر نسخة مستقرة، ثم تحقق من رابط الأدمن بالـ hash ومتغيرات البيئة.
+            </p>
+          </div>
+          <div className="rounded-md border border-border p-3 space-y-1">
+            <p className="text-sm font-semibold">3) دخول طوارئ</p>
+            <p className="text-xs text-muted-foreground">
+              جرّب حساب Bootstrap Admin. عند النجاح: ثبّت الوضع ولا تنفّذ تغييرات إضافية فورًا.
+            </p>
+          </div>
+          <div className="rounded-md border border-border p-3 space-y-1">
+            <p className="text-sm font-semibold">4) توثيق ومنع تكرار</p>
+            <p className="text-xs text-muted-foreground">
+              سجل السبب الجذري والإجراء الوقائي في سجل الاستقرار بنفس اليوم.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatsCard title="طلبات بانتظار المراجعة" value={stats.pendingRequests} icon={FileText} color="yellow" />
         <StatsCard title="مدفوعات بانتظار التأكيد" value={stats.pendingPayments} icon={CreditCard} color="purple" />
