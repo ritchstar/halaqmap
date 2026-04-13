@@ -364,17 +364,29 @@ export function RegistrationForm() {
       return;
     }
     const incoming = Array.from(files);
-    let addedCount = 0;
+    const current = formData.documents.healthCertificates;
+    const uniqueIncoming = incoming.filter(
+      (f) =>
+        !current.some(
+          (p) => p.name === f.name && p.size === f.size && p.lastModified === f.lastModified
+        )
+    );
+    const addedCount = uniqueIncoming.length;
+
+    if (addedCount === 0) {
+      toast.error('هذا الملف مضاف مسبقاً. اختر ملفاً آخر أو احذف القديم أولاً.');
+      return;
+    }
+
     setFormData((prev) => {
       const next = [
         ...prev.documents.healthCertificates,
-        ...incoming.filter((f) => {
-          const exists = prev.documents.healthCertificates.some(
-            (p) => p.name === f.name && p.size === f.size && p.lastModified === f.lastModified
-          );
-          if (!exists) addedCount += 1;
-          return !exists;
-        }),
+        ...uniqueIncoming.filter(
+          (f) =>
+            !prev.documents.healthCertificates.some(
+              (p) => p.name === f.name && p.size === f.size && p.lastModified === f.lastModified
+            )
+        ),
       ];
       return {
         ...prev,
@@ -385,11 +397,7 @@ export function RegistrationForm() {
         },
       };
     });
-    if (addedCount > 0) {
-      toast.success(`تمت إضافة ${addedCount} ملف/ملفات للشهادات الصحية`);
-    } else {
-      toast.error('هذا الملف مضاف مسبقاً. اختر ملفاً آخر أو احذف القديم أولاً.');
-    }
+    toast.success(`تمت إضافة ${addedCount} ملف/ملفات للشهادات الصحية`);
   };
 
   const removeHealthCertificate = (index: number) => {
