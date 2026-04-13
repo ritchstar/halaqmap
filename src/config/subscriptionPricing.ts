@@ -1,6 +1,6 @@
 import { SubscriptionTier } from '@/lib/index';
 
-/** أسعار شهرية مقررة (ر.س) — تعديل لوحة المالك لاحقاً يمر من هنا */
+/** أسعار شهرية مقررة (ر.س) — تعديل لوحة الإدارة لاحقاً يمر من هنا */
 export const TIER_MONTHLY_SAR: Record<SubscriptionTier, number> = {
   [SubscriptionTier.BRONZE]: 100,
   [SubscriptionTier.GOLD]: 150,
@@ -14,7 +14,7 @@ export function getSixMonthGrossSar(tier: SubscriptionTier): number {
 
 /**
  * نهاية فترة العرض (سنة أولى تشغيلية): شهران إضافيان + خصم 10%.
- * يضبط المالك في Vercel: VITE_BANK_TRANSFER_PROMO_END=2026-12-31
+ * تضبط الإدارة في Vercel: VITE_BANK_TRANSFER_PROMO_END=2026-12-31
  * الافتراضي: 31 ديسمبر 2026 نهاية اليوم UTC.
  */
 export function getBankTransferPromoEndMs(): number {
