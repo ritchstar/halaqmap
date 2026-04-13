@@ -47,6 +47,7 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
         'Or replace only the INSERT policy:',
         '  supabase/migrations/21_registration_storage_path_policy_fix.sql',
         'Check: Storage → Policies → INSERT allowed for anon on registration-uploads',
+        'Or on Vercel: set SUPABASE_SERVICE_ROLE_KEY (server-only) — uploads use api/register-upload-file',
       ])
     );
   }
@@ -62,6 +63,78 @@ function safeFileSegment(name: string): string {
   return base || 'file';
 }
 
+function registrationUploadEndpoint(): string {
+  const explicit = import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim();
+  if (explicit) return explicit;
+  return '/api/register-upload-file';
+}
+
+function shouldAttemptServerUpload(): boolean {
+  if (import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim()) return true;
+  return import.meta.env.PROD;
+}
+
+/**
+ * رفع عبر دالة Vercel بمفتاح الخدمة (لا يعتمد على سياسات تخزين anon).
+ * يُرجع fallback: true عند 503/404/أخطاء شبكة أو فشل غير حاسم ليُجرّب الرفع المباشر من المتصفح.
+ */
+async function tryServerUpload(
+  orderId: string,
+  storageSubpath: string,
+  file: File
+): Promise<
+  | { ok: true; url: string }
+  | { ok: false; fallback: true }
+  | { ok: false; fallback: false; error: string }
+> {
+  const anon = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+  if (!anon) return { ok: false, fallback: true };
+
+  const endpoint = registrationUploadEndpoint();
+  let res: Response;
+  try {
+    res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'x-file-content-type': file.type || 'application/octet-stream',
+        'x-order-id': orderId,
+        'x-storage-subpath': storageSubpath,
+        'x-supabase-anon': anon,
+      },
+      body: file,
+    });
+  } catch {
+    return { ok: false, fallback: true };
+  }
+
+  if (res.status === 503) return { ok: false, fallback: true };
+
+  if (res.ok) {
+    const data = (await res.json()) as { publicUrl?: string };
+    if (data.publicUrl) return { ok: true, url: data.publicUrl };
+    return { ok: false, fallback: true };
+  }
+
+  if (res.status === 400) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    return { ok: false, fallback: false, error: data.error || 'طلب غير صالح' };
+  }
+
+  if (res.status === 413) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    return {
+      ok: false,
+      fallback: false,
+      error:
+        data.error ||
+        `حجم الملف يتجاوز الحد المسموح (${MAX_FILE_BYTES / 1024 / 1024} ميجابايت): ${file.name}`,
+    };
+  }
+
+  return { ok: false, fallback: true };
+}
+
 async function uploadOne(
   client: SupabaseClient,
   orderId: string,
@@ -74,7 +147,15 @@ async function uploadOne(
       error: `حجم الملف يتجاوز الحد المسموح (${MAX_FILE_BYTES / 1024 / 1024} ميجابايت): ${file.name}`,
     };
   }
-  const path = `${orderId}/${subfolder}/${crypto.randomUUID()}_${safeFileSegment(file.name)}`;
+  const storageSubpath = `${subfolder}/${crypto.randomUUID()}_${safeFileSegment(file.name)}`;
+  const path = `${orderId}/${storageSubpath}`;
+
+  if (shouldAttemptServerUpload()) {
+    const server = await tryServerUpload(orderId, storageSubpath, file);
+    if (server.ok) return { ok: true, url: server.url };
+    if (!server.fallback) return { ok: false, error: server.error };
+  }
+
   const { error } = await client.storage.from(REGISTRATION_UPLOADS_BUCKET).upload(path, file, {
     cacheControl: '3600',
     upsert: false,

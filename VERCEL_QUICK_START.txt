@@ -105,6 +105,7 @@ vercel --prod
 
    انسخ القالب من ملف .env.example في جذر المشروع. الأهم:
    • VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY
+   • SUPABASE_SERVICE_ROLE_KEY (سيرفر Vercel فقط — رفع ملفات التسجيل دون سياسات تخزين للزائر)
    • VITE_SITE_ORIGIN (رابط الموقع العلني)
    • VITE_ADMIN_EMAIL و VITE_ADMIN_PORTAL_BASE (لوحة الإدارة الخفية)
    • ضريبة العرض في الواجهة: معطّلة افتراضياً — التفعيل من لوحة الإدارة → الإعدادات،
