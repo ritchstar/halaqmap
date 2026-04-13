@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { mockBarbers } from '@/data/index';
+import { demoShowcaseBarbers } from '@/data/demoShowcaseBarbers';
+import { isDemoCatalogEnabled } from '@/config/demoCatalog';
 import { LocationButton } from '@/components/LocationButton';
 import { FilterBar } from '@/components/FilterBar';
 import { BarberCard } from '@/components/BarberCards';
@@ -90,6 +92,7 @@ export default function Home() {
   }, []);
 
   const catalogBarbers = useMemo(() => {
+    if (isDemoCatalogEnabled()) return demoShowcaseBarbers;
     if (!isSupabaseConfigured() || remoteStatus === 'error') return mockBarbers;
     if (remoteStatus === 'loading') return mockBarbers;
     return remoteBarbers;
@@ -348,7 +351,18 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="mb-8">
+            <div className="mb-8 space-y-4">
+              {isDemoCatalogEnabled() && (
+                <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground">
+                  <p className="font-semibold text-primary mb-1">وضع عرض التصميم</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    يظهر ثلاثة حلاقين تجريبيين (واحد لكل باقة) مع بنرات بغضّ النظر عن شريط المسافة. لإخفاء
+                    العرض واستخدام بيانات السيرفر أو القائمة التجريبة الكاملة: عيّن في البيئة{' '}
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs">VITE_DEMO_CATALOG=false</code>
+                    ثم أعد البناء.
+                  </p>
+                </div>
+              )}
               <FilterBar filters={filters} onFilterChange={setFilters} />
             </div>
 

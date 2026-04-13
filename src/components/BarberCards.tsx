@@ -34,6 +34,84 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
   };
 
   if (barber.subscription === SubscriptionTier.BRONZE) {
+    if (barber.showcaseTopBanner) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 35 }}
+        >
+          <Card className="overflow-hidden bg-gradient-to-br from-card via-card to-muted/25 border-border hover:shadow-lg transition-all duration-200">
+            <div className="relative h-48 overflow-hidden">
+              <img
+                src={barber.images[0]}
+                alt={barber.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
+              <Badge className="absolute top-3 left-3 bg-muted text-muted-foreground border-border">
+                برونزي
+              </Badge>
+            </div>
+
+            <div className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-foreground mb-1">{barber.name}</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < Math.floor(barber.rating)
+                              ? "fill-accent text-accent"
+                              : "text-muted-foreground/30"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-muted-foreground">({barber.reviewCount})</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                    <MapPin className="w-4 h-4" />
+                    <span>{distance.toFixed(1)} كم</span>
+                  </div>
+                  <Badge variant={barber.isOpen ? "default" : "secondary"} className="text-xs">
+                    {barber.isOpen ? "مفتوح الآن" : "مغلق"}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={openGoogleMaps}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <MapPin className="w-4 h-4 ml-2" />
+                  الموقع
+                </Button>
+                <Button
+                  onClick={openWhatsApp}
+                  className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                  size="icon"
+                >
+                  <SiWhatsapp className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-primary text-primary hover:bg-primary/10"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      );
+    }
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}

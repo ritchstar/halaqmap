@@ -116,7 +116,6 @@ const SUBSCRIPTION_PLANS: {
     color: 'from-amber-700 to-amber-900',
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: RATING_QR_PLAN_LINE },
       { kind: 'line', text: '4 صور مصغرة للمحل' },
       { kind: 'line', text: 'رقم الهاتف للتواصل' },
       { kind: 'line', text: 'ظهور في نتائج البحث والخريطة' },

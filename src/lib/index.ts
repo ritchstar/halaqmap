@@ -1,3 +1,5 @@
+import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
+
 export const ROUTE_PATHS = {
   HOME: '/',
   REGISTER: '/register',
@@ -53,6 +55,8 @@ export interface Barber {
   categories: string[];
   /** سرّي لبناء رابط دعوة التقييم عبر QR — لا يُجلب في قوائم الخريطة العامة */
   ratingInviteToken?: string;
+  /** بطاقة ببنر علوي (عرض تصميم للباقة البرونزية مثل الذهبي/الماسي) */
+  showcaseTopBanner?: boolean;
 }
 
 export interface Appointment {
@@ -222,7 +226,8 @@ export function filterBarbersByDistance(
       ),
     }))
     .filter((barber) => {
-      if (barber.distance > filters.maxDistance) return false;
+      const skipDistance = isDemoShowcaseBarberId(barber.id);
+      if (!skipDistance && barber.distance > filters.maxDistance) return false;
       if (filters.tiers.length > 0 && !filters.tiers.includes(barber.subscription)) return false;
       if (filters.openNow && !barber.isOpen) return false;
       if (barber.rating < filters.minRating) return false;

@@ -368,8 +368,8 @@ function QrRatingsSection({
       <div>
         <h2 className="text-2xl font-bold mb-2">{RATING_QR_FEATURE_TITLE}</h2>
         <p className="text-muted-foreground text-sm max-w-2xl">
-          متاح لجميع الباقات (برونزي، ذهبي، ماسي). اطبع الرمز أو انسخ الرابط واطلب من الزبون مسحه بعد
-          الزيارة عبر حلاق ماب.
+          متاح للباقتين الذهبية والماسية. اطبع الرمز أو انسخ الرابط واطلب من الزبون مسحه بعد الزيارة عبر
+          حلاق ماب.
         </p>
       </div>
 

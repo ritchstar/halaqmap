@@ -32,7 +32,6 @@ export default function SubscriptionPolicy() {
       color: "bg-gradient-to-br from-amber-700 to-amber-900",
       features: [
         { kind: "map_hero" },
-        { kind: "text", value: RATING_QR_PLAN_LINE },
         { kind: "text", value: "4 صور مصغرة للمحل" },
         { kind: "text", value: "رقم الهاتف وبيانات التواصل من بطاقة المحل" },
         { kind: "text", value: "ظهور في نتائج البحث" },
