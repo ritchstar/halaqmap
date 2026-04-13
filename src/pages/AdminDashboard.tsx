@@ -323,18 +323,6 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('halaqmap-subscription-requests-changed', onChange);
   }, []);
 
-  const refreshAdmins = async () => {
-    if (!canManageAdmins) return;
-    setAdminLoading(true);
-    const list = await listAdminRoles();
-    setAdminRows(list);
-    setAdminLoading(false);
-  };
-
-  useEffect(() => {
-    void refreshAdmins();
-  }, [canManageAdmins]);
-
   const handleLogout = async () => {
     const client = getSupabaseClient();
     await client?.auth.signOut();
