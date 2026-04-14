@@ -179,6 +179,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                     ? SubscriptionTier.DIAMOND
                     : SubscriptionTier.GOLD
                 }
+                barberId={barber.id}
                 barberName={barber.name}
               />
             </div>

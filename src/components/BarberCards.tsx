@@ -357,7 +357,12 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             </Button>
           </div>
           <div className="mt-4">
-            <CustomerBarberChatPreview tier={SubscriptionTier.DIAMOND} barberName={barber.name} compact />
+            <CustomerBarberChatPreview
+              tier={SubscriptionTier.DIAMOND}
+              barberId={barber.id}
+              barberName={barber.name}
+              compact
+            />
           </div>
           {showDiamondScheduling && (
             <div className="mt-4">

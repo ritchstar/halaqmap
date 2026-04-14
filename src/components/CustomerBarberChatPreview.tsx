@@ -1,10 +1,23 @@
+import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { MessageCircle, Languages, Sparkles, User, Store } from 'lucide-react';
+import { MessageCircle, Languages, Sparkles, User, Store, Hourglass, RotateCcw, Send } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SubscriptionTier } from '@/lib/index';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  appendPrivateMessage,
+  clearExpiredPrivateConversations,
+  getOrCreatePrivateChatSession,
+  getPrivateChatRemainingMs,
+  isPrivateChatExpired,
+  loadPrivateConversation,
+  restartPrivateChatSession,
+  type PrivateChatMessage,
+} from '@/lib/customerPrivateChat';
 
 type Tier = SubscriptionTier.GOLD | SubscriptionTier.DIAMOND;
 
@@ -87,17 +100,74 @@ function TranslationHint({
 
 export function CustomerBarberChatPreview({
   tier,
+  barberId,
   barberName,
   compact,
   className,
 }: {
   tier: Tier;
+  barberId: string;
   barberName: string;
   compact?: boolean;
   className?: string;
 }) {
   const isDiamond = tier === SubscriptionTier.DIAMOND;
   const perks = isDiamond ? DIAMOND_PERKS : GOLD_PERKS;
+
+  const [session, setSession] = useState(() => getOrCreatePrivateChatSession(barberId));
+  const [messages, setMessages] = useState<PrivateChatMessage[]>(() =>
+    loadPrivateConversation(barberId, session.sessionId)
+  );
+  const [draft, setDraft] = useState('');
+  const [remainingMs, setRemainingMs] = useState(() => getPrivateChatRemainingMs(session));
+
+  useEffect(() => {
+    clearExpiredPrivateConversations();
+    const next = getOrCreatePrivateChatSession(barberId);
+    setSession(next);
+    setMessages(loadPrivateConversation(barberId, next.sessionId));
+  }, [barberId]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setRemainingMs(getPrivateChatRemainingMs(session));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [session]);
+
+  const expired = isPrivateChatExpired(session);
+
+  function sendMessage() {
+    const text = draft.trim();
+    if (!text || expired) return;
+    const afterCustomer = appendPrivateMessage(barberId, session, 'customer', text);
+    setMessages(afterCustomer);
+    setDraft('');
+
+    window.setTimeout(() => {
+      if (isPrivateChatExpired(session)) return;
+      const reply = isDiamond
+        ? 'تم استلام رسالتك. يسعدنا خدمتك، هل ترغب بتأكيد موعد خلال ساعة؟'
+        : 'تم استلام رسالتك. يسعدنا خدمتك، ما الوقت المناسب لك؟';
+      const afterReply = appendPrivateMessage(barberId, session, 'barber', reply);
+      setMessages(afterReply);
+    }, 900);
+  }
+
+  function startNewSession() {
+    const next = restartPrivateChatSession(barberId);
+    setSession(next);
+    setMessages([]);
+    setDraft('');
+    setRemainingMs(getPrivateChatRemainingMs(next));
+  }
+
+  const remainingLabel = useMemo(() => {
+    const totalSec = Math.floor(Math.max(0, remainingMs) / 1000);
+    const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+    const ss = String(totalSec % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
+  }, [remainingMs]);
 
   const body = (
     <>
@@ -122,52 +192,93 @@ export function CustomerBarberChatPreview({
             {isDiamond ? 'ماسي + ترجمة' : 'ذهبي'}
           </Badge>
         </div>
+        <div className="border-b bg-background px-3 py-2 flex items-center justify-between text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Hourglass className="w-3.5 h-3.5" />
+            <span>جلسة خاصة لكل عميل (تنتهي بعد ساعة)</span>
+          </div>
+          <span className={cn('font-semibold', expired ? 'text-destructive' : 'text-primary')} dir="ltr">
+            {remainingLabel}
+          </span>
+        </div>
         <ScrollArea className={cn(compact ? 'h-[168px]' : 'h-[220px]')}>
           <div className={cn('space-y-3 p-3', compact && 'space-y-2 p-2')}>
-            {!isDiamond ? (
-              <>
-                <Bubble side="customer" label="أنت (العميل)" compact={compact}>
-                  السلام عليكم، هل عندكم موعد اليوم بعد العصر؟
-                </Bubble>
-                <Bubble side="barber" label={barberName} compact={compact}>
-                  وعليكم السلام، نعم عندنا الساعة الخامسة — هل يناسبك؟
-                </Bubble>
-                <Bubble side="customer" label="أنت (العميل)" compact={compact}>
-                  تمام، احجز لي وسأكون هناك إن شاء الله.
-                </Bubble>
-              </>
+            {messages.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center">
+                ابدأ محادثة خاصة — هذه الجلسة مرئية لهذا العميل فقط وتنتهي تلقائياً خلال ساعة.
+              </div>
             ) : (
-              <>
-                <Bubble side="customer" label="أنت — كتبت بالإنجليزية" compact={compact}>
-                  <span dir="ltr" className="inline-block text-left w-full">
-                    Hi, do you have a slot after 6 pm?
-                  </span>
+              messages.map((m) => (
+                <Bubble
+                  key={m.id}
+                  side={m.sender === 'customer' ? 'customer' : 'barber'}
+                  label={m.sender === 'customer' ? 'أنت (العميل)' : barberName}
+                  compact={compact}
+                >
+                  {m.sender === 'customer' && /[A-Za-z]/.test(m.text) ? (
+                    <span dir="ltr" className="inline-block text-left w-full">
+                      {m.text}
+                    </span>
+                  ) : (
+                    m.text
+                  )}
                 </Bubble>
+              ))
+            )}
+
+            {isDiamond && messages.length > 0 && (
+              <>
                 <div className="flex flex-col items-end gap-1 w-full">
                   <TranslationHint
                     compact={compact}
                     detectedLabel="النظام يكتشف: الإنجليزية"
                     translationLabel="يظهر للصالون:"
-                    translationText="مرحباً، هل لديكم موعد بعد السادسة مساءً؟"
+                    translationText="تُترجم الرسالة تلقائياً حسب لغة الكتابة."
                   />
                 </div>
-                <Bubble side="barber" label={`${barberName} — رد بالعربية`} compact={compact}>
-                  نعم، السابعة متاحة. ننتظرك.
-                </Bubble>
                 <div className="flex flex-col items-start gap-1 w-full">
                   <TranslationHint
                     compact={compact}
                     detectedLabel="النظام يكتشف: العربية"
                     translationLabel="يظهر للعميل:"
-                    translationText="Yes, 7 pm is available. We’ll be waiting for you."
+                    translationText="Message is auto-translated for each side."
                   />
                 </div>
               </>
             )}
           </div>
         </ScrollArea>
+        <div className="border-t px-3 py-2 bg-muted/10">
+          {expired ? (
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-destructive">انتهت الجلسة بعد 60 دقيقة. ابدأ جلسة جديدة للمتابعة.</p>
+              <Button size="sm" variant="outline" onClick={startNewSession} className="gap-1.5">
+                <RotateCcw className="w-3.5 h-3.5" />
+                جلسة جديدة
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Input
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="اكتب رسالتك..."
+                className="h-9 text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+              <Button size="icon" className="h-9 w-9" onClick={sendMessage} disabled={!draft.trim()}>
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+        </div>
         <div className="border-t px-3 py-2 text-[10px] text-muted-foreground text-center bg-muted/20">
-          عرض تجريبي لتصميم الشات — الربط الفعلي قيد التطوير
+          محادثة خاصة لكل عميل، مع إغلاق تلقائي للجلسة بعد ساعة من بدايتها
         </div>
       </div>
     </>
