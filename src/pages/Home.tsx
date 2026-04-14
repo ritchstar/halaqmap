@@ -122,21 +122,28 @@ export default function Home() {
             transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
           />
 
-          {/* تظليل ليلي خفيف فقط — إبقاء كل عناصر الهيدر كما هي */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050b14]/35 via-[#07111d]/20 to-[#02050b]/42" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#030a14]/24 via-transparent to-[#040c17]/30" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_85%_65%_at_50%_32%,rgba(0,0,0,0.12),transparent_62%)]" />
+          {/* ضبط الخلفية فقط: ليل أوضح + انتقال ناعم باتجاه الخلفية البيضاء أسفل الهيدر */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#030913]/52 via-[#071321]/24 to-[#050b13]/46" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#020711]/34 via-transparent to-[#071423]/32" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_88%_66%_at_50%_30%,rgba(0,0,0,0.08),transparent_64%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent via-background/35 to-background/70" />
 
           <motion.div
-            className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(13,148,136,0.18),transparent_55%)]"
-            animate={{ opacity: [0.35, 0.65, 0.35] }}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(13,148,136,0.2),transparent_56%)]"
+            animate={{ opacity: [0.3, 0.58, 0.3] }}
             transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
           />
 
           <motion.div
-            className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_18%_28%,rgba(34,197,94,0.22),transparent_42%),radial-gradient(circle_at_82%_36%,rgba(59,130,246,0.2),transparent_46%),radial-gradient(circle_at_50%_84%,rgba(234,179,8,0.18),transparent_44%)]"
-            animate={{ opacity: [0.3, 0.55, 0.3] }}
-            transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_16%_24%,rgba(34,197,94,0.2),transparent_42%),radial-gradient(circle_at_84%_34%,rgba(59,130,246,0.18),transparent_46%),radial-gradient(circle_at_52%_82%,rgba(234,179,8,0.14),transparent_44%)]"
+            animate={{ opacity: [0.22, 0.48, 0.22] }}
+            transition={{ duration: 6.8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+
+          <motion.div
+            className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_26%_62%,rgba(56,189,248,0.14),transparent_38%),radial-gradient(circle_at_74%_60%,rgba(16,185,129,0.14),transparent_40%)]"
+            animate={{ opacity: [0.08, 0.24, 0.08], x: [0, 10, 0] }}
+            transition={{ duration: 8.2, repeat: Infinity, ease: 'easeInOut' }}
           />
 
           {[...Array(10)].map((_, i) => (
