@@ -545,9 +545,9 @@ export default function SubscriptionPolicy() {
                 <CardTitle className="text-lg">الهاتف</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-2">متاح من 9 صباحاً - 11 مساءً</p>
-                <a href="tel:+966501234567" className="text-primary hover:underline font-medium">
-                  +966 50 123 4567
+                <p className="text-sm text-muted-foreground mb-2">متاح من 10 صباحاً - 5 مساءً</p>
+                <a href="tel:+966559602685" className="text-primary hover:underline font-medium">
+                  ٩٦٦٥٥٩٦٠٢٦٨٥
                 </a>
               </CardContent>
             </Card>
@@ -576,8 +576,8 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-2">رد خلال 24 ساعة</p>
-                <a href="mailto:support@halaqmap.com" className="text-primary hover:underline font-medium">
-                  support@halaqmap.com
+                <a href="mailto:admin@halaqmap.com" className="text-primary hover:underline font-medium">
+                  admin@halaqmap.com
                 </a>
               </CardContent>
             </Card>

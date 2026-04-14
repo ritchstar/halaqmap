@@ -122,15 +122,21 @@ export default function Home() {
             transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
           />
 
-          {/* تظليل أقوى خلف منطقة النص لتفادي تداخل أضواء الخريطة */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/92 via-background/65 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-background/75" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_85%_65%_at_50%_32%,rgba(0,0,0,0.22),transparent_62%)] dark:bg-[radial-gradient(ellipse_85%_65%_at_50%_32%,rgba(0,0,0,0.45),transparent_60%)]" />
+          {/* تظليل ليلي خفيف فقط — إبقاء كل عناصر الهيدر كما هي */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050b14]/35 via-[#07111d]/20 to-[#02050b]/42" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#030a14]/24 via-transparent to-[#040c17]/30" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_85%_65%_at_50%_32%,rgba(0,0,0,0.12),transparent_62%)]" />
 
           <motion.div
             className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(13,148,136,0.18),transparent_55%)]"
             animate={{ opacity: [0.35, 0.65, 0.35] }}
             transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          />
+
+          <motion.div
+            className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_18%_28%,rgba(34,197,94,0.22),transparent_42%),radial-gradient(circle_at_82%_36%,rgba(59,130,246,0.2),transparent_46%),radial-gradient(circle_at_50%_84%,rgba(234,179,8,0.18),transparent_44%)]"
+            animate={{ opacity: [0.3, 0.55, 0.3] }}
+            transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }}
           />
 
           {[...Array(10)].map((_, i) => (
