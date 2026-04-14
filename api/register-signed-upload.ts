@@ -128,6 +128,8 @@ export async function POST(request: Request): Promise<Response> {
     {
       path: data.path ?? objectPath,
       token: data.token,
+      /** للعميل: رفع عبر fetch PUT بدون ترويسة Authorization (anon) — يقلل 403 من PostgREST */
+      signedUrl: data.signedUrl,
     },
     { status: 200, headers }
   );

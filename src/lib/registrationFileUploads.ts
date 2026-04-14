@@ -35,7 +35,10 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
     m.includes('new row violates row-level security') ||
     m.includes('row-level security') ||
     m.includes('rls') ||
-    m.includes('permission denied')
+    m.includes('permission denied') ||
+    m.includes('403') ||
+    m.includes('forbidden') ||
+    m.includes('postgrest')
   ) {
     return (
       'تعذّر رفع الملفات إلى السيرفر.\n' +
@@ -47,7 +50,8 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
         'Or replace only the INSERT policy:',
         '  supabase/migrations/21_registration_storage_path_policy_fix.sql',
         'Check: Storage → Policies → INSERT allowed for anon on registration-uploads',
-        'Or on Vercel: set SUPABASE_SERVICE_ROLE_KEY — routes: api/register-signed-upload (preferred) then api/register-upload-file',
+        'Vercel: SUPABASE_SERVICE_ROLE_KEY + GET /api/register-signed-upload و /api/register-upload-file (ready: true)',
+        'الإنتاج: الرفع عبر السيرفر فقط — لا يعتمد على سياسات anon إن وُجدت الدوال.',
       ])
     );
   }
@@ -81,8 +85,37 @@ function shouldAttemptServerUpload(): boolean {
   return import.meta.env.PROD;
 }
 
+/** في الإنتاج: لا نستخدم storage.upload بمفتاح anon (403/RLS). التطوير المحلي: مسموح للتجربة. */
+function allowAnonDirectStorageUpload(): boolean {
+  if (import.meta.env.VITE_REGISTRATION_ALLOW_ANON_UPLOAD === 'true') return true;
+  return import.meta.env.DEV;
+}
+
 /**
- * السيرفر يُصدِر token عبر مفتاح الخدمة؛ المتصفح يرفع مباشرة إلى Supabase (مناسب للجوال وملفات كبيرة).
+ * نفس تنسيق @supabase/storage-js uploadToSignedUrl — بدون تمرير ترويسة Authorization.
+ */
+async function putFileViaSignedUploadUrl(signedUrl: string, file: File): Promise<{ ok: true } | { ok: false; message: string }> {
+  const body = new FormData();
+  body.append('cacheControl', '3600');
+  body.append('', file);
+  try {
+    const res = await fetch(signedUrl, { method: 'PUT', body });
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      return {
+        ok: false,
+        message: t || `HTTP ${res.status} ${res.statusText}`,
+      };
+    }
+    return { ok: true };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { ok: false, message: msg };
+  }
+}
+
+/**
+ * السيرفر يُصدِر token/signedUrl بمفتاح الخدمة؛ الرفع إلى Storage بدون JWT anon على الطلب.
  */
 async function trySignedUrlUpload(
   client: SupabaseClient,
@@ -144,30 +177,41 @@ async function trySignedUrlUpload(
     };
   }
 
-  const mint = (await res.json()) as { path?: string; token?: string };
-  if (!mint.token || !mint.path) {
+  const mint = (await res.json()) as { path?: string; token?: string; signedUrl?: string };
+  if (!mint.path || (!mint.token && !mint.signedUrl)) {
     return { ok: false, fallback: true };
   }
 
-  const bucket = client.storage.from(REGISTRATION_UPLOADS_BUCKET);
-  const uploadToSignedUrl = (
-    bucket as unknown as {
-      uploadToSignedUrl: (
-        path: string,
-        token: string,
-        body: File,
-        opts?: { contentType?: string; cacheControl?: string }
-      ) => Promise<{ data: { path: string } | null; error: { message: string } | null }>;
+  if (mint.signedUrl) {
+    const put = await putFileViaSignedUploadUrl(mint.signedUrl, file);
+    if (!put.ok) {
+      const msg = put.message.toLowerCase();
+      if (msg.includes('403') || msg.includes('forbidden')) {
+        return { ok: false, fallback: true };
+      }
+      return { ok: false, fallback: false, error: put.message };
     }
-  ).uploadToSignedUrl.bind(bucket);
+  } else {
+    const bucket = client.storage.from(REGISTRATION_UPLOADS_BUCKET);
+    const uploadToSignedUrl = (
+      bucket as unknown as {
+        uploadToSignedUrl: (
+          path: string,
+          token: string,
+          body: File,
+          opts?: { contentType?: string; cacheControl?: string }
+        ) => Promise<{ data: { path: string } | null; error: { message: string } | null }>;
+      }
+    ).uploadToSignedUrl.bind(bucket);
 
-  const { error: upErr } = await uploadToSignedUrl(mint.path, mint.token, file, {
-    contentType: file.type || 'application/octet-stream',
-    cacheControl: '3600',
-  });
+    const { error: upErr } = await uploadToSignedUrl(mint.path, mint.token!, file, {
+      contentType: file.type || 'application/octet-stream',
+      cacheControl: '3600',
+    });
 
-  if (upErr) {
-    return { ok: false, fallback: false, error: upErr.message };
+    if (upErr) {
+      return { ok: false, fallback: false, error: upErr.message };
+    }
   }
 
   const { data: pub } = client.storage.from(REGISTRATION_UPLOADS_BUCKET).getPublicUrl(mint.path);
@@ -305,6 +349,14 @@ async function uploadOne(
     }
     if (server.fallback === false) {
       return { ok: false, error: server.error };
+    }
+
+    if (!allowAnonDirectStorageUpload()) {
+      return {
+        ok: false,
+        error:
+          'تعذّر رفع الملفات عبر السيرفر. في Vercel: عيّن SUPABASE_SERVICE_ROLE_KEY و VITE_SUPABASE_ANON_KEY (أو SUPABASE_ANON_KEY) ثم أعد النشر. تحقق: GET /api/register-signed-upload و GET /api/register-upload-file يجب أن يعرضا ready: true.',
+      };
     }
   }
 
