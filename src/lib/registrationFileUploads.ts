@@ -47,7 +47,7 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
         'Or replace only the INSERT policy:',
         '  supabase/migrations/21_registration_storage_path_policy_fix.sql',
         'Check: Storage → Policies → INSERT allowed for anon on registration-uploads',
-        'Or on Vercel: set SUPABASE_SERVICE_ROLE_KEY (server-only) — uploads use api/register-upload-file',
+        'Or on Vercel: set SUPABASE_SERVICE_ROLE_KEY — routes: api/register-signed-upload (preferred) then api/register-upload-file',
       ])
     );
   }
@@ -69,9 +69,109 @@ function registrationUploadEndpoint(): string {
   return '/api/register-upload-file';
 }
 
+function registrationSignedUploadEndpoint(): string {
+  const explicit = import.meta.env.VITE_REGISTRATION_SIGNED_URL?.trim();
+  if (explicit) return explicit;
+  return '/api/register-signed-upload';
+}
+
 function shouldAttemptServerUpload(): boolean {
   if (import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim()) return true;
+  if (import.meta.env.VITE_REGISTRATION_SIGNED_URL?.trim()) return true;
   return import.meta.env.PROD;
+}
+
+/**
+ * السيرفر يُصدِر token عبر مفتاح الخدمة؛ المتصفح يرفع مباشرة إلى Supabase (مناسب للجوال وملفات كبيرة).
+ */
+async function trySignedUrlUpload(
+  client: SupabaseClient,
+  orderId: string,
+  storageSubpath: string,
+  file: File
+): Promise<
+  | { ok: true; url: string }
+  | { ok: false; fallback: true }
+  | { ok: false; fallback: false; error: string }
+> {
+  const anon = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+  if (!anon) return { ok: false, fallback: true };
+
+  const endpoint = registrationSignedUploadEndpoint();
+  let res: Response;
+  try {
+    res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-order-id': orderId,
+        'x-storage-subpath': storageSubpath,
+        'x-supabase-anon': anon,
+      },
+    });
+  } catch {
+    return { ok: false, fallback: true };
+  }
+
+  if (res.status === 503) return { ok: false, fallback: true };
+  if (res.status === 404) return { ok: false, fallback: true };
+
+  if (!res.ok) {
+    const rawText = await res.text();
+    let parsed: { error?: string; hint?: string } = {};
+    try {
+      parsed = JSON.parse(rawText) as { error?: string; hint?: string };
+    } catch {
+      /* ignore */
+    }
+    if (res.status === 401) {
+      const parts = [parsed.error, parsed.hint].filter(Boolean);
+      return {
+        ok: false,
+        fallback: false,
+        error:
+          (parts.length ? parts.join('\n') : '') ||
+          'رفض السيرفر التحقق (401). تأكّد من تطابق مفتاح anon على Vercel مع Supabase.',
+      };
+    }
+    if (res.status >= 500) {
+      return { ok: false, fallback: true };
+    }
+    return {
+      ok: false,
+      fallback: false,
+      error: parsed.error || `رفض السيرفر (${res.status}).`,
+    };
+  }
+
+  const mint = (await res.json()) as { path?: string; token?: string };
+  if (!mint.token || !mint.path) {
+    return { ok: false, fallback: true };
+  }
+
+  const bucket = client.storage.from(REGISTRATION_UPLOADS_BUCKET);
+  const uploadToSignedUrl = (
+    bucket as unknown as {
+      uploadToSignedUrl: (
+        path: string,
+        token: string,
+        body: File,
+        opts?: { contentType?: string; cacheControl?: string }
+      ) => Promise<{ data: { path: string } | null; error: { message: string } | null }>;
+    }
+  ).uploadToSignedUrl.bind(bucket);
+
+  const { error: upErr } = await uploadToSignedUrl(mint.path, mint.token, file, {
+    contentType: file.type || 'application/octet-stream',
+    cacheControl: '3600',
+  });
+
+  if (upErr) {
+    return { ok: false, fallback: false, error: upErr.message };
+  }
+
+  const { data: pub } = client.storage.from(REGISTRATION_UPLOADS_BUCKET).getPublicUrl(mint.path);
+  return { ok: true, url: pub.publicUrl };
 }
 
 /**
@@ -191,6 +291,14 @@ async function uploadOne(
   const path = `${orderId}/${storageSubpath}`;
 
   if (shouldAttemptServerUpload()) {
+    const signed = await trySignedUrlUpload(client, orderId, storageSubpath, file);
+    if (signed.ok === true) {
+      return { ok: true, url: signed.url };
+    }
+    if (signed.fallback === false) {
+      return { ok: false, error: signed.error };
+    }
+
     const server = await tryServerUpload(orderId, storageSubpath, file);
     if (server.ok === true) {
       return { ok: true, url: server.url };
