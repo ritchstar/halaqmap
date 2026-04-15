@@ -68,7 +68,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
   const ratingOptions = [0, 3, 4, 4.5];
 
   return (
-    <Card className="w-full p-6 bg-card/80 backdrop-blur-sm border-border/50 shadow-lg">
+    <Card className="w-full p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50 shadow-lg touch-manipulation">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}

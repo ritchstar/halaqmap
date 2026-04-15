@@ -169,7 +169,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 py-20 md:py-28">
+        <div className="relative z-10 container mx-auto px-3 sm:px-4 py-12 sm:py-20 md:py-28">
           <motion.div
             className="max-w-3xl mx-auto text-center"
             initial={{ opacity: 0, y: 28 }}

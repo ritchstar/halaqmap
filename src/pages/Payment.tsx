@@ -32,6 +32,7 @@ import {
   getSixMonthGrossSar,
   isBankTransferPromoActive,
 } from '@/config/subscriptionPricing';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -507,6 +508,8 @@ export default function Payment() {
           </div>
         </div>
       </div>
+
+      <MobileBottomNav />
     </div>
   );
 }

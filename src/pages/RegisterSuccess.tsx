@@ -64,7 +64,7 @@ export default function RegisterSuccess() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-16 px-4" dir="rtl">
+    <div className="min-h-[100dvh] min-h-screen bg-background py-8 sm:py-16 px-3 sm:px-4" dir="rtl">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

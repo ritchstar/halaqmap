@@ -38,7 +38,10 @@ export default function BarberLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4" dir="rtl">
+    <div
+      className="relative min-h-[100dvh] min-h-screen bg-background flex items-center justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)]"
+      dir="rtl"
+    >
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <div

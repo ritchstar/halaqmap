@@ -109,18 +109,18 @@ export default function Register() {
           }}
         />
 
-        <div className="container mx-auto px-4 py-16 relative z-10">
+        <div className="container mx-auto px-3 sm:px-4 py-10 sm:py-16 relative z-10">
           <motion.div
             variants={fadeInUp}
             initial="initial"
             animate="animate"
             transition={springPresets.gentle}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-l from-accent via-primary to-accent bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-l from-accent via-primary to-accent bg-clip-text text-transparent px-1">
               انضم إلى منصة حلاق ماب
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-1">
               أول منصة عربية ذكية تربط الحلاقين المحترفين بالعملاء عبر نظام خرائط متقدم.
               اختر الباقة المناسبة لك وابدأ في جذب المزيد من العملاء اليوم.
             </p>
@@ -220,7 +220,7 @@ export default function Register() {
             initial="initial"
             animate="animate"
             transition={{ ...springPresets.gentle, delay: 0.3 }}
-            className="max-w-4xl mx-auto bg-card/80 backdrop-blur-sm rounded-2xl border border-border p-8 md:p-12"
+            className="max-w-4xl mx-auto bg-card/80 backdrop-blur-sm rounded-2xl border border-border p-4 sm:p-8 md:p-12"
             style={{
               boxShadow: '0 8px 30px -6px color-mix(in srgb, var(--primary) 15%, transparent)',
             }}

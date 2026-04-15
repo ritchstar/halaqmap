@@ -6,6 +6,7 @@ import { SiX, SiFacebook, SiInstagram, SiWhatsapp } from 'react-icons/si';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,8 +23,8 @@ export function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background" dir="rtl">
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="min-h-[100dvh] min-h-screen flex flex-col bg-background" dir="rtl">
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-[env(safe-area-inset-top)]">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <NavLink
@@ -92,7 +93,8 @@ export function Layout({ children }: LayoutProps) {
             </nav>
 
             <button
-              className="md:hidden p-2 hover:bg-muted rounded-lg transition-colors"
+              type="button"
+              className="md:hidden min-h-11 min-w-11 inline-flex items-center justify-center p-2 hover:bg-muted rounded-xl transition-colors touch-manipulation"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="القائمة"
             >
@@ -147,10 +149,10 @@ export function Layout({ children }: LayoutProps) {
         </AnimatePresence>
       </header>
 
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
 
-      <footer className="border-t border-border/40 bg-card mt-auto">
-        <div className="container mx-auto px-4 py-12">
+      <footer className="border-t border-border/40 bg-card mt-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+        <div className="container mx-auto px-4 py-10 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3 [perspective:640px]">
@@ -296,6 +298,8 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </footer>
+
+      <MobileBottomNav />
     </div>
   );
 }
