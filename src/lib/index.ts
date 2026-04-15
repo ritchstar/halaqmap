@@ -157,6 +157,10 @@ export interface SubscriptionRequest {
   shopImages: string[];
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
+  /** حالة الحساب بعد قرار الإدارة (مستقلة عن حالة الطلب الأساسية) */
+  adminAccountState?: 'active' | 'suspended' | 'deleted';
+  suspensionReason?: string;
+  linkedBarberId?: string;
   submittedAt: string;
   reviewedAt?: string;
   reviewedBy?: string;

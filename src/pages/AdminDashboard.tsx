@@ -54,7 +54,10 @@ import {
 } from '@/components/ui/dialog';
 import { ROUTE_PATHS, SubscriptionRequest, Payment, AdminStats, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
-import { loadMergedSubscriptionRequests } from '@/lib/subscriptionRequestStorage';
+import {
+  loadMergedSubscriptionRequests,
+  removeStoredSubscriptionRequest,
+} from '@/lib/subscriptionRequestStorage';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { getAdminLoginPath } from '@/config/adminAuth';
 import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
@@ -63,9 +66,14 @@ import { fetchPaymentsForAdmin, updatePaymentStatusRemote } from '@/lib/adminPay
 import {
   listBarbersForAdmin,
   setBarberActiveRemote,
+  deleteBarberRemote,
+  upsertBarberFromApprovedRequest,
   type AdminBarberRow,
 } from '@/lib/adminBarbersRemote';
-import { patchRegistrationSubmissionPayloadRemote } from '@/lib/registrationSubmissionsRemote';
+import {
+  deleteRegistrationSubmissionRemote,
+  patchRegistrationSubmissionPayloadRemote,
+} from '@/lib/registrationSubmissionsRemote';
 import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 import {
   calcVatBreakdown,
@@ -481,6 +489,7 @@ export default function AdminDashboard() {
               requests={subscriptionRequests}
               onViewRequest={setSelectedRequest}
               canReview={can('review_requests')}
+              canManage={can('manage_barbers')}
             />
           </TabsContent>}
 
@@ -539,6 +548,7 @@ export default function AdminDashboard() {
             refreshStoredRequests();
             bumpRemoteData();
           }}
+          canManageBarbers={can('manage_barbers')}
         />
       )}
 
@@ -763,10 +773,12 @@ function RequestsSection({
   requests,
   onViewRequest,
   canReview,
+  canManage,
 }: {
   requests: SubscriptionRequest[];
   onViewRequest: (request: SubscriptionRequest) => void;
   canReview: boolean;
+  canManage: boolean;
 }) {
   return (
     <motion.div
@@ -839,6 +851,26 @@ function RequestsSection({
                         {request.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
                         {request.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
                       </Badge>
+                      <Badge
+                        variant={
+                          request.status === 'approved'
+                            ? 'default'
+                            : request.status === 'rejected'
+                              ? 'destructive'
+                              : 'secondary'
+                        }
+                      >
+                        {request.status === 'approved'
+                          ? 'مقبول'
+                          : request.status === 'rejected'
+                            ? 'مرفوض'
+                            : 'قيد المراجعة'}
+                      </Badge>
+                      {request.adminAccountState === 'suspended' ? (
+                        <Badge variant="destructive" className="bg-amber-500 text-white">
+                          الحساب معلّق
+                        </Badge>
+                      ) : null}
                     </div>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
@@ -860,9 +892,9 @@ function RequestsSection({
                     </div>
                   </div>
                 </div>
-                <Button onClick={() => onViewRequest(request)} disabled={!canReview}>
+                <Button onClick={() => onViewRequest(request)} disabled={!canReview && !canManage}>
                   <Eye className="w-4 h-4 ml-2" />
-                  {canReview ? 'مراجعة الطلب' : 'عرض فقط'}
+                  {canReview || canManage ? 'إدارة الطلب' : 'عرض فقط'}
                 </Button>
               </div>
             </CardContent>
@@ -882,6 +914,7 @@ function RequestReviewDialog({
   rejectionReason,
   setRejectionReason,
   onAfterDecision,
+  canManageBarbers,
 }: {
   request: SubscriptionRequest;
   reviewerEmail: string;
@@ -889,6 +922,7 @@ function RequestReviewDialog({
   rejectionReason: string;
   setRejectionReason: (reason: string) => void;
   onAfterDecision: () => void;
+  canManageBarbers: boolean;
 }) {
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -902,10 +936,6 @@ function RequestReviewDialog({
   }, [request.id]);
 
   const handleApprove = async () => {
-    if (request.status !== 'pending') {
-      toast({ title: 'لا يمكن المعالجة', description: 'هذا الطلب ليس قيد الانتظار.', variant: 'destructive' });
-      return;
-    }
     setSaving(true);
     const reviewedAt = new Date().toISOString();
     if (isMockRow) {
@@ -915,27 +945,39 @@ function RequestReviewDialog({
       onAfterDecision();
       return;
     }
+    const upsert = await upsertBarberFromApprovedRequest(request);
+    if (!upsert.ok) {
+      setSaving(false);
+      toast({
+        title: 'تعذر مزامنة الحلاق',
+        description: upsert.error,
+        variant: 'destructive',
+      });
+      return;
+    }
     const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
       status: 'approved',
+      adminAccountState: 'active',
       reviewedAt,
       reviewedBy: reviewerEmail,
       rejectionReason: undefined,
+      suspensionReason: undefined,
+      linkedBarberId: upsert.barberId,
     });
     setSaving(false);
     if (!res.ok) {
       toast({ title: 'فشل الحفظ', description: res.error, variant: 'destructive' });
       return;
     }
-    toast({ title: 'تم قبول الطلب', description: 'تم تحديث السجل في Supabase.' });
+    toast({
+      title: 'تم قبول الطلب',
+      description: 'تمت مزامنة الحلاق وسيظهر في تبويب الحلاقين.',
+    });
     onClose();
     onAfterDecision();
   };
 
   const handleReject = async () => {
-    if (request.status !== 'pending') {
-      toast({ title: 'لا يمكن المعالجة', description: 'هذا الطلب ليس قيد الانتظار.', variant: 'destructive' });
-      return;
-    }
     if (!rejectionReason.trim()) {
       toast({ title: 'سبب الرفض', description: 'يرجى إدخال سبب الرفض.', variant: 'destructive' });
       return;
@@ -951,9 +993,11 @@ function RequestReviewDialog({
     }
     const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
       status: 'rejected',
+      adminAccountState: 'suspended',
       reviewedAt,
       reviewedBy: reviewerEmail,
       rejectionReason: rejectionReason.trim(),
+      suspensionReason: rejectionReason.trim(),
     });
     setSaving(false);
     if (!res.ok) {
@@ -961,6 +1005,70 @@ function RequestReviewDialog({
       return;
     }
     toast({ title: 'تم رفض الطلب', description: 'تم تحديث السجل في Supabase.' });
+    onClose();
+    onAfterDecision();
+  };
+
+  const handleSuspendAccount = async () => {
+    if (!canManageBarbers) {
+      toast({ title: 'لا تملك صلاحية الإدارة', variant: 'destructive' });
+      return;
+    }
+    if (!request.linkedBarberId) {
+      toast({
+        title: 'لا يوجد حساب مرتبط',
+        description: 'اقبل الطلب أولاً أو أعد قبوله لإنشاء/ربط حساب الحلاق.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setSaving(true);
+    const toggle = await setBarberActiveRemote(request.linkedBarberId, false);
+    if (!toggle.ok) {
+      setSaving(false);
+      toast({ title: 'تعذر تعليق الحساب', description: toggle.error, variant: 'destructive' });
+      return;
+    }
+    const reviewedAt = new Date().toISOString();
+    const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
+      adminAccountState: 'suspended',
+      reviewedAt,
+      reviewedBy: reviewerEmail,
+      suspensionReason: rejectionReason.trim() || 'تعليق إداري',
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast({ title: 'تعذر حفظ حالة الطلب', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'تم تعليق الحساب' });
+    onClose();
+    onAfterDecision();
+  };
+
+  const handleDeleteRequest = async () => {
+    if (!canManageBarbers) {
+      toast({ title: 'لا تملك صلاحية الإدارة', variant: 'destructive' });
+      return;
+    }
+    if (!window.confirm('تأكيد حذف الطلب نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+    setSaving(true);
+    if (isMockRow) {
+      removeStoredSubscriptionRequest(request.id);
+      setSaving(false);
+      toast({ title: 'تم حذف الطلب (تجريبي)' });
+      onClose();
+      onAfterDecision();
+      return;
+    }
+    const res = await deleteRegistrationSubmissionRemote(request.id);
+    setSaving(false);
+    if (!res.ok) {
+      toast({ title: 'تعذر حذف الطلب', description: res.error, variant: 'destructive' });
+      return;
+    }
+    removeStoredSubscriptionRequest(request.id);
+    toast({ title: 'تم حذف الطلب نهائياً' });
     onClose();
     onAfterDecision();
   };
@@ -1003,6 +1111,48 @@ function RequestReviewDialog({
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-muted-foreground">حالة الطلب:</span>
+              <Badge
+                variant={
+                  request.status === 'approved'
+                    ? 'default'
+                    : request.status === 'rejected'
+                      ? 'destructive'
+                      : 'secondary'
+                }
+              >
+                {request.status === 'approved'
+                  ? 'مقبول'
+                  : request.status === 'rejected'
+                    ? 'مرفوض'
+                    : 'قيد المراجعة'}
+              </Badge>
+              <span className="text-muted-foreground">حالة الحساب:</span>
+              <Badge
+                variant={
+                  request.adminAccountState === 'suspended'
+                    ? 'destructive'
+                    : request.adminAccountState === 'deleted'
+                      ? 'secondary'
+                      : 'default'
+                }
+              >
+                {request.adminAccountState === 'suspended'
+                  ? 'معلّق'
+                  : request.adminAccountState === 'deleted'
+                    ? 'محذوف'
+                    : 'نشط/غير محدد'}
+              </Badge>
+            </div>
+            {request.linkedBarberId ? (
+              <p className="text-xs text-muted-foreground mt-2" dir="ltr">
+                Barber ID: {request.linkedBarberId}
+              </p>
+            ) : null}
           </div>
 
           {/* Location */}
@@ -1279,17 +1429,33 @@ function RequestReviewDialog({
           </Button>
           {!showRejectForm ? (
             <>
-              <Button variant="destructive" onClick={() => setShowRejectForm(true)} disabled={saving || request.status !== 'pending'}>
+              <Button variant="destructive" onClick={() => setShowRejectForm(true)} disabled={saving}>
                 <XCircle className="w-4 h-4 ml-2" />
-                رفض الطلب
+                {request.status === 'pending' ? 'رفض الطلب' : 'إعادة رفض'}
               </Button>
               <Button
                 onClick={() => void handleApprove()}
-                disabled={saving || request.status !== 'pending'}
+                disabled={saving}
                 className="bg-green-600 hover:bg-green-700"
               >
                 {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 ml-2" />}
-                قبول الطلب
+                اعتماد/إعادة اعتماد
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => void handleSuspendAccount()}
+                disabled={saving || !canManageBarbers}
+              >
+                تعليق الحساب
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => void handleDeleteRequest()}
+                disabled={saving || !canManageBarbers}
+                className="text-red-600 border-red-500/40 hover:bg-red-500/10"
+              >
+                <Trash2 className="w-4 h-4 ml-2" />
+                حذف الطلب
               </Button>
             </>
           ) : (
@@ -1317,6 +1483,9 @@ function BarbersSection({
   const [rows, setRows] = useState<AdminBarberRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [mergingId, setMergingId] = useState<string | null>(null);
+  const [duplicatesOnly, setDuplicatesOnly] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -1345,6 +1514,81 @@ function BarbersSection({
     onStatsNeedRefresh();
   };
 
+  const onDeleteBarber = async (row: AdminBarberRow) => {
+    if (!canManage) return;
+    if (!window.confirm(`تأكيد حذف حساب الحلاق "${row.name}"؟`)) return;
+    setDeletingId(row.id);
+    const res = await deleteBarberRemote(row.id);
+    setDeletingId(null);
+    if (!res.ok) {
+      toast({ title: 'تعذر حذف الحلاق', description: res.error, variant: 'destructive' });
+      return;
+    }
+    setRows((prev) => prev.filter((r) => r.id !== row.id));
+    toast({ title: 'تم حذف الحلاق', description: row.name });
+    onStatsNeedRefresh();
+  };
+
+  const duplicateContactMap = useMemo(() => {
+    const keyMap = new Map<string, number>();
+    for (const r of rows) {
+      const emailKey = r.email.trim().toLowerCase();
+      const phoneKey = r.phone.trim();
+      if (emailKey) keyMap.set(`e:${emailKey}`, (keyMap.get(`e:${emailKey}`) ?? 0) + 1);
+      if (phoneKey) keyMap.set(`p:${phoneKey}`, (keyMap.get(`p:${phoneKey}`) ?? 0) + 1);
+    }
+    return keyMap;
+  }, [rows]);
+
+  const isDuplicateRow = (row: AdminBarberRow): boolean =>
+    (duplicateContactMap.get(`e:${row.email.trim().toLowerCase()}`) ?? 0) > 1 ||
+    (duplicateContactMap.get(`p:${row.phone.trim()}`) ?? 0) > 1;
+
+  const visibleRows = useMemo(
+    () => (duplicatesOnly ? rows.filter((r) => isDuplicateRow(r)) : rows),
+    [rows, duplicatesOnly, duplicateContactMap]
+  );
+
+  const keepRowAndDeleteDuplicates = async (keeper: AdminBarberRow) => {
+    if (!canManage) return;
+    const emailKey = keeper.email.trim().toLowerCase();
+    const phoneKey = keeper.phone.trim();
+    const dupes = rows.filter(
+      (r) =>
+        r.id !== keeper.id &&
+        ((emailKey && r.email.trim().toLowerCase() === emailKey) ||
+          (phoneKey && r.phone.trim() === phoneKey))
+    );
+    if (dupes.length === 0) return;
+    if (
+      !window.confirm(
+        `سيتم الإبقاء على "${keeper.name}" وحذف ${dupes.length} حساب/حسابات مكررة. هل أنت متأكد؟`
+      )
+    ) {
+      return;
+    }
+    setMergingId(keeper.id);
+    for (const dupe of dupes) {
+      const res = await deleteBarberRemote(dupe.id);
+      if (!res.ok) {
+        setMergingId(null);
+        toast({
+          title: 'تعذر حذف بعض المكررات',
+          description: `${dupe.name}: ${res.error}`,
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+    setRows((prev) => prev.filter((r) => !dupes.some((d) => d.id === r.id)));
+    setMergingId(null);
+    toast({
+      title: 'تم تنظيف التكرار',
+      description: `أُبقي على ${keeper.name} وحُذف ${dupes.length} حساب مكرر.`,
+    });
+    onStatsNeedRefresh();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -1354,12 +1598,23 @@ function BarbersSection({
       <h2 className="text-2xl font-bold mb-6">إدارة الحلاقين</h2>
       <Card>
         <CardContent className="p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
+            <div className="text-sm text-muted-foreground">
+              إجمالي الحسابات: <span className="font-semibold text-foreground">{rows.length}</span>
+              {' · '}
+              المكررة: <span className="font-semibold text-red-600">{rows.filter((r) => isDuplicateRow(r)).length}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">عرض المكررات فقط</span>
+              <Switch checked={duplicatesOnly} onCheckedChange={setDuplicatesOnly} />
+            </div>
+          </div>
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               جاري التحميل…
             </div>
-          ) : rows.length === 0 ? (
+          ) : visibleRows.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">لا توجد صفوف في جدول الحلاقين أو RLS يمنع القراءة.</p>
           ) : (
             <Table>
@@ -1371,10 +1626,11 @@ function BarbersSection({
                   <TableHead>الباقة</TableHead>
                   <TableHead>موثّق</TableHead>
                   <TableHead className="text-center">ظهور للعامة</TableHead>
+                  <TableHead className="text-center">إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((row) => (
+                {visibleRows.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="font-medium">{row.name}</TableCell>
                     <TableCell className="max-w-[140px] truncate" title={row.email}>
@@ -1398,6 +1654,39 @@ function BarbersSection({
                           aria-label={row.is_active ? 'تعطيل الظهور' : 'تفعيل الظهور'}
                         />
                         {updatingId === row.id ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        {isDuplicateRow(row) ? (
+                          <Badge variant="destructive">مكرر</Badge>
+                        ) : null}
+                        {isDuplicateRow(row) ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!canManage || mergingId === row.id || deletingId === row.id}
+                            onClick={() => void keepRowAndDeleteDuplicates(row)}
+                          >
+                            {mergingId === row.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              'الإبقاء على هذا'
+                            )}
+                          </Button>
+                        ) : null}
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          disabled={!canManage || deletingId === row.id || mergingId === row.id}
+                          onClick={() => void onDeleteBarber(row)}
+                        >
+                          {deletingId === row.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

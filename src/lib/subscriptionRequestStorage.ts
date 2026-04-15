@@ -18,6 +18,17 @@ export function loadStoredSubscriptionRequests(): SubscriptionRequest[] {
   }
 }
 
+export function removeStoredSubscriptionRequest(rowId: string): void {
+  try {
+    const prev = loadStoredSubscriptionRequests();
+    const next = prev.filter((r) => r.id !== rowId);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event('halaqmap-subscription-requests-changed'));
+  } catch {
+    /* ignore local storage failures */
+  }
+}
+
 /** دمج الطلبات من السحابة (إن وُجدت) ثم المحلية دون تكرار id (السحابة أولاً). */
 export async function loadMergedSubscriptionRequests(): Promise<SubscriptionRequest[]> {
   const remote = await fetchRegistrationSubmissionsFromRemote();

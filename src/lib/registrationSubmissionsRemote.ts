@@ -110,7 +110,16 @@ export async function fetchRegistrationSubmissionsFromRemote(): Promise<Subscrip
 export async function patchRegistrationSubmissionPayloadRemote(
   rowId: string,
   patch: Partial<
-    Pick<SubscriptionRequest, 'status' | 'rejectionReason' | 'reviewedAt' | 'reviewedBy'>
+    Pick<
+      SubscriptionRequest,
+      | 'status'
+      | 'rejectionReason'
+      | 'reviewedAt'
+      | 'reviewedBy'
+      | 'adminAccountState'
+      | 'suspensionReason'
+      | 'linkedBarberId'
+    >
   >
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const client = getSupabaseClient();
@@ -126,6 +135,17 @@ export async function patchRegistrationSubmissionPayloadRemote(
   const merged = { ...(row.payload as Record<string, unknown>), ...patch };
   const { error } = await client.from(TABLE).update({ payload: merged }).eq('id', rowId);
 
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+export async function deleteRegistrationSubmissionRemote(
+  rowId: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
+
+  const { error } = await client.from(TABLE).delete().eq('id', rowId);
   if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
