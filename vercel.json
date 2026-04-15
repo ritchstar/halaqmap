@@ -36,6 +36,10 @@
     "api/register-signed-upload.ts": {
       "memory": 512,
       "maxDuration": 30
+    },
+    "api/register-submission.ts": {
+      "memory": 512,
+      "maxDuration": 30
     }
   }
 }

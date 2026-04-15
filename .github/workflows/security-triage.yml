@@ -1,0 +1,48 @@
+name: Security Triage
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail_on_critical:
+        description: "Fail run when critical vulnerabilities exist"
+        required: false
+        default: "false"
+  schedule:
+    - cron: "20 4 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  npm-audit-triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit (json)
+        run: npm audit --json > npm-audit.json || true
+
+      - name: Generate triage report + Slack summary
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SECURITY_TRIAGE_SLACK_WEBHOOK }}
+          SECURITY_TRIAGE_REPORT: security-triage-report.md
+          FAIL_ON_CRITICAL: ${{ github.event.inputs.fail_on_critical || 'false' }}
+        run: node scripts/security-triage.mjs npm-audit.json
+
+      - name: Upload triage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-triage
+          path: |
+            npm-audit.json
+            security-triage-report.md

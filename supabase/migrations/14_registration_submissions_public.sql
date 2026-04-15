@@ -16,12 +16,12 @@ CREATE INDEX IF NOT EXISTS registration_submissions_created_at_idx
 
 ALTER TABLE public.registration_submissions ENABLE ROW LEVEL SECURITY;
 
--- إدراج من الموقع بدون تسجيل دخول (نموذج التسجيل)
+-- إدراج من الموقع (سواء session = anon أو authenticated)
 DROP POLICY IF EXISTS "anon_insert_registration_submissions" ON public.registration_submissions;
 CREATE POLICY "anon_insert_registration_submissions"
   ON public.registration_submissions
   FOR INSERT
-  TO anon
+  TO anon, authenticated
   WITH CHECK (
     char_length(id) <= 80
     AND octet_length(payload::text) <= 5242880

@@ -28,7 +28,7 @@ DROP POLICY IF EXISTS "anon_insert_registration_submissions" ON public.registrat
 CREATE POLICY "anon_insert_registration_submissions"
   ON public.registration_submissions
   FOR INSERT
-  TO anon
+  TO anon, authenticated
   WITH CHECK (
     char_length(id) <= 80
     AND octet_length(payload::text) <= 5242880

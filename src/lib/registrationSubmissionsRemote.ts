@@ -2,6 +2,7 @@ import type { SubscriptionRequest } from '@/lib/index';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 
 const TABLE = 'registration_submissions';
+const SERVER_INSERT_URL = '/api/register-submission';
 
 const LRI = '\u2066';
 const PDI = '\u2069';
@@ -20,6 +21,10 @@ export function registrationSubmissionErrorForToast(message: string): string {
       'سياسات الأمان ترفض الإدراج في جدول طلبات التسجيل.\n\n' +
       'اتبع الخطوات التالية من لوحة تحكم Supabase لديك:\n' +
       ltrBlock([
+        'Preferred fix (recommended):',
+        '  configure and redeploy /api/register-submission with SUPABASE_SERVICE_ROLE_KEY',
+        '  then verify GET /api/register-submission => ready: true',
+        '',
         'SQL Editor: paste and run ONE of:',
         '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
         '  OR supabase/migrations/14_registration_submissions_public.sql',
@@ -43,10 +48,110 @@ export function registrationSubmissionErrorForToast(message: string): string {
       ])
     );
   }
+  if (m.includes('infinite recursion') && m.includes('profiles')) {
+    return (
+      'تعذّر حفظ الطلب بسبب خطأ في سياسات الأمان (RLS) بجدول profiles.\n\n' +
+      'اتبع الخطوات التالية من لوحة Supabase:\n' +
+      ltrBlock([
+        'SQL Editor: paste and run:',
+        '  supabase/migrations/26_fix_profiles_policy_recursion.sql',
+        'Then refresh the app and retry.',
+      ])
+    );
+  }
+  if (m.includes('infinite recursion') && m.includes('admin_users')) {
+    return (
+      'تعذّر تنفيذ العملية بسبب سياسة RLS قديمة في جدول admin_users.\n\n' +
+      'اتبع الخطوات التالية من لوحة Supabase:\n' +
+      ltrBlock([
+        'SQL Editor: paste and run:',
+        '  supabase/migrations/28_fix_admin_users_recursion_and_admin_function.sql',
+        'Then refresh the app and retry.',
+      ])
+    );
+  }
   return (
     'تعذّر حفظ الطلب في قاعدة البيانات.\n\n' +
     ltrBlock([`Server message: ${message}`])
   );
+}
+
+function getSubmissionApiUrl(): string {
+  const fromEnv = (import.meta.env.VITE_REGISTRATION_SUBMISSION_URL as string | undefined)?.trim();
+  return fromEnv || SERVER_INSERT_URL;
+}
+
+function getBrowserAnonKey(): string {
+  return ((import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || '').trim();
+}
+
+type ServerInsertResult =
+  | { ok: true }
+  | { ok: false; error: string; allowFallback: boolean };
+
+async function insertRegistrationSubmissionViaServer(
+  rowId: string,
+  payload: Record<string, unknown>
+): Promise<ServerInsertResult> {
+  const anonKey = getBrowserAnonKey();
+  if (!anonKey) {
+    return {
+      ok: false,
+      error: 'VITE_SUPABASE_ANON_KEY غير مضبوط في الواجهة؛ تعذر توثيق طلب السيرفر.',
+      allowFallback: true,
+    };
+  }
+
+  const url = getSubmissionApiUrl();
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-supabase-anon': anonKey,
+      },
+      body: JSON.stringify({ id: rowId, payload }),
+    });
+
+    if (resp.ok) return { ok: true };
+
+    let serverMsg = '';
+    try {
+      const parsed = (await resp.json()) as { error?: string };
+      serverMsg = String(parsed?.error || '');
+    } catch {
+      /* ignore non-json */
+    }
+
+    const base = serverMsg || `HTTP ${resp.status}`;
+    const notReady = resp.status === 503 || /not configured/i.test(base);
+    const notFound = resp.status === 404 || resp.status === 405;
+    const duplicate = resp.status === 409;
+
+    if (duplicate) {
+      return { ok: false, error: 'رقم الطلب موجود مسبقاً (تكرار). أعد المحاولة.', allowFallback: false };
+    }
+
+    if (notReady || notFound) {
+      return {
+        ok: false,
+        error: `Server route not ready: ${base}`,
+        allowFallback: true,
+      };
+    }
+
+    return {
+      ok: false,
+      error: `تعذر الحفظ عبر السيرفر: ${base}`,
+      allowFallback: true,
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      error: `تعذر الوصول لمسار السيرفر: ${e instanceof Error ? e.message : 'unknown error'}`,
+      allowFallback: true,
+    };
+  }
 }
 
 function payloadForInsert(request: SubscriptionRequest): Record<string, unknown> {
@@ -64,19 +169,27 @@ function rowToRequest(row: { id: string; payload: unknown }): SubscriptionReques
 export async function insertRegistrationSubmissionRemote(
   request: SubscriptionRequest
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  const payload = payloadForInsert(request);
+  // المسار الموصى به: حفظ الطلب عبر API سيرفر بمفتاح service_role لتجنب مشاكل RLS المتكررة.
+  const serverRes = await insertRegistrationSubmissionViaServer(request.id, payload);
+  if (serverRes.ok) return { ok: true };
+  if (!serverRes.allowFallback) return { ok: false, error: serverRes.error };
+
   const client = getSupabaseClient();
   if (!client) {
-    return { ok: false, error: 'عميل Supabase غير متوفر رغم ظهور التهيئة.' };
+    return { ok: false, error: serverRes.error };
   }
 
-  const payload = payloadForInsert(request);
   const { error } = await client.from(TABLE).insert({
     id: request.id,
     payload,
   });
 
   if (error) {
-    return { ok: false, error: error.message };
+    return {
+      ok: false,
+      error: `${error.message}\n\n${serverRes.error}`,
+    };
   }
   return { ok: true };
 }

@@ -29,9 +29,9 @@ CREATE POLICY "Users can update their own profile"
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
   USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE id = auth.uid() AND user_type = 'admin'
+    lower(trim(coalesce(auth.jwt() ->> 'email', ''))) IN (
+      lower(trim('ritchstar4@gmail.com')),
+      lower(trim('admin@halaqmap.com'))
     )
   );
 
