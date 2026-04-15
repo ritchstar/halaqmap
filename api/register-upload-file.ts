@@ -5,7 +5,7 @@ export const config = {
 };
 
 const BUCKET = 'registration-uploads';
-const MAX_BYTES = 12 * 1024 * 1024;
+const MAX_BYTES = 20 * 1024 * 1024;
 const ORDER_ID_RE = /^HM-\d{8}-[A-Z0-9]{6}$/;
 const ALLOWED_ROOTS = new Set(['documents', 'health', 'shop', 'banners', 'receipt']);
 

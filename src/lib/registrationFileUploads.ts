@@ -6,7 +6,8 @@ export const REGISTRATION_UPLOADS_BUCKET = 'registration-uploads';
 /** تنسيق رقم الطلب في مسارات التخزين (الواجهة) — مستقل عن سياسة RLS المبسّطة على الحاوية */
 export const REGISTRATION_STORAGE_ORDER_ID_RE = /^HM-\d{8}-[A-Z0-9]{6}$/;
 
-const MAX_FILE_BYTES = 12 * 1024 * 1024;
+/** حد رفع المرفقات (PDF/صور) — رفعّه مع دوال Vercel وحدود الاستضافة */
+const MAX_FILE_BYTES = 20 * 1024 * 1024;
 
 /** كتلة LTR معزولة — لا تُدمج داخل جمل عربية حتى لا يختل ترتيب الكلمات في واجهة RTL. */
 const LRI = '\u2066';
