@@ -20,6 +20,10 @@ function tierFromDb(t: string | null): SubscriptionTier {
   return SubscriptionTier.BRONZE;
 }
 
+function getClientSupabaseUrl(): string {
+  return String(import.meta.env.VITE_SUPABASE_URL || '').trim();
+}
+
 export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
   const client = getSupabaseClient();
   if (!client) return [];
@@ -138,6 +142,7 @@ export async function upsertBarberFromApprovedRequest(
         headers: {
           'Content-Type': 'application/json',
           'x-supabase-anon': anonKey,
+          'x-client-supabase-url': getClientSupabaseUrl(),
         },
         body: JSON.stringify({ row }),
       });

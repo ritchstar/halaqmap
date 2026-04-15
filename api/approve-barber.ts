@@ -4,12 +4,21 @@ export const config = {
   maxDuration: 30,
 };
 
+function safeHost(rawUrl: string): string | null {
+  if (!rawUrl) return null;
+  try {
+    return new URL(rawUrl).host;
+  } catch {
+    return rawUrl;
+  }
+}
+
 function corsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('origin');
   return {
     'Access-Control-Allow-Origin': origin || '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon',
+    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon, x-client-supabase-url',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -21,7 +30,8 @@ export async function OPTIONS(request: Request): Promise<Response> {
 /** تشخيص بدون أسرار — افتح: /api/approve-barber */
 export async function GET(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
-  const url = Boolean((process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim());
+  const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
+  const url = Boolean(resolvedUrl);
   const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
   const anon = Boolean(
     (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
@@ -31,6 +41,7 @@ export async function GET(request: Request): Promise<Response> {
       ok: true,
       route: 'approve-barber',
       supabaseUrlSet: url,
+      supabaseUrlHost: safeHost(resolvedUrl),
       serviceRoleKeySet: serviceRole,
       anonKeySetForVerification: anon,
       ready: url && serviceRole && anon,
@@ -42,7 +53,7 @@ export async function GET(request: Request): Promise<Response> {
 export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
 
-  const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
+  const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   const expectedAnon = (
     process.env.VITE_SUPABASE_ANON_KEY ||
@@ -60,6 +71,19 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json(
       { error: 'Server not configured (anon key for verification)' },
       { status: 503, headers }
+    );
+  }
+
+  const clientSupabaseUrl = request.headers.get('x-client-supabase-url')?.trim() || '';
+  if (clientSupabaseUrl && clientSupabaseUrl !== url) {
+    return Response.json(
+      {
+        error: 'Supabase project mismatch between client and server',
+        hint: 'Align VITE_SUPABASE_URL and SUPABASE_URL on Vercel to the same project.',
+        serverUrlHost: safeHost(url),
+        clientUrlHost: safeHost(clientSupabaseUrl),
+      },
+      { status: 409, headers }
     );
   }
 

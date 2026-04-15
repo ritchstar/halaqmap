@@ -969,6 +969,23 @@ function RequestReviewDialog({
       toast({ title: 'فشل الحفظ', description: res.error, variant: 'destructive' });
       return;
     }
+    // تحقق صارم: تأكد أن الحلاق موجود فعلياً في نفس مشروع Supabase الحالي.
+    const verifyRows = await listBarbersForAdmin();
+    const emailNorm = request.email.trim().toLowerCase();
+    const found = verifyRows.some(
+      (r) => r.id === upsert.barberId || r.email.trim().toLowerCase() === emailNorm
+    );
+    if (!found) {
+      toast({
+        title: 'تحذير: الاعتماد تم لكن الحلاق غير ظاهر',
+        description:
+          'غالباً يوجد اختلاف بين مشروع Supabase في الواجهة والسيرفر (VITE_SUPABASE_URL مقابل SUPABASE_URL). افحص /api/approve-barber.',
+        variant: 'destructive',
+      });
+      onClose();
+      onAfterDecision();
+      return;
+    }
     toast({
       title: 'تم قبول الطلب',
       description: 'تمت مزامنة الحلاق وسيظهر في تبويب الحلاقين.',
