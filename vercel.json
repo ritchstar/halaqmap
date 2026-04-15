@@ -40,6 +40,10 @@
     "api/register-submission.ts": {
       "memory": 512,
       "maxDuration": 30
+    },
+    "api/approve-barber.ts": {
+      "memory": 512,
+      "maxDuration": 30
     }
   }
 }

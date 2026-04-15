@@ -1,6 +1,8 @@
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { SubscriptionRequest, SubscriptionTier } from '@/lib/index';
 
+const APPROVE_BARBER_API = '/api/approve-barber';
+
 export type AdminBarberRow = {
   id: string;
   name: string;
@@ -103,9 +105,6 @@ export async function findDuplicateBarbersByContact(
 export async function upsertBarberFromApprovedRequest(
   request: SubscriptionRequest
 ): Promise<{ ok: true; barberId: string } | { ok: false; error: string }> {
-  const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
-
   const row = {
     name: request.barberName.trim() || 'صالون بدون اسم',
     email: request.email.trim(),
@@ -129,13 +128,40 @@ export async function upsertBarberFromApprovedRequest(
     specialties: request.categories?.length ? request.categories : null,
   };
 
-  // البريد unique؛ upsert يضمن ظهور المقبول في تبويب الحلاقين مباشرة.
+  const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+  const endpoint = String(import.meta.env.VITE_APPROVE_BARBER_URL || APPROVE_BARBER_API).trim();
+
+  if (anonKey) {
+    try {
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-supabase-anon': anonKey,
+        },
+        body: JSON.stringify({ row }),
+      });
+      const json = (await resp.json().catch(() => ({}))) as { barberId?: string; error?: string };
+      if (resp.ok && json.barberId) {
+        return { ok: true, barberId: json.barberId };
+      }
+      // إن لم يكن مسار السيرفر متاحاً بعد، نرجع fallback.
+      if (resp.status !== 404 && resp.status !== 405 && resp.status !== 503) {
+        return { ok: false, error: json.error || `HTTP ${resp.status}` };
+      }
+    } catch {
+      // fallback below
+    }
+  }
+
+  // Fallback (محلي/تطوير): يعتمد على صلاحيات RLS للمستخدم.
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
   const { data, error } = await client
     .from('barbers')
     .upsert(row, { onConflict: 'email' })
     .select('id')
     .single();
-
   if (error || !data) return { ok: false, error: error?.message ?? 'فشل upsert للحلاق' };
   return { ok: true, barberId: String((data as { id: string }).id) };
 }
