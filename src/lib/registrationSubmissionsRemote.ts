@@ -23,7 +23,11 @@ export function registrationSubmissionErrorForToast(message: string): string {
         'SQL Editor: paste and run ONE of:',
         '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
         '  OR supabase/migrations/14_registration_submissions_public.sql',
-        'Required: INSERT policy for role anon on table registration_submissions',
+        'Required: INSERT policy TO anon on registration_submissions',
+        '  (this repo creates policy name: anon_insert_registration_submissions)',
+        'Verify:',
+        '  SELECT policyname, cmd, roles FROM pg_policies',
+        '  WHERE tablename = \'registration_submissions\';',
       ])
     );
   }
