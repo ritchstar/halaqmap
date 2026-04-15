@@ -752,50 +752,55 @@ export function RegistrationForm() {
   return (
     <div
       ref={formTopRef}
-      className="w-full max-w-4xl mx-auto py-8 px-4 scroll-mt-24"
+      className="w-full max-w-4xl mx-auto py-8 px-3 sm:px-4 scroll-mt-24 min-w-0 overflow-x-hidden"
     >
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          {STEPS.map((step, index) => {
-            const Icon = step.icon;
-            const isActive = currentStep === step.id;
-            const isCompleted = currentStep > step.id;
-            return (
-              <div key={step.id} className="flex items-center">
-                <div
-                  className={`flex flex-col items-center ${
-                    index < STEPS.length - 1 ? 'flex-1' : ''
-                  }`}
-                >
+      <div className="mb-8 w-full min-w-0">
+        <p className="text-center text-sm font-medium text-muted-foreground mb-3 md:hidden">
+          الخطوة {currentStep} من {STEPS.length}
+        </p>
+        <div className="overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] pb-2 md:overflow-visible">
+          <div className="flex items-center mb-4 min-w-max md:min-w-0 md:w-full md:justify-between pr-1 md:pr-0">
+            {STEPS.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = currentStep === step.id;
+              const isCompleted = currentStep > step.id;
+              return (
+                <div key={step.id} className="flex items-center shrink-0">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground scale-110'
-                        : isCompleted
-                        ? 'bg-primary/20 text-primary'
-                        : 'bg-muted text-muted-foreground'
+                    className={`flex flex-col items-center w-[4.5rem] sm:w-[5.25rem] md:flex-1 md:w-auto md:min-w-0 ${
+                      index < STEPS.length - 1 ? '' : ''
                     }`}
                   >
-                    {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                    <div
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
+                        isActive
+                          ? 'bg-primary text-primary-foreground scale-110'
+                          : isCompleted
+                            ? 'bg-primary/20 text-primary'
+                            : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Icon className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    </div>
+                    <span
+                      className={`text-[10px] sm:text-xs mt-1.5 text-center leading-tight px-0.5 line-clamp-2 max-w-[4.5rem] sm:max-w-none ${
+                        isActive ? 'text-foreground font-semibold' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {step.title}
+                    </span>
                   </div>
-                  <span
-                    className={`text-xs mt-2 text-center ${
-                      isActive ? 'text-foreground font-semibold' : 'text-muted-foreground'
-                    }`}
-                  >
-                    {step.title}
-                  </span>
+                  {index < STEPS.length - 1 && (
+                    <div
+                      className={`h-0.5 w-6 sm:w-8 md:flex-1 shrink-0 mx-1 sm:mx-2 transition-all ${
+                        isCompleted ? 'bg-primary' : 'bg-muted'
+                      }`}
+                    />
+                  )}
                 </div>
-                {index < STEPS.length - 1 && (
-                  <div
-                    className={`h-0.5 flex-1 mx-2 transition-all ${
-                      isCompleted ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  />
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
         <Progress value={progress} className="h-2" />
       </div>
@@ -803,10 +808,11 @@ export function RegistrationForm() {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.25 }}
+          className="min-w-0"
         >
           {currentStep === 1 && (
             <Card>
@@ -1319,15 +1325,15 @@ export function RegistrationForm() {
                     </AlertDescription>
                   </Alert>
                 )}
-                <div className="rounded-lg border border-border divide-y divide-border overflow-hidden">
+                <div className="rounded-lg border border-border divide-y divide-border overflow-hidden max-w-full">
                   {formData.workingWeek.map((row, index) => (
                     <div
                       key={row.day}
-                      className="flex flex-col gap-2 p-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 bg-muted/20"
+                      className="w-full min-w-0 p-3 sm:p-2.5 bg-muted/20 space-y-3 sm:space-y-0 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-3"
                     >
-                      <div className="flex items-center gap-3 min-w-[7rem]">
-                        <span className="text-sm font-semibold text-foreground">{row.day}</span>
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center justify-between gap-2 gap-y-2 min-w-0 sm:min-w-[12rem] sm:justify-start sm:flex-nowrap">
+                        <span className="text-sm font-semibold text-foreground shrink-0">{row.day}</span>
+                        <div className="flex items-center gap-2 shrink-0">
                           <Checkbox
                             id={`closed-${index}`}
                             checked={row.closed}
@@ -1340,25 +1346,40 @@ export function RegistrationForm() {
                           </Label>
                         </div>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                        <Input
-                          type="time"
-                          value={row.open}
-                          disabled={row.closed}
-                          onChange={(e) => patchWorkingWeekRow(index, { open: e.target.value })}
-                          className="w-[7.5rem] h-9 text-sm"
-                          aria-label={`${row.day} من`}
-                        />
-                        <span className="text-xs text-muted-foreground hidden sm:inline">—</span>
-                        <Input
-                          type="time"
-                          value={row.close}
-                          disabled={row.closed}
-                          onChange={(e) => patchWorkingWeekRow(index, { close: e.target.value })}
-                          className="w-[7.5rem] h-9 text-sm"
-                          aria-label={`${row.day} إلى`}
-                        />
-                      </div>
+                      {!row.closed ? (
+                        <div className="grid grid-cols-2 gap-3 w-full min-w-0 md:flex md:flex-row md:flex-wrap md:items-end md:justify-end md:gap-3 md:max-w-lg md:shrink-0">
+                          <div className="space-y-1 min-w-0 md:w-[7.75rem]">
+                            <Label className="text-[11px] text-muted-foreground md:sr-only" htmlFor={`open-${index}`}>
+                              من
+                            </Label>
+                            <Input
+                              id={`open-${index}`}
+                              type="time"
+                              value={row.open}
+                              disabled={row.closed}
+                              onChange={(e) => patchWorkingWeekRow(index, { open: e.target.value })}
+                              className="h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border"
+                              aria-label={`${row.day} من`}
+                            />
+                          </div>
+                          <div className="space-y-1 min-w-0 md:w-[7.75rem]">
+                            <Label className="text-[11px] text-muted-foreground md:sr-only" htmlFor={`close-${index}`}>
+                              إلى
+                            </Label>
+                            <Input
+                              id={`close-${index}`}
+                              type="time"
+                              value={row.close}
+                              disabled={row.closed}
+                              onChange={(e) => patchWorkingWeekRow(index, { close: e.target.value })}
+                              className="h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border"
+                              aria-label={`${row.day} إلى`}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground py-1 md:text-right md:py-0 md:min-w-[10rem]">يوم عطلة</p>
+                      )}
                     </div>
                   ))}
                 </div>
