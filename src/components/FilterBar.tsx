@@ -101,7 +101,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
               value={[filters.maxDistance]}
               onValueChange={handleDistanceChange}
               min={1}
-              max={5}
+              max={25}
               step={0.5}
               className="w-full"
             />

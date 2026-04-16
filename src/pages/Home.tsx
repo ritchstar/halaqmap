@@ -2,16 +2,13 @@ import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
-import { mockBarbers } from '@/data/index';
-import { demoShowcaseBarbers } from '@/data/demoShowcaseBarbers';
-import { isDemoCatalogEnabled } from '@/config/demoCatalog';
 import { LocationButton } from '@/components/LocationButton';
 import { FilterBar } from '@/components/FilterBar';
 import { BarberCard } from '@/components/BarberCards';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
-import { fetchPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
 
@@ -21,9 +18,7 @@ export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
-  const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>(() =>
-    isSupabaseConfigured() ? 'loading' : 'unused'
-  );
+  const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
   const [filters, setFilters] = useState<FilterState>({
     maxDistance: 5,
     tiers: [],
@@ -70,33 +65,45 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!isSupabaseConfigured()) return;
+    if (!isSupabaseConfigured()) {
+      setRemoteBarbers([]);
+      setRemoteStatus('unused');
+      return;
+    }
+    if (!userLocation) {
+      setRemoteBarbers([]);
+      setRemoteStatus('unused');
+      return;
+    }
 
     let cancelled = false;
+    setRemoteStatus('loading');
+
     (async () => {
       try {
-        const list = await fetchPublicBarbersFromSupabase();
+        const list = await fetchNearbyPublicBarbersFromSupabase({
+          userLocation,
+          radiusKm: Math.max(5, filters.maxDistance),
+          limit: 120,
+          minRating: filters.minRating,
+          tiers: filters.tiers,
+        });
         if (cancelled) return;
         setRemoteBarbers(list);
         setRemoteStatus('ready');
       } catch {
         if (cancelled) return;
-        toast.error('تعذر تحميل قائمة الحلاقين من السيرفر. سيتم عرض بيانات تجريبية مؤقتاً.');
         setRemoteStatus('error');
+        toast.error('تعذر تحميل نتائج القرب حالياً. تحقّق من الاتصال وأعد المحاولة.');
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [userLocation, filters.maxDistance, filters.minRating, filters.tiers]);
 
-  const catalogBarbers = useMemo(() => {
-    if (isDemoCatalogEnabled()) return demoShowcaseBarbers;
-    if (!isSupabaseConfigured() || remoteStatus === 'error') return mockBarbers;
-    if (remoteStatus === 'loading') return mockBarbers;
-    return remoteBarbers;
-  }, [remoteBarbers, remoteStatus]);
+  const catalogBarbers = useMemo(() => remoteBarbers, [remoteBarbers]);
 
   const filteredBarbers = useMemo(() => {
     if (!userLocation) return [];
@@ -365,17 +372,6 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <div className="mb-8 space-y-4">
-              {isDemoCatalogEnabled() && (
-                <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground">
-                  <p className="font-semibold text-primary mb-1">وضع عرض التصميم</p>
-                  <p className="text-muted-foreground leading-relaxed">
-                    يظهر ثلاثة حلاقين تجريبيين (واحد لكل باقة) مع بنرات بغضّ النظر عن شريط المسافة. لإخفاء
-                    العرض واستخدام بيانات السيرفر أو القائمة التجريبة الكاملة: عيّن في البيئة{' '}
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs">VITE_DEMO_CATALOG=false</code>
-                    ثم أعد البناء.
-                  </p>
-                </div>
-              )}
               <FilterBar filters={filters} onFilterChange={setFilters} />
             </div>
 
@@ -400,8 +396,11 @@ export default function Home() {
                   <MapPin className="w-12 h-12 text-primary" />
                 </motion.div>
                 <h3 className="text-2xl font-bold mb-3">لا توجد حلاقين في هذا النطاق 🔍</h3>
+                {remoteStatus === 'loading' && (
+                  <p className="text-sm text-primary font-semibold mb-3">جاري تحديث النتائج الأقرب لموقعك...</p>
+                )}
                 <p className="text-muted-foreground text-lg mb-6">
-                  جرّب زيادة نطاق البحث إلى <span className="font-bold text-primary">5 كم</span> (الحد الأقصى في الشريط) أو إلغاء الفلاتر
+                  جرّب زيادة نطاق البحث من شريط المسافة (حتى 25 كم) أو إلغاء الفلاتر
                 </p>
                 <div className="bg-muted/30 rounded-xl p-6 space-y-3">
                   <p className="text-sm text-muted-foreground">💡 <strong>نصيحة:</strong></p>

@@ -2,7 +2,10 @@ import { Barber, SubscriptionTier } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
 import { STANDARD_MOCK_WORKING_HOURS } from '@/lib/saudiWorkingWeek';
 
-/** حلاق واحد لكل باقة — للعرض التجريبي على الصفحة الرئيسية فقط */
+/**
+ * ملف دعائي للبنرات الافتراضية (مرجع للشروحات والعروض التوضيحية).
+ * لا يُستخدم في مسار التشغيل الرئيسي للصفحة الرئيسية في الإنتاج.
+ */
 export const demoShowcaseBarbers: Barber[] = [
   {
     id: 'demo-showcase-diamond',

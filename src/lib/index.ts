@@ -1,4 +1,5 @@
 import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
+import { compareBarbersByListingScore } from '@/lib/barberListingRank';
 
 export const ROUTE_PATHS = {
   HOME: '/',
@@ -263,15 +264,22 @@ export function filterBarbersByDistance(
       }
       return true;
     })
-    .sort((a, b) => {
-      const tierPriority = {
-        [SubscriptionTier.DIAMOND]: 3,
-        [SubscriptionTier.GOLD]: 2,
-        [SubscriptionTier.BRONZE]: 1,
-      };
-      if (tierPriority[a.subscription] !== tierPriority[b.subscription]) {
-        return tierPriority[b.subscription] - tierPriority[a.subscription];
-      }
-      return a.distance - b.distance;
-    });
+    .sort((a, b) =>
+      compareBarbersByListingScore(
+        {
+          id: a.id,
+          subscription: a.subscription as 'bronze' | 'gold' | 'diamond',
+          distance: a.distance,
+          rating: a.rating,
+          reviewCount: a.reviewCount,
+        },
+        {
+          id: b.id,
+          subscription: b.subscription as 'bronze' | 'gold' | 'diamond',
+          distance: b.distance,
+          rating: b.rating,
+          reviewCount: b.reviewCount,
+        }
+      )
+    );
 }
