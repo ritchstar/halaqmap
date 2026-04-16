@@ -74,6 +74,10 @@ import {
   deleteRegistrationSubmissionRemote,
   patchRegistrationSubmissionPayloadRemote,
 } from '@/lib/registrationSubmissionsRemote';
+import {
+  sendBarberOnboardingEmailRemote,
+  sendOnboardingEmailsForActiveBarbersRemote,
+} from '@/lib/barberOnboardingEmailRemote';
 import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 import {
   calcVatBreakdown,
@@ -986,9 +990,23 @@ function RequestReviewDialog({
       onAfterDecision();
       return;
     }
+    const mail = await sendBarberOnboardingEmailRemote({
+      barberName: request.barberName,
+      barberEmail: request.email,
+      tier: request.tier,
+    });
+    if (!mail.ok) {
+      toast({
+        title: 'تم قبول الطلب لكن فشل الإرسال البريدي',
+        description: `تعذر إرسال بريد التعليمات إلى ${request.email}: ${mail.error}`,
+        variant: 'destructive',
+      });
+    }
     toast({
       title: 'تم قبول الطلب',
-      description: 'تمت مزامنة الحلاق وسيظهر في تبويب الحلاقين.',
+      description: mail.ok
+        ? 'تمت مزامنة الحلاق وإرسال بريد التعليمات وروابط لوحة التحكم.'
+        : 'تمت مزامنة الحلاق وسيظهر في تبويب الحلاقين.',
     });
     onClose();
     onAfterDecision();
@@ -1503,6 +1521,7 @@ function BarbersSection({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [mergingId, setMergingId] = useState<string | null>(null);
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
+  const [broadcastingEmails, setBroadcastingEmails] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -1606,6 +1625,32 @@ function BarbersSection({
     onStatsNeedRefresh();
   };
 
+  const onBroadcastOnboardingEmails = async () => {
+    if (!canManage) return;
+    if (
+      !window.confirm(
+        'سيتم إرسال بريد تعليمات وروابط لوحة التحكم إلى جميع الحلاقين النشطين. هل تريد المتابعة؟'
+      )
+    ) {
+      return;
+    }
+    setBroadcastingEmails(true);
+    const res = await sendOnboardingEmailsForActiveBarbersRemote(300);
+    setBroadcastingEmails(false);
+    if (!res.ok) {
+      toast({
+        title: 'تعذر إرسال البريد الجماعي',
+        description: res.error,
+        variant: 'destructive',
+      });
+      return;
+    }
+    toast({
+      title: 'تم إرسال التعليمات البريدية',
+      description: `المستهدف: ${res.attempted} · المرسَل: ${res.sent} · الفشل: ${res.failed}`,
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -1622,6 +1667,15 @@ function BarbersSection({
               المكررة: <span className="font-semibold text-red-600">{rows.filter((r) => isDuplicateRow(r)).length}</span>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!canManage || broadcastingEmails}
+                onClick={() => void onBroadcastOnboardingEmails()}
+              >
+                {broadcastingEmails ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+                إرسال تعليمات لجميع الحلاقين
+              </Button>
               <span className="text-xs text-muted-foreground">عرض المكررات فقط</span>
               <Switch checked={duplicatesOnly} onCheckedChange={setDuplicatesOnly} />
             </div>

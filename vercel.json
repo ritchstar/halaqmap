@@ -44,6 +44,10 @@
     "api/approve-barber.ts": {
       "memory": 512,
       "maxDuration": 30
+    },
+    "api/send-barber-onboarding.ts": {
+      "memory": 512,
+      "maxDuration": 60
     }
   }
 }
