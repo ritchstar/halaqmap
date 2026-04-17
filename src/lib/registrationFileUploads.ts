@@ -80,6 +80,10 @@ function registrationSignedUploadEndpoint(): string {
   return '/api/register-signed-upload';
 }
 
+function getBrowserSupabaseAnonKey(): string {
+  return String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+}
+
 function shouldAttemptServerUpload(): boolean {
   if (import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim()) return true;
   if (import.meta.env.VITE_REGISTRATION_SIGNED_URL?.trim()) return true;
@@ -128,8 +132,15 @@ async function trySignedUrlUpload(
   | { ok: false; fallback: true }
   | { ok: false; fallback: false; error: string }
 > {
-  const anon = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
-  if (!anon) return { ok: false, fallback: true };
+  const anon = getBrowserSupabaseAnonKey();
+  if (!anon) {
+    return {
+      ok: false,
+      fallback: false,
+      error:
+        'VITE_SUPABASE_ANON_KEY غير موجود في build الواجهة (الإنتاج). بدون هذا المفتاح لا يمكن توثيق طلبات الرفع على دوال Vercel. أضف VITE_SUPABASE_ANON_KEY في Vercel (Production) ثم أعد نشر الواجهة.',
+    };
+  }
 
   const endpoint = registrationSignedUploadEndpoint();
   let res: Response;
@@ -253,8 +264,15 @@ async function tryServerUpload(
   | { ok: false; fallback: true }
   | { ok: false; fallback: false; error: string }
 > {
-  const anon = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
-  if (!anon) return { ok: false, fallback: true };
+  const anon = getBrowserSupabaseAnonKey();
+  if (!anon) {
+    return {
+      ok: false,
+      fallback: false,
+      error:
+        'VITE_SUPABASE_ANON_KEY غير موجود في build الواجهة (الإنتاج). أضف VITE_SUPABASE_ANON_KEY في Vercel (Production) ثم أعد نشر الواجهة.',
+    };
+  }
 
   const endpoint = registrationUploadEndpoint();
   let res: Response;
@@ -346,6 +364,14 @@ async function uploadOne(
   subfolder: string,
   file: File
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  if (shouldAttemptServerUpload() && !getBrowserSupabaseAnonKey()) {
+    return {
+      ok: false,
+      error:
+        'تعذّر رفع المرفقات: مفتاح anon الخاص بالواجهة غير مضمّن في الإنتاج (VITE_SUPABASE_ANON_KEY). أضفه في Vercel على Production ثم أعد نشر الواجهة.',
+    };
+  }
+
   if (file.size > MAX_FILE_BYTES) {
     return {
       ok: false,
