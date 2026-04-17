@@ -146,6 +146,8 @@ const BASE_ADMIN_STATS: AdminStats = {
   totalUsers: 12890,
 };
 
+const ADMIN_REQUESTS_MARKETING_FILTERS_KEY = 'halaqmap.admin.requestsMarketingFilters.v1';
+
 const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
   {
     id: 'req1',
@@ -773,6 +775,41 @@ function isRenderableImageAssetUrl(ref: string): boolean {
   return isVisualAssetUrl(ref) && !attachmentLooksLikePdf(ref);
 }
 
+function hasPartnerAttributionSignal(request: SubscriptionRequest): boolean {
+  const a = request.partnerAttribution;
+  if (!a) return false;
+  return Boolean(
+    a.utmSource ||
+      a.utmMedium ||
+      a.utmCampaign ||
+      a.utmTerm ||
+      a.utmContent ||
+      a.gclid ||
+      a.fbclid ||
+      a.ttclid ||
+      a.msclkid
+  );
+}
+
+function inferMarketingMedium(request: SubscriptionRequest): string {
+  const a = request.partnerAttribution;
+  if (!a) return 'غير معروف';
+  if (a.utmMedium) return a.utmMedium;
+  if (a.gclid) return 'google_ads';
+  if (a.fbclid) return 'meta_ads';
+  if (a.ttclid) return 'tiktok_ads';
+  if (a.msclkid) return 'microsoft_ads';
+  return 'غير معروف';
+}
+
+function csvCell(value: unknown): string {
+  const raw = value == null ? '' : String(value);
+  if (/[",\n\r]/.test(raw)) {
+    return `"${raw.replace(/"/g, '""')}"`;
+  }
+  return raw;
+}
+
 function RequestsSection({
   requests,
   onViewRequest,
@@ -784,6 +821,202 @@ function RequestsSection({
   canReview: boolean;
   canManage: boolean;
 }) {
+  const [query, setQuery] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [mediumFilter, setMediumFilter] = useState('all');
+  const [campaignFilter, setCampaignFilter] = useState('all');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(ADMIN_REQUESTS_MARKETING_FILTERS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as {
+        query?: string;
+        sourceFilter?: string;
+        mediumFilter?: string;
+        campaignFilter?: string;
+      };
+      if (typeof parsed.query === 'string') setQuery(parsed.query);
+      if (typeof parsed.sourceFilter === 'string') setSourceFilter(parsed.sourceFilter || 'all');
+      if (typeof parsed.mediumFilter === 'string') setMediumFilter(parsed.mediumFilter || 'all');
+      if (typeof parsed.campaignFilter === 'string') setCampaignFilter(parsed.campaignFilter || 'all');
+    } catch {
+      // ignore parse/storage errors and keep defaults
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const payload = JSON.stringify({
+      query,
+      sourceFilter,
+      mediumFilter,
+      campaignFilter,
+    });
+    localStorage.setItem(ADMIN_REQUESTS_MARKETING_FILTERS_KEY, payload);
+  }, [query, sourceFilter, mediumFilter, campaignFilter]);
+
+  const marketingAnalytics = useMemo(() => {
+    const registrationRequests = requests.filter((r) => r.source === 'registration');
+    const attributed = registrationRequests.filter((r) => hasPartnerAttributionSignal(r));
+
+    const sourceCounter = new Map<string, number>();
+    const mediumCounter = new Map<string, number>();
+    const campaignCounter = new Map<string, number>();
+
+    for (const req of attributed) {
+      const source = req.partnerAttribution?.utmSource || 'direct_or_unknown';
+      const medium = inferMarketingMedium(req);
+      const campaign = req.partnerAttribution?.utmCampaign || 'بدون_حملة';
+
+      sourceCounter.set(source, (sourceCounter.get(source) || 0) + 1);
+      mediumCounter.set(medium, (mediumCounter.get(medium) || 0) + 1);
+      campaignCounter.set(campaign, (campaignCounter.get(campaign) || 0) + 1);
+    }
+
+    const sortCounter = (counter: Map<string, number>) =>
+      Array.from(counter.entries())
+        .sort((a, b) => b[1] - a[1]);
+
+    const attributedRate =
+      registrationRequests.length > 0
+        ? Math.round((attributed.length / registrationRequests.length) * 100)
+        : 0;
+
+    const allSources = sortCounter(sourceCounter);
+    const allMediums = sortCounter(mediumCounter);
+    const allCampaigns = sortCounter(campaignCounter);
+
+    return {
+      total: registrationRequests.length,
+      attributedCount: attributed.length,
+      unattributedCount: Math.max(0, registrationRequests.length - attributed.length),
+      attributedRate,
+      topSources: allSources.slice(0, 5),
+      topMediums: allMediums.slice(0, 5),
+      topCampaigns: allCampaigns.slice(0, 5),
+      allSources,
+      allMediums,
+      allCampaigns,
+    };
+  }, [requests]);
+
+  const filteredRequests = useMemo(() => {
+    const q = query.trim().toLowerCase();
+
+    return requests.filter((request) => {
+      if (q) {
+        const searchable = [
+          request.id,
+          request.barberName,
+          request.email,
+          request.phone,
+          request.location.address,
+        ]
+          .join(' ')
+          .toLowerCase();
+        if (!searchable.includes(q)) return false;
+      }
+
+      const source = request.partnerAttribution?.utmSource || 'direct_or_unknown';
+      const medium = inferMarketingMedium(request);
+      const campaign = request.partnerAttribution?.utmCampaign || 'بدون_حملة';
+
+      if (sourceFilter !== 'all' && source !== sourceFilter) return false;
+      if (mediumFilter !== 'all' && medium !== mediumFilter) return false;
+      if (campaignFilter !== 'all' && campaign !== campaignFilter) return false;
+
+      return true;
+    });
+  }, [requests, query, sourceFilter, mediumFilter, campaignFilter]);
+
+  const resetMarketingFilters = () => {
+    setSourceFilter('all');
+    setMediumFilter('all');
+    setCampaignFilter('all');
+    setQuery('');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(ADMIN_REQUESTS_MARKETING_FILTERS_KEY);
+    }
+  };
+
+  const exportFilteredRequestsCsv = () => {
+    if (filteredRequests.length === 0) {
+      toast({ title: 'لا توجد بيانات للتصدير', description: 'لا توجد نتائج حالية ضمن الفلاتر.' });
+      return;
+    }
+
+    const headers = [
+      'request_id',
+      'submitted_at',
+      'status',
+      'tier',
+      'barber_name',
+      'email',
+      'phone',
+      'address',
+      'utm_source',
+      'utm_medium',
+      'utm_campaign',
+      'utm_term',
+      'utm_content',
+      'gclid',
+      'fbclid',
+      'ttclid',
+      'msclkid',
+      'referrer',
+      'page_path',
+      'captured_at_iso',
+    ];
+
+    const rows = filteredRequests.map((request) => {
+      const attr = request.partnerAttribution;
+      return [
+        request.id,
+        request.submittedAt,
+        request.status,
+        request.tier,
+        request.barberName,
+        request.email,
+        request.phone,
+        request.location.address,
+        attr?.utmSource || 'direct_or_unknown',
+        inferMarketingMedium(request),
+        attr?.utmCampaign || 'بدون_حملة',
+        attr?.utmTerm || '',
+        attr?.utmContent || '',
+        attr?.gclid || '',
+        attr?.fbclid || '',
+        attr?.ttclid || '',
+        attr?.msclkid || '',
+        attr?.referrer || '',
+        attr?.pagePath || '',
+        attr?.capturedAtIso || '',
+      ];
+    });
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => csvCell(cell)).join(','))
+      .join('\n');
+
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    link.href = url;
+    link.download = `partners_requests_filtered_${stamp}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: 'تم تصدير CSV',
+      description: `تم تنزيل ${filteredRequests.length} طلب/طلبات حسب الفلاتر الحالية.`,
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -800,15 +1033,178 @@ function RequestsSection({
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">طلبات الاشتراك</h2>
         <div className="flex gap-2">
-          <Input placeholder="بحث..." className="w-64" />
-          <Button variant="outline" size="icon">
+          <Input
+            placeholder="بحث بالاسم/الإيميل/الجوال/المدينة/رقم الطلب..."
+            className="w-72"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Button variant="outline" size="icon" onClick={resetMarketingFilters} title="إعادة ضبط الفلاتر">
             <Filter className="w-4 h-4" />
+          </Button>
+          <Button variant="outline" onClick={exportFilteredRequestsCsv} disabled={filteredRequests.length === 0}>
+            <Download className="w-4 h-4 ml-2" />
+            تصدير CSV
           </Button>
         </div>
       </div>
 
+      <Card className="mb-6 border-primary/20">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BarChart3 className="h-5 w-5 text-primary" />
+            أداء القنوات التسويقية (Partners Funnel)
+          </CardTitle>
+          <CardDescription>
+            قراءة مباشرة لبيانات UTM/Click IDs المرسلة من صفحة الشركاء مع طلبات التسجيل.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground">إجمالي طلبات التسجيل</p>
+              <p className="text-xl font-bold">{marketingAnalytics.total}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground">طلبات منسوبة تسويقياً</p>
+              <p className="text-xl font-bold text-primary">{marketingAnalytics.attributedCount}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground">نسبة الإسناد</p>
+              <p className="text-xl font-bold">{marketingAnalytics.attributedRate}%</p>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground">طلبات بلا مصدر واضح</p>
+              <p className="text-xl font-bold">{marketingAnalytics.unattributedCount}</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="mb-2 text-sm font-semibold">أعلى المصادر</p>
+              {marketingAnalytics.topSources.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {marketingAnalytics.topSources.map(([label, count]) => (
+                    <Badge key={label} variant="outline">
+                      {label}: {count}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">لا توجد بيانات مصادر بعد.</p>
+              )}
+            </div>
+
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="mb-2 text-sm font-semibold">أعلى الوسائط</p>
+              {marketingAnalytics.topMediums.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {marketingAnalytics.topMediums.map(([label, count]) => (
+                    <Badge key={label} variant="outline">
+                      {label}: {count}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">لا توجد بيانات وسائط بعد.</p>
+              )}
+            </div>
+
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="mb-2 text-sm font-semibold">أعلى الحملات</p>
+              {marketingAnalytics.topCampaigns.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {marketingAnalytics.topCampaigns.map(([label, count]) => (
+                    <Badge key={label} variant="outline">
+                      {label}: {count}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">لا توجد بيانات حملات بعد.</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">فلترة الطلبات التسويقية</CardTitle>
+          <CardDescription>
+            فلترة مباشرة بحسب مصدر الاستقطاب والوسيط والحملة لمعرفة أداء كل قناة.
+          </CardDescription>
+          <p className="text-xs text-muted-foreground">
+            يتم حفظ آخر إعدادات الفلترة تلقائياً لهذا المتصفح.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 md:grid-cols-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">المصدر (source)</Label>
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="كل المصادر" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">كل المصادر</SelectItem>
+                  {marketingAnalytics.allSources.map(([label, count]) => (
+                    <SelectItem key={label} value={label}>
+                      {label} ({count})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">الوسيط (medium)</Label>
+              <Select value={mediumFilter} onValueChange={setMediumFilter}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="كل الوسائط" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">كل الوسائط</SelectItem>
+                  {marketingAnalytics.allMediums.map(([label, count]) => (
+                    <SelectItem key={label} value={label}>
+                      {label} ({count})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">الحملة (campaign)</Label>
+              <Select value={campaignFilter} onValueChange={setCampaignFilter}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="كل الحملات" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">كل الحملات</SelectItem>
+                  {marketingAnalytics.allCampaigns.map(([label, count]) => (
+                    <SelectItem key={label} value={label}>
+                      {label} ({count})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3 self-end">
+              <p className="text-xs text-muted-foreground">نتائج الفلترة الحالية</p>
+              <p className="text-xl font-bold">{filteredRequests.length}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="space-y-4">
-        {requests.map((request) => {
+        {filteredRequests.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              لا توجد طلبات تطابق الفلاتر الحالية.
+            </CardContent>
+          </Card>
+        ) : null}
+        {filteredRequests.map((request) => {
           const thumb =
             request.registrationAttachmentUrls?.shopExterior &&
             isRenderableImageAssetUrl(request.registrationAttachmentUrls.shopExterior)
@@ -893,6 +1289,19 @@ function RequestsSection({
                         <Clock className="w-4 h-4" />
                         <span>تم التقديم: {request.submittedAt}</span>
                       </div>
+                      {hasPartnerAttributionSignal(request) ? (
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <Badge variant="outline" className="text-[11px]">
+                            source: {request.partnerAttribution?.utmSource || 'direct_or_unknown'}
+                          </Badge>
+                          <Badge variant="outline" className="text-[11px]">
+                            medium: {inferMarketingMedium(request)}
+                          </Badge>
+                          <Badge variant="outline" className="text-[11px]">
+                            campaign: {request.partnerAttribution?.utmCampaign || 'بدون_حملة'}
+                          </Badge>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -994,6 +1403,7 @@ function RequestReviewDialog({
       barberName: request.barberName,
       barberEmail: request.email,
       tier: request.tier,
+      barberId: upsert.barberId,
     });
     if (!mail.ok) {
       toast({
@@ -1645,9 +2055,21 @@ function BarbersSection({
       });
       return;
     }
+    const failLines =
+      res.failed > 0 && res.failedDetails?.length
+        ? ` · أخطاء: ${res.failedDetails
+            .slice(0, 3)
+            .map((f) => `${f.email}: ${f.error}`)
+            .join(' | ')}`
+        : '';
+    const invalidLine =
+      res.skippedInvalid > 0
+        ? ` · بريد غير صالح في قاعدة البيانات: ${res.skippedInvalid}${res.invalidSamples?.length ? ` (مثال: ${res.invalidSamples.slice(0, 2).join(', ')})` : ''}`
+        : '';
+    const dupLine = res.skippedDuplicate > 0 ? ` · تخطّي مكرر: ${res.skippedDuplicate}` : '';
     toast({
       title: 'تم إرسال التعليمات البريدية',
-      description: `المستهدف: ${res.attempted} · المرسَل: ${res.sent} · الفشل: ${res.failed}`,
+      description: `صفوف: ${res.attempted} · مستلمون فريدون: ${res.uniqueRecipients} · أُرسل: ${res.sent} · فشل API: ${res.failed}${dupLine}${invalidLine}${failLines}`,
     });
   };
 

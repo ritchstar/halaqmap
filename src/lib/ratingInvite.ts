@@ -1,5 +1,12 @@
 import type { Barber } from '@/lib/index';
 
+/** بناء رابط دعوة التقييم من أصل الموقع (بريد، سيرفر، اختبارات) — متوافق مع HashRouter */
+export function buildRatingInviteUrlStatic(siteOrigin: string, barberId: string, token: string): string {
+  const base = siteOrigin.replace(/\/+$/, '');
+  const hashPath = `/rate/${encodeURIComponent(barberId)}?t=${encodeURIComponent(token)}`;
+  return `${base}/#${hashPath}`;
+}
+
 /** بناء رابط دعوة التقييم (متوافق مع HashRouter) */
 export function buildRatingInviteUrl(barberId: string, token: string): string {
   if (typeof window === 'undefined') {

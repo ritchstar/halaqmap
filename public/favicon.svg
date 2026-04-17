@@ -1,12 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="-D'B E'(">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img">
+  <title>Halaq Map</title>
   <defs>
-    <linearGradient id="hm-bg" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0d9488"/>
+    <linearGradient id="hm" x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14b8a6"/>
       <stop offset="1" stop-color="#0f766e"/>
     </linearGradient>
   </defs>
-  <rect width="32" height="32" rx="8" fill="url(#hm-bg)"/>
-  <!-- *1CJ(): /'&1) 4(C) + /(H3 .1J7) 0G(J -->
-  <circle cx="16" cy="12" r="7" fill="none" stroke="#D4AF37" stroke-width="1.5" opacity="0.85"/>
-  <path fill="#D4AF37" d="M16 7.5a4.2 4.2 0 00-4.2 4.1c0 2.9 4.2 9.9 4.2 9.9s4.2-7 4.2-9.9A4.2 4.2 0 0016 7.5zm0 5.6a1.6 1.6 0 110-3.2 1.6 1.6 0 010 3.2z"/>
+  <rect width="48" height="48" rx="12" fill="url(#hm)"/>
+  <!-- Pin + dot: map + location -->
+  <path
+    fill="#D4AF37"
+    d="M24 11c-3.6 0-6.5 2.7-6.5 6 0 5.2 6.5 15.2 6.5 15.2s6.5-10 6.5-15.2c0-3.3-2.9-6-6.5-6zm0 9.2a3.2 3.2 0 110-6.4 3.2 3.2 0 010 6.4z"
+  />
+  <!-- Subtle scissors hint (barber + map) -->
+  <path
+    d="M14 36l7-5M21 36l-7-5"
+    fill="none"
+    stroke="#ecfdf5"
+    stroke-width="2.2"
+    stroke-linecap="round"
+    opacity="0.92"
+  />
 </svg>

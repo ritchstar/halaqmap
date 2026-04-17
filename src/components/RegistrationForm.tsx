@@ -47,6 +47,7 @@ import {
   uploadRegistrationAttachments,
   registrationUploadErrorForToast,
 } from '@/lib/registrationFileUploads';
+import { loadPartnerAttribution } from '@/lib/partnerAttribution';
 import { toast } from '@/components/ui/sonner';
 import {
   createInitialWorkingWeekForm,
@@ -607,6 +608,7 @@ export function RegistrationForm() {
 
       const lat = parseFloat(formData.location.lat) || 0;
       const lng = parseFloat(formData.location.lng) || 0;
+      const partnerAttribution = loadPartnerAttribution();
 
       const request: SubscriptionRequest = {
         id: orderId,
@@ -637,6 +639,7 @@ export function RegistrationForm() {
         status: 'pending',
         submittedAt: submittedAtLabel,
         source: 'registration',
+        partnerAttribution,
         paymentMethod: formData.payment.method,
         receiptFileName: receiptFile?.name,
         receiptDataUrl,
@@ -666,6 +669,24 @@ export function RegistrationForm() {
             ? 'تحويل بنكي'
             : 'اشتراك شهري';
 
+      const attributionLines = partnerAttribution
+        ? [
+            `مسار الاستقطاب (UTM):`,
+            `- capturedAt: ${partnerAttribution.capturedAtIso}`,
+            `- pagePath: ${partnerAttribution.pagePath}`,
+            `- referrer: ${partnerAttribution.referrer || '—'}`,
+            `- utm_source: ${partnerAttribution.utmSource || '—'}`,
+            `- utm_medium: ${partnerAttribution.utmMedium || '—'}`,
+            `- utm_campaign: ${partnerAttribution.utmCampaign || '—'}`,
+            `- utm_term: ${partnerAttribution.utmTerm || '—'}`,
+            `- utm_content: ${partnerAttribution.utmContent || '—'}`,
+            `- gclid: ${partnerAttribution.gclid || '—'}`,
+            `- fbclid: ${partnerAttribution.fbclid || '—'}`,
+            `- ttclid: ${partnerAttribution.ttclid || '—'}`,
+            `- msclkid: ${partnerAttribution.msclkid || '—'}`,
+          ].join('\n')
+        : 'مسار الاستقطاب (UTM): غير متوفر';
+
       const summaryForDownload =
         `حلاق ماب — طلب اشتراك جديد\n` +
         `================================\n` +
@@ -679,6 +700,7 @@ export function RegistrationForm() {
         `الباقة: ${tierName}\n` +
         `تصنيفات: ${formData.categories.join('، ') || '—'}\n` +
         `طريقة الدفع: ${payLabel}\n` +
+        `${attributionLines}\n` +
         (receiptFile ? `ملف الإيصال: ${receiptFile.name}\n` : '') +
         `\n` +
         `العنوان: ${composedAddress || formData.location.address || '—'}\n` +

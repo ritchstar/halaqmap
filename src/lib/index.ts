@@ -3,16 +3,27 @@ import { compareBarbersByListingScore } from '@/lib/barberListingRank';
 
 export const ROUTE_PATHS = {
   HOME: '/',
-  REGISTER: '/register',
-  REGISTER_SUCCESS: '/register/success',
+  BARBERS_LANDING: '/partners',
+  REGISTER: '/partners/register',
+  REGISTER_SUCCESS: '/partners/register/success',
   ABOUT: '/about',
   PRIVACY: '/privacy',
-  SUBSCRIPTION_POLICY: '/subscription-policy',
-  BARBER_LOGIN: '/barber/login',
+  SUBSCRIPTION_POLICY: '/partners/subscription-policy',
+  BARBER_LOGIN: '/partners/login',
   BARBER_DASHBOARD: '/barber/dashboard',
-  PAYMENT: '/payment',
+  PAYMENT: '/partners/payment',
   /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
   RATE_BARBER: '/rate/:barberId',
+} as const;
+
+/** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */
+export const LEGACY_PARTNER_ROUTE_PATHS = {
+  BARBERS_LANDING: '/for-barbers',
+  REGISTER: '/register',
+  REGISTER_SUCCESS: '/register/success',
+  SUBSCRIPTION_POLICY: '/subscription-policy',
+  BARBER_LOGIN: '/barber/login',
+  PAYMENT: '/payment',
 } as const;
 
 export enum SubscriptionTier {
@@ -142,6 +153,22 @@ export interface RegistrationAttachmentUrls {
   receipt?: string;
 }
 
+/** تتبّع مصدر استقطاب الحلاق (UTM / مرجع الحملة) لمسار الشركاء. */
+export interface PartnerAttribution {
+  capturedAtIso: string;
+  pagePath: string;
+  referrer?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
+  gclid?: string;
+  fbclid?: string;
+  ttclid?: string;
+  msclkid?: string;
+}
+
 export interface SubscriptionRequest {
   id: string;
   barberName: string;
@@ -167,6 +194,7 @@ export interface SubscriptionRequest {
   reviewedBy?: string;
   /** طلبات نموذج التسجيل */
   source?: 'registration';
+  partnerAttribution?: PartnerAttribution;
   paymentMethod?: 'monthly' | 'bank_transfer';
   receiptFileName?: string;
   /** معاينة إيصال (صورة صغيرة أو PDF كـ data URL — قد يُحذف لاحقاً لتوفير المساحة) */

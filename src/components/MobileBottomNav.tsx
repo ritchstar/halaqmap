@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Info, UserPlus, LayoutGrid } from 'lucide-react';
+import { Home, Info, LayoutGrid } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -20,10 +20,6 @@ export function MobileBottomNav() {
 
   const homeActive = pathname === ROUTE_PATHS.HOME;
   const aboutActive = pathname === ROUTE_PATHS.ABOUT;
-  const registerActive =
-    pathname === ROUTE_PATHS.REGISTER ||
-    pathname === ROUTE_PATHS.REGISTER_SUCCESS ||
-    pathname.startsWith('/register');
 
   return (
     <nav
@@ -43,11 +39,6 @@ export function MobileBottomNav() {
         <NavLink to={ROUTE_PATHS.ABOUT} className={() => navItemClass(aboutActive)}>
           <Info className="h-6 w-6 shrink-0" aria-hidden />
           <span className="leading-tight">من نحن</span>
-        </NavLink>
-
-        <NavLink to={ROUTE_PATHS.REGISTER} className={() => navItemClass(registerActive)}>
-          <UserPlus className="h-6 w-6 shrink-0" aria-hidden />
-          <span className="leading-tight">سجّل كحلاق</span>
         </NavLink>
 
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
@@ -77,18 +68,11 @@ export function MobileBottomNav() {
                 سياسة الخصوصية
               </NavLink>
               <NavLink
-                to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
+                to={ROUTE_PATHS.ABOUT}
                 className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
                 onClick={() => setMoreOpen(false)}
               >
-                سياسة الاشتراك
-              </NavLink>
-              <NavLink
-                to={ROUTE_PATHS.BARBER_LOGIN}
-                className="block rounded-xl px-4 py-3.5 text-base font-medium bg-primary/10 text-primary hover:bg-primary/15 active:bg-primary/20 transition-colors touch-manipulation"
-                onClick={() => setMoreOpen(false)}
-              >
-                دخول الحلّاق
+                من نحن
               </NavLink>
             </div>
           </SheetContent>

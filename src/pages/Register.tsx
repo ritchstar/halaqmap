@@ -12,6 +12,7 @@ import {
   MAP_FEATURE_HERO,
 } from '@/config/subscriptionPlanHero';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
+import { PLATFORM_REGISTER_INTRO } from '@/config/platformGrowthNarrative';
 
 type RegisterPlanRow = { kind: 'row'; text: string; included: boolean };
 type RegisterPlanFeature = { kind: 'map_hero' } | RegisterPlanRow;
@@ -121,8 +122,7 @@ export default function Register() {
               انضم إلى منصة حلاق ماب
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-1">
-              أول منصة عربية ذكية تربط الحلاقين المحترفين بالعملاء عبر نظام خرائط متقدم.
-              اختر الباقة المناسبة لك وابدأ في جذب المزيد من العملاء اليوم.
+              {PLATFORM_REGISTER_INTRO}
             </p>
           </motion.div>
 

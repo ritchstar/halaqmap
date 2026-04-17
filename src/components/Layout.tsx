@@ -5,8 +5,8 @@ import { Menu, X, MapPin, Phone, Mail } from 'lucide-react';
 import { SiX, SiFacebook, SiInstagram, SiWhatsapp } from 'react-icons/si';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,7 +19,6 @@ export function Layout({ children }: LayoutProps) {
     { path: ROUTE_PATHS.HOME, label: 'الرئيسية' },
     { path: ROUTE_PATHS.ABOUT, label: 'من نحن' },
     { path: ROUTE_PATHS.PRIVACY, label: 'سياسة الخصوصية' },
-    { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: 'سياسة الاشتراك' },
   ];
 
   return (
@@ -83,13 +82,6 @@ export function Layout({ children }: LayoutProps) {
                   {item.label}
                 </NavLink>
               ))}
-              <NavLink to={ROUTE_PATHS.REGISTER}>
-                <Button
-                  className="bg-gradient-to-l from-accent to-accent/80 text-accent-foreground hover:from-accent/90 hover:to-accent/70 shadow-lg shadow-accent/20 font-semibold"
-                >
-                  سجل كحلاق
-                </Button>
-              </NavLink>
             </nav>
 
             <button
@@ -133,16 +125,6 @@ export function Layout({ children }: LayoutProps) {
                     {item.label}
                   </NavLink>
                 ))}
-                <NavLink
-                  to={ROUTE_PATHS.REGISTER}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button
-                    className="w-full bg-gradient-to-l from-accent to-accent/80 text-accent-foreground hover:from-accent/90 hover:to-accent/70 shadow-lg shadow-accent/20 font-semibold"
-                  >
-                    سجل كحلاق
-                  </Button>
-                </NavLink>
               </nav>
             </motion.div>
           )}
@@ -179,19 +161,17 @@ export function Layout({ children }: LayoutProps) {
                   <span className="text-xs text-muted-foreground">HALAQ MAP</span>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                أول منصة عربية ذكية تربط الحلاقين المحترفين بالعملاء عبر نظام خرائط متقدم
-              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{PLATFORM_FOOTER_TAGLINE}</p>
             </div>
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground">روابط سريعة</h3>
               <div className="space-y-2">
                 <NavLink
-                  to={ROUTE_PATHS.REGISTER}
+                  to={ROUTE_PATHS.HOME}
                   className="block text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  تسجيل حلاق
+                  الرئيسية
                 </NavLink>
                 <NavLink
                   to={ROUTE_PATHS.ABOUT}
@@ -288,10 +268,10 @@ export function Layout({ children }: LayoutProps) {
                   سياسة الخصوصية
                 </NavLink>
                 <NavLink
-                  to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
+                  to={ROUTE_PATHS.ABOUT}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  سياسة الاشتراك
+                  من نحن
                 </NavLink>
               </div>
             </div>

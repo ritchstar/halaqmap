@@ -2,13 +2,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+import { PartnerLayout } from "@/components/PartnerLayout";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/Home";
 import Register from "@/pages/Register";
 import RegisterSuccess from "@/pages/RegisterSuccess";
 import About from "@/pages/About";
+import BarberGrowthLanding from "@/pages/BarberGrowthLanding";
 import Privacy from "@/pages/Privacy";
 import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
 import BarberLogin from "@/pages/BarberLogin";
@@ -17,7 +19,7 @@ import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Payment from "@/pages/Payment";
 import RateBarber from "@/pages/RateBarber";
-import { ROUTE_PATHS } from "@/lib/index";
+import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminLoginPath, getAdminDashboardPath } from "@/config/adminAuth";
 import { AdminAuthHashGate } from "@/components/AdminAuthHashGate";
 
@@ -41,6 +43,11 @@ const NotFound = () => (
   </Layout>
 );
 
+const LegacyPartnerRedirect = ({ to }: { to: string }) => {
+  const location = useLocation();
+  return <Navigate to={`${to}${location.search || ''}`} replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -51,16 +58,25 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
-          <Route path={ROUTE_PATHS.REGISTER} element={<Layout><Register /></Layout>} />
-          <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<Layout><RegisterSuccess /></Layout>} />
           <Route path={ROUTE_PATHS.ABOUT} element={<Layout><About /></Layout>} />
           <Route path={ROUTE_PATHS.PRIVACY} element={<Layout><Privacy /></Layout>} />
-          <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<Layout><SubscriptionPolicy /></Layout>} />
-          <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<BarberLogin />} />
+
+          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><Register /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<PartnerLayout><RegisterSuccess /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><SubscriptionPolicy /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<PartnerLayout><BarberLogin /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><Payment /></PartnerLayout>} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBERS_LANDING} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER_SUCCESS} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER_SUCCESS} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<LegacyPartnerRedirect to={ROUTE_PATHS.SUBSCRIPTION_POLICY} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBER_LOGIN} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBER_LOGIN} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.PAYMENT} element={<LegacyPartnerRedirect to={ROUTE_PATHS.PAYMENT} />} />
+
           <Route path={ROUTE_PATHS.BARBER_DASHBOARD} element={<BarberDashboard />} />
           <Route path={getAdminLoginPath()} element={<AdminLogin />} />
           <Route path={getAdminDashboardPath()} element={<AdminDashboard />} />
-          <Route path={ROUTE_PATHS.PAYMENT} element={<Payment />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

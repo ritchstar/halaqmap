@@ -134,5 +134,32 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: error?.message || 'Upsert failed' }, { status: 500, headers });
   }
 
-  return Response.json({ ok: true, barberId: String((data as { id: string }).id) }, { headers });
+  const barberId = String((data as { id: string }).id);
+
+  /** صفوف قديمة أو upsert بدون لمس العمود قد تبقي rating_invite_token فارغاً — يُعبَّأ هنا ليعمل QR والبريد */
+  const { data: tokenRow, error: tokenErr } = await supabase
+    .from('barbers')
+    .select('rating_invite_token')
+    .eq('id', barberId)
+    .maybeSingle();
+  if (!tokenErr && tokenRow) {
+    const existing = String((tokenRow as { rating_invite_token?: string | null }).rating_invite_token ?? '').trim();
+    if (!existing) {
+      const bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      const fresh = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      const { error: upErr } = await supabase
+        .from('barbers')
+        .update({ rating_invite_token: fresh })
+        .eq('id', barberId);
+      if (upErr) {
+        return Response.json(
+          { error: upErr.message || 'Failed to set rating_invite_token', barberId },
+          { status: 500, headers },
+        );
+      }
+    }
+  }
+
+  return Response.json({ ok: true, barberId }, { headers });
 }

@@ -30,24 +30,22 @@
   ],
   "functions": {
     "api/register-upload-file.ts": {
-      "memory": 1024,
       "maxDuration": 60
     },
     "api/register-signed-upload.ts": {
-      "memory": 512,
       "maxDuration": 30
     },
     "api/register-submission.ts": {
-      "memory": 512,
       "maxDuration": 30
     },
     "api/approve-barber.ts": {
-      "memory": 512,
       "maxDuration": 30
     },
     "api/send-barber-onboarding.ts": {
-      "memory": 512,
       "maxDuration": 60
+    },
+    "api/barber-portal-login.ts": {
+      "maxDuration": 30
     }
   }
 }

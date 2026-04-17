@@ -19,20 +19,29 @@ export async function sendBarberOnboardingEmailRemote(input: {
   barberName: string;
   barberEmail: string;
   tier?: SubscriptionTier | string | null;
+  /** بعد الاعتماد — يُفضّل لإرفاق QR التقييم دون جلب إضافي من السيرفر */
+  barberId?: string | null;
+  ratingInviteToken?: string | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const endpoint = getEndpoint();
   if (!endpoint) return { ok: false, error: 'لم يتم ضبط مسار API للإرسال البريدي.' };
 
   try {
+    const body: Record<string, unknown> = {
+      mode: 'single',
+      barberName: input.barberName,
+      barberEmail: input.barberEmail,
+      tier: input.tier ?? null,
+    };
+    const bid = String(input.barberId ?? '').trim();
+    if (bid) body.barberId = bid;
+    const tok = String(input.ratingInviteToken ?? '').trim();
+    if (tok) body.ratingInviteToken = tok;
+
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: baseHeaders(),
-      body: JSON.stringify({
-        mode: 'single',
-        barberName: input.barberName,
-        barberEmail: input.barberEmail,
-        tier: input.tier ?? null,
-      }),
+      body: JSON.stringify(body),
     });
     const payload = (await response.json().catch(() => ({}))) as { error?: string };
     if (!response.ok) {
@@ -44,9 +53,23 @@ export async function sendBarberOnboardingEmailRemote(input: {
   }
 }
 
+export type BulkOnboardingEmailResult =
+  | { ok: false; error: string }
+  | {
+      ok: true;
+      attempted: number;
+      uniqueRecipients: number;
+      sent: number;
+      failed: number;
+      skippedInvalid: number;
+      skippedDuplicate: number;
+      failedDetails?: Array<{ email: string; error: string }>;
+      invalidSamples?: string[];
+    };
+
 export async function sendOnboardingEmailsForActiveBarbersRemote(
   limit = 200
-): Promise<{ ok: true; attempted: number; sent: number; failed: number } | { ok: false; error: string }> {
+): Promise<BulkOnboardingEmailResult> {
   const endpoint = getEndpoint();
   if (!endpoint) return { ok: false, error: 'لم يتم ضبط مسار API للإرسال البريدي.' };
 
@@ -61,8 +84,13 @@ export async function sendOnboardingEmailsForActiveBarbersRemote(
     });
     const payload = (await response.json().catch(() => ({}))) as {
       attempted?: number;
+      uniqueRecipients?: number;
       sent?: number;
       failed?: number;
+      skippedInvalid?: number;
+      skippedDuplicate?: number;
+      failedDetails?: Array<{ email: string; error: string }>;
+      invalidSamples?: string[];
       error?: string;
     };
     if (!response.ok) {
@@ -71,8 +99,13 @@ export async function sendOnboardingEmailsForActiveBarbersRemote(
     return {
       ok: true,
       attempted: Number(payload.attempted) || 0,
+      uniqueRecipients: Number(payload.uniqueRecipients) || 0,
       sent: Number(payload.sent) || 0,
       failed: Number(payload.failed) || 0,
+      skippedInvalid: Number(payload.skippedInvalid) || 0,
+      skippedDuplicate: Number(payload.skippedDuplicate) || 0,
+      failedDetails: payload.failedDetails,
+      invalidSamples: payload.invalidSamples,
     };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بخدمة الإرسال البريدي.' };

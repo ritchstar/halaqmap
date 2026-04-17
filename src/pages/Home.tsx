@@ -11,6 +11,13 @@ import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
+import {
+  PLATFORM_HERO_H1,
+  PLATFORM_HERO_LEAD,
+  PLATFORM_HOME_WELCOME_FEATURES,
+  PLATFORM_META_DESCRIPTION,
+} from '@/config/platformGrowthNarrative';
+const USER_TRUST_LINE = 'حدد موقعك بدقة · قارن حسب التقييم · تواصل مباشرة مع الصالون';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 
@@ -39,8 +46,7 @@ export default function Home() {
           name: 'حلاق ماب',
           alternateName: 'HALAQ MAP',
           url: `${origin}/`,
-          description:
-            'منصة عربية ذكية لربط العملاء بأقرب الحلاقين المحترفين عبر خريطة تفاعلية وتصفية ذكية.',
+          description: PLATFORM_META_DESCRIPTION,
           inLanguage: 'ar',
           publisher: { '@id': orgId },
         },
@@ -220,9 +226,9 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25, duration: 0.7 }}
               >
-                أول منصة عربية ذكية
+                {PLATFORM_HERO_H1.line1}
                 <br />
-                <span className="text-primary">تربط الحلاقين المحترفين بالعملاء</span>
+                <span className="text-primary">{PLATFORM_HERO_H1.line2}</span>
               </motion.h1>
 
               <motion.div
@@ -231,10 +237,7 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4, duration: 0.7 }}
               >
-                <p className="text-base md:text-lg font-semibold leading-relaxed text-pretty">
-                  اكتشف أقرب الحلاقين المحترفين بضغطة زر. خرائط ذكية، فلترة بالمسافة والباقة والتقييم، ثم تواصل
-                  مباشرة — موقعك أولاً دائماً.
-                </p>
+                <p className="text-base md:text-lg font-semibold leading-relaxed text-pretty">{PLATFORM_HERO_LEAD}</p>
               </motion.div>
 
               <motion.p
@@ -244,7 +247,7 @@ export default function Home() {
                 transition={{ delay: 0.48, duration: 0.6 }}
               >
                 <Shield className="w-4 h-4 text-accent shrink-0" aria-hidden />
-                <span>باقات للمحترفين · أولوية للمشتركين · تجربة سعودية بالكامل</span>
+                <span>{USER_TRUST_LINE}</span>
               </motion.p>
 
               <motion.div
@@ -330,24 +333,12 @@ export default function Home() {
             <div className="max-w-4xl mx-auto text-center">
               <div className="grid md:grid-cols-3 gap-8">
                 {[
-                  {
-                    icon: MapPin,
-                    title: 'تحديد دقيق',
-                    description: 'نظام GPS متقدم لإيجاد أقرب الحلاقين',
-                  },
-                  {
-                    icon: Sparkles,
-                    title: 'جودة مضمونة',
-                    description: 'حلاقون محترفون مع تقييمات موثوقة',
-                  },
-                  {
-                    icon: MapPin,
-                    title: 'حجز سريع',
-                    description: 'احجز موعدك بضغطة زر واحدة',
-                  },
+                  { icon: MapPin, ...PLATFORM_HOME_WELCOME_FEATURES[0] },
+                  { icon: Sparkles, ...PLATFORM_HOME_WELCOME_FEATURES[1] },
+                  { icon: MessageCircle, ...PLATFORM_HOME_WELCOME_FEATURES[2] },
                 ].map((feature, index) => (
                   <motion.div
-                    key={index}
+                    key={feature.title}
                     className="p-6 rounded-2xl bg-card border border-border"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
