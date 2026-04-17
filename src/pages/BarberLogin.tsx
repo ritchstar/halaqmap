@@ -142,13 +142,6 @@ export default function BarberLogin() {
             </Button>
           </form>
 
-          <div className="mt-6 rounded-lg bg-muted/30 p-4">
-            <p className="text-center text-xs text-muted-foreground">
-              يتحقق الخادم من بريدك في جدول الحلاقين النشطين ومطابقة رمز الدخول مع إعداد المنصة (
-              <span dir="ltr">BARBER_PORTAL_PASSWORD</span> على Vercel). لا يُقبل دخول بدون بريد مسجّل.
-            </p>
-          </div>
-
           <div className="mt-6 text-center">
             <button type="button" onClick={() => navigate(ROUTE_PATHS.HOME)} className="text-sm text-primary hover:underline">
               العودة للصفحة الرئيسية
