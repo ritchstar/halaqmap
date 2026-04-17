@@ -360,6 +360,7 @@ async function uploadOne(
     if (signed.ok === true) {
       return { ok: true, url: signed.url };
     }
+    /* إذا فشل المسار الموقّع برسالة تشخيصية واضحة (401/5xx/JSON غير صالح) لا نكمل إلى رفع ثانٍ لنفس الملف — ذلك كان يسبب رسائل مزدوجة مضللة في الواجهة. */
     if (signed.fallback === false) {
       return { ok: false, error: signed.error };
     }
@@ -376,7 +377,7 @@ async function uploadOne(
       return {
         ok: false,
         error:
-          'تعذّر رفع الملفات عبر السيرفر بعد محاولتين (signed ثم upload). راجع رسالة الخطأ أعلاه في التنبيه — غالباً: حاوية التخزين غير موجودة/سياسات Storage، أو عدم تطابق مفتاح anon بين الواجهة وVercel. تحقق أيضاً من سجلات الدالتين register-signed-upload و register-upload-file.',
+          'تعذّر رفع الملفات عبر السيرفر (المسار الموقّع غير متاح، والمسار البديل غير جاهز). غالباً: حاوية التخزين غير موجودة/سياسات Storage، أو عدم تطابق مفتاح anon بين الواجهة وVercel. راجع سجلات الدالتين register-signed-upload و register-upload-file.',
       };
     }
   }
