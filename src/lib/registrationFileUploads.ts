@@ -169,7 +169,14 @@ async function trySignedUrlUpload(
       };
     }
     if (res.status >= 500) {
-      return { ok: false, fallback: true };
+      const parts = [parsed.error, parsed.hint].filter(Boolean);
+      const base =
+        (parts.length ? parts.join('\n') : '') ||
+        parsed.error ||
+        `فشل إنشاء رابط الرفع الموقّع (${res.status}).`;
+      const tail =
+        rawText && rawText.length < 800 && !parsed.error ? `\n${rawText}` : '';
+      return { ok: false, fallback: false, error: `${base}${tail}` };
     }
     return {
       ok: false,
@@ -178,9 +185,22 @@ async function trySignedUrlUpload(
     };
   }
 
-  const mint = (await res.json()) as { path?: string; token?: string; signedUrl?: string };
+  let mint: { path?: string; token?: string; signedUrl?: string };
+  try {
+    mint = (await res.json()) as { path?: string; token?: string; signedUrl?: string };
+  } catch {
+    return {
+      ok: false,
+      fallback: false,
+      error: 'استجابة غير صالحة من سيرفر الرفع الموقّع (JSON غير متوقع).',
+    };
+  }
   if (!mint.path || (!mint.token && !mint.signedUrl)) {
-    return { ok: false, fallback: true };
+    return {
+      ok: false,
+      fallback: false,
+      error: 'استجابة غير صالحة من سيرفر الرفع الموقّع (لا يوجد path/token/signedUrl).',
+    };
   }
 
   if (mint.signedUrl) {
@@ -356,7 +376,7 @@ async function uploadOne(
       return {
         ok: false,
         error:
-          'تعذّر رفع الملفات عبر السيرفر. في Vercel: عيّن SUPABASE_SERVICE_ROLE_KEY و VITE_SUPABASE_ANON_KEY (أو SUPABASE_ANON_KEY) ثم أعد النشر. تحقق: GET /api/register-signed-upload و GET /api/register-upload-file يجب أن يعرضا ready: true.',
+          'تعذّر رفع الملفات عبر السيرفر بعد محاولتين (signed ثم upload). راجع رسالة الخطأ أعلاه في التنبيه — غالباً: حاوية التخزين غير موجودة/سياسات Storage، أو عدم تطابق مفتاح anon بين الواجهة وVercel. تحقق أيضاً من سجلات الدالتين register-signed-upload و register-upload-file.',
       };
     }
   }
