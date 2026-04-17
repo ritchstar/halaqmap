@@ -248,10 +248,10 @@ export default function Register() {
               </Link>
               و
               <Link
-                to={ROUTE_PATHS.PRIVACY}
+                to={ROUTE_PATHS.PARTNER_PRIVACY}
                 className="text-primary hover:text-primary/80 transition-colors mr-2 underline"
               >
-                سياسة الخصوصية
+                سياسة خصوصية الشركاء
               </Link>
             </p>
             <p className="text-sm text-muted-foreground">

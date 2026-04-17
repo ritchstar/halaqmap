@@ -12,6 +12,7 @@ import RegisterSuccess from "@/pages/RegisterSuccess";
 import About from "@/pages/About";
 import BarberGrowthLanding from "@/pages/BarberGrowthLanding";
 import Privacy from "@/pages/Privacy";
+import PartnerPrivacy from "@/pages/PartnerPrivacy";
 import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
 import BarberLogin from "@/pages/BarberLogin";
 import BarberDashboard from "@/pages/BarberDashboard";
@@ -64,6 +65,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><Register /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<PartnerLayout><RegisterSuccess /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><PartnerPrivacy /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><SubscriptionPolicy /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<PartnerLayout><BarberLogin /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><Payment /></PartnerLayout>} />

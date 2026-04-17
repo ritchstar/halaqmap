@@ -8,6 +8,7 @@ export const ROUTE_PATHS = {
   REGISTER_SUCCESS: '/partners/register/success',
   ABOUT: '/about',
   PRIVACY: '/privacy',
+  PARTNER_PRIVACY: '/partners/privacy',
   SUBSCRIPTION_POLICY: '/partners/subscription-policy',
   BARBER_LOGIN: '/partners/login',
   BARBER_DASHBOARD: '/barber/dashboard',
