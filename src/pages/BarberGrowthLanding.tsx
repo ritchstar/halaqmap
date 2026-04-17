@@ -7,20 +7,16 @@ import {
   Globe,
   Megaphone,
   MessageCircle,
-  QrCode,
   Rocket,
   Search,
   ShieldCheck,
   Sparkles,
-  Store,
   TrendingUp,
   Users,
 } from 'lucide-react';
-import QRCode from 'react-qr-code';
 import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/lib';
-import { IMAGES } from '@/assets/images';
 import { getSiteOrigin } from '@/config/siteOrigin';
 
 const VALUE_PROPS = [
@@ -87,29 +83,10 @@ const PLAN_CARDS = [
   },
 ] as const;
 
-const FAQ_ITEMS = [
-  {
-    q: 'هل الصفحة مناسبة للإرسال عبر واتساب والإيميل؟',
-    a: 'نعم. تم تصميمها كصفحة تحويل مباشرة برسائل تسويقية واضحة، وروابط انضمام فورية، ورمز QR لتسهيل النشر خارج المنصة.',
-  },
-  {
-    q: 'هل يمكن توسيعها لاحقاً لحملات مناطق جديدة؟',
-    a: 'بكل تأكيد. هيكل الصفحة مبني بأقسام مرنة وقوائم محتوى قابلة للتحديث السريع دون إعادة بناء التجربة من الصفر.',
-  },
-  {
-    q: 'كيف تقنع الحلاق بسرعة الحجز؟',
-    a: 'الرسالة تركّز على العائد العملي: ظهور أمام عميل قريب، تواصل مباشر، وسرعة بدء الحملة مع وضوح خطوات الانضمام.',
-  },
-  {
-    q: 'هل أحتاج فريق تسويق داخلي لكي أستفيد؟',
-    a: 'لا. الصفحة تبسّط العرض التسويقي بحيث يستطيع صاحب الصالون اتخاذ القرار فوراً والتسجيل مباشرة.',
-  },
-] as const;
-
 export default function BarberGrowthLanding() {
   const siteOrigin = getSiteOrigin();
   const landingUrl = `${siteOrigin}/#${ROUTE_PATHS.BARBERS_LANDING}`;
-  const registerUrl = `${siteOrigin}/#${ROUTE_PATHS.REGISTER}`;
+  const partnerHeroImage = '/images/halaqmap-barber-onboarding.png';
   const whatsappText = encodeURIComponent(
     `مرحباً فريق حلاق ماب، أرغب في حجز بنر تسويقي للصالون والانضمام للحملة.\nرابط الصفحة: ${landingUrl}`
   );
@@ -119,13 +96,24 @@ export default function BarberGrowthLanding() {
     <div className="min-h-screen bg-background">
       <section className="relative overflow-hidden py-16 md:py-20">
         <div className="absolute inset-0 z-0">
-          <img
-            src={IMAGES.HALAQMAP_BARBER_BANNER_1_41}
+          <motion.img
+            src={partnerHeroImage}
             alt="حملة انضمام الحلاقين في حلاق ماب"
             className="h-full w-full object-cover"
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-background/40 via-background/65 to-background/92" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_42%,rgba(212,175,55,0.18),transparent_42%)]" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#041322]/90 via-[#071b2f]/72 to-[#0b1522]/86" />
+          <motion.div
+            className="absolute inset-0 bg-[radial-gradient(circle_at_72%_42%,rgba(235,197,97,0.24),transparent_46%)]"
+            animate={{ opacity: [0.55, 0.9, 0.55] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute inset-0 bg-[radial-gradient(circle_at_16%_56%,rgba(87,199,255,0.18),transparent_42%)]"
+            animate={{ opacity: [0.35, 0.65, 0.35] }}
+            transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+          />
         </div>
 
         <div className="container relative z-10 mx-auto px-4">
@@ -135,16 +123,16 @@ export default function BarberGrowthLanding() {
             transition={{ duration: 0.65 }}
             className="max-w-3xl space-y-6"
           >
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/45 bg-black/35 px-4 py-2 text-sm font-semibold text-amber-100 backdrop-blur">
               <BadgeCheck className="h-4 w-4" />
               الخطاب الرسمي لانضمام صالونات الحلاقة إلى حلاق ماب
             </div>
 
-            <h1 className="text-balance text-4xl font-extrabold leading-tight text-foreground md:text-6xl">
+            <h1 className="text-balance text-4xl font-extrabold leading-tight text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.55)] md:text-6xl">
               حان وقت ظهور صالونك على منصة تتوسع بذكاء
             </h1>
 
-            <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
+            <p className="max-w-2xl text-lg leading-8 text-slate-100">
               إذا كنت صاحب محل حلاقة وتبحث عن قناة تسويق محترفة تعطيك وصولاً أسرع للعملاء القريبين،
               فهذه الصفحة صُممت لك: نوضح لماذا حجز البنر الآن قرار استثماري ذكي، وكيف تنضم في خطوات
               عملية، وما الفوائد المباشرة التي تجنيها من وجودك على حلاق ماب.
@@ -152,40 +140,40 @@ export default function BarberGrowthLanding() {
 
             <div className="flex flex-wrap items-center gap-3">
               <NavLink to={ROUTE_PATHS.REGISTER}>
-                <Button size="lg" className="gap-2 text-base font-bold">
+                <Button size="lg" className="gap-2 bg-primary text-primary-foreground shadow-[0_10px_30px_-8px_rgba(16,185,129,0.65)] text-base font-bold">
                   احجز بنرك الآن
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               </NavLink>
               <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                <Button size="lg" variant="outline" className="gap-2 text-base font-semibold">
+                <Button size="lg" variant="outline" className="gap-2 border-white/45 bg-black/30 text-white hover:bg-white/10 text-base font-semibold">
                   تواصل واتساب فوراً
                   <MessageCircle className="h-4 w-4" />
                 </Button>
               </a>
               <a href="mailto:admin@halaqmap.com">
-                <Button size="lg" variant="outline" className="text-base font-semibold">
+                <Button size="lg" variant="outline" className="border-white/45 bg-black/30 text-white hover:bg-white/10 text-base font-semibold">
                   تواصل عبر الإيميل
                 </Button>
               </a>
             </div>
 
             <div className="grid gap-3 pt-2 text-sm md:grid-cols-3">
-              <div className="rounded-xl border border-border/70 bg-background/80 p-3 backdrop-blur">
-                <div className="mb-1 font-bold text-foreground">قرار سريع</div>
-                <p className="leading-6 text-muted-foreground">
+              <div className="rounded-xl border border-white/20 bg-black/35 p-3 backdrop-blur">
+                <div className="mb-1 font-bold text-white">قرار سريع</div>
+                <p className="leading-6 text-slate-100">
                   الرسالة التسويقية هنا مبنية لتساعدك على الحجز بثقة خلال زيارة واحدة.
                 </p>
               </div>
-              <div className="rounded-xl border border-border/70 bg-background/80 p-3 backdrop-blur">
-                <div className="mb-1 font-bold text-foreground">منهجية توسع</div>
-                <p className="leading-6 text-muted-foreground">
+              <div className="rounded-xl border border-white/20 bg-black/35 p-3 backdrop-blur">
+                <div className="mb-1 font-bold text-white">منهجية توسع</div>
+                <p className="leading-6 text-slate-100">
                   نبدأ من الجاهزية المحلية ثم نتوسع جغرافياً مع جودة تجربة ثابتة.
                 </p>
               </div>
-              <div className="rounded-xl border border-border/70 bg-background/80 p-3 backdrop-blur">
-                <div className="mb-1 font-bold text-foreground">جاهزة للنشر الخارجي</div>
-                <p className="leading-6 text-muted-foreground">
+              <div className="rounded-xl border border-white/20 bg-black/35 p-3 backdrop-blur">
+                <div className="mb-1 font-bold text-white">جاهزة للنشر الخارجي</div>
+                <p className="leading-6 text-slate-100">
                   استخدم رابط الصفحة أو QR في الواتساب والبريد والمنشورات بسهولة.
                 </p>
               </div>
@@ -289,80 +277,6 @@ export default function BarberGrowthLanding() {
                     اختر هذه الباقة
                   </Button>
                 </NavLink>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-card/40 py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
-            <div className="rounded-3xl border border-border bg-background p-6 md:p-8">
-              <h2 className="text-3xl font-bold text-foreground">مواد التسويق الخارجي الجاهزة</h2>
-              <p className="mt-3 text-lg leading-8 text-muted-foreground">
-                أرسل هذه الصفحة مباشرة للحلاقين عبر الواتساب والإيميلات والمنشورات التسويقية، فهي مبنية
-                لتشرح القيمة وتدفع لاتخاذ قرار الانضمام سريعاً.
-              </p>
-
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-border bg-card p-4">
-                  <div className="mb-2 flex items-center gap-2 text-foreground font-semibold">
-                    <MessageCircle className="h-4 w-4 text-primary" />
-                    رسالة واتساب جاهزة
-                  </div>
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    انضم الآن إلى حملة حلاق ماب واحجز بنرك التسويقي قبل موجة التوسع القادمة.
-                    صفحة التفاصيل: {landingUrl}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border bg-card p-4">
-                  <div className="mb-2 flex items-center gap-2 text-foreground font-semibold">
-                    <Store className="h-4 w-4 text-primary" />
-                    رابط تسجيل مباشر
-                  </div>
-                  <p className="text-sm leading-6 text-muted-foreground">{registerUrl}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-primary/25 bg-gradient-to-b from-primary/10 to-background p-6">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-background/90 px-3 py-1 text-xs font-bold text-primary">
-                <QrCode className="h-3.5 w-3.5" />
-                QR للتسويق الميداني
-              </div>
-              <h3 className="text-xl font-bold text-foreground">امسح الكود للوصول للصفحة</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                مناسب للمنشورات المطبوعة، بنرات المعارض، وبطاقات العروض داخل المناطق التجارية.
-              </p>
-
-              <div className="mt-5 flex justify-center rounded-2xl bg-white p-4 shadow-sm">
-                <QRCode value={landingUrl} size={180} />
-              </div>
-
-              <a
-                href={landingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 block break-all text-center text-xs text-muted-foreground underline"
-              >
-                {landingUrl}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-10 text-center">
-            <h2 className="text-3xl font-bold text-foreground md:text-4xl">أسئلة أصحاب الصالونات المتكررة</h2>
-          </div>
-          <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
-            {FAQ_ITEMS.map((item) => (
-              <div key={item.q} className="rounded-2xl border border-border bg-card p-5">
-                <h3 className="mb-2 text-lg font-bold text-foreground">{item.q}</h3>
-                <p className="leading-7 text-muted-foreground">{item.a}</p>
               </div>
             ))}
           </div>

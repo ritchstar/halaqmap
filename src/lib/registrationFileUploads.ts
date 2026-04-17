@@ -186,11 +186,11 @@ async function trySignedUrlUpload(
   if (mint.signedUrl) {
     const put = await putFileViaSignedUploadUrl(mint.signedUrl, file);
     if (!put.ok) {
-      const msg = put.message.toLowerCase();
+      const msg = ('message' in put ? put.message : '').toLowerCase();
       if (msg.includes('403') || msg.includes('forbidden')) {
         return { ok: false, fallback: true };
       }
-      return { ok: false, fallback: false, error: put.message };
+      return { ok: false, fallback: false, error: 'message' in put ? put.message : 'signed upload failed' };
     }
   } else {
     const bucket = client.storage.from(REGISTRATION_UPLOADS_BUCKET);

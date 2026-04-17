@@ -1,6 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import QRCode from 'qrcode';
-import { buildRatingInviteUrlStatic } from '../src/lib/ratingInvite';
 
 export const config = {
   maxDuration: 60,
@@ -47,6 +45,12 @@ type RatingEmailContext = {
 };
 
 const RATING_QR_CONTENT_ID = 'halaqmap-rating-qr';
+
+function buildRatingInviteUrlStatic(siteOrigin: string, barberId: string, token: string): string {
+  const base = siteOrigin.replace(/\/+$/, '');
+  const hashPath = `/rate/${encodeURIComponent(barberId)}?t=${encodeURIComponent(token)}`;
+  return `${base}/#${hashPath}`;
+}
 
 function corsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('origin');
@@ -215,6 +219,7 @@ async function buildRatingEmailContext(
   const ratingPageUrl = buildRatingInviteUrlStatic(siteBase, tid, tok);
   let qrPngBase64: string | null = null;
   try {
+    const { default: QRCode } = await import('qrcode');
     const buf = await QRCode.toBuffer(ratingPageUrl, {
       type: 'png',
       width: 768,
@@ -503,45 +508,58 @@ async function sendViaResend(input: {
   fromEmail: string;
   attachments?: Array<{ filename: string; content: string; content_type?: string; content_id?: string }>;
 }): Promise<ResendSendOutcome> {
-  try {
-    const body: Record<string, unknown> = {
-      from: input.fromEmail,
-      to: [input.to],
-      subject: input.subject,
-      text: input.text,
-      html: input.html,
-    };
-    if (input.attachments?.length) {
-      body.attachments = input.attachments;
-    }
-    const resp = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${input.resendApiKey}`,
-      },
-      body: JSON.stringify(body),
-    });
-    const rawBody = await resp.text();
-    let payload = {} as { id?: string; message?: string; name?: string };
-    try {
-      payload = JSON.parse(rawBody) as typeof payload;
-    } catch {
-      /* ignore */
-    }
-    if (!resp.ok) {
-      return {
-        ok: false,
-        error: payload.message || payload.name || rawBody.trim() || `Resend HTTP ${resp.status}`,
-      };
-    }
-    if (!payload.id) {
-      return { ok: false, error: payload.message || rawBody.trim() || 'Missing Resend message id' };
-    }
-    return { ok: true, id: payload.id };
-  } catch {
-    return { ok: false, error: 'Network error while calling Resend API' };
+  const body: Record<string, unknown> = {
+    from: input.fromEmail,
+    to: [input.to],
+    subject: input.subject,
+    text: input.text,
+    html: input.html,
+  };
+  if (input.attachments?.length) {
+    body.attachments = input.attachments;
   }
+
+  const maxAttempts = 3;
+  let lastError = 'Network error while calling Resend API';
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const resp = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${input.resendApiKey}`,
+        },
+        body: JSON.stringify(body),
+      });
+      const rawBody = await resp.text();
+      let payload = {} as { id?: string; message?: string; name?: string };
+      try {
+        payload = JSON.parse(rawBody) as typeof payload;
+      } catch {
+        /* ignore */
+      }
+
+      if (resp.ok) {
+        if (!payload.id) {
+          return { ok: false, error: payload.message || rawBody.trim() || 'Missing Resend message id' };
+        }
+        return { ok: true, id: payload.id };
+      }
+
+      const isRetryable = resp.status === 429 || resp.status >= 500;
+      lastError = payload.message || payload.name || rawBody.trim() || `Resend HTTP ${resp.status}`;
+      if (!isRetryable || attempt === maxAttempts) {
+        return { ok: false, error: lastError };
+      }
+    } catch {
+      if (attempt === maxAttempts) {
+        return { ok: false, error: lastError };
+      }
+    }
+    await sleep(250 * attempt);
+  }
+  return { ok: false, error: lastError };
 }
 
 function validateAnon(request: Request, expectedAnon: string): AnonGateOutcome {

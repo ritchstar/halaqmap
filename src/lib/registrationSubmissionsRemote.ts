@@ -89,6 +89,12 @@ type ServerInsertResult =
   | { ok: true }
   | { ok: false; error: string; allowFallback: boolean };
 
+function isServerInsertFailure(
+  result: ServerInsertResult
+): result is { ok: false; error: string; allowFallback: boolean } {
+  return result.ok === false;
+}
+
 async function insertRegistrationSubmissionViaServer(
   rowId: string,
   payload: Record<string, unknown>
@@ -172,24 +178,26 @@ export async function insertRegistrationSubmissionRemote(
   const payload = payloadForInsert(request);
   // المسار الموصى به: حفظ الطلب عبر API سيرفر بمفتاح service_role لتجنب مشاكل RLS المتكررة.
   const serverRes = await insertRegistrationSubmissionViaServer(request.id, payload);
-  if (serverRes.ok) return { ok: true };
-  if (!serverRes.allowFallback) return { ok: false, error: serverRes.error };
+  if (isServerInsertFailure(serverRes)) {
+    const serverError = serverRes.error;
+    if (!serverRes.allowFallback) return { ok: false, error: serverError };
 
-  const client = getSupabaseClient();
-  if (!client) {
-    return { ok: false, error: serverRes.error };
-  }
+    const client = getSupabaseClient();
+    if (!client) {
+      return { ok: false, error: serverError };
+    }
 
-  const { error } = await client.from(TABLE).insert({
-    id: request.id,
-    payload,
-  });
+    const { error } = await client.from(TABLE).insert({
+      id: request.id,
+      payload,
+    });
 
-  if (error) {
-    return {
-      ok: false,
-      error: `${error.message}\n\n${serverRes.error}`,
-    };
+    if (error) {
+      return {
+        ok: false,
+        error: `${error.message}\n\n${serverError}`,
+      };
+    }
   }
   return { ok: true };
 }

@@ -559,7 +559,8 @@ export function RegistrationForm() {
           receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
         });
         if (!up.ok) {
-          toast.error(registrationUploadErrorForToast(up.error));
+          const uploadError = 'error' in up ? up.error : 'تعذر رفع المرفقات.';
+          toast.error(registrationUploadErrorForToast(uploadError));
           window.requestAnimationFrame(() =>
             formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
           );
@@ -653,7 +654,8 @@ export function RegistrationForm() {
       const appended = await appendSubscriptionRequest(request);
       if (!appended.ok) {
         const ref = `\u2066${orderId}\u2069`;
-        toast.error(`${registrationSubmissionErrorForToast(appended.error)} (مرجع الطلب: ${ref})`);
+        const submissionError = 'error' in appended ? appended.error : 'تعذر حفظ الطلب.';
+        toast.error(`${registrationSubmissionErrorForToast(submissionError)} (مرجع الطلب: ${ref})`);
         window.requestAnimationFrame(() =>
           formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         );

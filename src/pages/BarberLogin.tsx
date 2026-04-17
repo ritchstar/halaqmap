@@ -22,7 +22,8 @@ export default function BarberLogin() {
     try {
       const result = await barberPortalLoginRemote({ email, password });
       if (!result.ok) {
-        toast.error(result.error || 'فشل تسجيل الدخول');
+        const errorMessage = 'error' in result ? result.error : 'فشل تسجيل الدخول';
+        toast.error(errorMessage || 'فشل تسجيل الدخول');
         setIsLoading(false);
         return;
       }

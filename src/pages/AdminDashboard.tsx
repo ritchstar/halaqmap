@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import QRCode from 'react-qr-code';
 import {
   Shield,
   Users,
@@ -810,6 +811,14 @@ function csvCell(value: unknown): string {
   return raw;
 }
 
+function errorText(result: unknown, fallback = 'حدث خطأ غير متوقع'): string {
+  if (result && typeof result === 'object' && 'error' in result) {
+    const value = (result as { error?: unknown }).error;
+    if (typeof value === 'string' && value.trim()) return value;
+  }
+  return fallback;
+}
+
 function RequestsSection({
   requests,
   onViewRequest,
@@ -1363,7 +1372,7 @@ function RequestReviewDialog({
       setSaving(false);
       toast({
         title: 'تعذر مزامنة الحلاق',
-        description: upsert.error,
+        description: errorText(upsert, 'تعذر مزامنة الحلاق.'),
         variant: 'destructive',
       });
       return;
@@ -1379,7 +1388,7 @@ function RequestReviewDialog({
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'فشل الحفظ', description: res.error, variant: 'destructive' });
+      toast({ title: 'فشل الحفظ', description: errorText(res, 'تعذر تحديث الطلب.'), variant: 'destructive' });
       return;
     }
     // تحقق صارم: تأكد أن الحلاق موجود فعلياً في نفس مشروع Supabase الحالي.
@@ -1388,27 +1397,25 @@ function RequestReviewDialog({
     const found = verifyRows.some(
       (r) => r.id === upsert.barberId || r.email.trim().toLowerCase() === emailNorm
     );
-    if (!found) {
-      toast({
-        title: 'تحذير: الاعتماد تم لكن الحلاق غير ظاهر',
-        description:
-          'غالباً يوجد اختلاف بين مشروع Supabase في الواجهة والسيرفر (VITE_SUPABASE_URL مقابل SUPABASE_URL). افحص /api/approve-barber.',
-        variant: 'destructive',
-      });
-      onClose();
-      onAfterDecision();
-      return;
-    }
+    const visibilityWarning = !found;
     const mail = await sendBarberOnboardingEmailRemote({
       barberName: request.barberName,
       barberEmail: request.email,
       tier: request.tier,
       barberId: upsert.barberId,
     });
+    if (visibilityWarning) {
+      toast({
+        title: 'تنبيه مزامنة',
+        description:
+          'تم اعتماد الطلب، وأُرسلت رسالة الدخول. لكن الحساب غير ظاهر فوراً في القائمة (قد يكون اختلاف مشروع Supabase بين الواجهة والسيرفر).',
+        variant: 'destructive',
+      });
+    }
     if (!mail.ok) {
       toast({
         title: 'تم قبول الطلب لكن فشل الإرسال البريدي',
-        description: `تعذر إرسال بريد التعليمات إلى ${request.email}: ${mail.error}`,
+        description: `تعذر إرسال بريد التعليمات إلى ${request.email}: ${errorText(mail, 'تعذر الإرسال')}`,
         variant: 'destructive',
       });
     }
@@ -1446,7 +1453,7 @@ function RequestReviewDialog({
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'فشل الحفظ', description: res.error, variant: 'destructive' });
+      toast({ title: 'فشل الحفظ', description: errorText(res, 'تعذر تحديث الطلب.'), variant: 'destructive' });
       return;
     }
     toast({ title: 'تم رفض الطلب', description: 'تم تحديث السجل في Supabase.' });
@@ -1471,7 +1478,7 @@ function RequestReviewDialog({
     const toggle = await setBarberActiveRemote(request.linkedBarberId, false);
     if (!toggle.ok) {
       setSaving(false);
-      toast({ title: 'تعذر تعليق الحساب', description: toggle.error, variant: 'destructive' });
+      toast({ title: 'تعذر تعليق الحساب', description: errorText(toggle, 'تعذر تعليق الحساب.'), variant: 'destructive' });
       return;
     }
     const reviewedAt = new Date().toISOString();
@@ -1483,7 +1490,7 @@ function RequestReviewDialog({
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'تعذر حفظ حالة الطلب', description: res.error, variant: 'destructive' });
+      toast({ title: 'تعذر حفظ حالة الطلب', description: errorText(res, 'تعذر تحديث حالة الطلب.'), variant: 'destructive' });
       return;
     }
     toast({ title: 'تم تعليق الحساب' });
@@ -1509,13 +1516,38 @@ function RequestReviewDialog({
     const res = await deleteRegistrationSubmissionRemote(request.id);
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'تعذر حذف الطلب', description: res.error, variant: 'destructive' });
+      toast({ title: 'تعذر حذف الطلب', description: errorText(res, 'تعذر حذف الطلب.'), variant: 'destructive' });
       return;
     }
     removeStoredSubscriptionRequest(request.id);
     toast({ title: 'تم حذف الطلب نهائياً' });
     onClose();
     onAfterDecision();
+  };
+
+  const handleResendOnboarding = async () => {
+    const recipient = request.email.trim();
+    if (!recipient) {
+      toast({ title: 'لا يوجد بريد إلكتروني', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    const mail = await sendBarberOnboardingEmailRemote({
+      barberName: request.barberName,
+      barberEmail: recipient,
+      tier: request.tier,
+      barberId: request.linkedBarberId ?? undefined,
+    });
+    setSaving(false);
+    if (!mail.ok) {
+      toast({
+        title: 'تعذر إعادة إرسال الرسالة الأساسية',
+        description: errorText(mail, 'تعذر الإرسال البريدي.'),
+        variant: 'destructive',
+      });
+      return;
+    }
+    toast({ title: 'تمت إعادة إرسال رسالة الروابط بنجاح', description: recipient });
   };
 
   return (
@@ -1893,6 +1925,9 @@ function RequestReviewDialog({
               >
                 تعليق الحساب
               </Button>
+              <Button variant="outline" onClick={() => void handleResendOnboarding()} disabled={saving}>
+                إعادة إرسال رسالة الروابط
+              </Button>
               <Button
                 variant="outline"
                 onClick={() => void handleDeleteRequest()}
@@ -1952,7 +1987,7 @@ function BarbersSection({
     const res = await setBarberActiveRemote(row.id, next);
     setUpdatingId(null);
     if (!res.ok) {
-      toast({ title: 'تعذر التحديث', description: res.error, variant: 'destructive' });
+      toast({ title: 'تعذر التحديث', description: errorText(res, 'تعذر تحديث الحالة.'), variant: 'destructive' });
       return;
     }
     setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, is_active: next } : r)));
@@ -1967,7 +2002,7 @@ function BarbersSection({
     const res = await deleteBarberRemote(row.id);
     setDeletingId(null);
     if (!res.ok) {
-      toast({ title: 'تعذر حذف الحلاق', description: res.error, variant: 'destructive' });
+      toast({ title: 'تعذر حذف الحلاق', description: errorText(res, 'تعذر حذف الحلاق.'), variant: 'destructive' });
       return;
     }
     setRows((prev) => prev.filter((r) => r.id !== row.id));
@@ -2020,7 +2055,7 @@ function BarbersSection({
         setMergingId(null);
         toast({
           title: 'تعذر حذف بعض المكررات',
-          description: `${dupe.name}: ${res.error}`,
+          description: `${dupe.name}: ${errorText(res, 'تعذر حذف الحساب المكرر.')}`,
           variant: 'destructive',
         });
         return;
@@ -2050,7 +2085,7 @@ function BarbersSection({
     if (!res.ok) {
       toast({
         title: 'تعذر إرسال البريد الجماعي',
-        description: res.error,
+        description: errorText(res, 'تعذر إرسال البريد الجماعي.'),
         variant: 'destructive',
       });
       return;
@@ -2281,7 +2316,7 @@ function PaymentReviewDialog({
     const res = await updatePaymentStatusRemote(payment.id, 'confirmed');
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'فشل التحديث', description: res.error, variant: 'destructive' });
+      toast({ title: 'فشل التحديث', description: errorText(res, 'تعذر تحديث حالة الدفع.'), variant: 'destructive' });
       return;
     }
     toast({ title: 'تم تأكيد الدفع' });
@@ -2305,7 +2340,7 @@ function PaymentReviewDialog({
     const res = await updatePaymentStatusRemote(payment.id, 'rejected');
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'فشل التحديث', description: res.error, variant: 'destructive' });
+      toast({ title: 'فشل التحديث', description: errorText(res, 'تعذر تحديث حالة الدفع.'), variant: 'destructive' });
       return;
     }
     toast({ title: 'تم رفض الدفع' });
@@ -2400,6 +2435,28 @@ function CommandCenterSection({
   payments: Payment[];
   canManage: boolean;
 }) {
+  const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://www.halaqmap.com';
+  const partnersLandingUrl = `${siteOrigin}/#/partners`;
+  const partnersRegisterUrl = `${siteOrigin}/#/partners/register`;
+  const privatePartnerFaq = [
+    {
+      q: 'هل الصفحة مناسبة للإرسال عبر واتساب والإيميل؟',
+      a: 'نعم، بصيغة تحويل مباشرة ورسائل تسويقية واضحة وروابط انضمام جاهزة.',
+    },
+    {
+      q: 'هل يمكن توسيعها لاحقاً لحملات مناطق جديدة؟',
+      a: 'نعم، الهيكل مرن لتحديث الرسائل والتوسع بدون إعادة البناء من الصفر.',
+    },
+    {
+      q: 'كيف نقنع الحلاق بسرعة الحجز؟',
+      a: 'نركز على العائد العملي: ظهور أمام عميل قريب + تواصل مباشر + سرعة البدء.',
+    },
+    {
+      q: 'هل يحتاج الشريك لفريق تسويق داخلي؟',
+      a: 'لا، مسار الشركاء مبني لقرار سريع وتسجيل مباشر بأقل احتكاك.',
+    },
+  ] as const;
+
   const [query, setQuery] = useState('');
   const [region, setRegion] = useState<'all' | string>('all');
   const [channel, setChannel] = useState<'all' | CommandLeadChannel>('all');
@@ -2494,7 +2551,7 @@ function CommandCenterSection({
 
   const csvEscape = (value: string): string => {
     if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-      return `"${value.replaceAll('"', '""')}"`;
+      return `"${value.replace(/"/g, '""')}"`;
     }
     return value;
   };
@@ -2707,6 +2764,67 @@ function CommandCenterSection({
             <p className="text-xs text-muted-foreground">
               سجل السبب الجذري والإجراء الوقائي في سجل الاستقرار بنفس اليوم.
             </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6 border-primary/25">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            مواد تشغيل تسويقي (داخلي فقط)
+            <Badge variant="destructive" className="text-xs">غير ظاهر للشركاء</Badge>
+          </CardTitle>
+          <CardDescription>
+            هذه المواد تخص فريق التسويق وغرفة القيادة فقط، وتُمنع من الظهور في صفحة الشركاء العامة.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
+            <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+              <p className="font-semibold">روابط الحملة المعتمدة</p>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>
+                  صفحة الشركاء:{' '}
+                  <a className="underline" href={partnersLandingUrl} target="_blank" rel="noopener noreferrer">
+                    {partnersLandingUrl}
+                  </a>
+                </p>
+                <p>
+                  التسجيل المباشر:{' '}
+                  <a className="underline" href={partnersRegisterUrl} target="_blank" rel="noopener noreferrer">
+                    {partnersRegisterUrl}
+                  </a>
+                </p>
+              </div>
+              <div className="rounded-lg border border-border bg-background p-3">
+                <p className="text-sm font-semibold mb-1">نص واتساب داخلي مقترح</p>
+                <p className="text-xs text-muted-foreground leading-6">
+                  انضم الآن إلى منصة حلاق ماب واحجز بنرك التسويقي قبل موجة التوسع القادمة. تفاصيل الانضمام:
+                  {' '}
+                  {partnersLandingUrl}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-muted/20 p-4">
+              <p className="font-semibold mb-3">QR تشغيل الحملات الميدانية</p>
+              <div className="mx-auto w-fit rounded-lg bg-white p-3">
+                <QRCode value={partnersLandingUrl} size={148} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 break-all">{partnersLandingUrl}</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-muted/20 p-4">
+            <p className="font-semibold mb-3">أسئلة تشغيلية داخلية (مرجع الفريق)</p>
+            <div className="grid gap-3 md:grid-cols-2">
+              {privatePartnerFaq.map((item) => (
+                <div key={item.q} className="rounded-lg border border-border bg-background p-3">
+                  <p className="text-sm font-semibold mb-1">{item.q}</p>
+                  <p className="text-xs text-muted-foreground leading-6">{item.a}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -2952,6 +3070,21 @@ function SettingsSection({
   const rateForPreview = Number.isFinite(parsedRate) ? parsedRate : 15;
   const preview = calcVatBreakdown(100, { enabled: vatEnabled, ratePercent: rateForPreview });
 
+  const refreshAdmins = useCallback(async () => {
+    if (!canManageAdmins && !bootstrapAdmin) return;
+    setAdminLoading(true);
+    try {
+      const rows = await listAdminRoles();
+      setAdminRows(rows);
+    } finally {
+      setAdminLoading(false);
+    }
+  }, [canManageAdmins, bootstrapAdmin]);
+
+  useEffect(() => {
+    void refreshAdmins();
+  }, [refreshAdmins]);
+
   const handleSaveVat = () => {
     savePlatformVatSettings({
       enabled: vatEnabled,
@@ -2979,7 +3112,7 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: 'تعذر حفظ الأدمن', description: res.error, variant: 'destructive' });
+      toast({ title: 'تعذر حفظ الأدمن', description: errorText(res, 'تعذر حفظ بيانات الأدمن.'), variant: 'destructive' });
       return;
     }
     toast({ title: 'تم حفظ الأدمن وصلاحياته' });
@@ -2999,7 +3132,7 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: 'تعذر تحديث الصلاحية', description: res.error, variant: 'destructive' });
+      toast({ title: 'تعذر تحديث الصلاحية', description: errorText(res, 'تعذر تحديث الصلاحية.'), variant: 'destructive' });
       return;
     }
     setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, permissions: nextPermissions } : r)));
@@ -3014,7 +3147,7 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: 'تعذر تحديث حالة الأدمن', description: res.error, variant: 'destructive' });
+      toast({ title: 'تعذر تحديث حالة الأدمن', description: errorText(res, 'تعذر تحديث حالة الأدمن.'), variant: 'destructive' });
       return;
     }
     setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, is_active: checked } : r)));
@@ -3027,7 +3160,7 @@ function SettingsSection({
     }
     const res = await deleteAdminRoleByEmail(emailToDelete);
     if (!res.ok) {
-      toast({ title: 'تعذر حذف الأدمن', description: res.error, variant: 'destructive' });
+      toast({ title: 'تعذر حذف الأدمن', description: errorText(res, 'تعذر حذف الأدمن.'), variant: 'destructive' });
       return;
     }
     toast({ title: 'تم حذف الأدمن' });
