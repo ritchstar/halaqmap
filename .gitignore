@@ -96,6 +96,8 @@ cypress/downloads/
 *.swp
 .DS_Store
 Thumbs.db
+# Microsoft Office lock/temp files (e.g. ~$Document.docx)
+~$*
 .node_repl_history
 
 # --- Uploaded Files ---

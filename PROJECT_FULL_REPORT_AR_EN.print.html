@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Halaqmap Report</title>
+  <style>
+    @page { size: A4; margin: 18mm; }
+    body {
+      font-family: "Segoe UI", "Arial", "Tahoma", sans-serif;
+      color: #111;
+      line-height: 1.55;
+      font-size: 12px;
+    }
+    h1, h2, h3, h4, h5, h6 { margin: 18px 0 10px; line-height: 1.35; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    h3 { font-size: 15px; }
+    p, li { margin: 6px 0; }
+    code {
+      background: #f4f4f4;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 11px;
+    }
+    pre {
+      background: #f4f4f4;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      overflow: auto;
+    }
+    hr { border: none; border-top: 1px solid #ddd; margin: 14px 0; }
+  </style>
+</head>
+<body><h1>Halaqmap Comprehensive Technical Report (AR/EN)</h1>
+<p><strong>Project:</strong> Halaqmap<br>
+<strong>Repository Commit:</strong> <code>6c933a2</code><br>
+<strong>Date:</strong> 2026-04-14<br>
+<strong>Prepared For:</strong> Product owners, frontend/backend developers, DevOps, QA</p>
+<hr>
+<h2>1) مقدمة تعريفية بالمشروع (Arabic)</h2>
+<h3>ما هي الفكرة؟</h3>
+<p><strong>حلاق ماب</strong> منصة عربية (سعودية التوجّه) تربط العملاء بالحلاقين المحترفين عبر:</p>
+<ul>
+<li>استعراض الحلاقين حسب القرب الجغرافي.</li>
+<li>صفحات تفاصيل للحلاق.</li>
+<li>رحلة تسجيل حلاق جديدة مع رفع مستندات وصور.</li>
+<li>خطط اشتراك (برونزي/ذهبي/ماسي).</li>
+<li>لوحة إدارة للمشرفين.</li>
+<li>تجربة تقييم عبر QR.</li>
+</ul>
+<h3>القيمة العملية</h3>
+<ul>
+<li>تسهيل اكتشاف الحلاق المناسب حسب المنطقة.</li>
+<li>تحويل اشتراكات الحلاقين إلى مسار رقمي واضح.</li>
+<li>توفير إدارة تشغيلية عبر لوحة تحكم.</li>
+<li>تمهيد لبنية قابلة للتوسع (دفع، مراجعات، رسائل، إحصائيات).</li>
+</ul>
+<h3>الوضع الحالي باختصار</h3>
+<ul>
+<li>الواجهة الأمامية ناضجة نسبيًا ومتكاملة المسارات.</li>
+<li>تكامل Supabase موجود (Auth + DB + Storage).</li>
+<li>تم إدخال مسارات رفع سيرفر-سايد لمعالجة مشاكل RLS/403.</li>
+<li>المتبقي تشغيليًا: التأكد النهائي من سياسات/جداول الإدراج في <code>registration_submissions</code> في بيئة الإنتاج.</li>
+</ul>
+<hr>
+<h2>2) Project Overview (English)</h2>
+<h3>What is Halaqmap?</h3>
+<p>Halaqmap is an Arabic, Saudi-focused barber discovery and subscription platform that includes:</p>
+<ul>
+<li>Geo-based barber discovery.</li>
+<li>Barber detail and contact/booking interactions.</li>
+<li>Multi-step barber onboarding with document/image uploads.</li>
+<li>Subscription tiers (<code>bronze</code>, <code>gold</code>, <code>diamond</code>).</li>
+<li>Admin portal for operations and moderation.</li>
+<li>QR-based customer rating flow.</li>
+</ul>
+<h3>Product Value</h3>
+<ul>
+<li>Improves barber discoverability and lead conversion.</li>
+<li>Structures onboarding and subscription intake.</li>
+<li>Enables operational control via admin dashboard.</li>
+<li>Provides a scalable foundation for payments, moderation, and analytics.</li>
+</ul>
+<h3>Current Maturity</h3>
+<ul>
+<li>Frontend experience is feature-rich and production-oriented.</li>
+<li>Supabase integration is in place.</li>
+<li>Server-side upload routes were added to reduce RLS-related failures.</li>
+<li>Remaining operational blocker is DB insert policy validation for <code>registration_submissions</code> in production.</li>
+</ul>
+<hr>
+<h2>3) النظام التقني والمعمارية (Architecture)</h2>
+<h3>3.1 الواجهة الأمامية (Frontend)</h3>
+<ul>
+<li><strong>Stack:</strong> React 18 + TypeScript + Vite + Tailwind + Radix/shadcn.</li>
+<li><strong>Router:</strong> <code>HashRouter</code> (مناسب للاستضافة الثابتة بدون rewrite معقد).</li>
+<li><strong>UI Layer:</strong> مكونات كبيرة داخل <code>src/components</code> + صفحات في <code>src/pages</code>.</li>
+<li><strong>State/Data:</strong> مزيج من state محلي + خدمات <code>src/lib</code> + بعض React Query.</li>
+</ul>
+<p><strong>مراجع أساسية:</strong></p>
+<ul>
+<li><code>src/App.tsx</code></li>
+<li><code>src/components/Layout.tsx</code></li>
+<li><code>src/pages/Home.tsx</code></li>
+<li><code>src/pages/Register.tsx</code></li>
+<li><code>src/components/RegistrationForm.tsx</code></li>
+</ul>
+<h3>3.2 الخلفية (Supabase + Serverless)</h3>
+<ul>
+<li><strong>Database:</strong> PostgreSQL (Supabase) + RLS policies.</li>
+<li><strong>Auth:</strong> Supabase Auth (خصوصًا للمشرفين).</li>
+<li><strong>Storage:</strong> bucket باسم <code>registration-uploads</code>.</li>
+<li><strong>Server routes on Vercel:</strong>
+<ul>
+<li><code>api/register-signed-upload.ts</code> (المسار المفضل).</li>
+<li><code>api/register-upload-file.ts</code> (fallback server upload).</li>
+</ul>
+</li>
+</ul>
+<p><strong>مراجع:</strong></p>
+<ul>
+<li><code>api/register-signed-upload.ts</code></li>
+<li><code>api/register-upload-file.ts</code></li>
+<li><code>vercel.json</code></li>
+<li><code>supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql</code></li>
+</ul>
+<hr>
+<h2>4) Architecture Summary (English)</h2>
+<h3>Frontend</h3>
+<ul>
+<li>SPA built with Vite/React/TypeScript.</li>
+<li>Central route map in <code>src/App.tsx</code>.</li>
+<li>Feature modules split by domain pages + shared components.</li>
+<li>Domain/service orchestration in <code>src/lib</code>.</li>
+</ul>
+<h3>Backend and Runtime</h3>
+<ul>
+<li>Supabase for persistence and auth.</li>
+<li>Vercel serverless routes for secure upload orchestration.</li>
+<li>Database migrations under <code>supabase/migrations</code>.</li>
+<li>Production deployment currently aligned to server-assisted upload paths.</li>
+</ul>
+<hr>
+<h2>5) المسارات الرئيسية وتجارب المستخدم</h2>
+<h3>5.1 المسارات العامة</h3>
+<ul>
+<li>الصفحة الرئيسية: <code>/#/</code></li>
+<li>التسجيل: <code>/#/register</code></li>
+<li>الدفع: <code>/#/payment</code></li>
+<li>نجاح التسجيل: <code>/#/register/success</code></li>
+<li>سياسات الاشتراك: <code>/#/subscription-policy</code></li>
+<li>التقييم عبر QR: <code>/#/rate/:barberId</code></li>
+</ul>
+<h3>5.2 المسارات الإدارية</h3>
+<ul>
+<li>دخول الإدارة (مسار مخفي): <code>/{portalBase}/in</code></li>
+<li>لوحة الإدارة: <code>/{portalBase}/ctrl</code></li>
+</ul>
+<h3>5.3 تدفق تسجيل الحلاق (High-level)</h3>
+<ol>
+<li>إدخال بيانات النشاط والخدمات.</li>
+<li>رفع مرفقات (مستندات/صور/إيصال).</li>
+<li>رفع الملفات عبر مسار signed/server.</li>
+<li>حفظ الطلب في <code>registration_submissions</code>.</li>
+<li>الانتقال لواجهة النجاح/الدفع حسب السيناريو.</li>
+</ol>
+<hr>
+<h2>6) Major Flows (English)</h2>
+<h3>Customer Discovery</h3>
+<ul>
+<li>Browse nearby barbers, filter by location/tier, open detail modal, and engage via call/WhatsApp/chat/booking options.</li>
+</ul>
+<h3>Barber Onboarding</h3>
+<ul>
+<li>Multi-step registration form with attachments and payment pathway.</li>
+<li>Upload path now prefers signed/server route to avoid direct anon storage failures.</li>
+</ul>
+<h3>Admin Operations</h3>
+<ul>
+<li>Hidden-path login + role-based access control.</li>
+<li>Dashboard handles review/requests/payments/operational tools depending on permissions.</li>
+</ul>
+<hr>
+<h2>7) قاعدة البيانات وSupabase (تفصيلي)</h2>
+<h3>7.1 جداول المجال الأساسية (Historical migrations)</h3>
+<ul>
+<li><code>profiles</code>, <code>barbers</code>, <code>bookings</code>, <code>payments</code>, <code>subscriptions</code>, <code>reviews</code>, <code>messages</code>, <code>notifications</code>, <code>subscription_requests</code> وغيرها.</li>
+<li>تعريفها عبر migrations المبكرة (<code>01</code> إلى <code>12</code> وما بعدها).</li>
+</ul>
+<h3>7.2 مسار التسجيل العام</h3>
+<ul>
+<li>جدول طلبات التسجيل: <code>public.registration_submissions</code></li>
+<li>الحاوية: <code>storage.buckets.id = 'registration-uploads'</code></li>
+<li>سياسات الإدراج/القراءة مرتبطة بملفات:
+<ul>
+<li><code>supabase/migrations/14_registration_submissions_public.sql</code></li>
+<li><code>supabase/migrations/17_registration_uploads_storage.sql</code></li>
+<li><code>supabase/migrations/21_registration_storage_path_policy_fix.sql</code></li>
+<li><code>supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql</code> (ملف شامل موصى به للتشغيل السريع)</li>
+</ul>
+</li>
+</ul>
+<h3>7.3 ملاحظة تشغيلية</h3>
+<p>إذا كان <code>api/register-signed-upload</code> يعطي <code>ready: true</code> بينما الحفظ يفشل، فالخلل عادة في:</p>
+<ul>
+<li>سياسة <code>INSERT</code> لدور <code>anon</code> على <code>registration_submissions</code>.</li>
+<li>أو أن SQL نُفذ على مشروع Supabase مختلف عن الإنتاج.</li>
+</ul>
+<hr>
+<h2>8) Data &amp; Supabase Integration (English)</h2>
+<h3>Integration modules (<code>src/lib</code>)</h3>
+<ul>
+<li><code>publicBarbersFromSupabase.ts</code> – public barber reads.</li>
+<li><code>registrationSubmissionsRemote.ts</code> – registration insert/read logic.</li>
+<li><code>registrationFileUploads.ts</code> – upload orchestration and error handling.</li>
+<li><code>admin*Remote.ts</code> and <code>adminAccessRemote.ts</code> – admin role/stats/payment data.</li>
+</ul>
+<h3>Supabase Environment Dependencies</h3>
+<ul>
+<li><code>VITE_SUPABASE_URL</code></li>
+<li><code>VITE_SUPABASE_ANON_KEY</code></li>
+<li><code>SUPABASE_SERVICE_ROLE_KEY</code> (server-only)</li>
+<li><code>SUPABASE_ANON_KEY</code> (recommended mirror for server-side verification)</li>
+</ul>
+<hr>
+<h2>9) طبقة الرفع (Upload Pipeline) — الحالة الحالية</h2>
+<h3>التسلسل المعتمد الآن</h3>
+<ol>
+<li><strong>Preferred:</strong> <code>api/register-signed-upload</code>
+<ul>
+<li>السيرفر ينشئ signed upload token/url بمفتاح الخدمة.</li>
+<li>العميل يرفع الملف عبر signed endpoint.</li>
+</ul>
+</li>
+<li><strong>Fallback:</strong> <code>api/register-upload-file</code>
+<ul>
+<li>السيرفر يستقبل الملف ويرفعه إلى Supabase.</li>
+</ul>
+</li>
+<li><strong>Direct anon upload fallback</strong>
+<ul>
+<li>مقيد في الإنتاج، ومتاح غالبًا للتطوير/الطوارئ حسب env.</li>
+</ul>
+</li>
+</ol>
+<h3>الهدف من هذا التصميم</h3>
+<ul>
+<li>تقليل اعتمادية الواجهة على سياسات RLS المباشرة في storage.</li>
+<li>تحسين الاستقرار على الجوال والشبكات المتذبذبة.</li>
+<li>تقديم تشخيص واضح عبر <code>GET</code> health style endpoints.</li>
+</ul>
+<hr>
+<h2>10) Upload Pipeline (English)</h2>
+<p>The current design is intentionally defense-in-depth:</p>
+<ul>
+<li>Signed upload route first (most robust for production).</li>
+<li>Server upload fallback second.</li>
+<li>Direct browser anon upload only when explicitly allowed.</li>
+</ul>
+<p>This significantly reduces recurring <code>403 Forbidden</code>/RLS-related failures and avoids exposing service-role operations to the browser.</p>
+<hr>
+<h2>11) الأمن والصلاحيات (Security &amp; Access)</h2>
+<h3>11.1 نقاط القوة</h3>
+<ul>
+<li>فصل مفتاح <code>service_role</code> في بيئة السيرفر فقط.</li>
+<li>وجود check endpoint يوضح readiness بدون كشف الأسرار.</li>
+<li>RBAC إداري عبر <code>platform_admin_roles</code> وسياسات SQL.</li>
+</ul>
+<h3>11.2 مخاطر/ديون تقنية</h3>
+<ul>
+<li>بعض مسارات barber dashboard ما زالت أقرب للديمو/محلي.</li>
+<li>حساسية عالية لأي عدم تطابق بين env في Vercel وSupabase.</li>
+<li>احتمالية drift بين migrations وtypes المولدة.</li>
+</ul>
+<h3>11.3 توصيات</h3>
+<ul>
+<li>منع أي اعتماد إنتاجي على direct anon upload.</li>
+<li>إضافة rate limiting على مسارات <code>api/register-*</code>.</li>
+<li>توحيد pipeline logs وربطها بمعرف الطلب <code>HM-*</code>.</li>
+</ul>
+<hr>
+<h2>12) DevOps, Build, Lint, CI</h2>
+<h3>البناء والتشغيل</h3>
+<ul>
+<li><code>npm run dev</code></li>
+<li><code>npm run build</code></li>
+<li><code>npm run lint</code></li>
+</ul>
+<h3>CI</h3>
+<ul>
+<li>Workflow يتحقق من lint + type check + build.</li>
+<li>لا توجد حاليًا تغطية اختبارات سلوكية واسعة (unit/e2e) لمسارات التسجيل والرفع.</li>
+</ul>
+<p><strong>مراجع:</strong></p>
+<ul>
+<li><code>package.json</code></li>
+<li><code>.github/workflows/ci.yml</code></li>
+<li><code>eslint.config.js</code></li>
+<li><code>tsconfig*.json</code></li>
+</ul>
+<hr>
+<h2>13) Postmortem Timeline (Since Yesterday) / التسلسل الزمني للحادثة</h2>
+<h3>Arabic</h3>
+<ol>
+<li>ظهرت أخطاء رفع ملفات (<code>Storage RLS</code>/<code>403</code>).</li>
+<li>تم تبسيط سياسات bucket إلى check على <code>bucket_id</code> فقط.</li>
+<li>أُضيف رفع عبر سيرفر Vercel لتجاوز قيود RLS المباشرة.</li>
+<li>أُضيف مسار <code>api/register-signed-upload</code> كمسار مفضل.</li>
+<li>تم تشخيص أن <code>serviceRoleKeySet</code> كان <code>false</code> ثم تم إصلاحه.</li>
+<li>أصبحت readiness لمسار signed <code>true</code>.</li>
+<li>تبقى خطأ إدراج DB في <code>registration_submissions</code> ويحتاج تثبيت SQL policy في مشروع الإنتاج.</li>
+</ol>
+<h3>English</h3>
+<ol>
+<li>File uploads were failing with Storage RLS/403 errors.</li>
+<li>Storage policy was simplified to bucket-only insert checks.</li>
+<li>Vercel server upload route was introduced.</li>
+<li>Signed upload route (<code>api/register-signed-upload</code>) was added and prioritized.</li>
+<li><code>serviceRoleKeySet=false</code> was identified and corrected.</li>
+<li>Signed route now reports <code>ready=true</code>.</li>
+<li>Remaining blocker moved to DB insert policy on <code>registration_submissions</code>.</li>
+</ol>
+<hr>
+<h2>14) Runbook تشغيلي سريع (Production Runbook)</h2>
+<h3>Step A — Verify API readiness</h3>
+<ul>
+<li><code>GET /api/register-signed-upload</code> =&gt; all flags true.</li>
+<li><code>GET /api/register-upload-file</code> =&gt; all flags true.</li>
+</ul>
+<h3>Step B — Verify SQL setup</h3>
+<p>Execute once on production Supabase:</p>
+<ul>
+<li><code>supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql</code></li>
+</ul>
+<p>Verify:</p>
+<ul>
+<li><code>registration_submissions</code> table exists.</li>
+<li>anon INSERT policy exists for that table.</li>
+<li><code>registration-uploads</code> bucket exists.</li>
+</ul>
+<h3>Step C — End-to-end verification</h3>
+<ul>
+<li>Submit registration from mobile + desktop.</li>
+<li>Confirm:
+<ul>
+<li>files uploaded in storage.</li>
+<li>record inserted into <code>registration_submissions</code>.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>15) قائمة ملفات مرجعية للمطورين (Quick Index)</h2>
+<ul>
+<li>App &amp; routes: <code>src/App.tsx</code></li>
+<li>Main form: <code>src/components/RegistrationForm.tsx</code></li>
+<li>Upload orchestration: <code>src/lib/registrationFileUploads.ts</code></li>
+<li>DB submission service: <code>src/lib/registrationSubmissionsRemote.ts</code></li>
+<li>Signed upload route: <code>api/register-signed-upload.ts</code></li>
+<li>Server upload route: <code>api/register-upload-file.ts</code></li>
+<li>Full SQL setup: <code>supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql</code></li>
+<li>Storage policy fix: <code>supabase/migrations/21_registration_storage_path_policy_fix.sql</code></li>
+<li>Vercel function config: <code>vercel.json</code></li>
+<li>Environment template: <code>.env.example</code></li>
+</ul>
+<hr>
+<h2>16) Roadmap Recommendations / توصيات المرحلة القادمة</h2>
+<h3>Arabic</h3>
+<ul>
+<li>توحيد توليد Types من Supabase بعد كل migration.</li>
+<li>بناء اختبارات e2e لمسار التسجيل الكامل.</li>
+<li>إضافة مراقبة/Logging معرف بالـ orderId.</li>
+<li>تشديد RBAC وبوابات أمان لوحة الإدارة.</li>
+</ul>
+<h3>English</h3>
+<ul>
+<li>Regenerate Supabase types after each migration.</li>
+<li>Add e2e coverage for full onboarding/upload flow.</li>
+<li>Implement structured logging keyed by <code>orderId</code>.</li>
+<li>Harden admin RBAC and route controls further.</li>
+</ul>
+<hr>
+<h2>17) ملخص تنفيذي نهائي (Executive Closing)</h2>
+<p><strong>Arabic:</strong><br>
+المشروع وصل إلى مرحلة متقدمة وظيفيًا، وتم حل الجزء الأكبر من أزمة الرفع عبر تحويله لمسار سيرفر-سايد/سايند. الحالة التشغيلية الآن واضحة: الرفع أصبح جاهزًا (<code>ready=true</code>)، والعائق المتبقي يتركّز في سياسة إدراج جدول <code>registration_submissions</code> على مشروع الإنتاج نفسه.</p>
+<p><strong>English:</strong><br>
+The project is functionally advanced, and the major upload instability has been mitigated through server/signed upload architecture. Operationally, upload readiness is now confirmed (<code>ready=true</code>), and the remaining blocker is concentrated in production DB insert policy alignment for <code>registration_submissions</code>.</p>
+</body>
+</html>
