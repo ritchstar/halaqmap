@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Scissors, Smile, X } from 'lucide-react';
+import { Headphones, MapPin, Scissors, Smile, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PARTNER_DIGITAL_ASSISTANT, partnerAssistantHintForPath } from '@/lib/partnerMarketingCopy';
+import { ROUTE_PATHS } from '@/lib';
 
 export function PartnerDigitalBarberAssistant() {
   const { pathname } = useLocation();
@@ -79,6 +80,12 @@ export function PartnerDigitalBarberAssistant() {
                   ))}
                 </ul>
               </div>
+              <Button asChild variant="secondary" size="sm" className="mx-4 mb-3 w-[calc(100%-2rem)] gap-2" onClick={() => setOpen(false)}>
+                <NavLink to={ROUTE_PATHS.PARTNER_SUPPORT}>
+                  <Headphones className="h-4 w-4" />
+                  استوديو دعم الشركاء
+                </NavLink>
+              </Button>
             </div>
           </motion.aside>
         ) : null}

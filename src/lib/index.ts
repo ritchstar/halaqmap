@@ -13,6 +13,8 @@ export const ROUTE_PATHS = {
   BARBER_LOGIN: '/partners/login',
   BARBER_DASHBOARD: '/barber/dashboard',
   PAYMENT: '/partners/payment',
+  /** دعم فني للشركاء — محادثة خاصة بجلسة ساعة (?t=رمز_فريد) */
+  PARTNER_SUPPORT: '/partners/support',
   /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
   RATE_BARBER: '/rate/:barberId',
 } as const;

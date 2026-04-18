@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -5,6 +6,7 @@ import {
   CircleDollarSign,
   Clock3,
   Globe,
+  Headphones,
   Megaphone,
   MessageCircle,
   Rocket,
@@ -29,6 +31,37 @@ import {
   PARTNER_LANDING_VALUE_PROPS,
   PARTNER_LANDING_WHY_SECTION,
 } from '@/lib/partnerMarketingCopy';
+import { generatePartnerSupportThreadToken } from '@/lib/partnerSupportChat';
+
+function PartnerSupportStudioLink({
+  variant = 'hero',
+}: {
+  variant?: 'hero' | 'footer';
+}) {
+  const to = useMemo(() => `${ROUTE_PATHS.PARTNER_SUPPORT}?t=${generatePartnerSupportThreadToken()}`, []);
+  if (variant === 'footer') {
+    return (
+      <NavLink to={to}>
+        <Button size="lg" variant="outline" className="w-full min-w-48 gap-2">
+          استوديو دعم الشركاء
+          <Headphones className="h-4 w-4" />
+        </Button>
+      </NavLink>
+    );
+  }
+  return (
+    <NavLink to={to}>
+      <Button
+        size="lg"
+        variant="outline"
+        className="gap-2 border-white/45 bg-black/30 text-white hover:bg-white/10 text-base font-semibold"
+      >
+        استوديو دعم الشركاء
+        <Headphones className="h-4 w-4" />
+      </Button>
+    </NavLink>
+  );
+}
 
 const VALUE_PROP_ICONS = [Search, Megaphone, Users, TrendingUp] as const;
 const VALUE_PROPS = PARTNER_LANDING_VALUE_PROPS.map((item, index) => ({
@@ -115,6 +148,7 @@ export default function BarberGrowthLanding() {
                   تواصل عبر الإيميل
                 </Button>
               </a>
+              <PartnerSupportStudioLink />
             </div>
 
             <div className="grid gap-3 pt-2 text-sm md:grid-cols-3">
@@ -259,6 +293,7 @@ export default function BarberGrowthLanding() {
                     تواصل واتساب
                   </Button>
                 </a>
+                <PartnerSupportStudioLink variant="footer" />
                 <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY}>
                   <Button size="lg" variant="ghost" className="w-full min-w-48">
                     راجع سياسة الاشتراك
