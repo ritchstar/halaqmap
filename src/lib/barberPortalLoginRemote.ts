@@ -1,9 +1,14 @@
 import { SubscriptionTier } from '@/lib';
 
 const DEFAULT_ENDPOINT = '/api/barber-portal-login';
+const DEFAULT_REFRESH_ENDPOINT = '/api/barber-portal-session-refresh';
 
 function endpoint(): string {
   return String(import.meta.env.VITE_BARBER_PORTAL_LOGIN_URL || DEFAULT_ENDPOINT).trim();
+}
+
+function refreshEndpoint(): string {
+  return String(import.meta.env.VITE_BARBER_PORTAL_SESSION_REFRESH_URL || DEFAULT_REFRESH_ENDPOINT).trim();
 }
 
 function baseHeaders(): Record<string, string> {
@@ -80,5 +85,59 @@ export async function barberPortalLoginRemote(input: {
     };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بالخادم. تحقق من الشبكة أو من إعدادات النشر.' };
+  }
+}
+
+/**
+ * يحدّث اسم الصالون والباقة وغيرها من قاعدة البيانات بعد تعديل الإدارة،
+ * دون إجبار الحلاق على تسجيل الخروج (يُستدعى من لوحة التحكم عند التحميل).
+ */
+export async function refreshBarberPortalSessionRemote(input: {
+  barberId: string;
+  email: string;
+}): Promise<{ ok: true; session: BarberPortalSession } | { ok: false; error: string }> {
+  const ep = refreshEndpoint();
+  if (!ep) return { ok: false, error: 'مسار تحديث الجلسة غير مضبوط.' };
+
+  try {
+    const response = await fetch(ep, {
+      method: 'POST',
+      headers: baseHeaders(),
+      body: JSON.stringify({
+        barberId: input.barberId.trim(),
+        email: input.email.trim(),
+      }),
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      barber?: {
+        id: string;
+        name: string;
+        email: string;
+        phone: string;
+        tier: string;
+        rating_invite_token?: string;
+      };
+    };
+    if (!response.ok) {
+      return { ok: false, error: payload.error || `HTTP ${response.status}` };
+    }
+    const b = payload.barber;
+    if (!b?.id) {
+      return { ok: false, error: 'استجابة غير صالحة من الخادم.' };
+    }
+    return {
+      ok: true,
+      session: {
+        id: b.id,
+        name: b.name,
+        email: b.email,
+        phone: b.phone || '',
+        subscription: tierFromDb(b.tier),
+        ratingInviteToken: String(b.rating_invite_token ?? ''),
+      },
+    };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال بخدمة تحديث الجلسة.' };
   }
 }

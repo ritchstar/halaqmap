@@ -14,6 +14,8 @@ type SinglePayload = {
   /** اختياري — يُفضّل تمريره بعد الاعتماد لتسريع إرفاق QR دون جلب إضافي */
   barberId?: string;
   ratingInviteToken?: string;
+  /** رقم طلب التسجيل (مثال HM-20260417-AB12CD) — مرجع الدعم */
+  registrationOrderId?: string;
 };
 
 type BulkPayload = {
@@ -305,6 +307,24 @@ function tierSpecificLines(k: 'bronze' | 'gold' | 'diamond'): string[] {
   return lines;
 }
 
+function orderRefPlainLines(registrationOrderId: string | null | undefined): string[] {
+  const id = String(registrationOrderId || '').trim();
+  if (!id) return [];
+  return [
+    '',
+    'رقم طلب الاشتراك (مرجع الدعم):',
+    id,
+    'احفظ هذا الرقم عند التواصل مع الدعم أو فريق حلاق ماب.',
+  ];
+}
+
+function orderRefSectionHtml(registrationOrderId: string | null | undefined): string {
+  const id = String(registrationOrderId || '').trim();
+  if (!id) return '';
+  const safe = escapeHtml(id);
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #bae6fd;background:#f0f9ff"><tr><td style="padding:14px 16px;font-size:14px;color:#0c4a6e;line-height:1.75"><p style="margin:0;font-weight:800">رقم طلب الاشتراك (مرجع الدعم)</p><p style="margin:6px 0 0;font-family:ui-monospace,monospace;font-size:15px;letter-spacing:0.02em" dir="ltr">${safe}</p><p style="margin:8px 0 0;font-size:12px;color:#0369a1">احفظه عند مراسلة الدعم أو فريق حلاق ماب.</p></td></tr></table>`;
+}
+
 function emailOpeningLines(name: string, tierLabel: string): string[] {
   return [
     'حلاق ماب — منصة الحلاقين على الخريطة',
@@ -382,10 +402,12 @@ function emailHtml(
   tier: Tier | null | undefined,
   links: MailLinks,
   rating: RatingEmailContext,
+  registrationOrderId?: string | null,
 ): string {
   const nameSafe = escapeHtml(name);
   const tierSafe = escapeHtml(tierLabel);
   const k = tierKey(tier);
+  const orderRefBlock = orderRefSectionHtml(registrationOrderId);
   const logoSrc = escapeHtml(logoPublicUrl(links));
   const preheader =
     'اعتماد حسابك على حلاق ماب — روابط الدخول، لوحة التحكم، ودليلك في رسالة واحدة.';
@@ -434,6 +456,7 @@ function emailHtml(
   <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 20px"><tr><td style="text-align:center">
     <span style="display:inline-block;padding:8px 18px;border-radius:999px;background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #facc15;color:#854d0e;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:800;">الباقة المعتمدة: ${tierSafe}</span>
   </td></tr></table>
+  ${orderRefBlock}
 </td></tr>
 <tr><td style="padding:0 22px 10px;text-align:center;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">
   ${btn(links.loginUrl, 'تسجيل دخول الحلاق')}
@@ -677,6 +700,7 @@ export async function POST(request: Request): Promise<Response> {
       }
     }
     const ratingCtx = await buildRatingEmailContext(baseUrl, barberId, ratingTok);
+    const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
     const attachments =
       ratingCtx.hasToken && ratingCtx.qrPngBase64
         ? [
@@ -689,8 +713,8 @@ export async function POST(request: Request): Promise<Response> {
           ]
         : undefined;
     const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك على الخريطة + روابط لوحة التحكم';
-    const text = emailText(barberName, tier, tierRaw, links, ratingCtx);
-    const html = emailHtml(barberName, tier, tierRaw, links, ratingCtx);
+    const text = emailText(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId);
+    const html = emailHtml(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId);
     const sent = await sendViaResend({
       to: barberEmail,
       subject,
@@ -767,8 +791,8 @@ export async function POST(request: Request): Promise<Response> {
             ]
           : undefined;
       const subject = '🎉 حلاق ماب | أنت على الخريطة — روابط لوحة التحكم ودليلك';
-      const text = emailText(name, tier, row.tier, links, ratingCtx);
-      const html = emailHtml(name, tier, row.tier, links, ratingCtx);
+      const text = emailText(name, tier, row.tier, links, ratingCtx, null);
+      const html = emailHtml(name, tier, row.tier, links, ratingCtx, null);
       const sent = await sendViaResend({
         to: email,
         subject,

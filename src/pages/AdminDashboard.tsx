@@ -1290,6 +1290,16 @@ function RequestsSection({
                       ) : null}
                     </div>
                     <div className="space-y-1 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-semibold text-foreground shrink-0">رقم الطلب (مرجع الدعم)</span>
+                        <code
+                          className="text-xs bg-muted px-2 py-0.5 rounded font-mono"
+                          dir="ltr"
+                          title="نفس المعرّف المحفوظ في قاعدة البيانات للطلب"
+                        >
+                          {request.id}
+                        </code>
+                      </div>
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4" />
                         <span>{request.email}</span>
@@ -1411,6 +1421,7 @@ function RequestReviewDialog({
       barberEmail: request.email,
       tier: request.tier,
       barberId: upsert.barberId,
+      registrationOrderId: request.id,
     });
     if (visibilityWarning) {
       toast({
@@ -1545,6 +1556,7 @@ function RequestReviewDialog({
       barberEmail: recipient,
       tier: request.tier,
       barberId: request.linkedBarberId ?? undefined,
+      registrationOrderId: request.id,
     });
     setSaving(false);
     if (!mail.ok) {
@@ -1572,6 +1584,15 @@ function RequestReviewDialog({
           {/* Basic Info */}
           <div>
             <h3 className="text-lg font-semibold mb-3">معلومات الصالون</h3>
+            <div className="rounded-md border border-primary/25 bg-primary/5 px-3 py-2 mb-4">
+              <Label>رقم الطلب (مرجع الدعم)</Label>
+              <p className="text-sm font-mono font-semibold mt-1 break-all" dir="ltr">
+                {request.id}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                يطابق الرقم الذي يظهر للعميل بعد التقديم؛ اطلبه عند المتابعة مع الدعم.
+              </p>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>اسم الصالون</Label>

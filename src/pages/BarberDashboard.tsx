@@ -59,7 +59,7 @@ import {
 } from '@/config/ratingQrInvite';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import type { BarberPortalSession } from '@/lib/barberPortalLoginRemote';
+import { refreshBarberPortalSessionRemote, type BarberPortalSession } from '@/lib/barberPortalLoginRemote';
 import {
   readSchedule,
   writeSchedule,
@@ -120,6 +120,42 @@ export default function BarberDashboard() {
       navigate(ROUTE_PATHS.BARBER_LOGIN);
     }
   }, [navigate]);
+
+  /** مزامنة اسم الصالون والباقة من Supabase بعد تعديل الإدارة (لا يعتمد على نسخة تسجيل الدخول القديمة في localStorage). */
+  useEffect(() => {
+    if (!barberData?.id || !barberData?.email) return;
+    let cancelled = false;
+    void refreshBarberPortalSessionRemote({ barberId: barberData.id, email: barberData.email }).then((r) => {
+      if (cancelled || !r.ok) return;
+      const next: BarberPortalSession = r.session;
+      setBarberData((prev) => {
+        if (!prev) return prev;
+        if (
+          prev.name === next.name &&
+          prev.phone === next.phone &&
+          prev.subscription === next.subscription &&
+          prev.ratingInviteToken === next.ratingInviteToken
+        ) {
+          return prev;
+        }
+        return next;
+      });
+      try {
+        localStorage.setItem(
+          'barberAuth',
+          JSON.stringify({
+            ...next,
+            loggedIn: true,
+          }),
+        );
+      } catch {
+        /* ignore */
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [barberData?.id, barberData?.email]);
 
   const barberId = barberData?.id;
 

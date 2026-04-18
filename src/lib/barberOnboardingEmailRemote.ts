@@ -22,6 +22,8 @@ export async function sendBarberOnboardingEmailRemote(input: {
   /** بعد الاعتماد — يُفضّل لإرفاق QR التقييم دون جلب إضافي من السيرفر */
   barberId?: string | null;
   ratingInviteToken?: string | null;
+  /** مطابق لـ `id` في `registration_submissions` — نفس رقم الطلب الذي رآه العميل عند التقديم */
+  registrationOrderId?: string | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const endpoint = getEndpoint();
   if (!endpoint) return { ok: false, error: 'لم يتم ضبط مسار API للإرسال البريدي.' };
@@ -37,6 +39,8 @@ export async function sendBarberOnboardingEmailRemote(input: {
     if (bid) body.barberId = bid;
     const tok = String(input.ratingInviteToken ?? '').trim();
     if (tok) body.ratingInviteToken = tok;
+    const ord = String(input.registrationOrderId ?? '').trim();
+    if (ord) body.registrationOrderId = ord;
 
     const response = await fetch(endpoint, {
       method: 'POST',
