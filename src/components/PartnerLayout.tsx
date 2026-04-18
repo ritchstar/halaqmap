@@ -13,6 +13,8 @@ interface PartnerLayoutProps {
 
 const partnerNavItems = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الصفحة التسويقية' },
+  { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
+  { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
   { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم الشركاء' },
   { path: ROUTE_PATHS.PARTNER_PRIVACY, label: 'خصوصية الشركاء' },

@@ -3,16 +3,20 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   BadgeCheck,
+  BookOpen,
   CircleDollarSign,
   Clock3,
+  Compass,
   Globe,
   Headphones,
+  HelpCircle,
   Megaphone,
   MessageCircle,
   Rocket,
   Search,
   ShieldCheck,
   Sparkles,
+  Target,
   TrendingUp,
   Users,
 } from 'lucide-react';
@@ -22,9 +26,12 @@ import { ROUTE_PATHS } from '@/lib';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import {
   PARTNER_LANDING_CTA_SECTION,
+  PARTNER_LANDING_EARLY_MOVER_SECTION,
   PARTNER_LANDING_HERO,
   PARTNER_LANDING_HERO_HIGHLIGHTS,
   PARTNER_LANDING_HOW_SECTION,
+  PARTNER_LANDING_NARRATIVE_SECTION,
+  PARTNER_LANDING_PILLARS_SECTION,
   PARTNER_LANDING_PLAN_CARDS,
   PARTNER_LANDING_PLANS_SECTION,
   PARTNER_LANDING_PROCESS_STEPS,
@@ -131,6 +138,26 @@ export default function BarberGrowthLanding() {
             <p className="max-w-2xl text-lg leading-8 text-slate-100">{PARTNER_LANDING_HERO.lead}</p>
 
             <div className="flex flex-wrap items-center gap-3">
+              <NavLink to={ROUTE_PATHS.PARTNER_WHY}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 border-white/45 bg-black/30 text-white hover:bg-white/10 text-base font-semibold"
+                >
+                  لماذا تنضم؟
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+              </NavLink>
+              <NavLink to={ROUTE_PATHS.PARTNER_STORY}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 border-white/45 bg-black/30 text-white hover:bg-white/10 text-base font-semibold"
+                >
+                  القصة والمسار
+                  <BookOpen className="h-4 w-4" />
+                </Button>
+              </NavLink>
               <NavLink to={ROUTE_PATHS.REGISTER}>
                 <Button size="lg" className="gap-2 bg-primary text-primary-foreground shadow-[0_10px_30px_-8px_rgba(16,185,129,0.65)] text-base font-bold">
                   احجز بنرك الآن
@@ -196,13 +223,59 @@ export default function BarberGrowthLanding() {
         </div>
       </section>
 
+      <section className="border-y border-border bg-muted/20 py-16">
+        <div className="container mx-auto max-w-4xl px-4">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-foreground md:text-4xl">{PARTNER_LANDING_NARRATIVE_SECTION.title}</h2>
+            <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-muted-foreground">
+              {PARTNER_LANDING_NARRATIVE_SECTION.lead}
+            </p>
+          </div>
+          <div className="space-y-6 text-lg leading-8 text-muted-foreground">
+            {PARTNER_LANDING_NARRATIVE_SECTION.paragraphs.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-bold text-foreground md:text-4xl">{PARTNER_LANDING_PILLARS_SECTION.title}</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground md:text-lg">
+              {PARTNER_LANDING_PILLARS_SECTION.subtitle}
+            </p>
+          </div>
+          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+            {PARTNER_LANDING_PILLARS_SECTION.pillars.map((pillar, index) => {
+              const Icon = index === 0 ? Target : index === 1 ? Compass : Sparkles;
+              return (
+                <motion.div
+                  key={pillar.word}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: index * 0.06 }}
+                  className="rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/5 to-card p-6"
+                >
+                  <div className="mb-3 inline-flex rounded-xl bg-primary/15 p-3 text-primary">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mb-2 text-2xl font-extrabold text-primary">{pillar.word}</h3>
+                  <p className="leading-7 text-muted-foreground">{pillar.body}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section className="bg-card/40 py-16">
         <div className="container mx-auto px-4">
           <div className="mb-10 text-center">
-            <h2 className="text-3xl font-bold text-foreground md:text-4xl">كيف تنضم وتبدأ خلال وقت قصير؟</h2>
-            <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-muted-foreground">
-              رحلة الانضمام مصممة لتكون سهلة وواضحة: من تعبئة الطلب إلى إطلاق بنرك في السوق المستهدف.
-            </p>
+            <h2 className="text-3xl font-bold text-foreground md:text-4xl">{PARTNER_LANDING_HOW_SECTION.title}</h2>
+            <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-muted-foreground">{PARTNER_LANDING_HOW_SECTION.lead}</p>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
@@ -223,6 +296,37 @@ export default function BarberGrowthLanding() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16">
+        <div className="container mx-auto max-w-4xl px-4">
+          <div className="rounded-3xl border border-accent/25 bg-gradient-to-br from-accent/5 via-background to-primary/5 p-8 md:p-10">
+            <h2 className="text-center text-2xl font-bold text-foreground md:text-3xl">{PARTNER_LANDING_EARLY_MOVER_SECTION.title}</h2>
+            <p className="mx-auto mt-4 max-w-3xl text-center text-lg leading-8 text-muted-foreground">
+              {PARTNER_LANDING_EARLY_MOVER_SECTION.lead}
+            </p>
+            <ul className="mx-auto mt-8 max-w-3xl space-y-4 text-muted-foreground">
+              {PARTNER_LANDING_EARLY_MOVER_SECTION.bullets.map((line) => (
+                <li key={line} className="flex gap-3 leading-7">
+                  <Sparkles className="mt-1 h-5 w-5 shrink-0 text-accent" />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              <NavLink to={ROUTE_PATHS.PARTNER_WHY}>
+                <Button variant="outline" size="lg" className="font-semibold">
+                  اقرأ المزيد: لماذا تنضم؟
+                </Button>
+              </NavLink>
+              <NavLink to={ROUTE_PATHS.REGISTER}>
+                <Button size="lg" className="font-bold">
+                  ابدأ الطلب الآن
+                </Button>
+              </NavLink>
+            </div>
           </div>
         </div>
       </section>

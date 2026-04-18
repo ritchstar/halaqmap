@@ -12,7 +12,7 @@ import {
   MAP_FEATURE_HERO,
 } from '@/config/subscriptionPlanHero';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
-import { PARTNER_REGISTER_INTRO } from '@/lib/partnerMarketingCopy';
+import { PARTNER_REGISTER_INTRO_PARAGRAPHS } from '@/lib/partnerMarketingCopy';
 
 type RegisterPlanRow = { kind: 'row'; text: string; included: boolean };
 type RegisterPlanFeature = { kind: 'map_hero' } | RegisterPlanRow;
@@ -121,9 +121,21 @@ export default function Register() {
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-l from-accent via-primary to-accent bg-clip-text text-transparent px-1">
               انضم إلى منصة حلاق ماب
             </h1>
-            <p className="text-base sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-1">
-              {PARTNER_REGISTER_INTRO}
-            </p>
+            <div className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed px-1 space-y-4">
+              {PARTNER_REGISTER_INTRO_PARAGRAPHS.map((para, i) => (
+                <p key={i} className="text-pretty">
+                  {para}
+                </p>
+              ))}
+            </div>
+            <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm font-medium">
+              <Link to={ROUTE_PATHS.PARTNER_WHY} className="text-primary hover:underline underline-offset-4">
+                لماذا تنضم؟ — اقرأ قبل إكمال الطلب
+              </Link>
+              <Link to={ROUTE_PATHS.PARTNER_STORY} className="text-primary hover:underline underline-offset-4">
+                القصة والمسار
+              </Link>
+            </div>
           </motion.div>
 
           <motion.div

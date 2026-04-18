@@ -4,6 +4,10 @@ import { compareBarbersByListingScore } from '@/lib/barberListingRank';
 export const ROUTE_PATHS = {
   HOME: '/',
   BARBERS_LANDING: '/partners',
+  /** إقناع عميق: لماذا حلاق ماب وليس مجرد «حجز» */
+  PARTNER_WHY: '/partners/why',
+  /** قصة المنصة ومنطق المسار */
+  PARTNER_STORY: '/partners/story',
   REGISTER: '/partners/register',
   REGISTER_SUCCESS: '/partners/register/success',
   ABOUT: '/about',
