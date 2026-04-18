@@ -59,7 +59,7 @@ function corsHeaders(request: Request): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin || '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon',
+    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon, x-client-supabase-url',
     'Access-Control-Max-Age': '86400',
   };
 }
