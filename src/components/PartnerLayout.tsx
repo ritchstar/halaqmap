@@ -4,6 +4,8 @@ import { ArrowRight, Mail, Phone } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
+import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
+import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
 
 interface PartnerLayoutProps {
   children: React.ReactNode;
@@ -72,10 +74,12 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <main>{children}</main>
 
+      <PartnerDigitalBarberAssistant />
+
       <footer className="border-t border-white/10 bg-[#071426]/70">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col gap-3 text-sm text-slate-300 md:flex-row md:items-center md:justify-between">
-            <p>هذه المساحة مخصصة لاشتراكات الحلاقين والتحويل التسويقي فقط.</p>
+            <p className="max-w-3xl leading-relaxed">{PARTNER_LAYOUT_FOOTER_LINE}</p>
             <div className="flex flex-wrap items-center gap-4">
               <a href="tel:+966559602685" className="inline-flex items-center gap-2 hover:text-emerald-200 transition-colors">
                 <Phone className="h-4 w-4" />

@@ -12,7 +12,7 @@ import {
   MAP_FEATURE_HERO,
 } from '@/config/subscriptionPlanHero';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
-import { PLATFORM_REGISTER_INTRO } from '@/config/platformGrowthNarrative';
+import { PARTNER_REGISTER_INTRO } from '@/lib/partnerMarketingCopy';
 
 type RegisterPlanRow = { kind: 'row'; text: string; included: boolean };
 type RegisterPlanFeature = { kind: 'map_hero' } | RegisterPlanRow;
@@ -122,7 +122,7 @@ export default function Register() {
               انضم إلى منصة حلاق ماب
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-1">
-              {PLATFORM_REGISTER_INTRO}
+              {PARTNER_REGISTER_INTRO}
             </p>
           </motion.div>
 
