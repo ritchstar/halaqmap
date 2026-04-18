@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, type ComponentType } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -126,42 +126,73 @@ export default function BarberDashboard() {
     }
   }, [navigate]);
 
-  /** مزامنة اسم الصالون والباقة من Supabase بعد تعديل الإدارة (لا يعتمد على نسخة تسجيل الدخول القديمة في localStorage). */
+  const portalIdRef = useRef<string | undefined>(undefined);
+  const portalEmailRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    portalIdRef.current = barberData?.id;
+    portalEmailRef.current = barberData?.email;
+  }, [barberData?.id, barberData?.email]);
+
+  /** مزامنة اسم الصالون والباقة من Supabase (بعد تعديل الإدارة أو فتح التبويب من جديد — مهم للجوال حيث تبقى الجلسة في localStorage). */
+  const applyPortalSession = useCallback((next: BarberPortalSession) => {
+    setBarberData((prev) => {
+      if (!prev) return prev;
+      if (
+        prev.name === next.name &&
+        prev.phone === next.phone &&
+        prev.subscription === next.subscription &&
+        prev.ratingInviteToken === next.ratingInviteToken &&
+        prev.memberNumber === next.memberNumber
+      ) {
+        return prev;
+      }
+      return next;
+    });
+    try {
+      localStorage.setItem('barberAuth', JSON.stringify({ ...next, loggedIn: true }));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const syncPortalSessionFromServer = useCallback(async () => {
+    const id = portalIdRef.current?.trim();
+    const email = portalEmailRef.current?.trim();
+    if (!id || !email) return;
+    const r = await refreshBarberPortalSessionRemote({ barberId: id, email });
+    if (!r.ok) return;
+    applyPortalSession(r.session);
+  }, [applyPortalSession]);
+
   useEffect(() => {
     if (!barberData?.id || !barberData?.email) return;
     let cancelled = false;
-    void refreshBarberPortalSessionRemote({ barberId: barberData.id, email: barberData.email }).then((r) => {
-      if (cancelled || !r.ok) return;
-      const next: BarberPortalSession = r.session;
-      setBarberData((prev) => {
-        if (!prev) return prev;
-        if (
-          prev.name === next.name &&
-          prev.phone === next.phone &&
-          prev.subscription === next.subscription &&
-          prev.ratingInviteToken === next.ratingInviteToken &&
-          prev.memberNumber === next.memberNumber
-        ) {
-          return prev;
-        }
-        return next;
-      });
-      try {
-        localStorage.setItem(
-          'barberAuth',
-          JSON.stringify({
-            ...next,
-            loggedIn: true,
-          }),
-        );
-      } catch {
-        /* ignore */
-      }
+    void syncPortalSessionFromServer().then(() => {
+      if (cancelled) return;
     });
     return () => {
       cancelled = true;
     };
-  }, [barberData?.id, barberData?.email]);
+  }, [barberData?.id, barberData?.email, syncPortalSessionFromServer]);
+
+  useEffect(() => {
+    if (!barberData?.id || !barberData?.email) return;
+    let debounce: ReturnType<typeof setTimeout> | undefined;
+    const scheduleSync = () => {
+      if (document.visibilityState !== 'visible') return;
+      clearTimeout(debounce);
+      debounce = setTimeout(() => void syncPortalSessionFromServer(), 350);
+    };
+    document.addEventListener('visibilitychange', scheduleSync);
+    window.addEventListener('focus', scheduleSync);
+    window.addEventListener('pageshow', scheduleSync);
+    return () => {
+      clearTimeout(debounce);
+      document.removeEventListener('visibilitychange', scheduleSync);
+      window.removeEventListener('focus', scheduleSync);
+      window.removeEventListener('pageshow', scheduleSync);
+    };
+  }, [barberData?.id, barberData?.email, syncPortalSessionFromServer]);
 
   const barberId = barberData?.id;
 
