@@ -68,6 +68,7 @@ import {
   listBarbersForAdmin,
   setBarberActiveRemote,
   deleteBarberRemote,
+  updateBarberRecordRemote,
   upsertBarberFromApprovedRequest,
   type AdminBarberRow,
 } from '@/lib/adminBarbersRemote';
@@ -401,6 +402,8 @@ export default function AdminDashboard() {
     return null;
   }
 
+  const canRootHardEdit = Boolean(adminData.bootstrap || can('manage_admins'));
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       {/* Header */}
@@ -502,7 +505,12 @@ export default function AdminDashboard() {
 
           {/* Barbers Tab */}
           {can('view_barbers') && <TabsContent value="barbers" className="space-y-6">
-            <BarbersSection refreshNonce={dataRefreshNonce} onStatsNeedRefresh={bumpRemoteData} canManage={can('manage_barbers')} />
+            <BarbersSection
+              refreshNonce={dataRefreshNonce}
+              onStatsNeedRefresh={bumpRemoteData}
+              canManage={can('manage_barbers')}
+              canRootHardEdit={canRootHardEdit}
+            />
           </TabsContent>}
 
           {/* Payments Tab */}
@@ -1950,15 +1958,243 @@ function RequestReviewDialog({
   );
 }
 
+function BarberHardEditDialog({
+  barber,
+  open,
+  onOpenChange,
+  onSaved,
+}: {
+  barber: AdminBarberRow | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSaved: (next: AdminBarberRow) => void;
+}) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('');
+  const [address, setAddress] = useState('');
+  const [latText, setLatText] = useState('');
+  const [lngText, setLngText] = useState('');
+  const [tier, setTier] = useState<SubscriptionTier>(SubscriptionTier.BRONZE);
+  const [isVerified, setIsVerified] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [profileImage, setProfileImage] = useState('');
+  const [coverImage, setCoverImage] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!barber) return;
+    setName(barber.name);
+    setEmail(barber.email);
+    setPhone(barber.phone);
+    setCity(barber.city ?? '');
+    setAddress(barber.address ?? '');
+    setLatText(barber.latitude != null && Number.isFinite(barber.latitude) ? String(barber.latitude) : '');
+    setLngText(barber.longitude != null && Number.isFinite(barber.longitude) ? String(barber.longitude) : '');
+    setTier(barber.tier);
+    setIsVerified(barber.is_verified);
+    setIsActive(barber.is_active);
+    setProfileImage(barber.profile_image ?? '');
+    setCoverImage(barber.cover_image ?? '');
+    setSaving(false);
+  }, [barber?.id]);
+
+  const handleSave = async () => {
+    if (!barber) return;
+    const nameTrim = name.trim();
+    const emailTrim = email.trim().toLowerCase();
+    const phoneTrim = phone.trim();
+    const cityTrim = city.trim() || null;
+    const addressTrim = address.trim() || 'غير محدد';
+
+    if (!nameTrim) {
+      toast({ title: 'الاسم مطلوب', variant: 'destructive' });
+      return;
+    }
+    if (!emailTrim || !emailTrim.includes('@')) {
+      toast({ title: 'بريد غير صالح', variant: 'destructive' });
+      return;
+    }
+    if (!phoneTrim) {
+      toast({ title: 'رقم الجوال مطلوب', variant: 'destructive' });
+      return;
+    }
+
+    const latTrim = latText.trim();
+    const lngTrim = lngText.trim();
+    let latitude: number | null = null;
+    let longitude: number | null = null;
+    if (latTrim || lngTrim) {
+      if (!latTrim || !lngTrim) {
+        toast({
+          title: 'إحداثيات غير مكتملة',
+          description: 'أدخل خط العرض والطول معاً، أو اتركهما فارغين لإزالة الإحداثيات.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const latN = Number(latTrim);
+      const lngN = Number(lngTrim);
+      if (!Number.isFinite(latN) || !Number.isFinite(lngN)) {
+        toast({ title: 'إحداثيات غير صالحة', variant: 'destructive' });
+        return;
+      }
+      latitude = latN;
+      longitude = lngN;
+    }
+
+    const profileTrim = profileImage.trim();
+    const coverTrim = coverImage.trim();
+
+    setSaving(true);
+    const res = await updateBarberRecordRemote(barber.id, {
+      name: nameTrim,
+      email: emailTrim,
+      phone: phoneTrim,
+      city: cityTrim,
+      address: addressTrim,
+      latitude,
+      longitude,
+      tier,
+      is_verified: isVerified,
+      is_active: isActive,
+      profile_image: profileTrim ? profileTrim : null,
+      cover_image: coverTrim ? coverTrim : null,
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast({
+        title: 'تعذر حفظ التعديلات',
+        description: errorText(res, 'تعذر تحديث بيانات الحلاق.'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const next: AdminBarberRow = {
+      ...barber,
+      name: nameTrim,
+      email: emailTrim,
+      phone: phoneTrim,
+      city: cityTrim,
+      address: addressTrim,
+      latitude,
+      longitude,
+      tier,
+      is_verified: isVerified,
+      is_active: isActive,
+      profile_image: profileTrim ? profileTrim : null,
+      cover_image: coverTrim ? coverTrim : null,
+    };
+    toast({ title: 'تم حفظ التعديلات', description: nameTrim });
+    onSaved(next);
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogHeader>
+          <DialogTitle>تعديل بيانات الحلاق (صلاحية رئيسية)</DialogTitle>
+          <DialogDescription>
+            يُستخدم للدعم الفني عند تعذّر الحلاق على تعديل بياناته أو صوره. اترك حقول الصور فارغة لإزالة الرابط.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="hard-edit-name">اسم الصالون</Label>
+              <Input id="hard-edit-name" value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hard-edit-email">البريد</Label>
+              <Input id="hard-edit-email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hard-edit-phone">الجوال</Label>
+              <Input id="hard-edit-phone" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hard-edit-city">المدينة (اختياري)</Label>
+              <Input id="hard-edit-city" value={city} onChange={(e) => setCity(e.target.value)} />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="hard-edit-address">العنوان</Label>
+              <Textarea id="hard-edit-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={3} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hard-edit-lat">خط العرض</Label>
+              <Input id="hard-edit-lat" dir="ltr" value={latText} onChange={(e) => setLatText(e.target.value)} placeholder="مثال: 24.7136" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hard-edit-lng">خط الطول</Label>
+              <Input id="hard-edit-lng" dir="ltr" value={lngText} onChange={(e) => setLngText(e.target.value)} placeholder="مثال: 46.6753" />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>الباقة</Label>
+              <Select value={tier} onValueChange={(v) => setTier(v as SubscriptionTier)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر الباقة" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={SubscriptionTier.BRONZE}>🥉 برونزي</SelectItem>
+                  <SelectItem value={SubscriptionTier.GOLD}>🥇 ذهبي</SelectItem>
+                  <SelectItem value={SubscriptionTier.DIAMOND}>💎 ماسي</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">موثّق</p>
+                <p className="text-xs text-muted-foreground">يظهر للمستخدمين كحساب موثّق عند تفعيله في الواجهة.</p>
+              </div>
+              <Switch checked={isVerified} onCheckedChange={setIsVerified} />
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">ظهور للعامة</p>
+                <p className="text-xs text-muted-foreground">يتحكم في ظهور الصالون في الخريطة/القوائم حسب منطق التطبيق.</p>
+              </div>
+              <Switch checked={isActive} onCheckedChange={setIsActive} />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="hard-edit-profile">رابط صورة الملف الشخصي</Label>
+              <Input id="hard-edit-profile" dir="ltr" value={profileImage} onChange={(e) => setProfileImage(e.target.value)} />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="hard-edit-cover">رابط صورة الغلاف</Label>
+              <Input id="hard-edit-cover" dir="ltr" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} />
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
+            إلغاء
+          </Button>
+          <Button onClick={() => void handleSave()} disabled={saving || !barber}>
+            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+            حفظ
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Barbers Section
 function BarbersSection({
   refreshNonce,
   onStatsNeedRefresh,
   canManage,
+  canRootHardEdit,
 }: {
   refreshNonce: number;
   onStatsNeedRefresh: () => void;
   canManage: boolean;
+  canRootHardEdit: boolean;
 }) {
   const [rows, setRows] = useState<AdminBarberRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1967,6 +2203,9 @@ function BarbersSection({
   const [mergingId, setMergingId] = useState<string | null>(null);
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
   const [broadcastingEmails, setBroadcastingEmails] = useState(false);
+  const [hardEditRow, setHardEditRow] = useState<AdminBarberRow | null>(null);
+
+  const effectiveCanManage = canManage || canRootHardEdit;
 
   useEffect(() => {
     let cancelled = false;
@@ -1996,7 +2235,7 @@ function BarbersSection({
   };
 
   const onDeleteBarber = async (row: AdminBarberRow) => {
-    if (!canManage) return;
+    if (!effectiveCanManage) return;
     if (!window.confirm(`تأكيد حذف حساب الحلاق "${row.name}"؟`)) return;
     setDeletingId(row.id);
     const res = await deleteBarberRemote(row.id);
@@ -2031,7 +2270,7 @@ function BarbersSection({
   );
 
   const keepRowAndDeleteDuplicates = async (keeper: AdminBarberRow) => {
-    if (!canManage) return;
+    if (!effectiveCanManage) return;
     const emailKey = keeper.email.trim().toLowerCase();
     const phoneKey = keeper.phone.trim();
     const dupes = rows.filter(
@@ -2177,7 +2416,7 @@ function BarbersSection({
                       <div className="flex items-center justify-center gap-2">
                         <Switch
                           checked={row.is_active}
-                          disabled={!canManage || updatingId === row.id}
+                          disabled={!effectiveCanManage || updatingId === row.id}
                           onCheckedChange={(v) => void onToggleActive(row, v)}
                           aria-label={row.is_active ? 'تعطيل الظهور' : 'تفعيل الظهور'}
                         />
@@ -2193,7 +2432,7 @@ function BarbersSection({
                           <Button
                             variant="outline"
                             size="sm"
-                            disabled={!canManage || mergingId === row.id || deletingId === row.id}
+                            disabled={!effectiveCanManage || mergingId === row.id || deletingId === row.id}
                             onClick={() => void keepRowAndDeleteDuplicates(row)}
                           >
                             {mergingId === row.id ? (
@@ -2206,7 +2445,7 @@ function BarbersSection({
                         <Button
                           variant="destructive"
                           size="sm"
-                          disabled={!canManage || deletingId === row.id || mergingId === row.id}
+                          disabled={!effectiveCanManage || deletingId === row.id || mergingId === row.id}
                           onClick={() => void onDeleteBarber(row)}
                         >
                           {deletingId === row.id ? (
@@ -2215,6 +2454,17 @@ function BarbersSection({
                             <Trash2 className="h-4 w-4" />
                           )}
                         </Button>
+                        {canRootHardEdit ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={mergingId === row.id || deletingId === row.id}
+                            onClick={() => setHardEditRow(row)}
+                            title="تعديل بيانات وصور الحلاق"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        ) : null}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -2224,6 +2474,17 @@ function BarbersSection({
           )}
         </CardContent>
       </Card>
+      <BarberHardEditDialog
+        barber={hardEditRow}
+        open={Boolean(hardEditRow)}
+        onOpenChange={(open) => {
+          if (!open) setHardEditRow(null);
+        }}
+        onSaved={(next) => {
+          setRows((prev) => prev.map((r) => (r.id === next.id ? next : r)));
+          onStatsNeedRefresh();
+        }}
+      />
     </motion.div>
   );
 }

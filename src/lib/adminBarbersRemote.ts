@@ -9,9 +9,14 @@ export type AdminBarberRow = {
   email: string;
   phone: string;
   city: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   tier: SubscriptionTier;
   is_active: boolean;
   is_verified: boolean;
+  profile_image: string | null;
+  cover_image: string | null;
 };
 
 function tierFromDb(t: string | null): SubscriptionTier {
@@ -30,7 +35,9 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
 
   const { data, error } = await client
     .from('barbers')
-    .select('id, name, email, phone, city, tier, is_active, is_verified')
+    .select(
+      'id, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
+    )
     .order('created_at', { ascending: false });
 
   if (error || !data) {
@@ -44,9 +51,20 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
     email: String(row.email ?? ''),
     phone: String(row.phone ?? ''),
     city: row.city != null ? String(row.city) : null,
+    address: row.address != null ? String(row.address) : null,
+    latitude:
+      row.latitude === null || row.latitude === undefined || row.latitude === ''
+        ? null
+        : Number(row.latitude),
+    longitude:
+      row.longitude === null || row.longitude === undefined || row.longitude === ''
+        ? null
+        : Number(row.longitude),
     tier: tierFromDb(row.tier != null ? String(row.tier) : null),
     is_active: Boolean(row.is_active),
     is_verified: Boolean(row.is_verified),
+    profile_image: row.profile_image != null ? String(row.profile_image) : null,
+    cover_image: row.cover_image != null ? String(row.cover_image) : null,
   }));
 }
 
@@ -74,6 +92,52 @@ export async function deleteBarberRemote(
   return { ok: true };
 }
 
+export async function updateBarberRecordRemote(
+  barberId: string,
+  patch: Partial<
+    Pick<
+      AdminBarberRow,
+      | 'name'
+      | 'email'
+      | 'phone'
+      | 'city'
+      | 'address'
+      | 'latitude'
+      | 'longitude'
+      | 'tier'
+      | 'is_active'
+      | 'is_verified'
+      | 'profile_image'
+      | 'cover_image'
+    >
+  >
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
+
+  const payload: Record<string, unknown> = {};
+  if (patch.name !== undefined) payload.name = patch.name;
+  if (patch.email !== undefined) payload.email = patch.email;
+  if (patch.phone !== undefined) payload.phone = patch.phone;
+  if (patch.city !== undefined) payload.city = patch.city;
+  if (patch.address !== undefined) payload.address = patch.address;
+  if (patch.latitude !== undefined) payload.latitude = patch.latitude;
+  if (patch.longitude !== undefined) payload.longitude = patch.longitude;
+  if (patch.tier !== undefined) payload.tier = patch.tier;
+  if (patch.is_active !== undefined) payload.is_active = patch.is_active;
+  if (patch.is_verified !== undefined) payload.is_verified = patch.is_verified;
+  if (patch.profile_image !== undefined) payload.profile_image = patch.profile_image;
+  if (patch.cover_image !== undefined) payload.cover_image = patch.cover_image;
+
+  if (Object.keys(payload).length === 0) {
+    return { ok: false, error: 'لا توجد حقول للتحديث' };
+  }
+
+  const { error } = await client.from('barbers').update(payload).eq('id', barberId);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
 export async function findDuplicateBarbersByContact(
   email: string,
   phone: string
@@ -84,7 +148,11 @@ export async function findDuplicateBarbersByContact(
   const phoneTrim = phone.trim();
   if (!emailTrim && !phoneTrim) return [];
 
-  let query = client.from('barbers').select('id, name, email, phone, city, tier, is_active, is_verified');
+  let query = client
+    .from('barbers')
+    .select(
+      'id, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
+    );
   if (emailTrim && phoneTrim) {
     query = query.or(`email.eq.${emailTrim},phone.eq.${phoneTrim}`);
   } else if (emailTrim) {
@@ -100,9 +168,20 @@ export async function findDuplicateBarbersByContact(
     email: String(row.email ?? ''),
     phone: String(row.phone ?? ''),
     city: row.city != null ? String(row.city) : null,
+    address: row.address != null ? String(row.address) : null,
+    latitude:
+      row.latitude === null || row.latitude === undefined || row.latitude === ''
+        ? null
+        : Number(row.latitude),
+    longitude:
+      row.longitude === null || row.longitude === undefined || row.longitude === ''
+        ? null
+        : Number(row.longitude),
     tier: tierFromDb(row.tier != null ? String(row.tier) : null),
     is_active: Boolean(row.is_active),
     is_verified: Boolean(row.is_verified),
+    profile_image: row.profile_image != null ? String(row.profile_image) : null,
+    cover_image: row.cover_image != null ? String(row.cover_image) : null,
   }));
 }
 
