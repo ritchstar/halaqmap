@@ -1599,11 +1599,11 @@ function RequestReviewDialog({
       return;
     }
     const resendRef = mail.messageId
-      ? `\nمعرّف الرسالة في Resend: ${mail.messageId}\n(من لوحة Resend → Emails يمكن تتبع التسليم أو الارتداد.)`
+      ? `\nمعرّف في Resend: ${mail.messageId}\nافتح resend.com → Emails وابحث بهذا المعرف لمعرفة إن كانت «مُسلَّمة» أو «مرتدة».`
       : '';
     toast({
-      title: 'أبلغ الخادم أن Resend قبل الإرسال',
-      description: `المستلم: ${recipient}\nهذا لا يعني وصولاً فورياً للصندوق: راجع «العروض» و«المزعج» في Gmail، وانتظر عدة دقائق، ثم راجع حالة الرسالة في Resend.${resendRef}`,
+      title: 'تم تسليم الرسالة إلى Resend',
+      description: `المستلم: ${recipient}\nResend قبلت الطلب؛ الوصول لصندوق Gmail قد يتأخر أو يذهب للمزعج/العروض. للتأكيد الفعلي استخدم لوحة Resend وليس واجهتنا فقط.${resendRef}`,
     });
   };
 
