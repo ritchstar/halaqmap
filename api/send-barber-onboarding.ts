@@ -215,6 +215,23 @@ async function loadBarberOnboardingRow(
         mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
     };
   }
+  {
+    const { data, error } = await supabase
+      .from('barbers')
+      .select('id, rating_invite_token, member_number')
+      .ilike('email', raw)
+      .eq('is_active', true)
+      .maybeSingle();
+    if (!error && data) {
+      const mn = (data as { member_number?: number | null }).member_number;
+      return {
+        id: String((data as { id: string }).id),
+        rating_invite_token: (data as { rating_invite_token: string | null }).rating_invite_token,
+        member_number:
+          mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
+      };
+    }
+  }
   return null;
 }
 

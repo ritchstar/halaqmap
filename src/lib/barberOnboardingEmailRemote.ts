@@ -2,8 +2,17 @@ import { SubscriptionTier } from '@/lib';
 
 const ONBOARDING_EMAIL_API = '/api/send-barber-onboarding';
 
+/** نفس أصل Vercel المستخدم لرفع المرفقات وحفظ الطلب — يوجّه POST البريد عندما تكون لوحة الإدارة على استضافة ثابتة. */
+function splitDeployApiOrigin(): string {
+  return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '').trim().replace(/\/$/, '');
+}
+
 function getEndpoint(): string {
-  return String(import.meta.env.VITE_BARBER_ONBOARDING_EMAIL_URL || ONBOARDING_EMAIL_API).trim();
+  const explicit = String(import.meta.env.VITE_BARBER_ONBOARDING_EMAIL_URL || '').trim();
+  if (explicit) return explicit;
+  const origin = splitDeployApiOrigin();
+  if (!origin) return ONBOARDING_EMAIL_API;
+  return `${origin}${ONBOARDING_EMAIL_API}`;
 }
 
 function baseHeaders(): Record<string, string> {
@@ -11,7 +20,9 @@ function baseHeaders(): Record<string, string> {
     'Content-Type': 'application/json',
   };
   const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+  const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
   if (anonKey) headers['x-supabase-anon'] = anonKey;
+  if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
   return headers;
 }
 

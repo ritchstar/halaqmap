@@ -840,6 +840,7 @@ function RequestsSection({
   canManage: boolean;
 }) {
   const [query, setQuery] = useState('');
+  const [requestStatusFilter, setRequestStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [mediumFilter, setMediumFilter] = useState('all');
   const [campaignFilter, setCampaignFilter] = useState('all');
@@ -851,11 +852,17 @@ function RequestsSection({
       if (!raw) return;
       const parsed = JSON.parse(raw) as {
         query?: string;
+        requestStatusFilter?: string;
         sourceFilter?: string;
         mediumFilter?: string;
         campaignFilter?: string;
       };
       if (typeof parsed.query === 'string') setQuery(parsed.query);
+      if (parsed.requestStatusFilter === 'pending' || parsed.requestStatusFilter === 'approved' || parsed.requestStatusFilter === 'rejected') {
+        setRequestStatusFilter(parsed.requestStatusFilter);
+      } else if (parsed.requestStatusFilter === 'all') {
+        setRequestStatusFilter('all');
+      }
       if (typeof parsed.sourceFilter === 'string') setSourceFilter(parsed.sourceFilter || 'all');
       if (typeof parsed.mediumFilter === 'string') setMediumFilter(parsed.mediumFilter || 'all');
       if (typeof parsed.campaignFilter === 'string') setCampaignFilter(parsed.campaignFilter || 'all');
@@ -868,12 +875,13 @@ function RequestsSection({
     if (typeof window === 'undefined') return;
     const payload = JSON.stringify({
       query,
+      requestStatusFilter,
       sourceFilter,
       mediumFilter,
       campaignFilter,
     });
     localStorage.setItem(ADMIN_REQUESTS_MARKETING_FILTERS_KEY, payload);
-  }, [query, sourceFilter, mediumFilter, campaignFilter]);
+  }, [query, requestStatusFilter, sourceFilter, mediumFilter, campaignFilter]);
 
   const marketingAnalytics = useMemo(() => {
     const registrationRequests = requests.filter((r) => r.source === 'registration');
@@ -924,6 +932,8 @@ function RequestsSection({
     const q = query.trim().toLowerCase();
 
     return requests.filter((request) => {
+      if (requestStatusFilter !== 'all' && request.status !== requestStatusFilter) return false;
+
       if (q) {
         const searchable = [
           request.id,
@@ -947,9 +957,10 @@ function RequestsSection({
 
       return true;
     });
-  }, [requests, query, sourceFilter, mediumFilter, campaignFilter]);
+  }, [requests, query, requestStatusFilter, sourceFilter, mediumFilter, campaignFilter]);
 
   const resetMarketingFilters = () => {
+    setRequestStatusFilter('all');
     setSourceFilter('all');
     setMediumFilter('all');
     setCampaignFilter('all');
@@ -1050,10 +1061,24 @@ function RequestsSection({
 
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">طلبات الاشتراك</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            value={requestStatusFilter}
+            onValueChange={(v) => setRequestStatusFilter(v as 'all' | 'pending' | 'approved' | 'rejected')}
+          >
+            <SelectTrigger className="w-[168px]">
+              <SelectValue placeholder="حالة الطلب" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الحالات</SelectItem>
+              <SelectItem value="pending">بانتظار المراجعة</SelectItem>
+              <SelectItem value="approved">مقبول</SelectItem>
+              <SelectItem value="rejected">مرفوض</SelectItem>
+            </SelectContent>
+          </Select>
           <Input
             placeholder="بحث بالاسم/الإيميل/الجوال/المدينة/رقم الطلب..."
-            className="w-72"
+            className="w-72 min-w-[200px]"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -1431,8 +1456,9 @@ function RequestReviewDialog({
     if (visibilityWarning) {
       toast({
         title: 'تنبيه مزامنة',
-        description:
-          'تم اعتماد الطلب، وأُرسلت رسالة الدخول. لكن الحساب غير ظاهر فوراً في القائمة (قد يكون اختلاف مشروع Supabase بين الواجهة والسيرفر).',
+        description: mail.ok
+          ? 'تم اعتماد الطلب وأُرسل البريد، لكن الحساب غير ظاهر فوراً في قائمة الحلاقين (قد يكون اختلاف مشروع Supabase بين الواجهة والسيرفر).'
+          : 'تم اعتماد الطلب لكن الحساب غير ظاهر فوراً في القائمة، وفشل إرسال البريد أيضاً — راجع تنبيه الإرسال أدناه.',
         variant: 'destructive',
       });
     }
@@ -1972,6 +1998,7 @@ function RequestReviewDialog({
                 تعليق الحساب
               </Button>
               <Button variant="outline" onClick={() => void handleResendOnboarding()} disabled={saving}>
+                <Mail className="w-4 h-4 ml-2" />
                 إعادة إرسال رسالة الروابط
               </Button>
               <Button
