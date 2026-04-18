@@ -241,6 +241,9 @@ export async function patchRegistrationSubmissionPayloadRemote(
       | 'suspensionReason'
       | 'linkedBarberId'
       | 'barberMemberNumber'
+      /** مزامنة من تعديل الإدارة لجدول الحلاقين — يظهر في تبويب الطلبات */
+      | 'email'
+      | 'phone'
     >
   >
 ): Promise<{ ok: true } | { ok: false; error: string }> {

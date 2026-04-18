@@ -511,6 +511,8 @@ export default function AdminDashboard() {
               onStatsNeedRefresh={bumpRemoteData}
               canManage={can('manage_barbers')}
               canRootHardEdit={canRootHardEdit}
+              registrationRequests={subscriptionRequests}
+              onRegistrationPayloadSynced={refreshStoredRequests}
             />
           </TabsContent>}
 
@@ -2029,16 +2031,24 @@ function RequestReviewDialog({
   );
 }
 
+function isMockSubscriptionRequestRow(id: string): boolean {
+  return shouldShowAdminMocks() && MOCK_SUBSCRIPTION_REQUESTS.some((m) => m.id === id);
+}
+
 function BarberHardEditDialog({
   barber,
   open,
   onOpenChange,
   onSaved,
+  registrationRequests,
+  onRegistrationPayloadSynced,
 }: {
   barber: AdminBarberRow | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSaved: (next: AdminBarberRow) => void;
+  registrationRequests: SubscriptionRequest[];
+  onRegistrationPayloadSynced: () => void;
 }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -2143,6 +2153,42 @@ function BarberHardEditDialog({
       return;
     }
 
+    const emailChanged = emailTrim !== barber.email.trim().toLowerCase();
+    const phoneChanged = phoneTrim !== barber.phone.trim();
+    let submissionSyncHint = '';
+    if (emailChanged || phoneChanged) {
+      const linked = registrationRequests.filter(
+        (r) => r.linkedBarberId === barber.id && !isMockSubscriptionRequestRow(r.id)
+      );
+      if (linked.length) {
+        const payloadPatch: { email?: string; phone?: string } = {};
+        if (emailChanged) payloadPatch.email = emailTrim;
+        if (phoneChanged) payloadPatch.phone = phoneTrim;
+        const failures: string[] = [];
+        for (const r of linked) {
+          const pr = await patchRegistrationSubmissionPayloadRemote(r.id, payloadPatch);
+          if (!pr.ok) failures.push(pr.error);
+        }
+        onRegistrationPayloadSynced();
+        if (failures.length) {
+          toast({
+            title: 'حُفظ الحلاق لكن تعذر تحديث الطلب المرتبط',
+            description: failures[0] ?? 'خطأ غير معروف',
+            variant: 'destructive',
+          });
+        } else if (emailChanged && phoneChanged) {
+          submissionSyncHint = ` — وتم تحديث البريد والجوال في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
+        } else if (emailChanged) {
+          submissionSyncHint = ` — وتم تحديث البريد في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
+        } else if (phoneChanged) {
+          submissionSyncHint = ` — وتم تحديث الجوال في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
+        }
+      } else if (emailChanged || phoneChanged) {
+        submissionSyncHint =
+          ' — لم يُعثر على طلب تسجيل مربوط (linkedBarberId)؛ بريد الطلب في «الطلبات» لم يتغير تلقائياً.';
+      }
+    }
+
     const next: AdminBarberRow = {
       ...barber,
       name: nameTrim,
@@ -2158,7 +2204,7 @@ function BarberHardEditDialog({
       profile_image: profileTrim ? profileTrim : null,
       cover_image: coverTrim ? coverTrim : null,
     };
-    toast({ title: 'تم حفظ التعديلات', description: nameTrim });
+    toast({ title: 'تم حفظ التعديلات', description: `${nameTrim}${submissionSyncHint}` });
     onSaved(next);
     onOpenChange(false);
   };
@@ -2169,7 +2215,9 @@ function BarberHardEditDialog({
         <DialogHeader>
           <DialogTitle>تعديل بيانات الحلاق (صلاحية رئيسية)</DialogTitle>
           <DialogDescription>
-            يُستخدم للدعم الفني عند تعذّر الحلاق على تعديل بياناته أو صوره. اترك حقول الصور فارغة لإزالة الرابط.
+            يُستخدم للدعم الفني عند تعذّر الحلاق على تعديل بياناته أو صوره. اترك حقول الصور فارغة لإزالة الرابط. عند
+            تغيير البريد أو الجوال يُحدَّث تلقائياً طلب التسجيل المرتبط بنفس الحساب في تبويب الطلبات إن وُجد
+            ربط.
           </DialogDescription>
           {barber ? (
             <p className="text-sm text-muted-foreground pt-1">
@@ -2269,11 +2317,15 @@ function BarbersSection({
   onStatsNeedRefresh,
   canManage,
   canRootHardEdit,
+  registrationRequests,
+  onRegistrationPayloadSynced,
 }: {
   refreshNonce: number;
   onStatsNeedRefresh: () => void;
   canManage: boolean;
   canRootHardEdit: boolean;
+  registrationRequests: SubscriptionRequest[];
+  onRegistrationPayloadSynced: () => void;
 }) {
   const [rows, setRows] = useState<AdminBarberRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -2567,6 +2619,8 @@ function BarbersSection({
           setRows((prev) => prev.map((r) => (r.id === next.id ? next : r)));
           onStatsNeedRefresh();
         }}
+        registrationRequests={registrationRequests}
+        onRegistrationPayloadSynced={onRegistrationPayloadSynced}
       />
     </motion.div>
   );
