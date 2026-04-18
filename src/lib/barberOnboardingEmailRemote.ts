@@ -35,7 +35,7 @@ export async function sendBarberOnboardingEmailRemote(input: {
   ratingInviteToken?: string | null;
   /** مطابق لـ `id` في `registration_submissions` — نفس رقم الطلب الذي رآه العميل عند التقديم */
   registrationOrderId?: string | null;
-}): Promise<{ ok: true } | { ok: false; error: string }> {
+}): Promise<{ ok: true; messageId?: string } | { ok: false; error: string }> {
   const endpoint = getEndpoint();
   if (!endpoint) return { ok: false, error: 'لم يتم ضبط مسار API للإرسال البريدي.' };
 
@@ -58,11 +58,12 @@ export async function sendBarberOnboardingEmailRemote(input: {
       headers: baseHeaders(),
       body: JSON.stringify(body),
     });
-    const payload = (await response.json().catch(() => ({}))) as { error?: string };
+    const payload = (await response.json().catch(() => ({}))) as { error?: string; messageId?: string };
     if (!response.ok) {
       return { ok: false, error: payload.error || `HTTP ${response.status}` };
     }
-    return { ok: true };
+    const mid = typeof payload.messageId === 'string' && payload.messageId.trim() ? payload.messageId.trim() : undefined;
+    return { ok: true, ...(mid ? { messageId: mid } : {}) };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بخدمة الإرسال البريدي.' };
   }

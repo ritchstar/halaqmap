@@ -1598,7 +1598,13 @@ function RequestReviewDialog({
       });
       return;
     }
-    toast({ title: 'تمت إعادة إرسال رسالة الروابط بنجاح', description: recipient });
+    const resendRef = mail.messageId
+      ? `\nمعرّف الرسالة في Resend: ${mail.messageId}\n(من لوحة Resend → Emails يمكن تتبع التسليم أو الارتداد.)`
+      : '';
+    toast({
+      title: 'أبلغ الخادم أن Resend قبل الإرسال',
+      description: `المستلم: ${recipient}\nهذا لا يعني وصولاً فورياً للصندوق: راجع «العروض» و«المزعج» في Gmail، وانتظر عدة دقائق، ثم راجع حالة الرسالة في Resend.${resendRef}`,
+    });
   };
 
   return (
