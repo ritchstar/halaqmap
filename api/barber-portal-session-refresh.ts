@@ -112,7 +112,7 @@ export async function POST(request: Request): Promise<Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const selectCols = 'id, name, email, phone, tier, rating_invite_token, is_active';
+  const selectCols = 'id, name, email, phone, tier, rating_invite_token, member_number, is_active';
 
   const { data: row, error } = await supabase.from('barbers').select(selectCols).eq('id', barberId).maybeSingle();
 
@@ -131,6 +131,7 @@ export async function POST(request: Request): Promise<Response> {
     phone: string;
     tier: string;
     rating_invite_token: string | null;
+    member_number: number | null;
     is_active: boolean | null;
   };
 
@@ -154,6 +155,10 @@ export async function POST(request: Request): Promise<Response> {
         phone: String(b.phone ?? ''),
         tier: String(b.tier ?? 'bronze'),
         rating_invite_token: b.rating_invite_token != null ? String(b.rating_invite_token) : '',
+        member_number:
+          b.member_number != null && Number.isFinite(Number(b.member_number))
+            ? Math.floor(Number(b.member_number))
+            : null,
       },
     },
     { headers },

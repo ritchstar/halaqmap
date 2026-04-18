@@ -240,6 +240,7 @@ export async function patchRegistrationSubmissionPayloadRemote(
       | 'adminAccountState'
       | 'suspensionReason'
       | 'linkedBarberId'
+      | 'barberMemberNumber'
     >
   >
 ): Promise<{ ok: true } | { ok: false; error: string }> {

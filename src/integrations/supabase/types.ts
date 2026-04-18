@@ -44,6 +44,7 @@ export interface Database {
       barbers: {
         Row: {
           id: string
+          member_number: number | null
           user_id: string | null
           name: string
           email: string
@@ -67,6 +68,7 @@ export interface Database {
         }
         Insert: {
           id?: string
+          member_number?: number
           user_id?: string | null
           name: string
           email: string
@@ -90,6 +92,7 @@ export interface Database {
         }
         Update: {
           id?: string
+          member_number?: number
           user_id?: string | null
           name?: string
           email?: string

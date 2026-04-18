@@ -5,6 +5,8 @@ const APPROVE_BARBER_API = '/api/approve-barber';
 
 export type AdminBarberRow = {
   id: string;
+  /** رقم عضوية ثابت على المنصة (1–999999) — للعرض مع pad 6 أرقام */
+  memberNumber: number | null;
   name: string;
   email: string;
   phone: string;
@@ -36,7 +38,7 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
   const { data, error } = await client
     .from('barbers')
     .select(
-      'id, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
+      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
     )
     .order('created_at', { ascending: false });
 
@@ -47,6 +49,10 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
 
   return (data as Record<string, unknown>[]).map((row) => ({
     id: String(row.id),
+    memberNumber:
+      row.member_number === null || row.member_number === undefined || row.member_number === ''
+        ? null
+        : Number(row.member_number),
     name: String(row.name ?? ''),
     email: String(row.email ?? ''),
     phone: String(row.phone ?? ''),
@@ -151,7 +157,7 @@ export async function findDuplicateBarbersByContact(
   let query = client
     .from('barbers')
     .select(
-      'id, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
+      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
     );
   if (emailTrim && phoneTrim) {
     query = query.or(`email.eq.${emailTrim},phone.eq.${phoneTrim}`);
@@ -164,6 +170,10 @@ export async function findDuplicateBarbersByContact(
   if (error || !data) return [];
   return (data as Record<string, unknown>[]).map((row) => ({
     id: String(row.id),
+    memberNumber:
+      row.member_number === null || row.member_number === undefined || row.member_number === ''
+        ? null
+        : Number(row.member_number),
     name: String(row.name ?? ''),
     email: String(row.email ?? ''),
     phone: String(row.phone ?? ''),
@@ -187,7 +197,7 @@ export async function findDuplicateBarbersByContact(
 
 export async function upsertBarberFromApprovedRequest(
   request: SubscriptionRequest
-): Promise<{ ok: true; barberId: string } | { ok: false; error: string }> {
+): Promise<{ ok: true; barberId: string; memberNumber: number | null } | { ok: false; error: string }> {
   const row = {
     name: request.barberName.trim() || 'صالون بدون اسم',
     email: request.email.trim(),
@@ -225,9 +235,16 @@ export async function upsertBarberFromApprovedRequest(
         },
         body: JSON.stringify({ row }),
       });
-      const json = (await resp.json().catch(() => ({}))) as { barberId?: string; error?: string };
+      const json = (await resp.json().catch(() => ({}))) as {
+        barberId?: string;
+        memberNumber?: number | null;
+        error?: string;
+      };
       if (resp.ok && json.barberId) {
-        return { ok: true, barberId: json.barberId };
+        const mn = json.memberNumber;
+        const memberNumber =
+          mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
+        return { ok: true, barberId: json.barberId, memberNumber };
       }
       // إن لم يكن مسار السيرفر متاحاً بعد، نرجع fallback.
       if (resp.status !== 404 && resp.status !== 405 && resp.status !== 503) {
@@ -244,8 +261,13 @@ export async function upsertBarberFromApprovedRequest(
   const { data, error } = await client
     .from('barbers')
     .upsert(row, { onConflict: 'email' })
-    .select('id')
+    .select('id, member_number')
     .single();
   if (error || !data) return { ok: false, error: error?.message ?? 'فشل upsert للحلاق' };
-  return { ok: true, barberId: String((data as { id: string }).id) };
+  const d = data as { id: string; member_number?: number | null };
+  const memberNumber =
+    d.member_number != null && Number.isFinite(Number(d.member_number))
+      ? Math.floor(Number(d.member_number))
+      : null;
+  return { ok: true, barberId: String(d.id), memberNumber };
 }

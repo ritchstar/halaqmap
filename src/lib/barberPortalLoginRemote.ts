@@ -36,6 +36,8 @@ export type BarberPortalSession = {
   phone: string;
   subscription: SubscriptionTier;
   ratingInviteToken: string;
+  /** رقم عضوية ثابت على المنصة (بعد تشغيل migration member_number) */
+  memberNumber: number | null;
 };
 
 export async function barberPortalLoginRemote(input: {
@@ -63,6 +65,7 @@ export async function barberPortalLoginRemote(input: {
         phone: string;
         tier: string;
         rating_invite_token?: string;
+        member_number?: number | null;
       };
     };
     if (!response.ok) {
@@ -72,6 +75,9 @@ export async function barberPortalLoginRemote(input: {
     if (!b?.id) {
       return { ok: false, error: 'استجابة غير صالحة من الخادم.' };
     }
+    const mn = b.member_number;
+    const memberNumber =
+      mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
     return {
       ok: true,
       session: {
@@ -81,6 +87,7 @@ export async function barberPortalLoginRemote(input: {
         phone: b.phone || '',
         subscription: tierFromDb(b.tier),
         ratingInviteToken: String(b.rating_invite_token ?? ''),
+        memberNumber,
       },
     };
   } catch {
@@ -117,6 +124,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         phone: string;
         tier: string;
         rating_invite_token?: string;
+        member_number?: number | null;
       };
     };
     if (!response.ok) {
@@ -126,6 +134,9 @@ export async function refreshBarberPortalSessionRemote(input: {
     if (!b?.id) {
       return { ok: false, error: 'استجابة غير صالحة من الخادم.' };
     }
+    const mn = b.member_number;
+    const memberNumber =
+      mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
     return {
       ok: true,
       session: {
@@ -135,6 +146,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         phone: b.phone || '',
         subscription: tierFromDb(b.tier),
         ratingInviteToken: String(b.rating_invite_token ?? ''),
+        memberNumber,
       },
     };
   } catch {

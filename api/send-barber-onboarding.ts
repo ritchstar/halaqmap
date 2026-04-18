@@ -183,11 +183,18 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#039;');
 }
 
-async function loadBarberIdAndRatingToken(
+function padBarberMember(n: number | null | undefined): string | null {
+  if (n == null || !Number.isFinite(Number(n))) return null;
+  const v = Math.floor(Number(n));
+  if (v < 1 || v > 999999) return String(v);
+  return String(v).padStart(6, '0');
+}
+
+async function loadBarberOnboardingRow(
   supabaseUrl: string,
   serviceRole: string,
   email: string,
-): Promise<{ id: string; rating_invite_token: string | null } | null> {
+): Promise<{ id: string; rating_invite_token: string | null; member_number: number | null } | null> {
   const supabase = createClient(supabaseUrl, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
@@ -195,14 +202,17 @@ async function loadBarberIdAndRatingToken(
   for (const addr of [raw, raw.toLowerCase()]) {
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, rating_invite_token')
+      .select('id, rating_invite_token, member_number')
       .eq('email', addr)
       .eq('is_active', true)
       .maybeSingle();
     if (error || !data) continue;
+    const mn = (data as { member_number?: number | null }).member_number;
     return {
       id: String((data as { id: string }).id),
       rating_invite_token: (data as { rating_invite_token: string | null }).rating_invite_token,
+      member_number:
+        mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
     };
   }
   return null;
@@ -325,6 +335,24 @@ function orderRefSectionHtml(registrationOrderId: string | null | undefined): st
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #bae6fd;background:#f0f9ff"><tr><td style="padding:14px 16px;font-size:14px;color:#0c4a6e;line-height:1.75"><p style="margin:0;font-weight:800">رقم طلب الاشتراك (مرجع الدعم)</p><p style="margin:6px 0 0;font-family:ui-monospace,monospace;font-size:15px;letter-spacing:0.02em" dir="ltr">${safe}</p><p style="margin:8px 0 0;font-size:12px;color:#0369a1">احفظه عند مراسلة الدعم أو فريق حلاق ماب.</p></td></tr></table>`;
 }
 
+function memberPlainLines(memberPadded: string | null | undefined): string[] {
+  const id = String(memberPadded || '').trim();
+  if (!id) return [];
+  return [
+    '',
+    'رقم العضوية على حلاق ماب (مرجع دائم بعد التفعيل):',
+    id,
+    'استخدمه مع الدعم والأرشفة — يختلف عن رقم طلب التسجيل المؤقت.',
+  ];
+}
+
+function memberSectionHtml(memberPadded: string | null | undefined): string {
+  const id = String(memberPadded || '').trim();
+  if (!id) return '';
+  const safe = escapeHtml(id);
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #fde68a;background:#fffbeb"><tr><td style="padding:14px 16px;font-size:14px;color:#713f12;line-height:1.75"><p style="margin:0;font-weight:800">رقم العضوية (حلاق ماب)</p><p style="margin:6px 0 0;font-family:ui-monospace,monospace;font-size:18px;letter-spacing:0.06em" dir="ltr">${safe}</p><p style="margin:8px 0 0;font-size:12px;color:#92400e">مرجع دائم للدعم والأرشفة بعد اعتماد حسابك.</p></td></tr></table>`;
+}
+
 function emailOpeningLines(name: string, tierLabel: string): string[] {
   return [
     'حلاق ماب — منصة الحلاقين على الخريطة',
@@ -346,11 +374,15 @@ function emailText(
   tier: Tier | null | undefined,
   links: MailLinks,
   rating: RatingEmailContext,
+  registrationOrderId?: string | null,
+  memberPadded?: string | null,
 ): string {
   const k = tierKey(tier);
   const tierLines = tierSpecificLines(k);
   return [
     ...emailOpeningLines(name, tierLabel),
+    ...orderRefPlainLines(registrationOrderId),
+    ...memberPlainLines(memberPadded),
     '',
     'روابط سريعة:',
     `- الصفحة الرئيسية: ${links.homeUrl}`,
@@ -403,11 +435,13 @@ function emailHtml(
   links: MailLinks,
   rating: RatingEmailContext,
   registrationOrderId?: string | null,
+  memberPadded?: string | null,
 ): string {
   const nameSafe = escapeHtml(name);
   const tierSafe = escapeHtml(tierLabel);
   const k = tierKey(tier);
   const orderRefBlock = orderRefSectionHtml(registrationOrderId);
+  const memberRefBlock = memberSectionHtml(memberPadded);
   const logoSrc = escapeHtml(logoPublicUrl(links));
   const preheader =
     'اعتماد حسابك على حلاق ماب — روابط الدخول، لوحة التحكم، ودليلك في رسالة واحدة.';
@@ -456,7 +490,7 @@ function emailHtml(
   <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 20px"><tr><td style="text-align:center">
     <span style="display:inline-block;padding:8px 18px;border-radius:999px;background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #facc15;color:#854d0e;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:800;">الباقة المعتمدة: ${tierSafe}</span>
   </td></tr></table>
-  ${orderRefBlock}
+  ${orderRefBlock}${memberRefBlock}
 </td></tr>
 <tr><td style="padding:0 22px 10px;text-align:center;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">
   ${btn(links.loginUrl, 'تسجيل دخول الحلاق')}
@@ -692,11 +726,13 @@ export async function POST(request: Request): Promise<Response> {
     }
     let barberId: string | null = String((payload as SinglePayload).barberId ?? '').trim() || null;
     let ratingTok: string | null = String((payload as SinglePayload).ratingInviteToken ?? '').trim() || null;
-    if ((!barberId || !ratingTok) && url && serviceRole) {
-      const row = await loadBarberIdAndRatingToken(url, serviceRole, barberEmail);
+    let memberPadded: string | null = null;
+    if (url && serviceRole) {
+      const row = await loadBarberOnboardingRow(url, serviceRole, barberEmail);
       if (row) {
-        barberId = row.id;
-        ratingTok = row.rating_invite_token;
+        if (!barberId) barberId = row.id;
+        if (!ratingTok?.trim()) ratingTok = row.rating_invite_token;
+        memberPadded = padBarberMember(row.member_number);
       }
     }
     const ratingCtx = await buildRatingEmailContext(baseUrl, barberId, ratingTok);
@@ -713,8 +749,8 @@ export async function POST(request: Request): Promise<Response> {
           ]
         : undefined;
     const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك على الخريطة + روابط لوحة التحكم';
-    const text = emailText(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId);
-    const html = emailHtml(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId);
+    const text = emailText(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId, memberPadded);
+    const html = emailHtml(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId, memberPadded);
     const sent = await sendViaResend({
       to: barberEmail,
       subject,
@@ -756,6 +792,7 @@ export async function POST(request: Request): Promise<Response> {
       email: string | null;
       tier: string | null;
       rating_invite_token: string | null;
+      member_number: number | null;
     }>;
     let sentCount = 0;
     const apiFailed: Array<{ email: string; error: string }> = [];
@@ -791,8 +828,9 @@ export async function POST(request: Request): Promise<Response> {
             ]
           : undefined;
       const subject = '🎉 حلاق ماب | أنت على الخريطة — روابط لوحة التحكم ودليلك';
-      const text = emailText(name, tier, row.tier, links, ratingCtx, null);
-      const html = emailHtml(name, tier, row.tier, links, ratingCtx, null);
+      const bulkMember = padBarberMember(row.member_number);
+      const text = emailText(name, tier, row.tier, links, ratingCtx, null, bulkMember);
+      const html = emailHtml(name, tier, row.tier, links, ratingCtx, null, bulkMember);
       const sent = await sendViaResend({
         to: email,
         subject,

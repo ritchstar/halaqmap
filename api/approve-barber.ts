@@ -127,7 +127,7 @@ export async function POST(request: Request): Promise<Response> {
   const { data, error } = await supabase
     .from('barbers')
     .upsert(row as Record<string, unknown>, { onConflict: 'email' })
-    .select('id')
+    .select('id, member_number')
     .single();
 
   if (error || !data) {
@@ -135,6 +135,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const barberId = String((data as { id: string }).id);
+  const memberNumberRaw = (data as { member_number?: number | null }).member_number;
+  const memberNumber =
+    memberNumberRaw != null && Number.isFinite(Number(memberNumberRaw)) ? Number(memberNumberRaw) : null;
 
   /** صفوف قديمة أو upsert بدون لمس العمود قد تبقي rating_invite_token فارغاً — يُعبَّأ هنا ليعمل QR والبريد */
   const { data: tokenRow, error: tokenErr } = await supabase
@@ -161,5 +164,5 @@ export async function POST(request: Request): Promise<Response> {
     }
   }
 
-  return Response.json({ ok: true, barberId }, { headers });
+  return Response.json({ ok: true, barberId, memberNumber }, { headers });
 }

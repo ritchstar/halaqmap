@@ -81,6 +81,7 @@ import {
   sendOnboardingEmailsForActiveBarbersRemote,
 } from '@/lib/barberOnboardingEmailRemote';
 import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
+import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
   calcVatBreakdown,
   getPlatformVatSettings,
@@ -1403,6 +1404,10 @@ function RequestReviewDialog({
       rejectionReason: undefined,
       suspensionReason: undefined,
       linkedBarberId: upsert.barberId,
+      barberMemberNumber:
+        upsert.memberNumber != null && Number.isFinite(upsert.memberNumber)
+          ? upsert.memberNumber
+          : undefined,
     });
     setSaving(false);
     if (!res.ok) {
@@ -1593,6 +1598,18 @@ function RequestReviewDialog({
                 يطابق الرقم الذي يظهر للعميل بعد التقديم؛ اطلبه عند المتابعة مع الدعم.
               </p>
             </div>
+            {request.barberMemberNumber != null &&
+            Number.isFinite(request.barberMemberNumber) ? (
+              <div className="rounded-md border border-amber-200/80 bg-amber-50/80 px-3 py-2 mb-4">
+                <Label>رقم العضوية على المنصة (بعد الاعتماد)</Label>
+                <p className="text-sm font-mono font-semibold mt-1" dir="ltr">
+                  {formatBarberMemberNumber(request.barberMemberNumber)}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  مرجع دائم للأرشفة والدعم — يختلف عن رقم طلب التسجيل أعلاه.
+                </p>
+              </div>
+            ) : null}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>اسم الصالون</Label>
@@ -2121,6 +2138,14 @@ function BarberHardEditDialog({
           <DialogDescription>
             يُستخدم للدعم الفني عند تعذّر الحلاق على تعديل بياناته أو صوره. اترك حقول الصور فارغة لإزالة الرابط.
           </DialogDescription>
+          {barber ? (
+            <p className="text-sm text-muted-foreground pt-1">
+              رقم العضوية على المنصة:{' '}
+              <span className="font-mono font-semibold text-foreground" dir="ltr">
+                {formatBarberMemberNumber(barber.memberNumber) ?? '—'}
+              </span>
+            </p>
+          ) : null}
         </DialogHeader>
 
         <div className="space-y-4">
@@ -2408,6 +2433,7 @@ function BarbersSection({
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="whitespace-nowrap">رقم العضوية</TableHead>
                   <TableHead>الاسم</TableHead>
                   <TableHead>البريد</TableHead>
                   <TableHead>المدينة</TableHead>
@@ -2420,6 +2446,9 @@ function BarbersSection({
               <TableBody>
                 {visibleRows.map((row) => (
                   <TableRow key={row.id}>
+                    <TableCell className="font-mono text-xs" dir="ltr">
+                      {formatBarberMemberNumber(row.memberNumber) ?? '—'}
+                    </TableCell>
                     <TableCell className="font-medium">{row.name}</TableCell>
                     <TableCell className="max-w-[140px] truncate" title={row.email}>
                       {row.email}

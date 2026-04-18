@@ -192,6 +192,8 @@ export interface SubscriptionRequest {
   adminAccountState?: 'active' | 'suspended' | 'deleted';
   suspensionReason?: string;
   linkedBarberId?: string;
+  /** رقم عضوية ثابت على المنصة (يُخزَّن بعد الموافقة — للدعم والأرشفة) */
+  barberMemberNumber?: number;
   submittedAt: string;
   reviewedAt?: string;
   reviewedBy?: string;

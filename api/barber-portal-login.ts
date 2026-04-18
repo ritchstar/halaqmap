@@ -128,7 +128,7 @@ export async function POST(request: Request): Promise<Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const selectCols = 'id, name, email, phone, tier, rating_invite_token, is_active';
+  const selectCols = 'id, name, email, phone, tier, rating_invite_token, member_number, is_active';
 
   let barber: {
     id: string;
@@ -137,6 +137,7 @@ export async function POST(request: Request): Promise<Response> {
     phone: string;
     tier: string;
     rating_invite_token: string | null;
+    member_number: number | null;
     is_active: boolean | null;
   } | null = null;
   let error: { message?: string } | null = null;
@@ -183,6 +184,10 @@ export async function POST(request: Request): Promise<Response> {
         phone: String(barber.phone ?? ''),
         tier: String(barber.tier ?? 'bronze'),
         rating_invite_token: barber.rating_invite_token != null ? String(barber.rating_invite_token) : '',
+        member_number:
+          barber.member_number != null && Number.isFinite(Number(barber.member_number))
+            ? Math.floor(Number(barber.member_number))
+            : null,
       },
     },
     { headers },

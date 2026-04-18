@@ -60,6 +60,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { refreshBarberPortalSessionRemote, type BarberPortalSession } from '@/lib/barberPortalLoginRemote';
+import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
   readSchedule,
   writeSchedule,
@@ -107,6 +108,9 @@ export default function BarberDashboard() {
       const tier = Object.values(SubscriptionTier).includes(parsed.subscription as SubscriptionTier)
         ? (parsed.subscription as SubscriptionTier)
         : SubscriptionTier.BRONZE;
+      const mn = (parsed as { memberNumber?: number | null }).memberNumber;
+      const memberNumber =
+        mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
       setBarberData({
         id: parsed.id,
         name: parsed.name,
@@ -114,6 +118,7 @@ export default function BarberDashboard() {
         phone: parsed.phone ?? '',
         subscription: tier,
         ratingInviteToken: parsed.ratingInviteToken ?? '',
+        memberNumber,
       });
     } catch {
       localStorage.removeItem('barberAuth');
@@ -134,7 +139,8 @@ export default function BarberDashboard() {
           prev.name === next.name &&
           prev.phone === next.phone &&
           prev.subscription === next.subscription &&
-          prev.ratingInviteToken === next.ratingInviteToken
+          prev.ratingInviteToken === next.ratingInviteToken &&
+          prev.memberNumber === next.memberNumber
         ) {
           return prev;
         }
@@ -255,6 +261,11 @@ export default function BarberDashboard() {
                   لوحة تحكم حلاق ماب
                 </p>
                 <h1 className="truncate text-lg font-bold sm:text-xl">{barberData.name}</h1>
+                {formatBarberMemberNumber(barberData.memberNumber) ? (
+                  <p className="truncate text-xs text-muted-foreground" dir="ltr">
+                    رقم العضوية: {formatBarberMemberNumber(barberData.memberNumber)}
+                  </p>
+                ) : null}
               </div>
             </div>
             <Button variant="ghost" onClick={handleLogout} className="shrink-0 gap-2">
