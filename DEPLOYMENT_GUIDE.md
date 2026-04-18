@@ -326,6 +326,24 @@ https://halaqmap.com/#/payment
 3. اتصل بالدعم الفني للاستضافة
 ```
 
+### **المشكلة 6: تسجيل الحلاق أو الدفع — تعذّر رفع المرفقات**
+
+تحدث غالباً عندما يكون **`dist/` على استضافة ثابتة (cPanel)** بينما **دوال الرفع** (`/api/register-signed-upload` و `/api/register-upload-file`) **منشورة على Vercel فقط**. المتصفح يطلب `/api/...` من نطاق الموقع العام فيرجع **404** ولا يصل إلى Vercel.
+
+**الحل (بناء الواجهة):** قبل `npm run build` عيّن أصل مشروع Vercel (بدون شرطة في النهاية)، ثم أعد البناء وارفع `dist/`:
+
+```
+VITE_REGISTRATION_API_ORIGIN=https://اسم-مشروعك.vercel.app
+```
+
+**تحقق سريع:** من المتصفح افتح  
+`https://اسم-مشروعك.vercel.app/api/register-signed-upload`  
+يجب أن يظهر JSON فيه `ready: true` عند اكتمال متغيرات Vercel.
+
+**الحل (Vercel):** `SUPABASE_URL`، `SUPABASE_SERVICE_ROLE_KEY`، و`SUPABASE_ANON_KEY` أو `VITE_SUPABASE_ANON_KEY` بنفس قيمة مفتاح anon في الواجهة (للتحقق من رأس `x-supabase-anon`).
+
+**الحل (Supabase):** تنفيذ `supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql` (أو migrations التخزين) لإنشاء حاوية `registration-uploads` والسياسات المناسبة.
+
 ---
 
 ## 📊 اختبار الأداء
@@ -397,6 +415,7 @@ https://search.google.com/test/mobile-friendly
 - [ ] الصور تظهر
 - [ ] التنقل بين الصفحات يعمل
 - [ ] النماذج تعمل
+- [ ] تسجيل الحلاق: رفع المرفقات يعمل (إن كان `dist` على cPanel وVercel منفصل: `VITE_REGISTRATION_API_ORIGIN` مضبوط في البناء)
 - [ ] الموقع يعمل على الموبايل
 - [ ] لا توجد أخطاء في Console
 - [ ] السرعة مقبولة (< 3 ثواني)

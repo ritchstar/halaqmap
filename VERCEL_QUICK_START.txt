@@ -105,6 +105,7 @@ vercel --prod
 
    انسخ القالب من ملف .env.example في جذر المشروع. الأهم:
    • VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY
+   • إذا كان dist على cPanel والـ API على Vercel: VITE_REGISTRATION_API_ORIGIN=https://مشروعك.vercel.app
    • SUPABASE_SERVICE_ROLE_KEY (سيرفر Vercel فقط — رفع الملفات + حفظ طلبات التسجيل دون الاعتماد على RLS للزائر)
    • اختياري لكن موصى به: SUPABASE_ANON_KEY = نفس قيمة anon من Supabase (للتحقق في api/register-upload-file)
    • بعد التعديل: Deployments → إعادة نشر. للتشخيص افتح:

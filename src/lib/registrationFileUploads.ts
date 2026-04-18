@@ -68,16 +68,34 @@ function safeFileSegment(name: string): string {
   return base || 'file';
 }
 
+/**
+ * عند رفع `dist/` على استضافة ثابتة (cPanel) بينما دوال `/api/*` منشورة على Vercel،
+ * المسار النسبي `/api/...` يصيب الاستضافة الثابتة فتُرجع 404 — عيّن عند البناء:
+ * `VITE_REGISTRATION_API_ORIGIN=https://your-app.vercel.app` (بدون شرطة أخيرة).
+ */
+function registrationApiOrigin(): string {
+  return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
+    .trim()
+    .replace(/\/$/, '');
+}
+
+function absoluteOrRelativeApiUrl(path: string): string {
+  const origin = registrationApiOrigin();
+  if (!origin) return path;
+  const clean = path.startsWith('/') ? path : `/${path}`;
+  return `${origin}${clean}`;
+}
+
 function registrationUploadEndpoint(): string {
   const explicit = import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim();
   if (explicit) return explicit;
-  return '/api/register-upload-file';
+  return absoluteOrRelativeApiUrl('/api/register-upload-file');
 }
 
 function registrationSignedUploadEndpoint(): string {
   const explicit = import.meta.env.VITE_REGISTRATION_SIGNED_URL?.trim();
   if (explicit) return explicit;
-  return '/api/register-signed-upload';
+  return absoluteOrRelativeApiUrl('/api/register-signed-upload');
 }
 
 function getBrowserSupabaseAnonKey(): string {
@@ -400,10 +418,18 @@ async function uploadOne(
     }
 
     if (!allowAnonDirectStorageUpload()) {
+      const splitDeployHint =
+        import.meta.env.PROD &&
+        !registrationApiOrigin() &&
+        !import.meta.env.VITE_REGISTRATION_SIGNED_URL?.trim() &&
+        !import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim()
+          ? '\n\nتنبيه شائع: إذا كانت الواجهة على cPanel/استضافة ثابتة والدوال على Vercel فقط، فالمسار `/api/...` لا يصل إلى Vercel. أضف عند بناء الإنتاج `VITE_REGISTRATION_API_ORIGIN=https://مشروعك.vercel.app` ثم أعد `npm run build` وارفع `dist/` من جديد.'
+          : '';
       return {
         ok: false,
         error:
-          'تعذّر رفع الملفات عبر السيرفر (المسار الموقّع غير متاح، والمسار البديل غير جاهز). غالباً: حاوية التخزين غير موجودة/سياسات Storage، أو عدم تطابق مفتاح anon بين الواجهة وVercel. راجع سجلات الدالتين register-signed-upload و register-upload-file.',
+          'تعذّر رفع الملفات عبر السيرفر (المسار الموقّع غير متاح، والمسار البديل غير جاهز). تحقق من: (1) حاوية `registration-uploads` في Supabase وسياساتها، (2) تطابق `VITE_SUPABASE_ANON_KEY` في الواجهة مع `SUPABASE_ANON_KEY` أو `VITE_SUPABASE_ANON_KEY` على Vercel، (3) سجلات الدالتين `register-signed-upload` و `register-upload-file`.' +
+          splitDeployHint,
       };
     }
   }
