@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -34,11 +34,13 @@ import {
   isBankTransferPromoActive,
 } from '@/config/subscriptionPricing';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
+import { toast } from 'sonner';
 
 export default function Payment() {
   const navigate = useNavigate();
   const vatSettings = usePlatformVatSettings();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const tier = searchParams.get('tier') as SubscriptionTier || SubscriptionTier.BRONZE;
   const requestId = searchParams.get('requestId') || 'REQ-' + Date.now();
 
@@ -48,6 +50,11 @@ export default function Payment() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [ibanCopied, setIbanCopied] = useState(false);
+  /** بعد العودة من ميسر بـ ?id= — التحقق من الخادم */
+  const [moyasarReturnVerify, setMoyasarReturnVerify] = useState<
+    'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
+  >('idle');
+  const [moyasarVerifyMessage, setMoyasarVerifyMessage] = useState<string | null>(null);
 
   // Subscription prices
   const prices = {
@@ -73,6 +80,73 @@ export default function Payment() {
   const tierColor = tierColors[tier];
 
   const monthlyBreakdown = calcVatBreakdown(price, vatSettings);
+
+  /** مبلغ الاشتراك الشهري بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
+  const monthlyAmountHalalas = useMemo(
+    () => Math.max(100, Math.round(monthlyBreakdown.total * 100)),
+    [monthlyBreakdown.total],
+  );
+
+  const moyasarPaymentIdFromUrl = searchParams.get('id')?.trim() || '';
+
+  useEffect(() => {
+    if (!moyasarPaymentIdFromUrl) return;
+    let cancelled = false;
+    setMoyasarReturnVerify('loading');
+    setMoyasarVerifyMessage(null);
+
+    void verifyMoyasarPaymentRemote(moyasarPaymentIdFromUrl, {
+      expectedAmountHalalas: monthlyAmountHalalas,
+      expectedCurrency: 'SAR',
+    }).then((result) => {
+      if (cancelled) return;
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('id');
+          return next;
+        },
+        { replace: true },
+      );
+
+      if (!result.ok) {
+        setMoyasarReturnVerify('error');
+        if (result.error === 'moyasar_disabled') {
+          setMoyasarVerifyMessage(
+            'التحقق من الدفع غير مفعّل على الخادم. أضف MOYSAR_SECRET_API_KEY على Vercel ثم أعد المحاولة.',
+          );
+          toast.message('تنبيه', { description: 'خادم التحقق من ميسر غير مهيأ بعد.' });
+        } else if (result.error === 'amount_mismatch') {
+          setMoyasarVerifyMessage('المبلغ لا يطابق اشتراك الباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
+          toast.error('تباين في المبلغ');
+        } else {
+          setMoyasarVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
+          toast.error('فشل التحقق من الدفع');
+        }
+        return;
+      }
+
+      if (result.paid) {
+        setMoyasarReturnVerify('paid');
+        setMoyasarVerifyMessage(
+          result.amount_format
+            ? `حالة الدفع: مدفوع — ${result.amount_format}`
+            : 'حالة الدفع: مدفوع — تم التحقق من ميسر.',
+        );
+        toast.success('تم التحقق من الدفع');
+      } else {
+        setMoyasarReturnVerify('unpaid');
+        setMoyasarVerifyMessage(
+          `حالة الدفع من ميسر: ${result.status || 'غير مكتمل'}. إن كانت العملية قيد 3DS أكمل الخطوات ثم أعد فتح الرابط.`,
+        );
+        toast.message('الدفع غير مكتمل', { description: 'راجع حالة العملية في لوحة ميسر.' });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, setSearchParams]);
 
   const bankTransferDue = getBankTransferPayableAmountSar(tier);
   const bankTransferBreakdown = calcVatBreakdown(bankTransferDue, vatSettings);
@@ -108,12 +182,19 @@ export default function Payment() {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     if (paymentMethod === 'moyasar') {
-      // TODO: Moyasar.init + callback + التحقق من الدفع في الخادم بـ MOYSAR_SECRET_API_KEY
-      alert('سيتم توجيهك إلى بوابة ميسر للدفع...');
-    } else if (paymentMethod === 'card') {
-      // TODO: Integrate with card payment gateway
+      // TODO: Moyasar.init({ publishable_api_key, amount: monthlyAmountHalalas, callback_url, ... })
+      alert(
+        'الخطوة التالية: تهيئة نموذج ميسر (Moyasar.init) بمفتاحك العام وربط callback بعنوان هذه الصفحة مع تمرير tier وrequestId. بعد العودة يُتحقق من الدفع تلقائياً عبر الخادم.',
+      );
+      setIsProcessing(false);
+      return;
+    }
+    if (paymentMethod === 'card') {
       alert('سيتم توجيهك إلى بوابة الدفع الإلكتروني...');
-    } else if (paymentMethod === 'bank_transfer') {
+      setIsProcessing(false);
+      return;
+    }
+    if (paymentMethod === 'bank_transfer') {
       if (!receiptFile) {
         alert('يرجى رفع إيصال التحويل البنكي');
         setIsProcessing(false);
@@ -160,6 +241,32 @@ export default function Payment() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto">
+          {moyasarReturnVerify === 'loading' && (
+            <Alert className="mb-6 border-primary/30 bg-primary/5">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <AlertDescription>جاري التحقق من عملية الدفع مع ميسر…</AlertDescription>
+            </Alert>
+          )}
+          {(moyasarReturnVerify === 'paid' || moyasarReturnVerify === 'unpaid' || moyasarReturnVerify === 'error') &&
+            moyasarVerifyMessage && (
+              <Alert
+                className={`mb-6 ${
+                  moyasarReturnVerify === 'paid'
+                    ? 'border-green-600/40 bg-green-500/10'
+                    : moyasarReturnVerify === 'unpaid'
+                      ? 'border-amber-600/40 bg-amber-500/10'
+                      : 'border-destructive/40 bg-destructive/10'
+                }`}
+              >
+                {moyasarReturnVerify === 'paid' ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                ) : (
+                  <AlertCircle className="h-4 w-4" />
+                )}
+                <AlertDescription className="text-sm leading-relaxed">{moyasarVerifyMessage}</AlertDescription>
+              </Alert>
+            )}
+
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Payment Methods */}
             <div className="lg:col-span-2 space-y-6">

@@ -61,8 +61,9 @@ https://docs.mysr.dev/
 | مفاتيح API | **Publishable** في الواجهة فقط؛ **Secret** في الخادم فقط (Vercel env، لا `VITE_`). |
 | المبلغ | عدد صحيح **بالهللة** (مثلاً 10 ر.س = `1000`). الحد الأدنى للنموذج **100** هللة. |
 | العملة | `SAR` |
-| `callback_url` | صفحة HTTPS بعد إتمام الدفع؛ يُمرَّر `id` الدفع كـ query. |
+| `callback_url` | صفحة HTTPS بعد إتمام الدفع؛ يُمرَّر `id` الدفع كـ query. **تطبيق HashRouter:** يجب أن يعيد المستخدم إلى عنوان يحتوي الهاش، مثل `https://النطاق/#/partners/payment?id=...` (جرّب في لوحة ميسر؛ بعض الإعدادات تقبل الهاش في `callback_url`). |
 | التحقق | بعد الإرجاع: **GET** الدفع من API ميسر والتحقق من `status` و`amount` و`currency` قبل تفعيل الاشتراك. |
+| التحقق عبر خادمك | مُنفَّذ في المشروع: `GET /api/verify-moyasar-payment?id={uuid}` (يحمي `MOYSAR_SECRET_API_KEY`). استعلامات اختيارية: `expectedAmount` (هللات)،`expectedCurrency=SAR`. يخضع لنفس حدود المعدّل/الأصل العامة (`PUBLIC_API_ALLOWED_ORIGINS`) عند ضبطها. |
 | `on_completed` | موصى به لحفظ `payment.id` قبل 3DS في حال انقطاع الاتصال. |
 | الشبكات | `supported_networks: ['visa', 'mastercard', 'mada']` حسب العرض. |
 | الطرق | `methods`: creditcard / applepay / stcpay حسب التفعيل في لوحة ميسر. |

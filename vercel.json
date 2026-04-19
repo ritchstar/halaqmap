@@ -41,6 +41,9 @@
     "api/register-mint-intent.ts": {
       "maxDuration": 15
     },
+    "api/verify-moyasar-payment.ts": {
+      "maxDuration": 20
+    },
     "api/approve-barber.ts": {
       "maxDuration": 30
     },
