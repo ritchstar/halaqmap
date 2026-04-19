@@ -68,6 +68,12 @@ https://docs.mysr.dev/
 | الشبكات | `supported_networks: ['visa', 'mastercard', 'mada']` حسب العرض. |
 | الطرق | `methods`: creditcard / applepay / stcpay حسب التفعيل في لوحة ميسر. |
 
+### 3.1 ما يُنفَّذ في الواجهة (حلاق ماب)
+
+- تحميل السكربت الرسمي من CDN: `https://cdn.moyasar.com/mpf/0.3.0/moyasar.min.js` (يُرجى مراجعة أحدث مسار في وثائق ميسر عند التحديث).
+- استدعاء `Moyasar.init` داخل صفحة الدفع بعد **الإقرار بشروط التاجر**، مع `language: 'ar'` و`metadata` (tier، request_id، product).
+- الملفات: `src/lib/moyasarFormLoader.ts`، `src/pages/Payment.tsx`.
+
 ---
 
 ## 4) قائمة تحقق قبل التفعيل (Live)
