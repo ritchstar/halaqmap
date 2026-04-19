@@ -272,7 +272,10 @@ https://halaqmap.com/#/about
 https://halaqmap.com/#/privacy
 https://halaqmap.com/#/subscription-policy
 https://halaqmap.com/#/payment
+https://halaqmap.com/#/partners/payment
 ```
+
+**بوابة ميسر (Moyasar):** عند تفعيل الدفع بالبطاقة، اضبط المتغيرات في `.env.example` (`VITE_MOYSAR_PUBLISHABLE_API_KEY`، `MOYSAR_SECRET_API_KEY` على الخادم فقط، `VITE_MOYSAR_CALLBACK_URL`) واتبع قائمة التحقق في `docs/MOYSAR_MYSR_MERCHANT_READINESS_AR.md` والشروط الرسمية: https://moyasar.com/ar/resources/terms/
 
 ---
 

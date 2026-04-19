@@ -53,6 +53,7 @@
 
 - `docs/SDAIA_PDPL_OFFICIAL_COMPLIANCE_REPORT_AR.md` — **تقرير امتثال رسمي** (إطار سدايا / نظام حماية البيانات الشخصية) بصياغة خطابية تفصيلية
 - `docs/SDAIA_DGP_REGISTRATION_AND_CERTIFICATION_GUIDE_AR.md` — **دليل التسجيل على منصة حوكمة البيانات الوطنية** ومسار الشهادة/الاعتماد والشفافية والمساءلة (مع رابط صفحة سدايا البحثية)
+- `docs/MOYSAR_MYSR_MERCHANT_READINESS_AR.md` — **التزامات التاجر تجاه ميسر (Moyasar)** + قائمة تحقق تقنية للتكامل
 - `src/pages/Privacy.tsx` — خصوصية المستخدم
 - `src/pages/PartnerPrivacy.tsx` — خصوصية الشركاء
 - `api/*` — مسارات محمية (راجع `VERCEL_QUICK_START.txt` و `.env.example`)

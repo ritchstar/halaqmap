@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   CreditCard,
@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
@@ -42,6 +43,8 @@ export default function Payment() {
   const requestId = searchParams.get('requestId') || 'REQ-' + Date.now();
 
   const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card' | 'bank_transfer'>('moyasar');
+  /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
+  const [moyasarTermsAccepted, setMoyasarTermsAccepted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [ibanCopied, setIbanCopied] = useState(false);
@@ -94,13 +97,18 @@ export default function Payment() {
   };
 
   const handlePayment = async () => {
+    if (paymentMethod === 'moyasar' && !moyasarTermsAccepted) {
+      alert('يجب تأشير الإقرار بقراءة شروط ميسر (بوابة الدفع) قبل المتابعة.');
+      return;
+    }
+
     setIsProcessing(true);
 
     // Simulate payment processing
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     if (paymentMethod === 'moyasar') {
-      // TODO: Integrate with Moyasar API
+      // TODO: Moyasar.init + callback + التحقق من الدفع في الخادم بـ MOYSAR_SECRET_API_KEY
       alert('سيتم توجيهك إلى بوابة ميسر للدفع...');
     } else if (paymentMethod === 'card') {
       // TODO: Integrate with card payment gateway
@@ -203,7 +211,13 @@ export default function Payment() {
                   <CardDescription>جميع المعاملات آمنة ومشفرة</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <RadioGroup value={paymentMethod} onValueChange={(value: any) => setPaymentMethod(value)}>
+                  <RadioGroup
+                    value={paymentMethod}
+                    onValueChange={(value: 'moyasar' | 'card' | 'bank_transfer') => {
+                      setPaymentMethod(value);
+                      if (value !== 'moyasar') setMoyasarTermsAccepted(false);
+                    }}
+                  >
                     {/* Moyasar */}
                     <label
                       className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
@@ -273,6 +287,55 @@ export default function Payment() {
                       </div>
                     </label>
                   </RadioGroup>
+
+                  {paymentMethod === 'moyasar' && (
+                    <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
+                      <Alert>
+                        <Shield className="h-4 w-4" />
+                        <AlertDescription className="space-y-2 text-sm leading-relaxed">
+                          <p>
+                            الدفع عبر <strong>ميسر (شركة مُيسر المالية)</strong> يخضع لـ{' '}
+                            <a
+                              href="https://moyasar.com/ar/resources/terms/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-primary underline-offset-2 hover:underline"
+                            >
+                              الشروط والأحكام الرسمية للتاجر
+                            </a>{' '}
+                            وللوائح التقنية في{' '}
+                            <a
+                              href="https://docs.mysr.dev/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-primary underline-offset-2 hover:underline"
+                            >
+                              وثائق التكامل (mysr.dev)
+                            </a>
+                            . يلتزم التاجر بـ SSL، والتحقق من الدفع في الخادم، وعدم تخزين بيانات البطاقة،
+                            وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع أيضاً{' '}
+                            <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
+                              سياسة الاشتراك
+                            </Link>
+                            .
+                          </p>
+                        </AlertDescription>
+                      </Alert>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="moyasar-merchant-terms"
+                          checked={moyasarTermsAccepted}
+                          onCheckedChange={(c) => setMoyasarTermsAccepted(c === true)}
+                          className="mt-1"
+                        />
+                        <Label htmlFor="moyasar-merchant-terms" className="cursor-pointer text-sm font-normal leading-relaxed">
+                          <span className="font-semibold text-foreground">أقر</span> بأنني اطلعت على{' '}
+                          <strong>شروط وأحكام بوابة الدفع الإلكتروني لشركة مُيسر المالية</strong> بصفتنا تاجراً أمام
+                          بوابة الدفع، وأوافق على المتابعة ضمن هذا الإطار.
+                        </Label>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Bank Transfer Details */}
                   {paymentMethod === 'bank_transfer' && (
@@ -419,7 +482,11 @@ export default function Payment() {
               {/* Payment Button */}
               <Button
                 onClick={handlePayment}
-                disabled={isProcessing || (paymentMethod === 'bank_transfer' && !receiptFile)}
+                disabled={
+                  isProcessing ||
+                  (paymentMethod === 'bank_transfer' && !receiptFile) ||
+                  (paymentMethod === 'moyasar' && !moyasarTermsAccepted)
+                }
                 className="w-full h-14 text-lg font-semibold"
                 size="lg"
               >
