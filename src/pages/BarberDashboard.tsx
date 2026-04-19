@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -22,6 +22,7 @@ import {
   Paperclip,
   QrCode,
   Copy,
+  UserX,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,6 +37,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import QRCode from 'react-qr-code';
 import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib';
@@ -79,9 +81,38 @@ function newId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function subscriptionTierLabelAr(tier: SubscriptionTier): string {
+  if (tier === SubscriptionTier.DIAMOND) return 'ماسي';
+  if (tier === SubscriptionTier.GOLD) return 'ذهبي';
+  return 'برونزي';
+}
+
+function buildTierAccountDeletionMailto(session: BarberPortalSession): string {
+  const subject = encodeURIComponent(`طلب حذف حساب شريك — ${subscriptionTierLabelAr(session.subscription)}`);
+  const mn = formatBarberMemberNumber(session.memberNumber);
+  const bodyLines = [
+    'السلام عليكم ورحمة الله وبركاته،',
+    '',
+    'أطلب حذف حسابي كشريك في منصة حلاق ماب من لوحة التحكم:',
+    '',
+    `— اسم الصالون: ${session.name}`,
+    `— البريد المعتمد: ${session.email}`,
+    `— رقم الهاتف: ${session.phone || '—'}`,
+    `— رقم العضوية: ${mn || '—'}`,
+    `— معرف الحساب: ${session.id}`,
+    `— الباقة الحالية: ${subscriptionTierLabelAr(session.subscription)}`,
+    '',
+    'أفهم أن الحذف يُعالَج بعد مراجعة الإدارة ولن يكون فورياً من هذه الرسالة.',
+    '',
+    'وتفضلوا بقبول فائق الاحترام،',
+  ];
+  return `mailto:admin@halaqmap.com?subject=${subject}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+}
+
 export default function BarberDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
   const [barberData, setBarberData] = useState<BarberPortalSession | null>(null);
   const [scheduleItems, setScheduleItems] = useState<BarberDashboardScheduleItem[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -277,6 +308,7 @@ export default function BarberDashboard() {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-background" dir="rtl">
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
@@ -299,10 +331,26 @@ export default function BarberDashboard() {
                 ) : null}
               </div>
             </div>
-            <Button variant="ghost" onClick={handleLogout} className="shrink-0 gap-2">
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">تسجيل الخروج</span>
-            </Button>
+            <div className="flex shrink-0 items-center gap-1">
+              {(barberData.subscription === SubscriptionTier.GOLD ||
+                barberData.subscription === SubscriptionTier.DIAMOND) && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => setDeleteAccountDialogOpen(true)}
+                  title="طلب حذف الحساب"
+                  aria-label="طلب حذف الحساب"
+                >
+                  <UserX className="h-5 w-5" />
+                </Button>
+              )}
+              <Button variant="ghost" onClick={handleLogout} className="shrink-0 gap-2">
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">تسجيل الخروج</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -432,6 +480,29 @@ export default function BarberDashboard() {
         </Tabs>
       </div>
     </div>
+
+    <Dialog open={deleteAccountDialogOpen} onOpenChange={setDeleteAccountDialogOpen}>
+      <DialogContent className="sm:max-w-md" dir="rtl">
+        <DialogHeader>
+          <DialogTitle>طلب حذف الحساب</DialogTitle>
+          <DialogDescription className="text-right leading-relaxed">
+            سيتم تجهيز رسالة بريد إلى الإدارة تتضمن معرف حسابك وبيانات التعريف. أرسلها من بريدك المعتمد لدينا
+            لتسريع التحقق. الحذف النهائي يتم بعد مراجعة الإدارة.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2 sm:justify-start sm:space-x-reverse">
+          <Button variant="outline" type="button" onClick={() => setDeleteAccountDialogOpen(false)}>
+            إلغاء
+          </Button>
+          <Button variant="destructive" type="button" asChild>
+            <a href={buildTierAccountDeletionMailto(barberData)} onClick={() => setDeleteAccountDialogOpen(false)}>
+              متابعة عبر البريد
+            </a>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
 
@@ -1424,6 +1495,23 @@ function SettingsSection({
               ماسية.
             </CardDescription>
           </CardHeader>
+        </Card>
+      )}
+
+      {subscriptionTier === SubscriptionTier.BRONZE && (
+        <Card className="mb-6 border-destructive/25 bg-destructive/[0.04]">
+          <CardHeader>
+            <CardTitle className="text-base">حذف الحساب وحقوقك</CardTitle>
+            <CardDescription className="leading-relaxed">
+              يحق لك طلب إيقاف ظهورك وحذف بياناتك كشريك. في الباقة البرونزية يُقدَّم الطلب عبر نموذج يُحال إلى
+              الإدارة للتحقق ومعالجة الطلب يدوياً.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link to={ROUTE_PATHS.BARBER_ACCOUNT_DELETE_REQUEST}>فتح نموذج طلب حذف الحساب</Link>
+            </Button>
+          </CardContent>
         </Card>
       )}
 

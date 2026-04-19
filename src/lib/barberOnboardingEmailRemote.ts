@@ -1,3 +1,4 @@
+import { getSupabaseClient } from '@/integrations/supabase/client';
 import { SubscriptionTier } from '@/lib';
 
 const ONBOARDING_EMAIL_API = '/api/send-barber-onboarding';
@@ -15,14 +16,15 @@ function getEndpoint(): string {
   return `${origin}${ONBOARDING_EMAIL_API}`;
 }
 
-function baseHeaders(): Record<string, string> {
+async function buildAuthHeaders(): Promise<Record<string, string>> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-  const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
   const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
-  if (anonKey) headers['x-supabase-anon'] = anonKey;
   if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+  const client = getSupabaseClient();
+  const token = (await client?.auth.getSession())?.data.session?.access_token?.trim();
+  if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
 }
 
@@ -55,7 +57,7 @@ export async function sendBarberOnboardingEmailRemote(input: {
 
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: baseHeaders(),
+      headers: await buildAuthHeaders(),
       body: JSON.stringify(body),
     });
     const payload = (await response.json().catch(() => ({}))) as { error?: string; messageId?: string };
@@ -92,7 +94,7 @@ export async function sendOnboardingEmailsForActiveBarbersRemote(
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: baseHeaders(),
+      headers: await buildAuthHeaders(),
       body: JSON.stringify({
         mode: 'bulk_active',
         limit,

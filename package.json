@@ -11,7 +11,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:dev": "npm run build:dev && npm run preview",
-    "test:edge-functions": "cd supabase/edge_function && deno task test"
+    "test:edge-functions": "cd supabase/edge_function && deno task test",
+    "test:registration-guard": "npx --yes tsx scripts/test-registration-route-guard.mts",
+    "test:registration-intent": "npx --yes tsx scripts/test-registration-intent.mts",
+    "test:registration-security": "npm run test:registration-guard && npm run test:registration-intent"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

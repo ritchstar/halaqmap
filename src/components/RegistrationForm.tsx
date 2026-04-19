@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ import {
   saPhoneToInternational,
   saveLastOrderConfirmation,
 } from '@/lib/subscriptionRequestStorage';
+import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
 import { BANK_TRANSFER } from '@/config/bankTransfer';
 import { getBankTransferPayableAmountSar, getBankTransferPlanSummaryAr } from '@/config/subscriptionPricing';
 import {
@@ -112,6 +113,8 @@ interface FormData {
     method: 'monthly' | 'bank_transfer' | '';
     receipt: File | null;
   };
+  /** إلزامي قبل «إرسال الطلب»: تأشير صريح بالموافقة على الشروط والسياسات */
+  registrationTermsAccepted: boolean;
 }
 
 const STEPS = [
@@ -252,6 +255,7 @@ export function RegistrationForm() {
       method: '',
       receipt: null,
     },
+    registrationTermsAccepted: false,
   });
 
   /** عند الانتقال بين خطوات التسجيل يُمرَّر العرض لأعلى النموذج (وليس للفوتر). */
@@ -513,6 +517,13 @@ export function RegistrationForm() {
       alert('يرجى رفع إيصال التحويل البنكي');
       return;
     }
+    if (!formData.registrationTermsAccepted) {
+      toast.error('يجب تأشير الموافقة الصريحة على شروط التسجيل وسياسة الشركاء قبل الإرسال.');
+      window.requestAnimationFrame(() =>
+        formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      );
+      return;
+    }
     if (!formData.documents.commercialRegistry || !formData.documents.municipalLicense) {
       alert('يرجى إكمال خطوة المستندات: السجل التجاري والرخصة البلدية إلزاميان.');
       return;
@@ -544,20 +555,33 @@ export function RegistrationForm() {
       const submittedAtLabel = formatSubmissionDateTimeAr();
       const submittedAtIso = new Date().toISOString();
 
+      const minted = await mintRegistrationIntentTokenRemote(orderId);
+      if (!minted.ok) {
+        toast.error(minted.error);
+        setIsSubmitting(false);
+        return;
+      }
+      const intentToken = minted.intentToken;
+
       let registrationAttachmentUrls: RegistrationAttachmentUrls | undefined;
       const supabase = getSupabaseClient();
       const receiptFile = formData.payment.receipt;
       /* 1) رفع المرفقات أولاً — يتطلب orderId مطابقاً لسياسة التخزين؛ فشل مبكر دون تحميل بيانات إضافية */
       if (supabase) {
-        const up = await uploadRegistrationAttachments(supabase, orderId, {
-          commercialRegistry: formData.documents.commercialRegistry!,
-          municipalLicense: formData.documents.municipalLicense!,
-          healthCertificates: formData.documents.healthCertificates,
-          shopExterior: formData.images.shopExterior!,
-          shopInterior: formData.images.shopInterior!,
-          bannerImages: formData.images.bannerImages.filter(Boolean) as File[],
-          receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
-        });
+        const up = await uploadRegistrationAttachments(
+          supabase,
+          orderId,
+          {
+            commercialRegistry: formData.documents.commercialRegistry!,
+            municipalLicense: formData.documents.municipalLicense!,
+            healthCertificates: formData.documents.healthCertificates,
+            shopExterior: formData.images.shopExterior!,
+            shopInterior: formData.images.shopInterior!,
+            bannerImages: formData.images.bannerImages.filter(Boolean) as File[],
+            receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
+          },
+          { intentToken }
+        );
         if (!up.ok) {
           const uploadError = 'error' in up ? up.error : 'تعذر رفع المرفقات.';
           toast.error(registrationUploadErrorForToast(uploadError));
@@ -648,10 +672,12 @@ export function RegistrationForm() {
         weeklyWorkingHours: weeklyWorkingHoursPayload,
         servicesSummary: servicesSummary || '—',
         categories: [...formData.categories],
+        registrationTermsAccepted: true,
+        registrationTermsAcceptedAtIso: submittedAtIso,
       };
 
       /* 3) حفظ الطلب في قاعدة البيانات ثم النسخ المحلي (عند تهيئة Supabase) */
-      const appended = await appendSubscriptionRequest(request);
+      const appended = await appendSubscriptionRequest(request, { intentToken });
       if (!appended.ok) {
         const ref = `\u2066${orderId}\u2069`;
         const submissionError = 'error' in appended ? appended.error : 'تعذر حفظ الطلب.';
@@ -1544,6 +1570,42 @@ export function RegistrationForm() {
                     </div>
                   </label>
                 </RadioGroup>
+                <div className="space-y-3 rounded-lg border border-border bg-muted/25 p-4">
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      id="registration-terms-accept"
+                      checked={formData.registrationTermsAccepted}
+                      onCheckedChange={(checked) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          registrationTermsAccepted: checked === true,
+                        }))
+                      }
+                      className="mt-1"
+                    />
+                    <Label htmlFor="registration-terms-accept" className="cursor-pointer text-sm font-normal leading-relaxed">
+                      <span className="font-semibold text-foreground">أقرّ بموافقتي الصريحة</span> على أنني قرأت وفهمت{' '}
+                      <Link
+                        to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline-offset-2 hover:underline font-medium"
+                      >
+                        شروط التسجيل والاشتراك
+                      </Link>{' '}
+                      و{' '}
+                      <Link
+                        to={ROUTE_PATHS.PARTNER_PRIVACY}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline-offset-2 hover:underline font-medium"
+                      >
+                        سياسة خصوصية الشركاء
+                      </Link>
+                      ، وأوافق على الالتزام بها. أعلم أن مجرد تصفح النصوص دون التأشير هنا لا يُعد موافقة.
+                    </Label>
+                  </div>
+                </div>
                 {formData.payment.method === 'bank_transfer' && (
                   <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
                     <div className="space-y-2">
@@ -1605,7 +1667,10 @@ export function RegistrationForm() {
             <ChevronRight className="w-4 h-4 mr-2" />
           </Button>
         ) : (
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !formData.registrationTermsAccepted}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 ml-2 animate-spin" />

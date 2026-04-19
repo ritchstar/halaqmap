@@ -16,6 +16,8 @@ export const ROUTE_PATHS = {
   SUBSCRIPTION_POLICY: '/partners/subscription-policy',
   BARBER_LOGIN: '/partners/login',
   BARBER_DASHBOARD: '/barber/dashboard',
+  /** طلب حذف الحساب (باقة برونزية — نموذج يُحال للإدارة) */
+  BARBER_ACCOUNT_DELETE_REQUEST: '/barber/request-account-deletion',
   PAYMENT: '/partners/payment',
   /** دعم فني للشركاء — محادثة خاصة بجلسة ساعة (?t=رمز_فريد) */
   PARTNER_SUPPORT: '/partners/support',
@@ -214,6 +216,10 @@ export interface SubscriptionRequest {
   weeklyWorkingHours?: { day: string; open: string; close: string }[];
   servicesSummary?: string;
   categories?: string[];
+  /** موافقة صريحة على شروط التسجيل وسياسة الشركاء (إلزامية عند الإرسال) */
+  registrationTermsAccepted?: boolean;
+  /** وقت الموافقة ISO 8601 (UTC) */
+  registrationTermsAcceptedAtIso?: string;
 }
 
 export interface Payment {

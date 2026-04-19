@@ -1,4 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
+import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto';
+import { assertRegistrationServerAuth } from './_lib/registrationServerAuth';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
 
 export const config = {
   maxDuration: 60,
@@ -15,7 +18,7 @@ function corsHeaders(request: Request): Record<string, string> {
     'Access-Control-Allow-Origin': origin || '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers':
-      'Content-Type, x-order-id, x-storage-subpath, x-supabase-anon, x-file-content-type',
+      'Content-Type, x-order-id, x-storage-subpath, x-supabase-anon, x-file-content-type, x-client-supabase-url, x-registration-intent',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -45,7 +48,9 @@ export async function GET(request: Request): Promise<Response> {
       supabaseUrlSet: url,
       serviceRoleKeySet: serviceRole,
       anonKeySetForVerification: anon,
-      ready: url && serviceRole && anon,
+      registrationIntentMode: isRegistrationIntentMode(),
+      ready: url && serviceRole && (isRegistrationIntentMode() || anon),
+      registrationGuard: registrationGuardDiagnostics(),
     },
     { headers }
   );
@@ -53,6 +58,11 @@ export async function GET(request: Request): Promise<Response> {
 
 export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
+
+  const guard = runRegistrationRouteGuards(request, 'register-upload-file');
+  if (!guard.ok) {
+    return Response.json(guard.json, { status: guard.status, headers });
+  }
 
   const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
@@ -69,30 +79,6 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  if (!expectedAnon) {
-    return Response.json(
-      { error: 'Server upload not configured (anon key for verification)' },
-      { status: 503, headers }
-    );
-  }
-
-  const providedAnon =
-    request.headers.get('x-supabase-anon')?.trim() ||
-    (request.headers.get('authorization')?.startsWith('Bearer ')
-      ? request.headers.get('authorization')!.slice(7).trim()
-      : '');
-
-  if (providedAnon !== expectedAnon) {
-    return Response.json(
-      {
-        error: 'Unauthorized',
-        hint:
-          'On Vercel, set SUPABASE_ANON_KEY to the same value as the Supabase anon key, or ensure VITE_SUPABASE_ANON_KEY matches exactly (no extra spaces). The browser sends x-supabase-anon; the server must match it.',
-      },
-      { status: 401, headers }
-    );
-  }
-
   const orderId = request.headers.get('x-order-id')?.trim() || '';
   const storageSubpath = request.headers.get('x-storage-subpath')?.trim() || '';
 
@@ -106,6 +92,11 @@ export async function POST(request: Request): Promise<Response> {
 
   if (!validateStorageSubpath(storageSubpath)) {
     return Response.json({ error: 'Invalid storage subpath' }, { status: 400, headers });
+  }
+
+  const auth = assertRegistrationServerAuth(request, orderId, expectedAnon);
+  if (!auth.ok) {
+    return Response.json(auth.json, { status: auth.status, headers });
   }
 
   const ab = await request.arrayBuffer();

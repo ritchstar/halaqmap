@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone } from "lucide-react";
+import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale } from "lucide-react";
 
 export default function Privacy() {
   const sections = [
@@ -7,6 +7,18 @@ export default function Privacy() {
       icon: Shield,
       title: "التزامنا بالخصوصية",
       content: "هذه الصفحة مخصصة لخصوصية مستخدم المنصة (الزائر الباحث عن صالون). في حلاق ماب نلتزم بحماية خصوصيتك وجعل تجربة البحث آمنة وواضحة."
+    },
+    {
+      icon: Scale,
+      title: "الامتثال لنظام حماية البيانات الشخصية (السعودية)",
+      content:
+        "نصمّم تجربة المستخدم وفق مبادئ **نظام حماية البيانات الشخصية** في المملكة العربية السعودية والإرشادات ذات الصلة الصادرة عن **هيئة حماية البيانات الشخصية** التابعة للهيئة السعودية للبيانات والذكاء الاصطناعي «سدايا».\n\n" +
+        "- **الشفافية والغرض:** نوضح في هذه الصفحة أغراض المعالجة بقدر ما يلزم لتجربة البحث والخريطة.\n" +
+        "- **التقليل:** نجمع الحد الأدنى من البيانات اللازمة للتشغيل.\n" +
+        "- **الأمان:** نطبّق ضوابط تقنية وتنظيمية معقولة (منها التشفير أثناء النقل TLS، وقيود الوصول في البنية السحابية).\n" +
+        "- **حقوق أصحاب البيانات:** يمكنك طلب الاطلاع أو التصحيح أو الحذف ضمن ما يسمح به النظام والتشغيل، عبر قنوات التواصل أدناه.\n" +
+        "- **الشكوى للجهة:** يحق لك تقديم شكوى إلى هيئة حماية البيانات الشخصية عبر بوابتها الرسمية: https://dgp.sdaia.gov.sa/\n\n" +
+        "هذا الملخص لا يغني عن الاطلاع على النصوص القانونية المعتمدة لدى الجهة أو عن استشارة قانونية عند الحاجة.",
     },
     {
       icon: Eye,
@@ -31,7 +43,7 @@ export default function Privacy() {
     {
       icon: Cookie,
       title: "ملفات تعريف الارتباط",
-      content: "نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربتك:\n\n- **ملفات ضرورية:** لتشغيل المنصة بشكل صحيح (تسجيل الدخول، الأمان)\n- **ملفات الأداء:** لتحليل استخدام المنصة وتحسينها (Google Analytics)\n- **ملفات التفضيلات:** لحفظ إعداداتك (اللغة، الموقع الأخير)\n\nيمكنك التحكم في ملفات تعريف الارتباط من إعدادات متصفحك. ملاحظة: تعطيل بعض الملفات قد يؤثر على وظائف المنصة."
+      content: "نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربتك:\n\n- **ملفات ضرورية:** لتشغيل المنصة بشكل صحيح (الجلسات، الأمان حيث ينطبق)\n- **ملفات الأداء:** عند تفعيل أدوات تحليل خارجية معتمدة لدينا، تُستخدم وفق سياسة المزود ومع إعدادات الخصوصية المناسبة\n- **ملفات التفضيلات:** لحفظ إعداداتك (مثل الموقع الأخير عند الموافقة)\n\nيمكنك التحكم في ملفات تعريف الارتباط من إعدادات متصفحك. ملاحظة: تعطيل بعض الملفات قد يؤثر على وظائف المنصة."
     },
     {
       icon: Bell,
@@ -166,14 +178,14 @@ export default function Privacy() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <a
-                    href="mailto:privacy@halaqmap.com"
+                    href="mailto:admin@halaqmap.com?subject=%D8%B7%D9%84%D8%A8%20%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9%20%D8%A3%D9%88%20%D8%AD%D9%82%D9%88%D9%82%20%D8%A8%D9%8A%D8%A7%D9%86%D8%A7%D8%AA"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors duration-200"
                   >
                     <Mail className="w-5 h-5" />
                     راسلنا عبر البريد
                   </a>
                   <a
-                    href="tel:+966501234567"
+                    href="tel:+966559602685"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-card border border-border text-foreground rounded-xl font-semibold hover:bg-muted transition-colors duration-200"
                   >
                     <Phone className="w-5 h-5" />

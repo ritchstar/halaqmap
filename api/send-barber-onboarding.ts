@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { type SupabaseClient } from '@supabase/supabase-js';
+import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth';
 
 export const config = {
   maxDuration: 60,
@@ -59,18 +60,9 @@ function corsHeaders(request: Request): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin || '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon, x-client-supabase-url',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
     'Access-Control-Max-Age': '86400',
   };
-}
-
-function safeHost(rawUrl: string): string | null {
-  if (!rawUrl) return null;
-  try {
-    return new URL(rawUrl).host;
-  } catch {
-    return rawUrl;
-  }
 }
 
 function tierLabelAr(tier: Tier | null | undefined): string {
@@ -191,13 +183,9 @@ function padBarberMember(n: number | null | undefined): string | null {
 }
 
 async function loadBarberOnboardingRow(
-  supabaseUrl: string,
-  serviceRole: string,
+  supabase: SupabaseClient,
   email: string,
 ): Promise<{ id: string; rating_invite_token: string | null; member_number: number | null } | null> {
-  const supabase = createClient(supabaseUrl, serviceRole, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
   const raw = email.trim();
   for (const addr of [raw, raw.toLowerCase()]) {
     const { data, error } = await supabase
@@ -567,12 +555,6 @@ function isResendFailure(r: ResendSendOutcome): r is { ok: false; error: string 
   return r.ok === false;
 }
 
-type AnonGateOutcome = { ok: true } | { ok: false; error: string; status: number };
-
-function isAnonFailure(r: AnonGateOutcome): r is { ok: false; error: string; status: number } {
-  return r.ok === false;
-}
-
 async function sendViaResend(input: {
   to: string;
   subject: string;
@@ -636,21 +618,6 @@ async function sendViaResend(input: {
   return { ok: false, error: lastError };
 }
 
-function validateAnon(request: Request, expectedAnon: string): AnonGateOutcome {
-  if (!expectedAnon) {
-    return {
-      ok: false,
-      error: 'Server not configured (SUPABASE_ANON_KEY / VITE_SUPABASE_ANON_KEY)',
-      status: 503,
-    };
-  }
-  const providedAnon = request.headers.get('x-supabase-anon')?.trim() || '';
-  if (providedAnon !== expectedAnon) {
-    return { ok: false, error: 'Unauthorized', status: 401 };
-  }
-  return { ok: true };
-}
-
 function parseLimit(raw: unknown, fallback = 200): number {
   const n = Number(raw);
   if (!Number.isFinite(n)) return fallback;
@@ -683,7 +650,7 @@ export async function GET(request: Request): Promise<Response> {
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const resendApiKeySet = Boolean((process.env.RESEND_API_KEY || '').trim());
   const fromEmailSet = Boolean((process.env.RESEND_FROM_EMAIL || '').trim());
-  const anonSet = Boolean((process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim());
+  const serviceRoleSet = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
   return Response.json(
     {
       ok: true,
@@ -692,8 +659,9 @@ export async function GET(request: Request): Promise<Response> {
       supabaseUrlHost: safeHost(resolvedUrl),
       resendApiKeySet,
       resendFromEmailSet: fromEmailSet,
-      anonKeySetForVerification: anonSet,
-      ready: resendApiKeySet && fromEmailSet && anonSet,
+      serviceRoleKeySet: serviceRoleSet,
+      postAuth: 'Authorization: Bearer <Supabase access_token> + active admin with manage_barbers',
+      ready: resendApiKeySet && fromEmailSet && Boolean(resolvedUrl) && serviceRoleSet,
     },
     { headers }
   );
@@ -703,20 +671,30 @@ export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-  const expectedAnon = (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim();
   const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
   const fromEmail = (process.env.RESEND_FROM_EMAIL || '').trim();
 
-  const anonCheck = validateAnon(request, expectedAnon);
-  if (isAnonFailure(anonCheck)) {
-    return Response.json({ error: anonCheck.error }, { status: anonCheck.status, headers });
-  }
   if (!resendApiKey || !fromEmail) {
     return Response.json(
       { error: 'Server not configured (RESEND_API_KEY / RESEND_FROM_EMAIL)' },
       { status: 503, headers }
     );
   }
+  if (!url || !serviceRole) {
+    return Response.json(
+      {
+        error: 'Server not configured (SUPABASE_SERVICE_ROLE_KEY / URL)',
+        hint: 'Admin mail APIs require Supabase to verify the caller and to load barber rows.',
+      },
+      { status: 503, headers }
+    );
+  }
+
+  const adminAuth = await verifyManageBarbersAdminFromRequest(request, url, serviceRole);
+  if (!adminAuth.ok) {
+    return Response.json(adminAuth.json, { status: adminAuth.status, headers });
+  }
+  const supabase = adminAuth.supabase;
 
   let body: unknown;
   try {
@@ -744,13 +722,11 @@ export async function POST(request: Request): Promise<Response> {
     let barberId: string | null = String((payload as SinglePayload).barberId ?? '').trim() || null;
     let ratingTok: string | null = String((payload as SinglePayload).ratingInviteToken ?? '').trim() || null;
     let memberPadded: string | null = null;
-    if (url && serviceRole) {
-      const row = await loadBarberOnboardingRow(url, serviceRole, barberEmail);
-      if (row) {
-        if (!barberId) barberId = row.id;
-        if (!ratingTok?.trim()) ratingTok = row.rating_invite_token;
-        memberPadded = padBarberMember(row.member_number);
-      }
+    const onboardingRow = await loadBarberOnboardingRow(supabase, barberEmail);
+    if (onboardingRow) {
+      if (!barberId) barberId = onboardingRow.id;
+      if (!ratingTok?.trim()) ratingTok = onboardingRow.rating_invite_token;
+      memberPadded = padBarberMember(onboardingRow.member_number);
     }
     const ratingCtx = await buildRatingEmailContext(baseUrl, barberId, ratingTok);
     const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
@@ -784,16 +760,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (mode === 'bulk_active') {
-    if (!url || !serviceRole) {
-      return Response.json(
-        { error: 'Server not configured (SUPABASE_SERVICE_ROLE_KEY / URL)' },
-        { status: 503, headers }
-      );
-    }
     const limit = parseLimit((payload as BulkPayload).limit, 200);
-    const supabase = createClient(url, serviceRole, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
     const { data, error } = await supabase
       .from('barbers')
       .select('id, name, email, tier, is_active, rating_invite_token')

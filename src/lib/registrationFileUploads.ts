@@ -144,33 +144,39 @@ async function trySignedUrlUpload(
   client: SupabaseClient,
   orderId: string,
   storageSubpath: string,
-  file: File
+  file: File,
+  intentToken: string | null
 ): Promise<
   | { ok: true; url: string }
   | { ok: false; fallback: true }
   | { ok: false; fallback: false; error: string }
 > {
   const anon = getBrowserSupabaseAnonKey();
-  if (!anon) {
+  if (!intentToken?.trim() && !anon) {
     return {
       ok: false,
       fallback: false,
       error:
-        'VITE_SUPABASE_ANON_KEY غير موجود في build الواجهة (الإنتاج). بدون هذا المفتاح لا يمكن توثيق طلبات الرفع على دوال Vercel. أضف VITE_SUPABASE_ANON_KEY في Vercel (Production) ثم أعد نشر الواجهة.',
+        'VITE_SUPABASE_ANON_KEY غير موجود في build الواجهة (الإنتاج)، ولا يوجد توقيع نية تسجيل. أضف VITE_SUPABASE_ANON_KEY أو فعّل REGISTRATION_INTENT_SECRET على السيرفر مع mint.',
     };
   }
 
   const endpoint = registrationSignedUploadEndpoint();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-order-id': orderId,
+    'x-storage-subpath': storageSubpath,
+  };
+  if (anon) headers['x-supabase-anon'] = anon;
+  const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
+  if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+  if (intentToken?.trim()) headers['x-registration-intent'] = intentToken.trim();
+
   let res: Response;
   try {
     res = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-order-id': orderId,
-        'x-storage-subpath': storageSubpath,
-        'x-supabase-anon': anon,
-      },
+      headers,
     });
   } catch {
     return { ok: false, fallback: true };
@@ -276,34 +282,40 @@ async function trySignedUrlUpload(
 async function tryServerUpload(
   orderId: string,
   storageSubpath: string,
-  file: File
+  file: File,
+  intentToken: string | null
 ): Promise<
   | { ok: true; url: string }
   | { ok: false; fallback: true }
   | { ok: false; fallback: false; error: string }
 > {
   const anon = getBrowserSupabaseAnonKey();
-  if (!anon) {
+  if (!intentToken?.trim() && !anon) {
     return {
       ok: false,
       fallback: false,
       error:
-        'VITE_SUPABASE_ANON_KEY غير موجود في build الواجهة (الإنتاج). أضف VITE_SUPABASE_ANON_KEY في Vercel (Production) ثم أعد نشر الواجهة.',
+        'VITE_SUPABASE_ANON_KEY غير موجود في build الواجهة (الإنتاج)، ولا يوجد توقيع نية تسجيل. أضف VITE_SUPABASE_ANON_KEY أو فعّل REGISTRATION_INTENT_SECRET على السيرفر مع mint.',
     };
   }
 
   const endpoint = registrationUploadEndpoint();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/octet-stream',
+    'x-file-content-type': file.type || 'application/octet-stream',
+    'x-order-id': orderId,
+    'x-storage-subpath': storageSubpath,
+  };
+  if (anon) headers['x-supabase-anon'] = anon;
+  const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
+  if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+  if (intentToken?.trim()) headers['x-registration-intent'] = intentToken.trim();
+
   let res: Response;
   try {
     res = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'x-file-content-type': file.type || 'application/octet-stream',
-        'x-order-id': orderId,
-        'x-storage-subpath': storageSubpath,
-        'x-supabase-anon': anon,
-      },
+      headers,
       body: file,
     });
   } catch {
@@ -380,13 +392,14 @@ async function uploadOne(
   client: SupabaseClient,
   orderId: string,
   subfolder: string,
-  file: File
+  file: File,
+  intentToken: string | null
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
-  if (shouldAttemptServerUpload() && !getBrowserSupabaseAnonKey()) {
+  if (shouldAttemptServerUpload() && !getBrowserSupabaseAnonKey() && !intentToken?.trim()) {
     return {
       ok: false,
       error:
-        'تعذّر رفع المرفقات: مفتاح anon الخاص بالواجهة غير مضمّن في الإنتاج (VITE_SUPABASE_ANON_KEY). أضفه في Vercel على Production ثم أعد نشر الواجهة.',
+        'تعذّر رفع المرفقات: مفتاح anon الخاص بالواجهة غير مضمّن في الإنتاج (VITE_SUPABASE_ANON_KEY)، ولا يوجد توقيع نية تسجيل. أضف VITE_SUPABASE_ANON_KEY أو فعّل REGISTRATION_INTENT_SECRET على السيرفر.',
     };
   }
 
@@ -400,7 +413,7 @@ async function uploadOne(
   const path = `${orderId}/${storageSubpath}`;
 
   if (shouldAttemptServerUpload()) {
-    const signed = await trySignedUrlUpload(client, orderId, storageSubpath, file);
+    const signed = await trySignedUrlUpload(client, orderId, storageSubpath, file, intentToken);
     if (signed.ok === true) {
       return { ok: true, url: signed.url };
     }
@@ -409,7 +422,7 @@ async function uploadOne(
       return { ok: false, error: signed.error };
     }
 
-    const server = await tryServerUpload(orderId, storageSubpath, file);
+    const server = await tryServerUpload(orderId, storageSubpath, file, intentToken);
     if (server.ok === true) {
       return { ok: true, url: server.url };
     }
@@ -457,7 +470,8 @@ export async function uploadRegistrationAttachments(
     shopInterior: File;
     bannerImages: File[];
     receipt: File | null;
-  }
+  },
+  options?: { intentToken?: string | null }
 ): Promise<{ ok: true; urls: RegistrationAttachmentUrls } | { ok: false; error: string }> {
   if (!REGISTRATION_STORAGE_ORDER_ID_RE.test(orderId)) {
     return {
@@ -466,35 +480,37 @@ export async function uploadRegistrationAttachments(
     };
   }
 
-  const cr = await uploadOne(client, orderId, 'documents', files.commercialRegistry);
+  const intentToken = options?.intentToken ?? null;
+
+  const cr = await uploadOne(client, orderId, 'documents', files.commercialRegistry, intentToken);
   if (cr.ok === false) return { ok: false, error: cr.error };
 
-  const ml = await uploadOne(client, orderId, 'documents', files.municipalLicense);
+  const ml = await uploadOne(client, orderId, 'documents', files.municipalLicense, intentToken);
   if (ml.ok === false) return { ok: false, error: ml.error };
 
   const healthCertificates: string[] = [];
   for (const f of files.healthCertificates) {
-    const h = await uploadOne(client, orderId, 'health', f);
+    const h = await uploadOne(client, orderId, 'health', f, intentToken);
     if (h.ok === false) return { ok: false, error: h.error };
     healthCertificates.push(h.url);
   }
 
-  const ex = await uploadOne(client, orderId, 'shop', files.shopExterior);
+  const ex = await uploadOne(client, orderId, 'shop', files.shopExterior, intentToken);
   if (ex.ok === false) return { ok: false, error: ex.error };
 
-  const inn = await uploadOne(client, orderId, 'shop', files.shopInterior);
+  const inn = await uploadOne(client, orderId, 'shop', files.shopInterior, intentToken);
   if (inn.ok === false) return { ok: false, error: inn.error };
 
   const banners: string[] = [];
   for (const f of files.bannerImages) {
-    const b = await uploadOne(client, orderId, 'banners', f);
+    const b = await uploadOne(client, orderId, 'banners', f, intentToken);
     if (b.ok === false) return { ok: false, error: b.error };
     banners.push(b.url);
   }
 
   let receipt: string | undefined;
   if (files.receipt) {
-    const rec = await uploadOne(client, orderId, 'receipt', files.receipt);
+    const rec = await uploadOne(client, orderId, 'receipt', files.receipt, intentToken);
     if (rec.ok === false) return { ok: false, error: rec.error };
     receipt = rec.url;
   }

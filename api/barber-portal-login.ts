@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
 
 export const config = {
   maxDuration: 30,
@@ -31,9 +32,6 @@ export async function GET(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
-  const anon = Boolean(
-    (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim(),
-  );
   const portalPw = Boolean((process.env.BARBER_PORTAL_PASSWORD || '').trim());
   return Response.json(
     {
@@ -42,9 +40,9 @@ export async function GET(request: Request): Promise<Response> {
       supabaseUrlSet: Boolean(resolvedUrl),
       supabaseUrlHost: safeHost(resolvedUrl),
       serviceRoleKeySet: serviceRole,
-      anonKeySetForVerification: anon,
       barberPortalPasswordSet: portalPw,
-      ready: Boolean(resolvedUrl) && serviceRole && anon && portalPw,
+      publicApiGuard: registrationGuardDiagnostics(),
+      ready: Boolean(resolvedUrl) && serviceRole && portalPw,
     },
     { headers },
   );
@@ -53,24 +51,18 @@ export async function GET(request: Request): Promise<Response> {
 export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
 
+  const guard = runRegistrationRouteGuards(request, 'barber-portal-login');
+  if (!guard.ok) {
+    return Response.json(guard.json, { status: guard.status, headers });
+  }
+
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-  const expectedAnon = (
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    ''
-  ).trim();
   const portalPassword = (process.env.BARBER_PORTAL_PASSWORD || '').trim();
 
   if (!url || !serviceRole) {
     return Response.json(
       { error: 'Server not configured (SUPABASE_SERVICE_ROLE_KEY / URL)' },
-      { status: 503, headers },
-    );
-  }
-  if (!expectedAnon) {
-    return Response.json(
-      { error: 'Server not configured (anon key for verification)' },
       { status: 503, headers },
     );
   }
@@ -94,16 +86,6 @@ export async function POST(request: Request): Promise<Response> {
       },
       { status: 409, headers },
     );
-  }
-
-  const providedAnon =
-    request.headers.get('x-supabase-anon')?.trim() ||
-    (request.headers.get('authorization')?.startsWith('Bearer ')
-      ? request.headers.get('authorization')!.slice(7).trim()
-      : '');
-
-  if (providedAnon !== expectedAnon) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401, headers });
   }
 
   let body: unknown;

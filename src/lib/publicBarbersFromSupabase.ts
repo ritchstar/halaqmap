@@ -182,8 +182,10 @@ async function fetchPublicBarbersViaServer(input?: NearbySearchInput): Promise<B
   if (!endpoint) return [];
 
   const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+  const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
   const headers: Record<string, string> = {};
   if (anonKey) headers['x-supabase-anon'] = anonKey;
+  if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
   const url = new URL(endpoint, window.location.origin);
   if (input) {
     const args = normalizedNearbyInput(input);

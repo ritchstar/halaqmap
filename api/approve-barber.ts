@@ -1,24 +1,15 @@
-import { createClient } from '@supabase/supabase-js';
+import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth';
 
 export const config = {
   maxDuration: 30,
 };
-
-function safeHost(rawUrl: string): string | null {
-  if (!rawUrl) return null;
-  try {
-    return new URL(rawUrl).host;
-  } catch {
-    return rawUrl;
-  }
-}
 
 function corsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('origin');
   return {
     'Access-Control-Allow-Origin': origin || '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon, x-client-supabase-url',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -33,9 +24,6 @@ export async function GET(request: Request): Promise<Response> {
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const url = Boolean(resolvedUrl);
   const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
-  const anon = Boolean(
-    (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
-  );
   return Response.json(
     {
       ok: true,
@@ -43,8 +31,8 @@ export async function GET(request: Request): Promise<Response> {
       supabaseUrlSet: url,
       supabaseUrlHost: safeHost(resolvedUrl),
       serviceRoleKeySet: serviceRole,
-      anonKeySetForVerification: anon,
-      ready: url && serviceRole && anon,
+      postAuth: 'Authorization: Bearer <Supabase access_token> + active admin with manage_barbers',
+      ready: url && serviceRole,
     },
     { headers }
   );
@@ -55,11 +43,6 @@ export async function POST(request: Request): Promise<Response> {
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-  const expectedAnon = (
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    ''
-  ).trim();
 
   if (!url || !serviceRole) {
     return Response.json(
@@ -67,42 +50,12 @@ export async function POST(request: Request): Promise<Response> {
       { status: 503, headers }
     );
   }
-  if (!expectedAnon) {
-    return Response.json(
-      { error: 'Server not configured (anon key for verification)' },
-      { status: 503, headers }
-    );
-  }
 
-  const clientSupabaseUrl = request.headers.get('x-client-supabase-url')?.trim() || '';
-  if (clientSupabaseUrl && clientSupabaseUrl !== url) {
-    return Response.json(
-      {
-        error: 'Supabase project mismatch between client and server',
-        hint: 'Align VITE_SUPABASE_URL and SUPABASE_URL on Vercel to the same project.',
-        serverUrlHost: safeHost(url),
-        clientUrlHost: safeHost(clientSupabaseUrl),
-      },
-      { status: 409, headers }
-    );
+  const adminAuth = await verifyManageBarbersAdminFromRequest(request, url, serviceRole);
+  if (!adminAuth.ok) {
+    return Response.json(adminAuth.json, { status: adminAuth.status, headers });
   }
-
-  const providedAnon =
-    request.headers.get('x-supabase-anon')?.trim() ||
-    (request.headers.get('authorization')?.startsWith('Bearer ')
-      ? request.headers.get('authorization')!.slice(7).trim()
-      : '');
-
-  if (providedAnon !== expectedAnon) {
-    return Response.json(
-      {
-        error: 'Unauthorized',
-        hint:
-          'Set SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY) on Vercel to match browser anon key.',
-      },
-      { status: 401, headers }
-    );
-  }
+  const supabase = adminAuth.supabase;
 
   let body: unknown;
   try {
@@ -119,10 +72,6 @@ export async function POST(request: Request): Promise<Response> {
   if (!email) {
     return Response.json({ error: 'Missing barber email' }, { status: 400, headers });
   }
-
-  const supabase = createClient(url, serviceRole, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
 
   const { data, error } = await supabase
     .from('barbers')

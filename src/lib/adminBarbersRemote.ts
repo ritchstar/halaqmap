@@ -221,16 +221,17 @@ export async function upsertBarberFromApprovedRequest(
     specialties: request.categories?.length ? request.categories : null,
   };
 
-  const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
   const endpoint = String(import.meta.env.VITE_APPROVE_BARBER_URL || APPROVE_BARBER_API).trim();
+  const client = getSupabaseClient();
+  const accessToken = (await client?.auth.getSession())?.data.session?.access_token?.trim() || '';
 
-  if (anonKey) {
+  if (accessToken && client) {
     try {
       const resp = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-supabase-anon': anonKey,
+          Authorization: `Bearer ${accessToken}`,
           'x-client-supabase-url': getClientSupabaseUrl(),
         },
         body: JSON.stringify({ row }),
@@ -255,8 +256,7 @@ export async function upsertBarberFromApprovedRequest(
     }
   }
 
-  // Fallback (محلي/تطوير): يعتمد على صلاحيات RLS للمستخدم.
-  const client = getSupabaseClient();
+  // Fallback (محلي/تطوير أو بدون جلسة): يعتمد على صلاحيات RLS للمستخدم.
   if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
   const { data, error } = await client
     .from('barbers')

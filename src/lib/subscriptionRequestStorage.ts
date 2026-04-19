@@ -49,10 +49,13 @@ export async function loadMergedSubscriptionRequests(): Promise<SubscriptionRequ
  * بدون تهيئة: يُحفظ محلياً فقط (بيئة تطوير أو نشر بدون متغيرات).
  */
 export async function appendSubscriptionRequest(
-  request: SubscriptionRequest
+  request: SubscriptionRequest,
+  options?: { intentToken?: string | null }
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (isSupabaseConfigured()) {
-    const remote = await insertRegistrationSubmissionRemote(request);
+    const remote = await insertRegistrationSubmissionRemote(request, {
+      intentToken: options?.intentToken ?? null,
+    });
     if (!remote.ok) {
       return remote;
     }

@@ -340,9 +340,14 @@ VITE_REGISTRATION_API_ORIGIN=https://اسم-مشروعك.vercel.app
 `https://اسم-مشروعك.vercel.app/api/register-signed-upload`  
 يجب أن يظهر JSON فيه `ready: true` عند اكتمال متغيرات Vercel.
 
-**الحل (Vercel):** `SUPABASE_URL`، `SUPABASE_SERVICE_ROLE_KEY`، و`SUPABASE_ANON_KEY` أو `VITE_SUPABASE_ANON_KEY` بنفس قيمة مفتاح anon في الواجهة (للتحقق من رأس `x-supabase-anon`).
+**الحل (Vercel):** `SUPABASE_URL`، `SUPABASE_SERVICE_ROLE_KEY`، و`SUPABASE_ANON_KEY` أو `VITE_SUPABASE_ANON_KEY` بنفس قيمة مفتاح anon في الواجهة (للتحقق من رأس `x-supabase-anon` عندما لا يُفعّل توقيع النية).
+
+**أمان التسجيل (موصى به للإنتاج):** عيّن على Vercel فقط `REGISTRATION_INTENT_SECRET` (سلسلة عشوائية طويلة، مثل ناتج `openssl rand -hex 32`). عندها يجب أن تبقى دوال  
+`/api/register-mint-intent` و`/api/register-submission` و`/api/register-signed-upload` و`/api/register-upload-file` **في نفس مشروع Vercel** مع الواجهة التي تستدعي mint قبل الرفع والإرسال. إن كان `dist/` على cPanel فعيّن أيضاً `VITE_REGISTRATION_MINT_INTENT_URL` إلى رابط mint الكامل على Vercel ثم أعد بناء الواجهة.
 
 **الحل (Supabase):** تنفيذ `supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql` (أو migrations التخزين) لإنشاء حاوية `registration-uploads` والسياسات المناسبة.
+
+**قائمة الحلاقين عبر السيرفر:** مسار `GET /api/public-barbers` يتطلب ترويسة `x-supabase-anon` مطابقة للبيئة عند تفعيل المفتاح؛ للتشخيص استخدم `?health=1`.
 
 ---
 
@@ -416,6 +421,8 @@ https://search.google.com/test/mobile-friendly
 - [ ] التنقل بين الصفحات يعمل
 - [ ] النماذج تعمل
 - [ ] تسجيل الحلاق: رفع المرفقات يعمل (إن كان `dist` على cPanel وVercel منفصل: `VITE_REGISTRATION_API_ORIGIN` مضبوط في البناء)
+- [ ] تسجيل الحلاق: `REGISTRATION_INTENT_SECRET` على Vercel + إعادة نشر؛ إن وُجد فصل نطاقات فـ `VITE_REGISTRATION_MINT_INTENT_URL` في البناء
+- [ ] خريطة الحلاقين: إن وُجد fallback لـ `/api/public-barbers` فتأكد من `VITE_SUPABASE_ANON_KEY` في الواجهة و`SUPABASE_ANON_KEY` على Vercel
 - [ ] الموقع يعمل على الموبايل
 - [ ] لا توجد أخطاء في Console
 - [ ] السرعة مقبولة (< 3 ثواني)

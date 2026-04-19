@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
 
 export const config = {
   maxDuration: 30,
@@ -14,7 +15,7 @@ function corsHeaders(request: Request): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin || '*',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon',
+    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon, x-client-supabase-url',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -83,10 +84,16 @@ export async function GET(request: Request): Promise<Response> {
         supabaseUrlSet: Boolean(url),
         serviceRoleKeySet: Boolean(serviceRole),
         anonKeySetForVerification: Boolean(expectedAnon),
-        ready: Boolean(url && serviceRole),
+        ready: Boolean(url && serviceRole && expectedAnon),
+        publicApiGuard: registrationGuardDiagnostics(),
       },
       { headers }
     );
+  }
+
+  const guard = runRegistrationRouteGuards(request, 'public-barbers-get');
+  if (!guard.ok) {
+    return Response.json(guard.json, { status: guard.status, headers });
   }
 
   if (!url || !serviceRole) {
@@ -96,18 +103,26 @@ export async function GET(request: Request): Promise<Response> {
     );
   }
 
-  if (expectedAnon) {
-    const providedAnon = request.headers.get('x-supabase-anon')?.trim() || '';
-    if (providedAnon !== expectedAnon) {
-      return Response.json(
-        {
-          error: 'Unauthorized',
-          hint:
-            'Set SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY) on Vercel to match browser anon key.',
-        },
-        { status: 401, headers }
-      );
-    }
+  if (!expectedAnon) {
+    return Response.json(
+      {
+        error: 'Server not configured (anon key required)',
+        hint: 'Set SUPABASE_ANON_KEY or VITE_SUPABASE_ANON_KEY on Vercel to match the browser x-supabase-anon header.',
+      },
+      { status: 503, headers }
+    );
+  }
+
+  const providedAnon = request.headers.get('x-supabase-anon')?.trim() || '';
+  if (providedAnon !== expectedAnon) {
+    return Response.json(
+      {
+        error: 'Unauthorized',
+        hint:
+          'Set SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY) on Vercel to match browser anon key.',
+      },
+      { status: 401, headers }
+    );
   }
 
   const supabase = createClient(url, serviceRole, {

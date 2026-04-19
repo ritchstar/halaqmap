@@ -18,6 +18,7 @@ import PartnerPrivacy from "@/pages/PartnerPrivacy";
 import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
 import BarberLogin from "@/pages/BarberLogin";
 import BarberDashboard from "@/pages/BarberDashboard";
+import BarberAccountDeletionRequest from "@/pages/BarberAccountDeletionRequest";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Payment from "@/pages/Payment";
@@ -83,6 +84,14 @@ const App = () => (
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.PAYMENT} element={<LegacyPartnerRedirect to={ROUTE_PATHS.PAYMENT} />} />
 
           <Route path={ROUTE_PATHS.BARBER_DASHBOARD} element={<BarberDashboard />} />
+          <Route
+            path={ROUTE_PATHS.BARBER_ACCOUNT_DELETE_REQUEST}
+            element={
+              <PartnerLayout>
+                <BarberAccountDeletionRequest />
+              </PartnerLayout>
+            }
+          />
           <Route path={getAdminLoginPath()} element={<AdminLogin />} />
           <Route path={getAdminDashboardPath()} element={<AdminDashboard />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />

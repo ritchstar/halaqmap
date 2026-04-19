@@ -70,6 +70,17 @@ export function registrationSubmissionErrorForToast(message: string): string {
       ])
     );
   }
+  if (m.includes('registration_intent_required')) {
+    return (
+      'رفض السيرفر حفظ الطلب: توقيع نية التسجيل غير صالح أو منتهي.\n\n' +
+      'تحقق من لوحة Vercel:\n' +
+      ltrBlock([
+        'Set REGISTRATION_INTENT_SECRET (server-only) and redeploy functions + frontend.',
+        'Ensure POST /api/register-mint-intent is reachable (same project as register-submission).',
+        'If the site is static on cPanel: set VITE_REGISTRATION_MINT_INTENT_URL to full Vercel URL, rebuild dist, re-upload.',
+      ])
+    );
+  }
   return (
     'تعذّر حفظ الطلب في قاعدة البيانات.\n\n' +
     ltrBlock([`Server message: ${message}`])
@@ -97,25 +108,32 @@ function isServerInsertFailure(
 
 async function insertRegistrationSubmissionViaServer(
   rowId: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
+  intentToken: string | null
 ): Promise<ServerInsertResult> {
   const anonKey = getBrowserAnonKey();
-  if (!anonKey) {
+  if (!intentToken?.trim() && !anonKey) {
     return {
       ok: false,
-      error: 'VITE_SUPABASE_ANON_KEY غير مضبوط في الواجهة؛ تعذر توثيق طلب السيرفر.',
+      error:
+        'VITE_SUPABASE_ANON_KEY غير مضبوط في الواجهة؛ أو فعّل REGISTRATION_INTENT_SECRET على السيرفر مع مسار mint.',
       allowFallback: true,
     };
   }
 
   const url = getSubmissionApiUrl();
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (anonKey) headers['x-supabase-anon'] = anonKey;
+    const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
+    if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+    if (intentToken?.trim()) headers['x-registration-intent'] = intentToken.trim();
+
     const resp = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-supabase-anon': anonKey,
-      },
+      headers,
       body: JSON.stringify({ id: rowId, payload }),
     });
 
@@ -123,8 +141,8 @@ async function insertRegistrationSubmissionViaServer(
 
     let serverMsg = '';
     try {
-      const parsed = (await resp.json()) as { error?: string };
-      serverMsg = String(parsed?.error || '');
+      const parsed = (await resp.json()) as { error?: string; code?: string; reason?: string };
+      serverMsg = [parsed?.error, parsed?.code, parsed?.reason].filter(Boolean).join(' — ');
     } catch {
       /* ignore non-json */
     }
@@ -133,9 +151,15 @@ async function insertRegistrationSubmissionViaServer(
     const notReady = resp.status === 503 || /not configured/i.test(base);
     const notFound = resp.status === 404 || resp.status === 405;
     const duplicate = resp.status === 409;
+    const intentRejected =
+      resp.status === 401 && /registration_intent_required|missing_intent|bad_signature|order_mismatch|expired/i.test(base);
 
     if (duplicate) {
       return { ok: false, error: 'رقم الطلب موجود مسبقاً (تكرار). أعد المحاولة.', allowFallback: false };
+    }
+
+    if (intentRejected) {
+      return { ok: false, error: base, allowFallback: false };
     }
 
     if (notReady || notFound) {
@@ -173,11 +197,13 @@ function rowToRequest(row: { id: string; payload: unknown }): SubscriptionReques
 }
 
 export async function insertRegistrationSubmissionRemote(
-  request: SubscriptionRequest
+  request: SubscriptionRequest,
+  options?: { intentToken?: string | null }
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const payload = payloadForInsert(request);
+  const intentToken = options?.intentToken ?? null;
   // المسار الموصى به: حفظ الطلب عبر API سيرفر بمفتاح service_role لتجنب مشاكل RLS المتكررة.
-  const serverRes = await insertRegistrationSubmissionViaServer(request.id, payload);
+  const serverRes = await insertRegistrationSubmissionViaServer(request.id, payload, intentToken);
   if (isServerInsertFailure(serverRes)) {
     const serverError = serverRes.error;
     if (!serverRes.allowFallback) return { ok: false, error: serverError };

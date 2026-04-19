@@ -107,10 +107,11 @@ vercel --prod
    • VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY
    • إذا كان dist على cPanel والـ API على Vercel: VITE_REGISTRATION_API_ORIGIN=https://مشروعك.vercel.app
    • SUPABASE_SERVICE_ROLE_KEY (سيرفر Vercel فقط — رفع الملفات + حفظ طلبات التسجيل دون الاعتماد على RLS للزائر)
-   • اختياري لكن موصى به: SUPABASE_ANON_KEY = نفس قيمة anon من Supabase (للتحقق في api/register-upload-file)
-   • بعد التعديل: Deployments → إعادة نشر. للتشخيص افتح:
-     /api/register-signed-upload ثم /api/register-upload-file ثم /api/register-submission ثم /api/approve-barber
-     (ready بدون كشف الأسرار)
+   • موصى به للإنتاج: REGISTRATION_INTENT_SECRET (سرّ عشوائي طويل — توقيع طلب التسجيل عبر POST /api/register-mint-intent ورأس x-registration-intent)
+   • اختياري: SUPABASE_ANON_KEY = نفس anon (للتحقق عندما لا يُستخدم سرّ التوقيع بعد)
+   • حماية عامة: PUBLIC_API_ALLOWED_ORIGINS أو REGISTRATION_ALLOWED_ORIGINS + حدود المعدّل (راجع .env.example)
+   • بعد التعديل: Deployments → إعادة نشر. للتشخيص افتح (JSON بدون أسرار):
+     /api/register-mint-intent ثم /api/register-signed-upload ثم /api/register-upload-file ثم /api/register-submission ثم /api/public-barbers?health=1 ثم /api/approve-barber
    • VITE_SITE_ORIGIN (رابط الموقع العلني)
    • VITE_ADMIN_EMAIL و VITE_ADMIN_PORTAL_BASE (لوحة الإدارة الخفية)
    • ضريبة العرض في الواجهة: معطّلة افتراضياً — التفعيل من لوحة الإدارة → الإعدادات،
