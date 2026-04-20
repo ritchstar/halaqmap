@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 
 export const config = {
   maxDuration: 30,
@@ -164,7 +164,13 @@ export async function GET(request: Request): Promise<Response> {
       cover_image,
       is_active,
       is_verified,
-      specialties
+      specialties,
+      inclusive_care_offered,
+      inclusive_care_price_sar,
+      inclusive_care_public_visible,
+      inclusive_care_restrict_days,
+      inclusive_care_days,
+      inclusive_care_customer_note
       `
     )
     .eq('is_active', true)

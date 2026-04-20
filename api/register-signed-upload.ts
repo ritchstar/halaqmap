@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
-import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto';
-import { assertRegistrationServerAuth } from './_lib/registrationServerAuth';
-import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
+import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto.js';
+import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 
 export const config = {
   maxDuration: 30,

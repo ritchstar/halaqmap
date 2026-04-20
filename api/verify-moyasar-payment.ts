@@ -4,7 +4,7 @@
  * @see https://docs.mysr.dev/api/payments/02-fetch-payment
  */
 
-import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
+import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 
 export const config = { maxDuration: 20 };
 

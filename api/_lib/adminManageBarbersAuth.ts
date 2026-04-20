@@ -118,7 +118,7 @@ export async function verifyManageBarbersAdminFromRequest(
   }
 
   const gate = await assertCanManageBarbers(supabase, user.email);
-  if (!gate.ok) {
+  if (gate.ok === false) {
     return { ok: false, status: 403, json: { error: gate.message } };
   }
 

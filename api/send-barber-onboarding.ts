@@ -1,5 +1,5 @@
 import { type SupabaseClient } from '@supabase/supabase-js';
-import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth';
+import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 
 export const config = {
   maxDuration: 60,
@@ -763,7 +763,7 @@ export async function POST(request: Request): Promise<Response> {
     const limit = parseLimit((payload as BulkPayload).limit, 200);
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, name, email, tier, is_active, rating_invite_token')
+      .select('id, name, email, tier, is_active, rating_invite_token, member_number')
       .eq('is_active', true)
       .not('email', 'is', null)
       .limit(limit);

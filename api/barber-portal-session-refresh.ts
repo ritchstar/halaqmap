@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
 
 export const config = {
   maxDuration: 15,
@@ -94,7 +95,8 @@ export async function POST(request: Request): Promise<Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const selectCols = 'id, name, email, phone, tier, rating_invite_token, member_number, is_active';
+  const selectCols =
+    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
 
   const { data: row, error } = await supabase.from('barbers').select(selectCols).eq('id', barberId).maybeSingle();
 
@@ -115,6 +117,12 @@ export async function POST(request: Request): Promise<Response> {
     rating_invite_token: string | null;
     member_number: number | null;
     is_active: boolean | null;
+    inclusive_care_offered?: boolean | null;
+    inclusive_care_price_sar?: unknown;
+    inclusive_care_public_visible?: boolean | null;
+    inclusive_care_restrict_days?: boolean | null;
+    inclusive_care_days?: unknown;
+    inclusive_care_customer_note?: string | null;
   };
 
   const emailNorm = rawEmail.trim().toLowerCase();
@@ -141,6 +149,7 @@ export async function POST(request: Request): Promise<Response> {
           b.member_number != null && Number.isFinite(Number(b.member_number))
             ? Math.floor(Number(b.member_number))
             : null,
+        inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(b),
       },
     },
     { headers },

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
 
 export const config = {
   maxDuration: 30,
@@ -110,9 +111,10 @@ export async function POST(request: Request): Promise<Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const selectCols = 'id, name, email, phone, tier, rating_invite_token, member_number, is_active';
+  const selectCols =
+    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
 
-  let barber: {
+  type BarberPortalRow = {
     id: string;
     name: string;
     email: string;
@@ -121,7 +123,15 @@ export async function POST(request: Request): Promise<Response> {
     rating_invite_token: string | null;
     member_number: number | null;
     is_active: boolean | null;
-  } | null = null;
+    inclusive_care_offered?: boolean | null;
+    inclusive_care_price_sar?: unknown;
+    inclusive_care_public_visible?: boolean | null;
+    inclusive_care_restrict_days?: boolean | null;
+    inclusive_care_days?: unknown;
+    inclusive_care_customer_note?: string | null;
+  };
+
+  let barber: BarberPortalRow | null = null;
   let error: { message?: string } | null = null;
 
   const tryEq = async (addr: string) => {
@@ -131,12 +141,12 @@ export async function POST(request: Request): Promise<Response> {
 
   const r0 = await tryEq(rawEmail);
   if (r0.error) error = r0.error;
-  else if (r0.data) barber = r0.data as typeof barber;
+  else if (r0.data) barber = r0.data as BarberPortalRow;
 
   if (!barber && !error) {
     const r1 = await tryEq(rawEmail.toLowerCase());
     if (r1.error) error = r1.error;
-    else if (r1.data) barber = r1.data as typeof barber;
+    else if (r1.data) barber = r1.data as BarberPortalRow;
   }
 
   if (!barber && !error) {
@@ -146,7 +156,7 @@ export async function POST(request: Request): Promise<Response> {
       .ilike('email', rawEmail)
       .maybeSingle();
     if (r2.error) error = r2.error;
-    else if (r2.data) barber = r2.data as typeof barber;
+    else if (r2.data) barber = r2.data as BarberPortalRow;
   }
 
   if (error) {
@@ -170,6 +180,7 @@ export async function POST(request: Request): Promise<Response> {
           barber.member_number != null && Number.isFinite(Number(barber.member_number))
             ? Math.floor(Number(barber.member_number))
             : null,
+        inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(barber),
       },
     },
     { headers },

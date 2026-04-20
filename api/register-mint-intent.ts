@@ -1,10 +1,10 @@
-import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import {
   getRegistrationIntentSecret,
   isRegistrationIntentMode,
   mintRegistrationIntentToken,
   REGISTRATION_ORDER_ID_RE,
-} from './_lib/registrationIntentCrypto';
+} from './_lib/registrationIntentCrypto.js';
 
 export const config = { maxDuration: 15 };
 

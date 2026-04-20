@@ -1,4 +1,4 @@
-import { getRegistrationIntentSecret, verifyRegistrationIntentToken } from './registrationIntentCrypto';
+import { getRegistrationIntentSecret, verifyRegistrationIntentToken } from './registrationIntentCrypto.js';
 
 export type RegistrationServerAuthResult =
   | { ok: true }

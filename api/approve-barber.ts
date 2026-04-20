@@ -1,4 +1,4 @@
-import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth';
+import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 
 export const config = {
   maxDuration: 30,
