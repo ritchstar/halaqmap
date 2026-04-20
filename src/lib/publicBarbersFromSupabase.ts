@@ -1,7 +1,8 @@
 import { IMAGES } from '@/assets/images';
 import { getSupabaseClient } from '@/integrations/supabase/client';
-import type { Barber } from '@/lib/index';
+import type { Barber, InclusiveAccessibleCareOffer } from '@/lib/index';
 import { SubscriptionTier } from '@/lib/index';
+import { sanitizeInclusiveCareDays } from '@/lib/barberInclusiveCareRemote';
 
 const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
 const PUBLIC_BARBERS_API = '/api/public-barbers';
@@ -39,7 +40,36 @@ type BarberRow = {
   is_active: boolean | null;
   is_verified: boolean | null;
   specialties: string[] | null;
+  inclusive_care_offered?: boolean | null;
+  inclusive_care_price_sar?: number | string | null;
+  inclusive_care_public_visible?: boolean | null;
+  inclusive_care_restrict_days?: boolean | null;
+  inclusive_care_days?: unknown;
+  inclusive_care_customer_note?: string | null;
+  distance_km?: number | null;
+  rank_score?: number | null;
 };
+
+function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer | undefined {
+  if (row.inclusive_care_offered !== true) return undefined;
+  if (row.inclusive_care_public_visible === false) return undefined;
+  const raw = row.inclusive_care_price_sar;
+  const p = raw != null && raw !== '' ? Number(raw) : NaN;
+  const base: InclusiveAccessibleCareOffer = {
+    offered: true,
+    publicVisible: true,
+    restrictToDays: row.inclusive_care_restrict_days === true,
+  };
+  if (Number.isFinite(p) && p > 0) {
+    base.displayedPriceSar = Math.round(p * 100) / 100;
+  }
+  const note = row.inclusive_care_customer_note?.trim();
+  if (note) base.customerNote = note;
+  if (base.restrictToDays && row.inclusive_care_days && typeof row.inclusive_care_days === 'object') {
+    base.activeDayFlags = sanitizeInclusiveCareDays(row.inclusive_care_days as Record<string, boolean>);
+  }
+  return base;
+}
 
 export type NearbySearchInput = {
   userLocation: { lat: number; lng: number };
@@ -76,6 +106,7 @@ function mapRow(row: BarberRow): Barber {
     rating: Number(row.rating) || 0,
     reviewCount: Math.max(0, Math.floor(Number(row.total_reviews) || 0)),
     images,
+    inclusiveAccessibleCare: mapInclusiveCareFromRow(row),
     services: [{ name: 'للاستفسار والأسعار — تواصل مباشرة', price: 0 }],
     workingHours: DEFAULT_WORKING_HOURS,
     isOpen: row.is_active !== false,
@@ -124,7 +155,13 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
       cover_image,
       is_active,
       is_verified,
-      specialties
+      specialties,
+      inclusive_care_offered,
+      inclusive_care_price_sar,
+      inclusive_care_public_visible,
+      inclusive_care_restrict_days,
+      inclusive_care_days,
+      inclusive_care_customer_note
     `
     )
     .eq('is_active', true)

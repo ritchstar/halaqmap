@@ -57,6 +57,11 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: "أولوية في نتائج البحث" },
         { kind: "text", value: "إحصائيات المشاهدات" },
         { kind: "text", value: BARBER_DASHBOARD_GOLD_LINE },
+        {
+          kind: "text",
+          value:
+            "خدمة كبار السن والمرضى وذوي الاحتياجات (محل/منزل): تحكم كامل بعد التفعيل من لوحة التحكم — السعر المعروض، إظهار أو إخفاء الخدمة للعملاء، تقييد أيام الإعلان أو تركها مرنة، وملاحظة للعميل",
+        },
       ],
     },
     {
@@ -76,6 +81,11 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
         { kind: "text", value: "ترجمة تلقائية في الشات" },
         { kind: "text", value: "شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة" },
+        {
+          kind: "text",
+          value:
+            "التنبيه على معالجة الترجمة: تُعرض بين المستخدم والصالون كمزوّد خدمة وفق سياسة الخصوصية — ليست ترجمة رسمية أو استشارة",
+        },
         { kind: "text", value: "دعم فني مخصص 24/7" },
       ],
     },

@@ -16,6 +16,7 @@ import {
   ROUTE_PATHS,
   type SubscriptionRequest,
   type RegistrationAttachmentUrls,
+  type InclusiveAccessibleCareOffer,
 } from '@/lib/index';
 import {
   appendSubscriptionRequest,
@@ -107,6 +108,11 @@ interface FormData {
     name: string;
     price: string;
   }[];
+  /** اختياري: تسهيلات بالمحل و/أو زيارة منزلية — عند التفعيل يلزم سعر معروض */
+  inclusiveAccessibleCare: {
+    offered: boolean;
+    price: string;
+  };
   /** سبعة أيام — للباقة البرونزية يُحدَّد هنا ويُثبَّت في العرض */
   workingWeek: WorkingWeekFormRow[];
   payment: {
@@ -124,7 +130,7 @@ const STEPS = [
   { id: 4, title: 'الموقع', icon: MapPin },
   { id: 5, title: 'الصور', icon: ImageIcon },
   { id: 6, title: 'أوقات العمل', icon: Clock },
-  { id: 7, title: 'المنيو', icon: FileText },
+  { id: 7, title: 'المنيو والرعاية المُيسَّرة', icon: FileText },
   { id: 8, title: 'الدفع', icon: CreditCard },
 ];
 
@@ -169,6 +175,10 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'جلسة شات خاصة لكل عميل تنتهي تلقائياً بعد 60 دقيقة لخصوصية أعلى' },
       { kind: 'line', text: 'أولوية في الظهور على الخريطة والبحث' },
       { kind: 'line', text: BARBER_DASHBOARD_GOLD_LINE },
+      {
+        kind: 'line',
+        text: 'خدمة كبار السن والمرضى وذوي الاحتياجات (محل/منزل): تحكم كامل بعد التفعيل من لوحة التحكم — السعر، الإظهار للعملاء، الأيام، والملاحظات',
+      },
     ],
     popular: true,
   },
@@ -189,6 +199,14 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'أولوية قصوى في الظهور على الخريطة والبحث' },
       { kind: 'line', text: 'ترجمة تلقائية في الشات' },
       { kind: 'line', text: 'شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة' },
+      {
+        kind: 'line',
+        text: 'تنبيه خصوصية: الترجمة تُعرض بينك وبين الصالون كمزوّد خدمة وفق السياسات — ليست ترجمة رسمية',
+      },
+      {
+        kind: 'line',
+        text: 'خدمة كبار السن والمرضى وذوي الاحتياجات: تحكم كامل من لوحة التحكم (كالذهبي) مع مزايا الماسي',
+      },
     ],
     premium: true,
   },
@@ -198,6 +216,8 @@ const CATEGORIES = [
   'حلاقة رجالي',
   'حلاقة أطفال',
   'حلاقة تقليدية',
+  'احتياجات خاصة',
+  'زيارة منزلية',
   'تشذيب لحية',
   'صبغ شعر',
   'عناية بالبشرة',
@@ -250,6 +270,7 @@ export function RegistrationForm() {
       bannerImages: [null, null, null, null],
     },
     services: [{ name: '', price: '' }],
+    inclusiveAccessibleCare: { offered: false, price: '' },
     workingWeek: createInitialWorkingWeekForm(),
     payment: {
       method: '',
@@ -346,6 +367,22 @@ export function RegistrationForm() {
             );
             return;
           }
+        }
+      }
+    }
+    if (currentStep === 7) {
+      const namedServices = formData.services.filter((s) => s.name.trim());
+      if (namedServices.length === 0) {
+        alert('أضف خدمة واحدة على الأقل في المنيو (اسم الخدمة مطلوب).');
+        return;
+      }
+      if (formData.inclusiveAccessibleCare.offered) {
+        const p = parseFloat(String(formData.inclusiveAccessibleCare.price).replace(/,/g, '.'));
+        if (!Number.isFinite(p) || p <= 0) {
+          alert(
+            'عند تأشير «خدمة مُيسَّرة / منزلية»: أدخل سعراً معروضاً بالريال أكبر من صفر، أو ألغِ التأشير إن لم تُوفّر الخدمة.'
+          );
+          return;
         }
       }
     }
@@ -548,6 +585,20 @@ export function RegistrationForm() {
         }
       }
     }
+    const namedServicesSubmit = formData.services.filter((s) => s.name.trim());
+    if (namedServicesSubmit.length === 0) {
+      alert('أضف خدمة واحدة على الأقل في المنيو (اسم الخدمة مطلوب) قبل الإرسال.');
+      return;
+    }
+    if (formData.inclusiveAccessibleCare.offered) {
+      const p = parseFloat(String(formData.inclusiveAccessibleCare.price).replace(/,/g, '.'));
+      if (!Number.isFinite(p) || p <= 0) {
+        alert(
+          'عند تأشير خدمة كبار السن والمرضى وذوي الاحتياجات: أدخل سعراً معروضاً بالريال أكبر من صفر، أو ألغِ التأشير.'
+        );
+        return;
+      }
+    }
 
     setIsSubmitting(true);
     try {
@@ -611,10 +662,23 @@ export function RegistrationForm() {
         docLabels.push(`شهادة صحية للعاملين (${i + 1}): ${f.name}`);
       });
 
-      const servicesSummary = formData.services
+      const servicesSummaryLines = formData.services
         .filter((s) => s.name.trim())
-        .map((s) => `${s.name.trim()} — ${s.price || '—'} ر.س`)
-        .join('\n');
+        .map((s) => `${s.name.trim()} — ${s.price || '—'} ر.س`);
+      const inclusivePriceParsed = parseFloat(
+        String(formData.inclusiveAccessibleCare.price).replace(/,/g, '.')
+      );
+      let inclusiveAccessibleCarePayload: InclusiveAccessibleCareOffer | undefined;
+      if (formData.inclusiveAccessibleCare.offered && Number.isFinite(inclusivePriceParsed) && inclusivePriceParsed > 0) {
+        inclusiveAccessibleCarePayload = {
+          offered: true,
+          displayedPriceSar: Math.round(inclusivePriceParsed * 100) / 100,
+        };
+        servicesSummaryLines.push(
+          `خدمة كبار السن والمرضى وذوي الاحتياجات (تسهيلات بالمحل و/أو زيارة منزلية بحسب الحالة) — ${inclusiveAccessibleCarePayload.displayedPriceSar} ر.س (معروض)`
+        );
+      }
+      const servicesSummary = servicesSummaryLines.join('\n');
 
       const weeklyWorkingHoursPayload = workingWeekFormToPayload(formData.workingWeek);
       const workingHoursSummaryText = weeklyWorkingHoursPayload
@@ -671,6 +735,9 @@ export function RegistrationForm() {
         registrationAttachmentUrls,
         weeklyWorkingHours: weeklyWorkingHoursPayload,
         servicesSummary: servicesSummary || '—',
+        ...(inclusiveAccessibleCarePayload
+          ? { inclusiveAccessibleCare: inclusiveAccessibleCarePayload }
+          : {}),
         categories: [...formData.categories],
         registrationTermsAccepted: true,
         registrationTermsAcceptedAtIso: submittedAtIso,
@@ -1441,7 +1508,10 @@ export function RegistrationForm() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl">منيو الحلاقة والأسعار</CardTitle>
-                <CardDescription>أضف الخدمات المتوفرة وأسعارها</CardDescription>
+                <CardDescription>
+                  أضف الخدمات الاعتيادية، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية
+                  لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {formData.services.map((service, index) => (
@@ -1484,6 +1554,58 @@ export function RegistrationForm() {
                 <Button type="button" variant="outline" onClick={addService} className="w-full">
                   + إضافة خدمة
                 </Button>
+
+                <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      id="inclusive-accessible-care"
+                      checked={formData.inclusiveAccessibleCare.offered}
+                      onCheckedChange={(checked) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          inclusiveAccessibleCare: {
+                            offered: checked === true,
+                            price: checked === true ? prev.inclusiveAccessibleCare.price : '',
+                          },
+                        }))
+                      }
+                    />
+                    <div className="space-y-1 min-w-0">
+                      <Label htmlFor="inclusive-accessible-care" className="text-sm font-semibold cursor-pointer leading-snug">
+                        أوفر تسهيلات بالمحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة (بحسب
+                        الظروف)
+                      </Label>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        اختياري — إن لم تُشِر هنا فلن يُعرَض على المنصة أنك تلتزم بهذه الخدمة. عند التأشير يجب
+                        إدخال سعر معروض للعميل (قد يشمل رسوماً إضافية للتنقل حسب ما تذكره في التواصل).
+                      </p>
+                    </div>
+                  </div>
+                  {formData.inclusiveAccessibleCare.offered && (
+                    <div className="space-y-2 ps-1 sm:ps-8">
+                      <Label htmlFor="inclusive-accessible-care-price">السعر المعروض (ر.س) *</Label>
+                      <Input
+                        id="inclusive-accessible-care-price"
+                        type="number"
+                        min={1}
+                        step="1"
+                        inputMode="decimal"
+                        placeholder="مثال: 80"
+                        value={formData.inclusiveAccessibleCare.price}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            inclusiveAccessibleCare: {
+                              ...prev.inclusiveAccessibleCare,
+                              price: e.target.value,
+                            },
+                          }))
+                        }
+                        className="max-w-xs"
+                      />
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}

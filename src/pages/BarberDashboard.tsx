@@ -23,6 +23,8 @@ import {
   QrCode,
   Copy,
   UserX,
+  Users,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,8 +62,15 @@ import {
   RATING_QR_FEATURE_TITLE,
 } from '@/config/ratingQrInvite';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { refreshBarberPortalSessionRemote, type BarberPortalSession } from '@/lib/barberPortalLoginRemote';
+import {
+  updateBarberInclusiveCareRemote,
+  mergeInclusiveCareDaysFromSnapshot,
+  type BarberPortalInclusiveCareSnapshot,
+} from '@/lib/barberInclusiveCareRemote';
+import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
   readSchedule,
@@ -150,6 +159,7 @@ export default function BarberDashboard() {
         subscription: tier,
         ratingInviteToken: parsed.ratingInviteToken ?? '',
         memberNumber,
+        inclusiveCare: (parsed as { inclusiveCare?: BarberPortalInclusiveCareSnapshot }).inclusiveCare,
       });
     } catch {
       localStorage.removeItem('barberAuth');
@@ -471,6 +481,7 @@ export default function BarberDashboard() {
               subscriptionTier={barberData.subscription}
               bannerState={bannerState}
               onBannerChange={persistBanner}
+              onRefreshPortalSession={syncPortalSessionFromServer}
             />
           </TabsContent>
 
@@ -1263,18 +1274,200 @@ function PostsSection({
   );
 }
 
+function InclusiveCarePartnerSettingsCard({
+  barberId,
+  barberData,
+  onRefreshPortalSession,
+}: {
+  barberId: string;
+  barberData: BarberPortalSession;
+  onRefreshPortalSession: () => Promise<void>;
+}) {
+  const [offered, setOffered] = useState(false);
+  const [priceStr, setPriceStr] = useState('');
+  const [publicVisible, setPublicVisible] = useState(true);
+  const [restrictDays, setRestrictDays] = useState(false);
+  const [daysMap, setDaysMap] = useState<Record<string, boolean>>(() => mergeInclusiveCareDaysFromSnapshot(null));
+  const [customerNote, setCustomerNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const s = barberData.inclusiveCare;
+    if (!s) {
+      setOffered(false);
+      setPriceStr('');
+      setPublicVisible(true);
+      setRestrictDays(false);
+      setDaysMap(mergeInclusiveCareDaysFromSnapshot(null));
+      setCustomerNote('');
+      return;
+    }
+    setOffered(s.offered);
+    setPriceStr(s.priceSar != null && s.priceSar > 0 ? String(s.priceSar) : '');
+    setPublicVisible(s.publicVisible !== false);
+    setRestrictDays(s.restrictDays === true);
+    setDaysMap(mergeInclusiveCareDaysFromSnapshot(s.days));
+    setCustomerNote(s.customerNote ?? '');
+  }, [barberData.inclusiveCare, barberData.id]);
+
+  const patchDay = (day: string, checked: boolean) => {
+    setDaysMap((prev) => ({ ...prev, [day]: checked }));
+  };
+
+  const handleSave = async () => {
+    if (offered) {
+      const p = parseFloat(String(priceStr).replace(/,/g, '.'));
+      if (!Number.isFinite(p) || p <= 0) {
+        toast.error('عند تفعيل الخدمة: أدخل سعراً معروضاً بالريال أكبر من صفر.');
+        return;
+      }
+    }
+    setSaving(true);
+    const priceSar =
+      offered && priceStr.trim()
+        ? Math.round(parseFloat(String(priceStr).replace(/,/g, '.')) * 100) / 100
+        : null;
+    const res = await updateBarberInclusiveCareRemote({
+      barberId,
+      email: barberData.email,
+      payload: {
+        offered,
+        priceSar,
+        publicVisible: offered ? publicVisible : true,
+        restrictDays: offered ? restrictDays : false,
+        days: daysMap,
+        customerNote,
+      },
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success('تم حفظ إعدادات الرعاية المُيسَّرة في قاعدة البيانات.');
+    await onRefreshPortalSession();
+  };
+
+  return (
+    <Card className="mb-6 border-primary/25 bg-gradient-to-br from-primary/[0.06] to-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Users className="h-5 w-5 text-primary" />
+          خدمة كبار السن والمرضى وذوي الاحتياجات
+        </CardTitle>
+        <CardDescription className="leading-relaxed">
+          تتحكم هنا بإظهار الخدمة للعملاء على حلاق ماب أو إخفائها مؤقتاً، والسعر المعروض، وما إذا كنت تقيّدها
+          بأيام محددة أو تتركها مرنة بحسب ظروفك، مع ملاحظة قصيرة للعميل (مثلاً: حجز مسبق، نطاق الزيارة
+          المنزلية).
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">أقدّم هذه الخدمة (تسهيلات بالمحل و/أو زيارة منزلية بحسب الحالة)</p>
+            <p className="text-xs text-muted-foreground">عند الإيقاف يُحجب الإعلان للعملاء ويُصفَر السعر في العرض العام.</p>
+          </div>
+          <Switch checked={offered} onCheckedChange={(c) => setOffered(c === true)} />
+        </div>
+
+        {offered && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="inclusive-price-dash">السعر المعروض للعميل (ر.س)</Label>
+              <Input
+                id="inclusive-price-dash"
+                type="number"
+                min={1}
+                step="1"
+                inputMode="decimal"
+                dir="ltr"
+                className="max-w-xs text-left"
+                value={priceStr}
+                onChange={(e) => setPriceStr(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium">إظهار الخدمة للعملاء على الخريطة والبطاقة</p>
+                <p className="text-xs text-muted-foreground">عطّلها إن رغبت في الإخفاء المؤقت دون حذف باقي الإعدادات.</p>
+              </div>
+              <Switch checked={publicVisible} onCheckedChange={(c) => setPublicVisible(c === true)} />
+            </div>
+
+            <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium">تقييد الإعلان بأيام محددة</p>
+                <p className="text-xs text-muted-foreground">
+                  عند الإيقاف يُفهم أن التوفّر مرن (حسب الظروف) دون التزام تقويمي صارم في العرض.
+                </p>
+              </div>
+              <Switch checked={restrictDays} onCheckedChange={(c) => setRestrictDays(c === true)} />
+            </div>
+
+            {restrictDays && (
+              <div className="rounded-lg border border-border p-3 space-y-2">
+                <p className="text-sm font-medium">أيام توفّر الخدمة للإعلان</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {SAUDI_WEEK_DAY_LABELS.map((day) => (
+                    <div key={day} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`inclusive-day-${day}`}
+                        checked={Boolean(daysMap[day])}
+                        onCheckedChange={(c) => patchDay(day, c === true)}
+                      />
+                      <Label htmlFor={`inclusive-day-${day}`} className="text-sm cursor-pointer">
+                        {day}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="inclusive-note-dash">ملاحظة للعميل (اختياري)</Label>
+              <Textarea
+                id="inclusive-note-dash"
+                rows={3}
+                maxLength={800}
+                placeholder="مثال: الزيارة المنزلية حسب التوفر داخل نطاق 10 كم — يرجى التنسيق مسبقاً."
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+              />
+            </div>
+          </>
+        )}
+
+        <Button type="button" className="w-full sm:w-auto" disabled={saving} onClick={() => void handleSave()}>
+          {saving ? (
+            <>
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              جاري الحفظ…
+            </>
+          ) : (
+            'حفظ في قاعدة البيانات'
+          )}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 function SettingsSection({
   barberId,
   barberData,
   subscriptionTier,
   bannerState,
   onBannerChange,
+  onRefreshPortalSession,
 }: {
   barberId: string;
   barberData: BarberPortalSession;
   subscriptionTier: SubscriptionTier;
   bannerState: BarberPlatformBannerState;
   onBannerChange: (s: BarberPlatformBannerState) => void;
+  onRefreshPortalSession: () => Promise<void>;
 }) {
   const storageKey = `halaqmap_barber_dashboard_hours_${barberId}`;
 
@@ -1394,6 +1587,14 @@ function SettingsSection({
           )}
         </CardContent>
       </Card>
+
+      {showWeeklyEditor && (
+        <InclusiveCarePartnerSettingsCard
+          barberId={barberId}
+          barberData={barberData}
+          onRefreshPortalSession={onRefreshPortalSession}
+        />
+      )}
 
       {showWeeklyEditor && (
         <Card className="mb-6">

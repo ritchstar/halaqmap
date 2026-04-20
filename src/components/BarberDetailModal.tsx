@@ -12,7 +12,7 @@ import { Phone, MapPin, MessageCircle, Star, Shield, Clock, QrCode } from 'lucid
 import { SiWhatsapp } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
-import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
+import { getOrderedWeekHoursForDisplay, SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
 import { CustomerBarberChatPreview } from '@/components/CustomerBarberChatPreview';
@@ -211,8 +211,41 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                         </TableCell>
                       </TableRow>
                     ))}
+                    {barber.inclusiveAccessibleCare?.offered && (
+                      <TableRow>
+                        <TableCell className="font-medium leading-snug">
+                          كبار السن والمرضى وذوي الاحتياجات الخاصة — تسهيلات بالمحل و/أو زيارة منزلية بحسب
+                          الحالة
+                        </TableCell>
+                        <TableCell className="text-left font-semibold text-primary">
+                          {barber.inclusiveAccessibleCare.displayedPriceSar != null &&
+                          barber.inclusiveAccessibleCare.displayedPriceSar > 0
+                            ? `${barber.inclusiveAccessibleCare.displayedPriceSar} ريال (معروض)`
+                            : '—'}
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
+                {barber.inclusiveAccessibleCare?.offered &&
+                  (() => {
+                    const c = barber.inclusiveAccessibleCare;
+                    const bits: string[] = [];
+                    if (c.restrictToDays && c.activeDayFlags) {
+                      const ds = SAUDI_WEEK_DAY_LABELS.filter((d) => c.activeDayFlags![d]);
+                      if (ds.length) bits.push(`أيام الإعلان عن الخدمة: ${ds.join('، ')}`);
+                    }
+                    const note = c.customerNote?.trim();
+                    if (note) bits.push(note);
+                    if (bits.length === 0) return null;
+                    return (
+                      <div className="border-t px-3 py-3 text-sm text-muted-foreground space-y-1.5 leading-relaxed">
+                        {bits.map((line, i) => (
+                          <p key={i}>{line}</p>
+                        ))}
+                      </div>
+                    );
+                  })()}
               </CardContent>
             </Card>
           </div>

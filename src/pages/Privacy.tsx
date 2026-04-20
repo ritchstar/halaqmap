@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale } from "lucide-react";
+import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale, MessageSquare } from "lucide-react";
 
 export default function Privacy() {
   const sections = [
@@ -29,6 +29,12 @@ export default function Privacy() {
       icon: Lock,
       title: "استخدام البيانات",
       content: "نستخدم بيانات المستخدم للأغراض التالية فقط:\n\n- عرض النتائج الأقرب والأكثر صلة بموقعك\n- تحسين جودة التجربة والأداء العام للمنصة\n- منع إساءة الاستخدام وتحسين الأمان والموثوقية"
+    },
+    {
+      icon: MessageSquare,
+      title: "الشات والترجمة (الباقة الماسية)",
+      content:
+        "عند استخدام **الشات الكتابي** مع صالون على حلاق ماب، تُعالَج رسائلك في سياق التشغيل والأمان وفق هذه السياسة. في **الباقة الماسية** قد تُعرض طبقة **ترجمة آلية** تهدف إلى تسهيل التواصل **بينك وبين الصالون كمزوّد خدمة** داخل المنصة؛ لا تُعدّ الترجمة استشارة أو وثيقة رسمية، وقد تُسجَّل محتويات المحادثة بقدر ما يلزم للتشغيل والامتثال والحد الأدنى من الاحتفاظ. راجع أيضاً سياسة الشركاء عند الحاجة.",
     },
     {
       icon: Shield,

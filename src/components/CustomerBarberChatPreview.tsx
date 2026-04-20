@@ -180,6 +180,28 @@ export function CustomerBarberChatPreview({
         ))}
       </ul>
 
+      <p
+        className={cn(
+          'text-muted-foreground rounded-lg border border-border/70 bg-muted/25 p-2.5 leading-relaxed',
+          compact ? 'text-[10px]' : 'text-[11px]',
+        )}
+      >
+        {isDiamond ? (
+          <>
+            <strong className="text-foreground">الترجمة والخصوصية:</strong> طبقة الترجمة الآلية في الباقة الماسية
+            تعمل بينك كمستخدم وبين الصالون ك<strong className="text-foreground">مزوّد خدمة</strong> ضمن المنصة؛
+            الهدف تسهيل الفهم فقط. تُعالَج محتويات المحادثة وفق سياسة الخصوصية (المستخدم والشركاء) وبحد أدنى
+            للاحتفاظ اللازم للتشغيل والأمان. لا تُعدّ الترجمة وثيقة رسمية أو استشارة.
+          </>
+        ) : (
+          <>
+            <strong className="text-foreground">الشات والخصوصية:</strong> المحادثة الكتابية تربطك بالصالون كمزوّد
+            خدمة؛ تُعالَج الرسائل وفق سياسة الخصوصية. في الباقة الماسية تُضاف ترجمة آلية بين الطرفين مع تنبيهات
+            إضافية كما في سياسة المستخدم.
+          </>
+        )}
+      </p>
+
       <div className={cn('rounded-xl border bg-background/80 overflow-hidden', compact ? 'mt-2' : 'mt-4')}>
         <div className="flex items-center justify-between gap-2 border-b bg-muted/40 px-3 py-2">
           <div className="flex items-center gap-2 min-w-0">

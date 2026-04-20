@@ -219,6 +219,18 @@ export async function upsertBarberFromApprovedRequest(
       request.shopImages?.[0] ||
       null,
     specialties: request.categories?.length ? request.categories : null,
+    inclusive_care_offered: request.inclusiveAccessibleCare?.offered === true,
+    inclusive_care_price_sar:
+      request.inclusiveAccessibleCare?.offered === true &&
+      request.inclusiveAccessibleCare.displayedPriceSar != null &&
+      Number.isFinite(request.inclusiveAccessibleCare.displayedPriceSar) &&
+      request.inclusiveAccessibleCare.displayedPriceSar > 0
+        ? request.inclusiveAccessibleCare.displayedPriceSar
+        : null,
+    inclusive_care_public_visible: true,
+    inclusive_care_restrict_days: false,
+    inclusive_care_days: {},
+    inclusive_care_customer_note: null,
   };
 
   const endpoint = String(import.meta.env.VITE_APPROVE_BARBER_URL || APPROVE_BARBER_API).trim();

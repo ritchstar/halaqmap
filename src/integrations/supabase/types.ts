@@ -61,6 +61,12 @@ export interface Database {
           bio: string | null
           experience_years: number | null
           specialties: string[] | null
+          inclusive_care_offered: boolean
+          inclusive_care_price_sar: number | null
+          inclusive_care_public_visible: boolean
+          inclusive_care_restrict_days: boolean
+          inclusive_care_days: Record<string, unknown>
+          inclusive_care_customer_note: string | null
           is_active: boolean
           is_verified: boolean
           created_at: string
@@ -85,6 +91,12 @@ export interface Database {
           bio?: string | null
           experience_years?: number | null
           specialties?: string[] | null
+          inclusive_care_offered?: boolean
+          inclusive_care_price_sar?: number | null
+          inclusive_care_public_visible?: boolean
+          inclusive_care_restrict_days?: boolean
+          inclusive_care_days?: Record<string, unknown>
+          inclusive_care_customer_note?: string | null
           is_active?: boolean
           is_verified?: boolean
           created_at?: string
@@ -109,6 +121,12 @@ export interface Database {
           bio?: string | null
           experience_years?: number | null
           specialties?: string[] | null
+          inclusive_care_offered?: boolean
+          inclusive_care_price_sar?: number | null
+          inclusive_care_public_visible?: boolean
+          inclusive_care_restrict_days?: boolean
+          inclusive_care_days?: Record<string, unknown>
+          inclusive_care_customer_note?: string | null
           is_active?: boolean
           is_verified?: boolean
           created_at?: string

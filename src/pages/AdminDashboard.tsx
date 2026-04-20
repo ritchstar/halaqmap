@@ -1857,7 +1857,8 @@ function RequestReviewDialog({
           {(request.paymentMethod ||
             request.receiptFileName ||
             request.registrationAttachmentUrls?.receipt ||
-            request.servicesSummary) && (
+            request.servicesSummary ||
+            request.inclusiveAccessibleCare?.offered) && (
             <div>
               <h3 className="text-lg font-semibold mb-3">الدفع والخدمات (من نموذج التسجيل)</h3>
               <div className="space-y-3 rounded-lg border border-border p-4 bg-muted/20">
@@ -1920,6 +1921,18 @@ function RequestReviewDialog({
                       {request.servicesSummary}
                     </pre>
                   </div>
+                )}
+                {request.inclusiveAccessibleCare?.offered && (
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">خدمة مُيسَّرة / منزلية (كبار السن والمرضى وذوي الاحتياجات): </span>
+                    <span className="font-medium">
+                      نعم — السعر المعروض:{' '}
+                      {request.inclusiveAccessibleCare.displayedPriceSar != null &&
+                      request.inclusiveAccessibleCare.displayedPriceSar > 0
+                        ? `${request.inclusiveAccessibleCare.displayedPriceSar} ر.س`
+                        : '—'}
+                    </span>
+                  </p>
                 )}
                 {request.categories && request.categories.length > 0 && (
                   <p className="text-sm">

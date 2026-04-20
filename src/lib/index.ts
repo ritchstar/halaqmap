@@ -48,6 +48,24 @@ export interface Subscription {
   priority: number;
 }
 
+/**
+ * تسهيلات داخل المحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل.
+ * إذا لم يُفعّل الحلاق الخيار لا يُعرَض التزام على المنصة.
+ */
+export interface InclusiveAccessibleCareOffer {
+  offered: boolean;
+  /** مطلوب عند offered === true (سعر معروض بالريال) */
+  displayedPriceSar?: number;
+  /** للذهبي/الماسي: إخفاء الخدمة عن العملاء دون حذف الإعدادات */
+  publicVisible?: boolean;
+  /** تقييد الإعلان بأيام محددة (انظر activeDayFlags) */
+  restrictToDays?: boolean;
+  /** أيام نشطة عند restrictToDays — مفاتيح بأسماء الأيام العربية (السبت …) */
+  activeDayFlags?: Record<string, boolean>;
+  /** ملاحظة للعميل (ظروف، حجز مسبق، نطاق زيارة منزلية، …) */
+  customerNote?: string;
+}
+
 export interface Barber {
   id: string;
   name: string;
@@ -62,6 +80,8 @@ export interface Barber {
   rating: number;
   reviewCount: number;
   images: string[];
+  /** إن وُجدت: يعلن الحلاق عن خدمة موحّدة للفئات الحسّاسة بسعر معروض */
+  inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
   services: {
     name: string;
     price: number;
@@ -215,6 +235,8 @@ export interface SubscriptionRequest {
   /** أسبوع كامل (سبعة أيام) كما أُرسل مع طلب التسجيل */
   weeklyWorkingHours?: { day: string; open: string; close: string }[];
   servicesSummary?: string;
+  /** تسهيلات بالمحل و/أو زيارة منزلية للفئات الحسّاسة — اختياري؛ عند التفعيل يلزم سعر معروض */
+  inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
   categories?: string[];
   /** موافقة صريحة على شروط التسجيل وسياسة الشركاء (إلزامية عند الإرسال) */
   registrationTermsAccepted?: boolean;

@@ -13,8 +13,8 @@ export const PLATFORM_TWITTER_DESCRIPTION =
 
 /** ترويسة الهيرو — سطران (بدون «أول منصة») */
 export const PLATFORM_HERO_H1 = {
-  line1: 'منصة عربية ذكية',
-  line2: 'تربط الحلّاقين المحترفين بالعملاء',
+  line1: 'منصة ذكية',
+  line2: 'تربط المستخدم بالحلّاق الأقرب لموقعه',
 } as const;
 
 export const PLATFORM_HERO_LEAD =

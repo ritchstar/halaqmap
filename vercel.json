@@ -52,6 +52,9 @@
     },
     "api/barber-portal-login.ts": {
       "maxDuration": 30
+    },
+    "api/barber-inclusive-care-update.ts": {
+      "maxDuration": 20
     }
   }
 }

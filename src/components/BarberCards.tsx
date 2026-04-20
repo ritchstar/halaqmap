@@ -14,6 +14,26 @@ interface BarberCardProps {
   userLocation: { lat: number; lng: number };
 }
 
+function InclusiveCareInline({ barber }: { barber: Barber }) {
+  const c = barber.inclusiveAccessibleCare;
+  if (!c?.offered) return null;
+  const p = c.displayedPriceSar;
+  const note = c.customerNote?.trim();
+  return (
+    <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5 leading-relaxed border-t border-border/60 pt-1.5">
+      كبار السن والمرضى وذوي الاحتياجات (تسهيلات بالمحل و/أو زيارة منزلية):{' '}
+      <span className="font-semibold text-foreground">
+        {p != null && p > 0 ? `${p} ر.س معروض` : '—'}
+      </span>
+      {note ? (
+        <span className="block mt-1 font-normal opacity-90">
+          {note.length > 72 ? `${note.slice(0, 72)}…` : note}
+        </span>
+      ) : null}
+    </p>
+  );
+}
+
 export function BarberCard({ barber, userLocation }: BarberCardProps) {
   const distance = calculateDistance(
     userLocation.lat,
@@ -84,6 +104,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                   <Badge variant={barber.isOpen ? "default" : "secondary"} className="text-xs">
                     {barber.isOpen ? "مفتوح الآن" : "مغلق"}
                   </Badge>
+                  <InclusiveCareInline barber={barber} />
                 </div>
               </div>
 
@@ -149,6 +170,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 <Badge variant={barber.isOpen ? "default" : "secondary"} className="text-xs">
                   {barber.isOpen ? "مفتوح الآن" : "مغلق"}
                 </Badge>
+                <InclusiveCareInline barber={barber} />
               </div>
               <Badge className="bg-muted text-muted-foreground border-border">
                 برونزي
@@ -243,6 +265,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 <Badge variant={barber.isOpen ? "default" : "secondary"} className="text-xs">
                   {barber.isOpen ? "مفتوح الآن" : "مغلق"}
                 </Badge>
+                <InclusiveCareInline barber={barber} />
               </div>
             </div>
 
@@ -330,6 +353,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
               <Badge variant={barber.isOpen ? "default" : "secondary"} className="text-xs">
                 {barber.isOpen ? "مفتوح الآن" : "مغلق"}
               </Badge>
+              <InclusiveCareInline barber={barber} />
             </div>
           </div>
 

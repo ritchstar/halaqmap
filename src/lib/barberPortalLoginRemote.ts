@@ -1,4 +1,5 @@
 import { SubscriptionTier } from '@/lib';
+import type { BarberPortalInclusiveCareSnapshot } from '@/lib/barberInclusiveCareRemote';
 
 const DEFAULT_ENDPOINT = '/api/barber-portal-login';
 const DEFAULT_REFRESH_ENDPOINT = '/api/barber-portal-session-refresh';
@@ -38,6 +39,8 @@ export type BarberPortalSession = {
   ratingInviteToken: string;
   /** رقم عضوية ثابت على المنصة (بعد تشغيل migration member_number) */
   memberNumber: number | null;
+  /** إعدادات خدمة كبار السن والمرضى وذوي الاحتياجات (من قاعدة البيانات) */
+  inclusiveCare?: BarberPortalInclusiveCareSnapshot;
 };
 
 export async function barberPortalLoginRemote(input: {
@@ -66,6 +69,7 @@ export async function barberPortalLoginRemote(input: {
         tier: string;
         rating_invite_token?: string;
         member_number?: number | null;
+        inclusiveCare?: BarberPortalInclusiveCareSnapshot;
       };
     };
     if (!response.ok) {
@@ -88,6 +92,7 @@ export async function barberPortalLoginRemote(input: {
         subscription: tierFromDb(b.tier),
         ratingInviteToken: String(b.rating_invite_token ?? ''),
         memberNumber,
+        inclusiveCare: b.inclusiveCare,
       },
     };
   } catch {
@@ -125,6 +130,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         tier: string;
         rating_invite_token?: string;
         member_number?: number | null;
+        inclusiveCare?: BarberPortalInclusiveCareSnapshot;
       };
     };
     if (!response.ok) {
@@ -147,6 +153,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         subscription: tierFromDb(b.tier),
         ratingInviteToken: String(b.rating_invite_token ?? ''),
         memberNumber,
+        inclusiveCare: b.inclusiveCare,
       },
     };
   } catch {

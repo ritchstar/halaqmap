@@ -63,6 +63,8 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
     { id: "رجالي", label: "رجالي" },
     { id: "أطفال", label: "أطفال" },
     { id: "تقليدي", label: "تقليدي" },
+    { id: "احتياجات خاصة", label: "احتياجات خاصة" },
+    { id: "زيارة منزلية", label: "زيارة منزلية" },
   ];
 
   const ratingOptions = [0, 3, 4, 4.5];
@@ -176,7 +178,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
             <Label className="text-base font-medium text-foreground">
               نوع الخدمة
             </Label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {categories.map((category) => (
                 <div
                   key={category.id}
