@@ -55,6 +55,9 @@
     },
     "api/barber-inclusive-care-update.ts": {
       "maxDuration": 20
+    },
+    "api/interest-signup.ts": {
+      "maxDuration": 15
     }
   }
 }

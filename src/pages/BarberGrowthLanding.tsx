@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
+  Bell,
   BadgeCheck,
   BookOpen,
   CircleDollarSign,
@@ -156,6 +157,16 @@ export default function BarberGrowthLanding() {
                 >
                   القصة والمسار
                   <BookOpen className="h-4 w-4" />
+                </Button>
+              </NavLink>
+              <NavLink to={ROUTE_PATHS.PARTNER_INTEREST}>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="gap-2 border border-white/30 bg-white/95 text-foreground shadow-md hover:bg-white text-base font-bold"
+                >
+                  سجّل اهتمامك — إشعارات فقط
+                  <Bell className="h-4 w-4" />
                 </Button>
               </NavLink>
               <NavLink to={ROUTE_PATHS.REGISTER}>

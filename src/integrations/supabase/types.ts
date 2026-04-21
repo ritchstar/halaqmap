@@ -133,6 +133,26 @@ export interface Database {
           updated_at?: string
         }
       }
+      barber_interest_signups: {
+        Row: {
+          id: string
+          email_normalized: string
+          consent_follow_updates: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email_normalized: string
+          consent_follow_updates: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          email_normalized?: string
+          consent_follow_updates?: boolean
+          created_at?: string
+        }
+      }
       bookings: {
         Row: {
           id: string

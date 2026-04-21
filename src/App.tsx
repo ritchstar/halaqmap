@@ -11,6 +11,7 @@ import Register from "@/pages/Register";
 import RegisterSuccess from "@/pages/RegisterSuccess";
 import About from "@/pages/About";
 import BarberGrowthLanding from "@/pages/BarberGrowthLanding";
+import PartnerInterestLanding from "@/pages/PartnerInterestLanding";
 import PartnerWhyPage from "@/pages/PartnerWhyPage";
 import PartnerStoryPage from "@/pages/PartnerStoryPage";
 import Privacy from "@/pages/Privacy";
@@ -67,6 +68,14 @@ const App = () => (
           <Route path={ROUTE_PATHS.PRIVACY} element={<Layout><Privacy /></Layout>} />
 
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
+          <Route
+            path={ROUTE_PATHS.PARTNER_INTEREST}
+            element={
+              <PartnerLayout>
+                <PartnerInterestLanding />
+              </PartnerLayout>
+            }
+          />
           <Route path={ROUTE_PATHS.PARTNER_WHY} element={<PartnerLayout><PartnerWhyPage /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_STORY} element={<PartnerLayout><PartnerStoryPage /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><Register /></PartnerLayout>} />

@@ -9,6 +9,8 @@ export const ROUTE_PATHS = {
   /** قصة المنصة ومنطق المسار */
   PARTNER_STORY: '/partners/story',
   REGISTER: '/partners/register',
+  /** تسجيل اهتمام مسبق (بريد + موافقة) — ما قبل الإطلاق الرسمي */
+  PARTNER_INTEREST: '/partners/interest',
   REGISTER_SUCCESS: '/partners/register/success',
   ABOUT: '/about',
   PRIVACY: '/privacy',
