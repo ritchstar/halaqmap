@@ -1,4 +1,8 @@
 import { getSupabaseClient } from '@/integrations/supabase/client';
+import {
+  isBarberUpsertMissingInclusiveCareColumnError,
+  stripInclusiveCareKeysFromBarberUpsertRow,
+} from '@/lib/barberInclusiveCareUpsertGuard';
 import { SubscriptionRequest, SubscriptionTier } from '@/lib/index';
 
 const APPROVE_BARBER_API = '/api/approve-barber';
@@ -197,7 +201,9 @@ export async function findDuplicateBarbersByContact(
 
 export async function upsertBarberFromApprovedRequest(
   request: SubscriptionRequest
-): Promise<{ ok: true; barberId: string; memberNumber: number | null } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; barberId: string; memberNumber: number | null; warning?: string } | { ok: false; error: string }
+> {
   const row = {
     name: request.barberName.trim() || 'صالون بدون اسم',
     email: request.email.trim(),
@@ -239,25 +245,39 @@ export async function upsertBarberFromApprovedRequest(
 
   if (accessToken && client) {
     try {
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-          'x-client-supabase-url': getClientSupabaseUrl(),
-        },
-        body: JSON.stringify({ row }),
-      });
-      const json = (await resp.json().catch(() => ({}))) as {
-        barberId?: string;
-        memberNumber?: number | null;
-        error?: string;
+      const postRow = async (payload: Record<string, unknown>) => {
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            'x-client-supabase-url': getClientSupabaseUrl(),
+          },
+          body: JSON.stringify({ row: payload }),
+        });
+        const json = (await resp.json().catch(() => ({}))) as {
+          barberId?: string;
+          memberNumber?: number | null;
+          error?: string;
+          warning?: string;
+        };
+        return { resp, json };
       };
+
+      let { resp, json } = await postRow(row as Record<string, unknown>);
+      if (
+        !resp.ok &&
+        json.error &&
+        isBarberUpsertMissingInclusiveCareColumnError(String(json.error))
+      ) {
+        ({ resp, json } = await postRow(stripInclusiveCareKeysFromBarberUpsertRow(row as Record<string, unknown>)));
+      }
       if (resp.ok && json.barberId) {
         const mn = json.memberNumber;
         const memberNumber =
           mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
-        return { ok: true, barberId: json.barberId, memberNumber };
+        const warning = typeof json.warning === 'string' && json.warning.trim() ? json.warning.trim() : undefined;
+        return { ok: true, barberId: json.barberId, memberNumber, ...(warning ? { warning } : {}) };
       }
       // إن لم يكن مسار السيرفر متاحاً بعد، نرجع fallback.
       if (resp.status !== 404 && resp.status !== 405 && resp.status !== 503) {
@@ -270,16 +290,39 @@ export async function upsertBarberFromApprovedRequest(
 
   // Fallback (محلي/تطوير أو بدون جلسة): يعتمد على صلاحيات RLS للمستخدم.
   if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
-  const { data, error } = await client
+  let upsertBody: Record<string, unknown> = row as Record<string, unknown>;
+  let { data, error } = await client
     .from('barbers')
-    .upsert(row, { onConflict: 'email' })
+    .upsert(upsertBody, { onConflict: 'email' })
     .select('id, member_number')
     .single();
+  if (error && isBarberUpsertMissingInclusiveCareColumnError(error.message)) {
+    upsertBody = stripInclusiveCareKeysFromBarberUpsertRow(row as Record<string, unknown>);
+    const second = await client
+      .from('barbers')
+      .upsert(upsertBody, { onConflict: 'email' })
+      .select('id, member_number')
+      .single();
+    data = second.data;
+    error = second.error;
+  }
   if (error || !data) return { ok: false, error: error?.message ?? 'فشل upsert للحلاق' };
   const d = data as { id: string; member_number?: number | null };
   const memberNumber =
     d.member_number != null && Number.isFinite(Number(d.member_number))
       ? Math.floor(Number(d.member_number))
       : null;
-  return { ok: true, barberId: String(d.id), memberNumber };
+  const usedStrip =
+    Object.keys(upsertBody).length < Object.keys(row as Record<string, unknown>).length;
+  return {
+    ok: true,
+    barberId: String(d.id),
+    memberNumber,
+    ...(usedStrip
+      ? {
+          warning:
+            'تم حفظ الحلاق دون حقول «رعاية شاملة» لأن الأعمدة غير موجودة في المشروع. نفّذ ترحيل 32 أو 38 في Supabase.',
+        }
+      : {}),
+  };
 }

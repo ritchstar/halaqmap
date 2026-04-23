@@ -62,9 +62,13 @@ export default function PartnerInterestLanding() {
               سجّل اهتمامك كحلّاق
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              هذه الصفحة لـ<strong className="text-foreground"> التوعية وتجميع البريد فقط</strong>. لا تُعدّ طلب اشتراك رسمياً
-              ولا تُكمِل إجراءات التسجيل الكاملة في المنصة. عند اكتمال الإجراءات الحكومية والتشغيلية سنُبلغك
-              بكل جديد عبر البريد الذي تُدخله — بشرط الموافقة الصريحة أدناه.
+              هذه الصفحة لـ<strong className="text-foreground"> التوعية وتجميع البريد فقط</strong>. لا تُعدّ طلب اشتراكاً
+              ولا تُنشئ علاقة تعاقدية، ولا تُكمِل مسار التسجيل أو التحقق النظامي في المنصة. عند موافقتك الصريحة أدناه
+              قد نرسل لك تحديثات إعلامية عن الإطلاق والشروط والمزايا وفق{' '}
+              <NavLink to={ROUTE_PATHS.PARTNER_PRIVACY} className="font-semibold text-primary underline underline-offset-2">
+                سياسة خصوصية الشركاء
+              </NavLink>
+              .
             </p>
           </motion.div>
         </div>
@@ -73,15 +77,19 @@ export default function PartnerInterestLanding() {
       <div className="container mx-auto max-w-3xl space-y-8 px-4 py-10">
         <Alert variant="default" className="border-amber-500/40 bg-amber-50/80 text-amber-950 dark:bg-amber-950/20 dark:text-amber-50">
           <Shield className="h-4 w-4" />
-          <AlertTitle>تنبيه قانوني وتشغيلي</AlertTitle>
+          <AlertTitle>تنبيه قانوني</AlertTitle>
           <AlertDescription className="leading-relaxed">
-            استقبال طلبات الاشتراك الكاملة يتطلّب اكتمال الإجراءات الرسمية للكيان (مثل السجل التجاري والربط
-            البنكي وغيرها). هذه الصفحة تقتصر على <strong>جمع عنوان بريد</strong> لإرسال <strong>تحديثات إعلامية</strong>{' '}
-            بعد الحصول على الموافقات اللازمة، وفق{' '}
+            هذه الصفحة <strong>لا تجمع</strong> بيانات اشتراك ولا تحققاً نظامياً (رمز موحّد) ولا دفعاً ولا مرفقات.
+            يقتصر الغرض على <strong>عنوان البريد الإلكتروني</strong> عند <strong>موافقتك الصريحة</strong> لإرسال{' '}
+            <strong>تحديثات إعلامية</strong> وفق{' '}
             <NavLink to={ROUTE_PATHS.PARTNER_PRIVACY} className="font-semibold text-primary underline underline-offset-2">
               سياسة خصوصية الشركاء
             </NavLink>
-            .
+            . مسار الاشتراك الكامل (بما في ذلك التحقق النظامي ووسائل الدفع عند تفعيلها) يتم عبر{' '}
+            <NavLink to={ROUTE_PATHS.REGISTER} className="font-semibold text-primary underline underline-offset-2">
+              صفحة التسجيل للشركاء
+            </NavLink>{' '}
+            وليس من هنا.
           </AlertDescription>
         </Alert>
 

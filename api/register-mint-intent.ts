@@ -5,25 +5,26 @@ import {
   mintRegistrationIntentToken,
   REGISTRATION_ORDER_ID_RE,
 } from './_lib/registrationIntentCrypto.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = { maxDuration: 15 };
 
+const CORS_OPTS = {
+  allowMethods: 'GET, POST, OPTIONS',
+  allowHeaders: 'Content-Type, x-client-supabase-url, x-supabase-anon, x-registration-intent',
+} as const;
+
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers':
-      'Content-Type, x-client-supabase-url, x-supabase-anon, x-registration-intent',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   return Response.json(
     {
@@ -39,6 +40,8 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'register-mint-intent');

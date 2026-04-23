@@ -15,7 +15,7 @@
 ### 1️⃣ افتح Supabase SQL Editor
 
 ```
-https://supabase.com/dashboard/project/lqzuhkzfhdhaosstduas/sql
+https://supabase.com/dashboard/project/YOUR_PROJECT_REF/sql
 ```
 
 ### 2️⃣ نفذ الملفات بالترتيب

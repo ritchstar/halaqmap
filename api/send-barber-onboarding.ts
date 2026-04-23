@@ -1,5 +1,7 @@
 import { type SupabaseClient } from '@supabase/supabase-js';
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
+import { getBarberPortalMagicSecret, mintBarberPortalMagicToken } from './_lib/barberPortalMagicToken.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 60,
@@ -55,14 +57,13 @@ function buildRatingInviteUrlStatic(siteOrigin: string, barberId: string, token:
   return `${base}/#${hashPath}`;
 }
 
+const CORS_OPTS = {
+  allowMethods: 'GET, POST, OPTIONS',
+  allowHeaders: 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
+} as const;
+
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
 function tierLabelAr(tier: Tier | null | undefined): string {
@@ -125,6 +126,32 @@ function buildLinks(baseUrl: string): MailLinks {
   };
 }
 
+/** رابط لوحة التحكم موقّع لمرة واحدة (ذهبي/ماسي) عند ضبط سرّ التوقيع على الخادم */
+function linksWithMagicDashboardIfEligible(
+  links: MailLinks,
+  barberId: string | null,
+  barberEmail: string,
+  tierRaw: Tier | string | null | undefined,
+): MailLinks {
+  const secret = getBarberPortalMagicSecret();
+  const t = String(tierRaw ?? '').toLowerCase();
+  const id = String(barberId ?? '').trim();
+  const email = String(barberEmail ?? '').trim();
+  if (!secret || !id || !email || (t !== 'gold' && t !== 'diamond')) {
+    return links;
+  }
+  try {
+    const token = mintBarberPortalMagicToken(id, email, secret);
+    const b = links.siteBase.replace(/\/+$/, '');
+    return {
+      ...links,
+      dashboardUrl: `${b}/#/barber/enter?m=${encodeURIComponent(token)}`,
+    };
+  } catch {
+    return links;
+  }
+}
+
 function logoPublicUrl(links: MailLinks): string {
   return `${links.siteBase}/images/halaqmap_logo_20260409_073322.png`;
 }
@@ -185,12 +212,12 @@ function padBarberMember(n: number | null | undefined): string | null {
 async function loadBarberOnboardingRow(
   supabase: SupabaseClient,
   email: string,
-): Promise<{ id: string; rating_invite_token: string | null; member_number: number | null } | null> {
+): Promise<{ id: string; rating_invite_token: string | null; member_number: number | null; tier: string | null } | null> {
   const raw = email.trim();
   for (const addr of [raw, raw.toLowerCase()]) {
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, rating_invite_token, member_number')
+      .select('id, rating_invite_token, member_number, tier')
       .eq('email', addr)
       .eq('is_active', true)
       .maybeSingle();
@@ -201,12 +228,13 @@ async function loadBarberOnboardingRow(
       rating_invite_token: (data as { rating_invite_token: string | null }).rating_invite_token,
       member_number:
         mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
+      tier: (data as { tier?: string | null }).tier != null ? String((data as { tier?: string | null }).tier) : null,
     };
   }
   {
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, rating_invite_token, member_number')
+      .select('id, rating_invite_token, member_number, tier')
       .ilike('email', raw)
       .eq('is_active', true)
       .maybeSingle();
@@ -217,6 +245,7 @@ async function loadBarberOnboardingRow(
         rating_invite_token: (data as { rating_invite_token: string | null }).rating_invite_token,
         member_number:
           mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
+        tier: (data as { tier?: string | null }).tier != null ? String((data as { tier?: string | null }).tier) : null,
       };
     }
   }
@@ -641,11 +670,13 @@ function isValidEmail(email: string): boolean {
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 /** تشخيص بدون أسرار — /api/send-barber-onboarding */
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const resendApiKeySet = Boolean((process.env.RESEND_API_KEY || '').trim());
@@ -668,6 +699,8 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
@@ -723,11 +756,19 @@ export async function POST(request: Request): Promise<Response> {
     let ratingTok: string | null = String((payload as SinglePayload).ratingInviteToken ?? '').trim() || null;
     let memberPadded: string | null = null;
     const onboardingRow = await loadBarberOnboardingRow(supabase, barberEmail);
+    let tierForMagic: string | null = null;
     if (onboardingRow) {
       if (!barberId) barberId = onboardingRow.id;
       if (!ratingTok?.trim()) ratingTok = onboardingRow.rating_invite_token;
       memberPadded = padBarberMember(onboardingRow.member_number);
+      tierForMagic = onboardingRow.tier;
     }
+    const linksForEmail = linksWithMagicDashboardIfEligible(
+      links,
+      barberId,
+      barberEmail,
+      tierForMagic ?? tierRaw,
+    );
     const ratingCtx = await buildRatingEmailContext(baseUrl, barberId, ratingTok);
     const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
     const attachments =
@@ -742,8 +783,8 @@ export async function POST(request: Request): Promise<Response> {
           ]
         : undefined;
     const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك على الخريطة + روابط لوحة التحكم';
-    const text = emailText(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId, memberPadded);
-    const html = emailHtml(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId, memberPadded);
+    const text = emailText(barberName, tier, tierRaw, linksForEmail, ratingCtx, registrationOrderId, memberPadded);
+    const html = emailHtml(barberName, tier, tierRaw, linksForEmail, ratingCtx, registrationOrderId, memberPadded);
     const sent = await sendViaResend({
       to: barberEmail,
       subject,
@@ -813,8 +854,9 @@ export async function POST(request: Request): Promise<Response> {
           : undefined;
       const subject = '🎉 حلاق ماب | أنت على الخريطة — روابط لوحة التحكم ودليلك';
       const bulkMember = padBarberMember(row.member_number);
-      const text = emailText(name, tier, row.tier, links, ratingCtx, null, bulkMember);
-      const html = emailHtml(name, tier, row.tier, links, ratingCtx, null, bulkMember);
+      const linksForRow = linksWithMagicDashboardIfEligible(links, String(row.id), email, row.tier);
+      const text = emailText(name, tier, row.tier, linksForRow, ratingCtx, null, bulkMember);
+      const html = emailHtml(name, tier, row.tier, linksForRow, ratingCtx, null, bulkMember);
       const sent = await sendViaResend({
         to: email,
         subject,

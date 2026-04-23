@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Copy, Download, Mail, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import {
@@ -78,9 +79,16 @@ export default function RegisterSuccess() {
 
         <Card className="border-primary/20 shadow-lg">
           <CardHeader className="text-center">
+            <div className="mb-3 flex justify-center">
+              <Badge variant="secondary" className="border-primary/40 bg-primary/10 px-4 py-1 text-sm font-semibold">
+                قيد المراجعة النظامية
+              </Badge>
+            </div>
             <CardTitle className="text-2xl">تم استلام طلبك</CardTitle>
-            <CardDescription>
-              سيتم مراجعة طلبك من إدارة المنصة. احتفظ برقم الطلب للمتابعة.
+            <CardDescription className="text-center leading-relaxed">
+              تم استلام طلبك ضمن <strong>مراجعة نظامية لحظية</strong>؛ لا حاجة لانتظار رفع ملفات حكومية ثقيلة على
+              خوادمنا. <strong>لم تُخزَّن مستنداتك الحكومية على خوادمنا</strong> ولن نطلب منك إعادة تقديمها لاحقاً ضمن
+              هذا المسار. ستتواصل الإدارة عند الحاجة — واحتفظ برقم الطلب للمتابعة.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

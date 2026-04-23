@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto.js';
 import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 30,
@@ -9,17 +10,16 @@ export const config = {
 
 const BUCKET = 'registration-uploads';
 const ORDER_ID_RE = /^HM-\d{8}-[A-Z0-9]{6}$/;
-const ALLOWED_ROOTS = new Set(['documents', 'health', 'shop', 'banners', 'receipt']);
+const ALLOWED_ROOTS = new Set(['shop', 'banners', 'receipt']);
+
+const CORS_OPTS = {
+  allowMethods: 'GET, POST, OPTIONS',
+  allowHeaders:
+    'Content-Type, x-order-id, x-storage-subpath, x-supabase-anon, x-file-content-type, x-client-supabase-url, x-registration-intent',
+} as const;
 
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers':
-      'Content-Type, x-order-id, x-storage-subpath, x-supabase-anon, x-file-content-type, x-client-supabase-url, x-registration-intent',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
 function validateStorageSubpath(sub: string): boolean {
@@ -29,10 +29,12 @@ function validateStorageSubpath(sub: string): boolean {
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const url = Boolean((process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim());
   const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
@@ -58,6 +60,8 @@ export async function GET(request: Request): Promise<Response> {
  * يُصدِر token لمسار واحد؛ العميل يرفع الملف عبر uploadToSignedUrl (لا يمرّ ثنائي الملف عبر Vercel).
  */
 export async function POST(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'register-signed-upload');

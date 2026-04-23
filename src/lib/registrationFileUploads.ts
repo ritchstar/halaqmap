@@ -463,9 +463,6 @@ export async function uploadRegistrationAttachments(
   client: SupabaseClient,
   orderId: string,
   files: {
-    commercialRegistry: File;
-    municipalLicense: File;
-    healthCertificates: File[];
     shopExterior: File;
     shopInterior: File;
     bannerImages: File[];
@@ -481,19 +478,6 @@ export async function uploadRegistrationAttachments(
   }
 
   const intentToken = options?.intentToken ?? null;
-
-  const cr = await uploadOne(client, orderId, 'documents', files.commercialRegistry, intentToken);
-  if (cr.ok === false) return { ok: false, error: cr.error };
-
-  const ml = await uploadOne(client, orderId, 'documents', files.municipalLicense, intentToken);
-  if (ml.ok === false) return { ok: false, error: ml.error };
-
-  const healthCertificates: string[] = [];
-  for (const f of files.healthCertificates) {
-    const h = await uploadOne(client, orderId, 'health', f, intentToken);
-    if (h.ok === false) return { ok: false, error: h.error };
-    healthCertificates.push(h.url);
-  }
 
   const ex = await uploadOne(client, orderId, 'shop', files.shopExterior, intentToken);
   if (ex.ok === false) return { ok: false, error: ex.error };
@@ -518,9 +502,6 @@ export async function uploadRegistrationAttachments(
   return {
     ok: true,
     urls: {
-      commercialRegistry: cr.url,
-      municipalLicense: ml.url,
-      healthCertificates,
       shopExterior: ex.url,
       shopInterior: inn.url,
       banners,

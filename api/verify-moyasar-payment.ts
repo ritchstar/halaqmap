@@ -5,6 +5,7 @@
  */
 
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = { maxDuration: 20 };
 
@@ -12,18 +13,17 @@ const MOYSAR_API_BASE = (process.env.MOYSAR_API_BASE || 'https://api.moyasar.com
 /** UUID كما تعيده ميسر في باراميتر ?id= */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const CORS_OPTS = {
+  allowMethods: 'GET, OPTIONS',
+  allowHeaders: 'Content-Type',
+} as const;
+
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 type MoyasarPaymentJson = {
@@ -37,6 +37,8 @@ type MoyasarPaymentJson = {
 };
 
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const guard = runRegistrationRouteGuards(request, 'verify-moyasar-payment');
   if (!guard.ok) {

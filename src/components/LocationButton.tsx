@@ -89,7 +89,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               ) : (
                 <>
                   <MapPin className="ml-3 h-8 w-8" />
-                  <span>حدد موقعك</span>
+                  <span>(اسمح بتحديد موقعك )</span>
                 </>
               )}
             </Button>

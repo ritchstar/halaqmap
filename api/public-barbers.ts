@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 30,
@@ -10,14 +11,13 @@ const MAX_RADIUS_KM = 100;
 const DEFAULT_LIMIT = 120;
 const MAX_LIMIT = 200;
 
+const CORS_OPTS = {
+  allowMethods: 'GET, OPTIONS',
+  allowHeaders: 'Content-Type, x-supabase-anon, x-client-supabase-url',
+} as const;
+
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon, x-client-supabase-url',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
 function isTruthyBoolean(raw: string | null): boolean {
@@ -36,7 +36,7 @@ function clamp(num: number, min: number, max: number): number {
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 /**
@@ -45,6 +45,8 @@ export async function OPTIONS(request: Request): Promise<Response> {
  * - وضع التشخيص: /api/public-barbers?health=1
  */
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();

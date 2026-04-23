@@ -31,14 +31,30 @@ function isBootstrapAdminEmail(email: string): boolean {
   return set.has(e);
 }
 
-function hasManageBarbersPermission(raw: unknown): boolean {
+/** مفاتيح JSON في عمود permissions — يجب أن تطابق src/lib/adminPermissions.ts */
+export type PlatformAdminPermissionKey =
+  | 'view_overview'
+  | 'view_requests'
+  | 'review_requests'
+  | 'view_barbers'
+  | 'manage_barbers'
+  | 'view_payments'
+  | 'review_payments'
+  | 'view_command_center'
+  | 'manage_command_center'
+  | 'view_messages'
+  | 'view_settings'
+  | 'manage_admins';
+
+function permissionFromRow(raw: unknown, key: PlatformAdminPermissionKey): boolean {
   const incoming = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
-  return Boolean(incoming.manage_barbers);
+  return Boolean(incoming[key]);
 }
 
-async function assertCanManageBarbers(
+async function assertPlatformAdminHasPermission(
   supabase: SupabaseClient,
-  actorEmail: string
+  actorEmail: string,
+  required: PlatformAdminPermissionKey
 ): Promise<{ ok: true } | { ok: false; message: string }> {
   if (isBootstrapAdminEmail(actorEmail)) return { ok: true };
 
@@ -52,8 +68,11 @@ async function assertCanManageBarbers(
   if (!data || data.is_active !== true) {
     return { ok: false, message: 'Forbidden: not an active platform admin' };
   }
-  if (!hasManageBarbersPermission(data.permissions)) {
-    return { ok: false, message: 'Forbidden: manage_barbers permission required' };
+  if (!permissionFromRow(data.permissions, required)) {
+    return {
+      ok: false,
+      message: `Forbidden: platform permission "${required}" is required`,
+    };
   }
   return { ok: true };
 }
@@ -63,13 +82,13 @@ export type VerifyManageBarbersAdminResult =
   | { ok: false; status: number; json: Record<string, unknown> };
 
 /**
- * تحقق من توكن Supabase للمستخدم ثم من صلاحية manage_barbers (أو بريد bootstrap).
- * يُستخدم لمسارات السيرفر التي كانت تعتمد على مطابقة anon العامة.
+ * تحقق من توكن Supabase ثم من مفتاح صلاحية واحد في platform_admin_roles (أو bootstrap).
  */
-export async function verifyManageBarbersAdminFromRequest(
+export async function verifyPlatformAdminFromRequest(
   request: Request,
   serverSupabaseUrl: string,
-  serviceRoleKey: string
+  serviceRoleKey: string,
+  requiredPermission: PlatformAdminPermissionKey
 ): Promise<VerifyManageBarbersAdminResult> {
   const clientSupabaseUrl = request.headers.get('x-client-supabase-url')?.trim() || '';
   if (clientSupabaseUrl && clientSupabaseUrl !== serverSupabaseUrl) {
@@ -117,10 +136,22 @@ export async function verifyManageBarbersAdminFromRequest(
     };
   }
 
-  const gate = await assertCanManageBarbers(supabase, user.email);
+  const gate = await assertPlatformAdminHasPermission(supabase, user.email, requiredPermission);
   if (gate.ok === false) {
     return { ok: false, status: 403, json: { error: gate.message } };
   }
 
   return { ok: true, supabase, actorEmail: normalizeEmail(user.email) };
+}
+
+/**
+ * تحقق من توكن Supabase للمستخدم ثم من صلاحية manage_barbers (أو بريد bootstrap).
+ * يُستخدم لمسارات السيرفر التي كانت تعتمد على مطابقة anon العامة.
+ */
+export async function verifyManageBarbersAdminFromRequest(
+  request: Request,
+  serverSupabaseUrl: string,
+  serviceRoleKey: string
+): Promise<VerifyManageBarbersAdminResult> {
+  return verifyPlatformAdminFromRequest(request, serverSupabaseUrl, serviceRoleKey, 'manage_barbers');
 }
