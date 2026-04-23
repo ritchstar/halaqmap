@@ -22,6 +22,7 @@ import {
   Users,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/lib';
 import { getSiteOrigin } from '@/config/siteOrigin';
@@ -130,6 +131,27 @@ export default function BarberGrowthLanding() {
             <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/45 bg-black/35 px-4 py-2 text-sm font-semibold text-amber-100 backdrop-blur">
               <BadgeCheck className="h-4 w-4" />
               {PARTNER_LANDING_HERO.badge}
+            </div>
+
+            <div className="flex max-w-2xl flex-col gap-2 rounded-2xl border border-emerald-400/35 bg-black/40 p-4 backdrop-blur-md">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className="border-emerald-400/60 bg-emerald-950/50 text-xs font-bold text-emerald-50 shadow-sm"
+                >
+                  {PARTNER_LANDING_NATIONAL_TRUST.badgeAr}
+                </Badge>
+                <span
+                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-emerald-100/90"
+                  dir="ltr"
+                >
+                  {PARTNER_LANDING_NATIONAL_TRUST.badgeEn}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-slate-100/95">{PARTNER_LANDING_NATIONAL_TRUST.bodyAr}</p>
+              <p className="text-xs leading-relaxed text-slate-300/95" dir="ltr">
+                {PARTNER_LANDING_NATIONAL_TRUST.bodyEn}
+              </p>
             </div>
 
             <h1 className="text-balance text-4xl font-extrabold leading-tight text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.55)] md:text-6xl">

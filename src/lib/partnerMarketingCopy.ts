@@ -22,6 +22,16 @@ export const PARTNER_LANDING_HERO = {
     'لا نبيع لك «ظهوراً عشوائياً»؛ نضعك حيث يبحث الزبون فعلياً: القرب، النية، والسرعة. منصة عربية تجمع بين الخريطة وبيانات مهنية ومسار انضمام يُدار — لتبني حضوراً رقمياً يترجم إلى اتصال وواتساب وخرائط في مسار واحد، قبل أن يزدحم نفس المكان بمنافسيك.',
 } as const;
 
+/** شارة وطنية + توضيح استدامة رقمية — مسار الشركاء */
+export const PARTNER_LANDING_NATIONAL_TRUST = {
+  badgeAr: 'منتج وطني يدعم رؤية 2030',
+  badgeEn: 'National product aligned with Vision 2030',
+  bodyAr:
+    'نلتزم بتقليل البيانات غير الضرورية، وبمسارات تحقق نظامية دون تخزين مرفقات حساسة على خوادمنا، وببنية تدعم نمو المنشآت الصغيرة رقمياً — كجزء من مسؤوليتنا تجاه الاستدامة الرقمية والثقة في المنظومة المحلية.',
+  bodyEn:
+    'We minimise unnecessary data, use regulatory preview flows without storing sensitive government file copies on our servers, and structure tiers so SMEs can grow digitally — as part of our commitment to digital sustainability and trust in the local ecosystem.',
+} as const;
+
 export const PARTNER_LANDING_HERO_HIGHLIGHTS = [
   {
     title: 'القرب = نية شراء',

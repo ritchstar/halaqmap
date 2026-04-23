@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { MapPin, Target, Eye, Zap, Shield, Award } from "lucide-react";
+import { MapPin, Sparkles, Target, Eye, Zap, Shield, Award } from "lucide-react";
 import { IMAGES } from "@/assets/images";
+import { ABOUT_IDENTITY_PILLARS, ABOUT_IDENTITY_SECTION } from "@/config/aboutPlatformIdentity";
 import {
   PLATFORM_ABOUT_FEATURE_QUALITY,
   PLATFORM_ABOUT_HERO_SUBTITLE,
@@ -178,6 +179,64 @@ export default function About() {
               <h3 className="text-2xl font-bold text-foreground mb-4">رسالتنا</h3>
               <p className="text-lg text-muted-foreground leading-relaxed">{PLATFORM_MISSION_BODY}</p>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden border-y border-border/80 bg-gradient-to-b from-card/80 via-background to-card/60 py-20">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(45,212,191,0.08),transparent_50%)] dark:bg-[radial-gradient(ellipse_at_20%_0%,rgba(45,212,191,0.12),transparent_50%)]" />
+        <div className="container relative mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+            className="mx-auto mb-14 max-w-3xl text-center"
+          >
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+              <Sparkles className="h-4 w-4" />
+              <span>{ABOUT_IDENTITY_SECTION.titleAr}</span>
+            </div>
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground" dir="ltr">
+              {ABOUT_IDENTITY_SECTION.titleEn}
+            </p>
+            <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{ABOUT_IDENTITY_SECTION.leadAr}</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground/90" dir="ltr">
+              {ABOUT_IDENTITY_SECTION.leadEn}
+            </p>
+          </motion.div>
+
+          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
+            {ABOUT_IDENTITY_PILLARS.map((pillar, index) => {
+              const Icon = pillar.icon;
+              return (
+                <motion.div
+                  key={pillar.titleAr}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: index * 0.07 }}
+                  className="group relative overflow-hidden rounded-3xl border border-border/90 bg-card/90 p-6 shadow-sm ring-1 ring-black/5 transition-all duration-300 hover:border-primary/35 hover:shadow-md dark:bg-card/70 dark:ring-white/10 dark:hover:border-primary/40"
+                >
+                  <div className="mb-4 inline-flex rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 p-3.5 text-primary">
+                    <Icon className="h-7 w-7" aria-hidden />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight text-foreground">{pillar.titleAr}</h3>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-primary/80" dir="ltr">
+                    {pillar.titleEn}
+                  </p>
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-[0.95rem]">
+                    {pillar.bodyAr}
+                  </p>
+                  <p
+                    className="mt-3 border-t border-border/60 pt-3 text-xs leading-relaxed text-muted-foreground/95 md:text-sm"
+                    dir="ltr"
+                  >
+                    {pillar.bodyEn}
+                  </p>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
