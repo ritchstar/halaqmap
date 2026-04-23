@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Mail, LogIn, Scissors } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
+import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
 import { IMAGES } from '@/assets/images';
 import { barberPortalLoginRemote } from '@/lib/barberPortalLoginRemote';
 import { toast } from 'sonner';
@@ -23,7 +24,11 @@ export default function BarberLogin() {
       const result = await barberPortalLoginRemote({ email, password });
       if (!result.ok) {
         const errorMessage = 'error' in result ? result.error : 'فشل تسجيل الدخول';
-        toast.error(errorMessage || 'فشل تسجيل الدخول');
+        if ('code' in result && result.code === 'TIER_BRONZE_NO_DASHBOARD') {
+          toast.error(errorMessage || 'الباقة البرونزية لا تشمل لوحة التحكم الإلكترونية.');
+        } else {
+          toast.error(errorMessage || 'فشل تسجيل الدخول');
+        }
         setIsLoading(false);
         return;
       }
@@ -34,7 +39,7 @@ export default function BarberLogin() {
           loggedIn: true,
         }),
       );
-      toast.success(`مرحباً ${result.session.name}`);
+      toast.success(`مرحباً ${partnerSalonDisplayName(result.session)}`);
       navigate(ROUTE_PATHS.BARBER_DASHBOARD);
     } catch {
       toast.error('حدث خطأ غير متوقع');
@@ -83,6 +88,13 @@ export default function BarberLogin() {
             />
             <h1 className="mb-2 text-2xl font-bold">لوحة تحكم حلاق ماب</h1>
             <p className="text-muted-foreground">سجّل الدخول ببريدك المسجّل لدينا ورمز الدخول الذي زوّدتك به الإدارة</p>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              لوحة التحكم الإلكترونية متاحة لباقتي <strong>الذهبي</strong> و<strong>الماسي</strong> فقط. باقة برونزية؟{' '}
+              <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
+                اطّلع على الترقية
+              </Link>
+              .
+            </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">

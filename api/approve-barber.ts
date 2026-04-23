@@ -1,25 +1,32 @@
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
+import { whitelistBarberUpsertRow } from './_lib/approveBarberUpsertWhitelist.js';
+import {
+  isBarberUpsertMissingInclusiveCareColumnError,
+  stripInclusiveCareKeysFromBarberUpsertRow,
+} from './_lib/barberInclusiveCareUpsertRetry.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 30,
 };
 
+const CORS_OPTS = {
+  allowMethods: 'GET, POST, OPTIONS',
+  allowHeaders: 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
+} as const;
+
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 /** تشخيص بدون أسرار — افتح: /api/approve-barber */
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const url = Boolean(resolvedUrl);
@@ -39,6 +46,8 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
@@ -68,16 +77,43 @@ export async function POST(request: Request): Promise<Response> {
   if (!row || typeof row !== 'object' || Array.isArray(row)) {
     return Response.json({ error: 'Invalid row payload' }, { status: 400, headers });
   }
-  const email = String((row as { email?: unknown }).email ?? '').trim();
+
+  const wl = whitelistBarberUpsertRow(row as Record<string, unknown>);
+  if (!wl.ok) {
+    return Response.json(
+      {
+        error: 'Row contains disallowed fields',
+        disallowedKeys: wl.disallowedKeys,
+        hint: 'Only barber profile columns approved for admin upsert are accepted (rating_invite_token is server-managed).',
+      },
+      { status: 400, headers }
+    );
+  }
+
+  const email = String((wl.row as { email?: unknown }).email ?? '').trim();
   if (!email) {
     return Response.json({ error: 'Missing barber email' }, { status: 400, headers });
   }
 
-  const { data, error } = await supabase
+  let upsertPayload: Record<string, unknown> = wl.row as Record<string, unknown>;
+  let skippedInclusiveCareDueToSchema = false;
+  let { data, error } = await supabase
     .from('barbers')
-    .upsert(row as Record<string, unknown>, { onConflict: 'email' })
+    .upsert(upsertPayload, { onConflict: 'email' })
     .select('id, member_number')
     .single();
+
+  if (error && isBarberUpsertMissingInclusiveCareColumnError(error.message)) {
+    skippedInclusiveCareDueToSchema = true;
+    upsertPayload = stripInclusiveCareKeysFromBarberUpsertRow(wl.row as Record<string, unknown>);
+    const second = await supabase
+      .from('barbers')
+      .upsert(upsertPayload, { onConflict: 'email' })
+      .select('id, member_number')
+      .single();
+    data = second.data;
+    error = second.error;
+  }
 
   if (error || !data) {
     return Response.json({ error: error?.message || 'Upsert failed' }, { status: 500, headers });
@@ -113,5 +149,18 @@ export async function POST(request: Request): Promise<Response> {
     }
   }
 
-  return Response.json({ ok: true, barberId, memberNumber }, { headers });
+  return Response.json(
+    {
+      ok: true,
+      barberId,
+      memberNumber,
+      ...(skippedInclusiveCareDueToSchema
+        ? {
+            warning:
+              'تم حفظ الحلاق دون حقول «رعاية شاملة» لأن قاعدة البيانات لا تزال بلا الأعمدة الجديدة. نفّذ ترحيل 32 أو 38 في Supabase ثم حدّث إعدادات الرعاية من لوحة الحلاق.',
+          }
+        : {}),
+    },
+    { headers }
+  );
 }

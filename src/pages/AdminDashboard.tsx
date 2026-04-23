@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import QRCode from 'react-qr-code';
@@ -30,6 +30,10 @@ import {
   Loader2,
   ExternalLink,
   Copy,
+  Send,
+  Activity,
+  FlaskConical,
+  QrCode,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -118,6 +122,16 @@ import {
   upsertAdminRole,
   type AdminRoleRow,
 } from '@/lib/adminAccessRemote';
+import {
+  fetchAdminSupportMessagesRemote,
+  fetchAdminSupportThreadsRemote,
+  sendAdminSupportMessageRemote,
+  type AdminSupportMessageRow,
+  type AdminSupportThread,
+} from '@/lib/adminSupportChatRemote';
+import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
+import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
+import { RegulatoryQrLivePreviewDialog } from '@/components/admin/RegulatoryQrLivePreviewDialog';
 
 const EMPTY_ADMIN_STATS: AdminStats = {
   totalBarbers: 0,
@@ -250,6 +264,8 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [adminData, setAdminData] = useState<AdminSessionInfo | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
+  const [regulatoryLivePreviewRequest, setRegulatoryLivePreviewRequest] = useState<SubscriptionRequest | null>(null);
+  const [regulatoryLivePreviewOpen, setRegulatoryLivePreviewOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [storedSubscriptionRequests, setStoredSubscriptionRequests] = useState<SubscriptionRequest[]>([]);
@@ -258,6 +274,17 @@ export default function AdminDashboard() {
   const [dataRefreshNonce, setDataRefreshNonce] = useState(0);
 
   const bumpRemoteData = () => setDataRefreshNonce((n) => n + 1);
+
+  const closeRegulatoryLivePreview = () => {
+    setRegulatoryLivePreviewOpen(false);
+    setRegulatoryLivePreviewRequest(null);
+  };
+
+  const openRegulatoryLivePreview = (req: SubscriptionRequest) => {
+    if (!req.regulatoryVerificationQr?.trim()) return;
+    setRegulatoryLivePreviewRequest(req);
+    setRegulatoryLivePreviewOpen(true);
+  };
 
   const refreshStoredRequests = () => {
     void loadMergedSubscriptionRequests().then(setStoredSubscriptionRequests);
@@ -380,6 +407,7 @@ export default function AdminDashboard() {
   }, [remoteStats, pendingRequestCount, pendingPaymentCount]);
 
   const can = (perm: AdminPermissionKey) => Boolean(adminData?.permissions?.[perm]);
+  const canViewSecurityOpsLog = can('view_overview') || can('manage_barbers');
   const allowedTabs = useMemo(() => {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
@@ -388,9 +416,10 @@ export default function AdminDashboard() {
     if (can('view_payments')) out.push('payments');
     if (can('view_command_center')) out.push('command-center');
     if (can('view_messages')) out.push('messages');
+    if (canViewSecurityOpsLog) out.push('security-ops');
     if (can('view_settings')) out.push('settings');
     return out;
-  }, [adminData]);
+  }, [adminData, canViewSecurityOpsLog]);
 
   useEffect(() => {
     if (!adminData) return;
@@ -403,7 +432,8 @@ export default function AdminDashboard() {
     return null;
   }
 
-  const canRootHardEdit = Boolean(adminData.bootstrap || can('manage_admins'));
+  /** تعديل بيانات الحلاق «العميق» — للمالك (bootstrap) فقط؛ من يملك manage_admins يدير الجدول وليس نسخ المالك هنا. */
+  const canRootHardEdit = Boolean(adminData.bootstrap);
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -434,7 +464,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
+          <TabsList className="flex w-full flex-wrap gap-1 h-auto justify-start lg:inline-flex">
             {can('view_overview') && (
             <TabsTrigger value="overview" className="gap-2">
               <TrendingUp className="w-4 h-4" />
@@ -481,6 +511,12 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">الرسائل</span>
             </TabsTrigger>
             )}
+            {canViewSecurityOpsLog && (
+            <TabsTrigger value="security-ops" className="gap-2">
+              <Activity className="w-4 h-4" />
+              <span className="hidden sm:inline">سجل الأمان</span>
+            </TabsTrigger>
+            )}
             {can('view_settings') && (
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -494,13 +530,21 @@ export default function AdminDashboard() {
             <OverviewSection stats={stats} />
           </TabsContent>}
 
+          {canViewSecurityOpsLog && (
+            <TabsContent value="security-ops" className="space-y-6">
+              <SecurityOpsLogSection isActive={activeTab === 'security-ops'} bumpNonce={dataRefreshNonce} />
+            </TabsContent>
+          )}
+
           {/* Requests Tab */}
           {can('view_requests') && <TabsContent value="requests" className="space-y-6">
             <RequestsSection
               requests={subscriptionRequests}
               onViewRequest={setSelectedRequest}
+              onRegulatoryLivePreview={openRegulatoryLivePreview}
               canReview={can('review_requests')}
               canManage={can('manage_barbers')}
+              canExportCsv={can('review_requests')}
             />
           </TabsContent>}
 
@@ -537,7 +581,7 @@ export default function AdminDashboard() {
 
           {/* Messages Tab */}
           {can('view_messages') && <TabsContent value="messages" className="space-y-6">
-            <MessagesSection />
+            <MessagesSection canUseChat={can('view_messages')} />
           </TabsContent>}
 
           {/* Settings Tab */}
@@ -546,27 +590,43 @@ export default function AdminDashboard() {
               adminEmail={adminData.email}
               canManageAdmins={can('manage_admins')}
               bootstrapAdmin={adminData.bootstrap}
+              canSavePlatformVat={can('view_settings')}
             />
           </TabsContent>}
         </Tabs>
       </div>
 
       {/* Request Review Dialog */}
-      {selectedRequest && can('review_requests') && (
+      {selectedRequest && (can('review_requests') || can('manage_barbers')) && (
         <RequestReviewDialog
           request={selectedRequest}
           reviewerEmail={adminData.email}
           onClose={() => {
+            closeRegulatoryLivePreview();
             setSelectedRequest(null);
             setRejectionReason('');
           }}
+          onRegulatoryLivePreview={() => openRegulatoryLivePreview(selectedRequest)}
+          clearRegulatoryLivePreviewMemory={closeRegulatoryLivePreview}
           rejectionReason={rejectionReason}
           setRejectionReason={setRejectionReason}
           onAfterDecision={() => {
             refreshStoredRequests();
             bumpRemoteData();
           }}
+          canReviewRequests={can('review_requests')}
           canManageBarbers={can('manage_barbers')}
+        />
+      )}
+
+      {regulatoryLivePreviewRequest && (
+        <RegulatoryQrLivePreviewDialog
+          open={regulatoryLivePreviewOpen}
+          onOpenChange={(o) => {
+            if (!o) closeRegulatoryLivePreview();
+          }}
+          registrationOrderId={regulatoryLivePreviewRequest.id}
+          rawQrPayload={regulatoryLivePreviewRequest.regulatoryVerificationQr ?? ''}
         />
       )}
 
@@ -581,6 +641,236 @@ export default function AdminDashboard() {
         />
       )}
     </div>
+  );
+}
+
+// سجل الأمان والعمليات — platform_booking_security_log + Realtime
+function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bumpNonce: number }) {
+  const [rows, setRows] = useState<BookingSecurityLogRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [simulating, setSimulating] = useState(false);
+  const [liveConnected, setLiveConnected] = useState(false);
+  const seenIdsRef = useRef<Set<string>>(new Set());
+
+  const showOverlapSimulator =
+    isSupabaseConfigured() &&
+    (import.meta.env.DEV || import.meta.env.VITE_ENABLE_BOOKING_OVERLAP_SIMULATOR === 'true');
+
+  const mapRow = useCallback((raw: Record<string, unknown>): BookingSecurityLogRow => ({
+    id: String(raw.id),
+    created_at: String(raw.created_at),
+    severity: String(raw.severity ?? ''),
+    event_code: String(raw.event_code ?? ''),
+    message: raw.message != null ? String(raw.message) : null,
+    barber_id: raw.barber_id != null ? String(raw.barber_id) : null,
+    detail:
+      raw.detail && typeof raw.detail === 'object' && !Array.isArray(raw.detail)
+        ? (raw.detail as Record<string, unknown>)
+        : null,
+  }), []);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const r = await fetchAdminBookingSecurityLogRemote();
+    setLoading(false);
+    if (!r.ok) {
+      toast({ title: 'تعذر تحميل السجل', description: r.error, variant: 'destructive' });
+      return;
+    }
+    setRows(r.rows);
+    seenIdsRef.current = new Set(r.rows.map((x) => x.id));
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load, bumpNonce]);
+
+  useEffect(() => {
+    if (!isActive) return;
+    const tick = window.setInterval(() => void load(), 12000);
+    return () => window.clearInterval(tick);
+  }, [isActive, load]);
+
+  useEffect(() => {
+    if (!isActive || !isSupabaseConfigured()) return;
+    const client = getSupabaseClient();
+    if (!client) return;
+
+    const channel = client
+      .channel('platform_booking_security_log_changes')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'platform_booking_security_log' },
+        (payload) => {
+          const raw = payload.new as Record<string, unknown> | null;
+          if (!raw?.id) return;
+          const row = mapRow(raw);
+          setRows((prev) => {
+            if (prev.some((p) => p.id === row.id)) return prev;
+            return [row, ...prev];
+          });
+          if (!seenIdsRef.current.has(row.id)) {
+            seenIdsRef.current.add(row.id);
+            const isOverlap = row.event_code === 'booking_overlap_denied';
+            const isCritical = row.severity === 'critical' || row.event_code === 'role_not_allowed';
+            if (isOverlap || isCritical) {
+              toast(
+                isCritical
+                  ? {
+                      title: 'تنبيه أمان',
+                      description: row.message || row.event_code,
+                      variant: 'destructive',
+                    }
+                  : {
+                      title: 'تعارض حجز مُبلَّغ',
+                      description: row.message || row.event_code,
+                    }
+              );
+            }
+          }
+        }
+      )
+      .subscribe((status) => {
+        setLiveConnected(status === 'SUBSCRIBED');
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setLiveConnected(false);
+        }
+      });
+
+    return () => {
+      void client.removeChannel(channel);
+      setLiveConnected(false);
+    };
+  }, [isActive, mapRow]);
+
+  const labelForCode = (code: string) => {
+    if (code === 'booking_overlap_denied') return 'تعارض موعد (حجز)';
+    if (code === 'role_not_allowed') return 'دور غير مصرح';
+    if (code === 'barber_not_found') return 'حلاق غير موجود';
+    if (code === 'profile_not_found') return 'ملف عميل غير موجود';
+    if (code === 'admin_regulatory_qr_preview') return 'معاينة نظامية (رمز تسجيل)';
+    return code;
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">سجل الأمان والعمليات</h2>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground leading-relaxed">
+            بيانات حيّة من جدول <code className="text-xs">platform_booking_security_log</code> (محاولات تعارض حجز، وصول
+            غير طبيعي، إلخ). يُفضَّل تفعيل Realtime لهذا الجدول في Supabase حتى تصل الإدراجات فوراً؛ وإلا يعمل التحديث
+            التلقائي كل 12 ثانية أثناء بقائك في التبويب.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={liveConnected ? 'default' : 'secondary'} className="gap-1">
+            <span className={`inline-block h-2 w-2 rounded-full ${liveConnected ? 'bg-green-400' : 'bg-muted-foreground'}`} />
+            {liveConnected ? 'بث مباشر' : 'بث غير متصل'}
+          </Badge>
+          <Button type="button" variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            تحديث الآن
+          </Button>
+          {showOverlapSimulator ? (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="gap-1 border-amber-500/40"
+              disabled={loading || simulating}
+              title="ينفّذ حجزاً ثم محاولة متداخلة عبر المفتاح المجهول؛ يُسجّل التعارض ثم يُنظّف بيانات الاختبار"
+              onClick={() => {
+                setSimulating(true);
+                void (async () => {
+                  const r = await runSimulateBookingOverlapRemote();
+                  setSimulating(false);
+                  if (r.ok) {
+                    toast({
+                      title: 'محاكاة التعارض',
+                      description: r.summary,
+                    });
+                    await load();
+                  } else {
+                    toast({ title: 'فشل المحاكاة', description: r.error, variant: 'destructive' });
+                  }
+                })();
+              }}
+            >
+              {simulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FlaskConical className="h-4 w-4" />}
+              محاكاة تعارض
+            </Button>
+          ) : null}
+        </div>
+      </div>
+
+      <Card className="border-amber-500/25">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Activity className="h-5 w-5 text-amber-600" />
+            أحداث الحجز والوصول
+          </CardTitle>
+          <CardDescription>الأحدث أولاً — يشمل تنبيهات منطقية عند وصول صف جديد عبر البث المباشر</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading && rows.length === 0 ? (
+            <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              جاري التحميل…
+            </div>
+          ) : rows.length === 0 ? (
+            <p className="py-12 text-center text-sm text-muted-foreground">لا توجد أحداث مسجّلة بعد.</p>
+          ) : (
+            <ul className="max-h-[min(70vh,520px)] space-y-3 overflow-y-auto pe-1">
+              {rows.map((row) => {
+                const overlap = row.event_code === 'booking_overlap_denied';
+                const critical = row.severity === 'critical' || row.event_code === 'role_not_allowed';
+                return (
+                  <li
+                    key={row.id}
+                    className={`rounded-lg border px-4 py-3 text-sm ${
+                      critical
+                        ? 'border-destructive/50 bg-destructive/5'
+                        : overlap
+                          ? 'border-amber-500/40 bg-amber-500/5'
+                          : 'border-border bg-muted/20'
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant={critical ? 'destructive' : overlap ? 'outline' : 'secondary'}>
+                          {labelForCode(row.event_code)}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(row.created_at).toLocaleString('ar-SA')}
+                        </span>
+                      </div>
+                      <span className="text-[10px] uppercase text-muted-foreground">{row.severity}</span>
+                    </div>
+                    {row.message ? <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{row.message}</p> : null}
+                    {row.barber_id ? (
+                      <p className="mt-1 font-mono text-[11px] opacity-80" dir="ltr">
+                        barber_id: {row.barber_id}
+                      </p>
+                    ) : null}
+                    {row.detail && Object.keys(row.detail).length > 0 ? (
+                      <pre className="mt-2 max-h-28 overflow-auto rounded-md bg-background/80 p-2 text-[10px] leading-snug" dir="ltr">
+                        {JSON.stringify(row.detail)}
+                      </pre>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -833,13 +1123,17 @@ function errorText(result: unknown, fallback = 'حدث خطأ غير متوقع'
 function RequestsSection({
   requests,
   onViewRequest,
+  onRegulatoryLivePreview,
   canReview,
   canManage,
+  canExportCsv,
 }: {
   requests: SubscriptionRequest[];
   onViewRequest: (request: SubscriptionRequest) => void;
+  onRegulatoryLivePreview: (request: SubscriptionRequest) => void;
   canReview: boolean;
   canManage: boolean;
+  canExportCsv: boolean;
 }) {
   const [query, setQuery] = useState('');
   const [requestStatusFilter, setRequestStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
@@ -973,6 +1267,10 @@ function RequestsSection({
   };
 
   const exportFilteredRequestsCsv = () => {
+    if (!canExportCsv) {
+      toast({ title: 'لا تملك صلاحية تصدير الطلبات', variant: 'destructive' });
+      return;
+    }
     if (filteredRequests.length === 0) {
       toast({ title: 'لا توجد بيانات للتصدير', description: 'لا توجد نتائج حالية ضمن الفلاتر.' });
       return;
@@ -1087,7 +1385,12 @@ function RequestsSection({
           <Button variant="outline" size="icon" onClick={resetMarketingFilters} title="إعادة ضبط الفلاتر">
             <Filter className="w-4 h-4" />
           </Button>
-          <Button variant="outline" onClick={exportFilteredRequestsCsv} disabled={filteredRequests.length === 0}>
+          <Button
+            variant="outline"
+            onClick={exportFilteredRequestsCsv}
+            disabled={!canExportCsv || filteredRequests.length === 0}
+            title={!canExportCsv ? 'يتطلب صلاحية اعتماد/رفض الطلبات' : undefined}
+          >
             <Download className="w-4 h-4 ml-2" />
             تصدير CSV
           </Button>
@@ -1360,10 +1663,23 @@ function RequestsSection({
                     </div>
                   </div>
                 </div>
-                <Button onClick={() => onViewRequest(request)} disabled={!canReview && !canManage}>
-                  <Eye className="w-4 h-4 ml-2" />
-                  {canReview || canManage ? 'إدارة الطلب' : 'عرض فقط'}
-                </Button>
+                <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-start">
+                  {request.regulatoryVerificationQr?.trim() && (canReview || canManage) ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="gap-2 border-primary/30"
+                      onClick={() => onRegulatoryLivePreview(request)}
+                    >
+                      <QrCode className="h-4 w-4" />
+                      معاينة الرمز النظامي (QR)
+                    </Button>
+                  ) : null}
+                  <Button onClick={() => onViewRequest(request)} disabled={!canReview && !canManage}>
+                    <Eye className="w-4 h-4 ml-2" />
+                    {canReview || canManage ? 'إدارة الطلب' : 'عرض فقط'}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -1379,17 +1695,23 @@ function RequestReviewDialog({
   request,
   reviewerEmail,
   onClose,
+  onRegulatoryLivePreview,
+  clearRegulatoryLivePreviewMemory,
   rejectionReason,
   setRejectionReason,
   onAfterDecision,
+  canReviewRequests,
   canManageBarbers,
 }: {
   request: SubscriptionRequest;
   reviewerEmail: string;
   onClose: () => void;
+  onRegulatoryLivePreview: () => void;
+  clearRegulatoryLivePreviewMemory: () => void;
   rejectionReason: string;
   setRejectionReason: (reason: string) => void;
   onAfterDecision: () => void;
+  canReviewRequests: boolean;
   canManageBarbers: boolean;
 }) {
   const [showRejectForm, setShowRejectForm] = useState(false);
@@ -1404,6 +1726,11 @@ function RequestReviewDialog({
   }, [request.id]);
 
   const handleApprove = async () => {
+    if (!canReviewRequests) {
+      toast({ title: 'لا تملك صلاحية اعتماد الطلبات', variant: 'destructive' });
+      return;
+    }
+    clearRegulatoryLivePreviewMemory();
     setSaving(true);
     const reviewedAt = new Date().toISOString();
     if (isMockRow) {
@@ -1422,6 +1749,12 @@ function RequestReviewDialog({
         variant: 'destructive',
       });
       return;
+    }
+    if (upsert.warning) {
+      toast({
+        title: 'تنبيه: أعمدة الرعاية الشاملة',
+        description: upsert.warning,
+      });
     }
     const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
       status: 'approved',
@@ -1482,6 +1815,11 @@ function RequestReviewDialog({
   };
 
   const handleReject = async () => {
+    if (!canReviewRequests) {
+      toast({ title: 'لا تملك صلاحية رفض الطلبات', variant: 'destructive' });
+      return;
+    }
+    clearRegulatoryLivePreviewMemory();
     if (!rejectionReason.trim()) {
       toast({ title: 'سبب الرفض', description: 'يرجى إدخال سبب الرفض.', variant: 'destructive' });
       return;
@@ -1518,6 +1856,7 @@ function RequestReviewDialog({
       toast({ title: 'لا تملك صلاحية الإدارة', variant: 'destructive' });
       return;
     }
+    clearRegulatoryLivePreviewMemory();
     if (!request.linkedBarberId) {
       toast({
         title: 'لا يوجد حساب مرتبط',
@@ -1555,6 +1894,7 @@ function RequestReviewDialog({
       toast({ title: 'لا تملك صلاحية الإدارة', variant: 'destructive' });
       return;
     }
+    clearRegulatoryLivePreviewMemory();
     if (!window.confirm('تأكيد حذف الطلب نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
     setSaving(true);
     if (isMockRow) {
@@ -1578,6 +1918,10 @@ function RequestReviewDialog({
   };
 
   const handleResendOnboarding = async () => {
+    if (!canManageBarbers) {
+      toast({ title: 'لا تملك صلاحية إدارة الحلاقين', variant: 'destructive' });
+      return;
+    }
     const recipient = request.email.trim();
     if (!recipient) {
       toast({ title: 'لا يوجد بريد إلكتروني', variant: 'destructive' });
@@ -1610,7 +1954,15 @@ function RequestReviewDialog({
   };
 
   return (
-    <Dialog open={!!request} onOpenChange={onClose}>
+    <Dialog
+      open={!!request}
+      onOpenChange={(open) => {
+        if (!open) {
+          clearRegulatoryLivePreviewMemory();
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-2xl">مراجعة طلب الاشتراك</DialogTitle>
@@ -1761,80 +2113,29 @@ function RequestReviewDialog({
             </div>
           )}
 
-          {/* Documents */}
+          {/* التحقق النظامي — بروتوكول الخصوصية: لا عرض روابط وثائق حكومية مرفوعة */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">المستندات النظامية</h3>
-            {request.registrationAttachmentUrls ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                {request.registrationAttachmentUrls.commercialRegistry && (
-                  <div className="rounded-lg border border-border p-4 space-y-2">
-                    <Label className="text-primary">السجل التجاري</Label>
-                    {isRenderableImageAssetUrl(request.registrationAttachmentUrls.commercialRegistry) ? (
-                      <div className="aspect-video rounded-md overflow-hidden border border-border">
-                        <img
-                          src={request.registrationAttachmentUrls.commercialRegistry}
-                          alt="سجل تجاري"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : null}
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <a
-                        href={request.registrationAttachmentUrls.commercialRegistry}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="gap-2"
-                      >
-                        <ExternalLink className="w-4 h-4 ml-2" />
-                        فتح الملف
-                      </a>
-                    </Button>
-                  </div>
+            <h3 className="text-lg font-semibold mb-3">التحقق النظامي من المنشأة</h3>
+            {request.regulatoryVerificationQr ? (
+              <div className="mb-4 space-y-3 rounded-lg border border-primary/25 bg-primary/5 p-4">
+                <Label className="text-primary">الرمز الموحد للتحقق النظامي (QR)</Label>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  لأسباب خصوصية لا يُعرض النص الكامل هنا. استخدم المعاينة اللحظية لفتح أي رابط <span dir="ltr">http/https</span>{' '}
+                  مستخرج من الرمز دون تخزينه على خوادمنا بعد إغلاق النافذة.
+                </p>
+                {(canReviewRequests || canManageBarbers) && (
+                  <Button type="button" variant="secondary" className="gap-2 border-primary/30" onClick={onRegulatoryLivePreview}>
+                    <QrCode className="h-4 w-4" />
+                    معاينة الرمز النظامي (QR)
+                  </Button>
                 )}
-                {request.registrationAttachmentUrls.municipalLicense && (
-                  <div className="rounded-lg border border-border p-4 space-y-2">
-                    <Label className="text-primary">رخصة البلدية</Label>
-                    {isRenderableImageAssetUrl(request.registrationAttachmentUrls.municipalLicense) ? (
-                      <div className="aspect-video rounded-md overflow-hidden border border-border">
-                        <img
-                          src={request.registrationAttachmentUrls.municipalLicense}
-                          alt="رخصة بلدية"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : null}
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <a
-                        href={request.registrationAttachmentUrls.municipalLicense}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="gap-2"
-                      >
-                        <ExternalLink className="w-4 h-4 ml-2" />
-                        فتح الملف
-                      </a>
-                    </Button>
-                  </div>
-                )}
-                {(request.registrationAttachmentUrls.healthCertificates ?? []).map((url, idx) => (
-                  <div key={`${idx}-${url}`} className="rounded-lg border border-border p-4 space-y-2">
-                    <Label className="text-primary">شهادة صحية ({idx + 1})</Label>
-                    {isRenderableImageAssetUrl(url) ? (
-                      <div className="aspect-video rounded-md overflow-hidden border border-border">
-                        <img src={url} alt={`شهادة ${idx + 1}`} className="w-full h-full object-cover" />
-                      </div>
-                    ) : null}
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="gap-2">
-                        <ExternalLink className="w-4 h-4 ml-2" />
-                        فتح الملف
-                      </a>
-                    </Button>
-                  </div>
-                ))}
               </div>
-            ) : null}
-            <p className="text-xs text-muted-foreground mb-2">وصف الملفات كما أُرسل مع الطلب:</p>
+            ) : (
+              <p className="mb-4 text-sm text-muted-foreground">
+                لا يوجد رمز تحقق نظامي في هذا الطلب (طلب قديم أو ناقص).
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground mb-2">ملاحظات الطلب كما أُرسلت:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {request.documents.map((doc, index) =>
                 isRenderableImageAssetUrl(doc) ? (
@@ -1999,13 +2300,17 @@ function RequestReviewDialog({
           </Button>
           {!showRejectForm ? (
             <>
-              <Button variant="destructive" onClick={() => setShowRejectForm(true)} disabled={saving}>
+              <Button
+                variant="destructive"
+                onClick={() => setShowRejectForm(true)}
+                disabled={saving || !canReviewRequests}
+              >
                 <XCircle className="w-4 h-4 ml-2" />
                 {request.status === 'pending' ? 'رفض الطلب' : 'إعادة رفض'}
               </Button>
               <Button
                 onClick={() => void handleApprove()}
-                disabled={saving}
+                disabled={saving || !canReviewRequests}
                 className="bg-green-600 hover:bg-green-700"
               >
                 {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 ml-2" />}
@@ -2018,7 +2323,7 @@ function RequestReviewDialog({
               >
                 تعليق الحساب
               </Button>
-              <Button variant="outline" onClick={() => void handleResendOnboarding()} disabled={saving}>
+              <Button variant="outline" onClick={() => void handleResendOnboarding()} disabled={saving || !canManageBarbers}>
                 <Mail className="w-4 h-4 ml-2" />
                 إعادة إرسال رسالة الروابط
               </Button>
@@ -2033,7 +2338,7 @@ function RequestReviewDialog({
               </Button>
             </>
           ) : (
-            <Button variant="destructive" onClick={() => void handleReject()} disabled={saving}>
+            <Button variant="destructive" onClick={() => void handleReject()} disabled={saving || !canReviewRequests}>
               {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : null}
               تأكيد الرفض
             </Button>
@@ -2349,8 +2654,6 @@ function BarbersSection({
   const [broadcastingEmails, setBroadcastingEmails] = useState(false);
   const [hardEditRow, setHardEditRow] = useState<AdminBarberRow | null>(null);
 
-  const effectiveCanManage = canManage || canRootHardEdit;
-
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -2379,7 +2682,7 @@ function BarbersSection({
   };
 
   const onDeleteBarber = async (row: AdminBarberRow) => {
-    if (!effectiveCanManage) return;
+    if (!canManage) return;
     if (!window.confirm(`تأكيد حذف حساب الحلاق "${row.name}"؟`)) return;
     setDeletingId(row.id);
     const res = await deleteBarberRemote(row.id);
@@ -2414,7 +2717,7 @@ function BarbersSection({
   );
 
   const keepRowAndDeleteDuplicates = async (keeper: AdminBarberRow) => {
-    if (!effectiveCanManage) return;
+    if (!canManage) return;
     const emailKey = keeper.email.trim().toLowerCase();
     const phoneKey = keeper.phone.trim();
     const dupes = rows.filter(
@@ -2564,7 +2867,7 @@ function BarbersSection({
                       <div className="flex items-center justify-center gap-2">
                         <Switch
                           checked={row.is_active}
-                          disabled={!effectiveCanManage || updatingId === row.id}
+                          disabled={!canManage || updatingId === row.id}
                           onCheckedChange={(v) => void onToggleActive(row, v)}
                           aria-label={row.is_active ? 'تعطيل الظهور' : 'تفعيل الظهور'}
                         />
@@ -2580,7 +2883,7 @@ function BarbersSection({
                           <Button
                             variant="outline"
                             size="sm"
-                            disabled={!effectiveCanManage || mergingId === row.id || deletingId === row.id}
+                            disabled={!canManage || mergingId === row.id || deletingId === row.id}
                             onClick={() => void keepRowAndDeleteDuplicates(row)}
                           >
                             {mergingId === row.id ? (
@@ -2593,7 +2896,7 @@ function BarbersSection({
                         <Button
                           variant="destructive"
                           size="sm"
-                          disabled={!effectiveCanManage || deletingId === row.id || mergingId === row.id}
+                          disabled={!canManage || deletingId === row.id || mergingId === row.id}
                           onClick={() => void onDeleteBarber(row)}
                         >
                           {deletingId === row.id ? (
@@ -3429,22 +3732,221 @@ function CommandCenterSection({
   );
 }
 
-// Messages Section
-function MessagesSection() {
+// Messages Section — دردشة دعم المنصة (TLS + تحقق خادمي؛ المحتوى في قاعدة البيانات بصلاحيات مقيدة)
+function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
+  const [threads, setThreads] = useState<AdminSupportThread[]>([]);
+  const [barbers, setBarbers] = useState<AdminBarberRow[]>([]);
+  const [selectedBarberId, setSelectedBarberId] = useState('');
+  const [messages, setMessages] = useState<AdminSupportMessageRow[]>([]);
+  const [loadingThreads, setLoadingThreads] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [draft, setDraft] = useState('');
+  const pollRef = useRef<number | null>(null);
+
+  const loadThreads = useCallback(async () => {
+    if (!canUseChat) return;
+    setLoadingThreads(true);
+    const r = await fetchAdminSupportThreadsRemote();
+    setLoadingThreads(false);
+    if (!r.ok) {
+      toast({ title: 'تعذر تحميل قائمة المحادثات', description: r.error, variant: 'destructive' });
+      return;
+    }
+    setThreads(r.threads);
+  }, [canUseChat]);
+
+  const loadMessages = useCallback(
+    async (barberId: string) => {
+      if (!barberId || !canUseChat) return;
+      setLoadingMessages(true);
+      const r = await fetchAdminSupportMessagesRemote(barberId);
+      setLoadingMessages(false);
+      if (!r.ok) {
+        toast({ title: 'تعذر تحميل الرسائل', description: r.error, variant: 'destructive' });
+        return;
+      }
+      setMessages(r.messages);
+    },
+    [canUseChat]
+  );
+
+  useEffect(() => {
+    void listBarbersForAdmin().then(setBarbers);
+  }, []);
+
+  useEffect(() => {
+    void loadThreads();
+  }, [loadThreads]);
+
+  useEffect(() => {
+    if (!selectedBarberId) {
+      setMessages([]);
+      return;
+    }
+    void loadMessages(selectedBarberId);
+    if (pollRef.current) window.clearInterval(pollRef.current);
+    pollRef.current = window.setInterval(() => void loadMessages(selectedBarberId), 8000);
+    return () => {
+      if (pollRef.current) window.clearInterval(pollRef.current);
+      pollRef.current = null;
+    };
+  }, [selectedBarberId, loadMessages]);
+
+  const send = async () => {
+    if (!canUseChat || !selectedBarberId.trim() || !draft.trim()) return;
+    setSending(true);
+    const r = await sendAdminSupportMessageRemote({ barberId: selectedBarberId.trim(), body: draft.trim() });
+    setSending(false);
+    if (!r.ok) {
+      toast({ title: 'تعذر الإرسال', description: r.error, variant: 'destructive' });
+      return;
+    }
+    setDraft('');
+    await loadMessages(selectedBarberId.trim());
+    await loadThreads();
+    toast({ title: 'تم إرسال الرسالة' });
+  };
+
+  const selectedLabel =
+    threads.find((t) => t.barberId === selectedBarberId)?.barberName ||
+    barbers.find((b) => b.id === selectedBarberId)?.name ||
+    '';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="space-y-6"
     >
-      <h2 className="text-2xl font-bold mb-6">الرسائل والدعم الفني</h2>
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-muted-foreground text-center py-8">
-            قريباً: شات مباشر مع الحلاقين للدعم الفني والاستفسارات
-          </p>
-        </CardContent>
-      </Card>
+      <div>
+        <h2 className="text-2xl font-bold mb-2">الرسائل والدعم الفني</h2>
+        <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
+          محادثة مباشرة مع الحلاق عبر الخادم (HTTPS). يُتحقق من جلسة Supabase وصلاحية{' '}
+          <span className="font-medium text-foreground">عرض الرسائل</span> قبل أي قراءة أو إرسال؛ بيانات الرسائل
+          لا تُعرَض إلا لمن يملك المفتاح نفسه في لوحة الإدارة.
+        </p>
+      </div>
+
+      {!canUseChat ? (
+        <Card>
+          <CardContent className="p-6 text-sm text-muted-foreground">لا تملك صلاحية عرض الرسائل.</CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,280px)_1fr]">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">المحادثات</CardTitle>
+              <CardDescription>حلاقون برسائل سابقة أو اختر حساباً لبدء محادثة</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full"
+                disabled={loadingThreads}
+                onClick={() => void loadThreads()}
+              >
+                {loadingThreads ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+                تحديث القائمة
+              </Button>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">فتح محادثة / حساب</Label>
+                <Select
+                  value={selectedBarberId || undefined}
+                  onValueChange={(v) => setSelectedBarberId(v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر الحلاق…" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {threads.map((t) => (
+                      <SelectItem key={t.barberId} value={t.barberId}>
+                        {t.barberName} — آخر رسالة: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA') : '—'}
+                      </SelectItem>
+                    ))}
+                    {barbers
+                      .filter((b) => !threads.some((t) => t.barberId === b.id))
+                      .map((b) => (
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.name} (بدء جديد)
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {threads.length === 0 && !loadingThreads ? (
+                <p className="text-xs text-muted-foreground">لا توجد رسائل بعد — اختر حلاقاً من القائمة لإرسال أول رسالة.</p>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">
+                {selectedBarberId ? `محادثة: ${selectedLabel || selectedBarberId}` : 'اختر حلاقاً'}
+              </CardTitle>
+              <CardDescription>الرسائل تُحدَّث تلقائياً كل بضع ثوانٍ أثناء بقائك هنا</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!selectedBarberId ? (
+                <p className="text-sm text-muted-foreground py-6 text-center">اختر حساباً من العمود الأيمن.</p>
+              ) : loadingMessages && messages.length === 0 ? (
+                <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  جاري التحميل…
+                </div>
+              ) : (
+                <div className="max-h-[420px] space-y-3 overflow-y-auto rounded-md border border-border/60 bg-muted/20 p-3">
+                  {messages.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">لا رسائل بعد — اكتب أول رسالة أدناه.</p>
+                  ) : (
+                    messages.map((m) => (
+                      <div
+                        key={m.id}
+                        className={`flex ${m.from_admin ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[88%] rounded-lg p-3 text-sm ${
+                            m.from_admin ? 'bg-primary text-primary-foreground' : 'bg-background border border-border'
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                          <p className="mt-1 text-[11px] opacity-80">
+                            {m.from_admin ? `إدارة: ${m.admin_sender_email ?? '—'}` : 'الحلاق'} ·{' '}
+                            {new Date(m.created_at).toLocaleString('ar-SA')}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Textarea
+                  placeholder="اكتب رسالة الدعم…"
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  rows={3}
+                  disabled={!selectedBarberId || sending}
+                  className="min-h-[80px] sm:flex-1"
+                />
+                <Button
+                  type="button"
+                  className="sm:self-end shrink-0 gap-2"
+                  disabled={!selectedBarberId || !draft.trim() || sending}
+                  onClick={() => void send()}
+                >
+                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  إرسال
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -3454,10 +3956,12 @@ function SettingsSection({
   adminEmail,
   canManageAdmins,
   bootstrapAdmin,
+  canSavePlatformVat,
 }: {
   adminEmail: string;
   canManageAdmins: boolean;
   bootstrapAdmin: boolean;
+  canSavePlatformVat: boolean;
 }) {
   const [vatEnabled, setVatEnabled] = useState(() => getPlatformVatSettings().enabled);
   const [vatRateInput, setVatRateInput] = useState(() => String(getPlatformVatSettings().ratePercent));
@@ -3497,6 +4001,10 @@ function SettingsSection({
   }, [refreshAdmins]);
 
   const handleSaveVat = () => {
+    if (!canSavePlatformVat) {
+      toast({ title: 'لا تملك صلاحية تعديل الإعدادات', variant: 'destructive' });
+      return;
+    }
     savePlatformVatSettings({
       enabled: vatEnabled,
       ratePercent: rateForPreview,
@@ -3701,17 +4209,19 @@ function SettingsSection({
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>اسم المنصة</Label>
-            <Input defaultValue="حلاق ماب" />
+            <Input defaultValue="حلاق ماب" disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2">
             <Label>البريد الإلكتروني</Label>
-            <Input type="email" defaultValue="admin@halaqmap.com" />
+            <Input type="email" defaultValue="admin@halaqmap.com" disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2">
             <Label>رقم الهاتف</Label>
-            <Input type="tel" defaultValue="+966559602685" dir="ltr" />
+            <Input type="tel" defaultValue="+966559602685" dir="ltr" disabled={!canSavePlatformVat} />
           </div>
-          <Button className="w-full">حفظ التغييرات</Button>
+          <Button type="button" className="w-full" disabled={!canSavePlatformVat}>
+            حفظ التغييرات
+          </Button>
         </CardContent>
       </Card>
 
@@ -3732,7 +4242,7 @@ function SettingsSection({
                 عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة الاشتراك.
               </p>
             </div>
-            <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} />
+            <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2 max-w-xs">
             <Label htmlFor="vat-rate">نسبة ضريبة القيمة المضافة (%)</Label>
@@ -3745,7 +4255,7 @@ function SettingsSection({
               dir="ltr"
               value={vatRateInput}
               onChange={(e) => setVatRateInput(e.target.value)}
-              disabled={!vatEnabled}
+              disabled={!canSavePlatformVat || !vatEnabled}
             />
             <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
           </div>
@@ -3762,7 +4272,7 @@ function SettingsSection({
               )}
             </p>
           </div>
-          <Button type="button" className="w-full" onClick={handleSaveVat}>
+          <Button type="button" className="w-full" onClick={handleSaveVat} disabled={!canSavePlatformVat}>
             حفظ إعدادات الضريبة
           </Button>
         </CardContent>

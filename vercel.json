@@ -56,8 +56,20 @@
     "api/barber-inclusive-care-update.ts": {
       "maxDuration": 20
     },
+    "api/admin-support-chat.ts": {
+      "maxDuration": 25
+    },
+    "api/barber-support-chat.ts": {
+      "maxDuration": 25
+    },
     "api/interest-signup.ts": {
       "maxDuration": 15
+    },
+    "api/barber-portal-magic-consume.ts": {
+      "maxDuration": 15
+    },
+    "api/simulate-booking-overlap.ts": {
+      "maxDuration": 20
     }
   }
 }

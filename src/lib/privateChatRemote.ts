@@ -32,6 +32,26 @@ function normalizeErrorMessage(message: string): string {
   return message;
 }
 
+/** يبدأ جلسة خاصة كعميل مُصدَّق عبر `barbers.id` (ذهبي/ماسي فقط) — لا يحتاج معرف `user_id` للحلاق في الواجهة. */
+export async function startPrivateConversationByBarberId(
+  barberId: string
+): Promise<{ ok: true; conversationId: string } | { ok: false; error: string }> {
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'Supabase غير مهيأ في البيئة.' };
+
+  const { data, error } = await client.rpc('start_private_conversation_by_barber_id', {
+    p_barber_id: barberId.trim(),
+  });
+
+  if (error || !data) {
+    return {
+      ok: false,
+      error: normalizeErrorMessage(error?.message || 'تعذّر بدء المحادثة الخاصة.'),
+    };
+  }
+  return { ok: true, conversationId: String(data) };
+}
+
 export async function startOrGetPrivateConversation(
   barberUserId: string,
   barberId?: string

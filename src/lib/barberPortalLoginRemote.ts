@@ -46,7 +46,7 @@ export type BarberPortalSession = {
 export async function barberPortalLoginRemote(input: {
   email: string;
   password: string;
-}): Promise<{ ok: true; session: BarberPortalSession } | { ok: false; error: string }> {
+}): Promise<{ ok: true; session: BarberPortalSession } | { ok: false; error: string; code?: string }> {
   const ep = endpoint();
   if (!ep) return { ok: false, error: 'مسار تسجيل الدخول غير مضبوط.' };
 
@@ -61,6 +61,7 @@ export async function barberPortalLoginRemote(input: {
     });
     const payload = (await response.json().catch(() => ({}))) as {
       error?: string;
+      code?: string;
       barber?: {
         id: string;
         name: string;
@@ -73,7 +74,12 @@ export async function barberPortalLoginRemote(input: {
       };
     };
     if (!response.ok) {
-      return { ok: false, error: payload.error || `HTTP ${response.status}` };
+      const code = typeof payload.code === 'string' && payload.code.trim() ? payload.code.trim() : undefined;
+      return {
+        ok: false,
+        error: payload.error || `HTTP ${response.status}`,
+        ...(code ? { code } : {}),
+      };
     }
     const b = payload.barber;
     if (!b?.id) {
@@ -107,7 +113,7 @@ export async function barberPortalLoginRemote(input: {
 export async function refreshBarberPortalSessionRemote(input: {
   barberId: string;
   email: string;
-}): Promise<{ ok: true; session: BarberPortalSession } | { ok: false; error: string }> {
+}): Promise<{ ok: true; session: BarberPortalSession } | { ok: false; error: string; code?: string }> {
   const ep = refreshEndpoint();
   if (!ep) return { ok: false, error: 'مسار تحديث الجلسة غير مضبوط.' };
 
@@ -122,6 +128,7 @@ export async function refreshBarberPortalSessionRemote(input: {
     });
     const payload = (await response.json().catch(() => ({}))) as {
       error?: string;
+      code?: string;
       barber?: {
         id: string;
         name: string;
@@ -134,7 +141,12 @@ export async function refreshBarberPortalSessionRemote(input: {
       };
     };
     if (!response.ok) {
-      return { ok: false, error: payload.error || `HTTP ${response.status}` };
+      const code = typeof payload.code === 'string' && payload.code.trim() ? payload.code.trim() : undefined;
+      return {
+        ok: false,
+        error: payload.error || `HTTP ${response.status}`,
+        ...(code ? { code } : {}),
+      };
     }
     const b = payload.barber;
     if (!b?.id) {

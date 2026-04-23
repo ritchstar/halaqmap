@@ -18,6 +18,7 @@ import Privacy from "@/pages/Privacy";
 import PartnerPrivacy from "@/pages/PartnerPrivacy";
 import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
 import BarberLogin from "@/pages/BarberLogin";
+import BarberPortalEnter from "@/pages/BarberPortalEnter";
 import BarberDashboard from "@/pages/BarberDashboard";
 import BarberAccountDeletionRequest from "@/pages/BarberAccountDeletionRequest";
 import AdminLogin from "@/pages/AdminLogin";
@@ -83,6 +84,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><PartnerPrivacy /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><SubscriptionPolicy /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<PartnerLayout><BarberLogin /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<PartnerLayout><BarberPortalEnter /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><Payment /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<PartnerLayout><PartnerSupportChat /></PartnerLayout>} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBERS_LANDING} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />

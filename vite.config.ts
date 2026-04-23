@@ -215,6 +215,17 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       // يفتح المتصفح على الرابط الصحيح تلقائياً عند npm run dev
       open: true,
+      // اختياري: مع `vercel dev` على منفذ آخر، عيّن VITE_PROXY_API_TO=http://127.0.0.1:3000 لتوجيه /api/* إلى نفس المشروع
+      ...(process.env.VITE_PROXY_API_TO?.trim()
+        ? {
+            proxy: {
+              '/api': {
+                target: process.env.VITE_PROXY_API_TO.trim(),
+                changeOrigin: true,
+              },
+            },
+          }
+        : {}),
     },
     plugins: [
       tailwindcss(),

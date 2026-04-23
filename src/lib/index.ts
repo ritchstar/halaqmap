@@ -17,6 +17,8 @@ export const ROUTE_PATHS = {
   PARTNER_PRIVACY: '/partners/privacy',
   SUBSCRIPTION_POLICY: '/partners/subscription-policy',
   BARBER_LOGIN: '/partners/login',
+  /** دخول سريع من بريد الترحيب: ?m=رمز موقّع (مرة واحدة) */
+  BARBER_PORTAL_ENTER: '/barber/enter',
   BARBER_DASHBOARD: '/barber/dashboard',
   /** طلب حذف الحساب (باقة برونزية — نموذج يُحال للإدارة) */
   BARBER_ACCOUNT_DELETE_REQUEST: '/barber/request-account-deletion',
@@ -173,11 +175,8 @@ export interface BarberStats {
   totalChats: number;
 }
 
-/** روابط ملفات مرفوعة إلى Storage بعد إتمام migration 17 وتهيئة الحاوية registration-uploads */
+/** روابط ملفات مرفوعة إلى Storage (صور المحل والبنر وإيصال التحويل فقط — بروتوكول الخصوصية: لا تخزين لوثائق حكومية). */
 export interface RegistrationAttachmentUrls {
-  commercialRegistry?: string;
-  municipalLicense?: string;
-  healthCertificates?: string[];
   shopExterior?: string;
   shopInterior?: string;
   banners?: string[];
@@ -234,6 +233,10 @@ export interface SubscriptionRequest {
   receiptDataUrl?: string;
   /** روابط المرفقات على Supabase Storage عند الرفع الناجح */
   registrationAttachmentUrls?: RegistrationAttachmentUrls;
+  /**
+   * الرمز الموحد للتحقق النظامي (QR) كما أدخله المتقدّم — نص للمعاينة/التحقق دون رفع ملفات حكومية للتخزين.
+   */
+  regulatoryVerificationQr?: string;
   /** أسبوع كامل (سبعة أيام) كما أُرسل مع طلب التسجيل */
   weeklyWorkingHours?: { day: string; open: string; close: string }[];
   servicesSummary?: string;

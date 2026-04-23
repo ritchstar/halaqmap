@@ -19,7 +19,7 @@ import type { Database } from '@/integrations/supabase';
 ### **3. ملف البيئة:**
 ```
 // .env
-VITE_SUPABASE_URL=https://lqzuhkzfhdhaosstduas.supabase.co
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_ANON_KEY=...
 ```
 
@@ -95,7 +95,7 @@ const { error } = await supabase
 ```typescript
 const { data, error } = await supabase.auth.signInWithPassword({
   email: 'user@example.com',
-  password: 'password123'
+  password: '<YOUR_STRONG_PASSWORD>',
 });
 ```
 
@@ -104,7 +104,7 @@ const { data, error } = await supabase.auth.signInWithPassword({
 ```typescript
 const { data, error } = await supabase.auth.signUp({
   email: 'user@example.com',
-  password: 'password123',
+  password: '<YOUR_STRONG_PASSWORD>',
   options: {
     data: {
       full_name: 'أحمد محمد'

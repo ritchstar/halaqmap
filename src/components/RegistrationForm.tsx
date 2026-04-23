@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
 import {
   SubscriptionTier,
   ROUTE_PATHS,
@@ -58,7 +59,6 @@ import {
 } from '@/lib/saudiWorkingWeek';
 import {
   Check,
-  Upload,
   MapPin,
   Phone,
   FileText,
@@ -84,10 +84,10 @@ interface FormData {
   whatsapp: string;
   categories: string[];
   documents: {
-    commercialRegistry: File | null;
-    municipalLicense: File | null;
-    /** شهادات صحية للعاملين — ملف واحد أو أكثر (إلزامي) */
-    healthCertificates: File[];
+    /** الرمز الموحد للتحقق النظامي (QR) — نص فقط، دون رفع ملفات حكومية */
+    regulatoryVerificationQr: string;
+    /** تأكيد أن الرمز يمثّل سجلّاً تجاريّاً أو رخصة بلدية (أحدهما يكفي) */
+    singleOfficialSourceAcknowledged: boolean;
   };
   location: {
     lat: string;
@@ -123,10 +123,12 @@ interface FormData {
   registrationTermsAccepted: boolean;
 }
 
+const REGULATORY_QR_MAX_LEN = 4000;
+
 const STEPS = [
   { id: 1, title: 'اختيار الباقة', icon: Star },
   { id: 2, title: 'بيانات المحل', icon: FileText },
-  { id: 3, title: 'المستندات', icon: Upload },
+  { id: 3, title: 'التحقق النظامي', icon: Shield },
   { id: 4, title: 'الموقع', icon: MapPin },
   { id: 5, title: 'الصور', icon: ImageIcon },
   { id: 6, title: 'أوقات العمل', icon: Clock },
@@ -249,9 +251,8 @@ export function RegistrationForm() {
     whatsapp: '',
     categories: [],
     documents: {
-      commercialRegistry: null,
-      municipalLicense: null,
-      healthCertificates: [],
+      regulatoryVerificationQr: '',
+      singleOfficialSourceAcknowledged: false,
     },
     location: {
       lat: '',
@@ -318,12 +319,21 @@ export function RegistrationForm() {
       }
     }
     if (currentStep === 3) {
-      if (!formData.documents.commercialRegistry || !formData.documents.municipalLicense) {
-        alert('يرجى رفع السجل التجاري والرخصة البلدية (إلزامي).');
+      const qr = formData.documents.regulatoryVerificationQr.trim();
+      if (!qr) {
+        alert('يرجى إدخال الرمز الموحد للتحقق النظامي (QR).');
         return;
       }
-      if (formData.documents.healthCertificates.length === 0) {
-        alert('يرجى رفع شهادة صحية واحدة على الأقل للعاملين في المحل (إلزامي مع المستندات الرسمية).');
+      if (qr.length < 4) {
+        alert('الرمز قصير جداً. الصق الرمز كاملاً كما يظهر في منصة التحقق الرسمية.');
+        return;
+      }
+      if (qr.length > REGULATORY_QR_MAX_LEN) {
+        alert(`الرمز يتجاوز الحد المسموح (${REGULATORY_QR_MAX_LEN} حرفاً). اختصر أو راجع القيمة المنسوخة.`);
+        return;
+      }
+      if (!formData.documents.singleOfficialSourceAcknowledged) {
+        toast.error('يرجى تأكيد أن الرمز يخص السجل التجاري أو رخصة البلدية (أحدهما يكفي).');
         return;
       }
     }
@@ -402,68 +412,6 @@ export function RegistrationForm() {
     setFormData((prev) => ({
       ...prev,
       workingWeek: prev.workingWeek.map((r, i) => (i === index ? { ...r, ...patch } : r)),
-    }));
-  };
-
-  const handleLegalDocumentUpload = (field: 'commercialRegistry' | 'municipalLicense', file: File | null) => {
-    setFormData((prev) => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        [field]: file,
-      },
-    }));
-  };
-
-  const handleHealthCertificatesAdd = (files: FileList | null) => {
-    if (!files?.length) {
-      toast.error('لم يتم التقاط أي ملف. حاول اختيار الملف مرة أخرى.');
-      return;
-    }
-    const incoming = Array.from(files);
-    const current = formData.documents.healthCertificates;
-    const uniqueIncoming = incoming.filter(
-      (f) =>
-        !current.some(
-          (p) => p.name === f.name && p.size === f.size && p.lastModified === f.lastModified
-        )
-    );
-    const addedCount = uniqueIncoming.length;
-
-    if (addedCount === 0) {
-      toast.error('هذا الملف مضاف مسبقاً. اختر ملفاً آخر أو احذف القديم أولاً.');
-      return;
-    }
-
-    setFormData((prev) => {
-      const next = [
-        ...prev.documents.healthCertificates,
-        ...uniqueIncoming.filter(
-          (f) =>
-            !prev.documents.healthCertificates.some(
-              (p) => p.name === f.name && p.size === f.size && p.lastModified === f.lastModified
-            )
-        ),
-      ];
-      return {
-        ...prev,
-        documents: {
-          ...prev.documents,
-          // دمج مع منع تكرار نفس الملف (name + size + lastModified)
-          healthCertificates: next,
-        },
-      };
-    });
-    toast.success(`تمت إضافة ${addedCount} ملف/ملفات للشهادات الصحية`);
-  };
-
-  const removeHealthCertificate = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        healthCertificates: prev.documents.healthCertificates.filter((_, i) => i !== index),
-      },
     }));
   };
 
@@ -561,12 +509,21 @@ export function RegistrationForm() {
       );
       return;
     }
-    if (!formData.documents.commercialRegistry || !formData.documents.municipalLicense) {
-      alert('يرجى إكمال خطوة المستندات: السجل التجاري والرخصة البلدية إلزاميان.');
+    const qrSubmit = formData.documents.regulatoryVerificationQr.trim();
+    if (!qrSubmit) {
+      alert('يرجى إكمال خطوة التحقق النظامي: أدخل الرمز الموحد (QR).');
       return;
     }
-    if (formData.documents.healthCertificates.length === 0) {
-      alert('يرجى إكمال خطوة المستندات: رفع شهادة صحية واحدة على الأقل للعاملين.');
+    if (qrSubmit.length < 4) {
+      alert('الرمز قصير جداً. الصق الرمز كاملاً كما يظهر في منصة التحقق الرسمية.');
+      return;
+    }
+    if (qrSubmit.length > REGULATORY_QR_MAX_LEN) {
+      alert(`الرمز يتجاوز الحد المسموح (${REGULATORY_QR_MAX_LEN} حرفاً).`);
+      return;
+    }
+    if (!formData.documents.singleOfficialSourceAcknowledged) {
+      toast.error('يرجى تأكيد أن الرمز يخص السجل التجاري أو رخصة البلدية (أحدهما يكفي).');
       return;
     }
     if (!formData.images.shopExterior || !formData.images.shopInterior) {
@@ -623,9 +580,6 @@ export function RegistrationForm() {
           supabase,
           orderId,
           {
-            commercialRegistry: formData.documents.commercialRegistry!,
-            municipalLicense: formData.documents.municipalLicense!,
-            healthCertificates: formData.documents.healthCertificates,
             shopExterior: formData.images.shopExterior!,
             shopInterior: formData.images.shopInterior!,
             bannerImages: formData.images.bannerImages.filter(Boolean) as File[],
@@ -651,16 +605,9 @@ export function RegistrationForm() {
         formData.location.address || ''
       );
 
-      const docLabels: string[] = [];
-      if (formData.documents.commercialRegistry) {
-        docLabels.push(`سجل تجاري: ${formData.documents.commercialRegistry.name}`);
-      }
-      if (formData.documents.municipalLicense) {
-        docLabels.push(`رخصة بلدية: ${formData.documents.municipalLicense.name}`);
-      }
-      formData.documents.healthCertificates.forEach((f, i) => {
-        docLabels.push(`شهادة صحية للعاملين (${i + 1}): ${f.name}`);
-      });
+      const docLabels: string[] = [
+        `التحقق النظامي (QR): أُدخل نص الرمز مع الطلب (${qrSubmit.length} حرفاً) — دون تخزين وثائق حكومية على الخادم`,
+      ];
 
       const servicesSummaryLines = formData.services
         .filter((s) => s.name.trim())
@@ -711,7 +658,7 @@ export function RegistrationForm() {
           address: formData.location.address || '—',
         },
         tier: formData.tier as SubscriptionTier,
-        documents: docLabels.length > 0 ? docLabels : ['لم يُرفع أسماء ملفات (تحقق من الخطوات السابقة)'],
+        documents: docLabels,
         shopImages: registrationAttachmentUrls
           ? [
               registrationAttachmentUrls.shopExterior!,
@@ -733,6 +680,7 @@ export function RegistrationForm() {
         receiptFileName: receiptFile?.name,
         receiptDataUrl,
         registrationAttachmentUrls,
+        regulatoryVerificationQr: qrSubmit,
         weeklyWorkingHours: weeklyWorkingHoursPayload,
         servicesSummary: servicesSummary || '—',
         ...(inclusiveAccessibleCarePayload
@@ -805,7 +753,7 @@ export function RegistrationForm() {
         `\n` +
         `أوقات العمل (أسبوع كامل):\n${workingHoursSummaryText}\n` +
         `\n` +
-        `المستندات (أسماء الملفات):\n${docLabels.join('\n') || '—'}\n` +
+        `التحقق النظامي (QR) — نص الرمز كما أُرسل:\n${qrSubmit}\n` +
         `\n` +
         `صور المحل (أسماء الملفات):\n` +
         `  — خارجي: ${formData.images.shopExterior?.name ?? '—'}\n` +
@@ -815,12 +763,7 @@ export function RegistrationForm() {
           .map((f) => f!.name)
           .join('، ')}\n` +
         (registrationAttachmentUrls
-          ? `\nروابط المرفقات على السيرفر:\n` +
-            `- السجل التجاري: ${registrationAttachmentUrls.commercialRegistry}\n` +
-            `- الرخصة البلدية: ${registrationAttachmentUrls.municipalLicense}\n` +
-            `- الشهادات الصحية:\n${(registrationAttachmentUrls.healthCertificates ?? [])
-              .map((u, i) => `    ${i + 1}. ${u}`)
-              .join('\n')}\n` +
+          ? `\nروابط المرفقات على السيرفر (صور المحل والإيصال فقط):\n` +
             `- صورة خارجية: ${registrationAttachmentUrls.shopExterior}\n` +
             `- صورة داخلية: ${registrationAttachmentUrls.shopInterior}\n` +
             `- بنرات: ${(registrationAttachmentUrls.banners ?? []).join(' | ')}\n` +
@@ -853,6 +796,9 @@ export function RegistrationForm() {
         mailtoBodyShort,
       });
 
+      toast.success(
+        'تم إرسال الطلب. طلبك قيد المراجعة النظامية اللحظية — دون انتظار رفع ملفات حكومية ثقيلة على خوادمنا.',
+      );
       await new Promise((r) => setTimeout(r, 600));
       navigate(ROUTE_PATHS.REGISTER_SUCCESS);
     } finally {
@@ -1110,98 +1056,63 @@ export function RegistrationForm() {
           {currentStep === 3 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">رفع المستندات</CardTitle>
+                <CardTitle className="text-2xl">التحقق النظامي من المنشأة</CardTitle>
                 <CardDescription>
-                  مستندات إلزامية لجميع الباقات قبل مراجعة الطلب وتفعيل الحساب
+                  أدخل الرمز الموحد للتحقق فقط — لا يُطلب رفع ملفات حكومية أو شهادات صحية على خوادمنا.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <Alert className="border-primary/40 bg-primary/5">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <AlertDescription className="text-sm font-medium leading-relaxed text-foreground">
+                    نحن نؤمن بخصوصيتك؛ يتم استخدام الرمز للمعاينة اللحظية والتحقق من نظامية المنشأة فقط. لا نقوم بحفظ
+                    أو تخزين أي مستند حكومي أو شهادات صحية في خوادمنا نهائياً.
+                  </AlertDescription>
+                </Alert>
                 <Alert>
-                  <Shield className="h-4 w-4" />
-                  <AlertDescription className="space-y-2 text-sm leading-relaxed">
-                    <p>
-                      <strong>شرط أساسي:</strong> السجل التجاري، ورخصة البلدية، و<strong>شهادات صحية للعاملين</strong>{' '}
-                      في المحل. يمكن رفع أكثر من ملف للشهادات (صورة أو PDF لكل عامل أو ملف مجمّع).
-                    </p>
-                    <p className="text-muted-foreground">
-                      سيتم مراجعة المستندات والتحقق منها؛ الطلبات الناقصة لا تُعتمد.
-                    </p>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-sm leading-relaxed">
+                    <strong>توضيح:</strong> إرفاق رمز السجل التجاري أو رخصة البلدية — أيهما يتوفر — يغني عن الآخر.
                   </AlertDescription>
                 </Alert>
                 <div className="space-y-2">
-                  <Label htmlFor="commercialRegistry">السجل التجاري *</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="commercialRegistry"
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleLegalDocumentUpload('commercialRegistry', e.target.files?.[0] || null)
-                      }
-                    />
-                    {formData.documents.commercialRegistry && (
-                      <Check className="w-5 h-5 text-primary shrink-0" aria-hidden />
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="municipalLicense">رخصة البلدية *</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="municipalLicense"
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleLegalDocumentUpload('municipalLicense', e.target.files?.[0] || null)
-                      }
-                    />
-                    {formData.documents.municipalLicense && (
-                      <Check className="w-5 h-5 text-primary shrink-0" aria-hidden />
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="healthCertificates">الشهادات الصحية للعاملين *</Label>
-                  <p className="text-xs text-muted-foreground">
-                    أرفق شهادةً صحيةً سارية لكل من يقدّم خدمة الحلاقة في المحل (يمكن اختيار عدة ملفات دفعة واحدة).
-                  </p>
-                  <Input
-                    id="healthCertificates"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    multiple
-                    onChange={(e) => {
-                      handleHealthCertificatesAdd(e.currentTarget.files);
-                      // يسمح بإعادة اختيار نفس الملف لاحقاً ويمنع تعلّق الحالة في بعض المتصفحات
-                      e.currentTarget.value = '';
-                    }}
+                  <Label htmlFor="regulatoryVerificationQr">الرمز الموحد للتحقق النظامي (QR) *</Label>
+                  <Textarea
+                    id="regulatoryVerificationQr"
+                    dir="ltr"
+                    className="min-h-[100px] font-mono text-sm"
+                    placeholder="الصق هنا الرمز أو المحتوى المعروض في QR الرسمي (سجل تجاري أو رخصة بلدية)"
+                    maxLength={REGULATORY_QR_MAX_LEN}
+                    value={formData.documents.regulatoryVerificationQr}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        documents: { ...prev.documents, regulatoryVerificationQr: e.target.value },
+                      }))
+                    }
                   />
                   <p className="text-xs text-muted-foreground">
-                    {formData.documents.healthCertificates.length > 0
-                      ? `تمت إضافة ${formData.documents.healthCertificates.length} ملف/ملفات للشهادات الصحية`
-                      : 'لم تتم إضافة ملفات للشهادات الصحية بعد'}
+                    الحد الأقصى {REGULATORY_QR_MAX_LEN} حرفاً. لا ترفع صور الوثائق هنا — النص أو رابط التحقق
+                    المعروض في المنصة الرسمية يكفي لمراجعتنا اللحظية.
                   </p>
-                  {formData.documents.healthCertificates.length > 0 && (
-                    <ul className="rounded-lg border border-border bg-muted/30 p-3 space-y-2 text-sm">
-                      {formData.documents.healthCertificates.map((file, idx) => (
-                        <li key={`${file.name}-${idx}`} className="flex items-center justify-between gap-2">
-                          <span className="flex items-center gap-2 min-w-0">
-                            <Check className="w-4 h-4 text-primary shrink-0" aria-hidden />
-                            <span className="truncate">{file.name}</span>
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="shrink-0 text-destructive hover:text-destructive"
-                            onClick={() => removeHealthCertificate(idx)}
-                          >
-                            إزالة
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                </div>
+                <div className="flex flex-row-reverse items-center justify-between gap-4 rounded-lg border border-border bg-muted/30 p-4">
+                  <Switch
+                    id="singleOfficialSourceAcknowledged"
+                    checked={formData.documents.singleOfficialSourceAcknowledged}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        documents: {
+                          ...prev.documents,
+                          singleOfficialSourceAcknowledged: Boolean(checked),
+                        },
+                      }))
+                    }
+                  />
+                  <Label htmlFor="singleOfficialSourceAcknowledged" className="cursor-pointer text-sm leading-relaxed">
+                    أقر بأن الرمز أعلاه يخص السجل التجاري أو رخصة البلدية (أحدهما يكفي)، وأنه صالح للتحقق النظامي.
+                  </Label>
                 </div>
               </CardContent>
             </Card>
