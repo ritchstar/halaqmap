@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { assertBarberEmailOwnsRow, assertBarberPortalSessionFromRequest } from './_lib/barberPortalAuth.js';
 
 export const config = {
   maxDuration: 25,
@@ -8,7 +9,7 @@ export const config = {
 
 const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
-  allowHeaders: 'Content-Type, x-supabase-anon, x-client-supabase-url',
+  allowHeaders: 'Content-Type, Authorization, x-barber-portal-session, x-supabase-anon, x-client-supabase-url',
 } as const;
 
 function corsHeaders(request: Request): Record<string, string> {
@@ -31,44 +32,6 @@ export async function GET(request: Request): Promise<Response> {
     },
     { headers },
   );
-}
-
-async function assertBarberEmailOwnsRow(
-  supabase: ReturnType<typeof createClient>,
-  barberId: string,
-  rawEmail: string
-): Promise<
-  | { ok: true; row: { id: string; email: string; is_active: boolean | null } }
-  | { ok: false; status: number; message: string }
-> {
-  const emailNorm = rawEmail.trim().toLowerCase();
-  if (!barberId || !emailNorm) {
-    return { ok: false, status: 400, message: 'Missing barberId or email' };
-  }
-
-  const { data: row, error: selErr } = await supabase
-    .from('barbers')
-    .select('id, email, is_active')
-    .eq('id', barberId)
-    .maybeSingle();
-
-  if (selErr) {
-    return { ok: false, status: 500, message: selErr.message || 'Lookup failed' };
-  }
-  if (!row) {
-    return { ok: false, status: 404, message: 'Barber not found' };
-  }
-
-  const b = row as { id: string; email: string; is_active: boolean | null };
-  const rowEmail = String(b.email ?? '').trim().toLowerCase();
-  if (!rowEmail || rowEmail !== emailNorm) {
-    return { ok: false, status: 403, message: 'Email does not match this barber account' };
-  }
-  if (b.is_active === false) {
-    return { ok: false, status: 403, message: 'Account is not active' };
-  }
-
-  return { ok: true, row: b };
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -100,12 +63,20 @@ export async function POST(request: Request): Promise<Response> {
   const action = String((body as { action?: unknown }).action ?? 'send').trim();
   const barberId = String((body as { barberId?: unknown }).barberId ?? '').trim();
   const rawEmail = String((body as { email?: unknown }).email ?? '').trim();
+  const authGate = assertBarberPortalSessionFromRequest(request, barberId, rawEmail);
+  if (!authGate.ok) {
+    return Response.json({ error: authGate.message }, { status: authGate.status, headers });
+  }
 
   const supabase = createClient(url, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const gate = await assertBarberEmailOwnsRow(supabase, barberId, rawEmail);
+  const gate = await assertBarberEmailOwnsRow<{ id: string; email: string; is_active: boolean | null }>(supabase, {
+    barberId,
+    rawEmail,
+    select: 'id, email, is_active',
+  });
   if (!gate.ok) {
     return Response.json({ error: gate.message }, { status: gate.status, headers });
   }

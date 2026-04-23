@@ -2,6 +2,11 @@ import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import {
+  assertBarberPortalSessionFromRequest,
+  getBarberPortalSessionSecret,
+  mintBarberPortalSessionToken,
+} from './_lib/barberPortalAuth.js';
 
 export const config = {
   maxDuration: 15,
@@ -18,7 +23,7 @@ function safeHost(rawUrl: string): string | null {
 
 const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
-  allowHeaders: 'Content-Type, x-supabase-anon, x-client-supabase-url',
+  allowHeaders: 'Content-Type, Authorization, x-barber-portal-session, x-supabase-anon, x-client-supabase-url',
 } as const;
 
 function corsHeaders(request: Request): Record<string, string> {
@@ -94,6 +99,10 @@ export async function POST(request: Request): Promise<Response> {
   if (!barberId || !rawEmail) {
     return Response.json({ error: 'Missing barberId or email' }, { status: 400, headers });
   }
+  const authGate = assertBarberPortalSessionFromRequest(request, barberId, rawEmail);
+  if (!authGate.ok) {
+    return Response.json({ error: authGate.message }, { status: authGate.status, headers });
+  }
 
   const supabase = createClient(url, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -151,9 +160,13 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  const sessionSecret = getBarberPortalSessionSecret();
+  const barberSessionToken = sessionSecret ? mintBarberPortalSessionToken(String(b.id), String(b.email ?? ''), sessionSecret) : null;
+
   return Response.json(
     {
       ok: true,
+      barber_session_token: barberSessionToken,
       barber: {
         id: String(b.id),
         name: String(b.name ?? ''),

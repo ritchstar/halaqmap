@@ -12,6 +12,16 @@ function baseHeaders(): Record<string, string> {
   const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
   if (anonKey) headers['x-supabase-anon'] = anonKey;
   if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+  try {
+    const raw = localStorage.getItem('barberAuth');
+    if (raw) {
+      const parsed = JSON.parse(raw) as { barberSessionToken?: unknown };
+      const token = String(parsed.barberSessionToken ?? '').trim();
+      if (token) headers['x-barber-portal-session'] = token;
+    }
+  } catch {
+    /* ignore localStorage parse issues */
+  }
   return headers;
 }
 
