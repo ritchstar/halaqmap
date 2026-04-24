@@ -1,6 +1,7 @@
-/** أصل الموقع العام (روابط canonical و JSON-LD و OG). يُفضّل ضبط VITE_SITE_ORIGIN في الإنتاج. */
+/** أصل الموقع العام (روابط canonical و JSON-LD و OG). يُفضّل ضبط VITE_SITE_URL في الإنتاج. */
 export function getSiteOrigin(): string {
   const raw = (
+    (import.meta.env.VITE_SITE_URL as string | undefined) ||
     (import.meta.env.VITE_SITE_ORIGIN as string | undefined) ||
     (import.meta.env.VITE_PUBLIC_APP_ORIGIN as string | undefined)
   )?.trim();
