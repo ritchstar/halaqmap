@@ -1,0 +1,31 @@
+# HalaqMap Incident/Alert Protocol
+
+## Purpose
+- Define escalation behavior for agents and automation.
+- Ensure security and production stability checks run consistently.
+
+## Escalation levels
+- `SEV-1`: Active security incident, data exposure, auth bypass, production outage.
+- `SEV-2`: High-risk vulnerability, failed security checks on default branch, cron critical failures.
+- `SEV-3`: Non-critical defects, flaky checks, minor operational drift.
+
+## Mandatory response protocol
+1. Detect and classify severity.
+2. Capture evidence (logs, failing command output, impacted endpoints/routes).
+3. Contain first: block/disable risky path or revert unsafe change.
+4. Notify immediately:
+   - Create/update GitHub issue with `incident` label.
+   - Post summary to configured security triage channel/webhook.
+5. Assign owner and define next verification checkpoint.
+6. Keep incident notes current until closure.
+
+## Agent behavior requirements
+- Never bypass authentication/authorization checks to “make tests pass”.
+- Never suppress security findings without documented rationale and owner approval.
+- If security checks fail on PR, treat as escalation and block merge until triaged.
+- If Vercel cron jobs fail repeatedly, escalate to `SEV-2`.
+
+## Deployment gates
+- CI + security workflow must pass before merge to protected branch.
+- Bugbot (or equivalent automated security review) must run on each PR update.
+

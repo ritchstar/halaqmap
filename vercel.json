@@ -58,6 +58,22 @@
     },
     "api/interest-signup.ts": {
       "maxDuration": 15
+    },
+    "api/cron-private-chat-maintenance.ts": {
+      "maxDuration": 15
+    },
+    "api/cron-security-triage.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron-private-chat-maintenance",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron-security-triage",
+      "schedule": "20 4 * * *"
+    }
+  ]
 }
