@@ -128,7 +128,7 @@ const REGULATORY_QR_MAX_LEN = 4000;
 const STEPS = [
   { id: 1, title: 'اختيار الباقة', icon: Star },
   { id: 2, title: 'بيانات المحل', icon: FileText },
-  { id: 3, title: 'التحقق النظامي', icon: Shield },
+  { id: 3, title: 'التحقق النظامي (QR)', icon: Shield },
   { id: 4, title: 'الموقع', icon: MapPin },
   { id: 5, title: 'الصور', icon: ImageIcon },
   { id: 6, title: 'أوقات العمل', icon: Clock },
@@ -1056,12 +1056,19 @@ export function RegistrationForm() {
           {currentStep === 3 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">التحقق النظامي من المنشأة</CardTitle>
+                <CardTitle className="text-2xl">التحقق النظامي عبر QR فقط</CardTitle>
                 <CardDescription>
-                  أدخل الرمز الموحد للتحقق فقط — لا يُطلب رفع ملفات حكومية أو شهادات صحية على خوادمنا.
+                  تم إلغاء نظام رفع المستندات. المطلوب الآن هو إدخال الرمز الموحد للتحقق (QR) فقط.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <Alert className="border-amber-500/40 bg-amber-50/70 dark:bg-amber-950/20">
+                  <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+                  <AlertDescription className="text-sm font-semibold leading-relaxed text-amber-800 dark:text-amber-200">
+                    تنبيه مهم: تم إلغاء «رفع السجل التجاري / الرخصة / الشهادات الصحية» نهائياً في هذه الخطوة.
+                    التحقق يتم عبر QR فقط.
+                  </AlertDescription>
+                </Alert>
                 <Alert className="border-primary/40 bg-primary/5">
                   <Shield className="h-4 w-4 text-primary" />
                   <AlertDescription className="text-sm font-medium leading-relaxed text-foreground">
