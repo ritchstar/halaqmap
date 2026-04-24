@@ -61,8 +61,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const adminAuth = await verifyManageBarbersAdminFromRequest(request, url, serviceRole);
-  if (!adminAuth.ok) {
-    return Response.json(adminAuth.json, { status: adminAuth.status, headers });
+  if (adminAuth.ok === false) {
+    const { json, status } = adminAuth;
+    return Response.json(json, { status, headers });
   }
   const supabase = adminAuth.supabase;
 
@@ -79,11 +80,12 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const wl = whitelistBarberUpsertRow(row as Record<string, unknown>);
-  if (!wl.ok) {
+  if (wl.ok === false) {
+    const { disallowedKeys } = wl;
     return Response.json(
       {
         error: 'Row contains disallowed fields',
-        disallowedKeys: wl.disallowedKeys,
+        disallowedKeys,
         hint: 'Only barber profile columns approved for admin upsert are accepted (rating_invite_token is server-managed).',
       },
       { status: 400, headers }
