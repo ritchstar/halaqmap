@@ -73,10 +73,21 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400, headers });
   }
 
-  const row = (body as { row?: unknown })?.row;
+  const bodyObj = body as {
+    row?: unknown;
+    legalDisclaimerAccepted?: unknown;
+    legalDisclaimerAcceptedAtIso?: unknown;
+  };
+  const row = bodyObj?.row;
   if (!row || typeof row !== 'object' || Array.isArray(row)) {
     return Response.json({ error: 'Invalid row payload' }, { status: 400, headers });
   }
+
+  const legalDisclaimerAccepted = bodyObj.legalDisclaimerAccepted === true;
+  const legalDisclaimerAcceptedAtIso =
+    typeof bodyObj.legalDisclaimerAcceptedAtIso === 'string'
+      ? bodyObj.legalDisclaimerAcceptedAtIso.trim()
+      : '';
 
   const wl = whitelistBarberUpsertRow(row as Record<string, unknown>);
   if (!wl.ok) {
@@ -123,6 +134,20 @@ export async function POST(request: Request): Promise<Response> {
   const memberNumberRaw = (data as { member_number?: number | null }).member_number;
   const memberNumber =
     memberNumberRaw != null && Number.isFinite(Number(memberNumberRaw)) ? Number(memberNumberRaw) : null;
+
+  if (legalDisclaimerAccepted && email) {
+    const ts = legalDisclaimerAcceptedAtIso || new Date().toISOString();
+    const { error: profileLegalErr } = await supabase
+      .from('profiles')
+      .update({
+        legal_disclaimer_accepted: true,
+        acceptance_timestamp: ts,
+      })
+      .eq('email', email);
+    if (profileLegalErr && process.env.NODE_ENV !== 'production') {
+      console.warn('[approve-barber] profile legal_disclaimer update:', profileLegalErr.message);
+    }
+  }
 
   /** صفوف قديمة أو upsert بدون لمس العمود قد تبقي rating_invite_token فارغاً — يُعبَّأ هنا ليعمل QR والبريد */
   const { data: tokenRow, error: tokenErr } = await supabase

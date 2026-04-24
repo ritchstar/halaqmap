@@ -11,7 +11,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Switch } from '@/components/ui/switch';
 import {
   SubscriptionTier,
   ROUTE_PATHS,
@@ -67,9 +66,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Star,
-  Shield,
-  MessageSquare,
-  Calendar,
+  Scale,
   Sparkles,
   AlertCircle,
   Loader2,
@@ -83,12 +80,8 @@ interface FormData {
   phone: string;
   whatsapp: string;
   categories: string[];
-  documents: {
-    /** الرمز الموحد للتحقق النظامي (QR) — نص فقط، دون رفع ملفات حكومية */
-    regulatoryVerificationQr: string;
-    /** تأكيد أن الرمز يمثّل سجلّاً تجاريّاً أو رخصة بلدية (أحدهما يكفي) */
-    singleOfficialSourceAcknowledged: boolean;
-  };
+  /** تعهد قانوني إلزامي قبل إتمام التسجيل */
+  legalDisclaimerAccepted: boolean;
   location: {
     lat: string;
     lng: string;
@@ -123,12 +116,14 @@ interface FormData {
   registrationTermsAccepted: boolean;
 }
 
-const REGULATORY_QR_MAX_LEN = 4000;
+/** نص التعهد القانوني المعروض بجانب خانة التأشير الإلزامية */
+export const REGISTRATION_LEGAL_DISCLAIMER_AR =
+  'أقر أنا صاحب المحل بأن منشأتي مرخصة وقائمة من قبل وزارة التجارة والبلدية، وأتحمل كامل المسؤولية القانونية عن ذلك، مع إخلاء مسؤولية منصة حلاق ماب من أي تبعات.';
 
 const STEPS = [
   { id: 1, title: 'اختيار الباقة', icon: Star },
   { id: 2, title: 'بيانات المحل', icon: FileText },
-  { id: 3, title: 'التحقق النظامي', icon: Shield },
+  { id: 3, title: 'التعهد القانوني', icon: Scale },
   { id: 4, title: 'الموقع', icon: MapPin },
   { id: 5, title: 'الصور', icon: ImageIcon },
   { id: 6, title: 'أوقات العمل', icon: Clock },
@@ -250,10 +245,7 @@ export function RegistrationForm() {
     phone: '',
     whatsapp: '',
     categories: [],
-    documents: {
-      regulatoryVerificationQr: '',
-      singleOfficialSourceAcknowledged: false,
-    },
+    legalDisclaimerAccepted: false,
     location: {
       lat: '',
       lng: '',
@@ -319,21 +311,8 @@ export function RegistrationForm() {
       }
     }
     if (currentStep === 3) {
-      const qr = formData.documents.regulatoryVerificationQr.trim();
-      if (!qr) {
-        alert('يرجى إدخال الرمز الموحد للتحقق النظامي (QR).');
-        return;
-      }
-      if (qr.length < 4) {
-        alert('الرمز قصير جداً. الصق الرمز كاملاً كما يظهر في منصة التحقق الرسمية.');
-        return;
-      }
-      if (qr.length > REGULATORY_QR_MAX_LEN) {
-        alert(`الرمز يتجاوز الحد المسموح (${REGULATORY_QR_MAX_LEN} حرفاً). اختصر أو راجع القيمة المنسوخة.`);
-        return;
-      }
-      if (!formData.documents.singleOfficialSourceAcknowledged) {
-        toast.error('يرجى تأكيد أن الرمز يخص السجل التجاري أو رخصة البلدية (أحدهما يكفي).');
+      if (!formData.legalDisclaimerAccepted) {
+        toast.error('يرجى تأشير التعهد القانوني الإلزامي قبل المتابعة.');
         return;
       }
     }
@@ -509,21 +488,11 @@ export function RegistrationForm() {
       );
       return;
     }
-    const qrSubmit = formData.documents.regulatoryVerificationQr.trim();
-    if (!qrSubmit) {
-      alert('يرجى إكمال خطوة التحقق النظامي: أدخل الرمز الموحد (QR).');
-      return;
-    }
-    if (qrSubmit.length < 4) {
-      alert('الرمز قصير جداً. الصق الرمز كاملاً كما يظهر في منصة التحقق الرسمية.');
-      return;
-    }
-    if (qrSubmit.length > REGULATORY_QR_MAX_LEN) {
-      alert(`الرمز يتجاوز الحد المسموح (${REGULATORY_QR_MAX_LEN} حرفاً).`);
-      return;
-    }
-    if (!formData.documents.singleOfficialSourceAcknowledged) {
-      toast.error('يرجى تأكيد أن الرمز يخص السجل التجاري أو رخصة البلدية (أحدهما يكفي).');
+    if (!formData.legalDisclaimerAccepted) {
+      toast.error('يجب تأشير التعهد القانوني الإلزامي قبل الإرسال.');
+      window.requestAnimationFrame(() =>
+        formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      );
       return;
     }
     if (!formData.images.shopExterior || !formData.images.shopInterior) {
@@ -606,7 +575,7 @@ export function RegistrationForm() {
       );
 
       const docLabels: string[] = [
-        `التحقق النظامي (QR): أُدخل نص الرمز مع الطلب (${qrSubmit.length} حرفاً) — دون تخزين وثائق حكومية على الخادم`,
+        `التعهد القانوني: تم التأشير بتاريخ ${submittedAtIso} — صاحب المحل يقر بترخيص المنشأة وتحمّل المسؤولية وإخلاء مسؤولية منصة حلاق ماب.`,
       ];
 
       const servicesSummaryLines = formData.services
@@ -680,7 +649,8 @@ export function RegistrationForm() {
         receiptFileName: receiptFile?.name,
         receiptDataUrl,
         registrationAttachmentUrls,
-        regulatoryVerificationQr: qrSubmit,
+        legalDisclaimerAccepted: true,
+        legalDisclaimerAcceptedAtIso: submittedAtIso,
         weeklyWorkingHours: weeklyWorkingHoursPayload,
         servicesSummary: servicesSummary || '—',
         ...(inclusiveAccessibleCarePayload
@@ -753,7 +723,8 @@ export function RegistrationForm() {
         `\n` +
         `أوقات العمل (أسبوع كامل):\n${workingHoursSummaryText}\n` +
         `\n` +
-        `التحقق النظامي (QR) — نص الرمز كما أُرسل:\n${qrSubmit}\n` +
+        `التعهد القانوني:\n${REGISTRATION_LEGAL_DISCLAIMER_AR}\n` +
+        `(تم التأشير — ${submittedAtIso})\n` +
         `\n` +
         `صور المحل (أسماء الملفات):\n` +
         `  — خارجي: ${formData.images.shopExterior?.name ?? '—'}\n` +
@@ -796,9 +767,7 @@ export function RegistrationForm() {
         mailtoBodyShort,
       });
 
-      toast.success(
-        'تم إرسال الطلب. طلبك قيد المراجعة النظامية اللحظية — دون انتظار رفع ملفات حكومية ثقيلة على خوادمنا.',
-      );
+      toast.success('تم إرسال الطلب. طلبك قيد المراجعة وسيتم التواصل معك بعد التدقيق.');
       await new Promise((r) => setTimeout(r, 600));
       navigate(ROUTE_PATHS.REGISTER_SUCCESS);
     } finally {
@@ -1056,62 +1025,33 @@ export function RegistrationForm() {
           {currentStep === 3 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">التحقق النظامي من المنشأة</CardTitle>
+                <CardTitle className="text-2xl">التعهد القانوني</CardTitle>
                 <CardDescription>
-                  أدخل الرمز الموحد للتحقق فقط — لا يُطلب رفع ملفات حكومية أو شهادات صحية على خوادمنا.
+                  تأشير إلزامي قبل المتابعة — لا يُطلب رفع مستندات رسمية أو مسح رموز تحقق في هذه الخطوة.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Alert className="border-primary/40 bg-primary/5">
-                  <Shield className="h-4 w-4 text-primary" />
+                  <Scale className="h-4 w-4 text-primary" />
                   <AlertDescription className="text-sm font-medium leading-relaxed text-foreground">
-                    نحن نؤمن بخصوصيتك؛ يتم استخدام الرمز للمعاينة اللحظية والتحقق من نظامية المنشأة فقط. لا نقوم بحفظ
-                    أو تخزين أي مستند حكومي أو شهادات صحية في خوادمنا نهائياً.
+                    بموجب هذا التعهد تُقرّ منشأتك مرخّصة وفق الجهات المذكورة أدناه، وتتحمّل أنت المسؤولية القانونية
+                    كاملة دون المطالبة بمنصة حلاق ماب عن التبعات الناشئة عن صحة ذلك الترخيص أو غيابه.
                   </AlertDescription>
                 </Alert>
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-sm leading-relaxed">
-                    <strong>توضيح:</strong> إرفاق رمز السجل التجاري أو رخصة البلدية — أيهما يتوفر — يغني عن الآخر.
-                  </AlertDescription>
-                </Alert>
-                <div className="space-y-2">
-                  <Label htmlFor="regulatoryVerificationQr">الرمز الموحد للتحقق النظامي (QR) *</Label>
-                  <Textarea
-                    id="regulatoryVerificationQr"
-                    dir="ltr"
-                    className="min-h-[100px] font-mono text-sm"
-                    placeholder="الصق هنا الرمز أو المحتوى المعروض في QR الرسمي (سجل تجاري أو رخصة بلدية)"
-                    maxLength={REGULATORY_QR_MAX_LEN}
-                    value={formData.documents.regulatoryVerificationQr}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        documents: { ...prev.documents, regulatoryVerificationQr: e.target.value },
-                      }))
-                    }
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    الحد الأقصى {REGULATORY_QR_MAX_LEN} حرفاً. لا ترفع صور الوثائق هنا — النص أو رابط التحقق
-                    المعروض في المنصة الرسمية يكفي لمراجعتنا اللحظية.
-                  </p>
-                </div>
-                <div className="flex flex-row-reverse items-center justify-between gap-4 rounded-lg border border-border bg-muted/30 p-4">
-                  <Switch
-                    id="singleOfficialSourceAcknowledged"
-                    checked={formData.documents.singleOfficialSourceAcknowledged}
+                <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-4">
+                  <Checkbox
+                    id="legal-disclaimer-accept"
+                    checked={formData.legalDisclaimerAccepted}
                     onCheckedChange={(checked) =>
                       setFormData((prev) => ({
                         ...prev,
-                        documents: {
-                          ...prev.documents,
-                          singleOfficialSourceAcknowledged: Boolean(checked),
-                        },
+                        legalDisclaimerAccepted: checked === true,
                       }))
                     }
+                    className="mt-1"
                   />
-                  <Label htmlFor="singleOfficialSourceAcknowledged" className="cursor-pointer text-sm leading-relaxed">
-                    أقر بأن الرمز أعلاه يخص السجل التجاري أو رخصة البلدية (أحدهما يكفي)، وأنه صالح للتحقق النظامي.
+                  <Label htmlFor="legal-disclaimer-accept" className="cursor-pointer text-sm font-normal leading-relaxed">
+                    {REGISTRATION_LEGAL_DISCLAIMER_AR}
                   </Label>
                 </div>
               </CardContent>
@@ -1702,7 +1642,9 @@ export function RegistrationForm() {
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || !formData.registrationTermsAccepted}
+            disabled={
+              isSubmitting || !formData.registrationTermsAccepted || !formData.legalDisclaimerAccepted
+            }
           >
             {isSubmitting ? (
               <>

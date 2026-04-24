@@ -253,7 +253,14 @@ export async function upsertBarberFromApprovedRequest(
             Authorization: `Bearer ${accessToken}`,
             'x-client-supabase-url': getClientSupabaseUrl(),
           },
-          body: JSON.stringify({ row: payload }),
+          body: JSON.stringify({
+            row: payload,
+            legalDisclaimerAccepted: request.legalDisclaimerAccepted === true,
+            legalDisclaimerAcceptedAtIso:
+              typeof request.legalDisclaimerAcceptedAtIso === 'string'
+                ? request.legalDisclaimerAcceptedAtIso.trim()
+                : undefined,
+          }),
         });
         const json = (await resp.json().catch(() => ({}))) as {
           barberId?: string;

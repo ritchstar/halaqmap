@@ -17,6 +17,8 @@ export interface Database {
           phone: string | null
           avatar_url: string | null
           user_type: 'customer' | 'barber' | 'admin'
+          legal_disclaimer_accepted: boolean
+          acceptance_timestamp: string | null
           created_at: string
           updated_at: string
         }
@@ -27,6 +29,8 @@ export interface Database {
           phone?: string | null
           avatar_url?: string | null
           user_type?: 'customer' | 'barber' | 'admin'
+          legal_disclaimer_accepted?: boolean
+          acceptance_timestamp?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -37,6 +41,8 @@ export interface Database {
           phone?: string | null
           avatar_url?: string | null
           user_type?: 'customer' | 'barber' | 'admin'
+          legal_disclaimer_accepted?: boolean
+          acceptance_timestamp?: string | null
           created_at?: string
           updated_at?: string
         }

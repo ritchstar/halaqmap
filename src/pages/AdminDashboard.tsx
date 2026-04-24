@@ -33,7 +33,6 @@ import {
   Send,
   Activity,
   FlaskConical,
-  QrCode,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -131,8 +130,6 @@ import {
 } from '@/lib/adminSupportChatRemote';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
-import { RegulatoryQrLivePreviewDialog } from '@/components/admin/RegulatoryQrLivePreviewDialog';
-
 const EMPTY_ADMIN_STATS: AdminStats = {
   totalBarbers: 0,
   bronzeBarbers: 0,
@@ -182,6 +179,8 @@ const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
     shopImages: [IMAGES.BARBER_INTERIOR_1, IMAGES.BARBER_INTERIOR_2, IMAGES.BARBER_INTERIOR_3],
     status: 'pending',
     submittedAt: '2026-04-07 10:30',
+    legalDisclaimerAccepted: true,
+    legalDisclaimerAcceptedAtIso: '2026-04-07T07:30:00.000Z',
   },
   {
     id: 'req2',
@@ -199,6 +198,8 @@ const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
     shopImages: [IMAGES.BARBER_INTERIOR_4, IMAGES.BARBER_INTERIOR_5],
     status: 'pending',
     submittedAt: '2026-04-07 14:15',
+    legalDisclaimerAccepted: true,
+    legalDisclaimerAcceptedAtIso: '2026-04-07T11:15:00.000Z',
   },
 ];
 
@@ -264,8 +265,6 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [adminData, setAdminData] = useState<AdminSessionInfo | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
-  const [regulatoryLivePreviewRequest, setRegulatoryLivePreviewRequest] = useState<SubscriptionRequest | null>(null);
-  const [regulatoryLivePreviewOpen, setRegulatoryLivePreviewOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [storedSubscriptionRequests, setStoredSubscriptionRequests] = useState<SubscriptionRequest[]>([]);
@@ -274,17 +273,6 @@ export default function AdminDashboard() {
   const [dataRefreshNonce, setDataRefreshNonce] = useState(0);
 
   const bumpRemoteData = () => setDataRefreshNonce((n) => n + 1);
-
-  const closeRegulatoryLivePreview = () => {
-    setRegulatoryLivePreviewOpen(false);
-    setRegulatoryLivePreviewRequest(null);
-  };
-
-  const openRegulatoryLivePreview = (req: SubscriptionRequest) => {
-    if (!req.regulatoryVerificationQr?.trim()) return;
-    setRegulatoryLivePreviewRequest(req);
-    setRegulatoryLivePreviewOpen(true);
-  };
 
   const refreshStoredRequests = () => {
     void loadMergedSubscriptionRequests().then(setStoredSubscriptionRequests);
@@ -541,7 +529,6 @@ export default function AdminDashboard() {
             <RequestsSection
               requests={subscriptionRequests}
               onViewRequest={setSelectedRequest}
-              onRegulatoryLivePreview={openRegulatoryLivePreview}
               canReview={can('review_requests')}
               canManage={can('manage_barbers')}
               canExportCsv={can('review_requests')}
@@ -602,12 +589,9 @@ export default function AdminDashboard() {
           request={selectedRequest}
           reviewerEmail={adminData.email}
           onClose={() => {
-            closeRegulatoryLivePreview();
             setSelectedRequest(null);
             setRejectionReason('');
           }}
-          onRegulatoryLivePreview={() => openRegulatoryLivePreview(selectedRequest)}
-          clearRegulatoryLivePreviewMemory={closeRegulatoryLivePreview}
           rejectionReason={rejectionReason}
           setRejectionReason={setRejectionReason}
           onAfterDecision={() => {
@@ -616,17 +600,6 @@ export default function AdminDashboard() {
           }}
           canReviewRequests={can('review_requests')}
           canManageBarbers={can('manage_barbers')}
-        />
-      )}
-
-      {regulatoryLivePreviewRequest && (
-        <RegulatoryQrLivePreviewDialog
-          open={regulatoryLivePreviewOpen}
-          onOpenChange={(o) => {
-            if (!o) closeRegulatoryLivePreview();
-          }}
-          registrationOrderId={regulatoryLivePreviewRequest.id}
-          rawQrPayload={regulatoryLivePreviewRequest.regulatoryVerificationQr ?? ''}
         />
       )}
 
@@ -1123,14 +1096,12 @@ function errorText(result: unknown, fallback = 'حدث خطأ غير متوقع'
 function RequestsSection({
   requests,
   onViewRequest,
-  onRegulatoryLivePreview,
   canReview,
   canManage,
   canExportCsv,
 }: {
   requests: SubscriptionRequest[];
   onViewRequest: (request: SubscriptionRequest) => void;
-  onRegulatoryLivePreview: (request: SubscriptionRequest) => void;
   canReview: boolean;
   canManage: boolean;
   canExportCsv: boolean;
@@ -1664,17 +1635,6 @@ function RequestsSection({
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-start">
-                  {request.regulatoryVerificationQr?.trim() && (canReview || canManage) ? (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="gap-2 border-primary/30"
-                      onClick={() => onRegulatoryLivePreview(request)}
-                    >
-                      <QrCode className="h-4 w-4" />
-                      معاينة الرمز النظامي (QR)
-                    </Button>
-                  ) : null}
                   <Button onClick={() => onViewRequest(request)} disabled={!canReview && !canManage}>
                     <Eye className="w-4 h-4 ml-2" />
                     {canReview || canManage ? 'إدارة الطلب' : 'عرض فقط'}
@@ -1695,8 +1655,6 @@ function RequestReviewDialog({
   request,
   reviewerEmail,
   onClose,
-  onRegulatoryLivePreview,
-  clearRegulatoryLivePreviewMemory,
   rejectionReason,
   setRejectionReason,
   onAfterDecision,
@@ -1706,8 +1664,6 @@ function RequestReviewDialog({
   request: SubscriptionRequest;
   reviewerEmail: string;
   onClose: () => void;
-  onRegulatoryLivePreview: () => void;
-  clearRegulatoryLivePreviewMemory: () => void;
   rejectionReason: string;
   setRejectionReason: (reason: string) => void;
   onAfterDecision: () => void;
@@ -1730,7 +1686,6 @@ function RequestReviewDialog({
       toast({ title: 'لا تملك صلاحية اعتماد الطلبات', variant: 'destructive' });
       return;
     }
-    clearRegulatoryLivePreviewMemory();
     setSaving(true);
     const reviewedAt = new Date().toISOString();
     if (isMockRow) {
@@ -1819,7 +1774,6 @@ function RequestReviewDialog({
       toast({ title: 'لا تملك صلاحية رفض الطلبات', variant: 'destructive' });
       return;
     }
-    clearRegulatoryLivePreviewMemory();
     if (!rejectionReason.trim()) {
       toast({ title: 'سبب الرفض', description: 'يرجى إدخال سبب الرفض.', variant: 'destructive' });
       return;
@@ -1856,7 +1810,6 @@ function RequestReviewDialog({
       toast({ title: 'لا تملك صلاحية الإدارة', variant: 'destructive' });
       return;
     }
-    clearRegulatoryLivePreviewMemory();
     if (!request.linkedBarberId) {
       toast({
         title: 'لا يوجد حساب مرتبط',
@@ -1894,7 +1847,6 @@ function RequestReviewDialog({
       toast({ title: 'لا تملك صلاحية الإدارة', variant: 'destructive' });
       return;
     }
-    clearRegulatoryLivePreviewMemory();
     if (!window.confirm('تأكيد حذف الطلب نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
     setSaving(true);
     if (isMockRow) {
@@ -1958,7 +1910,6 @@ function RequestReviewDialog({
       open={!!request}
       onOpenChange={(open) => {
         if (!open) {
-          clearRegulatoryLivePreviewMemory();
           onClose();
         }
       }}
@@ -2113,26 +2064,24 @@ function RequestReviewDialog({
             </div>
           )}
 
-          {/* التحقق النظامي — بروتوكول الخصوصية: لا عرض روابط وثائق حكومية مرفوعة */}
+          {/* التعهد القانوني من نموذج التسجيل */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">التحقق النظامي من المنشأة</h3>
-            {request.regulatoryVerificationQr ? (
-              <div className="mb-4 space-y-3 rounded-lg border border-primary/25 bg-primary/5 p-4">
-                <Label className="text-primary">الرمز الموحد للتحقق النظامي (QR)</Label>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  لأسباب خصوصية لا يُعرض النص الكامل هنا. استخدم المعاينة اللحظية لفتح أي رابط <span dir="ltr">http/https</span>{' '}
-                  مستخرج من الرمز دون تخزينه على خوادمنا بعد إغلاق النافذة.
+            <h3 className="text-lg font-semibold mb-3">التعهد القانوني</h3>
+            {request.legalDisclaimerAccepted ? (
+              <div className="mb-4 space-y-2 rounded-lg border border-primary/25 bg-primary/5 p-4">
+                <p className="text-sm font-medium text-foreground leading-relaxed">
+                  صاحب المحل أقرّ بترخيص المنشأة من وزارة التجارة والبلدية وتحمّل المسؤولية القانونية وإخلاء مسؤولية
+                  منصة حلاق ماب — كما في نموذج التسجيل الحالي.
                 </p>
-                {(canReviewRequests || canManageBarbers) && (
-                  <Button type="button" variant="secondary" className="gap-2 border-primary/30" onClick={onRegulatoryLivePreview}>
-                    <QrCode className="h-4 w-4" />
-                    معاينة الرمز النظامي (QR)
-                  </Button>
-                )}
+                {request.legalDisclaimerAcceptedAtIso ? (
+                  <p className="text-xs text-muted-foreground" dir="ltr">
+                    وقت التأشير (UTC): {request.legalDisclaimerAcceptedAtIso}
+                  </p>
+                ) : null}
               </div>
             ) : (
-              <p className="mb-4 text-sm text-muted-foreground">
-                لا يوجد رمز تحقق نظامي في هذا الطلب (طلب قديم أو ناقص).
+              <p className="mb-4 text-sm text-amber-800 dark:text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-md p-3">
+                لا يظهر في هذا الطلب تعهد قانوني مُسجّل (طلب قديم أو بيانات ناقصة). راجع الطلب يدوياً قبل القبول.
               </p>
             )}
             <p className="text-xs text-muted-foreground mb-2">ملاحظات الطلب كما أُرسلت:</p>

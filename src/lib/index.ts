@@ -233,10 +233,10 @@ export interface SubscriptionRequest {
   receiptDataUrl?: string;
   /** روابط المرفقات على Supabase Storage عند الرفع الناجح */
   registrationAttachmentUrls?: RegistrationAttachmentUrls;
-  /**
-   * الرمز الموحد للتحقق النظامي (QR) كما أدخله المتقدّم — نص للمعاينة/التحقق دون رفع ملفات حكومية للتخزين.
-   */
-  regulatoryVerificationQr?: string;
+  /** تعهد قانوني إلزامي: ترخيص المنشأة من وزارة التجارة والبلدية وتحمّل المسؤولية وإخلاء مسؤولية المنصة */
+  legalDisclaimerAccepted?: boolean;
+  /** وقت الموافقة على التعهد ISO 8601 (UTC) */
+  legalDisclaimerAcceptedAtIso?: string;
   /** أسبوع كامل (سبعة أيام) كما أُرسل مع طلب التسجيل */
   weeklyWorkingHours?: { day: string; open: string; close: string }[];
   servicesSummary?: string;
