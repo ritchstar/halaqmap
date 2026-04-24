@@ -17,7 +17,7 @@ import {
   PLATFORM_HOME_WELCOME_FEATURES,
   PLATFORM_META_DESCRIPTION,
 } from '@/config/platformGrowthNarrative';
-const USER_TRUST_LINE = 'حدد موقعك بدقة · قارن حسب التقييم · تواصل مباشرة مع الصالون';
+const USER_TRUST_LINE = 'اسمح بتحديد موقعك بدقة · قارن حسب التقييم · تواصل مباشرة مع الصالون';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 
@@ -272,8 +272,8 @@ export default function Home() {
                     {
                       step: '١',
                       icon: MapPin,
-                      title: 'حدّد موقعك',
-                      desc: 'نستخدم موقعك لإظهار الحلاقين الأقرب إليك فعلياً.',
+                      title: 'اسمح بتحديد موقعك',
+                      desc: 'بعد منح الإذن، نستخدم موقعك لإظهار الحلاقين الأقرب إليك فعلياً.',
                     },
                     {
                       step: '٢',

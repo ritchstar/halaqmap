@@ -89,7 +89,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               ) : (
                 <>
                   <MapPin className="ml-3 h-8 w-8" />
-                  <span>(اسمح بتحديد موقعك )</span>
+                  <span>اسمح بتحديد موقعك</span>
                 </>
               )}
             </Button>
@@ -101,7 +101,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-center max-w-md text-base md:text-lg font-semibold leading-relaxed rounded-2xl border border-border bg-secondary px-5 py-4 text-secondary-foreground shadow-sm"
           >
-            اضغط على الزر لتحديد موقعك الحالي والعثور على أقرب الحلاقين المحترفين إليك
+            اضغط على الزر للسماح بتحديد موقعك الحالي والعثور على أقرب الحلاقين المحترفين إليك
           </motion.p>
         </>
       ) : (
