@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Loader2, AlertCircle, CheckCircle2, ExternalLink } from "lucide-react";
+import { MapPin, Loader2, AlertCircle, CheckCircle2, ExternalLink, LocateFixed } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -79,18 +79,19 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               onClick={handleLocationRequest}
               disabled={isLoading}
               size="lg"
-              className="relative h-20 px-12 text-xl font-bold bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-[0_8px_30px_-6px_color-mix(in_srgb,var(--primary)_35%,transparent),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent),inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(0,0,0,0.15)] transition-all duration-200 rounded-2xl"
+              aria-label="اسمح بتحديد موقعك لعرض أقرب الحلاقين"
+              className="relative h-auto min-h-20 px-8 py-4 text-xl font-bold bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-[0_8px_30px_-6px_color-mix(in_srgb,var(--primary)_35%,transparent),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent),inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(0,0,0,0.15)] transition-all duration-200 rounded-2xl overflow-visible [&_svg]:!h-8 [&_svg]:!w-8 [&_svg]:shrink-0"
             >
               {isLoading ? (
-                <>
-                  <Loader2 className="ml-3 h-8 w-8 animate-spin" />
+                <span className="flex flex-row items-center justify-center gap-3">
+                  <Loader2 className="h-8 w-8 animate-spin" aria-hidden />
                   <span>جاري تحديد الموقع...</span>
-                </>
+                </span>
               ) : (
-                <>
-                  <MapPin className="ml-3 h-8 w-8" />
+                <span className="flex flex-row items-center justify-center gap-3 text-center leading-snug">
+                  <LocateFixed className="h-8 w-8 drop-shadow-sm" aria-hidden />
                   <span>اسمح بتحديد موقعك</span>
-                </>
+                </span>
               )}
             </Button>
           </motion.div>
@@ -152,11 +153,13 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
             <Button
               onClick={handleVerifyLocation}
               size="lg"
-              className="h-16 px-12 text-xl font-bold bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-[0_8px_30px_-6px_color-mix(in_srgb,var(--primary)_35%,transparent)] hover:shadow-[0_12px_40px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent)] transition-all duration-200 rounded-2xl"
+              className="h-auto min-h-16 px-8 py-3 text-xl font-bold bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-[0_8px_30px_-6px_color-mix(in_srgb,var(--primary)_35%,transparent)] hover:shadow-[0_12px_40px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent)] transition-all duration-200 rounded-2xl [&_svg]:!h-7 [&_svg]:!w-7 [&_svg]:shrink-0"
             >
-              <MapPin className="ml-3 h-7 w-7" />
-              <span>افتح الخريطة للتحقق من موقعك</span>
-              <ExternalLink className="mr-3 h-6 w-6" />
+              <span className="flex flex-row items-center justify-center gap-3">
+                <MapPin className="h-7 w-7 drop-shadow-sm" aria-hidden />
+                <span>افتح الخريطة للتحقق من موقعك</span>
+                <ExternalLink className="h-6 w-6 opacity-95" aria-hidden />
+              </span>
             </Button>
           </motion.div>
 
