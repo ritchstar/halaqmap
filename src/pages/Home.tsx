@@ -6,11 +6,14 @@ import { LocationButton } from '@/components/LocationButton';
 import { FilterBar } from '@/components/FilterBar';
 import { BarberCard } from '@/components/BarberCards';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
+import { RIYADH_SHOWCASE_CENTER, riyadhShowcaseBarbers } from '@/lib/riyadhShowcaseCatalog';
 import {
   PLATFORM_HERO_H1,
   PLATFORM_HERO_LEAD,
@@ -24,6 +27,7 @@ const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
+  const [showShowcaseData, setShowShowcaseData] = useState(true);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
   const [filters, setFilters] = useState<FilterState>({
@@ -109,12 +113,20 @@ export default function Home() {
     };
   }, [userLocation, filters.maxDistance, filters.minRating, filters.tiers]);
 
-  const catalogBarbers = useMemo(() => remoteBarbers, [remoteBarbers]);
+  const effectiveUserLocation = useMemo(
+    () => userLocation ?? (showShowcaseData ? RIYADH_SHOWCASE_CENTER : null),
+    [userLocation, showShowcaseData]
+  );
+
+  const catalogBarbers = useMemo(() => {
+    if (!showShowcaseData) return remoteBarbers;
+    return [...riyadhShowcaseBarbers, ...remoteBarbers];
+  }, [remoteBarbers, showShowcaseData]);
 
   const filteredBarbers = useMemo(() => {
-    if (!userLocation) return [];
-    return filterBarbersByDistance(catalogBarbers, userLocation, filters);
-  }, [userLocation, filters, catalogBarbers]);
+    if (!effectiveUserLocation) return [];
+    return filterBarbersByDistance(catalogBarbers, effectiveUserLocation, filters);
+  }, [effectiveUserLocation, filters, catalogBarbers]);
 
   const handleLocationDetected = (location: { lat: number; lng: number }) => {
     setUserLocation(location);
@@ -254,8 +266,27 @@ export default function Home() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.55, duration: 0.65 }}
+                className="space-y-4"
               >
                 <LocationButton onLocationDetected={handleLocationDetected} />
+                <div className="mx-auto w-full max-w-2xl rounded-2xl border border-border bg-card/80 px-4 py-3 shadow-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="text-right">
+                      <Label htmlFor="home-showcase-toggle" className="text-sm font-semibold text-card-foreground">
+                        بيانات توضيحية (الرياض)
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        اعرض أمثلة حلاقين افتراضيين لتجربة الاستكشاف بسرعة.
+                      </p>
+                    </div>
+                    <Switch
+                      id="home-showcase-toggle"
+                      checked={showShowcaseData}
+                      onCheckedChange={setShowShowcaseData}
+                      aria-label="تفعيل البيانات التوضيحية"
+                    />
+                  </div>
+                </div>
               </motion.div>
 
               <motion.div
@@ -321,7 +352,7 @@ export default function Home() {
       </div>
 
       <AnimatePresence mode="wait">
-        {!userLocation ? (
+        {!effectiveUserLocation ? (
           <motion.div
             key="welcome"
             className="container mx-auto px-4 py-16"
@@ -363,6 +394,11 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <div className="mb-8 space-y-4">
+              {showShowcaseData && !userLocation && (
+                <div className="rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm text-primary">
+                  يتم الآن عرض بيانات توضيحية جاهزة على أحياء الرياض. حدِّد موقعك لعرض نتائجك الفعلية الأقرب.
+                </div>
+              )}
               <FilterBar filters={filters} onFilterChange={setFilters} />
             </div>
 
@@ -413,7 +449,7 @@ export default function Home() {
                     transition={{ delay: index * 0.05, duration: 0.5 }}
                     onClick={() => setSelectedBarber(barber)}
                   >
-                    <BarberCard barber={barber} userLocation={userLocation} />
+                    <BarberCard barber={barber} userLocation={effectiveUserLocation} />
                   </motion.div>
                 ))}
               </div>

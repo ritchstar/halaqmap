@@ -1,9 +1,14 @@
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, X, MapPin } from 'lucide-react';
 import { RegistrationForm } from '@/components/RegistrationForm';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
 import { motion } from 'framer-motion';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { BarberCard } from '@/components/BarberCards';
+import { RIYADH_SHOWCASE_CENTER, riyadhShowcaseBarbers } from '@/lib/riyadhShowcaseCatalog';
 import { springPresets, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
 import {
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
@@ -92,6 +97,9 @@ const subscriptionPlans: {
 ];
 
 export default function Register() {
+  const [showShowcaseData, setShowShowcaseData] = useState(true);
+  const registerPreviewRows = useMemo(() => riyadhShowcaseBarbers.slice(0, 6), []);
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <motion.div
@@ -241,6 +249,46 @@ export default function Register() {
               نموذج التسجيل
             </h2>
             <RegistrationForm />
+          </motion.div>
+
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...springPresets.gentle, delay: 0.4 }}
+            className="max-w-7xl mx-auto mt-10 rounded-2xl border border-border bg-card/80 p-4 sm:p-6 md:p-8"
+          >
+            <div className="mb-6 flex flex-col gap-4 rounded-xl border border-border bg-muted/25 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-right">
+                <h3 className="text-xl font-bold text-foreground">معاينة الظهور على الخريطة</h3>
+                <p className="text-sm text-muted-foreground">
+                  نموذج حي لعرض بيانات توضيحية لحلاقين الرياض كما ستظهر للمستخدمين في الاستكشاف.
+                </p>
+              </div>
+              <div className="flex items-center gap-3 self-end sm:self-auto">
+                <Label htmlFor="register-showcase-toggle" className="text-sm font-semibold">
+                  بيانات توضيحية
+                </Label>
+                <Switch
+                  id="register-showcase-toggle"
+                  checked={showShowcaseData}
+                  onCheckedChange={setShowShowcaseData}
+                  aria-label="تفعيل البيانات التوضيحية في صفحة التسجيل"
+                />
+              </div>
+            </div>
+
+            {showShowcaseData ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {registerPreviewRows.map((barber) => (
+                  <BarberCard key={barber.id} barber={barber} userLocation={RIYADH_SHOWCASE_CENTER} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center text-sm text-muted-foreground">
+                تم إخفاء البيانات التوضيحية. يمكنك تفعيلها مرة أخرى من المفتاح أعلاه.
+              </div>
+            )}
           </motion.div>
 
           <motion.div
