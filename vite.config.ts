@@ -2,7 +2,10 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import fs from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import nodePath from 'node:path';
 import { componentTagger } from 'lovable-tagger';
 import path from "path";
@@ -205,6 +208,11 @@ function cdnPrefixImages(): Plugin {
   };
 }
 
+const projectRoot = nodePath.dirname(fileURLToPath(import.meta.url));
+const webAppManifest = JSON.parse(
+  readFileSync(nodePath.join(projectRoot, 'manifest.json'), 'utf-8')
+) as Record<string, unknown>;
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
@@ -230,6 +238,69 @@ export default defineConfig(({ mode }) => {
     plugins: [
       tailwindcss(),
       react(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: 'auto',
+        manifestFilename: 'manifest.json',
+        manifest: webAppManifest,
+        includeAssets: [
+          'favicon.svg',
+          'robots.txt',
+          'sitemap.xml',
+          'icons/**/*.png',
+        ],
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
+          globIgnores: ['**/halaqmap_barber_banner_*.png'],
+          maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api\//],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-stylesheets',
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-webfonts',
+                expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'supabase-api',
+                networkTimeoutSeconds: 10,
+                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 5 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: ({ url }) =>
+                url.origin === self.location.origin &&
+                /^\/images\//.test(url.pathname),
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'local-images',
+                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 14 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+          ],
+        },
+        devOptions: {
+          enabled: false,
+        },
+      }),
       mode === 'development' &&
       componentTagger(),
       cdnPrefixImages(),
