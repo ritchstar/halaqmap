@@ -61,8 +61,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const adminAuth = await verifyManageBarbersAdminFromRequest(request, url, serviceRole);
-  if (!adminAuth.ok) {
-    return Response.json(adminAuth.json, { status: adminAuth.status, headers });
+  if (adminAuth.ok === false) {
+    const { json, status } = adminAuth;
+    return Response.json(json, { status, headers });
   }
   const supabase = adminAuth.supabase;
 
