@@ -240,7 +240,7 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: 'auto',
+        injectRegister: false,
         manifestFilename: 'manifest.json',
         manifest: webAppManifest,
         includeAssets: [
@@ -250,6 +250,8 @@ export default defineConfig(({ mode }) => {
           'icons/**/*.png',
         ],
         workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
           globIgnores: ['**/halaqmap_barber_banner_*.png'],
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
