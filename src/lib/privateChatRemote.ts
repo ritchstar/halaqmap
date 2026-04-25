@@ -21,6 +21,9 @@ export interface PrivateMessageRow {
   read_at: string | null;
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function normalizeErrorMessage(message: string): string {
   const m = message.toLowerCase();
   if (m.includes('not authenticated')) {
@@ -28,6 +31,24 @@ function normalizeErrorMessage(message: string): string {
   }
   if (m.includes('row-level security') || m.includes('permission denied') || m.includes('403')) {
     return 'تم رفض العملية بسبب صلاحيات الأمان. تأكد أن الحساب هو أحد طرفي المحادثة.';
+  }
+  if (m.includes('barber account not linked')) {
+    return 'تعذّر بدء الشات: صف الحلاق غير مربوط بحساب تسجيل الدخول. من لوحة الإدارة اربط الحلاق بمستخدم (barbers.user_id) ثم أعد المحاولة.';
+  }
+  if (m.includes('barber inactive')) {
+    return 'هذا الصالون غير مفعّل حالياً، لذلك لا يمكن بدء محادثة مباشرة.';
+  }
+  if (m.includes('barber not found')) {
+    return 'لم يُعثر على الصالون أو لا يُسمح بالشات. تحقق أن الواجهة تستخدم نفس مشروع Supabase، وأن السجل موجود ومفعّل، وأن حساب الحلاق مربوطاً (barbers.user_id).';
+  }
+  if (m.includes('invalid input syntax for type uuid')) {
+    return 'معرّف الصالون غير صالح تقنياً. أعد تحميل الصفحة بعد تحديث التطبيق.';
+  }
+  if (m.includes('private chat is available for gold and diamond')) {
+    return 'الشات المباشر متاح لباقات ذهبي وماسي فقط لهذا الصالون.';
+  }
+  if (m.includes('invalid barber id')) {
+    return 'لا يمكن بدء محادثة مع حسابك نفسه كصالون.';
   }
   return message;
 }
@@ -39,8 +60,17 @@ export async function startPrivateConversationByBarberId(
   const client = getSupabaseClient();
   if (!client) return { ok: false, error: 'Supabase غير مهيأ في البيئة.' };
 
+  const id = barberId.trim();
+  if (!UUID_RE.test(id)) {
+    return {
+      ok: false,
+      error:
+        'معرّف الصالون ليس UUID صالحاً (غالباً بيانات عرض أو بيئة خاطئة). تأكد من جلب الحلاقين من نفس مشروع Supabase.',
+    };
+  }
+
   const { data, error } = await client.rpc('start_private_conversation_by_barber_id', {
-    p_barber_id: barberId.trim(),
+    p_barber_id: id,
   });
 
   if (error || !data) {
