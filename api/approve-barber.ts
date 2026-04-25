@@ -61,7 +61,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const adminAuth = await verifyManageBarbersAdminFromRequest(request, url, serviceRole);
-  if (!adminAuth.ok) {
+  if (adminAuth.ok === false) {
     return Response.json(adminAuth.json, { status: adminAuth.status, headers });
   }
   const supabase = adminAuth.supabase;
@@ -90,7 +90,7 @@ export async function POST(request: Request): Promise<Response> {
       : '';
 
   const wl = whitelistBarberUpsertRow(row as Record<string, unknown>);
-  if (!wl.ok) {
+  if (wl.ok === false) {
     return Response.json(
       {
         error: 'Row contains disallowed fields',

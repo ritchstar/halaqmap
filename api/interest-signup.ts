@@ -51,7 +51,7 @@ export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'interest-signup');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 

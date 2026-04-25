@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
@@ -34,7 +34,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 async function assertBarberEmailOwnsRow(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   barberId: string,
   rawEmail: string
 ): Promise<
@@ -77,7 +77,7 @@ export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'barber-portal-support-chat');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 
@@ -106,7 +106,7 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   const gate = await assertBarberEmailOwnsRow(supabase, barberId, rawEmail);
-  if (!gate.ok) {
+  if (gate.ok === false) {
     return Response.json({ error: gate.message }, { status: gate.status, headers });
   }
 

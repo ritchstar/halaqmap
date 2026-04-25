@@ -116,7 +116,7 @@ export async function POST(request: Request): Promise<Response> {
   if (secretResp) return secretResp;
 
   const guard = runRegistrationRouteGuards(request, 'simulate-booking-overlap');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return corsJson(request, guard.json, guard.status);
   }
 

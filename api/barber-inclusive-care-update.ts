@@ -61,7 +61,7 @@ export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'barber-portal-inclusive-care-update');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 

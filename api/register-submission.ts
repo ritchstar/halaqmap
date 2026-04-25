@@ -57,7 +57,7 @@ export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'register-submission');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 
@@ -93,7 +93,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const auth = assertRegistrationServerAuth(request, rowId, expectedAnon);
-  if (!auth.ok) {
+  if (auth.ok === false) {
     return Response.json(auth.json, { status: auth.status, headers });
   }
 

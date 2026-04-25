@@ -62,7 +62,7 @@ export async function POST(request: Request): Promise<Response> {
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'barber-portal-magic-consume');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 
@@ -101,7 +101,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const token = String((body as { token?: unknown }).token ?? '').trim();
   const verified = verifyBarberPortalMagicToken(token, secret);
-  if (!verified.ok) {
+  if (verified.ok === false) {
     const ar: Record<string, string> = {
       missing_token: 'الرابط ناقص أو غير صالح.',
       malformed: 'الرابط غير صالح.',

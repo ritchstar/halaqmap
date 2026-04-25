@@ -33,7 +33,7 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const adminAuth = await verifyPlatformAdminFromRequest(request, url, serviceRole, 'view_messages');
-  if (!adminAuth.ok) {
+  if (adminAuth.ok === false) {
     return Response.json(adminAuth.json, { status: adminAuth.status, headers });
   }
   const supabase = adminAuth.supabase;
@@ -137,7 +137,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const adminAuth = await verifyPlatformAdminFromRequest(request, url, serviceRole, 'view_messages');
-  if (!adminAuth.ok) {
+  if (adminAuth.ok === false) {
     return Response.json(adminAuth.json, { status: adminAuth.status, headers });
   }
   const supabase = adminAuth.supabase;

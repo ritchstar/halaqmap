@@ -41,7 +41,7 @@ export async function GET(request: Request): Promise<Response> {
   if (blocked) return blocked;
   const headers = corsHeaders(request);
   const guard = runRegistrationRouteGuards(request, 'verify-moyasar-payment');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 

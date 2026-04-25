@@ -94,7 +94,7 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const guard = runRegistrationRouteGuards(request, 'public-barbers-get');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 

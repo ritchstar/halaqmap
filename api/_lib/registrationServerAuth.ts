@@ -17,7 +17,7 @@ export function assertRegistrationServerAuth(
   if (secret) {
     const token = request.headers.get('x-registration-intent')?.trim();
     const v = verifyRegistrationIntentToken(orderId, token, secret);
-    if (!v.ok) {
+    if (v.ok === false) {
       return {
         ok: false,
         status: 401,
