@@ -6,6 +6,7 @@ import { SiX, SiFacebook, SiInstagram, SiWhatsapp } from 'react-icons/si';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 
 interface LayoutProps {
@@ -275,6 +276,7 @@ export function Layout({ children }: LayoutProps) {
                 </NavLink>
               </div>
             </div>
+            <AppBuildStamp className="mt-4" />
           </div>
         </div>
       </footer>

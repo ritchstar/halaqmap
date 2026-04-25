@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import fs from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import nodePath from 'node:path';
 import { componentTagger } from 'lovable-tagger';
@@ -209,9 +210,28 @@ function cdnPrefixImages(): Plugin {
 }
 
 const projectRoot = nodePath.dirname(fileURLToPath(import.meta.url));
+const pkgJson = JSON.parse(
+  readFileSync(nodePath.join(projectRoot, 'package.json'), 'utf-8')
+) as { version?: string };
 const webAppManifest = JSON.parse(
   readFileSync(nodePath.join(projectRoot, 'manifest.json'), 'utf-8')
 ) as Record<string, unknown>;
+
+function resolveGitShortCommit(): string {
+  const full =
+    process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.VITE_BUILD_COMMIT?.trim();
+  if (full) return full.length > 7 ? full.slice(0, 7) : full;
+  try {
+    return execSync('git rev-parse --short HEAD', {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+    }).trim();
+  } catch {
+    return 'dev';
+  }
+}
+
+const appBuildTimeIso = new Date().toISOString();
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -325,6 +345,9 @@ export default defineConfig(({ mode }) => {
           ? process.env.VITE_ENABLE_ROUTE_MESSAGING === 'true'
           : process.env.VITE_ENABLE_ROUTE_MESSAGING !== 'false'
       ),
+      __APP_PKG_VERSION__: JSON.stringify(pkgJson.version ?? '0.0.0'),
+      __APP_GIT_COMMIT__: JSON.stringify(resolveGitShortCommit()),
+      __APP_BUILD_TIME_ISO__: JSON.stringify(appBuildTimeIso),
     },
   }
 });

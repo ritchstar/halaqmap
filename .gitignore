@@ -106,3 +106,4 @@ uploaded_files/
 # --- Secret Admin Files ---
 ADMIN_ACCESS.md
 SECRET_*.md
+.vercel

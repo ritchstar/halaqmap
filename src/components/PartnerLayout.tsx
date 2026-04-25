@@ -6,6 +6,7 @@ import { IMAGES } from '@/assets/images';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
+import { AppBuildStamp } from '@/components/AppBuildStamp';
 
 interface PartnerLayoutProps {
   children: React.ReactNode;
@@ -94,6 +95,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </a>
             </div>
           </div>
+          <AppBuildStamp variant="dark" className="mt-2 border-t border-white/5 pt-3" />
         </div>
       </footer>
     </div>
