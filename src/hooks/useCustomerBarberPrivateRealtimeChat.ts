@@ -46,6 +46,20 @@ function mapRowsToUi(
   });
 }
 
+function normalizeSupabaseAuthError(message: string | null | undefined): string {
+  const m = String(message || '').toLowerCase();
+  if (m.includes('anonymous sign-ins are disabled') || m.includes('anonymous')) {
+    return 'الشات الحي غير متاح حالياً بسبب إعدادات المصادقة. يمكنك المتابعة عبر المعاينة المحلية حتى تفعيل الدخول المجهول في Supabase.';
+  }
+  if (m.includes('invalid login credentials') || m.includes('not authenticated')) {
+    return 'تعذرت مصادقة جلسة الشات الحي حالياً. تم التحويل للمعاينة المحلية.';
+  }
+  return (
+    message ||
+    'تعذّرت تهيئة الشات الحي حالياً. تم التحويل للمعاينة المحلية مؤقتاً.'
+  );
+}
+
 export function useCustomerBarberPrivateRealtimeChat(
   barberId: string | undefined,
   options: { enableDiamondTranslation: boolean; restartSignal?: number }
@@ -114,10 +128,7 @@ export function useCustomerBarberPrivateRealtimeChat(
         const { error: anonErr } = await client.auth.signInAnonymously();
         if (anonErr || cancelled) {
           setStatus('auth_failed');
-          setErrorHint(
-            anonErr?.message ||
-              'تعذّر إنشاء جلسة عميل مؤقتة. فعّل «Anonymous sign-ins» في مشروع Supabase أو وفّر تسجيل دخول للعملاء.'
-          );
+          setErrorHint(normalizeSupabaseAuthError(anonErr?.message));
           return;
         }
         session = (await client.auth.getSession()).data.session;

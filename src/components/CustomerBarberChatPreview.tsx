@@ -204,10 +204,10 @@ export function CustomerBarberChatPreview({
 
   const liveErrorBanner =
     useLive && (live.status === 'auth_failed' || live.status === 'start_failed') ? (
-      <Alert variant="destructive" className="text-right">
-        <AlertTitle>تعذّر تشغيل الشات الحي عبر Supabase</AlertTitle>
+      <Alert className="text-right border-amber-300/60 bg-amber-50/70 dark:bg-amber-950/20">
+        <AlertTitle>الشات الحي غير متاح مؤقتاً</AlertTitle>
         <AlertDescription className="text-xs leading-relaxed">
-          {live.errorHint || 'تحقق من إعدادات المشروع والمهاجرات (migration 42) وتفعيل تسجيل الدخول المجهول للعملاء إن لزم.'}
+          {live.errorHint || 'تم التحويل تلقائياً إلى المعاينة المحلية. يمكن متابعة المحادثة محلياً إلى أن تعود خدمة الشات الحي.'}
         </AlertDescription>
       </Alert>
     ) : null;

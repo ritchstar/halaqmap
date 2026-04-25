@@ -1,6 +1,62 @@
 import { motion } from "framer-motion";
 import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale, MessageSquare } from "lucide-react";
 
+function renderContentBlocks(content: string) {
+  const lines = content.split('\n');
+  const blocks: JSX.Element[] = [];
+  let bullets: string[] = [];
+
+  const pushBullets = (keyBase: number) => {
+    if (bullets.length === 0) return;
+    blocks.push(
+      <ul key={`ul-${keyBase}`} className="list-disc list-inside space-y-2 pr-1 text-right">
+        {bullets.map((line, i) => (
+          <li key={`li-${keyBase}-${i}`} className="text-muted-foreground leading-relaxed">
+            {line.split('**').map((part, idx) =>
+              idx % 2 === 0 ? part : <strong key={idx} className="text-foreground">{part}</strong>
+            )}
+          </li>
+        ))}
+      </ul>
+    );
+    bullets = [];
+  };
+
+  lines.forEach((line, i) => {
+    const paragraph = line.trim();
+    if (!paragraph) {
+      pushBullets(i);
+      return;
+    }
+
+    if (paragraph.startsWith('- ')) {
+      bullets.push(paragraph.substring(2));
+      return;
+    }
+
+    pushBullets(i);
+    if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
+      blocks.push(
+        <h3 key={`h-${i}`} className="text-lg font-semibold text-foreground mt-4 mb-2 text-right">
+          {paragraph.replace(/\*\*/g, '')}
+        </h3>
+      );
+      return;
+    }
+
+    blocks.push(
+      <p key={`p-${i}`} className="text-muted-foreground leading-relaxed mb-4 text-right">
+        {paragraph.split('**').map((part, idx) =>
+          idx % 2 === 0 ? part : <strong key={idx} className="text-foreground">{part}</strong>
+        )}
+      </p>
+    );
+  });
+
+  pushBullets(lines.length + 1);
+  return blocks;
+}
+
 export default function Privacy() {
   const sections = [
     {
@@ -96,7 +152,7 @@ export default function Privacy() {
         </motion.div>
       </div>
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16" dir="rtl">
         <div className="max-w-4xl mx-auto space-y-12">
           {sections.map((section, index) => {
             const Icon = section.icon;
@@ -122,35 +178,8 @@ export default function Privacy() {
                         {section.title}
                       </h2>
                       
-                      <div className="prose prose-lg max-w-none">
-                        {section.content.split('\n').map((paragraph, pIndex) => {
-                          if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
-                            return (
-                              <h3 key={pIndex} className="text-lg font-semibold text-foreground mt-4 mb-2">
-                                {paragraph.replace(/\*\*/g, '')}
-                              </h3>
-                            );
-                          }
-                          if (paragraph.startsWith('- ')) {
-                            return (
-                              <li key={pIndex} className="text-muted-foreground leading-relaxed mr-6">
-                                {paragraph.substring(2).split('**').map((part, i) => 
-                                  i % 2 === 0 ? part : <strong key={i} className="text-foreground">{part}</strong>
-                                )}
-                              </li>
-                            );
-                          }
-                          if (paragraph.trim()) {
-                            return (
-                              <p key={pIndex} className="text-muted-foreground leading-relaxed mb-4">
-                                {paragraph.split('**').map((part, i) => 
-                                  i % 2 === 0 ? part : <strong key={i} className="text-foreground">{part}</strong>
-                                )}
-                              </p>
-                            );
-                          }
-                          return null;
-                        })}
+                      <div className="max-w-none space-y-1">
+                        {renderContentBlocks(section.content)}
                       </div>
                     </div>
                   </div>
