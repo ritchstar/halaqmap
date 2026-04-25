@@ -10,6 +10,9 @@ import { askPartnerAssistant, type PartnerAssistantMessage } from '@/lib/partner
 
 const MAX_CHAT_TURNS = 16;
 
+/** لقب العرض + (v2) للتأكد من وصول النشر الحيّ إلى آخر build. */
+const ASSISTANT_DISPLAY_NAME = 'مساعد الشركاء الرقمي (v2)';
+
 export function PartnerDigitalBarberAssistant() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
@@ -69,7 +72,7 @@ export function PartnerDigitalBarberAssistant() {
             id="partner-barber-assistant"
             key="panel"
             role="dialog"
-            aria-label={PARTNER_DIGITAL_ASSISTANT.name}
+            aria-label={ASSISTANT_DISPLAY_NAME}
             initial={{ opacity: 0, y: 12, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.96 }}
@@ -100,7 +103,7 @@ export function PartnerDigitalBarberAssistant() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-emerald-200/90">{PARTNER_DIGITAL_ASSISTANT.role}</p>
-                  <p className="truncate text-sm font-bold text-white">{PARTNER_DIGITAL_ASSISTANT.name}</p>
+                  <p className="truncate text-sm font-bold text-white">{ASSISTANT_DISPLAY_NAME}</p>
                 </div>
               </div>
               <Button
