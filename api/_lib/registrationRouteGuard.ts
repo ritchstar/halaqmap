@@ -84,6 +84,9 @@ export function parseRegistrationAllowedOrigins(): string[] {
 }
 
 function rateLimitMaxForRoute(routeId: string): number {
+  if (routeId === 'partner-assistant-chat') {
+    return envInt('PARTNER_ASSISTANT_RATE_LIMIT_MAX', 20);
+  }
   if (routeId === 'interest-signup') {
     return envInt('INTEREST_SIGNUP_RATE_LIMIT_MAX', 10);
   }

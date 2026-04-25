@@ -1,16 +1,65 @@
 import { useMemo, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Headphones, MapPin, Scissors, Smile, X } from 'lucide-react';
+import { Headphones, MapPin, Scissors, SendHorizonal, Smile, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PARTNER_DIGITAL_ASSISTANT, partnerAssistantHintForPath } from '@/lib/partnerMarketingCopy';
 import { ROUTE_PATHS } from '@/lib';
+import { Input } from '@/components/ui/input';
+import { askPartnerAssistant, type PartnerAssistantMessage } from '@/lib/partnerAssistantRemote';
+
+const MAX_CHAT_TURNS = 16;
 
 export function PartnerDigitalBarberAssistant() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [messages, setMessages] = useState<PartnerAssistantMessage[]>([
+    {
+      role: 'assistant',
+      content:
+        'مرحباً بك في مسار الشركاء، يسعدني خدمتك. اسألني عن خطوات الانضمام، الباقات، أو كيفية الاستفادة من صفحات الشركاء.',
+    },
+  ]);
 
   const routeHint = useMemo(() => partnerAssistantHintForPath(pathname), [pathname]);
+  const canSend = draft.trim().length > 0 && !isSending;
+
+  const sendPrompt = async () => {
+    const content = draft.trim();
+    if (!content || isSending) return;
+
+    setDraft('');
+    setChatError(null);
+
+    const nextMessages = [...messages, { role: 'user' as const, content }];
+    setMessages(nextMessages);
+    setIsSending(true);
+
+    const reply = await askPartnerAssistant({
+      messages: nextMessages.slice(-MAX_CHAT_TURNS),
+      pathname,
+    });
+
+    if (!reply.ok) {
+      setChatError(reply.error);
+      setMessages([
+        ...nextMessages,
+        {
+          role: 'assistant',
+          content:
+            'أعتذر، لم أستطع جلب الرد حالياً. يمكنك إعادة المحاولة أو فتح استوديو دعم الشركاء وسيتم خدمتك مباشرة.',
+        },
+      ]);
+      setIsSending(false);
+      return;
+    }
+
+    setMessages([...nextMessages, { role: 'assistant', content: reply.reply }]);
+    setIsSending(false);
+  };
 
   return (
     <div className="pointer-events-none fixed bottom-4 left-4 z-[60] flex flex-col items-start sm:bottom-6 sm:left-6">
@@ -72,6 +121,59 @@ export function PartnerDigitalBarberAssistant() {
               <p className="rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-xs leading-5 text-emerald-100/90">
                 {routeHint}
               </p>
+              <div className="rounded-xl border border-white/15 bg-black/25 p-2">
+                <div className="max-h-52 space-y-2 overflow-y-auto px-1 py-1">
+                  {messages.map((m, idx) => (
+                    <div
+                      key={`${m.role}-${idx}-${m.content.slice(0, 24)}`}
+                      className={
+                        m.role === 'assistant'
+                          ? 'rounded-lg border border-emerald-400/20 bg-emerald-500/10 px-2.5 py-2 text-xs text-emerald-100'
+                          : 'rounded-lg border border-cyan-400/25 bg-cyan-500/10 px-2.5 py-2 text-xs text-cyan-100'
+                      }
+                    >
+                      <p className="mb-1 text-[10px] font-semibold text-slate-300">
+                        {m.role === 'assistant' ? 'مساعد الشركاء' : 'أنت'}
+                      </p>
+                      <p className="whitespace-pre-wrap leading-5">{m.content}</p>
+                    </div>
+                  ))}
+                  {isSending ? (
+                    <div className="rounded-lg border border-emerald-400/20 bg-emerald-500/10 px-2.5 py-2 text-xs text-emerald-100">
+                      جاري تجهيز الرد...
+                    </div>
+                  ) : null}
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Input
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        void sendPrompt();
+                      }
+                    }}
+                    placeholder="اكتب سؤالك حول مسار الشركاء..."
+                    className="h-9 border-white/20 bg-[#091a2a] text-xs text-white placeholder:text-slate-400 focus-visible:ring-emerald-300"
+                    dir="rtl"
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 bg-emerald-600 text-white hover:bg-emerald-500"
+                    onClick={() => void sendPrompt()}
+                    disabled={!canSend}
+                    aria-label="إرسال السؤال"
+                  >
+                    <SendHorizonal className="h-4 w-4" />
+                  </Button>
+                </div>
+                {chatError ? <p className="mt-2 text-[11px] text-rose-200">{chatError}</p> : null}
+                <p className="mt-1 text-[10px] text-slate-400">
+                  يجيب هذا المساعد فقط عن معلومات «مسار الشركاء» المتاحة في المنصة.
+                </p>
+              </div>
               <div>
                 <p className="mb-1.5 text-xs font-semibold text-slate-300">نصائح سريعة</p>
                 <ul className="list-disc space-y-1 pr-4 text-xs text-slate-300 marker:text-emerald-400/80">
