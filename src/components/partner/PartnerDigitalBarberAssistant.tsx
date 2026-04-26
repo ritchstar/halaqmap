@@ -46,7 +46,7 @@ export function PartnerDigitalBarberAssistant() {
       pathname,
     });
 
-    if (!reply.ok) {
+    if (reply.ok === false) {
       setChatError(reply.error);
       setMessages([
         ...nextMessages,
@@ -196,19 +196,29 @@ export function PartnerDigitalBarberAssistant() {
         ) : null}
       </AnimatePresence>
 
-      <motion.button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/40 bg-gradient-to-br from-[#0a1f33] to-[#071426] text-white shadow-[0_12px_40px_-8px_rgba(16,185,129,0.45)] ring-2 ring-emerald-500/25 transition hover:ring-emerald-400/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061223]"
-        aria-expanded={open}
-        aria-controls="partner-barber-assistant"
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.97 }}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-      >
-        <span className="sr-only">{open ? 'إغلاق المساعد' : 'فتح مساعد حلاق ماب'}</span>
+      <div className="pointer-events-auto relative shrink-0">
+        {/* يظهر دون فتح اللوحة — للتأكد من وصول آخر نشر (الاسم الكامل داخل اللوحة). */}
+        <span
+          className="pointer-events-none absolute -top-1 z-[61] rounded-md bg-emerald-300 px-1.5 py-0.5 text-[10px] font-extrabold leading-none text-[#04210f] shadow ring-1 ring-emerald-800/30 end-0"
+          aria-hidden
+        >
+          v2
+        </span>
+        <motion.button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="relative flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/40 bg-gradient-to-br from-[#0a1f33] to-[#071426] text-white shadow-[0_12px_40px_-8px_rgba(16,185,129,0.45)] ring-2 ring-emerald-500/25 transition hover:ring-emerald-400/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061223]"
+          aria-expanded={open}
+          aria-controls="partner-barber-assistant"
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.97 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+        >
+        <span className="sr-only">
+          {open ? 'إغلاق المساعد' : 'فتح مساعد حلاق ماب'} — {ASSISTANT_DISPLAY_NAME}
+        </span>
         <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-cyan-600">
           <Smile className="h-6 w-6" strokeWidth={2.25} aria-hidden />
           <motion.span
@@ -228,7 +238,8 @@ export function PartnerDigitalBarberAssistant() {
             <MapPin className="h-2.5 w-2.5" strokeWidth={2.5} />
           </motion.span>
         </span>
-      </motion.button>
+        </motion.button>
+      </div>
     </div>
   );
 }
