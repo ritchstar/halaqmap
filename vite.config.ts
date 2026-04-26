@@ -21,6 +21,23 @@ import * as t from '@babel/types';
 const traverse: typeof _traverse.default = ( (_traverse as any).default ?? _traverse ) as any;
 const generate: typeof _generate.default = ( (_generate as any).default ?? _generate ) as any;
 
+/** يُلحق ?v=… بروابط /assets/*.js و*.css في index.html بعد البناء لتسهيل كسر كاش HTTP/CDN (مع بقاء أسماء الملفات المُشفّرة). */
+function indexHtmlAssetCacheBustPlugin(): Plugin {
+  return {
+    name: 'index-html-asset-cache-bust',
+    apply: 'build',
+    transformIndexHtml(html) {
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '2').trim();
+      const q = raw.length > 0 ? raw : '2';
+      const suffix = `?v=${encodeURIComponent(q)}`;
+      return html
+        .replace(/src="(\/assets\/[^"?]+\.js)"/g, `src="$1${suffix}"`)
+        .replace(/href="(\/assets\/[^"?]+\.js)"/g, `href="$1${suffix}"`)
+        .replace(/href="(\/assets\/[^"?]+\.css)"/g, `href="$1${suffix}"`);
+    },
+  };
+}
+
 function cdnPrefixImages(): Plugin {
   const DEBUG = process.env.CDN_IMG_DEBUG === '1';
   let publicDir = '';              // absolute path to Vite public dir
@@ -326,6 +343,7 @@ export default defineConfig(({ mode }) => {
       mode === 'development' &&
       componentTagger(),
       cdnPrefixImages(),
+      indexHtmlAssetCacheBustPlugin(),
     ].filter(Boolean),
     resolve: {
       alias: {

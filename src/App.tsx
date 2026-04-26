@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+/** يتضمن PartnerLayout مساعد الشركاء الرقمي (v2) عبر PartnerDigitalBarberAssistant — المسار الوحيد للمساعد في مسار الشركاء. */
 import { PartnerLayout } from "@/components/PartnerLayout";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/Home";

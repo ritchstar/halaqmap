@@ -5,10 +5,11 @@ export type PartnerAssistantMessage = {
   content: string;
 };
 
-const DEFAULT_ENDPOINT = '/api/partner-assistant-chat';
+/** مسار API الافتراضي للمساعد — يجب أن يطابق دالة Vercel `api/partner-assistant-chat`. */
+export const PARTNER_ASSISTANT_CHAT_API_PATH = '/api/partner-assistant-chat';
 
 function endpoint(): string {
-  return String(import.meta.env.VITE_PARTNER_ASSISTANT_CHAT_URL || DEFAULT_ENDPOINT).trim();
+  return String(import.meta.env.VITE_PARTNER_ASSISTANT_CHAT_URL || PARTNER_ASSISTANT_CHAT_API_PATH).trim();
 }
 
 /** يزيل فقاعات المساعد الأولى حتى يبدأ الطلب بـ user (مطلوب لبعض المزودين). */

@@ -5,6 +5,7 @@ import { ROUTE_PATHS } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
+/** المساعد الحيّ (OpenAI/Anthropic) — المكوّن الوحيد؛ لا يوجد مسار استيراد قديم. */
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 

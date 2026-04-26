@@ -50,6 +50,7 @@
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <!-- ?v= يقلّل احتمال كاش قديم أثناء التطوير؛ الإنتاج يُضاف لها query على /assets/* عبر vite.config.ts -->
+    <script type="module" src="/src/main.tsx?v=2"></script>
   </body>
 </html>
