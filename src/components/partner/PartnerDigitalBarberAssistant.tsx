@@ -220,7 +220,7 @@ export function PartnerDigitalBarberAssistant() {
           transition={{ type: 'spring', stiffness: 380, damping: 28 }}
         >
         <span className="sr-only">
-          {open ? 'إغلاق المساعد' : 'فتح مساعد حلاق ماب'} — {ASSISTANT_DISPLAY_NAME}
+          {open ? 'إغلاق المساعد' : 'فتح مساعد الشركاء'} — {ASSISTANT_DISPLAY_NAME}
         </span>
         <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-cyan-600">
           <Smile className="h-6 w-6" strokeWidth={2.25} aria-hidden />
