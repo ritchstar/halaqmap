@@ -3,6 +3,20 @@ import { registerSW } from 'virtual:pwa-register'
 // مساعد الشركاء (الذكاء الاصطناعي + v2) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
 import App from './App.tsx'
 import './index.css'
+import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
+import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
+
+if (import.meta.env.DEV) {
+  console.info(`[halaqmap] Partner assistant UI v${PARTNER_ASSISTANT_UI_VERSION}`)
+  void fetch(PARTNER_ASSISTANT_CHAT_API_PATH, { method: 'GET' })
+    .then(async (r) => {
+      const j = (await r.json().catch(() => ({}))) as Record<string, unknown>
+      console.info('[halaqmap] partner-assistant-chat GET', { status: r.status, body: j })
+    })
+    .catch((err) => {
+      console.warn('[halaqmap] partner-assistant-chat GET failed (تأكد من proxy /api في التطوير)', err)
+    })
+}
 
 function reloadForNewBuild() {
   window.location.reload()

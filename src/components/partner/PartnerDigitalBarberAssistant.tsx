@@ -7,11 +7,12 @@ import { PARTNER_DIGITAL_ASSISTANT, partnerAssistantHintForPath } from '@/lib/pa
 import { ROUTE_PATHS } from '@/lib';
 import { Input } from '@/components/ui/input';
 import { askPartnerAssistant, type PartnerAssistantMessage } from '@/lib/partnerAssistantRemote';
+import { PARTNER_ASSISTANT_UI_VERSION } from '@/lib/partnerAssistantUiVersion';
+import { APP_BUILD } from '@/lib/appBuild';
 
 const MAX_CHAT_TURNS = 16;
 
-/** لقب العرض + (v2) للتأكد من وصول النشر الحيّ إلى آخر build. */
-const ASSISTANT_DISPLAY_NAME = `${PARTNER_DIGITAL_ASSISTANT.name} (v2)`;
+const ASSISTANT_DISPLAY_NAME = `${PARTNER_DIGITAL_ASSISTANT.name} (v${PARTNER_ASSISTANT_UI_VERSION})`;
 
 export function PartnerDigitalBarberAssistant() {
   const { pathname } = useLocation();
@@ -68,6 +69,7 @@ export function PartnerDigitalBarberAssistant() {
     <div
       className="pointer-events-none fixed bottom-4 left-4 z-[60] flex flex-col items-start sm:bottom-6 sm:left-6"
       data-partner-assistant-v2="1"
+      data-partner-assistant-ui-version={PARTNER_ASSISTANT_UI_VERSION}
     >
       <AnimatePresence>
         {open ? (
@@ -119,6 +121,15 @@ export function PartnerDigitalBarberAssistant() {
               >
                 <X className="h-4 w-4" />
               </Button>
+            </div>
+            <div className="flex shrink-0 justify-end border-b border-white/10 px-4 py-2">
+              <span
+                className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-1 text-[10px] font-semibold tracking-tight text-emerald-100"
+                dir="ltr"
+                title={`بناء الواجهة ${APP_BUILD.builtAtIso}`}
+              >
+                Assistant v{PARTNER_ASSISTANT_UI_VERSION} · build {APP_BUILD.commit}
+              </span>
             </div>
 
             <div className="min-h-0 flex-1 space-y-3 px-4 py-3 text-sm leading-6 text-slate-100">
@@ -205,7 +216,7 @@ export function PartnerDigitalBarberAssistant() {
           className="pointer-events-none absolute -top-1 z-[61] rounded-md bg-emerald-300 px-1.5 py-0.5 text-[10px] font-extrabold leading-none text-[#04210f] shadow ring-1 ring-emerald-800/30 end-0"
           aria-hidden
         >
-          v2
+          v{PARTNER_ASSISTANT_UI_VERSION}
         </span>
         <motion.button
           type="button"
