@@ -11,7 +11,7 @@ import { askPartnerAssistant, type PartnerAssistantMessage } from '@/lib/partner
 const MAX_CHAT_TURNS = 16;
 
 /** لقب العرض + (v2) للتأكد من وصول النشر الحيّ إلى آخر build. */
-const ASSISTANT_DISPLAY_NAME = 'مساعد الشركاء الرقمي (v2)';
+const ASSISTANT_DISPLAY_NAME = `${PARTNER_DIGITAL_ASSISTANT.name} (v2)`;
 
 export function PartnerDigitalBarberAssistant() {
   const { pathname } = useLocation();
@@ -65,7 +65,10 @@ export function PartnerDigitalBarberAssistant() {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-4 left-4 z-[60] flex flex-col items-start sm:bottom-6 sm:left-6">
+    <div
+      className="pointer-events-none fixed bottom-4 left-4 z-[60] flex flex-col items-start sm:bottom-6 sm:left-6"
+      data-partner-assistant-v2="1"
+    >
       <AnimatePresence>
         {open ? (
           <motion.aside
@@ -77,10 +80,10 @@ export function PartnerDigitalBarberAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className="pointer-events-auto mb-3 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-2xl border border-emerald-400/35 bg-[#071426]/95 text-right shadow-[0_20px_50px_-12px_rgba(0,0,0,0.55)] backdrop-blur-md"
+            className="pointer-events-auto mb-3 flex max-h-[min(88dvh,36rem)] w-[min(100vw-2rem,22rem)] flex-col overflow-y-auto overflow-x-hidden overscroll-contain rounded-2xl border border-emerald-400/35 bg-[#071426]/95 text-right shadow-[0_20px_50px_-12px_rgba(0,0,0,0.55)] backdrop-blur-md"
             dir="rtl"
           >
-            <div className="flex items-start justify-between gap-2 border-b border-white/10 bg-gradient-to-l from-emerald-500/15 to-transparent px-4 py-3">
+            <div className="flex shrink-0 items-start justify-between gap-2 border-b border-white/10 bg-gradient-to-l from-emerald-500/15 to-transparent px-4 py-3">
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-600 text-white shadow-lg ring-2 ring-white/20">
                   <Smile className="h-6 w-6" strokeWidth={2.25} aria-hidden />
@@ -118,14 +121,14 @@ export function PartnerDigitalBarberAssistant() {
               </Button>
             </div>
 
-            <div className="space-y-3 px-4 py-3 text-sm leading-6 text-slate-100">
+            <div className="min-h-0 flex-1 space-y-3 px-4 py-3 text-sm leading-6 text-slate-100">
               <p className="font-semibold text-amber-100/95">{PARTNER_DIGITAL_ASSISTANT.greeting}</p>
               <p className="text-slate-200/95">{PARTNER_DIGITAL_ASSISTANT.welcome}</p>
               <p className="rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-xs leading-5 text-emerald-100/90">
                 {routeHint}
               </p>
               <div className="rounded-xl border border-white/15 bg-black/25 p-2">
-                <div className="max-h-52 space-y-2 overflow-y-auto px-1 py-1">
+                <div className="max-h-40 space-y-2 overflow-y-auto px-1 py-1 sm:max-h-52">
                   {messages.map((m, idx) => (
                     <div
                       key={`${m.role}-${idx}-${m.content.slice(0, 24)}`}

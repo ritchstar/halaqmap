@@ -257,7 +257,7 @@ export const PARTNER_STORY_PAGE = {
 
 /** مساعد الشركاء — ترحيب ونصائح قصيرة */
 export const PARTNER_DIGITAL_ASSISTANT = {
-  name: 'مساعد حلاق ماب',
+  name: 'مساعد الشركاء الرقمي',
   role: 'حلاق رقمي',
   greeting: 'أهلًا بك في مسار الشركاء',
   welcome:
