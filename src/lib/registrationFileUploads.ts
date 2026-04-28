@@ -74,7 +74,7 @@ function safeFileSegment(name: string): string {
  * `VITE_REGISTRATION_API_ORIGIN=https://your-app.vercel.app` (بدون شرطة أخيرة).
  */
 function registrationApiOrigin(): string {
-  return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
+  return String(import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
     .trim()
     .replace(/\/$/, '');
 }
@@ -86,16 +86,20 @@ function absoluteOrRelativeApiUrl(path: string): string {
   return `${origin}${clean}`;
 }
 
+function registerApiPath(suffix: 'upload-file' | 'signed-upload'): string {
+  return ['', 'api', `register-${suffix}`].join('/');
+}
+
 function registrationUploadEndpoint(): string {
   const explicit = import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim();
   if (explicit) return explicit;
-  return absoluteOrRelativeApiUrl('/api/register-upload-file');
+  return absoluteOrRelativeApiUrl(registerApiPath('upload-file'));
 }
 
 function registrationSignedUploadEndpoint(): string {
   const explicit = import.meta.env.VITE_REGISTRATION_SIGNED_URL?.trim();
   if (explicit) return explicit;
-  return absoluteOrRelativeApiUrl('/api/register-signed-upload');
+  return absoluteOrRelativeApiUrl(registerApiPath('signed-upload'));
 }
 
 function getBrowserSupabaseAnonKey(): string {

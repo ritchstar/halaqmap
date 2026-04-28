@@ -2,7 +2,10 @@ import type { SubscriptionRequest } from '@/lib/index';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 
 const TABLE = 'registration_submissions';
-const SERVER_INSERT_URL = '/api/register-submission';
+const API_BASE = String(import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '');
+const SERVER_INSERT_URL = API_BASE
+  ? `${API_BASE}/api/register-submission`
+  : ['', 'api', 'register-submission'].join('/');
 
 const LRI = '\u2066';
 const PDI = '\u2069';

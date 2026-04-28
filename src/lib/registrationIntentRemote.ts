@@ -4,7 +4,7 @@
  */
 
 function registrationApiOrigin(): string {
-  return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
+  return String(import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
     .trim()
     .replace(/\/$/, '');
 }
@@ -14,7 +14,7 @@ function mintIntentEndpoint(): string {
   if (explicit) return explicit;
   const origin = registrationApiOrigin();
   if (origin) return `${origin}/api/register-mint-intent`;
-  return '/api/register-mint-intent';
+  return ['', 'api', 'register-mint-intent'].join('/');
 }
 
 function anonHeaders(): Record<string, string> {
