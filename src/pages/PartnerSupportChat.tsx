@@ -33,6 +33,7 @@ import {
 } from '@/lib/partnerSupportChat';
 
 const QUERY_KEY = 't';
+const PARTNER_SUPPORT_WA_E164 = '966559602685';
 
 function Bubble({
   side,
@@ -129,15 +130,17 @@ export default function PartnerSupportChat() {
     setMessages(afterVisitor);
     setDraft('');
 
-    window.setTimeout(() => {
-      const live = getOrCreatePartnerSupportSession(threadToken);
-      if (isPartnerSupportExpired(live)) return;
-      const reply =
-        'شكراً لتواصلك مع دعم شركاء حلاق ماب. تم استلام رسالتك وسيُراجعها الفريق خلال أوقات العمل. للاستعجال يمكنك متابعة الطلب عبر واتساب الرسمي أو البريد admin@halaqmap.com مع ذكر رابط هذه الصفحة.';
-      const afterReply = appendPartnerSupportMessage(threadToken, live, 'support', reply);
-      setMessages(afterReply);
-    }, 950);
-  }, [draft, session, threadToken]);
+    const waText = [
+      'مرحباً فريق حلاق ماب — رسالة من «استوديو دعم الشركاء» (شريك محتمل):',
+      '',
+      text,
+      '',
+      `رابط الجلسة: ${privateChatUrl}`,
+    ].join('\n');
+    const waUrl = `https://wa.me/${PARTNER_SUPPORT_WA_E164}?text=${encodeURIComponent(waText)}`;
+    const opened = window.open(waUrl, '_blank', 'noopener,noreferrer');
+    if (!opened) window.location.href = waUrl;
+  }, [draft, privateChatUrl, session, threadToken]);
 
   const startNewSession = useCallback(() => {
     if (!threadToken) return;
@@ -194,9 +197,10 @@ export default function PartnerSupportChat() {
               <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <div className="space-y-2">
                 <p>
-                  <span className="font-semibold text-foreground">الخصوصية:</span> الرسائل تُخزَّن محلياً في
-                  متصفحك ضمن مفتاح يربط رابطك فقط بهذه الجلسة. لا تُرسل إلى خوادم حلاق ماب ضمن هذا النموذج؛
-                  للمعاملات الحساسة استخدم قنوات رسمية مشفّرة.
+                  <span className="font-semibold text-foreground">الخصوصية:</span> عند الضغط على «إرسال» نفتح لك
+                  واتساب الرسمي مع نص جاهز يتضمن رابط جلستك. تبقى نسخة مختصرة من رسالتك محلياً في متصفحك ضمن
+                  مفتاح يربط رابطك فقط بهذه الجلسة (للعرض هنا فقط). للمعاملات الحساسة استخدم قنوات رسمية
+                  مشفّرة.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="secondary" size="sm" className="gap-1.5" onClick={copyPrivateLink}>
@@ -269,7 +273,14 @@ export default function PartnerSupportChat() {
                         }
                       }}
                     />
-                    <Button type="button" size="icon" className="h-10 w-10 shrink-0" onClick={sendMessage} disabled={!draft.trim()}>
+                    <Button
+                      type="button"
+                      size="icon"
+                      className="h-10 w-10 shrink-0"
+                      onClick={sendMessage}
+                      disabled={!draft.trim()}
+                      title="إرسال عبر واتساب"
+                    >
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>
