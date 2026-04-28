@@ -16,6 +16,29 @@ import _traverse from '@babel/traverse';
 import _generate from '@babel/generator';
 import * as t from '@babel/types';
 
+const projectRoot = nodePath.dirname(fileURLToPath(import.meta.url));
+const pkgJson = JSON.parse(
+  readFileSync(nodePath.join(projectRoot, 'package.json'), 'utf-8')
+) as { version?: string };
+const webAppManifest = JSON.parse(
+  readFileSync(nodePath.join(projectRoot, 'manifest.json'), 'utf-8')
+) as Record<string, unknown>;
+
+function resolveGitShortCommit(): string {
+  const full =
+    process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.VITE_BUILD_COMMIT?.trim();
+  if (full) return full.length > 7 ? full.slice(0, 7) : full;
+  try {
+    return execSync('git rev-parse --short HEAD', {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+    }).trim();
+  } catch {
+    return 'dev';
+  }
+}
+
+const appBuildTimeIso = new Date().toISOString();
 
 // CJS/ESM interop for Babel libs
 const traverse: typeof _traverse.default = ( (_traverse as any).default ?? _traverse ) as any;
@@ -26,14 +49,27 @@ function indexHtmlAssetCacheBustPlugin(): Plugin {
   return {
     name: 'index-html-asset-cache-bust',
     apply: 'build',
+    enforce: 'post',
     transformIndexHtml(html) {
       const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '2').trim();
       const q = raw.length > 0 ? raw : '2';
       const suffix = `?v=${encodeURIComponent(q)}`;
-      return html
+      let out = html
         .replace(/src="(\/assets\/[^"?]+\.js)"/g, `src="$1${suffix}"`)
         .replace(/href="(\/assets\/[^"?]+\.js)"/g, `href="$1${suffix}"`)
         .replace(/href="(\/assets\/[^"?]+\.css)"/g, `href="$1${suffix}"`);
+      const escAttr = (s: string) =>
+        s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      const commit = escAttr(resolveGitShortCommit());
+      const buildTime = escAttr(new Date().toISOString());
+      const qEsc = escAttr(q);
+      if (!out.includes('name="halaqmap-build-commit"')) {
+        out = out.replace(
+          '<head>',
+          `<head>\n    <meta name="halaqmap-build-commit" content="${commit}" />\n    <meta name="halaqmap-build-time" content="${buildTime}" />\n    <meta name="halaqmap-asset-query" content="${qEsc}" />`
+        );
+      }
+      return out;
     },
   };
 }
@@ -226,30 +262,6 @@ function cdnPrefixImages(): Plugin {
   };
 }
 
-const projectRoot = nodePath.dirname(fileURLToPath(import.meta.url));
-const pkgJson = JSON.parse(
-  readFileSync(nodePath.join(projectRoot, 'package.json'), 'utf-8')
-) as { version?: string };
-const webAppManifest = JSON.parse(
-  readFileSync(nodePath.join(projectRoot, 'manifest.json'), 'utf-8')
-) as Record<string, unknown>;
-
-function resolveGitShortCommit(): string {
-  const full =
-    process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.VITE_BUILD_COMMIT?.trim();
-  if (full) return full.length > 7 ? full.slice(0, 7) : full;
-  try {
-    return execSync('git rev-parse --short HEAD', {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-    }).trim();
-  } catch {
-    return 'dev';
-  }
-}
-
-const appBuildTimeIso = new Date().toISOString();
-
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
@@ -289,6 +301,7 @@ export default defineConfig(({ mode }) => {
         workbox: {
           skipWaiting: true,
           clientsClaim: true,
+          cleanupOutdatedCaches: true,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
           globIgnores: ['**/halaqmap_barber_banner_*.png'],
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
