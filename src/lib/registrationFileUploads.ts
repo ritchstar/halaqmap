@@ -21,7 +21,13 @@ function ltrBlock(lines: string[]): string {
 export function registrationUploadErrorForToast(serverMessage: string): string {
   const m = serverMessage.toLowerCase();
 
-  if (m.includes('bucket not found') || m.includes('bucket does not exist')) {
+  if (
+    m.includes('bucket not found') ||
+    m.includes('bucket does not exist') ||
+    (m.includes('bucket') && m.includes('not found')) ||
+    m.includes('could not find') ||
+    m.includes('does not exist')
+  ) {
     return (
       'تعذّر رفع الملفات إلى السيرفر.\n' +
       'سبب محتمل: حاوية تخزين مرفقات التسجيل غير مُنشأة في المشروع.\n\n' +
@@ -29,6 +35,8 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
       ltrBlock([
         'SQL Editor — paste and run:',
         '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
+        'Or run the focused migration:',
+        '  supabase/migrations/17_registration_uploads_storage.sql',
       ])
     );
   }

@@ -3,6 +3,10 @@ import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto.js';
 import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import {
+  probeRegistrationUploadsBucket,
+  registrationUploadsBucketFailureHint,
+} from './_lib/registrationUploadsBucketProbe.js';
 
 export const config = {
   maxDuration: 30,
@@ -41,6 +45,17 @@ export async function GET(request: Request): Promise<Response> {
   const anon = Boolean(
     (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
   );
+
+  let bucketProbe: { ok: boolean; error?: string } | null = null;
+  if (url && serviceRole) {
+    const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
+    const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    bucketProbe = await probeRegistrationUploadsBucket(supabase, BUCKET);
+  }
+
   return Response.json(
     {
       ok: true,
@@ -51,6 +66,8 @@ export async function GET(request: Request): Promise<Response> {
       registrationIntentMode: isRegistrationIntentMode(),
       ready: url && serviceRole && (isRegistrationIntentMode() || anon),
       registrationGuard: registrationGuardDiagnostics(),
+      bucket: BUCKET,
+      bucketProbe,
     },
     { headers }
   );
@@ -113,10 +130,9 @@ export async function POST(request: Request): Promise<Response> {
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(objectPath);
 
   if (error || !data?.token) {
-    return Response.json(
-      { error: error?.message || 'Could not create signed upload URL' },
-      { status: 500, headers }
-    );
+    const message = error?.message || 'Could not create signed upload URL';
+    const hint = registrationUploadsBucketFailureHint({ bucketId: BUCKET, errorMessage: message });
+    return Response.json({ error: message, ...(hint ? { hint } : {}) }, { status: 500, headers });
   }
 
   return Response.json(
