@@ -40,40 +40,53 @@ export async function OPTIONS(request: Request): Promise<Response> {
 
 /** تشخيص بلا أسرار — افتح في المتصفح: /api/register-upload-file */
 export async function GET(request: Request): Promise<Response> {
-  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
-  if (blocked) return blocked;
-  const headers = corsHeaders(request);
-  const url = Boolean((process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim());
-  const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
-  const anon = Boolean(
-    (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
-  );
+  try {
+    const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+    if (blocked) return blocked;
+    const headers = corsHeaders(request);
+    const url = Boolean((process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim());
+    const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
+    const anon = Boolean(
+      (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
+    );
 
-  let bucketProbe: { ok: boolean; error?: string } | null = null;
-  if (url && serviceRole) {
-    const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
-    const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-    bucketProbe = await probeRegistrationUploadsBucket(supabase, BUCKET);
+    let bucketProbe: { ok: boolean; error?: string } | { ok: false; error: string; probeFailed: true } | null = null;
+    if (url && serviceRole) {
+      try {
+        const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
+        const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+        const supabase = createClient(supabaseUrl, supabaseKey, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        });
+        bucketProbe = await probeRegistrationUploadsBucket(supabase, BUCKET);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        bucketProbe = { ok: false, error: msg, probeFailed: true };
+      }
+    }
+
+    return Response.json(
+      {
+        ok: true,
+        route: 'register-upload-file',
+        supabaseUrlSet: url,
+        serviceRoleKeySet: serviceRole,
+        anonKeySetForVerification: anon,
+        registrationIntentMode: isRegistrationIntentMode(),
+        ready: url && serviceRole && (isRegistrationIntentMode() || anon),
+        registrationGuard: registrationGuardDiagnostics(),
+        bucket: BUCKET,
+        bucketProbe,
+      },
+      { headers }
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return Response.json(
+      { ok: false, route: 'register-upload-file', stage: 'GET', error: msg },
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
-
-  return Response.json(
-    {
-      ok: true,
-      route: 'register-upload-file',
-      supabaseUrlSet: url,
-      serviceRoleKeySet: serviceRole,
-      anonKeySetForVerification: anon,
-      registrationIntentMode: isRegistrationIntentMode(),
-      ready: url && serviceRole && (isRegistrationIntentMode() || anon),
-      registrationGuard: registrationGuardDiagnostics(),
-      bucket: BUCKET,
-      bucketProbe,
-    },
-    { headers }
-  );
 }
 
 export async function POST(request: Request): Promise<Response> {
