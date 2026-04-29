@@ -7,6 +7,7 @@ import {
   probeRegistrationUploadsBucket,
   registrationUploadsBucketFailureHint,
 } from './_lib/registrationUploadsBucketProbe.js';
+import { isLikelyHttpUrl, normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 
 export const config = {
   maxDuration: 30,
@@ -41,18 +42,19 @@ export async function GET(request: Request): Promise<Response> {
     const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
     if (blocked) return blocked;
     const headers = corsHeaders(request);
-    const url = Boolean((process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim());
+    const supabaseUrlRaw = normalizeSupabaseUrl(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL);
+    const url = Boolean(supabaseUrlRaw);
+    const supabaseUrlValid = Boolean(supabaseUrlRaw && isLikelyHttpUrl(supabaseUrlRaw));
     const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
     const anon = Boolean(
       (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
     );
 
     let bucketProbe: { ok: boolean; error?: string } | { ok: false; error: string; probeFailed: true } | null = null;
-    if (url && serviceRole) {
+    if (url && serviceRole && supabaseUrlValid) {
       try {
-        const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
         const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-        const supabase = createClient(supabaseUrl, supabaseKey, {
+        const supabase = createClient(supabaseUrlRaw, supabaseKey, {
           auth: { persistSession: false, autoRefreshToken: false },
         });
         bucketProbe = await probeRegistrationUploadsBucket(supabase, BUCKET);
@@ -67,10 +69,11 @@ export async function GET(request: Request): Promise<Response> {
         ok: true,
         route: 'register-signed-upload',
         supabaseUrlSet: url,
+        supabaseUrlValid,
         serviceRoleKeySet: serviceRole,
         anonKeySetForVerification: anon,
         registrationIntentMode: isRegistrationIntentMode(),
-        ready: url && serviceRole && (isRegistrationIntentMode() || anon),
+        ready: supabaseUrlValid && serviceRole && (isRegistrationIntentMode() || anon),
         registrationGuard: registrationGuardDiagnostics(),
         bucket: BUCKET,
         bucketProbe,
@@ -99,7 +102,7 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 
-  const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
+  const url = normalizeSupabaseUrl(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL);
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   const expectedAnon = (
     process.env.VITE_SUPABASE_ANON_KEY ||
@@ -110,6 +113,16 @@ export async function POST(request: Request): Promise<Response> {
   if (!url || !serviceRole) {
     return Response.json(
       { error: 'Server not configured (SUPABASE_SERVICE_ROLE_KEY / URL)' },
+      { status: 503, headers }
+    );
+  }
+
+  if (!isLikelyHttpUrl(url)) {
+    return Response.json(
+      {
+        error: 'Invalid Supabase URL',
+        hint: 'Set SUPABASE_URL (or VITE_SUPABASE_URL) to a full https://<ref>.supabase.co URL on Vercel. Remove quotes/spaces.',
+      },
       { status: 503, headers }
     );
   }
