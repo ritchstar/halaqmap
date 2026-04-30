@@ -1711,6 +1711,13 @@ function RequestReviewDialog({
         description: upsert.warning,
       });
     }
+    if (upsert.shopOpenQuickHashLink) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      toast({
+        title: 'رابط حالة المحل للصالون',
+        description: `${origin}${upsert.shopOpenQuickHashLink} — أرسله للحلاق (مفيد للبرونزي دون لوحة تحكم).`,
+      });
+    }
     const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
       status: 'approved',
       adminAccountState: 'active',

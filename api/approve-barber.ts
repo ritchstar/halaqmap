@@ -174,11 +174,39 @@ export async function POST(request: Request): Promise<Response> {
     }
   }
 
+  /** رمز صفحة خفيفة لتبديل «مفتوح/مغلق» للعملاء (مفيد للبرونزي دون لوحة تحكم) */
+  let shopOpenQuickHashLink: string | undefined;
+  const { data: ostRow, error: ostErr } = await supabase
+    .from('barbers')
+    .select('open_status_token')
+    .eq('id', barberId)
+    .maybeSingle();
+  if (!ostErr && ostRow) {
+    let tok = String((ostRow as { open_status_token?: string | null }).open_status_token ?? '').trim();
+    if (!tok) {
+      const bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      tok = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      const { error: ostUpErr } = await supabase.from('barbers').update({ open_status_token: tok }).eq('id', barberId);
+      if (ostUpErr) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[approve-barber] open_status_token:', ostUpErr.message);
+        }
+      }
+    }
+    const { data: ostAgain } = await supabase.from('barbers').select('open_status_token').eq('id', barberId).maybeSingle();
+    const finalTok = String((ostAgain as { open_status_token?: string | null } | null)?.open_status_token ?? '').trim();
+    if (finalTok) {
+      shopOpenQuickHashLink = `/#/partners/shop-open?t=${encodeURIComponent(finalTok)}`;
+    }
+  }
+
   return Response.json(
     {
       ok: true,
       barberId,
       memberNumber,
+      ...(shopOpenQuickHashLink ? { shopOpenQuickHashLink } : {}),
       ...(skippedInclusiveCareDueToSchema
         ? {
             warning:

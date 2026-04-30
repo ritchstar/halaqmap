@@ -133,6 +133,15 @@ export default function RegisterSuccess() {
               )}
             </div>
 
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
+              <p className="font-semibold text-foreground mb-1">حالة «مفتوح / مغلق» على الخريطة</p>
+              <p className="text-muted-foreground">
+                بعد اعتماد اشتراكك، يوفّر فريق المنصة لصالونك رابطاً سرياً خفيفاً لتحديث أيقونة العملاء على الخريطة دون
+                لوحة تحكم كاملة — مفيد خصوصاً لباقة البرونزي. في الباقات الذهبية والماسية يتوفر التبديل أيضاً من لوحة
+                التحكم مع بقاء نفس الرابط احتياطاً.
+              </p>
+            </div>
+
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground leading-relaxed">
                 يمكنك تحميل ملف نصي يحتوي تفاصيل طلبك، أو فتح بريدك لإرسال نسخة لنفسك. إرفاق الملفات

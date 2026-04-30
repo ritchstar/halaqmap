@@ -202,7 +202,8 @@ export async function findDuplicateBarbersByContact(
 export async function upsertBarberFromApprovedRequest(
   request: SubscriptionRequest
 ): Promise<
-  { ok: true; barberId: string; memberNumber: number | null; warning?: string } | { ok: false; error: string }
+  | { ok: true; barberId: string; memberNumber: number | null; warning?: string; shopOpenQuickHashLink?: string }
+  | { ok: false; error: string }
 > {
   const row = {
     name: request.barberName.trim() || 'صالون بدون اسم',
@@ -267,6 +268,7 @@ export async function upsertBarberFromApprovedRequest(
           memberNumber?: number | null;
           error?: string;
           warning?: string;
+          shopOpenQuickHashLink?: string;
         };
         return { resp, json };
       };
@@ -284,7 +286,17 @@ export async function upsertBarberFromApprovedRequest(
         const memberNumber =
           mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
         const warning = typeof json.warning === 'string' && json.warning.trim() ? json.warning.trim() : undefined;
-        return { ok: true, barberId: json.barberId, memberNumber, ...(warning ? { warning } : {}) };
+        const shopOpenQuickHashLink =
+          typeof json.shopOpenQuickHashLink === 'string' && json.shopOpenQuickHashLink.trim()
+            ? json.shopOpenQuickHashLink.trim()
+            : undefined;
+        return {
+          ok: true,
+          barberId: json.barberId,
+          memberNumber,
+          ...(warning ? { warning } : {}),
+          ...(shopOpenQuickHashLink ? { shopOpenQuickHashLink } : {}),
+        };
       }
       // إن لم يكن مسار السيرفر متاحاً بعد، نرجع fallback.
       if (resp.status !== 404 && resp.status !== 405 && resp.status !== 503) {

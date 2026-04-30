@@ -10,6 +10,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/Home";
 import Register from "@/pages/Register";
 import RegisterSuccess from "@/pages/RegisterSuccess";
+import ShopOpenStatus from "@/pages/ShopOpenStatus";
 import About from "@/pages/About";
 import BarberGrowthLanding from "@/pages/BarberGrowthLanding";
 import PartnerInterestLanding from "@/pages/PartnerInterestLanding";
@@ -82,6 +83,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PARTNER_STORY} element={<PartnerLayout><PartnerStoryPage /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><Register /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<PartnerLayout><RegisterSuccess /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><ShopOpenStatus /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><PartnerPrivacy /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><SubscriptionPolicy /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<PartnerLayout><BarberLogin /></PartnerLayout>} />

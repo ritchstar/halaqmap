@@ -190,6 +190,7 @@ export async function GET(request: Request): Promise<Response> {
       inclusive_care_restrict_days,
       inclusive_care_days,
       inclusive_care_customer_note,
+      open_for_customers,
       user_id
       `
     )

@@ -9,6 +9,8 @@ import {
   BARBER_DASHBOARD_GOLD_LINE,
   BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
   MAP_FEATURE_HERO,
+  SHOP_OPEN_STATUS_FEATURE_BRONZE,
+  SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from "@/config/subscriptionPlanHero";
 import { RATING_QR_PLAN_LINE } from "@/config/ratingQrInvite";
 import { usePlatformVatSettings } from "@/hooks/usePlatformVatSettings";
@@ -37,6 +39,7 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: "رقم الهاتف وبيانات التواصل من بطاقة المحل" },
         { kind: "text", value: "ظهور في نتائج البحث" },
         { kind: "text", value: "تحديث المعلومات الأساسية" },
+        { kind: "text", value: SHOP_OPEN_STATUS_FEATURE_BRONZE },
       ],
     },
     {
@@ -56,6 +59,7 @@ export default function SubscriptionPolicy() {
         { kind: "text", value: "جلسة شات خاصة لكل عميل تنتهي تلقائياً بعد 60 دقيقة لخصوصية أعلى" },
         { kind: "text", value: "أولوية في نتائج البحث" },
         { kind: "text", value: "إحصائيات المشاهدات" },
+        { kind: "text", value: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
         { kind: "text", value: BARBER_DASHBOARD_GOLD_LINE },
         {
           kind: "text",

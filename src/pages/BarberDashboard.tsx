@@ -25,6 +25,7 @@ import {
   UserX,
   Loader2,
   Shield,
+  Store,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,6 +67,7 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { refreshBarberPortalSessionRemote, type BarberPortalSession } from '@/lib/barberPortalLoginRemote';
+import { buildShopOpenManageHashLink, setBarberShopOpenStatusRemote } from '@/lib/barberShopOpenStatusRemote';
 import {
   updateBarberInclusiveCareRemote,
   mergeInclusiveCareDaysFromSnapshot,
@@ -137,6 +139,7 @@ export default function BarberDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
   const [barberData, setBarberData] = useState<BarberPortalSession | null>(null);
+  const [shopOpenSaving, setShopOpenSaving] = useState(false);
   const [scheduleItems, setScheduleItems] = useState<BarberDashboardScheduleItem[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [chatThreads, setChatThreads] = useState<BarberChatThread[]>([]);
@@ -181,6 +184,8 @@ export default function BarberDashboard() {
         subscription: tier,
         ratingInviteToken: parsed.ratingInviteToken ?? '',
         memberNumber,
+        openForCustomers: (parsed as { openForCustomers?: boolean }).openForCustomers !== false,
+        openStatusToken: String((parsed as { openStatusToken?: string }).openStatusToken ?? '').trim(),
         inclusiveCare: (parsed as { inclusiveCare?: BarberPortalInclusiveCareSnapshot }).inclusiveCare,
       });
     } catch {
@@ -258,22 +263,24 @@ export default function BarberDashboard() {
   const applyPortalSession = useCallback((next: BarberPortalSession) => {
     setBarberData((prev) => {
       if (!prev) return prev;
-      if (
-        prev.name === next.name &&
-        prev.phone === next.phone &&
-        prev.subscription === next.subscription &&
-        prev.ratingInviteToken === next.ratingInviteToken &&
-        prev.memberNumber === next.memberNumber
-      ) {
-        return prev;
+      const merged: BarberPortalSession = { ...prev, ...next };
+      const same =
+        prev.name === merged.name &&
+        prev.phone === merged.phone &&
+        prev.subscription === merged.subscription &&
+        prev.ratingInviteToken === merged.ratingInviteToken &&
+        prev.memberNumber === merged.memberNumber &&
+        prev.openForCustomers === merged.openForCustomers &&
+        prev.openStatusToken === merged.openStatusToken &&
+        JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null);
+      if (same) return prev;
+      try {
+        localStorage.setItem('barberAuth', JSON.stringify({ ...merged, loggedIn: true }));
+      } catch {
+        /* ignore */
       }
-      return next;
+      return merged;
     });
-    try {
-      localStorage.setItem('barberAuth', JSON.stringify({ ...next, loggedIn: true }));
-    } catch {
-      /* ignore */
-    }
   }, []);
 
   const syncPortalSessionFromServer = useCallback(async () => {
@@ -571,6 +578,94 @@ export default function BarberDashboard() {
                 />
                 <StatsCard title="المشاهدات" value={statsZeros.totalViews} icon={Eye} color="purple" />
               </div>
+
+              <Card className="mt-6 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
+                    <Store className="h-5 w-5 text-primary" />
+                    حالة «مفتوح / مغلق» للعملاء
+                  </CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    يتحكم هذا الخيار في أيقونة الخريطة التي يراها العملاء. الباقة البرونزية لا تملك لوحة تحكم — لذلك يُوفَّر
+                    لها <strong>رابط سري</strong> من الإدارة بعد الاعتماد (يمكنك نسخه أدناه لمشاركته مع المحل).
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col gap-3 rounded-xl border border-border/80 bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1 text-right">
+                      <p className="text-sm font-semibold">قبول العملاء الآن على الخريطة</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء اشتراكك عن المنصة.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={barberData.openForCustomers !== false}
+                      disabled={shopOpenSaving}
+                      onCheckedChange={async (v) => {
+                        const token = barberData.openStatusToken?.trim() || '';
+                        if (!token) {
+                          toast.error(
+                            'لم يُحمّل رمز صفحة الفتح بعد. حدّث الصفحة، أو نفّذ ترحيل قاعدة البيانات 46 ثم أعد الاعتماد من الإدارة.'
+                          );
+                          return;
+                        }
+                        setShopOpenSaving(true);
+                        const prevOpen = barberData.openForCustomers !== false;
+                        setBarberData((d) => (d ? { ...d, openForCustomers: v } : d));
+                        const r = await setBarberShopOpenStatusRemote(token, v);
+                        setShopOpenSaving(false);
+                        if (!r.ok) {
+                          setBarberData((d) => (d ? { ...d, openForCustomers: prevOpen } : d));
+                          toast.error(r.error);
+                          return;
+                        }
+                        setBarberData((d) => {
+                          if (!d) return d;
+                          const next = { ...d, openForCustomers: v };
+                          try {
+                            localStorage.setItem('barberAuth', JSON.stringify({ ...next, loggedIn: true }));
+                          } catch {
+                            /* ignore */
+                          }
+                          return next;
+                        });
+                        toast.success(
+                          v ? 'تم ضبط المحل كـ «مفتوح» للعملاء على الخريطة.' : 'تم ضبط المحل كـ «مغلق» للعملاء على الخريطة.'
+                        );
+                      }}
+                      className="shrink-0 sm:mr-auto"
+                    />
+                  </div>
+                  {barberData.openStatusToken ? (
+                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={async () => {
+                          const link = buildShopOpenManageHashLink(barberData.openStatusToken || '');
+                          if (!link) return;
+                          try {
+                            await navigator.clipboard.writeText(link);
+                            toast.success('تم نسخ رابط التبديل السريع.');
+                          } catch {
+                            toast.error('تعذر النسخ من المتصفح.');
+                          }
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                        نسخ رابط التبديل السريع
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" asChild className="text-xs">
+                        <a href={buildShopOpenManageHashLink(barberData.openStatusToken || '') || '#'} target="_blank" rel="noreferrer">
+                          فتح صفحة التبديل
+                        </a>
+                      </Button>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
 
               <Card className="mt-6">
                 <CardHeader>

@@ -39,6 +39,10 @@ export type BarberPortalSession = {
   ratingInviteToken: string;
   /** رقم عضوية ثابت على المنصة (بعد تشغيل migration member_number) */
   memberNumber: number | null;
+  /** قبول العملاء على الخريطة (مفتوح/مغلق) */
+  openForCustomers?: boolean;
+  /** رمز صفحة /partners/shop-open للتبديل بدون لوحة تحكم */
+  openStatusToken?: string;
   /** إعدادات خدمة كبار السن والمرضى وذوي الاحتياجات (من قاعدة البيانات) */
   inclusiveCare?: BarberPortalInclusiveCareSnapshot;
 };
@@ -70,6 +74,8 @@ export async function barberPortalLoginRemote(input: {
         tier: string;
         rating_invite_token?: string;
         member_number?: number | null;
+        open_for_customers?: boolean;
+        open_status_token?: string;
         inclusiveCare?: BarberPortalInclusiveCareSnapshot;
       };
     };
@@ -98,6 +104,8 @@ export async function barberPortalLoginRemote(input: {
         subscription: tierFromDb(b.tier),
         ratingInviteToken: String(b.rating_invite_token ?? ''),
         memberNumber,
+        openForCustomers: b.open_for_customers !== false,
+        openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
       },
     };
@@ -137,6 +145,8 @@ export async function refreshBarberPortalSessionRemote(input: {
         tier: string;
         rating_invite_token?: string;
         member_number?: number | null;
+        open_for_customers?: boolean;
+        open_status_token?: string;
         inclusiveCare?: BarberPortalInclusiveCareSnapshot;
       };
     };
@@ -165,6 +175,8 @@ export async function refreshBarberPortalSessionRemote(input: {
         subscription: tierFromDb(b.tier),
         ratingInviteToken: String(b.rating_invite_token ?? ''),
         memberNumber,
+        openForCustomers: b.open_for_customers !== false,
+        openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
       },
     };

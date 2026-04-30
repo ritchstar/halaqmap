@@ -53,6 +53,7 @@ type BarberRow = {
   user_id?: string | null;
   /** عند توفرها من RPC البحث الجغرافي (بدون إرجاع user_id للعميل). */
   account_linked?: boolean | null;
+  open_for_customers?: boolean | null;
   distance_km?: number | null;
   rank_score?: number | null;
 };
@@ -119,7 +120,7 @@ function mapRow(row: BarberRow): Barber {
     inclusiveAccessibleCare: mapInclusiveCareFromRow(row),
     services: [{ name: 'للاستفسار والأسعار — تواصل مباشرة', price: 0 }],
     workingHours: DEFAULT_WORKING_HOURS,
-    isOpen: row.is_active !== false,
+    isOpen: row.is_active !== false && row.open_for_customers !== false,
     verified: row.is_verified === true,
     categories,
     ...(previewListing ? { previewListing: true } : {}),
@@ -173,6 +174,7 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
       inclusive_care_restrict_days,
       inclusive_care_days,
       inclusive_care_customer_note,
+      open_for_customers,
       user_id
     `
     )
