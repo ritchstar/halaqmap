@@ -9,6 +9,9 @@ const PUBLIC_BARBERS_API = '/api/public-barbers';
 const DEFAULT_RADIUS_KM = 25;
 const DEFAULT_LIMIT = 120;
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const DEFAULT_WORKING_HOURS: Barber['workingHours'] = [
   { day: 'السبت', open: '09:00', close: '22:00' },
   { day: 'الأحد', open: '09:00', close: '22:00' },
@@ -46,6 +49,10 @@ type BarberRow = {
   inclusive_care_restrict_days?: boolean | null;
   inclusive_care_days?: unknown;
   inclusive_care_customer_note?: string | null;
+  /** يُجلب للاشتقاق فقط — لا يُمرَّر إلى كائن العرض `Barber`. */
+  user_id?: string | null;
+  /** عند توفرها من RPC البحث الجغرافي (بدون إرجاع user_id للعميل). */
+  account_linked?: boolean | null;
   distance_km?: number | null;
   rank_score?: number | null;
 };
@@ -91,6 +98,9 @@ function mapRow(row: BarberRow): Barber {
   const images = imgs.length > 0 ? imgs : [FALLBACK_IMAGE];
   const phone = row.phone?.trim() || '';
   const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];
+  const uid = row.user_id?.trim() || '';
+  const previewListing =
+    row.account_linked === false || (row.account_linked == null && (!uid || !UUID_RE.test(uid)));
 
   return {
     id: row.id,
@@ -112,6 +122,7 @@ function mapRow(row: BarberRow): Barber {
     isOpen: row.is_active !== false,
     verified: row.is_verified === true,
     categories,
+    ...(previewListing ? { previewListing: true } : {}),
   };
 }
 
@@ -161,7 +172,8 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
       inclusive_care_public_visible,
       inclusive_care_restrict_days,
       inclusive_care_days,
-      inclusive_care_customer_note
+      inclusive_care_customer_note,
+      user_id
     `
     )
     .eq('is_active', true)

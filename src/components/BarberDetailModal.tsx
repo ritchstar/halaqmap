@@ -25,6 +25,12 @@ interface BarberDetailModalProps {
 
 export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModalProps) {
   const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
+  const previewSecretMarker = barber.previewListing ? (
+    <span className="text-muted-foreground font-normal" title="إدراج معاينة">
+      {' '}
+      *
+    </span>
+  ) : null;
   const chatPreviewRef = useRef<HTMLDivElement>(null);
   const [barberReviews, setBarberReviews] = useState(() => getMergedReviewsForBarber(barber.id));
 
@@ -81,7 +87,10 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <DialogTitle className="text-2xl font-bold">{barber.name}</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                {barber.name}
+                {previewSecretMarker}
+              </DialogTitle>
               {barber.verified && (
                 <Badge variant="outline" className="flex items-center gap-1 border-primary text-primary">
                   <Shield className="w-3 h-3" />
@@ -181,6 +190,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                 }
                 barberId={barber.id}
                 barberName={barber.name}
+                previewListing={barber.previewListing}
               />
             </div>
           )}

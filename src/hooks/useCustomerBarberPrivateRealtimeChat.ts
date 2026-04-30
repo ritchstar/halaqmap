@@ -49,7 +49,7 @@ function mapRowsToUi(
 function normalizeSupabaseAuthError(message: string | null | undefined): string {
   const m = String(message || '').toLowerCase();
   if (m.includes('anonymous sign-ins are disabled') || m.includes('anonymous')) {
-    return 'الشات الحي غير متاح حالياً بسبب إعدادات المصادقة. يمكنك المتابعة عبر المعاينة المحلية حتى تفعيل الدخول المجهول في Supabase.';
+    return 'الشات الحي غير متاح حالياً بسبب إعدادات الدخول السريع للزوار. يمكنك المتابعة عبر المعاينة المحلية.';
   }
   if (m.includes('invalid login credentials') || m.includes('not authenticated')) {
     return 'تعذرت مصادقة جلسة الشات الحي حالياً. تم التحويل للمعاينة المحلية.';
@@ -136,7 +136,7 @@ export function useCustomerBarberPrivateRealtimeChat(
 
       if (!session || cancelled) {
         setStatus('auth_failed');
-        setErrorHint('لا توجد جلسة مصادقة للعميل.');
+        setErrorHint('تعذّر تجهيز جلسة الشات الحي حالياً. يمكنك المتابعة عبر المعاينة المحلية.');
         return;
       }
 

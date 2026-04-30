@@ -35,6 +35,23 @@ function clamp(num: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, num));
 }
 
+function sanitizePublicBarberRows(rows: unknown): unknown[] {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((raw) => {
+      if (!raw || typeof raw !== 'object') return null;
+      const row = { ...(raw as Record<string, unknown>) };
+      const uid = row.user_id;
+      const uidStr = typeof uid === 'string' ? uid.trim() : '';
+      if (typeof row.account_linked !== 'boolean') {
+        row.account_linked = Boolean(uidStr);
+      }
+      delete row.user_id;
+      return row;
+    })
+    .filter(Boolean);
+}
+
 export async function OPTIONS(request: Request): Promise<Response> {
   return publicApiOptionsResponse(request, CORS_OPTS);
 }
@@ -145,7 +162,7 @@ export async function GET(request: Request): Promise<Response> {
     if (error) {
       return Response.json({ error: error.message }, { status: 500, headers });
     }
-    return Response.json({ ok: true, mode: 'nearby_rpc', rows: data ?? [] }, { headers });
+    return Response.json({ ok: true, mode: 'nearby_rpc', rows: sanitizePublicBarberRows(data ?? []) }, { headers });
   }
 
   // fallback عام عند عدم توفر إحداثيات مستخدم
@@ -172,7 +189,8 @@ export async function GET(request: Request): Promise<Response> {
       inclusive_care_public_visible,
       inclusive_care_restrict_days,
       inclusive_care_days,
-      inclusive_care_customer_note
+      inclusive_care_customer_note,
+      user_id
       `
     )
     .eq('is_active', true)
@@ -185,5 +203,8 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ error: error.message }, { status: 500, headers });
   }
 
-  return Response.json({ ok: true, mode: 'fallback_recent', rows: data ?? [] }, { headers });
+  return Response.json(
+    { ok: true, mode: 'fallback_recent', rows: sanitizePublicBarberRows(data ?? []) },
+    { headers }
+  );
 }

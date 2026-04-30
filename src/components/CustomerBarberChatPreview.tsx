@@ -42,7 +42,7 @@ function Bubble({
   compact,
 }: {
   side: 'customer' | 'barber';
-  label: string;
+  label: ReactNode;
   children: ReactNode;
   compact?: boolean;
 }) {
@@ -106,18 +106,27 @@ export function CustomerBarberChatPreview({
   tier,
   barberId,
   barberName,
+  previewListing,
   compact,
   className,
 }: {
   tier: Tier;
   barberId: string;
   barberName: string;
+  /** إدراج معاينة على الخريطة — تظهر علامة سرّية للفريق */
+  previewListing?: boolean;
   compact?: boolean;
   className?: string;
 }) {
   const isDiamond = tier === SubscriptionTier.DIAMOND;
   const perks = isDiamond ? DIAMOND_PERKS : GOLD_PERKS;
   const useLive = isSupabaseConfigured();
+  const previewSecretMarker = previewListing ? (
+    <span className="text-muted-foreground font-normal" title="إدراج معاينة">
+      {' '}
+      *
+    </span>
+  ) : null;
   const [liveRestart, setLiveRestart] = useState(0);
   const live = useCustomerBarberPrivateRealtimeChat(useLive ? barberId : undefined, {
     enableDiamondTranslation: isDiamond,
@@ -219,10 +228,11 @@ export function CustomerBarberChatPreview({
           <MessageCircle className="w-4 h-4 text-primary shrink-0" />
           <span className={cn('font-semibold truncate', compact ? 'text-xs' : 'text-sm')}>
             محادثة مع {barberName}
+            {previewSecretMarker}
           </span>
         </div>
         <Badge variant="secondary" className={cn('shrink-0', compact && 'text-[10px] px-1.5 py-0')}>
-          {liveMode ? 'Supabase Realtime' : 'معاينة محلية'}
+          {liveMode ? 'شات مباشر' : 'معاينة محلية'}
           {isDiamond ? ' · ماسي' : ' · ذهبي'}
         </Badge>
       </div>
@@ -244,14 +254,23 @@ export function CustomerBarberChatPreview({
             </div>
           ) : liveMode && live.messages.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center">
-              اكتب أول رسالة — الجلسة مؤمنة بسياسات RLS وتُحدَّث لحظياً عبر Supabase.
+              اكتب أول رسالة — تُحدَّث لحظياً بينك وبين الصالون ضمن الجلسة.
             </div>
           ) : liveMode ? (
             live.messages.map((m) => (
               <div key={m.id} className="space-y-1">
                 <Bubble
                   side={m.role === 'customer' ? 'customer' : 'barber'}
-                  label={m.role === 'customer' ? 'أنت (العميل)' : barberName}
+                  label={
+                    m.role === 'customer' ? (
+                      'أنت (العميل)'
+                    ) : (
+                      <>
+                        {barberName}
+                        {previewSecretMarker}
+                      </>
+                    )
+                  }
                   compact={compact}
                 >
                   {m.role === 'customer' && /[A-Za-z]/.test(m.body) ? (
@@ -276,14 +295,23 @@ export function CustomerBarberChatPreview({
             ))
           ) : localMessages.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center">
-              ابدأ محادثة خاصة — معاينة محلية عندما لا يتوفر Supabase أو عند تعذّر الجلسة الحية.
+              ابدأ محادثة خاصة — عند تعذّر الشات المباشر تُعرض معاينة محلية داخل جهازك فقط.
             </div>
           ) : (
             localMessages.map((m) => (
               <Bubble
                 key={m.id}
                 side={m.sender === 'customer' ? 'customer' : 'barber'}
-                label={m.sender === 'customer' ? 'أنت (العميل)' : barberName}
+                label={
+                  m.sender === 'customer' ? (
+                    'أنت (العميل)'
+                  ) : (
+                    <>
+                      {barberName}
+                      {previewSecretMarker}
+                    </>
+                  )
+                }
                 compact={compact}
               >
                 {m.sender === 'customer' && /[A-Za-z]/.test(m.text) ? (
@@ -304,7 +332,7 @@ export function CustomerBarberChatPreview({
                   compact={compact}
                   detectedLabel="مثال: الإنجليزية"
                   translationLabel="يظهر للصالون:"
-                  translationText="في الوضع الحي تُستدعى خدمة ترجمة آمنة من السيرفر (مفتاح اختياري)."
+                  translationText="في الوضع الفعلي تُضاف ترجمة آلية تساعد الطرفين على الفهم بسرعة."
                 />
               </div>
               <div className="flex w-full flex-col items-start gap-1">
@@ -312,7 +340,7 @@ export function CustomerBarberChatPreview({
                   compact={compact}
                   detectedLabel="مثال: العربية"
                   translationLabel="يظهر للعميل:"
-                  translationText="نفس آلية الترجمة للباقة الماسية عبر واجهة برمجة التطبيقات."
+                  translationText="نفس فكرة الترجمة المعروضة للعميل ضمن الباقة الماسية."
                 />
               </div>
             </>
@@ -363,8 +391,8 @@ export function CustomerBarberChatPreview({
       </div>
       <div className="border-t bg-muted/20 px-3 py-2 text-center text-[10px] text-muted-foreground">
         {liveMode
-          ? 'الشات الحي: ساعة واحدة ثم تُقفل القراءة تلقائياً على العميل وفق سياسات قاعدة البيانات.'
-          : 'معاينة محلية — لا تُرسل إلى الخادم حتى يُضبط Supabase وتُطبَّق المهاجرات.'}
+          ? 'الشات المباشر: جلسة ساعة واحدة ثم تُقفل تلقائياً وفق إعدادات المنصة.'
+          : 'معاينة محلية — الرسائل تبقى على جهازك ولا تُرسل إلى الصالون.'}
       </div>
     </div>
   );
@@ -450,9 +478,8 @@ export function CustomerBarberChatPreview({
           )}
         </CardTitle>
         <CardDescription className="text-sm leading-relaxed">
-          منظور العميل داخل حلاق ماب: محادثة كتابية مع الحلاق. عند ضبط Supabase تُستخدم جداول{' '}
-          <code className="rounded bg-muted px-1">private_conversations</code> مع تحديثات لحظية؛ في الباقة الماسية
-          تُترجم رسائل الطرف الآخر عبر واجهة ترجمة اختيارية على السيرفر.
+          منظور العميل داخل حلاق ماب: محادثة كتابية مع الصالون. عند توفر الشات المباشر تُحدَّث الرسائل لحظياً؛ وفي
+          الباقة الماسية تُضاف ترجمة آلية تسهّل التواصل بين الطرفين.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">{body}</CardContent>
