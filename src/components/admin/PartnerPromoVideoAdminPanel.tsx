@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Trash2, Upload, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,20 +25,37 @@ function extFromFileName(name: string): string | null {
 }
 
 export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
+  const mounted = useRef(true);
   const [status, setStatus] = useState<PartnerPromoAdminStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const refresh = useCallback(async () => {
     if (!canManage) {
-      setLoading(false);
+      if (mounted.current) setLoading(false);
       return;
     }
-    setLoading(true);
-    const s = await fetchPartnerPromoAdminStatus();
-    setStatus(s);
-    setLoading(false);
+    if (mounted.current) setLoading(true);
+    try {
+      const s = await fetchPartnerPromoAdminStatus();
+      if (mounted.current) {
+        setStatus(s);
+        setLoading(false);
+      }
+    } catch {
+      if (mounted.current) {
+        setStatus({ ok: false, enabled: false, videoUrl: null, objectPath: null, updatedAt: null, error: 'تعذر التحميل' });
+        setLoading(false);
+      }
+    }
   }, [canManage]);
 
   useEffect(() => {

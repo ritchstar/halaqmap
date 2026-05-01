@@ -4051,12 +4051,7 @@ function SettingsSection({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <h2 className="text-2xl font-bold mb-2">إعدادات المنصة</h2>
 
       <Card className="border-primary/25">
@@ -4243,6 +4238,6 @@ function SettingsSection({
           </Button>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }

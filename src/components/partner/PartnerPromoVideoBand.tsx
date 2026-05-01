@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Clapperboard, Play, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchPartnerPromoVideoPublic } from '@/lib/partnerPromoVideoPublic';
@@ -8,6 +7,7 @@ const STORAGE_PREFIX = 'halaqmap_partner_promo_autoplay_';
 
 export function PartnerPromoVideoBand() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const mountedRef = useRef(true);
   const [payload, setPayload] = useState<{ videoUrl: string | null; updatedAt: string | null }>({
     videoUrl: null,
     updatedAt: null,
@@ -16,9 +16,16 @@ export function PartnerPromoVideoBand() {
   const [unmuteHint, setUnmuteHint] = useState(false);
 
   useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     void fetchPartnerPromoVideoPublic().then((r) => {
-      if (cancelled) return;
+      if (cancelled || !mountedRef.current) return;
       if (!r.ok) {
         setLoadError(null);
         setPayload({ videoUrl: null, updatedAt: null });
@@ -42,11 +49,12 @@ export function PartnerPromoVideoBand() {
     v.muted = true;
     v.playsInline = true;
     if (already) {
-      setUnmuteHint(true);
+      if (mountedRef.current) setUnmuteHint(true);
       return;
     }
     const p = v.play().catch(() => undefined);
     void p.then(() => {
+      if (!mountedRef.current) return;
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(key, '1');
       }
@@ -58,8 +66,12 @@ export function PartnerPromoVideoBand() {
     if (!payload.videoUrl) return;
     const v = videoRef.current;
     if (!v) return;
-    v.load();
-    tryAutoplayOnce();
+    const t = window.requestAnimationFrame(() => {
+      if (!mountedRef.current || !videoRef.current) return;
+      videoRef.current.load();
+      tryAutoplayOnce();
+    });
+    return () => window.cancelAnimationFrame(t);
   }, [payload.videoUrl, payload.updatedAt, tryAutoplayOnce]);
 
   if (!payload.videoUrl) {
@@ -69,12 +81,7 @@ export function PartnerPromoVideoBand() {
   return (
     <div className="border-b border-emerald-500/25 bg-gradient-to-b from-[#061923] via-[#0a1628] to-[#071426]">
       <div className="container mx-auto px-4 py-6 md:py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="mx-auto max-w-3xl"
-        >
+        <div className="mx-auto max-w-3xl">
           <div className="relative rounded-2xl border-2 border-primary/50 bg-black/35 p-1 shadow-[0_0_0_1px_rgba(16,185,129,0.15),0_12px_40px_rgba(0,0,0,0.35)] ring-2 ring-primary/20">
             <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-br from-primary/30 via-transparent to-primary/10 opacity-80" />
             <div className="relative rounded-xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-3 md:p-4">
@@ -137,7 +144,7 @@ export function PartnerPromoVideoBand() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
