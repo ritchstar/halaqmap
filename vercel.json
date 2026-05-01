@@ -102,6 +102,12 @@
     },
     "api/simulate-booking-overlap.ts": {
       "maxDuration": 20
+    },
+    "api/partner-promo.ts": {
+      "maxDuration": 15
+    },
+    "api/partner-promo-admin.ts": {
+      "maxDuration": 60
     }
   }
 }

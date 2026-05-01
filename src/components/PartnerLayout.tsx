@@ -8,6 +8,7 @@ import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 /** المساعد الحيّ (OpenAI/Anthropic) — المكوّن الوحيد؛ لا يوجد مسار استيراد قديم. */
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
+import { PartnerPromoVideoBand } from '@/components/partner/PartnerPromoVideoBand';
 
 interface PartnerLayoutProps {
   children: React.ReactNode;
@@ -76,6 +77,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           </div>
         </div>
       </header>
+
+      <PartnerPromoVideoBand />
 
       <main>{children}</main>
 

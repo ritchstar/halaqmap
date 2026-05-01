@@ -128,6 +128,7 @@ import {
   type AdminSupportMessageRow,
   type AdminSupportThread,
 } from '@/lib/adminSupportChatRemote';
+import { PartnerPromoVideoAdminPanel } from '@/components/admin/PartnerPromoVideoAdminPanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
 const EMPTY_ADMIN_STATS: AdminStats = {
@@ -4164,6 +4165,8 @@ function SettingsSection({
           )}
         </CardContent>
       </Card>
+
+      <PartnerPromoVideoAdminPanel canManage={canSavePlatformVat} />
 
       <Card>
         <CardHeader>
