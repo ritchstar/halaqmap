@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Trash2, Upload, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
@@ -75,7 +76,7 @@ export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
     setUploading(true);
     try {
       const begin = await requestPartnerPromoSignedUpload(ext);
-      if (!begin.ok) {
+      if (begin.ok === false) {
         toast({ title: 'تعذر تجهيز الرفع', description: begin.error, variant: 'destructive' });
         return;
       }

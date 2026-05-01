@@ -52,7 +52,7 @@ export function PartnerPromoVideoBand() {
       if (mountedRef.current) setUnmuteHint(true);
       return;
     }
-    const p = v.play().catch(() => undefined);
+    const p = v.play().catch((): undefined => undefined);
     void p.then(() => {
       if (!mountedRef.current) return;
       if (typeof localStorage !== 'undefined') {
