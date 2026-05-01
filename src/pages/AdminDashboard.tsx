@@ -3108,6 +3108,7 @@ function CommandCenterSection({
   const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://www.halaqmap.com';
   const partnersLandingUrl = `${siteOrigin}/#/partners`;
   const partnersRegisterUrl = `${siteOrigin}/#/partners/register`;
+  const partnerPathPrintCardUrl = `${siteOrigin}/#${ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD}`;
   const privatePartnerFaq = [
     {
       q: 'هل الصفحة مناسبة للإرسال عبر واتساب والإيميل؟',
@@ -3463,6 +3464,12 @@ function CommandCenterSection({
                   التسجيل المباشر:{' '}
                   <a className="underline" href={partnersRegisterUrl} target="_blank" rel="noopener noreferrer">
                     {partnersRegisterUrl}
+                  </a>
+                </p>
+                <p>
+                  بطاقة QR للطباعة والحملات (صفحة داخلية — لا تظهر في القوائم العامة):{' '}
+                  <a className="underline" href={partnerPathPrintCardUrl} target="_blank" rel="noopener noreferrer">
+                    {partnerPathPrintCardUrl}
                   </a>
                 </p>
               </div>

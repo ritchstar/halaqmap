@@ -144,9 +144,8 @@ export default function RegisterSuccess() {
 
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground leading-relaxed">
-                يمكنك تحميل ملف نصي يحتوي تفاصيل طلبك، أو فتح بريدك لإرسال نسخة لنفسك. إرفاق الملفات
-                تلقائياً بالبريد يتطلب خادماً (مثل Supabase أو خدمة بريد) وسيُضاف لاحقاً في الإصدار
-                المرتبط بالخادم.
+                يمكنك تحميل ملف نصي يحتوي تفاصيل طلبك، أو استخدام «إرسال نسخة للبريد» لفتح بريدك مع نص جاهز
+                للنسخ. إن رغبت بإرفاق إيصال الدفع أو أي ملف، أضفه من جهازك قبل الإرسال.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button className="flex-1 gap-2" onClick={downloadSummary}>

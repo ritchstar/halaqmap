@@ -27,6 +27,11 @@ export const ROUTE_PATHS = {
   PARTNER_SUPPORT: '/partners/support',
   /** تبديل «مفتوح/مغلق» للعملاء على الخريطة برابط سري (?t=رمز) — مفيد للبرونزي */
   SHOP_OPEN_STATUS: '/partners/shop-open',
+  /**
+   * بطاقة QR لمسار الشركاء (طباعة/حملات) — للإدارة والتسويق فقط.
+   * لا تُضاف روابط لها في الرئيسية أو مسار الشركاء أو القوائم.
+   */
+  INTERNAL_PARTNER_PATH_PRINT_CARD: '/m/hm-partner-path-card-q7',
   /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
   RATE_BARBER: '/rate/:barberId',
 } as const;
