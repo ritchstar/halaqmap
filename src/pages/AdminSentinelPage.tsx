@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bot, Loader2, Send, Shield, Sparkles, ArrowRight } from 'lucide-react';
+import { Activity, Bot, Loader2, Send, Shield, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -25,8 +25,38 @@ import {
   type SentinelOpenAiDiagnostics,
 } from '@/lib/adminSentinelRemote';
 
+const TXT = 'text-[#FFFFFF]';
 const BRIEF_LOADING_ASSISTANT =
   '⏳ **جاري تحميل الملخص التنفيذي** من `GET /api/admin-sentinel-brief` …\n\nسيُعرض ملخص المبيعات والأمن والتوصية هنا فور جاهزية البيانات، دون الحاجة لإرسال سؤالك أولاً.';
+
+type SubscriptionHealthShape = {
+  paymentFailureRadar?: {
+    windowDays?: number;
+    queryError?: string | null;
+    failedPaymentsTotal?: number;
+    distinctBarbersWithFailure?: number;
+    recurringFailureBarbers?: { barberId: string; failedCount: number; barberName: string }[];
+    recurringThreshold?: number;
+    description?: string;
+  };
+  stuckFormsRadar?: {
+    windowHours?: number;
+    registrationQueryError?: string | null;
+    interestSignups24h?: number | null;
+    interestQueryError?: string | null;
+    pendingPartnerSubmissions?: number;
+    totalSubmissionsScanned24h?: number;
+    samplePending?: { id: string; createdAt: string; label: string }[];
+    description?: string;
+  };
+  supabaseLatency?: {
+    roundTripMs?: number;
+    ok?: boolean;
+    pingError?: string | null;
+    measuredAt?: string;
+    description?: string;
+  };
+};
 
 type BriefShape = {
   executiveSummary?: { salesLine?: string; securityLine?: string; revenueRecommendation?: string };
@@ -36,6 +66,7 @@ type BriefShape = {
   chatCompliance?: Record<string, unknown>;
   salesAuditor?: { missedUpgradeOpportunities?: { barberId: string; name: string; totalReviews: number }[] };
   geo?: { hotspotsByBarberCount?: { city: string; barberCount: number }[] };
+  subscriptionHealth?: SubscriptionHealthShape;
 };
 
 export default function AdminSentinelPage() {
@@ -154,56 +185,158 @@ export default function AdminSentinelPage() {
     setOpsPassword('');
   };
 
+  const sh = brief?.subscriptionHealth;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100" dir="rtl">
-      <div className="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-primary" />
+    <div
+      className={`min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 font-sans ${TXT} antialiased [text-rendering:optimizeLegibility]`}
+      dir="rtl"
+    >
+      <div className="border-b border-slate-700/80 bg-slate-950/90 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/25 flex items-center justify-center ring-1 ring-white/20">
+              <Sparkles className={`h-5 w-5 ${TXT}`} />
             </div>
-            <div>
-              <h1 className="text-lg font-semibold tracking-tight">الوكيل المراقب العام</h1>
-              <p className="text-xs text-slate-400">
+            <div className="min-w-0">
+              <h1 className={`text-xl sm:text-2xl font-bold tracking-tight ${TXT}`}>الوكيل المراقب العام</h1>
+              <p className={`mt-1 text-sm sm:text-[15px] leading-relaxed font-medium ${TXT}`}>
                 منظومة تحليل وبيع وأمن — بوابة IP + MFA عبر الخادم
                 {openAiDiag != null && (
                   <span className="mr-2 inline-block">
                     {' · '}
-                    {openAiDiag.openaiConfigured ? (
-                      <span className="text-emerald-400">OpenAI: جاهز ({openAiDiag.model ?? 'gpt-4o'})</span>
-                    ) : (
-                      <span className="text-amber-400">
-                        OpenAI: غير جاهز — أضف OPENAI_API_KEY على Vercel أو راجع صلاحية الوصول لـ GET /api/admin-sentinel-chat
-                      </span>
-                    )}
+                    <span className={`font-bold ${TXT}`}>
+                      {openAiDiag.openaiConfigured
+                        ? `OpenAI: جاهز (${openAiDiag.model ?? 'gpt-4o'})`
+                        : 'OpenAI: غير جاهز — أضف OPENAI_API_KEY على Vercel أو راجع صلاحية الوصول لـ GET /api/admin-sentinel-chat'}
+                    </span>
                   </span>
                 )}
               </p>
             </div>
           </div>
-          <Button variant="outline" className="border-slate-700 text-slate-200" asChild>
+          <Button
+            variant="outline"
+            className={`shrink-0 border-white/40 bg-slate-900/90 ${TXT} hover:bg-slate-800 text-sm sm:text-[15px] min-h-11 px-4 font-bold`}
+            asChild
+          >
             <Link to={getAdminDashboardPathFor(location.pathname)}>
               لوحة التحكم
-              <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
+              <ArrowRight className={`h-4 w-4 mr-2 rotate-180 ${TXT}`} />
             </Link>
           </Button>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-5 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        {/* Subscription Health — بيانات حية من admin-sentinel-brief */}
+        <Card className="bg-slate-900/80 border-white/20 shadow-xl shadow-black/30">
+          <CardHeader>
+            <CardTitle className={`text-lg sm:text-xl font-bold flex items-center gap-2 ${TXT}`}>
+              <Activity className={`h-5 w-5 sm:h-6 sm:w-6 shrink-0 ${TXT}`} />
+              Subscription Health (صحة الاشتراك والمسارات)
+            </CardTitle>
+            <CardDescription className={`text-sm sm:text-[15px] leading-relaxed font-medium ${TXT}`}>
+              رادار فشل الدفع، النماذج العالقة خلال 24 ساعة، وزمن استجابة Supabase — يُحدَّث عند كل تحميل للصفحة.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {briefLoading ? (
+              <div className={`flex items-center gap-2 text-base font-bold ${TXT}`}>
+                <Loader2 className="h-5 w-5 animate-spin shrink-0" /> جاري تحميل مؤشرات الصحة…
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
+                <div className={`rounded-xl border border-white/15 bg-slate-950/60 p-4 space-y-2 ${TXT}`}>
+                  <p className="text-base sm:text-lg font-bold">رادار فشل الدفع</p>
+                  <p className={`text-sm sm:text-[15px] leading-relaxed font-medium ${TXT}`}>
+                    {sh?.paymentFailureRadar?.description ?? '—'}
+                  </p>
+                  {sh?.paymentFailureRadar?.queryError ? (
+                    <p className={`text-sm font-bold ${TXT}`}>خطأ استعلام: {sh.paymentFailureRadar.queryError}</p>
+                  ) : null}
+                  <ul className={`text-sm sm:text-[15px] space-y-1.5 font-bold ${TXT} list-disc list-inside`}>
+                    <li>فشل خلال {sh?.paymentFailureRadar?.windowDays ?? 30} يوماً: {sh?.paymentFailureRadar?.failedPaymentsTotal ?? 0}</li>
+                    <li>حلاقون واجهوا فشلاً: {sh?.paymentFailureRadar?.distinctBarbersWithFailure ?? 0}</li>
+                    <li>
+                      متكرر (≥{sh?.paymentFailureRadar?.recurringThreshold ?? 2}):{' '}
+                      {(sh?.paymentFailureRadar?.recurringFailureBarbers ?? []).length}
+                    </li>
+                  </ul>
+                  {(sh?.paymentFailureRadar?.recurringFailureBarbers ?? []).length > 0 ? (
+                    <div className={`mt-2 text-xs sm:text-sm space-y-1 font-bold ${TXT} max-h-32 overflow-auto`}>
+                      {(sh?.paymentFailureRadar?.recurringFailureBarbers ?? []).slice(0, 6).map((r) => (
+                        <div key={r.barberId}>
+                          {r.barberName} — {r.failedCount} فشل
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+                <div className={`rounded-xl border border-white/15 bg-slate-950/60 p-4 space-y-2 ${TXT}`}>
+                  <p className="text-base sm:text-lg font-bold">رادار النماذج العالقة</p>
+                  <p className={`text-sm sm:text-[15px] leading-relaxed font-medium ${TXT}`}>
+                    {sh?.stuckFormsRadar?.description ?? '—'}
+                  </p>
+                  {sh?.stuckFormsRadar?.registrationQueryError ? (
+                    <p className={`text-sm font-bold ${TXT}`}>خطأ استعلام: {sh.stuckFormsRadar.registrationQueryError}</p>
+                  ) : null}
+                  <ul className={`text-sm sm:text-[15px] space-y-1.5 font-bold ${TXT} list-disc list-inside`}>
+                    <li>
+                      طلبات معلّقة (آخر {sh?.stuckFormsRadar?.windowHours ?? 24} ساعة):{' '}
+                      {sh?.stuckFormsRadar?.pendingPartnerSubmissions ?? 0}
+                    </li>
+                    <li>إجمالي مسح الطلبات: {sh?.stuckFormsRadar?.totalSubmissionsScanned24h ?? 0}</li>
+                    <li>
+                      اهتمام شركاء (24س):{' '}
+                      {sh?.stuckFormsRadar?.interestSignups24h == null ? '—' : sh.stuckFormsRadar.interestSignups24h}
+                    </li>
+                  </ul>
+                  {(sh?.stuckFormsRadar?.samplePending ?? []).length > 0 ? (
+                    <div className={`mt-2 text-xs sm:text-sm space-y-1 font-bold ${TXT} max-h-28 overflow-auto`}>
+                      {(sh?.stuckFormsRadar?.samplePending ?? []).map((s) => (
+                        <div key={s.id} className="truncate" title={s.label}>
+                          {s.label}
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+                <div className={`rounded-xl border border-white/15 bg-slate-950/60 p-4 space-y-2 ${TXT}`}>
+                  <p className="text-base sm:text-lg font-bold">سرعة الاستجابة (Supabase)</p>
+                  <p className={`text-sm sm:text-[15px] leading-relaxed font-medium ${TXT}`}>
+                    {sh?.supabaseLatency?.description ?? '—'}
+                  </p>
+                  <ul className={`text-sm sm:text-[15px] space-y-1.5 font-bold ${TXT} list-disc list-inside`}>
+                    <li>زمن الذهاب والإياب: {sh?.supabaseLatency?.roundTripMs ?? '—'} ms</li>
+                    <li>الحالة: {sh?.supabaseLatency?.ok === false ? 'خطأ' : 'نجاح'}</li>
+                    <li className="break-all text-xs sm:text-sm opacity-95">
+                      {sh?.supabaseLatency?.measuredAt ? `قياس: ${sh.supabaseLatency.measuredAt}` : ''}
+                    </li>
+                  </ul>
+                  {sh?.supabaseLatency?.pingError ? (
+                    <p className={`text-sm font-bold ${TXT}`}>خطأ ping: {sh.supabaseLatency.pingError}</p>
+                  ) : null}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <div className="grid gap-4 md:grid-cols-3">
-          <Card className="bg-slate-900/60 border-slate-800">
+          <Card className="bg-slate-900/80 border-white/15 shadow-lg shadow-black/20">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Bot className="h-4 w-4" /> مصادر البيانات
+              <CardTitle className={`text-base sm:text-lg font-bold flex items-center gap-2 ${TXT}`}>
+                <Bot className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 ${TXT}`} /> مصادر البيانات
               </CardTitle>
-              <CardDescription className="text-slate-500 text-xs">ربط المخطط المنطقي بالجداول</CardDescription>
+              <CardDescription className={`text-sm leading-relaxed font-bold ${TXT}`}>ربط المخطط المنطقي بالجداول</CardDescription>
             </CardHeader>
-            <CardContent className="text-xs text-slate-400 space-y-1 max-h-40 overflow-auto">
+            <CardContent className={`text-sm sm:text-[15px] leading-relaxed space-y-2 max-h-44 overflow-auto font-bold ${TXT}`}>
               {brief?.dataSources
                 ? Object.entries(brief.dataSources).map(([k, v]) => (
                     <div key={k}>
-                      <span className="text-slate-300">{k}</span>: {v}
+                      <span className={TXT}>{k}</span>
+                      <span className={TXT}>: {v}</span>
                     </div>
                   ))
                 : briefLoading
@@ -211,24 +344,24 @@ export default function AdminSentinelPage() {
                   : '—'}
             </CardContent>
           </Card>
-          <Card className="bg-slate-900/60 border-slate-800 md:col-span-2">
+          <Card className="bg-slate-900/80 border-white/15 md:col-span-2 shadow-lg shadow-black/20">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Shield className="h-4 w-4" /> الرقابة المالية والمبيعات
+              <CardTitle className={`text-base sm:text-lg font-bold flex items-center gap-2 ${TXT}`}>
+                <Shield className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 ${TXT}`} /> الرقابة المالية والمبيعات
               </CardTitle>
-              <CardDescription className="text-slate-500 text-xs">
+              <CardDescription className={`text-sm leading-relaxed font-bold ${TXT}`}>
                 تتبع الريال (مكتمل / معلق / مسترد) + فرص ترقية باقات
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-sm text-slate-300 space-y-2">
+            <CardContent className={`text-base sm:text-[17px] leading-relaxed space-y-3 font-bold ${TXT}`}>
               {briefLoading ? (
-                <div className="flex items-center gap-2 text-slate-500">
-                  <Loader2 className="h-4 w-4 animate-spin" /> جاري تحميل الملخص…
+                <div className={`flex items-center gap-2 text-base ${TXT}`}>
+                  <Loader2 className="h-4 w-4 animate-spin shrink-0" /> جاري تحميل الملخص…
                 </div>
               ) : (
                 <>
-                  <p>{brief?.executiveSummary?.salesLine}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className={TXT}>{brief?.executiveSummary?.salesLine}</p>
+                  <p className={`text-sm sm:text-[15px] leading-relaxed font-bold ${TXT}`}>
                     فرص بيع ضائعة (عيّنة):{' '}
                     {(brief?.salesAuditor?.missedUpgradeOpportunities ?? []).slice(0, 5).map((b) => b.name).join('، ') ||
                       'لا شيء في العيّنة الحالية'}
@@ -240,44 +373,46 @@ export default function AdminSentinelPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="lg:col-span-2 bg-slate-900/60 border-slate-800 flex flex-col min-h-[420px]">
+          <Card className="lg:col-span-2 bg-slate-900/80 border-white/15 flex flex-col min-h-[min(420px,70dvh)] shadow-lg shadow-black/20">
             <CardHeader>
-              <CardTitle>محادثة الوكيل (GPT-4o)</CardTitle>
-              <CardDescription className="text-slate-500">
+              <CardTitle className={`text-lg sm:text-xl font-bold ${TXT}`}>محادثة الوكيل (GPT-4o)</CardTitle>
+              <CardDescription className={`text-sm sm:text-[15px] leading-relaxed font-bold ${TXT}`}>
                 يُرسل للنموذج ملخص JSON من الخادم — لا تُرسل روابط أو أرقام في رسائلك لتجاوز الفحص الآلي.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-3 min-h-0">
-              <ScrollArea className="flex-1 min-h-[240px] rounded-md border border-slate-800 p-3 bg-slate-950/50">
-                <div className="space-y-4 pr-2">
+              <ScrollArea className="flex-1 min-h-[min(240px,45dvh)] sm:min-h-[280px] rounded-md border border-white/15 p-3 sm:p-4 bg-slate-950/70">
+                <div className="space-y-4 sm:space-y-5 pr-1 sm:pr-2">
                   {messages.map((m, i) => (
                     <div
                       key={i}
-                      className={`rounded-lg px-3 py-2 text-sm whitespace-pre-wrap ${
-                        m.role === 'user' ? 'bg-primary/15 mr-8' : 'bg-slate-800/80 ml-8'
+                      className={`rounded-xl px-3.5 py-3 sm:px-4 sm:py-3.5 text-[15px] sm:text-base leading-[1.85] sm:leading-[1.9] whitespace-pre-wrap font-bold ${TXT} ${
+                        m.role === 'user'
+                          ? 'bg-teal-950/60 border border-white/20 mr-4 sm:mr-8 shadow-sm'
+                          : 'bg-slate-800/95 border border-white/20 ml-4 sm:ml-8 shadow-sm'
                       }`}
                     >
                       {m.content}
                     </div>
                   ))}
                   {chatting && (
-                    <div className="flex items-center gap-2 text-slate-500 text-sm">
-                      <Loader2 className="h-4 w-4 animate-spin" /> جاري الرد…
+                    <div className={`flex items-center gap-2 text-[15px] sm:text-base font-bold ${TXT}`}>
+                      <Loader2 className="h-4 w-4 animate-spin shrink-0" /> جاري الرد…
                     </div>
                   )}
                 </div>
               </ScrollArea>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <Textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="سؤالك للوكيل…"
-                  className="min-h-[72px] bg-slate-950 border-slate-800"
+                  className={`min-h-[80px] sm:min-h-[88px] bg-slate-950 border-white/25 text-[16px] sm:text-[15px] leading-relaxed font-bold ${TXT} placeholder:text-white/55`}
                   disabled={chatting || briefLoading}
                 />
                 <Button
                   type="button"
-                  className="self-end shrink-0"
+                  className="self-stretch sm:self-end shrink-0 min-h-11 text-[15px] sm:text-base font-bold"
                   onClick={() => void sendChat()}
                   disabled={chatting || briefLoading || !input.trim()}
                 >
@@ -288,36 +423,41 @@ export default function AdminSentinelPage() {
             </CardContent>
           </Card>
 
-          <div className="space-y-4">
-            <Card className="bg-slate-900/60 border-slate-800">
+          <div className="space-y-4 sm:space-y-5">
+            <Card className="bg-slate-900/80 border-white/15 shadow-lg shadow-black/20">
               <CardHeader>
-                <CardTitle className="text-base">التحليل المكاني</CardTitle>
-                <CardDescription className="text-slate-500 text-xs">كثافة الحلاقين حسب المدينة</CardDescription>
+                <CardTitle className={`text-lg sm:text-xl font-bold ${TXT}`}>التحليل المكاني</CardTitle>
+                <CardDescription className={`text-sm leading-relaxed font-bold ${TXT}`}>كثافة الحلاقين حسب المدينة</CardDescription>
               </CardHeader>
-              <CardContent className="text-xs text-slate-400 space-y-1">
+              <CardContent className={`text-sm sm:text-[15px] leading-relaxed space-y-2.5 font-bold ${TXT}`}>
                 {(brief?.geo?.hotspotsByBarberCount ?? []).slice(0, 8).map((h) => (
-                  <div key={h.city} className="flex justify-between gap-2">
-                    <span>{h.city}</span>
-                    <span className="text-slate-300">{h.barberCount}</span>
+                  <div
+                    key={h.city}
+                    className="flex justify-between gap-3 items-baseline border-b border-white/15 pb-2 last:border-0 last:pb-0"
+                  >
+                    <span className={TXT}>{h.city}</span>
+                    <span className={`tabular-nums ${TXT}`}>{h.barberCount}</span>
                   </div>
                 ))}
-                {!briefLoading && !(brief?.geo?.hotspotsByBarberCount ?? []).length ? 'لا بيانات مدن.' : null}
+                {!briefLoading && !(brief?.geo?.hotspotsByBarberCount ?? []).length ? (
+                  <p className={`font-bold ${TXT}`}>لا بيانات مدن.</p>
+                ) : null}
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-900/60 border-amber-900/40">
+            <Card className="bg-slate-900/80 border-white/25 shadow-lg shadow-black/20">
               <CardHeader>
-                <CardTitle className="text-base text-amber-100">عمليات موثقة</CardTitle>
-                <CardDescription className="text-amber-200/70 text-xs">
+                <CardTitle className={`text-lg sm:text-xl font-bold ${TXT}`}>عمليات موثقة</CardTitle>
+                <CardDescription className={`text-sm leading-relaxed font-bold ${TXT}`}>
                   تتطلب صلاحية manage_command_center + كلمة مرور الخادم ADMIN_SENTINEL_OPS_PASSWORD. تُسجّل في
                   admin_actions_log.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">نوع العملية</Label>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label className={`text-sm sm:text-[15px] font-bold ${TXT}`}>نوع العملية</Label>
                   <Select value={opsType} onValueChange={setOpsType}>
-                    <SelectTrigger className="bg-slate-950 border-slate-800">
+                    <SelectTrigger className={`bg-slate-950 border-white/25 text-[15px] sm:text-base min-h-11 font-bold ${TXT}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -328,28 +468,28 @@ export default function AdminSentinelPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">تفاصيل (JSON)</Label>
+                <div className="space-y-2">
+                  <Label className={`text-sm sm:text-[15px] font-bold ${TXT}`}>تفاصيل (JSON)</Label>
                   <Textarea
                     value={opsDetail}
                     onChange={(e) => setOpsDetail(e.target.value)}
-                    className="font-mono text-xs min-h-[100px] bg-slate-950 border-slate-800"
+                    className={`font-mono text-[14px] sm:text-sm min-h-[120px] bg-slate-950 border-white/25 leading-relaxed font-bold ${TXT}`}
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">كلمة مرور العمليات</Label>
+                <div className="space-y-2">
+                  <Label className={`text-sm sm:text-[15px] font-bold ${TXT}`}>كلمة مرور العمليات</Label>
                   <Input
                     type="password"
                     value={opsPassword}
                     onChange={(e) => setOpsPassword(e.target.value)}
-                    className="bg-slate-950 border-slate-800"
+                    className={`bg-slate-950 border-white/25 min-h-11 text-[16px] sm:text-[15px] font-bold ${TXT}`}
                     autoComplete="off"
                   />
                 </div>
                 <Button
                   type="button"
                   variant="secondary"
-                  className="w-full"
+                  className="w-full min-h-11 text-[15px] sm:text-base font-bold"
                   disabled={opsBusy}
                   onClick={() => void runSovereign()}
                 >

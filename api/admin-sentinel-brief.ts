@@ -27,6 +27,7 @@ const DATA_SOURCES = {
   Chat_Logs: 'private_messages (عينة خادمية) + platform_support_messages (إحصاءات)',
   Subscriptions_Finance: 'public.payments',
   Security_Events: 'public.platform_booking_security_log',
+  Subscription_Health: 'payments(status=failed) + registration_submissions(24h) + ping جدول barbers',
 } as const;
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -62,8 +63,20 @@ export async function GET(request: Request): Promise<Response> {
 
   const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-  const [paymentsRes, barbersRes, securityRes, convRes, profilesRes, supportRes, pmRes] = await Promise.all([
+  const [
+    paymentsRes,
+    barbersRes,
+    securityRes,
+    convRes,
+    profilesRes,
+    supportRes,
+    pmRes,
+    failedPaymentsRes,
+    registrationRecentRes,
+    interestCountRes,
+  ] = await Promise.all([
     supabase.from('payments').select('amount, status, tier, created_at').gte('created_at', since30d),
     supabase.from('barbers').select('id, name, tier, total_reviews, city, latitude, longitude').limit(5000),
     supabase
@@ -79,7 +92,77 @@ export async function GET(request: Request): Promise<Response> {
       .select('body, created_at')
       .order('created_at', { ascending: false })
       .limit(120),
+    supabase
+      .from('payments')
+      .select('id, barber_id, created_at, notes, transaction_id')
+      .eq('status', 'failed')
+      .gte('created_at', since30d)
+      .order('created_at', { ascending: false })
+      .limit(4000),
+    supabase
+      .from('registration_submissions')
+      .select('id, created_at, payload')
+      .gte('created_at', since24h)
+      .order('created_at', { ascending: false })
+      .limit(600),
+    supabase
+      .from('barber_interest_signups')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', since24h),
   ]);
+
+  const pingT0 = Date.now();
+  const pingRes = await supabase.from('barbers').select('id').limit(1);
+  const supabasePingMs = Date.now() - pingT0;
+  const supabasePingOk = !pingRes.error;
+
+  type RegPayload = { status?: string; barberName?: string; shopName?: string; email?: string; source?: string };
+  const regRows = (registrationRecentRes.data ?? []) as { id: string; created_at: string; payload: unknown }[];
+  const stuckSubmissions = regRows.filter((row) => {
+    const p = (row.payload && typeof row.payload === 'object' ? row.payload : {}) as RegPayload;
+    const st = String(p.status ?? 'pending').toLowerCase();
+    return st === 'pending';
+  });
+  const stuckSample = stuckSubmissions.slice(0, 12).map((row) => {
+    const p = row.payload as RegPayload;
+    const label = String(p.barberName || p.shopName || p.email || row.id).slice(0, 80);
+    return { id: row.id, createdAt: row.created_at, label };
+  });
+
+  const failedRows = (failedPaymentsRes.data ?? []) as {
+    id: string;
+    barber_id: string;
+    created_at: string;
+    notes: string | null;
+    transaction_id: string | null;
+  }[];
+  const failCountByBarber = new Map<string, number>();
+  for (const fr of failedRows) {
+    const bid = String(fr.barber_id ?? '');
+    if (!bid) continue;
+    failCountByBarber.set(bid, (failCountByBarber.get(bid) ?? 0) + 1);
+  }
+  const recurringFailures = [...failCountByBarber.entries()]
+    .filter(([, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15)
+    .map(([barberId, failedCount]) => ({ barberId, failedCount }));
+
+  let recurringWithNames = recurringFailures as { barberId: string; failedCount: number; barberName: string }[];
+  if (recurringFailures.length > 0) {
+    const ids = recurringFailures.map((r) => r.barberId);
+    const { data: nameRows } = await supabase.from('barbers').select('id, name').in('id', ids);
+    const nameMap = new Map((nameRows ?? []).map((n) => [String((n as { id: string }).id), String((n as { name: string }).name)]));
+    recurringWithNames = recurringFailures.map((r) => ({
+      ...r,
+      barberName: nameMap.get(r.barberId) ?? '—',
+    }));
+  } else {
+    recurringWithNames = [];
+  }
+
+  const interestSignups24h =
+    !interestCountRes.error && typeof interestCountRes.count === 'number' ? interestCountRes.count : null;
 
   const payRows = (paymentsRes.data ?? []) as {
     amount: string | number | null;
@@ -174,6 +257,36 @@ export async function GET(request: Request): Promise<Response> {
   const conversionRate =
     activitySignals30d > 0 ? Math.round((completedPaymentCount / activitySignals30d) * 10_000) / 100 : null;
 
+  const subscriptionHealth = {
+    paymentFailureRadar: {
+      windowDays: 30,
+      queryError: failedPaymentsRes.error?.message ?? null,
+      failedPaymentsTotal: failedRows.length,
+      distinctBarbersWithFailure: failCountByBarber.size,
+      recurringFailureBarbers: recurringWithNames,
+      recurringThreshold: 2,
+      description: 'سجلات payments بحالة failed؛ «متكرر» = نفس barber_id ظهر فيه فشلان أو أكثر خلال النافذة.',
+    },
+    stuckFormsRadar: {
+      windowHours: 24,
+      registrationQueryError: registrationRecentRes.error?.message ?? null,
+      interestSignups24h,
+      interestQueryError: interestCountRes.error?.message ?? null,
+      pendingPartnerSubmissions: stuckSubmissions.length,
+      totalSubmissionsScanned24h: regRows.length,
+      samplePending: stuckSample,
+      description:
+        'طلبات registration_submissions المُنشأة خلال 24 ساعة وما زالت pending في الحمولة (لم تُوافق/تُرفض بعد).',
+    },
+    supabaseLatency: {
+      roundTripMs: supabasePingMs,
+      ok: supabasePingOk,
+      pingError: pingRes.error?.message ?? null,
+      measuredAt: new Date().toISOString(),
+      description: 'زمن استجابة استعلام واحد (SELECT id FROM barbers LIMIT 1) من دالة Vercel إلى Supabase.',
+    },
+  };
+
   const executiveSummary = buildExecutiveSummary({
     completedSar,
     pendingSar,
@@ -182,12 +295,17 @@ export async function GET(request: Request): Promise<Response> {
     sevCounts,
     leaksCount: highTrafficNoUpgrade.length,
     chatRisk: { sampleSize: pmBodies.length, pmUrlHits, pmBypassHits, pmProfanityHits },
+    failedPaymentsTotal: failedRows.length,
+    recurringFailureBarbers: recurringWithNames.length,
+    stuckPending24h: stuckSubmissions.length,
+    supabasePingMs,
   });
 
   return Response.json(
     {
       ok: true,
       dataSources: DATA_SOURCES,
+      subscriptionHealth,
       sales: {
         periodDays: 30,
         completedSar,
@@ -231,6 +349,10 @@ function buildExecutiveSummary(args: {
   sevCounts: Record<string, number>;
   leaksCount: number;
   chatRisk: { sampleSize: number; pmUrlHits: number; pmBypassHits: number; pmProfanityHits: number };
+  failedPaymentsTotal: number;
+  recurringFailureBarbers: number;
+  stuckPending24h: number;
+  supabasePingMs: number;
 }): { salesLine: string; securityLine: string; revenueRecommendation: string } {
   const highSev = (args.sevCounts.error ?? 0) + (args.sevCounts.critical ?? 0);
   const salesLine = `آخر 30 يوماً: ${args.completedSar.toFixed(2)} ر.س مكتملة، ${args.pendingSar.toFixed(2)} معلّقة، ${args.refundedSar.toFixed(2)} مستردة.`;
@@ -242,5 +364,16 @@ function buildExecutiveSummary(args: {
   if (args.pendingSar > args.completedSar * 0.25) {
     revenueRecommendation += ' لديكم معلّقات مرتفعة نسبياً: تابعوا تأكيد التحويلات البنكية/بوابات الدفع.';
   }
+  const healthBits: string[] = [];
+  if (args.failedPaymentsTotal > 0) {
+    healthBits.push(
+      `فشل دفع: ${args.failedPaymentsTotal} سجل خلال 30 يوماً${args.recurringFailureBarbers ? `؛ ${args.recurringFailureBarbers} حلاق بتكرار فشل` : ''}.`,
+    );
+  }
+  if (args.stuckPending24h > 0) {
+    healthBits.push(`نماذج شركاء معلّقة (<24س): ${args.stuckPending24h}.`);
+  }
+  healthBits.push(`استجابة Supabase (ping): ${args.supabasePingMs}ms.`);
+  if (healthBits.length) revenueRecommendation += ` ${healthBits.join(' ')}`;
   return { salesLine, securityLine, revenueRecommendation };
 }
