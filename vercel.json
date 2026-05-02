@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/rate/:path*",
+      "destination": "/index.html"
+    }
+  ],
   "framework": "vite",
   "installCommand": "npm install",
   "buildCommand": "npm run typecheck:api && npm run build && node scripts/verify-dist-index.mjs",
@@ -99,6 +105,9 @@
     },
     "api/log-search-activity.ts": {
       "maxDuration": 20
+    },
+    "api/public-rate-barber-context.ts": {
+      "maxDuration": 15
     },
     "api/barber-portal-magic-consume.ts": {
       "maxDuration": 15

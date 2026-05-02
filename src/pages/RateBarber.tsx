@@ -1,31 +1,175 @@
-import { useMemo, useState } from 'react';
+import { Component, useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, CheckCircle2, AlertTriangle, Home } from 'lucide-react';
+import { Star, CheckCircle2, AlertTriangle, Home, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ROUTE_PATHS } from '@/lib/index';
+import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
+import type { Barber } from '@/lib/index';
 import { mockBarbers } from '@/data/index';
 import { validateRatingInviteToken } from '@/lib/ratingInvite';
 import { appendQrReview, type StoredQrReview } from '@/lib/qrReviewsStorage';
 import { RATING_QR_CUSTOMER_HINT } from '@/config/ratingQrInvite';
 import { toast } from 'sonner';
+import { fetchPublicRateBarberContext } from '@/lib/publicRateBarberRemote';
 
-export default function RateBarber() {
-  const { barberId } = useParams<{ barberId: string }>();
+type LoadPhase = 'loading' | 'ready' | 'invalid_id' | 'missing_token' | 'invite_failed' | 'load_error';
+
+type RateBarberErrorBoundaryState = { hasError: boolean };
+
+/** يمنع شاشة بيضاء عند أي خطأ غير متوقّد داخل صفحة التقييم */
+class RateBarberErrorBoundary extends Component<{ children: React.ReactNode }, RateBarberErrorBoundaryState> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): RateBarberErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Layout>
+          <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
+            <div className="container mx-auto max-w-lg">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-destructive">
+                    <AlertTriangle className="w-5 h-5" />
+                    حدث خطأ في الصفحة
+                  </CardTitle>
+                  <CardDescription>جرّب إعادة التحميل أو افتح الرابط من جديد من ملصق QR.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                  <Button type="button" variant="default" onClick={() => window.location.reload()}>
+                    إعادة التحميل
+                  </Button>
+                  <Button asChild variant="outline" className="gap-2">
+                    <Link to={ROUTE_PATHS.HOME}>
+                      <Home className="w-4 h-4" />
+                      الرئيسية
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </Layout>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function RateBarberInner() {
+  const { barberId: barberIdParam } = useParams<{ barberId: string }>();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('t');
 
-  const barber = useMemo(
-    () => mockBarbers.find((b) => b.id === barberId),
-    [barberId],
-  );
+  const barberId = String(barberIdParam ?? '').trim();
 
-  const valid = barber && validateRatingInviteToken(barber, token);
+  const [phase, setPhase] = useState<LoadPhase>('loading');
+  const [remoteName, setRemoteName] = useState<string | null>(null);
+  const [loadErrorDetail, setLoadErrorDetail] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      if (!barberId) {
+        setPhase('invalid_id');
+        return;
+      }
+      const tok = token != null ? String(token).trim() : '';
+      if (!tok) {
+        setPhase('missing_token');
+        return;
+      }
+
+      setPhase('loading');
+      setLoadErrorDetail(null);
+
+      const mock = mockBarbers.find((b) => b.id === barberId);
+      if (mock && validateRatingInviteToken(mock, token)) {
+        if (!cancelled) {
+          setRemoteName(mock.name);
+          setPhase('ready');
+        }
+        return;
+      }
+
+      const res = await fetchPublicRateBarberContext(barberId, token);
+      if (cancelled) return;
+
+      if (res.ok) {
+        setRemoteName(res.name);
+        setPhase('ready');
+        return;
+      }
+
+      if (res.reason === 'missing_params') {
+        setPhase('missing_token');
+        return;
+      }
+      if (res.reason === 'invalid_token') {
+        setPhase('invite_failed');
+        return;
+      }
+      if (res.reason === 'not_found') {
+        setPhase('invalid_id');
+        return;
+      }
+      if (res.reason === 'rate_limited') {
+        setLoadErrorDetail('طلبات كثيرة من نفس الجهاز. انتظر قليلاً ثم أعد المحاولة.');
+        setPhase('load_error');
+        return;
+      }
+      setLoadErrorDetail(
+        res.reason === 'network'
+          ? 'تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى.'
+          : 'تعذّر تحميل بيانات الصالون.',
+      );
+      setPhase('load_error');
+    }
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [barberId, token]);
+
+  const barber: Barber | undefined = useMemo(() => {
+    if (phase !== 'ready' || !barberId) return undefined;
+    const mock = mockBarbers.find((b) => b.id === barberId);
+    if (mock) return mock;
+    const tok = String(token ?? '').trim();
+    if (!tok || !remoteName) return undefined;
+    return {
+      id: barberId,
+      name: remoteName,
+      phone: '',
+      whatsapp: '',
+      location: { lat: 0, lng: 0, address: '' },
+      subscription: SubscriptionTier.GOLD,
+      rating: 0,
+      reviewCount: 0,
+      images: [],
+      services: [],
+      workingHours: [],
+      isOpen: true,
+      verified: true,
+      categories: [],
+      ratingInviteToken: tok,
+    };
+  }, [phase, barberId, token, remoteName]);
+
+  const valid = Boolean(barber && validateRatingInviteToken(barber, token));
 
   const [customerName, setCustomerName] = useState('');
   const [rating, setRating] = useState(5);
@@ -61,22 +205,31 @@ export default function RateBarber() {
     toast.success('شكراً لتقييمك!');
   };
 
-  return (
-    <Layout>
-      <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
-        <motion.div
-          className="container mx-auto max-w-lg"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {!barberId || !barber ? (
+  if (phase === 'loading') {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] bg-background py-12 px-4 flex items-center justify-center" dir="rtl">
+          <div className="flex flex-col items-center gap-4 text-muted-foreground">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" aria-hidden />
+            <p className="text-sm text-foreground/80">جاري تحميل صفحة التقييم…</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (phase === 'invalid_id') {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
+          <motion.div className="container mx-auto max-w-lg" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-destructive">
                   <AlertTriangle className="w-5 h-5" />
                   رابط غير صالح
                 </CardTitle>
-                <CardDescription>لم يُعثر على هذا الصالون.</CardDescription>
+                <CardDescription>لم يُعثر على هذا الصالون أو المعرف غير صحيح.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button asChild variant="outline" className="gap-2">
@@ -87,7 +240,50 @@ export default function RateBarber() {
                 </Button>
               </CardContent>
             </Card>
-          ) : !valid ? (
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (phase === 'missing_token') {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
+          <motion.div className="container mx-auto max-w-lg" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="w-5 h-5" />
+                  الرابط ناقص
+                </CardTitle>
+                <CardDescription>
+                  رابط التقييم يجب أن يتضمّن رمز الدعوة (?t=…). استخدم الرابط الكامل من ملصق QR أو من الحلاق.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground mb-4">
+                  التطبيق يعمل بمسارات بعد الرمز # (مثل: /#/rate/المعرف?t=الرمز). إذا فتحت الرابط بدون # قد لا تُحمّل الصفحة بشكل صحيح على بعض الأجهزة.
+                </p>
+                <Button asChild variant="outline" className="gap-2">
+                  <Link to={ROUTE_PATHS.HOME}>
+                    <Home className="w-4 h-4" />
+                    العودة للرئيسية
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (phase === 'invite_failed') {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
+          <motion.div className="container mx-auto max-w-lg" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-destructive">
@@ -107,7 +303,80 @@ export default function RateBarber() {
                 </Button>
               </CardContent>
             </Card>
-          ) : submitted ? (
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (phase === 'load_error') {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
+          <motion.div className="container mx-auto max-w-lg" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="w-5 h-5" />
+                  تعذّر التحميل
+                </CardTitle>
+                <CardDescription>{loadErrorDetail || 'حدث خطأ أثناء جلب بيانات الصالون.'}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                <Button type="button" onClick={() => window.location.reload()}>
+                  إعادة المحاولة
+                </Button>
+                <Button asChild variant="outline" className="gap-2">
+                  <Link to={ROUTE_PATHS.HOME}>
+                    <Home className="w-4 h-4" />
+                    الرئيسية
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!barber || !valid) {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
+          <motion.div className="container mx-auto max-w-lg" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="w-5 h-5" />
+                  رابط غير صالح
+                </CardTitle>
+                <CardDescription>تعذّر التحقق من رابط التقييم.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" className="gap-2">
+                  <Link to={ROUTE_PATHS.HOME}>
+                    <Home className="w-4 h-4" />
+                    العودة للرئيسية
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
+        <motion.div
+          className="container mx-auto max-w-lg"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {submitted ? (
             <Card className="border-primary/40">
               <CardHeader className="text-center">
                 <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 text-primary">
@@ -186,5 +455,13 @@ export default function RateBarber() {
         </motion.div>
       </div>
     </Layout>
+  );
+}
+
+export default function RateBarber() {
+  return (
+    <RateBarberErrorBoundary>
+      <RateBarberInner />
+    </RateBarberErrorBoundary>
   );
 }

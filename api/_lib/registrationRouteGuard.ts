@@ -96,6 +96,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'log-search-activity') {
     return envInt('LOG_SEARCH_ACTIVITY_RATE_LIMIT_MAX', 200);
   }
+  if (routeId === 'public-rate-barber-context') {
+    return envInt('PUBLIC_RATE_BARBER_CONTEXT_RATE_LIMIT_MAX', 80);
+  }
   if (routeId === 'barber-portal-magic-consume') {
     return envInt('BARBER_PORTAL_MAGIC_RATE_LIMIT_MAX', 20);
   }

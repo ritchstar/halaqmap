@@ -49,6 +49,18 @@
   </head>
 
   <body>
+    <!-- HashRouter: الروابط الصحيحة للتقييم هي /#/rate/…?t=… — إن فُتحت /rate/… بدون # نُعيد التوجيه قبل تحميل React -->
+    <script>
+      (function () {
+        try {
+          var path = window.location.pathname || '';
+          var hash = window.location.hash || '';
+          if (path.indexOf('/rate/') === 0 && hash.length <= 1) {
+            window.location.replace(window.location.origin + '/#' + path + (window.location.search || ''));
+          }
+        } catch (e) {}
+      })();
+    </script>
     <div id="root"></div>
     <!-- ?v= يقلّل احتمال كاش قديم أثناء التطوير؛ الإنتاج يُضاف لها query على /assets/* عبر vite.config.ts -->
     <script type="module" src="/src/main.tsx?v=2"></script>
