@@ -77,7 +77,7 @@
       "maxDuration": 20
     },
     "api/approve-barber.ts": {
-      "maxDuration": 30
+      "maxDuration": 45
     },
     "api/send-barber-onboarding.ts": {
       "maxDuration": 60
