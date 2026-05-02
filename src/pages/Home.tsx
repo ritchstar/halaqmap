@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
@@ -9,6 +9,7 @@ import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { buildHomeSearchQueryText, postLogSearchActivity } from '@/lib/searchActivityLogRemote';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import {
@@ -22,6 +23,7 @@ const USER_TRUST_LINE = 'حدد موقعك بدقة · قارن حسب التق�
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 
 export default function Home() {
+  const searchLogDedupe = useRef<{ key: string; at: number }>({ key: '', at: 0 });
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
@@ -115,6 +117,55 @@ export default function Home() {
     if (!userLocation) return [];
     return filterBarbersByDistance(catalogBarbers, userLocation, filters);
   }, [userLocation, filters, catalogBarbers]);
+
+  const filterSig = useMemo(
+    () =>
+      JSON.stringify({
+        maxDistance: filters.maxDistance,
+        minRating: filters.minRating,
+        tiers: filters.tiers,
+        openNow: filters.openNow,
+        categories: filters.categories,
+      }),
+    [filters.maxDistance, filters.minRating, filters.tiers, filters.openNow, filters.categories],
+  );
+
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !userLocation || remoteStatus !== 'ready') return;
+
+    const radiusKm = Math.max(5, filters.maxDistance);
+    const timer = window.setTimeout(() => {
+      const queryText = buildHomeSearchQueryText({
+        radiusKm,
+        filters,
+        rpcResultCount: remoteBarbers.length,
+        listAfterLocalFilters: filteredBarbers.length,
+      });
+      const key = `${userLocation.lat.toFixed(5)},${userLocation.lng.toFixed(5)}|${filterSig}|rpc${remoteBarbers.length}|ui${filteredBarbers.length}`;
+      const now = Date.now();
+      if (searchLogDedupe.current.key === key && now - searchLogDedupe.current.at < 9000) return;
+      searchLogDedupe.current = { key, at: now };
+      void postLogSearchActivity({
+        queryText,
+        scopeType: 'composite',
+        userLat: userLocation.lat,
+        userLng: userLocation.lng,
+        locationSharing: true,
+        filters: {
+          maxDistance: filters.maxDistance,
+          minRating: filters.minRating,
+          tiers: filters.tiers,
+          openNow: filters.openNow,
+          categories: filters.categories,
+          radiusKm,
+        },
+        resultCount: filteredBarbers.length,
+        rpcResultCount: remoteBarbers.length,
+      });
+    }, 2600);
+
+    return () => window.clearTimeout(timer);
+  }, [userLocation, remoteStatus, filterSig, remoteBarbers.length, filteredBarbers.length]);
 
   const handleLocationDetected = (location: { lat: number; lng: number }) => {
     setUserLocation(location);

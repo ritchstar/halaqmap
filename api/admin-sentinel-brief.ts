@@ -22,13 +22,134 @@ function corsHeaders(request: Request): Record<string, string> {
 
 /** أسماء منطقية للمخطط (تطابق طلب المنتج) ↔ الجداول الفعلية في قاعدة البيانات. */
 const DATA_SOURCES = {
-  Users_Activity: 'profiles (إنشاء الحسابات) + private_conversations (بدء محادثات)',
+  Users_Activity:
+    'profiles (إنشاء الحسابات) + private_conversations (بدء محادثات) + public.search_activity_logs (بحث المستخدمين؛ ملخص 24س)',
   Barbers_Directory: 'public.barbers',
   Chat_Logs: 'private_messages (عينة خادمية) + platform_support_messages (إحصاءات)',
   Subscriptions_Finance: 'public.payments',
   Security_Events: 'public.platform_booking_security_log',
   Subscription_Health: 'payments(status=failed) + registration_submissions(24h) + ping جدول barbers',
 } as const;
+
+function normalizeAggKey(s: string): string {
+  return s.trim().replace(/\s+/g, ' ');
+}
+
+type SearchDistrictRow = { district_name: string | null; city_name: string | null };
+
+function aggregateSearchDistricts24h(rows: SearchDistrictRow[]): {
+  topDistricts: { districtName: string; searchCount: number; topCity: string | null }[];
+} {
+  type Agg = { display: string; count: number; cityVotes: Map<string, number> };
+  const m = new Map<string, Agg>();
+  for (const r of rows) {
+    const d = (r.district_name || '').trim();
+    if (!d) continue;
+    const nk = normalizeAggKey(d).toLowerCase();
+    let agg = m.get(nk);
+    if (!agg) {
+      agg = { display: d, count: 0, cityVotes: new Map() };
+      m.set(nk, agg);
+    }
+    agg.count += 1;
+    const c = (r.city_name || '').trim();
+    if (c) agg.cityVotes.set(c, (agg.cityVotes.get(c) ?? 0) + 1);
+  }
+  const topDistricts = [...m.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+    .map((v) => {
+      let topCity: string | null = null;
+      let best = 0;
+      for (const [ci, ct] of v.cityVotes) {
+        if (ct > best) {
+          best = ct;
+          topCity = ci;
+        }
+      }
+      return { districtName: v.display, searchCount: v.count, topCity };
+    });
+  return { topDistricts };
+}
+
+function aggregateSearchCitiesNoDistrict24h(rows: SearchDistrictRow[]): { cityName: string; searchCount: number }[] {
+  const m = new Map<string, { display: string; count: number }>();
+  for (const r of rows) {
+    const d = (r.district_name || '').trim();
+    const c = (r.city_name || '').trim();
+    if (d || !c) continue;
+    const nk = normalizeAggKey(c).toLowerCase();
+    const prev = m.get(nk);
+    if (!prev) m.set(nk, { display: c, count: 1 });
+    else prev.count += 1;
+  }
+  return [...m.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+    .map((v) => ({ cityName: v.display, searchCount: v.count }));
+}
+
+function stripHaiPrefix(name: string): string {
+  return name.replace(/^(حي|حى)\s+/u, '').trim();
+}
+
+function countBarbersLikelyInDistrict(
+  barbers: { city: string | null; address: string }[],
+  districtDisplay: string,
+  cityHint: string | null,
+): number {
+  const needle = stripHaiPrefix(districtDisplay).toLowerCase();
+  if (needle.length < 2) return 0;
+  const hint = (cityHint || '').trim().toLowerCase();
+  let n = 0;
+  for (const b of barbers) {
+    const addr = (b.address || '').toLowerCase();
+    const cityb = (b.city || '').trim().toLowerCase();
+    const addrHit =
+      addr.includes(needle) || addr.includes(`حي ${needle}`) || addr.includes(`حى ${needle}`);
+    if (!addrHit) continue;
+    if (hint) {
+      if (!cityb || !(cityb.includes(hint) || hint.includes(cityb))) continue;
+    }
+    n += 1;
+  }
+  return n;
+}
+
+const MIN_RECRUITMENT_SEARCH_24H = 5;
+
+function buildRecruitmentAlerts(
+  barbers: { city: string | null; address: string }[],
+  topDistricts: { districtName: string; searchCount: number; topCity: string | null }[],
+): {
+  districtName: string;
+  cityName: string | null;
+  searchCount24h: number;
+  approximateBarbers: number;
+  label: 'تنبيه استقطاب عاجل';
+}[] {
+  const out: {
+    districtName: string;
+    cityName: string | null;
+    searchCount24h: number;
+    approximateBarbers: number;
+    label: 'تنبيه استقطاب عاجل';
+  }[] = [];
+  for (const t of topDistricts) {
+    if (t.searchCount < MIN_RECRUITMENT_SEARCH_24H) continue;
+    const approximateBarbers = countBarbersLikelyInDistrict(barbers, t.districtName, t.topCity);
+    if (approximateBarbers === 0) {
+      out.push({
+        districtName: t.districtName,
+        cityName: t.topCity,
+        searchCount24h: t.searchCount,
+        approximateBarbers,
+        label: 'تنبيه استقطاب عاجل',
+      });
+    }
+  }
+  return out;
+}
 
 export async function OPTIONS(request: Request): Promise<Response> {
   const mis = rejectIfSentinelProductionPublicOriginsMisconfigured();
@@ -76,9 +197,10 @@ export async function GET(request: Request): Promise<Response> {
     failedPaymentsRes,
     registrationRecentRes,
     interestCountRes,
+    searchLogsRes,
   ] = await Promise.all([
     supabase.from('payments').select('amount, status, tier, created_at').gte('created_at', since30d),
-    supabase.from('barbers').select('id, name, tier, total_reviews, city, latitude, longitude').limit(5000),
+    supabase.from('barbers').select('id, name, tier, total_reviews, city, address, latitude, longitude').limit(5000),
     supabase
       .from('platform_booking_security_log')
       .select('id, severity, created_at')
@@ -109,6 +231,11 @@ export async function GET(request: Request): Promise<Response> {
       .from('barber_interest_signups')
       .select('id', { count: 'exact', head: true })
       .gte('created_at', since24h),
+    supabase
+      .from('search_activity_logs')
+      .select('district_name, city_name')
+      .gte('created_at', since24h)
+      .limit(8000),
   ]);
 
   const pingT0 = Date.now();
@@ -200,7 +327,14 @@ export async function GET(request: Request): Promise<Response> {
     tier: string | null;
     total_reviews: number | null;
     city: string | null;
+    address: string;
   }[];
+
+  const searchRows = (searchLogsRes.data ?? []) as { district_name: string | null; city_name: string | null }[];
+  const searchAgg = aggregateSearchDistricts24h(searchRows);
+  const topDistricts24h = searchAgg.topDistricts;
+  const topCitiesNoDistrict24h = aggregateSearchCitiesNoDistrict24h(searchRows);
+  const recruitmentAlerts = buildRecruitmentAlerts(barbers, topDistricts24h);
 
   const tierCounts: Record<string, number> = {};
   for (const b of barbers) {
@@ -287,6 +421,39 @@ export async function GET(request: Request): Promise<Response> {
     },
   };
 
+  const logsScanned24h = searchRows.length;
+  const searchQueryError = searchLogsRes.error?.message ?? null;
+
+  let searchDemandLine: string;
+  if (searchQueryError) {
+    searchDemandLine = `تعذر جلب سجل البحث: ${searchQueryError}`;
+  } else if (topDistricts24h.length === 0) {
+    searchDemandLine =
+      logsScanned24h === 0
+        ? 'بحث 24س: لا سجلات بعد — يُبنى التتبع من الصفحة الرئيسية بعد تفعيل الموقع.'
+        : 'بحث 24س: لا أحياء مُجمّعة في السجل بعد (غالباً تحتاج مشاركة موقع أو تسمية حي من الخادم).';
+  } else {
+    searchDemandLine =
+      'أكثر 5 أحياء بحثاً (24س): ' +
+      topDistricts24h.map((t) => `${t.districtName} (${t.searchCount})`).join('، ');
+    if (topCitiesNoDistrict24h.length) {
+      searchDemandLine += ` — بحث بمدينة دون حي: ${topCitiesNoDistrict24h
+        .slice(0, 3)
+        .map((c) => `${c.cityName} (${c.searchCount})`)
+        .join('، ')}`;
+    }
+  }
+
+  const recruitmentAlertsLine =
+    recruitmentAlerts.length > 0
+      ? recruitmentAlerts
+          .map(
+            (a) =>
+              `${a.label}: ${a.districtName}${a.cityName ? ` — ${a.cityName}` : ''} (بحث ${a.searchCount24h}، حلاق مطابقون تقريباً ${a.approximateBarbers})`,
+          )
+          .join(' | ')
+      : undefined;
+
   const executiveSummary = buildExecutiveSummary({
     completedSar,
     pendingSar,
@@ -299,6 +466,8 @@ export async function GET(request: Request): Promise<Response> {
     recurringFailureBarbers: recurringWithNames.length,
     stuckPending24h: stuckSubmissions.length,
     supabasePingMs,
+    searchDemandLine,
+    recruitmentAlertsLine,
   });
 
   return Response.json(
@@ -335,6 +504,16 @@ export async function GET(request: Request): Promise<Response> {
         missedUpgradeOpportunities: highTrafficNoUpgrade,
       },
       geo: { hotspotsByBarberCount: geoHotspots },
+      searchDemand: {
+        windowHours: 24,
+        logsScanned24h,
+        queryError: searchQueryError,
+        topDistricts24h,
+        topCitiesNoDistrict24h,
+        recruitmentAlerts,
+        barberMatchNote:
+          'مقارنة الحلاقين تقريبية عبر تطابق نص العنوان/المدينة مع اسم الحي — ليست إحداثيات دقيقة.',
+      },
       executiveSummary,
     },
     { headers },
@@ -353,7 +532,15 @@ function buildExecutiveSummary(args: {
   recurringFailureBarbers: number;
   stuckPending24h: number;
   supabasePingMs: number;
-}): { salesLine: string; securityLine: string; revenueRecommendation: string } {
+  searchDemandLine: string;
+  recruitmentAlertsLine?: string;
+}): {
+  salesLine: string;
+  securityLine: string;
+  revenueRecommendation: string;
+  searchDemandLine: string;
+  recruitmentAlertsLine?: string;
+} {
   const highSev = (args.sevCounts.error ?? 0) + (args.sevCounts.critical ?? 0);
   const salesLine = `آخر 30 يوماً: ${args.completedSar.toFixed(2)} ر.س مكتملة، ${args.pendingSar.toFixed(2)} معلّقة، ${args.refundedSar.toFixed(2)} مستردة.`;
   const securityLine = `آخر 7 أيام: ${args.securityEvents7d} حدث أمني${highSev ? ` (خطورة مرتفعة تقريباً: ${highSev})` : ''}. عيّنة شات: ${args.chatRisk.sampleSize} رسالة — روابط/التفاف/نابية: ${args.chatRisk.pmUrlHits}/${args.chatRisk.pmBypassHits}/${args.chatRisk.pmProfanityHits}.`;
@@ -375,5 +562,13 @@ function buildExecutiveSummary(args: {
   }
   healthBits.push(`استجابة Supabase (ping): ${args.supabasePingMs}ms.`);
   if (healthBits.length) revenueRecommendation += ` ${healthBits.join(' ')}`;
-  return { salesLine, securityLine, revenueRecommendation };
+  const out: {
+    salesLine: string;
+    securityLine: string;
+    revenueRecommendation: string;
+    searchDemandLine: string;
+    recruitmentAlertsLine?: string;
+  } = { salesLine, securityLine, revenueRecommendation, searchDemandLine: args.searchDemandLine };
+  if (args.recruitmentAlertsLine) out.recruitmentAlertsLine = args.recruitmentAlertsLine;
+  return out;
 }

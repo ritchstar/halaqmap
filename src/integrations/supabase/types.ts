@@ -159,6 +159,53 @@ export interface Database {
           created_at?: string
         }
       }
+      search_activity_logs: {
+        Row: {
+          id: string
+          created_at: string
+          query_text: string
+          scope_type: 'district' | 'city' | 'service' | 'geo_nearby' | 'filter' | 'composite'
+          district_name: string | null
+          city_name: string | null
+          service_tags: string[] | null
+          user_lat: number | null
+          user_lng: number | null
+          location_sharing: boolean
+          filters_json: Json
+          result_count: number | null
+          rpc_result_count: number | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          query_text: string
+          scope_type: 'district' | 'city' | 'service' | 'geo_nearby' | 'filter' | 'composite'
+          district_name?: string | null
+          city_name?: string | null
+          service_tags?: string[] | null
+          user_lat?: number | null
+          user_lng?: number | null
+          location_sharing?: boolean
+          filters_json?: Json
+          result_count?: number | null
+          rpc_result_count?: number | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          query_text?: string
+          scope_type?: 'district' | 'city' | 'service' | 'geo_nearby' | 'filter' | 'composite'
+          district_name?: string | null
+          city_name?: string | null
+          service_tags?: string[] | null
+          user_lat?: number | null
+          user_lng?: number | null
+          location_sharing?: boolean
+          filters_json?: Json
+          result_count?: number | null
+          rpc_result_count?: number | null
+        }
+      }
       bookings: {
         Row: {
           id: string

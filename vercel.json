@@ -97,6 +97,9 @@
     "api/interest-signup.ts": {
       "maxDuration": 15
     },
+    "api/log-search-activity.ts": {
+      "maxDuration": 20
+    },
     "api/barber-portal-magic-consume.ts": {
       "maxDuration": 15
     },

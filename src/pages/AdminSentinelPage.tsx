@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Bot, Loader2, Send, Shield, Sparkles, ArrowRight } from 'lucide-react';
+import { Activity, AlertTriangle, Bot, Loader2, Send, Shield, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -58,8 +58,31 @@ type SubscriptionHealthShape = {
   };
 };
 
+type RecruitmentAlertItem = {
+  districtName: string;
+  cityName: string | null;
+  searchCount24h: number;
+  approximateBarbers: number;
+  label: string;
+};
+
 type BriefShape = {
-  executiveSummary?: { salesLine?: string; securityLine?: string; revenueRecommendation?: string };
+  executiveSummary?: {
+    salesLine?: string;
+    securityLine?: string;
+    revenueRecommendation?: string;
+    searchDemandLine?: string;
+    recruitmentAlertsLine?: string;
+  };
+  searchDemand?: {
+    windowHours?: number;
+    logsScanned24h?: number;
+    queryError?: string | null;
+    topDistricts24h?: { districtName: string; searchCount: number; topCity: string | null }[];
+    topCitiesNoDistrict24h?: { cityName: string; searchCount: number }[];
+    recruitmentAlerts?: RecruitmentAlertItem[];
+    barberMatchNote?: string;
+  };
   dataSources?: Record<string, string>;
   sales?: Record<string, unknown>;
   security?: Record<string, unknown>;
@@ -121,6 +144,11 @@ export default function AdminSentinelPage() {
       '',
       `**الحالة الأمنية:** ${es.securityLine ?? '—'}`,
       '',
+      `**البحث والطلب (24س):** ${es.searchDemandLine ?? '—'}`,
+      '',
+      ...(es.recruitmentAlertsLine
+        ? [`**تنبيهات استقطاب عاجلة:** ${es.recruitmentAlertsLine}`, '']
+        : []),
       `**توصية إدارية:** ${es.revenueRecommendation ?? '—'}`,
       '',
       'يمكنك طرح أسئلة تحليلية أو طلب تفسير للأرقام أعلاه. العمليات الحساسة تتم عبر قسم «عمليات موثقة» مع كلمة مرور العمليات.',
@@ -229,6 +257,37 @@ export default function AdminSentinelPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-5 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        {(brief?.searchDemand?.recruitmentAlerts ?? []).length > 0 ? (
+          <Card className="bg-amber-950/50 border-amber-500/60 shadow-xl shadow-black/30">
+            <CardHeader className="pb-2">
+              <CardTitle className={`text-lg sm:text-xl font-bold flex items-center gap-2 ${TXT}`}>
+                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 shrink-0 text-amber-400" />
+                تنبيهات استقطاب عاجلة
+              </CardTitle>
+              <CardDescription className={`text-sm sm:text-[15px] leading-relaxed font-medium text-amber-100/95`}>
+                {brief?.searchDemand?.barberMatchNote ??
+                  'بحث مرتفع في حي مع تطابق ضعيف للحلاقين في بيانات العنوان — راجع الملخص وراء الكواليس.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className={`space-y-2 text-sm sm:text-[15px] font-bold ${TXT}`}>
+              {(brief?.searchDemand?.recruitmentAlerts ?? []).map((a, i) => (
+                <div
+                  key={`${a.districtName}-${i}`}
+                  className="rounded-lg border border-amber-500/40 bg-slate-950/50 px-3 py-2.5 flex flex-wrap gap-x-3 gap-y-1 justify-between items-baseline"
+                >
+                  <span>
+                    {a.label}: {a.districtName}
+                    {a.cityName ? ` — ${a.cityName}` : ''}
+                  </span>
+                  <span className="tabular-nums text-amber-200/95">
+                    بحث {a.searchCount24h} / حلاق ≈{a.approximateBarbers}
+                  </span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        ) : null}
+
         {/* Subscription Health — بيانات حية من admin-sentinel-brief */}
         <Card className="bg-slate-900/80 border-white/20 shadow-xl shadow-black/30">
           <CardHeader>
