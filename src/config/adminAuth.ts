@@ -28,3 +28,8 @@ export function getAdminLoginPath(): string {
 export function getAdminDashboardPath(): string {
   return `${getAdminPortalBasePath()}/ctrl`;
 }
+
+/** مسار سرّي لواجهة «الوكيل المراقب العام» — يحمى بـ AdminSentinelSecurityGate + API preflight (IP/MFA). */
+export function getAdminSentinelPath(): string {
+  return `${getAdminPortalBasePath()}/sentinel`;
+}

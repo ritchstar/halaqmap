@@ -31,8 +31,9 @@ import Payment from "@/pages/Payment";
 import PartnerSupportChat from "@/pages/PartnerSupportChat";
 import RateBarber from "@/pages/RateBarber";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
-import { getAdminLoginPath, getAdminDashboardPath } from "@/config/adminAuth";
-import { AdminAuthHashGate } from "@/components/AdminAuthHashGate";
+import AdminSentinelPage from "@/pages/AdminSentinelPage";
+import { getAdminLoginPath, getAdminDashboardPath, getAdminSentinelPath } from "@/config/adminAuth";
+import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
 const queryClient = new QueryClient();
 
@@ -112,6 +113,14 @@ const App = () => (
           />
           <Route path={getAdminLoginPath()} element={<AdminLogin />} />
           <Route path={getAdminDashboardPath()} element={<AdminDashboard />} />
+          <Route
+            path={getAdminSentinelPath()}
+            element={
+              <AdminSentinelSecurityGate>
+                <AdminSentinelPage />
+              </AdminSentinelSecurityGate>
+            }
+          />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

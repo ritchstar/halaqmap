@@ -1,8 +1,9 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { getAdminDashboardPath, getAdminLoginPath } from '@/config/adminAuth';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
+import { fetchAdminSentinelPreflight } from '@/lib/adminSentinelRemote';
 
 function authReturnNeedsHandling(): boolean {
   if (typeof window === 'undefined') return false;
@@ -102,6 +103,114 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
       >
         <p className="text-lg font-medium">جاري التحقق من رابط الدخول...</p>
         <p className="text-sm text-muted-foreground">يرجى الانتظار لحظات</p>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+/**
+ * بوابة أمان الوكيل الإداري: تستدعي `/api/admin-sentinel-preflight` (قائمة IP + MFA aal2 اختياري)
+ * قبل عرض صفحة «الوكيل المراقب العام». يجب لف مسار `/sentinel` بهذا المكوّن.
+ */
+export function AdminSentinelSecurityGate({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+  const [phase, setPhase] = useState<'loading' | 'ok' | 'denied' | 'nologin'>('loading');
+  const [hint, setHint] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      if (!isSupabaseConfigured()) {
+        if (!cancelled) {
+          setPhase('nologin');
+          setHint('لم يُضبط Supabase.');
+        }
+        return;
+      }
+      const client = getSupabaseClient();
+      if (!client) {
+        if (!cancelled) setPhase('nologin');
+        return;
+      }
+      const { data } = await client.auth.getSession();
+      const email = data.session?.user?.email;
+      if (!email?.trim()) {
+        if (!cancelled) {
+          setPhase('nologin');
+          setHint('يلزم تسجيل دخول الإدارة.');
+        }
+        return;
+      }
+      const access = await resolveAdminAccess(email);
+      if (!access.allowed) {
+        if (!cancelled) {
+          setPhase('nologin');
+          setHint('هذا الحساب غير مصرح للوحة الإدارة.');
+        }
+        return;
+      }
+
+      const pre = await fetchAdminSentinelPreflight();
+      if (cancelled) return;
+      if (!pre.ok) {
+        setPhase('denied');
+        setHint(pre.error);
+        return;
+      }
+      if (!pre.body.ok) {
+        setPhase('denied');
+        setHint(pre.body.hint || 'مرفوض من الخادم (IP أو MFA).');
+        return;
+      }
+      setPhase('ok');
+      setHint(null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  if (phase === 'loading') {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center gap-3 bg-slate-950 text-slate-100"
+        dir="rtl"
+      >
+        <p className="text-lg font-medium">جاري التحقق من بوابة الوكيل (IP / MFA)…</p>
+        <p className="text-sm text-slate-400">الاتصال بالخادم</p>
+      </div>
+    );
+  }
+
+  if (phase === 'nologin') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-950 text-slate-100 p-6" dir="rtl">
+        <p className="text-lg font-medium">{hint || 'يلزم تسجيل الدخول.'}</p>
+        <button
+          type="button"
+          className="text-primary underline"
+          onClick={() => navigate(getAdminLoginPath(), { replace: true })}
+        >
+          الانتقال لتسجيل دخول الإدارة
+        </button>
+      </div>
+    );
+  }
+
+  if (phase === 'denied') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-950 text-slate-100 p-6" dir="rtl">
+        <p className="text-lg font-medium text-amber-200">تم رفض الوصول إلى الوكيل المراقب</p>
+        <p className="text-sm text-slate-400 text-center max-w-md">{hint}</p>
+        <button
+          type="button"
+          className="text-primary underline"
+          onClick={() => navigate(getAdminDashboardPath(), { replace: true })}
+        >
+          العودة للوحة التحكم
+        </button>
       </div>
     );
   }

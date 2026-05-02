@@ -84,6 +84,9 @@ export function parseRegistrationAllowedOrigins(): string[] {
 }
 
 function rateLimitMaxForRoute(routeId: string): number {
+  if (routeId.startsWith('admin-sentinel-')) {
+    return envInt('ADMIN_SENTINEL_RATE_LIMIT_MAX', 40);
+  }
   if (routeId === 'partner-assistant-chat') {
     return envInt('PARTNER_ASSISTANT_RATE_LIMIT_MAX', 20);
   }

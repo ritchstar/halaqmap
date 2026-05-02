@@ -108,6 +108,18 @@
     },
     "api/partner-promo-admin.ts": {
       "maxDuration": 60
+    },
+    "api/admin-sentinel-preflight.ts": {
+      "maxDuration": 15
+    },
+    "api/admin-sentinel-brief.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-sentinel-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-sentinel-action.ts": {
+      "maxDuration": 20
     }
   }
 }
