@@ -1479,7 +1479,7 @@ export function RegistrationForm() {
                     <AlertDescription>
                       {vatSettings.enabled && monthlyPriceBreakdown && monthlyPriceBreakdown.vat > 0 ? (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — أتعاب الاشتراك{' '}
+                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — رسوم الاشتراك{' '}
                           {monthlyPriceBreakdown.subtotal} ر.س شهرياً + ضريبة القيمة المضافة (
                           {vatSettings.ratePercent}%){' '}
                           {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
@@ -1489,7 +1489,7 @@ export function RegistrationForm() {
                         <>
                           الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price} ريال شهرياً
                           <span className="block text-xs mt-1 opacity-90">
-                            المبلغ المعروض أتعاب اشتراك فقط دون ضريبة قيمة مضافة في الوضع الحالي.
+                            المبلغ المعروض رسوم اشتراك فقط دون ضريبة قيمة مضافة في الوضع الحالي.
                           </span>
                         </>
                       )}
@@ -1522,7 +1522,7 @@ export function RegistrationForm() {
                         تحويل بنكي ({BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً)
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        خلال فترة العرض التشغيلي: خصم 10% على إجمالي أتعاب الـ{BANK_TRANSFER_PREPAID_MONTHS} أشهر +
+                        خلال فترة العرض التشغيلي: خصم 10% على إجمالي رسوم الـ{BANK_TRANSFER_PREPAID_MONTHS} أشهر +
                         إضافة {BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر صلاحية (عرض تشغيلي). بعد انتهاء العرض: السعر
                         الكامل لـ{BANK_TRANSFER_PREPAID_MONTHS} أشهر فقط دون الأشهر الإضافية.
                       </p>
@@ -1536,10 +1536,10 @@ export function RegistrationForm() {
                               {vatSettings.enabled && bd.vat > 0 ? (
                                 <>
                                   {bd.total} ريال (يشمل ضريبة القيمة المضافة {vatSettings.ratePercent}%:{' '}
-                                  {bd.vat} ريال على أتعاب {bd.subtotal} ريال)
+                                  {bd.vat} ريال على رسوم {bd.subtotal} ريال)
                                 </>
                               ) : (
-                                <>{base} ريال (أتعاب اشتراك دون ضريبة قيمة مضافة)</>
+                                <>{base} ريال (رسوم اشتراك دون ضريبة قيمة مضافة)</>
                               )}
                             </p>
                             <p className="text-xs font-normal text-muted-foreground">

@@ -3977,7 +3977,7 @@ function SettingsSection({
       title: 'تم حفظ إعدادات الضريبة',
       description: vatEnabled
         ? `مفعّلة — النسبة المعروضة ${rateForPreview}% (تُحسب تلقائياً في صفحات الدفع).`
-        : 'معطّلة — تُعرض أتعاب الاشتراك فقط دون ضريبة في الواجهة.',
+        : 'معطّلة — تُعرض رسوم الاشتراك فقط دون ضريبة في الواجهة.',
     });
   };
 
@@ -4190,7 +4190,7 @@ function SettingsSection({
         <CardHeader>
           <CardTitle>ضريبة القيمة المضافة (عرض الدفع)</CardTitle>
           <CardDescription>
-            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كأتعاب اشتراك فقط (مناسب
+            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كرسوم اشتراك فقط (مناسب
             لتقديم بوابات مثل ميسر). عند التوسع بسجل تجاري ورقم ضريبي فعّل الاحتسب هنا وحدّث النسبة عند تغيير
             الأنظمة.
           </CardDescription>
@@ -4221,13 +4221,13 @@ function SettingsSection({
             <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
           </div>
           <div className="rounded-lg bg-muted/50 p-4 text-sm">
-            <p className="font-medium mb-2">معاينة على 100 ر.س (أتعاب اشتراك)</p>
+            <p className="font-medium mb-2">معاينة على 100 ر.س (رسوم اشتراك)</p>
             <p className="text-muted-foreground">
               {!vatEnabled || preview.vat === 0 ? (
                 <>الإجمالي المعروض: <strong>{preview.total} ر.س</strong> (بدون ضريبة)</>
               ) : (
                 <>
-                  الأتعاب: {preview.subtotal} ر.س + الضريبة ({rateForPreview}%): {preview.vat} ر.س ={' '}
+                  الرسوم: {preview.subtotal} ر.س + الضريبة ({rateForPreview}%): {preview.vat} ر.س ={' '}
                   <strong>{preview.total} ر.س</strong>
                 </>
               )}

@@ -384,7 +384,7 @@ export default function Payment() {
                       {vatSettings.enabled && monthlyBreakdown.vat > 0 ? (
                         <>
                           <p className="text-xs text-muted-foreground">
-                            أتعاب الاشتراك: {monthlyBreakdown.subtotal} ر.س
+                            رسوم الاشتراك: {monthlyBreakdown.subtotal} ر.س
                           </p>
                           <p className="text-xs text-muted-foreground">
                             ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {monthlyBreakdown.vat} ر.س
@@ -654,7 +654,7 @@ export default function Payment() {
                             {vatSettings.enabled && bankTransferBreakdown.vat > 0 ? (
                               <div className="space-y-1 mt-1">
                                 <p className="text-sm text-muted-foreground">
-                                  أتعاب الاشتراك: {bankTransferBreakdown.subtotal} ر.س
+                                  رسوم الاشتراك: {bankTransferBreakdown.subtotal} ر.س
                                 </p>
                                 <p className="text-sm text-muted-foreground">
                                   ضريبة القيمة المضافة ({vatSettings.ratePercent}%):{' '}

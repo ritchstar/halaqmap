@@ -18,7 +18,7 @@ export const BANK_TRANSFER_PROMO_BONUS_MONTHS = 3;
 
 const BANK_TRANSFER_PROMO_DISCOUNT = 0.1;
 
-/** إجمالي أتعاب الستة أشهر قبل الخصم (ر.س) = السعر الشهري × 6 */
+/** إجمالي رسوم الستة أشهر قبل الخصم (ر.س) = السعر الشهري × 6 */
 export function getBankTransferPeriodGrossSar(tier: SubscriptionTier): number {
   return TIER_MONTHLY_SAR[tier] * BANK_TRANSFER_PREPAID_MONTHS;
 }
