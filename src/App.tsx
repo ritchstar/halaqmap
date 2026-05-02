@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Fragment } from "react";
 import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 /** يتضمن PartnerLayout مساعد الشركاء الرقمي (v2) عبر PartnerDigitalBarberAssistant — المسار الوحيد للمساعد في مسار الشركاء. */
@@ -32,7 +33,7 @@ import PartnerSupportChat from "@/pages/PartnerSupportChat";
 import RateBarber from "@/pages/RateBarber";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import AdminSentinelPage from "@/pages/AdminSentinelPage";
-import { getAdminLoginPath, getAdminDashboardPath, getAdminSentinelPath } from "@/config/adminAuth";
+import { getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
 const queryClient = new QueryClient();
@@ -111,16 +112,20 @@ const App = () => (
               </PartnerLayout>
             }
           />
-          <Route path={getAdminLoginPath()} element={<AdminLogin />} />
-          <Route path={getAdminDashboardPath()} element={<AdminDashboard />} />
-          <Route
-            path={getAdminSentinelPath()}
-            element={
-              <AdminSentinelSecurityGate>
-                <AdminSentinelPage />
-              </AdminSentinelSecurityGate>
-            }
-          />
+          {getAdminPortalBasePaths().map((adminBase) => (
+            <Fragment key={adminBase}>
+              <Route path={`${adminBase}/in`} element={<AdminLogin />} />
+              <Route path={`${adminBase}/ctrl`} element={<AdminDashboard />} />
+              <Route
+                path={`${adminBase}/sentinel`}
+                element={
+                  <AdminSentinelSecurityGate>
+                    <AdminSentinelPage />
+                  </AdminSentinelSecurityGate>
+                }
+              />
+            </Fragment>
+          ))}
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

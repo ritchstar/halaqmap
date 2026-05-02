@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import QRCode from 'react-qr-code';
 import {
@@ -63,7 +63,7 @@ import {
   removeStoredSubscriptionRequest,
 } from '@/lib/subscriptionRequestStorage';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminLoginPath } from '@/config/adminAuth';
+import { getAdminLoginPathFor } from '@/config/adminAuth';
 import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
 import { fetchAdminStats } from '@/lib/adminStatsRemote';
 import { fetchPaymentsForAdmin, updatePaymentStatusRemote } from '@/lib/adminPaymentsRemote';
@@ -263,6 +263,7 @@ type AdminSessionInfo = {
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
   const [adminData, setAdminData] = useState<AdminSessionInfo | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
@@ -281,12 +282,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
-      navigate(getAdminLoginPath(), { replace: true });
+      navigate(getAdminLoginPathFor(location.pathname), { replace: true });
       return;
     }
     const client = getSupabaseClient();
     if (!client) {
-      navigate(getAdminLoginPath(), { replace: true });
+      navigate(getAdminLoginPathFor(location.pathname), { replace: true });
       return;
     }
 
@@ -295,13 +296,13 @@ export default function AdminDashboard() {
     const applySession = (session: { user: { id: string; email?: string | null } } | null) => {
       if (cancelled) return;
       if (!session?.user?.email) {
-        navigate(getAdminLoginPath(), { replace: true });
+        navigate(getAdminLoginPathFor(location.pathname), { replace: true });
         return;
       }
       void resolveAdminAccess(session.user.email).then((access) => {
         if (cancelled) return;
         if (!access.allowed) {
-          navigate(getAdminLoginPath(), { replace: true });
+          navigate(getAdminLoginPathFor(location.pathname), { replace: true });
           return;
         }
         setAdminData({
@@ -325,7 +326,7 @@ export default function AdminDashboard() {
       cancelled = true;
       sub.subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   useEffect(() => {
     if (!adminData) return;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Bot, Loader2, Send, Shield, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { getAdminDashboardPath } from '@/config/adminAuth';
+import { getAdminDashboardPathFor } from '@/config/adminAuth';
 import { toast } from '@/components/ui/sonner';
 import {
   fetchAdminSentinelBrief,
@@ -39,6 +39,7 @@ type BriefShape = {
 };
 
 export default function AdminSentinelPage() {
+  const location = useLocation();
   const [brief, setBrief] = useState<BriefShape | null>(null);
   const [briefRaw, setBriefRaw] = useState<Record<string, unknown> | null>(null);
   const [briefLoading, setBriefLoading] = useState(true);
@@ -181,7 +182,7 @@ export default function AdminSentinelPage() {
             </div>
           </div>
           <Button variant="outline" className="border-slate-700 text-slate-200" asChild>
-            <Link to={getAdminDashboardPath()}>
+            <Link to={getAdminDashboardPathFor(location.pathname)}>
               لوحة التحكم
               <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
             </Link>

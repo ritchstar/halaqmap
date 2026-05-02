@@ -7,18 +7,50 @@ export function getAdminAllowedEmail(): string {
 
 /**
  * مسار «البوابة» الخفي للإدارة (بدون رابط في واجهة المنصة).
- * عيّن VITE_ADMIN_PORTAL_BASE في البيئة للإنتاج (مثل /x7k-m9q2-a4).
- * تحذير: القيمة تُدمج في حزمة الواجهة — الحماية الحقيقية بكلمة مرور قوية + RLS في Supabase.
+ * عيّن VITE_ADMIN_PORTAL_BASE في بيئة **البناء** (Vercel) ليطابق الرابط الذي تستخدمه (مثل /x7k-m9q2-a4).
+ * يمكن تمرير عدة قواعد مفصولة بفواصل ليتم تسجيل كلها في React Router (انتقال من مسار قديم إلى جديد):
+ * مثال: VITE_ADMIN_PORTAL_BASE=/x7k-m9q2-a4,/_hmap-int-9kz2
+ * القيمة الأولى تُستخدم كافتراضي للروابط التي لا تستنتج المسار من عنوان الصفحة الحالي.
  */
-function normalizePortalBase(raw: string | undefined): string {
-  let b = (raw ?? '').trim();
+function normalizePortalBaseSegment(raw: string): string {
+  let b = raw.trim();
   if (!b) return '/_hmap-int-9kz2';
   if (!b.startsWith('/')) b = `/${b}`;
   return b.replace(/\/+$/, '');
 }
 
+/** كل قواعد البوابة المعرّفة في البيئة (بعد البناء). */
+export function getAdminPortalBasePaths(): string[] {
+  const raw = (import.meta.env.VITE_ADMIN_PORTAL_BASE as string | undefined)?.trim();
+  if (!raw) return ['/_hmap-int-9kz2'];
+  const parts = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+    .map((s) => normalizePortalBaseSegment(s));
+  const uniq = [...new Set(parts)];
+  return uniq.length ? uniq : ['/_hmap-int-9kz2'];
+}
+
+/** القاعدة الافتراضية (الأولى في القائمة) — للروابط العامة. */
 export function getAdminPortalBasePath(): string {
-  return normalizePortalBase(import.meta.env.VITE_ADMIN_PORTAL_BASE as string | undefined);
+  return getAdminPortalBasePaths()[0];
+}
+
+/**
+ * يستنتج قاعدة البوابة من pathname الحالي (مثل /x7k-m9q2-a4/sentinel → /x7k-m9q2-a4)
+ * إن وُجدت ضمن القائمة؛ وإلا null.
+ */
+export function getAdminPortalBaseFromPathname(pathname: string): string | null {
+  const path = (pathname || '/').trim() || '/';
+  for (const base of getAdminPortalBasePaths()) {
+    if (path === base || path.startsWith(`${base}/`)) return base;
+  }
+  return null;
+}
+
+export function resolveAdminPortalBase(pathname: string): string {
+  return getAdminPortalBaseFromPathname(pathname) ?? getAdminPortalBasePath();
 }
 
 export function getAdminLoginPath(): string {
@@ -29,7 +61,18 @@ export function getAdminDashboardPath(): string {
   return `${getAdminPortalBasePath()}/ctrl`;
 }
 
-/** مسار سرّي لواجهة «الوكيل المراقب العام» — يحمى بـ AdminSentinelSecurityGate + API preflight (IP/MFA). */
 export function getAdminSentinelPath(): string {
   return `${getAdminPortalBasePath()}/sentinel`;
+}
+
+export function getAdminLoginPathFor(pathname: string): string {
+  return `${resolveAdminPortalBase(pathname)}/in`;
+}
+
+export function getAdminDashboardPathFor(pathname: string): string {
+  return `${resolveAdminPortalBase(pathname)}/ctrl`;
+}
+
+export function getAdminSentinelPathFor(pathname: string): string {
+  return `${resolveAdminPortalBase(pathname)}/sentinel`;
 }

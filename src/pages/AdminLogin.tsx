@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Mail, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,13 @@ import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminAllowedEmail, getAdminDashboardPath } from '@/config/adminAuth';
+import { getAdminAllowedEmail, getAdminDashboardPathFor } from '@/config/adminAuth';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { toast } from '@/components/ui/sonner';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState(getAdminAllowedEmail());
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -25,10 +26,10 @@ export default function AdminLogin() {
     void client.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user?.email) return;
       void resolveAdminAccess(session.user.email).then((access) => {
-        if (access.allowed) navigate(getAdminDashboardPath(), { replace: true });
+        if (access.allowed) navigate(getAdminDashboardPathFor(location.pathname), { replace: true });
       });
     });
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const handlePasswordSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +67,7 @@ export default function AdminLogin() {
     }
 
     toast.success('تم تسجيل الدخول.');
-    navigate(getAdminDashboardPath(), { replace: true });
+    navigate(getAdminDashboardPathFor(location.pathname), { replace: true });
   };
 
   return (
