@@ -36,6 +36,9 @@ export async function GET(request: Request): Promise<Response> {
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
   const portalPw = Boolean((process.env.BARBER_PORTAL_PASSWORD || '').trim());
+  const anonKey = Boolean(
+    (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim(),
+  );
   return Response.json(
     {
       ok: true,
@@ -44,8 +47,11 @@ export async function GET(request: Request): Promise<Response> {
       supabaseUrlHost: safeHost(resolvedUrl),
       serviceRoleKeySet: serviceRole,
       barberPortalPasswordSet: portalPw,
+      supabaseAnonKeySet: anonKey,
       publicApiGuard: registrationGuardDiagnostics(),
-      ready: Boolean(resolvedUrl) && serviceRole && portalPw,
+      ready: Boolean(resolvedUrl) && serviceRole && (portalPw || anonKey),
+      loginModesNote:
+        'يقبل إما BARBER_PORTAL_PASSWORD (رمز موحّد) أو بريد/كلمة مرور حساب Supabase (بعد اعتماد الإدارة وإنشاء المستخدم).',
     },
     { headers },
   );
@@ -64,6 +70,7 @@ export async function POST(request: Request): Promise<Response> {
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   const portalPassword = (process.env.BARBER_PORTAL_PASSWORD || '').trim();
+  const anonKey = (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim();
 
   if (!url || !serviceRole) {
     return Response.json(
@@ -71,11 +78,11 @@ export async function POST(request: Request): Promise<Response> {
       { status: 503, headers },
     );
   }
-  if (!portalPassword) {
+  if (!portalPassword && !anonKey) {
     return Response.json(
       {
-        error: 'BARBER_PORTAL_PASSWORD is not set',
-        hint: 'Set a shared portal password on the server (Vercel env). Barbers use it with their registered email.',
+        error: 'Login not configured',
+        hint: 'Set BARBER_PORTAL_PASSWORD (رمز موحّد) و/أو SUPABASE_ANON_KEY / VITE_SUPABASE_ANON_KEY لتفعيل الدخول ببريد/كلمة مرور Supabase.',
       },
       { status: 503, headers },
     );
@@ -107,7 +114,21 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Missing email or password' }, { status: 400, headers });
   }
 
-  if (password !== portalPassword) {
+  let passwordAccepted = Boolean(portalPassword) && password === portalPassword;
+  if (!passwordAccepted && anonKey) {
+    const anonClient = createClient(url, anonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { error: signErr } = await anonClient.auth.signInWithPassword({
+      email: rawEmail,
+      password,
+    });
+    if (!signErr) {
+      passwordAccepted = true;
+      await anonClient.auth.signOut();
+    }
+  }
+  if (!passwordAccepted) {
     return Response.json({ error: 'Invalid credentials' }, { status: 401, headers });
   }
 
