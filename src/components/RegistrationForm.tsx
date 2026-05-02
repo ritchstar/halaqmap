@@ -27,7 +27,12 @@ import {
 } from '@/lib/subscriptionRequestStorage';
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
 import { BANK_TRANSFER } from '@/config/bankTransfer';
-import { getBankTransferPayableAmountSar, getBankTransferPlanSummaryAr } from '@/config/subscriptionPricing';
+import {
+  BANK_TRANSFER_PREPAID_MONTHS,
+  BANK_TRANSFER_PROMO_BONUS_MONTHS,
+  getBankTransferPayableAmountSar,
+  getBankTransferPlanSummaryAr,
+} from '@/config/subscriptionPricing';
 import {
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
   BARBER_DASHBOARD_GOLD_LINE,
@@ -1513,10 +1518,13 @@ export function RegistrationForm() {
                   <label className="flex items-center space-x-3 space-x-reverse border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
                     <RadioGroupItem value="bank_transfer" id="bank_transfer" />
                     <div className="flex-1">
-                      <div className="font-semibold">تحويل بنكي (6 أشهر مقدماً)</div>
+                      <div className="font-semibold">
+                        تحويل بنكي ({BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً)
+                      </div>
                       <p className="text-sm text-muted-foreground">
-                        خلال فترة العرض: خصم 10% على إجمالي 6 أشهر + شهران إضافيان (8 أشهر صلاحية). بعد انتهاء
-                        العرض: السعر الكامل لـ 6 أشهر فقط.
+                        خلال فترة العرض التشغيلي: خصم 10% على إجمالي أتعاب الـ{BANK_TRANSFER_PREPAID_MONTHS} أشهر +
+                        إضافة {BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر صلاحية (عرض تشغيلي). بعد انتهاء العرض: السعر
+                        الكامل لـ{BANK_TRANSFER_PREPAID_MONTHS} أشهر فقط دون الأشهر الإضافية.
                       </p>
                       {selectedPlan && (() => {
                         const base = getBankTransferPayableAmountSar(selectedPlan.tier);

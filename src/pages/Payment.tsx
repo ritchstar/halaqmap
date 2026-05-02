@@ -28,9 +28,11 @@ import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { BANK_TRANSFER } from '@/config/bankTransfer';
 import {
+  BANK_TRANSFER_PREPAID_MONTHS,
+  BANK_TRANSFER_PROMO_BONUS_MONTHS,
   getBankTransferPayableAmountSar,
   getBankTransferCoveredMonths,
-  getSixMonthGrossSar,
+  getBankTransferPeriodGrossSar,
   isBankTransferPromoActive,
 } from '@/config/subscriptionPricing';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
@@ -251,7 +253,7 @@ export default function Payment() {
   const bankTransferDue = getBankTransferPayableAmountSar(tier);
   const bankTransferBreakdown = calcVatBreakdown(bankTransferDue, vatSettings);
   const bankTransferMonths = getBankTransferCoveredMonths();
-  const bankTransferGrossSix = getSixMonthGrossSar(tier);
+  const bankTransferGrossPeriod = getBankTransferPeriodGrossSar(tier);
   const bankPromoOn = isBankTransferPromoActive();
 
   const IBAN = BANK_TRANSFER.iban;
@@ -475,7 +477,7 @@ export default function Payment() {
                           <Building2 className="w-5 h-5 text-primary" />
                           <h3 className="font-semibold">تحويل بنكي</h3>
                           <Badge variant="outline" className="text-xs">
-                            {bankPromoOn ? '6 أشهر + عرض' : '6 أشهر مقدماً'}
+                            {bankPromoOn ? `${BANK_TRANSFER_PREPAID_MONTHS} أشهر + عرض` : `${BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً`}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
@@ -592,14 +594,15 @@ export default function Payment() {
                           <strong>ملاحظة:</strong>{' '}
                           {bankPromoOn ? (
                             <>
-                              فترة العرض: حوّل <strong>{bankTransferDue} ر.س</strong> (خصم 10% على إجمالي{' '}
-                              {bankTransferGrossSix} ر.س لستة أشهر) لتحصل على صلاحية{' '}
-                              <strong>{bankTransferMonths} أشهر</strong> (6 مدفوعة + شهران إضافيان). بعد انتهاء
-                              فترة العرض ينطبق سعر 6 أشهر كاملة ({bankTransferGrossSix} ر.س).
+                              فترة العرض التشغيلي: حوّل <strong>{bankTransferDue} ر.س</strong> (خصم 10% على إجمالي{' '}
+                              {bankTransferGrossPeriod} ر.س لـ {BANK_TRANSFER_PREPAID_MONTHS} أشهر) لتصل الصلاحية إلى{' '}
+                              <strong>{bankTransferMonths} أشهر</strong> ({BANK_TRANSFER_PREPAID_MONTHS} مدفوعة +{' '}
+                              {BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر ضمن العرض). بعد انتهاء العرض ينطبق سعر الـ
+                              {BANK_TRANSFER_PREPAID_MONTHS} أشهر كاملة ({bankTransferGrossPeriod} ر.س حسب الباقة).
                             </>
                           ) : (
                             <>
-                              التحويل البنكي: دفع مقدم لـ <strong>6 أشهر</strong> — المبلغ{' '}
+                              التحويل البنكي: دفع مقدم لـ <strong>{BANK_TRANSFER_PREPAID_MONTHS} أشهر</strong> — المبلغ{' '}
                               <strong>{bankTransferDue} ر.س</strong> (برونزي 600، ذهبي 900، ماسي 1200 حسب الباقة).
                             </>
                           )}
@@ -663,7 +666,7 @@ export default function Payment() {
                                 <p className="text-xs text-muted-foreground">
                                   الإجمالي للتحويل — لمدة {bankTransferMonths} أشهر
                                   {bankPromoOn
-                                    ? ` (عرض: خصم 10% على ${bankTransferGrossSix} ر.س + شهران هدية)`
+                                    ? ` (عرض: خصم 10% على ${bankTransferGrossPeriod} ر.س + ${BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر عرض تشغيلي)`
                                     : ' (سعر 6 أشهر كامل)'}
                                 </p>
                               </div>
@@ -673,7 +676,7 @@ export default function Payment() {
                                 <p className="text-xs text-muted-foreground">
                                   لمدة {bankTransferMonths} أشهر
                                   {bankPromoOn
-                                    ? ` (عرض: خصم 10% على ${bankTransferGrossSix} ر.س + شهران هدية)`
+                                    ? ` (عرض: خصم 10% على ${bankTransferGrossPeriod} ر.س + ${BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر عرض تشغيلي)`
                                     : ' (سعر 6 أشهر كامل)'}
                                 </p>
                               </>
