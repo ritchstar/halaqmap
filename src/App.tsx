@@ -14,6 +14,7 @@ import ShopOpenStatus from "@/pages/ShopOpenStatus";
 import About from "@/pages/About";
 import BarberGrowthLanding from "@/pages/BarberGrowthLanding";
 import InternalPartnerPathPrintCard from "@/pages/InternalPartnerPathPrintCard";
+import InvoicePreviewSamples from "@/pages/InvoicePreviewSamples";
 import PartnerInterestLanding from "@/pages/PartnerInterestLanding";
 import PartnerWhyPage from "@/pages/PartnerWhyPage";
 import PartnerStoryPage from "@/pages/PartnerStoryPage";
@@ -69,6 +70,7 @@ const App = () => (
         <Routes>
           <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<InternalPartnerPathPrintCard />} />
+          <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<InvoicePreviewSamples />} />
           <Route path={ROUTE_PATHS.ABOUT} element={<Layout><About /></Layout>} />
           <Route path={ROUTE_PATHS.PRIVACY} element={<Layout><Privacy /></Layout>} />
 
