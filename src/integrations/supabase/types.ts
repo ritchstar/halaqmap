@@ -51,6 +51,7 @@ export interface Database {
         Row: {
           id: string
           member_number: number | null
+          rating_invite_token: string | null
           user_id: string | null
           name: string
           email: string
@@ -75,12 +76,15 @@ export interface Database {
           inclusive_care_customer_note: string | null
           is_active: boolean
           is_verified: boolean
+          open_for_customers: boolean
+          open_status_token: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           member_number?: number
+          rating_invite_token?: string | null
           user_id?: string | null
           name: string
           email: string
@@ -105,12 +109,15 @@ export interface Database {
           inclusive_care_customer_note?: string | null
           is_active?: boolean
           is_verified?: boolean
+          open_for_customers?: boolean
+          open_status_token?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           member_number?: number
+          rating_invite_token?: string | null
           user_id?: string | null
           name?: string
           email?: string
@@ -135,6 +142,8 @@ export interface Database {
           inclusive_care_customer_note?: string | null
           is_active?: boolean
           is_verified?: boolean
+          open_for_customers?: boolean
+          open_status_token?: string | null
           created_at?: string
           updated_at?: string
         }

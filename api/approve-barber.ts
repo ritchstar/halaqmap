@@ -281,6 +281,63 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: error?.message || 'Upsert failed' }, { status: 500, headers });
   }
 
+  const barberId = String((data as { id: string }).id);
+  const memberNumberRaw = (data as { member_number?: number | null }).member_number;
+  const memberNumber =
+    memberNumberRaw != null && Number.isFinite(Number(memberNumberRaw)) ? Number(memberNumberRaw) : null;
+
+  /** مباشرة بعد الحفظ — يُعبَّأ rating_invite_token قبل Auth أو البريد حتى لا يبقى الصف بلا رمز عند فشل لاحق */
+  const { data: tokenRow, error: tokenErr } = await supabase
+    .from('barbers')
+    .select('rating_invite_token')
+    .eq('id', barberId)
+    .maybeSingle();
+  if (!tokenErr && tokenRow) {
+    const existing = String((tokenRow as { rating_invite_token?: string | null }).rating_invite_token ?? '').trim();
+    if (!existing) {
+      const bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      const fresh = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      const { error: upErr } = await supabase
+        .from('barbers')
+        .update({ rating_invite_token: fresh })
+        .eq('id', barberId);
+      if (upErr) {
+        return Response.json(
+          { error: upErr.message || 'Failed to set rating_invite_token', barberId },
+          { status: 500, headers },
+        );
+      }
+    }
+  }
+
+  /** رمز صفحة خفيفة لتبديل «مفتوح/مغلق» للعملاء (مفيد للبرونزي دون لوحة تحكم) */
+  let shopOpenQuickHashLink: string | undefined;
+  const { data: ostRow, error: ostErr } = await supabase
+    .from('barbers')
+    .select('open_status_token')
+    .eq('id', barberId)
+    .maybeSingle();
+  if (!ostErr && ostRow) {
+    let tok = String((ostRow as { open_status_token?: string | null }).open_status_token ?? '').trim();
+    if (!tok) {
+      const bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      tok = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      const { error: ostUpErr } = await supabase.from('barbers').update({ open_status_token: tok }).eq('id', barberId);
+      if (ostUpErr) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[approve-barber] open_status_token:', ostUpErr.message);
+        }
+      }
+    }
+    const { data: ostAgain } = await supabase.from('barbers').select('open_status_token').eq('id', barberId).maybeSingle();
+    const finalTok = String((ostAgain as { open_status_token?: string | null } | null)?.open_status_token ?? '').trim();
+    if (finalTok) {
+      shopOpenQuickHashLink = `/#/partners/shop-open?t=${encodeURIComponent(finalTok)}`;
+    }
+  }
+
   const tempPassword = generateBarberTempPassword();
   const authResult = await ensureAuthUserWithPassword(supabase, email, tempPassword, barberDisplayName);
   if (authResult.ok === false) {
@@ -336,63 +393,6 @@ export async function POST(request: Request): Promise<Response> {
     else credentialEmailError = mail.error;
   } else {
     credentialEmailError = 'RESEND_API_KEY أو RESEND_FROM_EMAIL غير مضبوطين — لم يُرسل بريد بيانات الدخول.';
-  }
-
-  const barberId = String((data as { id: string }).id);
-  const memberNumberRaw = (data as { member_number?: number | null }).member_number;
-  const memberNumber =
-    memberNumberRaw != null && Number.isFinite(Number(memberNumberRaw)) ? Number(memberNumberRaw) : null;
-
-  /** صفوف قديمة أو upsert بدون لمس العمود قد تبقي rating_invite_token فارغاً — يُعبَّأ هنا ليعمل QR والبريد */
-  const { data: tokenRow, error: tokenErr } = await supabase
-    .from('barbers')
-    .select('rating_invite_token')
-    .eq('id', barberId)
-    .maybeSingle();
-  if (!tokenErr && tokenRow) {
-    const existing = String((tokenRow as { rating_invite_token?: string | null }).rating_invite_token ?? '').trim();
-    if (!existing) {
-      const bytes = new Uint8Array(24);
-      crypto.getRandomValues(bytes);
-      const fresh = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-      const { error: upErr } = await supabase
-        .from('barbers')
-        .update({ rating_invite_token: fresh })
-        .eq('id', barberId);
-      if (upErr) {
-        return Response.json(
-          { error: upErr.message || 'Failed to set rating_invite_token', barberId },
-          { status: 500, headers },
-        );
-      }
-    }
-  }
-
-  /** رمز صفحة خفيفة لتبديل «مفتوح/مغلق» للعملاء (مفيد للبرونزي دون لوحة تحكم) */
-  let shopOpenQuickHashLink: string | undefined;
-  const { data: ostRow, error: ostErr } = await supabase
-    .from('barbers')
-    .select('open_status_token')
-    .eq('id', barberId)
-    .maybeSingle();
-  if (!ostErr && ostRow) {
-    let tok = String((ostRow as { open_status_token?: string | null }).open_status_token ?? '').trim();
-    if (!tok) {
-      const bytes = new Uint8Array(24);
-      crypto.getRandomValues(bytes);
-      tok = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-      const { error: ostUpErr } = await supabase.from('barbers').update({ open_status_token: tok }).eq('id', barberId);
-      if (ostUpErr) {
-        if (process.env.NODE_ENV !== 'production') {
-          console.warn('[approve-barber] open_status_token:', ostUpErr.message);
-        }
-      }
-    }
-    const { data: ostAgain } = await supabase.from('barbers').select('open_status_token').eq('id', barberId).maybeSingle();
-    const finalTok = String((ostAgain as { open_status_token?: string | null } | null)?.open_status_token ?? '').trim();
-    if (finalTok) {
-      shopOpenQuickHashLink = `/#/partners/shop-open?t=${encodeURIComponent(finalTok)}`;
-    }
   }
 
   return Response.json(
