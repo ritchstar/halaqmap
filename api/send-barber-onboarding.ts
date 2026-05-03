@@ -1,7 +1,6 @@
 import { type SupabaseClient } from '@supabase/supabase-js';
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 import { getBarberPortalMagicSecret, mintBarberPortalMagicToken } from './_lib/barberPortalMagicToken.js';
-import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 60,
@@ -57,13 +56,22 @@ function buildRatingInviteUrlStatic(siteOrigin: string, barberId: string, token:
   return `${base}/#${hashPath}`;
 }
 
-const CORS_OPTS = {
-  allowMethods: 'GET, POST, OPTIONS',
-  allowHeaders: 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
-} as const;
-
-function corsHeaders(request: Request): Record<string, string> {
-  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
+/**
+ * CORS صريح لهذا المسار — يتجنّب فشل preflight عندما تكون قائمة الأصول العامة غير متطابقة مع لوحة الإدارة.
+ * إن وُجد رأس Origin يُعاد كـ Access-Control-Allow-Origin (مطلوب مع Authorization على POST في المتصفحات الحديثة)؛ وإلا `*`.
+ * رؤوس الطلب المسموحة تشمل ما ترسله الواجهة مع JSON + جلسة الإدارة.
+ */
+function corsHeaders(request?: Request): Record<string, string> {
+  const origin = request?.headers.get('origin')?.trim();
+  const allowOrigin = origin && /^https?:\/\//i.test(origin) ? origin : '*';
+  const headers: Record<string, string> = {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
+    'Access-Control-Max-Age': '86400',
+  };
+  if (allowOrigin !== '*') headers.Vary = 'Origin';
+  return headers;
 }
 
 function tierLabelAr(tier: Tier | null | undefined): string {
@@ -670,13 +678,11 @@ function isValidEmail(email: string): boolean {
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return publicApiOptionsResponse(request, CORS_OPTS);
+  return new Response(null, { status: 200, headers: corsHeaders(request) });
 }
 
 /** تشخيص بدون أسرار — /api/send-barber-onboarding */
 export async function GET(request: Request): Promise<Response> {
-  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
-  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const resendApiKeySet = Boolean((process.env.RESEND_API_KEY || '').trim());
@@ -699,8 +705,6 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
-  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
