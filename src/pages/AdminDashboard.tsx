@@ -68,6 +68,11 @@ import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
 import { fetchAdminStats } from '@/lib/adminStatsRemote';
 import { fetchPaymentsForAdmin, updatePaymentStatusRemote } from '@/lib/adminPaymentsRemote';
 import {
+  fetchBarberSubscriptionsForAdmin,
+  postAdminBarberSubscriptionAction,
+  type BarberSubscriptionAdminRow,
+} from '@/lib/adminBarberSubscriptionsRemote';
+import {
   listBarbersForAdmin,
   setBarberActiveRemote,
   deleteBarberRemote,
@@ -272,6 +277,7 @@ export default function AdminDashboard() {
   const [storedSubscriptionRequests, setStoredSubscriptionRequests] = useState<SubscriptionRequest[]>([]);
   const [remoteStats, setRemoteStats] = useState<AdminStats | null>(null);
   const [remotePayments, setRemotePayments] = useState<Payment[]>([]);
+  const [moyasarSubRows, setMoyasarSubRows] = useState<BarberSubscriptionAdminRow[]>([]);
   const [dataRefreshNonce, setDataRefreshNonce] = useState(0);
 
   const bumpRemoteData = () => setDataRefreshNonce((n) => n + 1);
@@ -344,6 +350,17 @@ export default function AdminDashboard() {
     let cancelled = false;
     void fetchPaymentsForAdmin().then((list) => {
       if (!cancelled) setRemotePayments(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [adminData, dataRefreshNonce]);
+
+  useEffect(() => {
+    if (!adminData) return;
+    let cancelled = false;
+    void fetchBarberSubscriptionsForAdmin().then((list) => {
+      if (!cancelled) setMoyasarSubRows(list);
     });
     return () => {
       cancelled = true;
@@ -551,6 +568,12 @@ export default function AdminDashboard() {
 
           {/* Payments Tab */}
           {can('view_payments') && <TabsContent value="payments" className="space-y-6">
+            <MoyasarSubscriptionsReviewSection
+              rows={moyasarSubRows}
+              requests={subscriptionRequests}
+              canReview={can('review_payments')}
+              onRefresh={bumpRemoteData}
+            />
             <PaymentsSection
               payments={displayPayments}
               onViewPayment={setSelectedPayment}
@@ -2896,6 +2919,280 @@ function BarbersSection({
         registrationRequests={registrationRequests}
         onRegistrationPayloadSynced={onRegistrationPayloadSynced}
       />
+    </motion.div>
+  );
+}
+
+function tierEnumFromString(s: string | null | undefined): SubscriptionTier {
+  const t = String(s ?? '').toLowerCase();
+  if (t === 'gold') return SubscriptionTier.GOLD;
+  if (t === 'diamond') return SubscriptionTier.DIAMOND;
+  return SubscriptionTier.BRONZE;
+}
+
+function subscriptionRequestForRow(
+  row: BarberSubscriptionAdminRow,
+  requests: SubscriptionRequest[],
+): SubscriptionRequest | undefined {
+  const id = row.registration_request_id?.trim();
+  if (!id) return undefined;
+  return requests.find((r) => r.id === id);
+}
+
+function formatHalalasSar(amount: number | string | null): string {
+  const n =
+    typeof amount === 'number'
+      ? amount
+      : typeof amount === 'string'
+        ? Number.parseFloat(amount)
+        : NaN;
+  if (!Number.isFinite(n)) return '—';
+  return `${(n / 100).toFixed(2)} ر.س`;
+}
+
+function MoyasarSubscriptionsReviewSection({
+  rows,
+  requests,
+  canReview,
+  onRefresh,
+}: {
+  rows: BarberSubscriptionAdminRow[];
+  requests: SubscriptionRequest[];
+  canReview: boolean;
+  onRefresh: () => void;
+}) {
+  const [busyId, setBusyId] = useState<string | null>(null);
+  /** مسودة ملاحظات لكل صف (معرّف صف barber_subscriptions). */
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
+
+  const pending = useMemo(() => rows.filter((r) => r.status === 'pending_review'), [rows]);
+  const archive = useMemo(() => rows.filter((r) => r.status !== 'pending_review'), [rows]);
+
+  const runAction = async (
+    row: BarberSubscriptionAdminRow,
+    action: 'approve' | 'notes' | 'refund',
+    extra?: { notes?: string },
+  ) => {
+    if (!canReview) return;
+    setBusyId(row.id);
+    try {
+      const res = await postAdminBarberSubscriptionAction({
+        action,
+        rowId: row.id,
+        ...(action === 'notes' && extra?.notes ? { notes: extra.notes } : {}),
+      });
+      if (!res.ok) {
+        toast({
+          title: 'تعذر تنفيذ الإجراء',
+          description: res.detail ? `${res.error}: ${res.detail}` : res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (action === 'approve' && res.barberEmail && res.barberName) {
+        const mail = await sendBarberOnboardingEmailRemote({
+          barberName: res.barberName,
+          barberEmail: res.barberEmail,
+          tier: tierEnumFromString(res.tier),
+          barberId: res.barberId ?? undefined,
+          registrationOrderId: res.registrationOrderId ?? undefined,
+        });
+        if (!mail.ok) {
+          toast({
+            title: 'تم الاعتماد لكن تعذر إرسال بريد الترحيب',
+            description: mail.error,
+            variant: 'destructive',
+          });
+        } else {
+          toast({ title: 'تم اعتماد الاشتراك وإرسال بريد الترحيب' });
+        }
+      } else {
+        toast({
+          title:
+            action === 'notes'
+              ? 'تم إرسال الملاحظات'
+              : action === 'refund'
+                ? 'تمت إعادة المبلغ وتحديث الحالة'
+                : 'تم',
+        });
+      }
+      onRefresh();
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const sendNotesForRow = async (row: BarberSubscriptionAdminRow) => {
+    const t = (noteDrafts[row.id] ?? '').trim();
+    if (t.length < 3) {
+      toast({ title: 'الملاحظة قصيرة جداً', variant: 'destructive' });
+      return;
+    }
+    setBusyId(row.id);
+    try {
+      const res = await postAdminBarberSubscriptionAction({ action: 'notes', rowId: row.id, notes: t });
+      if (!res.ok) {
+        toast({
+          title: 'تعذر إرسال الملاحظات',
+          description: res.detail ? `${res.error}: ${res.detail}` : res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast({ title: 'تم إرسال الملاحظات للحلاق' });
+      setNoteDrafts((prev) => {
+        const next = { ...prev };
+        delete next[row.id];
+        return next;
+      });
+      onRefresh();
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="space-y-6"
+    >
+      <div>
+        <h2 className="text-2xl font-bold mb-2">مراجعة الجودة</h2>
+        <p className="text-sm text-muted-foreground">
+          دفعات ميسر بعد نجاح الدفع تبقى بحالة «قيد المراجعة» حتى الاعتماد أو إرسال ملاحظات أو إعادة المبلغ. زر
+          «اعتماد» يتطلب طلب تسجيل معتمداً مسبقاً مع{' '}
+          <code className="rounded bg-muted px-1" dir="ltr">
+            linkedBarberId
+          </code>{' '}
+          (أو ربطاً في metadata / barber_id)، ثم يستدعي الخادم التفعيل ويُرسل بريد الترحيب من الواجهة.
+        </p>
+      </div>
+
+      {pending.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            لا توجد دفعات ميسر بانتظار المراجعة اليدوية.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {pending.map((row) => {
+            const req = subscriptionRequestForRow(row, requests);
+            const shop = req?.barberName ?? '—';
+            const tierAr =
+              row.tier === 'diamond' ? 'ماسي' : row.tier === 'gold' ? 'ذهبي' : row.tier === 'bronze' ? 'برونزي' : '—';
+            return (
+              <Card key={row.id}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex flex-wrap items-center gap-2">
+                    {shop}
+                    <Badge variant="secondary">قيد المراجعة</Badge>
+                  </CardTitle>
+                  <CardDescription className="space-y-1 text-right">
+                    <span className="block" dir="ltr">
+                      Moyasar: {row.moyasar_payment_id}
+                    </span>
+                    {row.registration_request_id ? (
+                      <span className="block">
+                        رقم الطلب: <span dir="ltr">{row.registration_request_id}</span>
+                      </span>
+                    ) : null}
+                    <span className="block">
+                      الباقة: {tierAr} — المبلغ: {formatHalalasSar(row.amount_halalas)} ({row.currency})
+                    </span>
+                    {typeof row.metadata?.admin_last_note === 'string' && row.metadata.admin_last_note.trim() ? (
+                      <p className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-2 py-1.5 text-xs text-foreground/90">
+                        <span className="font-semibold text-muted-foreground">آخر ملاحظة (محفوظة في قاعدة البيانات):</span>{' '}
+                        {String(row.metadata.admin_last_note).trim()}
+                      </p>
+                    ) : null}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      className="gap-1"
+                      disabled={!canReview || busyId === row.id}
+                      onClick={() => void runAction(row, 'approve')}
+                    >
+                      {busyId === row.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4" />
+                      )}
+                      اعتماد
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      disabled={!canReview || busyId === row.id}
+                      onClick={() => {
+                        if (
+                          !window.confirm('تأكيد إعادة المبلغ إلى العميل عبر ميسر؟ لا يمكن التراجع من لوحة ميسر.')
+                        ) {
+                          return;
+                        }
+                        void runAction(row, 'refund');
+                      }}
+                    >
+                      رفض وإعادة مبلغ
+                    </Button>
+                  </div>
+                  <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+                    <Label className="text-xs text-muted-foreground">ملاحظات فريق الجودة (تُرسل للحلاق بالبريد)</Label>
+                    <Textarea
+                      dir="rtl"
+                      rows={3}
+                      placeholder="مثال: يرجى تحسين صور الواجهة قبل التفعيل النهائي…"
+                      value={noteDrafts[row.id] ?? ''}
+                      onChange={(e) =>
+                        setNoteDrafts((prev) => ({
+                          ...prev,
+                          [row.id]: e.target.value,
+                        }))
+                      }
+                      disabled={!canReview || busyId === row.id}
+                      className="resize-y min-h-[72px] bg-background"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1"
+                      disabled={!canReview || busyId === row.id}
+                      onClick={() => void sendNotesForRow(row)}
+                    >
+                      <Send className="h-4 w-4" />
+                      إرسال الملاحظات
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {archive.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">سجل الدفعات</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground space-y-2">
+            {archive.slice(0, 20).map((r) => (
+              <div key={r.id} className="flex flex-wrap justify-between gap-2 border-b border-border/60 py-2 last:border-0" dir="ltr">
+                <span>{r.moyasar_payment_id}</span>
+                <span>
+                  {r.status} — {formatHalalasSar(r.amount_halalas)}
+                </span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
     </motion.div>
   );
 }

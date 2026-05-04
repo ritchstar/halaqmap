@@ -179,6 +179,7 @@ export interface Database {
           /** bigint في قاعدة البيانات — قد يُعرَض كسلسلة من PostgREST */
           amount_halalas: number | string | null
           currency: string
+          /** دفع ميسر ناجح → pending_review؛ اعتماد إداري → approved (ليس active — active في جدول subscriptions). */
           status:
             | 'pending'
             | 'paid'
@@ -187,6 +188,8 @@ export interface Database {
             | 'voided'
             | 'authorized'
             | 'cancelled'
+            | 'pending_review'
+            | 'approved'
           last_webhook_type: string | null
           metadata: Record<string, unknown>
           failure_reason: string | null
@@ -212,6 +215,8 @@ export interface Database {
             | 'voided'
             | 'authorized'
             | 'cancelled'
+            | 'pending_review'
+            | 'approved'
           last_webhook_type?: string | null
           metadata?: Record<string, unknown>
           failure_reason?: string | null
@@ -237,6 +242,8 @@ export interface Database {
             | 'voided'
             | 'authorized'
             | 'cancelled'
+            | 'pending_review'
+            | 'approved'
           last_webhook_type?: string | null
           metadata?: Record<string, unknown>
           failure_reason?: string | null

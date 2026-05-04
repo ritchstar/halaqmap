@@ -567,7 +567,10 @@ export default function BarberGrowthLanding() {
                       </li>
                     ))}
                   </ul>
-                  <NavLink to={ROUTE_PATHS.REGISTER} className="mt-6 block">
+                  <NavLink
+                    to={`${ROUTE_PATHS.PAYMENT}?${new URLSearchParams({ tier: plan.tier }).toString()}`}
+                    className="mt-6 block"
+                  >
                     <Button variant="outline" className="w-full font-semibold">
                       أبغى هالباقة
                     </Button>

@@ -105,17 +105,18 @@ async function sendResendConfirmation(input: {
   invoiceHref: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const amountSar = (input.amountHalalas / 100).toFixed(2);
-  const subject = "حلاق ماب | تم استلام دفع الاشتراك";
+  const subject = "حلاق ماب | تم استلام الدفع — قيد المراجعة";
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
-<p>تم تأكيد استلام دفع اشتراكك عبر <strong>ميسر (Moyasar)</strong>.</p>
+<p>شكرًا لك، تم استلام مبلغ الاشتراك بنجاح عبر <strong>ميسر (Moyasar)</strong>.</p>
+<p>طلبك الآن تحت المراجعة من قبل <strong>فريق الجودة</strong> وسيتم تفعيل حسابك خلال <strong>24 ساعة</strong> بعد الاعتماد.</p>
 <ul style="list-style:none;padding:0">
 <li>الباقة: <strong>${escapeHtml(input.tierLabel)}</strong></li>
 <li>المبلغ: <strong>${escapeHtml(amountSar)} ${escapeHtml(input.currency)}</strong></li>
 </ul>
-<p>الفاتورة الإلكترونية: <a href="${escapeHtml(input.invoiceHref)}">عرض / تنزيل الفاتورة</a>
+<p>مرجع الفاتورة/الإيصال: <a href="${escapeHtml(input.invoiceHref)}">عرض الرابط</a>
 <span style="font-size:12px;color:#64748b">(إن وُجد <code>invoice_url</code> في بيانات الدفع يُستبدل هذا الرابط تلقائياً)</span></p>
-<p>سيتابع فريق حلاق ماب تفعيل اشتراكك. لأي استفسار ردّ على هذا البريد أو من صفحة التواصل في الموقع.</p>
+<p>لأي استفسار ردّ على هذا البريد أو من صفحة التواصل في الموقع.</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`;
 
@@ -237,16 +238,6 @@ async function resolveRecipientContext(
   };
 }
 
-function addOneMonth(d: Date): Date {
-  const out = new Date(d.getTime());
-  out.setMonth(out.getMonth() + 1);
-  return out;
-}
-
-function dateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -317,7 +308,9 @@ Deno.serve(async (req) => {
   }
 
   const meta = (data.metadata && typeof data.metadata === "object" ? data.metadata : {}) as Record<string, unknown>;
-  const requestId = typeof meta.request_id === "string" ? meta.request_id.trim() : "";
+  const requestId =
+    (typeof meta.request_id === "string" ? meta.request_id.trim() : "") ||
+    (typeof meta.requestId === "string" ? meta.requestId.trim() : "");
   const tier = tierFromMeta(meta);
   const rawAmount = data.amount;
   const amount =
@@ -325,8 +318,23 @@ Deno.serve(async (req) => {
   const currency = String(data.currency ?? "SAR").toUpperCase() || "SAR";
   const paymentStatus = String(data.status ?? "").toLowerCase();
 
-  let rowStatus: "pending" | "paid" | "failed" | "refunded" | "voided" | "authorized" | "cancelled" = "pending";
-  if (paymentStatus === "paid") rowStatus = "paid";
+  let rowStatus:
+    | "pending"
+    | "paid"
+    | "failed"
+    | "refunded"
+    | "voided"
+    | "authorized"
+    | "cancelled"
+    | "pending_review"
+    | "approved" = "pending";
+  /**
+   * سياسة «مراجعة الجودة» (إلزامية):
+   * - عند نجاح الدفع في ميسر (`paid`) → `barber_subscriptions.status = pending_review` دائماً لهذا الحدث.
+   * - التفعيل على الخريطة وتحديث `subscriptions` إلى `active` لا يتم من هذا الـ Webhook أبداً؛ يتم حصرياً
+   *   يدوياً من الإدارة عبر مسار الاعتماد (مثل `api/admin-barber-subscription-action` → اعتماد).
+   */
+  if (paymentStatus === "paid") rowStatus = "pending_review";
   else if (paymentStatus === "failed" || paymentStatus === "faild") rowStatus = "failed";
   else if (paymentStatus === "canceled" || paymentStatus === "cancelled") rowStatus = "cancelled";
   else if (paymentStatus === "refunded") rowStatus = "refunded";
@@ -345,10 +353,21 @@ Deno.serve(async (req) => {
 
   const barberId = linkedBarberId && UUID_RE.test(linkedBarberId) ? linkedBarberId : null;
 
+  /** يُخزَّن مع metadata لمساعدة الإدارة ومسار الاعتماد عندما يُمرَّر من صفحة الدفع (linkedBarberId / linked_barber_id). */
+  const linkedFromPaymentMeta = (() => {
+    const a = String(meta.linked_barber_id ?? "").trim();
+    const b = String(meta.linkedBarberId ?? "").trim();
+    if (UUID_RE.test(a)) return a;
+    if (UUID_RE.test(b)) return b;
+    return "";
+  })();
+
   const metaPayload = {
     moyasar_type: eventType,
     payment_status: paymentStatus,
+    moyasar_payment_status: paymentStatus,
     raw_payment_id: paymentId,
+    ...(linkedFromPaymentMeta ? { linked_barber_id: linkedFromPaymentMeta } : {}),
     ...(invoiceUrlStored ? { invoice_url: invoiceUrlStored } : {}),
   };
 
@@ -363,7 +382,12 @@ Deno.serve(async (req) => {
     status: rowStatus,
     last_webhook_type: eventType || null,
     metadata: metaPayload,
-    failure_reason: rowStatus === "paid" ? null : failureReasonRaw ?? null,
+    failure_reason:
+      rowStatus === "failed" || rowStatus === "cancelled"
+        ? failureReasonRaw ?? null
+        : rowStatus === "refunded"
+          ? failureReasonRaw ?? "تمت إعادة المبلغ."
+          : null,
     updated_at: new Date().toISOString(),
   };
 
@@ -388,52 +412,12 @@ Deno.serve(async (req) => {
     if (insErr) return jsonResponse({ error: "db_insert_failed", detail: insErr.message }, 500);
   }
 
-  if (rowStatus === "paid" && barberId && tier) {
-    const now = new Date();
-    const start = dateStr(now);
-    const end = dateStr(addOneMonth(now));
-    const priceSar = amount != null ? Math.round(amount) / 100 : 0;
-    const ts = new Date().toISOString();
-    const { data: latestSub, error: subSelErr } = await supabase
-      .from("subscriptions")
-      .select("id")
-      .eq("barber_id", barberId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (subSelErr) {
-      console.warn("[moyasar-webhook] subscriptions select:", subSelErr.message);
-    } else if (latestSub?.id) {
-      const { error: subUp } = await supabase
-        .from("subscriptions")
-        .update({
-          tier,
-          start_date: start,
-          end_date: end,
-          status: "active",
-          price: priceSar,
-          updated_at: ts,
-        })
-        .eq("id", latestSub.id);
-      if (subUp) console.warn("[moyasar-webhook] subscriptions update:", subUp.message);
-    } else {
-      const { error: subIn } = await supabase.from("subscriptions").insert({
-        barber_id: barberId,
-        tier,
-        start_date: start,
-        end_date: end,
-        status: "active",
-        auto_renew: false,
-        price: priceSar,
-      });
-      if (subIn) console.warn("[moyasar-webhook] subscriptions insert:", subIn.message);
-    }
-  }
+  /* لا نُحدّث `subscriptions` ولا نُفعّل الظهور على الخريطة هنا — حصرياً بعد اعتماد إداري يدوي من لوحة التحكم. */
 
   let emailSent = false;
   let failureEmailSent = false;
 
-  if (rowStatus === "paid" && resendKey && resendFrom && resolvedEmail) {
+  if (rowStatus === "pending_review" && resendKey && resendFrom && resolvedEmail) {
     const { data: rowAfter } = await supabase
       .from("barber_subscriptions")
       .select("confirmation_email_sent_at")

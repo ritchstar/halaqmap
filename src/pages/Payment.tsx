@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
@@ -44,7 +44,13 @@ export default function Payment() {
   const navigate = useNavigate();
   const vatSettings = usePlatformVatSettings();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tier = searchParams.get('tier') as SubscriptionTier || SubscriptionTier.BRONZE;
+  const tierRaw = (searchParams.get('tier') ?? '').trim().toLowerCase();
+  const tier: SubscriptionTier =
+    tierRaw === SubscriptionTier.GOLD
+      ? SubscriptionTier.GOLD
+      : tierRaw === SubscriptionTier.DIAMOND
+        ? SubscriptionTier.DIAMOND
+        : SubscriptionTier.BRONZE;
   const requestIdParam = searchParams.get('requestId') ?? '';
   /** مطابق لطلب التسجيل (HM-...) — يُمرَّر في metadata.request_id للـ webhook؛ يُفضّل عدم تركه فارغاً */
   const requestId = useMemo(() => requestIdParam.trim(), [requestIdParam]);
@@ -62,6 +68,8 @@ export default function Payment() {
     'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
   >('idle');
   const [moyasarVerifyMessage, setMoyasarVerifyMessage] = useState<string | null>(null);
+  /** يُعرض مع تنبيه «مراجعة الجودة» بعد التحقق من ميسر عند paid */
+  const [moyasarPaidAmountFormat, setMoyasarPaidAmountFormat] = useState<string | null>(null);
   const moyasarHostRef = useRef<HTMLDivElement>(null);
   const [moyasarFormError, setMoyasarFormError] = useState<string | null>(null);
 
@@ -109,6 +117,7 @@ export default function Payment() {
     let cancelled = false;
     setMoyasarReturnVerify('loading');
     setMoyasarVerifyMessage(null);
+    setMoyasarPaidAmountFormat(null);
 
     void verifyMoyasarPaymentRemote(moyasarPaymentIdFromUrl, {
       expectedAmountHalalas: monthlyAmountHalalas,
@@ -143,12 +152,13 @@ export default function Payment() {
 
       if (result.paid) {
         setMoyasarReturnVerify('paid');
-        setMoyasarVerifyMessage(
-          result.amount_format
-            ? `حالة الدفع: مدفوع — ${result.amount_format}`
-            : 'حالة الدفع: مدفوع — تم التحقق من ميسر.',
-        );
-        toast.success('تم التحقق من الدفع');
+        setMoyasarVerifyMessage(null);
+        setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
+        toast.success('تم تأكيد الدفع', {
+          description:
+            'مبلغ الاشتراك وصل بنجاح. تفعيل ظهورك على الخريطة يخضع حالياً لمراجعة الجودة من الإدارة — لا حاجة لإعادة الدفع.',
+          duration: 11000,
+        });
       } else {
         setMoyasarReturnVerify('unpaid');
         setMoyasarVerifyMessage(
@@ -227,7 +237,13 @@ export default function Payment() {
             fixed_width: false,
             metadata: {
               tier: String(tier),
-              request_id: String(requestId),
+              /** مطابقة طلب التسجيل (HM-...) — يُمرَّر للويبهوك ولوحة ميسر؛ camelCase + snake_case */
+              ...(String(requestId).trim()
+                ? {
+                    request_id: String(requestId).trim(),
+                    requestId: String(requestId).trim(),
+                  }
+                : {}),
               linked_barber_id: linkedBarberId || '',
               product: 'subscription_monthly',
             },
@@ -347,25 +363,44 @@ export default function Payment() {
               <AlertDescription>جاري التحقق من عملية الدفع مع ميسر…</AlertDescription>
             </Alert>
           )}
-          {(moyasarReturnVerify === 'paid' || moyasarReturnVerify === 'unpaid' || moyasarReturnVerify === 'error') &&
-            moyasarVerifyMessage && (
-              <Alert
-                className={`mb-6 ${
-                  moyasarReturnVerify === 'paid'
-                    ? 'border-green-600/40 bg-green-500/10'
-                    : moyasarReturnVerify === 'unpaid'
-                      ? 'border-amber-600/40 bg-amber-500/10'
-                      : 'border-destructive/40 bg-destructive/10'
-                }`}
-              >
-                {moyasarReturnVerify === 'paid' ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                ) : (
-                  <AlertCircle className="h-4 w-4" />
-                )}
-                <AlertDescription className="text-sm leading-relaxed">{moyasarVerifyMessage}</AlertDescription>
-              </Alert>
-            )}
+          {moyasarReturnVerify === 'paid' && (
+            <Alert className="mb-6 border-emerald-600/45 bg-gradient-to-l from-emerald-500/12 to-background shadow-sm">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <div className="space-y-2 pr-1">
+                <AlertTitle className="text-base font-semibold text-emerald-950 dark:text-emerald-50">
+                  تم تأكيد الدفع بنجاح
+                </AlertTitle>
+                <AlertDescription className="text-sm leading-relaxed text-foreground/90">
+                  <p>
+                    تم استلام مبلغ الاشتراك عبر ميسر بشكل صحيح. حسابك على حلاق ماب{' '}
+                    <strong>لا يزال قيد تفعيل</strong> إلى أن تُكمل فرق الجودة مراجعة طلبك — هذا إجراء
+                    اعتيادي لضمان جودة الظهور على الخريطة.
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    لا حاجة لإعادة الدفع. ستصلك رسالة بريد أو يمكنك متابعة حالة الطلب مع الدعم عند الحاجة.
+                  </p>
+                  {moyasarPaidAmountFormat ? (
+                    <p className="mt-2 text-xs font-medium text-muted-foreground" dir="ltr">
+                      المبلغ المؤكد من ميسر: {moyasarPaidAmountFormat}
+                    </p>
+                  ) : null}
+                </AlertDescription>
+              </div>
+            </Alert>
+          )}
+
+          {(moyasarReturnVerify === 'unpaid' || moyasarReturnVerify === 'error') && moyasarVerifyMessage && (
+            <Alert
+              className={`mb-6 ${
+                moyasarReturnVerify === 'unpaid'
+                  ? 'border-amber-600/40 bg-amber-500/10'
+                  : 'border-destructive/40 bg-destructive/10'
+              }`}
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-sm leading-relaxed">{moyasarVerifyMessage}</AlertDescription>
+            </Alert>
+          )}
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Payment Methods */}

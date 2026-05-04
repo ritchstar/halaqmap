@@ -1,16 +1,19 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Copy, Download, Mail, Home } from 'lucide-react';
+import { CheckCircle2, Copy, CreditCard, Download, Home, Loader2, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
+import { buildAbsolutePartnerPaymentUrl } from '@/config/siteOrigin';
 import {
   loadLastOrderConfirmation,
   clearLastOrderConfirmation,
   type RegisterOrderConfirmation,
 } from '@/lib/subscriptionRequestStorage';
+import { sendRegistrationPaymentSummaryRemote } from '@/lib/sendRegistrationPaymentSummaryRemote';
 
 const tierLabel: Record<SubscriptionTier, string> = {
   [SubscriptionTier.BRONZE]: 'برونزي',
@@ -21,6 +24,7 @@ const tierLabel: Record<SubscriptionTier, string> = {
 export default function RegisterSuccess() {
   const navigate = useNavigate();
   const [data, setData] = useState<RegisterOrderConfirmation | null>(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   useEffect(() => {
     const o = loadLastOrderConfirmation();
@@ -31,16 +35,32 @@ export default function RegisterSuccess() {
     setData(o);
   }, [navigate]);
 
+  const paymentTo = useMemo(() => {
+    if (!data) return ROUTE_PATHS.PAYMENT;
+    const q = new URLSearchParams({
+      tier: data.tier,
+      requestId: data.orderId,
+    });
+    return `${ROUTE_PATHS.PAYMENT}?${q.toString()}`;
+  }, [data]);
+
+  const absolutePaymentUrl = useMemo(
+    () => (data ? buildAbsolutePartnerPaymentUrl({ tier: data.tier, requestId: data.orderId }) : ''),
+    [data],
+  );
+
   const mailtoHref = useMemo(() => {
     if (!data) return '#';
     const subject = encodeURIComponent(`حلاق ماب — نسخة طلب الاشتراك ${data.orderId}`);
-    const body = encodeURIComponent(data.mailtoBodyShort);
+    const body = encodeURIComponent(
+      `${data.mailtoBodyShort}\n\nرابط إتمام الدفع:\n${absolutePaymentUrl}\n`,
+    );
     return `mailto:${data.email}?subject=${subject}&body=${body}`;
-  }, [data]);
+  }, [data, absolutePaymentUrl]);
 
   const downloadSummary = () => {
     if (!data) return;
-    const blob = new Blob([`\uFEFF${data.summaryForDownload}`], {
+    const blob = new Blob([`\uFEFF${data.summaryForDownload}\n\nرابط إتمام الدفع:\n${absolutePaymentUrl}\n`], {
       type: 'text/plain;charset=utf-8',
     });
     const url = URL.createObjectURL(blob);
@@ -55,10 +75,35 @@ export default function RegisterSuccess() {
     if (!data) return;
     try {
       await navigator.clipboard.writeText(data.orderId);
+      toast.success('تم نسخ رقم الطلب');
     } catch {
       /* ignore */
     }
   };
+
+  const handleSendSummaryEmail = useCallback(async () => {
+    if (!data) return;
+    setSendingEmail(true);
+    try {
+      const r = await sendRegistrationPaymentSummaryRemote({
+        orderId: data.orderId,
+        email: data.email,
+        shopName: data.shopName,
+        tier: data.tier,
+        paymentMethod: data.paymentMethod,
+      });
+      if (!r.ok) {
+        const hint = r.detail ? `${r.error}: ${r.detail}` : r.error;
+        toast.error('تعذر إرسال البريد', { description: hint });
+        return;
+      }
+      toast.success('تم إرسال الملخص إلى بريدك', {
+        description: r.messageId ? `معرّف الرسالة: ${r.messageId}` : undefined,
+      });
+    } finally {
+      setSendingEmail(false);
+    }
+  }, [data]);
 
   if (!data) {
     return null;
@@ -134,6 +179,24 @@ export default function RegisterSuccess() {
             </div>
 
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
+              <p className="font-semibold text-foreground mb-1">إتمام الدفع وتفعيل الاشتراك</p>
+              <p className="text-muted-foreground mb-3">
+                انتقل إلى صفحة الدفع برقم طلبك والباقة التي اخترتها — لن تحتاج لإعادة إدخال بياناتك. يُمرَّر رقم
+                الطلب تلقائياً إلى ميسر مع الدفع لربط العملية بطلبك في لوحة الإدارة وSupabase.
+              </p>
+              <Button className="w-full gap-2 font-semibold" asChild>
+                <Link to={paymentTo}>
+                  <CreditCard className="w-4 h-4" />
+                  الانتقال لصفحة الدفع
+                </Link>
+              </Button>
+            </div>
+
+            <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground break-all" dir="ltr">
+              {absolutePaymentUrl}
+            </div>
+
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
               <p className="font-semibold text-foreground mb-1">حالة «مفتوح / مغلق» على الخريطة</p>
               <p className="text-muted-foreground">
                 بعد اعتماد اشتراكك، يوفّر فريق المنصة لصالونك رابطاً سرياً خفيفاً لتحديث أيقونة العملاء على الخريطة دون
@@ -144,29 +207,35 @@ export default function RegisterSuccess() {
 
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground leading-relaxed">
-                يمكنك تحميل ملف نصي يحتوي تفاصيل طلبك، أو استخدام «إرسال نسخة للبريد» لفتح بريدك مع نص جاهز
-                للنسخ. إن رغبت بإرفاق إيصال الدفع أو أي ملف، أضفه من جهازك قبل الإرسال.
+                أرسلنا لبريدك ملخصاً يضم رابط الدفع المباشر (عبر خادمنا وResend). يمكنك أيضاً تحميل ملف نصي أو فتح
+                تطبيق البريد يدوياً.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button className="flex-1 gap-2" onClick={downloadSummary}>
                   <Download className="w-4 h-4" />
                   تحميل ملخص الطلب (.txt)
                 </Button>
-                <Button variant="outline" className="flex-1 gap-2" asChild>
-                  <a href={mailtoHref}>
-                    <Mail className="w-4 h-4" />
-                    إرسال نسخة للبريد
-                  </a>
+                <Button
+                  variant="default"
+                  className="flex-1 gap-2"
+                  onClick={() => void handleSendSummaryEmail()}
+                  disabled={sendingEmail}
+                >
+                  {sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+                  إرسال نسخة للبريد
                 </Button>
               </div>
+              <Button variant="outline" className="w-full gap-2" asChild>
+                <a href={mailtoHref}>
+                  <Mail className="w-4 h-4" />
+                  فتح تطبيق البريد (بديل)
+                </a>
+              </Button>
             </div>
 
             <div className="flex flex-col gap-2 pt-2">
               <Button variant="secondary" className="w-full gap-2" asChild>
-                <Link
-                  to={ROUTE_PATHS.HOME}
-                  onClick={() => clearLastOrderConfirmation()}
-                >
+                <Link to={ROUTE_PATHS.HOME} onClick={() => clearLastOrderConfirmation()}>
                   <Home className="w-4 h-4" />
                   العودة للرئيسية
                 </Link>

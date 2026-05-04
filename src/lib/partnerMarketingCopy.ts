@@ -188,16 +188,20 @@ export const PARTNER_LANDING_PLANS_SECTION = {
 
 export const PARTNER_LANDING_PLAN_CARDS = [
   {
+    /** يُمرَّر كـ `?tier=` في `/partners/payment` */
+    tier: 'bronze',
     title: 'برونزية',
     subtitle: 'بداية قوية على الخريطة',
     points: ['ظهور في الحي والبحث', 'بيانات وتواصل واضحة', 'مناسبة لأول مرة على المنصة'],
   },
   {
+    tier: 'gold',
     title: 'ذهبية',
     subtitle: 'ظهور أقوى وثقة أعلى',
     points: ['أولوية أفضل في النتائج', 'تقييمات وربط بالزيارة', 'أدوات أوسع من لوحة التحكم'],
   },
   {
+    tier: 'diamond',
     title: 'ماسية',
     subtitle: 'أعلى تمييز في الشبكة',
     points: ['أولوية قصوى في الظهور', 'شارات وتقييمات متقدمة', 'للصالونات اللي تبي تكون الخيار الأول'],
