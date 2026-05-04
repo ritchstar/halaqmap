@@ -168,6 +168,84 @@ export interface Database {
           created_at?: string
         }
       }
+      barber_subscriptions: {
+        Row: {
+          id: string
+          moyasar_payment_id: string
+          moyasar_webhook_event_id: string | null
+          registration_request_id: string | null
+          barber_id: string | null
+          tier: 'bronze' | 'gold' | 'diamond' | null
+          /** bigint في قاعدة البيانات — قد يُعرَض كسلسلة من PostgREST */
+          amount_halalas: number | string | null
+          currency: string
+          status:
+            | 'pending'
+            | 'paid'
+            | 'failed'
+            | 'refunded'
+            | 'voided'
+            | 'authorized'
+            | 'cancelled'
+          last_webhook_type: string | null
+          metadata: Record<string, unknown>
+          failure_reason: string | null
+          failure_notification_sent_at: string | null
+          confirmation_email_sent_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          moyasar_payment_id: string
+          moyasar_webhook_event_id?: string | null
+          registration_request_id?: string | null
+          barber_id?: string | null
+          tier?: 'bronze' | 'gold' | 'diamond' | null
+          amount_halalas?: number | string | null
+          currency?: string
+          status?:
+            | 'pending'
+            | 'paid'
+            | 'failed'
+            | 'refunded'
+            | 'voided'
+            | 'authorized'
+            | 'cancelled'
+          last_webhook_type?: string | null
+          metadata?: Record<string, unknown>
+          failure_reason?: string | null
+          failure_notification_sent_at?: string | null
+          confirmation_email_sent_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          moyasar_payment_id?: string
+          moyasar_webhook_event_id?: string | null
+          registration_request_id?: string | null
+          barber_id?: string | null
+          tier?: 'bronze' | 'gold' | 'diamond' | null
+          amount_halalas?: number | string | null
+          currency?: string
+          status?:
+            | 'pending'
+            | 'paid'
+            | 'failed'
+            | 'refunded'
+            | 'voided'
+            | 'authorized'
+            | 'cancelled'
+          last_webhook_type?: string | null
+          metadata?: Record<string, unknown>
+          failure_reason?: string | null
+          failure_notification_sent_at?: string | null
+          confirmation_email_sent_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
       search_activity_logs: {
         Row: {
           id: string

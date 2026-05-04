@@ -46,10 +46,10 @@ export default function Payment() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tier = searchParams.get('tier') as SubscriptionTier || SubscriptionTier.BRONZE;
   const requestIdParam = searchParams.get('requestId') ?? '';
-  const requestId = useMemo(() => {
-    const t = requestIdParam.trim();
-    return t.length > 0 ? t : `REQ-${Date.now()}`;
-  }, [requestIdParam]);
+  /** مطابق لطلب التسجيل (HM-...) — يُمرَّر في metadata.request_id للـ webhook؛ يُفضّل عدم تركه فارغاً */
+  const requestId = useMemo(() => requestIdParam.trim(), [requestIdParam]);
+  /** يُمرَّر في metadata.linked_barber_id بعد اعتماد الإدارة أو عبر الرابط ?linkedBarberId= */
+  const linkedBarberId = useMemo(() => searchParams.get('linkedBarberId')?.trim() ?? '', [searchParams]);
 
   const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card' | 'bank_transfer'>('moyasar');
   /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
@@ -179,21 +179,27 @@ export default function Payment() {
 
     const explicit = String(import.meta.env.VITE_MOYSAR_CALLBACK_URL || '').trim();
     let callbackUrl: string;
+    const paymentQuery = [
+      `tier=${encodeURIComponent(tier)}`,
+      `requestId=${encodeURIComponent(requestId)}`,
+      ...(linkedBarberId ? [`linkedBarberId=${encodeURIComponent(linkedBarberId)}`] : []),
+    ].join('&');
     if (explicit) {
       try {
         const u = new URL(explicit);
         u.searchParams.set('tier', tier);
         u.searchParams.set('requestId', requestId);
+        if (linkedBarberId) u.searchParams.set('linkedBarberId', linkedBarberId);
         callbackUrl = u.toString();
       } catch {
         const origin = window.location.origin;
         const path = window.location.pathname.replace(/\/$/, '');
-        callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?tier=${encodeURIComponent(tier)}&requestId=${encodeURIComponent(requestId)}`;
+        callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?${paymentQuery}`;
       }
     } else {
       const origin = window.location.origin;
       const path = window.location.pathname.replace(/\/$/, '');
-      callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?tier=${encodeURIComponent(tier)}&requestId=${encodeURIComponent(requestId)}`;
+      callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?${paymentQuery}`;
     }
 
     void loadMoyasarFormScript()
@@ -222,6 +228,7 @@ export default function Payment() {
             metadata: {
               tier: String(tier),
               request_id: String(requestId),
+              linked_barber_id: linkedBarberId || '',
               product: 'subscription_monthly',
             },
             on_failure: (msg: unknown) => {
@@ -247,6 +254,7 @@ export default function Payment() {
     monthlyAmountHalalas,
     tier,
     requestId,
+    linkedBarberId,
     moyasarPublishableKey,
   ]);
 
