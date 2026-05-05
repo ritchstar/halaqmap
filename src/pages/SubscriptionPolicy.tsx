@@ -573,8 +573,9 @@ export default function SubscriptionPolicy() {
                   </div>
                   <p className="text-sm">
                     يشترط التأشير على تعهد المشترك بأن منشأته مرخصة من الجهات ذات العلاقة لممارسة نشاط الحلاقة بشكل
-                    رسمي، وأنه يتحمل كامل المسؤولية النظامية عن صحة هذا التعهد. إدخال بيانات أو تعهدات مضلّلة يجيز
-                    للمنصة رفض الطلب أو إلغاء الاشتراك فوراً.
+                    رسمي، وأنه يتحمل كامل المسؤولية النظامية عن صحة هذا التعهد. تتم مراجعة هذا التعهد تقنياً، وتُرسل
+                    تنبيهات تقنية عند رصد مخالفات أو تجاوزات في المعلومات المقدمة أو الصور أو محتوى الشات الكتابي،
+                    ويجوز للمنصة رفض الطلب أو إلغاء الاشتراك فوراً وفق السياسة المعتمدة.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -660,21 +661,11 @@ export default function SubscriptionPolicy() {
                   {LEGAL_NATIONAL_UNIFIED_NUMBER}
                 </span>
               </p>
-              <p>
-                {commercialReg ? (
-                  <>
-                    رقم السجل التجاري: <span dir="ltr">{commercialReg}</span>
-                  </>
-                ) : (
-                  <>
-                    رقم السجل التجاري: يُعرض تلقائياً عند ضبط المتغيّر{' '}
-                    <code className="rounded bg-muted px-1 text-xs" dir="ltr">
-                      VITE_LEGAL_COMMERCIAL_REGISTRATION
-                    </code>{' '}
-                    في بيئة البناء — أو يُزوَّد عند الطلب عبر الدعم الفني.
-                  </>
-                )}
-              </p>
+              {commercialReg ? (
+                <p>
+                  رقم السجل التجاري: <span dir="ltr">{commercialReg}</span>
+                </p>
+              ) : null}
             </CardContent>
           </Card>
           <Card className="max-w-2xl mx-auto bg-muted/30">
