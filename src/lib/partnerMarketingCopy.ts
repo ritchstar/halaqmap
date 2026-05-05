@@ -209,11 +209,11 @@ export const PARTNER_LANDING_PLAN_CARDS = [
 ] as const;
 
 export const PARTNER_LANDING_CTA_SECTION = {
-  title: 'ابدأ الآن — مجانًا',
+  title: 'ابدأ الآن',
   lead:
     'تسجيل الطلب ما يحتاج تعقيد. اضغط الزر، فعّل ظهور صالونك، وخَلّ زباين الحي يشوفونك قبل المنافس.',
   chips: ['بدون لف تقني', 'مسار واضح', 'دعم فريق المنصة'],
-  primaryCta: 'ابدأ الآن — مجانًا',
+  primaryCta: 'ابدأ الآن',
   secondaryCta: 'فعّل ظهور صالونك',
 } as const;
 
@@ -331,7 +331,7 @@ export function partnerAssistantHintForPath(pathname: string): string {
     return 'بعد التفعيل، لوحة الحلاق تكمّل ما بدأته هنا — حضورك يصبح قابلاً للإدارة.';
   }
   if (p.endsWith('/partners') || p.endsWith('/partners/')) {
-    return 'ابدأ من «ابدأ الآن — مجانًا» أو «فعّل ظهور صالونك»؛ الخريطة والملف والتقييمات هي عرضك لزباين الحي.';
+    return 'ابدأ من «ابدأ الآن» أو «فعّل ظهور صالونك»؛ الخريطة والملف والتقييمات هي عرضك لزباين الحي.';
   }
   return 'تجوّل في الروابط أعلاه؛ كل صفحة تكمّل صورة المنصّة الاستثمارية أمام عملائك.';
 }
