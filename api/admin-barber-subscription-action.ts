@@ -165,7 +165,8 @@ async function resolveBarberIdAndEmail(
     if (mid && UUID_RE.test(mid)) barberId = mid;
   }
 
-  if (!registrationApproved) {
+  /** بعد الدفع التلقائي قد يكون الصف `paid` مع barber_id دون اعتماد نموذج التسجيل بعد — نسمح للإدارة بالإصلاح اليدوي. */
+  if (!registrationApproved && !(row.status === 'paid' && barberId)) {
     return {
       ok: false,
       error:
@@ -268,7 +269,7 @@ export async function POST(request: Request): Promise<Response> {
   const resendFrom = (process.env.RESEND_FROM_EMAIL ?? '').trim();
 
   if (action === 'notes') {
-    if (row.status !== 'pending_review') {
+    if (row.status !== 'pending_review' && row.status !== 'paid') {
       return Response.json({ error: 'invalid_status_for_notes' }, { status: 400, headers });
     }
     if (notes.length < 3) {
@@ -307,7 +308,7 @@ export async function POST(request: Request): Promise<Response> {
         updated_at: new Date().toISOString(),
       })
       .eq('id', rowId)
-      .eq('status', 'pending_review');
+      .in('status', ['pending_review', 'paid']);
     if (upErr) {
       return Response.json({ error: 'db_update_failed', detail: upErr.message }, { status: 500, headers });
     }
@@ -352,7 +353,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (action === 'approve') {
-    if (row.status !== 'pending_review') {
+    if (row.status !== 'pending_review' && row.status !== 'paid') {
       return Response.json({ error: 'invalid_status_for_approve' }, { status: 400, headers });
     }
     const resolved = await resolveBarberIdAndEmail(supabase, row);
@@ -446,7 +447,7 @@ export async function POST(request: Request): Promise<Response> {
         updated_at: ts,
       })
       .eq('id', rowId)
-      .eq('status', 'pending_review');
+      .in('status', ['pending_review', 'paid']);
     if (subRowErr) {
       return Response.json({ error: 'subscription_row_update_failed', detail: subRowErr.message }, { status: 500, headers });
     }
@@ -466,7 +467,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (action === 'refund') {
-    if (row.status !== 'pending_review') {
+    if (row.status !== 'pending_review' && row.status !== 'paid') {
       return Response.json({ error: 'invalid_status_for_refund' }, { status: 400, headers });
     }
     const secret = (process.env.MOYSAR_SECRET_API_KEY || '').trim();
@@ -499,7 +500,7 @@ export async function POST(request: Request): Promise<Response> {
         updated_at: ts,
       })
       .eq('id', rowId)
-      .eq('status', 'pending_review');
+      .in('status', ['pending_review', 'paid']);
     if (upErr) {
       return Response.json({ error: 'db_update_failed', detail: upErr.message }, { status: 500, headers });
     }

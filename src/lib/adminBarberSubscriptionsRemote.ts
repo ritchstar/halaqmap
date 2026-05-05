@@ -35,7 +35,17 @@ export async function fetchBarberSubscriptionsForAdmin(): Promise<BarberSubscrip
     .select(
       'id,moyasar_payment_id,registration_request_id,barber_id,tier,amount_halalas,currency,status,metadata,created_at,updated_at',
     )
-    .in('status', ['pending_review', 'approved', 'refunded', 'pending', 'failed', 'cancelled'])
+    .in('status', [
+      'paid',
+      'pending_review',
+      'approved',
+      'refunded',
+      'pending',
+      'failed',
+      'cancelled',
+      'authorized',
+      'voided',
+    ])
     .order('created_at', { ascending: false })
     .limit(100);
   if (error || !data) {

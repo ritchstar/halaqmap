@@ -6,6 +6,9 @@
  *
  * أسرار: MOYASAR_WEBHOOK_SECRET، RESEND_API_KEY، RESEND_FROM_EMAIL
  * اختياري: INVOICE_PLACEHOLDER_URL — رابط الفاتورة الافتراضي إن لم يُمرَّر metadata.invoice_url
+ * تفعيل تلقائي + بريد الترحيب (نفس محتوى /api/send-barber-onboarding):
+ *   APP_PUBLIC_ORIGIN أو PUBLIC_SITE_ORIGIN — أصل الموقع (https://…)
+ *   ONBOARDING_INTERNAL_WEBHOOK_SECRET — يطابق سر Vercel نفسه في رأس x-onboarding-internal-secret
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
@@ -94,6 +97,80 @@ function resolveInvoiceHref(meta: Record<string, unknown>): string {
   return "https://www.halaqmap.com/#/partners/payment?invoice=pending";
 }
 
+function addOneMonth(d: Date): Date {
+  const out = new Date(d.getTime());
+  out.setMonth(out.getMonth() + 1);
+  return out;
+}
+
+function dateStr(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+/** تفعيل فوري: حلاق نشط + اشتراك شهري active (نفس منطق اعتماد الإدارة السابق). */
+async function activateBarberAndSubscriptionPaid(
+  supabase: ReturnType<typeof createClient>,
+  barberId: string,
+  tier: "bronze" | "gold" | "diamond" | null,
+  amountHalalas: number | null,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const tierNorm = tier === "gold" || tier === "diamond" ? tier : "bronze";
+  const now = new Date();
+  const start = dateStr(now);
+  const end = dateStr(addOneMonth(now));
+  const amt = typeof amountHalalas === "number" && Number.isFinite(amountHalalas) ? amountHalalas : 0;
+  const priceSar = amt > 0 ? Math.round(amt) / 100 : 0;
+  const ts = now.toISOString();
+
+  const { error: barberErr } = await supabase
+    .from("barbers")
+    .update({
+      is_active: true,
+      is_verified: true,
+      open_for_customers: true,
+      tier: tierNorm,
+      updated_at: ts,
+    })
+    .eq("id", barberId);
+  if (barberErr) return { ok: false, error: barberErr.message };
+
+  const { data: latestSub, error: subSelErr } = await supabase
+    .from("subscriptions")
+    .select("id")
+    .eq("barber_id", barberId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (subSelErr) return { ok: false, error: subSelErr.message };
+
+  if (latestSub?.id) {
+    const { error: subUp } = await supabase
+      .from("subscriptions")
+      .update({
+        tier: tierNorm,
+        start_date: start,
+        end_date: end,
+        status: "active",
+        price: priceSar,
+        updated_at: ts,
+      })
+      .eq("id", latestSub.id);
+    if (subUp) return { ok: false, error: subUp.message };
+  } else {
+    const { error: subIn } = await supabase.from("subscriptions").insert({
+      barber_id: barberId,
+      tier: tierNorm,
+      start_date: start,
+      end_date: end,
+      status: "active",
+      auto_renew: false,
+      price: priceSar,
+    });
+    if (subIn) return { ok: false, error: subIn.message };
+  }
+  return { ok: true };
+}
+
 async function sendResendConfirmation(input: {
   apiKey: string;
   from: string;
@@ -103,13 +180,20 @@ async function sendResendConfirmation(input: {
   amountHalalas: number;
   currency: string;
   invoiceHref: string;
+  /** عند ربط حساب حلاق وتفعيله تلقائياً من الـ Webhook */
+  accountActivated: boolean;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const amountSar = (input.amountHalalas / 100).toFixed(2);
-  const subject = "حلاق ماب | تم استلام الدفع — قيد المراجعة";
+  const subject = input.accountActivated
+    ? "حلاق ماب | تم الدفع وتفعيل حسابك"
+    : "حلاق ماب | تم استلام الدفع";
+  const activationBlock = input.accountActivated
+    ? `<p>تم <strong>تفعيل حسابك على الخريطة</strong> ويمكنك البدء باستقبال الطلبات من لوحة التحكم.</p>`
+    : `<p>تم استلام المبلغ بنجاح. إذا لم يظهر صالونك على الخريطة بعد، تأكد من إكمال التسجيل وربط معرّف الحلاق في عملية الدفع أو تواصل مع الدعم.</p>`;
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
 <p>شكرًا لك، تم استلام مبلغ الاشتراك بنجاح عبر <strong>ميسر (Moyasar)</strong>.</p>
-<p>طلبك الآن تحت المراجعة من قبل <strong>فريق الجودة</strong> وسيتم تفعيل حسابك خلال <strong>24 ساعة</strong> بعد الاعتماد.</p>
+${activationBlock}
 <ul style="list-style:none;padding:0">
 <li>الباقة: <strong>${escapeHtml(input.tierLabel)}</strong></li>
 <li>المبلغ: <strong>${escapeHtml(amountSar)} ${escapeHtml(input.currency)}</strong></li>
@@ -329,12 +413,10 @@ Deno.serve(async (req) => {
     | "pending_review"
     | "approved" = "pending";
   /**
-   * سياسة «مراجعة الجودة» (إلزامية):
-   * - عند نجاح الدفع في ميسر (`paid`) → `barber_subscriptions.status = pending_review` دائماً لهذا الحدث.
-   * - التفعيل على الخريطة وتحديث `subscriptions` إلى `active` لا يتم من هذا الـ Webhook أبداً؛ يتم حصرياً
-   *   يدوياً من الإدارة عبر مسار الاعتماد (مثل `api/admin-barber-subscription-action` → اعتماد).
+   * عند `paid` من ميسر: `barber_subscriptions.status = paid` وتفعيل فوري للحلاق (barbers + subscriptions)
+   * عند توفر معرّف حلاق صالح في metadata / الطلب — دون انتظار إداري.
    */
-  if (paymentStatus === "paid") rowStatus = "pending_review";
+  if (paymentStatus === "paid") rowStatus = "paid";
   else if (paymentStatus === "failed" || paymentStatus === "faild") rowStatus = "failed";
   else if (paymentStatus === "canceled" || paymentStatus === "cancelled") rowStatus = "cancelled";
   else if (paymentStatus === "refunded") rowStatus = "refunded";
@@ -412,12 +494,67 @@ Deno.serve(async (req) => {
     if (insErr) return jsonResponse({ error: "db_insert_failed", detail: insErr.message }, 500);
   }
 
-  /* لا نُحدّث `subscriptions` ولا نُفعّل الظهور على الخريطة هنا — حصرياً بعد اعتماد إداري يدوي من لوحة التحكم. */
+  let accountActivated = false;
+  let onboardingApiOk = false;
+
+  if (rowStatus === "paid" && barberId) {
+    const act = await activateBarberAndSubscriptionPaid(supabase, barberId, tier, amount);
+    if (!act.ok) {
+      console.warn("[moyasar-webhook] activateBarberAndSubscriptionPaid:", act.error);
+      return jsonResponse(
+        { error: "activation_failed", detail: act.error, paymentId, eventId: eventId || null },
+        502,
+      );
+    }
+    accountActivated = true;
+    const tsAct = new Date().toISOString();
+    await supabase
+      .from("barber_subscriptions")
+      .update({
+        metadata: { ...metaPayload, webhook_auto_activated_at: tsAct },
+        updated_at: tsAct,
+      })
+      .eq("moyasar_payment_id", paymentId);
+
+    const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "").trim().replace(
+      /\/+$/,
+      "",
+    );
+    const obSecret = (Deno.env.get("ONBOARDING_INTERNAL_WEBHOOK_SECRET") ?? "").trim();
+    const { data: bRow } = await supabase.from("barbers").select("email,name").eq("id", barberId).maybeSingle();
+    const toOnboarding =
+      bRow?.email && String(bRow.email).includes("@") ? String(bRow.email).trim() : resolvedEmail;
+    const nameOnboarding = (bRow?.name && String(bRow.name).trim()) || barberName;
+    if (appOrigin && obSecret && toOnboarding) {
+      const tierStr = tier === "diamond" ? "diamond" : tier === "gold" ? "gold" : "bronze";
+      try {
+        const obResp = await fetch(`${appOrigin}/api/send-barber-onboarding`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-onboarding-internal-secret": obSecret,
+          },
+          body: JSON.stringify({
+            mode: "single",
+            barberEmail: toOnboarding,
+            barberName: nameOnboarding,
+            tier: tierStr,
+            barberId,
+            registrationOrderId: requestId || undefined,
+          }),
+        });
+        if (obResp.ok) onboardingApiOk = true;
+        else console.warn("[moyasar-webhook] send-barber-onboarding:", await obResp.text());
+      } catch (e) {
+        console.warn("[moyasar-webhook] send-barber-onboarding fetch:", e);
+      }
+    }
+  }
 
   let emailSent = false;
   let failureEmailSent = false;
 
-  if (rowStatus === "pending_review" && resendKey && resendFrom && resolvedEmail) {
+  if (rowStatus === "paid" && resendKey && resendFrom && resolvedEmail) {
     const { data: rowAfter } = await supabase
       .from("barber_subscriptions")
       .select("confirmation_email_sent_at")
@@ -437,6 +574,7 @@ Deno.serve(async (req) => {
         amountHalalas: amount ?? 0,
         currency,
         invoiceHref,
+        accountActivated: accountActivated && Boolean(barberId),
       });
       if (mail.ok) {
         emailSent = true;
@@ -486,6 +624,8 @@ Deno.serve(async (req) => {
       status: rowStatus,
       emailSent,
       failureEmailSent,
+      accountActivated,
+      onboardingApiOk,
     },
     200,
   );

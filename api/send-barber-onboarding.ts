@@ -1,4 +1,5 @@
-import { type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { timingSafeEqual } from 'node:crypto';
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 import { getBarberPortalMagicSecret, mintBarberPortalMagicToken } from './_lib/barberPortalMagicToken.js';
 
@@ -697,11 +698,24 @@ export async function GET(request: Request): Promise<Response> {
       resendApiKeySet,
       resendFromEmailSet: fromEmailSet,
       serviceRoleKeySet: serviceRoleSet,
-      postAuth: 'Authorization: Bearer <Supabase access_token> + active admin with manage_barbers',
+      postAuth:
+        'Authorization: Bearer <Supabase access_token> + manage_barbers — أو (للـ Webhook فقط) x-onboarding-internal-secret + ONBOARDING_INTERNAL_WEBHOOK_SECRET مع mode=single',
       ready: resendApiKeySet && fromEmailSet && Boolean(resolvedUrl) && serviceRoleSet,
     },
     { headers }
   );
+}
+
+function verifyOnboardingInternalWebhookSecret(request: Request): boolean {
+  const expected = (process.env.ONBOARDING_INTERNAL_WEBHOOK_SECRET || '').trim();
+  if (!expected) return false;
+  const got = (request.headers.get('x-onboarding-internal-secret') || '').trim();
+  if (got.length !== expected.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(expected, 'utf8'), Buffer.from(got, 'utf8'));
+  } catch {
+    return false;
+  }
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -727,19 +741,42 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  const adminAuth = await verifyManageBarbersAdminFromRequest(request, url, serviceRole);
-  if (adminAuth.ok === false) {
-    return Response.json(adminAuth.json, { status: adminAuth.status, headers });
-  }
-  const supabase = adminAuth.supabase;
-
+  const bodyText = await request.text();
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(bodyText) as unknown;
   } catch {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400, headers });
   }
   const payload = body as Partial<OnboardingBody>;
+
+  const internalOk = verifyOnboardingInternalWebhookSecret(request);
+  let supabase: SupabaseClient;
+  if (internalOk) {
+    if (payload.mode !== 'single') {
+      return Response.json(
+        {
+          error: 'forbidden',
+          hint: 'Requests signed with x-onboarding-internal-secret may only use mode=single (server webhook).',
+        },
+        { status: 403, headers },
+      );
+    }
+    supabase = createClient(url, serviceRole, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  } else {
+    const adminAuth = await verifyManageBarbersAdminFromRequest(
+      new Request(request.url, { method: request.method, headers: request.headers, body: bodyText }),
+      url,
+      serviceRole,
+    );
+    if (adminAuth.ok === false) {
+      return Response.json(adminAuth.json, { status: adminAuth.status, headers });
+    }
+    supabase = adminAuth.supabase;
+  }
+
   const mode = payload.mode;
 
   const baseUrl = getSiteBaseUrl();

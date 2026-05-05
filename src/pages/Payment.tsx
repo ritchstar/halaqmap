@@ -68,7 +68,7 @@ export default function Payment() {
     'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
   >('idle');
   const [moyasarVerifyMessage, setMoyasarVerifyMessage] = useState<string | null>(null);
-  /** يُعرض مع تنبيه «مراجعة الجودة» بعد التحقق من ميسر عند paid */
+  /** يُعرض مع تنبيه النجاح بعد التحقق من ميسر عند paid */
   const [moyasarPaidAmountFormat, setMoyasarPaidAmountFormat] = useState<string | null>(null);
   const moyasarHostRef = useRef<HTMLDivElement>(null);
   const [moyasarFormError, setMoyasarFormError] = useState<string | null>(null);
@@ -154,9 +154,9 @@ export default function Payment() {
         setMoyasarReturnVerify('paid');
         setMoyasarVerifyMessage(null);
         setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
-        toast.success('تم تأكيد الدفع', {
+        toast.success('تم تفعيل حسابك بنجاح', {
           description:
-            'مبلغ الاشتراك وصل بنجاح. تفعيل ظهورك على الخريطة يخضع حالياً لمراجعة الجودة من الإدارة — لا حاجة لإعادة الدفع.',
+            'تم تأكيد الدفع عبر ميسر، وحسابك مفعّل الآن ويمكنك البدء باستقبال الطلبات من لوحة التحكم. لا حاجة لإعادة الدفع.',
           duration: 11000,
         });
       } else {
@@ -368,16 +368,15 @@ export default function Payment() {
               <CheckCircle2 className="h-5 w-5 text-emerald-600" />
               <div className="space-y-2 pr-1">
                 <AlertTitle className="text-base font-semibold text-emerald-950 dark:text-emerald-50">
-                  تم تأكيد الدفع بنجاح
+                  تم الدفع وتفعيل حسابك
                 </AlertTitle>
                 <AlertDescription className="text-sm leading-relaxed text-foreground/90">
                   <p>
-                    تم استلام مبلغ الاشتراك عبر ميسر بشكل صحيح. حسابك على حلاق ماب{' '}
-                    <strong>لا يزال قيد تفعيل</strong> إلى أن تُكمل فرق الجودة مراجعة طلبك — هذا إجراء
-                    اعتيادي لضمان جودة الظهور على الخريطة.
+                    تم استلام مبلغ الاشتراك عبر ميسر بشكل صحيح، و<strong>تم تفعيل حسابك على المنصة</strong>. يمكنك
+                    الآن تسجيل الدخول إلى لوحة التحكم والبدء باستقبال الطلبات.
                   </p>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    لا حاجة لإعادة الدفع. ستصلك رسالة بريد أو يمكنك متابعة حالة الطلب مع الدعم عند الحاجة.
+                    تحقق من بريدك لرسالة الترحيب وروابط لوحة التحكم. لا حاجة لإعادة الدفع.
                   </p>
                   {moyasarPaidAmountFormat ? (
                     <p className="mt-2 text-xs font-medium text-muted-foreground" dir="ltr">
