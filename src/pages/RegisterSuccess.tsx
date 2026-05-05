@@ -126,14 +126,14 @@ export default function RegisterSuccess() {
           <CardHeader className="text-center">
             <div className="mb-3 flex justify-center">
               <Badge variant="secondary" className="border-primary/40 bg-primary/10 px-4 py-1 text-sm font-semibold">
-                قيد المراجعة النظامية
+                حسابك نشط الآن
               </Badge>
             </div>
-            <CardTitle className="text-2xl">تم استلام طلبك</CardTitle>
+            <CardTitle className="text-2xl">تم تفعيل اشتراكك بنجاح! 🎉</CardTitle>
             <CardDescription className="text-center leading-relaxed">
-              تم استلام طلبك ضمن <strong>مراجعة نظامية لحظية</strong>؛ لا حاجة لانتظار رفع ملفات حكومية ثقيلة على
-              خوادمنا. <strong>لم تُخزَّن مستنداتك الحكومية على خوادمنا</strong> ولن نطلب منك إعادة تقديمها لاحقاً ضمن
-              هذا المسار. ستتواصل الإدارة عند الحاجة — واحتفظ برقم الطلب للمتابعة.
+              اشتراكك مفعّل على المنصة ويمكنك البدء فوراً دون خطوات تفعيل إضافية. في هذا المسار{' '}
+              <strong>لم تُخزَّن مستنداتك الحكومية الثقيلة على خوادمنا</strong> ولن نطلب منك إعادة تقديمها لاحقاً ضمن
+              نفس الإجراء. احتفظ برقم الطلب للمتابعة أو الدعم عند الحاجة.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -181,8 +181,8 @@ export default function RegisterSuccess() {
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
               <p className="font-semibold text-foreground mb-1">إتمام الدفع وتفعيل الاشتراك</p>
               <p className="text-muted-foreground mb-3">
-                انتقل إلى صفحة الدفع برقم طلبك والباقة التي اخترتها — لن تحتاج لإعادة إدخال بياناتك. يُمرَّر رقم
-                الطلب تلقائياً إلى ميسر مع الدفع لربط العملية بطلبك في لوحة الإدارة وSupabase.
+                إن لم تُكمل الدفع بعد، انتقل إلى صفحة الدفع برقم طلبك والباقة التي اخترتها — لن تحتاج لإعادة إدخال
+                بياناتك. يُمرَّر رقم الطلب تلقائياً إلى ميسر مع الدفع لربط العملية بطلبك في النظام.
               </p>
               <Button className="w-full gap-2 font-semibold" asChild>
                 <Link to={paymentTo}>
@@ -197,11 +197,11 @@ export default function RegisterSuccess() {
             </div>
 
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
-              <p className="font-semibold text-foreground mb-1">حالة «مفتوح / مغلق» على الخريطة</p>
+              <p className="font-semibold text-foreground mb-1">ظهورك على الخريطة والحجوزات</p>
               <p className="text-muted-foreground">
-                بعد اعتماد اشتراكك، يوفّر فريق المنصة لصالونك رابطاً سرياً خفيفاً لتحديث أيقونة العملاء على الخريطة دون
-                لوحة تحكم كاملة — مفيد خصوصاً لباقة البرونزي. في الباقات الذهبية والماسية يتوفر التبديل أيضاً من لوحة
-                التحكم مع بقاء نفس الرابط احتياطاً.
+                صالونك متاح الآن للعملاء على الخريطة، يمكنك البدء باستقبال الحجوزات فوراً. يوفّر لك رابطاً سرياً خفيفاً
+                لتحديث أيقونة «مفتوح / مغلق» دون لوحة تحكم كاملة — مفيد خصوصاً لباقة البرونزي؛ وفي الباقات الذهبية
+                والماسية يتوفر التبديل أيضاً من لوحة التحكم مع بقاء نفس الرابط احتياطاً.
               </p>
             </div>
 
