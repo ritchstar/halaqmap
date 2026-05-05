@@ -1,7 +1,16 @@
 import { motion } from "framer-motion";
-import { Shield, Lock, FileCheck, Database, Bell, Mail, Phone, Scale } from "lucide-react";
+import { Shield, Lock, FileCheck, Database, Bell, Mail, Scale, CreditCard } from "lucide-react";
+import {
+  LEGAL_TRADE_NAME_AR,
+  LEGAL_NATIONAL_UNIFIED_NUMBER,
+  PARTNER_SUPPORT_EMAIL,
+  PARTNER_SUPPORT_PHONE_E164,
+  PARTNER_SUPPORT_WHATSAPP_URL,
+  getLegalCommercialRegistrationDisplay,
+} from "@/config/partnerLegal";
 
 export default function PartnerPrivacy() {
+  const commercialReg = getLegalCommercialRegistrationDisplay();
   const sections = [
     {
       icon: Shield,
@@ -17,7 +26,7 @@ export default function PartnerPrivacy() {
         "- **مبدأ التقليل:** نقتصر على **الحد الأدنى** من البيانات اللازمة لمراجعة الاشتراك وتشغيل الخدمة والامتثال.\n" +
         "- **حقوق أصحاب البيانات:** يمكن للشريك طلب الاطلاع أو التصحيح أو الحذف ضمن ما يسمح به النظام وطبيعة التشغيل، عبر قنوات التواصل أدناه أو المسارات المعتمدة في لوحة التحكم حسب الباقة.\n" +
         "- **الشكوى للجهة:** يحق تقديم شكوى إلى هيئة حماية البيانات الشخصية عبر: https://dgp.sdaia.gov.sa/\n" +
-        "- **المعالجون التقنيون (أمثلة):** مزود البنية السحابية لقاعدة البيانات والتخزين (Supabase)، واستضافة الواجهة والدوال (Vercel)، وقد يُستخدم مزود بريد إلكتروني لتشغيل إشعارات الترحيب أو التشغيل عند تفعيل الخدمة — دون بيع بياناتك لجهات تسويقية.\n" +
+        "- **المعالجون التقنيون (أمثلة):** مزود البنية السحابية لقاعدة البيانات والتخزين (Supabase)، واستضافة الواجهة والدوال (Vercel)، و**بوابة الدفع ميسر (Moyasar)** لمعالجة المدفوعات الإلكترونية، وقد يُستخدم مزود بريد إلكتروني لتشغيل إشعارات الترحيب أو التشغيل عند تفعيل الخدمة — دون بيع بياناتك لجهات تسويقية.\n" +
         "- **منطقة التخزين وسيادة البيانات:** يُضبَط مشروع **Supabase** لاستخدام منطقة **الشرق الأوسط على AWS** المعروضة في لوحة المشروع (مثل **الرياض me-central-1** أو ما يعادلها من مراكز المنطقة مثل **جدة** عند توفرها كخيار للمشروع)، لتقليل إخراج البيانات عن نطاق جغرافي مقارب للمملكة قدر الإمكان. قد تبقى بعض الخدمات المساعدة (مثل استضافة الواجهة أو الدوال) وفق مراكز المزود وعقوده — يُرجى طلب توضيح إضافي عبر الدعم عند الحاجة.\n\n" +
         "النصوص التفصيلية الرسمية تُحدَّث من الجهة؛ يُنصح بمراجعة بوابة الهيئة دورياً.",
     },
@@ -25,7 +34,13 @@ export default function PartnerPrivacy() {
       icon: Database,
       title: "البيانات التي نجمعها من الشريك",
       content:
-        "- بيانات النشاط: اسم الصالون، وسائل التواصل، العنوان والإحداثيات.\n- بيانات التشغيل: جدول العمل، الخدمات والأسعار، صور المحل والبنر.\n- إعدادات خدمة كبار السن والمرضى وذوي الاحتياجات (للذهبي/الماسي): السعر المعروض، إظهار أو إخفاء الخدمة للعملاء، أيام الإعلان، وملاحظة للعميل — عند حفظها من لوحة التحكم.\n- التحقق النظامي عند التسجيل: الرمز الموحد (QR) أو ما يعادله كنص للمعاينة اللحظية فقط — دون تخزين مستندات حكومية أو شهادات صحية على خوادمنا.\n- بيانات الاشتراك والدفع: طريقة الدفع وإيصال التحويل (عند التحويل البنكي).\n- بيانات الإسناد التسويقي: UTM ومُعرّفات النقر (عند توفرها) لتحليل أداء الحملات.",
+        "- بيانات النشاط: اسم الصالون، وسائل التواصل، العنوان والإحداثيات.\n- بيانات التشغيل: جدول العمل، الخدمات والأسعار، صور المحل والبنر.\n- إعدادات خدمة كبار السن والمرضى وذوي الاحتياجات (للذهبي/الماسي): السعر المعروض، إظهار أو إخفاء الخدمة للعملاء، أيام الإعلان، وملاحظة للعميل — عند حفظها من لوحة التحكم.\n- التحقق النظامي عند التسجيل: الرمز الموحد (QR) أو ما يعادله كنص للمعاينة اللحظية فقط — دون تخزين مستندات حكومية أو شهادات صحية على خوادمنا.\n- بيانات الاشتراك والدفع: طريقة الدفع وإيصال التحويل (عند التحويل البنكي)، ومُعرّفات المعاملة عند الدفع بالبطاقة عبر بوابة ميسر.\n- بيانات الإسناد التسويقي: UTM ومُعرّفات النقر (عند توفرها) لتحليل أداء الحملات.",
+    },
+    {
+      icon: CreditCard,
+      title: "مشاركة البيانات مع بوابة الدفع (طرف ثالث)",
+      content:
+        "نحن نشارك بيانات الدفع الضرورية فقط مع بوابة الدفع (Moyasar) لإتمام المعاملات المالية والتحقق من عمليات الاحتيال.\n\nلا تُخزَّن بيانات البطاقة الائتمانية كاملة لدى حلاق ماب؛ تتم معالجة الدفع وفق أمن وشروط مزود الخدمة المعتمد.",
     },
     {
       icon: FileCheck,
@@ -47,9 +62,12 @@ export default function PartnerPrivacy() {
     },
     {
       icon: Mail,
-      title: "التواصل",
+      title: "الدعم الفني والشكاوى والخصوصية",
       content:
-        "لاستفسارات خصوصية الشركاء أو طلبات تعديل البيانات:\n\n**البريد:** admin@halaqmap.com\n**الهاتف:** 0559602685",
+        `للاستفسارات المتعلقة بخصوصية بيانات الشركاء، أو طلبات التصحيح/الحذف ضمن ما يسمح به النظام، أو الشكاوى التشغيلية:\n\n` +
+        `**البريد:** ${PARTNER_SUPPORT_EMAIL}\n` +
+        `**الهاتف:** +${PARTNER_SUPPORT_PHONE_E164}\n` +
+        `**واتساب:** ${PARTNER_SUPPORT_WHATSAPP_URL}`,
     },
   ];
 
@@ -106,8 +124,61 @@ export default function PartnerPrivacy() {
             );
           })}
 
+          <div className="rounded-2xl border border-border bg-card p-6 text-right">
+            <h2 className="text-lg font-bold mb-3">البيانات التجارية للمنشأة</h2>
+            <p className="text-sm font-medium text-foreground mb-2">{LEGAL_TRADE_NAME_AR}</p>
+            <p className="text-sm text-muted-foreground mb-2">
+              الرقم الوطني الموحد للمنشأة:{' '}
+              <span dir="ltr" className="font-mono">
+                {LEGAL_NATIONAL_UNIFIED_NUMBER}
+              </span>
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              {commercialReg ? (
+                <>
+                  رقم السجل التجاري: <span dir="ltr">{commercialReg}</span>
+                </>
+              ) : (
+                <>
+                  رقم السجل التجاري: يُعرض عند ضبط{' '}
+                  <code className="rounded bg-muted px-1 text-xs" dir="ltr">
+                    VITE_LEGAL_COMMERCIAL_REGISTRATION
+                  </code>{' '}
+                  في بيئة البناء، أو عبر طلب الدعم الفني.
+                </>
+              )}
+            </p>
+            <h3 className="text-base font-semibold mb-2">الدعم الفني والشكاوى</h3>
+            <ul className="text-sm text-muted-foreground space-y-1 list-none p-0 m-0">
+              <li>
+                بريد:{' '}
+                <a href={`mailto:${PARTNER_SUPPORT_EMAIL}`} className="text-primary underline-offset-2 hover:underline">
+                  {PARTNER_SUPPORT_EMAIL}
+                </a>
+              </li>
+              <li>
+                واتساب:{' '}
+                <a
+                  href={PARTNER_SUPPORT_WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline-offset-2 hover:underline"
+                  dir="ltr"
+                >
+                  {PARTNER_SUPPORT_WHATSAPP_URL}
+                </a>
+              </li>
+              <li dir="ltr">
+                هاتف:{' '}
+                <a href={`tel:+${PARTNER_SUPPORT_PHONE_E164}`} className="text-primary underline-offset-2 hover:underline">
+                  +{PARTNER_SUPPORT_PHONE_E164}
+                </a>
+              </li>
+            </ul>
+          </div>
+
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
-            آخر تحديث: 17 أبريل 2026
+            آخر تحديث: 4 مايو 2026
           </div>
         </div>
       </div>

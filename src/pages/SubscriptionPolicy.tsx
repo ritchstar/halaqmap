@@ -13,13 +13,19 @@ import {
   SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from "@/config/subscriptionPlanHero";
 import { RATING_QR_PLAN_LINE } from "@/config/ratingQrInvite";
-import { usePlatformVatSettings } from "@/hooks/usePlatformVatSettings";
-import { getSubscriptionPricingVatClauseAr } from "@/lib/platformVatSettings";
+import {
+  LEGAL_TRADE_NAME_AR,
+  LEGAL_NATIONAL_UNIFIED_NUMBER,
+  PARTNER_SUPPORT_EMAIL,
+  PARTNER_SUPPORT_PHONE_E164,
+  PARTNER_SUPPORT_WHATSAPP_URL,
+  getLegalCommercialRegistrationDisplay,
+} from "@/config/partnerLegal";
 
 type SubscriptionTierFeature = { kind: "map_hero" } | { kind: "text"; value: string };
 
 export default function SubscriptionPolicy() {
-  const vatSettings = usePlatformVatSettings();
+  const commercialReg = getLegalCommercialRegistrationDisplay();
   const subscriptionTiers: Array<{
     name: string;
     price: string;
@@ -97,15 +103,16 @@ export default function SubscriptionPolicy() {
 
   const paymentMethods = [
     {
-      title: "الاشتراك الشهري",
-      description: "دفع شهري متكرر عبر بطاقة الائتمان أو مدى",
+      title: "الاشتراك الشهري (بوابة ميسر Moyasar)",
+      description:
+        "معالجة الدفع الإلكتروني عبر بوابة ميسر (Moyasar) المرخصة وفق الأنظمة المعمول بها في المملكة، باستخدام بطاقات مدى والبطاقات الائتمانية المعتمدة.",
       icon: CheckCircle2,
       benefits: [
-        "تجديد تلقائي كل شهر",
-        "إمكانية الإلغاء في أي وقت",
-        "لا توجد رسوم إضافية",
-        "فوترة واضحة وشفافة"
-      ]
+        "تجديد تلقائي كل شهر عند تفعيل الاشتراك المتكرر",
+        "إمكانية الإلغاء وفق سياسة الإلغاء أدناه",
+        "لا يخزن الموقع رقم البطاقة أو رمز الأمان — تتم المعالجة لدى مزود الدفع المعتمد",
+        "فوترة واضحة عبر ميسر وإشعارات البريد عند الحاجة",
+      ],
     },
     {
       title: "التحويل البنكي (6 أشهر مقدماً)",
@@ -375,7 +382,19 @@ export default function SubscriptionPolicy() {
           <Card className="mt-8 max-w-3xl mx-auto bg-muted/50">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground text-center">
-                <strong>ملاحظة هامة:</strong> سياسة الاسترداد تنطبق فقط على الاشتراك الشهري. التحويلات البنكية لـ6 أشهر مقدماً غير قابلة للاسترداد بعد التفعيل.
+                <strong>ملاحظة هامة:</strong> سياسة الاسترداد أعلاه تنطبق على الاشتراك الشهري وفق المدد المذكورة. التحويلات البنكية لـ6 أشهر مقدماً غير قابلة للاسترداد بعد التفعيل إلا إذا نصّت عروض أو اتفاقات خاصة كتابياً.
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="mt-8 max-w-3xl mx-auto border-primary/25">
+            <CardHeader>
+              <CardTitle className="text-lg text-center">استرداد في حال خلل تقني بعد نجاح الدفع</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                في حال نجاح عملية الدفع وعدم تفعيل الاشتراك تلقائياً بسبب خلل فني، يلتزم الموقع بمعالجة الطلب وإعادة
+                كامل المبلغ للحساب المصدر خلال 7 إلى 14 يوم عمل، ما لم يفضل المشترك تفعيل الاشتراك يدوياً عبر
+                التواصل مع الدعم الفني.
               </p>
             </CardContent>
           </Card>
@@ -490,6 +509,36 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">التوضيح الضريبي وأمن المدفوعات</h2>
+          <div className="max-w-4xl mx-auto space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">التوضيح الضريبي (ضريبة القيمة المضافة)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                  جميع رسوم الاشتراكات الموضحة هي مبالغ نهائية، ولا يتم تحصيل ضريبة قيمة مضافة (VAT) حالياً نظراً
+                  لعدم وصول المؤسسة للحد الإلزامي للتسجيل الضريبي.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">أمن المدفوعات وبوابة الدفع</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                  يتم معالجة جميع المدفوعات عبر مزود خدمة دفع مرخص من البنك المركزي السعودي (SAMA)، ولا يقوم الموقع
+                  بتخزين بيانات البطاقات الائتمانية لديه.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </motion.section>
+
+        <Separator className="my-16" />
+
+        <motion.section variants={staggerItem} className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center">الشروط والأحكام العامة</h2>
           <Card className="max-w-4xl mx-auto">
             <CardContent className="pt-6">
@@ -499,7 +548,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">1</span>
                   </div>
                   <p className="text-sm">
-                    {getSubscriptionPricingVatClauseAr(vatSettings)}
+                    تحتفظ منصة حلاق ماب بالحق في تعديل الأسعار والباقات مع إشعار مسبق لمدة 30 يوماً.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -507,7 +556,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">2</span>
                   </div>
                   <p className="text-sm">
-                    تحتفظ منصة حلاق ماب بالحق في تعديل الأسعار والباقات مع إشعار مسبق لمدة 30 يوماً.
+                    يجب على الحلاق الالتزام بمعايير الجودة والاحترافية. قد يتم تعليق الحساب في حالة المخالفات.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -515,7 +564,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">3</span>
                   </div>
                   <p className="text-sm">
-                    يجب على الحلاق الالتزام بمعايير الجودة والاحترافية. قد يتم تعليق الحساب في حالة المخالفات.
+                    المنصة غير مسؤولة عن جودة الخدمات المقدمة من الحلاقين. العلاقة التعاقدية مباشرة بين الحلاق والعميل.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -523,21 +572,14 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">4</span>
                   </div>
                   <p className="text-sm">
-                    المنصة غير مسؤولة عن جودة الخدمات المقدمة من الحلاقين. العلاقة التعاقدية مباشرة بين الحلاق والعميل.
+                    يجب إكمال التحقق النظامي عبر الرمز الموحد (QR) المعتمد لسجلّك التجاري أو رخصة البلدية (أحدهما
+                    يكفي). إدخال بيانات مضلّلة أو غير قابلة للتحقق يؤدي إلى رفض الطلب أو إلغاء فوري بعد التحقق
+                    النظامي.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                     <span className="text-xs font-bold text-primary">5</span>
-                  </div>
-                  <p className="text-sm">
-                    يجب إكمال التحقق النظامي عبر الرمز الموحد (QR) المعتمد لسجلّك التجاري أو رخصة البلدية (أحدهما
-                    يكفي). إدخال بيانات مضلّلة أو غير قابلة للتحقق يؤدي إلى رفض الطلب أو إلغاء فوري بعد المراجعة.
-                  </p>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-primary">6</span>
                   </div>
                   <p className="text-sm">
                     في حالة النزاعات، يتم الرجوع إلى الأنظمة واللوائح المعمول بها في المملكة العربية السعودية.
@@ -551,7 +593,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem}>
-          <h2 className="text-3xl font-bold mb-8 text-center">تواصل مع الدعم الفني</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">الدعم الفني والشكاوى</h2>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <Card className="text-center hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
@@ -562,8 +604,8 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-2">متاح من 10 صباحاً - 5 مساءً</p>
-                <a href="tel:+966559602685" className="text-primary hover:underline font-medium">
-                  ٩٦٦٥٥٩٦٠٢٦٨٥
+                <a href={`tel:+${PARTNER_SUPPORT_PHONE_E164}`} className="text-primary hover:underline font-medium">
+                  +{PARTNER_SUPPORT_PHONE_E164}
                 </a>
               </CardContent>
             </Card>
@@ -577,8 +619,13 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-2">رد فوري خلال دقائق</p>
-                <a href="https://wa.me/966501234567" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
-                  راسلنا الآن
+                <a
+                  href={PARTNER_SUPPORT_WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline font-medium"
+                >
+                  راسلنا على واتساب
                 </a>
               </CardContent>
             </Card>
@@ -592,19 +639,48 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-2">رد خلال 24 ساعة</p>
-                <a href="mailto:admin@halaqmap.com" className="text-primary hover:underline font-medium">
-                  admin@halaqmap.com
+                <a href={`mailto:${PARTNER_SUPPORT_EMAIL}`} className="text-primary hover:underline font-medium">
+                  {PARTNER_SUPPORT_EMAIL}
                 </a>
               </CardContent>
             </Card>
           </div>
         </motion.section>
 
-        <motion.div variants={fadeInUp} className="mt-16 text-center">
+        <motion.div variants={fadeInUp} className="mt-16 text-center space-y-6">
+          <Card className="max-w-2xl mx-auto border-border/80">
+            <CardHeader>
+              <CardTitle className="text-base">البيانات التجارية للمنشأة</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">{LEGAL_TRADE_NAME_AR}</p>
+              <p>
+                الرقم الوطني الموحد للمنشأة:{' '}
+                <span dir="ltr" className="font-mono">
+                  {LEGAL_NATIONAL_UNIFIED_NUMBER}
+                </span>
+              </p>
+              <p>
+                {commercialReg ? (
+                  <>
+                    رقم السجل التجاري: <span dir="ltr">{commercialReg}</span>
+                  </>
+                ) : (
+                  <>
+                    رقم السجل التجاري: يُعرض تلقائياً عند ضبط المتغيّر{' '}
+                    <code className="rounded bg-muted px-1 text-xs" dir="ltr">
+                      VITE_LEGAL_COMMERCIAL_REGISTRATION
+                    </code>{' '}
+                    في بيئة البناء — أو يُزوَّد عند الطلب عبر الدعم الفني.
+                  </>
+                )}
+              </p>
+            </CardContent>
+          </Card>
           <Card className="max-w-2xl mx-auto bg-muted/30">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">
-                آخر تحديث: 7 أبريل 2026 | جميع الحقوق محفوظة © 2026 حلاق ماب
+                آخر تحديث: 4 مايو 2026 | جميع الحقوق محفوظة © 2026 حلاق ماب
               </p>
             </CardContent>
           </Card>
