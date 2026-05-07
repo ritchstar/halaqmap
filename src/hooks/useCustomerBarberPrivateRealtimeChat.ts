@@ -122,7 +122,7 @@ export function useCustomerBarberPrivateRealtimeChat(
       setStatus('loading');
       setErrorHint(null);
 
-      let { data: sessionData } = await client.auth.getSession();
+      const { data: sessionData } = await client.auth.getSession();
       let session = sessionData.session;
       if (!session) {
         const { error: anonErr } = await client.auth.signInAnonymously();
