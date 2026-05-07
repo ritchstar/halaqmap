@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
+import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 
 interface LayoutProps {
@@ -254,6 +255,10 @@ export function Layout({ children }: LayoutProps) {
                 </a>
               </div>
             </div>
+          </div>
+
+          <div className="mt-8">
+            <LegalEntityPublicStrip variant="light" />
           </div>
 
           <div className="mt-8 pt-8 border-t border-border/40">

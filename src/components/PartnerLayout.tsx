@@ -8,6 +8,7 @@ import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 /** المساعد الحيّ (OpenAI/Anthropic) — المكوّن الوحيد؛ لا يوجد مسار استيراد قديم. */
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
+import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PartnerPromoVideoBand } from '@/components/partner/PartnerPromoVideoBand';
 
 interface PartnerLayoutProps {
@@ -86,6 +87,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <footer className="border-t border-white/10 bg-[#071426]/70">
         <div className="container mx-auto px-4 py-6">
+          <div className="mb-6">
+            <LegalEntityPublicStrip variant="dark" />
+          </div>
           <div className="flex flex-col gap-3 text-sm text-slate-300 md:flex-row md:items-center md:justify-between">
             <p className="max-w-3xl leading-relaxed">{PARTNER_LAYOUT_FOOTER_LINE}</p>
             <div className="flex flex-wrap items-center gap-4">
