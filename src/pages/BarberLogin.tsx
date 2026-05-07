@@ -88,13 +88,13 @@ export default function BarberLogin() {
             />
             <h1 className="mb-2 text-2xl font-bold">لوحة تحكم حلاق ماب</h1>
             <p className="text-muted-foreground">
-              سجّل الدخول ببريدك المعتمد: إمّا <strong>رمز المنصة الموحّد</strong> الذي زوّدتك به الإدارة، أو{' '}
-              <strong>كلمة المرور</strong> المرسلة لبريدك بعد اعتماد الحساب (نفس بيانات Supabase).
+              أدخل <strong>البريد المعتمد</strong> في اشتراكك. في خانة الرمز استخدم إما الرقم السري الذي زوّدك به{' '}
+              <strong>فريق الدعم</strong>، أو <strong>كلمة المرور</strong> التي وصلتك على البريد بعد تفعيل حسابك.
             </p>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              لوحة التحكم الإلكترونية متاحة لباقتي <strong>الذهبي</strong> و<strong>الماسي</strong> فقط. باقة برونزية؟{' '}
+              هذه اللوحة مخصّصة لباقتي <strong>الذهبي</strong> و<strong>الماسي</strong> فقط. إذا كنت على الباقة البرونزية يمكنك{' '}
               <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
-                اطّلع على الترقية
+                الاطلاع على الترقية
               </Link>
               .
             </p>
@@ -130,7 +130,7 @@ export default function BarberLogin() {
                   id="password"
                   type="password"
                   autoComplete="current-password"
-                  placeholder="رمز البوابة من الإدارة (ليس أي كلمة مرور)"
+                  placeholder="الرمز من فريق الدعم أو كلمة المرور من بريدك"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 pr-10"
