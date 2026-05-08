@@ -58,6 +58,29 @@ function tierFromMeta(meta: Record<string, unknown> | null | undefined): "bronze
   return null;
 }
 
+function expectedAmountHalalasFromTier(tier: "bronze" | "gold" | "diamond"): number {
+  // السعر الأساسي الشهري المعتمد في التسجيل/الدفع (قبل أي منطق ضرائب مستقبلي على الخادم).
+  if (tier === "gold") return 15000;
+  if (tier === "diamond") return 20000;
+  return 10000;
+}
+
+function expectedAmountHalalasFromMeta(meta: Record<string, unknown> | null | undefined): number | null {
+  if (!meta || typeof meta !== "object") return null;
+  const raw =
+    meta.expected_amount_halalas ??
+    meta.expectedAmountHalalas ??
+    meta.amount_halalas_expected ??
+    null;
+  if (raw == null) return null;
+  const n =
+    typeof raw === "number"
+      ? Math.trunc(raw)
+      : Number.parseInt(String(raw).trim(), 10);
+  if (!Number.isFinite(n) || n < 100) return null;
+  return n;
+}
+
 function extractCustomerEmail(payment: PaymentData): string | null {
   const src = payment.source;
   if (src && typeof src === "object") {
@@ -498,6 +521,46 @@ Deno.serve(async (req) => {
   let onboardingApiOk = false;
 
   if (rowStatus === "paid" && barberId) {
+    const paidAmount = typeof amount === "number" && Number.isFinite(amount) ? amount : null;
+    const expectedFromMeta = expectedAmountHalalasFromMeta(meta);
+    const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) : null;
+    const expectedAmount = expectedFromMeta ?? expectedFromTier;
+    const expectedCurrency = String(meta.expected_currency ?? meta.expectedCurrency ?? "SAR")
+      .trim()
+      .toUpperCase();
+    const currencyOk = !expectedCurrency || expectedCurrency === currency;
+    const amountOk = expectedAmount != null && paidAmount != null && paidAmount === expectedAmount;
+
+    if (!amountOk || !currencyOk) {
+      const detail = {
+        reason: "price_mismatch_before_activation",
+        expected_amount_halalas: expectedAmount,
+        actual_amount_halalas: paidAmount,
+        expected_currency: expectedCurrency || null,
+        actual_currency: currency || null,
+        tier: tier ?? null,
+      };
+      const tsFail = new Date().toISOString();
+      await supabase
+        .from("barber_subscriptions")
+        .update({
+          failure_reason: "Payment amount/currency mismatch with expected package pricing.",
+          metadata: { ...metaPayload, ...detail, activation_blocked_at: tsFail },
+          updated_at: tsFail,
+        })
+        .eq("moyasar_payment_id", paymentId);
+
+      return jsonResponse(
+        {
+          error: "price_mismatch_before_activation",
+          detail,
+          paymentId,
+          eventId: eventId || null,
+        },
+        409,
+      );
+    }
+
     const act = await activateBarberAndSubscriptionPaid(supabase, barberId, tier, amount);
     if (!act.ok) {
       console.warn("[moyasar-webhook] activateBarberAndSubscriptionPaid:", act.error);

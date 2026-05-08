@@ -237,6 +237,8 @@ export default function Payment() {
             fixed_width: false,
             metadata: {
               tier: String(tier),
+              expected_amount_halalas: monthlyAmountHalalas,
+              expected_currency: 'SAR',
               /** مطابقة طلب التسجيل (HM-...) — يُمرَّر للويبهوك ولوحة ميسر؛ camelCase + snake_case */
               ...(String(requestId).trim()
                 ? {
