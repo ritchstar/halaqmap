@@ -44,20 +44,25 @@ export type PlatformAdminPermissionKey =
   | 'manage_command_center'
   | 'view_messages'
   | 'view_settings'
-  | 'manage_admins';
+  | 'manage_admins'
+  | 'view_payment_settings'
+  | 'manage_payment_settings'
+  | 'manage_subscriber_comms'
+  | 'manage_subscriber_lifecycle'
+  | 'manage_partner_billing';
 
 function permissionFromRow(raw: unknown, key: PlatformAdminPermissionKey): boolean {
   const incoming = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
   return Boolean(incoming[key]);
 }
 
-async function assertPlatformAdminHasPermission(
+async function loadPlatformAdminPermissionsRow(
   supabase: SupabaseClient,
   actorEmail: string,
-  required: PlatformAdminPermissionKey
-): Promise<{ ok: true } | { ok: false; message: string }> {
-  if (isBootstrapAdminEmail(actorEmail)) return { ok: true };
-
+): Promise<
+  | { ok: true; permissions: Record<string, unknown> }
+  | { ok: false; message: string }
+> {
   const { data, error } = await supabase
     .from('platform_admin_roles')
     .select('is_active, permissions')
@@ -68,10 +73,41 @@ async function assertPlatformAdminHasPermission(
   if (!data || data.is_active !== true) {
     return { ok: false, message: 'Forbidden: not an active platform admin' };
   }
-  if (!permissionFromRow(data.permissions, required)) {
+  const raw = data.permissions;
+  const permissions = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+  return { ok: true, permissions };
+}
+
+async function assertPlatformAdminHasPermission(
+  supabase: SupabaseClient,
+  actorEmail: string,
+  required: PlatformAdminPermissionKey
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (isBootstrapAdminEmail(actorEmail)) return { ok: true };
+  const row = await loadPlatformAdminPermissionsRow(supabase, actorEmail);
+  if (row.ok === false) return row;
+  if (!permissionFromRow(row.permissions, required)) {
     return {
       ok: false,
       message: `Forbidden: platform permission "${required}" is required`,
+    };
+  }
+  return { ok: true };
+}
+
+async function assertPlatformAdminHasAnyPermission(
+  supabase: SupabaseClient,
+  actorEmail: string,
+  requiredAny: PlatformAdminPermissionKey[],
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (isBootstrapAdminEmail(actorEmail)) return { ok: true };
+  const row = await loadPlatformAdminPermissionsRow(supabase, actorEmail);
+  if (row.ok === false) return row;
+  const ok = requiredAny.some((k) => permissionFromRow(row.permissions, k));
+  if (!ok) {
+    return {
+      ok: false,
+      message: `Forbidden: one of permissions [${requiredAny.join(', ')}] is required`,
     };
   }
   return { ok: true };
@@ -137,6 +173,69 @@ export async function verifyPlatformAdminFromRequest(
   }
 
   const gate = await assertPlatformAdminHasPermission(supabase, user.email, requiredPermission);
+  if (gate.ok === false) {
+    return { ok: false, status: 403, json: { error: gate.message } };
+  }
+
+  return { ok: true, supabase, actorEmail: normalizeEmail(user.email) };
+}
+
+/**
+ * نفس التحقق من الجلسة، لكن يقبل المستخدم إن وُجدت له أي صلاحية من القائمة (OR).
+ */
+export async function verifyPlatformAdminFromRequestAny(
+  request: Request,
+  serverSupabaseUrl: string,
+  serviceRoleKey: string,
+  requiredAny: PlatformAdminPermissionKey[],
+): Promise<VerifyManageBarbersAdminResult> {
+  const clientSupabaseUrl = request.headers.get('x-client-supabase-url')?.trim() || '';
+  if (clientSupabaseUrl && clientSupabaseUrl !== serverSupabaseUrl) {
+    return {
+      ok: false,
+      status: 409,
+      json: {
+        error: 'Supabase project mismatch between client and server',
+        hint: 'Align VITE_SUPABASE_URL and SUPABASE_URL on Vercel to the same project.',
+        serverUrlHost: safeHost(serverSupabaseUrl),
+        clientUrlHost: safeHost(clientSupabaseUrl),
+      },
+    };
+  }
+
+  const authHeader = request.headers.get('authorization')?.trim() || '';
+  const accessToken =
+    authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length).trim() : '';
+
+  if (!accessToken) {
+    return {
+      ok: false,
+      status: 401,
+      json: {
+        error: 'Unauthorized',
+        hint: 'Send Authorization: Bearer <Supabase session access_token> from a signed-in admin.',
+      },
+    };
+  }
+
+  const supabase = createClient(serverSupabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
+  const user = userData?.user;
+  if (userErr || !user?.email?.trim()) {
+    return {
+      ok: false,
+      status: 401,
+      json: {
+        error: 'Unauthorized',
+        hint: userErr?.message || 'Invalid or expired session token',
+      },
+    };
+  }
+
+  const gate = await assertPlatformAdminHasAnyPermission(supabase, user.email, requiredAny);
   if (gate.ok === false) {
     return { ok: false, status: 403, json: { error: gate.message } };
   }

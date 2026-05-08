@@ -136,7 +136,8 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                عرض فقط — لحفظ التعديلات يلزم امتلاك صلاحية <strong>إعدادات المنصة</strong>.
+                عرض فقط — لحفظ التعديلات يلزم <strong>تعديل إعدادات بوابات الدفع</strong> أو (للتوافق الرجعي){' '}
+                <strong>عرض الإعدادات العامة</strong> في صلاحيات المشرف.
               </AlertDescription>
             </Alert>
           </CardContent>

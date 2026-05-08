@@ -4,7 +4,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { verifyPlatformAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
+import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = { maxDuration: 60 };
@@ -238,7 +238,10 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'server_misconfigured' }, { status: 503, headers });
   }
 
-  const auth = await verifyPlatformAdminFromRequest(request, serverUrl, serviceRole, 'review_payments');
+  const auth = await verifyPlatformAdminFromRequestAny(request, serverUrl, serviceRole, [
+    'review_payments',
+    'manage_partner_billing',
+  ]);
   if (auth.ok === false) {
     return Response.json(auth.json, { status: auth.status, headers });
   }

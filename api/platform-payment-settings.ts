@@ -1,4 +1,4 @@
-import { safeHost, verifyPlatformAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
+import { safeHost, verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { isLikelyHttpUrl, normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 
@@ -85,10 +85,11 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ error: 'Server not configured' }, { status: 503, headers });
   }
 
-  let adminAuth = await verifyPlatformAdminFromRequest(request, url, serviceRole, 'view_settings');
-  if (adminAuth.ok === false) {
-    adminAuth = await verifyPlatformAdminFromRequest(request, url, serviceRole, 'view_payments');
-  }
+  const adminAuth = await verifyPlatformAdminFromRequestAny(request, url, serviceRole, [
+    'view_payment_settings',
+    'view_settings',
+    'view_payments',
+  ]);
   if (adminAuth.ok === false) {
     return Response.json(adminAuth.json, { status: adminAuth.status, headers });
   }
@@ -154,7 +155,10 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Server not configured' }, { status: 503, headers });
   }
 
-  const adminAuth = await verifyPlatformAdminFromRequest(request, url, serviceRole, 'view_settings');
+  const adminAuth = await verifyPlatformAdminFromRequestAny(request, url, serviceRole, [
+    'manage_payment_settings',
+    'view_settings',
+  ]);
   if (adminAuth.ok === false) {
     return Response.json(adminAuth.json, { status: adminAuth.status, headers });
   }

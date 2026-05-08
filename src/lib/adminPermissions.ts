@@ -10,7 +10,15 @@ export type AdminPermissionKey =
   | 'manage_command_center'
   | 'view_messages'
   | 'view_settings'
-  | 'manage_admins';
+  | 'manage_admins'
+  /** بوابات الدفع والمراقبة — تبويب مستقل */
+  | 'view_payment_settings'
+  | 'manage_payment_settings'
+  /** تعامل فردي مع المشترك (طلب التسجيل) */
+  | 'manage_subscriber_comms'
+  | 'manage_subscriber_lifecycle'
+  /** إيصالات التحويل + إجراءات اشتراك ميسر من لوحة الإدارة */
+  | 'manage_partner_billing';
 
 export type AdminPermissions = Record<AdminPermissionKey, boolean>;
 
@@ -27,6 +35,11 @@ export const ADMIN_PERMISSION_LABELS: Record<AdminPermissionKey, string> = {
   view_messages: 'عرض الرسائل',
   view_settings: 'عرض الإعدادات',
   manage_admins: 'إدارة المدراء والصلاحيات',
+  view_payment_settings: 'عرض إعدادات بوابات الدفع',
+  manage_payment_settings: 'تعديل إعدادات بوابات الدفع',
+  manage_subscriber_comms: 'إعادة إرسال رسائل الروابط للمشترك',
+  manage_subscriber_lifecycle: 'تعليق الحساب / حذف طلب التسجيل',
+  manage_partner_billing: 'تأكيد إيصالات التحويل وإجراءات فوترة ميسر',
 };
 
 export const ADMIN_PERMISSION_KEYS = Object.keys(ADMIN_PERMISSION_LABELS) as AdminPermissionKey[];
@@ -44,6 +57,11 @@ export const DEFAULT_ADMIN_PERMISSIONS: AdminPermissions = {
   view_messages: false,
   view_settings: false,
   manage_admins: false,
+  view_payment_settings: false,
+  manage_payment_settings: false,
+  manage_subscriber_comms: false,
+  manage_subscriber_lifecycle: false,
+  manage_partner_billing: false,
 };
 
 export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
@@ -59,6 +77,11 @@ export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
   view_messages: true,
   view_settings: true,
   manage_admins: true,
+  view_payment_settings: true,
+  manage_payment_settings: true,
+  manage_subscriber_comms: true,
+  manage_subscriber_lifecycle: true,
+  manage_partner_billing: true,
 };
 
 export function normalizeAdminPermissions(value: unknown): AdminPermissions {

@@ -415,7 +415,20 @@ export default function AdminDashboard() {
 
   const can = (perm: AdminPermissionKey) => Boolean(adminData?.permissions?.[perm]);
   const canViewSecurityOpsLog = can('view_overview') || can('manage_barbers');
-  const canViewPaymentGateways = can('view_settings') || can('view_payments');
+  const canViewPaymentGateways =
+    can('view_payment_settings') ||
+    can('manage_payment_settings') ||
+    can('view_settings') ||
+    can('view_payments');
+  const canSavePaymentGatewaySettings = can('manage_payment_settings') || can('view_settings');
+  const canManageSubscriberLifecycle = can('manage_barbers') || can('manage_subscriber_lifecycle');
+  const canManageSubscriberComms = can('manage_barbers') || can('manage_subscriber_comms');
+  const canOpenRequestReviewDialog =
+    can('review_requests') ||
+    can('manage_barbers') ||
+    can('manage_subscriber_lifecycle') ||
+    can('manage_subscriber_comms');
+  const canReviewPartnerBilling = can('review_payments') || can('manage_partner_billing');
   const allowedTabs = useMemo(() => {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
@@ -556,8 +569,7 @@ export default function AdminDashboard() {
             <RequestsSection
               requests={subscriptionRequests}
               onViewRequest={setSelectedRequest}
-              canReview={can('review_requests')}
-              canManage={can('manage_barbers')}
+              canOpenRequestReview={canOpenRequestReviewDialog}
               canExportCsv={can('review_requests')}
             />
           </TabsContent>}
@@ -580,7 +592,7 @@ export default function AdminDashboard() {
             <PaymentsSection
               payments={displayPayments}
               onViewPayment={setSelectedPayment}
-              canReview={can('review_payments')}
+              canReview={canReviewPartnerBilling}
             />
           </TabsContent>}
 
@@ -601,7 +613,7 @@ export default function AdminDashboard() {
 
           {canViewPaymentGateways && (
             <TabsContent value="payment-gateways" className="space-y-6">
-              <PaymentGatewaysAdminPanel canSave={can('view_settings')} />
+              <PaymentGatewaysAdminPanel canSave={canSavePaymentGatewaySettings} />
             </TabsContent>
           )}
 
@@ -618,7 +630,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Request Review Dialog */}
-      {selectedRequest && (can('review_requests') || can('manage_barbers')) && (
+      {selectedRequest && canOpenRequestReviewDialog && (
         <RequestReviewDialog
           request={selectedRequest}
           reviewerEmail={adminData.email}
@@ -633,12 +645,13 @@ export default function AdminDashboard() {
             bumpRemoteData();
           }}
           canReviewRequests={can('review_requests')}
-          canManageBarbers={can('manage_barbers')}
+          canSubscriberLifecycle={canManageSubscriberLifecycle}
+          canSubscriberComms={canManageSubscriberComms}
         />
       )}
 
       {/* Payment Review Dialog */}
-      {selectedPayment && can('review_payments') && (
+      {selectedPayment && canReviewPartnerBilling && (
         <PaymentReviewDialog
           payment={selectedPayment}
           onClose={() => setSelectedPayment(null)}
@@ -1130,14 +1143,12 @@ function errorText(result: unknown, fallback = 'حدث خطأ غير متوقع'
 function RequestsSection({
   requests,
   onViewRequest,
-  canReview,
-  canManage,
+  canOpenRequestReview,
   canExportCsv,
 }: {
   requests: SubscriptionRequest[];
   onViewRequest: (request: SubscriptionRequest) => void;
-  canReview: boolean;
-  canManage: boolean;
+  canOpenRequestReview: boolean;
   canExportCsv: boolean;
 }) {
   const [query, setQuery] = useState('');
@@ -1669,9 +1680,9 @@ function RequestsSection({
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-start">
-                  <Button onClick={() => onViewRequest(request)} disabled={!canReview && !canManage}>
+                  <Button onClick={() => onViewRequest(request)} disabled={!canOpenRequestReview}>
                     <Eye className="w-4 h-4 ml-2" />
-                    {canReview || canManage ? 'إدارة الطلب' : 'عرض فقط'}
+                    {canOpenRequestReview ? 'إدارة الطلب' : 'عرض فقط'}
                   </Button>
                 </div>
               </div>
@@ -1693,7 +1704,8 @@ function RequestReviewDialog({
   setRejectionReason,
   onAfterDecision,
   canReviewRequests,
-  canManageBarbers,
+  canSubscriberLifecycle,
+  canSubscriberComms,
 }: {
   request: SubscriptionRequest;
   reviewerEmail: string;
@@ -1702,7 +1714,8 @@ function RequestReviewDialog({
   setRejectionReason: (reason: string) => void;
   onAfterDecision: () => void;
   canReviewRequests: boolean;
-  canManageBarbers: boolean;
+  canSubscriberLifecycle: boolean;
+  canSubscriberComms: boolean;
 }) {
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -1847,8 +1860,8 @@ function RequestReviewDialog({
   };
 
   const handleSuspendAccount = async () => {
-    if (!canManageBarbers) {
-      toast({ title: 'لا تملك صلاحية الإدارة', variant: 'destructive' });
+    if (!canSubscriberLifecycle) {
+      toast({ title: 'لا تملك صلاحية تعليق الحساب', variant: 'destructive' });
       return;
     }
     if (!request.linkedBarberId) {
@@ -1884,8 +1897,8 @@ function RequestReviewDialog({
   };
 
   const handleDeleteRequest = async () => {
-    if (!canManageBarbers) {
-      toast({ title: 'لا تملك صلاحية الإدارة', variant: 'destructive' });
+    if (!canSubscriberLifecycle) {
+      toast({ title: 'لا تملك صلاحية حذف الطلب', variant: 'destructive' });
       return;
     }
     if (!window.confirm('تأكيد حذف الطلب نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
@@ -1911,8 +1924,8 @@ function RequestReviewDialog({
   };
 
   const handleResendOnboarding = async () => {
-    if (!canManageBarbers) {
-      toast({ title: 'لا تملك صلاحية إدارة الحلاقين', variant: 'destructive' });
+    if (!canSubscriberComms) {
+      toast({ title: 'لا تملك صلاحية إعادة إرسال رسالة الروابط', variant: 'destructive' });
       return;
     }
     const recipient = request.email.trim();
@@ -2309,18 +2322,18 @@ function RequestReviewDialog({
               <Button
                 variant="secondary"
                 onClick={() => void handleSuspendAccount()}
-                disabled={saving || !canManageBarbers}
+                disabled={saving || !canSubscriberLifecycle}
               >
                 تعليق الحساب
               </Button>
-              <Button variant="outline" onClick={() => void handleResendOnboarding()} disabled={saving || !canManageBarbers}>
+              <Button variant="outline" onClick={() => void handleResendOnboarding()} disabled={saving || !canSubscriberComms}>
                 <Mail className="w-4 h-4 ml-2" />
                 إعادة إرسال رسالة الروابط
               </Button>
               <Button
                 variant="outline"
                 onClick={() => void handleDeleteRequest()}
-                disabled={saving || !canManageBarbers}
+                disabled={saving || !canSubscriberLifecycle}
                 className="text-red-600 border-red-500/40 hover:bg-red-500/10"
               >
                 <Trash2 className="w-4 h-4 ml-2" />
