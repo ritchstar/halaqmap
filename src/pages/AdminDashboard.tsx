@@ -133,6 +133,7 @@ import {
   type AdminSupportThread,
 } from '@/lib/adminSupportChatRemote';
 import { PartnerPromoVideoAdminPanel } from '@/components/admin/PartnerPromoVideoAdminPanel';
+import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutorialVideosAdminPanel';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
@@ -4396,6 +4397,7 @@ function SettingsSection({
       </Card>
 
       <PartnerPromoVideoAdminPanel canManage={canSavePlatformVat} />
+      <PartnerTutorialVideosAdminPanel canManage={canSavePlatformVat} />
 
       <Card>
         <CardHeader>

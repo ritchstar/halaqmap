@@ -8,6 +8,8 @@ export const ROUTE_PATHS = {
   PARTNER_WHY: '/partners/why',
   /** قصة المنصة ومنطق المسار */
   PARTNER_STORY: '/partners/story',
+  /** فيديوهات تعليم الاشتراك للشركاء */
+  PARTNER_TUTORIALS: '/partners/tutorials',
   REGISTER: '/partners/register',
   /** تسجيل اهتمام مسبق (بريد + موافقة) — ما قبل الإطلاق الرسمي */
   PARTNER_INTEREST: '/partners/interest',

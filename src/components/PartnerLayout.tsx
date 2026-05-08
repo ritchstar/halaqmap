@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ArrowRight, Mail, Phone } from 'lucide-react';
+import { ArrowRight, Mail, Phone, PlayCircle } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
@@ -19,6 +19,7 @@ const partnerNavItems = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الصفحة التسويقية' },
   { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
+  { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات الاشتراك' },
   { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم الشركاء' },
   { path: ROUTE_PATHS.PARTNER_PRIVACY, label: 'خصوصية الشركاء' },
@@ -67,6 +68,19 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                 </NavLink>
               ))}
             </nav>
+
+            <NavLink
+              to={ROUTE_PATHS.PARTNER_TUTORIALS}
+              className={({ isActive }) =>
+                `inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive ? 'bg-primary/25 text-emerald-100' : 'text-slate-200 hover:bg-white/10 hover:text-white'
+                }`
+              }
+              title="فيديوهات شرح الاشتراك"
+            >
+              <PlayCircle className="h-4 w-4" />
+              <span>شرح الاشتراك</span>
+            </NavLink>
 
             <NavLink
               to={ROUTE_PATHS.HOME}
