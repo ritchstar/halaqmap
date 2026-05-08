@@ -478,6 +478,10 @@ Deno.serve(async (req) => {
     typeof rawAmount === "number" && Number.isFinite(rawAmount) ? Math.trunc(rawAmount) : null;
   const currency = String(data.currency ?? "SAR").toUpperCase() || "SAR";
   const paymentStatus = String(data.status ?? "").toLowerCase();
+  const paymentGateway = String(meta.payment_gateway ?? "MOYASAR")
+    .trim()
+    .toUpperCase();
+  const successStatus = paymentStatus === "paid" || paymentStatus === "success" || paymentStatus === "succeeded";
 
   let rowStatus:
     | "pending"
@@ -493,7 +497,7 @@ Deno.serve(async (req) => {
    * عند `paid` من ميسر: `barber_subscriptions.status = paid` وتفعيل فوري للحلاق (barbers + subscriptions)
    * عند توفر معرّف حلاق صالح في metadata / الطلب — دون انتظار إداري.
    */
-  if (paymentStatus === "paid") rowStatus = "paid";
+  if (successStatus) rowStatus = "paid";
   else if (paymentStatus === "failed" || paymentStatus === "faild") rowStatus = "failed";
   else if (paymentStatus === "canceled" || paymentStatus === "cancelled") rowStatus = "cancelled";
   else if (paymentStatus === "refunded") rowStatus = "refunded";
@@ -523,6 +527,7 @@ Deno.serve(async (req) => {
 
   const metaPayload = {
     moyasar_type: eventType,
+    payment_gateway: paymentGateway,
     payment_status: paymentStatus,
     moyasar_payment_status: paymentStatus,
     raw_payment_id: paymentId,

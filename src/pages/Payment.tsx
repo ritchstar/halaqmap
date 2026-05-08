@@ -35,7 +35,9 @@ import {
   getBankTransferPeriodGrossSar,
   isBankTransferPromoActive,
 } from '@/config/subscriptionPricing';
+import { resolvePaymentGateway } from '@/config/paymentGateway';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
 import { toast } from 'sonner';
@@ -56,6 +58,10 @@ export default function Payment() {
   const requestId = useMemo(() => requestIdParam.trim(), [requestIdParam]);
   /** يُمرَّر في metadata.linked_barber_id بعد اعتماد الإدارة أو عبر الرابط ?linkedBarberId= */
   const linkedBarberId = useMemo(() => searchParams.get('linkedBarberId')?.trim() ?? '', [searchParams]);
+  const barberName = useMemo(() => searchParams.get('barberName')?.trim() ?? '', [searchParams]);
+  const selectedGateway = useMemo(() => resolvePaymentGateway(), []);
+  const paymentProvider = useMemo(() => getUnifiedPaymentProvider(selectedGateway), [selectedGateway]);
+  const isMoyasarGateway = selectedGateway === 'MOYASAR';
 
   const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card' | 'bank_transfer'>('moyasar');
   /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
@@ -119,10 +125,22 @@ export default function Payment() {
     () => Math.max(100, Math.round(monthlyBreakdown.total * 100)),
     [monthlyBreakdown.total],
   );
+  const unifiedPaymentInit = useMemo(
+    () =>
+      paymentProvider.buildInitPayload({
+        tier,
+        amountHalalas: monthlyAmountHalalas,
+        barberName,
+        requestId,
+        linkedBarberId,
+      }),
+    [paymentProvider, tier, monthlyAmountHalalas, barberName, requestId, linkedBarberId],
+  );
 
   const moyasarPaymentIdFromUrl = searchParams.get('id')?.trim() || '';
 
   useEffect(() => {
+    if (selectedGateway !== 'MOYASAR') return;
     if (!moyasarPaymentIdFromUrl) return;
     let cancelled = false;
     setMoyasarReturnVerify('loading');
@@ -160,7 +178,7 @@ export default function Payment() {
         return;
       }
 
-      if (result.paid) {
+      if (result.paid && paymentProvider.isSuccessStatus(result.status || 'paid')) {
         setMoyasarReturnVerify('paid');
         setMoyasarVerifyMessage(null);
         setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
@@ -181,10 +199,11 @@ export default function Payment() {
     return () => {
       cancelled = true;
     };
-  }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, setSearchParams]);
+  }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, paymentProvider, selectedGateway, setSearchParams]);
 
   /** تهيئة نموذج ميسر داخل الصفحة بعد الإقرار بالشروط. */
   useEffect(() => {
+    if (selectedGateway !== 'MOYASAR') return;
     if (paymentMethod !== 'moyasar' || !moyasarTermsAccepted || !moyasarKeyOk) {
       setMoyasarFormError(null);
       if (moyasarHostRef.current) moyasarHostRef.current.innerHTML = '';
@@ -238,27 +257,14 @@ export default function Payment() {
             element: host,
             amount: monthlyAmountHalalas,
             currency: 'SAR',
-            description: `Halaqmap subscription ${tier} / ${requestId}`,
+            description: unifiedPaymentInit.description,
             publishable_api_key: moyasarPublishableKey,
             callback_url: callbackUrl,
             supported_networks: ['mada', 'visa', 'mastercard'],
             methods: ['creditcard'],
             language: 'ar',
             fixed_width: false,
-            metadata: {
-              tier: String(tier),
-              expected_amount_halalas: monthlyAmountHalalas,
-              expected_currency: 'SAR',
-              /** مطابقة طلب التسجيل (HM-...) — يُمرَّر للويبهوك ولوحة ميسر؛ camelCase + snake_case */
-              ...(String(requestId).trim()
-                ? {
-                    request_id: String(requestId).trim(),
-                    requestId: String(requestId).trim(),
-                  }
-                : {}),
-              linked_barber_id: linkedBarberId || '',
-              product: 'subscription_monthly',
-            },
+            metadata: unifiedPaymentInit.metadata,
             on_failure: (msg: unknown) => {
               toast.error(typeof msg === 'string' ? msg : 'فشل الدفع');
             },
@@ -283,7 +289,10 @@ export default function Payment() {
     tier,
     requestId,
     linkedBarberId,
+    selectedGateway,
     moyasarPublishableKey,
+    unifiedPaymentInit.description,
+    unifiedPaymentInit.metadata,
   ]);
 
   const bankTransferDue = getBankTransferPayableAmountSar(tier);
@@ -541,7 +550,7 @@ export default function Payment() {
                     </label>
                   </RadioGroup>
 
-                  {paymentMethod === 'moyasar' && (
+                  {paymentMethod === 'moyasar' && isMoyasarGateway && (
                     <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
                       <Alert>
                         <Shield className="h-4 w-4" />
@@ -632,6 +641,18 @@ export default function Payment() {
                         </Card>
                       )}
                     </div>
+                  )}
+
+                  {paymentMethod === 'moyasar' && !isMoyasarGateway && (
+                    <Alert>
+                      <Shield className="h-4 w-4" />
+                      <AlertDescription className="text-sm leading-relaxed">
+                        تم اختيار بوابة <strong>بنك الأول (SAB)</strong> عبر متغير البيئة{' '}
+                        <code className="rounded bg-muted px-1">VITE_PAYMENT_GATEWAY=SAB</code>. نفس نظام الأتمتة
+                        (تفعيل الحساب + إشعارات واتساب) سيعمل عند وصول حالة نجاح <strong>SUCCESS</strong> من الـ
+                        webhook الخاص بالبوابة. أكمل إعداد مفاتيح SAB وendpoint الـ webhook قبل تفعيل الإنتاج.
+                      </AlertDescription>
+                    </Alert>
                   )}
 
                   {/* Bank Transfer Details */}
