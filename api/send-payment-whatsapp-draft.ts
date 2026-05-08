@@ -66,7 +66,7 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   if (result.ok === false) {
-    return Response.json({ ok: false, ...result }, { status: 502, headers });
+    return Response.json(result, { status: 502, headers });
   }
-  return Response.json({ ok: true, ...result }, { headers });
+  return Response.json(result, { headers });
 }

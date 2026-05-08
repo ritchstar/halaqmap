@@ -133,6 +133,7 @@ import {
   type AdminSupportThread,
 } from '@/lib/adminSupportChatRemote';
 import { PartnerPromoVideoAdminPanel } from '@/components/admin/PartnerPromoVideoAdminPanel';
+import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
 const EMPTY_ADMIN_STATS: AdminStats = {
@@ -414,6 +415,7 @@ export default function AdminDashboard() {
 
   const can = (perm: AdminPermissionKey) => Boolean(adminData?.permissions?.[perm]);
   const canViewSecurityOpsLog = can('view_overview') || can('manage_barbers');
+  const canViewPaymentGateways = can('view_settings') || can('view_payments');
   const allowedTabs = useMemo(() => {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
@@ -423,9 +425,10 @@ export default function AdminDashboard() {
     if (can('view_command_center')) out.push('command-center');
     if (can('view_messages')) out.push('messages');
     if (canViewSecurityOpsLog) out.push('security-ops');
+    if (canViewPaymentGateways) out.push('payment-gateways');
     if (can('view_settings')) out.push('settings');
     return out;
-  }, [adminData, canViewSecurityOpsLog]);
+  }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog]);
 
   useEffect(() => {
     if (!adminData) return;
@@ -523,6 +526,12 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">سجل الأمان</span>
             </TabsTrigger>
             )}
+            {canViewPaymentGateways && (
+            <TabsTrigger value="payment-gateways" className="gap-2">
+              <CreditCard className="w-4 h-4" />
+              <span className="hidden sm:inline">بوابات الدفع</span>
+            </TabsTrigger>
+            )}
             {can('view_settings') && (
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -589,6 +598,12 @@ export default function AdminDashboard() {
           {can('view_messages') && <TabsContent value="messages" className="space-y-6">
             <MessagesSection canUseChat={can('view_messages')} />
           </TabsContent>}
+
+          {canViewPaymentGateways && (
+            <TabsContent value="payment-gateways" className="space-y-6">
+              <PaymentGatewaysAdminPanel canSave={can('view_settings')} />
+            </TabsContent>
+          )}
 
           {/* Settings Tab */}
           {can('view_settings') && <TabsContent value="settings" className="space-y-6">

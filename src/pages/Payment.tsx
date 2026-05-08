@@ -36,6 +36,7 @@ import {
   isBankTransferPromoActive,
 } from '@/config/subscriptionPricing';
 import { resolvePaymentGateway } from '@/config/paymentGateway';
+import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
@@ -59,9 +60,26 @@ export default function Payment() {
   /** يُمرَّر في metadata.linked_barber_id بعد اعتماد الإدارة أو عبر الرابط ?linkedBarberId= */
   const linkedBarberId = useMemo(() => searchParams.get('linkedBarberId')?.trim() ?? '', [searchParams]);
   const barberName = useMemo(() => searchParams.get('barberName')?.trim() ?? '', [searchParams]);
-  const selectedGateway = useMemo(() => resolvePaymentGateway(), []);
+  const [pubPayConfig, setPubPayConfig] = useState<PublicPaymentPageConfig | null>(null);
+
+  useEffect(() => {
+    void fetchPublicPaymentPageConfig().then(setPubPayConfig);
+  }, []);
+
+  const selectedGateway = useMemo(() => {
+    if (pubPayConfig === null) return resolvePaymentGateway();
+    if (pubPayConfig.ok) return pubPayConfig.preferredGateway;
+    return resolvePaymentGateway();
+  }, [pubPayConfig]);
+
+  const enableMoyasarCard = pubPayConfig === null || !pubPayConfig.ok || pubPayConfig.enableMoyasarCard !== false;
+  const enableSabGateway = Boolean(pubPayConfig?.ok && pubPayConfig.enableSabGateway);
+  const enableBankTransfer =
+    pubPayConfig === null || !pubPayConfig.ok || pubPayConfig.enableBankTransferSemiannual !== false;
+
   const paymentProvider = useMemo(() => getUnifiedPaymentProvider(selectedGateway), [selectedGateway]);
   const isMoyasarGateway = selectedGateway === 'MOYASAR';
+  const showMoyasarCheckout = enableMoyasarCard && isMoyasarGateway;
 
   const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card' | 'bank_transfer'>('moyasar');
   /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
@@ -140,6 +158,17 @@ export default function Payment() {
   const moyasarPaymentIdFromUrl = searchParams.get('id')?.trim() || '';
 
   useEffect(() => {
+    if (pubPayConfig === null) return;
+    setPaymentMethod((prev) => {
+      const enM = enableMoyasarCard && isMoyasarGateway;
+      const enB = enableBankTransfer;
+      if (prev === 'moyasar' && !enM) return enB ? 'bank_transfer' : 'card';
+      if (prev === 'bank_transfer' && !enB) return enM ? 'moyasar' : 'card';
+      return prev;
+    });
+  }, [pubPayConfig, enableMoyasarCard, enableBankTransfer, isMoyasarGateway]);
+
+  useEffect(() => {
     if (selectedGateway !== 'MOYASAR') return;
     if (!moyasarPaymentIdFromUrl) return;
     let cancelled = false;
@@ -203,7 +232,7 @@ export default function Payment() {
 
   /** تهيئة نموذج ميسر داخل الصفحة بعد الإقرار بالشروط. */
   useEffect(() => {
-    if (selectedGateway !== 'MOYASAR') return;
+    if (selectedGateway !== 'MOYASAR' || !showMoyasarCheckout) return;
     if (paymentMethod !== 'moyasar' || !moyasarTermsAccepted || !moyasarKeyOk) {
       setMoyasarFormError(null);
       if (moyasarHostRef.current) moyasarHostRef.current.innerHTML = '';
@@ -290,6 +319,7 @@ export default function Payment() {
     requestId,
     linkedBarberId,
     selectedGateway,
+    showMoyasarCheckout,
     moyasarPublishableKey,
     unifiedPaymentInit.description,
     unifiedPaymentInit.metadata,
@@ -301,9 +331,21 @@ export default function Payment() {
   const bankTransferGrossPeriod = getBankTransferPeriodGrossSar(tier);
   const bankPromoOn = isBankTransferPromoActive();
 
-  const IBAN = BANK_TRANSFER.iban;
-  const BANK_NAME = BANK_TRANSFER.bankDisplayAr;
-  const ACCOUNT_NAME = BANK_TRANSFER.beneficiaryDisplay;
+  const { iban: IBAN, bankDisplayAr: BANK_NAME, beneficiaryDisplay: ACCOUNT_NAME } = useMemo(() => {
+    const b = pubPayConfig?.ok ? pubPayConfig.bank : null;
+    if (b?.iban) {
+      return {
+        iban: b.iban,
+        bankDisplayAr: b.bankNameAr || BANK_TRANSFER.bankDisplayAr,
+        beneficiaryDisplay: b.beneficiary || BANK_TRANSFER.beneficiaryDisplay,
+      };
+    }
+    return {
+      iban: BANK_TRANSFER.iban,
+      bankDisplayAr: BANK_TRANSFER.bankDisplayAr,
+      beneficiaryDisplay: BANK_TRANSFER.beneficiaryDisplay,
+    };
+  }, [pubPayConfig]);
 
   const handleCopyIban = () => {
     navigator.clipboard.writeText(IBAN);
@@ -480,31 +522,49 @@ export default function Payment() {
                       if (value !== 'moyasar') setMoyasarTermsAccepted(false);
                     }}
                   >
-                    {/* Moyasar */}
+                    {/* بطاقة — ميسر أو مسار البنك حسب إعدادات المنصة */}
+                    {(isMoyasarGateway ? enableMoyasarCard : true) && (
                     <label
                       className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
                         paymentMethod === 'moyasar'
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
-                      }`}
+                      } ${!isMoyasarGateway && !enableSabGateway ? 'opacity-60' : ''}`}
                     >
-                      <RadioGroupItem value="moyasar" id="moyasar" />
+                      <RadioGroupItem
+                        value="moyasar"
+                        id="moyasar"
+                        disabled={!isMoyasarGateway && !enableSabGateway}
+                      />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <CreditCard className="w-5 h-5 text-primary" />
-                          <h3 className="font-semibold">ميسر (Moyasar)</h3>
-                          <Badge variant="secondary" className="text-xs">موصى به</Badge>
+                          <h3 className="font-semibold">
+                            {isMoyasarGateway ? 'ميسر (Moyasar)' : 'بنك الأول — دفع بالبطاقة'}
+                          </h3>
+                          {isMoyasarGateway ? (
+                            <Badge variant="secondary" className="text-xs">موصى به</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">SAB</Badge>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          بوابة دفع سعودية آمنة - دعم جميع البطاقات (مدى، فيزا، ماستركارد)
+                          {isMoyasarGateway
+                            ? 'بوابة دفع سعودية آمنة - دعم جميع البطاقات (مدى، فيزا، ماستركارد)'
+                            : enableSabGateway
+                              ? 'مسار البطاقة عبر بنك الأول — يُكمل بعد ربط البوابة والتحقق من الـ webhook.'
+                              : 'مسار البنك غير مفعّل حالياً من لوحة الإدارة.'}
                         </p>
-                        <div className="flex gap-2 mt-2">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/200px-Mastercard_2019_logo.svg.png" alt="Mastercard" className="h-6" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Mada_Logo.svg/200px-Mada_Logo.svg.png" alt="Mada" className="h-6" />
-                        </div>
+                        {isMoyasarGateway && (
+                          <div className="flex gap-2 mt-2">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/200px-Mastercard_2019_logo.svg.png" alt="Mastercard" className="h-6" />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6" />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Mada_Logo.svg/200px-Mada_Logo.svg.png" alt="Mada" className="h-6" />
+                          </div>
+                        )}
                       </div>
                     </label>
+                    )}
 
                     {/* Credit/Debit Card */}
                     <label
@@ -527,6 +587,7 @@ export default function Payment() {
                     </label>
 
                     {/* Bank Transfer */}
+                    {enableBankTransfer && (
                     <label
                       className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
                         paymentMethod === 'bank_transfer'
@@ -548,9 +609,17 @@ export default function Payment() {
                         </p>
                       </div>
                     </label>
+                    )}
                   </RadioGroup>
 
-                  {paymentMethod === 'moyasar' && isMoyasarGateway && (
+                  {pubPayConfig?.ok && (
+                    <p className="text-xs text-muted-foreground">
+                      وضع الدفع المعروض للمنصة:{' '}
+                      <strong>{pubPayConfig.displayPaymentMode === 'live' ? 'إنتاج' : 'اختبار'}</strong>
+                    </p>
+                  )}
+
+                  {paymentMethod === 'moyasar' && showMoyasarCheckout && (
                     <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
                       <Alert>
                         <Shield className="h-4 w-4" />
@@ -643,20 +712,28 @@ export default function Payment() {
                     </div>
                   )}
 
+                  {paymentMethod === 'moyasar' && !showMoyasarCheckout && isMoyasarGateway && (
+                    <Alert>
+                      <Shield className="h-4 w-4" />
+                      <AlertDescription className="text-sm leading-relaxed">
+                        تم إيقاف أو إخفاء دفع ميسر من <strong>لوحة إدارة المنصة</strong>. يمكنك استخدام التحويل البنكي
+                        إن كان مفعّلاً، أو تفعيل القناة من قسم بوابات الدفع في الإدارة.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   {paymentMethod === 'moyasar' && !isMoyasarGateway && (
                     <Alert>
                       <Shield className="h-4 w-4" />
                       <AlertDescription className="text-sm leading-relaxed">
-                        تم اختيار بوابة <strong>بنك الأول (SAB)</strong> عبر متغير البيئة{' '}
-                        <code className="rounded bg-muted px-1">VITE_PAYMENT_GATEWAY=SAB</code>. نفس نظام الأتمتة
-                        (تفعيل الحساب + إشعارات واتساب) سيعمل عند وصول حالة نجاح <strong>SUCCESS</strong> من الـ
-                        webhook الخاص بالبوابة. أكمل إعداد مفاتيح SAB وendpoint الـ webhook قبل تفعيل الإنتاج.
+                        البوابة المختارة هي <strong>بنك الأول (SAB)</strong>. نفس نظام الأتمتة (تفعيل الحساب والإشعارات)
+                        يعمل عند وصول حالة نجاح موثوقة من webhook البنك. {enableSabGateway ? 'أكمل إعداد مفاتيح SAB والربط الفني.' : 'فعّل مسار SAB من لوحة الإدارة عند الجاهزية.'}
                       </AlertDescription>
                     </Alert>
                   )}
 
                   {/* Bank Transfer Details */}
-                  {paymentMethod === 'bank_transfer' && (
+                  {paymentMethod === 'bank_transfer' && enableBankTransfer && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
@@ -817,7 +894,11 @@ export default function Payment() {
                 ) : (
                   <>
                     {paymentMethod === 'moyasar'
-                      ? 'أكمل الدفع عبر نموذج ميسر أعلاه'
+                      ? showMoyasarCheckout
+                        ? 'أكمل الدفع عبر نموذج ميسر أعلاه'
+                        : !isMoyasarGateway
+                          ? 'تجهيز بوابة البنك — راجع التعليمات أعلاه'
+                          : 'دفع البطاقة غير متاح حالياً'
                       : paymentMethod === 'bank_transfer'
                         ? 'إرسال الإيصال'
                         : 'متابعة الدفع'}

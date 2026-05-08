@@ -399,6 +399,40 @@ async function resolveRecipientContext(
   };
 }
 
+type WebhookPlatformPay = {
+  enable_internal_onboarding_email: boolean;
+  enable_whatsapp_payment_notify: boolean;
+  enable_resend_payment_receipt: boolean;
+  enforce_price_currency_match: boolean;
+};
+
+const WEBHOOK_PLATFORM_PAY_DEFAULT: WebhookPlatformPay = {
+  enable_internal_onboarding_email: true,
+  enable_whatsapp_payment_notify: false,
+  enable_resend_payment_receipt: true,
+  enforce_price_currency_match: true,
+};
+
+async function fetchPlatformPaymentSettingsForWebhook(
+  supabase: ReturnType<typeof createClient>,
+): Promise<WebhookPlatformPay> {
+  const { data, error } = await supabase
+    .from("platform_payment_settings")
+    .select(
+      "enable_internal_onboarding_email, enable_whatsapp_payment_notify, enable_resend_payment_receipt, enforce_price_currency_match",
+    )
+    .eq("id", 1)
+    .maybeSingle();
+  if (error || !data) return WEBHOOK_PLATFORM_PAY_DEFAULT;
+  const d = data as Record<string, unknown>;
+  return {
+    enable_internal_onboarding_email: d.enable_internal_onboarding_email !== false,
+    enable_whatsapp_payment_notify: d.enable_whatsapp_payment_notify === true,
+    enable_resend_payment_receipt: d.enable_resend_payment_receipt !== false,
+    enforce_price_currency_match: d.enforce_price_currency_match !== false,
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -456,6 +490,8 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  const platformPay = await fetchPlatformPaymentSettingsForWebhook(supabase);
 
   if (eventId) {
     const { data: dup } = await supabase
@@ -614,44 +650,46 @@ Deno.serve(async (req) => {
     const currencyOk = !expectedCurrency || expectedCurrency === currency;
     const amountOk = expectedAmount != null && paidAmount != null && paidAmount === expectedAmount;
 
-    if (!amountOk || !currencyOk) {
-      const detail = {
-        reason: "price_mismatch_before_activation",
-        expected_amount_halalas: expectedAmount,
-        actual_amount_halalas: paidAmount,
-        expected_currency: expectedCurrency || null,
-        actual_currency: currency || null,
-        tier: tier ?? null,
-      };
-      const tsFail = new Date().toISOString();
-      await supabase
-        .from("barber_subscriptions")
-        .update({
-          failure_reason: "Payment amount/currency mismatch with expected package pricing.",
-          metadata: { ...metaPayload, ...detail, activation_blocked_at: tsFail },
-          updated_at: tsFail,
-        })
-        .eq("moyasar_payment_id", paymentId);
+    if (platformPay.enforce_price_currency_match) {
+      if (!amountOk || !currencyOk) {
+        const detail = {
+          reason: "price_mismatch_before_activation",
+          expected_amount_halalas: expectedAmount,
+          actual_amount_halalas: paidAmount,
+          expected_currency: expectedCurrency || null,
+          actual_currency: currency || null,
+          tier: tier ?? null,
+        };
+        const tsFail = new Date().toISOString();
+        await supabase
+          .from("barber_subscriptions")
+          .update({
+            failure_reason: "Payment amount/currency mismatch with expected package pricing.",
+            metadata: { ...metaPayload, ...detail, activation_blocked_at: tsFail },
+            updated_at: tsFail,
+          })
+          .eq("moyasar_payment_id", paymentId);
 
-      await logPaymentSecurityEvent(supabase, {
-        severity: "critical",
-        eventType: "price_mismatch_before_activation",
-        paymentId,
-        registrationRequestId: requestId || null,
-        barberId,
-        reason: "Payment amount/currency mismatch with expected package pricing.",
-        detail,
-      });
-
-      return jsonResponse(
-        {
-          error: "price_mismatch_before_activation",
-          detail,
+        await logPaymentSecurityEvent(supabase, {
+          severity: "critical",
+          eventType: "price_mismatch_before_activation",
           paymentId,
-          eventId: eventId || null,
-        },
-        409,
-      );
+          registrationRequestId: requestId || null,
+          barberId,
+          reason: "Payment amount/currency mismatch with expected package pricing.",
+          detail,
+        });
+
+        return jsonResponse(
+          {
+            error: "price_mismatch_before_activation",
+            detail,
+            paymentId,
+            eventId: eventId || null,
+          },
+          409,
+        );
+      }
     }
 
     const act = await activateBarberAndSubscriptionPaid(supabase, barberId, tier, amount);
@@ -683,29 +721,31 @@ Deno.serve(async (req) => {
     const nameOnboarding = (bRow?.name && String(bRow.name).trim()) || barberName;
     if (appOrigin && obSecret && toOnboarding) {
       const tierStr = tier === "diamond" ? "diamond" : tier === "gold" ? "gold" : "bronze";
-      try {
-        const obResp = await fetch(`${appOrigin}/api/send-barber-onboarding`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-onboarding-internal-secret": obSecret,
-          },
-          body: JSON.stringify({
-            mode: "single",
-            barberEmail: toOnboarding,
-            barberName: nameOnboarding,
-            tier: tierStr,
-            barberId,
-            registrationOrderId: requestId || undefined,
-          }),
-        });
-        if (obResp.ok) onboardingApiOk = true;
-        else console.warn("[moyasar-webhook] send-barber-onboarding:", await obResp.text());
-      } catch (e) {
-        console.warn("[moyasar-webhook] send-barber-onboarding fetch:", e);
+      if (platformPay.enable_internal_onboarding_email) {
+        try {
+          const obResp = await fetch(`${appOrigin}/api/send-barber-onboarding`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-onboarding-internal-secret": obSecret,
+            },
+            body: JSON.stringify({
+              mode: "single",
+              barberEmail: toOnboarding,
+              barberName: nameOnboarding,
+              tier: tierStr,
+              barberId,
+              registrationOrderId: requestId || undefined,
+            }),
+          });
+          if (obResp.ok) onboardingApiOk = true;
+          else console.warn("[moyasar-webhook] send-barber-onboarding:", await obResp.text());
+        } catch (e) {
+          console.warn("[moyasar-webhook] send-barber-onboarding fetch:", e);
+        }
       }
 
-      if (resolvedPhone) {
+      if (platformPay.enable_whatsapp_payment_notify && resolvedPhone) {
         const tierAr =
           tier === "diamond" ? "ماسي" : tier === "gold" ? "ذهبي" : "برونزي";
         const amountSar = ((amount ?? 0) / 100).toFixed(2);
@@ -736,7 +776,7 @@ Deno.serve(async (req) => {
   let emailSent = false;
   let failureEmailSent = false;
 
-  if (rowStatus === "paid" && resendKey && resendFrom && resolvedEmail) {
+  if (rowStatus === "paid" && platformPay.enable_resend_payment_receipt && resendKey && resendFrom && resolvedEmail) {
     const { data: rowAfter } = await supabase
       .from("barber_subscriptions")
       .select("confirmation_email_sent_at")
