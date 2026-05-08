@@ -2,6 +2,13 @@
  * التحقق من حالة دفع ميسر (Moyasar) على الخادم — لا يُعرَض مفتاح السرّ في الواجهة.
  * GET https://api.moyasar.com/v1/payments/:id — Basic Auth: اسم المستخدم = المفتاح السري، كلمة المرور فارغة.
  * @see https://docs.mysr.dev/api/payments/02-fetch-payment
+ *
+ * Production keys location (Vercel Environment Variables):
+ * - PAYMENT_ENV=live
+ * - MOYSAR_SECRET_LIVE_API_KEY=sk_live_...
+ * Optional sandbox:
+ * - PAYMENT_ENV=test
+ * - MOYSAR_SECRET_TEST_API_KEY=sk_test_...
  */
 
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
@@ -20,6 +27,15 @@ const CORS_OPTS = {
 
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
+}
+
+function resolveMoyasarSecretKey(): string {
+  const mode = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase();
+  const testKey = (process.env.MOYSAR_SECRET_TEST_API_KEY || '').trim();
+  const liveKey = (process.env.MOYSAR_SECRET_LIVE_API_KEY || '').trim();
+  const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim();
+  if (mode === 'live') return liveKey || legacy;
+  return testKey || legacy;
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -45,7 +61,7 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 
-  const secret = (process.env.MOYSAR_SECRET_API_KEY || '').trim();
+  const secret = resolveMoyasarSecretKey();
   if (!secret) {
     return Response.json(
       {

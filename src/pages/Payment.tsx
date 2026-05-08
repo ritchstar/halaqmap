@@ -73,10 +73,20 @@ export default function Payment() {
   const moyasarHostRef = useRef<HTMLDivElement>(null);
   const [moyasarFormError, setMoyasarFormError] = useState<string | null>(null);
 
-  const moyasarPublishableKey = useMemo(
-    () => String(import.meta.env.VITE_MOYSAR_PUBLISHABLE_API_KEY || '').trim(),
-    [],
-  );
+  const moyasarPublishableKey = useMemo(() => {
+    // Production key source (frontend env):
+    // - VITE_PAYMENT_ENV=live
+    // - VITE_MOYSAR_PUBLISHABLE_LIVE_API_KEY=pk_live_...
+    // Sandbox:
+    // - VITE_PAYMENT_ENV=test
+    // - VITE_MOYSAR_PUBLISHABLE_TEST_API_KEY=pk_test_...
+    const mode = String(import.meta.env.VITE_PAYMENT_ENV || 'test').trim().toLowerCase();
+    const testKey = String(import.meta.env.VITE_MOYSAR_PUBLISHABLE_TEST_API_KEY || '').trim();
+    const liveKey = String(import.meta.env.VITE_MOYSAR_PUBLISHABLE_LIVE_API_KEY || '').trim();
+    const legacy = String(import.meta.env.VITE_MOYSAR_PUBLISHABLE_API_KEY || '').trim();
+    if (mode === 'live') return liveKey || legacy;
+    return testKey || legacy;
+  }, []);
   const moyasarKeyOk = moyasarPublishableKey.startsWith('pk_');
 
   // Subscription prices

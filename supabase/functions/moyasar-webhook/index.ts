@@ -5,6 +5,14 @@
  * @see https://docs.moyasar.com/api/other/webhooks/webhook-reference
  *
  * أسرار: MOYASAR_WEBHOOK_SECRET، RESEND_API_KEY، RESEND_FROM_EMAIL
+ * Production split keys (Supabase Edge secrets):
+ * - PAYMENT_ENV=live
+ * - MOYASAR_WEBHOOK_LIVE_SECRET=...
+ * - MOYSAR_SECRET_LIVE_API_KEY=sk_live_... (used by Vercel verify endpoint)
+ * Sandbox split keys:
+ * - PAYMENT_ENV=test
+ * - MOYASAR_WEBHOOK_TEST_SECRET=...
+ * - MOYSAR_SECRET_TEST_API_KEY=sk_test_...
  * اختياري: INVOICE_PLACEHOLDER_URL — رابط الفاتورة الافتراضي إن لم يُمرَّر metadata.invoice_url
  * تفعيل تلقائي + بريد الترحيب (نفس محتوى /api/send-barber-onboarding):
  *   APP_PUBLIC_ORIGIN أو PUBLIC_SITE_ORIGIN — أصل الموقع (https://…)
@@ -40,6 +48,15 @@ function timingSafeEq(a: string, b: string): boolean {
   let diff = 0;
   for (let i = 0; i < ae.length; i += 1) diff |= ae[i]! ^ be[i]!;
   return diff === 0;
+}
+
+function resolveWebhookSecret(): string {
+  const mode = (Deno.env.get("PAYMENT_ENV") ?? "test").trim().toLowerCase();
+  const testSecret = (Deno.env.get("MOYASAR_WEBHOOK_TEST_SECRET") ?? "").trim();
+  const liveSecret = (Deno.env.get("MOYASAR_WEBHOOK_LIVE_SECRET") ?? "").trim();
+  const legacy = (Deno.env.get("MOYASAR_WEBHOOK_SECRET") ?? "").trim();
+  if (mode === "live") return liveSecret || legacy;
+  return testSecret || legacy;
 }
 
 function jsonResponse(body: Record<string, unknown>, status: number, extraHeaders?: Record<string, string>): Response {
@@ -128,6 +145,34 @@ function addOneMonth(d: Date): Date {
 
 function dateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
+}
+
+async function logPaymentSecurityEvent(
+  supabase: ReturnType<typeof createClient>,
+  input: {
+    severity?: "info" | "warning" | "critical";
+    eventType: string;
+    paymentId: string | null;
+    registrationRequestId?: string | null;
+    barberId?: string | null;
+    reason?: string | null;
+    detail?: Record<string, unknown>;
+  },
+): Promise<void> {
+  try {
+    await supabase.from("payment_security_events").insert({
+      severity: input.severity ?? "warning",
+      event_type: input.eventType,
+      source: "moyasar_webhook",
+      payment_id: input.paymentId ?? null,
+      registration_request_id: input.registrationRequestId ?? null,
+      barber_id: input.barberId ?? null,
+      reason: input.reason ?? null,
+      detail: input.detail ?? {},
+    });
+  } catch {
+    // سجل اختياري: لا نوقف مسار الدفع إذا تعذّر إدراج السجل الأمني.
+  }
 }
 
 /** تفعيل فوري: حلاق نشط + اشتراك شهري active (نفس منطق اعتماد الإدارة السابق). */
@@ -304,18 +349,25 @@ async function resolveRecipientContext(
   registrationRequestId: string | null,
   payment: PaymentData,
   meta: Record<string, unknown>,
-): Promise<{ email: string | null; barberName: string; linkedBarberId: string | null }> {
+): Promise<{ email: string | null; barberName: string; linkedBarberId: string | null; phone: string | null }> {
   const fromMetaBarber = String(meta.linked_barber_id ?? meta.linkedBarberId ?? "").trim();
+  const sourcePhone = (() => {
+    const src = payment.source;
+    if (!src || typeof src !== "object") return "";
+    const n = String(src.number ?? "").trim();
+    if (!n) return "";
+    return n.startsWith("+") ? n : `+${n.replace(/^00/, "")}`;
+  })();
 
   const fromPayment = extractCustomerEmail(payment);
   if (fromPayment) {
     const bid = UUID_RE.test(fromMetaBarber) ? fromMetaBarber : null;
-    return { email: fromPayment, barberName: "عميلنا الكريم", linkedBarberId: bid };
+    return { email: fromPayment, barberName: "عميلنا الكريم", linkedBarberId: bid, phone: sourcePhone || null };
   }
 
   if (!registrationRequestId) {
     const bidOnly = UUID_RE.test(fromMetaBarber) ? fromMetaBarber : null;
-    return { email: null, barberName: "عميلنا الكريم", linkedBarberId: bidOnly };
+    return { email: null, barberName: "عميلنا الكريم", linkedBarberId: bidOnly, phone: sourcePhone || null };
   }
 
   const { data, error } = await supabase
@@ -325,12 +377,13 @@ async function resolveRecipientContext(
     .maybeSingle();
   if (error || !data?.payload || typeof data.payload !== "object") {
     const bidOnly = UUID_RE.test(fromMetaBarber) ? fromMetaBarber : null;
-    return { email: null, barberName: "عميلنا الكريم", linkedBarberId: bidOnly };
+    return { email: null, barberName: "عميلنا الكريم", linkedBarberId: bidOnly, phone: sourcePhone || null };
   }
 
   const p = data.payload as Record<string, unknown>;
   const email = typeof p.email === "string" ? p.email.trim() : "";
   const barberName = typeof p.barberName === "string" ? p.barberName.trim() : "عميلنا الكريم";
+  const phone = typeof p.phone === "string" ? p.phone.trim() : "";
   const linkedPayload = typeof p.linkedBarberId === "string" ? p.linkedBarberId.trim() : "";
   const linked = UUID_RE.test(fromMetaBarber)
     ? fromMetaBarber
@@ -342,6 +395,7 @@ async function resolveRecipientContext(
     email: email && email.includes("@") ? email : null,
     barberName: barberName || "عميلنا الكريم",
     linkedBarberId: linked,
+    phone: phone || sourcePhone || null,
   };
 }
 
@@ -361,7 +415,7 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "method_not_allowed" }, 405);
   }
 
-  const webhookSecret = (Deno.env.get("MOYASAR_WEBHOOK_SECRET") ?? "").trim();
+  const webhookSecret = resolveWebhookSecret();
   const resendKey = (Deno.env.get("RESEND_API_KEY") ?? "").trim();
   const resendFrom = (Deno.env.get("RESEND_FROM_EMAIL") ?? "").trim();
   const supabaseUrl = (Deno.env.get("SUPABASE_URL") ?? "").trim();
@@ -449,7 +503,7 @@ Deno.serve(async (req) => {
   const failureReasonRaw = extractFailureReason(data);
   const invoiceUrlStored = typeof meta.invoice_url === "string" ? meta.invoice_url.trim() : "";
 
-  const { email: resolvedEmail, barberName, linkedBarberId } = await resolveRecipientContext(
+  const { email: resolvedEmail, barberName, linkedBarberId, phone: resolvedPhone } = await resolveRecipientContext(
     supabase,
     requestId || null,
     data,
@@ -519,8 +573,32 @@ Deno.serve(async (req) => {
 
   let accountActivated = false;
   let onboardingApiOk = false;
+  let whatsappDraftOk = false;
 
   if (rowStatus === "paid" && barberId) {
+    // Live activation gate: no activation unless paid event arrives from verified Moyasar webhook
+    // (secret_token validated above) and trusted payment event type is present.
+    const trustedPaidSource = Boolean(eventType && /^payment/i.test(eventType));
+    if (!trustedPaidSource) {
+      await logPaymentSecurityEvent(supabase, {
+        severity: "critical",
+        eventType: "untrusted_paid_event_type",
+        paymentId,
+        registrationRequestId: requestId || null,
+        barberId,
+        reason: "Paid status received from untrusted or missing event type.",
+        detail: { eventType, paymentStatus, metadata: metaPayload },
+      });
+      return jsonResponse(
+        {
+          error: "untrusted_paid_event_type",
+          paymentId,
+          eventId: eventId || null,
+        },
+        409,
+      );
+    }
+
     const paidAmount = typeof amount === "number" && Number.isFinite(amount) ? amount : null;
     const expectedFromMeta = expectedAmountHalalasFromMeta(meta);
     const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) : null;
@@ -549,6 +627,16 @@ Deno.serve(async (req) => {
           updated_at: tsFail,
         })
         .eq("moyasar_payment_id", paymentId);
+
+      await logPaymentSecurityEvent(supabase, {
+        severity: "critical",
+        eventType: "price_mismatch_before_activation",
+        paymentId,
+        registrationRequestId: requestId || null,
+        barberId,
+        reason: "Payment amount/currency mismatch with expected package pricing.",
+        detail,
+      });
 
       return jsonResponse(
         {
@@ -610,6 +698,32 @@ Deno.serve(async (req) => {
         else console.warn("[moyasar-webhook] send-barber-onboarding:", await obResp.text());
       } catch (e) {
         console.warn("[moyasar-webhook] send-barber-onboarding fetch:", e);
+      }
+
+      if (resolvedPhone) {
+        const tierAr =
+          tier === "diamond" ? "ماسي" : tier === "gold" ? "ذهبي" : "برونزي";
+        const amountSar = ((amount ?? 0) / 100).toFixed(2);
+        try {
+          const waResp = await fetch(`${appOrigin}/api/send-payment-whatsapp-draft`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-onboarding-internal-secret": obSecret,
+            },
+            body: JSON.stringify({
+              phone: resolvedPhone,
+              barberName: nameOnboarding,
+              tierLabelAr: tierAr,
+              paymentId,
+              amountSar,
+            }),
+          });
+          if (waResp.ok) whatsappDraftOk = true;
+          else console.warn("[moyasar-webhook] send-payment-whatsapp-draft:", await waResp.text());
+        } catch (e) {
+          console.warn("[moyasar-webhook] send-payment-whatsapp-draft fetch:", e);
+        }
       }
     }
   }
@@ -679,6 +793,23 @@ Deno.serve(async (req) => {
     }
   }
 
+  if (rowStatus === "failed" || rowStatus === "cancelled" || rowStatus === "refunded") {
+    await logPaymentSecurityEvent(supabase, {
+      severity: rowStatus === "refunded" ? "info" : "warning",
+      eventType: `payment_${rowStatus}`,
+      paymentId,
+      registrationRequestId: requestId || null,
+      barberId,
+      reason: failureReasonRaw ?? null,
+      detail: {
+        paymentStatus,
+        currency,
+        amount_halalas: amount,
+        moyasar_event_type: eventType || null,
+      },
+    });
+  }
+
   return jsonResponse(
     {
       ok: true,
@@ -689,6 +820,7 @@ Deno.serve(async (req) => {
       failureEmailSent,
       accountActivated,
       onboardingApiOk,
+      whatsappDraftOk,
     },
     200,
   );
