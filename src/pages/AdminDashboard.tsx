@@ -4038,6 +4038,60 @@ function SettingsSection({
   bootstrapAdmin: boolean;
   canSavePlatformVat: boolean;
 }) {
+  const ADMIN_ROLE_TEMPLATES: { key: string; label: string; permissions: AdminPermissions }[] = [
+    { key: 'super_admin', label: 'سوبر أدمن (كامل الصلاحيات)', permissions: FULL_ADMIN_PERMISSIONS },
+    {
+      key: 'finance_admin',
+      label: 'مدير مالي',
+      permissions: {
+        ...FULL_ADMIN_PERMISSIONS,
+        view_requests: false,
+        review_requests: false,
+        manage_barbers: false,
+        view_command_center: false,
+        manage_command_center: false,
+        view_messages: false,
+        manage_admins: false,
+        manage_payment_settings: false,
+        manage_subscriber_comms: false,
+        manage_subscriber_lifecycle: false,
+      },
+    },
+    {
+      key: 'subscriber_support',
+      label: 'دعم المشتركين',
+      permissions: {
+        ...FULL_ADMIN_PERMISSIONS,
+        review_payments: false,
+        view_command_center: false,
+        manage_command_center: false,
+        view_settings: false,
+        manage_admins: false,
+        view_payment_settings: false,
+        manage_payment_settings: false,
+        manage_partner_billing: false,
+      },
+    },
+    {
+      key: 'payment_ops',
+      label: 'مشرف مدفوعات',
+      permissions: {
+        ...FULL_ADMIN_PERMISSIONS,
+        view_requests: false,
+        review_requests: false,
+        manage_barbers: false,
+        view_command_center: false,
+        manage_command_center: false,
+        view_messages: false,
+        view_settings: false,
+        manage_admins: false,
+        manage_subscriber_comms: false,
+        manage_subscriber_lifecycle: false,
+      },
+    },
+  ];
+  const findTemplate = (key: string) => ADMIN_ROLE_TEMPLATES.find((t) => t.key === key);
+
   const [vatEnabled, setVatEnabled] = useState(() => getPlatformVatSettings().enabled);
   const [vatRateInput, setVatRateInput] = useState(() => String(getPlatformVatSettings().ratePercent));
   const [adminRows, setAdminRows] = useState<AdminRoleRow[]>([]);
@@ -4045,6 +4099,7 @@ function SettingsSection({
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminName, setNewAdminName] = useState('');
   const [newAdminPermissions, setNewAdminPermissions] = useState<AdminPermissions>(FULL_ADMIN_PERMISSIONS);
+  const [newAdminTemplateKey, setNewAdminTemplateKey] = useState<string>('super_admin');
 
   useEffect(() => {
     const sync = () => {
@@ -4113,7 +4168,26 @@ function SettingsSection({
     setNewAdminEmail('');
     setNewAdminName('');
     setNewAdminPermissions(FULL_ADMIN_PERMISSIONS);
+    setNewAdminTemplateKey('super_admin');
     await refreshAdmins();
+  };
+
+  const applyTemplateToExistingAdmin = async (row: AdminRoleRow, templateKey: string) => {
+    const tpl = findTemplate(templateKey);
+    if (!tpl) return;
+    const res = await upsertAdminRole({
+      email: row.email,
+      displayName: row.display_name ?? undefined,
+      isActive: row.is_active,
+      permissions: tpl.permissions,
+      createdByEmail: adminEmail,
+    });
+    if (!res.ok) {
+      toast({ title: 'تعذر تطبيق القالب', description: errorText(res, 'تعذر تحديث صلاحيات الأدمن.'), variant: 'destructive' });
+      return;
+    }
+    setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, permissions: tpl.permissions } : r)));
+    toast({ title: 'تم تطبيق القالب', description: `${tpl.label} على ${row.email}` });
   };
 
   const toggleAdminPermission = async (row: AdminRoleRow, permission: AdminPermissionKey, checked: boolean) => {
@@ -4196,6 +4270,43 @@ function SettingsSection({
                   إضافة/تحديث أدمن
                 </Button>
               </div>
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="md:col-span-2">
+                  <Label className="mb-2 block">قالب صلاحيات سريع للأدمن الجديد</Label>
+                  <Select
+                    value={newAdminTemplateKey}
+                    onValueChange={(v) => {
+                      setNewAdminTemplateKey(v);
+                      const tpl = findTemplate(v);
+                      if (tpl) setNewAdminPermissions(tpl.permissions);
+                    }}
+                  >
+                    <SelectTrigger dir="rtl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ADMIN_ROLE_TEMPLATES.map((tpl) => (
+                        <SelectItem key={tpl.key} value={tpl.key}>
+                          {tpl.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      const tpl = findTemplate(newAdminTemplateKey);
+                      if (tpl) setNewAdminPermissions(tpl.permissions);
+                    }}
+                  >
+                    إعادة تطبيق القالب
+                  </Button>
+                </div>
+              </div>
 
               <div className="rounded-lg border p-3">
                 <p className="font-medium text-sm mb-3">صلاحيات الأدمن الجديد</p>
@@ -4235,6 +4346,18 @@ function SettingsSection({
                             <p className="text-xs text-muted-foreground">{row.display_name || 'بدون اسم عرض'}</p>
                           </div>
                           <div className="flex items-center gap-2">
+                            <Select onValueChange={(v) => void applyTemplateToExistingAdmin(row, v)}>
+                              <SelectTrigger className="w-[190px]" dir="rtl">
+                                <SelectValue placeholder="تطبيق قالب" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {ADMIN_ROLE_TEMPLATES.map((tpl) => (
+                                  <SelectItem key={tpl.key} value={tpl.key}>
+                                    {tpl.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <span className="text-xs text-muted-foreground">نشط</span>
                             <Switch
                               checked={row.is_active}
