@@ -531,6 +531,31 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       }
     }
 
+    const openaiOverviewGap = (() => {
+      if (!hasAdminKey) {
+        return {
+          kind: 'missing_api_key' as const,
+          message:
+            'لا يوجد مفتاح مراقبة OpenAI في بيئة الخادم. أضف REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) — Admin API key للمنظّمة من platform.openai.com، وليس OPENAI_API_KEY. ثم أعد نشر Vercel واضغط «مزامنة».',
+        };
+      }
+      if (costsApi && 'ok' in costsApi && costsApi.ok) {
+        return { kind: null as null, message: 'تم جلب تكلفة الاستخدام (آخر 31 يوماً) عبر organization/costs.' };
+      }
+      const st = costsApi && 'ok' in costsApi && !costsApi.ok ? costsApi.httpStatus : 0;
+      const errSnippet = costsApi && 'ok' in costsApi && !costsApi.ok ? String(costsApi.error || '').slice(0, 280) : '';
+      if (st === 401 || st === 403) {
+        return {
+          kind: 'token_expired' as const,
+          message: `رفض OpenAI (${st}) — المفتاح ليس Admin key للمنظّمة أو الصلاحيات غير كافية. أنشئ Admin API key من إعدادات المنظّمة. ${errSnippet ? `تفاصيل: ${errSnippet}` : ''}`,
+        };
+      }
+      return {
+        kind: 'vendor_api_changed' as const,
+        message: `فشل organization/costs (HTTP ${st || '؟'}). راجع شكل المفتاح والمنطقة. ${errSnippet ? `تفاصيل: ${errSnippet}` : ''}`,
+      };
+    })();
+
     await upsertCommitment(supabase, {
       vendor: 'openai',
       display_label: 'OpenAI — نظرة عامة على الفوترة (المنظّمة)',
@@ -545,15 +570,17 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       last_sync_error: costsApi && 'ok' in costsApi && !costsApi.ok ? String(costsApi.error || '').slice(0, 500) : null,
       external_stable_key: 'openai:billing_overview',
       external_ref: ref,
-      vendor_payload: hasAdminKey ? { ...ref, costs_api_configured: true } : ref,
+      vendor_payload: hasAdminKey
+        ? {
+            ...ref,
+            costs_api_configured: true,
+            ...(costsApi && 'ok' in costsApi && !costsApi.ok ? { last_openai_costs_http_status: costsApi.httpStatus } : {}),
+          }
+        : ref,
       is_manual: true,
       manual_notes: 'رابط لوحة الفوترة في OpenAI.',
-      data_gap_kind: hasAdminKey ? (costsApi && 'ok' in costsApi && costsApi.ok ? null : 'missing_api_key') : 'missing_api_key',
-      data_gap_message: hasAdminKey
-        ? costsApi && 'ok' in costsApi && costsApi.ok
-          ? 'تم جلب تكلفة الاستخدام (آخر 31 يوماً) عبر Admin API.'
-          : 'مفتاح المراقبة مضبوط لكن فشل طلب organization/costs — راجع الصلاحيات ونموذج المفتاح (Admin API key).'
-        : 'أضف REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) في أسرار Vercel — مفتاح Admin للمنظّمة، وليس OPENAI_API_KEY.',
+      data_gap_kind: openaiOverviewGap.kind,
+      data_gap_message: openaiOverviewGap.message,
       credential_env_hint: hasAdminKey ? null : 'REVENUE_BILLING_MONITOR_TOKEN أو OPENAI_ADMIN_KEY',
     });
 
