@@ -17,10 +17,36 @@ import { AlertTriangle, ExternalLink, Landmark, Loader2, RefreshCw } from 'lucid
 const GODADDY_SUBSCRIPTIONS_DEFAULT =
   'https://account.godaddy.com/subscriptions?plid=1';
 
+/** إعدادات النطاق في محفظة GoDaddy (halaqmap.com) — يُستبدل بـ VITE_OPS_GODADDY_DOMAIN_SETTINGS_URL */
+const GODADDY_DOMAIN_PORTFOLIO_DEFAULT =
+  'https://dcc.godaddy.com/control/portfolio/halaqmap.com/settings?ventureId=890d73b2-7783-4597-9e73-6f20a36c9968&ua_placement=shared_header';
+
 const OPENAI_BILLING_DEFAULT =
   'https://platform.openai.com/settings/organization/billing/overview';
 
 const RESEND_BILLING_DEFAULT = 'https://resend.com/settings/billing';
+
+/** لوحة مشروع Supabase — يُستبدل بـ VITE_OPS_SUPABASE_DASHBOARD_URL عند الحاجة */
+const SUPABASE_PROJECT_DASHBOARD_DEFAULT =
+  'https://supabase.com/dashboard/project/lqzuhkzfhdhaosstduas';
+
+/** فوترة فريق Vercel — يُستبدل بـ VITE_OPS_VERCEL_BILLING_URL عند الحاجة */
+const VERCEL_TEAM_BILLING_DEFAULT = 'https://vercel.com/halaqmap/~/settings/billing';
+
+function opsSupabaseDashboardUrl(): string {
+  const u = (import.meta.env.VITE_OPS_SUPABASE_DASHBOARD_URL as string | undefined)?.trim();
+  return u || SUPABASE_PROJECT_DASHBOARD_DEFAULT;
+}
+
+function opsVercelBillingUrl(): string {
+  const u = (import.meta.env.VITE_OPS_VERCEL_BILLING_URL as string | undefined)?.trim();
+  return u || VERCEL_TEAM_BILLING_DEFAULT;
+}
+
+function opsGodaddyDomainSettingsUrl(): string {
+  const u = (import.meta.env.VITE_OPS_GODADDY_DOMAIN_SETTINGS_URL as string | undefined)?.trim();
+  return u || GODADDY_DOMAIN_PORTFOLIO_DEFAULT;
+}
 
 function portalUrlFromRow(r: OpsBillingCommitmentRow): string | null {
   const raw = r.external_ref;
@@ -140,6 +166,47 @@ export function OpsBillingMonitorPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+            <span className="font-medium text-foreground">بوابات التشغيل (فوترة ومشروع):</span>
+          </div>
+          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground">Supabase — لوحة المشروع:</span>
+            <a
+              href={opsSupabaseDashboardUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+            >
+              {opsSupabaseDashboardUrl()}
+              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+            </a>
+          </div>
+          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground">Vercel — فوترة الفريق:</span>
+            <a
+              href={opsVercelBillingUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+            >
+              {opsVercelBillingUrl()}
+              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+            </a>
+            <span className="text-xs text-muted-foreground">(الخطة، الاستخدام، الفواتير، حد الإنفاق)</span>
+          </div>
+          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground">GoDaddy — إعدادات النطاق (halaqmap.com):</span>
+            <a
+              href={opsGodaddyDomainSettingsUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+            >
+              {opsGodaddyDomainSettingsUrl()}
+              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+            </a>
+            <span className="text-xs text-muted-foreground">(المحفظة — تجديد، DNS، قفل النطاق)</span>
+          </div>
           <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
             <span className="text-muted-foreground">GoDaddy — اشتراكات النطاق:</span>
             <a
