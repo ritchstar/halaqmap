@@ -38,11 +38,8 @@ function isCronAuthorized(request: Request): boolean {
   if (!auth.startsWith('Bearer ')) return false;
   const token = auth.slice('Bearer '.length).trim();
   if (!token) return false;
-  const candidates = [
-    process.env.CRON_SECRET,
-    process.env.OPS_BILLING_CRON_SECRET,
-    process.env.REVENUE_BILLING_MONITOR_TOKEN,
-  ]
+  /** Cron فقط — لا يستخدم REVENUE_BILLING_MONITOR_TOKEN (محجوز لمفتاح مراقبة OpenAI في opsBillingSync). */
+  const candidates = [process.env.CRON_SECRET, process.env.OPS_BILLING_CRON_SECRET]
     .map((s) => (typeof s === 'string' ? s.trim() : ''))
     .filter((s) => s.length > 0);
   return candidates.some((c) => c === token);
@@ -130,13 +127,14 @@ export async function GET(request: Request): Promise<Response> {
         'SUPABASE_MANAGEMENT_API_TOKEN',
         'GODADDY_SUBSCRIPTIONS_PORTAL_URL (اختياري — افتراضي: رابط اشتراكات GoDaddy)',
         'OPENAI_BILLING_PORTAL_URL (اختياري — افتراضي: نظرة عامة على فوترة المنظّمة في OpenAI)',
-        'OPENAI_ADMIN_KEY (اختياري — Admin API key من platform.openai.com لتلخيص GET /v1/organization/costs آخر 31 يوماً)',
+        'REVENUE_BILLING_MONITOR_TOKEN (مفتاح Admin لمنظّمة OpenAI — GET /v1/organization/costs آخر 31 يوماً؛ لا يُستخدم OPENAI_API_KEY هنا)',
+        'OPENAI_ADMIN_KEY (اختياري — بديل صريح لنفس الغرض إن رغبت بفصل الاسم عن REVENUE_BILLING_MONITOR_TOKEN)',
         'RESEND_BILLING_PORTAL_URL (اختياري — افتراضي: إعدادات الفوترة في Resend)',
         'RESEND_BILLING_INVOICE_EMAIL (اختياري — بريد الفواتير كما في Resend للعرض في الملخص فقط)',
-        'CRON_SECRET (ما ترسله جداولة Vercel في Authorization) أو OPS_BILLING_CRON_SECRET أو REVENUE_BILLING_MONITOR_TOKEN',
+        'CRON_SECRET (ما ترسله جداولة Vercel في Authorization) أو OPS_BILLING_CRON_SECRET',
       ],
       cron:
-        'GET /api/ops-billing-monitor?cron=1 مع Authorization: Bearer <CRON_SECRET|REVENUE_BILLING_MONITOR_TOKEN|OPS_BILLING_CRON_SECRET>',
+        'GET /api/ops-billing-monitor?cron=1 مع Authorization: Bearer <CRON_SECRET|OPS_BILLING_CRON_SECRET>',
     },
   });
 }

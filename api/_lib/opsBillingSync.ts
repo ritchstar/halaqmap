@@ -19,8 +19,8 @@ export type OpsPollDetail = {
   /** صفوف مرجعية من لوحة GoDaddy (بدون API) — رابط قابل للتجاوز بـ GODADDY_SUBSCRIPTIONS_PORTAL_URL */
   godaddy?: { ok: boolean; portalSeeded: boolean; error?: string };
   /**
-   * OpenAI — رابط الفوترة + لقطة Pay-as-you-go؛ وعند ضبط OPENAI_ADMIN_KEY يُستدعى
-   * GET /v1/organization/costs (آخر 31 يوماً) ويُخزَّن المجموع في vendor_payload.
+   * OpenAI — رابط الفوترة + لقطة Pay-as-you-go؛ وعند ضبط REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) يُستدعى
+   * GET /v1/organization/costs (آخر 31 يوماً) ويُخزَّن المجموع في vendor_payload. لا يُستخدم OPENAI_API_KEY هنا.
    */
   openai?: {
     ok: boolean;
@@ -62,9 +62,17 @@ async function upsertCommitment(supabase: OpsBillingSupabase, row: CommitmentRow
   return {};
 }
 
-/** مفتاح إداري للمنظّمة (ليس مفتاح المشروع الافتراضي للدردشة) — من لوحة OpenAI → Admin keys */
+/**
+ * مفتاح Admin لمنظّمة OpenAI (لـ GET /v1/organization/costs).
+ * الأولوية: REVENUE_BILLING_MONITOR_TOKEN (اسم مخصص في Vercel) ثم OPENAI_ADMIN_KEY ثم OPENAI_ORGANIZATION_ADMIN_KEY.
+ * لا نقرأ OPENAI_API_KEY — محجوز لمسارات الدردشة والميزات الأخرى.
+ */
 function getOpenAiAdminKey(): string {
-  return (process.env.OPENAI_ADMIN_KEY || process.env.OPENAI_ORGANIZATION_ADMIN_KEY || '').trim();
+  return (
+    (process.env.REVENUE_BILLING_MONITOR_TOKEN || '').trim() ||
+    (process.env.OPENAI_ADMIN_KEY || '').trim() ||
+    (process.env.OPENAI_ORGANIZATION_ADMIN_KEY || '').trim()
+  );
 }
 
 /** جمع قيم amount.value بالدولار من استجابة organization/costs */
@@ -498,7 +506,7 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
     detail.godaddy = { ok: false, portalSeeded: false, error: msg };
   }
 
-  /** OpenAI: رابط فوترة المنظّمة + لقطة مرجعية؛ وعند OPENAI_ADMIN_KEY جلب تكلفة API (آخر 31 يوماً). */
+  /** OpenAI: رابط فوترة المنظّمة + لقطة مرجعية؛ وعند REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) جلب تكلفة API (آخر 31 يوماً). */
   try {
     const portalUrl = (
       process.env.OPENAI_BILLING_PORTAL_URL ||
@@ -544,9 +552,9 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       data_gap_message: hasAdminKey
         ? costsApi && 'ok' in costsApi && costsApi.ok
           ? 'تم جلب تكلفة الاستخدام (آخر 31 يوماً) عبر Admin API.'
-          : 'OPENAI_ADMIN_KEY مضبوط لكن فشل طلب organization/costs — راجع الصلاحيات ونموذج المفتاح (Admin key).'
-        : 'أضف OPENAI_ADMIN_KEY في أسرار Vercel لتلخيص استهلاك API تلقائياً.',
-      credential_env_hint: hasAdminKey ? null : 'OPENAI_ADMIN_KEY',
+          : 'مفتاح المراقبة مضبوط لكن فشل طلب organization/costs — راجع الصلاحيات ونموذج المفتاح (Admin API key).'
+        : 'أضف REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) في أسرار Vercel — مفتاح Admin للمنظّمة، وليس OPENAI_API_KEY.',
+      credential_env_hint: hasAdminKey ? null : 'REVENUE_BILLING_MONITOR_TOKEN أو OPENAI_ADMIN_KEY',
     });
 
     const snapshot = {
@@ -597,7 +605,7 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       vendor_payload: snapshot,
       is_manual: true,
       manual_notes:
-        'إعادة الشحن التلقائي (5→10 USD) حسب إعدادات المنظّمة في OpenAI. عند تفعيل OPENAI_ADMIN_KEY يُعرض أيضاً مجموع organization/costs لآخر 31 يوماً في amount_expected.',
+        'إعادة الشحن التلقائي (5→10 USD) حسب إعدادات المنظّمة في OpenAI. عند تفعيل REVENUE_BILLING_MONITOR_TOKEN أو OPENAI_ADMIN_KEY يُعرض مجموع organization/costs لآخر 31 يوماً في amount_expected.',
       ...paygGap,
       credential_env_hint: null,
     });
