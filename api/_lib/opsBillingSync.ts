@@ -18,8 +18,16 @@ export type OpsPollDetail = {
   supabase_mgmt?: { ok: boolean; httpStatus?: number; projectCount?: number; error?: string };
   /** صفوف مرجعية من لوحة GoDaddy (بدون API) — رابط قابل للتجاوز بـ GODADDY_SUBSCRIPTIONS_PORTAL_URL */
   godaddy?: { ok: boolean; portalSeeded: boolean; error?: string };
-  /** OpenAI — رابط الفوترة + لقطة Pay-as-you-go (بدون Consumption API حتى التفعيل) */
-  openai?: { ok: boolean; seeded: boolean; error?: string };
+  /**
+   * OpenAI — رابط الفوترة + لقطة Pay-as-you-go؛ وعند ضبط OPENAI_ADMIN_KEY يُستدعى
+   * GET /v1/organization/costs (آخر 31 يوماً) ويُخزَّن المجموع في vendor_payload.
+   */
+  openai?: {
+    ok: boolean;
+    seeded: boolean;
+    costsApi?: { ok: boolean; last31dUsd?: number; httpStatus?: number; error?: string };
+    error?: string;
+  };
   /** Resend — رابط الفوترة + خطط مجانية مرجعية (حتى ربط API الفوترة إن وُجد) */
   resend?: { ok: boolean; seeded: boolean; error?: string };
 };
@@ -52,6 +60,65 @@ async function upsertCommitment(supabase: OpsBillingSupabase, row: CommitmentRow
   });
   if (error) return { error: error.message };
   return {};
+}
+
+/** مفتاح إداري للمنظّمة (ليس مفتاح المشروع الافتراضي للدردشة) — من لوحة OpenAI → Admin keys */
+function getOpenAiAdminKey(): string {
+  return (process.env.OPENAI_ADMIN_KEY || process.env.OPENAI_ORGANIZATION_ADMIN_KEY || '').trim();
+}
+
+/** جمع قيم amount.value بالدولار من استجابة organization/costs */
+function sumOpenAiOrganizationCostsUsd(json: unknown): number {
+  if (!json || typeof json !== 'object') return 0;
+  const data = (json as { data?: unknown }).data;
+  if (!Array.isArray(data)) return 0;
+  let sum = 0;
+  for (const bucket of data) {
+    if (!bucket || typeof bucket !== 'object') continue;
+    const results = (bucket as { results?: unknown }).results;
+    if (!Array.isArray(results)) continue;
+    for (const row of results) {
+      if (!row || typeof row !== 'object') continue;
+      const amount = (row as { amount?: { value?: unknown; currency?: unknown } }).amount;
+      if (!amount || typeof amount !== 'object') continue;
+      const cur = String(amount.currency ?? 'usd').toLowerCase();
+      const val = amount.value;
+      if (cur === 'usd' && typeof val === 'number' && Number.isFinite(val)) sum += val;
+    }
+  }
+  return Math.round(sum * 1_000_000) / 1_000_000;
+}
+
+async function fetchOpenAiOrganizationCostsLast31Days(
+  adminKey: string,
+): Promise<{ ok: true; totalUsd: number } | { ok: false; httpStatus: number; error: string }> {
+  const end = Math.floor(Date.now() / 1000);
+  const start = end - 31 * 86400;
+  const url = new URL('https://api.openai.com/v1/organization/costs');
+  url.searchParams.set('start_time', String(start));
+  url.searchParams.set('end_time', String(end));
+  url.searchParams.set('bucket_width', '1d');
+  url.searchParams.set('limit', '35');
+
+  const r = await fetch(url.toString(), {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${adminKey}` },
+  });
+  const text = await r.text();
+  if (!r.ok) {
+    return {
+      ok: false,
+      httpStatus: r.status,
+      error: text.slice(0, 900) || r.statusText,
+    };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text) as unknown;
+  } catch {
+    return { ok: false, httpStatus: r.status, error: 'OpenAI costs: response is not valid JSON' };
+  }
+  return { ok: true, totalUsd: sumOpenAiOrganizationCostsUsd(parsed) };
 }
 
 export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
@@ -431,35 +498,55 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
     detail.godaddy = { ok: false, portalSeeded: false, error: msg };
   }
 
-  /** OpenAI: رابط فوترة المنظّمة + لقطة مرجعية (رصيد ائتمان + إعادة شحن تلقائي — من لوحة الويب). */
+  /** OpenAI: رابط فوترة المنظّمة + لقطة مرجعية؛ وعند OPENAI_ADMIN_KEY جلب تكلفة API (آخر 31 يوماً). */
   try {
     const portalUrl = (
       process.env.OPENAI_BILLING_PORTAL_URL ||
       'https://platform.openai.com/settings/organization/billing/overview'
     ).trim();
     const ref = { portal_url: portalUrl };
+    const adminKey = getOpenAiAdminKey();
+    const hasAdminKey = Boolean(adminKey);
+
+    type CostsApiPoll =
+      | { ok: true; last31dUsd: number }
+      | { ok: false; httpStatus: number; error: string };
+    let costsApi: CostsApiPoll | undefined;
+    let last31dUsd: number | null = null;
+    if (hasAdminKey) {
+      const c = await fetchOpenAiOrganizationCostsLast31Days(adminKey);
+      if (c.ok) {
+        last31dUsd = c.totalUsd;
+        costsApi = { ok: true, last31dUsd: c.totalUsd };
+      } else {
+        costsApi = { ok: false, httpStatus: c.httpStatus, error: c.error };
+      }
+    }
 
     await upsertCommitment(supabase, {
       vendor: 'openai',
       display_label: 'OpenAI — نظرة عامة على الفوترة (المنظّمة)',
-      integration_mode: 'manual_only',
+      integration_mode: hasAdminKey ? 'api_polling' : 'manual_only',
       billing_cycle: 'custom',
       amount_expected: null,
       amount_currency: 'USD',
       monthly_estimate_sar: null,
       next_renewal_at: null,
       last_synced_at: nowIso,
-      last_sync_status: 'partial',
-      last_sync_error: null,
+      last_sync_status: hasAdminKey && costsApi && 'ok' in costsApi && costsApi.ok ? 'ok' : 'partial',
+      last_sync_error: costsApi && 'ok' in costsApi && !costsApi.ok ? String(costsApi.error || '').slice(0, 500) : null,
       external_stable_key: 'openai:billing_overview',
       external_ref: ref,
-      vendor_payload: ref,
+      vendor_payload: hasAdminKey ? { ...ref, costs_api_configured: true } : ref,
       is_manual: true,
-      manual_notes: 'رابط لوحة الفوترة في OpenAI (HalaqMapKey / Default project).',
-      data_gap_kind: 'missing_api_key',
-      data_gap_message:
-        'التكامل البرمجي للرصيد اختياري — حتى ذلك حدّث اللقطة يدوياً أو عبر «مزامنة» بعد كل دفعة.',
-      credential_env_hint: 'OPENAI_ADMIN_KEY (مستقبلاً — لا يُخزَّن هنا)',
+      manual_notes: 'رابط لوحة الفوترة في OpenAI.',
+      data_gap_kind: hasAdminKey ? (costsApi && 'ok' in costsApi && costsApi.ok ? null : 'missing_api_key') : 'missing_api_key',
+      data_gap_message: hasAdminKey
+        ? costsApi && 'ok' in costsApi && costsApi.ok
+          ? 'تم جلب تكلفة الاستخدام (آخر 31 يوماً) عبر Admin API.'
+          : 'OPENAI_ADMIN_KEY مضبوط لكن فشل طلب organization/costs — راجع الصلاحيات ونموذج المفتاح (Admin key).'
+        : 'أضف OPENAI_ADMIN_KEY في أسرار Vercel لتلخيص استهلاك API تلقائياً.',
+      credential_env_hint: hasAdminKey ? null : 'OPENAI_ADMIN_KEY',
     });
 
     const snapshot = {
@@ -471,34 +558,55 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       auto_recharge_when_balance_usd: 5.0,
       auto_recharge_top_up_to_usd: 10.0,
       snapshot_note:
-        'لقطة مرجعية من لوحة الفوترة؛ الرصيد يتغير — أعد المزامنة أو اربط API لاحقاً.',
+        'لقطة مرجعية من لوحة الفوترة للرصيد/إعادة الشحن؛ راقب القيم في platform.openai.com.',
+      ...(last31dUsd != null
+        ? {
+            api_costs_last_31d_usd: last31dUsd,
+            api_costs_synced_at: nowIso,
+          }
+        : {}),
     };
+
+    const paygGap =
+      last31dUsd != null
+        ? {
+            data_gap_kind: null as string | null,
+            data_gap_message:
+              'رصيد الائتمان ما زال يُحدَّث يدوياً من لوحة OpenAI إن لزم؛ استهلاك API لآخر 31 يوماً من organization/costs.',
+          }
+        : {
+            data_gap_kind: 'discovery_pending' as string | null,
+            data_gap_message:
+              'التكلفة شهرية غير ثابتة (حسب الاستخدام) — راقب سجل الفوترة في OpenAI أو حدّث المبلغ الشهري التقديري يدوياً.',
+          };
 
     await upsertCommitment(supabase, {
       vendor: 'openai',
-      display_label: 'OpenAI — Pay as you go (رصيد ائتمان)',
-      integration_mode: 'manual_only',
+      display_label: 'OpenAI — Pay as you go (رصيد + استهلاك API)',
+      integration_mode: hasAdminKey && last31dUsd != null ? 'api_polling' : 'manual_only',
       billing_cycle: 'custom',
-      amount_expected: 9.92,
+      amount_expected: last31dUsd != null ? last31dUsd : 9.92,
       amount_currency: 'USD',
       monthly_estimate_sar: null,
       next_renewal_at: null,
       last_synced_at: nowIso,
-      last_sync_status: 'partial',
-      last_sync_error: null,
+      last_sync_status: hasAdminKey && last31dUsd != null ? 'ok' : 'partial',
+      last_sync_error: costsApi && 'ok' in costsApi && !costsApi.ok ? String(costsApi.error || '').slice(0, 500) : null,
       external_stable_key: 'openai:payg-credit-snapshot',
       external_ref: { ...ref, ...snapshot },
       vendor_payload: snapshot,
       is_manual: true,
       manual_notes:
-        'إعادة الشحن التلقائي: عند وصول الرصيد إلى 5.00 USD تُخصم طريقة الدفع لرفع الرصيد إلى 10.00 USD (حسب إعدادات المنظّمة في OpenAI).',
-      data_gap_kind: 'discovery_pending',
-      data_gap_message:
-        'التكلفة شهرية غير ثابتة (حسب الاستخدام) — راقب سجل الفوترة في OpenAI أو حدّث المبلغ الشهري التقديري يدوياً.',
+        'إعادة الشحن التلقائي (5→10 USD) حسب إعدادات المنظّمة في OpenAI. عند تفعيل OPENAI_ADMIN_KEY يُعرض أيضاً مجموع organization/costs لآخر 31 يوماً في amount_expected.',
+      ...paygGap,
       credential_env_hint: null,
     });
 
-    detail.openai = { ok: true, seeded: true };
+    detail.openai = {
+      ok: true,
+      seeded: true,
+      ...(costsApi !== undefined ? { costsApi } : {}),
+    };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     detail.openai = { ok: false, seeded: false, error: msg };

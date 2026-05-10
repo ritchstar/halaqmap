@@ -34,10 +34,18 @@ async function getServiceSupabase(): Promise<
 }
 
 function isCronAuthorized(request: Request): boolean {
-  const secret = (process.env.CRON_SECRET || process.env.OPS_BILLING_CRON_SECRET || '').trim();
-  if (!secret) return false;
   const auth = request.headers.get('authorization')?.trim() || '';
-  return auth === `Bearer ${secret}`;
+  if (!auth.startsWith('Bearer ')) return false;
+  const token = auth.slice('Bearer '.length).trim();
+  if (!token) return false;
+  const candidates = [
+    process.env.CRON_SECRET,
+    process.env.OPS_BILLING_CRON_SECRET,
+    process.env.REVENUE_BILLING_MONITOR_TOKEN,
+  ]
+    .map((s) => (typeof s === 'string' ? s.trim() : ''))
+    .filter((s) => s.length > 0);
+  return candidates.some((c) => c === token);
 }
 
 /** مصادقة: أي مدير نشط (أو bootstrap) أو Cron سرّي. */
@@ -122,11 +130,13 @@ export async function GET(request: Request): Promise<Response> {
         'SUPABASE_MANAGEMENT_API_TOKEN',
         'GODADDY_SUBSCRIPTIONS_PORTAL_URL (اختياري — افتراضي: رابط اشتراكات GoDaddy)',
         'OPENAI_BILLING_PORTAL_URL (اختياري — افتراضي: نظرة عامة على فوترة المنظّمة في OpenAI)',
+        'OPENAI_ADMIN_KEY (اختياري — Admin API key من platform.openai.com لتلخيص GET /v1/organization/costs آخر 31 يوماً)',
         'RESEND_BILLING_PORTAL_URL (اختياري — افتراضي: إعدادات الفوترة في Resend)',
         'RESEND_BILLING_INVOICE_EMAIL (اختياري — بريد الفواتير كما في Resend للعرض في الملخص فقط)',
-        'CRON_SECRET (Vercel Cron — نفس Bearer المرسل تلقائياً) أو OPS_BILLING_CRON_SECRET',
+        'CRON_SECRET (ما ترسله جداولة Vercel في Authorization) أو OPS_BILLING_CRON_SECRET أو REVENUE_BILLING_MONITOR_TOKEN',
       ],
-      cron: 'GET /api/ops-billing-monitor?cron=1 مع Authorization: Bearer <CRON_SECRET>',
+      cron:
+        'GET /api/ops-billing-monitor?cron=1 مع Authorization: Bearer <CRON_SECRET|REVENUE_BILLING_MONITOR_TOKEN|OPS_BILLING_CRON_SECRET>',
     },
   });
 }
