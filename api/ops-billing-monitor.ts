@@ -70,12 +70,21 @@ async function authorizeOpsBilling(
   return { ok: true, supabase: gate.supabase as OpsBillingSupabase, actorEmail: gate.actorEmail };
 }
 
+function monthlyEstimateSarToNumber(v: unknown): number | null {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  if (typeof v === 'string' && v.trim() !== '') {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
 function summarize(rows: Record<string, unknown>[]) {
   let nearest: string | null = null;
   let monthlySum = 0;
   for (const r of rows) {
-    const m = r.monthly_estimate_sar;
-    if (typeof m === 'number' && Number.isFinite(m)) monthlySum += m;
+    const mNum = monthlyEstimateSarToNumber(r.monthly_estimate_sar);
+    if (mNum !== null) monthlySum += mNum;
     const nr = r.next_renewal_at;
     if (typeof nr === 'string' && nr) {
       if (!nearest || new Date(nr).getTime() < new Date(nearest).getTime()) nearest = nr;

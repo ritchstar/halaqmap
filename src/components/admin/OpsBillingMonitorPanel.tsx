@@ -55,6 +55,17 @@ function portalUrlFromRow(r: OpsBillingCommitmentRow): string | null {
   return typeof u === 'string' && u.startsWith('http') ? u : null;
 }
 
+/** تسمية الرابط حسب المزوّد — كانت ثابتة «GoDaddy» لكل الصفوف بالخطأ. */
+function portalLinkLabelForVendor(vendor: string): string {
+  const v = vendor.toLowerCase();
+  if (v === 'godaddy') return 'لوحة GoDaddy';
+  if (v === 'openai') return 'لوحة OpenAI';
+  if (v === 'vercel') return 'لوحة Vercel';
+  if (v === 'supabase_mgmt' || v === 'supabase') return 'لوحة Supabase';
+  if (v === 'resend') return 'لوحة Resend';
+  return 'فتح الرابط';
+}
+
 function formatCountdownAr(ms: number | null): string {
   if (ms === null) return '—';
   const d = Math.floor(ms / 86400000);
@@ -348,9 +359,10 @@ export function OpsBillingMonitorPanel() {
               <tbody>
                 {rows.map((r) => {
                   const portal = portalUrlFromRow(r);
+                  const vendorStr = String(r.vendor ?? '');
                   return (
                   <tr key={String(r.id)} className="border-b border-muted/50">
-                    <td className="p-2 font-mono text-xs">{String(r.vendor)}</td>
+                    <td className="p-2 font-mono text-xs">{vendorStr}</td>
                     <td className="p-2">{String(r.display_label)}</td>
                     <td className="p-2 max-w-[140px]">
                       {portal ? (
@@ -361,7 +373,7 @@ export function OpsBillingMonitorPanel() {
                           className="inline-flex items-center gap-0.5 text-primary text-xs underline-offset-2 hover:underline truncate"
                           title={portal}
                         >
-                          لوحة GoDaddy
+                          {portalLinkLabelForVendor(vendorStr)}
                           <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                       ) : (
