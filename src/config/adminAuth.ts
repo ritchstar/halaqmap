@@ -5,6 +5,40 @@ export function getAdminAllowedEmail(): string {
   return 'ritchstar4@gmail.com';
 }
 
+function normalizeAdminEmail(v: string): string {
+  return v.trim().toLowerCase();
+}
+
+const DEFAULT_EXTRA_BOOTSTRAP_EMAILS = ['admin@halaqmap.com'] as const;
+
+function parseExtraBootstrapOwnerEmailsFromEnv(): string[] {
+  const raw = (import.meta.env.VITE_EXTRA_BOOTSTRAP_ADMIN_EMAILS as string | undefined)?.trim();
+  if (!raw) return [];
+  return raw.split(',').map((s) => normalizeAdminEmail(s)).filter(Boolean);
+}
+
+/**
+ * حساب المؤسّس / المالك: صلاحيات كاملة في الواجهة، ووضع bootstrap (مثل التعديل العميق لبيانات الحلّاق).
+ * يشمل بريد `VITE_ADMIN_EMAIL` (أو الافتراضي)، و`admin@halaqmap.com`، وأي عناوين في
+ * `VITE_EXTRA_BOOTSTRAP_ADMIN_EMAILS` مفصولة بفواصل.
+ */
+export function isBootstrapOwnerEmail(email: string): boolean {
+  const e = normalizeAdminEmail(email);
+  const set = new Set<string>([
+    normalizeAdminEmail(getAdminAllowedEmail()),
+    ...DEFAULT_EXTRA_BOOTSTRAP_EMAILS.map((x) => normalizeAdminEmail(x)),
+    ...parseExtraBootstrapOwnerEmailsFromEnv(),
+  ]);
+  return set.has(e);
+}
+
+/** اسم الظهور في رأس لوحة الإدارة لحساب المؤسّس (bootstrap). */
+export function getBootstrapOwnerDisplayName(): string {
+  const fromEnv = (import.meta.env.VITE_ADMIN_OWNER_DISPLAY_NAME as string | undefined)?.trim();
+  if (fromEnv) return fromEnv;
+  return 'المالك — صلاحيات مؤسّسية';
+}
+
 /**
  * مسار «البوابة» الخفي للإدارة (بدون رابط في واجهة المنصة).
  * عيّن VITE_ADMIN_PORTAL_BASE في بيئة **البناء** (Vercel) ليطابق الرابط الذي تستخدمه (مثل /x7k-m9q2-a4).
@@ -12,24 +46,34 @@ export function getAdminAllowedEmail(): string {
  * مثال: VITE_ADMIN_PORTAL_BASE=/x7k-m9q2-a4,/_hmap-int-9kz2
  * القيمة الأولى تُستخدم كافتراضي للروابط التي لا تستنتج المسار من عنوان الصفحة الحالي.
  */
+const ADMIN_PORTAL_DEFAULT_BASE = '/_hmap-int-9kz2';
+
 function normalizePortalBaseSegment(raw: string): string {
   let b = raw.trim();
-  if (!b) return '/_hmap-int-9kz2';
+  if (!b) return ADMIN_PORTAL_DEFAULT_BASE;
   if (!b.startsWith('/')) b = `/${b}`;
   return b.replace(/\/+$/, '');
 }
 
-/** كل قواعد البوابة المعرّفة في البيئة (بعد البناء). */
+/**
+ * كل قواعد البوابة بعد البناء.
+ * تُدمج دائماً مع {@link ADMIN_PORTAL_DEFAULT_BASE} إن لم تكن ضمن القائمة، حتى لا يُفقد
+ * مسار `…/in` و`…/ctrl` الافتراضي عند ضبط `VITE_ADMIN_PORTAL_BASE` على مسار سريّ جديد فقط
+ * (وإلا يظهر 404 على الروابط المحفوظة أو الموثّقة).
+ */
 export function getAdminPortalBasePaths(): string[] {
   const raw = (import.meta.env.VITE_ADMIN_PORTAL_BASE as string | undefined)?.trim();
-  if (!raw) return ['/_hmap-int-9kz2'];
+  if (!raw) return [ADMIN_PORTAL_DEFAULT_BASE];
   const parts = raw
     .split(',')
     .map((s) => s.trim())
     .filter((s) => s.length > 0)
     .map((s) => normalizePortalBaseSegment(s));
   const uniq = [...new Set(parts)];
-  return uniq.length ? uniq : ['/_hmap-int-9kz2'];
+  const withDefault = uniq.includes(ADMIN_PORTAL_DEFAULT_BASE)
+    ? uniq
+    : [...uniq, ADMIN_PORTAL_DEFAULT_BASE];
+  return withDefault.length ? withDefault : [ADMIN_PORTAL_DEFAULT_BASE];
 }
 
 /** القاعدة الافتراضية (الأولى في القائمة) — للروابط العامة. */

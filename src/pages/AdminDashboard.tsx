@@ -33,6 +33,7 @@ import {
   Send,
   Activity,
   FlaskConical,
+  Landmark,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -135,6 +136,7 @@ import {
 import { PartnerPromoVideoAdminPanel } from '@/components/admin/PartnerPromoVideoAdminPanel';
 import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutorialVideosAdminPanel';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
+import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
 const EMPTY_ADMIN_STATS: AdminStats = {
@@ -440,6 +442,7 @@ export default function AdminDashboard() {
     if (can('view_messages')) out.push('messages');
     if (canViewSecurityOpsLog) out.push('security-ops');
     if (canViewPaymentGateways) out.push('payment-gateways');
+    out.push('ops-billing');
     if (can('view_settings')) out.push('settings');
     return out;
   }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog]);
@@ -476,10 +479,30 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <Button variant="ghost" onClick={handleLogout} className="gap-2">
-              <LogOut className="w-4 h-4" />
-              تسجيل الخروج
-            </Button>
+            <div className="flex items-center gap-2">
+              <div
+                className="flex items-center rounded-md border border-border/60 bg-muted/40 p-0.5 gap-0.5"
+                role="toolbar"
+                aria-label="اختصارات لوحة الإدارة"
+              >
+                <Button
+                  type="button"
+                  variant={activeTab === 'ops-billing' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="h-9 w-9 shrink-0"
+                  title="التكاليف والتزامات التشغيل"
+                  aria-label="التكاليف والتزامات التشغيل"
+                  aria-pressed={activeTab === 'ops-billing'}
+                  onClick={() => setActiveTab('ops-billing')}
+                >
+                  <Landmark className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button variant="ghost" onClick={handleLogout} className="gap-2">
+                <LogOut className="w-4 h-4" />
+                تسجيل الخروج
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -617,6 +640,10 @@ export default function AdminDashboard() {
               <PaymentGatewaysAdminPanel canSave={canSavePaymentGatewaySettings} />
             </TabsContent>
           )}
+
+          <TabsContent value="ops-billing" className="space-y-6">
+            <OpsBillingMonitorPanel />
+          </TabsContent>
 
           {/* Settings Tab */}
           {can('view_settings') && <TabsContent value="settings" className="space-y-6">
@@ -4056,6 +4083,7 @@ function SettingsSection({
         manage_payment_settings: false,
         manage_subscriber_comms: false,
         manage_subscriber_lifecycle: false,
+        manage_centralized_billing_ops: false,
       },
     },
     {
@@ -4071,6 +4099,7 @@ function SettingsSection({
         view_payment_settings: false,
         manage_payment_settings: false,
         manage_partner_billing: false,
+        manage_centralized_billing_ops: false,
       },
     },
     {
@@ -4088,6 +4117,7 @@ function SettingsSection({
         manage_admins: false,
         manage_subscriber_comms: false,
         manage_subscriber_lifecycle: false,
+        manage_centralized_billing_ops: false,
       },
     },
   ];
@@ -4250,7 +4280,7 @@ function SettingsSection({
         <CardContent className="space-y-6">
           {!canManageAdmins ? (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-900 dark:text-amber-100">
-              لا تملك صلاحية <strong>إدارة المدراء</strong>. يمكنك طلبها من Admin Root.
+              لا تملك صلاحية <strong>إدارة المدراء</strong>. يمكنك طلبها من حساب المؤسّس (المالك).
             </div>
           ) : (
             <>

@@ -4,7 +4,7 @@ import {
   normalizeAdminPermissions,
   type AdminPermissions,
 } from '@/lib/adminPermissions';
-import { getAdminAllowedEmail } from '@/config/adminAuth';
+import { getBootstrapOwnerDisplayName, isBootstrapOwnerEmail } from '@/config/adminAuth';
 
 export type AdminRoleRow = {
   id: string;
@@ -23,26 +23,18 @@ export type AdminAccess = {
   permissions: AdminPermissions;
 };
 
-const EXTRA_BOOTSTRAP_EMAILS = ['admin@halaqmap.com'];
-
 function normalizeEmail(v: string): string {
   return v.trim().toLowerCase();
 }
 
-function isBootstrapEmail(email: string): boolean {
-  const e = normalizeEmail(email);
-  const all = new Set([normalizeEmail(getAdminAllowedEmail()), ...EXTRA_BOOTSTRAP_EMAILS.map(normalizeEmail)]);
-  return all.has(e);
-}
-
 export async function resolveAdminAccess(email: string): Promise<AdminAccess> {
   const normalized = normalizeEmail(email);
-  if (isBootstrapEmail(normalized)) {
+  if (isBootstrapOwnerEmail(normalized)) {
     return {
       allowed: true,
       bootstrap: true,
       email: normalized,
-      displayName: 'Admin Root',
+      displayName: getBootstrapOwnerDisplayName(),
       permissions: FULL_ADMIN_PERMISSIONS,
     };
   }

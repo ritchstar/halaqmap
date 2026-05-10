@@ -2,6 +2,13 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const EXTRA_BOOTSTRAP_ADMIN_EMAILS = ['admin@halaqmap.com'];
 
+function parseExtraBootstrapFromProcessEnv(): string[] {
+  const raw = (process.env.VITE_EXTRA_BOOTSTRAP_ADMIN_EMAILS || process.env.EXTRA_BOOTSTRAP_ADMIN_EMAILS || '')
+    .trim();
+  if (!raw) return [];
+  return raw.split(',').map((s) => normalizeEmail(s)).filter(Boolean);
+}
+
 export function safeHost(rawUrl: string): string | null {
   if (!rawUrl) return null;
   try {
@@ -15,7 +22,7 @@ function normalizeEmail(v: string): string {
   return v.trim().toLowerCase();
 }
 
-/** يطابق المنطق الافتراضي في `src/config/adminAuth.ts`. */
+/** يطابق `isBootstrapOwnerEmail` في `src/config/adminAuth.ts` (بريد أساسي + admin@halaqmap.com + env إضافية). */
 function getServerBootstrapAdminEmail(): string {
   const fromEnv = (process.env.VITE_ADMIN_EMAIL || process.env.ADMIN_EMAIL || '').trim();
   if (fromEnv) return normalizeEmail(fromEnv);
@@ -27,6 +34,7 @@ function isBootstrapAdminEmail(email: string): boolean {
   const set = new Set([
     getServerBootstrapAdminEmail(),
     ...EXTRA_BOOTSTRAP_ADMIN_EMAILS.map(normalizeEmail),
+    ...parseExtraBootstrapFromProcessEnv(),
   ]);
   return set.has(e);
 }
@@ -49,7 +57,8 @@ export type PlatformAdminPermissionKey =
   | 'manage_payment_settings'
   | 'manage_subscriber_comms'
   | 'manage_subscriber_lifecycle'
-  | 'manage_partner_billing';
+  | 'manage_partner_billing'
+  | 'manage_centralized_billing_ops';
 
 function permissionFromRow(raw: unknown, key: PlatformAdminPermissionKey): boolean {
   const incoming = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
@@ -178,6 +187,74 @@ export async function verifyPlatformAdminFromRequest(
   }
 
   return { ok: true, supabase, actorEmail: normalizeEmail(user.email) };
+}
+
+/**
+ * جلسة صالحة + (bootstrap أو صف نشط في platform_admin_roles) — دون مطالبة بمفتاح صلاحية محدد.
+ * يُستخدم لمسارات تعرض بيانات تشغيلية لكل المدراء المعتمدين.
+ */
+export async function verifyActivePlatformAdminFromRequest(
+  request: Request,
+  serverSupabaseUrl: string,
+  serviceRoleKey: string,
+): Promise<VerifyManageBarbersAdminResult> {
+  const clientSupabaseUrl = request.headers.get('x-client-supabase-url')?.trim() || '';
+  if (clientSupabaseUrl && clientSupabaseUrl !== serverSupabaseUrl) {
+    return {
+      ok: false,
+      status: 409,
+      json: {
+        error: 'Supabase project mismatch between client and server',
+        hint: 'Align VITE_SUPABASE_URL and SUPABASE_URL on Vercel to the same project.',
+        serverUrlHost: safeHost(serverSupabaseUrl),
+        clientUrlHost: safeHost(clientSupabaseUrl),
+      },
+    };
+  }
+
+  const authHeader = request.headers.get('authorization')?.trim() || '';
+  const accessToken =
+    authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length).trim() : '';
+
+  if (!accessToken) {
+    return {
+      ok: false,
+      status: 401,
+      json: {
+        error: 'Unauthorized',
+        hint: 'Send Authorization: Bearer <Supabase session access_token> from a signed-in admin.',
+      },
+    };
+  }
+
+  const supabase = createClient(serverSupabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
+  const user = userData?.user;
+  if (userErr || !user?.email?.trim()) {
+    return {
+      ok: false,
+      status: 401,
+      json: {
+        error: 'Unauthorized',
+        hint: userErr?.message || 'Invalid or expired session token',
+      },
+    };
+  }
+
+  const email = normalizeEmail(user.email);
+  if (isBootstrapAdminEmail(email)) {
+    return { ok: true, supabase, actorEmail: email };
+  }
+
+  const row = await loadPlatformAdminPermissionsRow(supabase, email);
+  if (row.ok === false) {
+    return { ok: false, status: 403, json: { error: row.message } };
+  }
+
+  return { ok: true, supabase, actorEmail: email };
 }
 
 /**

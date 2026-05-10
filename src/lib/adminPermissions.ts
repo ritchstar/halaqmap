@@ -18,7 +18,9 @@ export type AdminPermissionKey =
   | 'manage_subscriber_comms'
   | 'manage_subscriber_lifecycle'
   /** إيصالات التحويل + إجراءات اشتراك ميسر من لوحة الإدارة */
-  | 'manage_partner_billing';
+  | 'manage_partner_billing'
+  /** Centralized Billing & Ops Monitor — سوبر أدمن فقط (تكامل Vercel/Supabase/… ) */
+  | 'manage_centralized_billing_ops';
 
 export type AdminPermissions = Record<AdminPermissionKey, boolean>;
 
@@ -40,6 +42,7 @@ export const ADMIN_PERMISSION_LABELS: Record<AdminPermissionKey, string> = {
   manage_subscriber_comms: 'إعادة إرسال رسائل الروابط للمشترك',
   manage_subscriber_lifecycle: 'تعليق الحساب / حذف طلب التسجيل',
   manage_partner_billing: 'تأكيد إيصالات التحويل وإجراءات فوترة ميسر',
+  manage_centralized_billing_ops: 'مراقبة التزامات التشغيل والفوترة (سوبر أدمن)',
 };
 
 export const ADMIN_PERMISSION_KEYS = Object.keys(ADMIN_PERMISSION_LABELS) as AdminPermissionKey[];
@@ -62,6 +65,7 @@ export const DEFAULT_ADMIN_PERMISSIONS: AdminPermissions = {
   manage_subscriber_comms: false,
   manage_subscriber_lifecycle: false,
   manage_partner_billing: false,
+  manage_centralized_billing_ops: false,
 };
 
 export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
@@ -82,11 +86,19 @@ export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
   manage_subscriber_comms: true,
   manage_subscriber_lifecycle: true,
   manage_partner_billing: true,
+  manage_centralized_billing_ops: true,
 };
 
 export function normalizeAdminPermissions(value: unknown): AdminPermissions {
   const incoming = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
   const out: Partial<AdminPermissions> = {};
-  for (const k of ADMIN_PERMISSION_KEYS) out[k] = Boolean(incoming[k] ?? DEFAULT_ADMIN_PERMISSIONS[k]);
+  for (const k of ADMIN_PERMISSION_KEYS) {
+    if (k === 'manage_centralized_billing_ops' && incoming[k] === undefined) {
+      /** صفوف أُنشئت قبل إضافة المفتاح: نربطها بسوبر الأدمن الذي يملك manage_admins */
+      out[k] = Boolean(incoming.manage_admins);
+      continue;
+    }
+    out[k] = Boolean(incoming[k] ?? DEFAULT_ADMIN_PERMISSIONS[k]);
+  }
   return out as AdminPermissions;
 }

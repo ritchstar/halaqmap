@@ -132,6 +132,15 @@
     },
     "api/admin-sentinel-action.ts": {
       "maxDuration": 20
+    },
+    "api/ops-billing-monitor.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/ops-billing-monitor?cron=1",
+      "schedule": "0 4 * * *"
+    }
+  ]
 }
