@@ -6,7 +6,12 @@ function getClientSupabaseUrl(): string {
   return String(import.meta.env.VITE_SUPABASE_URL || '').trim();
 }
 
-/** رؤوس طلبات /api/ops-billing-monitor — JWT مشرف أو (اختياري) Bearer نفس سرّ الجدولة عبر VITE_ فقط. */
+/**
+ * رؤوس طلبات /api/ops-billing-monitor:
+ * - جلسة المشرف في Authorization إن وُجدت (للتدقيق/المزامن).
+ * - نفس سرّ الجدولة في X-Ops-Billing-Cron-Authorization عند VITE_OPS_BILLING_CRON_SECRET — يكفي لمصادقة Cron حتى لو انتهت جلسة Supabase.
+ * - بدون جلسة: Authorization يحمل السرّ فقط (نفس سلوك الجدولة).
+ */
 async function authHeaders(): Promise<Record<string, string> | null> {
   const dashboardCron = String(import.meta.env.VITE_OPS_BILLING_CRON_SECRET || '').trim();
   const client = getSupabaseClient();
@@ -17,16 +22,15 @@ async function authHeaders(): Promise<Record<string, string> | null> {
     'x-client-supabase-url': getClientSupabaseUrl(),
   };
 
-  /**
-   * نفس قيمة OPS_BILLING_CRON_SECRET / CRON_SECRET على الخادم — يجب تكرارها في Vercel كـ VITE_OPS_BILLING_CRON_SECRET
-   * لأن المتصفح لا يرى متغيّرات بدون بادئة VITE_. يُرسل كـ Authorization: Bearer … فيتعرّف عليه isCronAuthorized.
-   */
   if (dashboardCron) {
-    return { ...base, Authorization: `Bearer ${dashboardCron}` };
+    base['X-Ops-Billing-Cron-Authorization'] = `Bearer ${dashboardCron}`;
   }
 
   if (token) {
     return { ...base, Authorization: `Bearer ${token}` };
+  }
+  if (dashboardCron) {
+    return { ...base, Authorization: `Bearer ${dashboardCron}` };
   }
 
   return null;
@@ -34,6 +38,12 @@ async function authHeaders(): Promise<Record<string, string> | null> {
 
 const OPS_BILLING_AUTH_HINT =
   'سجّل دخول كمشرف أو أضف في Vercel (وبناء جديد) VITE_OPS_BILLING_CRON_SECRET بنفس قيمة OPS_BILLING_CRON_SECRET.';
+
+function formatOpsBillingApiError(json: Record<string, unknown>, status: number): string {
+  const err = typeof json.error === 'string' ? json.error : `HTTP ${status}`;
+  const hint = typeof json.hint === 'string' ? json.hint : '';
+  return hint ? `${err} — ${hint}` : err;
+}
 
 export type OpsBillingCommitmentRow = Record<string, unknown>;
 
@@ -58,7 +68,7 @@ export async function fetchOpsBillingMonitor(): Promise<
   const res = await fetch(API, { method: 'GET', headers: h });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok || json.ok !== true) {
-    return { ok: false, error: typeof json.error === 'string' ? json.error : `HTTP ${res.status}` };
+    return { ok: false, error: formatOpsBillingApiError(json, res.status) };
   }
   const commitments = (json.commitments as OpsBillingCommitmentRow[]) || [];
   const gaps = (json.gaps as OpsBillingCommitmentRow[]) || [];
@@ -80,7 +90,7 @@ export async function triggerOpsBillingSync(): Promise<
   });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok || json.ok !== true) {
-    return { ok: false, error: typeof json.error === 'string' ? json.error : `HTTP ${res.status}` };
+    return { ok: false, error: formatOpsBillingApiError(json, res.status) };
   }
   return { ok: true, detail: json.detail };
 }
@@ -103,7 +113,7 @@ export async function createManualOpsBillingCommitment(input: {
   });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok || json.ok !== true) {
-    return { ok: false, error: typeof json.error === 'string' ? json.error : `HTTP ${res.status}` };
+    return { ok: false, error: formatOpsBillingApiError(json, res.status) };
   }
   return { ok: true, id: typeof json.id === 'string' ? json.id : undefined };
 }
@@ -127,7 +137,7 @@ export async function updateOpsBillingCommitment(input: {
   });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok || json.ok !== true) {
-    return { ok: false, error: typeof json.error === 'string' ? json.error : `HTTP ${res.status}` };
+    return { ok: false, error: formatOpsBillingApiError(json, res.status) };
   }
   return { ok: true };
 }

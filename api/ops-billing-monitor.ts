@@ -46,10 +46,11 @@ function bearerFromHeader(h: string | null): string | null {
 
 /** يطابق CRON_SECRET أو OPS_BILLING_CRON_SECRET فقط — لا يُخلط مع JWT المشرف. */
 function isCronSecretToken(token: string): boolean {
+  const t = token.trim();
   const candidates = [process.env.CRON_SECRET, process.env.OPS_BILLING_CRON_SECRET]
     .map((s) => (typeof s === 'string' ? s.trim() : ''))
     .filter((s) => s.length > 0);
-  return candidates.some((c) => c === token);
+  return candidates.some((c) => c === t);
 }
 
 /**
