@@ -19,12 +19,13 @@ export type OpsPollDetail = {
   /** صفوف مرجعية من لوحة GoDaddy (بدون API) — رابط قابل للتجاوز بـ GODADDY_SUBSCRIPTIONS_PORTAL_URL */
   godaddy?: { ok: boolean; portalSeeded: boolean; error?: string };
   /**
-   * OpenAI — رابط الفوترة + لقطة Pay-as-you-go؛ وعند ضبط REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) يُستدعى
-   * GET /v1/organization/costs (آخر 31 يوماً) ويُخزَّن المجموع في vendor_payload. لا يُستخدم OPENAI_API_KEY هنا.
+   * OpenAI — رابط الفوترة + لقطة Pay-as-you-go؛ عند ضبط REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) و OPENAI_ORGANIZATION_ID
+   * يُستدعى GET /v1/organization/costs (آخر 31 يوماً) مع رأس OpenAI-Organization. لا يُستخدم OPENAI_API_KEY هنا.
    */
   openai?: {
     ok: boolean;
     seeded: boolean;
+    organizationCostsHeader?: boolean;
     costsApi?: { ok: boolean; last31dUsd?: number; httpStatus?: number; error?: string };
     error?: string;
   };
@@ -75,6 +76,22 @@ function getOpenAiAdminKey(): string {
   );
 }
 
+/** معرف المنظّمة (org-...) لرأس OpenAI-Organization — مطلوب مع GET /v1/organization/costs (فوترة المنظّمة). */
+function getOpenAiOrganizationIdHeader(): string | null {
+  const raw =
+    (process.env.OPENAI_ORGANIZATION_ID || '').trim() ||
+    (process.env.OPENAI_ORG_ID || '').trim();
+  return raw.length > 0 ? raw : null;
+}
+
+/** رؤوس طلبات OpenAI على مستوى المنظّمة (تكاليف/استخدام). */
+function buildOpenAiOrganizationApiHeaders(adminKey: string, organizationId: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${adminKey}`,
+    'OpenAI-Organization': organizationId,
+  };
+}
+
 /** جمع قيم amount.value بالدولار من استجابة organization/costs */
 function sumOpenAiOrganizationCostsUsd(json: unknown): number {
   if (!json || typeof json !== 'object') return 0;
@@ -99,6 +116,7 @@ function sumOpenAiOrganizationCostsUsd(json: unknown): number {
 
 async function fetchOpenAiOrganizationCostsLast31Days(
   adminKey: string,
+  organizationId: string,
 ): Promise<{ ok: true; totalUsd: number } | { ok: false; httpStatus: number; error: string }> {
   const end = Math.floor(Date.now() / 1000);
   const start = end - 31 * 86400;
@@ -110,7 +128,7 @@ async function fetchOpenAiOrganizationCostsLast31Days(
 
   const r = await fetch(url.toString(), {
     method: 'GET',
-    headers: { Authorization: `Bearer ${adminKey}` },
+    headers: buildOpenAiOrganizationApiHeaders(adminKey, organizationId),
   });
   const text = await r.text();
   if (!r.ok) {
@@ -515,20 +533,28 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
     const ref = { portal_url: portalUrl };
     const adminKey = getOpenAiAdminKey();
     const hasAdminKey = Boolean(adminKey);
+    const openAiOrgId = getOpenAiOrganizationIdHeader();
 
     type CostsApiPoll =
       | { ok: true; last31dUsd: number }
       | { ok: false; httpStatus: number; error: string };
     let costsApi: CostsApiPoll | undefined;
     let last31dUsd: number | null = null;
-    if (hasAdminKey) {
-      const c = await fetchOpenAiOrganizationCostsLast31Days(adminKey);
+    if (hasAdminKey && openAiOrgId) {
+      const c = await fetchOpenAiOrganizationCostsLast31Days(adminKey, openAiOrgId);
       if (c.ok) {
         last31dUsd = c.totalUsd;
         costsApi = { ok: true, last31dUsd: c.totalUsd };
       } else {
         costsApi = { ok: false, httpStatus: c.httpStatus, error: c.error };
       }
+    } else if (hasAdminKey && !openAiOrgId) {
+      costsApi = {
+        ok: false,
+        httpStatus: 0,
+        error:
+          'Missing OPENAI_ORGANIZATION_ID (or OPENAI_ORG_ID). Required with Admin key for OpenAI-Organization on GET /v1/organization/costs.',
+      };
     }
 
     const openaiOverviewGap = (() => {
@@ -539,6 +565,13 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
             'لا يوجد مفتاح مراقبة OpenAI في بيئة الخادم. أضف REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) — Admin API key للمنظّمة من platform.openai.com، وليس OPENAI_API_KEY. ثم أعد نشر Vercel واضغط «مزامنة».',
         };
       }
+      if (!openAiOrgId) {
+        return {
+          kind: 'missing_api_key' as const,
+          message:
+            'عيّن OPENAI_ORGANIZATION_ID أو OPENAI_ORG_ID في Vercel (معرّف org-… من إعدادات المنظّمة في OpenAI) — مطلوب لرأس OpenAI-Organization مع طلبات فوترة المنظّمة.',
+        };
+      }
       if (costsApi && 'ok' in costsApi && costsApi.ok) {
         return { kind: null as null, message: 'تم جلب تكلفة الاستخدام (آخر 31 يوماً) عبر organization/costs.' };
       }
@@ -547,12 +580,12 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       if (st === 401 || st === 403) {
         return {
           kind: 'token_expired' as const,
-          message: `رفض OpenAI (${st}) — المفتاح ليس Admin key للمنظّمة أو الصلاحيات غير كافية. أنشئ Admin API key من إعدادات المنظّمة. ${errSnippet ? `تفاصيل: ${errSnippet}` : ''}`,
+          message: `رفض OpenAI (${st}) — تحقق من Admin API key للمنظّمة: https://platform.openai.com/settings/organization/admin-keys (ليس OPENAI_API_KEY). ${errSnippet ? `تفاصيل: ${errSnippet}` : ''}`,
         };
       }
       return {
         kind: 'vendor_api_changed' as const,
-        message: `فشل organization/costs (HTTP ${st || '؟'}). راجع شكل المفتاح والمنطقة. ${errSnippet ? `تفاصيل: ${errSnippet}` : ''}`,
+        message: `فشل organization/costs (HTTP ${st || '؟'}). راجع المفتاح ومعرّف المنظّمة. ${errSnippet ? `تفاصيل: ${errSnippet}` : ''}`,
       };
     })();
 
@@ -574,6 +607,7 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
         ? {
             ...ref,
             costs_api_configured: true,
+            ...(openAiOrgId ? { openai_organization_header: true } : {}),
             ...(costsApi && 'ok' in costsApi && !costsApi.ok ? { last_openai_costs_http_status: costsApi.httpStatus } : {}),
           }
         : ref,
@@ -581,7 +615,11 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       manual_notes: 'رابط لوحة الفوترة في OpenAI.',
       data_gap_kind: openaiOverviewGap.kind,
       data_gap_message: openaiOverviewGap.message,
-      credential_env_hint: hasAdminKey ? null : 'REVENUE_BILLING_MONITOR_TOKEN أو OPENAI_ADMIN_KEY',
+      credential_env_hint: !hasAdminKey
+        ? 'REVENUE_BILLING_MONITOR_TOKEN أو OPENAI_ADMIN_KEY'
+        : !openAiOrgId
+          ? 'OPENAI_ORGANIZATION_ID أو OPENAI_ORG_ID'
+          : null,
     });
 
     const snapshot = {
@@ -609,11 +647,17 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
             data_gap_message:
               'رصيد الائتمان ما زال يُحدَّث يدوياً من لوحة OpenAI إن لزم؛ استهلاك API لآخر 31 يوماً من organization/costs.',
           }
-        : {
-            data_gap_kind: 'discovery_pending' as string | null,
-            data_gap_message:
-              'التكلفة شهرية غير ثابتة (حسب الاستخدام) — راقب سجل الفوترة في OpenAI أو حدّث المبلغ الشهري التقديري يدوياً.',
-          };
+        : hasAdminKey && !openAiOrgId
+          ? {
+              data_gap_kind: 'missing_api_key' as string | null,
+              data_gap_message:
+                'أضف OPENAI_ORGANIZATION_ID (أو OPENAI_ORG_ID) في Vercel لجلب استهلاك API عبر organization/costs.',
+            }
+          : {
+              data_gap_kind: 'discovery_pending' as string | null,
+              data_gap_message:
+                'التكلفة شهرية غير ثابتة (حسب الاستخدام) — راقب سجل الفوترة في OpenAI أو حدّث المبلغ الشهري التقديري يدوياً.',
+            };
 
     await upsertCommitment(supabase, {
       vendor: 'openai',
@@ -632,7 +676,7 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       vendor_payload: snapshot,
       is_manual: true,
       manual_notes:
-        'إعادة الشحن التلقائي (5→10 USD) حسب إعدادات المنظّمة في OpenAI. عند تفعيل REVENUE_BILLING_MONITOR_TOKEN أو OPENAI_ADMIN_KEY يُعرض مجموع organization/costs لآخر 31 يوماً في amount_expected.',
+        'إعادة الشحن التلقائي (5→10 USD) حسب إعدادات المنظّمة في OpenAI. مجموع organization/costs لآخر 31 يوماً يتطلّب REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) و OPENAI_ORGANIZATION_ID مع رأس OpenAI-Organization.',
       ...paygGap,
       credential_env_hint: null,
     });
@@ -640,6 +684,7 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
     detail.openai = {
       ok: true,
       seeded: true,
+      organizationCostsHeader: Boolean(openAiOrgId),
       ...(costsApi !== undefined ? { costsApi } : {}),
     };
   } catch (e) {

@@ -6,16 +6,34 @@ function getClientSupabaseUrl(): string {
   return String(import.meta.env.VITE_SUPABASE_URL || '').trim();
 }
 
+/** رؤوس طلبات /api/ops-billing-monitor — JWT مشرف أو (اختياري) Bearer نفس سرّ الجدولة عبر VITE_ فقط. */
 async function authHeaders(): Promise<Record<string, string> | null> {
+  const dashboardCron = String(import.meta.env.VITE_OPS_BILLING_CRON_SECRET || '').trim();
   const client = getSupabaseClient();
   const token = (await client?.auth.getSession())?.data.session?.access_token?.trim();
-  if (!token) return null;
-  return {
-    Authorization: `Bearer ${token}`,
+
+  const base: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-client-supabase-url': getClientSupabaseUrl(),
   };
+
+  /**
+   * نفس قيمة OPS_BILLING_CRON_SECRET / CRON_SECRET على الخادم — يجب تكرارها في Vercel كـ VITE_OPS_BILLING_CRON_SECRET
+   * لأن المتصفح لا يرى متغيّرات بدون بادئة VITE_. يُرسل كـ Authorization: Bearer … فيتعرّف عليه isCronAuthorized.
+   */
+  if (dashboardCron) {
+    return { ...base, Authorization: `Bearer ${dashboardCron}` };
+  }
+
+  if (token) {
+    return { ...base, Authorization: `Bearer ${token}` };
+  }
+
+  return null;
 }
+
+const OPS_BILLING_AUTH_HINT =
+  'سجّل دخول كمشرف أو أضف في Vercel (وبناء جديد) VITE_OPS_BILLING_CRON_SECRET بنفس قيمة OPS_BILLING_CRON_SECRET.';
 
 export type OpsBillingCommitmentRow = Record<string, unknown>;
 
@@ -36,7 +54,7 @@ export async function fetchOpsBillingMonitor(): Promise<
   | { ok: false; error: string }
 > {
   const h = await authHeaders();
-  if (!h) return { ok: false, error: 'غير مسجّل' };
+  if (!h) return { ok: false, error: OPS_BILLING_AUTH_HINT };
   const res = await fetch(API, { method: 'GET', headers: h });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok || json.ok !== true) {
@@ -54,7 +72,7 @@ export async function triggerOpsBillingSync(): Promise<
   { ok: true; detail: unknown } | { ok: false; error: string }
 > {
   const h = await authHeaders();
-  if (!h) return { ok: false, error: 'غير مسجّل' };
+  if (!h) return { ok: false, error: OPS_BILLING_AUTH_HINT };
   const res = await fetch(API, {
     method: 'POST',
     headers: h,
@@ -77,7 +95,7 @@ export async function createManualOpsBillingCommitment(input: {
   manual_notes?: string;
 }): Promise<{ ok: true; id?: string } | { ok: false; error: string }> {
   const h = await authHeaders();
-  if (!h) return { ok: false, error: 'غير مسجّل' };
+  if (!h) return { ok: false, error: OPS_BILLING_AUTH_HINT };
   const res = await fetch(API, {
     method: 'POST',
     headers: h,
@@ -101,7 +119,7 @@ export async function updateOpsBillingCommitment(input: {
   clear_gap?: boolean;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const h = await authHeaders();
-  if (!h) return { ok: false, error: 'غير مسجّل' };
+  if (!h) return { ok: false, error: OPS_BILLING_AUTH_HINT };
   const res = await fetch(API, {
     method: 'POST',
     headers: h,

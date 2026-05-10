@@ -10,7 +10,11 @@ export const config = {
 function json(data: unknown, status = 200): Response {
   return Response.json(data, {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      /** منع كاش CDN/المتصفح لاستجابات المزامنة والالتزامات — القيم من Supabase وليست ثابتة. */
+      'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
+    },
   });
 }
 
@@ -33,16 +37,31 @@ async function getServiceSupabase(): Promise<
   return { ok: true, supabase, url };
 }
 
-function isCronAuthorized(request: Request): boolean {
-  const auth = request.headers.get('authorization')?.trim() || '';
-  if (!auth.startsWith('Bearer ')) return false;
-  const token = auth.slice('Bearer '.length).trim();
-  if (!token) return false;
-  /** Cron فقط — لا يستخدم REVENUE_BILLING_MONITOR_TOKEN (محجوز لمفتاح مراقبة OpenAI في opsBillingSync). */
+function bearerFromHeader(h: string | null): string | null {
+  const v = h?.trim() || '';
+  if (!v.startsWith('Bearer ')) return null;
+  const t = v.slice('Bearer '.length).trim();
+  return t.length > 0 ? t : null;
+}
+
+/** يطابق CRON_SECRET أو OPS_BILLING_CRON_SECRET فقط — لا يُخلط مع JWT المشرف. */
+function isCronSecretToken(token: string): boolean {
   const candidates = [process.env.CRON_SECRET, process.env.OPS_BILLING_CRON_SECRET]
     .map((s) => (typeof s === 'string' ? s.trim() : ''))
     .filter((s) => s.length > 0);
   return candidates.some((c) => c === token);
+}
+
+/**
+ * مصادقة Cron: من Authorization: Bearer … أو من رأس منفصل حتى يبقى Bearer الأول لجلسة Supabase.
+ * رأس الواجهة: X-Ops-Billing-Cron-Authorization: Bearer <OPS_BILLING_CRON_SECRET|CRON_SECRET>
+ */
+function isCronAuthorized(request: Request): boolean {
+  const fromAuth = bearerFromHeader(request.headers.get('authorization'));
+  if (fromAuth && isCronSecretToken(fromAuth)) return true;
+  const fromX = bearerFromHeader(request.headers.get('x-ops-billing-cron-authorization'));
+  if (fromX && isCronSecretToken(fromX)) return true;
+  return false;
 }
 
 /** مصادقة: أي مدير نشط (أو bootstrap) أو Cron سرّي. */
@@ -136,14 +155,16 @@ export async function GET(request: Request): Promise<Response> {
         'SUPABASE_MANAGEMENT_API_TOKEN',
         'GODADDY_SUBSCRIPTIONS_PORTAL_URL (اختياري — افتراضي: رابط اشتراكات GoDaddy)',
         'OPENAI_BILLING_PORTAL_URL (اختياري — افتراضي: نظرة عامة على فوترة المنظّمة في OpenAI)',
-        'REVENUE_BILLING_MONITOR_TOKEN (مفتاح Admin لمنظّمة OpenAI — GET /v1/organization/costs آخر 31 يوماً؛ لا يُستخدم OPENAI_API_KEY هنا)',
-        'OPENAI_ADMIN_KEY (اختياري — بديل صريح لنفس الغرض إن رغبت بفصل الاسم عن REVENUE_BILLING_MONITOR_TOKEN)',
+        'REVENUE_BILLING_MONITOR_TOKEN — Organization Admin API key من /settings/organization/admin-keys (ليس مفتاح المشروع الافتراضي)',
+        'OPENAI_ADMIN_KEY (بديل لـ REVENUE_BILLING_MONITOR_TOKEN؛ نفس نوع المفتاح)',
+        'OPENAI_ORGANIZATION_ID أو OPENAI_ORG_ID — مطلوب مع المفتاح؛ يُرسل كرأس OpenAI-Organization مع GET /v1/organization/costs',
         'RESEND_BILLING_PORTAL_URL (اختياري — افتراضي: إعدادات الفوترة في Resend)',
         'RESEND_BILLING_INVOICE_EMAIL (اختياري — بريد الفواتير كما في Resend للعرض في الملخص فقط)',
-        'CRON_SECRET (ما ترسله جداولة Vercel في Authorization) أو OPS_BILLING_CRON_SECRET',
+        'CRON_SECRET أو OPS_BILLING_CRON_SECRET (جدولة Vercel: Authorization: Bearer …)',
+        'VITE_OPS_BILLING_CRON_SECRET — نفس قيمة السرّ أعلاه للواجهة (يُرسل Authorization: Bearer … من المتصفح؛ يُنشر مع البناء)',
       ],
       cron:
-        'GET /api/ops-billing-monitor?cron=1 مع Authorization: Bearer <CRON_SECRET|OPS_BILLING_CRON_SECRET>',
+        'GET ?cron=1 أو POST action=sync مع Authorization: Bearer <CRON_SECRET|OPS_BILLING_CRON_SECRET>؛ أو رأس X-Ops-Billing-Cron-Authorization: Bearer <السرّ> مع Authorization لمشرف',
     },
   });
 }
