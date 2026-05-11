@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
-// مساعد الشركاء (الذكاء الاصطناعي + v2) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
+// مساعد الشركاء (الذكاء الاصطناعي) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
 import App from './App.tsx'
 import './index.css'
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
