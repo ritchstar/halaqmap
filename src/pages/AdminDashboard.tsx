@@ -76,6 +76,7 @@ import {
   listBarbersForAdmin,
   setBarberActiveRemote,
   deleteBarberRemote,
+  purgeAllBarbersRemote,
   updateBarberRecordRemote,
   upsertBarberFromApprovedRequest,
   type AdminBarberRow,
@@ -97,6 +98,7 @@ import {
 } from '@/lib/platformVatSettings';
 import { toast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -2660,6 +2662,20 @@ function BarberHardEditDialog({
   );
 }
 
+const BARBER_PURGE_CONFIRM_PHRASE = 'حذف كل الحلاقين';
+
+function formatBarberCreatedAtDisplay(iso: string | null): string {
+  if (!iso) return '—';
+  try {
+    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(iso));
+  } catch {
+    return iso.slice(0, 16);
+  }
+}
+
 // Barbers Section
 function BarbersSection({
   refreshNonce,
@@ -2684,6 +2700,16 @@ function BarbersSection({
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
   const [broadcastingEmails, setBroadcastingEmails] = useState(false);
   const [hardEditRow, setHardEditRow] = useState<AdminBarberRow | null>(null);
+  const [filterText, setFilterText] = useState('');
+  const [filterCity, setFilterCity] = useState('');
+  const [filterTier, setFilterTier] = useState<'all' | SubscriptionTier>('all');
+  const [filterVerified, setFilterVerified] = useState<'all' | 'yes' | 'no'>('all');
+  const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [purgeOpen, setPurgeOpen] = useState(false);
+  const [purgePhrase, setPurgePhrase] = useState('');
+  const [purging, setPurging] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -2697,6 +2723,10 @@ function BarbersSection({
     return () => {
       cancelled = true;
     };
+  }, [refreshNonce]);
+
+  useEffect(() => {
+    setSelectedIds(new Set());
   }, [refreshNonce]);
 
   const onToggleActive = async (row: AdminBarberRow, next: boolean) => {
@@ -2742,10 +2772,69 @@ function BarbersSection({
     (duplicateContactMap.get(`e:${row.email.trim().toLowerCase()}`) ?? 0) > 1 ||
     (duplicateContactMap.get(`p:${row.phone.trim()}`) ?? 0) > 1;
 
-  const visibleRows = useMemo(
-    () => (duplicatesOnly ? rows.filter((r) => isDuplicateRow(r)) : rows),
-    [rows, duplicatesOnly, duplicateContactMap]
-  );
+  const filteredRows = useMemo(() => {
+    const q = filterText.trim().toLowerCase();
+    const cityQ = filterCity.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (filterTier !== 'all' && r.tier !== filterTier) return false;
+      if (filterVerified === 'yes' && !r.is_verified) return false;
+      if (filterVerified === 'no' && r.is_verified) return false;
+      if (filterActive === 'active' && !r.is_active) return false;
+      if (filterActive === 'inactive' && r.is_active) return false;
+      if (cityQ && !(r.city ?? '').toLowerCase().includes(cityQ)) return false;
+      if (q) {
+        const blob = `${r.name} ${r.email} ${r.phone}`.toLowerCase();
+        if (!blob.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [rows, filterText, filterCity, filterTier, filterVerified, filterActive]);
+
+  const visibleRows = useMemo(() => {
+    if (!duplicatesOnly) return filteredRows;
+    return filteredRows.filter(
+      (r) =>
+        (duplicateContactMap.get(`e:${r.email.trim().toLowerCase()}`) ?? 0) > 1 ||
+        (duplicateContactMap.get(`p:${r.phone.trim()}`) ?? 0) > 1
+    );
+  }, [filteredRows, duplicatesOnly, duplicateContactMap]);
+
+  const visibleIdSet = useMemo(() => new Set(visibleRows.map((r) => r.id)), [visibleRows]);
+  const allVisibleSelected =
+    visibleRows.length > 0 && visibleRows.every((r) => selectedIds.has(r.id));
+  const someVisibleSelected = visibleRows.some((r) => selectedIds.has(r.id));
+
+  const toggleSelectAllVisible = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        for (const r of visibleRows) next.delete(r.id);
+      } else {
+        for (const r of visibleRows) next.add(r.id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === 0) return prev;
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (visibleIdSet.has(id)) next.add(id);
+      }
+      return next.size === prev.size ? prev : next;
+    });
+  }, [visibleIdSet]);
 
   const keepRowAndDeleteDuplicates = async (keeper: AdminBarberRow) => {
     if (!canManage) return;
@@ -2825,6 +2914,80 @@ function BarbersSection({
     });
   };
 
+  const resetBarberFilters = () => {
+    setFilterText('');
+    setFilterCity('');
+    setFilterTier('all');
+    setFilterVerified('all');
+    setFilterActive('all');
+    setDuplicatesOnly(false);
+  };
+
+  const onPurgeAllBarbers = async () => {
+    if (purgePhrase.trim() !== BARBER_PURGE_CONFIRM_PHRASE) {
+      toast({
+        title: 'عبارة التأكيد غير صحيحة',
+        description: `اكتب بالضبط: ${BARBER_PURGE_CONFIRM_PHRASE}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    setPurging(true);
+    const res = await purgeAllBarbersRemote();
+    setPurging(false);
+    if (!res.ok) {
+      toast({
+        title: 'تعذر مسح جميع الحلاقين',
+        description:
+          res.deletedPartial != null
+            ? `${errorText(res, '')} (تم حذف ${res.deletedPartial} قبل التوقف)`
+            : errorText(res, ''),
+        variant: 'destructive',
+      });
+      void listBarbersForAdmin().then(setRows);
+      onStatsNeedRefresh();
+      return;
+    }
+    setRows([]);
+    setSelectedIds(new Set());
+    setPurgeOpen(false);
+    setPurgePhrase('');
+    toast({
+      title: 'تم مسح جميع الحلاقين',
+      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار الاشتراك والظهور العام.`,
+    });
+    onStatsNeedRefresh();
+  };
+
+  const onDeleteSelectedBarbers = async () => {
+    if (!canManage) return;
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    if (!window.confirm(`تأكيد حذف ${ids.length} حساب/حسابات محددة؟ لا يمكن التراجع.`)) return;
+    setBulkDeleting(true);
+    let removed = 0;
+    for (const id of ids) {
+      const res = await deleteBarberRemote(id);
+      if (!res.ok) {
+        setBulkDeleting(false);
+        toast({
+          title: 'توقف الحذف الجماعي',
+          description: errorText(res, `فشل عند أحد المعرفات بعد حذف ${removed}.`),
+          variant: 'destructive',
+        });
+        void listBarbersForAdmin().then(setRows);
+        onStatsNeedRefresh();
+        return;
+      }
+      removed += 1;
+    }
+    setBulkDeleting(false);
+    setRows((prev) => prev.filter((r) => !selectedIds.has(r.id)));
+    setSelectedIds(new Set());
+    toast({ title: 'تم حذف المحدد', description: `عدد الحسابات: ${removed}` });
+    onStatsNeedRefresh();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -2838,9 +3001,14 @@ function BarbersSection({
             <div className="text-sm text-muted-foreground">
               إجمالي الحسابات: <span className="font-semibold text-foreground">{rows.length}</span>
               {' · '}
+              بعد الفلاتر:{' '}
+              <span className="font-semibold text-foreground">{filteredRows.length}</span>
+              {' · '}
+              المعروض: <span className="font-semibold text-foreground">{visibleRows.length}</span>
+              {' · '}
               المكررة: <span className="font-semibold text-red-600">{rows.filter((r) => isDuplicateRow(r)).length}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -2854,23 +3022,117 @@ function BarbersSection({
               <Switch checked={duplicatesOnly} onCheckedChange={setDuplicatesOnly} />
             </div>
           </div>
+
+          <div className="mb-4 grid gap-3 rounded-lg border border-border/80 bg-background p-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
+              <Label className="text-xs text-muted-foreground">بحث (اسم، بريد، جوال)</Label>
+              <div className="relative">
+                <Search className="absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="pr-9"
+                  placeholder="مثال: صالون أو @gmail"
+                  value={filterText}
+                  onChange={(e) => setFilterText(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">المدينة</Label>
+              <Input placeholder="فلترة جزئية" value={filterCity} onChange={(e) => setFilterCity(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">الباقة</Label>
+              <Select
+                value={filterTier}
+                onValueChange={(v) => setFilterTier(v === 'all' ? 'all' : (v as SubscriptionTier))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="الكل" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">كل الباقات</SelectItem>
+                  <SelectItem value={SubscriptionTier.BRONZE}>برونزي</SelectItem>
+                  <SelectItem value={SubscriptionTier.GOLD}>ذهبي</SelectItem>
+                  <SelectItem value={SubscriptionTier.DIAMOND}>ماسي</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">التوثيق</Label>
+              <Select value={filterVerified} onValueChange={(v) => setFilterVerified(v as 'all' | 'yes' | 'no')}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="yes">موثّق فقط</SelectItem>
+                  <SelectItem value="no">غير موثّق</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">ظهور للعامة (is_active)</Label>
+              <Select value={filterActive} onValueChange={(v) => setFilterActive(v as 'all' | 'active' | 'inactive')}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="active">مفعّل فقط</SelectItem>
+                  <SelectItem value="inactive">معطّل فقط</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
+              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={resetBarberFilters}>
+                <Filter className="h-4 w-4" />
+                مسح الفلاتر
+              </Button>
+              {canManage && selectedIds.size > 0 ? (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  disabled={bulkDeleting}
+                  onClick={() => void onDeleteSelectedBarbers()}
+                >
+                  {bulkDeleting ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+                  حذف المحدد ({selectedIds.size})
+                </Button>
+              ) : null}
+            </div>
+          </div>
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               جاري التحميل…
             </div>
           ) : visibleRows.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">لا توجد صفوف في جدول الحلاقين أو RLS يمنع القراءة.</p>
+            <p className="text-muted-foreground text-center py-8">
+              لا توجد صفوف تطابق الفلاتر الحالية، أو جدول الحلاقين فارغ، أو RLS يمنع القراءة.
+            </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
+                  {canManage ? (
+                    <TableHead className="w-10 text-center">
+                      <Checkbox
+                        checked={
+                          allVisibleSelected ? true : someVisibleSelected ? 'indeterminate' : false
+                        }
+                        onCheckedChange={() => toggleSelectAllVisible()}
+                        aria-label="تحديد الكل في الصفحة المصفاة"
+                      />
+                    </TableHead>
+                  ) : null}
                   <TableHead className="whitespace-nowrap">رقم العضوية</TableHead>
                   <TableHead>الاسم</TableHead>
                   <TableHead>البريد</TableHead>
                   <TableHead>المدينة</TableHead>
                   <TableHead>الباقة</TableHead>
                   <TableHead>موثّق</TableHead>
+                  <TableHead className="whitespace-nowrap text-center">تاريخ الإنشاء</TableHead>
                   <TableHead className="text-center">ظهور للعامة</TableHead>
                   <TableHead className="text-center">إجراءات</TableHead>
                 </TableRow>
@@ -2878,6 +3140,15 @@ function BarbersSection({
               <TableBody>
                 {visibleRows.map((row) => (
                   <TableRow key={row.id}>
+                    {canManage ? (
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={selectedIds.has(row.id)}
+                          onCheckedChange={() => toggleSelectOne(row.id)}
+                          aria-label={`تحديد ${row.name}`}
+                        />
+                      </TableCell>
+                    ) : null}
                     <TableCell className="font-mono text-xs" dir="ltr">
                       {formatBarberMemberNumber(row.memberNumber) ?? '—'}
                     </TableCell>
@@ -2894,6 +3165,9 @@ function BarbersSection({
                       </Badge>
                     </TableCell>
                     <TableCell>{row.is_verified ? 'نعم' : 'لا'}</TableCell>
+                    <TableCell className="text-center text-xs text-muted-foreground whitespace-nowrap">
+                      {formatBarberCreatedAtDisplay(row.createdAt)}
+                    </TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Switch
@@ -2954,8 +3228,73 @@ function BarbersSection({
               </TableBody>
             </Table>
           )}
+
+          {canRootHardEdit && canManage ? (
+            <div className="mt-8 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+              <p className="text-sm font-semibold text-destructive">منطقة خطرة — المالك فقط</p>
+              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل الاشتراكات الشهرية
+                والتقييمات والحجوزات المرتبطة بنفس الجدول). لا يُنصح به على بيانات إنتاج حقيقية إلا بعد نسخ احتياطي.
+              </p>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="mt-3"
+                disabled={rows.length === 0 || purging}
+                onClick={() => {
+                  setPurgePhrase('');
+                  setPurgeOpen(true);
+                }}
+              >
+                مسح جميع الحلاقين من القاعدة ({rows.length})
+              </Button>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
+
+      <Dialog open={purgeOpen} onOpenChange={(open) => {
+        setPurgeOpen(open);
+        if (!open) setPurgePhrase('');
+      }}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>تأكيد مسح جميع الحلاقين</DialogTitle>
+            <DialogDescription className="text-right leading-relaxed">
+              سيتم حذف <strong>{rows.length}</strong> حساب/حسابات من جدول <code className="text-xs">barbers</code> والبيانات
+              المرتبطة بحسب قواعد قاعدة البيانات. للمتابعة اكتب بالضبط:{' '}
+              <span className="font-mono text-foreground">{BARBER_PURGE_CONFIRM_PHRASE}</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="purge-phrase">عبارة التأكيد</Label>
+            <Input
+              id="purge-phrase"
+              dir="rtl"
+              autoComplete="off"
+              value={purgePhrase}
+              onChange={(e) => setPurgePhrase(e.target.value)}
+              placeholder={BARBER_PURGE_CONFIRM_PHRASE}
+            />
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={() => setPurgeOpen(false)} disabled={purging}>
+              إلغاء
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={purging || purgePhrase.trim() !== BARBER_PURGE_CONFIRM_PHRASE}
+              onClick={() => void onPurgeAllBarbers()}
+            >
+              {purging ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+              تنفيذ المسح الكامل
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <BarberHardEditDialog
         barber={hardEditRow}
         open={Boolean(hardEditRow)}

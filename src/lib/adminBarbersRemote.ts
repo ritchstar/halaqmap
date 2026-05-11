@@ -23,6 +23,8 @@ export type AdminBarberRow = {
   is_verified: boolean;
   profile_image: string | null;
   cover_image: string | null;
+  /** ISO من قاعدة البيانات — للعرض في لوحة الإدارة */
+  createdAt: string | null;
 };
 
 function tierFromDb(t: string | null): SubscriptionTier {
@@ -42,7 +44,7 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
   const { data, error } = await client
     .from('barbers')
     .select(
-      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
+      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image, created_at'
     )
     .order('created_at', { ascending: false });
 
@@ -75,7 +77,32 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
     is_verified: Boolean(row.is_verified),
     profile_image: row.profile_image != null ? String(row.profile_image) : null,
     cover_image: row.cover_image != null ? String(row.cover_image) : null,
+    createdAt: row.created_at != null ? String(row.created_at) : null,
   }));
+}
+
+/**
+ * حذف جميع صفوف الحلاقين (والمرتبطة CASCADE مثل subscriptions، reviews، …).
+ * يتطلب صلاحية أدمن كاملة على جدول barbers. للمالك فقط في الواجهة.
+ */
+export async function purgeAllBarbersRemote(): Promise<
+  { ok: true; deleted: number } | { ok: false; error: string; deletedPartial?: number }
+> {
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
+
+  const { data: rows, error: selErr } = await client.from('barbers').select('id');
+  if (selErr) return { ok: false, error: selErr.message };
+  const ids = (rows ?? []).map((r: { id: string }) => String(r.id));
+  let deleted = 0;
+  for (const id of ids) {
+    const { error } = await client.from('barbers').delete().eq('id', id);
+    if (error) {
+      return { ok: false, error: error.message, deletedPartial: deleted };
+    }
+    deleted += 1;
+  }
+  return { ok: true, deleted };
 }
 
 export async function setBarberActiveRemote(
@@ -161,7 +188,7 @@ export async function findDuplicateBarbersByContact(
   let query = client
     .from('barbers')
     .select(
-      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
+      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image, created_at'
     );
   if (emailTrim && phoneTrim) {
     query = query.or(`email.eq.${emailTrim},phone.eq.${phoneTrim}`);
@@ -196,6 +223,7 @@ export async function findDuplicateBarbersByContact(
     is_verified: Boolean(row.is_verified),
     profile_image: row.profile_image != null ? String(row.profile_image) : null,
     cover_image: row.cover_image != null ? String(row.cover_image) : null,
+    createdAt: row.created_at != null ? String(row.created_at) : null,
   }));
 }
 
