@@ -1,2 +1,2 @@
 /** إصدار واجهة مساعد الشركاء (مصدر واحد للحقيقة). غيّر الرقم عند تغيير سلوك/شكل المساعد بشكل يحتاج تمييزاً في الإنتاج. */
-export const PARTNER_ASSISTANT_UI_VERSION = '3' as const;
+export const PARTNER_ASSISTANT_UI_VERSION = '4' as const;
