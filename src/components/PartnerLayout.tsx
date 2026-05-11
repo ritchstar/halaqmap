@@ -9,6 +9,7 @@ import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
+import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PartnerPromoVideoBand } from '@/components/partner/PartnerPromoVideoBand';
 
 interface PartnerLayoutProps {
@@ -128,7 +129,10 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               خصوصية المستخدم (تفصيلية)
             </NavLink>
           </div>
-          <AppBuildStamp variant="dark" className="mt-2 border-t border-white/5 pt-3" />
+          <div className="mt-6 border-t border-white/10 pt-6">
+            <PlatformOfficialFooterStrip variant="dark" />
+          </div>
+          <AppBuildStamp variant="dark" className="mt-4 border-t border-white/5 pt-3" />
         </div>
       </footer>
     </div>

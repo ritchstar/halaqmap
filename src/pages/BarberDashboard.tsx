@@ -101,6 +101,7 @@ import {
 } from '@/lib/barberSupportChatRemote';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
+import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 
 function newId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -431,7 +432,7 @@ export default function BarberDashboard() {
 
   return (
     <>
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="flex min-h-screen flex-col bg-background" dir="rtl">
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex min-h-16 flex-col gap-2 py-2 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-0">
@@ -743,6 +744,12 @@ export default function BarberDashboard() {
           ) : null}
         </Tabs>
       </div>
+
+      <footer className="mt-auto border-t border-border/40 bg-muted/20 pb-[env(safe-area-inset-bottom)]">
+        <div className="container mx-auto px-3 py-6 sm:px-4">
+          <PlatformOfficialFooterStrip variant="light" />
+        </div>
+      </footer>
     </div>
 
     <Dialog open={deleteAccountDialogOpen} onOpenChange={setDeleteAccountDialogOpen}>

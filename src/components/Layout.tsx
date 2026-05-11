@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
+import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 
 interface LayoutProps {
@@ -261,37 +262,36 @@ export function Layout({ children }: LayoutProps) {
             <LegalEntityPublicStrip variant="light" />
           </div>
 
+          <div className="mt-8">
+            <PlatformOfficialFooterStrip variant="light" />
+          </div>
+
           <div className="mt-8 pt-8 border-t border-border/40">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-muted-foreground text-center md:text-right">
-                © 2026 حلاق ماب. جميع الحقوق محفوظة.
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:justify-end">
-                <NavLink
-                  to={ROUTE_PATHS.TERMS_OF_SERVICE}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  شروط الاستخدام
-                </NavLink>
-                <NavLink
-                  to={ROUTE_PATHS.USER_PRIVACY_POLICY}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  سياسة الخصوصية
-                </NavLink>
-                <NavLink
-                  to={ROUTE_PATHS.PRIVACY}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  خصوصية (تفصيلية)
-                </NavLink>
-                <NavLink
-                  to={ROUTE_PATHS.ABOUT}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  من نحن
-                </NavLink>
-              </div>
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              <NavLink
+                to={ROUTE_PATHS.TERMS_OF_SERVICE}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                شروط الاستخدام
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.USER_PRIVACY_POLICY}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                سياسة الخصوصية
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.PRIVACY}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                خصوصية (تفصيلية)
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.ABOUT}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                من نحن
+              </NavLink>
             </div>
             <AppBuildStamp className="mt-4" />
           </div>
