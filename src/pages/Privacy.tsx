@@ -1,61 +1,8 @@
 import { motion } from "framer-motion";
 import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale, MessageSquare } from "lucide-react";
-
-function renderContentBlocks(content: string) {
-  const lines = content.split('\n');
-  const blocks: JSX.Element[] = [];
-  let bullets: string[] = [];
-
-  const pushBullets = (keyBase: number) => {
-    if (bullets.length === 0) return;
-    blocks.push(
-      <ul key={`ul-${keyBase}`} className="list-disc list-inside space-y-2 pr-1 text-right">
-        {bullets.map((line, i) => (
-          <li key={`li-${keyBase}-${i}`} className="text-muted-foreground leading-relaxed">
-            {line.split('**').map((part, idx) =>
-              idx % 2 === 0 ? part : <strong key={idx} className="text-foreground">{part}</strong>
-            )}
-          </li>
-        ))}
-      </ul>
-    );
-    bullets = [];
-  };
-
-  lines.forEach((line, i) => {
-    const paragraph = line.trim();
-    if (!paragraph) {
-      pushBullets(i);
-      return;
-    }
-
-    if (paragraph.startsWith('- ')) {
-      bullets.push(paragraph.substring(2));
-      return;
-    }
-
-    pushBullets(i);
-    if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
-      blocks.push(
-        <h3 key={`h-${i}`} className="text-lg font-semibold text-foreground mt-4 mb-2 text-right">
-          {paragraph.replace(/\*\*/g, '')}
-        </h3>
-      );
-      return;
-    }
-
-    blocks.push(
-      <p key={`p-${i}`} className="text-muted-foreground leading-relaxed mb-4 text-right">
-        {paragraph.split('**').map((part, idx) =>
-          idx % 2 === 0 ? part : <strong key={idx} className="text-foreground">{part}</strong>
-        )}
-      </p>
-    );
-  });
-
-  pushBullets(lines.length + 1);
-  return blocks;
-}
+import { NavLink } from "react-router-dom";
+import { ROUTE_PATHS } from "@/lib";
+import { renderLegalContentBlocks } from "@/lib/legalPageRender";
 
 export default function Privacy() {
   const sections = [
@@ -148,6 +95,13 @@ export default function Privacy() {
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               سياسة خصوصية المستخدمين في حلاق ماب: كيف نجمع الحد الأدنى من البيانات، وكيف نستخدمها لحماية التجربة.
             </p>
+            <p className="mt-6 text-sm text-muted-foreground">
+              للنسخة الموجزة حول الموقع الجغرافي انظر{' '}
+              <NavLink to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-primary font-medium underline-offset-4 hover:underline">
+                سياسة الخصوصية (موجزة)
+              </NavLink>
+              .
+            </p>
           </div>
         </motion.div>
       </div>
@@ -179,7 +133,7 @@ export default function Privacy() {
                       </h2>
                       
                       <div className="max-w-none space-y-1">
-                        {renderContentBlocks(section.content)}
+                        {renderLegalContentBlocks(section.content)}
                       </div>
                     </div>
                   </div>

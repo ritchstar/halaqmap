@@ -167,7 +167,7 @@ export async function GET(request: Request): Promise<Response> {
 
   // fallback عام عند عدم توفر إحداثيات مستخدم
   const { data, error } = await supabase
-    .from('barbers')
+    .from('barbers_public_directory')
     .select(
       `
       id,
@@ -191,7 +191,8 @@ export async function GET(request: Request): Promise<Response> {
       inclusive_care_days,
       inclusive_care_customer_note,
       open_for_customers,
-      user_id
+      user_id,
+      has_active_subscription
       `
     )
     .eq('is_active', true)

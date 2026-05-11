@@ -266,12 +266,24 @@ export function Layout({ children }: LayoutProps) {
               <p className="text-sm text-muted-foreground text-center md:text-right">
                 © 2026 حلاق ماب. جميع الحقوق محفوظة.
               </p>
-              <div className="flex gap-6">
+              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:justify-end">
+                <NavLink
+                  to={ROUTE_PATHS.TERMS_OF_SERVICE}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  شروط الاستخدام
+                </NavLink>
+                <NavLink
+                  to={ROUTE_PATHS.USER_PRIVACY_POLICY}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  سياسة الخصوصية
+                </NavLink>
                 <NavLink
                   to={ROUTE_PATHS.PRIVACY}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  سياسة الخصوصية
+                  خصوصية (تفصيلية)
                 </NavLink>
                 <NavLink
                   to={ROUTE_PATHS.ABOUT}

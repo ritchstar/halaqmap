@@ -15,6 +15,10 @@ export const ROUTE_PATHS = {
   PARTNER_INTEREST: '/partners/interest',
   REGISTER_SUCCESS: '/partners/register/success',
   ABOUT: '/about',
+  /** سياسة خصوصية المستخدم (موجزة — الموقع الجغرافي وعدم المشاركة الخارجية) */
+  USER_PRIVACY_POLICY: '/privacy-policy',
+  /** شروط الاستخدام العامة للمنصّة */
+  TERMS_OF_SERVICE: '/terms',
   PRIVACY: '/privacy',
   PARTNER_PRIVACY: '/partners/privacy',
   SUBSCRIPTION_POLICY: '/partners/subscription-policy',
@@ -123,6 +127,10 @@ export interface Barber {
    * إذا وُضعت `false` تُخفى من البيانات؛ يمكن أيضاً الإخفاء من لوحة الحلاق (محلي في المتصفح للمعاينة).
    */
   diamondAppointmentSchedulingEnabled?: boolean;
+  /** من بحث RPC: اشتراك شهري نشط في subscriptions */
+  hasActiveSubscription?: boolean;
+  /** ISO — آخر تحديث لملف الصالون (لعامل النشاط في الترتيب) */
+  profileUpdatedAt?: string;
 }
 
 export interface Appointment {
@@ -337,6 +345,7 @@ export function filterBarbersByDistance(
       ),
     }))
     .filter((barber) => {
+      if (barber.hasActiveSubscription !== true) return false;
       const skipDistance = isDemoShowcaseBarberId(barber.id);
       if (!skipDistance && barber.distance > filters.maxDistance) return false;
       if (filters.tiers.length > 0 && !filters.tiers.includes(barber.subscription)) return false;
@@ -352,20 +361,8 @@ export function filterBarbersByDistance(
     })
     .sort((a, b) =>
       compareBarbersByListingScore(
-        {
-          id: a.id,
-          subscription: a.subscription as 'bronze' | 'gold' | 'diamond',
-          distance: a.distance,
-          rating: a.rating,
-          reviewCount: a.reviewCount,
-        },
-        {
-          id: b.id,
-          subscription: b.subscription as 'bronze' | 'gold' | 'diamond',
-          distance: b.distance,
-          rating: b.rating,
-          reviewCount: b.reviewCount,
-        }
+        { id: a.id, distance: a.distance, isOpen: a.isOpen },
+        { id: b.id, distance: b.distance, isOpen: b.isOpen }
       )
     );
 }

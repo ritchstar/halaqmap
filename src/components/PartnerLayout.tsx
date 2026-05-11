@@ -117,6 +117,17 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </a>
             </div>
           </div>
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/5 pt-4 text-sm">
+            <NavLink to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-slate-400 hover:text-emerald-200 transition-colors">
+              شروط الاستخدام
+            </NavLink>
+            <NavLink to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-slate-400 hover:text-emerald-200 transition-colors">
+              سياسة الخصوصية
+            </NavLink>
+            <NavLink to={ROUTE_PATHS.PRIVACY} className="text-slate-400 hover:text-emerald-200 transition-colors">
+              خصوصية المستخدم (تفصيلية)
+            </NavLink>
+          </div>
           <AppBuildStamp variant="dark" className="mt-2 border-t border-white/5 pt-3" />
         </div>
       </footer>

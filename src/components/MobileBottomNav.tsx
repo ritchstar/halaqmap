@@ -61,11 +61,18 @@ export function MobileBottomNav() {
             </SheetHeader>
             <div className="grid gap-2 mt-4">
               <NavLink
-                to={ROUTE_PATHS.PRIVACY}
+                to={ROUTE_PATHS.USER_PRIVACY_POLICY}
                 className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
                 onClick={() => setMoreOpen(false)}
               >
                 سياسة الخصوصية
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.TERMS_OF_SERVICE}
+                className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
+                onClick={() => setMoreOpen(false)}
+              >
+                شروط الاستخدام
               </NavLink>
               <NavLink
                 to={ROUTE_PATHS.ABOUT}

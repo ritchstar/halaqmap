@@ -20,6 +20,8 @@ import PartnerInterestLanding from "@/pages/PartnerInterestLanding";
 import PartnerWhyPage from "@/pages/PartnerWhyPage";
 import PartnerStoryPage from "@/pages/PartnerStoryPage";
 import Privacy from "@/pages/Privacy";
+import UserPrivacyPolicy from "@/pages/UserPrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
 import PartnerPrivacy from "@/pages/PartnerPrivacy";
 import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
 import BarberLogin from "@/pages/BarberLogin";
@@ -75,6 +77,8 @@ const App = () => (
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<InternalPartnerPathPrintCard />} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<InvoicePreviewSamples />} />
           <Route path={ROUTE_PATHS.ABOUT} element={<Layout><About /></Layout>} />
+          <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<Layout><TermsOfService /></Layout>} />
+          <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<Layout><UserPrivacyPolicy /></Layout>} />
           <Route path={ROUTE_PATHS.PRIVACY} element={<Layout><Privacy /></Layout>} />
 
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />

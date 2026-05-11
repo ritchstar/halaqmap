@@ -56,6 +56,8 @@ type BarberRow = {
   open_for_customers?: boolean | null;
   distance_km?: number | null;
   rank_score?: number | null;
+  has_active_subscription?: boolean | null;
+  profile_updated_at?: string | null;
 };
 
 function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer | undefined {
@@ -124,6 +126,8 @@ function mapRow(row: BarberRow): Barber {
     verified: row.is_verified === true,
     categories,
     ...(previewListing ? { previewListing: true } : {}),
+    hasActiveSubscription: row.has_active_subscription === true,
+    ...(row.profile_updated_at ? { profileUpdatedAt: row.profile_updated_at } : {}),
   };
 }
 
@@ -151,7 +155,7 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
   }
 
   const { data, error } = await client
-    .from('barbers')
+    .from('barbers_public_directory')
     .select(
       `
       id,
@@ -175,7 +179,8 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
       inclusive_care_days,
       inclusive_care_customer_note,
       open_for_customers,
-      user_id
+      user_id,
+      has_active_subscription
     `
     )
     .eq('is_active', true)
