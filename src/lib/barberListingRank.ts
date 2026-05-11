@@ -5,7 +5,7 @@ export type { ListingRankInput } from '@/lib/barberListingRankTypes';
 /**
  * ترتيب القائمة بعد التصفية: المسافة (الأقرب أولاً) ثم حالة العمل (مفتوح قبل المغلق).
  * لا أولوية لباقة السعر أو التقييم — مواءمة مع search_barbers_nearby في
- * supabase/migrations/61_search_barbers_subscription_filter_distance_open.sql
+ * supabase/migrations/63_search_barbers_subscription_filter_distance_open.sql
  */
 export function compareBarbersByListingScore(a: ListingRankInput, b: ListingRankInput): number {
   if (Math.abs(a.distance - b.distance) > 1e-6) return a.distance - b.distance;

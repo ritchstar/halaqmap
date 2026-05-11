@@ -2,6 +2,7 @@
 -- من دون RLS يظهر تنبيه Supabase: rls_disabled_in_public.
 -- الحل: تفعيل RLS مع سياسة قراءة فقط لأدوار واجهة الـ API.
 
+-- على Supabase السحابي قد لا يملك دور الهجرة الجدول؛ نُكمِل الهجرة دون فشل ويُنفَّذ الـ RLS يدوياً من لوحة التحكم إن لزم.
 DO $$
 BEGIN
   IF to_regclass('public.spatial_ref_sys') IS NULL THEN
@@ -16,8 +17,11 @@ BEGIN
     FOR SELECT
     TO anon, authenticated
     USING (true);
+
+  COMMENT ON TABLE public.spatial_ref_sys IS
+    'مرجع PostGIS لأنظمة الإحداثيات؛ RLS مفعّل مع قراءة فقط لـ anon/authenticated.';
+EXCEPTION
+  WHEN insufficient_privilege THEN
+    RAISE NOTICE 'spatial_ref_sys RLS skipped (not table owner). Apply via SQL editor as owner if advisors require it.';
 END
 $$;
-
-COMMENT ON TABLE public.spatial_ref_sys IS
-  'مرجع PostGIS لأنظمة الإحداثيات؛ RLS مفعّل مع قراءة فقط لـ anon/authenticated.';
