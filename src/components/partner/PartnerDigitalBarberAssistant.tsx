@@ -255,7 +255,7 @@ export function PartnerDigitalBarberAssistant() {
       </AnimatePresence>
 
       <div
-        className="pointer-events-none fixed bottom-4 left-4 z-[60] flex flex-col items-start sm:bottom-6 sm:left-6"
+        className="pointer-events-none fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] left-4 z-[60] flex flex-col items-start md:bottom-6 md:left-6"
         data-partner-assistant="1"
         data-partner-assistant-ui-version={PARTNER_ASSISTANT_UI_VERSION}
       >

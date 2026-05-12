@@ -60,6 +60,16 @@ function shortSha(s: string | null): string {
   return s.length > 14 ? `${s.slice(0, 8)}…` : s;
 }
 
+/** PostgREST عندما لا يوجد الجدول بعد تطبيق الترحيل على المشروع */
+function describeArchiveApiError(err: string): string {
+  if (
+    /Could not find the table|schema cache|platform_admin_financial_documents|PGRST205/i.test(err)
+  ) {
+    return `${err} — طبِّق على مشروع Supabase المرتبط بالتطبيق ترحيل 72_admin_financial_archive.sql ثم 73_admin_financial_archive_template_keys.sql (لوحة المشروع: SQL Editor، أو supabase db push بعد الربط).`;
+  }
+  return err;
+}
+
 export function AdminFinancialArchivePanel({ canManage, canFetchCommitments }: Props) {
   const mounted = useRef(true);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -95,8 +105,13 @@ export function AdminFinancialArchivePanel({ canManage, canFetchCommitments }: P
     const r = await fetchAdminFinancialArchive();
     if (!mounted.current) return;
     setLoading(false);
-    if (!r.ok) {
-      toast({ title: 'تعذّر تحميل الأرشيف', description: r.error, variant: 'destructive' });
+    if (r.ok === false) {
+      const msg = r.error;
+      toast({
+        title: 'تعذّر تحميل الأرشيف',
+        description: describeArchiveApiError(msg),
+        variant: 'destructive',
+      });
       return;
     }
     setRows(r.documents);
@@ -187,8 +202,9 @@ export function AdminFinancialArchivePanel({ canManage, canFetchCommitments }: P
       commitment_monthly_estimate_sar: monthlyNum,
     });
     setUploading(false);
-    if (!r.ok) {
-      toast({ title: 'فشل الرفع', description: r.error, variant: 'destructive' });
+    if (r.ok === false) {
+      const errMsg = r.error;
+      toast({ title: 'فشل الرفع', description: describeArchiveApiError(errMsg), variant: 'destructive' });
       return;
     }
     toast({ title: 'تم الأرشفة', description: 'تم حفظ المستند.' });
@@ -199,8 +215,9 @@ export function AdminFinancialArchivePanel({ canManage, canFetchCommitments }: P
 
   const onDownload = async (id: string) => {
     const r = await requestAdminFinancialArchiveDownloadUrl(id);
-    if (!r.ok) {
-      toast({ title: 'تعذّر التحميل', description: r.error, variant: 'destructive' });
+    if (r.ok === false) {
+      const errMsg = r.error;
+      toast({ title: 'تعذّر التحميل', description: describeArchiveApiError(errMsg), variant: 'destructive' });
       return;
     }
     window.open(r.signedUrl, '_blank', 'noopener,noreferrer');
@@ -209,8 +226,9 @@ export function AdminFinancialArchivePanel({ canManage, canFetchCommitments }: P
   const onDelete = async (id: string) => {
     if (!window.confirm('حذف هذا المستند نهائياً من الأرشيف والتخزين؟')) return;
     const r = await deleteAdminFinancialArchiveDocument(id);
-    if (!r.ok) {
-      toast({ title: 'تعذّر الحذف', description: r.error, variant: 'destructive' });
+    if (r.ok === false) {
+      const errMsg = r.error;
+      toast({ title: 'تعذّر الحذف', description: describeArchiveApiError(errMsg), variant: 'destructive' });
       return;
     }
     toast({ title: 'تم الحذف' });
