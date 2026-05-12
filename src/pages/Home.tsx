@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
@@ -8,6 +8,7 @@ import { BarberCard } from '@/components/BarberCards';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { BarberMap } from '@/components/BarberMap';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { buildHomeSearchQueryText, postLogSearchActivity } from '@/lib/searchActivityLogRemote';
 import { toast } from '@/components/ui/sonner';
@@ -166,6 +167,29 @@ export default function Home() {
 
     return () => window.clearTimeout(timer);
   }, [userLocation, remoteStatus, filterSig, remoteBarbers.length, filteredBarbers.length]);
+
+  const onBarberRealtimePatch = useCallback((patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => {
+    setRemoteBarbers((prev) => {
+      const idx = prev.findIndex((b) => b.id === patch.id);
+      if (idx < 0) return prev;
+      const cur = prev[idx];
+      const next = [...prev];
+      const loc =
+        patch.lat != null && patch.lng != null
+          ? { ...cur.location, lat: patch.lat, lng: patch.lng }
+          : cur.location;
+      next[idx] = { ...cur, location: loc, isOpen: patch.isOpen };
+      return next;
+    });
+    setSelectedBarber((sel) => {
+      if (!sel || sel.id !== patch.id) return sel;
+      const loc =
+        patch.lat != null && patch.lng != null
+          ? { ...sel.location, lat: patch.lat, lng: patch.lng }
+          : sel.location;
+      return { ...sel, location: loc, isOpen: patch.isOpen };
+    });
+  }, []);
 
   const handleLocationDetected = (location: { lat: number; lng: number }) => {
     setUserLocation(location);
@@ -416,6 +440,15 @@ export default function Home() {
             <div className="mb-8 space-y-4">
               <FilterBar filters={filters} onFilterChange={setFilters} />
             </div>
+
+            {userLocation ? (
+              <BarberMap
+                barbers={filteredBarbers}
+                userLocation={userLocation}
+                onBarberPatch={onBarberRealtimePatch}
+                realtimeEnabled={isSupabaseConfigured()}
+              />
+            ) : null}
 
             {filteredBarbers.length === 0 ? (
               <motion.div

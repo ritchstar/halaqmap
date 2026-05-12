@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Loader2, Store } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Store, DoorOpen, DoorClosed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { ROUTE_PATHS } from '@/lib/index';
 import { fetchBarberShopOpenStatusRemote, setBarberShopOpenStatusRemote } from '@/lib/barberShopOpenStatusRemote';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
+import { cn } from '@/lib/utils';
+
+const SUCCESS_MAP_UPDATE = '(تم تحديث حالتك على الخريطة بنجاح ✅)';
 
 function tierLabelAr(tier: string): string {
   const t = tier.toLowerCase();
@@ -48,8 +49,9 @@ export default function ShopOpenStatus() {
     void load();
   }, [load]);
 
-  async function onToggle(next: boolean) {
+  async function setOpen(next: boolean) {
     if (!token || saving) return;
+    if (next === openForCustomers) return;
     setSaving(true);
     const prev = openForCustomers;
     setOpenForCustomers(next);
@@ -60,7 +62,7 @@ export default function ShopOpenStatus() {
       toast.error(r.error);
       return;
     }
-    toast.success(next ? 'تم ضبط المحل كـ «مفتوح» للعملاء على الخريطة.' : 'تم ضبط المحل كـ «مغلق» للعملاء على الخريطة.');
+    toast.success(SUCCESS_MAP_UPDATE);
   }
 
   if (!token) {
@@ -86,7 +88,7 @@ export default function ShopOpenStatus() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-12 bg-gradient-to-b from-background to-muted/20" dir="rtl">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <Card className="border-primary/20 shadow-lg">
+        <Card className="border-primary/20 shadow-lg overflow-hidden">
           <CardHeader className="text-center space-y-2">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
               <Store className="h-7 w-7 text-primary" />
@@ -110,23 +112,62 @@ export default function ShopOpenStatus() {
                   <p className="text-lg font-bold text-foreground">{barberName || '—'}</p>
                   <p className="text-xs text-muted-foreground">الباقة: {tierLabelAr(tier)}</p>
                 </div>
-                <div className="flex items-center justify-between gap-4 rounded-xl border border-border/80 bg-card px-4 py-4">
-                  <div className="space-y-1 text-right">
-                    <Label htmlFor="shop-open-switch" className="text-base font-semibold">
-                      قبول العملاء الآن
-                    </Label>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      عند الإيقاف يظهر المحل كـ «مغلق» على الخريطة دون إخفاء اشتراكك عن المنصة.
-                    </p>
+
+                <div className="space-y-3">
+                  <p className="text-center text-sm font-semibold text-foreground">اضغط لتغيير الحالة</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={saving}
+                      onClick={() => void setOpen(true)}
+                      className={cn(
+                        'h-auto min-h-[5.5rem] flex-col gap-2 border-2 py-4 transition-colors duration-150',
+                        openForCustomers
+                          ? 'border-emerald-600 bg-emerald-600 text-white shadow-md hover:bg-emerald-600/90 hover:text-white'
+                          : 'border-emerald-600/40 bg-emerald-50/80 text-emerald-900 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-100'
+                      )}
+                    >
+                      <DoorOpen className="h-8 w-8 shrink-0" aria-hidden />
+                      <span className="text-base font-bold">مفتوح</span>
+                      <span className="text-[11px] font-normal opacity-90">للعملاء على الخريطة</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={saving}
+                      onClick={() => void setOpen(false)}
+                      className={cn(
+                        'h-auto min-h-[5.5rem] flex-col gap-2 border-2 py-4 transition-colors duration-150',
+                        !openForCustomers
+                          ? 'border-red-600 bg-red-600 text-white shadow-md hover:bg-red-600/90 hover:text-white'
+                          : 'border-red-600/40 bg-red-50/80 text-red-900 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-100'
+                      )}
+                    >
+                      <DoorClosed className="h-8 w-8 shrink-0" aria-hidden />
+                      <span className="text-base font-bold">مغلق</span>
+                      <span className="text-[11px] font-normal opacity-90">على الخريطة</span>
+                    </Button>
                   </div>
-                  <Switch
-                    id="shop-open-switch"
-                    checked={openForCustomers}
-                    disabled={saving}
-                    onCheckedChange={(v) => void onToggle(v)}
-                    className="shrink-0"
-                  />
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={openForCustomers ? 'open' : 'closed'}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className={cn(
+                        'text-center text-sm font-semibold rounded-lg py-2 px-3',
+                        openForCustomers
+                          ? 'bg-emerald-600/12 text-emerald-800 dark:text-emerald-200'
+                          : 'bg-red-600/12 text-red-800 dark:text-red-200'
+                      )}
+                    >
+                      {openForCustomers ? 'وضعك الحالي: مفتوح — يظهر الدبوس باللون الأخضر' : 'وضعك الحالي: مغلق — يظهر الدبوس باللون الرمادي'}
+                    </motion.p>
+                  </AnimatePresence>
                 </div>
+
                 <p className="text-[11px] text-center text-muted-foreground leading-relaxed">
                   احفظ هذا الرابط في متصفحك أو على شاشة المحل. من يملك الرابط يستطيع تغيير الحالة — تعامل معه كرمز
                   خاص.

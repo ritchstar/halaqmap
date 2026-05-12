@@ -15,6 +15,7 @@ function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
+/** رمز سري طويل (hex) — فريد في قاعدة البيانات عبر فهرس فريد على open_status_token. */
 function isLikelyOpenStatusToken(raw: string): boolean {
   const t = raw.trim();
   if (t.length < 32 || t.length > 128) return false;
@@ -161,14 +162,23 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Account inactive' }, { status: 403, headers });
   }
 
-  const { error: upErr } = await supabase
+  const { data: updated, error: upErr } = await supabase
     .from('barbers')
     .update({ open_for_customers: openRaw })
-    .eq('open_status_token', token);
+    .eq('open_status_token', token)
+    .select('id, open_for_customers')
+    .maybeSingle();
 
   if (upErr) {
     return Response.json({ error: upErr.message || 'Update failed' }, { status: 500, headers });
   }
+  if (!updated) {
+    return Response.json({ error: 'No row updated (invalid token or token mismatch)' }, { status: 404, headers });
+  }
+  const row = updated as { id?: string; open_for_customers?: boolean | null };
+  if (row.open_for_customers !== openRaw) {
+    return Response.json({ error: 'Update did not persist as requested' }, { status: 409, headers });
+  }
 
-  return Response.json({ ok: true, openForCustomers: openRaw }, { status: 200, headers });
+  return Response.json({ ok: true, openForCustomers: openRaw, barberId: String(row.id ?? '') }, { status: 200, headers });
 }
