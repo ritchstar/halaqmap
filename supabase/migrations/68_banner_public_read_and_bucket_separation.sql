@@ -18,9 +18,6 @@ CREATE POLICY "public_read_barber_images"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'barber-images');
 
-COMMENT ON POLICY "public_read_barber_images" ON storage.objects IS
-  'قراءة عامة لصور الحلاق (ومنها البنرات) لضمان الظهور السريع بدون قيود برمجية.';
-
 -- ملاحظة: سياسة public_read_registration_uploads موجودة مسبقاً في migration 17 للحاوية registration-uploads
 -- ولا نحتاج لتعديلها هنا، لكنها تُغطي أيضاً مجلد banners داخلها.
 

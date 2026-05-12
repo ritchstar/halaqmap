@@ -1,5 +1,10 @@
+import { IMAGES } from '@/assets/images';
+
 /** هدف تقريبي لحجم كل صورة في معرض الأعمال بعد الضغط (WebP). */
 export const PORTFOLIO_TARGET_MAX_BYTES = 100 * 1024;
+
+/** شفافية الختم الذكي (معرض الأعمال فقط) — بين 30% و50% */
+const PORTFOLIO_WATERMARK_OPACITY = 0.4;
 
 const MAX_EDGE_FIRST = 1600;
 const MIN_EDGE = 480;
@@ -18,6 +23,77 @@ function loadImageFromFile(file: File): Promise<HTMLImageElement> {
     };
     img.src = url;
   });
+}
+
+function loadImageFromUrl(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('logo'));
+    img.src = src;
+  });
+}
+
+let watermarkLogoPromise: Promise<HTMLImageElement | null> | null = null;
+
+/** شعار المنصة من الأصول المحلية — يُحمّل مرة واحدة لكل جلسة المتصفح. */
+function getPortfolioWatermarkLogo(): Promise<HTMLImageElement | null> {
+  if (typeof window === 'undefined') return Promise.resolve(null);
+  if (!watermarkLogoPromise) {
+    const rel = IMAGES.HALAQMAP_LOGO_20260409_073322_83;
+    const abs = rel.startsWith('http') ? rel : new URL(rel, window.location.origin).href;
+    watermarkLogoPromise = loadImageFromUrl(abs)
+      .then((img) => img)
+      .catch(() => null);
+  }
+  return watermarkLogoPromise;
+}
+
+function drawPortfolioWatermark(
+  ctx: CanvasRenderingContext2D,
+  dw: number,
+  dh: number,
+  logo: HTMLImageElement | null
+): void {
+  const pad = Math.max(10, Math.round(Math.min(dw, dh) * 0.022));
+  const minDim = Math.min(dw, dh);
+
+  ctx.save();
+  ctx.globalAlpha = PORTFOLIO_WATERMARK_OPACITY;
+
+  if (logo && logo.naturalWidth > 0 && logo.naturalHeight > 0) {
+    const maxLogoW = minDim * 0.28;
+    const scale = maxLogoW / logo.naturalWidth;
+    const lw = Math.max(1, logo.naturalWidth * scale);
+    const lh = Math.max(1, logo.naturalHeight * scale);
+    const x = dw - pad - lw;
+    const y = dh - pad - lh;
+    ctx.shadowColor = 'rgba(0,0,0,0.28)';
+    ctx.shadowBlur = Math.max(2, minDim * 0.008);
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 1;
+    ctx.drawImage(logo, x, y, lw, lh);
+  } else {
+    const fontPx = Math.max(13, Math.round(minDim * 0.038));
+    ctx.font = `600 ${fontPx}px "Segoe UI", system-ui, Tahoma, sans-serif`;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    const text = 'حلاق ماب';
+    ctx.shadowColor = 'rgba(0,0,0,0.32)';
+    ctx.shadowBlur = Math.max(2, minDim * 0.01);
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 1;
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+    ctx.lineWidth = Math.max(1, fontPx / 16);
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    const x = dw - pad;
+    const y = dh - pad;
+    ctx.strokeText(text, x, y);
+    ctx.fillText(text, x, y);
+  }
+
+  ctx.restore();
 }
 
 function canvasToWebpBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob | null> {
@@ -53,7 +129,8 @@ function blobToBase64(blob: Blob): Promise<string> {
 }
 
 /**
- * ضغط وتصغير صورة لمعرض الأعمال — إخراج WebP قدر الإمكان بحجم قريب من 100KB.
+ * ضغط وتصغير صورة لمعرض الأعمال — ختم «حلاق ماب» محلي في الزاوية السفلية ثم WebP ~100KB.
+ * لا يُستخدم لبنر الخريطة (مسار آخر).
  */
 export async function optimizeImageFileForBarberPortfolio(
   file: File
@@ -68,6 +145,8 @@ export async function optimizeImageFileForBarberPortfolio(
   } catch {
     return { ok: false, error: 'تعذر تحميل الصورة. جرّب ملفاً آخر.' };
   }
+
+  const logo = await getPortfolioWatermarkLogo();
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -84,6 +163,7 @@ export async function optimizeImageFileForBarberPortfolio(
     canvas.height = dh;
     ctx.clearRect(0, 0, dw, dh);
     ctx.drawImage(img, 0, 0, dw, dh);
+    drawPortfolioWatermark(ctx, dw, dh, logo);
 
     let quality = 0.82;
     let best: Blob | null = null;

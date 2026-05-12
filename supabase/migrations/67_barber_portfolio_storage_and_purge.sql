@@ -11,10 +11,6 @@ CREATE POLICY "public_read_barber_portfolio"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'barber-portfolio');
 
-COMMENT ON POLICY "public_read_barber_portfolio" ON storage.objects IS
-  'قراءة عامة لصور معرض الحلاقين — الرفع/الحذف عبر خادم التطبيق (service role).';
-
-
 CREATE OR REPLACE FUNCTION public.get_platform_resource_snapshot()
 RETURNS jsonb
 LANGUAGE plpgsql

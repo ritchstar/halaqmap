@@ -506,6 +506,21 @@ export default function AdminDashboard() {
                 >
                   <Landmark className="h-4 w-4" />
                 </Button>
+                {Boolean(adminData?.bootstrap) && (
+                  <Button
+                    type="button"
+                    variant={activeTab === 'resources' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="h-9 shrink-0 gap-1.5 px-2.5"
+                    title="مراقبة الموارد والتخزين"
+                    aria-label="مراقبة الموارد"
+                    aria-pressed={activeTab === 'resources'}
+                    onClick={() => setActiveTab('resources')}
+                  >
+                    <HardDrive className="h-4 w-4" />
+                    <span className="hidden sm:inline">مراقبة الموارد</span>
+                  </Button>
+                )}
               </div>
               <Button variant="ghost" onClick={handleLogout} className="gap-2">
                 <LogOut className="w-4 h-4" />
@@ -587,7 +602,7 @@ export default function AdminDashboard() {
             {Boolean(adminData?.bootstrap) && (
             <TabsTrigger value="resources" className="gap-2">
               <HardDrive className="w-4 h-4" />
-              <span className="hidden sm:inline">الموارد</span>
+              <span className="hidden sm:inline">مراقبة الموارد</span>
             </TabsTrigger>
             )}
           </TabsList>
