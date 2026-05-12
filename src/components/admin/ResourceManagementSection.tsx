@@ -57,7 +57,9 @@ export function ResourceManagementSection({ isActive }: Props) {
   }, [isActive, load]);
 
   const totalUsedBytes = snap
-    ? snap.registration_uploads.approx_bytes + snap.partner_promo.approx_bytes
+    ? snap.registration_uploads.approx_bytes +
+      snap.partner_promo.approx_bytes +
+      snap.barber_portfolio.approx_bytes
     : 0;
   const pct = Math.min(100, quotaBytes > 0 ? (totalUsedBytes / quotaBytes) * 100 : 0);
 
@@ -164,7 +166,7 @@ export function ResourceManagementSection({ isActive }: Props) {
             <>
               <div>
                 <div className="mb-2 flex flex-wrap justify-between gap-2 text-sm">
-                  <span className="text-muted-foreground">استهلاك تخزين مُقدَّر (حاويتان رئيسيتان)</span>
+                  <span className="text-muted-foreground">استهلاك تخزين مُقدَّر (حاويات رئيسية)</span>
                   <span className="font-medium" dir="ltr">
                     {formatBytesArabic(totalUsedBytes)} / ~{quotaGb} GB
                   </span>
@@ -172,7 +174,7 @@ export function ResourceManagementSection({ isActive }: Props) {
                 <Progress value={pct} className="h-2" />
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-lg border border-border/80 p-4">
                   <p className="text-sm font-semibold flex items-center gap-2">
                     <ImageIcon className="h-4 w-4" />
@@ -191,6 +193,16 @@ export function ResourceManagementSection({ isActive }: Props) {
                     <li>الحجم التقريبي: {formatBytesArabic(snap.partner_promo.approx_bytes)}</li>
                   </ul>
                 </div>
+                <div className="rounded-lg border border-border/80 p-4 md:col-span-2 lg:col-span-1">
+                  <p className="text-sm font-semibold flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    barber-portfolio (معرض أعمال الحلاقين)
+                  </p>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    <li>الكائنات: {snap.barber_portfolio.object_count.toLocaleString('ar-SA')}</li>
+                    <li>الحجم التقريبي: {formatBytesArabic(snap.barber_portfolio.approx_bytes)}</li>
+                  </ul>
+                </div>
               </div>
 
               <div className="rounded-lg border border-border/80 p-4">
@@ -203,7 +215,7 @@ export function ResourceManagementSection({ isActive }: Props) {
             </>
           ) : (
             <p className="text-sm text-muted-foreground text-center py-6">
-              {loading ? 'جاري التحميل…' : 'لا توجد بيانات. اضغط «تحديث» أو نفّذ ترحيل قاعدة البيانات 66.'}
+              {loading ? 'جاري التحميل…' : 'لا توجد بيانات. اضغط «تحديث» أو نفّذ ترحيلات 66 و 67.'}
             </p>
           )}
         </CardContent>

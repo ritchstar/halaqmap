@@ -94,6 +94,9 @@
     "api/barber-inclusive-care-update.ts": {
       "maxDuration": 20
     },
+    "api/barber-portfolio.ts": {
+      "maxDuration": 25
+    },
     "api/admin-support-chat.ts": {
       "maxDuration": 25
     },

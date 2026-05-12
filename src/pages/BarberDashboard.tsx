@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -100,6 +100,16 @@ import {
   type BarberSupportMessageRow,
 } from '@/lib/barberSupportChatRemote';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { portfolioMaxImagesForSubscriptionTier } from '@/lib/barberPortfolioPolicy';
+import {
+  optimizeImageFileForBarberPortfolio,
+  portfolioRawFileTooLargeMessage,
+} from '@/lib/portfolioImageOptimization';
+import {
+  deleteBarberPortfolioObjectRemote,
+  objectPathFromBarberPortfolioPublicUrl,
+  uploadBarberPortfolioImageRemote,
+} from '@/lib/barberPortfolioRemote';
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 
@@ -226,7 +236,7 @@ export default function BarberDashboard() {
         showOverview: false,
         showAppointments: false,
         showMessages: true,
-        showPosts: false,
+        showPosts: true,
         showSettings: false,
         showQrRatings: true,
         isGoldLite: true,
@@ -247,7 +257,7 @@ export default function BarberDashboard() {
 
   useEffect(() => {
     if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;
-    const allowed = new Set(['messages', 'qr-ratings']);
+    const allowed = new Set(['messages', 'qr-ratings', 'posts']);
     if (!allowed.has(activeTab)) {
       setActiveTab('messages');
     }
@@ -535,8 +545,9 @@ export default function BarberDashboard() {
 
           {tierTabs.showGoldLiteBanner ? (
             <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
-              باقتك <strong>الذهبية</strong> تشمل من لوحة التحكم: <strong>رسائل العملاء</strong> و<strong>QR والتقييمات</strong>.
-              جدولة المواعيد المتقدّمة والبنرات والإعدادات الكاملة متاحة في الباقة <strong>الماسية</strong>.
+              باقتك <strong>الذهبية</strong> تشمل من لوحة التحكم: <strong>رسائل العملاء</strong>، و<strong>معرض أعمال</strong> (حتى
+              20 صورة محسّنة)، و<strong>QR والتقييمات</strong>. جدولة المواعيد المتقدّمة والبنرات والإعدادات الكاملة متاحة في
+              الباقة <strong>الماسية</strong> (معرض حتى 40 صورة).
             </p>
           ) : null}
 
@@ -720,7 +731,13 @@ export default function BarberDashboard() {
 
           {tierTabs.showPosts ? (
           <TabsContent value="posts" className="space-y-6">
-            <PostsSection posts={posts} barberId={barberData.id} onChange={persistPosts} />
+            <PostsSection
+              posts={posts}
+              barberId={barberData.id}
+              barberEmail={barberData.email}
+              subscriptionTier={barberData.subscription}
+              onChange={persistPosts}
+            />
           </TabsContent>
           ) : null}
 
@@ -1454,30 +1471,74 @@ function MessagesSection({
   );
 }
 
+function countGalleryImagesAcrossPosts(postList: Post[]): number {
+  return postList
+    .filter((p) => p.type === 'gallery')
+    .reduce((acc, p) => acc + (p.images?.length ?? 0), 0);
+}
+
+function effectiveGalleryImageCount(posts: Post[], editing: Post | null, gallerySlotCount: number): number {
+  const fromOthers = posts
+    .filter((p) => p.type === 'gallery' && (!editing || p.id !== editing.id))
+    .reduce((s, p) => s + (p.images?.length ?? 0), 0);
+  return fromOthers + gallerySlotCount;
+}
+
+type GalleryDraftSlot =
+  | { id: string; kind: 'remote'; url: string }
+  | { id: string; kind: 'local'; previewDataUrl: string; imageBase64: string };
+
+async function deletePortfolioStorageForUrls(barberId: string, email: string, urls: string[]): Promise<void> {
+  for (const url of urls) {
+    const pth = objectPathFromBarberPortfolioPublicUrl(url, barberId);
+    if (!pth) continue;
+    const r = await deleteBarberPortfolioObjectRemote({ barberId, email, objectPath: pth });
+    if (!r.ok) toast.error(r.error);
+  }
+}
+
 function PostsSection({
   posts,
   barberId,
+  barberEmail,
+  subscriptionTier,
   onChange,
 }: {
   posts: Post[];
   barberId: string;
+  barberEmail: string;
+  subscriptionTier: SubscriptionTier;
   onChange: (next: Post[]) => void;
 }) {
+  const portfolioMax = portfolioMaxImagesForSubscriptionTier(subscriptionTier);
+  const galleryCountSaved = useMemo(() => countGalleryImagesAcrossPosts(posts), [posts]);
+
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [type, setType] = useState<Post['type']>('gallery');
+  const [type, setType] = useState<Post['type']>('offer');
   const [discount, setDiscount] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [gallerySlots, setGallerySlots] = useState<GalleryDraftSlot[]>([]);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [savingPost, setSavingPost] = useState(false);
+  const galleryFileRef = useRef<HTMLInputElement | null>(null);
 
-  const openNew = () => {
+  const resetDialog = () => {
     setEditing(null);
     setTitle('');
     setContent('');
     setType('offer');
     setDiscount('');
     setImageUrl(IMAGES.BARBER_SHOP_1);
+    setGallerySlots([]);
+    setUploadingGallery(false);
+    setSavingPost(false);
+  };
+
+  const openNew = () => {
+    resetDialog();
     setOpen(true);
   };
 
@@ -1488,10 +1549,67 @@ function PostsSection({
     setType(p.type);
     setDiscount(p.discount != null ? String(p.discount) : '');
     setImageUrl(p.images[0] ?? IMAGES.BARBER_SHOP_1);
+    setGallerySlots(
+      p.type === 'gallery'
+        ? (p.images ?? []).map((url) => ({ id: newId(), kind: 'remote' as const, url }))
+        : [],
+    );
     setOpen(true);
   };
 
-  const savePost = () => {
+  const onTypeSelectChange = (next: Post['type']) => {
+    setType(next);
+    if (next === 'gallery') {
+      if (editing?.type === 'gallery') {
+        setGallerySlots((editing.images ?? []).map((url) => ({ id: newId(), kind: 'remote' as const, url })));
+      } else {
+        setGallerySlots([]);
+      }
+    }
+  };
+
+  const pickGalleryFile = () => galleryFileRef.current?.click();
+
+  const onGalleryFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const rawMsg = portfolioRawFileTooLargeMessage(file);
+    if (rawMsg) {
+      toast.error(rawMsg);
+      return;
+    }
+    const max = portfolioMaxImagesForSubscriptionTier(subscriptionTier);
+    if (max <= 0) {
+      toast.error('معرض الأعمال غير متاح لباقتك.');
+      return;
+    }
+    if (effectiveGalleryImageCount(posts, editing, gallerySlots.length) >= max) {
+      toast.error(`بلغت الحد الأقصى لصور المعرض (${max}). احذف صوراً قديمة من البوستات أو من هذا المعرض.`);
+      return;
+    }
+
+    setUploadingGallery(true);
+    const opt = await optimizeImageFileForBarberPortfolio(file);
+    setUploadingGallery(false);
+    if (!opt.ok) {
+      toast.error(opt.error);
+      return;
+    }
+    const previewDataUrl = `data:image/webp;base64,${opt.imageBase64}`;
+    setGallerySlots((prev) => [
+      ...prev,
+      { id: newId(), kind: 'local', previewDataUrl, imageBase64: opt.imageBase64 },
+    ]);
+    toast.success('أُضيفت صورة للمعاينة — اضغط «نشر» أو «حفظ التعديل» لرفعها نهائياً.');
+  };
+
+  const removeGalleryAt = (idx: number) => {
+    setGallerySlots((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const savePost = async () => {
+    if (savingPost) return;
     if (!title.trim()) {
       toast.error('أدخل عنواناً');
       return;
@@ -1505,8 +1623,75 @@ function PostsSection({
       }
       disc = n;
     }
+
+    if (type === 'gallery') {
+      if (gallerySlots.length === 0) {
+        toast.error('أضف صورة واحدة على الأقل لمعرض الأعمال (اختيار من الجهاز).');
+        return;
+      }
+      const max = portfolioMaxImagesForSubscriptionTier(subscriptionTier);
+      if (effectiveGalleryImageCount(posts, editing, gallerySlots.length) > max) {
+        toast.error(`عدد صور المعرض يتجاوز حد الباقة (${max}).`);
+        return;
+      }
+    }
+
     const img = imageUrl.trim() || IMAGES.BARBER_SHOP_1;
+
+    let finalGalleryUrls: string[] | null = null;
+    if (type === 'gallery') {
+      if (!barberEmail.trim()) {
+        toast.error('بريد الحساب غير متاح للرفع.');
+        return;
+      }
+      if (!isSupabaseConfigured()) {
+        toast.error('لم يُضبط Supabase في التطبيق — تعذر حفظ معرض الأعمال.');
+        return;
+      }
+      setSavingPost(true);
+      const uploadedPaths: string[] = [];
+      try {
+        const out: string[] = [];
+        for (const slot of gallerySlots) {
+          if (slot.kind === 'remote') {
+            out.push(slot.url);
+            continue;
+          }
+          const up = await uploadBarberPortfolioImageRemote({
+            barberId,
+            email: barberEmail.trim(),
+            imageBase64: slot.imageBase64,
+          });
+          if (!up.ok) throw new Error(up.error);
+          uploadedPaths.push(up.objectPath);
+          out.push(up.publicUrl);
+        }
+        finalGalleryUrls = out;
+      } catch (e) {
+        for (const pth of uploadedPaths) {
+          const r = await deleteBarberPortfolioObjectRemote({
+            barberId,
+            email: barberEmail.trim(),
+            objectPath: pth,
+          });
+          if (!r.ok) toast.error(r.error);
+        }
+        setSavingPost(false);
+        toast.error(e instanceof Error ? e.message : 'تعذر رفع إحدى الصور.');
+        return;
+      }
+      setSavingPost(false);
+    }
+
     if (editing) {
+      const prevUrls = editing.type === 'gallery' ? [...(editing.images ?? [])] : [];
+      if (editing.type === 'gallery' && type !== 'gallery' && barberEmail.trim()) {
+        await deletePortfolioStorageForUrls(barberId, barberEmail.trim(), prevUrls);
+      } else if (type === 'gallery' && finalGalleryUrls && barberEmail.trim()) {
+        const removed = prevUrls.filter((u) => !finalGalleryUrls!.includes(u));
+        await deletePortfolioStorageForUrls(barberId, barberEmail.trim(), removed);
+      }
+
       onChange(
         posts.map((p) =>
           p.id === editing.id
@@ -1515,7 +1700,7 @@ function PostsSection({
                 title: title.trim(),
                 content: content.trim(),
                 type,
-                images: [img],
+                images: type === 'gallery' && finalGalleryUrls ? [...finalGalleryUrls] : [img],
                 discount: type === 'offer' ? disc : undefined,
                 validUntil: p.validUntil,
               }
@@ -1529,7 +1714,7 @@ function PostsSection({
         barberId,
         title: title.trim(),
         content: content.trim(),
-        images: [img],
+        images: type === 'gallery' && finalGalleryUrls ? [...finalGalleryUrls] : [img],
         type,
         discount: type === 'offer' ? disc : undefined,
         validUntil: undefined,
@@ -1541,22 +1726,47 @@ function PostsSection({
       toast.success('تم إنشاء البوست');
     }
     setOpen(false);
+    resetDialog();
   };
 
-  const del = (id: string) => {
+  const del = async (id: string) => {
+    const post = posts.find((p) => p.id === id);
+    if (post?.type === 'gallery' && barberEmail.trim()) {
+      await deletePortfolioStorageForUrls(barberId, barberEmail.trim(), post.images ?? []);
+    }
     onChange(posts.filter((p) => p.id !== id));
     toast.message('تم حذف البوست');
   };
 
+  const atPortfolioCap = portfolioMax > 0 && galleryCountSaved >= portfolioMax;
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-      <div className="mb-6 flex items-center justify-between gap-2">
-        <h2 className="text-xl font-bold sm:text-2xl">البوستات والعروض</h2>
-        <Button type="button" className="gap-2" onClick={openNew}>
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold sm:text-2xl">البوستات والعروض</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            معرض الأعمال:{' '}
+            <span className="font-semibold text-foreground" dir="ltr">
+              {galleryCountSaved}/{portfolioMax || '—'}
+            </span>{' '}
+            صورة (WebP مضغوطة تقريباً 100 كيلوبايت — تُرفع للخادم عند تأكيد «نشر» أو «حفظ التعديل» فقط).
+          </p>
+        </div>
+        <Button type="button" className="gap-2 shrink-0" onClick={openNew}>
           <Plus className="h-4 w-4" />
           بوست جديد
         </Button>
       </div>
+
+      {atPortfolioCap ? (
+        <Alert className="mb-4 border-amber-500/40 bg-amber-500/10">
+          <AlertDescription className="text-sm">
+            وصلتَ للحد الأقصى لصور معرض الأعمال لهذه الباقة. احذف صوراً من بوستات نوع «معرض» أو من داخل تعديل البوست
+            لتحرير خانات جديدة.
+          </AlertDescription>
+        </Alert>
+      ) : null}
 
       {posts.length === 0 ? (
         <Card>
@@ -1567,13 +1777,30 @@ function PostsSection({
           {posts.map((post) => (
             <Card key={post.id}>
               <CardContent className="p-6">
-                <div className="mb-4 aspect-video overflow-hidden rounded-lg">
-                  <img src={post.images[0]} alt={post.title} className="h-full w-full object-cover" />
+                <div className="mb-4 overflow-hidden rounded-lg">
+                  {post.type === 'gallery' && (post.images?.length ?? 0) > 1 ? (
+                    <div className="grid grid-cols-2 gap-1">
+                      {post.images.slice(0, 4).map((src) => (
+                        <div key={src} className="aspect-square overflow-hidden rounded-md bg-muted">
+                          <img src={src} alt="" className="h-full w-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="aspect-video overflow-hidden rounded-lg">
+                      <img src={post.images[0]} alt={post.title} className="h-full w-full object-cover" />
+                    </div>
+                  )}
                 </div>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <Badge variant={post.type === 'offer' ? 'default' : 'secondary'}>
                     {post.type === 'offer' ? 'عرض' : post.type === 'gallery' ? 'معرض' : 'إعلان'}
                   </Badge>
+                  {post.type === 'gallery' ? (
+                    <Badge variant="outline" dir="ltr">
+                      {(post.images?.length ?? 0).toString()} صور
+                    </Badge>
+                  ) : null}
                   {post.discount != null ? <Badge variant="destructive">خصم {post.discount}%</Badge> : null}
                 </div>
                 <h3 className="mb-2 text-lg font-bold">{post.title}</h3>
@@ -1587,7 +1814,7 @@ function PostsSection({
                     <Button type="button" size="sm" variant="outline" onClick={() => openEdit(post)}>
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button type="button" size="sm" variant="outline" onClick={() => del(post.id)}>
+                    <Button type="button" size="sm" variant="outline" onClick={() => void del(post.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -1598,7 +1825,13 @@ function PostsSection({
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          setOpen(v);
+          if (!v) resetDialog();
+        }}
+      >
         <DialogContent className="sm:max-w-lg" dir="rtl">
           <DialogHeader>
             <DialogTitle>{editing ? 'تعديل البوست' : 'بوست جديد'}</DialogTitle>
@@ -1617,7 +1850,7 @@ function PostsSection({
               <select
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={type}
-                onChange={(e) => setType(e.target.value as Post['type'])}
+                onChange={(e) => onTypeSelectChange(e.target.value as Post['type'])}
               >
                 <option value="offer">عرض / خصم</option>
                 <option value="gallery">معرض صور</option>
@@ -1636,16 +1869,90 @@ function PostsSection({
                 />
               </div>
             ) : null}
-            <div className="space-y-2">
-              <Label>رابط صورة الغلاف</Label>
-              <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} dir="ltr" className="text-left" />
-            </div>
+
+            {type === 'gallery' ? (
+              <div className="space-y-3 rounded-lg border border-border/80 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Label className="text-base">صور المعرض</Label>
+                  <span className="text-xs text-muted-foreground" dir="ltr">
+                    {effectiveGalleryImageCount(posts, editing, gallerySlots.length)}/{portfolioMax}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  تُعالَج الصور محلياً إلى WebP (~100 كيلوبايت تقريباً). لا تُحفظ على الخادم حتى تضغط «نشر» أو «حفظ
+                  التعديل». احذف من القائمة قبل الحفظ إن غيّرت رأيك — الصور المخزّنة مسبقاً تُحذف من التخزين عند
+                  الحفظ إذا أزلتها من القائمة.
+                </p>
+                <input
+                  ref={galleryFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => void onGalleryFile(e)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={
+                    savingPost ||
+                    uploadingGallery ||
+                    portfolioMax <= 0 ||
+                    effectiveGalleryImageCount(posts, editing, gallerySlots.length) >= portfolioMax
+                  }
+                  onClick={() => void pickGalleryFile()}
+                >
+                  {uploadingGallery ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                  إضافة صورة
+                </Button>
+                {gallerySlots.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">لا توجد صور بعد.</p>
+                ) : (
+                  <ul className="flex flex-wrap gap-2">
+                    {gallerySlots.map((slot, idx) => (
+                      <li
+                        key={slot.id}
+                        className="relative h-20 w-20 overflow-hidden rounded-md border border-border bg-muted"
+                      >
+                        <img
+                          src={slot.kind === 'remote' ? slot.url : slot.previewDataUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          className="absolute left-0 top-0 h-7 w-7 rounded-none rounded-br-md p-0 text-xs"
+                          title={
+                            slot.kind === 'local'
+                              ? 'إزالة من المعاينة (لم تُرفع بعد)'
+                              : 'إزالة من القائمة — يُحذف من التخزين عند الحفظ'
+                          }
+                          disabled={savingPost}
+                          onClick={() => removeGalleryAt(idx)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label>رابط صورة الغلاف</Label>
+                <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} dir="ltr" className="text-left" />
+              </div>
+            )}
           </div>
           <DialogFooter className="gap-2 sm:justify-start">
-            <Button type="button" onClick={savePost}>
+            <Button type="button" disabled={savingPost} onClick={() => void savePost()}>
+              {savingPost ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
               {editing ? 'حفظ التعديل' : 'نشر'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" disabled={savingPost} onClick={() => setOpen(false)}>
               إلغاء
             </Button>
           </DialogFooter>

@@ -11,10 +11,16 @@ export type PartnerPromoSnapshot = {
   approx_bytes: number;
 };
 
+export type BarberPortfolioSnapshot = {
+  object_count: number;
+  approx_bytes: number;
+};
+
 export type PlatformResourceSnapshot = {
   generated_at: string;
   registration_uploads: RegistrationUploadsSnapshot;
   partner_promo: PartnerPromoSnapshot;
+  barber_portfolio: BarberPortfolioSnapshot;
   logs: {
     search_activity_logs_count: number;
     payment_security_events_count: number;
@@ -32,6 +38,7 @@ function parseSnapshot(raw: unknown): PlatformResourceSnapshot | null {
   const o = raw as Record<string, unknown>;
   const reg = o.registration_uploads as Record<string, unknown> | undefined;
   const pr = o.partner_promo as Record<string, unknown> | undefined;
+  const bp = o.barber_portfolio as Record<string, unknown> | undefined;
   const logs = o.logs as Record<string, unknown> | undefined;
   return {
     generated_at: typeof o.generated_at === 'string' ? o.generated_at : new Date().toISOString(),
@@ -43,6 +50,10 @@ function parseSnapshot(raw: unknown): PlatformResourceSnapshot | null {
     partner_promo: {
       object_count: num(pr?.object_count),
       approx_bytes: num(pr?.approx_bytes),
+    },
+    barber_portfolio: {
+      object_count: num(bp?.object_count),
+      approx_bytes: num(bp?.approx_bytes),
     },
     logs: {
       search_activity_logs_count: num(logs?.search_activity_logs_count),
@@ -63,7 +74,7 @@ export async function fetchPlatformResourceSnapshot(): Promise<
       ok: false,
       error:
         error.message +
-        ' — إن ظهرت لأول مرة، نفّذ ترحيل 66_platform_resource_snapshot_and_purge.sql عبر supabase db push.',
+        ' — إن ظهرت لأول مرة، نفّذ ترحيلات 66 و 67 (لقطة الموارد + معرض الحلاقين) عبر supabase db push.',
     };
   }
   const parsed = parseSnapshot(data);
