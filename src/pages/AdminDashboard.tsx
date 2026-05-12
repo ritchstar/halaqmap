@@ -146,6 +146,7 @@ import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutor
 import { ResourceManagementSection } from '@/components/admin/ResourceManagementSection';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
+import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArchivePanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
 const EMPTY_ADMIN_STATS: AdminStats = {
@@ -443,6 +444,13 @@ export default function AdminDashboard() {
   const canReviewPartnerBilling = can('review_payments') || can('manage_partner_billing');
   const canViewOpsBilling =
     can('view_ops_billing_monitor') || can('manage_centralized_billing_ops');
+  const canAccessFinancialArchive =
+    can('view_admin_financial_archive') ||
+    can('manage_admin_financial_archive') ||
+    can('manage_centralized_billing_ops');
+  const canAccessOpsBillingTab = canViewOpsBilling || canAccessFinancialArchive;
+  const canManageFinancialArchive =
+    can('manage_admin_financial_archive') || can('manage_centralized_billing_ops');
   const allowedTabs = useMemo(() => {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
@@ -453,11 +461,11 @@ export default function AdminDashboard() {
     if (can('view_messages')) out.push('messages');
     if (canViewSecurityOpsLog) out.push('security-ops');
     if (canViewPaymentGateways) out.push('payment-gateways');
-    if (canViewOpsBilling) out.push('ops-billing');
+    if (canAccessOpsBillingTab) out.push('ops-billing');
     if (can('view_settings')) out.push('settings');
     if (Boolean(adminData?.bootstrap)) out.push('resources');
     return out;
-  }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog, canViewOpsBilling]);
+  }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog, canAccessOpsBillingTab]);
 
   useEffect(() => {
     if (!adminData) return;
@@ -497,14 +505,14 @@ export default function AdminDashboard() {
                 role="toolbar"
                 aria-label="اختصارات لوحة الإدارة"
               >
-                {canViewOpsBilling ? (
+                {canAccessOpsBillingTab ? (
                 <Button
                   type="button"
                   variant={activeTab === 'ops-billing' ? 'secondary' : 'ghost'}
                   size="icon"
                   className="h-9 w-9 shrink-0"
-                  title="التكاليف والتزامات التشغيل"
-                  aria-label="التكاليف والتزامات التشغيل"
+                  title="التكاليف والتزامات التشغيل والأرشيف المالي"
+                  aria-label="التكاليف والتزامات التشغيل والأرشيف المالي"
                   aria-pressed={activeTab === 'ops-billing'}
                   onClick={() => setActiveTab('ops-billing')}
                 >
@@ -598,6 +606,12 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">بوابات الدفع</span>
             </TabsTrigger>
             )}
+            {canAccessOpsBillingTab && (
+            <TabsTrigger value="ops-billing" className="gap-2">
+              <Landmark className="w-4 h-4" />
+              <span className="hidden sm:inline">التزامات التشغيل</span>
+            </TabsTrigger>
+            )}
             {can('view_settings') && (
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -676,9 +690,19 @@ export default function AdminDashboard() {
             </TabsContent>
           )}
 
+          {canAccessOpsBillingTab && (
           <TabsContent value="ops-billing" className="space-y-6">
-            <OpsBillingMonitorPanel canMutate={can('manage_centralized_billing_ops')} />
+            {canViewOpsBilling ? (
+              <OpsBillingMonitorPanel canMutate={can('manage_centralized_billing_ops')} />
+            ) : null}
+            {canAccessFinancialArchive ? (
+              <AdminFinancialArchivePanel
+                canManage={canManageFinancialArchive}
+                canFetchCommitments={canViewOpsBilling}
+              />
+            ) : null}
           </TabsContent>
+          )}
 
           {/* Settings Tab */}
           {can('view_settings') && <TabsContent value="settings" className="space-y-6">
@@ -4480,6 +4504,8 @@ function SettingsSection({
         view_partner_marketing: false,
         manage_partner_marketing: false,
         manage_platform_commerce_rules: false,
+        view_admin_financial_archive: true,
+        manage_admin_financial_archive: true,
       },
     },
     {
@@ -4500,6 +4526,8 @@ function SettingsSection({
         view_partner_marketing: true,
         manage_partner_marketing: true,
         manage_platform_commerce_rules: false,
+        view_admin_financial_archive: true,
+        manage_admin_financial_archive: false,
       },
     },
     {
@@ -4522,6 +4550,8 @@ function SettingsSection({
         view_partner_marketing: false,
         manage_partner_marketing: false,
         manage_platform_commerce_rules: false,
+        view_admin_financial_archive: true,
+        manage_admin_financial_archive: true,
       },
     },
     {
@@ -4547,6 +4577,8 @@ function SettingsSection({
         view_partner_marketing: true,
         manage_partner_marketing: true,
         manage_platform_commerce_rules: false,
+        view_admin_financial_archive: false,
+        manage_admin_financial_archive: false,
       },
     },
     {
@@ -4575,6 +4607,8 @@ function SettingsSection({
         view_partner_marketing: false,
         manage_partner_marketing: false,
         manage_platform_commerce_rules: false,
+        view_admin_financial_archive: true,
+        manage_admin_financial_archive: false,
       },
     },
   ];

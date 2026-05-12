@@ -39,7 +39,11 @@ export type AdminPermissionKey =
   /** ضريبة العرض على الواجهات العامة وما يشابهها من «قواعد العرض التجاري» */
   | 'manage_platform_commerce_rules'
   /** مزامنة وتعديل لوحة التزامات التشغيل والفوترة (Vercel/Supabase/مزودين) — مخصص للسوبر */
-  | 'manage_centralized_billing_ops';
+  | 'manage_centralized_billing_ops'
+  /** عرض أرشيف فواتير/وثائق الإدارة */
+  | 'view_admin_financial_archive'
+  /** رفع وحذف أرشيف الفواتير وربطها بالتزامات التشغيل */
+  | 'manage_admin_financial_archive';
 
 export type AdminPermissions = Record<AdminPermissionKey, boolean>;
 
@@ -69,6 +73,8 @@ export const ADMIN_PERMISSION_ROLE_HINT: Record<AdminPermissionKey, AdminPermiss
   manage_partner_marketing: 'admin',
   manage_platform_commerce_rules: 'super',
   manage_centralized_billing_ops: 'super',
+  view_admin_financial_archive: 'admin',
+  manage_admin_financial_archive: 'super',
 };
 
 export type AdminPermissionSection = {
@@ -141,8 +147,13 @@ export const ADMIN_PERMISSION_UI_SECTIONS: AdminPermissionSection[] = [
   {
     id: 'ops_super',
     title: 'التشغيل العميق والفوترة المركزية',
-    subtitle: 'لوحة التزامات Vercel/Supabase والمزودين — قراءة منفصلة عن زر المزامنة.',
-    keys: ['view_ops_billing_monitor', 'manage_centralized_billing_ops'],
+    subtitle: 'لوحة التزامات Vercel/Supabase والمزودين؛ أرشيف الفواتير وربطها بالتزامات.',
+    keys: [
+      'view_ops_billing_monitor',
+      'manage_centralized_billing_ops',
+      'view_admin_financial_archive',
+      'manage_admin_financial_archive',
+    ],
   },
 ];
 
@@ -174,6 +185,8 @@ export const ADMIN_PERMISSION_LABELS: Record<AdminPermissionKey, string> = {
   manage_partner_marketing: 'تعديل فيديو الترحيب وفيديوهات شروحات الاشتراك',
   manage_platform_commerce_rules: 'حفظ ضريبة العرض والقواعد التجارية على الواجهات العامة',
   manage_centralized_billing_ops: 'مزامنة وتعديل لوحة التزامات التشغيل (سوبر أدمن)',
+  view_admin_financial_archive: 'عرض أرشيف فواتير ووثائق الإدارة',
+  manage_admin_financial_archive: 'رفع وحذف أرشيف الفواتير وتحديث التزامات التشغيل',
 };
 
 export const ADMIN_PERMISSION_KEYS = Object.keys(ADMIN_PERMISSION_LABELS) as AdminPermissionKey[];
@@ -201,6 +214,8 @@ export const DEFAULT_ADMIN_PERMISSIONS: AdminPermissions = {
   manage_partner_marketing: false,
   manage_platform_commerce_rules: false,
   manage_centralized_billing_ops: false,
+  view_admin_financial_archive: false,
+  manage_admin_financial_archive: false,
 };
 
 export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
@@ -226,6 +241,8 @@ export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
   manage_partner_marketing: true,
   manage_platform_commerce_rules: true,
   manage_centralized_billing_ops: true,
+  view_admin_financial_archive: true,
+  manage_admin_financial_archive: true,
 };
 
 function roleHintBadge(h: AdminPermissionRoleHint): string {
@@ -278,6 +295,18 @@ export function normalizeAdminPermissions(value: unknown): AdminPermissions {
     }
     if (k === 'manage_platform_commerce_rules') {
       out[k] = Boolean(incoming.manage_platform_commerce_rules ?? viewSettings);
+      continue;
+    }
+    if (k === 'view_admin_financial_archive') {
+      out[k] = Boolean(
+        incoming.view_admin_financial_archive ??
+          incoming.manage_admin_financial_archive ??
+          centralized
+      );
+      continue;
+    }
+    if (k === 'manage_admin_financial_archive') {
+      out[k] = Boolean(incoming.manage_admin_financial_archive ?? centralized);
       continue;
     }
     out[k] = Boolean(incoming[k] ?? DEFAULT_ADMIN_PERMISSIONS[k]);

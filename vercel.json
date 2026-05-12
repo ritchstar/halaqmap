@@ -138,6 +138,9 @@
     },
     "api/ops-billing-monitor.ts": {
       "maxDuration": 60
+    },
+    "api/admin-financial-archive.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [

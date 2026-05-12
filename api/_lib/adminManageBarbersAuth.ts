@@ -62,7 +62,9 @@ export type PlatformAdminPermissionKey =
   | 'view_partner_marketing'
   | 'manage_partner_marketing'
   | 'manage_platform_commerce_rules'
-  | 'manage_centralized_billing_ops';
+  | 'manage_centralized_billing_ops'
+  | 'view_admin_financial_archive'
+  | 'manage_admin_financial_archive';
 
 function permissionFromRow(raw: unknown, key: PlatformAdminPermissionKey): boolean {
   const incoming = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
