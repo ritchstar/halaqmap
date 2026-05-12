@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RegistrationAttachmentUrls } from '@/lib/index';
+import { BARBER_BANNER_MAX_FILE_BYTES } from '@/config/barberBannerImagePolicy';
 
 export const REGISTRATION_UPLOADS_BUCKET = 'registration-uploads';
 
@@ -419,6 +420,12 @@ async function uploadOne(
     return {
       ok: false,
       error: `حجم الملف يتجاوز الحد المسموح (${MAX_FILE_BYTES / 1024 / 1024} ميجابايت): ${file.name}`,
+    };
+  }
+  if (subfolder === 'banners' && file.size > BARBER_BANNER_MAX_FILE_BYTES) {
+    return {
+      ok: false,
+      error: `صورة البنر يجب ألا تتجاوز ${Math.round(BARBER_BANNER_MAX_FILE_BYTES / 1024)} كيلوبايت بعد الضغط. أعد تصدير الصورة أو استخدم معالجاً أخف: ${file.name}`,
     };
   }
   const storageSubpath = `${subfolder}/${crypto.randomUUID()}_${safeFileSegment(file.name)}`;

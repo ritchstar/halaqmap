@@ -34,6 +34,7 @@ import {
   Activity,
   FlaskConical,
   Landmark,
+  HardDrive,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,6 +68,10 @@ import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase
 import { getAdminLoginPathFor } from '@/config/adminAuth';
 import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
 import { fetchAdminStats } from '@/lib/adminStatsRemote';
+import {
+  PLATFORM_PROFESSIONAL_UPGRADE_STATUS_AR,
+  PLATFORM_SUBSCRIPTION_TIER_PUBLIC_LABEL,
+} from '@/config/platformPlanStatus';
 import { fetchPaymentsForAdmin, updatePaymentStatusRemote } from '@/lib/adminPaymentsRemote';
 import {
   fetchBarberSubscriptionsForAdmin,
@@ -137,6 +142,7 @@ import {
 } from '@/lib/adminSupportChatRemote';
 import { PartnerPromoVideoAdminPanel } from '@/components/admin/PartnerPromoVideoAdminPanel';
 import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutorialVideosAdminPanel';
+import { ResourceManagementSection } from '@/components/admin/ResourceManagementSection';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
@@ -446,6 +452,7 @@ export default function AdminDashboard() {
     if (canViewPaymentGateways) out.push('payment-gateways');
     out.push('ops-billing');
     if (can('view_settings')) out.push('settings');
+    if (Boolean(adminData?.bootstrap)) out.push('resources');
     return out;
   }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog]);
 
@@ -577,6 +584,12 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">الإعدادات</span>
             </TabsTrigger>
             )}
+            {Boolean(adminData?.bootstrap) && (
+            <TabsTrigger value="resources" className="gap-2">
+              <HardDrive className="w-4 h-4" />
+              <span className="hidden sm:inline">الموارد</span>
+            </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Overview Tab */}
@@ -656,6 +669,12 @@ export default function AdminDashboard() {
               canSavePlatformVat={can('view_settings')}
             />
           </TabsContent>}
+
+          {adminData.bootstrap && (
+            <TabsContent value="resources" className="space-y-6">
+              <ResourceManagementSection isActive={activeTab === 'resources'} />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
@@ -933,6 +952,13 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
       transition={{ duration: 0.5 }}
     >
       <h2 className="text-2xl font-bold mb-6">الإحصائيات العامة</h2>
+
+      <Card className="mb-6 border-primary/25 bg-primary/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">{PLATFORM_SUBSCRIPTION_TIER_PUBLIC_LABEL}</CardTitle>
+          <CardDescription className="text-sm leading-relaxed">{PLATFORM_PROFESSIONAL_UPGRADE_STATUS_AR}</CardDescription>
+        </CardHeader>
+      </Card>
 
       {/* Main Stats */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">

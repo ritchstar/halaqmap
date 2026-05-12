@@ -56,6 +56,8 @@ import {
 } from '@/lib/registrationFileUploads';
 import { loadPartnerAttribution } from '@/lib/partnerAttribution';
 import { toast } from '@/components/ui/sonner';
+import { useBarberBannerImagePicker } from '@/hooks/useBarberBannerImagePicker';
+import { BARBER_BANNER_MAX_FILE_BYTES } from '@/config/barberBannerImagePolicy';
 import {
   createInitialWorkingWeekForm,
   workingWeekFormToPayload,
@@ -243,6 +245,7 @@ export function RegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  const bannerPicker = useBarberBannerImagePicker();
   const [formData, setFormData] = useState<FormData>({
     tier: '',
     shopName: '',
@@ -1231,9 +1234,16 @@ export function RegistrationForm() {
                 <div className="space-y-3">
                   <Label>أربع صور للبنر (عرض البطاقة) *</Label>
                   <p className="text-xs text-muted-foreground">
-                    ارفع أربع صور منفصلة؛ تُعرض في شبكة البنر (الباقة البرونزية تعتمد على هذه الصور مع الطلب،
-                    والباقتان الأعلى يمكن تطويرها لاحقاً من لوحة التحكم).
+                    تُعالَج الصور تلقائياً لتناسب عرض البطاقة مع الحفاظ على الوضوح، وبحد أقصى{' '}
+                    {Math.round(BARBER_BANNER_MAX_FILE_BYTES / 1024)} كيلوبايت لكل صورة. إن تجاوز الملف الحد بعد
+                    الضغط يُرفض ويُعرض توضيح للحلاق.
                   </p>
+                  <Alert className="border-amber-500/40 bg-amber-500/5">
+                    <Lightbulb className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+                    <AlertDescription className="text-sm leading-relaxed">
+                      <span className="font-medium text-foreground">نصيحة لتحسين الصورة:</span> {bannerPicker.activeTip}
+                    </AlertDescription>
+                  </Alert>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([0, 1, 2, 3] as const).map((slot) => (
                       <div key={slot} className="space-y-2 rounded-lg border border-border p-3 bg-muted/20">
@@ -1244,11 +1254,33 @@ export function RegistrationForm() {
                           id={`banner-slot-${slot}`}
                           type="file"
                           accept="image/*"
+                          disabled={bannerPicker.processing}
                           onChange={(e) => {
-                            setBannerImage(slot, e.target.files?.[0] || null);
+                            const raw = e.target.files?.[0] ?? null;
                             e.target.value = '';
+                            if (!raw) {
+                              setBannerImage(slot, null);
+                              return;
+                            }
+                            void (async () => {
+                              const r = await bannerPicker.processBannerFile(raw);
+                              if (!r.ok) {
+                                toast.error(r.error);
+                                return;
+                              }
+                              setBannerImage(slot, r.file);
+                              toast.success(
+                                `تم تحسين البنر ${slot + 1} — الحجم النهائي ${(r.file.size / 1024).toFixed(0)} كيلوبايت`
+                              );
+                            })();
                           }}
                         />
+                        {bannerPicker.processing ? (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Loader2 className="h-3 w-3 animate-spin shrink-0" />
+                            جاري معالجة الصورة…
+                          </p>
+                        ) : null}
                         {formData.images.bannerImages[slot] && (
                           <p className="text-xs text-primary flex items-center gap-1 truncate">
                             <Check className="w-3 h-3 shrink-0" />
