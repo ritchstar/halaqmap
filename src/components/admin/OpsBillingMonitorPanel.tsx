@@ -75,7 +75,12 @@ function formatCountdownAr(ms: number | null): string {
   return `${h} ساعة و ${m} دقيقة`;
 }
 
-export function OpsBillingMonitorPanel() {
+type Props = {
+  /** مزامنة، إضافة يدوية، تعديلات عبر API — تتطلب manage_centralized_billing_ops */
+  canMutate: boolean;
+};
+
+export function OpsBillingMonitorPanel({ canMutate }: Props) {
   const mounted = useRef(true);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -117,6 +122,7 @@ export function OpsBillingMonitorPanel() {
   }, [refresh]);
 
   const onSync = async () => {
+    if (!canMutate) return;
     setSyncing(true);
     try {
       const r = await triggerOpsBillingSync();
@@ -136,6 +142,7 @@ export function OpsBillingMonitorPanel() {
   };
 
   const onAddManual = async () => {
+    if (!canMutate) return;
     const label = manualLabel.trim();
     if (!label) {
       toast({ title: 'أدخل اسم الخدمة', variant: 'destructive' });
@@ -172,8 +179,8 @@ export function OpsBillingMonitorPanel() {
             Centralized Billing &amp; Ops Monitor
           </CardTitle>
           <CardDescription>
-            مزامنة أولية مع Vercel وSupabase؛ صفوف GoDaddy وOpenAI مرجعية (روابط ولقطات فوترة)؛ تنبيهات النقص — لكل
-            المدراء المعتمدين في المنصة.
+            مزامنة أولية مع Vercel وSupabase؛ صفوف GoDaddy وOpenAI مرجعية (روابط ولقطات فوترة)؛ تنبيهات النقص — يُنصح
+            بصلاحية عرض للفريق وصلاحية مزامنة للسوبر فقط.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -262,7 +269,7 @@ export function OpsBillingMonitorPanel() {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               <span className="mr-2">تحديث العرض</span>
             </Button>
-            <Button type="button" disabled={syncing || loading} onClick={() => void onSync()}>
+            <Button type="button" disabled={syncing || loading || !canMutate} onClick={() => void onSync()}>
               {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               <span className={syncing ? 'mr-2' : ''}>مزامنة الآن (+ GoDaddy مرجعي)</span>
             </Button>
@@ -308,25 +315,35 @@ export function OpsBillingMonitorPanel() {
         </Alert>
       )}
 
-      <Card>
+      <Card className={!canMutate ? 'border-muted' : ''}>
         <CardHeader>
           <CardTitle className="text-base">إضافة التزام يدوي (بدون API)</CardTitle>
-          <CardDescription>مثال: نطاق GoDaddy، ترخيص برمجي، عقد دعم…</CardDescription>
+          <CardDescription>مثال: نطاق GoDaddy، ترخيص برمجي، عقد دعم… — يتطلب صلاحية المزامنة (سوبر أدمن).</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end">
           <div className="space-y-2">
             <Label>اسم الخدمة</Label>
-            <Input value={manualLabel} onChange={(e) => setManualLabel(e.target.value)} placeholder="مثال: استضافة النطاق" />
+            <Input
+              value={manualLabel}
+              onChange={(e) => setManualLabel(e.target.value)}
+              placeholder="مثال: استضافة النطاق"
+              disabled={!canMutate}
+            />
           </div>
           <div className="space-y-2">
             <Label>تقدير شهري (ر.س)</Label>
-            <Input value={manualMonthly} onChange={(e) => setManualMonthly(e.target.value)} placeholder="0" />
+            <Input value={manualMonthly} onChange={(e) => setManualMonthly(e.target.value)} placeholder="0" disabled={!canMutate} />
           </div>
           <div className="space-y-2">
             <Label>تاريخ التجديد القادم</Label>
-            <Input type="datetime-local" value={manualRenewal} onChange={(e) => setManualRenewal(e.target.value)} />
+            <Input
+              type="datetime-local"
+              value={manualRenewal}
+              onChange={(e) => setManualRenewal(e.target.value)}
+              disabled={!canMutate}
+            />
           </div>
-          <Button type="button" onClick={() => void onAddManual()}>
+          <Button type="button" onClick={() => void onAddManual()} disabled={!canMutate}>
             إضافة
           </Button>
         </CardContent>

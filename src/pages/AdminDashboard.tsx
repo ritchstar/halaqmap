@@ -121,7 +121,8 @@ import {
 } from '@/lib/adminCommandCenter';
 import {
   ADMIN_PERMISSION_LABELS,
-  ADMIN_PERMISSION_KEYS,
+  ADMIN_PERMISSION_UI_SECTIONS,
+  adminPermissionShortRoleLabel,
   FULL_ADMIN_PERMISSIONS,
   type AdminPermissionKey,
   type AdminPermissions,
@@ -440,6 +441,8 @@ export default function AdminDashboard() {
     can('manage_subscriber_lifecycle') ||
     can('manage_subscriber_comms');
   const canReviewPartnerBilling = can('review_payments') || can('manage_partner_billing');
+  const canViewOpsBilling =
+    can('view_ops_billing_monitor') || can('manage_centralized_billing_ops');
   const allowedTabs = useMemo(() => {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
@@ -450,11 +453,11 @@ export default function AdminDashboard() {
     if (can('view_messages')) out.push('messages');
     if (canViewSecurityOpsLog) out.push('security-ops');
     if (canViewPaymentGateways) out.push('payment-gateways');
-    out.push('ops-billing');
+    if (canViewOpsBilling) out.push('ops-billing');
     if (can('view_settings')) out.push('settings');
     if (Boolean(adminData?.bootstrap)) out.push('resources');
     return out;
-  }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog]);
+  }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog, canViewOpsBilling]);
 
   useEffect(() => {
     if (!adminData) return;
@@ -494,6 +497,7 @@ export default function AdminDashboard() {
                 role="toolbar"
                 aria-label="اختصارات لوحة الإدارة"
               >
+                {canViewOpsBilling ? (
                 <Button
                   type="button"
                   variant={activeTab === 'ops-billing' ? 'secondary' : 'ghost'}
@@ -506,6 +510,7 @@ export default function AdminDashboard() {
                 >
                   <Landmark className="h-4 w-4" />
                 </Button>
+                ) : null}
                 {Boolean(adminData?.bootstrap) && (
                   <Button
                     type="button"
@@ -672,7 +677,7 @@ export default function AdminDashboard() {
           )}
 
           <TabsContent value="ops-billing" className="space-y-6">
-            <OpsBillingMonitorPanel />
+            <OpsBillingMonitorPanel canMutate={can('manage_centralized_billing_ops')} />
           </TabsContent>
 
           {/* Settings Tab */}
@@ -681,7 +686,9 @@ export default function AdminDashboard() {
               adminEmail={adminData.email}
               canManageAdmins={can('manage_admins')}
               bootstrapAdmin={adminData.bootstrap}
-              canSavePlatformVat={can('view_settings')}
+              canSavePlatformVat={can('manage_platform_commerce_rules')}
+              canViewPartnerMarketing={can('view_partner_marketing')}
+              canManagePartnerMarketing={can('manage_partner_marketing')}
             />
           </TabsContent>}
 
@@ -4440,11 +4447,16 @@ function SettingsSection({
   canManageAdmins,
   bootstrapAdmin,
   canSavePlatformVat,
+  canViewPartnerMarketing,
+  canManagePartnerMarketing,
 }: {
   adminEmail: string;
   canManageAdmins: boolean;
   bootstrapAdmin: boolean;
+  /** ضريبة العرض والقواعد التجارية على الواجهات العامة */
   canSavePlatformVat: boolean;
+  canViewPartnerMarketing: boolean;
+  canManagePartnerMarketing: boolean;
 }) {
   const ADMIN_ROLE_TEMPLATES: { key: string; label: string; permissions: AdminPermissions }[] = [
     { key: 'super_admin', label: 'سوبر أدمن (كامل الصلاحيات)', permissions: FULL_ADMIN_PERMISSIONS },
@@ -4464,6 +4476,10 @@ function SettingsSection({
         manage_subscriber_comms: false,
         manage_subscriber_lifecycle: false,
         manage_centralized_billing_ops: false,
+        view_ops_billing_monitor: true,
+        view_partner_marketing: false,
+        manage_partner_marketing: false,
+        manage_platform_commerce_rules: false,
       },
     },
     {
@@ -4474,12 +4490,16 @@ function SettingsSection({
         review_payments: false,
         view_command_center: false,
         manage_command_center: false,
-        view_settings: false,
+        view_settings: true,
         manage_admins: false,
         view_payment_settings: false,
         manage_payment_settings: false,
         manage_partner_billing: false,
         manage_centralized_billing_ops: false,
+        view_ops_billing_monitor: false,
+        view_partner_marketing: true,
+        manage_partner_marketing: true,
+        manage_platform_commerce_rules: false,
       },
     },
     {
@@ -4498,6 +4518,63 @@ function SettingsSection({
         manage_subscriber_comms: false,
         manage_subscriber_lifecycle: false,
         manage_centralized_billing_ops: false,
+        view_ops_billing_monitor: true,
+        view_partner_marketing: false,
+        manage_partner_marketing: false,
+        manage_platform_commerce_rules: false,
+      },
+    },
+    {
+      key: 'marketing_content',
+      label: 'محتوى وتسويق الشركاء',
+      permissions: {
+        ...FULL_ADMIN_PERMISSIONS,
+        view_requests: false,
+        review_requests: false,
+        manage_barbers: false,
+        view_payments: false,
+        review_payments: false,
+        view_command_center: false,
+        manage_command_center: false,
+        manage_admins: false,
+        view_payment_settings: false,
+        manage_payment_settings: false,
+        manage_subscriber_comms: false,
+        manage_subscriber_lifecycle: false,
+        manage_partner_billing: false,
+        manage_centralized_billing_ops: false,
+        view_ops_billing_monitor: false,
+        view_partner_marketing: true,
+        manage_partner_marketing: true,
+        manage_platform_commerce_rules: false,
+      },
+    },
+    {
+      key: 'ops_readonly',
+      label: 'مراقب تشغيل (قراءة لوحة الفوترة فقط)',
+      permissions: {
+        ...FULL_ADMIN_PERMISSIONS,
+        view_requests: false,
+        review_requests: false,
+        view_barbers: false,
+        manage_barbers: false,
+        view_payments: false,
+        review_payments: false,
+        view_command_center: false,
+        manage_command_center: false,
+        view_messages: false,
+        view_settings: false,
+        manage_admins: false,
+        view_payment_settings: false,
+        manage_payment_settings: false,
+        manage_subscriber_comms: false,
+        manage_subscriber_lifecycle: false,
+        manage_partner_billing: false,
+        manage_centralized_billing_ops: false,
+        view_ops_billing_monitor: true,
+        view_partner_marketing: false,
+        manage_partner_marketing: false,
+        manage_platform_commerce_rules: false,
       },
     },
   ];
@@ -4654,7 +4731,8 @@ function SettingsSection({
         <CardHeader>
           <CardTitle>إدارة المدراء والصلاحيات</CardTitle>
           <CardDescription>
-            تعيين أدمن جديد مع صلاحيات دقيقة. {bootstrapAdmin ? 'أنت في وضع Bootstrap بصلاحية كاملة.' : 'تحتاج صلاحية إدارة المدراء للتعديل.'}
+            تعيين أدمن جديد مع صلاحيات دقيقة مجمّعة حسب المجال (تشغيل، مالية، تسويق، سوبر). المستوى المقترح بجانب كل
+            مفتاح إرشاد فقط — يمكنك منح أدمن صلاحية «سوبر» محددة دون باقي المفاتيح. {bootstrapAdmin ? 'أنت في وضع Bootstrap بصلاحية كاملة.' : 'تحتاج صلاحية إدارة المدراء للتعديل.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -4719,21 +4797,34 @@ function SettingsSection({
                 </div>
               </div>
 
-              <div className="rounded-lg border p-3">
-                <p className="font-medium text-sm mb-3">صلاحيات الأدمن الجديد</p>
-                <div className="grid gap-2 md:grid-cols-2">
-                  {ADMIN_PERMISSION_KEYS.map((key) => (
-                    <div key={key} className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-2">
-                      <span className="text-sm">{ADMIN_PERMISSION_LABELS[key]}</span>
-                      <Switch
-                        checked={newAdminPermissions[key]}
-                        onCheckedChange={(checked) =>
-                          setNewAdminPermissions((prev) => ({ ...prev, [key]: checked }))
-                        }
-                      />
+              <div className="rounded-lg border p-3 space-y-4">
+                <p className="font-medium text-sm">صلاحيات الأدمن الجديد</p>
+                {ADMIN_PERMISSION_UI_SECTIONS.map((section) => (
+                  <div key={section.id} className="rounded-md border border-border/70 bg-muted/10 p-3 space-y-2">
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-foreground">{section.title}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{section.subtitle}</p>
                     </div>
-                  ))}
-                </div>
+                    <div className="grid gap-2 md:grid-cols-2">
+                      {section.keys.map((key) => (
+                        <div key={key} className="flex items-center justify-between gap-2 rounded-md bg-muted/30 px-3 py-2">
+                          <div className="min-w-0 space-y-1 text-right">
+                            <span className="text-sm block">{ADMIN_PERMISSION_LABELS[key]}</span>
+                            <Badge variant="secondary" className="text-[10px] font-normal">
+                              {adminPermissionShortRoleLabel(key)}
+                            </Badge>
+                          </div>
+                          <Switch
+                            checked={newAdminPermissions[key]}
+                            onCheckedChange={(checked) =>
+                              setNewAdminPermissions((prev) => ({ ...prev, [key]: checked }))
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div className="rounded-lg border p-3">
@@ -4783,16 +4874,28 @@ function SettingsSection({
                             </Button>
                           </div>
                         </div>
-                        <div className="grid gap-2 md:grid-cols-2">
-                          {ADMIN_PERMISSION_KEYS.map((key) => (
-                            <div key={key} className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-2">
-                              <span className="text-xs">{ADMIN_PERMISSION_LABELS[key]}</span>
-                              <Switch
-                                checked={row.permissions[key]}
-                                onCheckedChange={(checked) =>
-                                  void toggleAdminPermission(row, key, checked)
-                                }
-                              />
+                        <div className="space-y-4">
+                          {ADMIN_PERMISSION_UI_SECTIONS.map((section) => (
+                            <div key={`${row.id}-${section.id}`} className="rounded-md border border-border/70 bg-muted/10 p-3 space-y-2">
+                              <p className="text-xs font-semibold text-foreground">{section.title}</p>
+                              <div className="grid gap-2 md:grid-cols-2">
+                                {section.keys.map((key) => (
+                                  <div key={key} className="flex items-center justify-between gap-2 rounded-md bg-muted/30 px-2 py-1.5">
+                                    <div className="min-w-0 space-y-0.5 text-right">
+                                      <span className="text-xs block leading-snug">{ADMIN_PERMISSION_LABELS[key]}</span>
+                                      <Badge variant="outline" className="text-[9px] font-normal h-5">
+                                        {adminPermissionShortRoleLabel(key)}
+                                      </Badge>
+                                    </div>
+                                    <Switch
+                                      checked={row.permissions[key]}
+                                      onCheckedChange={(checked) =>
+                                        void toggleAdminPermission(row, key, checked)
+                                      }
+                                    />
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -4806,8 +4909,18 @@ function SettingsSection({
         </CardContent>
       </Card>
 
-      <PartnerPromoVideoAdminPanel canManage={canSavePlatformVat} />
-      <PartnerTutorialVideosAdminPanel canManage={canSavePlatformVat} />
+      {canViewPartnerMarketing || canManagePartnerMarketing ? (
+        <>
+          <PartnerPromoVideoAdminPanel
+            canView={canViewPartnerMarketing || canManagePartnerMarketing}
+            canManage={canManagePartnerMarketing}
+          />
+          <PartnerTutorialVideosAdminPanel
+            canView={canViewPartnerMarketing || canManagePartnerMarketing}
+            canManage={canManagePartnerMarketing}
+          />
+        </>
+      ) : null}
 
       <Card>
         <CardHeader>

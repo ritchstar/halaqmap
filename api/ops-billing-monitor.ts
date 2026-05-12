@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
-import { safeHost, verifyActivePlatformAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
+import {
+  safeHost,
+  verifyPlatformAdminFromRequest,
+  verifyPlatformAdminFromRequestAny,
+} from './_lib/adminManageBarbersAuth.js';
 import { isLikelyHttpUrl, normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 import { runOpsBillingSync, type OpsBillingSupabase } from './_lib/opsBillingSync.js';
 
@@ -65,8 +69,8 @@ function isCronAuthorized(request: Request): boolean {
   return false;
 }
 
-/** مصادقة: أي مدير نشط (أو bootstrap) أو Cron سرّي. */
-async function authorizeOpsBilling(
+/** قراءة لوحة التزامات التشغيل: مدير نشط بصلاحية عرض أو سوبر مزامنة، أو Cron. */
+async function authorizeOpsBillingRead(
   request: Request,
 ): Promise<
   | { ok: true; supabase: OpsBillingSupabase; actorEmail: string | null }
@@ -79,10 +83,35 @@ async function authorizeOpsBilling(
     return { ok: true, supabase: base.supabase, actorEmail: null };
   }
 
-  const gate = await verifyActivePlatformAdminFromRequest(
+  const gate = await verifyPlatformAdminFromRequestAny(request, base.url, process.env.SUPABASE_SERVICE_ROLE_KEY || '', [
+    'view_ops_billing_monitor',
+    'manage_centralized_billing_ops',
+  ]);
+  if (gate.ok === false) {
+    return { ok: false, status: gate.status, json: gate.json };
+  }
+  return { ok: true, supabase: gate.supabase as OpsBillingSupabase, actorEmail: gate.actorEmail };
+}
+
+/** تعديلات المزامنة والالتزامات: `manage_centralized_billing_ops` أو Cron فقط. */
+async function authorizeOpsBillingWrite(
+  request: Request,
+): Promise<
+  | { ok: true; supabase: OpsBillingSupabase; actorEmail: string | null }
+  | { ok: false; status: number; json: Record<string, unknown> }
+> {
+  const base = await getServiceSupabase();
+  if (base.ok === false) return { ok: false, status: base.status, json: base.body };
+
+  if (isCronAuthorized(request)) {
+    return { ok: true, supabase: base.supabase, actorEmail: null };
+  }
+
+  const gate = await verifyPlatformAdminFromRequest(
     request,
     base.url,
     process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+    'manage_centralized_billing_ops',
   );
   if (gate.ok === false) {
     return { ok: false, status: gate.status, json: gate.json };
@@ -116,7 +145,7 @@ function summarize(rows: Record<string, unknown>[]) {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const auth = await authorizeOpsBilling(request);
+  const auth = await authorizeOpsBillingRead(request);
   if (auth.ok === false) return json(auth.json, auth.status);
 
   const { supabase } = auth;
@@ -171,7 +200,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const auth = await authorizeOpsBilling(request);
+  const auth = await authorizeOpsBillingWrite(request);
   if (auth.ok === false) return json(auth.json, auth.status);
 
   const { supabase, actorEmail } = auth;

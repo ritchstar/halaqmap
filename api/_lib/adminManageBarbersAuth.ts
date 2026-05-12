@@ -58,6 +58,10 @@ export type PlatformAdminPermissionKey =
   | 'manage_subscriber_comms'
   | 'manage_subscriber_lifecycle'
   | 'manage_partner_billing'
+  | 'view_ops_billing_monitor'
+  | 'view_partner_marketing'
+  | 'manage_partner_marketing'
+  | 'manage_platform_commerce_rules'
   | 'manage_centralized_billing_ops';
 
 function permissionFromRow(raw: unknown, key: PlatformAdminPermissionKey): boolean {

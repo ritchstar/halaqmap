@@ -16,14 +16,14 @@ import {
   type TutorialVideoAdminRow,
 } from '@/lib/partnerTutorialVideosAdminRemote';
 
-type Props = { canManage: boolean };
+type Props = { canView: boolean; canManage: boolean };
 
 function extFromFileName(name: string): string | null {
   const m = /\.([a-zA-Z0-9]+)$/.exec(name.trim());
   return m ? m[1].toLowerCase() : null;
 }
 
-export function PartnerTutorialVideosAdminPanel({ canManage }: Props) {
+export function PartnerTutorialVideosAdminPanel({ canView, canManage }: Props) {
   const mounted = useRef(true);
   const [rows, setRows] = useState<TutorialVideoAdminRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,8 +54,9 @@ export function PartnerTutorialVideosAdminPanel({ canManage }: Props) {
   }, []);
 
   useEffect(() => {
+    if (!canView && !canManage) return;
     void refresh();
-  }, [refresh]);
+  }, [refresh, canView, canManage]);
 
   const onUpload = async () => {
     if (!canManage) return;
@@ -105,6 +106,8 @@ export function PartnerTutorialVideosAdminPanel({ canManage }: Props) {
     }
   };
 
+  if (!canView && !canManage) return null;
+
   return (
     <Card className="border-primary/25">
       <CardHeader>
@@ -117,9 +120,10 @@ export function PartnerTutorialVideosAdminPanel({ canManage }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
-        {!canManage ? (
-          <p className="text-sm text-muted-foreground">عرض فقط — يلزم صلاحية إدارة الإعدادات للتعديل.</p>
-        ) : (
+        {!canManage && canView ? (
+          <p className="text-sm text-muted-foreground rounded-md border border-dashed p-3">وضع عرض فقط — لا تملك صلاحية تعديل فيديوهات الشرح.</p>
+        ) : null}
+        {canManage ? (
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
               <Label>عنوان الفيديو</Label>
@@ -144,7 +148,7 @@ export function PartnerTutorialVideosAdminPanel({ canManage }: Props) {
               </Button>
             </div>
           </div>
-        )}
+        ) : null}
 
         <div className="rounded-lg border p-3">
           <div className="mb-3 flex items-center justify-between">

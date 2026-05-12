@@ -16,6 +16,9 @@ import {
 } from '@/lib/partnerPromoVideoAdminRemote';
 
 type Props = {
+  /** تحميل البيانات وعرض الحالة */
+  canView: boolean;
+  /** رفع وحذف وتفعيل */
   canManage: boolean;
 };
 
@@ -25,7 +28,7 @@ function extFromFileName(name: string): string | null {
   return m[1].toLowerCase();
 }
 
-export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
+export function PartnerPromoVideoAdminPanel({ canView, canManage }: Props) {
   const mounted = useRef(true);
   const [status, setStatus] = useState<PartnerPromoAdminStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +43,7 @@ export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!canManage) {
+    if (!canView && !canManage) {
       if (mounted.current) setLoading(false);
       return;
     }
@@ -57,7 +60,7 @@ export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
         setLoading(false);
       }
     }
-  }, [canManage]);
+  }, [canManage, canView]);
 
   useEffect(() => {
     void refresh();
@@ -126,7 +129,7 @@ export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
     toast({ title: 'تم حذف الفيديو من التخزين' });
   };
 
-  if (!canManage) return null;
+  if (!canView && !canManage) return null;
 
   return (
     <Card className="border-emerald-500/30">
@@ -141,6 +144,9 @@ export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {!canManage && canView ? (
+          <p className="text-sm text-muted-foreground rounded-md border border-dashed p-3">وضع عرض فقط — لا تملك صلاحية تعديل المحتوى التسويقي.</p>
+        ) : null}
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -160,7 +166,7 @@ export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
                 <Switch
                   checked={Boolean(status?.enabled)}
                   onCheckedChange={(v) => void onToggleEnabled(v)}
-                  disabled={!status?.objectPath}
+                  disabled={!canManage || !status?.objectPath}
                 />
               </div>
             </div>
@@ -178,16 +184,16 @@ export function PartnerPromoVideoAdminPanel({ canManage }: Props) {
                 id="partner-promo-file"
                 type="file"
                 accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov"
-                disabled={uploading}
+                disabled={!canManage || uploading}
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               />
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button type="button" className="gap-2" disabled={uploading || !file} onClick={() => void onUpload()}>
+              <Button type="button" className="gap-2" disabled={!canManage || uploading || !file} onClick={() => void onUpload()}>
                 {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                 رفع واستبدال
               </Button>
-              <Button type="button" variant="destructive" className="gap-2" disabled={uploading} onClick={() => void onClear()}>
+              <Button type="button" variant="destructive" className="gap-2" disabled={!canManage || uploading} onClick={() => void onClear()}>
                 <Trash2 className="h-4 w-4" />
                 حذف من التخزين
               </Button>
