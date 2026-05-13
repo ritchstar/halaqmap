@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   ArrowRight,
@@ -77,6 +77,39 @@ function bottomNavClass(isActive: boolean) {
   );
 }
 
+/** عنوان تسويقي ثابت (بدون رابط) — إحساس «قاعة صفقات» مع نبض خفيف */
+function PartnerPathDealPulseTitle({ className }: { className?: string }) {
+  const reduceMotion = useReducedMotion();
+  return (
+    <motion.p
+      className={cn(
+        'm-0 bg-gradient-to-l from-amber-200 via-yellow-100 to-emerald-200 bg-clip-text font-extrabold leading-snug tracking-tight text-transparent',
+        'drop-shadow-[0_0_16px_rgba(250,204,21,0.28)]',
+        className,
+      )}
+      animate={
+        reduceMotion
+          ? false
+          : {
+              opacity: [0.86, 1, 0.86],
+              filter: [
+                'brightness(1) saturate(1)',
+                'brightness(1.14) saturate(1.12)',
+                'brightness(1) saturate(1)',
+              ],
+            }
+      }
+      transition={
+        reduceMotion
+          ? undefined
+          : { duration: 2.35, repeat: Infinity, ease: 'easeInOut' }
+      }
+    >
+      حلاق ماب مسار الشركاء
+    </motion.p>
+  );
+}
+
 export function PartnerLayout({ children }: PartnerLayoutProps) {
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -126,7 +159,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         <header className="sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75">
           <div className="container mx-auto px-3 sm:px-4">
             {/* شريط علوي للجوال — بدون تفاف يشغل نصف الشاشة */}
-            <div className="flex min-h-14 items-center justify-between gap-2 py-2 md:hidden">
+            <div className="flex min-h-14 items-center gap-2 py-2 md:hidden">
               <div className="group flex min-h-11 shrink-0 items-center [perspective:640px]">
                 <motion.div
                   className="relative shrink-0 [transform-style:preserve-3d]"
@@ -143,6 +176,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                   />
                 </motion.div>
               </div>
+              <PartnerPathDealPulseTitle className="min-w-0 flex-1 text-center text-[12px] sm:text-sm" />
               <div className="flex shrink-0 items-center gap-1.5">
                 <Button
                   type="button"
@@ -172,21 +206,24 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
             {/* شريط سطح المكتب */}
             <div className="hidden min-h-16 flex-wrap items-center justify-between gap-3 py-2 md:flex">
-              <div className="group flex min-h-11 shrink-0 items-center [perspective:640px]">
-                <motion.div
-                  className="relative shrink-0 [transform-style:preserve-3d]"
-                  whileHover={{ scale: 1.06, rotateY: -8 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: 'spring', stiffness: 380, damping: 22 }}
-                >
-                  <HalaqmapBrandMark
-                    className={cn(
-                      'h-12 w-12 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
-                      partnerBrandMarkSurfaceClass,
-                    )}
-                    imgClassName="[transform:translateZ(4px)]"
-                  />
-                </motion.div>
+              <div className="flex min-w-0 items-center gap-3 lg:gap-4">
+                <div className="group flex min-h-11 shrink-0 items-center [perspective:640px]">
+                  <motion.div
+                    className="relative shrink-0 [transform-style:preserve-3d]"
+                    whileHover={{ scale: 1.06, rotateY: -8 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 22 }}
+                  >
+                    <HalaqmapBrandMark
+                      className={cn(
+                        'h-12 w-12 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
+                        partnerBrandMarkSurfaceClass,
+                      )}
+                      imgClassName="[transform:translateZ(4px)]"
+                    />
+                  </motion.div>
+                </div>
+                <PartnerPathDealPulseTitle className="min-w-0 max-w-[10rem] text-[11px] leading-snug sm:max-w-[12rem] sm:text-sm md:max-w-none md:text-base lg:text-lg" />
               </div>
 
               <nav className="flex max-w-[58%] flex-1 flex-wrap items-center justify-end gap-2 lg:max-w-none">
