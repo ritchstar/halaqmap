@@ -127,10 +127,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           <div className="container mx-auto px-3 sm:px-4">
             {/* شريط علوي للجوال — بدون تفاف يشغل نصف الشاشة */}
             <div className="flex min-h-14 items-center justify-between gap-2 py-2 md:hidden">
-              <NavLink
-                to={ROUTE_PATHS.HOME}
-                className="group flex min-h-11 min-w-0 flex-1 items-center gap-2.5 [perspective:640px] touch-manipulation"
-              >
+              <div className="group flex min-h-11 shrink-0 items-center [perspective:640px]">
                 <motion.div
                   className="relative shrink-0 [transform-style:preserve-3d]"
                   whileHover={{ scale: 1.06, rotateY: -8 }}
@@ -139,24 +136,13 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                 >
                   <HalaqmapBrandMark
                     className={cn(
-                      'h-10 w-10 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
+                      'h-11 w-11 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
                       partnerBrandMarkSurfaceClass,
                     )}
                     imgClassName="[transform:translateZ(4px)]"
                   />
                 </motion.div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
-                    حلاق ماب
-                  </p>
-                  <p className="truncate text-[11px] font-semibold text-amber-100/95">مسار الشركاء</p>
-                  <p className="truncate text-[10px] leading-tight text-slate-400">
-                    انضمام الحلاقين
-                    <span className="text-slate-600"> · </span>
-                    <span dir="ltr">HALAQ MAP</span>
-                  </p>
-                </div>
-              </NavLink>
+              </div>
               <div className="flex shrink-0 items-center gap-1.5">
                 <Button
                   type="button"
@@ -186,10 +172,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
             {/* شريط سطح المكتب */}
             <div className="hidden min-h-16 flex-wrap items-center justify-between gap-3 py-2 md:flex">
-              <NavLink
-                to={ROUTE_PATHS.HOME}
-                className="group flex min-h-11 items-center gap-3 [perspective:640px] touch-manipulation rounded-xl"
-              >
+              <div className="group flex min-h-11 shrink-0 items-center [perspective:640px]">
                 <motion.div
                   className="relative shrink-0 [transform-style:preserve-3d]"
                   whileHover={{ scale: 1.06, rotateY: -8 }}
@@ -198,23 +181,13 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                 >
                   <HalaqmapBrandMark
                     className={cn(
-                      'h-11 w-11 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
+                      'h-12 w-12 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
                       partnerBrandMarkSurfaceClass,
                     )}
                     imgClassName="[transform:translateZ(4px)]"
                   />
                 </motion.div>
-                <div>
-                  <p className="text-xl font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
-                    حلاق ماب
-                  </p>
-                  <p className="text-xs text-slate-400" dir="ltr">
-                    HALAQ MAP
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-amber-100">مسار الشركاء</p>
-                  <p className="text-xs text-slate-400">Landing + Onboarding Funnel</p>
-                </div>
-              </NavLink>
+              </div>
 
               <nav className="flex max-w-[58%] flex-1 flex-wrap items-center justify-end gap-2 lg:max-w-none">
                 {partnerNavItems.map((item) => (
