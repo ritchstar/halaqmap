@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Mail, LogIn, Scissors } from 'lucide-react';
+import { Lock, Mail, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
 import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { IMAGES } from '@/assets/images';
 import { barberPortalLoginRemote } from '@/lib/barberPortalLoginRemote';
 import { toast } from 'sonner';
@@ -73,19 +74,7 @@ export default function BarberLogin() {
       >
         <div className="rounded-2xl border border-border bg-card p-8 shadow-2xl">
           <div className="mb-8 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent"
-            >
-              <Scissors className="h-10 w-10 text-primary-foreground" />
-            </motion.div>
-            <img
-              src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-              alt="حلاق ماب"
-              className="mx-auto mb-3 h-10 w-auto object-contain"
-            />
+            <HalaqmapBrandMark className="mx-auto mb-4 h-20 w-20 rounded-[1.35rem] ring-2 ring-primary/40 ring-offset-4 ring-offset-card shadow-xl" />
             <h1 className="mb-2 text-2xl font-bold">لوحة تحكم حلاق ماب</h1>
             <p className="text-muted-foreground">
               أدخل <strong>البريد المعتمد</strong> في اشتراكك. في خانة الرمز استخدم إما الرقم السري الذي زوّدك به{' '}

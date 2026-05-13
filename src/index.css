@@ -210,3 +210,81 @@
     @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
   }
 }
+
+/* ─── HalaqMap brand mark: calm heartbeat + subtle star shimmer ─── */
+@keyframes halaqmap-brand-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0.2rem color-mix(in srgb, var(--primary) 18%, transparent));
+  }
+  50% {
+    transform: scale(1.038);
+    filter: drop-shadow(0 0 0.55rem color-mix(in srgb, var(--primary) 32%, transparent));
+  }
+}
+
+@keyframes halaqmap-brand-glint {
+  0%,
+  48% {
+    background-position: 160% 50%;
+    opacity: 0;
+  }
+  52% {
+    opacity: 0.85;
+  }
+  58% {
+    background-position: -60% 50%;
+    opacity: 0.45;
+  }
+  66%,
+  100% {
+    background-position: -60% 50%;
+    opacity: 0;
+  }
+}
+
+.halaqmap-brand-mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  overflow: hidden;
+  animation: halaqmap-brand-pulse 2.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.halaqmap-brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background: linear-gradient(
+    108deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0) 44%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0) 56%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 260% 100%;
+  background-position: 160% 50%;
+  animation: halaqmap-brand-glint 4.25s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halaqmap-brand-mark,
+  .halaqmap-brand-mark::after {
+    animation: none !important;
+  }
+
+  .halaqmap-brand-mark {
+    filter: drop-shadow(0 0 0.25rem color-mix(in srgb, var(--primary) 22%, transparent));
+  }
+}

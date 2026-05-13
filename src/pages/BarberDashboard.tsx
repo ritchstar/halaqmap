@@ -45,6 +45,7 @@ import {
 } from '@/components/ui/dialog';
 import QRCode from 'react-qr-code';
 import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { IMAGES } from '@/assets/images';
 import {
   createInitialWorkingWeekForm,
@@ -447,10 +448,8 @@ export default function BarberDashboard() {
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex min-h-16 flex-col gap-2 py-2 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-0">
             <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-              <img
-                src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-                alt={PARTNER_DASHBOARD_BRAND_LABEL}
-                className="h-9 w-auto shrink-0 object-contain sm:h-10"
+              <HalaqmapBrandMark
+                className="h-9 w-9 shrink-0 rounded-2xl ring-2 ring-primary/25 ring-offset-2 ring-offset-background shadow-sm sm:h-10 sm:w-10"
               />
               <div className="min-w-0 flex-1">
                 <h1 className="flex min-w-0 flex-col gap-0.5 leading-tight">

@@ -11,7 +11,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
-import { IMAGES } from '@/assets/images';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
@@ -123,10 +123,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             {/* شريط علوي للجوال — بدون تفاف يشغل نصف الشاشة */}
             <div className="flex min-h-14 items-center justify-between gap-2 py-2 md:hidden">
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <img
-                  src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-                  alt="حلاق ماب"
-                  className="h-10 w-10 shrink-0 rounded-full ring-2 ring-primary/30 ring-offset-2 ring-offset-[#071426]"
+                <HalaqmapBrandMark
+                  className="h-10 w-10 shrink-0 rounded-2xl ring-2 ring-primary/30 ring-offset-2 ring-offset-[#071426]"
                 />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-amber-100">مسار الشركاء</p>
@@ -163,10 +161,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             {/* شريط سطح المكتب */}
             <div className="hidden min-h-16 flex-wrap items-center justify-between gap-3 py-2 md:flex">
               <div className="flex items-center gap-3">
-                <img
-                  src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-                  alt="حلاق ماب"
-                  className="h-11 w-11 rounded-full ring-2 ring-primary/30 ring-offset-2 ring-offset-background"
+                <HalaqmapBrandMark
+                  className="h-11 w-11 shrink-0 rounded-2xl ring-2 ring-primary/30 ring-offset-2 ring-offset-background"
                 />
                 <div>
                   <p className="text-sm font-bold text-amber-100">مسار الشركاء</p>
