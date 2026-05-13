@@ -10,6 +10,8 @@ import {
   BARBER_DASHBOARD_GOLD_LINE,
   BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
   MAP_FEATURE_HERO,
+  SHOP_OPEN_STATUS_FEATURE_BRONZE,
+  SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from '@/config/subscriptionPlanHero';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { PARTNER_REGISTER_INTRO_PARAGRAPHS } from '@/lib/partnerMarketingCopy';
@@ -38,6 +40,7 @@ const subscriptionPlans: {
       { kind: 'row', text: 'جدول أسبوعي كامل لأوقات العمل مع الطلب (إلزامي للبرونزي)', included: true },
       { kind: 'row', text: 'رقم الهاتف للتواصل', included: true },
       { kind: 'row', text: 'معلومات أساسية (الاسم، العنوان، ساعات العمل)', included: true },
+      { kind: 'row', text: SHOP_OPEN_STATUS_FEATURE_BRONZE, included: true },
       { kind: 'row', text: 'بنر موسع للمحل', included: false },
       { kind: 'row', text: 'رابط واتساب مباشر', included: false },
       { kind: 'row', text: 'شات مباشر مع العملاء', included: false },
@@ -64,6 +67,7 @@ const subscriptionPlans: {
       { kind: 'row', text: 'رابط واتساب مباشر', included: true },
       { kind: 'row', text: 'شات مباشر مع العملاء', included: true },
       { kind: 'row', text: 'أولوية في الظهور على الخريطة والبحث', included: true },
+      { kind: 'row', text: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND, included: true },
       { kind: 'row', text: BARBER_DASHBOARD_GOLD_LINE, included: true },
       { kind: 'row', text: 'نظام حجز المواعيد', included: false },
       { kind: 'row', text: 'شارة التحقق الماسية', included: false },

@@ -38,6 +38,8 @@ import {
   BARBER_DASHBOARD_GOLD_LINE,
   BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
   MAP_FEATURE_HERO,
+  SHOP_OPEN_STATUS_FEATURE_BRONZE,
+  SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from '@/config/subscriptionPlanHero';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
@@ -160,6 +162,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'جدول أسبوعي كامل لأوقات العمل (إلزامي مع الطلب ويُعرَض للعملاء)' },
       { kind: 'line', text: 'رقم الهاتف للتواصل' },
       { kind: 'line', text: 'ظهور في نتائج البحث والخريطة' },
+      { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_BRONZE },
     ],
   },
   {
@@ -178,6 +181,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'شات مباشر مع العملاء' },
       { kind: 'line', text: 'جلسة شات خاصة لكل عميل تنتهي تلقائياً بعد 60 دقيقة لخصوصية أعلى' },
       { kind: 'line', text: 'أولوية في الظهور على الخريطة والبحث' },
+      { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
       { kind: 'line', text: BARBER_DASHBOARD_GOLD_LINE },
       {
         kind: 'line',
