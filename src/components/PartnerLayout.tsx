@@ -262,8 +262,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             <NavLink to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
               سياسة الخصوصية
             </NavLink>
-            <NavLink to={ROUTE_PATHS.PRIVACY} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
-              خصوصية المستخدم
+            <NavLink to={ROUTE_PATHS.PRIVACY_DETAILED} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
+              خصوصية (تفصيلية)
             </NavLink>
           </div>
           <div className="mt-3 border-t border-white/5 pt-3">
@@ -296,7 +296,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             <NavLink to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-slate-400 transition-colors hover:text-emerald-200">
               سياسة الخصوصية
             </NavLink>
-            <NavLink to={ROUTE_PATHS.PRIVACY} className="text-slate-400 transition-colors hover:text-emerald-200">
+            <NavLink to={ROUTE_PATHS.PRIVACY_DETAILED} className="text-slate-400 transition-colors hover:text-emerald-200">
               خصوصية المستخدم (تفصيلية)
             </NavLink>
           </div>

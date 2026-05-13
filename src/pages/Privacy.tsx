@@ -89,11 +89,12 @@ export default function Privacy() {
             </motion.div>
             
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-l from-primary via-accent to-primary bg-clip-text text-transparent">
-              سياسة الخصوصية
+              سياسة الخصوصية التفصيلية
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              سياسة خصوصية المستخدمين في حلاق ماب: كيف نجمع الحد الأدنى من البيانات، وكيف نستخدمها لحماية التجربة.
+              النسخة الكاملة لمستخدمي حلاق ماب: أغراض المعالجة، الامتثال لنظام حماية البيانات الشخصية في المملكة، والحقوق
+              وقنوات التواصل — بجانب النسخة الموجزة حول الموقع الجغرافي عند الحاجة.
             </p>
             <p className="mt-6 text-sm text-muted-foreground">
               للنسخة الموجزة حول الموقع الجغرافي انظر{' '}

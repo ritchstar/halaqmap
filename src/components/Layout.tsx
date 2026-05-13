@@ -21,7 +21,7 @@ export function Layout({ children }: LayoutProps) {
   const navItems = [
     { path: ROUTE_PATHS.HOME, label: 'الرئيسية' },
     { path: ROUTE_PATHS.ABOUT, label: 'من نحن' },
-    { path: ROUTE_PATHS.PRIVACY, label: 'سياسة الخصوصية' },
+    { path: ROUTE_PATHS.PRIVACY_DETAILED, label: 'سياسة الخصوصية' },
   ];
 
   return (
@@ -246,25 +246,25 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <NavLink
                 to={ROUTE_PATHS.TERMS_OF_SERVICE}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
               >
                 شروط الاستخدام
               </NavLink>
               <NavLink
                 to={ROUTE_PATHS.USER_PRIVACY_POLICY}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
               >
                 سياسة الخصوصية
               </NavLink>
               <NavLink
-                to={ROUTE_PATHS.PRIVACY}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                to={ROUTE_PATHS.PRIVACY_DETAILED}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
               >
                 خصوصية (تفصيلية)
               </NavLink>
               <NavLink
                 to={ROUTE_PATHS.ABOUT}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
               >
                 من نحن
               </NavLink>

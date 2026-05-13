@@ -19,6 +19,9 @@ export const ROUTE_PATHS = {
   USER_PRIVACY_POLICY: '/privacy-policy',
   /** شروط الاستخدام العامة للمنصّة */
   TERMS_OF_SERVICE: '/terms',
+  /** سياسة خصوصية المستخدم — النسخة التفصيلية (PDPL والأقسام الكاملة) */
+  PRIVACY_DETAILED: '/privacy/detailed',
+  /** إبقاء المسار القديم؛ يُعاد توجيهه إلى PRIVACY_DETAILED في التوجيه */
   PRIVACY: '/privacy',
   PARTNER_PRIVACY: '/partners/privacy',
   SUBSCRIPTION_POLICY: '/partners/subscription-policy',

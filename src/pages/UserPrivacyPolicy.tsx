@@ -6,7 +6,7 @@ import { renderLegalContentBlocks } from '@/lib/legalPageRender';
 
 /**
  * سياسة خصوصية المستخدمين — تركيز على الموقع الجغرافي وعدم المشاركة مع أطراف خارجية.
- * للنسخة التفصيلية (PDPL وغيرها) يبقى المسار /privacy.
+ * للنسخة التفصيلية (PDPL وغيرها) انظر ROUTE_PATHS.PRIVACY_DETAILED.
  */
 export default function UserPrivacyPolicy() {
   const sections = [
@@ -137,8 +137,8 @@ export default function UserPrivacyPolicy() {
             للاطلاع على **النسخة التفصيلية** لسياسة الخصوصية بما يشمل الامتثال لنظام حماية البيانات الشخصية والملاحق ذات الصلة:
           </p>
           <NavLink
-            to={ROUTE_PATHS.PRIVACY}
-            className="inline-flex items-center justify-center text-primary font-semibold hover:underline"
+            to={ROUTE_PATHS.PRIVACY_DETAILED}
+            className="inline-flex items-center justify-center text-primary font-semibold hover:underline touch-manipulation"
           >
             سياسة الخصوصية التفصيلية
           </NavLink>

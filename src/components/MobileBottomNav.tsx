@@ -68,6 +68,13 @@ export function MobileBottomNav() {
                 سياسة الخصوصية
               </NavLink>
               <NavLink
+                to={ROUTE_PATHS.PRIVACY_DETAILED}
+                className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
+                onClick={() => setMoreOpen(false)}
+              >
+                خصوصية (تفصيلية)
+              </NavLink>
+              <NavLink
                 to={ROUTE_PATHS.TERMS_OF_SERVICE}
                 className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
                 onClick={() => setMoreOpen(false)}

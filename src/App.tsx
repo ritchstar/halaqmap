@@ -79,7 +79,8 @@ const App = () => (
           <Route path={ROUTE_PATHS.ABOUT} element={<Layout><About /></Layout>} />
           <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<Layout><TermsOfService /></Layout>} />
           <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<Layout><UserPrivacyPolicy /></Layout>} />
-          <Route path={ROUTE_PATHS.PRIVACY} element={<Layout><Privacy /></Layout>} />
+          <Route path={ROUTE_PATHS.PRIVACY_DETAILED} element={<Layout><Privacy /></Layout>} />
+          <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
 
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
           <Route

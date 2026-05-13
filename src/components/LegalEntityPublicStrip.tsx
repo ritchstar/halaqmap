@@ -42,7 +42,7 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
         المنصة شحن منتجات نيابة عن الصالونات إلا ما يُتفق عليه خارج نطاق المنصة.
       </p>
       <div className={`mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs ${variant === 'dark' ? 'text-emerald-200/90' : 'text-primary'}`}>
-        <NavLink to={ROUTE_PATHS.PRIVACY} className="underline-offset-2 hover:underline">
+        <NavLink to={ROUTE_PATHS.PRIVACY_DETAILED} className="underline-offset-2 hover:underline">
           سياسة الخصوصية
         </NavLink>
         <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="underline-offset-2 hover:underline">
