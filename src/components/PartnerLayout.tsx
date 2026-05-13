@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   ArrowRight,
@@ -48,6 +49,10 @@ const partnerBottomNav = [
 
 /** يطابق رأس مسار الشركاء — شريط عنوان المتصفح / PWA على الجوال */
 const PARTNER_THEME_COLOR = '#071426';
+
+/** نفس أسلوب الشعار في Layout.tsx مع لون إزاحة الحلقة يطابق الخلفية الداكنة (تفادي هالة بيضاء من ring-offset-background). */
+const partnerBrandMarkSurfaceClass =
+  'ring-offset-[#071426] shadow-[0_14px_32px_-8px_color-mix(in_srgb,var(--primary)_50%,transparent),0_6px_16px_-4px_rgba(0,0,0,0.22),inset_0_2px_6px_rgba(255,255,255,0.55)] transition-[box-shadow,ring-color] duration-300 group-hover:ring-primary/60 group-hover:shadow-[0_18px_40px_-10px_color-mix(in_srgb,var(--primary)_60%,transparent),0_8px_20px_-4px_rgba(0,0,0,0.28),inset_0_2px_8px_rgba(255,255,255,0.65)]';
 
 function desktopNavClass(isActive: boolean) {
   return cn(
@@ -122,15 +127,36 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           <div className="container mx-auto px-3 sm:px-4">
             {/* شريط علوي للجوال — بدون تفاف يشغل نصف الشاشة */}
             <div className="flex min-h-14 items-center justify-between gap-2 py-2 md:hidden">
-              <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <HalaqmapBrandMark
-                  className="h-10 w-10 shrink-0 rounded-2xl ring-2 ring-primary/30 ring-offset-2 ring-offset-[#071426]"
-                />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-amber-100">مسار الشركاء</p>
-                  <p className="truncate text-[11px] text-slate-400">انضمام الحلاقين</p>
+              <NavLink
+                to={ROUTE_PATHS.HOME}
+                className="group flex min-h-11 min-w-0 flex-1 items-center gap-2.5 [perspective:640px] touch-manipulation"
+              >
+                <motion.div
+                  className="relative shrink-0 [transform-style:preserve-3d]"
+                  whileHover={{ scale: 1.06, rotateY: -8 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 22 }}
+                >
+                  <HalaqmapBrandMark
+                    className={cn(
+                      'h-10 w-10 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
+                      partnerBrandMarkSurfaceClass,
+                    )}
+                    imgClassName="[transform:translateZ(4px)]"
+                  />
+                </motion.div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
+                    حلاق ماب
+                  </p>
+                  <p className="truncate text-[11px] font-semibold text-amber-100/95">مسار الشركاء</p>
+                  <p className="truncate text-[10px] leading-tight text-slate-400">
+                    انضمام الحلاقين
+                    <span className="text-slate-600"> · </span>
+                    <span dir="ltr">HALAQ MAP</span>
+                  </p>
                 </div>
-              </div>
+              </NavLink>
               <div className="flex shrink-0 items-center gap-1.5">
                 <Button
                   type="button"
@@ -160,15 +186,35 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
             {/* شريط سطح المكتب */}
             <div className="hidden min-h-16 flex-wrap items-center justify-between gap-3 py-2 md:flex">
-              <div className="flex items-center gap-3">
-                <HalaqmapBrandMark
-                  className="h-11 w-11 shrink-0 rounded-2xl ring-2 ring-primary/30 ring-offset-2 ring-offset-background"
-                />
+              <NavLink
+                to={ROUTE_PATHS.HOME}
+                className="group flex min-h-11 items-center gap-3 [perspective:640px] touch-manipulation rounded-xl"
+              >
+                <motion.div
+                  className="relative shrink-0 [transform-style:preserve-3d]"
+                  whileHover={{ scale: 1.06, rotateY: -8 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 22 }}
+                >
+                  <HalaqmapBrandMark
+                    className={cn(
+                      'h-11 w-11 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
+                      partnerBrandMarkSurfaceClass,
+                    )}
+                    imgClassName="[transform:translateZ(4px)]"
+                  />
+                </motion.div>
                 <div>
-                  <p className="text-sm font-bold text-amber-100">مسار الشركاء</p>
-                  <p className="text-xs text-slate-300">Landing + Onboarding Funnel</p>
+                  <p className="text-xl font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
+                    حلاق ماب
+                  </p>
+                  <p className="text-xs text-slate-400" dir="ltr">
+                    HALAQ MAP
+                  </p>
+                  <p className="mt-0.5 text-sm font-semibold text-amber-100">مسار الشركاء</p>
+                  <p className="text-xs text-slate-400">Landing + Onboarding Funnel</p>
                 </div>
-              </div>
+              </NavLink>
 
               <nav className="flex max-w-[58%] flex-1 flex-wrap items-center justify-end gap-2 lg:max-w-none">
                 {partnerNavItems.map((item) => (
