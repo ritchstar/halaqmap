@@ -5,6 +5,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
+import { tryEmailPartnerUnifiedContractAfterApprove } from './_lib/partnerContractNotify.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = { maxDuration: 60 };
@@ -453,6 +454,18 @@ export async function POST(request: Request): Promise<Response> {
       .in('status', ['pending_review', 'paid']);
     if (subRowErr) {
       return Response.json({ error: 'subscription_row_update_failed', detail: subRowErr.message }, { status: 500, headers });
+    }
+
+    if (resendKey && resendFrom) {
+      void tryEmailPartnerUnifiedContractAfterApprove({
+        supabase,
+        resendApiKey: resendKey,
+        resendFrom,
+        barberEmail: resolved.email,
+        barberName: resolved.barberName,
+        tier,
+        registrationRequestId: row.registration_request_id,
+      }).catch((e) => console.error('[approve] partner unified contract pdf email', e));
     }
 
     return Response.json(
