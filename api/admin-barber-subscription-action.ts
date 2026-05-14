@@ -465,6 +465,7 @@ export async function POST(request: Request): Promise<Response> {
         barberName: resolved.barberName,
         tier,
         registrationRequestId: row.registration_request_id,
+        barberId: resolved.barberId,
       }).catch((e) => console.error('[approve] partner unified contract pdf email', e));
     }
 

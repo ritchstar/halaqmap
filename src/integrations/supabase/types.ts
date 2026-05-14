@@ -195,6 +195,7 @@ export interface Database {
           failure_reason: string | null
           failure_notification_sent_at: string | null
           confirmation_email_sent_at: string | null
+          partner_unified_contract_email_sent_at: string | null
           created_at: string
           updated_at: string
         }
@@ -222,6 +223,7 @@ export interface Database {
           failure_reason?: string | null
           failure_notification_sent_at?: string | null
           confirmation_email_sent_at?: string | null
+          partner_unified_contract_email_sent_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -249,6 +251,7 @@ export interface Database {
           failure_reason?: string | null
           failure_notification_sent_at?: string | null
           confirmation_email_sent_at?: string | null
+          partner_unified_contract_email_sent_at?: string | null
           created_at?: string
           updated_at?: string
         }

@@ -4,6 +4,8 @@ import {
   type PartnerUnifiedContractFields,
 } from './partnerUnifiedContractAr.js';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function tierLabelAr(tier: string): string {
   const t = String(tier || '').toLowerCase();
   if (t === 'diamond') return 'الماسي';
@@ -77,7 +79,8 @@ export async function emailPartnerUnifiedContractPdf(input: {
 
 /**
  * يُستدعى بعد اعتماد الاشتراك من لوحة الإدارة أو من Webhook آمن — لا يرمي أخطاء للمتصل؛ يُسجّل فقط عند الفشل.
- * @returns true إذا أُرسِل البريد بنجاح
+ * عند تمرير `barberId`: يمنع إرسال مزدوج عبر `barber_subscriptions.partner_unified_contract_email_sent_at` (claim قبل الإرسال).
+ * @returns true إذا أُرسِل البريد بنجاح أو تُجاهل الإرسال لأنه مُرسَل مسبقاً
  */
 export async function tryEmailPartnerUnifiedContractAfterApprove(input: {
   supabase: SupabaseClient;
@@ -87,7 +90,52 @@ export async function tryEmailPartnerUnifiedContractAfterApprove(input: {
   barberName: string;
   tier: string;
   registrationRequestId: string | null;
+  /** لمنع تكرار بريد العقد بين الإدارة وـ DB webhook — migration 75 */
+  barberId?: string | null;
 }): Promise<boolean> {
+  const barberId = String(input.barberId ?? '').trim();
+  let claimedSubscriptionRowId: string | null = null;
+
+  if (barberId && UUID_RE.test(barberId)) {
+    const { data: latest } = await input.supabase
+      .from('barber_subscriptions')
+      .select('id, partner_unified_contract_email_sent_at')
+      .eq('barber_id', barberId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latest?.id) {
+      if (latest.partner_unified_contract_email_sent_at) {
+        console.info('[tryEmailPartnerUnifiedContractAfterApprove] skip duplicate (already sent)', {
+          barberId,
+          subscriptionRowId: latest.id,
+        });
+        return true;
+      }
+      const ts = new Date().toISOString();
+      const { data: claimed, error: claimErr } = await input.supabase
+        .from('barber_subscriptions')
+        .update({
+          partner_unified_contract_email_sent_at: ts,
+          updated_at: ts,
+        })
+        .eq('id', latest.id)
+        .is('partner_unified_contract_email_sent_at', null)
+        .select('id')
+        .maybeSingle();
+      if (claimErr) {
+        console.error('[tryEmailPartnerUnifiedContractAfterApprove] claim_failed', claimErr.message);
+        return false;
+      }
+      if (!claimed?.id) {
+        console.info('[tryEmailPartnerUnifiedContractAfterApprove] skip duplicate (concurrent claim)', { barberId });
+        return true;
+      }
+      claimedSubscriptionRowId = claimed.id;
+    }
+  }
+
   const orderId = input.registrationRequestId?.trim() || null;
   let commercialRegistration: string | null = (process.env.LEGAL_COMMERCIAL_REGISTRATION || '').trim() || null;
   let establishmentName = input.barberName;
@@ -120,6 +168,16 @@ export async function tryEmailPartnerUnifiedContractAfterApprove(input: {
   });
   if (!r.ok) {
     console.error('[tryEmailPartnerUnifiedContractAfterApprove]', r.error);
+    if (claimedSubscriptionRowId) {
+      const ts = new Date().toISOString();
+      await input.supabase
+        .from('barber_subscriptions')
+        .update({
+          partner_unified_contract_email_sent_at: null,
+          updated_at: ts,
+        })
+        .eq('id', claimedSubscriptionRowId);
+    }
     return false;
   }
   return true;

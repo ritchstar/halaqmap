@@ -160,6 +160,7 @@ export async function POST(request: Request): Promise<Response> {
     barberName,
     tier: parsed.tier,
     registrationRequestId,
+    barberId: parsed.barberId,
   });
 
   return Response.json(
