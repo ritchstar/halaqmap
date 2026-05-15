@@ -50,6 +50,10 @@ const partnerBottomNav = [
 /** يطابق رأس مسار الشركاء — شريط عنوان المتصفح / PWA على الجوال */
 const PARTNER_THEME_COLOR = '#071426';
 
+/** نفس قيمة index.html — يُضاف/يُحدَّث في <head> عند دخول مسار الشركاء */
+const DOMAIN_VERIFICATION_META_CONTENT =
+  'ac3251813c359d260aa5919cda857c82d6ffb48568edaadb211bba7382361acc';
+
 /** نفس أسلوب الشعار في Layout.tsx مع لون إزاحة الحلقة يطابق الخلفية الداكنة (تفادي هالة بيضاء من ring-offset-background). */
 const partnerBrandMarkSurfaceClass =
   'ring-offset-[#071426] shadow-[0_14px_32px_-8px_color-mix(in_srgb,var(--primary)_50%,transparent),0_6px_16px_-4px_rgba(0,0,0,0.22),inset_0_2px_6px_rgba(255,255,255,0.55)] transition-[box-shadow,ring-color] duration-300 group-hover:ring-primary/60 group-hover:shadow-[0_18px_40px_-10px_color-mix(in_srgb,var(--primary)_60%,transparent),0_8px_20px_-4px_rgba(0,0,0,0.28),inset_0_2px_8px_rgba(255,255,255,0.65)]';
@@ -121,6 +125,18 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
   useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
+
+  /** domain-verification — يُضمن وجود الوسم في head على مسار الشركاء (SPA) */
+  useEffect(() => {
+    const name = 'domain-verification';
+    let meta = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', name);
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', DOMAIN_VERIFICATION_META_CONTENT);
+  }, []);
 
   /** theme-color + شريط حالة iOS أقرب لتطبيق مثبت؛ يُستعاد عند مغادرة المسار */
   useEffect(() => {
