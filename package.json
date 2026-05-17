@@ -21,7 +21,7 @@
     "check:dns-mx-spf-dmarc": "node scripts/check-dns-mx-spf-dmarc.mjs"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.9.0",
+    "@hookform/resolvers": "^5.2.2",
     "@iconify/react": "^6.0.2",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
