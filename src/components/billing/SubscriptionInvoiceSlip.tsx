@@ -40,7 +40,7 @@ export const SubscriptionInvoiceSlip = forwardRef<HTMLDivElement, Props>(functio
               حلاق ماب
             </h1>
             <p className="text-sm font-medium text-slate-600 dir-ltr text-left">Halaq Map</p>
-            <p className="pt-2 text-lg font-semibold text-slate-800">فاتورة اشتراك</p>
+            <p className="pt-2 text-lg font-semibold text-slate-800">فاتورة ترخيص إدراج برمجي</p>
             <p className="text-xs text-slate-500 dir-ltr text-left">Subscription invoice</p>
           </div>
           <div className="min-w-[200px] space-y-1 rounded-lg border border-slate-200 bg-slate-50/80 p-3 text-sm">

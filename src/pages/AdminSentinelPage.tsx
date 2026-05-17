@@ -293,7 +293,7 @@ export default function AdminSentinelPage() {
           <CardHeader>
             <CardTitle className={`text-lg sm:text-xl font-bold flex items-center gap-2 ${TXT}`}>
               <Activity className={`h-5 w-5 sm:h-6 sm:w-6 shrink-0 ${TXT}`} />
-              Subscription Health (صحة الاشتراك والمسارات)
+              Subscription Health (صحة تراخيص الإدراج والمسارات)
             </CardTitle>
             <CardDescription className={`text-sm sm:text-[15px] leading-relaxed font-medium ${TXT}`}>
               رادار فشل الدفع، النماذج العالقة خلال 24 ساعة، وزمن استجابة Supabase — يُحدَّث عند كل تحميل للصفحة.

@@ -113,6 +113,11 @@ import {
 } from '@/lib/barberPortfolioRemote';
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
+import {
+  fetchListingLicenseBalanceRemote,
+  redeemListingLicenseRemote,
+  type ListingLicenseBalance,
+} from '@/lib/listingLicenseRemote';
 
 function newId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -160,6 +165,11 @@ export default function BarberDashboard() {
     showDiscountBadge: false,
     discountPercent: null,
   });
+  const [listingBalance, setListingBalance] = useState<ListingLicenseBalance | null>(null);
+  const [listingBalanceLoading, setListingBalanceLoading] = useState(false);
+  const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
+  const [redeemCode, setRedeemCode] = useState('');
+  const [redeemLoading, setRedeemLoading] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem('barberAuth');
@@ -205,6 +215,21 @@ export default function BarberDashboard() {
       navigate(ROUTE_PATHS.BARBER_LOGIN);
     }
   }, [navigate]);
+
+  const refreshListingBalance = useCallback(async () => {
+    if (!barberData?.id || !barberData.email) return;
+    setListingBalanceLoading(true);
+    const res = await fetchListingLicenseBalanceRemote({
+      barberId: barberData.id,
+      email: barberData.email,
+    });
+    setListingBalanceLoading(false);
+    if (res.ok) setListingBalance(res.balance);
+  }, [barberData?.id, barberData?.email]);
+
+  useEffect(() => {
+    void refreshListingBalance();
+  }, [refreshListingBalance]);
 
   /** ذهبي: تبويبات الرسائل + QR فقط — ماسي: لوحة كاملة */
   const tierTabs = useMemo(() => {
@@ -464,6 +489,16 @@ export default function BarberDashboard() {
                   <Badge variant="secondary" className="text-[10px] sm:text-xs">
                     {subscriptionTierLabelAr(barberData.subscription)}
                   </Badge>
+                  <Badge
+                    variant={listingBalance?.hasActiveListing ? 'default' : 'outline'}
+                    className="text-[10px] sm:text-xs"
+                  >
+                    {listingBalanceLoading
+                      ? 'جاري تحميل الإدراج…'
+                      : listingBalance?.hasActiveListing
+                        ? `${listingBalance.listingDaysRemaining} يوم إدراج`
+                        : 'لا يوجد إدراج نشط'}
+                  </Badge>
                   {formatBarberMemberNumber(barberData.memberNumber) ? (
                     <span className="truncate text-[11px] text-muted-foreground sm:text-xs" dir="ltr">
                       عضوية: {formatBarberMemberNumber(barberData.memberNumber)}
@@ -550,14 +585,105 @@ export default function BarberDashboard() {
             </p>
           ) : null}
 
+          <Card className="border-emerald-500/30 bg-emerald-500/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">صلاحية ترخيص الإدراج الرقمي</CardTitle>
+              <CardDescription className="text-sm leading-relaxed">
+                صلاحية الظهور على الخريطة مبنية على <strong>ترخيص رقمي مسبق الدفع</strong> لخدمات الإدراج البرمجية الموحدة.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <motion.div className="space-y-1 text-sm">
+                <p>
+                  <strong>أيام الإدراج المتبقية:</strong>{' '}
+                  {listingBalanceLoading
+                    ? '…'
+                    : listingBalance?.hasActiveListing
+                      ? listingBalance.listingDaysRemaining
+                      : '0'}
+                </p>
+                {listingBalance?.validUntil ? (
+                  <p className="text-xs text-muted-foreground">
+                    <strong>تاريخ انتهاء صلاحية ترخيص الإدراج:</strong>{' '}
+                    <span dir="ltr">{new Date(listingBalance.validUntil).toLocaleString('ar-SA')}</span>
+                  </p>
+                ) : null}
+              </motion.div>
+              <Button type="button" variant="outline" size="sm" onClick={() => setRedeemDialogOpen(true)}>
+                استرداد رمز الرخصة
+              </Button>
+            </CardContent>
+          </Card>
+
           <Alert className="border-primary/30 bg-primary/5">
             <Shield className="h-4 w-4 text-primary" />
             <AlertDescription className="text-sm leading-relaxed">
-              <strong>حالة الطلب والخصوصية:</strong> إذا قدّمت مؤخراً طلب اشتراك، فهو يمرّ بـ <strong>مراجعة نظامية</strong>{' '}
+              <strong>حالة الطلب والخصوصية:</strong> إذا قدّمت مؤخراً طلب تسجيل، فهو يمرّ بـ <strong>مراجعة نظامية</strong>{' '}
               حتى تصلك رسالة الإدارة. <strong>لم تُحفظ مستنداتك الحكومية على خوادمنا</strong> ولن نطلب منك إعادة رفعها
               لاحقاً عبر هذه اللوحة.
             </AlertDescription>
           </Alert>
+
+          <Dialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen}>
+            <DialogContent dir="rtl" className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>استرداد رمز رخصة الإدراج</DialogTitle>
+                <DialogDescription>
+                  أدخل الرمز الذي وصلك بالبريد بعد شراء الرخصة أو التحويل البنكي (مثال: HM-LIC-XXXX-XXXX-XXXX).
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2">
+                <Label htmlFor="license-redeem-code">رمز الرخصة</Label>
+                <Input
+                  id="license-redeem-code"
+                  value={redeemCode}
+                  onChange={(e) => setRedeemCode(e.target.value)}
+                  placeholder="HM-LIC-...."
+                  dir="ltr"
+                  className="text-left"
+                />
+                <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+                  نظام تراخيص برمجية مسبقة الدفع متوافق مع البيع بالتجزئة للبرمجيات، خاضع لأنظمة الهيئة العامة لتنظيم
+                  الإعلام بالمملكة العربية السعودية.
+                </p>
+              </div>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button type="button" variant="ghost" onClick={() => setRedeemDialogOpen(false)}>
+                  إلغاء
+                </Button>
+                <Button
+                  type="button"
+                  disabled={redeemLoading || redeemCode.trim().length < 8}
+                  onClick={async () => {
+                    if (!barberData) return;
+                    setRedeemLoading(true);
+                    const res = await redeemListingLicenseRemote({
+                      barberId: barberData.id,
+                      email: barberData.email,
+                      code: redeemCode,
+                    });
+                    setRedeemLoading(false);
+                    if (!res.ok) {
+                      toast.error(
+                        res.error === 'already_redeemed'
+                          ? 'تم استخدام هذا الرمز مسبقاً.'
+                          : res.error === 'code_not_found'
+                            ? 'الرمز غير صحيح.'
+                            : 'تعذّر الاسترداد. تحقق من الرمز أو تواصل مع الدعم.',
+                      );
+                      return;
+                    }
+                    toast.success(`تم التفعيل — ${res.listingDaysRemaining} يوم إدراج متبقٍ.`);
+                    setRedeemCode('');
+                    setRedeemDialogOpen(false);
+                    void refreshListingBalance();
+                  }}
+                >
+                  {redeemLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تفعيل الرخصة'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {tierTabs.showOverview ? (
           <TabsContent value="overview" className="space-y-6">
@@ -606,7 +732,7 @@ export default function BarberDashboard() {
                     <div className="space-y-1 text-right">
                       <p className="text-sm font-semibold">قبول العملاء الآن على الخريطة</p>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء اشتراكك عن المنصة.
+                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء صلاحية ترخيص الإدراج عن المنصة.
                       </p>
                     </div>
                     <Switch

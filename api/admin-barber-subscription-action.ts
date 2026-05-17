@@ -6,6 +6,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { tryEmailPartnerUnifiedContractAfterApprove } from './_lib/partnerContractNotify.js';
+import { defaultMoyasarSkuForTier } from './_lib/listingLicenseCatalog.js';
+import { creditBarberListingEntitlement, loadProductBySku } from './_lib/listingLicenseService.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = { maxDuration: 60 };
@@ -31,15 +33,6 @@ function escapeHtml(s: string): string {
     .replace(/'/g, '&#039;');
 }
 
-function addOneMonth(d: Date): Date {
-  const out = new Date(d.getTime());
-  out.setMonth(out.getMonth() + 1);
-  return out;
-}
-
-function dateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
 
 async function sendResendEmail(input: {
   apiKey: string;
@@ -322,7 +315,7 @@ export async function POST(request: Request): Promise<Response> {
       const text = [
         `أهلًا ${resolved.barberName}،`,
         '',
-        'إليك ملاحظات من فريق الجودة بخصوص طلب الاشتراك:',
+        'إليك ملاحظات من فريق الجودة بخصوص طلب الترخيص:',
         notes,
         '',
         'طلبك ما زال قيد المراجعة — يمكنك الرد على هذا البريد أو التواصل عبر الموقع.',
@@ -367,71 +360,27 @@ export async function POST(request: Request): Promise<Response> {
 
     const tierRaw = String(row.tier ?? '').toLowerCase();
     const tier = tierRaw === 'gold' || tierRaw === 'diamond' ? tierRaw : 'bronze';
-
-    const now = new Date();
-    const start = dateStr(now);
-    const end = dateStr(addOneMonth(now));
-    const amountHalalas =
-      typeof row.amount_halalas === 'number'
-        ? row.amount_halalas
-        : typeof row.amount_halalas === 'string'
-          ? Math.round(Number.parseFloat(row.amount_halalas))
-          : 0;
-    const priceSar = Number.isFinite(amountHalalas) && amountHalalas > 0 ? Math.round(amountHalalas) / 100 : 0;
     const ts = new Date().toISOString();
 
-    const { error: barberErr } = await supabase
-      .from('barbers')
-      .update({
-        is_active: true,
-        is_verified: true,
-        open_for_customers: true,
-        tier,
-        updated_at: ts,
-      })
-      .eq('id', resolved.barberId);
-    if (barberErr) {
-      return Response.json({ error: 'barber_update_failed', detail: barberErr.message }, { status: 500, headers });
+    const sku = defaultMoyasarSkuForTier(tier);
+    const productLoaded = await loadProductBySku(supabase, sku);
+    if (!productLoaded.ok) {
+      return Response.json(
+        { error: 'license_product_not_found', detail: productLoaded.error },
+        { status: 500, headers },
+      );
     }
 
-    const { data: latestSub, error: subSelErr } = await supabase
-      .from('subscriptions')
-      .select('id')
-      .eq('barber_id', resolved.barberId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (subSelErr) {
-      return Response.json({ error: 'subscriptions_select_failed', detail: subSelErr.message }, { status: 500, headers });
-    }
-    if (latestSub?.id) {
-      const { error: subUp } = await supabase
-        .from('subscriptions')
-        .update({
-          tier,
-          start_date: start,
-          end_date: end,
-          status: 'active',
-          price: priceSar,
-          updated_at: ts,
-        })
-        .eq('id', latestSub.id);
-      if (subUp) {
-        return Response.json({ error: 'subscriptions_update_failed', detail: subUp.message }, { status: 500, headers });
-      }
-    } else {
-      const { error: subIn } = await supabase.from('subscriptions').insert({
-        barber_id: resolved.barberId,
-        tier,
-        start_date: start,
-        end_date: end,
-        status: 'active',
-        auto_renew: false,
-        price: priceSar,
-      });
-      if (subIn) {
-        return Response.json({ error: 'subscriptions_insert_failed', detail: subIn.message }, { status: 500, headers });
-      }
+    const credit = await creditBarberListingEntitlement(supabase, {
+      barberId: resolved.barberId,
+      product: productLoaded.product,
+      source: 'admin_payment_approve',
+    });
+    if (!credit.ok) {
+      return Response.json(
+        { error: 'listing_entitlement_failed', detail: credit.error },
+        { status: 500, headers },
+      );
     }
 
     const prevMeta =
@@ -524,17 +473,17 @@ export async function POST(request: Request): Promise<Response> {
 
     const resolved = await resolveBarberIdAndEmail(supabase, row);
     if (resolved.ok && resendKey && resendFrom) {
-      const subject = 'حلاق ماب | تمت إعادة مبلغ الاشتراك';
+      const subject = 'حلاق ماب | تمت إعادة مبلغ الترخيص الرقمي';
       const text = [
         `أهلًا ${resolved.barberName}،`,
         '',
-        'تمت إعادة مبلغ اشتراكك وفق سياسة المنصة. إن كان لديك استفسار رد على هذا البريد.',
+        'تمت إعادة مبلغ شراء الترخيص الرقمي وفق سياسة المنصة. إن كان لديك استفسار رد على هذا البريد.',
         '',
         '— فريق حلاق ماب',
       ].join('\n');
       const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
 <p>أهلًا <strong>${escapeHtml(resolved.barberName)}</strong>،</p>
-<p>تمت <strong>إعادة مبلغ</strong> اشتراكك عبر بوابة الدفع. إن رغبت بمتابعة الانضمام يمكنك التواصل معنا.</p>
+<p>تمت <strong>إعادة مبلغ</strong> شراء الترخيص الرقمي عبر بوابة الدفع. إن رغبت بمتابعة الانضمام يمكنك التواصل معنا.</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`;
       await sendResendEmail({

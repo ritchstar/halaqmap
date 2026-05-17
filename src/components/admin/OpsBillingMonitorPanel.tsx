@@ -226,7 +226,7 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
             <span className="text-xs text-muted-foreground">(المحفظة — تجديد، DNS، قفل النطاق)</span>
           </div>
           <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
-            <span className="text-muted-foreground">GoDaddy — اشتراكات النطاق:</span>
+            <span className="text-muted-foreground">GoDaddy — تجديد النطاق:</span>
             <a
               href={GODADDY_SUBSCRIPTIONS_DEFAULT}
               target="_blank"

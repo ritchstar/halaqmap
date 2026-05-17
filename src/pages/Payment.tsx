@@ -138,7 +138,7 @@ export default function Payment() {
 
   const monthlyBreakdown = calcVatBreakdown(price, vatSettings);
 
-  /** مبلغ الاشتراك الشهري بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
+  /** قيمة الترخيص الرقمي بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
   const monthlyAmountHalalas = useMemo(
     () => Math.max(100, Math.round(monthlyBreakdown.total * 100)),
     [monthlyBreakdown.total],
@@ -198,7 +198,7 @@ export default function Payment() {
           );
           toast.message('تنبيه', { description: 'خادم التحقق من ميسر غير مهيأ بعد.' });
         } else if (result.error === 'amount_mismatch') {
-          setMoyasarVerifyMessage('المبلغ لا يطابق اشتراك الباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
+          setMoyasarVerifyMessage('المبلغ لا يطابق قيمة الترخيص الرقمي للباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
           toast.error('تباين في المبلغ');
         } else {
           setMoyasarVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
@@ -409,9 +409,11 @@ export default function Payment() {
               <CreditCard className="w-10 h-10 text-primary" />
             </motion.div>
 
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">إتمام الدفع</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-snug">
+              شراء ترخيص رقمي لخدمات الإدراج البرمجية
+            </h1>
             <p className="text-lg text-muted-foreground">
-              اختر طريقة الدفع المناسبة لإتمام اشتراكك
+              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء الترخيص
             </p>
           </div>
         </motion.div>
@@ -435,7 +437,7 @@ export default function Payment() {
                 </AlertTitle>
                 <AlertDescription className="text-sm leading-relaxed text-foreground/90">
                   <p>
-                    تم استلام مبلغ الاشتراك عبر ميسر بشكل صحيح، و<strong>تم تفعيل حسابك على المنصة</strong>. يمكنك
+                    تم استلام قيمة <strong>الترخيص الرقمي</strong> عبر ميسر بشكل صحيح، و<strong>تم تفعيل صلاحية الإدراج على المنصة</strong>. يمكنك
                     الآن تسجيل الدخول إلى لوحة التحكم والبدء باستقبال الطلبات.
                   </p>
                   <p className="mt-2 text-xs text-muted-foreground">
@@ -470,7 +472,7 @@ export default function Payment() {
               {/* Subscription Summary */}
               <Card>
                 <CardHeader>
-                  <CardTitle>ملخص الاشتراك</CardTitle>
+                  <CardTitle>ملخص الترخيص الرقمي</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
@@ -482,25 +484,25 @@ export default function Payment() {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold">باقة {tierName}</h3>
-                        <p className="text-sm text-muted-foreground">اشتراك شهري</p>
+                        <p className="text-sm text-muted-foreground">ترخيص إدراج برمجي (30 يوماً)</p>
                       </div>
                     </div>
                     <div className="text-left space-y-1">
                       {vatSettings.enabled && monthlyBreakdown.vat > 0 ? (
                         <>
                           <p className="text-xs text-muted-foreground">
-                            رسوم الاشتراك: {monthlyBreakdown.subtotal} ر.س
+                            قيمة الترخيص الرقمي الموحد: {monthlyBreakdown.subtotal} ر.س
                           </p>
                           <p className="text-xs text-muted-foreground">
                             ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {monthlyBreakdown.vat} ر.س
                           </p>
                           <p className="text-2xl font-bold text-primary">{monthlyBreakdown.total} ر.س</p>
-                          <p className="text-xs text-muted-foreground">الإجمالي شهرياً</p>
+                          <p className="text-xs text-muted-foreground">إجمالي قيمة الترخيص</p>
                         </>
                       ) : (
                         <>
                           <p className="text-2xl font-bold text-primary">{price} ر.س</p>
-                          <p className="text-xs text-muted-foreground">شهرياً (دون ضريبة قيمة مضافة)</p>
+                          <p className="text-xs text-muted-foreground">للترخيص (دون ضريبة قيمة مضافة)</p>
                         </>
                       )}
                     </div>
@@ -604,8 +606,9 @@ export default function Payment() {
                             {bankPromoOn ? `${BANK_TRANSFER_PREPAID_MONTHS} أشهر + عرض` : `${BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً`}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          حوّل المبلغ إلى حسابنا البنكي وارفع الإيصال
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          عند السداد عبر التحويل البنكي، يتم التحقق من الإيصال يدويًا من قِبل الإدارة، وسيتم إصدار وإرسال{' '}
+                          <strong>(كود التفعيل الرقمي للترخيص)</strong> عبر وسائل الاتصال المسجلة خلال 24 ساعة كحد أقصى.
                         </p>
                       </div>
                     </label>
@@ -646,7 +649,7 @@ export default function Payment() {
                             . يلتزم التاجر بـ SSL، والتحقق من الدفع في الخادم، وعدم تخزين بيانات البطاقة،
                             وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع أيضاً{' '}
                             <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
-                              سياسة الاشتراك
+                              سياسة التراخيص الرقمية
                             </Link>
                             .
                           </p>
@@ -806,7 +809,7 @@ export default function Payment() {
                             {vatSettings.enabled && bankTransferBreakdown.vat > 0 ? (
                               <div className="space-y-1 mt-1">
                                 <p className="text-sm text-muted-foreground">
-                                  رسوم الاشتراك: {bankTransferBreakdown.subtotal} ر.س
+                                  قيمة الترخيص الرقمي الموحد: {bankTransferBreakdown.subtotal} ر.س
                                 </p>
                                 <p className="text-sm text-muted-foreground">
                                   ضريبة القيمة المضافة ({vatSettings.ratePercent}%):{' '}
@@ -958,11 +961,11 @@ export default function Payment() {
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>تجديد تلقائي شهرياً</span>
+                      <span>ترخيص رقمي مسبق الدفع — دون تجديد تلقائي أو خصم دوري</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>إمكانية الإلغاء في أي وقت</span>
+                      <span>صلاحية الإدراج محددة بمدة الترخيص المشتراة</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />

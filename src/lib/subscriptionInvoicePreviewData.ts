@@ -74,8 +74,8 @@ export function buildBankTransferSixMonthPreview(issueDate: Date = new Date()): 
   const coverageEnd = subDays(addMonths(issueDate, covered), 1);
 
   const descAr = promo
-    ? `اشتراك باقة ماسي — تحويل بنكي (${BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً). العرض التشغيلي: خصم 10% على إجمالي ${gross.toLocaleString('en-US')} ر.س + ${BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر صلاحية إضافية (إجمالي ${covered} أشهر).`
-    : `اشتراك باقة ماسي — تحويل بنكي (${BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً).`;
+    ? `ترخيص إدراج رقمي — باقة ماسي، تحويل بنكي (${BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً). العرض التشغيلي: خصم 10% على إجمالي ${gross.toLocaleString('en-US')} ر.س + ${BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر صلاحية إضافية (إجمالي ${covered} أشهر).`
+    : `ترخيص إدراج رقمي — باقة ماسي، تحويل بنكي (${BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً).`;
 
   const descEn = promo
     ? `Diamond plan — Bank transfer (${BANK_TRANSFER_PREPAID_MONTHS} months prepaid). Promo: 10% off SAR ${gross.toLocaleString('en-US')} gross + ${BANK_TRANSFER_PROMO_BONUS_MONTHS} complimentary months (${covered} months total access).`
@@ -106,8 +106,8 @@ export function buildBankTransferSixMonthPreview(issueDate: Date = new Date()): 
       cityCountryEn: 'Riyadh, Kingdom of Saudi Arabia',
       email: SAMPLE_EMAIL,
     },
-    invoiceTypeAr: 'تحويل بنكي — اشتراك 6 أشهر',
-    invoiceTypeEn: 'Bank transfer — 6-month subscription',
+    invoiceTypeAr: 'تحويل بنكي — ترخيص إدراج 6 أشهر',
+    invoiceTypeEn: 'Bank transfer — 6-month listing license',
     lines,
     subtotalSar: total,
     totalSar: total,
@@ -140,8 +140,8 @@ export function buildMonthlySubscriptionPreview(issueDate: Date = new Date()): S
 
   const lines: InvoicePreviewLine[] = [
     {
-      descriptionAr: `اشتراك شهري — باقة ماسي (دورة فوترة شهر واحد). السعر الشهري المعتمد حالياً على المنصة.`,
-      descriptionEn: `Monthly subscription — Diamond plan (one-month billing cycle). Current monthly rate per platform.`,
+      descriptionAr: `ترخيص إدراج رقمي — باقة ماسي (30 يوم صلاحية). السعر المعتمد حالياً على المنصة.`,
+      descriptionEn: `Digital listing license — Diamond plan (30-day validity). Current rate per platform.`,
       quantity: 1,
       unitSar: monthly,
       lineTotalSar: monthly,
@@ -163,8 +163,8 @@ export function buildMonthlySubscriptionPreview(issueDate: Date = new Date()): S
       cityCountryEn: 'Riyadh, Kingdom of Saudi Arabia',
       email: SAMPLE_EMAIL,
     },
-    invoiceTypeAr: 'اشتراك شهري — بطاقة / بوابة دفع',
-    invoiceTypeEn: 'Monthly subscription — Card / payment gateway',
+    invoiceTypeAr: 'ترخيص رقمي 30 يوم — بطاقة / بوابة دفع',
+    invoiceTypeEn: '30-day digital license — Card / payment gateway',
     lines,
     subtotalSar: monthly,
     totalSar: monthly,
@@ -175,7 +175,7 @@ export function buildMonthlySubscriptionPreview(issueDate: Date = new Date()): S
     nextRenewalNoteEn: `Next cycle renewal date: ${formatIsoDate(nextRenewal)}.`,
     notesAr: [
       'هذه فاتورة معاينة فقط — لا تُستخدم للسداد الضريبي أو كإثبات رسمي.',
-      'يُستكمل الدفع الشهري عبر بوابة الدفع المعتمدة؛ تُحدَّث الفواتير الفعلية تلقائياً عند تفعيل النظام.',
+      'يُستكمل شراء الترخيص عبر بوابة الدفع المعتمدة؛ تُحدَّث الفواتير الفعلية تلقائياً عند تفعيل النظام.',
     ],
     notesEn: [
       'Preview sample only — not for tax filing or formal evidence.',

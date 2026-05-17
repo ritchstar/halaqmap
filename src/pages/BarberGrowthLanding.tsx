@@ -46,6 +46,7 @@ import {
   PARTNER_LANDING_WHY_SECTION,
 } from '@/lib/partnerMarketingCopy';
 import { generatePartnerSupportThreadToken } from '@/lib/partnerSupportChat';
+import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 
 function PartnerSupportStudioLink({ variant = 'hero' }: { variant?: 'hero' | 'footer' }) {
   const to = useMemo(() => `${ROUTE_PATHS.PARTNER_SUPPORT}?t=${generatePartnerSupportThreadToken()}`, []);
@@ -583,6 +584,13 @@ export default function BarberGrowthLanding() {
         </div>
       </section>
 
+      {/* بطاقات التراخيص الرقمية — متجر البرمجيات */}
+      <section className="border-t border-border/60 bg-[#061223] py-14 md:py-18">
+        <div className="container mx-auto px-4">
+          <ListingLicensePricingMatrix variant="standalone-dark" />
+        </div>
+      </section>
+
       {/* ابدأ الآن — CTA */}
       <section id="start" className="pb-20">
         <div className="container mx-auto px-4">
@@ -639,7 +647,7 @@ export default function BarberGrowthLanding() {
                 </NavLink>
                 <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY}>
                   <Button size="lg" variant="link" className="w-full text-primary">
-                    سياسة الاشتراك
+                    سياسة التراخيص الرقمية
                   </Button>
                 </NavLink>
               </div>

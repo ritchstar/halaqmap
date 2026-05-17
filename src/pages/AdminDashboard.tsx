@@ -77,6 +77,7 @@ import {
   fetchBarberSubscriptionsForAdmin,
   type BarberSubscriptionAdminRow,
 } from '@/lib/adminBarberSubscriptionsRemote';
+import { ListingLicenseIssuePanel } from '@/components/admin/ListingLicenseIssuePanel';
 import {
   listBarbersForAdmin,
   setBarberActiveRemote,
@@ -264,7 +265,7 @@ const WEEKLY_SOP_PLAN = [
   { day: 'الأحد', focus: 'استهداف صالونات ماسية', target: 12, note: 'ابدأ بالرياض وجدة للحالات عالية العائد.' },
   { day: 'الإثنين', focus: 'استهداف ذهبي سريع الإغلاق', target: 18, note: 'ركز على الصالونات الصغيرة والمتوسطة.' },
   { day: 'الثلاثاء', focus: 'متابعة بانتظار الرد', target: 20, note: 'رفع التحويل عبر متابعة اليوم + المتأخرة.' },
-  { day: 'الأربعاء', focus: 'إغلاق مدفوعات وطلبات', target: 10, note: 'تصفية المعلّق وتحويله إلى اشتراك فعلي.' },
+  { day: 'الأربعاء', focus: 'إغلاق مدفوعات وطلبات', target: 10, note: 'تصفية المعلّق وتحويله إلى ترخيص إدراج فعّال.' },
   { day: 'الخميس', focus: 'توسّع مناطق جديدة', target: 15, note: 'الدمام/الخبر/المدينة + تحديث قاعدة الأهداف.' },
   { day: 'الجمعة', focus: 'تشغيل خفيف + دعم', target: 8, note: 'التركيز على الدعم والمتابعة السريعة فقط.' },
   { day: 'السبت', focus: 'مراجعة أسبوعية', target: 0, note: 'تقييم الأداء وتحديث خطة الأسبوع القادم.' },
@@ -284,6 +285,7 @@ export default function AdminDashboard() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
   const [adminData, setAdminData] = useState<AdminSessionInfo | null>(null);
+  const [adminAccessToken, setAdminAccessToken] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -368,6 +370,14 @@ export default function AdminDashboard() {
       cancelled = true;
     };
   }, [adminData, dataRefreshNonce]);
+
+  useEffect(() => {
+    if (!adminData) return;
+    const client = getSupabaseClient();
+    void client?.auth.getSession().then(({ data: { session } }) => {
+      setAdminAccessToken(session?.access_token ?? '');
+    });
+  }, [adminData]);
 
   useEffect(() => {
     if (!adminData) return;
@@ -557,7 +567,7 @@ export default function AdminDashboard() {
             {can('view_requests') && (
             <TabsTrigger value="requests" className="gap-2">
               <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">الطلبات</span>
+              <span className="hidden sm:inline">طلبات التراخيص</span>
               {stats.pendingRequests > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {stats.pendingRequests}
@@ -661,6 +671,9 @@ export default function AdminDashboard() {
 
           {/* Payments Tab */}
           {can('view_payments') && <TabsContent value="payments" className="space-y-6">
+            {canReviewPartnerBilling && adminAccessToken ? (
+              <ListingLicenseIssuePanel accessToken={adminAccessToken} />
+            ) : null}
             <MoyasarSubscriptionsArchiveSection rows={moyasarSubRows} />
             <PaymentsSection
               payments={displayPayments}
@@ -1011,7 +1024,7 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
         <StatsCard
           title="إجمالي الحلاقين"
           value={stats.totalBarbers}
-          subtitle={`${stats.activeSubscriptions} نشط`}
+          subtitle={`${stats.activeSubscriptions} ترخيص إدراج نشط`}
           icon={Users}
           color="blue"
         />
@@ -1036,7 +1049,7 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
         />
       </div>
 
-      {/* Subscription Breakdown */}
+      {/* توزيع باقات التراخيص */}
       <div className="grid gap-6 md:grid-cols-3 mb-6">
         <Card>
           <CardContent className="p-6">
@@ -1044,7 +1057,7 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">باقة برونزية</p>
                 <p className="text-2xl font-bold">{stats.bronzeBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">100 ر.س/شهر</p>
+                <p className="text-xs text-muted-foreground mt-1">100 ر.س / ترخيص 30 يوم</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/30 flex items-center justify-center">
                 <span className="text-2xl">🥉</span>
@@ -1059,7 +1072,7 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">باقة ذهبية</p>
                 <p className="text-2xl font-bold">{stats.goldBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">150 ر.س/شهر</p>
+                <p className="text-xs text-muted-foreground mt-1">150 ر.س / ترخيص 30 يوم</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 flex items-center justify-center">
                 <span className="text-2xl">🥇</span>
@@ -1074,7 +1087,7 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">باقة ماسية</p>
                 <p className="text-2xl font-bold">{stats.diamondBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">200 ر.س/شهر</p>
+                <p className="text-xs text-muted-foreground mt-1">200 ر.س / ترخيص 30 يوم</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 flex items-center justify-center">
                 <span className="text-2xl">💎</span>
@@ -1100,7 +1113,7 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
               <span className="font-semibold">{stats.totalUsers.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">اشتراكات منتهية</span>
+              <span className="text-sm text-muted-foreground">تراخيص إدراج منتهية</span>
               <span className="font-semibold text-red-600">{stats.expiredSubscriptions}</span>
             </div>
           </CardContent>
@@ -1478,7 +1491,7 @@ function RequestsSection({
       ) : null}
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">طلبات الاشتراك</h2>
+        <h2 className="text-2xl font-bold">طلبات التراخيص والإدراج</h2>
         <div className="flex flex-wrap items-center gap-2">
           <Select
             value={requestStatusFilter}
@@ -2072,7 +2085,7 @@ function RequestReviewDialog({
     >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-2xl">مراجعة طلب الاشتراك</DialogTitle>
+          <DialogTitle className="text-2xl">مراجعة طلب الترخيص والإدراج</DialogTitle>
           <DialogDescription>
             قم بمراجعة المعلومات والمستندات قبل الموافقة أو الرفض
           </DialogDescription>
@@ -2274,7 +2287,7 @@ function RequestReviewDialog({
                     <span className="font-medium">
                       {request.paymentMethod === 'bank_transfer'
                         ? 'تحويل بنكي (6 أشهر)'
-                        : 'اشتراك شهري'}
+                        : 'ترخيص رقمي (ميسر)'}
                     </span>
                   </p>
                 )}
@@ -3026,7 +3039,7 @@ function BarbersSection({
     setPurgePhrase('');
     toast({
       title: 'تم مسح جميع الحلاقين',
-      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار الاشتراك والظهور العام.`,
+      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار شراء التراخيص والظهور العام.`,
     });
     onStatsNeedRefresh();
   };
@@ -3305,7 +3318,7 @@ function BarbersSection({
             <div className="mt-8 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
               <p className="text-sm font-semibold text-destructive">منطقة خطرة — المالك فقط</p>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل الاشتراكات الشهرية
+                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل سجلات التراخيص القديمة
                 والتقييمات والحجوزات المرتبطة بنفس الجدول). لا يُنصح به على بيانات إنتاج حقيقية إلا بعد نسخ احتياطي.
               </p>
               <Button
@@ -3395,7 +3408,7 @@ function formatHalalasSar(amount: number | string | null): string {
   return `${(n / 100).toFixed(2)} ر.س`;
 }
 
-/** أرشيف عرض فقط — التفعيل يتم تلقائياً من Webhook ميسر عند توفر linkedBarberId. */
+/** أرشيف عرض فقط — إصدار/تفعيل الترخيص يتم تلقائياً من Webhook ميسر عند توفر linkedBarberId. */
 function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscriptionAdminRow[] }) {
   const sorted = useMemo(
     () => [...rows].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))),
@@ -3410,16 +3423,16 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
       className="space-y-4"
     >
       <div>
-        <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر</h2>
+        <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (تراخيص إدراج)</h2>
         <p className="text-sm text-muted-foreground">
-          للعرض والمرجعية فقط. عند نجاح الدفع يُفعَّل الحلاق ويُرسل بريد الترحيب تلقائياً من الخادم (Edge Webhook +
-          API) دون انتظار خطوة من هذه اللوحة.
+          للعرض والمرجعية فقط. عند نجاح الدفع يُصدَر/يُفعَّل الترخيص الرقمي ويُرسل بريد الترحيب أو كود التفعيل تلقائياً من
+          الخادم (Edge Webhook + API) دون انتظار خطوة من هذه اللوحة.
         </p>
       </div>
       {sorted.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            لا توجد صفوف اشتراك ميسر في الجدول بعد، أو لا تطابق عوامل التصفية الحالية.
+            لا توجد صفوف دفع تراخيص ميسر في الجدول بعد، أو لا تطابق عوامل التصفية الحالية.
           </CardContent>
         </Card>
       ) : (
@@ -3899,7 +3912,7 @@ function CommandCenterSection({
     new: { label: 'جديد', className: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
     contacted: { label: 'تم التواصل', className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
     waiting: { label: 'بانتظار الرد', className: 'bg-purple-500/10 text-purple-600 border-purple-500/30' },
-    won: { label: 'تم الاشتراك', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
+    won: { label: 'تم شراء الترخيص', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
     lost: { label: 'تعذر الإغلاق', className: 'bg-red-500/10 text-red-600 border-red-500/30' },
   };
 
@@ -4074,7 +4087,7 @@ function CommandCenterSection({
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">جديد</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم التواصل</p><p className="text-2xl font-bold">{pipelineCounts.contacted}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">بانتظار الرد</p><p className="text-2xl font-bold">{pipelineCounts.waiting}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم الاشتراك</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم شراء الترخيص</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تعذر الإغلاق</p><p className="text-2xl font-bold text-red-600">{pipelineCounts.lost}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متابعة اليوم</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متأخرة</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
@@ -4111,7 +4124,7 @@ function CommandCenterSection({
                 <SelectItem value="new">جديد</SelectItem>
                 <SelectItem value="contacted">تم التواصل</SelectItem>
                 <SelectItem value="waiting">بانتظار الرد</SelectItem>
-                <SelectItem value="won">تم الاشتراك</SelectItem>
+                <SelectItem value="won">تم شراء الترخيص</SelectItem>
                 <SelectItem value="lost">تعذر الإغلاق</SelectItem>
               </SelectContent>
             </Select>
@@ -4214,7 +4227,7 @@ function CommandCenterSection({
                       <SelectItem value="new">جديد</SelectItem>
                       <SelectItem value="contacted">تم التواصل</SelectItem>
                       <SelectItem value="waiting">بانتظار الرد</SelectItem>
-                      <SelectItem value="won">تم الاشتراك</SelectItem>
+                      <SelectItem value="won">تم شراء الترخيص</SelectItem>
                       <SelectItem value="lost">تعذر الإغلاق</SelectItem>
                     </SelectContent>
                   </Select>
@@ -4665,7 +4678,7 @@ function SettingsSection({
       title: 'تم حفظ إعدادات الضريبة',
       description: vatEnabled
         ? `مفعّلة — النسبة المعروضة ${rateForPreview}% (تُحسب تلقائياً في صفحات الدفع).`
-        : 'معطّلة — تُعرض رسوم الاشتراك فقط دون ضريبة في الواجهة.',
+        : 'معطّلة — تُعرض قيمة الترخيص الرقمي فقط دون ضريبة في الواجهة.',
     });
   };
 
@@ -4983,7 +4996,7 @@ function SettingsSection({
         <CardHeader>
           <CardTitle>ضريبة القيمة المضافة (عرض الدفع)</CardTitle>
           <CardDescription>
-            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كرسوم اشتراك فقط (مناسب
+            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كقيمة ترخيص رقمي فقط (مناسب
             لتقديم بوابات مثل ميسر). عند التوسع بسجل تجاري ورقم ضريبي فعّل الاحتسب هنا وحدّث النسبة عند تغيير
             الأنظمة.
           </CardDescription>
@@ -4993,7 +5006,7 @@ function SettingsSection({
             <div>
               <p className="font-medium">تفعيل احتساب الضريبة في الواجهة</p>
               <p className="text-sm text-muted-foreground mt-1">
-                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة الاشتراك.
+                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة التراخيص الرقمية.
               </p>
             </div>
             <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} disabled={!canSavePlatformVat} />
@@ -5014,7 +5027,7 @@ function SettingsSection({
             <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
           </div>
           <div className="rounded-lg bg-muted/50 p-4 text-sm">
-            <p className="font-medium mb-2">معاينة على 100 ر.س (رسوم اشتراك)</p>
+            <p className="font-medium mb-2">معاينة على 100 ر.س (قيمة ترخيص رقمي)</p>
             <p className="text-muted-foreground">
               {!vatEnabled || preview.vat === 0 ? (
                 <>الإجمالي المعروض: <strong>{preview.total} ر.س</strong> (بدون ضريبة)</>

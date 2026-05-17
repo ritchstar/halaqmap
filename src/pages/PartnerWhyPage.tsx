@@ -81,7 +81,7 @@ export default function PartnerWhyPage() {
               </NavLink>
               <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY}>
                 <Button size="lg" variant="outline">
-                  سياسة الاشتراك
+                  سياسة التراخيص الرقمية
                 </Button>
               </NavLink>
             </div>

@@ -20,7 +20,7 @@ export default function InvoicePreviewSamples() {
 
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = 'حلاق ماب — معاينة فواتير اشتراك (داخلي)';
+    document.title = 'حلاق ماب — معاينة فواتير تراخيص إدراج (داخلي)';
     const meta = document.createElement('meta');
     meta.setAttribute('name', 'robots');
     meta.setAttribute('content', 'noindex, nofollow');
@@ -82,7 +82,7 @@ export default function InvoicePreviewSamples() {
                 جاري إنشاء PDF…
               </>
             ) : (
-              'تنزيل PDF — اشتراك شهري'
+              'تنزيل PDF — ترخيص رقمي 30 يوم'
             )}
           </Button>
         </div>
@@ -95,7 +95,7 @@ export default function InvoicePreviewSamples() {
             </div>
           </div>
           <div className="space-y-2">
-            <h2 className="text-center text-sm font-semibold text-slate-700">معاينة على الشاشة — اشتراك شهري</h2>
+            <h2 className="text-center text-sm font-semibold text-slate-700">معاينة على الشاشة — ترخيص رقمي 30 يوم</h2>
             <div className="flex justify-center overflow-x-auto">
               <SubscriptionInvoiceSlip ref={monthlyRef} payload={monthlyPayload} />
             </div>

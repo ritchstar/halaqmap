@@ -692,7 +692,7 @@ export function RegistrationForm() {
           ? `تحويل بنكي — ${getBankTransferPlanSummaryAr(plan.tier)}`
           : formData.payment.method === 'bank_transfer'
             ? 'تحويل بنكي'
-            : 'اشتراك شهري';
+            : 'ترخيص رقمي (30 يوماً)';
 
       const attributionLines = partnerAttribution
         ? [
@@ -713,7 +713,7 @@ export function RegistrationForm() {
         : 'مسار الاستقطاب (UTM): غير متوفر';
 
       const summaryForDownload =
-        `حلاق ماب — طلب اشتراك جديد\n` +
+        `حلاق ماب — طلب ترخيص إدراج برمجي\n` +
         `================================\n` +
         `رقم الطلب: ${orderId}\n` +
         `تاريخ التقديم: ${submittedAtLabel}\n` +
@@ -905,7 +905,7 @@ export function RegistrationForm() {
                                 </div>
                                 <p className="text-2xl font-bold text-primary mt-1">
                                   {plan.price} ريال
-                                  <span className="text-sm text-muted-foreground">/شهرياً</span>
+                                  <span className="text-sm text-muted-foreground">/ترخيص</span>
                                 </p>
                               </div>
                             </div>
@@ -1181,7 +1181,7 @@ export function RegistrationForm() {
                   <Alert className="border-primary/40 bg-primary/5">
                     <Sparkles className="h-4 w-4 text-primary" />
                     <AlertDescription className="text-sm leading-relaxed">
-                      بعد تفعيل اشتراكك يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
+                      بعد تفعيل ترخيصك يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
                       <strong>لوحة التحكم</strong> في أي وقت. ما ترفعه هنا هو المعتمد لمراجعة الطلب الأولى.
                     </AlertDescription>
                   </Alert>
@@ -1190,7 +1190,7 @@ export function RegistrationForm() {
                 <div className="space-y-3">
                   <Label htmlFor="shop-exterior">صورة واحدة — واجهة المحل من الخارج *</Label>
                   <p className="text-xs text-muted-foreground">
-                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات الاشتراك.
+                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات التراخيص.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Input
@@ -1515,17 +1515,17 @@ export function RegistrationForm() {
                     <AlertDescription>
                       {vatSettings.enabled && monthlyPriceBreakdown && monthlyPriceBreakdown.vat > 0 ? (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — رسوم الاشتراك{' '}
-                          {monthlyPriceBreakdown.subtotal} ر.س شهرياً + ضريبة القيمة المضافة (
+                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — قيمة الترخيص الرقمي الموحد{' '}
+                          {monthlyPriceBreakdown.subtotal} ر.س + ضريبة القيمة المضافة (
                           {vatSettings.ratePercent}%){' '}
                           {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
-                          <strong>{monthlyPriceBreakdown.total} ر.س شهرياً</strong>
+                          <strong>{monthlyPriceBreakdown.total} ر.س</strong>
                         </>
                       ) : (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price} ريال شهرياً
+                          الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price} ريال للترخيص
                           <span className="block text-xs mt-1 opacity-90">
-                            المبلغ المعروض رسوم اشتراك فقط دون ضريبة قيمة مضافة في الوضع الحالي.
+                            المبلغ المعروض قيمة ترخيص رقمي فقط دون ضريبة قيمة مضافة في الوضع الحالي.
                           </span>
                         </>
                       )}
@@ -1545,9 +1545,9 @@ export function RegistrationForm() {
                   <label className="flex items-center space-x-3 space-x-reverse border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
                     <RadioGroupItem value="monthly" id="monthly" />
                     <div className="flex-1">
-                      <div className="font-semibold">اشتراك شهري</div>
+                      <div className="font-semibold">ترخيص رقمي (ميسر)</div>
                       <p className="text-sm text-muted-foreground">
-                        دفع شهري متجدد تلقائياً - يمكن الإلغاء في أي وقت
+                        شراء ترخيص إدراج برمجي مسبق الدفع — دون تجديد تلقائي أو خصم دوري
                       </p>
                     </div>
                   </label>
@@ -1575,7 +1575,7 @@ export function RegistrationForm() {
                                   {bd.vat} ريال على رسوم {bd.subtotal} ريال)
                                 </>
                               ) : (
-                                <>{base} ريال (رسوم اشتراك دون ضريبة قيمة مضافة)</>
+                                <>{base} ريال (قيمة ترخيص رقمي دون ضريبة قيمة مضافة)</>
                               )}
                             </p>
                             <p className="text-xs font-normal text-muted-foreground">
@@ -1608,7 +1608,7 @@ export function RegistrationForm() {
                         rel="noopener noreferrer"
                         className="text-primary underline-offset-2 hover:underline font-medium"
                       >
-                        شروط التسجيل والاشتراك
+                        شروط التسجيل وشراء التراخيص
                       </Link>{' '}
                       و{' '}
                       <Link

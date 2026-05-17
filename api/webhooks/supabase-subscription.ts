@@ -40,29 +40,37 @@ type DbWebhookPayload = {
   old_record?: unknown;
 };
 
-function isSubscriptionActiveTransition(payload: DbWebhookPayload): {
+function isListingEntitlementTransition(payload: DbWebhookPayload): {
   ok: true;
   barberId: string;
   tier: string;
 } | { ok: false } {
   const table = String(payload.table ?? '').toLowerCase();
-  if (table !== 'subscriptions') return { ok: false };
+  if (table !== 'barber_listing_entitlements' && table !== 'subscriptions') {
+    return { ok: false };
+  }
 
   const rec =
     payload.record && typeof payload.record === 'object' && !Array.isArray(payload.record)
       ? (payload.record as Record<string, unknown>)
       : {};
-  const status = String(rec.status ?? '').toLowerCase();
-  if (status !== 'active') return { ok: false };
 
-  const typ = String(payload.type ?? '').toUpperCase();
-  const old =
-    payload.old_record && typeof payload.old_record === 'object' && !Array.isArray(payload.old_record)
-      ? (payload.old_record as Record<string, unknown>)
-      : null;
-  const oldStatus = old ? String(old.status ?? '').toLowerCase() : '';
-  if (typ === 'UPDATE' && oldStatus === 'active') {
-    return { ok: false };
+  if (table === 'subscriptions') {
+    const status = String(rec.status ?? '').toLowerCase();
+    if (status !== 'active') return { ok: false };
+    const typ = String(payload.type ?? '').toUpperCase();
+    const old =
+      payload.old_record && typeof payload.old_record === 'object' && !Array.isArray(payload.old_record)
+        ? (payload.old_record as Record<string, unknown>)
+        : null;
+    const oldStatus = old ? String(old.status ?? '').toLowerCase() : '';
+    if (typ === 'UPDATE' && oldStatus === 'active') return { ok: false };
+  } else {
+    const validUntil = rec.valid_until ? new Date(String(rec.valid_until)).getTime() : 0;
+    if (!Number.isFinite(validUntil) || validUntil <= Date.now()) return { ok: false };
+    if (rec.revoked_at) return { ok: false };
+    const typ = String(payload.type ?? '').toUpperCase();
+    if (typ !== 'INSERT') return { ok: false };
   }
 
   const barberId = String(rec.barber_id ?? '').trim();
@@ -101,10 +109,10 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const payload = body as DbWebhookPayload;
-  const parsed = isSubscriptionActiveTransition(payload);
+  const parsed = isListingEntitlementTransition(payload);
   if (!parsed.ok) {
     return Response.json(
-      { ok: true, skipped: true, reason: 'not_subscription_active_transition' },
+      { ok: true, skipped: true, reason: 'not_listing_entitlement_transition' },
       { status: 200, headers: jsonHeaders }
     );
   }

@@ -137,14 +137,67 @@ function resolveInvoiceHref(meta: Record<string, unknown>): string {
   return "https://www.halaqmap.com/#/partners/payment?invoice=pending";
 }
 
-function addOneMonth(d: Date): Date {
-  const out = new Date(d.getTime());
-  out.setMonth(out.getMonth() + 1);
-  return out;
+function licenseSkuFromMeta(meta: Record<string, unknown>, tier: "bronze" | "gold" | "diamond" | null): string {
+  const fromMeta = String(meta.license_sku ?? meta.licenseSku ?? "").trim().toLowerCase();
+  if (fromMeta) return fromMeta;
+  if (tier === "gold") return "gold_30";
+  if (tier === "diamond") return "diamond_30";
+  return "bronze_30";
 }
 
-function dateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
+async function fulfillListingLicenseViaInternalApi(input: {
+  skuCode: string;
+  tier: "bronze" | "gold" | "diamond" | null;
+  barberId: string | null;
+  buyerEmail: string | null;
+  buyerName: string;
+  moyasarPaymentId: string;
+  registrationRequestId: string | null;
+  amountHalalas: number | null;
+  autoRedeem: boolean;
+}): Promise<{ ok: true; autoRedeemed: boolean; validUntil: string } | { ok: false; error: string }> {
+  const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "").trim().replace(
+    /\/+$/,
+    "",
+  );
+  const secret = (Deno.env.get("LISTING_LICENSE_INTERNAL_SECRET") ?? "").trim();
+  if (!appOrigin || !secret) {
+    return { ok: false, error: "listing_license_internal_not_configured" };
+  }
+  try {
+    const resp = await fetch(`${appOrigin}/api/listing-license-fulfill-internal`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-listing-license-internal-secret": secret,
+      },
+      body: JSON.stringify({
+        skuCode: input.skuCode,
+        tier: input.tier ?? "bronze",
+        barberId: input.barberId,
+        buyerEmail: input.buyerEmail,
+        buyerName: input.buyerName,
+        paymentChannel: "moyasar",
+        moyasarPaymentId: input.moyasarPaymentId,
+        registrationRequestId: input.registrationRequestId,
+        amountHalalas: input.amountHalalas,
+        autoRedeem: input.autoRedeem,
+        metadata: { source: "moyasar_webhook" },
+      }),
+    });
+    const text = await resp.text();
+    if (!resp.ok) {
+      return { ok: false, error: text.slice(0, 500) || `http_${resp.status}` };
+    }
+    const j = JSON.parse(text) as { autoRedeemed?: boolean; validUntil?: string };
+    return {
+      ok: true,
+      autoRedeemed: j.autoRedeemed === true,
+      validUntil: String(j.validUntil ?? ""),
+    };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
 }
 
 async function logPaymentSecurityEvent(
@@ -175,69 +228,6 @@ async function logPaymentSecurityEvent(
   }
 }
 
-/** تفعيل فوري: حلاق نشط + اشتراك شهري active (نفس منطق اعتماد الإدارة السابق). */
-async function activateBarberAndSubscriptionPaid(
-  supabase: ReturnType<typeof createClient>,
-  barberId: string,
-  tier: "bronze" | "gold" | "diamond" | null,
-  amountHalalas: number | null,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const tierNorm = tier === "gold" || tier === "diamond" ? tier : "bronze";
-  const now = new Date();
-  const start = dateStr(now);
-  const end = dateStr(addOneMonth(now));
-  const amt = typeof amountHalalas === "number" && Number.isFinite(amountHalalas) ? amountHalalas : 0;
-  const priceSar = amt > 0 ? Math.round(amt) / 100 : 0;
-  const ts = now.toISOString();
-
-  const { error: barberErr } = await supabase
-    .from("barbers")
-    .update({
-      is_active: true,
-      is_verified: true,
-      open_for_customers: true,
-      tier: tierNorm,
-      updated_at: ts,
-    })
-    .eq("id", barberId);
-  if (barberErr) return { ok: false, error: barberErr.message };
-
-  const { data: latestSub, error: subSelErr } = await supabase
-    .from("subscriptions")
-    .select("id")
-    .eq("barber_id", barberId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (subSelErr) return { ok: false, error: subSelErr.message };
-
-  if (latestSub?.id) {
-    const { error: subUp } = await supabase
-      .from("subscriptions")
-      .update({
-        tier: tierNorm,
-        start_date: start,
-        end_date: end,
-        status: "active",
-        price: priceSar,
-        updated_at: ts,
-      })
-      .eq("id", latestSub.id);
-    if (subUp) return { ok: false, error: subUp.message };
-  } else {
-    const { error: subIn } = await supabase.from("subscriptions").insert({
-      barber_id: barberId,
-      tier: tierNorm,
-      start_date: start,
-      end_date: end,
-      status: "active",
-      auto_renew: false,
-      price: priceSar,
-    });
-    if (subIn) return { ok: false, error: subIn.message };
-  }
-  return { ok: true };
-}
 
 async function sendResendConfirmation(input: {
   apiKey: string;
@@ -260,7 +250,7 @@ async function sendResendConfirmation(input: {
     : `<p>تم استلام المبلغ بنجاح. إذا لم يظهر صالونك على الخريطة بعد، تأكد من إكمال التسجيل وربط معرّف الحلاق في عملية الدفع أو تواصل مع الدعم.</p>`;
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
-<p>شكرًا لك، تم استلام مبلغ الاشتراك بنجاح عبر <strong>ميسر (Moyasar)</strong>.</p>
+<p>شكرًا لك، تم استلام قيمة <strong>الترخيص الرقمي لخدمات الإدراج البرمجية</strong> (Software Listing License) بنجاح عبر <strong>ميسر (Moyasar)</strong>.</p>
 ${activationBlock}
 <ul style="list-style:none;padding:0">
 <li>الباقة: <strong>${escapeHtml(input.tierLabel)}</strong></li>
@@ -307,7 +297,7 @@ async function sendResendPaymentFailure(input: {
   reason: string;
   paymentId: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
-  const subject = "حلاق ماب | لم يكتمل دفع الاشتراك";
+  const subject = "حلاق ماب | لم يكتمل شراء الترخيص الرقمي";
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#fef2f2">
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
 <p>لم نتمكن من إتمام عملية الدفع عبر ميسر.</p>
@@ -616,9 +606,7 @@ Deno.serve(async (req) => {
   let onboardingApiOk = false;
   let whatsappDraftOk = false;
 
-  if (rowStatus === "paid" && barberId) {
-    // Live activation gate: no activation unless paid event arrives from verified Moyasar webhook
-    // (secret_token validated above) and trusted payment event type is present.
+  if (rowStatus === "paid") {
     const trustedPaidSource = Boolean(eventType && /^payment/i.test(eventType));
     if (!trustedPaidSource) {
       await logPaymentSecurityEvent(supabase, {
@@ -626,7 +614,7 @@ Deno.serve(async (req) => {
         eventType: "untrusted_paid_event_type",
         paymentId,
         registrationRequestId: requestId || null,
-        barberId,
+        barberId: barberId ?? null,
         reason: "Paid status received from untrusted or missing event type.",
         detail: { eventType, paymentStatus, metadata: metaPayload },
       });
@@ -664,7 +652,7 @@ Deno.serve(async (req) => {
         await supabase
           .from("barber_subscriptions")
           .update({
-            failure_reason: "Payment amount/currency mismatch with expected package pricing.",
+            failure_reason: "Payment amount/currency mismatch with expected license SKU pricing.",
             metadata: { ...metaPayload, ...detail, activation_blocked_at: tsFail },
             updated_at: tsFail,
           })
@@ -675,8 +663,8 @@ Deno.serve(async (req) => {
           eventType: "price_mismatch_before_activation",
           paymentId,
           registrationRequestId: requestId || null,
-          barberId,
-          reason: "Payment amount/currency mismatch with expected package pricing.",
+          barberId: barberId ?? null,
+          reason: "Payment amount/currency mismatch with expected license SKU pricing.",
           detail,
         });
 
@@ -692,20 +680,36 @@ Deno.serve(async (req) => {
       }
     }
 
-    const act = await activateBarberAndSubscriptionPaid(supabase, barberId, tier, amount);
-    if (!act.ok) {
-      console.warn("[moyasar-webhook] activateBarberAndSubscriptionPaid:", act.error);
+    const skuCode = licenseSkuFromMeta(meta, tier);
+    const fulfill = await fulfillListingLicenseViaInternalApi({
+      skuCode,
+      tier,
+      barberId,
+      buyerEmail: resolvedEmail,
+      buyerName: barberName,
+      moyasarPaymentId: paymentId,
+      registrationRequestId: requestId || null,
+      amountHalalas: paidAmount,
+      autoRedeem: Boolean(barberId),
+    });
+    if (!fulfill.ok) {
+      console.warn("[moyasar-webhook] fulfillListingLicense:", fulfill.error);
       return jsonResponse(
-        { error: "activation_failed", detail: act.error, paymentId, eventId: eventId || null },
+        { error: "license_fulfillment_failed", detail: fulfill.error, paymentId, eventId: eventId || null },
         502,
       );
     }
-    accountActivated = true;
+    accountActivated = fulfill.autoRedeemed;
     const tsAct = new Date().toISOString();
     await supabase
       .from("barber_subscriptions")
       .update({
-        metadata: { ...metaPayload, webhook_auto_activated_at: tsAct },
+        metadata: {
+          ...metaPayload,
+          license_sku: skuCode,
+          webhook_license_fulfilled_at: tsAct,
+          listing_valid_until: fulfill.validUntil || null,
+        },
         updated_at: tsAct,
       })
       .eq("moyasar_payment_id", paymentId);
@@ -715,11 +719,13 @@ Deno.serve(async (req) => {
       "",
     );
     const obSecret = (Deno.env.get("ONBOARDING_INTERNAL_WEBHOOK_SECRET") ?? "").trim();
-    const { data: bRow } = await supabase.from("barbers").select("email,name").eq("id", barberId).maybeSingle();
+    const { data: bRow } = barberId
+      ? await supabase.from("barbers").select("email,name").eq("id", barberId).maybeSingle()
+      : { data: null };
     const toOnboarding =
       bRow?.email && String(bRow.email).includes("@") ? String(bRow.email).trim() : resolvedEmail;
     const nameOnboarding = (bRow?.name && String(bRow.name).trim()) || barberName;
-    if (appOrigin && obSecret && toOnboarding) {
+    if (appOrigin && obSecret && toOnboarding && barberId) {
       const tierStr = tier === "diamond" ? "diamond" : tier === "gold" ? "gold" : "bronze";
       if (platformPay.enable_internal_onboarding_email) {
         try {

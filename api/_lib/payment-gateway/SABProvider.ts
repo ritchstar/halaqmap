@@ -7,7 +7,9 @@ function buildMetadata(request: UnifiedPaymentRequest): Record<string, unknown> 
     expected_amount_halalas: request.amountHalalas,
     expected_currency: 'SAR',
     linked_barber_id: request.linkedBarberId || '',
-    product: 'subscription_monthly',
+    product: 'listing_license',
+    product_type: 'Software Listing License',
+    product_type_ar: 'ترخيص خدمات إدراج برمجية',
     ...(request.requestId
       ? {
           request_id: request.requestId,
@@ -24,7 +26,7 @@ export const SABProvider: ServerPaymentProvider = {
       gateway: 'SAB',
       currency: 'SAR',
       amount: request.amountHalalas,
-      description: `Halaqmap SAB subscription ${request.tier} / ${request.requestId || request.barberName}`,
+      description: `Halaqmap Software Listing License ${request.tier} / ${request.requestId || request.barberName}`,
       metadata: buildMetadata(request),
     };
   },

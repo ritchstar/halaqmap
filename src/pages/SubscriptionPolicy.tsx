@@ -36,11 +36,11 @@ export default function SubscriptionPolicy() {
     {
       name: "برونزي",
       price: "100",
-      period: "شهرياً",
+      period: "ر.س / ترخيص",
       color: "bg-gradient-to-br from-amber-700 to-amber-900",
       features: [
         { kind: "map_hero" },
-        { kind: "text", value: "صورتان أساسيتان (خارجي وداخل) وأربع صور للبنر مع طلب الاشتراك" },
+        { kind: "text", value: "صورتان أساسيتان (خارجي وداخل) وأربع صور للبنر مع طلب الترخيص" },
         { kind: "text", value: "جدول أسبوعي كامل لأوقات العمل مع الطلب (إلزامي ويُعرَض للعملاء)" },
         { kind: "text", value: "رقم الهاتف وبيانات التواصل من بطاقة المحل" },
         { kind: "text", value: "ظهور في نتائج البحث" },
@@ -51,7 +51,7 @@ export default function SubscriptionPolicy() {
     {
       name: "ذهبي",
       price: "150",
-      period: "شهرياً",
+      period: "ر.س / ترخيص",
       color: "bg-gradient-to-br from-accent to-yellow-600",
       features: [
         { kind: "map_hero" },
@@ -77,7 +77,7 @@ export default function SubscriptionPolicy() {
     {
       name: "ماسي",
       price: "200",
-      period: "شهرياً",
+      period: "ر.س / ترخيص",
       color: "bg-gradient-to-br from-primary to-cyan-600",
       features: [
         { kind: "map_hero" },
@@ -103,73 +103,73 @@ export default function SubscriptionPolicy() {
 
   const paymentMethods = [
     {
-      title: "الاشتراك الشهري (بوابة ميسر Moyasar)",
+      title: "شراء الترخيص الرقمي (بوابة ميسر Moyasar)",
       description:
-        "معالجة الدفع الإلكتروني عبر بوابة ميسر (Moyasar) المرخصة وفق الأنظمة المعمول بها في المملكة، باستخدام بطاقات مدى والبطاقات الائتمانية المعتمدة.",
+        "معالجة دفع لمرة واحدة عبر بوابة ميسر (Moyasar) المرخصة وفق الأنظمة المعمول بها في المملكة، لشراء ترخيص رقمي لخدمات الإدراج البرمجية الموحدة — دون تجديد تلقائي أو خصم دوري.",
       icon: CheckCircle2,
       benefits: [
-        "تجديد تلقائي كل شهر عند تفعيل الاشتراك المتكرر",
-        "إمكانية الإلغاء وفق سياسة الإلغاء أدناه",
+        "دفع لمرة واحدة مقابل مدة ترخيص محددة (مثال: 30 يوماً للترخيص الشهري المعروض)",
         "لا يخزن الموقع رقم البطاقة أو رمز الأمان — تتم المعالجة لدى مزود الدفع المعتمد",
-        "فوترة واضحة عبر ميسر وإشعارات البريد عند الحاجة",
+        "إيصال إلكتروني وإشعار بريد بعد إتمام الدفع",
+        "تفعيل صلاحية الإدراج أو إرسال كود التفعيل وفق مسار الشراء",
       ],
     },
     {
-      title: "التحويل البنكي (6 أشهر مقدماً)",
+      title: "التحويل البنكي (تراخيص ممتدة المدة)",
       description:
-        "دفع مقدم لستة أشهر (أسعار الشهر الواحد للباقة دون تغيير). خلال فترة العرض التشغيلي: خصم 10% على إجمالي رسوم الـ6 أشهر + 3 أشهر صلاحية إضافية (عرض تشغيلي) — أي 9 أشهر صلاحية. أمثلة مع العرض: برونزي 540 ر.س، ذهبي 810 ر.س، ماسي 1080 ر.س. بعد انتهاء العرض: السعر الكامل لـ6 أشهر (600 / 900 / 1200 ر.س).",
+        "دفع مقدم لتراخيص إدراج برمجية بمدد أطول (مثل 180 أو 270 يوماً حسب الباقة والعرض). عند السداد عبر التحويل البنكي، يُتحقق من الإيصال يدوياً وتُصدر الإدارة كود التفعيل الرقمي خلال 24 ساعة كحد أقصى.",
       icon: CheckCircle2,
       benefits: [
-        "التحقق من الإيصال يدوياً من الإدارة قبل التفعيل",
-        "اشتراك شهري لاحقاً عبر بطاقة أو مدى عند تفعيل بوابة الدفع",
+        "التحقق من الإيصال يدوياً من الإدارة قبل إصدار كود التفعيل",
+        "إرسال كود التفعيل الرقمي للترخيص عبر البريد المسجل",
         "إيصال أو مستند تحويل مع الطلب",
-        "تفاصيل الحساب البنكي تظهر في نموذج التسجيل وصفحة الدفع"
-      ]
-    }
+        "تفاصيل الحساب البنكي تظهر في نموذج التسجيل وصفحة الدفع",
+      ],
+    },
   ];
 
   const cancellationSteps = [
     {
       step: "1",
-      title: "تقديم طلب الإلغاء",
-      description: "تواصل مع الدعم الفني عبر الواتساب أو البريد الإلكتروني"
+      title: "انتهاء صلاحية الترخيص",
+      description: "تنتهي صلاحية الإدراج تلقائياً في تاريخ انتهاء الترخيص المدفوع مسبقاً دون تجديد تلقائي",
     },
     {
       step: "2",
-      title: "فترة الإشعار",
-      description: "يجب تقديم الطلب قبل 7 أيام من موعد التجديد القادم"
+      title: "شراء ترخيص جديد",
+      description: "يمكن شراء ترخيص رقمي جديد أو استرداد كود تفعيل لمدة إضافية وفق المنتج المعروض",
     },
     {
       step: "3",
-      title: "تأكيد الإلغاء",
-      description: "ستتلقى رسالة تأكيد بإلغاء الاشتراك خلال 24 ساعة"
+      title: "طلب إيقاف مبكر",
+      description: "لطلبات خاصة بالإيقاف أو الحذف، تواصل مع الدعم — لا يترتب استرداد مالي بعد تفعيل الترخيص",
     },
     {
       step: "4",
-      title: "انتهاء الخدمة",
-      description: "ستستمر الخدمة حتى نهاية الفترة المدفوعة"
-    }
+      title: "إخفاء من الخريطة",
+      description: "بعد انتهاء الصلاحية يُخفى المحل من نتائج البحث حتى تجديد الترخيص",
+    },
   ];
 
   const refundPolicy = [
     {
-      condition: "خلال 7 أيام من الاشتراك",
-      refund: "استرداد كامل 100%",
-      icon: CheckCircle2,
-      color: "text-green-500"
-    },
-    {
-      condition: "من 8 إلى 14 يوم",
-      refund: "استرداد 50%",
+      condition: "قبل تفعيل كود الترخيص",
+      refund: "مراجعة إدارية حسب الحالة",
       icon: AlertCircle,
-      color: "text-yellow-500"
+      color: "text-yellow-500",
     },
     {
-      condition: "بعد 14 يوم",
-      refund: "لا يوجد استرداد",
+      condition: "بعد تفعيل الترخيص",
+      refund: "غير قابل للإلغاء أو الاسترداد",
       icon: XCircle,
-      color: "text-red-500"
-    }
+      color: "text-red-500",
+    },
+    {
+      condition: "خلل تقني بعد الدفع",
+      refund: "استرداد كامل أو تفعيل يدوي",
+      icon: CheckCircle2,
+      color: "text-green-500",
+    },
   ];
 
   return (
@@ -182,18 +182,35 @@ export default function SubscriptionPolicy() {
       >
         <motion.div variants={fadeInUp} className="text-center mb-12">
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-            سياسة الاشتراك والإلغاء
+            سياسة التراخيص الرقمية للإدراج البرمجي
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
-            شروط وأحكام الاشتراك
+            شروط شراء رخص الإدراج البرمجية
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            نلتزم بالشفافية الكاملة في جميع تعاملاتنا المالية. اقرأ سياسة الاشتراك بعناية قبل التسجيل.
+            نلتزم بالشفافية الكاملة في بيع التراخيص الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
           </p>
         </motion.div>
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">أنواع الباقات والأسعار</h2>
+          <Card className="max-w-4xl mx-auto border-primary/30 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="text-xl text-center">طبيعة الخدمة والمنتج الرقمي</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                تُقرّ المنشأة المستفيدة (صالون الحلاقة) بأن المنتج المشترى عبر المنصة هو (ترخيص رقمي لخدمات إدراج برمجية
+                موحدة) على الخرائط التفاعلية لمنصة (حلاق ماب). هذا المنتج هو مساحة برمجية مخصصة ومطورة لعرض البيانات
+                الجغرافية والمعلومات التشغيلية للصالون، وتحديثها تقنيًا لربطه وإدراج بياناته للباحثين في محيطه الجغرافي.
+                تُعد هذه التراخيص منتجات رقمية مسبقة الدفع وغير قابلة للإلغاء أو الاسترداد بعد التفعيل، ولا تُعد هذه
+                الخدمة بأي حال من الأحوال وساطة مالية أو تجارية أو تقديم خدمات حجز بالعمولة.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.section>
+
+        <motion.section variants={staggerItem} className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">أنواع باقات التراخيص والأسعار</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {subscriptionTiers.map((tier, index) => (
               <motion.div
@@ -291,34 +308,26 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-4 text-center">التجديد التلقائي</h2>
+          <h2 className="text-3xl font-bold mb-4 text-center">عدم التجديد التلقائي</h2>
           <Card className="max-w-3xl mx-auto">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">تجديد تلقائي للاشتراك الشهري</h3>
-                    <p className="text-sm text-muted-foreground">
-                      يتم تجديد الاشتراك الشهري تلقائياً في نفس التاريخ من كل شهر باستخدام طريقة الدفع المسجلة.
+                    <h3 className="font-semibold mb-1">دفع لمرة واحدة فقط</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      لا يوجد تجديد تلقائي شهري ولا خصم دوري من بطاقتك. كل عملية شراء تمثل ترخيصاً رقمياً مسبق الدفع بمدة
+                      محددة.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-6 h-6 text-yellow-500 shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">إشعار قبل التجديد</h3>
-                    <p className="text-sm text-muted-foreground">
-                      سنرسل لك إشعاراً قبل 3 أيام من موعد التجديد عبر البريد الإلكتروني والواتساب.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <XCircle className="w-6 h-6 text-red-500 shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">فشل الدفع</h3>
-                    <p className="text-sm text-muted-foreground">
-                      في حالة فشل الدفع، سيتم تعليق الحساب مؤقتاً لمدة 7 أيام. بعدها سيتم إلغاء الاشتراك تلقائياً.
+                    <h3 className="font-semibold mb-1">انتهاء الصلاحية</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      عند انتهاء مدة الترخيص تتوقف صلاحية الإدراج على الخريطة حتى شراء ترخيص جديد أو استرداد كود تفعيل.
                     </p>
                   </div>
                 </div>
@@ -330,7 +339,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">إجراءات إلغاء الاشتراك</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">انتهاء الترخيص وإعادة الشراء</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {cancellationSteps.map((item, index) => (
               <motion.div
@@ -382,7 +391,7 @@ export default function SubscriptionPolicy() {
           <Card className="mt-8 max-w-3xl mx-auto bg-muted/50">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground text-center">
-                <strong>ملاحظة هامة:</strong> سياسة الاسترداد أعلاه تنطبق على الاشتراك الشهري وفق المدد المذكورة. التحويلات البنكية لـ6 أشهر مقدماً غير قابلة للاسترداد بعد التفعيل إلا إذا نصّت عروض أو اتفاقات خاصة كتابياً.
+                <strong>ملاحظة هامة:</strong> التراخيص الرقمية مسبقة الدفع غير قابلة للإلغاء أو الاسترداد بعد تفعيل كود الترخيص. التحويلات البنكية تُعالَج بإصدار كود تفعيل خلال 24 ساعة كحد أقصى بعد التحقق من الإيصال.
               </p>
             </CardContent>
           </Card>
@@ -392,9 +401,9 @@ export default function SubscriptionPolicy() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                في حال نجاح عملية الدفع وعدم تفعيل الاشتراك تلقائياً بسبب خلل فني، يلتزم الموقع بمعالجة الطلب وإعادة
-                كامل المبلغ للحساب المصدر خلال 7 إلى 14 يوم عمل، ما لم يفضل المشترك تفعيل الاشتراك يدوياً عبر
-                التواصل مع الدعم الفني.
+                في حال نجاح عملية الدفع وعدم تفعيل الترخيص أو كود التفعيل بسبب خلل فني، يلتزم الموقع بمعالجة الطلب وإعادة
+                كامل المبلغ للحساب المصدر خلال 7 إلى 14 يوم عمل، ما لم يفضل المشتري تفعيل الترخيص يدوياً عبر التواصل مع
+                الدعم الفني.
               </p>
             </CardContent>
           </Card>
@@ -422,7 +431,7 @@ export default function SubscriptionPolicy() {
                     الإلغاء النهائي (بعد 7 أيام)
                   </h3>
                   <p className="text-sm text-muted-foreground pr-7">
-                    إذا لم يتم تحديث الدفع خلال 7 أيام، سيتم إلغاء الاشتراك نهائياً وحذف جميع البيانات المرتبطة بالحساب.
+                    إذا لم يُجدَّد الترخيص بعد انتهاء الصلاحية، تتوقف خدمة الإدراج على الخريطة دون حذف تلقائي للبيانات إلا وفق طلب صريح.
                   </p>
                 </div>
                 <div>
@@ -517,7 +526,7 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                  جميع رسوم الاشتراكات الموضحة هي مبالغ نهائية، ولا يتم تحصيل ضريبة قيمة مضافة (VAT) حالياً نظراً
+                  جميع قيم التراخيص الرقمية الموضحة هي مبالغ نهائية، ولا يتم تحصيل ضريبة قيمة مضافة (VAT) حالياً نظراً
                   لعدم وصول المؤسسة للحد الإلزامي للتسجيل الضريبي.
                 </p>
               </CardContent>
@@ -575,7 +584,7 @@ export default function SubscriptionPolicy() {
                     يشترط التأشير على تعهد المشترك بأن منشأته مرخصة من الجهات ذات العلاقة لممارسة نشاط الحلاقة بشكل
                     رسمي، وأنه يتحمل كامل المسؤولية النظامية عن صحة هذا التعهد. تتم مراجعة هذا التعهد تقنياً، وتُرسل
                     تنبيهات تقنية عند رصد مخالفات أو تجاوزات في المعلومات المقدمة أو الصور أو محتوى الشات الكتابي،
-                    ويجوز للمنصة رفض الطلب أو إلغاء الاشتراك فوراً وفق السياسة المعتمدة.
+                    ويجوز للمنصة رفض الطلب أو إيقاف الترخيص فوراً وفق السياسة المعتمدة.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">

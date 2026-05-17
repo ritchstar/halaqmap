@@ -26,8 +26,8 @@ export default function PartnerSubscriptionTutorials() {
   return (
     <div className="container mx-auto px-4 py-10 space-y-6">
       <div className="text-center space-y-3">
-        <Badge variant="secondary" className="text-sm">شرح الاشتراك</Badge>
-        <h1 className="text-3xl font-bold">فيديوهات تعليم الاشتراك في حلاق ماب</h1>
+        <Badge variant="secondary" className="text-sm">شرح التراخيص</Badge>
+        <h1 className="text-3xl font-bold">فيديوهات تعليم تراخيص الإدراج في حلاق ماب</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           تابع الخطوات من التسجيل حتى التفعيل والدفع بشكل واضح. جميع الفيديوهات هنا مخصصة لمسار الشركاء.
         </p>

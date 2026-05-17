@@ -38,7 +38,7 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
         ) : null}
       </ul>
       <p className={`mt-3 text-xs ${muted}`}>
-        خدمة رقمية: الاشتراك والظهور على المنصة يتم إلكترونياً. التواصل مع صالونك يكون مباشرة بينك وبين الصالون؛ لا تتولى
+        خدمة رقمية: شراء الترخيص والإدراج على المنصة يتم إلكترونياً. التواصل مع صالونك يكون مباشرة بينك وبين الصالون؛ لا تتولى
         المنصة شحن منتجات نيابة عن الصالونات إلا ما يُتفق عليه خارج نطاق المنصة.
       </p>
       <div className={`mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs ${variant === 'dark' ? 'text-emerald-200/90' : 'text-primary'}`}>
@@ -46,7 +46,7 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
           سياسة الخصوصية
         </NavLink>
         <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="underline-offset-2 hover:underline">
-          سياسة الاشتراك والاسترداد والمدفوعات
+          سياسة التراخيص الرقمية والاسترداد والمدفوعات
         </NavLink>
         <NavLink to={ROUTE_PATHS.PARTNER_PRIVACY} className="underline-offset-2 hover:underline">
           خصوصية الشركاء

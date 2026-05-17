@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/lib';
+import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import { cn } from '@/lib/utils';
 import {
@@ -177,7 +178,7 @@ export default function PartnerSupportChat() {
             </Link>
           </Button>
           <Badge variant="outline" className="border-primary/40 bg-primary/5 text-primary">
-            مسار الشركاء
+            {SOFTWARE_SERVICES_PORTAL_LABEL}
           </Badge>
         </div>
 

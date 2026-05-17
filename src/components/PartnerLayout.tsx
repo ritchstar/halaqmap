@@ -15,6 +15,8 @@ import { ROUTE_PATHS } from '@/lib';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
+import { SOFTWARE_SERVICES_PORTAL_HEADING, SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
+import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
@@ -32,11 +34,11 @@ const partnerNavItems = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الصفحة التسويقية' },
   { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
-  { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات الاشتراك' },
+  { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات التراخيص' },
   { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم الشركاء' },
   { path: ROUTE_PATHS.PARTNER_PRIVACY, label: 'خصوصية الشركاء' },
-  { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: 'سياسة الاشتراك' },
+  { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: 'سياسة التراخيص الرقمية' },
   { path: ROUTE_PATHS.BARBER_LOGIN, label: 'دخول الحلاق' },
 ];
 
@@ -109,7 +111,7 @@ function PartnerPathDealPulseTitle({ className }: { className?: string }) {
           : { duration: 2.35, repeat: Infinity, ease: 'easeInOut' }
       }
     >
-      حلاق ماب مسار الشركاء
+      {SOFTWARE_SERVICES_PORTAL_HEADING}
     </motion.p>
   );
 }
@@ -212,7 +214,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                     variant="secondary"
                     size="icon"
                     className="h-10 w-10 shrink-0 border-emerald-500/30 bg-emerald-500/15 text-emerald-50 hover:bg-emerald-500/25"
-                    aria-label="فتح قائمة مسار الشركاء"
+                    aria-label={`فتح قائمة ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
                   >
                     <Menu className="h-5 w-5" />
                   </Button>
@@ -267,7 +269,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           className="flex w-[min(100vw,20rem)] flex-col border-white/10 bg-[#071426] text-white [&>button]:text-slate-300 [&>button]:hover:text-white"
         >
           <SheetHeader className="space-y-1 border-b border-white/10 pb-4 text-right">
-            <SheetTitle className="text-emerald-50">تصفّح مسار الشركاء</SheetTitle>
+            <SheetTitle className="text-emerald-50">تصفّح {SOFTWARE_SERVICES_PORTAL_LABEL}</SheetTitle>
             <SheetDescription className="text-slate-400">جميع الصفحات والوثائق</SheetDescription>
           </SheetHeader>
           <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-6" aria-label="صفحات الشركاء">
@@ -302,7 +304,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       {/* شريط تنقّل سفلي للجوال — نمط تطبيق */}
       <nav
         className="fixed inset-x-0 bottom-0 z-40 flex border-t border-white/10 bg-[#071426]/95 pb-[max(0.35rem,env(safe-area-inset-bottom,0px))] pt-1 shadow-[0_-8px_24px_rgba(0,0,0,0.35)] backdrop-blur-md md:hidden"
-        aria-label="تنقّل سريع — مسار الشركاء"
+        aria-label={`تنقّل سريع — ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
       >
         {partnerBottomNav.map(({ path, label, Icon }) => (
           <NavLink key={path} to={path} className={({ isActive }) => bottomNavClass(isActive)} end={path === ROUTE_PATHS.BARBERS_LANDING}>
@@ -315,6 +317,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       <footer className="shrink-0 border-t border-white/10 bg-[#071426]/70">
         {/* فوتر مضغوط للجوال */}
         <div className="container mx-auto px-3 py-4 md:hidden">
+          <div className="mb-4">
+            <ListingLicensePricingMatrix variant="embedded-dark" showHeader={false} />
+          </div>
           <LegalEntityPublicStrip variant="dark" />
           <p className="mt-3 text-center text-[11px] leading-relaxed text-slate-400">{PARTNER_LAYOUT_FOOTER_LINE}</p>
           <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-300">
@@ -345,6 +350,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         </div>
 
         <div className="container mx-auto hidden px-4 py-6 md:block">
+          <div className="mb-8">
+            <ListingLicensePricingMatrix variant="standalone-dark" />
+          </div>
           <div className="mb-6">
             <LegalEntityPublicStrip variant="dark" />
           </div>

@@ -116,7 +116,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
               بوابات الدفع والتحكم
             </CardTitle>
             <CardDescription className="mt-2 max-w-2xl leading-relaxed">
-              تحكم في القنوات المعروضة للشركاء، أتمتة البريد وواتساب بعد الدفع، ومراقبة الاشتراكات وأحداث الأمان.
+              تحكم في القنوات المعروضة للشركاء، أتمتة البريد وواتساب بعد الدفع، ومراقبة تراخيص الإدراج وأحداث الأمان.
               المفاتيح السرية تبقى في متغيرات الخادم فقط.
             </CardDescription>
           </div>
@@ -207,7 +207,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
             </div>
             <div className="flex items-center justify-between gap-4 rounded-lg border border-border/80 p-3">
               <div>
-                <p className="text-sm font-medium">تحويل بنكي (اشتراك نصف سنوي)</p>
+                <p className="text-sm font-medium">تحويل بنكي (ترخيص ممتد — 6 أشهر)</p>
                 <p className="text-xs text-muted-foreground">إظهار قسم التحويل ورفع الإيصال</p>
               </div>
               <Switch
@@ -336,7 +336,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
             <>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-lg border p-3">
-                  <p className="text-xs text-muted-foreground">اشتراكات ميسر (إجمالي سجلات)</p>
+                  <p className="text-xs text-muted-foreground">دفعات تراخيص ميسر (إجمالي سجلات)</p>
                   <p className="text-2xl font-bold">{subTotal}</p>
                 </div>
                 <div className="rounded-lg border p-3">
@@ -358,7 +358,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
               </div>
               {Object.keys(monitoring.subscriptionsByStatus).length > 0 && (
                 <div>
-                  <p className="text-sm font-medium mb-2">اشتراكات البطاقة حسب الحالة</p>
+                  <p className="text-sm font-medium mb-2">دفعات التراخيص (بطاقة) حسب الحالة</p>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(monitoring.subscriptionsByStatus).map(([k, v]) => (
                       <Badge key={k} variant="secondary">

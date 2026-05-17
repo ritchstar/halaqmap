@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Info, LayoutGrid } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
+import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
@@ -87,6 +88,13 @@ export function MobileBottomNav() {
                 onClick={() => setMoreOpen(false)}
               >
                 من نحن
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.BARBERS_LANDING}
+                className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
+                onClick={() => setMoreOpen(false)}
+              >
+                {SOFTWARE_SERVICES_PORTAL_LABEL}
               </NavLink>
             </div>
           </SheetContent>

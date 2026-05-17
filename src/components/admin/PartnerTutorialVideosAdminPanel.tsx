@@ -113,10 +113,10 @@ export function PartnerTutorialVideosAdminPanel({ canView, canManage }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Video className="h-5 w-5 text-primary" />
-          فيديوهات شرح الاشتراك (صفحة هبوط مستقلة)
+          فيديوهات شرح التراخيص (صفحة هبوط مستقلة)
         </CardTitle>
         <CardDescription>
-          رفع وإدارة فيديوهات تعليم الاشتراك على نفس حاوية الفيديو التقديمي (`partner-promo`) بشكل مستقل.
+          رفع وإدارة فيديوهات تعليم التراخيص على نفس حاوية الفيديو التقديمي (`partner-promo`) بشكل مستقل.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">

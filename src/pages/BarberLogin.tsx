@@ -77,7 +77,7 @@ export default function BarberLogin() {
             <HalaqmapBrandMark className="mx-auto mb-4 h-20 w-20 rounded-[1.35rem] ring-2 ring-primary/40 ring-offset-4 ring-offset-card shadow-xl" />
             <h1 className="mb-2 text-2xl font-bold">لوحة تحكم حلاق ماب</h1>
             <p className="text-muted-foreground">
-              أدخل <strong>البريد المعتمد</strong> في اشتراكك. في خانة الرمز استخدم إما الرقم السري الذي زوّدك به{' '}
+              أدخل <strong>البريد المعتمد</strong> في ترخيصك. في خانة الرمز استخدم إما الرقم السري الذي زوّدك به{' '}
               <strong>فريق الدعم</strong>، أو <strong>كلمة المرور</strong> التي وصلتك على البريد بعد تفعيل حسابك.
             </p>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
@@ -100,7 +100,7 @@ export default function BarberLogin() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="البريد المعتمد في طلب الاشتراك"
+                  placeholder="البريد المعتمد في طلب الترخيص"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-12 pr-10"

@@ -260,7 +260,7 @@ export default function Register() {
                 to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
                 className="text-primary hover:text-primary/80 transition-colors mx-2 underline"
               >
-                سياسة الاشتراك والإلغاء
+                سياسة التراخيص الرقمية
               </Link>
               و
               <Link

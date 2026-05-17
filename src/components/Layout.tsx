@@ -10,6 +10,8 @@ import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
+import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
+import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,6 +22,7 @@ export function Layout({ children }: LayoutProps) {
 
   const navItems = [
     { path: ROUTE_PATHS.HOME, label: 'الرئيسية' },
+    { path: ROUTE_PATHS.BARBERS_LANDING, label: SOFTWARE_SERVICES_PORTAL_LABEL },
     { path: ROUTE_PATHS.ABOUT, label: 'من نحن' },
     { path: ROUTE_PATHS.PRIVACY_DETAILED, label: 'سياسة الخصوصية' },
   ];
@@ -158,6 +161,12 @@ export function Layout({ children }: LayoutProps) {
                 >
                   من نحن
                 </NavLink>
+                <NavLink
+                  to={ROUTE_PATHS.BARBERS_LANDING}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {SOFTWARE_SERVICES_PORTAL_LABEL}
+                </NavLink>
               </div>
             </div>
 
@@ -232,6 +241,10 @@ export function Layout({ children }: LayoutProps) {
                 </a>
               </div>
             </div>
+          </div>
+
+          <div className="mt-10">
+            <ListingLicensePricingMatrix variant="embedded-light" />
           </div>
 
           <div className="mt-8">

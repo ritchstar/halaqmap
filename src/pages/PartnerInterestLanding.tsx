@@ -62,7 +62,7 @@ export default function PartnerInterestLanding() {
               سجّل اهتمامك كحلّاق
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              هذه الصفحة لـ<strong className="text-foreground"> التوعية وتجميع البريد فقط</strong>. لا تُعدّ طلب اشتراكاً
+              هذه الصفحة لـ<strong className="text-foreground"> التوعية وتجميع البريد فقط</strong>. لا تُعدّ طلب ترخيصاً
               ولا تُنشئ علاقة تعاقدية، ولا تُكمِل مسار التسجيل أو التحقق النظامي في المنصة. عند موافقتك الصريحة أدناه
               قد نرسل لك تحديثات إعلامية عن الإطلاق والشروط والمزايا وفق{' '}
               <NavLink to={ROUTE_PATHS.PARTNER_PRIVACY} className="font-semibold text-primary underline underline-offset-2">
@@ -79,13 +79,13 @@ export default function PartnerInterestLanding() {
           <Shield className="h-4 w-4" />
           <AlertTitle>تنبيه قانوني</AlertTitle>
           <AlertDescription className="leading-relaxed">
-            هذه الصفحة <strong>لا تجمع</strong> بيانات اشتراك ولا تحققاً نظامياً (رمز موحّد) ولا دفعاً ولا مرفقات.
+            هذه الصفحة <strong>لا تجمع</strong> بيانات ترخيص ولا تحققاً نظامياً (رمز موحّد) ولا دفعاً ولا مرفقات.
             يقتصر الغرض على <strong>عنوان البريد الإلكتروني</strong> عند <strong>موافقتك الصريحة</strong> لإرسال{' '}
             <strong>تحديثات إعلامية</strong> وفق{' '}
             <NavLink to={ROUTE_PATHS.PARTNER_PRIVACY} className="font-semibold text-primary underline underline-offset-2">
               سياسة خصوصية الشركاء
             </NavLink>
-            . مسار الاشتراك الكامل (بما في ذلك التحقق النظامي ووسائل الدفع عند تفعيلها) يتم عبر{' '}
+            . مسار الترخيص والإدراج الكامل (بما في ذلك التحقق النظامي ووسائل الدفع عند تفعيلها) يتم عبر{' '}
             <NavLink to={ROUTE_PATHS.REGISTER} className="font-semibold text-primary underline underline-offset-2">
               صفحة التسجيل للشركاء
             </NavLink>{' '}
