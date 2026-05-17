@@ -54,7 +54,7 @@ const PARTNER_THEME_COLOR = '#071426';
 
 /** نفس قيمة index.html — يُضاف/يُحدَّث في <head> عند دخول مسار الشركاء */
 const DOMAIN_VERIFICATION_META_CONTENT =
-  'ac3251813c359d260aa5919cda857c82d6ffb48568edaadb211bba7382361acc';
+  '05f735e4039c7d290a5f41d188fdc7995352fb2a7f8a211015099614270dd06f';
 
 /** نفس أسلوب الشعار في Layout.tsx مع لون إزاحة الحلقة يطابق الخلفية الداكنة (تفادي هالة بيضاء من ring-offset-background). */
 const partnerBrandMarkSurfaceClass =
