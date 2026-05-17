@@ -77,7 +77,7 @@ export default function ShopOpenStatus() {
           </CardHeader>
           <CardContent>
             <Button asChild variant="outline">
-              <Link to={ROUTE_PATHS.BARBERS_LANDING}>العودة لصفحة الشركاء</Link>
+              <Link to={ROUTE_PATHS.BARBERS_LANDING}>العودة إلى مسار الخدمات البرمجية للمنصة</Link>
             </Button>
           </CardContent>
         </Card>
@@ -175,7 +175,7 @@ export default function ShopOpenStatus() {
               </>
             )}
             <Button asChild variant="outline" className="w-full">
-              <Link to={ROUTE_PATHS.BARBERS_LANDING}>صفحة الشركاء</Link>
+              <Link to={ROUTE_PATHS.BARBERS_LANDING}>مسار الخدمات البرمجية للمنصة</Link>
             </Button>
           </CardContent>
         </Card>

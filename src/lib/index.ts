@@ -1,4 +1,4 @@
-import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
+﻿import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
 import { compareBarbersByListingScore } from '@/lib/barberListingRank';
 
 export const ROUTE_PATHS = {
@@ -37,8 +37,8 @@ export const ROUTE_PATHS = {
   /** تبديل «مفتوح/مغلق» للعملاء على الخريطة برابط سري (?t=رمز) — مفيد للبرونزي */
   SHOP_OPEN_STATUS: '/partners/shop-open',
   /**
-   * بطاقة QR لمسار الشركاء (طباعة/حملات) — للإدارة والتسويق فقط.
-   * لا تُضاف روابط لها في الرئيسية أو مسار الشركاء أو القوائم.
+   * بطاقة QR لمسار الخدمات البرمجية للمنصة (طباعة/حملات) — للإدارة والتسويق فقط.
+   * لا تُضاف روابط لها في الرئيسية أو مسار الخدمات البرمجية للمنصة أو القوائم.
    */
   INTERNAL_PARTNER_PATH_PRINT_CARD: '/m/hm-partner-path-card-q7',
   /** معاينة فواتير اشتراك (PDF) — داخلي، بدون ربط من القوائم */
@@ -210,7 +210,7 @@ export interface RegistrationAttachmentUrls {
   receipt?: string;
 }
 
-/** تتبّع مصدر استقطاب الحلاق (UTM / مرجع الحملة) لمسار الشركاء. */
+/** تتبّع مصدر استقطاب الحلاق (UTM / مرجع الحملة) لمسار الخدمات البرمجية للمنصة. */
 export interface PartnerAttribution {
   capturedAtIso: string;
   pagePath: string;

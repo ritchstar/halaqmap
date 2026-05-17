@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpenCheck, PlayCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,7 +29,7 @@ export default function PartnerSubscriptionTutorials() {
         <Badge variant="secondary" className="text-sm">شرح التراخيص</Badge>
         <h1 className="text-3xl font-bold">فيديوهات تعليم تراخيص الإدراج في حلاق ماب</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          تابع الخطوات من التسجيل حتى التفعيل والدفع بشكل واضح. جميع الفيديوهات هنا مخصصة لمسار الشركاء.
+          تابع الخطوات من التسجيل حتى التفعيل والدفع بشكل واضح. جميع الفيديوهات هنا مخصصة لمسار الخدمات البرمجية للمنصة.
         </p>
       </div>
 

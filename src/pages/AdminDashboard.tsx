@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import QRCode from 'react-qr-code';
@@ -1535,7 +1535,7 @@ function RequestsSection({
             أداء القنوات التسويقية (Partners Funnel)
           </CardTitle>
           <CardDescription>
-            قراءة مباشرة لبيانات UTM/Click IDs المرسلة من صفحة الشركاء مع طلبات التسجيل.
+            قراءة مباشرة لبيانات UTM/Click IDs المرسلة من مسار الخدمات البرمجية للمنصة مع طلبات التسجيل.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -3688,7 +3688,7 @@ function CommandCenterSection({
     },
     {
       q: 'هل يحتاج الشريك لفريق تسويق داخلي؟',
-      a: 'لا، مسار الشركاء مبني لقرار سريع وتسجيل مباشر بأقل احتكاك.',
+      a: 'لا، مسار الخدمات البرمجية للمنصة مبني لقرار سريع وتسجيل مباشر بأقل احتكاك.',
     },
   ] as const;
 
@@ -4010,7 +4010,7 @@ function CommandCenterSection({
             <Badge variant="destructive" className="text-xs">غير ظاهر للشركاء</Badge>
           </CardTitle>
           <CardDescription>
-            هذه المواد تخص فريق التسويق وغرفة القيادة فقط، وتُمنع من الظهور في صفحة الشركاء العامة.
+            هذه المواد تخص فريق التسويق وغرفة القيادة فقط، وتُمنع من الظهور في مسار الخدمات البرمجية للمنصة العام.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -4019,7 +4019,7 @@ function CommandCenterSection({
               <p className="font-semibold">روابط الحملة المعتمدة</p>
               <div className="text-sm text-muted-foreground space-y-2">
                 <p>
-                  صفحة الشركاء:{' '}
+                  مسار الخدمات البرمجية للمنصة:{' '}
                   <a className="underline" href={partnersLandingUrl} target="_blank" rel="noopener noreferrer">
                     {partnersLandingUrl}
                   </a>

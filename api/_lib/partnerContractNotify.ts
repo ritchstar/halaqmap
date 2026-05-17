@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+﻿import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   buildPartnerUnifiedContractPdf,
   type PartnerUnifiedContractFields,
@@ -45,17 +45,17 @@ export async function emailPartnerUnifiedContractPdf(input: {
     body: JSON.stringify({
       from: input.from,
       to: [input.to],
-      subject: 'حلاق ماب | نسخة PDF — العقد الرقمي الموحّد (مسار الشركاء)',
+      subject: 'حلاق ماب | نسخة PDF — العقد الرقمي الموحّد (مسار الخدمات البرمجية للمنصة)',
       html: `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;padding:22px;line-height:1.85;background:#f8fafc">
 <p>مرحباً،</p>
-<p>بناءً على <strong>إتمام اشتراكك واعتماد مسار الشركاء</strong>، نرفق نسخة PDF من <strong>العقد الرقمي الموحّد</strong> لمسار الشركاء في حلاق ماب.</p>
+<p>بناءً على <strong>إتمام اشتراكك واعتماد مسار الخدمات البرمجية للمنصة</strong>، نرفق نسخة PDF من <strong>العقد الرقمي الموحّد</strong> لمسار الخدمات البرمجية للمنصة في حلاق ماب.</p>
 <p style="font-size:13px;color:#64748b">إن لم يظهر المرفق، راجع مجلد الرسائل غير المرغوب فيها أو تواصل معنا عبر القنوات الرسمية.</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`,
       text: [
         'مرحباً،',
         '',
-        'نرفق نسخة PDF من العقد الرقمي الموحّد لمسار الشركاء في حلاق ماب.',
+        'نرفق نسخة PDF من العقد الرقمي الموحّد لمسار الخدمات البرمجية للمنصة في حلاق ماب.',
         '',
         '— فريق حلاق ماب',
       ].join('\n'),

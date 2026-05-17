@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Trash2, Upload, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -101,7 +101,7 @@ export function PartnerPromoVideoAdminPanel({ canView, canManage }: Props) {
       }
       setStatus(committed);
       setFile(null);
-      toast({ title: 'تم رفع الفيديو', description: 'سيظهر لمسار الشركاء عند تفعيل العرض.' });
+      toast({ title: 'تم رفع الفيديو', description: 'سيظهر لمسار الخدمات البرمجية للمنصة عند تفعيل العرض.' });
     } finally {
       setUploading(false);
     }
@@ -136,10 +136,10 @@ export function PartnerPromoVideoAdminPanel({ canView, canManage }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Video className="h-5 w-5 text-primary" />
-          فيديو مسار الشركاء (التخزين)
+          فيديو مسار الخدمات البرمجية للمنصة (التخزين)
         </CardTitle>
         <CardDescription>
-          ارفع ملفاً قصيراً (mp4 / webm / mov) — يُعرض تحت هيدر مسار الشركاء للزوار عند التفعيل. يتطلب تنفيذ ترحيل
+          ارفع ملفاً قصيراً (mp4 / webm / mov) — يُعرض تحت هيدر مسار الخدمات البرمجية للمنصة للزوار عند التفعيل. يتطلب تنفيذ ترحيل
           قاعدة البيانات رقم 47 على Supabase.
         </CardDescription>
       </CardHeader>

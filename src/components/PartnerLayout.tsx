@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -50,7 +50,7 @@ const partnerBottomNav = [
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم', Icon: Headphones },
 ] as const;
 
-/** يطابق رأس مسار الشركاء — شريط عنوان المتصفح / PWA على الجوال */
+/** يطابق رأس مسار الخدمات البرمجية للمنصة — شريط عنوان المتصفح / PWA على الجوال */
 const PARTNER_THEME_COLOR = '#071426';
 
 /** نفس أسلوب الشعار في Layout.tsx مع لون إزاحة الحلقة يطابق الخلفية الداكنة (تفادي هالة بيضاء من ring-offset-background). */

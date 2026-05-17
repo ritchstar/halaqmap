@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Headphones, MapPin, Scissors, SendHorizonal, Smile, X } from 'lucide-react';
@@ -25,7 +25,7 @@ export function PartnerDigitalBarberAssistant() {
     {
       role: 'assistant',
       content:
-        'مرحباً بك في مسار الشركاء، يسعدني خدمتك. اسألني عن خطوات الانضمام، الباقات، أو كيفية الاستفادة من صفحات الشركاء.',
+        'مرحباً بك في مسار الخدمات البرمجية للمنصة، يسعدني خدمتك. اسألني عن خطوات الانضمام، الباقات، أو كيفية الاستفادة من صفحات الشركاء.',
     },
   ]);
 
@@ -215,7 +215,7 @@ export function PartnerDigitalBarberAssistant() {
                     </Button>
                     {chatError ? <p className="text-xs text-rose-200 sm:text-sm">{chatError}</p> : null}
                     <p className="text-[11px] text-slate-400 sm:text-xs">
-                      يجيب هذا المساعد فقط عن معلومات «مسار الشركاء» المتاحة في المنصة.
+                      يجيب هذا المساعد فقط عن معلومات «مسار الخدمات البرمجية للمنصة» المتاحة في المنصة.
                     </p>
                   </div>
 
@@ -230,7 +230,7 @@ export function PartnerDigitalBarberAssistant() {
                             void sendPrompt();
                           }
                         }}
-                        placeholder="اكتب سؤالك حول مسار الشركاء… (Ctrl أو ⌘ + Enter للإرسال)"
+                        placeholder="اكتب سؤالك حول مسار الخدمات البرمجية للمنصة… (Ctrl أو ⌘ + Enter للإرسال)"
                         rows={3}
                         className="min-h-[5.5rem] resize-y border-white/20 bg-[#091a2a] text-sm leading-6 text-white placeholder:text-slate-400 focus-visible:ring-emerald-300 sm:min-h-[6.25rem] sm:flex-1 sm:text-base"
                         dir="rtl"

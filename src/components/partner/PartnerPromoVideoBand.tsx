@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Clapperboard, Play, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchPartnerPromoVideoPublic } from '@/lib/partnerPromoVideoPublic';
@@ -115,7 +115,7 @@ export function PartnerPromoVideoBand() {
               <div className="flex min-w-0 flex-1 items-center gap-2.5 text-emerald-100">
                 <Clapperboard className="h-5 w-5 shrink-0 text-primary" aria-hidden />
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-white">فيديو تعريفي — مسار الشركاء</p>
+                  <p className="text-sm font-bold text-white">فيديو تعريفي — مسار الخدمات البرمجية للمنصة</p>
                   <p className="text-[11px] text-slate-400">اضغط للعرض دون إزاحة النماذج</p>
                 </div>
               </div>
@@ -129,7 +129,7 @@ export function PartnerPromoVideoBand() {
                   <div className="flex items-center gap-2 text-emerald-100">
                     <Clapperboard className="h-5 w-5 shrink-0 text-primary" />
                     <div>
-                      <p className="text-sm font-bold text-white">فيديو تعريفي — مسار الشركاء</p>
+                      <p className="text-sm font-bold text-white">فيديو تعريفي — مسار الخدمات البرمجية للمنصة</p>
                       <p className="text-xs text-slate-400">شغّل الصوت من أزرار المشغّل إن رغبت</p>
                     </div>
                   </div>

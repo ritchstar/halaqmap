@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+﻿import { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Copy } from 'lucide-react';
 import QRCode from 'react-qr-code';
@@ -12,7 +12,7 @@ const QR_BLUE = '#003893';
 const QR_RED = '#C8102E';
 const QR_BG = '#EFF4FB';
 
-/** بطاقة QR لمسار الشركاء — للطباعة والحملات (تُعرض خارج الصفحة العامة للمسار عند الحاجة). */
+/** بطاقة QR لمسار الخدمات البرمجية للمنصة — للطباعة والحملات (تُعرض خارج الصفحة العامة للمسار عند الحاجة). */
 export function PartnerPathQrPrintCard() {
   const siteOrigin = getSiteOrigin();
   const landingUrl = `${siteOrigin}/#${ROUTE_PATHS.BARBERS_LANDING}`;
@@ -21,7 +21,7 @@ export function PartnerPathQrPrintCard() {
     void navigator.clipboard.writeText(landingUrl).then(
       () => {
         setCopied(true);
-        toast.success('تم نسخ رابط مسار الشركاء');
+        toast.success('تم نسخ رابط مسار الخدمات البرمجية للمنصة');
         window.setTimeout(() => setCopied(false), 2200);
       },
       () => toast.error('تعذّر النسخ من المتصفح')

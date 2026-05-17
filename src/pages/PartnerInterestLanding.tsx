@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+﻿import { useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import { Bell, Mail, MapPin, Shield, Sparkles } from 'lucide-react';
@@ -102,7 +102,7 @@ export default function PartnerInterestLanding() {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm leading-relaxed text-muted-foreground">
-              منصة ذكية تربط المستخدم بالحلّاق الأقرب لموقعه عبر الخريطة والفلترة، مع مسار واضح للشركاء
+              منصة ذكية تربط المستخدم بالحلّاق الأقرب لموقعه عبر الخريطة والفلترة، مع مسار الخدمات البرمجية للمنصة واضح
               (الباقات، لوحة التحكم، التواصل). ننمو بخطى مدروسة مع الحفاظ على الثقة والوضوح.
             </CardContent>
           </Card>
@@ -183,7 +183,7 @@ export default function PartnerInterestLanding() {
                 </Button>
                 <NavLink to={ROUTE_PATHS.BARBERS_LANDING}>
                   <Button type="button" variant="outline" size="lg">
-                    العودة لصفحة الشركاء
+                    العودة إلى مسار الخدمات البرمجية للمنصة
                   </Button>
                 </NavLink>
               </div>

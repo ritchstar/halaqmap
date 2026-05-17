@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { Shield, Lock, FileCheck, Database, Bell, Mail, Scale, CreditCard } from "lucide-react";
 import {
   LEGAL_TRADE_NAME_AR,
@@ -16,7 +16,7 @@ export default function PartnerPrivacy() {
       icon: Shield,
       title: "نطاق هذه السياسة",
       content:
-        "هذه السياسة مخصصة للشركاء (الحلاقين/الصالونات) المتقدمين عبر مسار الشركاء. توضح كيف نجمع بيانات طلب شراء الترخيص الرقمي، وكيف نستخدمها ونحميها ضمن إجراءات الاعتماد والتشغيل على المنصة.",
+        "هذه السياسة مخصصة للشركاء (الحلاقين/الصالونات) المتقدمين عبر مسار الخدمات البرمجية للمنصة. توضح كيف نجمع بيانات طلب شراء الترخيص الرقمي، وكيف نستخدمها ونحميها ضمن إجراءات الاعتماد والتشغيل على المنصة.",
     },
     {
       icon: Scale,
@@ -86,7 +86,7 @@ export default function PartnerPrivacy() {
               سياسة خصوصية الشركاء
             </h1>
             <p className="text-lg text-muted-foreground">
-              صفحة مستقلة لخصوصية بيانات الحلاقين والصالونات ضمن مسار الشركاء.
+              صفحة مستقلة لخصوصية بيانات الحلاقين والصالونات ضمن مسار الخدمات البرمجية للمنصة.
             </p>
           </div>
         </motion.div>
