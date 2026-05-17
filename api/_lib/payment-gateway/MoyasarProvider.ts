@@ -9,10 +9,12 @@ function licenseSkuFromTier(tier: string): string {
 
 function buildMetadata(request: UnifiedPaymentRequest): Record<string, unknown> {
   const sku = licenseSkuFromTier(request.tier);
+  const qty = Math.min(12, Math.max(1, Math.trunc(request.licenseQuantity ?? 1)));
   return {
     payment_gateway: 'MOYASAR',
     tier: request.tier,
     license_sku: sku,
+    license_quantity: qty,
     expected_amount_halalas: request.amountHalalas,
     expected_currency: 'SAR',
     linked_barber_id: request.linkedBarberId || '',

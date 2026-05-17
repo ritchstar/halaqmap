@@ -38,6 +38,22 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const supabase = createClient(url, serviceRole, { auth: { persistSession: false } });
+
+  const { data: cfg, error: cfgError } = await supabase
+    .from('partner_tutorial_videos_config')
+    .select('enabled')
+    .eq('id', 1)
+    .maybeSingle();
+
+  if (cfgError) {
+    return Response.json({ ok: false, error: cfgError.message }, { status: 500, headers });
+  }
+
+  const sectionEnabled = cfg?.enabled !== false;
+  if (!sectionEnabled) {
+    return Response.json({ ok: true, enabled: false, videos: [] }, { headers });
+  }
+
   const { data, error } = await supabase
     .from('partner_tutorial_videos')
     .select('id,title,description,object_path,sort_order,updated_at')
@@ -66,6 +82,6 @@ export async function GET(request: Request): Promise<Response> {
     };
   });
 
-  return Response.json({ ok: true, videos }, { headers });
+  return Response.json({ ok: true, enabled: true, videos }, { headers });
 }
 

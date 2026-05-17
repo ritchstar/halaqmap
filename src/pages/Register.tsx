@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Check, X, MapPin } from 'lucide-react';
 import { RegistrationForm } from '@/components/RegistrationForm';
+import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundary';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
 import { motion } from 'framer-motion';
@@ -244,7 +245,9 @@ export default function Register() {
             <h2 className="text-3xl font-bold mb-8 text-center text-foreground">
               نموذج التسجيل
             </h2>
-            <RegistrationForm />
+            <RegistrationErrorBoundary>
+              <RegistrationForm />
+            </RegistrationErrorBoundary>
           </motion.div>
 
           <motion.div

@@ -60,6 +60,13 @@ export async function GET(request: Request): Promise<Response> {
   if (adminAuth.ok === false) return Response.json(adminAuth.json, { status: adminAuth.status, headers });
 
   const supabase = adminAuth.supabase;
+
+  const { data: cfg } = await supabase
+    .from('partner_tutorial_videos_config')
+    .select('enabled, updated_at')
+    .eq('id', 1)
+    .maybeSingle();
+
   const { data, error } = await supabase
     .from('partner_tutorial_videos')
     .select('id,title,description,object_path,mime_type,sort_order,is_published,created_at,updated_at')
@@ -77,7 +84,15 @@ export async function GET(request: Request): Promise<Response> {
     return { ...r, previewUrl };
   });
 
-  return Response.json({ ok: true, rows }, { headers });
+  return Response.json(
+    {
+      ok: true,
+      sectionEnabled: cfg?.enabled !== false,
+      sectionUpdatedAt: typeof cfg?.updated_at === 'string' ? cfg.updated_at : null,
+      rows,
+    },
+    { headers },
+  );
 }
 
 type PostBody = Record<string, unknown>;
@@ -107,6 +122,15 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400, headers });
   }
   const action = String(body.action || '').trim();
+
+  if (action === 'setSectionEnabled') {
+    const enabled = body.enabled === true;
+    const { error } = await supabase
+      .from('partner_tutorial_videos_config')
+      .upsert({ id: 1, enabled, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+    if (error) return Response.json({ error: error.message }, { status: 500, headers });
+    return Response.json({ ok: true, sectionEnabled: enabled }, { headers });
+  }
 
   if (action === 'signedUpload') {
     const extRaw = String(body.ext || '').trim().toLowerCase().replace(/^\./, '');

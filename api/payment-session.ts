@@ -11,6 +11,7 @@ function corsHeaders(): Record<string, string> {
 type Body = {
   tier?: unknown;
   amountHalalas?: unknown;
+  licenseQuantity?: unknown;
   barberName?: unknown;
   requestId?: unknown;
   linkedBarberId?: unknown;
@@ -42,6 +43,10 @@ export async function POST(request: Request): Promise<Response> {
   const tier = String(body.tier || '').trim();
   const barberName = String(body.barberName || '').trim();
   const amountHalalas = Number(body.amountHalalas);
+  const licenseQuantity = Math.min(
+    12,
+    Math.max(1, Math.trunc(Number(body.licenseQuantity) || 1)),
+  );
   const requestId = String(body.requestId || '').trim();
   const linkedBarberId = String(body.linkedBarberId || '').trim();
 
@@ -54,6 +59,7 @@ export async function POST(request: Request): Promise<Response> {
     tier,
     barberName,
     amountHalalas: Math.round(amountHalalas),
+    licenseQuantity,
     requestId,
     linkedBarberId,
   });

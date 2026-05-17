@@ -69,6 +69,7 @@ type Body = {
   barberSubscriptionId?: unknown;
   registrationRequestId?: unknown;
   amountHalalas?: unknown;
+  quantity?: unknown;
   autoRedeem?: unknown;
   metadata?: unknown;
 };
@@ -120,6 +121,14 @@ export async function POST(request: Request): Promise<Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  const quantityRaw = body.quantity;
+  const quantity =
+    typeof quantityRaw === 'number' && Number.isFinite(quantityRaw)
+      ? Math.trunc(quantityRaw)
+      : typeof quantityRaw === 'string'
+        ? Math.trunc(Number.parseInt(quantityRaw, 10))
+        : undefined;
+
   const result = await fulfillListingLicenseOrder(supabase, {
     skuCode: String(body.skuCode ?? '').trim() || undefined,
     tier: String(body.tier ?? '').trim() || undefined,
@@ -130,6 +139,7 @@ export async function POST(request: Request): Promise<Response> {
     barberSubscriptionId: String(body.barberSubscriptionId ?? '').trim() || null,
     registrationRequestId: String(body.registrationRequestId ?? '').trim() || null,
     amountHalalas,
+    quantity,
     autoRedeem: Boolean(barberId) && autoRedeem,
     metadata:
       body.metadata && typeof body.metadata === 'object' && !Array.isArray(body.metadata)
@@ -144,13 +154,20 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  if (!result.autoRedeemed && result.plaintextCode && buyerEmail.includes('@')) {
+  const codesToEmail =
+    result.voucherCodes && result.voucherCodes.length > 0
+      ? result.voucherCodes
+      : result.plaintextCode
+        ? [result.plaintextCode]
+        : [];
+
+  if (!result.autoRedeemed && codesToEmail.length > 0 && buyerEmail.includes('@')) {
     const resendKey = (process.env.RESEND_API_KEY ?? '').trim();
     const resendFrom = (process.env.RESEND_FROM_EMAIL ?? '').trim();
     if (resendKey && resendFrom) {
       const mail = buildVoucherEmailBodies({
         barberName: buyerName,
-        plaintextCode: result.plaintextCode,
+        plaintextCode: codesToEmail.join('\n'),
         tierLabelAr: tierLabelAr(result.tier),
         listingDaysGranted: result.listingDaysGranted,
       });
@@ -174,6 +191,7 @@ export async function POST(request: Request): Promise<Response> {
     validUntil: result.validUntil,
     listingDaysGranted: result.listingDaysGranted,
     tier: result.tier,
-    voucherEmailed: Boolean(!result.autoRedeemed && result.plaintextCode && buyerEmail),
+    quantity: result.quantity,
+    voucherEmailed: Boolean(!result.autoRedeemed && codesToEmail.length > 0 && buyerEmail),
   });
 }

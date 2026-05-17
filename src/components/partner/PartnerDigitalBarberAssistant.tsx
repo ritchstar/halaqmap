@@ -71,7 +71,7 @@ export function PartnerDigitalBarberAssistant() {
         {
           role: 'assistant',
           content:
-            'أعتذر، لم أستطع جلب الرد حالياً. يمكنك إعادة المحاولة أو فتح استوديو دعم الشركاء وسيتم خدمتك مباشرة.',
+            'أعتذر، لم أستطع جلب الرد حالياً. يمكنك إعادة المحاولة أو فتح الدعم الفني (واتساب) وسيتم خدمتك مباشرة.',
         },
       ]);
       setIsSending(false);
@@ -210,7 +210,7 @@ export function PartnerDigitalBarberAssistant() {
                     <Button asChild variant="secondary" size="default" className="w-full gap-2 sm:w-auto" onClick={() => setOpen(false)}>
                       <NavLink to={ROUTE_PATHS.PARTNER_SUPPORT}>
                         <Headphones className="h-4 w-4" />
-                        استوديو دعم الشركاء
+                        الدعم الفني (واتساب)
                       </NavLink>
                     </Button>
                     {chatError ? <p className="text-xs text-rose-200 sm:text-sm">{chatError}</p> : null}

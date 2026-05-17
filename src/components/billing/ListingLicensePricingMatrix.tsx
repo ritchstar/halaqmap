@@ -1,14 +1,23 @@
+import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Minus, Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
-import { ROUTE_PATHS } from '@/lib';
+import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import {
   LISTING_LICENSE_LEGAL_FOOTNOTE,
   LISTING_LICENSE_PRICING_CARDS,
   type ListingLicenseCardAccent,
 } from '@/config/listingLicenseCards';
+import {
+  clampListingLicenseQuantity,
+  computeListingLicenseTotalSar,
+  formatListingLicenseQuantitySummaryAr,
+  listingLicenseCtaLabelAr,
+  LISTING_LICENSE_MAX_QUANTITY,
+  LISTING_LICENSE_MIN_QUANTITY,
+} from '@/config/listingLicenseQuantity';
 import {
   ApplePayBadgeIcon,
   MadaBadgeIcon,
@@ -67,10 +76,17 @@ function formatPriceSar(amount: number): string {
   return amount.toLocaleString('en-US');
 }
 
+function initialQuantities(): Record<SubscriptionTier, number> {
+  return {
+    [SubscriptionTier.BRONZE]: 1,
+    [SubscriptionTier.GOLD]: 1,
+    [SubscriptionTier.DIAMOND]: 1,
+  };
+}
+
 type Props = {
   variant?: Variant;
   className?: string;
-  /** إخفاء العنوان عند تضمينه داخل تذييل مزدحم */
   showHeader?: boolean;
 };
 
@@ -81,6 +97,14 @@ export function ListingLicensePricingMatrix({
 }: Props) {
   const reduceMotion = useReducedMotion();
   const isDarkShell = variant !== 'embedded-light';
+  const [quantities, setQuantities] = useState(initialQuantities);
+
+  const setQty = (tier: SubscriptionTier, next: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [tier]: clampListingLicenseQuantity(next),
+    }));
+  };
 
   return (
     <section
@@ -128,7 +152,7 @@ export function ListingLicensePricingMatrix({
               تراخيص الإدراج الرقمي الموحّدة
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-300 md:mx-0 md:text-base">
-              باقات مسبقة الدفع لخدمات الإدراج البرمجية على خريطة حلاق ماب — اختر المستوى، ادفع، وفعّل الظهور فوراً.
+              اختر المستوى وعدد البطاقات (كل بطاقة = 30 يوم إدراج). ادفع المجموع وفعّل الظهور فوراً.
             </p>
           </motion.header>
         ) : null}
@@ -136,7 +160,14 @@ export function ListingLicensePricingMatrix({
         <div className="grid gap-5 lg:grid-cols-3 lg:gap-6">
           {LISTING_LICENSE_PRICING_CARDS.map((card) => {
             const styles = accentStyles[card.accent];
-            const paymentTo = `${ROUTE_PATHS.PAYMENT}?${new URLSearchParams({ tier: card.tierQuery }).toString()}`;
+            const qty = quantities[card.tier];
+            const totalSar = computeListingLicenseTotalSar(card.tier, qty);
+            const summaryAr = formatListingLicenseQuantitySummaryAr(qty);
+            const ctaLabel = listingLicenseCtaLabelAr(qty, totalSar);
+            const paymentTo = `${ROUTE_PATHS.PAYMENT}?${new URLSearchParams({
+              tier: card.tierQuery,
+              qty: String(qty),
+            }).toString()}`;
 
             return (
               <motion.article
@@ -153,10 +184,7 @@ export function ListingLicensePricingMatrix({
               >
                 <motion.div
                   aria-hidden
-                  className={cn(
-                    'pointer-events-none absolute inset-0 bg-gradient-to-br opacity-80',
-                    styles.glow,
-                  )}
+                  className={cn('pointer-events-none absolute inset-0 bg-gradient-to-br opacity-80', styles.glow)}
                 />
 
                 <div
@@ -185,8 +213,50 @@ export function ListingLicensePricingMatrix({
                   <div className="mt-5 flex items-baseline justify-end gap-2">
                     <span className="text-sm font-medium text-slate-400">ر.س</span>
                     <span className={cn('text-4xl font-black tabular-nums tracking-tight', styles.price)}>
-                      {formatPriceSar(card.priceSar)}
+                      {formatPriceSar(totalSar)}
                     </span>
+                  </div>
+                  {qty > 1 ? (
+                    <p className="mt-1 text-end text-xs text-slate-500">
+                      {formatPriceSar(card.priceSar)} ر.س × {qty} بطاقات
+                    </p>
+                  ) : null}
+
+                  <div
+                    className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3"
+                    aria-label="اختيار عدد البطاقات"
+                  >
+                    <p className="mb-2 text-xs font-semibold text-slate-300">عدد البطاقات (تراخيص)</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-1 rounded-lg border border-white/15 bg-white/5 p-0.5">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 text-slate-200 hover:bg-white/10"
+                          disabled={qty <= LISTING_LICENSE_MIN_QUANTITY}
+                          onClick={() => setQty(card.tier, qty - 1)}
+                          aria-label="تقليل العدد"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="min-w-[2.5rem] text-center text-lg font-bold tabular-nums text-white">
+                          {qty}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 text-slate-200 hover:bg-white/10"
+                          disabled={qty >= LISTING_LICENSE_MAX_QUANTITY}
+                          onClick={() => setQty(card.tier, qty + 1)}
+                          aria-label="زيادة العدد"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-xs leading-relaxed text-emerald-200/90">{summaryAr}</p>
                   </div>
 
                   <ul className="mt-5 flex-1 space-y-2.5 text-sm text-slate-300">
@@ -201,15 +271,18 @@ export function ListingLicensePricingMatrix({
                   <NavLink to={paymentTo} className="mt-6 block">
                     <Button
                       type="button"
-                      className={cn('w-full font-bold shadow-lg transition-transform active:scale-[0.98]', styles.btn)}
+                      className={cn(
+                        'h-auto min-h-11 whitespace-normal py-2.5 text-sm font-bold shadow-lg transition-transform active:scale-[0.98]',
+                        styles.btn,
+                      )}
                     >
-                      شراء وتفعيل الترخيص
+                      {ctaLabel}
                     </Button>
                   </NavLink>
 
                   <div
                     className={cn(
-                      'mt-4 flex flex-wrap items-center justify-center gap-3 border-t border-white/10 pt-4 text-slate-400',
+                      'mt-4 flex flex-wrap items-center justify-center gap-3 border-t border-white/10 pt-4',
                       isDarkShell ? 'text-slate-400' : 'text-slate-400',
                     )}
                   >

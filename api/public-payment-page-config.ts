@@ -68,12 +68,6 @@ export async function GET(request: Request): Promise<Response> {
       displayPaymentMode: String(row.display_payment_mode || 'test').toLowerCase() === 'live' ? 'live' : 'test',
       enableMoyasarCard: row.enable_moyasar_card !== false,
       enableSabGateway: row.enable_sab_gateway === true,
-      enableBankTransferSemiannual: row.enable_bank_transfer_semiannual !== false,
-      bank: {
-        bankNameAr: String(row.bank_display_name_ar ?? '').trim(),
-        beneficiary: String(row.bank_beneficiary_name ?? '').trim(),
-        iban: String(row.bank_iban ?? '').trim(),
-      },
     },
     { headers },
   );

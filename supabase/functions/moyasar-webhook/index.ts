@@ -137,6 +137,17 @@ function resolveInvoiceHref(meta: Record<string, unknown>): string {
   return "https://www.halaqmap.com/#/partners/payment?invoice=pending";
 }
 
+function licenseQuantityFromMeta(meta: Record<string, unknown> | null | undefined): number {
+  if (!meta || typeof meta !== "object") return 1;
+  const raw = meta.license_quantity ?? meta.licenseQuantity ?? 1;
+  const n =
+    typeof raw === "number"
+      ? Math.trunc(raw)
+      : Number.parseInt(String(raw).trim(), 10);
+  if (!Number.isFinite(n)) return 1;
+  return Math.min(12, Math.max(1, n));
+}
+
 function licenseSkuFromMeta(meta: Record<string, unknown>, tier: "bronze" | "gold" | "diamond" | null): string {
   const fromMeta = String(meta.license_sku ?? meta.licenseSku ?? "").trim().toLowerCase();
   if (fromMeta) return fromMeta;
@@ -154,6 +165,7 @@ async function fulfillListingLicenseViaInternalApi(input: {
   moyasarPaymentId: string;
   registrationRequestId: string | null;
   amountHalalas: number | null;
+  quantity: number;
   autoRedeem: boolean;
 }): Promise<{ ok: true; autoRedeemed: boolean; validUntil: string } | { ok: false; error: string }> {
   const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "").trim().replace(
@@ -181,8 +193,9 @@ async function fulfillListingLicenseViaInternalApi(input: {
         moyasarPaymentId: input.moyasarPaymentId,
         registrationRequestId: input.registrationRequestId,
         amountHalalas: input.amountHalalas,
+        quantity: input.quantity,
         autoRedeem: input.autoRedeem,
-        metadata: { source: "moyasar_webhook" },
+        metadata: { source: "moyasar_webhook", license_quantity: input.quantity },
       }),
     });
     const text = await resp.text();
@@ -630,7 +643,8 @@ Deno.serve(async (req) => {
 
     const paidAmount = typeof amount === "number" && Number.isFinite(amount) ? amount : null;
     const expectedFromMeta = expectedAmountHalalasFromMeta(meta);
-    const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) : null;
+    const licenseQty = licenseQuantityFromMeta(meta);
+    const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) * licenseQty : null;
     const expectedAmount = expectedFromMeta ?? expectedFromTier;
     const expectedCurrency = String(meta.expected_currency ?? meta.expectedCurrency ?? "SAR")
       .trim()
@@ -690,6 +704,7 @@ Deno.serve(async (req) => {
       moyasarPaymentId: paymentId,
       registrationRequestId: requestId || null,
       amountHalalas: paidAmount,
+      quantity: licenseQty,
       autoRedeem: Boolean(barberId),
     });
     if (!fulfill.ok) {

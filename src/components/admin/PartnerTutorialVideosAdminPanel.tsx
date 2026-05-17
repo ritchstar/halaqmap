@@ -12,6 +12,7 @@ import {
   deleteTutorialVideo,
   fetchTutorialVideosAdmin,
   requestTutorialVideoSignedUpload,
+  setTutorialSectionEnabled,
   updateTutorialVideo,
   type TutorialVideoAdminRow,
 } from '@/lib/partnerTutorialVideosAdminRemote';
@@ -26,6 +27,7 @@ function extFromFileName(name: string): string | null {
 export function PartnerTutorialVideosAdminPanel({ canView, canManage }: Props) {
   const mounted = useRef(true);
   const [rows, setRows] = useState<TutorialVideoAdminRow[]>([]);
+  const [sectionEnabled, setSectionEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -50,8 +52,22 @@ export function PartnerTutorialVideosAdminPanel({ canView, canManage }: Props) {
       return;
     }
     setRows(res.rows);
+    setSectionEnabled(res.sectionEnabled);
     setLoading(false);
   }, []);
+
+  const onToggleSection = async (enabled: boolean) => {
+    if (!canManage) return;
+    const r = await setTutorialSectionEnabled(enabled);
+    if (r.ok === false) {
+      toast({ title: 'تعذر تحديث إعداد العرض', description: r.error, variant: 'destructive' });
+      return;
+    }
+    setSectionEnabled(r.sectionEnabled);
+    toast({
+      title: enabled ? 'تم تفعيل صفحة فيديوهات الشرح للزوار' : 'تم إخفاء صفحة فيديوهات الشرح نهائياً',
+    });
+  };
 
   useEffect(() => {
     if (!canView && !canManage) return;
@@ -120,6 +136,18 @@ export function PartnerTutorialVideosAdminPanel({ canView, canManage }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-primary/25 p-4">
+          <div className="space-y-1 text-right">
+            <p className="text-sm font-medium">عرض صفحة فيديوهات الشرح للزوار</p>
+            <p className="text-xs text-muted-foreground">
+              عند الإيقاف تُخفى الصفحة والرابط من مسار الخدمات البرمجية للمنصة نهائياً حتى إعادة التفعيل.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">مفعّل</span>
+            <Switch checked={sectionEnabled} disabled={!canManage} onCheckedChange={(v) => void onToggleSection(v)} />
+          </div>
+        </div>
         {!canManage && canView ? (
           <p className="text-sm text-muted-foreground rounded-md border border-dashed p-3">وضع عرض فقط — لا تملك صلاحية تعديل فيديوهات الشرح.</p>
         ) : null}

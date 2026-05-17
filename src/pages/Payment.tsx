@@ -5,20 +5,14 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   CreditCard,
-  Building2,
-  Upload,
   CheckCircle2,
   AlertCircle,
-  Copy,
-  Check,
   Loader2,
-  ArrowRight,
   Shield,
   Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -26,16 +20,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
-import { BANK_TRANSFER } from '@/config/bankTransfer';
-import {
-  BANK_TRANSFER_PREPAID_MONTHS,
-  BANK_TRANSFER_PROMO_BONUS_MONTHS,
-  getBankTransferPayableAmountSar,
-  getBankTransferCoveredMonths,
-  getBankTransferPeriodGrossSar,
-  isBankTransferPromoActive,
-} from '@/config/subscriptionPricing';
 import { resolvePaymentGateway } from '@/config/paymentGateway';
+import { clampListingLicenseQuantity, computeListingLicenseTotalSar } from '@/config/listingLicenseQuantity';
 import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
@@ -54,6 +40,10 @@ export default function Payment() {
       : tierRaw === SubscriptionTier.DIAMOND
         ? SubscriptionTier.DIAMOND
         : SubscriptionTier.BRONZE;
+  const licenseQuantity = useMemo(
+    () => clampListingLicenseQuantity(searchParams.get('qty')),
+    [searchParams],
+  );
   const requestIdParam = searchParams.get('requestId') ?? '';
   /** مطابق لطلب التسجيل (HM-...) — يُمرَّر في metadata.request_id للـ webhook؛ يُفضّل عدم تركه فارغاً */
   const requestId = useMemo(() => requestIdParam.trim(), [requestIdParam]);
@@ -74,19 +64,14 @@ export default function Payment() {
 
   const enableMoyasarCard = pubPayConfig === null || !pubPayConfig.ok || pubPayConfig.enableMoyasarCard !== false;
   const enableSabGateway = Boolean(pubPayConfig?.ok && pubPayConfig.enableSabGateway);
-  const enableBankTransfer =
-    pubPayConfig === null || !pubPayConfig.ok || pubPayConfig.enableBankTransferSemiannual !== false;
 
   const paymentProvider = useMemo(() => getUnifiedPaymentProvider(selectedGateway), [selectedGateway]);
   const isMoyasarGateway = selectedGateway === 'MOYASAR';
   const showMoyasarCheckout = enableMoyasarCard && isMoyasarGateway;
 
-  const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card' | 'bank_transfer'>('moyasar');
+  const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card'>('moyasar');
   /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
   const [moyasarTermsAccepted, setMoyasarTermsAccepted] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [ibanCopied, setIbanCopied] = useState(false);
   /** بعد العودة من ميسر بـ ?id= — التحقق من الخادم */
   const [moyasarReturnVerify, setMoyasarReturnVerify] = useState<
     'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
@@ -132,41 +117,43 @@ export default function Payment() {
     [SubscriptionTier.DIAMOND]: 'from-primary to-cyan-600',
   };
 
-  const price = prices[tier];
+  const price = computeListingLicenseTotalSar(tier, licenseQuantity);
   const tierName = tierNames[tier];
   const tierColor = tierColors[tier];
 
-  const monthlyBreakdown = calcVatBreakdown(price, vatSettings);
+  const licenseBreakdown = useMemo(
+    () => calcVatBreakdown(price, vatSettings),
+    [price, vatSettings],
+  );
 
   /** قيمة الترخيص الرقمي بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
   const monthlyAmountHalalas = useMemo(
-    () => Math.max(100, Math.round(monthlyBreakdown.total * 100)),
-    [monthlyBreakdown.total],
+    () => Math.max(100, Math.round(licenseBreakdown.total * 100)),
+    [licenseBreakdown.total],
   );
   const unifiedPaymentInit = useMemo(
     () =>
       paymentProvider.buildInitPayload({
         tier,
         amountHalalas: monthlyAmountHalalas,
+        licenseQuantity,
         barberName,
         requestId,
         linkedBarberId,
       }),
-    [paymentProvider, tier, monthlyAmountHalalas, barberName, requestId, linkedBarberId],
+    [paymentProvider, tier, monthlyAmountHalalas, licenseQuantity, barberName, requestId, linkedBarberId],
   );
 
   const moyasarPaymentIdFromUrl = searchParams.get('id')?.trim() || '';
 
   useEffect(() => {
     if (pubPayConfig === null) return;
-    setPaymentMethod((prev) => {
-      const enM = enableMoyasarCard && isMoyasarGateway;
-      const enB = enableBankTransfer;
-      if (prev === 'moyasar' && !enM) return enB ? 'bank_transfer' : 'card';
-      if (prev === 'bank_transfer' && !enB) return enM ? 'moyasar' : 'card';
-      return prev;
-    });
-  }, [pubPayConfig, enableMoyasarCard, enableBankTransfer, isMoyasarGateway]);
+    if (!enableMoyasarCard && !isMoyasarGateway && enableSabGateway) {
+      setPaymentMethod('card');
+    } else if (enableMoyasarCard && isMoyasarGateway) {
+      setPaymentMethod('moyasar');
+    }
+  }, [pubPayConfig, enableMoyasarCard, enableSabGateway, isMoyasarGateway]);
 
   useEffect(() => {
     if (selectedGateway !== 'MOYASAR') return;
@@ -249,6 +236,7 @@ export default function Payment() {
     let callbackUrl: string;
     const paymentQuery = [
       `tier=${encodeURIComponent(tier)}`,
+      `qty=${encodeURIComponent(String(licenseQuantity))}`,
       `requestId=${encodeURIComponent(requestId)}`,
       ...(linkedBarberId ? [`linkedBarberId=${encodeURIComponent(linkedBarberId)}`] : []),
     ].join('&');
@@ -256,6 +244,7 @@ export default function Payment() {
       try {
         const u = new URL(explicit);
         u.searchParams.set('tier', tier);
+        u.searchParams.set('qty', String(licenseQuantity));
         u.searchParams.set('requestId', requestId);
         if (linkedBarberId) u.searchParams.set('linkedBarberId', linkedBarberId);
         callbackUrl = u.toString();
@@ -316,6 +305,7 @@ export default function Payment() {
     moyasarKeyOk,
     monthlyAmountHalalas,
     tier,
+    licenseQuantity,
     requestId,
     linkedBarberId,
     selectedGateway,
@@ -324,67 +314,6 @@ export default function Payment() {
     unifiedPaymentInit.description,
     unifiedPaymentInit.metadata,
   ]);
-
-  const bankTransferDue = getBankTransferPayableAmountSar(tier);
-  const bankTransferBreakdown = calcVatBreakdown(bankTransferDue, vatSettings);
-  const bankTransferMonths = getBankTransferCoveredMonths();
-  const bankTransferGrossPeriod = getBankTransferPeriodGrossSar(tier);
-  const bankPromoOn = isBankTransferPromoActive();
-
-  const { iban: IBAN, bankDisplayAr: BANK_NAME, beneficiaryDisplay: ACCOUNT_NAME } = useMemo(() => {
-    const b = pubPayConfig?.ok ? pubPayConfig.bank : null;
-    if (b?.iban) {
-      return {
-        iban: b.iban,
-        bankDisplayAr: b.bankNameAr || BANK_TRANSFER.bankDisplayAr,
-        beneficiaryDisplay: b.beneficiary || BANK_TRANSFER.beneficiaryDisplay,
-      };
-    }
-    return {
-      iban: BANK_TRANSFER.iban,
-      bankDisplayAr: BANK_TRANSFER.bankDisplayAr,
-      beneficiaryDisplay: BANK_TRANSFER.beneficiaryDisplay,
-    };
-  }, [pubPayConfig]);
-
-  const handleCopyIban = () => {
-    navigator.clipboard.writeText(IBAN);
-    setIbanCopied(true);
-    setTimeout(() => setIbanCopied(false), 2000);
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setReceiptFile(e.target.files[0]);
-    }
-  };
-
-  const handlePayment = async () => {
-    if (paymentMethod === 'moyasar') {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    if (paymentMethod === 'card') {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      alert('سيتم توجيهك إلى بوابة الدفع الإلكتروني...');
-      setIsProcessing(false);
-      return;
-    }
-    if (paymentMethod === 'bank_transfer') {
-      if (!receiptFile) {
-        alert('يرجى رفع إيصال التحويل البنكي');
-        setIsProcessing(false);
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      alert('تم إرسال إيصال التحويل بنجاح! سيتم مراجعته خلال 24 ساعة.');
-    }
-
-    setIsProcessing(false);
-    navigate(ROUTE_PATHS.HOME);
-  };
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -488,15 +417,15 @@ export default function Payment() {
                       </div>
                     </div>
                     <div className="text-left space-y-1">
-                      {vatSettings.enabled && monthlyBreakdown.vat > 0 ? (
+                      {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
                         <>
                           <p className="text-xs text-muted-foreground">
-                            قيمة الترخيص الرقمي الموحد: {monthlyBreakdown.subtotal} ر.س
+                            قيمة الترخيص الرقمي الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {monthlyBreakdown.vat} ر.س
+                            ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
                           </p>
-                          <p className="text-2xl font-bold text-primary">{monthlyBreakdown.total} ر.س</p>
+                          <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
                           <p className="text-xs text-muted-foreground">إجمالي قيمة الترخيص</p>
                         </>
                       ) : (
@@ -519,7 +448,7 @@ export default function Payment() {
                 <CardContent className="space-y-4">
                   <RadioGroup
                     value={paymentMethod}
-                    onValueChange={(value: 'moyasar' | 'card' | 'bank_transfer') => {
+                    onValueChange={(value: 'moyasar' | 'card') => {
                       setPaymentMethod(value);
                       if (value !== 'moyasar') setMoyasarTermsAccepted(false);
                     }}
@@ -564,52 +493,6 @@ export default function Payment() {
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Mada_Logo.svg/200px-Mada_Logo.svg.png" alt="Mada" className="h-6" />
                           </div>
                         )}
-                      </div>
-                    </label>
-                    )}
-
-                    {/* Credit/Debit Card */}
-                    <label
-                      className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === 'card'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <RadioGroupItem value="card" id="card" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <CreditCard className="w-5 h-5 text-primary" />
-                          <h3 className="font-semibold">بطاقة ائتمانية / مدى</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          ادفع باستخدام بطاقتك الائتمانية أو بطاقة مدى
-                        </p>
-                      </div>
-                    </label>
-
-                    {/* Bank Transfer */}
-                    {enableBankTransfer && (
-                    <label
-                      className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === 'bank_transfer'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Building2 className="w-5 h-5 text-primary" />
-                          <h3 className="font-semibold">تحويل بنكي</h3>
-                          <Badge variant="outline" className="text-xs">
-                            {bankPromoOn ? `${BANK_TRANSFER_PREPAID_MONTHS} أشهر + عرض` : `${BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً`}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          عند السداد عبر التحويل البنكي، يتم التحقق من الإيصال يدويًا من قِبل الإدارة، وسيتم إصدار وإرسال{' '}
-                          <strong>(كود التفعيل الرقمي للترخيص)</strong> عبر وسائل الاتصال المسجلة خلال 24 ساعة كحد أقصى.
-                        </p>
                       </div>
                     </label>
                     )}
@@ -719,8 +602,7 @@ export default function Payment() {
                     <Alert>
                       <Shield className="h-4 w-4" />
                       <AlertDescription className="text-sm leading-relaxed">
-                        تم إيقاف أو إخفاء دفع ميسر من <strong>لوحة إدارة المنصة</strong>. يمكنك استخدام التحويل البنكي
-                        إن كان مفعّلاً، أو تفعيل القناة من قسم بوابات الدفع في الإدارة.
+                        تم إيقاف أو إخفاء دفع ميسر من <strong>لوحة إدارة المنصة</strong>. فعّل القناة من قسم بوابات الدفع في الإدارة.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -734,181 +616,8 @@ export default function Payment() {
                       </AlertDescription>
                     </Alert>
                   )}
-
-                  {/* Bank Transfer Details */}
-                  {paymentMethod === 'bank_transfer' && enableBankTransfer && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="space-y-4 pt-4"
-                    >
-                      <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
-                          <strong>ملاحظة:</strong>{' '}
-                          {bankPromoOn ? (
-                            <>
-                              فترة العرض التشغيلي: حوّل <strong>{bankTransferDue} ر.س</strong> (خصم 10% على إجمالي{' '}
-                              {bankTransferGrossPeriod} ر.س لـ {BANK_TRANSFER_PREPAID_MONTHS} أشهر) لتصل الصلاحية إلى{' '}
-                              <strong>{bankTransferMonths} أشهر</strong> ({BANK_TRANSFER_PREPAID_MONTHS} مدفوعة +{' '}
-                              {BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر ضمن العرض). بعد انتهاء العرض ينطبق سعر الـ
-                              {BANK_TRANSFER_PREPAID_MONTHS} أشهر كاملة ({bankTransferGrossPeriod} ر.س حسب الباقة).
-                            </>
-                          ) : (
-                            <>
-                              التحويل البنكي: دفع مقدم لـ <strong>{BANK_TRANSFER_PREPAID_MONTHS} أشهر</strong> — المبلغ{' '}
-                              <strong>{bankTransferDue} ر.س</strong> (برونزي 600، ذهبي 900، ماسي 1200 حسب الباقة).
-                            </>
-                          )}
-                        </AlertDescription>
-                      </Alert>
-
-                      <Card className="bg-muted/50">
-                        <CardHeader>
-                          <CardTitle className="text-lg">معلومات الحساب البنكي</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div>
-                            <Label className="text-sm text-muted-foreground">اسم البنك</Label>
-                            <p className="text-base font-semibold">{BANK_NAME}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm text-muted-foreground">اسم الحساب</Label>
-                            <p className="text-base font-semibold">{ACCOUNT_NAME}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm text-muted-foreground">رقم الآيبان (IBAN)</Label>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Input
-                                value={IBAN}
-                                readOnly
-                                dir="ltr"
-                                className="font-mono text-base"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={handleCopyIban}
-                                className="flex-shrink-0"
-                              >
-                                {ibanCopied ? (
-                                  <Check className="w-4 h-4 text-green-600" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </div>
-                            {ibanCopied && (
-                              <p className="text-xs text-green-600 mt-1">تم النسخ!</p>
-                            )}
-                          </div>
-                          <div>
-                            <Label className="text-sm text-muted-foreground">المبلغ المطلوب</Label>
-                            {vatSettings.enabled && bankTransferBreakdown.vat > 0 ? (
-                              <div className="space-y-1 mt-1">
-                                <p className="text-sm text-muted-foreground">
-                                  قيمة الترخيص الرقمي الموحد: {bankTransferBreakdown.subtotal} ر.س
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  ضريبة القيمة المضافة ({vatSettings.ratePercent}%):{' '}
-                                  {bankTransferBreakdown.vat} ر.س
-                                </p>
-                                <p className="text-2xl font-bold text-primary">
-                                  {bankTransferBreakdown.total} ر.س
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  الإجمالي للتحويل — لمدة {bankTransferMonths} أشهر
-                                  {bankPromoOn
-                                    ? ` (عرض: خصم 10% على ${bankTransferGrossPeriod} ر.س + ${BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر عرض تشغيلي)`
-                                    : ' (سعر 6 أشهر كامل)'}
-                                </p>
-                              </div>
-                            ) : (
-                              <>
-                                <p className="text-2xl font-bold text-primary">{bankTransferDue} ر.س</p>
-                                <p className="text-xs text-muted-foreground">
-                                  لمدة {bankTransferMonths} أشهر
-                                  {bankPromoOn
-                                    ? ` (عرض: خصم 10% على ${bankTransferGrossPeriod} ر.س + ${BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر عرض تشغيلي)`
-                                    : ' (سعر 6 أشهر كامل)'}
-                                </p>
-                              </>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="receipt">رفع إيصال التحويل *</Label>
-                        <div
-                          onClick={() => document.getElementById('receipt')?.click()}
-                          className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
-                        >
-                          <input
-                            id="receipt"
-                            type="file"
-                            accept="image/*,application/pdf"
-                            onChange={handleFileUpload}
-                            className="hidden"
-                          />
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Upload className="w-6 h-6 text-primary" />
-                            </div>
-                            {receiptFile ? (
-                              <div className="flex items-center gap-2 text-green-600">
-                                <CheckCircle2 className="w-5 h-5" />
-                                <span className="font-medium">{receiptFile.name}</span>
-                              </div>
-                            ) : (
-                              <>
-                                <p className="text-sm font-medium">اضغط لرفع إيصال التحويل</p>
-                                <p className="text-xs text-muted-foreground">
-                                  PNG, JPG, PDF حتى 10MB
-                                </p>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
                 </CardContent>
               </Card>
-
-              {/* Payment Button */}
-              <Button
-                onClick={handlePayment}
-                disabled={
-                  isProcessing ||
-                  (paymentMethod === 'bank_transfer' && !receiptFile) ||
-                  paymentMethod === 'moyasar'
-                }
-                className="w-full h-14 text-lg font-semibold"
-                size="lg"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 ml-2 animate-spin" />
-                    جاري المعالجة...
-                  </>
-                ) : (
-                  <>
-                    {paymentMethod === 'moyasar'
-                      ? showMoyasarCheckout
-                        ? 'أكمل الدفع عبر نموذج ميسر أعلاه'
-                        : !isMoyasarGateway
-                          ? 'تجهيز بوابة البنك — راجع التعليمات أعلاه'
-                          : 'دفع البطاقة غير متاح حالياً'
-                      : paymentMethod === 'bank_transfer'
-                        ? 'إرسال الإيصال'
-                        : 'متابعة الدفع'}
-                    {paymentMethod !== 'moyasar' ? <ArrowRight className="w-5 h-5 mr-2" /> : null}
-                  </>
-                )}
-              </Button>
             </div>
 
             {/* Sidebar */}

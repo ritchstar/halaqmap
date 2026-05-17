@@ -31,14 +31,10 @@ const emptySettings: PlatformPaymentSettingsPayload = {
   display_payment_mode: 'test',
   enable_moyasar_card: true,
   enable_sab_gateway: false,
-  enable_bank_transfer_semiannual: true,
   enable_internal_onboarding_email: true,
   enable_whatsapp_payment_notify: false,
   enable_resend_payment_receipt: true,
   enforce_price_currency_match: true,
-  bank_display_name_ar: '',
-  bank_beneficiary_name: '',
-  bank_iban: '',
   updated_at: null,
   updated_by_email: null,
 };
@@ -205,17 +201,6 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
                 disabled={!canSave || loading}
               />
             </div>
-            <div className="flex items-center justify-between gap-4 rounded-lg border border-border/80 p-3">
-              <div>
-                <p className="text-sm font-medium">تحويل بنكي (ترخيص ممتد — 6 أشهر)</p>
-                <p className="text-xs text-muted-foreground">إظهار قسم التحويل ورفع الإيصال</p>
-              </div>
-              <Switch
-                checked={settings.enable_bank_transfer_semiannual}
-                onCheckedChange={(c) => patch({ enable_bank_transfer_semiannual: c })}
-                disabled={!canSave || loading}
-              />
-            </div>
           </CardContent>
         </Card>
 
@@ -275,47 +260,6 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">بيانات التحويل البنكي (للعرض في صفحة الدفع)</CardTitle>
-          <CardDescription>
-            إن تُركت فارغة تُستخدم قيم <span dir="ltr">VITE_BANK_TRANSFER_*</span> من بيئة البناء.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2 md:col-span-3">
-            <Label>اسم البنك (عربي)</Label>
-            <Input
-              value={settings.bank_display_name_ar}
-              onChange={(e) => patch({ bank_display_name_ar: e.target.value })}
-              disabled={!canSave || loading}
-              placeholder="مثال: البنك الأول السعودي"
-            />
-          </div>
-          <div className="space-y-2 md:col-span-3">
-            <Label>اسم المستفيد</Label>
-            <Input
-              value={settings.bank_beneficiary_name}
-              onChange={(e) => patch({ bank_beneficiary_name: e.target.value })}
-              disabled={!canSave || loading}
-              dir="ltr"
-              className="text-left font-mono"
-            />
-          </div>
-          <div className="space-y-2 md:col-span-3">
-            <Label>الآيبان IBAN</Label>
-            <Input
-              value={settings.bank_iban}
-              onChange={(e) => patch({ bank_iban: e.target.value.replace(/\s+/g, '') })}
-              disabled={!canSave || loading}
-              dir="ltr"
-              className="text-left font-mono"
-              placeholder="SA..."
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">

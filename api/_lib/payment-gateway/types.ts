@@ -3,6 +3,7 @@ export type PaymentGatewayCode = 'MOYASAR' | 'SAB';
 export type UnifiedPaymentRequest = {
   tier: string;
   amountHalalas: number;
+  licenseQuantity?: number;
   barberName: string;
   requestId?: string;
   linkedBarberId?: string;

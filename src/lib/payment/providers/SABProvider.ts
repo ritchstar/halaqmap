@@ -1,9 +1,11 @@
 import type { UnifiedPaymentInput, UnifiedPaymentProvider } from './types';
 
 function buildMetadata(input: UnifiedPaymentInput): Record<string, unknown> {
+  const qty = Math.min(12, Math.max(1, Math.trunc(input.licenseQuantity) || 1));
   return {
     payment_gateway: 'SAB',
     tier: String(input.tier),
+    license_quantity: qty,
     expected_amount_halalas: input.amountHalalas,
     expected_currency: 'SAR',
     ...(input.requestId

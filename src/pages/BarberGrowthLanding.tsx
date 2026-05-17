@@ -54,7 +54,7 @@ function PartnerSupportStudioLink({ variant = 'hero' }: { variant?: 'hero' | 'fo
     return (
       <NavLink to={to}>
         <Button size="lg" variant="outline" className="w-full min-w-48 gap-2 border-border">
-          استوديو دعم الشركاء
+          الدعم الفني (واتساب)
           <Headphones className="h-4 w-4" />
         </Button>
       </NavLink>
@@ -67,7 +67,7 @@ function PartnerSupportStudioLink({ variant = 'hero' }: { variant?: 'hero' | 'fo
         variant="outline"
         className="gap-2 border-white/45 bg-black/30 text-white hover:bg-white/10 text-base font-semibold"
       >
-        استوديو دعم الشركاء
+        الدعم الفني (واتساب)
         <Headphones className="h-4 w-4" />
       </Button>
     </NavLink>

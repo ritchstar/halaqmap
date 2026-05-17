@@ -27,7 +27,10 @@ export type TutorialVideoAdminRow = {
   previewUrl: string | null;
 };
 
-export async function fetchTutorialVideosAdmin(): Promise<{ ok: true; rows: TutorialVideoAdminRow[] } | { ok: false; error: string }> {
+export async function fetchTutorialVideosAdmin(): Promise<
+  | { ok: true; rows: TutorialVideoAdminRow[]; sectionEnabled: boolean }
+  | { ok: false; error: string }
+> {
   const h = await authHeaders();
   if (!h) return { ok: false, error: 'غير مسجّل' };
   const res = await fetch(API, { method: 'GET', headers: h });
@@ -35,7 +38,24 @@ export async function fetchTutorialVideosAdmin(): Promise<{ ok: true; rows: Tuto
   if (!res.ok || json.ok !== true) {
     return { ok: false, error: typeof json.error === 'string' ? json.error : `HTTP ${res.status}` };
   }
-  return { ok: true, rows: Array.isArray(json.rows) ? (json.rows as TutorialVideoAdminRow[]) : [] };
+  return {
+    ok: true,
+    sectionEnabled: json.sectionEnabled !== false,
+    rows: Array.isArray(json.rows) ? (json.rows as TutorialVideoAdminRow[]) : [],
+  };
+}
+
+export async function setTutorialSectionEnabled(enabled: boolean) {
+  const h = await authHeaders();
+  if (!h) return { ok: false as const, error: 'غير مسجّل' };
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: h,
+    body: JSON.stringify({ action: 'setSectionEnabled', enabled }),
+  });
+  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok || json.ok !== true) return { ok: false as const, error: typeof json.error === 'string' ? json.error : `HTTP ${res.status}` };
+  return { ok: true as const, sectionEnabled: json.sectionEnabled === true };
 }
 
 export async function requestTutorialVideoSignedUpload(ext: string) {

@@ -26,13 +26,6 @@ import {
   saveLastOrderConfirmation,
 } from '@/lib/subscriptionRequestStorage';
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
-import { BANK_TRANSFER } from '@/config/bankTransfer';
-import {
-  BANK_TRANSFER_PREPAID_MONTHS,
-  BANK_TRANSFER_PROMO_BONUS_MONTHS,
-  getBankTransferPayableAmountSar,
-  getBankTransferPlanSummaryAr,
-} from '@/config/subscriptionPricing';
 import {
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
   BARBER_DASHBOARD_GOLD_LINE,
@@ -118,8 +111,7 @@ interface FormData {
   /** سبعة أيام — للباقة البرونزية يُحدَّد هنا ويُثبَّت في العرض */
   workingWeek: WorkingWeekFormRow[];
   payment: {
-    method: 'monthly' | 'bank_transfer' | '';
-    receipt: File | null;
+    method: 'monthly' | '';
   };
   /** إلزامي قبل «إرسال الطلب»: تأشير صريح بالموافقة على الشروط والسياسات */
   registrationTermsAccepted: boolean;
@@ -278,8 +270,7 @@ export function RegistrationForm() {
     inclusiveAccessibleCare: { offered: false, price: '' },
     workingWeek: createInitialWorkingWeekForm(),
     payment: {
-      method: '',
-      receipt: null,
+      method: 'monthly',
     },
     registrationTermsAccepted: false,
   });
@@ -489,10 +480,6 @@ export function RegistrationForm() {
       alert('يرجى اختيار طريقة الدفع');
       return;
     }
-    if (formData.payment.method === 'bank_transfer' && !formData.payment.receipt) {
-      alert('يرجى رفع إيصال التحويل البنكي');
-      return;
-    }
     if (!formData.registrationTermsAccepted) {
       toast.error('يجب تأشير الموافقة الصريحة على شروط التسجيل وسياسة الشركاء قبل الإرسال.');
       window.requestAnimationFrame(() =>
@@ -554,7 +541,6 @@ export function RegistrationForm() {
 
       let registrationAttachmentUrls: RegistrationAttachmentUrls | undefined;
       const supabase = getSupabaseClient();
-      const receiptFile = formData.payment.receipt;
       /* 1) رفع المرفقات أولاً — يتطلب orderId مطابقاً لسياسة التخزين؛ فشل مبكر دون تحميل بيانات إضافية */
       if (supabase) {
         const up = await uploadRegistrationAttachments(
@@ -564,7 +550,7 @@ export function RegistrationForm() {
             shopExterior: formData.images.shopExterior!,
             shopInterior: formData.images.shopInterior!,
             bannerImages: formData.images.bannerImages.filter(Boolean) as File[],
-            receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
+            receipt: null,
           },
           { intentToken }
         );
@@ -613,16 +599,6 @@ export function RegistrationForm() {
         .map((h) => `${h.day}: ${h.open === 'مغلق' ? 'مغلق' : `${h.open} – ${h.close}`}`)
         .join('\n');
 
-      /* 2) إيصال احتياطي محلي صغير إن لم يُرفع للتخزين */
-      let receiptDataUrl: string | undefined;
-      if (!registrationAttachmentUrls?.receipt && receiptFile && receiptFile.size <= MAX_RECEIPT_STORAGE_BYTES) {
-        try {
-          receiptDataUrl = await readFileAsDataURL(receiptFile);
-        } catch {
-          receiptDataUrl = undefined;
-        }
-      }
-
       const lat = parseFloat(formData.location.lat) || 0;
       const lng = parseFloat(formData.location.lng) || 0;
       const partnerAttribution = loadPartnerAttribution();
@@ -658,8 +634,6 @@ export function RegistrationForm() {
         source: 'registration',
         partnerAttribution,
         paymentMethod: formData.payment.method,
-        receiptFileName: receiptFile?.name,
-        receiptDataUrl,
         registrationAttachmentUrls,
         legalDisclaimerAccepted: true,
         legalDisclaimerAcceptedAtIso: submittedAtIso,
@@ -687,12 +661,7 @@ export function RegistrationForm() {
 
       const plan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
       const tierName = plan?.name ?? String(formData.tier);
-      const payLabel =
-        formData.payment.method === 'bank_transfer' && plan
-          ? `تحويل بنكي — ${getBankTransferPlanSummaryAr(plan.tier)}`
-          : formData.payment.method === 'bank_transfer'
-            ? 'تحويل بنكي'
-            : 'ترخيص رقمي (30 يوماً)';
+      const payLabel = 'ترخيص رقمي (ميسر — بطاقة)';
 
       const attributionLines = partnerAttribution
         ? [
@@ -726,7 +695,6 @@ export function RegistrationForm() {
         `تصنيفات: ${formData.categories.join('، ') || '—'}\n` +
         `طريقة الدفع: ${payLabel}\n` +
         `${attributionLines}\n` +
-        (receiptFile ? `ملف الإيصال: ${receiptFile.name}\n` : '') +
         `\n` +
         `العنوان: ${composedAddress || formData.location.address || '—'}\n` +
         `الإحداثيات: ${formData.location.lat || '—'}, ${formData.location.lng || '—'}\n` +
@@ -749,10 +717,7 @@ export function RegistrationForm() {
           ? `\nروابط المرفقات على السيرفر (صور المحل والإيصال فقط):\n` +
             `- صورة خارجية: ${registrationAttachmentUrls.shopExterior}\n` +
             `- صورة داخلية: ${registrationAttachmentUrls.shopInterior}\n` +
-            `- بنرات: ${(registrationAttachmentUrls.banners ?? []).join(' | ')}\n` +
-            (registrationAttachmentUrls.receipt
-              ? `- إيصال التحويل: ${registrationAttachmentUrls.receipt}\n`
-              : '')
+            `- بنرات: ${(registrationAttachmentUrls.banners ?? []).join(' | ')}\n`
           : '') +
         `\n` +
         `— نهاية الملخص —\n`;
@@ -774,7 +739,6 @@ export function RegistrationForm() {
         shopName: formData.shopName,
         tier: formData.tier as SubscriptionTier,
         paymentMethod: formData.payment.method,
-        receiptFileName: receiptFile?.name,
         summaryForDownload,
         mailtoBodyShort,
       });
@@ -1532,61 +1496,25 @@ export function RegistrationForm() {
                     </AlertDescription>
                   </Alert>
                 )}
-                <RadioGroup
-                  value={formData.payment.method}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      payment: { ...prev.payment, method: value as 'monthly' | 'bank_transfer' },
-                    }))
-                  }
-                  className="space-y-3"
-                >
-                  <label className="flex items-center space-x-3 space-x-reverse border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                    <RadioGroupItem value="monthly" id="monthly" />
-                    <div className="flex-1">
-                      <div className="font-semibold">ترخيص رقمي (ميسر)</div>
-                      <p className="text-sm text-muted-foreground">
-                        شراء ترخيص إدراج برمجي مسبق الدفع — دون تجديد تلقائي أو خصم دوري
+                <Alert className="border-primary/30 bg-primary/5">
+                  <AlertDescription className="text-sm leading-relaxed space-y-2">
+                    <p>
+                      <strong>الدفع عبر بطاقة (ميسر)</strong> — الطريقة الوحيدة لشراء الترخيص الرقمي على المنصة.
+                    </p>
+                    <p className="text-muted-foreground">
+                      بعد مراجعة طلبك والموافقة عليه، ستتلقى رابط الدفع لإتمام السداد بأمان عبر بوابة ميسر (مدى، فيزا،
+                      ماستركارد). لا يوجد تحويل بنكي أو رفع إيصال ضمن التسجيل.
+                    </p>
+                    {selectedPlan && monthlyPriceBreakdown && (
+                      <p className="font-medium text-primary">
+                        المبلغ المتوقع للترخيص (30 يوماً):{' '}
+                        {vatSettings.enabled && monthlyPriceBreakdown.vat > 0
+                          ? `${monthlyPriceBreakdown.total} ر.س (شامل ضريبة ${vatSettings.ratePercent}%)`
+                          : `${selectedPlan.price} ر.س`}
                       </p>
-                    </div>
-                  </label>
-                  <label className="flex items-center space-x-3 space-x-reverse border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                    <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                    <div className="flex-1">
-                      <div className="font-semibold">
-                        تحويل بنكي ({BANK_TRANSFER_PREPAID_MONTHS} أشهر مقدماً)
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        خلال فترة العرض التشغيلي: خصم 10% على إجمالي رسوم الـ{BANK_TRANSFER_PREPAID_MONTHS} أشهر +
-                        إضافة {BANK_TRANSFER_PROMO_BONUS_MONTHS} أشهر صلاحية (عرض تشغيلي). بعد انتهاء العرض: السعر
-                        الكامل لـ{BANK_TRANSFER_PREPAID_MONTHS} أشهر فقط دون الأشهر الإضافية.
-                      </p>
-                      {selectedPlan && (() => {
-                        const base = getBankTransferPayableAmountSar(selectedPlan.tier);
-                        const bd = calcVatBreakdown(base, vatSettings);
-                        return (
-                          <div className="text-sm font-semibold text-primary mt-1 space-y-1">
-                            <p>
-                              المبلغ المطلوب الآن للتحويل:{' '}
-                              {vatSettings.enabled && bd.vat > 0 ? (
-                                <>
-                                  {bd.total} ريال (يشمل ضريبة القيمة المضافة {vatSettings.ratePercent}%:{' '}
-                                  {bd.vat} ريال على رسوم {bd.subtotal} ريال)
-                                </>
-                              ) : (
-                                <>{base} ريال (قيمة ترخيص رقمي دون ضريبة قيمة مضافة)</>
-                              )}
-                            </p>
-                            <p className="text-xs font-normal text-muted-foreground">
-                              {getBankTransferPlanSummaryAr(selectedPlan.tier)}
-                            </p>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </label>
-                </RadioGroup>
+                    )}
+                  </AlertDescription>
+                </Alert>
                 <div className="space-y-3 rounded-lg border border-border bg-muted/25 p-4">
                   <div className="flex items-start gap-3">
                     <Checkbox
@@ -1623,46 +1551,6 @@ export function RegistrationForm() {
                     </Label>
                   </div>
                 </div>
-                {formData.payment.method === 'bank_transfer' && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                    <div className="space-y-2">
-                      <h4 className="font-semibold">معلومات التحويل البنكي:</h4>
-                      <div className="text-sm space-y-1">
-                        <p>البنك: {BANK_TRANSFER.bankDisplayAr}</p>
-                        <p>رقم الحساب (IBAN): {BANK_TRANSFER.iban}</p>
-                        <p>اسم المستفيد: {BANK_TRANSFER.beneficiaryDisplay}</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="receipt">رفع إيصال التحويل *</Label>
-                      <Input
-                        id="receipt"
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            payment: { ...prev.payment, receipt: e.target.files?.[0] || null },
-                          }))
-                        }
-                      />
-                      {formData.payment.receipt && (
-                        <div className="space-y-1 text-sm">
-                          <p className="flex items-center gap-2 text-foreground min-w-0">
-                            <Check className="w-4 h-4 shrink-0 text-primary" aria-hidden />
-                            <span className="text-muted-foreground">تم اختيار الملف:</span>
-                            <span className="font-medium truncate" dir="ltr">
-                              {formData.payment.receipt.name}
-                            </span>
-                          </p>
-                          <p className="text-xs text-muted-foreground leading-relaxed pr-6">
-                            الرفع إلى السيرفر يتم فقط عند الضغط على «إرسال الطلب» — لا يُعتبر الملف مرفوعاً قبل نجاح الإرسال.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           )}

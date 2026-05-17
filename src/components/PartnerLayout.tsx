@@ -17,6 +17,7 @@ import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution'
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 import { DOMAIN_VERIFICATION_META_CONTENT, ensureDomainVerificationMeta } from '@/config/domainVerification';
 import { SOFTWARE_SERVICES_PORTAL_HEADING, SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
+import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPublic';
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
@@ -37,7 +38,7 @@ const partnerNavItems = [
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
   { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات التراخيص' },
   { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
-  { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم الشركاء' },
+  { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'الدعم الفني (واتساب)' },
   { path: ROUTE_PATHS.PARTNER_PRIVACY, label: 'خصوصية الشركاء' },
   { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: 'سياسة التراخيص الرقمية' },
   { path: ROUTE_PATHS.BARBER_LOGIN, label: 'دخول الحلاق' },
@@ -116,6 +117,10 @@ function PartnerPathDealPulseTitle({ className }: { className?: string }) {
 export function PartnerLayout({ children }: PartnerLayoutProps) {
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { visible: tutorialsVisible } = usePartnerTutorialSectionVisible();
+  const navItems = tutorialsVisible
+    ? partnerNavItems
+    : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
 
   useEffect(() => {
     capturePartnerAttributionFromLocation();
@@ -234,7 +239,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </div>
 
               <nav className="flex max-w-[58%] flex-1 flex-wrap items-center justify-end gap-2 lg:max-w-none">
-                {partnerNavItems.map((item) => (
+                {navItems.map((item) => (
                   <NavLink key={item.path} to={item.path} className={({ isActive }) => desktopNavClass(isActive)}>
                     {item.label}
                   </NavLink>
@@ -262,7 +267,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             <SheetDescription className="text-slate-400">جميع الصفحات والوثائق</SheetDescription>
           </SheetHeader>
           <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-6" aria-label="صفحات الشركاء">
-            {partnerNavItems.map((item) => (
+            {navItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}

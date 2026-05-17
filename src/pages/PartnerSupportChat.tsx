@@ -132,7 +132,7 @@ export default function PartnerSupportChat() {
     setDraft('');
 
     const waText = [
-      'مرحباً فريق حلاق ماب — رسالة من «استوديو دعم الشركاء» (شريك محتمل):',
+      'مرحباً فريق حلاق ماب — رسالة من «الدعم الفني (واتساب)» (شريك محتمل):',
       '',
       text,
       '',
@@ -186,7 +186,7 @@ export default function PartnerSupportChat() {
           <CardHeader className="space-y-2 border-b bg-gradient-to-l from-primary/10 via-card to-muted/30">
             <CardTitle className="flex flex-wrap items-center gap-2 text-xl md:text-2xl">
               <MessageCircle className="h-6 w-6 text-primary" />
-              استوديو دعم شركاء حلاق ماب
+              الدعم الفني (واتساب)
             </CardTitle>
             <CardDescription className="text-sm leading-relaxed">
               محادثة كتابية خاصة بنفس أسلوب الشات في الباقات الذهبية والماسية: جلسة واحدة لمدة ساعة، ثم تُغلق

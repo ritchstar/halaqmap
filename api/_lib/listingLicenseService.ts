@@ -23,6 +23,8 @@ export type ListingFulfillInput = {
   registrationRequestId?: string | null;
   amountHalalas?: number | null;
   metadata?: Record<string, unknown>;
+  /** عدد البطاقات (1–12) — كل بطاقة = 30 يوم إدراج */
+  quantity?: number;
   /** عند true: استرداد فوري للحلاق المرتبط */
   autoRedeem?: boolean;
 };
@@ -38,8 +40,19 @@ export type ListingFulfillResult =
       validUntil: string;
       listingDaysGranted: number;
       tier: ListingLicenseTier;
+      quantity: number;
+      voucherCodes?: string[];
     }
   | { ok: false; error: string; status?: number };
+
+function clampLicenseQuantity(raw: unknown): number {
+  const n =
+    typeof raw === 'number' && Number.isFinite(raw)
+      ? Math.trunc(raw)
+      : Number.parseInt(String(raw ?? '1').trim(), 10);
+  if (!Number.isFinite(n)) return 1;
+  return Math.min(12, Math.max(1, n));
+}
 
 export async function loadProductBySku(
   supabase: SupabaseClient,
@@ -251,6 +264,7 @@ export async function fulfillListingLicenseOrder(
   const barberId =
     input.barberId && /^[0-9a-f-]{36}$/i.test(input.barberId) ? input.barberId : null;
   const autoRedeem = Boolean(input.autoRedeem && barberId);
+  const quantity = clampLicenseQuantity(input.quantity ?? input.metadata?.license_quantity);
 
   if (input.moyasarPaymentId) {
     const { data: existingOrder } = await supabase
@@ -275,11 +289,11 @@ export async function fulfillListingLicenseOrder(
       moyasar_payment_id: input.moyasarPaymentId ?? null,
       barber_subscription_id: input.barberSubscriptionId ?? null,
       registration_request_id: input.registrationRequestId ?? null,
-      amount_halalas: input.amountHalalas ?? product.amount_halalas,
+      amount_halalas: input.amountHalalas ?? product.amount_halalas * quantity,
       currency: 'SAR',
       status: 'paid',
       paid_at: ts,
-      metadata: input.metadata ?? {},
+      metadata: { ...(input.metadata ?? {}), license_quantity: quantity },
     })
     .select('id')
     .single();
@@ -288,25 +302,40 @@ export async function fulfillListingLicenseOrder(
     return { ok: false, error: orderErr?.message || 'order_insert_failed', status: 500 };
   }
 
-  const issued = await issueVoucherForOrder(supabase, {
-    orderId: order.id,
-    product,
-    deliveryEmail: input.buyerEmail,
-    autoRedeem,
-    barberId,
-  });
-  if (!issued.ok) return { ok: false, error: issued.error, status: 500 };
+  let firstIssued: Awaited<ReturnType<typeof issueVoucherForOrder>> | null = null;
+  const voucherCodes: string[] = [];
+  let lastValidUntil = '';
+
+  for (let i = 0; i < quantity; i += 1) {
+    const issued = await issueVoucherForOrder(supabase, {
+      orderId: order.id,
+      product,
+      deliveryEmail: input.buyerEmail,
+      autoRedeem,
+      barberId,
+    });
+    if (!issued.ok) return { ok: false, error: issued.error, status: 500 };
+    if (!firstIssued) firstIssued = issued;
+    voucherCodes.push(issued.plaintextCode);
+    if (issued.validUntil) lastValidUntil = issued.validUntil;
+  }
+
+  if (!firstIssued) {
+    return { ok: false, error: 'voucher_issue_failed', status: 500 };
+  }
 
   return {
     ok: true,
     orderId: order.id,
-    voucherId: issued.voucherId,
-    entitlementId: issued.entitlementId,
-    autoRedeemed: issued.autoRedeemed,
-    plaintextCode: issued.autoRedeemed ? undefined : issued.plaintextCode,
-    validUntil: issued.validUntil ?? '',
-    listingDaysGranted: product.listing_days_granted,
+    voucherId: firstIssued.voucherId,
+    entitlementId: firstIssued.entitlementId,
+    autoRedeemed: firstIssued.autoRedeemed,
+    plaintextCode: firstIssued.autoRedeemed ? undefined : firstIssued.plaintextCode,
+    validUntil: (lastValidUntil || firstIssued.validUntil) ?? '',
+    listingDaysGranted: product.listing_days_granted * quantity,
     tier: product.tier,
+    quantity,
+    voucherCodes: firstIssued.autoRedeemed ? undefined : voucherCodes,
   };
 }
 

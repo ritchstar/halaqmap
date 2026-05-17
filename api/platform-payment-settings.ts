@@ -41,7 +41,7 @@ function normalizeSettingsRow(raw: Record<string, unknown> | null): SettingsPayl
     display_payment_mode: mode,
     enable_moyasar_card: r.enable_moyasar_card !== false,
     enable_sab_gateway: r.enable_sab_gateway === true,
-    enable_bank_transfer_semiannual: r.enable_bank_transfer_semiannual !== false,
+    enable_bank_transfer_semiannual: false,
     enable_internal_onboarding_email: r.enable_internal_onboarding_email !== false,
     enable_whatsapp_payment_notify: r.enable_whatsapp_payment_notify === true,
     enable_resend_payment_receipt: r.enable_resend_payment_receipt !== false,
@@ -182,10 +182,7 @@ export async function POST(request: Request): Promise<Response> {
       String(body.display_payment_mode || base.display_payment_mode).toLowerCase() === 'live' ? 'live' : 'test',
     enable_moyasar_card: body.enable_moyasar_card === undefined ? base.enable_moyasar_card : Boolean(body.enable_moyasar_card),
     enable_sab_gateway: body.enable_sab_gateway === undefined ? base.enable_sab_gateway : Boolean(body.enable_sab_gateway),
-    enable_bank_transfer_semiannual:
-      body.enable_bank_transfer_semiannual === undefined
-        ? base.enable_bank_transfer_semiannual
-        : Boolean(body.enable_bank_transfer_semiannual),
+    enable_bank_transfer_semiannual: false,
     enable_internal_onboarding_email:
       body.enable_internal_onboarding_email === undefined
         ? base.enable_internal_onboarding_email

@@ -4,6 +4,8 @@ import type { PaymentGatewayCode } from '@/config/paymentGateway';
 export type UnifiedPaymentInput = {
   tier: SubscriptionTier;
   amountHalalas: number;
+  /** عدد بطاقات الترخيص (1–12) */
+  licenseQuantity: number;
   barberName: string;
   requestId: string;
   linkedBarberId: string;

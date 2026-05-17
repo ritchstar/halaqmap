@@ -6,12 +6,6 @@ export type PublicPaymentPageConfig = {
   displayPaymentMode: 'test' | 'live';
   enableMoyasarCard: boolean;
   enableSabGateway: boolean;
-  enableBankTransferSemiannual: boolean;
-  bank: {
-    bankNameAr: string;
-    beneficiary: string;
-    iban: string;
-  };
   error?: string;
 };
 
@@ -25,19 +19,12 @@ export async function fetchPublicPaymentPageConfig(): Promise<PublicPaymentPageC
     }
     const gw = String(json.preferredGateway || 'MOYASAR').toUpperCase() === 'SAB' ? 'SAB' : 'MOYASAR';
     const mode = String(json.displayPaymentMode || 'test').toLowerCase() === 'live' ? 'live' : 'test';
-    const bankRaw = json.bank && typeof json.bank === 'object' ? (json.bank as Record<string, unknown>) : {};
     return {
       ok: true,
       preferredGateway: gw,
       displayPaymentMode: mode,
       enableMoyasarCard: json.enableMoyasarCard !== false,
       enableSabGateway: json.enableSabGateway === true,
-      enableBankTransferSemiannual: json.enableBankTransferSemiannual !== false,
-      bank: {
-        bankNameAr: String(bankRaw.bankNameAr ?? '').trim(),
-        beneficiary: String(bankRaw.beneficiary ?? '').trim(),
-        iban: String(bankRaw.iban ?? '').trim(),
-      },
     };
   } catch (e) {
     return fallbackConfig(e instanceof Error ? e.message : 'network_error');
@@ -51,8 +38,6 @@ function fallbackConfig(error: string): PublicPaymentPageConfig {
     displayPaymentMode: 'test',
     enableMoyasarCard: true,
     enableSabGateway: false,
-    enableBankTransferSemiannual: true,
-    bank: { bankNameAr: '', beneficiary: '', iban: '' },
     error,
   };
 }
