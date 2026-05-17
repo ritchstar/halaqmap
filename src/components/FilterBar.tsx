@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { RotateCcw, Star } from "lucide-react";
 import { FilterState, SubscriptionTier } from "@/lib/index";
 import { motion } from "framer-motion";
+import { PLATFORM_SEARCH_RESULTS_CONTEXT } from "@/config/platformSmartTracking";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -77,7 +78,10 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
         transition={{ duration: 0.3 }}
       >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-foreground">الفلاتر</h3>
+          <div>
+            <h3 className="text-xl font-semibold text-foreground">فلاتر الرصد الذكي</h3>
+            <p className="text-xs text-muted-foreground mt-1 max-w-md leading-relaxed">{PLATFORM_SEARCH_RESULTS_CONTEXT}</p>
+          </div>
           <Button
             variant="outline"
             size="sm"

@@ -2,7 +2,12 @@
  * هوية لوحة الشركاء (الحلاق): العنوان الثابت للمنصة + اسم الصالون من الجلسة (جدول barbers.name عبر API البوابة).
  */
 
+import { PLATFORM_PARTNER_DASHBOARD_TAGLINE } from '@/config/platformSmartTracking';
+
 export const PARTNER_DASHBOARD_BRAND_LABEL = 'لوحة تحكم حلاق ماب';
+
+/** سطر تعريفي تحت العنوان في لوحة الشريك */
+export const PARTNER_DASHBOARD_SMART_TRACKING_LINE = PLATFORM_PARTNER_DASHBOARD_TAGLINE;
 
 /** يُعرض في العنوان والوثائق — لا يُستخدم كاسم صالون وهمي */
 export const PARTNER_DASHBOARD_PRODUCT_NAME = 'حلاق ماب';

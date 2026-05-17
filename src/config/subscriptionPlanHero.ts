@@ -1,8 +1,9 @@
+import { MAP_FEATURE_PARTNER_SUBTITLE } from '@/config/platformSmartTracking';
+
 /** الميزة الأساسية المشتركة لجميع الباقات — نظام الرصد الذكي على المنصة */
 export const MAP_FEATURE_HERO = {
   title: 'نظام الرصد الذكي في حلاق ماب',
-  subtitle:
-    'يكتشف صالونك بدقة فائقة ويصلك بالعملاء المستعلمين في محيطك بلمحة عين.',
+  subtitle: MAP_FEATURE_PARTNER_SUBTITLE,
 } as const;
 
 /** أيقونة مفتوح/مغلق للعملاء — تُذكر في سياسة الباقات */

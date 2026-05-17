@@ -16,10 +16,17 @@ import { getSiteOrigin } from '@/config/siteOrigin';
 import {
   PLATFORM_HERO_H1,
   PLATFORM_HERO_LEAD,
+  PLATFORM_HERO_TRUST_LINE,
   PLATFORM_HOME_WELCOME_FEATURES,
   PLATFORM_META_DESCRIPTION,
 } from '@/config/platformGrowthNarrative';
-const USER_TRUST_LINE = 'حدد موقعك بدقة · قارن حسب التقييم · تواصل مباشرة مع الصالون';
+import {
+  PLATFORM_HERO_BADGE,
+  PLATFORM_HOW_IT_WORKS_STEPS,
+  PLATFORM_SEARCH_EMPTY_HINT,
+  PLATFORM_SEARCH_EMPTY_LOADING,
+  PLATFORM_SEARCH_EMPTY_TITLE,
+} from '@/config/platformSmartTracking';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 
@@ -290,7 +297,7 @@ export default function Home() {
                 <Sparkles className="w-4 h-4 text-accent" />
               </motion.span>
               <span className="text-sm font-semibold text-primary tracking-wide">
-                منصة حلاق ماب الذكية
+                {PLATFORM_HERO_BADGE}
               </span>
             </motion.div>
 
@@ -322,7 +329,7 @@ export default function Home() {
                 transition={{ delay: 0.48, duration: 0.6 }}
               >
                 <Shield className="w-4 h-4 text-accent shrink-0" aria-hidden />
-                <span>{USER_TRUST_LINE}</span>
+                <span>{PLATFORM_HERO_TRUST_LINE}</span>
               </motion.p>
 
               <motion.div
@@ -340,28 +347,13 @@ export default function Home() {
                 transition={{ delay: 0.75, duration: 0.6 }}
               >
                 <p className="text-sm font-semibold text-primary mb-4 tracking-wide">
-                  كيف تعمل المنصة؟
+                  كيف يعمل نظام الرصد الذكي؟
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-right text-card-foreground">
                   {[
-                    {
-                      step: '١',
-                      icon: MapPin,
-                      title: 'حدّد موقعك',
-                      desc: 'نستخدم موقعك لإظهار الحلاقين الأقرب إليك فعلياً.',
-                    },
-                    {
-                      step: '٢',
-                      icon: Search,
-                      title: 'قارن وتصفّح',
-                      desc: 'فلترة بالمسافة، الباقة، التقييم، ونوع الخدمة.',
-                    },
-                    {
-                      step: '٣',
-                      icon: MessageCircle,
-                      title: 'تواصل أو احجز',
-                      desc: 'اتصال، واتساب، وخرائط — حسب ما يوفره الصالون.',
-                    },
+                    { icon: MapPin, ...PLATFORM_HOW_IT_WORKS_STEPS[0] },
+                    { icon: Search, ...PLATFORM_HOW_IT_WORKS_STEPS[1] },
+                    { icon: MessageCircle, ...PLATFORM_HOW_IT_WORKS_STEPS[2] },
                   ].map((item, index) => {
                     const StepIcon = item.icon;
                     return (
@@ -382,7 +374,7 @@ export default function Home() {
                             <StepIcon className="hidden sm:block w-4 h-4 text-accent shrink-0" />
                             <h3 className="font-semibold text-secondary-foreground text-sm md:text-base">{item.title}</h3>
                           </div>
-                          <p className="text-xs md:text-sm text-muted-foreground leading-snug">{item.desc}</p>
+                          <p className="text-xs md:text-sm text-muted-foreground leading-snug">{item.description}</p>
                         </div>
                       </div>
                     </motion.div>
@@ -470,13 +462,11 @@ export default function Home() {
                 >
                   <MapPin className="w-12 h-12 text-primary" />
                 </motion.div>
-                <h3 className="text-2xl font-bold mb-3">لا توجد حلاقين في هذا النطاق 🔍</h3>
+                <h3 className="text-2xl font-bold mb-3">{PLATFORM_SEARCH_EMPTY_TITLE} 🔍</h3>
                 {remoteStatus === 'loading' && (
-                  <p className="text-sm text-primary font-semibold mb-3">جاري تحديث النتائج الأقرب لموقعك...</p>
+                  <p className="text-sm text-primary font-semibold mb-3">{PLATFORM_SEARCH_EMPTY_LOADING}</p>
                 )}
-                <p className="text-muted-foreground text-lg mb-6">
-                  جرّب زيادة نطاق البحث من شريط المسافة (حتى 25 كم) أو إلغاء الفلاتر
-                </p>
+                <p className="text-muted-foreground text-lg mb-6">{PLATFORM_SEARCH_EMPTY_HINT}</p>
                 <div className="bg-muted/30 rounded-xl p-6 space-y-3">
                   <p className="text-sm text-muted-foreground">💡 <strong>نصيحة:</strong></p>
                   <ul className="text-sm text-muted-foreground space-y-2 text-right">

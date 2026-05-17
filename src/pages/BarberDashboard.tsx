@@ -78,6 +78,7 @@ import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
   PARTNER_DASHBOARD_BRAND_LABEL,
+  PARTNER_DASHBOARD_SMART_TRACKING_LINE,
   isLegacyDemoSalonRegisteredName,
   partnerDashboardDocumentTitleFromSession,
   partnerSalonDisplayName,
@@ -485,7 +486,10 @@ export default function BarberDashboard() {
                     {salonDisplayName}
                   </span>
                 </h1>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
+                <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed sm:text-xs max-w-xl">
+                  {PARTNER_DASHBOARD_SMART_TRACKING_LINE}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge variant="secondary" className="text-[10px] sm:text-xs">
                     {subscriptionTierLabelAr(barberData.subscription)}
                   </Badge>

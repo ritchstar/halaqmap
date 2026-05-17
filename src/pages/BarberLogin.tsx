@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
 import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
+import { PLATFORM_PARTNER_DASHBOARD_TAGLINE } from '@/config/platformSmartTracking';
 import { IMAGES } from '@/assets/images';
 import { barberPortalLoginRemote } from '@/lib/barberPortalLoginRemote';
 import { toast } from 'sonner';
@@ -76,6 +77,7 @@ export default function BarberLogin() {
           <div className="mb-8 text-center">
             <HalaqmapBrandMark className="mx-auto mb-4 h-20 w-20 rounded-[1.35rem] ring-2 ring-primary/40 ring-offset-4 ring-offset-card shadow-xl" />
             <h1 className="mb-2 text-2xl font-bold">لوحة تحكم حلاق ماب</h1>
+            <p className="text-sm text-primary font-medium mb-3 leading-relaxed">{PLATFORM_PARTNER_DASHBOARD_TAGLINE}</p>
             <p className="text-muted-foreground">
               أدخل <strong>البريد المعتمد</strong> في ترخيصك. في خانة الرمز استخدم إما الرقم السري الذي زوّدك به{' '}
               <strong>فريق الدعم</strong>، أو <strong>كلمة المرور</strong> التي وصلتك على البريد بعد تفعيل حسابك.

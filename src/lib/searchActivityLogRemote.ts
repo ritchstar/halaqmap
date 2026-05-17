@@ -80,5 +80,5 @@ export function buildHomeSearchQueryText(input: {
       ? filters.tiers.map((t) => tierAr[t] ?? String(t)).join('،')
       : 'كل الباقات';
   const cats = filters.categories.length ? filters.categories.join('،') : 'كل الفئات';
-  return `قربي نصف قطر ${radiusKm}كم؛ تقييم≥${filters.minRating}؛ باقات: ${tiers}؛ فئات خدمة: ${cats}؛ مفتوح الآن: ${filters.openNow ? 'نعم' : 'لا'}؛ نتائج الخادم: ${rpcResultCount}؛ بعد تصفية الواجهة: ${listAfterLocalFilters}`;
+  return `رصد ذكي؛ قربي نصف قطر ${radiusKm}كم؛ تقييم≥${filters.minRating}؛ باقات: ${tiers}؛ فئات خدمة: ${cats}؛ مفتوح الآن: ${filters.openNow ? 'نعم' : 'لا'}؛ نتائج الرصد (خادم): ${rpcResultCount}؛ بعد تصفية الواجهة: ${listAfterLocalFilters}`;
 }

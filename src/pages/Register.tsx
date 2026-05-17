@@ -16,6 +16,7 @@ import {
 } from '@/config/subscriptionPlanHero';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { PARTNER_REGISTER_INTRO_PARAGRAPHS } from '@/lib/partnerMarketingCopy';
+import { PLATFORM_PARTNER_SMART_TRACKING_HEADLINE } from '@/config/platformSmartTracking';
 
 type RegisterPlanRow = { kind: 'row'; text: string; included: boolean };
 type RegisterPlanFeature = { kind: 'map_hero' } | RegisterPlanRow;
@@ -123,8 +124,8 @@ export default function Register() {
             transition={springPresets.gentle}
             className="text-center mb-8 sm:mb-12"
           >
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-l from-accent via-primary to-accent bg-clip-text text-transparent px-1">
-              انضم إلى منصة حلاق ماب
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-l from-accent via-primary to-accent bg-clip-text text-transparent px-1 text-pretty leading-tight">
+              {PLATFORM_PARTNER_SMART_TRACKING_HEADLINE}
             </h1>
             <div className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed px-1 space-y-4">
               {PARTNER_REGISTER_INTRO_PARAGRAPHS.map((para, i) => (

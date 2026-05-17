@@ -3,6 +3,12 @@ import { MapPin, Loader2, AlertCircle, CheckCircle2, ExternalLink } from "lucide
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  PLATFORM_SEARCH_LOCATION_BUTTON,
+  PLATFORM_SEARCH_LOCATION_HINT,
+  PLATFORM_SEARCH_LOCATION_LOADING,
+  PLATFORM_SEARCH_LOCATION_SUCCESS,
+} from "@/config/platformSmartTracking";
 
 interface LocationButtonProps {
   onLocationDetected: (location: { lat: number; lng: number }) => void;
@@ -84,12 +90,12 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               {isLoading ? (
                 <>
                   <Loader2 className="ml-3 h-8 w-8 animate-spin" />
-                  <span>جاري تحديد الموقع...</span>
+                  <span>{PLATFORM_SEARCH_LOCATION_LOADING}</span>
                 </>
               ) : (
                 <>
                   <MapPin className="ml-3 h-8 w-8" />
-                  <span>(اسمح بتحديد موقعك )</span>
+                  <span>{PLATFORM_SEARCH_LOCATION_BUTTON}</span>
                 </>
               )}
             </Button>
@@ -101,7 +107,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-center max-w-md text-base md:text-lg font-semibold leading-relaxed rounded-2xl border border-border bg-secondary px-5 py-4 text-secondary-foreground shadow-sm"
           >
-            اضغط على الزر لتحديد موقعك الحالي والعثور على أقرب الحلاقين المحترفين إليك
+            {PLATFORM_SEARCH_LOCATION_HINT}
           </motion.p>
         </>
       ) : (
@@ -140,7 +146,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
             >
               <CheckCircle2 className="h-10 w-10 text-green-500" />
             </motion.div>
-            <span className="text-2xl font-bold text-foreground">تم تحديد موقعك بنجاح ✅</span>
+            <span className="text-2xl font-bold text-foreground">{PLATFORM_SEARCH_LOCATION_SUCCESS} ✅</span>
           </motion.div>
           
           {/* Verify Location Button - More Prominent */}
