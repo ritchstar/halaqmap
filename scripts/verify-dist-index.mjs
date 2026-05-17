@@ -12,6 +12,19 @@ const errors = [];
 if (!html.includes('name="halaqmap-build-commit"')) {
   errors.push('missing meta halaqmap-build-commit');
 }
+if (!html.includes('name="domain-verification"')) {
+  errors.push('missing meta domain-verification');
+}
+const dvMatch = html.match(/name="domain-verification"\s+content="([^"]+)"/);
+if (!dvMatch?.[1]?.startsWith('05f735e4039c7d290a5f41d188fdc799')) {
+  errors.push('domain-verification content mismatch');
+}
+const headOpen = html.indexOf('<head>');
+const dvPos = html.indexOf('name="domain-verification"');
+const buildPos = html.indexOf('name="halaqmap-build-commit"');
+if (headOpen >= 0 && dvPos >= 0 && buildPos >= 0 && dvPos > buildPos) {
+  errors.push('domain-verification must appear before halaqmap-build-commit in head');
+}
 if (!/\/assets\/[^"']+\.(js|css)\?v=/.test(html)) {
   errors.push('missing ?v= on /assets/*.js or *.css');
 }

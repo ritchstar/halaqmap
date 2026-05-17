@@ -65,8 +65,8 @@ function indexHtmlAssetCacheBustPlugin(): Plugin {
       const qEsc = escAttr(q);
       if (!out.includes('name="halaqmap-build-commit"')) {
         out = out.replace(
-          '<head>',
-          `<head>\n    <meta name="halaqmap-build-commit" content="${commit}" />\n    <meta name="halaqmap-build-time" content="${buildTime}" />\n    <meta name="halaqmap-asset-query" content="${qEsc}" />`
+          '</head>',
+          `    <meta name="halaqmap-build-commit" content="${commit}" />\n    <meta name="halaqmap-build-time" content="${buildTime}" />\n    <meta name="halaqmap-asset-query" content="${qEsc}" />\n  </head>`
         );
       }
       return out;

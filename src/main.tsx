@@ -3,6 +3,9 @@ import { registerSW } from 'virtual:pwa-register'
 // مساعد الشركاء (الذكاء الاصطناعي) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
 import App from './App.tsx'
 import './index.css'
+import { ensureDomainVerificationMeta } from '@/config/domainVerification'
+
+ensureDomainVerificationMeta()
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 

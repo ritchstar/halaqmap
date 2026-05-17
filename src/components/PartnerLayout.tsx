@@ -15,6 +15,7 @@ import { ROUTE_PATHS } from '@/lib';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
+import { DOMAIN_VERIFICATION_META_CONTENT, ensureDomainVerificationMeta } from '@/config/domainVerification';
 import { SOFTWARE_SERVICES_PORTAL_HEADING, SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
@@ -51,10 +52,6 @@ const partnerBottomNav = [
 
 /** يطابق رأس مسار الشركاء — شريط عنوان المتصفح / PWA على الجوال */
 const PARTNER_THEME_COLOR = '#071426';
-
-/** نفس قيمة index.html — يُضاف/يُحدَّث في <head> عند دخول مسار الشركاء */
-const DOMAIN_VERIFICATION_META_CONTENT =
-  '05f735e4039c7d290a5f41d188fdc7995352fb2a7f8a211015099614270dd06f';
 
 /** نفس أسلوب الشعار في Layout.tsx مع لون إزاحة الحلقة يطابق الخلفية الداكنة (تفادي هالة بيضاء من ring-offset-background). */
 const partnerBrandMarkSurfaceClass =
@@ -128,16 +125,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     setMobileNavOpen(false);
   }, [location.pathname]);
 
-  /** domain-verification — يُضمن وجود الوسم في head على مسار الشركاء (SPA) */
   useEffect(() => {
-    const name = 'domain-verification';
-    let meta = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute('name', name);
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute('content', DOMAIN_VERIFICATION_META_CONTENT);
+    ensureDomainVerificationMeta();
   }, []);
 
   /** theme-color + شريط حالة iOS أقرب لتطبيق مثبت؛ يُستعاد عند مغادرة المسار */
