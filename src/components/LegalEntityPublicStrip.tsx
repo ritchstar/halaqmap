@@ -38,8 +38,9 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
         ) : null}
       </ul>
       <p className={`mt-3 text-xs ${muted}`}>
-        خدمة رقمية: شراء الترخيص والإدراج على المنصة يتم إلكترونياً. التواصل مع صالونك يكون مباشرة بينك وبين الصالون؛ لا تتولى
-        المنصة شحن منتجات نيابة عن الصالونات إلا ما يُتفق عليه خارج نطاق المنصة.
+        خدمة رقمية: شراء الترخيص والإدراج على المنصة يتم إلكترونياً. التواصل مع صالونك يكون مباشرة بينك وبين الصالون؛ لا
+        تطالبك المنصة بأي عمولات على الحلاقة أو مواعيدها نهائياً؛ المنصة تخدم المستخدم مجاناً بشرط السماح برصد موقعه برمجياً
+        وتفعيل الخيارات أمامه.
       </p>
       <div className={`mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs ${variant === 'dark' ? 'text-emerald-200/90' : 'text-primary'}`}>
         <NavLink to={ROUTE_PATHS.PRIVACY_DETAILED} className="underline-offset-2 hover:underline">
