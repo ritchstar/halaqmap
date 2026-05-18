@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ExternalLink, Landmark, Loader2, RefreshCw } from 'lucide-react';
+import { OpsBillingAiAssistant } from '@/components/admin/OpsBillingAiAssistant';
 
 const GODADDY_SUBSCRIPTIONS_DEFAULT =
   'https://account.godaddy.com/subscriptions?plid=1';
@@ -265,6 +266,7 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
             <span className="text-xs text-muted-foreground">(خطط مجانية حتى الترقية — يُحدَّث بعد المزامنة)</span>
           </div>
           <div className="flex flex-wrap gap-3 items-center">
+            <OpsBillingAiAssistant canMutate={canMutate} onApplied={() => void refresh()} />
             <Button type="button" variant="secondary" disabled={loading || syncing} onClick={() => void refresh()}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               <span className="mr-2">تحديث العرض</span>

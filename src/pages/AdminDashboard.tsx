@@ -147,6 +147,7 @@ import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutor
 import { ResourceManagementSection } from '@/components/admin/ResourceManagementSection';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
+import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
 import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArchivePanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
@@ -638,6 +639,7 @@ export default function AdminDashboard() {
 
           {/* Overview Tab */}
           {can('view_overview') && <TabsContent value="overview" className="space-y-6">
+            <VirtualAiStaffOffice can={can} />
             <OverviewSection stats={stats} />
           </TabsContent>}
 

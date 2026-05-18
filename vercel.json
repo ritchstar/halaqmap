@@ -139,6 +139,12 @@
     "api/ops-billing-monitor.ts": {
       "maxDuration": 60
     },
+    "api/admin-resources-ai-analyze.ts": {
+      "maxDuration": 60
+    },
+    "api/admin/resources/update-from-ai.ts": {
+      "maxDuration": 30
+    },
     "api/admin-financial-archive.ts": {
       "maxDuration": 60
     },
