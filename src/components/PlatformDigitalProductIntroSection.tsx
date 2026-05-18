@@ -8,8 +8,8 @@ import {
 } from '@/config/platformGrowthNarrative';
 
 /**
- * القسم التعريفي بالمنتج الرقمي — الصفحة الرئيسية (Landing).
- * مرجع مختصر للامتثال التجاري ونموذج B2C/B2B.
+ * الملكية الفكرية والحلول الرقمية — الصفحة الرئيسية (Landing).
+ * يفصل بين ملكية الكود المصدري (أصل المؤسسة) والمنتجات الرقمية المباعة (B2B).
  */
 export function PlatformDigitalProductIntroSection() {
   return (
