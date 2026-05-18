@@ -21,6 +21,7 @@ import {
   PLATFORM_META_DESCRIPTION,
 } from '@/config/platformGrowthNarrative';
 import { PlatformDigitalProductIntroSection } from '@/components/PlatformDigitalProductIntroSection';
+import { CorporateProductCompliancePublicSection } from '@/components/CorporateProductCompliancePublicSection';
 import {
   PLATFORM_HERO_BADGE,
   PLATFORM_HOW_IT_WORKS_STEPS,
@@ -389,6 +390,8 @@ export default function Home() {
       </div>
 
       <PlatformDigitalProductIntroSection />
+
+      <CorporateProductCompliancePublicSection />
 
       <AnimatePresence mode="wait">
         {!userLocation ? (
