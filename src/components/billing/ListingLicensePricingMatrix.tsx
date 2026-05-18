@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
-import { Check, Minus, Plus, Sparkles } from 'lucide-react';
+import { Check, Gem, Minus, Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
@@ -131,6 +131,12 @@ export function ListingLicensePricingMatrix({
         animate={reduceMotion ? false : { opacity: [0.25, 0.5, 0.25] }}
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
       />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 hidden h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-400/10 blur-3xl lg:block"
+        animate={reduceMotion ? false : { opacity: [0.2, 0.38, 0.2], scale: [1, 1.06, 1] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      />
 
       <motion.div
         className="relative z-10"
@@ -157,8 +163,9 @@ export function ListingLicensePricingMatrix({
           </motion.header>
         ) : null}
 
-        <div className="grid gap-5 lg:grid-cols-3 lg:gap-6">
+        <div className="grid gap-5 lg:grid-cols-3 lg:items-center lg:gap-6">
           {LISTING_LICENSE_PRICING_CARDS.map((card) => {
+            const isDiamond = card.accent === 'diamond';
             const styles = accentStyles[card.accent];
             const qty = quantities[card.tier];
             const totalSar = computeListingLicenseTotalSar(card.tier, qty);
@@ -170,51 +177,111 @@ export function ListingLicensePricingMatrix({
             }).toString()}`;
 
             return (
-              <motion.article
+              <motion.div
                 key={card.tier}
                 variants={cardVariants}
-                whileHover={reduceMotion ? undefined : { y: -6, transition: { duration: 0.22 } }}
-                className={cn(
-                  'group relative flex flex-col overflow-hidden rounded-2xl border border-white/10',
-                  'bg-white/[0.06] p-6 backdrop-blur-xl backdrop-saturate-150',
-                  'shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_20px_50px_-20px_rgba(0,0,0,0.55)]',
-                  'ring-1',
-                  styles.ring,
-                )}
+                className={cn('relative flex flex-col', isDiamond && 'z-20 lg:scale-[1.06]')}
               >
+                {isDiamond ? <motion.div aria-hidden className="diamond-pricing-aura" /> : null}
+
+                <motion.article
+                  whileHover={
+                    reduceMotion ? undefined : { y: isDiamond ? -8 : -6, transition: { duration: 0.22 } }
+                  }
+                  className={cn(
+                    'group relative flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/10',
+                    'bg-white/[0.06] backdrop-blur-xl backdrop-saturate-150',
+                    'shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_20px_50px_-20px_rgba(0,0,0,0.55)]',
+                    'ring-1',
+                    styles.ring,
+                    isDiamond ? 'diamond-card-shell p-7 pt-9' : 'p-6',
+                  )}
+                >
                 <motion.div
                   aria-hidden
-                  className={cn('pointer-events-none absolute inset-0 bg-gradient-to-br opacity-80', styles.glow)}
+                  className={cn(
+                    'pointer-events-none absolute inset-0 bg-gradient-to-br opacity-80',
+                    styles.glow,
+                    isDiamond && 'from-cyan-400/30 via-slate-400/10 to-indigo-950/30',
+                  )}
                 />
+
+                {isDiamond && card.premiumRibbonAr ? (
+                  <span className="diamond-premium-badge">
+                    <Gem className="h-3 w-3 shrink-0 opacity-90" aria-hidden />
+                    {card.premiumRibbonAr}
+                  </span>
+                ) : null}
 
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute -end-6 -top-6 opacity-[0.12] transition-opacity duration-300 group-hover:opacity-[0.2]"
+                  className={cn(
+                    'pointer-events-none absolute -end-6 -top-6 transition-opacity duration-300 group-hover:opacity-[0.22]',
+                    isDiamond ? 'opacity-[0.18]' : 'opacity-[0.12]',
+                  )}
                 >
-                  <HalaqmapBrandMark className="h-28 w-28 rounded-2xl grayscale" />
+                  <HalaqmapBrandMark
+                    className={cn('h-28 w-28 rounded-2xl', !isDiamond && 'grayscale')}
+                  />
                 </div>
 
                 <div className="relative z-10 flex flex-1 flex-col text-right">
                   <div className="mb-4 flex items-start justify-between gap-2">
+                    {isDiamond ? (
+                      <span className="diamond-sheen-wrap border border-cyan-300/40 bg-slate-900/40 shadow-[0_0_20px_rgba(34,211,238,0.15)]">
+                        <span className="diamond-metallic-title relative z-[1] inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-extrabold">
+                          <span aria-hidden>{card.badge}</span>
+                          {card.nameAr}
+                        </span>
+                      </span>
+                    ) : (
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold backdrop-blur-sm',
+                          styles.badge,
+                        )}
+                      >
+                        <span aria-hidden>{card.badge}</span>
+                        {card.nameAr}
+                      </span>
+                    )}
                     <span
                       className={cn(
-                        'inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold backdrop-blur-sm',
-                        styles.badge,
+                        'text-[11px] font-medium',
+                        isDiamond ? 'text-cyan-200/80' : 'text-slate-400',
                       )}
                     >
-                      <span aria-hidden>{card.badge}</span>
-                      {card.nameAr}
+                      {card.validityLabel}
                     </span>
-                    <span className="text-[11px] font-medium text-slate-400">{card.validityLabel}</span>
                   </div>
 
-                  <p className="text-sm font-medium text-slate-300">{card.subtitleAr}</p>
+                  <p
+                    className={cn(
+                      'text-sm font-medium',
+                      isDiamond ? 'text-cyan-100/90' : 'text-slate-300',
+                    )}
+                  >
+                    {card.subtitleAr}
+                  </p>
 
                   <div className="mt-5 flex items-baseline justify-end gap-2">
-                    <span className="text-sm font-medium text-slate-400">ر.س</span>
-                    <span className={cn('text-4xl font-black tabular-nums tracking-tight', styles.price)}>
-                      {formatPriceSar(totalSar)}
+                    <span
+                      className={cn(
+                        'text-sm font-semibold',
+                        isDiamond ? 'text-slate-300' : 'text-slate-400',
+                      )}
+                    >
+                      ر.س
                     </span>
+                    {isDiamond ? (
+                      <span className="diamond-metallic-price tabular-nums">
+                        {formatPriceSar(totalSar)}
+                      </span>
+                    ) : (
+                      <span className={cn('text-4xl font-black tabular-nums tracking-tight', styles.price)}>
+                        {formatPriceSar(totalSar)}
+                      </span>
+                    )}
                   </div>
                   {qty > 1 ? (
                     <p className="mt-1 text-end text-xs text-slate-500">
@@ -223,7 +290,12 @@ export function ListingLicensePricingMatrix({
                   ) : null}
 
                   <div
-                    className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3"
+                    className={cn(
+                      'mt-4 rounded-xl border bg-black/20 p-3',
+                      isDiamond
+                        ? 'border-cyan-400/25 bg-cyan-950/20'
+                        : 'border-white/10',
+                    )}
                     aria-label="اختيار عدد البطاقات"
                   >
                     <p className="mb-2 text-xs font-semibold text-slate-300">عدد البطاقات (تراخيص)</p>
@@ -259,11 +331,20 @@ export function ListingLicensePricingMatrix({
                     <p className="mt-2 text-xs leading-relaxed text-emerald-200/90">{summaryAr}</p>
                   </div>
 
-                  <ul className="mt-5 flex-1 space-y-2.5 text-sm text-slate-300">
+                  <ul
+                    className={cn(
+                      'mt-5 flex-1 space-y-3 text-sm',
+                      isDiamond ? 'text-slate-200' : 'text-slate-300',
+                    )}
+                  >
                     {card.highlights.map((line) => (
-                      <li key={line} className="flex items-start justify-end gap-2 leading-6">
-                        <span>{line}</span>
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400/90" aria-hidden />
+                      <li key={line} className="flex items-start justify-end gap-2.5 leading-relaxed">
+                        <span className={isDiamond ? 'text-[13px]' : undefined}>{line}</span>
+                        {isDiamond ? (
+                          <Gem className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300/95" aria-hidden />
+                        ) : (
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400/90" aria-hidden />
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -273,7 +354,7 @@ export function ListingLicensePricingMatrix({
                       type="button"
                       className={cn(
                         'h-auto min-h-11 whitespace-normal py-2.5 text-sm font-bold shadow-lg transition-transform active:scale-[0.98]',
-                        styles.btn,
+                        isDiamond ? 'diamond-cta w-full' : styles.btn,
                       )}
                     >
                       {ctaLabel}
@@ -292,6 +373,7 @@ export function ListingLicensePricingMatrix({
                   </div>
                 </div>
               </motion.article>
+              </motion.div>
             );
           })}
         </div>

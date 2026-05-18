@@ -288,3 +288,199 @@
     filter: drop-shadow(0 0 0.25rem color-mix(in srgb, var(--primary) 22%, transparent));
   }
 }
+
+/* ─── Diamond pricing card: calm apex aura + metallic sheen ─── */
+@keyframes diamond-aura-pulse {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.015);
+  }
+}
+
+@keyframes diamond-shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+@keyframes diamond-badge-shimmer {
+  0%,
+  100% {
+    background-position: 180% 50%;
+  }
+  50% {
+    background-position: -80% 50%;
+  }
+}
+
+@theme {
+  --animate-diamond-pulse: diamond-aura-pulse 5.5s ease-in-out infinite;
+  --animate-diamond-shimmer: diamond-shimmer 7s ease-in-out infinite;
+  --animate-diamond-badge-shimmer: diamond-badge-shimmer 4.5s ease-in-out infinite;
+}
+
+.diamond-pricing-aura {
+  position: absolute;
+  inset: -0.65rem;
+  border-radius: 1.35rem;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 85% 70% at 50% 40%, rgba(34, 211, 238, 0.28), transparent 62%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(148, 163, 184, 0.18), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 15% 75%, rgba(30, 58, 138, 0.35), transparent 58%);
+  animation: var(--animate-diamond-pulse);
+  filter: blur(10px);
+}
+
+.diamond-pricing-aura::after {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, #67e8f9 35%, transparent);
+  opacity: 0.55;
+  animation: var(--animate-diamond-pulse);
+}
+
+.diamond-card-shell {
+  position: relative;
+  z-index: 1;
+  border-color: color-mix(in srgb, #22d3ee 42%, transparent) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px color-mix(in srgb, #1e3a8a 55%, transparent),
+    0 24px 60px -18px rgba(14, 116, 144, 0.45),
+    0 0 48px -12px rgba(34, 211, 238, 0.22);
+}
+
+.diamond-sheen-wrap {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  border-radius: 9999px;
+}
+
+.diamond-sheen-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.55) 48%,
+    rgba(186, 230, 253, 0.35) 52%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: var(--animate-diamond-shimmer);
+}
+
+.diamond-metallic-title {
+  background: linear-gradient(
+    92deg,
+    #e2e8f0 0%,
+    #f8fafc 18%,
+    #67e8f9 42%,
+    #cbd5e1 58%,
+    #38bdf8 72%,
+    #f1f5f9 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: var(--animate-diamond-shimmer);
+}
+
+.diamond-metallic-price {
+  font-size: clamp(2.25rem, 5vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  background: linear-gradient(
+    165deg,
+    #f8fafc 0%,
+    #e2e8f0 22%,
+    #7dd3fc 45%,
+    #f1f5f9 58%,
+    #22d3ee 78%,
+    #94a3b8 100%
+  );
+  background-size: 180% 180%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 24px color-mix(in srgb, #22d3ee 18%, transparent);
+  animation: var(--animate-diamond-shimmer);
+}
+
+.diamond-premium-badge {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #0f172a;
+  border: 1px solid color-mix(in srgb, #f8fafc 65%, #94a3b8);
+  background: linear-gradient(
+    118deg,
+    #f8fafc 0%,
+    #e2e8f0 22%,
+    #fde68a 48%,
+    #cbd5e1 72%,
+    #bae6fd 100%
+  );
+  background-size: 220% 100%;
+  animation: var(--animate-diamond-badge-shimmer);
+  box-shadow:
+    0 2px 10px rgba(15, 23, 42, 0.35),
+    0 0 18px color-mix(in srgb, #fbbf24 25%, transparent);
+}
+
+.diamond-cta {
+  background: linear-gradient(to left, #0c4a6e, #0891b2, #22d3ee) !important;
+  color: #f8fafc !important;
+  border: 1px solid color-mix(in srgb, #67e8f9 45%, transparent);
+  box-shadow:
+    0 10px 28px -8px rgba(8, 145, 178, 0.55),
+    0 0 22px color-mix(in srgb, #22d3ee 28%, transparent);
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+.diamond-cta:hover {
+  box-shadow:
+    0 14px 36px -6px rgba(8, 145, 178, 0.65),
+    0 0 32px color-mix(in srgb, #22d3ee 42%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diamond-pricing-aura,
+  .diamond-pricing-aura::after,
+  .diamond-sheen-wrap::after,
+  .diamond-metallic-title,
+  .diamond-metallic-price,
+  .diamond-premium-badge {
+    animation: none !important;
+  }
+}

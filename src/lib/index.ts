@@ -43,6 +43,11 @@ export const ROUTE_PATHS = {
   INTERNAL_PARTNER_PATH_PRINT_CARD: '/m/hm-partner-path-card-q7',
   /** معاينة فواتير اشتراك (PDF) — داخلي، بدون ربط من القوائم */
   INVOICE_PREVIEW_SAMPLES: '/m/invoice-preview-samples',
+  /**
+   * معاينة البنرات والواجهات — للعملاء التجاريين فقط.
+   * لا تُضاف روابط لها من الرئيسية أو مسار المستهلك.
+   */
+  PARTNERS_BANNERS_PREVIEW: '/partners/banners-preview',
   /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
   RATE_BARBER: '/rate/:barberId',
 } as const;

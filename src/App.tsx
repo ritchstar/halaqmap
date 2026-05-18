@@ -33,6 +33,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import Payment from "@/pages/Payment";
 import PartnerSupportChat from "@/pages/PartnerSupportChat";
 import PartnerSubscriptionTutorials from "@/pages/PartnerSubscriptionTutorials";
+import PartnerBannersPreviewLanding from "@/pages/PartnerBannersPreviewLanding";
 import RateBarber from "@/pages/RateBarber";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import AdminSentinelPage from "@/pages/AdminSentinelPage";
@@ -76,6 +77,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<InternalPartnerPathPrintCard />} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<InvoicePreviewSamples />} />
+          <Route path={ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW} element={<PartnerBannersPreviewLanding />} />
           <Route path={ROUTE_PATHS.ABOUT} element={<Layout><About /></Layout>} />
           <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<Layout><TermsOfService /></Layout>} />
           <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<Layout><UserPrivacyPolicy /></Layout>} />
