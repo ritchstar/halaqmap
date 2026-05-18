@@ -354,7 +354,7 @@ function tierSpecificLines(k: 'bronze' | 'gold' | 'diamond'): string[] {
   ];
   if (k === 'diamond') {
     lines.push(
-      '- من «الإعدادات» أيضاً: جدولة المواعيد (ماسي) — إظهار أو إخفاء كتلة الحجز للعملاء على الخريطة (معاينة على الجهاز).',
+      '- من «الإعدادات» أيضاً: جدولة المواعيد (ماسي) — إظهار أو إخفاء كتلة الحجز للعملاء عبر نظام الرصد الذكي (معاينة على الجهاز).',
     );
   }
   return lines;
@@ -398,14 +398,14 @@ function memberSectionHtml(memberPadded: string | null | undefined): string {
 
 function emailOpeningLines(name: string, tierLabel: string): string[] {
   return [
-    'حلاق ماب — منصة الحلاقين على الخريطة',
+    'حلاق ماب — منصة الحلاقين عبر نظام الرصد الذكي',
     '════════════════════════════════════',
     '',
     `🎉 أهلًا ${name}!`,
     '',
-    'نحن في حلاق ماب سعداء جدًا باعتماد حسابك — هذه ليست مجرد رسالة تأكيد، بل دعوة للانضمام إلى مسار نمو نعمل عليه بخطى مدروسة: انتشار منهجي في المدن والأحياء، خرائط أوضح، ووصول أقوى للعميل القريب منك.',
+    'نحن في حلاق ماب سعداء جدًا باعتماد حسابك — هذه ليست مجرد رسالة تأكيد، بل دعوة للانضمام إلى مسار نمو نعمل عليه بخطى مدروسة: انتشار منهجي في المدن والأحياء، رصد أوضح، ووصول أقوى للعميل القريب منك.',
     '',
-    'وجود صالونك على المنصة الآن إنجاز حقيقي: أنت من الشركاء الأوائل الذين يساعدوننا نبني شبكة حلاقين موثوقة يثق بها الزائر. مع توسع المنصة، يتعزز ظهورك تدريجيًا أمام من يبحث عنك في محيطه — هذا تقدم تسويقي ملموس مبني على القرب والخريطة والمحتوى، لا وعودًا فارغة.',
+    'وجود صالونك على المنصة الآن إنجاز حقيقي: أنت من الشركاء الأوائل الذين يساعدوننا نبني شبكة حلاقين موثوقة يثق بها الزائر. مع توسع المنصة، يتعزز ظهورك تدريجيًا أمام من يبحث عنك في محيطه — هذا تقدم تسويقي ملموس مبني على القرب ونظام الرصد الذكي والمحتوى، لا وعودًا فارغة.',
     '',
     `باقتك الحالية: ${tierLabel}. فيما يلي ما يهمك عمليًا: روابط الدخول، أمان تسجيل الدخول، وملخص لوحة التحكم (بنفس روح تجربة المنصة: وضوح، احتراف، وتركيز على صالونك).`,
   ];
@@ -465,7 +465,7 @@ function emailText(
     ...ratingSectionPlain(rating),
     ...adminFeedbackPlain(links),
     '',
-    'شكرًا لثقتك. نتطلع لرؤية صالونك يلمع على الخريطة ✨',
+    'شكرًا لثقتك. نتطلع لرؤية صالونك يلمع عبر نظام الرصد الذكي ✨',
     '',
     '— فريق حلاق ماب',
   ].join('\n');
@@ -494,7 +494,7 @@ function emailHtml(
       ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #d1fae5;background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);overflow:hidden"><tr><td style="padding:16px 18px;font-size:14px;color:#134e4a;line-height:1.85"><p style="margin:0;font-weight:700;color:#0f766e">باقتك البرونزية</p><p style="margin:8px 0 0">أوقات العمل كما سجّلتها عند التسجيل؛ لجدول أسبوعي متقدّم يمكنك لاحقًا الترقية إلى <strong>ذهبي</strong> أو <strong>ماسي</strong>.</p></td></tr></table>`
       : k === 'gold'
         ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #fcd34d;background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);overflow:hidden"><tr><td style="padding:16px 18px;font-size:14px;color:#78350f;line-height:1.85"><p style="margin:0;font-weight:800;color:#92400e">باقتك الذهبية</p><ul style="margin:10px 0 0;padding:0 20px 0 0"><li style="margin:0 0 6px"><strong>الإعدادات:</strong> جدول أوقات العمل الأسبوعي.</li><li style="margin:0"><strong>QR والتقييمات:</strong> رابط ورمز التقييم بعد الزيارة.</li></ul></td></tr></table>`
-        : `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #5eead4;background:linear-gradient(135deg,#ecfeff 0%,#ccfbf1 100%);overflow:hidden"><tr><td style="padding:16px 18px;font-size:14px;color:#115e59;line-height:1.85"><p style="margin:0;font-weight:800;color:#0f766e">باقتك الماسية</p><p style="margin:6px 0 10px;font-size:13px;color:#0d9488">تشمل مزايا الذهبي + إضافات ماسية</p><ul style="margin:0;padding:0 20px 0 0"><li style="margin:0 0 6px"><strong>الإعدادات:</strong> جدول أوقات العمل الأسبوعي.</li><li style="margin:0 0 6px"><strong>QR والتقييمات:</strong> رابط ورمز التقييم.</li><li style="margin:0"><strong>جدولة المواعيد (ماسي):</strong> إظهار أو إخفاء الحجز على الخريطة.</li></ul></td></tr></table>`;
+        : `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #5eead4;background:linear-gradient(135deg,#ecfeff 0%,#ccfbf1 100%);overflow:hidden"><tr><td style="padding:16px 18px;font-size:14px;color:#115e59;line-height:1.85"><p style="margin:0;font-weight:800;color:#0f766e">باقتك الماسية</p><p style="margin:6px 0 10px;font-size:13px;color:#0d9488">تشمل مزايا الذهبي + إضافات ماسية</p><ul style="margin:0;padding:0 20px 0 0"><li style="margin:0 0 6px"><strong>الإعدادات:</strong> جدول أوقات العمل الأسبوعي.</li><li style="margin:0 0 6px"><strong>QR والتقييمات:</strong> رابط ورمز التقييم.</li><li style="margin:0"><strong>جدولة المواعيد (ماسي):</strong> إظهار أو إخفاء الحجز عبر نظام الرصد الذكي.</li></ul></td></tr></table>`;
 
   const btn = (href: string, label: string) =>
     `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:6px 6px 6px 0;padding:12px 22px;border-radius:12px;background:linear-gradient(180deg,#14b8a6,#0d9488);color:#ffffff;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 4px 14px rgba(13,148,136,0.35)">${label}</a>`;
@@ -522,13 +522,13 @@ function emailHtml(
 <tr><td style="padding:22px 20px 8px;text-align:center;background:radial-gradient(ellipse at top,#ecfdf5 0%,#ffffff 55%);">
   <img src="${logoSrc}" width="132" height="auto" alt="حلاق ماب" style="display:block;margin:0 auto 12px;max-width:132px;height:auto;border:0" />
   <p style="margin:0 0 4px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.02em;color:#0f172a;">حلاق ماب</p>
-  <p style="margin:0 0 18px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:600;color:#0d9488;">منصة الحلاقين على الخريطة</p>
-  <p style="margin:0 0 8px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:700;color:#0d9488;">🎉 خطوة مميزة على الخريطة</p>
+  <p style="margin:0 0 18px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:600;color:#0d9488;">منصة الحلاقين عبر نظام الرصد الذكي</p>
+  <p style="margin:0 0 8px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:700;color:#0d9488;">🎉 خطوة مميزة عبر نظام الرصد الذكي</p>
   <h1 style="margin:0 0 14px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:24px;font-weight:800;color:#0f172a;line-height:1.4;">أهلًا ${nameSafe}!</h1>
 </td></tr>
 <tr><td style="padding:0 22px 8px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:15px;color:#334155;line-height:1.95;">
-  <p style="margin:0 0 14px">نفرح باعتماد حسابك — هذه دعوة للانضمام إلى مسار نمو <strong style="color:#0f766e">مدروس</strong>: انتشار منهجي في المدن والأحياء، خرائط أوضح، ووصول أقوى للعميل القريب منك.</p>
-  <p style="margin:0 0 14px"><strong style="color:#0f172a">وجود صالونك الآن إنجاز كبير:</strong> أنت من الشركاء الأوائل الذين يساعدوننا نبني شبكة حلاقين موثوقة. مع توسع المنصة، يتعزز ظهورك تدريجيًا أمام من يبحث عنك في محيطه — تقدم تسويقي <strong>ملموس</strong> مبني على القرب والخريطة والمحتوى.</p>
+  <p style="margin:0 0 14px">نفرح باعتماد حسابك — هذه دعوة للانضمام إلى مسار نمو <strong style="color:#0f766e">مدروس</strong>: انتشار منهجي في المدن والأحياء، رصد أوضح، ووصول أقوى للعميل القريب منك.</p>
+  <p style="margin:0 0 14px"><strong style="color:#0f172a">وجود صالونك الآن إنجاز كبير:</strong> أنت من الشركاء الأوائل الذين يساعدوننا نبني شبكة حلاقين موثوقة. مع توسع المنصة، يتعزز ظهورك تدريجيًا أمام من يبحث عنك في محيطه — تقدم تسويقي <strong>ملموس</strong> مبني على القرب ونظام الرصد الذكي والمحتوى.</p>
   <p style="margin:0 0 18px">نوعدك بخطوات واضحة أمامك في لوحة التحكم: بنرات وعروض، أوقات متاحة، رسائل العملاء، وتجربة تصميم تحمل روح <strong style="color:#0d9488">حلاق ماب</strong> — وضوح، احتراف، وتركيز على صالونك.</p>
   <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 20px"><tr><td style="text-align:center">
     <span style="display:inline-block;padding:8px 18px;border-radius:999px;background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #facc15;color:#854d0e;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:800;">الباقة المعتمدة: ${tierSafe}</span>
@@ -552,7 +552,7 @@ function emailHtml(
   ${emailCard('روابط الموقع', siteLinksCardBody(links))}
   ${emailCard(
     'خطواتك التالية (سريعة)',
-    '<ol style="margin:0;padding:0 22px 0 0;font-size:14px;color:#475569;line-height:1.95"><li style="margin:0 0 8px">سجّل الدخول من الزر أعلاه ببريدك ورمز المنصة.</li><li style="margin:0 0 8px">من «الإعدادات» حدّث <strong>البنر والعروض</strong> وصورك بأفضل جودة.</li><li style="margin:0 0 8px">من «المواعيد» أضف <strong>أوقاتًا متاحة</strong> للحجز إن رغبت.</li><li style="margin:0">تفقد ظهورك من <strong>الصفحة الرئيسية</strong> على الخريطة بعد التحديثات.</li></ol>',
+    '<ol style="margin:0;padding:0 22px 0 0;font-size:14px;color:#475569;line-height:1.95"><li style="margin:0 0 8px">سجّل الدخول من الزر أعلاه ببريدك ورمز المنصة.</li><li style="margin:0 0 8px">من «الإعدادات» حدّث <strong>البنر والعروض</strong> وصورك بأفضل جودة.</li><li style="margin:0 0 8px">من «المواعيد» أضف <strong>أوقاتًا متاحة</strong> للحجز إن رغبت.</li><li style="margin:0">تفقد ظهورك من <strong>الصفحة الرئيسية</strong> عبر نظام الرصد الذكي بعد التحديثات.</li></ol>',
   )}
   ${emailCard(
     'تسجيل الدخول — آمن',
@@ -576,7 +576,7 @@ function emailHtml(
   ${emailCard('مساعدتك تهمنا', supportContactHtml())}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 0;border-radius:14px;border:1px dashed #94a3b8;background:#f8fafc"><tr><td style="padding:16px 18px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;color:#475569;line-height:1.85;text-align:center">دقة الجوال والواتساب وساعات العمل = فرص أعلى ليصلك من يبحث عنك بالقرب ✨<br/><span style="font-size:12px;color:#94a3b8">احفظ هذه الرسالة أو أضف روابط الدخول إلى مفضلتك للرجوع السريع.</span></td></tr></table>
   <p style="margin:16px 0 0;text-align:center;font-size:11px;color:#94a3b8;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;" dir="ltr">${escapeHtml(links.siteBase)}</p>
-  <p style="margin:22px 0 6px;text-align:center;font-size:15px;font-weight:700;color:#0f172a;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">شكرًا لثقتك — نتطلع لرؤية صالونك يلمع على الخريطة</p>
+  <p style="margin:22px 0 6px;text-align:center;font-size:15px;font-weight:700;color:#0f172a;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">شكرًا لثقتك — نتطلع لرؤية صالونك يلمع عبر نظام الرصد الذكي</p>
   <p style="margin:0 0 18px;text-align:center;font-size:13px;color:#64748b;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">— فريق حلاق ماب</p>
 </td></tr>
 </table>
@@ -823,7 +823,7 @@ export async function POST(request: Request): Promise<Response> {
             },
           ]
         : undefined;
-    const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك على الخريطة + روابط لوحة التحكم';
+    const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك عبر نظام الرصد الذكي + روابط لوحة التحكم';
     const text = emailText(barberName, tier, tierRaw, linksForEmail, ratingCtx, registrationOrderId, memberPadded);
     const html = emailHtml(barberName, tier, tierRaw, linksForEmail, ratingCtx, registrationOrderId, memberPadded);
     const sent = await sendViaResend({
@@ -893,7 +893,7 @@ export async function POST(request: Request): Promise<Response> {
               },
             ]
           : undefined;
-      const subject = '🎉 حلاق ماب | أنت على الخريطة — روابط لوحة التحكم ودليلك';
+      const subject = '🎉 حلاق ماب | أنت عبر نظام الرصد الذكي — روابط لوحة التحكم ودليلك';
       const bulkMember = padBarberMember(row.member_number);
       const linksForRow = linksWithMagicDashboardIfEligible(links, String(row.id), email, row.tier);
       const text = emailText(name, tier, row.tier, linksForRow, ratingCtx, null, bulkMember);

@@ -5,7 +5,7 @@ export const mockBarbers: Barber[] = [
   // 💎 ماسي #1
   {
     id: '1',
-    name: 'صالون ماسي — عرض الخريطة (1)',
+    name: 'صالون ماسي — عرض نظام الرصد الذكي (1)',
     phone: '+966501234567',
     whatsapp: '+966501234567',
     location: {

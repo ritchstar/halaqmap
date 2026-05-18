@@ -2,7 +2,7 @@ import { SubscriptionTier } from '@/lib';
 import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 
 export const LISTING_LICENSE_LEGAL_FOOTNOTE =
-  'تنبيه نظامي: جميع الباقات المذكورة هي تراخيص رقمية موحدة لخدمات الإدراج البرمجية على الخرائط التفاعلية لمنصة حلاق ماب (نشاط رقم 474151). المنتجات مسبقة الدفع وغير قابلة للإلغاء بعد التفعيل، ولا تشمل أي عمولات أو وساطة حجز.';
+  'تنبيه نظامي: جميع الباقات المذكورة هي تراخيص رقمية موحدة لخدمات الإدراج البرمجية على نظام الرصد الذكي التفاعلي لمنصة حلاق ماب (نشاط رقم 474151). المنتجات مسبقة الدفع وغير قابلة للإلغاء بعد التفعيل، ولا تشمل أي عمولات أو وساطة حجز.';
 
 export type ListingLicenseCardAccent = 'bronze' | 'gold' | 'diamond';
 
@@ -25,7 +25,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     accent: 'bronze',
     nameAr: 'برونزي',
     badge: '🥉',
-    subtitleAr: 'بداية قوية على الخريطة',
+    subtitleAr: 'بداية قوية عبر نظام الرصد الذكي',
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.BRONZE],
     validityLabel: 'ترخيص رقمي · 30 يوم',
     highlights: ['ظهور في الحي والبحث', 'بيانات وتواصل واضحة', 'أيقونة مفتوح/مغلق برابط سري'],

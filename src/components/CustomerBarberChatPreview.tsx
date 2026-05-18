@@ -113,7 +113,7 @@ export function CustomerBarberChatPreview({
   tier: Tier;
   barberId: string;
   barberName: string;
-  /** إدراج معاينة على الخريطة — تظهر علامة سرّية للفريق */
+  /** إدراج معاينة عبر نظام الرصد الذكي — تظهر علامة سرّية للفريق */
   previewListing?: boolean;
   compact?: boolean;
   className?: string;

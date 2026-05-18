@@ -39,7 +39,7 @@ export type BarberPortalSession = {
   ratingInviteToken: string;
   /** رقم عضوية ثابت على المنصة (بعد تشغيل migration member_number) */
   memberNumber: number | null;
-  /** قبول العملاء على الخريطة (مفتوح/مغلق) */
+  /** قبول العملاء عبر نظام الرصد الذكي (مفتوح/مغلق) */
   openForCustomers?: boolean;
   /** رمز صفحة /partners/shop-open للتبديل بدون لوحة تحكم */
   openStatusToken?: string;

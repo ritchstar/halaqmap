@@ -145,7 +145,7 @@ function normalizedNearbyInput(input: NearbySearchInput): Required<Omit<NearbySe
 }
 
 /**
- * جلب الحلاقين النشطين ذوي الإحداثيات لعرضهم على الخريطة/القائمة.
+ * جلب الحلاقين النشطين ذوي الإحداثيات لعرضهم عبر نظام الرصد الذكي/القائمة.
  * يتطلب سياسة RLS تسمح بقراءة جدول `barbers` للعامة (أو للمستخدم الحالي).
  */
 export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {

@@ -102,7 +102,7 @@ export default function BarberGrowthLanding() {
   const landingUrl = `${siteOrigin}/#${ROUTE_PATHS.BARBERS_LANDING}`;
   const partnerHeroImage = '/images/halaqmap-barber-onboarding.png';
   const whatsappText = encodeURIComponent(
-    `مرحباً فريق حلاق ماب، أبغى أفعل ظهور صالوني على الخريطة.\nرابط الصفحة: ${landingUrl}`
+    `مرحباً فريق حلاق ماب، أبغى أفعل ظهور صالوني عبر نظام الرصد الذكي.\nرابط الصفحة: ${landingUrl}`
   );
   const whatsappHref = `https://wa.me/966559602685?text=${whatsappText}`;
 
@@ -377,11 +377,11 @@ export default function BarberGrowthLanding() {
             <div className="order-2 text-center lg:order-1 lg:text-right">
               <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
                 <MapPin className="h-4 w-4" />
-                خريطة الحي
+                نظام الرصد الذكي في حيّك
               </div>
               <h2 className="text-2xl font-bold text-foreground md:text-3xl">ظهورك حيث يبحث الزبون</h2>
               <p className="mt-3 leading-7 text-muted-foreground">
-                الزبون ما يدور في كتالوج طويل — يدور على خريطة: وين الصالون؟ قد إيش يبعد؟ كيف أوصله؟ حلاق ماب تجمع
+                الزبون ما يدور في كتالوج طويل — يدور عبر نظام الرصد الذكي: وين الصالون؟ قد إيش يبعد؟ كيف أوصله؟ حلاق ماب تجمع
                 هالأسئلة في شاشة واحدة.
               </p>
               <ul className="mt-5 space-y-2 text-right text-sm text-muted-foreground">
@@ -400,7 +400,7 @@ export default function BarberGrowthLanding() {
                 <div className="relative aspect-[4/3] overflow-hidden rounded-[1.35rem] bg-[#0a1628]">
                   <motion.img
                     src={IMAGES.SCREENSHOT4144_49}
-                    alt="لقطة من تطبيق حلاق ماب — خريطة وصالونات"
+                    alt="لقطة من تطبيق حلاق ماب — نظام الرصد الذكي وصالونات"
                     className="h-full w-full object-cover object-top opacity-95"
                     initial={{ scale: 1.04 }}
                     whileInView={{ scale: 1 }}
@@ -413,7 +413,7 @@ export default function BarberGrowthLanding() {
                       صالونات قريبة منك
                     </span>
                     <span className="rounded-lg bg-emerald-600/90 px-3 py-1.5 text-xs font-bold text-white">
-                      حيّك على الخريطة
+                      حيّك عبر نظام الرصد الذكي
                     </span>
                   </div>
                 </div>

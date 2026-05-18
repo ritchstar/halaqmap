@@ -593,7 +593,7 @@ export default function BarberDashboard() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">صلاحية ترخيص الإدراج الرقمي</CardTitle>
               <CardDescription className="text-sm leading-relaxed">
-                صلاحية الظهور على الخريطة مبنية على <strong>ترخيص رقمي مسبق الدفع</strong> لخدمات الإدراج البرمجية الموحدة.
+                صلاحية الظهور عبر نظام الرصد الذكي مبنية على <strong>ترخيص رقمي مسبق الدفع</strong> لخدمات الإدراج البرمجية الموحدة.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -727,14 +727,14 @@ export default function BarberDashboard() {
                     حالة «مفتوح / مغلق» للعملاء
                   </CardTitle>
                   <CardDescription className="text-sm leading-relaxed">
-                    يتحكم هذا الخيار في أيقونة الخريطة التي يراها العملاء. الباقة البرونزية لا تملك لوحة تحكم — لذلك يُوفَّر
+                    يتحكم هذا الخيار في أيقونة نظام الرصد الذكي التي يراها العملاء. الباقة البرونزية لا تملك لوحة تحكم — لذلك يُوفَّر
                     لها <strong>رابط سري</strong> من الإدارة بعد الاعتماد (يمكنك نسخه أدناه لمشاركته مع المحل).
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex flex-col gap-3 rounded-xl border border-border/80 bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="space-y-1 text-right">
-                      <p className="text-sm font-semibold">قبول العملاء الآن على الخريطة</p>
+                      <p className="text-sm font-semibold">قبول العملاء الآن عبر نظام الرصد الذكي</p>
                       <p className="text-xs text-muted-foreground leading-relaxed">
                         عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء صلاحية ترخيص الإدراج عن المنصة.
                       </p>
@@ -771,7 +771,7 @@ export default function BarberDashboard() {
                           return next;
                         });
                         toast.success(
-                          v ? 'تم ضبط المحل كـ «مفتوح» للعملاء على الخريطة.' : 'تم ضبط المحل كـ «مغلق» للعملاء على الخريطة.'
+                          v ? 'تم ضبط المحل كـ «مفتوح» للعملاء عبر نظام الرصد الذكي.' : 'تم ضبط المحل كـ «مغلق» للعملاء عبر نظام الرصد الذكي.'
                         );
                       }}
                       className="shrink-0 sm:mr-auto"
@@ -2206,7 +2206,7 @@ function InclusiveCarePartnerSettingsCard({
 
             <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-medium">إظهار الخدمة للعملاء على الخريطة والبطاقة</p>
+                <p className="text-sm font-medium">إظهار الخدمة للعملاء عبر نظام الرصد الذكي والبطاقة</p>
                 <p className="text-xs text-muted-foreground">عطّلها إن رغبت في الإخفاء المؤقت دون حذف باقي الإعدادات.</p>
               </div>
               <Switch checked={publicVisible} onCheckedChange={(c) => setPublicVisible(c === true)} />
@@ -2481,7 +2481,7 @@ function SettingsSection({
               جدولة المواعيد (ماسي)
             </CardTitle>
             <CardDescription>
-              تحكم بإظهار أو إخفاء كتلة الحجز على بطاقة صالونك في خريطة حلاق ماب. يُحفظ الإعداد في هذا المتصفح
+              تحكم بإظهار أو إخفاء كتلة الحجز على بطاقة صالونك في نظام الرصد الذكي لحلاق ماب. يُحفظ الإعداد في هذا المتصفح
               كمعاينة.
             </CardDescription>
           </CardHeader>
@@ -2489,7 +2489,7 @@ function SettingsSection({
             <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <p className="text-sm font-medium">إظهار جدولة المواعيد للعملاء</p>
-                <p className="text-xs text-muted-foreground">عند الإيقاف تختفي الكتلة من الخريطة على هذا الجهاز.</p>
+                <p className="text-xs text-muted-foreground">عند الإيقاف تختفي الكتلة من نظام الرصد الذكي على هذا الجهاز.</p>
               </div>
               <Switch
                 id="diamond-schedule-public"
@@ -2497,7 +2497,7 @@ function SettingsSection({
                 onCheckedChange={(checked) => {
                   setDiamondSchedulePublic(checked);
                   setDiamondSchedulingPublicLocal(barberId, checked);
-                  toast.success(checked ? 'ظهرت جدولة المواعيد للعملاء على الخريطة' : 'أُخفيت جدولة المواعيد عن العملاء');
+                  toast.success(checked ? 'ظهرت جدولة المواعيد للعملاء عبر نظام الرصد الذكي' : 'أُخفيت جدولة المواعيد عن العملاء');
                 }}
               />
             </div>
@@ -2545,7 +2545,7 @@ function SettingsSection({
             <Input readOnly value={barberData.name} />
             {isLegacyDemoSalonRegisteredName(barberData.name) ? (
               <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-200/90">
-                الاسم المسجّل يطابق قالباً تجريبياً قديماً في المنصة. ليظهر اسمك الحقيقي في الخريطة وفي أعلى
+                الاسم المسجّل يطابق قالباً تجريبياً قديماً في المنصة. ليظهر اسمك الحقيقي في نظام الرصد الذكي وفي أعلى
                 اللوحة، اطلب من الإدارة تحديث حقل اسم الصالون في السجل المعتمد.
               </p>
             ) : null}

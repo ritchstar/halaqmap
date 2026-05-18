@@ -197,9 +197,9 @@ export default function RegisterSuccess() {
             </div>
 
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
-              <p className="font-semibold text-foreground mb-1">ظهورك على الخريطة والحجوزات</p>
+              <p className="font-semibold text-foreground mb-1">ظهورك عبر نظام الرصد الذكي والحجوزات</p>
               <p className="text-muted-foreground">
-                صالونك متاح الآن للعملاء على الخريطة، يمكنك البدء باستقبال الحجوزات فوراً. يوفّر لك رابطاً سرياً خفيفاً
+                صالونك متاح الآن للعملاء عبر نظام الرصد الذكي، يمكنك البدء باستقبال الحجوزات فوراً. يوفّر لك رابطاً سرياً خفيفاً
                 لتحديث أيقونة «مفتوح / مغلق» دون لوحة تحكم كاملة — مفيد خصوصاً لباقة البرونزي؛ وفي الباقات الذهبية
                 والماسية يتوفر التبديل أيضاً من لوحة التحكم مع بقاء نفس الرابط احتياطاً.
               </p>

@@ -45,7 +45,7 @@ export const PLATFORM_HOW_IT_WORKS_STEPS = [
   {
     step: '٣',
     title: 'تواصل أو احجز',
-    description: 'اتصال، واتساب، وخرائط — حسب ما يوفّره الصالون المُرصَد.',
+    description: 'اتصال، واتساب، ورابط الموقع — حسب ما يوفّره الصالون المُرصَد.',
   },
 ] as const;
 
@@ -62,7 +62,7 @@ export const PLATFORM_HOME_WELCOME_FEATURES = [
   },
   {
     title: 'تواصل مباشر',
-    description: 'بعد الرصد، تواصل مع الصالون عبر الاتصال أو واتساب أو الخرائط.',
+    description: 'بعد الرصد، تواصل مع الصالون عبر الاتصال أو واتساب أو رابط الموقع.',
   },
 ] as const;
 

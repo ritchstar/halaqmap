@@ -161,7 +161,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               className="h-16 px-12 text-xl font-bold bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-[0_8px_30px_-6px_color-mix(in_srgb,var(--primary)_35%,transparent)] hover:shadow-[0_12px_40px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent)] transition-all duration-200 rounded-2xl"
             >
               <MapPin className="ml-3 h-7 w-7" />
-              <span>افتح الخريطة للتحقق من موقعك</span>
+              <span>افتح تطبيق الموقع للتحقق من موقعك</span>
               <ExternalLink className="mr-3 h-6 w-6" />
             </Button>
           </motion.div>
@@ -177,7 +177,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               📍 اضغط على الزر أعلاه لفتح خرائط جوجل والتأكد من أن المنصة حددت موقعك بدقة
             </p>
             <p className="text-sm text-muted-foreground">
-              ✨ سترى علامة حمراء على الخريطة تشير إلى موقعك الحالي
+              ✨ سترى علامة حمراء عبر نظام الرصد الذكي تشير إلى موقعك الحالي
             </p>
           </motion.div>
 

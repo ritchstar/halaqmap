@@ -9,7 +9,7 @@ import { fetchBarberShopOpenStatusRemote, setBarberShopOpenStatusRemote } from '
 import { toast } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 
-const SUCCESS_MAP_UPDATE = '(تم تحديث حالتك على الخريطة بنجاح ✅)';
+const SUCCESS_MAP_UPDATE = '(تم تحديث حالتك في نظام الرصد الذكي بنجاح ✅)';
 
 function tierLabelAr(tier: string): string {
   const t = tier.toLowerCase();
@@ -93,7 +93,7 @@ export default function ShopOpenStatus() {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
               <Store className="h-7 w-7 text-primary" />
             </div>
-            <CardTitle className="text-xl">حالة المحل على الخريطة</CardTitle>
+            <CardTitle className="text-xl">حالة المحل في نظام الرصد الذكي</CardTitle>
             <CardDescription className="text-sm leading-relaxed">
               تحكم بأيقونة <strong>مفتوح الآن / مغلق</strong> التي يراها العملاء على حلاق ماب. لا تحتاج لوحة تحكم كاملة
               — مفيدة خصوصاً لباقة <strong>البرونزي</strong>.
@@ -130,7 +130,7 @@ export default function ShopOpenStatus() {
                     >
                       <DoorOpen className="h-8 w-8 shrink-0" aria-hidden />
                       <span className="text-base font-bold">مفتوح</span>
-                      <span className="text-[11px] font-normal opacity-90">للعملاء على الخريطة</span>
+                      <span className="text-[11px] font-normal opacity-90">للعملاء عبر نظام الرصد الذكي</span>
                     </Button>
                     <Button
                       type="button"
@@ -146,7 +146,7 @@ export default function ShopOpenStatus() {
                     >
                       <DoorClosed className="h-8 w-8 shrink-0" aria-hidden />
                       <span className="text-base font-bold">مغلق</span>
-                      <span className="text-[11px] font-normal opacity-90">على الخريطة</span>
+                      <span className="text-[11px] font-normal opacity-90">عبر نظام الرصد الذكي</span>
                     </Button>
                   </div>
                   <AnimatePresence mode="wait">

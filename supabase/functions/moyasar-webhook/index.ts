@@ -259,8 +259,8 @@ async function sendResendConfirmation(input: {
     ? "حلاق ماب | تم الدفع وتفعيل حسابك"
     : "حلاق ماب | تم استلام الدفع";
   const activationBlock = input.accountActivated
-    ? `<p>تم <strong>تفعيل حسابك على الخريطة</strong> ويمكنك البدء باستقبال الطلبات من لوحة التحكم.</p>`
-    : `<p>تم استلام المبلغ بنجاح. إذا لم يظهر صالونك على الخريطة بعد، تأكد من إكمال التسجيل وربط معرّف الحلاق في عملية الدفع أو تواصل مع الدعم.</p>`;
+    ? `<p>تم <strong>تفعيل حسابك عبر نظام الرصد الذكي</strong> ويمكنك البدء باستقبال الطلبات من لوحة التحكم.</p>`
+    : `<p>تم استلام المبلغ بنجاح. إذا لم يظهر صالونك عبر نظام الرصد الذكي بعد، تأكد من إكمال التسجيل وربط معرّف الحلاق في عملية الدفع أو تواصل مع الدعم.</p>`;
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
 <p>شكرًا لك، تم استلام قيمة <strong>الترخيص الرقمي لخدمات الإدراج البرمجية</strong> (Software Listing License) بنجاح عبر <strong>ميسر (Moyasar)</strong>.</p>

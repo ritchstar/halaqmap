@@ -179,7 +179,7 @@ export interface Database {
           /** bigint في قاعدة البيانات — قد يُعرَض كسلسلة من PostgREST */
           amount_halalas: number | string | null
           currency: string
-          /** دفع ميسر ناجح → paid؛ التفعيل على الخريطة فوري من Webhook عند ربط الحلاق؛ approved لاعتماد إداري لاحق إن لزم. */
+          /** دفع ميسر ناجح → paid؛ التفعيل عبر نظام الرصد الذكي فوري من Webhook عند ربط الحلاق؛ approved لاعتماد إداري لاحق إن لزم. */
           status:
             | 'pending'
             | 'paid'

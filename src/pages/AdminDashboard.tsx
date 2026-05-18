@@ -2203,7 +2203,7 @@ function RequestReviewDialog({
                 }
               >
                 <MapPin className="w-4 h-4 ml-2" />
-                عرض على الخريطة
+                الظهور عبر نظام الرصد الذكي
               </Button>
             </div>
           </div>
@@ -2718,7 +2718,7 @@ function BarberHardEditDialog({
             <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">ظهور للعامة</p>
-                <p className="text-xs text-muted-foreground">يتحكم في ظهور الصالون في الخريطة/القوائم حسب منطق التطبيق.</p>
+                <p className="text-xs text-muted-foreground">يتحكم في ظهور الصالون في نظام الرصد الذكي/القوائم حسب منطق التطبيق.</p>
               </div>
               <Switch checked={isActive} onCheckedChange={setIsActive} />
             </div>

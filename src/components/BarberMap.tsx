@@ -71,7 +71,7 @@ export function BarberMap({ barbers, userLocation, onBarberPatch, realtimeEnable
   return (
     <div className="mb-8 rounded-2xl border border-border/80 bg-card/80 p-4 shadow-sm backdrop-blur-sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">خريطة قريبة</h3>
+        <h3 className="text-sm font-semibold text-foreground">رصد ذكي قريب</h3>
         <p className="text-[11px] text-muted-foreground">
           تحديث فوري للدبابيس عند تغيّر الحلاق لحالته عبر الرابط السريع (Realtime)
         </p>
@@ -120,7 +120,7 @@ export function BarberMap({ barbers, userLocation, onBarberPatch, realtimeEnable
         </span>
         <span className="inline-flex items-center gap-1">
           <MapPin className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
-          مغلق على الخريطة
+          مغلق عبر نظام الرصد الذكي
         </span>
         <span className="inline-flex items-center gap-1">
           <Navigation className="h-3.5 w-3.5 text-sky-500" aria-hidden />

@@ -205,7 +205,7 @@ export function BarberCustomerPrivateChatPanel({
           </div>
         ) : conversations.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            لا توجد جلسات شات نشطة حالياً. عندما يفتح عميل محادثة من خريطة حلاق ماب ستظهر الجلسة هنا.
+            لا توجد جلسات شات نشطة حالياً. عندما يفتح عميل محادثة من نظام الرصد الذكي لحلاق ماب ستظهر الجلسة هنا.
           </p>
         ) : (
           <>

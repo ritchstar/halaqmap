@@ -102,7 +102,7 @@ export default function PartnerInterestLanding() {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm leading-relaxed text-muted-foreground">
-              منصة ذكية تربط المستخدم بالحلّاق الأقرب لموقعه عبر الخريطة والفلترة، مع مسار الخدمات البرمجية للمنصة واضح
+              منصة ذكية تربط المستخدم بالحلّاق الأقرب لموقعه عبر نظام الرصد الذكي والفلترة، مع مسار الخدمات البرمجية للمنصة واضح
               (الباقات، لوحة التحكم، التواصل). ننمو بخطى مدروسة مع الحفاظ على الثقة والوضوح.
             </CardContent>
           </Card>

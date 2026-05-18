@@ -153,7 +153,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'صورتان أساسيتان (خارجي وداخل المحل) وأربع صور للبنر مع الطلب' },
       { kind: 'line', text: 'جدول أسبوعي كامل لأوقات العمل (إلزامي مع الطلب ويُعرَض للعملاء)' },
       { kind: 'line', text: 'رقم الهاتف للتواصل' },
-      { kind: 'line', text: 'ظهور في نتائج البحث والخريطة' },
+      { kind: 'line', text: 'ظهور في نتائج البحث عبر نظام الرصد الذكي' },
       { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_BRONZE },
     ],
   },
@@ -172,7 +172,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'رابط واتساب مباشر' },
       { kind: 'line', text: 'شات مباشر مع العملاء' },
       { kind: 'line', text: 'جلسة شات خاصة لكل عميل تنتهي تلقائياً بعد 60 دقيقة لخصوصية أعلى' },
-      { kind: 'line', text: 'أولوية في الظهور على الخريطة والبحث' },
+      { kind: 'line', text: 'أولوية في الظهور عبر نظام الرصد الذكي والبحث' },
       { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
       { kind: 'line', text: BARBER_DASHBOARD_GOLD_LINE },
       {
@@ -193,10 +193,10 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'جميع مزايا الباقة الذهبية' },
       { kind: 'line', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
       { kind: 'line', text: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
-      { kind: 'line', text: 'شارة ماسية مميزة على الخريطة' },
+      { kind: 'line', text: 'شارة ماسية مميزة عبر نظام الرصد الذكي' },
       { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
       { kind: 'line', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)' },
-      { kind: 'line', text: 'أولوية قصوى في الظهور على الخريطة والبحث' },
+      { kind: 'line', text: 'أولوية قصوى في الظهور عبر نظام الرصد الذكي والبحث' },
       { kind: 'line', text: 'ترجمة تلقائية في الشات' },
       { kind: 'line', text: 'شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة' },
       {
@@ -1038,7 +1038,7 @@ export function RegistrationForm() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl">تحديد الموقع</CardTitle>
-                <CardDescription>حدد موقع محلك بدقة على الخريطة</CardDescription>
+                <CardDescription>حدد موقع محلك بدقة عبر نظام الرصد الذكي</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <SaudiRegionCityDistrictFields
