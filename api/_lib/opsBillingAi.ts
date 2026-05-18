@@ -296,44 +296,61 @@ export async function callOpenAIOpsBillingVision(input: {
   userText: string;
   imageBase64?: string;
   imageMime?: string;
+  /** Server-side OpenAI fetch timeout (ms). Defaults to 52s — leaves headroom under Vercel 60s. */
+  timeoutMs?: number;
 }): Promise<string> {
   const key = (process.env.OPENAI_API_KEY || '').trim();
   if (!key) throw new Error('OPENAI_API_KEY not configured on server');
   const model = (process.env.OPS_BILLING_AI_MODEL || process.env.ADMIN_SENTINEL_OPENAI_MODEL || 'gpt-4o').trim() || 'gpt-4o';
+  const timeoutMs = input.timeoutMs ?? 52_000;
 
   const userContent: Array<Record<string, unknown>> = [];
   if (input.imageBase64 && input.imageMime) {
     userContent.push({
       type: 'image_url',
-      image_url: { url: `data:${input.imageMime};base64,${input.imageBase64}`, detail: 'high' },
+      // `auto` balances speed vs accuracy for billing screenshots (faster than `high`).
+      image_url: { url: `data:${input.imageMime};base64,${input.imageBase64}`, detail: 'auto' },
     });
   }
   userContent.push({ type: 'text', text: input.userText || 'حلّل المرفق واقترح تحديث جدول الالتزامات.' });
 
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.15,
-      max_tokens: 2000,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: input.system },
-        { role: 'user', content: userContent },
-      ],
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
 
-  const json = (await res.json().catch(() => ({}))) as {
-    error?: { message?: string };
-    choices?: { message?: { content?: string } }[];
-  };
-  if (!res.ok) throw new Error(json.error?.message || `OpenAI HTTP ${res.status}`);
-  const text = json.choices?.[0]?.message?.content?.trim();
-  if (!text) throw new Error('Empty model response');
-  return text;
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.15,
+        max_tokens: 1600,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: input.system },
+          { role: 'user', content: userContent },
+        ],
+      }),
+    });
+
+    const json = (await res.json().catch(() => ({}))) as {
+      error?: { message?: string };
+      choices?: { message?: { content?: string } }[];
+    };
+    if (!res.ok) throw new Error(json.error?.message || `OpenAI HTTP ${res.status}`);
+    const text = json.choices?.[0]?.message?.content?.trim();
+    if (!text) throw new Error('Empty model response');
+    return text;
+  } catch (e) {
+    if (e instanceof Error && e.name === 'AbortError') {
+      throw new Error('انتهت مهلة تحليل OpenAI — جرّب صورة أصغر أو أعد المحاولة');
+    }
+    throw e;
+  } finally {
+    clearTimeout(timeoutHandle);
+  }
 }

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Bot,
   Check,
@@ -32,6 +32,41 @@ import type { OpsBillingAiProposal } from '@/types/opsBillingAi';
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/gif';
+
+const ANALYSIS_LOADING_STEPS = [
+  'يتم الآن قراءة الفاتورة…',
+  'يتم مطابقة البيانات مع جدول الالتزامات…',
+  'جاري إعداد المعاينة…',
+] as const;
+
+function AnalysisLoadingIndicator({ stepIndex }: { stepIndex: number }) {
+  const label = ANALYSIS_LOADING_STEPS[stepIndex] ?? ANALYSIS_LOADING_STEPS[0];
+  return (
+    <div className="ml-4 mr-0 rounded-lg border border-primary/25 bg-primary/5 p-4 space-y-3 animate-in fade-in duration-300">
+      <div className="flex items-start gap-3">
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
+          <span className="absolute inset-0 rounded-full border-2 border-primary/20" />
+          <span className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <Sparkles className="relative h-4 w-4 text-primary" />
+        </div>
+        <div className="flex-1 space-y-2 min-w-0">
+          <p className="text-sm font-medium text-foreground transition-opacity duration-300">{label}</p>
+          <div className="flex items-center gap-1.5">
+            {ANALYSIS_LOADING_STEPS.map((step, i) => (
+              <span
+                key={step}
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  i === stepIndex ? 'w-8 bg-primary' : i < stepIndex ? 'w-3 bg-primary/40' : 'w-3 bg-muted-foreground/25'
+                }`}
+              />
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">قد يستغرق التحليل حتى 30 ثانية للصور المعقدة</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function formatFieldLabel(key: string): string {
   const map: Record<string, string> = {
@@ -114,11 +149,31 @@ export function OpsBillingAiAssistant({
   ]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [pending, setPending] = useState<OpsBillingAiProposal | null>(null);
   const [applying, setApplying] = useState(false);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const analyzeAbortRef = useRef<AbortController | null>(null);
+  const analyzeRequestGenRef = useRef(0);
+
+  useEffect(() => {
+    if (!busy) {
+      setLoadingStep(0);
+      return;
+    }
+    const id = window.setInterval(() => {
+      setLoadingStep((prev) => (prev + 1) % ANALYSIS_LOADING_STEPS.length);
+    }, 4000);
+    return () => window.clearInterval(id);
+  }, [busy]);
+
+  useEffect(() => {
+    return () => {
+      analyzeAbortRef.current?.abort();
+    };
+  }, []);
 
   const onOpenChange = useCallback(
     (next: boolean) => {
@@ -172,47 +227,68 @@ export function OpsBillingAiAssistant({
       toast({ title: 'أدخل رسالة أو ارفع صورة', variant: 'destructive' });
       return;
     }
+
+    analyzeAbortRef.current?.abort();
+    const abortController = new AbortController();
+    analyzeAbortRef.current = abortController;
+    const requestGen = ++analyzeRequestGenRef.current;
+
     setBusy(true);
+    setLoadingStep(0);
     setPending(null);
     const userLine = text || '(مرفق فاتورة)';
     setMessages((m) => [...m, { role: 'user', content: userLine }]);
     setInput('');
 
-    let imageBase64: string | undefined;
-    let imageMime: string | undefined;
-    if (attachedFile) {
-      const enc = await fileToBase64(attachedFile);
-      imageBase64 = enc.base64;
-      imageMime = enc.mime;
+    try {
+      let imageBase64: string | undefined;
+      let imageMime: string | undefined;
+      if (attachedFile) {
+        const enc = await fileToBase64(attachedFile);
+        imageBase64 = enc.base64;
+        imageMime = enc.mime;
+      }
+
+      const r = await analyzeOpsBillingWithAi(
+        {
+          userMessage: text,
+          imageBase64,
+          imageMime,
+        },
+        { signal: abortController.signal },
+      );
+
+      if (r.ok === false) {
+        if (analyzeRequestGenRef.current !== requestGen) return;
+        toast({ title: r.error, variant: 'destructive' });
+        setMessages((m) => [...m, { role: 'assistant', content: `⚠️ ${r.error}` }]);
+        return;
+      }
+
+      if (analyzeRequestGenRef.current !== requestGen) return;
+
+      const { assistant_message, proposals, needs_clarification } = r.body;
+      setMessages((m) => [...m, { role: 'assistant', content: assistant_message }]);
+
+      if (needs_clarification || proposals.length === 0) {
+        setPending(null);
+        return;
+      }
+
+      const best =
+        proposals.find((p) => p.match_confidence === 'high') ||
+        proposals.find((p) => p.match_confidence === 'medium') ||
+        proposals[0];
+      if (best) setPending(best);
+    } finally {
+      if (analyzeRequestGenRef.current === requestGen) {
+        if (analyzeAbortRef.current === abortController) {
+          analyzeAbortRef.current = null;
+        }
+        setBusy(false);
+        clearAttachment();
+      }
     }
-
-    const r = await analyzeOpsBillingWithAi({
-      userMessage: text,
-      imageBase64,
-      imageMime,
-    });
-    setBusy(false);
-    clearAttachment();
-
-    if (r.ok === false) {
-      toast({ title: r.error, variant: 'destructive' });
-      setMessages((m) => [...m, { role: 'assistant', content: `⚠️ ${r.error}` }]);
-      return;
-    }
-
-    const { assistant_message, proposals, needs_clarification } = r.body;
-    setMessages((m) => [...m, { role: 'assistant', content: assistant_message }]);
-
-    if (needs_clarification || proposals.length === 0) {
-      setPending(null);
-      return;
-    }
-
-    const best =
-      proposals.find((p) => p.match_confidence === 'high') ||
-      proposals.find((p) => p.match_confidence === 'medium') ||
-      proposals[0];
-    if (best) setPending(best);
   };
 
   const confirmApply = async () => {
@@ -275,12 +351,7 @@ export function OpsBillingAiAssistant({
                 {msg.content}
               </div>
             ))}
-            {busy && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                جاري التحليل…
-              </div>
-            )}
+            {busy && <AnalysisLoadingIndicator stepIndex={loadingStep} />}
           </div>
         </ScrollArea>
 

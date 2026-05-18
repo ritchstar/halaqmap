@@ -9,7 +9,10 @@ import {
   assertVisionMime,
 } from './_lib/opsBillingAi.js';
 
+/** Vercel serverless — allow up to 60s for vision + DB (see vercel.json). */
 export const config = { maxDuration: 60 };
+
+const OPENAI_ANALYZE_TIMEOUT_MS = 52_000;
 
 function json(data: unknown, status = 200): Response {
   return Response.json(data, {
@@ -83,6 +86,7 @@ export async function POST(request: Request): Promise<Response> {
       userText,
       imageBase64,
       imageMime: imageMime || undefined,
+      timeoutMs: OPENAI_ANALYZE_TIMEOUT_MS,
     });
     const parsed = parseOpsBillingAiJson(rawModel);
     const rowsById = new Map(rows.map((r) => [String(r.id), r]));
@@ -98,6 +102,17 @@ export async function POST(request: Request): Promise<Response> {
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'فشل التحليل';
-    return json({ error: msg }, 502);
+    const isTimeout =
+      msg.includes('مهلة') ||
+      msg.includes('timeout') ||
+      msg.includes('Timeout') ||
+      msg.includes('AbortError');
+    return json(
+      {
+        error: isTimeout ? 'انتهت مهلة التحليل على الخادم — جرّب صورة أصغر أو أعد المحاولة' : msg,
+        code: isTimeout ? 'analysis_timeout' : 'analysis_failed',
+      },
+      isTimeout ? 504 : 502,
+    );
   }
 }

@@ -7,6 +7,8 @@ import type {
 
 const ANALYZE_API = '/api/admin-resources-ai-analyze';
 const APPLY_API = '/api/admin/resources/update-from-ai';
+export const OPS_BILLING_AI_ANALYZE_TIMEOUT_MS = 30_000;
+export const OPS_BILLING_AI_TIMEOUT_MESSAGE = 'انتهت مهلة الاتصال، يرجى إعادة المحاولة';
 
 function getClientSupabaseUrl(): string {
   return String(import.meta.env.VITE_SUPABASE_URL || '').trim();
@@ -57,34 +59,65 @@ export async function fetchOpsBillingAiDiagnostics(): Promise<
   };
 }
 
-export async function analyzeOpsBillingWithAi(input: {
-  userMessage?: string;
-  imageBase64?: string;
-  imageMime?: string;
-}): Promise<{ ok: true; body: OpsBillingAiAnalyzeResponse } | { ok: false; error: string }> {
+export async function analyzeOpsBillingWithAi(
+  input: {
+    userMessage?: string;
+    imageBase64?: string;
+    imageMime?: string;
+  },
+  options?: { signal?: AbortSignal; timeoutMs?: number },
+): Promise<{ ok: true; body: OpsBillingAiAnalyzeResponse } | { ok: false; error: string; timedOut?: boolean }> {
   const h = await authHeaders();
   if (!h) return { ok: false, error: 'سجّل دخول كمشرف' };
-  const res = await fetch(ANALYZE_API, {
-    method: 'POST',
-    headers: h,
-    body: JSON.stringify({
-      userMessage: input.userMessage?.trim() || '',
-      imageBase64: input.imageBase64,
-      imageMime: input.imageMime,
-    }),
-  });
-  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-  if (!res.ok || json.ok !== true) {
-    return { ok: false, error: formatError(json, res.status) };
+
+  const timeoutMs = options?.timeoutMs ?? OPS_BILLING_AI_ANALYZE_TIMEOUT_MS;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  const onExternalAbort = () => controller.abort();
+  options?.signal?.addEventListener('abort', onExternalAbort);
+
+  try {
+    const res = await fetch(ANALYZE_API, {
+      method: 'POST',
+      headers: h,
+      signal: controller.signal,
+      body: JSON.stringify({
+        userMessage: input.userMessage?.trim() || '',
+        imageBase64: input.imageBase64,
+        imageMime: input.imageMime,
+      }),
+    });
+    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!res.ok || json.ok !== true) {
+      const err = formatError(json, res.status);
+      const timedOut = res.status === 504 || json.code === 'analysis_timeout';
+      return {
+        ok: false,
+        error: timedOut ? OPS_BILLING_AI_TIMEOUT_MESSAGE : err,
+        timedOut,
+      };
+    }
+    return {
+      ok: true,
+      body: {
+        assistant_message: String(json.assistant_message || ''),
+        needs_clarification: Boolean(json.needs_clarification),
+        proposals: (json.proposals as OpsBillingAiProposal[]) || [],
+      },
+    };
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') {
+      return { ok: false, error: OPS_BILLING_AI_TIMEOUT_MESSAGE, timedOut: true };
+    }
+    if (e instanceof Error && e.name === 'AbortError') {
+      return { ok: false, error: OPS_BILLING_AI_TIMEOUT_MESSAGE, timedOut: true };
+    }
+    return { ok: false, error: e instanceof Error ? e.message : 'فشل الاتصال بالخادم' };
+  } finally {
+    clearTimeout(timeoutId);
+    options?.signal?.removeEventListener('abort', onExternalAbort);
   }
-  return {
-    ok: true,
-    body: {
-      assistant_message: String(json.assistant_message || ''),
-      needs_clarification: Boolean(json.needs_clarification),
-      proposals: (json.proposals as OpsBillingAiProposal[]) || [],
-    },
-  };
 }
 
 export async function applyOpsBillingAiUpdate(input: {
