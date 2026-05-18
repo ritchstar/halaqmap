@@ -1,8 +1,12 @@
 import { motion } from "framer-motion";
-import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale, MessageSquare } from "lucide-react";
+import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale, MessageSquare, Users } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { ROUTE_PATHS } from "@/lib";
 import { renderLegalContentBlocks } from "@/lib/legalPageRender";
+import {
+  END_USER_EXPERIENCE_POLICY_CONTENT,
+  END_USER_EXPERIENCE_POLICY_TITLE,
+} from "@/config/endUserExperiencePolicy";
 
 export default function Privacy() {
   const sections = [
@@ -10,6 +14,11 @@ export default function Privacy() {
       icon: Shield,
       title: "التزامنا بالخصوصية",
       content: "هذه الصفحة مخصصة لخصوصية مستخدم المنصة (الزائر الباحث عن صالون). في حلاق ماب نلتزم بحماية خصوصيتك وجعل تجربة البحث آمنة وواضحة."
+    },
+    {
+      icon: Users,
+      title: END_USER_EXPERIENCE_POLICY_TITLE,
+      content: END_USER_EXPERIENCE_POLICY_CONTENT,
     },
     {
       icon: Scale,

@@ -1,8 +1,12 @@
 ﻿import { motion } from 'framer-motion';
-import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText } from 'lucide-react';
+import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
+import {
+  END_USER_EXPERIENCE_POLICY_CONTENT,
+  END_USER_EXPERIENCE_POLICY_TITLE,
+} from '@/config/endUserExperiencePolicy';
 
 export default function TermsOfService() {
   const sections = [
@@ -12,6 +16,11 @@ export default function TermsOfService() {
       content:
         'مرحبًا بك في **حلاق ماب**. باستخدامك للمنصة (الموقع الإلكتروني أو التطبيق أو أي واجهة رسمية تابعة لنا) فإنك تقر بأنك اطلعت على هذه الشروط ووافقت على الالتزام بها. إذا لم توافق، يُرجى عدم استخدام المنصة.\n\n' +
         'تُدار المنصة وفق الأنظمة المعمول بها في المملكة العربية السعودية.',
+    },
+    {
+      icon: Users,
+      title: END_USER_EXPERIENCE_POLICY_TITLE,
+      content: END_USER_EXPERIENCE_POLICY_CONTENT,
     },
     {
       icon: Copyright,

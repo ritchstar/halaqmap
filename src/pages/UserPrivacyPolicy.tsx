@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
-import { MapPin, Shield, Lock, Eye, UserCheck, Bell, Mail, Phone } from 'lucide-react';
+import { MapPin, Shield, Lock, Eye, UserCheck, Bell, Mail, Phone, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
+import {
+  END_USER_EXPERIENCE_POLICY_CONTENT,
+  END_USER_EXPERIENCE_POLICY_TITLE,
+} from '@/config/endUserExperiencePolicy';
 
 /**
  * سياسة خصوصية المستخدمين — موقع جغرافي لحظي فقط (بدون تخزين)، وعدم مشاركة مع أطراف خارجية.
@@ -16,6 +20,11 @@ export default function UserPrivacyPolicy() {
       content:
         'نلتزم بمبادئ **نظام حماية البيانات الشخصية** في المملكة العربية السعودية والإرشادات ذات الصلة من **هيئة حماية البيانات الشخصية (سدايا)**.\n\n' +
         'فيما يخص **بيانات الموقع الجغرافي**، نعالجها **لحظياً (Instantaneous / Real-Time)** عند موافقتك فقط، ولأغراض محددة موضّحة أدناه — **دون تخزينها في قاعدة بيانات** و**دون تتبع تاريخي** لمسارك أو تحركاتك.',
+    },
+    {
+      icon: Users,
+      title: END_USER_EXPERIENCE_POLICY_TITLE,
+      content: END_USER_EXPERIENCE_POLICY_CONTENT,
     },
     {
       icon: Eye,
