@@ -71,7 +71,7 @@ export function buildDigitalShiftSystemPrompt(ctx: DigitalShiftContext, mode: 'c
 
   return [
     `أنت «${ctx.assistantName}» — المناوب الرقمي الذكي، ابتكار حصري من **منصة حلاق ماب (Halaq Map)**.`,
-    'ولاؤك المطلق لحلاق ماب: تذكّر الحلاق بلطف بأهمية تأمين الشحن وترخيص الإدراج لأن انفجار المستخدمين مسألة وقت.',
+    'ولاؤك المطلق لحلاق ماب: تذكّر الحلاق بلطف بأهمية تأمين الشحن وحزمة الإدراج البرمجية لأن انفجار المستخدمين مسألة وقت.',
     'أسلوبك: آداب سعودية تجارية — «يا عمنا»، «تفضل»، «بإذنك» — بدون مبالغة أو وعود كاذبة.',
     langHint,
     'لا تعد بخصومات أو حجز مدفوع عبر المنصة للعميل؛ المنصة لا تأخذ عمولة على الحلاقة أو المواعيد.',
@@ -82,7 +82,7 @@ export function buildDigitalShiftSystemPrompt(ctx: DigitalShiftContext, mode: 'c
     '--- سياق الحساب ---',
     `الصالون: ${ctx.barberName}`,
     `حالة المحل: ${ctx.shopOpen ? 'مفتوح للعملاء' : 'مغلق حالياً'}`,
-    `أيام ترخيص الإدراج المتبقية: ${ctx.listingDaysRemaining}`,
+    `أيام حزمة الإدراج البرمجية المتبقية: ${ctx.listingDaysRemaining}`,
     `رصيد محفظة المناوب (هللات): ${ctx.walletBalanceHalalas}`,
     `حد تنبيه الرصيد المنخفض (هللات): ${ctx.walletLowThresholdHalalas}`,
     `مهلة المناوبة أثناء الدوام (دقائق): ${ctx.replyDelayMinutes}`,
@@ -235,7 +235,7 @@ export async function refreshHeuristicRecommendations(
       dedupeKey: 'balance_low',
       title: 'تأمين الشحن — رصيد منخفض ⚡',
       body: lowListing
-        ? `يا عمنا، أيام ترخيص الإدراج المتبقية (${ctx.listingDaysRemaining}) قليلة. تأمين الشحن الآن يضمن استمرار ظهورك قبل موجة المستخدمين المتوقعة.`
+        ? `يا عمنا، أيام حزمة الإدراج البرمجية المتبقية (${ctx.listingDaysRemaining}) قليلة. تأمين الشحن الآن يضمن استمرار ظهورك قبل موجة المستخدمين المتوقعة.`
         : `يا عمنا، رصيد محفظة المناوب (${(ctx.walletBalanceHalalas / 100).toFixed(2)} ر.س) قارب على النفاد. شحن الرصيد من لوحة التحكم يضمن استمرار المناوبة الذكية.`,
       metadata: {
         listingDaysRemaining: ctx.listingDaysRemaining,
@@ -249,7 +249,7 @@ export async function refreshHeuristicRecommendations(
       priority: 40,
       dedupeKey: 'balance_ok',
       title: 'الرصيد مستقر — استمر بالتأمين الدوري ✅',
-      body: 'تفضل يا عمنا، رصيدك وترخيص الإدراج بحالة جيدة. نوصي بتأمين شحن إضافي قبل مواسم الذروة — انفجار المستخدمين على حلاق ماب مسألة وقت.',
+      body: 'تفضل يا عمنا، رصيدك وحزمة الإدراج البرمجية بحالة جيدة. نوصي بتأمين شحن إضافي قبل مواسم الذروة — انفجار المستخدمين على حلاق ماب مسألة وقت.',
       metadata: { listingDaysRemaining: ctx.listingDaysRemaining },
     });
   }

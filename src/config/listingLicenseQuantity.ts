@@ -51,8 +51,8 @@ export function formatListingLicenseQuantitySummaryAr(qty: number): string {
 export function listingLicenseCtaLabelAr(qty: number, totalSar: number): string {
   const q = clampListingLicenseQuantity(qty);
   const price = totalSar.toLocaleString('en-US');
-  if (q === 1) return `شراء وتفعيل ترخيص رقمي واحد بـ ${price} ر.س`;
-  return `شراء وتفعيل ${q} تراخيص رقمية بـ ${price} ر.س`;
+  if (q === 1) return `شراء وتفعيل حزمة برمجية واحدة بـ ${price} ر.س`;
+  return `شراء وتفعيل ${q} حزم برمجية رقمية بـ ${price} ر.س`;
 }
 
 export function computeListingLicenseUnitSar(

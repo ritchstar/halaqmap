@@ -34,6 +34,7 @@ import {
   SHOP_OPEN_STATUS_FEATURE_BRONZE,
   SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from '@/config/subscriptionPlanHero';
+import { SOFTWARE_PACKAGE_UNIT_LABEL_AR } from '@/config/subscriptionPricing';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
@@ -119,7 +120,7 @@ interface FormData {
 
 /** نص التعهد القانوني المعروض بجانب خانة التأشير الإلزامية */
 export const REGISTRATION_LEGAL_DISCLAIMER_AR =
-  'أقر أنا صاحب المحل بأن منشأتي مرخصة وقائمة من قبل وزارة التجارة والبلدية، وأتحمل كامل المسؤولية القانونية عن ذلك، مع إخلاء مسؤولية منصة حلاق ماب من أي تبعات.';
+  'أقر أنا صاحب المحل بأن منشأتي ممتثلة لاشتراطات وزارة التجارة والبلدية وقائمة نظامياً، وأتحمل كامل المسؤولية القانونية عن ذلك، مع إخلاء مسؤولية منصة حلاق ماب من أي تبعات.';
 
 const STEPS = [
   { id: 1, title: 'اختيار الباقة', icon: Star },
@@ -137,6 +138,7 @@ type FormPlanFeature = { kind: 'map_hero' } | { kind: 'line'; text: string };
 const SUBSCRIPTION_PLANS: {
   tier: SubscriptionTier;
   name: string;
+  label: string;
   price: number;
   color: string;
   features: FormPlanFeature[];
@@ -146,6 +148,7 @@ const SUBSCRIPTION_PLANS: {
   {
     tier: SubscriptionTier.BRONZE,
     name: 'برونزي',
+    label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     price: 100,
     color: 'from-amber-700 to-amber-900',
     features: [
@@ -160,6 +163,7 @@ const SUBSCRIPTION_PLANS: {
   {
     tier: SubscriptionTier.GOLD,
     name: 'ذهبي',
+    label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     price: 150,
     color: 'from-accent to-yellow-600',
     features: [
@@ -185,6 +189,7 @@ const SUBSCRIPTION_PLANS: {
   {
     tier: SubscriptionTier.DIAMOND,
     name: 'ماسي',
+    label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     price: 200,
     color: 'from-primary to-cyan-600',
     features: [
@@ -573,7 +578,7 @@ export function RegistrationForm() {
       );
 
       const docLabels: string[] = [
-        `التعهد القانوني: تم التأشير بتاريخ ${submittedAtIso} — صاحب المحل يقر بترخيص المنشأة وتحمّل المسؤولية وإخلاء مسؤولية منصة حلاق ماب.`,
+        `التعهد القانوني: تم التأشير بتاريخ ${submittedAtIso} — صاحب المحل يقر بامتثال المنشأة النظامي وتحمّل المسؤولية وإخلاء مسؤولية منصة حلاق ماب.`,
       ];
 
       const servicesSummaryLines = formData.services
@@ -661,7 +666,7 @@ export function RegistrationForm() {
 
       const plan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
       const tierName = plan?.name ?? String(formData.tier);
-      const payLabel = 'ترخيص رقمي (ميسر — بطاقة)';
+      const payLabel = 'حزمة برمجية (ميسر — بطاقة)';
 
       const attributionLines = partnerAttribution
         ? [
@@ -682,7 +687,7 @@ export function RegistrationForm() {
         : 'مسار الاستقطاب (UTM): غير متوفر';
 
       const summaryForDownload =
-        `حلاق ماب — طلب ترخيص إدراج برمجي\n` +
+        `حلاق ماب — طلب حزمة إدراج برمجية\n` +
         `================================\n` +
         `رقم الطلب: ${orderId}\n` +
         `تاريخ التقديم: ${submittedAtLabel}\n` +
@@ -869,7 +874,7 @@ export function RegistrationForm() {
                                 </div>
                                 <p className="text-2xl font-bold text-primary mt-1">
                                   {plan.price} ريال
-                                  <span className="text-sm text-muted-foreground">/ترخيص</span>
+                                  <span className="text-sm text-muted-foreground">/{plan.label}</span>
                                 </p>
                               </div>
                             </div>
@@ -1010,8 +1015,8 @@ export function RegistrationForm() {
                 <Alert className="border-primary/40 bg-primary/5">
                   <Scale className="h-4 w-4 text-primary" />
                   <AlertDescription className="text-sm font-medium leading-relaxed text-foreground">
-                    بموجب هذا التعهد تُقرّ منشأتك مرخّصة وفق الجهات المذكورة أدناه، وتتحمّل أنت المسؤولية القانونية
-                    كاملة دون المطالبة بمنصة حلاق ماب عن التبعات الناشئة عن صحة ذلك الترخيص أو غيابه.
+                    بموجب هذا التعهد تُقرّ منشأتك ممتثلة لاشتراطات الجهات المذكورة أدناه، وتتحمّل أنت المسؤولية القانونية
+                    كاملة دون المطالبة بمنصة حلاق ماب عن التبعات الناشئة عن صحة ذلك الامتثال أو غيابه.
                   </AlertDescription>
                 </Alert>
                 <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-4">
@@ -1145,7 +1150,7 @@ export function RegistrationForm() {
                   <Alert className="border-primary/40 bg-primary/5">
                     <Sparkles className="h-4 w-4 text-primary" />
                     <AlertDescription className="text-sm leading-relaxed">
-                      بعد تفعيل ترخيصك يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
+                      بعد تفعيل حزمتك البرمجية يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
                       <strong>لوحة التحكم</strong> في أي وقت. ما ترفعه هنا هو المعتمد لمراجعة الطلب الأولى.
                     </AlertDescription>
                   </Alert>
@@ -1154,7 +1159,7 @@ export function RegistrationForm() {
                 <div className="space-y-3">
                   <Label htmlFor="shop-exterior">صورة واحدة — واجهة المحل من الخارج *</Label>
                   <p className="text-xs text-muted-foreground">
-                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات التراخيص.
+                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات الحزم البرمجية.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Input
@@ -1479,7 +1484,7 @@ export function RegistrationForm() {
                     <AlertDescription>
                       {vatSettings.enabled && monthlyPriceBreakdown && monthlyPriceBreakdown.vat > 0 ? (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — قيمة الترخيص الرقمي الموحد{' '}
+                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — قيمة الحزمة البرمجية الرقمية الموحد{' '}
                           {monthlyPriceBreakdown.subtotal} ر.س + ضريبة القيمة المضافة (
                           {vatSettings.ratePercent}%){' '}
                           {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
@@ -1487,9 +1492,9 @@ export function RegistrationForm() {
                         </>
                       ) : (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price} ريال للترخيص
+                          الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price} ريال للحزمة البرمجية
                           <span className="block text-xs mt-1 opacity-90">
-                            المبلغ المعروض قيمة ترخيص رقمي فقط دون ضريبة قيمة مضافة في الوضع الحالي.
+                            المبلغ المعروض قيمة حزمة برمجية فقط دون ضريبة قيمة مضافة في الوضع الحالي.
                           </span>
                         </>
                       )}
@@ -1499,7 +1504,7 @@ export function RegistrationForm() {
                 <Alert className="border-primary/30 bg-primary/5">
                   <AlertDescription className="text-sm leading-relaxed space-y-2">
                     <p>
-                      <strong>الدفع عبر بطاقة (ميسر)</strong> — الطريقة الوحيدة لشراء الترخيص الرقمي على المنصة.
+                      <strong>الدفع عبر بطاقة (ميسر)</strong> — الطريقة الوحيدة لشراء الحزمة البرمجية الرقمية على المنصة.
                     </p>
                     <p className="text-muted-foreground">
                       بعد مراجعة طلبك والموافقة عليه، ستتلقى رابط الدفع لإتمام السداد بأمان عبر بوابة ميسر (مدى، فيزا،
@@ -1507,7 +1512,7 @@ export function RegistrationForm() {
                     </p>
                     {selectedPlan && monthlyPriceBreakdown && (
                       <p className="font-medium text-primary">
-                        المبلغ المتوقع للترخيص (30 يوماً):{' '}
+                        المبلغ المتوقع للحزمة البرمجية (30 يوماً):{' '}
                         {vatSettings.enabled && monthlyPriceBreakdown.vat > 0
                           ? `${monthlyPriceBreakdown.total} ر.س (شامل ضريبة ${vatSettings.ratePercent}%)`
                           : `${selectedPlan.price} ر.س`}
@@ -1536,7 +1541,7 @@ export function RegistrationForm() {
                         rel="noopener noreferrer"
                         className="text-primary underline-offset-2 hover:underline font-medium"
                       >
-                        شروط التسجيل وشراء التراخيص
+                        شروط التسجيل وشراء الحزم البرمجية
                       </Link>{' '}
                       و{' '}
                       <Link

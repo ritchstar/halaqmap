@@ -22,8 +22,8 @@ function buildMetadata(input: UnifiedPaymentInput): Record<string, unknown> {
     expected_currency: 'SAR',
     linked_barber_id: input.linkedBarberId || '',
     product: 'listing_license',
-    product_type: 'Software Listing License',
-    product_type_ar: 'ترخيص خدمات إدراج برمجية',
+    product_type: 'Halaqmap Software Package',
+    product_type_ar: 'حزمة برمجية لخدمات الإدراج',
     digital_shift_addon: addon,
     digital_shift_addon_halalas: addonHalalas,
     ...(input.requestId
@@ -42,7 +42,7 @@ export const MoyasarProvider: UnifiedPaymentProvider = {
     const qty = Math.min(12, Math.max(1, Math.trunc(input.licenseQuantity) || 1));
     return {
       gateway: 'MOYASAR',
-      description: `Halaqmap Software Listing License ×${qty} (${sku}) / ${input.requestId || input.barberName}`,
+      description: `Halaqmap Software Package ×${qty} (${sku}) / ${input.requestId || input.barberName}`,
       metadata: buildMetadata(input),
     };
   },

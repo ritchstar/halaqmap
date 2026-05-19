@@ -243,7 +243,7 @@ export function ListingLicensePricingMatrix({
               id="listing-license-pricing-heading"
               className="text-2xl font-extrabold tracking-tight text-white md:text-3xl"
             >
-              تراخيص الإدراج الرقمي الموحّدة
+              الحزم البرمجية لخدمات الإدراج الرقمي الموحّدة
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-300 md:mx-0 md:text-base">
               اختر المستوى وعدد البطاقات (كل بطاقة = 30 يوم إدراج). ادفع المجموع وفعّل الظهور فوراً.
@@ -327,7 +327,7 @@ export function ListingLicensePricingMatrix({
                       <span className="diamond-sheen-wrap border border-cyan-300/40 bg-slate-900/40 shadow-[0_0_20px_rgba(34,211,238,0.15)]">
                         <span className="diamond-metallic-title relative z-[1] inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-extrabold">
                           <span aria-hidden>{card.badge}</span>
-                          {card.nameAr}
+                          {card.title}
                         </span>
                       </span>
                     ) : (
@@ -338,7 +338,7 @@ export function ListingLicensePricingMatrix({
                         )}
                       >
                         <span aria-hidden>{card.badge}</span>
-                        {card.nameAr}
+                        {card.title}
                       </span>
                     )}
                     <span
@@ -396,9 +396,14 @@ export function ListingLicensePricingMatrix({
                   ) : null}
                   {qty > 1 ? (
                     <p className="mt-0.5 text-end text-xs text-slate-500">
-                      المجموع: {formatPriceSar(totalSar)} ر.س ({formatPriceSar(unitSar)} × {qty})
+                      المجموع: {formatPriceSar(totalSar)} ر.س ({formatPriceSar(unitSar)} × {qty}{' '}
+                      {card.packageUnitLabelAr})
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="mt-0.5 text-end text-xs text-slate-500">
+                      {formatPriceSar(unitSar)} ر.س / {card.packageUnitLabelAr}
+                    </p>
+                  )}
 
                   <div
                     className={cn(
@@ -409,7 +414,7 @@ export function ListingLicensePricingMatrix({
                     )}
                     aria-label="اختيار عدد البطاقات"
                   >
-                    <p className="mb-2 text-xs font-semibold text-slate-300">عدد البطاقات (تراخيص)</p>
+                    <p className="mb-2 text-xs font-semibold text-slate-300">عدد البطاقات (حزم برمجية)</p>
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-1 rounded-lg border border-white/15 bg-white/5 p-0.5">
                         <Button

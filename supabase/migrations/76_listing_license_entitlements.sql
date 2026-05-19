@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.listing_license_products (
   amount_halalas INTEGER NOT NULL CHECK (amount_halalas >= 100),
   currency TEXT NOT NULL DEFAULT 'SAR',
   is_active BOOLEAN NOT NULL DEFAULT true,
-  service_description_ar TEXT NOT NULL DEFAULT 'رخصة رقمية مسبقة الدفع لخدمات الإدراج الموحّد للبرمجيات',
+  service_description_ar TEXT NOT NULL DEFAULT 'حزمة برمجية مسبقة الدفع لخدمات الإدراج الموحّد للبرمجيات',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -124,15 +124,15 @@ CREATE TABLE IF NOT EXISTS public.listing_license_redemption_events (
 INSERT INTO public.listing_license_products (
   sku_code, tier, listing_days_granted, price_sar, amount_halalas, service_description_ar
 ) VALUES
-  ('bronze_30', 'bronze', 30, 100.00, 10000, 'رخصة رقمية — إدراج برونزي 30 يوماً'),
-  ('gold_30', 'gold', 30, 150.00, 15000, 'رخصة رقمية — إدراج ذهبي 30 يوماً'),
-  ('diamond_30', 'diamond', 30, 200.00, 20000, 'رخصة رقمية — إدراج ماسي 30 يوماً'),
-  ('bronze_180', 'bronze', 180, 600.00, 60000, 'رخصة رقمية — إدراج برونزي 180 يوماً (تحويل بنكي 6 أشهر)'),
-  ('gold_180', 'gold', 180, 900.00, 90000, 'رخصة رقمية — إدراج ذهبي 180 يوماً'),
-  ('diamond_180', 'diamond', 180, 1200.00, 120000, 'رخصة رقمية — إدراج ماسي 180 يوماً'),
-  ('bronze_270', 'bronze', 270, 810.00, 81000, 'رخصة رقمية — إدراج برونزي 270 يوماً (عرض 9 أشهر)'),
-  ('gold_270', 'gold', 270, 1215.00, 121500, 'رخصة رقمية — إدراج ذهبي 270 يوماً'),
-  ('diamond_270', 'diamond', 270, 1620.00, 162000, 'رخصة رقمية — إدراج ماسي 270 يوماً')
+  ('bronze_30', 'bronze', 30, 100.00, 10000, 'حزمة برمجية — إدراج برونزي 30 يوماً'),
+  ('gold_30', 'gold', 30, 150.00, 15000, 'حزمة برمجية — إدراج ذهبي 30 يوماً'),
+  ('diamond_30', 'diamond', 30, 200.00, 20000, 'حزمة برمجية — إدراج ماسي 30 يوماً'),
+  ('bronze_180', 'bronze', 180, 600.00, 60000, 'حزمة برمجية — إدراج برونزي 180 يوماً (تحويل بنكي 6 أشهر)'),
+  ('gold_180', 'gold', 180, 900.00, 90000, 'حزمة برمجية — إدراج ذهبي 180 يوماً'),
+  ('diamond_180', 'diamond', 180, 1200.00, 120000, 'حزمة برمجية — إدراج ماسي 180 يوماً'),
+  ('bronze_270', 'bronze', 270, 810.00, 81000, 'حزمة برمجية — إدراج برونزي 270 يوماً (عرض 9 أشهر)'),
+  ('gold_270', 'gold', 270, 1215.00, 121500, 'حزمة برمجية — إدراج ذهبي 270 يوماً'),
+  ('diamond_270', 'diamond', 270, 1620.00, 162000, 'حزمة برمجية — إدراج ماسي 270 يوماً')
 ON CONFLICT (sku_code) DO UPDATE SET
   listing_days_granted = EXCLUDED.listing_days_granted,
   price_sar = EXCLUDED.price_sar,
@@ -240,7 +240,7 @@ WHERE b.is_active = true
   AND public.barber_has_active_listing(b.id);
 
 COMMENT ON VIEW public.barbers_public_directory IS
-  'حلاق يظهر على الخريطة: نشط + رخصة إدراج رقمية سارية (barber_listing_entitlements.valid_until).';
+  'حلاق يظهر على الخريطة: نشط + حزمة إدراج برمجية سارية (barber_listing_entitlements.valid_until).';
 
 -- search_barbers_nearby يقرأ من العرض — لا حاجة لإعادة تعريف الدالة إن لم تتغير التوقيعات
 

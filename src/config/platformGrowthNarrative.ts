@@ -38,7 +38,7 @@ export const PLATFORM_OFFICIAL_ENTITY_ABOUT_LINK_LABEL = 'عن المؤسسة';
 
 /** تسجيل الحلاق — تحت العنوان */
 export const PLATFORM_REGISTER_INTRO =
-  'انضم إلى شبكة الرصد الذكي: بعد تفعيل الترخيص يُرصد صالونك للعملاء الباحثين في محيطك عبر محرك بحث جغرافي فائق السرعة — اختر الباقة المناسبة وابدأ الظهور بدقة.';
+  'انضم إلى شبكة الرصد الذكي: بعد تفعيل الحزمة البرمجية يُرصد صالونك للعملاء الباحثين في محيطك عبر محرك بحث جغرافي فائق السرعة — اختر الباقة المناسبة وابدأ الظهور بدقة.';
 
 /** من نحن — تحت عنوان الصفحة */
 export const PLATFORM_ABOUT_HERO_SUBTITLE = PLATFORM_SMART_TRACKING_SUBTEXT;
@@ -96,7 +96,7 @@ export { PLATFORM_SMART_TRACKING_SLOGAN, PLATFORM_SMART_TRACKING_SUBTEXT };
 /** الملكية الفكرية والحلول الرقمية — الصفحة الرئيسية (Landing) */
 export const PLATFORM_DIGITAL_PRODUCT_INTRO_TITLE = 'الملكية الفكرية والحلول الرقمية 🇸🇦';
 
-export const PLATFORM_DIGITAL_PRODUCT_INTRO_BADGE = 'ملكية فكرية حصرية · حلول B2B مرخّصة';
+export const PLATFORM_DIGITAL_PRODUCT_INTRO_BADGE = 'ملكية فكرية حصرية · حلول B2B حصرية';
 
 export const PLATFORM_DIGITAL_PRODUCT_INTRO_PARAGRAPHS = [
   `إن كود البرمجة المصدري والملكية الفكرية لمنصة حلاق ماب (Halaq Map) مملوكة بالكامل وحصرياً لـ (${LEGAL_TRADE_NAME_AR}) كأصل تقني للمؤسسة.`,

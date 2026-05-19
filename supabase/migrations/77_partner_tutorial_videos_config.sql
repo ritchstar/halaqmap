@@ -1,4 +1,4 @@
--- إعدادات عرض صفحة فيديوهات شرح التراخيص (تفعيل/إيقاف من لوحة الإدارة)
+-- إعدادات عرض صفحة فيديوهات شرح الحزم البرمجية (تفعيل/إيقاف من لوحة الإدارة)
 
 CREATE TABLE IF NOT EXISTS public.partner_tutorial_videos_config (
   id smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS public.partner_tutorial_videos_config (
 ALTER TABLE public.partner_tutorial_videos_config ENABLE ROW LEVEL SECURITY;
 
 COMMENT ON TABLE public.partner_tutorial_videos_config IS
-  'تفعيل أو إيقاف صفحة فيديوهات شرح التراخيص للزوار — القراءة/التحديث عبر API الخادم (service role) فقط.';
+  'تفعيل أو إيقاف صفحة فيديوهات شرح الحزم البرمجية للزوار — القراءة/التحديث عبر API الخادم (service role) فقط.';
 
 INSERT INTO public.partner_tutorial_videos_config (id, enabled)
 VALUES (1, true)

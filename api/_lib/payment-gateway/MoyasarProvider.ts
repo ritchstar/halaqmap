@@ -21,8 +21,8 @@ function buildMetadata(request: UnifiedPaymentRequest): Record<string, unknown> 
     expected_currency: 'SAR',
     linked_barber_id: request.linkedBarberId || '',
     product: 'listing_license',
-    product_type: 'Software Listing License',
-    product_type_ar: 'ترخيص خدمات إدراج برمجية',
+    product_type: 'Halaqmap Software Package',
+    product_type_ar: 'حزمة برمجية لخدمات الإدراج',
     digital_shift_addon: addon,
     digital_shift_addon_halalas: addonHalalas,
     ...(request.requestId
@@ -42,7 +42,7 @@ export const MoyasarProvider: ServerPaymentProvider = {
       gateway: 'MOYASAR',
       currency: 'SAR',
       amount: request.amountHalalas,
-      description: `Halaqmap Software Listing License (${sku}) / ${request.requestId || request.barberName}`,
+      description: `Halaqmap Software Package (${sku}) / ${request.requestId || request.barberName}`,
       metadata: buildMetadata(request),
     };
   },

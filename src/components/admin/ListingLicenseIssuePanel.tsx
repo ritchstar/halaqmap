@@ -53,7 +53,7 @@ export function ListingLicenseIssuePanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>إصدار رمز رخصة إدراج (تحويل بنكي / يدوي)</CardTitle>
+        <CardTitle>إصدار رمز حزمة إدراج برمجية (تحويل بنكي / يدوي)</CardTitle>
         <CardDescription>
           بعد استلام إيصال التحويل، أنشئ رمزاً وارسله للشريك. يمكن التفعيل التلقائي إن وُجد معرّف حلاق.
         </CardDescription>
@@ -61,7 +61,7 @@ export function ListingLicenseIssuePanel({
       <CardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>منتج الرخصة (SKU)</Label>
+            <Label>منتج الحزمة البرمجية (SKU)</Label>
             <Select value={skuCode} onValueChange={setSkuCode}>
               <SelectTrigger>
                 <SelectValue />

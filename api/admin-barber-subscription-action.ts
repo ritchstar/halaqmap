@@ -315,7 +315,7 @@ export async function POST(request: Request): Promise<Response> {
       const text = [
         `أهلًا ${resolved.barberName}،`,
         '',
-        'إليك ملاحظات من فريق الجودة بخصوص طلب الترخيص:',
+        'إليك ملاحظات من فريق الجودة بخصوص طلب الحزمة البرمجية:',
         notes,
         '',
         'طلبك ما زال قيد المراجعة — يمكنك الرد على هذا البريد أو التواصل عبر الموقع.',
@@ -473,17 +473,17 @@ export async function POST(request: Request): Promise<Response> {
 
     const resolved = await resolveBarberIdAndEmail(supabase, row);
     if (resolved.ok && resendKey && resendFrom) {
-      const subject = 'حلاق ماب | تمت إعادة مبلغ الترخيص الرقمي';
+      const subject = 'حلاق ماب | تمت إعادة مبلغ الحزمة البرمجية';
       const text = [
         `أهلًا ${resolved.barberName}،`,
         '',
-        'تمت إعادة مبلغ شراء الترخيص الرقمي وفق سياسة المنصة. إن كان لديك استفسار رد على هذا البريد.',
+        'تمت إعادة مبلغ شراء الحزمة البرمجية وفق سياسة المنصة. إن كان لديك استفسار رد على هذا البريد.',
         '',
         '— فريق حلاق ماب',
       ].join('\n');
       const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
 <p>أهلًا <strong>${escapeHtml(resolved.barberName)}</strong>،</p>
-<p>تمت <strong>إعادة مبلغ</strong> شراء الترخيص الرقمي عبر بوابة الدفع. إن رغبت بمتابعة الانضمام يمكنك التواصل معنا.</p>
+<p>تمت <strong>إعادة مبلغ</strong> شراء الحزمة البرمجية عبر بوابة الدفع. إن رغبت بمتابعة الانضمام يمكنك التواصل معنا.</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`;
       await sendResendEmail({

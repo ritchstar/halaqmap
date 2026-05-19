@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import {
+  DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
   LEGAL_TRADE_NAME_AR,
   getLegalCommercialRegistrationDisplay,
@@ -38,7 +39,7 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
         ) : null}
       </ul>
       <p className={`mt-3 text-xs ${muted}`}>
-        خدمة رقمية: شراء الترخيص والإدراج على المنصة يتم إلكترونياً. التواصل مع صالونك يكون مباشرة بينك وبين الصالون؛ لا
+        خدمة رقمية: شراء الحزمة البرمجية والإدراج على المنصة يتم إلكترونياً. التواصل مع صالونك يكون مباشرة بينك وبين الصالون؛ لا
         تطالبك المنصة بأي عمولات على الحلاقة أو مواعيدها نهائياً؛ المنصة تخدم المستخدم مجاناً بشرط السماح برصد موقعه برمجياً
         وتفعيل الخيارات أمامه.
       </p>
@@ -47,7 +48,7 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
           سياسة الخصوصية
         </NavLink>
         <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="underline-offset-2 hover:underline">
-          سياسة التراخيص الرقمية والاسترداد والمدفوعات
+          {DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR} والاسترداد والمدفوعات
         </NavLink>
         <NavLink to={ROUTE_PATHS.PARTNER_PRIVACY} className="underline-offset-2 hover:underline">
           خصوصية الشركاء

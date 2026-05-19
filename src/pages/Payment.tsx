@@ -140,7 +140,7 @@ export default function Payment() {
     [price, vatSettings],
   );
 
-  /** قيمة الترخيص الرقمي بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
+  /** قيمة الحزمة البرمجية الرقمية بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
   const monthlyAmountHalalas = useMemo(
     () => Math.max(100, Math.round(licenseBreakdown.total * 100)),
     [licenseBreakdown.total],
@@ -209,7 +209,7 @@ export default function Payment() {
           );
           toast.message('تنبيه', { description: 'خادم التحقق من ميسر غير مهيأ بعد.' });
         } else if (result.error === 'amount_mismatch') {
-          setMoyasarVerifyMessage('المبلغ لا يطابق قيمة الترخيص الرقمي للباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
+          setMoyasarVerifyMessage('المبلغ لا يطابق قيمة الحزمة البرمجية الرقمية للباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
           toast.error('تباين في المبلغ');
         } else {
           setMoyasarVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
@@ -367,10 +367,10 @@ export default function Payment() {
             </motion.div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-snug">
-              شراء ترخيص رقمي لخدمات الإدراج البرمجية
+              شراء حزمة برمجية لخدمات الإدراج البرمجية
             </h1>
             <p className="text-lg text-muted-foreground">
-              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء الترخيص
+              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء الحزمة البرمجية
             </p>
           </div>
         </motion.div>
@@ -394,7 +394,7 @@ export default function Payment() {
                 </AlertTitle>
                 <AlertDescription className="text-sm leading-relaxed text-foreground/90">
                   <p>
-                    تم استلام قيمة <strong>الترخيص الرقمي</strong> عبر ميسر بشكل صحيح، و<strong>تم تفعيل صلاحية الإدراج على المنصة</strong>. يمكنك
+                    تم استلام قيمة <strong>الحزمة البرمجية الرقمية</strong> عبر ميسر بشكل صحيح، و<strong>تم تفعيل صلاحية الإدراج على المنصة</strong>. يمكنك
                     الآن تسجيل الدخول إلى لوحة التحكم والبدء باستقبال الطلبات.
                   </p>
                   <p className="mt-2 text-xs text-muted-foreground">
@@ -429,7 +429,7 @@ export default function Payment() {
               {/* Subscription Summary */}
               <Card>
                 <CardHeader>
-                  <CardTitle>ملخص الترخيص الرقمي</CardTitle>
+                  <CardTitle>ملخص الحزمة البرمجية الرقمية</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
@@ -441,7 +441,7 @@ export default function Payment() {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold">باقة {tierName}</h3>
-                        <p className="text-sm text-muted-foreground">ترخيص إدراج برمجي (30 يوماً)</p>
+                        <p className="text-sm text-muted-foreground">حزمة إدراج برمجية (30 يوماً)</p>
                         {digitalShiftAddonSelected ? (
                           <p className="mt-1 text-xs font-medium text-primary">
                             + {DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR} ({DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س ×{' '}
@@ -454,18 +454,18 @@ export default function Payment() {
                       {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
                         <>
                           <p className="text-xs text-muted-foreground">
-                            قيمة الترخيص الرقمي الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
+                            قيمة الحزمة البرمجية الرقمية الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
                           </p>
                           <p className="text-xs text-muted-foreground">
                             ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
                           </p>
                           <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
-                          <p className="text-xs text-muted-foreground">إجمالي قيمة الترخيص</p>
+                          <p className="text-xs text-muted-foreground">إجمالي قيمة الحزمة البرمجية</p>
                         </>
                       ) : (
                         <>
                           <p className="text-2xl font-bold text-primary">{price} ر.س</p>
-                          <p className="text-xs text-muted-foreground">للترخيص (دون ضريبة قيمة مضافة)</p>
+                          <p className="text-xs text-muted-foreground">للحزمة البرمجية (دون ضريبة قيمة مضافة)</p>
                         </>
                       )}
                     </div>
@@ -566,7 +566,7 @@ export default function Payment() {
                             . يلتزم التاجر بـ SSL، والتحقق من الدفع في الخادم، وعدم تخزين بيانات البطاقة،
                             وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع أيضاً{' '}
                             <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
-                              سياسة التراخيص الرقمية
+                              سياسة الحزم البرمجية الرقمية
                             </Link>
                             .
                           </p>
@@ -704,11 +704,11 @@ export default function Payment() {
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>ترخيص رقمي مسبق الدفع — دون تجديد تلقائي أو خصم دوري</span>
+                      <span>حزمة برمجية مسبقة الدفع — دون تجديد تلقائي أو خصم دوري</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>صلاحية الإدراج محددة بمدة الترخيص المشتراة</span>
+                      <span>صلاحية الإدراج محددة بمدة الحزمة البرمجية المشتراة</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />

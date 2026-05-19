@@ -70,7 +70,7 @@ export const PLATFORM_PARTNER_SMART_TRACKING_HEADLINE = PLATFORM_SMART_TRACKING_
 export const PLATFORM_PARTNER_SMART_TRACKING_LEAD = PLATFORM_SMART_TRACKING_SUBTEXT;
 
 export const PLATFORM_PARTNER_DASHBOARD_TAGLINE =
-  'صالونك ضمن نظام الرصد الذكي — يُرصد للعملاء الباحثين في محيطك فور تفعيل الترخيص.';
+  'صالونك ضمن نظام الرصد الذكي — يُرصد للعملاء الباحثين في محيطك فور تفعيل الحزمة البرمجية.';
 
 /** ميزة الباقات في التسجيل وسياسة الاشتراك */
 export const MAP_FEATURE_PARTNER_SUBTITLE =

@@ -1,5 +1,5 @@
 /**
- * إصدار رمز رخصة إدراج يدوياً (تحويل بنكي / إدارة).
+ * إصدار رمز حزمة إدراج برمجية يدوياً (تحويل بنكي / إدارة).
  * POST + جلسة إدارية + review_payments أو manage_partner_billing
  */
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';

@@ -603,9 +603,9 @@ export default function BarberDashboard() {
 
           <Card className="border-emerald-500/30 bg-emerald-500/5">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">صلاحية ترخيص الإدراج الرقمي</CardTitle>
+              <CardTitle className="text-lg">صلاحية حزمة الإدراج البرمجية الرقمي</CardTitle>
               <CardDescription className="text-sm leading-relaxed">
-                صلاحية الظهور عبر نظام الرصد الذكي مبنية على <strong>ترخيص رقمي مسبق الدفع</strong> لخدمات الإدراج البرمجية الموحدة.
+                صلاحية الظهور عبر نظام الرصد الذكي مبنية على <strong>حزمة برمجية مسبقة الدفع</strong> لخدمات الإدراج البرمجية الموحدة.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -620,13 +620,13 @@ export default function BarberDashboard() {
                 </p>
                 {listingBalance?.validUntil ? (
                   <p className="text-xs text-muted-foreground">
-                    <strong>تاريخ انتهاء صلاحية ترخيص الإدراج:</strong>{' '}
+                    <strong>تاريخ انتهاء صلاحية حزمة الإدراج البرمجية:</strong>{' '}
                     <span dir="ltr">{new Date(listingBalance.validUntil).toLocaleString('ar-SA')}</span>
                   </p>
                 ) : null}
               </motion.div>
               <Button type="button" variant="outline" size="sm" onClick={() => setRedeemDialogOpen(true)}>
-                استرداد رمز الرخصة
+                استرداد رمز الحزمة البرمجية
               </Button>
             </CardContent>
           </Card>
@@ -643,13 +643,13 @@ export default function BarberDashboard() {
           <Dialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen}>
             <DialogContent dir="rtl" className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>استرداد رمز رخصة الإدراج</DialogTitle>
+                <DialogTitle>استرداد رمز حزمة الإدراج البرمجية</DialogTitle>
                 <DialogDescription>
-                  أدخل الرمز الذي وصلك بالبريد بعد شراء الرخصة أو التحويل البنكي (مثال: HM-LIC-XXXX-XXXX-XXXX).
+                  أدخل الرمز الذي وصلك بالبريد بعد شراء الحزمة البرمجية أو التحويل البنكي (مثال: HM-LIC-XXXX-XXXX-XXXX).
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
-                <Label htmlFor="license-redeem-code">رمز الرخصة</Label>
+                <Label htmlFor="license-redeem-code">رمز الحزمة البرمجية</Label>
                 <Input
                   id="license-redeem-code"
                   value={redeemCode}
@@ -659,7 +659,7 @@ export default function BarberDashboard() {
                   className="text-left"
                 />
                 <p className="text-xs text-muted-foreground leading-relaxed pt-1">
-                  نظام تراخيص برمجية مسبقة الدفع متوافق مع البيع بالتجزئة للبرمجيات، خاضع لأنظمة الهيئة العامة لتنظيم
+                  نظام حزم برمجية مسبقة الدفع متوافق مع البيع بالتجزئة للبرمجيات، خاضع لأنظمة الهيئة العامة لتنظيم
                   الإعلام بالمملكة العربية السعودية.
                 </p>
               </div>
@@ -695,7 +695,7 @@ export default function BarberDashboard() {
                     void refreshListingBalance();
                   }}
                 >
-                  {redeemLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تفعيل الرخصة'}
+                  {redeemLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تفعيل الحزمة البرمجية'}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -748,7 +748,7 @@ export default function BarberDashboard() {
                     <div className="space-y-1 text-right">
                       <p className="text-sm font-semibold">قبول العملاء الآن عبر نظام الرصد الذكي</p>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء صلاحية ترخيص الإدراج عن المنصة.
+                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء صلاحية حزمة الإدراج البرمجية عن المنصة.
                       </p>
                     </div>
                     <Switch

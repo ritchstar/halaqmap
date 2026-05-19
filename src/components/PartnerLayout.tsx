@@ -19,6 +19,7 @@ import { DOMAIN_VERIFICATION_META_CONTENT, ensureDomainVerificationMeta } from '
 import { SOFTWARE_SERVICES_PORTAL_HEADING, SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPublic';
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
+import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
 import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
@@ -36,12 +37,12 @@ const partnerNavItems = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الصفحة التسويقية' },
   { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
-  { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات التراخيص' },
+  { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات الحزم البرمجية' },
   { path: ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW, label: 'نماذج البنرات' },
   { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'الدعم الفني (واتساب)' },
   { path: ROUTE_PATHS.PARTNER_PRIVACY, label: 'خصوصية الشركاء' },
-  { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: 'سياسة التراخيص الرقمية' },
+  { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR },
   { path: ROUTE_PATHS.BARBER_LOGIN, label: 'دخول الحلاق' },
 ];
 

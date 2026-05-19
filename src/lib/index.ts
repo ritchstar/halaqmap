@@ -265,7 +265,7 @@ export interface SubscriptionRequest {
   receiptDataUrl?: string;
   /** روابط المرفقات على Supabase Storage عند الرفع الناجح */
   registrationAttachmentUrls?: RegistrationAttachmentUrls;
-  /** تعهد قانوني إلزامي: ترخيص المنشأة من وزارة التجارة والبلدية وتحمّل المسؤولية وإخلاء مسؤولية المنصة */
+  /** تعهد قانوني إلزامي: امتثال المنشأة لاشتراطات وزارة التجارة والبلدية وتحمّل المسؤولية وإخلاء مسؤولية المنصة */
   legalDisclaimerAccepted?: boolean;
   /** وقت الموافقة على التعهد ISO 8601 (UTC) */
   legalDisclaimerAcceptedAtIso?: string;

@@ -3,6 +3,7 @@ import {
   DIGITAL_SHIFT_PRODUCT_TITLE,
   DIGITAL_SHIFT_REPLY_COST_HALALAS,
 } from '@/config/digitalShiftAssistant';
+import { staffTheme } from '@/components/admin/staff/staffTheme';
 import type {
   AiStaffAgentDef,
   AiStaffBoundaryDef,
@@ -57,7 +58,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     title: 'خازن — دفتر المنصة والمحفظة',
     roleDescription:
       'أتمتة الفوترة الذكية، قراءة فواتير البنية التحتية، وتحديث جدول الالتزامات فورياً عبر لقطات الشاشة.',
-    accentClass: 'from-emerald-500/15 via-teal-500/10 to-cyan-500/5 border-emerald-500/35',
+    accentClass: staffTheme.accentEmerald,
     requiredAny: ['view_ops_billing_monitor', 'manage_centralized_billing_ops'],
     available: true,
     iconKind: 'treasurer',
@@ -73,8 +74,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     ctaLabelAr: 'فتح المكتب المالي',
     roleDescription:
       'فرز فواتير الصالونات بالهللة، تحليل سرعة التدفق المالي، والتنبؤ الاستباقي بحدود الامتثال الضريبي.',
-    accentClass:
-      'from-amber-500/20 via-yellow-500/10 to-cyan-500/8 border-amber-400/45 shadow-[0_0_28px_-8px_rgba(251,191,36,0.35)]',
+    accentClass: staffTheme.accentAmber,
     requiredAny: [
       'manage_platform_commerce_rules',
       'view_ops_billing_monitor',
@@ -96,7 +96,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     ctaLabelAr: 'لوحة الإشراف الميداني',
     roleDescription:
       'مناوب رقمي منشور في صالونات الماسي — جدولة، آداب سعودية، واعتراض محادثات عند الإغلاق أو التأخير. صفر تلاعب مالي بالعملاء.',
-    accentClass: 'from-indigo-500/15 via-violet-500/10 to-slate-900/20 border-indigo-400/40',
+    accentClass: staffTheme.accentIndigo,
     requiredAny: ['view_barbers', 'manage_barbers'],
     available: true,
     iconKind: 'digital_shift',
@@ -121,7 +121,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     ctaLabelAr: 'فتح لوحة التقارير',
     roleDescription:
       'مساعد الشركاء الرقمي على مسار الانضمام — يجمع مشاعر أصحاب الصالونات، ملخصات الاحتكاك التشغيلي، وتحليلات المحادثات.',
-    accentClass: 'from-violet-500/15 to-fuchsia-500/8 border-violet-400/35',
+    accentClass: staffTheme.accentViolet,
     requiredAny: ['view_partner_marketing', 'view_messages', 'manage_partner_marketing'],
     available: true,
     iconKind: 'partner_liaison',
@@ -141,8 +141,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     ctaLabelAr: 'فتح مقصورة الاستخبارات',
     roleDescription:
       'يراقب كل رموز المناوبة النشطة في المملكة — يجمع السجلات المباشرة، مقاييس الخلفية، ونبضات الاحتكاك عبر قناة خلفية آمنة بسرية تامة وبدون أن يشعر أحد.',
-    accentClass:
-      'from-slate-900/90 via-red-950/40 to-amber-950/30 border-red-500/30 shadow-[0_0_40px_-12px_rgba(239,68,68,0.45)]',
+    accentClass: staffTheme.accentCovert,
     requiredAny: ['manage_admins'],
     available: true,
     iconKind: 'fleet_director',

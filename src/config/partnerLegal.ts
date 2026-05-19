@@ -15,3 +15,6 @@ export const PARTNER_SUPPORT_EMAIL = 'admin@halaqmap.com';
 export const PARTNER_SUPPORT_PHONE_E164 = '966559602685';
 
 export const PARTNER_SUPPORT_WHATSAPP_URL = `https://wa.me/${PARTNER_SUPPORT_PHONE_E164}`;
+
+/** عنوان سياسة الحزم البرمجية — موحّد في الوثائق القانونية والتذييل والتسجيل */
+export const DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR = 'سياسة الحزم البرمجية الرقمية';

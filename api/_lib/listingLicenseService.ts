@@ -547,27 +547,27 @@ export function buildVoucherEmailBodies(input: {
   listingDaysGranted: number;
   validUntilHint?: string;
 }): { subject: string; html: string; text: string } {
-  const subject = 'حلاق ماب | كود تفعيل — ترخيص خدمات إدراج برمجية';
+  const subject = 'حلاق ماب | كود تفعيل — حزمة برمجية لخدمات الإدراج';
   const text = [
     `أهلًا ${input.barberName}،`,
     '',
-    'نوع المنتج: Software Listing License (ترخيص خدمات إدراج برمجية)',
-    'شكراً لشرائك ترخيصاً رقمياً مسبق الدفع لخدمات الإدراج البرمجية الموحدة على منصة حلاق ماب.',
+    'نوع المنتج: Halaqmap Software Package (حزمة برمجية لخدمات الإدراج)',
+    'شكراً لشرائك حزمةً برمجية مسبقة الدفع لخدمات الإدراج البرمجية الموحدة على منصة حلاق ماب.',
     '',
     `الباقة: ${input.tierLabelAr}`,
     `مدة صلاحية الإدراج: ${input.listingDaysGranted} يوماً`,
     '',
     `رمز الاسترداد: ${input.plaintextCode}`,
     '',
-    'ادخل إلى لوحة الشريك → استرداد الرخصة، والصق الرمز.',
+    'ادخل إلى لوحة الشريك → استرداد الحزمة البرمجية، والصق الرمز.',
     '',
     '— فريق حلاق ماب',
   ].join('\n');
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head>
 <body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f0fdf4">
 <p>أهلًا <strong>${input.barberName}</strong>،</p>
-<p><strong>نوع المنتج:</strong> Software Listing License (ترخيص خدمات إدراج برمجية)</p>
-<p>كود التفعيل الرقمي للترخيص جاهز للاسترداد:</p>
+<p><strong>نوع المنتج:</strong> Halaqmap Software Package (حزمة برمجية لخدمات الإدراج)</p>
+<p>كود التفعيل الرقمي للحزمة البرمجية جاهز للاسترداد:</p>
 <p style="font-size:20px;font-weight:bold;letter-spacing:2px;background:#fff;border:2px dashed #16a34a;padding:16px;border-radius:12px;text-align:center">${input.plaintextCode}</p>
 <p>الباقة: <strong>${input.tierLabelAr}</strong> — <strong>${input.listingDaysGranted}</strong> يوم إدراج.</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>

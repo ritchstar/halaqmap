@@ -51,7 +51,7 @@ export default function RegisterSuccess() {
 
   const mailtoHref = useMemo(() => {
     if (!data) return '#';
-    const subject = encodeURIComponent(`حلاق ماب — نسخة طلب ترخيص إدراج ${data.orderId}`);
+    const subject = encodeURIComponent(`حلاق ماب — نسخة طلب حزمة إدراج برمجية ${data.orderId}`);
     const body = encodeURIComponent(
       `${data.mailtoBodyShort}\n\nرابط إتمام الدفع:\n${absolutePaymentUrl}\n`,
     );
@@ -131,7 +131,7 @@ export default function RegisterSuccess() {
             </div>
             <CardTitle className="text-2xl">تم استلام طلبك بنجاح! 🎉</CardTitle>
             <CardDescription className="text-center leading-relaxed">
-              طلبك مسجّل على المنصة. بعد إتمام الدفع وتفعيل الترخيص الرقمي يمكنك البدء فوراً. في هذا المسار{' '}
+              طلبك مسجّل على المنصة. بعد إتمام الدفع وتفعيل الحزمة البرمجية الرقمية يمكنك البدء فوراً. في هذا المسار{' '}
               <strong>لم تُخزَّن مستنداتك الحكومية الثقيلة على خوادمنا</strong> ولن نطلب منك إعادة تقديمها لاحقاً ضمن
               نفس الإجراء. احتفظ برقم الطلب للمتابعة أو الدعم عند الحاجة.
             </CardDescription>
@@ -165,7 +165,7 @@ export default function RegisterSuccess() {
               <p>
                 <span className="text-muted-foreground">طريقة الدفع:</span>{' '}
                 <span className="font-medium">
-                  {data.paymentMethod === 'bank_transfer' ? 'تحويل بنكي — ترخيص ممتد' : 'ترخيص رقمي (ميسر)'}
+                  {data.paymentMethod === 'bank_transfer' ? 'تحويل بنكي — حزمة برمجية ممتدة' : 'حزمة برمجية (ميسر)'}
                 </span>
               </p>
               {data.receiptFileName && (
@@ -179,7 +179,7 @@ export default function RegisterSuccess() {
             </div>
 
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
-              <p className="font-semibold text-foreground mb-1">إتمام الدفع وتفعيل الترخيص الرقمي</p>
+              <p className="font-semibold text-foreground mb-1">إتمام الدفع وتفعيل الحزمة البرمجية الرقمية</p>
               <p className="text-muted-foreground mb-3">
                 إن لم تُكمل الدفع بعد، انتقل إلى صفحة الدفع برقم طلبك والباقة التي اخترتها — لن تحتاج لإعادة إدخال
                 بياناتك. يُمرَّر رقم الطلب تلقائياً إلى ميسر مع الدفع لربط العملية بطلبك في النظام.

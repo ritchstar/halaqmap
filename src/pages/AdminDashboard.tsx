@@ -107,14 +107,6 @@ import { toast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   COMMAND_CENTER_LEADS,
   buildWaDeepLink,
   type CommandCenterLead,
@@ -149,6 +141,29 @@ import { ResourceManagementSection } from '@/components/admin/ResourceManagement
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
+import {
+  FounderCommandShell,
+  FounderCrest,
+  FounderGlassCard,
+  FounderMetricTile,
+  FounderPremiumTable,
+  FounderPremiumTableBody,
+  FounderPremiumTableCell,
+  FounderPremiumTableHead,
+  FounderPremiumTableHeader,
+  FounderPremiumTableRow,
+  FounderPremiumTableShell,
+  FounderStaggerGrid,
+  FounderStaggerItem,
+  founderTheme,
+} from '@/components/admin/founder';
+import {
+  StaffMetricTile,
+  StaffProfessionalCard,
+  StaffWorkspaceShell,
+  staffMotion,
+  staffTheme,
+} from '@/components/admin/staff';
 import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArchivePanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
@@ -267,7 +282,7 @@ const WEEKLY_SOP_PLAN = [
   { day: 'الأحد', focus: 'استهداف صالونات ماسية', target: 12, note: 'ابدأ بالرياض وجدة للحالات عالية العائد.' },
   { day: 'الإثنين', focus: 'استهداف ذهبي سريع الإغلاق', target: 18, note: 'ركز على الصالونات الصغيرة والمتوسطة.' },
   { day: 'الثلاثاء', focus: 'متابعة بانتظار الرد', target: 20, note: 'رفع التحويل عبر متابعة اليوم + المتأخرة.' },
-  { day: 'الأربعاء', focus: 'إغلاق مدفوعات وطلبات', target: 10, note: 'تصفية المعلّق وتحويله إلى ترخيص إدراج فعّال.' },
+  { day: 'الأربعاء', focus: 'إغلاق مدفوعات وطلبات', target: 10, note: 'تصفية المعلّق وتحويله إلى حزمة إدراج برمجية فعّال.' },
   { day: 'الخميس', focus: 'توسّع مناطق جديدة', target: 15, note: 'الدمام/الخبر/المدينة + تحديث قاعدة الأهداف.' },
   { day: 'الجمعة', focus: 'تشغيل خفيف + دعم', target: 8, note: 'التركيز على الدعم والمتابعة السريعة فقط.' },
   { day: 'السبت', focus: 'مراجعة أسبوعية', target: 0, note: 'تقييم الأداء وتحديث خطة الأسبوع القادم.' },
@@ -512,37 +527,51 @@ export default function AdminDashboard() {
 
   /** تعديل بيانات الحلاق «العميق» — للمالك (bootstrap) فقط؛ من يملك manage_admins يدير الجدول وليس نسخ المالك هنا. */
   const canRootHardEdit = Boolean(adminData.bootstrap);
+  const isFounderView = Boolean(adminData.bootstrap);
+  const shellTheme = isFounderView ? founderTheme : staffTheme;
 
-  return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg shadow-red-500/30">
-                <Shield className="w-6 h-6 text-white" />
+  const adminHeader = (
+    <header className={shellTheme.header}>
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="flex h-[4.25rem] items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            {isFounderView ? (
+              <FounderCrest>
+                <Shield className="h-6 w-6 text-amber-100" />
+              </FounderCrest>
+            ) : (
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-600 bg-slate-800">
+                <Shield className="h-5 w-5 text-slate-300" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold">{adminData.name}</h1>
-                <Badge variant="secondary" className="bg-gradient-to-r from-red-500/20 to-red-600/20 text-red-600 border-red-500/30">
-                  لوحة الإدارة
-                </Badge>
-              </div>
+            )}
+            <div className="min-w-0 text-right">
+              <p className={shellTheme.pageEyebrow}>
+                {isFounderView ? "Founder's Command Center" : 'Professional Workspace'}
+              </p>
+              <h1 className="truncate text-lg font-bold text-slate-50 md:text-xl">{adminData.name}</h1>
             </div>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <div
-                className="flex items-center rounded-md border border-border/60 bg-muted/40 p-0.5 gap-0.5"
-                role="toolbar"
-                aria-label="اختصارات لوحة الإدارة"
-              >
-                {canAccessOpsBillingTab ? (
+          <div className="flex items-center gap-2 shrink-0">
+            <div
+              className={
+                isFounderView
+                  ? 'hidden sm:flex items-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-1 gap-0.5 backdrop-blur-md'
+                  : 'hidden sm:flex items-center rounded-lg border border-slate-700 bg-slate-800 p-1 gap-0.5'
+              }
+              role="toolbar"
+              aria-label="اختصارات لوحة الإدارة"
+            >
+              {canAccessOpsBillingTab ? (
                 <Button
                   type="button"
                   variant={activeTab === 'ops-billing' ? 'secondary' : 'ghost'}
                   size="icon"
-                  className="h-9 w-9 shrink-0"
+                  className={
+                    isFounderView
+                      ? 'h-9 w-9 shrink-0 text-slate-300 hover:text-cyan-100 hover:bg-cyan-500/10'
+                      : 'h-9 w-9 shrink-0 text-slate-400 hover:text-slate-100 hover:bg-slate-700'
+                  }
                   title="التكاليف والتزامات التشغيل والأرشيف المالي"
                   aria-label="التكاليف والتزامات التشغيل والأرشيف المالي"
                   aria-pressed={activeTab === 'ops-billing'}
@@ -550,46 +579,58 @@ export default function AdminDashboard() {
                 >
                   <Landmark className="h-4 w-4" />
                 </Button>
-                ) : null}
-                {Boolean(adminData?.bootstrap) && (
-                  <Button
-                    type="button"
-                    variant={activeTab === 'resources' ? 'secondary' : 'ghost'}
-                    size="sm"
-                    className="h-9 shrink-0 gap-1.5 px-2.5"
-                    title="مراقبة الموارد والتخزين"
-                    aria-label="مراقبة الموارد"
-                    aria-pressed={activeTab === 'resources'}
-                    onClick={() => setActiveTab('resources')}
-                  >
-                    <HardDrive className="h-4 w-4" />
-                    <span className="hidden sm:inline">مراقبة الموارد</span>
-                  </Button>
-                )}
-              </div>
-              <Button variant="ghost" onClick={handleLogout} className="gap-2">
-                <LogOut className="w-4 h-4" />
-                تسجيل الخروج
-              </Button>
+              ) : null}
+              {Boolean(adminData?.bootstrap) && (
+                <Button
+                  type="button"
+                  variant={activeTab === 'resources' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className={
+                    isFounderView
+                      ? 'h-9 shrink-0 gap-1.5 px-2.5 text-slate-300 hover:text-cyan-100 hover:bg-cyan-500/10'
+                      : 'h-9 shrink-0 gap-1.5 px-2.5 text-slate-400 hover:text-slate-100 hover:bg-slate-700'
+                  }
+                  title="مراقبة الموارد والتخزين"
+                  aria-label="مراقبة الموارد"
+                  aria-pressed={activeTab === 'resources'}
+                  onClick={() => setActiveTab('resources')}
+                >
+                  <HardDrive className="h-4 w-4" />
+                  <span className="hidden md:inline">مراقبة الموارد</span>
+                </Button>
+              )}
             </div>
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              className={
+                isFounderView
+                  ? 'gap-2 text-slate-400 hover:text-slate-100 hover:bg-white/[0.06]'
+                  : 'gap-2 text-slate-400 hover:text-slate-100 hover:bg-slate-700'
+              }
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">تسجيل الخروج</span>
+            </Button>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
+  );
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="flex w-full flex-wrap gap-1 h-auto justify-start lg:inline-flex">
+  const dashboardBody = (
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className={`${shellTheme.navRail} h-auto`}>
             {can('view_overview') && (
-            <TabsTrigger value="overview" className="gap-2">
+            <TabsTrigger value="overview" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <TrendingUp className="w-4 h-4" />
               <span className="hidden sm:inline">نظرة عامة</span>
             </TabsTrigger>
             )}
             {can('view_requests') && (
-            <TabsTrigger value="requests" className="gap-2">
+            <TabsTrigger value="requests" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">طلبات التراخيص</span>
+              <span className="hidden sm:inline">طلبات الحزم البرمجية</span>
               {stats.pendingRequests > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {stats.pendingRequests}
@@ -598,13 +639,13 @@ export default function AdminDashboard() {
             </TabsTrigger>
             )}
             {can('view_barbers') && (
-            <TabsTrigger value="barbers" className="gap-2">
+            <TabsTrigger value="barbers" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">الحلاقين</span>
             </TabsTrigger>
             )}
             {can('view_payments') && (
-            <TabsTrigger value="payments" className="gap-2">
+            <TabsTrigger value="payments" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <CreditCard className="w-4 h-4" />
               <span className="hidden sm:inline">المدفوعات</span>
               {stats.pendingPayments > 0 && (
@@ -615,43 +656,43 @@ export default function AdminDashboard() {
             </TabsTrigger>
             )}
             {can('view_command_center') && (
-            <TabsTrigger value="command-center" className="gap-2">
+            <TabsTrigger value="command-center" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">غرفة القيادة</span>
             </TabsTrigger>
             )}
             {can('view_messages') && (
-            <TabsTrigger value="messages" className="gap-2">
+            <TabsTrigger value="messages" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <MessageSquare className="w-4 h-4" />
               <span className="hidden sm:inline">الرسائل</span>
             </TabsTrigger>
             )}
             {canViewSecurityOpsLog && (
-            <TabsTrigger value="security-ops" className="gap-2">
+            <TabsTrigger value="security-ops" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <Activity className="w-4 h-4" />
               <span className="hidden sm:inline">سجل الأمان</span>
             </TabsTrigger>
             )}
             {canViewPaymentGateways && (
-            <TabsTrigger value="payment-gateways" className="gap-2">
+            <TabsTrigger value="payment-gateways" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <CreditCard className="w-4 h-4" />
               <span className="hidden sm:inline">بوابات الدفع</span>
             </TabsTrigger>
             )}
             {canAccessOpsBillingTab && (
-            <TabsTrigger value="ops-billing" className="gap-2">
+            <TabsTrigger value="ops-billing" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <Landmark className="w-4 h-4" />
               <span className="hidden sm:inline">التزامات التشغيل</span>
             </TabsTrigger>
             )}
             {can('view_settings') && (
-            <TabsTrigger value="settings" className="gap-2">
+            <TabsTrigger value="settings" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">الإعدادات</span>
             </TabsTrigger>
             )}
             {Boolean(adminData?.bootstrap) && (
-            <TabsTrigger value="resources" className="gap-2">
+            <TabsTrigger value="resources" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <HardDrive className="w-4 h-4" />
               <span className="hidden sm:inline">مراقبة الموارد</span>
             </TabsTrigger>
@@ -687,7 +728,7 @@ export default function AdminDashboard() {
                 setZatcaScrollToken((n) => n + 1);
               }}
             />
-            <OverviewSection stats={stats} />
+            <OverviewSection stats={stats} isFounderView={isFounderView} />
           </TabsContent>}
 
           {canViewSecurityOpsLog && (
@@ -715,6 +756,7 @@ export default function AdminDashboard() {
               canRootHardEdit={canRootHardEdit}
               registrationRequests={subscriptionRequests}
               onRegistrationPayloadSynced={refreshStoredRequests}
+              isFounderView={isFounderView}
             />
           </TabsContent>}
 
@@ -755,7 +797,7 @@ export default function AdminDashboard() {
           {canAccessOpsBillingTab && (
           <TabsContent value="ops-billing" className="space-y-6">
             {canViewOpsBilling ? (
-              <OpsBillingMonitorPanel canMutate={can('manage_centralized_billing_ops')} />
+              <OpsBillingMonitorPanel canMutate={can('manage_centralized_billing_ops')} isFounderView={isFounderView} />
             ) : null}
             {canAccessFinancialArchive ? (
               <AdminFinancialArchivePanel
@@ -785,8 +827,10 @@ export default function AdminDashboard() {
             </TabsContent>
           )}
         </Tabs>
-      </div>
+  );
 
+  const dashboardDialogs = (
+    <>
       {/* Request Review Dialog */}
       {selectedRequest && canOpenRequestReviewDialog && (
         <RequestReviewDialog
@@ -818,7 +862,23 @@ export default function AdminDashboard() {
           }}
         />
       )}
-    </div>
+    </>
+  );
+
+  if (isFounderView) {
+    return (
+      <FounderCommandShell header={adminHeader}>
+        {dashboardBody}
+        {dashboardDialogs}
+      </FounderCommandShell>
+    );
+  }
+
+  return (
+    <StaffWorkspaceShell header={adminHeader}>
+      {dashboardBody}
+      {dashboardDialogs}
+    </StaffWorkspaceShell>
   );
 }
 
@@ -1053,157 +1113,220 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
 }
 
 // Overview Section
-function OverviewSection({ stats }: { stats: AdminStats }) {
+function OverviewSection({ stats, isFounderView }: { stats: AdminStats; isFounderView: boolean }) {
+  if (!isFounderView) {
+    return (
+      <motion.div {...staffMotion.enter} className="space-y-6">
+        <header className="space-y-2 text-right">
+          <p className={staffTheme.pageEyebrow}>Operations</p>
+          <h2 className={staffTheme.pageTitle}>مؤشرات التشغيل</h2>
+          <p className={staffTheme.muted}>أهم الأرقام التشغيلية — وضوح فوري للفريق.</p>
+        </header>
+
+        <StaffProfessionalCard className="p-5">
+          <p className={staffTheme.pageEyebrow}>{PLATFORM_SUBSCRIPTION_TIER_PUBLIC_LABEL}</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-300">{PLATFORM_PROFESSIONAL_UPGRADE_STATUS_AR}</p>
+        </StaffProfessionalCard>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <StaffMetricTile
+            title="إجمالي الحلاقين"
+            value={stats.totalBarbers}
+            subtitle={`${stats.activeSubscriptions} حزمة إدراج برمجية نشط`}
+            icon={Users}
+            accent="emerald"
+          />
+          <StaffMetricTile
+            title="الإيرادات الكلية"
+            value={`${stats.totalRevenue.toLocaleString()} ر.س`}
+            subtitle={`${stats.monthlyRevenue.toLocaleString()} ر.س هذا الشهر`}
+            icon={DollarSign}
+            accent="amber"
+          />
+          <StaffMetricTile
+            title="طلبات قيد المراجعة"
+            value={stats.pendingRequests}
+            icon={FileText}
+            accent="amber"
+          />
+          <StaffMetricTile
+            title="مدفوعات قيد التأكيد"
+            value={stats.pendingPayments}
+            icon={CreditCard}
+            accent="violet"
+          />
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <StaffProfessionalCard className="p-5">
+            <h3 className={`${staffTheme.sectionTitle} mb-4`}>إحصائيات المنصة</h3>
+            <div className="space-y-0">
+              {[
+                { label: 'إجمالي المواعيد', value: stats.totalAppointments.toLocaleString() },
+                { label: 'إجمالي المستخدمين', value: stats.totalUsers.toLocaleString() },
+                { label: 'حزم برمجية إدراج منتهية', value: String(stats.expiredSubscriptions), warn: true },
+              ].map((row) => (
+                <div
+                  key={row.label}
+                  className="flex items-center justify-between border-b border-slate-700 py-3 last:border-b-0"
+                >
+                  <span className="text-sm text-slate-400">{row.label}</span>
+                  <span className={row.warn ? 'font-semibold text-amber-300' : 'font-semibold text-slate-100'}>
+                    {row.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </StaffProfessionalCard>
+
+          <StaffProfessionalCard className="p-5">
+            <h3 className={`${staffTheme.sectionTitle} mb-4`}>الإيرادات الشهرية</h3>
+            <div className="space-y-0">
+              {[
+                { label: 'برونزي', value: (stats.bronzeBarbers * 100).toLocaleString() },
+                { label: 'ذهبي', value: (stats.goldBarbers * 150).toLocaleString() },
+                { label: 'ماسي', value: (stats.diamondBarbers * 200).toLocaleString() },
+              ].map((row) => (
+                <div
+                  key={row.label}
+                  className="flex items-center justify-between border-b border-slate-700 py-3"
+                >
+                  <span className="text-sm text-slate-400">{row.label}</span>
+                  <span className="font-semibold text-slate-100">{row.value} ر.س</span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between pt-3">
+                <span className="text-sm font-semibold text-slate-300">الإجمالي</span>
+                <span className="text-xl font-bold text-amber-200">{stats.monthlyRevenue.toLocaleString()} ر.س</span>
+              </div>
+            </div>
+          </StaffProfessionalCard>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <h2 className="text-2xl font-bold mb-6">الإحصائيات العامة</h2>
+    <FounderStaggerGrid className="space-y-8">
+      <FounderStaggerItem>
+        <header className="space-y-2 text-right">
+          <p className={founderTheme.pageEyebrow}>At-a-glance</p>
+          <h2 className={founderTheme.pageTitle}>مؤشرات القيادة</h2>
+          <p className={founderTheme.muted}>أهم الأرقام التشغيلية — وضوح فوري بلا ازدحام.</p>
+        </header>
+      </FounderStaggerItem>
 
-      <Card className="mb-6 border-primary/25 bg-primary/5">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">{PLATFORM_SUBSCRIPTION_TIER_PUBLIC_LABEL}</CardTitle>
-          <CardDescription className="text-sm leading-relaxed">{PLATFORM_PROFESSIONAL_UPGRADE_STATUS_AR}</CardDescription>
-        </CardHeader>
-      </Card>
+      <FounderStaggerItem>
+        <FounderGlassCard className="p-6">
+          <p className={founderTheme.pageEyebrow}>{PLATFORM_SUBSCRIPTION_TIER_PUBLIC_LABEL}</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-300">{PLATFORM_PROFESSIONAL_UPGRADE_STATUS_AR}</p>
+        </FounderGlassCard>
+      </FounderStaggerItem>
 
-      {/* Main Stats */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatsCard
+      <FounderStaggerGrid className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <FounderMetricTile
           title="إجمالي الحلاقين"
           value={stats.totalBarbers}
-          subtitle={`${stats.activeSubscriptions} ترخيص إدراج نشط`}
+          subtitle={`${stats.activeSubscriptions} حزمة إدراج برمجية نشط`}
           icon={Users}
-          color="blue"
+          accent="cyan"
+          staggered
         />
-        <StatsCard
+        <FounderMetricTile
           title="الإيرادات الكلية"
           value={`${stats.totalRevenue.toLocaleString()} ر.س`}
           subtitle={`${stats.monthlyRevenue.toLocaleString()} ر.س هذا الشهر`}
           icon={DollarSign}
-          color="green"
+          accent="gold"
+          staggered
         />
-        <StatsCard
+        <FounderMetricTile
           title="طلبات قيد المراجعة"
           value={stats.pendingRequests}
           icon={FileText}
-          color="yellow"
+          accent="amber"
+          staggered
         />
-        <StatsCard
+        <FounderMetricTile
           title="مدفوعات قيد التأكيد"
           value={stats.pendingPayments}
           icon={CreditCard}
-          color="purple"
+          accent="violet"
+          staggered
         />
-      </div>
+      </FounderStaggerGrid>
 
-      {/* توزيع باقات التراخيص */}
-      <div className="grid gap-6 md:grid-cols-3 mb-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">باقة برونزية</p>
-                <p className="text-2xl font-bold">{stats.bronzeBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">100 ر.س / ترخيص 30 يوم</p>
+      <FounderStaggerGrid className="grid gap-5 md:grid-cols-3">
+        {[
+          { label: 'باقة برونزية', count: stats.bronzeBarbers, hint: '100 ر.س / حزمة برمجية 30 يوم', emoji: '🥉' },
+          { label: 'باقة ذهبية', count: stats.goldBarbers, hint: '150 ر.س / حزمة برمجية 30 يوم', emoji: '🥇' },
+          { label: 'باقة ماسية', count: stats.diamondBarbers, hint: '200 ر.س / حزمة برمجية 30 يوم', emoji: '💎' },
+        ].map((tier) => (
+          <FounderGlassCard key={tier.label} className="p-6" interactive staggered>
+            <div className="flex items-center justify-between gap-4">
+              <div className="text-right">
+                <p className={founderTheme.pageEyebrow}>{tier.label}</p>
+                <p className="mt-2 text-3xl font-bold tabular-nums text-white">{tier.count}</p>
+                <p className="mt-1 text-xs text-slate-400">{tier.hint}</p>
               </div>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/30 flex items-center justify-center">
-                <span className="text-2xl">🥉</span>
-              </div>
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-2xl">
+                {tier.emoji}
+              </span>
             </div>
-          </CardContent>
-        </Card>
+          </FounderGlassCard>
+        ))}
+      </FounderStaggerGrid>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">باقة ذهبية</p>
-                <p className="text-2xl font-bold">{stats.goldBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">150 ر.س / ترخيص 30 يوم</p>
+      <FounderStaggerGrid className="grid gap-5 lg:grid-cols-2">
+        <FounderGlassCard className="p-6 md:p-7" staggered>
+          <h3 className={`${founderTheme.sectionTitle} mb-5`}>إحصائيات المنصة</h3>
+          <div className="space-y-0">
+            {[
+              { label: 'إجمالي المواعيد', value: stats.totalAppointments.toLocaleString() },
+              { label: 'إجمالي المستخدمين', value: stats.totalUsers.toLocaleString() },
+              { label: 'حزم برمجية إدراج منتهية', value: String(stats.expiredSubscriptions), warn: true },
+            ].map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between border-b border-slate-800 py-4 last:border-b-0"
+              >
+                <span className="text-sm text-slate-400">{row.label}</span>
+                <span className={row.warn ? 'font-semibold text-amber-300' : 'font-semibold text-white'}>
+                  {row.value}
+                </span>
               </div>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 flex items-center justify-center">
-                <span className="text-2xl">🥇</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </FounderGlassCard>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">باقة ماسية</p>
-                <p className="text-2xl font-bold">{stats.diamondBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">200 ر.س / ترخيص 30 يوم</p>
+        <FounderGlassCard className="p-6 md:p-7" staggered>
+          <h3 className={`${founderTheme.sectionTitle} mb-5`}>الإيرادات الشهرية</h3>
+          <div className="space-y-0">
+            {[
+              { label: 'برونزي', value: (stats.bronzeBarbers * 100).toLocaleString() },
+              { label: 'ذهبي', value: (stats.goldBarbers * 150).toLocaleString() },
+              { label: 'ماسي', value: (stats.diamondBarbers * 200).toLocaleString() },
+            ].map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between border-b border-slate-800 py-4"
+              >
+                <span className="text-sm text-slate-400">{row.label}</span>
+                <span className="font-semibold text-white">{row.value} ر.س</span>
               </div>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 flex items-center justify-center">
-                <span className="text-2xl">💎</span>
-              </div>
+            ))}
+            <div className="flex items-center justify-between pt-4">
+              <span className="text-sm font-semibold text-slate-300">الإجمالي</span>
+              <span className="text-xl font-bold text-amber-200">{stats.monthlyRevenue.toLocaleString()} ر.س</span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Additional Stats */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>إحصائيات المنصة</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">إجمالي المواعيد</span>
-              <span className="font-semibold">{stats.totalAppointments.toLocaleString()}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">إجمالي المستخدمين</span>
-              <span className="font-semibold">{stats.totalUsers.toLocaleString()}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">تراخيص إدراج منتهية</span>
-              <span className="font-semibold text-red-600">{stats.expiredSubscriptions}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>الإيرادات الشهرية</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">برونزي</span>
-                <span className="font-semibold">{(stats.bronzeBarbers * 100).toLocaleString()} ر.س</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">ذهبي</span>
-                <span className="font-semibold">{(stats.goldBarbers * 150).toLocaleString()} ر.س</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">ماسي</span>
-                <span className="font-semibold">{(stats.diamondBarbers * 200).toLocaleString()} ر.س</span>
-              </div>
-              <div className="pt-4 border-t border-border">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">الإجمالي</span>
-                  <span className="text-lg font-bold text-green-600">
-                    {stats.monthlyRevenue.toLocaleString()} ر.س
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </motion.div>
+          </div>
+        </FounderGlassCard>
+      </FounderStaggerGrid>
+    </FounderStaggerGrid>
   );
 }
 
-// Stats Card Component
+// Stats Card Component — legacy; prefer FounderMetricTile in overview
 function StatsCard({
   title,
   value,
@@ -1541,7 +1664,7 @@ function RequestsSection({
       ) : null}
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">طلبات التراخيص والإدراج</h2>
+        <h2 className="text-2xl font-bold">طلبات الحزم البرمجية والإدراج</h2>
         <div className="flex flex-wrap items-center gap-2">
           <Select
             value={requestStatusFilter}
@@ -2135,7 +2258,7 @@ function RequestReviewDialog({
     >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-2xl">مراجعة طلب الترخيص والإدراج</DialogTitle>
+          <DialogTitle className="text-2xl">مراجعة طلب الحزمة البرمجية والإدراج</DialogTitle>
           <DialogDescription>
             قم بمراجعة المعلومات والمستندات قبل الموافقة أو الرفض
           </DialogDescription>
@@ -2289,7 +2412,7 @@ function RequestReviewDialog({
             {request.legalDisclaimerAccepted ? (
               <div className="mb-4 space-y-2 rounded-lg border border-primary/25 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-foreground leading-relaxed">
-                  صاحب المحل أقرّ بترخيص المنشأة من وزارة التجارة والبلدية وتحمّل المسؤولية القانونية وإخلاء مسؤولية
+                  صاحب المحل أقرّ بامتثال منشأته لاشتراطات وزارة التجارة والبلدية وتحمّل المسؤولية القانونية وإخلاء مسؤولية
                   منصة حلاق ماب — كما في نموذج التسجيل الحالي.
                 </p>
                 {request.legalDisclaimerAcceptedAtIso ? (
@@ -2337,7 +2460,7 @@ function RequestReviewDialog({
                     <span className="font-medium">
                       {request.paymentMethod === 'bank_transfer'
                         ? 'تحويل بنكي (6 أشهر)'
-                        : 'ترخيص رقمي (ميسر)'}
+                        : 'حزمة برمجية (ميسر)'}
                     </span>
                   </p>
                 )}
@@ -2819,6 +2942,7 @@ function BarbersSection({
   canRootHardEdit,
   registrationRequests,
   onRegistrationPayloadSynced,
+  isFounderView,
 }: {
   refreshNonce: number;
   onStatsNeedRefresh: () => void;
@@ -2826,6 +2950,7 @@ function BarbersSection({
   canRootHardEdit: boolean;
   registrationRequests: SubscriptionRequest[];
   onRegistrationPayloadSynced: () => void;
+  isFounderView: boolean;
 }) {
   const [rows, setRows] = useState<AdminBarberRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -3089,7 +3214,7 @@ function BarbersSection({
     setPurgePhrase('');
     toast({
       title: 'تم مسح جميع الحلاقين',
-      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار شراء التراخيص والظهور العام.`,
+      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار شراء الحزم البرمجية والظهور العام.`,
     });
     onStatsNeedRefresh();
   };
@@ -3123,25 +3248,32 @@ function BarbersSection({
     onStatsNeedRefresh();
   };
 
+  const sectionTheme = isFounderView ? founderTheme : staffTheme;
+  const sectionMotion = isFounderView
+    ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } }
+    : staffMotion.enter;
+  const BarberPanel = isFounderView ? FounderGlassCard : StaffProfessionalCard;
+  const statsBarClass = isFounderView
+    ? 'mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-gray-900/30 px-3 py-2'
+    : 'mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2';
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <h2 className="text-2xl font-bold mb-6">إدارة الحلاقين</h2>
-      <Card>
-        <CardContent className="p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
-            <div className="text-sm text-muted-foreground">
-              إجمالي الحسابات: <span className="font-semibold text-foreground">{rows.length}</span>
+    <motion.div {...sectionMotion}>
+      <header className="mb-6 space-y-1 text-right">
+        <p className={sectionTheme.pageEyebrow}>Barber registry</p>
+        <h2 className={sectionTheme.pageTitle}>إدارة الحلاقين</h2>
+      </header>
+      <BarberPanel className="p-6 md:p-7">
+          <div className={statsBarClass}>
+            <div className="text-sm text-slate-400">
+              إجمالي الحسابات: <span className="font-semibold text-white">{rows.length}</span>
               {' · '}
               بعد الفلاتر:{' '}
-              <span className="font-semibold text-foreground">{filteredRows.length}</span>
+              <span className="font-semibold text-white">{filteredRows.length}</span>
               {' · '}
-              المعروض: <span className="font-semibold text-foreground">{visibleRows.length}</span>
+              المعروض: <span className="font-semibold text-white">{visibleRows.length}</span>
               {' · '}
-              المكررة: <span className="font-semibold text-red-600">{rows.filter((r) => isDuplicateRow(r)).length}</span>
+              المكررة: <span className="font-semibold text-red-400">{rows.filter((r) => isDuplicateRow(r)).length}</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -3247,11 +3379,12 @@ function BarbersSection({
               لا توجد صفوف تطابق الفلاتر الحالية، أو جدول الحلاقين فارغ، أو RLS يمنع القراءة.
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
+            <FounderPremiumTableShell>
+            <FounderPremiumTable>
+              <FounderPremiumTableHeader>
+                <FounderPremiumTableRow>
                   {canManage ? (
-                    <TableHead className="w-10 text-center">
+                    <FounderPremiumTableHead className="w-10 text-center">
                       <Checkbox
                         checked={
                           allVisibleSelected ? true : someVisibleSelected ? 'indeterminate' : false
@@ -3259,51 +3392,51 @@ function BarbersSection({
                         onCheckedChange={() => toggleSelectAllVisible()}
                         aria-label="تحديد الكل في الصفحة المصفاة"
                       />
-                    </TableHead>
+                    </FounderPremiumTableHead>
                   ) : null}
-                  <TableHead className="whitespace-nowrap">رقم العضوية</TableHead>
-                  <TableHead>الاسم</TableHead>
-                  <TableHead>البريد</TableHead>
-                  <TableHead>المدينة</TableHead>
-                  <TableHead>الباقة</TableHead>
-                  <TableHead>موثّق</TableHead>
-                  <TableHead className="whitespace-nowrap text-center">تاريخ الإنشاء</TableHead>
-                  <TableHead className="text-center">ظهور للعامة</TableHead>
-                  <TableHead className="text-center">إجراءات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                  <FounderPremiumTableHead className="whitespace-nowrap">رقم العضوية</FounderPremiumTableHead>
+                  <FounderPremiumTableHead>الاسم</FounderPremiumTableHead>
+                  <FounderPremiumTableHead>البريد</FounderPremiumTableHead>
+                  <FounderPremiumTableHead>المدينة</FounderPremiumTableHead>
+                  <FounderPremiumTableHead>الباقة</FounderPremiumTableHead>
+                  <FounderPremiumTableHead>موثّق</FounderPremiumTableHead>
+                  <FounderPremiumTableHead className="whitespace-nowrap text-center">تاريخ الإنشاء</FounderPremiumTableHead>
+                  <FounderPremiumTableHead className="text-center">ظهور للعامة</FounderPremiumTableHead>
+                  <FounderPremiumTableHead className="text-center">إجراءات</FounderPremiumTableHead>
+                </FounderPremiumTableRow>
+              </FounderPremiumTableHeader>
+              <FounderPremiumTableBody>
                 {visibleRows.map((row) => (
-                  <TableRow key={row.id}>
+                  <FounderPremiumTableRow key={row.id}>
                     {canManage ? (
-                      <TableCell className="text-center">
+                      <FounderPremiumTableCell className="text-center">
                         <Checkbox
                           checked={selectedIds.has(row.id)}
                           onCheckedChange={() => toggleSelectOne(row.id)}
                           aria-label={`تحديد ${row.name}`}
                         />
-                      </TableCell>
+                      </FounderPremiumTableCell>
                     ) : null}
-                    <TableCell className="font-mono text-xs" dir="ltr">
+                    <FounderPremiumTableCell className="font-mono text-xs" dir="ltr" muted>
                       {formatBarberMemberNumber(row.memberNumber) ?? '—'}
-                    </TableCell>
-                    <TableCell className="font-medium">{row.name}</TableCell>
-                    <TableCell className="max-w-[140px] truncate" title={row.email}>
+                    </FounderPremiumTableCell>
+                    <FounderPremiumTableCell className="font-medium">{row.name}</FounderPremiumTableCell>
+                    <FounderPremiumTableCell className="max-w-[140px] truncate" title={row.email} muted>
                       {row.email}
-                    </TableCell>
-                    <TableCell>{row.city ?? '—'}</TableCell>
-                    <TableCell>
+                    </FounderPremiumTableCell>
+                    <FounderPremiumTableCell muted>{row.city ?? '—'}</FounderPremiumTableCell>
+                    <FounderPremiumTableCell>
                       <Badge variant="outline">
                         {row.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
                         {row.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
                         {row.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
                       </Badge>
-                    </TableCell>
-                    <TableCell>{row.is_verified ? 'نعم' : 'لا'}</TableCell>
-                    <TableCell className="text-center text-xs text-muted-foreground whitespace-nowrap">
+                    </FounderPremiumTableCell>
+                    <FounderPremiumTableCell muted>{row.is_verified ? 'نعم' : 'لا'}</FounderPremiumTableCell>
+                    <FounderPremiumTableCell className="text-center text-xs whitespace-nowrap" muted>
                       {formatBarberCreatedAtDisplay(row.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-center">
+                    </FounderPremiumTableCell>
+                    <FounderPremiumTableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Switch
                           checked={row.is_active}
@@ -3311,10 +3444,10 @@ function BarbersSection({
                           onCheckedChange={(v) => void onToggleActive(row, v)}
                           aria-label={row.is_active ? 'تعطيل الظهور' : 'تفعيل الظهور'}
                         />
-                        {updatingId === row.id ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
+                        {updatingId === row.id ? <Loader2 className="h-4 w-4 animate-spin text-slate-400" /> : null}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-center">
+                    </FounderPremiumTableCell>
+                    <FounderPremiumTableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
                         {isDuplicateRow(row) ? (
                           <Badge variant="destructive">مكرر</Badge>
@@ -3357,18 +3490,19 @@ function BarbersSection({
                           </Button>
                         ) : null}
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </FounderPremiumTableCell>
+                  </FounderPremiumTableRow>
                 ))}
-              </TableBody>
-            </Table>
+              </FounderPremiumTableBody>
+            </FounderPremiumTable>
+            </FounderPremiumTableShell>
           )}
 
           {canRootHardEdit && canManage ? (
             <div className="mt-8 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
               <p className="text-sm font-semibold text-destructive">منطقة خطرة — المالك فقط</p>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل سجلات التراخيص القديمة
+                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل سجلات الحزم البرمجية القديمة
                 والتقييمات والحجوزات المرتبطة بنفس الجدول). لا يُنصح به على بيانات إنتاج حقيقية إلا بعد نسخ احتياطي.
               </p>
               <Button
@@ -3386,8 +3520,7 @@ function BarbersSection({
               </Button>
             </div>
           ) : null}
-        </CardContent>
-      </Card>
+      </BarberPanel>
 
       <Dialog open={purgeOpen} onOpenChange={(open) => {
         setPurgeOpen(open);
@@ -3458,7 +3591,7 @@ function formatHalalasSar(amount: number | string | null): string {
   return `${(n / 100).toFixed(2)} ر.س`;
 }
 
-/** أرشيف عرض فقط — إصدار/تفعيل الترخيص يتم تلقائياً من Webhook ميسر عند توفر linkedBarberId. */
+/** أرشيف عرض فقط — إصدار/تفعيل الحزمة البرمجية يتم تلقائياً من Webhook ميسر عند توفر linkedBarberId. */
 function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscriptionAdminRow[] }) {
   const sorted = useMemo(
     () => [...rows].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))),
@@ -3473,16 +3606,16 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
       className="space-y-4"
     >
       <div>
-        <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (تراخيص إدراج)</h2>
+        <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (حزم برمجية إدراج)</h2>
         <p className="text-sm text-muted-foreground">
-          للعرض والمرجعية فقط. عند نجاح الدفع يُصدَر/يُفعَّل الترخيص الرقمي ويُرسل بريد الترحيب أو كود التفعيل تلقائياً من
+          للعرض والمرجعية فقط. عند نجاح الدفع يُصدَر/يُفعَّل الحزمة البرمجية الرقمية ويُرسل بريد الترحيب أو كود التفعيل تلقائياً من
           الخادم (Edge Webhook + API) دون انتظار خطوة من هذه اللوحة.
         </p>
       </div>
       {sorted.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            لا توجد صفوف دفع تراخيص ميسر في الجدول بعد، أو لا تطابق عوامل التصفية الحالية.
+            لا توجد صفوف دفع حزم برمجية ميسر في الجدول بعد، أو لا تطابق عوامل التصفية الحالية.
           </CardContent>
         </Card>
       ) : (
@@ -3962,7 +4095,7 @@ function CommandCenterSection({
     new: { label: 'جديد', className: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
     contacted: { label: 'تم التواصل', className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
     waiting: { label: 'بانتظار الرد', className: 'bg-purple-500/10 text-purple-600 border-purple-500/30' },
-    won: { label: 'تم شراء الترخيص', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
+    won: { label: 'تم شراء الحزمة البرمجية', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
     lost: { label: 'تعذر الإغلاق', className: 'bg-red-500/10 text-red-600 border-red-500/30' },
   };
 
@@ -4137,7 +4270,7 @@ function CommandCenterSection({
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">جديد</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم التواصل</p><p className="text-2xl font-bold">{pipelineCounts.contacted}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">بانتظار الرد</p><p className="text-2xl font-bold">{pipelineCounts.waiting}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم شراء الترخيص</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم شراء الحزمة البرمجية</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تعذر الإغلاق</p><p className="text-2xl font-bold text-red-600">{pipelineCounts.lost}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متابعة اليوم</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متأخرة</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
@@ -4174,7 +4307,7 @@ function CommandCenterSection({
                 <SelectItem value="new">جديد</SelectItem>
                 <SelectItem value="contacted">تم التواصل</SelectItem>
                 <SelectItem value="waiting">بانتظار الرد</SelectItem>
-                <SelectItem value="won">تم شراء الترخيص</SelectItem>
+                <SelectItem value="won">تم شراء الحزمة البرمجية</SelectItem>
                 <SelectItem value="lost">تعذر الإغلاق</SelectItem>
               </SelectContent>
             </Select>
@@ -4277,7 +4410,7 @@ function CommandCenterSection({
                       <SelectItem value="new">جديد</SelectItem>
                       <SelectItem value="contacted">تم التواصل</SelectItem>
                       <SelectItem value="waiting">بانتظار الرد</SelectItem>
-                      <SelectItem value="won">تم شراء الترخيص</SelectItem>
+                      <SelectItem value="won">تم شراء الحزمة البرمجية</SelectItem>
                       <SelectItem value="lost">تعذر الإغلاق</SelectItem>
                     </SelectContent>
                   </Select>
@@ -4730,7 +4863,7 @@ function SettingsSection({
       title: 'تم حفظ إعدادات الضريبة',
       description: vatEnabled
         ? `مفعّلة — النسبة المعروضة ${rateForPreview}% (تُحسب تلقائياً في صفحات الدفع).`
-        : 'معطّلة — تُعرض قيمة الترخيص الرقمي فقط دون ضريبة في الواجهة.',
+        : 'معطّلة — تُعرض قيمة الحزمة البرمجية الرقمية فقط دون ضريبة في الواجهة.',
     });
   };
 
@@ -5071,7 +5204,7 @@ function SettingsSection({
         <CardHeader>
           <CardTitle>ضريبة القيمة المضافة (عرض الدفع)</CardTitle>
           <CardDescription>
-            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كقيمة ترخيص رقمي فقط (مناسب
+            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كقيمة حزمة برمجية فقط (مناسب
             لتقديم بوابات مثل ميسر). عند التوسع بسجل تجاري ورقم ضريبي فعّل الاحتسب هنا وحدّث النسبة عند تغيير
             الأنظمة.
           </CardDescription>
@@ -5081,7 +5214,7 @@ function SettingsSection({
             <div>
               <p className="font-medium">تفعيل احتساب الضريبة في الواجهة</p>
               <p className="text-sm text-muted-foreground mt-1">
-                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة التراخيص الرقمية.
+                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة الحزم البرمجية الرقمية.
               </p>
             </div>
             <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} disabled={!canSavePlatformVat} />
@@ -5102,7 +5235,7 @@ function SettingsSection({
             <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
           </div>
           <div className="rounded-lg bg-muted/50 p-4 text-sm">
-            <p className="font-medium mb-2">معاينة على 100 ر.س (قيمة ترخيص رقمي)</p>
+            <p className="font-medium mb-2">معاينة على 100 ر.س (قيمة حزمة برمجية)</p>
             <p className="text-muted-foreground">
               {!vatEnabled || preview.vat === 0 ? (
                 <>الإجمالي المعروض: <strong>{preview.total} ر.س</strong> (بدون ضريبة)</>

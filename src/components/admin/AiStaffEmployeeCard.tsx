@@ -1,6 +1,7 @@
-import { ArrowLeft, Lock, Moon, Scale, Shield, Sparkles, Users } from 'lucide-react';
+import { ArrowLeft, Lock, Moon, Scale, Shield, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { staffTheme } from '@/components/admin/staff/staffTheme';
 import type { AiStaffAgentIconKind } from '@/modules/ai-staff/types';
 import type { ZatcaAttentionLevel } from '@/hooks/useZatcaTaxAdvisorAttention';
 import { cn } from '@/lib/utils';
@@ -22,44 +23,44 @@ type Props = {
 };
 
 function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName: string }) {
+  const base = 'flex h-10 w-10 shrink-0 items-center justify-center rounded-md border';
+
   if (kind === 'zatca_shield') {
     return (
-      <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/25 to-cyan-500/15 shadow-[0_0_16px_rgba(251,191,36,0.25)]">
-        <Shield className="h-6 w-6 text-amber-200 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" strokeWidth={1.75} />
-        <Scale className="absolute -bottom-1 -left-1 h-4 w-4 text-cyan-300/90" aria-hidden />
+      <span className={cn(base, 'border-amber-700/50 bg-amber-950/40 relative')}>
+        <Shield className="h-5 w-5 text-amber-300" strokeWidth={2} />
+        <Scale className="absolute -bottom-1 -left-1 h-3.5 w-3.5 text-slate-400" aria-hidden />
       </span>
     );
   }
   if (kind === 'treasurer') {
     return (
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 text-2xl shadow-inner">
-        🪙
-      </span>
+      <span className={cn(base, 'border-emerald-700/50 bg-emerald-950/40 text-lg')}>🪙</span>
     );
   }
   if (kind === 'digital_shift') {
     return (
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-indigo-400/40 bg-gradient-to-br from-indigo-500/25 to-violet-500/15">
-        <Moon className="h-6 w-6 text-indigo-200" strokeWidth={1.75} />
+      <span className={cn(base, 'border-indigo-700/50 bg-indigo-950/40')}>
+        <Moon className="h-5 w-5 text-indigo-300" strokeWidth={2} />
       </span>
     );
   }
   if (kind === 'partner_liaison') {
     return (
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-violet-400/35 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/10">
-        <Users className="h-6 w-6 text-violet-200" strokeWidth={1.75} />
+      <span className={cn(base, 'border-violet-700/50 bg-violet-950/40')}>
+        <Users className="h-5 w-5 text-violet-300" strokeWidth={2} />
       </span>
     );
   }
   if (kind === 'fleet_director') {
     return (
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-500/40 bg-gradient-to-br from-red-950/80 to-slate-900 shadow-[0_0_20px_rgba(239,68,68,0.35)]">
-        <Shield className="h-6 w-6 text-red-300" strokeWidth={1.75} />
+      <span className={cn(base, 'border-red-800/60 bg-red-950/50')}>
+        <Shield className="h-5 w-5 text-red-300" strokeWidth={2} />
       </span>
     );
   }
   return (
-    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border bg-background/80 text-2xl shadow-inner">
+    <span className={cn(base, 'border-slate-600 bg-slate-700/50 text-lg')}>
       {shortName.includes(' ') ? shortName.split(' ').slice(-1)[0] : '🤖'}
     </span>
   );
@@ -70,10 +71,8 @@ function AttentionDot({ level }: { level: ZatcaAttentionLevel }) {
   return (
     <span
       className={cn(
-        'absolute -top-1 -right-1 z-20 h-3.5 w-3.5 rounded-full border-2 border-background',
-        level === 'critical'
-          ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.9)] animate-pulse'
-          : 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.85)] animate-pulse',
+        'absolute -top-1 -right-1 z-20 h-3 w-3 rounded-full border-2 border-slate-800',
+        level === 'critical' ? 'bg-red-500' : 'bg-amber-400',
       )}
       title={level === 'critical' ? 'تنبيه حرج — ZATCA' : 'تحذير امتثال — ZATCA'}
       aria-hidden
@@ -102,11 +101,10 @@ export function AiStaffEmployeeCard({
   return (
     <article
       className={cn(
-        'group relative flex h-full min-h-[220px] flex-col rounded-xl border bg-gradient-to-br p-5 shadow-sm transition-all duration-300',
+        'relative flex h-full min-h-[210px] flex-col rounded-lg border p-5 shadow-sm transition-colors duration-200',
         accentClass,
-        eliteCovert && 'ring-1 ring-red-500/20',
-        interactive && 'cursor-pointer hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40',
-        !interactive && 'opacity-80',
+        interactive && 'cursor-pointer hover:border-slate-600',
+        !interactive && 'opacity-75',
       )}
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
@@ -127,50 +125,32 @@ export function AiStaffEmployeeCard({
       <div className="mb-3 flex items-start justify-between gap-2">
         <StaffIcon kind={iconKind} shortName={shortName} />
         {comingSoonLabel ? (
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-xs bg-slate-700 text-slate-300 border-slate-600">
             {comingSoonLabel}
           </Badge>
         ) : locked ? (
-          <Badge variant="outline" className="gap-1 text-xs">
+          <Badge variant="outline" className="gap-1 text-xs border-slate-600 text-slate-400">
             <Lock className="h-3 w-3" />
             صلاحية مطلوبة
           </Badge>
         ) : statusBadgeAr ? (
-          <Badge
-            className={cn(
-              'gap-1 text-xs',
-              eliteCovert
-                ? 'border-red-400/40 bg-red-500/20 text-red-50'
-                : 'border-amber-400/40 bg-amber-500/20 text-amber-950 dark:text-amber-50',
-            )}
-          >
-            <Sparkles className="h-3 w-3" />
+          <span className={eliteCovert ? staffTheme.badgeCovert : staffTheme.badgeWarn}>
             {statusBadgeAr}
-          </Badge>
+          </span>
         ) : (
-          <Badge className="gap-1 bg-emerald-600/90 text-xs hover:bg-emerald-600">
-            <Sparkles className="h-3 w-3" />
-            نشط
-          </Badge>
+          <span className={staffTheme.badgeOk}>نشط</span>
         )}
       </div>
 
-      <h3 className="text-lg font-bold leading-snug text-foreground">{title}</h3>
-      <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{roleDescription}</p>
+      <h3 className="text-base font-semibold leading-snug text-slate-100">{title}</h3>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-400">{roleDescription}</p>
 
       {interactive ? (
         <Button
           type="button"
           variant="secondary"
           size="sm"
-          className={cn(
-            'mt-4 w-full justify-between group-hover:text-primary-foreground',
-            iconKind === 'zatca_shield'
-              ? 'group-hover:bg-gradient-to-l group-hover:from-amber-500 group-hover:to-cyan-500'
-              : eliteCovert
-                ? 'group-hover:bg-red-700 group-hover:text-white'
-                : 'group-hover:bg-primary',
-          )}
+          className="mt-4 w-full justify-between bg-slate-700 text-slate-100 hover:bg-slate-600 border-slate-600"
           onClick={(e) => {
             e.stopPropagation();
             onActivate?.();

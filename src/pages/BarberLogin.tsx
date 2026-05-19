@@ -79,7 +79,7 @@ export default function BarberLogin() {
             <h1 className="mb-2 text-2xl font-bold">لوحة تحكم حلاق ماب</h1>
             <p className="text-sm text-primary font-medium mb-3 leading-relaxed">{PLATFORM_PARTNER_DASHBOARD_TAGLINE}</p>
             <p className="text-muted-foreground">
-              أدخل <strong>البريد المعتمد</strong> في ترخيصك. في خانة الرمز استخدم إما الرقم السري الذي زوّدك به{' '}
+              أدخل <strong>البريد المعتمد</strong> في حزمتك البرمجية. في خانة الرمز استخدم إما الرقم السري الذي زوّدك به{' '}
               <strong>فريق الدعم</strong>، أو <strong>كلمة المرور</strong> التي وصلتك على البريد بعد تفعيل حسابك.
             </p>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
@@ -102,7 +102,7 @@ export default function BarberLogin() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="البريد المعتمد في طلب الترخيص"
+                  placeholder="البريد المعتمد في طلب الحزمة البرمجية"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-12 pr-10"

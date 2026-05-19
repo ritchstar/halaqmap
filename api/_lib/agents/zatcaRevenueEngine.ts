@@ -55,7 +55,7 @@ type LegacyPaymentDbRow = {
   transaction_id: string | null;
 };
 
-/** Unified paid revenue stream from listing licenses (primary) + legacy payments. */
+/** Unified paid revenue stream from listing software packages (primary) + legacy payments. */
 export async function loadPlatformRevenueOrders(
   supabase: SupabaseClient,
 ): Promise<ZatcaRevenueOrderRow[]> {

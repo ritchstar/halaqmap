@@ -6,13 +6,20 @@ import {
   type OpsBillingCommitmentRow,
 } from '@/lib/opsBillingMonitorRemote';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ExternalLink, Landmark, Loader2, RefreshCw } from 'lucide-react';
 import { OpsBillingAiAssistant } from '@/components/admin/OpsBillingAiAssistant';
+import {
+  FounderGlassCard,
+  FounderGlowBadge,
+  founderMotion,
+  founderTheme,
+} from '@/components/admin/founder';
+import { StaffProfessionalCard, staffMotion, staffTheme } from '@/components/admin/staff';
+import { motion } from 'framer-motion';
 import {
   consolidateOpsBillingGaps,
   consolidateOpsBillingRows,
@@ -23,7 +30,6 @@ import {
   portalUrlFromRow,
   summarizeDisplayRows,
 } from '@/lib/opsBillingDisplay';
-import { Badge } from '@/components/ui/badge';
 
 const GODADDY_SUBSCRIPTIONS_DEFAULT =
   'https://account.godaddy.com/subscriptions?plid=1';
@@ -81,9 +87,11 @@ function formatCountdownAr(ms: number | null): string {
 type Props = {
   /** مزامنة، إضافة يدوية، تعديلات عبر API — تتطلب manage_centralized_billing_ops */
   canMutate: boolean;
+  /** Obsidian glass for founder; professional slate for staff admins */
+  isFounderView?: boolean;
 };
 
-export function OpsBillingMonitorPanel({ canMutate }: Props) {
+export function OpsBillingMonitorPanel({ canMutate, isFounderView = false }: Props) {
   const mounted = useRef(true);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -173,94 +181,132 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
     return typeof f === 'string' ? f : null;
   }, [poll]);
 
+  const theme = isFounderView ? founderTheme : staffTheme;
+  const panelMotion = isFounderView ? founderMotion.page : staffMotion.enter;
+  const PanelCard = isFounderView ? FounderGlassCard : StaffProfessionalCard;
+  const linkRowClass = isFounderView
+    ? 'rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-sm flex flex-wrap items-center gap-2'
+    : 'rounded-md border border-slate-700 bg-slate-800/80 px-3 py-2 text-sm flex flex-wrap items-center gap-2';
+  const linkClass = isFounderView
+    ? 'inline-flex items-center gap-1 text-cyan-300 underline-offset-4 hover:text-cyan-200 hover:underline break-all'
+    : 'inline-flex items-center gap-1 text-sky-400 underline-offset-4 hover:text-sky-300 hover:underline break-all';
+  const summaryCardClass = isFounderView
+    ? 'rounded-xl border border-white/[0.06] bg-white/[0.03] p-4'
+    : 'rounded-md border border-slate-700 bg-slate-800 p-4';
+  const summaryHighlightClass = isFounderView
+    ? 'rounded-xl border border-amber-400/15 bg-amber-500/[0.06] p-4'
+    : 'rounded-md border border-amber-800/40 bg-amber-950/30 p-4';
+
+  const renderStatusBadge = (status: ReturnType<typeof formatStatusBadge>) => {
+    if (isFounderView) {
+      return (
+        <FounderGlowBadge
+          tone={status.tone === 'ok' ? 'ok' : status.tone === 'amber' ? 'warn' : 'neutral'}
+          title={status.title}
+        >
+          {status.label}
+        </FounderGlowBadge>
+      );
+    }
+    const badgeClass =
+      status.tone === 'ok'
+        ? staffTheme.badgeOk
+        : status.tone === 'amber'
+          ? staffTheme.badgeWarn
+          : staffTheme.badgeNeutral;
+    return (
+      <span className={badgeClass} title={status.title}>
+        {status.label}
+      </span>
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Landmark className="h-5 w-5" />
-            Centralized Billing &amp; Ops Monitor
-          </CardTitle>
-          <CardDescription>
-            مزامنة أولية مع Vercel وSupabase؛ صفوف GoDaddy وOpenAI مرجعية (روابط ولقطات فوترة)؛ تنبيهات النقص — يُنصح
-            بصلاحية عرض للفريق وصلاحية مزامنة للسوبر فقط.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
-            <span className="font-medium text-foreground">بوابات التشغيل (فوترة ومشروع):</span>
-          </div>
-          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
-            <span className="text-muted-foreground">Supabase — لوحة المشروع:</span>
+    <motion.div {...panelMotion} className="space-y-8">
+      <header className="space-y-2 text-right">
+        <p className={theme.pageEyebrow}>Ops & Billing</p>
+        <h2 className={theme.pageTitle}>Centralized Billing Monitor</h2>
+        <p className={theme.muted}>
+          مزامنة Vercel وSupabase؛ صفوف GoDaddy وOpenAI وResend مُجمَّعة — وضوح تشغيلي بلا ازدحام.
+        </p>
+      </header>
+
+      <PanelCard className="p-6 md:p-7 space-y-5" {...(isFounderView ? { delay: 0.05 } : {})}>
+        <div className="flex flex-wrap items-center gap-2">
+          <Landmark className={isFounderView ? 'h-5 w-5 text-cyan-300' : 'h-5 w-5 text-slate-400'} />
+          <h3 className={theme.sectionTitle}>بوابات التشغيل</h3>
+        </div>
+          <div className={linkRowClass}>
+            <span className="text-slate-400">Supabase — لوحة المشروع:</span>
             <a
               href={opsSupabaseDashboardUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+              className={linkClass}
             >
               {opsSupabaseDashboardUrl()}
               <ExternalLink className="h-3.5 w-3.5 shrink-0" />
             </a>
           </div>
-          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+          <div className={linkRowClass}>
             <span className="text-muted-foreground">Vercel — فوترة الفريق:</span>
             <a
               href={opsVercelBillingUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+              className={linkClass}
             >
               {opsVercelBillingUrl()}
               <ExternalLink className="h-3.5 w-3.5 shrink-0" />
             </a>
             <span className="text-xs text-muted-foreground">(الخطة، الاستخدام، الفواتير، حد الإنفاق)</span>
           </div>
-          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+          <div className={linkRowClass}>
             <span className="text-muted-foreground">GoDaddy — إعدادات النطاق (halaqmap.com):</span>
             <a
               href={opsGodaddyDomainSettingsUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+              className={linkClass}
             >
               {opsGodaddyDomainSettingsUrl()}
               <ExternalLink className="h-3.5 w-3.5 shrink-0" />
             </a>
             <span className="text-xs text-muted-foreground">(المحفظة — تجديد، DNS، قفل النطاق)</span>
           </div>
-          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+          <div className={linkRowClass}>
             <span className="text-muted-foreground">GoDaddy — تجديد النطاق:</span>
             <a
               href={GODADDY_SUBSCRIPTIONS_DEFAULT}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+              className={linkClass}
             >
               {GODADDY_SUBSCRIPTIONS_DEFAULT}
               <ExternalLink className="h-3.5 w-3.5 shrink-0" />
             </a>
             <span className="text-xs text-muted-foreground">(يُحدَّث في الصفوف بعد «مزامنة الآن»)</span>
           </div>
-          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+          <div className={linkRowClass}>
             <span className="text-muted-foreground">OpenAI — فوترة المنظّمة:</span>
             <a
               href={OPENAI_BILLING_DEFAULT}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+              className={linkClass}
             >
               {OPENAI_BILLING_DEFAULT}
               <ExternalLink className="h-3.5 w-3.5 shrink-0" />
             </a>
             <span className="text-xs text-muted-foreground">(Pay as you go — لقطة الرصيد بعد المزامنة)</span>
           </div>
-          <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm flex flex-wrap items-center gap-2">
+          <div className={linkRowClass}>
             <span className="text-muted-foreground">Resend — الفوترة:</span>
             <a
               href={RESEND_BILLING_DEFAULT}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline break-all"
+              className={linkClass}
             >
               {RESEND_BILLING_DEFAULT}
               <ExternalLink className="h-3.5 w-3.5 shrink-0" />
@@ -284,26 +330,27 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
 
           {displaySummary && (
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-lg border p-4 bg-muted/30">
-                <div className="text-sm text-muted-foreground">أقرب موعد تجديد (معروف)</div>
-                <div className="text-lg font-semibold mt-1">
+              <div className={summaryCardClass}>
+                <div className="text-sm text-slate-500">أقرب موعد تجديد (معروف)</div>
+                <div className="text-lg font-semibold mt-1 text-slate-100">
                   {displaySummary.nearestRenewalAt
                     ? new Date(displaySummary.nearestRenewalAt).toLocaleString('ar-SA')
                     : 'تأكيد يدوي'}
                 </div>
-                <div className="text-sm text-muted-foreground mt-2">
+                <div className="text-sm text-slate-500 mt-2">
                   العد التنازلي: {formatCountdownAr(displaySummary.countdownMs)}
                 </div>
               </div>
-              <div className="rounded-lg border p-4 bg-muted/30">
-                <div className="text-sm text-muted-foreground">إجمالي التقدير الشهري (ر.س)</div>
-                <div className="text-2xl font-bold mt-1">{displaySummary.monthlyEstimateSarTotal.toFixed(2)}</div>
-                <div className="text-xs text-muted-foreground mt-2">يُحسب من الصفوف المُجمَّعة بعد دمج المزوّدين.</div>
+              <div className={summaryHighlightClass}>
+                <div className="text-sm text-slate-500">إجمالي التقدير الشهري (ر.س)</div>
+                <div className="text-2xl font-bold mt-1 text-amber-100">
+                  {displaySummary.monthlyEstimateSarTotal.toFixed(2)}
+                </div>
+                <div className="text-xs text-slate-500 mt-2">يُحسب من الصفوف المُجمَّعة بعد دمج المزوّدين.</div>
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+      </PanelCard>
 
       {displayGaps.length > 0 && (
         <Alert variant="default" className="border-amber-500/50 bg-amber-500/5">
@@ -321,12 +368,12 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
         </Alert>
       )}
 
-      <Card className={!canMutate ? 'border-muted' : ''}>
-        <CardHeader>
-          <CardTitle className="text-base">إضافة التزام يدوي (بدون API)</CardTitle>
-          <CardDescription>مثال: نطاق GoDaddy، ترخيص برمجي، عقد دعم… — يتطلب صلاحية المزامنة (سوبر أدمن).</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end">
+      <PanelCard className="p-6 md:p-7" {...(isFounderView ? { delay: 0.12 } : {})}>
+        <h3 className={`${theme.sectionTitle} mb-2`}>إضافة التزام يدوي</h3>
+        <p className={`${theme.muted} mb-5`}>
+          مثال: نطاق GoDaddy، حزمة برمجية، عقد دعم… — يتطلب صلاحية المزامنة (سوبر أدمن).
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end">
           <div className="space-y-2">
             <Label>اسم الخدمة</Label>
             <Input
@@ -352,14 +399,12 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
           <Button type="button" onClick={() => void onAddManual()} disabled={!canMutate}>
             إضافة
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </PanelCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">جدول التزامات</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
+      <PanelCard className="p-6 md:p-7" {...(isFounderView ? { delay: 0.16 } : {})}>
+        <h3 className={`${theme.sectionTitle} mb-5`}>جدول التزامات</h3>
+        <div className={theme.tableWrap}>
           {loading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -367,16 +412,16 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
           ) : displayRows.length === 0 ? (
             <p className="text-sm text-muted-foreground">لا صفوف بعد — نفّذ «مزامنة الآن» أو أضف التزامات يدوية.</p>
           ) : (
-            <table className="w-full text-sm border-collapse">
+            <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b text-right">
-                  <th className="p-2">المزوّد</th>
-                  <th className="p-2">التسمية</th>
-                  <th className="p-2">رابط</th>
-                  <th className="p-2">التجديد</th>
-                  <th className="p-2">شهري (ر.س / USD)</th>
-                  <th className="p-2">آخر مزامنة</th>
-                  <th className="p-2">الحالة</th>
+                <tr className={theme.tableHead}>
+                  <th className="px-5 py-4 text-right">المزوّد</th>
+                  <th className="px-5 py-4 text-right">التسمية</th>
+                  <th className="px-5 py-4 text-right">رابط</th>
+                  <th className="px-5 py-4 text-right">التجديد</th>
+                  <th className="px-5 py-4 text-right">شهري (ر.س / USD)</th>
+                  <th className="px-5 py-4 text-right">آخر مزامنة</th>
+                  <th className="px-5 py-4 text-right">الحالة</th>
                 </tr>
               </thead>
               <tbody>
@@ -388,80 +433,72 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
                   const status = formatStatusBadge(r);
                   const rowKey = String(r.displayKey ?? r.id);
                   return (
-                  <tr key={rowKey} className="border-b border-muted/50 align-top">
-                    <td className="p-2 font-mono text-xs">{vendorStr}</td>
-                    <td className="p-2">
+                  <tr key={rowKey} className={theme.tableRow}>
+                    <td className={`${theme.tableCell} font-mono text-xs text-slate-400`}>{vendorStr}</td>
+                    <td className={theme.tableCell}>
                       <div>{String(r.display_label)}</div>
                       {r.consolidated && r.consolidatedChildCount ? (
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[10px] text-slate-500">
                           {r.consolidatedChildCount} صفوف مدمجة
                         </span>
                       ) : null}
                     </td>
-                    <td className="p-2 max-w-[140px]">
+                    <td className={`${theme.tableCell} max-w-[140px]`}>
                       {portal ? (
                         <a
                           href={portal}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-0.5 text-primary text-xs underline-offset-2 hover:underline truncate"
+                          className={
+                            isFounderView
+                              ? 'inline-flex items-center gap-0.5 text-cyan-300 text-xs underline-offset-2 hover:text-cyan-200 hover:underline truncate'
+                              : 'inline-flex items-center gap-0.5 text-sky-400 text-xs underline-offset-2 hover:text-sky-300 hover:underline truncate'
+                          }
                           title={portal}
                         >
                           {portalLinkLabelForVendor(vendorStr)}
                           <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                       ) : (
-                        <span className="text-xs text-muted-foreground italic">تأكيد يدوي</span>
+                        <span className="text-xs text-slate-500 italic">تأكيد يدوي</span>
                       )}
                     </td>
-                    <td className="p-2 whitespace-nowrap">
+                    <td className={`${theme.tableCell} whitespace-nowrap`}>
                       <span
                         className={
                           renewal.tone === 'amber'
-                            ? 'text-amber-700 dark:text-amber-300 text-xs font-medium'
+                            ? 'text-amber-300 text-xs font-medium'
                             : renewal.tone === 'muted'
-                              ? 'text-muted-foreground text-xs italic'
-                              : ''
+                              ? 'text-slate-500 text-xs italic'
+                              : 'text-slate-200'
                         }
                       >
                         {renewal.text}
                       </span>
                     </td>
-                    <td className="p-2">
+                    <td className={theme.tableCell}>
                       <div
                         className={
                           monthly.tone === 'amber'
-                            ? 'text-amber-700 dark:text-amber-300 text-xs font-medium'
+                            ? 'text-amber-300 text-xs font-medium'
                             : monthly.tone === 'muted'
-                              ? 'text-muted-foreground text-xs italic'
+                              ? 'text-slate-500 text-xs italic'
                               : monthly.tone === 'cached'
-                                ? 'text-foreground text-sm'
-                                : ''
+                                ? 'text-slate-100 text-sm'
+                                : 'text-slate-200'
                         }
                       >
                         {monthly.text}
                       </div>
                       {monthly.hint ? (
-                        <div className="text-[10px] text-muted-foreground mt-0.5">{monthly.hint}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{monthly.hint}</div>
                       ) : null}
                     </td>
-                    <td className="p-2 whitespace-nowrap text-xs text-muted-foreground">
+                    <td className={`${theme.tableCell} whitespace-nowrap text-xs text-slate-500`}>
                       {formatLastSyncDisplay(r)}
                     </td>
-                    <td className="p-2">
-                      <Badge
-                        variant="outline"
-                        title={status.title}
-                        className={
-                          status.tone === 'ok'
-                            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200 text-[10px]'
-                            : status.tone === 'amber'
-                              ? 'border-amber-500/45 bg-amber-500/15 text-amber-900 dark:text-amber-100 text-[10px]'
-                              : 'text-[10px] text-muted-foreground'
-                        }
-                      >
-                        {status.label}
-                      </Badge>
+                    <td className={theme.tableCell}>
+                      {renderStatusBadge(status)}
                     </td>
                   </tr>
                   );
@@ -469,8 +506,8 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
               </tbody>
             </table>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </PanelCard>
+    </motion.div>
   );
 }
