@@ -325,7 +325,7 @@ export default function Home() {
               </motion.div>
 
               <motion.p
-                className="text-sm mb-8 max-w-xl mx-auto flex items-center justify-center gap-2 flex-wrap font-medium text-muted-foreground"
+                className="text-sm mb-6 max-w-xl mx-auto flex items-center justify-center gap-2 flex-wrap font-medium text-muted-foreground"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.48, duration: 0.6 }}
@@ -335,6 +335,7 @@ export default function Home() {
               </motion.p>
 
               <motion.div
+                className="flex w-full justify-center mb-2"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.55, duration: 0.65 }}

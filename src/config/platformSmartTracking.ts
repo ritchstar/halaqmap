@@ -17,7 +17,6 @@ export const PLATFORM_HERO_TRUST_LINE =
 
 /** زر ومحفّز تحديد الموقع (بحث المستخدم) */
 export const PLATFORM_SEARCH_LOCATION_BUTTON = 'ابدأ الرصد الجغرافي — حدّد موقعك';
-export const PLATFORM_SEARCH_LOCATION_HINT = PLATFORM_SMART_TRACKING_SUBTEXT;
 export const PLATFORM_SEARCH_LOCATION_LOADING = 'جاري الرصد الجغرافي لموقعك…';
 export const PLATFORM_SEARCH_LOCATION_SUCCESS = 'تم رصد موقعك — جارٍ تحديد أقرب الصالونات';
 

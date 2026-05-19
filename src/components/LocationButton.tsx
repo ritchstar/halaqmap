@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   PLATFORM_SEARCH_LOCATION_BUTTON,
-  PLATFORM_SEARCH_LOCATION_HINT,
   PLATFORM_SEARCH_LOCATION_LOADING,
   PLATFORM_SEARCH_LOCATION_SUCCESS,
 } from "@/config/platformSmartTracking";
@@ -100,15 +99,6 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               )}
             </Button>
           </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-center max-w-md text-base md:text-lg font-semibold leading-relaxed rounded-2xl border border-border bg-secondary px-5 py-4 text-secondary-foreground shadow-sm"
-          >
-            {PLATFORM_SEARCH_LOCATION_HINT}
-          </motion.p>
         </>
       ) : (
         <motion.div
