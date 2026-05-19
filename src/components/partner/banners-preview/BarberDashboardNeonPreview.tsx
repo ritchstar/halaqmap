@@ -51,7 +51,7 @@ export function BarberDashboardNeonPreview() {
         transition={{ delay: 0.1 }}
       >
         <motion.div className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/25 bg-cyan-500/10">
+          <motion.div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/25 bg-cyan-500/10">
             <LayoutDashboard className="h-5 w-5 text-cyan-300" aria-hidden />
           </motion.div>
           <div>
@@ -123,7 +123,7 @@ export function BarberDashboardNeonPreview() {
             <span className="text-[11px] text-slate-400">{label}</span>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
 
       <p className="relative mt-3 text-center text-[10px] leading-relaxed text-slate-500">
         المنصة لا تعرض ولا تخزّن أي سجلات نقدية أو محافظ — فقط مؤشرات ضيافة وتشغيل.

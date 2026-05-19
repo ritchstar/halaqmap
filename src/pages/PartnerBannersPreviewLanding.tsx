@@ -130,7 +130,7 @@ export default function PartnerBannersPreviewLanding() {
         >
           <div className="order-2 lg:order-1">
             <BarberDashboardNeonPreview />
-          </motion.div>
+          </div>
           <motion.div className="order-1 space-y-5 lg:order-2">
             <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/25 bg-cyan-950/30 px-3 py-1 text-xs font-bold text-cyan-100">
               {PARTNER_FEATURE_PREVIEW_DASHBOARD.eyebrow}

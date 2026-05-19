@@ -91,7 +91,7 @@ export function DigitalShiftImpactPreview() {
           <RotateCcw className="h-3.5 w-3.5" aria-hidden />
           إعادة التشغيل
         </Button>
-      </motion.div>
+      </div>
 
       <motion.div
         className={cn(
@@ -150,7 +150,7 @@ export function DigitalShiftImpactPreview() {
               <User className="h-3 w-3" />
               <span>العميل</span>
             </motion.div>
-            <div className="rounded-2xl rounded-br-md bg-primary px-3 py-2 text-sm text-primary-foreground">
+            <motion.div className="rounded-2xl rounded-br-md bg-primary px-3 py-2 text-sm text-primary-foreground">
               {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.clientMessage}
             </motion.div>
           </div>
@@ -176,16 +176,16 @@ export function DigitalShiftImpactPreview() {
             <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
               <MessageCircle className="h-3 w-3 text-violet-300" />
               <span>المناوب · رد ضيافة</span>
-            </motion.div>
+            </div>
             <motion.div className="rounded-2xl rounded-bl-md border border-violet-400/20 bg-violet-950/40 px-3 py-2 text-sm leading-relaxed text-violet-50">
               {reply.slice(0, typedLen)}
               {phase === 'typing' && (
                 <span className="mr-0.5 inline-block h-4 w-0.5 animate-pulse bg-violet-300 align-middle" />
               )}
             </motion.div>
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
