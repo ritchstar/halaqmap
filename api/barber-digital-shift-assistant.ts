@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import {
@@ -33,21 +33,29 @@ export async function GET(request: Request): Promise<Response> {
   );
 }
 
-async function assertBarber(supabase: ReturnType<typeof createClient>, barberId: string, email: string) {
+async function assertBarber(
+  supabase: SupabaseClient,
+  barberId: string,
+  email: string,
+): Promise<
+  | { ok: true; row: { id: string; email: string | null; tier: string | null; name: string | null } }
+  | { ok: false; status: number; message: string }
+> {
   const emailNorm = email.trim().toLowerCase();
   const { data: row, error } = await supabase
     .from('barbers')
     .select('id, email, tier, name')
     .eq('id', barberId)
     .maybeSingle();
-  if (error || !row) return { ok: false as const, status: 404, message: 'Barber not found' };
-  if (String(row.email ?? '').trim().toLowerCase() !== emailNorm) {
-    return { ok: false as const, status: 403, message: 'Email mismatch' };
+  if (error || !row) return { ok: false, status: 404, message: 'Barber not found' };
+  const b = row as { id: string; email: string | null; tier: string | null; name: string | null };
+  if (String(b.email ?? '').trim().toLowerCase() !== emailNorm) {
+    return { ok: false, status: 403, message: 'Email mismatch' };
   }
-  if (row.tier !== 'diamond') {
-    return { ok: false as const, status: 403, message: 'Digital shift assistant requires Diamond tier' };
+  if (b.tier !== 'diamond') {
+    return { ok: false, status: 403, message: 'Digital shift assistant requires Diamond tier' };
   }
-  return { ok: true as const, row };
+  return { ok: true, row: b };
 }
 
 export async function POST(request: Request): Promise<Response> {
