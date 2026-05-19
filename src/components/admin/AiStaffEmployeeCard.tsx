@@ -1,7 +1,7 @@
-import { ArrowLeft, Lock, Scale, Shield, Sparkles } from 'lucide-react';
+import { ArrowLeft, Lock, Moon, Scale, Shield, Sparkles, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { AiStaffAgentIconKind } from '@/config/adminAiStaffOffice';
+import type { AiStaffAgentIconKind } from '@/modules/ai-staff/types';
 import type { ZatcaAttentionLevel } from '@/hooks/useZatcaTaxAdvisorAttention';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,7 @@ type Props = {
   statusBadgeAr?: string;
   ctaLabelAr?: string;
   iconKind?: AiStaffAgentIconKind;
+  eliteCovert?: boolean;
   attentionLevel?: ZatcaAttentionLevel;
   onActivate?: () => void;
 };
@@ -33,6 +34,27 @@ function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName
     return (
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 text-2xl shadow-inner">
         🪙
+      </span>
+    );
+  }
+  if (kind === 'digital_shift') {
+    return (
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-indigo-400/40 bg-gradient-to-br from-indigo-500/25 to-violet-500/15">
+        <Moon className="h-6 w-6 text-indigo-200" strokeWidth={1.75} />
+      </span>
+    );
+  }
+  if (kind === 'partner_liaison') {
+    return (
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-violet-400/35 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/10">
+        <Users className="h-6 w-6 text-violet-200" strokeWidth={1.75} />
+      </span>
+    );
+  }
+  if (kind === 'fleet_director') {
+    return (
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-500/40 bg-gradient-to-br from-red-950/80 to-slate-900 shadow-[0_0_20px_rgba(239,68,68,0.35)]">
+        <Shield className="h-6 w-6 text-red-300" strokeWidth={1.75} />
       </span>
     );
   }
@@ -70,6 +92,7 @@ export function AiStaffEmployeeCard({
   statusBadgeAr,
   ctaLabelAr,
   iconKind,
+  eliteCovert,
   attentionLevel = 'none',
   onActivate,
 }: Props) {
@@ -81,6 +104,7 @@ export function AiStaffEmployeeCard({
       className={cn(
         'group relative flex h-full min-h-[220px] flex-col rounded-xl border bg-gradient-to-br p-5 shadow-sm transition-all duration-300',
         accentClass,
+        eliteCovert && 'ring-1 ring-red-500/20',
         interactive && 'cursor-pointer hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40',
         !interactive && 'opacity-80',
       )}
@@ -100,7 +124,7 @@ export function AiStaffEmployeeCard({
     >
       <AttentionDot level={attentionLevel} />
 
-      <div className="flex items-start justify-between gap-2 mb-3">
+      <div className="mb-3 flex items-start justify-between gap-2">
         <StaffIcon kind={iconKind} shortName={shortName} />
         {comingSoonLabel ? (
           <Badge variant="secondary" className="text-xs">
@@ -112,7 +136,14 @@ export function AiStaffEmployeeCard({
             صلاحية مطلوبة
           </Badge>
         ) : statusBadgeAr ? (
-          <Badge className="gap-1 border-amber-400/40 bg-amber-500/20 text-xs text-amber-950 hover:bg-amber-500/25 dark:text-amber-50">
+          <Badge
+            className={cn(
+              'gap-1 text-xs',
+              eliteCovert
+                ? 'border-red-400/40 bg-red-500/20 text-red-50'
+                : 'border-amber-400/40 bg-amber-500/20 text-amber-950 dark:text-amber-50',
+            )}
+          >
             <Sparkles className="h-3 w-3" />
             {statusBadgeAr}
           </Badge>
@@ -127,7 +158,7 @@ export function AiStaffEmployeeCard({
       <h3 className="text-lg font-bold leading-snug text-foreground">{title}</h3>
       <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{roleDescription}</p>
 
-      {interactive && (
+      {interactive ? (
         <Button
           type="button"
           variant="secondary"
@@ -136,7 +167,9 @@ export function AiStaffEmployeeCard({
             'mt-4 w-full justify-between group-hover:text-primary-foreground',
             iconKind === 'zatca_shield'
               ? 'group-hover:bg-gradient-to-l group-hover:from-amber-500 group-hover:to-cyan-500'
-              : 'group-hover:bg-primary',
+              : eliteCovert
+                ? 'group-hover:bg-red-700 group-hover:text-white'
+                : 'group-hover:bg-primary',
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -146,7 +179,7 @@ export function AiStaffEmployeeCard({
           <span>{ctaLabelAr ?? 'فتح المكتب'}</span>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-      )}
+      ) : null}
     </article>
   );
 }

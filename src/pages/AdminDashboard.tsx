@@ -663,6 +663,7 @@ export default function AdminDashboard() {
             <VirtualAiStaffOffice
               can={can}
               canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
+              isBootstrapAdmin={Boolean(adminData.bootstrap)}
               onOpenZatcaFinancialOffice={() => {
                 if (!canViewZatcaFinancialOffice) {
                   toast({
