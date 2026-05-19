@@ -770,12 +770,33 @@ Deno.serve(async (req) => {
               tier: tierStr,
               barberId,
               registrationOrderId: requestId || undefined,
+              digitalShiftAddon: digitalShiftAddonFromMeta(meta),
             }),
           });
           if (obResp.ok) onboardingApiOk = true;
           else console.warn("[moyasar-webhook] send-barber-onboarding:", await obResp.text());
         } catch (e) {
           console.warn("[moyasar-webhook] send-barber-onboarding fetch:", e);
+        }
+      } else if (digitalShiftAddonFromMeta(meta)) {
+        try {
+          const dsResp = await fetch(`${appOrigin}/api/send-digital-shift-onboarding`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-onboarding-internal-secret": obSecret,
+            },
+            body: JSON.stringify({
+              barberId,
+              barberEmail: toOnboarding,
+              barberName: nameOnboarding,
+            }),
+          });
+          if (!dsResp.ok) {
+            console.warn("[moyasar-webhook] send-digital-shift-onboarding:", await dsResp.text());
+          }
+        } catch (e) {
+          console.warn("[moyasar-webhook] send-digital-shift-onboarding fetch:", e);
         }
       }
 

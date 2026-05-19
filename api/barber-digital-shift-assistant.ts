@@ -94,6 +94,21 @@ export async function POST(request: Request): Promise<Response> {
 
   await ensureConfigRow(supabase, barberId);
 
+  const { data: accessRow } = await supabase
+    .from('barber_digital_shift_config')
+    .select('enabled')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+
+  const addonActive = accessRow?.enabled === true;
+
+  if (action !== 'summary' && !addonActive) {
+    return Response.json(
+      { error: 'المناوب الذكي غير مفعّل — رقِّ باقتك إلى الماسية الذكية (+25 ر.س)' },
+      { status: 403, headers },
+    );
+  }
+
   if (action === 'summary') {
     const ctx = await loadDigitalShiftContext(supabase, barberId);
     if (!ctx) return Response.json({ error: 'Context unavailable' }, { status: 404, headers });
@@ -129,7 +144,10 @@ export async function POST(request: Request): Promise<Response> {
 
   if (action === 'update_settings') {
     const assistantName = String(body.assistantDisplayName ?? '').trim().slice(0, 60);
-    const enabled = body.enabled !== false;
+    const enabled =
+      body.enabled === undefined || body.enabled === null
+        ? addonActive
+        : body.enabled === true;
     const replyDelayMinutes = Math.min(30, Math.max(1, Number(body.replyDelayMinutes ?? 3) || 3));
 
     const patch: Record<string, unknown> = { enabled, reply_delay_minutes: replyDelayMinutes };

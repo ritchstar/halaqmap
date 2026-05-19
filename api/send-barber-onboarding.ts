@@ -2,6 +2,10 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { timingSafeEqual } from 'node:crypto';
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 import { getBarberPortalMagicSecret, mintBarberPortalMagicToken } from './_lib/barberPortalMagicToken.js';
+import {
+  digitalShiftOnboardingSectionHtml,
+  digitalShiftOnboardingSectionPlain,
+} from './_lib/digitalShiftOnboardingMail.js';
 
 export const config = {
   maxDuration: 60,
@@ -19,6 +23,8 @@ type SinglePayload = {
   ratingInviteToken?: string;
   /** رقم طلب التسجيل (مثال HM-20260417-AB12CD) — مرجع الدعم */
   registrationOrderId?: string;
+  /** الباقة الماسية الذكية — تضمين دليل المناوب الرقمي في نفس الرسالة */
+  digitalShiftAddon?: boolean;
 };
 
 type BulkPayload = {
@@ -419,6 +425,7 @@ function emailText(
   rating: RatingEmailContext,
   registrationOrderId?: string | null,
   memberPadded?: string | null,
+  digitalShiftAddon?: boolean,
 ): string {
   const k = tierKey(tier);
   const tierLines = tierSpecificLines(k);
@@ -462,6 +469,9 @@ function emailText(
     '- احفظ هذه الرسالة أو ضع روابط الدخول في مفضلة المتصفح للرجوع السريع.',
     '',
     supportContactPlain(),
+    ...(digitalShiftAddon && tierKey(tier) === 'diamond'
+      ? digitalShiftOnboardingSectionPlain(links.dashboardUrl)
+      : []),
     ...ratingSectionPlain(rating),
     ...adminFeedbackPlain(links),
     '',
@@ -479,6 +489,7 @@ function emailHtml(
   rating: RatingEmailContext,
   registrationOrderId?: string | null,
   memberPadded?: string | null,
+  digitalShiftAddon?: boolean,
 ): string {
   const nameSafe = escapeHtml(name);
   const tierSafe = escapeHtml(tierLabel);
@@ -563,6 +574,7 @@ function emailHtml(
     '<p style="margin:0;font-size:14px;color:#475569;line-height:1.85">اسم صالونك يظهر في الأعلى من بياناتنا المعتمدة. الإحصائيات تبدأ من الصفر؛ ونوضح بصدق: <strong>لا نعرض إيرادات محلك</strong> على المنصة.</p>',
   )}
   ${goldDiamondBox}
+  ${digitalShiftAddon && k === 'diamond' ? digitalShiftOnboardingSectionHtml(links.dashboardUrl) : ''}
   ${ratingAndQrSectionHtml(rating)}
   ${adminFeedbackSectionHtml(links)}
   ${emailCard(
@@ -812,6 +824,9 @@ export async function POST(request: Request): Promise<Response> {
     );
     const ratingCtx = await buildRatingEmailContext(baseUrl, barberId, ratingTok);
     const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
+    const dsRaw = (payload as SinglePayload).digitalShiftAddon as unknown;
+    const digitalShiftAddon =
+      dsRaw === true || dsRaw === 'true' || dsRaw === 1 || dsRaw === '1';
     const attachments =
       ratingCtx.hasToken && ratingCtx.qrPngBase64
         ? [
@@ -824,8 +839,26 @@ export async function POST(request: Request): Promise<Response> {
           ]
         : undefined;
     const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك عبر نظام الرصد الذكي + روابط لوحة التحكم';
-    const text = emailText(barberName, tier, tierRaw, linksForEmail, ratingCtx, registrationOrderId, memberPadded);
-    const html = emailHtml(barberName, tier, tierRaw, linksForEmail, ratingCtx, registrationOrderId, memberPadded);
+    const text = emailText(
+      barberName,
+      tier,
+      tierRaw,
+      linksForEmail,
+      ratingCtx,
+      registrationOrderId,
+      memberPadded,
+      digitalShiftAddon,
+    );
+    const html = emailHtml(
+      barberName,
+      tier,
+      tierRaw,
+      linksForEmail,
+      ratingCtx,
+      registrationOrderId,
+      memberPadded,
+      digitalShiftAddon,
+    );
     const sent = await sendViaResend({
       to: barberEmail,
       subject,

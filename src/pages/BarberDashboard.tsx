@@ -114,7 +114,7 @@ import {
   uploadBarberPortfolioImageRemote,
 } from '@/lib/barberPortfolioRemote';
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
-import { DigitalShiftAssistantHub } from '@/components/barber/DigitalShiftAssistantHub';
+import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import {
   fetchListingLicenseBalanceRemote,
@@ -270,7 +270,7 @@ export default function BarberDashboard() {
         showPosts: true,
         showSettings: false,
         showQrRatings: true,
-        showDigitalShift: false,
+        showDigitalShift: true,
         isGoldLite: true,
         showGoldLiteBanner: true,
       };
@@ -290,7 +290,7 @@ export default function BarberDashboard() {
 
   useEffect(() => {
     if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;
-    const allowed = new Set(['messages', 'qr-ratings', 'posts']);
+    const allowed = new Set(['messages', 'qr-ratings', 'posts', 'digital-shift']);
     if (!allowed.has(activeTab)) {
       setActiveTab('messages');
     }
@@ -884,9 +884,10 @@ export default function BarberDashboard() {
 
           {tierTabs.showDigitalShift ? (
           <TabsContent value="digital-shift" className="space-y-6">
-            <DigitalShiftAssistantHub
+            <DigitalShiftTabGate
               barberId={barberData.id}
               barberEmail={barberData.email}
+              subscriptionTier={barberData.subscription}
               bannerState={bannerState}
               posts={posts}
             />

@@ -10,6 +10,10 @@ import {
   type ListingLicenseProductRow,
   type ListingLicenseTier,
 } from './listingLicenseCatalog.js';
+import {
+  dispatchDigitalShiftOnboardingEmail,
+  isDigitalShiftAddonInMetadata,
+} from './digitalShiftOnboardingMail.js';
 
 export type ListingFulfillInput = {
   skuCode?: string;
@@ -46,12 +50,6 @@ export type ListingFulfillResult =
   | { ok: false; error: string; status?: number };
 
 const DIGITAL_SHIFT_ADDON_HALALAS_PER_CARD = 2500;
-
-function isDigitalShiftAddonInMetadata(metadata?: Record<string, unknown>): boolean {
-  if (!metadata) return false;
-  const raw = metadata.digital_shift_addon ?? metadata.digitalShiftAddon;
-  return raw === true || raw === 'true' || raw === 1 || raw === '1';
-}
 
 async function activateDigitalShiftAddonForBarber(
   supabase: SupabaseClient,
@@ -362,6 +360,12 @@ export async function fulfillListingLicenseOrder(
     isDigitalShiftAddonInMetadata(input.metadata)
   ) {
     await activateDigitalShiftAddonForBarber(supabase, barberId);
+    void dispatchDigitalShiftOnboardingEmail(supabase, {
+      barberId,
+      buyerEmail: input.buyerEmail,
+      metadata: input.metadata,
+      skipWhenWebhookMerged: true,
+    }).catch(() => undefined);
   }
 
   return {
@@ -466,6 +470,25 @@ export async function redeemListingLicenseVoucher(
     event_type: 'redeem',
     client_ip_hash: input.clientIpHash ?? null,
   });
+
+  if (productRow.tier === 'diamond' && voucher.order_id) {
+    const { data: orderRow } = await supabase
+      .from('listing_license_orders')
+      .select('metadata')
+      .eq('id', voucher.order_id)
+      .maybeSingle();
+    const orderMeta =
+      orderRow?.metadata && typeof orderRow.metadata === 'object' && !Array.isArray(orderRow.metadata)
+        ? (orderRow.metadata as Record<string, unknown>)
+        : undefined;
+    if (isDigitalShiftAddonInMetadata(orderMeta)) {
+      await activateDigitalShiftAddonForBarber(supabase, input.barberId);
+      void dispatchDigitalShiftOnboardingEmail(supabase, {
+        barberId: input.barberId,
+        metadata: orderMeta,
+      }).catch(() => undefined);
+    }
+  }
 
   const daysRemaining = Math.max(
     0,
