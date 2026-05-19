@@ -13,13 +13,15 @@ import {
 import type { AdminPermissionKey } from '@/lib/adminPermissions';
 import { AiStaffEmployeeCard } from '@/components/admin/AiStaffEmployeeCard';
 import { OpsBillingAiAssistant } from '@/components/admin/OpsBillingAiAssistant';
+import { useZatcaTaxAdvisorAttention } from '@/hooks/useZatcaTaxAdvisorAttention';
 import { cn } from '@/lib/utils';
 
 type Props = {
   can: (perm: AdminPermissionKey) => boolean;
+  onOpenZatcaFinancialOffice?: () => void;
 };
 
-export function VirtualAiStaffOffice({ can }: Props) {
+export function VirtualAiStaffOffice({ can, onOpenZatcaFinancialOffice }: Props) {
   const [expanded, setExpanded] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
 
@@ -32,12 +34,16 @@ export function VirtualAiStaffOffice({ can }: Props) {
     [can],
   );
 
+  const zatcaPermitted = agents.some((a) => a.id === 'zatca_tax_advisor' && a.permitted);
+  const { level: zatcaAttention } = useZatcaTaxAdvisorAttention(zatcaPermitted);
+
   const visibleAgents = agents.filter((a) => a.available || a.comingSoonLabel);
   if (visibleAgents.length === 0) return null;
 
   const onActivate = (id: AiStaffAgentId, permitted: boolean) => {
     if (!permitted) return;
     if (id === 'billing_treasurer') setBillingOpen(true);
+    if (id === 'zatca_tax_advisor') onOpenZatcaFinancialOffice?.();
   };
 
   const showBillingAssistant = agents.some((a) => a.id === 'billing_treasurer' && a.permitted);
@@ -73,16 +79,23 @@ export function VirtualAiStaffOffice({ can }: Props) {
 
             <CollapsibleContent>
               <CardContent className="pt-0 pb-6">
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
                   {visibleAgents.map((agent) => (
                     <AiStaffEmployeeCard
                       key={agent.id}
                       shortName={agent.shortName}
+                      headline={agent.title}
                       roleDescription={agent.roleDescription}
                       accentClass={agent.accentClass}
                       available={agent.available}
                       comingSoonLabel={agent.comingSoonLabel}
                       locked={agent.available && !agent.permitted}
+                      statusBadgeAr={agent.statusBadgeAr}
+                      ctaLabelAr={agent.ctaLabelAr}
+                      iconKind={agent.iconKind}
+                      attentionLevel={
+                        agent.id === 'zatca_tax_advisor' && agent.permitted ? zatcaAttention : 'none'
+                      }
                       onActivate={
                         agent.available && agent.permitted
                           ? () => onActivate(agent.id, agent.permitted)

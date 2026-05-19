@@ -1,11 +1,22 @@
 import type { AdminPermissionKey } from '@/lib/adminPermissions';
 
-export type AiStaffAgentId = 'billing_treasurer' | 'marketing_growth' | 'support_concierge';
+export type AiStaffAgentId =
+  | 'billing_treasurer'
+  | 'zatca_tax_advisor'
+  | 'marketing_growth'
+  | 'support_concierge';
+
+export type AiStaffAgentIconKind = 'treasurer' | 'zatca_shield';
 
 export type AiStaffAgentDef = {
   id: AiStaffAgentId;
   shortName: string;
+  /** Card headline (defaults to shortName) */
+  title?: string;
   roleDescription: string;
+  statusBadgeAr?: string;
+  ctaLabelAr?: string;
+  iconKind?: AiStaffAgentIconKind;
   /** Tailwind gradient / border accent classes for the card shell */
   accentClass: string;
   /** Required permission (any-of) to activate this agent */
@@ -24,6 +35,24 @@ export const ADMIN_AI_STAFF_AGENTS: AiStaffAgentDef[] = [
     accentClass: 'from-emerald-500/15 via-teal-500/10 to-cyan-500/5 border-emerald-500/35',
     requiredAny: ['view_ops_billing_monitor', 'manage_centralized_billing_ops'],
     available: true,
+    iconKind: 'treasurer',
+  },
+  {
+    id: 'zatca_tax_advisor',
+    shortName: 'زميل خازن · ZATCA',
+    title: 'خبير زكاة وضريبة (ZATCA) 🛡️',
+    statusBadgeAr: 'نشط بالرادار',
+    ctaLabelAr: 'فتح المكتب المالي',
+    roleDescription:
+      'فرز فواتير الصالونات بالهللة، تحليل سرعة التدفق المالي، والتنبؤ الاستباقي بحدود الامتثال الضريبي مع تجهيز مسودات الإقرارات.',
+    accentClass: 'from-amber-500/20 via-yellow-500/10 to-cyan-500/8 border-amber-400/45 shadow-[0_0_28px_-8px_rgba(251,191,36,0.35)]',
+    requiredAny: [
+      'manage_platform_commerce_rules',
+      'view_ops_billing_monitor',
+      'manage_centralized_billing_ops',
+    ],
+    available: true,
+    iconKind: 'zatca_shield',
   },
   {
     id: 'marketing_growth',

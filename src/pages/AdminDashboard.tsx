@@ -149,7 +149,6 @@ import { ResourceManagementSection } from '@/components/admin/ResourceManagement
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
-import { CorporateProductComplianceCard } from '@/components/admin/CorporateProductComplianceCard';
 import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArchivePanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
@@ -188,14 +187,14 @@ const ADMIN_REQUESTS_MARKETING_FILTERS_KEY = 'halaqmap.admin.requestsMarketingFi
 const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
   {
     id: 'req1',
-    barberName: 'صالون الفخامة',
+    barberName: '����� �������',
     email: 'luxury@example.com',
     phone: '+966501234567',
     whatsapp: '+966501234567',
     location: {
       lat: 24.7136,
       lng: 46.6753,
-      address: 'حي العليا، الرياض',
+      address: '�� �����ǡ ������',
     },
     tier: SubscriptionTier.DIAMOND,
     documents: [IMAGES.BARBER_SHOP_1, IMAGES.BARBER_SHOP_2],
@@ -207,14 +206,14 @@ const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
   },
   {
     id: 'req2',
-    barberName: 'حلاق الأناقة',
+    barberName: '���� �������',
     email: 'elegance@example.com',
     phone: '+966502345678',
     whatsapp: '+966502345678',
     location: {
       lat: 24.6877,
       lng: 46.7219,
-      address: 'حي النسيم، الرياض',
+      address: '�� ������ ������',
     },
     tier: SubscriptionTier.GOLD,
     documents: [IMAGES.BARBER_SHOP_3],
@@ -230,25 +229,25 @@ const MOCK_PAYMENTS: Payment[] = [
   {
     id: 'pay-mock-1',
     barberId: '1',
-    barberName: 'صالون النخبة الماسي',
+    barberName: '����� ������ ������',
     amount: 200,
     tier: SubscriptionTier.DIAMOND,
     method: 'bank_transfer',
     receipt: IMAGES.DASHBOARD_BG_1,
     status: 'pending',
-    period: 'أبريل 2026',
+    period: '����� 2026',
     submittedAt: '2026-04-08 09:00',
   },
   {
     id: 'pay-mock-2',
     barberId: '3',
-    barberName: 'حلاق الملوك الذهبي',
+    barberName: '���� ������ ������',
     amount: 150,
     tier: SubscriptionTier.GOLD,
     method: 'bank_transfer',
     receipt: IMAGES.DASHBOARD_BG_2,
     status: 'pending',
-    period: 'أبريل 2026',
+    period: '����� 2026',
     submittedAt: '2026-04-08 11:30',
   },
 ];
@@ -265,13 +264,13 @@ const COMMAND_CENTER_STATE_KEY = 'halaqmap_command_center_lead_state_v1';
 const COMMAND_CENTER_SOP_CHECK_KEY = 'halaqmap_command_center_sop_check_v1';
 
 const WEEKLY_SOP_PLAN = [
-  { day: 'الأحد', focus: 'استهداف صالونات ماسية', target: 12, note: 'ابدأ بالرياض وجدة للحالات عالية العائد.' },
-  { day: 'الإثنين', focus: 'استهداف ذهبي سريع الإغلاق', target: 18, note: 'ركز على الصالونات الصغيرة والمتوسطة.' },
-  { day: 'الثلاثاء', focus: 'متابعة بانتظار الرد', target: 20, note: 'رفع التحويل عبر متابعة اليوم + المتأخرة.' },
-  { day: 'الأربعاء', focus: 'إغلاق مدفوعات وطلبات', target: 10, note: 'تصفية المعلّق وتحويله إلى ترخيص إدراج فعّال.' },
-  { day: 'الخميس', focus: 'توسّع مناطق جديدة', target: 15, note: 'الدمام/الخبر/المدينة + تحديث قاعدة الأهداف.' },
-  { day: 'الجمعة', focus: 'تشغيل خفيف + دعم', target: 8, note: 'التركيز على الدعم والمتابعة السريعة فقط.' },
-  { day: 'السبت', focus: 'مراجعة أسبوعية', target: 0, note: 'تقييم الأداء وتحديث خطة الأسبوع القادم.' },
+  { day: '�����', focus: '������� ������� �����', target: 12, note: '���� ������� ���� ������� ����� ������.' },
+  { day: '�������', focus: '������� ���� ���� �������', target: 18, note: '��� ��� ��������� ������� ���������.' },
+  { day: '��������', focus: '������ ������� ����', target: 20, note: '��� ������� ��� ������ ����� + ��������.' },
+  { day: '��������', focus: '����� ������� ������', target: 10, note: '����� ������� ������� ��� ����� ����� �����.' },
+  { day: '������', focus: '����� ����� �����', target: 15, note: '������/�����/������� + ����� ����� �������.' },
+  { day: '������', focus: '����� ���� + ���', target: 8, note: '������� ��� ����� ��������� ������� ���.' },
+  { day: '�����', focus: '������ �������', target: 0, note: '����� ������ ������ ��� ������� ������.' },
 ] as const;
 
 type AdminSessionInfo = {
@@ -331,7 +330,7 @@ export default function AdminDashboard() {
         }
         setAdminData({
           id: session.user.id,
-          name: access.displayName || 'لوحة الإدارة',
+          name: access.displayName || '���� �������',
           email: access.email,
           role: 'admin',
           permissions: access.permissions,
@@ -491,7 +490,7 @@ export default function AdminDashboard() {
     return null;
   }
 
-  /** تعديل بيانات الحلاق «العميق» — للمالك (bootstrap) فقط؛ من يملك manage_admins يدير الجدول وليس نسخ المالك هنا. */
+  /** ����� ������ ������ ������޻ � ������ (bootstrap) ��غ �� ���� manage_admins ���� ������ ���� ��� ������ ���. */
   const canRootHardEdit = Boolean(adminData.bootstrap);
 
   return (
@@ -507,7 +506,7 @@ export default function AdminDashboard() {
               <div>
                 <h1 className="text-xl font-bold">{adminData.name}</h1>
                 <Badge variant="secondary" className="bg-gradient-to-r from-red-500/20 to-red-600/20 text-red-600 border-red-500/30">
-                  لوحة الإدارة
+                  ���� �������
                 </Badge>
               </div>
             </div>
@@ -516,7 +515,7 @@ export default function AdminDashboard() {
               <div
                 className="flex items-center rounded-md border border-border/60 bg-muted/40 p-0.5 gap-0.5"
                 role="toolbar"
-                aria-label="اختصارات لوحة الإدارة"
+                aria-label="�������� ���� �������"
               >
                 {canAccessOpsBillingTab ? (
                 <Button
@@ -524,8 +523,8 @@ export default function AdminDashboard() {
                   variant={activeTab === 'ops-billing' ? 'secondary' : 'ghost'}
                   size="icon"
                   className="h-9 w-9 shrink-0"
-                  title="التكاليف والتزامات التشغيل والأرشيف المالي"
-                  aria-label="التكاليف والتزامات التشغيل والأرشيف المالي"
+                  title="�������� ��������� ������� �������� ������"
+                  aria-label="�������� ��������� ������� �������� ������"
                   aria-pressed={activeTab === 'ops-billing'}
                   onClick={() => setActiveTab('ops-billing')}
                 >
@@ -538,19 +537,19 @@ export default function AdminDashboard() {
                     variant={activeTab === 'resources' ? 'secondary' : 'ghost'}
                     size="sm"
                     className="h-9 shrink-0 gap-1.5 px-2.5"
-                    title="مراقبة الموارد والتخزين"
-                    aria-label="مراقبة الموارد"
+                    title="������ ������� ��������"
+                    aria-label="������ �������"
                     aria-pressed={activeTab === 'resources'}
                     onClick={() => setActiveTab('resources')}
                   >
                     <HardDrive className="h-4 w-4" />
-                    <span className="hidden sm:inline">مراقبة الموارد</span>
+                    <span className="hidden sm:inline">������ �������</span>
                   </Button>
                 )}
               </div>
               <Button variant="ghost" onClick={handleLogout} className="gap-2">
                 <LogOut className="w-4 h-4" />
-                تسجيل الخروج
+                ����� ������
               </Button>
             </div>
           </div>
@@ -564,13 +563,13 @@ export default function AdminDashboard() {
             {can('view_overview') && (
             <TabsTrigger value="overview" className="gap-2">
               <TrendingUp className="w-4 h-4" />
-              <span className="hidden sm:inline">نظرة عامة</span>
+              <span className="hidden sm:inline">���� ����</span>
             </TabsTrigger>
             )}
             {can('view_requests') && (
             <TabsTrigger value="requests" className="gap-2">
               <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">طلبات التراخيص</span>
+              <span className="hidden sm:inline">����� ��������</span>
               {stats.pendingRequests > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {stats.pendingRequests}
@@ -581,13 +580,13 @@ export default function AdminDashboard() {
             {can('view_barbers') && (
             <TabsTrigger value="barbers" className="gap-2">
               <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">الحلاقين</span>
+              <span className="hidden sm:inline">��������</span>
             </TabsTrigger>
             )}
             {can('view_payments') && (
             <TabsTrigger value="payments" className="gap-2">
               <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">المدفوعات</span>
+              <span className="hidden sm:inline">���������</span>
               {stats.pendingPayments > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {stats.pendingPayments}
@@ -598,53 +597,61 @@ export default function AdminDashboard() {
             {can('view_command_center') && (
             <TabsTrigger value="command-center" className="gap-2">
               <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">غرفة القيادة</span>
+              <span className="hidden sm:inline">���� �������</span>
             </TabsTrigger>
             )}
             {can('view_messages') && (
             <TabsTrigger value="messages" className="gap-2">
               <MessageSquare className="w-4 h-4" />
-              <span className="hidden sm:inline">الرسائل</span>
+              <span className="hidden sm:inline">�������</span>
             </TabsTrigger>
             )}
             {canViewSecurityOpsLog && (
             <TabsTrigger value="security-ops" className="gap-2">
               <Activity className="w-4 h-4" />
-              <span className="hidden sm:inline">سجل الأمان</span>
+              <span className="hidden sm:inline">��� ������</span>
             </TabsTrigger>
             )}
             {canViewPaymentGateways && (
             <TabsTrigger value="payment-gateways" className="gap-2">
               <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">بوابات الدفع</span>
+              <span className="hidden sm:inline">������ �����</span>
             </TabsTrigger>
             )}
             {canAccessOpsBillingTab && (
             <TabsTrigger value="ops-billing" className="gap-2">
               <Landmark className="w-4 h-4" />
-              <span className="hidden sm:inline">التزامات التشغيل</span>
+              <span className="hidden sm:inline">�������� �������</span>
             </TabsTrigger>
             )}
             {can('view_settings') && (
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">الإعدادات</span>
+              <span className="hidden sm:inline">���������</span>
             </TabsTrigger>
             )}
             {Boolean(adminData?.bootstrap) && (
             <TabsTrigger value="resources" className="gap-2">
               <HardDrive className="w-4 h-4" />
-              <span className="hidden sm:inline">مراقبة الموارد</span>
+              <span className="hidden sm:inline">������ �������</span>
             </TabsTrigger>
             )}
           </TabsList>
 
           {/* Overview Tab */}
           {can('view_overview') && <TabsContent value="overview" className="space-y-6">
-            <div className="grid gap-6 xl:grid-cols-2 items-start">
-              <VirtualAiStaffOffice can={can} />
-              <CorporateProductComplianceCard />
-            </div>
+            <VirtualAiStaffOffice
+              can={can}
+              onOpenZatcaFinancialOffice={() => {
+                setActiveTab('settings');
+                window.setTimeout(() => {
+                  document.getElementById('zatca-financial-office')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                }, 120);
+              }}
+            />
             <OverviewSection stats={stats} />
           </TabsContent>}
 
@@ -779,7 +786,7 @@ export default function AdminDashboard() {
   );
 }
 
-// سجل الأمان والعمليات — platform_booking_security_log + Realtime
+// ��� ������ ��������� � platform_booking_security_log + Realtime
 function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bumpNonce: number }) {
   const [rows, setRows] = useState<BookingSecurityLogRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -809,7 +816,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
     const r = await fetchAdminBookingSecurityLogRemote();
     setLoading(false);
     if (!r.ok) {
-      toast({ title: 'تعذر تحميل السجل', description: r.error, variant: 'destructive' });
+      toast({ title: '���� ����� �����', description: r.error, variant: 'destructive' });
       return;
     }
     setRows(r.rows);
@@ -852,12 +859,12 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
               toast(
                 isCritical
                   ? {
-                      title: 'تنبيه أمان',
+                      title: '����� ����',
                       description: row.message || row.event_code,
                       variant: 'destructive',
                     }
                   : {
-                      title: 'تعارض حجز مُبلَّغ',
+                      title: '����� ��� �������',
                       description: row.message || row.event_code,
                     }
               );
@@ -879,11 +886,11 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
   }, [isActive, mapRow]);
 
   const labelForCode = (code: string) => {
-    if (code === 'booking_overlap_denied') return 'تعارض موعد (حجز)';
-    if (code === 'role_not_allowed') return 'دور غير مصرح';
-    if (code === 'barber_not_found') return 'حلاق غير موجود';
-    if (code === 'profile_not_found') return 'ملف عميل غير موجود';
-    if (code === 'admin_regulatory_qr_preview') return 'معاينة نظامية (رمز تسجيل)';
+    if (code === 'booking_overlap_denied') return '����� ���� (���)';
+    if (code === 'role_not_allowed') return '��� ��� ����';
+    if (code === 'barber_not_found') return '���� ��� �����';
+    if (code === 'profile_not_found') return '��� ���� ��� �����';
+    if (code === 'admin_regulatory_qr_preview') return '������ ������ (��� �����)';
     return code;
   };
 
@@ -896,21 +903,21 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">سجل الأمان والعمليات</h2>
+          <h2 className="text-2xl font-bold">��� ������ ���������</h2>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground leading-relaxed">
-            بيانات حيّة من جدول <code className="text-xs">platform_booking_security_log</code> (محاولات تعارض حجز، وصول
-            غير طبيعي، إلخ). يُفضَّل تفعيل Realtime لهذا الجدول في Supabase حتى تصل الإدراجات فوراً؛ وإلا يعمل التحديث
-            التلقائي كل 12 ثانية أثناء بقائك في التبويب.
+            ������ ���� �� ���� <code className="text-xs">platform_booking_security_log</code> (������� ����� ��ҡ ����
+            ��� ������ ���). ������� ����� Realtime ���� ������ �� Supabase ��� ��� ��������� ����� ���� ���� �������
+            �������� �� 12 ����� ����� ����� �� �������.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={liveConnected ? 'default' : 'secondary'} className="gap-1">
             <span className={`inline-block h-2 w-2 rounded-full ${liveConnected ? 'bg-green-400' : 'bg-muted-foreground'}`} />
-            {liveConnected ? 'بث مباشر' : 'بث غير متصل'}
+            {liveConnected ? '�� �����' : '�� ��� ����'}
           </Badge>
           <Button type="button" variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            تحديث الآن
+            ����� ����
           </Button>
           {showOverlapSimulator ? (
             <Button
@@ -919,7 +926,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
               size="sm"
               className="gap-1 border-amber-500/40"
               disabled={loading || simulating}
-              title="ينفّذ حجزاً ثم محاولة متداخلة عبر المفتاح المجهول؛ يُسجّل التعارض ثم يُنظّف بيانات الاختبار"
+              title="����� ����� �� ������ ������� ��� ������� ������� ������ ������� �� ������ ������ ��������"
               onClick={() => {
                 setSimulating(true);
                 void (async () => {
@@ -927,18 +934,18 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
                   setSimulating(false);
                   if (r.ok) {
                     toast({
-                      title: 'محاكاة التعارض',
+                      title: '������ �������',
                       description: r.summary,
                     });
                     await load();
                   } else {
-                    toast({ title: 'فشل المحاكاة', description: r.error, variant: 'destructive' });
+                    toast({ title: '��� ��������', description: r.error, variant: 'destructive' });
                   }
                 })();
               }}
             >
               {simulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FlaskConical className="h-4 w-4" />}
-              محاكاة تعارض
+              ������ �����
             </Button>
           ) : null}
         </div>
@@ -948,18 +955,18 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Activity className="h-5 w-5 text-amber-600" />
-            أحداث الحجز والوصول
+            ����� ����� �������
           </CardTitle>
-          <CardDescription>الأحدث أولاً — يشمل تنبيهات منطقية عند وصول صف جديد عبر البث المباشر</CardDescription>
+          <CardDescription>������ ����� � ���� ������� ������ ��� ���� �� ���� ��� ���� �������</CardDescription>
         </CardHeader>
         <CardContent>
           {loading && rows.length === 0 ? (
             <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin" />
-              جاري التحميل…
+              ���� �������
             </div>
           ) : rows.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">لا توجد أحداث مسجّلة بعد.</p>
+            <p className="py-12 text-center text-sm text-muted-foreground">�� ���� ����� ������ ���.</p>
           ) : (
             <ul className="max-h-[min(70vh,520px)] space-y-3 overflow-y-auto pe-1">
               {rows.map((row) => {
@@ -1017,7 +1024,7 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-bold mb-6">الإحصائيات العامة</h2>
+      <h2 className="text-2xl font-bold mb-6">���������� ������</h2>
 
       <Card className="mb-6 border-primary/25 bg-primary/5">
         <CardHeader className="pb-2">
@@ -1029,45 +1036,45 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
       {/* Main Stats */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <StatsCard
-          title="إجمالي الحلاقين"
+          title="������ ��������"
           value={stats.totalBarbers}
-          subtitle={`${stats.activeSubscriptions} ترخيص إدراج نشط`}
+          subtitle={`${stats.activeSubscriptions} ����� ����� ���`}
           icon={Users}
           color="blue"
         />
         <StatsCard
-          title="الإيرادات الكلية"
-          value={`${stats.totalRevenue.toLocaleString()} ر.س`}
-          subtitle={`${stats.monthlyRevenue.toLocaleString()} ر.س هذا الشهر`}
+          title="��������� ������"
+          value={`${stats.totalRevenue.toLocaleString()} �.�`}
+          subtitle={`${stats.monthlyRevenue.toLocaleString()} �.� ��� �����`}
           icon={DollarSign}
           color="green"
         />
         <StatsCard
-          title="طلبات قيد المراجعة"
+          title="����� ��� ��������"
           value={stats.pendingRequests}
           icon={FileText}
           color="yellow"
         />
         <StatsCard
-          title="مدفوعات قيد التأكيد"
+          title="������� ��� �������"
           value={stats.pendingPayments}
           icon={CreditCard}
           color="purple"
         />
       </div>
 
-      {/* توزيع باقات التراخيص */}
+      {/* ����� ����� �������� */}
       <div className="grid gap-6 md:grid-cols-3 mb-6">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">باقة برونزية</p>
+                <p className="text-sm text-muted-foreground mb-1">���� �������</p>
                 <p className="text-2xl font-bold">{stats.bronzeBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">100 ر.س / ترخيص 30 يوم</p>
+                <p className="text-xs text-muted-foreground mt-1">100 �.� / ����� 30 ���</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/30 flex items-center justify-center">
-                <span className="text-2xl">🥉</span>
+                <span className="text-2xl">??</span>
               </div>
             </div>
           </CardContent>
@@ -1077,12 +1084,12 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">باقة ذهبية</p>
+                <p className="text-sm text-muted-foreground mb-1">���� �����</p>
                 <p className="text-2xl font-bold">{stats.goldBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">150 ر.س / ترخيص 30 يوم</p>
+                <p className="text-xs text-muted-foreground mt-1">150 �.� / ����� 30 ���</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 flex items-center justify-center">
-                <span className="text-2xl">🥇</span>
+                <span className="text-2xl">??</span>
               </div>
             </div>
           </CardContent>
@@ -1092,12 +1099,12 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">باقة ماسية</p>
+                <p className="text-sm text-muted-foreground mb-1">���� �����</p>
                 <p className="text-2xl font-bold">{stats.diamondBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">200 ر.س / ترخيص 30 يوم</p>
+                <p className="text-xs text-muted-foreground mt-1">200 �.� / ����� 30 ���</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 flex items-center justify-center">
-                <span className="text-2xl">💎</span>
+                <span className="text-2xl">??</span>
               </div>
             </div>
           </CardContent>
@@ -1108,19 +1115,19 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>إحصائيات المنصة</CardTitle>
+            <CardTitle>�������� ������</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">إجمالي المواعيد</span>
+              <span className="text-sm text-muted-foreground">������ ��������</span>
               <span className="font-semibold">{stats.totalAppointments.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">إجمالي المستخدمين</span>
+              <span className="text-sm text-muted-foreground">������ ����������</span>
               <span className="font-semibold">{stats.totalUsers.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">تراخيص إدراج منتهية</span>
+              <span className="text-sm text-muted-foreground">������ ����� ������</span>
               <span className="font-semibold text-red-600">{stats.expiredSubscriptions}</span>
             </div>
           </CardContent>
@@ -1128,27 +1135,27 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
 
         <Card>
           <CardHeader>
-            <CardTitle>الإيرادات الشهرية</CardTitle>
+            <CardTitle>��������� �������</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">برونزي</span>
-                <span className="font-semibold">{(stats.bronzeBarbers * 100).toLocaleString()} ر.س</span>
+                <span className="text-sm text-muted-foreground">������</span>
+                <span className="font-semibold">{(stats.bronzeBarbers * 100).toLocaleString()} �.�</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">ذهبي</span>
-                <span className="font-semibold">{(stats.goldBarbers * 150).toLocaleString()} ر.س</span>
+                <span className="text-sm text-muted-foreground">����</span>
+                <span className="font-semibold">{(stats.goldBarbers * 150).toLocaleString()} �.�</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">ماسي</span>
-                <span className="font-semibold">{(stats.diamondBarbers * 200).toLocaleString()} ر.س</span>
+                <span className="text-sm text-muted-foreground">����</span>
+                <span className="font-semibold">{(stats.diamondBarbers * 200).toLocaleString()} �.�</span>
               </div>
               <div className="pt-4 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">الإجمالي</span>
+                  <span className="text-sm font-semibold">��������</span>
                   <span className="text-lg font-bold text-green-600">
-                    {stats.monthlyRevenue.toLocaleString()} ر.س
+                    {stats.monthlyRevenue.toLocaleString()} �.�
                   </span>
                 </div>
               </div>
@@ -1214,7 +1221,7 @@ function attachmentLooksLikePdf(url: string): boolean {
   return /\.pdf(\?|#|$)/i.test(url);
 }
 
-/** صورة يمكن عرضها في وسم img (يستثني روابط PDF) */
+/** ���� ���� ����� �� ��� img (������ ����� PDF) */
 function isRenderableImageAssetUrl(ref: string): boolean {
   return isVisualAssetUrl(ref) && !attachmentLooksLikePdf(ref);
 }
@@ -1237,13 +1244,13 @@ function hasPartnerAttributionSignal(request: SubscriptionRequest): boolean {
 
 function inferMarketingMedium(request: SubscriptionRequest): string {
   const a = request.partnerAttribution;
-  if (!a) return 'غير معروف';
+  if (!a) return '��� �����';
   if (a.utmMedium) return a.utmMedium;
   if (a.gclid) return 'google_ads';
   if (a.fbclid) return 'meta_ads';
   if (a.ttclid) return 'tiktok_ads';
   if (a.msclkid) return 'microsoft_ads';
-  return 'غير معروف';
+  return '��� �����';
 }
 
 function csvCell(value: unknown): string {
@@ -1254,7 +1261,7 @@ function csvCell(value: unknown): string {
   return raw;
 }
 
-function errorText(result: unknown, fallback = 'حدث خطأ غير متوقع'): string {
+function errorText(result: unknown, fallback = '��� ��� ��� �����'): string {
   if (result && typeof result === 'object' && 'error' in result) {
     const value = (result as { error?: unknown }).error;
     if (typeof value === 'string' && value.trim()) return value;
@@ -1328,7 +1335,7 @@ function RequestsSection({
     for (const req of attributed) {
       const source = req.partnerAttribution?.utmSource || 'direct_or_unknown';
       const medium = inferMarketingMedium(req);
-      const campaign = req.partnerAttribution?.utmCampaign || 'بدون_حملة';
+      const campaign = req.partnerAttribution?.utmCampaign || '����_����';
 
       sourceCounter.set(source, (sourceCounter.get(source) || 0) + 1);
       mediumCounter.set(medium, (mediumCounter.get(medium) || 0) + 1);
@@ -1383,7 +1390,7 @@ function RequestsSection({
 
       const source = request.partnerAttribution?.utmSource || 'direct_or_unknown';
       const medium = inferMarketingMedium(request);
-      const campaign = request.partnerAttribution?.utmCampaign || 'بدون_حملة';
+      const campaign = request.partnerAttribution?.utmCampaign || '����_����';
 
       if (sourceFilter !== 'all' && source !== sourceFilter) return false;
       if (mediumFilter !== 'all' && medium !== mediumFilter) return false;
@@ -1406,11 +1413,11 @@ function RequestsSection({
 
   const exportFilteredRequestsCsv = () => {
     if (!canExportCsv) {
-      toast({ title: 'لا تملك صلاحية تصدير الطلبات', variant: 'destructive' });
+      toast({ title: '�� ���� ������ ����� �������', variant: 'destructive' });
       return;
     }
     if (filteredRequests.length === 0) {
-      toast({ title: 'لا توجد بيانات للتصدير', description: 'لا توجد نتائج حالية ضمن الفلاتر.' });
+      toast({ title: '�� ���� ������ �������', description: '�� ���� ����� ����� ��� �������.' });
       return;
     }
 
@@ -1450,7 +1457,7 @@ function RequestsSection({
         request.location.address,
         attr?.utmSource || 'direct_or_unknown',
         inferMarketingMedium(request),
-        attr?.utmCampaign || 'بدون_حملة',
+        attr?.utmCampaign || '����_����',
         attr?.utmTerm || '',
         attr?.utmContent || '',
         attr?.gclid || '',
@@ -1479,8 +1486,8 @@ function RequestsSection({
     URL.revokeObjectURL(url);
 
     toast({
-      title: 'تم تصدير CSV',
-      description: `تم تنزيل ${filteredRequests.length} طلب/طلبات حسب الفلاتر الحالية.`,
+      title: '�� ����� CSV',
+      description: `�� ����� ${filteredRequests.length} ���/����� ��� ������� �������.`,
     });
   };
 
@@ -1492,45 +1499,45 @@ function RequestsSection({
     >
       {isSupabaseConfigured() ? (
         <p className="text-sm text-muted-foreground mb-4 rounded-lg border border-border bg-muted/40 px-4 py-3 leading-relaxed">
-          الطلبات من جدول <code className="text-xs">registration_submissions</code> بعد تسجيل دخول الإدارة وتطبيق
-          سياسات RLS (راجع <code className="text-xs">15_admin_jwt_platform_rls.sql</code> في المستودع).
+          ������� �� ���� <code className="text-xs">registration_submissions</code> ��� ����� ���� ������� ������
+          ������ RLS (���� <code className="text-xs">15_admin_jwt_platform_rls.sql</code> �� ��������).
         </p>
       ) : null}
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">طلبات التراخيص والإدراج</h2>
+        <h2 className="text-2xl font-bold">����� �������� ��������</h2>
         <div className="flex flex-wrap items-center gap-2">
           <Select
             value={requestStatusFilter}
             onValueChange={(v) => setRequestStatusFilter(v as 'all' | 'pending' | 'approved' | 'rejected')}
           >
             <SelectTrigger className="w-[168px]">
-              <SelectValue placeholder="حالة الطلب" />
+              <SelectValue placeholder="���� �����" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">كل الحالات</SelectItem>
-              <SelectItem value="pending">بانتظار المراجعة</SelectItem>
-              <SelectItem value="approved">مقبول</SelectItem>
-              <SelectItem value="rejected">مرفوض</SelectItem>
+              <SelectItem value="all">�� �������</SelectItem>
+              <SelectItem value="pending">������� ��������</SelectItem>
+              <SelectItem value="approved">�����</SelectItem>
+              <SelectItem value="rejected">�����</SelectItem>
             </SelectContent>
           </Select>
           <Input
-            placeholder="بحث بالاسم/الإيميل/الجوال/المدينة/رقم الطلب..."
+            placeholder="��� ������/�������/������/�������/��� �����..."
             className="w-72 min-w-[200px]"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <Button variant="outline" size="icon" onClick={resetMarketingFilters} title="إعادة ضبط الفلاتر">
+          <Button variant="outline" size="icon" onClick={resetMarketingFilters} title="����� ��� �������">
             <Filter className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"
             onClick={exportFilteredRequestsCsv}
             disabled={!canExportCsv || filteredRequests.length === 0}
-            title={!canExportCsv ? 'يتطلب صلاحية اعتماد/رفض الطلبات' : undefined}
+            title={!canExportCsv ? '����� ������ ������/��� �������' : undefined}
           >
             <Download className="w-4 h-4 ml-2" />
-            تصدير CSV
+            ����� CSV
           </Button>
         </div>
       </div>
@@ -1539,35 +1546,35 @@ function RequestsSection({
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
             <BarChart3 className="h-5 w-5 text-primary" />
-            أداء القنوات التسويقية (Partners Funnel)
+            ���� ������� ��������� (Partners Funnel)
           </CardTitle>
           <CardDescription>
-            قراءة مباشرة لبيانات UTM/Click IDs المرسلة من مسار الخدمات البرمجية للمنصة مع طلبات التسجيل.
+            ����� ������ ������� UTM/Click IDs ������� �� ���� ������� �������� ������ �� ����� �������.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-4">
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">إجمالي طلبات التسجيل</p>
+              <p className="text-xs text-muted-foreground">������ ����� �������</p>
               <p className="text-xl font-bold">{marketingAnalytics.total}</p>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">طلبات منسوبة تسويقياً</p>
+              <p className="text-xs text-muted-foreground">����� ������ ��������</p>
               <p className="text-xl font-bold text-primary">{marketingAnalytics.attributedCount}</p>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">نسبة الإسناد</p>
+              <p className="text-xs text-muted-foreground">���� �������</p>
               <p className="text-xl font-bold">{marketingAnalytics.attributedRate}%</p>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">طلبات بلا مصدر واضح</p>
+              <p className="text-xs text-muted-foreground">����� ��� ���� ����</p>
               <p className="text-xl font-bold">{marketingAnalytics.unattributedCount}</p>
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="mb-2 text-sm font-semibold">أعلى المصادر</p>
+              <p className="mb-2 text-sm font-semibold">���� �������</p>
               {marketingAnalytics.topSources.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {marketingAnalytics.topSources.map(([label, count]) => (
@@ -1577,12 +1584,12 @@ function RequestsSection({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">لا توجد بيانات مصادر بعد.</p>
+                <p className="text-xs text-muted-foreground">�� ���� ������ ����� ���.</p>
               )}
             </div>
 
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="mb-2 text-sm font-semibold">أعلى الوسائط</p>
+              <p className="mb-2 text-sm font-semibold">���� �������</p>
               {marketingAnalytics.topMediums.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {marketingAnalytics.topMediums.map(([label, count]) => (
@@ -1592,12 +1599,12 @@ function RequestsSection({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">لا توجد بيانات وسائط بعد.</p>
+                <p className="text-xs text-muted-foreground">�� ���� ������ ����� ���.</p>
               )}
             </div>
 
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="mb-2 text-sm font-semibold">أعلى الحملات</p>
+              <p className="mb-2 text-sm font-semibold">���� �������</p>
               {marketingAnalytics.topCampaigns.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {marketingAnalytics.topCampaigns.map(([label, count]) => (
@@ -1607,7 +1614,7 @@ function RequestsSection({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">لا توجد بيانات حملات بعد.</p>
+                <p className="text-xs text-muted-foreground">�� ���� ������ ����� ���.</p>
               )}
             </div>
           </div>
@@ -1616,24 +1623,24 @@ function RequestsSection({
 
       <Card className="mb-6">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">فلترة الطلبات التسويقية</CardTitle>
+          <CardTitle className="text-base">����� ������� ���������</CardTitle>
           <CardDescription>
-            فلترة مباشرة بحسب مصدر الاستقطاب والوسيط والحملة لمعرفة أداء كل قناة.
+            ����� ������ ���� ���� ��������� ������� ������� ������ ���� �� ����.
           </CardDescription>
           <p className="text-xs text-muted-foreground">
-            يتم حفظ آخر إعدادات الفلترة تلقائياً لهذا المتصفح.
+            ��� ��� ��� ������� ������� �������� ���� �������.
           </p>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-4">
             <div>
-              <Label className="text-xs text-muted-foreground">المصدر (source)</Label>
+              <Label className="text-xs text-muted-foreground">������ (source)</Label>
               <Select value={sourceFilter} onValueChange={setSourceFilter}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="كل المصادر" />
+                  <SelectValue placeholder="�� �������" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">كل المصادر</SelectItem>
+                  <SelectItem value="all">�� �������</SelectItem>
                   {marketingAnalytics.allSources.map(([label, count]) => (
                     <SelectItem key={label} value={label}>
                       {label} ({count})
@@ -1643,13 +1650,13 @@ function RequestsSection({
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">الوسيط (medium)</Label>
+              <Label className="text-xs text-muted-foreground">������ (medium)</Label>
               <Select value={mediumFilter} onValueChange={setMediumFilter}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="كل الوسائط" />
+                  <SelectValue placeholder="�� �������" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">كل الوسائط</SelectItem>
+                  <SelectItem value="all">�� �������</SelectItem>
                   {marketingAnalytics.allMediums.map(([label, count]) => (
                     <SelectItem key={label} value={label}>
                       {label} ({count})
@@ -1659,13 +1666,13 @@ function RequestsSection({
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">الحملة (campaign)</Label>
+              <Label className="text-xs text-muted-foreground">������ (campaign)</Label>
               <Select value={campaignFilter} onValueChange={setCampaignFilter}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="كل الحملات" />
+                  <SelectValue placeholder="�� �������" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">كل الحملات</SelectItem>
+                  <SelectItem value="all">�� �������</SelectItem>
                   {marketingAnalytics.allCampaigns.map(([label, count]) => (
                     <SelectItem key={label} value={label}>
                       {label} ({count})
@@ -1675,7 +1682,7 @@ function RequestsSection({
               </Select>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3 self-end">
-              <p className="text-xs text-muted-foreground">نتائج الفلترة الحالية</p>
+              <p className="text-xs text-muted-foreground">����� ������� �������</p>
               <p className="text-xl font-bold">{filteredRequests.length}</p>
             </div>
           </div>
@@ -1686,7 +1693,7 @@ function RequestsSection({
         {filteredRequests.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
-              لا توجد طلبات تطابق الفلاتر الحالية.
+              �� ���� ����� ����� ������� �������.
             </CardContent>
           </Card>
         ) : null}
@@ -1712,7 +1719,7 @@ function RequestsSection({
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground p-1 text-center">
-                        بدون صورة
+                        ���� ����
                       </div>
                     )}
                   </div>
@@ -1721,7 +1728,7 @@ function RequestsSection({
                       <h3 className="text-lg font-bold">{request.barberName}</h3>
                       {request.source === 'registration' && (
                         <Badge variant="outline" className="text-xs border-primary/50 text-primary">
-                          من نموذج التسجيل
+                          �� ����� �������
                         </Badge>
                       )}
                       <Badge
@@ -1733,9 +1740,9 @@ function RequestsSection({
                             : 'outline'
                         }
                       >
-                        {request.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
-                        {request.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
-                        {request.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
+                        {request.tier === SubscriptionTier.DIAMOND && '?? ����'}
+                        {request.tier === SubscriptionTier.GOLD && '?? ����'}
+                        {request.tier === SubscriptionTier.BRONZE && '?? ������'}
                       </Badge>
                       <Badge
                         variant={
@@ -1747,24 +1754,24 @@ function RequestsSection({
                         }
                       >
                         {request.status === 'approved'
-                          ? 'مقبول'
+                          ? '�����'
                           : request.status === 'rejected'
-                            ? 'مرفوض'
-                            : 'قيد المراجعة'}
+                            ? '�����'
+                            : '��� ��������'}
                       </Badge>
                       {request.adminAccountState === 'suspended' ? (
                         <Badge variant="destructive" className="bg-amber-500 text-white">
-                          الحساب معلّق
+                          ������ �����
                         </Badge>
                       ) : null}
                     </div>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-semibold text-foreground shrink-0">رقم الطلب (مرجع الدعم)</span>
+                        <span className="text-xs font-semibold text-foreground shrink-0">��� ����� (���� �����)</span>
                         <code
                           className="text-xs bg-muted px-2 py-0.5 rounded font-mono"
                           dir="ltr"
-                          title="نفس المعرّف المحفوظ في قاعدة البيانات للطلب"
+                          title="��� ������� ������� �� ����� �������� �����"
                         >
                           {request.id}
                         </code>
@@ -1783,7 +1790,7 @@ function RequestsSection({
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
-                        <span>تم التقديم: {request.submittedAt}</span>
+                        <span>�� �������: {request.submittedAt}</span>
                       </div>
                       {hasPartnerAttributionSignal(request) ? (
                         <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -1794,7 +1801,7 @@ function RequestsSection({
                             medium: {inferMarketingMedium(request)}
                           </Badge>
                           <Badge variant="outline" className="text-[11px]">
-                            campaign: {request.partnerAttribution?.utmCampaign || 'بدون_حملة'}
+                            campaign: {request.partnerAttribution?.utmCampaign || '����_����'}
                           </Badge>
                         </div>
                       ) : null}
@@ -1804,7 +1811,7 @@ function RequestsSection({
                 <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-start">
                   <Button onClick={() => onViewRequest(request)} disabled={!canOpenRequestReview}>
                     <Eye className="w-4 h-4 ml-2" />
-                    {canOpenRequestReview ? 'إدارة الطلب' : 'عرض فقط'}
+                    {canOpenRequestReview ? '����� �����' : '��� ���'}
                   </Button>
                 </div>
               </div>
@@ -1852,13 +1859,13 @@ function RequestReviewDialog({
 
   const handleApprove = async () => {
     if (!canReviewRequests) {
-      toast({ title: 'لا تملك صلاحية اعتماد الطلبات', variant: 'destructive' });
+      toast({ title: '�� ���� ������ ������ �������', variant: 'destructive' });
       return;
     }
     setSaving(true);
     const reviewedAt = new Date().toISOString();
     if (isMockRow) {
-      toast({ title: 'تم القبول (تجريبي)', description: 'هذا الطلب من العرض التجريبي المحلي فقط.' });
+      toast({ title: '�� ������ (������)', description: '��� ����� �� ����� �������� ������ ���.' });
       setSaving(false);
       onClose();
       onAfterDecision();
@@ -1868,23 +1875,23 @@ function RequestReviewDialog({
     if (!upsert.ok) {
       setSaving(false);
       toast({
-        title: 'تعذر مزامنة الحلاق',
-        description: errorText(upsert, 'تعذر مزامنة الحلاق.'),
+        title: '���� ������ ������',
+        description: errorText(upsert, '���� ������ ������.'),
         variant: 'destructive',
       });
       return;
     }
     if (upsert.warning) {
       toast({
-        title: 'تنبيه: أعمدة الرعاية الشاملة',
+        title: '�����: ����� ������� �������',
         description: upsert.warning,
       });
     }
     if (upsert.shopOpenQuickHashLink) {
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
       toast({
-        title: 'رابط حالة المحل للصالون',
-        description: `${origin}${upsert.shopOpenQuickHashLink} — أرسله للحلاق (مفيد للبرونزي دون لوحة تحكم).`,
+        title: '���� ���� ����� �������',
+        description: `${origin}${upsert.shopOpenQuickHashLink} � ����� ������ (���� �������� ��� ���� ����).`,
       });
     }
     const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
@@ -1902,10 +1909,10 @@ function RequestReviewDialog({
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'فشل الحفظ', description: errorText(res, 'تعذر تحديث الطلب.'), variant: 'destructive' });
+      toast({ title: '��� �����', description: errorText(res, '���� ����� �����.'), variant: 'destructive' });
       return;
     }
-    // تحقق صارم: تأكد أن الحلاق موجود فعلياً في نفس مشروع Supabase الحالي.
+    // ���� ����: ���� �� ������ ����� ������ �� ��� ����� Supabase ������.
     const verifyRows = await listBarbersForAdmin();
     const emailNorm = request.email.trim().toLowerCase();
     const found = verifyRows.some(
@@ -1921,25 +1928,25 @@ function RequestReviewDialog({
     });
     if (visibilityWarning) {
       toast({
-        title: 'تنبيه مزامنة',
+        title: '����� ������',
         description: mail.ok
-          ? 'تم اعتماد الطلب وأُرسل البريد، لكن الحساب غير ظاهر فوراً في قائمة الحلاقين (قد يكون اختلاف مشروع Supabase بين الواجهة والسيرفر).'
-          : 'تم اعتماد الطلب لكن الحساب غير ظاهر فوراً في القائمة، وفشل إرسال البريد أيضاً — راجع تنبيه الإرسال أدناه.',
+          ? '�� ������ ����� ������ �����ϡ ��� ������ ��� ���� ����� �� ����� �������� (�� ���� ������ ����� Supabase ��� ������� ��������).'
+          : '�� ������ ����� ��� ������ ��� ���� ����� �� ������ɡ ���� ����� ������ ����� � ���� ����� ������� �����.',
         variant: 'destructive',
       });
     }
     if (!mail.ok) {
       toast({
-        title: 'تم قبول الطلب لكن فشل الإرسال البريدي',
-        description: `تعذر إرسال بريد التعليمات إلى ${request.email}: ${errorText(mail, 'تعذر الإرسال')}`,
+        title: '�� ���� ����� ��� ��� ������� �������',
+        description: `���� ����� ���� ��������� ��� ${request.email}: ${errorText(mail, '���� �������')}`,
         variant: 'destructive',
       });
     }
     toast({
-      title: 'تم قبول الطلب',
+      title: '�� ���� �����',
       description: mail.ok
-        ? 'تمت مزامنة الحلاق وإرسال بريد التعليمات وروابط لوحة التحكم.'
-        : 'تمت مزامنة الحلاق وسيظهر في تبويب الحلاقين.',
+        ? '��� ������ ������ ������ ���� ��������� ������ ���� ������.'
+        : '��� ������ ������ ������ �� ����� ��������.',
     });
     onClose();
     onAfterDecision();
@@ -1947,17 +1954,17 @@ function RequestReviewDialog({
 
   const handleReject = async () => {
     if (!canReviewRequests) {
-      toast({ title: 'لا تملك صلاحية رفض الطلبات', variant: 'destructive' });
+      toast({ title: '�� ���� ������ ��� �������', variant: 'destructive' });
       return;
     }
     if (!rejectionReason.trim()) {
-      toast({ title: 'سبب الرفض', description: 'يرجى إدخال سبب الرفض.', variant: 'destructive' });
+      toast({ title: '��� �����', description: '���� ����� ��� �����.', variant: 'destructive' });
       return;
     }
     setSaving(true);
     const reviewedAt = new Date().toISOString();
     if (isMockRow) {
-      toast({ title: 'تم الرفض (تجريبي)', description: 'هذا الطلب من العرض التجريبي المحلي فقط.' });
+      toast({ title: '�� ����� (������)', description: '��� ����� �� ����� �������� ������ ���.' });
       setSaving(false);
       onClose();
       onAfterDecision();
@@ -1973,23 +1980,23 @@ function RequestReviewDialog({
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'فشل الحفظ', description: errorText(res, 'تعذر تحديث الطلب.'), variant: 'destructive' });
+      toast({ title: '��� �����', description: errorText(res, '���� ����� �����.'), variant: 'destructive' });
       return;
     }
-    toast({ title: 'تم رفض الطلب', description: 'تم تحديث السجل في Supabase.' });
+    toast({ title: '�� ��� �����', description: '�� ����� ����� �� Supabase.' });
     onClose();
     onAfterDecision();
   };
 
   const handleSuspendAccount = async () => {
     if (!canSubscriberLifecycle) {
-      toast({ title: 'لا تملك صلاحية تعليق الحساب', variant: 'destructive' });
+      toast({ title: '�� ���� ������ ����� ������', variant: 'destructive' });
       return;
     }
     if (!request.linkedBarberId) {
       toast({
-        title: 'لا يوجد حساب مرتبط',
-        description: 'اقبل الطلب أولاً أو أعد قبوله لإنشاء/ربط حساب الحلاق.',
+        title: '�� ���� ���� �����',
+        description: '���� ����� ����� �� ��� ����� ������/��� ���� ������.',
         variant: 'destructive',
       });
       return;
@@ -1998,7 +2005,7 @@ function RequestReviewDialog({
     const toggle = await setBarberActiveRemote(request.linkedBarberId, false);
     if (!toggle.ok) {
       setSaving(false);
-      toast({ title: 'تعذر تعليق الحساب', description: errorText(toggle, 'تعذر تعليق الحساب.'), variant: 'destructive' });
+      toast({ title: '���� ����� ������', description: errorText(toggle, '���� ����� ������.'), variant: 'destructive' });
       return;
     }
     const reviewedAt = new Date().toISOString();
@@ -2006,29 +2013,29 @@ function RequestReviewDialog({
       adminAccountState: 'suspended',
       reviewedAt,
       reviewedBy: reviewerEmail,
-      suspensionReason: rejectionReason.trim() || 'تعليق إداري',
+      suspensionReason: rejectionReason.trim() || '����� �����',
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'تعذر حفظ حالة الطلب', description: errorText(res, 'تعذر تحديث حالة الطلب.'), variant: 'destructive' });
+      toast({ title: '���� ��� ���� �����', description: errorText(res, '���� ����� ���� �����.'), variant: 'destructive' });
       return;
     }
-    toast({ title: 'تم تعليق الحساب' });
+    toast({ title: '�� ����� ������' });
     onClose();
     onAfterDecision();
   };
 
   const handleDeleteRequest = async () => {
     if (!canSubscriberLifecycle) {
-      toast({ title: 'لا تملك صلاحية حذف الطلب', variant: 'destructive' });
+      toast({ title: '�� ���� ������ ��� �����', variant: 'destructive' });
       return;
     }
-    if (!window.confirm('تأكيد حذف الطلب نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+    if (!window.confirm('����� ��� ����� ������� ��� ������� �� ���� ������� ���.')) return;
     setSaving(true);
     if (isMockRow) {
       removeStoredSubscriptionRequest(request.id);
       setSaving(false);
-      toast({ title: 'تم حذف الطلب (تجريبي)' });
+      toast({ title: '�� ��� ����� (������)' });
       onClose();
       onAfterDecision();
       return;
@@ -2036,23 +2043,23 @@ function RequestReviewDialog({
     const res = await deleteRegistrationSubmissionRemote(request.id);
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'تعذر حذف الطلب', description: errorText(res, 'تعذر حذف الطلب.'), variant: 'destructive' });
+      toast({ title: '���� ��� �����', description: errorText(res, '���� ��� �����.'), variant: 'destructive' });
       return;
     }
     removeStoredSubscriptionRequest(request.id);
-    toast({ title: 'تم حذف الطلب نهائياً' });
+    toast({ title: '�� ��� ����� �������' });
     onClose();
     onAfterDecision();
   };
 
   const handleResendOnboarding = async () => {
     if (!canSubscriberComms) {
-      toast({ title: 'لا تملك صلاحية إعادة إرسال رسالة الروابط', variant: 'destructive' });
+      toast({ title: '�� ���� ������ ����� ����� ����� �������', variant: 'destructive' });
       return;
     }
     const recipient = request.email.trim();
     if (!recipient) {
-      toast({ title: 'لا يوجد بريد إلكتروني', variant: 'destructive' });
+      toast({ title: '�� ���� ���� ��������', variant: 'destructive' });
       return;
     }
     setSaving(true);
@@ -2066,18 +2073,18 @@ function RequestReviewDialog({
     setSaving(false);
     if (!mail.ok) {
       toast({
-        title: 'تعذر إعادة إرسال الرسالة الأساسية',
-        description: errorText(mail, 'تعذر الإرسال البريدي.'),
+        title: '���� ����� ����� ������� ��������',
+        description: errorText(mail, '���� ������� �������.'),
         variant: 'destructive',
       });
       return;
     }
     const resendRef = mail.messageId
-      ? `\nمعرّف في Resend: ${mail.messageId}\nافتح resend.com → Emails وابحث بهذا المعرف لمعرفة إن كانت «مُسلَّمة» أو «مرتدة».`
+      ? `\n����� �� Resend: ${mail.messageId}\n���� resend.com ? Emails ����� ���� ������ ������ �� ���� ��������ɻ �� �����ɻ.`
       : '';
     toast({
-      title: 'تم تسليم الرسالة إلى Resend',
-      description: `المستلم: ${recipient}\nResend قبلت الطلب؛ الوصول لصندوق Gmail قد يتأخر أو يذهب للمزعج/العروض. للتأكيد الفعلي استخدم لوحة Resend وليس واجهتنا فقط.${resendRef}`,
+      title: '�� ����� ������� ��� Resend',
+      description: `�������: ${recipient}\nResend ���� ����Ⱥ ������ ������ Gmail �� ����� �� ���� ������/������. ������� ������ ������ ���� Resend ���� ������� ���.${resendRef}`,
     });
   };
 
@@ -2092,56 +2099,56 @@ function RequestReviewDialog({
     >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-2xl">مراجعة طلب الترخيص والإدراج</DialogTitle>
+          <DialogTitle className="text-2xl">������ ��� ������� ��������</DialogTitle>
           <DialogDescription>
-            قم بمراجعة المعلومات والمستندات قبل الموافقة أو الرفض
+            �� ������� ��������� ���������� ��� �������� �� �����
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Basic Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">معلومات الصالون</h3>
+            <h3 className="text-lg font-semibold mb-3">������� �������</h3>
             <div className="rounded-md border border-primary/25 bg-primary/5 px-3 py-2 mb-4">
-              <Label>رقم الطلب (مرجع الدعم)</Label>
+              <Label>��� ����� (���� �����)</Label>
               <p className="text-sm font-mono font-semibold mt-1 break-all" dir="ltr">
                 {request.id}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                يطابق الرقم الذي يظهر للعميل بعد التقديم؛ اطلبه عند المتابعة مع الدعم.
+                ����� ����� ���� ���� ������ ��� ������� ����� ��� �������� �� �����.
               </p>
             </div>
             {request.barberMemberNumber != null &&
             Number.isFinite(request.barberMemberNumber) ? (
               <div className="rounded-md border border-amber-200/80 bg-amber-50/80 px-3 py-2 mb-4">
-                <Label>رقم العضوية على المنصة (بعد الاعتماد)</Label>
+                <Label>��� ������� ��� ������ (��� ��������)</Label>
                 <p className="text-sm font-mono font-semibold mt-1" dir="ltr">
                   {formatBarberMemberNumber(request.barberMemberNumber)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  مرجع دائم للأرشفة والدعم — يختلف عن رقم طلب التسجيل أعلاه.
+                  ���� ���� ������� ������ � ����� �� ��� ��� ������� �����.
                 </p>
               </div>
             ) : null}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>اسم الصالون</Label>
+                <Label>��� �������</Label>
                 <p className="text-sm font-medium mt-1">{request.barberName}</p>
               </div>
               <div>
-                <Label>الباقة المطلوبة</Label>
+                <Label>������ ��������</Label>
                 <Badge className="mt-1">
-                  {request.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
-                  {request.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
-                  {request.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
+                  {request.tier === SubscriptionTier.DIAMOND && '?? ����'}
+                  {request.tier === SubscriptionTier.GOLD && '?? ����'}
+                  {request.tier === SubscriptionTier.BRONZE && '?? ������'}
                 </Badge>
               </div>
               <div>
-                <Label>البريد الإلكتروني</Label>
+                <Label>������ ����������</Label>
                 <p className="text-sm font-medium mt-1">{request.email}</p>
               </div>
               <div>
-                <Label>رقم الهاتف</Label>
+                <Label>��� ������</Label>
                 <p className="text-sm font-medium mt-1" dir="ltr">
                   {request.phone}
                 </p>
@@ -2151,7 +2158,7 @@ function RequestReviewDialog({
 
           <div className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-muted-foreground">حالة الطلب:</span>
+              <span className="text-muted-foreground">���� �����:</span>
               <Badge
                 variant={
                   request.status === 'approved'
@@ -2162,12 +2169,12 @@ function RequestReviewDialog({
                 }
               >
                 {request.status === 'approved'
-                  ? 'مقبول'
+                  ? '�����'
                   : request.status === 'rejected'
-                    ? 'مرفوض'
-                    : 'قيد المراجعة'}
+                    ? '�����'
+                    : '��� ��������'}
               </Badge>
-              <span className="text-muted-foreground">حالة الحساب:</span>
+              <span className="text-muted-foreground">���� ������:</span>
               <Badge
                 variant={
                   request.adminAccountState === 'suspended'
@@ -2178,10 +2185,10 @@ function RequestReviewDialog({
                 }
               >
                 {request.adminAccountState === 'suspended'
-                  ? 'معلّق'
+                  ? '�����'
                   : request.adminAccountState === 'deleted'
-                    ? 'محذوف'
-                    : 'نشط/غير محدد'}
+                    ? '�����'
+                    : '���/��� ����'}
               </Badge>
             </div>
             {request.linkedBarberId ? (
@@ -2193,11 +2200,11 @@ function RequestReviewDialog({
 
           {/* Location */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">الموقع</h3>
+            <h3 className="text-lg font-semibold mb-3">������</h3>
             <div className="space-y-2">
               <p className="text-sm">{request.location.address}</p>
               <p className="text-xs text-muted-foreground">
-                الإحداثيات: {request.location.lat}, {request.location.lng}
+                ����������: {request.location.lat}, {request.location.lng}
               </p>
               <Button
                 variant="outline"
@@ -2210,15 +2217,15 @@ function RequestReviewDialog({
                 }
               >
                 <MapPin className="w-4 h-4 ml-2" />
-                الظهور عبر نظام الرصد الذكي
+                ������ ��� ���� ����� �����
               </Button>
             </div>
           </div>
 
           {request.weeklyWorkingHours && request.weeklyWorkingHours.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-2">أوقات العمل (من الطلب)</h3>
-              <p className="text-xs text-muted-foreground mb-2">أسبوع كامل كما سجّل مقدّم الطلب</p>
+              <h3 className="text-lg font-semibold mb-2">����� ����� (�� �����)</h3>
+              <p className="text-xs text-muted-foreground mb-2">����� ���� ��� ���� ����� �����</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 rounded-lg border border-border p-2 bg-muted/20">
                 {getOrderedWeekHoursForDisplay(request.weeklyWorkingHours).map(({ day, line, closed }) => (
                   <div
@@ -2240,32 +2247,32 @@ function RequestReviewDialog({
             </div>
           )}
 
-          {/* التعهد القانوني من نموذج التسجيل */}
+          {/* ������ �������� �� ����� ������� */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">التعهد القانوني</h3>
+            <h3 className="text-lg font-semibold mb-3">������ ��������</h3>
             {request.legalDisclaimerAccepted ? (
               <div className="mb-4 space-y-2 rounded-lg border border-primary/25 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-foreground leading-relaxed">
-                  صاحب المحل أقرّ بترخيص المنشأة من وزارة التجارة والبلدية وتحمّل المسؤولية القانونية وإخلاء مسؤولية
-                  منصة حلاق ماب — كما في نموذج التسجيل الحالي.
+                  ���� ����� ���� ������ ������� �� ����� ������� �������� ������ ��������� ��������� ������ �������
+                  ���� ���� ��� � ��� �� ����� ������� ������.
                 </p>
                 {request.legalDisclaimerAcceptedAtIso ? (
                   <p className="text-xs text-muted-foreground" dir="ltr">
-                    وقت التأشير (UTC): {request.legalDisclaimerAcceptedAtIso}
+                    ��� ������� (UTC): {request.legalDisclaimerAcceptedAtIso}
                   </p>
                 ) : null}
               </div>
             ) : (
               <p className="mb-4 text-sm text-amber-800 dark:text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-md p-3">
-                لا يظهر في هذا الطلب تعهد قانوني مُسجّل (طلب قديم أو بيانات ناقصة). راجع الطلب يدوياً قبل القبول.
+                �� ���� �� ��� ����� ���� ������ ������ (��� ���� �� ������ �����). ���� ����� ������ ��� ������.
               </p>
             )}
-            <p className="text-xs text-muted-foreground mb-2">ملاحظات الطلب كما أُرسلت:</p>
+            <p className="text-xs text-muted-foreground mb-2">������� ����� ��� ������:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {request.documents.map((doc, index) =>
                 isRenderableImageAssetUrl(doc) ? (
                   <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
-                    <img src={doc} alt={`مستند ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={doc} alt={`����� ${index + 1}`} className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div
@@ -2286,21 +2293,21 @@ function RequestReviewDialog({
             request.servicesSummary ||
             request.inclusiveAccessibleCare?.offered) && (
             <div>
-              <h3 className="text-lg font-semibold mb-3">الدفع والخدمات (من نموذج التسجيل)</h3>
+              <h3 className="text-lg font-semibold mb-3">����� �������� (�� ����� �������)</h3>
               <div className="space-y-3 rounded-lg border border-border p-4 bg-muted/20">
                 {request.paymentMethod && (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">طريقة الدفع: </span>
+                    <span className="text-muted-foreground">����� �����: </span>
                     <span className="font-medium">
                       {request.paymentMethod === 'bank_transfer'
-                        ? 'تحويل بنكي (6 أشهر)'
-                        : 'ترخيص رقمي (ميسر)'}
+                        ? '����� ���� (6 ����)'
+                        : '����� ���� (����)'}
                     </span>
                   </p>
                 )}
                 {request.receiptFileName && (
                   <p className="text-sm break-all">
-                    <span className="text-muted-foreground">ملف الإيصال: </span>
+                    <span className="text-muted-foreground">��� �������: </span>
                     <span dir="ltr" className="font-medium inline-block">
                       {request.receiptFileName}
                     </span>
@@ -2308,7 +2315,7 @@ function RequestReviewDialog({
                 )}
                 {request.registrationAttachmentUrls?.receipt && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">إيصال التحويل (مرفوع)</p>
+                    <p className="text-sm font-medium">����� ������� (�����)</p>
                     <Button variant="outline" size="sm" asChild>
                       <a
                         href={request.registrationAttachmentUrls.receipt}
@@ -2317,24 +2324,24 @@ function RequestReviewDialog({
                         className="gap-2"
                       >
                         <ExternalLink className="w-4 h-4 ml-2" />
-                        فتح إيصال التحويل
+                        ��� ����� �������
                       </a>
                     </Button>
                   </div>
                 )}
                 {request.receiptDataUrl && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">معاينة الإيصال</p>
+                    <p className="text-sm font-medium">������ �������</p>
                     {request.receiptDataUrl.startsWith('data:image/') ? (
                       <img
                         src={request.receiptDataUrl}
-                        alt="إيصال"
+                        alt="�����"
                         className="max-h-64 rounded-lg border border-border object-contain"
                       />
                     ) : (
                       <Button variant="outline" size="sm" asChild>
                         <a href={request.receiptDataUrl} target="_blank" rel="noopener noreferrer">
-                          فتح ملف الإيصال في نافذة جديدة
+                          ��� ��� ������� �� ����� �����
                         </a>
                       </Button>
                     )}
@@ -2342,7 +2349,7 @@ function RequestReviewDialog({
                 )}
                 {request.servicesSummary && (
                   <div>
-                    <p className="text-sm font-medium mb-1">الخدمات والأسعار</p>
+                    <p className="text-sm font-medium mb-1">������� ��������</p>
                     <pre className="text-xs whitespace-pre-wrap bg-background rounded-md p-3 border border-border">
                       {request.servicesSummary}
                     </pre>
@@ -2350,20 +2357,20 @@ function RequestReviewDialog({
                 )}
                 {request.inclusiveAccessibleCare?.offered && (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">خدمة مُيسَّرة / منزلية (كبار السن والمرضى وذوي الاحتياجات): </span>
+                    <span className="text-muted-foreground">���� �������� / ������ (���� ���� ������� ���� ����������): </span>
                     <span className="font-medium">
-                      نعم — السعر المعروض:{' '}
+                      ��� � ����� �������:{' '}
                       {request.inclusiveAccessibleCare.displayedPriceSar != null &&
                       request.inclusiveAccessibleCare.displayedPriceSar > 0
-                        ? `${request.inclusiveAccessibleCare.displayedPriceSar} ر.س`
-                        : '—'}
+                        ? `${request.inclusiveAccessibleCare.displayedPriceSar} �.�`
+                        : '�'}
                     </span>
                   </p>
                 )}
                 {request.categories && request.categories.length > 0 && (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">التصنيفات: </span>
-                    {request.categories.join('، ')}
+                    <span className="text-muted-foreground">���������: </span>
+                    {request.categories.join('� ')}
                   </p>
                 )}
               </div>
@@ -2372,23 +2379,23 @@ function RequestReviewDialog({
 
           {/* Shop Images */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">صور المحل</h3>
+            <h3 className="text-lg font-semibold mb-3">��� �����</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {request.shopImages.map((image, index) =>
                 isRenderableImageAssetUrl(image) ? (
                   <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
-                    <img src={image} alt={`صورة ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={image} alt={`���� ${index + 1}`} className="w-full h-full object-cover" />
                   </div>
                 ) : isVisualAssetUrl(image) ? (
                   <div
                     key={index}
                     className="aspect-video rounded-lg border border-border p-3 flex flex-col justify-center gap-2"
                   >
-                    <span className="text-xs text-muted-foreground">ملف / رابط</span>
+                    <span className="text-xs text-muted-foreground">��� / ����</span>
                     <Button variant="outline" size="sm" asChild>
                       <a href={image} target="_blank" rel="noopener noreferrer" className="gap-2">
                         <ExternalLink className="w-4 h-4 ml-2" />
-                        فتح
+                        ���
                       </a>
                     </Button>
                   </div>
@@ -2407,11 +2414,11 @@ function RequestReviewDialog({
           {/* Rejection Form */}
           {showRejectForm && (
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <Label className="text-red-600 mb-2 block">سبب الرفض</Label>
+              <Label className="text-red-600 mb-2 block">��� �����</Label>
               <Textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="اكتب سبب رفض الطلب..."
+                placeholder="���� ��� ��� �����..."
                 rows={4}
                 className="border-red-500/30"
               />
@@ -2421,7 +2428,7 @@ function RequestReviewDialog({
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose} disabled={saving}>
-            إلغاء
+            �����
           </Button>
           {!showRejectForm ? (
             <>
@@ -2431,7 +2438,7 @@ function RequestReviewDialog({
                 disabled={saving || !canReviewRequests}
               >
                 <XCircle className="w-4 h-4 ml-2" />
-                {request.status === 'pending' ? 'رفض الطلب' : 'إعادة رفض'}
+                {request.status === 'pending' ? '��� �����' : '����� ���'}
               </Button>
               <Button
                 onClick={() => void handleApprove()}
@@ -2439,18 +2446,18 @@ function RequestReviewDialog({
                 className="bg-green-600 hover:bg-green-700"
               >
                 {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 ml-2" />}
-                اعتماد/إعادة اعتماد
+                ������/����� ������
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => void handleSuspendAccount()}
                 disabled={saving || !canSubscriberLifecycle}
               >
-                تعليق الحساب
+                ����� ������
               </Button>
               <Button variant="outline" onClick={() => void handleResendOnboarding()} disabled={saving || !canSubscriberComms}>
                 <Mail className="w-4 h-4 ml-2" />
-                إعادة إرسال رسالة الروابط
+                ����� ����� ����� �������
               </Button>
               <Button
                 variant="outline"
@@ -2459,13 +2466,13 @@ function RequestReviewDialog({
                 className="text-red-600 border-red-500/40 hover:bg-red-500/10"
               >
                 <Trash2 className="w-4 h-4 ml-2" />
-                حذف الطلب
+                ��� �����
               </Button>
             </>
           ) : (
             <Button variant="destructive" onClick={() => void handleReject()} disabled={saving || !canReviewRequests}>
               {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : null}
-              تأكيد الرفض
+              ����� �����
             </Button>
           )}
         </DialogFooter>
@@ -2530,18 +2537,18 @@ function BarberHardEditDialog({
     const emailTrim = email.trim().toLowerCase();
     const phoneTrim = phone.trim();
     const cityTrim = city.trim() || null;
-    const addressTrim = address.trim() || 'غير محدد';
+    const addressTrim = address.trim() || '��� ����';
 
     if (!nameTrim) {
-      toast({ title: 'الاسم مطلوب', variant: 'destructive' });
+      toast({ title: '����� �����', variant: 'destructive' });
       return;
     }
     if (!emailTrim || !emailTrim.includes('@')) {
-      toast({ title: 'بريد غير صالح', variant: 'destructive' });
+      toast({ title: '���� ��� ����', variant: 'destructive' });
       return;
     }
     if (!phoneTrim) {
-      toast({ title: 'رقم الجوال مطلوب', variant: 'destructive' });
+      toast({ title: '��� ������ �����', variant: 'destructive' });
       return;
     }
 
@@ -2552,8 +2559,8 @@ function BarberHardEditDialog({
     if (latTrim || lngTrim) {
       if (!latTrim || !lngTrim) {
         toast({
-          title: 'إحداثيات غير مكتملة',
-          description: 'أدخل خط العرض والطول معاً، أو اتركهما فارغين لإزالة الإحداثيات.',
+          title: '�������� ��� ������',
+          description: '���� �� ����� ������ ���� �� ������� ������ ������ ����������.',
           variant: 'destructive',
         });
         return;
@@ -2561,7 +2568,7 @@ function BarberHardEditDialog({
       const latN = Number(latTrim);
       const lngN = Number(lngTrim);
       if (!Number.isFinite(latN) || !Number.isFinite(lngN)) {
-        toast({ title: 'إحداثيات غير صالحة', variant: 'destructive' });
+        toast({ title: '�������� ��� �����', variant: 'destructive' });
         return;
       }
       latitude = latN;
@@ -2589,8 +2596,8 @@ function BarberHardEditDialog({
     setSaving(false);
     if (!res.ok) {
       toast({
-        title: 'تعذر حفظ التعديلات',
-        description: errorText(res, 'تعذر تحديث بيانات الحلاق.'),
+        title: '���� ��� ���������',
+        description: errorText(res, '���� ����� ������ ������.'),
         variant: 'destructive',
       });
       return;
@@ -2615,20 +2622,20 @@ function BarberHardEditDialog({
         onRegistrationPayloadSynced();
         if (failures.length) {
           toast({
-            title: 'حُفظ الحلاق لكن تعذر تحديث الطلب المرتبط',
-            description: failures[0] ?? 'خطأ غير معروف',
+            title: '���� ������ ��� ���� ����� ����� �������',
+            description: failures[0] ?? '��� ��� �����',
             variant: 'destructive',
           });
         } else if (emailChanged && phoneChanged) {
-          submissionSyncHint = ` — وتم تحديث البريد والجوال في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
+          submissionSyncHint = ` � ��� ����� ������ ������� �� ${linked.length} ��� ����� (����� �������).`;
         } else if (emailChanged) {
-          submissionSyncHint = ` — وتم تحديث البريد في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
+          submissionSyncHint = ` � ��� ����� ������ �� ${linked.length} ��� ����� (����� �������).`;
         } else if (phoneChanged) {
-          submissionSyncHint = ` — وتم تحديث الجوال في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
+          submissionSyncHint = ` � ��� ����� ������ �� ${linked.length} ��� ����� (����� �������).`;
         }
       } else if (emailChanged || phoneChanged) {
         submissionSyncHint =
-          ' — لم يُعثر على طلب تسجيل مربوط (linkedBarberId)؛ بريد الطلب في «الطلبات» لم يتغير تلقائياً.';
+          ' � �� ����� ��� ��� ����� ����� (linkedBarberId)� ���� ����� �� �������ʻ �� ����� ��������.';
       }
     }
 
@@ -2647,7 +2654,7 @@ function BarberHardEditDialog({
       profile_image: profileTrim ? profileTrim : null,
       cover_image: coverTrim ? coverTrim : null,
     };
-    toast({ title: 'تم حفظ التعديلات', description: `${nameTrim}${submissionSyncHint}` });
+    toast({ title: '�� ��� ���������', description: `${nameTrim}${submissionSyncHint}` });
     onSaved(next);
     onOpenChange(false);
   };
@@ -2656,17 +2663,17 @@ function BarberHardEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle>تعديل بيانات الحلاق (صلاحية رئيسية)</DialogTitle>
+          <DialogTitle>����� ������ ������ (������ ������)</DialogTitle>
           <DialogDescription>
-            يُستخدم للدعم الفني عند تعذّر الحلاق على تعديل بياناته أو صوره. اترك حقول الصور فارغة لإزالة الرابط. عند
-            تغيير البريد أو الجوال يُحدَّث تلقائياً طلب التسجيل المرتبط بنفس الحساب في تبويب الطلبات إن وُجد
-            ربط.
+            ������� ����� ����� ��� ����� ������ ��� ����� ������� �� ����. ���� ���� ����� ����� ������ ������. ���
+            ����� ������ �� ������ ������� �������� ��� ������� ������� ���� ������ �� ����� ������� �� ����
+            ���.
           </DialogDescription>
           {barber ? (
             <p className="text-sm text-muted-foreground pt-1">
-              رقم العضوية على المنصة:{' '}
+              ��� ������� ��� ������:{' '}
               <span className="font-mono font-semibold text-foreground" dir="ltr">
-                {formatBarberMemberNumber(barber.memberNumber) ?? '—'}
+                {formatBarberMemberNumber(barber.memberNumber) ?? '�'}
               </span>
             </p>
           ) : null}
@@ -2675,66 +2682,66 @@ function BarberHardEditDialog({
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hard-edit-name">اسم الصالون</Label>
+              <Label htmlFor="hard-edit-name">��� �������</Label>
               <Input id="hard-edit-name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-email">البريد</Label>
+              <Label htmlFor="hard-edit-email">������</Label>
               <Input id="hard-edit-email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-phone">الجوال</Label>
+              <Label htmlFor="hard-edit-phone">������</Label>
               <Input id="hard-edit-phone" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-city">المدينة (اختياري)</Label>
+              <Label htmlFor="hard-edit-city">������� (�������)</Label>
               <Input id="hard-edit-city" value={city} onChange={(e) => setCity(e.target.value)} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hard-edit-address">العنوان</Label>
+              <Label htmlFor="hard-edit-address">�������</Label>
               <Textarea id="hard-edit-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={3} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-lat">خط العرض</Label>
-              <Input id="hard-edit-lat" dir="ltr" value={latText} onChange={(e) => setLatText(e.target.value)} placeholder="مثال: 24.7136" />
+              <Label htmlFor="hard-edit-lat">�� �����</Label>
+              <Input id="hard-edit-lat" dir="ltr" value={latText} onChange={(e) => setLatText(e.target.value)} placeholder="����: 24.7136" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-lng">خط الطول</Label>
-              <Input id="hard-edit-lng" dir="ltr" value={lngText} onChange={(e) => setLngText(e.target.value)} placeholder="مثال: 46.6753" />
+              <Label htmlFor="hard-edit-lng">�� �����</Label>
+              <Input id="hard-edit-lng" dir="ltr" value={lngText} onChange={(e) => setLngText(e.target.value)} placeholder="����: 46.6753" />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>الباقة</Label>
+              <Label>������</Label>
               <Select value={tier} onValueChange={(v) => setTier(v as SubscriptionTier)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="اختر الباقة" />
+                  <SelectValue placeholder="���� ������" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={SubscriptionTier.BRONZE}>🥉 برونزي</SelectItem>
-                  <SelectItem value={SubscriptionTier.GOLD}>🥇 ذهبي</SelectItem>
-                  <SelectItem value={SubscriptionTier.DIAMOND}>💎 ماسي</SelectItem>
+                  <SelectItem value={SubscriptionTier.BRONZE}>?? ������</SelectItem>
+                  <SelectItem value={SubscriptionTier.GOLD}>?? ����</SelectItem>
+                  <SelectItem value={SubscriptionTier.DIAMOND}>?? ����</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">موثّق</p>
-                <p className="text-xs text-muted-foreground">يظهر للمستخدمين كحساب موثّق عند تفعيله في الواجهة.</p>
+                <p className="text-sm font-medium">�����</p>
+                <p className="text-xs text-muted-foreground">���� ���������� ����� ����� ��� ������ �� �������.</p>
               </div>
               <Switch checked={isVerified} onCheckedChange={setIsVerified} />
             </div>
             <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">ظهور للعامة</p>
-                <p className="text-xs text-muted-foreground">يتحكم في ظهور الصالون في نظام الرصد الذكي/القوائم حسب منطق التطبيق.</p>
+                <p className="text-sm font-medium">���� ������</p>
+                <p className="text-xs text-muted-foreground">����� �� ���� ������� �� ���� ����� �����/������� ��� ���� �������.</p>
               </div>
               <Switch checked={isActive} onCheckedChange={setIsActive} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hard-edit-profile">رابط صورة الملف الشخصي</Label>
+              <Label htmlFor="hard-edit-profile">���� ���� ����� ������</Label>
               <Input id="hard-edit-profile" dir="ltr" value={profileImage} onChange={(e) => setProfileImage(e.target.value)} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hard-edit-cover">رابط صورة الغلاف</Label>
+              <Label htmlFor="hard-edit-cover">���� ���� ������</Label>
               <Input id="hard-edit-cover" dir="ltr" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} />
             </div>
           </div>
@@ -2742,11 +2749,11 @@ function BarberHardEditDialog({
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            إلغاء
+            �����
           </Button>
           <Button onClick={() => void handleSave()} disabled={saving || !barber}>
             {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-            حفظ
+            ���
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -2754,10 +2761,10 @@ function BarberHardEditDialog({
   );
 }
 
-const BARBER_PURGE_CONFIRM_PHRASE = 'حذف كل الحلاقين';
+const BARBER_PURGE_CONFIRM_PHRASE = '��� �� ��������';
 
 function formatBarberCreatedAtDisplay(iso: string | null): string {
-  if (!iso) return '—';
+  if (!iso) return '�';
   try {
     return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', {
       dateStyle: 'short',
@@ -2826,26 +2833,26 @@ function BarbersSection({
     const res = await setBarberActiveRemote(row.id, next);
     setUpdatingId(null);
     if (!res.ok) {
-      toast({ title: 'تعذر التحديث', description: errorText(res, 'تعذر تحديث الحالة.'), variant: 'destructive' });
+      toast({ title: '���� �������', description: errorText(res, '���� ����� ������.'), variant: 'destructive' });
       return;
     }
     setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, is_active: next } : r)));
-    toast({ title: next ? 'تم التفعيل' : 'تم التعطيل', description: row.name });
+    toast({ title: next ? '�� �������' : '�� �������', description: row.name });
     onStatsNeedRefresh();
   };
 
   const onDeleteBarber = async (row: AdminBarberRow) => {
     if (!canManage) return;
-    if (!window.confirm(`تأكيد حذف حساب الحلاق "${row.name}"؟`)) return;
+    if (!window.confirm(`����� ��� ���� ������ "${row.name}"�`)) return;
     setDeletingId(row.id);
     const res = await deleteBarberRemote(row.id);
     setDeletingId(null);
     if (!res.ok) {
-      toast({ title: 'تعذر حذف الحلاق', description: errorText(res, 'تعذر حذف الحلاق.'), variant: 'destructive' });
+      toast({ title: '���� ��� ������', description: errorText(res, '���� ��� ������.'), variant: 'destructive' });
       return;
     }
     setRows((prev) => prev.filter((r) => r.id !== row.id));
-    toast({ title: 'تم حذف الحلاق', description: row.name });
+    toast({ title: '�� ��� ������', description: row.name });
     onStatsNeedRefresh();
   };
 
@@ -2941,7 +2948,7 @@ function BarbersSection({
     if (dupes.length === 0) return;
     if (
       !window.confirm(
-        `سيتم الإبقاء على "${keeper.name}" وحذف ${dupes.length} حساب/حسابات مكررة. هل أنت متأكد؟`
+        `���� ������� ��� "${keeper.name}" ���� ${dupes.length} ����/������ �����. �� ��� ����Ͽ`
       )
     ) {
       return;
@@ -2952,8 +2959,8 @@ function BarbersSection({
       if (!res.ok) {
         setMergingId(null);
         toast({
-          title: 'تعذر حذف بعض المكررات',
-          description: `${dupe.name}: ${errorText(res, 'تعذر حذف الحساب المكرر.')}`,
+          title: '���� ��� ��� ��������',
+          description: `${dupe.name}: ${errorText(res, '���� ��� ������ ������.')}`,
           variant: 'destructive',
         });
         return;
@@ -2962,8 +2969,8 @@ function BarbersSection({
     setRows((prev) => prev.filter((r) => !dupes.some((d) => d.id === r.id)));
     setMergingId(null);
     toast({
-      title: 'تم تنظيف التكرار',
-      description: `أُبقي على ${keeper.name} وحُذف ${dupes.length} حساب مكرر.`,
+      title: '�� ����� �������',
+      description: `����� ��� ${keeper.name} ����� ${dupes.length} ���� ����.`,
     });
     onStatsNeedRefresh();
   };
@@ -2972,7 +2979,7 @@ function BarbersSection({
     if (!canManage) return;
     if (
       !window.confirm(
-        'سيتم إرسال بريد تعليمات وروابط لوحة التحكم إلى جميع الحلاقين النشطين. هل تريد المتابعة؟'
+        '���� ����� ���� ������� ������ ���� ������ ��� ���� �������� �������. �� ���� �������ɿ'
       )
     ) {
       return;
@@ -2982,27 +2989,27 @@ function BarbersSection({
     setBroadcastingEmails(false);
     if (!res.ok) {
       toast({
-        title: 'تعذر إرسال البريد الجماعي',
-        description: errorText(res, 'تعذر إرسال البريد الجماعي.'),
+        title: '���� ����� ������ �������',
+        description: errorText(res, '���� ����� ������ �������.'),
         variant: 'destructive',
       });
       return;
     }
     const failLines =
       res.failed > 0 && res.failedDetails?.length
-        ? ` · أخطاء: ${res.failedDetails
+        ? ` � �����: ${res.failedDetails
             .slice(0, 3)
             .map((f) => `${f.email}: ${f.error}`)
             .join(' | ')}`
         : '';
     const invalidLine =
       res.skippedInvalid > 0
-        ? ` · بريد غير صالح في قاعدة البيانات: ${res.skippedInvalid}${res.invalidSamples?.length ? ` (مثال: ${res.invalidSamples.slice(0, 2).join(', ')})` : ''}`
+        ? ` � ���� ��� ���� �� ����� ��������: ${res.skippedInvalid}${res.invalidSamples?.length ? ` (����: ${res.invalidSamples.slice(0, 2).join(', ')})` : ''}`
         : '';
-    const dupLine = res.skippedDuplicate > 0 ? ` · تخطّي مكرر: ${res.skippedDuplicate}` : '';
+    const dupLine = res.skippedDuplicate > 0 ? ` � ����� ����: ${res.skippedDuplicate}` : '';
     toast({
-      title: 'تم إرسال التعليمات البريدية',
-      description: `صفوف: ${res.attempted} · مستلمون فريدون: ${res.uniqueRecipients} · أُرسل: ${res.sent} · فشل API: ${res.failed}${dupLine}${invalidLine}${failLines}`,
+      title: '�� ����� ��������� ��������',
+      description: `����: ${res.attempted} � ������� ������: ${res.uniqueRecipients} � �����: ${res.sent} � ��� API: ${res.failed}${dupLine}${invalidLine}${failLines}`,
     });
   };
 
@@ -3018,8 +3025,8 @@ function BarbersSection({
   const onPurgeAllBarbers = async () => {
     if (purgePhrase.trim() !== BARBER_PURGE_CONFIRM_PHRASE) {
       toast({
-        title: 'عبارة التأكيد غير صحيحة',
-        description: `اكتب بالضبط: ${BARBER_PURGE_CONFIRM_PHRASE}`,
+        title: '����� ������� ��� �����',
+        description: `���� ������: ${BARBER_PURGE_CONFIRM_PHRASE}`,
         variant: 'destructive',
       });
       return;
@@ -3029,10 +3036,10 @@ function BarbersSection({
     setPurging(false);
     if (!res.ok) {
       toast({
-        title: 'تعذر مسح جميع الحلاقين',
+        title: '���� ��� ���� ��������',
         description:
           res.deletedPartial != null
-            ? `${errorText(res, '')} (تم حذف ${res.deletedPartial} قبل التوقف)`
+            ? `${errorText(res, '')} (�� ��� ${res.deletedPartial} ��� ������)`
             : errorText(res, ''),
         variant: 'destructive',
       });
@@ -3045,8 +3052,8 @@ function BarbersSection({
     setPurgeOpen(false);
     setPurgePhrase('');
     toast({
-      title: 'تم مسح جميع الحلاقين',
-      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار شراء التراخيص والظهور العام.`,
+      title: '�� ��� ���� ��������',
+      description: `��� ������ ��������: ${res.deleted}. ����� ���� ����� ������ ����� ������� �� ���� ���� �������� ������� �����.`,
     });
     onStatsNeedRefresh();
   };
@@ -3055,7 +3062,7 @@ function BarbersSection({
     if (!canManage) return;
     const ids = [...selectedIds];
     if (ids.length === 0) return;
-    if (!window.confirm(`تأكيد حذف ${ids.length} حساب/حسابات محددة؟ لا يمكن التراجع.`)) return;
+    if (!window.confirm(`����� ��� ${ids.length} ����/������ ����ɿ �� ���� �������.`)) return;
     setBulkDeleting(true);
     let removed = 0;
     for (const id of ids) {
@@ -3063,8 +3070,8 @@ function BarbersSection({
       if (!res.ok) {
         setBulkDeleting(false);
         toast({
-          title: 'توقف الحذف الجماعي',
-          description: errorText(res, `فشل عند أحد المعرفات بعد حذف ${removed}.`),
+          title: '���� ����� �������',
+          description: errorText(res, `��� ��� ��� �������� ��� ��� ${removed}.`),
           variant: 'destructive',
         });
         void listBarbersForAdmin().then(setRows);
@@ -3076,7 +3083,7 @@ function BarbersSection({
     setBulkDeleting(false);
     setRows((prev) => prev.filter((r) => !selectedIds.has(r.id)));
     setSelectedIds(new Set());
-    toast({ title: 'تم حذف المحدد', description: `عدد الحسابات: ${removed}` });
+    toast({ title: '�� ��� ������', description: `��� ��������: ${removed}` });
     onStatsNeedRefresh();
   };
 
@@ -3086,19 +3093,19 @@ function BarbersSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-bold mb-6">إدارة الحلاقين</h2>
+      <h2 className="text-2xl font-bold mb-6">����� ��������</h2>
       <Card>
         <CardContent className="p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
             <div className="text-sm text-muted-foreground">
-              إجمالي الحسابات: <span className="font-semibold text-foreground">{rows.length}</span>
-              {' · '}
-              بعد الفلاتر:{' '}
+              ������ ��������: <span className="font-semibold text-foreground">{rows.length}</span>
+              {' � '}
+              ��� �������:{' '}
               <span className="font-semibold text-foreground">{filteredRows.length}</span>
-              {' · '}
-              المعروض: <span className="font-semibold text-foreground">{visibleRows.length}</span>
-              {' · '}
-              المكررة: <span className="font-semibold text-red-600">{rows.filter((r) => isDuplicateRow(r)).length}</span>
+              {' � '}
+              �������: <span className="font-semibold text-foreground">{visibleRows.length}</span>
+              {' � '}
+              �������: <span className="font-semibold text-red-600">{rows.filter((r) => isDuplicateRow(r)).length}</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -3108,77 +3115,77 @@ function BarbersSection({
                 onClick={() => void onBroadcastOnboardingEmails()}
               >
                 {broadcastingEmails ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-                إرسال تعليمات لجميع الحلاقين
+                ����� ������� ����� ��������
               </Button>
-              <span className="text-xs text-muted-foreground">عرض المكررات فقط</span>
+              <span className="text-xs text-muted-foreground">��� �������� ���</span>
               <Switch checked={duplicatesOnly} onCheckedChange={setDuplicatesOnly} />
             </div>
           </div>
 
           <div className="mb-4 grid gap-3 rounded-lg border border-border/80 bg-background p-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
-              <Label className="text-xs text-muted-foreground">بحث (اسم، بريد، جوال)</Label>
+              <Label className="text-xs text-muted-foreground">��� (��� ���ϡ ����)</Label>
               <div className="relative">
                 <Search className="absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   className="pr-9"
-                  placeholder="مثال: صالون أو @gmail"
+                  placeholder="����: ����� �� @gmail"
                   value={filterText}
                   onChange={(e) => setFilterText(e.target.value)}
                 />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">المدينة</Label>
-              <Input placeholder="فلترة جزئية" value={filterCity} onChange={(e) => setFilterCity(e.target.value)} />
+              <Label className="text-xs text-muted-foreground">�������</Label>
+              <Input placeholder="����� �����" value={filterCity} onChange={(e) => setFilterCity(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">الباقة</Label>
+              <Label className="text-xs text-muted-foreground">������</Label>
               <Select
                 value={filterTier}
                 onValueChange={(v) => setFilterTier(v === 'all' ? 'all' : (v as SubscriptionTier))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="الكل" />
+                  <SelectValue placeholder="����" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">كل الباقات</SelectItem>
-                  <SelectItem value={SubscriptionTier.BRONZE}>برونزي</SelectItem>
-                  <SelectItem value={SubscriptionTier.GOLD}>ذهبي</SelectItem>
-                  <SelectItem value={SubscriptionTier.DIAMOND}>ماسي</SelectItem>
+                  <SelectItem value="all">�� �������</SelectItem>
+                  <SelectItem value={SubscriptionTier.BRONZE}>������</SelectItem>
+                  <SelectItem value={SubscriptionTier.GOLD}>����</SelectItem>
+                  <SelectItem value={SubscriptionTier.DIAMOND}>����</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">التوثيق</Label>
+              <Label className="text-xs text-muted-foreground">�������</Label>
               <Select value={filterVerified} onValueChange={(v) => setFilterVerified(v as 'all' | 'yes' | 'no')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">الكل</SelectItem>
-                  <SelectItem value="yes">موثّق فقط</SelectItem>
-                  <SelectItem value="no">غير موثّق</SelectItem>
+                  <SelectItem value="all">����</SelectItem>
+                  <SelectItem value="yes">����� ���</SelectItem>
+                  <SelectItem value="no">��� �����</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">ظهور للعامة (is_active)</Label>
+              <Label className="text-xs text-muted-foreground">���� ������ (is_active)</Label>
               <Select value={filterActive} onValueChange={(v) => setFilterActive(v as 'all' | 'active' | 'inactive')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">الكل</SelectItem>
-                  <SelectItem value="active">مفعّل فقط</SelectItem>
-                  <SelectItem value="inactive">معطّل فقط</SelectItem>
+                  <SelectItem value="all">����</SelectItem>
+                  <SelectItem value="active">����� ���</SelectItem>
+                  <SelectItem value="inactive">����� ���</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
               <Button type="button" variant="outline" size="sm" className="gap-1" onClick={resetBarberFilters}>
                 <Filter className="h-4 w-4" />
-                مسح الفلاتر
+                ��� �������
               </Button>
               {canManage && selectedIds.size > 0 ? (
                 <Button
@@ -3189,7 +3196,7 @@ function BarbersSection({
                   onClick={() => void onDeleteSelectedBarbers()}
                 >
                   {bulkDeleting ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-                  حذف المحدد ({selectedIds.size})
+                  ��� ������ ({selectedIds.size})
                 </Button>
               ) : null}
             </div>
@@ -3197,11 +3204,11 @@ function BarbersSection({
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
-              جاري التحميل…
+              ���� �������
             </div>
           ) : visibleRows.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">
-              لا توجد صفوف تطابق الفلاتر الحالية، أو جدول الحلاقين فارغ، أو RLS يمنع القراءة.
+              �� ���� ���� ����� ������� ������ɡ �� ���� �������� ���ۡ �� RLS ���� �������.
             </p>
           ) : (
             <Table>
@@ -3214,19 +3221,19 @@ function BarbersSection({
                           allVisibleSelected ? true : someVisibleSelected ? 'indeterminate' : false
                         }
                         onCheckedChange={() => toggleSelectAllVisible()}
-                        aria-label="تحديد الكل في الصفحة المصفاة"
+                        aria-label="����� ���� �� ������ �������"
                       />
                     </TableHead>
                   ) : null}
-                  <TableHead className="whitespace-nowrap">رقم العضوية</TableHead>
-                  <TableHead>الاسم</TableHead>
-                  <TableHead>البريد</TableHead>
-                  <TableHead>المدينة</TableHead>
-                  <TableHead>الباقة</TableHead>
-                  <TableHead>موثّق</TableHead>
-                  <TableHead className="whitespace-nowrap text-center">تاريخ الإنشاء</TableHead>
-                  <TableHead className="text-center">ظهور للعامة</TableHead>
-                  <TableHead className="text-center">إجراءات</TableHead>
+                  <TableHead className="whitespace-nowrap">��� �������</TableHead>
+                  <TableHead>�����</TableHead>
+                  <TableHead>������</TableHead>
+                  <TableHead>�������</TableHead>
+                  <TableHead>������</TableHead>
+                  <TableHead>�����</TableHead>
+                  <TableHead className="whitespace-nowrap text-center">����� �������</TableHead>
+                  <TableHead className="text-center">���� ������</TableHead>
+                  <TableHead className="text-center">�������</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -3237,26 +3244,26 @@ function BarbersSection({
                         <Checkbox
                           checked={selectedIds.has(row.id)}
                           onCheckedChange={() => toggleSelectOne(row.id)}
-                          aria-label={`تحديد ${row.name}`}
+                          aria-label={`����� ${row.name}`}
                         />
                       </TableCell>
                     ) : null}
                     <TableCell className="font-mono text-xs" dir="ltr">
-                      {formatBarberMemberNumber(row.memberNumber) ?? '—'}
+                      {formatBarberMemberNumber(row.memberNumber) ?? '�'}
                     </TableCell>
                     <TableCell className="font-medium">{row.name}</TableCell>
                     <TableCell className="max-w-[140px] truncate" title={row.email}>
                       {row.email}
                     </TableCell>
-                    <TableCell>{row.city ?? '—'}</TableCell>
+                    <TableCell>{row.city ?? '�'}</TableCell>
                     <TableCell>
                       <Badge variant="outline">
-                        {row.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
-                        {row.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
-                        {row.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
+                        {row.tier === SubscriptionTier.DIAMOND && '?? ����'}
+                        {row.tier === SubscriptionTier.GOLD && '?? ����'}
+                        {row.tier === SubscriptionTier.BRONZE && '?? ������'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{row.is_verified ? 'نعم' : 'لا'}</TableCell>
+                    <TableCell>{row.is_verified ? '���' : '��'}</TableCell>
                     <TableCell className="text-center text-xs text-muted-foreground whitespace-nowrap">
                       {formatBarberCreatedAtDisplay(row.createdAt)}
                     </TableCell>
@@ -3266,7 +3273,7 @@ function BarbersSection({
                           checked={row.is_active}
                           disabled={!canManage || updatingId === row.id}
                           onCheckedChange={(v) => void onToggleActive(row, v)}
-                          aria-label={row.is_active ? 'تعطيل الظهور' : 'تفعيل الظهور'}
+                          aria-label={row.is_active ? '����� ������' : '����� ������'}
                         />
                         {updatingId === row.id ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
                       </div>
@@ -3274,7 +3281,7 @@ function BarbersSection({
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
                         {isDuplicateRow(row) ? (
-                          <Badge variant="destructive">مكرر</Badge>
+                          <Badge variant="destructive">����</Badge>
                         ) : null}
                         {isDuplicateRow(row) ? (
                           <Button
@@ -3286,7 +3293,7 @@ function BarbersSection({
                             {mergingId === row.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              'الإبقاء على هذا'
+                              '������� ��� ���'
                             )}
                           </Button>
                         ) : null}
@@ -3308,7 +3315,7 @@ function BarbersSection({
                             size="sm"
                             disabled={mergingId === row.id || deletingId === row.id}
                             onClick={() => setHardEditRow(row)}
-                            title="تعديل بيانات وصور الحلاق"
+                            title="����� ������ ���� ������"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -3323,10 +3330,10 @@ function BarbersSection({
 
           {canRootHardEdit && canManage ? (
             <div className="mt-8 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-              <p className="text-sm font-semibold text-destructive">منطقة خطرة — المالك فقط</p>
+              <p className="text-sm font-semibold text-destructive">����� ���� � ������ ���</p>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل سجلات التراخيص القديمة
-                والتقييمات والحجوزات المرتبطة بنفس الجدول). لا يُنصح به على بيانات إنتاج حقيقية إلا بعد نسخ احتياطي.
+                ��� ���� ���� �������� �� ����� �������� (�� �� ����� �������� ���� CASCADE ��� ����� �������� �������
+                ���������� ��������� �������� ���� ������). �� ����� �� ��� ������ ����� ������ ��� ��� ��� �������.
               </p>
               <Button
                 type="button"
@@ -3339,7 +3346,7 @@ function BarbersSection({
                   setPurgeOpen(true);
                 }}
               >
-                مسح جميع الحلاقين من القاعدة ({rows.length})
+                ��� ���� �������� �� ������� ({rows.length})
               </Button>
             </div>
           ) : null}
@@ -3352,15 +3359,15 @@ function BarbersSection({
       }}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle>تأكيد مسح جميع الحلاقين</DialogTitle>
+            <DialogTitle>����� ��� ���� ��������</DialogTitle>
             <DialogDescription className="text-right leading-relaxed">
-              سيتم حذف <strong>{rows.length}</strong> حساب/حسابات من جدول <code className="text-xs">barbers</code> والبيانات
-              المرتبطة بحسب قواعد قاعدة البيانات. للمتابعة اكتب بالضبط:{' '}
+              ���� ��� <strong>{rows.length}</strong> ����/������ �� ���� <code className="text-xs">barbers</code> ���������
+              �������� ���� ����� ����� ��������. �������� ���� ������:{' '}
               <span className="font-mono text-foreground">{BARBER_PURGE_CONFIRM_PHRASE}</span>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">
-            <Label htmlFor="purge-phrase">عبارة التأكيد</Label>
+            <Label htmlFor="purge-phrase">����� �������</Label>
             <Input
               id="purge-phrase"
               dir="rtl"
@@ -3372,7 +3379,7 @@ function BarbersSection({
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => setPurgeOpen(false)} disabled={purging}>
-              إلغاء
+              �����
             </Button>
             <Button
               type="button"
@@ -3381,7 +3388,7 @@ function BarbersSection({
               onClick={() => void onPurgeAllBarbers()}
             >
               {purging ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-              تنفيذ المسح الكامل
+              ����� ����� ������
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3411,11 +3418,11 @@ function formatHalalasSar(amount: number | string | null): string {
       : typeof amount === 'string'
         ? Number.parseFloat(amount)
         : NaN;
-  if (!Number.isFinite(n)) return '—';
-  return `${(n / 100).toFixed(2)} ر.س`;
+  if (!Number.isFinite(n)) return '�';
+  return `${(n / 100).toFixed(2)} �.�`;
 }
 
-/** أرشيف عرض فقط — إصدار/تفعيل الترخيص يتم تلقائياً من Webhook ميسر عند توفر linkedBarberId. */
+/** ����� ��� ��� � �����/����� ������� ��� �������� �� Webhook ���� ��� ���� linkedBarberId. */
 function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscriptionAdminRow[] }) {
   const sorted = useMemo(
     () => [...rows].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))),
@@ -3430,23 +3437,23 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
       className="space-y-4"
     >
       <div>
-        <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (تراخيص إدراج)</h2>
+        <h2 className="text-2xl font-bold mb-2">��� ����� ���� (������ �����)</h2>
         <p className="text-sm text-muted-foreground">
-          للعرض والمرجعية فقط. عند نجاح الدفع يُصدَر/يُفعَّل الترخيص الرقمي ويُرسل بريد الترحيب أو كود التفعيل تلقائياً من
-          الخادم (Edge Webhook + API) دون انتظار خطوة من هذه اللوحة.
+          ����� ��������� ���. ��� ���� ����� ������/������� ������� ������ ������ ���� ������� �� ��� ������� �������� ��
+          ������ (Edge Webhook + API) ��� ������ ���� �� ��� ������.
         </p>
       </div>
       {sorted.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            لا توجد صفوف دفع تراخيص ميسر في الجدول بعد، أو لا تطابق عوامل التصفية الحالية.
+            �� ���� ���� ��� ������ ���� �� ������ ��ϡ �� �� ����� ����� ������� �������.
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">آخر الحركات</CardTitle>
-            <CardDescription>حتى 50 صفاً — الحالة كما في قاعدة البيانات</CardDescription>
+            <CardTitle className="text-base">��� �������</CardTitle>
+            <CardDescription>��� 50 ���� � ������ ��� �� ����� ��������</CardDescription>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             {sorted.slice(0, 50).map((r) => (
@@ -3485,13 +3492,13 @@ function PaymentsSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-bold mb-6">إدارة المدفوعات</h2>
+      <h2 className="text-2xl font-bold mb-6">����� ���������</h2>
 
       <div className="space-y-4">
         {payments.length === 0 ? (
           <Card>
             <CardContent className="py-10 text-center text-muted-foreground">
-              لا توجد مدفوعات للعرض. عند تعطيل البيانات التجريبية يظهر هنا ما في جدول payments بعد ضبط RLS.
+              �� ���� ������� �����. ��� ����� �������� ��������� ���� ��� �� �� ���� payments ��� ��� RLS.
             </CardContent>
           </Card>
         ) : null}
@@ -3503,21 +3510,21 @@ function PaymentsSection({
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="text-lg font-bold">{payment.barberName}</h3>
                     <Badge>
-                      {payment.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
-                      {payment.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
-                      {payment.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
+                      {payment.tier === SubscriptionTier.DIAMOND && '?? ����'}
+                      {payment.tier === SubscriptionTier.GOLD && '?? ����'}
+                      {payment.tier === SubscriptionTier.BRONZE && '?? ������'}
                     </Badge>
                   </div>
                   <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>المبلغ: <span className="font-semibold text-foreground">{payment.amount} ر.س</span></p>
-                    <p>الفترة: {payment.period}</p>
-                    <p>طريقة الدفع: {payment.method === 'bank_transfer' ? 'تحويل بنكي' : 'بطاقة'}</p>
-                    <p>تاريخ التقديم: {payment.submittedAt}</p>
+                    <p>������: <span className="font-semibold text-foreground">{payment.amount} �.�</span></p>
+                    <p>������: {payment.period}</p>
+                    <p>����� �����: {payment.method === 'bank_transfer' ? '����� ����' : '�����'}</p>
+                    <p>����� �������: {payment.submittedAt}</p>
                   </div>
                 </div>
                 <Button onClick={() => onViewPayment(payment)} disabled={!canReview}>
                   <Eye className="w-4 h-4 ml-2" />
-                  {canReview ? 'مراجعة الإيصال' : 'عرض فقط'}
+                  {canReview ? '������ �������' : '��� ���'}
                 </Button>
               </div>
             </CardContent>
@@ -3543,12 +3550,12 @@ function PaymentReviewDialog({
 
   const handleConfirm = async () => {
     if (payment.status !== 'pending') {
-      toast({ title: 'لا يمكن المعالجة', description: 'هذه العملية ليست قيد الانتظار.', variant: 'destructive' });
+      toast({ title: '�� ���� ��������', description: '��� ������� ���� ��� ��������.', variant: 'destructive' });
       return;
     }
     setSaving(true);
     if (isMockRow) {
-      toast({ title: 'تأكيد تجريبي', description: 'هذه دفعة من العرض التجريبي فقط.' });
+      toast({ title: '����� ������', description: '��� ���� �� ����� �������� ���.' });
       setSaving(false);
       onClose();
       onAfterDecision();
@@ -3557,22 +3564,22 @@ function PaymentReviewDialog({
     const res = await updatePaymentStatusRemote(payment.id, 'confirmed');
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'فشل التحديث', description: errorText(res, 'تعذر تحديث حالة الدفع.'), variant: 'destructive' });
+      toast({ title: '��� �������', description: errorText(res, '���� ����� ���� �����.'), variant: 'destructive' });
       return;
     }
-    toast({ title: 'تم تأكيد الدفع' });
+    toast({ title: '�� ����� �����' });
     onClose();
     onAfterDecision();
   };
 
   const handleReject = async () => {
     if (payment.status !== 'pending') {
-      toast({ title: 'لا يمكن المعالجة', description: 'هذه العملية ليست قيد الانتظار.', variant: 'destructive' });
+      toast({ title: '�� ���� ��������', description: '��� ������� ���� ��� ��������.', variant: 'destructive' });
       return;
     }
     setSaving(true);
     if (isMockRow) {
-      toast({ title: 'رفض تجريبي', description: 'هذه دفعة من العرض التجريبي فقط.' });
+      toast({ title: '��� ������', description: '��� ���� �� ����� �������� ���.' });
       setSaving(false);
       onClose();
       onAfterDecision();
@@ -3581,10 +3588,10 @@ function PaymentReviewDialog({
     const res = await updatePaymentStatusRemote(payment.id, 'rejected');
     setSaving(false);
     if (!res.ok) {
-      toast({ title: 'فشل التحديث', description: errorText(res, 'تعذر تحديث حالة الدفع.'), variant: 'destructive' });
+      toast({ title: '��� �������', description: errorText(res, '���� ����� ���� �����.'), variant: 'destructive' });
       return;
     }
-    toast({ title: 'تم رفض الدفع' });
+    toast({ title: '�� ��� �����' });
     onClose();
     onAfterDecision();
   };
@@ -3593,47 +3600,47 @@ function PaymentReviewDialog({
     <Dialog open={!!payment} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl" dir="rtl">
         <DialogHeader>
-          <DialogTitle>مراجعة إيصال الدفع</DialogTitle>
+          <DialogTitle>������ ����� �����</DialogTitle>
           <DialogDescription>
-            قم بمراجعة الإيصال قبل تأكيد أو رفض الدفع
+            �� ������� ������� ��� ����� �� ��� �����
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>اسم الحلاق</Label>
+              <Label>��� ������</Label>
               <p className="text-sm font-medium mt-1">{payment.barberName}</p>
             </div>
             <div>
-              <Label>المبلغ</Label>
-              <p className="text-sm font-medium mt-1">{payment.amount} ر.س</p>
+              <Label>������</Label>
+              <p className="text-sm font-medium mt-1">{payment.amount} �.�</p>
             </div>
             <div>
-              <Label>الباقة</Label>
+              <Label>������</Label>
               <Badge className="mt-1">
-                {payment.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
-                {payment.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
-                {payment.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
+                {payment.tier === SubscriptionTier.DIAMOND && '?? ����'}
+                {payment.tier === SubscriptionTier.GOLD && '?? ����'}
+                {payment.tier === SubscriptionTier.BRONZE && '?? ������'}
               </Badge>
             </div>
             <div>
-              <Label>الفترة</Label>
+              <Label>������</Label>
               <p className="text-sm font-medium mt-1">{payment.period}</p>
             </div>
           </div>
 
           {payment.receipt && (
             <div>
-              <Label className="mb-2 block">إيصال التحويل البنكي</Label>
+              <Label className="mb-2 block">����� ������� ������</Label>
               {isVisualAssetUrl(payment.receipt) ? (
                 <div className="aspect-video rounded-lg overflow-hidden border border-border">
-                  <img src={payment.receipt} alt="إيصال" className="w-full h-full object-cover" />
+                  <img src={payment.receipt} alt="�����" className="w-full h-full object-cover" />
                 </div>
               ) : (
                 <Button variant="outline" size="sm" asChild>
                   <a href={payment.receipt} target="_blank" rel="noopener noreferrer">
-                    فتح الإيصال في نافذة جديدة
+                    ��� ������� �� ����� �����
                   </a>
                 </Button>
               )}
@@ -3643,11 +3650,11 @@ function PaymentReviewDialog({
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose} disabled={saving}>
-            إلغاء
+            �����
           </Button>
           <Button variant="destructive" onClick={() => void handleReject()} disabled={saving || payment.status !== 'pending'}>
             {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <XCircle className="w-4 h-4 ml-2" />}
-            رفض الدفع
+            ��� �����
           </Button>
           <Button
             onClick={() => void handleConfirm()}
@@ -3655,7 +3662,7 @@ function PaymentReviewDialog({
             className="bg-green-600 hover:bg-green-700"
           >
             {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 ml-2" />}
-            تأكيد الدفع
+            ����� �����
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -3682,20 +3689,20 @@ function CommandCenterSection({
   const partnerPathPrintCardUrl = `${siteOrigin}/#${ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD}`;
   const privatePartnerFaq = [
     {
-      q: 'هل الصفحة مناسبة للإرسال عبر واتساب والإيميل؟',
-      a: 'نعم، بصيغة تحويل مباشرة ورسائل تسويقية واضحة وروابط انضمام جاهزة.',
+      q: '�� ������ ������ ������� ��� ������ ��������',
+      a: '��� ����� ����� ������ ������ ������� ����� ������ ������ �����.',
     },
     {
-      q: 'هل يمكن توسيعها لاحقاً لحملات مناطق جديدة؟',
-      a: 'نعم، الهيكل مرن لتحديث الرسائل والتوسع بدون إعادة البناء من الصفر.',
+      q: '�� ���� ������� ������ ������ ����� ����ɿ',
+      a: '��� ������ ��� ������ ������� ������� ���� ����� ������ �� �����.',
     },
     {
-      q: 'كيف نقنع الحلاق بسرعة الحجز؟',
-      a: 'نركز على العائد العملي: ظهور أمام عميل قريب + تواصل مباشر + سرعة البدء.',
+      q: '��� ���� ������ ����� ����ҿ',
+      a: '���� ��� ������ ������: ���� ���� ���� ���� + ����� ����� + ���� �����.',
     },
     {
-      q: 'هل يحتاج الشريك لفريق تسويق داخلي؟',
-      a: 'لا، مسار الخدمات البرمجية للمنصة مبني لقرار سريع وتسجيل مباشر بأقل احتكاك.',
+      q: '�� ����� ������ ����� ����� ������',
+      a: '�ǡ ���� ������� �������� ������ ���� ����� ���� ������ ����� ���� ������.',
     },
   ] as const;
 
@@ -3786,9 +3793,9 @@ function CommandCenterSection({
   const pendingTouch = pipelineCounts.new + pipelineCounts.waiting + dueSummary.overdue;
 
   const sopChecklistItems = [
-    { id: 'open-due', label: 'مراجعة الحالات المستحقة (اليوم + المتأخرة)' },
-    { id: 'execute-outreach', label: `تنفيذ هدف اليوم: ${dayPlan.target} تواصل` },
-    { id: 'close-loop', label: 'تحديث الحالات والتواريخ وتصدير CSV بنهاية الجلسة' },
+    { id: 'open-due', label: '������ ������� �������� (����� + ��������)' },
+    { id: 'execute-outreach', label: `����� ��� �����: ${dayPlan.target} �����` },
+    { id: 'close-loop', label: '����� ������� ��������� ������ CSV ������ ������' },
   ];
 
   const csvEscape = (value: string): string => {
@@ -3832,15 +3839,15 @@ function CommandCenterSection({
   };
 
   const outreachMessage =
-    'السلام عليكم، معكم فريق منصة حلاق ماب. نرغب بدعوتكم للانضمام للمنصة وزيادة الظهور المحلي للعملاء القريبين. هل يمكن إرسال التفاصيل؟';
+    '������ ����� ���� ���� ���� ���� ���. ���� ������� �������� ������ ������ ������ ������ ������� ��������. �� ���� ����� ��������';
 
   const copyLeadPitch = async (lead: CommandCenterLead) => {
-    const text = `مرحباً ${lead.name}،\n${outreachMessage}`;
+    const text = `������ ${lead.name}�\n${outreachMessage}`;
     try {
       await navigator.clipboard.writeText(text);
-      toast({ title: 'تم نسخ الرسالة', description: `جاهزة للإرسال إلى ${lead.name}` });
+      toast({ title: '�� ��� �������', description: `����� ������� ��� ${lead.name}` });
     } catch {
-      toast({ title: 'تعذر النسخ', description: 'انسخ الرسالة يدوياً.', variant: 'destructive' });
+      toast({ title: '���� �����', description: '���� ������� ������.', variant: 'destructive' });
     }
   };
 
@@ -3855,7 +3862,7 @@ function CommandCenterSection({
     }
     if (lead.email) {
       window.open(
-        `mailto:${lead.email}?subject=${encodeURIComponent('دعوة انضمام إلى منصة حلاق ماب')}&body=${encodeURIComponent(outreachMessage)}`,
+        `mailto:${lead.email}?subject=${encodeURIComponent('���� ������ ��� ���� ���� ���')}&body=${encodeURIComponent(outreachMessage)}`,
         '_blank'
       );
       return;
@@ -3912,56 +3919,56 @@ function CommandCenterSection({
     a.download = `command-center-${todayIso}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: 'تم تصدير CSV', description: `${filteredLeads.length} جهة اتصال` });
+    toast({ title: '�� ����� CSV', description: `${filteredLeads.length} ��� �����` });
   };
 
   const statusMeta: Record<CommandLeadStatus, { label: string; className: string }> = {
-    new: { label: 'جديد', className: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
-    contacted: { label: 'تم التواصل', className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
-    waiting: { label: 'بانتظار الرد', className: 'bg-purple-500/10 text-purple-600 border-purple-500/30' },
-    won: { label: 'تم شراء الترخيص', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
-    lost: { label: 'تعذر الإغلاق', className: 'bg-red-500/10 text-red-600 border-red-500/30' },
+    new: { label: '����', className: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
+    contacted: { label: '�� �������', className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
+    waiting: { label: '������� ����', className: 'bg-purple-500/10 text-purple-600 border-purple-500/30' },
+    won: { label: '�� ���� �������', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
+    lost: { label: '���� �������', className: 'bg-red-500/10 text-red-600 border-red-500/30' },
   };
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold">غرفة القيادة</h2>
+          <h2 className="text-2xl font-bold">���� �������</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            متابعة حملة التواصل، التحويل، والقرارات التشغيلية اليومية من مكان واحد.
+            ������ ���� ������� ������� ��������� ��������� ������� �� ���� ����.
           </p>
         </div>
       </div>
 
       <Card className="mb-6 border-primary/25">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">SOP التشغيل الأسبوعي</CardTitle>
+          <CardTitle className="text-lg">SOP ������� ��������</CardTitle>
           <CardDescription>
-            خطة اليوم: <span className="font-semibold text-foreground">{dayPlan.day}</span> — {dayPlan.focus}
+            ��� �����: <span className="font-semibold text-foreground">{dayPlan.day}</span> � {dayPlan.focus}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground mb-1">هدف تواصل اليوم</p>
+              <p className="text-xs text-muted-foreground mb-1">��� ����� �����</p>
               <p className="text-2xl font-bold">{dayPlan.target}</p>
               <p className="text-xs text-muted-foreground mt-1">{dayPlan.note}</p>
             </div>
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground mb-1">معدل الإغلاق الحالي</p>
+              <p className="text-xs text-muted-foreground mb-1">���� ������� ������</p>
               <p className="text-2xl font-bold text-green-600">{winRate}%</p>
-              <p className="text-xs text-muted-foreground mt-1">اعتمادًا على الحالات المتابعة</p>
+              <p className="text-xs text-muted-foreground mt-1">�������� ��� ������� ��������</p>
             </div>
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground mb-1">أولوية العمل الآن</p>
+              <p className="text-xs text-muted-foreground mb-1">������ ����� ����</p>
               <p className="text-2xl font-bold text-amber-600">{pendingTouch}</p>
-              <p className="text-xs text-muted-foreground mt-1">جديد + بانتظار الرد + متأخر</p>
+              <p className="text-xs text-muted-foreground mt-1">���� + ������� ���� + �����</p>
             </div>
           </div>
 
           <div className="rounded-lg border p-3 space-y-2">
-            <p className="text-sm font-semibold">Checklist اليوم</p>
+            <p className="text-sm font-semibold">Checklist �����</p>
             {sopChecklistItems.map((item) => (
               <div key={item.id} className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-2">
                 <span className="text-sm">{item.label}</span>
@@ -3977,34 +3984,34 @@ function CommandCenterSection({
 
       <Card className="mb-6 border-red-500/30">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg text-red-600">بطاقة طوارئ لوحة التحكم (5 دقائق)</CardTitle>
+          <CardTitle className="text-lg text-red-600">����� ����� ���� ������ (5 �����)</CardTitle>
           <CardDescription>
-            مرجع سريع وقت الأزمات — الهدف استعادة الوصول أولًا ثم التحليل.
+            ���� ���� ��� ������� � ����� ������� ������ ����� �� �������.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="rounded-md border border-border p-3 space-y-1">
-            <p className="text-sm font-semibold">1) احتواء فوري (دقيقة)</p>
+            <p className="text-sm font-semibold">1) ������ ���� (�����)</p>
             <p className="text-xs text-muted-foreground">
-              أوقف أي نشر/تعديل جديد وحدد نوع العطل: 404 / شاشة بيضاء / فشل دخول / صلاحيات.
+              ���� �� ���/����� ���� ���� ��� �����: 404 / ���� ����� / ��� ���� / �������.
             </p>
           </div>
           <div className="rounded-md border border-border p-3 space-y-1">
-            <p className="text-sm font-semibold">2) استعادة سريعة (2-3 دقائق)</p>
+            <p className="text-sm font-semibold">2) ������� ����� (2-3 �����)</p>
             <p className="text-xs text-muted-foreground">
-              نفّذ Rollback لآخر نسخة مستقرة، ثم تحقق من رابط الأدمن بالـ hash ومتغيرات البيئة.
+              ���� Rollback ���� ���� �����ɡ �� ���� �� ���� ������ ���� hash �������� ������.
             </p>
           </div>
           <div className="rounded-md border border-border p-3 space-y-1">
-            <p className="text-sm font-semibold">3) دخول طوارئ</p>
+            <p className="text-sm font-semibold">3) ���� �����</p>
             <p className="text-xs text-muted-foreground">
-              جرّب حساب Bootstrap Admin. عند النجاح: ثبّت الوضع ولا تنفّذ تغييرات إضافية فورًا.
+              ���� ���� Bootstrap Admin. ��� ������: ���� ����� ��� ����� ������� ������ �����.
             </p>
           </div>
           <div className="rounded-md border border-border p-3 space-y-1">
-            <p className="text-sm font-semibold">4) توثيق ومنع تكرار</p>
+            <p className="text-sm font-semibold">4) ����� ���� �����</p>
             <p className="text-xs text-muted-foreground">
-              سجل السبب الجذري والإجراء الوقائي في سجل الاستقرار بنفس اليوم.
+              ��� ����� ������ �������� ������� �� ��� ��������� ���� �����.
             </p>
           </div>
         </CardContent>
@@ -4013,41 +4020,41 @@ function CommandCenterSection({
       <Card className="mb-6 border-primary/25">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            مواد تشغيل تسويقي (داخلي فقط)
-            <Badge variant="destructive" className="text-xs">غير ظاهر للشركاء</Badge>
+            ���� ����� ������ (����� ���)
+            <Badge variant="destructive" className="text-xs">��� ���� �������</Badge>
           </CardTitle>
           <CardDescription>
-            هذه المواد تخص فريق التسويق وغرفة القيادة فقط، وتُمنع من الظهور في مسار الخدمات البرمجية للمنصة العام.
+            ��� ������ ��� ���� ������� ����� ������� ��ء ������ �� ������ �� ���� ������� �������� ������ �����.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
             <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
-              <p className="font-semibold">روابط الحملة المعتمدة</p>
+              <p className="font-semibold">����� ������ ��������</p>
               <div className="text-sm text-muted-foreground space-y-2">
                 <p>
-                  مسار الخدمات البرمجية للمنصة:{' '}
+                  ���� ������� �������� ������:{' '}
                   <a className="underline" href={partnersLandingUrl} target="_blank" rel="noopener noreferrer">
                     {partnersLandingUrl}
                   </a>
                 </p>
                 <p>
-                  التسجيل المباشر:{' '}
+                  ������� �������:{' '}
                   <a className="underline" href={partnersRegisterUrl} target="_blank" rel="noopener noreferrer">
                     {partnersRegisterUrl}
                   </a>
                 </p>
                 <p>
-                  بطاقة QR للطباعة والحملات (صفحة داخلية — لا تظهر في القوائم العامة):{' '}
+                  ����� QR ������� �������� (���� ������ � �� ���� �� ������� ������):{' '}
                   <a className="underline" href={partnerPathPrintCardUrl} target="_blank" rel="noopener noreferrer">
                     {partnerPathPrintCardUrl}
                   </a>
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-background p-3">
-                <p className="text-sm font-semibold mb-1">نص واتساب داخلي مقترح</p>
+                <p className="text-sm font-semibold mb-1">�� ������ ����� �����</p>
                 <p className="text-xs text-muted-foreground leading-6">
-                  انضم الآن إلى منصة حلاق ماب واحجز بنرك التسويقي قبل موجة التوسع القادمة. تفاصيل الانضمام:
+                  ���� ���� ��� ���� ���� ��� ����� ���� �������� ��� ���� ������ �������. ������ ��������:
                   {' '}
                   {partnersLandingUrl}
                 </p>
@@ -4055,7 +4062,7 @@ function CommandCenterSection({
             </div>
 
             <div className="rounded-xl border border-border bg-muted/20 p-4">
-              <p className="font-semibold mb-3">QR تشغيل الحملات الميدانية</p>
+              <p className="font-semibold mb-3">QR ����� ������� ���������</p>
               <div className="mx-auto w-fit rounded-lg bg-white p-3">
                 <QRCode value={partnersLandingUrl} size={148} />
               </div>
@@ -4064,7 +4071,7 @@ function CommandCenterSection({
           </div>
 
           <div className="rounded-xl border border-border bg-muted/20 p-4">
-            <p className="font-semibold mb-3">أسئلة تشغيلية داخلية (مرجع الفريق)</p>
+            <p className="font-semibold mb-3">����� ������� ������ (���� ������)</p>
             <div className="grid gap-3 md:grid-cols-2">
               {privatePartnerFaq.map((item) => (
                 <div key={item.q} className="rounded-lg border border-border bg-background p-3">
@@ -4078,94 +4085,94 @@ function CommandCenterSection({
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
-        <StatsCard title="طلبات بانتظار المراجعة" value={stats.pendingRequests} icon={FileText} color="yellow" />
-        <StatsCard title="مدفوعات بانتظار التأكيد" value={stats.pendingPayments} icon={CreditCard} color="purple" />
-        <StatsCard title="أهداف التواصل" value={leads.length} subtitle="قائمة قابلة للتوسع" icon={Users} color="blue" />
+        <StatsCard title="����� ������� ��������" value={stats.pendingRequests} icon={FileText} color="yellow" />
+        <StatsCard title="������� ������� �������" value={stats.pendingPayments} icon={CreditCard} color="purple" />
+        <StatsCard title="����� �������" value={leads.length} subtitle="����� ����� ������" icon={Users} color="blue" />
         <StatsCard
-          title="إشغال اليوم"
+          title="����� �����"
           value={requests.filter((r) => r.status === 'pending').length + payments.filter((p) => p.status === 'pending').length}
-          subtitle="طلبات + مدفوعات تحتاج قرار"
+          subtitle="����� + ������� ����� ����"
           icon={AlertCircle}
           color="green"
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-7 mb-6">
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">جديد</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم التواصل</p><p className="text-2xl font-bold">{pipelineCounts.contacted}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">بانتظار الرد</p><p className="text-2xl font-bold">{pipelineCounts.waiting}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم شراء الترخيص</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تعذر الإغلاق</p><p className="text-2xl font-bold text-red-600">{pipelineCounts.lost}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متابعة اليوم</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متأخرة</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">����</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">�� �������</p><p className="text-2xl font-bold">{pipelineCounts.contacted}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">������� ����</p><p className="text-2xl font-bold">{pipelineCounts.waiting}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">�� ���� �������</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">���� �������</p><p className="text-2xl font-bold text-red-600">{pipelineCounts.lost}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">������ �����</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">������</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
       </div>
 
       <Card className="mb-6">
         <CardContent className="p-4">
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="بحث بالاسم/المدينة/الانستقرام..." />
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="��� ������/�������/����������..." />
             <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger><SelectValue placeholder="المنطقة" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="�������" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">كل المناطق</SelectItem>
+                <SelectItem value="all">�� �������</SelectItem>
                 {regionOptions.map((r) => (
                   <SelectItem key={r} value={r}>{r}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={channel} onValueChange={(value) => setChannel(value as 'all' | CommandLeadChannel)}>
-              <SelectTrigger><SelectValue placeholder="قناة التواصل" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="���� �������" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">كل القنوات</SelectItem>
-                <SelectItem value="whatsapp">واتساب</SelectItem>
-                <SelectItem value="instagram">انستقرام</SelectItem>
-                <SelectItem value="email">بريد</SelectItem>
-                <SelectItem value="website">موقع</SelectItem>
-                <SelectItem value="phone">اتصال</SelectItem>
+                <SelectItem value="all">�� �������</SelectItem>
+                <SelectItem value="whatsapp">������</SelectItem>
+                <SelectItem value="instagram">��������</SelectItem>
+                <SelectItem value="email">����</SelectItem>
+                <SelectItem value="website">����</SelectItem>
+                <SelectItem value="phone">�����</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | CommandLeadStatus)}>
-              <SelectTrigger><SelectValue placeholder="حالة المتابعة" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="���� ��������" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">كل الحالات</SelectItem>
-                <SelectItem value="new">جديد</SelectItem>
-                <SelectItem value="contacted">تم التواصل</SelectItem>
-                <SelectItem value="waiting">بانتظار الرد</SelectItem>
-                <SelectItem value="won">تم شراء الترخيص</SelectItem>
-                <SelectItem value="lost">تعذر الإغلاق</SelectItem>
+                <SelectItem value="all">�� �������</SelectItem>
+                <SelectItem value="new">����</SelectItem>
+                <SelectItem value="contacted">�� �������</SelectItem>
+                <SelectItem value="waiting">������� ����</SelectItem>
+                <SelectItem value="won">�� ���� �������</SelectItem>
+                <SelectItem value="lost">���� �������</SelectItem>
               </SelectContent>
             </Select>
             <Select value={tierFilter} onValueChange={(value) => setTierFilter(value as 'all' | CommandCenterLead['tierFit'])}>
-              <SelectTrigger><SelectValue placeholder="ملاءمة الباقة" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="������ ������" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">كل الباقات</SelectItem>
-                <SelectItem value="gold">ذهبي</SelectItem>
-                <SelectItem value="diamond">ماسي</SelectItem>
-                <SelectItem value="mixed">ذهبي/ماسي</SelectItem>
+                <SelectItem value="all">�� �������</SelectItem>
+                <SelectItem value="gold">����</SelectItem>
+                <SelectItem value="diamond">����</SelectItem>
+                <SelectItem value="mixed">����/����</SelectItem>
               </SelectContent>
             </Select>
             <Button
               variant="outline"
               onClick={async () => {
-                const lines = filteredLeads.map((lead) => `${lead.name} | ${lead.city} | ${lead.phone ?? lead.instagram ?? lead.email ?? lead.website ?? '—'}`);
+                const lines = filteredLeads.map((lead) => `${lead.name} | ${lead.city} | ${lead.phone ?? lead.instagram ?? lead.email ?? lead.website ?? '�'}`);
                 try {
                   await navigator.clipboard.writeText(lines.join('\n'));
-                  toast({ title: 'تم نسخ القائمة', description: `${filteredLeads.length} جهة اتصال` });
+                  toast({ title: '�� ��� �������', description: `${filteredLeads.length} ��� �����` });
                 } catch {
-                  toast({ title: 'تعذر النسخ', variant: 'destructive' });
+                  toast({ title: '���� �����', variant: 'destructive' });
                 }
               }}
             >
               <Copy className="w-4 h-4 ml-2" />
-              نسخ القائمة الحالية
+              ��� ������� �������
             </Button>
             <div className="flex items-center justify-between rounded-md border px-3">
-              <span className="text-sm text-muted-foreground">فقط مستحقات المتابعة</span>
+              <span className="text-sm text-muted-foreground">��� ������� ��������</span>
                 <Switch checked={onlyDue} onCheckedChange={setOnlyDue} disabled={!canManage} />
             </div>
             <Button variant="outline" onClick={downloadCsv} disabled={!canManage}>
               <Download className="w-4 h-4 ml-2" />
-              تصدير CSV
+              ����� CSV
             </Button>
           </div>
         </CardContent>
@@ -4188,35 +4195,35 @@ function CommandCenterSection({
                   <div className="space-y-2 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-lg">{lead.name}</h3>
-                      <Badge variant="outline">{lead.region} — {lead.city}</Badge>
+                      <Badge variant="outline">{lead.region} � {lead.city}</Badge>
                       <Badge className={statusMeta[status].className}>{statusMeta[status].label}</Badge>
                       <Badge variant="secondary">
-                        {lead.tierFit === 'diamond' ? 'ملائم للماسي' : lead.tierFit === 'gold' ? 'ملائم للذهبي' : 'ذهبي/ماسي'}
+                        {lead.tierFit === 'diamond' ? '����� ������' : lead.tierFit === 'gold' ? '����� ������' : '����/����'}
                       </Badge>
-                      {isOverdue ? <Badge variant="destructive">متابعة متأخرة</Badge> : null}
-                      {!isOverdue && isDueToday ? <Badge className="bg-amber-500 text-white">متابعة اليوم</Badge> : null}
+                      {isOverdue ? <Badge variant="destructive">������ ������</Badge> : null}
+                      {!isOverdue && isDueToday ? <Badge className="bg-amber-500 text-white">������ �����</Badge> : null}
                     </div>
                     <div className="text-sm text-muted-foreground flex gap-3 flex-wrap">
-                      {lead.phone ? <span dir="ltr">📞 {lead.phone}</span> : null}
-                      {lead.email ? <span dir="ltr">✉️ {lead.email}</span> : null}
+                      {lead.phone ? <span dir="ltr">?? {lead.phone}</span> : null}
+                      {lead.email ? <span dir="ltr">?? {lead.email}</span> : null}
                       {lead.instagram ? <span dir="ltr">{lead.instagram}</span> : null}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      آخر تواصل: {state?.lastContactAt ?? 'لم يتم بعد'}
+                      ��� �����: {state?.lastContactAt ?? '�� ��� ���'}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      متابعة قادمة: {state?.followUpDate ?? 'غير محددة'}
+                      ������ �����: {state?.followUpDate ?? '��� �����'}
                     </div>
                   </div>
 
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:w-56">
                     <Button onClick={() => openLeadChannel(lead)} disabled={!canManage}>
                       <ExternalLink className="w-4 h-4 ml-2" />
-                      فتح قناة التواصل
+                      ��� ���� �������
                     </Button>
                     <Button variant="outline" onClick={() => void copyLeadPitch(lead)} disabled={!canManage}>
                       <Copy className="w-4 h-4 ml-2" />
-                      نسخ رسالة جاهزة
+                      ��� ����� �����
                     </Button>
                   </div>
                 </div>
@@ -4231,23 +4238,23 @@ function CommandCenterSection({
                   >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="new">جديد</SelectItem>
-                      <SelectItem value="contacted">تم التواصل</SelectItem>
-                      <SelectItem value="waiting">بانتظار الرد</SelectItem>
-                      <SelectItem value="won">تم شراء الترخيص</SelectItem>
-                      <SelectItem value="lost">تعذر الإغلاق</SelectItem>
+                      <SelectItem value="new">����</SelectItem>
+                      <SelectItem value="contacted">�� �������</SelectItem>
+                      <SelectItem value="waiting">������� ����</SelectItem>
+                      <SelectItem value="won">�� ���� �������</SelectItem>
+                      <SelectItem value="lost">���� �������</SelectItem>
                     </SelectContent>
                   </Select>
                   <Input
                     value={state?.assignedTo ?? ''}
                     onChange={(e) => setLeadPatch(lead.id, { assignedTo: e.target.value })}
-                    placeholder="المسؤول (اختياري)"
+                    placeholder="������� (�������)"
                     disabled={!canManage}
                   />
                   <Input
                     value={state?.notes ?? ''}
                     onChange={(e) => setLeadPatch(lead.id, { notes: e.target.value })}
-                    placeholder="ملاحظة مختصرة"
+                    placeholder="������ ������"
                     disabled={!canManage}
                   />
                   <Input
@@ -4266,7 +4273,7 @@ function CommandCenterSection({
   );
 }
 
-// Messages Section — دردشة دعم المنصة (TLS + تحقق خادمي؛ المحتوى في قاعدة البيانات بصلاحيات مقيدة)
+// Messages Section � ����� ��� ������ (TLS + ���� ������ ������� �� ����� �������� �������� �����)
 function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
   const [threads, setThreads] = useState<AdminSupportThread[]>([]);
   const [barbers, setBarbers] = useState<AdminBarberRow[]>([]);
@@ -4284,7 +4291,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
     const r = await fetchAdminSupportThreadsRemote();
     setLoadingThreads(false);
     if (!r.ok) {
-      toast({ title: 'تعذر تحميل قائمة المحادثات', description: r.error, variant: 'destructive' });
+      toast({ title: '���� ����� ����� ���������', description: r.error, variant: 'destructive' });
       return;
     }
     setThreads(r.threads);
@@ -4297,7 +4304,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
       const r = await fetchAdminSupportMessagesRemote(barberId);
       setLoadingMessages(false);
       if (!r.ok) {
-        toast({ title: 'تعذر تحميل الرسائل', description: r.error, variant: 'destructive' });
+        toast({ title: '���� ����� �������', description: r.error, variant: 'destructive' });
         return;
       }
       setMessages(r.messages);
@@ -4333,13 +4340,13 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
     const r = await sendAdminSupportMessageRemote({ barberId: selectedBarberId.trim(), body: draft.trim() });
     setSending(false);
     if (!r.ok) {
-      toast({ title: 'تعذر الإرسال', description: r.error, variant: 'destructive' });
+      toast({ title: '���� �������', description: r.error, variant: 'destructive' });
       return;
     }
     setDraft('');
     await loadMessages(selectedBarberId.trim());
     await loadThreads();
-    toast({ title: 'تم إرسال الرسالة' });
+    toast({ title: '�� ����� �������' });
   };
 
   const selectedLabel =
@@ -4355,24 +4362,24 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
       className="space-y-6"
     >
       <div>
-        <h2 className="text-2xl font-bold mb-2">الرسائل والدعم الفني</h2>
+        <h2 className="text-2xl font-bold mb-2">������� ������ �����</h2>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          محادثة مباشرة مع الحلاق عبر الخادم (HTTPS). يُتحقق من جلسة Supabase وصلاحية{' '}
-          <span className="font-medium text-foreground">عرض الرسائل</span> قبل أي قراءة أو إرسال؛ بيانات الرسائل
-          لا تُعرَض إلا لمن يملك المفتاح نفسه في لوحة الإدارة.
+          ������ ������ �� ������ ��� ������ (HTTPS). ������ �� ���� Supabase �������{' '}
+          <span className="font-medium text-foreground">��� �������</span> ��� �� ����� �� ����� ������ �������
+          �� ������ ��� ��� ���� ������� ���� �� ���� �������.
         </p>
       </div>
 
       {!canUseChat ? (
         <Card>
-          <CardContent className="p-6 text-sm text-muted-foreground">لا تملك صلاحية عرض الرسائل.</CardContent>
+          <CardContent className="p-6 text-sm text-muted-foreground">�� ���� ������ ��� �������.</CardContent>
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,280px)_1fr]">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">المحادثات</CardTitle>
-              <CardDescription>حلاقون برسائل سابقة أو اختر حساباً لبدء محادثة</CardDescription>
+              <CardTitle className="text-base">���������</CardTitle>
+              <CardDescription>������ ������ ����� �� ���� ������ ���� ������</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button
@@ -4384,35 +4391,35 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                 onClick={() => void loadThreads()}
               >
                 {loadingThreads ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-                تحديث القائمة
+                ����� �������
               </Button>
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">فتح محادثة / حساب</Label>
+                <Label className="text-xs text-muted-foreground">��� ������ / ����</Label>
                 <Select
                   value={selectedBarberId || undefined}
                   onValueChange={(v) => setSelectedBarberId(v)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="اختر الحلاق…" />
+                    <SelectValue placeholder="���� �����ޅ" />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">
                     {threads.map((t) => (
                       <SelectItem key={t.barberId} value={t.barberId}>
-                        {t.barberName} — آخر رسالة: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA') : '—'}
+                        {t.barberName} � ��� �����: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA') : '�'}
                       </SelectItem>
                     ))}
                     {barbers
                       .filter((b) => !threads.some((t) => t.barberId === b.id))
                       .map((b) => (
                         <SelectItem key={b.id} value={b.id}>
-                          {b.name} (بدء جديد)
+                          {b.name} (��� ����)
                         </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
               </div>
               {threads.length === 0 && !loadingThreads ? (
-                <p className="text-xs text-muted-foreground">لا توجد رسائل بعد — اختر حلاقاً من القائمة لإرسال أول رسالة.</p>
+                <p className="text-xs text-muted-foreground">�� ���� ����� ��� � ���� ������ �� ������� ������ ��� �����.</p>
               ) : null}
             </CardContent>
           </Card>
@@ -4420,22 +4427,22 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">
-                {selectedBarberId ? `محادثة: ${selectedLabel || selectedBarberId}` : 'اختر حلاقاً'}
+                {selectedBarberId ? `������: ${selectedLabel || selectedBarberId}` : '���� ������'}
               </CardTitle>
-              <CardDescription>الرسائل تُحدَّث تلقائياً كل بضع ثوانٍ أثناء بقائك هنا</CardDescription>
+              <CardDescription>������� ������� �������� �� ��� ����� ����� ����� ���</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {!selectedBarberId ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">اختر حساباً من العمود الأيمن.</p>
+                <p className="text-sm text-muted-foreground py-6 text-center">���� ������ �� ������ ������.</p>
               ) : loadingMessages && messages.length === 0 ? (
                 <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  جاري التحميل…
+                  ���� �������
                 </div>
               ) : (
                 <div className="max-h-[420px] space-y-3 overflow-y-auto rounded-md border border-border/60 bg-muted/20 p-3">
                   {messages.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-6">لا رسائل بعد — اكتب أول رسالة أدناه.</p>
+                    <p className="text-sm text-muted-foreground text-center py-6">�� ����� ��� � ���� ��� ����� �����.</p>
                   ) : (
                     messages.map((m) => (
                       <div
@@ -4449,7 +4456,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                         >
                           <p className="whitespace-pre-wrap break-words">{m.body}</p>
                           <p className="mt-1 text-[11px] opacity-80">
-                            {m.from_admin ? `إدارة: ${m.admin_sender_email ?? '—'}` : 'الحلاق'} ·{' '}
+                            {m.from_admin ? `�����: ${m.admin_sender_email ?? '�'}` : '������'} �{' '}
                             {new Date(m.created_at).toLocaleString('ar-SA')}
                           </p>
                         </div>
@@ -4460,7 +4467,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
               )}
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Textarea
-                  placeholder="اكتب رسالة الدعم…"
+                  placeholder="���� ����� �����"
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   rows={3}
@@ -4474,7 +4481,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                   onClick={() => void send()}
                 >
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  إرسال
+                  �����
                 </Button>
               </div>
             </CardContent>
@@ -4497,16 +4504,16 @@ function SettingsSection({
   adminEmail: string;
   canManageAdmins: boolean;
   bootstrapAdmin: boolean;
-  /** ضريبة العرض والقواعد التجارية على الواجهات العامة */
+  /** ����� ����� �������� �������� ��� �������� ������ */
   canSavePlatformVat: boolean;
   canViewPartnerMarketing: boolean;
   canManagePartnerMarketing: boolean;
 }) {
   const ADMIN_ROLE_TEMPLATES: { key: string; label: string; permissions: AdminPermissions }[] = [
-    { key: 'super_admin', label: 'سوبر أدمن (كامل الصلاحيات)', permissions: FULL_ADMIN_PERMISSIONS },
+    { key: 'super_admin', label: '���� ���� (���� ���������)', permissions: FULL_ADMIN_PERMISSIONS },
     {
       key: 'finance_admin',
-      label: 'مدير مالي',
+      label: '���� ����',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         view_requests: false,
@@ -4530,7 +4537,7 @@ function SettingsSection({
     },
     {
       key: 'subscriber_support',
-      label: 'دعم المشتركين',
+      label: '��� ���������',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         review_payments: false,
@@ -4552,7 +4559,7 @@ function SettingsSection({
     },
     {
       key: 'payment_ops',
-      label: 'مشرف مدفوعات',
+      label: '���� �������',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         view_requests: false,
@@ -4576,7 +4583,7 @@ function SettingsSection({
     },
     {
       key: 'marketing_content',
-      label: 'محتوى وتسويق الشركاء',
+      label: '����� ������ �������',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         view_requests: false,
@@ -4603,7 +4610,7 @@ function SettingsSection({
     },
     {
       key: 'ops_readonly',
-      label: 'مراقب تشغيل (قراءة لوحة الفوترة فقط)',
+      label: '����� ����� (����� ���� ������� ���)',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         view_requests: false,
@@ -4674,7 +4681,7 @@ function SettingsSection({
 
   const handleSaveVat = () => {
     if (!canSavePlatformVat) {
-      toast({ title: 'لا تملك صلاحية تعديل الإعدادات', variant: 'destructive' });
+      toast({ title: '�� ���� ������ ����� ���������', variant: 'destructive' });
       return;
     }
     savePlatformVatSettings({
@@ -4682,17 +4689,17 @@ function SettingsSection({
       ratePercent: rateForPreview,
     });
     toast({
-      title: 'تم حفظ إعدادات الضريبة',
+      title: '�� ��� ������� �������',
       description: vatEnabled
-        ? `مفعّلة — النسبة المعروضة ${rateForPreview}% (تُحسب تلقائياً في صفحات الدفع).`
-        : 'معطّلة — تُعرض قيمة الترخيص الرقمي فقط دون ضريبة في الواجهة.',
+        ? `������ � ������ �������� ${rateForPreview}% (����� �������� �� ����� �����).`
+        : '������ � ����� ���� ������� ������ ��� ��� ����� �� �������.',
     });
   };
 
   const createOrUpdateAdmin = async () => {
     if (!canManageAdmins) return;
     if (!newAdminEmail.trim()) {
-      toast({ title: 'أدخل بريد الأدمن', variant: 'destructive' });
+      toast({ title: '���� ���� ������', variant: 'destructive' });
       return;
     }
     const res = await upsertAdminRole({
@@ -4703,10 +4710,10 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: 'تعذر حفظ الأدمن', description: errorText(res, 'تعذر حفظ بيانات الأدمن.'), variant: 'destructive' });
+      toast({ title: '���� ��� ������', description: errorText(res, '���� ��� ������ ������.'), variant: 'destructive' });
       return;
     }
-    toast({ title: 'تم حفظ الأدمن وصلاحياته' });
+    toast({ title: '�� ��� ������ ���������' });
     setNewAdminEmail('');
     setNewAdminName('');
     setNewAdminPermissions(FULL_ADMIN_PERMISSIONS);
@@ -4725,11 +4732,11 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: 'تعذر تطبيق القالب', description: errorText(res, 'تعذر تحديث صلاحيات الأدمن.'), variant: 'destructive' });
+      toast({ title: '���� ����� ������', description: errorText(res, '���� ����� ������� ������.'), variant: 'destructive' });
       return;
     }
     setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, permissions: tpl.permissions } : r)));
-    toast({ title: 'تم تطبيق القالب', description: `${tpl.label} على ${row.email}` });
+    toast({ title: '�� ����� ������', description: `${tpl.label} ��� ${row.email}` });
   };
 
   const toggleAdminPermission = async (row: AdminRoleRow, permission: AdminPermissionKey, checked: boolean) => {
@@ -4742,7 +4749,7 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: 'تعذر تحديث الصلاحية', description: errorText(res, 'تعذر تحديث الصلاحية.'), variant: 'destructive' });
+      toast({ title: '���� ����� ��������', description: errorText(res, '���� ����� ��������.'), variant: 'destructive' });
       return;
     }
     setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, permissions: nextPermissions } : r)));
@@ -4757,7 +4764,7 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: 'تعذر تحديث حالة الأدمن', description: errorText(res, 'تعذر تحديث حالة الأدمن.'), variant: 'destructive' });
+      toast({ title: '���� ����� ���� ������', description: errorText(res, '���� ����� ���� ������.'), variant: 'destructive' });
       return;
     }
     setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, is_active: checked } : r)));
@@ -4765,34 +4772,34 @@ function SettingsSection({
 
   const removeAdmin = async (emailToDelete: string) => {
     if (emailToDelete.toLowerCase() === adminEmail.toLowerCase()) {
-      toast({ title: 'لا يمكنك حذف حسابك الحالي', variant: 'destructive' });
+      toast({ title: '�� ����� ��� ����� ������', variant: 'destructive' });
       return;
     }
     const res = await deleteAdminRoleByEmail(emailToDelete);
     if (!res.ok) {
-      toast({ title: 'تعذر حذف الأدمن', description: errorText(res, 'تعذر حذف الأدمن.'), variant: 'destructive' });
+      toast({ title: '���� ��� ������', description: errorText(res, '���� ��� ������.'), variant: 'destructive' });
       return;
     }
-    toast({ title: 'تم حذف الأدمن' });
+    toast({ title: '�� ��� ������' });
     await refreshAdmins();
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold mb-2">إعدادات المنصة</h2>
+      <h2 className="text-2xl font-bold mb-2">������� ������</h2>
 
       <Card className="border-primary/25">
         <CardHeader>
-          <CardTitle>إدارة المدراء والصلاحيات</CardTitle>
+          <CardTitle>����� ������� ����������</CardTitle>
           <CardDescription>
-            تعيين أدمن جديد مع صلاحيات دقيقة مجمّعة حسب المجال (تشغيل، مالية، تسويق، سوبر). المستوى المقترح بجانب كل
-            مفتاح إرشاد فقط — يمكنك منح أدمن صلاحية «سوبر» محددة دون باقي المفاتيح. {bootstrapAdmin ? 'أنت في وضع Bootstrap بصلاحية كاملة.' : 'تحتاج صلاحية إدارة المدراء للتعديل.'}
+            ����� ���� ���� �� ������� ����� ������ ��� ������ (����� ����ɡ ����ޡ ����). ������� ������� ����� ��
+            ����� ����� ��� � ����� ��� ���� ������ ����ѻ ����� ��� ���� ��������. {bootstrapAdmin ? '��� �� ��� Bootstrap ������� �����.' : '����� ������ ����� ������� �������.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {!canManageAdmins ? (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-900 dark:text-amber-100">
-              لا تملك صلاحية <strong>إدارة المدراء</strong>. يمكنك طلبها من حساب المؤسّس (المالك).
+              �� ���� ������ <strong>����� �������</strong>. ����� ����� �� ���� ������� (������).
             </div>
           ) : (
             <>
@@ -4805,17 +4812,17 @@ function SettingsSection({
                   onChange={(e) => setNewAdminEmail(e.target.value)}
                 />
                 <Input
-                  placeholder="اسم عرض الأدمن (اختياري)"
+                  placeholder="��� ��� ������ (�������)"
                   value={newAdminName}
                   onChange={(e) => setNewAdminName(e.target.value)}
                 />
                 <Button type="button" onClick={() => void createOrUpdateAdmin()}>
-                  إضافة/تحديث أدمن
+                  �����/����� ����
                 </Button>
               </div>
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="md:col-span-2">
-                  <Label className="mb-2 block">قالب صلاحيات سريع للأدمن الجديد</Label>
+                  <Label className="mb-2 block">���� ������� ���� ������ ������</Label>
                   <Select
                     value={newAdminTemplateKey}
                     onValueChange={(v) => {
@@ -4846,13 +4853,13 @@ function SettingsSection({
                       if (tpl) setNewAdminPermissions(tpl.permissions);
                     }}
                   >
-                    إعادة تطبيق القالب
+                    ����� ����� ������
                   </Button>
                 </div>
               </div>
 
               <div className="rounded-lg border p-3 space-y-4">
-                <p className="font-medium text-sm">صلاحيات الأدمن الجديد</p>
+                <p className="font-medium text-sm">������� ������ ������</p>
                 {ADMIN_PERMISSION_UI_SECTIONS.map((section) => (
                   <div key={section.id} className="rounded-md border border-border/70 bg-muted/10 p-3 space-y-2">
                     <div className="text-right">
@@ -4883,15 +4890,15 @@ function SettingsSection({
 
               <div className="rounded-lg border p-3">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-medium text-sm">الأدمن الحاليون</p>
+                  <p className="font-medium text-sm">������ ��������</p>
                   <Button variant="outline" size="sm" onClick={() => void refreshAdmins()}>
-                    تحديث
+                    �����
                   </Button>
                 </div>
                 {adminLoading ? (
-                  <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+                  <p className="text-sm text-muted-foreground">���� �������...</p>
                 ) : adminRows.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">لا توجد صفوف في جدول الصلاحيات بعد.</p>
+                  <p className="text-sm text-muted-foreground">�� ���� ���� �� ���� ��������� ���.</p>
                 ) : (
                   <div className="space-y-3">
                     {adminRows.map((row) => (
@@ -4899,12 +4906,12 @@ function SettingsSection({
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div>
                             <p className="font-semibold" dir="ltr">{row.email}</p>
-                            <p className="text-xs text-muted-foreground">{row.display_name || 'بدون اسم عرض'}</p>
+                            <p className="text-xs text-muted-foreground">{row.display_name || '���� ��� ���'}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <Select onValueChange={(v) => void applyTemplateToExistingAdmin(row, v)}>
                               <SelectTrigger className="w-[190px]" dir="rtl">
-                                <SelectValue placeholder="تطبيق قالب" />
+                                <SelectValue placeholder="����� ����" />
                               </SelectTrigger>
                               <SelectContent>
                                 {ADMIN_ROLE_TEMPLATES.map((tpl) => (
@@ -4914,7 +4921,7 @@ function SettingsSection({
                                 ))}
                               </SelectContent>
                             </Select>
-                            <span className="text-xs text-muted-foreground">نشط</span>
+                            <span className="text-xs text-muted-foreground">���</span>
                             <Switch
                               checked={row.is_active}
                               onCheckedChange={(checked) => void toggleAdminActive(row, checked)}
@@ -4924,7 +4931,7 @@ function SettingsSection({
                               size="sm"
                               onClick={() => void removeAdmin(row.email)}
                             >
-                              حذف
+                              ���
                             </Button>
                           </div>
                         </div>
@@ -4978,52 +4985,54 @@ function SettingsSection({
 
       <Card>
         <CardHeader>
-          <CardTitle>الإعدادات العامة</CardTitle>
+          <CardTitle>��������� ������</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>اسم المنصة</Label>
-            <Input defaultValue="حلاق ماب" disabled={!canSavePlatformVat} />
+            <Label>��� ������</Label>
+            <Input defaultValue="���� ���" disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2">
-            <Label>البريد الإلكتروني</Label>
+            <Label>������ ����������</Label>
             <Input type="email" defaultValue="admin@halaqmap.com" disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2">
-            <Label>رقم الهاتف</Label>
+            <Label>��� ������</Label>
             <Input type="tel" defaultValue="+966559602685" dir="ltr" disabled={!canSavePlatformVat} />
           </div>
           <Button type="button" className="w-full" disabled={!canSavePlatformVat}>
-            حفظ التغييرات
+            ��� ���������
           </Button>
         </CardContent>
       </Card>
 
       {(canSavePlatformVat || bootstrapAdmin) && (
-        <ZatcaTaxActivationAlert canActivate={canSavePlatformVat} />
+        <div id="zatca-financial-office" className="scroll-mt-24">
+          <ZatcaTaxActivationAlert canActivate={canSavePlatformVat} />
+        </div>
       )}
 
       <Card className="border-primary/25">
         <CardHeader>
-          <CardTitle>ضريبة القيمة المضافة (عرض الدفع)</CardTitle>
+          <CardTitle>����� ������ ������� (��� �����)</CardTitle>
           <CardDescription>
-            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كقيمة ترخيص رقمي فقط (مناسب
-            لتقديم بوابات مثل ميسر). عند التوسع بسجل تجاري ورقم ضريبي فعّل الاحتسب هنا وحدّث النسبة عند تغيير
-            الأنظمة.
+            �� ��� ����� ���� �� ��� ������ ������� ����� �������ɺ ����� ������� ����� ����� ���� ��� (�����
+            ������ ������ ��� ����). ��� ������ ���� ����� ���� ����� ���� ������� ��� ����� ������ ��� �����
+            �������.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
             <div>
-              <p className="font-medium">تفعيل احتساب الضريبة في الواجهة</p>
+              <p className="font-medium">����� ������ ������� �� �������</p>
               <p className="text-sm text-muted-foreground mt-1">
-                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة التراخيص الرقمية.
+                ��� ������� ���� ���� ������� ��������� �� ������� ����� ����� ������ �������� �������.
               </p>
             </div>
             <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2 max-w-xs">
-            <Label htmlFor="vat-rate">نسبة ضريبة القيمة المضافة (%)</Label>
+            <Label htmlFor="vat-rate">���� ����� ������ ������� (%)</Label>
             <Input
               id="vat-rate"
               type="number"
@@ -5035,23 +5044,23 @@ function SettingsSection({
               onChange={(e) => setVatRateInput(e.target.value)}
               disabled={!canSavePlatformVat || !vatEnabled}
             />
-            <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
+            <p className="text-xs text-muted-foreground">���� ����: 15 � ����� ������ ��� ���� ���� ����.</p>
           </div>
           <div className="rounded-lg bg-muted/50 p-4 text-sm">
-            <p className="font-medium mb-2">معاينة على 100 ر.س (قيمة ترخيص رقمي)</p>
+            <p className="font-medium mb-2">������ ��� 100 �.� (���� ����� ����)</p>
             <p className="text-muted-foreground">
               {!vatEnabled || preview.vat === 0 ? (
-                <>الإجمالي المعروض: <strong>{preview.total} ر.س</strong> (بدون ضريبة)</>
+                <>�������� �������: <strong>{preview.total} �.�</strong> (���� �����)</>
               ) : (
                 <>
-                  الرسوم: {preview.subtotal} ر.س + الضريبة ({rateForPreview}%): {preview.vat} ر.س ={' '}
-                  <strong>{preview.total} ر.س</strong>
+                  ������: {preview.subtotal} �.� + ������� ({rateForPreview}%): {preview.vat} �.� ={' '}
+                  <strong>{preview.total} �.�</strong>
                 </>
               )}
             </p>
           </div>
           <Button type="button" className="w-full" onClick={handleSaveVat} disabled={!canSavePlatformVat}>
-            حفظ إعدادات الضريبة
+            ��� ������� �������
           </Button>
         </CardContent>
       </Card>
