@@ -10,8 +10,14 @@ import {
   PARTNER_BANNERS_PREVIEW_GOLD_GALLERY_MAX,
   PARTNER_BANNERS_PREVIEW_TIERS,
 } from '@/config/partnerBannersPreviewCopy';
+import { BarberDashboardNeonPreview } from '@/components/partner/banners-preview/BarberDashboardNeonPreview';
 import { BannersPreviewAmbient } from '@/components/partner/banners-preview/BannersPreviewAmbient';
+import { DigitalShiftImpactPreview } from '@/components/partner/banners-preview/DigitalShiftImpactPreview';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
+import {
+  PARTNER_FEATURE_PREVIEW_DASHBOARD,
+  PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT,
+} from '@/config/partnerFeaturePreviewsCopy';
 import { cn } from '@/lib/utils';
 
 export default function PartnerBannersPreviewLanding() {
@@ -19,7 +25,7 @@ export default function PartnerBannersPreviewLanding() {
 
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = 'حلاق ماب — نماذج البنرات (معاينة تفاعلية)';
+    document.title = 'حلاق ماب — نماذج التسويق (بنرات وميزات)';
     const meta = document.createElement('meta');
     meta.setAttribute('name', 'robots');
     meta.setAttribute('content', 'noindex, nofollow');
@@ -42,7 +48,7 @@ export default function PartnerBannersPreviewLanding() {
             </div>
             <div>
               <p className="text-xs font-semibold text-cyan-200/80">مسار الأعمال · شفافية بصرية</p>
-              <h1 className="text-lg font-extrabold text-white md:text-xl">نماذج البنرات — كما يراها العميل</h1>
+              <h1 className="text-lg font-extrabold text-white md:text-xl">نماذج التسويق — بنرات وميزات المنصة</h1>
             </div>
           </div>
           <p className="max-w-lg text-xs leading-relaxed text-slate-400">
@@ -114,6 +120,56 @@ export default function PartnerBannersPreviewLanding() {
             </motion.section>
           );
         })}
+
+        <motion.section
+          initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.55 }}
+          className="grid items-center gap-8 border-t border-white/10 pt-12 lg:grid-cols-2 lg:gap-12"
+        >
+          <div className="order-2 lg:order-1">
+            <BarberDashboardNeonPreview />
+          </motion.div>
+          <motion.div className="order-1 space-y-5 lg:order-2">
+            <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/25 bg-cyan-950/30 px-3 py-1 text-xs font-bold text-cyan-100">
+              {PARTNER_FEATURE_PREVIEW_DASHBOARD.eyebrow}
+            </span>
+            <h2 className="text-xl font-extrabold leading-snug text-white md:text-2xl">
+              {PARTNER_FEATURE_PREVIEW_DASHBOARD.title}
+            </h2>
+            <motion.div className="space-y-4 text-sm leading-8 text-slate-300">
+              {PARTNER_FEATURE_PREVIEW_DASHBOARD.paragraphs.map((p) => (
+                <p key={p}>{p}</p>
+              ))}
+            </motion.div>
+          </motion.div>
+        </motion.section>
+
+        <motion.section
+          initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.55, delay: 0.06 }}
+          className="grid items-center gap-8 border-t border-white/10 pt-12 lg:grid-cols-2 lg:gap-12"
+        >
+          <motion.div className="order-1 space-y-5 lg:order-1">
+            <span className="inline-flex items-center gap-1 rounded-full border border-violet-400/25 bg-violet-950/30 px-3 py-1 text-xs font-bold text-violet-100">
+              {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.eyebrow}
+            </span>
+            <h2 className="text-xl font-extrabold leading-snug text-white md:text-2xl">
+              {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.title}
+            </h2>
+            <motion.div className="space-y-4 text-sm leading-8 text-slate-300">
+              {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.paragraphs.map((p) => (
+                <p key={p}>{p}</p>
+              ))}
+            </motion.div>
+          </motion.div>
+          <div className="order-2 lg:order-2">
+            <DigitalShiftImpactPreview />
+          </div>
+        </motion.section>
       </main>
 
       <footer className="relative z-10 border-t border-white/10 px-4 py-6 text-center text-[11px] text-slate-500">
