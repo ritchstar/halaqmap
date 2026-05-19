@@ -423,100 +423,63 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
     }
   }
 
-  /** GoDaddy: رابط لوحة الاشتراكات + صفوف مرجعية من بيانات الحساب (يدوي حتى ربط API شريك). */
+  /** GoDaddy: صف واحد مُجمَّع — نطاق halaqmap.com + أساسيات البريد + مواقع مجانية. */
   try {
     const portalUrl = (
       process.env.GODADDY_SUBSCRIPTIONS_PORTAL_URL || 'https://account.godaddy.com/subscriptions?plid=1'
     ).trim();
-    const ref = { portal_url: portalUrl };
+    const domainSettingsUrl = (
+      process.env.GODADDY_DOMAIN_SETTINGS_URL ||
+      'https://dcc.godaddy.com/control/portfolio/halaqmap.com/settings?ventureId=890d73b2-7783-4597-9e73-6f20a36c9968&ua_placement=shared_header'
+    ).trim();
+    const ref = { portal_url: portalUrl, domain_settings_url: domainSettingsUrl };
 
     await upsertCommitment(supabase, {
       vendor: 'godaddy',
-      display_label: 'GoDaddy — لوحة الاشتراكات (النطاق والخدمات)',
-      integration_mode: 'manual_only',
-      billing_cycle: 'custom',
-      amount_expected: null,
-      amount_currency: 'SAR',
-      monthly_estimate_sar: null,
-      next_renewal_at: null,
-      last_synced_at: nowIso,
-      last_sync_status: 'partial',
-      last_sync_error: null,
-      external_stable_key: 'godaddy:subscriptions_portal',
-      external_ref: ref,
-      vendor_payload: ref,
-      is_manual: true,
-      manual_notes: 'رابط مباشر لصفحة الاشتراكات في GoDaddy.',
-      data_gap_kind: 'missing_price',
-      data_gap_message: 'أضف المبالغ من لوحة GoDaddy (سجل الطلبات) عند الحاجة.',
-      credential_env_hint: null,
-    });
-
-    await upsertCommitment(supabase, {
-      vendor: 'godaddy',
-      display_label: 'GoDaddy — أساسيات البريد Microsoft 365 (admin@halaqmap.com)',
+      display_label: 'GoDaddy — halaqmap.com (Domain & Essentials)',
       integration_mode: 'manual_only',
       billing_cycle: 'annual',
       amount_expected: null,
       amount_currency: 'SAR',
-      monthly_estimate_sar: 29,
+      monthly_estimate_sar: 40.66,
       next_renewal_at: '2027-05-01T12:00:00.000Z',
       last_synced_at: nowIso,
       last_sync_status: 'ok',
       last_sync_error: null,
-      external_stable_key: 'godaddy:m365-email-essentials',
-      external_ref: { ...ref, identifier: 'admin@halaqmap.com', auto_renew: true },
-      vendor_payload: { product: 'Microsoft 365 Email Essentials' },
+      external_stable_key: 'godaddy:domain-and-essentials',
+      external_ref: {
+        ...ref,
+        domain: 'halaqmap.com',
+        includes: [
+          'Microsoft 365 Email Essentials (admin@halaqmap.com)',
+          'Domain renewal & full protection',
+          'Website + Marketing (free tier)',
+        ],
+      },
+      vendor_payload: {
+        m365_monthly_sar: 29,
+        domain_monthly_sar: 11.66,
+        website_marketing_monthly_sar: 0,
+        domain_renewal_at: '2029-05-01T12:00:00.000Z',
+        m365_renewal_at: '2027-05-01T12:00:00.000Z',
+      },
       is_manual: true,
-      manual_notes: 'تجديد تلقائي — تاريخ الفوترة من لوحة GoDaddy.',
+      manual_notes:
+        'صف مُجمَّع: بريد M365 + تجديد النطاق + مواقع/تسويق مجاني — حدّث التواريخ من لوحة GoDaddy عند الحاجة.',
       data_gap_kind: null,
       data_gap_message: null,
       credential_env_hint: null,
     });
 
-    await upsertCommitment(supabase, {
-      vendor: 'godaddy',
-      display_label: 'GoDaddy — halaqmap.com (تجديد النطاق — حماية كاملة)',
-      integration_mode: 'manual_only',
-      billing_cycle: 'annual',
-      amount_expected: null,
-      amount_currency: 'SAR',
-      monthly_estimate_sar: 11.66,
-      next_renewal_at: '2029-05-01T12:00:00.000Z',
-      last_synced_at: nowIso,
-      last_sync_status: 'ok',
-      last_sync_error: null,
-      external_stable_key: 'godaddy:domain-halaqmap-protection',
-      external_ref: { ...ref, domain: 'halaqmap.com', auto_renew: true },
-      vendor_payload: { product: 'Domain renewal & full protection' },
-      is_manual: true,
-      manual_notes: 'تجديد تلقائي — تاريخ الفوترة من لوحة GoDaddy.',
-      data_gap_kind: null,
-      data_gap_message: null,
-      credential_env_hint: null,
-    });
-
-    await upsertCommitment(supabase, {
-      vendor: 'godaddy',
-      display_label: 'GoDaddy — مواقع + تسويق (مجاني) — halaqmap.com',
-      integration_mode: 'manual_only',
-      billing_cycle: 'unknown',
-      amount_expected: 0,
-      amount_currency: 'SAR',
-      monthly_estimate_sar: 0,
-      next_renewal_at: null,
-      last_synced_at: nowIso,
-      last_sync_status: 'ok',
-      last_sync_error: null,
-      external_stable_key: 'godaddy:website-marketing-free',
-      external_ref: { ...ref, domain: 'halaqmap.com', billing: 'free' },
-      vendor_payload: { product: 'Website + Marketing (free tier)' },
-      is_manual: true,
-      manual_notes: 'مذكور في GoDaddy كـ «حر» — لا يُتوقع خصم.',
-      data_gap_kind: null,
-      data_gap_message: null,
-      credential_env_hint: null,
-    });
+    await supabase
+      .from('platform_ops_billing_commitments')
+      .delete()
+      .in('external_stable_key', [
+        'godaddy:subscriptions_portal',
+        'godaddy:m365-email-essentials',
+        'godaddy:domain-halaqmap-protection',
+        'godaddy:website-marketing-free',
+      ]);
 
     detail.godaddy = { ok: true, portalSeeded: true };
   } catch (e) {
@@ -589,39 +552,6 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       };
     })();
 
-    await upsertCommitment(supabase, {
-      vendor: 'openai',
-      display_label: 'OpenAI — نظرة عامة على الفوترة (المنظّمة)',
-      integration_mode: hasAdminKey ? 'api_polling' : 'manual_only',
-      billing_cycle: 'custom',
-      amount_expected: null,
-      amount_currency: 'USD',
-      monthly_estimate_sar: null,
-      next_renewal_at: null,
-      last_synced_at: nowIso,
-      last_sync_status: hasAdminKey && costsApi && 'ok' in costsApi && costsApi.ok ? 'ok' : 'partial',
-      last_sync_error: costsApi && 'ok' in costsApi && !costsApi.ok ? String(costsApi.error || '').slice(0, 500) : null,
-      external_stable_key: 'openai:billing_overview',
-      external_ref: ref,
-      vendor_payload: hasAdminKey
-        ? {
-            ...ref,
-            costs_api_configured: true,
-            ...(openAiOrgId ? { openai_organization_header: true } : {}),
-            ...(costsApi && 'ok' in costsApi && !costsApi.ok ? { last_openai_costs_http_status: costsApi.httpStatus } : {}),
-          }
-        : ref,
-      is_manual: true,
-      manual_notes: 'رابط لوحة الفوترة في OpenAI.',
-      data_gap_kind: openaiOverviewGap.kind,
-      data_gap_message: openaiOverviewGap.message,
-      credential_env_hint: !hasAdminKey
-        ? 'REVENUE_BILLING_MONITOR_TOKEN أو OPENAI_ADMIN_KEY'
-        : !openAiOrgId
-          ? 'OPENAI_ORGANIZATION_ID أو OPENAI_ORG_ID'
-          : null,
-    });
-
     const snapshot = {
       organization: 'HalaqMapKey',
       project: 'Default project',
@@ -640,28 +570,9 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
         : {}),
     };
 
-    const paygGap =
-      last31dUsd != null
-        ? {
-            data_gap_kind: null as string | null,
-            data_gap_message:
-              'رصيد الائتمان ما زال يُحدَّث يدوياً من لوحة OpenAI إن لزم؛ استهلاك API لآخر 31 يوماً من organization/costs.',
-          }
-        : hasAdminKey && !openAiOrgId
-          ? {
-              data_gap_kind: 'missing_api_key' as string | null,
-              data_gap_message:
-                'أضف OPENAI_ORGANIZATION_ID (أو OPENAI_ORG_ID) في Vercel لجلب استهلاك API عبر organization/costs.',
-            }
-          : {
-              data_gap_kind: 'discovery_pending' as string | null,
-              data_gap_message:
-                'التكلفة شهرية غير ثابتة (حسب الاستخدام) — راقب سجل الفوترة في OpenAI أو حدّث المبلغ الشهري التقديري يدوياً.',
-            };
-
     await upsertCommitment(supabase, {
       vendor: 'openai',
-      display_label: 'OpenAI — Pay as you go (رصيد + استهلاك API)',
+      display_label: 'OpenAI API — Pay As You Go',
       integration_mode: hasAdminKey && last31dUsd != null ? 'api_polling' : 'manual_only',
       billing_cycle: 'custom',
       amount_expected: last31dUsd != null ? last31dUsd : 9.92,
@@ -669,17 +580,27 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       monthly_estimate_sar: null,
       next_renewal_at: null,
       last_synced_at: nowIso,
-      last_sync_status: hasAdminKey && last31dUsd != null ? 'ok' : 'partial',
+      last_sync_status: hasAdminKey && costsApi && 'ok' in costsApi && costsApi.ok ? 'ok' : 'partial',
       last_sync_error: costsApi && 'ok' in costsApi && !costsApi.ok ? String(costsApi.error || '').slice(0, 500) : null,
-      external_stable_key: 'openai:payg-credit-snapshot',
+      external_stable_key: 'openai:payg-consolidated',
       external_ref: { ...ref, ...snapshot },
       vendor_payload: snapshot,
       is_manual: true,
       manual_notes:
-        'إعادة الشحن التلقائي (5→10 USD) حسب إعدادات المنظّمة في OpenAI. مجموع organization/costs لآخر 31 يوماً يتطلّب REVENUE_BILLING_MONITOR_TOKEN (أو OPENAI_ADMIN_KEY) و OPENAI_ORGANIZATION_ID مع رأس OpenAI-Organization.',
-      ...paygGap,
-      credential_env_hint: null,
+        'صف مُجمَّع: فوترة المنظّمة + Pay-as-you-go. إعادة الشحن التلقائي (5→10 USD). organization/costs لآخر 31 يوماً.',
+      data_gap_kind: openaiOverviewGap.kind,
+      data_gap_message: openaiOverviewGap.message,
+      credential_env_hint: !hasAdminKey
+        ? 'REVENUE_BILLING_MONITOR_TOKEN أو OPENAI_ADMIN_KEY'
+        : !openAiOrgId
+          ? 'OPENAI_ORGANIZATION_ID أو OPENAI_ORG_ID'
+          : null,
     });
+
+    await supabase
+      .from('platform_ops_billing_commitments')
+      .delete()
+      .in('external_stable_key', ['openai:billing_overview', 'openai:payg-credit-snapshot']);
 
     detail.openai = {
       ok: true,
@@ -700,7 +621,7 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
 
     await upsertCommitment(supabase, {
       vendor: 'resend',
-      display_label: 'Resend — إعدادات الفوترة والاشتراكات',
+      display_label: 'Resend — Transactional & Marketing Email Infrastructure',
       integration_mode: 'manual_only',
       billing_cycle: 'monthly',
       amount_expected: 0,
@@ -710,13 +631,13 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       last_synced_at: nowIso,
       last_sync_status: 'ok',
       last_sync_error: null,
-      external_stable_key: 'resend:billing_portal',
+      external_stable_key: 'resend:infrastructure',
       external_ref: {
         ...ref,
         ...(invoiceEmail ? { billing_invoice_email: invoiceEmail } : {}),
         invoices: 'none_yet',
         payment_methods: 'none_free_tier',
-        snapshot_note: 'لقطة منطقية — لا فواتير حتى أول دورة دفع بعد الترقية.',
+        snapshot_note: 'صف مُجمَّع: Transactional 3k/mo + Marketing 1k contacts — خطط مجانية حالياً.',
       },
       vendor_payload: {
         portal_url: portalUrl,
@@ -727,55 +648,20 @@ export async function runOpsBillingSync(supabase: OpsBillingSupabase): Promise<
       },
       is_manual: true,
       manual_notes:
-        'خطط مجانية حالياً ($0) — لا فواتير بعد. عند الترقية حدّث المبالغ والتجديد. لإظهار بريد الفواتير في الحقول عيّن RESEND_BILLING_INVOICE_EMAIL في Vercel.',
+        'صف مُجمَّع: بريد معاملاتي + تسويق. خطط مجانية ($0) — عند الترقية حدّث المبالغ. RESEND_BILLING_INVOICE_EMAIL اختياري.',
       data_gap_kind: null,
       data_gap_message: null,
       credential_env_hint: 'RESEND_API_KEY (للإرسال — الفوترة من لوحة Resend)',
     });
 
-    await upsertCommitment(supabase, {
-      vendor: 'resend',
-      display_label: 'Resend — Transactional (3,000 emails / mo)',
-      integration_mode: 'manual_only',
-      billing_cycle: 'monthly',
-      amount_expected: 0,
-      amount_currency: 'USD',
-      monthly_estimate_sar: 0,
-      next_renewal_at: null,
-      last_synced_at: nowIso,
-      last_sync_status: 'ok',
-      last_sync_error: null,
-      external_stable_key: 'resend:plan-transactional-free',
-      external_ref: ref,
-      vendor_payload: { quota_emails: 3000, price_usd_per_month: 0 },
-      is_manual: true,
-      manual_notes: 'كما في تبويب Subscriptions في Resend.',
-      data_gap_kind: null,
-      data_gap_message: null,
-      credential_env_hint: null,
-    });
-
-    await upsertCommitment(supabase, {
-      vendor: 'resend',
-      display_label: 'Resend — Marketing (1,000 contacts / mo)',
-      integration_mode: 'manual_only',
-      billing_cycle: 'monthly',
-      amount_expected: 0,
-      amount_currency: 'USD',
-      monthly_estimate_sar: 0,
-      next_renewal_at: null,
-      last_synced_at: nowIso,
-      last_sync_status: 'ok',
-      last_sync_error: null,
-      external_stable_key: 'resend:plan-marketing-free',
-      external_ref: ref,
-      vendor_payload: { contacts: 1000, price_usd_per_month: 0 },
-      is_manual: true,
-      manual_notes: 'كما في تبويب Subscriptions في Resend.',
-      data_gap_kind: null,
-      data_gap_message: null,
-      credential_env_hint: null,
-    });
+    await supabase
+      .from('platform_ops_billing_commitments')
+      .delete()
+      .in('external_stable_key', [
+        'resend:billing_portal',
+        'resend:plan-transactional-free',
+        'resend:plan-marketing-free',
+      ]);
 
     detail.resend = { ok: true, seeded: true };
   } catch (e) {

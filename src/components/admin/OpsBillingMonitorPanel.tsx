@@ -4,7 +4,6 @@ import {
   fetchOpsBillingMonitor,
   triggerOpsBillingSync,
   type OpsBillingCommitmentRow,
-  type OpsBillingSummary,
 } from '@/lib/opsBillingMonitorRemote';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +13,17 @@ import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ExternalLink, Landmark, Loader2, RefreshCw } from 'lucide-react';
 import { OpsBillingAiAssistant } from '@/components/admin/OpsBillingAiAssistant';
+import {
+  consolidateOpsBillingGaps,
+  consolidateOpsBillingRows,
+  formatLastSyncDisplay,
+  formatMonthlyDisplay,
+  formatRenewalDisplay,
+  formatStatusBadge,
+  portalUrlFromRow,
+  summarizeDisplayRows,
+} from '@/lib/opsBillingDisplay';
+import { Badge } from '@/components/ui/badge';
 
 const GODADDY_SUBSCRIPTIONS_DEFAULT =
   'https://account.godaddy.com/subscriptions?plid=1';
@@ -49,14 +59,6 @@ function opsGodaddyDomainSettingsUrl(): string {
   return u || GODADDY_DOMAIN_PORTFOLIO_DEFAULT;
 }
 
-function portalUrlFromRow(r: OpsBillingCommitmentRow): string | null {
-  const raw = r.external_ref;
-  if (!raw || typeof raw !== 'object') return null;
-  const u = (raw as { portal_url?: unknown }).portal_url;
-  return typeof u === 'string' && u.startsWith('http') ? u : null;
-}
-
-/** تسمية الرابط حسب المزوّد — كانت ثابتة «GoDaddy» لكل الصفوف بالخطأ. */
 function portalLinkLabelForVendor(vendor: string): string {
   const v = vendor.toLowerCase();
   if (v === 'godaddy') return 'لوحة GoDaddy';
@@ -68,7 +70,7 @@ function portalLinkLabelForVendor(vendor: string): string {
 }
 
 function formatCountdownAr(ms: number | null): string {
-  if (ms === null) return '—';
+  if (ms === null) return 'غير متاح بعد';
   const d = Math.floor(ms / 86400000);
   const h = Math.floor((ms % 86400000) / 3600000);
   if (d > 0) return `${d} يوم و ${h} ساعة`;
@@ -86,8 +88,6 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [rows, setRows] = useState<OpsBillingCommitmentRow[]>([]);
-  const [gaps, setGaps] = useState<OpsBillingCommitmentRow[]>([]);
-  const [summary, setSummary] = useState<OpsBillingSummary | null>(null);
   const [poll, setPoll] = useState<Record<string, unknown> | null>(null);
   const [manualLabel, setManualLabel] = useState('');
   const [manualMonthly, setManualMonthly] = useState('');
@@ -110,8 +110,6 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
         return;
       }
       setRows(r.commitments);
-      setGaps(r.gaps);
-      setSummary(r.summary);
       setPoll(r.poll);
     } finally {
       if (mounted.current) setLoading(false);
@@ -165,6 +163,10 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
     setManualRenewal('');
     await refresh();
   };
+
+  const displayRows = useMemo(() => consolidateOpsBillingRows(rows), [rows]);
+  const displayGaps = useMemo(() => consolidateOpsBillingGaps(displayRows), [displayRows]);
+  const displaySummary = useMemo(() => summarizeDisplayRows(displayRows), [displayRows]);
 
   const lastPoll = useMemo(() => {
     const f = poll?.last_poll_finished_at;
@@ -280,35 +282,37 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
             )}
           </div>
 
-          {summary && (
+          {displaySummary && (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-lg border p-4 bg-muted/30">
                 <div className="text-sm text-muted-foreground">أقرب موعد تجديد (معروف)</div>
                 <div className="text-lg font-semibold mt-1">
-                  {summary.nearestRenewalAt ? new Date(summary.nearestRenewalAt).toLocaleString('ar-SA') : '—'}
+                  {displaySummary.nearestRenewalAt
+                    ? new Date(displaySummary.nearestRenewalAt).toLocaleString('ar-SA')
+                    : 'تأكيد يدوي'}
                 </div>
                 <div className="text-sm text-muted-foreground mt-2">
-                  العد التنازلي: {formatCountdownAr(summary.countdownMs)}
+                  العد التنازلي: {formatCountdownAr(displaySummary.countdownMs)}
                 </div>
               </div>
               <div className="rounded-lg border p-4 bg-muted/30">
                 <div className="text-sm text-muted-foreground">إجمالي التقدير الشهري (ر.س)</div>
-                <div className="text-2xl font-bold mt-1">{summary.monthlyEstimateSarTotal.toFixed(2)}</div>
-                <div className="text-xs text-muted-foreground mt-2">يُحسب من حقل monthly_estimate_sar في الصفوف فقط.</div>
+                <div className="text-2xl font-bold mt-1">{displaySummary.monthlyEstimateSarTotal.toFixed(2)}</div>
+                <div className="text-xs text-muted-foreground mt-2">يُحسب من الصفوف المُجمَّعة بعد دمج المزوّدين.</div>
               </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {gaps.length > 0 && (
+      {displayGaps.length > 0 && (
         <Alert variant="default" className="border-amber-500/50 bg-amber-500/5">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>يتطلب إكمال بيانات ({gaps.length})</AlertTitle>
+          <AlertTitle>يتطلب إكمال بيانات ({displayGaps.length})</AlertTitle>
           <AlertDescription>
             <ul className="list-disc pr-5 mt-2 space-y-1 text-sm">
-              {gaps.map((g) => (
-                <li key={String(g.id)}>
+              {displayGaps.map((g) => (
+                <li key={String(g.displayKey ?? g.id)}>
                   <strong>{String(g.display_label || '')}</strong> — {String(g.data_gap_message || g.data_gap_kind || '')}
                 </li>
               ))}
@@ -360,7 +364,7 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
             <div className="flex justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-          ) : rows.length === 0 ? (
+          ) : displayRows.length === 0 ? (
             <p className="text-sm text-muted-foreground">لا صفوف بعد — نفّذ «مزامنة الآن» أو أضف التزامات يدوية.</p>
           ) : (
             <table className="w-full text-sm border-collapse">
@@ -370,19 +374,30 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
                   <th className="p-2">التسمية</th>
                   <th className="p-2">رابط</th>
                   <th className="p-2">التجديد</th>
-                  <th className="p-2">شهري (ر.س)</th>
+                  <th className="p-2">شهري (ر.س / USD)</th>
                   <th className="p-2">آخر مزامنة</th>
                   <th className="p-2">الحالة</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => {
+                {displayRows.map((r) => {
                   const portal = portalUrlFromRow(r);
                   const vendorStr = String(r.vendor ?? '');
+                  const renewal = formatRenewalDisplay(r);
+                  const monthly = formatMonthlyDisplay(r);
+                  const status = formatStatusBadge(r);
+                  const rowKey = String(r.displayKey ?? r.id);
                   return (
-                  <tr key={String(r.id)} className="border-b border-muted/50">
+                  <tr key={rowKey} className="border-b border-muted/50 align-top">
                     <td className="p-2 font-mono text-xs">{vendorStr}</td>
-                    <td className="p-2">{String(r.display_label)}</td>
+                    <td className="p-2">
+                      <div>{String(r.display_label)}</div>
+                      {r.consolidated && r.consolidatedChildCount ? (
+                        <span className="text-[10px] text-muted-foreground">
+                          {r.consolidatedChildCount} صفوف مدمجة
+                        </span>
+                      ) : null}
+                    </td>
                     <td className="p-2 max-w-[140px]">
                       {portal ? (
                         <a
@@ -396,22 +411,57 @@ export function OpsBillingMonitorPanel({ canMutate }: Props) {
                           <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                       ) : (
-                        '—'
+                        <span className="text-xs text-muted-foreground italic">تأكيد يدوي</span>
                       )}
                     </td>
                     <td className="p-2 whitespace-nowrap">
-                      {r.next_renewal_at ? new Date(String(r.next_renewal_at)).toLocaleDateString('ar-SA') : '—'}
-                    </td>
-                    <td className="p-2">{r.monthly_estimate_sar != null ? String(r.monthly_estimate_sar) : '—'}</td>
-                    <td className="p-2 whitespace-nowrap text-xs">
-                      {r.last_synced_at ? new Date(String(r.last_synced_at)).toLocaleString('ar-SA') : '—'}
+                      <span
+                        className={
+                          renewal.tone === 'amber'
+                            ? 'text-amber-700 dark:text-amber-300 text-xs font-medium'
+                            : renewal.tone === 'muted'
+                              ? 'text-muted-foreground text-xs italic'
+                              : ''
+                        }
+                      >
+                        {renewal.text}
+                      </span>
                     </td>
                     <td className="p-2">
-                      {r.data_gap_kind ? (
-                        <span className="text-amber-700 text-xs">{String(r.data_gap_kind)}</span>
-                      ) : (
-                        <span className="text-emerald-700 text-xs">{String(r.last_sync_status)}</span>
-                      )}
+                      <div
+                        className={
+                          monthly.tone === 'amber'
+                            ? 'text-amber-700 dark:text-amber-300 text-xs font-medium'
+                            : monthly.tone === 'muted'
+                              ? 'text-muted-foreground text-xs italic'
+                              : monthly.tone === 'cached'
+                                ? 'text-foreground text-sm'
+                                : ''
+                        }
+                      >
+                        {monthly.text}
+                      </div>
+                      {monthly.hint ? (
+                        <div className="text-[10px] text-muted-foreground mt-0.5">{monthly.hint}</div>
+                      ) : null}
+                    </td>
+                    <td className="p-2 whitespace-nowrap text-xs text-muted-foreground">
+                      {formatLastSyncDisplay(r)}
+                    </td>
+                    <td className="p-2">
+                      <Badge
+                        variant="outline"
+                        title={status.title}
+                        className={
+                          status.tone === 'ok'
+                            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200 text-[10px]'
+                            : status.tone === 'amber'
+                              ? 'border-amber-500/45 bg-amber-500/15 text-amber-900 dark:text-amber-100 text-[10px]'
+                              : 'text-[10px] text-muted-foreground'
+                        }
+                      >
+                        {status.label}
+                      </Badge>
                     </td>
                   </tr>
                   );
