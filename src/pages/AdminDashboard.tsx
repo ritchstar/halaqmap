@@ -102,6 +102,7 @@ import {
   getPlatformVatSettings,
   savePlatformVatSettings,
 } from '@/lib/platformVatSettings';
+import { ZatcaTaxActivationAlert } from '@/components/admin/ZatcaTaxActivationAlert';
 import { toast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -4997,6 +4998,10 @@ function SettingsSection({
           </Button>
         </CardContent>
       </Card>
+
+      {(canSavePlatformVat || bootstrapAdmin) && (
+        <ZatcaTaxActivationAlert canActivate={canSavePlatformVat} />
+      )}
 
       <Card className="border-primary/25">
         <CardHeader>
