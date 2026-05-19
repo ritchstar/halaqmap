@@ -6,6 +6,8 @@ export type UnifiedPaymentInput = {
   amountHalalas: number;
   /** عدد بطاقات الترخيص (1–12) */
   licenseQuantity: number;
+  /** المناوب الرقمي — ماسي +25 ر.س/بطاقة */
+  digitalShiftAddonSelected?: boolean;
   barberName: string;
   requestId: string;
   linkedBarberId: string;

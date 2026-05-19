@@ -156,6 +156,11 @@ function licenseSkuFromMeta(meta: Record<string, unknown>, tier: "bronze" | "gol
   return "bronze_30";
 }
 
+function digitalShiftAddonFromMeta(meta: Record<string, unknown>): boolean {
+  const raw = meta.digital_shift_addon ?? meta.digitalShiftAddon;
+  return raw === true || raw === "true" || raw === 1 || raw === "1";
+}
+
 async function fulfillListingLicenseViaInternalApi(input: {
   skuCode: string;
   tier: "bronze" | "gold" | "diamond" | null;
@@ -167,6 +172,7 @@ async function fulfillListingLicenseViaInternalApi(input: {
   amountHalalas: number | null;
   quantity: number;
   autoRedeem: boolean;
+  paymentMetadata?: Record<string, unknown>;
 }): Promise<{ ok: true; autoRedeemed: boolean; validUntil: string } | { ok: false; error: string }> {
   const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "").trim().replace(
     /\/+$/,
@@ -195,7 +201,13 @@ async function fulfillListingLicenseViaInternalApi(input: {
         amountHalalas: input.amountHalalas,
         quantity: input.quantity,
         autoRedeem: input.autoRedeem,
-        metadata: { source: "moyasar_webhook", license_quantity: input.quantity },
+        metadata: {
+          source: "moyasar_webhook",
+          license_quantity: input.quantity,
+          ...(input.paymentMetadata && typeof input.paymentMetadata === "object"
+            ? input.paymentMetadata
+            : {}),
+        },
       }),
     });
     const text = await resp.text();
@@ -706,6 +718,7 @@ Deno.serve(async (req) => {
       amountHalalas: paidAmount,
       quantity: licenseQty,
       autoRedeem: Boolean(barberId),
+      paymentMetadata: meta,
     });
     if (!fulfill.ok) {
       console.warn("[moyasar-webhook] fulfillListingLicense:", fulfill.error);

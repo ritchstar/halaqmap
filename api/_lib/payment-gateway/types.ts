@@ -4,6 +4,7 @@ export type UnifiedPaymentRequest = {
   tier: string;
   amountHalalas: number;
   licenseQuantity?: number;
+  digitalShiftAddonSelected?: boolean;
   barberName: string;
   requestId?: string;
   linkedBarberId?: string;

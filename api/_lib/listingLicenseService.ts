@@ -45,6 +45,28 @@ export type ListingFulfillResult =
     }
   | { ok: false; error: string; status?: number };
 
+const DIGITAL_SHIFT_ADDON_HALALAS_PER_CARD = 2500;
+
+function isDigitalShiftAddonInMetadata(metadata?: Record<string, unknown>): boolean {
+  if (!metadata) return false;
+  const raw = metadata.digital_shift_addon ?? metadata.digitalShiftAddon;
+  return raw === true || raw === 'true' || raw === 1 || raw === '1';
+}
+
+async function activateDigitalShiftAddonForBarber(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<void> {
+  await supabase.from('barber_digital_shift_config').upsert(
+    { barber_id: barberId, enabled: true },
+    { onConflict: 'barber_id' },
+  );
+  await supabase.from('barber_ai_wallet').upsert(
+    { barber_id: barberId },
+    { onConflict: 'barber_id', ignoreDuplicates: true },
+  );
+}
+
 function clampLicenseQuantity(raw: unknown): number {
   const n =
     typeof raw === 'number' && Number.isFinite(raw)
@@ -293,7 +315,17 @@ export async function fulfillListingLicenseOrder(
       currency: 'SAR',
       status: 'paid',
       paid_at: ts,
-      metadata: { ...(input.metadata ?? {}), license_quantity: quantity },
+      metadata: {
+        ...(input.metadata ?? {}),
+        license_quantity: quantity,
+        ...(isDigitalShiftAddonInMetadata(input.metadata)
+          ? {
+              digital_shift_addon: true,
+              digital_shift_addon_halalas:
+                DIGITAL_SHIFT_ADDON_HALALAS_PER_CARD * quantity,
+            }
+          : { digital_shift_addon: false, digital_shift_addon_halalas: 0 }),
+      },
     })
     .select('id')
     .single();
@@ -322,6 +354,14 @@ export async function fulfillListingLicenseOrder(
 
   if (!firstIssued) {
     return { ok: false, error: 'voucher_issue_failed', status: 500 };
+  }
+
+  if (
+    barberId &&
+    product.tier === 'diamond' &&
+    isDigitalShiftAddonInMetadata(input.metadata)
+  ) {
+    await activateDigitalShiftAddonForBarber(supabase, barberId);
   }
 
   return {

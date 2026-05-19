@@ -18,6 +18,8 @@ export type ListingLicenseCardConfig = {
   priceSar: number;
   validityLabel: string;
   highlights: readonly string[];
+  /** إضافة المناوب الرقمي — ماسي فقط */
+  digitalShiftAddonAvailable?: boolean;
 };
 
 export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] = [
@@ -48,6 +50,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
       'واجهة متقدمة: إمكانية تحميل بنر فيديو عالي الجودة لعرض مهارات صالونك في واجهة البحث.',
       'أولوية الدعم الفني: شريك دعم مخصص للمساعدة في تحسين ملفك وجذب الزبائن.',
     ],
+    digitalShiftAddonAvailable: true,
   },
   {
     tier: SubscriptionTier.GOLD,

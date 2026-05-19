@@ -21,7 +21,13 @@ import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { resolvePaymentGateway } from '@/config/paymentGateway';
-import { clampListingLicenseQuantity, computeListingLicenseTotalSar } from '@/config/listingLicenseQuantity';
+import {
+  clampListingLicenseQuantity,
+  computeListingLicenseTotalSar,
+  isDigitalShiftAddonAllowed,
+  parseDigitalShiftAddonParam,
+} from '@/config/listingLicenseQuantity';
+import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR } from '@/config/subscriptionPricing';
 import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
@@ -43,6 +49,14 @@ export default function Payment() {
   const licenseQuantity = useMemo(
     () => clampListingLicenseQuantity(searchParams.get('qty')),
     [searchParams],
+  );
+  const digitalShiftAddonSelected = useMemo(
+    () => isDigitalShiftAddonAllowed(tier, parseDigitalShiftAddonParam(searchParams.get('aiAddon'))),
+    [tier, searchParams],
+  );
+  const listingPricingOptions = useMemo(
+    () => (digitalShiftAddonSelected ? { digitalShiftAddon: true as const } : undefined),
+    [digitalShiftAddonSelected],
   );
   const requestIdParam = searchParams.get('requestId') ?? '';
   /** مطابق لطلب التسجيل (HM-...) — يُمرَّر في metadata.request_id للـ webhook؛ يُفضّل عدم تركه فارغاً */
@@ -117,7 +131,7 @@ export default function Payment() {
     [SubscriptionTier.DIAMOND]: 'from-primary to-cyan-600',
   };
 
-  const price = computeListingLicenseTotalSar(tier, licenseQuantity);
+  const price = computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions);
   const tierName = tierNames[tier];
   const tierColor = tierColors[tier];
 
@@ -137,11 +151,21 @@ export default function Payment() {
         tier,
         amountHalalas: monthlyAmountHalalas,
         licenseQuantity,
+        digitalShiftAddonSelected,
         barberName,
         requestId,
         linkedBarberId,
       }),
-    [paymentProvider, tier, monthlyAmountHalalas, licenseQuantity, barberName, requestId, linkedBarberId],
+    [
+      paymentProvider,
+      tier,
+      monthlyAmountHalalas,
+      licenseQuantity,
+      digitalShiftAddonSelected,
+      barberName,
+      requestId,
+      linkedBarberId,
+    ],
   );
 
   const moyasarPaymentIdFromUrl = searchParams.get('id')?.trim() || '';
@@ -237,6 +261,7 @@ export default function Payment() {
     const paymentQuery = [
       `tier=${encodeURIComponent(tier)}`,
       `qty=${encodeURIComponent(String(licenseQuantity))}`,
+      ...(digitalShiftAddonSelected ? ['aiAddon=1'] : []),
       `requestId=${encodeURIComponent(requestId)}`,
       ...(linkedBarberId ? [`linkedBarberId=${encodeURIComponent(linkedBarberId)}`] : []),
     ].join('&');
@@ -245,6 +270,8 @@ export default function Payment() {
         const u = new URL(explicit);
         u.searchParams.set('tier', tier);
         u.searchParams.set('qty', String(licenseQuantity));
+        if (digitalShiftAddonSelected) u.searchParams.set('aiAddon', '1');
+        else u.searchParams.delete('aiAddon');
         u.searchParams.set('requestId', requestId);
         if (linkedBarberId) u.searchParams.set('linkedBarberId', linkedBarberId);
         callbackUrl = u.toString();
@@ -306,6 +333,7 @@ export default function Payment() {
     monthlyAmountHalalas,
     tier,
     licenseQuantity,
+    digitalShiftAddonSelected,
     requestId,
     linkedBarberId,
     selectedGateway,
@@ -414,6 +442,12 @@ export default function Payment() {
                       <div>
                         <h3 className="text-lg font-bold">باقة {tierName}</h3>
                         <p className="text-sm text-muted-foreground">ترخيص إدراج برمجي (30 يوماً)</p>
+                        {digitalShiftAddonSelected ? (
+                          <p className="mt-1 text-xs font-medium text-primary">
+                            + {DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR} ({DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س ×{' '}
+                            {licenseQuantity} بطاقة)
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                     <div className="text-left space-y-1">

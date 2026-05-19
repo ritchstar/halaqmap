@@ -1,3 +1,4 @@
+import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
 import type { UnifiedPaymentInput, UnifiedPaymentProvider } from './types';
 
 function licenseSkuFromTier(tier: string): string {
@@ -10,6 +11,8 @@ function licenseSkuFromTier(tier: string): string {
 function buildMetadata(input: UnifiedPaymentInput): Record<string, unknown> {
   const qty = Math.min(12, Math.max(1, Math.trunc(input.licenseQuantity) || 1));
   const sku = licenseSkuFromTier(String(input.tier));
+  const addon = input.digitalShiftAddonSelected === true;
+  const addonHalalas = addon ? Math.round(DIGITAL_SHIFT_MONTHLY_ADDON_SAR * 100) * qty : 0;
   return {
     payment_gateway: 'MOYASAR',
     tier: String(input.tier),
@@ -21,6 +24,8 @@ function buildMetadata(input: UnifiedPaymentInput): Record<string, unknown> {
     product: 'listing_license',
     product_type: 'Software Listing License',
     product_type_ar: 'ترخيص خدمات إدراج برمجية',
+    digital_shift_addon: addon,
+    digital_shift_addon_halalas: addonHalalas,
     ...(input.requestId
       ? {
           request_id: input.requestId,

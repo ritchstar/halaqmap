@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import {
+  DIAMOND_PRODUCT_SMART_HINT_AR,
+  DIAMOND_PRODUCT_SMART_LABEL_AR,
+  DIAMOND_PRODUCT_STANDARD_HINT_AR,
+  DIAMOND_PRODUCT_STANDARD_LABEL_AR,
+  TIER_MONTHLY_SAR,
+} from '@/config/subscriptionPricing';
+import {
   LISTING_LICENSE_LEGAL_FOOTNOTE,
   LISTING_LICENSE_PRICING_CARDS,
   type ListingLicenseCardAccent,
@@ -13,7 +20,9 @@ import {
 import {
   clampListingLicenseQuantity,
   computeListingLicenseTotalSar,
+  computeListingLicenseUnitSar,
   formatListingLicenseQuantitySummaryAr,
+  isDigitalShiftAddonAllowed,
   listingLicenseCtaLabelAr,
   LISTING_LICENSE_MAX_QUANTITY,
   LISTING_LICENSE_MIN_QUANTITY,
@@ -84,6 +93,82 @@ function initialQuantities(): Record<SubscriptionTier, number> {
   };
 }
 
+type DiamondProductChoice = 'standard' | 'smart';
+
+function DiamondProductSegment({
+  value,
+  onChange,
+  reduceMotion,
+}: {
+  value: DiamondProductChoice;
+  onChange: (next: DiamondProductChoice) => void;
+  reduceMotion: boolean | null;
+}) {
+  const options: { id: DiamondProductChoice; label: string; hint: string }[] = [
+    { id: 'standard', label: DIAMOND_PRODUCT_STANDARD_LABEL_AR, hint: DIAMOND_PRODUCT_STANDARD_HINT_AR },
+    { id: 'smart', label: DIAMOND_PRODUCT_SMART_LABEL_AR, hint: DIAMOND_PRODUCT_SMART_HINT_AR },
+  ];
+
+  return (
+    <motion.div
+      className="mt-4 rounded-2xl border border-cyan-400/30 bg-slate-950/50 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md"
+      role="tablist"
+      aria-label="اختيار نوع الباقة الماسية"
+      initial={false}
+      animate={{
+        boxShadow:
+          value === 'smart'
+            ? '0 0 28px -8px rgba(34,211,238,0.4), inset 0 1px 0 rgba(255,255,255,0.06)'
+            : 'inset 0 1px 0 rgba(255,255,255,0.06)',
+      }}
+      transition={{ duration: 0.28 }}
+    >
+      <motion.div className="relative grid grid-cols-2 gap-1">
+        {!reduceMotion ? (
+          <motion.div
+            layoutId="diamond-product-segment-indicator"
+            className="pointer-events-none absolute inset-y-0 rounded-xl bg-gradient-to-l from-cyan-500/90 to-sky-400/85 shadow-[0_4px_20px_-4px_rgba(34,211,238,0.55)]"
+            style={{
+              width: 'calc(50% - 2px)',
+              ...(value === 'standard'
+                ? { right: 2, left: 'auto' }
+                : { left: 2, right: 'auto' }),
+            }}
+            transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+          />
+        ) : null}
+        {options.map((opt) => {
+          const active = value === opt.id;
+          return (
+            <button
+              key={opt.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => onChange(opt.id)}
+              className={cn(
+                'relative z-[1] flex min-h-[4.25rem] flex-col items-end justify-center gap-0.5 rounded-xl px-3 py-2.5 text-right transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
+                active ? 'text-slate-950' : 'text-cyan-50/90 hover:text-white',
+              )}
+            >
+              <span className="text-sm font-extrabold leading-tight">{opt.label}</span>
+              <span
+                className={cn(
+                  'text-[10px] font-medium leading-snug',
+                  active ? 'text-slate-900/75' : 'text-cyan-200/65',
+                )}
+              >
+                {opt.hint}
+              </span>
+            </button>
+          );
+        })}
+      </motion.div>
+    </motion.div>
+  );
+}
+
 type Props = {
   variant?: Variant;
   className?: string;
@@ -98,6 +183,9 @@ export function ListingLicensePricingMatrix({
   const reduceMotion = useReducedMotion();
   const isDarkShell = variant !== 'embedded-light';
   const [quantities, setQuantities] = useState(initialQuantities);
+  /** منتج الماسية — قياسية (200) أو ذكية مع المناوب (225) */
+  const [diamondProductChoice, setDiamondProductChoice] = useState<DiamondProductChoice>('standard');
+  const isAiAddonSelected = diamondProductChoice === 'smart';
 
   const setQty = (tier: SubscriptionTier, next: number) => {
     setQuantities((prev) => ({
@@ -168,13 +256,21 @@ export function ListingLicensePricingMatrix({
             const isDiamond = card.accent === 'diamond';
             const styles = accentStyles[card.accent];
             const qty = quantities[card.tier];
-            const totalSar = computeListingLicenseTotalSar(card.tier, qty);
+            const diamondAddonActive = isDigitalShiftAddonAllowed(
+              card.tier,
+              isDiamond && isAiAddonSelected,
+            );
+            const pricingOptions = diamondAddonActive ? { digitalShiftAddon: true } : undefined;
+            const unitSar = computeListingLicenseUnitSar(card.tier, pricingOptions);
+            const totalSar = computeListingLicenseTotalSar(card.tier, qty, pricingOptions);
             const summaryAr = formatListingLicenseQuantitySummaryAr(qty);
             const ctaLabel = listingLicenseCtaLabelAr(qty, totalSar);
-            const paymentTo = `${ROUTE_PATHS.PAYMENT}?${new URLSearchParams({
+            const paymentParams = new URLSearchParams({
               tier: card.tierQuery,
               qty: String(qty),
-            }).toString()}`;
+            });
+            if (diamondAddonActive) paymentParams.set('aiAddon', '1');
+            const paymentTo = `${ROUTE_PATHS.PAYMENT}?${paymentParams.toString()}`;
 
             return (
               <motion.div
@@ -264,6 +360,14 @@ export function ListingLicensePricingMatrix({
                     {card.subtitleAr}
                   </p>
 
+                  {card.digitalShiftAddonAvailable ? (
+                    <DiamondProductSegment
+                      value={diamondProductChoice}
+                      onChange={setDiamondProductChoice}
+                      reduceMotion={reduceMotion}
+                    />
+                  ) : null}
+
                   <div className="mt-5 flex items-baseline justify-end gap-2">
                     <span
                       className={cn(
@@ -275,7 +379,7 @@ export function ListingLicensePricingMatrix({
                     </span>
                     {isDiamond ? (
                       <span className="diamond-metallic-price tabular-nums">
-                        {formatPriceSar(totalSar)}
+                        {formatPriceSar(qty === 1 ? unitSar : totalSar)}
                       </span>
                     ) : (
                       <span className={cn('text-4xl font-black tabular-nums tracking-tight', styles.price)}>
@@ -283,9 +387,16 @@ export function ListingLicensePricingMatrix({
                       </span>
                     )}
                   </div>
+                  {isDiamond ? (
+                    <p className="mt-1 text-end text-xs text-cyan-200/70">
+                      {diamondAddonActive
+                        ? `الماسية الذكية · ${formatPriceSar(unitSar)} ر.س/بطاقة`
+                        : `الماسية القياسية · ${formatPriceSar(TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND])} ر.س/بطاقة`}
+                    </p>
+                  ) : null}
                   {qty > 1 ? (
-                    <p className="mt-1 text-end text-xs text-slate-500">
-                      {formatPriceSar(card.priceSar)} ر.س × {qty} بطاقات
+                    <p className="mt-0.5 text-end text-xs text-slate-500">
+                      المجموع: {formatPriceSar(totalSar)} ر.س ({formatPriceSar(unitSar)} × {qty})
                     </p>
                   ) : null}
 
