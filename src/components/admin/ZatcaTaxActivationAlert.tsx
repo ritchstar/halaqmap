@@ -15,8 +15,6 @@ type ZatcaTaxActivationAlertProps = {
   canRunRadar: boolean;
   /** تفعيل الضريبة الحية على الواجهة */
   canActivate: boolean;
-  /** يزداد عند التوجيه من مكتب الشركاء الأذكياء لإعادة التمرير بعد رسم التبويب */
-  scrollFocusSignal?: number;
 };
 
 function WarningStrip({ signal }: { signal: ZatcaEarlyWarningSignal }) {
@@ -101,7 +99,6 @@ function FinancialOfficeInitialization({
 export function ZatcaTaxActivationAlert({
   canRunRadar,
   canActivate,
-  scrollFocusSignal = 0,
 }: ZatcaTaxActivationAlertProps) {
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(false);
@@ -142,17 +139,6 @@ export function ZatcaTaxActivationAlert({
   useEffect(() => {
     void refresh();
   }, [refresh]);
-
-  useEffect(() => {
-    if (scrollFocusSignal <= 0) return;
-    const t = window.setTimeout(() => {
-      document.getElementById('zatca-financial-office')?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }, 280);
-    return () => window.clearTimeout(t);
-  }, [scrollFocusSignal]);
 
   const handleRunRadar = async () => {
     if (!canRunRadar) return;

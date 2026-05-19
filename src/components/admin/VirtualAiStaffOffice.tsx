@@ -18,10 +18,15 @@ import { cn } from '@/lib/utils';
 
 type Props = {
   can: (perm: AdminPermissionKey) => boolean;
+  canViewZatcaFinancialOffice: boolean;
   onOpenZatcaFinancialOffice?: () => void;
 };
 
-export function VirtualAiStaffOffice({ can, onOpenZatcaFinancialOffice }: Props) {
+export function VirtualAiStaffOffice({
+  can,
+  canViewZatcaFinancialOffice,
+  onOpenZatcaFinancialOffice,
+}: Props) {
   const [expanded, setExpanded] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
 
@@ -43,7 +48,10 @@ export function VirtualAiStaffOffice({ can, onOpenZatcaFinancialOffice }: Props)
   const onActivate = (id: AiStaffAgentId, permitted: boolean) => {
     if (!permitted) return;
     if (id === 'billing_treasurer') setBillingOpen(true);
-    if (id === 'zatca_tax_advisor') onOpenZatcaFinancialOffice?.();
+    if (id === 'zatca_tax_advisor') {
+      if (!canViewZatcaFinancialOffice) return;
+      onOpenZatcaFinancialOffice?.();
+    }
   };
 
   const showBillingAssistant = agents.some((a) => a.id === 'billing_treasurer' && a.permitted);
@@ -79,7 +87,7 @@ export function VirtualAiStaffOffice({ can, onOpenZatcaFinancialOffice }: Props)
 
             <CollapsibleContent>
               <CardContent className="pt-0 pb-6">
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   {visibleAgents.map((agent) => (
                     <AiStaffEmployeeCard
                       key={agent.id}
@@ -94,10 +102,16 @@ export function VirtualAiStaffOffice({ can, onOpenZatcaFinancialOffice }: Props)
                       ctaLabelAr={agent.ctaLabelAr}
                       iconKind={agent.iconKind}
                       attentionLevel={
-                        agent.id === 'zatca_tax_advisor' && agent.permitted ? zatcaAttention : 'none'
+                        agent.id === 'zatca_tax_advisor' &&
+                        agent.permitted &&
+                        canViewZatcaFinancialOffice
+                          ? zatcaAttention
+                          : 'none'
                       }
                       onActivate={
-                        agent.available && agent.permitted
+                        agent.available &&
+                        agent.permitted &&
+                        (agent.id !== 'zatca_tax_advisor' || canViewZatcaFinancialOffice)
                           ? () => onActivate(agent.id, agent.permitted)
                           : undefined
                       }

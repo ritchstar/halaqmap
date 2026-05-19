@@ -28,6 +28,10 @@ export function useZatcaTaxAdvisorAttention(enabled: boolean) {
     setLoading(true);
     try {
       const snap = await fetchZatcaTaxAdvisorStateRemote();
+      if (snap.uninitialized) {
+        setLevel('none');
+        return;
+      }
       const warnings = snap.warnings?.length ? snap.warnings : (snap.state?.active_warnings ?? []);
       setLevel(resolveAttention(warnings, Boolean(snap.state?.admin_activation_alert)));
     } catch {

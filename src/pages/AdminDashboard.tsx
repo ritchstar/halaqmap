@@ -492,6 +492,20 @@ export default function AdminDashboard() {
     }
   }, [adminData, activeTab, allowedTabs]);
 
+  useEffect(() => {
+    if (activeTab !== 'settings' || zatcaScrollToken <= 0 || !canViewZatcaFinancialOffice) return;
+
+    const scrollToOffice = () => {
+      document.getElementById('zatca-financial-office')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    };
+
+    const t = window.setTimeout(scrollToOffice, 320);
+    return () => window.clearTimeout(t);
+  }, [activeTab, zatcaScrollToken, canViewZatcaFinancialOffice]);
+
   if (!adminData) {
     return null;
   }
@@ -648,11 +662,22 @@ export default function AdminDashboard() {
           {can('view_overview') && <TabsContent value="overview" className="space-y-6">
             <VirtualAiStaffOffice
               can={can}
+              canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
               onOpenZatcaFinancialOffice={() => {
+                if (!canViewZatcaFinancialOffice) {
+                  toast({
+                    title: 'المكتب المالي غير متاح',
+                    description:
+                      'تحتاج صلاحية مراقبة التزامات التشغيل أو إدارة قواعد المنصة التجارية للوصول إلى مكتب ZATCA.',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
                 if (!can('view_settings')) {
                   toast({
                     title: 'تبويب الإعدادات غير متاح',
-                    description: 'تحتاج صلاحية عرض الإعدادات للوصول إلى المكتب المالي.',
+                    description:
+                      'المكتب المالي داخل الإعدادات — اطلب صلاحية «عرض الإعدادات» من مسؤول المنصة.',
                     variant: 'destructive',
                   });
                   return;
@@ -748,7 +773,6 @@ export default function AdminDashboard() {
               bootstrapAdmin={adminData.bootstrap}
               canSavePlatformVat={can('manage_platform_commerce_rules')}
               canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
-              zatcaScrollToken={zatcaScrollToken}
               canViewPartnerMarketing={can('view_partner_marketing')}
               canManagePartnerMarketing={can('manage_partner_marketing')}
             />
@@ -4510,7 +4534,6 @@ function SettingsSection({
   bootstrapAdmin,
   canSavePlatformVat,
   canViewZatcaFinancialOffice,
-  zatcaScrollToken,
   canViewPartnerMarketing,
   canManagePartnerMarketing,
 }: {
@@ -4520,7 +4543,6 @@ function SettingsSection({
   /** ضريبة العرض والقواعد التجارية على الواجهات العامة */
   canSavePlatformVat: boolean;
   canViewZatcaFinancialOffice: boolean;
-  zatcaScrollToken: number;
   canViewPartnerMarketing: boolean;
   canManagePartnerMarketing: boolean;
 }) {
@@ -5039,7 +5061,6 @@ function SettingsSection({
             <ZatcaTaxActivationAlert
               canRunRadar={canViewZatcaFinancialOffice}
               canActivate={canSavePlatformVat}
-              scrollFocusSignal={zatcaScrollToken}
             />
           </CardContent>
         </Card>
