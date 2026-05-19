@@ -70,7 +70,14 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const state = await agent.getState();
-  return json({ ok: true, route: 'admin-zatca-tax-advisor', mode: 'state', state });
+  return json({
+    ok: true,
+    route: 'admin-zatca-tax-advisor',
+    mode: 'state',
+    state,
+    uninitialized: state == null,
+    warnings: state?.active_warnings ?? [],
+  });
 }
 
 export async function POST(request: Request): Promise<Response> {

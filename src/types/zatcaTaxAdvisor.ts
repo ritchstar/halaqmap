@@ -34,6 +34,8 @@ export type ZatcaTaxAdvisorState = {
 export type ZatcaTaxAdvisorSnapshot = {
   state: ZatcaTaxAdvisorState | null;
   warnings: ZatcaEarlyWarningSignal[];
+  /** true when migration not applied or no radar run yet (state row missing) */
+  uninitialized?: boolean;
   analytics?: {
     totalHistoricalSar: number;
     dailyVelocitySar: number;

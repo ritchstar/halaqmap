@@ -286,6 +286,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
+  const [zatcaScrollToken, setZatcaScrollToken] = useState(0);
   const [adminData, setAdminData] = useState<AdminSessionInfo | null>(null);
   const [adminAccessToken, setAdminAccessToken] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
@@ -463,6 +464,11 @@ export default function AdminDashboard() {
   const canAccessOpsBillingTab = canViewOpsBilling || canAccessFinancialArchive;
   const canManageFinancialArchive =
     can('manage_admin_financial_archive') || can('manage_centralized_billing_ops');
+  const canViewZatcaFinancialOffice =
+    Boolean(adminData?.bootstrap) ||
+    can('manage_platform_commerce_rules') ||
+    can('view_ops_billing_monitor') ||
+    can('manage_centralized_billing_ops');
   const allowedTabs = useMemo(() => {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
@@ -643,13 +649,16 @@ export default function AdminDashboard() {
             <VirtualAiStaffOffice
               can={can}
               onOpenZatcaFinancialOffice={() => {
-                setActiveTab('settings');
-                window.setTimeout(() => {
-                  document.getElementById('zatca-financial-office')?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
+                if (!can('view_settings')) {
+                  toast({
+                    title: 'تبويب الإعدادات غير متاح',
+                    description: 'تحتاج صلاحية عرض الإعدادات للوصول إلى المكتب المالي.',
+                    variant: 'destructive',
                   });
-                }, 120);
+                  return;
+                }
+                setActiveTab('settings');
+                setZatcaScrollToken((n) => n + 1);
               }}
             />
             <OverviewSection stats={stats} />
@@ -738,6 +747,8 @@ export default function AdminDashboard() {
               canManageAdmins={can('manage_admins')}
               bootstrapAdmin={adminData.bootstrap}
               canSavePlatformVat={can('manage_platform_commerce_rules')}
+              canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
+              zatcaScrollToken={zatcaScrollToken}
               canViewPartnerMarketing={can('view_partner_marketing')}
               canManagePartnerMarketing={can('manage_partner_marketing')}
             />
@@ -4498,6 +4509,8 @@ function SettingsSection({
   canManageAdmins,
   bootstrapAdmin,
   canSavePlatformVat,
+  canViewZatcaFinancialOffice,
+  zatcaScrollToken,
   canViewPartnerMarketing,
   canManagePartnerMarketing,
 }: {
@@ -4506,6 +4519,8 @@ function SettingsSection({
   bootstrapAdmin: boolean;
   /** ضريبة العرض والقواعد التجارية على الواجهات العامة */
   canSavePlatformVat: boolean;
+  canViewZatcaFinancialOffice: boolean;
+  zatcaScrollToken: number;
   canViewPartnerMarketing: boolean;
   canManagePartnerMarketing: boolean;
 }) {
@@ -5006,11 +5021,29 @@ function SettingsSection({
         </CardContent>
       </Card>
 
-      {(canSavePlatformVat || bootstrapAdmin) && (
-        <div id="zatca-financial-office" className="scroll-mt-24">
-          <ZatcaTaxActivationAlert canActivate={canSavePlatformVat} />
-        </div>
-      )}
+      {canViewZatcaFinancialOffice ? (
+        <Card
+          id="zatca-financial-office"
+          className="scroll-mt-24 border-cyan-500/30 bg-gradient-to-br from-cyan-500/[0.04] via-background to-amber-500/[0.03] shadow-sm"
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              المكتب المالي — زميل خازن (ZATCA) 🛡️
+            </CardTitle>
+            <CardDescription>
+              رادار الإيرادات، تنبيهات الامتثال الضريبي، وتجهيز تفعيل ضريبة القيمة المضافة عند بلوغ الحدود
+              النظامية.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ZatcaTaxActivationAlert
+              canRunRadar={canViewZatcaFinancialOffice}
+              canActivate={canSavePlatformVat}
+              scrollFocusSignal={zatcaScrollToken}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card className="border-primary/25">
         <CardHeader>

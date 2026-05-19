@@ -18,10 +18,16 @@ export async function fetchZatcaTaxAdvisorStateRemote(): Promise<ZatcaTaxAdvisor
   const json = (await res.json().catch(() => ({}))) as {
     ok?: boolean;
     state?: ZatcaTaxAdvisorSnapshot['state'];
+    warnings?: ZatcaTaxAdvisorSnapshot['warnings'];
+    uninitialized?: boolean;
     error?: string;
   };
   if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
-  return { state: json.state ?? null, warnings: json.state?.active_warnings ?? [] };
+  return {
+    state: json.state ?? null,
+    warnings: json.warnings ?? json.state?.active_warnings ?? [],
+    uninitialized: json.uninitialized ?? json.state == null,
+  };
 }
 
 export async function runZatcaTaxRadarRemote(): Promise<ZatcaTaxAdvisorSnapshot> {
@@ -38,6 +44,7 @@ export async function runZatcaTaxRadarRemote(): Promise<ZatcaTaxAdvisorSnapshot>
   return {
     state: json.state ?? null,
     warnings: json.warnings ?? json.state?.active_warnings ?? [],
+    uninitialized: json.uninitialized ?? json.state == null,
     analytics: json.analytics,
   };
 }
