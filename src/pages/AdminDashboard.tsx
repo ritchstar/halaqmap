@@ -187,14 +187,14 @@ const ADMIN_REQUESTS_MARKETING_FILTERS_KEY = 'halaqmap.admin.requestsMarketingFi
 const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
   {
     id: 'req1',
-    barberName: '����� �������',
+    barberName: 'صالون الفخامة',
     email: 'luxury@example.com',
     phone: '+966501234567',
     whatsapp: '+966501234567',
     location: {
       lat: 24.7136,
       lng: 46.6753,
-      address: '�� �����ǡ ������',
+      address: 'حي العليا، الرياض',
     },
     tier: SubscriptionTier.DIAMOND,
     documents: [IMAGES.BARBER_SHOP_1, IMAGES.BARBER_SHOP_2],
@@ -206,14 +206,14 @@ const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
   },
   {
     id: 'req2',
-    barberName: '���� �������',
+    barberName: 'حلاق الأناقة',
     email: 'elegance@example.com',
     phone: '+966502345678',
     whatsapp: '+966502345678',
     location: {
       lat: 24.6877,
       lng: 46.7219,
-      address: '�� ������ ������',
+      address: 'حي النسيم، الرياض',
     },
     tier: SubscriptionTier.GOLD,
     documents: [IMAGES.BARBER_SHOP_3],
@@ -229,25 +229,25 @@ const MOCK_PAYMENTS: Payment[] = [
   {
     id: 'pay-mock-1',
     barberId: '1',
-    barberName: '����� ������ ������',
+    barberName: 'صالون النخبة الماسي',
     amount: 200,
     tier: SubscriptionTier.DIAMOND,
     method: 'bank_transfer',
     receipt: IMAGES.DASHBOARD_BG_1,
     status: 'pending',
-    period: '����� 2026',
+    period: 'أبريل 2026',
     submittedAt: '2026-04-08 09:00',
   },
   {
     id: 'pay-mock-2',
     barberId: '3',
-    barberName: '���� ������ ������',
+    barberName: 'حلاق الملوك الذهبي',
     amount: 150,
     tier: SubscriptionTier.GOLD,
     method: 'bank_transfer',
     receipt: IMAGES.DASHBOARD_BG_2,
     status: 'pending',
-    period: '����� 2026',
+    period: 'أبريل 2026',
     submittedAt: '2026-04-08 11:30',
   },
 ];
@@ -264,13 +264,13 @@ const COMMAND_CENTER_STATE_KEY = 'halaqmap_command_center_lead_state_v1';
 const COMMAND_CENTER_SOP_CHECK_KEY = 'halaqmap_command_center_sop_check_v1';
 
 const WEEKLY_SOP_PLAN = [
-  { day: '�����', focus: '������� ������� �����', target: 12, note: '���� ������� ���� ������� ����� ������.' },
-  { day: '�������', focus: '������� ���� ���� �������', target: 18, note: '��� ��� ��������� ������� ���������.' },
-  { day: '��������', focus: '������ ������� ����', target: 20, note: '��� ������� ��� ������ ����� + ��������.' },
-  { day: '��������', focus: '����� ������� ������', target: 10, note: '����� ������� ������� ��� ����� ����� �����.' },
-  { day: '������', focus: '����� ����� �����', target: 15, note: '������/�����/������� + ����� ����� �������.' },
-  { day: '������', focus: '����� ���� + ���', target: 8, note: '������� ��� ����� ��������� ������� ���.' },
-  { day: '�����', focus: '������ �������', target: 0, note: '����� ������ ������ ��� ������� ������.' },
+  { day: 'الأحد', focus: 'استهداف صالونات ماسية', target: 12, note: 'ابدأ بالرياض وجدة للحالات عالية العائد.' },
+  { day: 'الإثنين', focus: 'استهداف ذهبي سريع الإغلاق', target: 18, note: 'ركز على الصالونات الصغيرة والمتوسطة.' },
+  { day: 'الثلاثاء', focus: 'متابعة بانتظار الرد', target: 20, note: 'رفع التحويل عبر متابعة اليوم + المتأخرة.' },
+  { day: 'الأربعاء', focus: 'إغلاق مدفوعات وطلبات', target: 10, note: 'تصفية المعلّق وتحويله إلى ترخيص إدراج فعّال.' },
+  { day: 'الخميس', focus: 'توسّع مناطق جديدة', target: 15, note: 'الدمام/الخبر/المدينة + تحديث قاعدة الأهداف.' },
+  { day: 'الجمعة', focus: 'تشغيل خفيف + دعم', target: 8, note: 'التركيز على الدعم والمتابعة السريعة فقط.' },
+  { day: 'السبت', focus: 'مراجعة أسبوعية', target: 0, note: 'تقييم الأداء وتحديث خطة الأسبوع القادم.' },
 ] as const;
 
 type AdminSessionInfo = {
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
         }
         setAdminData({
           id: session.user.id,
-          name: access.displayName || '���� �������',
+          name: access.displayName || 'لوحة الإدارة',
           email: access.email,
           role: 'admin',
           permissions: access.permissions,
@@ -490,7 +490,7 @@ export default function AdminDashboard() {
     return null;
   }
 
-  /** ����� ������ ������ ������޻ � ������ (bootstrap) ��غ �� ���� manage_admins ���� ������ ���� ��� ������ ���. */
+  /** تعديل بيانات الحلاق «العميق» — للمالك (bootstrap) فقط؛ من يملك manage_admins يدير الجدول وليس نسخ المالك هنا. */
   const canRootHardEdit = Boolean(adminData.bootstrap);
 
   return (
@@ -506,7 +506,7 @@ export default function AdminDashboard() {
               <div>
                 <h1 className="text-xl font-bold">{adminData.name}</h1>
                 <Badge variant="secondary" className="bg-gradient-to-r from-red-500/20 to-red-600/20 text-red-600 border-red-500/30">
-                  ���� �������
+                  لوحة الإدارة
                 </Badge>
               </div>
             </div>
@@ -515,7 +515,7 @@ export default function AdminDashboard() {
               <div
                 className="flex items-center rounded-md border border-border/60 bg-muted/40 p-0.5 gap-0.5"
                 role="toolbar"
-                aria-label="�������� ���� �������"
+                aria-label="اختصارات لوحة الإدارة"
               >
                 {canAccessOpsBillingTab ? (
                 <Button
@@ -523,8 +523,8 @@ export default function AdminDashboard() {
                   variant={activeTab === 'ops-billing' ? 'secondary' : 'ghost'}
                   size="icon"
                   className="h-9 w-9 shrink-0"
-                  title="�������� ��������� ������� �������� ������"
-                  aria-label="�������� ��������� ������� �������� ������"
+                  title="التكاليف والتزامات التشغيل والأرشيف المالي"
+                  aria-label="التكاليف والتزامات التشغيل والأرشيف المالي"
                   aria-pressed={activeTab === 'ops-billing'}
                   onClick={() => setActiveTab('ops-billing')}
                 >
@@ -537,19 +537,19 @@ export default function AdminDashboard() {
                     variant={activeTab === 'resources' ? 'secondary' : 'ghost'}
                     size="sm"
                     className="h-9 shrink-0 gap-1.5 px-2.5"
-                    title="������ ������� ��������"
-                    aria-label="������ �������"
+                    title="مراقبة الموارد والتخزين"
+                    aria-label="مراقبة الموارد"
                     aria-pressed={activeTab === 'resources'}
                     onClick={() => setActiveTab('resources')}
                   >
                     <HardDrive className="h-4 w-4" />
-                    <span className="hidden sm:inline">������ �������</span>
+                    <span className="hidden sm:inline">مراقبة الموارد</span>
                   </Button>
                 )}
               </div>
               <Button variant="ghost" onClick={handleLogout} className="gap-2">
                 <LogOut className="w-4 h-4" />
-                ����� ������
+                تسجيل الخروج
               </Button>
             </div>
           </div>
@@ -563,13 +563,13 @@ export default function AdminDashboard() {
             {can('view_overview') && (
             <TabsTrigger value="overview" className="gap-2">
               <TrendingUp className="w-4 h-4" />
-              <span className="hidden sm:inline">���� ����</span>
+              <span className="hidden sm:inline">نظرة عامة</span>
             </TabsTrigger>
             )}
             {can('view_requests') && (
             <TabsTrigger value="requests" className="gap-2">
               <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">����� ��������</span>
+              <span className="hidden sm:inline">طلبات التراخيص</span>
               {stats.pendingRequests > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {stats.pendingRequests}
@@ -580,13 +580,13 @@ export default function AdminDashboard() {
             {can('view_barbers') && (
             <TabsTrigger value="barbers" className="gap-2">
               <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">��������</span>
+              <span className="hidden sm:inline">الحلاقين</span>
             </TabsTrigger>
             )}
             {can('view_payments') && (
             <TabsTrigger value="payments" className="gap-2">
               <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">���������</span>
+              <span className="hidden sm:inline">المدفوعات</span>
               {stats.pendingPayments > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {stats.pendingPayments}
@@ -597,43 +597,43 @@ export default function AdminDashboard() {
             {can('view_command_center') && (
             <TabsTrigger value="command-center" className="gap-2">
               <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">���� �������</span>
+              <span className="hidden sm:inline">غرفة القيادة</span>
             </TabsTrigger>
             )}
             {can('view_messages') && (
             <TabsTrigger value="messages" className="gap-2">
               <MessageSquare className="w-4 h-4" />
-              <span className="hidden sm:inline">�������</span>
+              <span className="hidden sm:inline">الرسائل</span>
             </TabsTrigger>
             )}
             {canViewSecurityOpsLog && (
             <TabsTrigger value="security-ops" className="gap-2">
               <Activity className="w-4 h-4" />
-              <span className="hidden sm:inline">��� ������</span>
+              <span className="hidden sm:inline">سجل الأمان</span>
             </TabsTrigger>
             )}
             {canViewPaymentGateways && (
             <TabsTrigger value="payment-gateways" className="gap-2">
               <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">������ �����</span>
+              <span className="hidden sm:inline">بوابات الدفع</span>
             </TabsTrigger>
             )}
             {canAccessOpsBillingTab && (
             <TabsTrigger value="ops-billing" className="gap-2">
               <Landmark className="w-4 h-4" />
-              <span className="hidden sm:inline">�������� �������</span>
+              <span className="hidden sm:inline">التزامات التشغيل</span>
             </TabsTrigger>
             )}
             {can('view_settings') && (
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">���������</span>
+              <span className="hidden sm:inline">الإعدادات</span>
             </TabsTrigger>
             )}
             {Boolean(adminData?.bootstrap) && (
             <TabsTrigger value="resources" className="gap-2">
               <HardDrive className="w-4 h-4" />
-              <span className="hidden sm:inline">������ �������</span>
+              <span className="hidden sm:inline">مراقبة الموارد</span>
             </TabsTrigger>
             )}
           </TabsList>
@@ -786,7 +786,7 @@ export default function AdminDashboard() {
   );
 }
 
-// ��� ������ ��������� � platform_booking_security_log + Realtime
+// سجل الأمان والعمليات — platform_booking_security_log + Realtime
 function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bumpNonce: number }) {
   const [rows, setRows] = useState<BookingSecurityLogRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -816,7 +816,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
     const r = await fetchAdminBookingSecurityLogRemote();
     setLoading(false);
     if (!r.ok) {
-      toast({ title: '���� ����� �����', description: r.error, variant: 'destructive' });
+      toast({ title: 'تعذر تحميل السجل', description: r.error, variant: 'destructive' });
       return;
     }
     setRows(r.rows);
@@ -859,12 +859,12 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
               toast(
                 isCritical
                   ? {
-                      title: '����� ����',
+                      title: 'تنبيه أمان',
                       description: row.message || row.event_code,
                       variant: 'destructive',
                     }
                   : {
-                      title: '����� ��� �������',
+                      title: 'تعارض حجز مُبلَّغ',
                       description: row.message || row.event_code,
                     }
               );
@@ -886,11 +886,11 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
   }, [isActive, mapRow]);
 
   const labelForCode = (code: string) => {
-    if (code === 'booking_overlap_denied') return '����� ���� (���)';
-    if (code === 'role_not_allowed') return '��� ��� ����';
-    if (code === 'barber_not_found') return '���� ��� �����';
-    if (code === 'profile_not_found') return '��� ���� ��� �����';
-    if (code === 'admin_regulatory_qr_preview') return '������ ������ (��� �����)';
+    if (code === 'booking_overlap_denied') return 'تعارض موعد (حجز)';
+    if (code === 'role_not_allowed') return 'دور غير مصرح';
+    if (code === 'barber_not_found') return 'حلاق غير موجود';
+    if (code === 'profile_not_found') return 'ملف عميل غير موجود';
+    if (code === 'admin_regulatory_qr_preview') return 'معاينة نظامية (رمز تسجيل)';
     return code;
   };
 
@@ -903,21 +903,21 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">��� ������ ���������</h2>
+          <h2 className="text-2xl font-bold">سجل الأمان والعمليات</h2>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground leading-relaxed">
-            ������ ���� �� ���� <code className="text-xs">platform_booking_security_log</code> (������� ����� ��ҡ ����
-            ��� ������ ���). ������� ����� Realtime ���� ������ �� Supabase ��� ��� ��������� ����� ���� ���� �������
-            �������� �� 12 ����� ����� ����� �� �������.
+            بيانات حيّة من جدول <code className="text-xs">platform_booking_security_log</code> (محاولات تعارض حجز، وصول
+            غير طبيعي، إلخ). يُفضَّل تفعيل Realtime لهذا الجدول في Supabase حتى تصل الإدراجات فوراً؛ وإلا يعمل التحديث
+            التلقائي كل 12 ثانية أثناء بقائك في التبويب.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={liveConnected ? 'default' : 'secondary'} className="gap-1">
             <span className={`inline-block h-2 w-2 rounded-full ${liveConnected ? 'bg-green-400' : 'bg-muted-foreground'}`} />
-            {liveConnected ? '�� �����' : '�� ��� ����'}
+            {liveConnected ? 'بث مباشر' : 'بث غير متصل'}
           </Badge>
           <Button type="button" variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            ����� ����
+            تحديث الآن
           </Button>
           {showOverlapSimulator ? (
             <Button
@@ -926,7 +926,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
               size="sm"
               className="gap-1 border-amber-500/40"
               disabled={loading || simulating}
-              title="����� ����� �� ������ ������� ��� ������� ������� ������ ������� �� ������ ������ ��������"
+              title="ينفّذ حجزاً ثم محاولة متداخلة عبر المفتاح المجهول؛ يُسجّل التعارض ثم يُنظّف بيانات الاختبار"
               onClick={() => {
                 setSimulating(true);
                 void (async () => {
@@ -934,18 +934,18 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
                   setSimulating(false);
                   if (r.ok) {
                     toast({
-                      title: '������ �������',
+                      title: 'محاكاة التعارض',
                       description: r.summary,
                     });
                     await load();
                   } else {
-                    toast({ title: '��� ��������', description: r.error, variant: 'destructive' });
+                    toast({ title: 'فشل المحاكاة', description: r.error, variant: 'destructive' });
                   }
                 })();
               }}
             >
               {simulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FlaskConical className="h-4 w-4" />}
-              ������ �����
+              محاكاة تعارض
             </Button>
           ) : null}
         </div>
@@ -955,18 +955,18 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Activity className="h-5 w-5 text-amber-600" />
-            ����� ����� �������
+            أحداث الحجز والوصول
           </CardTitle>
-          <CardDescription>������ ����� � ���� ������� ������ ��� ���� �� ���� ��� ���� �������</CardDescription>
+          <CardDescription>الأحدث أولاً — يشمل تنبيهات منطقية عند وصول صف جديد عبر البث المباشر</CardDescription>
         </CardHeader>
         <CardContent>
           {loading && rows.length === 0 ? (
             <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin" />
-              ���� �������
+              جاري التحميل…
             </div>
           ) : rows.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">�� ���� ����� ������ ���.</p>
+            <p className="py-12 text-center text-sm text-muted-foreground">لا توجد أحداث مسجّلة بعد.</p>
           ) : (
             <ul className="max-h-[min(70vh,520px)] space-y-3 overflow-y-auto pe-1">
               {rows.map((row) => {
@@ -1024,7 +1024,7 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-bold mb-6">���������� ������</h2>
+      <h2 className="text-2xl font-bold mb-6">الإحصائيات العامة</h2>
 
       <Card className="mb-6 border-primary/25 bg-primary/5">
         <CardHeader className="pb-2">
@@ -1036,45 +1036,45 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
       {/* Main Stats */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <StatsCard
-          title="������ ��������"
+          title="إجمالي الحلاقين"
           value={stats.totalBarbers}
-          subtitle={`${stats.activeSubscriptions} ����� ����� ���`}
+          subtitle={`${stats.activeSubscriptions} ترخيص إدراج نشط`}
           icon={Users}
           color="blue"
         />
         <StatsCard
-          title="��������� ������"
-          value={`${stats.totalRevenue.toLocaleString()} �.�`}
-          subtitle={`${stats.monthlyRevenue.toLocaleString()} �.� ��� �����`}
+          title="الإيرادات الكلية"
+          value={`${stats.totalRevenue.toLocaleString()} ر.س`}
+          subtitle={`${stats.monthlyRevenue.toLocaleString()} ر.س هذا الشهر`}
           icon={DollarSign}
           color="green"
         />
         <StatsCard
-          title="����� ��� ��������"
+          title="طلبات قيد المراجعة"
           value={stats.pendingRequests}
           icon={FileText}
           color="yellow"
         />
         <StatsCard
-          title="������� ��� �������"
+          title="مدفوعات قيد التأكيد"
           value={stats.pendingPayments}
           icon={CreditCard}
           color="purple"
         />
       </div>
 
-      {/* ����� ����� �������� */}
+      {/* توزيع باقات التراخيص */}
       <div className="grid gap-6 md:grid-cols-3 mb-6">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">���� �������</p>
+                <p className="text-sm text-muted-foreground mb-1">باقة برونزية</p>
                 <p className="text-2xl font-bold">{stats.bronzeBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">100 �.� / ����� 30 ���</p>
+                <p className="text-xs text-muted-foreground mt-1">100 ر.س / ترخيص 30 يوم</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/30 flex items-center justify-center">
-                <span className="text-2xl">??</span>
+                <span className="text-2xl">🥉</span>
               </div>
             </div>
           </CardContent>
@@ -1084,12 +1084,12 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">���� �����</p>
+                <p className="text-sm text-muted-foreground mb-1">باقة ذهبية</p>
                 <p className="text-2xl font-bold">{stats.goldBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">150 �.� / ����� 30 ���</p>
+                <p className="text-xs text-muted-foreground mt-1">150 ر.س / ترخيص 30 يوم</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 flex items-center justify-center">
-                <span className="text-2xl">??</span>
+                <span className="text-2xl">🥇</span>
               </div>
             </div>
           </CardContent>
@@ -1099,12 +1099,12 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">���� �����</p>
+                <p className="text-sm text-muted-foreground mb-1">باقة ماسية</p>
                 <p className="text-2xl font-bold">{stats.diamondBarbers}</p>
-                <p className="text-xs text-muted-foreground mt-1">200 �.� / ����� 30 ���</p>
+                <p className="text-xs text-muted-foreground mt-1">200 ر.س / ترخيص 30 يوم</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 flex items-center justify-center">
-                <span className="text-2xl">??</span>
+                <span className="text-2xl">💎</span>
               </div>
             </div>
           </CardContent>
@@ -1115,19 +1115,19 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>�������� ������</CardTitle>
+            <CardTitle>إحصائيات المنصة</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">������ ��������</span>
+              <span className="text-sm text-muted-foreground">إجمالي المواعيد</span>
               <span className="font-semibold">{stats.totalAppointments.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">������ ����������</span>
+              <span className="text-sm text-muted-foreground">إجمالي المستخدمين</span>
               <span className="font-semibold">{stats.totalUsers.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">������ ����� ������</span>
+              <span className="text-sm text-muted-foreground">تراخيص إدراج منتهية</span>
               <span className="font-semibold text-red-600">{stats.expiredSubscriptions}</span>
             </div>
           </CardContent>
@@ -1135,27 +1135,27 @@ function OverviewSection({ stats }: { stats: AdminStats }) {
 
         <Card>
           <CardHeader>
-            <CardTitle>��������� �������</CardTitle>
+            <CardTitle>الإيرادات الشهرية</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">������</span>
-                <span className="font-semibold">{(stats.bronzeBarbers * 100).toLocaleString()} �.�</span>
+                <span className="text-sm text-muted-foreground">برونزي</span>
+                <span className="font-semibold">{(stats.bronzeBarbers * 100).toLocaleString()} ر.س</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">����</span>
-                <span className="font-semibold">{(stats.goldBarbers * 150).toLocaleString()} �.�</span>
+                <span className="text-sm text-muted-foreground">ذهبي</span>
+                <span className="font-semibold">{(stats.goldBarbers * 150).toLocaleString()} ر.س</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">����</span>
-                <span className="font-semibold">{(stats.diamondBarbers * 200).toLocaleString()} �.�</span>
+                <span className="text-sm text-muted-foreground">ماسي</span>
+                <span className="font-semibold">{(stats.diamondBarbers * 200).toLocaleString()} ر.س</span>
               </div>
               <div className="pt-4 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">��������</span>
+                  <span className="text-sm font-semibold">الإجمالي</span>
                   <span className="text-lg font-bold text-green-600">
-                    {stats.monthlyRevenue.toLocaleString()} �.�
+                    {stats.monthlyRevenue.toLocaleString()} ر.س
                   </span>
                 </div>
               </div>
@@ -1221,7 +1221,7 @@ function attachmentLooksLikePdf(url: string): boolean {
   return /\.pdf(\?|#|$)/i.test(url);
 }
 
-/** ���� ���� ����� �� ��� img (������ ����� PDF) */
+/** صورة يمكن عرضها في وسم img (يستثني روابط PDF) */
 function isRenderableImageAssetUrl(ref: string): boolean {
   return isVisualAssetUrl(ref) && !attachmentLooksLikePdf(ref);
 }
@@ -1244,13 +1244,13 @@ function hasPartnerAttributionSignal(request: SubscriptionRequest): boolean {
 
 function inferMarketingMedium(request: SubscriptionRequest): string {
   const a = request.partnerAttribution;
-  if (!a) return '��� �����';
+  if (!a) return 'غير معروف';
   if (a.utmMedium) return a.utmMedium;
   if (a.gclid) return 'google_ads';
   if (a.fbclid) return 'meta_ads';
   if (a.ttclid) return 'tiktok_ads';
   if (a.msclkid) return 'microsoft_ads';
-  return '��� �����';
+  return 'غير معروف';
 }
 
 function csvCell(value: unknown): string {
@@ -1261,7 +1261,7 @@ function csvCell(value: unknown): string {
   return raw;
 }
 
-function errorText(result: unknown, fallback = '��� ��� ��� �����'): string {
+function errorText(result: unknown, fallback = 'حدث خطأ غير متوقع'): string {
   if (result && typeof result === 'object' && 'error' in result) {
     const value = (result as { error?: unknown }).error;
     if (typeof value === 'string' && value.trim()) return value;
@@ -1335,7 +1335,7 @@ function RequestsSection({
     for (const req of attributed) {
       const source = req.partnerAttribution?.utmSource || 'direct_or_unknown';
       const medium = inferMarketingMedium(req);
-      const campaign = req.partnerAttribution?.utmCampaign || '����_����';
+      const campaign = req.partnerAttribution?.utmCampaign || 'بدون_حملة';
 
       sourceCounter.set(source, (sourceCounter.get(source) || 0) + 1);
       mediumCounter.set(medium, (mediumCounter.get(medium) || 0) + 1);
@@ -1390,7 +1390,7 @@ function RequestsSection({
 
       const source = request.partnerAttribution?.utmSource || 'direct_or_unknown';
       const medium = inferMarketingMedium(request);
-      const campaign = request.partnerAttribution?.utmCampaign || '����_����';
+      const campaign = request.partnerAttribution?.utmCampaign || 'بدون_حملة';
 
       if (sourceFilter !== 'all' && source !== sourceFilter) return false;
       if (mediumFilter !== 'all' && medium !== mediumFilter) return false;
@@ -1413,11 +1413,11 @@ function RequestsSection({
 
   const exportFilteredRequestsCsv = () => {
     if (!canExportCsv) {
-      toast({ title: '�� ���� ������ ����� �������', variant: 'destructive' });
+      toast({ title: 'لا تملك صلاحية تصدير الطلبات', variant: 'destructive' });
       return;
     }
     if (filteredRequests.length === 0) {
-      toast({ title: '�� ���� ������ �������', description: '�� ���� ����� ����� ��� �������.' });
+      toast({ title: 'لا توجد بيانات للتصدير', description: 'لا توجد نتائج حالية ضمن الفلاتر.' });
       return;
     }
 
@@ -1457,7 +1457,7 @@ function RequestsSection({
         request.location.address,
         attr?.utmSource || 'direct_or_unknown',
         inferMarketingMedium(request),
-        attr?.utmCampaign || '����_����',
+        attr?.utmCampaign || 'بدون_حملة',
         attr?.utmTerm || '',
         attr?.utmContent || '',
         attr?.gclid || '',
@@ -1486,8 +1486,8 @@ function RequestsSection({
     URL.revokeObjectURL(url);
 
     toast({
-      title: '�� ����� CSV',
-      description: `�� ����� ${filteredRequests.length} ���/����� ��� ������� �������.`,
+      title: 'تم تصدير CSV',
+      description: `تم تنزيل ${filteredRequests.length} طلب/طلبات حسب الفلاتر الحالية.`,
     });
   };
 
@@ -1499,45 +1499,45 @@ function RequestsSection({
     >
       {isSupabaseConfigured() ? (
         <p className="text-sm text-muted-foreground mb-4 rounded-lg border border-border bg-muted/40 px-4 py-3 leading-relaxed">
-          ������� �� ���� <code className="text-xs">registration_submissions</code> ��� ����� ���� ������� ������
-          ������ RLS (���� <code className="text-xs">15_admin_jwt_platform_rls.sql</code> �� ��������).
+          الطلبات من جدول <code className="text-xs">registration_submissions</code> بعد تسجيل دخول الإدارة وتطبيق
+          سياسات RLS (راجع <code className="text-xs">15_admin_jwt_platform_rls.sql</code> في المستودع).
         </p>
       ) : null}
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">����� �������� ��������</h2>
+        <h2 className="text-2xl font-bold">طلبات التراخيص والإدراج</h2>
         <div className="flex flex-wrap items-center gap-2">
           <Select
             value={requestStatusFilter}
             onValueChange={(v) => setRequestStatusFilter(v as 'all' | 'pending' | 'approved' | 'rejected')}
           >
             <SelectTrigger className="w-[168px]">
-              <SelectValue placeholder="���� �����" />
+              <SelectValue placeholder="حالة الطلب" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">�� �������</SelectItem>
-              <SelectItem value="pending">������� ��������</SelectItem>
-              <SelectItem value="approved">�����</SelectItem>
-              <SelectItem value="rejected">�����</SelectItem>
+              <SelectItem value="all">كل الحالات</SelectItem>
+              <SelectItem value="pending">بانتظار المراجعة</SelectItem>
+              <SelectItem value="approved">مقبول</SelectItem>
+              <SelectItem value="rejected">مرفوض</SelectItem>
             </SelectContent>
           </Select>
           <Input
-            placeholder="��� ������/�������/������/�������/��� �����..."
+            placeholder="بحث بالاسم/الإيميل/الجوال/المدينة/رقم الطلب..."
             className="w-72 min-w-[200px]"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <Button variant="outline" size="icon" onClick={resetMarketingFilters} title="����� ��� �������">
+          <Button variant="outline" size="icon" onClick={resetMarketingFilters} title="إعادة ضبط الفلاتر">
             <Filter className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"
             onClick={exportFilteredRequestsCsv}
             disabled={!canExportCsv || filteredRequests.length === 0}
-            title={!canExportCsv ? '����� ������ ������/��� �������' : undefined}
+            title={!canExportCsv ? 'يتطلب صلاحية اعتماد/رفض الطلبات' : undefined}
           >
             <Download className="w-4 h-4 ml-2" />
-            ����� CSV
+            تصدير CSV
           </Button>
         </div>
       </div>
@@ -1546,35 +1546,35 @@ function RequestsSection({
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
             <BarChart3 className="h-5 w-5 text-primary" />
-            ���� ������� ��������� (Partners Funnel)
+            أداء القنوات التسويقية (Partners Funnel)
           </CardTitle>
           <CardDescription>
-            ����� ������ ������� UTM/Click IDs ������� �� ���� ������� �������� ������ �� ����� �������.
+            قراءة مباشرة لبيانات UTM/Click IDs المرسلة من مسار الخدمات البرمجية للمنصة مع طلبات التسجيل.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-4">
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">������ ����� �������</p>
+              <p className="text-xs text-muted-foreground">إجمالي طلبات التسجيل</p>
               <p className="text-xl font-bold">{marketingAnalytics.total}</p>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">����� ������ ��������</p>
+              <p className="text-xs text-muted-foreground">طلبات منسوبة تسويقياً</p>
               <p className="text-xl font-bold text-primary">{marketingAnalytics.attributedCount}</p>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">���� �������</p>
+              <p className="text-xs text-muted-foreground">نسبة الإسناد</p>
               <p className="text-xl font-bold">{marketingAnalytics.attributedRate}%</p>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">����� ��� ���� ����</p>
+              <p className="text-xs text-muted-foreground">طلبات بلا مصدر واضح</p>
               <p className="text-xl font-bold">{marketingAnalytics.unattributedCount}</p>
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="mb-2 text-sm font-semibold">���� �������</p>
+              <p className="mb-2 text-sm font-semibold">أعلى المصادر</p>
               {marketingAnalytics.topSources.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {marketingAnalytics.topSources.map(([label, count]) => (
@@ -1584,12 +1584,12 @@ function RequestsSection({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">�� ���� ������ ����� ���.</p>
+                <p className="text-xs text-muted-foreground">لا توجد بيانات مصادر بعد.</p>
               )}
             </div>
 
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="mb-2 text-sm font-semibold">���� �������</p>
+              <p className="mb-2 text-sm font-semibold">أعلى الوسائط</p>
               {marketingAnalytics.topMediums.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {marketingAnalytics.topMediums.map(([label, count]) => (
@@ -1599,12 +1599,12 @@ function RequestsSection({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">�� ���� ������ ����� ���.</p>
+                <p className="text-xs text-muted-foreground">لا توجد بيانات وسائط بعد.</p>
               )}
             </div>
 
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="mb-2 text-sm font-semibold">���� �������</p>
+              <p className="mb-2 text-sm font-semibold">أعلى الحملات</p>
               {marketingAnalytics.topCampaigns.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {marketingAnalytics.topCampaigns.map(([label, count]) => (
@@ -1614,7 +1614,7 @@ function RequestsSection({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">�� ���� ������ ����� ���.</p>
+                <p className="text-xs text-muted-foreground">لا توجد بيانات حملات بعد.</p>
               )}
             </div>
           </div>
@@ -1623,24 +1623,24 @@ function RequestsSection({
 
       <Card className="mb-6">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">����� ������� ���������</CardTitle>
+          <CardTitle className="text-base">فلترة الطلبات التسويقية</CardTitle>
           <CardDescription>
-            ����� ������ ���� ���� ��������� ������� ������� ������ ���� �� ����.
+            فلترة مباشرة بحسب مصدر الاستقطاب والوسيط والحملة لمعرفة أداء كل قناة.
           </CardDescription>
           <p className="text-xs text-muted-foreground">
-            ��� ��� ��� ������� ������� �������� ���� �������.
+            يتم حفظ آخر إعدادات الفلترة تلقائياً لهذا المتصفح.
           </p>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-4">
             <div>
-              <Label className="text-xs text-muted-foreground">������ (source)</Label>
+              <Label className="text-xs text-muted-foreground">المصدر (source)</Label>
               <Select value={sourceFilter} onValueChange={setSourceFilter}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="�� �������" />
+                  <SelectValue placeholder="كل المصادر" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">�� �������</SelectItem>
+                  <SelectItem value="all">كل المصادر</SelectItem>
                   {marketingAnalytics.allSources.map(([label, count]) => (
                     <SelectItem key={label} value={label}>
                       {label} ({count})
@@ -1650,13 +1650,13 @@ function RequestsSection({
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">������ (medium)</Label>
+              <Label className="text-xs text-muted-foreground">الوسيط (medium)</Label>
               <Select value={mediumFilter} onValueChange={setMediumFilter}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="�� �������" />
+                  <SelectValue placeholder="كل الوسائط" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">�� �������</SelectItem>
+                  <SelectItem value="all">كل الوسائط</SelectItem>
                   {marketingAnalytics.allMediums.map(([label, count]) => (
                     <SelectItem key={label} value={label}>
                       {label} ({count})
@@ -1666,13 +1666,13 @@ function RequestsSection({
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">������ (campaign)</Label>
+              <Label className="text-xs text-muted-foreground">الحملة (campaign)</Label>
               <Select value={campaignFilter} onValueChange={setCampaignFilter}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="�� �������" />
+                  <SelectValue placeholder="كل الحملات" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">�� �������</SelectItem>
+                  <SelectItem value="all">كل الحملات</SelectItem>
                   {marketingAnalytics.allCampaigns.map(([label, count]) => (
                     <SelectItem key={label} value={label}>
                       {label} ({count})
@@ -1682,7 +1682,7 @@ function RequestsSection({
               </Select>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3 self-end">
-              <p className="text-xs text-muted-foreground">����� ������� �������</p>
+              <p className="text-xs text-muted-foreground">نتائج الفلترة الحالية</p>
               <p className="text-xl font-bold">{filteredRequests.length}</p>
             </div>
           </div>
@@ -1693,7 +1693,7 @@ function RequestsSection({
         {filteredRequests.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
-              �� ���� ����� ����� ������� �������.
+              لا توجد طلبات تطابق الفلاتر الحالية.
             </CardContent>
           </Card>
         ) : null}
@@ -1719,7 +1719,7 @@ function RequestsSection({
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground p-1 text-center">
-                        ���� ����
+                        بدون صورة
                       </div>
                     )}
                   </div>
@@ -1728,7 +1728,7 @@ function RequestsSection({
                       <h3 className="text-lg font-bold">{request.barberName}</h3>
                       {request.source === 'registration' && (
                         <Badge variant="outline" className="text-xs border-primary/50 text-primary">
-                          �� ����� �������
+                          من نموذج التسجيل
                         </Badge>
                       )}
                       <Badge
@@ -1740,9 +1740,9 @@ function RequestsSection({
                             : 'outline'
                         }
                       >
-                        {request.tier === SubscriptionTier.DIAMOND && '?? ����'}
-                        {request.tier === SubscriptionTier.GOLD && '?? ����'}
-                        {request.tier === SubscriptionTier.BRONZE && '?? ������'}
+                        {request.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
+                        {request.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
+                        {request.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
                       </Badge>
                       <Badge
                         variant={
@@ -1754,24 +1754,24 @@ function RequestsSection({
                         }
                       >
                         {request.status === 'approved'
-                          ? '�����'
+                          ? 'مقبول'
                           : request.status === 'rejected'
-                            ? '�����'
-                            : '��� ��������'}
+                            ? 'مرفوض'
+                            : 'قيد المراجعة'}
                       </Badge>
                       {request.adminAccountState === 'suspended' ? (
                         <Badge variant="destructive" className="bg-amber-500 text-white">
-                          ������ �����
+                          الحساب معلّق
                         </Badge>
                       ) : null}
                     </div>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-semibold text-foreground shrink-0">��� ����� (���� �����)</span>
+                        <span className="text-xs font-semibold text-foreground shrink-0">رقم الطلب (مرجع الدعم)</span>
                         <code
                           className="text-xs bg-muted px-2 py-0.5 rounded font-mono"
                           dir="ltr"
-                          title="��� ������� ������� �� ����� �������� �����"
+                          title="نفس المعرّف المحفوظ في قاعدة البيانات للطلب"
                         >
                           {request.id}
                         </code>
@@ -1790,7 +1790,7 @@ function RequestsSection({
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
-                        <span>�� �������: {request.submittedAt}</span>
+                        <span>تم التقديم: {request.submittedAt}</span>
                       </div>
                       {hasPartnerAttributionSignal(request) ? (
                         <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -1801,7 +1801,7 @@ function RequestsSection({
                             medium: {inferMarketingMedium(request)}
                           </Badge>
                           <Badge variant="outline" className="text-[11px]">
-                            campaign: {request.partnerAttribution?.utmCampaign || '����_����'}
+                            campaign: {request.partnerAttribution?.utmCampaign || 'بدون_حملة'}
                           </Badge>
                         </div>
                       ) : null}
@@ -1811,7 +1811,7 @@ function RequestsSection({
                 <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-start">
                   <Button onClick={() => onViewRequest(request)} disabled={!canOpenRequestReview}>
                     <Eye className="w-4 h-4 ml-2" />
-                    {canOpenRequestReview ? '����� �����' : '��� ���'}
+                    {canOpenRequestReview ? 'إدارة الطلب' : 'عرض فقط'}
                   </Button>
                 </div>
               </div>
@@ -1859,13 +1859,13 @@ function RequestReviewDialog({
 
   const handleApprove = async () => {
     if (!canReviewRequests) {
-      toast({ title: '�� ���� ������ ������ �������', variant: 'destructive' });
+      toast({ title: 'لا تملك صلاحية اعتماد الطلبات', variant: 'destructive' });
       return;
     }
     setSaving(true);
     const reviewedAt = new Date().toISOString();
     if (isMockRow) {
-      toast({ title: '�� ������ (������)', description: '��� ����� �� ����� �������� ������ ���.' });
+      toast({ title: 'تم القبول (تجريبي)', description: 'هذا الطلب من العرض التجريبي المحلي فقط.' });
       setSaving(false);
       onClose();
       onAfterDecision();
@@ -1875,23 +1875,23 @@ function RequestReviewDialog({
     if (!upsert.ok) {
       setSaving(false);
       toast({
-        title: '���� ������ ������',
-        description: errorText(upsert, '���� ������ ������.'),
+        title: 'تعذر مزامنة الحلاق',
+        description: errorText(upsert, 'تعذر مزامنة الحلاق.'),
         variant: 'destructive',
       });
       return;
     }
     if (upsert.warning) {
       toast({
-        title: '�����: ����� ������� �������',
+        title: 'تنبيه: أعمدة الرعاية الشاملة',
         description: upsert.warning,
       });
     }
     if (upsert.shopOpenQuickHashLink) {
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
       toast({
-        title: '���� ���� ����� �������',
-        description: `${origin}${upsert.shopOpenQuickHashLink} � ����� ������ (���� �������� ��� ���� ����).`,
+        title: 'رابط حالة المحل للصالون',
+        description: `${origin}${upsert.shopOpenQuickHashLink} — أرسله للحلاق (مفيد للبرونزي دون لوحة تحكم).`,
       });
     }
     const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
@@ -1909,10 +1909,10 @@ function RequestReviewDialog({
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: '��� �����', description: errorText(res, '���� ����� �����.'), variant: 'destructive' });
+      toast({ title: 'فشل الحفظ', description: errorText(res, 'تعذر تحديث الطلب.'), variant: 'destructive' });
       return;
     }
-    // ���� ����: ���� �� ������ ����� ������ �� ��� ����� Supabase ������.
+    // تحقق صارم: تأكد أن الحلاق موجود فعلياً في نفس مشروع Supabase الحالي.
     const verifyRows = await listBarbersForAdmin();
     const emailNorm = request.email.trim().toLowerCase();
     const found = verifyRows.some(
@@ -1928,25 +1928,25 @@ function RequestReviewDialog({
     });
     if (visibilityWarning) {
       toast({
-        title: '����� ������',
+        title: 'تنبيه مزامنة',
         description: mail.ok
-          ? '�� ������ ����� ������ �����ϡ ��� ������ ��� ���� ����� �� ����� �������� (�� ���� ������ ����� Supabase ��� ������� ��������).'
-          : '�� ������ ����� ��� ������ ��� ���� ����� �� ������ɡ ���� ����� ������ ����� � ���� ����� ������� �����.',
+          ? 'تم اعتماد الطلب وأُرسل البريد، لكن الحساب غير ظاهر فوراً في قائمة الحلاقين (قد يكون اختلاف مشروع Supabase بين الواجهة والسيرفر).'
+          : 'تم اعتماد الطلب لكن الحساب غير ظاهر فوراً في القائمة، وفشل إرسال البريد أيضاً — راجع تنبيه الإرسال أدناه.',
         variant: 'destructive',
       });
     }
     if (!mail.ok) {
       toast({
-        title: '�� ���� ����� ��� ��� ������� �������',
-        description: `���� ����� ���� ��������� ��� ${request.email}: ${errorText(mail, '���� �������')}`,
+        title: 'تم قبول الطلب لكن فشل الإرسال البريدي',
+        description: `تعذر إرسال بريد التعليمات إلى ${request.email}: ${errorText(mail, 'تعذر الإرسال')}`,
         variant: 'destructive',
       });
     }
     toast({
-      title: '�� ���� �����',
+      title: 'تم قبول الطلب',
       description: mail.ok
-        ? '��� ������ ������ ������ ���� ��������� ������ ���� ������.'
-        : '��� ������ ������ ������ �� ����� ��������.',
+        ? 'تمت مزامنة الحلاق وإرسال بريد التعليمات وروابط لوحة التحكم.'
+        : 'تمت مزامنة الحلاق وسيظهر في تبويب الحلاقين.',
     });
     onClose();
     onAfterDecision();
@@ -1954,17 +1954,17 @@ function RequestReviewDialog({
 
   const handleReject = async () => {
     if (!canReviewRequests) {
-      toast({ title: '�� ���� ������ ��� �������', variant: 'destructive' });
+      toast({ title: 'لا تملك صلاحية رفض الطلبات', variant: 'destructive' });
       return;
     }
     if (!rejectionReason.trim()) {
-      toast({ title: '��� �����', description: '���� ����� ��� �����.', variant: 'destructive' });
+      toast({ title: 'سبب الرفض', description: 'يرجى إدخال سبب الرفض.', variant: 'destructive' });
       return;
     }
     setSaving(true);
     const reviewedAt = new Date().toISOString();
     if (isMockRow) {
-      toast({ title: '�� ����� (������)', description: '��� ����� �� ����� �������� ������ ���.' });
+      toast({ title: 'تم الرفض (تجريبي)', description: 'هذا الطلب من العرض التجريبي المحلي فقط.' });
       setSaving(false);
       onClose();
       onAfterDecision();
@@ -1980,23 +1980,23 @@ function RequestReviewDialog({
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: '��� �����', description: errorText(res, '���� ����� �����.'), variant: 'destructive' });
+      toast({ title: 'فشل الحفظ', description: errorText(res, 'تعذر تحديث الطلب.'), variant: 'destructive' });
       return;
     }
-    toast({ title: '�� ��� �����', description: '�� ����� ����� �� Supabase.' });
+    toast({ title: 'تم رفض الطلب', description: 'تم تحديث السجل في Supabase.' });
     onClose();
     onAfterDecision();
   };
 
   const handleSuspendAccount = async () => {
     if (!canSubscriberLifecycle) {
-      toast({ title: '�� ���� ������ ����� ������', variant: 'destructive' });
+      toast({ title: 'لا تملك صلاحية تعليق الحساب', variant: 'destructive' });
       return;
     }
     if (!request.linkedBarberId) {
       toast({
-        title: '�� ���� ���� �����',
-        description: '���� ����� ����� �� ��� ����� ������/��� ���� ������.',
+        title: 'لا يوجد حساب مرتبط',
+        description: 'اقبل الطلب أولاً أو أعد قبوله لإنشاء/ربط حساب الحلاق.',
         variant: 'destructive',
       });
       return;
@@ -2005,7 +2005,7 @@ function RequestReviewDialog({
     const toggle = await setBarberActiveRemote(request.linkedBarberId, false);
     if (!toggle.ok) {
       setSaving(false);
-      toast({ title: '���� ����� ������', description: errorText(toggle, '���� ����� ������.'), variant: 'destructive' });
+      toast({ title: 'تعذر تعليق الحساب', description: errorText(toggle, 'تعذر تعليق الحساب.'), variant: 'destructive' });
       return;
     }
     const reviewedAt = new Date().toISOString();
@@ -2013,29 +2013,29 @@ function RequestReviewDialog({
       adminAccountState: 'suspended',
       reviewedAt,
       reviewedBy: reviewerEmail,
-      suspensionReason: rejectionReason.trim() || '����� �����',
+      suspensionReason: rejectionReason.trim() || 'تعليق إداري',
     });
     setSaving(false);
     if (!res.ok) {
-      toast({ title: '���� ��� ���� �����', description: errorText(res, '���� ����� ���� �����.'), variant: 'destructive' });
+      toast({ title: 'تعذر حفظ حالة الطلب', description: errorText(res, 'تعذر تحديث حالة الطلب.'), variant: 'destructive' });
       return;
     }
-    toast({ title: '�� ����� ������' });
+    toast({ title: 'تم تعليق الحساب' });
     onClose();
     onAfterDecision();
   };
 
   const handleDeleteRequest = async () => {
     if (!canSubscriberLifecycle) {
-      toast({ title: '�� ���� ������ ��� �����', variant: 'destructive' });
+      toast({ title: 'لا تملك صلاحية حذف الطلب', variant: 'destructive' });
       return;
     }
-    if (!window.confirm('����� ��� ����� ������� ��� ������� �� ���� ������� ���.')) return;
+    if (!window.confirm('تأكيد حذف الطلب نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
     setSaving(true);
     if (isMockRow) {
       removeStoredSubscriptionRequest(request.id);
       setSaving(false);
-      toast({ title: '�� ��� ����� (������)' });
+      toast({ title: 'تم حذف الطلب (تجريبي)' });
       onClose();
       onAfterDecision();
       return;
@@ -2043,23 +2043,23 @@ function RequestReviewDialog({
     const res = await deleteRegistrationSubmissionRemote(request.id);
     setSaving(false);
     if (!res.ok) {
-      toast({ title: '���� ��� �����', description: errorText(res, '���� ��� �����.'), variant: 'destructive' });
+      toast({ title: 'تعذر حذف الطلب', description: errorText(res, 'تعذر حذف الطلب.'), variant: 'destructive' });
       return;
     }
     removeStoredSubscriptionRequest(request.id);
-    toast({ title: '�� ��� ����� �������' });
+    toast({ title: 'تم حذف الطلب نهائياً' });
     onClose();
     onAfterDecision();
   };
 
   const handleResendOnboarding = async () => {
     if (!canSubscriberComms) {
-      toast({ title: '�� ���� ������ ����� ����� ����� �������', variant: 'destructive' });
+      toast({ title: 'لا تملك صلاحية إعادة إرسال رسالة الروابط', variant: 'destructive' });
       return;
     }
     const recipient = request.email.trim();
     if (!recipient) {
-      toast({ title: '�� ���� ���� ��������', variant: 'destructive' });
+      toast({ title: 'لا يوجد بريد إلكتروني', variant: 'destructive' });
       return;
     }
     setSaving(true);
@@ -2073,18 +2073,18 @@ function RequestReviewDialog({
     setSaving(false);
     if (!mail.ok) {
       toast({
-        title: '���� ����� ����� ������� ��������',
-        description: errorText(mail, '���� ������� �������.'),
+        title: 'تعذر إعادة إرسال الرسالة الأساسية',
+        description: errorText(mail, 'تعذر الإرسال البريدي.'),
         variant: 'destructive',
       });
       return;
     }
     const resendRef = mail.messageId
-      ? `\n����� �� Resend: ${mail.messageId}\n���� resend.com ? Emails ����� ���� ������ ������ �� ���� ��������ɻ �� �����ɻ.`
+      ? `\nمعرّف في Resend: ${mail.messageId}\nافتح resend.com → Emails وابحث بهذا المعرف لمعرفة إن كانت «مُسلَّمة» أو «مرتدة».`
       : '';
     toast({
-      title: '�� ����� ������� ��� Resend',
-      description: `�������: ${recipient}\nResend ���� ����Ⱥ ������ ������ Gmail �� ����� �� ���� ������/������. ������� ������ ������ ���� Resend ���� ������� ���.${resendRef}`,
+      title: 'تم تسليم الرسالة إلى Resend',
+      description: `المستلم: ${recipient}\nResend قبلت الطلب؛ الوصول لصندوق Gmail قد يتأخر أو يذهب للمزعج/العروض. للتأكيد الفعلي استخدم لوحة Resend وليس واجهتنا فقط.${resendRef}`,
     });
   };
 
@@ -2099,56 +2099,56 @@ function RequestReviewDialog({
     >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-2xl">������ ��� ������� ��������</DialogTitle>
+          <DialogTitle className="text-2xl">مراجعة طلب الترخيص والإدراج</DialogTitle>
           <DialogDescription>
-            �� ������� ��������� ���������� ��� �������� �� �����
+            قم بمراجعة المعلومات والمستندات قبل الموافقة أو الرفض
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Basic Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">������� �������</h3>
+            <h3 className="text-lg font-semibold mb-3">معلومات الصالون</h3>
             <div className="rounded-md border border-primary/25 bg-primary/5 px-3 py-2 mb-4">
-              <Label>��� ����� (���� �����)</Label>
+              <Label>رقم الطلب (مرجع الدعم)</Label>
               <p className="text-sm font-mono font-semibold mt-1 break-all" dir="ltr">
                 {request.id}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                ����� ����� ���� ���� ������ ��� ������� ����� ��� �������� �� �����.
+                يطابق الرقم الذي يظهر للعميل بعد التقديم؛ اطلبه عند المتابعة مع الدعم.
               </p>
             </div>
             {request.barberMemberNumber != null &&
             Number.isFinite(request.barberMemberNumber) ? (
               <div className="rounded-md border border-amber-200/80 bg-amber-50/80 px-3 py-2 mb-4">
-                <Label>��� ������� ��� ������ (��� ��������)</Label>
+                <Label>رقم العضوية على المنصة (بعد الاعتماد)</Label>
                 <p className="text-sm font-mono font-semibold mt-1" dir="ltr">
                   {formatBarberMemberNumber(request.barberMemberNumber)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  ���� ���� ������� ������ � ����� �� ��� ��� ������� �����.
+                  مرجع دائم للأرشفة والدعم — يختلف عن رقم طلب التسجيل أعلاه.
                 </p>
               </div>
             ) : null}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>��� �������</Label>
+                <Label>اسم الصالون</Label>
                 <p className="text-sm font-medium mt-1">{request.barberName}</p>
               </div>
               <div>
-                <Label>������ ��������</Label>
+                <Label>الباقة المطلوبة</Label>
                 <Badge className="mt-1">
-                  {request.tier === SubscriptionTier.DIAMOND && '?? ����'}
-                  {request.tier === SubscriptionTier.GOLD && '?? ����'}
-                  {request.tier === SubscriptionTier.BRONZE && '?? ������'}
+                  {request.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
+                  {request.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
+                  {request.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
                 </Badge>
               </div>
               <div>
-                <Label>������ ����������</Label>
+                <Label>البريد الإلكتروني</Label>
                 <p className="text-sm font-medium mt-1">{request.email}</p>
               </div>
               <div>
-                <Label>��� ������</Label>
+                <Label>رقم الهاتف</Label>
                 <p className="text-sm font-medium mt-1" dir="ltr">
                   {request.phone}
                 </p>
@@ -2158,7 +2158,7 @@ function RequestReviewDialog({
 
           <div className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-muted-foreground">���� �����:</span>
+              <span className="text-muted-foreground">حالة الطلب:</span>
               <Badge
                 variant={
                   request.status === 'approved'
@@ -2169,12 +2169,12 @@ function RequestReviewDialog({
                 }
               >
                 {request.status === 'approved'
-                  ? '�����'
+                  ? 'مقبول'
                   : request.status === 'rejected'
-                    ? '�����'
-                    : '��� ��������'}
+                    ? 'مرفوض'
+                    : 'قيد المراجعة'}
               </Badge>
-              <span className="text-muted-foreground">���� ������:</span>
+              <span className="text-muted-foreground">حالة الحساب:</span>
               <Badge
                 variant={
                   request.adminAccountState === 'suspended'
@@ -2185,10 +2185,10 @@ function RequestReviewDialog({
                 }
               >
                 {request.adminAccountState === 'suspended'
-                  ? '�����'
+                  ? 'معلّق'
                   : request.adminAccountState === 'deleted'
-                    ? '�����'
-                    : '���/��� ����'}
+                    ? 'محذوف'
+                    : 'نشط/غير محدد'}
               </Badge>
             </div>
             {request.linkedBarberId ? (
@@ -2200,11 +2200,11 @@ function RequestReviewDialog({
 
           {/* Location */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">������</h3>
+            <h3 className="text-lg font-semibold mb-3">الموقع</h3>
             <div className="space-y-2">
               <p className="text-sm">{request.location.address}</p>
               <p className="text-xs text-muted-foreground">
-                ����������: {request.location.lat}, {request.location.lng}
+                الإحداثيات: {request.location.lat}, {request.location.lng}
               </p>
               <Button
                 variant="outline"
@@ -2217,15 +2217,15 @@ function RequestReviewDialog({
                 }
               >
                 <MapPin className="w-4 h-4 ml-2" />
-                ������ ��� ���� ����� �����
+                الظهور عبر نظام الرصد الذكي
               </Button>
             </div>
           </div>
 
           {request.weeklyWorkingHours && request.weeklyWorkingHours.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-2">����� ����� (�� �����)</h3>
-              <p className="text-xs text-muted-foreground mb-2">����� ���� ��� ���� ����� �����</p>
+              <h3 className="text-lg font-semibold mb-2">أوقات العمل (من الطلب)</h3>
+              <p className="text-xs text-muted-foreground mb-2">أسبوع كامل كما سجّل مقدّم الطلب</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 rounded-lg border border-border p-2 bg-muted/20">
                 {getOrderedWeekHoursForDisplay(request.weeklyWorkingHours).map(({ day, line, closed }) => (
                   <div
@@ -2247,32 +2247,32 @@ function RequestReviewDialog({
             </div>
           )}
 
-          {/* ������ �������� �� ����� ������� */}
+          {/* التعهد القانوني من نموذج التسجيل */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">������ ��������</h3>
+            <h3 className="text-lg font-semibold mb-3">التعهد القانوني</h3>
             {request.legalDisclaimerAccepted ? (
               <div className="mb-4 space-y-2 rounded-lg border border-primary/25 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-foreground leading-relaxed">
-                  ���� ����� ���� ������ ������� �� ����� ������� �������� ������ ��������� ��������� ������ �������
-                  ���� ���� ��� � ��� �� ����� ������� ������.
+                  صاحب المحل أقرّ بترخيص المنشأة من وزارة التجارة والبلدية وتحمّل المسؤولية القانونية وإخلاء مسؤولية
+                  منصة حلاق ماب — كما في نموذج التسجيل الحالي.
                 </p>
                 {request.legalDisclaimerAcceptedAtIso ? (
                   <p className="text-xs text-muted-foreground" dir="ltr">
-                    ��� ������� (UTC): {request.legalDisclaimerAcceptedAtIso}
+                    وقت التأشير (UTC): {request.legalDisclaimerAcceptedAtIso}
                   </p>
                 ) : null}
               </div>
             ) : (
               <p className="mb-4 text-sm text-amber-800 dark:text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-md p-3">
-                �� ���� �� ��� ����� ���� ������ ������ (��� ���� �� ������ �����). ���� ����� ������ ��� ������.
+                لا يظهر في هذا الطلب تعهد قانوني مُسجّل (طلب قديم أو بيانات ناقصة). راجع الطلب يدوياً قبل القبول.
               </p>
             )}
-            <p className="text-xs text-muted-foreground mb-2">������� ����� ��� ������:</p>
+            <p className="text-xs text-muted-foreground mb-2">ملاحظات الطلب كما أُرسلت:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {request.documents.map((doc, index) =>
                 isRenderableImageAssetUrl(doc) ? (
                   <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
-                    <img src={doc} alt={`����� ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={doc} alt={`مستند ${index + 1}`} className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div
@@ -2293,21 +2293,21 @@ function RequestReviewDialog({
             request.servicesSummary ||
             request.inclusiveAccessibleCare?.offered) && (
             <div>
-              <h3 className="text-lg font-semibold mb-3">����� �������� (�� ����� �������)</h3>
+              <h3 className="text-lg font-semibold mb-3">الدفع والخدمات (من نموذج التسجيل)</h3>
               <div className="space-y-3 rounded-lg border border-border p-4 bg-muted/20">
                 {request.paymentMethod && (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">����� �����: </span>
+                    <span className="text-muted-foreground">طريقة الدفع: </span>
                     <span className="font-medium">
                       {request.paymentMethod === 'bank_transfer'
-                        ? '����� ���� (6 ����)'
-                        : '����� ���� (����)'}
+                        ? 'تحويل بنكي (6 أشهر)'
+                        : 'ترخيص رقمي (ميسر)'}
                     </span>
                   </p>
                 )}
                 {request.receiptFileName && (
                   <p className="text-sm break-all">
-                    <span className="text-muted-foreground">��� �������: </span>
+                    <span className="text-muted-foreground">ملف الإيصال: </span>
                     <span dir="ltr" className="font-medium inline-block">
                       {request.receiptFileName}
                     </span>
@@ -2315,7 +2315,7 @@ function RequestReviewDialog({
                 )}
                 {request.registrationAttachmentUrls?.receipt && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">����� ������� (�����)</p>
+                    <p className="text-sm font-medium">إيصال التحويل (مرفوع)</p>
                     <Button variant="outline" size="sm" asChild>
                       <a
                         href={request.registrationAttachmentUrls.receipt}
@@ -2324,24 +2324,24 @@ function RequestReviewDialog({
                         className="gap-2"
                       >
                         <ExternalLink className="w-4 h-4 ml-2" />
-                        ��� ����� �������
+                        فتح إيصال التحويل
                       </a>
                     </Button>
                   </div>
                 )}
                 {request.receiptDataUrl && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">������ �������</p>
+                    <p className="text-sm font-medium">معاينة الإيصال</p>
                     {request.receiptDataUrl.startsWith('data:image/') ? (
                       <img
                         src={request.receiptDataUrl}
-                        alt="�����"
+                        alt="إيصال"
                         className="max-h-64 rounded-lg border border-border object-contain"
                       />
                     ) : (
                       <Button variant="outline" size="sm" asChild>
                         <a href={request.receiptDataUrl} target="_blank" rel="noopener noreferrer">
-                          ��� ��� ������� �� ����� �����
+                          فتح ملف الإيصال في نافذة جديدة
                         </a>
                       </Button>
                     )}
@@ -2349,7 +2349,7 @@ function RequestReviewDialog({
                 )}
                 {request.servicesSummary && (
                   <div>
-                    <p className="text-sm font-medium mb-1">������� ��������</p>
+                    <p className="text-sm font-medium mb-1">الخدمات والأسعار</p>
                     <pre className="text-xs whitespace-pre-wrap bg-background rounded-md p-3 border border-border">
                       {request.servicesSummary}
                     </pre>
@@ -2357,20 +2357,20 @@ function RequestReviewDialog({
                 )}
                 {request.inclusiveAccessibleCare?.offered && (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">���� �������� / ������ (���� ���� ������� ���� ����������): </span>
+                    <span className="text-muted-foreground">خدمة مُيسَّرة / منزلية (كبار السن والمرضى وذوي الاحتياجات): </span>
                     <span className="font-medium">
-                      ��� � ����� �������:{' '}
+                      نعم — السعر المعروض:{' '}
                       {request.inclusiveAccessibleCare.displayedPriceSar != null &&
                       request.inclusiveAccessibleCare.displayedPriceSar > 0
-                        ? `${request.inclusiveAccessibleCare.displayedPriceSar} �.�`
-                        : '�'}
+                        ? `${request.inclusiveAccessibleCare.displayedPriceSar} ر.س`
+                        : '—'}
                     </span>
                   </p>
                 )}
                 {request.categories && request.categories.length > 0 && (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">���������: </span>
-                    {request.categories.join('� ')}
+                    <span className="text-muted-foreground">التصنيفات: </span>
+                    {request.categories.join('، ')}
                   </p>
                 )}
               </div>
@@ -2379,23 +2379,23 @@ function RequestReviewDialog({
 
           {/* Shop Images */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">��� �����</h3>
+            <h3 className="text-lg font-semibold mb-3">صور المحل</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {request.shopImages.map((image, index) =>
                 isRenderableImageAssetUrl(image) ? (
                   <div key={index} className="aspect-video rounded-lg overflow-hidden border border-border">
-                    <img src={image} alt={`���� ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={image} alt={`صورة ${index + 1}`} className="w-full h-full object-cover" />
                   </div>
                 ) : isVisualAssetUrl(image) ? (
                   <div
                     key={index}
                     className="aspect-video rounded-lg border border-border p-3 flex flex-col justify-center gap-2"
                   >
-                    <span className="text-xs text-muted-foreground">��� / ����</span>
+                    <span className="text-xs text-muted-foreground">ملف / رابط</span>
                     <Button variant="outline" size="sm" asChild>
                       <a href={image} target="_blank" rel="noopener noreferrer" className="gap-2">
                         <ExternalLink className="w-4 h-4 ml-2" />
-                        ���
+                        فتح
                       </a>
                     </Button>
                   </div>
@@ -2414,11 +2414,11 @@ function RequestReviewDialog({
           {/* Rejection Form */}
           {showRejectForm && (
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <Label className="text-red-600 mb-2 block">��� �����</Label>
+              <Label className="text-red-600 mb-2 block">سبب الرفض</Label>
               <Textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="���� ��� ��� �����..."
+                placeholder="اكتب سبب رفض الطلب..."
                 rows={4}
                 className="border-red-500/30"
               />
@@ -2428,7 +2428,7 @@ function RequestReviewDialog({
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose} disabled={saving}>
-            �����
+            إلغاء
           </Button>
           {!showRejectForm ? (
             <>
@@ -2438,7 +2438,7 @@ function RequestReviewDialog({
                 disabled={saving || !canReviewRequests}
               >
                 <XCircle className="w-4 h-4 ml-2" />
-                {request.status === 'pending' ? '��� �����' : '����� ���'}
+                {request.status === 'pending' ? 'رفض الطلب' : 'إعادة رفض'}
               </Button>
               <Button
                 onClick={() => void handleApprove()}
@@ -2446,18 +2446,18 @@ function RequestReviewDialog({
                 className="bg-green-600 hover:bg-green-700"
               >
                 {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 ml-2" />}
-                ������/����� ������
+                اعتماد/إعادة اعتماد
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => void handleSuspendAccount()}
                 disabled={saving || !canSubscriberLifecycle}
               >
-                ����� ������
+                تعليق الحساب
               </Button>
               <Button variant="outline" onClick={() => void handleResendOnboarding()} disabled={saving || !canSubscriberComms}>
                 <Mail className="w-4 h-4 ml-2" />
-                ����� ����� ����� �������
+                إعادة إرسال رسالة الروابط
               </Button>
               <Button
                 variant="outline"
@@ -2466,13 +2466,13 @@ function RequestReviewDialog({
                 className="text-red-600 border-red-500/40 hover:bg-red-500/10"
               >
                 <Trash2 className="w-4 h-4 ml-2" />
-                ��� �����
+                حذف الطلب
               </Button>
             </>
           ) : (
             <Button variant="destructive" onClick={() => void handleReject()} disabled={saving || !canReviewRequests}>
               {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : null}
-              ����� �����
+              تأكيد الرفض
             </Button>
           )}
         </DialogFooter>
@@ -2537,18 +2537,18 @@ function BarberHardEditDialog({
     const emailTrim = email.trim().toLowerCase();
     const phoneTrim = phone.trim();
     const cityTrim = city.trim() || null;
-    const addressTrim = address.trim() || '��� ����';
+    const addressTrim = address.trim() || 'غير محدد';
 
     if (!nameTrim) {
-      toast({ title: '����� �����', variant: 'destructive' });
+      toast({ title: 'الاسم مطلوب', variant: 'destructive' });
       return;
     }
     if (!emailTrim || !emailTrim.includes('@')) {
-      toast({ title: '���� ��� ����', variant: 'destructive' });
+      toast({ title: 'بريد غير صالح', variant: 'destructive' });
       return;
     }
     if (!phoneTrim) {
-      toast({ title: '��� ������ �����', variant: 'destructive' });
+      toast({ title: 'رقم الجوال مطلوب', variant: 'destructive' });
       return;
     }
 
@@ -2559,8 +2559,8 @@ function BarberHardEditDialog({
     if (latTrim || lngTrim) {
       if (!latTrim || !lngTrim) {
         toast({
-          title: '�������� ��� ������',
-          description: '���� �� ����� ������ ���� �� ������� ������ ������ ����������.',
+          title: 'إحداثيات غير مكتملة',
+          description: 'أدخل خط العرض والطول معاً، أو اتركهما فارغين لإزالة الإحداثيات.',
           variant: 'destructive',
         });
         return;
@@ -2568,7 +2568,7 @@ function BarberHardEditDialog({
       const latN = Number(latTrim);
       const lngN = Number(lngTrim);
       if (!Number.isFinite(latN) || !Number.isFinite(lngN)) {
-        toast({ title: '�������� ��� �����', variant: 'destructive' });
+        toast({ title: 'إحداثيات غير صالحة', variant: 'destructive' });
         return;
       }
       latitude = latN;
@@ -2596,8 +2596,8 @@ function BarberHardEditDialog({
     setSaving(false);
     if (!res.ok) {
       toast({
-        title: '���� ��� ���������',
-        description: errorText(res, '���� ����� ������ ������.'),
+        title: 'تعذر حفظ التعديلات',
+        description: errorText(res, 'تعذر تحديث بيانات الحلاق.'),
         variant: 'destructive',
       });
       return;
@@ -2622,20 +2622,20 @@ function BarberHardEditDialog({
         onRegistrationPayloadSynced();
         if (failures.length) {
           toast({
-            title: '���� ������ ��� ���� ����� ����� �������',
-            description: failures[0] ?? '��� ��� �����',
+            title: 'حُفظ الحلاق لكن تعذر تحديث الطلب المرتبط',
+            description: failures[0] ?? 'خطأ غير معروف',
             variant: 'destructive',
           });
         } else if (emailChanged && phoneChanged) {
-          submissionSyncHint = ` � ��� ����� ������ ������� �� ${linked.length} ��� ����� (����� �������).`;
+          submissionSyncHint = ` — وتم تحديث البريد والجوال في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
         } else if (emailChanged) {
-          submissionSyncHint = ` � ��� ����� ������ �� ${linked.length} ��� ����� (����� �������).`;
+          submissionSyncHint = ` — وتم تحديث البريد في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
         } else if (phoneChanged) {
-          submissionSyncHint = ` � ��� ����� ������ �� ${linked.length} ��� ����� (����� �������).`;
+          submissionSyncHint = ` — وتم تحديث الجوال في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
         }
       } else if (emailChanged || phoneChanged) {
         submissionSyncHint =
-          ' � �� ����� ��� ��� ����� ����� (linkedBarberId)� ���� ����� �� �������ʻ �� ����� ��������.';
+          ' — لم يُعثر على طلب تسجيل مربوط (linkedBarberId)؛ بريد الطلب في «الطلبات» لم يتغير تلقائياً.';
       }
     }
 
@@ -2654,7 +2654,7 @@ function BarberHardEditDialog({
       profile_image: profileTrim ? profileTrim : null,
       cover_image: coverTrim ? coverTrim : null,
     };
-    toast({ title: '�� ��� ���������', description: `${nameTrim}${submissionSyncHint}` });
+    toast({ title: 'تم حفظ التعديلات', description: `${nameTrim}${submissionSyncHint}` });
     onSaved(next);
     onOpenChange(false);
   };
@@ -2663,17 +2663,17 @@ function BarberHardEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle>����� ������ ������ (������ ������)</DialogTitle>
+          <DialogTitle>تعديل بيانات الحلاق (صلاحية رئيسية)</DialogTitle>
           <DialogDescription>
-            ������� ����� ����� ��� ����� ������ ��� ����� ������� �� ����. ���� ���� ����� ����� ������ ������. ���
-            ����� ������ �� ������ ������� �������� ��� ������� ������� ���� ������ �� ����� ������� �� ����
-            ���.
+            يُستخدم للدعم الفني عند تعذّر الحلاق على تعديل بياناته أو صوره. اترك حقول الصور فارغة لإزالة الرابط. عند
+            تغيير البريد أو الجوال يُحدَّث تلقائياً طلب التسجيل المرتبط بنفس الحساب في تبويب الطلبات إن وُجد
+            ربط.
           </DialogDescription>
           {barber ? (
             <p className="text-sm text-muted-foreground pt-1">
-              ��� ������� ��� ������:{' '}
+              رقم العضوية على المنصة:{' '}
               <span className="font-mono font-semibold text-foreground" dir="ltr">
-                {formatBarberMemberNumber(barber.memberNumber) ?? '�'}
+                {formatBarberMemberNumber(barber.memberNumber) ?? '—'}
               </span>
             </p>
           ) : null}
@@ -2682,66 +2682,66 @@ function BarberHardEditDialog({
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hard-edit-name">��� �������</Label>
+              <Label htmlFor="hard-edit-name">اسم الصالون</Label>
               <Input id="hard-edit-name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-email">������</Label>
+              <Label htmlFor="hard-edit-email">البريد</Label>
               <Input id="hard-edit-email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-phone">������</Label>
+              <Label htmlFor="hard-edit-phone">الجوال</Label>
               <Input id="hard-edit-phone" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-city">������� (�������)</Label>
+              <Label htmlFor="hard-edit-city">المدينة (اختياري)</Label>
               <Input id="hard-edit-city" value={city} onChange={(e) => setCity(e.target.value)} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hard-edit-address">�������</Label>
+              <Label htmlFor="hard-edit-address">العنوان</Label>
               <Textarea id="hard-edit-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={3} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-lat">�� �����</Label>
-              <Input id="hard-edit-lat" dir="ltr" value={latText} onChange={(e) => setLatText(e.target.value)} placeholder="����: 24.7136" />
+              <Label htmlFor="hard-edit-lat">خط العرض</Label>
+              <Input id="hard-edit-lat" dir="ltr" value={latText} onChange={(e) => setLatText(e.target.value)} placeholder="مثال: 24.7136" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hard-edit-lng">�� �����</Label>
-              <Input id="hard-edit-lng" dir="ltr" value={lngText} onChange={(e) => setLngText(e.target.value)} placeholder="����: 46.6753" />
+              <Label htmlFor="hard-edit-lng">خط الطول</Label>
+              <Input id="hard-edit-lng" dir="ltr" value={lngText} onChange={(e) => setLngText(e.target.value)} placeholder="مثال: 46.6753" />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>������</Label>
+              <Label>الباقة</Label>
               <Select value={tier} onValueChange={(v) => setTier(v as SubscriptionTier)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="���� ������" />
+                  <SelectValue placeholder="اختر الباقة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={SubscriptionTier.BRONZE}>?? ������</SelectItem>
-                  <SelectItem value={SubscriptionTier.GOLD}>?? ����</SelectItem>
-                  <SelectItem value={SubscriptionTier.DIAMOND}>?? ����</SelectItem>
+                  <SelectItem value={SubscriptionTier.BRONZE}>🥉 برونزي</SelectItem>
+                  <SelectItem value={SubscriptionTier.GOLD}>🥇 ذهبي</SelectItem>
+                  <SelectItem value={SubscriptionTier.DIAMOND}>💎 ماسي</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">�����</p>
-                <p className="text-xs text-muted-foreground">���� ���������� ����� ����� ��� ������ �� �������.</p>
+                <p className="text-sm font-medium">موثّق</p>
+                <p className="text-xs text-muted-foreground">يظهر للمستخدمين كحساب موثّق عند تفعيله في الواجهة.</p>
               </div>
               <Switch checked={isVerified} onCheckedChange={setIsVerified} />
             </div>
             <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">���� ������</p>
-                <p className="text-xs text-muted-foreground">����� �� ���� ������� �� ���� ����� �����/������� ��� ���� �������.</p>
+                <p className="text-sm font-medium">ظهور للعامة</p>
+                <p className="text-xs text-muted-foreground">يتحكم في ظهور الصالون في نظام الرصد الذكي/القوائم حسب منطق التطبيق.</p>
               </div>
               <Switch checked={isActive} onCheckedChange={setIsActive} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hard-edit-profile">���� ���� ����� ������</Label>
+              <Label htmlFor="hard-edit-profile">رابط صورة الملف الشخصي</Label>
               <Input id="hard-edit-profile" dir="ltr" value={profileImage} onChange={(e) => setProfileImage(e.target.value)} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hard-edit-cover">���� ���� ������</Label>
+              <Label htmlFor="hard-edit-cover">رابط صورة الغلاف</Label>
               <Input id="hard-edit-cover" dir="ltr" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} />
             </div>
           </div>
@@ -2749,11 +2749,11 @@ function BarberHardEditDialog({
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            �����
+            إلغاء
           </Button>
           <Button onClick={() => void handleSave()} disabled={saving || !barber}>
             {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-            ���
+            حفظ
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -2761,10 +2761,10 @@ function BarberHardEditDialog({
   );
 }
 
-const BARBER_PURGE_CONFIRM_PHRASE = '��� �� ��������';
+const BARBER_PURGE_CONFIRM_PHRASE = 'حذف كل الحلاقين';
 
 function formatBarberCreatedAtDisplay(iso: string | null): string {
-  if (!iso) return '�';
+  if (!iso) return '—';
   try {
     return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', {
       dateStyle: 'short',
@@ -2833,26 +2833,26 @@ function BarbersSection({
     const res = await setBarberActiveRemote(row.id, next);
     setUpdatingId(null);
     if (!res.ok) {
-      toast({ title: '���� �������', description: errorText(res, '���� ����� ������.'), variant: 'destructive' });
+      toast({ title: 'تعذر التحديث', description: errorText(res, 'تعذر تحديث الحالة.'), variant: 'destructive' });
       return;
     }
     setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, is_active: next } : r)));
-    toast({ title: next ? '�� �������' : '�� �������', description: row.name });
+    toast({ title: next ? 'تم التفعيل' : 'تم التعطيل', description: row.name });
     onStatsNeedRefresh();
   };
 
   const onDeleteBarber = async (row: AdminBarberRow) => {
     if (!canManage) return;
-    if (!window.confirm(`����� ��� ���� ������ "${row.name}"�`)) return;
+    if (!window.confirm(`تأكيد حذف حساب الحلاق "${row.name}"؟`)) return;
     setDeletingId(row.id);
     const res = await deleteBarberRemote(row.id);
     setDeletingId(null);
     if (!res.ok) {
-      toast({ title: '���� ��� ������', description: errorText(res, '���� ��� ������.'), variant: 'destructive' });
+      toast({ title: 'تعذر حذف الحلاق', description: errorText(res, 'تعذر حذف الحلاق.'), variant: 'destructive' });
       return;
     }
     setRows((prev) => prev.filter((r) => r.id !== row.id));
-    toast({ title: '�� ��� ������', description: row.name });
+    toast({ title: 'تم حذف الحلاق', description: row.name });
     onStatsNeedRefresh();
   };
 
@@ -2948,7 +2948,7 @@ function BarbersSection({
     if (dupes.length === 0) return;
     if (
       !window.confirm(
-        `���� ������� ��� "${keeper.name}" ���� ${dupes.length} ����/������ �����. �� ��� ����Ͽ`
+        `سيتم الإبقاء على "${keeper.name}" وحذف ${dupes.length} حساب/حسابات مكررة. هل أنت متأكد؟`
       )
     ) {
       return;
@@ -2959,8 +2959,8 @@ function BarbersSection({
       if (!res.ok) {
         setMergingId(null);
         toast({
-          title: '���� ��� ��� ��������',
-          description: `${dupe.name}: ${errorText(res, '���� ��� ������ ������.')}`,
+          title: 'تعذر حذف بعض المكررات',
+          description: `${dupe.name}: ${errorText(res, 'تعذر حذف الحساب المكرر.')}`,
           variant: 'destructive',
         });
         return;
@@ -2969,8 +2969,8 @@ function BarbersSection({
     setRows((prev) => prev.filter((r) => !dupes.some((d) => d.id === r.id)));
     setMergingId(null);
     toast({
-      title: '�� ����� �������',
-      description: `����� ��� ${keeper.name} ����� ${dupes.length} ���� ����.`,
+      title: 'تم تنظيف التكرار',
+      description: `أُبقي على ${keeper.name} وحُذف ${dupes.length} حساب مكرر.`,
     });
     onStatsNeedRefresh();
   };
@@ -2979,7 +2979,7 @@ function BarbersSection({
     if (!canManage) return;
     if (
       !window.confirm(
-        '���� ����� ���� ������� ������ ���� ������ ��� ���� �������� �������. �� ���� �������ɿ'
+        'سيتم إرسال بريد تعليمات وروابط لوحة التحكم إلى جميع الحلاقين النشطين. هل تريد المتابعة؟'
       )
     ) {
       return;
@@ -2989,27 +2989,27 @@ function BarbersSection({
     setBroadcastingEmails(false);
     if (!res.ok) {
       toast({
-        title: '���� ����� ������ �������',
-        description: errorText(res, '���� ����� ������ �������.'),
+        title: 'تعذر إرسال البريد الجماعي',
+        description: errorText(res, 'تعذر إرسال البريد الجماعي.'),
         variant: 'destructive',
       });
       return;
     }
     const failLines =
       res.failed > 0 && res.failedDetails?.length
-        ? ` � �����: ${res.failedDetails
+        ? ` · أخطاء: ${res.failedDetails
             .slice(0, 3)
             .map((f) => `${f.email}: ${f.error}`)
             .join(' | ')}`
         : '';
     const invalidLine =
       res.skippedInvalid > 0
-        ? ` � ���� ��� ���� �� ����� ��������: ${res.skippedInvalid}${res.invalidSamples?.length ? ` (����: ${res.invalidSamples.slice(0, 2).join(', ')})` : ''}`
+        ? ` · بريد غير صالح في قاعدة البيانات: ${res.skippedInvalid}${res.invalidSamples?.length ? ` (مثال: ${res.invalidSamples.slice(0, 2).join(', ')})` : ''}`
         : '';
-    const dupLine = res.skippedDuplicate > 0 ? ` � ����� ����: ${res.skippedDuplicate}` : '';
+    const dupLine = res.skippedDuplicate > 0 ? ` · تخطّي مكرر: ${res.skippedDuplicate}` : '';
     toast({
-      title: '�� ����� ��������� ��������',
-      description: `����: ${res.attempted} � ������� ������: ${res.uniqueRecipients} � �����: ${res.sent} � ��� API: ${res.failed}${dupLine}${invalidLine}${failLines}`,
+      title: 'تم إرسال التعليمات البريدية',
+      description: `صفوف: ${res.attempted} · مستلمون فريدون: ${res.uniqueRecipients} · أُرسل: ${res.sent} · فشل API: ${res.failed}${dupLine}${invalidLine}${failLines}`,
     });
   };
 
@@ -3025,8 +3025,8 @@ function BarbersSection({
   const onPurgeAllBarbers = async () => {
     if (purgePhrase.trim() !== BARBER_PURGE_CONFIRM_PHRASE) {
       toast({
-        title: '����� ������� ��� �����',
-        description: `���� ������: ${BARBER_PURGE_CONFIRM_PHRASE}`,
+        title: 'عبارة التأكيد غير صحيحة',
+        description: `اكتب بالضبط: ${BARBER_PURGE_CONFIRM_PHRASE}`,
         variant: 'destructive',
       });
       return;
@@ -3036,10 +3036,10 @@ function BarbersSection({
     setPurging(false);
     if (!res.ok) {
       toast({
-        title: '���� ��� ���� ��������',
+        title: 'تعذر مسح جميع الحلاقين',
         description:
           res.deletedPartial != null
-            ? `${errorText(res, '')} (�� ��� ${res.deletedPartial} ��� ������)`
+            ? `${errorText(res, '')} (تم حذف ${res.deletedPartial} قبل التوقف)`
             : errorText(res, ''),
         variant: 'destructive',
       });
@@ -3052,8 +3052,8 @@ function BarbersSection({
     setPurgeOpen(false);
     setPurgePhrase('');
     toast({
-      title: '�� ��� ���� ��������',
-      description: `��� ������ ��������: ${res.deleted}. ����� ���� ����� ������ ����� ������� �� ���� ���� �������� ������� �����.`,
+      title: 'تم مسح جميع الحلاقين',
+      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار شراء التراخيص والظهور العام.`,
     });
     onStatsNeedRefresh();
   };
@@ -3062,7 +3062,7 @@ function BarbersSection({
     if (!canManage) return;
     const ids = [...selectedIds];
     if (ids.length === 0) return;
-    if (!window.confirm(`����� ��� ${ids.length} ����/������ ����ɿ �� ���� �������.`)) return;
+    if (!window.confirm(`تأكيد حذف ${ids.length} حساب/حسابات محددة؟ لا يمكن التراجع.`)) return;
     setBulkDeleting(true);
     let removed = 0;
     for (const id of ids) {
@@ -3070,8 +3070,8 @@ function BarbersSection({
       if (!res.ok) {
         setBulkDeleting(false);
         toast({
-          title: '���� ����� �������',
-          description: errorText(res, `��� ��� ��� �������� ��� ��� ${removed}.`),
+          title: 'توقف الحذف الجماعي',
+          description: errorText(res, `فشل عند أحد المعرفات بعد حذف ${removed}.`),
           variant: 'destructive',
         });
         void listBarbersForAdmin().then(setRows);
@@ -3083,7 +3083,7 @@ function BarbersSection({
     setBulkDeleting(false);
     setRows((prev) => prev.filter((r) => !selectedIds.has(r.id)));
     setSelectedIds(new Set());
-    toast({ title: '�� ��� ������', description: `��� ��������: ${removed}` });
+    toast({ title: 'تم حذف المحدد', description: `عدد الحسابات: ${removed}` });
     onStatsNeedRefresh();
   };
 
@@ -3093,19 +3093,19 @@ function BarbersSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-bold mb-6">����� ��������</h2>
+      <h2 className="text-2xl font-bold mb-6">إدارة الحلاقين</h2>
       <Card>
         <CardContent className="p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
             <div className="text-sm text-muted-foreground">
-              ������ ��������: <span className="font-semibold text-foreground">{rows.length}</span>
-              {' � '}
-              ��� �������:{' '}
+              إجمالي الحسابات: <span className="font-semibold text-foreground">{rows.length}</span>
+              {' · '}
+              بعد الفلاتر:{' '}
               <span className="font-semibold text-foreground">{filteredRows.length}</span>
-              {' � '}
-              �������: <span className="font-semibold text-foreground">{visibleRows.length}</span>
-              {' � '}
-              �������: <span className="font-semibold text-red-600">{rows.filter((r) => isDuplicateRow(r)).length}</span>
+              {' · '}
+              المعروض: <span className="font-semibold text-foreground">{visibleRows.length}</span>
+              {' · '}
+              المكررة: <span className="font-semibold text-red-600">{rows.filter((r) => isDuplicateRow(r)).length}</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -3115,77 +3115,77 @@ function BarbersSection({
                 onClick={() => void onBroadcastOnboardingEmails()}
               >
                 {broadcastingEmails ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-                ����� ������� ����� ��������
+                إرسال تعليمات لجميع الحلاقين
               </Button>
-              <span className="text-xs text-muted-foreground">��� �������� ���</span>
+              <span className="text-xs text-muted-foreground">عرض المكررات فقط</span>
               <Switch checked={duplicatesOnly} onCheckedChange={setDuplicatesOnly} />
             </div>
           </div>
 
           <div className="mb-4 grid gap-3 rounded-lg border border-border/80 bg-background p-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
-              <Label className="text-xs text-muted-foreground">��� (��� ���ϡ ����)</Label>
+              <Label className="text-xs text-muted-foreground">بحث (اسم، بريد، جوال)</Label>
               <div className="relative">
                 <Search className="absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   className="pr-9"
-                  placeholder="����: ����� �� @gmail"
+                  placeholder="مثال: صالون أو @gmail"
                   value={filterText}
                   onChange={(e) => setFilterText(e.target.value)}
                 />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">�������</Label>
-              <Input placeholder="����� �����" value={filterCity} onChange={(e) => setFilterCity(e.target.value)} />
+              <Label className="text-xs text-muted-foreground">المدينة</Label>
+              <Input placeholder="فلترة جزئية" value={filterCity} onChange={(e) => setFilterCity(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">������</Label>
+              <Label className="text-xs text-muted-foreground">الباقة</Label>
               <Select
                 value={filterTier}
                 onValueChange={(v) => setFilterTier(v === 'all' ? 'all' : (v as SubscriptionTier))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="����" />
+                  <SelectValue placeholder="الكل" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">�� �������</SelectItem>
-                  <SelectItem value={SubscriptionTier.BRONZE}>������</SelectItem>
-                  <SelectItem value={SubscriptionTier.GOLD}>����</SelectItem>
-                  <SelectItem value={SubscriptionTier.DIAMOND}>����</SelectItem>
+                  <SelectItem value="all">كل الباقات</SelectItem>
+                  <SelectItem value={SubscriptionTier.BRONZE}>برونزي</SelectItem>
+                  <SelectItem value={SubscriptionTier.GOLD}>ذهبي</SelectItem>
+                  <SelectItem value={SubscriptionTier.DIAMOND}>ماسي</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">�������</Label>
+              <Label className="text-xs text-muted-foreground">التوثيق</Label>
               <Select value={filterVerified} onValueChange={(v) => setFilterVerified(v as 'all' | 'yes' | 'no')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">����</SelectItem>
-                  <SelectItem value="yes">����� ���</SelectItem>
-                  <SelectItem value="no">��� �����</SelectItem>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="yes">موثّق فقط</SelectItem>
+                  <SelectItem value="no">غير موثّق</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">���� ������ (is_active)</Label>
+              <Label className="text-xs text-muted-foreground">ظهور للعامة (is_active)</Label>
               <Select value={filterActive} onValueChange={(v) => setFilterActive(v as 'all' | 'active' | 'inactive')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">����</SelectItem>
-                  <SelectItem value="active">����� ���</SelectItem>
-                  <SelectItem value="inactive">����� ���</SelectItem>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="active">مفعّل فقط</SelectItem>
+                  <SelectItem value="inactive">معطّل فقط</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
               <Button type="button" variant="outline" size="sm" className="gap-1" onClick={resetBarberFilters}>
                 <Filter className="h-4 w-4" />
-                ��� �������
+                مسح الفلاتر
               </Button>
               {canManage && selectedIds.size > 0 ? (
                 <Button
@@ -3196,7 +3196,7 @@ function BarbersSection({
                   onClick={() => void onDeleteSelectedBarbers()}
                 >
                   {bulkDeleting ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-                  ��� ������ ({selectedIds.size})
+                  حذف المحدد ({selectedIds.size})
                 </Button>
               ) : null}
             </div>
@@ -3204,11 +3204,11 @@ function BarbersSection({
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
-              ���� �������
+              جاري التحميل…
             </div>
           ) : visibleRows.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">
-              �� ���� ���� ����� ������� ������ɡ �� ���� �������� ���ۡ �� RLS ���� �������.
+              لا توجد صفوف تطابق الفلاتر الحالية، أو جدول الحلاقين فارغ، أو RLS يمنع القراءة.
             </p>
           ) : (
             <Table>
@@ -3221,19 +3221,19 @@ function BarbersSection({
                           allVisibleSelected ? true : someVisibleSelected ? 'indeterminate' : false
                         }
                         onCheckedChange={() => toggleSelectAllVisible()}
-                        aria-label="����� ���� �� ������ �������"
+                        aria-label="تحديد الكل في الصفحة المصفاة"
                       />
                     </TableHead>
                   ) : null}
-                  <TableHead className="whitespace-nowrap">��� �������</TableHead>
-                  <TableHead>�����</TableHead>
-                  <TableHead>������</TableHead>
-                  <TableHead>�������</TableHead>
-                  <TableHead>������</TableHead>
-                  <TableHead>�����</TableHead>
-                  <TableHead className="whitespace-nowrap text-center">����� �������</TableHead>
-                  <TableHead className="text-center">���� ������</TableHead>
-                  <TableHead className="text-center">�������</TableHead>
+                  <TableHead className="whitespace-nowrap">رقم العضوية</TableHead>
+                  <TableHead>الاسم</TableHead>
+                  <TableHead>البريد</TableHead>
+                  <TableHead>المدينة</TableHead>
+                  <TableHead>الباقة</TableHead>
+                  <TableHead>موثّق</TableHead>
+                  <TableHead className="whitespace-nowrap text-center">تاريخ الإنشاء</TableHead>
+                  <TableHead className="text-center">ظهور للعامة</TableHead>
+                  <TableHead className="text-center">إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -3244,26 +3244,26 @@ function BarbersSection({
                         <Checkbox
                           checked={selectedIds.has(row.id)}
                           onCheckedChange={() => toggleSelectOne(row.id)}
-                          aria-label={`����� ${row.name}`}
+                          aria-label={`تحديد ${row.name}`}
                         />
                       </TableCell>
                     ) : null}
                     <TableCell className="font-mono text-xs" dir="ltr">
-                      {formatBarberMemberNumber(row.memberNumber) ?? '�'}
+                      {formatBarberMemberNumber(row.memberNumber) ?? '—'}
                     </TableCell>
                     <TableCell className="font-medium">{row.name}</TableCell>
                     <TableCell className="max-w-[140px] truncate" title={row.email}>
                       {row.email}
                     </TableCell>
-                    <TableCell>{row.city ?? '�'}</TableCell>
+                    <TableCell>{row.city ?? '—'}</TableCell>
                     <TableCell>
                       <Badge variant="outline">
-                        {row.tier === SubscriptionTier.DIAMOND && '?? ����'}
-                        {row.tier === SubscriptionTier.GOLD && '?? ����'}
-                        {row.tier === SubscriptionTier.BRONZE && '?? ������'}
+                        {row.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
+                        {row.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
+                        {row.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{row.is_verified ? '���' : '��'}</TableCell>
+                    <TableCell>{row.is_verified ? 'نعم' : 'لا'}</TableCell>
                     <TableCell className="text-center text-xs text-muted-foreground whitespace-nowrap">
                       {formatBarberCreatedAtDisplay(row.createdAt)}
                     </TableCell>
@@ -3273,7 +3273,7 @@ function BarbersSection({
                           checked={row.is_active}
                           disabled={!canManage || updatingId === row.id}
                           onCheckedChange={(v) => void onToggleActive(row, v)}
-                          aria-label={row.is_active ? '����� ������' : '����� ������'}
+                          aria-label={row.is_active ? 'تعطيل الظهور' : 'تفعيل الظهور'}
                         />
                         {updatingId === row.id ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
                       </div>
@@ -3281,7 +3281,7 @@ function BarbersSection({
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
                         {isDuplicateRow(row) ? (
-                          <Badge variant="destructive">����</Badge>
+                          <Badge variant="destructive">مكرر</Badge>
                         ) : null}
                         {isDuplicateRow(row) ? (
                           <Button
@@ -3293,7 +3293,7 @@ function BarbersSection({
                             {mergingId === row.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              '������� ��� ���'
+                              'الإبقاء على هذا'
                             )}
                           </Button>
                         ) : null}
@@ -3315,7 +3315,7 @@ function BarbersSection({
                             size="sm"
                             disabled={mergingId === row.id || deletingId === row.id}
                             onClick={() => setHardEditRow(row)}
-                            title="����� ������ ���� ������"
+                            title="تعديل بيانات وصور الحلاق"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -3330,10 +3330,10 @@ function BarbersSection({
 
           {canRootHardEdit && canManage ? (
             <div className="mt-8 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-              <p className="text-sm font-semibold text-destructive">����� ���� � ������ ���</p>
+              <p className="text-sm font-semibold text-destructive">منطقة خطرة — المالك فقط</p>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                ��� ���� ���� �������� �� ����� �������� (�� �� ����� �������� ���� CASCADE ��� ����� �������� �������
-                ���������� ��������� �������� ���� ������). �� ����� �� ��� ������ ����� ������ ��� ��� ��� �������.
+                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل سجلات التراخيص القديمة
+                والتقييمات والحجوزات المرتبطة بنفس الجدول). لا يُنصح به على بيانات إنتاج حقيقية إلا بعد نسخ احتياطي.
               </p>
               <Button
                 type="button"
@@ -3346,7 +3346,7 @@ function BarbersSection({
                   setPurgeOpen(true);
                 }}
               >
-                ��� ���� �������� �� ������� ({rows.length})
+                مسح جميع الحلاقين من القاعدة ({rows.length})
               </Button>
             </div>
           ) : null}
@@ -3359,15 +3359,15 @@ function BarbersSection({
       }}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle>����� ��� ���� ��������</DialogTitle>
+            <DialogTitle>تأكيد مسح جميع الحلاقين</DialogTitle>
             <DialogDescription className="text-right leading-relaxed">
-              ���� ��� <strong>{rows.length}</strong> ����/������ �� ���� <code className="text-xs">barbers</code> ���������
-              �������� ���� ����� ����� ��������. �������� ���� ������:{' '}
+              سيتم حذف <strong>{rows.length}</strong> حساب/حسابات من جدول <code className="text-xs">barbers</code> والبيانات
+              المرتبطة بحسب قواعد قاعدة البيانات. للمتابعة اكتب بالضبط:{' '}
               <span className="font-mono text-foreground">{BARBER_PURGE_CONFIRM_PHRASE}</span>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">
-            <Label htmlFor="purge-phrase">����� �������</Label>
+            <Label htmlFor="purge-phrase">عبارة التأكيد</Label>
             <Input
               id="purge-phrase"
               dir="rtl"
@@ -3379,7 +3379,7 @@ function BarbersSection({
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => setPurgeOpen(false)} disabled={purging}>
-              �����
+              إلغاء
             </Button>
             <Button
               type="button"
@@ -3388,7 +3388,7 @@ function BarbersSection({
               onClick={() => void onPurgeAllBarbers()}
             >
               {purging ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-              ����� ����� ������
+              تنفيذ المسح الكامل
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3418,11 +3418,11 @@ function formatHalalasSar(amount: number | string | null): string {
       : typeof amount === 'string'
         ? Number.parseFloat(amount)
         : NaN;
-  if (!Number.isFinite(n)) return '�';
-  return `${(n / 100).toFixed(2)} �.�`;
+  if (!Number.isFinite(n)) return '—';
+  return `${(n / 100).toFixed(2)} ر.س`;
 }
 
-/** ����� ��� ��� � �����/����� ������� ��� �������� �� Webhook ���� ��� ���� linkedBarberId. */
+/** أرشيف عرض فقط — إصدار/تفعيل الترخيص يتم تلقائياً من Webhook ميسر عند توفر linkedBarberId. */
 function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscriptionAdminRow[] }) {
   const sorted = useMemo(
     () => [...rows].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))),
@@ -3437,23 +3437,23 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
       className="space-y-4"
     >
       <div>
-        <h2 className="text-2xl font-bold mb-2">��� ����� ���� (������ �����)</h2>
+        <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (تراخيص إدراج)</h2>
         <p className="text-sm text-muted-foreground">
-          ����� ��������� ���. ��� ���� ����� ������/������� ������� ������ ������ ���� ������� �� ��� ������� �������� ��
-          ������ (Edge Webhook + API) ��� ������ ���� �� ��� ������.
+          للعرض والمرجعية فقط. عند نجاح الدفع يُصدَر/يُفعَّل الترخيص الرقمي ويُرسل بريد الترحيب أو كود التفعيل تلقائياً من
+          الخادم (Edge Webhook + API) دون انتظار خطوة من هذه اللوحة.
         </p>
       </div>
       {sorted.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            �� ���� ���� ��� ������ ���� �� ������ ��ϡ �� �� ����� ����� ������� �������.
+            لا توجد صفوف دفع تراخيص ميسر في الجدول بعد، أو لا تطابق عوامل التصفية الحالية.
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">��� �������</CardTitle>
-            <CardDescription>��� 50 ���� � ������ ��� �� ����� ��������</CardDescription>
+            <CardTitle className="text-base">آخر الحركات</CardTitle>
+            <CardDescription>حتى 50 صفاً — الحالة كما في قاعدة البيانات</CardDescription>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             {sorted.slice(0, 50).map((r) => (
@@ -3492,13 +3492,13 @@ function PaymentsSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-bold mb-6">����� ���������</h2>
+      <h2 className="text-2xl font-bold mb-6">إدارة المدفوعات</h2>
 
       <div className="space-y-4">
         {payments.length === 0 ? (
           <Card>
             <CardContent className="py-10 text-center text-muted-foreground">
-              �� ���� ������� �����. ��� ����� �������� ��������� ���� ��� �� �� ���� payments ��� ��� RLS.
+              لا توجد مدفوعات للعرض. عند تعطيل البيانات التجريبية يظهر هنا ما في جدول payments بعد ضبط RLS.
             </CardContent>
           </Card>
         ) : null}
@@ -3510,21 +3510,21 @@ function PaymentsSection({
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="text-lg font-bold">{payment.barberName}</h3>
                     <Badge>
-                      {payment.tier === SubscriptionTier.DIAMOND && '?? ����'}
-                      {payment.tier === SubscriptionTier.GOLD && '?? ����'}
-                      {payment.tier === SubscriptionTier.BRONZE && '?? ������'}
+                      {payment.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
+                      {payment.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
+                      {payment.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
                     </Badge>
                   </div>
                   <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>������: <span className="font-semibold text-foreground">{payment.amount} �.�</span></p>
-                    <p>������: {payment.period}</p>
-                    <p>����� �����: {payment.method === 'bank_transfer' ? '����� ����' : '�����'}</p>
-                    <p>����� �������: {payment.submittedAt}</p>
+                    <p>المبلغ: <span className="font-semibold text-foreground">{payment.amount} ر.س</span></p>
+                    <p>الفترة: {payment.period}</p>
+                    <p>طريقة الدفع: {payment.method === 'bank_transfer' ? 'تحويل بنكي' : 'بطاقة'}</p>
+                    <p>تاريخ التقديم: {payment.submittedAt}</p>
                   </div>
                 </div>
                 <Button onClick={() => onViewPayment(payment)} disabled={!canReview}>
                   <Eye className="w-4 h-4 ml-2" />
-                  {canReview ? '������ �������' : '��� ���'}
+                  {canReview ? 'مراجعة الإيصال' : 'عرض فقط'}
                 </Button>
               </div>
             </CardContent>
@@ -3550,12 +3550,12 @@ function PaymentReviewDialog({
 
   const handleConfirm = async () => {
     if (payment.status !== 'pending') {
-      toast({ title: '�� ���� ��������', description: '��� ������� ���� ��� ��������.', variant: 'destructive' });
+      toast({ title: 'لا يمكن المعالجة', description: 'هذه العملية ليست قيد الانتظار.', variant: 'destructive' });
       return;
     }
     setSaving(true);
     if (isMockRow) {
-      toast({ title: '����� ������', description: '��� ���� �� ����� �������� ���.' });
+      toast({ title: 'تأكيد تجريبي', description: 'هذه دفعة من العرض التجريبي فقط.' });
       setSaving(false);
       onClose();
       onAfterDecision();
@@ -3564,22 +3564,22 @@ function PaymentReviewDialog({
     const res = await updatePaymentStatusRemote(payment.id, 'confirmed');
     setSaving(false);
     if (!res.ok) {
-      toast({ title: '��� �������', description: errorText(res, '���� ����� ���� �����.'), variant: 'destructive' });
+      toast({ title: 'فشل التحديث', description: errorText(res, 'تعذر تحديث حالة الدفع.'), variant: 'destructive' });
       return;
     }
-    toast({ title: '�� ����� �����' });
+    toast({ title: 'تم تأكيد الدفع' });
     onClose();
     onAfterDecision();
   };
 
   const handleReject = async () => {
     if (payment.status !== 'pending') {
-      toast({ title: '�� ���� ��������', description: '��� ������� ���� ��� ��������.', variant: 'destructive' });
+      toast({ title: 'لا يمكن المعالجة', description: 'هذه العملية ليست قيد الانتظار.', variant: 'destructive' });
       return;
     }
     setSaving(true);
     if (isMockRow) {
-      toast({ title: '��� ������', description: '��� ���� �� ����� �������� ���.' });
+      toast({ title: 'رفض تجريبي', description: 'هذه دفعة من العرض التجريبي فقط.' });
       setSaving(false);
       onClose();
       onAfterDecision();
@@ -3588,10 +3588,10 @@ function PaymentReviewDialog({
     const res = await updatePaymentStatusRemote(payment.id, 'rejected');
     setSaving(false);
     if (!res.ok) {
-      toast({ title: '��� �������', description: errorText(res, '���� ����� ���� �����.'), variant: 'destructive' });
+      toast({ title: 'فشل التحديث', description: errorText(res, 'تعذر تحديث حالة الدفع.'), variant: 'destructive' });
       return;
     }
-    toast({ title: '�� ��� �����' });
+    toast({ title: 'تم رفض الدفع' });
     onClose();
     onAfterDecision();
   };
@@ -3600,47 +3600,47 @@ function PaymentReviewDialog({
     <Dialog open={!!payment} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl" dir="rtl">
         <DialogHeader>
-          <DialogTitle>������ ����� �����</DialogTitle>
+          <DialogTitle>مراجعة إيصال الدفع</DialogTitle>
           <DialogDescription>
-            �� ������� ������� ��� ����� �� ��� �����
+            قم بمراجعة الإيصال قبل تأكيد أو رفض الدفع
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>��� ������</Label>
+              <Label>اسم الحلاق</Label>
               <p className="text-sm font-medium mt-1">{payment.barberName}</p>
             </div>
             <div>
-              <Label>������</Label>
-              <p className="text-sm font-medium mt-1">{payment.amount} �.�</p>
+              <Label>المبلغ</Label>
+              <p className="text-sm font-medium mt-1">{payment.amount} ر.س</p>
             </div>
             <div>
-              <Label>������</Label>
+              <Label>الباقة</Label>
               <Badge className="mt-1">
-                {payment.tier === SubscriptionTier.DIAMOND && '?? ����'}
-                {payment.tier === SubscriptionTier.GOLD && '?? ����'}
-                {payment.tier === SubscriptionTier.BRONZE && '?? ������'}
+                {payment.tier === SubscriptionTier.DIAMOND && '💎 ماسي'}
+                {payment.tier === SubscriptionTier.GOLD && '🥇 ذهبي'}
+                {payment.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
               </Badge>
             </div>
             <div>
-              <Label>������</Label>
+              <Label>الفترة</Label>
               <p className="text-sm font-medium mt-1">{payment.period}</p>
             </div>
           </div>
 
           {payment.receipt && (
             <div>
-              <Label className="mb-2 block">����� ������� ������</Label>
+              <Label className="mb-2 block">إيصال التحويل البنكي</Label>
               {isVisualAssetUrl(payment.receipt) ? (
                 <div className="aspect-video rounded-lg overflow-hidden border border-border">
-                  <img src={payment.receipt} alt="�����" className="w-full h-full object-cover" />
+                  <img src={payment.receipt} alt="إيصال" className="w-full h-full object-cover" />
                 </div>
               ) : (
                 <Button variant="outline" size="sm" asChild>
                   <a href={payment.receipt} target="_blank" rel="noopener noreferrer">
-                    ��� ������� �� ����� �����
+                    فتح الإيصال في نافذة جديدة
                   </a>
                 </Button>
               )}
@@ -3650,11 +3650,11 @@ function PaymentReviewDialog({
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose} disabled={saving}>
-            �����
+            إلغاء
           </Button>
           <Button variant="destructive" onClick={() => void handleReject()} disabled={saving || payment.status !== 'pending'}>
             {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <XCircle className="w-4 h-4 ml-2" />}
-            ��� �����
+            رفض الدفع
           </Button>
           <Button
             onClick={() => void handleConfirm()}
@@ -3662,7 +3662,7 @@ function PaymentReviewDialog({
             className="bg-green-600 hover:bg-green-700"
           >
             {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 ml-2" />}
-            ����� �����
+            تأكيد الدفع
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -3689,20 +3689,20 @@ function CommandCenterSection({
   const partnerPathPrintCardUrl = `${siteOrigin}/#${ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD}`;
   const privatePartnerFaq = [
     {
-      q: '�� ������ ������ ������� ��� ������ ��������',
-      a: '��� ����� ����� ������ ������ ������� ����� ������ ������ �����.',
+      q: 'هل الصفحة مناسبة للإرسال عبر واتساب والإيميل؟',
+      a: 'نعم، بصيغة تحويل مباشرة ورسائل تسويقية واضحة وروابط انضمام جاهزة.',
     },
     {
-      q: '�� ���� ������� ������ ������ ����� ����ɿ',
-      a: '��� ������ ��� ������ ������� ������� ���� ����� ������ �� �����.',
+      q: 'هل يمكن توسيعها لاحقاً لحملات مناطق جديدة؟',
+      a: 'نعم، الهيكل مرن لتحديث الرسائل والتوسع بدون إعادة البناء من الصفر.',
     },
     {
-      q: '��� ���� ������ ����� ����ҿ',
-      a: '���� ��� ������ ������: ���� ���� ���� ���� + ����� ����� + ���� �����.',
+      q: 'كيف نقنع الحلاق بسرعة الحجز؟',
+      a: 'نركز على العائد العملي: ظهور أمام عميل قريب + تواصل مباشر + سرعة البدء.',
     },
     {
-      q: '�� ����� ������ ����� ����� ������',
-      a: '�ǡ ���� ������� �������� ������ ���� ����� ���� ������ ����� ���� ������.',
+      q: 'هل يحتاج الشريك لفريق تسويق داخلي؟',
+      a: 'لا، مسار الخدمات البرمجية للمنصة مبني لقرار سريع وتسجيل مباشر بأقل احتكاك.',
     },
   ] as const;
 
@@ -3793,9 +3793,9 @@ function CommandCenterSection({
   const pendingTouch = pipelineCounts.new + pipelineCounts.waiting + dueSummary.overdue;
 
   const sopChecklistItems = [
-    { id: 'open-due', label: '������ ������� �������� (����� + ��������)' },
-    { id: 'execute-outreach', label: `����� ��� �����: ${dayPlan.target} �����` },
-    { id: 'close-loop', label: '����� ������� ��������� ������ CSV ������ ������' },
+    { id: 'open-due', label: 'مراجعة الحالات المستحقة (اليوم + المتأخرة)' },
+    { id: 'execute-outreach', label: `تنفيذ هدف اليوم: ${dayPlan.target} تواصل` },
+    { id: 'close-loop', label: 'تحديث الحالات والتواريخ وتصدير CSV بنهاية الجلسة' },
   ];
 
   const csvEscape = (value: string): string => {
@@ -3839,15 +3839,15 @@ function CommandCenterSection({
   };
 
   const outreachMessage =
-    '������ ����� ���� ���� ���� ���� ���. ���� ������� �������� ������ ������ ������ ������ ������� ��������. �� ���� ����� ��������';
+    'السلام عليكم، معكم فريق منصة حلاق ماب. نرغب بدعوتكم للانضمام للمنصة وزيادة الظهور المحلي للعملاء القريبين. هل يمكن إرسال التفاصيل؟';
 
   const copyLeadPitch = async (lead: CommandCenterLead) => {
-    const text = `������ ${lead.name}�\n${outreachMessage}`;
+    const text = `مرحباً ${lead.name}،\n${outreachMessage}`;
     try {
       await navigator.clipboard.writeText(text);
-      toast({ title: '�� ��� �������', description: `����� ������� ��� ${lead.name}` });
+      toast({ title: 'تم نسخ الرسالة', description: `جاهزة للإرسال إلى ${lead.name}` });
     } catch {
-      toast({ title: '���� �����', description: '���� ������� ������.', variant: 'destructive' });
+      toast({ title: 'تعذر النسخ', description: 'انسخ الرسالة يدوياً.', variant: 'destructive' });
     }
   };
 
@@ -3862,7 +3862,7 @@ function CommandCenterSection({
     }
     if (lead.email) {
       window.open(
-        `mailto:${lead.email}?subject=${encodeURIComponent('���� ������ ��� ���� ���� ���')}&body=${encodeURIComponent(outreachMessage)}`,
+        `mailto:${lead.email}?subject=${encodeURIComponent('دعوة انضمام إلى منصة حلاق ماب')}&body=${encodeURIComponent(outreachMessage)}`,
         '_blank'
       );
       return;
@@ -3919,56 +3919,56 @@ function CommandCenterSection({
     a.download = `command-center-${todayIso}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: '�� ����� CSV', description: `${filteredLeads.length} ��� �����` });
+    toast({ title: 'تم تصدير CSV', description: `${filteredLeads.length} جهة اتصال` });
   };
 
   const statusMeta: Record<CommandLeadStatus, { label: string; className: string }> = {
-    new: { label: '����', className: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
-    contacted: { label: '�� �������', className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
-    waiting: { label: '������� ����', className: 'bg-purple-500/10 text-purple-600 border-purple-500/30' },
-    won: { label: '�� ���� �������', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
-    lost: { label: '���� �������', className: 'bg-red-500/10 text-red-600 border-red-500/30' },
+    new: { label: 'جديد', className: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
+    contacted: { label: 'تم التواصل', className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
+    waiting: { label: 'بانتظار الرد', className: 'bg-purple-500/10 text-purple-600 border-purple-500/30' },
+    won: { label: 'تم شراء الترخيص', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
+    lost: { label: 'تعذر الإغلاق', className: 'bg-red-500/10 text-red-600 border-red-500/30' },
   };
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold">���� �������</h2>
+          <h2 className="text-2xl font-bold">غرفة القيادة</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            ������ ���� ������� ������� ��������� ��������� ������� �� ���� ����.
+            متابعة حملة التواصل، التحويل، والقرارات التشغيلية اليومية من مكان واحد.
           </p>
         </div>
       </div>
 
       <Card className="mb-6 border-primary/25">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">SOP ������� ��������</CardTitle>
+          <CardTitle className="text-lg">SOP التشغيل الأسبوعي</CardTitle>
           <CardDescription>
-            ��� �����: <span className="font-semibold text-foreground">{dayPlan.day}</span> � {dayPlan.focus}
+            خطة اليوم: <span className="font-semibold text-foreground">{dayPlan.day}</span> — {dayPlan.focus}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground mb-1">��� ����� �����</p>
+              <p className="text-xs text-muted-foreground mb-1">هدف تواصل اليوم</p>
               <p className="text-2xl font-bold">{dayPlan.target}</p>
               <p className="text-xs text-muted-foreground mt-1">{dayPlan.note}</p>
             </div>
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground mb-1">���� ������� ������</p>
+              <p className="text-xs text-muted-foreground mb-1">معدل الإغلاق الحالي</p>
               <p className="text-2xl font-bold text-green-600">{winRate}%</p>
-              <p className="text-xs text-muted-foreground mt-1">�������� ��� ������� ��������</p>
+              <p className="text-xs text-muted-foreground mt-1">اعتمادًا على الحالات المتابعة</p>
             </div>
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground mb-1">������ ����� ����</p>
+              <p className="text-xs text-muted-foreground mb-1">أولوية العمل الآن</p>
               <p className="text-2xl font-bold text-amber-600">{pendingTouch}</p>
-              <p className="text-xs text-muted-foreground mt-1">���� + ������� ���� + �����</p>
+              <p className="text-xs text-muted-foreground mt-1">جديد + بانتظار الرد + متأخر</p>
             </div>
           </div>
 
           <div className="rounded-lg border p-3 space-y-2">
-            <p className="text-sm font-semibold">Checklist �����</p>
+            <p className="text-sm font-semibold">Checklist اليوم</p>
             {sopChecklistItems.map((item) => (
               <div key={item.id} className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-2">
                 <span className="text-sm">{item.label}</span>
@@ -3984,34 +3984,34 @@ function CommandCenterSection({
 
       <Card className="mb-6 border-red-500/30">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg text-red-600">����� ����� ���� ������ (5 �����)</CardTitle>
+          <CardTitle className="text-lg text-red-600">بطاقة طوارئ لوحة التحكم (5 دقائق)</CardTitle>
           <CardDescription>
-            ���� ���� ��� ������� � ����� ������� ������ ����� �� �������.
+            مرجع سريع وقت الأزمات — الهدف استعادة الوصول أولًا ثم التحليل.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="rounded-md border border-border p-3 space-y-1">
-            <p className="text-sm font-semibold">1) ������ ���� (�����)</p>
+            <p className="text-sm font-semibold">1) احتواء فوري (دقيقة)</p>
             <p className="text-xs text-muted-foreground">
-              ���� �� ���/����� ���� ���� ��� �����: 404 / ���� ����� / ��� ���� / �������.
+              أوقف أي نشر/تعديل جديد وحدد نوع العطل: 404 / شاشة بيضاء / فشل دخول / صلاحيات.
             </p>
           </div>
           <div className="rounded-md border border-border p-3 space-y-1">
-            <p className="text-sm font-semibold">2) ������� ����� (2-3 �����)</p>
+            <p className="text-sm font-semibold">2) استعادة سريعة (2-3 دقائق)</p>
             <p className="text-xs text-muted-foreground">
-              ���� Rollback ���� ���� �����ɡ �� ���� �� ���� ������ ���� hash �������� ������.
+              نفّذ Rollback لآخر نسخة مستقرة، ثم تحقق من رابط الأدمن بالـ hash ومتغيرات البيئة.
             </p>
           </div>
           <div className="rounded-md border border-border p-3 space-y-1">
-            <p className="text-sm font-semibold">3) ���� �����</p>
+            <p className="text-sm font-semibold">3) دخول طوارئ</p>
             <p className="text-xs text-muted-foreground">
-              ���� ���� Bootstrap Admin. ��� ������: ���� ����� ��� ����� ������� ������ �����.
+              جرّب حساب Bootstrap Admin. عند النجاح: ثبّت الوضع ولا تنفّذ تغييرات إضافية فورًا.
             </p>
           </div>
           <div className="rounded-md border border-border p-3 space-y-1">
-            <p className="text-sm font-semibold">4) ����� ���� �����</p>
+            <p className="text-sm font-semibold">4) توثيق ومنع تكرار</p>
             <p className="text-xs text-muted-foreground">
-              ��� ����� ������ �������� ������� �� ��� ��������� ���� �����.
+              سجل السبب الجذري والإجراء الوقائي في سجل الاستقرار بنفس اليوم.
             </p>
           </div>
         </CardContent>
@@ -4020,41 +4020,41 @@ function CommandCenterSection({
       <Card className="mb-6 border-primary/25">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            ���� ����� ������ (����� ���)
-            <Badge variant="destructive" className="text-xs">��� ���� �������</Badge>
+            مواد تشغيل تسويقي (داخلي فقط)
+            <Badge variant="destructive" className="text-xs">غير ظاهر للشركاء</Badge>
           </CardTitle>
           <CardDescription>
-            ��� ������ ��� ���� ������� ����� ������� ��ء ������ �� ������ �� ���� ������� �������� ������ �����.
+            هذه المواد تخص فريق التسويق وغرفة القيادة فقط، وتُمنع من الظهور في مسار الخدمات البرمجية للمنصة العام.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
             <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
-              <p className="font-semibold">����� ������ ��������</p>
+              <p className="font-semibold">روابط الحملة المعتمدة</p>
               <div className="text-sm text-muted-foreground space-y-2">
                 <p>
-                  ���� ������� �������� ������:{' '}
+                  مسار الخدمات البرمجية للمنصة:{' '}
                   <a className="underline" href={partnersLandingUrl} target="_blank" rel="noopener noreferrer">
                     {partnersLandingUrl}
                   </a>
                 </p>
                 <p>
-                  ������� �������:{' '}
+                  التسجيل المباشر:{' '}
                   <a className="underline" href={partnersRegisterUrl} target="_blank" rel="noopener noreferrer">
                     {partnersRegisterUrl}
                   </a>
                 </p>
                 <p>
-                  ����� QR ������� �������� (���� ������ � �� ���� �� ������� ������):{' '}
+                  بطاقة QR للطباعة والحملات (صفحة داخلية — لا تظهر في القوائم العامة):{' '}
                   <a className="underline" href={partnerPathPrintCardUrl} target="_blank" rel="noopener noreferrer">
                     {partnerPathPrintCardUrl}
                   </a>
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-background p-3">
-                <p className="text-sm font-semibold mb-1">�� ������ ����� �����</p>
+                <p className="text-sm font-semibold mb-1">نص واتساب داخلي مقترح</p>
                 <p className="text-xs text-muted-foreground leading-6">
-                  ���� ���� ��� ���� ���� ��� ����� ���� �������� ��� ���� ������ �������. ������ ��������:
+                  انضم الآن إلى منصة حلاق ماب واحجز بنرك التسويقي قبل موجة التوسع القادمة. تفاصيل الانضمام:
                   {' '}
                   {partnersLandingUrl}
                 </p>
@@ -4062,7 +4062,7 @@ function CommandCenterSection({
             </div>
 
             <div className="rounded-xl border border-border bg-muted/20 p-4">
-              <p className="font-semibold mb-3">QR ����� ������� ���������</p>
+              <p className="font-semibold mb-3">QR تشغيل الحملات الميدانية</p>
               <div className="mx-auto w-fit rounded-lg bg-white p-3">
                 <QRCode value={partnersLandingUrl} size={148} />
               </div>
@@ -4071,7 +4071,7 @@ function CommandCenterSection({
           </div>
 
           <div className="rounded-xl border border-border bg-muted/20 p-4">
-            <p className="font-semibold mb-3">����� ������� ������ (���� ������)</p>
+            <p className="font-semibold mb-3">أسئلة تشغيلية داخلية (مرجع الفريق)</p>
             <div className="grid gap-3 md:grid-cols-2">
               {privatePartnerFaq.map((item) => (
                 <div key={item.q} className="rounded-lg border border-border bg-background p-3">
@@ -4085,94 +4085,94 @@ function CommandCenterSection({
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
-        <StatsCard title="����� ������� ��������" value={stats.pendingRequests} icon={FileText} color="yellow" />
-        <StatsCard title="������� ������� �������" value={stats.pendingPayments} icon={CreditCard} color="purple" />
-        <StatsCard title="����� �������" value={leads.length} subtitle="����� ����� ������" icon={Users} color="blue" />
+        <StatsCard title="طلبات بانتظار المراجعة" value={stats.pendingRequests} icon={FileText} color="yellow" />
+        <StatsCard title="مدفوعات بانتظار التأكيد" value={stats.pendingPayments} icon={CreditCard} color="purple" />
+        <StatsCard title="أهداف التواصل" value={leads.length} subtitle="قائمة قابلة للتوسع" icon={Users} color="blue" />
         <StatsCard
-          title="����� �����"
+          title="إشغال اليوم"
           value={requests.filter((r) => r.status === 'pending').length + payments.filter((p) => p.status === 'pending').length}
-          subtitle="����� + ������� ����� ����"
+          subtitle="طلبات + مدفوعات تحتاج قرار"
           icon={AlertCircle}
           color="green"
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-7 mb-6">
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">����</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">�� �������</p><p className="text-2xl font-bold">{pipelineCounts.contacted}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">������� ����</p><p className="text-2xl font-bold">{pipelineCounts.waiting}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">�� ���� �������</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">���� �������</p><p className="text-2xl font-bold text-red-600">{pipelineCounts.lost}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">������ �����</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">������</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">جديد</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم التواصل</p><p className="text-2xl font-bold">{pipelineCounts.contacted}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">بانتظار الرد</p><p className="text-2xl font-bold">{pipelineCounts.waiting}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم شراء الترخيص</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تعذر الإغلاق</p><p className="text-2xl font-bold text-red-600">{pipelineCounts.lost}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متابعة اليوم</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متأخرة</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
       </div>
 
       <Card className="mb-6">
         <CardContent className="p-4">
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="��� ������/�������/����������..." />
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="بحث بالاسم/المدينة/الانستقرام..." />
             <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger><SelectValue placeholder="�������" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="المنطقة" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">�� �������</SelectItem>
+                <SelectItem value="all">كل المناطق</SelectItem>
                 {regionOptions.map((r) => (
                   <SelectItem key={r} value={r}>{r}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={channel} onValueChange={(value) => setChannel(value as 'all' | CommandLeadChannel)}>
-              <SelectTrigger><SelectValue placeholder="���� �������" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="قناة التواصل" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">�� �������</SelectItem>
-                <SelectItem value="whatsapp">������</SelectItem>
-                <SelectItem value="instagram">��������</SelectItem>
-                <SelectItem value="email">����</SelectItem>
-                <SelectItem value="website">����</SelectItem>
-                <SelectItem value="phone">�����</SelectItem>
+                <SelectItem value="all">كل القنوات</SelectItem>
+                <SelectItem value="whatsapp">واتساب</SelectItem>
+                <SelectItem value="instagram">انستقرام</SelectItem>
+                <SelectItem value="email">بريد</SelectItem>
+                <SelectItem value="website">موقع</SelectItem>
+                <SelectItem value="phone">اتصال</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | CommandLeadStatus)}>
-              <SelectTrigger><SelectValue placeholder="���� ��������" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="حالة المتابعة" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">�� �������</SelectItem>
-                <SelectItem value="new">����</SelectItem>
-                <SelectItem value="contacted">�� �������</SelectItem>
-                <SelectItem value="waiting">������� ����</SelectItem>
-                <SelectItem value="won">�� ���� �������</SelectItem>
-                <SelectItem value="lost">���� �������</SelectItem>
+                <SelectItem value="all">كل الحالات</SelectItem>
+                <SelectItem value="new">جديد</SelectItem>
+                <SelectItem value="contacted">تم التواصل</SelectItem>
+                <SelectItem value="waiting">بانتظار الرد</SelectItem>
+                <SelectItem value="won">تم شراء الترخيص</SelectItem>
+                <SelectItem value="lost">تعذر الإغلاق</SelectItem>
               </SelectContent>
             </Select>
             <Select value={tierFilter} onValueChange={(value) => setTierFilter(value as 'all' | CommandCenterLead['tierFit'])}>
-              <SelectTrigger><SelectValue placeholder="������ ������" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="ملاءمة الباقة" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">�� �������</SelectItem>
-                <SelectItem value="gold">����</SelectItem>
-                <SelectItem value="diamond">����</SelectItem>
-                <SelectItem value="mixed">����/����</SelectItem>
+                <SelectItem value="all">كل الباقات</SelectItem>
+                <SelectItem value="gold">ذهبي</SelectItem>
+                <SelectItem value="diamond">ماسي</SelectItem>
+                <SelectItem value="mixed">ذهبي/ماسي</SelectItem>
               </SelectContent>
             </Select>
             <Button
               variant="outline"
               onClick={async () => {
-                const lines = filteredLeads.map((lead) => `${lead.name} | ${lead.city} | ${lead.phone ?? lead.instagram ?? lead.email ?? lead.website ?? '�'}`);
+                const lines = filteredLeads.map((lead) => `${lead.name} | ${lead.city} | ${lead.phone ?? lead.instagram ?? lead.email ?? lead.website ?? '—'}`);
                 try {
                   await navigator.clipboard.writeText(lines.join('\n'));
-                  toast({ title: '�� ��� �������', description: `${filteredLeads.length} ��� �����` });
+                  toast({ title: 'تم نسخ القائمة', description: `${filteredLeads.length} جهة اتصال` });
                 } catch {
-                  toast({ title: '���� �����', variant: 'destructive' });
+                  toast({ title: 'تعذر النسخ', variant: 'destructive' });
                 }
               }}
             >
               <Copy className="w-4 h-4 ml-2" />
-              ��� ������� �������
+              نسخ القائمة الحالية
             </Button>
             <div className="flex items-center justify-between rounded-md border px-3">
-              <span className="text-sm text-muted-foreground">��� ������� ��������</span>
+              <span className="text-sm text-muted-foreground">فقط مستحقات المتابعة</span>
                 <Switch checked={onlyDue} onCheckedChange={setOnlyDue} disabled={!canManage} />
             </div>
             <Button variant="outline" onClick={downloadCsv} disabled={!canManage}>
               <Download className="w-4 h-4 ml-2" />
-              ����� CSV
+              تصدير CSV
             </Button>
           </div>
         </CardContent>
@@ -4195,35 +4195,35 @@ function CommandCenterSection({
                   <div className="space-y-2 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-lg">{lead.name}</h3>
-                      <Badge variant="outline">{lead.region} � {lead.city}</Badge>
+                      <Badge variant="outline">{lead.region} — {lead.city}</Badge>
                       <Badge className={statusMeta[status].className}>{statusMeta[status].label}</Badge>
                       <Badge variant="secondary">
-                        {lead.tierFit === 'diamond' ? '����� ������' : lead.tierFit === 'gold' ? '����� ������' : '����/����'}
+                        {lead.tierFit === 'diamond' ? 'ملائم للماسي' : lead.tierFit === 'gold' ? 'ملائم للذهبي' : 'ذهبي/ماسي'}
                       </Badge>
-                      {isOverdue ? <Badge variant="destructive">������ ������</Badge> : null}
-                      {!isOverdue && isDueToday ? <Badge className="bg-amber-500 text-white">������ �����</Badge> : null}
+                      {isOverdue ? <Badge variant="destructive">متابعة متأخرة</Badge> : null}
+                      {!isOverdue && isDueToday ? <Badge className="bg-amber-500 text-white">متابعة اليوم</Badge> : null}
                     </div>
                     <div className="text-sm text-muted-foreground flex gap-3 flex-wrap">
-                      {lead.phone ? <span dir="ltr">?? {lead.phone}</span> : null}
-                      {lead.email ? <span dir="ltr">?? {lead.email}</span> : null}
+                      {lead.phone ? <span dir="ltr">📞 {lead.phone}</span> : null}
+                      {lead.email ? <span dir="ltr">✉️ {lead.email}</span> : null}
                       {lead.instagram ? <span dir="ltr">{lead.instagram}</span> : null}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      ��� �����: {state?.lastContactAt ?? '�� ��� ���'}
+                      آخر تواصل: {state?.lastContactAt ?? 'لم يتم بعد'}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      ������ �����: {state?.followUpDate ?? '��� �����'}
+                      متابعة قادمة: {state?.followUpDate ?? 'غير محددة'}
                     </div>
                   </div>
 
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:w-56">
                     <Button onClick={() => openLeadChannel(lead)} disabled={!canManage}>
                       <ExternalLink className="w-4 h-4 ml-2" />
-                      ��� ���� �������
+                      فتح قناة التواصل
                     </Button>
                     <Button variant="outline" onClick={() => void copyLeadPitch(lead)} disabled={!canManage}>
                       <Copy className="w-4 h-4 ml-2" />
-                      ��� ����� �����
+                      نسخ رسالة جاهزة
                     </Button>
                   </div>
                 </div>
@@ -4238,23 +4238,23 @@ function CommandCenterSection({
                   >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="new">����</SelectItem>
-                      <SelectItem value="contacted">�� �������</SelectItem>
-                      <SelectItem value="waiting">������� ����</SelectItem>
-                      <SelectItem value="won">�� ���� �������</SelectItem>
-                      <SelectItem value="lost">���� �������</SelectItem>
+                      <SelectItem value="new">جديد</SelectItem>
+                      <SelectItem value="contacted">تم التواصل</SelectItem>
+                      <SelectItem value="waiting">بانتظار الرد</SelectItem>
+                      <SelectItem value="won">تم شراء الترخيص</SelectItem>
+                      <SelectItem value="lost">تعذر الإغلاق</SelectItem>
                     </SelectContent>
                   </Select>
                   <Input
                     value={state?.assignedTo ?? ''}
                     onChange={(e) => setLeadPatch(lead.id, { assignedTo: e.target.value })}
-                    placeholder="������� (�������)"
+                    placeholder="المسؤول (اختياري)"
                     disabled={!canManage}
                   />
                   <Input
                     value={state?.notes ?? ''}
                     onChange={(e) => setLeadPatch(lead.id, { notes: e.target.value })}
-                    placeholder="������ ������"
+                    placeholder="ملاحظة مختصرة"
                     disabled={!canManage}
                   />
                   <Input
@@ -4273,7 +4273,7 @@ function CommandCenterSection({
   );
 }
 
-// Messages Section � ����� ��� ������ (TLS + ���� ������ ������� �� ����� �������� �������� �����)
+// Messages Section — دردشة دعم المنصة (TLS + تحقق خادمي؛ المحتوى في قاعدة البيانات بصلاحيات مقيدة)
 function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
   const [threads, setThreads] = useState<AdminSupportThread[]>([]);
   const [barbers, setBarbers] = useState<AdminBarberRow[]>([]);
@@ -4291,7 +4291,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
     const r = await fetchAdminSupportThreadsRemote();
     setLoadingThreads(false);
     if (!r.ok) {
-      toast({ title: '���� ����� ����� ���������', description: r.error, variant: 'destructive' });
+      toast({ title: 'تعذر تحميل قائمة المحادثات', description: r.error, variant: 'destructive' });
       return;
     }
     setThreads(r.threads);
@@ -4304,7 +4304,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
       const r = await fetchAdminSupportMessagesRemote(barberId);
       setLoadingMessages(false);
       if (!r.ok) {
-        toast({ title: '���� ����� �������', description: r.error, variant: 'destructive' });
+        toast({ title: 'تعذر تحميل الرسائل', description: r.error, variant: 'destructive' });
         return;
       }
       setMessages(r.messages);
@@ -4340,13 +4340,13 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
     const r = await sendAdminSupportMessageRemote({ barberId: selectedBarberId.trim(), body: draft.trim() });
     setSending(false);
     if (!r.ok) {
-      toast({ title: '���� �������', description: r.error, variant: 'destructive' });
+      toast({ title: 'تعذر الإرسال', description: r.error, variant: 'destructive' });
       return;
     }
     setDraft('');
     await loadMessages(selectedBarberId.trim());
     await loadThreads();
-    toast({ title: '�� ����� �������' });
+    toast({ title: 'تم إرسال الرسالة' });
   };
 
   const selectedLabel =
@@ -4362,24 +4362,24 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
       className="space-y-6"
     >
       <div>
-        <h2 className="text-2xl font-bold mb-2">������� ������ �����</h2>
+        <h2 className="text-2xl font-bold mb-2">الرسائل والدعم الفني</h2>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          ������ ������ �� ������ ��� ������ (HTTPS). ������ �� ���� Supabase �������{' '}
-          <span className="font-medium text-foreground">��� �������</span> ��� �� ����� �� ����� ������ �������
-          �� ������ ��� ��� ���� ������� ���� �� ���� �������.
+          محادثة مباشرة مع الحلاق عبر الخادم (HTTPS). يُتحقق من جلسة Supabase وصلاحية{' '}
+          <span className="font-medium text-foreground">عرض الرسائل</span> قبل أي قراءة أو إرسال؛ بيانات الرسائل
+          لا تُعرَض إلا لمن يملك المفتاح نفسه في لوحة الإدارة.
         </p>
       </div>
 
       {!canUseChat ? (
         <Card>
-          <CardContent className="p-6 text-sm text-muted-foreground">�� ���� ������ ��� �������.</CardContent>
+          <CardContent className="p-6 text-sm text-muted-foreground">لا تملك صلاحية عرض الرسائل.</CardContent>
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,280px)_1fr]">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">���������</CardTitle>
-              <CardDescription>������ ������ ����� �� ���� ������ ���� ������</CardDescription>
+              <CardTitle className="text-base">المحادثات</CardTitle>
+              <CardDescription>حلاقون برسائل سابقة أو اختر حساباً لبدء محادثة</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button
@@ -4391,35 +4391,35 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                 onClick={() => void loadThreads()}
               >
                 {loadingThreads ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-                ����� �������
+                تحديث القائمة
               </Button>
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">��� ������ / ����</Label>
+                <Label className="text-xs text-muted-foreground">فتح محادثة / حساب</Label>
                 <Select
                   value={selectedBarberId || undefined}
                   onValueChange={(v) => setSelectedBarberId(v)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="���� �����ޅ" />
+                    <SelectValue placeholder="اختر الحلاق…" />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">
                     {threads.map((t) => (
                       <SelectItem key={t.barberId} value={t.barberId}>
-                        {t.barberName} � ��� �����: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA') : '�'}
+                        {t.barberName} — آخر رسالة: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA') : '—'}
                       </SelectItem>
                     ))}
                     {barbers
                       .filter((b) => !threads.some((t) => t.barberId === b.id))
                       .map((b) => (
                         <SelectItem key={b.id} value={b.id}>
-                          {b.name} (��� ����)
+                          {b.name} (بدء جديد)
                         </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
               </div>
               {threads.length === 0 && !loadingThreads ? (
-                <p className="text-xs text-muted-foreground">�� ���� ����� ��� � ���� ������ �� ������� ������ ��� �����.</p>
+                <p className="text-xs text-muted-foreground">لا توجد رسائل بعد — اختر حلاقاً من القائمة لإرسال أول رسالة.</p>
               ) : null}
             </CardContent>
           </Card>
@@ -4427,22 +4427,22 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">
-                {selectedBarberId ? `������: ${selectedLabel || selectedBarberId}` : '���� ������'}
+                {selectedBarberId ? `محادثة: ${selectedLabel || selectedBarberId}` : 'اختر حلاقاً'}
               </CardTitle>
-              <CardDescription>������� ������� �������� �� ��� ����� ����� ����� ���</CardDescription>
+              <CardDescription>الرسائل تُحدَّث تلقائياً كل بضع ثوانٍ أثناء بقائك هنا</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {!selectedBarberId ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">���� ������ �� ������ ������.</p>
+                <p className="text-sm text-muted-foreground py-6 text-center">اختر حساباً من العمود الأيمن.</p>
               ) : loadingMessages && messages.length === 0 ? (
                 <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  ���� �������
+                  جاري التحميل…
                 </div>
               ) : (
                 <div className="max-h-[420px] space-y-3 overflow-y-auto rounded-md border border-border/60 bg-muted/20 p-3">
                   {messages.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-6">�� ����� ��� � ���� ��� ����� �����.</p>
+                    <p className="text-sm text-muted-foreground text-center py-6">لا رسائل بعد — اكتب أول رسالة أدناه.</p>
                   ) : (
                     messages.map((m) => (
                       <div
@@ -4456,7 +4456,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                         >
                           <p className="whitespace-pre-wrap break-words">{m.body}</p>
                           <p className="mt-1 text-[11px] opacity-80">
-                            {m.from_admin ? `�����: ${m.admin_sender_email ?? '�'}` : '������'} �{' '}
+                            {m.from_admin ? `إدارة: ${m.admin_sender_email ?? '—'}` : 'الحلاق'} ·{' '}
                             {new Date(m.created_at).toLocaleString('ar-SA')}
                           </p>
                         </div>
@@ -4467,7 +4467,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
               )}
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Textarea
-                  placeholder="���� ����� �����"
+                  placeholder="اكتب رسالة الدعم…"
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   rows={3}
@@ -4481,7 +4481,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
                   onClick={() => void send()}
                 >
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  �����
+                  إرسال
                 </Button>
               </div>
             </CardContent>
@@ -4504,16 +4504,16 @@ function SettingsSection({
   adminEmail: string;
   canManageAdmins: boolean;
   bootstrapAdmin: boolean;
-  /** ����� ����� �������� �������� ��� �������� ������ */
+  /** ضريبة العرض والقواعد التجارية على الواجهات العامة */
   canSavePlatformVat: boolean;
   canViewPartnerMarketing: boolean;
   canManagePartnerMarketing: boolean;
 }) {
   const ADMIN_ROLE_TEMPLATES: { key: string; label: string; permissions: AdminPermissions }[] = [
-    { key: 'super_admin', label: '���� ���� (���� ���������)', permissions: FULL_ADMIN_PERMISSIONS },
+    { key: 'super_admin', label: 'سوبر أدمن (كامل الصلاحيات)', permissions: FULL_ADMIN_PERMISSIONS },
     {
       key: 'finance_admin',
-      label: '���� ����',
+      label: 'مدير مالي',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         view_requests: false,
@@ -4537,7 +4537,7 @@ function SettingsSection({
     },
     {
       key: 'subscriber_support',
-      label: '��� ���������',
+      label: 'دعم المشتركين',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         review_payments: false,
@@ -4559,7 +4559,7 @@ function SettingsSection({
     },
     {
       key: 'payment_ops',
-      label: '���� �������',
+      label: 'مشرف مدفوعات',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         view_requests: false,
@@ -4583,7 +4583,7 @@ function SettingsSection({
     },
     {
       key: 'marketing_content',
-      label: '����� ������ �������',
+      label: 'محتوى وتسويق الشركاء',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         view_requests: false,
@@ -4610,7 +4610,7 @@ function SettingsSection({
     },
     {
       key: 'ops_readonly',
-      label: '����� ����� (����� ���� ������� ���)',
+      label: 'مراقب تشغيل (قراءة لوحة الفوترة فقط)',
       permissions: {
         ...FULL_ADMIN_PERMISSIONS,
         view_requests: false,
@@ -4681,7 +4681,7 @@ function SettingsSection({
 
   const handleSaveVat = () => {
     if (!canSavePlatformVat) {
-      toast({ title: '�� ���� ������ ����� ���������', variant: 'destructive' });
+      toast({ title: 'لا تملك صلاحية تعديل الإعدادات', variant: 'destructive' });
       return;
     }
     savePlatformVatSettings({
@@ -4689,17 +4689,17 @@ function SettingsSection({
       ratePercent: rateForPreview,
     });
     toast({
-      title: '�� ��� ������� �������',
+      title: 'تم حفظ إعدادات الضريبة',
       description: vatEnabled
-        ? `������ � ������ �������� ${rateForPreview}% (����� �������� �� ����� �����).`
-        : '������ � ����� ���� ������� ������ ��� ��� ����� �� �������.',
+        ? `مفعّلة — النسبة المعروضة ${rateForPreview}% (تُحسب تلقائياً في صفحات الدفع).`
+        : 'معطّلة — تُعرض قيمة الترخيص الرقمي فقط دون ضريبة في الواجهة.',
     });
   };
 
   const createOrUpdateAdmin = async () => {
     if (!canManageAdmins) return;
     if (!newAdminEmail.trim()) {
-      toast({ title: '���� ���� ������', variant: 'destructive' });
+      toast({ title: 'أدخل بريد الأدمن', variant: 'destructive' });
       return;
     }
     const res = await upsertAdminRole({
@@ -4710,10 +4710,10 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: '���� ��� ������', description: errorText(res, '���� ��� ������ ������.'), variant: 'destructive' });
+      toast({ title: 'تعذر حفظ الأدمن', description: errorText(res, 'تعذر حفظ بيانات الأدمن.'), variant: 'destructive' });
       return;
     }
-    toast({ title: '�� ��� ������ ���������' });
+    toast({ title: 'تم حفظ الأدمن وصلاحياته' });
     setNewAdminEmail('');
     setNewAdminName('');
     setNewAdminPermissions(FULL_ADMIN_PERMISSIONS);
@@ -4732,11 +4732,11 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: '���� ����� ������', description: errorText(res, '���� ����� ������� ������.'), variant: 'destructive' });
+      toast({ title: 'تعذر تطبيق القالب', description: errorText(res, 'تعذر تحديث صلاحيات الأدمن.'), variant: 'destructive' });
       return;
     }
     setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, permissions: tpl.permissions } : r)));
-    toast({ title: '�� ����� ������', description: `${tpl.label} ��� ${row.email}` });
+    toast({ title: 'تم تطبيق القالب', description: `${tpl.label} على ${row.email}` });
   };
 
   const toggleAdminPermission = async (row: AdminRoleRow, permission: AdminPermissionKey, checked: boolean) => {
@@ -4749,7 +4749,7 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: '���� ����� ��������', description: errorText(res, '���� ����� ��������.'), variant: 'destructive' });
+      toast({ title: 'تعذر تحديث الصلاحية', description: errorText(res, 'تعذر تحديث الصلاحية.'), variant: 'destructive' });
       return;
     }
     setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, permissions: nextPermissions } : r)));
@@ -4764,7 +4764,7 @@ function SettingsSection({
       createdByEmail: adminEmail,
     });
     if (!res.ok) {
-      toast({ title: '���� ����� ���� ������', description: errorText(res, '���� ����� ���� ������.'), variant: 'destructive' });
+      toast({ title: 'تعذر تحديث حالة الأدمن', description: errorText(res, 'تعذر تحديث حالة الأدمن.'), variant: 'destructive' });
       return;
     }
     setAdminRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, is_active: checked } : r)));
@@ -4772,34 +4772,34 @@ function SettingsSection({
 
   const removeAdmin = async (emailToDelete: string) => {
     if (emailToDelete.toLowerCase() === adminEmail.toLowerCase()) {
-      toast({ title: '�� ����� ��� ����� ������', variant: 'destructive' });
+      toast({ title: 'لا يمكنك حذف حسابك الحالي', variant: 'destructive' });
       return;
     }
     const res = await deleteAdminRoleByEmail(emailToDelete);
     if (!res.ok) {
-      toast({ title: '���� ��� ������', description: errorText(res, '���� ��� ������.'), variant: 'destructive' });
+      toast({ title: 'تعذر حذف الأدمن', description: errorText(res, 'تعذر حذف الأدمن.'), variant: 'destructive' });
       return;
     }
-    toast({ title: '�� ��� ������' });
+    toast({ title: 'تم حذف الأدمن' });
     await refreshAdmins();
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold mb-2">������� ������</h2>
+      <h2 className="text-2xl font-bold mb-2">إعدادات المنصة</h2>
 
       <Card className="border-primary/25">
         <CardHeader>
-          <CardTitle>����� ������� ����������</CardTitle>
+          <CardTitle>إدارة المدراء والصلاحيات</CardTitle>
           <CardDescription>
-            ����� ���� ���� �� ������� ����� ������ ��� ������ (����� ����ɡ ����ޡ ����). ������� ������� ����� ��
-            ����� ����� ��� � ����� ��� ���� ������ ����ѻ ����� ��� ���� ��������. {bootstrapAdmin ? '��� �� ��� Bootstrap ������� �����.' : '����� ������ ����� ������� �������.'}
+            تعيين أدمن جديد مع صلاحيات دقيقة مجمّعة حسب المجال (تشغيل، مالية، تسويق، سوبر). المستوى المقترح بجانب كل
+            مفتاح إرشاد فقط — يمكنك منح أدمن صلاحية «سوبر» محددة دون باقي المفاتيح. {bootstrapAdmin ? 'أنت في وضع Bootstrap بصلاحية كاملة.' : 'تحتاج صلاحية إدارة المدراء للتعديل.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {!canManageAdmins ? (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-900 dark:text-amber-100">
-              �� ���� ������ <strong>����� �������</strong>. ����� ����� �� ���� ������� (������).
+              لا تملك صلاحية <strong>إدارة المدراء</strong>. يمكنك طلبها من حساب المؤسّس (المالك).
             </div>
           ) : (
             <>
@@ -4812,17 +4812,17 @@ function SettingsSection({
                   onChange={(e) => setNewAdminEmail(e.target.value)}
                 />
                 <Input
-                  placeholder="��� ��� ������ (�������)"
+                  placeholder="اسم عرض الأدمن (اختياري)"
                   value={newAdminName}
                   onChange={(e) => setNewAdminName(e.target.value)}
                 />
                 <Button type="button" onClick={() => void createOrUpdateAdmin()}>
-                  �����/����� ����
+                  إضافة/تحديث أدمن
                 </Button>
               </div>
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="md:col-span-2">
-                  <Label className="mb-2 block">���� ������� ���� ������ ������</Label>
+                  <Label className="mb-2 block">قالب صلاحيات سريع للأدمن الجديد</Label>
                   <Select
                     value={newAdminTemplateKey}
                     onValueChange={(v) => {
@@ -4853,13 +4853,13 @@ function SettingsSection({
                       if (tpl) setNewAdminPermissions(tpl.permissions);
                     }}
                   >
-                    ����� ����� ������
+                    إعادة تطبيق القالب
                   </Button>
                 </div>
               </div>
 
               <div className="rounded-lg border p-3 space-y-4">
-                <p className="font-medium text-sm">������� ������ ������</p>
+                <p className="font-medium text-sm">صلاحيات الأدمن الجديد</p>
                 {ADMIN_PERMISSION_UI_SECTIONS.map((section) => (
                   <div key={section.id} className="rounded-md border border-border/70 bg-muted/10 p-3 space-y-2">
                     <div className="text-right">
@@ -4890,15 +4890,15 @@ function SettingsSection({
 
               <div className="rounded-lg border p-3">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-medium text-sm">������ ��������</p>
+                  <p className="font-medium text-sm">الأدمن الحاليون</p>
                   <Button variant="outline" size="sm" onClick={() => void refreshAdmins()}>
-                    �����
+                    تحديث
                   </Button>
                 </div>
                 {adminLoading ? (
-                  <p className="text-sm text-muted-foreground">���� �������...</p>
+                  <p className="text-sm text-muted-foreground">جاري التحميل...</p>
                 ) : adminRows.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">�� ���� ���� �� ���� ��������� ���.</p>
+                  <p className="text-sm text-muted-foreground">لا توجد صفوف في جدول الصلاحيات بعد.</p>
                 ) : (
                   <div className="space-y-3">
                     {adminRows.map((row) => (
@@ -4906,12 +4906,12 @@ function SettingsSection({
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div>
                             <p className="font-semibold" dir="ltr">{row.email}</p>
-                            <p className="text-xs text-muted-foreground">{row.display_name || '���� ��� ���'}</p>
+                            <p className="text-xs text-muted-foreground">{row.display_name || 'بدون اسم عرض'}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <Select onValueChange={(v) => void applyTemplateToExistingAdmin(row, v)}>
                               <SelectTrigger className="w-[190px]" dir="rtl">
-                                <SelectValue placeholder="����� ����" />
+                                <SelectValue placeholder="تطبيق قالب" />
                               </SelectTrigger>
                               <SelectContent>
                                 {ADMIN_ROLE_TEMPLATES.map((tpl) => (
@@ -4921,7 +4921,7 @@ function SettingsSection({
                                 ))}
                               </SelectContent>
                             </Select>
-                            <span className="text-xs text-muted-foreground">���</span>
+                            <span className="text-xs text-muted-foreground">نشط</span>
                             <Switch
                               checked={row.is_active}
                               onCheckedChange={(checked) => void toggleAdminActive(row, checked)}
@@ -4931,7 +4931,7 @@ function SettingsSection({
                               size="sm"
                               onClick={() => void removeAdmin(row.email)}
                             >
-                              ���
+                              حذف
                             </Button>
                           </div>
                         </div>
@@ -4985,23 +4985,23 @@ function SettingsSection({
 
       <Card>
         <CardHeader>
-          <CardTitle>��������� ������</CardTitle>
+          <CardTitle>الإعدادات العامة</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>��� ������</Label>
-            <Input defaultValue="���� ���" disabled={!canSavePlatformVat} />
+            <Label>اسم المنصة</Label>
+            <Input defaultValue="حلاق ماب" disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2">
-            <Label>������ ����������</Label>
+            <Label>البريد الإلكتروني</Label>
             <Input type="email" defaultValue="admin@halaqmap.com" disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2">
-            <Label>��� ������</Label>
+            <Label>رقم الهاتف</Label>
             <Input type="tel" defaultValue="+966559602685" dir="ltr" disabled={!canSavePlatformVat} />
           </div>
           <Button type="button" className="w-full" disabled={!canSavePlatformVat}>
-            ��� ���������
+            حفظ التغييرات
           </Button>
         </CardContent>
       </Card>
@@ -5014,25 +5014,25 @@ function SettingsSection({
 
       <Card className="border-primary/25">
         <CardHeader>
-          <CardTitle>����� ������ ������� (��� �����)</CardTitle>
+          <CardTitle>ضريبة القيمة المضافة (عرض الدفع)</CardTitle>
           <CardDescription>
-            �� ��� ����� ���� �� ��� ������ ������� ����� �������ɺ ����� ������� ����� ����� ���� ��� (�����
-            ������ ������ ��� ����). ��� ������ ���� ����� ���� ����� ���� ������� ��� ����� ������ ��� �����
-            �������.
+            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كقيمة ترخيص رقمي فقط (مناسب
+            لتقديم بوابات مثل ميسر). عند التوسع بسجل تجاري ورقم ضريبي فعّل الاحتسب هنا وحدّث النسبة عند تغيير
+            الأنظمة.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
             <div>
-              <p className="font-medium">����� ������ ������� �� �������</p>
+              <p className="font-medium">تفعيل احتساب الضريبة في الواجهة</p>
               <p className="text-sm text-muted-foreground mt-1">
-                ��� ������� ���� ���� ������� ��������� �� ������� ����� ����� ������ �������� �������.
+                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة التراخيص الرقمية.
               </p>
             </div>
             <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} disabled={!canSavePlatformVat} />
           </div>
           <div className="space-y-2 max-w-xs">
-            <Label htmlFor="vat-rate">���� ����� ������ ������� (%)</Label>
+            <Label htmlFor="vat-rate">نسبة ضريبة القيمة المضافة (%)</Label>
             <Input
               id="vat-rate"
               type="number"
@@ -5044,23 +5044,23 @@ function SettingsSection({
               onChange={(e) => setVatRateInput(e.target.value)}
               disabled={!canSavePlatformVat || !vatEnabled}
             />
-            <p className="text-xs text-muted-foreground">���� ����: 15 � ����� ������ ��� ���� ���� ����.</p>
+            <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
           </div>
           <div className="rounded-lg bg-muted/50 p-4 text-sm">
-            <p className="font-medium mb-2">������ ��� 100 �.� (���� ����� ����)</p>
+            <p className="font-medium mb-2">معاينة على 100 ر.س (قيمة ترخيص رقمي)</p>
             <p className="text-muted-foreground">
               {!vatEnabled || preview.vat === 0 ? (
-                <>�������� �������: <strong>{preview.total} �.�</strong> (���� �����)</>
+                <>الإجمالي المعروض: <strong>{preview.total} ر.س</strong> (بدون ضريبة)</>
               ) : (
                 <>
-                  ������: {preview.subtotal} �.� + ������� ({rateForPreview}%): {preview.vat} �.� ={' '}
-                  <strong>{preview.total} �.�</strong>
+                  الرسوم: {preview.subtotal} ر.س + الضريبة ({rateForPreview}%): {preview.vat} ر.س ={' '}
+                  <strong>{preview.total} ر.س</strong>
                 </>
               )}
             </p>
           </div>
           <Button type="button" className="w-full" onClick={handleSaveVat} disabled={!canSavePlatformVat}>
-            ��� ������� �������
+            حفظ إعدادات الضريبة
           </Button>
         </CardContent>
       </Card>
