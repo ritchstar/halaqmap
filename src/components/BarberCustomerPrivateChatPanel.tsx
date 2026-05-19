@@ -15,6 +15,7 @@ import {
   type BarberPrivateMessageRow,
 } from '@/lib/barberCustomerPrivateChatRemote';
 import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
+import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
 
 function remainingMs(expiresAtIso: string): number {
   const t = new Date(expiresAtIso).getTime();
@@ -135,6 +136,19 @@ export function BarberCustomerPrivateChatPanel({
   useEffect(() => {
     translationAttemptedRef.current.clear();
   }, [selectedId]);
+
+  useEffect(() => {
+    if (!isDiamond || !selectedId) return;
+    const tick = async () => {
+      const r = await customerDigitalShiftInterceptRemote(selectedId);
+      if (r.ok && r.replied) {
+        await loadMessages(selectedId);
+      }
+    };
+    void tick();
+    const id = window.setInterval(() => void tick(), 25_000);
+    return () => window.clearInterval(id);
+  }, [isDiamond, selectedId, loadMessages]);
 
   useEffect(() => {
     if (!isDiamond || messages.length === 0) return;
@@ -259,6 +273,11 @@ export function BarberCustomerPrivateChatPanel({
                         }`}
                       >
                         <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                        {isBarber && m.is_digital_shift_reply ? (
+                          <Badge variant="secondary" className="mt-1 text-[10px]">
+                            🌙 المناوب الرقمي
+                          </Badge>
+                        ) : null}
                         {isDiamond && translations[m.id] ? (
                           <p className="mt-1 border-t border-white/20 pt-1 text-[11px] opacity-90">
                             ترجمة: {translations[m.id]}

@@ -17,6 +17,7 @@ import {
   Plus,
   Edit,
   Trash2,
+  Moon,
   Send,
   Mic,
   Paperclip,
@@ -113,6 +114,7 @@ import {
   uploadBarberPortfolioImageRemote,
 } from '@/lib/barberPortfolioRemote';
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
+import { DigitalShiftAssistantHub } from '@/components/barber/DigitalShiftAssistantHub';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import {
   fetchListingLicenseBalanceRemote,
@@ -242,6 +244,7 @@ export default function BarberDashboard() {
         showPosts: true,
         showSettings: true,
         showQrRatings: true,
+        showDigitalShift: false,
         isGoldLite: false,
         showGoldLiteBanner: false,
       };
@@ -254,6 +257,7 @@ export default function BarberDashboard() {
         showPosts: true,
         showSettings: true,
         showQrRatings: true,
+        showDigitalShift: true,
         isGoldLite: false,
         showGoldLiteBanner: false,
       };
@@ -266,6 +270,7 @@ export default function BarberDashboard() {
         showPosts: true,
         showSettings: false,
         showQrRatings: true,
+        showDigitalShift: false,
         isGoldLite: true,
         showGoldLiteBanner: true,
       };
@@ -277,6 +282,7 @@ export default function BarberDashboard() {
       showPosts: false,
       showSettings: false,
       showQrRatings: false,
+      showDigitalShift: false,
       isGoldLite: false,
       showGoldLiteBanner: false,
     };
@@ -565,6 +571,12 @@ export default function BarberDashboard() {
               <TabsTrigger value="posts" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
                 <ImageIcon className="h-4 w-4" />
                 <span className="hidden sm:inline">البوستات</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showDigitalShift ? (
+              <TabsTrigger value="digital-shift" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <Moon className="h-4 w-4" />
+                <span className="hidden sm:inline">المناوب الذكي</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showSettings ? (
@@ -866,6 +878,17 @@ export default function BarberDashboard() {
               barberEmail={barberData.email}
               subscriptionTier={barberData.subscription}
               onChange={persistPosts}
+            />
+          </TabsContent>
+          ) : null}
+
+          {tierTabs.showDigitalShift ? (
+          <TabsContent value="digital-shift" className="space-y-6">
+            <DigitalShiftAssistantHub
+              barberId={barberData.id}
+              barberEmail={barberData.email}
+              bannerState={bannerState}
+              posts={posts}
             />
           </TabsContent>
           ) : null}

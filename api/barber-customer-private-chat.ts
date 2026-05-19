@@ -175,7 +175,7 @@ export async function POST(request: Request): Promise<Response> {
     }
     const { data: msgs, error } = await supabase
       .from('private_messages')
-      .select('id, conversation_id, sender_id, body, created_at, read_at')
+      .select('id, conversation_id, sender_id, body, created_at, read_at, is_digital_shift_reply')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
       .limit(500);
@@ -203,7 +203,7 @@ export async function POST(request: Request): Promise<Response> {
         sender_id: barberUserId,
         body: text,
       })
-      .select('id, conversation_id, sender_id, body, created_at, read_at')
+      .select('id, conversation_id, sender_id, body, created_at, read_at, is_digital_shift_reply')
       .maybeSingle();
 
     if (insErr) {

@@ -10,6 +10,7 @@ import {
   type PrivateMessageRow,
 } from '@/lib/privateChatRemote';
 import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
+import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
 
 export type CustomerBarberUiMessage = {
   id: string;
@@ -271,6 +272,22 @@ export function useCustomerBarberPrivateRealtimeChat(
     [rawMessages, conversation, translations]
   );
 
+  useEffect(() => {
+    const cid = convIdRef.current;
+    if (!cid || status !== 'ready') return;
+
+    const runIntercept = async () => {
+      const r = await customerDigitalShiftInterceptRemote(cid);
+      if (r.ok && r.replied) {
+        await refreshConversationAndMessages(cid);
+      }
+    };
+
+    void runIntercept();
+    const iv = window.setInterval(() => void runIntercept(), 25_000);
+    return () => window.clearInterval(iv);
+  }, [status, conversation?.id, refreshConversationAndMessages]);
+
   const send = useCallback(
     async (body: string) => {
       const client = getSupabaseClient();
@@ -282,9 +299,17 @@ export function useCustomerBarberPrivateRealtimeChat(
       if (remainingMsFromExpiresAt(conversation?.expires_at ?? '') <= 0) {
         return { ok: false as const, error: 'انتهت الجلسة.' };
       }
-      return sendPrivateMessage(cid, uid, body);
+      const result = await sendPrivateMessage(cid, uid, body);
+      if (result.ok) {
+        window.setTimeout(() => {
+          void customerDigitalShiftInterceptRemote(cid).then((r) => {
+            if (r.ok && r.replied) void refreshConversationAndMessages(cid);
+          });
+        }, 500);
+      }
+      return result;
     },
-    [conversation?.expires_at]
+    [conversation?.expires_at, refreshConversationAndMessages],
   );
 
   const expiredUi = status === 'expired_ui';
