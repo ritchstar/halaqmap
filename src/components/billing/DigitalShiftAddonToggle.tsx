@@ -1,4 +1,5 @@
 import { Checkbox } from '@/components/ui/checkbox';
+import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
 import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +33,7 @@ export function DigitalShiftAddonToggle({ checked, onCheckedChange, className, i
           <span className="font-semibold text-slate-200">+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س</span> / حزمة
           برمجية
         </p>
+        <DigitalShiftFeatureBullets variant="compact" className="pt-1" />
       </div>
     </label>
   );

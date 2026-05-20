@@ -2,7 +2,9 @@ import {
   DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME,
   DIGITAL_SHIFT_PRODUCT_TITLE,
   DIGITAL_SHIFT_REPLY_COST_HALALAS,
-  DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR,
+  DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR,
+  DIGITAL_SHIFT_SUPPORTED_LANGUAGES_FEATURE_AR,
+  DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR,
 } from '@/config/digitalShiftAssistant';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
 import type {
@@ -41,7 +43,9 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
 
 const DIGITAL_SHIFT_DOCTRINE: string[] = [
   'ممنوع العبث بمحافظ العملاء أو أسعار الخدمة — المناوب يعمل على الآداب والجدولة فقط.',
-  'ردود متعددة اللغات: ' + DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR + ' حسب لغة آخر رسالة العميل.',
+  DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR,
+  DIGITAL_SHIFT_SUPPORTED_LANGUAGES_FEATURE_AR,
+  DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR,
   'محفظة المناوب (هللات) تخص صالون الحلاق فقط — migration 78 · barber_ai_wallet.',
 ];
 

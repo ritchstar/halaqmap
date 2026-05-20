@@ -90,7 +90,13 @@ export function getFallbackCustomerReply(
   }
 }
 
-/** توزيع تقريبي للعرض الإداري (ليس بيانات حية) */
+/** نص ميزة — اكتشاف اللغة */
+export const DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR =
+  'اكتشاف لغة المرسل تلقائياً: يحلّل آخر رسالة العميل (الحروف والكلمات الشائعة) لتحديد لغته قبل الرد.';
+
+export const DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR =
+  'شات مترجم ذكي: يرد المناوب بنفس لغة العميل في الشات الخاص — ترجمة/صياغة آلية فورية بأسلوب مهني، دون تبديل يدوي من الحلاق.';
+
 export const DIGITAL_SHIFT_LANGUAGE_OVERSIGHT_SHARES: {
   code: ShiftLanguage;
   label: string;

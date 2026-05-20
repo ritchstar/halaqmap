@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Bot, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
 import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 
@@ -75,6 +76,13 @@ export function DigitalShiftUpgradeLocked({
           اجعل الذكاء الاصطناعي موظفك المخلص المتاح 24 ساعة للرد التلقائي على محادثات الزبائن، تأكيد
           الحجوزات، وتنظيم جدولك بذكاء تام دون تشتت.
         </p>
+
+        <div className="mt-5 max-w-lg w-full rounded-xl border border-cyan-400/20 bg-cyan-950/40 px-4 py-3 text-right">
+          <DigitalShiftFeatureBullets
+            title="مزايا المناوب — بما فيها الشات المترجم"
+            className="[&_p]:text-cyan-100/90 [&_li]:text-cyan-100/75"
+          />
+        </div>
 
         {!isDiamond ? (
           <p className="mt-3 max-w-lg text-xs text-cyan-200/70 sm:text-sm">

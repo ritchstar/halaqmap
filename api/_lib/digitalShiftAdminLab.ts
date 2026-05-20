@@ -5,7 +5,7 @@ import {
   evaluateIntercept,
   type DigitalShiftContext,
 } from './digitalShiftAssistant.js';
-import { formatSupportedLanguagesForPrompt, formatSupportedLanguagesLabelAr } from './digitalShiftLanguages.js';
+import { formatSupportedLanguagesForPrompt, formatSupportedLanguagesLabelAr, DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR, DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR } from './digitalShiftLanguages.js';
 
 export type DigitalShiftLabChatTurn = { role: 'user' | 'assistant'; content: string };
 
@@ -121,7 +121,9 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
     '- متاح كإضافة **+25 ر.س/شهر** للباقة **الماسية الذكية** فقط (Diamond + addon).',
     `- تكلفة كل رد AI للعميل: **${DIGITAL_SHIFT_REPLY_COST_HALALAS} هللة** (1.50 ر.س) من **محفظة الحلاق** — لا من محفظة العميل.`,
     '- واجهتا التشغيل: (1) محادثة الحلاق في لوحة التحكم (2) اعتراض تلقائي في الشات الخاص مع العميل.',
-    '- لغات الاعتراض المدعومة: **' + formatSupportedLanguagesLabelAr() + '** — حسب لغة آخر رسالة العميل.',
+    `- ${DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR}`,
+    '- لغات الاعتراض المدعومة: **' + formatSupportedLanguagesLabelAr() + '**.',
+    `- ${DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR}`,
     '- مهلة الاعتراض أثناء الدوام: بعد `reply_delay_minutes` (افتراضي 3) من رسالة العميل إذا لم يرد الحلاق.',
     '- اعتراض فوري عند **إغلاق المحل** (`open_for_customers=false`).',
     `- قواعد الاعتراض (مختبر): مغلق → ${interceptClosed.shouldReply}; تأخر 5د → ${interceptDelay.shouldReply}`,

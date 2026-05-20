@@ -17,7 +17,12 @@ import {
   chatWithDigitalShiftLab,
   fetchDigitalShiftLabDiagnostics,
 } from '@/lib/digitalShiftAdminLabRemote';
-import { DIGITAL_SHIFT_REPLY_COST_HALALAS, DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR } from '@/config/digitalShiftAssistant';
+import {
+  DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR,
+  DIGITAL_SHIFT_REPLY_COST_HALALAS,
+  DIGITAL_SHIFT_SUPPORTED_LANGUAGES_FEATURE_AR,
+  DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR,
+} from '@/config/digitalShiftAssistant';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -35,7 +40,11 @@ const GREETING =
   '- «حاكِ رد عميل إنجليزي يسأل عن موعد»\n' +
   '- «حاكِ اعتراض عميل تركي/فرنسي/إسباني/تاغalog»\n' +
   '- «حلّل هذه الصورة واقترح تحسينات»\n\n' +
-  `أعرف قواعد المنتج: ماسي +25 ر.س، ${DIGITAL_SHIFT_REPLY_COST_HALALAS} هللة/رد، **7 لغات** (${DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR})، و**صفر تلاعب مالي**.`;
+  `**مزايا الشات المترجم:**\n` +
+  `- ${DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR}\n` +
+  `- ${DIGITAL_SHIFT_SUPPORTED_LANGUAGES_FEATURE_AR}\n` +
+  `- ${DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR}\n\n` +
+  `تكلفة الرد: ${DIGITAL_SHIFT_REPLY_COST_HALALAS} هللة · **صفر تلاعب مالي**.`;
 
 function LoadingIndicator({ stepIndex }: { stepIndex: number }) {
   const label = LOADING_STEPS[stepIndex] ?? LOADING_STEPS[0];
