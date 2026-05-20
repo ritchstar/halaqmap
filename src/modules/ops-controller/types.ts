@@ -55,3 +55,25 @@ export type OpsControllerSubmitResponse = {
   ok: true;
   report: OpsControllerReport;
 };
+
+export const OPS_INTELLIGENCE_DIGEST_SOURCE = 'ops_intelligence_digest' as const;
+
+export type OpsIntelligenceDigestDetail = {
+  source: typeof OPS_INTELLIGENCE_DIGEST_SOURCE;
+  digest_ymd: string;
+  window_hours: number;
+  total_field_reports: number;
+  red_flags: { id: string; title: string; summary: string; clientId: string; category: string; submittedAt: string }[];
+  patterns: { kind: string; labelAr: string; count: number }[];
+  by_bucket: {
+    service_quality: number;
+    technical_issues: number;
+    geographical_coverage: number;
+  };
+  briefing_text: string;
+};
+
+export function isOpsIntelligenceDigest(report: OpsControllerReport): boolean {
+  const source = report.detail && typeof report.detail.source === 'string' ? report.detail.source : '';
+  return source === OPS_INTELLIGENCE_DIGEST_SOURCE;
+}

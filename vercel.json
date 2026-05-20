@@ -139,6 +139,9 @@
     "api/ops-billing-monitor.ts": {
       "maxDuration": 60
     },
+    "api/ops-intelligence-report.ts": {
+      "maxDuration": 60
+    },
     "api/admin-resources-ai-analyze.ts": {
       "maxDuration": 60
     },
@@ -156,6 +159,10 @@
     {
       "path": "/api/ops-billing-monitor?cron=1",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/ops-intelligence-report?cron=1",
+      "schedule": "0 5 * * *"
     }
   ]
 }
