@@ -142,6 +142,7 @@ import { ResourceManagementSection } from '@/components/admin/ResourceManagement
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
+import { SystemCrisisPanicButton } from '@/components/admin/SystemCrisisPanicButton';
 import { HonorBoard } from '@/components/b2b/HonorBoard';
 import { FounderOperationalFeedPanel, OpsControllerWorkspace } from '@/modules/ops-controller';
 import {
@@ -315,6 +316,8 @@ export default function AdminDashboard() {
   const [remotePayments, setRemotePayments] = useState<Payment[]>([]);
   const [moyasarSubRows, setMoyasarSubRows] = useState<BarberSubscriptionAdminRow[]>([]);
   const [dataRefreshNonce, setDataRefreshNonce] = useState(0);
+  const [crisisLabOpen, setCrisisLabOpen] = useState(false);
+  const [crisisMode, setCrisisMode] = useState(false);
 
   const bumpRemoteData = () => setDataRefreshNonce((n) => n + 1);
 
@@ -606,6 +609,14 @@ export default function AdminDashboard() {
                 </Button>
               )}
             </div>
+            {isFounderView ? (
+              <SystemCrisisPanicButton
+                onActivate={() => {
+                  setCrisisMode(true);
+                  setCrisisLabOpen(true);
+                }}
+              />
+            ) : null}
             <Button
               variant="ghost"
               onClick={handleLogout}
@@ -717,6 +728,12 @@ export default function AdminDashboard() {
               can={can}
               canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
               isBootstrapAdmin={Boolean(adminData.bootstrap)}
+              crisisLabOpen={crisisLabOpen}
+              onCrisisLabOpenChange={(open) => {
+                setCrisisLabOpen(open);
+                if (!open) setCrisisMode(false);
+              }}
+              crisisMode={crisisMode}
               onOpenZatcaFinancialOffice={() => {
                 if (!canViewZatcaFinancialOffice) {
                   toast({

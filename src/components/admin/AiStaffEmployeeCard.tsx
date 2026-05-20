@@ -1,4 +1,4 @@
-import { ArrowLeft, Lock, Moon, Scale, Shield, Users } from 'lucide-react';
+import { ArrowLeft, Lock, Moon, Scale, Shield, Siren, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
@@ -56,6 +56,13 @@ function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName
     return (
       <span className={cn(base, 'border-red-800/60 bg-red-950/50')}>
         <Shield className="h-5 w-5 text-red-300" strokeWidth={2} />
+      </span>
+    );
+  }
+  if (kind === 'crisis_advisor') {
+    return (
+      <span className={cn(base, 'border-orange-700/60 bg-orange-950/50')}>
+        <Siren className="h-5 w-5 text-orange-300" strokeWidth={2} />
       </span>
     );
   }

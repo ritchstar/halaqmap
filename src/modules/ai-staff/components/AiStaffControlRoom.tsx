@@ -6,6 +6,7 @@ import { OpsBillingAiAssistant } from '@/components/admin/OpsBillingAiAssistant'
 import { DigitalShiftAdminLabChat } from '@/components/admin/DigitalShiftAdminLabChat';
 import { PartnerLiaisonAdminLabChat } from '@/components/admin/PartnerLiaisonAdminLabChat';
 import { FleetDirectorAdminLabChat } from '@/components/admin/FleetDirectorAdminLabChat';
+import { SystemCrisisAdvisorLabChat } from '@/components/admin/SystemCrisisAdvisorLabChat';
 import { ZatcaAdvisorLabChat } from '@/components/admin/ZatcaAdvisorLabChat';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';
 import { staffMotion, staffTheme } from '@/components/admin/staff/staffTheme';
@@ -32,6 +33,9 @@ type Props = {
   canViewZatcaFinancialOffice: boolean;
   isBootstrapAdmin: boolean;
   onOpenZatcaFinancialOffice?: () => void;
+  crisisLabOpen?: boolean;
+  onCrisisLabOpenChange?: (open: boolean) => void;
+  crisisMode?: boolean;
 };
 
 export function AiStaffControlRoom({
@@ -39,6 +43,9 @@ export function AiStaffControlRoom({
   canViewZatcaFinancialOffice,
   isBootstrapAdmin,
   onOpenZatcaFinancialOffice,
+  crisisLabOpen: crisisLabOpenProp,
+  onCrisisLabOpenChange,
+  crisisMode: crisisModeProp,
 }: Props) {
   const [expanded, setExpanded] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
@@ -46,6 +53,15 @@ export function AiStaffControlRoom({
   const [zatcaLabOpen, setZatcaLabOpen] = useState(false);
   const [partnerLiaisonLabOpen, setPartnerLiaisonLabOpen] = useState(false);
   const [fleetDirectorLabOpen, setFleetDirectorLabOpen] = useState(false);
+  const [crisisAdvisorLabInternalOpen, setCrisisAdvisorLabInternalOpen] = useState(false);
+  const [crisisModeActive, setCrisisModeActive] = useState(false);
+
+  const crisisLabControlled = crisisLabOpenProp !== undefined && onCrisisLabOpenChange !== undefined;
+  const crisisAdvisorLabOpen = crisisLabControlled ? crisisLabOpenProp : crisisAdvisorLabInternalOpen;
+  const setCrisisAdvisorLabOpen = crisisLabControlled
+    ? onCrisisLabOpenChange!
+    : setCrisisAdvisorLabInternalOpen;
+  const crisisMode = crisisModeProp ?? crisisModeActive;
   const [workspaceAgentId, setWorkspaceAgentId] = useState<AiStaffAgentId | null>(null);
 
   const agents = useMemo<ResolvedAgent[]>(
@@ -128,6 +144,18 @@ export function AiStaffControlRoom({
       setDigitalShiftLabOpen(false);
       setZatcaLabOpen(false);
       setPartnerLiaisonLabOpen(false);
+      setCrisisAdvisorLabOpen(false);
+      setWorkspaceAgentId(null);
+      return;
+    }
+    if (agent.id === 'system_crisis_advisor') {
+      setCrisisModeActive(false);
+      setCrisisAdvisorLabOpen(true);
+      setBillingOpen(false);
+      setDigitalShiftLabOpen(false);
+      setZatcaLabOpen(false);
+      setPartnerLiaisonLabOpen(false);
+      setFleetDirectorLabOpen(false);
       setWorkspaceAgentId(null);
       return;
     }
@@ -143,6 +171,7 @@ export function AiStaffControlRoom({
   );
   const showPartnerLiaisonLab = agents.some((a) => a.id === 'partner_relations_liaison' && a.permitted);
   const showFleetDirectorLab = agents.some((a) => a.id === 'fleet_director_general' && a.permitted);
+  const showCrisisAdvisorLab = agents.some((a) => a.id === 'system_crisis_advisor' && a.permitted);
 
   const openPartnerReportsPanel = () => {
     setPartnerLiaisonLabOpen(false);
@@ -290,6 +319,19 @@ export function AiStaffControlRoom({
           onOpenChange={setFleetDirectorLabOpen}
           hideTrigger
           onOpenIntelligenceFeed={openFleetIntelligenceFeed}
+        />
+      ) : null}
+
+      {showCrisisAdvisorLab ? (
+        <SystemCrisisAdvisorLabChat
+          permitted
+          open={crisisAdvisorLabOpen}
+          onOpenChange={(next) => {
+            setCrisisAdvisorLabOpen(next);
+            if (!next) setCrisisModeActive(false);
+          }}
+          hideTrigger
+          crisisMode={crisisMode}
         />
       ) : null}
     </>

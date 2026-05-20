@@ -11,21 +11,24 @@ export type AiStaffAgentId =
   | 'zatca_tax_advisor'
   | 'digital_shift_field'
   | 'partner_relations_liaison'
-  | 'fleet_director_general';
+  | 'fleet_director_general'
+  | 'system_crisis_advisor';
 
 export type AiStaffAgentIconKind =
   | 'treasurer'
   | 'zatca_shield'
   | 'digital_shift'
   | 'partner_liaison'
-  | 'fleet_director';
+  | 'fleet_director'
+  | 'crisis_advisor';
 
 export type AiStaffWorkspaceKind =
   | 'billing_dialog'
   | 'zatca_settings'
   | 'digital_shift_oversight'
   | 'partner_analytics'
-  | 'fleet_intelligence';
+  | 'fleet_intelligence'
+  | 'crisis_playbook';
 
 /** Links scattered product code into one registry row (no hardcoded card copy in components). */
 export type AiStaffProductRef = {

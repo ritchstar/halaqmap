@@ -6,6 +6,9 @@ type Props = {
   canViewZatcaFinancialOffice: boolean;
   isBootstrapAdmin?: boolean;
   onOpenZatcaFinancialOffice?: () => void;
+  crisisLabOpen?: boolean;
+  onCrisisLabOpenChange?: (open: boolean) => void;
+  crisisMode?: boolean;
 };
 
 /** @deprecated Use `AiStaffControlRoom` — thin compatibility wrapper. */
@@ -14,6 +17,9 @@ export function VirtualAiStaffOffice({
   canViewZatcaFinancialOffice,
   isBootstrapAdmin = false,
   onOpenZatcaFinancialOffice,
+  crisisLabOpen,
+  onCrisisLabOpenChange,
+  crisisMode,
 }: Props) {
   return (
     <AiStaffControlRoom
@@ -21,6 +27,9 @@ export function VirtualAiStaffOffice({
       canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
       isBootstrapAdmin={isBootstrapAdmin}
       onOpenZatcaFinancialOffice={onOpenZatcaFinancialOffice}
+      crisisLabOpen={crisisLabOpen}
+      onCrisisLabOpenChange={onCrisisLabOpenChange}
+      crisisMode={crisisMode}
     />
   );
 }

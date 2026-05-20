@@ -142,6 +142,9 @@
     "api/ops-intelligence-report.ts": {
       "maxDuration": 60
     },
+    "api/admin-system-crisis-advisor-lab-chat.ts": {
+      "maxDuration": 60
+    },
     "api/admin-resources-ai-analyze.ts": {
       "maxDuration": 60
     },

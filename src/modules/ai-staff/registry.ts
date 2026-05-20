@@ -23,8 +23,8 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
   {
     id: 'internal_governance',
     titleAr: 'أ — الحوكمة الداخلية للمنصة',
-    subtitleAr: 'خازن · خبير ZATCA — سجلات المنصة والامتثال الضريبي (زوج ثابت على سطح المكتب)',
-    gridClassName: 'sm:grid-cols-2',
+    subtitleAr: 'خازن · ZATCA · مستشار الأزمات — سجلات المنصة والامتثال والتعافي',
+    gridClassName: 'sm:grid-cols-2 lg:grid-cols-3',
   },
   {
     id: 'external_partner_ops',
@@ -95,6 +95,29 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     ],
     productRef: {
       apiRoutes: ['/api/admin-zatca-tax-advisor', '/api/admin-zatca-advisor-lab-chat'],
+    },
+  },
+  {
+    id: 'system_crisis_advisor',
+    boundary: 'internal_governance',
+    shortName: 'مستشار الأزمات',
+    title: 'مستشار الأزمات التقنية — Strategic Technical Consultant',
+    statusBadgeAr: 'جاهز · Crisis Playbook',
+    ctaLabelAr: 'Crisis Discussion 🚨',
+    roleDescription:
+      'استشاري تقني استراتيجي عند الحوادث — يرتّب P0/P1، يقرأ Crisis Playbook، ويركّز على Uptime وسلامة البيانات دون ضجيج واجهة.',
+    accentClass: staffTheme.accentCrisis,
+    requiredAny: ['manage_admins', 'view_overview'],
+    available: true,
+    iconKind: 'crisis_advisor',
+    workspaceKind: 'crisis_playbook',
+    doctrineNotes: [
+      'read-only: docs/crisis-playbook.md — disaster recovery وخطوات التعافي.',
+      'Crisis Discussion: uptime + data integrity فقط — تجاهل UX غير الحرج.',
+      'Professional Sovereignty — B2B داخلي للمؤسس وSuper Admin.',
+    ],
+    productRef: {
+      apiRoutes: ['/api/admin-system-crisis-advisor-lab-chat'],
     },
   },
   {
