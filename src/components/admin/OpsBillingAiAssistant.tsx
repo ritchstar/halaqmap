@@ -324,11 +324,23 @@ export function OpsBillingAiAssistant({
       return;
     }
     toast({ title: 'تم تحديث صف الالتزام في قاعدة البيانات' });
+    if (r.after.data_gap_kind) {
+      toast({
+        title: 'تنبيه: لا يزال هناك فجوة بيانات على الصف',
+        description: String(r.after.data_gap_message || r.after.data_gap_kind),
+        variant: 'destructive',
+      });
+    }
     setMessages((m) => [
       ...m,
       {
         role: 'assistant',
-        content: `✅ تم التطبيق على **${String(pending.before.display_label || pending.detected_provider_label || 'الصف')}**.`,
+        content:
+          `✅ تم التطبيق على **${String(pending.before.display_label || pending.detected_provider_label || 'الصف')}**.` +
+          (r.after.next_renewal_at
+            ? `\nموعد التجديد: ${formatValue('next_renewal_at', r.after.next_renewal_at)}`
+            : '') +
+          (!r.after.data_gap_kind ? '\nتم إزالة تنبيه «رمز منتهٍ/تأكيد يدوي».' : ''),
       },
     ]);
     setPending(null);
@@ -391,6 +403,9 @@ export function OpsBillingAiAssistant({
                 ثقة: {pending.match_confidence}
               </Badge>
             </div>
+            <p className="text-xs text-muted-foreground">
+              رسالة خازن أعلاه لا تُحدّث الجدول تلقائياً — راجع المعاينة ثم اضغط «تأكيد التحديث».
+            </p>
             {pending.warnings && pending.warnings.length > 0 && (
               <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 space-y-1">
                 {pending.warnings.map((w, i) => (

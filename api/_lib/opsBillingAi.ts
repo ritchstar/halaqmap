@@ -328,6 +328,19 @@ export function sanitizeOpsBillingAnalyzeResult(
       }
     }
 
+    const hasInvoiceFields =
+      Boolean(patch.next_renewal_at) ||
+      patch.monthly_estimate_sar != null ||
+      patch.amount_expected != null;
+
+    if (context?.hasImage && hasInvoiceFields) {
+      patch.clear_gap = true;
+      patch.last_sync_status = patch.last_sync_status ?? 'ok';
+      if (!proposalWarnings.some((w) => w.includes('فجوة'))) {
+        proposalWarnings.push('سيُزال تنبيه «رمز منتهٍ/تأكيد يدوي» بعد التطبيق — البيانات من الفاتورة.');
+      }
+    }
+
     const patchErr = validateAiPatch(patch);
     if (patchErr) {
       proposalWarnings.push(patchErr);
@@ -409,38 +422,66 @@ export async function loadCommitmentRows(
   return { rows: (data || []) as Record<string, unknown>[] };
 }
 
+export function enrichKhazenApplyPatch(
+  patch: OpsBillingAiPatch,
+  _existingRow?: Record<string, unknown> | null,
+): OpsBillingAiPatch {
+  const enriched: OpsBillingAiPatch = { ...patch };
+  const hasInvoiceFields =
+    (enriched.next_renewal_at != null && enriched.next_renewal_at !== '') ||
+    enriched.monthly_estimate_sar != null ||
+    enriched.amount_expected != null;
+
+  if (hasInvoiceFields || patch.clear_gap === true) {
+    enriched.clear_gap = true;
+    enriched.last_sync_status = enriched.last_sync_status ?? 'ok';
+  }
+
+  const stamp = new Date().toISOString();
+  const attestation = `خازن — تأكيد من فاتورة/لقطة (${stamp})`;
+  enriched.manual_notes = enriched.manual_notes?.trim()
+    ? `${enriched.manual_notes.trim()}\n${attestation}`
+    : attestation;
+
+  return enriched;
+}
+
 export async function applyOpsBillingAiPatch(
   supabase: OpsBillingSupabase,
   commitmentId: string,
   patch: OpsBillingAiPatch,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const err = validateAiPatch(patch);
-  if (err) return { ok: false, error: err };
-
   const { data: existing, error: loadErr } = await supabase
     .from('platform_ops_billing_commitments')
-    .select('id')
+    .select(
+      'id,data_gap_kind,data_gap_message,manual_notes,next_renewal_at,monthly_estimate_sar,amount_expected',
+    )
     .eq('id', commitmentId)
     .maybeSingle();
   if (loadErr) return { ok: false, error: loadErr.message };
   if (!existing?.id) return { ok: false, error: 'صف الالتزام غير موجود' };
 
+  const finalPatch = enrichKhazenApplyPatch(patch, existing as Record<string, unknown>);
+
+  const err = validateAiPatch(finalPatch);
+  if (err) return { ok: false, error: err };
+
   const dbPatch: Record<string, unknown> = {
     last_synced_at: new Date().toISOString(),
   };
-  if (typeof patch.display_label === 'string') dbPatch.display_label = patch.display_label;
-  if (patch.next_renewal_at !== undefined) dbPatch.next_renewal_at = patch.next_renewal_at;
-  if (patch.monthly_estimate_sar !== undefined) dbPatch.monthly_estimate_sar = patch.monthly_estimate_sar;
-  if (patch.amount_expected !== undefined) dbPatch.amount_expected = patch.amount_expected;
-  if (typeof patch.amount_currency === 'string') dbPatch.amount_currency = patch.amount_currency;
-  if (patch.billing_cycle) dbPatch.billing_cycle = patch.billing_cycle;
-  if (typeof patch.manual_notes === 'string') dbPatch.manual_notes = patch.manual_notes;
-  if (patch.clear_gap === true) {
+  if (typeof finalPatch.display_label === 'string') dbPatch.display_label = finalPatch.display_label;
+  if (finalPatch.next_renewal_at !== undefined) dbPatch.next_renewal_at = finalPatch.next_renewal_at;
+  if (finalPatch.monthly_estimate_sar !== undefined) dbPatch.monthly_estimate_sar = finalPatch.monthly_estimate_sar;
+  if (finalPatch.amount_expected !== undefined) dbPatch.amount_expected = finalPatch.amount_expected;
+  if (typeof finalPatch.amount_currency === 'string') dbPatch.amount_currency = finalPatch.amount_currency;
+  if (finalPatch.billing_cycle) dbPatch.billing_cycle = finalPatch.billing_cycle;
+  if (typeof finalPatch.manual_notes === 'string') dbPatch.manual_notes = finalPatch.manual_notes;
+  if (finalPatch.clear_gap === true) {
     dbPatch.data_gap_kind = null;
     dbPatch.data_gap_message = null;
   }
-  if (patch.last_sync_status) {
-    dbPatch.last_sync_status = patch.last_sync_status;
+  if (finalPatch.last_sync_status) {
+    dbPatch.last_sync_status = finalPatch.last_sync_status;
     dbPatch.last_sync_error = null;
   }
 

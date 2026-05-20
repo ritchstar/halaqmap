@@ -55,8 +55,81 @@ type CommitmentRow = {
   credential_env_hint: string | null;
 };
 
+type ExistingCommitmentRow = {
+  next_renewal_at: string | null;
+  monthly_estimate_sar: number | null;
+  amount_expected: number | null;
+  amount_currency?: string | null;
+  billing_cycle?: string | null;
+  data_gap_kind: string | null;
+  data_gap_message: string | null;
+  manual_notes: string | null;
+  last_sync_status: string;
+  is_manual: boolean;
+};
+
+function isKhazenAttestedRow(notes: string | null | undefined): boolean {
+  return typeof notes === 'string' && notes.includes('خازن');
+}
+
+/** لا تُمحى حقول أكّدها خازن/المالك عند فشل مزامنة API (مثل token_expired على Supabase). */
+function mergeCommitmentWithExisting(
+  existing: ExistingCommitmentRow | null,
+  incoming: CommitmentRow,
+): CommitmentRow {
+  if (!existing) return incoming;
+
+  const khazen = isKhazenAttestedRow(existing.manual_notes);
+  const merged: CommitmentRow = { ...incoming };
+
+  if (existing.next_renewal_at && !incoming.next_renewal_at) {
+    merged.next_renewal_at = existing.next_renewal_at;
+  }
+  if (existing.monthly_estimate_sar != null && incoming.monthly_estimate_sar == null) {
+    merged.monthly_estimate_sar = existing.monthly_estimate_sar;
+  }
+  if (existing.amount_expected != null && incoming.amount_expected == null) {
+    merged.amount_expected = existing.amount_expected;
+  }
+  if (existing.billing_cycle && existing.billing_cycle !== 'unknown' && incoming.billing_cycle === 'unknown') {
+    merged.billing_cycle = existing.billing_cycle;
+  }
+
+  if (khazen) {
+    if (existing.manual_notes) merged.manual_notes = existing.manual_notes;
+    if (existing.next_renewal_at || existing.monthly_estimate_sar != null) {
+      merged.data_gap_kind = null;
+      merged.data_gap_message = null;
+      if (incoming.last_sync_status !== 'ok') {
+        merged.last_sync_status = 'partial';
+      }
+    } else if (existing.data_gap_kind == null && incoming.data_gap_kind != null && incoming.last_sync_status !== 'ok') {
+      merged.data_gap_kind = null;
+      merged.data_gap_message = existing.data_gap_message;
+    }
+  }
+
+  return merged;
+}
+
 async function upsertCommitment(supabase: OpsBillingSupabase, row: CommitmentRow): Promise<{ error?: string }> {
-  const { error } = await supabase.from('platform_ops_billing_commitments').upsert(row, {
+  const { data: existing, error: loadErr } = await supabase
+    .from('platform_ops_billing_commitments')
+    .select(
+      'next_renewal_at,monthly_estimate_sar,amount_expected,amount_currency,billing_cycle,data_gap_kind,data_gap_message,manual_notes,last_sync_status,is_manual',
+    )
+    .eq('vendor', row.vendor)
+    .eq('external_stable_key', row.external_stable_key)
+    .maybeSingle();
+
+  if (loadErr) return { error: loadErr.message };
+
+  const finalRow = mergeCommitmentWithExisting(
+    (existing as ExistingCommitmentRow | null) ?? null,
+    row,
+  );
+
+  const { error } = await supabase.from('platform_ops_billing_commitments').upsert(finalRow, {
     onConflict: 'vendor,external_stable_key',
   });
   if (error) return { error: error.message };

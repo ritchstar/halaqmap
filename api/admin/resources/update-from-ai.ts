@@ -1,6 +1,7 @@
 import { authorizeOpsBillingWrite } from '../../_lib/opsBillingAuth.js';
 import {
   applyOpsBillingAiPatch,
+  enrichKhazenApplyPatch,
   enrichProposalsWithRows,
   loadCommitmentRows,
   type OpsBillingAiPatch,
@@ -70,9 +71,6 @@ export async function POST(request: Request): Promise<Response> {
   if (!proposalToken) return json({ error: 'proposal_token required' }, 400);
   if (!patch) return json({ error: 'patch object required' }, 400);
 
-  const patchErr = validateAiPatch(patch);
-  if (patchErr) return json({ error: patchErr }, 400);
-
   const { rows, error: loadErr } = await loadCommitmentRows(auth.supabase);
   if (loadErr) return json({ error: loadErr }, 500);
 
@@ -80,6 +78,11 @@ export async function POST(request: Request): Promise<Response> {
   if (!rowsById.has(commitmentId)) {
     return json({ error: 'صف الالتزام غير موجود في الجدول' }, 404);
   }
+
+  const existingRow = rowsById.get(commitmentId)!;
+  const enrichedPatch = enrichKhazenApplyPatch(patch, existingRow);
+  const patchErr = validateAiPatch(enrichedPatch);
+  if (patchErr) return json({ error: patchErr }, 400);
 
   const before = enrichProposalsWithRows(
     [
