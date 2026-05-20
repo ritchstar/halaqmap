@@ -73,7 +73,9 @@ COMMENT ON TABLE public.platform_admin_financial_documents IS
 
 ALTER TABLE public.platform_admin_financial_documents ENABLE ROW LEVEL SECURITY;
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.platform_admin_financial_documents TO service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.platform_admin_financial_documents TO authenticated;
+REVOKE ALL ON public.platform_admin_financial_documents FROM anon;
 
 DROP POLICY IF EXISTS "platform_admin_financial_documents_select" ON public.platform_admin_financial_documents;
 CREATE POLICY "platform_admin_financial_documents_select"

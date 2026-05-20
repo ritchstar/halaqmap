@@ -26,3 +26,6 @@ CREATE POLICY "admin_actions_log_no_client"
   FOR ALL
   USING (false)
   WITH CHECK (false);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.admin_actions_log TO service_role;
+REVOKE ALL ON TABLE public.admin_actions_log FROM anon, authenticated;

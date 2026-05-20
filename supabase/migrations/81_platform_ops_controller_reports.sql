@@ -36,3 +36,6 @@ CREATE POLICY "platform_ops_controller_reports_no_client"
   FOR ALL
   USING (false)
   WITH CHECK (false);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.platform_ops_controller_reports TO service_role;
+REVOKE ALL ON TABLE public.platform_ops_controller_reports FROM anon, authenticated;

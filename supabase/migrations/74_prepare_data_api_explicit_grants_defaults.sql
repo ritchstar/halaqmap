@@ -32,7 +32,14 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.platform_payment_settings T
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.platform_ops_billing_commitments TO service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.platform_ops_billing_poll_state TO service_role;
 
-REVOKE ALL ON TABLE public.partner_tutorial_videos FROM anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.platform_admin_financial_documents TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.platform_ops_controller_reports TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.admin_actions_log TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.payment_security_events TO service_role;
+
+REVOKE ALL ON TABLE public.platform_admin_financial_documents FROM anon;
+REVOKE ALL ON TABLE public.platform_ops_controller_reports FROM anon, authenticated;
+REVOKE ALL ON TABLE public.admin_actions_log FROM anon, authenticated;
 REVOKE ALL ON TABLE public.partner_promo_video_config FROM anon, authenticated;
 REVOKE ALL ON TABLE public.platform_payment_settings FROM anon, authenticated;
 REVOKE ALL ON TABLE public.platform_ops_billing_commitments FROM anon, authenticated;

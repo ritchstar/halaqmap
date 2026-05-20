@@ -60,12 +60,15 @@ function shortSha(s: string | null): string {
   return s.length > 14 ? `${s.slice(0, 8)}…` : s;
 }
 
-/** PostgREST عندما لا يوجد الجدول بعد تطبيق الترحيل على المشروع */
+/** PostgREST / Postgres errors when migration or GRANT is missing */
 function describeArchiveApiError(err: string): string {
+  if (/permission denied for table platform_admin_financial_documents/i.test(err)) {
+    return `${err} — طبِّق ترحيل 82_platform_admin_server_role_grants.sql (أو 72+82) على مشروع Supabase: منح service_role على الجدول لأن الأرشيف يُقرأ عبر Vercel API وليس JWT مباشرة.`;
+  }
   if (
     /Could not find the table|schema cache|platform_admin_financial_documents|PGRST205/i.test(err)
   ) {
-    return `${err} — طبِّق على مشروع Supabase المرتبط بالتطبيق ترحيل 72_admin_financial_archive.sql ثم 73_admin_financial_archive_template_keys.sql (لوحة المشروع: SQL Editor، أو supabase db push بعد الربط).`;
+    return `${err} — طبِّق على مشروع Supabase المرتبط بالتطبيق ترحيل 72_admin_financial_archive.sql ثم 82_platform_admin_server_role_grants.sql (لوحة المشروع: SQL Editor، أو supabase db push بعد الربط).`;
   }
   return err;
 }
