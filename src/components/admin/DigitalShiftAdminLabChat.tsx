@@ -17,7 +17,7 @@ import {
   chatWithDigitalShiftLab,
   fetchDigitalShiftLabDiagnostics,
 } from '@/lib/digitalShiftAdminLabRemote';
-import { DIGITAL_SHIFT_REPLY_COST_HALALAS } from '@/config/digitalShiftAssistant';
+import { DIGITAL_SHIFT_REPLY_COST_HALALAS, DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR } from '@/config/digitalShiftAssistant';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -33,10 +33,9 @@ const GREETING =
   'يا هلا — أنا **المناوب الرقمي الذكي 🌙** في **وضع مختبر الإدارة**.\n\n' +
   'ارفع لقطة (بنر، معرض، شات، إعدادات) أو اكتب أمراً مثل:\n' +
   '- «حاكِ رد عميل إنجليزي يسأل عن موعد»\n' +
-  '- «حاكِ اعتراض صالون مغلق»\n' +
-  '- «حلّل هذه الصورة واقترح تحسينات»\n' +
-  '- «اختصر ردودك» أو «زِد آداب سعودية»\n\n' +
-  `أعرف قواعد المنتج: ماسي +25 ر.س، ${DIGITAL_SHIFT_REPLY_COST_HALALAS} هللة/رد، اعتراض عند الإغلاق أو التأخر، و**صفر تلاعب مالي**.`;
+  '- «حاكِ اعتراض عميل تركي/فرنسي/إسباني/تاغalog»\n' +
+  '- «حلّل هذه الصورة واقترح تحسينات»\n\n' +
+  `أعرف قواعد المنتج: ماسي +25 ر.س، ${DIGITAL_SHIFT_REPLY_COST_HALALAS} هللة/رد، **7 لغات** (${DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR})، و**صفر تلاعب مالي**.`;
 
 function LoadingIndicator({ stepIndex }: { stepIndex: number }) {
   const label = LOADING_STEPS[stepIndex] ?? LOADING_STEPS[0];
@@ -279,7 +278,7 @@ export function DigitalShiftAdminLabChat({
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="مثال: حاكِ اعتراض عميل أردو — أو حلّل البنر المرفق"
+            placeholder="مثال: حاكِ اعتراض عميل تركي — أو حلّل البنر المرفق"
             rows={3}
             className="resize-none"
             disabled={busy || !permitted}

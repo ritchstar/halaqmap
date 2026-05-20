@@ -5,6 +5,7 @@ import {
   evaluateIntercept,
   type DigitalShiftContext,
 } from './digitalShiftAssistant.js';
+import { formatSupportedLanguagesForPrompt, formatSupportedLanguagesLabelAr } from './digitalShiftLanguages.js';
 
 export type DigitalShiftLabChatTurn = { role: 'user' | 'assistant'; content: string };
 
@@ -108,9 +109,10 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
     'مُتحدّثك الآن **مالك/مشرف المنصة** يختبر شخصيتك وقدراتك — ليس حلاقاً ولا عميلاً نهائياً.',
     'استمع لأوامره التشغيلية وطبّقها فوراً في جلسة المحادثة، مثل:',
     '- «حاكِ رد عميل إنجليزي يسأل عن موعد»',
+    '- «حاكِ رد عميل تركي/فرنسي/إسباني/تاغalog» — استخدم اللغة المطلوبة مباشرة.',
     '- «حاكِ اعتراض صالون مغلق» أو «حاكِ تأخر الحلاق 5 دقائق»',
     '- «حلّل هذه الصورة» (بنر، معرض، لقطة شات، إعدادات)',
-    '- «اختصر ردودك» / «زِد آداب سعودية» / «رد بالأردو»',
+    '- «اختصر ردودك» / «زِد آداب سعودية» / «رد بالأردو أو التركية أو الفرنسية»',
     '- «اشرح لي كيف يعمل الاعتراض التلقائي»',
     'عند محاكاة عميل أو حلاق، **سمِّ الشخصية بوضوح** في بداية الرد ثم أعد الرد بأسلوبها.',
     'عند أمر تحديث سلوكي من المالك: أكّد ما فهمته بجملة واحدة ثم طبّقه في الردود التالية.',
@@ -119,7 +121,7 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
     '- متاح كإضافة **+25 ر.س/شهر** للباقة **الماسية الذكية** فقط (Diamond + addon).',
     `- تكلفة كل رد AI للعميل: **${DIGITAL_SHIFT_REPLY_COST_HALALAS} هللة** (1.50 ر.س) من **محفظة الحلاق** — لا من محفظة العميل.`,
     '- واجهتا التشغيل: (1) محادثة الحلاق في لوحة التحكم (2) اعتراض تلقائي في الشات الخاص مع العميل.',
-    '- لغات الاعتراض: **عربي · English · اردو** حسب لغة آخر رسالة العميل.',
+    '- لغات الاعتراض المدعومة: **' + formatSupportedLanguagesLabelAr() + '** — حسب لغة آخر رسالة العميل.',
     '- مهلة الاعتراض أثناء الدوام: بعد `reply_delay_minutes` (افتراضي 3) من رسالة العميل إذا لم يرد الحلاق.',
     '- اعتراض فوري عند **إغلاق المحل** (`open_for_customers=false`).',
     `- قواعد الاعتراض (مختبر): مغلق → ${interceptClosed.shouldReply}; تأخر 5د → ${interceptDelay.shouldReply}`,
@@ -147,7 +149,8 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
     JSON.stringify(snapshot, null, 2),
     '',
     '## تعليمات الرد',
-    '- رد بالعربية ما لم يطلب المالك لغة أخرى أو محاكاة بلغة عميل.',
+    `- اللغات المدعومة للاعتراض: ${formatSupportedLanguagesForPrompt()}.`,
+    '- رد للمالك بالعربية ما لم يطلب محاكاة بلغة عميل محددة.',
     '- Markdown خفيف مسموح (**غامق**، قوائم) — لا JSON إلا إذا طُلب صراحة.',
     '- كن عملياً: اختبر، حاكِ، حلّل، واشرح — أنت في جلسة QA مع المالك.',
   ].join('\n');

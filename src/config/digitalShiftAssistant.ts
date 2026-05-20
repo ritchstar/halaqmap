@@ -16,5 +16,8 @@ export const DIGITAL_SHIFT_CATEGORY_LABELS = {
   shift_chat: 'المناوبة والمحادثات',
 } as const;
 
+export const DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR =
+  'العربية · English · اردو · Türkçe · Français · Español · Tagalog';
+
 export const DIGITAL_SHIFT_GREETING_PROMPT =
   'وش مهام اليوم اللي راح تضيفها عشان أشتغل معك يا عمنا؟';

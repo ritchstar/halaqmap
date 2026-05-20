@@ -1,9 +1,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getBarberListingBalance } from './listingLicenseService.js';
+import {
+  detectClientLanguage,
+  formatSupportedLanguagesForPrompt,
+  getCustomerReplyInstruction,
+  getFallbackCustomerReply,
+} from './digitalShiftLanguages.js';
+
+export { detectClientLanguage, type ShiftLanguage } from './digitalShiftLanguages.js';
 
 export const DIGITAL_SHIFT_REPLY_COST_HALALAS = 150;
-
-export type ShiftLanguage = 'ar' | 'en' | 'ur';
 
 export type DigitalShiftContext = {
   barberId: string;
@@ -52,21 +58,11 @@ function resolveProvider(): 'openai' | 'anthropic' | null {
   return null;
 }
 
-export function detectClientLanguage(text: string): ShiftLanguage {
-  const t = text.trim();
-  if (!t) return 'ar';
-  if (/[\u0600-\u06FF]/.test(t)) {
-    if (/[\u0679\u0688\u0691\u0698\u06AF\u06BA\u06BE\u06C1\u06C3\u06D2]/.test(t)) return 'ur';
-    return 'ar';
-  }
-  if (/[\u0750-\u077F]/.test(t)) return 'ur';
-  return 'en';
-}
-
 export function buildDigitalShiftSystemPrompt(ctx: DigitalShiftContext, mode: 'customer' | 'barber'): string {
+  const supported = formatSupportedLanguagesForPrompt();
   const langHint =
     mode === 'customer'
-      ? 'رد بلغة العميل الأخيرة (عربي/إنجليزي/أردو) بأسلوب مهني دافئ.'
+      ? `رد بلغة العميل الأخيرة (${supported}) بأسلوب مهني دافئ — لا ترفض لغة مدعومة.`
       : 'خاطب الحلاق بالعربية السعودية التجارية الدافئة.';
 
   return [
@@ -394,13 +390,7 @@ export async function generateDigitalShiftReply(
   if (!provider) {
     if (mode === 'customer') {
       const lang = detectClientLanguage(userText);
-      if (lang === 'en') {
-        return `Hello! I'm ${ctx.assistantName}, the digital shift assistant for ${ctx.barberName} on Halaq Map. The barber will reply soon — how can I help you in the meantime?`;
-      }
-      if (lang === 'ur') {
-        return `السلام علیکم! میں ${ctx.assistantName}، ${ctx.barberName} کا ڈیجیٹل اسسٹنٹ (Halaq Map)۔ باربر جلد جواب دیں گے — میں ابھی آپ کی کیسے مدد کر سکتا ہوں؟`;
-      }
-      return `يا هلا! أنا ${ctx.assistantName} — المناوب الرقمي لـ${ctx.barberName} على حلاق ماب. الحلاق يرد عليك قريباً يا عمنا، تفضل — كيف أقدر أساعدك الآن؟`;
+      return getFallbackCustomerReply(lang, ctx.assistantName, ctx.barberName);
     }
     return `يا عمنا تفضل، أنا ${ctx.assistantName} من حلاق ماب. ${DIGITAL_SHIFT_GREETING_BARBER}`;
   }
@@ -408,13 +398,9 @@ export async function generateDigitalShiftReply(
   const system = buildDigitalShiftSystemPrompt(ctx, mode);
   const lang = detectClientLanguage(userText);
   const langInstruction =
-    mode === 'customer' && lang === 'en'
-      ? 'Reply in English.'
-      : mode === 'customer' && lang === 'ur'
-        ? 'Reply in Urdu script.'
-        : mode === 'customer'
-          ? 'Reply in Arabic.'
-          : 'Reply in warm Saudi Arabic.';
+    mode === 'customer'
+      ? getCustomerReplyInstruction(lang)
+      : 'Reply in warm Saudi Arabic.';
 
   const turns: ChatTurn[] = [...history.slice(-8), { role: 'user', content: `${langInstruction}\n\n${userText}` }];
 

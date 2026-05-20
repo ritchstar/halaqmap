@@ -2,6 +2,7 @@ import {
   DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME,
   DIGITAL_SHIFT_PRODUCT_TITLE,
   DIGITAL_SHIFT_REPLY_COST_HALALAS,
+  DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR,
 } from '@/config/digitalShiftAssistant';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
 import type {
@@ -40,7 +41,7 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
 
 const DIGITAL_SHIFT_DOCTRINE: string[] = [
   'ممنوع العبث بمحافظ العملاء أو أسعار الخدمة — المناوب يعمل على الآداب والجدولة فقط.',
-  'ردود متعددة اللغات: عربي · English · اردو حسب لغة آخر رسالة العميل.',
+  'ردود متعددة اللغات: ' + DIGITAL_SHIFT_SUPPORTED_LANGUAGES_LABEL_AR + ' حسب لغة آخر رسالة العميل.',
   'محفظة المناوب (هللات) تخص صالون الحلاق فقط — migration 78 · barber_ai_wallet.',
 ];
 
@@ -255,9 +256,13 @@ export const DIGITAL_SHIFT_OVERSIGHT_SNAPSHOT = {
   deployedTokensKingdomWide: 128,
   activeNow: 94,
   languages: [
-    { code: 'ar', label: 'العربية', sharePercent: 62 },
-    { code: 'en', label: 'English', sharePercent: 28 },
-    { code: 'ur', label: 'اردو', sharePercent: 10 },
+    { code: 'ar', label: 'العربية', sharePercent: 45 },
+    { code: 'en', label: 'English', sharePercent: 18 },
+    { code: 'ur', label: 'اردو', sharePercent: 8 },
+    { code: 'tr', label: 'Türkçe', sharePercent: 12 },
+    { code: 'fr', label: 'Français', sharePercent: 6 },
+    { code: 'es', label: 'Español', sharePercent: 7 },
+    { code: 'tl', label: 'Tagalog', sharePercent: 4 },
   ],
   walletSchema: [
     'barber_digital_shift_config',
