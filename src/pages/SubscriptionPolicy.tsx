@@ -22,6 +22,7 @@ import {
   PARTNER_SUPPORT_WHATSAPP_URL,
   getLegalCommercialRegistrationDisplay,
 } from "@/config/partnerLegal";
+import { HonorBoard } from "@/components/b2b/HonorBoard";
 
 
 export default function SubscriptionPolicy() {
@@ -521,6 +522,10 @@ export default function SubscriptionPolicy() {
             </Card>
           </div>
         </motion.section>
+
+        <motion.div variants={fadeInUp} className="mt-16 max-w-4xl mx-auto">
+          <HonorBoard context="legal" variant="legal" />
+        </motion.div>
 
         <motion.div variants={fadeInUp} className="mt-16 text-center space-y-6">
           <Card className="max-w-2xl mx-auto border-border/80">

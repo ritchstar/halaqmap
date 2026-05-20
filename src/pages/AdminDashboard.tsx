@@ -142,6 +142,7 @@ import { ResourceManagementSection } from '@/components/admin/ResourceManagement
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
+import { HonorBoard } from '@/components/b2b/HonorBoard';
 import { FounderOperationalFeedPanel, OpsControllerWorkspace } from '@/modules/ops-controller';
 import {
   FounderCommandShell,
@@ -884,7 +885,10 @@ export default function AdminDashboard() {
 
   if (isFounderView) {
     return (
-      <FounderCommandShell header={adminHeader}>
+      <FounderCommandShell
+        header={adminHeader}
+        footer={<HonorBoard context="admin" variant="core-values" />}
+      >
         {dashboardBody}
         {dashboardDialogs}
       </FounderCommandShell>

@@ -8,6 +8,7 @@ import {
   PARTNER_SUPPORT_WHATSAPP_URL,
   getLegalCommercialRegistrationDisplay,
 } from "@/config/partnerLegal";
+import { HonorBoard } from "@/components/b2b/HonorBoard";
 
 export default function PartnerPrivacy() {
   const commercialReg = getLegalCommercialRegistrationDisplay();
@@ -165,6 +166,10 @@ export default function PartnerPrivacy() {
                 </a>
               </li>
             </ul>
+          </div>
+
+          <div className="mt-10">
+            <HonorBoard context="legal" variant="legal" />
           </div>
 
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">

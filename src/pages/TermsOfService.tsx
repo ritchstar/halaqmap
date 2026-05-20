@@ -3,6 +3,7 @@ import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText, Users
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
+import { HonorBoard } from '@/components/b2b/HonorBoard';
 import {
   END_USER_EXPERIENCE_POLICY_CONTENT,
   END_USER_EXPERIENCE_POLICY_TITLE,
@@ -191,6 +192,10 @@ export default function TermsOfService() {
             </div>
           </div>
         </motion.div>
+
+        <div className="max-w-4xl mx-auto mt-14">
+          <HonorBoard context="legal" variant="legal" />
+        </div>
       </div>
     </div>
   );

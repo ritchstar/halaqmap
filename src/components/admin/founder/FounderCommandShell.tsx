@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 type Props = {
   children: ReactNode;
   header: ReactNode;
+  footer?: ReactNode;
   className?: string;
 };
 
@@ -19,12 +20,15 @@ function FounderAmbient() {
 }
 
 /** Obsidian luxury shell — wraps the entire admin command surface. */
-export function FounderCommandShell({ children, header, className }: Props) {
+export function FounderCommandShell({ children, header, footer, className }: Props) {
   return (
     <div className={cn(founderTheme.shell, 'dark', className)} dir="rtl">
       <FounderAmbient />
       {header}
       <main className="relative z-10 container mx-auto px-4 py-8 lg:px-6 lg:py-10">{children}</main>
+      {footer ? (
+        <footer className="relative z-10 container mx-auto px-4 pb-10 lg:px-6 lg:pb-12">{footer}</footer>
+      ) : null}
     </div>
   );
 }

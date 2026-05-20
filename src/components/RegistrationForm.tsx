@@ -40,6 +40,7 @@ import {
   isDigitalShiftAddonAllowed,
 } from '@/config/listingLicenseQuantity';
 import { DigitalShiftAddonToggle } from '@/components/billing/DigitalShiftAddonToggle';
+import { HonorBoard } from '@/components/b2b/HonorBoard';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
@@ -1656,6 +1657,8 @@ export function RegistrationForm() {
             </RegStepShell>
           )}
       </div>
+
+      <HonorBoard context="register" variant="professional-commitment" className="mt-6" />
 
       <div className="flex justify-between mt-6">
         <Button
