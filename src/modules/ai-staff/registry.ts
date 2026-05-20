@@ -76,7 +76,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     shortName: 'زميل خازن · ZATCA',
     title: 'خبير زكاة وضريبة (ZATCA) 🛡️',
     statusBadgeAr: 'نشط بالرادار',
-    ctaLabelAr: 'فتح المكتب المالي',
+    ctaLabelAr: 'محادثة خبير ZATCA 🛡️',
     roleDescription:
       'فرز فواتير الصالونات بالهللة، تحليل سرعة التدفق المالي، التنبؤ الاستباقي بحدود الامتثال، ومسح مصادر ZATCA الرسمية للتحديثات.',
     accentClass: staffTheme.accentAmber,
@@ -94,7 +94,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
       'تفعيل ض.ق.م 15% على الواجهة يتطلب موافقة Super Admin صريحة.',
     ],
     productRef: {
-      apiRoutes: ['/api/admin-zatca-tax-advisor'],
+      apiRoutes: ['/api/admin-zatca-tax-advisor', '/api/admin-zatca-advisor-lab-chat'],
     },
   },
   {

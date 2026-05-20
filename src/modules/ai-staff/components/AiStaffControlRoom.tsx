@@ -4,6 +4,7 @@ import { Bot, ChevronDown } from 'lucide-react';
 import { AiStaffEmployeeCard } from '@/components/admin/AiStaffEmployeeCard';
 import { OpsBillingAiAssistant } from '@/components/admin/OpsBillingAiAssistant';
 import { DigitalShiftAdminLabChat } from '@/components/admin/DigitalShiftAdminLabChat';
+import { ZatcaAdvisorLabChat } from '@/components/admin/ZatcaAdvisorLabChat';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';
 import { staffMotion, staffTheme } from '@/components/admin/staff/staffTheme';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ export function AiStaffControlRoom({
   const [expanded, setExpanded] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
   const [digitalShiftLabOpen, setDigitalShiftLabOpen] = useState(false);
+  const [zatcaLabOpen, setZatcaLabOpen] = useState(false);
   const [workspaceAgentId, setWorkspaceAgentId] = useState<AiStaffAgentId | null>(null);
 
   const agents = useMemo<ResolvedAgent[]>(
@@ -82,18 +84,22 @@ export function AiStaffControlRoom({
     if (agent.id === 'billing_treasurer') {
       setBillingOpen(true);
       setDigitalShiftLabOpen(false);
+      setZatcaLabOpen(false);
       setWorkspaceAgentId(null);
       return;
     }
     if (agent.id === 'digital_shift_field') {
       setDigitalShiftLabOpen(true);
       setBillingOpen(false);
+      setZatcaLabOpen(false);
       setWorkspaceAgentId(null);
       return;
     }
     if (agent.id === 'zatca_tax_advisor') {
       if (!canViewZatcaFinancialOffice) return;
-      onOpenZatcaFinancialOffice?.();
+      setZatcaLabOpen(true);
+      setBillingOpen(false);
+      setDigitalShiftLabOpen(false);
       setWorkspaceAgentId(null);
       return;
     }
@@ -107,6 +113,9 @@ export function AiStaffControlRoom({
 
   const showBillingAssistant = agents.some((a) => a.id === 'billing_treasurer' && a.permitted);
   const showDigitalShiftLab = agents.some((a) => a.id === 'digital_shift_field' && a.permitted);
+  const showZatcaLab = agents.some(
+    (a) => a.id === 'zatca_tax_advisor' && a.permitted && canViewZatcaFinancialOffice,
+  );
 
   return (
     <>
@@ -214,6 +223,16 @@ export function AiStaffControlRoom({
           open={digitalShiftLabOpen}
           onOpenChange={setDigitalShiftLabOpen}
           hideTrigger
+        />
+      ) : null}
+
+      {showZatcaLab ? (
+        <ZatcaAdvisorLabChat
+          permitted
+          open={zatcaLabOpen}
+          onOpenChange={setZatcaLabOpen}
+          hideTrigger
+          onOpenFinancialOffice={onOpenZatcaFinancialOffice}
         />
       ) : null}
     </>
