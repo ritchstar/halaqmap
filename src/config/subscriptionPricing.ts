@@ -3,6 +3,9 @@ import { SubscriptionTier } from '@/lib/index';
 /** تسمية وحدة المنتج — تظهر في بطاقات التسعير والتسجيل */
 export const SOFTWARE_PACKAGE_UNIT_LABEL_AR = 'حزمة برمجية';
 
+/** اسم المنتج الموحّد B2B */
+export const SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR = 'حزمة برمجية للتواجد الجغرافي';
+
 /** شارة مدة البطاقة (30 يوم إدراج) */
 export const SOFTWARE_PACKAGE_VALIDITY_LABEL_AR = `${SOFTWARE_PACKAGE_UNIT_LABEL_AR} · 30 يوم`;
 

@@ -35,6 +35,7 @@ import {
   FlaskConical,
   Landmark,
   HardDrive,
+  ClipboardList,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -141,6 +142,7 @@ import { ResourceManagementSection } from '@/components/admin/ResourceManagement
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
+import { FounderOperationalFeedPanel, OpsControllerWorkspace } from '@/modules/ops-controller';
 import {
   FounderCommandShell,
   FounderCrest,
@@ -477,6 +479,8 @@ export default function AdminDashboard() {
     can('manage_admin_financial_archive') ||
     can('manage_centralized_billing_ops');
   const canAccessOpsBillingTab = canViewOpsBilling || canAccessFinancialArchive;
+  const canAccessOpsControllerTab =
+    can('view_ops_controller') || can('submit_ops_controller');
   const canManageFinancialArchive =
     can('manage_admin_financial_archive') || can('manage_centralized_billing_ops');
   const canViewZatcaFinancialOffice =
@@ -495,10 +499,11 @@ export default function AdminDashboard() {
     if (canViewSecurityOpsLog) out.push('security-ops');
     if (canViewPaymentGateways) out.push('payment-gateways');
     if (canAccessOpsBillingTab) out.push('ops-billing');
+    if (canAccessOpsControllerTab) out.push('ops-controller');
     if (can('view_settings')) out.push('settings');
     if (Boolean(adminData?.bootstrap)) out.push('resources');
     return out;
-  }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog, canAccessOpsBillingTab]);
+  }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog, canAccessOpsBillingTab, canAccessOpsControllerTab]);
 
   useEffect(() => {
     if (!adminData) return;
@@ -685,6 +690,12 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">التزامات التشغيل</span>
             </TabsTrigger>
             )}
+            {canAccessOpsControllerTab && (
+            <TabsTrigger value="ops-controller" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">مراقب العمليات</span>
+            </TabsTrigger>
+            )}
             {can('view_settings') && (
             <TabsTrigger value="settings" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <Settings className="w-4 h-4" />
@@ -728,7 +739,7 @@ export default function AdminDashboard() {
                 setZatcaScrollToken((n) => n + 1);
               }}
             />
-            <OverviewSection stats={stats} isFounderView={isFounderView} />
+            <OverviewSection stats={stats} isFounderView={isFounderView} showOperationalFeed={isFounderView} />
           </TabsContent>}
 
           {canViewSecurityOpsLog && (
@@ -806,6 +817,12 @@ export default function AdminDashboard() {
               />
             ) : null}
           </TabsContent>
+          )}
+
+          {canAccessOpsControllerTab && (
+            <TabsContent value="ops-controller" className="space-y-6">
+              <OpsControllerWorkspace can={can} isActive={activeTab === 'ops-controller'} />
+            </TabsContent>
           )}
 
           {/* Settings Tab */}
@@ -1113,7 +1130,15 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
 }
 
 // Overview Section
-function OverviewSection({ stats, isFounderView }: { stats: AdminStats; isFounderView: boolean }) {
+function OverviewSection({
+  stats,
+  isFounderView,
+  showOperationalFeed = false,
+}: {
+  stats: AdminStats;
+  isFounderView: boolean;
+  showOperationalFeed?: boolean;
+}) {
   if (!isFounderView) {
     return (
       <motion.div {...staffMotion.enter} className="space-y-6">
@@ -1322,6 +1347,12 @@ function OverviewSection({ stats, isFounderView }: { stats: AdminStats; isFounde
           </div>
         </FounderGlassCard>
       </FounderStaggerGrid>
+
+      {showOperationalFeed ? (
+        <FounderStaggerItem>
+          <FounderOperationalFeedPanel compact titleAr="التغذية التشغيلية — OPS_MANAGER" />
+        </FounderStaggerItem>
+      ) : null}
     </FounderStaggerGrid>
   );
 }
@@ -4807,6 +4838,39 @@ function SettingsSection({
         manage_platform_commerce_rules: false,
         view_admin_financial_archive: true,
         manage_admin_financial_archive: false,
+      },
+    },
+    {
+      key: 'ops_manager',
+      label: 'مراقب عمليات (OPS_MANAGER)',
+      permissions: {
+        ...FULL_ADMIN_PERMISSIONS,
+        view_requests: false,
+        review_requests: false,
+        manage_barbers: false,
+        view_payments: false,
+        review_payments: false,
+        view_command_center: false,
+        manage_command_center: false,
+        view_messages: false,
+        view_settings: false,
+        manage_admins: false,
+        view_payment_settings: false,
+        manage_payment_settings: false,
+        manage_subscriber_comms: false,
+        manage_subscriber_lifecycle: false,
+        manage_partner_billing: false,
+        manage_centralized_billing_ops: false,
+        view_ops_billing_monitor: false,
+        view_partner_marketing: false,
+        manage_partner_marketing: false,
+        manage_platform_commerce_rules: false,
+        view_admin_financial_archive: false,
+        manage_admin_financial_archive: false,
+        view_overview: true,
+        view_barbers: true,
+        view_ops_controller: true,
+        submit_ops_controller: true,
       },
     },
   ];

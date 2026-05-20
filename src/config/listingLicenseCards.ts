@@ -1,5 +1,6 @@
 import { SubscriptionTier } from '@/lib';
 import {
+  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
   SOFTWARE_PACKAGE_UNIT_LABEL_AR,
   SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
   TIER_MONTHLY_SAR,
@@ -14,20 +15,18 @@ export type ListingLicenseCardConfig = {
   tier: SubscriptionTier;
   tierQuery: string;
   accent: ListingLicenseCardAccent;
-  /** عنوان البطاقة (برونزي / ذهبي / ماسي) */
+  /** مستوى الباقة (برونزي / ذهبي / ماسي) */
   title: string;
-  /** @deprecated استخدم title — يُبقى للتوافق مع المكوّنات الحالية */
   nameAr: string;
   badge: string;
-  /** شارة علوية للباقة الماسية فقط */
   premiumRibbonAr?: string;
+  /** اسم المنتج الموحّد B2B */
+  productTitleAr: string;
   subtitleAr: string;
   priceSar: number;
-  /** وحدة التسعير — تُعرض بجانب السعر (مثال: /حزمة برمجية) */
   packageUnitLabelAr: string;
   validityLabel: string;
   highlights: readonly string[];
-  /** إضافة المناوب الرقمي — ماسي فقط */
   digitalShiftAddonAvailable?: boolean;
 };
 
@@ -39,29 +38,35 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     title: 'برونزي',
     nameAr: 'برونزي',
     badge: '🥉',
-    subtitleAr: 'بداية قوية عبر نظام الرصد الذكي',
+    productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+    subtitleAr: 'مدخل احترافي للتواجد الجغرافي عبر نظام الرصد الذكي',
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.BRONZE],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
-    highlights: ['ظهور في الحي والبحث', 'بيانات وتواصل واضحة', 'أيقونة مفتوح/مغلق برابط سري'],
+    highlights: [
+      'نظام الرصد الذكي — ظهور جغرافي دقيق في محيط الصالون',
+      'السيادة الرقمية — ملف تشغيلي واضح تحت سيطرتك',
+      'بيانات تواصل وحالة مفتوح/مغلق للعملاء',
+    ],
   },
   {
     tier: SubscriptionTier.DIAMOND,
     tierQuery: 'diamond',
     accent: 'diamond',
-    title: 'الباقة الماسية',
+    title: 'ماسي',
     nameAr: 'الباقة الماسية',
     badge: '💎',
-    premiumRibbonAr: 'نخبة الأعمال',
-    subtitleAr: 'الخيار الأسمى — قمة نظام الرصد الذكي',
+    premiumRibbonAr: 'الاختيار الاستراتيجي',
+    productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+    subtitleAr: 'الحزمة الأم للسيادة الرقمية والامتثال التشغيلي B2B',
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
     highlights: [
-      'تمييز بصري حصري: دبوس موقع مُشعّ ونابض على واجهة المستخدم النهائي لضمان خطف الأنظار فوراً.',
-      'شارة «صالون النخبة المعتمد»: وسام ذهبي/ماسي بجانب اسم الصالون لرفع الموثوقية والمقرات.',
-      'واجهة متقدمة: إمكانية تحميل بنر فيديو عالي الجودة لعرض مهارات صالونك في واجهة البحث.',
-      'أولوية الدعم الفني: شريك دعم مخصص للمساعدة في تحسين ملفك وجذب الزبائن.',
+      'نظام الرصد الذكي — أعلى أولوية استراتيجية في شبكة المنصة',
+      'السيادة الرقمية — حوكمة بيانات وامتثال تشغيلي بمعايير B2B',
+      'بوابة الخصوصية (NDMO) — مسار امتثال وتصاريح خصوصية للشركاء',
+      'الأتمتة الجغرافية — توسيع ذكي للظهور وإدارة المواقع المرتبطة',
     ],
     digitalShiftAddonAvailable: true,
   },
@@ -72,10 +77,22 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     title: 'ذهبي',
     nameAr: 'ذهبي',
     badge: '🥇',
-    subtitleAr: 'ظهور أقوى وثقة أعلى',
+    productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+    subtitleAr: 'توسّع موثوق في الظهور الجغرافي والثقة التشغيلية',
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.GOLD],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
-    highlights: ['أولوية أفضل في النتائج', 'تقييمات وربط بالزيارة', 'تحكم مفتوح/مغلق من اللوحة'],
+    highlights: [
+      'نظام الرصد الذكي — أولوية أعلى في النتائج الجغرافية',
+      'السيادة الرقمية — تحكم موسّع في الصور والظهور من لوحة التحكم',
+      'تقييمات، واتساب، وشات مباشر مع العملاء',
+    ],
   },
 ] as const;
+
+/** ترتيب العرض: الماسي في الوسط كخيار استراتيجي */
+export const LISTING_LICENSE_PRICING_DISPLAY_ORDER: readonly SubscriptionTier[] = [
+  SubscriptionTier.BRONZE,
+  SubscriptionTier.DIAMOND,
+  SubscriptionTier.GOLD,
+];

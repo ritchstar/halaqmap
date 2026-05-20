@@ -29,7 +29,7 @@ function getServerBootstrapAdminEmail(): string {
   return 'ritchstar4@gmail.com';
 }
 
-function isBootstrapAdminEmail(email: string): boolean {
+export function isBootstrapAdminEmail(email: string): boolean {
   const e = normalizeEmail(email);
   const set = new Set([
     getServerBootstrapAdminEmail(),
@@ -64,7 +64,9 @@ export type PlatformAdminPermissionKey =
   | 'manage_platform_commerce_rules'
   | 'manage_centralized_billing_ops'
   | 'view_admin_financial_archive'
-  | 'manage_admin_financial_archive';
+  | 'manage_admin_financial_archive'
+  | 'view_ops_controller'
+  | 'submit_ops_controller';
 
 function permissionFromRow(raw: unknown, key: PlatformAdminPermissionKey): boolean {
   const incoming = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};

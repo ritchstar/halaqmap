@@ -43,7 +43,11 @@ export type AdminPermissionKey =
   /** عرض أرشيف فواتير/وثائق الإدارة */
   | 'view_admin_financial_archive'
   /** رفع وحذف أرشيف الفواتير وربطها بالتزامات التشغيل */
-  | 'manage_admin_financial_archive';
+  | 'manage_admin_financial_archive'
+  /** عرض تغذية مراقب العمليات وتقارير OPS_MANAGER */
+  | 'view_ops_controller'
+  /** إرسال تقارير تشغيلية (OPS_MANAGER) إلى تغذية المؤسس */
+  | 'submit_ops_controller';
 
 export type AdminPermissions = Record<AdminPermissionKey, boolean>;
 
@@ -75,6 +79,8 @@ export const ADMIN_PERMISSION_ROLE_HINT: Record<AdminPermissionKey, AdminPermiss
   manage_centralized_billing_ops: 'super',
   view_admin_financial_archive: 'admin',
   manage_admin_financial_archive: 'super',
+  view_ops_controller: 'admin',
+  submit_ops_controller: 'admin',
 };
 
 export type AdminPermissionSection = {
@@ -113,7 +119,7 @@ export const ADMIN_PERMISSION_UI_SECTIONS: AdminPermissionSection[] = [
     id: 'command',
     title: 'غرفة القيادة والعمليات',
     subtitle: 'متابعة العمليات التكتيكية (Leads، تصديرات، … حسب التبويب).',
-    keys: ['view_command_center', 'manage_command_center'],
+    keys: ['view_command_center', 'manage_command_center', 'view_ops_controller', 'submit_ops_controller'],
   },
   {
     id: 'comms',
@@ -187,6 +193,8 @@ export const ADMIN_PERMISSION_LABELS: Record<AdminPermissionKey, string> = {
   manage_centralized_billing_ops: 'مزامنة وتعديل لوحة التزامات التشغيل (سوبر أدمن)',
   view_admin_financial_archive: 'عرض أرشيف فواتير ووثائق الإدارة',
   manage_admin_financial_archive: 'رفع وحذف أرشيف الفواتير وتحديث التزامات التشغيل',
+  view_ops_controller: 'عرض تغذية مراقب العمليات وتقارير OPS_MANAGER',
+  submit_ops_controller: 'إرسال تقارير تشغيلية إلى تغذية المؤسس (OPS_MANAGER)',
 };
 
 export const ADMIN_PERMISSION_KEYS = Object.keys(ADMIN_PERMISSION_LABELS) as AdminPermissionKey[];
@@ -216,6 +224,8 @@ export const DEFAULT_ADMIN_PERMISSIONS: AdminPermissions = {
   manage_centralized_billing_ops: false,
   view_admin_financial_archive: false,
   manage_admin_financial_archive: false,
+  view_ops_controller: false,
+  submit_ops_controller: false,
 };
 
 export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
@@ -243,6 +253,8 @@ export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
   manage_centralized_billing_ops: true,
   view_admin_financial_archive: true,
   manage_admin_financial_archive: true,
+  view_ops_controller: true,
+  submit_ops_controller: true,
 };
 
 function roleHintBadge(h: AdminPermissionRoleHint): string {

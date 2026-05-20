@@ -28,13 +28,12 @@ import {
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
 import {
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
-  BARBER_DASHBOARD_GOLD_LINE,
-  BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
   MAP_FEATURE_HERO,
   SHOP_OPEN_STATUS_FEATURE_BRONZE,
   SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from '@/config/subscriptionPlanHero';
-import { SOFTWARE_PACKAGE_UNIT_LABEL_AR } from '@/config/subscriptionPricing';
+import { SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR, SOFTWARE_PACKAGE_UNIT_LABEL_AR } from '@/config/subscriptionPricing';
+import { LISTING_LICENSE_PRICING_DISPLAY_ORDER } from '@/config/listingLicenseCards';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
@@ -137,83 +136,53 @@ type FormPlanFeature = { kind: 'map_hero' } | { kind: 'line'; text: string };
 
 const SUBSCRIPTION_PLANS: {
   tier: SubscriptionTier;
-  name: string;
+  tierLevel: string;
   label: string;
   price: number;
-  color: string;
   features: FormPlanFeature[];
-  popular?: boolean;
-  premium?: boolean;
+  strategic?: boolean;
 }[] = [
   {
     tier: SubscriptionTier.BRONZE,
-    name: 'برونزي',
+    tierLevel: 'برونزي',
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     price: 100,
-    color: 'from-amber-700 to-amber-900',
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: 'صورتان أساسيتان (خارجي وداخل المحل) وأربع صور للبنر مع الطلب' },
-      { kind: 'line', text: 'جدول أسبوعي كامل لأوقات العمل (إلزامي مع الطلب ويُعرَض للعملاء)' },
-      { kind: 'line', text: 'رقم الهاتف للتواصل' },
-      { kind: 'line', text: 'ظهور في نتائج البحث عبر نظام الرصد الذكي' },
+      { kind: 'line', text: 'نظام الرصد الذكي — ظهور جغرافي دقيق في محيط الصالون' },
+      { kind: 'line', text: 'السيادة الرقمية — ملف تشغيلي واضح تحت سيطرتك' },
+      { kind: 'line', text: 'صورتان أساسيتان وأربع صور للبنر مع الطلب' },
       { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_BRONZE },
     ],
   },
   {
     tier: SubscriptionTier.GOLD,
-    name: 'ذهبي',
+    tierLevel: 'ذهبي',
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     price: 150,
-    color: 'from-accent to-yellow-600',
     features: [
       { kind: 'map_hero' },
+      { kind: 'line', text: 'نظام الرصد الذكي — أولوية أعلى في النتائج الجغرافية' },
+      { kind: 'line', text: 'السيادة الرقمية — تحكم موسّع في الصور والظهور من لوحة التحكم' },
       { kind: 'line', text: RATING_QR_PLAN_LINE },
-      { kind: 'line', text: 'جميع مزايا الباقة البرونزية' },
-      { kind: 'line', text: 'بنر موسع بصور متعددة' },
-      { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
-      { kind: 'line', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)' },
-      { kind: 'line', text: 'رابط واتساب مباشر' },
-      { kind: 'line', text: 'شات مباشر مع العملاء' },
-      { kind: 'line', text: 'جلسة شات خاصة لكل عميل تنتهي تلقائياً بعد 60 دقيقة لخصوصية أعلى' },
-      { kind: 'line', text: 'أولوية في الظهور عبر نظام الرصد الذكي والبحث' },
+      { kind: 'line', text: 'واتساب، شات مباشر، وإدارة أوقات العمل من اللوحة' },
       { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
-      { kind: 'line', text: BARBER_DASHBOARD_GOLD_LINE },
-      {
-        kind: 'line',
-        text: 'خدمة كبار السن والمرضى وذوي الاحتياجات (محل/منزل): تحكم كامل بعد التفعيل من لوحة التحكم — السعر، الإظهار للعملاء، الأيام، والملاحظات',
-      },
     ],
-    popular: true,
   },
   {
     tier: SubscriptionTier.DIAMOND,
-    name: 'ماسي',
+    tierLevel: 'ماسي',
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     price: 200,
-    color: 'from-primary to-cyan-600',
+    strategic: true,
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: RATING_QR_PLAN_LINE },
-      { kind: 'line', text: 'جميع مزايا الباقة الذهبية' },
+      { kind: 'line', text: 'نظام الرصد الذكي — أعلى أولوية استراتيجية في شبكة المنصة' },
+      { kind: 'line', text: 'السيادة الرقمية — حوكمة بيانات وامتثال تشغيلي B2B' },
+      { kind: 'line', text: 'بوابة الخصوصية (NDMO) — مسار امتثال وتصاريح خصوصية للشركاء' },
+      { kind: 'line', text: 'الأتمتة الجغرافية — توسيع ذكي للظهور وإدارة المواقع المرتبطة' },
       { kind: 'line', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
-      { kind: 'line', text: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
-      { kind: 'line', text: 'شارة ماسية مميزة عبر نظام الرصد الذكي' },
-      { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
-      { kind: 'line', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)' },
-      { kind: 'line', text: 'أولوية قصوى في الظهور عبر نظام الرصد الذكي والبحث' },
-      { kind: 'line', text: 'ترجمة تلقائية في الشات' },
-      { kind: 'line', text: 'شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة' },
-      {
-        kind: 'line',
-        text: 'تنبيه خصوصية: الترجمة تُعرض بينك وبين الصالون كمزوّد خدمة وفق السياسات — ليست ترجمة رسمية',
-      },
-      {
-        kind: 'line',
-        text: 'خدمة كبار السن والمرضى وذوي الاحتياجات: تحكم كامل من لوحة التحكم (كالذهبي) مع مزايا الماسي',
-      },
     ],
-    premium: true,
   },
 ];
 
@@ -665,7 +634,7 @@ export function RegistrationForm() {
       }
 
       const plan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
-      const tierName = plan?.name ?? String(formData.tier);
+      const tierName = plan?.tierLevel ?? String(formData.tier);
       const payLabel = 'حزمة برمجية (ميسر — بطاقة)';
 
       const attributionLines = partnerAttribution
@@ -756,6 +725,14 @@ export function RegistrationForm() {
     }
   };
 
+  const registrationPlansOrdered = useMemo(
+    () =>
+      LISTING_LICENSE_PRICING_DISPLAY_ORDER.map(
+        (tier) => SUBSCRIPTION_PLANS.find((plan) => plan.tier === tier)!,
+      ),
+    [],
+  );
+
   const selectedPlan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
   const monthlyPriceBreakdown = useMemo(
     () => (selectedPlan ? calcVatBreakdown(selectedPlan.price, vatSettings) : null),
@@ -828,95 +805,102 @@ export function RegistrationForm() {
           className="min-w-0"
         >
           {currentStep === 1 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">اختر الباقة المناسبة</CardTitle>
-                <CardDescription>اختر الباقة التي تناسب احتياجات محلك</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup
-                  value={formData.tier}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, tier: value as SubscriptionTier }))
-                  }
-                  className="grid gap-4"
-                >
-                  {SUBSCRIPTION_PLANS.map((plan) => (
+            <div className="rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100">
+              <header className="mb-6 space-y-2 text-right">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  حزم برمجية B2B
+                </p>
+                <h2 className="text-2xl font-bold text-white">اختر الحزمة البرمجية المناسبة</h2>
+                <p className="text-sm leading-relaxed text-slate-300">
+                  {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} — مع{' '}
+                  <span className="font-semibold text-slate-100">نظام الرصد الذكي</span> و{' '}
+                  <span className="font-semibold text-slate-100">السيادة الرقمية</span> كقيم أساسية
+                  لكل مستوى.
+                </p>
+              </header>
+              <RadioGroup
+                value={formData.tier}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, tier: value as SubscriptionTier }))
+                }
+                className="grid gap-4 md:grid-cols-3 md:items-stretch"
+              >
+                {registrationPlansOrdered.map((plan) => {
+                  const isSelected = formData.tier === plan.tier;
+                  const isStrategic = plan.strategic === true;
+                  return (
                     <label
                       key={plan.tier}
-                      className={`relative cursor-pointer ${
-                        formData.tier === plan.tier ? 'ring-2 ring-primary' : ''
-                      }`}
+                      className="relative flex cursor-pointer flex-col"
                     >
-                      <Card
-                        className={`transition-all hover:shadow-lg ${
-                          formData.tier === plan.tier ? 'border-primary' : ''
-                        }`}
+                      {isStrategic ? (
+                        <span className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded border border-slate-500 bg-slate-700 px-3 py-0.5 text-[11px] font-semibold text-slate-100">
+                          الاختيار الاستراتيجي
+                        </span>
+                      ) : null}
+                      <div
+                        className={[
+                          'flex h-full min-h-[520px] flex-col rounded-lg bg-slate-800 p-5 text-right',
+                          isStrategic
+                            ? 'border-2 border-slate-500'
+                            : 'border border-slate-700',
+                          isSelected ? 'ring-1 ring-slate-400' : '',
+                        ].join(' ')}
                       >
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <RadioGroupItem value={plan.tier} id={plan.tier} />
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <h3 className="text-xl font-bold">{plan.name}</h3>
-                                  {plan.popular && (
-                                    <Badge className="bg-accent text-accent-foreground">
-                                      الأكثر شعبية
-                                    </Badge>
-                                  )}
-                                  {plan.premium && (
-                                    <Badge className="bg-primary text-primary-foreground">
-                                      <Sparkles className="w-3 h-3 ml-1" />
-                                      مميز
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-2xl font-bold text-primary mt-1">
-                                  {plan.price} ريال
-                                  <span className="text-sm text-muted-foreground">/{plan.label}</span>
-                                </p>
-                              </div>
-                            </div>
+                        <div className="mb-4 flex items-start gap-3">
+                          <RadioGroupItem
+                            value={plan.tier}
+                            id={plan.tier}
+                            className="mt-1 border-slate-500 text-slate-100"
+                          />
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <p className="text-xs text-slate-400">{plan.tierLevel}</p>
+                            <h3 className="text-base font-bold leading-snug text-white">
+                              {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR}
+                            </h3>
+                            <p className="text-2xl font-bold text-white">
+                              {plan.price}{' '}
+                              <span className="text-sm font-normal text-slate-400">ريال</span>
+                              <span className="text-xs font-normal text-slate-500"> /{plan.label}</span>
+                            </p>
                           </div>
-                          <ul className="space-y-2 list-none p-0 m-0">
-                            {plan.features.map((feature, index) =>
-                              feature.kind === 'map_hero' ? (
-                                <li key={index} className="mb-3 list-none">
-                                  <div className="rounded-xl border-2 border-primary/40 bg-gradient-to-br from-primary/18 via-primary/[0.06] to-cyan-500/12 p-3 shadow-md shadow-primary/15">
-                                    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-3 sm:text-right">
-                                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-cyan-600 text-white shadow-md ring-2 ring-primary/15">
-                                        <MapPin className="h-6 w-6" strokeWidth={2.25} aria-hidden />
-                                      </div>
-                                      <div className="min-w-0 flex-1 space-y-0.5 text-center sm:text-right">
-                                        <p className="text-sm font-bold text-foreground leading-snug">
-                                          {MAP_FEATURE_HERO.title}
-                                        </p>
-                                        <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
-                                          {MAP_FEATURE_HERO.subtitle}
-                                        </p>
-                                      </div>
-                                      <Check className="h-5 w-5 shrink-0 text-primary" aria-label="مشمول" />
+                        </div>
+                        <ul className="m-0 flex flex-1 list-none flex-col gap-2 p-0">
+                          {plan.features.map((feature, index) =>
+                            feature.kind === 'map_hero' ? (
+                              <li key={index} className="mb-1 list-none">
+                                <div className="rounded-lg border border-slate-600 bg-slate-900 p-3">
+                                  <div className="flex items-start gap-3">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-600 bg-slate-800 text-slate-200">
+                                      <MapPin className="h-5 w-5" strokeWidth={2} aria-hidden />
                                     </div>
+                                    <div className="min-w-0 flex-1 space-y-0.5">
+                                      <p className="text-sm font-semibold leading-snug text-slate-100">
+                                        {MAP_FEATURE_HERO.title}
+                                      </p>
+                                      <p className="text-[11px] leading-relaxed text-slate-400 sm:text-xs">
+                                        {MAP_FEATURE_HERO.subtitle}
+                                      </p>
+                                    </div>
+                                    <Check className="h-4 w-4 shrink-0 text-slate-300" aria-label="مشمول" />
                                   </div>
-                                </li>
-                              ) : (
-                                <li key={index} className="flex items-center gap-2 text-sm">
-                                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                                  <span>{feature.text}</span>
-                                </li>
-                              )
-                            )}
-                          </ul>
-                        </CardContent>
-                      </Card>
+                                </div>
+                              </li>
+                            ) : (
+                              <li key={index} className="flex items-start gap-2 text-sm leading-relaxed text-slate-300">
+                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                <span>{feature.text}</span>
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </div>
                     </label>
-                  ))}
-                </RadioGroup>
-              </CardContent>
-            </Card>
+                  );
+                })}
+              </RadioGroup>
+            </div>
           )}
-
           {currentStep === 2 && (
             <Card>
               <CardHeader>
@@ -1484,7 +1468,7 @@ export function RegistrationForm() {
                     <AlertDescription>
                       {vatSettings.enabled && monthlyPriceBreakdown && monthlyPriceBreakdown.vat > 0 ? (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — قيمة الحزمة البرمجية الرقمية الموحد{' '}
+                          الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong> — قيمة الحزمة البرمجية الرقمية الموحد{' '}
                           {monthlyPriceBreakdown.subtotal} ر.س + ضريبة القيمة المضافة (
                           {vatSettings.ratePercent}%){' '}
                           {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
@@ -1492,7 +1476,7 @@ export function RegistrationForm() {
                         </>
                       ) : (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price} ريال للحزمة البرمجية
+                          الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong> - {selectedPlan.price} ريال للحزمة البرمجية
                           <span className="block text-xs mt-1 opacity-90">
                             المبلغ المعروض قيمة حزمة برمجية فقط دون ضريبة قيمة مضافة في الوضع الحالي.
                           </span>
