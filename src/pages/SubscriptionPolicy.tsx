@@ -5,14 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
-  BARBER_DASHBOARD_GOLD_LINE,
-  BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
   MAP_FEATURE_HERO,
-  SHOP_OPEN_STATUS_FEATURE_BRONZE,
-  SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from "@/config/subscriptionPlanHero";
-import { RATING_QR_PLAN_LINE } from "@/config/ratingQrInvite";
+import { LISTING_LICENSE_LEGAL_FOOTNOTE } from "@/config/listingLicenseCards";
+import {
+  SUBSCRIPTION_POLICY_EXPIRY,
+  SUBSCRIPTION_POLICY_PACKAGE_RENEWAL,
+  SUBSCRIPTION_POLICY_TIERS,
+  SUBSCRIPTION_POLICY_TIERS_INTRO,
+} from "@/config/subscriptionPolicyTiers";
 import {
   LEGAL_TRADE_NAME_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
@@ -22,84 +23,10 @@ import {
   getLegalCommercialRegistrationDisplay,
 } from "@/config/partnerLegal";
 
-type SubscriptionTierFeature = { kind: "map_hero" } | { kind: "text"; value: string };
 
 export default function SubscriptionPolicy() {
   const commercialReg = getLegalCommercialRegistrationDisplay();
-  const subscriptionTiers: Array<{
-    name: string;
-    price: string;
-    period: string;
-    color: string;
-    features: SubscriptionTierFeature[];
-  }> = [
-    {
-      name: "برونزي",
-      price: "100",
-      period: "ر.س / حزمة برمجية",
-      color: "bg-gradient-to-br from-amber-700 to-amber-900",
-      features: [
-        { kind: "map_hero" },
-        { kind: "text", value: "صورتان أساسيتان (خارجي وداخل) وأربع صور للبنر مع طلب الحزمة البرمجية" },
-        { kind: "text", value: "جدول أسبوعي كامل لأوقات العمل مع الطلب (إلزامي ويُعرَض للعملاء)" },
-        { kind: "text", value: "رقم الهاتف وبيانات التواصل من بطاقة المحل" },
-        { kind: "text", value: "ظهور في نتائج البحث" },
-        { kind: "text", value: "تحديث المعلومات الأساسية" },
-        { kind: "text", value: SHOP_OPEN_STATUS_FEATURE_BRONZE },
-      ],
-    },
-    {
-      name: "ذهبي",
-      price: "150",
-      period: "ر.س / حزمة برمجية",
-      color: "bg-gradient-to-br from-accent to-yellow-600",
-      features: [
-        { kind: "map_hero" },
-        { kind: "text", value: RATING_QR_PLAN_LINE },
-        { kind: "text", value: "كل مميزات البرونزي" },
-        { kind: "text", value: "بنر موسع بصور متعددة" },
-        { kind: "text", value: "إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل" },
-        { kind: "text", value: "جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)" },
-        { kind: "text", value: "رابط واتساب مباشر" },
-        { kind: "text", value: "شات مباشر مع العملاء" },
-        { kind: "text", value: "جلسة شات خاصة لكل عميل تنتهي تلقائياً بعد 60 دقيقة لخصوصية أعلى" },
-        { kind: "text", value: "أولوية في نتائج البحث" },
-        { kind: "text", value: "إحصائيات المشاهدات" },
-        { kind: "text", value: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
-        { kind: "text", value: BARBER_DASHBOARD_GOLD_LINE },
-        {
-          kind: "text",
-          value:
-            "خدمة كبار السن والمرضى وذوي الاحتياجات (محل/منزل): تحكم كامل بعد التفعيل من لوحة التحكم — السعر المعروض، إظهار أو إخفاء الخدمة للعملاء، تقييد أيام الإعلان أو تركها مرنة، وملاحظة للعميل",
-        },
-      ],
-    },
-    {
-      name: "ماسي",
-      price: "200",
-      period: "ر.س / حزمة برمجية",
-      color: "bg-gradient-to-br from-primary to-cyan-600",
-      features: [
-        { kind: "map_hero" },
-        { kind: "text", value: RATING_QR_PLAN_LINE },
-        { kind: "text", value: "كل مميزات الذهبي" },
-        { kind: "text", value: "شارة ماسية مميزة" },
-        { kind: "text", value: "إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل" },
-        { kind: "text", value: "جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)" },
-        { kind: "text", value: "أولوية قصوى في الظهور" },
-        { kind: "text", value: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
-        { kind: "text", value: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
-        { kind: "text", value: "ترجمة تلقائية في الشات" },
-        { kind: "text", value: "شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة" },
-        {
-          kind: "text",
-          value:
-            "التنبيه على معالجة الترجمة: تُعرض بين المستخدم والصالون كمزوّد خدمة وفق سياسة الخصوصية — ليست ترجمة رسمية أو استشارة",
-        },
-        { kind: "text", value: "دعم فني مخصص 24/7" },
-      ],
-    },
-  ];
+  const subscriptionTiers = SUBSCRIPTION_POLICY_TIERS;
 
   const paymentMethods = [
     {
@@ -198,7 +125,10 @@ export default function SubscriptionPolicy() {
         </motion.section>
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">أنواع باقات الحزم البرمجية والأسعار</h2>
+          <h2 className="text-3xl font-bold mb-4 text-center">أنواع باقات الحزم البرمجية والأسعار</h2>
+          <p className="text-sm text-muted-foreground text-center max-w-3xl mx-auto mb-8 leading-relaxed">
+            {SUBSCRIPTION_POLICY_TIERS_INTRO}
+          </p>
           <div className="grid md:grid-cols-3 gap-6">
             {subscriptionTiers.map((tier, index) => (
               <motion.div
@@ -211,10 +141,10 @@ export default function SubscriptionPolicy() {
                   <CardHeader className="text-center pb-4">
                     <CardTitle className="text-2xl mb-2">{tier.name}</CardTitle>
                     <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-4xl font-bold text-primary">{tier.price}</span>
+                      <span className="text-4xl font-bold text-primary">{tier.priceSar}</span>
                       <span className="text-muted-foreground">ريال</span>
                     </div>
-                    <CardDescription>{tier.period}</CardDescription>
+                    <CardDescription>{tier.periodLabelAr}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3 list-none p-0 m-0">
@@ -254,6 +184,11 @@ export default function SubscriptionPolicy() {
               </motion.div>
             ))}
           </div>
+          <Card className="mt-8 max-w-4xl mx-auto border-primary/20 bg-muted/30">
+            <CardContent className="pt-6">
+              <p className="text-xs leading-relaxed text-muted-foreground text-justify">{LISTING_LICENSE_LEGAL_FOOTNOTE}</p>
+            </CardContent>
+          </Card>
         </motion.section>
 
         <Separator className="my-16" />
@@ -400,37 +335,25 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">تعليق الحساب عند عدم الدفع</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">{SUBSCRIPTION_POLICY_EXPIRY.title}</h2>
           <Card className="max-w-3xl mx-auto">
             <CardContent className="pt-6">
               <div className="space-y-6">
-                <div>
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-yellow-500" />
-                    التعليق المؤقت (7 أيام)
-                  </h3>
-                  <p className="text-sm text-muted-foreground pr-7">
-                    عند فشل الدفع، يتم تعليق الحساب مؤقتاً مع إخفاء البطاقة من نتائج البحث. يمكنك تحديث طريقة الدفع خلال هذه الفترة لاستعادة الخدمة.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <XCircle className="w-5 h-5 text-red-500" />
-                    الإلغاء النهائي (بعد 7 أيام)
-                  </h3>
-                  <p className="text-sm text-muted-foreground pr-7">
-                    إذا لم يُجدَّد الحزمة البرمجية بعد انتهاء الصلاحية، تتوقف خدمة الإدراج عبر نظام الرصد الذكي دون حذف تلقائي للبيانات إلا وفق طلب صريح.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    إعادة التفعيل
-                  </h3>
-                  <p className="text-sm text-muted-foreground pr-7">
-                    يمكنك إعادة تفعيل الحساب في أي وقت بعد الإلغاء من خلال التسجيل مجدداً واختيار الباقة المناسبة.
-                  </p>
-                </div>
+                {SUBSCRIPTION_POLICY_EXPIRY.items.map((item, idx) => (
+                  <div key={item.title}>
+                    <h3 className="font-semibold mb-2 flex items-center gap-2">
+                      {idx === 0 ? (
+                        <AlertCircle className="w-5 h-5 text-yellow-500" />
+                      ) : idx === 1 ? (
+                        <XCircle className="w-5 h-5 text-red-500" />
+                      ) : (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      )}
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground pr-7">{item.body}</p>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -439,67 +362,21 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">تعديل الباقة</h2>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <CheckCircle2 className="w-6 h-6 text-green-500" />
-                  </div>
-                  <CardTitle>الترقية إلى باقة أعلى</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  يمكنك الترقية في أي وقت. سيتم احتساب الفرق بشكل تناسبي للفترة المتبقية.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>تفعيل فوري للمميزات الجديدة</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>دفع الفرق فقط للفترة المتبقية</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>لا توجد رسوم إضافية</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-yellow-500/10">
-                    <AlertCircle className="w-6 h-6 text-yellow-500" />
-                  </div>
-                  <CardTitle>التخفيض إلى باقة أقل</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  يمكنك التخفيض في نهاية الفترة الحالية. لن يتم استرداد الفرق للفترة المدفوعة.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>التطبيق في بداية الفترة القادمة</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>الاحتفاظ بالمميزات حتى نهاية الفترة</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>إشعار قبل التطبيق بـ3 أيام</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+          <h2 className="text-3xl font-bold mb-4 text-center">{SUBSCRIPTION_POLICY_PACKAGE_RENEWAL.title}</h2>
+          <p className="text-sm text-muted-foreground text-center max-w-3xl mx-auto mb-8 leading-relaxed">
+            {SUBSCRIPTION_POLICY_PACKAGE_RENEWAL.lead}
+          </p>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {SUBSCRIPTION_POLICY_PACKAGE_RENEWAL.items.map((item) => (
+              <Card key={item.title} className="h-full">
+                <CardHeader>
+                  <CardTitle className="text-lg">{item.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.body}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </motion.section>
 
