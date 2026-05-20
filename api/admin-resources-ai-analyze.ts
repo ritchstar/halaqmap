@@ -4,9 +4,13 @@ import {
   callOpenAIOpsBillingVision,
   commitmentRowForAi,
   enrichProposalsWithRows,
+  getOpsBillingTemporalAnchor,
+  isTemporalCorrectionUserMessage,
   loadCommitmentRows,
   parseOpsBillingAiJson,
+  sanitizeOpsBillingAnalyzeResult,
   assertVisionMime,
+  type OpsBillingChatTurn,
 } from './_lib/opsBillingAi.js';
 
 /** Vercel serverless — allow up to 60s for vision + DB (see vercel.json). */
@@ -53,6 +57,18 @@ export async function POST(request: Request): Promise<Response> {
   const userMessage = String(body.userMessage || body.prompt || '').trim();
   const imageBase64Raw = typeof body.imageBase64 === 'string' ? body.imageBase64.trim() : '';
   const imageMime = String(body.imageMime || body.mimeType || '').trim().toLowerCase();
+  const rawHistory = Array.isArray(body.conversationHistory) ? body.conversationHistory : [];
+  const conversationHistory: OpsBillingChatTurn[] = rawHistory
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null;
+      const o = item as Record<string, unknown>;
+      const role = o.role === 'assistant' ? 'assistant' : o.role === 'user' ? 'user' : null;
+      const content = String(o.content || '').trim();
+      if (!role || !content) return null;
+      return { role, content };
+    })
+    .filter((x): x is OpsBillingChatTurn => x !== null)
+    .slice(-8);
 
   if (!userMessage && !imageBase64Raw) {
     return json({ error: 'أدخل سؤالاً أو ارفع صورة فاتورة' }, 400);
@@ -75,10 +91,17 @@ export async function POST(request: Request): Promise<Response> {
 
   const aiContext = rows.map((r) => commitmentRowForAi(r));
   const system = buildOpsBillingAiSystemPrompt(aiContext);
+  const anchor = getOpsBillingTemporalAnchor();
+  const temporalHint = isTemporalCorrectionUserMessage(userMessage)
+    ? `\n[تصحيح زمني من المالك: اليوم ${anchor.labelAr}. أصلح أي تاريخ تجديد سابق ولا تكرر سنوات قديمة.]`
+    : '';
   const userText = [
     userMessage || 'حلّل المرفق وحدّد التزاماً في الجدول.',
+    temporalHint,
     'أعد JSON فقط حسب المخطط في تعليمات النظام.',
-  ].join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   try {
     const rawModel = await callOpenAIOpsBillingVision({
@@ -86,9 +109,13 @@ export async function POST(request: Request): Promise<Response> {
       userText,
       imageBase64,
       imageMime: imageMime || undefined,
+      conversationHistory,
       timeoutMs: OPENAI_ANALYZE_TIMEOUT_MS,
     });
-    const parsed = parseOpsBillingAiJson(rawModel);
+    const parsed = sanitizeOpsBillingAnalyzeResult(parseOpsBillingAiJson(rawModel), {
+      userMessage,
+      hasImage: Boolean(imageBase64),
+    });
     const rowsById = new Map(rows.map((r) => [String(r.id), r]));
     const proposals = enrichProposalsWithRows(parsed.proposals, rowsById);
 

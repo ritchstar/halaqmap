@@ -68,6 +68,15 @@ function AnalysisLoadingIndicator({ stepIndex }: { stepIndex: number }) {
   );
 }
 
+function isRenewalInPast(iso: unknown): boolean {
+  if (typeof iso !== 'string' || !iso.trim()) return false;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return true;
+  const renewalYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Riyadh' }).format(new Date(t));
+  const todayYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Riyadh' }).format(new Date());
+  return renewalYmd < todayYmd;
+}
+
 function formatFieldLabel(key: string): string {
   const map: Record<string, string> = {
     display_label: 'الخدمة',
@@ -144,7 +153,7 @@ export function OpsBillingAiAssistant({
     {
       role: 'assistant',
       content:
-        'مرحباً — أنا **المساعد المالي الذكي**. ارفع لقطة فاتورة (JPEG/PNG) أو اكتب سؤالاً عن تجديد GoDaddy أو OpenAI أو غيرها، وسأقترح تحديث صف في جدول الالتزامات للمراجعة قبل الحفظ.',
+        'مرحباً — أنا **خازن 🪙**، خزّان العمليات المالي. ارفع لقطة فاتورة (JPEG/PNG) أو اكتب سؤالاً عن تجديد GoDaddy أو Supabase أو OpenAI، وسأقترح تحديث صف في جدول الالتزامات للمراجعة قبل الحفظ. أستخدم تاريخ اليوم في الرياض كمرجع زمني ولا أقبل تواريخ تجديد في الماضي.',
     },
   ]);
   const [input, setInput] = useState('');
@@ -237,6 +246,7 @@ export function OpsBillingAiAssistant({
     setLoadingStep(0);
     setPending(null);
     const userLine = text || '(مرفق فاتورة)';
+    const historyForApi = messages.slice(-8);
     setMessages((m) => [...m, { role: 'user', content: userLine }]);
     setInput('');
 
@@ -254,6 +264,7 @@ export function OpsBillingAiAssistant({
           userMessage: text,
           imageBase64,
           imageMime,
+          conversationHistory: historyForApi,
         },
         { signal: abortController.signal },
       );
@@ -293,6 +304,14 @@ export function OpsBillingAiAssistant({
 
   const confirmApply = async () => {
     if (!pending || !canMutate) return;
+    const renewAt = pending.patch.next_renewal_at ?? pending.after.next_renewal_at;
+    if (isRenewalInPast(renewAt)) {
+      toast({
+        title: 'تاريخ التجديد في الماضي — صحّح التاريخ أو أعد التحليل',
+        variant: 'destructive',
+      });
+      return;
+    }
     setApplying(true);
     const r = await applyOpsBillingAiUpdate({
       proposal_token: pending.proposal_token,
@@ -322,7 +341,7 @@ export function OpsBillingAiAssistant({
         <SheetTrigger asChild>
           <Button type="button" variant="outline" className="gap-2 border-primary/30">
             <Sparkles className="h-4 w-4 text-primary" />
-            المساعد المالي الذكي
+            خازن 🪙
           </Button>
         </SheetTrigger>
       )}
@@ -330,10 +349,10 @@ export function OpsBillingAiAssistant({
         <SheetHeader className="px-6 pt-6 pb-4 border-b shrink-0 text-right">
           <SheetTitle className="flex items-center gap-2 justify-end">
             <Bot className="h-5 w-5 text-primary" />
-            المساعد المالي الذكي
+            خازن 🪙 — خزّان العمليات
           </SheetTitle>
           <SheetDescription className="text-right">
-            تحليل فواتير وتحديث جدول الالتزامات — معاينة التغييرات قبل الحفظ.
+            تحليل فواتير وتحديث جدول الالتزامات — معاينة التغييرات قبل الحفظ، مع مرجع زمني بتوقيت الرياض.
           </SheetDescription>
         </SheetHeader>
 
@@ -372,6 +391,15 @@ export function OpsBillingAiAssistant({
                 ثقة: {pending.match_confidence}
               </Badge>
             </div>
+            {pending.warnings && pending.warnings.length > 0 && (
+              <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 space-y-1">
+                {pending.warnings.map((w, i) => (
+                  <p key={i} className="text-xs text-amber-800 dark:text-amber-200">
+                    🛠 {w}
+                  </p>
+                ))}
+              </div>
+            )}
             <DiffPreview proposal={pending} />
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="ghost" size="sm" disabled={applying} onClick={() => setPending(null)}>
@@ -381,7 +409,11 @@ export function OpsBillingAiAssistant({
               <Button
                 type="button"
                 size="sm"
-                disabled={!canMutate || applying}
+                disabled={
+                  !canMutate ||
+                  applying ||
+                  isRenewalInPast(pending.patch.next_renewal_at ?? pending.after.next_renewal_at)
+                }
                 onClick={() => void confirmApply()}
               >
                 {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 ml-1" />}
@@ -390,6 +422,11 @@ export function OpsBillingAiAssistant({
             </div>
             {!canMutate && (
               <p className="text-xs text-destructive">يتطلب صلاحية manage_centralized_billing_ops للتطبيق.</p>
+            )}
+            {isRenewalInPast(pending.patch.next_renewal_at ?? pending.after.next_renewal_at) && (
+              <p className="text-xs text-destructive">
+                تاريخ التجديد المقترح في الماضي — أعد التحليل أو صحّح التاريخ قبل التطبيق.
+              </p>
             )}
           </div>
         )}

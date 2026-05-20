@@ -35,7 +35,10 @@ export type OpsBillingAiProposal = {
   before: Record<string, unknown>;
   after: Record<string, unknown>;
   patch: OpsBillingAiPatch;
+  warnings?: string[];
 };
+
+export type OpsBillingChatTurn = { role: 'user' | 'assistant'; content: string };
 
 export type OpsBillingAiAnalyzeResult = {
   assistant_message: string;
@@ -44,6 +47,82 @@ export type OpsBillingAiAnalyzeResult = {
 };
 
 const BILLING_CYCLES = new Set(['monthly', 'annual', 'custom', 'unknown']);
+
+const RIYADH_TZ = 'Asia/Riyadh';
+
+/** تاريخ اليوم في الرياض بصيغة YYYY-MM-DD */
+export function getOpsBillingTodayYmd(now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: RIYADH_TZ }).format(now);
+}
+
+export function getOpsBillingTemporalAnchor(now = new Date()): {
+  todayYmd: string;
+  year: number;
+  labelAr: string;
+} {
+  const todayYmd = getOpsBillingTodayYmd(now);
+  const year = Number(
+    new Intl.DateTimeFormat('en-US', { timeZone: RIYADH_TZ, year: 'numeric' }).format(now),
+  );
+  const labelAr = new Intl.DateTimeFormat('ar-SA', {
+    timeZone: RIYADH_TZ,
+    dateStyle: 'full',
+  }).format(now);
+  return { todayYmd, year, labelAr };
+}
+
+function renewalYmdInRiyadh(iso: string): string | null {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  return new Intl.DateTimeFormat('en-CA', { timeZone: RIYADH_TZ }).format(new Date(t));
+}
+
+export function isRenewalDateInPast(iso: string, now = new Date()): boolean {
+  const renewalYmd = renewalYmdInRiyadh(iso);
+  if (!renewalYmd) return true;
+  return renewalYmd < getOpsBillingTodayYmd(now);
+}
+
+/**
+ * إذا استخرج النموذج سنة قديمة (مثل 2023 في 2026)، نُعيد بناء التاريخ بسنة حالية/لاحقة.
+ */
+export function repairPastRenewalDate(
+  iso: string,
+  now = new Date(),
+): { value: string | null; adjusted: boolean; noteAr?: string } {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return { value: null, adjusted: false };
+
+  if (!isRenewalDateInPast(iso, now)) {
+    return { value: new Date(t).toISOString(), adjusted: false };
+  }
+
+  const parsed = new Date(t);
+  const anchor = getOpsBillingTemporalAnchor(now);
+  const oldYear = parsed.getUTCFullYear();
+
+  for (const year of [anchor.year, anchor.year + 1]) {
+    const candidate = new Date(
+      Date.UTC(year, parsed.getUTCMonth(), parsed.getUTCDate(), 12, 0, 0, 0),
+    );
+    const candidateIso = candidate.toISOString();
+    if (!isRenewalDateInPast(candidateIso, now)) {
+      return {
+        value: candidateIso,
+        adjusted: true,
+        noteAr: `صُحّح تاريخ التجديد تلقائياً من ${oldYear} إلى ${year} وفق سنة التشغيل الحالية (${anchor.year}).`,
+      };
+    }
+  }
+
+  return { value: null, adjusted: false, noteAr: 'تاريخ التجديد في الماضي ولا يمكن تصحيحه آلياً.' };
+}
+
+export function isTemporalCorrectionUserMessage(text: string): boolean {
+  const t = text.trim();
+  if (!t) return false;
+  return /20[2-9]{2}|نحن في|السنة|التاريخ|خطأ|ماهذا|ما هذا|صحح|تصحيح|في الماضي|قديم|غلط|مو صح/i.test(t);
+}
 
 export function commitmentRowForAi(row: Record<string, unknown>): Record<string, unknown> {
   return {
@@ -66,8 +145,17 @@ export function commitmentRowForAi(row: Record<string, unknown>): Record<string,
 
 export function buildOpsBillingAiSystemPrompt(commitments: Record<string, unknown>[]): string {
   const tableJson = JSON.stringify(commitments, null, 2);
-  return `You are an expert systems administrator for Halaq Map (حلاق ماب).
-Your job is to parse invoices, billing screenshots, and owner questions; detect the provider (e.g. GoDaddy, OpenAI, Supabase, Vercel, Resend, GitHub); extract price, renewal date, billing cycle, and payment status; and map updates to the correct row in جدول الالتزامات (platform_ops_billing_commitments).
+  const anchor = getOpsBillingTemporalAnchor();
+  return `You are **خازن 🪙** — the expert financial treasurer for Halaq Map (حلاق ماب) platform operations.
+Your job is to parse invoices, billing screenshots, and owner questions; detect the provider (GoDaddy, OpenAI, Supabase, Vercel, Resend, GitHub); extract price, **next renewal date**, billing cycle, and payment status; and map updates to the correct row in جدول الالتزامات (platform_ops_billing_commitments).
+
+**Temporal anchor (mandatory):**
+- Today in Asia/Riyadh: ${anchor.labelAr} (${anchor.todayYmd})
+- Current operational year: ${anchor.year}
+- NEVER set next_renewal_at to a calendar date before ${anchor.todayYmd}.
+- If the invoice shows a billing period that already ended, compute the **next upcoming renewal** (e.g. +1 month or +1 year from period end), not the historical charge date.
+- If the year on the document looks like a OCR/vision mistake (e.g. 2023 while we are in ${anchor.year}), prefer ${anchor.year} or ${anchor.year + 1}.
+- When the owner says "we are in ${anchor.year}" or corrects a date, acknowledge the mistake in Arabic and output corrected dates.
 
 Allowed vendor codes: ${OPS_BILLING_VENDORS.join(', ')}.
 Provider hints: GoDaddy→godaddy, OpenAI→openai, Supabase→supabase_mgmt, Vercel→vercel, Resend→resend, GitHub→github.
@@ -77,12 +165,14 @@ ${tableJson}
 
 Rules:
 - Respond ONLY with valid JSON (no markdown fences).
-- Use ISO-8601 UTC for next_renewal_at when possible (e.g. 2027-05-01T00:00:00.000Z).
+- Use ISO-8601 UTC for next_renewal_at (e.g. ${anchor.year + 1}-05-01T00:00:00.000Z).
+- next_renewal_at must represent a **future** renewal from today's perspective (${anchor.todayYmd}).
 - monthly_estimate_sar is monthly estimate in Saudi Riyals.
 - Set clear_gap:true when invoice proves the row is paid/current and gap kinds like token_expired or discovery_pending should be cleared.
 - Set last_sync_status to "ok" when payment/renewal is confirmed from the document.
-- If unsure which row, set needs_clarification true and proposals may be empty.
+- If unsure which row OR dates are ambiguous, set needs_clarification true and proposals may be empty.
 - Include at most one primary proposal unless multiple distinct services appear.
+- assistant_message must be in clear Arabic for the platform owner.
 
 Output JSON schema:
 {
@@ -96,7 +186,7 @@ Output JSON schema:
       "detected_provider_label": "GoDaddy",
       "payment_status": "paid|pending|unknown",
       "patch": {
-        "next_renewal_at": "2027-05-01T00:00:00.000Z",
+        "next_renewal_at": "${anchor.year + 1}-05-01T00:00:00.000Z",
         "monthly_estimate_sar": 45,
         "amount_expected": 540,
         "amount_currency": "SAR",
@@ -200,7 +290,82 @@ export function parseOpsBillingAiJson(raw: string): OpsBillingAiAnalyzeResult {
       before: {},
       after: {},
       patch,
+      warnings: [],
     });
+  }
+
+  return { assistant_message, proposals, needs_clarification };
+}
+
+/** تحقق وتصحيح مقترحات خازن قبل عرضها أو حفظها */
+export function sanitizeOpsBillingAnalyzeResult(
+  result: OpsBillingAiAnalyzeResult,
+  context?: { userMessage?: string; hasImage?: boolean },
+): OpsBillingAiAnalyzeResult {
+  const warnings: string[] = [];
+  let needs_clarification = result.needs_clarification;
+  let assistant_message = result.assistant_message;
+  const userMessage = (context?.userMessage || '').trim();
+  const temporalCorrection = isTemporalCorrectionUserMessage(userMessage);
+
+  const proposals: OpsBillingAiProposal[] = [];
+
+  for (const p of result.proposals) {
+    const patch = { ...p.patch };
+    const proposalWarnings: string[] = [...(p.warnings || [])];
+
+    if (patch.next_renewal_at) {
+      const repaired = repairPastRenewalDate(patch.next_renewal_at);
+      if (repaired.value) {
+        if (repaired.adjusted && repaired.noteAr) {
+          proposalWarnings.push(repaired.noteAr);
+          warnings.push(repaired.noteAr);
+        }
+        patch.next_renewal_at = repaired.value;
+      } else {
+        proposalWarnings.push('تُجاهل تاريخ تجديد في الماضي — يلزم تاريخ قادم.');
+        delete patch.next_renewal_at;
+      }
+    }
+
+    const patchErr = validateAiPatch(patch);
+    if (patchErr) {
+      proposalWarnings.push(patchErr);
+      continue;
+    }
+
+    let match_confidence = p.match_confidence;
+    if (proposalWarnings.length > 0 && match_confidence === 'high') {
+      match_confidence = 'medium';
+    }
+
+    proposals.push({
+      ...p,
+      patch,
+      warnings: proposalWarnings.length > 0 ? proposalWarnings : undefined,
+      match_confidence,
+    });
+  }
+
+  if (temporalCorrection && !context?.hasImage) {
+    assistant_message =
+      `${assistant_message}\n\n` +
+      `ملاحظة خازن: فهمت تصحيحك الزمني. اليوم ${getOpsBillingTemporalAnchor().labelAr}. ` +
+      `إذا كان التاريخ السابق خاطئاً، أعد رفع الفاتورة أو اذكر تاريخ التجديد الصحيح صراحةً (مثال: تجديد حتى يونيو ${getOpsBillingTemporalAnchor().year + 1}).`;
+    if (proposals.length === 0) {
+      needs_clarification = true;
+    }
+  }
+
+  if (proposals.length === 0 && !needs_clarification && result.proposals.length > 0) {
+    needs_clarification = true;
+    assistant_message =
+      `${assistant_message}\n\n` +
+      '⚠️ خازن: لم أتمكن من اعتماد أي تحديث — تحقق من **تاريخ التجديد القادم** (يجب أن يكون بعد اليوم).';
+  }
+
+  if (warnings.length > 0 && !assistant_message.includes('صُحّح')) {
+    assistant_message = `${assistant_message}\n\n🛠 ${warnings[0]}`;
   }
 
   return { assistant_message, proposals, needs_clarification };
@@ -223,6 +388,9 @@ export function validateAiPatch(patch: OpsBillingAiPatch): string | null {
   if (patch.next_renewal_at != null && patch.next_renewal_at !== '') {
     const t = Date.parse(patch.next_renewal_at);
     if (!Number.isFinite(t)) return 'تاريخ التجديد غير صالح';
+    if (isRenewalDateInPast(patch.next_renewal_at)) {
+      return `تاريخ التجديد (${renewalYmdInRiyadh(patch.next_renewal_at)}) في الماضي — يجب أن يكون بعد ${getOpsBillingTodayYmd()}`;
+    }
   }
   if (patch.billing_cycle && !BILLING_CYCLES.has(patch.billing_cycle)) return 'دورة الفوترة غير مدعومة';
   return null;
@@ -296,6 +464,7 @@ export async function callOpenAIOpsBillingVision(input: {
   userText: string;
   imageBase64?: string;
   imageMime?: string;
+  conversationHistory?: OpsBillingChatTurn[];
   /** Server-side OpenAI fetch timeout (ms). Defaults to 52s — leaves headroom under Vercel 60s. */
   timeoutMs?: number;
 }): Promise<string> {
@@ -313,6 +482,14 @@ export async function callOpenAIOpsBillingVision(input: {
     });
   }
   userContent.push({ type: 'text', text: input.userText || 'حلّل المرفق واقترح تحديث جدول الالتزامات.' });
+
+  const historyMessages: { role: 'user' | 'assistant'; content: string }[] = [];
+  for (const turn of (input.conversationHistory || []).slice(-8)) {
+    const role = turn.role === 'assistant' ? 'assistant' : 'user';
+    const content = String(turn.content || '').trim();
+    if (!content) continue;
+    historyMessages.push({ role, content: content.slice(0, 4000) });
+  }
 
   const controller = new AbortController();
   const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
@@ -332,6 +509,7 @@ export async function callOpenAIOpsBillingVision(input: {
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: input.system },
+          ...historyMessages,
           { role: 'user', content: userContent },
         ],
       }),

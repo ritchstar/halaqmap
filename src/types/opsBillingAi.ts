@@ -20,7 +20,11 @@ export type OpsBillingAiProposal = {
   before: Record<string, unknown>;
   after: Record<string, unknown>;
   patch: OpsBillingAiPatch;
+  /** تحذيرات من التحقق الآلي (مثلاً تصحيح سنة التجديد) */
+  warnings?: string[];
 };
+
+export type OpsBillingChatTurn = { role: 'user' | 'assistant'; content: string };
 
 export type OpsBillingAiAnalyzeResponse = {
   assistant_message: string;

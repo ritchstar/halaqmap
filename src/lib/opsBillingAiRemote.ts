@@ -64,6 +64,7 @@ export async function analyzeOpsBillingWithAi(
     userMessage?: string;
     imageBase64?: string;
     imageMime?: string;
+    conversationHistory?: { role: 'user' | 'assistant'; content: string }[];
   },
   options?: { signal?: AbortSignal; timeoutMs?: number },
 ): Promise<{ ok: true; body: OpsBillingAiAnalyzeResponse } | { ok: false; error: string; timedOut?: boolean }> {
@@ -86,6 +87,7 @@ export async function analyzeOpsBillingWithAi(
         userMessage: input.userMessage?.trim() || '',
         imageBase64: input.imageBase64,
         imageMime: input.imageMime,
+        conversationHistory: input.conversationHistory?.slice(-8) || [],
       }),
     });
     const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
