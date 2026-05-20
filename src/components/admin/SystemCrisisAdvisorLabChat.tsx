@@ -53,7 +53,7 @@ function LoadingIndicator({ stepIndex }: { stepIndex: number }) {
     <div className="ml-4 mr-0 rounded-lg border border-orange-500/35 bg-orange-950/25 p-4 space-y-2 animate-in fade-in">
       <div className="flex items-center gap-3">
         <Sparkles className="h-4 w-4 text-orange-400 animate-pulse" />
-        <p className="text-sm text-foreground">{label}</p>
+        <p className="text-sm text-slate-100">{label}</p>
       </div>
     </div>
   );
@@ -165,7 +165,7 @@ export function SystemCrisisAdvisorLabChat({
     <Sheet open={open} onOpenChange={setOpen}>
       {!hideTrigger ? (
         <SheetTrigger asChild>
-          <Button type="button" variant="outline" size="sm" className="gap-2 border-orange-500/40">
+          <Button type="button" variant="outline" size="sm" className="gap-2 border-orange-500/40 text-slate-100">
             <ShieldAlert className="h-4 w-4" />
             مستشار الأزمات
           </Button>
@@ -173,27 +173,33 @@ export function SystemCrisisAdvisorLabChat({
       ) : null}
       <SheetContent
         side="left"
-        className="flex w-full flex-col gap-0 border-orange-900/50 bg-slate-950 p-0 sm:max-w-lg"
+        className="flex w-full flex-col gap-0 border-orange-900/50 bg-slate-950 p-0 text-slate-100 sm:max-w-lg"
       >
         <SheetHeader className="border-b border-orange-900/40 bg-orange-950/20 px-4 py-4 text-right shrink-0">
-          <SheetTitle className="flex items-center justify-end gap-2 text-orange-100">
-            <Siren className="h-5 w-5 text-orange-400" />
+          <SheetTitle className="flex items-center justify-end gap-2 text-slate-50">
+            <Siren className="h-5 w-5 text-orange-400" aria-hidden />
             Crisis Discussion
           </SheetTitle>
-          <SheetDescription className="text-right space-y-2">
-            <Badge variant="outline" className="mr-auto border-orange-500/50 text-[10px] text-orange-200">
+          <SheetDescription className="text-right space-y-2 text-slate-100">
+            <Badge
+              variant="outline"
+              className="mr-auto border-orange-500/50 text-[10px] text-slate-50"
+            >
               Strategic Technical Consultant · B2B Internal
             </Badge>
-            <span className="block text-xs text-orange-200/80">
+            <span className="block text-xs text-slate-100">
               Uptime · Data integrity · Crisis Playbook — تجاهل الملاحظات غير الحرجة.
             </span>
             {playbookOk === false ? (
-              <Badge variant="destructive" className="mr-auto text-[10px]">
+              <Badge variant="destructive" className="mr-auto text-[10px] text-white">
                 Crisis Playbook غير محمّل على الخادم
               </Badge>
             ) : null}
             {modelLabel ? (
-              <Badge variant="outline" className="mr-auto block w-fit border-orange-500/30 text-[10px]">
+              <Badge
+                variant="outline"
+                className="mr-auto block w-fit border-orange-500/30 text-[10px] text-slate-100"
+              >
                 {modelLabel}
               </Badge>
             ) : null}
@@ -205,10 +211,10 @@ export function SystemCrisisAdvisorLabChat({
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
+                className={`rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap text-slate-100 ${
                   msg.role === 'user'
-                    ? 'mr-8 ml-0 bg-orange-500/10 text-foreground'
-                    : 'ml-8 mr-0 border border-orange-500/25 bg-orange-950/20 text-foreground'
+                    ? 'mr-8 ml-0 bg-orange-500/10'
+                    : 'ml-8 mr-0 border border-orange-500/25 bg-orange-950/20'
                 }`}
               >
                 {msg.content}
@@ -225,7 +231,7 @@ export function SystemCrisisAdvisorLabChat({
               type="button"
               variant="ghost"
               size="sm"
-              className="w-full text-orange-300/80"
+              className="w-full text-slate-100 hover:text-white hover:bg-orange-950/40"
               onClick={() => abortRef.current?.abort()}
             >
               <X className="h-4 w-4 ml-2" />
@@ -236,7 +242,7 @@ export function SystemCrisisAdvisorLabChat({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="صف الحادث — الأعراض، التوقيت، النطاق المتأثر…"
-            className="min-h-[88px] resize-none border-orange-900/40 bg-slate-900 text-right"
+            className="min-h-[88px] resize-none border-orange-900/40 bg-slate-900 text-right text-slate-100 placeholder:text-slate-400"
             disabled={!permitted || busy}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
