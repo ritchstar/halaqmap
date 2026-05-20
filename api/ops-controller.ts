@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   isBootstrapAdminEmail,
   safeHost,
@@ -68,9 +69,7 @@ function mapRow(raw: Record<string, unknown>) {
 }
 
 async function actorCanViewAllReports(
-  supabase: Awaited<ReturnType<typeof verifyPlatformAdminFromRequestAny>> extends { ok: true; supabase: infer S }
-    ? S
-    : never,
+  supabase: SupabaseClient,
   actorEmail: string,
 ): Promise<boolean> {
   if (isBootstrapAdminEmail(actorEmail)) return true;
