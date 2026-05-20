@@ -1,15 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   SubscriptionTier,
@@ -32,8 +29,17 @@ import {
   SHOP_OPEN_STATUS_FEATURE_BRONZE,
   SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from '@/config/subscriptionPlanHero';
-import { SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR, SOFTWARE_PACKAGE_UNIT_LABEL_AR } from '@/config/subscriptionPricing';
+import {
+  DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
+  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+  SOFTWARE_PACKAGE_UNIT_LABEL_AR,
+} from '@/config/subscriptionPricing';
 import { LISTING_LICENSE_PRICING_DISPLAY_ORDER } from '@/config/listingLicenseCards';
+import {
+  computeListingLicenseUnitSar,
+  isDigitalShiftAddonAllowed,
+} from '@/config/listingLicenseQuantity';
+import { DigitalShiftAddonToggle } from '@/components/billing/DigitalShiftAddonToggle';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
@@ -73,10 +79,39 @@ import {
   AlertCircle,
   Loader2,
   Clock,
+  Lightbulb,
 } from 'lucide-react';
+
+const regFieldClass =
+  'border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500 focus-visible:ring-slate-400';
+const regLabelClass = 'text-slate-300';
+const regMutedClass = 'text-slate-400';
+const regAlertClass = 'rounded-lg border border-slate-600 bg-slate-800/80 p-4 text-slate-300';
+
+function RegStepShell({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100">
+      <header className="mb-6 space-y-2 text-right">
+        <h2 className="text-2xl font-bold text-white">{title}</h2>
+        {description ? <p className={`text-sm leading-relaxed ${regMutedClass}`}>{description}</p> : null}
+      </header>
+      {children}
+    </div>
+  );
+}
 
 interface FormData {
   tier: SubscriptionTier | '';
+  /** المناوب الرقمي — ماسي فقط (+25 ر.س) */
+  digitalShiftAddon: boolean;
   shopName: string;
   email: string;
   phone: string;
@@ -138,15 +173,14 @@ const SUBSCRIPTION_PLANS: {
   tier: SubscriptionTier;
   tierLevel: string;
   label: string;
-  price: number;
   features: FormPlanFeature[];
   strategic?: boolean;
+  digitalShiftAddonAvailable?: boolean;
 }[] = [
   {
     tier: SubscriptionTier.BRONZE,
     tierLevel: 'برونزي',
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
-    price: 100,
     features: [
       { kind: 'map_hero' },
       { kind: 'line', text: 'نظام الرصد الذكي — ظهور جغرافي دقيق في محيط الصالون' },
@@ -159,7 +193,6 @@ const SUBSCRIPTION_PLANS: {
     tier: SubscriptionTier.GOLD,
     tierLevel: 'ذهبي',
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
-    price: 150,
     features: [
       { kind: 'map_hero' },
       { kind: 'line', text: 'نظام الرصد الذكي — أولوية أعلى في النتائج الجغرافية' },
@@ -173,8 +206,8 @@ const SUBSCRIPTION_PLANS: {
     tier: SubscriptionTier.DIAMOND,
     tierLevel: 'ماسي',
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
-    price: 200,
     strategic: true,
+    digitalShiftAddonAvailable: true,
     features: [
       { kind: 'map_hero' },
       { kind: 'line', text: 'نظام الرصد الذكي — أعلى أولوية استراتيجية في شبكة المنصة' },
@@ -218,6 +251,7 @@ export function RegistrationForm() {
   const bannerPicker = useBarberBannerImagePicker();
   const [formData, setFormData] = useState<FormData>({
     tier: '',
+    digitalShiftAddon: false,
     shopName: '',
     email: '',
     phone: '',
@@ -549,6 +583,14 @@ export function RegistrationForm() {
       const docLabels: string[] = [
         `التعهد القانوني: تم التأشير بتاريخ ${submittedAtIso} — صاحب المحل يقر بامتثال المنشأة النظامي وتحمّل المسؤولية وإخلاء مسؤولية منصة حلاق ماب.`,
       ];
+      if (
+        formData.tier === SubscriptionTier.DIAMOND &&
+        isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon)
+      ) {
+        docLabels.push(
+          `إضافة المناوب الرقمي الذكي (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة برمجية) — مطلوب عند التفعيل.`,
+        );
+      }
 
       const servicesSummaryLines = formData.services
         .filter((s) => s.name.trim())
@@ -619,6 +661,9 @@ export function RegistrationForm() {
         categories: [...formData.categories],
         registrationTermsAccepted: true,
         registrationTermsAcceptedAtIso: submittedAtIso,
+        digitalShiftAddonSelected:
+          formData.tier === SubscriptionTier.DIAMOND &&
+          isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon),
       };
 
       /* 3) حفظ الطلب في قاعدة البيانات ثم النسخ المحلي (عند تهيئة Supabase) */
@@ -635,6 +680,15 @@ export function RegistrationForm() {
 
       const plan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
       const tierName = plan?.tierLevel ?? String(formData.tier);
+      const unitSarForSummary =
+        formData.tier && plan
+          ? computeListingLicenseUnitSar(
+              formData.tier as SubscriptionTier,
+              isDigitalShiftAddonAllowed(formData.tier as SubscriptionTier, formData.digitalShiftAddon)
+                ? { digitalShiftAddon: true }
+                : undefined,
+            )
+          : 0;
       const payLabel = 'حزمة برمجية (ميسر — بطاقة)';
 
       const attributionLines = partnerAttribution
@@ -665,7 +719,11 @@ export function RegistrationForm() {
         `البريد: ${formData.email}\n` +
         `الهاتف: ${formData.phone}\n` +
         `الواتساب: ${formData.whatsapp}\n` +
-        `الباقة: ${tierName}\n` +
+        `الباقة: ${tierPackageSummary(
+          tierName,
+          unitSarForSummary,
+          formData.tier === SubscriptionTier.DIAMOND && formData.digitalShiftAddon,
+        )}\n` +
         `تصنيفات: ${formData.categories.join('، ') || '—'}\n` +
         `طريقة الدفع: ${payLabel}\n` +
         `${attributionLines}\n` +
@@ -700,7 +758,11 @@ export function RegistrationForm() {
         `رقم الطلب: ${orderId}\n` +
         `التقديم: ${submittedAtLabel}\n` +
         `المحل: ${formData.shopName}\n` +
-        `الباقة: ${tierName}\n` +
+        `الباقة: ${tierPackageSummary(
+          tierName,
+          unitSarForSummary,
+          formData.tier === SubscriptionTier.DIAMOND && formData.digitalShiftAddon,
+        )}\n` +
         `الدفع: ${payLabel}\n` +
         `\n` +
         `للاطلاع على التفاصيل الكاملة استخدم زر «تحميل ملخص الطلب» في صفحة التأكيد.\n`;
@@ -733,19 +795,32 @@ export function RegistrationForm() {
     [],
   );
 
+  const selectedUnitSar = useMemo(() => {
+    if (!formData.tier) return 0;
+    return computeListingLicenseUnitSar(
+      formData.tier as SubscriptionTier,
+      isDigitalShiftAddonAllowed(formData.tier as SubscriptionTier, formData.digitalShiftAddon)
+        ? { digitalShiftAddon: true }
+        : undefined,
+    );
+  }, [formData.tier, formData.digitalShiftAddon]);
+
   const selectedPlan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
   const monthlyPriceBreakdown = useMemo(
-    () => (selectedPlan ? calcVatBreakdown(selectedPlan.price, vatSettings) : null),
-    [selectedPlan, vatSettings],
+    () => (formData.tier ? calcVatBreakdown(selectedUnitSar, vatSettings) : null),
+    [formData.tier, selectedUnitSar, vatSettings],
   );
+
+  const tierPackageSummary = (tierName: string, unitSar: number, withShift: boolean) =>
+    `${tierName} — ${unitSar} ر.س${withShift ? ` (شامل المناوب +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR})` : ''}`;
 
   return (
     <div
       ref={formTopRef}
-      className="w-full max-w-4xl mx-auto py-8 px-3 sm:px-4 scroll-mt-24 min-w-0 overflow-x-hidden"
+      className="w-full max-w-4xl mx-auto py-4 px-1 sm:px-2 scroll-mt-24 min-w-0 overflow-x-hidden text-slate-100"
     >
-      <div className="mb-8 w-full min-w-0">
-        <p className="text-center text-sm font-medium text-muted-foreground mb-3 md:hidden">
+      <div className="mb-8 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900 p-4 md:p-6">
+        <p className="text-center text-sm font-medium text-slate-400 mb-3 md:hidden">
           الخطوة {currentStep} من {STEPS.length}
         </p>
         <div className="overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] pb-2 md:overflow-visible">
@@ -762,19 +837,19 @@ export function RegistrationForm() {
                     }`}
                   >
                     <div
-                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors ${
                         isActive
-                          ? 'bg-primary text-primary-foreground scale-110'
+                          ? 'bg-slate-100 text-slate-900'
                           : isCompleted
-                            ? 'bg-primary/20 text-primary'
-                            : 'bg-muted text-muted-foreground'
+                            ? 'bg-slate-700 text-slate-100'
+                            : 'bg-slate-800 text-slate-500 border border-slate-600'
                       }`}
                     >
                       {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Icon className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </div>
                     <span
                       className={`text-[10px] sm:text-xs mt-1.5 text-center leading-tight px-0.5 line-clamp-2 max-w-[4.5rem] sm:max-w-none ${
-                        isActive ? 'text-foreground font-semibold' : 'text-muted-foreground'
+                        isActive ? 'text-white font-semibold' : 'text-slate-500'
                       }`}
                     >
                       {step.title}
@@ -782,8 +857,8 @@ export function RegistrationForm() {
                   </div>
                   {index < STEPS.length - 1 && (
                     <div
-                      className={`h-0.5 w-6 sm:w-8 md:flex-1 shrink-0 mx-1 sm:mx-2 transition-all ${
-                        isCompleted ? 'bg-primary' : 'bg-muted'
+                      className={`h-0.5 w-6 sm:w-8 md:flex-1 shrink-0 mx-1 sm:mx-2 transition-colors ${
+                        isCompleted ? 'bg-slate-400' : 'bg-slate-700'
                       }`}
                     />
                   )}
@@ -792,18 +867,10 @@ export function RegistrationForm() {
             })}
           </div>
         </div>
-        <Progress value={progress} className="h-2" />
+        <Progress value={progress} className="h-2 bg-slate-800 [&>div]:bg-slate-300" />
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25 }}
-          className="min-w-0"
-        >
+      <div key={currentStep} className="min-w-0">
           {currentStep === 1 && (
             <div className="rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100">
               <header className="mb-6 space-y-2 text-right">
@@ -821,13 +888,25 @@ export function RegistrationForm() {
               <RadioGroup
                 value={formData.tier}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, tier: value as SubscriptionTier }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    tier: value as SubscriptionTier,
+                    digitalShiftAddon:
+                      value === SubscriptionTier.DIAMOND ? prev.digitalShiftAddon : false,
+                  }))
                 }
                 className="grid gap-4 md:grid-cols-3 md:items-stretch"
               >
                 {registrationPlansOrdered.map((plan) => {
                   const isSelected = formData.tier === plan.tier;
                   const isStrategic = plan.strategic === true;
+                  const shiftActive =
+                    plan.tier === SubscriptionTier.DIAMOND &&
+                    isDigitalShiftAddonAllowed(plan.tier, formData.digitalShiftAddon);
+                  const unitSar = computeListingLicenseUnitSar(
+                    plan.tier,
+                    shiftActive ? { digitalShiftAddon: true } : undefined,
+                  );
                   return (
                     <label
                       key={plan.tier}
@@ -859,12 +938,27 @@ export function RegistrationForm() {
                               {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR}
                             </h3>
                             <p className="text-2xl font-bold text-white">
-                              {plan.price}{' '}
+                              {unitSar}{' '}
                               <span className="text-sm font-normal text-slate-400">ريال</span>
                               <span className="text-xs font-normal text-slate-500"> /{plan.label}</span>
                             </p>
+                            {shiftActive ? (
+                              <p className="text-[11px] text-slate-500">
+                                شامل المناوب (+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س)
+                              </p>
+                            ) : null}
                           </div>
                         </div>
+                        {plan.digitalShiftAddonAvailable && isSelected ? (
+                          <DigitalShiftAddonToggle
+                            checked={formData.digitalShiftAddon}
+                            onCheckedChange={(checked) =>
+                              setFormData((prev) => ({ ...prev, digitalShiftAddon: checked }))
+                            }
+                            id="registration-digital-shift"
+                            className="mb-3 mt-0"
+                          />
+                        ) : null}
                         <ul className="m-0 flex flex-1 list-none flex-col gap-2 p-0">
                           {plan.features.map((feature, index) =>
                             feature.kind === 'map_hero' ? (
@@ -902,14 +996,12 @@ export function RegistrationForm() {
             </div>
           )}
           {currentStep === 2 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">بيانات المحل</CardTitle>
-                <CardDescription>أدخل معلومات محل الحلاقة</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <RegStepShell title="بيانات المحل" description="أدخل معلومات محل الحلاقة">
+              <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="shopName">اسم المحل *</Label>
+                  <Label htmlFor="shopName" className={regLabelClass}>
+                    اسم المحل *
+                  </Label>
                   <Input
                     id="shopName"
                     placeholder="مثال: صالون الأناقة"
@@ -917,11 +1009,14 @@ export function RegistrationForm() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, shopName: e.target.value }))
                     }
+                    className={regFieldClass}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">البريد الإلكتروني *</Label>
+                  <Label htmlFor="email" className={regLabelClass}>
+                    البريد الإلكتروني *
+                  </Label>
                   <Input
                     id="email"
                     type="email"
@@ -930,23 +1025,29 @@ export function RegistrationForm() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, email: e.target.value }))
                     }
+                    className={regFieldClass}
                     required
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="phone">رقم الهاتف *</Label>
+                    <Label htmlFor="phone" className={regLabelClass}>
+                      رقم الهاتف *
+                    </Label>
                     <Input
                       id="phone"
                       type="tel"
                       placeholder="05xxxxxxxx"
                       value={formData.phone}
                       onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                      className={regFieldClass}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="whatsapp">رقم الواتساب *</Label>
+                    <Label htmlFor="whatsapp" className={regLabelClass}>
+                      رقم الواتساب *
+                    </Label>
                     <Input
                       id="whatsapp"
                       type="tel"
@@ -955,12 +1056,13 @@ export function RegistrationForm() {
                       onChange={(e) =>
                         setFormData((prev) => ({ ...prev, whatsapp: e.target.value }))
                       }
+                      className={regFieldClass}
                       required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>نوع الخدمات *</Label>
+                  <Label className={regLabelClass}>نوع الخدمات *</Label>
                   <div className="grid grid-cols-2 gap-3">
                     {CATEGORIES.map((category) => (
                       <div key={category} className="flex items-center space-x-2 space-x-reverse">
@@ -975,35 +1077,33 @@ export function RegistrationForm() {
                                 : prev.categories.filter((c) => c !== category),
                             }));
                           }}
+                          className="border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                         />
-                        <Label htmlFor={category} className="cursor-pointer">
+                        <Label htmlFor={category} className={`cursor-pointer ${regLabelClass}`}>
                           {category}
                         </Label>
                       </div>
                     ))}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
           {currentStep === 3 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">التعهد القانوني</CardTitle>
-                <CardDescription>
-                  تأشير إلزامي قبل المتابعة — لا يُطلب رفع مستندات رسمية أو مسح رموز تحقق في هذه الخطوة.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Alert className="border-primary/40 bg-primary/5">
-                  <Scale className="h-4 w-4 text-primary" />
-                  <AlertDescription className="text-sm font-medium leading-relaxed text-foreground">
-                    بموجب هذا التعهد تُقرّ منشأتك ممتثلة لاشتراطات الجهات المذكورة أدناه، وتتحمّل أنت المسؤولية القانونية
-                    كاملة دون المطالبة بمنصة حلاق ماب عن التبعات الناشئة عن صحة ذلك الامتثال أو غيابه.
+            <RegStepShell
+              title="التعهد القانوني"
+              description="تأشير إلزامي قبل المتابعة — لا يُطلب رفع مستندات رسمية أو مسح رموز تحقق في هذه الخطوة."
+            >
+              <div className="space-y-4">
+                <Alert className={`${regAlertClass} border-slate-500`}>
+                  <Scale className="h-4 w-4 text-slate-300" />
+                  <AlertDescription className="text-sm font-medium leading-relaxed text-slate-200">
+                    بموجب هذا التعهد تُقرّ منشأتك ممتثلة لاشتراطات الجهات المذكورة أدناه، وتتحمّل أنت المسؤولية
+                    القانونية كاملة دون المطالبة بمنصة حلاق ماب عن التبعات الناشئة عن صحة ذلك الامتثال أو غيابه.
                   </AlertDescription>
                 </Alert>
-                <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-4">
+                <div className={`flex items-start gap-3 ${regAlertClass}`}>
                   <Checkbox
                     id="legal-disclaimer-accept"
                     checked={formData.legalDisclaimerAccepted}
@@ -1013,23 +1113,22 @@ export function RegistrationForm() {
                         legalDisclaimerAccepted: checked === true,
                       }))
                     }
-                    className="mt-1"
+                    className="mt-1 border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                   />
-                  <Label htmlFor="legal-disclaimer-accept" className="cursor-pointer text-sm font-normal leading-relaxed">
+                  <Label
+                    htmlFor="legal-disclaimer-accept"
+                    className="cursor-pointer text-sm font-normal leading-relaxed text-slate-300"
+                  >
                     {REGISTRATION_LEGAL_DISCLAIMER_AR}
                   </Label>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
           {currentStep === 4 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">تحديد الموقع</CardTitle>
-                <CardDescription>حدد موقع محلك بدقة عبر نظام الرصد الذكي</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <RegStepShell title="تحديد الموقع" description="حدد موقع محلك بدقة عبر نظام الرصد الذكي">
+              <div className="space-y-4">
                 <SaudiRegionCityDistrictFields
                   value={formData.location.saudi}
                   onChange={(saudi) =>
@@ -1040,15 +1139,15 @@ export function RegistrationForm() {
                   }
                   disabled={isSubmitting}
                 />
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+                <Alert className={regAlertClass}>
+                  <AlertCircle className="h-4 w-4 text-slate-400" />
+                  <AlertDescription className="text-slate-300">
                     يمكنك الحصول على الإحداثيات من خرائط جوجل بالضغط مطولاً على موقع المحل
                   </AlertDescription>
                 </Alert>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="lat">خط العرض (Latitude) *</Label>
+                    <Label htmlFor="lat" className={regLabelClass}>خط العرض (Latitude) *</Label>
                     <Input
                       id="lat"
                       placeholder="24.7136"
@@ -1059,10 +1158,11 @@ export function RegistrationForm() {
                           location: { ...prev.location, lat: e.target.value },
                         }))
                       }
+                      className={regFieldClass}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lng">خط الطول (Longitude) *</Label>
+                    <Label htmlFor="lng" className={regLabelClass}>خط الطول (Longitude) *</Label>
                     <Input
                       id="lng"
                       placeholder="46.6753"
@@ -1073,11 +1173,12 @@ export function RegistrationForm() {
                           location: { ...prev.location, lng: e.target.value },
                         }))
                       }
+                      className={regFieldClass}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="address">العنوان التفصيلي (الشارع / المبنى / علامة مميزة) *</Label>
+                  <Label htmlFor="address" className={regLabelClass}>العنوان التفصيلي (الشارع / المبنى / علامة مميزة) *</Label>
                   <Textarea
                     id="address"
                     placeholder="مثال: شارع الأمير سلطان، مجمع النخيل، مدخل B"
@@ -1089,6 +1190,7 @@ export function RegistrationForm() {
                       }))
                     }
                     rows={3}
+                    className={regFieldClass}
                   />
                 </div>
                 <div className="flex gap-2">
@@ -1097,7 +1199,7 @@ export function RegistrationForm() {
                     variant="outline"
                     onClick={handleGetLocation}
                     disabled={locationLoading}
-                    className="flex-1"
+                    className="flex-1 border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
                   >
                     {locationLoading ? (
                       <Loader2 className="w-4 h-4 ml-2 animate-spin" />
@@ -1111,29 +1213,26 @@ export function RegistrationForm() {
                     variant="outline"
                     onClick={handleTestLocation}
                     disabled={!formData.location.lat || !formData.location.lng}
-                    className="flex-1"
+                    className="flex-1 border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
                   >
                     <MapPin className="w-4 h-4 ml-2" />
                     اختبر الموقع
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
           {currentStep === 5 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">صور المحل والبنر</CardTitle>
-                <CardDescription>
-                  لجميع الباقات: صورتان أساسيتان (خارج وداخل) وأربع صور مخصّصة لمنطقة البنر في بطاقة المحل
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
+            <RegStepShell
+              title="صور المحل والبنر"
+              description="لجميع الباقات: صورتان أساسيتان (خارج وداخل) وأربع صور مخصّصة لمنطقة البنر في بطاقة المحل"
+            >
+              <div className="space-y-6">
                 {(formData.tier === SubscriptionTier.GOLD || formData.tier === SubscriptionTier.DIAMOND) && (
-                  <Alert className="border-primary/40 bg-primary/5">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    <AlertDescription className="text-sm leading-relaxed">
+                  <Alert className="border-slate-500 bg-slate-800/80">
+                    <Sparkles className="h-4 w-4 text-slate-300" />
+                    <AlertDescription className="text-sm leading-relaxed text-slate-300">
                       بعد تفعيل حزمتك البرمجية يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
                       <strong>لوحة التحكم</strong> في أي وقت. ما ترفعه هنا هو المعتمد لمراجعة الطلب الأولى.
                     </AlertDescription>
@@ -1141,8 +1240,8 @@ export function RegistrationForm() {
                 )}
 
                 <div className="space-y-3">
-                  <Label htmlFor="shop-exterior">صورة واحدة — واجهة المحل من الخارج *</Label>
-                  <p className="text-xs text-muted-foreground">
+                  <Label htmlFor="shop-exterior" className={regLabelClass}>صورة واحدة — واجهة المحل من الخارج *</Label>
+                  <p className={`text-xs ${regMutedClass}`}>
                     صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات الحزم البرمجية.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
@@ -1249,29 +1348,26 @@ export function RegistrationForm() {
                   </div>
                 </div>
 
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+                <Alert className={regAlertClass}>
+                  <AlertCircle className="h-4 w-4 text-slate-400" />
+                  <AlertDescription className="text-slate-300">
                     نفضّل صوراً جيدة الإضاءة وبدون تشويش؛ ذلك يساعد في قبول الطلب وظهور محلك بشكل احترافي.
                   </AlertDescription>
                 </Alert>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
           {currentStep === 6 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">أوقات العمل (الأسبوع كاملاً)</CardTitle>
-                <CardDescription>
-                  من السبت إلى الجمعة — صفٌّ مضغوط لكل يوم. الباقة البرونزية: إلزامي ويُعرَض للعملاء كما تُدخله هنا.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <RegStepShell
+              title="أوقات العمل (الأسبوع كاملاً)"
+              description="من السبت إلى الجمعة — صفٌّ مضغوط لكل يوم. الباقة البرونزية: إلزامي ويُعرَض للعملاء كما تُدخله هنا."
+            >
+              <div className="space-y-4">
                 {(formData.tier === SubscriptionTier.GOLD || formData.tier === SubscriptionTier.DIAMOND) && (
-                  <Alert className="border-primary/40 bg-primary/5">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    <AlertDescription className="text-sm leading-relaxed">
+                  <Alert className="border-slate-500 bg-slate-800/80">
+                    <Sparkles className="h-4 w-4 text-slate-300" />
+                    <AlertDescription className="text-sm leading-relaxed text-slate-300">
                       باقتك تتيح لك بعد التفعيل <strong>تحكّماً كاملاً</strong> في أوقات العمل لكل يوم من{' '}
                       <strong>لوحة التحكم</strong> (جدول أسبوعي). ما تُدخله الآن يُستخدم لمراجعة الطلب؛ يمكنك
                       تعديله لاحقاً بحرية.
@@ -1279,22 +1375,22 @@ export function RegistrationForm() {
                   </Alert>
                 )}
                 {formData.tier === SubscriptionTier.BRONZE && (
-                  <Alert>
-                    <Clock className="h-4 w-4" />
-                    <AlertDescription className="text-sm">
+                  <Alert className={regAlertClass}>
+                    <Clock className="h-4 w-4 text-slate-400" />
+                    <AlertDescription className="text-sm text-slate-300">
                       <strong>الباقة البرونزية:</strong> أوقات العمل هنا <strong>إلزامية</strong> وتُثبَّت في بطاقة
                       المحل للعملاء. عيّن «مغلق» لأيام الراحة.
                     </AlertDescription>
                   </Alert>
                 )}
-                <div className="rounded-lg border border-border divide-y divide-border overflow-hidden max-w-full">
+                <div className="rounded-lg border border-slate-600 divide-y divide-slate-700 overflow-hidden max-w-full">
                   {formData.workingWeek.map((row, index) => (
                     <div
                       key={row.day}
-                      className="w-full min-w-0 p-3 sm:p-2.5 bg-muted/20 space-y-3 sm:space-y-0 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+                      className="w-full min-w-0 p-3 sm:p-2.5 bg-slate-800/50 space-y-3 sm:space-y-0 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-3"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2 gap-y-2 min-w-0 sm:min-w-[12rem] sm:justify-start sm:flex-nowrap">
-                        <span className="text-sm font-semibold text-foreground shrink-0">{row.day}</span>
+                        <span className="text-sm font-semibold text-slate-100 shrink-0">{row.day}</span>
                         <div className="flex items-center gap-2 shrink-0">
                           <Checkbox
                             id={`closed-${index}`}
@@ -1302,8 +1398,9 @@ export function RegistrationForm() {
                             onCheckedChange={(checked) =>
                               patchWorkingWeekRow(index, { closed: checked === true })
                             }
+                            className="border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                           />
-                          <Label htmlFor={`closed-${index}`} className="text-xs text-muted-foreground cursor-pointer">
+                          <Label htmlFor={`closed-${index}`} className={`text-xs ${regMutedClass} cursor-pointer`}>
                             مغلق
                           </Label>
                         </div>
@@ -1311,7 +1408,7 @@ export function RegistrationForm() {
                       {!row.closed ? (
                         <div className="grid grid-cols-2 gap-3 w-full min-w-0 md:flex md:flex-row md:flex-wrap md:items-end md:justify-end md:gap-3 md:max-w-lg md:shrink-0">
                           <div className="space-y-1 min-w-0 md:w-[7.75rem]">
-                            <Label className="text-[11px] text-muted-foreground md:sr-only" htmlFor={`open-${index}`}>
+                            <Label className={`text-[11px] ${regMutedClass} md:sr-only`} htmlFor={`open-${index}`}>
                               من
                             </Label>
                             <Input
@@ -1320,12 +1417,12 @@ export function RegistrationForm() {
                               value={row.open}
                               disabled={row.closed}
                               onChange={(e) => patchWorkingWeekRow(index, { open: e.target.value })}
-                              className="h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border"
+                              className={`h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border ${regFieldClass}`}
                               aria-label={`${row.day} من`}
                             />
                           </div>
                           <div className="space-y-1 min-w-0 md:w-[7.75rem]">
-                            <Label className="text-[11px] text-muted-foreground md:sr-only" htmlFor={`close-${index}`}>
+                            <Label className={`text-[11px] ${regMutedClass} md:sr-only`} htmlFor={`close-${index}`}>
                               إلى
                             </Label>
                             <Input
@@ -1334,31 +1431,27 @@ export function RegistrationForm() {
                               value={row.close}
                               disabled={row.closed}
                               onChange={(e) => patchWorkingWeekRow(index, { close: e.target.value })}
-                              className="h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border"
+                              className={`h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border ${regFieldClass}`}
                               aria-label={`${row.day} إلى`}
                             />
                           </div>
                         </div>
                       ) : (
-                        <p className="text-xs text-muted-foreground py-1 md:text-right md:py-0 md:min-w-[10rem]">يوم عطلة</p>
+                        <p className={`text-xs ${regMutedClass} py-1 md:text-right md:py-0 md:min-w-[10rem]`}>يوم عطلة</p>
                       )}
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
           {currentStep === 7 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">منيو الحلاقة والأسعار</CardTitle>
-                <CardDescription>
-                  أضف الخدمات الاعتيادية، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية
-                  لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <RegStepShell
+              title="منيو الحلاقة والأسعار"
+              description="أضف الخدمات الاعتيادية، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل."
+            >
+              <div className="space-y-4">
                 {formData.services.map((service, index) => (
                   <div key={index} className="flex gap-2">
                     <div className="flex-1 space-y-2">
@@ -1370,6 +1463,7 @@ export function RegistrationForm() {
                           newServices[index].name = e.target.value;
                           setFormData((prev) => ({ ...prev, services: newServices }));
                         }}
+                        className={regFieldClass}
                       />
                     </div>
                     <div className="w-32 space-y-2">
@@ -1382,6 +1476,7 @@ export function RegistrationForm() {
                           newServices[index].price = e.target.value;
                           setFormData((prev) => ({ ...prev, services: newServices }));
                         }}
+                        className={regFieldClass}
                       />
                     </div>
                     {formData.services.length > 1 && (
@@ -1390,17 +1485,23 @@ export function RegistrationForm() {
                         variant="outline"
                         size="icon"
                         onClick={() => removeService(index)}
+                        className="border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
                       >
                         ×
                       </Button>
                     )}
                   </div>
                 ))}
-                <Button type="button" variant="outline" onClick={addService} className="w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addService}
+                  className="w-full border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
+                >
                   + إضافة خدمة
                 </Button>
 
-                <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4">
+                <div className={`rounded-lg border border-slate-600 bg-slate-800/50 p-4 space-y-4`}>
                   <div className="flex items-start gap-3">
                     <Checkbox
                       id="inclusive-accessible-care"
@@ -1414,13 +1515,14 @@ export function RegistrationForm() {
                           },
                         }))
                       }
+                      className="border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                     />
                     <div className="space-y-1 min-w-0">
-                      <Label htmlFor="inclusive-accessible-care" className="text-sm font-semibold cursor-pointer leading-snug">
+                      <Label htmlFor="inclusive-accessible-care" className={`text-sm font-semibold cursor-pointer leading-snug ${regLabelClass}`}>
                         أوفر تسهيلات بالمحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة (بحسب
                         الظروف)
                       </Label>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
+                      <p className={`text-xs leading-relaxed ${regMutedClass}`}>
                         اختياري — إن لم تُشِر هنا فلن يُعرَض على المنصة أنك تلتزم بهذه الخدمة. عند التأشير يجب
                         إدخال سعر معروض للعميل (قد يشمل رسوماً إضافية للتنقل حسب ما تذكره في التواصل).
                       </p>
@@ -1428,7 +1530,9 @@ export function RegistrationForm() {
                   </div>
                   {formData.inclusiveAccessibleCare.offered && (
                     <div className="space-y-2 ps-1 sm:ps-8">
-                      <Label htmlFor="inclusive-accessible-care-price">السعر المعروض (ر.س) *</Label>
+                      <Label htmlFor="inclusive-accessible-care-price" className={regLabelClass}>
+                        السعر المعروض (ر.س) *
+                      </Label>
                       <Input
                         id="inclusive-accessible-care-price"
                         type="number"
@@ -1446,38 +1550,41 @@ export function RegistrationForm() {
                             },
                           }))
                         }
-                        className="max-w-xs"
+                        className={`max-w-xs ${regFieldClass}`}
                       />
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
           {currentStep === 8 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">طريقة الدفع</CardTitle>
-                <CardDescription>اختر طريقة الدفع المناسبة</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <RegStepShell title="طريقة الدفع" description="اختر طريقة الدفع المناسبة">
+              <div className="space-y-4">
                 {selectedPlan && (
-                  <Alert className="bg-primary/10 border-primary">
-                    <Star className="h-4 w-4" />
-                    <AlertDescription>
+                  <Alert className={`${regAlertClass} border-slate-500`}>
+                    <Star className="h-4 w-4 text-slate-300" />
+                    <AlertDescription className="text-slate-200">
                       {vatSettings.enabled && monthlyPriceBreakdown && monthlyPriceBreakdown.vat > 0 ? (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong> — قيمة الحزمة البرمجية الرقمية الموحد{' '}
-                          {monthlyPriceBreakdown.subtotal} ر.س + ضريبة القيمة المضافة (
-                          {vatSettings.ratePercent}%){' '}
+                          الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong>
+                          {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
+                            ? ' (شامل المناوب)'
+                            : ''}{' '}
+                          — قيمة الحزمة البرمجية الرقمية الموحد {monthlyPriceBreakdown.subtotal} ر.س + ضريبة
+                          القيمة المضافة ({vatSettings.ratePercent}%){' '}
                           {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
                           <strong>{monthlyPriceBreakdown.total} ر.س</strong>
                         </>
                       ) : (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong> - {selectedPlan.price} ريال للحزمة البرمجية
-                          <span className="block text-xs mt-1 opacity-90">
+                          الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong>
+                          {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
+                            ? ' (شامل المناوب)'
+                            : ''}{' '}
+                          — {selectedUnitSar} ريال للحزمة البرمجية
+                          <span className={`block text-xs mt-1 ${regMutedClass}`}>
                             المبلغ المعروض قيمة حزمة برمجية فقط دون ضريبة قيمة مضافة في الوضع الحالي.
                           </span>
                         </>
@@ -1485,26 +1592,27 @@ export function RegistrationForm() {
                     </AlertDescription>
                   </Alert>
                 )}
-                <Alert className="border-primary/30 bg-primary/5">
-                  <AlertDescription className="text-sm leading-relaxed space-y-2">
+                <Alert className={regAlertClass}>
+                  <AlertDescription className="text-sm leading-relaxed space-y-2 text-slate-300">
                     <p>
-                      <strong>الدفع عبر بطاقة (ميسر)</strong> — الطريقة الوحيدة لشراء الحزمة البرمجية الرقمية على المنصة.
+                      <strong className="text-slate-100">الدفع عبر بطاقة (ميسر)</strong> — الطريقة الوحيدة لشراء
+                      الحزمة البرمجية الرقمية على المنصة.
                     </p>
-                    <p className="text-muted-foreground">
-                      بعد مراجعة طلبك والموافقة عليه، ستتلقى رابط الدفع لإتمام السداد بأمان عبر بوابة ميسر (مدى، فيزا،
-                      ماستركارد). لا يوجد تحويل بنكي أو رفع إيصال ضمن التسجيل.
+                    <p className={regMutedClass}>
+                      بعد مراجعة طلبك والموافقة عليه، ستتلقى رابط الدفع لإتمام السداد بأمان عبر بوابة ميسر (مدى،
+                      فيزا، ماستركارد). لا يوجد تحويل بنكي أو رفع إيصال ضمن التسجيل.
                     </p>
                     {selectedPlan && monthlyPriceBreakdown && (
-                      <p className="font-medium text-primary">
+                      <p className="font-medium text-slate-100">
                         المبلغ المتوقع للحزمة البرمجية (30 يوماً):{' '}
                         {vatSettings.enabled && monthlyPriceBreakdown.vat > 0
                           ? `${monthlyPriceBreakdown.total} ر.س (شامل ضريبة ${vatSettings.ratePercent}%)`
-                          : `${selectedPlan.price} ر.س`}
+                          : `${selectedUnitSar} ر.س`}
                       </p>
                     )}
                   </AlertDescription>
                 </Alert>
-                <div className="space-y-3 rounded-lg border border-border bg-muted/25 p-4">
+                <div className={`space-y-3 rounded-lg border border-slate-600 bg-slate-800/50 p-4`}>
                   <div className="flex items-start gap-3">
                     <Checkbox
                       id="registration-terms-accept"
@@ -1515,15 +1623,19 @@ export function RegistrationForm() {
                           registrationTermsAccepted: checked === true,
                         }))
                       }
-                      className="mt-1"
+                      className="mt-1 border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                     />
-                    <Label htmlFor="registration-terms-accept" className="cursor-pointer text-sm font-normal leading-relaxed">
-                      <span className="font-semibold text-foreground">أقرّ بموافقتي الصريحة</span> على أنني قرأت وفهمت{' '}
+                    <Label
+                      htmlFor="registration-terms-accept"
+                      className="cursor-pointer text-sm font-normal leading-relaxed text-slate-300"
+                    >
+                      <span className="font-semibold text-slate-100">أقرّ بموافقتي الصريحة</span> على أنني قرأت
+                      وفهمت{' '}
                       <Link
                         to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary underline-offset-2 hover:underline font-medium"
+                        className="text-slate-200 underline-offset-2 hover:underline font-medium"
                       >
                         شروط التسجيل وشراء الحزم البرمجية
                       </Link>{' '}
@@ -1532,7 +1644,7 @@ export function RegistrationForm() {
                         to={ROUTE_PATHS.PARTNER_PRIVACY}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary underline-offset-2 hover:underline font-medium"
+                        className="text-slate-200 underline-offset-2 hover:underline font-medium"
                       >
                         سياسة خصوصية الشركاء
                       </Link>
@@ -1540,23 +1652,27 @@ export function RegistrationForm() {
                     </Label>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
-        </motion.div>
-      </AnimatePresence>
+      </div>
 
       <div className="flex justify-between mt-6">
         <Button
           variant="outline"
           onClick={handlePrevious}
           disabled={currentStep === 1 || isSubmitting}
+          className="border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
         >
           <ChevronLeft className="w-4 h-4 ml-2" />
           السابق
         </Button>
         {currentStep < STEPS.length ? (
-          <Button onClick={handleNext} disabled={isSubmitting}>
+          <Button
+            onClick={handleNext}
+            disabled={isSubmitting}
+            className="bg-slate-100 text-slate-900 hover:bg-white"
+          >
             التالي
             <ChevronRight className="w-4 h-4 mr-2" />
           </Button>
@@ -1566,6 +1682,7 @@ export function RegistrationForm() {
             disabled={
               isSubmitting || !formData.registrationTermsAccepted || !formData.legalDisclaimerAccepted
             }
+            className="bg-slate-100 text-slate-900 hover:bg-white"
           >
             {isSubmitting ? (
               <>

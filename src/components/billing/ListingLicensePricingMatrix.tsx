@@ -3,14 +3,8 @@ import { NavLink } from 'react-router-dom';
 import { Check, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
-import {
-  DIAMOND_PRODUCT_SMART_HINT_AR,
-  DIAMOND_PRODUCT_SMART_LABEL_AR,
-  DIAMOND_PRODUCT_STANDARD_HINT_AR,
-  DIAMOND_PRODUCT_STANDARD_LABEL_AR,
-  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
-  TIER_MONTHLY_SAR,
-} from '@/config/subscriptionPricing';
+import { SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
+import { DigitalShiftAddonToggle } from '@/components/billing/DigitalShiftAddonToggle';
 import {
   LISTING_LICENSE_LEGAL_FOOTNOTE,
   LISTING_LICENSE_PRICING_CARDS,
@@ -56,52 +50,6 @@ function initialQuantities(): Record<SubscriptionTier, number> {
   };
 }
 
-type DiamondProductChoice = 'standard' | 'smart';
-
-function DiamondProductSegment({
-  value,
-  onChange,
-}: {
-  value: DiamondProductChoice;
-  onChange: (next: DiamondProductChoice) => void;
-}) {
-  const options: { id: DiamondProductChoice; label: string; hint: string }[] = [
-    { id: 'standard', label: DIAMOND_PRODUCT_STANDARD_LABEL_AR, hint: DIAMOND_PRODUCT_STANDARD_HINT_AR },
-    { id: 'smart', label: DIAMOND_PRODUCT_SMART_LABEL_AR, hint: DIAMOND_PRODUCT_SMART_HINT_AR },
-  ];
-
-  return (
-    <div
-      className="mt-4 rounded-lg border border-slate-600 bg-slate-900 p-1"
-      role="tablist"
-      aria-label="اختيار نوع الحزمة الماسية"
-    >
-      <div className="grid grid-cols-2 gap-1">
-        {options.map((opt) => {
-          const active = value === opt.id;
-          return (
-            <button
-              key={opt.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => onChange(opt.id)}
-              className={cn(
-                'flex min-h-[4rem] flex-col items-end justify-center gap-0.5 rounded-md px-3 py-2 text-right',
-                'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400',
-                active ? 'bg-slate-700 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200',
-              )}
-            >
-              <span className="text-sm font-semibold leading-tight">{opt.label}</span>
-              <span className="text-[10px] font-normal leading-snug text-slate-400">{opt.hint}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 type Props = {
   variant?: Variant;
   className?: string;
@@ -114,8 +62,7 @@ export function ListingLicensePricingMatrix({
   showHeader = true,
 }: Props) {
   const [quantities, setQuantities] = useState(initialQuantities);
-  const [diamondProductChoice, setDiamondProductChoice] = useState<DiamondProductChoice>('standard');
-  const isAiAddonSelected = diamondProductChoice === 'smart';
+  const [digitalShiftAddon, setDigitalShiftAddon] = useState(false);
 
   const cardsByTier = useMemo(
     () => new Map(LISTING_LICENSE_PRICING_CARDS.map((c) => [c.tier, c])),
@@ -166,10 +113,7 @@ export function ListingLicensePricingMatrix({
         {orderedCards.map((card) => {
           const isDiamond = card.accent === 'diamond';
           const qty = quantities[card.tier];
-          const diamondAddonActive = isDigitalShiftAddonAllowed(
-            card.tier,
-            isDiamond && isAiAddonSelected,
-          );
+          const diamondAddonActive = isDigitalShiftAddonAllowed(card.tier, isDiamond && digitalShiftAddon);
           const pricingOptions = diamondAddonActive ? { digitalShiftAddon: true } : undefined;
           const unitSar = computeListingLicenseUnitSar(card.tier, pricingOptions);
           const totalSar = computeListingLicenseTotalSar(card.tier, qty, pricingOptions);
@@ -208,7 +152,11 @@ export function ListingLicensePricingMatrix({
               <p className="mt-1 text-sm leading-relaxed text-slate-400">{card.subtitleAr}</p>
 
               {card.digitalShiftAddonAvailable ? (
-                <DiamondProductSegment value={diamondProductChoice} onChange={setDiamondProductChoice} />
+                <DigitalShiftAddonToggle
+                  checked={digitalShiftAddon}
+                  onCheckedChange={setDigitalShiftAddon}
+                  id={`pricing-shift-${card.tier}`}
+                />
               ) : null}
 
               <div className="mt-5 flex items-baseline justify-end gap-2">
@@ -220,8 +168,8 @@ export function ListingLicensePricingMatrix({
               {isDiamond ? (
                 <p className="mt-1 text-end text-xs text-slate-500">
                   {diamondAddonActive
-                    ? `${DIAMOND_PRODUCT_SMART_LABEL_AR} · ${formatPriceSar(unitSar)} ر.س/بطاقة`
-                    : `${DIAMOND_PRODUCT_STANDARD_LABEL_AR} · ${formatPriceSar(TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND])} ر.س/بطاقة`}
+                    ? `ماسي + المناوب · ${formatPriceSar(unitSar)} ر.س/حزمة`
+                    : `ماسي قياسي · ${formatPriceSar(TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND])} ر.س/حزمة`}
                 </p>
               ) : null}
               <p className="mt-0.5 text-end text-xs text-slate-500">

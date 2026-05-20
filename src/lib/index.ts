@@ -279,6 +279,8 @@ export interface SubscriptionRequest {
   registrationTermsAccepted?: boolean;
   /** وقت الموافقة ISO 8601 (UTC) */
   registrationTermsAcceptedAtIso?: string;
+  /** إضافة المناوب الرقمي الذكي — ماسي فقط (+25 ر.س) */
+  digitalShiftAddonSelected?: boolean;
 }
 
 export interface Payment {
