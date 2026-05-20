@@ -36,6 +36,8 @@ import {
   Landmark,
   HardDrive,
   ClipboardList,
+  Radar,
+  Cast,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,7 +68,7 @@ import {
   removeStoredSubscriptionRequest,
 } from '@/lib/subscriptionRequestStorage';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminLoginPathFor } from '@/config/adminAuth';
+import { getAdminLoginPathFor, getAdminPlatformRadarFullScreenPathFor } from '@/config/adminAuth';
 import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
 import { fetchAdminStats } from '@/lib/adminStatsRemote';
 import {
@@ -616,6 +618,25 @@ export default function AdminDashboard() {
                   setCrisisLabOpen(true);
                 }}
               />
+            ) : null}
+            {isFounderView ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-9 shrink-0 gap-1.5 border border-cyan-500/30 bg-cyan-500/10 px-2.5 text-cyan-100 hover:bg-cyan-500/20 hover:text-white"
+                title="Command Mode — فتح شاشة الرادار للعرض والبث"
+                aria-label="Command Mode — Platform Radar full screen"
+                onClick={() => {
+                  const path = getAdminPlatformRadarFullScreenPathFor(location.pathname);
+                  const url = `${window.location.origin}${window.location.pathname}#${path}`;
+                  window.open(url, '_blank', 'noopener,noreferrer');
+                }}
+              >
+                <Cast className="h-4 w-4" />
+                <Radar className="h-4 w-4" />
+                <span className="hidden lg:inline">Command Mode</span>
+              </Button>
             ) : null}
             <Button
               variant="ghost"

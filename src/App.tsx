@@ -37,6 +37,7 @@ import PartnerBannersPreviewLanding from "@/pages/PartnerBannersPreviewLanding";
 import RateBarber from "@/pages/RateBarber";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import AdminSentinelPage from "@/pages/AdminSentinelPage";
+import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
 import { getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
@@ -133,6 +134,7 @@ const App = () => (
                   </AdminSentinelSecurityGate>
                 }
               />
+              <Route path={`${adminBase}/radar/full-screen`} element={<AdminRadarFullScreenPage />} />
             </Fragment>
           ))}
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />

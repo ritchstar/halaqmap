@@ -109,6 +109,10 @@ export function getAdminSentinelPath(): string {
   return `${getAdminPortalBasePath()}/sentinel`;
 }
 
+export function getAdminPlatformRadarFullScreenPath(): string {
+  return `${getAdminPortalBasePath()}/radar/full-screen`;
+}
+
 export function getAdminLoginPathFor(pathname: string): string {
   return `${resolveAdminPortalBase(pathname)}/in`;
 }
@@ -119,4 +123,8 @@ export function getAdminDashboardPathFor(pathname: string): string {
 
 export function getAdminSentinelPathFor(pathname: string): string {
   return `${resolveAdminPortalBase(pathname)}/sentinel`;
+}
+
+export function getAdminPlatformRadarFullScreenPathFor(pathname: string): string {
+  return `${resolveAdminPortalBase(pathname)}/radar/full-screen`;
 }
