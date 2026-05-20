@@ -98,7 +98,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     shortName: DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME,
     title: DIGITAL_SHIFT_PRODUCT_TITLE,
     statusBadgeAr: 'ميداني · ماسي',
-    ctaLabelAr: 'لوحة الإشراف الميداني',
+    ctaLabelAr: 'مختبر المحادثة 🌙',
     roleDescription:
       'مناوب رقمي منشور في صالونات الماسي — جدولة، آداب سعودية، واعتراض محادثات عند الإغلاق أو التأخير. صفر تلاعب مالي بالعملاء.',
     accentClass: staffTheme.accentIndigo,
@@ -113,6 +113,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
       apiRoutes: [
         '/api/barber-digital-shift-assistant',
         '/api/customer-digital-shift-intercept',
+        '/api/admin-digital-shift-lab-chat',
       ],
       systemPromptBuilder: 'buildDigitalShiftSystemPrompt',
     },
