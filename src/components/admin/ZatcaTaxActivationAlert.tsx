@@ -4,10 +4,13 @@ import { Button } from '@/components/ui/button';
 import { savePlatformVatSettings } from '@/lib/platformVatSettings';
 import {
   activateZatcaTaxLiveRemote,
+  defaultZatcaComplianceReportFallback,
   fetchZatcaTaxAdvisorStateRemote,
+  refreshZatcaExternalIntelRemote,
   runZatcaTaxRadarRemote,
 } from '@/lib/zatcaTaxAdvisorRemote';
-import type { ZatcaAdminActivationAlert, ZatcaEarlyWarningSignal } from '@/types/zatcaTaxAdvisor';
+import type { ZatcaAdminActivationAlert, ZatcaComplianceReport, ZatcaEarlyWarningSignal, ZatcaExternalIntelBrief } from '@/types/zatcaTaxAdvisor';
+import { ZatcaProactiveReportPanel } from '@/components/admin/ZatcaProactiveReportPanel';
 import { toast } from '@/components/ui/sonner';
 
 type ZatcaTaxActivationAlertProps = {
@@ -106,12 +109,19 @@ export function ZatcaTaxActivationAlert({
   const [warnings, setWarnings] = useState<ZatcaEarlyWarningSignal[]>([]);
   const [uninitialized, setUninitialized] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [complianceReport, setComplianceReport] = useState<ZatcaComplianceReport>(
+    defaultZatcaComplianceReportFallback(),
+  );
+  const [externalIntel, setExternalIntel] = useState<ZatcaExternalIntelBrief | null>(null);
+  const [intelRefreshing, setIntelRefreshing] = useState(false);
 
   const applySnapshot = useCallback(
     (snap: Awaited<ReturnType<typeof fetchZatcaTaxAdvisorStateRemote>>) => {
       setAlert(snap.state?.admin_activation_alert ?? null);
       setWarnings(snap.warnings?.length ? snap.warnings : (snap.state?.active_warnings ?? []));
       setUninitialized(snap.uninitialized ?? snap.state == null);
+      setComplianceReport(snap.complianceReport ?? defaultZatcaComplianceReportFallback());
+      setExternalIntel(snap.externalIntel ?? null);
       setFetchError(null);
     },
     [],
@@ -144,14 +154,28 @@ export function ZatcaTaxActivationAlert({
     if (!canRunRadar) return;
     setLoading(true);
     try {
-      const snap = await runZatcaTaxRadarRemote();
+      const snap = await runZatcaTaxRadarRemote({ refreshIntel: true });
       applySnapshot(snap);
-      toast.success('تم تحديث رادار زميل خازن');
+      toast.success('تم تحديث رادار زميل خازن والتقرير الاستباقي');
     } catch (e) {
       setFetchError(e instanceof Error ? e.message : 'تعذر تشغيل الرادار');
       toast.error(e instanceof Error ? e.message : 'تعذر تشغيل الرادار');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefreshIntel = async () => {
+    if (!canRunRadar) return;
+    setIntelRefreshing(true);
+    try {
+      const snap = await refreshZatcaExternalIntelRemote();
+      applySnapshot(snap);
+      toast.success('تم تحديث مصادر ZATCA');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'تعذر تحديث المصادر');
+    } finally {
+      setIntelRefreshing(false);
     }
   };
 
@@ -249,6 +273,13 @@ export function ZatcaTaxActivationAlert({
           تحديث رادار الإيرادات (زميل خازن)
         </Button>
       ) : null}
+
+      <ZatcaProactiveReportPanel
+        report={complianceReport}
+        externalIntel={externalIntel}
+        onRefreshIntel={canRunRadar ? () => void handleRefreshIntel() : undefined}
+        intelRefreshing={intelRefreshing}
+      />
     </div>
   );
 }

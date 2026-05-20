@@ -73,7 +73,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     statusBadgeAr: 'نشط بالرادار',
     ctaLabelAr: 'فتح المكتب المالي',
     roleDescription:
-      'فرز فواتير الصالونات بالهللة، تحليل سرعة التدفق المالي، والتنبؤ الاستباقي بحدود الامتثال الضريبي.',
+      'فرز فواتير الصالونات بالهللة، تحليل سرعة التدفق المالي، التنبؤ الاستباقي بحدود الامتثال، ومسح مصادر ZATCA الرسمية للتحديثات.',
     accentClass: staffTheme.accentAmber,
     requiredAny: [
       'manage_platform_commerce_rules',
@@ -83,6 +83,11 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     available: true,
     iconKind: 'zatca_shield',
     workspaceKind: 'zatca_settings',
+    doctrineNotes: [
+      'رادار إيرادات المنصة + تقرير استباقي باحتسابات افتراضية (187,500 / 375,000 ر.س).',
+      'مسح دوري لمواقع ZATCA الرسمية — ليس بديلاً عن مستشار ضريبي مرخّص.',
+      'تفعيل ض.ق.م 15% على الواجهة يتطلب موافقة Super Admin صريحة.',
+    ],
     productRef: {
       apiRoutes: ['/api/admin-zatca-tax-advisor'],
     },

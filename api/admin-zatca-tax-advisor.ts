@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { buildZatcaComplianceReport } from './_lib/agents/zatcaComplianceReport.js';
 import { ZatcaTaxAdvisorAgent } from './_lib/agents/ZatcaTaxAdvisorAgent.js';
 import { verifyPlatformAdminFromRequest, verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
@@ -61,15 +62,57 @@ export async function GET(request: Request): Promise<Response> {
   const agent = new ZatcaTaxAdvisorAgent(auth.supabase);
   const url = new URL(request.url);
   const runRadar = url.searchParams.get('run') === '1' || url.searchParams.get('radar') === '1';
+  const refreshIntel = url.searchParams.get('intel') === '1' || url.searchParams.get('refresh_intel') === '1';
+  const briefOnly = url.searchParams.get('brief') === '1';
+
+  if (briefOnly) {
+    const brief = await agent.getComplianceBrief({ refreshIntel });
+    const state = await agent.getState();
+    return json({
+      ok: true,
+      route: 'admin-zatca-tax-advisor',
+      mode: 'brief',
+      state,
+      warnings: state?.active_warnings ?? [],
+      uninitialized: state == null,
+      ...brief,
+    });
+  }
 
   if (runRadar) {
-    const result = await agent.runRevenueRadar();
+    const result = await agent.runRevenueRadar({ refreshIntel });
     const state = await agent.getState();
     const { ok: _ok, ...radar } = result;
     return json({ ok: true, route: 'admin-zatca-tax-advisor', mode: 'radar', state, ...radar });
   }
 
   const state = await agent.getState();
+  const snap = state?.cached_revenue_snapshot;
+  const analytics =
+    snap && typeof snap === 'object' && 'totalHistoricalSar' in snap
+      ? snap
+      : null;
+  const complianceReport =
+    snap && typeof snap === 'object' && 'complianceReport' in snap
+      ? (snap as { complianceReport?: ReturnType<typeof buildZatcaComplianceReport> }).complianceReport
+      : buildZatcaComplianceReport(analytics as Parameters<typeof buildZatcaComplianceReport>[0]);
+
+  const cachedIntel =
+    state?.cached_vat_config &&
+    typeof state.cached_vat_config === 'object' &&
+    'externalIntel' in state.cached_vat_config
+      ? (state.cached_vat_config as { externalIntel?: unknown }).externalIntel
+      : null;
+
+  let externalIntel = cachedIntel;
+  if (refreshIntel) {
+    const brief = await agent.getComplianceBrief({ refreshIntel: true });
+    externalIntel = brief.externalIntel;
+  } else if (!externalIntel) {
+    const brief = await agent.getComplianceBrief({ refreshIntel: false });
+    externalIntel = brief.externalIntel;
+  }
+
   return json({
     ok: true,
     route: 'admin-zatca-tax-advisor',
@@ -77,6 +120,9 @@ export async function GET(request: Request): Promise<Response> {
     state,
     uninitialized: state == null,
     warnings: state?.active_warnings ?? [],
+    complianceReport,
+    externalIntel,
+    analytics,
   });
 }
 
@@ -95,10 +141,17 @@ export async function POST(request: Request): Promise<Response> {
   const agent = new ZatcaTaxAdvisorAgent(auth.supabase);
 
   if (action === 'run_radar' || action === 'runRadar') {
-    const result = await agent.runRevenueRadar();
+    const refreshIntel = body.refreshIntel === true || body.refresh_intel === true;
+    const result = await agent.runRevenueRadar({ refreshIntel });
     const state = await agent.getState();
     const { ok: _ok, ...radar } = result;
     return json({ ok: true, route: 'admin-zatca-tax-advisor', action, state, ...radar });
+  }
+
+  if (action === 'refresh_intel' || action === 'refreshIntel') {
+    const brief = await agent.getComplianceBrief({ refreshIntel: true });
+    const state = await agent.getState();
+    return json({ ok: true, route: 'admin-zatca-tax-advisor', action, state, ...brief });
   }
 
   if (action === 'activate_tax_live' || action === 'activateTaxLive') {
@@ -113,5 +166,5 @@ export async function POST(request: Request): Promise<Response> {
     });
   }
 
-  return json({ error: 'Unknown action', allowed: ['run_radar', 'activate_tax_live'] }, 400);
+  return json({ error: 'Unknown action', allowed: ['run_radar', 'refresh_intel', 'activate_tax_live'] }, 400);
 }

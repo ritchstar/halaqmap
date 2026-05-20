@@ -21,6 +21,67 @@ export type ZatcaEarlyWarningSignal = {
   daysToMandatoryLimit: number | null;
 };
 
+export type ZatcaComplianceThresholdRow = {
+  id: string;
+  labelAr: string;
+  limitSar: number;
+  remainingSar: number;
+  breached: boolean;
+  actionAr: string;
+};
+
+export type ZatcaHypotheticalScenario = {
+  kind: 'invoice' | 'annual_projection';
+  labelAr: string;
+  subtotalSar: number;
+  vatRatePercent: number;
+  vatSar: number;
+  totalSar: number;
+  noteAr: string;
+};
+
+export type ZatcaComplianceReport = {
+  generatedAt: string;
+  disclaimerAr: string;
+  currentRevenueSar: number;
+  dailyVelocitySar: number;
+  projectedRevenue30dSar: number | null;
+  daysToMandatoryLimit: number | null;
+  thresholds: ZatcaComplianceThresholdRow[];
+  vatActivationGuidance: {
+    triggerSar: number;
+    triggerLabelAr: string;
+    recommendEnableUiVat: boolean;
+    urgency: 'monitor' | 'prepare_soon' | 'prepare_now' | 'immediate';
+    summaryAr: string;
+    voluntaryLimitSar: number;
+    mandatoryLimitSar: number;
+    preparedVatRatePercent: number;
+  };
+  hypotheticalScenarios: ZatcaHypotheticalScenario[];
+  monthlyRunRateSar: number | null;
+  estimatedMonthsToMandatory: number | null;
+};
+
+export type ZatcaIntelSourceHit = {
+  id: string;
+  url: string;
+  labelAr: string;
+  orgAr: string;
+  fetchedAt: string;
+  ok: boolean;
+  title?: string;
+  snippetAr?: string;
+  errorAr?: string;
+};
+
+export type ZatcaExternalIntelBrief = {
+  fetchedAt: string;
+  summaryAr: string;
+  learningTopicsAr: string[];
+  sources: ZatcaIntelSourceHit[];
+};
+
 export type ZatcaTaxAdvisorState = {
   id: string;
   tax_enabled: boolean;
@@ -42,4 +103,6 @@ export type ZatcaTaxAdvisorSnapshot = {
     projectedRevenue30dSar: number;
     daysToMandatoryLimit: number | null;
   };
+  complianceReport?: ZatcaComplianceReport;
+  externalIntel?: ZatcaExternalIntelBrief | null;
 };

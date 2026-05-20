@@ -1,4 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { buildZatcaComplianceReport } from './zatcaComplianceReport.js';
+import { fetchZatcaExternalIntel } from './zatcaExternalIntel.js';
 import {
   computeRevenueAnalytics,
   evaluateEarlyWarningSignals,
@@ -9,6 +11,8 @@ import {
   ZATCA_PLATFORM_STATE_ID,
   ZATCA_PREPARED_VAT_RATE_PERCENT,
   type ZatcaAdminActivationAlert,
+  type ZatcaComplianceReport,
+  type ZatcaExternalIntelBrief,
   type ZatcaFilteredRevenueLog,
   type ZatcaPlatformTaxStateRow,
   type ZatcaPreparedVatConfig,
@@ -122,8 +126,51 @@ export class ZatcaTaxAdvisorAgent {
     return loadStateRow(this.supabase);
   }
 
+  /** تقرير استباقي + افتراضات — يعمل حتى بدون مسح رادار سابق */
+  async getComplianceBrief(options?: { refreshIntel?: boolean }): Promise<{
+    complianceReport: ZatcaComplianceReport;
+    externalIntel: ZatcaExternalIntelBrief;
+    analytics: ZatcaRevenueAnalytics | null;
+  }> {
+    const existing = await loadStateRow(this.supabase);
+    const snap = existing?.cached_revenue_snapshot;
+    const analytics =
+      snap && typeof snap === 'object' && 'totalHistoricalSar' in snap
+        ? (snap as ZatcaRevenueAnalytics)
+        : null;
+
+    const cachedIntel =
+      existing?.cached_vat_config &&
+      typeof existing.cached_vat_config === 'object' &&
+      'externalIntel' in existing.cached_vat_config
+        ? (existing.cached_vat_config as { externalIntel?: ZatcaExternalIntelBrief }).externalIntel
+        : null;
+
+    const complianceReport =
+      snap && typeof snap === 'object' && 'complianceReport' in snap
+        ? (snap as { complianceReport?: ZatcaComplianceReport }).complianceReport ?? buildZatcaComplianceReport(analytics)
+        : buildZatcaComplianceReport(analytics);
+
+    const externalIntel = await fetchZatcaExternalIntel(cachedIntel ?? null, {
+      force: options?.refreshIntel === true,
+    });
+
+    if (options?.refreshIntel || !cachedIntel) {
+      await upsertStateRow(this.supabase, {
+        cached_vat_config: {
+          ...(existing?.cached_vat_config && typeof existing.cached_vat_config === 'object'
+            ? existing.cached_vat_config
+            : {}),
+          externalIntel,
+        },
+      });
+    }
+
+    return { complianceReport, externalIntel, analytics };
+  }
+
   /** Run predictive radar, persist warnings, and prepare fulfillment when mandatory limit is breached. */
-  async runRevenueRadar(): Promise<ZatcaTaxAdvisorRunResult> {
+  async runRevenueRadar(options?: { refreshIntel?: boolean }): Promise<ZatcaTaxAdvisorRunResult> {
     const nowMs = Date.now();
     const nowIso = new Date(nowMs).toISOString();
     const orders = await loadPlatformRevenueOrders(this.supabase);
@@ -138,10 +185,27 @@ export class ZatcaTaxAdvisorAgent {
     let adminActivationAlert: ZatcaAdminActivationAlert | null = null;
     let fulfillmentPrepared = false;
 
+    const complianceReport = buildZatcaComplianceReport(analytics);
+    const cachedIntel =
+      existing?.cached_vat_config &&
+      typeof existing.cached_vat_config === 'object' &&
+      'externalIntel' in existing.cached_vat_config
+        ? (existing.cached_vat_config as { externalIntel?: ZatcaExternalIntelBrief }).externalIntel
+        : null;
+    const externalIntel = await fetchZatcaExternalIntel(cachedIntel ?? null, {
+      force: options?.refreshIntel === true,
+    });
+
     const statePatch: Record<string, unknown> = {
       last_radar_run_at: nowIso,
-      cached_revenue_snapshot: analytics,
+      cached_revenue_snapshot: { ...analytics, complianceReport },
       active_warnings: warnings,
+      cached_vat_config: {
+        ...(existing?.cached_vat_config && typeof existing.cached_vat_config === 'object'
+          ? existing.cached_vat_config
+          : preparedVatConfig ?? {}),
+        externalIntel,
+      },
     };
 
     if (mandatoryBreached && !taxEnabledLive) {
@@ -152,10 +216,11 @@ export class ZatcaTaxAdvisorAgent {
 
       statePatch.mandatory_breached_at = existing?.mandatory_breached_at ?? nowIso;
       statePatch.fulfillment_prepared_at = nowIso;
-      statePatch.cached_vat_config = preparedVatConfig;
+      statePatch.cached_vat_config = { ...preparedVatConfig, externalIntel };
       statePatch.admin_activation_alert = adminActivationAlert;
       statePatch.cached_revenue_snapshot = {
         ...analytics,
+        complianceReport,
         filteredRevenueLog: filteredLog,
       };
     } else if (!mandatoryBreached) {
@@ -173,6 +238,8 @@ export class ZatcaTaxAdvisorAgent {
       taxEnabledLive,
       adminActivationAlert,
       preparedVatConfig,
+      complianceReport,
+      externalIntel,
     };
   }
 
