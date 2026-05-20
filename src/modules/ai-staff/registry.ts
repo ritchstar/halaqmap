@@ -129,7 +129,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     shortName: 'مساعد الشركاء',
     title: 'مساعد الشركاء — علاقات المسار البرمجي',
     statusBadgeAr: 'تقارير ميدانية',
-    ctaLabelAr: 'فتح لوحة التقارير',
+    ctaLabelAr: 'محادثة مساعد الشركاء 💬',
     roleDescription:
       'مساعد الشركاء الرقمي على مسار الانضمام — يجمع مشاعر أصحاب الصالونات، ملخصات الاحتكاك التشغيلي، وتحليلات المحادثات.',
     accentClass: staffTheme.accentViolet,
@@ -140,7 +140,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     doctrineNotes: PARTNER_LIAISON_DOCTRINE,
     productRef: {
       configModule: '@/api/_lib/partnerAssistantKnowledge',
-      apiRoutes: ['/api/partner-assistant-chat'],
+      apiRoutes: ['/api/partner-assistant-chat', '/api/admin-partner-liaison-lab-chat'],
     },
   },
   {

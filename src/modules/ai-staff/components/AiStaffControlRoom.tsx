@@ -4,6 +4,7 @@ import { Bot, ChevronDown } from 'lucide-react';
 import { AiStaffEmployeeCard } from '@/components/admin/AiStaffEmployeeCard';
 import { OpsBillingAiAssistant } from '@/components/admin/OpsBillingAiAssistant';
 import { DigitalShiftAdminLabChat } from '@/components/admin/DigitalShiftAdminLabChat';
+import { PartnerLiaisonAdminLabChat } from '@/components/admin/PartnerLiaisonAdminLabChat';
 import { ZatcaAdvisorLabChat } from '@/components/admin/ZatcaAdvisorLabChat';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';
 import { staffMotion, staffTheme } from '@/components/admin/staff/staffTheme';
@@ -42,6 +43,7 @@ export function AiStaffControlRoom({
   const [billingOpen, setBillingOpen] = useState(false);
   const [digitalShiftLabOpen, setDigitalShiftLabOpen] = useState(false);
   const [zatcaLabOpen, setZatcaLabOpen] = useState(false);
+  const [partnerLiaisonLabOpen, setPartnerLiaisonLabOpen] = useState(false);
   const [workspaceAgentId, setWorkspaceAgentId] = useState<AiStaffAgentId | null>(null);
 
   const agents = useMemo<ResolvedAgent[]>(
@@ -85,6 +87,7 @@ export function AiStaffControlRoom({
       setBillingOpen(true);
       setDigitalShiftLabOpen(false);
       setZatcaLabOpen(false);
+      setPartnerLiaisonLabOpen(false);
       setWorkspaceAgentId(null);
       return;
     }
@@ -92,6 +95,7 @@ export function AiStaffControlRoom({
       setDigitalShiftLabOpen(true);
       setBillingOpen(false);
       setZatcaLabOpen(false);
+      setPartnerLiaisonLabOpen(false);
       setWorkspaceAgentId(null);
       return;
     }
@@ -100,13 +104,19 @@ export function AiStaffControlRoom({
       setZatcaLabOpen(true);
       setBillingOpen(false);
       setDigitalShiftLabOpen(false);
+      setPartnerLiaisonLabOpen(false);
       setWorkspaceAgentId(null);
       return;
     }
-    if (
-      agent.workspaceKind === 'partner_analytics' ||
-      agent.workspaceKind === 'fleet_intelligence'
-    ) {
+    if (agent.id === 'partner_relations_liaison') {
+      setPartnerLiaisonLabOpen(true);
+      setBillingOpen(false);
+      setDigitalShiftLabOpen(false);
+      setZatcaLabOpen(false);
+      setWorkspaceAgentId(null);
+      return;
+    }
+    if (agent.workspaceKind === 'fleet_intelligence') {
       setWorkspaceAgentId(agent.id);
     }
   };
@@ -116,6 +126,12 @@ export function AiStaffControlRoom({
   const showZatcaLab = agents.some(
     (a) => a.id === 'zatca_tax_advisor' && a.permitted && canViewZatcaFinancialOffice,
   );
+  const showPartnerLiaisonLab = agents.some((a) => a.id === 'partner_relations_liaison' && a.permitted);
+
+  const openPartnerReportsPanel = () => {
+    setPartnerLiaisonLabOpen(false);
+    setWorkspaceAgentId('partner_relations_liaison');
+  };
 
   return (
     <>
@@ -233,6 +249,16 @@ export function AiStaffControlRoom({
           onOpenChange={setZatcaLabOpen}
           hideTrigger
           onOpenFinancialOffice={onOpenZatcaFinancialOffice}
+        />
+      ) : null}
+
+      {showPartnerLiaisonLab ? (
+        <PartnerLiaisonAdminLabChat
+          permitted
+          open={partnerLiaisonLabOpen}
+          onOpenChange={setPartnerLiaisonLabOpen}
+          hideTrigger
+          onOpenReportsPanel={openPartnerReportsPanel}
         />
       ) : null}
     </>
