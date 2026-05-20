@@ -149,7 +149,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     shortName: 'المدير العام للمناوبين',
     title: 'المدير العام للمناوبين — قيادة الأسطول',
     statusBadgeAr: '◆ سري للغاية',
-    ctaLabelAr: 'فتح مقصورة الاستخبارات',
+    ctaLabelAr: 'اجتماع سري ◆ — قيادة الأسطول',
     roleDescription:
       'يراقب كل رموز المناوبة النشطة في المملكة — يجمع السجلات المباشرة، مقاييس الخلفية، ونبضات الاحتكاك عبر قناة خلفية آمنة بسرية تامة وبدون أن يشعر أحد.',
     accentClass: staffTheme.accentCovert,
@@ -161,7 +161,11 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     doctrineNotes: [
       'قناة خلفية مشفرة — لا إشعارات للصالونات ولا للمناوبين الميدانيين.',
       'يجمع: حالة البيئة، احتكاك الجدولة، ونبضات العقد الآمنة لكل عقدة.',
+      'يستلم توجيهات القيادة ويحوّلها إلى أوامر أسطول ونشرات تدريب صامتة.',
     ],
+    productRef: {
+      apiRoutes: ['/api/admin-fleet-director-lab-chat', '/api/admin-digital-shift-lab-chat'],
+    },
   },
 ];
 
