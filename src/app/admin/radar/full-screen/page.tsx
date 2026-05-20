@@ -5,7 +5,7 @@ import { PlatformRadar } from '@/modules/platform-radar';
 import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
-import { playPlatformRadarPulseSound } from '@/modules/platform-radar/lib/platformRadarPulseSound';
+import { playTacticalUserPulseSound } from '@/modules/platform-radar/lib/platformRadarPulseSound';
 
 const SOUND_PREF_KEY = 'halaqmap.platformRadar.soundEnabled';
 
@@ -91,13 +91,13 @@ export default function AdminRadarFullScreenPage() {
   const enableSound = () => {
     setSoundEnabled(true);
     writeSoundPref(true);
-    playPlatformRadarPulseSound(0.08);
+    playTacticalUserPulseSound(0.1);
   };
 
   if (phase === 'loading') {
     return (
       <div className="flex h-[100dvh] w-[100dvw] items-center justify-center bg-[#030303] text-white" dir="rtl">
-        <p className="text-[clamp(1.25rem,3vw,2rem)] font-medium text-slate-200">جاري تحميل Platform Radar…</p>
+        <p className="text-[clamp(1.25rem,3vw,2rem)] font-medium text-slate-200">جاري تحميل Tactical Mission Control…</p>
       </div>
     );
   }

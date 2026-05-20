@@ -812,3 +812,44 @@ html.platform-radar-fullscreen #root {
   animation-delay: 2s;
 }
 
+/* Tactical Mission Control — map pulses & inspector halos */
+@keyframes tactical-radar-pulse-beat {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes tactical-inspector-halo {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+    box-shadow: 0 0 28px rgba(239, 68, 68, 0.55);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.12);
+    opacity: 1;
+    box-shadow: 0 0 42px rgba(239, 68, 68, 0.75);
+  }
+}
+
+.tactical-radar-map .tactical-radar-pulse-ring {
+  animation: tactical-radar-pulse-beat 2.8s ease-out infinite;
+}
+
+.tactical-radar-inspector-halo {
+  animation: tactical-inspector-halo 1.8s ease-in-out infinite;
+}
+
+.platform-radar-tactical {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.06), transparent 45%),
+    linear-gradient(180deg, #010104 0%, #02050a 55%, #010104 100%);
+}
+
+

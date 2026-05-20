@@ -130,6 +130,9 @@
     "api/admin-sentinel-brief.ts": {
       "maxDuration": 60
     },
+    "api/admin-radar-pulses.ts": {
+      "maxDuration": 30
+    },
     "api/admin-sentinel-chat.ts": {
       "maxDuration": 60
     },

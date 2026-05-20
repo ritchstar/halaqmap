@@ -31,6 +31,20 @@ export type PlatformRadarOpsPulse = {
   latestDigestSummary: string | null;
 };
 
+export type PlatformRadarMapPulseKind = 'user_search' | 'security';
+
+export type PlatformRadarMapPulse = {
+  id: string;
+  kind: PlatformRadarMapPulseKind;
+  lat: number;
+  lng: number;
+  createdAt: string;
+  label?: string;
+  suspicious: boolean;
+  scopeType?: string;
+  severity?: string;
+};
+
 export type PlatformRadarSnapshot = {
   loadedAt: string;
   stats: AdminStats;
