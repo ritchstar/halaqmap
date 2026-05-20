@@ -13,6 +13,7 @@ import {
 import { BarberDashboardNeonPreview } from '@/components/partner/banners-preview/BarberDashboardNeonPreview';
 import { BannersPreviewAmbient } from '@/components/partner/banners-preview/BannersPreviewAmbient';
 import { DigitalShiftImpactPreview } from '@/components/partner/banners-preview/DigitalShiftImpactPreview';
+import { DigitalShiftAdminTrainingPreview } from '@/components/partner/banners-preview/DigitalShiftAdminTrainingPreview';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
 import {
   PARTNER_FEATURE_PREVIEW_DASHBOARD,
@@ -151,24 +152,28 @@ export default function PartnerBannersPreviewLanding() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.55, delay: 0.06 }}
-          className="grid items-center gap-8 border-t border-white/10 pt-12 lg:grid-cols-2 lg:gap-12"
+          className="space-y-8 border-t border-white/10 pt-12"
         >
-          <motion.div className="order-1 space-y-5 lg:order-1">
-            <span className="inline-flex items-center gap-1 rounded-full border border-violet-400/25 bg-violet-950/30 px-3 py-1 text-xs font-bold text-violet-100">
-              {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.eyebrow}
-            </span>
-            <h2 className="text-xl font-extrabold leading-snug text-white md:text-2xl">
-              {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.title}
-            </h2>
-            <motion.div className="space-y-4 text-sm leading-8 text-slate-300">
-              {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.paragraphs.map((p) => (
-                <p key={p}>{p}</p>
-              ))}
+          <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
+            <motion.div className="order-1 space-y-5 lg:order-1">
+              <span className="inline-flex items-center gap-1 rounded-full border border-violet-400/25 bg-violet-950/30 px-3 py-1 text-xs font-bold text-violet-100">
+                {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.eyebrow}
+              </span>
+              <h2 className="text-xl font-extrabold leading-snug text-white md:text-2xl">
+                {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.title}
+              </h2>
+              <motion.div className="space-y-4 text-sm leading-8 text-slate-300">
+                {PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.paragraphs.map((p) => (
+                  <p key={p}>{p}</p>
+                ))}
+              </motion.div>
             </motion.div>
-          </motion.div>
-          <div className="order-2 lg:order-2">
-            <DigitalShiftImpactPreview />
+            <div className="order-2 lg:order-2">
+              <DigitalShiftImpactPreview />
+            </div>
           </div>
+
+          <DigitalShiftAdminTrainingPreview />
         </motion.section>
       </main>
 
