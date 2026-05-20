@@ -16,15 +16,9 @@ import { toast } from 'sonner';
 import { adminIssueListingLicenseVoucherRemote } from '@/lib/adminListingLicenseRemote';
 
 const SKU_OPTIONS = [
-  { value: 'bronze_30', label: 'برونزي — 30 يوم (ميسر)' },
+  { value: 'bronze_30', label: 'برونزي — 30 يوم' },
   { value: 'gold_30', label: 'ذهبي — 30 يوم' },
   { value: 'diamond_30', label: 'ماسي — 30 يوم' },
-  { value: 'bronze_180', label: 'برونزي — 180 يوم (تحويل 6 أشهر)' },
-  { value: 'gold_180', label: 'ذهبي — 180 يوم' },
-  { value: 'diamond_180', label: 'ماسي — 180 يوم' },
-  { value: 'bronze_270', label: 'برونزي — 270 يوم (عرض 9 أشهر)' },
-  { value: 'gold_270', label: 'ذهبي — 270 يوم' },
-  { value: 'diamond_270', label: 'ماسي — 270 يوم' },
 ] as const;
 
 type Props = {
@@ -40,7 +34,7 @@ export function ListingLicenseIssuePanel({
   defaultEmail = '',
   defaultBarberName = '',
 }: Props) {
-  const [skuCode, setSkuCode] = useState<string>('bronze_180');
+  const [skuCode, setSkuCode] = useState<string>('bronze_30');
   const [barberId, setBarberId] = useState(defaultBarberId);
   const [buyerEmail, setBuyerEmail] = useState(defaultEmail);
   const [barberName, setBarberName] = useState(defaultBarberName);
@@ -53,9 +47,9 @@ export function ListingLicenseIssuePanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>إصدار رمز حزمة إدراج برمجية (تحويل بنكي / يدوي)</CardTitle>
+        <CardTitle>إصدار رمز حزمة إدراج برمجية (يدوي)</CardTitle>
         <CardDescription>
-          بعد استلام إيصال التحويل، أنشئ رمزاً وارسله للشريك. يمكن التفعيل التلقائي إن وُجد معرّف حلاق.
+          إصدار كود تفعيل للحزم البرمجية الحالية (30 يوماً). يمكن التفعيل التلقائي إن وُجد معرّف حلاق.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

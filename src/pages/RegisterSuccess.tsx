@@ -165,7 +165,7 @@ export default function RegisterSuccess() {
               <p>
                 <span className="text-muted-foreground">طريقة الدفع:</span>{' '}
                 <span className="font-medium">
-                  {data.paymentMethod === 'bank_transfer' ? 'تحويل بنكي — حزمة برمجية ممتدة' : 'حزمة برمجية (ميسر)'}
+                  حزمة برمجية (ميسر)
                 </span>
               </p>
               {data.receiptFileName && (

@@ -645,7 +645,7 @@ export default function BarberDashboard() {
               <DialogHeader>
                 <DialogTitle>استرداد رمز حزمة الإدراج البرمجية</DialogTitle>
                 <DialogDescription>
-                  أدخل الرمز الذي وصلك بالبريد بعد شراء الحزمة البرمجية أو التحويل البنكي (مثال: HM-LIC-XXXX-XXXX-XXXX).
+                  أدخل الرمز الذي وصلك بالبريد بعد شراء الحزمة البرمجية (مثال: HM-LIC-XXXX-XXXX-XXXX).
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
