@@ -3,6 +3,7 @@ import { fetchAdminRadarPulses } from '@/lib/adminRadarPulsesRemote';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { playTacticalUserPulseSound } from '@/modules/platform-radar/lib/platformRadarPulseSound';
+import { BoundedPulseIdSet } from '@/modules/platform-radar/lib/boundedPulseIdSet';
 import {
   createForcePulse,
   parsePlatformRadarUserSearchPayload,
@@ -16,6 +17,9 @@ import type { PlatformRadarMapPulse } from '@/modules/platform-radar/types';
 const DEFAULT_POLL_MS = 3_000;
 const DEFAULT_WINDOW_MINUTES = 120;
 const FORCE_PULSE_TTL_MS = 4_500;
+const MAX_TRACKED_PULSE_IDS = 1500;
+const TRACKED_PULSE_TTL_MS = 60 * 60 * 1000;
+const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
 
 function upsertPulse(list: PlatformRadarMapPulse[], incoming: PlatformRadarMapPulse): PlatformRadarMapPulse[] {
   const idx = list.findIndex((p) => p.id === incoming.id);
@@ -49,9 +53,21 @@ export function usePlatformRadarPulses(options?: {
   const [suspiciousCount, setSuspiciousCount] = useState(0);
   const [realtimeConnected, setRealtimeConnected] = useState(false);
 
-  const seenUserPulseIdsRef = useRef<Set<string>>(new Set());
+  const seenPulseIdsRef = useRef<BoundedPulseIdSet>(
+    new BoundedPulseIdSet({ maxEntries: MAX_TRACKED_PULSE_IDS, maxAgeMs: TRACKED_PULSE_TTL_MS }),
+  );
   const isFirstLoadRef = useRef(true);
   const forcePulseTimersRef = useRef<Map<string, number>>(new Map());
+  const soundEnabledRef = useRef(soundEnabled);
+  const realtimeConnectedRef = useRef(realtimeConnected);
+
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    realtimeConnectedRef.current = realtimeConnected;
+  }, [realtimeConnected]);
 
   const addForceRipple = useCallback((lat: number, lng: number, partial?: Parameters<typeof createForcePulse>[2]) => {
     const fp = createForcePulse(lat, lng, partial);
@@ -70,6 +86,7 @@ export function usePlatformRadarPulses(options?: {
 
   const forcePulse = useCallback(
     (lat: number, lng: number, partial?: Parameters<typeof createForcePulse>[2]) => {
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
       const fp = addForceRipple(lat, lng, partial);
       const mapPulse = userSearchEventToMapPulse({
         id: fp.id,
@@ -80,9 +97,13 @@ export function usePlatformRadarPulses(options?: {
         suspicious: fp.suspicious,
       });
 
+      const isNew = !seenPulseIdsRef.current.has(mapPulse.id);
+      seenPulseIdsRef.current.add(mapPulse.id);
       setPulses((prev) => upsertPulse(prev, mapPulse));
-      setUserPulseCount((n) => n + 1);
-      if (fp.suspicious) setSuspiciousCount((n) => n + 1);
+      if (isNew) {
+        setUserPulseCount((n) => n + 1);
+        if (fp.suspicious) setSuspiciousCount((n) => n + 1);
+      }
 
       return fp;
     },
@@ -92,15 +113,17 @@ export function usePlatformRadarPulses(options?: {
   const ingestRealtimeUserSearch = useCallback(
     (raw: unknown, opts?: { playSound?: boolean }) => {
       const parsed = parsePlatformRadarUserSearchPayload(raw);
-      if (!parsed?.lat || !parsed.lng) return null;
+      if (!parsed || !Number.isFinite(parsed.lat) || !Number.isFinite(parsed.lng)) return null;
 
       const mapPulse = userSearchEventToMapPulse(parsed);
-      const isNew = !seenUserPulseIdsRef.current.has(mapPulse.id);
+      const isNew = !seenPulseIdsRef.current.has(mapPulse.id);
+      seenPulseIdsRef.current.add(mapPulse.id);
 
-      seenUserPulseIdsRef.current.add(mapPulse.id);
       setPulses((prev) => upsertPulse(prev, mapPulse));
-      setUserPulseCount((n) => (isNew ? n + 1 : n));
-      if (mapPulse.suspicious) setSuspiciousCount((n) => (isNew ? n + 1 : n));
+      if (isNew) {
+        setUserPulseCount((n) => n + 1);
+        if (mapPulse.suspicious) setSuspiciousCount((n) => n + 1);
+      }
 
       addForceRipple(mapPulse.lat, mapPulse.lng, {
         id: mapPulse.id,
@@ -110,10 +133,10 @@ export function usePlatformRadarPulses(options?: {
       });
 
       if (opts?.playSound === false) return mapPulse;
-      if (soundEnabled && isNew) playTacticalUserPulseSound(0.14);
+      if (soundEnabledRef.current && isNew) playTacticalUserPulseSound(0.14);
       return mapPulse;
     },
-    [addForceRipple, soundEnabled],
+    [addForceRipple],
   );
 
   const load = useCallback(async () => {
@@ -127,10 +150,10 @@ export function usePlatformRadarPulses(options?: {
 
       const next = res.body.pulses;
       const newUserPulses = next.filter(
-        (p) => p.kind === 'user_search' && !seenUserPulseIdsRef.current.has(p.id),
+        (p) => p.kind === 'user_search' && !seenPulseIdsRef.current.has(p.id),
       );
 
-      if (soundEnabled && !isFirstLoadRef.current && newUserPulses.length > 0 && !realtimeConnected) {
+      if (soundEnabledRef.current && !isFirstLoadRef.current && newUserPulses.length > 0 && !realtimeConnectedRef.current) {
         playTacticalUserPulseSound(0.13);
       }
 
@@ -146,11 +169,13 @@ export function usePlatformRadarPulses(options?: {
       }
 
       for (const p of next) {
-        if (p.kind === 'user_search') seenUserPulseIdsRef.current.add(p.id);
+        if (p.kind === 'user_search') seenPulseIdsRef.current.add(p.id);
       }
 
       isFirstLoadRef.current = false;
       setPulses(next);
+      // Polling is authoritative — server counts overwrite local increments,
+      // eliminating realtime/poll double-counting drift over 24/7 sessions.
       setUserPulseCount(res.body.userPulseCount);
       setSuspiciousCount(res.body.suspiciousCount);
       setLastSyncAt(res.body.generatedAt);
@@ -160,7 +185,7 @@ export function usePlatformRadarPulses(options?: {
     } finally {
       setLoading(false);
     }
-  }, [addForceRipple, enabled, realtimeConnected, soundEnabled, windowMinutes]);
+  }, [addForceRipple, enabled, windowMinutes]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -168,6 +193,14 @@ export function usePlatformRadarPulses(options?: {
     const id = window.setInterval(() => void load(), pollMs);
     return () => window.clearInterval(id);
   }, [enabled, load, pollMs]);
+
+  useEffect(() => {
+    const set = seenPulseIdsRef.current;
+    const id = window.setInterval(() => {
+      set.sweep();
+    }, SWEEP_INTERVAL_MS);
+    return () => window.clearInterval(id);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -187,11 +220,14 @@ export function usePlatformRadarPulses(options?: {
     userPulseCount,
     suspiciousCount,
     realtimeConnected,
+    setRealtimeConnected,
     refresh: load,
     forcePulse,
     ingestRealtimeUserSearch,
   };
 }
+
+type ChannelHandle = ReturnType<SupabaseClient['channel']>;
 
 export function subscribePlatformRadarChannel(opts: {
   enabled: boolean;
@@ -204,9 +240,22 @@ export function subscribePlatformRadarChannel(opts: {
   if (!client) return () => undefined;
 
   let cancelled = false;
-  let channel: ReturnType<SupabaseClient['channel']> | null = null;
+  let channel: ChannelHandle | null = null;
+  let reopenTimer: number | null = null;
+  let visibilityHandler: (() => void) | null = null;
 
-  void (async () => {
+  const open = async () => {
+    if (cancelled) return;
+
+    if (channel) {
+      try {
+        await client.removeChannel(channel);
+      } catch {
+        /* ignore stale-channel removal */
+      }
+      channel = null;
+    }
+
     const { data } = await client.auth.getSession();
     const token = data.session?.access_token?.trim();
     if (!token) {
@@ -218,6 +267,7 @@ export function subscribePlatformRadarChannel(opts: {
       await client.realtime.setAuth(token);
     } catch {
       opts.onStatus?.(false, 'realtime-auth-failed');
+      scheduleReopen(5_000);
       return;
     }
 
@@ -252,12 +302,44 @@ export function subscribePlatformRadarChannel(opts: {
         }
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           opts.onStatus?.(false, err?.message || status);
+          scheduleReopen(4_000);
         }
       });
-  })();
+  };
+
+  const scheduleReopen = (delayMs: number) => {
+    if (cancelled) return;
+    if (reopenTimer != null) window.clearTimeout(reopenTimer);
+    reopenTimer = window.setTimeout(() => {
+      reopenTimer = null;
+      void open();
+    }, delayMs);
+  };
+
+  visibilityHandler = () => {
+    if (cancelled) return;
+    if (document.visibilityState === 'visible') {
+      // Tab returned from background — re-establish the realtime channel
+      // so iOS Safari (which drops WebSockets on background) recovers
+      // without waiting for the polling fallback.
+      scheduleReopen(150);
+    }
+  };
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', visibilityHandler);
+  }
+
+  void open();
 
   return () => {
     cancelled = true;
+    if (reopenTimer != null) {
+      window.clearTimeout(reopenTimer);
+      reopenTimer = null;
+    }
+    if (visibilityHandler && typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', visibilityHandler);
+    }
     if (channel) void client.removeChannel(channel);
     opts.onStatus?.(false);
   };

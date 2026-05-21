@@ -174,9 +174,24 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const logId = rpcId != null ? String(rpcId) : null;
-  if (logId && lat != null && lng != null && isKsaGeoPulse(lat, lng)) {
+
+  // Fire-and-forget broadcast: the DB trigger handles realtime delivery in normal
+  // operation. This server-side fallback never blocks the API response — it runs
+  // in the background and silently fails if the channel is unreachable. Disable
+  // entirely by setting PLATFORM_RADAR_DISABLE_API_BROADCAST=1 in production once
+  // the DB trigger is verified healthy.
+  const apiBroadcastDisabled =
+    String(process.env.PLATFORM_RADAR_DISABLE_API_BROADCAST || '').trim() === '1';
+
+  if (
+    !apiBroadcastDisabled &&
+    logId &&
+    lat != null &&
+    lng != null &&
+    isKsaGeoPulse(lat, lng)
+  ) {
     const label = [districtName, cityName].filter(Boolean).join(' · ') || scopeRaw;
-    await broadcastPlatformRadarUserSearchServer(
+    void broadcastPlatformRadarUserSearchServer(
       supabase,
       {
         id: logId,
@@ -193,7 +208,7 @@ export async function POST(request: Request): Promise<Response> {
         scopeType: scopeRaw,
       },
       serviceRole,
-    );
+    ).catch(() => undefined);
   }
 
   return Response.json({ ok: true, id: logId }, { headers });

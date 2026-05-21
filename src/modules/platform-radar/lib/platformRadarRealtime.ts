@@ -27,8 +27,10 @@ export function parsePlatformRadarUserSearchPayload(raw: unknown): PlatformRadar
   const nested =
     o.payload && typeof o.payload === 'object' ? (o.payload as Record<string, unknown>) : o;
 
-  const lat = typeof nested.lat === 'number' ? nested.lat : Number(nested.lat ?? nested.user_lat);
-  const lng = typeof nested.lng === 'number' ? nested.lng : Number(nested.lng ?? nested.user_lng);
+  const latSource = nested.lat ?? nested.user_lat;
+  const lngSource = nested.lng ?? nested.user_lng;
+  const lat = typeof latSource === 'number' ? latSource : Number(latSource);
+  const lng = typeof lngSource === 'number' ? lngSource : Number(lngSource);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
   const createdRaw = nested.createdAt ?? nested.created_at;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Crosshair, ShieldAlert, Zap } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { usePlatformRadarData } from '@/modules/platform-radar/hooks/usePlatformRadarData';
@@ -8,6 +8,7 @@ import {
 } from '@/modules/platform-radar/hooks/usePlatformRadarPulses';
 import { TacticalRadarMap } from '@/modules/platform-radar/components/TacticalRadarMap';
 import { OpsControllerRadarPanel } from '@/modules/platform-radar/components/OpsControllerRadarPanel';
+import { LiveClockBadge } from '@/modules/platform-radar/components/LiveClockBadge';
 import {
   PLATFORM_RADAR_SIM_LAT,
   PLATFORM_RADAR_SIM_LNG,
@@ -37,7 +38,6 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
   const [showFounderTest, setShowFounderTest] = useState(false);
   const [liveConnected, setLiveConnected] = useState(false);
   const [liveHint, setLiveHint] = useState<string | null>(null);
-  const [clock, setClock] = useState(() => new Date());
 
   const { snapshot, loading, error } = usePlatformRadarData({
     soundEnabled: commandMode ? false : soundEnabled,
@@ -61,10 +61,12 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
     pollMs: 3_000,
   });
 
+  // Stable handler — Realtime subscription should never tear down/re-open
+  // because `soundEnabled` or `tacticalView` toggled.
+  const ingestRef = useRef(ingestRealtimeUserSearch);
   useEffect(() => {
-    const timer = window.setInterval(() => setClock(new Date()), 1_000);
-    return () => window.clearInterval(timer);
-  }, []);
+    ingestRef.current = ingestRealtimeUserSearch;
+  }, [ingestRealtimeUserSearch]);
 
   const simulateSearchPulse = useCallback(() => {
     const jitter = () => (Math.random() - 0.5) * 0.08;
@@ -78,13 +80,13 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
   useEffect(() => {
     return subscribePlatformRadarChannel({
       enabled: true,
-      onUserSearch: ingestRealtimeUserSearch,
+      onUserSearch: (payload) => ingestRef.current(payload),
       onStatus: (connected, detail) => {
         setLiveConnected(connected);
         setLiveHint(connected ? null : detail ?? 'polling-fallback');
       },
     });
-  }, [ingestRealtimeUserSearch]);
+  }, []);
 
   const stats = snapshot?.stats;
   const brief = snapshot?.brief;
@@ -98,8 +100,6 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
         : snapshot?.loadedAt
           ? new Date(snapshot.loadedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
           : '—';
-
-  const liveClock = clock.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
   return (
     <div
@@ -120,20 +120,11 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
       {/* Top-left — LIVE + clock + Tactical View (reference layout) */}
       <header className="pointer-events-none absolute left-0 top-0 z-30 p-[clamp(0.75rem,2vw,1.5rem)]">
         <div className="pointer-events-auto flex flex-col gap-2">
-          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/68 px-3 py-2 backdrop-blur-md">
-            {liveConnected ? (
-              <span className="inline-flex items-center gap-1.5 text-[clamp(0.82rem,1.45vw,1rem)] font-semibold text-sky-300">
-                <span className="h-2.5 w-2.5 rounded-full bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.95)]" />
-                LIVE
-              </span>
-            ) : (
-              <span className="text-[clamp(0.82rem,1.45vw,1rem)] text-amber-300" title={liveHint ?? undefined}>
-                POLL
-              </span>
-            )}
-            <span className="text-[clamp(0.82rem,1.45vw,1rem)] tabular-nums text-slate-300">{syncLabel}</span>
-            <span className="text-[clamp(0.82rem,1.45vw,1rem)] tabular-nums text-slate-400">{liveClock}</span>
-          </div>
+          <LiveClockBadge
+            liveConnected={liveConnected}
+            liveHint={liveHint}
+            syncLabel={syncLabel}
+          />
 
           <label className="flex w-fit cursor-pointer items-center gap-2 rounded-xl border border-emerald-500/30 bg-black/68 px-3 py-2 backdrop-blur-md">
             <Crosshair className="h-4 w-4 text-red-300" />

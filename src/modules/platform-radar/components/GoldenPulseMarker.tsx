@@ -16,13 +16,6 @@ type Props = {
   isNew?: boolean;
 };
 
-const HALO_LAYERS = [
-  { scale: 1, delay: 0, opacity: 0.7 },
-  { scale: 1.28, delay: 0.55, opacity: 0.45 },
-  { scale: 1.62, delay: 1.1, opacity: 0.28 },
-  { scale: 2, delay: 1.65, opacity: 0.14 },
-] as const;
-
 /** White scissors + comb silhouette — reference golden-disc style */
 function GoldenBarberSilhouette({ className }: { className?: string }) {
   return (
@@ -41,41 +34,6 @@ function GoldenBarberSilhouette({ className }: { className?: string }) {
         strokeLinejoin="round"
       />
     </svg>
-  );
-}
-
-function PulseHaloRing({
-  index,
-  scale,
-  delay,
-  ringOpacity,
-  inspector,
-}: {
-  index: number;
-  scale: number;
-  delay: number;
-  ringOpacity: number;
-  inspector?: boolean;
-}) {
-  return (
-    <motion.span
-      className={cn(
-        'pointer-events-none absolute left-1/2 top-1/2 block -translate-x-1/2 -translate-y-1/2 rounded-full border-2',
-        inspector ? 'border-red-400/55' : 'border-amber-300/50',
-      )}
-      style={{
-        width: 'clamp(2.5rem, 4.8vw, 3.75rem)',
-        height: 'clamp(2.5rem, 4.8vw, 3.75rem)',
-      }}
-      initial={{ scale: 0.5 * scale, opacity: ringOpacity }}
-      animate={{ scale: 2.5 * scale, opacity: 0 }}
-      transition={{
-        duration: 3,
-        delay: delay + index * 0.06,
-        repeat: Infinity,
-        ease: 'easeOut',
-      }}
-    />
   );
 }
 
@@ -106,19 +64,32 @@ export function GoldenPulseMarker({
       style={{ left: `${left}%`, top: `${top}%` }}
       title={label}
     >
-      <div className="relative flex h-[clamp(3rem, 5.5vw, 4.25rem)] w-[clamp(3rem, 5.5vw, 4.25rem)] items-center justify-center">
-        {!anchor
-          ? HALO_LAYERS.map((layer, index) => (
-              <PulseHaloRing
-                key={`${id}-ring-${index}`}
-                index={index}
-                scale={layer.scale}
-                delay={layer.delay}
-                ringOpacity={layer.opacity}
-                inspector={inspector}
-              />
-            ))
-          : null}
+      <div className="relative flex h-[clamp(3rem,5.5vw,4.25rem)] w-[clamp(3rem,5.5vw,4.25rem)] items-center justify-center">
+        {!anchor && (
+          <>
+            <span
+              className={cn(
+                'golden-pulse-halo golden-pulse-halo--ring-1',
+                inspector && 'golden-pulse-halo--inspector',
+              )}
+              aria-hidden
+            />
+            <span
+              className={cn(
+                'golden-pulse-halo golden-pulse-halo--ring-2',
+                inspector && 'golden-pulse-halo--inspector',
+              )}
+              aria-hidden
+            />
+            <span
+              className={cn(
+                'golden-pulse-halo golden-pulse-halo--ring-3',
+                inspector && 'golden-pulse-halo--inspector',
+              )}
+              aria-hidden
+            />
+          </>
+        )}
 
         <motion.div
           className={cn(

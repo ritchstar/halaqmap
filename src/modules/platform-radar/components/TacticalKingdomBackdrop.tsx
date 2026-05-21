@@ -7,6 +7,11 @@ export function TacticalKingdomBackdrop() {
       <img
         src={NIGHT_MAP}
         alt=""
+        width={1007}
+        height={298}
+        loading="eager"
+        decoding="async"
+        fetchPriority="high"
         className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center"
         style={{ filter: 'saturate(1.05) contrast(1.08) brightness(0.88)' }}
         draggable={false}

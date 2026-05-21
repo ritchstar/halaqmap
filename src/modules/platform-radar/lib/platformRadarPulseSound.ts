@@ -1,21 +1,72 @@
-function createAudioContext(): AudioContext | null {
+/**
+ * Singleton AudioContext for radar pulse cues.
+ * Avoids iOS Safari's ~6 active-context ceiling and reduces GC churn during
+ * sustained 24/7 operation where pulses fire many times per minute.
+ */
+
+type SafeAudioContextCtor = typeof AudioContext;
+
+let sharedCtx: AudioContext | null = null;
+let resumePending = false;
+
+function resolveAudioContextCtor(): SafeAudioContextCtor | null {
   if (typeof window === 'undefined') return null;
-  const AudioCtx =
-    window.AudioContext ||
-    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AudioCtx) return null;
-  return new AudioCtx();
+  const win = window as unknown as {
+    AudioContext?: SafeAudioContextCtor;
+    webkitAudioContext?: SafeAudioContextCtor;
+  };
+  return win.AudioContext ?? win.webkitAudioContext ?? null;
+}
+
+function getSharedAudioContext(): AudioContext | null {
+  if (sharedCtx && sharedCtx.state !== 'closed') {
+    if (sharedCtx.state === 'suspended' && !resumePending) {
+      resumePending = true;
+      sharedCtx
+        .resume()
+        .catch(() => undefined)
+        .finally(() => {
+          resumePending = false;
+        });
+    }
+    return sharedCtx;
+  }
+
+  const Ctor = resolveAudioContextCtor();
+  if (!Ctor) return null;
+
+  try {
+    sharedCtx = new Ctor();
+    return sharedCtx;
+  } catch {
+    sharedCtx = null;
+    return null;
+  }
+}
+
+if (typeof document !== 'undefined') {
+  const unlock = () => {
+    const ctx = getSharedAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      void ctx.resume().catch(() => undefined);
+    }
+    document.removeEventListener('click', unlock);
+    document.removeEventListener('touchstart', unlock);
+    document.removeEventListener('keydown', unlock);
+  };
+  document.addEventListener('click', unlock, { once: true, passive: true });
+  document.addEventListener('touchstart', unlock, { once: true, passive: true });
+  document.addEventListener('keydown', unlock, { once: true });
 }
 
 /** Legacy aggregate-data pulse (metrics dashboard). */
 export function playPlatformRadarPulseSound(volume = 0.12): void {
   try {
-    const ctx = createAudioContext();
-    if (!ctx) return;
+    const ctx = getSharedAudioContext();
+    if (!ctx || ctx.state === 'closed') return;
 
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-
     osc.type = 'sine';
     osc.connect(gain);
     gain.connect(ctx.destination);
@@ -31,9 +82,14 @@ export function playPlatformRadarPulseSound(volume = 0.12): void {
     osc.start(t);
     osc.stop(t + 0.46);
 
-    window.setTimeout(() => {
-      void ctx.close();
-    }, 600);
+    osc.onended = () => {
+      try {
+        osc.disconnect();
+        gain.disconnect();
+      } catch {
+        /* node already disconnected */
+      }
+    };
   } catch {
     // Autoplay policies or missing audio — silent fail
   }
@@ -45,8 +101,8 @@ export function playPlatformRadarPulseSound(volume = 0.12): void {
  */
 export function playTacticalUserPulseSound(volume = 0.14): void {
   try {
-    const ctx = createAudioContext();
-    if (!ctx) return;
+    const ctx = getSharedAudioContext();
+    if (!ctx || ctx.state === 'closed') return;
 
     const sub = ctx.createOscillator();
     const overtone = ctx.createOscillator();
@@ -81,9 +137,18 @@ export function playTacticalUserPulseSound(volume = 0.14): void {
     sub.stop(t + 0.56);
     overtone.stop(t + 0.56);
 
-    window.setTimeout(() => {
-      void ctx.close();
-    }, 700);
+    const cleanup = () => {
+      try {
+        sub.disconnect();
+        overtone.disconnect();
+        subGain.disconnect();
+        toneGain.disconnect();
+        master.disconnect();
+      } catch {
+        /* already disconnected */
+      }
+    };
+    sub.onended = cleanup;
   } catch {
     // silent fail
   }

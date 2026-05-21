@@ -766,17 +766,18 @@ html.platform-radar-fullscreen #root {
   min-height: 100%;
 }
 
-/* Royal Tactical Wing — Golden Pulse halo & kingdom night map */
+/* Royal Tactical Wing — Golden Pulse halo (GPU-friendly CSS keyframes) */
 @keyframes golden-pulse-halo-expand {
   0% {
     transform: translate(-50%, -50%) scale(0.55);
-    opacity: 0.65;
-    box-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
+    opacity: 0.7;
+  }
+  85% {
+    opacity: 0.04;
   }
   100% {
-    transform: translate(-50%, -50%) scale(2.4);
+    transform: translate(-50%, -50%) scale(2.45);
     opacity: 0;
-    box-shadow: 0 0 4px rgba(251, 191, 36, 0);
   }
 }
 
@@ -794,13 +795,37 @@ html.platform-radar-fullscreen #root {
   }
 }
 
+/* One marker emits a stack of staggered halos via a single element each,
+   driven by CSS only — no per-marker Framer Motion infinite loops. */
 .golden-pulse-halo {
-  animation: golden-pulse-halo-expand 2.6s ease-out infinite;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(2.5rem, 4.8vw, 3.75rem);
+  height: clamp(2.5rem, 4.8vw, 3.75rem);
+  margin: 0;
+  border-radius: 9999px;
+  border: 2px solid rgba(251, 191, 36, 0.5);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.55);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: golden-pulse-halo-expand 3s ease-out infinite;
 }
 
-.golden-pulse-halo-delay {
-  animation: golden-pulse-halo-expand 2.6s ease-out infinite;
-  animation-delay: 1.3s;
+.golden-pulse-halo--inspector {
+  border-color: rgba(248, 113, 113, 0.55);
+}
+
+.golden-pulse-halo--ring-1 {
+  animation-delay: 0s;
+}
+.golden-pulse-halo--ring-2 {
+  animation-delay: 0.75s;
+}
+.golden-pulse-halo--ring-3 {
+  animation-delay: 1.5s;
+  opacity: 0.65;
 }
 
 .golden-pulse-live {
@@ -814,6 +839,15 @@ html.platform-radar-fullscreen #root {
 
 .golden-pulse-marker {
   will-change: transform, opacity;
+  contain: layout paint;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .golden-pulse-halo {
+    animation-duration: 0s;
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 
