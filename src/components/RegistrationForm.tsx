@@ -40,7 +40,12 @@ import {
   isDigitalShiftAddonAllowed,
 } from '@/config/listingLicenseQuantity';
 import { DigitalShiftAddonToggle } from '@/components/billing/DigitalShiftAddonToggle';
-import { HonorBoard } from '@/components/b2b/HonorBoard';
+import { ComplianceCheckbox } from '@/components/b2b/ComplianceCheckbox';
+import {
+  LegalPledgeModalContent,
+  ProfessionalCommitmentModalContent,
+} from '@/components/b2b/ComplianceManifestoContent';
+import { REGISTRATION_LEGAL_DISCLAIMER_AR, HONOR_BOARD_PROFESSIONAL_COMMITMENT_LEAD } from '@/config/honorBoardManifesto';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
@@ -75,7 +80,6 @@ import {
   ChevronRight,
   ChevronLeft,
   Star,
-  Scale,
   Sparkles,
   AlertCircle,
   Loader2,
@@ -120,6 +124,8 @@ interface FormData {
   categories: string[];
   /** تعهد قانوني إلزامي قبل إتمام التسجيل */
   legalDisclaimerAccepted: boolean;
+  /** التزام مهني إلزامي قبل إتمام التسجيل */
+  professionalCommitmentAccepted: boolean;
   location: {
     lat: string;
     lng: string;
@@ -153,19 +159,17 @@ interface FormData {
   registrationTermsAccepted: boolean;
 }
 
-/** نص التعهد القانوني المعروض بجانب خانة التأشير الإلزامية */
-export const REGISTRATION_LEGAL_DISCLAIMER_AR =
-  'أقر أنا صاحب المحل بأن منشأتي ممتثلة لاشتراطات وزارة التجارة والبلدية وقائمة نظامياً، وأتحمل كامل المسؤولية القانونية عن ذلك، مع إخلاء مسؤولية منصة حلاق ماب من أي تبعات.';
+/** @deprecated استورد من `@/config/honorBoardManifesto` */
+export { REGISTRATION_LEGAL_DISCLAIMER_AR } from '@/config/honorBoardManifesto';
 
 const STEPS = [
   { id: 1, title: 'اختيار الباقة', icon: Star },
   { id: 2, title: 'بيانات المحل', icon: FileText },
-  { id: 3, title: 'التعهد القانوني', icon: Scale },
-  { id: 4, title: 'الموقع', icon: MapPin },
-  { id: 5, title: 'الصور', icon: ImageIcon },
-  { id: 6, title: 'أوقات العمل', icon: Clock },
-  { id: 7, title: 'المنيو والرعاية المُيسَّرة', icon: FileText },
-  { id: 8, title: 'الدفع', icon: CreditCard },
+  { id: 3, title: 'الموقع', icon: MapPin },
+  { id: 4, title: 'الصور', icon: ImageIcon },
+  { id: 5, title: 'أوقات العمل', icon: Clock },
+  { id: 6, title: 'المنيو والرعاية المُيسَّرة', icon: FileText },
+  { id: 7, title: 'الدفع', icon: CreditCard },
 ];
 
 type FormPlanFeature = { kind: 'map_hero' } | { kind: 'line'; text: string };
@@ -259,6 +263,7 @@ export function RegistrationForm() {
     whatsapp: '',
     categories: [],
     legalDisclaimerAccepted: false,
+    professionalCommitmentAccepted: false,
     location: {
       lat: '',
       lng: '',
@@ -323,12 +328,6 @@ export function RegistrationForm() {
       }
     }
     if (currentStep === 3) {
-      if (!formData.legalDisclaimerAccepted) {
-        toast.error('يرجى تأشير التعهد القانوني الإلزامي قبل المتابعة.');
-        return;
-      }
-    }
-    if (currentStep === 4) {
       const { saudi, address, lat, lng } = formData.location;
       if (!saudi.regionId || !saudi.cityId || !saudi.districtId) {
         alert('يرجى اختيار المنطقة والمدينة والحي من القوائم.');
@@ -349,7 +348,7 @@ export function RegistrationForm() {
         return;
       }
     }
-    if (currentStep === 5) {
+    if (currentStep === 4) {
       if (!formData.images.shopExterior || !formData.images.shopInterior) {
         alert('يرجى رفع صورة واحدة لواجهة المحل من الخارج وصورة واحدة من الداخل (إلزامي لجميع الباقات).');
         return;
@@ -359,7 +358,7 @@ export function RegistrationForm() {
         return;
       }
     }
-    if (currentStep === 6) {
+    if (currentStep === 5) {
       if (formData.tier === SubscriptionTier.BRONZE) {
         for (const row of formData.workingWeek) {
           if (!row.closed && (!row.open.trim() || !row.close.trim())) {
@@ -371,7 +370,7 @@ export function RegistrationForm() {
         }
       }
     }
-    if (currentStep === 7) {
+    if (currentStep === 6) {
       const namedServices = formData.services.filter((s) => s.name.trim());
       if (namedServices.length === 0) {
         alert('أضف خدمة واحدة على الأقل في المنيو (اسم الخدمة مطلوب).');
@@ -503,6 +502,13 @@ export function RegistrationForm() {
       );
       return;
     }
+    if (!formData.professionalCommitmentAccepted) {
+      toast.error('يجب تأشير الالتزام المهني الإلزامي قبل الإرسال.');
+      window.requestAnimationFrame(() =>
+        formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      );
+      return;
+    }
     if (!formData.images.shopExterior || !formData.images.shopInterior) {
       alert('يرجى إكمال خطوة الصور: صورة خارجية وصورة داخلية إلزاميتان.');
       return;
@@ -583,6 +589,7 @@ export function RegistrationForm() {
 
       const docLabels: string[] = [
         `التعهد القانوني: تم التأشير بتاريخ ${submittedAtIso} — صاحب المحل يقر بامتثال المنشأة النظامي وتحمّل المسؤولية وإخلاء مسؤولية منصة حلاق ماب.`,
+        `الالتزام المهني: تم التأشير بتاريخ ${submittedAtIso} — الشريك يقر بمعايير الجودة والشفافية وامتثال منشأته للأنظمة المعمول بها.`,
       ];
       if (
         formData.tier === SubscriptionTier.DIAMOND &&
@@ -737,6 +744,9 @@ export function RegistrationForm() {
         `أوقات العمل (أسبوع كامل):\n${workingHoursSummaryText}\n` +
         `\n` +
         `التعهد القانوني:\n${REGISTRATION_LEGAL_DISCLAIMER_AR}\n` +
+        `(تم التأشير — ${submittedAtIso})\n` +
+        `\n` +
+        `الالتزام المهني:\n${HONOR_BOARD_PROFESSIONAL_COMMITMENT_LEAD}\n` +
         `(تم التأشير — ${submittedAtIso})\n` +
         `\n` +
         `صور المحل (أسماء الملفات):\n` +
@@ -1092,42 +1102,6 @@ export function RegistrationForm() {
           )}
 
           {currentStep === 3 && (
-            <RegStepShell
-              title="التعهد القانوني"
-              description="تأشير إلزامي قبل المتابعة — لا يُطلب رفع مستندات رسمية أو مسح رموز تحقق في هذه الخطوة."
-            >
-              <div className="space-y-4">
-                <Alert className={`${regAlertClass} border-slate-500`}>
-                  <Scale className="h-4 w-4 text-slate-300" />
-                  <AlertDescription className="text-sm font-medium leading-relaxed text-slate-200">
-                    بموجب هذا التعهد تُقرّ منشأتك ممتثلة لاشتراطات الجهات المذكورة أدناه، وتتحمّل أنت المسؤولية
-                    القانونية كاملة دون المطالبة بمنصة حلاق ماب عن التبعات الناشئة عن صحة ذلك الامتثال أو غيابه.
-                  </AlertDescription>
-                </Alert>
-                <div className={`flex items-start gap-3 ${regAlertClass}`}>
-                  <Checkbox
-                    id="legal-disclaimer-accept"
-                    checked={formData.legalDisclaimerAccepted}
-                    onCheckedChange={(checked) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        legalDisclaimerAccepted: checked === true,
-                      }))
-                    }
-                    className="mt-1 border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
-                  />
-                  <Label
-                    htmlFor="legal-disclaimer-accept"
-                    className="cursor-pointer text-sm font-normal leading-relaxed text-slate-300"
-                  >
-                    {REGISTRATION_LEGAL_DISCLAIMER_AR}
-                  </Label>
-                </div>
-              </div>
-            </RegStepShell>
-          )}
-
-          {currentStep === 4 && (
             <RegStepShell title="تحديد الموقع" description="حدد موقع محلك بدقة عبر نظام الرصد الذكي">
               <div className="space-y-4">
                 <SaudiRegionCityDistrictFields
@@ -1224,7 +1198,7 @@ export function RegistrationForm() {
             </RegStepShell>
           )}
 
-          {currentStep === 5 && (
+          {currentStep === 4 && (
             <RegStepShell
               title="صور المحل والبنر"
               description="لجميع الباقات: صورتان أساسيتان (خارج وداخل) وأربع صور مخصّصة لمنطقة البنر في بطاقة المحل"
@@ -1359,7 +1333,7 @@ export function RegistrationForm() {
             </RegStepShell>
           )}
 
-          {currentStep === 6 && (
+          {currentStep === 5 && (
             <RegStepShell
               title="أوقات العمل (الأسبوع كاملاً)"
               description="من السبت إلى الجمعة — صفٌّ مضغوط لكل يوم. الباقة البرونزية: إلزامي ويُعرَض للعملاء كما تُدخله هنا."
@@ -1447,7 +1421,7 @@ export function RegistrationForm() {
             </RegStepShell>
           )}
 
-          {currentStep === 7 && (
+          {currentStep === 6 && (
             <RegStepShell
               title="منيو الحلاقة والأسعار"
               description="أضف الخدمات الاعتيادية، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل."
@@ -1560,7 +1534,7 @@ export function RegistrationForm() {
             </RegStepShell>
           )}
 
-          {currentStep === 8 && (
+          {currentStep === 7 && (
             <RegStepShell title="طريقة الدفع" description="اختر طريقة الدفع المناسبة">
               <div className="space-y-4">
                 {selectedPlan && (
@@ -1613,8 +1587,31 @@ export function RegistrationForm() {
                     )}
                   </AlertDescription>
                 </Alert>
-                <div className={`space-y-3 rounded-lg border border-slate-600 bg-slate-800/50 p-4`}>
-                  <div className="flex items-start gap-3">
+                <div className="space-y-3 rounded-lg border border-slate-600 bg-slate-800/50 p-4">
+                  <p className="text-right text-sm font-semibold text-slate-100">التزامات إلزامية قبل الإرسال</p>
+                  <ComplianceCheckbox
+                    id="legal-disclaimer-accept"
+                    label="أوافق على التعهد القانوني"
+                    checked={formData.legalDisclaimerAccepted}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({ ...prev, legalDisclaimerAccepted: checked }))
+                    }
+                    modalTitle="التعهد القانوني"
+                    modalContent={<LegalPledgeModalContent />}
+                    disabled={isSubmitting}
+                  />
+                  <ComplianceCheckbox
+                    id="professional-commitment-accept"
+                    label="أوافق على الالتزام المهني"
+                    checked={formData.professionalCommitmentAccepted}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({ ...prev, professionalCommitmentAccepted: checked }))
+                    }
+                    modalTitle="الالتزام المهني"
+                    modalContent={<ProfessionalCommitmentModalContent />}
+                    disabled={isSubmitting}
+                  />
+                  <div className="flex items-start gap-3 rounded-lg border border-slate-600/80 bg-slate-800/40 px-4 py-3">
                     <Checkbox
                       id="registration-terms-accept"
                       checked={formData.registrationTermsAccepted}
@@ -1658,8 +1655,6 @@ export function RegistrationForm() {
           )}
       </div>
 
-      <HonorBoard context="register" variant="professional-commitment" className="mt-6" />
-
       <div className="flex justify-between mt-6">
         <Button
           variant="outline"
@@ -1683,7 +1678,10 @@ export function RegistrationForm() {
           <Button
             onClick={handleSubmit}
             disabled={
-              isSubmitting || !formData.registrationTermsAccepted || !formData.legalDisclaimerAccepted
+              isSubmitting ||
+              !formData.registrationTermsAccepted ||
+              !formData.legalDisclaimerAccepted ||
+              !formData.professionalCommitmentAccepted
             }
             className="bg-slate-100 text-slate-900 hover:bg-white"
           >
