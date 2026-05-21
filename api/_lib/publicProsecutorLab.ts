@@ -1,6 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getOpsBillingTemporalAnchor } from './opsBillingAi.js';
 import { loadCrisisPlaybookMarkdown } from './systemCrisisAdvisorLab.js';
+import {
+  auditRegistrationPayload,
+  repairRegistrationSubmissionsCompliance,
+  type RegistrationCompliancePayload,
+} from './registrationCompliance.js';
 
 const PUBLIC_PROSECUTOR_DOCTRINE = [
   'صلاحية قراءة: مختبر ZATCA · مستشار الأزمات · المدير العام للمناوبين — دون تعديل سجلاتهم.',
@@ -65,24 +70,14 @@ export type PublicProsecutorGovernanceAction = {
   p0RecoveryRequired?: boolean;
 };
 
-type RegistrationPayload = Record<string, unknown>;
-
-function coordKey(lat: number, lng: number): string {
-  return `${lat.toFixed(3)}|${lng.toFixed(3)}`;
-}
+type RegistrationPayload = RegistrationCompliancePayload;
 
 function isRegistrationPayloadCompliant(payload: RegistrationPayload): {
   ok: boolean;
   gaps: string[];
 } {
-  const gaps: string[] = [];
-  if (payload.legalDisclaimerAccepted !== true) gaps.push('التعهد القانوني غير مُؤشَّر');
-  if (payload.registrationTermsAccepted !== true) gaps.push('شروط التسجيل غير مُؤشَّرة');
-  if (payload.professionalCommitmentAccepted !== true) gaps.push('الالتزام المهني غير مُؤشَّر');
-  if (!payload.legalDisclaimerAcceptedAtIso) gaps.push('طابع زمني للتعهد القانوني مفقود');
-  if (!payload.registrationTermsAcceptedAtIso) gaps.push('طابع زمني لشروط التسجيل مفقود');
-  if (!payload.professionalCommitmentAcceptedAtIso) gaps.push('طابع زمني للالتزام المهني مفقود');
-  return { ok: gaps.length === 0, gaps };
+  const audit = auditRegistrationPayload(payload);
+  return { ok: audit.ok, gaps: audit.gaps };
 }
 
 async function countInspectorPulses(
@@ -178,6 +173,12 @@ async function auditRegistrationCompliance(
   }
 
   return { gaps, samples: samples.slice(0, 8) };
+}
+
+export { repairRegistrationSubmissionsCompliance };
+
+function coordKey(lat: number, lng: number): string {
+  return `${lat.toFixed(3)}|${lng.toFixed(3)}`;
 }
 
 export async function loadPublicProsecutorLabContext(

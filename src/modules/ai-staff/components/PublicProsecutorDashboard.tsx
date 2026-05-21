@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   auditPublicProsecutorCompliance,
   fetchPublicProsecutorDashboard,
+  repairPublicProsecutorCompliance,
   syncPublicProsecutorRadar,
 } from '@/lib/publicProsecutorDashboardRemote';
 import { PublicProsecutorWorkingPapers } from '@/modules/ai-staff/components/PublicProsecutorWorkingPapers';
@@ -76,6 +77,32 @@ export function PublicProsecutorDashboard({ compact = false, onOpenLab }: Props)
     );
   };
 
+  const handleComplianceRepair = async () => {
+    setSyncing(true);
+    const result = await repairPublicProsecutorCompliance();
+    setSyncing(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    if (result.repaired > 0) {
+      toast.success(`تم إصلاح ${result.repaired} طلب(ات) — الالتزام المهني محفوظ الآن في payload.`);
+    } else {
+      toast.message('لا توجد طلبات قابلة للإصلاح التلقائي.');
+    }
+    setSnapshot((prev) =>
+      prev
+        ? {
+            ...prev,
+            complianceGaps: result.complianceGaps,
+            workingPapers: result.workingPapers,
+            sovereigntyAlerts: result.complianceGaps > 0 ? prev.sovereigntyAlerts : 0,
+            lastSyncedAt: new Date().toISOString(),
+          }
+        : prev,
+    );
+  };
+
   return (
     <FounderGlassCard className={compact ? 'p-5 md:p-6' : 'p-6 md:p-7'}>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
@@ -102,6 +129,18 @@ export function PublicProsecutorDashboard({ compact = false, onOpenLab }: Props)
             <Scale className="ml-2 h-4 w-4" />
             Compliance Audit
           </Button>
+          {(snapshot?.complianceGaps ?? 0) > 0 ? (
+            <Button
+              type="button"
+              size="sm"
+              className="bg-red-900/80 text-red-50 hover:bg-red-800"
+              disabled={syncing}
+              onClick={() => void handleComplianceRepair()}
+            >
+              {syncing ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+              إصلاح الامتثال
+            </Button>
+          ) : null}
           {onOpenLab ? (
             <Button
               type="button"

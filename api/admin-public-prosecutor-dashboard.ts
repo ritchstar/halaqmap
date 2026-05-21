@@ -4,6 +4,7 @@ import {
   draftPreventiveRadarReport,
   evaluateProsecutorInterject,
   loadPublicProsecutorLabContext,
+  repairRegistrationSubmissionsCompliance,
 } from './_lib/publicProsecutorLab.js';
 
 export const config = { maxDuration: 60 };
@@ -99,8 +100,23 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: true, action, interject });
   }
 
+  if (action === 'repair_compliance') {
+    const result = await repairRegistrationSubmissionsCompliance(auth.supabase);
+    const ctx = await loadPublicProsecutorLabContext(auth.supabase);
+    return json({
+      ok: true,
+      action,
+      ...result,
+      workingPapers: buildWorkingPapersFromContext(ctx),
+      complianceGaps: ctx.complianceGaps,
+    });
+  }
+
   return json(
-    { error: 'Unknown action', allowed: ['sync_radar', 'audit_compliance', 'evaluate_interject'] },
+    {
+      error: 'Unknown action',
+      allowed: ['sync_radar', 'audit_compliance', 'evaluate_interject', 'repair_compliance'],
+    },
     400,
   );
 }

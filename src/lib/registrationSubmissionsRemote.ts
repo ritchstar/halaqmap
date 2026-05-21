@@ -84,6 +84,15 @@ export function registrationSubmissionErrorForToast(message: string): string {
       ])
     );
   }
+  if (m.includes('professional_commitment_required')) {
+    return (
+      'تعذّر حفظ الطلب: الالتزام المهني إلزامي.\n' +
+      'أعد تأشير «أوافق على الالتزام المهني» في الخطوة الأخيرة قبل الإرسال.'
+    );
+  }
+  if (m.includes('registration_compliance_incomplete')) {
+    return 'تعذّر حفظ الطلب: بيانات الامتثال القانوني غير مكتملة — أعد تأشير جميع خانات الموافقة.';
+  }
   return (
     'تعذّر حفظ الطلب في قاعدة البيانات.\n\n' +
     ltrBlock([`Server message: ${message}`])

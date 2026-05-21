@@ -100,3 +100,39 @@ export async function auditPublicProsecutorCompliance(): Promise<
       : [],
   };
 }
+
+export async function repairPublicProsecutorCompliance(): Promise<
+  | {
+      ok: true;
+      repaired: number;
+      skipped: number;
+      samples: string[];
+      complianceGaps: number;
+      workingPapers: ProsecutorWorkingPaper[];
+    }
+  | { ok: false; error: string }
+> {
+  const h = await authHeaders();
+  if (!h) return { ok: false, error: 'سجّل دخول كمشرف' };
+
+  const res = await fetch(DASHBOARD_API, {
+    method: 'POST',
+    headers: h,
+    body: JSON.stringify({ action: 'repair_compliance' }),
+  });
+  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok || json.ok !== true) {
+    return { ok: false, error: formatError(json, res.status) };
+  }
+
+  return {
+    ok: true,
+    repaired: Number(json.repaired ?? 0),
+    skipped: Number(json.skipped ?? 0),
+    samples: Array.isArray(json.samples) ? (json.samples as string[]) : [],
+    complianceGaps: Number(json.complianceGaps ?? 0),
+    workingPapers: Array.isArray(json.workingPapers)
+      ? (json.workingPapers as ProsecutorWorkingPaper[])
+      : [],
+  };
+}

@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto.js';
 import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { validateRegistrationCompliancePayload } from './_lib/registrationCompliance.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
@@ -90,6 +91,20 @@ export async function POST(request: Request): Promise<Response> {
   }
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
     return Response.json({ error: 'Invalid payload object' }, { status: 400, headers });
+  }
+
+  const compliance = validateRegistrationCompliancePayload(payload as Record<string, unknown>);
+  if (!compliance.ok) {
+    return Response.json(
+      {
+        error:
+          compliance.error === 'professional_commitment_required'
+            ? 'يجب تأشير الالتزام المهني وحفظ طابعه الزمني قبل إرسال الطلب.'
+            : 'بيانات الامتثال القانوني غير مكتملة — أعد تأشير خانات الموافقة.',
+        code: compliance.error,
+      },
+      { status: 400, headers },
+    );
   }
 
   const auth = assertRegistrationServerAuth(request, rowId, expectedAnon);
