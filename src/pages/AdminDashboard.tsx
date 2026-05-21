@@ -151,6 +151,7 @@ import { EngineeringPendingApprovalsPanel } from '@/modules/ai-staff/components/
 import { FounderSystemStatusPanel } from '@/modules/ai-staff/components/FounderSystemStatusPanel';
 import { SuperIntelligenceFeedPanel } from '@/modules/ai-staff/components/SuperIntelligenceFeedPanel';
 import { PublicProsecutorDashboard } from '@/modules/ai-staff/components/PublicProsecutorDashboard';
+import { PlatformRadar } from '@/modules/platform-radar';
 import { fetchEngineeringHandshakeStatus } from '@/lib/engineeringHandshakeRemote';
 import {
   FounderCommandShell,
@@ -4217,6 +4218,10 @@ function CommandCenterSection({
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <div className="mb-6 overflow-hidden rounded-2xl border border-sky-400/15 shadow-[0_0_48px_rgba(56,189,248,0.08)]">
+        <PlatformRadar soundEnabled={false} className="min-h-[min(52rem,78vh)]" />
+      </div>
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold">غرفة القيادة</h2>

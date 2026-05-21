@@ -766,109 +766,53 @@ html.platform-radar-fullscreen #root {
   min-height: 100%;
 }
 
-@keyframes platform-radar-live-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 0 16px rgba(34, 211, 238, 0.8);
-  }
-  50% {
-    opacity: 0.55;
-    transform: scale(0.92);
-    box-shadow: 0 0 28px rgba(34, 211, 238, 0.35);
-  }
-}
-
-@keyframes platform-radar-ring-expand {
+/* Royal Tactical Wing — Golden Pulse halo & kingdom night map */
+@keyframes golden-pulse-halo-expand {
   0% {
-    transform: translate(-50%, -50%) scale(0.85);
-    opacity: 0.35;
-  }
-  70% {
-    opacity: 0.08;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.35);
-    opacity: 0;
-  }
-}
-
-.platform-radar-live-dot {
-  animation: platform-radar-live-pulse 2.4s ease-in-out infinite;
-}
-
-.platform-radar-pulse-ring {
-  animation: platform-radar-ring-expand 4s ease-out infinite;
-}
-
-.platform-radar-pulse-ring::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  border: 1px solid rgba(34, 211, 238, 0.12);
-  animation: platform-radar-ring-expand 4s ease-out infinite;
-  animation-delay: 2s;
-}
-
-/* Tactical Mission Control — map pulses & inspector halos */
-@keyframes tactical-radar-pulse-beat {
-  0% {
-    transform: translate(-50%, -50%) scale(0.6);
-    opacity: 0.75;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(2.2);
-    opacity: 0;
-  }
-}
-
-@keyframes tactical-inspector-halo {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.85;
-    box-shadow: 0 0 28px rgba(239, 68, 68, 0.55);
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.12);
-    opacity: 1;
-    box-shadow: 0 0 42px rgba(239, 68, 68, 0.75);
-  }
-}
-
-.tactical-radar-map .tactical-radar-pulse-ring {
-  animation: tactical-radar-pulse-beat 2.8s ease-out infinite;
-}
-
-.tactical-radar-inspector-halo {
-  animation: tactical-inspector-halo 1.8s ease-in-out infinite;
-}
-
-.platform-radar-tactical {
-  background:
-    radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.06), transparent 45%),
-    linear-gradient(180deg, #010104 0%, #02050a 55%, #010104 100%);
-}
-
-@keyframes tactical-radar-force-ripple {
-  0% {
-    transform: translate(-50%, -50%) scale(0.35);
-    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0.55);
+    opacity: 0.65;
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
   }
   100% {
     transform: translate(-50%, -50%) scale(2.4);
     opacity: 0;
+    box-shadow: 0 0 4px rgba(251, 191, 36, 0);
   }
 }
 
-.tactical-radar-force-ripple {
-  animation: tactical-radar-force-ripple 1.35s ease-out forwards;
+@keyframes golden-pulse-live-beat {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.85);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.88);
+    box-shadow: 0 0 18px rgba(251, 191, 36, 0.35);
+  }
 }
 
-.tactical-radar-force-ripple-delay {
-  animation: tactical-radar-force-ripple 1.65s ease-out 0.12s forwards;
+.golden-pulse-halo {
+  animation: golden-pulse-halo-expand 2.6s ease-out infinite;
+}
+
+.golden-pulse-halo-delay {
+  animation: golden-pulse-halo-expand 2.6s ease-out infinite;
+  animation-delay: 1.3s;
+}
+
+.golden-pulse-live {
+  animation: golden-pulse-live-beat 2.2s ease-in-out infinite;
+}
+
+.platform-radar-tactical,
+.royal-tactical-wing {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(56, 189, 248, 0.04), transparent 52%),
+    radial-gradient(circle at 72% 28%, rgba(251, 191, 36, 0.03), transparent 40%),
+    linear-gradient(180deg, #000205 0%, #010308 55%, #000205 100%);
 }
 
 
