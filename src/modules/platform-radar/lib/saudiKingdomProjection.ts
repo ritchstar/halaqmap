@@ -1,4 +1,12 @@
-/** Approximate Kingdom of Saudi Arabia bounding box for tactical map projection. */
+/** Wider Arabian Peninsula viewport — matches satellite night map framing. */
+export const ARABIAN_TACTICAL_BOUNDS = {
+  minLat: 11.5,
+  maxLat: 37.5,
+  minLng: 30.0,
+  maxLng: 62.5,
+} as const;
+
+/** Legacy alias — KSA-focused queries still use this inner box. */
 export const KSA_BOUNDS = {
   minLat: 16.0,
   maxLat: 32.25,
@@ -13,13 +21,15 @@ export type KsaCityGlow = {
   tier: 'capital' | 'major' | 'hub';
 };
 
-/** Major cities — neon glow anchors on the tactical kingdom map. */
+/** Major cities — subtle night-light anchors on the tactical map. */
 export const KSA_MAJOR_CITIES: KsaCityGlow[] = [
   { nameAr: 'الرياض', lat: 24.7136, lng: 46.6753, tier: 'capital' },
   { nameAr: 'جدة', lat: 21.4858, lng: 39.1925, tier: 'major' },
   { nameAr: 'مكة', lat: 21.3891, lng: 39.8579, tier: 'major' },
   { nameAr: 'المدينة', lat: 24.5247, lng: 39.5692, tier: 'major' },
   { nameAr: 'الدمام', lat: 26.3927, lng: 49.9777, tier: 'major' },
+  { nameAr: 'دبي', lat: 25.2048, lng: 55.2708, tier: 'major' },
+  { nameAr: 'الكويت', lat: 29.3759, lng: 47.9774, tier: 'hub' },
   { nameAr: 'الخبر', lat: 26.2172, lng: 50.1971, tier: 'hub' },
   { nameAr: 'أبها', lat: 18.2164, lng: 42.5053, tier: 'hub' },
   { nameAr: 'تبوك', lat: 28.3838, lng: 36.555, tier: 'hub' },
@@ -33,11 +43,15 @@ function clamp(n: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, n));
 }
 
+/** Map lat/lng → percent on the tactical satellite canvas (calibrated to night-map asset). */
 export function projectKsaToPercent(lat: number, lng: number): { left: number; top: number } {
-  const { minLat, maxLat, minLng, maxLng } = KSA_BOUNDS;
-  const x = ((lng - minLng) / Math.max(0.001, maxLng - minLng)) * 92 + 4;
-  const y = ((maxLat - lat) / Math.max(0.001, maxLat - minLat)) * 88 + 6;
-  return { left: clamp(x, 3, 97), top: clamp(y, 4, 96) };
+  const { minLat, maxLat, minLng, maxLng } = ARABIAN_TACTICAL_BOUNDS;
+  const x = ((lng - minLng) / Math.max(0.001, maxLng - minLng)) * 100;
+  const y = ((maxLat - lat) / Math.max(0.001, maxLat - minLat)) * 100;
+  return {
+    left: clamp(x * 0.96 + 2, 1.5, 98.5),
+    top: clamp(y * 0.94 + 3, 2, 98),
+  };
 }
 
 export function formatTacticalCoordinates(lat: number, lng: number): string {
@@ -67,4 +81,13 @@ export function formatTacticalOverlay(iso: string, lat: number, lng: number): st
   const hours = String(d.getHours()).padStart(2, '0');
   const minutes = String(d.getMinutes()).padStart(2, '0');
   return `${day}/${month} ${hours}:${minutes}, ${lat.toFixed(1)}, ${lng.toFixed(1)}`;
+}
+
+export function resolveCityCoordinates(cityName: string | null | undefined): { lat: number; lng: number } | null {
+  if (!cityName?.trim()) return null;
+  const normalized = cityName.trim();
+  const hit = KSA_MAJOR_CITIES.find(
+    (c) => normalized.includes(c.nameAr) || c.nameAr.includes(normalized),
+  );
+  return hit ? { lat: hit.lat, lng: hit.lng } : null;
 }

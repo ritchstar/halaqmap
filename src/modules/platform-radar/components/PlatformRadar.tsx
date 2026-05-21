@@ -23,10 +23,11 @@ type Props = {
 };
 
 function HudStat({ label, value }: { label: string; value: string | number }) {
+  const display = value === '—' || value === '--' ? 0 : value;
   return (
     <div className="min-w-[clamp(5.5rem,11vw,7.5rem)] rounded-xl border border-white/12 bg-black/68 px-[clamp(0.55rem,1.1vw,0.85rem)] py-[clamp(0.4rem,0.9vh,0.6rem)] backdrop-blur-md">
       <p className="text-[clamp(0.62rem,1.1vw,0.78rem)] text-slate-400">{label}</p>
-      <p className="text-[clamp(1.05rem,2vw,1.55rem)] font-bold tabular-nums text-white">{value}</p>
+      <p className="text-[clamp(1.05rem,2vw,1.55rem)] font-bold tabular-nums text-white">{display}</p>
     </div>
   );
 }
@@ -171,8 +172,8 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
         <div className="pointer-events-auto flex flex-wrap justify-end gap-[clamp(0.4rem,0.9vw,0.65rem)]">
           <HudStat label="نبضات الخريطة" value={userPulseCount} />
           <HudStat label="Inspector" value={suspiciousCount} />
-          <HudStat label="حلاقون" value={stats?.totalBarbers ?? '—'} />
-          <HudStat label="مستخدمون" value={stats?.totalUsers ?? '—'} />
+          <HudStat label="حلاقون" value={stats?.totalBarbers ?? 0} />
+          <HudStat label="مستخدمون" value={stats?.totalUsers ?? 0} />
           <HudStat label="عاجل 24س" value={ops?.urgentCount24h ?? 0} />
           <HudStat label="آمن 7d" value={brief?.securityEvents7d ?? 0} />
         </div>

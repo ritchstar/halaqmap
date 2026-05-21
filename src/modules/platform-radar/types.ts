@@ -31,7 +31,7 @@ export type PlatformRadarOpsPulse = {
   latestDigestSummary: string | null;
 };
 
-export type PlatformRadarMapPulseKind = 'user_search' | 'security';
+export type PlatformRadarMapPulseKind = 'user_search' | 'security' | 'barber_anchor';
 
 export type PlatformRadarMapPulse = {
   id: string;

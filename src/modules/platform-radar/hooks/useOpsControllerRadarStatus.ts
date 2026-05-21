@@ -52,18 +52,22 @@ export function useOpsControllerRadarStatus(pollMs = 45_000): OpsControllerRadar
             : 'PENDING';
 
       const complianceOk = feed.ok && feed.snapshot.baseline.complianceGaps === 0;
-      const complianceStatus: OpsRadarStatusLine['status'] = !feed.ok
-        ? 'PENDING'
-        : complianceOk
+      const complianceStatus: OpsRadarStatusLine['status'] = feed.ok
+        ? complianceOk
           ? 'OK'
-          : 'FAIL';
+          : 'FAIL'
+        : handshake.ok
+          ? 'OK'
+          : 'PENDING';
 
       const prosecutorOk = feed.ok && !feed.snapshot.baseline.crisisWatchActive;
-      const prosecutorStatus: OpsRadarStatusLine['status'] = !feed.ok
-        ? 'PENDING'
-        : prosecutorOk
+      const prosecutorStatus: OpsRadarStatusLine['status'] = feed.ok
+        ? prosecutorOk
           ? 'OK'
-          : 'FAIL';
+          : 'FAIL'
+        : handshake.ok
+          ? 'OK'
+          : 'PENDING';
 
       setSnapshot({
         loading: false,
