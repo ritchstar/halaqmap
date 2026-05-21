@@ -78,7 +78,13 @@ export async function POST(request: Request): Promise<Response> {
       taskDescription,
       reporterEmail: auth.actorEmail,
     });
-    return json({ ok: true, action, ...result });
+    return json({
+      ok: true,
+      action,
+      ...result,
+      performanceDelta: result.performanceDelta,
+      ready: result.ready,
+    });
   }
 
   if (action === 'prosecutor_refactor') {

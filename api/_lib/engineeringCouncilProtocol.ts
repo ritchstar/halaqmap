@@ -6,7 +6,7 @@ import {
   postCouncilMessage,
 } from './agentCouncilMessaging.js';
 import { executeApprovedEngineeringTask } from './cursorExecutionBridge.js';
-import { evaluateProsecutorInterject } from './publicProsecutorLab.js';
+import { runSuperIntelligencePipeline } from './superIntelligenceProtocol.js';
 
 export type EngineeringExecutionStatus =
   | 'planning'
@@ -14,6 +14,7 @@ export type EngineeringExecutionStatus =
   | 'draft_branch'
   | 'testing'
   | 'pending_approval'
+  | 'gate_blocked'
   | 'approved'
   | 'rejected'
   | 'executed';
@@ -105,7 +106,7 @@ async function generatePlanMarkdown(taskDescription: string, title: string): Pro
         {
           role: 'system',
           content:
-            'You are Technical Consultant of HalaqMap Engineering Council. Output a concise markdown plan: Scope, Files, Refactor steps, Risks, Unit test targets. Arabic headings OK. No code execution.',
+            'You are Technical Consultant of HalaqMap Engineering Council (Executive Strategic Mode). Output markdown plan with: Scope, Files, Refactor steps, Risks, Unit test targets. MUST explicitly address: A) Maximum Uptime Impact B) Zero-Trust Security (RLS/service_role/CORS) C) Long-term Maintainability. Arabic headings OK. No code execution.',
         },
         { role: 'user', content: `Title: ${title}\n\nTask:\n${taskDescription}` },
       ],
@@ -132,28 +133,15 @@ function buildUnitTestsPlan(planMarkdown: string, title: string): string {
   ].join('\n');
 }
 
-function buildProsecutorVerdict(planMarkdown: string, taskDescription: string) {
-  const interject = evaluateProsecutorInterject({
-    userMessage: `${taskDescription}\n${planMarkdown}`,
-    watchAgent: 'technical_consultant_engineering',
-  });
-
-  const approved = !interject || interject.severity !== 'urgent';
-  return {
-    approved,
-    severity: interject?.severity ?? 'info',
-    headlineAr: interject?.headlineAr ?? 'لا انحراف حرج — المضي في Draft Branch',
-    directiveAr:
-      interject?.directiveAr ??
-      'الخطة متوافقة مع Professional Sovereignty — يُسمح بالمتابعة إلى فرع Draft واختبارات الوحدة.',
-    interject,
-  };
-}
-
 export async function runSelfDevelopmentProtocol(
   supabase: SupabaseClient,
   input: { title: string; taskDescription: string; reporterEmail: string },
-): Promise<{ execution: ReturnType<typeof mapExecutionRow>; messages: ReturnType<typeof mapCouncilMessage>[] }> {
+): Promise<{
+  execution: ReturnType<typeof mapExecutionRow>;
+  messages: ReturnType<typeof mapCouncilMessage>[];
+  performanceDelta?: import('./performanceDelta.js').PerformanceDelta;
+  ready?: boolean;
+}> {
   const now = new Date().toISOString();
 
   const { data: created, error } = await supabase
@@ -164,7 +152,7 @@ export async function runSelfDevelopmentProtocol(
       title: input.title.slice(0, 200),
       task_description: input.taskDescription.slice(0, 8000),
       reporter_email: input.reporterEmail,
-      detail: { protocol: 'self_development', step: 'propose_plan', startedAt: now },
+      detail: { protocol: 'super_intelligence_feed', step: 'propose_plan', startedAt: now },
     })
     .select('*')
     .single();
@@ -194,36 +182,86 @@ export async function runSelfDevelopmentProtocol(
       plan_markdown: planMarkdown,
       status: 'prosecutor_review',
       updated_at: new Date().toISOString(),
-      detail: { ...(created.detail as object), step: 'consult_prosecutor' },
+      detail: { ...(created.detail as object), step: 'super_intelligence_pipeline' },
     })
     .eq('id', executionId);
 
-  const prosecutorVerdict = buildProsecutorVerdict(planMarkdown, input.taskDescription);
+  const pipeline = await runSuperIntelligencePipeline(supabase, {
+    title: input.title,
+    taskDescription: input.taskDescription,
+    planMarkdown,
+  });
 
   await postCouncilMessage(supabase, {
     threadId,
     fromAgent: 'technical_consultant_engineering',
     toAgent: 'public_prosecutor',
     messageType: 'consultation',
-    severity: prosecutorVerdict.approved ? 'info' : 'urgent',
-    title: 'استشارة امتثال — خطة Refactor',
+    severity: pipeline.prosecutorGate.passed ? 'info' : 'urgent',
+    title: 'Pre-Commit — Prosecutor Consultation',
     body: planMarkdown.slice(0, 4000),
-    detail: { executionId, request: 'compliance_review' },
+    detail: { executionId, step: 'consult_prosecutor_pre_commit' },
+  });
+
+  if (pipeline.crisisConsult.consulted) {
+    await postCouncilMessage(supabase, {
+      threadId,
+      fromAgent: 'technical_consultant_engineering',
+      toAgent: 'system_crisis_advisor',
+      messageType: 'crisis_consult',
+      severity: 'watch',
+      title: pipeline.crisisConsult.headlineAr,
+      body: pipeline.crisisConsult.simulationMarkdown.slice(0, 4000),
+      detail: { executionId, step: 'crisis_failure_simulation' },
+    });
+  }
+
+  await postCouncilMessage(supabase, {
+    threadId,
+    fromAgent: 'public_prosecutor',
+    toAgent: 'technical_consultant_engineering',
+    messageType: 'gate_verdict',
+    severity: pipeline.prosecutorGate.blocked ? 'urgent' : 'info',
+    title: pipeline.prosecutorGate.headlineAr,
+    body: pipeline.prosecutorGate.directiveAr,
+    detail: { executionId, gate: pipeline.prosecutorGate },
   });
 
   await postCouncilMessage(supabase, {
     threadId,
     fromAgent: 'public_prosecutor',
     toAgent: 'technical_consultant_engineering',
-    messageType: 'compliance_verdict',
-    severity: prosecutorVerdict.approved ? 'info' : 'urgent',
-    title: prosecutorVerdict.headlineAr,
-    body: prosecutorVerdict.directiveAr,
-    detail: { executionId, verdict: prosecutorVerdict },
+    messageType: 'peer_review',
+    severity: pipeline.peerReview.ready ? 'info' : 'watch',
+    title: pipeline.peerReview.headlineAr,
+    body: pipeline.peerReview.bodyAr,
+    detail: { executionId, peerReview: pipeline.peerReview },
   });
+
+  await postCouncilMessage(supabase, {
+    threadId,
+    fromAgent: 'technical_consultant_engineering',
+    toAgent: 'founder',
+    messageType: 'performance_delta',
+    severity: pipeline.ready ? 'info' : 'urgent',
+    title: 'Performance Delta',
+    body: pipeline.performanceDeltaMarkdown.slice(0, 4000),
+    detail: { executionId, performanceDelta: pipeline.performanceDelta },
+  });
+
+  const prosecutorVerdict = {
+    approved: pipeline.prosecutorGate.passed,
+    blocked: pipeline.prosecutorGate.blocked,
+    severity: pipeline.prosecutorGate.severity,
+    headlineAr: pipeline.prosecutorGate.headlineAr,
+    directiveAr: pipeline.prosecutorGate.directiveAr,
+    peerReviewReady: pipeline.peerReview.ready,
+    interject: pipeline.prosecutorGate.interject,
+  };
 
   const draftBranch = slugifyBranch(input.title);
   const unitTestsPlan = buildUnitTestsPlan(planMarkdown, input.title);
+  const finalStatus = pipeline.ready ? 'pending_approval' : 'gate_blocked';
 
   const { data: updated } = await supabase
     .from('platform_engineering_executions')
@@ -231,34 +269,53 @@ export async function runSelfDevelopmentProtocol(
       prosecutor_verdict: prosecutorVerdict,
       draft_branch: draftBranch,
       unit_tests_plan: unitTestsPlan,
-      status: 'pending_approval',
+      status: finalStatus,
       updated_at: new Date().toISOString(),
       detail: {
-        protocol: 'self_development',
-        step: 'pending_approval',
+        protocol: 'super_intelligence_feed',
+        step: pipeline.ready ? 'pending_approval' : 'gate_blocked',
         draftBranch,
-        prosecutorApproved: prosecutorVerdict.approved,
+        prosecutorApproved: pipeline.prosecutorGate.passed,
+        peerReviewReady: pipeline.peerReview.ready,
+        performanceDelta: pipeline.performanceDelta,
+        crisisConsulted: pipeline.crisisConsult.consulted,
+        ready: pipeline.ready,
       },
     })
     .eq('id', executionId)
     .select('*')
     .single();
 
-  await postCouncilMessage(supabase, {
-    threadId,
-    fromAgent: 'technical_consultant_engineering',
-    toAgent: 'founder',
-    messageType: 'refactor_proposal',
-    severity: prosecutorVerdict.approved ? 'watch' : 'urgent',
-    title: `Pending Approval — ${input.title}`,
-    body: `Draft branch: ${draftBranch}\n\nAwaiting Founder «Approve Execution».`,
-    detail: { executionId, draftBranch, requiresApproval: true },
-  });
+  if (pipeline.ready) {
+    await postCouncilMessage(supabase, {
+      threadId,
+      fromAgent: 'technical_consultant_engineering',
+      toAgent: 'founder',
+      messageType: 'refactor_proposal',
+      severity: 'watch',
+      title: `Pending Approval — ${input.title}`,
+      body: `Draft branch: ${draftBranch}\n\nProsecutor Gate + Peer Review: READY\n\nAwaiting Founder «Approve Execution».`,
+      detail: { executionId, draftBranch, requiresApproval: true },
+    });
+  } else {
+    await postCouncilMessage(supabase, {
+      threadId,
+      fromAgent: 'public_prosecutor',
+      toAgent: 'founder',
+      messageType: 'gate_verdict',
+      severity: 'urgent',
+      title: `BLOCKED — ${input.title}`,
+      body: pipeline.prosecutorGate.directiveAr,
+      detail: { executionId, blocked: true },
+    });
+  }
 
-  const messages = await fetchCouncilMessages(supabase, { threadId, limit: 20 });
+  const messages = await fetchCouncilMessages(supabase, { threadId, limit: 30 });
   return {
     execution: mapExecutionRow((updated ?? created) as ExecutionRow),
     messages,
+    performanceDelta: pipeline.performanceDelta,
+    ready: pipeline.ready,
   };
 }
 

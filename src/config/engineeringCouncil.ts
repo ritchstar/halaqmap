@@ -23,11 +23,11 @@ export const SELF_DEVELOPMENT_PROTOCOL_LABELS_AR: Record<SelfDevelopmentProtocol
 };
 
 export const ENGINEERING_COUNCIL_DOCTRINE: string[] = [
-  'Agent-to-Agent: Technical Consultant ↔ Public Prosecutor ↔ Crisis Advisor (read/consult only).',
-  'Self-Development Protocol إلزامي — لا تنفيذ على main دون موافقة المؤسس.',
-  'Draft Branch أولاً — كل refactor يُحتجز في فرع معلّق حتى Approve Execution.',
-  'Unit tests مطلوبة — الوكيل يDocument اختباراته قبل Pending Approval.',
-  'Cursor/CLI bridge — التنفيذ الفعلي يُفعَّل فقط بعد موافقة المؤسس (CURSOR_API_KEY).',
+  'Super-Intelligence Feed ACTIVE — Executive Strategic Mode across all agents.',
+  'Agent-to-Agent: Technical Consultant ↔ Public Prosecutor ↔ Crisis Advisor (mandatory consult paths).',
+  'Prosecutor Gate blocks non-READY plans — double-blind peer review required.',
+  'Draft Branch first — no merge to main without Founder Approve Execution.',
+  'Performance Delta mandatory — Radar intelligence + Registration Compliance metrics.',
 ];
 
 export const COUNCIL_AGENT_LABELS: Record<string, string> = {

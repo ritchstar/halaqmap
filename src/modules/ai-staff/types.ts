@@ -150,6 +150,7 @@ export type EngineeringExecutionStatus =
   | 'draft_branch'
   | 'testing'
   | 'pending_approval'
+  | 'gate_blocked'
   | 'approved'
   | 'rejected'
   | 'executed';
@@ -160,7 +161,15 @@ export type AgentCouncilMessage = {
   threadId: string;
   fromAgent: string;
   toAgent: string;
-  messageType: 'consultation' | 'compliance_verdict' | 'refactor_proposal' | 'status';
+  messageType:
+    | 'consultation'
+    | 'compliance_verdict'
+    | 'refactor_proposal'
+    | 'status'
+    | 'crisis_consult'
+    | 'gate_verdict'
+    | 'peer_review'
+    | 'performance_delta';
   severity: 'info' | 'watch' | 'urgent';
   title: string;
   body: string;
@@ -184,6 +193,19 @@ export type EngineeringExecution = {
   approvedAt?: string;
   reporterEmail: string;
   detail?: Record<string, unknown>;
+};
+
+export type PerformanceDeltaSnapshot = {
+  capturedAt: string;
+  summaryAr: string;
+  radarIntelligenceDelta: string;
+  registrationComplianceDelta: string;
+  readyForFounder: boolean;
+  projectedImpact: {
+    uptimeImpact: string;
+    securityCompliance: string;
+    maintainability: string;
+  };
 };
 
 export type FleetIntelligencePing = {

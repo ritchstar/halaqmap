@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { SELF_DEVELOPMENT_PROTOCOL_LABELS_AR } from '@/config/engineeringCouncil';
 import {
+  SUPER_INTELLIGENCE_PROTOCOL_LABELS_AR,
+} from '@/config/superIntelligenceFeed';
+import {
   fetchEngineeringCouncil,
   proposeEngineeringTask,
   proposeProsecutorDrivenRefactor,
@@ -54,7 +57,11 @@ export function EngineeringCouncilPanel({ onOpenLab }: Props) {
       toast.error(result.error);
       return;
     }
-    toast.success('Self-Development Protocol — بانتظار موافقة المؤسس.');
+    toast.success(
+      result.execution?.status === 'gate_blocked'
+        ? 'Prosecutor Gate BLOCKED — راجع Performance Delta.'
+        : 'Super-Intelligence Protocol — Pending Founder Approval.',
+    );
     setTitle('');
     setDescription('');
     void refresh();
@@ -75,6 +82,11 @@ export function EngineeringCouncilPanel({ onOpenLab }: Props) {
   return (
     <div className="space-y-5 text-right">
       <div className="flex flex-wrap items-center justify-end gap-2">
+        {Object.values(SUPER_INTELLIGENCE_PROTOCOL_LABELS_AR).map((label) => (
+          <Badge key={label} variant="outline" className="border-violet-800/40 text-[10px] text-violet-200">
+            {label}
+          </Badge>
+        ))}
         {Object.values(SELF_DEVELOPMENT_PROTOCOL_LABELS_AR).map((label) => (
           <Badge key={label} variant="outline" className="border-cyan-800/40 text-[10px] text-cyan-200">
             {label}

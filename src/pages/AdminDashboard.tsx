@@ -149,6 +149,7 @@ import { HonorBoard } from '@/components/b2b/HonorBoard';
 import { FounderOperationalFeedPanel, OpsControllerWorkspace } from '@/modules/ops-controller';
 import { EngineeringPendingApprovalsPanel } from '@/modules/ai-staff/components/EngineeringPendingApprovalsPanel';
 import { FounderSystemStatusPanel } from '@/modules/ai-staff/components/FounderSystemStatusPanel';
+import { SuperIntelligenceFeedPanel } from '@/modules/ai-staff/components/SuperIntelligenceFeedPanel';
 import { PublicProsecutorDashboard } from '@/modules/ai-staff/components/PublicProsecutorDashboard';
 import { fetchEngineeringHandshakeStatus } from '@/lib/engineeringHandshakeRemote';
 import {
@@ -1297,6 +1298,10 @@ function OverviewSection({
 
   return (
     <FounderStaggerGrid className="space-y-8">
+      <FounderStaggerItem>
+        <SuperIntelligenceFeedPanel />
+      </FounderStaggerItem>
+
       <FounderStaggerItem>
         <FounderSystemStatusPanel onOpsControllerEnabledChange={onOpsControllerEnabledChange} />
       </FounderStaggerItem>

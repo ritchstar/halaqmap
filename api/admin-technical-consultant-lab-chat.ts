@@ -5,6 +5,16 @@ import {
   loadTechnicalConsultantLabContext,
   type TechnicalConsultantLabChatTurn,
 } from './_lib/technicalConsultantLab.js';
+import {
+  capturePlatformBaseline,
+  computePerformanceDelta,
+  formatPerformanceDeltaMarkdown,
+} from './_lib/performanceDelta.js';
+import {
+  consultCrisisAdvisorForPlan,
+  runDoubleBlindPeerReview,
+  runProsecutorGate,
+} from './_lib/superIntelligenceProtocol.js';
 
 export const config = { maxDuration: 60 };
 
@@ -83,7 +93,54 @@ export async function POST(request: Request): Promise<Response> {
       userText: userMessage,
       conversationHistory,
     });
-    return json({ ok: true, reply, context: ctx });
+
+    const baseline = await capturePlatformBaseline(auth.supabase);
+    const prosecutorGate = runProsecutorGate(reply, userMessage);
+    const peerReview = runDoubleBlindPeerReview(reply, userMessage, prosecutorGate);
+    const crisisRequired =
+      /performance|bottleneck|latency|slow|uptime|bundle|cache|scale|أداء|بطء/i.test(
+        `${userMessage}\n${reply}`,
+      ) || baseline.crisisWatchActive;
+    const crisisConsult = await consultCrisisAdvisorForPlan(auth.supabase, {
+      title: 'Lab consult',
+      taskDescription: userMessage,
+      planMarkdown: reply,
+      required: crisisRequired,
+    });
+    const performanceDelta = computePerformanceDelta({
+      baseline,
+      planMarkdown: reply,
+      taskDescription: userMessage,
+      gatePassed: prosecutorGate.passed,
+      peerReviewReady: peerReview.ready,
+      crisisConsulted: crisisConsult.consulted,
+    });
+
+    const enrichedReply = [
+      reply,
+      '',
+      '---',
+      '',
+      `**Prosecutor Gate:** ${prosecutorGate.headlineAr}`,
+      prosecutorGate.directiveAr,
+      '',
+      `**Peer Review:** ${peerReview.headlineAr}`,
+      '',
+      formatPerformanceDeltaMarkdown(performanceDelta),
+    ].join('\n');
+
+    return json({
+      ok: true,
+      reply: enrichedReply,
+      context: ctx,
+      superIntelligence: {
+        prosecutorGate,
+        peerReview,
+        crisisConsulted: crisisConsult.consulted,
+        performanceDelta,
+        ready: performanceDelta.readyForFounder,
+      },
+    });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : 'Chat failed' }, 502);
   }

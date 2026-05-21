@@ -169,12 +169,17 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     workspaceKind: 'engineering_council',
     consultAgents: ['public_prosecutor', 'system_crisis_advisor'],
     doctrineNotes: [
-      'Self-Development Protocol: Plan → Prosecutor → Draft Branch → Unit Tests → Pending Approval.',
-      'Agent-to-Agent messaging داخل AdminDashboard — استشارة cross-agent.',
+      'Super-Intelligence Feed: Knowledge Injection → Prosecutor Pre-Commit → Crisis Simulation → Peer Review → Performance Delta.',
+      'Self-Development Protocol: Plan → Prosecutor Gate → Draft Branch → Unit Tests → Pending Approval.',
+      'Agent-to-Agent messaging داخل AdminDashboard — Hive Mind cross-pollination.',
       'Cursor/CLI bridge — التنفيذ الفعلي بعد Approve Execution فقط.',
     ],
     productRef: {
-      apiRoutes: ['/api/admin-technical-consultant-lab-chat', '/api/admin-engineering-council'],
+      apiRoutes: [
+        '/api/admin-technical-consultant-lab-chat',
+        '/api/admin-engineering-council',
+        '/api/admin-super-intelligence-feed',
+      ],
       migrationId: '85_platform_engineering_council',
     },
   },
