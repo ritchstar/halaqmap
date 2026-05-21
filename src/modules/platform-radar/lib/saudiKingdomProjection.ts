@@ -56,3 +56,15 @@ export function formatTacticalTime(iso: string): string {
     hour12: false,
   });
 }
+
+/** Compact HUD readout — e.g. `21/05 08:31, 24.7, 46.7` */
+export function formatTacticalOverlay(iso: string, lat: number, lng: number): string {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return `${lat.toFixed(1)}, ${lng.toFixed(1)}`;
+  const d = new Date(t);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${day}/${month} ${hours}:${minutes}, ${lat.toFixed(1)}, ${lng.toFixed(1)}`;
+}

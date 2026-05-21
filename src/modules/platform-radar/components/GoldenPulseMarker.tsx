@@ -1,10 +1,7 @@
 import { useId } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import {
-  formatTacticalCoordinates,
-  formatTacticalTime,
-} from '@/modules/platform-radar/lib/saudiKingdomProjection';
+import { formatTacticalOverlay } from '@/modules/platform-radar/lib/saudiKingdomProjection';
 
 type Props = {
   id: string;
@@ -19,45 +16,69 @@ type Props = {
   isNew?: boolean;
 };
 
-function GoldenBarberIcon({ className, inspector }: { className?: string; inspector?: boolean }) {
-  const gradId = useId();
+const HALO_LAYERS = [
+  { scale: 1, delay: 0, opacity: 0.55 },
+  { scale: 1.35, delay: 0.45, opacity: 0.38 },
+  { scale: 1.75, delay: 0.9, opacity: 0.24 },
+  { scale: 2.15, delay: 1.35, opacity: 0.12 },
+] as const;
+
+function GoldenBarberSilhouette({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn(className, inspector && 'drop-shadow-[0_0_14px_rgba(248,113,113,0.9)]')}
-      aria-hidden
-    >
-      <defs>
-        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#fde68a" />
-          <stop offset="45%" stopColor="#fbbf24" />
-          <stop offset="100%" stopColor="#d97706" />
-        </linearGradient>
-      </defs>
-      {/* Comb teeth */}
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      {/* White silhouette — scissors + comb (reference-style glyph) */}
       <path
-        d="M8 6h3v14M11 6v14M14 6v14M17 6v14"
-        stroke={`url(#${gradId})`}
-        strokeWidth="1.4"
-        strokeLinecap="round"
+        d="M5 4h2v10M7 4v10M9 4v10M11 4v10M5 14h7v1.5H5V14Z"
+        fill="white"
+        opacity="0.95"
       />
-      <rect x="7" y="20" width="11" height="2.5" rx="0.5" fill={`url(#${gradId})`} opacity="0.9" />
-      {/* Scissors */}
-      <circle cx="22" cy="10" r="2.2" stroke={`url(#${gradId})`} strokeWidth="1.3" />
-      <circle cx="26" cy="14" r="2.2" stroke={`url(#${gradId})`} strokeWidth="1.3" />
+      <circle cx="16.5" cy="8" r="1.6" stroke="white" strokeWidth="1.2" />
+      <circle cx="19" cy="11" r="1.6" stroke="white" strokeWidth="1.2" />
       <path
-        d="M20 18 L22 10 M20 18 L26 14 M24 16 L28 22"
-        stroke={`url(#${gradId})`}
-        strokeWidth="1.4"
+        d="M14.5 14.5 L16.5 8 M14.5 14.5 L19 11 M17.5 12.5 L20.5 16.5"
+        stroke="white"
+        strokeWidth="1.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {inspector ? (
-        <circle cx="16" cy="16" r="14" stroke="rgba(248,113,113,0.65)" strokeWidth="1" strokeDasharray="3 2" />
-      ) : null}
     </svg>
+  );
+}
+
+function PulseHaloRing({
+  index,
+  scale,
+  delay,
+  ringOpacity,
+  inspector,
+}: {
+  index: number;
+  scale: number;
+  delay: number;
+  ringOpacity: number;
+  inspector?: boolean;
+}) {
+  const ringId = useId();
+  return (
+    <motion.span
+      key={ringId}
+      className={cn(
+        'pointer-events-none absolute left-1/2 top-0 block -translate-x-1/2 -translate-y-1/2 rounded-full border',
+        inspector ? 'border-red-400/50' : 'border-amber-300/35',
+      )}
+      style={{
+        width: 'clamp(2.75rem, 5.2vw, 4.25rem)',
+        height: 'clamp(2.75rem, 5.2vw, 4.25rem)',
+      }}
+      initial={{ scale: 0.45 * scale, opacity: ringOpacity }}
+      animate={{ scale: 2.35 * scale, opacity: 0 }}
+      transition={{
+        duration: 2.8,
+        delay: delay + index * 0.08,
+        repeat: Infinity,
+        ease: 'easeOut',
+      }}
+    />
   );
 }
 
@@ -73,59 +94,55 @@ export function GoldenPulseMarker({
   opacity = 1,
   isNew = false,
 }: Props) {
-  const timeStr = formatTacticalTime(createdAt);
-  const coordStr = formatTacticalCoordinates(lat, lng);
+  const overlay = formatTacticalOverlay(createdAt, lat, lng);
 
   return (
     <motion.div
       layout
-      initial={isNew ? { scale: 0, opacity: 0, filter: 'blur(6px)' } : false}
+      initial={isNew ? { scale: 0.35, opacity: 0, filter: 'blur(8px)' } : false}
       animate={{ scale: 1, opacity, filter: 'blur(0px)' }}
-      transition={{
-        type: 'spring',
-        stiffness: 420,
-        damping: 28,
-        mass: 0.65,
-      }}
-      whileHover={{ scale: 1.14, zIndex: 50 }}
-      whileTap={{ scale: 0.92 }}
-      className="golden-pulse-marker group absolute z-20 flex -translate-x-1/2 flex-col items-center"
+      transition={{ type: 'spring', stiffness: 380, damping: 26, mass: 0.7 }}
+      whileHover={{ scale: 1.12, zIndex: 60 }}
+      whileTap={{ scale: 0.94 }}
+      className="golden-pulse-marker group absolute z-[25] flex -translate-x-1/2 flex-col items-center"
       style={{ left: `${left}%`, top: `${top}%` }}
       title={label}
     >
-      {/* Pulse halo — expand & fade */}
-      <span
-        className={cn(
-          'golden-pulse-halo pointer-events-none absolute left-1/2 top-[18px] block -translate-x-1/2 -translate-y-1/2 rounded-full',
-          inspector
-            ? 'h-[clamp(2.5rem,5vw,3.75rem)] w-[clamp(2.5rem,5vw,3.75rem)] border border-red-400/40'
-            : 'h-[clamp(2rem,4.2vw,3.25rem)] w-[clamp(2rem,4.2vw,3.25rem)] border border-amber-400/25',
-        )}
-      />
-      <span className="golden-pulse-halo-delay pointer-events-none absolute left-1/2 top-[18px] block h-[clamp(1.25rem,2.5vw,2rem)] w-[clamp(1.25rem,2.5vw,2rem)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-300/20" />
+      <div className="relative flex h-[clamp(2.4rem,4.6vw,3.35rem)] w-[clamp(2.4rem,4.6vw,3.35rem)] items-center justify-center">
+        {HALO_LAYERS.map((layer, index) => (
+          <PulseHaloRing
+            key={`${id}-halo-${index}`}
+            index={index}
+            scale={layer.scale}
+            delay={layer.delay}
+            ringOpacity={layer.opacity}
+            inspector={inspector}
+          />
+        ))}
 
-      <motion.div
-        className="relative flex h-[clamp(1.75rem,3.2vw,2.5rem)] w-[clamp(1.75rem,3.2vw,2.5rem)] items-center justify-center"
-        whileHover={{ rotate: [0, -6, 6, 0] }}
-        transition={{ duration: 0.45 }}
-      >
-        <GoldenBarberIcon
-          className="h-full w-full drop-shadow-[0_0_12px_rgba(251,191,36,0.85)]"
-          inspector={inspector}
-        />
-      </motion.div>
-
-      {/* Tactical overlay — neon telemetry */}
-      <div
-        className={cn(
-          'mt-1 min-w-[max-content] rounded border px-1.5 py-0.5 text-center font-mono backdrop-blur-sm transition-all duration-300',
-          'border-sky-400/30 bg-black/75 opacity-90 group-hover:opacity-100 group-hover:shadow-[0_0_16px_rgba(56,189,248,0.35)]',
-          inspector && 'border-red-400/40 shadow-[0_0_12px_rgba(248,113,113,0.25)]',
-        )}
-      >
-        <p className="text-[clamp(0.55rem,1vw,0.68rem)] font-semibold tabular-nums text-amber-200/95">{timeStr}</p>
-        <p className="text-[clamp(0.5rem,0.9vw,0.62rem)] tabular-nums text-sky-300/90">{coordStr}</p>
+        <motion.div
+          className={cn(
+            'relative z-10 flex h-[clamp(1.85rem,3.4vw,2.65rem)] w-[clamp(1.85rem,3.4vw,2.65rem)] items-center justify-center rounded-full',
+            inspector
+              ? 'bg-[radial-gradient(circle_at_35%_30%,#fca5a5_0%,#ef4444_42%,#991b1b_100%)] shadow-[0_0_28px_rgba(239,68,68,0.75)]'
+              : 'bg-[radial-gradient(circle_at_35%_30%,#fde68a_0%,#f59e0b_45%,#b45309_100%)] shadow-[0_0_28px_rgba(251,191,36,0.75)]',
+          )}
+          whileHover={{ rotate: [0, -8, 8, 0] }}
+          transition={{ duration: 0.42 }}
+        >
+          <GoldenBarberSilhouette className="h-[58%] w-[58%] drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]" />
+        </motion.div>
       </div>
+
+      <p
+        className={cn(
+          'mt-1 whitespace-nowrap text-center font-mono text-[clamp(0.52rem,0.95vw,0.68rem)] font-medium tabular-nums tracking-tight text-slate-100/92',
+          'drop-shadow-[0_0_8px_rgba(255,255,255,0.35)] transition-opacity duration-200 group-hover:text-white',
+          inspector && 'text-red-100/95',
+        )}
+      >
+        {overlay}
+      </p>
 
       <span className="sr-only">{label ?? id}</span>
     </motion.div>

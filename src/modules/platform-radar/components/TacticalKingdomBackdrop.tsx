@@ -1,101 +1,87 @@
 import { projectKsaToPercent, KSA_MAJOR_CITIES } from '@/modules/platform-radar/lib/saudiKingdomProjection';
 
-/** Deep black KSA tactical map — neon border + major city glows. */
+/** Procedural satellite-style night map — no baked UI artifacts. */
 export function TacticalKingdomBackdrop() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Deep void */}
-      <div className="absolute inset-0 bg-[#000205]" />
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden bg-[#010101]">
+      {/* Deep ocean */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_48%_42%,#0c1424_0%,#030508_42%,#000000_100%)]" />
 
-      {/* Subtle scan lines */}
+      {/* Landmass texture */}
       <div
-        className="absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0 opacity-[0.22]"
         style={{
-          backgroundImage:
-            'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(56,189,248,0.15) 3px, rgba(56,189,248,0.15) 4px)',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E")`,
         }}
       />
 
-      {/* Tactical grid — faint neon blue */}
-      <div
-        className="absolute inset-0 opacity-[0.11]"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(56,189,248,0.14) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(56,189,248,0.14) 1px, transparent 1px)
-          `,
-          backgroundSize: 'clamp(32px, 4.5vw, 64px) clamp(32px, 4.5vw, 64px)',
-        }}
-      />
+      {/* Regional land silhouettes + neon borders */}
+      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <filter id="ksa-neon" x="-15%" y="-15%" width="130%" height="130%">
+            <feGaussianBlur stdDeviation="0.28" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <radialGradient id="land-fill" cx="50%" cy="45%" r="65%">
+            <stop offset="0%" stopColor="#141c2a" />
+            <stop offset="55%" stopColor="#0a1018" />
+            <stop offset="100%" stopColor="#04060a" />
+          </radialGradient>
+        </defs>
 
-      {/* Kingdom silhouette — neon perimeter */}
-      <div className="absolute inset-[5%] flex items-center justify-center">
-        <svg
-          viewBox="0 0 420 520"
-          className="h-[82%] w-[72%] max-h-[92%] drop-shadow-[0_0_48px_rgba(56,189,248,0.12)]"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <defs>
-            <linearGradient id="ksa-fill" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(8,14,28,0.92)" />
-              <stop offset="50%" stopColor="rgba(2,6,14,0.88)" />
-              <stop offset="100%" stopColor="rgba(4,10,22,0.95)" />
-            </linearGradient>
-            <filter id="neon-edge">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          {/* Stylized KSA outline */}
-          <path
-            d="M210 18 L318 42 L372 98 L398 168 L388 248 L362 318 L328 398 L268 468 L198 502 L128 478 L72 418 L38 338 L28 258 L42 178 L78 108 L138 52 Z"
-            fill="url(#ksa-fill)"
-            stroke="rgba(56,189,248,0.35)"
-            strokeWidth="1.8"
-            filter="url(#neon-edge)"
-          />
-          <path
-            d="M210 18 L318 42 L372 98 L398 168 L388 248 L362 318 L328 398 L268 468 L198 502 L128 478 L72 418 L38 338 L28 258 L42 178 L78 108 L138 52 Z"
-            fill="none"
-            stroke="rgba(125,211,252,0.08)"
-            strokeWidth="6"
-          />
-        </svg>
-      </div>
+        {/* Arabian Peninsula landmass */}
+        <path
+          d="M57 16 L69 20 L76 27 L80 35 L81 44 L79 54 L75 63 L69 72 L61 79 L52 83 L43 81 L36 74 L31 64 L29 53 L30 42 L35 31 L43 23 L52 18 Z"
+          fill="url(#land-fill)"
+          stroke="rgba(56,189,248,0.62)"
+          strokeWidth="0.24"
+          filter="url(#ksa-neon)"
+        />
+        <path
+          d="M57 16 L69 20 L76 27 L80 35 L81 44 L79 54 L75 63 L69 72 L61 79 L52 83 L43 81 L36 74 L31 64 L29 53 L30 42 L35 31 L43 23 L52 18 Z"
+          fill="none"
+          stroke="rgba(125,211,252,0.12)"
+          strokeWidth="0.9"
+        />
 
-      {/* Major city glow nodes */}
+        {/* Neighbor borders — UAE, Kuwait, Red Sea coast */}
+        <path d="M69 72 L76 76 L81 82 L79 88" fill="none" stroke="rgba(56,189,248,0.38)" strokeWidth="0.16" filter="url(#ksa-neon)" />
+        <path d="M35 31 L28 34 L23 42 L24 50" fill="none" stroke="rgba(56,189,248,0.3)" strokeWidth="0.14" />
+        <path d="M43 81 L38 86 L36 92" fill="none" stroke="rgba(56,189,248,0.28)" strokeWidth="0.12" />
+        <path d="M52 83 L48 88 L46 94" fill="none" stroke="rgba(56,189,248,0.25)" strokeWidth="0.12" />
+      </svg>
+
+      {/* Golden urban light clusters */}
       {KSA_MAJOR_CITIES.map((city) => {
         const { left, top } = projectKsaToPercent(city.lat, city.lng);
-        const size =
-          city.tier === 'capital' ? 'clamp(2.5rem,5vw,4rem)' : city.tier === 'major' ? 'clamp(1.5rem,3vw,2.5rem)' : 'clamp(1rem,2vw,1.5rem)';
-        const opacity = city.tier === 'capital' ? 0.55 : city.tier === 'major' ? 0.38 : 0.22;
+        const spread =
+          city.tier === 'capital' ? 'clamp(3.2rem,6.5vw,5.5rem)' : city.tier === 'major' ? 'clamp(2rem,4.2vw,3.6rem)' : 'clamp(1.1rem,2.2vw,1.8rem)';
+        const alpha = city.tier === 'capital' ? 0.92 : city.tier === 'major' ? 0.68 : 0.42;
         return (
           <div
             key={city.nameAr}
-            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              left: `${left}%`,
-              top: `${top}%`,
-              width: size,
-              height: size,
-              background: `radial-gradient(circle, rgba(56,189,248,${opacity}) 0%, rgba(56,189,248,0.08) 45%, transparent 70%)`,
-              boxShadow: `0 0 ${city.tier === 'capital' ? '48px' : '28px'} rgba(56,189,248,${opacity * 0.6})`,
-            }}
-          />
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${left}%`, top: `${top}%` }}
+          >
+            <div
+              className="rounded-full"
+              style={{
+                width: spread,
+                height: spread,
+                background: `radial-gradient(circle, rgba(255,214,120,${alpha}) 0%, rgba(251,191,36,0.35) 28%, rgba(180,83,9,0.08) 55%, transparent 72%)`,
+                boxShadow: `0 0 ${city.tier === 'capital' ? '42px' : '24px'} rgba(251,191,36,${alpha * 0.4})`,
+              }}
+            />
+          </div>
         );
       })}
 
-      {/* HUD corner brackets */}
-      <div className="absolute left-3 top-3 h-10 w-10 border-l-2 border-t-2 border-sky-400/25" />
-      <div className="absolute right-3 top-3 h-10 w-10 border-r-2 border-t-2 border-sky-400/25" />
-      <div className="absolute bottom-3 left-3 h-10 w-10 border-b-2 border-l-2 border-sky-400/25" />
-      <div className="absolute bottom-3 right-3 h-10 w-10 border-b-2 border-r-2 border-sky-400/25" />
-
-      {/* Vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.72)_100%)]" />
+      {/* Atmospheric vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_32%,rgba(0,0,0,0.62)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.5)_0%,transparent_18%,transparent_82%,rgba(0,0,0,0.55)_100%)]" />
     </div>
   );
 }
