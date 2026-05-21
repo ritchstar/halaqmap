@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { CheckCircle2, ExternalLink, Loader2, RefreshCw, ShieldAlert, Wifi } from 'lucide-react';
+import {
+  CheckCircle2,
+  ExternalLink,
+  Loader2,
+  RefreshCw,
+  ShieldAlert,
+  Wifi,
+  Zap,
+} from 'lucide-react';
 import { FounderGlassCard } from '@/components/admin/founder/FounderGlassCard';
 import { founderTheme } from '@/components/admin/founder/founderTheme';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +19,7 @@ import {
   type HandshakeServicePing,
 } from '@/lib/engineeringHandshakeRemote';
 import { toast } from '@/components/ui/sonner';
+import { forceHardRefresh } from '@/lib/platformBuildSync';
 
 type Props = {
   onOpsControllerEnabledChange?: (enabled: boolean) => void;
@@ -162,6 +171,21 @@ export function FounderSystemStatusPanel({ onOpsControllerEnabledChange }: Props
                   <Wifi className="ml-2 h-4 w-4" />
                 )}
                 تشغيل Handshake
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="border-amber-700/60 text-amber-200 hover:bg-amber-950/40"
+                disabled={busy}
+                onClick={() => {
+                  toast.info('جاري تحديث Tactical UI — سيُعاد تحميل الصفحة بعد ثوانٍ.');
+                  void forceHardRefresh();
+                }}
+                title="يلغي تسجيل Service Worker القديم ويمسح Workbox cache ثم يعيد التحميل من Vercel."
+              >
+                <Zap className="ml-2 h-4 w-4" />
+                Hard Refresh UI
               </Button>
             </div>
 

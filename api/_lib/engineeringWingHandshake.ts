@@ -116,6 +116,13 @@ export function loadEngineeringWingSecrets(): EngineeringWingSecrets {
   };
 }
 
+/**
+ * Advisory validation — surfaces likely misconfigurations to the founder UI
+ * but does NOT gate the handshake `status`. The authoritative signal is the
+ * live ping outcome from each provider's API, since modern Vercel/GitHub
+ * tokens emit a variety of prefixes (vcp_, no prefix, gho_, ghu_, ghs_, etc.)
+ * and a strict prefix check would falsely flag valid credentials.
+ */
 export function validateEngineeringWingSecrets(secrets: EngineeringWingSecrets): string[] {
   const issues: string[] = [];
   if (!secrets.supabaseUrl || !isLikelyHttpUrl(secrets.supabaseUrl)) {
@@ -124,14 +131,14 @@ export function validateEngineeringWingSecrets(secrets: EngineeringWingSecrets):
   if (!secrets.supabaseServiceKey || secrets.supabaseServiceKey.length < 20) {
     issues.push('SUPABASE_SERVICE_ROLE_KEY / SUPABASE_SERVICE_KEY missing or too short');
   }
-  if (!secrets.vercelToken || !secrets.vercelToken.startsWith('vcp_')) {
-    issues.push('VERCEL_TOKEN missing or invalid prefix');
+  if (!secrets.vercelToken || secrets.vercelToken.length < 16) {
+    issues.push('VERCEL_TOKEN missing or too short');
   }
-  if (!secrets.vercelProjectId || !secrets.vercelProjectId.startsWith('prj_')) {
-    issues.push('VERCEL_PROJECT_ID missing or invalid prefix');
+  if (!secrets.vercelProjectId || secrets.vercelProjectId.length < 6) {
+    issues.push('VERCEL_PROJECT_ID missing');
   }
-  if (!secrets.githubToken || !/^(ghp_|github_pat_)/.test(secrets.githubToken)) {
-    issues.push('GITHUB_TOKEN missing or invalid prefix');
+  if (!secrets.githubToken || secrets.githubToken.length < 16) {
+    issues.push('GITHUB_TOKEN missing or too short');
   }
   return issues;
 }
@@ -317,7 +324,11 @@ export async function runEngineeringWingHandshake(): Promise<EngineeringWingHand
 
   const services = [supabase, vercel, github];
   const allServicesOk = services.every((s) => s.ok);
-  const status = secretsValid && allServicesOk ? 'ok' : 'fail';
+
+  // Authoritative signal is the live ping result — if every provider's API
+  // responds OK, the handshake passes even if a token has an unfamiliar
+  // prefix shape. Secret hints stay in `secretIssues` for the founder UI.
+  const status: EngineeringWingHandshakeResult['status'] = allServicesOk ? 'ok' : 'fail';
 
   return {
     status,

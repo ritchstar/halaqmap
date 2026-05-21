@@ -4,8 +4,10 @@ import { registerSW } from 'virtual:pwa-register'
 import App from './App.tsx'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
+import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 
 ensureDomainVerificationMeta()
+initPlatformBuildSync()
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 

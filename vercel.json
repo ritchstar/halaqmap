@@ -163,6 +163,9 @@
     "api/admin-engineering-handshake.ts": {
       "maxDuration": 60
     },
+    "api/admin-growth-architect.ts": {
+      "maxDuration": 25
+    },
     "api/admin-super-intelligence-feed.ts": {
       "maxDuration": 60
     },

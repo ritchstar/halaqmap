@@ -149,6 +149,7 @@ import { HonorBoard } from '@/components/b2b/HonorBoard';
 import { FounderOperationalFeedPanel, OpsControllerWorkspace } from '@/modules/ops-controller';
 import { EngineeringPendingApprovalsPanel } from '@/modules/ai-staff/components/EngineeringPendingApprovalsPanel';
 import { FounderSystemStatusPanel } from '@/modules/ai-staff/components/FounderSystemStatusPanel';
+import { GrowthArchitectPanel } from '@/modules/ai-staff/components/GrowthArchitectPanel';
 import { SuperIntelligenceFeedPanel } from '@/modules/ai-staff/components/SuperIntelligenceFeedPanel';
 import { PublicProsecutorDashboard } from '@/modules/ai-staff/components/PublicProsecutorDashboard';
 import { PlatformRadar } from '@/modules/platform-radar';
@@ -800,6 +801,7 @@ export default function AdminDashboard() {
               isFounderView={isFounderView}
               showOperationalFeed={isFounderView}
               onOpsControllerEnabledChange={setEngineeringWingOpsEnabled}
+              opsControllerEnabled={engineeringWingOpsEnabled}
             />
           </TabsContent>}
 
@@ -1199,11 +1201,13 @@ function OverviewSection({
   isFounderView,
   showOperationalFeed = false,
   onOpsControllerEnabledChange,
+  opsControllerEnabled = false,
 }: {
   stats: AdminStats;
   isFounderView: boolean;
   showOperationalFeed?: boolean;
   onOpsControllerEnabledChange?: (enabled: boolean) => void;
+  opsControllerEnabled?: boolean;
 }) {
   if (!isFounderView) {
     return (
@@ -1305,6 +1309,10 @@ function OverviewSection({
 
       <FounderStaggerItem>
         <FounderSystemStatusPanel onOpsControllerEnabledChange={onOpsControllerEnabledChange} />
+      </FounderStaggerItem>
+
+      <FounderStaggerItem>
+        <GrowthArchitectPanel opsControllerEnabled={opsControllerEnabled} />
       </FounderStaggerItem>
 
       <FounderStaggerItem>

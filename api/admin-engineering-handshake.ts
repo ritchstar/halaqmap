@@ -27,12 +27,31 @@ export async function GET(request: Request): Promise<Response> {
   ]);
   if (auth.ok === false) return json(auth.json, auth.status);
 
-  const stored = await readStoredHandshake(auth.supabase);
+  let stored = await readStoredHandshake(auth.supabase);
   const diagnostics = secretsDiagnostics();
+
+  // Auto-run handshake if the founder row is still in 'pending' (never executed)
+  // OR if the last result is older than 12h. Avoids the FAIL-by-default state
+  // where the UI reports red simply because no one clicked the button yet.
+  const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
+  const lastChecked = stored?.updated_at ? Date.parse(stored.updated_at) : null;
+  const isStale = lastChecked != null && Date.now() - lastChecked > TWELVE_HOURS_MS;
+  const shouldAutoRun = !stored || stored.status === 'pending' || isStale;
+
+  if (shouldAutoRun) {
+    try {
+      const result = await runEngineeringWingHandshake();
+      await persistHandshake(auth.supabase, result, auth.actorEmail);
+      stored = await readStoredHandshake(auth.supabase);
+    } catch {
+      // Surface whatever was stored previously; the manual button can retry.
+    }
+  }
 
   return json({
     ok: true,
     bootstrapRequired: true,
+    autoRan: shouldAutoRun,
     stored: stored
       ? {
           status: stored.status,
