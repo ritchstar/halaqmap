@@ -17,6 +17,18 @@ function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
+type UserSearchRow = {
+  id: string;
+  created_at: string;
+  search_log_id: string | null;
+  user_lat: number;
+  user_lng: number;
+  district_name: string | null;
+  city_name: string | null;
+  scope_type: string;
+  suspicious: boolean;
+};
+
 type SearchRow = {
   id: string;
   created_at: string;
@@ -116,7 +128,7 @@ export async function GET(request: Request): Promise<Response> {
 
   const supabase = adminAuth.supabase;
 
-  const [searchRes, securityRes] = await Promise.all([
+  const [searchRes, userSearchRes, securityRes] = await Promise.all([
     supabase
       .from('search_activity_logs')
       .select(
@@ -125,6 +137,12 @@ export async function GET(request: Request): Promise<Response> {
       .gte('created_at', since)
       .not('user_lat', 'is', null)
       .not('user_lng', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(400),
+    supabase
+      .from('user_searches')
+      .select('id, created_at, search_log_id, user_lat, user_lng, district_name, city_name, scope_type, suspicious')
+      .gte('created_at', since)
       .order('created_at', { ascending: false })
       .limit(400),
     supabase
@@ -143,6 +161,7 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const searchRows = (searchRes.data ?? []) as SearchRow[];
+  const userSearchRows = userSearchRes.error ? [] : ((userSearchRes.data ?? []) as UserSearchRow[]);
   const suspiciousMap = markSuspiciousSearchRows(searchRows);
 
   const securityRows = (securityRes.data ?? []) as SecurityRow[];
@@ -163,7 +182,7 @@ export async function GET(request: Request): Promise<Response> {
     }
   }
 
-  const userPulses = searchRows
+  const userPulsesFromLogs = searchRows
     .filter((r) => {
       const lat = r.user_lat;
       const lng = r.user_lng;
@@ -179,6 +198,24 @@ export async function GET(request: Request): Promise<Response> {
       suspicious: suspiciousMap.get(r.id) ?? false,
       scopeType: r.scope_type,
     }));
+
+  const userPulsesFromRadar = userSearchRows
+    .filter((r) => isInKsa(r.user_lat, r.user_lng))
+    .map((r) => ({
+      id: r.id,
+      kind: 'user_search' as const,
+      lat: r.user_lat,
+      lng: r.user_lng,
+      createdAt: r.created_at,
+      label: [r.district_name, r.city_name].filter(Boolean).join(' · ') || r.scope_type,
+      suspicious: r.suspicious,
+      scopeType: r.scope_type,
+    }));
+
+  const userPulseById = new Map<string, (typeof userPulsesFromRadar)[number]>();
+  for (const p of userPulsesFromLogs) userPulseById.set(p.id, p);
+  for (const p of userPulsesFromRadar) userPulseById.set(p.id, p);
+  const userPulses = [...userPulseById.values()];
 
   const securityPulses = securityRows
     .map((r) => {

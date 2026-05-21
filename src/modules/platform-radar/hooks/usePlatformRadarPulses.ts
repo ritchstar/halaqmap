@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchAdminRadarPulses } from '@/lib/adminRadarPulsesRemote';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { playTacticalUserPulseSound } from '@/modules/platform-radar/lib/platformRadarPulseSound';
 import {
   createForcePulse,
@@ -12,7 +13,7 @@ import {
 } from '@/modules/platform-radar/lib/platformRadarRealtime';
 import type { PlatformRadarMapPulse } from '@/modules/platform-radar/types';
 
-const DEFAULT_POLL_MS = 8_000;
+const DEFAULT_POLL_MS = 3_000;
 const DEFAULT_WINDOW_MINUTES = 120;
 const FORCE_PULSE_TTL_MS = 4_500;
 
@@ -133,6 +134,17 @@ export function usePlatformRadarPulses(options?: {
         playTacticalUserPulseSound(0.13);
       }
 
+      if (!isFirstLoadRef.current && newUserPulses.length > 0) {
+        for (const p of newUserPulses) {
+          addForceRipple(p.lat, p.lng, {
+            id: p.id,
+            label: p.label,
+            suspicious: p.suspicious,
+            createdAt: p.createdAt,
+          });
+        }
+      }
+
       for (const p of next) {
         if (p.kind === 'user_search') seenUserPulseIdsRef.current.add(p.id);
       }
@@ -148,7 +160,7 @@ export function usePlatformRadarPulses(options?: {
     } finally {
       setLoading(false);
     }
-  }, [enabled, realtimeConnected, soundEnabled, windowMinutes]);
+  }, [addForceRipple, enabled, realtimeConnected, soundEnabled, windowMinutes]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -178,49 +190,75 @@ export function usePlatformRadarPulses(options?: {
     refresh: load,
     forcePulse,
     ingestRealtimeUserSearch,
-    setRealtimeConnected,
   };
 }
 
 export function subscribePlatformRadarChannel(opts: {
   enabled: boolean;
   onUserSearch: (payload: unknown) => void;
-  onStatus?: (connected: boolean) => void;
+  onStatus?: (connected: boolean, detail?: string) => void;
 }): () => void {
   if (!opts.enabled || !isSupabaseConfigured()) return () => undefined;
 
   const client = getSupabaseClient();
   if (!client) return () => undefined;
 
-  const channel = client
-    .channel(PLATFORM_RADAR_CHANNEL, { config: { private: true } })
-    .on('broadcast', { event: PLATFORM_RADAR_USER_SEARCH_EVENT }, (msg) => {
-      opts.onUserSearch(msg.payload ?? msg);
-    })
-    .on(
-      'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'user_searches' },
-      (payload) => {
-        const row = (payload.new ?? {}) as Record<string, unknown>;
-        opts.onUserSearch({
-          id: row.id,
-          kind: 'user_search',
-          lat: row.user_lat,
-          lng: row.user_lng,
-          createdAt: row.created_at,
-          label: row.district_name,
-          suspicious: row.suspicious,
-          scopeType: row.scope_type,
-        });
-      },
-    )
-    .subscribe((status) => {
-      const connected = status === 'SUBSCRIBED';
-      opts.onStatus?.(connected);
-    });
+  let cancelled = false;
+  let channel: ReturnType<SupabaseClient['channel']> | null = null;
+
+  void (async () => {
+    const { data } = await client.auth.getSession();
+    const token = data.session?.access_token?.trim();
+    if (!token) {
+      opts.onStatus?.(false, 'no-admin-session');
+      return;
+    }
+
+    try {
+      await client.realtime.setAuth(token);
+    } catch {
+      opts.onStatus?.(false, 'realtime-auth-failed');
+      return;
+    }
+
+    if (cancelled) return;
+
+    channel = client
+      .channel(PLATFORM_RADAR_CHANNEL, { config: { private: true } })
+      .on('broadcast', { event: PLATFORM_RADAR_USER_SEARCH_EVENT }, (msg) => {
+        opts.onUserSearch(msg.payload ?? msg);
+      })
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'user_searches' },
+        (payload) => {
+          const row = (payload.new ?? {}) as Record<string, unknown>;
+          opts.onUserSearch({
+            id: row.id,
+            kind: 'user_search',
+            lat: row.user_lat,
+            lng: row.user_lng,
+            createdAt: row.created_at,
+            label: row.district_name,
+            suspicious: row.suspicious,
+            scopeType: row.scope_type,
+          });
+        },
+      )
+      .subscribe((status, err) => {
+        if (status === 'SUBSCRIBED') {
+          opts.onStatus?.(true);
+          return;
+        }
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          opts.onStatus?.(false, err?.message || status);
+        }
+      });
+  })();
 
   return () => {
-    void client.removeChannel(channel);
+    cancelled = true;
+    if (channel) void client.removeChannel(channel);
     opts.onStatus?.(false);
   };
 }

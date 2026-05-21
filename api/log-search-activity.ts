@@ -6,6 +6,10 @@ import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { reverseGeocodeDistrictHint } from './_lib/reverseGeocodeHint.js';
+import {
+  broadcastPlatformRadarUserSearchServer,
+  isKsaGeoPulse,
+} from './_lib/platformRadarBroadcastServer.js';
 
 export const config = { maxDuration: 20 };
 
@@ -169,5 +173,28 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: error.message || 'log_search_activity failed' }, { status: 502, headers });
   }
 
-  return Response.json({ ok: true, id: rpcId ?? null }, { headers });
+  const logId = rpcId != null ? String(rpcId) : null;
+  if (logId && lat != null && lng != null && isKsaGeoPulse(lat, lng)) {
+    const label = [districtName, cityName].filter(Boolean).join(' · ') || scopeRaw;
+    await broadcastPlatformRadarUserSearchServer(
+      supabase,
+      {
+        id: logId,
+        kind: 'user_search',
+        lat,
+        lng,
+        createdAt: new Date().toISOString(),
+        label,
+        suspicious:
+          (resultCount != null && resultCount === 0) ||
+          (rpcResultCount != null && rpcResultCount === 0) ||
+          scopeRaw === 'filter' ||
+          scopeRaw === 'composite',
+        scopeType: scopeRaw,
+      },
+      serviceRole,
+    );
+  }
+
+  return Response.json({ ok: true, id: logId }, { headers });
 }

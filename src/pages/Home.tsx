@@ -32,6 +32,7 @@ const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 
 export default function Home() {
   const searchLogDedupe = useRef<{ key: string; at: number }>({ key: '', at: 0 });
+  const geoLogDedupe = useRef<{ key: string; at: number }>({ key: '', at: 0 });
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
@@ -137,6 +138,27 @@ export default function Home() {
       }),
     [filters.maxDistance, filters.minRating, filters.tiers, filters.openNow, filters.categories],
   );
+
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !userLocation) return;
+
+    const geoKey = `${userLocation.lat.toFixed(5)},${userLocation.lng.toFixed(5)}`;
+    const now = Date.now();
+    if (geoLogDedupe.current.key === geoKey && now - geoLogDedupe.current.at < 12_000) return;
+
+    const timer = window.setTimeout(() => {
+      geoLogDedupe.current = { key: geoKey, at: Date.now() };
+      void postLogSearchActivity({
+        queryText: `رصد موقع — ${geoKey}`,
+        scopeType: 'geo_nearby',
+        userLat: userLocation.lat,
+        userLng: userLocation.lng,
+        locationSharing: true,
+      });
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [userLocation]);
 
   useEffect(() => {
     if (!isSupabaseConfigured() || !userLocation || remoteStatus !== 'ready') return;

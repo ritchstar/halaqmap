@@ -2,12 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { Activity, Crosshair, Radar, ShieldAlert, Zap } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { usePlatformRadarData } from '@/modules/platform-radar/hooks/usePlatformRadarData';
-import { usePlatformRadarPulses } from '@/modules/platform-radar/hooks/usePlatformRadarPulses';
-import { TacticalRadarMap } from '@/modules/platform-radar/components/TacticalRadarMap';
 import {
   subscribePlatformRadarChannel,
   usePlatformRadarPulses,
 } from '@/modules/platform-radar/hooks/usePlatformRadarPulses';
+import { TacticalRadarMap } from '@/modules/platform-radar/components/TacticalRadarMap';
 import {
   PLATFORM_RADAR_SIM_LAT,
   PLATFORM_RADAR_SIM_LNG,
@@ -80,6 +79,8 @@ function MetricBlock({
 export function PlatformRadar({ commandMode = false, soundEnabled = true, founderMode = false, className }: Props) {
   const [tacticalView, setTacticalView] = useState(true);
   const [showFounderTest, setShowFounderTest] = useState(false);
+  const [liveConnected, setLiveConnected] = useState(false);
+  const [liveHint, setLiveHint] = useState<string | null>(null);
 
   const { snapshot, loading, error } = usePlatformRadarData({
     soundEnabled: commandMode ? false : soundEnabled,
@@ -94,15 +95,13 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
     lastSyncAt,
     userPulseCount,
     suspiciousCount,
-    realtimeConnected,
     forcePulse,
     ingestRealtimeUserSearch,
-    setRealtimeConnected,
   } = usePlatformRadarPulses({
     enabled: commandMode,
     soundEnabled,
     realtimeEnabled: commandMode,
-    pollMs: 8_000,
+    pollMs: 3_000,
   });
 
   const simulateSearchPulse = useCallback(() => {
@@ -124,9 +123,12 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
       onUserSearch: (payload) => {
         ingestRealtimeUserSearch(payload);
       },
-      onStatus: setRealtimeConnected,
+      onStatus: (connected, detail) => {
+        setLiveConnected(connected);
+        setLiveHint(connected ? null : detail ?? 'polling-fallback');
+      },
     });
-  }, [commandMode, ingestRealtimeUserSearch, setRealtimeConnected]);
+  }, [commandMode, ingestRealtimeUserSearch]);
 
   const stats = snapshot?.stats;
   const brief = snapshot?.brief;
@@ -168,12 +170,16 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
                   : snapshot?.loadedAt
                     ? new Date(snapshot.loadedAt).toLocaleTimeString('ar-SA')
                     : '—'}
-              {realtimeConnected ? (
+              {liveConnected ? (
                 <span className="mr-2 inline-flex items-center gap-1 text-cyan-300">
                   <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
                   LIVE
                 </span>
-              ) : null}
+              ) : (
+                <span className="mr-2 text-amber-300/90" title={liveHint ?? undefined}>
+                  POLL
+                </span>
+              )}
             </p>
             <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-red-500/30 bg-black/65 px-3 py-2 backdrop-blur-md">
               <Crosshair className="h-4 w-4 text-red-300" />
