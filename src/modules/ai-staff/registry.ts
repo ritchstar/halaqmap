@@ -23,8 +23,8 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
   {
     id: 'internal_governance',
     titleAr: 'أ — الحوكمة الداخلية للمنصة',
-    subtitleAr: 'خازن · ZATCA · مستشار الأزمات — سجلات المنصة والامتثال والتعافي',
-    gridClassName: 'sm:grid-cols-2 lg:grid-cols-3',
+    subtitleAr: 'خازن · ZATCA · مستشار الأزمات · المدعي العام — سجلات المنصة والامتثال والتعافي',
+    gridClassName: 'sm:grid-cols-2 lg:grid-cols-4',
   },
   {
     id: 'external_partner_ops',
@@ -118,6 +118,33 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     ],
     productRef: {
       apiRoutes: ['/api/admin-system-crisis-advisor-lab-chat'],
+    },
+  },
+  {
+    id: 'public_prosecutor',
+    boundary: 'internal_governance',
+    shortName: 'المدعي العام',
+    title: 'المدعي العام الرقمي — Central Governance',
+    statusBadgeAr: 'حوكمة · Professional Sovereignty',
+    ctaLabelAr: 'مكتب المدعي العام ⚖️',
+    roleDescription:
+      'ضابط الامتثال والحوكمة الاستراتيجية — يراقب مختبرات ZATCA والأزمات والأسطول، يزامن Platform Radar، يدقّق التسجيل B2B، ويمتلك سلطة المقاطعة عند انحراف الإجراءات.',
+    accentClass: staffTheme.accentGovernance,
+    requiredAny: ['manage_admins', 'view_overview'],
+    available: true,
+    iconKind: 'public_prosecutor',
+    workspaceKind: 'prosecutor_governance',
+    doctrineNotes: [
+      'قراءة جميع سجلات المختبرات — ZATCA · Crisis · Fleet Director.',
+      'Radar Sync: نمط Inspector → تقرير وقائي في التغذية التشغيلية.',
+      'Compliance Enforcement: تدقيق ComplianceCheckbox + ميثاق الالتزام المهني.',
+      'Crisis Watch: مقاطعة إذا أُعطيت UX أولوية على Data Integrity — بروtokol P0.',
+    ],
+    productRef: {
+      apiRoutes: [
+        '/api/admin-public-prosecutor-lab-chat',
+        '/api/admin-public-prosecutor-dashboard',
+      ],
     },
   },
   {

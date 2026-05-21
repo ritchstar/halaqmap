@@ -148,6 +148,12 @@
     "api/admin-system-crisis-advisor-lab-chat.ts": {
       "maxDuration": 60
     },
+    "api/admin-public-prosecutor-lab-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-public-prosecutor-dashboard.ts": {
+      "maxDuration": 60
+    },
     "api/admin-resources-ai-analyze.ts": {
       "maxDuration": 60
     },

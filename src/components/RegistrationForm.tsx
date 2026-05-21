@@ -669,6 +669,8 @@ export function RegistrationForm() {
         categories: [...formData.categories],
         registrationTermsAccepted: true,
         registrationTermsAcceptedAtIso: submittedAtIso,
+        professionalCommitmentAccepted: true,
+        professionalCommitmentAcceptedAtIso: submittedAtIso,
         digitalShiftAddonSelected:
           formData.tier === SubscriptionTier.DIAMOND &&
           isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon),

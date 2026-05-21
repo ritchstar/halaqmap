@@ -17,6 +17,9 @@ import {
   chatWithSystemCrisisAdvisorLab,
   fetchSystemCrisisAdvisorLabDiagnostics,
 } from '@/lib/systemCrisisAdvisorLabRemote';
+import { evaluatePublicProsecutorInterject } from '@/lib/publicProsecutorLabRemote';
+import { PublicProsecutorInterjectBanner } from '@/components/admin/PublicProsecutorInterjectBanner';
+import type { PublicProsecutorGovernanceAction } from '@/modules/ai-staff/types';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -77,6 +80,9 @@ export function SystemCrisisAdvisorLabChat({
   const [loadingStep, setLoadingStep] = useState(0);
   const [modelLabel, setModelLabel] = useState<string | null>(null);
   const [playbookOk, setPlaybookOk] = useState<boolean | null>(null);
+  const [prosecutorInterject, setProsecutorInterject] = useState<PublicProsecutorGovernanceAction | null>(
+    null,
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const panicBootstrappedRef = useRef(false);
@@ -135,6 +141,7 @@ export function SystemCrisisAdvisorLabChat({
     setMessages((m) => [...m, { role: 'user', content: text }]);
     setInput('');
     setBusy(true);
+    setProsecutorInterject(null);
 
     try {
       const r = await chatWithSystemCrisisAdvisorLab(
@@ -155,6 +162,16 @@ export function SystemCrisisAdvisorLabChat({
       }
 
       setMessages((m) => [...m, { role: 'assistant', content: r.reply }]);
+
+      const interjectScan = await evaluatePublicProsecutorInterject({
+        userMessage: text,
+        assistantSnippet: r.reply,
+        watchAgent: 'system_crisis_advisor',
+        crisisMode: isFirstUserInCrisis || crisisMode,
+      });
+      if (interjectScan.ok && interjectScan.interject) {
+        setProsecutorInterject(interjectScan.interject);
+      }
     } finally {
       setBusy(false);
       if (abortRef.current === controller) abortRef.current = null;
@@ -221,6 +238,9 @@ export function SystemCrisisAdvisorLabChat({
               </div>
             ))}
             {busy ? <LoadingIndicator stepIndex={loadingStep} /> : null}
+            {prosecutorInterject ? (
+              <PublicProsecutorInterjectBanner interject={prosecutorInterject} />
+            ) : null}
             <div ref={scrollRef} />
           </div>
         </ScrollArea>

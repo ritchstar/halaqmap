@@ -1,4 +1,4 @@
-import { ArrowLeft, Lock, Moon, Scale, Shield, Siren, Users } from 'lucide-react';
+import { ArrowLeft, Gavel, Lock, Moon, Scale, Shield, Siren, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
@@ -63,6 +63,13 @@ function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName
     return (
       <span className={cn(base, 'border-orange-700/60 bg-orange-950/50')}>
         <Siren className="h-5 w-5 text-orange-300" strokeWidth={2} />
+      </span>
+    );
+  }
+  if (kind === 'public_prosecutor') {
+    return (
+      <span className={cn(base, 'border-slate-500/60 bg-slate-950/60')}>
+        <Gavel className="h-5 w-5 text-slate-200" strokeWidth={2} />
       </span>
     );
   }

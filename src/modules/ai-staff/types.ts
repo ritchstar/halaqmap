@@ -12,7 +12,8 @@ export type AiStaffAgentId =
   | 'digital_shift_field'
   | 'partner_relations_liaison'
   | 'fleet_director_general'
-  | 'system_crisis_advisor';
+  | 'system_crisis_advisor'
+  | 'public_prosecutor';
 
 export type AiStaffAgentIconKind =
   | 'treasurer'
@@ -20,7 +21,8 @@ export type AiStaffAgentIconKind =
   | 'digital_shift'
   | 'partner_liaison'
   | 'fleet_director'
-  | 'crisis_advisor';
+  | 'crisis_advisor'
+  | 'public_prosecutor';
 
 export type AiStaffWorkspaceKind =
   | 'billing_dialog'
@@ -28,7 +30,8 @@ export type AiStaffWorkspaceKind =
   | 'digital_shift_oversight'
   | 'partner_analytics'
   | 'fleet_intelligence'
-  | 'crisis_playbook';
+  | 'crisis_playbook'
+  | 'prosecutor_governance';
 
 /** Links scattered product code into one registry row (no hardcoded card copy in components). */
 export type AiStaffProductRef = {
@@ -82,6 +85,57 @@ export type PartnerLiaisonAnalyticsSnapshot = {
   frictionReports7d: number;
   topFrictionThemes: { themeAr: string; count: number }[];
   recentChats: PartnerLiaisonChatMetric[];
+};
+
+export type ProsecutorWorkingPaperKind =
+  | 'radar_inspector'
+  | 'compliance_deviation'
+  | 'crisis_watch'
+  | 'sovereignty_alert'
+  | 'proactive_audit';
+
+export type ProsecutorWorkingPaper = {
+  id: string;
+  kind: ProsecutorWorkingPaperKind;
+  severity: 'info' | 'watch' | 'urgent';
+  titleAr: string;
+  summaryAr: string;
+  issuedAt: string;
+  targetAgent?: PublicProsecutorWatchAgentId;
+  recommendedActionAr?: string;
+};
+
+export type PublicProsecutorGovernanceAction = {
+  type: 'interject' | 'sovereignty_alert' | 'preventive_report';
+  severity: 'watch' | 'urgent';
+  targetAgent?: string;
+  headlineAr: string;
+  directiveAr: string;
+  p0RecoveryRequired?: boolean;
+};
+
+export type PublicProsecutorInterject = {
+  active: boolean;
+  severity: 'watch' | 'urgent';
+  targetAgent: PublicProsecutorWatchAgentId | 'founder';
+  headlineAr: string;
+  directiveAr: string;
+  p0RecoveryRequired: boolean;
+};
+
+export type PublicProsecutorWatchAgentId =
+  | 'zatca_tax_advisor'
+  | 'system_crisis_advisor'
+  | 'fleet_director_general';
+
+export type PublicProsecutorDashboardSnapshot = {
+  anchorLabelAr: string;
+  workingPapers: ProsecutorWorkingPaper[];
+  sovereigntyAlerts: number;
+  inspectorPulseCount24h: number;
+  complianceGaps: number;
+  crisisWatchActive: boolean;
+  lastSyncedAt: string | null;
 };
 
 export type FleetIntelligencePing = {

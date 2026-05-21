@@ -61,6 +61,7 @@ export const staffTheme = {
   accentViolet: 'border-slate-700 border-r-4 border-r-violet-500 bg-slate-800',
   accentCovert: 'border-slate-700 border-r-4 border-r-red-600 bg-slate-900',
   accentCrisis: 'border-slate-700 border-r-4 border-r-orange-600 bg-slate-900',
+  accentGovernance: 'border-slate-700 border-r-4 border-r-slate-400 bg-slate-950',
 } as const;
 
 export const staffMotion = {
