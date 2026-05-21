@@ -147,6 +147,7 @@ import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
 import { SystemCrisisPanicButton } from '@/components/admin/SystemCrisisPanicButton';
 import { HonorBoard } from '@/components/b2b/HonorBoard';
 import { FounderOperationalFeedPanel, OpsControllerWorkspace } from '@/modules/ops-controller';
+import { EngineeringPendingApprovalsPanel } from '@/modules/ai-staff/components/EngineeringPendingApprovalsPanel';
 import { PublicProsecutorDashboard } from '@/modules/ai-staff/components/PublicProsecutorDashboard';
 import {
   FounderCommandShell,
@@ -1400,6 +1401,12 @@ function OverviewSection({
       {showOperationalFeed ? (
         <FounderStaggerItem>
           <PublicProsecutorDashboard compact />
+        </FounderStaggerItem>
+      ) : null}
+
+      {showOperationalFeed ? (
+        <FounderStaggerItem>
+          <EngineeringPendingApprovalsPanel />
         </FounderStaggerItem>
       ) : null}
     </FounderStaggerGrid>

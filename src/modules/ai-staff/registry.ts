@@ -27,6 +27,12 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
     gridClassName: 'sm:grid-cols-2 lg:grid-cols-4',
   },
   {
+    id: 'engineering_council',
+    titleAr: 'ج — المجلس الهندسي الذاتي',
+    subtitleAr: 'Technical Consultant · A2A Council · Draft Branch · Pending Founder Approval',
+    gridClassName: 'max-w-3xl',
+  },
+  {
     id: 'external_partner_ops',
     titleAr: 'ب — عمليات الشركاء الخارجية',
     subtitleAr: 'المناوب الميداني · مساعد الشركاء — نشر ميداني وعلاقات بدون العبث بالماليات',
@@ -145,6 +151,31 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
         '/api/admin-public-prosecutor-lab-chat',
         '/api/admin-public-prosecutor-dashboard',
       ],
+    },
+  },
+  {
+    id: 'technical_consultant_engineering',
+    boundary: 'engineering_council',
+    shortName: 'Technical Consultant',
+    title: 'Technical Consultant — Autonomous Engineering Wing',
+    statusBadgeAr: 'Self-Development Protocol',
+    ctaLabelAr: 'مجلس الهندسة ⚙️',
+    roleDescription:
+      'مجلس هندسي ذاتي — يقترح refactor، يستشير المدعي العام، ينفّذ على Draft Branch، يكتب unit tests، ويُعلّق التنفيذ حتى موافقة المؤسس.',
+    accentClass: staffTheme.accentEngineering,
+    requiredAny: ['manage_admins', 'view_overview'],
+    available: true,
+    iconKind: 'technical_consultant',
+    workspaceKind: 'engineering_council',
+    consultAgents: ['public_prosecutor', 'system_crisis_advisor'],
+    doctrineNotes: [
+      'Self-Development Protocol: Plan → Prosecutor → Draft Branch → Unit Tests → Pending Approval.',
+      'Agent-to-Agent messaging داخل AdminDashboard — استشارة cross-agent.',
+      'Cursor/CLI bridge — التنفيذ الفعلي بعد Approve Execution فقط.',
+    ],
+    productRef: {
+      apiRoutes: ['/api/admin-technical-consultant-lab-chat', '/api/admin-engineering-council'],
+      migrationId: '85_platform_engineering_council',
     },
   },
   {

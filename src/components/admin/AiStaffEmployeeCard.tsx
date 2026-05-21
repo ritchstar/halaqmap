@@ -1,4 +1,4 @@
-import { ArrowLeft, Gavel, Lock, Moon, Scale, Shield, Siren, Users } from 'lucide-react';
+import { ArrowLeft, Cog, Gavel, Lock, Moon, Scale, Shield, Siren, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
@@ -70,6 +70,13 @@ function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName
     return (
       <span className={cn(base, 'border-slate-500/60 bg-slate-950/60')}>
         <Gavel className="h-5 w-5 text-slate-200" strokeWidth={2} />
+      </span>
+    );
+  }
+  if (kind === 'technical_consultant') {
+    return (
+      <span className={cn(base, 'border-cyan-800/50 bg-cyan-950/40')}>
+        <Cog className="h-5 w-5 text-cyan-300" strokeWidth={2} />
       </span>
     );
   }

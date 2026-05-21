@@ -8,6 +8,7 @@ import { PartnerLiaisonAdminLabChat } from '@/components/admin/PartnerLiaisonAdm
 import { FleetDirectorAdminLabChat } from '@/components/admin/FleetDirectorAdminLabChat';
 import { SystemCrisisAdvisorLabChat } from '@/components/admin/SystemCrisisAdvisorLabChat';
 import { PublicProsecutorLabChat } from '@/components/admin/PublicProsecutorLabChat';
+import { TechnicalConsultantLabChat } from '@/components/admin/TechnicalConsultantLabChat';
 import { ZatcaAdvisorLabChat } from '@/components/admin/ZatcaAdvisorLabChat';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';
 import { staffMotion, staffTheme } from '@/components/admin/staff/staffTheme';
@@ -56,6 +57,7 @@ export function AiStaffControlRoom({
   const [fleetDirectorLabOpen, setFleetDirectorLabOpen] = useState(false);
   const [crisisAdvisorLabInternalOpen, setCrisisAdvisorLabInternalOpen] = useState(false);
   const [publicProsecutorLabOpen, setPublicProsecutorLabOpen] = useState(false);
+  const [technicalConsultantLabOpen, setTechnicalConsultantLabOpen] = useState(false);
   const [crisisModeActive, setCrisisModeActive] = useState(false);
 
   const crisisLabControlled = crisisLabOpenProp !== undefined && onCrisisLabOpenChange !== undefined;
@@ -164,6 +166,7 @@ export function AiStaffControlRoom({
     }
     if (agent.id === 'public_prosecutor') {
       setPublicProsecutorLabOpen(true);
+      setTechnicalConsultantLabOpen(false);
       setCrisisAdvisorLabOpen(false);
       setBillingOpen(false);
       setDigitalShiftLabOpen(false);
@@ -171,6 +174,18 @@ export function AiStaffControlRoom({
       setPartnerLiaisonLabOpen(false);
       setFleetDirectorLabOpen(false);
       setWorkspaceAgentId('public_prosecutor');
+      return;
+    }
+    if (agent.id === 'technical_consultant_engineering') {
+      setTechnicalConsultantLabOpen(true);
+      setPublicProsecutorLabOpen(false);
+      setCrisisAdvisorLabOpen(false);
+      setBillingOpen(false);
+      setDigitalShiftLabOpen(false);
+      setZatcaLabOpen(false);
+      setPartnerLiaisonLabOpen(false);
+      setFleetDirectorLabOpen(false);
+      setWorkspaceAgentId('technical_consultant_engineering');
       return;
     }
     if (agent.workspaceKind === 'fleet_intelligence') {
@@ -187,6 +202,9 @@ export function AiStaffControlRoom({
   const showFleetDirectorLab = agents.some((a) => a.id === 'fleet_director_general' && a.permitted);
   const showCrisisAdvisorLab = agents.some((a) => a.id === 'system_crisis_advisor' && a.permitted);
   const showPublicProsecutorLab = agents.some((a) => a.id === 'public_prosecutor' && a.permitted);
+  const showTechnicalConsultantLab = agents.some(
+    (a) => a.id === 'technical_consultant_engineering' && a.permitted,
+  );
 
   const openPartnerReportsPanel = () => {
     setPartnerLiaisonLabOpen(false);
@@ -282,6 +300,7 @@ export function AiStaffControlRoom({
                     agent={workspaceAgent}
                     onClose={() => setWorkspaceAgentId(null)}
                     onOpenProsecutorLab={() => setPublicProsecutorLabOpen(true)}
+                    onOpenTechnicalConsultantLab={() => setTechnicalConsultantLabOpen(true)}
                   />
                 ) : null}
               </div>
@@ -356,6 +375,15 @@ export function AiStaffControlRoom({
           permitted
           open={publicProsecutorLabOpen}
           onOpenChange={setPublicProsecutorLabOpen}
+          hideTrigger
+        />
+      ) : null}
+
+      {showTechnicalConsultantLab ? (
+        <TechnicalConsultantLabChat
+          permitted
+          open={technicalConsultantLabOpen}
+          onOpenChange={setTechnicalConsultantLabOpen}
           hideTrigger
         />
       ) : null}

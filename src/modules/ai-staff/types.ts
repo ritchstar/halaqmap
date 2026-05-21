@@ -3,6 +3,7 @@ import type { AdminPermissionKey } from '@/lib/adminPermissions';
 /** Administrative boundary — strict separation of internal vs field vs covert ops. */
 export type AiStaffBoundaryId =
   | 'internal_governance'
+  | 'engineering_council'
   | 'external_partner_ops'
   | 'covert_sovereign';
 
@@ -13,7 +14,8 @@ export type AiStaffAgentId =
   | 'partner_relations_liaison'
   | 'fleet_director_general'
   | 'system_crisis_advisor'
-  | 'public_prosecutor';
+  | 'public_prosecutor'
+  | 'technical_consultant_engineering';
 
 export type AiStaffAgentIconKind =
   | 'treasurer'
@@ -22,7 +24,8 @@ export type AiStaffAgentIconKind =
   | 'partner_liaison'
   | 'fleet_director'
   | 'crisis_advisor'
-  | 'public_prosecutor';
+  | 'public_prosecutor'
+  | 'technical_consultant';
 
 export type AiStaffWorkspaceKind =
   | 'billing_dialog'
@@ -31,7 +34,8 @@ export type AiStaffWorkspaceKind =
   | 'partner_analytics'
   | 'fleet_intelligence'
   | 'crisis_playbook'
-  | 'prosecutor_governance';
+  | 'prosecutor_governance'
+  | 'engineering_council';
 
 /** Links scattered product code into one registry row (no hardcoded card copy in components). */
 export type AiStaffProductRef = {
@@ -60,6 +64,8 @@ export type AiStaffAgentDef = {
   doctrineNotes?: string[];
   productRef?: AiStaffProductRef;
   classification?: 'standard' | 'elite_covert';
+  /** Agents this staff member may consult via council bus */
+  consultAgents?: AiStaffAgentId[];
 };
 
 export type AiStaffBoundaryDef = {
@@ -136,6 +142,48 @@ export type PublicProsecutorDashboardSnapshot = {
   complianceGaps: number;
   crisisWatchActive: boolean;
   lastSyncedAt: string | null;
+};
+
+export type EngineeringExecutionStatus =
+  | 'planning'
+  | 'prosecutor_review'
+  | 'draft_branch'
+  | 'testing'
+  | 'pending_approval'
+  | 'approved'
+  | 'rejected'
+  | 'executed';
+
+export type AgentCouncilMessage = {
+  id: string;
+  createdAt: string;
+  threadId: string;
+  fromAgent: string;
+  toAgent: string;
+  messageType: 'consultation' | 'compliance_verdict' | 'refactor_proposal' | 'status';
+  severity: 'info' | 'watch' | 'urgent';
+  title: string;
+  body: string;
+  detail?: Record<string, unknown>;
+};
+
+export type EngineeringExecution = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  status: EngineeringExecutionStatus;
+  initiatorAgent: string;
+  title: string;
+  taskDescription: string;
+  planMarkdown?: string;
+  prosecutorVerdict?: Record<string, unknown>;
+  draftBranch?: string;
+  unitTestsPlan?: string;
+  cursorJobRef?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  reporterEmail: string;
+  detail?: Record<string, unknown>;
 };
 
 export type FleetIntelligencePing = {

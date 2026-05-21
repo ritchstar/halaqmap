@@ -11,6 +11,7 @@ import { DigitalShiftOversightPanel } from '@/modules/ai-staff/components/Digita
 import { FleetDirectorIntelligenceFeed } from '@/modules/ai-staff/components/FleetDirectorIntelligenceFeed';
 
 import { PartnerLiaisonAnalyticsPanel } from '@/modules/ai-staff/components/PartnerLiaisonAnalyticsPanel';
+import { EngineeringCouncilPanel } from '@/modules/ai-staff/components/EngineeringCouncilPanel';
 import { PublicProsecutorDashboard } from '@/modules/ai-staff/components/PublicProsecutorDashboard';
 
 import type { AiStaffAgentDef } from '@/modules/ai-staff/types';
@@ -23,9 +24,15 @@ type Props = {
   agent: AiStaffAgentDef;
   onClose: () => void;
   onOpenProsecutorLab?: () => void;
+  onOpenTechnicalConsultantLab?: () => void;
 };
 
-export function AiStaffAgentWorkspace({ agent, onClose, onOpenProsecutorLab }: Props) {
+export function AiStaffAgentWorkspace({
+  agent,
+  onClose,
+  onOpenProsecutorLab,
+  onOpenTechnicalConsultantLab,
+}: Props) {
 
   const isCovert = agent.classification === 'elite_covert';
 
@@ -91,6 +98,10 @@ export function AiStaffAgentWorkspace({ agent, onClose, onOpenProsecutorLab }: P
 
         {agent.workspaceKind === 'prosecutor_governance' ? (
           <PublicProsecutorDashboard compact onOpenLab={onOpenProsecutorLab} />
+        ) : null}
+
+        {agent.workspaceKind === 'engineering_council' ? (
+          <EngineeringCouncilPanel onOpenLab={onOpenTechnicalConsultantLab} />
         ) : null}
 
         {agent.workspaceKind === 'billing_dialog' || agent.workspaceKind === 'zatca_settings' ? (
