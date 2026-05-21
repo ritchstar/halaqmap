@@ -852,4 +852,23 @@ html.platform-radar-fullscreen #root {
     linear-gradient(180deg, #010104 0%, #02050a 55%, #010104 100%);
 }
 
+@keyframes tactical-radar-force-ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.35);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.4);
+    opacity: 0;
+  }
+}
+
+.tactical-radar-force-ripple {
+  animation: tactical-radar-force-ripple 1.35s ease-out forwards;
+}
+
+.tactical-radar-force-ripple-delay {
+  animation: tactical-radar-force-ripple 1.65s ease-out 0.12s forwards;
+}
+
 

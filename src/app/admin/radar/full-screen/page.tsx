@@ -34,6 +34,7 @@ export default function AdminRadarFullScreenPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [phase, setPhase] = useState<'loading' | 'ok' | 'denied' | 'nologin'>('loading');
+  const [founderMode, setFounderMode] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => readSoundPref());
 
   useEffect(() => {
@@ -80,7 +81,10 @@ export default function AdminRadarFullScreenPage() {
         return;
       }
 
-      if (!cancelled) setPhase('ok');
+      if (!cancelled) {
+        setFounderMode(access.bootstrap);
+        setPhase('ok');
+      }
     })();
 
     return () => {
@@ -150,7 +154,7 @@ export default function AdminRadarFullScreenPage() {
           تفعيل نبض الصوت
         </button>
       ) : null}
-      <PlatformRadar commandMode soundEnabled={soundEnabled} />
+      <PlatformRadar commandMode soundEnabled={soundEnabled} founderMode={founderMode} />
     </div>
   );
 }

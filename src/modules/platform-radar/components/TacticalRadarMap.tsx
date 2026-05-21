@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { projectKsaToPercent } from '@/modules/platform-radar/lib/saudiKingdomProjection';
+import type { PlatformRadarForcePulse } from '@/modules/platform-radar/lib/platformRadarRealtime';
 import type { PlatformRadarMapPulse } from '@/modules/platform-radar/types';
 
 type Props = {
   pulses: PlatformRadarMapPulse[];
+  forcePulses?: PlatformRadarForcePulse[];
   tacticalView: boolean;
   className?: string;
 };
@@ -17,7 +19,7 @@ function pulseOpacity(ageMs: number): number {
   return Math.max(0.25, 1 - t * 0.75);
 }
 
-export function TacticalRadarMap({ pulses, tacticalView, className }: Props) {
+export function TacticalRadarMap({ pulses, forcePulses = [], tacticalView, className }: Props) {
   const placed = useMemo(() => {
     const now = Date.now();
     return pulses
@@ -32,6 +34,13 @@ export function TacticalRadarMap({ pulses, tacticalView, className }: Props) {
       })
       .filter((p) => Number.isFinite(p.ageMs));
   }, [pulses]);
+
+  const placedForces = useMemo(() => {
+    return forcePulses.map((p) => {
+      const pos = projectKsaToPercent(p.lat, p.lng);
+      return { ...p, left: pos.left, top: pos.top };
+    });
+  }, [forcePulses]);
 
   const userPulses = placed.filter((p) => p.kind === 'user_search');
   const securityPulses = placed.filter((p) => p.kind === 'security');
@@ -72,6 +81,18 @@ export function TacticalRadarMap({ pulses, tacticalView, className }: Props) {
           {userPulses.length.toLocaleString('ar-SA')} نبض مستخدم
         </p>
       </div>
+
+      {placedForces.map((p) => (
+        <div
+          key={p.burstKey}
+          aria-hidden
+          className="pointer-events-none absolute z-40 -translate-x-1/2 -translate-y-1/2"
+          style={{ left: `${p.left}%`, top: `${p.top}%` }}
+        >
+          <span className="tactical-radar-force-ripple absolute left-1/2 top-1/2 block h-[clamp(2.5rem,5vw,4.5rem)] w-[clamp(2.5rem,5vw,4.5rem)] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-300/70 bg-cyan-400/10 shadow-[0_0_40px_rgba(34,211,238,0.55)]" />
+          <span className="tactical-radar-force-ripple-delay absolute left-1/2 top-1/2 block h-[clamp(1.5rem,3vw,2.75rem)] w-[clamp(1.5rem,3vw,2.75rem)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200/50 bg-cyan-300/20" />
+        </div>
+      ))}
 
       {userPulses.map((p) => {
         const opacity = pulseOpacity(p.ageMs);

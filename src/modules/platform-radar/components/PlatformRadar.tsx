@@ -1,15 +1,26 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Activity, Crosshair, Radar, ShieldAlert, Zap } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { usePlatformRadarData } from '@/modules/platform-radar/hooks/usePlatformRadarData';
 import { usePlatformRadarPulses } from '@/modules/platform-radar/hooks/usePlatformRadarPulses';
 import { TacticalRadarMap } from '@/modules/platform-radar/components/TacticalRadarMap';
+import {
+  subscribePlatformRadarChannel,
+  usePlatformRadarPulses,
+} from '@/modules/platform-radar/hooks/usePlatformRadarPulses';
+import {
+  PLATFORM_RADAR_SIM_LAT,
+  PLATFORM_RADAR_SIM_LNG,
+} from '@/modules/platform-radar/lib/platformRadarRealtime';
+import { playTacticalUserPulseSound } from '@/modules/platform-radar/lib/platformRadarPulseSound';
 import { cn } from '@/lib/utils';
 
 type Props = {
   /** Cast-friendly full viewport mode — zero chrome, edge-to-edge tactical map */
   commandMode?: boolean;
   soundEnabled?: boolean;
+  /** Founder-only test controls (simulate pulse) */
+  founderMode?: boolean;
   className?: string;
 };
 
@@ -66,8 +77,9 @@ function MetricBlock({
   );
 }
 
-export function PlatformRadar({ commandMode = false, soundEnabled = true, className }: Props) {
+export function PlatformRadar({ commandMode = false, soundEnabled = true, founderMode = false, className }: Props) {
   const [tacticalView, setTacticalView] = useState(true);
+  const [showFounderTest, setShowFounderTest] = useState(false);
 
   const { snapshot, loading, error } = usePlatformRadarData({
     soundEnabled: commandMode ? false : soundEnabled,
@@ -76,16 +88,45 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, classN
 
   const {
     pulses,
+    forcePulses,
     loading: pulsesLoading,
     error: pulsesError,
     lastSyncAt,
     userPulseCount,
     suspiciousCount,
+    realtimeConnected,
+    forcePulse,
+    ingestRealtimeUserSearch,
+    setRealtimeConnected,
   } = usePlatformRadarPulses({
     enabled: commandMode,
     soundEnabled,
+    realtimeEnabled: commandMode,
     pollMs: 8_000,
   });
+
+  const simulateSearchPulse = useCallback(() => {
+    const jitter = () => (Math.random() - 0.5) * 0.08;
+    const lat = PLATFORM_RADAR_SIM_LAT + jitter();
+    const lng = PLATFORM_RADAR_SIM_LNG + jitter();
+    forcePulse(lat, lng, {
+      label: 'محاكاة — الرياض',
+      suspicious: tacticalView && Math.random() > 0.65,
+    });
+    if (soundEnabled) playTacticalUserPulseSound(0.14);
+  }, [forcePulse, soundEnabled, tacticalView]);
+
+  useEffect(() => {
+    if (!commandMode) return;
+
+    return subscribePlatformRadarChannel({
+      enabled: true,
+      onUserSearch: (payload) => {
+        ingestRealtimeUserSearch(payload);
+      },
+      onStatus: setRealtimeConnected,
+    });
+  }, [commandMode, ingestRealtimeUserSearch, setRealtimeConnected]);
 
   const stats = snapshot?.stats;
   const brief = snapshot?.brief;
@@ -100,7 +141,12 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, classN
         )}
         dir="rtl"
       >
-        <TacticalRadarMap pulses={pulses} tacticalView={tacticalView} className="absolute inset-0" />
+        <TacticalRadarMap
+          pulses={pulses}
+          forcePulses={forcePulses}
+          tacticalView={tacticalView}
+          className="absolute inset-0"
+        />
 
         <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 p-[clamp(0.75rem,2vw,1.5rem)]">
           <div className="pointer-events-auto rounded-2xl border border-cyan-500/25 bg-black/65 px-[clamp(0.85rem,2vw,1.35rem)] py-[clamp(0.55rem,1.2vh,0.85rem)] backdrop-blur-xl">
@@ -122,6 +168,12 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, classN
                   : snapshot?.loadedAt
                     ? new Date(snapshot.loadedAt).toLocaleTimeString('ar-SA')
                     : '—'}
+              {realtimeConnected ? (
+                <span className="mr-2 inline-flex items-center gap-1 text-cyan-300">
+                  <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+                  LIVE
+                </span>
+              ) : null}
             </p>
             <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-red-500/30 bg-black/65 px-3 py-2 backdrop-blur-md">
               <Crosshair className="h-4 w-4 text-red-300" />
@@ -166,10 +218,21 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, classN
           </p>
         )}
 
-        {soundEnabled ? (
-          <p className="pointer-events-none absolute bottom-[clamp(5.5rem,12vh,7rem)] left-[clamp(0.75rem,2vw,1.5rem)] z-10 text-[clamp(0.75rem,1.3vw,0.9rem)] text-cyan-300/70">
-            🔊 نبض تحت-ترددي عند وصول نبض مستخدم جديد
-          </p>
+        {founderMode ? (
+          <button
+            type="button"
+            aria-label="Simulate Search Pulse"
+            title="Simulate Search Pulse (Founder test)"
+            className={cn(
+              'pointer-events-auto absolute bottom-[clamp(5rem,11vh,6.5rem)] left-[clamp(0.75rem,2vw,1.5rem)] z-30 rounded-full border border-cyan-500/20 bg-black/40 px-2 py-1 text-[10px] uppercase tracking-widest text-cyan-300/0 transition-all hover:border-cyan-400/50 hover:bg-black/70 hover:text-cyan-200/90',
+              showFounderTest && 'border-cyan-400/60 text-cyan-200/90',
+            )}
+            onMouseEnter={() => setShowFounderTest(true)}
+            onFocus={() => setShowFounderTest(true)}
+            onClick={simulateSearchPulse}
+          >
+            {showFounderTest ? 'Simulate Search Pulse' : '·'}
+          </button>
         ) : null}
       </div>
     );
