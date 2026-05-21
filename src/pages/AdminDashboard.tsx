@@ -148,7 +148,9 @@ import { SystemCrisisPanicButton } from '@/components/admin/SystemCrisisPanicBut
 import { HonorBoard } from '@/components/b2b/HonorBoard';
 import { FounderOperationalFeedPanel, OpsControllerWorkspace } from '@/modules/ops-controller';
 import { EngineeringPendingApprovalsPanel } from '@/modules/ai-staff/components/EngineeringPendingApprovalsPanel';
+import { FounderSystemStatusPanel } from '@/modules/ai-staff/components/FounderSystemStatusPanel';
 import { PublicProsecutorDashboard } from '@/modules/ai-staff/components/PublicProsecutorDashboard';
+import { fetchEngineeringHandshakeStatus } from '@/lib/engineeringHandshakeRemote';
 import {
   FounderCommandShell,
   FounderCrest,
@@ -322,6 +324,7 @@ export default function AdminDashboard() {
   const [dataRefreshNonce, setDataRefreshNonce] = useState(0);
   const [crisisLabOpen, setCrisisLabOpen] = useState(false);
   const [crisisMode, setCrisisMode] = useState(false);
+  const [engineeringWingOpsEnabled, setEngineeringWingOpsEnabled] = useState(false);
 
   const bumpRemoteData = () => setDataRefreshNonce((n) => n + 1);
 
@@ -488,7 +491,8 @@ export default function AdminDashboard() {
     can('manage_centralized_billing_ops');
   const canAccessOpsBillingTab = canViewOpsBilling || canAccessFinancialArchive;
   const canAccessOpsControllerTab =
-    can('view_ops_controller') || can('submit_ops_controller');
+    (can('view_ops_controller') || can('submit_ops_controller')) &&
+    (!Boolean(adminData?.bootstrap) || engineeringWingOpsEnabled);
   const canManageFinancialArchive =
     can('manage_admin_financial_archive') || can('manage_centralized_billing_ops');
   const canViewZatcaFinancialOffice =
@@ -519,6 +523,15 @@ export default function AdminDashboard() {
       setActiveTab(allowedTabs[0] ?? 'overview');
     }
   }, [adminData, activeTab, allowedTabs]);
+
+  useEffect(() => {
+    if (!adminData?.bootstrap) return;
+    void fetchEngineeringHandshakeStatus().then((result) => {
+      if (result.ok) {
+        setEngineeringWingOpsEnabled(result.snapshot.opsControllerEnabled);
+      }
+    });
+  }, [adminData?.bootstrap]);
 
   useEffect(() => {
     if (activeTab !== 'settings' || zatcaScrollToken <= 0 || !canViewZatcaFinancialOffice) return;
@@ -780,7 +793,12 @@ export default function AdminDashboard() {
                 setZatcaScrollToken((n) => n + 1);
               }}
             />
-            <OverviewSection stats={stats} isFounderView={isFounderView} showOperationalFeed={isFounderView} />
+            <OverviewSection
+              stats={stats}
+              isFounderView={isFounderView}
+              showOperationalFeed={isFounderView}
+              onOpsControllerEnabledChange={setEngineeringWingOpsEnabled}
+            />
           </TabsContent>}
 
           {canViewSecurityOpsLog && (
@@ -1178,10 +1196,12 @@ function OverviewSection({
   stats,
   isFounderView,
   showOperationalFeed = false,
+  onOpsControllerEnabledChange,
 }: {
   stats: AdminStats;
   isFounderView: boolean;
   showOperationalFeed?: boolean;
+  onOpsControllerEnabledChange?: (enabled: boolean) => void;
 }) {
   if (!isFounderView) {
     return (
@@ -1277,6 +1297,10 @@ function OverviewSection({
 
   return (
     <FounderStaggerGrid className="space-y-8">
+      <FounderStaggerItem>
+        <FounderSystemStatusPanel onOpsControllerEnabledChange={onOpsControllerEnabledChange} />
+      </FounderStaggerItem>
+
       <FounderStaggerItem>
         <header className="space-y-2 text-right">
           <p className={founderTheme.pageEyebrow}>At-a-glance</p>
