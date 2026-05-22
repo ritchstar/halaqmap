@@ -716,7 +716,7 @@ export default function AdminDashboard() {
             {can('view_requests') && (
             <TabsTrigger value="requests" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">طلبات الحزم البرمجية</span>
+              <span className="hidden sm:inline">طلبات حزم الرخصة</span>
               {stats.pendingRequests > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {stats.pendingRequests}
@@ -1289,7 +1289,7 @@ function OverviewSection({
               {[
                 { label: 'إجمالي المواعيد', value: stats.totalAppointments.toLocaleString() },
                 { label: 'إجمالي المستخدمين', value: stats.totalUsers.toLocaleString() },
-                { label: 'حزم برمجية إدراج منتهية', value: String(stats.expiredSubscriptions), warn: true },
+                { label: 'حزم رخصة إدراج منتهية', value: String(stats.expiredSubscriptions), warn: true },
               ].map((row) => (
                 <div
                   key={row.label}
@@ -1395,9 +1395,9 @@ function OverviewSection({
 
       <FounderStaggerGrid className="grid gap-5 md:grid-cols-3">
         {[
-          { label: 'باقة برونزية', count: stats.bronzeBarbers, hint: '100 ر.س / حزمة برمجية 30 يوم', emoji: '🥉' },
-          { label: 'باقة ذهبية', count: stats.goldBarbers, hint: '150 ر.س / حزمة برمجية 30 يوم', emoji: '🥇' },
-          { label: 'باقة ماسية', count: stats.diamondBarbers, hint: '200 ر.س / حزمة برمجية 30 يوم', emoji: '💎' },
+          { label: 'باقة برونزية', count: stats.bronzeBarbers, hint: '100 ر.س / حزمة رخصة 30 يوم', emoji: '🥉' },
+          { label: 'باقة ذهبية', count: stats.goldBarbers, hint: '150 ر.س / حزمة رخصة 30 يوم', emoji: '🥇' },
+          { label: 'باقة ماسية', count: stats.diamondBarbers, hint: '200 ر.س / حزمة رخصة 30 يوم', emoji: '💎' },
         ].map((tier) => (
           <FounderGlassCard key={tier.label} className="p-6" interactive staggered>
             <div className="flex items-center justify-between gap-4">
@@ -1421,7 +1421,7 @@ function OverviewSection({
             {[
               { label: 'إجمالي المواعيد', value: stats.totalAppointments.toLocaleString() },
               { label: 'إجمالي المستخدمين', value: stats.totalUsers.toLocaleString() },
-              { label: 'حزم برمجية إدراج منتهية', value: String(stats.expiredSubscriptions), warn: true },
+              { label: 'حزم رخصة إدراج منتهية', value: String(stats.expiredSubscriptions), warn: true },
             ].map((row) => (
               <div
                 key={row.label}
@@ -1819,7 +1819,7 @@ function RequestsSection({
       ) : null}
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">طلبات الحزم البرمجية والإدراج</h2>
+        <h2 className="text-2xl font-bold">طلبات حزم الرخصة والإدراج</h2>
         <div className="flex flex-wrap items-center gap-2">
           <Select
             value={requestStatusFilter}
@@ -2413,7 +2413,7 @@ function RequestReviewDialog({
     >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-2xl">مراجعة طلب الحزمة البرمجية والإدراج</DialogTitle>
+          <DialogTitle className="text-2xl">مراجعة طلب حزمة الرخصة والإدراج</DialogTitle>
           <DialogDescription>
             قم بمراجعة المعلومات والمستندات قبل الموافقة أو الرفض
           </DialogDescription>
@@ -2615,7 +2615,7 @@ function RequestReviewDialog({
                     <span className="font-medium">
                       {request.paymentMethod === 'bank_transfer'
                         ? 'تحويل بنكي (6 أشهر)'
-                        : 'حزمة برمجية (ميسر)'}
+                        : 'حزمة رخصة (ميسر)'}
                     </span>
                   </p>
                 )}
@@ -3369,7 +3369,7 @@ function BarbersSection({
     setPurgePhrase('');
     toast({
       title: 'تم مسح جميع الحلاقين',
-      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار شراء الحزم البرمجية والظهور العام.`,
+      description: `عدد الصفوف المحذوفة: ${res.deleted}. يمكنك الآن إنشاء حسابات جديدة متوافقة مع مسار شراء حزم الرخصة والظهور العام.`,
     });
     onStatsNeedRefresh();
   };
@@ -3657,7 +3657,7 @@ function BarbersSection({
             <div className="mt-8 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
               <p className="text-sm font-semibold text-destructive">منطقة خطرة — المالك فقط</p>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل سجلات الحزم البرمجية القديمة
+                حذف جميع صفوف الحلاقين من قاعدة البيانات (مع ما يرتبط تلقائياً بحسب CASCADE مثل سجلات حزم الرخصة القديمة
                 والتقييمات والحجوزات المرتبطة بنفس الجدول). لا يُنصح به على بيانات إنتاج حقيقية إلا بعد نسخ احتياطي.
               </p>
               <Button
@@ -3746,7 +3746,7 @@ function formatHalalasSar(amount: number | string | null): string {
   return `${(n / 100).toFixed(2)} ر.س`;
 }
 
-/** أرشيف عرض فقط — إصدار/تفعيل الحزمة البرمجية يتم تلقائياً من Webhook ميسر عند توفر linkedBarberId. */
+/** أرشيف عرض فقط — إصدار/تفعيل حزمة الرخصة يتم تلقائياً من Webhook ميسر عند توفر linkedBarberId. */
 function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscriptionAdminRow[] }) {
   const sorted = useMemo(
     () => [...rows].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))),
@@ -3761,16 +3761,16 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
       className="space-y-4"
     >
       <div>
-        <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (حزم برمجية إدراج)</h2>
+        <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (حزم رخصة إدراج)</h2>
         <p className="text-sm text-muted-foreground">
-          للعرض والمرجعية فقط. عند نجاح الدفع يُصدَر/يُفعَّل الحزمة البرمجية الرقمية ويُرسل بريد الترحيب أو كود التفعيل تلقائياً من
+          للعرض والمرجعية فقط. عند نجاح الدفع يُصدَر/يُفعَّل حزمة الرخصة الرقمية ويُرسل بريد الترحيب أو كود التفعيل تلقائياً من
           الخادم (Edge Webhook + API) دون انتظار خطوة من هذه اللوحة.
         </p>
       </div>
       {sorted.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            لا توجد صفوف دفع حزم برمجية ميسر في الجدول بعد، أو لا تطابق عوامل التصفية الحالية.
+            لا توجد صفوف دفع حزم رخصة ميسر في الجدول بعد، أو لا تطابق عوامل التصفية الحالية.
           </CardContent>
         </Card>
       ) : (
@@ -4250,7 +4250,7 @@ function CommandCenterSection({
     new: { label: 'جديد', className: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
     contacted: { label: 'تم التواصل', className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
     waiting: { label: 'بانتظار الرد', className: 'bg-purple-500/10 text-purple-600 border-purple-500/30' },
-    won: { label: 'تم شراء الحزمة البرمجية', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
+    won: { label: 'تم شراء حزمة الرخصة', className: 'bg-green-500/10 text-green-600 border-green-500/30' },
     lost: { label: 'تعذر الإغلاق', className: 'bg-red-500/10 text-red-600 border-red-500/30' },
   };
 
@@ -4429,7 +4429,7 @@ function CommandCenterSection({
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">جديد</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم التواصل</p><p className="text-2xl font-bold">{pipelineCounts.contacted}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">بانتظار الرد</p><p className="text-2xl font-bold">{pipelineCounts.waiting}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم شراء الحزمة البرمجية</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تم شراء حزمة الرخصة</p><p className="text-2xl font-bold text-green-600">{pipelineCounts.won}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">تعذر الإغلاق</p><p className="text-2xl font-bold text-red-600">{pipelineCounts.lost}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متابعة اليوم</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متأخرة</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
@@ -4466,7 +4466,7 @@ function CommandCenterSection({
                 <SelectItem value="new">جديد</SelectItem>
                 <SelectItem value="contacted">تم التواصل</SelectItem>
                 <SelectItem value="waiting">بانتظار الرد</SelectItem>
-                <SelectItem value="won">تم شراء الحزمة البرمجية</SelectItem>
+                <SelectItem value="won">تم شراء حزمة الرخصة</SelectItem>
                 <SelectItem value="lost">تعذر الإغلاق</SelectItem>
               </SelectContent>
             </Select>
@@ -4569,7 +4569,7 @@ function CommandCenterSection({
                       <SelectItem value="new">جديد</SelectItem>
                       <SelectItem value="contacted">تم التواصل</SelectItem>
                       <SelectItem value="waiting">بانتظار الرد</SelectItem>
-                      <SelectItem value="won">تم شراء الحزمة البرمجية</SelectItem>
+                      <SelectItem value="won">تم شراء حزمة الرخصة</SelectItem>
                       <SelectItem value="lost">تعذر الإغلاق</SelectItem>
                     </SelectContent>
                   </Select>
@@ -5096,7 +5096,7 @@ function SettingsSection({
       title: 'تم حفظ إعدادات الضريبة',
       description: vatEnabled
         ? `مفعّلة — النسبة المعروضة ${rateForPreview}% (تُحسب تلقائياً في صفحات الدفع).`
-        : 'معطّلة — تُعرض قيمة الحزمة البرمجية الرقمية فقط دون ضريبة في الواجهة.',
+        : 'معطّلة — تُعرض قيمة حزمة الرخصة الرقمية فقط دون ضريبة في الواجهة.',
     });
   };
 
@@ -5710,7 +5710,7 @@ function SettingsSection({
         <CardHeader>
           <CardTitle>ضريبة القيمة المضافة (عرض الدفع)</CardTitle>
           <CardDescription>
-            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كقيمة حزمة برمجية فقط (مناسب
+            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كقيمة حزمة رخصة فقط (مناسب
             لتقديم بوابات مثل ميسر). عند التوسع بسجل تجاري ورقم ضريبي فعّل الاحتسب هنا وحدّث النسبة عند تغيير
             الأنظمة.
           </CardDescription>
@@ -5720,7 +5720,7 @@ function SettingsSection({
             <div>
               <p className="font-medium">تفعيل احتساب الضريبة في الواجهة</p>
               <p className="text-sm text-muted-foreground mt-1">
-                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة الحزم البرمجية الرقمية.
+                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة حزم الرخصة الرقمية.
               </p>
             </div>
             <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} disabled={!canSavePlatformVat} />
@@ -5741,7 +5741,7 @@ function SettingsSection({
             <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
           </div>
           <div className="rounded-lg bg-muted/50 p-4 text-sm">
-            <p className="font-medium mb-2">معاينة على 100 ر.س (قيمة حزمة برمجية)</p>
+            <p className="font-medium mb-2">معاينة على 100 ر.س (قيمة حزمة رخصة)</p>
             <p className="text-muted-foreground">
               {!vatEnabled || preview.vat === 0 ? (
                 <>الإجمالي المعروض: <strong>{preview.total} ر.س</strong> (بدون ضريبة)</>

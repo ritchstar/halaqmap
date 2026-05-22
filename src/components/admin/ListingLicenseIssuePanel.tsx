@@ -55,7 +55,7 @@ export function ListingLicenseIssuePanel({
       <CardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>منتج الحزمة البرمجية (SKU)</Label>
+            <Label>منتج حزمة الرخصة (SKU)</Label>
             <Select value={skuCode} onValueChange={setSkuCode}>
               <SelectTrigger>
                 <SelectValue />

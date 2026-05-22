@@ -275,7 +275,7 @@ async function sendResendConfirmation(input: {
     : `<p>تم استلام المبلغ بنجاح. إذا لم يظهر صالونك عبر نظام الرصد الذكي بعد، تأكد من إكمال التسجيل وربط معرّف الحلاق في عملية الدفع أو تواصل مع الدعم.</p>`;
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
-<p>شكرًا لك، تم استلام قيمة <strong>الحزمة البرمجية لخدمات الإدراج</strong> (Halaqmap Software Package) بنجاح عبر <strong>ميسر (Moyasar)</strong>.</p>
+<p>شكرًا لك، تم استلام قيمة <strong>حزمة الرخصة لخدمات الإدراج</strong> (Halaqmap Software Package) بنجاح عبر <strong>ميسر (Moyasar)</strong>.</p>
 ${activationBlock}
 <ul style="list-style:none;padding:0">
 <li>الباقة: <strong>${escapeHtml(input.tierLabel)}</strong></li>
@@ -322,7 +322,7 @@ async function sendResendPaymentFailure(input: {
   reason: string;
   paymentId: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
-  const subject = "حلاق ماب | لم يكتمل شراء الحزمة البرمجية";
+  const subject = "حلاق ماب | لم يكتمل شراء حزمة الرخصة";
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#fef2f2">
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
 <p>لم نتمكن من إتمام عملية الدفع عبر ميسر.</p>

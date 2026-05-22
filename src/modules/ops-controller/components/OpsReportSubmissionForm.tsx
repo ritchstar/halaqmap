@@ -176,7 +176,7 @@ export function OpsReportSubmissionForm({ disabled, onSubmitted }: Props) {
             id="ops-title"
             value={form.title}
             onChange={(e) => update('title', e.target.value)}
-            placeholder="مثال: تأخر تفعيل الحزمة البرمجية"
+            placeholder="مثال: تأخر تفعيل حزمة الرخصة"
             className="border-slate-600 bg-slate-900 text-slate-100 placeholder:text-slate-500"
             disabled={disabled || submitting}
             required

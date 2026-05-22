@@ -82,13 +82,13 @@ export default function PartnerInterestLanding() {
           <Shield className="h-4 w-4" />
           <AlertTitle>تنبيه قانوني</AlertTitle>
           <AlertDescription className="leading-relaxed">
-            هذه الصفحة <strong>لا تجمع</strong> بيانات حزمة برمجية ولا تحققاً نظامياً (رمز موحّد) ولا دفعاً ولا مرفقات.
+            هذه الصفحة <strong>لا تجمع</strong> بيانات حزمة رخصة ولا تحققاً نظامياً (رمز موحّد) ولا دفعاً ولا مرفقات.
             يقتصر الغرض على <strong>عنوان البريد الإلكتروني</strong> عند <strong>موافقتك الصريحة</strong> لإرسال{' '}
             <strong>تحديثات إعلامية</strong> وفق{' '}
             <NavLink to={ROUTE_PATHS.PARTNER_PRIVACY} className="font-semibold text-primary underline underline-offset-2">
               سياسة خصوصية الشركاء
             </NavLink>
-            . مسار الحزمة البرمجية والإدراج الكامل (بما في ذلك التحقق النظامي ووسائل الدفع عند تفعيلها) يتم عبر{' '}
+            . مسار حزمة الرخصة والإدراج الكامل (بما في ذلك التحقق النظامي ووسائل الدفع عند تفعيلها) يتم عبر{' '}
             <NavLink to={ROUTE_PATHS.REGISTER} className="font-semibold text-primary underline underline-offset-2">
               صفحة التسجيل للشركاء
             </NavLink>{' '}

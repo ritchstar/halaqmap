@@ -84,6 +84,7 @@ import {
   partnerDashboardDocumentTitleFromSession,
   partnerSalonDisplayName,
 } from '@/config/partnerDashboardBrand';
+import { TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
 import {
   readSchedule,
   writeSchedule,
@@ -605,7 +606,7 @@ export default function BarberDashboard() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">صلاحية حزمة الإدراج البرمجية الرقمي</CardTitle>
               <CardDescription className="text-sm leading-relaxed">
-                صلاحية الظهور عبر نظام الرصد الذكي مبنية على <strong>حزمة برمجية مسبقة الدفع</strong> لخدمات الإدراج البرمجية الموحدة.
+                صلاحية الظهور عبر نظام الرصد الذكي مبنية على <strong>حزمة رخصة مسبقة الدفع</strong> لخدمات الإدراج البرمجية الموحدة.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -626,7 +627,7 @@ export default function BarberDashboard() {
                 ) : null}
               </motion.div>
               <Button type="button" variant="outline" size="sm" onClick={() => setRedeemDialogOpen(true)}>
-                استرداد رمز الحزمة البرمجية
+                استرداد رمز حزمة الرخصة
               </Button>
             </CardContent>
           </Card>
@@ -645,11 +646,11 @@ export default function BarberDashboard() {
               <DialogHeader>
                 <DialogTitle>استرداد رمز حزمة الإدراج البرمجية</DialogTitle>
                 <DialogDescription>
-                  أدخل الرمز الذي وصلك بالبريد بعد شراء الحزمة البرمجية (مثال: HM-LIC-XXXX-XXXX-XXXX).
+                  أدخل الرمز الذي وصلك بالبريد بعد شراء حزمة الرخصة (مثال: HM-LIC-XXXX-XXXX-XXXX).
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
-                <Label htmlFor="license-redeem-code">رمز الحزمة البرمجية</Label>
+                <Label htmlFor="license-redeem-code">رمز حزمة الرخصة</Label>
                 <Input
                   id="license-redeem-code"
                   value={redeemCode}
@@ -659,7 +660,7 @@ export default function BarberDashboard() {
                   className="text-left"
                 />
                 <p className="text-xs text-muted-foreground leading-relaxed pt-1">
-                  نظام حزم برمجية مسبقة الدفع متوافق مع البيع بالتجزئة للبرمجيات، خاضع لأنظمة الهيئة العامة لتنظيم
+                  نظام حزم رخصة مسبقة الدفع متوافق مع البيع بالتجزئة للبرمجيات، خاضع لأنظمة الهيئة العامة لتنظيم
                   الإعلام بالمملكة العربية السعودية.
                 </p>
               </div>
@@ -695,7 +696,7 @@ export default function BarberDashboard() {
                     void refreshListingBalance();
                   }}
                 >
-                  {redeemLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تفعيل الحزمة البرمجية'}
+                  {redeemLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تفعيل حزمة الرخصة'}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -1947,7 +1948,7 @@ function PostsSection({
                 </div>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <Badge variant={post.type === 'offer' ? 'default' : 'secondary'}>
-                    {post.type === 'offer' ? 'عرض' : post.type === 'gallery' ? 'معرض' : 'إعلان'}
+                    {post.type === 'offer' ? 'عرض' : post.type === 'gallery' ? 'معرض' : TERM_GEOSPATIAL_DIGITAL_ASSET_AR}
                   </Badge>
                   {post.type === 'gallery' ? (
                     <Badge variant="outline" dir="ltr">
@@ -2007,7 +2008,7 @@ function PostsSection({
               >
                 <option value="offer">عرض / خصم</option>
                 <option value="gallery">معرض صور</option>
-                <option value="announcement">إعلان</option>
+                <option value="announcement">{TERM_GEOSPATIAL_DIGITAL_ASSET_AR}</option>
               </select>
             </div>
             {type === 'offer' ? (
@@ -2206,7 +2207,7 @@ function InclusiveCarePartnerSettingsCard({
         <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium">أقدّم هذه الخدمة (تسهيلات بالمحل و/أو زيارة منزلية بحسب الحالة)</p>
-            <p className="text-xs text-muted-foreground">عند الإيقاف يُحجب الإعلان للعملاء ويُصفَر السعر في العرض العام.</p>
+            <p className="text-xs text-muted-foreground">عند الإيقاف يُحجب {TERM_GEOSPATIAL_DIGITAL_ASSET_AR} للعملاء ويُصفَر السعر في العرض العام.</p>
           </div>
           <Switch checked={offered} onCheckedChange={(c) => setOffered(c === true)} />
         </div>
@@ -2238,7 +2239,7 @@ function InclusiveCarePartnerSettingsCard({
 
             <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-medium">تقييد الإعلان بأيام محددة</p>
+                <p className="text-sm font-medium">تقييد {TERM_GEOSPATIAL_DIGITAL_ASSET_AR} بأيام محددة</p>
                 <p className="text-xs text-muted-foreground">
                   عند الإيقاف يُفهم أن التوفّر مرن (حسب الظروف) دون التزام تقويمي صارم في العرض.
                 </p>
@@ -2248,7 +2249,7 @@ function InclusiveCarePartnerSettingsCard({
 
             {restrictDays && (
               <div className="rounded-lg border border-border p-3 space-y-2">
-                <p className="text-sm font-medium">أيام توفّر الخدمة للإعلان</p>
+                <p className="text-sm font-medium">أيام توفر الخدمة لـ{TERM_GEOSPATIAL_DIGITAL_ASSET_AR}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {SAUDI_WEEK_DAY_LABELS.map((day) => (
                     <div key={day} className="flex items-center gap-2">

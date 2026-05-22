@@ -2,6 +2,11 @@ import { addMonths, format, subDays } from 'date-fns';
 import { arSA } from 'date-fns/locale/ar-SA';
 import { SubscriptionTier } from '@/lib/index';
 import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
+import {
+  INVOICE_PRODUCT_DESCRIPTION_EN,
+  invoiceLineDescriptionAr,
+  invoiceLineDescriptionEn,
+} from '@/config/softwareLicenseTerminology';
 
 export type InvoicePreviewLine = {
   descriptionAr: string;
@@ -59,8 +64,8 @@ export function buildMonthlySubscriptionPreview(issueDate: Date = new Date()): S
 
   const lines: InvoicePreviewLine[] = [
     {
-      descriptionAr: `حزمة إدراج برمجية — باقة ماسي (30 يوم صلاحية). السعر المعتمد حالياً على المنصة.`,
-      descriptionEn: `Digital software package — Diamond plan (30-day validity). Current rate per platform.`,
+      descriptionAr: invoiceLineDescriptionAr('باقة ماسي — 30 يوم'),
+      descriptionEn: invoiceLineDescriptionEn('Diamond — 30 days'),
       quantity: 1,
       unitSar: monthly,
       lineTotalSar: monthly,
@@ -82,8 +87,8 @@ export function buildMonthlySubscriptionPreview(issueDate: Date = new Date()): S
       cityCountryEn: 'Riyadh, Kingdom of Saudi Arabia',
       email: SAMPLE_EMAIL,
     },
-    invoiceTypeAr: 'حزمة برمجية 30 يوم — بطاقة / بوابة دفع',
-    invoiceTypeEn: '30-day digital software package — Card / payment gateway',
+    invoiceTypeAr: 'تفعيل الحزمة البرمجية — 30 يوم',
+    invoiceTypeEn: INVOICE_PRODUCT_DESCRIPTION_EN,
     lines,
     subtotalSar: monthly,
     totalSar: monthly,
@@ -94,7 +99,7 @@ export function buildMonthlySubscriptionPreview(issueDate: Date = new Date()): S
     nextRenewalNoteEn: `Next cycle renewal date: ${formatIsoDate(nextRenewal)}.`,
     notesAr: [
       'هذه فاتورة معاينة فقط — لا تُستخدم للسداد الضريبي أو كإثبات رسمي.',
-      'يُستكمل شراء الحزمة البرمجية عبر بوابة الدفع المعتمدة؛ تُحدَّث الفواتير الفعلية تلقائياً عند تفعيل النظام.',
+      'يُستكمل شراء حزمة الرخصة عبر بوابة الدفع المعتمدة؛ تُحدَّث الفواتير الفعلية تلقائياً عند تفعيل النظام.',
     ],
     notesEn: [
       'Preview sample only — not for tax filing or formal evidence.',

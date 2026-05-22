@@ -35,12 +35,12 @@ export default function SubscriptionPolicy() {
 
   const paymentMethods = [
     {
-      title: "شراء الحزمة البرمجية الرقمية (بوابة ميسر Moyasar)",
+      title: "شراء حزمة الرخصة الرقمية (بوابة ميسر Moyasar)",
       description:
-        "الطريقة المتاحة لشراء الحزم البرمجية الحالية: دفع لمرة واحدة عبر بوابة ميسر (Moyasar) المعتمدة وفق الأنظمة المعمول بها في المملكة — برونزي 100 ر.س، ذهبي 150 ر.س، ماسي 200 ر.س — لمدة 30 يوماً لكل حزمة، دون تجديد تلقائي أو خصم دوري.",
+        "الطريقة المتاحة لشراء حزم الرخصة الحالية: دفع لمرة واحدة عبر بوابة ميسر (Moyasar) المعتمدة وفق الأنظمة المعمول بها في المملكة — برونزي 100 ر.س، ذهبي 150 ر.س، ماسي 200 ر.س — لمدة 30 يوماً لكل حزمة، دون تجديد تلقائي أو خصم دوري.",
       icon: CheckCircle2,
       benefits: [
-        "دفع لمرة واحدة مقابل حزمة برمجية شهرية (30 يوماً) — برونزي 100 · ذهبي 150 · ماسي 200 ر.س — كما في جدول الباقات أعلاه",
+        "دفع لمرة واحدة مقابل حزمة رخصة شهرية (30 يوماً) — برونزي 100 · ذهبي 150 · ماسي 200 ر.س — كما في جدول الباقات أعلاه",
         "لا يخزن الموقع رقم البطاقة أو رمز الأمان — تتم المعالجة لدى مزود الدفع المعتمد",
         "إيصال إلكتروني وإشعار بريد بعد إتمام الدفع",
         "تفعيل تلقائي عبر نظام الرصد الذكي بعد نجاح الدفع ومعالجة الويب هوك",
@@ -51,35 +51,35 @@ export default function SubscriptionPolicy() {
   const cancellationSteps = [
     {
       step: "1",
-      title: "انتهاء صلاحية الحزمة البرمجية",
-      description: "تنتهي صلاحية الإدراج تلقائياً في تاريخ انتهاء الحزمة البرمجية المدفوع مسبقاً دون تجديد تلقائي",
+      title: "انتهاء صلاحية حزمة الرخصة",
+      description: "تنتهي صلاحية الإدراج تلقائياً في تاريخ انتهاء حزمة الرخصة المدفوع مسبقاً دون تجديد تلقائي",
     },
     {
       step: "2",
-      title: "شراء حزمة برمجية جديدة",
-      description: "يمكن شراء حزمة برمجية جديدة أو استرداد كود تفعيل لمدة إضافية وفق المنتج المعروض",
+      title: "شراء حزمة رخصة جديدة",
+      description: "يمكن شراء حزمة رخصة جديدة أو استرداد كود تفعيل لمدة إضافية وفق المنتج المعروض",
     },
     {
       step: "3",
       title: "طلب إيقاف مبكر",
-      description: "لطلبات خاصة بالإيقاف أو الحذف، تواصل مع الدعم — لا يترتب استرداد مالي بعد تفعيل الحزمة البرمجية",
+      description: "لطلبات خاصة بالإيقاف أو الحذف، تواصل مع الدعم — لا يترتب استرداد مالي بعد تفعيل حزمة الرخصة",
     },
     {
       step: "4",
       title: "إخفاء من نظام الرصد الذكي",
-      description: "بعد انتهاء الصلاحية يُخفى المحل من نتائج البحث حتى تجديد الحزمة البرمجية",
+      description: "بعد انتهاء الصلاحية يُخفى المحل من نتائج البحث حتى تجديد حزمة الرخصة",
     },
   ];
 
   const refundPolicy = [
     {
-      condition: "قبل تفعيل كود الحزمة البرمجية",
+      condition: "قبل تفعيل كود حزمة الرخصة",
       refund: "مراجعة إدارية حسب الحالة",
       icon: AlertCircle,
       color: "text-yellow-500",
     },
     {
-      condition: "بعد تفعيل الحزمة البرمجية",
+      condition: "بعد تفعيل حزمة الرخصة",
       refund: "غير قابل للإلغاء أو الاسترداد",
       icon: XCircle,
       color: "text-red-500",
@@ -102,13 +102,13 @@ export default function SubscriptionPolicy() {
       >
         <motion.div variants={fadeInUp} className="text-center mb-12">
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-            سياسة الحزم البرمجية الرقمية للإدراج البرمجي
+            سياسة حزم الرخصة الرقمية للإدراج البرمجي
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
             شروط شراء حزم الإدراج البرمجية
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            نلتزم بالشفافية الكاملة في بيع الحزم البرمجية الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
+            نلتزم بالشفافية الكاملة في بيع حزم الرخصة الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
           </p>
         </motion.div>
 
@@ -125,10 +125,10 @@ export default function SubscriptionPolicy() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                تُقرّ المنشأة المستفيدة (صالون الحلاقة) بأن المنتج المشترى عبر المنصة هو (حزمة برمجية لخدمات إدراج برمجية
+                تُقرّ المنشأة المستفيدة (صالون الحلاقة) بأن المنتج المشترى عبر المنصة هو (حزمة رخصة لخدمات إدراج برمجية
                 موحدة) على نظام الرصد الذكي التفاعلي لمنصة (حلاق ماب). هذا المنتج هو مساحة برمجية مخصصة ومطورة لعرض البيانات
                 الجغرافية والمعلومات التشغيلية للصالون، وتحديثها تقنيًا لربطه وإدراج بياناته للباحثين في محيطه الجغرافي.
-                تُعد هذه الحزم البرمجية منتجات رقمية مسبقة الدفع وغير قابلة للإلغاء أو الاسترداد بعد التفعيل.
+                تُعد هذه حزم الرخصة منتجات رقمية مسبقة الدفع وغير قابلة للإلغاء أو الاسترداد بعد التفعيل.
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
                 {PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR}
@@ -138,7 +138,7 @@ export default function SubscriptionPolicy() {
         </motion.section>
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-4 text-center">أنواع باقات الحزم البرمجية والأسعار</h2>
+          <h2 className="text-3xl font-bold mb-4 text-center">أنواع باقات حزم الرخصة والأسعار</h2>
           <p className="text-sm text-muted-foreground text-center max-w-3xl mx-auto mb-8 leading-relaxed">
             {SUBSCRIPTION_POLICY_TIERS_INTRO}
           </p>
@@ -263,7 +263,7 @@ export default function SubscriptionPolicy() {
                   <div>
                     <h3 className="font-semibold mb-1">انتهاء الصلاحية</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      عند انتهاء مدة الحزمة البرمجية تتوقف صلاحية الإدراج عبر نظام الرصد الذكي حتى شراء حزمة برمجية جديدة أو استرداد كود تفعيل.
+                      عند انتهاء مدة حزمة الرخصة تتوقف صلاحية الإدراج عبر نظام الرصد الذكي حتى شراء حزمة رخصة جديدة أو استرداد كود تفعيل.
                     </p>
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">انتهاء الحزمة البرمجية وإعادة الشراء</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">انتهاء حزمة الرخصة وإعادة الشراء</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {cancellationSteps.map((item, index) => (
               <motion.div
@@ -327,7 +327,7 @@ export default function SubscriptionPolicy() {
           <Card className="mt-8 max-w-3xl mx-auto bg-muted/50">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground text-center">
-                <strong>ملاحظة هامة:</strong> الحزم البرمجية الرقمية مسبقة الدفع غير قابلة للإلغاء أو الاسترداد بعد تفعيل كود الحزمة البرمجية.
+                <strong>ملاحظة هامة:</strong> حزم الرخصة الرقمية مسبقة الدفع غير قابلة للإلغاء أو الاسترداد بعد تفعيل كود حزمة الرخصة.
               </p>
             </CardContent>
           </Card>
@@ -337,8 +337,8 @@ export default function SubscriptionPolicy() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                في حال نجاح عملية الدفع وعدم تفعيل الحزمة البرمجية أو كود التفعيل بسبب خلل فني، يلتزم الموقع بمعالجة الطلب وإعادة
-                كامل المبلغ للحساب المصدر خلال 7 إلى 14 يوم عمل، ما لم يفضل المشتري تفعيل الحزمة البرمجية يدوياً عبر التواصل مع
+                في حال نجاح عملية الدفع وعدم تفعيل حزمة الرخصة أو كود التفعيل بسبب خلل فني، يلتزم الموقع بمعالجة الطلب وإعادة
+                كامل المبلغ للحساب المصدر خلال 7 إلى 14 يوم عمل، ما لم يفضل المشتري تفعيل حزمة الرخصة يدوياً عبر التواصل مع
                 الدعم الفني.
               </p>
             </CardContent>
@@ -404,7 +404,7 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                  جميع قيم الحزم البرمجية الرقمية الموضحة هي مبالغ نهائية، ولا يتم تحصيل ضريبة قيمة مضافة (VAT) حالياً نظراً
+                  جميع قيم حزم الرخصة الرقمية الموضحة هي مبالغ نهائية، ولا يتم تحصيل ضريبة قيمة مضافة (VAT) حالياً نظراً
                   لعدم وصول المؤسسة للحد الإلزامي للتسجيل الضريبي.
                 </p>
               </CardContent>
@@ -462,7 +462,7 @@ export default function SubscriptionPolicy() {
                     يشترط التأشير على تعهد المشترك بأن منشأته ممتثلة لاشتراطات الجهات ذات العلاقة لممارسة نشاط الحلاقة بشكل
                     رسمي، وأنه يتحمل كامل المسؤولية النظامية عن صحة هذا التعهد. تتم مراجعة هذا التعهد تقنياً، وتُرسل
                     تنبيهات تقنية عند رصد مخالفات أو تجاوزات في المعلومات المقدمة أو الصور أو محتوى الشات الكتابي،
-                    ويجوز للمنصة رفض الطلب أو إيقاف الحزمة البرمجية فوراً وفق السياسة المعتمدة.
+                    ويجوز للمنصة رفض الطلب أو إيقاف حزمة الرخصة فوراً وفق السياسة المعتمدة.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">

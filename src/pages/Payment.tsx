@@ -32,6 +32,9 @@ import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/li
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
+import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
+import { DigitalActivationCertificateCard } from '@/components/billing/DigitalActivationCertificateCard';
+import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
 import { toast } from 'sonner';
 
@@ -93,6 +96,9 @@ export default function Payment() {
   const [moyasarVerifyMessage, setMoyasarVerifyMessage] = useState<string | null>(null);
   /** يُعرض مع تنبيه النجاح بعد التحقق من ميسر عند paid */
   const [moyasarPaidAmountFormat, setMoyasarPaidAmountFormat] = useState<string | null>(null);
+  const [activationCertificate, setActivationCertificate] = useState<DigitalActivationCertificateView | null>(null);
+  const [activationCertificateLoading, setActivationCertificateLoading] = useState(false);
+  const [activationCertificateError, setActivationCertificateError] = useState<string | null>(null);
   const moyasarHostRef = useRef<HTMLDivElement>(null);
   const [moyasarFormError, setMoyasarFormError] = useState<string | null>(null);
 
@@ -140,7 +146,7 @@ export default function Payment() {
     [price, vatSettings],
   );
 
-  /** قيمة الحزمة البرمجية الرقمية بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
+  /** قيمة حزمة الرخصة الرقمية بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
   const monthlyAmountHalalas = useMemo(
     () => Math.max(100, Math.round(licenseBreakdown.total * 100)),
     [licenseBreakdown.total],
@@ -190,8 +196,9 @@ export default function Payment() {
     void verifyMoyasarPaymentRemote(moyasarPaymentIdFromUrl, {
       expectedAmountHalalas: monthlyAmountHalalas,
       expectedCurrency: 'SAR',
-    }).then((result) => {
+    }).then(async (result) => {
       if (cancelled) return;
+      const verifiedPaymentId = moyasarPaymentIdFromUrl;
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
@@ -209,7 +216,7 @@ export default function Payment() {
           );
           toast.message('تنبيه', { description: 'خادم التحقق من ميسر غير مهيأ بعد.' });
         } else if (result.error === 'amount_mismatch') {
-          setMoyasarVerifyMessage('المبلغ لا يطابق قيمة الحزمة البرمجية الرقمية للباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
+          setMoyasarVerifyMessage('المبلغ لا يطابق قيمة حزمة الرخصة الرقمية للباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
           toast.error('تباين في المبلغ');
         } else {
           setMoyasarVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
@@ -222,11 +229,21 @@ export default function Payment() {
         setMoyasarReturnVerify('paid');
         setMoyasarVerifyMessage(null);
         setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
-        toast.success('تم تفعيل حسابك بنجاح', {
-          description:
-            'تم تأكيد الدفع عبر ميسر، وحسابك مفعّل الآن ويمكنك البدء باستقبال الطلبات من لوحة التحكم. لا حاجة لإعادة الدفع.',
-          duration: 11000,
-        });
+        setActivationCertificate(null);
+        setActivationCertificateError(null);
+        setActivationCertificateLoading(true);
+        const certResult = await fetchActivationCertificateByMoyasarPaymentId(verifiedPaymentId);
+        if (cancelled) return;
+        setActivationCertificateLoading(false);
+        if (certResult.ok) {
+          setActivationCertificate(certResult.certificate);
+        } else {
+          setActivationCertificateError(
+            certResult.pending
+              ? 'جاري إصدار شهادة التفعيل الرقمية — قد تستغرق ثوانٍ بعد تأكيد الدفع.'
+              : 'تعذر جلب شهادة التفعيل الرقمية حالياً.',
+          );
+        }
       } else {
         setMoyasarReturnVerify('unpaid');
         setMoyasarVerifyMessage(
@@ -367,10 +384,10 @@ export default function Payment() {
             </motion.div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-snug">
-              شراء حزمة برمجية لخدمات الإدراج البرمجية
+              شراء حزمة رخصة لخدمات الإدراج البرمجية
             </h1>
             <p className="text-lg text-muted-foreground">
-              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء الحزمة البرمجية
+              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة الرخصة
             </p>
           </div>
         </motion.div>
@@ -386,28 +403,37 @@ export default function Payment() {
             </Alert>
           )}
           {moyasarReturnVerify === 'paid' && (
-            <Alert className="mb-6 border-emerald-600/45 bg-gradient-to-l from-emerald-500/12 to-background shadow-sm">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-              <div className="space-y-2 pr-1">
-                <AlertTitle className="text-base font-semibold text-emerald-950 dark:text-emerald-50">
-                  تم الدفع وتفعيل حسابك
-                </AlertTitle>
-                <AlertDescription className="text-sm leading-relaxed text-foreground/90">
-                  <p>
-                    تم استلام قيمة <strong>الحزمة البرمجية الرقمية</strong> عبر ميسر بشكل صحيح، و<strong>تم تفعيل صلاحية الإدراج على المنصة</strong>. يمكنك
-                    الآن تسجيل الدخول إلى لوحة التحكم والبدء باستقبال الطلبات.
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    تحقق من بريدك لرسالة الترحيب وروابط لوحة التحكم. لا حاجة لإعادة الدفع.
-                  </p>
-                  {moyasarPaidAmountFormat ? (
-                    <p className="mt-2 text-xs font-medium text-muted-foreground" dir="ltr">
-                      المبلغ المؤكد من ميسر: {moyasarPaidAmountFormat}
-                    </p>
-                  ) : null}
-                </AlertDescription>
-              </div>
-            </Alert>
+            <div className="mb-6 space-y-4">
+              {activationCertificateLoading && (
+                <Alert className="border-primary/30 bg-primary/5">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <AlertDescription>
+                    جاري إصدار شهادة التفعيل الرقمية وتفعيل بروتوكول الربط الآلي للخريطة…
+                  </AlertDescription>
+                </Alert>
+              )}
+              {activationCertificate ? (
+                <DigitalActivationCertificateCard certificate={activationCertificate} />
+              ) : !activationCertificateLoading ? (
+                <Alert className="border-emerald-600/45 bg-gradient-to-l from-emerald-500/12 to-background shadow-sm">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  <div className="space-y-2 pr-1">
+                    <AlertTitle className="text-base font-semibold text-emerald-950 dark:text-emerald-50">
+                      تم الدفع — جاري إصدار الشهادة
+                    </AlertTitle>
+                    <AlertDescription className="text-sm leading-relaxed text-foreground/90">
+                      {activationCertificateError ||
+                        'تم تأكيد الدفع. ستظهر شهادة التفعيل الرقمية هنا فور اكتمال بروتوكول الربط الآلي.'}
+                    </AlertDescription>
+                  </div>
+                </Alert>
+              ) : null}
+              {moyasarPaidAmountFormat ? (
+                <p className="text-xs font-medium text-muted-foreground" dir="ltr">
+                  المبلغ المؤكد من ميسر: {moyasarPaidAmountFormat}
+                </p>
+              ) : null}
+            </div>
           )}
 
           {(moyasarReturnVerify === 'unpaid' || moyasarReturnVerify === 'error') && moyasarVerifyMessage && (
@@ -429,7 +455,7 @@ export default function Payment() {
               {/* Subscription Summary */}
               <Card>
                 <CardHeader>
-                  <CardTitle>ملخص الحزمة البرمجية الرقمية</CardTitle>
+                  <CardTitle>ملخص حزمة الرخصة الرقمية</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
@@ -454,18 +480,18 @@ export default function Payment() {
                       {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
                         <>
                           <p className="text-xs text-muted-foreground">
-                            قيمة الحزمة البرمجية الرقمية الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
+                            قيمة حزمة الرخصة الرقمية الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
                           </p>
                           <p className="text-xs text-muted-foreground">
                             ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
                           </p>
                           <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
-                          <p className="text-xs text-muted-foreground">إجمالي قيمة الحزمة البرمجية</p>
+                          <p className="text-xs text-muted-foreground">إجمالي قيمة حزمة الرخصة</p>
                         </>
                       ) : (
                         <>
                           <p className="text-2xl font-bold text-primary">{price} ر.س</p>
-                          <p className="text-xs text-muted-foreground">للحزمة البرمجية (دون ضريبة قيمة مضافة)</p>
+                          <p className="text-xs text-muted-foreground">لحزمة الرخصة (دون ضريبة قيمة مضافة)</p>
                         </>
                       )}
                     </div>
@@ -566,7 +592,7 @@ export default function Payment() {
                             . يلتزم التاجر بـ SSL، والتحقق من الدفع في الخادم، وعدم تخزين بيانات البطاقة،
                             وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع أيضاً{' '}
                             <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
-                              سياسة الحزم البرمجية الرقمية
+                              سياسة حزم الرخصة الرقمية
                             </Link>
                             .
                           </p>
@@ -704,11 +730,11 @@ export default function Payment() {
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>حزمة برمجية مسبقة الدفع — دون تجديد تلقائي أو خصم دوري</span>
+                      <span>حزمة رخصة مسبقة الدفع — دون تجديد تلقائي أو خصم دوري</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>صلاحية الإدراج محددة بمدة الحزمة البرمجية المشتراة</span>
+                      <span>صلاحية الإدراج محددة بمدة حزمة الرخصة المشتراة</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />

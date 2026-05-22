@@ -371,7 +371,7 @@ export function OpsBillingMonitorPanel({ canMutate, isFounderView = false }: Pro
       <PanelCard className="p-6 md:p-7" {...(isFounderView ? { delay: 0.12 } : {})}>
         <h3 className={`${theme.sectionTitle} mb-2`}>إضافة التزام يدوي</h3>
         <p className={`${theme.muted} mb-5`}>
-          مثال: نطاق GoDaddy، حزمة برمجية، عقد دعم… — يتطلب صلاحية المزامنة (سوبر أدمن).
+          مثال: نطاق GoDaddy، حزمة رخصة، عقد دعم… — يتطلب صلاحية المزامنة (سوبر أدمن).
         </p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end">
           <div className="space-y-2">

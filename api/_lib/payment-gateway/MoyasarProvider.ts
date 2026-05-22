@@ -22,7 +22,7 @@ function buildMetadata(request: UnifiedPaymentRequest): Record<string, unknown> 
     linked_barber_id: request.linkedBarberId || '',
     product: 'listing_license',
     product_type: 'Halaqmap Software Package',
-    product_type_ar: 'حزمة برمجية لخدمات الإدراج',
+    product_type_ar: 'حزمة رخصة لخدمات الإدراج',
     digital_shift_addon: addon,
     digital_shift_addon_halalas: addonHalalas,
     ...(request.requestId

@@ -1,20 +1,27 @@
 import { SubscriptionTier } from '@/lib/index';
 
-/** تسمية وحدة المنتج — تظهر في بطاقات التسعير والتسجيل */
-export const SOFTWARE_PACKAGE_UNIT_LABEL_AR = 'حزمة برمجية';
+/**
+ * تسمية وحدة المنتج — تظهر في بطاقات التسعير والتسجيل.
+ * التسمية الرسمية المعتمدة: «حزمة رخصة» (Software Licence Package).
+ */
+export const SOFTWARE_PACKAGE_UNIT_LABEL_AR = 'حزمة رخصة';
 
 /**
  * الاسم الرسمي الموحّد للمنتج B2B (مفرد).
  * يُستخدم في عناوين البطاقات والأقسام والمستندات الرسمية.
+ *
+ * التسمية المعتمدة (2026): «حزمة رخصة التواجد الرقمي الجغرافي على منصة حلاق ماب».
+ * تؤكّد أن المنتج هو رخصة برمجية لتفعيل التواجد الرقمي الجغرافي للحلّاق على المنصة،
+ * وليس عمولة على خدمة أو وساطة تجارية.
  */
 export const SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR =
-  'حزمة برمجية للتواجد الجغرافي على منصة حلاق ماب';
+  'حزمة رخصة التواجد الرقمي الجغرافي على منصة حلاق ماب';
 
 /**
  * الاسم الرسمي الموحّد للمنتج B2B (جمع) — يُستخدم في الفقرات والوصف.
  */
 export const SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR =
-  'حزم برمجية للتواجد الجغرافي على منصة حلاق ماب';
+  'حزم رخصة التواجد الرقمي الجغرافي على منصة حلاق ماب';
 
 /**
  * الأساس التقني الرسمي الذي تُبنى عليه الحزم — تسمية موحّدة معتمدة.
@@ -28,7 +35,7 @@ export const SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR =
  * أي تعديل لاحق يحدث هنا فقط.
  */
 export const SOFTWARE_PACKAGE_GEO_PRESENCE_TAGLINE_AR =
-  'حزم برمجية للتواجد الجغرافي على منصة حلاق ماب مبنية على نظام الرصد الذكي والادراج الرقمي. اختر المستوى وعدد البطاقات (كل بطاقة = 30 يوم إدراج).';
+  'حزم رخصة التواجد الرقمي الجغرافي على منصة حلاق ماب مبنية على نظام الرصد الذكي والادراج الرقمي. اختر المستوى وعدد البطاقات (كل بطاقة = 30 يوم إدراج).';
 
 /** شارة مدة البطاقة (30 يوم إدراج) */
 export const SOFTWARE_PACKAGE_VALIDITY_LABEL_AR = `${SOFTWARE_PACKAGE_UNIT_LABEL_AR} · 30 يوم`;
@@ -49,6 +56,6 @@ export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
 /** خيارات منتج الباقة الماسية — واجهة التسعير */
 export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية';
 export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية الذكية';
-export const DIAMOND_PRODUCT_STANDARD_HINT_AR = 'حزمة إدراج ماسية برمجية — 200 ر.س/شهرياً';
+export const DIAMOND_PRODUCT_STANDARD_HINT_AR = 'حزمة رخصة ماسية للإدراج — 200 ر.س/شهرياً';
 export const DIAMOND_PRODUCT_SMART_HINT_AR =
   'شامل المناوب الرقمي الذكي — 225 ر.س/شهرياً (+25 ر.س مدمجة)';

@@ -5,7 +5,7 @@ import { downloadElementAsPdf } from '@/lib/downloadInvoicePreviewPdf';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
-/** صفحة داخلية — نموذج فاتورة PDF للمعاينة (حزمة برمجية 30 يوم). */
+/** صفحة داخلية — نموذج فاتورة PDF للمعاينة (حزمة رخصة 30 يوم). */
 export default function InvoicePreviewSamples() {
   const monthlyRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
@@ -15,7 +15,7 @@ export default function InvoicePreviewSamples() {
 
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = 'حلاق ماب — معاينة فواتير حزم برمجية إدراج (داخلي)';
+    document.title = 'حلاق ماب — معاينة فواتير حزم رخصة إدراج (داخلي)';
     const meta = document.createElement('meta');
     meta.setAttribute('name', 'robots');
     meta.setAttribute('content', 'noindex, nofollow');
@@ -52,12 +52,12 @@ export default function InvoicePreviewSamples() {
                 جاري إنشاء PDF…
               </>
             ) : (
-              'تنزيل PDF — حزمة برمجية 30 يوم'
+              'تنزيل PDF — حزمة رخصة 30 يوم'
             )}
           </Button>
         </div>
         <div className="rounded-xl border border-dashed border-slate-300 bg-white/60 p-6">
-          <h2 className="mb-4 text-center text-sm font-semibold text-slate-700">معاينة — حزمة برمجية 30 يوم</h2>
+          <h2 className="mb-4 text-center text-sm font-semibold text-slate-700">معاينة — حزمة رخصة 30 يوم</h2>
           <div className="flex justify-center overflow-x-auto">
             <SubscriptionInvoiceSlip ref={monthlyRef} payload={monthlyPayload} />
           </div>

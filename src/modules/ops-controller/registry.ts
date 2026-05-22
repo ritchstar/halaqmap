@@ -37,7 +37,7 @@ export const OPS_REPORT_CATEGORY_OPTIONS: {
   {
     value: 'billing_ops',
     labelAr: 'تشغيل وفوترة',
-    hintAr: 'حزمة برمجية، مدفوعات، أو تزامن فوترة',
+    hintAr: 'حزمة رخصة، مدفوعات، أو تزامن فوترة',
   },
   {
     value: 'geo_presence',

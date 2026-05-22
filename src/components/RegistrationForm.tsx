@@ -601,7 +601,7 @@ export function RegistrationForm() {
         isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon)
       ) {
         docLabels.push(
-          `إضافة المناوب الرقمي الذكي (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة برمجية) — مطلوب عند التفعيل.`,
+          `إضافة المناوب الرقمي الذكي (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة رخصة) — مطلوب عند التفعيل.`,
         );
       }
 
@@ -704,7 +704,7 @@ export function RegistrationForm() {
                 : undefined,
             )
           : 0;
-      const payLabel = 'حزمة برمجية (ميسر — بطاقة)';
+      const payLabel = 'حزمة رخصة (ميسر — بطاقة)';
 
       const attributionLines = partnerAttribution
         ? [
@@ -893,9 +893,9 @@ export function RegistrationForm() {
             <div className="rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100">
               <header className="mb-6 space-y-2 text-right">
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  حزم برمجية B2B
+                  حزم رخصة B2B
                 </p>
-                <h2 className="text-2xl font-bold text-white">اختر الحزمة البرمجية المناسبة</h2>
+                <h2 className="text-2xl font-bold text-white">اختر حزمة الرخصة المناسبة</h2>
                 <p className="text-sm leading-relaxed text-slate-300">
                   {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} — مبنية على{' '}
                   <span className="font-semibold text-slate-100">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</span>{' '}
@@ -1223,7 +1223,7 @@ export function RegistrationForm() {
                 <div className="space-y-3">
                   <Label htmlFor="shop-exterior" className={regLabelClass}>صورة واحدة — واجهة المحل من الخارج *</Label>
                   <p className={`text-xs ${regMutedClass}`}>
-                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات الحزم البرمجية.
+                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات حزم الرخصة.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Input
@@ -1553,7 +1553,7 @@ export function RegistrationForm() {
                           {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
                             ? ' (شامل المناوب)'
                             : ''}{' '}
-                          — قيمة الحزمة البرمجية الرقمية الموحد {monthlyPriceBreakdown.subtotal} ر.س + ضريبة
+                          — قيمة حزمة الرخصة الرقمية الموحد {monthlyPriceBreakdown.subtotal} ر.س + ضريبة
                           القيمة المضافة ({vatSettings.ratePercent}%){' '}
                           {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
                           <strong>{monthlyPriceBreakdown.total} ر.س</strong>
@@ -1564,9 +1564,9 @@ export function RegistrationForm() {
                           {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
                             ? ' (شامل المناوب)'
                             : ''}{' '}
-                          — {selectedUnitSar} ريال للحزمة البرمجية
+                          — {selectedUnitSar} ريال لحزمة الرخصة
                           <span className={`block text-xs mt-1 ${regMutedClass}`}>
-                            المبلغ المعروض قيمة حزمة برمجية فقط دون ضريبة قيمة مضافة في الوضع الحالي.
+                            المبلغ المعروض قيمة حزمة رخصة فقط دون ضريبة قيمة مضافة في الوضع الحالي.
                           </span>
                         </>
                       )}
@@ -1577,7 +1577,7 @@ export function RegistrationForm() {
                   <AlertDescription className="text-sm leading-relaxed space-y-2 text-slate-300">
                     <p>
                       <strong className="text-slate-100">الدفع عبر بطاقة (ميسر)</strong> — الطريقة الوحيدة لشراء
-                      الحزمة البرمجية الرقمية على المنصة.
+                      حزمة الرخصة الرقمية على المنصة.
                     </p>
                     <p className={regMutedClass}>
                       بعد مراجعة طلبك والموافقة عليه، ستتلقى رابط الدفع لإتمام السداد بأمان عبر بوابة ميسر (مدى،
@@ -1585,7 +1585,7 @@ export function RegistrationForm() {
                     </p>
                     {selectedPlan && monthlyPriceBreakdown && (
                       <p className="font-medium text-slate-100">
-                        المبلغ المتوقع للحزمة البرمجية (30 يوماً):{' '}
+                        المبلغ المتوقع لحزمة الرخصة (30 يوماً):{' '}
                         {vatSettings.enabled && monthlyPriceBreakdown.vat > 0
                           ? `${monthlyPriceBreakdown.total} ر.س (شامل ضريبة ${vatSettings.ratePercent}%)`
                           : `${selectedUnitSar} ر.س`}
@@ -1641,7 +1641,7 @@ export function RegistrationForm() {
                         rel="noopener noreferrer"
                         className="text-slate-200 underline-offset-2 hover:underline font-medium"
                       >
-                        شروط التسجيل وشراء الحزم البرمجية
+                        شروط التسجيل وشراء حزم الرخصة
                       </Link>{' '}
                       و{' '}
                       <Link

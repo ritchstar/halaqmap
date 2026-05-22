@@ -14,6 +14,11 @@ import {
   dispatchDigitalShiftOnboardingEmail,
   isDigitalShiftAddonInMetadata,
 } from './digitalShiftOnboardingMail.js';
+import {
+  activateGeospatialLicense,
+  refreshGeospatialLicenseAssetBinding,
+} from './geospatialLicenseAssetService.js';
+import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';
 
 export type ListingFulfillInput = {
   skuCode?: string;
@@ -46,6 +51,8 @@ export type ListingFulfillResult =
       tier: ListingLicenseTier;
       quantity: number;
       voucherCodes?: string[];
+      geospatialAssetId?: string;
+      activationCertificate?: DigitalActivationCertificatePayload;
     }
   | { ok: false; error: string; status?: number };
 
@@ -368,6 +375,15 @@ export async function fulfillListingLicenseOrder(
     }).catch(() => undefined);
   }
 
+  const provision = await activateGeospatialLicense(supabase, {
+    orderId: order.id,
+    barberId,
+    entitlementId: firstIssued.entitlementId,
+    tier: product.tier,
+    validUntil: (lastValidUntil || firstIssued.validUntil) ?? '',
+    registrationRequestId: input.registrationRequestId ?? null,
+  });
+
   return {
     ok: true,
     orderId: order.id,
@@ -380,6 +396,8 @@ export async function fulfillListingLicenseOrder(
     tier: product.tier,
     quantity,
     voucherCodes: firstIssued.autoRedeemed ? undefined : voucherCodes,
+    geospatialAssetId: provision.status !== 'Failed' ? provision.assetId : undefined,
+    activationCertificate: provision.status !== 'Failed' ? provision.certificate : undefined,
   };
 }
 
@@ -471,6 +489,16 @@ export async function redeemListingLicenseVoucher(
     client_ip_hash: input.clientIpHash ?? null,
   });
 
+  if (voucher.order_id) {
+    await refreshGeospatialLicenseAssetBinding(supabase, {
+      orderId: voucher.order_id,
+      barberId: input.barberId,
+      entitlementId: credit.entitlementId,
+      validUntil: credit.validUntil,
+      tier: productRow.tier,
+    });
+  }
+
   if (productRow.tier === 'diamond' && voucher.order_id) {
     const { data: orderRow } = await supabase
       .from('listing_license_orders')
@@ -547,11 +575,11 @@ export function buildVoucherEmailBodies(input: {
   listingDaysGranted: number;
   validUntilHint?: string;
 }): { subject: string; html: string; text: string } {
-  const subject = 'حلاق ماب | كود تفعيل — حزمة برمجية لخدمات الإدراج';
+  const subject = 'حلاق ماب | كود تفعيل — حزمة رخصة لخدمات الإدراج';
   const text = [
     `أهلًا ${input.barberName}،`,
     '',
-    'نوع المنتج: Halaqmap Software Package (حزمة برمجية لخدمات الإدراج)',
+    'نوع المنتج: Halaqmap Software Package (حزمة رخصة لخدمات الإدراج)',
     'شكراً لشرائك حزمةً برمجية مسبقة الدفع لخدمات الإدراج البرمجية الموحدة على منصة حلاق ماب.',
     '',
     `الباقة: ${input.tierLabelAr}`,
@@ -559,15 +587,15 @@ export function buildVoucherEmailBodies(input: {
     '',
     `رمز الاسترداد: ${input.plaintextCode}`,
     '',
-    'ادخل إلى لوحة الشريك → استرداد الحزمة البرمجية، والصق الرمز.',
+    'ادخل إلى لوحة الشريك → استرداد حزمة الرخصة، والصق الرمز.',
     '',
     '— فريق حلاق ماب',
   ].join('\n');
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head>
 <body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f0fdf4">
 <p>أهلًا <strong>${input.barberName}</strong>،</p>
-<p><strong>نوع المنتج:</strong> Halaqmap Software Package (حزمة برمجية لخدمات الإدراج)</p>
-<p>كود التفعيل الرقمي للحزمة البرمجية جاهز للاسترداد:</p>
+<p><strong>نوع المنتج:</strong> Halaqmap Software Package (حزمة رخصة لخدمات الإدراج)</p>
+<p>كود التفعيل الرقمي لحزمة الرخصة جاهز للاسترداد:</p>
 <p style="font-size:20px;font-weight:bold;letter-spacing:2px;background:#fff;border:2px dashed #16a34a;padding:16px;border-radius:12px;text-align:center">${input.plaintextCode}</p>
 <p>الباقة: <strong>${input.tierLabelAr}</strong> — <strong>${input.listingDaysGranted}</strong> يوم إدراج.</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>

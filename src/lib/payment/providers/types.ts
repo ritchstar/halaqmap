@@ -4,7 +4,7 @@ import type { PaymentGatewayCode } from '@/config/paymentGateway';
 export type UnifiedPaymentInput = {
   tier: SubscriptionTier;
   amountHalalas: number;
-  /** عدد بطاقات الحزم البرمجية (1–12) */
+  /** عدد بطاقات حزم الرخصة (1–12) */
   licenseQuantity: number;
   /** المناوب الرقمي — ماسي +25 ر.س/بطاقة */
   digitalShiftAddonSelected?: boolean;

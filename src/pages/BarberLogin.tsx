@@ -102,7 +102,7 @@ export default function BarberLogin() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="البريد المعتمد في طلب الحزمة البرمجية"
+                  placeholder="البريد المعتمد في طلب حزمة الرخصة"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-12 pr-10"

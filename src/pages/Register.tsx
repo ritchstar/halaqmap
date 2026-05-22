@@ -54,7 +54,7 @@ export default function Register() {
               to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
               className="text-slate-300 hover:text-white underline underline-offset-2 mx-1"
             >
-              سياسة الحزم البرمجية الرقمية
+              سياسة حزم الرخصة الرقمية
             </Link>
             و
             <Link

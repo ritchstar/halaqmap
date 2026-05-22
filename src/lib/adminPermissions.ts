@@ -99,7 +99,7 @@ export const ADMIN_PERMISSION_UI_SECTIONS: AdminPermissionSection[] = [
   },
   {
     id: 'subscriptions',
-    title: 'الحزم البرمجية والطلبات',
+    title: 'حزم الرخصة والطلبات',
     subtitle: 'قبول أو رفض طلبات الانضمام للمنصة.',
     keys: ['view_requests', 'review_requests'],
   },
@@ -130,7 +130,7 @@ export const ADMIN_PERMISSION_UI_SECTIONS: AdminPermissionSection[] = [
   {
     id: 'marketing',
     title: 'التسويق ومحتوى الشركاء',
-    subtitle: 'فيديو الترحيب للشركاء ودروس الحزم البرمجية — منفصل عن «عرض الإعدادات» العام.',
+    subtitle: 'فيديو الترحيب للشركاء ودروس حزم الرخصة — منفصل عن «عرض الإعدادات» العام.',
     keys: ['view_partner_marketing', 'manage_partner_marketing'],
   },
   {
@@ -170,8 +170,8 @@ export const ADMIN_PERMISSION_KEYS_ORDERED: AdminPermissionKey[] = ADMIN_PERMISS
 
 export const ADMIN_PERMISSION_LABELS: Record<AdminPermissionKey, string> = {
   view_overview: 'عرض النظرة العامة',
-  view_requests: 'عرض طلبات الحزم البرمجية والإدراج',
-  review_requests: 'اعتماد أو رفض طلبات الحزم البرمجية والإدراج',
+  view_requests: 'عرض طلبات حزم الرخصة والإدراج',
+  review_requests: 'اعتماد أو رفض طلبات حزم الرخصة والإدراج',
   view_barbers: 'عرض قائمة الحلاقين',
   manage_barbers: 'تفعيل وتعطيل الحلاقين وإجراءات إدارية على السجلات',
   view_payments: 'عرض المدفوعات وسجل ميسر',
@@ -188,7 +188,7 @@ export const ADMIN_PERMISSION_LABELS: Record<AdminPermissionKey, string> = {
   manage_partner_billing: 'تأكيد إيصالات التحويل وإجراءات فوترة ميسر للشريك',
   view_ops_billing_monitor: 'عرض لوحة التزامات التشغيل والفوترة (قراءة فقط)',
   view_partner_marketing: 'عرض أقسام المحتوى التسويقي للشركاء',
-  manage_partner_marketing: 'تعديل فيديو الترحيب وفيديوهات شروحات الحزم البرمجية',
+  manage_partner_marketing: 'تعديل فيديو الترحيب وفيديوهات شروحات حزم الرخصة',
   manage_platform_commerce_rules: 'حفظ ضريبة العرض والقواعد التجارية على الواجهات العامة',
   manage_centralized_billing_ops: 'مزامنة وتعديل لوحة التزامات التشغيل (سوبر أدمن)',
   view_admin_financial_archive: 'عرض أرشيف فواتير ووثائق الإدارة',

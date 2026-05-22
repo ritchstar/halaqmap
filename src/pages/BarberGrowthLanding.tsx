@@ -584,7 +584,7 @@ export default function BarberGrowthLanding() {
         </div>
       </section>
 
-      {/* بطاقات الحزم البرمجية الرقمية — متجر البرمجيات */}
+      {/* بطاقات حزم الرخصة الرقمية — متجر البرمجيات */}
       <section className="border-t border-border/60 bg-[#061223] py-14 md:py-18">
         <div className="container mx-auto px-4">
           <ListingLicensePricingMatrix variant="standalone-dark" />
@@ -647,7 +647,7 @@ export default function BarberGrowthLanding() {
                 </NavLink>
                 <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY}>
                   <Button size="lg" variant="link" className="w-full text-primary">
-                    سياسة الحزم البرمجية الرقمية
+                    سياسة حزم الرخصة الرقمية
                   </Button>
                 </NavLink>
               </div>
