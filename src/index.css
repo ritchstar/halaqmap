@@ -211,22 +211,76 @@
   }
 }
 
-/* ─── Arabic / Bidi text safety ──────────────────────────────────────────
- * Generalized fix for any container that mixes Arabic + Latin / digits /
- * Markdown markers (### , **, 1., :, etc.). Default LTR base direction makes
- * neutral characters (colons, hashes, brackets) appear on the wrong side of
- * the Arabic glyphs, which is hard to read.
+/* ─── Arabic / Bidi text safety — GLOBAL RULE ─────────────────────────────
+ * Halaq Map is an Arabic-first product (<html dir="rtl">). Many strings
+ * mix Arabic with Latin tokens, digits, IDs, codes, emails, Markdown
+ * markers (### , **, 1., :, etc.). Under a fixed `direction: rtl|ltr`
+ * neutral characters (colons, hashes, brackets, slashes) get pushed to
+ * the wrong side of the Arabic glyphs, hurting readability.
  *
- * The fix uses `unicode-bidi: plaintext` so every paragraph (each newline-
- * separated line in pre-wrap content) picks its own base direction from
- * its first strong character. Arabic-first lines render RTL with correct
- * punctuation placement, English-first lines stay LTR — no manual <bdi>
- * wrapping is required for the common case.
+ * The single property `unicode-bidi: plaintext` makes each paragraph
+ * choose its own base direction from its first strong character. Arabic
+ * paragraphs render RTL with punctuation at the correct end, English
+ * paragraphs stay LTR — automatically, with no manual <bdi>/dir wrapping.
  *
- * Apply `.chat-arabic-text` to chat bubbles, model replies, anything that
- * renders user/assistant generated Arabic. Apply `.rtl-force` when the
- * container is guaranteed Arabic and should not auto-detect direction.
+ * We promote this to ALL natural text containers using `:where()` so the
+ * specificity stays at 0 and any component author can override with a
+ * single class. It is intentionally NOT applied to <div>, <pre>, or
+ * structural elements because <pre> often hosts code that must stay LTR
+ * regardless of content.
+ *
+ * Inline code/kbd/samp/var get full LTR isolation so embedded API keys,
+ * URLs, file paths, and identifiers never break Arabic flow.
+ *
+ * Escape hatch: add class `.bidi-off` (or `data-bidi="off"`) to any
+ * element that intentionally needs the platform's prior default behaviour.
  * ───────────────────────────────────────────────────────────────────── */
+:where(
+  p,
+  li,
+  dd,
+  dt,
+  td,
+  th,
+  caption,
+  blockquote,
+  figcaption,
+  summary,
+  h1, h2, h3, h4, h5, h6,
+  label,
+  span,
+  q,
+  cite,
+  small,
+  strong,
+  em,
+  legend,
+  option
+) {
+  unicode-bidi: plaintext;
+}
+
+:where(code, kbd, samp, var) {
+  unicode-bidi: isolate;
+  direction: ltr;
+}
+
+/* External URLs (http/https/mailto/tel) inside Arabic paragraphs get
+   isolated runs so neutral characters around them don't mis-align. */
+:where(a[href^="http://"], a[href^="https://"], a[href^="mailto:"], a[href^="tel:"]) {
+  unicode-bidi: isolate;
+}
+
+/* Escape hatch — opt-out of automatic plaintext bidi when authors know
+   the container must follow a single fixed direction (e.g. animated
+   marquees, RTL-locked layouts). */
+:where([data-bidi="off"], .bidi-off) {
+  unicode-bidi: normal;
+}
+
+/* Legacy explicit hooks — kept so callers that already added these
+   classes (chat bubbles, ops feed) continue to work even if a future
+   refactor narrows the `:where()` selector list above. */
 .chat-arabic-text {
   unicode-bidi: plaintext;
   text-align: start;
@@ -238,8 +292,6 @@
   text-align: right;
 }
 
-/* Inline English tokens, code, kbd & sample text get isolated by default so
-   they never break the surrounding Arabic flow. */
 .chat-arabic-text code,
 .chat-arabic-text kbd,
 .chat-arabic-text samp,
