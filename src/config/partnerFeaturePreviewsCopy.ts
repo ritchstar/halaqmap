@@ -8,7 +8,7 @@ export const PARTNER_FEATURE_PREVIEW_DASHBOARD = {
 } as const;
 
 export const PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT = {
-  eyebrow: 'المناوب الذكي · أثر الضيافة',
+  eyebrow: 'Add-on المناوب · أثر الضيافة',
   title: 'محاكاة استجابة المناوب على الشات وحالة البنر',
   paragraphs: [
     'عندما يسأل العميل عن كرسي متاح، يفعّل المناوب حالة الضيافة على البنر فوراً — «جاهز للترحيب» — ثم يرد بأسلوب سعودي دافئ يثبت الموعد ويؤكد التوفر الحي.',

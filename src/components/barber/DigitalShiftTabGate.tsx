@@ -5,6 +5,7 @@ import { DigitalShiftUpgradeLocked } from '@/components/barber/DigitalShiftUpgra
 import type { BarberPlatformBannerState } from '@/lib/barberDashboardLocalState';
 import type { Post } from '@/lib';
 import { SubscriptionTier } from '@/lib';
+import { DIGITAL_SHIFT_GATE_LOADING_AR } from '@/config/subscriptionPricing';
 import { fetchDigitalShiftSummaryRemote } from '@/lib/digitalShiftAssistantRemote';
 
 export function DigitalShiftTabGate({
@@ -53,7 +54,7 @@ export function DigitalShiftTabGate({
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
         <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-        جاري التحقق من صلاحية المناوب الذكي…
+        {DIGITAL_SHIFT_GATE_LOADING_AR}
       </div>
     );
   }

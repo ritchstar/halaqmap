@@ -8,6 +8,10 @@ import {
   type ZatcaHypotheticalScenario,
   type ZatcaRevenueAnalytics,
 } from './zatcaTaxTypes.js';
+import {
+  INVOICE_DIAMOND_LICENSE_LABEL_AR,
+  INVOICE_DIAMOND_WITH_ADDON_LABEL_AR,
+} from '../subscriptionPricingCopy.js';
 
 function roundSar(n: number): number {
   return Math.round(n * 100) / 100;
@@ -60,8 +64,8 @@ function buildHypotheticalScenarios(): ZatcaHypotheticalScenario[] {
   const packages = [
     { labelAr: 'حزمة برونزية (100 ر.س)', subtotalSar: 100 },
     { labelAr: 'حزمة ذهبية (150 ر.س)', subtotalSar: 150 },
-    { labelAr: 'حزمة ماسية قياسية (200 ر.س)', subtotalSar: 200 },
-    { labelAr: 'حزمة ماسية + المناوب (225 ر.س)', subtotalSar: 225 },
+    { labelAr: INVOICE_DIAMOND_LICENSE_LABEL_AR, subtotalSar: 200 },
+    { labelAr: INVOICE_DIAMOND_WITH_ADDON_LABEL_AR, subtotalSar: 225 },
   ];
 
   const invoiceScenarios: ZatcaHypotheticalScenario[] = packages.map((p) => {

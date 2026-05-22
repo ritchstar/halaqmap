@@ -1,10 +1,15 @@
-import { BadgeCheck, MapPin, Radar, Shield } from 'lucide-react';
+import { BadgeCheck, MapPin, Radar, Shield, Store } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
+  BARBER_NAME_LABEL_AR,
   GEOSPATIAL_LICENSE_ASSET_CLASS,
   ISIC_ACTIVITY_CODE,
+  ISIC_ACTIVITY_CODE_LABEL_AR,
   MAP_INTEGRATION_PROTOCOL,
+  PLATFORM_NAME_AR,
+  SOFTWARE_LICENSE_MANAGER_LABEL_AR,
+  UNIFIED_DIGITAL_LICENSE_LABEL_AR,
   type DigitalActivationCertificateView,
 } from '@/config/geospatialLicenseDoctrine';
 import { INVOICE_PRODUCT_DESCRIPTION_EN } from '@/config/softwareLicenseTerminology';
@@ -12,6 +17,7 @@ import { cn } from '@/lib/utils';
 
 type Props = {
   certificate: DigitalActivationCertificateView;
+  barberName?: string;
   className?: string;
   compact?: boolean;
 };
@@ -27,8 +33,16 @@ function formatDate(iso: string): string {
   }
 }
 
-export function DigitalActivationCertificateCard({ certificate, className, compact }: Props) {
+function resolveBarberName(explicit: string | undefined, certificate: DigitalActivationCertificateView): string {
+  if (explicit?.trim()) return explicit.trim();
+  const fromSnap = certificate.geoSnapshot?.businessName;
+  if (typeof fromSnap === 'string' && fromSnap.trim()) return fromSnap.trim();
+  return '—';
+}
+
+export function DigitalActivationCertificateCard({ certificate, barberName, className, compact }: Props) {
   const mapLive = certificate.mapIntegrationStatus === 'map_live';
+  const displayBarber = resolveBarberName(barberName, certificate);
 
   return (
     <Card
@@ -45,22 +59,37 @@ export function DigitalActivationCertificateCard({ certificate, className, compa
             Digital Activation Certificate
           </Badge>
           <Badge variant="outline" className="border-emerald-400/30 text-emerald-200">
-            ISIC4 {ISIC_ACTIVITY_CODE}
+            {ISIC_ACTIVITY_CODE_LABEL_AR}: {certificate.isicCode || ISIC_ACTIVITY_CODE}
           </Badge>
         </div>
         <CardTitle className={cn('text-xl font-extrabold text-white', compact && 'text-lg')}>
-          شهادة تفعيل رقمية
+          شهادة تفعيل رقمية — {PLATFORM_NAME_AR}
         </CardTitle>
         <CardDescription className="text-slate-300">
           {SOFTWARE_LICENSE_MANAGER_LABEL_AR} — {GEOSPATIAL_LICENSE_ASSET_CLASS}
         </CardDescription>
       </CardHeader>
       <CardContent className={cn('space-y-4', compact && 'pt-0')}>
-        <div className="rounded-xl border border-white/10 bg-black/25 p-4">
-          <p className="text-[11px] font-semibold text-cyan-200/80">رقم الشهادة</p>
-          <p className="mt-1 font-mono text-lg font-bold tracking-wide text-white" dir="ltr">
-            {certificate.certificateNumber}
-          </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-3 sm:col-span-2">
+            <p className="text-[10px] font-semibold text-cyan-200/80">{UNIFIED_DIGITAL_LICENSE_LABEL_AR}</p>
+            <p className="mt-1 font-mono text-lg font-bold tracking-wide text-white" dir="ltr">
+              {certificate.certificateNumber}
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+            <p className="text-[10px] text-slate-400">{ISIC_ACTIVITY_CODE_LABEL_AR}</p>
+            <p className="mt-1 font-mono text-sm font-bold text-emerald-200" dir="ltr">
+              {certificate.isicCode || ISIC_ACTIVITY_CODE}
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+            <p className="text-[10px] text-slate-400">{BARBER_NAME_LABEL_AR}</p>
+            <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-white">
+              <Store className="h-3.5 w-3.5 shrink-0 text-cyan-300" />
+              {displayBarber}
+            </p>
+          </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">

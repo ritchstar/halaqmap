@@ -2,8 +2,14 @@ import { Link } from 'react-router-dom';
 import { Bot, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
-import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
-import { TERM_PACKAGE_ACTIVATION_AR } from '@/config/softwareLicenseTerminology';
+import {
+  DIGITAL_SHIFT_ADDON_VALUE_AR,
+  DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
+  DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR,
+  DIAMOND_PRODUCT_SMART_LABEL_AR,
+  DIAMOND_PRODUCT_STANDARD_LABEL_AR,
+} from '@/config/subscriptionPricing';
+import { TERM_BUY_LICENSE_AR, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 
 function buildSmartDiamondCheckoutHref(): string {
@@ -68,32 +74,33 @@ export function DigitalShiftUpgradeLocked({
 
         <div className="mb-2 flex items-center gap-2 text-cyan-200/80">
           <Bot className="h-4 w-4" aria-hidden />
-          <span className="text-xs font-medium tracking-wide">حلاق ماب · الماسية الذكية</span>
+          <span className="text-xs font-medium tracking-wide">{DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR}</span>
         </div>
 
-        <h2 className="text-2xl font-bold text-cyan-50 sm:text-3xl">ميزتك الذكية بانتظارك! 🤖✨</h2>
+        <h2 className="text-2xl font-bold text-cyan-50 sm:text-3xl">المناوب الرقمي الذكي — إضافة للماسية 🌙</h2>
 
         <p className="mt-4 max-w-xl text-sm leading-relaxed text-cyan-100/85 sm:text-base">
-          اجعل الذكاء الاصطناعي موظفك المخلص المتاح 24 ساعة للرد التلقائي على محادثات الزبائن، تأكيد
-          الحجوزات، وتنظيم جدولك بذكاء تام دون تشتت.
+          {DIGITAL_SHIFT_ADDON_VALUE_AR} فعّل الإضافة البرمجية المتقدمة ليصبح المناوب موظفك الرقمي 24/7 للرد
+          التلقائي، تأكيد الحجوزات، وضيافة الشات بذكاء.
         </p>
 
         <div className="mt-5 max-w-lg w-full rounded-xl border border-cyan-400/20 bg-cyan-950/40 px-4 py-3 text-right">
           <DigitalShiftFeatureBullets
-            title="مزايا المناوب — بما فيها الشات المترجم"
+            title="مزايا الإضافة البرمجية المتقدمة"
             className="[&_p]:text-cyan-100/90 [&_li]:text-cyan-100/75"
           />
         </div>
 
         {!isDiamond ? (
           <p className="mt-3 max-w-lg text-xs text-cyan-200/70 sm:text-sm">
-            المناوب الذكي متاح ضمن <strong className="text-cyan-100">الباقة الماسية الذكية</strong> — ابدأ
-            بالترقية للماسية ثم فعّل الإضافة الذكية من صفحة التسعير.
+            الإضافة متاحة مع <strong className="text-cyan-100">{DIAMOND_PRODUCT_SMART_LABEL_AR}</strong> — ابدأ
+            برخصة الماسية ثم فعّل Add-on المناوب من صفحة التسعير.
           </p>
         ) : (
           <p className="mt-3 max-w-lg text-xs text-cyan-200/70 sm:text-sm">
-            باقتك الحالية <strong className="text-cyan-100">الماسية القياسية</strong> — فعّل المناوب بإضافة{' '}
-            <strong className="text-cyan-100">+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س</strong> شهرياً فقط.
+            باقتك الحالية <strong className="text-cyan-100">{DIAMOND_PRODUCT_STANDARD_LABEL_AR}</strong> — فعّل
+            الإضافة البرمجية المتقدمة بـ{' '}
+            <strong className="text-cyan-100">+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س</strong> / حزمة رخصة.
           </p>
         )}
 
@@ -104,7 +111,7 @@ export function DigitalShiftUpgradeLocked({
             className="w-full gap-2 border border-cyan-300/40 bg-gradient-to-l from-cyan-500 to-sky-400 px-6 text-base font-bold text-slate-950 shadow-[0_0_28px_rgba(34,211,238,0.55)] hover:from-cyan-400 hover:to-sky-300 sm:w-auto"
           >
             <Link to={checkoutHref}>
-              {TERM_PACKAGE_ACTIVATION_AR} وتفعيل المناوب الذكي بـ +{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س فقط
+              {TERM_BUY_LICENSE_AR} — {TERM_ACTIVATE_NOW_AR} (+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س)
             </Link>
           </Button>
         </div>

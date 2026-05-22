@@ -1,4 +1,4 @@
--- المناوب الذكي: enabled=false افتراضياً — يُفعَّل فقط بعد شراء الماسية الذكية (+25 ر.س)
+-- المناوب الذكي: enabled=false افتراضياً — يُفعَّل فقط بعد شراء Add-on المناوب مع رخصة ماسية (+25 ر.س/حزمة)
 
 ALTER TABLE public.barber_digital_shift_config
   ALTER COLUMN enabled SET DEFAULT false;

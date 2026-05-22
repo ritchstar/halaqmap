@@ -1,4 +1,8 @@
 import { getSupabaseClient } from '@/integrations/supabase/client';
+import {
+  INVOICE_DIAMOND_LICENSE_LABEL_AR,
+  INVOICE_DIAMOND_WITH_ADDON_LABEL_AR,
+} from '@/config/subscriptionPricing';
 import type { ZatcaComplianceReport, ZatcaExternalIntelBrief, ZatcaTaxAdvisorSnapshot } from '@/types/zatcaTaxAdvisor';
 
 async function authHeaders(): Promise<Record<string, string>> {
@@ -123,8 +127,8 @@ export function defaultZatcaComplianceReportFallback(): ZatcaComplianceReport {
       preparedVatRatePercent: 15,
     },
     hypotheticalScenarios: [
-      { kind: 'invoice', labelAr: 'حزمة ماسية (200 ر.س)', subtotalSar: 200, vatRatePercent: 15, vatSar: 30, totalSar: 230, noteAr: '' },
-      { kind: 'invoice', labelAr: 'حزمة ماسية + المناوب (225 ر.س)', subtotalSar: 225, vatRatePercent: 15, vatSar: 33.75, totalSar: 258.75, noteAr: '' },
+      { kind: 'invoice', labelAr: INVOICE_DIAMOND_LICENSE_LABEL_AR, subtotalSar: 200, vatRatePercent: 15, vatSar: 30, totalSar: 230, noteAr: '' },
+      { kind: 'invoice', labelAr: INVOICE_DIAMOND_WITH_ADDON_LABEL_AR, subtotalSar: 225, vatRatePercent: 15, vatSar: 33.75, totalSar: 258.75, noteAr: '' },
     ],
     monthlyRunRateSar: null,
     estimatedMonthsToMandatory: null,

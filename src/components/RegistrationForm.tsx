@@ -116,7 +116,7 @@ function RegStepShell({
 
 interface FormData {
   tier: SubscriptionTier | '';
-  /** المناوب الرقمي — ماسي فقط (+25 ر.س) */
+  /** إضافة برمجية متقدمة (Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
   digitalShiftAddon: boolean;
   shopName: string;
   email: string;
@@ -223,7 +223,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'واجهة فاخرة: بنر متوهج، معرض أعمال حتى 40 صورة، وشارة نخبة للثقة' },
       { kind: 'line', text: 'شات خاص مع ترجمة ذكية فورية للطرفين وتجربة تواصل أكثر احترافية' },
       { kind: 'line', text: 'إدارة المواعيد والحجوزات من نفس اللوحة لتقليل الفوضى ورفع الجاهزية' },
-      { kind: 'line', text: 'إضافة المناوب الرقمي الذكي اختيارية للردود والمساندة التشغيلية' },
+      { kind: 'line', text: 'إضافة برمجية متقدمة (Add-on) اختيارية: المناوب الرقمي الذكي يعزّز قيمة الرخصة التقنية' },
       { kind: 'line', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
     ],
   },
@@ -601,7 +601,7 @@ export function RegistrationForm() {
         isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon)
       ) {
         docLabels.push(
-          `إضافة المناوب الرقمي الذكي (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة رخصة) — مطلوب عند التفعيل.`,
+          `إضافة برمجية متقدمة: المناوب الرقمي الذكي (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة رخصة) — Add-on اختياري يعزّز الرخصة التقنية.`,
         );
       }
 
@@ -830,7 +830,7 @@ export function RegistrationForm() {
   );
 
   const tierPackageSummary = (tierName: string, unitSar: number, withShift: boolean) =>
-    `${tierName} — ${unitSar} ر.س${withShift ? ` (شامل المناوب +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR})` : ''}`;
+    `${tierName} — ${unitSar} ر.س${withShift ? ` (+ Add-on المناوب ${DIGITAL_SHIFT_MONTHLY_ADDON_SAR})` : ''}`;
 
   return (
     <div
@@ -961,7 +961,7 @@ export function RegistrationForm() {
                             </p>
                             {shiftActive ? (
                               <p className="text-[11px] text-slate-500">
-                                شامل المناوب (+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س)
+                                + Add-on المناوب ({DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س)
                               </p>
                             ) : null}
                           </div>
@@ -1551,7 +1551,7 @@ export function RegistrationForm() {
                         <>
                           الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong>
                           {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
-                            ? ' (شامل المناوب)'
+                            ? ' (+ Add-on المناوب)'
                             : ''}{' '}
                           — قيمة حزمة الرخصة الرقمية الموحد {monthlyPriceBreakdown.subtotal} ر.س + ضريبة
                           القيمة المضافة ({vatSettings.ratePercent}%){' '}
@@ -1562,7 +1562,7 @@ export function RegistrationForm() {
                         <>
                           الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong>
                           {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
-                            ? ' (شامل المناوب)'
+                            ? ' (+ Add-on المناوب)'
                             : ''}{' '}
                           — {selectedUnitSar} ريال لحزمة الرخصة
                           <span className={`block text-xs mt-1 ${regMutedClass}`}>

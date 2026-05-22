@@ -11,7 +11,7 @@ type Props = {
 export function DigitalShiftFeatureBullets({
   className,
   variant = 'default',
-  title = 'مزايا المناوب',
+  title = 'مزايا الإضافة البرمجية المتقدمة',
 }: Props) {
   const items =
     variant === 'compact'

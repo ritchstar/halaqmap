@@ -1,9 +1,9 @@
 import { addMonths, format, subDays } from 'date-fns';
 import { arSA } from 'date-fns/locale/ar-SA';
 import { SubscriptionTier } from '@/lib/index';
-import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 import {
   INVOICE_PRODUCT_DESCRIPTION_EN,
+  invoiceDiamondLicenseLabelAr,
   invoiceLineDescriptionAr,
   invoiceLineDescriptionEn,
 } from '@/config/softwareLicenseTerminology';
@@ -64,7 +64,7 @@ export function buildMonthlySubscriptionPreview(issueDate: Date = new Date()): S
 
   const lines: InvoicePreviewLine[] = [
     {
-      descriptionAr: invoiceLineDescriptionAr('باقة ماسي — 30 يوم'),
+      descriptionAr: invoiceLineDescriptionAr(invoiceDiamondLicenseLabelAr()),
       descriptionEn: invoiceLineDescriptionEn('Diamond — 30 days'),
       quantity: 1,
       unitSar: monthly,

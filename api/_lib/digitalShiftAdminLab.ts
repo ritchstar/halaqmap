@@ -1,10 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { assertVisionMime } from './opsBillingAi.js';
 import {
-  DIGITAL_SHIFT_REPLY_COST_HALALAS,
   evaluateIntercept,
   type DigitalShiftContext,
+  DIGITAL_SHIFT_REPLY_COST_HALALAS,
 } from './digitalShiftAssistant.js';
+import { DIGITAL_SHIFT_ADMIN_LAB_PRODUCT_NOTE_AR } from './subscriptionPricingCopy.js';
 import { formatSupportedLanguagesForPrompt, formatSupportedLanguagesLabelAr, DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR, DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR } from './digitalShiftLanguages.js';
 
 export type DigitalShiftLabChatTurn = { role: 'user' | 'assistant'; content: string };
@@ -118,7 +119,7 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
     'عند أمر تحديث سلوكي من المالك: أكّد ما فهمته بجملة واحدة ثم طبّقه في الردود التالية.',
     '',
     '## المنتج — حقائق ثابتة',
-    '- متاح كإضافة **+25 ر.س/شهر** للباقة **الماسية الذكية** فقط (Diamond + addon).',
+    '- ' + DIGITAL_SHIFT_ADMIN_LAB_PRODUCT_NOTE_AR,
     `- تكلفة كل رد AI للعميل: **${DIGITAL_SHIFT_REPLY_COST_HALALAS} هللة** (1.50 ر.س) من **محفظة الحلاق** — لا من محفظة العميل.`,
     '- واجهتا التشغيل: (1) محادثة الحلاق في لوحة التحكم (2) اعتراض تلقائي في الشات الخاص مع العميل.',
     `- ${DIGITAL_SHIFT_LANGUAGE_DETECTION_FEATURE_AR}`,

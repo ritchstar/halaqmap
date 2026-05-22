@@ -6,6 +6,7 @@ import {
   ZATCA_VOLUNTARY_LIMIT_SAR,
 } from './agents/zatcaTaxTypes.js';
 import { assertVisionMime } from './opsBillingAi.js';
+import { ZATCA_PLATFORM_PACKAGES_NOTE_AR } from './subscriptionPricingCopy.js';
 
 export type ZatcaLabChatTurn = { role: 'user' | 'assistant'; content: string };
 
@@ -71,7 +72,7 @@ export function buildZatcaAdvisorLabSystemPrompt(ctx: ZatcaLabContext): string {
     `- حد التسجيل **الاختياري**: **${ZATCA_VOLUNTARY_LIMIT_SAR.toLocaleString('ar-SA')} ر.س** إيرادات مُرصَدة.`,
     `- حد التسجيل **الإلزامي**: **${ZATCA_MANDATORY_LIMIT_SAR.toLocaleString('ar-SA')} ر.س** — عند بلوغه يُجهَّز التفعيل ويُطلب موافقة Super Admin.`,
     '- **لا تُفعّل** `tax_enabled` أو عرض ض.ق.م حياً على الواجهة من المحادثة — التفعيل يتم فقط عبر «التفعيل الفوري الحي» في المكتب المالي بموافقة صريحة.',
-    '- المنصة: حزم رخصة التواجد الرقمي الجغرافي B2B (برونزي/ذهبي/ماسي + إضافة المناوب) — لا عمولة على الحلاقة.',
+    '- المنصة: ' + ZATCA_PLATFORM_PACKAGES_NOTE_AR,
     '- مصادر: `listing_license_orders` + مدفوعات legacy — رادار إيرادات + تقرير استباقي + مسح مصادر ZATCA الرسمية.',
     '',
     '## عقيدة — حدود مهمة',

@@ -11,6 +11,7 @@ import { toast } from '@/components/ui/sonner';
 import {
   DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME,
   DIGITAL_SHIFT_GREETING_PROMPT,
+  DIGITAL_SHIFT_PRODUCT_SUBTITLE_AR,
   DIGITAL_SHIFT_PRODUCT_TITLE,
   DIGITAL_SHIFT_REPLY_DELAY_MINUTES,
   DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR,
@@ -171,6 +172,7 @@ export function DigitalShiftAssistantHub({
             <Moon className="h-6 w-6 text-indigo-600" />
             {DIGITAL_SHIFT_PRODUCT_TITLE}
           </h2>
+          <p className="mt-1 text-xs font-medium text-indigo-600/90">{DIGITAL_SHIFT_PRODUCT_SUBTITLE_AR}</p>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground leading-relaxed">
             مناوب ذكي من <strong>حلاق ماب</strong> — يراقب الرصيد، يدقق البنرات والمعرض، ويتولى المحادثات عند الإغلاق أو
             التأخير ({replyDelayMinutes} دقائق). {DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR}
@@ -186,7 +188,7 @@ export function DigitalShiftAssistantHub({
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-indigo-500" />
-            مزايا المناوب — الشات متعدد اللغات
+            مزايا الإضافة البرمجية — الشات متعدد اللغات
           </CardTitle>
         </CardHeader>
         <CardContent>

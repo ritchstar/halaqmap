@@ -8,6 +8,7 @@ import {
   refreshHeuristicRecommendations,
   type RecommendationInput,
 } from './_lib/digitalShiftAssistant.js';
+import { DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR } from './_lib/subscriptionPricingCopy.js';
 
 export const config = { maxDuration: 45 };
 
@@ -104,7 +105,7 @@ export async function POST(request: Request): Promise<Response> {
 
   if (action !== 'summary' && !addonActive) {
     return Response.json(
-      { error: 'المناوب الذكي غير مفعّل — رقِّ باقتك إلى الماسية الذكية (+25 ر.س)' },
+      { error: DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR },
       { status: 403, headers },
     );
   }

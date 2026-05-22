@@ -45,7 +45,7 @@ export function DigitalShiftRecommendationsTable({
           </Badge>
         </div>
         <CardDescription className="text-sm leading-relaxed">
-          رؤى تفاعلية من المناوب الرقمي — الشحن، البنرات، المعرض، والمناوبة على المحادثات.
+          رؤى تفاعلية من إضافة المناوب الرقمي (Software Add-on) — الشحن، البنرات، المعرض، والمناوبة على المحادثات.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

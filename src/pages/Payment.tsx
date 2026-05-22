@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
@@ -27,13 +27,21 @@ import {
   isDigitalShiftAddonAllowed,
   parseDigitalShiftAddonParam,
 } from '@/config/listingLicenseQuantity';
-import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR } from '@/config/subscriptionPricing';
+import {
+  DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
+  DIGITAL_SHIFT_PRODUCT_NAME_AR,
+  DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR,
+  DIAMOND_PRODUCT_SMART_LABEL_AR,
+  DIAMOND_PRODUCT_STANDARD_LABEL_AR,
+  TIER_MONTHLY_SAR,
+} from '@/config/subscriptionPricing';
 import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
-import { DigitalActivationCertificateCard } from '@/components/billing/DigitalActivationCertificateCard';
+import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
+import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
 import { toast } from 'sonner';
@@ -140,6 +148,12 @@ export default function Payment() {
   const price = computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions);
   const tierName = tierNames[tier];
   const tierColor = tierColors[tier];
+  const tierDisplayLabel =
+    tier === SubscriptionTier.DIAMOND && digitalShiftAddonSelected
+      ? DIAMOND_PRODUCT_SMART_LABEL_AR
+      : tier === SubscriptionTier.DIAMOND
+        ? DIAMOND_PRODUCT_STANDARD_LABEL_AR
+        : `باقة ${tierName}`;
 
   const licenseBreakdown = useMemo(
     () => calcVatBreakdown(price, vatSettings),
@@ -404,28 +418,15 @@ export default function Payment() {
           )}
           {moyasarReturnVerify === 'paid' && (
             <div className="mb-6 space-y-4">
-              {activationCertificateLoading && (
-                <Alert className="border-primary/30 bg-primary/5">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                  <AlertDescription>
-                    جاري إصدار شهادة التفعيل الرقمية وتفعيل بروتوكول الربط الآلي للخريطة…
-                  </AlertDescription>
-                </Alert>
-              )}
-              {activationCertificate ? (
-                <DigitalActivationCertificateCard certificate={activationCertificate} />
-              ) : !activationCertificateLoading ? (
-                <Alert className="border-emerald-600/45 bg-gradient-to-l from-emerald-500/12 to-background shadow-sm">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                  <div className="space-y-2 pr-1">
-                    <AlertTitle className="text-base font-semibold text-emerald-950 dark:text-emerald-50">
-                      تم الدفع — جاري إصدار الشهادة
-                    </AlertTitle>
-                    <AlertDescription className="text-sm leading-relaxed text-foreground/90">
-                      {activationCertificateError ||
-                        'تم تأكيد الدفع. ستظهر شهادة التفعيل الرقمية هنا فور اكتمال بروتوكول الربط الآلي.'}
-                    </AlertDescription>
-                  </div>
+              <PaymentSuccessPanel
+                barberName={barberName}
+                certificate={activationCertificate}
+                loading={activationCertificateLoading}
+              />
+              {activationCertificateError && !activationCertificateLoading && !activationCertificate ? (
+                <Alert className="border-amber-600/40 bg-amber-500/10">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-sm">{activationCertificateError}</AlertDescription>
                 </Alert>
               ) : null}
               {moyasarPaidAmountFormat ? (
@@ -466,12 +467,12 @@ export default function Payment() {
                         {tierName === 'ماسي' && '💎'}
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold">باقة {tierName}</h3>
+                        <h3 className="text-lg font-bold">{tierDisplayLabel}</h3>
                         <p className="text-sm text-muted-foreground">حزمة إدراج برمجية (30 يوماً)</p>
                         {digitalShiftAddonSelected ? (
                           <p className="mt-1 text-xs font-medium text-primary">
-                            + {DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR} ({DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س ×{' '}
-                            {licenseQuantity} بطاقة)
+                            {DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR} · {DIGITAL_SHIFT_PRODUCT_NAME_AR} (
+                            {DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س × {licenseQuantity} بطاقة)
                           </p>
                         ) : null}
                       </div>
@@ -630,10 +631,10 @@ export default function Payment() {
                       {moyasarKeyOk && moyasarTermsAccepted && (
                         <Card className="border-primary/20">
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">نموذج الدفع — ميسر</CardTitle>
+                            <CardTitle className="text-lg">{paymentActivateNowCtaAr(price)}</CardTitle>
                             <CardDescription>
-                              المبلغ المعروض بالهللة وفق الباقة والضريبة الحالية. بعد إتمام العملية يعيد ميسر التوجيه
-                              مع <span dir="ltr">?id=</span> ثم يُتحقق من الخادم تلقائياً.
+                              {TERM_ACTIVATE_NOW_AR} — منتج رقمي فوري. المبلغ بالهللة وفق الباقة والضريبة. بعد إتمام
+                              العملية يعيد ميسر التوجيه مع <span dir="ltr">?id=</span> ثم يُتحقق من الخادم تلقائياً.
                             </CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-3">

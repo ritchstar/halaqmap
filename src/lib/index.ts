@@ -282,7 +282,7 @@ export interface SubscriptionRequest {
   /** التزام مهني إلزامي — ميثاق Honor Board B2B */
   professionalCommitmentAccepted?: boolean;
   professionalCommitmentAcceptedAtIso?: string;
-  /** إضافة المناوب الرقمي الذكي — ماسي فقط (+25 ر.س) */
+  /** إضافة برمجية متقدمة (Software Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
   digitalShiftAddonSelected?: boolean;
 }
 

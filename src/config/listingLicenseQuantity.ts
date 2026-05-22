@@ -1,8 +1,9 @@
 import { SubscriptionTier } from '@/lib';
 import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
+import { listingLicensePurchaseCtaAr } from '@/config/softwareLicenseTerminology';
 
 export type ListingLicensePricingOptions = {
-  /** المناوب الرقمي — ماسي فقط */
+  /** إضافة برمجية متقدمة (Software Add-on) — ماسي فقط (+25 ر.س/حزمة) */
   digitalShiftAddon?: boolean;
 };
 
@@ -49,10 +50,7 @@ export function formatListingLicenseQuantitySummaryAr(qty: number): string {
 }
 
 export function listingLicenseCtaLabelAr(qty: number, totalSar: number): string {
-  const q = clampListingLicenseQuantity(qty);
-  const price = totalSar.toLocaleString('en-US');
-  if (q === 1) return `شراء وتفعيل حزمة رخصة واحدة بـ ${price} ر.س`;
-  return `شراء وتفعيل ${q} حزم رخصة رقمية بـ ${price} ر.س`;
+  return listingLicensePurchaseCtaAr(qty, totalSar);
 }
 
 export function computeListingLicenseUnitSar(

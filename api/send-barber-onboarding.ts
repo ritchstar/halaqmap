@@ -23,7 +23,7 @@ type SinglePayload = {
   ratingInviteToken?: string;
   /** رقم طلب التسجيل (مثال HM-20260417-AB12CD) — مرجع الدعم */
   registrationOrderId?: string;
-  /** الباقة الماسية الذكية — تضمين دليل المناوب الرقمي في نفس الرسالة */
+  /** Add-on المناوب — تضمين دليل الإضافة البرمجية في رسالة الترحيب */
   digitalShiftAddon?: boolean;
 };
 

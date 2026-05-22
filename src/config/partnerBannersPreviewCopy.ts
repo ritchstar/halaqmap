@@ -2,7 +2,7 @@ import { IMAGES } from '@/assets/images';
 
 export const PARTNER_BANNERS_PREVIEW_GOLD_GALLERY_MAX = 20;
 export const PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX = 40;
-export const PARTNER_BANNERS_PREVIEW_CTA = 'انضم الآن وابدأ تعبئة طلبك 🚀';
+export const PARTNER_BANNERS_PREVIEW_CTA = 'شراء رخصة — ابدأ الآن';
 
 const GALLERY_POOL = [
   IMAGES.BARBER_SHOP_1,
@@ -79,7 +79,7 @@ export const PARTNER_BANNERS_PREVIEW_TIERS: readonly BannerPreviewTierConfig[] =
     marketingParagraphs: [
       'الماسية مصممة للصالون الذي يريد انطباع نخبة من أول نظرة: بنر متوهج، شارة مميزة، وحضور بصري يقول للعميل إن هذا المكان يستحق التجربة.',
       'الفيديو القصير الصامت يعرض مهارة الصالون بسرعة، بينما يفتح الشات الخاص والترجمة الذكية مساحة تواصل أسهل مع عملاء من لغات وخلفيات مختلفة.',
-      `معرض الأعمال حتى ${PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX} صورة، إدارة المواعيد، وخيار المناوب الرقمي الذكي تجعل الباقة الماسية أقرب إلى واجهة نمو كاملة لا مجرد بطاقة ظهور.`,
+      `معرض الأعمال حتى ${PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX} صورة وإدارة المواعيد تكمل الرخصة التقنية — و«المناوب الرقمي الذكي» إضافة برمجية متقدمة (Add-on) اختيارية تعزّز قيمة الماسية بأتمتة الضيافة والشات.`,
     ],
   },
 ] as const;

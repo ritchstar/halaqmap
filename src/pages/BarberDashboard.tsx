@@ -84,7 +84,7 @@ import {
   partnerDashboardDocumentTitleFromSession,
   partnerSalonDisplayName,
 } from '@/config/partnerDashboardBrand';
-import { TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
+import { TERM_ACTIVATE_NOW_AR, TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
 import {
   readSchedule,
   writeSchedule,
@@ -696,7 +696,7 @@ export default function BarberDashboard() {
                     void refreshListingBalance();
                   }}
                 >
-                  {redeemLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تفعيل حزمة الرخصة'}
+                  {redeemLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : TERM_ACTIVATE_NOW_AR}
                 </Button>
               </DialogFooter>
             </DialogContent>

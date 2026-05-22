@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import { buildAbsolutePartnerPaymentUrl } from '@/config/siteOrigin';
+import { paymentActivateNowCtaAr } from '@/config/softwareLicenseTerminology';
 import {
   loadLastOrderConfirmation,
   clearLastOrderConfirmation,
@@ -187,7 +188,7 @@ export default function RegisterSuccess() {
               <Button className="w-full gap-2 font-semibold" asChild>
                 <Link to={paymentTo}>
                   <CreditCard className="w-4 h-4" />
-                  الانتقال لصفحة الدفع
+                  {paymentActivateNowCtaAr()}
                 </Link>
               </Button>
             </div>

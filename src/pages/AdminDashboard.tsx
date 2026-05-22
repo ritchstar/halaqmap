@@ -1397,7 +1397,7 @@ function OverviewSection({
         {[
           { label: 'باقة برونزية', count: stats.bronzeBarbers, hint: '100 ر.س / حزمة رخصة 30 يوم', emoji: '🥉' },
           { label: 'باقة ذهبية', count: stats.goldBarbers, hint: '150 ر.س / حزمة رخصة 30 يوم', emoji: '🥇' },
-          { label: 'باقة ماسية', count: stats.diamondBarbers, hint: '200 ر.س / حزمة رخصة 30 يوم', emoji: '💎' },
+          { label: 'باقة ماسية', count: stats.diamondBarbers, hint: '200 ر.س / حزمة · Add-on المناوب +25', emoji: '💎' },
         ].map((tier) => (
           <FounderGlassCard key={tier.label} className="p-6" interactive staggered>
             <div className="flex items-center justify-between gap-4">

@@ -4,6 +4,8 @@ import { Check, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import {
+  DIAMOND_PRODUCT_SMART_LABEL_AR,
+  DIAMOND_PRODUCT_STANDARD_LABEL_AR,
   SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
   SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
   SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR,
@@ -173,8 +175,8 @@ export function ListingLicensePricingMatrix({
               {isDiamond ? (
                 <p className="mt-1 text-end text-xs text-slate-500">
                   {diamondAddonActive
-                    ? `ماسي + المناوب · ${formatPriceSar(unitSar)} ر.س/حزمة`
-                    : `ماسي قياسي · ${formatPriceSar(TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND])} ر.س/حزمة`}
+                    ? `${DIAMOND_PRODUCT_SMART_LABEL_AR} · ${formatPriceSar(unitSar)} ر.س/حزمة`
+                    : `${DIAMOND_PRODUCT_STANDARD_LABEL_AR} · ${formatPriceSar(TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND])} ر.س/حزمة`}
                 </p>
               ) : null}
               <p className="mt-0.5 text-end text-xs text-slate-500">

@@ -1,4 +1,9 @@
+import { DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR } from '@/config/subscriptionPricing';
+
 export const DIGITAL_SHIFT_PRODUCT_TITLE = 'المناوب الرقمي الذكي 🌙';
+
+/** وصف المنتج — إضافة برمجية متقدمة للماسية */
+export const DIGITAL_SHIFT_PRODUCT_SUBTITLE_AR = DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR;
 
 export const DIGITAL_SHIFT_RECOMMENDATIONS_TITLE = 'طاولة توصيات المساعد الرقمي 🌙';
 
