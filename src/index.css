@@ -943,4 +943,70 @@ html.platform-radar-fullscreen #root {
   }
 }
 
+/* ─── Tactical Kingdom Backdrop animations ─────────────────────────── */
 
+/* Rotating tactical sweep — anchored on Riyadh, 12 s revolution */
+@keyframes tactical-sweep-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tactical-sweep-rotor {
+  animation: tactical-sweep-rotation 12s linear infinite;
+  transform-box: fill-box;
+  will-change: transform;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+/* Riyadh heartbeat — slow concentric ring expansion */
+@keyframes tactical-heartbeat-pulse {
+  0% {
+    r: 4;
+    stroke-opacity: 0.75;
+  }
+  100% {
+    r: 95;
+    stroke-opacity: 0;
+  }
+}
+
+.tactical-heartbeat-ring {
+  animation: tactical-heartbeat-pulse 3s ease-out infinite;
+  transform-origin: center;
+  will-change: r, stroke-opacity;
+}
+
+/* Subtle backdrop fade-in (avoids a flash on first paint) */
+@keyframes tactical-backdrop-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.tactical-kingdom-backdrop {
+  animation: tactical-backdrop-fade 600ms ease-out both;
+}
+
+/* Aspect-locked canvas helper — keep the rendered radar centred and clipped */
+.tactical-radar-canvas {
+  contain: layout paint;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tactical-sweep-rotor,
+  .tactical-heartbeat-ring {
+    animation: none;
+  }
+  .tactical-heartbeat-ring {
+    opacity: 0.25;
+  }
+}

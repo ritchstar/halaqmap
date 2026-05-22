@@ -6,6 +6,7 @@ import { TacticalKingdomBackdrop } from '@/modules/platform-radar/components/Tac
 import { TacticalPulseNetwork } from '@/modules/platform-radar/components/TacticalPulseNetwork';
 import { useTacticalBarberAnchors } from '@/modules/platform-radar/hooks/useTacticalBarberAnchors';
 import { projectKsaToPercent } from '@/modules/platform-radar/lib/saudiKingdomProjection';
+import { KSA_VIEWBOX } from '@/modules/platform-radar/lib/saudiKingdomGeo';
 import type { PlatformRadarForcePulse } from '@/modules/platform-radar/lib/platformRadarRealtime';
 import type { PlatformRadarMapPulse } from '@/modules/platform-radar/types';
 
@@ -84,63 +85,84 @@ export function TacticalRadarMap({ pulses, forcePulses = [], tacticalView = true
     [userPulses, placedAnchors],
   );
 
+  // Aspect ratio locked to the KSA viewBox — guarantees that backdrop SVG
+  // and HTML pulse markers share one coordinate space (no more drift
+  // between satellite raster and projected pulse positions).
+  const kingdomAspect = `${KSA_VIEWBOX.width} / ${KSA_VIEWBOX.height}`;
+
   return (
     <div
-      className={cn('tactical-radar-map relative h-full w-full overflow-hidden bg-black', className)}
+      className={cn(
+        'tactical-radar-map relative h-full w-full overflow-hidden bg-black',
+        'flex items-center justify-center',
+        className,
+      )}
       role="img"
-      aria-label="الخريطة الليلية التكتيكية — Golden Pulse"
+      aria-label="الخريطة التكتيكية للمملكة العربية السعودية — Golden Pulse"
     >
-      <TacticalKingdomBackdrop />
-      <TacticalPulseNetwork nodes={networkNodes} maxDistance={18} maxLinksPerNode={2} />
+      {/* Aspect-locked canvas: backdrop + markers project to the same percent grid. */}
+      <div
+        className="tactical-radar-canvas relative max-h-full max-w-full"
+        style={{
+          aspectRatio: kingdomAspect,
+          width: '100%',
+          height: '100%',
+          // Keep the kingdom as tall/wide as possible without spilling.
+          maxHeight: `min(100%, calc(100% * (${KSA_VIEWBOX.width} / ${KSA_VIEWBOX.height})))`,
+        }}
+      >
+        <TacticalKingdomBackdrop />
+        <TacticalPulseNetwork nodes={networkNodes} maxDistance={18} maxLinksPerNode={2} />
 
-      {placedForces.map((p) => (
-        <GoldenForceBurst key={p.burstKey} left={p.left} top={p.top} />
-      ))}
+        {placedForces.map((p) => (
+          <GoldenForceBurst key={p.burstKey} left={p.left} top={p.top} />
+        ))}
 
-      {placedAnchors.map((p) => (
-        <GoldenPulseMarker
-          key={p.id}
-          id={p.id}
-          left={p.left}
-          top={p.top}
-          lat={p.lat}
-          lng={p.lng}
-          createdAt={p.createdAt}
-          label={p.label}
-          anchor
-          opacity={pulseOpacity(p.ageMs, true)}
-        />
-      ))}
+        {placedAnchors.map((p) => (
+          <GoldenPulseMarker
+            key={p.id}
+            id={p.id}
+            left={p.left}
+            top={p.top}
+            lat={p.lat}
+            lng={p.lng}
+            createdAt={p.createdAt}
+            label={p.label}
+            anchor
+            opacity={pulseOpacity(p.ageMs, true)}
+          />
+        ))}
 
-      {userPulses.map((p) => (
-        <GoldenPulseMarker
-          key={p.id}
-          id={p.id}
-          left={p.left}
-          top={p.top}
-          lat={p.lat}
-          lng={p.lng}
-          createdAt={p.createdAt}
-          label={p.label}
-          inspector={tacticalView && p.suspicious}
-          opacity={pulseOpacity(p.ageMs, false)}
-        />
-      ))}
+        {userPulses.map((p) => (
+          <GoldenPulseMarker
+            key={p.id}
+            id={p.id}
+            left={p.left}
+            top={p.top}
+            lat={p.lat}
+            lng={p.lng}
+            createdAt={p.createdAt}
+            label={p.label}
+            inspector={tacticalView && p.suspicious}
+            opacity={pulseOpacity(p.ageMs, false)}
+          />
+        ))}
 
-      {securityPulses.map((p) => (
-        <GoldenPulseMarker
-          key={p.id}
-          id={p.id}
-          left={p.left}
-          top={p.top}
-          lat={p.lat}
-          lng={p.lng}
-          createdAt={p.createdAt}
-          label={p.label}
-          inspector
-          opacity={pulseOpacity(p.ageMs, false)}
-        />
-      ))}
+        {securityPulses.map((p) => (
+          <GoldenPulseMarker
+            key={p.id}
+            id={p.id}
+            left={p.left}
+            top={p.top}
+            lat={p.lat}
+            lng={p.lng}
+            createdAt={p.createdAt}
+            label={p.label}
+            inspector
+            opacity={pulseOpacity(p.ageMs, false)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
