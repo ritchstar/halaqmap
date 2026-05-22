@@ -1,15 +1,32 @@
+/**
+ * Unified Marketing Council Lab Chat — B2C + B2B
+ *
+ * Replaces the two previous near-identical endpoints:
+ *   • /api/admin-b2c-marketing-lab-chat
+ *   • /api/admin-b2b-marketing-lab-chat
+ *
+ * Channel is selected via `?channel=b2c|b2b` (defaults to `b2c`).
+ *
+ * Why one function? Each Vercel serverless function gets its own OpenAI
+ * SDK bundle (~3 MB). Collapsing two near-clones into one halves the
+ * lambda packaging time for this council on every deployment.
+ */
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import {
   buildB2bMarketingSystemPrompt,
+  buildB2cMarketingSystemPrompt,
   callMarketingCouncilChat,
   getMarketingCouncilModelLabel,
   loadB2bMarketingContext,
+  loadB2cMarketingContext,
   type MarketingLabChatTurn,
 } from './_lib/marketingCouncilLab.js';
 import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 
 export const config = { maxDuration: 60 };
+
+type Channel = 'b2c' | 'b2b';
 
 function json(data: unknown, status = 200): Response {
   return Response.json(data, {
@@ -19,6 +36,14 @@ function json(data: unknown, status = 200): Response {
       'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
     },
   });
+}
+
+function resolveChannel(request: Request, body?: Record<string, unknown>): Channel {
+  const url = new URL(request.url);
+  const fromQuery = url.searchParams.get('channel');
+  const fromBody = typeof body?.channel === 'string' ? body.channel : null;
+  const candidate = (fromQuery || fromBody || 'b2c').toLowerCase();
+  return candidate === 'b2b' ? 'b2b' : 'b2c';
 }
 
 function parseHistory(raw: unknown): MarketingLabChatTurn[] {
@@ -71,10 +96,12 @@ export async function GET(request: Request): Promise<Response> {
   const auth = await authorize(request);
   if (auth.ok === false) return json(auth.json, auth.status);
 
+  const channel = resolveChannel(request);
   const openaiConfigured = Boolean((process.env.OPENAI_API_KEY || '').trim());
   return json({
     ok: true,
-    route: 'admin-b2b-marketing-lab-chat',
+    route: 'admin-marketing-lab-chat',
+    channel,
     openaiConfigured,
     model: getMarketingCouncilModelLabel(),
   });
@@ -91,29 +118,52 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error: 'Invalid JSON body' }, 400);
   }
 
+  const channel = resolveChannel(request, body);
   const userMessage = String(body.userMessage || body.message || '').trim();
   const conversationHistory = parseHistory(body.conversationHistory);
   if (!userMessage) {
-    return json({ error: 'أدخل رسالتك لاستراتيجي B2B' }, 400);
+    const label = channel === 'b2b' ? 'B2B' : 'B2C';
+    return json({ error: `أدخل رسالتك لاستراتيجي ${label}` }, 400);
   }
 
   try {
-    const ctx = await loadB2bMarketingContext(auth.supabase);
-    const system = buildB2bMarketingSystemPrompt(ctx);
+    if (channel === 'b2b') {
+      const ctx = await loadB2bMarketingContext(auth.supabase);
+      const system = buildB2bMarketingSystemPrompt(ctx);
+      const reply = await callMarketingCouncilChat({
+        system,
+        userText: userMessage,
+        conversationHistory,
+      });
+      return json({
+        ok: true,
+        channel,
+        reply,
+        context: {
+          totalPartnerOrders30d: ctx.totalPartnerOrders30d,
+          paidPartnerOrders30d: ctx.paidPartnerOrders30d,
+          conversionRatio30d: ctx.conversionRatio30d,
+          tierBreakdown: ctx.tierBreakdown,
+        },
+      });
+    }
+
+    const ctx = await loadB2cMarketingContext(auth.supabase);
+    const system = buildB2cMarketingSystemPrompt(ctx);
     const reply = await callMarketingCouncilChat({
       system,
       userText: userMessage,
       conversationHistory,
     });
-
     return json({
       ok: true,
+      channel,
       reply,
       context: {
-        totalPartnerOrders30d: ctx.totalPartnerOrders30d,
-        paidPartnerOrders30d: ctx.paidPartnerOrders30d,
-        conversionRatio30d: ctx.conversionRatio30d,
-        tierBreakdown: ctx.tierBreakdown,
+        totalSearches7d: ctx.totalSearches7d,
+        totalSearches24h: ctx.totalSearches24h,
+        zeroResultRatioOverall: ctx.zeroResultRatioOverall,
+        topCities: ctx.topCities.slice(0, 5),
       },
     });
   } catch (e) {

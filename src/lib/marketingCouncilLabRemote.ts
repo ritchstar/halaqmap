@@ -4,10 +4,11 @@ export const MARKETING_LAB_TIMEOUT_MS = 55_000;
 
 export type MarketingLabChannel = 'b2c' | 'b2b';
 
-const ROUTE_BY_CHANNEL: Record<MarketingLabChannel, string> = {
-  b2c: '/api/admin-b2c-marketing-lab-chat',
-  b2b: '/api/admin-b2b-marketing-lab-chat',
-};
+const UNIFIED_ROUTE = '/api/admin-marketing-lab-chat';
+
+function routeForChannel(channel: MarketingLabChannel): string {
+  return `${UNIFIED_ROUTE}?channel=${channel}`;
+}
 
 export type MarketingLabCityHint = {
   city: string;
@@ -60,7 +61,7 @@ export async function fetchMarketingLabDiagnostics(
 > {
   const h = await authHeaders();
   if (!h) return { ok: false, error: 'سجّل دخول كمشرف' };
-  const res = await fetch(ROUTE_BY_CHANNEL[channel], { method: 'GET', headers: h });
+  const res = await fetch(routeForChannel(channel), { method: 'GET', headers: h });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok || json.ok !== true) {
     return { ok: false, error: formatError(json, res.status) };
@@ -92,11 +93,12 @@ export async function chatWithMarketingLab(
   options?.signal?.addEventListener('abort', onExternalAbort);
 
   try {
-    const res = await fetch(ROUTE_BY_CHANNEL[channel], {
+    const res = await fetch(routeForChannel(channel), {
       method: 'POST',
       headers: h,
       signal: controller.signal,
       body: JSON.stringify({
+        channel,
         userMessage: input.userMessage,
         conversationHistory: input.conversationHistory,
       }),

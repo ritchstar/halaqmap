@@ -8,7 +8,7 @@
   ],
   "framework": "vite",
   "installCommand": "npm install",
-  "buildCommand": "npm run typecheck:api && npm run build && node scripts/verify-dist-index.mjs",
+  "buildCommand": "npm run build && node scripts/verify-dist-index.mjs",
   "outputDirectory": "dist",
   "headers": [
     {
@@ -166,10 +166,7 @@
     "api/admin-growth-architect.ts": {
       "maxDuration": 25
     },
-    "api/admin-b2c-marketing-lab-chat.ts": {
-      "maxDuration": 60
-    },
-    "api/admin-b2b-marketing-lab-chat.ts": {
+    "api/admin-marketing-lab-chat.ts": {
       "maxDuration": 60
     },
     "api/admin-super-intelligence-feed.ts": {

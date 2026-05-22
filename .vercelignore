@@ -1,0 +1,60 @@
+# --------------------------------------------------------------------------
+# .vercelignore — files NOT uploaded to Vercel's build pipeline
+# Goal: shrink the upload payload + speed up cold-start serverless function
+# bundling (every excluded file is one less thing for Nft tracing to scan).
+# --------------------------------------------------------------------------
+
+# Local-only build artefacts (Vercel rebuilds from source)
+dist/
+build/
+.vercel/
+*.tsbuildinfo
+build-log.txt
+
+# Local IDE & OS junk
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+~$*
+*.swp
+
+# Git history (Vercel uses its own git integration)
+.git/
+.gitattributes
+
+# Tests, scripts that never run in production
+playwright-report/
+test-results/
+cypress/
+coverage/
+.nyc_output/
+scripts/test-*.mts
+scripts/check-*.mjs
+
+# Secrets / provisioning artefacts (defence in depth)
+.agent_secrets.env
+provision_agent.ps1.txt
+ADMIN_ACCESS.md
+SECRET_*.md
+
+# Source maps in repo root (Vite handles its own)
+*.map
+
+# Heavy raw assets that ship via Vite already
+src/**/*.psd
+src/**/*.ai
+src/**/*.sketch
+
+# Markdown / docs (not needed in lambdas or static output)
+*.md
+!README.md
+docs/
+documentation/
+
+# Supabase migrations: applied via separate CLI, never bundled
+supabase/migrations/
+
+# Optional: Cursor / agent metadata
+.cursor/
+agent-transcripts/

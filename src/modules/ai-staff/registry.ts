@@ -218,7 +218,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
       'يمكن استدعاء المدعي العام في أي رسالة لمراجعة الامتثال.',
     ],
     productRef: {
-      apiRoutes: ['/api/admin-b2c-marketing-lab-chat'],
+      apiRoutes: ['/api/admin-marketing-lab-chat?channel=b2c'],
     },
   },
   {
@@ -249,7 +249,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
       'يستطيع استدعاء المدعي العام أو مساعد الشركاء كزملاء طاولة عند الحاجة.',
     ],
     productRef: {
-      apiRoutes: ['/api/admin-b2b-marketing-lab-chat'],
+      apiRoutes: ['/api/admin-marketing-lab-chat?channel=b2b'],
     },
   },
   {
