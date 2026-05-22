@@ -2,12 +2,16 @@ import { getSupabaseClient } from '@/integrations/supabase/client';
 
 const HANDSHAKE_API = '/api/admin-engineering-handshake';
 
+export type HandshakeServiceClass = 'critical' | 'advisory';
+
 export type HandshakeServicePing = {
   id: 'supabase' | 'vercel' | 'github';
   label: string;
   ok: boolean;
   latencyMs: number;
   message: string;
+  serviceClass?: HandshakeServiceClass;
+  notConfigured?: boolean;
   detail?: Record<string, unknown>;
 };
 
@@ -21,6 +25,7 @@ export type EngineeringHandshakeSnapshot = {
   updatedAt: string | null;
   systemStatus: 'OK' | 'FAIL' | 'PENDING';
   secretIssues: string[];
+  advisoryDegradations: string[];
 };
 
 async function authHeaders(): Promise<Record<string, string> | null> {
@@ -85,6 +90,7 @@ export async function fetchEngineeringHandshakeStatus(): Promise<
         secretIssues: Array.isArray(json.diagnostics?.secretIssues)
           ? (json.diagnostics?.secretIssues as string[])
           : [],
+        advisoryDegradations: [],
       },
     };
   } catch (err) {
@@ -124,6 +130,7 @@ export async function runEngineeringHandshakeRemote(): Promise<
         checkedAt?: string;
         secretIssues?: string[];
         services?: HandshakeServicePing[];
+        advisoryDegradations?: string[];
         vercelDeploymentUrl?: string | null;
         vercelDeploymentId?: string | null;
         opsControllerEnabled?: boolean;
@@ -151,6 +158,7 @@ export async function runEngineeringHandshakeRemote(): Promise<
         updatedAt: result?.checkedAt ?? null,
         systemStatus: json.systemStatus ?? (status === 'ok' ? 'OK' : 'FAIL'),
         secretIssues: result?.secretIssues ?? [],
+        advisoryDegradations: result?.advisoryDegradations ?? [],
       },
     };
   } catch (err) {

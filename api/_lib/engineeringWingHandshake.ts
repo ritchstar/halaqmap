@@ -5,12 +5,27 @@ import { isLikelyHttpUrl, normalizeSupabaseUrl } from './supabaseUrl.js';
 
 export type HandshakeServiceId = 'supabase' | 'vercel' | 'github';
 
+/**
+ * Service classes:
+ *  - `critical`: failure flips System Status → FAIL. Currently only Supabase
+ *    (without it, RLS / auth / data layer collapse).
+ *  - `advisory`: failure is surfaced but doesn't gate System Status. Vercel
+ *    and GitHub tokens enable deployment introspection and the
+ *    Self-Development Protocol — they don't block live operations because
+ *    the platform is already deployed and running regardless of whether
+ *    those tokens are valid.
+ */
+export type HandshakeServiceClass = 'critical' | 'advisory';
+
 export type HandshakeServicePing = {
   id: HandshakeServiceId;
   label: string;
   ok: boolean;
   latencyMs: number;
   message: string;
+  serviceClass: HandshakeServiceClass;
+  /** True when the token was never configured (advisory services only). */
+  notConfigured?: boolean;
   detail?: Record<string, unknown>;
 };
 
@@ -29,6 +44,8 @@ export type EngineeringWingHandshakeResult = {
   secretsValid: boolean;
   secretIssues: string[];
   services: HandshakeServicePing[];
+  /** Advisory services that are configured but failing — surfaced as warnings. */
+  advisoryDegradations: string[];
   vercelDeploymentUrl: string | null;
   vercelDeploymentId: string | null;
   opsControllerEnabled: boolean;
@@ -117,11 +134,12 @@ export function loadEngineeringWingSecrets(): EngineeringWingSecrets {
 }
 
 /**
- * Advisory validation — surfaces likely misconfigurations to the founder UI
- * but does NOT gate the handshake `status`. The authoritative signal is the
- * live ping outcome from each provider's API, since modern Vercel/GitHub
- * tokens emit a variety of prefixes (vcp_, no prefix, gho_, ghu_, ghs_, etc.)
- * and a strict prefix check would falsely flag valid credentials.
+ * Surfaces likely misconfigurations to the founder UI. Critical issues
+ * (Supabase) genuinely break the platform; advisory issues (Vercel/GitHub)
+ * only disable optional features (deployment introspection,
+ * Self-Development Protocol) and are tagged as such so the founder UI can
+ * render them in a softer tone. Authoritative System Status comes from the
+ * live ping outcome — this function never gates the handshake by itself.
  */
 export function validateEngineeringWingSecrets(secrets: EngineeringWingSecrets): string[] {
   const issues: string[] = [];
@@ -132,13 +150,13 @@ export function validateEngineeringWingSecrets(secrets: EngineeringWingSecrets):
     issues.push('SUPABASE_SERVICE_ROLE_KEY / SUPABASE_SERVICE_KEY missing or too short');
   }
   if (!secrets.vercelToken || secrets.vercelToken.length < 16) {
-    issues.push('VERCEL_TOKEN missing or too short');
+    issues.push('VERCEL_TOKEN missing — استشاري فقط (لا يحجب تفعيل النظام).');
   }
   if (!secrets.vercelProjectId || secrets.vercelProjectId.length < 6) {
-    issues.push('VERCEL_PROJECT_ID missing');
+    issues.push('VERCEL_PROJECT_ID missing — استشاري فقط.');
   }
   if (!secrets.githubToken || secrets.githubToken.length < 16) {
-    issues.push('GITHUB_TOKEN missing or too short');
+    issues.push('GITHUB_TOKEN missing — استشاري فقط (Self-Development Protocol معطّل).');
   }
   return issues;
 }
@@ -152,6 +170,7 @@ async function pingSupabase(secrets: EngineeringWingSecrets): Promise<HandshakeS
       ok: false,
       latencyMs: 0,
       message: 'Missing Supabase credentials',
+      serviceClass: 'critical',
     };
   }
 
@@ -167,6 +186,7 @@ async function pingSupabase(secrets: EngineeringWingSecrets): Promise<HandshakeS
         ok: false,
         latencyMs: Date.now() - started,
         message: error.message,
+        serviceClass: 'critical',
       };
     }
     return {
@@ -175,6 +195,7 @@ async function pingSupabase(secrets: EngineeringWingSecrets): Promise<HandshakeS
       ok: true,
       latencyMs: Date.now() - started,
       message: 'REST ping OK',
+      serviceClass: 'critical',
       detail: { host: new URL(secrets.supabaseUrl).host },
     };
   } catch (err) {
@@ -184,19 +205,25 @@ async function pingSupabase(secrets: EngineeringWingSecrets): Promise<HandshakeS
       ok: false,
       latencyMs: Date.now() - started,
       message: err instanceof Error ? err.message : 'Supabase ping failed',
+      serviceClass: 'critical',
     };
   }
 }
 
 async function pingVercel(secrets: EngineeringWingSecrets): Promise<HandshakeServicePing> {
   const started = Date.now();
+  // Advisory: a missing Vercel token does NOT mean the platform is offline —
+  // the deployment is already live on Vercel and serving traffic. The token
+  // is only needed for deployment introspection from the founder console.
   if (!secrets.vercelToken || !secrets.vercelProjectId) {
     return {
       id: 'vercel',
-      label: 'Vercel',
-      ok: false,
+      label: 'Vercel (advisory)',
+      ok: true,
       latencyMs: 0,
-      message: 'Missing Vercel credentials',
+      message: 'لم يُهيَّأ توكن Vercel — استشاري فقط (لا يؤثّر على حالة النظام).',
+      serviceClass: 'advisory',
+      notConfigured: true,
     };
   }
 
@@ -207,7 +234,10 @@ async function pingVercel(secrets: EngineeringWingSecrets): Promise<HandshakeSer
         headers: { Authorization: `Bearer ${secrets.vercelToken}` },
       },
     );
-    const body = (await res.json().catch(() => ({}))) as { name?: string; error?: { message?: string } };
+    const body = (await res.json().catch(() => ({}))) as {
+      name?: string;
+      error?: { message?: string };
+    };
     if (!res.ok) {
       return {
         id: 'vercel',
@@ -215,6 +245,7 @@ async function pingVercel(secrets: EngineeringWingSecrets): Promise<HandshakeSer
         ok: false,
         latencyMs: Date.now() - started,
         message: body.error?.message || `HTTP ${res.status}`,
+        serviceClass: 'advisory',
       };
     }
     return {
@@ -223,6 +254,7 @@ async function pingVercel(secrets: EngineeringWingSecrets): Promise<HandshakeSer
       ok: true,
       latencyMs: Date.now() - started,
       message: 'Project API OK',
+      serviceClass: 'advisory',
       detail: { projectName: body.name ?? null },
     };
   } catch (err) {
@@ -232,19 +264,24 @@ async function pingVercel(secrets: EngineeringWingSecrets): Promise<HandshakeSer
       ok: false,
       latencyMs: Date.now() - started,
       message: err instanceof Error ? err.message : 'Vercel ping failed',
+      serviceClass: 'advisory',
     };
   }
 }
 
 async function pingGitHub(secrets: EngineeringWingSecrets): Promise<HandshakeServicePing> {
   const started = Date.now();
+  // Advisory: GitHub token only enables the Self-Development Protocol (branch
+  // proposals, automated PRs). Its absence doesn't break live operations.
   if (!secrets.githubToken) {
     return {
       id: 'github',
-      label: 'GitHub',
-      ok: false,
+      label: 'GitHub (advisory)',
+      ok: true,
       latencyMs: 0,
-      message: 'Missing GitHub token',
+      message: 'لم يُهيَّأ توكن GitHub — استشاري فقط (لا يؤثّر على حالة النظام).',
+      serviceClass: 'advisory',
+      notConfigured: true,
     };
   }
 
@@ -264,6 +301,7 @@ async function pingGitHub(secrets: EngineeringWingSecrets): Promise<HandshakeSer
         ok: false,
         latencyMs: Date.now() - started,
         message: body.message || `HTTP ${res.status}`,
+        serviceClass: 'advisory',
       };
     }
     return {
@@ -272,6 +310,7 @@ async function pingGitHub(secrets: EngineeringWingSecrets): Promise<HandshakeSer
       ok: true,
       latencyMs: Date.now() - started,
       message: 'User API OK',
+      serviceClass: 'advisory',
       detail: { login: body.login ?? null },
     };
   } catch (err) {
@@ -281,6 +320,7 @@ async function pingGitHub(secrets: EngineeringWingSecrets): Promise<HandshakeSer
       ok: false,
       latencyMs: Date.now() - started,
       message: err instanceof Error ? err.message : 'GitHub ping failed',
+      serviceClass: 'advisory',
     };
   }
 }
@@ -323,12 +363,20 @@ export async function runEngineeringWingHandshake(): Promise<EngineeringWingHand
   ]);
 
   const services = [supabase, vercel, github];
-  const allServicesOk = services.every((s) => s.ok);
 
-  // Authoritative signal is the live ping result — if every provider's API
-  // responds OK, the handshake passes even if a token has an unfamiliar
-  // prefix shape. Secret hints stay in `secretIssues` for the founder UI.
-  const status: EngineeringWingHandshakeResult['status'] = allServicesOk ? 'ok' : 'fail';
+  // Authoritative System Status depends ONLY on critical services. Advisory
+  // pings (Vercel/GitHub) surface their results to the founder UI as warnings
+  // but never gate Ops Controller activation, because the platform is already
+  // deployed and running independently of those introspection tokens.
+  const criticalServicesOk = services
+    .filter((s) => s.serviceClass === 'critical')
+    .every((s) => s.ok);
+
+  const advisoryDegradations = services
+    .filter((s) => s.serviceClass === 'advisory' && !s.ok && !s.notConfigured)
+    .map((s) => `${s.label}: ${s.message}`);
+
+  const status: EngineeringWingHandshakeResult['status'] = criticalServicesOk ? 'ok' : 'fail';
 
   return {
     status,
@@ -336,6 +384,7 @@ export async function runEngineeringWingHandshake(): Promise<EngineeringWingHand
     secretsValid,
     secretIssues,
     services,
+    advisoryDegradations,
     vercelDeploymentUrl: deployment.url,
     vercelDeploymentId: deployment.id,
     opsControllerEnabled: status === 'ok',

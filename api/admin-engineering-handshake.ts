@@ -30,13 +30,22 @@ export async function GET(request: Request): Promise<Response> {
   let stored = await readStoredHandshake(auth.supabase);
   const diagnostics = secretsDiagnostics();
 
-  // Auto-run handshake if the founder row is still in 'pending' (never executed)
-  // OR if the last result is older than 12h. Avoids the FAIL-by-default state
-  // where the UI reports red simply because no one clicked the button yet.
+  // Auto-run policy:
+  //  - PENDING: always re-run (founder never clicked the button).
+  //  - OK: re-run only if last check is older than 12h (cheap freshness).
+  //  - FAIL: re-run if older than 5 minutes — the handshake logic itself
+  //    evolved (Vercel/GitHub are now advisory only). Without this short
+  //    retry interval, a stale FAIL from the previous gating rule would
+  //    stay frozen on screen until manual intervention.
   const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
+  const FIVE_MINUTES_MS = 5 * 60 * 1000;
   const lastChecked = stored?.updated_at ? Date.parse(stored.updated_at) : null;
-  const isStale = lastChecked != null && Date.now() - lastChecked > TWELVE_HOURS_MS;
-  const shouldAutoRun = !stored || stored.status === 'pending' || isStale;
+  const ageMs = lastChecked != null ? Date.now() - lastChecked : Number.POSITIVE_INFINITY;
+  const shouldAutoRun =
+    !stored ||
+    stored.status === 'pending' ||
+    (stored.status === 'ok' && ageMs > TWELVE_HOURS_MS) ||
+    (stored.status === 'fail' && ageMs > FIVE_MINUTES_MS);
 
   if (shouldAutoRun) {
     try {
