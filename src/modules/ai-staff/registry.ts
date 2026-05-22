@@ -40,6 +40,13 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
     gridClassName: 'sm:grid-cols-2',
   },
   {
+    id: 'media_office',
+    titleAr: 'هـ — المكتب الإعلامي',
+    subtitleAr:
+      'المتحدث الإعلامي — علوم الإعلام والعلاقات العامة، رسائل مهنية، إدارة سمعة، واستدعاء كل الوكلاء لتغذية البيانات',
+    gridClassName: 'max-w-3xl',
+  },
+  {
     id: 'external_partner_ops',
     titleAr: 'ب — عمليات الشركاء الخارجية',
     subtitleAr: 'المناوب الميداني · مساعد الشركاء — نشر ميداني وعلاقات بدون العبث بالماليات',
@@ -250,6 +257,51 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     ],
     productRef: {
       apiRoutes: ['/api/admin-marketing-lab-chat?channel=b2b'],
+    },
+  },
+  {
+    id: 'media_spokesperson',
+    boundary: 'media_office',
+    shortName: 'المتحدث الإعلامي 🎙️',
+    title: 'المتحدث الإعلامي الرسمي — Press & Public Affairs',
+    statusBadgeAr: 'علوم إعلام · حضور دائم',
+    ctaLabelAr: 'فتح غرفة المتحدث 🎙️',
+    roleDescription:
+      'متحدث رسمي مزوّد بكامل علوم الإعلام والعلاقات العامة وتاريخ المنصة من نشأتها كمزوّد حلول تقنية وحتى مراتبها البرمجية المتقدمة. يصوغ البيانات الصحفية، الردود الإعلامية، إدارة السمعة، وتموضع منصة حلاق ماب في المشهد السعودي. يستدعي المدعي العام وكل الوكلاء لتغذية رواية محكمة لا يُكسرها التضارب.',
+    accentClass: staffTheme.accentMedia,
+    requiredAny: [
+      'manage_admins',
+      'view_overview',
+      'view_partner_marketing',
+      'manage_partner_marketing',
+    ],
+    available: true,
+    iconKind: 'media_spokesperson',
+    workspaceKind: 'media_spokesperson_lab',
+    consultAgents: [
+      'public_prosecutor',
+      'system_crisis_advisor',
+      'technical_consultant_engineering',
+      'billing_treasurer',
+      'zatca_tax_advisor',
+      'partner_relations_liaison',
+      'fleet_director_general',
+      'digital_shift_field',
+      'b2c_marketing_strategist',
+      'b2b_marketing_strategist',
+    ],
+    doctrineNotes: [
+      'النطاق: علوم الإعلام، العلاقات العامة، البيانات الصحفية، إدارة السمعة، وتموضع المنصة — لا يُفعّل خصومات ولا يَعِد بميزات.',
+      'تموضع ثابت: منصة حلاق ماب مزوّد حلول تقنية، لا وسيط تجاري — يجب أن يُعمَّم في كل رسالة إعلامية.',
+      'يلتزم بنبرة احترافية متحفظة، يتجنّب المبالغات، ويفصل العربية عن المصطلحات الإنجليزية وفق قواعد كتابة المنصة.',
+      'يستدعي المدعي العام لمراجعة أي بيان قبل إرساله إلى وسائل الإعلام عند الحساسية القانونية أو التنظيمية.',
+      'يقرأ بيانات حية: user_searches، listing_license_orders، platform_engineering_handshake، public_prosecutor_dashboard — ولا يخترع أرقاماً.',
+      'بروتوكول الأزمة الإعلامية: بيان مؤقت خلال أول ساعة → استشارة المدعي العام ومستشار الأزمات → بيان رسمي بعد التحقق.',
+      'يحاور المؤسس باستفسارات استراتيجية ويعرض البدائل، لا يفرض موقفاً واحداً.',
+    ],
+    productRef: {
+      apiRoutes: ['/api/admin-media-spokesperson-chat'],
+      systemPromptBuilder: 'buildMediaSpokespersonSystemPrompt',
     },
   },
   {

@@ -5,6 +5,7 @@ import {
   Gavel,
   Lock,
   Megaphone,
+  Mic,
   Moon,
   Scale,
   Shield,
@@ -103,6 +104,13 @@ function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName
     return (
       <span className={cn(base, 'border-sky-700/50 bg-sky-950/40')}>
         <Briefcase className="h-5 w-5 text-sky-300" strokeWidth={2} />
+      </span>
+    );
+  }
+  if (kind === 'media_spokesperson') {
+    return (
+      <span className={cn(base, 'border-purple-700/60 bg-purple-950/50 relative')}>
+        <Mic className="h-5 w-5 text-purple-200" strokeWidth={2} />
       </span>
     );
   }

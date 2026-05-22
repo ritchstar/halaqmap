@@ -11,6 +11,7 @@ import { PublicProsecutorLabChat } from '@/components/admin/PublicProsecutorLabC
 import { TechnicalConsultantLabChat } from '@/components/admin/TechnicalConsultantLabChat';
 import { ZatcaAdvisorLabChat } from '@/components/admin/ZatcaAdvisorLabChat';
 import { MarketingCouncilLabChat } from '@/components/admin/MarketingCouncilLabChat';
+import { MediaSpokespersonLabChat } from '@/components/admin/MediaSpokespersonLabChat';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';
 import { staffMotion, staffTheme } from '@/components/admin/staff/staffTheme';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,7 @@ export function AiStaffControlRoom({
   const [technicalConsultantLabOpen, setTechnicalConsultantLabOpen] = useState(false);
   const [b2cMarketingLabOpen, setB2cMarketingLabOpen] = useState(false);
   const [b2bMarketingLabOpen, setB2bMarketingLabOpen] = useState(false);
+  const [mediaSpokespersonLabOpen, setMediaSpokespersonLabOpen] = useState(false);
   const [crisisModeActive, setCrisisModeActive] = useState(false);
 
   const crisisLabControlled = crisisLabOpenProp !== undefined && onCrisisLabOpenChange !== undefined;
@@ -213,6 +215,18 @@ export function AiStaffControlRoom({
       setWorkspaceAgentId(null);
       return;
     }
+    if (agent.id === 'media_spokesperson') {
+      setMediaSpokespersonLabOpen(true);
+      setB2cMarketingLabOpen(false);
+      setB2bMarketingLabOpen(false);
+      setBillingOpen(false);
+      setDigitalShiftLabOpen(false);
+      setZatcaLabOpen(false);
+      setPartnerLiaisonLabOpen(false);
+      setFleetDirectorLabOpen(false);
+      setWorkspaceAgentId(null);
+      return;
+    }
     if (agent.workspaceKind === 'fleet_intelligence') {
       setWorkspaceAgentId(agent.id);
     }
@@ -235,6 +249,9 @@ export function AiStaffControlRoom({
   );
   const showB2bMarketingLab = agents.some(
     (a) => a.id === 'b2b_marketing_strategist' && a.permitted,
+  );
+  const showMediaSpokespersonLab = agents.some(
+    (a) => a.id === 'media_spokesperson' && a.permitted,
   );
 
   const openPartnerReportsPanel = () => {
@@ -441,6 +458,27 @@ export function AiStaffControlRoom({
           hideTrigger
           onSummonProsecutor={
             showPublicProsecutorLab ? () => setPublicProsecutorLabOpen(true) : undefined
+          }
+        />
+      ) : null}
+
+      {showMediaSpokespersonLab ? (
+        <MediaSpokespersonLabChat
+          permitted
+          open={mediaSpokespersonLabOpen}
+          onOpenChange={setMediaSpokespersonLabOpen}
+          hideTrigger
+          onSummonProsecutor={
+            showPublicProsecutorLab ? () => setPublicProsecutorLabOpen(true) : undefined
+          }
+          onSummonCrisisAdvisor={
+            showCrisisAdvisorLab ? () => setCrisisAdvisorLabOpen(true) : undefined
+          }
+          onSummonB2cMarketing={
+            showB2cMarketingLab ? () => setB2cMarketingLabOpen(true) : undefined
+          }
+          onSummonB2bMarketing={
+            showB2bMarketingLab ? () => setB2bMarketingLabOpen(true) : undefined
           }
         />
       ) : null}

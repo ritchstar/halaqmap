@@ -5,6 +5,7 @@ export type AiStaffBoundaryId =
   | 'internal_governance'
   | 'engineering_council'
   | 'marketing_council'
+  | 'media_office'
   | 'external_partner_ops'
   | 'covert_sovereign';
 
@@ -18,7 +19,8 @@ export type AiStaffAgentId =
   | 'public_prosecutor'
   | 'technical_consultant_engineering'
   | 'b2c_marketing_strategist'
-  | 'b2b_marketing_strategist';
+  | 'b2b_marketing_strategist'
+  | 'media_spokesperson';
 
 export type AiStaffAgentIconKind =
   | 'treasurer'
@@ -30,7 +32,8 @@ export type AiStaffAgentIconKind =
   | 'public_prosecutor'
   | 'technical_consultant'
   | 'marketing_b2c'
-  | 'marketing_b2b';
+  | 'marketing_b2b'
+  | 'media_spokesperson';
 
 export type AiStaffWorkspaceKind =
   | 'billing_dialog'
@@ -42,7 +45,8 @@ export type AiStaffWorkspaceKind =
   | 'prosecutor_governance'
   | 'engineering_council'
   | 'marketing_b2c_lab'
-  | 'marketing_b2b_lab';
+  | 'marketing_b2b_lab'
+  | 'media_spokesperson_lab';
 
 /** Links scattered product code into one registry row (no hardcoded card copy in components). */
 export type AiStaffProductRef = {
