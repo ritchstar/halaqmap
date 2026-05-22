@@ -72,60 +72,90 @@ export function isInsideTacticalCanvas(lng: number, lat: number): boolean {
  * north-west corner (Gulf of Aqaba) down the Red Sea coast, around the
  * southern Empty Quarter, up the Persian Gulf, and back along the
  * Iraq/Jordan border. Vertices in [lng, lat] order.
+ *
+ * Calibration goal: every CITY_BEACONS entry must project visually INSIDE
+ * this polygon. The previous 36-vertex outline was too tight along the
+ * Red Sea (Yanbu fell outside) and along the Jordan/Iraq border (Tabuk
+ * sat on the western edge). This revision adds vertices along those
+ * coasts and pushes them outward by 0.2°–0.4° so every beacon clears
+ * the border line with safety margin.
  */
 const KSA_OUTLINE_LNGLAT: ReadonlyArray<[number, number]> = [
-  // North-west (Gulf of Aqaba / Jordan corner)
-  [34.95, 29.35],
-  [35.6, 28.55],
-  // Jordan border NE
-  [37.4, 29.95],
-  [38.9, 31.65],
-  [39.3, 32.15],
-  // Iraq border
-  [42.1, 31.1],
-  [44.45, 29.5],
-  [46.65, 29.1],
-  // Kuwait neutral zone / Khafji
-  [47.5, 28.95],
-  [48.45, 28.55],
-  [48.65, 27.6],
-  // Persian Gulf coast (Saudi)
-  [49.65, 27.05],
-  [49.99, 26.39],
-  [50.1, 26.0],
-  [50.55, 25.3],
-  [50.85, 24.75],
-  // Qatar / UAE base
-  [51.0, 24.5],
-  [51.45, 24.55],
-  [52.55, 24.05],
-  // UAE / Oman corridor
-  [54.3, 22.5],
-  [55.65, 22.0],
-  [55.7, 20.5],
-  // Rub al Khali — Oman / Yemen corner
-  [53.6, 19.35],
-  [52.4, 18.95],
-  [49.95, 18.65],
-  // Yemen border (south)
-  [47.7, 17.05],
-  [46.5, 17.1],
-  [44.6, 17.4],
-  [43.5, 17.35],
-  // Jizan / Red Sea south corner
-  [42.85, 16.65],
-  [42.5, 17.45],
-  // Red Sea coast (south to north)
-  [41.8, 19.5],
-  [41.2, 21.2],
-  [40.05, 22.35],
-  [39.1, 24.4],
-  [38.3, 25.5],
-  [37.5, 26.8],
-  [36.4, 27.95],
-  [35.6, 28.55],
-  // Close
-  [34.95, 29.35],
+  // === North-west: Gulf of Aqaba → Jordan corner ===
+  [34.85, 29.35], // Aqaba bay NW
+  [34.95, 28.95],
+  [35.30, 28.10], // Sharma / Tabuk province coast
+  [35.45, 27.55], // pushed west to keep Tabuk inland with safety margin
+  [35.85, 26.65], // Al-Wajh north
+  [36.20, 26.10], // Al-Wajh
+  [36.85, 25.40], // Umluj
+  [37.25, 24.85], // Umluj south
+  [37.60, 24.45], // Yanbu Al-Nakhl
+  [37.80, 24.05], // **Yanbu Al-Bahr** (city at 38.06, 24.09 — coast pushed west)
+  [38.10, 23.40], // South of Yanbu
+  [38.40, 22.85], // Rabigh
+  [38.70, 22.30], // South of Rabigh
+  [38.90, 21.80], // North of Jeddah
+  [39.00, 21.45], // **Jeddah** (39.19, 21.49 — coast pushed west)
+  [39.10, 21.05], // South of Jeddah
+  [39.35, 20.45], // Al Qunfudhah
+  [39.75, 19.75], // Al-Birk north
+  [40.40, 19.05], // Al-Lith corridor
+  [41.10, 18.40], // North of Al-Birk / Asir coast
+  [41.55, 17.65], // North of Jazan
+  [42.10, 17.10], // Jazan north
+  [42.55, 16.85], // Jazan
+  // === South-west: Yemen border (Red Sea → Empty Quarter) ===
+  [42.80, 16.60], // Yemen border corner
+  [43.40, 16.95],
+  [44.40, 17.35], // Najran approach
+  [44.70, 17.40],
+  [45.90, 17.55],
+  [46.85, 17.30],
+  [47.70, 17.15],
+  [48.60, 17.60],
+  [49.50, 18.15],
+  [49.95, 18.65], // Eastern Yemen corner
+  // === South-east: Empty Quarter → Oman / UAE ===
+  [51.70, 18.95],
+  [52.40, 19.05],
+  [53.65, 19.45],
+  [55.20, 20.05],
+  [55.70, 20.65],
+  [55.85, 21.60],
+  // === East: UAE / Qatar corridor → Persian Gulf coast ===
+  [55.10, 22.55], // UAE inland
+  [54.40, 22.85],
+  [53.05, 23.55],
+  [52.40, 24.05], // UAE coast bend
+  [51.40, 24.20], // Qatar base SW
+  [50.95, 24.50], // Qatar base
+  [50.65, 24.85], // Qatar base N
+  [50.85, 25.35],
+  [50.15, 26.00],
+  [50.10, 26.40], // **Dammam / Khobar** (49.98, 26.39 — coast pushed east)
+  [49.95, 27.10], // **Jubail** (49.66, 27.01 — coast pushed east)
+  [49.20, 27.95], // Kuwait approach
+  [48.85, 28.55],
+  [48.65, 28.95],
+  [48.40, 29.05],
+  // === North: Kuwait → Iraq → Jordan border ===
+  [47.85, 29.10], // Khafji area
+  [46.55, 29.10], // Hafar Al-Batin (45.96, 28.43 well south of this line)
+  [44.70, 29.45],
+  [43.20, 30.55],
+  [42.45, 31.20],
+  [41.30, 31.60], // Arar (41.04, 30.98 — well south of this northern line)
+  [40.20, 31.95],
+  [39.30, 32.20], // Northern apex (Al-Tubaiq)
+  [38.55, 31.85],
+  [37.65, 31.05],
+  [36.85, 30.35], // Sakaka (40.21, 29.97 — well south + east of this western line)
+  [36.20, 29.80],
+  [35.55, 29.45],
+  // === Close back to Aqaba ===
+  [35.10, 29.40],
+  [34.85, 29.35],
 ];
 
 /** Convert a lat/lng polygon into an SVG `M …Lx y Lx y… Z` path string. */

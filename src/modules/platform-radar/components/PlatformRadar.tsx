@@ -26,9 +26,11 @@ type Props = {
 function HudStat({ label, value }: { label: string; value: string | number }) {
   const display = value === '—' || value === '--' ? 0 : value;
   return (
-    <div className="min-w-[clamp(5.5rem,11vw,7.5rem)] rounded-xl border border-white/12 bg-black/68 px-[clamp(0.55rem,1.1vw,0.85rem)] py-[clamp(0.4rem,0.9vh,0.6rem)] backdrop-blur-md">
-      <p className="text-[clamp(0.62rem,1.1vw,0.78rem)] text-slate-400">{label}</p>
-      <p className="text-[clamp(1.05rem,2vw,1.55rem)] font-bold tabular-nums text-white">{display}</p>
+    <div className="flex min-w-[clamp(3.4rem,7vw,4.6rem)] flex-col items-center rounded-lg border border-white/10 bg-black/40 px-2 py-1 backdrop-blur-sm">
+      <p className="text-[clamp(0.55rem,0.95vw,0.66rem)] leading-tight text-slate-400">{label}</p>
+      <p className="text-[clamp(0.85rem,1.5vw,1.05rem)] font-bold leading-tight tabular-nums text-white">
+        {display}
+      </p>
     </div>
   );
 }
@@ -139,36 +141,55 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
         <OpsControllerRadarPanel className="pointer-events-auto" />
       </div>
 
-      {/* Bottom-left — Market pulse */}
-      <aside className="pointer-events-none absolute bottom-0 left-0 z-30 max-w-[min(92vw,28rem)] p-[clamp(0.75rem,2vw,1.5rem)]">
-        <div className="pointer-events-auto rounded-2xl border border-white/10 bg-black/72 p-[clamp(0.75rem,1.5vw,1rem)] backdrop-blur-xl">
-          <p className="flex items-center gap-2 text-[clamp(0.95rem,1.7vw,1.15rem)] font-semibold text-white" dir="rtl">
-            <Zap className="h-4 w-4 text-amber-300" />
-            نبض السوق
-          </p>
-          <p className="mt-1 line-clamp-2 text-[clamp(0.86rem,1.5vw,1rem)] leading-relaxed text-slate-300" dir="rtl">
-            {brief?.searchDemandLine ?? '—'}
-          </p>
-          {tacticalView ? (
-            <p className="mt-2 flex items-center gap-1.5 text-[clamp(0.76rem,1.35vw,0.92rem)] text-red-200/90" dir="rtl">
-              <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
-              Inspector Detection — هالات حمراء على النشاط المريب
-            </p>
-          ) : null}
-        </div>
-      </aside>
+      {/* Bottom strip — collapsible Market pulse + metrics row. Hugs the
+          bottom edge with minimal vertical footprint so the map stays
+          visible. User can collapse the market-pulse text on demand. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-3 px-[clamp(0.5rem,1.5vw,1.25rem)] pb-[clamp(0.35rem,1vw,0.7rem)]">
+        {/* Bottom-left — Market pulse (compact, collapsible) */}
+        <aside className="pointer-events-auto max-w-[min(58vw,22rem)]">
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3 py-1.5 backdrop-blur-sm transition hover:bg-black/65">
+              <Zap className="h-3.5 w-3.5 shrink-0 text-amber-300" />
+              <span className="text-[clamp(0.72rem,1.2vw,0.88rem)] font-semibold text-white" dir="rtl">
+                نبض السوق
+              </span>
+              <span
+                className="ms-auto text-[10px] text-slate-400 transition group-open:rotate-180"
+                aria-hidden
+              >
+                ▾
+              </span>
+            </summary>
+            <div className="mt-1.5 rounded-xl border border-white/10 bg-black/55 p-2.5 backdrop-blur-md">
+              <p
+                className="line-clamp-2 text-[clamp(0.72rem,1.25vw,0.86rem)] leading-relaxed text-slate-200"
+                dir="rtl"
+              >
+                {brief?.searchDemandLine ?? '—'}
+              </p>
+              {tacticalView ? (
+                <p
+                  className="mt-1.5 flex items-center gap-1.5 text-[clamp(0.65rem,1.15vw,0.78rem)] text-red-200/85"
+                  dir="rtl"
+                >
+                  <ShieldAlert className="h-3 w-3 shrink-0" />
+                  Inspector Detection — هالات حمراء على النشاط المريب
+                </p>
+              ) : null}
+            </div>
+          </details>
+        </aside>
 
-      {/* Bottom-right — metrics row (reference) */}
-      <footer className="pointer-events-none absolute bottom-0 right-0 z-30 p-[clamp(0.75rem,2vw,1.5rem)]">
-        <div className="pointer-events-auto flex flex-wrap justify-end gap-[clamp(0.4rem,0.9vw,0.65rem)]">
-          <HudStat label="نبضات الخريطة" value={userPulseCount} />
+        {/* Bottom-right — compact metrics row */}
+        <footer className="pointer-events-auto flex flex-wrap justify-end gap-1.5">
+          <HudStat label="نبضات" value={userPulseCount} />
           <HudStat label="Inspector" value={suspiciousCount} />
           <HudStat label="حلاقون" value={stats?.totalBarbers ?? 0} />
           <HudStat label="مستخدمون" value={stats?.totalUsers ?? 0} />
           <HudStat label="عاجل 24س" value={ops?.urgentCount24h ?? 0} />
           <HudStat label="آمن 7d" value={brief?.securityEvents7d ?? 0} />
-        </div>
-      </footer>
+        </footer>
+      </div>
 
       {(error || pulsesError) && (
         <p className="absolute left-1/2 top-[18%] z-40 max-w-[90vw] -translate-x-1/2 rounded-xl border border-red-500/40 bg-red-950/70 px-4 py-3 text-[clamp(0.95rem,1.8vw,1.15rem)] text-red-100 backdrop-blur-md">
