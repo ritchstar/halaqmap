@@ -39,6 +39,11 @@ import {
   Radar,
   Cast,
   ShieldAlert,
+  KeyRound,
+  UserCog,
+  Users,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,6 +78,7 @@ import {
   getAdminCyberOperationsPathFor,
   getAdminLoginPathFor,
   getAdminPlatformRadarFullScreenPathFor,
+  getAdminPortalBasePath,
 } from '@/config/adminAuth';
 import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
 import { fetchAdminStats } from '@/lib/adminStatsRemote';
@@ -5016,6 +5022,37 @@ function SettingsSection({
     emailError: string | null;
   } | null>(null);
   const [invitationPasswordCopied, setInvitationPasswordCopied] = useState(false);
+  const [expandedAdminRowIds, setExpandedAdminRowIds] = useState<Set<string>>(() => new Set());
+  const [copiedLoginUrlRowId, setCopiedLoginUrlRowId] = useState<string | null>(null);
+  const [newAdminPermissionsOpen, setNewAdminPermissionsOpen] = useState(false);
+
+  const toggleAdminRowExpanded = (rowId: string) => {
+    setExpandedAdminRowIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(rowId)) next.delete(rowId);
+      else next.add(rowId);
+      return next;
+    });
+  };
+
+  const buildLoginUrlFor = (emailForPrefill: string): string => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.halaqmap.com';
+    const base = getAdminPortalBasePath();
+    return `${origin}/#${base}/in?email=${encodeURIComponent(emailForPrefill)}`;
+  };
+
+  const copyLoginUrlFor = async (row: AdminRoleRow) => {
+    const url = buildLoginUrlFor(row.email);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedLoginUrlRowId(row.id);
+      window.setTimeout(() => {
+        setCopiedLoginUrlRowId((cur) => (cur === row.id ? null : cur));
+      }, 2200);
+    } catch {
+      toast({ title: 'تعذّر النسخ — انسخ الرابط يدوياً', description: url });
+    }
+  };
 
   useEffect(() => {
     const sync = () => {
@@ -5227,22 +5264,32 @@ function SettingsSection({
             </div>
           ) : (
             <>
-              <div className="grid gap-3 md:grid-cols-3">
-                <Input
-                  type="email"
-                  dir="ltr"
-                  placeholder="admin2@halaqmap.com"
-                  value={newAdminEmail}
-                  onChange={(e) => setNewAdminEmail(e.target.value)}
-                />
-                <Input
-                  placeholder="اسم عرض الأدمن (اختياري)"
-                  value={newAdminName}
-                  onChange={(e) => setNewAdminName(e.target.value)}
-                />
-                <Button type="button" onClick={() => void createOrUpdateAdmin()}>
-                  إضافة/تحديث أدمن + إرسال الدعوة
-                </Button>
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+                <div className="flex items-center justify-end gap-2 text-sm font-semibold text-primary">
+                  <span>إضافة أدمن جديد</span>
+                  <UserCog className="h-4 w-4" />
+                </div>
+                <div className="grid gap-3 md:grid-cols-3">
+                  <Input
+                    type="email"
+                    dir="ltr"
+                    placeholder="admin2@halaqmap.com"
+                    value={newAdminEmail}
+                    onChange={(e) => setNewAdminEmail(e.target.value)}
+                  />
+                  <Input
+                    placeholder="اسم عرض الأدمن (اختياري)"
+                    value={newAdminName}
+                    onChange={(e) => setNewAdminName(e.target.value)}
+                  />
+                  <Button type="button" onClick={() => void createOrUpdateAdmin()} className="gap-2">
+                    <Send className="h-4 w-4" />
+                    إضافة + إرسال الدعوة
+                  </Button>
+                </div>
+                <p className="text-[11px] leading-relaxed text-muted-foreground text-right">
+                  بعد الإضافة سيظهر الأدمن مباشرة في «القائمة الحالية» أسفل هذا الصندوق، ومعه أزرار إرسال كلمة مرور جديدة ونسخ رابط الدخول.
+                </p>
               </div>
 
               {lastInvitationResult ? (
@@ -5336,159 +5383,264 @@ function SettingsSection({
                 </div>
               ) : null}
 
-              <div className="grid gap-3 md:grid-cols-3">
-                <div className="md:col-span-2">
-                  <Label className="mb-2 block">قالب صلاحيات سريع للأدمن الجديد</Label>
-                  <Select
-                    value={newAdminTemplateKey}
-                    onValueChange={(v) => {
-                      setNewAdminTemplateKey(v);
-                      const tpl = findTemplate(v);
-                      if (tpl) setNewAdminPermissions(tpl.permissions);
-                    }}
-                  >
-                    <SelectTrigger dir="rtl">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ADMIN_ROLE_TEMPLATES.map((tpl) => (
-                        <SelectItem key={tpl.key} value={tpl.key}>
-                          {tpl.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      const tpl = findTemplate(newAdminTemplateKey);
-                      if (tpl) setNewAdminPermissions(tpl.permissions);
-                    }}
-                  >
-                    إعادة تطبيق القالب
-                  </Button>
-                </div>
-              </div>
-
-              <div className="rounded-lg border p-3 space-y-4">
-                <p className="font-medium text-sm">صلاحيات الأدمن الجديد</p>
-                {ADMIN_PERMISSION_UI_SECTIONS.map((section) => (
-                  <div key={section.id} className="rounded-md border border-border/70 bg-muted/10 p-3 space-y-2">
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-foreground">{section.title}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{section.subtitle}</p>
-                    </div>
-                    <div className="grid gap-2 md:grid-cols-2">
-                      {section.keys.map((key) => (
-                        <div key={key} className="flex items-center justify-between gap-2 rounded-md bg-muted/30 px-3 py-2">
-                          <div className="min-w-0 space-y-1 text-right">
-                            <span className="text-sm block">{ADMIN_PERMISSION_LABELS[key]}</span>
-                            <Badge variant="secondary" className="text-[10px] font-normal">
-                              {adminPermissionShortRoleLabel(key)}
-                            </Badge>
-                          </div>
-                          <Switch
-                            checked={newAdminPermissions[key]}
-                            onCheckedChange={(checked) =>
-                              setNewAdminPermissions((prev) => ({ ...prev, [key]: checked }))
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="rounded-lg border p-3">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="font-medium text-sm">الأدمن الحاليون</p>
-                  <Button variant="outline" size="sm" onClick={() => void refreshAdmins()}>
+              {/* ====== قائمة الأدمن الحاليين — تظهر مباشرة تحت خانة الإضافة ====== */}
+              <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-3">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <Button variant="outline" size="sm" onClick={() => void refreshAdmins()} className="gap-1.5">
+                    <Activity className="h-3.5 w-3.5" />
                     تحديث
                   </Button>
+                  <div className="flex items-center gap-2 text-sm font-semibold text-cyan-200">
+                    <Badge variant="outline" className="border-cyan-500/40 text-cyan-100">
+                      {adminRows.length}
+                    </Badge>
+                    <span>قائمة المدراء الحالية</span>
+                    <Users className="h-4 w-4" />
+                  </div>
                 </div>
+
                 {adminLoading ? (
-                  <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+                  <div className="flex items-center justify-end gap-2 py-4 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    جاري التحميل...
+                  </div>
                 ) : adminRows.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">لا توجد صفوف في جدول الصلاحيات بعد.</p>
+                  <div className="rounded-md border border-dashed border-muted-foreground/30 p-6 text-center text-sm text-muted-foreground">
+                    لا يوجد مدراء مُضافون بعد — استخدم الصندوق أعلاه لإضافة أول أدمن وإرسال الدعوة على بريده.
+                  </div>
                 ) : (
                   <div className="space-y-3">
-                    {adminRows.map((row) => (
-                      <div key={row.id} className="rounded-md border p-3 space-y-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div>
-                            <p className="font-semibold" dir="ltr">{row.email}</p>
-                            <p className="text-xs text-muted-foreground">{row.display_name || 'بدون اسم عرض'}</p>
+                    {adminRows.map((row) => {
+                      const isExpanded = expandedAdminRowIds.has(row.id);
+                      const isCopied = copiedLoginUrlRowId === row.id;
+                      return (
+                        <div
+                          key={row.id}
+                          className={`rounded-md border bg-background/40 p-3 space-y-3 transition-colors ${
+                            row.is_active ? 'border-cyan-500/30' : 'border-rose-500/30 opacity-80'
+                          }`}
+                        >
+                          {/* الصف العلوي: الاسم + البريد + الحالة */}
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div className="min-w-0 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    row.is_active
+                                      ? 'border-emerald-500/40 text-emerald-200 text-[10px]'
+                                      : 'border-rose-500/40 text-rose-200 text-[10px]'
+                                  }
+                                >
+                                  {row.is_active ? 'نشط' : 'مُعطّل'}
+                                </Badge>
+                                <p className="font-semibold text-foreground">
+                                  {row.display_name || 'بدون اسم عرض'}
+                                </p>
+                              </div>
+                              <p
+                                className="mt-0.5 text-xs text-muted-foreground"
+                                dir="ltr"
+                                style={{ unicodeBidi: 'plaintext' }}
+                              >
+                                {row.email}
+                              </p>
+                            </div>
+                            <div className="flex flex-wrap items-center justify-end gap-1.5">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1.5 border-amber-500/40 text-amber-700 hover:bg-amber-500/10 dark:text-amber-200"
+                                title="توليد كلمة مرور مؤقتة جديدة + إعادة إرسال رابط الدخول إلى بريد الأدمن"
+                                onClick={() => void resendAdminInvitation(row)}
+                              >
+                                <KeyRound className="h-3.5 w-3.5" />
+                                إرسال كلمة مرور + رابط دخول
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1.5 border-cyan-500/40 text-cyan-700 hover:bg-cyan-500/10 dark:text-cyan-200"
+                                title="نسخ رابط دخول لوحة التحكم (مُجهَّز بالبريد) لمشاركته يدوياً"
+                                onClick={() => void copyLoginUrlFor(row)}
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                                {isCopied ? 'تم النسخ ✓' : 'نسخ رابط الدخول'}
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                className="gap-1.5"
+                                onClick={() => void removeAdmin(row.email)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                حذف
+                              </Button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Select onValueChange={(v) => void applyTemplateToExistingAdmin(row, v)}>
-                              <SelectTrigger className="w-[190px]" dir="rtl">
-                                <SelectValue placeholder="تطبيق قالب" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {ADMIN_ROLE_TEMPLATES.map((tpl) => (
-                                  <SelectItem key={tpl.key} value={tpl.key}>
-                                    {tpl.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <span className="text-xs text-muted-foreground">نشط</span>
-                            <Switch
-                              checked={row.is_active}
-                              onCheckedChange={(checked) => void toggleAdminActive(row, checked)}
-                            />
+
+                          {/* صف الإجراءات السريعة + طي/فتح الصلاحيات */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/40 pt-2">
                             <Button
-                              variant="outline"
+                              type="button"
+                              variant="ghost"
                               size="sm"
-                              className="border-amber-500/40 text-amber-700 hover:bg-amber-500/10 dark:text-amber-200"
-                              title="توليد كلمة مرور مؤقتة جديدة وإرسالها إلى بريد الأدمن"
-                              onClick={() => void resendAdminInvitation(row)}
+                              className="gap-1.5 text-xs"
+                              onClick={() => toggleAdminRowExpanded(row.id)}
                             >
-                              إرسال كلمة مرور جديدة
+                              {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                              {isExpanded ? 'إخفاء الصلاحيات' : 'تعديل الصلاحيات'}
                             </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => void removeAdmin(row.email)}
-                            >
-                              حذف
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          {ADMIN_PERMISSION_UI_SECTIONS.map((section) => (
-                            <div key={`${row.id}-${section.id}`} className="rounded-md border border-border/70 bg-muted/10 p-3 space-y-2">
-                              <p className="text-xs font-semibold text-foreground">{section.title}</p>
-                              <div className="grid gap-2 md:grid-cols-2">
-                                {section.keys.map((key) => (
-                                  <div key={key} className="flex items-center justify-between gap-2 rounded-md bg-muted/30 px-2 py-1.5">
-                                    <div className="min-w-0 space-y-0.5 text-right">
-                                      <span className="text-xs block leading-snug">{ADMIN_PERMISSION_LABELS[key]}</span>
-                                      <Badge variant="outline" className="text-[9px] font-normal h-5">
-                                        {adminPermissionShortRoleLabel(key)}
-                                      </Badge>
-                                    </div>
-                                    <Switch
-                                      checked={row.permissions[key]}
-                                      onCheckedChange={(checked) =>
-                                        void toggleAdminPermission(row, key, checked)
-                                      }
-                                    />
-                                  </div>
-                                ))}
+                            <div className="flex items-center gap-2">
+                              <Select onValueChange={(v) => void applyTemplateToExistingAdmin(row, v)}>
+                                <SelectTrigger className="h-8 w-[180px] text-xs" dir="rtl">
+                                  <SelectValue placeholder="تطبيق قالب صلاحيات" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {ADMIN_ROLE_TEMPLATES.map((tpl) => (
+                                    <SelectItem key={tpl.key} value={tpl.key}>
+                                      {tpl.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <div className="flex items-center gap-1.5 rounded-md bg-muted/40 px-2 py-1">
+                                <span className="text-[11px] text-muted-foreground">تفعيل</span>
+                                <Switch
+                                  checked={row.is_active}
+                                  onCheckedChange={(checked) => void toggleAdminActive(row, checked)}
+                                />
                               </div>
                             </div>
-                          ))}
+                          </div>
+
+                          {/* جدول الصلاحيات — مطوي افتراضياً */}
+                          {isExpanded ? (
+                            <div className="space-y-3 border-t border-border/40 pt-3">
+                              {ADMIN_PERMISSION_UI_SECTIONS.map((section) => (
+                                <div
+                                  key={`${row.id}-${section.id}`}
+                                  className="rounded-md border border-border/70 bg-muted/10 p-3 space-y-2"
+                                >
+                                  <p className="text-xs font-semibold text-foreground">{section.title}</p>
+                                  <div className="grid gap-2 md:grid-cols-2">
+                                    {section.keys.map((key) => (
+                                      <div
+                                        key={key}
+                                        className="flex items-center justify-between gap-2 rounded-md bg-muted/30 px-2 py-1.5"
+                                      >
+                                        <div className="min-w-0 space-y-0.5 text-right">
+                                          <span className="text-xs block leading-snug">{ADMIN_PERMISSION_LABELS[key]}</span>
+                                          <Badge variant="outline" className="text-[9px] font-normal h-5">
+                                            {adminPermissionShortRoleLabel(key)}
+                                          </Badge>
+                                        </div>
+                                        <Switch
+                                          checked={row.permissions[key]}
+                                          onCheckedChange={(checked) =>
+                                            void toggleAdminPermission(row, key, checked)
+                                          }
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
+              </div>
+
+              {/* ====== صلاحيات الأدمن الجديد — قابل للطي حتى لا يحجب القائمة ====== */}
+              <div className="rounded-lg border bg-muted/5">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-2 rounded-t-lg bg-muted/10 px-3 py-2 text-sm font-medium hover:bg-muted/20"
+                  onClick={() => setNewAdminPermissionsOpen((v) => !v)}
+                >
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    {newAdminPermissionsOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                    {newAdminPermissionsOpen ? 'طي' : 'فتح'}
+                  </span>
+                  <span className="text-right">
+                    إعدادات تفصيلية للأدمن الجديد <span className="text-xs text-muted-foreground">(اختر قالباً سريعاً أو فعّل الصلاحيات يدوياً)</span>
+                  </span>
+                </button>
+                {newAdminPermissionsOpen ? (
+                  <div className="space-y-4 border-t p-3">
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <div className="md:col-span-2">
+                        <Label className="mb-2 block">قالب صلاحيات سريع للأدمن الجديد</Label>
+                        <Select
+                          value={newAdminTemplateKey}
+                          onValueChange={(v) => {
+                            setNewAdminTemplateKey(v);
+                            const tpl = findTemplate(v);
+                            if (tpl) setNewAdminPermissions(tpl.permissions);
+                          }}
+                        >
+                          <SelectTrigger dir="rtl">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ADMIN_ROLE_TEMPLATES.map((tpl) => (
+                              <SelectItem key={tpl.key} value={tpl.key}>
+                                {tpl.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            const tpl = findTemplate(newAdminTemplateKey);
+                            if (tpl) setNewAdminPermissions(tpl.permissions);
+                          }}
+                        >
+                          إعادة تطبيق القالب
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg border p-3 space-y-4">
+                      <p className="font-medium text-sm">صلاحيات الأدمن الجديد</p>
+                      {ADMIN_PERMISSION_UI_SECTIONS.map((section) => (
+                        <div key={section.id} className="rounded-md border border-border/70 bg-muted/10 p-3 space-y-2">
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-foreground">{section.title}</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">{section.subtitle}</p>
+                          </div>
+                          <div className="grid gap-2 md:grid-cols-2">
+                            {section.keys.map((key) => (
+                              <div key={key} className="flex items-center justify-between gap-2 rounded-md bg-muted/30 px-3 py-2">
+                                <div className="min-w-0 space-y-1 text-right">
+                                  <span className="text-sm block">{ADMIN_PERMISSION_LABELS[key]}</span>
+                                  <Badge variant="secondary" className="text-[10px] font-normal">
+                                    {adminPermissionShortRoleLabel(key)}
+                                  </Badge>
+                                </div>
+                                <Switch
+                                  checked={newAdminPermissions[key]}
+                                  onCheckedChange={(checked) =>
+                                    setNewAdminPermissions((prev) => ({ ...prev, [key]: checked }))
+                                  }
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </>
           )}
