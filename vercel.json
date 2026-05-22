@@ -166,6 +166,12 @@
     "api/admin-growth-architect.ts": {
       "maxDuration": 25
     },
+    "api/admin-b2c-marketing-lab-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-b2b-marketing-lab-chat.ts": {
+      "maxDuration": 60
+    },
     "api/admin-super-intelligence-feed.ts": {
       "maxDuration": 60
     },

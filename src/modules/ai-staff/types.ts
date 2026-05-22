@@ -4,6 +4,7 @@ import type { AdminPermissionKey } from '@/lib/adminPermissions';
 export type AiStaffBoundaryId =
   | 'internal_governance'
   | 'engineering_council'
+  | 'marketing_council'
   | 'external_partner_ops'
   | 'covert_sovereign';
 
@@ -15,7 +16,9 @@ export type AiStaffAgentId =
   | 'fleet_director_general'
   | 'system_crisis_advisor'
   | 'public_prosecutor'
-  | 'technical_consultant_engineering';
+  | 'technical_consultant_engineering'
+  | 'b2c_marketing_strategist'
+  | 'b2b_marketing_strategist';
 
 export type AiStaffAgentIconKind =
   | 'treasurer'
@@ -25,7 +28,9 @@ export type AiStaffAgentIconKind =
   | 'fleet_director'
   | 'crisis_advisor'
   | 'public_prosecutor'
-  | 'technical_consultant';
+  | 'technical_consultant'
+  | 'marketing_b2c'
+  | 'marketing_b2b';
 
 export type AiStaffWorkspaceKind =
   | 'billing_dialog'
@@ -35,7 +40,9 @@ export type AiStaffWorkspaceKind =
   | 'fleet_intelligence'
   | 'crisis_playbook'
   | 'prosecutor_governance'
-  | 'engineering_council';
+  | 'engineering_council'
+  | 'marketing_b2c_lab'
+  | 'marketing_b2b_lab';
 
 /** Links scattered product code into one registry row (no hardcoded card copy in components). */
 export type AiStaffProductRef = {

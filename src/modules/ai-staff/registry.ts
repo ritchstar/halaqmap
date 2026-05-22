@@ -33,6 +33,13 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
     gridClassName: 'max-w-3xl',
   },
   {
+    id: 'marketing_council',
+    titleAr: 'د — المجلس التسويقي',
+    subtitleAr:
+      'استراتيجي B2C للمستخدم النهائي · استراتيجي B2B للشركاء — حقن معرفة منصة، مهارات تسويقية، ومحاورة المؤسس مع حضور دائم للمدعي العام عند الطلب',
+    gridClassName: 'sm:grid-cols-2',
+  },
+  {
     id: 'external_partner_ops',
     titleAr: 'ب — عمليات الشركاء الخارجية',
     subtitleAr: 'المناوب الميداني · مساعد الشركاء — نشر ميداني وعلاقات بدون العبث بالماليات',
@@ -181,6 +188,68 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
         '/api/admin-super-intelligence-feed',
       ],
       migrationId: '85_platform_engineering_council',
+    },
+  },
+  {
+    id: 'b2c_marketing_strategist',
+    boundary: 'marketing_council',
+    shortName: 'استراتيجي B2C 🎯',
+    title: 'استراتيجي التسويق B2C — اكتساب العملاء النهائيين',
+    statusBadgeAr: 'محاورة · حقن معرفة',
+    ctaLabelAr: 'فتح مكتب B2C 🎯',
+    roleDescription:
+      'استراتيجي تسويق رقمي للمستخدم النهائي — يقترح حملات اكتساب، ASO وSEO محلي، رسائل قصيرة عن الأحياء عالية الطلب، ويناقشك في فرص نمو المستهلك. مزوّد بمعرفة منصة حلاق ماب والباقات الحالية، ويستطيع استدعاء المدعي العام للمراجعة.',
+    accentClass: staffTheme.accentMarketingConsumer,
+    requiredAny: [
+      'view_overview',
+      'manage_admins',
+      'view_partner_marketing',
+      'manage_partner_marketing',
+    ],
+    available: true,
+    iconKind: 'marketing_b2c',
+    workspaceKind: 'marketing_b2c_lab',
+    consultAgents: ['public_prosecutor'],
+    doctrineNotes: [
+      'النطاق: تسويق B2C — اكتساب العملاء النهائيين، تجربة البحث، تحسين معدل التحويل في صفحة الصالون.',
+      'ممنوع وعد العميل بخصومات لا تملكها — أي عرض ترويجي يحتاج موافقة المؤسس.',
+      'يحلّل بيانات user_searches (الأحياء، الكلمات، نسبة النتائج الصفرية) ويقترح زوايا تسويقية مبنية على الطلب الحقيقي.',
+      'يلتزم بحدود ZATCA وPDPL — لا يقترح إعلانات تستهدف بيانات شخصية حساسة.',
+      'يمكن استدعاء المدعي العام في أي رسالة لمراجعة الامتثال.',
+    ],
+    productRef: {
+      apiRoutes: ['/api/admin-b2c-marketing-lab-chat'],
+    },
+  },
+  {
+    id: 'b2b_marketing_strategist',
+    boundary: 'marketing_council',
+    shortName: 'استراتيجي B2B 🏢',
+    title: 'استراتيجي التسويق B2B — اكتساب الشركاء الحلاقين',
+    statusBadgeAr: 'محاورة · حقن معرفة',
+    ctaLabelAr: 'فتح مكتب B2B 🏢',
+    roleDescription:
+      'استراتيجي تسويق رقمي لشركاء المنصة (الصالونات) — يقترح حملات الاستحواذ على الحلاقين، خطط الترقية بين الباقات (برونزي/ذهبي/ماسي)، ورسائل الاحتفاظ. يقرأ مؤشرات الاحتكاك من مساعد الشركاء ويناقشك في خطة النمو B2B، مع إمكانية استدعاء المدعي العام للمراجعة.',
+    accentClass: staffTheme.accentMarketingPartner,
+    requiredAny: [
+      'view_overview',
+      'manage_admins',
+      'view_partner_marketing',
+      'manage_partner_marketing',
+    ],
+    available: true,
+    iconKind: 'marketing_b2b',
+    workspaceKind: 'marketing_b2b_lab',
+    consultAgents: ['public_prosecutor', 'partner_relations_liaison'],
+    doctrineNotes: [
+      'النطاق: تسويق B2B — اكتساب أصحاب الصالونات، خطط الترقية والاحتفاظ، رفع معدل الاشتراك الذهبي/الماسي.',
+      'يستخدم لقطة مساعد الشركاء (top friction themes + sentiment) لاقتراح زوايا رسالة الاحتفاظ.',
+      'لا يفعّل عروض أسعار حية — أي تعديل على الحزم يلزمه موافقة المؤسس + Super Admin.',
+      'يلتزم بحدود الباقات الرسمية (برونزي/ذهبي/ماسي) ولا يخترع مزايا غير موجودة في listingLicenseCards.',
+      'يستطيع استدعاء المدعي العام أو مساعد الشركاء كزملاء طاولة عند الحاجة.',
+    ],
+    productRef: {
+      apiRoutes: ['/api/admin-b2b-marketing-lab-chat'],
     },
   },
   {
