@@ -1,0 +1,90 @@
+# ============================================================================
+# netlify.toml — Halaq Map failover deployment configuration
+# ----------------------------------------------------------------------------
+# Purpose: Emergency fallback if Vercel deployments stop working. Allows the
+# static UI (Vite-built SPA) to be deployed to Netlify in <10 minutes.
+#
+# Scope of this file (MVP):
+#   ✓ Static SPA build (dist/) with proper SPA routing
+#   ✓ Cache headers mirrored from vercel.json
+#   ✓ PWA assets (manifest.json, sw.js, workbox) served correctly
+#   ✗ /api/* serverless functions — NOT yet wired (separate migration needed)
+#
+# How to deploy (founder, manual):
+#   1. npm i -g netlify-cli
+#   2. netlify login
+#   3. netlify init                # links repo to new Netlify site
+#   4. Set environment variables in Netlify UI (see NETLIFY_FAILOVER.md)
+#   5. netlify deploy --prod --build
+#
+# See NETLIFY_FAILOVER.md for full setup, env vars, and DNS swap guide.
+# ============================================================================
+
+[build]
+  command  = "npm run build && node scripts/verify-dist-index.mjs"
+  publish  = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS    = "--no-audit --no-fund --loglevel=error"
+
+# ----------------------------------------------------------------------------
+# SPA fallback: every non-asset request returns index.html so React Router
+# can take over. Mirrors Vercel's /rate/:path* rewrite + the implicit
+# Vite default behaviour for client-side routing.
+# ----------------------------------------------------------------------------
+[[redirects]]
+  from   = "/api/*"
+  to     = "/api-not-yet-migrated"
+  status = 503
+  force  = true
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# ----------------------------------------------------------------------------
+# Cache headers — mirror vercel.json [headers] block exactly so service
+# worker invalidation behaves identically on both platforms.
+# ----------------------------------------------------------------------------
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/workbox-*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ----------------------------------------------------------------------------
+# Security headers (defence in depth — Netlify doesn't add these by default).
+# ----------------------------------------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options   = "nosniff"
+    X-Frame-Options          = "DENY"
+    Referrer-Policy          = "strict-origin-when-cross-origin"
+    Permissions-Policy       = "camera=(), microphone=(), geolocation=(self)"
