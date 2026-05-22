@@ -201,7 +201,7 @@ function siteLinksCardBody(links: MailLinks): string {
     '" style="color:#0d9488;font-weight:700">من نحن</a> · ' +
     '<a href="' +
     h(links.registerUrl) +
-    '" style="color:#0d9488;font-weight:700">طلب اشتراك</a> · ' +
+    '" style="color:#0d9488;font-weight:700">طلب تفعيل الحزمة البرمجية</a> · ' +
     '<a href="' +
     h(links.privacyUrl) +
     '" style="color:#0d9488;font-weight:700">الخصوصية</a></p>'
@@ -371,7 +371,7 @@ function orderRefPlainLines(registrationOrderId: string | null | undefined): str
   if (!id) return [];
   return [
     '',
-    'رقم طلب الاشتراك (مرجع الدعم):',
+    'رقم طلب تفعيل الحزمة البرمجية (مرجع الدعم):',
     id,
     'احفظ هذا الرقم عند التواصل مع الدعم أو فريق حلاق ماب.',
   ];
@@ -381,7 +381,7 @@ function orderRefSectionHtml(registrationOrderId: string | null | undefined): st
   const id = String(registrationOrderId || '').trim();
   if (!id) return '';
   const safe = escapeHtml(id);
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #bae6fd;background:#f0f9ff"><tr><td style="padding:14px 16px;font-size:14px;color:#0c4a6e;line-height:1.75"><p style="margin:0;font-weight:800">رقم طلب الاشتراك (مرجع الدعم)</p><p style="margin:6px 0 0;font-family:ui-monospace,monospace;font-size:15px;letter-spacing:0.02em" dir="ltr">${safe}</p><p style="margin:8px 0 0;font-size:12px;color:#0369a1">احفظه عند مراسلة الدعم أو فريق حلاق ماب.</p></td></tr></table>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #bae6fd;background:#f0f9ff"><tr><td style="padding:14px 16px;font-size:14px;color:#0c4a6e;line-height:1.75"><p style="margin:0;font-weight:800">رقم طلب تفعيل الحزمة البرمجية (مرجع الدعم)</p><p style="margin:6px 0 0;font-family:ui-monospace,monospace;font-size:15px;letter-spacing:0.02em" dir="ltr">${safe}</p><p style="margin:8px 0 0;font-size:12px;color:#0369a1">احفظه عند مراسلة الدعم أو فريق حلاق ماب.</p></td></tr></table>`;
 }
 
 function memberPlainLines(memberPadded: string | null | undefined): string[] {
@@ -441,7 +441,7 @@ function emailText(
     `- لوحة التحكم: ${links.dashboardUrl}`,
     `- سياسة الاشتراكات: ${links.policyUrl}`,
     `- الخصوصية: ${links.privacyUrl}`,
-    `- طلب اشتراك جديد (للمرجعية): ${links.registerUrl}`,
+    `- طلب تفعيل الحزمة البرمجية (للمرجعية): ${links.registerUrl}`,
     '',
     'تسجيل الدخول (آمن وواضح):',
     '- البريد الإلكتروني نفسه المسجّل في حسابك لدينا.',

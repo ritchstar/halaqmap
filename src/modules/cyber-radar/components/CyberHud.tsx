@@ -127,7 +127,7 @@ export function CyberStatsStrip({
       />
       <StatCard
         icon={Crown}
-        labelAr="طلبات اشتراك"
+        labelAr="طلبات تفعيل الحزمة البرمجية"
         value={stats.registrations.toLocaleString('ar-SA')}
         tone="good"
       />

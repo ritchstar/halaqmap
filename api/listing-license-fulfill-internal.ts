@@ -9,6 +9,7 @@ import {
   fulfillListingLicenseOrder,
   tierLabelAr,
 } from './_lib/listingLicenseService.js';
+import { buildActivationCertificateEmailBodies } from './_lib/geospatialLicenseAssetService.js';
 
 export const config = { maxDuration: 60 };
 
@@ -182,6 +183,25 @@ export async function POST(request: Request): Promise<Response> {
     }
   }
 
+  if (result.activationCertificate && buyerEmail.includes('@')) {
+    const resendKey = (process.env.RESEND_API_KEY ?? '').trim();
+    const resendFrom = (process.env.RESEND_FROM_EMAIL ?? '').trim();
+    if (resendKey && resendFrom) {
+      const mail = buildActivationCertificateEmailBodies({
+        barberName: buyerName,
+        certificate: result.activationCertificate,
+      });
+      await sendResend({
+        apiKey: resendKey,
+        from: resendFrom,
+        to: buyerEmail,
+        subject: mail.subject,
+        html: mail.html,
+        text: mail.text,
+      });
+    }
+  }
+
   return Response.json({
     ok: true,
     orderId: result.orderId,
@@ -193,5 +213,7 @@ export async function POST(request: Request): Promise<Response> {
     tier: result.tier,
     quantity: result.quantity,
     voucherEmailed: Boolean(!result.autoRedeemed && codesToEmail.length > 0 && buyerEmail),
+    geospatialAssetId: result.geospatialAssetId ?? null,
+    activationCertificate: result.activationCertificate ?? null,
   });
 }

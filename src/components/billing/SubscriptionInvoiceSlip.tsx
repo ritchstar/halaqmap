@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import type { SubscriptionInvoicePreviewPayload } from '@/lib/subscriptionInvoicePreviewData';
+import { INVOICE_PRODUCT_DESCRIPTION_EN } from '@/config/softwareLicenseTerminology';
 
 const brandTeal = '#0d9488';
 
@@ -40,8 +41,8 @@ export const SubscriptionInvoiceSlip = forwardRef<HTMLDivElement, Props>(functio
               حلاق ماب
             </h1>
             <p className="text-sm font-medium text-slate-600 dir-ltr text-left">Halaq Map</p>
-            <p className="pt-2 text-lg font-semibold text-slate-800">فاتورة حزمة إدراج برمجية</p>
-            <p className="text-xs text-slate-500 dir-ltr text-left">Software package invoice</p>
+            <p className="pt-2 text-lg font-semibold text-slate-800">فاتورة تفعيل الحزمة البرمجية</p>
+            <p className="text-xs text-slate-500 dir-ltr text-left leading-relaxed">{INVOICE_PRODUCT_DESCRIPTION_EN}</p>
           </div>
           <div className="min-w-[200px] space-y-1 rounded-lg border border-slate-200 bg-slate-50/80 p-3 text-sm">
             <div className="flex justify-between gap-2">

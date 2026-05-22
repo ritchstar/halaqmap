@@ -11,7 +11,7 @@ export const DIGITAL_SHIFT_REPLY_COST_HALALAS = 150;
 
 export const DIGITAL_SHIFT_CATEGORY_LABELS = {
   balance: 'توصيات الشحن والتأمين',
-  banner: 'تقييم البنرات الإعلانية',
+  banner: 'تقييم الأصول الرقمية الجغرافية',
   gallery: 'معرض الصور والوسائط',
   shift_chat: 'المناوبة والمحادثات',
 } as const;

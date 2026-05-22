@@ -12,6 +12,7 @@ import { Phone, MapPin, MessageCircle, Star, Shield, Clock, QrCode } from 'lucid
 import { SiWhatsapp } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
+import { TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
 import { getOrderedWeekHoursForDisplay, SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
@@ -243,7 +244,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                     const bits: string[] = [];
                     if (c.restrictToDays && c.activeDayFlags) {
                       const ds = SAUDI_WEEK_DAY_LABELS.filter((d) => c.activeDayFlags![d]);
-                      if (ds.length) bits.push(`أيام الإعلان عن الخدمة: ${ds.join('، ')}`);
+                      if (ds.length) bits.push(`أيام ${TERM_GEOSPATIAL_DIGITAL_ASSET_AR} عن الخدمة: ${ds.join('، ')}`);
                     }
                     const note = c.customerNote?.trim();
                     if (note) bits.push(note);

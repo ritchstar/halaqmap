@@ -257,8 +257,8 @@ export async function refreshHeuristicRecommendations(
       category: 'banner',
       priority: 80,
       dedupeKey: 'banner_missing',
-      title: 'البنر الإعلاني غير مفعّل',
-      body: 'يا عمنا، لا يوجد بنر إعلاني نشط. أضف بنراً واضحاً مع عرض محدد إن أمكن — هذا يرفع ثقة العميل في نتائج الرصد الذكي.',
+      title: 'البنر غير مفعّل كأصل رقمي جغرافي',
+      body: 'يا عمنا، لا يوجد أصل رقمي جغرافي نشط على البنر. أضف بنراً واضحاً مع عرض محدد إن أمكن — هذا يرفع ثقة العميل في نتائج الرصد الذكي.',
       metadata: { bannerCount: 0 },
     });
   } else {
@@ -268,7 +268,7 @@ export async function refreshHeuristicRecommendations(
       category: 'banner',
       priority: 55,
       dedupeKey: 'banner_audit',
-      title: 'تدقيق البنرات الإعلانية',
+      title: 'تدقيق الأصول الرقمية الجغرافية',
       body: hasDiscount
         ? `تفضل، لديك ${bannerUrls.length} بنر(ات) مع شارة خصم ${input.discountPercent}%. راجع وضوح النص على الجوال وتجنب ازدحام الصورة.`
         : `تفضل، لديك ${bannerUrls.length} بنر(ات). فكّر بإضافة شارة خصم أو عرض موسمي لرفع النقرات من خريطة الرصد.`,

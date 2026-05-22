@@ -33,7 +33,7 @@ function templateText(input: TwilioWhatsAppTemplateInput): string {
   return [
     `أهلًا ${input.barberName} 👋`,
     '',
-    'تم تأكيد اشتراكك بنجاح في منصة حلاق ماب.',
+    'تم تأكيد تفعيل حزمتك البرمجية بنجاح في منصة حلاق ماب.',
     `نوع الباقة: ${input.tierLabelAr}`,
     '',
     'ابدأ الآن من الرابط التالي:',

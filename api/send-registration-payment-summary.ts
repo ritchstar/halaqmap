@@ -51,7 +51,7 @@ function tierLabelAr(tier: string): string {
 }
 
 function paymentMethodLabelAr(method: string): string {
-  return method === 'bank_transfer' ? 'تحويل بنكي (فترة مسبقة الدفع)' : 'اشتراك شهري (بطاقة / ميسر)';
+  return method === 'bank_transfer' ? 'تحويل بنكي (فترة مسبقة الدفع)' : 'تفعيل الحزمة البرمجية (بطاقة / ميسر)';
 }
 
 function buildPaymentUrl(siteBase: string, tier: string, orderId: string): string {
@@ -189,7 +189,7 @@ export async function POST(request: Request): Promise<Response> {
     `رابط إتمام الدفع (احفظه أو افتحه من أي جهاز):`,
     paymentUrl,
     '',
-    'يمكنك إكمال الدفع من هذا الرابط في أي وقت لتفعيل اشتراكك بعد اعتماد الإدارة للطلب.',
+    'يمكنك إكمال الدفع من هذا الرابط في أي وقت لتفعيل حزمتك البرمجية بعد اعتماد الإدارة للطلب.',
     '',
     '— فريق حلاق ماب',
   ].join('\n');
@@ -204,7 +204,7 @@ export async function POST(request: Request): Promise<Response> {
 <li><strong>طريقة الدفع عند التقديم:</strong> ${escapeHtml(payAr)}</li>
 </ul>
 <p><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;padding:12px 22px;background:#0d9488;color:#fff;text-decoration:none;border-radius:10px;font-weight:700">فتح صفحة الدفع</a></p>
-<p style="font-size:14px;color:#334155">يمكنك إكمال الدفع من هذا الرابط في أي وقت لتفعيل اشتراكك بعد اعتماد الإدارة للطلب.</p>
+<p style="font-size:14px;color:#334155">يمكنك إكمال الدفع من هذا الرابط في أي وقت لتفعيل حزمتك البرمجية بعد اعتماد الإدارة للطلب.</p>
 <p style="font-size:12px;color:#64748b" dir="ltr">${escapeHtml(paymentUrl)}</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`;

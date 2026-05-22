@@ -3,6 +3,7 @@ import { Bot, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
 import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
+import { TERM_PACKAGE_ACTIVATION_AR } from '@/config/softwareLicenseTerminology';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 
 function buildSmartDiamondCheckoutHref(): string {
@@ -103,7 +104,7 @@ export function DigitalShiftUpgradeLocked({
             className="w-full gap-2 border border-cyan-300/40 bg-gradient-to-l from-cyan-500 to-sky-400 px-6 text-base font-bold text-slate-950 shadow-[0_0_28px_rgba(34,211,238,0.55)] hover:from-cyan-400 hover:to-sky-300 sm:w-auto"
           >
             <Link to={checkoutHref}>
-              ترقية الاشتراك وتفعيل المناوب الذكي بـ +{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س فقط
+              {TERM_PACKAGE_ACTIVATION_AR} وتفعيل المناوب الذكي بـ +{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س فقط
             </Link>
           </Button>
         </div>
