@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ROUTE_PATHS } from '@/lib';
 import { submitBarberInterestSignup } from '@/lib/interestSignupRemote';
 import { toast } from '@/components/ui/sonner';
+import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
 
 export default function PartnerInterestLanding() {
   const [email, setEmail] = useState('');
@@ -75,6 +76,8 @@ export default function PartnerInterestLanding() {
       </section>
 
       <div className="container mx-auto max-w-3xl space-y-8 px-4 py-10">
+        <PlatformIdentityCard compact />
+
         <Alert variant="default" className="border-amber-500/40 bg-amber-50/80 text-amber-950 dark:bg-amber-950/20 dark:text-amber-50">
           <Shield className="h-4 w-4" />
           <AlertTitle>تنبيه قانوني</AlertTitle>

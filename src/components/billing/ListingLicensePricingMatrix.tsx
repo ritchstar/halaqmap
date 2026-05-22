@@ -3,7 +3,12 @@ import { NavLink } from 'react-router-dom';
 import { Check, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
-import { SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
+import {
+  SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
+  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR,
+  TIER_MONTHLY_SAR,
+} from '@/config/subscriptionPricing';
 import { DigitalShiftAddonToggle } from '@/components/billing/DigitalShiftAddonToggle';
 import {
   LISTING_LICENSE_LEGAL_FOOTNOTE,
@@ -102,8 +107,8 @@ export function ListingLicensePricingMatrix({
             {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
-            حزم برمجية للتواجد الجغرافي مبنية على <strong className="font-semibold text-slate-200">نظام الرصد الذكي</strong>{' '}
-            و<strong className="font-semibold text-slate-200">السيادة الرقمية</strong>. اختر المستوى وعدد البطاقات (كل
+            {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR} مبنية على{' '}
+            <strong className="font-semibold text-slate-200">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</strong>. اختر المستوى وعدد البطاقات (كل
             بطاقة = 30 يوم إدراج).
           </p>
         </header>

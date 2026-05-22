@@ -31,6 +31,7 @@ import {
 } from '@/config/subscriptionPlanHero';
 import {
   DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
+  SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
   SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
   SOFTWARE_PACKAGE_UNIT_LABEL_AR,
 } from '@/config/subscriptionPricing';
@@ -896,10 +897,9 @@ export function RegistrationForm() {
                 </p>
                 <h2 className="text-2xl font-bold text-white">اختر الحزمة البرمجية المناسبة</h2>
                 <p className="text-sm leading-relaxed text-slate-300">
-                  {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} — مع{' '}
-                  <span className="font-semibold text-slate-100">نظام الرصد الذكي</span> و{' '}
-                  <span className="font-semibold text-slate-100">السيادة الرقمية</span> كقيم أساسية
-                  لكل مستوى.
+                  {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} — مبنية على{' '}
+                  <span className="font-semibold text-slate-100">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</span>{' '}
+                  كأساس تقني لكل مستوى.
                 </p>
               </header>
               <RadioGroup

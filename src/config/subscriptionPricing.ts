@@ -3,8 +3,32 @@ import { SubscriptionTier } from '@/lib/index';
 /** تسمية وحدة المنتج — تظهر في بطاقات التسعير والتسجيل */
 export const SOFTWARE_PACKAGE_UNIT_LABEL_AR = 'حزمة برمجية';
 
-/** اسم المنتج الموحّد B2B */
-export const SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR = 'حزمة برمجية للتواجد الجغرافي';
+/**
+ * الاسم الرسمي الموحّد للمنتج B2B (مفرد).
+ * يُستخدم في عناوين البطاقات والأقسام والمستندات الرسمية.
+ */
+export const SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR =
+  'حزمة برمجية للتواجد الجغرافي على منصة حلاق ماب';
+
+/**
+ * الاسم الرسمي الموحّد للمنتج B2B (جمع) — يُستخدم في الفقرات والوصف.
+ */
+export const SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR =
+  'حزم برمجية للتواجد الجغرافي على منصة حلاق ماب';
+
+/**
+ * الأساس التقني الرسمي الذي تُبنى عليه الحزم — تسمية موحّدة معتمدة.
+ * تحلّ محل أي ذكر سابق لـ"السيادة الرقمية" في وصف منتج الإدراج.
+ */
+export const SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR =
+  'نظام الرصد الذكي والادراج الرقمي';
+
+/**
+ * فقرة الوصف الرسمية الكاملة — مصدر الحقيقة الوحيد، تستوردها كل واجهة تعرضها.
+ * أي تعديل لاحق يحدث هنا فقط.
+ */
+export const SOFTWARE_PACKAGE_GEO_PRESENCE_TAGLINE_AR =
+  'حزم برمجية للتواجد الجغرافي على منصة حلاق ماب مبنية على نظام الرصد الذكي والادراج الرقمي. اختر المستوى وعدد البطاقات (كل بطاقة = 30 يوم إدراج).';
 
 /** شارة مدة البطاقة (30 يوم إدراج) */
 export const SOFTWARE_PACKAGE_VALIDITY_LABEL_AR = `${SOFTWARE_PACKAGE_UNIT_LABEL_AR} · 30 يوم`;

@@ -1,13 +1,18 @@
 ﻿import { motion } from 'framer-motion';
-import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText, Users } from 'lucide-react';
+import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText, Server, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
 import { HonorBoard } from '@/components/b2b/HonorBoard';
+import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
 import {
   END_USER_EXPERIENCE_POLICY_CONTENT,
   END_USER_EXPERIENCE_POLICY_TITLE,
 } from '@/config/endUserExperiencePolicy';
+import {
+  PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
+  PLATFORM_IDENTITY_PARAGRAPH_AR,
+} from '@/config/platformIdentity';
 
 export default function TermsOfService() {
   const sections = [
@@ -17,6 +22,12 @@ export default function TermsOfService() {
       content:
         'مرحبًا بك في **حلاق ماب**. باستخدامك للمنصة (الموقع الإلكتروني أو التطبيق أو أي واجهة رسمية تابعة لنا) فإنك تقر بأنك اطلعت على هذه الشروط ووافقت على الالتزام بها. إذا لم توافق، يُرجى عدم استخدام المنصة.\n\n' +
         'تُدار المنصة وفق الأنظمة المعمول بها في المملكة العربية السعودية.',
+    },
+    {
+      icon: Server,
+      title: 'هوية المنصّة — مزوّد حلول تقنية لا وسيط تجاري',
+      content:
+        PLATFORM_IDENTITY_PARAGRAPH_AR + '\n\n' + PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
     },
     {
       icon: Users,
@@ -99,6 +110,10 @@ export default function TermsOfService() {
       </div>
 
       <div className="container mx-auto px-4 py-16" dir="rtl">
+        <div className="max-w-4xl mx-auto mb-12">
+          <PlatformIdentityCard />
+        </div>
+
         <div className="max-w-4xl mx-auto space-y-12">
           {sections.map((section, index) => {
             const Icon = section.icon;

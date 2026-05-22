@@ -10,6 +10,7 @@ import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
+import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
 import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 
@@ -253,6 +254,12 @@ export function Layout({ children }: LayoutProps) {
 
           <div className="mt-8">
             <PlatformOfficialFooterStrip variant="light" />
+          </div>
+
+          <div className="mt-6">
+            <p className="rounded-lg border border-primary/25 bg-primary/[0.04] px-4 py-3 text-center text-xs leading-relaxed text-muted-foreground md:text-sm">
+              {PLATFORM_IDENTITY_BOILERPLATE_AR}
+            </p>
           </div>
 
           <div className="mt-8 pt-8 border-t border-border/40">

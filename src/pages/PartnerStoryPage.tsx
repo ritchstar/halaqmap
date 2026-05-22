@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/lib';
 import { PARTNER_STORY_PAGE } from '@/lib/partnerMarketingCopy';
+import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
 
 export default function PartnerStoryPage() {
   return (
@@ -46,6 +47,10 @@ export default function PartnerStoryPage() {
           </motion.div>
         </div>
       </section>
+
+      <div className="container mx-auto max-w-3xl px-4 pt-10">
+        <PlatformIdentityCard />
+      </div>
 
       <div className="container mx-auto max-w-3xl space-y-6 px-4 py-12">
         {PARTNER_STORY_PAGE.chapters.map((ch, index) => (

@@ -23,6 +23,10 @@ import {
   getLegalCommercialRegistrationDisplay,
 } from "@/config/partnerLegal";
 import { HonorBoard } from "@/components/b2b/HonorBoard";
+import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
+import {
+  PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
+} from "@/config/platformIdentity";
 
 
 export default function SubscriptionPolicy() {
@@ -108,18 +112,26 @@ export default function SubscriptionPolicy() {
           </p>
         </motion.div>
 
+        <motion.section variants={staggerItem} className="mb-12">
+          <div className="max-w-4xl mx-auto">
+            <PlatformIdentityCard />
+          </div>
+        </motion.section>
+
         <motion.section variants={staggerItem} className="mb-16">
           <Card className="max-w-4xl mx-auto border-primary/30 bg-primary/5">
             <CardHeader>
               <CardTitle className="text-xl text-center">طبيعة الخدمة والمنتج الرقمي</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
                 تُقرّ المنشأة المستفيدة (صالون الحلاقة) بأن المنتج المشترى عبر المنصة هو (حزمة برمجية لخدمات إدراج برمجية
                 موحدة) على نظام الرصد الذكي التفاعلي لمنصة (حلاق ماب). هذا المنتج هو مساحة برمجية مخصصة ومطورة لعرض البيانات
                 الجغرافية والمعلومات التشغيلية للصالون، وتحديثها تقنيًا لربطه وإدراج بياناته للباحثين في محيطه الجغرافي.
-                تُعد هذه الحزم البرمجية منتجات رقمية مسبقة الدفع وغير قابلة للإلغاء أو الاسترداد بعد التفعيل، ولا تُعد هذه
-                الخدمة بأي حال من الأحوال وساطة مالية أو تجارية أو تقديم خدمات حجز بالعمولة.
+                تُعد هذه الحزم البرمجية منتجات رقمية مسبقة الدفع وغير قابلة للإلغاء أو الاسترداد بعد التفعيل.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                {PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR}
               </p>
             </CardContent>
           </Card>

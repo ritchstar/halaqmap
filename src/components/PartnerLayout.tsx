@@ -15,6 +15,7 @@ import { ROUTE_PATHS } from '@/lib';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
+import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
 import { DOMAIN_VERIFICATION_META_CONTENT, ensureDomainVerificationMeta } from '@/config/domainVerification';
 import { SOFTWARE_SERVICES_PORTAL_HEADING, SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPublic';
@@ -317,6 +318,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             <ListingLicensePricingMatrix variant="embedded-dark" showHeader={false} />
           </div>
           <LegalEntityPublicStrip variant="dark" />
+          <p className="mt-3 rounded-md border border-amber-400/25 bg-amber-500/[0.06] px-3 py-2 text-center text-[10.5px] leading-relaxed text-amber-100/90">
+            {PLATFORM_IDENTITY_BOILERPLATE_AR}
+          </p>
           <p className="mt-3 text-center text-[11px] leading-relaxed text-slate-400">{PARTNER_LAYOUT_FOOTER_LINE}</p>
           <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-300">
             <a href="tel:+966559602685" className="inline-flex items-center gap-1.5 touch-manipulation">
@@ -351,6 +355,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           </div>
           <div className="mb-6">
             <LegalEntityPublicStrip variant="dark" />
+          </div>
+          <div className="mb-4 rounded-lg border border-amber-400/25 bg-amber-500/[0.06] px-4 py-3 text-sm leading-relaxed text-amber-100/90">
+            {PLATFORM_IDENTITY_BOILERPLATE_AR}
           </div>
           <div className="flex flex-col gap-3 text-sm text-slate-300 md:flex-row md:items-center md:justify-between">
             <p className="max-w-3xl leading-relaxed">{PARTNER_LAYOUT_FOOTER_LINE}</p>

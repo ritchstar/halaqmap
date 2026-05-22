@@ -1,5 +1,5 @@
 ﻿import { motion } from "framer-motion";
-import { Shield, Lock, FileCheck, Database, Bell, Mail, Scale, CreditCard } from "lucide-react";
+import { Shield, Lock, FileCheck, Database, Bell, Mail, Scale, CreditCard, Server } from "lucide-react";
 import {
   LEGAL_TRADE_NAME_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
@@ -9,6 +9,11 @@ import {
   getLegalCommercialRegistrationDisplay,
 } from "@/config/partnerLegal";
 import { HonorBoard } from "@/components/b2b/HonorBoard";
+import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
+import {
+  PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
+  PLATFORM_IDENTITY_PARAGRAPH_AR,
+} from "@/config/platformIdentity";
 
 export default function PartnerPrivacy() {
   const commercialReg = getLegalCommercialRegistrationDisplay();
@@ -18,6 +23,12 @@ export default function PartnerPrivacy() {
       title: "نطاق هذه السياسة",
       content:
         "هذه السياسة مخصصة للشركاء (الحلاقين/الصالونات) المتقدمين عبر مسار الخدمات البرمجية للمنصة. توضح كيف نجمع بيانات طلب شراء الحزمة البرمجية، وكيف نستخدمها ونحميها ضمن إجراءات الاعتماد والتشغيل على المنصة.",
+    },
+    {
+      icon: Server,
+      title: "هوية المنصّة — مزوّد حلول تقنية لا وسيط تجاري",
+      content:
+        PLATFORM_IDENTITY_PARAGRAPH_AR + "\n\n" + PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
     },
     {
       icon: Scale,
@@ -94,6 +105,10 @@ export default function PartnerPrivacy() {
       </div>
 
       <div className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto mb-8">
+          <PlatformIdentityCard />
+        </div>
+
         <div className="max-w-4xl mx-auto space-y-8">
           {sections.map((section, index) => {
             const Icon = section.icon;

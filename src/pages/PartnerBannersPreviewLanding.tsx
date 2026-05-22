@@ -20,6 +20,10 @@ import {
   PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT,
 } from '@/config/partnerFeaturePreviewsCopy';
 import { cn } from '@/lib/utils';
+import {
+  PLATFORM_IDENTITY_BADGE_AR,
+  PLATFORM_IDENTITY_BOILERPLATE_AR,
+} from '@/config/platformIdentity';
 
 export default function PartnerBannersPreviewLanding() {
   const reduceMotion = useReducedMotion();
@@ -56,6 +60,14 @@ export default function PartnerBannersPreviewLanding() {
             محاكاة تلقائية لرحلة المستخدم النهائي على <strong className="text-cyan-200/90">واجهة الرادار</strong>{' '}
             ضمن <strong className="text-cyan-200/90">نظام الرصد الذكي</strong> — معرض صور، تواصل، وفتح الموقع.
           </p>
+        </div>
+        <div className="container mx-auto max-w-6xl px-4 pb-4">
+          <div className="rounded-xl border border-amber-400/30 bg-amber-500/[0.06] px-4 py-3 text-[12px] leading-relaxed text-amber-100/90 md:text-[13px]">
+            <span className="me-2 inline-flex items-center rounded-md border border-amber-400/40 bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200">
+              {PLATFORM_IDENTITY_BADGE_AR}
+            </span>
+            {PLATFORM_IDENTITY_BOILERPLATE_AR}
+          </div>
         </div>
       </header>
 

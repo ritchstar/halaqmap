@@ -4,7 +4,10 @@ import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundar
 import { ROUTE_PATHS } from '@/lib/index';
 import { PARTNER_REGISTER_INTRO_PARAGRAPHS } from '@/lib/partnerMarketingCopy';
 import { PLATFORM_PARTNER_SMART_TRACKING_HEADLINE } from '@/config/platformSmartTracking';
-import { SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR } from '@/config/subscriptionPricing';
+import {
+  SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
+  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+} from '@/config/subscriptionPricing';
 
 export default function Register() {
   return (
@@ -16,9 +19,9 @@ export default function Register() {
             {PLATFORM_PARTNER_SMART_TRACKING_HEADLINE}
           </h1>
           <p className="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed">
-            {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} —{' '}
-            <span className="text-slate-200">نظام الرصد الذكي</span> و{' '}
-            <span className="text-slate-200">السيادة الرقمية</span> لشركاء حلاق ماب.
+            {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} — مبنية على{' '}
+            <span className="text-slate-200">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</span>{' '}
+            لشركاء حلاق ماب.
           </p>
           <div className="mt-6 space-y-3 text-sm leading-relaxed text-slate-400">
             {PARTNER_REGISTER_INTRO_PARAGRAPHS.map((para, i) => (
