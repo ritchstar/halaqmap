@@ -181,6 +181,12 @@
     "api/admin-financial-archive.ts": {
       "maxDuration": 60
     },
+    "api/admin-invite-send.ts": {
+      "maxDuration": 30
+    },
+    "api/admin-password-reset.ts": {
+      "maxDuration": 25
+    },
     "api/webhooks/supabase-subscription.ts": {
       "maxDuration": 45
     }

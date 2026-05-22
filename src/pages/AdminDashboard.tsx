@@ -136,6 +136,7 @@ import {
   upsertAdminRole,
   type AdminRoleRow,
 } from '@/lib/adminAccessRemote';
+import { sendAdminInvitation } from '@/lib/adminInvitationRemote';
 import {
   fetchAdminSupportMessagesRemote,
   fetchAdminSupportThreadsRemote,
@@ -5005,6 +5006,16 @@ function SettingsSection({
   const [newAdminName, setNewAdminName] = useState('');
   const [newAdminPermissions, setNewAdminPermissions] = useState<AdminPermissions>(FULL_ADMIN_PERMISSIONS);
   const [newAdminTemplateKey, setNewAdminTemplateKey] = useState<string>('super_admin');
+  const [lastInvitationResult, setLastInvitationResult] = useState<{
+    email: string;
+    displayName: string;
+    generatedPassword: string;
+    loginUrl: string;
+    authUserStatus: 'created' | 'reset';
+    emailSent: boolean;
+    emailError: string | null;
+  } | null>(null);
+  const [invitationPasswordCopied, setInvitationPasswordCopied] = useState(false);
 
   useEffect(() => {
     const sync = () => {
@@ -5058,23 +5069,80 @@ function SettingsSection({
       toast({ title: 'أدخل بريد الأدمن', variant: 'destructive' });
       return;
     }
-    const res = await upsertAdminRole({
+    const inviteResult = await sendAdminInvitation({
       email: newAdminEmail,
       displayName: newAdminName,
-      isActive: true,
       permissions: newAdminPermissions,
-      createdByEmail: adminEmail,
+      isActive: true,
     });
-    if (!res.ok) {
-      toast({ title: 'تعذر حفظ الأدمن', description: errorText(res, 'تعذر حفظ بيانات الأدمن.'), variant: 'destructive' });
+    if (!inviteResult.ok) {
+      toast({
+        title: 'تعذّر إنشاء الأدمن وإرسال الدعوة',
+        description:
+          inviteResult.hint || inviteResult.error || 'تحقّق من إعدادات Supabase / Resend.',
+        variant: 'destructive',
+      });
       return;
     }
-    toast({ title: 'تم حفظ الأدمن وصلاحياته' });
+    setLastInvitationResult({
+      email: newAdminEmail.trim().toLowerCase(),
+      displayName: newAdminName.trim(),
+      generatedPassword: inviteResult.generatedPassword,
+      loginUrl: inviteResult.loginUrl,
+      authUserStatus: inviteResult.authUserStatus,
+      emailSent: inviteResult.emailSent,
+      emailError: inviteResult.emailError,
+    });
+    toast({
+      title: inviteResult.emailSent
+        ? `${inviteResult.authUserStatus === 'created' ? 'تم إنشاء الأدمن' : 'تم تحديث الأدمن'} وإرسال الدعوة عبر البريد`
+        : 'تم إنشاء/تحديث الأدمن — لكن لم يُرسل البريد',
+      description: inviteResult.emailSent
+        ? `وصل إلى ${newAdminEmail.trim()} رسالة بتعليمات الدخول وكلمة المرور المؤقتة.`
+        : 'انسخ كلمة المرور من البطاقة أدناه وسلّمها للأدمن يدوياً، ثم تأكد من إعداد Resend في البيئة.',
+      variant: inviteResult.emailSent ? 'default' : 'destructive',
+    });
     setNewAdminEmail('');
     setNewAdminName('');
     setNewAdminPermissions(FULL_ADMIN_PERMISSIONS);
     setNewAdminTemplateKey('super_admin');
     await refreshAdmins();
+  };
+
+  const resendAdminInvitation = async (row: AdminRoleRow) => {
+    if (!canManageAdmins) return;
+    const inviteResult = await sendAdminInvitation({
+      email: row.email,
+      displayName: row.display_name ?? '',
+      permissions: row.permissions,
+      isActive: row.is_active,
+    });
+    if (!inviteResult.ok) {
+      toast({
+        title: 'تعذّر إعادة إرسال الدعوة',
+        description: inviteResult.hint || inviteResult.error,
+        variant: 'destructive',
+      });
+      return;
+    }
+    setLastInvitationResult({
+      email: row.email,
+      displayName: row.display_name ?? '',
+      generatedPassword: inviteResult.generatedPassword,
+      loginUrl: inviteResult.loginUrl,
+      authUserStatus: inviteResult.authUserStatus,
+      emailSent: inviteResult.emailSent,
+      emailError: inviteResult.emailError,
+    });
+    toast({
+      title: inviteResult.emailSent
+        ? 'تم إرسال كلمة مرور جديدة على بريد الأدمن'
+        : 'تم توليد كلمة المرور — لكن لم يُرسل البريد',
+      description: inviteResult.emailSent
+        ? `وصلت رسالة جديدة إلى ${row.email}.`
+        : 'انسخ كلمة المرور من البطاقة أدناه وسلّمها يدوياً.',
+      variant: inviteResult.emailSent ? 'default' : 'destructive',
+    });
   };
 
   const applyTemplateToExistingAdmin = async (row: AdminRoleRow, templateKey: string) => {
@@ -5173,9 +5241,101 @@ function SettingsSection({
                   onChange={(e) => setNewAdminName(e.target.value)}
                 />
                 <Button type="button" onClick={() => void createOrUpdateAdmin()}>
-                  إضافة/تحديث أدمن
+                  إضافة/تحديث أدمن + إرسال الدعوة
                 </Button>
               </div>
+
+              {lastInvitationResult ? (
+                <div className="rounded-xl border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-1">
+                      <div className="text-sm font-bold text-amber-100">
+                        {lastInvitationResult.authUserStatus === 'created'
+                          ? 'تم إنشاء الأدمن وتفعيله'
+                          : 'تم تحديث الأدمن وتوليد كلمة مرور جديدة'}
+                      </div>
+                      <div className="text-xs text-amber-200/80" dir="ltr" style={{ unicodeBidi: 'plaintext' }}>
+                        {lastInvitationResult.email}
+                      </div>
+                      <div className="text-xs text-slate-300/90">
+                        {lastInvitationResult.emailSent ? (
+                          <>تم إرسال بيانات الدخول إلى بريد الأدمن. هذه نسخة احتياطية يمكنك مشاركتها يدوياً إذا لم تصل الرسالة.</>
+                        ) : (
+                          <span className="text-rose-300">
+                            تعذّر إرسال البريد ({lastInvitationResult.emailError ?? 'بدون تفاصيل'}). انسخ كلمة المرور وسلّمها يدوياً.
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="text-xs text-slate-400 hover:text-slate-100"
+                      onClick={() => {
+                        setLastInvitationResult(null);
+                        setInvitationPasswordCopied(false);
+                      }}
+                    >
+                      إخفاء
+                    </button>
+                  </div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <div className="rounded-md border border-amber-500/40 bg-black/40 p-3">
+                      <div className="mb-1 text-[0.62rem] uppercase tracking-wider text-amber-300/80">
+                        كلمة المرور المؤقتة
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <code
+                          dir="ltr"
+                          className="font-mono text-sm tracking-wider text-amber-50"
+                          style={{ unicodeBidi: 'plaintext' }}
+                        >
+                          {lastInvitationResult.generatedPassword}
+                        </code>
+                        <button
+                          type="button"
+                          className="rounded-md border border-amber-500/60 bg-amber-500/15 px-2 py-1 text-[0.7rem] font-bold text-amber-100 hover:bg-amber-500/25"
+                          onClick={() => {
+                            void navigator.clipboard
+                              .writeText(lastInvitationResult.generatedPassword)
+                              .then(() => setInvitationPasswordCopied(true))
+                              .catch(() => undefined);
+                          }}
+                        >
+                          {invitationPasswordCopied ? 'تم النسخ ✓' : 'نسخ'}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="rounded-md border border-cyan-500/40 bg-black/40 p-3">
+                      <div className="mb-1 text-[0.62rem] uppercase tracking-wider text-cyan-300/80">
+                        رابط لوحة التحكم (مُجهَّز بالبريد)
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <a
+                          dir="ltr"
+                          href={lastInvitationResult.loginUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="line-clamp-2 break-all text-[0.7rem] text-cyan-200 hover:underline"
+                        >
+                          {lastInvitationResult.loginUrl}
+                        </a>
+                        <button
+                          type="button"
+                          className="rounded-md border border-cyan-500/60 bg-cyan-500/15 px-2 py-1 text-[0.7rem] font-bold text-cyan-100 hover:bg-cyan-500/25"
+                          onClick={() => {
+                            void navigator.clipboard
+                              .writeText(lastInvitationResult.loginUrl)
+                              .catch(() => undefined);
+                          }}
+                        >
+                          نسخ
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="md:col-span-2">
                   <Label className="mb-2 block">قالب صلاحيات سريع للأدمن الجديد</Label>
@@ -5282,6 +5442,15 @@ function SettingsSection({
                               checked={row.is_active}
                               onCheckedChange={(checked) => void toggleAdminActive(row, checked)}
                             />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-amber-500/40 text-amber-700 hover:bg-amber-500/10 dark:text-amber-200"
+                              title="توليد كلمة مرور مؤقتة جديدة وإرسالها إلى بريد الأدمن"
+                              onClick={() => void resendAdminInvitation(row)}
+                            >
+                              إرسال كلمة مرور جديدة
+                            </Button>
                             <Button
                               variant="destructive"
                               size="sm"
