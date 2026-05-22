@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ExternalLink, FileImage, Loader2, Radio, Send, ShieldAlert, Sparkles, Upload, X } from 'lucide-react';
+import { ExternalLink, Loader2, Radio, Send, ShieldAlert, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +14,11 @@ import {
   chatWithFleetDirectorLab,
   fetchFleetDirectorLabDiagnostics,
 } from '@/lib/fleetDirectorAdminLabRemote';
+import {
+  CollapsibleLabHeader,
+  CompactAttachmentControl,
+  CopyableMessage,
+} from '@/components/admin/lab-chat-shared';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -89,7 +91,6 @@ export function FleetDirectorAdminLabChat({
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [modelLabel, setModelLabel] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -118,27 +119,19 @@ export function FleetDirectorAdminLabChat({
 
   const clearAttachment = useCallback(() => {
     setAttachedFile(null);
-    setFilePreview(null);
-    if (fileRef.current) fileRef.current.value = '';
+    setFilePreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
   }, []);
 
-  const onPickFile = useCallback(
-    (file: File | null) => {
-      clearAttachment();
-      if (!file) return;
-      if (!ACCEPT.split(',').includes(file.type)) {
-        toast({ title: 'يُقبل JPEG وPNG وWebP وGIF فقط', variant: 'destructive' });
-        return;
-      }
-      if (file.size > 4 * 1024 * 1024) {
-        toast({ title: 'حجم الصورة يتجاوز 4 ميغابايت', variant: 'destructive' });
-        return;
-      }
-      setAttachedFile(file);
-      setFilePreview(URL.createObjectURL(file));
-    },
-    [clearAttachment],
-  );
+  const onPickFile = useCallback((file: File | null) => {
+    setAttachedFile(file);
+    setFilePreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return file ? URL.createObjectURL(file) : null;
+    });
+  }, []);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -210,20 +203,27 @@ export function FleetDirectorAdminLabChat({
         </SheetTrigger>
       ) : null}
       <SheetContent side="left" className="flex w-full flex-col gap-0 border-red-900/40 p-0 sm:max-w-lg">
-        <SheetHeader className="border-b border-red-900/30 bg-red-950/10 px-4 py-4 text-right shrink-0">
-          <SheetTitle className="flex items-center justify-end gap-2 text-red-100">
-            <Radio className="h-5 w-5 text-red-400" />
-            المدير العام — مقصورة سرية ◆
-          </SheetTitle>
-          <SheetDescription className="text-right space-y-2">
-            <Badge variant="outline" className="mr-auto border-red-500/40 text-[10px] text-red-300">
-              سري للغاية · قيادة عليا فقط
-            </Badge>
-            <span className="block text-xs">
-              خطط الأسطول، التوجيهات، نشرات التدريب، والإحاطات الاستخباراتية — قناة خلفية مشفرة.
+        <CollapsibleLabHeader
+          autoCollapseSignal={messages.length}
+          toneClass="bg-red-950/10"
+          title={
+            <span className="flex items-center justify-end gap-2 text-red-100">
+              <Radio className="h-4 w-4 text-red-400" aria-hidden />
+              المدير العام — مقصورة سرية ◆
             </span>
+          }
+          badge={
+            <Badge variant="outline" className="border-red-500/40 text-[10px] text-red-300">
+              سري · قيادة عليا
+            </Badge>
+          }
+        >
+          <p className="leading-relaxed">
+            خطط الأسطول، التوجيهات، نشرات التدريب، والإحاطات الاستخباراتية — قناة خلفية مشفرة.
+          </p>
+          <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
             {modelLabel ? (
-              <Badge variant="outline" className="mr-auto block w-fit border-red-500/30 text-[10px]">
+              <Badge variant="outline" className="border-red-500/30 text-[10px]">
                 {modelLabel}
               </Badge>
             ) : null}
@@ -232,88 +232,58 @@ export function FleetDirectorAdminLabChat({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="mr-auto h-8 gap-1.5 text-xs text-red-200/90 hover:text-red-100"
+                className="h-7 gap-1.5 px-2 text-[11px] text-red-200/90 hover:text-red-100"
                 onClick={() => {
                   setOpen(false);
                   onOpenIntelligenceFeed();
                 }}
               >
-                <ExternalLink className="h-3.5 w-3.5" />
-                فتح سجل الاستخبارات المباشر
+                <ExternalLink className="h-3 w-3" />
+                سجل الاستخبارات
               </Button>
             ) : null}
-          </SheetDescription>
-        </SheetHeader>
+          </div>
+        </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-4 py-3">
-          <div className="space-y-3 pb-2">
+        <ScrollArea
+          className="flex-1 px-3 py-3"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={onDrop}
+        >
+          <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
-              <div
+              <CopyableMessage
                 key={i}
-                dir="rtl"
-                className={`chat-arabic-text rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
-                  msg.role === 'user'
-                    ? 'mr-8 ml-0 bg-primary/10 text-foreground'
-                    : 'ml-8 mr-0 border border-red-500/20 bg-red-950/15 text-foreground'
-                }`}
-              >
-                {msg.content}
-              </div>
+                role={msg.role}
+                content={msg.content}
+                assistantClass="border-red-500/20 bg-red-950/15"
+              />
             ))}
             {busy ? <LoadingIndicator stepIndex={loadingStep} /> : null}
             <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
-        <div className="border-t border-red-900/30 p-4 space-y-3 shrink-0 bg-background">
+        <div className="border-t border-red-900/30 p-3 space-y-2 shrink-0 bg-background">
           {!permitted ? (
-            <p className="text-xs text-destructive text-right">
+            <p className="text-[11px] text-destructive text-right">
               يتطلب صلاحية manage_admins — قيادة عليا فقط.
             </p>
           ) : null}
-          <p className="text-[10px] text-muted-foreground text-right">
-            ◆ لا إشعارات للصالونات — التوجيهات تُصاغ كخطط تشغيلية في المقصورة.
-          </p>
 
-          <div
-            className={`rounded-lg border-2 border-dashed p-3 text-center transition-colors ${
-              attachedFile ? 'border-red-500/50 bg-red-950/10' : 'border-muted-foreground/30'
-            }`}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={onDrop}
-          >
-            <input
-              ref={fileRef}
-              type="file"
-              accept={ACCEPT}
-              className="hidden"
-              onChange={(e) => onPickFile(e.target.files?.[0] ?? null)}
-            />
-            {filePreview ? (
-              <div className="space-y-2">
-                <img src={filePreview} alt="معاينة" className="mx-auto max-h-24 rounded object-contain" />
-                <Button type="button" variant="ghost" size="sm" onClick={clearAttachment}>
-                  <X className="h-4 w-4 ml-1" />
-                  إزالة
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <Upload className="h-5 w-5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">لقطة شات · لوحة · تقرير ميداني</span>
-                <Button type="button" variant="secondary" size="sm" onClick={() => fileRef.current?.click()}>
-                  <FileImage className="h-4 w-4 ml-1" />
-                  مرفق
-                </Button>
-              </div>
-            )}
-          </div>
+          <CompactAttachmentControl
+            accept={ACCEPT}
+            previewUrl={filePreview}
+            onChange={onPickFile}
+            disabled={busy}
+            hint="إرفاق صورة (لقطة/تقرير)"
+          />
 
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="مثال: وجّه الأسطول — زِد الاحترام في الردود · أو: ما خطتك للأسبوع؟"
-            rows={3}
+            placeholder="مثال: وجّه الأسطول — زِد الاحترام · أو: ما خطتك للأسبوع؟"
+            rows={2}
             className="resize-none"
             disabled={busy || !permitted}
             onKeyDown={(e) => {

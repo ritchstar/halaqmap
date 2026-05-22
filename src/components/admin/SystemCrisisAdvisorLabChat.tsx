@@ -6,9 +6,6 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +16,7 @@ import {
 } from '@/lib/systemCrisisAdvisorLabRemote';
 import { evaluatePublicProsecutorInterject } from '@/lib/publicProsecutorLabRemote';
 import { PublicProsecutorInterjectBanner } from '@/components/admin/PublicProsecutorInterjectBanner';
+import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
 import type { PublicProsecutorGovernanceAction } from '@/modules/ai-staff/types';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
@@ -192,51 +190,48 @@ export function SystemCrisisAdvisorLabChat({
         side="left"
         className="flex w-full flex-col gap-0 border-orange-900/50 bg-slate-950 p-0 text-slate-100 sm:max-w-lg"
       >
-        <SheetHeader className="border-b border-orange-900/40 bg-orange-950/20 px-4 py-4 text-right shrink-0">
-          <SheetTitle className="flex items-center justify-end gap-2 text-slate-50">
-            <Siren className="h-5 w-5 text-orange-400" aria-hidden />
-            Crisis Discussion
-          </SheetTitle>
-          <SheetDescription className="text-right space-y-2 text-slate-100">
-            <Badge
-              variant="outline"
-              className="mr-auto border-orange-500/50 text-[10px] text-slate-50"
-            >
-              Strategic Technical Consultant · B2B Internal
-            </Badge>
-            <span className="block text-xs text-slate-100">
-              Uptime · Data integrity · Crisis Playbook — تجاهل الملاحظات غير الحرجة.
+        <CollapsibleLabHeader
+          autoCollapseSignal={messages.length}
+          toneClass="bg-orange-950/20 text-slate-50"
+          title={
+            <span className="flex items-center justify-end gap-2 text-slate-50">
+              <Siren className="h-4 w-4 text-orange-400" aria-hidden />
+              Crisis Discussion
             </span>
+          }
+          badge={
+            <Badge variant="outline" className="border-orange-500/50 text-[10px] text-slate-50">
+              Strategic Technical Consultant
+            </Badge>
+          }
+        >
+          <p className="text-slate-100">
+            Uptime · Data integrity · Crisis Playbook — تجاهل الملاحظات غير الحرجة.
+          </p>
+          <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
             {playbookOk === false ? (
-              <Badge variant="destructive" className="mr-auto text-[10px] text-white">
-                Crisis Playbook غير محمّل على الخادم
+              <Badge variant="destructive" className="text-[10px] text-white">
+                Crisis Playbook غير محمّل
               </Badge>
             ) : null}
             {modelLabel ? (
-              <Badge
-                variant="outline"
-                className="mr-auto block w-fit border-orange-500/30 text-[10px] text-slate-100"
-              >
+              <Badge variant="outline" className="border-orange-500/30 text-[10px] text-slate-100">
                 {modelLabel}
               </Badge>
             ) : null}
-          </SheetDescription>
-        </SheetHeader>
+          </div>
+        </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-4 py-3">
-          <div className="space-y-3 pb-2">
+        <ScrollArea className="flex-1 px-3 py-3 bg-slate-950">
+          <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
-              <div
+              <CopyableMessage
                 key={i}
-                dir="rtl"
-                className={`chat-arabic-text rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap text-slate-100 ${
-                  msg.role === 'user'
-                    ? 'mr-8 ml-0 bg-orange-500/10'
-                    : 'ml-8 mr-0 border border-orange-500/25 bg-orange-950/20'
-                }`}
-              >
-                {msg.content}
-              </div>
+                role={msg.role}
+                content={msg.content}
+                userClass="bg-orange-500/10 text-slate-100"
+                assistantClass="border-orange-500/25 bg-orange-950/20 text-slate-100"
+              />
             ))}
             {busy ? <LoadingIndicator stepIndex={loadingStep} /> : null}
             {prosecutorInterject ? (
@@ -246,7 +241,7 @@ export function SystemCrisisAdvisorLabChat({
           </div>
         </ScrollArea>
 
-        <div className="shrink-0 border-t border-orange-900/40 bg-slate-950 p-4 space-y-2">
+        <div className="shrink-0 border-t border-orange-900/40 bg-slate-950 p-3 space-y-2">
           {busy ? (
             <Button
               type="button"

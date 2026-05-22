@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ExternalLink, FileImage, Loader2, Send, Shield, Sparkles, Upload, X } from 'lucide-react';
+import { ExternalLink, Loader2, Send, Shield, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +14,11 @@ import {
   chatWithZatcaAdvisorLab,
   fetchZatcaAdvisorLabDiagnostics,
 } from '@/lib/zatcaAdvisorLabRemote';
+import {
+  CollapsibleLabHeader,
+  CompactAttachmentControl,
+  CopyableMessage,
+} from '@/components/admin/lab-chat-shared';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -85,7 +87,6 @@ export function ZatcaAdvisorLabChat({
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [modelLabel, setModelLabel] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -114,27 +115,19 @@ export function ZatcaAdvisorLabChat({
 
   const clearAttachment = useCallback(() => {
     setAttachedFile(null);
-    setFilePreview(null);
-    if (fileRef.current) fileRef.current.value = '';
+    setFilePreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
   }, []);
 
-  const onPickFile = useCallback(
-    (file: File | null) => {
-      clearAttachment();
-      if (!file) return;
-      if (!ACCEPT.split(',').includes(file.type)) {
-        toast({ title: 'يُقبل JPEG وPNG وWebP وGIF فقط', variant: 'destructive' });
-        return;
-      }
-      if (file.size > 4 * 1024 * 1024) {
-        toast({ title: 'حجم الصورة يتجاوز 4 ميغابايت', variant: 'destructive' });
-        return;
-      }
-      setAttachedFile(file);
-      setFilePreview(URL.createObjectURL(file));
-    },
-    [clearAttachment],
-  );
+  const onPickFile = useCallback((file: File | null) => {
+    setAttachedFile(file);
+    setFilePreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return file ? URL.createObjectURL(file) : null;
+    });
+  }, []);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -206,105 +199,79 @@ export function ZatcaAdvisorLabChat({
         </SheetTrigger>
       ) : null}
       <SheetContent side="left" className="flex w-full flex-col gap-0 p-0 sm:max-w-lg">
-        <SheetHeader className="border-b px-4 py-4 text-right shrink-0">
-          <SheetTitle className="flex items-center justify-end gap-2">
-            <Shield className="h-5 w-5 text-amber-400" />
-            خبير ZATCA — محادثة إدارية
-          </SheetTitle>
-          <SheetDescription className="text-right space-y-2">
-            <span>ناقش الامتثال، الحدود، ض.ق.م 15%، وفواتير الحزم — مع دعم الصور.</span>
-            {modelLabel ? (
-              <Badge variant="outline" className="mr-auto block w-fit border-amber-500/30 text-[10px]">
+        <CollapsibleLabHeader
+          autoCollapseSignal={messages.length}
+          title={
+            <span className="flex items-center justify-end gap-2">
+              <Shield className="h-4 w-4 text-amber-400" aria-hidden />
+              خبير ZATCA — محادثة إدارية
+            </span>
+          }
+          badge={
+            modelLabel ? (
+              <Badge variant="outline" className="border-amber-500/30 text-[10px]">
                 {modelLabel}
               </Badge>
-            ) : null}
-            {onOpenFinancialOffice ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="mr-auto h-8 gap-1.5 text-xs text-amber-200/90 hover:text-amber-100"
-                onClick={() => {
-                  setOpen(false);
-                  onOpenFinancialOffice();
-                }}
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                فتح المكتب المالي (رادار + تفعيل)
-              </Button>
-            ) : null}
-          </SheetDescription>
-        </SheetHeader>
+            ) : null
+          }
+        >
+          <p>ناقش الامتثال، الحدود، ض.ق.م 15%، وفواتير الحزم — مع دعم الصور.</p>
+          {onOpenFinancialOffice ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="mt-2 h-7 gap-1.5 px-2 text-[11px] text-amber-200/90 hover:text-amber-100"
+              onClick={() => {
+                setOpen(false);
+                onOpenFinancialOffice();
+              }}
+            >
+              <ExternalLink className="h-3 w-3" />
+              فتح المكتب المالي
+            </Button>
+          ) : null}
+        </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-4 py-3">
-          <div className="space-y-3 pb-2">
+        <ScrollArea
+          className="flex-1 px-3 py-3"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={onDrop}
+        >
+          <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
-              <div
+              <CopyableMessage
                 key={i}
-                dir="rtl"
-                className={`chat-arabic-text rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
-                  msg.role === 'user'
-                    ? 'mr-8 ml-0 bg-primary/10 text-foreground'
-                    : 'ml-8 mr-0 border border-amber-500/20 bg-amber-500/5 text-foreground'
-                }`}
-              >
-                {msg.content}
-              </div>
+                role={msg.role}
+                content={msg.content}
+                assistantClass="border-amber-500/20 bg-amber-500/5"
+              />
             ))}
             {busy ? <LoadingIndicator stepIndex={loadingStep} /> : null}
             <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
-        <div className="border-t p-4 space-y-3 shrink-0 bg-background">
+        <div className="border-t p-3 space-y-2 shrink-0 bg-background">
           {!permitted ? (
-            <p className="text-xs text-destructive text-right">
+            <p className="text-[11px] text-destructive text-right">
               يتطلب صلاحية manage_platform_commerce_rules أو view_ops_billing_monitor.
             </p>
           ) : null}
-          <p className="text-[10px] text-muted-foreground text-right">
-            رسالة المحادثة لا تُفعّل ض.ق.م حياً — التفعيل من المكتب المالي فقط.
-          </p>
 
-          <div
-            className={`rounded-lg border-2 border-dashed p-3 text-center transition-colors ${
-              attachedFile ? 'border-amber-500/50 bg-amber-500/5' : 'border-muted-foreground/30'
-            }`}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={onDrop}
-          >
-            <input
-              ref={fileRef}
-              type="file"
-              accept={ACCEPT}
-              className="hidden"
-              onChange={(e) => onPickFile(e.target.files?.[0] ?? null)}
-            />
-            {filePreview ? (
-              <div className="space-y-2">
-                <img src={filePreview} alt="معاينة" className="mx-auto max-h-24 rounded object-contain" />
-                <Button type="button" variant="ghost" size="sm" onClick={clearAttachment}>
-                  <X className="h-4 w-4 ml-1" />
-                  إزالة
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <Upload className="h-5 w-5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">فاتورة · شهادة · لقطة ZATCA</span>
-                <Button type="button" variant="secondary" size="sm" onClick={() => fileRef.current?.click()}>
-                  <FileImage className="h-4 w-4 ml-1" />
-                  صورة
-                </Button>
-              </div>
-            )}
-          </div>
+          <CompactAttachmentControl
+            accept={ACCEPT}
+            previewUrl={filePreview}
+            onChange={onPickFile}
+            disabled={busy}
+            hint="إرفاق صورة (فاتورة/شهادة)"
+          />
 
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="مثال: احسب ض.ق.م 15% على 225 ر.س — أو اشرح الحد الإلزامي"
-            rows={3}
+            rows={2}
             className="resize-none"
             disabled={busy || !permitted}
             onKeyDown={(e) => {

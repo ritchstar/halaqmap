@@ -6,9 +6,6 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +17,7 @@ import {
   type MarketingLabChatTurn,
   type MarketingLabReplyContext,
 } from '@/lib/marketingCouncilLabRemote';
+import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -222,53 +220,49 @@ export function MarketingCouncilLabChat({
         </SheetTrigger>
       ) : null}
       <SheetContent side="left" className="flex w-full flex-col gap-0 p-0 sm:max-w-lg">
-        <SheetHeader className="border-b px-4 py-4 text-right shrink-0">
-          <SheetTitle className="flex items-center justify-end gap-2">
-            <Icon className={`h-5 w-5 ${meta.accentText}`} />
-            {meta.sheetTitle}
-          </SheetTitle>
-          <SheetDescription className="text-right space-y-2">
-            <span>{meta.description}</span>
-            <span className="flex flex-wrap items-center justify-end gap-2 pt-1">
-              {modelLabel ? (
-                <Badge
-                  variant="outline"
-                  className={`text-[10px] ${meta.accentBorder} ${meta.accentText}`}
-                >
-                  {modelLabel}
-                </Badge>
-              ) : null}
-              {onSummonProsecutor ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 gap-1.5 text-xs text-slate-200 hover:text-white"
-                  onClick={() => onSummonProsecutor()}
-                >
-                  <Gavel className="h-3.5 w-3.5" />
-                  استدعاء المدعي العام ⚖️
-                </Button>
-              ) : null}
+        <CollapsibleLabHeader
+          autoCollapseSignal={messages.length}
+          title={
+            <span className="flex items-center justify-end gap-2">
+              <Icon className={`h-4 w-4 ${meta.accentText}`} aria-hidden />
+              {meta.sheetTitle}
             </span>
-            {lastContext ? <ContextChips channel={channel} context={lastContext} /> : null}
-          </SheetDescription>
-        </SheetHeader>
-
-        <ScrollArea className="flex-1 px-4 py-3">
-          <div className="space-y-3 pb-2">
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                dir="rtl"
-                className={`chat-arabic-text rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
-                  msg.role === 'user'
-                    ? 'mr-8 ml-0 bg-primary/10 text-foreground'
-                    : `ml-8 mr-0 border ${meta.accentBorder} ${meta.accentBg} text-foreground`
-                }`}
+          }
+          badge={
+            modelLabel ? (
+              <Badge variant="outline" className={`text-[10px] ${meta.accentBorder} ${meta.accentText}`}>
+                {modelLabel}
+              </Badge>
+            ) : null
+          }
+        >
+          <p className="leading-relaxed">{meta.description}</p>
+          <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
+            {onSummonProsecutor ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1.5 px-2 text-[11px]"
+                onClick={() => onSummonProsecutor()}
               >
-                {msg.content}
-              </div>
+                <Gavel className="h-3 w-3" />
+                استدعاء المدعي العام
+              </Button>
+            ) : null}
+            {lastContext ? <ContextChips channel={channel} context={lastContext} /> : null}
+          </div>
+        </CollapsibleLabHeader>
+
+        <ScrollArea className="flex-1 px-3 py-3">
+          <div className="space-y-2.5 pb-2">
+            {messages.map((msg, i) => (
+              <CopyableMessage
+                key={i}
+                role={msg.role}
+                content={msg.content}
+                assistantClass={`${meta.accentBorder} ${meta.accentBg}`}
+              />
             ))}
             {busy ? (
               <LoadingIndicator
@@ -282,21 +276,18 @@ export function MarketingCouncilLabChat({
           </div>
         </ScrollArea>
 
-        <div className="border-t p-4 space-y-3 shrink-0 bg-background">
+        <div className="border-t p-3 space-y-2 shrink-0 bg-background">
           {!permitted ? (
-            <p className="text-xs text-destructive text-right">
+            <p className="text-[11px] text-destructive text-right">
               يتطلب صلاحية manage_admins أو view_overview أو view_partner_marketing.
             </p>
           ) : null}
-          <p className="text-[10px] text-muted-foreground text-right">
-            هذه غرفة استراتيجية — لا تُفعّل تغييرات حية على الواجهة أو الباقات.
-          </p>
 
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={meta.placeholder}
-            rows={3}
+            rows={2}
             className="resize-none"
             disabled={busy || !permitted}
             onKeyDown={(e) => {

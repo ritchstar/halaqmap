@@ -6,14 +6,12 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { PublicProsecutorInterjectBanner } from '@/components/admin/PublicProsecutorInterjectBanner';
+import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
 import {
   chatWithPublicProsecutorLab,
   fetchPublicProsecutorLabDiagnostics,
@@ -156,40 +154,41 @@ export function PublicProsecutorLabChat({
         side="left"
         className="flex w-full flex-col gap-0 border-slate-700 bg-slate-950 p-0 text-slate-100 sm:max-w-lg"
       >
-        <SheetHeader className="shrink-0 border-b border-slate-700 bg-slate-900 px-4 py-4 text-right">
-          <SheetTitle className="flex items-center justify-end gap-2 text-slate-50">
-            <Gavel className="h-5 w-5 text-slate-300" aria-hidden />
-            مكتب المدعي العام
-          </SheetTitle>
-          <SheetDescription className="space-y-2 text-right text-slate-300">
-            <Badge variant="outline" className="mr-auto border-slate-500 text-[10px]">
-              Central Governance · Professional Sovereignty
-            </Badge>
-            <span className="block text-xs">
-              Radar Sync · Compliance Enforcement · Crisis Watch · Interject Authority
+        <CollapsibleLabHeader
+          autoCollapseSignal={messages.length}
+          toneClass="bg-slate-900 text-slate-50"
+          title={
+            <span className="flex items-center justify-end gap-2 text-slate-50">
+              <Gavel className="h-4 w-4 text-slate-300" aria-hidden />
+              مكتب المدعي العام
             </span>
-            {modelLabel ? (
-              <Badge variant="outline" className="mr-auto block w-fit border-slate-600 text-[10px]">
-                {modelLabel}
-              </Badge>
-            ) : null}
-          </SheetDescription>
-        </SheetHeader>
+          }
+          badge={
+            <Badge variant="outline" className="border-slate-500 text-[10px]">
+              Central Governance
+            </Badge>
+          }
+        >
+          <p className="text-slate-300">
+            Radar Sync · Compliance Enforcement · Crisis Watch · Interject Authority
+          </p>
+          {modelLabel ? (
+            <Badge variant="outline" className="mt-2 border-slate-600 text-[10px]">
+              {modelLabel}
+            </Badge>
+          ) : null}
+        </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-4 py-3">
-          <div className="space-y-3 pb-2">
+        <ScrollArea className="flex-1 px-3 py-3 bg-slate-950">
+          <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
-              <div
+              <CopyableMessage
                 key={i}
-                dir="rtl"
-                className={`chat-arabic-text whitespace-pre-wrap rounded-lg px-3 py-2 text-sm leading-relaxed text-slate-100 ${
-                  msg.role === 'user'
-                    ? 'mr-8 ml-0 bg-slate-800'
-                    : 'ml-8 mr-0 border border-slate-600/50 bg-slate-900/80'
-                }`}
-              >
-                {msg.content}
-              </div>
+                role={msg.role}
+                content={msg.content}
+                userClass="bg-slate-800 text-slate-100"
+                assistantClass="border-slate-600/50 bg-slate-900/80 text-slate-100"
+              />
             ))}
             {lastInterject ? <PublicProsecutorInterjectBanner interject={lastInterject} /> : null}
             {busy ? <LoadingIndicator stepIndex={loadingStep} /> : null}
@@ -197,7 +196,7 @@ export function PublicProsecutorLabChat({
           </div>
         </ScrollArea>
 
-        <div className="shrink-0 space-y-2 border-t border-slate-700 bg-slate-950 p-4">
+        <div className="shrink-0 space-y-2 border-t border-slate-700 bg-slate-950 p-3">
           {busy ? (
             <Button
               type="button"

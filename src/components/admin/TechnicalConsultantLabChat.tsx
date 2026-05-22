@@ -6,14 +6,12 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { chatWithTechnicalConsultantLab } from '@/lib/technicalConsultantLabRemote';
+import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -94,32 +92,36 @@ export function TechnicalConsultantLabChat({
         side="left"
         className="flex w-full flex-col gap-0 border-cyan-900/40 bg-slate-950 p-0 sm:max-w-lg"
       >
-        <SheetHeader className="shrink-0 border-b border-cyan-900/30 bg-slate-900 px-4 py-4 text-right">
-          <SheetTitle className="flex items-center justify-end gap-2 text-slate-50">
-            <Cog className="h-5 w-5 text-cyan-300" />
-            Engineering Wing
-          </SheetTitle>
-          <SheetDescription className="text-right text-slate-300">
+        <CollapsibleLabHeader
+          autoCollapseSignal={messages.length}
+          toneClass="bg-slate-900 text-slate-50"
+          title={
+            <span className="flex items-center justify-end gap-2 text-slate-50">
+              <Cog className="h-4 w-4 text-cyan-300" aria-hidden />
+              Engineering Wing
+            </span>
+          }
+          badge={
             <Badge variant="outline" className="border-cyan-700/40 text-[10px]">
-              Self-Development Protocol · A2A Council
+              Self-Development · A2A Council
             </Badge>
-          </SheetDescription>
-        </SheetHeader>
+          }
+        >
+          <p className="text-slate-300">
+            Propose Plan → Consult Prosecutor → Draft Branch → Unit Tests → Founder Approval.
+          </p>
+        </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-4 py-3">
-          <div className="space-y-3 pb-2">
+        <ScrollArea className="flex-1 px-3 py-3 bg-slate-950">
+          <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
-              <div
+              <CopyableMessage
                 key={i}
-                dir="rtl"
-                className={`chat-arabic-text whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
-                  msg.role === 'user'
-                    ? 'mr-8 bg-cyan-950/30 text-slate-100'
-                    : 'ml-8 border border-cyan-900/30 bg-slate-900/80 text-slate-200'
-                }`}
-              >
-                {msg.content}
-              </div>
+                role={msg.role}
+                content={msg.content}
+                userClass="bg-cyan-950/30 text-slate-100"
+                assistantClass="border-cyan-900/30 bg-slate-900/80 text-slate-200"
+              />
             ))}
             {busy ? (
               <div className="flex items-center gap-2 text-sm text-slate-400">
@@ -131,7 +133,7 @@ export function TechnicalConsultantLabChat({
           </div>
         </ScrollArea>
 
-        <div className="shrink-0 space-y-2 border-t border-cyan-900/30 p-4">
+        <div className="shrink-0 space-y-2 border-t border-cyan-900/30 p-3">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
