@@ -107,4 +107,6 @@ uploaded_files/
 ADMIN_ACCESS.md
 SECRET_*.md
 .agent_secrets.env
+provision_agent.ps1.txt
+build-log.txt
 .vercel
