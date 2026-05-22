@@ -111,7 +111,8 @@ export function TechnicalConsultantLabChat({
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
+                dir="rtl"
+                className={`chat-arabic-text whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
                   msg.role === 'user'
                     ? 'mr-8 bg-cyan-950/30 text-slate-100'
                     : 'ml-8 border border-cyan-900/30 bg-slate-900/80 text-slate-200'

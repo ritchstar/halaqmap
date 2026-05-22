@@ -160,7 +160,12 @@ export function EngineeringCouncilPanel({ onOpenLab }: Props) {
                   </Badge>
                 </div>
                 <p className="font-medium text-slate-100">{msg.title}</p>
-                <p className="mt-1 whitespace-pre-wrap text-slate-400">{msg.body.slice(0, 400)}</p>
+                <p
+                  dir="rtl"
+                  className="chat-arabic-text mt-1 whitespace-pre-wrap text-slate-400"
+                >
+                  {msg.body.slice(0, 400)}
+                </p>
               </article>
             ))}
           </div>

@@ -260,7 +260,8 @@ export function MarketingCouncilLabChat({
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
+                dir="rtl"
+                className={`chat-arabic-text rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
                   msg.role === 'user'
                     ? 'mr-8 ml-0 bg-primary/10 text-foreground'
                     : `ml-8 mr-0 border ${meta.accentBorder} ${meta.accentBg} text-foreground`

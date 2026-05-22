@@ -181,7 +181,8 @@ export function PublicProsecutorLabChat({
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`whitespace-pre-wrap rounded-lg px-3 py-2 text-sm leading-relaxed text-slate-100 ${
+                dir="rtl"
+                className={`chat-arabic-text whitespace-pre-wrap rounded-lg px-3 py-2 text-sm leading-relaxed text-slate-100 ${
                   msg.role === 'user'
                     ? 'mr-8 ml-0 bg-slate-800'
                     : 'ml-8 mr-0 border border-slate-600/50 bg-slate-900/80'

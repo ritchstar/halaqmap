@@ -211,6 +211,47 @@
   }
 }
 
+/* ─── Arabic / Bidi text safety ──────────────────────────────────────────
+ * Generalized fix for any container that mixes Arabic + Latin / digits /
+ * Markdown markers (### , **, 1., :, etc.). Default LTR base direction makes
+ * neutral characters (colons, hashes, brackets) appear on the wrong side of
+ * the Arabic glyphs, which is hard to read.
+ *
+ * The fix uses `unicode-bidi: plaintext` so every paragraph (each newline-
+ * separated line in pre-wrap content) picks its own base direction from
+ * its first strong character. Arabic-first lines render RTL with correct
+ * punctuation placement, English-first lines stay LTR — no manual <bdi>
+ * wrapping is required for the common case.
+ *
+ * Apply `.chat-arabic-text` to chat bubbles, model replies, anything that
+ * renders user/assistant generated Arabic. Apply `.rtl-force` when the
+ * container is guaranteed Arabic and should not auto-detect direction.
+ * ───────────────────────────────────────────────────────────────────── */
+.chat-arabic-text {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+.rtl-force {
+  direction: rtl;
+  unicode-bidi: plaintext;
+  text-align: right;
+}
+
+/* Inline English tokens, code, kbd & sample text get isolated by default so
+   they never break the surrounding Arabic flow. */
+.chat-arabic-text code,
+.chat-arabic-text kbd,
+.chat-arabic-text samp,
+.chat-arabic-text var,
+.rtl-force code,
+.rtl-force kbd,
+.rtl-force samp,
+.rtl-force var {
+  unicode-bidi: isolate;
+  direction: ltr;
+}
+
 /* ─── Honor Board (Breathing Manifesto) — B2B-only ambient pulse ─── */
 @keyframes honor-board-breathe {
   0%,

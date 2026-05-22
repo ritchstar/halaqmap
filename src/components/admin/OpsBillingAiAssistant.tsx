@@ -373,7 +373,8 @@ export function OpsBillingAiAssistant({
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`rounded-lg px-3 py-2 text-sm whitespace-pre-wrap ${
+                dir="rtl"
+                className={`chat-arabic-text rounded-lg px-3 py-2 text-sm whitespace-pre-wrap ${
                   msg.role === 'user'
                     ? 'bg-primary/10 mr-4 ml-0 border border-primary/20'
                     : 'bg-muted/50 ml-4 mr-0'

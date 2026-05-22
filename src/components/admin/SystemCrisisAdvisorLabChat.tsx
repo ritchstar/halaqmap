@@ -228,7 +228,8 @@ export function SystemCrisisAdvisorLabChat({
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap text-slate-100 ${
+                dir="rtl"
+                className={`chat-arabic-text rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap text-slate-100 ${
                   msg.role === 'user'
                     ? 'mr-8 ml-0 bg-orange-500/10'
                     : 'ml-8 mr-0 border border-orange-500/25 bg-orange-950/20'

@@ -89,7 +89,10 @@ function DigestBriefingCard({ report, compact }: { report: OpsControllerReport; 
         </div>
       ) : null}
       {!compact && briefingText ? (
-        <pre className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-700 bg-slate-950/80 p-3 text-[11px] leading-relaxed text-slate-400">
+        <pre
+          dir="rtl"
+          className="chat-arabic-text mt-3 max-h-48 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-700 bg-slate-950/80 p-3 text-[11px] leading-relaxed text-slate-400"
+        >
           {briefingText}
         </pre>
       ) : null}
