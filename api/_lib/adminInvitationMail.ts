@@ -27,6 +27,14 @@ const ADMIN_PORTAL_BASE_ENV_KEYS = [
   'ADMIN_PORTAL_BASE',
 ] as const;
 
+/**
+ * Must stay aligned with `ADMIN_PORTAL_DEFAULT_BASE` in
+ * src/config/adminAuth.ts — the React Router registers this base
+ * even when the env override is not provided, so emails built with
+ * this fallback still resolve to a real route (no 404).
+ */
+const ADMIN_PORTAL_FALLBACK_BASE = '/_hmap-int-9kz2';
+
 /** Resolve the site origin (e.g. https://www.halaqmap.com) — no trailing slash. */
 function readSiteOrigin(): string {
   for (const key of SITE_ORIGIN_ENV_KEYS) {
@@ -36,13 +44,30 @@ function readSiteOrigin(): string {
   return 'https://www.halaqmap.com';
 }
 
-/** Resolve the admin portal base (e.g. `/admin` or `/x7k-m9q2`). */
+function normalizeBaseSegment(raw: string): string {
+  let b = raw.trim();
+  if (!b) return ADMIN_PORTAL_FALLBACK_BASE;
+  if (!b.startsWith('/')) b = `/${b}`;
+  return b.replace(/\/+$/, '');
+}
+
+/**
+ * Resolve the canonical admin portal base used in invitation emails.
+ *
+ * Mirrors `getAdminPortalBasePath()` on the frontend:
+ *   - if the env var holds a comma-separated list, take the FIRST entry
+ *     (the canonical/active obfuscated path)
+ *   - otherwise fall back to the same default the frontend ships with
+ *     so links keep resolving even when env vars are missing
+ */
 function readAdminPortalBase(): string {
   for (const key of ADMIN_PORTAL_BASE_ENV_KEYS) {
     const v = (process.env[key] || '').trim();
-    if (v) return v.startsWith('/') ? v : `/${v}`;
+    if (!v) continue;
+    const first = v.split(',').map((s) => s.trim()).filter(Boolean)[0];
+    if (first) return normalizeBaseSegment(first);
   }
-  return '/admin';
+  return ADMIN_PORTAL_FALLBACK_BASE;
 }
 
 /**

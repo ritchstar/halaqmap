@@ -39,7 +39,7 @@ import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import AdminSentinelPage from "@/pages/AdminSentinelPage";
 import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
 import AdminCyberOperationsPage from "@/app/admin/cyber/page";
-import { getAdminPortalBasePaths } from "@/config/adminAuth";
+import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
 const queryClient = new QueryClient();
@@ -65,6 +65,22 @@ const NotFound = () => (
 const LegacyPartnerRedirect = ({ to }: { to: string }) => {
   const location = useLocation();
   return <Navigate to={`${to}${location.search || ''}`} replace />;
+};
+
+/**
+ * Safety net for invitation emails sent before `VITE_ADMIN_PORTAL_BASE`
+ * was aligned across build and runtime: any `/admin/in?email=…` or
+ * `/admin/ctrl` link is redirected to the canonical obfuscated base
+ * so the recipient lands on the real login (or dashboard) instead of 404.
+ */
+const LegacyAdminRedirect = ({ suffix }: { suffix: string }) => {
+  const location = useLocation();
+  return (
+    <Navigate
+      to={`${getAdminPortalBasePath()}${suffix}${location.search || ''}`}
+      replace
+    />
+  );
 };
 
 const App = () => (
@@ -139,6 +155,13 @@ const App = () => (
               <Route path={`${adminBase}/cyber`} element={<AdminCyberOperationsPage />} />
             </Fragment>
           ))}
+          {/* Safety net for legacy invitation links built before VITE_ADMIN_PORTAL_BASE alignment. */}
+          <Route path="/admin/in" element={<LegacyAdminRedirect suffix="/in" />} />
+          <Route path="/admin/ctrl" element={<LegacyAdminRedirect suffix="/ctrl" />} />
+          <Route path="/admin/sentinel" element={<LegacyAdminRedirect suffix="/sentinel" />} />
+          <Route path="/admin/radar/full-screen" element={<LegacyAdminRedirect suffix="/radar/full-screen" />} />
+          <Route path="/admin/cyber" element={<LegacyAdminRedirect suffix="/cyber" />} />
+          <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
