@@ -38,6 +38,7 @@ import {
   ClipboardList,
   Radar,
   Cast,
+  ShieldAlert,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,7 +69,11 @@ import {
   removeStoredSubscriptionRequest,
 } from '@/lib/subscriptionRequestStorage';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminLoginPathFor, getAdminPlatformRadarFullScreenPathFor } from '@/config/adminAuth';
+import {
+  getAdminCyberOperationsPathFor,
+  getAdminLoginPathFor,
+  getAdminPlatformRadarFullScreenPathFor,
+} from '@/config/adminAuth';
 import { shouldShowAdminMocks } from '@/config/adminDashboardEnv';
 import { fetchAdminStats } from '@/lib/adminStatsRemote';
 import {
@@ -654,6 +659,24 @@ export default function AdminDashboard() {
                 <Cast className="h-4 w-4" />
                 <Radar className="h-4 w-4" />
                 <span className="hidden lg:inline">Command Mode</span>
+              </Button>
+            ) : null}
+            {isFounderView ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-9 shrink-0 gap-1.5 border border-amber-500/40 bg-amber-500/10 px-2.5 text-amber-100 hover:bg-amber-500/25 hover:text-white"
+                title="غرفة العمليات السيبرانية — رادار أمني مباشر مع فرضيات قابلة للمعاينة"
+                aria-label="Cyber Operations Theater"
+                onClick={() => {
+                  const path = getAdminCyberOperationsPathFor(location.pathname);
+                  const url = `${window.location.origin}${window.location.pathname}#${path}`;
+                  window.open(url, '_blank', 'noopener,noreferrer');
+                }}
+              >
+                <ShieldAlert className="h-4 w-4" />
+                <span className="hidden lg:inline">غرفة العمليات السيبرانية</span>
               </Button>
             ) : null}
             <Button

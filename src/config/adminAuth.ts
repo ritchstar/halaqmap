@@ -128,3 +128,7 @@ export function getAdminSentinelPathFor(pathname: string): string {
 export function getAdminPlatformRadarFullScreenPathFor(pathname: string): string {
   return `${resolveAdminPortalBase(pathname)}/radar/full-screen`;
 }
+
+export function getAdminCyberOperationsPathFor(pathname: string): string {
+  return `${resolveAdminPortalBase(pathname)}/cyber`;
+}
