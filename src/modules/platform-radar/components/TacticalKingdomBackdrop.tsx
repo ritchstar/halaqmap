@@ -208,6 +208,13 @@ export function TacticalKingdomBackdrop() {
             c.tier === 'capital' ? 28 : c.tier === 'major' ? 18 : 12;
           const dotRadius = c.tier === 'capital' ? 4 : c.tier === 'major' ? 2.8 : 2.2;
           const fillUrl = c.tier === 'capital' ? 'url(#tk-capital-glow)' : 'url(#tk-city-glow)';
+          const fontSize = c.tier === 'capital' ? 14 : c.tier === 'major' ? 12 : 11;
+          // Above: label sits above the glow. Below: drops it under the dot,
+          // with a small extra offset so the baseline clears the glow halo.
+          const labelY =
+            c.labelPosition === 'below'
+              ? c.view.y + glowRadius + fontSize + 2
+              : c.view.y - (glowRadius + 2);
           return (
             <g key={`city-${c.nameAr}`}>
               <circle cx={c.view.x} cy={c.view.y} r={glowRadius} fill={fillUrl} />
@@ -219,12 +226,18 @@ export function TacticalKingdomBackdrop() {
               />
               <text
                 x={c.view.x}
-                y={c.view.y - (glowRadius + 2)}
+                y={labelY}
                 textAnchor="middle"
-                fontSize={c.tier === 'capital' ? '14' : '11'}
+                fontSize={fontSize}
                 fontFamily="system-ui"
-                fontWeight={c.tier === 'capital' ? 700 : 500}
-                fill={c.tier === 'capital' ? 'rgba(186,230,253,0.95)' : 'rgba(254,243,199,0.85)'}
+                fontWeight={c.tier === 'capital' ? 700 : c.tier === 'major' ? 600 : 500}
+                fill={
+                  c.tier === 'capital'
+                    ? 'rgba(186,230,253,0.95)'
+                    : c.tier === 'major'
+                      ? 'rgba(254,243,199,0.95)'
+                      : 'rgba(254,243,199,0.85)'
+                }
                 style={{
                   paintOrder: 'stroke',
                   stroke: 'rgba(0,0,0,0.78)',

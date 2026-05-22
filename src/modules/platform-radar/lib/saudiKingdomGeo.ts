@@ -339,32 +339,58 @@ export type CityBeacon = {
   nameAr: string;
   view: ViewPoint;
   tier: 'capital' | 'major' | 'hub';
+  /**
+   * Where to render the label relative to the beacon dot. Defaults to 'above'.
+   * Use 'below' for the secondary city in a tight pair (e.g. Khobar under
+   * Dammam, Khamis Mushait under Abha) so labels never overlap.
+   */
+  labelPosition: 'above' | 'below';
 };
 
+// Beacons cover the 13 admin region capitals plus strategic religious,
+// industrial and port hubs. Coordinates verified against WGS-84 city centres.
+// `labelPosition: 'below'` is set ONLY for the secondary city in a tight
+// geographic pair so the two text labels do not collide.
 const CITY_BEACONS_LNGLAT: ReadonlyArray<{
   nameAr: string;
   lng: number;
   lat: number;
   tier: CityBeacon['tier'];
+  labelPosition?: CityBeacon['labelPosition'];
 }> = [
+  // === Capital ===
   { nameAr: 'الرياض', lng: 46.6753, lat: 24.7136, tier: 'capital' },
+
+  // === Major centres — religious / economic / industrial pillars ===
   { nameAr: 'جدة', lng: 39.1925, lat: 21.4858, tier: 'major' },
   { nameAr: 'مكة', lng: 39.8579, lat: 21.3891, tier: 'major' },
+  { nameAr: 'الطائف', lng: 40.4178, lat: 21.2703, tier: 'major', labelPosition: 'below' },
   { nameAr: 'المدينة', lng: 39.5692, lat: 24.5247, tier: 'major' },
   { nameAr: 'الدمام', lng: 49.9777, lat: 26.3927, tier: 'major' },
-  { nameAr: 'الخبر', lng: 50.1971, lat: 26.2172, tier: 'hub' },
+  { nameAr: 'الأحساء', lng: 49.5872, lat: 25.3633, tier: 'major' },
+
+  // === Regional hubs — provincial capitals + strategic ports & industrial cities ===
+  { nameAr: 'الخبر', lng: 50.1971, lat: 26.2172, tier: 'hub', labelPosition: 'below' },
+  { nameAr: 'الجبيل', lng: 49.6622, lat: 27.0146, tier: 'hub' },
   { nameAr: 'تبوك', lng: 36.555, lat: 28.3838, tier: 'hub' },
   { nameAr: 'حائل', lng: 41.7208, lat: 27.5114, tier: 'hub' },
   { nameAr: 'بريدة', lng: 43.975, lat: 26.326, tier: 'hub' },
   { nameAr: 'أبها', lng: 42.5053, lat: 18.2164, tier: 'hub' },
+  { nameAr: 'خميس مشيط', lng: 42.7298, lat: 18.306, tier: 'hub', labelPosition: 'below' },
   { nameAr: 'جازان', lng: 42.5706, lat: 16.8894, tier: 'hub' },
   { nameAr: 'نجران', lng: 44.2289, lat: 17.5656, tier: 'hub' },
+  { nameAr: 'الباحة', lng: 41.4677, lat: 20.0129, tier: 'hub' },
+  { nameAr: 'ينبع', lng: 38.0584, lat: 24.0889, tier: 'hub' },
+  { nameAr: 'حفر الباطن', lng: 45.9601, lat: 28.4337, tier: 'hub' },
+  { nameAr: 'عرعر', lng: 41.0381, lat: 30.9753, tier: 'hub' },
+  { nameAr: 'سكاكا', lng: 40.2064, lat: 29.9697, tier: 'hub' },
 ];
 
 export const CITY_BEACONS: ReadonlyArray<CityBeacon> = CITY_BEACONS_LNGLAT.map((c) => ({
   nameAr: c.nameAr,
   view: projectLngLatToView(c.lng, c.lat),
   tier: c.tier,
+  labelPosition: c.labelPosition ?? 'above',
 }));
 
 /** Capital coordinates (Riyadh) — used for heartbeat pulse + radar centre. */
