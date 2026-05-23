@@ -27,6 +27,7 @@ import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { PublicMediaSpokesperson } from '@/components/PublicMediaSpokesperson';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
@@ -344,8 +345,11 @@ export default function LandingPreview() {
       {/* شريط موقع المستخدم */}
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
 
-      {/* أزرار عائمة */}
+      {/* أزرار عائمة للمستخدم */}
       <FloatingPlatformActions />
+
+      {/* المتحدث الإعلامي — مُندَب من لوحة التحكم لاستقبال الزوار */}
+      <PublicMediaSpokesperson />
 
       {/* ── Grid background texture ──────────────────────────────────────── */}
       <div

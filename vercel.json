@@ -198,6 +198,9 @@
     },
     "api/webhooks/supabase-subscription.ts": {
       "maxDuration": 45
+    },
+    "api/public-media-spokesperson-chat.ts": {
+      "maxDuration": 45
     }
   },
   "crons": [
