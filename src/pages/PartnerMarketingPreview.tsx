@@ -159,12 +159,13 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, badge }: {
 // ─── Pricing card ────────────────────────────────────────────────────────────
 function PricingCard({
   tier, price, name, badge, features, accent,
-  ringColor, recommended = false, delay = 0, addOnAvailable = false
+  ringColor, recommended = false, delay = 0, addOnAvailable = false, tierQuery
 }: {
   tier: string; price: number; name: string; badge: string;
   features: string[]; accent: string; ringColor: string;
-  recommended?: boolean; delay?: number; addOnAvailable?: boolean;
+  recommended?: boolean; delay?: number; addOnAvailable?: boolean; tierQuery?: string;
 }) {
+  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
   return (
@@ -210,13 +211,14 @@ function PricingCard({
         ))}
       </ul>
       <button
+        onClick={() => navigate(`${ROUTE_PATHS.REGISTER}${tierQuery ? `?tier=${tierQuery}` : ''}`)}
         className={`mt-auto w-full rounded-xl py-3 text-sm font-bold transition-all
           ${recommended
             ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-black hover:from-amber-300'
             : `border ${ringColor} bg-white/5 text-white hover:bg-white/10`
           }`}
       >
-        ابدأ بهذه الباقة
+        ابدأ بهذه الباقة →
       </button>
     </motion.div>
   );
@@ -563,7 +565,7 @@ export default function PartnerMarketingPreview() {
 
           <div className="grid gap-5 md:grid-cols-3">
             <PricingCard
-              tier="Bronze" price={100} name="برونزي" badge="🥉"
+              tier="Bronze" tierQuery="bronze" price={100} name="برونزي" badge="🥉"
               accent="text-amber-700" ringColor="border-amber-700/30"
               delay={0}
               features={[
@@ -575,7 +577,7 @@ export default function PartnerMarketingPreview() {
               ]}
             />
             <PricingCard
-              tier="Gold" price={150} name="ذهبي" badge="🥇"
+              tier="Gold" tierQuery="gold" price={150} name="ذهبي" badge="🥇"
               accent="text-amber-400" ringColor="border-amber-400/40"
               recommended delay={0.1}
               features={[
@@ -588,7 +590,7 @@ export default function PartnerMarketingPreview() {
               ]}
             />
             <PricingCard
-              tier="Diamond" price={200} name="ماسي" badge="💎"
+              tier="Diamond" tierQuery="diamond" price={200} name="ماسي" badge="💎"
               accent="text-cyan-400" ringColor="border-cyan-400/30"
               delay={0.2} addOnAvailable
               features={[
@@ -775,8 +777,15 @@ export default function PartnerMarketingPreview() {
             <div dir="rtl">
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">مسار الشركاء</h4>
               <div className="flex flex-col gap-2.5 text-sm text-slate-500">
-                {['التسجيل', 'الباقات والأسعار', 'سياسة الحزم', 'لوحة الشريك', 'خدمة العملاء'].map((l) => (
-                  <a key={l} href="#" className="hover:text-amber-400 transition-colors">{l}</a>
+                        {[
+                  { label: 'التسجيل', href: `/#${ROUTE_PATHS.REGISTER}` },
+                  { label: 'الباقات والأسعار', href: '#الأسعار' },
+                  { label: 'سياسة الحزم', href: `/#${ROUTE_PATHS.SUBSCRIPTION_POLICY}` },
+                  { label: 'لوحة الشريك', href: `/#${ROUTE_PATHS.BARBER_LOGIN}` },
+                  { label: 'خدمة العملاء', href: `/#${ROUTE_PATHS.PARTNER_SUPPORT}` },
+                  { label: 'خصوصية الشركاء', href: `/#${ROUTE_PATHS.PARTNER_PRIVACY}` },
+                ].map((link) => (
+                  <a key={link.label} href={link.href} className="hover:text-amber-400 transition-colors">{link.label}</a>
                 ))}
               </div>
             </div>
@@ -784,8 +793,8 @@ export default function PartnerMarketingPreview() {
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">المستخدمون</h4>
               <div className="flex flex-col gap-2.5">
                 <a href={`/#${ROUTE_PATHS.LANDING_PREVIEW}`} className="text-sm text-slate-500 hover:text-teal-400 transition-colors">ابحث عن حلاق ↗</a>
-                <a href="#" className="text-sm text-slate-500 hover:text-teal-400">سياسة الخصوصية</a>
-                <a href="#" className="text-sm text-slate-500 hover:text-teal-400">شروط الاستخدام</a>
+                <a href={`/#${ROUTE_PATHS.PARTNER_PRIVACY}`} className="text-sm text-slate-500 hover:text-teal-400">سياسة الخصوصية</a>
+                <a href={`/#${ROUTE_PATHS.TERMS_OF_SERVICE}`} className="text-sm text-slate-500 hover:text-teal-400">شروط الاستخدام</a>
               </div>
             </div>
           </div>

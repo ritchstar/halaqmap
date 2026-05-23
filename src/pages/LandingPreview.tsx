@@ -274,6 +274,7 @@ export default function LandingPreview() {
   const [selectedBeacon, setSelectedBeacon] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // ── Real barber search state ────────────────────────────────────────
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -467,11 +468,11 @@ export default function LandingPreview() {
               {/* زر القائمة — موبايل */}
               <button
                 type="button"
-                onClick={() => setScrolled((s) => !s)}
+                onClick={() => setMobileNavOpen((o) => !o)}
                 className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 md:hidden"
                 aria-label="القائمة"
               >
-                <Menu className="h-4 w-4" />
+                {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -479,6 +480,44 @@ export default function LandingPreview() {
           {/* ── خط التوهج السفلي ───────────────── */}
           <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent" />
         </div>
+
+        {/* ── قائمة الموبايل المنسدلة ─────────────── */}
+        <AnimatePresence>
+          {mobileNavOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="relative overflow-hidden border-t border-white/8 bg-[#020912]/98 md:hidden"
+            >
+              <nav className="flex flex-col gap-1 px-5 py-4" dir="rtl">
+                {[
+                  { label: 'كيف يعمل', href: '#كيف يعمل' },
+                  { label: 'المميزات', href: '#المميزات' },
+                  { label: 'الأسعار', href: '#الأسعار' },
+                  { label: 'للمنشآت B2B', href: `/#${ROUTE_PATHS.BARBERS_LANDING}` },
+                  { label: 'آراء المستخدمين', href: `/#${ROUTE_PATHS.PLATFORM_REVIEWS}` },
+                ].map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setMobileNavOpen(false)}
+                    className="rounded-xl px-4 py-3 text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+                <button
+                  onClick={() => { setMobileNavOpen(false); document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' }); }}
+                  className="mt-2 w-full rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 py-3 text-sm font-bold text-white"
+                >
+                  ابحث عن حلاق الآن
+                </button>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
@@ -806,7 +845,7 @@ export default function LandingPreview() {
             className="mt-10 text-center"
           >
             <button
-              onClick={() => navigate(ROUTE_PATHS.HOME)}
+              onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-8 py-3.5 font-bold text-white shadow-lg shadow-teal-500/25 transition-all hover:from-teal-400 hover:to-teal-600"
             >
               <Navigation2 className="h-4 w-4" />
@@ -1072,9 +1111,11 @@ export default function LandingPreview() {
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">روابط</h4>
               <div className="flex flex-col gap-2.5">
                 {[
-                  { label: 'ابحث عن حلاق', href: '#' },
-                  { label: 'سياسة الخصوصية', href: '#' },
-                  { label: 'شروط الاستخدام', href: '#' },
+                  { label: 'ابحث عن حلاق الآن', href: '#search-anchor' },
+                  { label: 'آراء المستخدمين ⭐', href: `/#${ROUTE_PATHS.PLATFORM_REVIEWS}` },
+                  { label: 'من نحن', href: `/#${ROUTE_PATHS.ABOUT}` },
+                  { label: 'سياسة الخصوصية', href: `/#${ROUTE_PATHS.USER_PRIVACY_POLICY}` },
+                  { label: 'شروط الاستخدام', href: `/#${ROUTE_PATHS.TERMS_OF_SERVICE}` },
                 ].map((link) => (
                   <a key={link.label} href={link.href} className="text-sm text-slate-500 hover:text-teal-400">{link.label}</a>
                 ))}
