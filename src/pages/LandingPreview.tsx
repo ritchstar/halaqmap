@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
-import { LocationButton } from '@/components/LocationButton';
+import { GeoRadarButton } from '@/components/GeoRadarButton';
 import { FilterBar } from '@/components/FilterBar';
 import { BarberCard } from '@/components/BarberCards';
 import { BarberMap } from '@/components/BarberMap';
@@ -479,25 +479,19 @@ export default function LandingPreview() {
               بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.
             </p>
 
-            {/* زر تحديد الموقع الحقيقي */}
-            <div className="mb-8 flex max-w-lg w-full">
-              {userLocation ? (
-                <div className="flex w-full items-center gap-3 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-3.5">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-teal-400" />
-                  <span className="flex-1 text-sm text-teal-200">
-                    الرادار يعمل — <span className="font-bold">{filteredBarbers.length}</span> صالون في محيطك
-                  </span>
-                  <button
-                    onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                    className="rounded-xl bg-teal-500/20 px-3 py-1.5 text-xs font-semibold text-teal-300 hover:bg-teal-500/30"
-                  >
-                    عرض النتائج ↓
-                  </button>
-                </div>
-              ) : (
-                <div className="w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5 shadow-xl shadow-black/40 backdrop-blur-sm">
-                  <LocationButton onLocationDetected={handleLocationDetected} />
-                </div>
+            {/* الرادار الجغرافي — أيقونة تحديد الموقع الرئيسية */}
+            <div className="mb-8 flex w-full flex-col items-center gap-4">
+              <GeoRadarButton onLocationDetected={handleLocationDetected} />
+              {userLocation && filteredBarbers.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                  className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-200 hover:bg-teal-500/20 transition-all"
+                >
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
+                  {filteredBarbers.length} صالون في محيطك — اعرض النتائج ↓
+                </motion.button>
               )}
             </div>
 
