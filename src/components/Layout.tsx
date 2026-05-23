@@ -31,13 +31,15 @@ export function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="min-h-[100dvh] min-h-screen flex flex-col bg-background" dir="rtl">
+    <div className="min-h-[100dvh] min-h-screen flex flex-col bg-[#020912]" dir="rtl" style={{ fontFamily: 'Tajawal, IBM Plex Sans Arabic, system-ui' }}>
       {/* شريط توقيت مدن المملكة */}
       <KSACityClocksBar />
 
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-[env(safe-area-inset-top)]">
+      {/* ── التنقل الرئيسي — داكن زجاجي ──────────────────────────────── */}
+      <header className="sticky top-0 z-50 w-full border-b border-teal-400/10 bg-[#020912]/92 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
+            {/* الشعار */}
             <NavLink
               to={ROUTE_PATHS.HOME}
               className="flex items-center gap-3 group [perspective:640px]"
@@ -49,74 +51,79 @@ export function Layout({ children }: LayoutProps) {
                 transition={{ type: 'spring', stiffness: 380, damping: 22 }}
               >
                 <HalaqmapBrandMark
-                  className="h-12 w-12 shrink-0 rounded-2xl
-                    ring-2 ring-primary/40 ring-offset-2 ring-offset-background
-                    shadow-[0_14px_32px_-8px_color-mix(in_srgb,var(--primary)_50%,transparent),0_6px_16px_-4px_rgba(0,0,0,0.22),inset_0_2px_6px_rgba(255,255,255,0.55)]
-                    transition-[box-shadow,ring-color] duration-300
-                    group-hover:ring-primary/60
-                    group-hover:shadow-[0_18px_40px_-10px_color-mix(in_srgb,var(--primary)_60%,transparent),0_8px_20px_-4px_rgba(0,0,0,0.28),inset_0_2px_8px_rgba(255,255,255,0.65)]"
+                  className="h-11 w-11 shrink-0 rounded-2xl ring-2 ring-teal-400/30 ring-offset-1 ring-offset-[#020912] shadow-[0_0_20px_rgba(20,184,166,0.2)] transition-all duration-300 group-hover:ring-teal-400/60 group-hover:shadow-[0_0_30px_rgba(20,184,166,0.35)]"
                   imgClassName="[transform:translateZ(4px)]"
                 />
               </motion.div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
+              <div className="flex flex-col leading-tight">
+                <span className="text-lg font-black bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
                   حلاق ماب
                 </span>
-                <span className="text-xs text-muted-foreground">HALAQ MAP</span>
+                <span className="text-[0.55rem] tracking-widest text-teal-500/60">HALAQ MAP</span>
               </div>
             </NavLink>
 
-            <nav className="hidden md:flex items-center gap-6">
+            {/* روابط التنقل — سطح مكتب */}
+            <nav className="hidden md:flex items-center gap-5">
               {navItems.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
-                    `text-sm font-medium transition-colors hover:text-primary ${
-                      isActive ? 'text-primary' : 'text-foreground/80'
+                    `text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'text-teal-300'
+                        : 'text-slate-400 hover:text-teal-300'
                     }`
                   }
                 >
                   {item.label}
                 </NavLink>
               ))}
+              <NavLink
+                to={ROUTE_PATHS.PLATFORM_REVIEWS}
+                className={({ isActive }) =>
+                  `flex items-center gap-1 text-sm font-medium transition-colors ${isActive ? 'text-amber-300' : 'text-slate-500 hover:text-amber-300'}`
+                }
+              >
+                <Star className="h-3.5 w-3.5" />
+                آراؤنا
+              </NavLink>
             </nav>
 
+            {/* زر القائمة — موبايل */}
             <button
               type="button"
-              className="md:hidden min-h-11 min-w-11 inline-flex items-center justify-center p-2 hover:bg-muted rounded-xl transition-colors touch-manipulation"
+              className="md:hidden min-h-11 min-w-11 inline-flex items-center justify-center p-2 rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-colors touch-manipulation"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="القائمة"
             >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
+        {/* قائمة موبايل */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden border-t border-border/40 bg-background"
+              transition={{ duration: 0.25 }}
+              className="md:hidden border-t border-white/8 bg-[#020912]/98"
             >
-              <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
-                {navItems.map((item) => (
+              <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
+                {[...navItems, { path: ROUTE_PATHS.PLATFORM_REVIEWS, label: '⭐ آراء المستخدمين' }].map((item) => (
                   <NavLink
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
                     className={({ isActive }) =>
-                      `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      `px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-foreground/80 hover:bg-muted'
+                          ? 'bg-teal-500/15 text-teal-300 border border-teal-400/25'
+                          : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                       }`
                     }
                   >
@@ -134,188 +141,162 @@ export function Layout({ children }: LayoutProps) {
       {/* أزرار عائمة: مشاركة + تقييم + آراء */}
       <FloatingPlatformActions />
 
-      <footer className="border-t border-border/40 bg-card mt-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
-        <div className="container mx-auto px-4 py-10 md:py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 [perspective:640px]">
+      {/* ── الفوتر — داكن احترافي ──────────────────────────────────────── */}
+      <footer className="border-t border-teal-400/10 bg-[#020912] mt-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+        {/* شريط هوية المنصة */}
+        <div className="border-b border-white/5 bg-white/[0.02]">
+          <div className="container mx-auto px-4 py-4">
+            <p className="text-center text-[0.65rem] text-slate-600 leading-relaxed">
+              {PLATFORM_IDENTITY_BOILERPLATE_AR}
+            </p>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-12 md:py-16">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+            {/* العلامة التجارية */}
+            <div className="md:col-span-1">
+              <div className="flex items-center gap-3 mb-4">
                 <HalaqmapBrandMark
-                  className="h-12 w-12 shrink-0 rounded-2xl
-                    ring-2 ring-primary/30 ring-offset-2 ring-offset-background
-                    shadow-[0_12px_28px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent),0_4px_14px_-4px_rgba(0,0,0,0.18),inset_0_2px_5px_rgba(255,255,255,0.5)]
-                    [transform-style:preserve-3d] [transform:rotateX(4deg)]"
+                  className="h-11 w-11 shrink-0 rounded-2xl ring-2 ring-teal-400/25 ring-offset-1 ring-offset-[#020912] shadow-[0_0_20px_rgba(20,184,166,0.15)]"
                 />
-                <div className="flex flex-col">
-                  <span className="text-lg font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
+                <div className="flex flex-col leading-tight">
+                  <span className="text-base font-black bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
                     حلاق ماب
                   </span>
-                  <span className="text-xs text-muted-foreground">HALAQ MAP</span>
+                  <span className="text-[0.5rem] tracking-widest text-teal-500/60">HALAQ MAP</span>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{PLATFORM_FOOTER_TAGLINE}</p>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">روابط سريعة</h3>
-              <div className="space-y-2">
-                <NavLink
-                  to={ROUTE_PATHS.HOME}
-                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  الرئيسية
-                </NavLink>
-                <NavLink
-                  to={ROUTE_PATHS.ABOUT}
-                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  من نحن
-                </NavLink>
-                <NavLink
-                  to={ROUTE_PATHS.BARBERS_LANDING}
-                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {SOFTWARE_SERVICES_PORTAL_LABEL}
-                </NavLink>
+              <p className="text-xs text-slate-500 leading-relaxed mb-4">{PLATFORM_FOOTER_TAGLINE}</p>
+              {/* تواصل اجتماعي */}
+              <div className="flex gap-2">
+                {[
+                  { href: 'https://twitter.com/halaqmap', icon: SiX, label: 'X', color: 'hover:text-white' },
+                  { href: 'https://instagram.com/halaqmap', icon: SiInstagram, label: 'Instagram', color: 'hover:text-pink-400' },
+                  { href: 'https://wa.me/966559602685', icon: SiWhatsapp, label: 'WhatsApp', color: 'hover:text-green-400' },
+                ].map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-500 transition-all hover:border-white/25 hover:bg-white/10 hover:scale-105 ${social.color}`}
+                  >
+                    <social.icon className="h-3.5 w-3.5" />
+                  </a>
+                ))}
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">تواصل معنا</h3>
-              <div className="space-y-3">
-                <a
-                  href="tel:+966559602685"
-                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Phone className="w-4 h-4 text-primary" />
+            {/* روابط سريعة */}
+            <div>
+              <h4 className="mb-4 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">المنصة</h4>
+              <div className="flex flex-col gap-2.5">
+                {[
+                  { path: ROUTE_PATHS.HOME, label: 'الرئيسية — ابحث عن حلاق' },
+                  { path: ROUTE_PATHS.ABOUT, label: 'من نحن' },
+                  { path: ROUTE_PATHS.PLATFORM_REVIEWS, label: '⭐ آراء المستخدمين' },
+                ].map((link) => (
+                  <NavLink
+                    key={link.path}
+                    to={link.path}
+                    className="text-sm text-slate-500 hover:text-teal-300 transition-colors"
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+
+            {/* سياسات */}
+            <div>
+              <h4 className="mb-4 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">قانوني</h4>
+              <div className="flex flex-col gap-2.5">
+                {[
+                  { path: ROUTE_PATHS.TERMS_OF_SERVICE, label: 'شروط الاستخدام' },
+                  { path: ROUTE_PATHS.USER_PRIVACY_POLICY, label: 'سياسة الخصوصية' },
+                  { path: ROUTE_PATHS.PRIVACY_DETAILED, label: 'خصوصية تفصيلية' },
+                  { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: 'سياسة الرخص' },
+                ].map((link) => (
+                  <NavLink
+                    key={link.path}
+                    to={link.path}
+                    className="text-sm text-slate-500 hover:text-teal-300 transition-colors"
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+
+            {/* تواصل */}
+            <div>
+              <h4 className="mb-4 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">تواصل معنا</h4>
+              <div className="flex flex-col gap-3">
+                <a href="tel:+966559602685" className="flex items-center gap-2.5 text-sm text-slate-500 hover:text-teal-300 transition-colors group">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-teal-500/10 group-hover:border-teal-400/30">
+                    <Phone className="h-3.5 w-3.5 text-teal-500" />
                   </div>
-                  <span dir="ltr">+966559602685</span>
+                  <span dir="ltr">+966 559 602 685</span>
                 </a>
-                <a
-                  href="mailto:admin@halaqmap.com"
-                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Mail className="w-4 h-4 text-primary" />
+                <a href="mailto:admin@halaqmap.com" className="flex items-center gap-2.5 text-sm text-slate-500 hover:text-teal-300 transition-colors group">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-teal-500/10 group-hover:border-teal-400/30">
+                    <Mail className="h-3.5 w-3.5 text-teal-500" />
                   </div>
                   <span>admin@halaqmap.com</span>
                 </a>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <MapPin className="w-4 h-4 text-primary" />
+                <div className="flex items-center gap-2.5 text-sm text-slate-600">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5">
+                    <MapPin className="h-3.5 w-3.5 text-slate-600" />
                   </div>
                   <span>المملكة العربية السعودية</span>
                 </div>
               </div>
             </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">تابعنا</h3>
-              <div className="flex gap-3">
-                <a
-                  href="https://twitter.com/halaqmap"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all hover:scale-105 active:scale-95"
-                  aria-label="تويتر"
-                >
-                  <SiX className="w-5 h-5 text-primary" />
-                </a>
-                <a
-                  href="https://facebook.com/halaqmap"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all hover:scale-105 active:scale-95"
-                  aria-label="فيسبوك"
-                >
-                  <SiFacebook className="w-5 h-5 text-primary" />
-                </a>
-                <a
-                  href="https://instagram.com/halaqmap"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all hover:scale-105 active:scale-95"
-                  aria-label="انستقرام"
-                >
-                  <SiInstagram className="w-5 h-5 text-primary" />
-                </a>
-                <a
-                  href="https://wa.me/966559602685"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all hover:scale-105 active:scale-95"
-                  aria-label="واتساب"
-                >
-                  <SiWhatsapp className="w-5 h-5 text-primary" />
-                </a>
-              </div>
-            </div>
           </div>
 
-          <div className="mt-10">
+          {/* مصفوفة التسعير */}
+          <div className="mt-10 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
             <ListingLicensePricingMatrix variant="embedded-light" />
           </div>
 
-          <div className="mt-8">
+          <div className="mt-6">
             <LegalEntityPublicStrip variant="light" />
           </div>
-
-          <div className="mt-8">
+          <div className="mt-4">
             <PlatformOfficialFooterStrip variant="light" />
           </div>
 
-          <div className="mt-6">
-            <p className="rounded-lg border border-primary/25 bg-primary/[0.04] px-4 py-3 text-center text-xs leading-relaxed text-muted-foreground md:text-sm">
-              {PLATFORM_IDENTITY_BOILERPLATE_AR}
-            </p>
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-border/40">
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              <NavLink
-                to={ROUTE_PATHS.TERMS_OF_SERVICE}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
-              >
-                شروط الاستخدام
-              </NavLink>
-              <NavLink
-                to={ROUTE_PATHS.USER_PRIVACY_POLICY}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
-              >
-                سياسة الخصوصية
-              </NavLink>
-              <NavLink
-                to={ROUTE_PATHS.PRIVACY_DETAILED}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
-              >
-                خصوصية (تفصيلية)
-              </NavLink>
-              <NavLink
-                to={ROUTE_PATHS.ABOUT}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
-              >
-                من نحن
-              </NavLink>
-              <NavLink
-                to={ROUTE_PATHS.PLATFORM_REVIEWS}
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
-              >
-                <MessageSquare className="h-3.5 w-3.5" /> آراء المستخدمين
-              </NavLink>
-            </div>
-
-            {/* شريط تقييم المنصة */}
-            <div className="mt-4 flex items-center justify-center gap-3">
-              <span className="text-xs text-muted-foreground">قيّم المنصة:</span>
+          {/* الشريط السفلي */}
+          <div className="mt-10 pt-6 border-t border-white/8 flex flex-col items-center gap-4">
+            {/* تقييم المنصة */}
+            <div className="flex items-center gap-2">
+              <span className="text-[0.65rem] text-slate-600">قيّم تجربتك:</span>
               <div className="flex items-center gap-1">
-                {[1,2,3,4,5].map((s) => (
+                {[1, 2, 3, 4, 5].map((s) => (
                   <NavLink key={s} to={ROUTE_PATHS.PLATFORM_REVIEWS}>
-                    <Star className="h-4 w-4 text-amber-400/60 transition-colors hover:text-amber-400 hover:fill-amber-400" />
+                    <Star className="h-4 w-4 text-amber-400/50 transition-all hover:text-amber-400 hover:fill-amber-400 hover:scale-110" />
                   </NavLink>
                 ))}
               </div>
+              <NavLink to={ROUTE_PATHS.PLATFORM_REVIEWS} className="text-[0.65rem] text-slate-600 hover:text-amber-300 transition-colors">
+                اقرأ الآراء
+              </NavLink>
             </div>
-            <AppBuildStamp className="mt-4" />
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+              {[
+                { path: ROUTE_PATHS.TERMS_OF_SERVICE, label: 'الشروط' },
+                { path: ROUTE_PATHS.USER_PRIVACY_POLICY, label: 'الخصوصية' },
+                { path: ROUTE_PATHS.ABOUT, label: 'من نحن' },
+              ].map((link) => (
+                <NavLink key={link.path} to={link.path} className="text-[0.7rem] text-slate-600 hover:text-teal-400 transition-colors">
+                  {link.label}
+                </NavLink>
+              ))}
+              <span className="text-slate-700 text-[0.7rem]">© ٢٠٢٦ حلاق ماب · ISIC4 474151</span>
+            </div>
+            <AppBuildStamp className="opacity-30" />
           </div>
         </div>
       </footer>
