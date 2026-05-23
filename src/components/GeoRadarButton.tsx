@@ -471,18 +471,48 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
       <AnimatePresence mode="wait">
         {isFound && coords ? (
           <motion.div key="coords" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-1.5">
-            <div className="flex items-center gap-3 font-mono text-[0.62rem] tabular-nums">
-              <span className="text-amber-400/60 tracking-widest">LAT</span>
-              <span className="text-amber-200">{toDMS(coords.lat, 'ش', 'ج')}</span>
+            className="flex flex-col items-center gap-2">
+            {/* الإحداثيات */}
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-3 font-mono text-[0.62rem] tabular-nums">
+                <span className="text-amber-400/60 tracking-widest">LAT</span>
+                <span className="text-amber-200">{toDMS(coords.lat, 'ش', 'ج')}</span>
+              </div>
+              <div className="flex items-center gap-3 font-mono text-[0.62rem] tabular-nums">
+                <span className="text-amber-400/60 tracking-widest">LNG</span>
+                <span className="text-amber-200">{toDMS(coords.lng, 'ق', 'غ')}</span>
+              </div>
+              {accuracy !== null && (
+                <p className="text-[0.56rem] text-amber-500/50">● دقة الإشارة ±{accuracy}م · UTC+3</p>
+              )}
             </div>
-            <div className="flex items-center gap-3 font-mono text-[0.62rem] tabular-nums">
-              <span className="text-amber-400/60 tracking-widest">LNG</span>
-              <span className="text-amber-200">{toDMS(coords.lng, 'ق', 'غ')}</span>
-            </div>
-            {accuracy !== null && (
-              <p className="text-[0.56rem] text-amber-500/50">● دقة الإشارة ±{accuracy}م · UTC+3</p>
-            )}
+
+            {/* زر التحقق من الموقع — يفتح تطبيق الخرائط */}
+            <motion.a
+              href={`https://www.google.com/maps?q=${coords.lat},${coords.lng}&z=16`}
+              target="_blank"
+              rel="noopener noreferrer"
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, type: 'spring', stiffness: 320 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 rounded-xl border border-amber-400/35 bg-amber-500/10 px-4 py-2 text-[0.72rem] font-bold text-amber-200 shadow-[0_0_16px_rgba(251,191,36,0.15)] transition-all hover:border-amber-400/60 hover:bg-amber-500/18 hover:shadow-[0_0_24px_rgba(251,191,36,0.25)]"
+            >
+              {/* أيقونة دبوس صغيرة */}
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" className="shrink-0 text-amber-400">
+                <path fillRule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.544l.062.029.018.008.006.003zM10 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" clipRule="evenodd"/>
+              </svg>
+              <span>تحقق من موقعك على الخريطة</span>
+              {/* أيقونة رابط خارجي */}
+              <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="1.5" className="shrink-0 text-amber-400/60">
+                <path d="M2 10L10 2M10 2H5.5M10 2V6.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </motion.a>
+
+            <p className="text-[0.56rem] text-slate-600 text-center">
+              يفتح تطبيق الخرائط على موقعك الذي رصدناه
+            </p>
           </motion.div>
         ) : isSearching ? (
           <motion.p key="searching" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
