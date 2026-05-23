@@ -10,20 +10,22 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Radio, Swords } from 'lucide-react';
 import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { CyberRadarCanvas } from '@/modules/cyber-radar/components/CyberRadarCanvas';
 import {
   AgentResponseFeed,
+  CyberEventLog,
   CyberStatsStrip,
   ScenarioControlPanel,
+  SecurityLegend,
 } from '@/modules/cyber-radar/components/CyberHud';
 import { useCyberPlayback } from '@/modules/cyber-radar/hooks/useCyberPlayback';
 import { useCyberLiveStream } from '@/modules/cyber-radar/hooks/useCyberLiveStream';
 import { CYBER_SCENARIOS, getScenarioById } from '@/modules/cyber-radar/scenarios';
-import type { CyberMode } from '@/modules/cyber-radar/types';
+import type { CyberAgentResponse, CyberMode } from '@/modules/cyber-radar/types';
 
 type AuthPhase = 'loading' | 'ok' | 'denied' | 'nologin';
 
@@ -50,6 +52,16 @@ export default function AdminCyberOperationsPage() {
     threatsBlockedRef.current = 0;
     setThreatsBlocked(0);
   }, [mode, activeScenarioId]);
+
+  // Rotate the ambient agent log in live mode so it doesn't feel static.
+  const [ambientIdx, setAmbientIdx] = useState(0);
+  useEffect(() => {
+    if (mode !== 'live') return;
+    const id = window.setInterval(() => {
+      setAmbientIdx((i) => (i + 1) % ALL_AMBIENT_LOGS.length);
+    }, 18_000);
+    return () => window.clearInterval(id);
+  }, [mode]);
 
   useEffect(() => {
     const source = mode === 'scenario' ? playback.pulses : live.pulses;
@@ -148,69 +160,114 @@ export default function AdminCyberOperationsPage() {
 
   const pulses = mode === 'scenario' ? playback.pulses : live.pulses;
   const narrator = mode === 'scenario' ? playback.narrator : null;
-  const agentLog = mode === 'scenario' ? playback.agentLog : LIVE_AMBIENT_AGENT_LOG;
+  const agentLog =
+    mode === 'scenario' ? playback.agentLog : ALL_AMBIENT_LOGS[ambientIdx];
+
+  const hasActiveThreats = pulses.some(
+    (p) => p.kind === 'threat_attack' || p.kind === 'threat_probe',
+  );
 
   return (
     <div
       dir="rtl"
       className="relative flex h-[100dvh] w-[100dvw] flex-col overflow-hidden bg-gradient-to-b from-[#04060f] via-[#020512] to-black text-slate-100"
     >
-      {/* Top bar */}
+      {/* ── Top bar ─────────────────────────────────────────────────────── */}
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/5 bg-black/55 px-4 py-2 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-md border border-amber-400/40 bg-gradient-to-br from-amber-500/20 to-black/40 font-bold text-amber-200">
             ⚡
           </div>
           <div className="flex flex-col leading-tight">
-            <h1 className="text-sm font-bold text-amber-100">غُرفة العمليات السيبرانية — حلاق ماب</h1>
+            <h1 className="text-sm font-bold text-amber-100">
+              غُرفة العمليات السيبرانية — حلاق ماب
+            </h1>
             <p className="text-[0.65rem] text-slate-400">
               رادار أَمني مُباشر لِشَبكة المنصّة · يَكشِف التَّوافد والتَّهديدات لَحظياً
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate(getAdminDashboardPathFor(location.pathname))}
-          className="flex items-center gap-1.5 rounded-md border border-white/10 bg-black/50 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-black/70"
-        >
-          <ArrowRight className="h-3.5 w-3.5" /> العَودة للوحة التَّحَكُّم
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Live / threat status pill */}
+          <div
+            className={`hidden items-center gap-1.5 rounded-full border px-3 py-1 text-[0.65rem] font-semibold sm:flex ${
+              hasActiveThreats
+                ? 'border-rose-400/50 bg-rose-500/10 text-rose-200'
+                : mode === 'live'
+                  ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200'
+                  : 'border-amber-400/40 bg-amber-500/10 text-amber-200'
+            }`}
+          >
+            {hasActiveThreats ? (
+              <><Swords className="h-3 w-3" /> تَهديد نَشط</>
+            ) : mode === 'live' ? (
+              <><Radio className="h-3 w-3 animate-pulse" /> رَصد حَيّ</>
+            ) : (
+              <>🎬 مُحاكاة</>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate(getAdminDashboardPathFor(location.pathname))}
+            className="flex items-center gap-1.5 rounded-md border border-white/10 bg-black/50 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-black/70"
+          >
+            <ArrowRight className="h-3.5 w-3.5" /> لوحة التَّحَكُّم
+          </button>
+        </div>
       </header>
 
-      {/* Radar theater — the radar stays unobstructed; data banners surround it. */}
-      <div className="grid min-h-0 flex-1 gap-3 overflow-hidden p-3 lg:grid-cols-[15rem_minmax(0,1fr)_17rem] lg:grid-rows-[auto_minmax(0,1fr)_auto] xl:grid-cols-[17rem_minmax(0,1fr)_19rem]">
+      {/* ── Radar theater ───────────────────────────────────────────────── */}
+      <div className="grid min-h-0 flex-1 gap-2 overflow-hidden p-2 lg:grid-cols-[15rem_minmax(0,1fr)_17rem] lg:grid-rows-[auto_minmax(0,1fr)_auto] xl:grid-cols-[17rem_minmax(0,1fr)_19rem]">
+
+        {/* Centre — radar canvas */}
         <section className="order-2 min-h-[18rem] overflow-hidden rounded-2xl border border-cyan-300/20 bg-black shadow-[0_0_60px_rgba(34,211,238,0.10)] lg:order-none lg:col-start-2 lg:row-start-2 lg:min-h-0">
           <CyberRadarCanvas pulses={pulses} narrator={null} />
         </section>
 
-        <div className="order-1 rounded-xl border border-amber-400/30 bg-black/65 px-4 py-2 text-center text-sm font-semibold leading-relaxed text-amber-100 shadow-[0_0_35px_rgba(245,158,11,0.12)] backdrop-blur-md lg:order-none lg:col-start-2 lg:row-start-1">
-          {narrator ?? 'الرادار في وضع المراقبة الحية — كل النبضات الأمنية تظهر على الخريطة دون تغطية.'}
+        {/* Centre top — narrator / status banner */}
+        <div
+          className={`order-1 rounded-xl border px-4 py-2 text-center text-sm font-semibold leading-relaxed backdrop-blur-md lg:order-none lg:col-start-2 lg:row-start-1 ${
+            hasActiveThreats
+              ? 'border-rose-400/40 bg-black/70 text-rose-100 shadow-[0_0_35px_rgba(248,113,113,0.15)]'
+              : 'border-amber-400/30 bg-black/65 text-amber-100 shadow-[0_0_35px_rgba(245,158,11,0.12)]'
+          }`}
+        >
+          {narrator ??
+            (hasActiveThreats
+              ? '⚠ تَهديد نَشط يَستهدف البنية التحتية — الوُكَلاء في وَضع الاستنفار.'
+              : 'الرادار في وَضع المُراقبة الحَيّة — كُل النَّبضات الأَمنية تَظهَر على الخَريطة.')}
         </div>
 
-        <aside className="order-3 min-h-0 overflow-y-auto rounded-2xl border border-amber-400/20 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
-          <div>
-            <ScenarioControlPanel
-              mode={mode}
-              setMode={setMode}
-              scenarios={CYBER_SCENARIOS}
-              activeScenarioId={activeScenarioId}
-              setActiveScenarioId={setActiveScenarioId}
-              state={playback.state}
-              elapsedMs={playback.elapsedMs}
-              onPlay={playback.play}
-              onPause={playback.pause}
-              onReset={playback.reset}
-            />
-          </div>
+        {/* Right — scenario controls + legend */}
+        <aside className="order-3 flex min-h-0 flex-col gap-2 overflow-y-auto rounded-2xl border border-amber-400/20 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
+          <ScenarioControlPanel
+            mode={mode}
+            setMode={setMode}
+            scenarios={CYBER_SCENARIOS}
+            activeScenarioId={activeScenarioId}
+            setActiveScenarioId={setActiveScenarioId}
+            state={playback.state}
+            elapsedMs={playback.elapsedMs}
+            onPlay={playback.play}
+            onPause={playback.pause}
+            onReset={playback.reset}
+          />
+          <SecurityLegend />
         </aside>
 
-        <aside className="order-4 min-h-0 overflow-y-auto rounded-2xl border border-white/10 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1">
-          <h2 className="mb-2 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
-            مَلَفّ تَفاعل الوَكلاء
+        {/* Left — agent feed + event log */}
+        <aside className="order-4 flex min-h-0 flex-col gap-2 overflow-y-auto rounded-2xl border border-white/10 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1">
+          <h2 className="px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
+            مَلَفّ تَفاعل الوُكَلاء
           </h2>
           <AgentResponseFeed entries={agentLog} />
+          <h2 className="mt-1 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
+            سِجِل الأَحداث
+          </h2>
+          <CyberEventLog events={pulses} />
         </aside>
 
+        {/* Bottom — stats strip */}
         <div className="order-5 rounded-2xl border border-cyan-300/15 bg-black/55 backdrop-blur-md lg:order-none lg:col-span-3 lg:row-start-3">
           <CyberStatsStrip
             pulses={pulses}
@@ -225,38 +282,113 @@ export default function AdminCyberOperationsPage() {
 }
 
 // ---------------------------------------------------------------------------
-// Ambient agent log shown in LIVE mode so the right rail isn't empty when no
-// scenario is active. Describes what the agents are doing during quiet ops.
+// Ambient agent log — multiple rotation sets shown in LIVE mode so the
+// left rail stays informative even when no real-time scenario is running.
 // ---------------------------------------------------------------------------
-const LIVE_AMBIENT_AGENT_LOG = [
+const ts = () => new Date().toISOString();
+
+const AMBIENT_SET_QUIET: CyberAgentResponse[] = [
   {
-    id: 'live-1',
-    agentId: 'ops_controller' as const,
+    id: 'live-q1',
+    agentId: 'ops_controller',
     agentLabelAr: 'مراقب العمليات',
     actionLabelAr: 'مُراقبة هادئة',
     explanationAr:
-      'النظام في الحالة الطبيعية. كل واجهة API صحيّة. لا تَوجد تَهديدات نَشطة. أُحَدّث لوحة المؤسس كل 60 ثانية.',
-    severity: 'info' as const,
-    timestamp: new Date().toISOString(),
+      'النظام في الحالة الطبيعية. كل واجهة API صحيّة. لا تَوجد تَهديدات نَشطة. أُحَدِّث لوحة المؤسس كل 60 ثانية.',
+    severity: 'info',
+    timestamp: ts(),
   },
   {
-    id: 'live-2',
-    agentId: 'public_prosecutor' as const,
+    id: 'live-q2',
+    agentId: 'public_prosecutor',
     agentLabelAr: 'المُدّعي العام الرقمي',
     actionLabelAr: 'فَحص دَوري',
     explanationAr:
       'لا اعتداءات نَشطة. أُراجع سَجل النَّشاطات المَريبة آخر 24 ساعة — كله طَبيعي. الـ Logs الجِنائية جاهزة في حال الحاجة.',
-    severity: 'info' as const,
-    timestamp: new Date().toISOString(),
+    severity: 'info',
+    timestamp: ts(),
   },
   {
-    id: 'live-3',
-    agentId: 'engineering' as const,
+    id: 'live-q3',
+    agentId: 'engineering',
     agentLabelAr: 'الجناح الهندسي',
     actionLabelAr: 'مُصافحة دَورية',
     explanationAr:
       'Supabase: 🟢 OK · Vercel: 🟢 OK · GitHub: 🟢 OK. آخر deploy نَجح. مساحة قاعدة البيانات: 62% مُستَخدمة.',
-    severity: 'info' as const,
-    timestamp: new Date().toISOString(),
+    severity: 'info',
+    timestamp: ts(),
   },
+];
+
+const AMBIENT_SET_ANALYSIS: CyberAgentResponse[] = [
+  {
+    id: 'live-a1',
+    agentId: 'compliance',
+    agentLabelAr: 'مراقب الامتثال',
+    actionLabelAr: 'تحليل الأنماط',
+    explanationAr:
+      'رصدت 3 عناوين IP تُكرّر الاستعلام عن نفس المناطق — نشاط طبيعي للزواحف (crawlers). لا يستدعي إجراءً حالياً.',
+    severity: 'info',
+    timestamp: ts(),
+  },
+  {
+    id: 'live-a2',
+    agentId: 'partner_liaison',
+    agentLabelAr: 'مُنسّق الشركاء',
+    actionLabelAr: 'مُتابعة التفعيلات',
+    explanationAr:
+      'آخر 6 ساعات: 14 طلب تفعيل رخصة جديدة، جميعها من مناطق جديدة (الطائف، خميس مشيط، الجوف). النمو مُتسارع.',
+    severity: 'info',
+    timestamp: ts(),
+  },
+  {
+    id: 'live-a3',
+    agentId: 'ops_controller',
+    agentLabelAr: 'مراقب العمليات',
+    actionLabelAr: 'تقرير الذروة',
+    explanationAr:
+      'ذروة الاتصال بين 6-8 مساءً بتوقيت الرياض. أُوصي بمراقبة مُكثّفة في هذا النطاق الزمني يومياً.',
+    severity: 'info',
+    timestamp: ts(),
+  },
+];
+
+const AMBIENT_SET_NETWORK: CyberAgentResponse[] = [
+  {
+    id: 'live-n1',
+    agentId: 'engineering',
+    agentLabelAr: 'الجناح الهندسي',
+    actionLabelAr: 'مُراجعة الأداء',
+    explanationAr:
+      'متوسط زمن استجابة API: 187ms. خطوط الاتصال بـ Supabase مستقرة. لا تسرّب ذاكرة في العمليات المُشغَّلة.',
+    severity: 'info',
+    timestamp: ts(),
+  },
+  {
+    id: 'live-n2',
+    agentId: 'public_prosecutor',
+    agentLabelAr: 'المُدّعي العام الرقمي',
+    actionLabelAr: 'بصمة الشبكة',
+    explanationAr:
+      '82% من الاتصالات داخل المملكة. 18% من دول الخليج والشتات السعودي. لا اتصالات من مناطق ذات خطر مرتفع.',
+    severity: 'info',
+    timestamp: ts(),
+  },
+  {
+    id: 'live-n3',
+    agentId: 'compliance',
+    agentLabelAr: 'مراقب الامتثال',
+    actionLabelAr: 'TLS جاهز',
+    explanationAr:
+      'شهادات SSL/TLS سارية. جميع الاتصالات مُشفَّرة. سياسات CORS مُفعَّلة على كل نقاط الـ API.',
+    severity: 'info',
+    timestamp: ts(),
+  },
+];
+
+/** All ambient rotation sets — displayed one-at-a-time, cycling every 18s in live mode. */
+const ALL_AMBIENT_LOGS: ReadonlyArray<CyberAgentResponse[]> = [
+  AMBIENT_SET_QUIET,
+  AMBIENT_SET_ANALYSIS,
+  AMBIENT_SET_NETWORK,
 ];

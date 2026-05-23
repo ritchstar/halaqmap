@@ -7,7 +7,7 @@
  *  - ScenarioControlPanel: mode + scenario picker + play/pause/reset
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Activity,
   AlertOctagon,
@@ -25,6 +25,7 @@ import {
 import type {
   CyberAgentResponse,
   CyberEvent,
+  CyberEventKind,
   CyberMode,
   CyberScenario,
 } from '../types';
@@ -127,7 +128,7 @@ export function CyberStatsStrip({
       />
       <StatCard
         icon={Crown}
-        labelAr="طلبات تفعيل الحزمة البرمجية"
+        labelAr="طلبات تفعيل الرخصة"
         value={stats.registrations.toLocaleString('ar-SA')}
         tone="good"
       />
@@ -211,6 +212,130 @@ export function AgentResponseFeed({ entries }: { entries: ReadonlyArray<CyberAge
           </article>
         );
       })}
+    </div>
+  );
+}
+
+// ============================================================================
+// ScenarioControlPanel
+// ============================================================================
+
+// ============================================================================
+// CyberEventLog — scrolling feed of the latest raw cyber events
+// ============================================================================
+
+const KIND_DOT_CLASS: Record<CyberEventKind, string> = {
+  visit_internal: 'bg-cyan-400',
+  visit_external: 'bg-blue-300',
+  registration: 'bg-emerald-400',
+  login_success: 'bg-lime-300',
+  threat_probe: 'bg-amber-400',
+  threat_attack: 'bg-rose-500',
+  defence_action: 'bg-violet-400',
+};
+
+const KIND_LABEL_SHORT_AR: Record<CyberEventKind, string> = {
+  visit_internal: 'زيارة داخلية',
+  visit_external: 'زيارة خارجية',
+  registration: 'طلب انضمام',
+  login_success: 'دخول ناجح',
+  threat_probe: 'استطلاع مريب',
+  threat_attack: 'هجوم نشط',
+  defence_action: 'استجابة دفاعية',
+};
+
+function formatTimeAgo(isoTs: string): string {
+  const diffMs = Date.now() - new Date(isoTs).getTime();
+  const secs = Math.max(0, Math.floor(diffMs / 1000));
+  if (secs < 60) return `${secs}ث`;
+  const mins = Math.floor(secs / 60);
+  return `${mins}د`;
+}
+
+export function CyberEventLog({ events }: { events: ReadonlyArray<CyberEvent> }) {
+  const recent = [...events].reverse().slice(0, 18);
+
+  if (recent.length === 0) {
+    return (
+      <div
+        dir="rtl"
+        className="rounded-xl border border-white/10 bg-black/40 p-4 text-center text-xs text-slate-400"
+      >
+        في انتظار الاتصالات…
+      </div>
+    );
+  }
+
+  return (
+    <div dir="rtl" className="flex flex-col gap-1">
+      {recent.map((evt) => (
+        <div
+          key={evt.id}
+          className="flex items-start gap-2 rounded-lg border border-white/[0.07] bg-black/50 px-2 py-1.5 text-[0.67rem] backdrop-blur-sm"
+        >
+          <span
+            className={`mt-[3px] h-1.5 w-1.5 shrink-0 rounded-full ${KIND_DOT_CLASS[evt.kind]}`}
+          />
+          <span className="flex min-w-0 flex-1 flex-col leading-snug">
+            <span className="truncate text-slate-200" style={{ unicodeBidi: 'plaintext' }}>
+              {evt.description}
+              {evt.volume && evt.volume > 1 ? (
+                <span className="ms-1 rounded bg-white/10 px-1 font-mono text-[0.6rem] text-slate-300">
+                  ×{evt.volume >= 1000 ? `${(evt.volume / 1000).toFixed(1)}k` : evt.volume}
+                </span>
+              ) : null}
+            </span>
+            <span className="text-slate-500">
+              {KIND_LABEL_SHORT_AR[evt.kind]}
+              {evt.protocolTag ? (
+                <span className="ms-1 font-mono text-slate-600">{evt.protocolTag}</span>
+              ) : null}
+            </span>
+          </span>
+          <span className="shrink-0 tabular-nums text-slate-600">{formatTimeAgo(evt.timestamp)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================================================
+// SecurityLegend — colour guide for the radar canvas
+// ============================================================================
+
+const LEGEND_ROWS: { kind: CyberEventKind; labelAr: string }[] = [
+  { kind: 'visit_internal', labelAr: 'زيارة من داخل المملكة' },
+  { kind: 'visit_external', labelAr: 'زيارة من خارج المملكة' },
+  { kind: 'registration', labelAr: 'طلب تفعيل رخصة' },
+  { kind: 'login_success', labelAr: 'دخول شريك ناجح' },
+  { kind: 'threat_probe', labelAr: 'استطلاع / نشاط مريب' },
+  { kind: 'threat_attack', labelAr: 'هجوم نشط (DDoS / اختراق)' },
+  { kind: 'defence_action', labelAr: 'إجراء دفاعي من وكيل' },
+];
+
+export function SecurityLegend() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div dir="rtl" className="rounded-xl border border-white/10 bg-black/55 backdrop-blur-md">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between px-3 py-2 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200"
+      >
+        <span>مفتاح ألوان الرادار</span>
+        <span className="text-slate-500 text-[0.7rem]">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div className="flex flex-col gap-1.5 px-3 pb-3">
+          {LEGEND_ROWS.map((row) => (
+            <div key={row.kind} dir="rtl" className="flex items-center gap-2">
+              <span className={`h-2 w-2 shrink-0 rounded-full ${KIND_DOT_CLASS[row.kind]}`} />
+              <span className="text-[0.67rem] text-slate-300">{row.labelAr}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

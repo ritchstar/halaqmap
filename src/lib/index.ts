@@ -50,6 +50,8 @@ export const ROUTE_PATHS = {
   PARTNERS_BANNERS_PREVIEW: '/partners/banners-preview',
   /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
   RATE_BARBER: '/rate/:barberId',
+  /** صفحة الهبوط التصميمية التجريبية — معاينة فقط */
+  LANDING_PREVIEW: '/preview',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */
