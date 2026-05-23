@@ -20,6 +20,12 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import {
+  TIER_MONTHLY_SAR,
+  DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
+  DIAMOND_PRODUCT_STANDARD_LABEL_AR,
+} from '@/config/subscriptionPricing';
+import { SubscriptionTier } from '@/lib/index';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
 
@@ -118,7 +124,8 @@ function PricingCard({
       </div>
       {addOnAvailable && (
         <div className="mb-4 rounded-lg border border-violet-400/25 bg-violet-500/8 px-3 py-2 text-[0.65rem] text-violet-300">
-          ✦ Add-on: المناوب الرقمي الذكي 🌙 (+٢٥ ر.س/حزمة)
+          ✦ Add-on: المناوب الرقمي الذكي 🌙 (+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة)
+          <span className="ms-1 text-violet-400/60">= {price + DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س مع المناوب</span>
         </div>
       )}
       <ul className="mb-6 flex flex-col gap-2" dir="rtl">
@@ -573,8 +580,11 @@ export default function PartnerMarketingPreview() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-3">
+            {/* ── برونزي ── من TIER_MONTHLY_SAR مباشرة */}
             <PricingCard
-              tier="Bronze" tierQuery="bronze" price={100} name="برونزي" badge="🥉"
+              tier="Bronze" tierQuery="bronze"
+              price={TIER_MONTHLY_SAR[SubscriptionTier.BRONZE]}
+              name="برونزي" badge="🥉"
               accent="text-amber-700" ringColor="border-amber-700/30"
               delay={0}
               features={[
@@ -585,8 +595,12 @@ export default function PartnerMarketingPreview() {
                 'شهادة تفعيل رقمية + رقم الرخصة',
               ]}
             />
+
+            {/* ── ذهبي ── */}
             <PricingCard
-              tier="Gold" tierQuery="gold" price={150} name="ذهبي" badge="🥇"
+              tier="Gold" tierQuery="gold"
+              price={TIER_MONTHLY_SAR[SubscriptionTier.GOLD]}
+              name="ذهبي" badge="🥇"
               accent="text-amber-400" ringColor="border-amber-400/40"
               recommended delay={0.1}
               features={[
@@ -598,8 +612,12 @@ export default function PartnerMarketingPreview() {
                 'QR تقييم موثّق + رابط الصالون',
               ]}
             />
+
+            {/* ── ماسي + Add-on اختياري ── */}
             <PricingCard
-              tier="Diamond" tierQuery="diamond" price={200} name="ماسي" badge="💎"
+              tier="Diamond" tierQuery="diamond"
+              price={TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]}
+              name="ماسي" badge="💎"
               accent="text-cyan-400" ringColor="border-cyan-400/30"
               delay={0.2} addOnAvailable
               features={[
@@ -608,6 +626,7 @@ export default function PartnerMarketingPreview() {
                 'شات مع الزبائن عبر واتساب ذكي',
                 'بورتفوليو صور غير محدود',
                 'تحليلات مفصّلة + تقارير أداء متقدمة',
+                `${DIAMOND_PRODUCT_STANDARD_LABEL_AR} | +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س للمناوب الذكي 🌙`,
               ]}
             />
           </div>
