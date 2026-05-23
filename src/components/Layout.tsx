@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
-import { Menu, X, MapPin, Phone, Mail } from 'lucide-react';
+import { Menu, X, MapPin, Phone, Mail, Star, MessageSquare } from 'lucide-react';
 import { SiX, SiFacebook, SiInstagram, SiWhatsapp } from 'react-icons/si';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,8 @@ import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
 import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
+import { KSACityClocksBar } from '@/components/KSACityClocksBar';
+import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -30,6 +32,9 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-[100dvh] min-h-screen flex flex-col bg-background" dir="rtl">
+      {/* شريط توقيت مدن المملكة */}
+      <KSACityClocksBar />
+
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-[env(safe-area-inset-top)]">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
@@ -125,6 +130,9 @@ export function Layout({ children }: LayoutProps) {
       </header>
 
       <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+
+      {/* أزرار عائمة: مشاركة + تقييم + آراء */}
+      <FloatingPlatformActions />
 
       <footer className="border-t border-border/40 bg-card mt-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
         <div className="container mx-auto px-4 py-10 md:py-12">
@@ -288,6 +296,24 @@ export function Layout({ children }: LayoutProps) {
               >
                 من نحن
               </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.PLATFORM_REVIEWS}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
+              >
+                <MessageSquare className="h-3.5 w-3.5" /> آراء المستخدمين
+              </NavLink>
+            </div>
+
+            {/* شريط تقييم المنصة */}
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <span className="text-xs text-muted-foreground">قيّم المنصة:</span>
+              <div className="flex items-center gap-1">
+                {[1,2,3,4,5].map((s) => (
+                  <NavLink key={s} to={ROUTE_PATHS.PLATFORM_REVIEWS}>
+                    <Star className="h-4 w-4 text-amber-400/60 transition-colors hover:text-amber-400 hover:fill-amber-400" />
+                  </NavLink>
+                ))}
+              </div>
             </div>
             <AppBuildStamp className="mt-4" />
           </div>

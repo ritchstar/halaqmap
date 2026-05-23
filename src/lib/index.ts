@@ -54,6 +54,8 @@ export const ROUTE_PATHS = {
   LANDING_PREVIEW: '/preview',
   /** صفحة هبوط مسار الخدمات التسويقية للشركاء — معاينة تصميمية */
   LANDING_PARTNERS_PREVIEW: '/preview-partners',
+  /** صفحة آراء وتعليقات المستخدمين الحرة */
+  PLATFORM_REVIEWS: '/reviews',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

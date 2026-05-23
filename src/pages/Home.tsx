@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
+import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { LocationButton } from '@/components/LocationButton';
 import { FilterBar } from '@/components/FilterBar';
@@ -224,8 +225,15 @@ export default function Home() {
     setUserLocation(location);
   };
 
+  // عرض شريط الموقع عند الموافقة
+  const showLocationBar = !!userLocation;
+
   return (
     <div className="min-h-screen bg-background">
+      {/* شريط الموقع الجغرافي — يظهر بعد منح الإذن */}
+      {showLocationBar && userLocation && (
+        <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />
+      )}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 z-0">
           <motion.div

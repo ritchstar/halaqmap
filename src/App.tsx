@@ -41,6 +41,7 @@ import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
 import AdminCyberOperationsPage from "@/app/admin/cyber/page";
 import LandingPreview from "@/pages/LandingPreview";
 import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
+import PlatformReviews from "@/pages/PlatformReviews";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
@@ -97,6 +98,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
           <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<PartnerMarketingPreview />} />
+          <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<PlatformReviews />} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<InternalPartnerPathPrintCard />} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<InvoicePreviewSamples />} />
           <Route path={ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW} element={<PartnerBannersPreviewLanding />} />
