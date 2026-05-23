@@ -93,7 +93,26 @@ export default function SubscriptionPolicy() {
   ];
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-background">
+      {/* هيرو تكتيكي */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,rgba(20,184,166,0.12),transparent_70%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b from-transparent to-background" />
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary">
+            ✦ سياسة رخصة النفاذ الرقمية
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-l from-primary via-accent to-primary bg-clip-text text-transparent">
+            شروط شراء حزم رخصة النفاذ الرقمية
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            نلتزم بالشفافية الكاملة في بيع حزم الرخصة الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
+          </p>
+          <div className="mt-7 mx-auto h-px max-w-xs bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        </div>
+      </div>
+
+      <div className="py-8 px-4">
       <motion.div
         className="container mx-auto max-w-6xl"
         variants={staggerContainer}
@@ -101,15 +120,6 @@ export default function SubscriptionPolicy() {
         animate="visible"
       >
         <motion.div variants={fadeInUp} className="text-center mb-12">
-          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-            سياسة رخصة النفاذ الرقمية (نظام الاستجابة الذكية)
-          </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
-            شروط شراء حزم رخصة النفاذ الرقمية
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            نلتزم بالشفافية الكاملة في بيع حزم الرخصة الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
-          </p>
         </motion.div>
 
         <motion.section variants={staggerItem} className="mb-12">
@@ -568,6 +578,7 @@ export default function SubscriptionPolicy() {
           </Card>
         </motion.div>
       </motion.div>
+      </div>
     </div>
   );
 }

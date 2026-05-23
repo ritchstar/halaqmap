@@ -31,7 +31,18 @@ export function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="min-h-[100dvh] min-h-screen flex flex-col bg-[#020912]" dir="rtl" style={{ fontFamily: 'Tajawal, IBM Plex Sans Arabic, system-ui' }}>
+    <div className="platform-dark min-h-[100dvh] min-h-screen flex flex-col bg-background" dir="rtl" style={{ fontFamily: 'Tajawal, IBM Plex Sans Arabic, system-ui' }}>
+      {/* شبكة التكتير الخفية — تظهر على كل الصفحات */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
+        style={{ backgroundImage: 'linear-gradient(rgba(20,184,166,1) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,1) 1px,transparent 1px)', backgroundSize: '60px 60px' }}
+        aria-hidden
+      />
+
+      {/* توهج خلفي ديناميكي */}
+      <div className="pointer-events-none fixed -right-64 top-20 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[150px] opacity-60" aria-hidden />
+      <div className="pointer-events-none fixed -left-48 bottom-10 h-[400px] w-[400px] rounded-full bg-accent/4 blur-[130px] opacity-40" aria-hidden />
+
       {/* شريط توقيت مدن المملكة */}
       <KSACityClocksBar />
 

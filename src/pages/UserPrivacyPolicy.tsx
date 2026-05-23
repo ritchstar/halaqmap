@@ -92,33 +92,38 @@ export default function UserPrivacyPolicy() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-24">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(13,148,136,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(212,175,55,0.1),transparent_50%)]" />
+      <div className="relative overflow-hidden bg-gradient-to-b from-primary/12 via-background to-background py-28">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_30%,rgba(20,184,166,0.12),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(212,175,55,0.07),transparent_50%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-background" />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.7 }}
           className="container mx-auto px-4 relative z-10"
         >
           <div className="max-w-4xl mx-auto text-center">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary">
+              ✦ الشفافية والخصوصية
+            </div>
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-6"
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-2xl border border-primary/25 bg-primary/10 mb-6 shadow-[0_0_30px_rgba(20,184,166,0.15)]"
             >
               <Shield className="w-10 h-10 text-primary" />
             </motion.div>
 
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-l from-primary via-accent to-primary bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-l from-primary via-accent to-primary bg-clip-text text-transparent">
               سياسة الخصوصية
             </h1>
 
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               معالجة **لحظية** لبيانات الموقع عند الإذن فقط — لعرض أقرب صالون، **دون تخزين أو تتبع تاريخي**، وفق نظام حماية البيانات الشخصية (PDPL).
             </p>
+            <div className="mt-8 mx-auto h-px max-w-sm bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </motion.div>
       </div>

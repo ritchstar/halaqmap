@@ -167,7 +167,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
   return (
     <div
-      className="flex min-h-dvh flex-col bg-gradient-to-b from-[#061223] via-background to-background pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] md:pb-0"
+      className="platform-dark flex min-h-dvh flex-col bg-gradient-to-b from-[#061223] via-background to-background pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] md:pb-0"
       dir="rtl"
     >
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>

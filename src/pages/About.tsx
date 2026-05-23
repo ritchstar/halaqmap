@@ -68,32 +68,47 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* خلفية التكتير المتحركة */}
+      <div className="pointer-events-none fixed inset-0 opacity-[0.025]"
+        style={{ backgroundImage: 'linear-gradient(rgba(20,184,166,1) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,1) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative py-24 overflow-hidden"
+        transition={{ duration: 0.7 }}
+        className="relative py-28 overflow-hidden"
       >
+        {/* الخلفية المدمجة: صورة + توهجات تيل */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={IMAGES.BARBER_SHOP_5}
-            alt=""
-            className="w-full h-full object-cover opacity-20"
+          <img src={IMAGES.BARBER_SHOP_5} alt="" className="w-full h-full object-cover opacity-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/75 to-background" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,rgba(20,184,166,0.15),transparent_70%)]" />
+          <motion.div
+            className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,175,55,0.08),transparent_50%)]"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 5, repeat: Infinity }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
             className="text-center max-w-4xl mx-auto"
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-l from-primary via-accent to-primary bg-clip-text text-transparent">
+            {/* شارة القسم */}
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary">
+              ✦ حلاق ماب
+            </div>
+            <h1 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-l from-primary via-accent to-primary bg-clip-text text-transparent">
               من نحن
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">{PLATFORM_ABOUT_HERO_SUBTITLE}</p>
+
+            {/* خط توهج سفلي */}
+            <div className="mt-10 mx-auto h-px max-w-xs bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </motion.div>
         </div>
       </motion.section>
