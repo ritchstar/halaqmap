@@ -14,7 +14,7 @@ import {
   Sparkles, ChevronDown, Globe2, Users, Award, BarChart3,
   Crown, Zap, Navigation2, Phone, MessageCircle, Lock,
   TrendingUp, QrCode, ImageIcon, Brain, Moon, FileCheck,
-  ChevronLeft, ArrowRight, Wifi
+  ChevronLeft, ArrowRight, Wifi, Menu
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
@@ -286,60 +286,135 @@ export default function PartnerMarketingPreview() {
   return (
     <div dir="rtl" className="relative min-h-screen overflow-x-hidden bg-[#020912] text-slate-100" style={{ fontFamily: 'Tajawal, system-ui' }}>
 
-      {/* شريط مدن المملكة + أزرار عائمة */}
-      <div className="relative z-[60]"><KSACityClocksBar /></div>
+      {/* أزرار عائمة */}
       <FloatingPlatformActions />
 
-      {/* ── Grid texture ─────────────────────────────────────────────────── */}
+      {/* ── شبكة التكتير الخلفية ──────────────────────────────────────────── */}
       <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.02]"
         style={{ backgroundImage: 'linear-gradient(rgba(245,158,11,1) 1px,transparent 1px),linear-gradient(90deg,rgba(245,158,11,1) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
 
-      {/* ── Nav ──────────────────────────────────────────────────────────── */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-[#020912]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5">
-          <a href={`/#${ROUTE_PATHS.HOME}`} className="flex items-center gap-2.5 no-underline">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-700 shadow shadow-amber-500/30">
-              <Scissors className="h-4 w-4 text-black" />
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-black text-white">حلاق ماب</div>
-              <div className="text-[0.5rem] font-semibold tracking-widest text-amber-500/70">مسار الخدمات التسويقية</div>
-            </div>
-          </a>
-          <nav className="hidden items-center gap-5 md:flex text-xs">
-            {[
-              { label: 'كيف تنضم', id: 'كيف تنضم' },
-              { label: 'مزايا الباقات', id: 'مزايا الباقات' },
-              { label: 'الأسعار', id: 'الأسعار' },
-              { label: 'معاينة البنرات', id: 'معاينة البنرات' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2">
-            <a href={`/#${ROUTE_PATHS.HOME}`}
-              className="hidden items-center gap-1.5 text-[0.65rem] text-slate-500 hover:text-teal-400 transition-colors md:flex">
-              <ArrowRight className="h-3 w-3" /> للمستخدمين
+      {/* ══════════════════════════════════════════════════════════════════
+          الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
+          ══════════════════════════════════════════════════════════════════ */}
+      <header className="fixed inset-x-0 top-0 z-50 transition-all duration-500">
+
+        {/* خلفية زجاجية */}
+        <div className="absolute inset-0 bg-[#020912]/94 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.5)]" />
+
+        {/* ── شريط مدن المملكة ────────────────────────────────────────── */}
+        <div className="relative border-b border-amber-400/10">
+          <KSACityClocksBar />
+        </div>
+
+        {/* ── التنقل الرئيسي ──────────────────────────────────────────── */}
+        <div className="relative">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
+
+            {/* الشعار */}
+            <a href={`/#${ROUTE_PATHS.HOME}`} className="flex items-center gap-3 no-underline">
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-700/20 blur-sm" />
+                <motion.div
+                  className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-amber-400/30 bg-gradient-to-br from-[#2a1a00] to-[#020912] shadow-[0_0_20px_rgba(245,158,11,0.25),inset_0_1px_0_rgba(251,191,36,0.15)]"
+                  whileHover={{ scale: 1.08, rotate: -12 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                >
+                  <Scissors className="h-4 w-4 text-amber-300" />
+                </motion.div>
+              </div>
+              <div className="leading-tight">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[0.95rem] font-black tracking-wide text-white">حلاق ماب</span>
+                  <motion.div
+                    animate={{ opacity: [0.4, 1, 0.4] }}
+                    transition={{ duration: 2.5, repeat: Infinity }}
+                    className="h-1.5 w-1.5 rounded-full bg-amber-400"
+                  />
+                </div>
+                <div className="text-[0.48rem] font-bold tracking-[0.25em] text-amber-400/55">مسار الشركاء · B2B</div>
+              </div>
+              {/* شارة الشركاء */}
+              <div className="hidden items-center gap-1 rounded-full border border-amber-400/20 bg-amber-500/8 px-2.5 py-1 sm:flex">
+                <motion.div
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2.5, repeat: Infinity }}
+                  className="h-1.5 w-1.5 rounded-full bg-amber-400"
+                />
+                <span className="text-[0.55rem] font-bold text-amber-300/80">مسار نشط</span>
+              </div>
             </a>
-            <button
-              onClick={() => navigate(ROUTE_PATHS.REGISTER)}
-              className="rounded-lg bg-gradient-to-r from-amber-500 to-amber-700 px-4 py-2 text-xs font-bold text-black shadow shadow-amber-500/30 hover:from-amber-400"
-            >
-              ابدأ الانضمام
-            </button>
+
+            {/* ── روابط التنقل ──────────────────────────────────────────── */}
+            <nav className="hidden items-center gap-1 md:flex" dir="rtl">
+              {[
+                { label: 'كيف تنضم',      id: 'كيف تنضم',      icon: Navigation2 },
+                { label: 'مزايا الباقات', id: 'مزايا الباقات', icon: Sparkles },
+                { label: 'الأسعار',       id: 'الأسعار',       icon: Crown },
+                { label: 'معاينة البنرات',id: 'معاينة البنرات',icon: ImageIcon },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-400 transition-all hover:bg-amber-500/8 hover:text-amber-200 cursor-pointer"
+                >
+                  <item.icon className="h-3.5 w-3.5 text-amber-500/45 transition-colors group-hover:text-amber-400" />
+                  {item.label}
+                </button>
+              ))}
+
+              <div className="mx-1 h-5 w-px bg-white/10" />
+
+              {/* رابط المستخدمين */}
+              <a
+                href={`/#${ROUTE_PATHS.HOME}`}
+                className="group flex items-center gap-1.5 rounded-xl border border-teal-400/15 bg-teal-500/5 px-3.5 py-2 text-[0.78rem] font-semibold text-teal-400/65 transition-all hover:border-teal-400/35 hover:bg-teal-500/10 hover:text-teal-300"
+              >
+                <Globe2 className="h-3.5 w-3.5" />
+                للمستخدمين
+                <ArrowRight className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+              </a>
+            </nav>
+
+            {/* ── زر التسجيل ───────────────────────────────────────────── */}
+            <div className="flex items-center gap-2">
+              <motion.button
+                onClick={() => navigate(ROUTE_PATHS.REGISTER)}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 px-4 py-2.5 text-xs font-black text-black shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.5)]"
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-transparent"
+                  animate={{ x: ['-100%', '200%'] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 1.5 }}
+                />
+                <span className="relative flex items-center gap-1.5">
+                  <Scissors className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">سجّل صالونك</span>
+                  <span className="sm:hidden">انضم</span>
+                </span>
+              </motion.button>
+
+              {/* موبايل — أيقونة القائمة */}
+              <button
+                type="button"
+                onClick={() => setScrolled((s) => !s)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 md:hidden"
+                aria-label="القائمة"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+            </div>
           </div>
+
+          {/* خط التوهج السفلي — ذهبي */}
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
         </div>
       </header>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[100dvh] overflow-hidden pt-20">
+      <section className="relative min-h-[100dvh] overflow-hidden pt-24">
         <div className="pointer-events-none absolute -right-80 top-0 h-[700px] w-[700px] rounded-full bg-amber-500/6 blur-[150px]" />
         <div className="pointer-events-none absolute -left-60 bottom-0 h-[500px] w-[500px] rounded-full bg-teal-500/5 blur-[130px]" />
 
