@@ -25,7 +25,7 @@ export const DIGITAL_SHIFT_MONTHLY_ADDON_SAR = 25;
 export const DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR = 'إضافة برمجية متقدمة · Software Add-on';
 
 export const DIGITAL_SHIFT_ADDON_VALUE_AR =
-  'إضافة «المناوب الرقمي الذكي» تعزّز قيمة رخصة النفاذ الماسية — أتمتة ضيافة الشات والاستجابة الذكية للطلب، منفصلة عن حزمة النفاذ الأساسية.';
+  'إضافة «المناوب الرقمي الذكي» تعزّز رخصة النفاذ الماسية — يرد على الشات عند الإغلاق أو تأخر الرد، يرحّب بالعميل، ويساعد على تنظيم الاستجابة بدون ضغط تشغيل دائم.';
 
 export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
   'إضافة برمجية متقدمة: المناوب الرقمي الذكي (+25 ر.س/حزمة نفاذ)';

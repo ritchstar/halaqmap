@@ -1,8 +1,11 @@
-import { MAP_FEATURE_PARTNER_SUBTITLE } from '@/config/platformSmartTracking';
+import {
+  MAP_FEATURE_PARTNER_SUBTITLE,
+  PLATFORM_HERO_BADGE,
+} from '@/config/platformSmartTracking';
 
-/** الميزة الأساسية المشتركة لجميع الباقات — نظام الرصد الذكي على المنصة */
+/** الميزة الأساسية المشتركة لجميع الباقات — نظام الاستجابة الذكية على المنصة */
 export const MAP_FEATURE_HERO = {
-  title: 'نظام الرصد الذكي في حلاق ماب',
+  title: PLATFORM_HERO_BADGE,
   subtitle: MAP_FEATURE_PARTNER_SUBTITLE,
 } as const;
 
@@ -13,11 +16,11 @@ export const SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND =
   'تحكم كامل بحالة «مفتوح الآن / مغلق» من لوحة الإدارة، مع رابط سريع للطوارئ أو التحديث من الجوال.';
 
 /** نص زر فتح الموقع من نافذة تفاصيل الصالون (للعميل) */
-export const CUSTOMER_MAP_CTA = 'عرض الموقع على نظام الرصد الذكي لحلاق ماب';
+export const CUSTOMER_MAP_CTA = 'عرض الموقع بعد الاستجابة الذكية لحلاق ماب';
 
 /** ذهبي: لوحة التحكم للمحتوى والصور (من دون تسليط جدولة المواعيد كميزة ماسية) */
 export const BARBER_DASHBOARD_GOLD_LINE =
-  'لوحة تحكم سهلة لتحديث المنيو والأسعار وصور المحل متى احتجت، بدون انتظار تعديلات يدوية.';
+  'لوحة تحكم سهلة لتحديث المنيو والأسعار وصور المحل متى احتجت — لا تنتظر أحداً ليعدّل ملفك.';
 
 /** ماسي — اللوحة (منيو، أسعار، صور) */
 export const BARBER_DASHBOARD_DIAMOND_PORTAL_LINE =
@@ -25,4 +28,4 @@ export const BARBER_DASHBOARD_DIAMOND_PORTAL_LINE =
 
 /** ماسي — جدولة المواعيد من اللوحة */
 export const BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE =
-  'جدولة المواعيد ومتابعة الحجوزات من نفس اللوحة — تنظيم أوضح لوقت الصالون وتجربة أكثر راحة للعميل.';
+  'جدولة المواعيد ومتابعة الحجوزات من نفس اللوحة — تنظيم أوضح لوقت الصالون وتقليل اتصالات التنسيق المتكررة.';

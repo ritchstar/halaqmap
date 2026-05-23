@@ -64,14 +64,14 @@ export const DIGITAL_SHIFT_MONTHLY_ADDON_SAR = 25;
 export const DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR = 'إضافة برمجية متقدمة · Software Add-on';
 
 export const DIGITAL_SHIFT_ADDON_VALUE_AR =
-  'إضافة «المناوب الرقمي الذكي» تعزّز قيمة رخصة النفاذ الماسية — أتمتة ضيافة الشات والاستجابة الذكية للطلب، منفصلة عن حزمة النفاذ الأساسية.';
+  'إضافة «المناوب الرقمي الذكي» تعزّز رخصة النفاذ الماسية — يرد على الشات عند الإغلاق أو تأخر الرد، يرحّب بالعميل، ويساعد على تنظيم الاستجابة بدون ضغط تشغيل دائم.';
 
 export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
   'إضافة برمجية متقدمة: المناوب الرقمي الذكي (+25 ر.س/حزمة نفاذ)';
 
 /** خيارات منتج الباقة الماسية — واجهة التسعير */
 export const DIAMOND_LICENSE_TECHNICAL_VALUE_AR =
-  'أقوى رخصة نفاذ ضمن نظام الاستجابة الذكية — أعلى أولوية ظهور برمجي عند تنشّط الطلب في محيطك';
+  'أقوى رخصة نفاذ للصالونات الجادة: صدارة في الطلبات القريبة، صورة أقوى، وتنظيم مواعيد أفضل';
 
 export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية — رخصة نفاذ';
 export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المناوب (Add-on)';
@@ -80,7 +80,7 @@ export const DIAMOND_PRODUCT_STANDARD_HINT_AR =
 export const DIAMOND_PRODUCT_SMART_HINT_AR =
   'رخصة نفاذ ماسية + إضافة برمجية متقدمة — 225 ر.س/حزمة (+25 Add-on)';
 export const DIAMOND_ADDON_OPTION_LINE_AR =
-  'إضافة برمجية متقدمة اختيارية: المناوب الرقمي الذكي (Add-on) يعزّز كفاءة الاستجابة عند الطلب';
+  'Add-on اختياري: المناوب الرقمي الذكي يساعدك لا تترك الشات بلا رد عند الإغلاق أو الانشغال';
 
 /** اسم المنتج — إضافة برمجية */
 export const DIGITAL_SHIFT_PRODUCT_NAME_AR = 'المناوب الرقمي الذكي 🌙';

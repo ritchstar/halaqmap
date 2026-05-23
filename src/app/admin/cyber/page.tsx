@@ -177,45 +177,45 @@ export default function AdminCyberOperationsPage() {
         </button>
       </header>
 
-      {/* Main split — canvas + side rail */}
-      <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-        {/* Canvas — takes the wide half on desktop, top half on mobile */}
-        <section className="relative flex-1 overflow-hidden">
-          <CyberRadarCanvas pulses={pulses} narrator={narrator} />
-          {/* Stats strip overlaid bottom-left on the canvas */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 via-black/30 to-transparent">
-            <div className="pointer-events-auto">
-              <CyberStatsStrip
-                pulses={pulses}
-                threatsBlocked={threatsBlocked}
-                mode={mode}
-                liveConnected={mode === 'live' ? live.liveConnected : true}
-              />
-            </div>
-          </div>
-        </section>
+      {/* Radar theater — the map stays primary; controls float above it. */}
+      <div className="relative flex-1 overflow-hidden">
+        <CyberRadarCanvas pulses={pulses} narrator={narrator} />
 
-        {/* Side rail */}
-        <aside className="flex shrink-0 flex-col gap-3 overflow-y-auto border-t border-white/5 bg-black/40 p-3 backdrop-blur-md lg:w-[22rem] lg:border-l lg:border-t-0 xl:w-[24rem]">
-          <ScenarioControlPanel
-            mode={mode}
-            setMode={setMode}
-            scenarios={CYBER_SCENARIOS}
-            activeScenarioId={activeScenarioId}
-            setActiveScenarioId={setActiveScenarioId}
-            state={playback.state}
-            elapsedMs={playback.elapsedMs}
-            onPlay={playback.play}
-            onPause={playback.pause}
-            onReset={playback.reset}
-          />
-          <div>
+        {/* Top-left control deck (RTL visual: appears on the right edge). */}
+        <aside className="pointer-events-none absolute inset-x-3 top-3 z-20 flex max-h-[calc(100%-5.5rem)] flex-col gap-3 overflow-y-auto md:inset-x-auto md:right-3 md:w-[22rem] xl:w-[24rem]">
+          <div className="pointer-events-auto">
+            <ScenarioControlPanel
+              mode={mode}
+              setMode={setMode}
+              scenarios={CYBER_SCENARIOS}
+              activeScenarioId={activeScenarioId}
+              setActiveScenarioId={setActiveScenarioId}
+              state={playback.state}
+              elapsedMs={playback.elapsedMs}
+              onPlay={playback.play}
+              onPause={playback.pause}
+              onReset={playback.reset}
+            />
+          </div>
+          <div className="pointer-events-auto rounded-xl border border-white/10 bg-black/45 p-3 backdrop-blur-md">
             <h2 className="mb-2 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
               مَلَفّ تَفاعل الوَكلاء
             </h2>
             <AgentResponseFeed entries={agentLog} />
           </div>
         </aside>
+
+        {/* Stats strip is always on the radar, never below it. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 via-black/30 to-transparent">
+          <div className="pointer-events-auto">
+            <CyberStatsStrip
+              pulses={pulses}
+              threatsBlocked={threatsBlocked}
+              mode={mode}
+              liveConnected={mode === 'live' ? live.liveConnected : true}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
