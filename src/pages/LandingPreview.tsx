@@ -13,7 +13,8 @@ import {
   CheckCircle2, Clock, ArrowLeft, Sparkles,
   Navigation2, ChevronDown, Globe2, Lock,
   Users, Award, Wifi, TrendingUp, Play, X,
-  Phone, MessageCircle, Heart, BarChart3, Crown, Menu
+  Phone, MessageCircle, Heart, BarChart3, Crown, Menu,
+  Building2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
@@ -415,7 +416,7 @@ export default function LandingPreview() {
               </div>
             </a>
 
-            {/* ── روابط التنقل ────────────────── */}
+            {/* ── روابط التنقل (للمستخدمين فقط) ── */}
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
               {[
                 { label: 'كيف يعمل', icon: Navigation2, id: 'كيف يعمل' },
@@ -432,22 +433,9 @@ export default function LandingPreview() {
                   {item.label}
                 </button>
               ))}
-
-              {/* خط فاصل أنيق */}
-              <div className="mx-1 h-5 w-px bg-white/10" />
-
-              {/* رابط الشركاء */}
-              <a
-                href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
-                className="group flex items-center gap-1.5 rounded-xl border border-amber-400/15 bg-amber-500/5 px-3.5 py-2 text-[0.78rem] font-semibold text-amber-400/65 transition-all hover:border-amber-400/35 hover:bg-amber-500/10 hover:text-amber-300"
-              >
-                <Globe2 className="h-3.5 w-3.5" />
-                للمنشآت
-                <span className="rounded-sm bg-amber-400/15 px-1 py-0.5 text-[0.5rem] font-black tracking-wider text-amber-400/70">B2B</span>
-              </a>
             </nav>
 
-            {/* ── زر البحث الرئيسي ────────────── */}
+            {/* ── زر البحث + أيقونة B2B مُدمَجة ── */}
             <div className="flex items-center gap-2">
               {/* زر البحث */}
               <motion.button
@@ -471,6 +459,23 @@ export default function LandingPreview() {
                   <span className="sm:hidden">بحث</span>
                 </span>
               </motion.button>
+
+              {/* ── فاصل رفيع ── */}
+              <div className="hidden h-6 w-px bg-white/12 md:block" />
+
+              {/* ── أيقونة B2B — للمنشآت والصالونات ── */}
+              <a
+                href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
+                title="مسار الخدمات التسويقية للمنشآت — B2B"
+                className="group relative hidden h-9 w-9 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-500/8 text-amber-400/70 transition-all hover:border-amber-400/50 hover:bg-amber-500/15 hover:text-amber-300 md:flex"
+                aria-label="مسار الشركاء B2B"
+              >
+                <Building2 className="h-4 w-4" />
+                {/* شارة B2B صغيرة */}
+                <span className="absolute -bottom-1.5 -left-1 rounded-full bg-amber-500 px-1 py-0 text-[0.42rem] font-black leading-tight tracking-wider text-black">
+                  B2B
+                </span>
+              </a>
 
               {/* زر القائمة — موبايل */}
               <button
