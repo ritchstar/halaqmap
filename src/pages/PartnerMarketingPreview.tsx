@@ -107,16 +107,16 @@ function BarberCardPreview({ tier }: { tier: 'bronze' | 'gold' | 'diamond' }) {
         ))}
       </div>
       <div className="flex gap-2">
-        <button className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-teal-500/15 px-2 py-2 text-[0.65rem] font-semibold text-teal-300">
-          <Navigation2 className="h-3 w-3" /> الاتجاهات
-        </button>
-        <button className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-500/15 px-2 py-2 text-[0.65rem] font-semibold text-emerald-300">
-          <Phone className="h-3 w-3" /> اتصال
-        </button>
+        <a href={`/#${ROUTE_PATHS.HOME}`} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-teal-500/15 px-2 py-2 text-[0.65rem] font-semibold text-teal-300 hover:bg-teal-500/25 transition-colors">
+          <Navigation2 className="h-3 w-3" /> اكتشف القريب
+        </a>
+        <a href={`/#${ROUTE_PATHS.REGISTER}`} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-amber-500/15 px-2 py-2 text-[0.65rem] font-semibold text-amber-300 hover:bg-amber-500/25 transition-colors">
+          <Phone className="h-3 w-3" /> سجّل صالونك
+        </a>
         {d.hasChat && (
-          <button className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-violet-500/15 px-2 py-2 text-[0.65rem] font-semibold text-violet-300">
-            <MessageCircle className="h-3 w-3" /> شات
-          </button>
+          <a href={`/#${ROUTE_PATHS.REGISTER}?tier=diamond`} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-violet-500/15 px-2 py-2 text-[0.65rem] font-semibold text-violet-300 hover:bg-violet-500/25 transition-colors">
+            <MessageCircle className="h-3 w-3" /> ماسي
+          </a>
         )}
       </div>
     </div>
@@ -297,7 +297,7 @@ export default function PartnerMarketingPreview() {
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-[#020912]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5">
-          <div className="flex items-center gap-2.5">
+          <a href={`/#${ROUTE_PATHS.HOME}`} className="flex items-center gap-2.5 no-underline">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-700 shadow shadow-amber-500/30">
               <Scissors className="h-4 w-4 text-black" />
             </div>
@@ -305,19 +305,19 @@ export default function PartnerMarketingPreview() {
               <div className="text-sm font-black text-white">حلاق ماب</div>
               <div className="text-[0.5rem] font-semibold tracking-widest text-amber-500/70">مسار الخدمات التسويقية</div>
             </div>
-          </div>
+          </a>
           <nav className="hidden items-center gap-5 md:flex text-xs">
             {['كيف تنضم', 'مزايا الباقات', 'الأسعار', 'معاينة البنرات'].map((item) => (
               <a key={item} href={`#${item}`} className="text-slate-400 hover:text-amber-300 transition-colors">{item}</a>
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <a href={`/#${ROUTE_PATHS.LANDING_PREVIEW}`}
+            <a href={`/#${ROUTE_PATHS.HOME}`}
               className="hidden items-center gap-1.5 text-[0.65rem] text-slate-500 hover:text-teal-400 transition-colors md:flex">
               <ArrowRight className="h-3 w-3" /> للمستخدمين
             </a>
             <button
-              onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
+              onClick={() => navigate(ROUTE_PATHS.REGISTER)}
               className="rounded-lg bg-gradient-to-r from-amber-500 to-amber-700 px-4 py-2 text-xs font-bold text-black shadow shadow-amber-500/30 hover:from-amber-400"
             >
               ابدأ الانضمام
@@ -370,7 +370,7 @@ export default function PartnerMarketingPreview() {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
-                onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
+                onClick={() => navigate(ROUTE_PATHS.REGISTER)}
                 className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 px-8 py-4 font-bold text-black shadow-xl shadow-amber-500/25 hover:from-amber-400"
               >
                 <Scissors className="h-4 w-4" /> ابدأ رحلة الانضمام
@@ -792,7 +792,7 @@ export default function PartnerMarketingPreview() {
             <div dir="rtl">
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">المستخدمون</h4>
               <div className="flex flex-col gap-2.5">
-                <a href={`/#${ROUTE_PATHS.LANDING_PREVIEW}`} className="text-sm text-slate-500 hover:text-teal-400 transition-colors">ابحث عن حلاق ↗</a>
+                <a href={`/#${ROUTE_PATHS.HOME}`} className="text-sm text-slate-500 hover:text-teal-400 transition-colors">ابحث عن حلاق ↗</a>
                 <a href={`/#${ROUTE_PATHS.PARTNER_PRIVACY}`} className="text-sm text-slate-500 hover:text-teal-400">سياسة الخصوصية</a>
                 <a href={`/#${ROUTE_PATHS.TERMS_OF_SERVICE}`} className="text-sm text-slate-500 hover:text-teal-400">شروط الاستخدام</a>
               </div>

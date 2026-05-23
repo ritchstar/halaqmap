@@ -189,11 +189,17 @@ function BarberPopup({ beacon, onClose }: { beacon: typeof DEMO_BEACONS[0]; onCl
         </div>
       </div>
       <div className="flex gap-2">
-        <button className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-teal-500/20 px-2 py-1.5 text-[0.65rem] font-semibold text-teal-200">
-          <Navigation2 className="h-3 w-3" /> الاتجاهات
+        <button
+          onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
+          className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-teal-500/20 px-2 py-1.5 text-[0.65rem] font-semibold text-teal-200 hover:bg-teal-500/35 transition-colors"
+        >
+          <Navigation2 className="h-3 w-3" /> ابحث قريبك
         </button>
-        <button className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-500/20 px-2 py-1.5 text-[0.65rem] font-semibold text-emerald-200">
-          <Phone className="h-3 w-3" /> اتصال
+        <button
+          onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
+          className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-500/20 px-2 py-1.5 text-[0.65rem] font-semibold text-emerald-200 hover:bg-emerald-500/35 transition-colors"
+        >
+          <Phone className="h-3 w-3" /> تواصل
         </button>
       </div>
     </motion.div>
@@ -372,7 +378,7 @@ export default function LandingPreview() {
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
 
             {/* ── الشعار (يمين في RTL) ────────── */}
-            <div className="flex items-center gap-3">
+            <a href={`/#${ROUTE_PATHS.HOME}`} className="flex items-center gap-3 no-underline">
               {/* أيقونة المقص الدوّارة */}
               <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-400/20 to-teal-700/20 blur-sm" />
@@ -407,7 +413,7 @@ export default function LandingPreview() {
                 />
                 <span className="text-[0.55rem] font-bold text-emerald-300/80">رادار نشط</span>
               </div>
-            </div>
+            </a>
 
             {/* ── روابط التنقل ────────────────── */}
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
@@ -1098,7 +1104,7 @@ export default function LandingPreview() {
               </p>
               <div className="flex items-center gap-2">
                 <a
-                  href={`/#${ROUTE_PATHS.LANDING_PARTNERS_PREVIEW}`}
+                  href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
                   className="rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1 text-[0.6rem] font-semibold text-amber-400/60 hover:text-amber-300"
                 >
                   للمنشآت · B2B ↗
