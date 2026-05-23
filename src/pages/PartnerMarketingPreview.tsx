@@ -307,8 +307,20 @@ export default function PartnerMarketingPreview() {
             </div>
           </a>
           <nav className="hidden items-center gap-5 md:flex text-xs">
-            {['كيف تنضم', 'مزايا الباقات', 'الأسعار', 'معاينة البنرات'].map((item) => (
-              <a key={item} href={`#${item}`} className="text-slate-400 hover:text-amber-300 transition-colors">{item}</a>
+            {[
+              { label: 'كيف تنضم', id: 'كيف تنضم' },
+              { label: 'مزايا الباقات', id: 'مزايا الباقات' },
+              { label: 'الأسعار', id: 'الأسعار' },
+              { label: 'معاينة البنرات', id: 'معاينة البنرات' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+              >
+                {item.label}
+              </button>
             ))}
           </nav>
           <div className="flex items-center gap-2">
@@ -779,7 +791,7 @@ export default function PartnerMarketingPreview() {
               <div className="flex flex-col gap-2.5 text-sm text-slate-500">
                         {[
                   { label: 'التسجيل', href: `/#${ROUTE_PATHS.REGISTER}` },
-                  { label: 'الباقات والأسعار', href: '#الأسعار' },
+                  { label: 'الباقات والأسعار', href: `/#${ROUTE_PATHS.BARBERS_LANDING}` },
                   { label: 'سياسة الحزم', href: `/#${ROUTE_PATHS.SUBSCRIPTION_POLICY}` },
                   { label: 'لوحة الشريك', href: `/#${ROUTE_PATHS.BARBER_LOGIN}` },
                   { label: 'خدمة العملاء', href: `/#${ROUTE_PATHS.PARTNER_SUPPORT}` },

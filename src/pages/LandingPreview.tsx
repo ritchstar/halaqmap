@@ -418,18 +418,19 @@ export default function LandingPreview() {
             {/* ── روابط التنقل ────────────────── */}
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
               {[
-                { label: 'كيف يعمل', icon: Navigation2, href: '#كيف يعمل' },
-                { label: 'المميزات',  icon: Sparkles,   href: '#المميزات' },
-                { label: 'الأسعار',  icon: Crown,      href: '#الأسعار' },
+                { label: 'كيف يعمل', icon: Navigation2, id: 'كيف يعمل' },
+                { label: 'المميزات',  icon: Sparkles,   id: 'المميزات' },
+                { label: 'الأسعار',  icon: Crown,      id: 'الأسعار' },
               ].map((item) => (
-                <a
+                <button
                   key={item.label}
-                  href={item.href}
-                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-400 transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200"
+                  type="button"
+                  onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-400 transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
                 >
                   <item.icon className="h-3.5 w-3.5 text-teal-500/50 transition-colors group-hover:text-teal-400" />
                   {item.label}
-                </a>
+                </button>
               ))}
 
               {/* خط فاصل أنيق */}
@@ -499,9 +500,23 @@ export default function LandingPreview() {
             >
               <nav className="flex flex-col gap-1 px-5 py-4" dir="rtl">
                 {[
-                  { label: 'كيف يعمل', href: '#كيف يعمل' },
-                  { label: 'المميزات', href: '#المميزات' },
-                  { label: 'الأسعار', href: '#الأسعار' },
+                  { label: 'كيف يعمل', sectionId: 'كيف يعمل' },
+                  { label: 'المميزات', sectionId: 'المميزات' },
+                  { label: 'الأسعار', sectionId: 'الأسعار' },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      setMobileNavOpen(false);
+                      setTimeout(() => document.getElementById(item.sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+                    }}
+                    className="rounded-xl px-4 py-3 text-right text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                {[
                   { label: 'للمنشآت B2B', href: `/#${ROUTE_PATHS.BARBERS_LANDING}` },
                   { label: 'آراء المستخدمين', href: `/#${ROUTE_PATHS.PLATFORM_REVIEWS}` },
                 ].map((item) => (
@@ -1116,8 +1131,14 @@ export default function LandingPreview() {
             <div>
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">روابط</h4>
               <div className="flex flex-col gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="text-right text-sm text-slate-500 hover:text-teal-400 transition-colors"
+                >
+                  ابحث عن حلاق الآن
+                </button>
                 {[
-                  { label: 'ابحث عن حلاق الآن', href: '#search-anchor' },
                   { label: 'آراء المستخدمين ⭐', href: `/#${ROUTE_PATHS.PLATFORM_REVIEWS}` },
                   { label: 'من نحن', href: `/#${ROUTE_PATHS.ABOUT}` },
                   { label: 'سياسة الخصوصية', href: `/#${ROUTE_PATHS.USER_PRIVACY_POLICY}` },
