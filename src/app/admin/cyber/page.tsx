@@ -177,13 +177,18 @@ export default function AdminCyberOperationsPage() {
         </button>
       </header>
 
-      {/* Radar theater — the map stays primary; controls float above it. */}
-      <div className="relative flex-1 overflow-hidden">
-        <CyberRadarCanvas pulses={pulses} narrator={narrator} />
+      {/* Radar theater — the radar stays unobstructed; data banners surround it. */}
+      <div className="grid min-h-0 flex-1 gap-3 overflow-hidden p-3 lg:grid-cols-[15rem_minmax(0,1fr)_17rem] lg:grid-rows-[auto_minmax(0,1fr)_auto] xl:grid-cols-[17rem_minmax(0,1fr)_19rem]">
+        <section className="order-2 min-h-[18rem] overflow-hidden rounded-2xl border border-cyan-300/20 bg-black shadow-[0_0_60px_rgba(34,211,238,0.10)] lg:order-none lg:col-start-2 lg:row-start-2 lg:min-h-0">
+          <CyberRadarCanvas pulses={pulses} narrator={null} />
+        </section>
 
-        {/* Top-left control deck (RTL visual: appears on the right edge). */}
-        <aside className="pointer-events-none absolute inset-x-3 top-3 z-20 flex max-h-[calc(100%-5.5rem)] flex-col gap-3 overflow-y-auto md:inset-x-auto md:right-3 md:w-[22rem] xl:w-[24rem]">
-          <div className="pointer-events-auto">
+        <div className="order-1 rounded-xl border border-amber-400/30 bg-black/65 px-4 py-2 text-center text-sm font-semibold leading-relaxed text-amber-100 shadow-[0_0_35px_rgba(245,158,11,0.12)] backdrop-blur-md lg:order-none lg:col-start-2 lg:row-start-1">
+          {narrator ?? 'الرادار في وضع المراقبة الحية — كل النبضات الأمنية تظهر على الخريطة دون تغطية.'}
+        </div>
+
+        <aside className="order-3 min-h-0 overflow-y-auto rounded-2xl border border-amber-400/20 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
+          <div>
             <ScenarioControlPanel
               mode={mode}
               setMode={setMode}
@@ -197,24 +202,22 @@ export default function AdminCyberOperationsPage() {
               onReset={playback.reset}
             />
           </div>
-          <div className="pointer-events-auto rounded-xl border border-white/10 bg-black/45 p-3 backdrop-blur-md">
-            <h2 className="mb-2 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
-              مَلَفّ تَفاعل الوَكلاء
-            </h2>
-            <AgentResponseFeed entries={agentLog} />
-          </div>
         </aside>
 
-        {/* Stats strip is always on the radar, never below it. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 via-black/30 to-transparent">
-          <div className="pointer-events-auto">
-            <CyberStatsStrip
-              pulses={pulses}
-              threatsBlocked={threatsBlocked}
-              mode={mode}
-              liveConnected={mode === 'live' ? live.liveConnected : true}
-            />
-          </div>
+        <aside className="order-4 min-h-0 overflow-y-auto rounded-2xl border border-white/10 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1">
+          <h2 className="mb-2 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
+            مَلَفّ تَفاعل الوَكلاء
+          </h2>
+          <AgentResponseFeed entries={agentLog} />
+        </aside>
+
+        <div className="order-5 rounded-2xl border border-cyan-300/15 bg-black/55 backdrop-blur-md lg:order-none lg:col-span-3 lg:row-start-3">
+          <CyberStatsStrip
+            pulses={pulses}
+            threatsBlocked={threatsBlocked}
+            mode={mode}
+            liveConnected={mode === 'live' ? live.liveConnected : true}
+          />
         </div>
       </div>
     </div>
