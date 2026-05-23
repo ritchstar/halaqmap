@@ -1,12 +1,14 @@
 /**
- * GeoRadarButton — "دبوس الملك الجغرافي"
+ * GeoRadarButton — "دبوس الملك · خريطة المملكة"
  *
- * تركيب المفاهيم الخمسة في أيقونة واحدة متناسقة:
- *  ① شكل دبوس الخريطة  — مفهوم فوري لدى كل مستخدم
- *  ② تاج 5 أسنان       — أسنان GPS تبثّ إشارات (المنشأة ملكة حيّها)
- *  ③ مقص البوصلة       — ينفتح للبحث · يُغلَق لحظة الإيجاد
- *  ④ أقمار اصطناعية   — 3 جسيمات مدارية تنجذب للمركز عند التثبيت
- *  ⑤ LOCK ذهبية       — تظهر على إبرة الدبوس لحظة الاكتشاف
+ * التخطيط الداخلي: مخطط المملكة العربية السعودية
+ * الحالة الخاملة:
+ *   · خريطة المملكة تنبض بتيل ذهبي
+ *   · فقاعة زجاجية شفافة تطفو "اضغط هنا"
+ *   · نص "لتحديد موقعك" يتبعها بتأخير
+ *   · نجوم تتطاير حولهما
+ * الحالة النشطة: مقص يدور + خريطة تنبض بسرعة
+ * الاكتشاف: خريطة ذهبية + LOCK + إحداثيات
  */
 
 import { useState, useCallback, useRef } from 'react';
@@ -26,120 +28,95 @@ function toDMS(val: number, pos: string, neg: string): string {
   return `${pad(d)}° ${pad(m)}' ${pad(s)}" ${val >= 0 ? pos : neg}`;
 }
 
-// ─── Pin geometry ─────────────────────────────────────────────────────────────
-const CX = 100, CY = 92, R = 70;           // circle head center + radius
-const TIP_Y = 232;                           // needle tip Y
-// The pin path: left curve → top arc → right curve → tip
-const PIN_PATH = `M100,${TIP_Y} C78,212 28,172 28,${CY} A${R},${R} 0 1 1 172,${CY} C172,172 122,212 100,${TIP_Y}Z`;
+// ─── KSA Map outline (مخطط المملكة) — scale: 4px/°, center: 45.1E 23.95N → (100,92) ──
+const KSA_PATH =
+  'M58,70 L63,62 L68,59 L80,58 L88,60 L98,64 ' +
+  'L110,73 L114,69 L116,75 L122,87 L124,94 ' +
+  'L130,98 L140,97 L142,108 L138,115 L132,122 ' +
+  'L120,128 L96,129 L80,127 L66,126 ' +
+  'L64,115 L66,99 L62,80 Z';
 
-// Crown spike positions (5 spikes at -150°,-120°,-90°,-60°,-30°)
+// Main cities (Riyadh is capital)
+const KSA_CITIES = [
+  { x: 106, y: 89, r: 2.8, isCapital: true,  name: 'الرياض'  },
+  { x: 76,  y: 102, r: 2,  isCapital: false, name: 'جدة'     },
+  { x: 78,  y: 90,  r: 1.6, isCapital: false, name: 'المدينة' },
+  { x: 120, y: 82,  r: 1.8, isCapital: false, name: 'الدمام'  },
+  { x: 90,  y: 114, r: 1.5, isCapital: false, name: 'أبها'   },
+];
+
+// Pin geometry
+const CX = 100, CY = 92, R = 70, TIP_Y = 232;
+const PIN_PATH = `M${CX},${TIP_Y} C78,212 28,172 28,${CY} A${R},${R} 0 1 1 172,${CY} C172,172 122,212 ${CX},${TIP_Y}Z`;
+
+// Crown spikes
 const SPIKES = [-150, -120, -90, -60, -30].map((deg) => {
-  const θ = (deg * Math.PI) / 180;
-  const δ = (8 * Math.PI) / 180;
+  const θ = (deg * Math.PI) / 180, δ = (8 * Math.PI) / 180;
   return {
     b1: { x: +(CX + R * Math.cos(θ - δ)).toFixed(1), y: +(CY + R * Math.sin(θ - δ)).toFixed(1) },
-    tip: { x: +(CX + (R + 14) * Math.cos(θ)).toFixed(1), y: +(CY + (R + 14) * Math.sin(θ)).toFixed(1) },
+    tip: { x: +(CX + (R + 13) * Math.cos(θ)).toFixed(1), y: +(CY + (R + 13) * Math.sin(θ)).toFixed(1) },
     b2: { x: +(CX + R * Math.cos(θ + δ)).toFixed(1), y: +(CY + R * Math.sin(θ + δ)).toFixed(1) },
   };
 });
 
-// Fixed stars
-const STARS = Array.from({ length: 16 }, (_, i) => ({
-  cx: (i * 31 + 11) % 196 + 2,
-  cy: (i * 47 + 9) % 100 + 2,
-  r:  [0.5, 0.8, 0.6, 0.9, 0.5][i % 5],
-}));
+// Stars scattered around the text zone
+const STARS = [
+  { x: 70,  y: 108, r: 1.2, dur: 2.1, delay: 0.0 },
+  { x: 82,  y: 115, r: 0.9, dur: 1.7, delay: 0.4 },
+  { x: 94,  y: 118, r: 1.4, dur: 2.4, delay: 0.8 },
+  { x: 107, y: 113, r: 1.0, dur: 1.9, delay: 0.2 },
+  { x: 118, y: 108, r: 1.2, dur: 2.2, delay: 0.6 },
+  { x: 75,  y: 122, r: 0.8, dur: 1.6, delay: 1.0 },
+  { x: 88,  y: 125, r: 1.1, dur: 2.0, delay: 0.3 },
+  { x: 112, y: 121, r: 0.9, dur: 1.8, delay: 0.7 },
+  { x: 64,  y: 116, r: 0.7, dur: 2.3, delay: 0.9 },
+  { x: 126, y: 116, r: 0.8, dur: 1.5, delay: 0.5 },
+];
 
-// ─── Scissors inside pin circle ───────────────────────────────────────────────
-function ScissorIcon({ phase }: { phase: GeoPhase }) {
-  const isSearching = phase === 'searching';
-  const isFound = phase === 'found';
-  const isDenied = phase === 'denied';
-  const c = isDenied ? '#ef4444' : isFound ? '#fbbf24' : '#2dd4bf';
-
+// ─── Crown spike ──────────────────────────────────────────────────────────────
+function CrownSpike({ spike, phase, i }: { spike: typeof SPIKES[0]; phase: GeoPhase; i: number }) {
+  const isFound = phase === 'found', isSearching = phase === 'searching';
+  const c = isFound ? 'rgba(251,191,36,0.88)' : 'rgba(20,184,166,0.58)';
+  const f = isFound ? 'rgba(251,191,36,0.28)' : 'rgba(20,184,166,0.10)';
   return (
     <motion.g
-      animate={{ rotate: isSearching ? 360 : isFound ? 45 : 0 }}
-      transition={isSearching
+      animate={isSearching
+        ? { scale: [1, 1.22, 1], opacity: [0.6, 1, 0.6] }
+        : isFound
+          ? { scale: [1, 1.28, 1.12], opacity: [0.9, 1, 0.9] }
+          : { scale: [1, 1.06, 1], opacity: [0.55, 0.80, 0.55] }}
+      transition={{ duration: isSearching ? 0.85 : 2.2, delay: i * 0.12, repeat: Infinity }}
+      style={{ transformOrigin: `${spike.tip.x}px ${spike.tip.y}px` }}
+    >
+      <polygon points={`${spike.b1.x},${spike.b1.y} ${spike.tip.x},${spike.tip.y} ${spike.b2.x},${spike.b2.y}`}
+        fill={f} stroke={c} strokeWidth="1.2" strokeLinejoin="round" />
+    </motion.g>
+  );
+}
+
+// ─── Scissors icon ────────────────────────────────────────────────────────────
+function ScissorIcon({ phase }: { phase: GeoPhase }) {
+  const isFound = phase === 'found', c = isFound ? '#fbbf24' : '#2dd4bf';
+  return (
+    <motion.g
+      animate={{ rotate: phase === 'searching' ? 360 : isFound ? 45 : 0 }}
+      transition={phase === 'searching'
         ? { duration: 1.8, repeat: Infinity, ease: 'linear' }
         : { duration: 0.55, ease: [0.34, 1.56, 0.64, 1] }}
       style={{ transformOrigin: `${CX}px ${CY}px` }}
     >
-      {/* North blade */}
-      <path d={`M${CX},${CY} L${CX+10},${CY-24} L${CX+5},${CY-28} L${CX},${CY-12}Z`} fill={c} opacity={0.85} />
-      {/* South blade */}
-      <path d={`M${CX},${CY} L${CX-10},${CY+24} L${CX-5},${CY+28} L${CX},${CY+12}Z`} fill={c} opacity={0.80} />
-      {/* West blade */}
-      <path d={`M${CX},${CY} L${CX-24},${CY-10} L${CX-28},${CY-5} L${CX-12},${CY}Z`} fill={c} opacity={0.75} />
-      {/* East blade */}
-      <path d={`M${CX},${CY} L${CX+24},${CY+10} L${CX+28},${CY+5} L${CX+12},${CY}Z`} fill={c} opacity={0.80} />
-      {/* Pivot screw */}
-      <circle cx={CX} cy={CY} r={4} fill={`${isFound ? 'rgba(251,191,36,0.25)' : 'rgba(20,184,166,0.20)'}`} />
-      <circle cx={CX} cy={CY} r={isFound ? 2.8 : 2.2} fill={c} opacity={isFound ? 1 : 0.85} />
-      {/* Compass labels */}
-      {!isDenied && (
-        <g fill={c} opacity={isFound ? 0.65 : 0.32} fontSize="7.5"
-          fontFamily="Tajawal,system-ui" fontWeight="700" textAnchor="middle">
-          <text x={CX} y={CY - 52}>ش</text>
-          <text x={CX} y={CY + 62}>ج</text>
-          <text x={CX - 57} y={CY + 3}>غ</text>
-          <text x={CX + 57} y={CY + 3}>ق</text>
-        </g>
-      )}
-    </motion.g>
-  );
-}
-
-// ─── Crown spike ──────────────────────────────────────────────────────────────
-function CrownSpike({ spike, phase, i }: { spike: typeof SPIKES[0]; phase: GeoPhase; i: number }) {
-  const isFound = phase === 'found';
-  const isSearching = phase === 'searching';
-  const color = isFound ? 'rgba(251,191,36,0.90)' : 'rgba(20,184,166,0.60)';
-  const fill = isFound ? 'rgba(251,191,36,0.30)' : 'rgba(20,184,166,0.12)';
-
-  return (
-    <motion.g
-      animate={isSearching
-        ? { scale: [1, 1.25, 1], opacity: [0.6, 1, 0.6] }
-        : isFound
-          ? { scale: [1, 1.3, 1.15], opacity: [0.9, 1, 0.9] }
-          : { scale: [1, 1.08, 1], opacity: [0.6, 0.85, 0.6] }}
-      transition={{ duration: isSearching ? 0.9 : 2.2, delay: i * 0.12, repeat: Infinity, ease: 'easeInOut' }}
-      style={{ transformOrigin: `${spike.tip.x}px ${spike.tip.y}px` }}
-    >
-      <polygon
-        points={`${spike.b1.x},${spike.b1.y} ${spike.tip.x},${spike.tip.y} ${spike.b2.x},${spike.b2.y}`}
-        fill={fill} stroke={color} strokeWidth="1.2" strokeLinejoin="round"
-      />
-      {/* Signal dot at spike tip */}
-      {(isSearching || isFound) && (
-        <circle cx={spike.tip.x} cy={spike.tip.y} r={2} fill={isFound ? '#fbbf24' : '#2dd4bf'} opacity={0.9}>
-          <animate attributeName="r" values="1.5;3;1.5" dur={isFound ? '1.2s' : '0.9s'} repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.9;0.4;0.9" dur={isFound ? '1.2s' : '0.9s'} repeatCount="indefinite" />
-        </circle>
-      )}
-    </motion.g>
-  );
-}
-
-// ─── Sweep sector ─────────────────────────────────────────────────────────────
-function SweepSector({ phase }: { phase: GeoPhase }) {
-  if (phase === 'idle' || phase === 'denied') return null;
-  const isFound = phase === 'found';
-  const span = 65 * Math.PI / 180;
-  const a1 = -Math.PI / 2; const a2 = a1 - span;
-  const r = 66;
-  const x1 = CX + r * Math.cos(a1), y1 = CY + r * Math.sin(a1);
-  const x2 = CX + r * Math.cos(a2), y2 = CY + r * Math.sin(a2);
-  return (
-    <motion.g animate={{ rotate: 360 }}
-      transition={{ duration: isFound ? 1.1 : 2.0, repeat: Infinity, ease: 'linear' }}
-      style={{ transformOrigin: `${CX}px ${CY}px` }}>
-      <path d={`M${CX},${CY} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r},0,0,0,${x2.toFixed(1)},${y2.toFixed(1)} Z`}
-        fill={isFound ? 'rgba(251,191,36,0.18)' : 'rgba(20,184,166,0.15)'} />
-      <line x1={CX} y1={CY} x2={x1.toFixed(1)} y2={y1.toFixed(1)}
-        stroke={isFound ? 'rgba(251,191,36,0.92)' : 'rgba(45,212,191,0.92)'}
-        strokeWidth="2.2" strokeLinecap="round" />
+      <path d={`M${CX},${CY} L${CX+10},${CY-24} L${CX+5},${CY-28} L${CX},${CY-12}Z`} fill={c} opacity={0.88} />
+      <path d={`M${CX},${CY} L${CX-10},${CY+24} L${CX-5},${CY+28} L${CX},${CY+12}Z`} fill={c} opacity={0.82} />
+      <path d={`M${CX},${CY} L${CX-24},${CY-10} L${CX-28},${CY-5} L${CX-12},${CY}Z`} fill={c} opacity={0.76} />
+      <path d={`M${CX},${CY} L${CX+24},${CY+10} L${CX+28},${CY+5} L${CX+12},${CY}Z`} fill={c} opacity={0.82} />
+      <circle cx={CX} cy={CY} r={3.2} fill={isFound ? '#fbbf24' : '#14b8a6'} />
+      <circle cx={CX} cy={CY} r={1.6} fill="white" />
+      <g fill={c} opacity={0.4} fontSize="7" fontFamily="Tajawal,system-ui" fontWeight="700" textAnchor="middle">
+        <text x={CX} y={CY - 52}>ش</text>
+        <text x={CX} y={CY + 62}>ج</text>
+        <text x={CX - 57} y={CY + 3}>غ</text>
+        <text x={CX + 57} y={CY + 3}>ق</text>
+      </g>
     </motion.g>
   );
 }
@@ -172,36 +149,34 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
     );
   }, [phase, onLocationDetected]);
 
+  const isIdle = phase === 'idle';
   const isSearching = phase === 'searching';
   const isFound = phase === 'found';
   const isDenied = phase === 'denied';
-
-  const primaryColor = isDenied ? 'rgba(239,68,68,' : isFound ? 'rgba(251,191,36,' : 'rgba(20,184,166,';
+  const mapColor = isFound ? '#fbbf24' : '#2dd4bf';
+  const mapOpacity = isFound ? 0.65 : 0.22;
+  const strokeColor = isFound ? 'rgba(251,191,36,0.85)' : 'rgba(20,184,166,0.70)';
   const glowColor = isDenied ? 'rgba(239,68,68,0.40)' : isFound ? 'rgba(251,191,36,0.50)' : 'rgba(20,184,166,0.28)';
 
   return (
     <div className="flex flex-col items-center gap-5 select-none" dir="rtl">
 
-      {/* ── Status label ───────────────────────────────── */}
+      {/* ── Status label ─────────────────────────────────── */}
       <AnimatePresence mode="wait">
-        <motion.div key={phase} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+        <motion.div key={phase} initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
           className="flex items-center gap-2.5">
           <div className="h-px w-10 bg-gradient-to-l from-teal-400/50 to-transparent" />
           <span className="text-[0.58rem] font-black uppercase tracking-[0.22em] text-teal-400/70">
-            {isFound ? 'مكانك على الرادار · LOCK ✓'
-              : isSearching ? 'اكتساب إشارة الأقمار الصناعية…'
-              : isDenied ? 'إشارة مرفوضة — انقر للإعادة'
-              : 'دبوس الملك الجغرافي · حلاق ماب'}
+            {isFound ? 'مكانك على رادار حلاق ماب ✓' : isSearching ? 'الرادار يكتسب إشارتك…' : isDenied ? 'إشارة مرفوضة · انقر للإعادة' : 'مكانك على الرادار'}
           </span>
           <div className="h-px w-10 bg-gradient-to-r from-teal-400/50 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
-      {/* ── Pin button ─────────────────────────────────── */}
+      {/* ── The Pin ──────────────────────────────────────── */}
       <div className="relative">
-        {/* External glow */}
         <div className="absolute inset-0 rounded-full transition-all duration-700"
-          style={{ boxShadow: `0 8px 60px 8px ${glowColor}, 0 0 120px 16px ${glowColor.replace('0.', '0.0')}` }} />
+          style={{ boxShadow: `0 8px 60px 8px ${glowColor}, 0 0 120px 20px ${glowColor.replace('0.', '0.0')}` }} />
 
         <motion.button onClick={handleClick} disabled={isSearching}
           whileTap={!isSearching ? { scale: 0.94 } : undefined}
@@ -209,112 +184,190 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
           className="relative block focus:outline-none rounded-full cursor-pointer"
           aria-label="تحديد موقعي الجغرافي">
 
-          <svg viewBox="0 0 200 250" width="210" height="263" className="overflow-visible">
+          <svg viewBox="0 0 200 255" width="210" height="268" className="overflow-visible">
             <defs>
-              <radialGradient id="pinBg" cx="50%" cy="38%">
+              <radialGradient id="pinBg3" cx="50%" cy="35%">
                 <stop offset="0%" stopColor="#0f2033" />
                 <stop offset="100%" stopColor="#020912" />
               </radialGradient>
-              <radialGradient id="coreHalo" cx="50%" cy="50%">
-                <stop offset="0%" stopColor={isFound ? '#fbbf24' : '#14b8a6'} stopOpacity="0.32" />
+              <radialGradient id="ksaFill" cx="50%" cy="50%">
+                <stop offset="0%" stopColor={mapColor} stopOpacity={isFound ? 0.45 : 0.18} />
+                <stop offset="100%" stopColor={mapColor} stopOpacity={isFound ? 0.12 : 0.04} />
+              </radialGradient>
+              <radialGradient id="tipGlow3" cx="50%" cy="50%">
+                <stop offset="0%" stopColor={isFound ? '#fbbf24' : '#14b8a6'} stopOpacity="0.9" />
                 <stop offset="100%" stopColor={isFound ? '#fbbf24' : '#14b8a6'} stopOpacity="0" />
               </radialGradient>
-              <radialGradient id="tipGlow" cx="50%" cy="50%">
-                <stop offset="0%" stopColor={isFound ? '#fbbf24' : '#14b8a6'} stopOpacity="0.8" />
-                <stop offset="100%" stopColor={isFound ? '#fbbf24' : '#14b8a6'} stopOpacity="0" />
-              </radialGradient>
-              <filter id="iconGlo">
-                <feGaussianBlur stdDeviation="3" result="b" />
+              <filter id="glo3">
+                <feGaussianBlur stdDeviation="3.5" result="b" />
                 <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
               </filter>
-              <filter id="tipGlo">
+              <filter id="ksaGlo">
                 <feGaussianBlur stdDeviation="5" result="b" />
                 <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
               </filter>
-              <clipPath id="pinClip"><path d={PIN_PATH} /></clipPath>
-              {/* Orbital paths for animateMotion */}
-              <path id="op1" d={`M${CX},${CY} m-82,0 a82,30 0 1,1 164,0 a82,30 0 1,1 -164,0`} />
-              <path id="op2" d={`M${CX},${CY} m-78,0 a78,26 0 1,1 156,0 a78,26 0 1,1 -156,0`} />
-              <path id="op3" d={`M${CX},${CY} m-${R},0 a${R},${R} 0 1,1 ${R*2},0 a${R},${R} 0 1,1 -${R*2},0`} />
+              <filter id="glassBlur">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+              </filter>
+              <clipPath id="pinClip3"><path d={PIN_PATH} /></clipPath>
             </defs>
 
-            {/* ── PIN SILHOUETTE ──────────────────────── */}
-            <path d={PIN_PATH} fill="url(#pinBg)" />
-            {/* Pin outline with primary color */}
-            <path d={PIN_PATH} fill="none"
-              stroke={`${primaryColor}0.35)`} strokeWidth="1.5" />
+            {/* ── Pin silhouette ─────────────────────────── */}
+            <path d={PIN_PATH} fill="url(#pinBg3)" stroke={isFound ? 'rgba(251,191,36,0.35)' : 'rgba(20,184,166,0.28)'} strokeWidth="1.2" />
 
-            {/* ── STAR FIELD (inside top of pin) ──────── */}
-            <g clipPath="url(#pinClip)">
-              {STARS.map((s, i) => (
-                <circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill="white" opacity="0.18" />
-              ))}
-
-              {/* Grid lines inside circle area */}
-              <g opacity="0.05">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <line key={`h${i}`} x1="30" y1={30 + i * 30} x2="170" y2={30 + i * 30}
-                    stroke="#2dd4bf" strokeWidth="0.4" />
-                ))}
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <line key={`v${i}`} x1={30 + i * 35} y1="22" x2={30 + i * 35} y2="162"
-                    stroke="#2dd4bf" strokeWidth="0.4" />
-                ))}
-              </g>
-
-              {/* Axis lines */}
-              <line x1="30" y1={CY} x2="170" y2={CY} stroke={`${primaryColor}0.08)`} strokeWidth="0.6" />
-              <line x1={CX} y1="22" x2={CX} y2="162" stroke={`${primaryColor}0.08)`} strokeWidth="0.6" />
+            {/* ── KSA Map glow backdrop ───────────────────── */}
+            <g clipPath="url(#pinClip3)">
+              <path d={KSA_PATH} fill={mapColor} opacity={isFound ? 0.12 : 0.06} filter="url(#ksaGlo)" />
             </g>
 
-            {/* ── CONCENTRIC RINGS (inside circle) ────── */}
-            <circle cx={CX} cy={CY} r={R}    fill="none" stroke={`${primaryColor}0.08)`} strokeWidth="0.7" />
-            <circle cx={CX} cy={CY} r={R-14} fill="none" stroke={`${primaryColor}0.10)`} strokeWidth="0.7" strokeDasharray="2 5" />
-            <circle cx={CX} cy={CY} r={R-28} fill="none" stroke={`${primaryColor}0.12)`} strokeWidth="0.8" />
-            <circle cx={CX} cy={CY} r={R-44} fill="none" stroke={`${primaryColor}0.14)`} strokeWidth="0.8" strokeDasharray="1 3" />
+            {/* ── KSA Map outline ─────────────────────────── */}
+            <motion.path
+              d={KSA_PATH}
+              fill="url(#ksaFill)"
+              stroke={strokeColor}
+              strokeWidth={isFound ? '1.8' : '1.4'}
+              strokeLinejoin="round"
+              animate={isSearching
+                ? { opacity: [0.7, 1, 0.7], strokeWidth: ['1.4', '2.2', '1.4'] }
+                : isFound
+                  ? { opacity: [0.9, 1, 0.9] }
+                  : { opacity: [0.65, 0.85, 0.65] }}
+              transition={{ duration: isSearching ? 0.9 : 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              filter={isFound ? 'url(#ksaGlo)' : undefined}
+            />
 
-            {/* ── CROWN SPIKES (5 teeth) ───────────────── */}
-            {SPIKES.map((spike, i) => (
-              <CrownSpike key={i} spike={spike} phase={phase} i={i} />
+            {/* ── City dots ───────────────────────────────── */}
+            {KSA_CITIES.map((city) => (
+              <g key={city.name}>
+                {/* Glow ring */}
+                <circle cx={city.x} cy={city.y} r={city.r + 4}
+                  fill={city.isCapital ? (isFound ? 'rgba(251,191,36,0.20)' : 'rgba(20,184,166,0.15)') : 'none'} />
+                {/* City dot */}
+                <circle cx={city.x} cy={city.y} r={city.r}
+                  fill={city.isCapital ? (isFound ? '#fbbf24' : '#2dd4bf') : (isFound ? 'rgba(251,191,36,0.70)' : 'rgba(20,184,166,0.55)')} />
+                {city.isCapital && (
+                  <>
+                    <circle cx={city.x} cy={city.y} r={city.r * 0.45} fill="white" />
+                    <circle cx={city.x} cy={city.y} r={city.r + 3}
+                      fill="none" stroke={isFound ? 'rgba(251,191,36,0.70)' : 'rgba(20,184,166,0.60)'}
+                      strokeWidth="0.8">
+                      <animate attributeName="r" values={`${city.r + 2};${city.r + 8};${city.r + 2}`}
+                        dur={isSearching ? '1.2s' : '2.5s'} repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.8;0;0.8"
+                        dur={isSearching ? '1.2s' : '2.5s'} repeatCount="indefinite" />
+                    </circle>
+                  </>
+                )}
+              </g>
             ))}
 
-            {/* ── SATELLITE ORBITS ─────────────────────── */}
-            <ellipse cx={CX} cy={CY} rx={82} ry={30} fill="none"
-              stroke={`${primaryColor}0.12)`} strokeWidth="0.6" strokeDasharray="3 7"
-              transform={`rotate(28,${CX},${CY})`} />
-            <ellipse cx={CX} cy={CY} rx={78} ry={26} fill="none"
-              stroke={`${primaryColor}0.09)`} strokeWidth="0.5" strokeDasharray="2 9"
-              transform={`rotate(-42,${CX},${CY})`} />
+            {/* ── Crown spikes ────────────────────────────── */}
+            {SPIKES.map((spike, i) => <CrownSpike key={i} spike={spike} phase={phase} i={i} />)}
 
-            {/* ── ORBITAL PARTICLES ────────────────────── */}
-            {[
-              { path: 'op1', dur: '7s', r: 2.8, delay: '0s' },
-              { path: 'op2', dur: '11s', r: 2.0, delay: '3.5s' },
-              { path: 'op3', dur: '5.5s', r: 1.6, delay: '1.5s' },
-            ].map((sat, i) => (
-              <circle key={i} r={sat.r}
-                fill={`${primaryColor}${i === 0 ? 0.85 : i === 1 ? 0.60 : 0.45})`}
-                filter="url(#iconGlo)">
-                <animateMotion dur={sat.dur} repeatCount="indefinite" begin={sat.delay}>
-                  <mpath href={`#${sat.path}`} />
-                </animateMotion>
-              </circle>
-            ))}
+            {/* ── Scanning sweep (searching state) ───────── */}
+            {isSearching && (
+              <motion.line
+                x1="30" x2="170"
+                y1={CY} y2={CY}
+                stroke="rgba(20,184,166,0.35)"
+                strokeWidth="1"
+                animate={{ y1: [CY - R, CY + R, CY - R], y2: [CY - R, CY + R, CY - R] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                clipPath="url(#pinClip3)"
+              />
+            )}
 
-            {/* ── SWEEP SECTOR ─────────────────────────── */}
-            <SweepSector phase={phase} />
+            {/* ── IDLE STATE: Stars + Glassmorphism text ─── */}
+            <AnimatePresence>
+              {isIdle && (
+                <motion.g key="idle-content"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}>
 
-            {/* ── PULSE RINGS ──────────────────────────── */}
+                  {/* Stars twinkling around text zone */}
+                  {STARS.map((s, i) => (
+                    <motion.circle key={i} cx={s.x} cy={s.y} r={s.r}
+                      fill="white"
+                      animate={{ opacity: [0.1, 0.85, 0.1], scale: [0.6, 1.3, 0.6], y: [0, -3, 0] }}
+                      transition={{ duration: s.dur, delay: s.delay, repeat: Infinity, ease: 'easeInOut' }}
+                      style={{ transformOrigin: `${s.x}px ${s.y}px` }}
+                    />
+                  ))}
+
+                  {/* ── "اضغط هنا" glassmorphism floating pill ── */}
+                  <motion.g
+                    animate={{ y: [0, -7, 0], rotate: [-1.5, 1.5, -1.5] }}
+                    transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ transformOrigin: `${CX}px 106px` }}
+                  >
+                    {/* Glass blur background (simulated) */}
+                    <rect x="72" y="98" width="56" height="18" rx="9"
+                      fill="rgba(20,184,166,0.08)"
+                      filter="url(#glassBlur)" />
+                    {/* Glass pill */}
+                    <rect x="72" y="98" width="56" height="18" rx="9"
+                      fill="rgba(255,255,255,0.10)"
+                      stroke="rgba(255,255,255,0.38)"
+                      strokeWidth="0.9" />
+                    {/* Shine highlight top */}
+                    <rect x="76" y="99.5" width="30" height="4" rx="2"
+                      fill="rgba(255,255,255,0.18)" />
+                    {/* "اضغط هنا" text */}
+                    <text x={CX} y="111.5" textAnchor="middle"
+                      fontSize="8.5" fontFamily="Tajawal,system-ui" fontWeight="800"
+                      fill="rgba(255,255,255,0.92)" letterSpacing="0.5">
+                      اضغط هنا
+                    </text>
+                  </motion.g>
+
+                  {/* ── "لتحديد موقعك" trailing text ─────────── */}
+                  <motion.g
+                    animate={{ y: [0, -5, 0], opacity: [0.70, 0.95, 0.70] }}
+                    transition={{ duration: 3.2, delay: 0.45, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    <text x={CX} y="126" textAnchor="middle"
+                      fontSize="7" fontFamily="Tajawal,system-ui" fontWeight="600"
+                      fill="rgba(20,184,166,0.85)" letterSpacing="0.5">
+                      لتحديد موقعك
+                    </text>
+                  </motion.g>
+
+                  {/* Arrow hint ↓ below text */}
+                  <motion.text x={CX} y="136" textAnchor="middle"
+                    fontSize="8" fill="rgba(20,184,166,0.40)"
+                    animate={{ y: [136, 139, 136], opacity: [0.4, 0.7, 0.4] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}>
+                    ↓
+                  </motion.text>
+                </motion.g>
+              )}
+            </AnimatePresence>
+
+            {/* ── Searching: scissors ─────────────────────── */}
+            <AnimatePresence>
+              {!isIdle && (
+                <motion.g key="scissors"
+                  initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.7 }} transition={{ duration: 0.35 }}
+                  filter="url(#glo3)">
+                  <ScissorIcon phase={phase} />
+                </motion.g>
+              )}
+            </AnimatePresence>
+
+            {/* ── Pulse rings ─────────────────────────────── */}
             {!isFound ? (
               <>
-                <circle cx={CX} cy={CY} r="5" fill={`${primaryColor}0.14)`}>
-                  <animate attributeName="r" values="8;68;8" dur={isSearching ? '1.3s' : '3.8s'} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.6;0;0.6" dur={isSearching ? '1.3s' : '3.8s'} repeatCount="indefinite" />
+                <circle cx={CX} cy={CY} r="5" fill={isSearching ? 'rgba(20,184,166,0.14)' : 'rgba(20,184,166,0.08)'}>
+                  <animate attributeName="r" values="8;68;8" dur={isSearching ? '1.3s' : '4s'} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.6;0;0.6" dur={isSearching ? '1.3s' : '4s'} repeatCount="indefinite" />
                 </circle>
-                <circle cx={CX} cy={CY} r="5" fill={`${primaryColor}0.09)`}>
-                  <animate attributeName="r" values="8;68;8" dur={isSearching ? '1.3s' : '3.8s'} begin={isSearching ? '0.65s' : '1.9s'} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.4;0;0.4" dur={isSearching ? '1.3s' : '3.8s'} begin={isSearching ? '0.65s' : '1.9s'} repeatCount="indefinite" />
-                </circle>
+                {isSearching && (
+                  <circle cx={CX} cy={CY} r="5" fill="rgba(20,184,166,0.10)">
+                    <animate attributeName="r" values="8;68;8" dur="1.3s" begin="0.65s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.4;0;0.4" dur="1.3s" begin="0.65s" repeatCount="indefinite" />
+                  </circle>
+                )}
               </>
             ) : (
               <>
@@ -329,15 +382,18 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
               </>
             )}
 
-            {/* ── CORE HALO ────────────────────────────── */}
-            <circle cx={CX} cy={CY} r="22" fill="url(#coreHalo)" />
+            {/* ── Found: Riyadh lock point ─────────────────── */}
+            {isFound && (
+              <motion.g initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
+                style={{ transformOrigin: '106px 89px' }}>
+                <circle cx="106" cy="89" r="6" fill="#fbbf24" filter="url(#glo3)">
+                  <animate attributeName="r" values="4;9;4" dur="1.8s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="106" cy="89" r="2.5" fill="white" />
+              </motion.g>
+            )}
 
-            {/* ── SCISSORS ICON ────────────────────────── */}
-            <g filter="url(#iconGlo)">
-              <ScissorIcon phase={phase} />
-            </g>
-
-            {/* ── DENIED RING ──────────────────────────── */}
+            {/* ── Denied ring ─────────────────────────────── */}
             {isDenied && (
               <circle cx={CX} cy={CY} r="30" fill="none"
                 stroke="rgba(239,68,68,0.55)" strokeWidth="1.5" strokeDasharray="4 4">
@@ -345,48 +401,27 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
               </circle>
             )}
 
-            {/* ── FOUND: Gold center lock ───────────────── */}
-            {isFound && (
-              <>
-                <circle cx={CX} cy={CY} r="5" fill="#fbbf24" filter="url(#iconGlo)">
-                  <animate attributeName="r" values="3.5;7;3.5" dur="1.8s" repeatCount="indefinite" />
-                </circle>
-                <circle cx={CX} cy={CY} r="2.2" fill="white" />
-              </>
-            )}
-
-            {/* ── HUD crosshair ────────────────────────── */}
-            {[[-13, -7], [7, 13]].map(([a, b], i) => (
-              <g key={i}>
-                <line x1={CX + a} y1={CY} x2={CX + b} y2={CY}
-                  stroke={`${primaryColor}0.70)`} strokeWidth="1.4" />
-                <line x1={CX} y1={CY + a} x2={CX} y2={CY + b}
-                  stroke={`${primaryColor}0.70)`} strokeWidth="1.4" />
-              </g>
-            ))}
-
-            {/* ── HUD brackets ─────────────────────────── */}
+            {/* ── HUD brackets ────────────────────────────── */}
             {[[-1,-1],[1,-1],[-1,1],[1,1]].map(([sx,sy],i) => (
-              <g key={i} stroke={isFound ? 'rgba(251,191,36,0.90)' : `${primaryColor}0.55)`}
+              <g key={i} stroke={isFound ? 'rgba(251,191,36,0.90)' : 'rgba(20,184,166,0.50)'}
                 strokeWidth="1.8" fill="none">
                 <path d={`M${CX+sx*16},${CY+sy*16+sy*7} L${CX+sx*16},${CY+sy*16} L${CX+sx*16+sx*7},${CY+sy*16}`} />
               </g>
             ))}
 
-            {/* ── PIN NEEDLE TIP GLOW ───────────────────── */}
-            <circle cx={CX} cy={TIP_Y} r="6" fill="url(#tipGlow)" filter="url(#tipGlo)">
-              <animate attributeName="r" values={isFound ? '6;10;6' : '4;7;4'}
-                dur={isFound ? '1.2s' : '2.5s'} repeatCount="indefinite" />
+            {/* ── Pin needle tip glow ──────────────────────── */}
+            <circle cx={CX} cy={TIP_Y} r={isFound ? 8 : 5} fill="url(#tipGlow3)" filter="url(#glo3)">
+              <animate attributeName="r" values={isFound ? '6;11;6' : '4;7;4'} dur={isFound ? '1.2s' : '2.5s'} repeatCount="indefinite" />
             </circle>
             <circle cx={CX} cy={TIP_Y} r="2.5" fill={isFound ? '#fbbf24' : '#14b8a6'} />
 
-            {/* ── LOCK BADGE on needle ──────────────────── */}
+            {/* ── LOCK badge ───────────────────────────────── */}
             {isFound && (
               <motion.g initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
-                style={{ transformOrigin: `${CX}px ${TIP_Y + 16}px` }}>
-                <rect x={CX - 28} y={TIP_Y + 6} width="56" height="14" rx="4"
+                style={{ transformOrigin: `${CX}px ${TIP_Y + 14}px` }}>
+                <rect x={CX - 28} y={TIP_Y + 5} width="56" height="14" rx="4"
                   fill="rgba(251,191,36,0.15)" stroke="rgba(251,191,36,0.60)" strokeWidth="0.9" />
-                <text x={CX} y={TIP_Y + 16.5} textAnchor="middle" fontSize="8"
+                <text x={CX} y={TIP_Y + 15.5} textAnchor="middle" fontSize="7.5"
                   fontFamily="JetBrains Mono,monospace" fontWeight="800"
                   fill="rgba(251,191,36,0.95)" letterSpacing="1.5">
                   ✓ LOCK
@@ -394,11 +429,11 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
               </motion.g>
             )}
 
-            {/* ── Signal strength bars ──────────────────── */}
+            {/* ── Signal bars ─────────────────────────────── */}
             {[3,5,8,5,3].map((h, i) => {
               const lit = isSearching ? i <= 2 : isFound ? true : i <= 1;
               return (
-                <rect key={i} x={82 + i * 9} y={TIP_Y + (isFound ? 28 : 10) - h}
+                <rect key={i} x={82 + i * 9} y={TIP_Y + (isFound ? 27 : 9) - h}
                   width="6" height={h} rx="1.5"
                   fill={lit ? (isFound ? 'rgba(251,191,36,0.70)' : 'rgba(20,184,166,0.60)') : 'rgba(255,255,255,0.07)'} />
               );
@@ -407,7 +442,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
         </motion.button>
       </div>
 
-      {/* ── Coordinates / status ───────────────────────── */}
+      {/* ── Coordinates / status text ───────────────────── */}
       <AnimatePresence mode="wait">
         {isFound && coords ? (
           <motion.div key="coords" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -428,7 +463,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
           <motion.p key="searching" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="font-mono text-[0.62rem] text-teal-400/60">
             <motion.span animate={{ opacity: [1, 0.2, 1] }} transition={{ duration: 1, repeat: Infinity }}>▋</motion.span>
-            {' '}جاري اكتساب إشارة الأقمار الصناعية…
+            {' '}الرادار يحدّد موقعك على خريطة المملكة…
           </motion.p>
         ) : isDenied ? (
           <motion.div key="denied" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -440,16 +475,14 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
           </motion.div>
         ) : (
           <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="flex flex-col items-center gap-1.5 text-center">
-            <p className="text-base font-black text-white">ابدأ الاستجابة الذكية — حدّد موقعك</p>
+            className="flex flex-col items-center gap-1 text-center">
             <p className="text-[0.63rem] text-slate-500 max-w-xs">
-              اضغط على دبوس الملك لاكتشاف أقرب الصالونات إليك لحظياً
+              اضغط على الدبوس لاكتشاف أقرب الصالونات لموقعك في المملكة
             </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Scan line */}
       <motion.div className="h-px w-36 bg-gradient-to-l from-transparent via-teal-400/25 to-transparent"
         animate={{ scaleX: [0.2, 1, 0.2], opacity: [0.2, 0.6, 0.2] }}
         transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }} />
