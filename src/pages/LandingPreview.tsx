@@ -13,7 +13,7 @@ import {
   CheckCircle2, Clock, ArrowLeft, Sparkles,
   Navigation2, ChevronDown, Globe2, Lock,
   Users, Award, Wifi, TrendingUp, Play, X,
-  Phone, MessageCircle, Heart, BarChart3, Crown
+  Phone, MessageCircle, Heart, BarChart3, Crown, Menu
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
@@ -403,49 +403,142 @@ export default function LandingPreview() {
         }}
       />
 
-      {/* ── Sticky nav ──────────────────────────────────────────────────── */}
-      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? 'border-b border-white/8 bg-[#020912]/90 backdrop-blur-xl' : ''}`}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-teal-700 shadow-lg shadow-teal-500/30">
-              <Scissors className="h-4.5 w-4.5 text-white" />
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-black tracking-wide text-white">حلاق ماب</div>
-              <div className="text-[0.55rem] text-teal-400/80 tracking-widest">HALAQ MAP</div>
-            </div>
-          </div>
+      {/* ══════════════════════════════════════════════════════════════════
+          الهيدر الموحّد — شريط المدن + التنقل الرئيسي
+          ══════════════════════════════════════════════════════════════════ */}
+      <header className="fixed inset-x-0 top-0 z-50 transition-all duration-500">
 
-          <nav className="hidden items-center gap-6 md:flex">
-            {['كيف يعمل', 'المميزات', 'الأسعار', 'للحلاقين'].map((item) => (
-              <a key={item} href={`#${item}`} className="text-sm text-slate-300 transition-colors hover:text-teal-300">
-                {item}
+        {/* ── طبقة الخلفية الزجاجية ──────────────────────── */}
+        <div className={`absolute inset-0 transition-all duration-500 ${
+          scrolled
+            ? 'bg-[#020912]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.6)]'
+            : 'bg-[#020912]/85 backdrop-blur-xl'
+        }`} />
+
+        {/* ── شريط مدن المملكة ───────────────────────────── */}
+        <div className="relative border-b border-teal-400/10">
+          <KSACityClocksBar />
+        </div>
+
+        {/* ── التنقل الرئيسي ─────────────────────────────── */}
+        <div className="relative">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
+
+            {/* ── الشعار (يمين في RTL) ────────── */}
+            <div className="flex items-center gap-3">
+              {/* أيقونة المقص الدوّارة */}
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-400/20 to-teal-700/20 blur-sm" />
+                <motion.div
+                  className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-teal-400/30 bg-gradient-to-br from-[#0d2a28] to-[#020912] shadow-[0_0_20px_rgba(20,184,166,0.25),inset_0_1px_0_rgba(45,212,191,0.15)]"
+                  whileHover={{ scale: 1.08, rotate: 15 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                >
+                  <Scissors className="h-4 w-4 text-teal-300" />
+                </motion.div>
+              </div>
+
+              {/* اسم المنصة */}
+              <div className="leading-tight">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[0.95rem] font-black tracking-wide text-white">حلاق ماب</span>
+                  <motion.div
+                    animate={{ opacity: [0.5, 1, 0.5], scale: [0.9, 1.1, 0.9] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="h-1.5 w-1.5 rounded-full bg-teal-400"
+                  />
+                </div>
+                <div className="text-[0.48rem] font-bold tracking-[0.3em] text-teal-400/55">HALAQ MAP · LIVE</div>
+              </div>
+
+              {/* عدد الصالونات النشطة */}
+              <div className="hidden items-center gap-1 rounded-full border border-teal-400/20 bg-teal-500/8 px-2.5 py-1 sm:flex">
+                <motion.div
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2.5, repeat: Infinity }}
+                  className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+                />
+                <span className="text-[0.55rem] font-bold text-emerald-300/80">رادار نشط</span>
+              </div>
+            </div>
+
+            {/* ── روابط التنقل ────────────────── */}
+            <nav className="hidden items-center gap-1 md:flex" dir="rtl">
+              {[
+                { label: 'كيف يعمل', icon: Navigation2, href: '#كيف يعمل' },
+                { label: 'المميزات',  icon: Sparkles,   href: '#المميزات' },
+                { label: 'الأسعار',  icon: Crown,      href: '#الأسعار' },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-400 transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200"
+                >
+                  <item.icon className="h-3.5 w-3.5 text-teal-500/50 transition-colors group-hover:text-teal-400" />
+                  {item.label}
+                </a>
+              ))}
+
+              {/* خط فاصل أنيق */}
+              <div className="mx-1 h-5 w-px bg-white/10" />
+
+              {/* رابط الشركاء */}
+              <a
+                href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
+                className="group flex items-center gap-1.5 rounded-xl border border-amber-400/15 bg-amber-500/5 px-3.5 py-2 text-[0.78rem] font-semibold text-amber-400/65 transition-all hover:border-amber-400/35 hover:bg-amber-500/10 hover:text-amber-300"
+              >
+                <Globe2 className="h-3.5 w-3.5" />
+                للمنشآت
+                <span className="rounded-sm bg-amber-400/15 px-1 py-0.5 text-[0.5rem] font-black tracking-wider text-amber-400/70">B2B</span>
               </a>
-            ))}
-          </nav>
+            </nav>
 
-          <div className="flex items-center gap-2.5">
-            {/* شارة B2B — للانطباع التنظيمي، توجّه لمسار الشركاء */}
-            <a
-              href={`/#${ROUTE_PATHS.LANDING_PARTNERS_PREVIEW}`}
-              className="hidden items-center gap-1.5 rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1.5 text-[0.65rem] font-semibold text-amber-400/70 transition-colors hover:border-amber-400/50 hover:text-amber-300 md:flex"
-              title="للمنشآت والصالونات — مزوّد حلول تقنية B2B"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400/60" />
-              للمنشآت · B2B
-            </a>
-            <button
-              onClick={() => navigate(ROUTE_PATHS.HOME)}
-              className="rounded-lg bg-gradient-to-r from-teal-500 to-teal-700 px-4 py-2 text-xs font-bold text-white shadow shadow-teal-500/30 transition-all hover:from-teal-400 hover:to-teal-600"
-            >
-              ابحث عن حلاق الآن
-            </button>
+            {/* ── زر البحث الرئيسي ────────────── */}
+            <div className="flex items-center gap-2">
+              {/* زر البحث */}
+              <motion.button
+                onClick={() => {
+                  const el = document.getElementById('search-anchor');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-xs font-black text-white shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all hover:shadow-[0_0_30px_rgba(20,184,166,0.5)]"
+              >
+                {/* Shimmer */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-l from-transparent via-white/15 to-transparent"
+                  animate={{ x: ['-100%', '200%'] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
+                />
+                <span className="relative flex items-center gap-1.5">
+                  <Search className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">ابحث عن حلاق</span>
+                  <span className="sm:hidden">بحث</span>
+                </span>
+              </motion.button>
+
+              {/* زر القائمة — موبايل */}
+              <button
+                type="button"
+                onClick={() => setScrolled((s) => !s)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 md:hidden"
+                aria-label="القائمة"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+            </div>
           </div>
+
+          {/* ── خط التوهج السفلي ───────────────── */}
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent" />
         </div>
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[100dvh] overflow-hidden pt-20">
+      <section className="relative min-h-[100dvh] overflow-hidden pt-24">
+        {/* Anchor للبحث */}
+        <div id="search-anchor" className="absolute top-32" />
         {/* Glow blobs */}
         <div className="pointer-events-none absolute -right-64 top-10 h-[600px] w-[600px] rounded-full bg-teal-500/8 blur-[140px]" />
         <div className="pointer-events-none absolute -left-48 bottom-20 h-[400px] w-[400px] rounded-full bg-amber-500/6 blur-[120px]" />
