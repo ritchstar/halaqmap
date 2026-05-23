@@ -250,7 +250,125 @@ export function ListingLicensePricingMatrix({
         })}
       </div>
 
-      <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-500 md:text-xs">{LISTING_LICENSE_LEGAL_FOOTNOTE}</p>
+      {/* ══════════════════════════════════════════════════════════════
+          الحزم السنوية — 360 يوم (12 شهر)
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="mt-8 rounded-xl border border-slate-600 bg-slate-800/60 p-5">
+        <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-500">الحزمة السنوية</p>
+            <p className="mt-0.5 text-base font-bold text-white">360 يوم نفاذ متواصل (12 شهر)</p>
+          </div>
+          <span className="rounded-full border border-slate-500 bg-slate-700 px-3 py-1 text-[11px] font-semibold text-slate-300">
+            = 12 بطاقة × 30 يوم
+          </span>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Bronze سنوي */}
+          {(() => {
+            const annualPrice = computeListingLicenseTotalSar(SubscriptionTier.BRONZE, 12);
+            const params = new URLSearchParams({ tier: 'bronze', qty: '12' });
+            return (
+              <div className="flex flex-col gap-2 rounded-lg border border-slate-600 bg-slate-900 p-3.5 text-right">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500">برونزي سنوي</span>
+                  <span className="text-lg">🥉</span>
+                </div>
+                <div className="flex items-baseline gap-1 justify-end">
+                  <span className="text-2xl font-black tabular-nums text-white">{formatPriceSar(annualPrice)}</span>
+                  <span className="text-xs text-slate-400">ر.س</span>
+                </div>
+                <p className="text-[11px] text-slate-500">360 يوم · 100 ر.س/شهر</p>
+                <NavLink to={`${ROUTE_PATHS.PAYMENT}?${params.toString()}`}>
+                  <button type="button" className="mt-1 w-full rounded-md border border-slate-600 bg-slate-700 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-600 transition-colors">
+                    اشترِ السنوية
+                  </button>
+                </NavLink>
+              </div>
+            );
+          })()}
+
+          {/* Gold سنوي */}
+          {(() => {
+            const annualPrice = computeListingLicenseTotalSar(SubscriptionTier.GOLD, 12);
+            const params = new URLSearchParams({ tier: 'gold', qty: '12' });
+            return (
+              <div className="flex flex-col gap-2 rounded-lg border border-slate-500 bg-slate-900 p-3.5 text-right">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[11px] font-semibold text-slate-400">ذهبي سنوي</span>
+                  <span className="text-lg">🥇</span>
+                </div>
+                <div className="flex items-baseline gap-1 justify-end">
+                  <span className="text-2xl font-black tabular-nums text-white">{formatPriceSar(annualPrice)}</span>
+                  <span className="text-xs text-slate-400">ر.س</span>
+                </div>
+                <p className="text-[11px] text-slate-500">360 يوم · 150 ر.س/شهر</p>
+                <NavLink to={`${ROUTE_PATHS.PAYMENT}?${params.toString()}`}>
+                  <button type="button" className="mt-1 w-full rounded-md border border-amber-600/60 bg-amber-900/30 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-800/40 transition-colors">
+                    اشترِ السنوية
+                  </button>
+                </NavLink>
+              </div>
+            );
+          })()}
+
+          {/* Diamond سنوي */}
+          {(() => {
+            const annualPrice = computeListingLicenseTotalSar(SubscriptionTier.DIAMOND, 12);
+            const params = new URLSearchParams({ tier: 'diamond', qty: '12' });
+            return (
+              <div className="flex flex-col gap-2 rounded-lg border border-slate-400 bg-slate-900 p-3.5 text-right">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[11px] font-semibold text-slate-300">ماسي سنوي</span>
+                  <span className="text-lg">💎</span>
+                </div>
+                <div className="flex items-baseline gap-1 justify-end">
+                  <span className="text-2xl font-black tabular-nums text-white">{formatPriceSar(annualPrice)}</span>
+                  <span className="text-xs text-slate-400">ر.س</span>
+                </div>
+                <p className="text-[11px] text-slate-500">360 يوم · 200 ر.س/شهر</p>
+                <NavLink to={`${ROUTE_PATHS.PAYMENT}?${params.toString()}`}>
+                  <button type="button" className="mt-1 w-full rounded-md border border-slate-300 bg-slate-100 py-2 text-xs font-semibold text-slate-900 hover:bg-white transition-colors">
+                    اشترِ السنوية
+                  </button>
+                </NavLink>
+              </div>
+            );
+          })()}
+
+          {/* Diamond + المناوب سنوي */}
+          {(() => {
+            const annualPrice = computeListingLicenseTotalSar(SubscriptionTier.DIAMOND, 12, { digitalShiftAddon: true });
+            const params = new URLSearchParams({ tier: 'diamond', qty: '12', aiAddon: '1' });
+            return (
+              <div className="flex flex-col gap-2 rounded-lg border border-violet-500/50 bg-violet-950/40 p-3.5 text-right">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[11px] font-semibold text-violet-300">ماسي + المناوب 🌙</span>
+                  <span className="text-lg">💎</span>
+                </div>
+                <div className="flex items-baseline gap-1 justify-end">
+                  <span className="text-2xl font-black tabular-nums text-white">{formatPriceSar(annualPrice)}</span>
+                  <span className="text-xs text-slate-400">ر.س</span>
+                </div>
+                <p className="text-[11px] text-violet-400/80">360 يوم · 225 ر.س/شهر</p>
+                <p className="text-[10px] text-slate-600">يشمل Add-on المناوب الرقمي</p>
+                <NavLink to={`${ROUTE_PATHS.PAYMENT}?${params.toString()}`}>
+                  <button type="button" className="mt-1 w-full rounded-md border border-violet-500/60 bg-violet-800/40 py-2 text-xs font-semibold text-violet-200 hover:bg-violet-700/50 transition-colors">
+                    اشترِ السنوية
+                  </button>
+                </NavLink>
+              </div>
+            );
+          })()}
+        </div>
+
+        <p className="mt-4 text-center text-[10px] text-slate-600">
+          الحزمة السنوية = 12 بطاقة مسبقة الدفع (30 يوم/بطاقة) · لا تجديد تلقائي · ISIC4 474151
+        </p>
+      </div>
+
+      <p className="mt-6 text-center text-[11px] leading-relaxed text-slate-500 md:text-xs">{LISTING_LICENSE_LEGAL_FOOTNOTE}</p>
     </section>
   );
 }
