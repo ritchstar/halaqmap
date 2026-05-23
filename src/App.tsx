@@ -1,33 +1,46 @@
-import { Toaster } from "@/components/ui/toaster";
+﻿import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Fragment } from "react";
 import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+/** يتضمن PartnerLayout مساعد الشركاء الرقمي عبر PartnerDigitalBarberAssistant — المسار الوحيد للمساعد في مسار الخدمات البرمجية للمنصة. */
 import { PartnerLayout } from "@/components/PartnerLayout";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/Home";
 import Register from "@/pages/Register";
 import RegisterSuccess from "@/pages/RegisterSuccess";
+import ShopOpenStatus from "@/pages/ShopOpenStatus";
 import About from "@/pages/About";
 import BarberGrowthLanding from "@/pages/BarberGrowthLanding";
+import InternalPartnerPathPrintCard from "@/pages/InternalPartnerPathPrintCard";
+import InvoicePreviewSamples from "@/pages/InvoicePreviewSamples";
 import PartnerInterestLanding from "@/pages/PartnerInterestLanding";
 import PartnerWhyPage from "@/pages/PartnerWhyPage";
 import PartnerStoryPage from "@/pages/PartnerStoryPage";
 import Privacy from "@/pages/Privacy";
+import UserPrivacyPolicy from "@/pages/UserPrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
 import PartnerPrivacy from "@/pages/PartnerPrivacy";
 import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
 import BarberLogin from "@/pages/BarberLogin";
+import BarberPortalEnter from "@/pages/BarberPortalEnter";
 import BarberDashboard from "@/pages/BarberDashboard";
 import BarberAccountDeletionRequest from "@/pages/BarberAccountDeletionRequest";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Payment from "@/pages/Payment";
 import PartnerSupportChat from "@/pages/PartnerSupportChat";
+import PartnerSubscriptionTutorials from "@/pages/PartnerSubscriptionTutorials";
+import PartnerBannersPreviewLanding from "@/pages/PartnerBannersPreviewLanding";
 import RateBarber from "@/pages/RateBarber";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
-import { getAdminLoginPath, getAdminDashboardPath } from "@/config/adminAuth";
-import { AdminAuthHashGate } from "@/components/AdminAuthHashGate";
+import AdminSentinelPage from "@/pages/AdminSentinelPage";
+import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
+import AdminCyberOperationsPage from "@/app/admin/cyber/page";
+import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
+import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +67,22 @@ const LegacyPartnerRedirect = ({ to }: { to: string }) => {
   return <Navigate to={`${to}${location.search || ''}`} replace />;
 };
 
+/**
+ * Safety net for invitation emails sent before `VITE_ADMIN_PORTAL_BASE`
+ * was aligned across build and runtime: any `/admin/in?email=…` or
+ * `/admin/ctrl` link is redirected to the canonical obfuscated base
+ * so the recipient lands on the real login (or dashboard) instead of 404.
+ */
+const LegacyAdminRedirect = ({ suffix }: { suffix: string }) => {
+  const location = useLocation();
+  return (
+    <Navigate
+      to={`${getAdminPortalBasePath()}${suffix}${location.search || ''}`}
+      replace
+    />
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -64,8 +93,14 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
+          <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<InternalPartnerPathPrintCard />} />
+          <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<InvoicePreviewSamples />} />
+          <Route path={ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW} element={<PartnerBannersPreviewLanding />} />
           <Route path={ROUTE_PATHS.ABOUT} element={<Layout><About /></Layout>} />
-          <Route path={ROUTE_PATHS.PRIVACY} element={<Layout><Privacy /></Layout>} />
+          <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<Layout><TermsOfService /></Layout>} />
+          <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<Layout><UserPrivacyPolicy /></Layout>} />
+          <Route path={ROUTE_PATHS.PRIVACY_DETAILED} element={<Layout><Privacy /></Layout>} />
+          <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
 
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
           <Route
@@ -80,10 +115,13 @@ const App = () => (
           <Route path={ROUTE_PATHS.PARTNER_STORY} element={<PartnerLayout><PartnerStoryPage /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><Register /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<PartnerLayout><RegisterSuccess /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><ShopOpenStatus /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><PartnerPrivacy /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><SubscriptionPolicy /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<PartnerLayout><BarberLogin /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<PartnerLayout><BarberPortalEnter /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><Payment /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<PartnerLayout><PartnerSubscriptionTutorials /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<PartnerLayout><PartnerSupportChat /></PartnerLayout>} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBERS_LANDING} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
@@ -101,8 +139,29 @@ const App = () => (
               </PartnerLayout>
             }
           />
-          <Route path={getAdminLoginPath()} element={<AdminLogin />} />
-          <Route path={getAdminDashboardPath()} element={<AdminDashboard />} />
+          {getAdminPortalBasePaths().map((adminBase) => (
+            <Fragment key={adminBase}>
+              <Route path={`${adminBase}/in`} element={<AdminLogin />} />
+              <Route path={`${adminBase}/ctrl`} element={<AdminDashboard />} />
+              <Route
+                path={`${adminBase}/sentinel`}
+                element={
+                  <AdminSentinelSecurityGate>
+                    <AdminSentinelPage />
+                  </AdminSentinelSecurityGate>
+                }
+              />
+              <Route path={`${adminBase}/radar/full-screen`} element={<AdminRadarFullScreenPage />} />
+              <Route path={`${adminBase}/cyber`} element={<AdminCyberOperationsPage />} />
+            </Fragment>
+          ))}
+          {/* Safety net for legacy invitation links built before VITE_ADMIN_PORTAL_BASE alignment. */}
+          <Route path="/admin/in" element={<LegacyAdminRedirect suffix="/in" />} />
+          <Route path="/admin/ctrl" element={<LegacyAdminRedirect suffix="/ctrl" />} />
+          <Route path="/admin/sentinel" element={<LegacyAdminRedirect suffix="/sentinel" />} />
+          <Route path="/admin/radar/full-screen" element={<LegacyAdminRedirect suffix="/radar/full-screen" />} />
+          <Route path="/admin/cyber" element={<LegacyAdminRedirect suffix="/cyber" />} />
+          <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

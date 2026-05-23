@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RegistrationAttachmentUrls } from '@/lib/index';
+import { BARBER_BANNER_MAX_FILE_BYTES } from '@/config/barberBannerImagePolicy';
 
 export const REGISTRATION_UPLOADS_BUCKET = 'registration-uploads';
 
@@ -21,7 +22,13 @@ function ltrBlock(lines: string[]): string {
 export function registrationUploadErrorForToast(serverMessage: string): string {
   const m = serverMessage.toLowerCase();
 
-  if (m.includes('bucket not found') || m.includes('bucket does not exist')) {
+  if (
+    m.includes('bucket not found') ||
+    m.includes('bucket does not exist') ||
+    (m.includes('bucket') && m.includes('not found')) ||
+    m.includes('could not find') ||
+    m.includes('does not exist')
+  ) {
     return (
       'تعذّر رفع الملفات إلى السيرفر.\n' +
       'سبب محتمل: حاوية تخزين مرفقات التسجيل غير مُنشأة في المشروع.\n\n' +
@@ -29,6 +36,8 @@ export function registrationUploadErrorForToast(serverMessage: string): string {
       ltrBlock([
         'SQL Editor — paste and run:',
         '  supabase/REGISTRATION_PUBLIC_FULL_SETUP.sql',
+        'Or run the focused migration:',
+        '  supabase/migrations/17_registration_uploads_storage.sql',
       ])
     );
   }
@@ -74,7 +83,7 @@ function safeFileSegment(name: string): string {
  * `VITE_REGISTRATION_API_ORIGIN=https://your-app.vercel.app` (بدون شرطة أخيرة).
  */
 function registrationApiOrigin(): string {
-  return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
+  return String(import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
     .trim()
     .replace(/\/$/, '');
 }
@@ -86,16 +95,20 @@ function absoluteOrRelativeApiUrl(path: string): string {
   return `${origin}${clean}`;
 }
 
+function registerApiPath(suffix: 'upload-file' | 'signed-upload'): string {
+  return ['', 'api', `register-${suffix}`].join('/');
+}
+
 function registrationUploadEndpoint(): string {
   const explicit = import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim();
   if (explicit) return explicit;
-  return absoluteOrRelativeApiUrl('/api/register-upload-file');
+  return absoluteOrRelativeApiUrl(registerApiPath('upload-file'));
 }
 
 function registrationSignedUploadEndpoint(): string {
   const explicit = import.meta.env.VITE_REGISTRATION_SIGNED_URL?.trim();
   if (explicit) return explicit;
-  return absoluteOrRelativeApiUrl('/api/register-signed-upload');
+  return absoluteOrRelativeApiUrl(registerApiPath('signed-upload'));
 }
 
 function getBrowserSupabaseAnonKey(): string {
@@ -409,6 +422,12 @@ async function uploadOne(
       error: `حجم الملف يتجاوز الحد المسموح (${MAX_FILE_BYTES / 1024 / 1024} ميجابايت): ${file.name}`,
     };
   }
+  if (subfolder === 'banners' && file.size > BARBER_BANNER_MAX_FILE_BYTES) {
+    return {
+      ok: false,
+      error: `صورة البنر يجب ألا تتجاوز ${Math.round(BARBER_BANNER_MAX_FILE_BYTES / 1024)} كيلوبايت بعد الضغط. أعد تصدير الصورة أو استخدم معالجاً أخف: ${file.name}`,
+    };
+  }
   const storageSubpath = `${subfolder}/${crypto.randomUUID()}_${safeFileSegment(file.name)}`;
   const path = `${orderId}/${storageSubpath}`;
 
@@ -463,9 +482,6 @@ export async function uploadRegistrationAttachments(
   client: SupabaseClient,
   orderId: string,
   files: {
-    commercialRegistry: File;
-    municipalLicense: File;
-    healthCertificates: File[];
     shopExterior: File;
     shopInterior: File;
     bannerImages: File[];
@@ -481,19 +497,6 @@ export async function uploadRegistrationAttachments(
   }
 
   const intentToken = options?.intentToken ?? null;
-
-  const cr = await uploadOne(client, orderId, 'documents', files.commercialRegistry, intentToken);
-  if (cr.ok === false) return { ok: false, error: cr.error };
-
-  const ml = await uploadOne(client, orderId, 'documents', files.municipalLicense, intentToken);
-  if (ml.ok === false) return { ok: false, error: ml.error };
-
-  const healthCertificates: string[] = [];
-  for (const f of files.healthCertificates) {
-    const h = await uploadOne(client, orderId, 'health', f, intentToken);
-    if (h.ok === false) return { ok: false, error: h.error };
-    healthCertificates.push(h.url);
-  }
 
   const ex = await uploadOne(client, orderId, 'shop', files.shopExterior, intentToken);
   if (ex.ok === false) return { ok: false, error: ex.error };
@@ -518,9 +521,6 @@ export async function uploadRegistrationAttachments(
   return {
     ok: true,
     urls: {
-      commercialRegistry: cr.url,
-      municipalLicense: ml.url,
-      healthCertificates,
       shopExterior: ex.url,
       shopInterior: inn.url,
       banners,

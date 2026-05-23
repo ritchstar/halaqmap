@@ -21,15 +21,64 @@ export interface PrivateMessageRow {
   read_at: string | null;
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function normalizeErrorMessage(message: string): string {
   const m = message.toLowerCase();
   if (m.includes('not authenticated')) {
     return 'يتطلب الشات تسجيل دخول المستخدم (عميل/حلاق) قبل بدء المحادثة الخاصة.';
   }
   if (m.includes('row-level security') || m.includes('permission denied') || m.includes('403')) {
-    return 'تم رفض العملية بسبب صلاحيات الأمان. تأكد أن الحساب هو أحد طرفي المحادثة.';
+    return 'تعذّر إكمال العملية حالياً. يمكنك المتابعة عبر المعاينة المحلية أو التواصل عبر واتساب أو الهاتف.';
+  }
+  if (m.includes('barber account not linked')) {
+    return 'الشات المباشر غير متاح لهذا العرض حالياً. يمكنك المتابعة عبر المعاينة المحلية أو التواصل عبر واتساب أو الهاتف.';
+  }
+  if (m.includes('barber inactive')) {
+    return 'هذا الصالون غير مفعّل حالياً، لذلك لا يمكن بدء محادثة مباشرة.';
+  }
+  if (m.includes('barber not found')) {
+    return 'تعذّر بدء الشات لهذا الصالون حالياً. يمكنك المتابعة عبر المعاينة المحلية أو التواصل عبر واتساب أو الهاتف.';
+  }
+  if (m.includes('invalid input syntax for type uuid')) {
+    return 'تعذّر بدء المحادثة. حدّث الصفحة ثم أعد المحاولة.';
+  }
+  if (m.includes('private chat is available for gold and diamond')) {
+    return 'الشات المباشر متاح لباقات ذهبي وماسي فقط لهذا الصالون.';
+  }
+  if (m.includes('invalid barber id')) {
+    return 'لا يمكن بدء محادثة مع حسابك نفسه كصالون.';
   }
   return message;
+}
+
+/** يبدأ جلسة خاصة كعميل مُصدَّق عبر `barbers.id` (ذهبي/ماسي فقط). */
+export async function startPrivateConversationByBarberId(
+  barberId: string
+): Promise<{ ok: true; conversationId: string } | { ok: false; error: string }> {
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'خدمة الشات غير متاحة حالياً من جهة المنصة.' };
+
+  const id = barberId.trim();
+  if (!UUID_RE.test(id)) {
+    return {
+      ok: false,
+      error: 'تعذّر بدء المحادثة لهذا العرض. حدّث الصفحة ثم أعد المحاولة.',
+    };
+  }
+
+  const { data, error } = await client.rpc('start_private_conversation_by_barber_id', {
+    p_barber_id: id,
+  });
+
+  if (error || !data) {
+    return {
+      ok: false,
+      error: normalizeErrorMessage(error?.message || 'تعذّر بدء المحادثة الخاصة.'),
+    };
+  }
+  return { ok: true, conversationId: String(data) };
 }
 
 export async function startOrGetPrivateConversation(
@@ -37,7 +86,7 @@ export async function startOrGetPrivateConversation(
   barberId?: string
 ): Promise<{ ok: true; conversationId: string } | { ok: false; error: string }> {
   const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ في البيئة.' };
+  if (!client) return { ok: false, error: 'خدمة الشات غير متاحة حالياً من جهة المنصة.' };
 
   const { data, error } = await client.rpc('start_private_conversation', {
     p_barber_user_id: barberUserId,
@@ -57,7 +106,7 @@ export async function getPrivateConversation(
   conversationId: string
 ): Promise<{ ok: true; conversation: PrivateConversationRow } | { ok: false; error: string }> {
   const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ في البيئة.' };
+  if (!client) return { ok: false, error: 'خدمة الشات غير متاحة حالياً من جهة المنصة.' };
 
   const { data, error } = await client
     .from('private_conversations')
@@ -75,7 +124,7 @@ export async function listPrivateMessages(
   conversationId: string
 ): Promise<{ ok: true; messages: PrivateMessageRow[] } | { ok: false; error: string }> {
   const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ في البيئة.' };
+  if (!client) return { ok: false, error: 'خدمة الشات غير متاحة حالياً من جهة المنصة.' };
 
   const { data, error } = await client
     .from('private_messages')
@@ -95,7 +144,7 @@ export async function sendPrivateMessage(
   body: string
 ): Promise<{ ok: true; message: PrivateMessageRow } | { ok: false; error: string }> {
   const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ في البيئة.' };
+  if (!client) return { ok: false, error: 'خدمة الشات غير متاحة حالياً من جهة المنصة.' };
 
   const text = body.trim();
   if (!text) return { ok: false, error: 'نص الرسالة فارغ.' };
@@ -120,7 +169,7 @@ export async function markPrivateMessageRead(
   messageId: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ في البيئة.' };
+  if (!client) return { ok: false, error: 'خدمة الشات غير متاحة حالياً من جهة المنصة.' };
 
   const { error } = await client
     .from('private_messages')
@@ -136,7 +185,7 @@ export async function closePrivateConversation(
   conversationId: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ في البيئة.' };
+  if (!client) return { ok: false, error: 'خدمة الشات غير متاحة حالياً من جهة المنصة.' };
 
   const { error } = await client.rpc('close_private_conversation', {
     p_conversation_id: conversationId,

@@ -183,6 +183,8 @@
     -webkit-tap-highlight-color: color-mix(in srgb, var(--primary) 18%, transparent);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -206,5 +208,805 @@
   }
   ::-webkit-scrollbar-thumb {
     @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
+  }
+}
+
+/* ─── Arabic / Bidi text safety — GLOBAL RULE ─────────────────────────────
+ * Halaq Map is an Arabic-first product (<html dir="rtl">). Many strings
+ * mix Arabic with Latin tokens, digits, IDs, codes, emails, Markdown
+ * markers (### , **, 1., :, etc.). Under a fixed `direction: rtl|ltr`
+ * neutral characters (colons, hashes, brackets, slashes) get pushed to
+ * the wrong side of the Arabic glyphs, hurting readability.
+ *
+ * The single property `unicode-bidi: plaintext` makes each paragraph
+ * choose its own base direction from its first strong character. Arabic
+ * paragraphs render RTL with punctuation at the correct end, English
+ * paragraphs stay LTR — automatically, with no manual <bdi>/dir wrapping.
+ *
+ * We promote this to ALL natural text containers using `:where()` so the
+ * specificity stays at 0 and any component author can override with a
+ * single class. It is intentionally NOT applied to <div>, <pre>, or
+ * structural elements because <pre> often hosts code that must stay LTR
+ * regardless of content.
+ *
+ * Inline code/kbd/samp/var get full LTR isolation so embedded API keys,
+ * URLs, file paths, and identifiers never break Arabic flow.
+ *
+ * Escape hatch: add class `.bidi-off` (or `data-bidi="off"`) to any
+ * element that intentionally needs the platform's prior default behaviour.
+ * ───────────────────────────────────────────────────────────────────── */
+:where(
+  p,
+  li,
+  dd,
+  dt,
+  td,
+  th,
+  caption,
+  blockquote,
+  figcaption,
+  summary,
+  h1, h2, h3, h4, h5, h6,
+  label,
+  span,
+  q,
+  cite,
+  small,
+  strong,
+  em,
+  legend,
+  option
+) {
+  unicode-bidi: plaintext;
+}
+
+:where(code, kbd, samp, var) {
+  unicode-bidi: isolate;
+  direction: ltr;
+}
+
+/* External URLs (http/https/mailto/tel) inside Arabic paragraphs get
+   isolated runs so neutral characters around them don't mis-align. */
+:where(a[href^="http://"], a[href^="https://"], a[href^="mailto:"], a[href^="tel:"]) {
+  unicode-bidi: isolate;
+}
+
+/* Escape hatch — opt-out of automatic plaintext bidi when authors know
+   the container must follow a single fixed direction (e.g. animated
+   marquees, RTL-locked layouts). */
+:where([data-bidi="off"], .bidi-off) {
+  unicode-bidi: normal;
+}
+
+/* Legacy explicit hooks — kept so callers that already added these
+   classes (chat bubbles, ops feed) continue to work even if a future
+   refactor narrows the `:where()` selector list above. */
+.chat-arabic-text {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+.rtl-force {
+  direction: rtl;
+  unicode-bidi: plaintext;
+  text-align: right;
+}
+
+.chat-arabic-text code,
+.chat-arabic-text kbd,
+.chat-arabic-text samp,
+.chat-arabic-text var,
+.rtl-force code,
+.rtl-force kbd,
+.rtl-force samp,
+.rtl-force var {
+  unicode-bidi: isolate;
+  direction: ltr;
+}
+
+/* ─── Honor Board (Breathing Manifesto) — B2B-only ambient pulse ─── */
+@keyframes honor-board-breathe {
+  0%,
+  100% {
+    opacity: 0.92;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 6%, transparent);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 28px 2px color-mix(in srgb, var(--primary) 12%, transparent);
+  }
+}
+
+.honor-board-breathe {
+  animation: honor-board-breathe 4.5s ease-in-out infinite;
+}
+
+/* ─── HalaqMap brand mark: calm heartbeat + subtle star shimmer ─── */
+@keyframes halaqmap-brand-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0.2rem color-mix(in srgb, var(--primary) 18%, transparent));
+  }
+  50% {
+    transform: scale(1.038);
+    filter: drop-shadow(0 0 0.55rem color-mix(in srgb, var(--primary) 32%, transparent));
+  }
+}
+
+@keyframes halaqmap-brand-glint {
+  0%,
+  48% {
+    background-position: 160% 50%;
+    opacity: 0;
+  }
+  52% {
+    opacity: 0.85;
+  }
+  58% {
+    background-position: -60% 50%;
+    opacity: 0.45;
+  }
+  66%,
+  100% {
+    background-position: -60% 50%;
+    opacity: 0;
+  }
+}
+
+.halaqmap-brand-mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  overflow: hidden;
+  animation: halaqmap-brand-pulse 2.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.halaqmap-brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background: linear-gradient(
+    108deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0) 44%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0) 56%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 260% 100%;
+  background-position: 160% 50%;
+  animation: halaqmap-brand-glint 4.25s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halaqmap-brand-mark,
+  .halaqmap-brand-mark::after {
+    animation: none !important;
+  }
+
+  .halaqmap-brand-mark {
+    filter: drop-shadow(0 0 0.25rem color-mix(in srgb, var(--primary) 22%, transparent));
+  }
+}
+
+/* ─── Diamond pricing card: calm apex aura + metallic sheen ─── */
+@keyframes diamond-aura-pulse {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.015);
+  }
+}
+
+@keyframes diamond-shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+@keyframes diamond-badge-shimmer {
+  0%,
+  100% {
+    background-position: 180% 50%;
+  }
+  50% {
+    background-position: -80% 50%;
+  }
+}
+
+@theme {
+  --animate-diamond-pulse: diamond-aura-pulse 5.5s ease-in-out infinite;
+  --animate-diamond-shimmer: diamond-shimmer 7s ease-in-out infinite;
+  --animate-diamond-badge-shimmer: diamond-badge-shimmer 4.5s ease-in-out infinite;
+}
+
+.diamond-pricing-aura {
+  position: absolute;
+  inset: -0.65rem;
+  border-radius: 1.35rem;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 85% 70% at 50% 40%, rgba(34, 211, 238, 0.28), transparent 62%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(148, 163, 184, 0.18), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 15% 75%, rgba(30, 58, 138, 0.35), transparent 58%);
+  animation: var(--animate-diamond-pulse);
+  filter: blur(10px);
+}
+
+.diamond-pricing-aura::after {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, #67e8f9 35%, transparent);
+  opacity: 0.55;
+  animation: var(--animate-diamond-pulse);
+}
+
+.diamond-card-shell {
+  position: relative;
+  z-index: 1;
+  border-color: color-mix(in srgb, #22d3ee 42%, transparent) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px color-mix(in srgb, #1e3a8a 55%, transparent),
+    0 24px 60px -18px rgba(14, 116, 144, 0.45),
+    0 0 48px -12px rgba(34, 211, 238, 0.22);
+}
+
+.diamond-sheen-wrap {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  border-radius: 9999px;
+}
+
+.diamond-sheen-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.55) 48%,
+    rgba(186, 230, 253, 0.35) 52%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: var(--animate-diamond-shimmer);
+}
+
+.diamond-metallic-title {
+  background: linear-gradient(
+    92deg,
+    #e2e8f0 0%,
+    #f8fafc 18%,
+    #67e8f9 42%,
+    #cbd5e1 58%,
+    #38bdf8 72%,
+    #f1f5f9 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: var(--animate-diamond-shimmer);
+}
+
+.diamond-metallic-price {
+  font-size: clamp(2.25rem, 5vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  background: linear-gradient(
+    165deg,
+    #f8fafc 0%,
+    #e2e8f0 22%,
+    #7dd3fc 45%,
+    #f1f5f9 58%,
+    #22d3ee 78%,
+    #94a3b8 100%
+  );
+  background-size: 180% 180%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 24px color-mix(in srgb, #22d3ee 18%, transparent);
+  animation: var(--animate-diamond-shimmer);
+}
+
+.diamond-premium-badge {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #0f172a;
+  border: 1px solid color-mix(in srgb, #f8fafc 65%, #94a3b8);
+  background: linear-gradient(
+    118deg,
+    #f8fafc 0%,
+    #e2e8f0 22%,
+    #fde68a 48%,
+    #cbd5e1 72%,
+    #bae6fd 100%
+  );
+  background-size: 220% 100%;
+  animation: var(--animate-diamond-badge-shimmer);
+  box-shadow:
+    0 2px 10px rgba(15, 23, 42, 0.35),
+    0 0 18px color-mix(in srgb, #fbbf24 25%, transparent);
+}
+
+.diamond-cta {
+  background: linear-gradient(to left, #0c4a6e, #0891b2, #22d3ee) !important;
+  color: #f8fafc !important;
+  border: 1px solid color-mix(in srgb, #67e8f9 45%, transparent);
+  box-shadow:
+    0 10px 28px -8px rgba(8, 145, 178, 0.55),
+    0 0 22px color-mix(in srgb, #22d3ee 28%, transparent);
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+.diamond-cta:hover {
+  box-shadow:
+    0 14px 36px -6px rgba(8, 145, 178, 0.65),
+    0 0 32px color-mix(in srgb, #22d3ee 42%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diamond-pricing-aura,
+  .diamond-pricing-aura::after,
+  .diamond-sheen-wrap::after,
+  .diamond-metallic-title,
+  .diamond-metallic-price,
+  .diamond-premium-badge,
+  .banners-preview-mesh,
+  .banners-preview-particle,
+  .banner-sim-ripple,
+  .banner-sim-map-wave,
+  .banner-sim-diamond-neon::before,
+  .feature-preview-neon-halo-cyan,
+  .feature-preview-neon-halo-emerald,
+  .feature-preview-banner-purple-wave::after,
+  .feature-preview-purple-sweep,
+  .feature-preview-ai-dots span {
+    animation: none !important;
+  }
+}
+
+/* ─── Banners preview landing (B2B) ─── */
+@keyframes banners-preview-mesh-drift {
+  0% {
+    background-position: 0% 0%, 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%, 100% 100%;
+  }
+}
+
+@keyframes banners-preview-particle-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-12px) scale(1.2);
+    opacity: 0.55;
+  }
+}
+
+@keyframes banner-sim-ripple-expand {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+@keyframes banner-sim-neon-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 28px 4px rgba(34, 211, 238, 0.35);
+  }
+}
+
+.banners-preview-mesh {
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px;
+  animation: banners-preview-mesh-drift 24s linear infinite;
+}
+
+.banners-preview-particle {
+  animation: banners-preview-particle-float ease-in-out infinite;
+}
+
+.banner-sim-light-surface {
+  --background: oklch(0.99 0.003 174);
+  --foreground: oklch(0.18 0.02 220);
+  --card: oklch(0.99 0.003 174);
+  --card-foreground: oklch(0.18 0.02 220);
+  --primary: oklch(0.52 0.14 174);
+  --primary-foreground: oklch(0.98 0.005 174);
+  --muted: oklch(0.92 0.01 174);
+  --muted-foreground: oklch(0.45 0.02 220);
+  --accent: oklch(0.72 0.12 85);
+  --accent-foreground: oklch(0.2 0.02 85);
+  --border: oklch(0.88 0.01 174);
+  color: var(--foreground);
+}
+
+.banner-sim-btn-active {
+  z-index: 1;
+}
+
+.banner-sim-ripple {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, transparent 65%);
+  animation: banner-sim-ripple-expand 1.1s ease-out infinite;
+  pointer-events: none;
+}
+
+.banner-sim-diamond-neon {
+  position: relative;
+}
+
+.banner-sim-diamond-neon::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  z-index: -1;
+  animation: banner-sim-neon-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes banner-sim-map-wave {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.banner-sim-map-target {
+  overflow: visible !important;
+}
+
+.banner-sim-map-wave {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: -1.25rem;
+  margin-top: -1.25rem;
+  border-radius: 9999px;
+  border: 2px solid rgba(34, 211, 238, 0.65);
+  animation: banner-sim-map-wave 1.4s ease-out infinite;
+  pointer-events: none;
+}
+
+.banner-sim-map-wave-delayed {
+  animation-delay: 0.45s;
+}
+
+/* ─── Partner feature previews (B2B marketing) ─── */
+@keyframes feature-preview-neon-pulse-cyan {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(34, 211, 238, 0.15),
+      inset 0 0 0 1px rgba(34, 211, 238, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 28px 2px rgba(34, 211, 238, 0.35),
+      inset 0 0 0 1px rgba(34, 211, 238, 0.28);
+  }
+}
+
+@keyframes feature-preview-neon-pulse-emerald {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(52, 211, 153, 0.12),
+      inset 0 0 0 1px rgba(52, 211, 153, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 26px 2px rgba(52, 211, 153, 0.32),
+      inset 0 0 0 1px rgba(52, 211, 153, 0.25);
+  }
+}
+
+@keyframes feature-preview-purple-sweep {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes feature-preview-ai-dot-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.feature-preview-glass {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.72), rgba(11, 15, 25, 0.88));
+  backdrop-filter: blur(14px);
+}
+
+.feature-preview-neon-halo-cyan {
+  animation: feature-preview-neon-pulse-cyan 2.8s ease-in-out infinite;
+}
+
+.feature-preview-neon-halo-emerald {
+  animation: feature-preview-neon-pulse-emerald 3.1s ease-in-out infinite;
+}
+
+.feature-preview-banner-purple-wave::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 32px 4px rgba(167, 139, 250, 0.45),
+    inset 0 0 0 24px rgba(139, 92, 246, 0.12);
+  animation: banner-sim-neon-pulse 2.2s ease-in-out infinite;
+}
+
+.feature-preview-purple-sweep {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(167, 139, 250, 0.55) 45%,
+    rgba(139, 92, 246, 0.35) 55%,
+    transparent 100%
+  );
+  animation: feature-preview-purple-sweep 1.2s ease-out forwards;
+}
+
+.feature-preview-ai-dots span {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: rgba(196, 181, 253, 0.9);
+  animation: feature-preview-ai-dot-bounce 1s ease-in-out infinite;
+}
+
+.feature-preview-ai-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.feature-preview-ai-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Platform Radar — command center / cast mode */
+html.platform-radar-fullscreen,
+html.platform-radar-fullscreen body,
+html.platform-radar-fullscreen #root {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+/* Royal Tactical Wing — Golden Pulse halo (GPU-friendly CSS keyframes) */
+@keyframes golden-pulse-halo-expand {
+  0% {
+    transform: translate(-50%, -50%) scale(0.55);
+    opacity: 0.7;
+  }
+  85% {
+    opacity: 0.04;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.45);
+    opacity: 0;
+  }
+}
+
+@keyframes golden-pulse-live-beat {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.85);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.88);
+    box-shadow: 0 0 18px rgba(251, 191, 36, 0.35);
+  }
+}
+
+/* One marker emits a stack of staggered halos via a single element each,
+   driven by CSS only — no per-marker Framer Motion infinite loops. */
+.golden-pulse-halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(2.5rem, 4.8vw, 3.75rem);
+  height: clamp(2.5rem, 4.8vw, 3.75rem);
+  margin: 0;
+  border-radius: 9999px;
+  border: 2px solid rgba(251, 191, 36, 0.5);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.55);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: golden-pulse-halo-expand 3s ease-out infinite;
+}
+
+.golden-pulse-halo--inspector {
+  border-color: rgba(248, 113, 113, 0.55);
+}
+
+.golden-pulse-halo--ring-1 {
+  animation-delay: 0s;
+}
+.golden-pulse-halo--ring-2 {
+  animation-delay: 0.75s;
+}
+.golden-pulse-halo--ring-3 {
+  animation-delay: 1.5s;
+  opacity: 0.65;
+}
+
+.golden-pulse-live {
+  animation: golden-pulse-live-beat 2.2s ease-in-out infinite;
+}
+
+.platform-radar-tactical,
+.royal-tactical-wing {
+  background: #000000;
+}
+
+.golden-pulse-marker {
+  will-change: transform, opacity;
+  contain: layout paint;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .golden-pulse-halo {
+    animation-duration: 0s;
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* ─── Tactical Kingdom Backdrop animations ─────────────────────────── */
+
+/* Rotating tactical sweep — anchored on Riyadh, 12 s revolution */
+@keyframes tactical-sweep-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tactical-sweep-rotor {
+  animation: tactical-sweep-rotation 12s linear infinite;
+  transform-box: fill-box;
+  will-change: transform;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+/* Riyadh heartbeat — slow concentric ring expansion */
+@keyframes tactical-heartbeat-pulse {
+  0% {
+    r: 4;
+    stroke-opacity: 0.75;
+  }
+  100% {
+    r: 95;
+    stroke-opacity: 0;
+  }
+}
+
+.tactical-heartbeat-ring {
+  animation: tactical-heartbeat-pulse 3s ease-out infinite;
+  transform-origin: center;
+  will-change: r, stroke-opacity;
+}
+
+/* Subtle backdrop fade-in (avoids a flash on first paint) */
+@keyframes tactical-backdrop-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.tactical-kingdom-backdrop {
+  animation: tactical-backdrop-fade 600ms ease-out both;
+}
+
+/* Aspect-locked canvas helper — keep the rendered radar centred and clipped */
+.tactical-radar-canvas {
+  contain: layout paint;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tactical-sweep-rotor,
+  .tactical-heartbeat-ring {
+    animation: none;
+  }
+  .tactical-heartbeat-ring {
+    opacity: 0.25;
   }
 }

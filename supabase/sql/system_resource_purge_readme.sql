@@ -1,0 +1,11 @@
+-- مرجع: دوال التخزين/التنظيف وُضعت في الترحيل
+--   supabase/migrations/66_platform_resource_snapshot_and_purge.sql
+--
+-- بعد الترحيل يمكن للمالك (bootstrap) من تبويب «الموارد» في لوحة الإدارة:
+--   - استدعاء get_platform_resource_snapshot (تلقائياً من الواجهة)
+--   - admin_purge_registration_storage_objects
+--   - admin_purge_partner_promo_storage_objects
+--   - admin_purge_old_platform_logs(p_days)
+--
+-- لإعادة ضبط تسلسل أرقام العضوية بعد مسح كل الحلاقين انظر:
+--   supabase/sql/admin_purge_all_barbers.sql

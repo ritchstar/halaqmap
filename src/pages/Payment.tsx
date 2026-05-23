@@ -5,20 +5,14 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   CreditCard,
-  Building2,
-  Upload,
   CheckCircle2,
   AlertCircle,
-  Copy,
-  Check,
   Loader2,
-  ArrowRight,
   Shield,
   Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -26,15 +20,29 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
-import { BANK_TRANSFER } from '@/config/bankTransfer';
+import { resolvePaymentGateway } from '@/config/paymentGateway';
 import {
-  getBankTransferPayableAmountSar,
-  getBankTransferCoveredMonths,
-  getSixMonthGrossSar,
-  isBankTransferPromoActive,
+  clampListingLicenseQuantity,
+  computeListingLicenseTotalSar,
+  isDigitalShiftAddonAllowed,
+  parseDigitalShiftAddonParam,
+} from '@/config/listingLicenseQuantity';
+import {
+  DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
+  DIGITAL_SHIFT_PRODUCT_NAME_AR,
+  DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR,
+  DIAMOND_PRODUCT_SMART_LABEL_AR,
+  DIAMOND_PRODUCT_STANDARD_LABEL_AR,
+  TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
+import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
+import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
+import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
+import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
+import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
 import { toast } from 'sonner';
 
@@ -42,31 +50,80 @@ export default function Payment() {
   const navigate = useNavigate();
   const vatSettings = usePlatformVatSettings();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tier = searchParams.get('tier') as SubscriptionTier || SubscriptionTier.BRONZE;
+  const tierRaw = (searchParams.get('tier') ?? '').trim().toLowerCase();
+  const tier: SubscriptionTier =
+    tierRaw === SubscriptionTier.GOLD
+      ? SubscriptionTier.GOLD
+      : tierRaw === SubscriptionTier.DIAMOND
+        ? SubscriptionTier.DIAMOND
+        : SubscriptionTier.BRONZE;
+  const licenseQuantity = useMemo(
+    () => clampListingLicenseQuantity(searchParams.get('qty')),
+    [searchParams],
+  );
+  const digitalShiftAddonSelected = useMemo(
+    () => isDigitalShiftAddonAllowed(tier, parseDigitalShiftAddonParam(searchParams.get('aiAddon'))),
+    [tier, searchParams],
+  );
+  const listingPricingOptions = useMemo(
+    () => (digitalShiftAddonSelected ? { digitalShiftAddon: true as const } : undefined),
+    [digitalShiftAddonSelected],
+  );
   const requestIdParam = searchParams.get('requestId') ?? '';
-  const requestId = useMemo(() => {
-    const t = requestIdParam.trim();
-    return t.length > 0 ? t : `REQ-${Date.now()}`;
-  }, [requestIdParam]);
+  /** مطابق لطلب التسجيل (HM-...) — يُمرَّر في metadata.request_id للـ webhook؛ يُفضّل عدم تركه فارغاً */
+  const requestId = useMemo(() => requestIdParam.trim(), [requestIdParam]);
+  /** يُمرَّر في metadata.linked_barber_id بعد اعتماد الإدارة أو عبر الرابط ?linkedBarberId= */
+  const linkedBarberId = useMemo(() => searchParams.get('linkedBarberId')?.trim() ?? '', [searchParams]);
+  const barberName = useMemo(() => searchParams.get('barberName')?.trim() ?? '', [searchParams]);
+  const [pubPayConfig, setPubPayConfig] = useState<PublicPaymentPageConfig | null>(null);
 
-  const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card' | 'bank_transfer'>('moyasar');
+  useEffect(() => {
+    void fetchPublicPaymentPageConfig().then(setPubPayConfig);
+  }, []);
+
+  const selectedGateway = useMemo(() => {
+    if (pubPayConfig === null) return resolvePaymentGateway();
+    if (pubPayConfig.ok) return pubPayConfig.preferredGateway;
+    return resolvePaymentGateway();
+  }, [pubPayConfig]);
+
+  const enableMoyasarCard = pubPayConfig === null || !pubPayConfig.ok || pubPayConfig.enableMoyasarCard !== false;
+  const enableSabGateway = Boolean(pubPayConfig?.ok && pubPayConfig.enableSabGateway);
+
+  const paymentProvider = useMemo(() => getUnifiedPaymentProvider(selectedGateway), [selectedGateway]);
+  const isMoyasarGateway = selectedGateway === 'MOYASAR';
+  const showMoyasarCheckout = enableMoyasarCard && isMoyasarGateway;
+
+  const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card'>('moyasar');
   /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
   const [moyasarTermsAccepted, setMoyasarTermsAccepted] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [ibanCopied, setIbanCopied] = useState(false);
   /** بعد العودة من ميسر بـ ?id= — التحقق من الخادم */
   const [moyasarReturnVerify, setMoyasarReturnVerify] = useState<
     'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
   >('idle');
   const [moyasarVerifyMessage, setMoyasarVerifyMessage] = useState<string | null>(null);
+  /** يُعرض مع تنبيه النجاح بعد التحقق من ميسر عند paid */
+  const [moyasarPaidAmountFormat, setMoyasarPaidAmountFormat] = useState<string | null>(null);
+  const [activationCertificate, setActivationCertificate] = useState<DigitalActivationCertificateView | null>(null);
+  const [activationCertificateLoading, setActivationCertificateLoading] = useState(false);
+  const [activationCertificateError, setActivationCertificateError] = useState<string | null>(null);
   const moyasarHostRef = useRef<HTMLDivElement>(null);
   const [moyasarFormError, setMoyasarFormError] = useState<string | null>(null);
 
-  const moyasarPublishableKey = useMemo(
-    () => String(import.meta.env.VITE_MOYSAR_PUBLISHABLE_API_KEY || '').trim(),
-    [],
-  );
+  const moyasarPublishableKey = useMemo(() => {
+    // Production key source (frontend env):
+    // - VITE_PAYMENT_ENV=live
+    // - VITE_MOYSAR_PUBLISHABLE_LIVE_API_KEY=pk_live_...
+    // Sandbox:
+    // - VITE_PAYMENT_ENV=test
+    // - VITE_MOYSAR_PUBLISHABLE_TEST_API_KEY=pk_test_...
+    const mode = String(import.meta.env.VITE_PAYMENT_ENV || 'test').trim().toLowerCase();
+    const testKey = String(import.meta.env.VITE_MOYSAR_PUBLISHABLE_TEST_API_KEY || '').trim();
+    const liveKey = String(import.meta.env.VITE_MOYSAR_PUBLISHABLE_LIVE_API_KEY || '').trim();
+    const legacy = String(import.meta.env.VITE_MOYSAR_PUBLISHABLE_API_KEY || '').trim();
+    if (mode === 'live') return liveKey || legacy;
+    return testKey || legacy;
+  }, []);
   const moyasarKeyOk = moyasarPublishableKey.startsWith('pk_');
 
   // Subscription prices
@@ -88,31 +145,74 @@ export default function Payment() {
     [SubscriptionTier.DIAMOND]: 'from-primary to-cyan-600',
   };
 
-  const price = prices[tier];
+  const price = computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions);
   const tierName = tierNames[tier];
   const tierColor = tierColors[tier];
+  const tierDisplayLabel =
+    tier === SubscriptionTier.DIAMOND && digitalShiftAddonSelected
+      ? DIAMOND_PRODUCT_SMART_LABEL_AR
+      : tier === SubscriptionTier.DIAMOND
+        ? DIAMOND_PRODUCT_STANDARD_LABEL_AR
+        : `باقة ${tierName}`;
 
-  const monthlyBreakdown = calcVatBreakdown(price, vatSettings);
+  const licenseBreakdown = useMemo(
+    () => calcVatBreakdown(price, vatSettings),
+    [price, vatSettings],
+  );
 
-  /** مبلغ الاشتراك الشهري بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
+  /** قيمة حزمة الرخصة الرقمية بالهللات (ميسر تستخدم أصغر وحدة نقدية). */
   const monthlyAmountHalalas = useMemo(
-    () => Math.max(100, Math.round(monthlyBreakdown.total * 100)),
-    [monthlyBreakdown.total],
+    () => Math.max(100, Math.round(licenseBreakdown.total * 100)),
+    [licenseBreakdown.total],
+  );
+  const unifiedPaymentInit = useMemo(
+    () =>
+      paymentProvider.buildInitPayload({
+        tier,
+        amountHalalas: monthlyAmountHalalas,
+        licenseQuantity,
+        digitalShiftAddonSelected,
+        barberName,
+        requestId,
+        linkedBarberId,
+      }),
+    [
+      paymentProvider,
+      tier,
+      monthlyAmountHalalas,
+      licenseQuantity,
+      digitalShiftAddonSelected,
+      barberName,
+      requestId,
+      linkedBarberId,
+    ],
   );
 
   const moyasarPaymentIdFromUrl = searchParams.get('id')?.trim() || '';
 
   useEffect(() => {
+    if (pubPayConfig === null) return;
+    if (!enableMoyasarCard && !isMoyasarGateway && enableSabGateway) {
+      setPaymentMethod('card');
+    } else if (enableMoyasarCard && isMoyasarGateway) {
+      setPaymentMethod('moyasar');
+    }
+  }, [pubPayConfig, enableMoyasarCard, enableSabGateway, isMoyasarGateway]);
+
+  useEffect(() => {
+    if (selectedGateway !== 'MOYASAR') return;
     if (!moyasarPaymentIdFromUrl) return;
     let cancelled = false;
     setMoyasarReturnVerify('loading');
     setMoyasarVerifyMessage(null);
+    setMoyasarPaidAmountFormat(null);
 
     void verifyMoyasarPaymentRemote(moyasarPaymentIdFromUrl, {
       expectedAmountHalalas: monthlyAmountHalalas,
       expectedCurrency: 'SAR',
-    }).then((result) => {
+    }).then(async (result) => {
       if (cancelled) return;
+      const verifiedPaymentId = moyasarPaymentIdFromUrl;
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
@@ -130,7 +230,7 @@ export default function Payment() {
           );
           toast.message('تنبيه', { description: 'خادم التحقق من ميسر غير مهيأ بعد.' });
         } else if (result.error === 'amount_mismatch') {
-          setMoyasarVerifyMessage('المبلغ لا يطابق اشتراك الباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
+          setMoyasarVerifyMessage('المبلغ لا يطابق قيمة حزمة الرخصة الرقمية للباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
           toast.error('تباين في المبلغ');
         } else {
           setMoyasarVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
@@ -139,14 +239,25 @@ export default function Payment() {
         return;
       }
 
-      if (result.paid) {
+      if (result.paid && paymentProvider.isSuccessStatus(result.status || 'paid')) {
         setMoyasarReturnVerify('paid');
-        setMoyasarVerifyMessage(
-          result.amount_format
-            ? `حالة الدفع: مدفوع — ${result.amount_format}`
-            : 'حالة الدفع: مدفوع — تم التحقق من ميسر.',
-        );
-        toast.success('تم التحقق من الدفع');
+        setMoyasarVerifyMessage(null);
+        setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
+        setActivationCertificate(null);
+        setActivationCertificateError(null);
+        setActivationCertificateLoading(true);
+        const certResult = await fetchActivationCertificateByMoyasarPaymentId(verifiedPaymentId);
+        if (cancelled) return;
+        setActivationCertificateLoading(false);
+        if (certResult.ok) {
+          setActivationCertificate(certResult.certificate);
+        } else {
+          setActivationCertificateError(
+            certResult.pending
+              ? 'جاري إصدار شهادة التفعيل الرقمية — قد تستغرق ثوانٍ بعد تأكيد الدفع.'
+              : 'تعذر جلب شهادة التفعيل الرقمية حالياً.',
+          );
+        }
       } else {
         setMoyasarReturnVerify('unpaid');
         setMoyasarVerifyMessage(
@@ -159,10 +270,11 @@ export default function Payment() {
     return () => {
       cancelled = true;
     };
-  }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, setSearchParams]);
+  }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, paymentProvider, selectedGateway, setSearchParams]);
 
   /** تهيئة نموذج ميسر داخل الصفحة بعد الإقرار بالشروط. */
   useEffect(() => {
+    if (selectedGateway !== 'MOYASAR' || !showMoyasarCheckout) return;
     if (paymentMethod !== 'moyasar' || !moyasarTermsAccepted || !moyasarKeyOk) {
       setMoyasarFormError(null);
       if (moyasarHostRef.current) moyasarHostRef.current.innerHTML = '';
@@ -177,21 +289,32 @@ export default function Payment() {
 
     const explicit = String(import.meta.env.VITE_MOYSAR_CALLBACK_URL || '').trim();
     let callbackUrl: string;
+    const paymentQuery = [
+      `tier=${encodeURIComponent(tier)}`,
+      `qty=${encodeURIComponent(String(licenseQuantity))}`,
+      ...(digitalShiftAddonSelected ? ['aiAddon=1'] : []),
+      `requestId=${encodeURIComponent(requestId)}`,
+      ...(linkedBarberId ? [`linkedBarberId=${encodeURIComponent(linkedBarberId)}`] : []),
+    ].join('&');
     if (explicit) {
       try {
         const u = new URL(explicit);
         u.searchParams.set('tier', tier);
+        u.searchParams.set('qty', String(licenseQuantity));
+        if (digitalShiftAddonSelected) u.searchParams.set('aiAddon', '1');
+        else u.searchParams.delete('aiAddon');
         u.searchParams.set('requestId', requestId);
+        if (linkedBarberId) u.searchParams.set('linkedBarberId', linkedBarberId);
         callbackUrl = u.toString();
       } catch {
         const origin = window.location.origin;
         const path = window.location.pathname.replace(/\/$/, '');
-        callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?tier=${encodeURIComponent(tier)}&requestId=${encodeURIComponent(requestId)}`;
+        callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?${paymentQuery}`;
       }
     } else {
       const origin = window.location.origin;
       const path = window.location.pathname.replace(/\/$/, '');
-      callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?tier=${encodeURIComponent(tier)}&requestId=${encodeURIComponent(requestId)}`;
+      callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?${paymentQuery}`;
     }
 
     void loadMoyasarFormScript()
@@ -210,18 +333,14 @@ export default function Payment() {
             element: host,
             amount: monthlyAmountHalalas,
             currency: 'SAR',
-            description: `Halaqmap subscription ${tier} / ${requestId}`,
+            description: unifiedPaymentInit.description,
             publishable_api_key: moyasarPublishableKey,
             callback_url: callbackUrl,
             supported_networks: ['mada', 'visa', 'mastercard'],
             methods: ['creditcard'],
             language: 'ar',
             fixed_width: false,
-            metadata: {
-              tier: String(tier),
-              request_id: String(requestId),
-              product: 'subscription_monthly',
-            },
+            metadata: unifiedPaymentInit.metadata,
             on_failure: (msg: unknown) => {
               toast.error(typeof msg === 'string' ? msg : 'فشل الدفع');
             },
@@ -244,58 +363,16 @@ export default function Payment() {
     moyasarKeyOk,
     monthlyAmountHalalas,
     tier,
+    licenseQuantity,
+    digitalShiftAddonSelected,
     requestId,
+    linkedBarberId,
+    selectedGateway,
+    showMoyasarCheckout,
     moyasarPublishableKey,
+    unifiedPaymentInit.description,
+    unifiedPaymentInit.metadata,
   ]);
-
-  const bankTransferDue = getBankTransferPayableAmountSar(tier);
-  const bankTransferBreakdown = calcVatBreakdown(bankTransferDue, vatSettings);
-  const bankTransferMonths = getBankTransferCoveredMonths();
-  const bankTransferGrossSix = getSixMonthGrossSar(tier);
-  const bankPromoOn = isBankTransferPromoActive();
-
-  const IBAN = BANK_TRANSFER.iban;
-  const BANK_NAME = BANK_TRANSFER.bankDisplayAr;
-  const ACCOUNT_NAME = BANK_TRANSFER.beneficiaryDisplay;
-
-  const handleCopyIban = () => {
-    navigator.clipboard.writeText(IBAN);
-    setIbanCopied(true);
-    setTimeout(() => setIbanCopied(false), 2000);
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setReceiptFile(e.target.files[0]);
-    }
-  };
-
-  const handlePayment = async () => {
-    if (paymentMethod === 'moyasar') {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    if (paymentMethod === 'card') {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      alert('سيتم توجيهك إلى بوابة الدفع الإلكتروني...');
-      setIsProcessing(false);
-      return;
-    }
-    if (paymentMethod === 'bank_transfer') {
-      if (!receiptFile) {
-        alert('يرجى رفع إيصال التحويل البنكي');
-        setIsProcessing(false);
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      alert('تم إرسال إيصال التحويل بنجاح! سيتم مراجعته خلال 24 ساعة.');
-    }
-
-    setIsProcessing(false);
-    navigate(ROUTE_PATHS.HOME);
-  };
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -320,9 +397,11 @@ export default function Payment() {
               <CreditCard className="w-10 h-10 text-primary" />
             </motion.div>
 
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">إتمام الدفع</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-snug">
+              شراء حزمة رخصة نفاذ — نظام الاستجابة الذكية
+            </h1>
             <p className="text-lg text-muted-foreground">
-              اختر طريقة الدفع المناسبة لإتمام اشتراكك
+              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة رخصة النفاذ
             </p>
           </div>
         </motion.div>
@@ -337,25 +416,39 @@ export default function Payment() {
               <AlertDescription>جاري التحقق من عملية الدفع مع ميسر…</AlertDescription>
             </Alert>
           )}
-          {(moyasarReturnVerify === 'paid' || moyasarReturnVerify === 'unpaid' || moyasarReturnVerify === 'error') &&
-            moyasarVerifyMessage && (
-              <Alert
-                className={`mb-6 ${
-                  moyasarReturnVerify === 'paid'
-                    ? 'border-green-600/40 bg-green-500/10'
-                    : moyasarReturnVerify === 'unpaid'
-                      ? 'border-amber-600/40 bg-amber-500/10'
-                      : 'border-destructive/40 bg-destructive/10'
-                }`}
-              >
-                {moyasarReturnVerify === 'paid' ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                ) : (
+          {moyasarReturnVerify === 'paid' && (
+            <div className="mb-6 space-y-4">
+              <PaymentSuccessPanel
+                barberName={barberName}
+                certificate={activationCertificate}
+                loading={activationCertificateLoading}
+              />
+              {activationCertificateError && !activationCertificateLoading && !activationCertificate ? (
+                <Alert className="border-amber-600/40 bg-amber-500/10">
                   <AlertCircle className="h-4 w-4" />
-                )}
-                <AlertDescription className="text-sm leading-relaxed">{moyasarVerifyMessage}</AlertDescription>
-              </Alert>
-            )}
+                  <AlertDescription className="text-sm">{activationCertificateError}</AlertDescription>
+                </Alert>
+              ) : null}
+              {moyasarPaidAmountFormat ? (
+                <p className="text-xs font-medium text-muted-foreground" dir="ltr">
+                  المبلغ المؤكد من ميسر: {moyasarPaidAmountFormat}
+                </p>
+              ) : null}
+            </div>
+          )}
+
+          {(moyasarReturnVerify === 'unpaid' || moyasarReturnVerify === 'error') && moyasarVerifyMessage && (
+            <Alert
+              className={`mb-6 ${
+                moyasarReturnVerify === 'unpaid'
+                  ? 'border-amber-600/40 bg-amber-500/10'
+                  : 'border-destructive/40 bg-destructive/10'
+              }`}
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-sm leading-relaxed">{moyasarVerifyMessage}</AlertDescription>
+            </Alert>
+          )}
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Payment Methods */}
@@ -363,7 +456,7 @@ export default function Payment() {
               {/* Subscription Summary */}
               <Card>
                 <CardHeader>
-                  <CardTitle>ملخص الاشتراك</CardTitle>
+                  <CardTitle>ملخص حزمة رخصة النفاذ الرقمية</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
@@ -374,26 +467,32 @@ export default function Payment() {
                         {tierName === 'ماسي' && '💎'}
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold">باقة {tierName}</h3>
-                        <p className="text-sm text-muted-foreground">اشتراك شهري</p>
+                        <h3 className="text-lg font-bold">{tierDisplayLabel}</h3>
+                        <p className="text-sm text-muted-foreground">حزمة إدراج برمجية (30 يوماً)</p>
+                        {digitalShiftAddonSelected ? (
+                          <p className="mt-1 text-xs font-medium text-primary">
+                            {DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR} · {DIGITAL_SHIFT_PRODUCT_NAME_AR} (
+                            {DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س × {licenseQuantity} بطاقة)
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                     <div className="text-left space-y-1">
-                      {vatSettings.enabled && monthlyBreakdown.vat > 0 ? (
+                      {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
                         <>
                           <p className="text-xs text-muted-foreground">
-                            أتعاب الاشتراك: {monthlyBreakdown.subtotal} ر.س
+                            قيمة حزمة الرخصة الرقمية الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {monthlyBreakdown.vat} ر.س
+                            ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
                           </p>
-                          <p className="text-2xl font-bold text-primary">{monthlyBreakdown.total} ر.س</p>
-                          <p className="text-xs text-muted-foreground">الإجمالي شهرياً</p>
+                          <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
+                          <p className="text-xs text-muted-foreground">إجمالي قيمة حزمة الرخصة</p>
                         </>
                       ) : (
                         <>
                           <p className="text-2xl font-bold text-primary">{price} ر.س</p>
-                          <p className="text-xs text-muted-foreground">شهرياً (دون ضريبة قيمة مضافة)</p>
+                          <p className="text-xs text-muted-foreground">لحزمة الرخصة (دون ضريبة قيمة مضافة)</p>
                         </>
                       )}
                     </div>
@@ -410,82 +509,64 @@ export default function Payment() {
                 <CardContent className="space-y-4">
                   <RadioGroup
                     value={paymentMethod}
-                    onValueChange={(value: 'moyasar' | 'card' | 'bank_transfer') => {
+                    onValueChange={(value: 'moyasar' | 'card') => {
                       setPaymentMethod(value);
                       if (value !== 'moyasar') setMoyasarTermsAccepted(false);
                     }}
                   >
-                    {/* Moyasar */}
+                    {/* بطاقة — ميسر أو مسار البنك حسب إعدادات المنصة */}
+                    {(isMoyasarGateway ? enableMoyasarCard : true) && (
                     <label
                       className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
                         paymentMethod === 'moyasar'
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
-                      }`}
+                      } ${!isMoyasarGateway && !enableSabGateway ? 'opacity-60' : ''}`}
                     >
-                      <RadioGroupItem value="moyasar" id="moyasar" />
+                      <RadioGroupItem
+                        value="moyasar"
+                        id="moyasar"
+                        disabled={!isMoyasarGateway && !enableSabGateway}
+                      />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <CreditCard className="w-5 h-5 text-primary" />
-                          <h3 className="font-semibold">ميسر (Moyasar)</h3>
-                          <Badge variant="secondary" className="text-xs">موصى به</Badge>
+                          <h3 className="font-semibold">
+                            {isMoyasarGateway ? 'ميسر (Moyasar)' : 'بنك الأول — دفع بالبطاقة'}
+                          </h3>
+                          {isMoyasarGateway ? (
+                            <Badge variant="secondary" className="text-xs">موصى به</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">SAB</Badge>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          بوابة دفع سعودية آمنة - دعم جميع البطاقات (مدى، فيزا، ماستركارد)
+                          {isMoyasarGateway
+                            ? 'بوابة دفع سعودية آمنة - دعم جميع البطاقات (مدى، فيزا، ماستركارد)'
+                            : enableSabGateway
+                              ? 'مسار البطاقة عبر بنك الأول — يُكمل بعد ربط البوابة والتحقق من الـ webhook.'
+                              : 'مسار البنك غير مفعّل حالياً من لوحة الإدارة.'}
                         </p>
-                        <div className="flex gap-2 mt-2">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/200px-Mastercard_2019_logo.svg.png" alt="Mastercard" className="h-6" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Mada_Logo.svg/200px-Mada_Logo.svg.png" alt="Mada" className="h-6" />
-                        </div>
+                        {isMoyasarGateway && (
+                          <div className="flex gap-2 mt-2">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/200px-Mastercard_2019_logo.svg.png" alt="Mastercard" className="h-6" />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6" />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Mada_Logo.svg/200px-Mada_Logo.svg.png" alt="Mada" className="h-6" />
+                          </div>
+                        )}
                       </div>
                     </label>
-
-                    {/* Credit/Debit Card */}
-                    <label
-                      className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === 'card'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <RadioGroupItem value="card" id="card" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <CreditCard className="w-5 h-5 text-primary" />
-                          <h3 className="font-semibold">بطاقة ائتمانية / مدى</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          ادفع باستخدام بطاقتك الائتمانية أو بطاقة مدى
-                        </p>
-                      </div>
-                    </label>
-
-                    {/* Bank Transfer */}
-                    <label
-                      className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === 'bank_transfer'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Building2 className="w-5 h-5 text-primary" />
-                          <h3 className="font-semibold">تحويل بنكي</h3>
-                          <Badge variant="outline" className="text-xs">
-                            {bankPromoOn ? '6 أشهر + عرض' : '6 أشهر مقدماً'}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          حوّل المبلغ إلى حسابنا البنكي وارفع الإيصال
-                        </p>
-                      </div>
-                    </label>
+                    )}
                   </RadioGroup>
 
-                  {paymentMethod === 'moyasar' && (
+                  {pubPayConfig?.ok && (
+                    <p className="text-xs text-muted-foreground">
+                      وضع الدفع المعروض للمنصة:{' '}
+                      <strong>{pubPayConfig.displayPaymentMode === 'live' ? 'إنتاج' : 'اختبار'}</strong>
+                    </p>
+                  )}
+
+                  {paymentMethod === 'moyasar' && showMoyasarCheckout && (
                     <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
                       <Alert>
                         <Shield className="h-4 w-4" />
@@ -512,7 +593,7 @@ export default function Payment() {
                             . يلتزم التاجر بـ SSL، والتحقق من الدفع في الخادم، وعدم تخزين بيانات البطاقة،
                             وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع أيضاً{' '}
                             <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
-                              سياسة الاشتراك
+                              سياسة رخصة النفاذ الرقمية
                             </Link>
                             .
                           </p>
@@ -550,10 +631,10 @@ export default function Payment() {
                       {moyasarKeyOk && moyasarTermsAccepted && (
                         <Card className="border-primary/20">
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">نموذج الدفع — ميسر</CardTitle>
+                            <CardTitle className="text-lg">{paymentActivateNowCtaAr(price)}</CardTitle>
                             <CardDescription>
-                              المبلغ المعروض بالهللة وفق الباقة والضريبة الحالية. بعد إتمام العملية يعيد ميسر التوجيه
-                              مع <span dir="ltr">?id=</span> ثم يُتحقق من الخادم تلقائياً.
+                              {TERM_ACTIVATE_NOW_AR} — منتج رقمي فوري. المبلغ بالهللة وفق الباقة والضريبة. بعد إتمام
+                              العملية يعيد ميسر التوجيه مع <span dir="ltr">?id=</span> ثم يُتحقق من الخادم تلقائياً.
                             </CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-3">
@@ -578,175 +659,26 @@ export default function Payment() {
                     </div>
                   )}
 
-                  {/* Bank Transfer Details */}
-                  {paymentMethod === 'bank_transfer' && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="space-y-4 pt-4"
-                    >
-                      <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
-                          <strong>ملاحظة:</strong>{' '}
-                          {bankPromoOn ? (
-                            <>
-                              فترة العرض: حوّل <strong>{bankTransferDue} ر.س</strong> (خصم 10% على إجمالي{' '}
-                              {bankTransferGrossSix} ر.س لستة أشهر) لتحصل على صلاحية{' '}
-                              <strong>{bankTransferMonths} أشهر</strong> (6 مدفوعة + شهران إضافيان). بعد انتهاء
-                              فترة العرض ينطبق سعر 6 أشهر كاملة ({bankTransferGrossSix} ر.س).
-                            </>
-                          ) : (
-                            <>
-                              التحويل البنكي: دفع مقدم لـ <strong>6 أشهر</strong> — المبلغ{' '}
-                              <strong>{bankTransferDue} ر.س</strong> (برونزي 600، ذهبي 900، ماسي 1200 حسب الباقة).
-                            </>
-                          )}
-                        </AlertDescription>
-                      </Alert>
+                  {paymentMethod === 'moyasar' && !showMoyasarCheckout && isMoyasarGateway && (
+                    <Alert>
+                      <Shield className="h-4 w-4" />
+                      <AlertDescription className="text-sm leading-relaxed">
+                        تم إيقاف أو إخفاء دفع ميسر من <strong>لوحة إدارة المنصة</strong>. فعّل القناة من قسم بوابات الدفع في الإدارة.
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
-                      <Card className="bg-muted/50">
-                        <CardHeader>
-                          <CardTitle className="text-lg">معلومات الحساب البنكي</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div>
-                            <Label className="text-sm text-muted-foreground">اسم البنك</Label>
-                            <p className="text-base font-semibold">{BANK_NAME}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm text-muted-foreground">اسم الحساب</Label>
-                            <p className="text-base font-semibold">{ACCOUNT_NAME}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm text-muted-foreground">رقم الآيبان (IBAN)</Label>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Input
-                                value={IBAN}
-                                readOnly
-                                dir="ltr"
-                                className="font-mono text-base"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={handleCopyIban}
-                                className="flex-shrink-0"
-                              >
-                                {ibanCopied ? (
-                                  <Check className="w-4 h-4 text-green-600" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </div>
-                            {ibanCopied && (
-                              <p className="text-xs text-green-600 mt-1">تم النسخ!</p>
-                            )}
-                          </div>
-                          <div>
-                            <Label className="text-sm text-muted-foreground">المبلغ المطلوب</Label>
-                            {vatSettings.enabled && bankTransferBreakdown.vat > 0 ? (
-                              <div className="space-y-1 mt-1">
-                                <p className="text-sm text-muted-foreground">
-                                  أتعاب الاشتراك: {bankTransferBreakdown.subtotal} ر.س
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  ضريبة القيمة المضافة ({vatSettings.ratePercent}%):{' '}
-                                  {bankTransferBreakdown.vat} ر.س
-                                </p>
-                                <p className="text-2xl font-bold text-primary">
-                                  {bankTransferBreakdown.total} ر.س
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  الإجمالي للتحويل — لمدة {bankTransferMonths} أشهر
-                                  {bankPromoOn
-                                    ? ` (عرض: خصم 10% على ${bankTransferGrossSix} ر.س + شهران هدية)`
-                                    : ' (سعر 6 أشهر كامل)'}
-                                </p>
-                              </div>
-                            ) : (
-                              <>
-                                <p className="text-2xl font-bold text-primary">{bankTransferDue} ر.س</p>
-                                <p className="text-xs text-muted-foreground">
-                                  لمدة {bankTransferMonths} أشهر
-                                  {bankPromoOn
-                                    ? ` (عرض: خصم 10% على ${bankTransferGrossSix} ر.س + شهران هدية)`
-                                    : ' (سعر 6 أشهر كامل)'}
-                                </p>
-                              </>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="receipt">رفع إيصال التحويل *</Label>
-                        <div
-                          onClick={() => document.getElementById('receipt')?.click()}
-                          className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
-                        >
-                          <input
-                            id="receipt"
-                            type="file"
-                            accept="image/*,application/pdf"
-                            onChange={handleFileUpload}
-                            className="hidden"
-                          />
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Upload className="w-6 h-6 text-primary" />
-                            </div>
-                            {receiptFile ? (
-                              <div className="flex items-center gap-2 text-green-600">
-                                <CheckCircle2 className="w-5 h-5" />
-                                <span className="font-medium">{receiptFile.name}</span>
-                              </div>
-                            ) : (
-                              <>
-                                <p className="text-sm font-medium">اضغط لرفع إيصال التحويل</p>
-                                <p className="text-xs text-muted-foreground">
-                                  PNG, JPG, PDF حتى 10MB
-                                </p>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
+                  {paymentMethod === 'moyasar' && !isMoyasarGateway && (
+                    <Alert>
+                      <Shield className="h-4 w-4" />
+                      <AlertDescription className="text-sm leading-relaxed">
+                        البوابة المختارة هي <strong>بنك الأول (SAB)</strong>. نفس نظام الأتمتة (تفعيل الحساب والإشعارات)
+                        يعمل عند وصول حالة نجاح موثوقة من webhook البنك. {enableSabGateway ? 'أكمل إعداد مفاتيح SAB والربط الفني.' : 'فعّل مسار SAB من لوحة الإدارة عند الجاهزية.'}
+                      </AlertDescription>
+                    </Alert>
                   )}
                 </CardContent>
               </Card>
-
-              {/* Payment Button */}
-              <Button
-                onClick={handlePayment}
-                disabled={
-                  isProcessing ||
-                  (paymentMethod === 'bank_transfer' && !receiptFile) ||
-                  paymentMethod === 'moyasar'
-                }
-                className="w-full h-14 text-lg font-semibold"
-                size="lg"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 ml-2 animate-spin" />
-                    جاري المعالجة...
-                  </>
-                ) : (
-                  <>
-                    {paymentMethod === 'moyasar'
-                      ? 'أكمل الدفع عبر نموذج ميسر أعلاه'
-                      : paymentMethod === 'bank_transfer'
-                        ? 'إرسال الإيصال'
-                        : 'متابعة الدفع'}
-                    {paymentMethod !== 'moyasar' ? <ArrowRight className="w-5 h-5 mr-2" /> : null}
-                  </>
-                )}
-              </Button>
             </div>
 
             {/* Sidebar */}
@@ -799,11 +731,11 @@ export default function Payment() {
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>تجديد تلقائي شهرياً</span>
+                      <span>حزمة رخصة مسبقة الدفع — دون تجديد تلقائي أو خصم دوري</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>إمكانية الإلغاء في أي وقت</span>
+                      <span>صلاحية الإدراج محددة بمدة حزمة الرخصة المشتراة</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />

@@ -35,7 +35,7 @@
 
 #### الخطوة 1: اذهب إلى SQL Editor
 ```
-https://supabase.com/dashboard/project/lqzuhkzfhdhaosstduas/sql
+https://supabase.com/dashboard/project/YOUR_PROJECT_REF/sql
 ```
 
 #### الخطوة 2: نفذ الملفات بالترتيب
@@ -81,7 +81,7 @@ supabase login
 #### الخطوة 3: ربط المشروع
 ```bash
 cd halaqmap
-supabase link --project-ref lqzuhkzfhdhaosstduas
+supabase link --project-ref YOUR_PROJECT_REF
 ```
 
 #### الخطوة 4: تنفيذ Migrations

@@ -2,7 +2,11 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import fs from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import nodePath from 'node:path';
 import { componentTagger } from 'lovable-tagger';
 import path from "path";
@@ -12,10 +16,63 @@ import _traverse from '@babel/traverse';
 import _generate from '@babel/generator';
 import * as t from '@babel/types';
 
+const projectRoot = nodePath.dirname(fileURLToPath(import.meta.url));
+const pkgJson = JSON.parse(
+  readFileSync(nodePath.join(projectRoot, 'package.json'), 'utf-8')
+) as { version?: string };
+const webAppManifest = JSON.parse(
+  readFileSync(nodePath.join(projectRoot, 'manifest.json'), 'utf-8')
+) as Record<string, unknown>;
+
+function resolveGitShortCommit(): string {
+  const full =
+    process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.VITE_BUILD_COMMIT?.trim();
+  if (full) return full.length > 7 ? full.slice(0, 7) : full;
+  try {
+    return execSync('git rev-parse --short HEAD', {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+    }).trim();
+  } catch {
+    return 'dev';
+  }
+}
+
+const appBuildTimeIso = new Date().toISOString();
 
 // CJS/ESM interop for Babel libs
 const traverse: typeof _traverse.default = ( (_traverse as any).default ?? _traverse ) as any;
 const generate: typeof _generate.default = ( (_generate as any).default ?? _generate ) as any;
+
+/** يُلحق ?v=… بروابط /assets/*.js و*.css في index.html بعد البناء لتسهيل كسر كاش HTTP/CDN (مع بقاء أسماء الملفات المُشفّرة). */
+function indexHtmlAssetCacheBustPlugin(): Plugin {
+  return {
+    name: 'index-html-asset-cache-bust',
+    apply: 'build',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '2').trim();
+      const q = raw.length > 0 ? raw : '2';
+      const suffix = `?v=${encodeURIComponent(q)}`;
+      let out = html
+        .replace(/src="(\/assets\/[^"?]+\.js)"/g, `src="$1${suffix}"`)
+        .replace(/href="(\/assets\/[^"?]+\.js)"/g, `href="$1${suffix}"`)
+        .replace(/href="(\/assets\/[^"?]+\.css)"/g, `href="$1${suffix}"`);
+      const escAttr = (s: string) =>
+        s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      const commit = escAttr(resolveGitShortCommit());
+      const buildTime = escAttr(new Date().toISOString());
+      const qEsc = escAttr(q);
+      if (!out.includes('name="halaqmap-build-commit"')) {
+        out = out.replace(
+          '</head>',
+          `    <meta name="halaqmap-build-commit" content="${commit}" />\n    <meta name="halaqmap-build-time" content="${buildTime}" />\n    <meta name="halaqmap-asset-query" content="${qEsc}" />\n  </head>`
+        );
+      }
+      return out;
+    },
+  };
+}
 
 function cdnPrefixImages(): Plugin {
   const DEBUG = process.env.CDN_IMG_DEBUG === '1';
@@ -215,13 +272,91 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       // يفتح المتصفح على الرابط الصحيح تلقائياً عند npm run dev
       open: true,
+      // اختياري: مع `vercel dev` على منفذ آخر، عيّن VITE_PROXY_API_TO=http://127.0.0.1:3000 لتوجيه /api/* إلى نفس المشروع
+      ...(process.env.VITE_PROXY_API_TO?.trim()
+        ? {
+            proxy: {
+              '/api': {
+                target: process.env.VITE_PROXY_API_TO.trim(),
+                changeOrigin: true,
+              },
+            },
+          }
+        : {}),
     },
     plugins: [
       tailwindcss(),
       react(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: false,
+        manifestFilename: 'manifest.json',
+        manifest: webAppManifest,
+        includeAssets: [
+          'favicon.svg',
+          'robots.txt',
+          'sitemap.xml',
+          'icons/**/*.png',
+        ],
+        workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
+          cleanupOutdatedCaches: true,
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
+          globIgnores: ['**/halaqmap_barber_banner_*.png'],
+          maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api\//],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-stylesheets',
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-webfonts',
+                expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'supabase-api',
+                networkTimeoutSeconds: 10,
+                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 5 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: ({ url }) =>
+                url.origin === self.location.origin &&
+                /^\/images\//.test(url.pathname),
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'local-images',
+                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 14 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+          ],
+        },
+        devOptions: {
+          enabled: false,
+        },
+      }),
       mode === 'development' &&
       componentTagger(),
       cdnPrefixImages(),
+      indexHtmlAssetCacheBustPlugin(),
     ].filter(Boolean),
     resolve: {
       alias: {
@@ -241,6 +376,9 @@ export default defineConfig(({ mode }) => {
           ? process.env.VITE_ENABLE_ROUTE_MESSAGING === 'true'
           : process.env.VITE_ENABLE_ROUTE_MESSAGING !== 'false'
       ),
+      __APP_PKG_VERSION__: JSON.stringify(pkgJson.version ?? '0.0.0'),
+      __APP_GIT_COMMIT__: JSON.stringify(resolveGitShortCommit()),
+      __APP_BUILD_TIME_ISO__: JSON.stringify(appBuildTimeIso),
     },
   }
 });

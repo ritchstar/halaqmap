@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Mail, LogIn, Scissors } from 'lucide-react';
+import { Lock, Mail, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
+import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
+import { PLATFORM_PARTNER_DASHBOARD_TAGLINE } from '@/config/platformSmartTracking';
 import { IMAGES } from '@/assets/images';
 import { barberPortalLoginRemote } from '@/lib/barberPortalLoginRemote';
 import { toast } from 'sonner';
@@ -23,7 +26,11 @@ export default function BarberLogin() {
       const result = await barberPortalLoginRemote({ email, password });
       if (!result.ok) {
         const errorMessage = 'error' in result ? result.error : 'فشل تسجيل الدخول';
-        toast.error(errorMessage || 'فشل تسجيل الدخول');
+        if ('code' in result && result.code === 'TIER_BRONZE_NO_DASHBOARD') {
+          toast.error(errorMessage || 'الباقة البرونزية لا تشمل لوحة التحكم الإلكترونية.');
+        } else {
+          toast.error(errorMessage || 'فشل تسجيل الدخول');
+        }
         setIsLoading(false);
         return;
       }
@@ -34,7 +41,7 @@ export default function BarberLogin() {
           loggedIn: true,
         }),
       );
-      toast.success(`مرحباً ${result.session.name}`);
+      toast.success(`مرحباً ${partnerSalonDisplayName(result.session)}`);
       navigate(ROUTE_PATHS.BARBER_DASHBOARD);
     } catch {
       toast.error('حدث خطأ غير متوقع');
@@ -68,21 +75,20 @@ export default function BarberLogin() {
       >
         <div className="rounded-2xl border border-border bg-card p-8 shadow-2xl">
           <div className="mb-8 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent"
-            >
-              <Scissors className="h-10 w-10 text-primary-foreground" />
-            </motion.div>
-            <img
-              src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-              alt="حلاق ماب"
-              className="mx-auto mb-3 h-10 w-auto object-contain"
-            />
+            <HalaqmapBrandMark className="mx-auto mb-4 h-20 w-20 rounded-[1.35rem] ring-2 ring-primary/40 ring-offset-4 ring-offset-card shadow-xl" />
             <h1 className="mb-2 text-2xl font-bold">لوحة تحكم حلاق ماب</h1>
-            <p className="text-muted-foreground">سجّل الدخول ببريدك المسجّل لدينا ورمز الدخول الذي زوّدتك به الإدارة</p>
+            <p className="text-sm text-primary font-medium mb-3 leading-relaxed">{PLATFORM_PARTNER_DASHBOARD_TAGLINE}</p>
+            <p className="text-muted-foreground">
+              أدخل <strong>البريد المعتمد</strong> في حزمتك البرمجية. في خانة الرمز استخدم إما الرقم السري الذي زوّدك به{' '}
+              <strong>فريق الدعم</strong>، أو <strong>كلمة المرور</strong> التي وصلتك على البريد بعد تفعيل حسابك.
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              هذه اللوحة مخصّصة لباقتي <strong>الذهبي</strong> و<strong>الماسي</strong> فقط. إذا كنت على الباقة البرونزية يمكنك{' '}
+              <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
+                الاطلاع على الترقية
+              </Link>
+              .
+            </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -96,7 +102,7 @@ export default function BarberLogin() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="البريد المعتمد في طلب الاشتراك"
+                  placeholder="البريد المعتمد في طلب حزمة الرخصة"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-12 pr-10"
@@ -115,7 +121,7 @@ export default function BarberLogin() {
                   id="password"
                   type="password"
                   autoComplete="current-password"
-                  placeholder="رمز البوابة من الإدارة (ليس أي كلمة مرور)"
+                  placeholder="الرمز من فريق الدعم أو كلمة المرور من بريدك"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 pr-10"

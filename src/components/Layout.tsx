@@ -1,12 +1,18 @@
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
-import { IMAGES } from '@/assets/images';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { Menu, X, MapPin, Phone, Mail } from 'lucide-react';
 import { SiX, SiFacebook, SiInstagram, SiWhatsapp } from 'react-icons/si';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { AppBuildStamp } from '@/components/AppBuildStamp';
+import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
+import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
+import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
+import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
+import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -17,8 +23,9 @@ export function Layout({ children }: LayoutProps) {
 
   const navItems = [
     { path: ROUTE_PATHS.HOME, label: 'الرئيسية' },
+    { path: ROUTE_PATHS.BARBERS_LANDING, label: SOFTWARE_SERVICES_PORTAL_LABEL },
     { path: ROUTE_PATHS.ABOUT, label: 'من نحن' },
-    { path: ROUTE_PATHS.PRIVACY, label: 'سياسة الخصوصية' },
+    { path: ROUTE_PATHS.PRIVACY_DETAILED, label: 'سياسة الخصوصية' },
   ];
 
   return (
@@ -32,33 +39,19 @@ export function Layout({ children }: LayoutProps) {
             >
               <motion.div
                 className="relative shrink-0 [transform-style:preserve-3d]"
-                animate={{ scale: [1, 1.06, 1] }}
-                transition={{
-                  duration: 2.6,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                whileHover={{ scale: 1.08, rotateY: -10 }}
-                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.06, rotateY: -8 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 380, damping: 22 }}
               >
-                <div
-                  className="relative h-12 w-12 overflow-hidden rounded-full
+                <HalaqmapBrandMark
+                  className="h-12 w-12 shrink-0 rounded-2xl
                     ring-2 ring-primary/40 ring-offset-2 ring-offset-background
                     shadow-[0_14px_32px_-8px_color-mix(in_srgb,var(--primary)_50%,transparent),0_6px_16px_-4px_rgba(0,0,0,0.22),inset_0_2px_6px_rgba(255,255,255,0.55)]
                     transition-[box-shadow,ring-color] duration-300
                     group-hover:ring-primary/60
                     group-hover:shadow-[0_18px_40px_-10px_color-mix(in_srgb,var(--primary)_60%,transparent),0_8px_20px_-4px_rgba(0,0,0,0.28),inset_0_2px_8px_rgba(255,255,255,0.65)]"
-                >
-                  <span
-                    className="pointer-events-none absolute inset-x-1 top-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/50 to-transparent opacity-90"
-                    aria-hidden
-                  />
-                  <img
-                    src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-                    alt="حلاق ماب"
-                    className="relative z-[1] h-full w-full object-cover [transform:translateZ(6px)]"
-                  />
-                </div>
+                  imgClassName="[transform:translateZ(4px)]"
+                />
               </motion.div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
@@ -138,22 +131,12 @@ export function Layout({ children }: LayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3 [perspective:640px]">
-                <div
-                  className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full
+                <HalaqmapBrandMark
+                  className="h-12 w-12 shrink-0 rounded-2xl
                     ring-2 ring-primary/30 ring-offset-2 ring-offset-background
                     shadow-[0_12px_28px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent),0_4px_14px_-4px_rgba(0,0,0,0.18),inset_0_2px_5px_rgba(255,255,255,0.5)]
                     [transform-style:preserve-3d] [transform:rotateX(4deg)]"
-                >
-                  <span
-                    className="pointer-events-none absolute inset-x-1 top-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/45 to-transparent opacity-90"
-                    aria-hidden
-                  />
-                  <img
-                    src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-                    alt="حلاق ماب"
-                    className="relative z-[1] h-full w-full object-cover"
-                  />
-                </div>
+                />
                 <div className="flex flex-col">
                   <span className="text-lg font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
                     حلاق ماب
@@ -178,6 +161,12 @@ export function Layout({ children }: LayoutProps) {
                   className="block text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   من نحن
+                </NavLink>
+                <NavLink
+                  to={ROUTE_PATHS.BARBERS_LANDING}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {SOFTWARE_SERVICES_PORTAL_LABEL}
                 </NavLink>
               </div>
             </div>
@@ -255,26 +244,52 @@ export function Layout({ children }: LayoutProps) {
             </div>
           </div>
 
+          <div className="mt-10">
+            <ListingLicensePricingMatrix variant="embedded-light" />
+          </div>
+
+          <div className="mt-8">
+            <LegalEntityPublicStrip variant="light" />
+          </div>
+
+          <div className="mt-8">
+            <PlatformOfficialFooterStrip variant="light" />
+          </div>
+
+          <div className="mt-6">
+            <p className="rounded-lg border border-primary/25 bg-primary/[0.04] px-4 py-3 text-center text-xs leading-relaxed text-muted-foreground md:text-sm">
+              {PLATFORM_IDENTITY_BOILERPLATE_AR}
+            </p>
+          </div>
+
           <div className="mt-8 pt-8 border-t border-border/40">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-muted-foreground text-center md:text-right">
-                © 2026 حلاق ماب. جميع الحقوق محفوظة.
-              </p>
-              <div className="flex gap-6">
-                <NavLink
-                  to={ROUTE_PATHS.PRIVACY}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  سياسة الخصوصية
-                </NavLink>
-                <NavLink
-                  to={ROUTE_PATHS.ABOUT}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  من نحن
-                </NavLink>
-              </div>
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              <NavLink
+                to={ROUTE_PATHS.TERMS_OF_SERVICE}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
+              >
+                شروط الاستخدام
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.USER_PRIVACY_POLICY}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
+              >
+                سياسة الخصوصية
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.PRIVACY_DETAILED}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
+              >
+                خصوصية (تفصيلية)
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.ABOUT}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors touch-manipulation"
+              >
+                من نحن
+              </NavLink>
             </div>
+            <AppBuildStamp className="mt-4" />
           </div>
         </div>
       </footer>

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 15,
@@ -15,21 +16,22 @@ function safeHost(rawUrl: string): string | null {
   }
 }
 
+const CORS_OPTS = {
+  allowMethods: 'GET, POST, OPTIONS',
+  allowHeaders: 'Content-Type, x-supabase-anon, x-client-supabase-url',
+} as const;
+
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon, x-client-supabase-url',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
@@ -48,10 +50,12 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'barber-portal-session-refresh');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 
@@ -96,7 +100,7 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   const selectCols =
-    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
+    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
 
   const { data: row, error } = await supabase.from('barbers').select(selectCols).eq('id', barberId).maybeSingle();
 
@@ -117,6 +121,8 @@ export async function POST(request: Request): Promise<Response> {
     rating_invite_token: string | null;
     member_number: number | null;
     is_active: boolean | null;
+    open_for_customers?: boolean | null;
+    open_status_token?: string | null;
     inclusive_care_offered?: boolean | null;
     inclusive_care_price_sar?: unknown;
     inclusive_care_public_visible?: boolean | null;
@@ -135,6 +141,18 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Account is not active' }, { status: 403, headers });
   }
 
+  const tierNorm = String(b.tier ?? '').toLowerCase();
+  if (tierNorm !== 'gold' && tierNorm !== 'diamond') {
+    return Response.json(
+      {
+        error:
+          'باقتك البرونزية لا تتضمن لوحة التحكم الإلكترونية. رقِ للذهبي أو الماسي للاستمرار.',
+        code: 'TIER_BRONZE_NO_DASHBOARD',
+      },
+      { status: 403, headers }
+    );
+  }
+
   return Response.json(
     {
       ok: true,
@@ -149,6 +167,11 @@ export async function POST(request: Request): Promise<Response> {
           b.member_number != null && Number.isFinite(Number(b.member_number))
             ? Math.floor(Number(b.member_number))
             : null,
+        open_for_customers: b.open_for_customers !== false,
+        open_status_token:
+          b.open_status_token != null && String(b.open_status_token).trim()
+            ? String(b.open_status_token).trim()
+            : '',
         inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(b),
       },
     },

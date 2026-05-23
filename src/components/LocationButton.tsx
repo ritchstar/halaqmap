@@ -3,6 +3,11 @@ import { MapPin, Loader2, AlertCircle, CheckCircle2, ExternalLink } from "lucide
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  PLATFORM_SEARCH_LOCATION_BUTTON,
+  PLATFORM_SEARCH_LOCATION_LOADING,
+  PLATFORM_SEARCH_LOCATION_SUCCESS,
+} from "@/config/platformSmartTracking";
 
 interface LocationButtonProps {
   onLocationDetected: (location: { lat: number; lng: number }) => void;
@@ -84,25 +89,16 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               {isLoading ? (
                 <>
                   <Loader2 className="ml-3 h-8 w-8 animate-spin" />
-                  <span>جاري تحديد الموقع...</span>
+                  <span>{PLATFORM_SEARCH_LOCATION_LOADING}</span>
                 </>
               ) : (
                 <>
                   <MapPin className="ml-3 h-8 w-8" />
-                  <span>حدد موقعك</span>
+                  <span>{PLATFORM_SEARCH_LOCATION_BUTTON}</span>
                 </>
               )}
             </Button>
           </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-center max-w-md text-base md:text-lg font-semibold leading-relaxed rounded-2xl border border-border bg-secondary px-5 py-4 text-secondary-foreground shadow-sm"
-          >
-            اضغط على الزر لتحديد موقعك الحالي والعثور على أقرب الحلاقين المحترفين إليك
-          </motion.p>
         </>
       ) : (
         <motion.div
@@ -140,7 +136,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
             >
               <CheckCircle2 className="h-10 w-10 text-green-500" />
             </motion.div>
-            <span className="text-2xl font-bold text-foreground">تم تحديد موقعك بنجاح ✅</span>
+            <span className="text-2xl font-bold text-foreground">{PLATFORM_SEARCH_LOCATION_SUCCESS} ✅</span>
           </motion.div>
           
           {/* Verify Location Button - More Prominent */}
@@ -155,7 +151,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               className="h-16 px-12 text-xl font-bold bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-[0_8px_30px_-6px_color-mix(in_srgb,var(--primary)_35%,transparent)] hover:shadow-[0_12px_40px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent)] transition-all duration-200 rounded-2xl"
             >
               <MapPin className="ml-3 h-7 w-7" />
-              <span>افتح الخريطة للتحقق من موقعك</span>
+              <span>افتح تطبيق الموقع للتحقق من موقعك</span>
               <ExternalLink className="mr-3 h-6 w-6" />
             </Button>
           </motion.div>
@@ -171,7 +167,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
               📍 اضغط على الزر أعلاه لفتح خرائط جوجل والتأكد من أن المنصة حددت موقعك بدقة
             </p>
             <p className="text-sm text-muted-foreground">
-              ✨ سترى علامة حمراء على الخريطة تشير إلى موقعك الحالي
+              ✨ سترى علامة حمراء عبر نظام الرصد الذكي تشير إلى موقعك الحالي
             </p>
           </motion.div>
 

@@ -1,15 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   SubscriptionTier,
@@ -26,14 +23,30 @@ import {
   saveLastOrderConfirmation,
 } from '@/lib/subscriptionRequestStorage';
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
-import { BANK_TRANSFER } from '@/config/bankTransfer';
-import { getBankTransferPayableAmountSar, getBankTransferPlanSummaryAr } from '@/config/subscriptionPricing';
 import {
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
-  BARBER_DASHBOARD_GOLD_LINE,
-  BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
   MAP_FEATURE_HERO,
+  SHOP_OPEN_STATUS_FEATURE_BRONZE,
+  SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from '@/config/subscriptionPlanHero';
+import {
+  DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
+  SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
+  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
+  SOFTWARE_PACKAGE_UNIT_LABEL_AR,
+} from '@/config/subscriptionPricing';
+import { LISTING_LICENSE_PRICING_DISPLAY_ORDER } from '@/config/listingLicenseCards';
+import {
+  computeListingLicenseUnitSar,
+  isDigitalShiftAddonAllowed,
+} from '@/config/listingLicenseQuantity';
+import { DigitalShiftAddonToggle } from '@/components/billing/DigitalShiftAddonToggle';
+import { ComplianceCheckbox } from '@/components/b2b/ComplianceCheckbox';
+import {
+  LegalPledgeModalContent,
+  ProfessionalCommitmentModalContent,
+} from '@/components/b2b/ComplianceManifestoContent';
+import { REGISTRATION_LEGAL_DISCLAIMER_AR, HONOR_BOARD_PROFESSIONAL_COMMITMENT_LEAD } from '@/config/honorBoardManifesto';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
@@ -51,6 +64,8 @@ import {
 } from '@/lib/registrationFileUploads';
 import { loadPartnerAttribution } from '@/lib/partnerAttribution';
 import { toast } from '@/components/ui/sonner';
+import { useBarberBannerImagePicker } from '@/hooks/useBarberBannerImagePicker';
+import { BARBER_BANNER_MAX_FILE_BYTES } from '@/config/barberBannerImagePolicy';
 import {
   createInitialWorkingWeekForm,
   workingWeekFormToPayload,
@@ -58,7 +73,6 @@ import {
 } from '@/lib/saudiWorkingWeek';
 import {
   Check,
-  Upload,
   MapPin,
   Phone,
   FileText,
@@ -67,28 +81,52 @@ import {
   ChevronRight,
   ChevronLeft,
   Star,
-  Shield,
-  MessageSquare,
-  Calendar,
   Sparkles,
   AlertCircle,
   Loader2,
   Clock,
+  Lightbulb,
 } from 'lucide-react';
+
+const regFieldClass =
+  'border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500 focus-visible:ring-slate-400';
+const regLabelClass = 'text-slate-300';
+const regMutedClass = 'text-slate-400';
+const regAlertClass = 'rounded-lg border border-slate-600 bg-slate-800/80 p-4 text-slate-300';
+
+function RegStepShell({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100">
+      <header className="mb-6 space-y-2 text-right">
+        <h2 className="text-2xl font-bold text-white">{title}</h2>
+        {description ? <p className={`text-sm leading-relaxed ${regMutedClass}`}>{description}</p> : null}
+      </header>
+      {children}
+    </div>
+  );
+}
 
 interface FormData {
   tier: SubscriptionTier | '';
+  /** إضافة برمجية متقدمة (Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
+  digitalShiftAddon: boolean;
   shopName: string;
   email: string;
   phone: string;
   whatsapp: string;
   categories: string[];
-  documents: {
-    commercialRegistry: File | null;
-    municipalLicense: File | null;
-    /** شهادات صحية للعاملين — ملف واحد أو أكثر (إلزامي) */
-    healthCertificates: File[];
-  };
+  /** تعهد قانوني إلزامي قبل إتمام التسجيل */
+  legalDisclaimerAccepted: boolean;
+  /** التزام مهني إلزامي قبل إتمام التسجيل */
+  professionalCommitmentAccepted: boolean;
   location: {
     lat: string;
     lng: string;
@@ -116,99 +154,79 @@ interface FormData {
   /** سبعة أيام — للباقة البرونزية يُحدَّد هنا ويُثبَّت في العرض */
   workingWeek: WorkingWeekFormRow[];
   payment: {
-    method: 'monthly' | 'bank_transfer' | '';
-    receipt: File | null;
+    method: 'monthly' | '';
   };
   /** إلزامي قبل «إرسال الطلب»: تأشير صريح بالموافقة على الشروط والسياسات */
   registrationTermsAccepted: boolean;
 }
 
+/** @deprecated استورد من `@/config/honorBoardManifesto` */
+export { REGISTRATION_LEGAL_DISCLAIMER_AR } from '@/config/honorBoardManifesto';
+
 const STEPS = [
   { id: 1, title: 'اختيار الباقة', icon: Star },
   { id: 2, title: 'بيانات المحل', icon: FileText },
-  { id: 3, title: 'المستندات', icon: Upload },
-  { id: 4, title: 'الموقع', icon: MapPin },
-  { id: 5, title: 'الصور', icon: ImageIcon },
-  { id: 6, title: 'أوقات العمل', icon: Clock },
-  { id: 7, title: 'المنيو والرعاية المُيسَّرة', icon: FileText },
-  { id: 8, title: 'الدفع', icon: CreditCard },
+  { id: 3, title: 'الموقع', icon: MapPin },
+  { id: 4, title: 'الصور', icon: ImageIcon },
+  { id: 5, title: 'أوقات العمل', icon: Clock },
+  { id: 6, title: 'المنيو والرعاية المُيسَّرة', icon: FileText },
+  { id: 7, title: 'الدفع', icon: CreditCard },
 ];
 
 type FormPlanFeature = { kind: 'map_hero' } | { kind: 'line'; text: string };
 
 const SUBSCRIPTION_PLANS: {
   tier: SubscriptionTier;
-  name: string;
-  price: number;
-  color: string;
+  tierLevel: string;
+  label: string;
   features: FormPlanFeature[];
-  popular?: boolean;
-  premium?: boolean;
+  strategic?: boolean;
+  digitalShiftAddonAvailable?: boolean;
 }[] = [
   {
     tier: SubscriptionTier.BRONZE,
-    name: 'برونزي',
-    price: 100,
-    color: 'from-amber-700 to-amber-900',
+    tierLevel: 'برونزي',
+    label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: 'صورتان أساسيتان (خارجي وداخل المحل) وأربع صور للبنر مع الطلب' },
-      { kind: 'line', text: 'جدول أسبوعي كامل لأوقات العمل (إلزامي مع الطلب ويُعرَض للعملاء)' },
-      { kind: 'line', text: 'رقم الهاتف للتواصل' },
-      { kind: 'line', text: 'ظهور في نتائج البحث والخريطة' },
+      { kind: 'line', text: 'ظهور عند الطلب للزبائن القريبين منك عندما يبحثون الآن' },
+      { kind: 'line', text: 'بطاقة صالون واضحة: موقع، اتصال، واتساب، وصور أساسية' },
+      { kind: 'line', text: 'صور واجهة وداخل + بنر أساسي تعطي انطباعاً حقيقياً قبل الزيارة' },
+      { kind: 'line', text: 'أوقات عمل وحالة مفتوح/مغلق لتقليل الاتصالات في الوقت الخطأ' },
+      { kind: 'line', text: 'مناسبة كبداية ذكية لاختبار طلب الحي بتكلفة منخفضة' },
+      { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_BRONZE },
     ],
   },
   {
     tier: SubscriptionTier.GOLD,
-    name: 'ذهبي',
-    price: 150,
-    color: 'from-accent to-yellow-600',
+    tierLevel: 'ذهبي',
+    label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     features: [
       { kind: 'map_hero' },
+      { kind: 'line', text: 'أولوية ذهبية عند الطلب تمنح صالونك حضوراً أوضح أمام المنافسين' },
+      { kind: 'line', text: 'معرض أعمال حتى 20 صورة لإقناع العميل قبل أن يتواصل' },
       { kind: 'line', text: RATING_QR_PLAN_LINE },
-      { kind: 'line', text: 'جميع مزايا الباقة البرونزية' },
-      { kind: 'line', text: 'بنر موسع بصور متعددة' },
-      { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
-      { kind: 'line', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)' },
-      { kind: 'line', text: 'رابط واتساب مباشر' },
-      { kind: 'line', text: 'شات مباشر مع العملاء' },
-      { kind: 'line', text: 'جلسة شات خاصة لكل عميل تنتهي تلقائياً بعد 60 دقيقة لخصوصية أعلى' },
-      { kind: 'line', text: 'أولوية في الظهور على الخريطة والبحث' },
-      { kind: 'line', text: BARBER_DASHBOARD_GOLD_LINE },
-      {
-        kind: 'line',
-        text: 'خدمة كبار السن والمرضى وذوي الاحتياجات (محل/منزل): تحكم كامل بعد التفعيل من لوحة التحكم — السعر، الإظهار للعملاء، الأيام، والملاحظات',
-      },
+      { kind: 'line', text: 'واتساب وشات مباشر بجلسة خاصة لتقليل تردد العميل وتحويل الظهور إلى تواصل' },
+      { kind: 'line', text: 'لوحة تحكم لتحديث الصور، البنر، المنيو، الأسعار، وأوقات العمل' },
+      { kind: 'line', text: 'خدمات كبار السن وذوي الاحتياجات مع تحكم في السعر والظهور والملاحظات' },
+      { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
     ],
-    popular: true,
   },
   {
     tier: SubscriptionTier.DIAMOND,
-    name: 'ماسي',
-    price: 200,
-    color: 'from-primary to-cyan-600',
+    tierLevel: 'ماسي',
+    label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
+    strategic: true,
+    digitalShiftAddonAvailable: true,
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: RATING_QR_PLAN_LINE },
-      { kind: 'line', text: 'جميع مزايا الباقة الذهبية' },
+      { kind: 'line', text: 'أعلى أولوية ماسية للطلبات القريبة لمن يريد صدارة منطقته' },
+      { kind: 'line', text: 'واجهة فاخرة: بنر متوهج، معرض حتى 40 صورة، وشارة نخبة للثقة' },
+      { kind: 'line', text: 'شات خاص مع ترجمة فورية لخدمة السياح والعملاء متعددي اللغات' },
+      { kind: 'line', text: 'إدارة المواعيد والحجوزات من نفس اللوحة لتقليل الفوضى ورفع الجاهزية' },
+      { kind: 'line', text: 'Add-on اختياري: المناوب الرقمي يرد عند الإغلاق أو تأخر الرد' },
       { kind: 'line', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
-      { kind: 'line', text: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
-      { kind: 'line', text: 'شارة ماسية مميزة على الخريطة' },
-      { kind: 'line', text: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل' },
-      { kind: 'line', text: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (تحكم كامل بكل يوم)' },
-      { kind: 'line', text: 'أولوية قصوى في الظهور على الخريطة والبحث' },
-      { kind: 'line', text: 'ترجمة تلقائية في الشات' },
-      { kind: 'line', text: 'شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة' },
-      {
-        kind: 'line',
-        text: 'تنبيه خصوصية: الترجمة تُعرض بينك وبين الصالون كمزوّد خدمة وفق السياسات — ليست ترجمة رسمية',
-      },
-      {
-        kind: 'line',
-        text: 'خدمة كبار السن والمرضى وذوي الاحتياجات: تحكم كامل من لوحة التحكم (كالذهبي) مع مزايا الماسي',
-      },
     ],
-    premium: true,
   },
 ];
 
@@ -241,18 +259,17 @@ export function RegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  const bannerPicker = useBarberBannerImagePicker();
   const [formData, setFormData] = useState<FormData>({
     tier: '',
+    digitalShiftAddon: false,
     shopName: '',
     email: '',
     phone: '',
     whatsapp: '',
     categories: [],
-    documents: {
-      commercialRegistry: null,
-      municipalLicense: null,
-      healthCertificates: [],
-    },
+    legalDisclaimerAccepted: false,
+    professionalCommitmentAccepted: false,
     location: {
       lat: '',
       lng: '',
@@ -273,8 +290,7 @@ export function RegistrationForm() {
     inclusiveAccessibleCare: { offered: false, price: '' },
     workingWeek: createInitialWorkingWeekForm(),
     payment: {
-      method: '',
-      receipt: null,
+      method: 'monthly',
     },
     registrationTermsAccepted: false,
   });
@@ -318,16 +334,6 @@ export function RegistrationForm() {
       }
     }
     if (currentStep === 3) {
-      if (!formData.documents.commercialRegistry || !formData.documents.municipalLicense) {
-        alert('يرجى رفع السجل التجاري والرخصة البلدية (إلزامي).');
-        return;
-      }
-      if (formData.documents.healthCertificates.length === 0) {
-        alert('يرجى رفع شهادة صحية واحدة على الأقل للعاملين في المحل (إلزامي مع المستندات الرسمية).');
-        return;
-      }
-    }
-    if (currentStep === 4) {
       const { saudi, address, lat, lng } = formData.location;
       if (!saudi.regionId || !saudi.cityId || !saudi.districtId) {
         alert('يرجى اختيار المنطقة والمدينة والحي من القوائم.');
@@ -348,7 +354,7 @@ export function RegistrationForm() {
         return;
       }
     }
-    if (currentStep === 5) {
+    if (currentStep === 4) {
       if (!formData.images.shopExterior || !formData.images.shopInterior) {
         alert('يرجى رفع صورة واحدة لواجهة المحل من الخارج وصورة واحدة من الداخل (إلزامي لجميع الباقات).');
         return;
@@ -358,7 +364,7 @@ export function RegistrationForm() {
         return;
       }
     }
-    if (currentStep === 6) {
+    if (currentStep === 5) {
       if (formData.tier === SubscriptionTier.BRONZE) {
         for (const row of formData.workingWeek) {
           if (!row.closed && (!row.open.trim() || !row.close.trim())) {
@@ -370,7 +376,7 @@ export function RegistrationForm() {
         }
       }
     }
-    if (currentStep === 7) {
+    if (currentStep === 6) {
       const namedServices = formData.services.filter((s) => s.name.trim());
       if (namedServices.length === 0) {
         alert('أضف خدمة واحدة على الأقل في المنيو (اسم الخدمة مطلوب).');
@@ -402,68 +408,6 @@ export function RegistrationForm() {
     setFormData((prev) => ({
       ...prev,
       workingWeek: prev.workingWeek.map((r, i) => (i === index ? { ...r, ...patch } : r)),
-    }));
-  };
-
-  const handleLegalDocumentUpload = (field: 'commercialRegistry' | 'municipalLicense', file: File | null) => {
-    setFormData((prev) => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        [field]: file,
-      },
-    }));
-  };
-
-  const handleHealthCertificatesAdd = (files: FileList | null) => {
-    if (!files?.length) {
-      toast.error('لم يتم التقاط أي ملف. حاول اختيار الملف مرة أخرى.');
-      return;
-    }
-    const incoming = Array.from(files);
-    const current = formData.documents.healthCertificates;
-    const uniqueIncoming = incoming.filter(
-      (f) =>
-        !current.some(
-          (p) => p.name === f.name && p.size === f.size && p.lastModified === f.lastModified
-        )
-    );
-    const addedCount = uniqueIncoming.length;
-
-    if (addedCount === 0) {
-      toast.error('هذا الملف مضاف مسبقاً. اختر ملفاً آخر أو احذف القديم أولاً.');
-      return;
-    }
-
-    setFormData((prev) => {
-      const next = [
-        ...prev.documents.healthCertificates,
-        ...uniqueIncoming.filter(
-          (f) =>
-            !prev.documents.healthCertificates.some(
-              (p) => p.name === f.name && p.size === f.size && p.lastModified === f.lastModified
-            )
-        ),
-      ];
-      return {
-        ...prev,
-        documents: {
-          ...prev.documents,
-          // دمج مع منع تكرار نفس الملف (name + size + lastModified)
-          healthCertificates: next,
-        },
-      };
-    });
-    toast.success(`تمت إضافة ${addedCount} ملف/ملفات للشهادات الصحية`);
-  };
-
-  const removeHealthCertificate = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        healthCertificates: prev.documents.healthCertificates.filter((_, i) => i !== index),
-      },
     }));
   };
 
@@ -550,10 +494,6 @@ export function RegistrationForm() {
       alert('يرجى اختيار طريقة الدفع');
       return;
     }
-    if (formData.payment.method === 'bank_transfer' && !formData.payment.receipt) {
-      alert('يرجى رفع إيصال التحويل البنكي');
-      return;
-    }
     if (!formData.registrationTermsAccepted) {
       toast.error('يجب تأشير الموافقة الصريحة على شروط التسجيل وسياسة الشركاء قبل الإرسال.');
       window.requestAnimationFrame(() =>
@@ -561,12 +501,18 @@ export function RegistrationForm() {
       );
       return;
     }
-    if (!formData.documents.commercialRegistry || !formData.documents.municipalLicense) {
-      alert('يرجى إكمال خطوة المستندات: السجل التجاري والرخصة البلدية إلزاميان.');
+    if (!formData.legalDisclaimerAccepted) {
+      toast.error('يجب تأشير التعهد القانوني الإلزامي قبل الإرسال.');
+      window.requestAnimationFrame(() =>
+        formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      );
       return;
     }
-    if (formData.documents.healthCertificates.length === 0) {
-      alert('يرجى إكمال خطوة المستندات: رفع شهادة صحية واحدة على الأقل للعاملين.');
+    if (!formData.professionalCommitmentAccepted) {
+      toast.error('يجب تأشير الالتزام المهني الإلزامي قبل الإرسال.');
+      window.requestAnimationFrame(() =>
+        formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      );
       return;
     }
     if (!formData.images.shopExterior || !formData.images.shopInterior) {
@@ -616,20 +562,16 @@ export function RegistrationForm() {
 
       let registrationAttachmentUrls: RegistrationAttachmentUrls | undefined;
       const supabase = getSupabaseClient();
-      const receiptFile = formData.payment.receipt;
       /* 1) رفع المرفقات أولاً — يتطلب orderId مطابقاً لسياسة التخزين؛ فشل مبكر دون تحميل بيانات إضافية */
       if (supabase) {
         const up = await uploadRegistrationAttachments(
           supabase,
           orderId,
           {
-            commercialRegistry: formData.documents.commercialRegistry!,
-            municipalLicense: formData.documents.municipalLicense!,
-            healthCertificates: formData.documents.healthCertificates,
             shopExterior: formData.images.shopExterior!,
             shopInterior: formData.images.shopInterior!,
             bannerImages: formData.images.bannerImages.filter(Boolean) as File[],
-            receipt: formData.payment.method === 'bank_transfer' ? receiptFile : null,
+            receipt: null,
           },
           { intentToken }
         );
@@ -651,16 +593,18 @@ export function RegistrationForm() {
         formData.location.address || ''
       );
 
-      const docLabels: string[] = [];
-      if (formData.documents.commercialRegistry) {
-        docLabels.push(`سجل تجاري: ${formData.documents.commercialRegistry.name}`);
+      const docLabels: string[] = [
+        `التعهد القانوني: تم التأشير بتاريخ ${submittedAtIso} — صاحب المحل يقر بامتثال المنشأة النظامي وتحمّل المسؤولية وإخلاء مسؤولية منصة حلاق ماب.`,
+        `الالتزام المهني: تم التأشير بتاريخ ${submittedAtIso} — الشريك يقر بمعايير الجودة والشفافية وامتثال منشأته للأنظمة المعمول بها.`,
+      ];
+      if (
+        formData.tier === SubscriptionTier.DIAMOND &&
+        isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon)
+      ) {
+        docLabels.push(
+          `إضافة برمجية متقدمة: المناوب الرقمي الذكي (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة رخصة) — Add-on اختياري يعزّز الرخصة التقنية.`,
+        );
       }
-      if (formData.documents.municipalLicense) {
-        docLabels.push(`رخصة بلدية: ${formData.documents.municipalLicense.name}`);
-      }
-      formData.documents.healthCertificates.forEach((f, i) => {
-        docLabels.push(`شهادة صحية للعاملين (${i + 1}): ${f.name}`);
-      });
 
       const servicesSummaryLines = formData.services
         .filter((s) => s.name.trim())
@@ -685,16 +629,6 @@ export function RegistrationForm() {
         .map((h) => `${h.day}: ${h.open === 'مغلق' ? 'مغلق' : `${h.open} – ${h.close}`}`)
         .join('\n');
 
-      /* 2) إيصال احتياطي محلي صغير إن لم يُرفع للتخزين */
-      let receiptDataUrl: string | undefined;
-      if (!registrationAttachmentUrls?.receipt && receiptFile && receiptFile.size <= MAX_RECEIPT_STORAGE_BYTES) {
-        try {
-          receiptDataUrl = await readFileAsDataURL(receiptFile);
-        } catch {
-          receiptDataUrl = undefined;
-        }
-      }
-
       const lat = parseFloat(formData.location.lat) || 0;
       const lng = parseFloat(formData.location.lng) || 0;
       const partnerAttribution = loadPartnerAttribution();
@@ -711,7 +645,7 @@ export function RegistrationForm() {
           address: formData.location.address || '—',
         },
         tier: formData.tier as SubscriptionTier,
-        documents: docLabels.length > 0 ? docLabels : ['لم يُرفع أسماء ملفات (تحقق من الخطوات السابقة)'],
+        documents: docLabels,
         shopImages: registrationAttachmentUrls
           ? [
               registrationAttachmentUrls.shopExterior!,
@@ -730,9 +664,9 @@ export function RegistrationForm() {
         source: 'registration',
         partnerAttribution,
         paymentMethod: formData.payment.method,
-        receiptFileName: receiptFile?.name,
-        receiptDataUrl,
         registrationAttachmentUrls,
+        legalDisclaimerAccepted: true,
+        legalDisclaimerAcceptedAtIso: submittedAtIso,
         weeklyWorkingHours: weeklyWorkingHoursPayload,
         servicesSummary: servicesSummary || '—',
         ...(inclusiveAccessibleCarePayload
@@ -741,6 +675,11 @@ export function RegistrationForm() {
         categories: [...formData.categories],
         registrationTermsAccepted: true,
         registrationTermsAcceptedAtIso: submittedAtIso,
+        professionalCommitmentAccepted: true,
+        professionalCommitmentAcceptedAtIso: submittedAtIso,
+        digitalShiftAddonSelected:
+          formData.tier === SubscriptionTier.DIAMOND &&
+          isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon),
       };
 
       /* 3) حفظ الطلب في قاعدة البيانات ثم النسخ المحلي (عند تهيئة Supabase) */
@@ -756,13 +695,17 @@ export function RegistrationForm() {
       }
 
       const plan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
-      const tierName = plan?.name ?? String(formData.tier);
-      const payLabel =
-        formData.payment.method === 'bank_transfer' && plan
-          ? `تحويل بنكي — ${getBankTransferPlanSummaryAr(plan.tier)}`
-          : formData.payment.method === 'bank_transfer'
-            ? 'تحويل بنكي'
-            : 'اشتراك شهري';
+      const tierName = plan?.tierLevel ?? String(formData.tier);
+      const unitSarForSummary =
+        formData.tier && plan
+          ? computeListingLicenseUnitSar(
+              formData.tier as SubscriptionTier,
+              isDigitalShiftAddonAllowed(formData.tier as SubscriptionTier, formData.digitalShiftAddon)
+                ? { digitalShiftAddon: true }
+                : undefined,
+            )
+          : 0;
+      const payLabel = 'حزمة رخصة (ميسر — بطاقة)';
 
       const attributionLines = partnerAttribution
         ? [
@@ -783,7 +726,7 @@ export function RegistrationForm() {
         : 'مسار الاستقطاب (UTM): غير متوفر';
 
       const summaryForDownload =
-        `حلاق ماب — طلب اشتراك جديد\n` +
+        `حلاق ماب — طلب حزمة إدراج برمجية\n` +
         `================================\n` +
         `رقم الطلب: ${orderId}\n` +
         `تاريخ التقديم: ${submittedAtLabel}\n` +
@@ -792,11 +735,14 @@ export function RegistrationForm() {
         `البريد: ${formData.email}\n` +
         `الهاتف: ${formData.phone}\n` +
         `الواتساب: ${formData.whatsapp}\n` +
-        `الباقة: ${tierName}\n` +
+        `الباقة: ${tierPackageSummary(
+          tierName,
+          unitSarForSummary,
+          formData.tier === SubscriptionTier.DIAMOND && formData.digitalShiftAddon,
+        )}\n` +
         `تصنيفات: ${formData.categories.join('، ') || '—'}\n` +
         `طريقة الدفع: ${payLabel}\n` +
         `${attributionLines}\n` +
-        (receiptFile ? `ملف الإيصال: ${receiptFile.name}\n` : '') +
         `\n` +
         `العنوان: ${composedAddress || formData.location.address || '—'}\n` +
         `الإحداثيات: ${formData.location.lat || '—'}, ${formData.location.lng || '—'}\n` +
@@ -805,7 +751,11 @@ export function RegistrationForm() {
         `\n` +
         `أوقات العمل (أسبوع كامل):\n${workingHoursSummaryText}\n` +
         `\n` +
-        `المستندات (أسماء الملفات):\n${docLabels.join('\n') || '—'}\n` +
+        `التعهد القانوني:\n${REGISTRATION_LEGAL_DISCLAIMER_AR}\n` +
+        `(تم التأشير — ${submittedAtIso})\n` +
+        `\n` +
+        `الالتزام المهني:\n${HONOR_BOARD_PROFESSIONAL_COMMITMENT_LEAD}\n` +
+        `(تم التأشير — ${submittedAtIso})\n` +
         `\n` +
         `صور المحل (أسماء الملفات):\n` +
         `  — خارجي: ${formData.images.shopExterior?.name ?? '—'}\n` +
@@ -815,18 +765,10 @@ export function RegistrationForm() {
           .map((f) => f!.name)
           .join('، ')}\n` +
         (registrationAttachmentUrls
-          ? `\nروابط المرفقات على السيرفر:\n` +
-            `- السجل التجاري: ${registrationAttachmentUrls.commercialRegistry}\n` +
-            `- الرخصة البلدية: ${registrationAttachmentUrls.municipalLicense}\n` +
-            `- الشهادات الصحية:\n${(registrationAttachmentUrls.healthCertificates ?? [])
-              .map((u, i) => `    ${i + 1}. ${u}`)
-              .join('\n')}\n` +
+          ? `\nروابط المرفقات على السيرفر (صور المحل والإيصال فقط):\n` +
             `- صورة خارجية: ${registrationAttachmentUrls.shopExterior}\n` +
             `- صورة داخلية: ${registrationAttachmentUrls.shopInterior}\n` +
-            `- بنرات: ${(registrationAttachmentUrls.banners ?? []).join(' | ')}\n` +
-            (registrationAttachmentUrls.receipt
-              ? `- إيصال التحويل: ${registrationAttachmentUrls.receipt}\n`
-              : '')
+            `- بنرات: ${(registrationAttachmentUrls.banners ?? []).join(' | ')}\n`
           : '') +
         `\n` +
         `— نهاية الملخص —\n`;
@@ -835,7 +777,11 @@ export function RegistrationForm() {
         `رقم الطلب: ${orderId}\n` +
         `التقديم: ${submittedAtLabel}\n` +
         `المحل: ${formData.shopName}\n` +
-        `الباقة: ${tierName}\n` +
+        `الباقة: ${tierPackageSummary(
+          tierName,
+          unitSarForSummary,
+          formData.tier === SubscriptionTier.DIAMOND && formData.digitalShiftAddon,
+        )}\n` +
         `الدفع: ${payLabel}\n` +
         `\n` +
         `للاطلاع على التفاصيل الكاملة استخدم زر «تحميل ملخص الطلب» في صفحة التأكيد.\n`;
@@ -848,11 +794,11 @@ export function RegistrationForm() {
         shopName: formData.shopName,
         tier: formData.tier as SubscriptionTier,
         paymentMethod: formData.payment.method,
-        receiptFileName: receiptFile?.name,
         summaryForDownload,
         mailtoBodyShort,
       });
 
+      toast.success('تم إرسال الطلب. طلبك قيد المراجعة وسيتم التواصل معك بعد التدقيق.');
       await new Promise((r) => setTimeout(r, 600));
       navigate(ROUTE_PATHS.REGISTER_SUCCESS);
     } finally {
@@ -860,19 +806,40 @@ export function RegistrationForm() {
     }
   };
 
+  const registrationPlansOrdered = useMemo(
+    () =>
+      LISTING_LICENSE_PRICING_DISPLAY_ORDER.map(
+        (tier) => SUBSCRIPTION_PLANS.find((plan) => plan.tier === tier)!,
+      ),
+    [],
+  );
+
+  const selectedUnitSar = useMemo(() => {
+    if (!formData.tier) return 0;
+    return computeListingLicenseUnitSar(
+      formData.tier as SubscriptionTier,
+      isDigitalShiftAddonAllowed(formData.tier as SubscriptionTier, formData.digitalShiftAddon)
+        ? { digitalShiftAddon: true }
+        : undefined,
+    );
+  }, [formData.tier, formData.digitalShiftAddon]);
+
   const selectedPlan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
   const monthlyPriceBreakdown = useMemo(
-    () => (selectedPlan ? calcVatBreakdown(selectedPlan.price, vatSettings) : null),
-    [selectedPlan, vatSettings],
+    () => (formData.tier ? calcVatBreakdown(selectedUnitSar, vatSettings) : null),
+    [formData.tier, selectedUnitSar, vatSettings],
   );
+
+  const tierPackageSummary = (tierName: string, unitSar: number, withShift: boolean) =>
+    `${tierName} — ${unitSar} ر.س${withShift ? ` (+ Add-on المناوب ${DIGITAL_SHIFT_MONTHLY_ADDON_SAR})` : ''}`;
 
   return (
     <div
       ref={formTopRef}
-      className="w-full max-w-4xl mx-auto py-8 px-3 sm:px-4 scroll-mt-24 min-w-0 overflow-x-hidden"
+      className="w-full max-w-4xl mx-auto py-4 px-1 sm:px-2 scroll-mt-24 min-w-0 overflow-x-hidden text-slate-100"
     >
-      <div className="mb-8 w-full min-w-0">
-        <p className="text-center text-sm font-medium text-muted-foreground mb-3 md:hidden">
+      <div className="mb-8 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900 p-4 md:p-6">
+        <p className="text-center text-sm font-medium text-slate-400 mb-3 md:hidden">
           الخطوة {currentStep} من {STEPS.length}
         </p>
         <div className="overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] pb-2 md:overflow-visible">
@@ -889,19 +856,19 @@ export function RegistrationForm() {
                     }`}
                   >
                     <div
-                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors ${
                         isActive
-                          ? 'bg-primary text-primary-foreground scale-110'
+                          ? 'bg-slate-100 text-slate-900'
                           : isCompleted
-                            ? 'bg-primary/20 text-primary'
-                            : 'bg-muted text-muted-foreground'
+                            ? 'bg-slate-700 text-slate-100'
+                            : 'bg-slate-800 text-slate-500 border border-slate-600'
                       }`}
                     >
                       {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Icon className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </div>
                     <span
                       className={`text-[10px] sm:text-xs mt-1.5 text-center leading-tight px-0.5 line-clamp-2 max-w-[4.5rem] sm:max-w-none ${
-                        isActive ? 'text-foreground font-semibold' : 'text-muted-foreground'
+                        isActive ? 'text-white font-semibold' : 'text-slate-500'
                       }`}
                     >
                       {step.title}
@@ -909,8 +876,8 @@ export function RegistrationForm() {
                   </div>
                   {index < STEPS.length - 1 && (
                     <div
-                      className={`h-0.5 w-6 sm:w-8 md:flex-1 shrink-0 mx-1 sm:mx-2 transition-all ${
-                        isCompleted ? 'bg-primary' : 'bg-muted'
+                      className={`h-0.5 w-6 sm:w-8 md:flex-1 shrink-0 mx-1 sm:mx-2 transition-colors ${
+                        isCompleted ? 'bg-slate-400' : 'bg-slate-700'
                       }`}
                     />
                   )}
@@ -919,117 +886,140 @@ export function RegistrationForm() {
             })}
           </div>
         </div>
-        <Progress value={progress} className="h-2" />
+        <Progress value={progress} className="h-2 bg-slate-800 [&>div]:bg-slate-300" />
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25 }}
-          className="min-w-0"
-        >
+      <div key={currentStep} className="min-w-0">
           {currentStep === 1 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">اختر الباقة المناسبة</CardTitle>
-                <CardDescription>اختر الباقة التي تناسب احتياجات محلك</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup
-                  value={formData.tier}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, tier: value as SubscriptionTier }))
-                  }
-                  className="grid gap-4"
-                >
-                  {SUBSCRIPTION_PLANS.map((plan) => (
+            <div className="rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100">
+              <header className="mb-6 space-y-2 text-right">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  حزم رخصة B2B
+                </p>
+                <h2 className="text-2xl font-bold text-white">اختر حزمة الرخصة المناسبة</h2>
+                <p className="text-sm leading-relaxed text-slate-300">
+                  {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} — مبنية على{' '}
+                  <span className="font-semibold text-slate-100">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</span>{' '}
+                  كأساس تقني لكل مستوى.
+                </p>
+              </header>
+              <RadioGroup
+                value={formData.tier}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    tier: value as SubscriptionTier,
+                    digitalShiftAddon:
+                      value === SubscriptionTier.DIAMOND ? prev.digitalShiftAddon : false,
+                  }))
+                }
+                className="grid gap-4 md:grid-cols-3 md:items-stretch"
+              >
+                {registrationPlansOrdered.map((plan) => {
+                  const isSelected = formData.tier === plan.tier;
+                  const isStrategic = plan.strategic === true;
+                  const shiftActive =
+                    plan.tier === SubscriptionTier.DIAMOND &&
+                    isDigitalShiftAddonAllowed(plan.tier, formData.digitalShiftAddon);
+                  const unitSar = computeListingLicenseUnitSar(
+                    plan.tier,
+                    shiftActive ? { digitalShiftAddon: true } : undefined,
+                  );
+                  return (
                     <label
                       key={plan.tier}
-                      className={`relative cursor-pointer ${
-                        formData.tier === plan.tier ? 'ring-2 ring-primary' : ''
-                      }`}
+                      className="relative flex cursor-pointer flex-col"
                     >
-                      <Card
-                        className={`transition-all hover:shadow-lg ${
-                          formData.tier === plan.tier ? 'border-primary' : ''
-                        }`}
+                      {isStrategic ? (
+                        <span className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded border border-slate-500 bg-slate-700 px-3 py-0.5 text-[11px] font-semibold text-slate-100">
+                          الاختيار الاستراتيجي
+                        </span>
+                      ) : null}
+                      <div
+                        className={[
+                          'flex h-full min-h-[520px] flex-col rounded-lg bg-slate-800 p-5 text-right',
+                          isStrategic
+                            ? 'border-2 border-slate-500'
+                            : 'border border-slate-700',
+                          isSelected ? 'ring-1 ring-slate-400' : '',
+                        ].join(' ')}
                       >
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <RadioGroupItem value={plan.tier} id={plan.tier} />
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <h3 className="text-xl font-bold">{plan.name}</h3>
-                                  {plan.popular && (
-                                    <Badge className="bg-accent text-accent-foreground">
-                                      الأكثر شعبية
-                                    </Badge>
-                                  )}
-                                  {plan.premium && (
-                                    <Badge className="bg-primary text-primary-foreground">
-                                      <Sparkles className="w-3 h-3 ml-1" />
-                                      مميز
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-2xl font-bold text-primary mt-1">
-                                  {plan.price} ريال
-                                  <span className="text-sm text-muted-foreground">/شهرياً</span>
-                                </p>
-                              </div>
-                            </div>
+                        <div className="mb-4 flex items-start gap-3">
+                          <RadioGroupItem
+                            value={plan.tier}
+                            id={plan.tier}
+                            className="mt-1 border-slate-500 text-slate-100"
+                          />
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <p className="text-xs text-slate-400">{plan.tierLevel}</p>
+                            <h3 className="text-base font-bold leading-snug text-white">
+                              {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR}
+                            </h3>
+                            <p className="text-2xl font-bold text-white">
+                              {unitSar}{' '}
+                              <span className="text-sm font-normal text-slate-400">ريال</span>
+                              <span className="text-xs font-normal text-slate-500"> /{plan.label}</span>
+                            </p>
+                            {shiftActive ? (
+                              <p className="text-[11px] text-slate-500">
+                                + Add-on المناوب ({DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س)
+                              </p>
+                            ) : null}
                           </div>
-                          <ul className="space-y-2 list-none p-0 m-0">
-                            {plan.features.map((feature, index) =>
-                              feature.kind === 'map_hero' ? (
-                                <li key={index} className="mb-3 list-none">
-                                  <div className="rounded-xl border-2 border-primary/40 bg-gradient-to-br from-primary/18 via-primary/[0.06] to-cyan-500/12 p-3 shadow-md shadow-primary/15">
-                                    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-3 sm:text-right">
-                                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-cyan-600 text-white shadow-md ring-2 ring-primary/15">
-                                        <MapPin className="h-6 w-6" strokeWidth={2.25} aria-hidden />
-                                      </div>
-                                      <div className="min-w-0 flex-1 space-y-0.5 text-center sm:text-right">
-                                        <p className="text-sm font-bold text-foreground leading-snug">
-                                          {MAP_FEATURE_HERO.title}
-                                        </p>
-                                        <p className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
-                                          {MAP_FEATURE_HERO.subtitle}
-                                        </p>
-                                      </div>
-                                      <Check className="h-5 w-5 shrink-0 text-primary" aria-label="مشمول" />
+                        </div>
+                        {plan.digitalShiftAddonAvailable && isSelected ? (
+                          <DigitalShiftAddonToggle
+                            checked={formData.digitalShiftAddon}
+                            onCheckedChange={(checked) =>
+                              setFormData((prev) => ({ ...prev, digitalShiftAddon: checked }))
+                            }
+                            id="registration-digital-shift"
+                            className="mb-3 mt-0"
+                          />
+                        ) : null}
+                        <ul className="m-0 flex flex-1 list-none flex-col gap-2 p-0">
+                          {plan.features.map((feature, index) =>
+                            feature.kind === 'map_hero' ? (
+                              <li key={index} className="mb-1 list-none">
+                                <div className="rounded-lg border border-slate-600 bg-slate-900 p-3">
+                                  <div className="flex items-start gap-3">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-600 bg-slate-800 text-slate-200">
+                                      <MapPin className="h-5 w-5" strokeWidth={2} aria-hidden />
                                     </div>
+                                    <div className="min-w-0 flex-1 space-y-0.5">
+                                      <p className="text-sm font-semibold leading-snug text-slate-100">
+                                        {MAP_FEATURE_HERO.title}
+                                      </p>
+                                      <p className="text-[11px] leading-relaxed text-slate-400 sm:text-xs">
+                                        {MAP_FEATURE_HERO.subtitle}
+                                      </p>
+                                    </div>
+                                    <Check className="h-4 w-4 shrink-0 text-slate-300" aria-label="مشمول" />
                                   </div>
-                                </li>
-                              ) : (
-                                <li key={index} className="flex items-center gap-2 text-sm">
-                                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                                  <span>{feature.text}</span>
-                                </li>
-                              )
-                            )}
-                          </ul>
-                        </CardContent>
-                      </Card>
+                                </div>
+                              </li>
+                            ) : (
+                              <li key={index} className="flex items-start gap-2 text-sm leading-relaxed text-slate-300">
+                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                <span>{feature.text}</span>
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </div>
                     </label>
-                  ))}
-                </RadioGroup>
-              </CardContent>
-            </Card>
+                  );
+                })}
+              </RadioGroup>
+            </div>
           )}
-
           {currentStep === 2 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">بيانات المحل</CardTitle>
-                <CardDescription>أدخل معلومات محل الحلاقة</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <RegStepShell title="بيانات المحل" description="أدخل معلومات محل الحلاقة">
+              <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="shopName">اسم المحل *</Label>
+                  <Label htmlFor="shopName" className={regLabelClass}>
+                    اسم المحل *
+                  </Label>
                   <Input
                     id="shopName"
                     placeholder="مثال: صالون الأناقة"
@@ -1037,11 +1027,14 @@ export function RegistrationForm() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, shopName: e.target.value }))
                     }
+                    className={regFieldClass}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">البريد الإلكتروني *</Label>
+                  <Label htmlFor="email" className={regLabelClass}>
+                    البريد الإلكتروني *
+                  </Label>
                   <Input
                     id="email"
                     type="email"
@@ -1050,23 +1043,29 @@ export function RegistrationForm() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, email: e.target.value }))
                     }
+                    className={regFieldClass}
                     required
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="phone">رقم الهاتف *</Label>
+                    <Label htmlFor="phone" className={regLabelClass}>
+                      رقم الهاتف *
+                    </Label>
                     <Input
                       id="phone"
                       type="tel"
                       placeholder="05xxxxxxxx"
                       value={formData.phone}
                       onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                      className={regFieldClass}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="whatsapp">رقم الواتساب *</Label>
+                    <Label htmlFor="whatsapp" className={regLabelClass}>
+                      رقم الواتساب *
+                    </Label>
                     <Input
                       id="whatsapp"
                       type="tel"
@@ -1075,12 +1074,13 @@ export function RegistrationForm() {
                       onChange={(e) =>
                         setFormData((prev) => ({ ...prev, whatsapp: e.target.value }))
                       }
+                      className={regFieldClass}
                       required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>نوع الخدمات *</Label>
+                  <Label className={regLabelClass}>نوع الخدمات *</Label>
                   <div className="grid grid-cols-2 gap-3">
                     {CATEGORIES.map((category) => (
                       <div key={category} className="flex items-center space-x-2 space-x-reverse">
@@ -1095,125 +1095,22 @@ export function RegistrationForm() {
                                 : prev.categories.filter((c) => c !== category),
                             }));
                           }}
+                          className="border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                         />
-                        <Label htmlFor={category} className="cursor-pointer">
+                        <Label htmlFor={category} className={`cursor-pointer ${regLabelClass}`}>
                           {category}
                         </Label>
                       </div>
                     ))}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
           {currentStep === 3 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">رفع المستندات</CardTitle>
-                <CardDescription>
-                  مستندات إلزامية لجميع الباقات قبل مراجعة الطلب وتفعيل الحساب
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Alert>
-                  <Shield className="h-4 w-4" />
-                  <AlertDescription className="space-y-2 text-sm leading-relaxed">
-                    <p>
-                      <strong>شرط أساسي:</strong> السجل التجاري، ورخصة البلدية، و<strong>شهادات صحية للعاملين</strong>{' '}
-                      في المحل. يمكن رفع أكثر من ملف للشهادات (صورة أو PDF لكل عامل أو ملف مجمّع).
-                    </p>
-                    <p className="text-muted-foreground">
-                      سيتم مراجعة المستندات والتحقق منها؛ الطلبات الناقصة لا تُعتمد.
-                    </p>
-                  </AlertDescription>
-                </Alert>
-                <div className="space-y-2">
-                  <Label htmlFor="commercialRegistry">السجل التجاري *</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="commercialRegistry"
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleLegalDocumentUpload('commercialRegistry', e.target.files?.[0] || null)
-                      }
-                    />
-                    {formData.documents.commercialRegistry && (
-                      <Check className="w-5 h-5 text-primary shrink-0" aria-hidden />
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="municipalLicense">رخصة البلدية *</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="municipalLicense"
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleLegalDocumentUpload('municipalLicense', e.target.files?.[0] || null)
-                      }
-                    />
-                    {formData.documents.municipalLicense && (
-                      <Check className="w-5 h-5 text-primary shrink-0" aria-hidden />
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="healthCertificates">الشهادات الصحية للعاملين *</Label>
-                  <p className="text-xs text-muted-foreground">
-                    أرفق شهادةً صحيةً سارية لكل من يقدّم خدمة الحلاقة في المحل (يمكن اختيار عدة ملفات دفعة واحدة).
-                  </p>
-                  <Input
-                    id="healthCertificates"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    multiple
-                    onChange={(e) => {
-                      handleHealthCertificatesAdd(e.currentTarget.files);
-                      // يسمح بإعادة اختيار نفس الملف لاحقاً ويمنع تعلّق الحالة في بعض المتصفحات
-                      e.currentTarget.value = '';
-                    }}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {formData.documents.healthCertificates.length > 0
-                      ? `تمت إضافة ${formData.documents.healthCertificates.length} ملف/ملفات للشهادات الصحية`
-                      : 'لم تتم إضافة ملفات للشهادات الصحية بعد'}
-                  </p>
-                  {formData.documents.healthCertificates.length > 0 && (
-                    <ul className="rounded-lg border border-border bg-muted/30 p-3 space-y-2 text-sm">
-                      {formData.documents.healthCertificates.map((file, idx) => (
-                        <li key={`${file.name}-${idx}`} className="flex items-center justify-between gap-2">
-                          <span className="flex items-center gap-2 min-w-0">
-                            <Check className="w-4 h-4 text-primary shrink-0" aria-hidden />
-                            <span className="truncate">{file.name}</span>
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="shrink-0 text-destructive hover:text-destructive"
-                            onClick={() => removeHealthCertificate(idx)}
-                          >
-                            إزالة
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {currentStep === 4 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">تحديد الموقع</CardTitle>
-                <CardDescription>حدد موقع محلك بدقة على الخريطة</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <RegStepShell title="تحديد الموقع" description="حدد موقع محلك بدقة عبر نظام الرصد الذكي">
+              <div className="space-y-4">
                 <SaudiRegionCityDistrictFields
                   value={formData.location.saudi}
                   onChange={(saudi) =>
@@ -1224,15 +1121,15 @@ export function RegistrationForm() {
                   }
                   disabled={isSubmitting}
                 />
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+                <Alert className={regAlertClass}>
+                  <AlertCircle className="h-4 w-4 text-slate-400" />
+                  <AlertDescription className="text-slate-300">
                     يمكنك الحصول على الإحداثيات من خرائط جوجل بالضغط مطولاً على موقع المحل
                   </AlertDescription>
                 </Alert>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="lat">خط العرض (Latitude) *</Label>
+                    <Label htmlFor="lat" className={regLabelClass}>خط العرض (Latitude) *</Label>
                     <Input
                       id="lat"
                       placeholder="24.7136"
@@ -1243,10 +1140,11 @@ export function RegistrationForm() {
                           location: { ...prev.location, lat: e.target.value },
                         }))
                       }
+                      className={regFieldClass}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lng">خط الطول (Longitude) *</Label>
+                    <Label htmlFor="lng" className={regLabelClass}>خط الطول (Longitude) *</Label>
                     <Input
                       id="lng"
                       placeholder="46.6753"
@@ -1257,11 +1155,12 @@ export function RegistrationForm() {
                           location: { ...prev.location, lng: e.target.value },
                         }))
                       }
+                      className={regFieldClass}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="address">العنوان التفصيلي (الشارع / المبنى / علامة مميزة) *</Label>
+                  <Label htmlFor="address" className={regLabelClass}>العنوان التفصيلي (الشارع / المبنى / علامة مميزة) *</Label>
                   <Textarea
                     id="address"
                     placeholder="مثال: شارع الأمير سلطان، مجمع النخيل، مدخل B"
@@ -1273,6 +1172,7 @@ export function RegistrationForm() {
                       }))
                     }
                     rows={3}
+                    className={regFieldClass}
                   />
                 </div>
                 <div className="flex gap-2">
@@ -1281,7 +1181,7 @@ export function RegistrationForm() {
                     variant="outline"
                     onClick={handleGetLocation}
                     disabled={locationLoading}
-                    className="flex-1"
+                    className="flex-1 border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
                   >
                     {locationLoading ? (
                       <Loader2 className="w-4 h-4 ml-2 animate-spin" />
@@ -1295,39 +1195,36 @@ export function RegistrationForm() {
                     variant="outline"
                     onClick={handleTestLocation}
                     disabled={!formData.location.lat || !formData.location.lng}
-                    className="flex-1"
+                    className="flex-1 border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
                   >
                     <MapPin className="w-4 h-4 ml-2" />
                     اختبر الموقع
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
-          {currentStep === 5 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">صور المحل والبنر</CardTitle>
-                <CardDescription>
-                  لجميع الباقات: صورتان أساسيتان (خارج وداخل) وأربع صور مخصّصة لمنطقة البنر في بطاقة المحل
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
+          {currentStep === 4 && (
+            <RegStepShell
+              title="صور المحل والبنر"
+              description="لجميع الباقات: صورتان أساسيتان (خارج وداخل) وأربع صور مخصّصة لمنطقة البنر في بطاقة المحل"
+            >
+              <div className="space-y-6">
                 {(formData.tier === SubscriptionTier.GOLD || formData.tier === SubscriptionTier.DIAMOND) && (
-                  <Alert className="border-primary/40 bg-primary/5">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    <AlertDescription className="text-sm leading-relaxed">
-                      بعد تفعيل اشتراكك يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
+                  <Alert className="border-slate-500 bg-slate-800/80">
+                    <Sparkles className="h-4 w-4 text-slate-300" />
+                    <AlertDescription className="text-sm leading-relaxed text-slate-300">
+                      بعد تفعيل حزمتك البرمجية يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
                       <strong>لوحة التحكم</strong> في أي وقت. ما ترفعه هنا هو المعتمد لمراجعة الطلب الأولى.
                     </AlertDescription>
                   </Alert>
                 )}
 
                 <div className="space-y-3">
-                  <Label htmlFor="shop-exterior">صورة واحدة — واجهة المحل من الخارج *</Label>
-                  <p className="text-xs text-muted-foreground">
-                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات الاشتراك.
+                  <Label htmlFor="shop-exterior" className={regLabelClass}>صورة واحدة — واجهة المحل من الخارج *</Label>
+                  <p className={`text-xs ${regMutedClass}`}>
+                    صورة واضحة للمدخل أو الواجهة؛ تُستخدم كمرجع أساسي لجميع فئات حزم الرخصة.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Input
@@ -1375,9 +1272,16 @@ export function RegistrationForm() {
                 <div className="space-y-3">
                   <Label>أربع صور للبنر (عرض البطاقة) *</Label>
                   <p className="text-xs text-muted-foreground">
-                    ارفع أربع صور منفصلة؛ تُعرض في شبكة البنر (الباقة البرونزية تعتمد على هذه الصور مع الطلب،
-                    والباقتان الأعلى يمكن تطويرها لاحقاً من لوحة التحكم).
+                    تُعالَج الصور تلقائياً لتناسب عرض البطاقة مع الحفاظ على الوضوح، وبحد أقصى{' '}
+                    {Math.round(BARBER_BANNER_MAX_FILE_BYTES / 1024)} كيلوبايت لكل صورة. إن تجاوز الملف الحد بعد
+                    الضغط يُرفض ويُعرض توضيح للحلاق.
                   </p>
+                  <Alert className="border-amber-500/40 bg-amber-500/5">
+                    <Lightbulb className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+                    <AlertDescription className="text-sm leading-relaxed">
+                      <span className="font-medium text-foreground">نصيحة لتحسين الصورة:</span> {bannerPicker.activeTip}
+                    </AlertDescription>
+                  </Alert>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([0, 1, 2, 3] as const).map((slot) => (
                       <div key={slot} className="space-y-2 rounded-lg border border-border p-3 bg-muted/20">
@@ -1388,11 +1292,33 @@ export function RegistrationForm() {
                           id={`banner-slot-${slot}`}
                           type="file"
                           accept="image/*"
+                          disabled={bannerPicker.processing}
                           onChange={(e) => {
-                            setBannerImage(slot, e.target.files?.[0] || null);
+                            const raw = e.target.files?.[0] ?? null;
                             e.target.value = '';
+                            if (!raw) {
+                              setBannerImage(slot, null);
+                              return;
+                            }
+                            void (async () => {
+                              const r = await bannerPicker.processBannerFile(raw);
+                              if (!r.ok) {
+                                toast.error(r.error);
+                                return;
+                              }
+                              setBannerImage(slot, r.file);
+                              toast.success(
+                                `تم تحسين البنر ${slot + 1} — الحجم النهائي ${(r.file.size / 1024).toFixed(0)} كيلوبايت`
+                              );
+                            })();
                           }}
                         />
+                        {bannerPicker.processing ? (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Loader2 className="h-3 w-3 animate-spin shrink-0" />
+                            جاري معالجة الصورة…
+                          </p>
+                        ) : null}
                         {formData.images.bannerImages[slot] && (
                           <p className="text-xs text-primary flex items-center gap-1 truncate">
                             <Check className="w-3 h-3 shrink-0" />
@@ -1404,29 +1330,26 @@ export function RegistrationForm() {
                   </div>
                 </div>
 
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+                <Alert className={regAlertClass}>
+                  <AlertCircle className="h-4 w-4 text-slate-400" />
+                  <AlertDescription className="text-slate-300">
                     نفضّل صوراً جيدة الإضاءة وبدون تشويش؛ ذلك يساعد في قبول الطلب وظهور محلك بشكل احترافي.
                   </AlertDescription>
                 </Alert>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
-          {currentStep === 6 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">أوقات العمل (الأسبوع كاملاً)</CardTitle>
-                <CardDescription>
-                  من السبت إلى الجمعة — صفٌّ مضغوط لكل يوم. الباقة البرونزية: إلزامي ويُعرَض للعملاء كما تُدخله هنا.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          {currentStep === 5 && (
+            <RegStepShell
+              title="أوقات العمل (الأسبوع كاملاً)"
+              description="من السبت إلى الجمعة — صفٌّ مضغوط لكل يوم. الباقة البرونزية: إلزامي ويُعرَض للعملاء كما تُدخله هنا."
+            >
+              <div className="space-y-4">
                 {(formData.tier === SubscriptionTier.GOLD || formData.tier === SubscriptionTier.DIAMOND) && (
-                  <Alert className="border-primary/40 bg-primary/5">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    <AlertDescription className="text-sm leading-relaxed">
+                  <Alert className="border-slate-500 bg-slate-800/80">
+                    <Sparkles className="h-4 w-4 text-slate-300" />
+                    <AlertDescription className="text-sm leading-relaxed text-slate-300">
                       باقتك تتيح لك بعد التفعيل <strong>تحكّماً كاملاً</strong> في أوقات العمل لكل يوم من{' '}
                       <strong>لوحة التحكم</strong> (جدول أسبوعي). ما تُدخله الآن يُستخدم لمراجعة الطلب؛ يمكنك
                       تعديله لاحقاً بحرية.
@@ -1434,22 +1357,22 @@ export function RegistrationForm() {
                   </Alert>
                 )}
                 {formData.tier === SubscriptionTier.BRONZE && (
-                  <Alert>
-                    <Clock className="h-4 w-4" />
-                    <AlertDescription className="text-sm">
+                  <Alert className={regAlertClass}>
+                    <Clock className="h-4 w-4 text-slate-400" />
+                    <AlertDescription className="text-sm text-slate-300">
                       <strong>الباقة البرونزية:</strong> أوقات العمل هنا <strong>إلزامية</strong> وتُثبَّت في بطاقة
                       المحل للعملاء. عيّن «مغلق» لأيام الراحة.
                     </AlertDescription>
                   </Alert>
                 )}
-                <div className="rounded-lg border border-border divide-y divide-border overflow-hidden max-w-full">
+                <div className="rounded-lg border border-slate-600 divide-y divide-slate-700 overflow-hidden max-w-full">
                   {formData.workingWeek.map((row, index) => (
                     <div
                       key={row.day}
-                      className="w-full min-w-0 p-3 sm:p-2.5 bg-muted/20 space-y-3 sm:space-y-0 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+                      className="w-full min-w-0 p-3 sm:p-2.5 bg-slate-800/50 space-y-3 sm:space-y-0 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-3"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2 gap-y-2 min-w-0 sm:min-w-[12rem] sm:justify-start sm:flex-nowrap">
-                        <span className="text-sm font-semibold text-foreground shrink-0">{row.day}</span>
+                        <span className="text-sm font-semibold text-slate-100 shrink-0">{row.day}</span>
                         <div className="flex items-center gap-2 shrink-0">
                           <Checkbox
                             id={`closed-${index}`}
@@ -1457,8 +1380,9 @@ export function RegistrationForm() {
                             onCheckedChange={(checked) =>
                               patchWorkingWeekRow(index, { closed: checked === true })
                             }
+                            className="border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                           />
-                          <Label htmlFor={`closed-${index}`} className="text-xs text-muted-foreground cursor-pointer">
+                          <Label htmlFor={`closed-${index}`} className={`text-xs ${regMutedClass} cursor-pointer`}>
                             مغلق
                           </Label>
                         </div>
@@ -1466,7 +1390,7 @@ export function RegistrationForm() {
                       {!row.closed ? (
                         <div className="grid grid-cols-2 gap-3 w-full min-w-0 md:flex md:flex-row md:flex-wrap md:items-end md:justify-end md:gap-3 md:max-w-lg md:shrink-0">
                           <div className="space-y-1 min-w-0 md:w-[7.75rem]">
-                            <Label className="text-[11px] text-muted-foreground md:sr-only" htmlFor={`open-${index}`}>
+                            <Label className={`text-[11px] ${regMutedClass} md:sr-only`} htmlFor={`open-${index}`}>
                               من
                             </Label>
                             <Input
@@ -1475,12 +1399,12 @@ export function RegistrationForm() {
                               value={row.open}
                               disabled={row.closed}
                               onChange={(e) => patchWorkingWeekRow(index, { open: e.target.value })}
-                              className="h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border"
+                              className={`h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border ${regFieldClass}`}
                               aria-label={`${row.day} من`}
                             />
                           </div>
                           <div className="space-y-1 min-w-0 md:w-[7.75rem]">
-                            <Label className="text-[11px] text-muted-foreground md:sr-only" htmlFor={`close-${index}`}>
+                            <Label className={`text-[11px] ${regMutedClass} md:sr-only`} htmlFor={`close-${index}`}>
                               إلى
                             </Label>
                             <Input
@@ -1489,31 +1413,27 @@ export function RegistrationForm() {
                               value={row.close}
                               disabled={row.closed}
                               onChange={(e) => patchWorkingWeekRow(index, { close: e.target.value })}
-                              className="h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border"
+                              className={`h-11 w-full min-w-0 max-w-full text-base md:h-9 md:text-sm box-border ${regFieldClass}`}
                               aria-label={`${row.day} إلى`}
                             />
                           </div>
                         </div>
                       ) : (
-                        <p className="text-xs text-muted-foreground py-1 md:text-right md:py-0 md:min-w-[10rem]">يوم عطلة</p>
+                        <p className={`text-xs ${regMutedClass} py-1 md:text-right md:py-0 md:min-w-[10rem]`}>يوم عطلة</p>
                       )}
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
-          {currentStep === 7 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">منيو الحلاقة والأسعار</CardTitle>
-                <CardDescription>
-                  أضف الخدمات الاعتيادية، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية
-                  لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          {currentStep === 6 && (
+            <RegStepShell
+              title="منيو الحلاقة والأسعار"
+              description="أضف الخدمات الاعتيادية، ثم — اختيارياً — أعلن إن كنت تُوفّر تسهيلات داخل المحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل."
+            >
+              <div className="space-y-4">
                 {formData.services.map((service, index) => (
                   <div key={index} className="flex gap-2">
                     <div className="flex-1 space-y-2">
@@ -1525,6 +1445,7 @@ export function RegistrationForm() {
                           newServices[index].name = e.target.value;
                           setFormData((prev) => ({ ...prev, services: newServices }));
                         }}
+                        className={regFieldClass}
                       />
                     </div>
                     <div className="w-32 space-y-2">
@@ -1537,6 +1458,7 @@ export function RegistrationForm() {
                           newServices[index].price = e.target.value;
                           setFormData((prev) => ({ ...prev, services: newServices }));
                         }}
+                        className={regFieldClass}
                       />
                     </div>
                     {formData.services.length > 1 && (
@@ -1545,17 +1467,23 @@ export function RegistrationForm() {
                         variant="outline"
                         size="icon"
                         onClick={() => removeService(index)}
+                        className="border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
                       >
                         ×
                       </Button>
                     )}
                   </div>
                 ))}
-                <Button type="button" variant="outline" onClick={addService} className="w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addService}
+                  className="w-full border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
+                >
                   + إضافة خدمة
                 </Button>
 
-                <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4">
+                <div className={`rounded-lg border border-slate-600 bg-slate-800/50 p-4 space-y-4`}>
                   <div className="flex items-start gap-3">
                     <Checkbox
                       id="inclusive-accessible-care"
@@ -1569,13 +1497,14 @@ export function RegistrationForm() {
                           },
                         }))
                       }
+                      className="border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                     />
                     <div className="space-y-1 min-w-0">
-                      <Label htmlFor="inclusive-accessible-care" className="text-sm font-semibold cursor-pointer leading-snug">
+                      <Label htmlFor="inclusive-accessible-care" className={`text-sm font-semibold cursor-pointer leading-snug ${regLabelClass}`}>
                         أوفر تسهيلات بالمحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة (بحسب
                         الظروف)
                       </Label>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
+                      <p className={`text-xs leading-relaxed ${regMutedClass}`}>
                         اختياري — إن لم تُشِر هنا فلن يُعرَض على المنصة أنك تلتزم بهذه الخدمة. عند التأشير يجب
                         إدخال سعر معروض للعميل (قد يشمل رسوماً إضافية للتنقل حسب ما تذكره في التواصل).
                       </p>
@@ -1583,7 +1512,9 @@ export function RegistrationForm() {
                   </div>
                   {formData.inclusiveAccessibleCare.offered && (
                     <div className="space-y-2 ps-1 sm:ps-8">
-                      <Label htmlFor="inclusive-accessible-care-price">السعر المعروض (ر.س) *</Label>
+                      <Label htmlFor="inclusive-accessible-care-price" className={regLabelClass}>
+                        السعر المعروض (ر.س) *
+                      </Label>
                       <Input
                         id="inclusive-accessible-care-price"
                         type="number"
@@ -1601,99 +1532,93 @@ export function RegistrationForm() {
                             },
                           }))
                         }
-                        className="max-w-xs"
+                        className={`max-w-xs ${regFieldClass}`}
                       />
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
 
-          {currentStep === 8 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">طريقة الدفع</CardTitle>
-                <CardDescription>اختر طريقة الدفع المناسبة</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          {currentStep === 7 && (
+            <RegStepShell title="طريقة الدفع" description="اختر طريقة الدفع المناسبة">
+              <div className="space-y-4">
                 {selectedPlan && (
-                  <Alert className="bg-primary/10 border-primary">
-                    <Star className="h-4 w-4" />
-                    <AlertDescription>
+                  <Alert className={`${regAlertClass} border-slate-500`}>
+                    <Star className="h-4 w-4 text-slate-300" />
+                    <AlertDescription className="text-slate-200">
                       {vatSettings.enabled && monthlyPriceBreakdown && monthlyPriceBreakdown.vat > 0 ? (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> — أتعاب الاشتراك{' '}
-                          {monthlyPriceBreakdown.subtotal} ر.س شهرياً + ضريبة القيمة المضافة (
-                          {vatSettings.ratePercent}%){' '}
+                          الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong>
+                          {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
+                            ? ' (+ Add-on المناوب)'
+                            : ''}{' '}
+                          — قيمة حزمة الرخصة الرقمية الموحد {monthlyPriceBreakdown.subtotal} ر.س + ضريبة
+                          القيمة المضافة ({vatSettings.ratePercent}%){' '}
                           {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
-                          <strong>{monthlyPriceBreakdown.total} ر.س شهرياً</strong>
+                          <strong>{monthlyPriceBreakdown.total} ر.س</strong>
                         </>
                       ) : (
                         <>
-                          الباقة المختارة: <strong>{selectedPlan.name}</strong> - {selectedPlan.price} ريال شهرياً
-                          <span className="block text-xs mt-1 opacity-90">
-                            المبلغ المعروض أتعاب اشتراك فقط دون ضريبة قيمة مضافة في الوضع الحالي.
+                          الباقة المختارة: <strong>{selectedPlan.tierLevel}</strong>
+                          {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
+                            ? ' (+ Add-on المناوب)'
+                            : ''}{' '}
+                          — {selectedUnitSar} ريال لحزمة الرخصة
+                          <span className={`block text-xs mt-1 ${regMutedClass}`}>
+                            المبلغ المعروض قيمة حزمة رخصة فقط دون ضريبة قيمة مضافة في الوضع الحالي.
                           </span>
                         </>
                       )}
                     </AlertDescription>
                   </Alert>
                 )}
-                <RadioGroup
-                  value={formData.payment.method}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      payment: { ...prev.payment, method: value as 'monthly' | 'bank_transfer' },
-                    }))
-                  }
-                  className="space-y-3"
-                >
-                  <label className="flex items-center space-x-3 space-x-reverse border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                    <RadioGroupItem value="monthly" id="monthly" />
-                    <div className="flex-1">
-                      <div className="font-semibold">اشتراك شهري</div>
-                      <p className="text-sm text-muted-foreground">
-                        دفع شهري متجدد تلقائياً - يمكن الإلغاء في أي وقت
+                <Alert className={regAlertClass}>
+                  <AlertDescription className="text-sm leading-relaxed space-y-2 text-slate-300">
+                    <p>
+                      <strong className="text-slate-100">الدفع عبر بطاقة (ميسر)</strong> — الطريقة الوحيدة لشراء
+                      حزمة الرخصة الرقمية على المنصة.
+                    </p>
+                    <p className={regMutedClass}>
+                      بعد مراجعة طلبك والموافقة عليه، ستتلقى رابط الدفع لإتمام السداد بأمان عبر بوابة ميسر (مدى،
+                      فيزا، ماستركارد). لا يوجد تحويل بنكي أو رفع إيصال ضمن التسجيل.
+                    </p>
+                    {selectedPlan && monthlyPriceBreakdown && (
+                      <p className="font-medium text-slate-100">
+                        المبلغ المتوقع لحزمة الرخصة (30 يوماً):{' '}
+                        {vatSettings.enabled && monthlyPriceBreakdown.vat > 0
+                          ? `${monthlyPriceBreakdown.total} ر.س (شامل ضريبة ${vatSettings.ratePercent}%)`
+                          : `${selectedUnitSar} ر.س`}
                       </p>
-                    </div>
-                  </label>
-                  <label className="flex items-center space-x-3 space-x-reverse border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                    <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                    <div className="flex-1">
-                      <div className="font-semibold">تحويل بنكي (6 أشهر مقدماً)</div>
-                      <p className="text-sm text-muted-foreground">
-                        خلال فترة العرض: خصم 10% على إجمالي 6 أشهر + شهران إضافيان (8 أشهر صلاحية). بعد انتهاء
-                        العرض: السعر الكامل لـ 6 أشهر فقط.
-                      </p>
-                      {selectedPlan && (() => {
-                        const base = getBankTransferPayableAmountSar(selectedPlan.tier);
-                        const bd = calcVatBreakdown(base, vatSettings);
-                        return (
-                          <div className="text-sm font-semibold text-primary mt-1 space-y-1">
-                            <p>
-                              المبلغ المطلوب الآن للتحويل:{' '}
-                              {vatSettings.enabled && bd.vat > 0 ? (
-                                <>
-                                  {bd.total} ريال (يشمل ضريبة القيمة المضافة {vatSettings.ratePercent}%:{' '}
-                                  {bd.vat} ريال على أتعاب {bd.subtotal} ريال)
-                                </>
-                              ) : (
-                                <>{base} ريال (أتعاب اشتراك دون ضريبة قيمة مضافة)</>
-                              )}
-                            </p>
-                            <p className="text-xs font-normal text-muted-foreground">
-                              {getBankTransferPlanSummaryAr(selectedPlan.tier)}
-                            </p>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </label>
-                </RadioGroup>
-                <div className="space-y-3 rounded-lg border border-border bg-muted/25 p-4">
-                  <div className="flex items-start gap-3">
+                    )}
+                  </AlertDescription>
+                </Alert>
+                <div className="space-y-3 rounded-lg border border-slate-600 bg-slate-800/50 p-4">
+                  <p className="text-right text-sm font-semibold text-slate-100">التزامات إلزامية قبل الإرسال</p>
+                  <ComplianceCheckbox
+                    id="legal-disclaimer-accept"
+                    label="أوافق على التعهد القانوني"
+                    checked={formData.legalDisclaimerAccepted}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({ ...prev, legalDisclaimerAccepted: checked }))
+                    }
+                    modalTitle="التعهد القانوني"
+                    modalContent={<LegalPledgeModalContent />}
+                    disabled={isSubmitting}
+                  />
+                  <ComplianceCheckbox
+                    id="professional-commitment-accept"
+                    label="أوافق على الالتزام المهني"
+                    checked={formData.professionalCommitmentAccepted}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({ ...prev, professionalCommitmentAccepted: checked }))
+                    }
+                    modalTitle="الالتزام المهني"
+                    modalContent={<ProfessionalCommitmentModalContent />}
+                    disabled={isSubmitting}
+                  />
+                  <div className="flex items-start gap-3 rounded-lg border border-slate-600/80 bg-slate-800/40 px-4 py-3">
                     <Checkbox
                       id="registration-terms-accept"
                       checked={formData.registrationTermsAccepted}
@@ -1703,95 +1628,69 @@ export function RegistrationForm() {
                           registrationTermsAccepted: checked === true,
                         }))
                       }
-                      className="mt-1"
+                      className="mt-1 border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
                     />
-                    <Label htmlFor="registration-terms-accept" className="cursor-pointer text-sm font-normal leading-relaxed">
-                      <span className="font-semibold text-foreground">أقرّ بموافقتي الصريحة</span> على أنني قرأت وفهمت{' '}
+                    <Label
+                      htmlFor="registration-terms-accept"
+                      className="cursor-pointer text-sm font-normal leading-relaxed text-slate-300"
+                    >
+                      <span className="font-semibold text-slate-100">أقرّ بموافقتي الصريحة</span> على أنني قرأت
+                      وفهمت{' '}
                       <Link
                         to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary underline-offset-2 hover:underline font-medium"
+                        className="text-slate-200 underline-offset-2 hover:underline font-medium"
                       >
-                        شروط التسجيل والاشتراك
+                        شروط التسجيل وشراء حزم الرخصة
                       </Link>{' '}
                       و{' '}
                       <Link
                         to={ROUTE_PATHS.PARTNER_PRIVACY}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary underline-offset-2 hover:underline font-medium"
+                        className="text-slate-200 underline-offset-2 hover:underline font-medium"
                       >
                         سياسة خصوصية الشركاء
                       </Link>
-                      ، وأوافق على الالتزام بها. أعلم أن مجرد تصفح النصوص دون التأشير هنا لا يُعد موافقة.
+                      ، وأوافق على الالتزام بها.
                     </Label>
                   </div>
                 </div>
-                {formData.payment.method === 'bank_transfer' && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                    <div className="space-y-2">
-                      <h4 className="font-semibold">معلومات التحويل البنكي:</h4>
-                      <div className="text-sm space-y-1">
-                        <p>البنك: {BANK_TRANSFER.bankDisplayAr}</p>
-                        <p>رقم الحساب (IBAN): {BANK_TRANSFER.iban}</p>
-                        <p>اسم المستفيد: {BANK_TRANSFER.beneficiaryDisplay}</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="receipt">رفع إيصال التحويل *</Label>
-                      <Input
-                        id="receipt"
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            payment: { ...prev.payment, receipt: e.target.files?.[0] || null },
-                          }))
-                        }
-                      />
-                      {formData.payment.receipt && (
-                        <div className="space-y-1 text-sm">
-                          <p className="flex items-center gap-2 text-foreground min-w-0">
-                            <Check className="w-4 h-4 shrink-0 text-primary" aria-hidden />
-                            <span className="text-muted-foreground">تم اختيار الملف:</span>
-                            <span className="font-medium truncate" dir="ltr">
-                              {formData.payment.receipt.name}
-                            </span>
-                          </p>
-                          <p className="text-xs text-muted-foreground leading-relaxed pr-6">
-                            الرفع إلى السيرفر يتم فقط عند الضغط على «إرسال الطلب» — لا يُعتبر الملف مرفوعاً قبل نجاح الإرسال.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+            </RegStepShell>
           )}
-        </motion.div>
-      </AnimatePresence>
+      </div>
 
       <div className="flex justify-between mt-6">
         <Button
           variant="outline"
           onClick={handlePrevious}
           disabled={currentStep === 1 || isSubmitting}
+          className="border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
         >
           <ChevronLeft className="w-4 h-4 ml-2" />
           السابق
         </Button>
         {currentStep < STEPS.length ? (
-          <Button onClick={handleNext} disabled={isSubmitting}>
+          <Button
+            onClick={handleNext}
+            disabled={isSubmitting}
+            className="bg-slate-100 text-slate-900 hover:bg-white"
+          >
             التالي
             <ChevronRight className="w-4 h-4 mr-2" />
           </Button>
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || !formData.registrationTermsAccepted}
+            disabled={
+              isSubmitting ||
+              !formData.registrationTermsAccepted ||
+              !formData.legalDisclaimerAccepted ||
+              !formData.professionalCommitmentAccepted
+            }
+            className="bg-slate-100 text-slate-900 hover:bg-white"
           >
             {isSubmitting ? (
               <>

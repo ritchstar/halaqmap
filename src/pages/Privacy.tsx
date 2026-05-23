@@ -1,5 +1,17 @@
 import { motion } from "framer-motion";
-import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale, MessageSquare } from "lucide-react";
+import { Shield, Lock, Eye, UserCheck, Cookie, Bell, Mail, Phone, Scale, MessageSquare, Users, Server } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { ROUTE_PATHS } from "@/lib";
+import { renderLegalContentBlocks } from "@/lib/legalPageRender";
+import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
+import {
+  PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
+  PLATFORM_IDENTITY_PARAGRAPH_AR,
+} from "@/config/platformIdentity";
+import {
+  END_USER_EXPERIENCE_POLICY_CONTENT,
+  END_USER_EXPERIENCE_POLICY_TITLE,
+} from "@/config/endUserExperiencePolicy";
 
 export default function Privacy() {
   const sections = [
@@ -9,11 +21,22 @@ export default function Privacy() {
       content: "هذه الصفحة مخصصة لخصوصية مستخدم المنصة (الزائر الباحث عن صالون). في حلاق ماب نلتزم بحماية خصوصيتك وجعل تجربة البحث آمنة وواضحة."
     },
     {
+      icon: Server,
+      title: "هوية المنصّة — مزوّد حلول تقنية لا وسيط تجاري",
+      content:
+        PLATFORM_IDENTITY_PARAGRAPH_AR + "\n\n" + PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
+    },
+    {
+      icon: Users,
+      title: END_USER_EXPERIENCE_POLICY_TITLE,
+      content: END_USER_EXPERIENCE_POLICY_CONTENT,
+    },
+    {
       icon: Scale,
       title: "الامتثال لنظام حماية البيانات الشخصية (السعودية)",
       content:
         "نصمّم تجربة المستخدم وفق مبادئ **نظام حماية البيانات الشخصية** في المملكة العربية السعودية والإرشادات ذات الصلة الصادرة عن **هيئة حماية البيانات الشخصية** التابعة للهيئة السعودية للبيانات والذكاء الاصطناعي «سدايا».\n\n" +
-        "- **الشفافية والغرض:** نوضح في هذه الصفحة أغراض المعالجة بقدر ما يلزم لتجربة البحث والخريطة.\n" +
+        "- **الشفافية والغرض:** نوضح في هذه الصفحة أغراض المعالجة بقدر ما يلزم لتجربة البحث ونظام الرصد الذكي.\n" +
         "- **التقليل:** نجمع الحد الأدنى من البيانات اللازمة للتشغيل.\n" +
         "- **الأمان:** نطبّق ضوابط تقنية وتنظيمية معقولة (منها التشفير أثناء النقل TLS، وقيود الوصول في البنية السحابية).\n" +
         "- **حقوق أصحاب البيانات:** يمكنك طلب الاطلاع أو التصحيح أو الحذف ضمن ما يسمح به النظام والتشغيل، عبر قنوات التواصل أدناه.\n" +
@@ -23,12 +46,22 @@ export default function Privacy() {
     {
       icon: Eye,
       title: "جمع البيانات",
-      content: "بالنسبة للمستخدم، نجمع الحد الأدنى اللازم للتشغيل:\n\n- بيانات الموقع الجغرافي عند الإذن فقط لعرض الصالونات القريبة\n- لا نطلب إنشاء حساب للمستخدم العادي لتصفح النتائج\n- لا نطلب منك رفع مستندات أو بيانات مالية ضمن تجربة المستخدم"
+      content:
+        "بالنسبة للمستخدم، نجمع الحد الأدنى اللازم للتشغيل:\n\n" +
+        "- **بيانات الموقع الجغرافي اللحظي عند الإذن فقط لعرض الصالونات القريبة**\n" +
+        "- بيانات تقنية عامة للجلسة والأمان بقدر ما يلزم\n" +
+        "- لا نطلب إنشاء حساب للمستخدم العادي لتصفح النتائج\n" +
+        "- لا نطلب منك رفع مستندات أو بيانات مالية ضمن تجربة المستخدم"
     },
     {
       icon: Lock,
-      title: "استخدام البيانات",
-      content: "نستخدم بيانات المستخدم للأغراض التالية فقط:\n\n- عرض النتائج الأقرب والأكثر صلة بموقعك\n- تحسين جودة التجربة والأداء العام للمنصة\n- منع إساءة الاستخدام وتحسين الأمان والموثوقية"
+      title: "استخدام البيانات والمعالجة اللحظية",
+      content:
+        "نستخدم بيانات المستخدم للأغراض التالية فقط:\n\n" +
+        "- عرض النتائج الأقرب والأكثر صلة بموقعك **أثناء الجلسة الحالية**\n" +
+        "- تحسين جودة التجربة والأداء العام للمنصة\n" +
+        "- منع إساءة الاستخدام وتحسين الأمان والموثوقية\n\n" +
+        "**بيانات الموقع:** تُعالَج **لحظياً (Instantaneous / Real-Time)** عند الإذن؛ **تنتهي المعالجة** عند إغلاق المتصفح/التطبيق أو انتهاء الجلسة. **لا نُخزّن** إحداثيات موقعك في قاعدة بيانات لدينا و**لا نُجري تتبعاً تاريخياً** لمسارك الجغرافي."
     },
     {
       icon: MessageSquare,
@@ -39,7 +72,15 @@ export default function Privacy() {
     {
       icon: Shield,
       title: "حماية البيانات",
-      content: "نتخذ إجراءات أمنية صارمة لحماية بياناتك:\n\n- تشفير جميع البيانات أثناء النقل والتخزين (SSL/TLS)\n- خوادم آمنة مع جدران حماية متقدمة\n- الوصول المحدود للبيانات (فقط للموظفين المصرح لهم)\n- نسخ احتياطية منتظمة ومشفرة\n- مراقبة مستمرة للأنشطة المشبوهة\n- عدم مشاركة بياناتك مع أطراف ثالثة دون موافقتك الصريحة"
+      content:
+        "نتخذ إجراءات أمنية صارمة لحماية بياناتك:\n\n" +
+        "- تشفير البيانات أثناء النقل (TLS/SSL) حيث ينطبق، وحماية البيانات المخزّنة لدينا (إن وُجدت) بضوابط مناسبة\n" +
+        "- خوادم آمنة مع جدران حماية متقدمة\n" +
+        "- الوصول المحدود للبيانات (فقط للموظفين المصرح لهم)\n" +
+        "- نسخ احتياطية منتظمة ومشفرة للبيانات التشغيلية المخزّنة\n" +
+        "- مراقبة مستمرة للأنشطة المشبوهة\n" +
+        "- عدم مشاركة بياناتك مع أطراف ثالثة دون موافقتك الصريحة\n\n" +
+        "**ملاحظة:** إحداثيات الموقع اللحظية **لا تُخزَّن** في قاعدة بيانات لأغراض التتبع التاريخي كما هو موضّح أعلاه."
     },
     {
       icon: UserCheck,
@@ -86,17 +127,29 @@ export default function Privacy() {
             </motion.div>
             
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-l from-primary via-accent to-primary bg-clip-text text-transparent">
-              سياسة الخصوصية
+              سياسة الخصوصية التفصيلية
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              سياسة خصوصية المستخدمين في حلاق ماب: كيف نجمع الحد الأدنى من البيانات، وكيف نستخدمها لحماية التجربة.
+              النسخة الكاملة لمستخدمي حلاق ماب: أغراض المعالجة، الامتثال لنظام حماية البيانات الشخصية في المملكة، والحقوق
+              وقنوات التواصل — بجانب النسخة الموجزة حول الموقع الجغرافي عند الحاجة.
+            </p>
+            <p className="mt-6 text-sm text-muted-foreground">
+              للنسخة الموجزة حول الموقع الجغرافي انظر{' '}
+              <NavLink to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-primary font-medium underline-offset-4 hover:underline">
+                سياسة الخصوصية (موجزة)
+              </NavLink>
+              .
             </p>
           </div>
         </motion.div>
       </div>
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16" dir="rtl">
+        <div className="max-w-4xl mx-auto mb-12">
+          <PlatformIdentityCard />
+        </div>
+
         <div className="max-w-4xl mx-auto space-y-12">
           {sections.map((section, index) => {
             const Icon = section.icon;
@@ -122,35 +175,8 @@ export default function Privacy() {
                         {section.title}
                       </h2>
                       
-                      <div className="prose prose-lg max-w-none">
-                        {section.content.split('\n').map((paragraph, pIndex) => {
-                          if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
-                            return (
-                              <h3 key={pIndex} className="text-lg font-semibold text-foreground mt-4 mb-2">
-                                {paragraph.replace(/\*\*/g, '')}
-                              </h3>
-                            );
-                          }
-                          if (paragraph.startsWith('- ')) {
-                            return (
-                              <li key={pIndex} className="text-muted-foreground leading-relaxed mr-6">
-                                {paragraph.substring(2).split('**').map((part, i) => 
-                                  i % 2 === 0 ? part : <strong key={i} className="text-foreground">{part}</strong>
-                                )}
-                              </li>
-                            );
-                          }
-                          if (paragraph.trim()) {
-                            return (
-                              <p key={pIndex} className="text-muted-foreground leading-relaxed mb-4">
-                                {paragraph.split('**').map((part, i) => 
-                                  i % 2 === 0 ? part : <strong key={i} className="text-foreground">{part}</strong>
-                                )}
-                              </p>
-                            );
-                          }
-                          return null;
-                        })}
+                      <div className="max-w-none space-y-1">
+                        {renderLegalContentBlocks(section.content)}
                       </div>
                     </div>
                   </div>

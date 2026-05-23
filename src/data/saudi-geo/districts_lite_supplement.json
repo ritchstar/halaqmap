@@ -1,0 +1,37 @@
+[
+  {
+    "district_id": 10100003196,
+    "city_id": 3,
+    "region_id": 1,
+    "name_ar": "حي المعيزيلة",
+    "name_en": "Al Maizilah Dist."
+  },
+  {
+    "district_id": 10100003197,
+    "city_id": 3,
+    "region_id": 1,
+    "name_ar": "حي عرقة",
+    "name_en": "Irqah Dist."
+  },
+  {
+    "district_id": 10100003198,
+    "city_id": 3,
+    "region_id": 1,
+    "name_ar": "حي حدائق الملك فهد",
+    "name_en": "King Fahd Gardens Dist."
+  },
+  {
+    "district_id": 10100003199,
+    "city_id": 3,
+    "region_id": 1,
+    "name_ar": "حي الجوان",
+    "name_en": "Al Jawwan Dist."
+  },
+  {
+    "district_id": 10100003200,
+    "city_id": 3,
+    "region_id": 1,
+    "name_ar": "حي الشاطئ",
+    "name_en": "Ash Shati Dist."
+  }
+]

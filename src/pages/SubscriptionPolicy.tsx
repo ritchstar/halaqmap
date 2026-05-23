@@ -5,160 +5,91 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
-  BARBER_DASHBOARD_GOLD_LINE,
-  BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
   MAP_FEATURE_HERO,
 } from "@/config/subscriptionPlanHero";
-import { RATING_QR_PLAN_LINE } from "@/config/ratingQrInvite";
-import { usePlatformVatSettings } from "@/hooks/usePlatformVatSettings";
-import { getSubscriptionPricingVatClauseAr } from "@/lib/platformVatSettings";
+import { LISTING_LICENSE_LEGAL_FOOTNOTE } from "@/config/listingLicenseCards";
+import {
+  SUBSCRIPTION_POLICY_EXPIRY,
+  SUBSCRIPTION_POLICY_PACKAGE_RENEWAL,
+  SUBSCRIPTION_POLICY_TIERS,
+  SUBSCRIPTION_POLICY_TIERS_INTRO,
+} from "@/config/subscriptionPolicyTiers";
+import {
+  LEGAL_TRADE_NAME_AR,
+  LEGAL_NATIONAL_UNIFIED_NUMBER,
+  PARTNER_SUPPORT_EMAIL,
+  PARTNER_SUPPORT_PHONE_E164,
+  PARTNER_SUPPORT_WHATSAPP_URL,
+  getLegalCommercialRegistrationDisplay,
+} from "@/config/partnerLegal";
+import { HonorBoard } from "@/components/b2b/HonorBoard";
+import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
+import {
+  PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
+} from "@/config/platformIdentity";
 
-type SubscriptionTierFeature = { kind: "map_hero" } | { kind: "text"; value: string };
 
 export default function SubscriptionPolicy() {
-  const vatSettings = usePlatformVatSettings();
-  const subscriptionTiers: Array<{
-    name: string;
-    price: string;
-    period: string;
-    color: string;
-    features: SubscriptionTierFeature[];
-  }> = [
-    {
-      name: "برونزي",
-      price: "100",
-      period: "شهرياً",
-      color: "bg-gradient-to-br from-amber-700 to-amber-900",
-      features: [
-        { kind: "map_hero" },
-        { kind: "text", value: "صورتان أساسيتان (خارجي وداخل) وأربع صور للبنر مع طلب الاشتراك" },
-        { kind: "text", value: "جدول أسبوعي كامل لأوقات العمل مع الطلب (إلزامي ويُعرَض للعملاء)" },
-        { kind: "text", value: "رقم الهاتف وبيانات التواصل من بطاقة المحل" },
-        { kind: "text", value: "ظهور في نتائج البحث" },
-        { kind: "text", value: "تحديث المعلومات الأساسية" },
-      ],
-    },
-    {
-      name: "ذهبي",
-      price: "150",
-      period: "شهرياً",
-      color: "bg-gradient-to-br from-accent to-yellow-600",
-      features: [
-        { kind: "map_hero" },
-        { kind: "text", value: RATING_QR_PLAN_LINE },
-        { kind: "text", value: "كل مميزات البرونزي" },
-        { kind: "text", value: "بنر موسع بصور متعددة" },
-        { kind: "text", value: "إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل" },
-        { kind: "text", value: "جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)" },
-        { kind: "text", value: "رابط واتساب مباشر" },
-        { kind: "text", value: "شات مباشر مع العملاء" },
-        { kind: "text", value: "جلسة شات خاصة لكل عميل تنتهي تلقائياً بعد 60 دقيقة لخصوصية أعلى" },
-        { kind: "text", value: "أولوية في نتائج البحث" },
-        { kind: "text", value: "إحصائيات المشاهدات" },
-        { kind: "text", value: BARBER_DASHBOARD_GOLD_LINE },
-        {
-          kind: "text",
-          value:
-            "خدمة كبار السن والمرضى وذوي الاحتياجات (محل/منزل): تحكم كامل بعد التفعيل من لوحة التحكم — السعر المعروض، إظهار أو إخفاء الخدمة للعملاء، تقييد أيام الإعلان أو تركها مرنة، وملاحظة للعميل",
-        },
-      ],
-    },
-    {
-      name: "ماسي",
-      price: "200",
-      period: "شهرياً",
-      color: "bg-gradient-to-br from-primary to-cyan-600",
-      features: [
-        { kind: "map_hero" },
-        { kind: "text", value: RATING_QR_PLAN_LINE },
-        { kind: "text", value: "كل مميزات الذهبي" },
-        { kind: "text", value: "شارة ماسية مميزة" },
-        { kind: "text", value: "إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل" },
-        { kind: "text", value: "جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)" },
-        { kind: "text", value: "أولوية قصوى في الظهور" },
-        { kind: "text", value: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
-        { kind: "text", value: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
-        { kind: "text", value: "ترجمة تلقائية في الشات" },
-        { kind: "text", value: "شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة" },
-        {
-          kind: "text",
-          value:
-            "التنبيه على معالجة الترجمة: تُعرض بين المستخدم والصالون كمزوّد خدمة وفق سياسة الخصوصية — ليست ترجمة رسمية أو استشارة",
-        },
-        { kind: "text", value: "دعم فني مخصص 24/7" },
-      ],
-    },
-  ];
+  const commercialReg = getLegalCommercialRegistrationDisplay();
+  const subscriptionTiers = SUBSCRIPTION_POLICY_TIERS;
 
   const paymentMethods = [
     {
-      title: "الاشتراك الشهري",
-      description: "دفع شهري متكرر عبر بطاقة الائتمان أو مدى",
-      icon: CheckCircle2,
-      benefits: [
-        "تجديد تلقائي كل شهر",
-        "إمكانية الإلغاء في أي وقت",
-        "لا توجد رسوم إضافية",
-        "فوترة واضحة وشفافة"
-      ]
-    },
-    {
-      title: "التحويل البنكي (6 أشهر مقدماً)",
+      title: "شراء حزمة رخصة النفاذ الرقمية (بوابة ميسر Moyasar)",
       description:
-        "خلال فترة العرض التشغيلية: خصم 10% على إجمالي 6 أشهر + شهران إضافيان (صلاحية 8 أشهر). أمثلة: برونزي 540 ر.س، ذهبي 810 ر.س، ماسي 1080 ر.س. بعد انتهاء فترة العرض: السعر الكامل لـ 6 أشهر (600 / 900 / 1200 ر.س).",
+        "الطريقة المتاحة لشراء حزم الرخصة الحالية: دفع لمرة واحدة عبر بوابة ميسر (Moyasar) المعتمدة وفق الأنظمة المعمول بها في المملكة — برونزي 100 ر.س، ذهبي 150 ر.س، ماسي 200 ر.س — لمدة 30 يوماً لكل حزمة، دون تجديد تلقائي أو خصم دوري. للماسية: إضافة «المناوب الرقمي الذكي» إضافة برمجية متقدمة (Add-on) اختيارية +25 ر.س/حزمة — منفصلة عن الرخصة التقنية.",
       icon: CheckCircle2,
       benefits: [
-        "التحقق من الإيصال يدوياً من الإدارة قبل التفعيل",
-        "اشتراك شهري لاحقاً عبر بطاقة أو مدى عند تفعيل بوابة الدفع",
-        "إيصال أو مستند تحويل مع الطلب",
-        "تفاصيل الحساب البنكي تظهر في نموذج التسجيل وصفحة الدفع"
-      ]
-    }
+        "دفع لمرة واحدة مقابل حزمة رخصة شهرية (30 يوماً) — برونزي 100 · ذهبي 150 · ماسي 200 ر.س — كما في جدول الباقات أعلاه",
+        "لا يخزن الموقع رقم البطاقة أو رمز الأمان — تتم المعالجة لدى مزود الدفع المعتمد",
+        "إيصال إلكتروني وإشعار بريد بعد إتمام الدفع",
+        "تفعيل تلقائي عبر نظام الرصد الذكي بعد نجاح الدفع ومعالجة الويب هوك",
+      ],
+    },
   ];
 
   const cancellationSteps = [
     {
       step: "1",
-      title: "تقديم طلب الإلغاء",
-      description: "تواصل مع الدعم الفني عبر الواتساب أو البريد الإلكتروني"
+      title: "انتهاء صلاحية حزمة الرخصة",
+      description: "تنتهي صلاحية الإدراج تلقائياً في تاريخ انتهاء حزمة الرخصة المدفوع مسبقاً دون تجديد تلقائي",
     },
     {
       step: "2",
-      title: "فترة الإشعار",
-      description: "يجب تقديم الطلب قبل 7 أيام من موعد التجديد القادم"
+      title: "شراء حزمة رخصة جديدة",
+      description: "يمكن شراء حزمة رخصة جديدة أو استرداد كود تفعيل لمدة إضافية وفق المنتج المعروض",
     },
     {
       step: "3",
-      title: "تأكيد الإلغاء",
-      description: "ستتلقى رسالة تأكيد بإلغاء الاشتراك خلال 24 ساعة"
+      title: "طلب إيقاف مبكر",
+      description: "لطلبات خاصة بالإيقاف أو الحذف، تواصل مع الدعم — لا يترتب استرداد مالي بعد تفعيل حزمة الرخصة",
     },
     {
       step: "4",
-      title: "انتهاء الخدمة",
-      description: "ستستمر الخدمة حتى نهاية الفترة المدفوعة"
-    }
+      title: "إخفاء من نظام الرصد الذكي",
+      description: "بعد انتهاء الصلاحية يُخفى المحل من نتائج البحث حتى تجديد حزمة الرخصة",
+    },
   ];
 
   const refundPolicy = [
     {
-      condition: "خلال 7 أيام من الاشتراك",
-      refund: "استرداد كامل 100%",
-      icon: CheckCircle2,
-      color: "text-green-500"
-    },
-    {
-      condition: "من 8 إلى 14 يوم",
-      refund: "استرداد 50%",
+      condition: "قبل تفعيل كود حزمة الرخصة",
+      refund: "مراجعة إدارية حسب الحالة",
       icon: AlertCircle,
-      color: "text-yellow-500"
+      color: "text-yellow-500",
     },
     {
-      condition: "بعد 14 يوم",
-      refund: "لا يوجد استرداد",
+      condition: "بعد تفعيل حزمة الرخصة",
+      refund: "غير قابل للإلغاء أو الاسترداد",
       icon: XCircle,
-      color: "text-red-500"
-    }
+      color: "text-red-500",
+    },
+    {
+      condition: "خلل تقني بعد الدفع",
+      refund: "استرداد كامل أو تفعيل يدوي",
+      icon: CheckCircle2,
+      color: "text-green-500",
+    },
   ];
 
   return (
@@ -171,18 +102,46 @@ export default function SubscriptionPolicy() {
       >
         <motion.div variants={fadeInUp} className="text-center mb-12">
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-            سياسة الاشتراك والإلغاء
+            سياسة رخصة النفاذ الرقمية (نظام الاستجابة الذكية)
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
-            شروط وأحكام الاشتراك
+            شروط شراء حزم رخصة النفاذ الرقمية
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            نلتزم بالشفافية الكاملة في جميع تعاملاتنا المالية. اقرأ سياسة الاشتراك بعناية قبل التسجيل.
+            نلتزم بالشفافية الكاملة في بيع حزم الرخصة الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
           </p>
         </motion.div>
 
+        <motion.section variants={staggerItem} className="mb-12">
+          <div className="max-w-4xl mx-auto">
+            <PlatformIdentityCard />
+          </div>
+        </motion.section>
+
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">أنواع الباقات والأسعار</h2>
+          <Card className="max-w-4xl mx-auto border-primary/30 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="text-xl text-center">طبيعة الخدمة والمنتج الرقمي</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                تُقرّ المنشأة المستفيدة (صالون الحلاقة) بأن المنتج المشترى عبر المنصة هو (حزمة رخصة لخدمات إدراج برمجية
+                موحدة) على نظام الرصد الذكي التفاعلي لمنصة (حلاق ماب). هذا المنتج هو مساحة برمجية مخصصة ومطورة لعرض البيانات
+                الجغرافية والمعلومات التشغيلية للصالون، وتحديثها تقنيًا لربطه وإدراج بياناته للباحثين في محيطه الجغرافي.
+                تُعد هذه حزم الرخصة منتجات رقمية مسبقة الدفع وغير قابلة للإلغاء أو الاسترداد بعد التفعيل.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                {PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.section>
+
+        <motion.section variants={staggerItem} className="mb-16">
+          <h2 className="text-3xl font-bold mb-4 text-center">أنواع باقات حزم رخصة النفاذ والأسعار</h2>
+          <p className="text-sm text-muted-foreground text-center max-w-3xl mx-auto mb-8 leading-relaxed">
+            {SUBSCRIPTION_POLICY_TIERS_INTRO}
+          </p>
           <div className="grid md:grid-cols-3 gap-6">
             {subscriptionTiers.map((tier, index) => (
               <motion.div
@@ -195,10 +154,10 @@ export default function SubscriptionPolicy() {
                   <CardHeader className="text-center pb-4">
                     <CardTitle className="text-2xl mb-2">{tier.name}</CardTitle>
                     <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-4xl font-bold text-primary">{tier.price}</span>
+                      <span className="text-4xl font-bold text-primary">{tier.priceSar}</span>
                       <span className="text-muted-foreground">ريال</span>
                     </div>
-                    <CardDescription>{tier.period}</CardDescription>
+                    <CardDescription>{tier.periodLabelAr}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3 list-none p-0 m-0">
@@ -238,13 +197,18 @@ export default function SubscriptionPolicy() {
               </motion.div>
             ))}
           </div>
+          <Card className="mt-8 max-w-4xl mx-auto border-primary/20 bg-muted/30">
+            <CardContent className="pt-6">
+              <p className="text-xs leading-relaxed text-muted-foreground text-justify">{LISTING_LICENSE_LEGAL_FOOTNOTE}</p>
+            </CardContent>
+          </Card>
         </motion.section>
 
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center">طرق الدفع المتاحة</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="max-w-2xl mx-auto">
             {paymentMethods.map((method, index) => (
               <motion.div
                 key={method.title}
@@ -280,34 +244,26 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-4 text-center">التجديد التلقائي</h2>
+          <h2 className="text-3xl font-bold mb-4 text-center">عدم التجديد التلقائي</h2>
           <Card className="max-w-3xl mx-auto">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">تجديد تلقائي للاشتراك الشهري</h3>
-                    <p className="text-sm text-muted-foreground">
-                      يتم تجديد الاشتراك الشهري تلقائياً في نفس التاريخ من كل شهر باستخدام طريقة الدفع المسجلة.
+                    <h3 className="font-semibold mb-1">دفع لمرة واحدة فقط</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      لا يوجد تجديد تلقائي شهري ولا خصم دوري من بطاقتك. كل عملية شراء تمثل حزمةً برمجية رقمياً مسبق الدفع بمدة
+                      محددة.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-6 h-6 text-yellow-500 shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">إشعار قبل التجديد</h3>
-                    <p className="text-sm text-muted-foreground">
-                      سنرسل لك إشعاراً قبل 3 أيام من موعد التجديد عبر البريد الإلكتروني والواتساب.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <XCircle className="w-6 h-6 text-red-500 shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">فشل الدفع</h3>
-                    <p className="text-sm text-muted-foreground">
-                      في حالة فشل الدفع، سيتم تعليق الحساب مؤقتاً لمدة 7 أيام. بعدها سيتم إلغاء الاشتراك تلقائياً.
+                    <h3 className="font-semibold mb-1">انتهاء الصلاحية</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      عند انتهاء مدة حزمة رخصة النفاذ تتوقف صلاحية الاستجابة البرمجية ضمن نظام الاستجابة الذكية حتى شراء حزمة جديدة أو استرداد كود تفعيل.
                     </p>
                   </div>
                 </div>
@@ -319,7 +275,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">إجراءات إلغاء الاشتراك</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">انتهاء حزمة رخصة النفاذ وإعادة الشراء</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {cancellationSteps.map((item, index) => (
               <motion.div
@@ -371,7 +327,19 @@ export default function SubscriptionPolicy() {
           <Card className="mt-8 max-w-3xl mx-auto bg-muted/50">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground text-center">
-                <strong>ملاحظة هامة:</strong> سياسة الاسترداد تنطبق فقط على الاشتراك الشهري. التحويلات البنكية لـ6 أشهر غير قابلة للاسترداد بعد التفعيل.
+                <strong>ملاحظة هامة:</strong> حزم الرخصة الرقمية مسبقة الدفع غير قابلة للإلغاء أو الاسترداد بعد تفعيل كود حزمة الرخصة.
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="mt-8 max-w-3xl mx-auto border-primary/25">
+            <CardHeader>
+              <CardTitle className="text-lg text-center">استرداد في حال خلل تقني بعد نجاح الدفع</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                في حال نجاح عملية الدفع وعدم تفعيل حزمة الرخصة أو كود التفعيل بسبب خلل فني، يلتزم الموقع بمعالجة الطلب وإعادة
+                كامل المبلغ للحساب المصدر خلال 7 إلى 14 يوم عمل، ما لم يفضل المشتري تفعيل حزمة الرخصة يدوياً عبر التواصل مع
+                الدعم الفني.
               </p>
             </CardContent>
           </Card>
@@ -380,37 +348,25 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">تعليق الحساب عند عدم الدفع</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">{SUBSCRIPTION_POLICY_EXPIRY.title}</h2>
           <Card className="max-w-3xl mx-auto">
             <CardContent className="pt-6">
               <div className="space-y-6">
-                <div>
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-yellow-500" />
-                    التعليق المؤقت (7 أيام)
-                  </h3>
-                  <p className="text-sm text-muted-foreground pr-7">
-                    عند فشل الدفع، يتم تعليق الحساب مؤقتاً مع إخفاء البطاقة من نتائج البحث. يمكنك تحديث طريقة الدفع خلال هذه الفترة لاستعادة الخدمة.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <XCircle className="w-5 h-5 text-red-500" />
-                    الإلغاء النهائي (بعد 7 أيام)
-                  </h3>
-                  <p className="text-sm text-muted-foreground pr-7">
-                    إذا لم يتم تحديث الدفع خلال 7 أيام، سيتم إلغاء الاشتراك نهائياً وحذف جميع البيانات المرتبطة بالحساب.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    إعادة التفعيل
-                  </h3>
-                  <p className="text-sm text-muted-foreground pr-7">
-                    يمكنك إعادة تفعيل الحساب في أي وقت بعد الإلغاء من خلال التسجيل مجدداً واختيار الباقة المناسبة.
-                  </p>
-                </div>
+                {SUBSCRIPTION_POLICY_EXPIRY.items.map((item, idx) => (
+                  <div key={item.title}>
+                    <h3 className="font-semibold mb-2 flex items-center gap-2">
+                      {idx === 0 ? (
+                        <AlertCircle className="w-5 h-5 text-yellow-500" />
+                      ) : idx === 1 ? (
+                        <XCircle className="w-5 h-5 text-red-500" />
+                      ) : (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      )}
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground pr-7">{item.body}</p>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -419,65 +375,49 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">تعديل الباقة</h2>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4 text-center">{SUBSCRIPTION_POLICY_PACKAGE_RENEWAL.title}</h2>
+          <p className="text-sm text-muted-foreground text-center max-w-3xl mx-auto mb-8 leading-relaxed">
+            {SUBSCRIPTION_POLICY_PACKAGE_RENEWAL.lead}
+          </p>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {SUBSCRIPTION_POLICY_PACKAGE_RENEWAL.items.map((item) => (
+              <Card key={item.title} className="h-full">
+                <CardHeader>
+                  <CardTitle className="text-lg">{item.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.body}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </motion.section>
+
+        <Separator className="my-16" />
+
+        <motion.section variants={staggerItem} className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">التوضيح الضريبي وأمن المدفوعات</h2>
+          <div className="max-w-4xl mx-auto space-y-6">
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <CheckCircle2 className="w-6 h-6 text-green-500" />
-                  </div>
-                  <CardTitle>الترقية إلى باقة أعلى</CardTitle>
-                </div>
+                <CardTitle className="text-lg">التوضيح الضريبي (ضريبة القيمة المضافة)</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  يمكنك الترقية في أي وقت. سيتم احتساب الفرق بشكل تناسبي للفترة المتبقية.
+              <CardContent>
+                <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                  جميع قيم حزم الرخصة الرقمية الموضحة هي مبالغ نهائية، ولا يتم تحصيل ضريبة قيمة مضافة (VAT) حالياً نظراً
+                  لعدم وصول المؤسسة للحد الإلزامي للتسجيل الضريبي.
                 </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>تفعيل فوري للمميزات الجديدة</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>دفع الفرق فقط للفترة المتبقية</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>لا توجد رسوم إضافية</span>
-                  </li>
-                </ul>
               </CardContent>
             </Card>
-
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-yellow-500/10">
-                    <AlertCircle className="w-6 h-6 text-yellow-500" />
-                  </div>
-                  <CardTitle>التخفيض إلى باقة أقل</CardTitle>
-                </div>
+                <CardTitle className="text-lg">أمن المدفوعات وبوابة الدفع</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  يمكنك التخفيض في نهاية الفترة الحالية. لن يتم استرداد الفرق للفترة المدفوعة.
+              <CardContent>
+                <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                  يتم معالجة جميع المدفوعات عبر مزود خدمة دفع مرخص من البنك المركزي السعودي (SAMA)، ولا يقوم الموقع
+                  بتخزين بيانات البطاقات الائتمانية لديه.
                 </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>التطبيق في بداية الفترة القادمة</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>الاحتفاظ بالمميزات حتى نهاية الفترة</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>إشعار قبل التطبيق بـ3 أيام</span>
-                  </li>
-                </ul>
               </CardContent>
             </Card>
           </div>
@@ -495,7 +435,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">1</span>
                   </div>
                   <p className="text-sm">
-                    {getSubscriptionPricingVatClauseAr(vatSettings)}
+                    تحتفظ منصة حلاق ماب بالحق في تعديل الأسعار والباقات مع إشعار مسبق لمدة 30 يوماً.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -503,7 +443,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">2</span>
                   </div>
                   <p className="text-sm">
-                    تحتفظ منصة حلاق ماب بالحق في تعديل الأسعار والباقات مع إشعار مسبق لمدة 30 يوماً.
+                    يجب على الحلاق الالتزام بمعايير الجودة والاحترافية. قد يتم تعليق الحساب في حالة المخالفات.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -511,7 +451,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">3</span>
                   </div>
                   <p className="text-sm">
-                    يجب على الحلاق الالتزام بمعايير الجودة والاحترافية. قد يتم تعليق الحساب في حالة المخالفات.
+                    المنصة غير مسؤولة عن جودة الخدمات المقدمة من الحلاقين. العلاقة التعاقدية مباشرة بين الحلاق والعميل.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -519,21 +459,15 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">4</span>
                   </div>
                   <p className="text-sm">
-                    المنصة غير مسؤولة عن جودة الخدمات المقدمة من الحلاقين. العلاقة التعاقدية مباشرة بين الحلاق والعميل.
+                    يشترط التأشير على تعهد المشترك بأن منشأته ممتثلة لاشتراطات الجهات ذات العلاقة لممارسة نشاط الحلاقة بشكل
+                    رسمي، وأنه يتحمل كامل المسؤولية النظامية عن صحة هذا التعهد. تتم مراجعة هذا التعهد تقنياً، وتُرسل
+                    تنبيهات تقنية عند رصد مخالفات أو تجاوزات في المعلومات المقدمة أو الصور أو محتوى الشات الكتابي،
+                    ويجوز للمنصة رفض الطلب أو إيقاف حزمة الرخصة فوراً وفق السياسة المعتمدة.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                     <span className="text-xs font-bold text-primary">5</span>
-                  </div>
-                  <p className="text-sm">
-                    يجب تقديم مستندات صحيحة وسارية المفعول: السجل التجاري، ورخصة البلدية، وشهادات صحية للعاملين في
-                    المحل. المستندات المزورة أو الناقصة تؤدي إلى رفض الطلب أو إلغاء فوري بعد التحقق.
-                  </p>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-primary">6</span>
                   </div>
                   <p className="text-sm">
                     في حالة النزاعات، يتم الرجوع إلى الأنظمة واللوائح المعمول بها في المملكة العربية السعودية.
@@ -547,7 +481,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem}>
-          <h2 className="text-3xl font-bold mb-8 text-center">تواصل مع الدعم الفني</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">الدعم الفني والشكاوى</h2>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <Card className="text-center hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
@@ -558,8 +492,8 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-2">متاح من 10 صباحاً - 5 مساءً</p>
-                <a href="tel:+966559602685" className="text-primary hover:underline font-medium">
-                  ٩٦٦٥٥٩٦٠٢٦٨٥
+                <a href={`tel:+${PARTNER_SUPPORT_PHONE_E164}`} className="text-primary hover:underline font-medium">
+                  +{PARTNER_SUPPORT_PHONE_E164}
                 </a>
               </CardContent>
             </Card>
@@ -573,8 +507,13 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-2">رد فوري خلال دقائق</p>
-                <a href="https://wa.me/966501234567" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
-                  راسلنا الآن
+                <a
+                  href={PARTNER_SUPPORT_WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline font-medium"
+                >
+                  راسلنا على واتساب
                 </a>
               </CardContent>
             </Card>
@@ -588,19 +527,42 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-2">رد خلال 24 ساعة</p>
-                <a href="mailto:admin@halaqmap.com" className="text-primary hover:underline font-medium">
-                  admin@halaqmap.com
+                <a href={`mailto:${PARTNER_SUPPORT_EMAIL}`} className="text-primary hover:underline font-medium">
+                  {PARTNER_SUPPORT_EMAIL}
                 </a>
               </CardContent>
             </Card>
           </div>
         </motion.section>
 
-        <motion.div variants={fadeInUp} className="mt-16 text-center">
+        <motion.div variants={fadeInUp} className="mt-16 max-w-4xl mx-auto">
+          <HonorBoard context="legal" variant="legal" />
+        </motion.div>
+
+        <motion.div variants={fadeInUp} className="mt-16 text-center space-y-6">
+          <Card className="max-w-2xl mx-auto border-border/80">
+            <CardHeader>
+              <CardTitle className="text-base">البيانات التجارية للمنشأة</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">{LEGAL_TRADE_NAME_AR}</p>
+              <p>
+                الرقم الوطني الموحد للمنشأة:{' '}
+                <span dir="ltr" className="font-mono">
+                  {LEGAL_NATIONAL_UNIFIED_NUMBER}
+                </span>
+              </p>
+              {commercialReg ? (
+                <p>
+                  رقم السجل التجاري: <span dir="ltr">{commercialReg}</span>
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
           <Card className="max-w-2xl mx-auto bg-muted/30">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">
-                آخر تحديث: 7 أبريل 2026 | جميع الحقوق محفوظة © 2026 حلاق ماب
+                آخر تحديث: 4 مايو 2026 | جميع الحقوق محفوظة © 2026 حلاق ماب
               </p>
             </CardContent>
           </Card>

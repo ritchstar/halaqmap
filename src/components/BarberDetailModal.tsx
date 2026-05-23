@@ -12,6 +12,7 @@ import { Phone, MapPin, MessageCircle, Star, Shield, Clock, QrCode } from 'lucid
 import { SiWhatsapp } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
+import { TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
 import { getOrderedWeekHoursForDisplay, SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
@@ -25,6 +26,12 @@ interface BarberDetailModalProps {
 
 export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModalProps) {
   const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
+  const previewSecretMarker = barber.previewListing ? (
+    <span className="text-muted-foreground font-normal" title="إدراج معاينة">
+      {' '}
+      *
+    </span>
+  ) : null;
   const chatPreviewRef = useRef<HTMLDivElement>(null);
   const [barberReviews, setBarberReviews] = useState(() => getMergedReviewsForBarber(barber.id));
 
@@ -81,7 +88,10 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <DialogTitle className="text-2xl font-bold">{barber.name}</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                {barber.name}
+                {previewSecretMarker}
+              </DialogTitle>
               {barber.verified && (
                 <Badge variant="outline" className="flex items-center gap-1 border-primary text-primary">
                   <Shield className="w-3 h-3" />
@@ -181,6 +191,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                 }
                 barberId={barber.id}
                 barberName={barber.name}
+                previewListing={barber.previewListing}
               />
             </div>
           )}
@@ -233,7 +244,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                     const bits: string[] = [];
                     if (c.restrictToDays && c.activeDayFlags) {
                       const ds = SAUDI_WEEK_DAY_LABELS.filter((d) => c.activeDayFlags![d]);
-                      if (ds.length) bits.push(`أيام الإعلان عن الخدمة: ${ds.join('، ')}`);
+                      if (ds.length) bits.push(`أيام ${TERM_GEOSPATIAL_DIGITAL_ASSET_AR} عن الخدمة: ${ds.join('، ')}`);
                     }
                     const note = c.customerNote?.trim();
                     if (note) bits.push(note);

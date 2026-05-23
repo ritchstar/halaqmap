@@ -53,7 +53,7 @@ QUICK_START.txt    - خطوات سريعة
 
 ### الطريقة السريعة:
 
-1. افتح: https://supabase.com/dashboard/project/lqzuhkzfhdhaosstduas/sql
+1. افتح: https://supabase.com/dashboard/project/YOUR_PROJECT_REF/sql
 2. انسخ محتوى كل ملف بالترتيب
 3. الصق في SQL Editor
 4. اضغط **Run**

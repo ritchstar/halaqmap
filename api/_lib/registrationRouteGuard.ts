@@ -84,8 +84,26 @@ export function parseRegistrationAllowedOrigins(): string[] {
 }
 
 function rateLimitMaxForRoute(routeId: string): number {
+  if (routeId.startsWith('admin-sentinel-')) {
+    return envInt('ADMIN_SENTINEL_RATE_LIMIT_MAX', 40);
+  }
+  if (routeId === 'partner-assistant-chat') {
+    return envInt('PARTNER_ASSISTANT_RATE_LIMIT_MAX', 20);
+  }
   if (routeId === 'interest-signup') {
     return envInt('INTEREST_SIGNUP_RATE_LIMIT_MAX', 10);
+  }
+  if (routeId === 'log-search-activity') {
+    return envInt('LOG_SEARCH_ACTIVITY_RATE_LIMIT_MAX', 200);
+  }
+  if (routeId === 'public-rate-barber-context') {
+    return envInt('PUBLIC_RATE_BARBER_CONTEXT_RATE_LIMIT_MAX', 80);
+  }
+  if (routeId === 'barber-portal-magic-consume') {
+    return envInt('BARBER_PORTAL_MAGIC_RATE_LIMIT_MAX', 20);
+  }
+  if (routeId === 'barber-portfolio') {
+    return envInt('BARBER_PORTFOLIO_RATE_LIMIT_MAX', 80);
   }
   if (routeId.startsWith('barber-portal')) {
     const barberOnly = envInt('BARBER_PORTAL_RATE_LIMIT_MAX', -1);

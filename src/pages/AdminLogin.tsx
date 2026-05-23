@@ -1,22 +1,44 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Mail, Shield } from 'lucide-react';
+import { KeyRound, Lock, Mail, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { getAdminAllowedEmail, getAdminDashboardPath } from '@/config/adminAuth';
+import { getAdminAllowedEmail, getAdminDashboardPathFor } from '@/config/adminAuth';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
+import { requestAdminPasswordReset } from '@/lib/adminInvitationRemote';
 import { toast } from '@/components/ui/sonner';
+
+/**
+ * Read `?email=` from either the standard query string OR from the
+ * post-hash query string used by HashRouter (`/#/path?email=foo`).
+ */
+function readPrefilledEmail(rawLocationSearch: string): string {
+  const direct = new URLSearchParams(rawLocationSearch).get('email');
+  if (direct?.trim()) return direct.trim();
+  if (typeof window !== 'undefined') {
+    const hash = window.location.hash || '';
+    const idx = hash.indexOf('?');
+    if (idx >= 0) {
+      const fromHash = new URLSearchParams(hash.slice(idx)).get('email');
+      if (fromHash?.trim()) return fromHash.trim();
+    }
+  }
+  return '';
+}
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState(getAdminAllowedEmail());
+  const location = useLocation();
+  const prefilledEmail = useMemo(() => readPrefilledEmail(location.search), [location.search]);
+  const [email, setEmail] = useState(prefilledEmail || getAdminAllowedEmail());
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [resetSubmitting, setResetSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
@@ -25,10 +47,10 @@ export default function AdminLogin() {
     void client.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user?.email) return;
       void resolveAdminAccess(session.user.email).then((access) => {
-        if (access.allowed) navigate(getAdminDashboardPath(), { replace: true });
+        if (access.allowed) navigate(getAdminDashboardPathFor(location.pathname), { replace: true });
       });
     });
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const handlePasswordSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +88,19 @@ export default function AdminLogin() {
     }
 
     toast.success('تم تسجيل الدخول.');
-    navigate(getAdminDashboardPath(), { replace: true });
+    navigate(getAdminDashboardPathFor(location.pathname), { replace: true });
+  };
+
+  const handleForgotPassword = async () => {
+    const target = email.trim().toLowerCase();
+    if (!target || !target.includes('@')) {
+      toast.error('أدخل بريدك الإداري أولاً ثم اضغط «نسيت كلمة المرور؟».');
+      return;
+    }
+    setResetSubmitting(true);
+    const result = await requestAdminPasswordReset(target);
+    setResetSubmitting(false);
+    toast.success(result.message);
   };
 
   return (
@@ -161,6 +195,18 @@ export default function AdminLogin() {
                   'تسجيل الدخول'
                 )}
               </Button>
+
+              <button
+                type="button"
+                onClick={() => void handleForgotPassword()}
+                disabled={resetSubmitting}
+                className="flex w-full items-center justify-center gap-2 text-sm text-cyan-600 hover:text-cyan-500 dark:text-cyan-300 dark:hover:text-cyan-200 disabled:opacity-50"
+              >
+                <KeyRound className="h-4 w-4" />
+                {resetSubmitting
+                  ? 'جاري إرسال كلمة مرور جديدة…'
+                  : 'نسيت كلمة المرور؟ سنرسل لك كلمة مرور جديدة على بريدك'}
+              </button>
             </form>
           )}
 

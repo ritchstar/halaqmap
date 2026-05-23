@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 30,
@@ -15,25 +16,29 @@ function safeHost(rawUrl: string): string | null {
   }
 }
 
+const CORS_OPTS = {
+  allowMethods: 'GET, POST, OPTIONS',
+  allowHeaders: 'Content-Type, x-supabase-anon, x-client-supabase-url',
+} as const;
+
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-supabase-anon, x-client-supabase-url',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const resolvedUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = Boolean((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
   const portalPw = Boolean((process.env.BARBER_PORTAL_PASSWORD || '').trim());
+  const anonKey = Boolean(
+    (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim(),
+  );
   return Response.json(
     {
       ok: true,
@@ -42,25 +47,30 @@ export async function GET(request: Request): Promise<Response> {
       supabaseUrlHost: safeHost(resolvedUrl),
       serviceRoleKeySet: serviceRole,
       barberPortalPasswordSet: portalPw,
+      supabaseAnonKeySet: anonKey,
       publicApiGuard: registrationGuardDiagnostics(),
-      ready: Boolean(resolvedUrl) && serviceRole && portalPw,
+      ready: Boolean(resolvedUrl) && serviceRole && (portalPw || anonKey),
+      loginModesNote:
+        'يقبل إما BARBER_PORTAL_PASSWORD (رمز موحّد) أو بريد/كلمة مرور حساب Supabase (بعد اعتماد الإدارة وإنشاء المستخدم).',
     },
     { headers },
   );
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
 
   const guard = runRegistrationRouteGuards(request, 'barber-portal-login');
   if (guard.ok === false) {
-    const { status, json } = guard;
-    return Response.json(json, { status, headers });
+    return Response.json(guard.json, { status: guard.status, headers });
   }
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   const portalPassword = (process.env.BARBER_PORTAL_PASSWORD || '').trim();
+  const anonKey = (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim();
 
   if (!url || !serviceRole) {
     return Response.json(
@@ -68,11 +78,11 @@ export async function POST(request: Request): Promise<Response> {
       { status: 503, headers },
     );
   }
-  if (!portalPassword) {
+  if (!portalPassword && !anonKey) {
     return Response.json(
       {
-        error: 'BARBER_PORTAL_PASSWORD is not set',
-        hint: 'Set a shared portal password on the server (Vercel env). Barbers use it with their registered email.',
+        error: 'Login not configured',
+        hint: 'Set BARBER_PORTAL_PASSWORD (رمز موحّد) و/أو SUPABASE_ANON_KEY / VITE_SUPABASE_ANON_KEY لتفعيل الدخول ببريد/كلمة مرور Supabase.',
       },
       { status: 503, headers },
     );
@@ -104,7 +114,21 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Missing email or password' }, { status: 400, headers });
   }
 
-  if (password !== portalPassword) {
+  let passwordAccepted = Boolean(portalPassword) && password === portalPassword;
+  if (!passwordAccepted && anonKey) {
+    const anonClient = createClient(url, anonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { error: signErr } = await anonClient.auth.signInWithPassword({
+      email: rawEmail,
+      password,
+    });
+    if (!signErr) {
+      passwordAccepted = true;
+      await anonClient.auth.signOut();
+    }
+  }
+  if (!passwordAccepted) {
     return Response.json({ error: 'Invalid credentials' }, { status: 401, headers });
   }
 
@@ -113,7 +137,7 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   const selectCols =
-    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
+    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
 
   type BarberPortalRow = {
     id: string;
@@ -124,6 +148,8 @@ export async function POST(request: Request): Promise<Response> {
     rating_invite_token: string | null;
     member_number: number | null;
     is_active: boolean | null;
+    open_for_customers?: boolean | null;
+    open_status_token?: string | null;
     inclusive_care_offered?: boolean | null;
     inclusive_care_price_sar?: unknown;
     inclusive_care_public_visible?: boolean | null;
@@ -167,6 +193,18 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'No active barber account for this email' }, { status: 404, headers });
   }
 
+  const tierNorm = String(barber.tier ?? '').toLowerCase();
+  if (tierNorm !== 'gold' && tierNorm !== 'diamond') {
+    return Response.json(
+      {
+        error:
+          'باقتك البرونزية لا تتضمن لوحة التحكم الإلكترونية. للوصول إلى المحادثات والتقييمات والجدولة رقِّ باقتك إلى الذهبي أو الماسي.',
+        code: 'TIER_BRONZE_NO_DASHBOARD',
+      },
+      { status: 403, headers }
+    );
+  }
+
   return Response.json(
     {
       ok: true,
@@ -181,6 +219,11 @@ export async function POST(request: Request): Promise<Response> {
           barber.member_number != null && Number.isFinite(Number(barber.member_number))
             ? Math.floor(Number(barber.member_number))
             : null,
+        open_for_customers: barber.open_for_customers !== false,
+        open_status_token:
+          barber.open_status_token != null && String(barber.open_status_token).trim()
+            ? String(barber.open_status_token).trim()
+            : '',
         inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(barber),
       },
     },

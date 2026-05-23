@@ -2,7 +2,10 @@ import type { SubscriptionRequest } from '@/lib/index';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 
 const TABLE = 'registration_submissions';
-const SERVER_INSERT_URL = '/api/register-submission';
+const API_BASE = String(import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '');
+const SERVER_INSERT_URL = API_BASE
+  ? `${API_BASE}/api/register-submission`
+  : ['', 'api', 'register-submission'].join('/');
 
 const LRI = '\u2066';
 const PDI = '\u2069';
@@ -80,6 +83,15 @@ export function registrationSubmissionErrorForToast(message: string): string {
         'If the site is static on cPanel: set VITE_REGISTRATION_MINT_INTENT_URL to full Vercel URL, rebuild dist, re-upload.',
       ])
     );
+  }
+  if (m.includes('professional_commitment_required')) {
+    return (
+      'تعذّر حفظ الطلب: الالتزام المهني إلزامي.\n' +
+      'أعد تأشير «أوافق على الالتزام المهني» في الخطوة الأخيرة قبل الإرسال.'
+    );
+  }
+  if (m.includes('registration_compliance_incomplete')) {
+    return 'تعذّر حفظ الطلب: بيانات الامتثال القانوني غير مكتملة — أعد تأشير جميع خانات الموافقة.';
   }
   return (
     'تعذّر حفظ الطلب في قاعدة البيانات.\n\n' +

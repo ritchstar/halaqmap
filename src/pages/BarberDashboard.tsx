@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -17,6 +17,7 @@ import {
   Plus,
   Edit,
   Trash2,
+  Moon,
   Send,
   Mic,
   Paperclip,
@@ -24,11 +25,14 @@ import {
   Copy,
   UserX,
   Loader2,
+  Shield,
+  Store,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -42,6 +46,7 @@ import {
 } from '@/components/ui/dialog';
 import QRCode from 'react-qr-code';
 import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { IMAGES } from '@/assets/images';
 import {
   createInitialWorkingWeekForm,
@@ -64,6 +69,7 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { refreshBarberPortalSessionRemote, type BarberPortalSession } from '@/lib/barberPortalLoginRemote';
+import { buildShopOpenManageHashLink, setBarberShopOpenStatusRemote } from '@/lib/barberShopOpenStatusRemote';
 import {
   updateBarberInclusiveCareRemote,
   mergeInclusiveCareDaysFromSnapshot,
@@ -71,6 +77,14 @@ import {
 } from '@/lib/barberInclusiveCareRemote';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
+import {
+  PARTNER_DASHBOARD_BRAND_LABEL,
+  PARTNER_DASHBOARD_SMART_TRACKING_LINE,
+  isLegacyDemoSalonRegisteredName,
+  partnerDashboardDocumentTitleFromSession,
+  partnerSalonDisplayName,
+} from '@/config/partnerDashboardBrand';
+import { TERM_ACTIVATE_NOW_AR, TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
 import {
   readSchedule,
   writeSchedule,
@@ -84,6 +98,30 @@ import {
   type BarberChatThread,
   type BarberPlatformBannerState,
 } from '@/lib/barberDashboardLocalState';
+import {
+  fetchBarberSupportMessagesRemote,
+  sendBarberSupportMessageRemote,
+  type BarberSupportMessageRow,
+} from '@/lib/barberSupportChatRemote';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { portfolioMaxImagesForSubscriptionTier } from '@/lib/barberPortfolioPolicy';
+import {
+  optimizeImageFileForBarberPortfolio,
+  portfolioRawFileTooLargeMessage,
+} from '@/lib/portfolioImageOptimization';
+import {
+  deleteBarberPortfolioObjectRemote,
+  objectPathFromBarberPortfolioPublicUrl,
+  uploadBarberPortfolioImageRemote,
+} from '@/lib/barberPortfolioRemote';
+import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
+import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
+import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
+import {
+  fetchListingLicenseBalanceRemote,
+  redeemListingLicenseRemote,
+  type ListingLicenseBalance,
+} from '@/lib/listingLicenseRemote';
 
 function newId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -122,6 +160,7 @@ export default function BarberDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
   const [barberData, setBarberData] = useState<BarberPortalSession | null>(null);
+  const [shopOpenSaving, setShopOpenSaving] = useState(false);
   const [scheduleItems, setScheduleItems] = useState<BarberDashboardScheduleItem[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [chatThreads, setChatThreads] = useState<BarberChatThread[]>([]);
@@ -130,6 +169,11 @@ export default function BarberDashboard() {
     showDiscountBadge: false,
     discountPercent: null,
   });
+  const [listingBalance, setListingBalance] = useState<ListingLicenseBalance | null>(null);
+  const [listingBalanceLoading, setListingBalanceLoading] = useState(false);
+  const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
+  const [redeemCode, setRedeemCode] = useState('');
+  const [redeemLoading, setRedeemLoading] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem('barberAuth');
@@ -147,6 +191,14 @@ export default function BarberDashboard() {
       const tier = Object.values(SubscriptionTier).includes(parsed.subscription as SubscriptionTier)
         ? (parsed.subscription as SubscriptionTier)
         : SubscriptionTier.BRONZE;
+      if (tier === SubscriptionTier.BRONZE) {
+        localStorage.removeItem('barberAuth');
+        toast.error(
+          'باقتك البرونزية لا تتضمن لوحة التحكم الإلكترونية. رقِ للذهبي أو الماسي للوصول إلى المحادثات والتقييمات والجدولة.',
+        );
+        navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
+        return;
+      }
       const mn = (parsed as { memberNumber?: number | null }).memberNumber;
       const memberNumber =
         mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
@@ -158,6 +210,8 @@ export default function BarberDashboard() {
         subscription: tier,
         ratingInviteToken: parsed.ratingInviteToken ?? '',
         memberNumber,
+        openForCustomers: (parsed as { openForCustomers?: boolean }).openForCustomers !== false,
+        openStatusToken: String((parsed as { openStatusToken?: string }).openStatusToken ?? '').trim(),
         inclusiveCare: (parsed as { inclusiveCare?: BarberPortalInclusiveCareSnapshot }).inclusiveCare,
       });
     } catch {
@@ -165,6 +219,83 @@ export default function BarberDashboard() {
       navigate(ROUTE_PATHS.BARBER_LOGIN);
     }
   }, [navigate]);
+
+  const refreshListingBalance = useCallback(async () => {
+    if (!barberData?.id || !barberData.email) return;
+    setListingBalanceLoading(true);
+    const res = await fetchListingLicenseBalanceRemote({
+      barberId: barberData.id,
+      email: barberData.email,
+    });
+    setListingBalanceLoading(false);
+    if (res.ok) setListingBalance(res.balance);
+  }, [barberData?.id, barberData?.email]);
+
+  useEffect(() => {
+    void refreshListingBalance();
+  }, [refreshListingBalance]);
+
+  /** ذهبي: تبويبات الرسائل + QR فقط — ماسي: لوحة كاملة */
+  const tierTabs = useMemo(() => {
+    if (!barberData) {
+      return {
+        showOverview: true,
+        showAppointments: true,
+        showMessages: true,
+        showPosts: true,
+        showSettings: true,
+        showQrRatings: true,
+        showDigitalShift: false,
+        isGoldLite: false,
+        showGoldLiteBanner: false,
+      };
+    }
+    if (barberData.subscription === SubscriptionTier.DIAMOND) {
+      return {
+        showOverview: true,
+        showAppointments: true,
+        showMessages: true,
+        showPosts: true,
+        showSettings: true,
+        showQrRatings: true,
+        showDigitalShift: true,
+        isGoldLite: false,
+        showGoldLiteBanner: false,
+      };
+    }
+    if (barberData.subscription === SubscriptionTier.GOLD) {
+      return {
+        showOverview: false,
+        showAppointments: false,
+        showMessages: true,
+        showPosts: true,
+        showSettings: false,
+        showQrRatings: true,
+        showDigitalShift: true,
+        isGoldLite: true,
+        showGoldLiteBanner: true,
+      };
+    }
+    return {
+      showOverview: false,
+      showAppointments: false,
+      showMessages: false,
+      showPosts: false,
+      showSettings: false,
+      showQrRatings: false,
+      showDigitalShift: false,
+      isGoldLite: false,
+      showGoldLiteBanner: false,
+    };
+  }, [barberData]);
+
+  useEffect(() => {
+    if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;
+    const allowed = new Set(['messages', 'qr-ratings', 'posts', 'digital-shift']);
+    if (!allowed.has(activeTab)) {
+      setActiveTab('messages');
+    }
+  }, [barberData, activeTab]);
 
   const portalIdRef = useRef<string | undefined>(undefined);
   const portalEmailRef = useRef<string | undefined>(undefined);
@@ -177,22 +308,24 @@ export default function BarberDashboard() {
   const applyPortalSession = useCallback((next: BarberPortalSession) => {
     setBarberData((prev) => {
       if (!prev) return prev;
-      if (
-        prev.name === next.name &&
-        prev.phone === next.phone &&
-        prev.subscription === next.subscription &&
-        prev.ratingInviteToken === next.ratingInviteToken &&
-        prev.memberNumber === next.memberNumber
-      ) {
-        return prev;
+      const merged: BarberPortalSession = { ...prev, ...next };
+      const same =
+        prev.name === merged.name &&
+        prev.phone === merged.phone &&
+        prev.subscription === merged.subscription &&
+        prev.ratingInviteToken === merged.ratingInviteToken &&
+        prev.memberNumber === merged.memberNumber &&
+        prev.openForCustomers === merged.openForCustomers &&
+        prev.openStatusToken === merged.openStatusToken &&
+        JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null);
+      if (same) return prev;
+      try {
+        localStorage.setItem('barberAuth', JSON.stringify({ ...merged, loggedIn: true }));
+      } catch {
+        /* ignore */
       }
-      return next;
+      return merged;
     });
-    try {
-      localStorage.setItem('barberAuth', JSON.stringify({ ...next, loggedIn: true }));
-    } catch {
-      /* ignore */
-    }
   }, []);
 
   const syncPortalSessionFromServer = useCallback(async () => {
@@ -200,9 +333,20 @@ export default function BarberDashboard() {
     const email = portalEmailRef.current?.trim();
     if (!id || !email) return;
     const r = await refreshBarberPortalSessionRemote({ barberId: id, email });
-    if (!r.ok) return;
+    if (!r.ok) {
+      if (r.code === 'TIER_BRONZE_NO_DASHBOARD') {
+        try {
+          localStorage.removeItem('barberAuth');
+        } catch {
+          /* ignore */
+        }
+        toast.error(r.error || 'لم تعد باقتك تسمح بلوحة التحكم.');
+        navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
+      }
+      return;
+    }
     applyPortalSession(r.session);
-  }, [applyPortalSession]);
+  }, [applyPortalSession, navigate]);
 
   useEffect(() => {
     if (!barberData?.id || !barberData?.email) return;
@@ -312,35 +456,69 @@ export default function BarberDashboard() {
     return sorted.slice(0, 5);
   }, [scheduleItems]);
 
+  const salonDisplayName = useMemo(
+    () => (barberData ? partnerSalonDisplayName(barberData) : ''),
+    [barberData],
+  );
+
+  useEffect(() => {
+    if (!barberData) return;
+    const prev = document.title;
+    document.title = partnerDashboardDocumentTitleFromSession(barberData);
+    return () => {
+      document.title = prev;
+    };
+  }, [barberData]);
+
   if (!barberData) {
     return null;
   }
 
   return (
     <>
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="flex min-h-screen flex-col bg-background" dir="rtl">
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4">
-          <div className="flex h-[4.25rem] items-center justify-between gap-3">
-            <div className="flex min-w-0 flex-1 items-center gap-3">
-              <img
-                src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
-                alt="حلاق ماب"
-                className="h-10 w-auto shrink-0 object-contain"
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex min-h-16 flex-col gap-2 py-2 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-0">
+            <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+              <HalaqmapBrandMark
+                className="h-9 w-9 shrink-0 rounded-2xl ring-2 ring-primary/25 ring-offset-2 ring-offset-background shadow-sm sm:h-10 sm:w-10"
               />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  لوحة تحكم حلاق ماب
+              <div className="min-w-0 flex-1">
+                <h1 className="flex min-w-0 flex-col gap-0.5 leading-tight">
+                  <span className="truncate text-xs font-medium text-muted-foreground sm:text-sm">
+                    {PARTNER_DASHBOARD_BRAND_LABEL}
+                  </span>
+                  <span className="truncate text-base font-bold text-foreground sm:text-lg lg:text-xl">
+                    {salonDisplayName}
+                  </span>
+                </h1>
+                <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed sm:text-xs max-w-xl">
+                  {PARTNER_DASHBOARD_SMART_TRACKING_LINE}
                 </p>
-                <h1 className="truncate text-lg font-bold sm:text-xl">{barberData.name}</h1>
-                {formatBarberMemberNumber(barberData.memberNumber) ? (
-                  <p className="truncate text-xs text-muted-foreground" dir="ltr">
-                    رقم العضوية: {formatBarberMemberNumber(barberData.memberNumber)}
-                  </p>
-                ) : null}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs">
+                    {subscriptionTierLabelAr(barberData.subscription)}
+                  </Badge>
+                  <Badge
+                    variant={listingBalance?.hasActiveListing ? 'default' : 'outline'}
+                    className="text-[10px] sm:text-xs"
+                  >
+                    {listingBalanceLoading
+                      ? 'جاري تحميل الإدراج…'
+                      : listingBalance?.hasActiveListing
+                        ? `${listingBalance.listingDaysRemaining} يوم إدراج`
+                        : 'لا يوجد إدراج نشط'}
+                  </Badge>
+                  {formatBarberMemberNumber(barberData.memberNumber) ? (
+                    <span className="truncate text-[11px] text-muted-foreground sm:text-xs" dir="ltr">
+                      عضوية: {formatBarberMemberNumber(barberData.memberNumber)}
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex shrink-0 items-center justify-end gap-1 sm:justify-start">
               {(barberData.subscription === SubscriptionTier.GOLD ||
                 barberData.subscription === SubscriptionTier.DIAMOND) && (
                 <Button
@@ -355,7 +533,7 @@ export default function BarberDashboard() {
                   <UserX className="h-5 w-5" />
                 </Button>
               )}
-              <Button variant="ghost" onClick={handleLogout} className="shrink-0 gap-2">
+              <Button variant="ghost" onClick={handleLogout} className="shrink-0 gap-2 text-sm">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">تسجيل الخروج</span>
               </Button>
@@ -364,47 +542,174 @@ export default function BarberDashboard() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1.5 bg-muted/40 p-1.5 sm:gap-2">
-            <TabsTrigger value="overview" className="gap-2">
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">نظرة عامة</span>
-            </TabsTrigger>
-            <TabsTrigger value="appointments" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">المواعيد</span>
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">الرسائل</span>
-              {unreadCustomerMessages > 0 && (
-                <Badge variant="destructive" className="flex h-5 w-5 items-center justify-center p-0 text-xs">
-                  {unreadCustomerMessages}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="posts" className="gap-2">
-              <ImageIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">البوستات</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">الإعدادات</span>
-            </TabsTrigger>
-            <TabsTrigger value="qr-ratings" className="gap-2">
-              <QrCode className="h-4 w-4" />
-              <span className="hidden sm:inline">QR والتقييمات</span>
-            </TabsTrigger>
+      <div className="container mx-auto space-y-4 px-3 py-6 sm:space-y-6 sm:px-4 sm:py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-lg border border-border/50 bg-muted/40 p-1 sm:gap-1.5">
+            {tierTabs.showOverview ? (
+              <TabsTrigger value="overview" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <TrendingUp className="h-4 w-4" />
+                <span className="hidden sm:inline">نظرة عامة</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showAppointments ? (
+              <TabsTrigger value="appointments" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">المواعيد</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showMessages ? (
+              <TabsTrigger value="messages" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">الرسائل</span>
+                {unreadCustomerMessages > 0 && (
+                  <Badge variant="destructive" className="flex h-5 w-5 items-center justify-center p-0 text-xs">
+                    {unreadCustomerMessages}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showPosts ? (
+              <TabsTrigger value="posts" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <ImageIcon className="h-4 w-4" />
+                <span className="hidden sm:inline">البوستات</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showDigitalShift ? (
+              <TabsTrigger value="digital-shift" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <Moon className="h-4 w-4" />
+                <span className="hidden sm:inline">المناوب الذكي</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showSettings ? (
+              <TabsTrigger value="settings" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">الإعدادات</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showQrRatings ? (
+              <TabsTrigger value="qr-ratings" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <QrCode className="h-4 w-4" />
+                <span className="hidden sm:inline">QR والتقييمات</span>
+              </TabsTrigger>
+            ) : null}
           </TabsList>
 
+          {tierTabs.showGoldLiteBanner ? (
+            <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
+              باقتك <strong>الذهبية</strong> تشمل من لوحة التحكم: <strong>رسائل العملاء</strong>، و<strong>معرض أعمال</strong> (حتى
+              20 صورة محسّنة)، و<strong>QR والتقييمات</strong>. جدولة المواعيد المتقدّمة والبنرات والإعدادات الكاملة متاحة في
+              الباقة <strong>الماسية</strong> (معرض حتى 40 صورة).
+            </p>
+          ) : null}
+
+          <Card className="border-emerald-500/30 bg-emerald-500/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">صلاحية رخصة النفاذ الرقمية (نظام الاستجابة الذكية)</CardTitle>
+              <CardDescription className="text-sm leading-relaxed">
+                صلاحية الاستجابة البرمجية ضمن نظام الاستجابة الذكية مبنية على <strong>حزمة رخصة نفاذ مسبقة الدفع</strong> — يُفعَّل ظهور صالونك عند وجود طلب نشط في محيطه.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <motion.div className="space-y-1 text-sm">
+                <p>
+                  <strong>أيام الإدراج المتبقية:</strong>{' '}
+                  {listingBalanceLoading
+                    ? '…'
+                    : listingBalance?.hasActiveListing
+                      ? listingBalance.listingDaysRemaining
+                      : '0'}
+                </p>
+                {listingBalance?.validUntil ? (
+                  <p className="text-xs text-muted-foreground">
+                    <strong>تاريخ انتهاء صلاحية حزمة رخصة النفاذ:</strong>{' '}
+                    <span dir="ltr">{new Date(listingBalance.validUntil).toLocaleString('ar-SA')}</span>
+                  </p>
+                ) : null}
+              </motion.div>
+              <Button type="button" variant="outline" size="sm" onClick={() => setRedeemDialogOpen(true)}>
+                استرداد رمز حزمة رخصة النفاذ
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Alert className="border-primary/30 bg-primary/5">
+            <Shield className="h-4 w-4 text-primary" />
+            <AlertDescription className="text-sm leading-relaxed">
+              <strong>حالة الطلب والخصوصية:</strong> إذا قدّمت مؤخراً طلب تسجيل، فهو يمرّ بـ <strong>مراجعة نظامية</strong>{' '}
+              حتى تصلك رسالة الإدارة. <strong>لم تُحفظ مستنداتك الحكومية على خوادمنا</strong> ولن نطلب منك إعادة رفعها
+              لاحقاً عبر هذه اللوحة.
+            </AlertDescription>
+          </Alert>
+
+          <Dialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen}>
+            <DialogContent dir="rtl" className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>استرداد رمز حزمة رخصة النفاذ</DialogTitle>
+                <DialogDescription>
+                  أدخل الرمز الذي وصلك بالبريد بعد شراء حزمة رخصة النفاذ (مثال: HM-LIC-XXXX-XXXX-XXXX).
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2">
+                <Label htmlFor="license-redeem-code">رمز حزمة رخصة النفاذ</Label>
+                <Input
+                  id="license-redeem-code"
+                  value={redeemCode}
+                  onChange={(e) => setRedeemCode(e.target.value)}
+                  placeholder="HM-LIC-...."
+                  dir="ltr"
+                  className="text-left"
+                />
+                <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+                  نظام حزم رخصة مسبقة الدفع متوافق مع البيع بالتجزئة للبرمجيات، خاضع لأنظمة الهيئة العامة لتنظيم
+                  الإعلام بالمملكة العربية السعودية.
+                </p>
+              </div>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button type="button" variant="ghost" onClick={() => setRedeemDialogOpen(false)}>
+                  إلغاء
+                </Button>
+                <Button
+                  type="button"
+                  disabled={redeemLoading || redeemCode.trim().length < 8}
+                  onClick={async () => {
+                    if (!barberData) return;
+                    setRedeemLoading(true);
+                    const res = await redeemListingLicenseRemote({
+                      barberId: barberData.id,
+                      email: barberData.email,
+                      code: redeemCode,
+                    });
+                    setRedeemLoading(false);
+                    if (!res.ok) {
+                      toast.error(
+                        res.error === 'already_redeemed'
+                          ? 'تم استخدام هذا الرمز مسبقاً.'
+                          : res.error === 'code_not_found'
+                            ? 'الرمز غير صحيح.'
+                            : 'تعذّر الاسترداد. تحقق من الرمز أو تواصل مع الدعم.',
+                      );
+                      return;
+                    }
+                    toast.success(`تم التفعيل — ${res.listingDaysRemaining} يوم إدراج متبقٍ.`);
+                    setRedeemCode('');
+                    setRedeemDialogOpen(false);
+                    void refreshListingBalance();
+                  }}
+                >
+                  {redeemLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : TERM_ACTIVATE_NOW_AR}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {tierTabs.showOverview ? (
           <TabsContent value="overview" className="space-y-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="mb-6 text-2xl font-bold">الإحصائيات</h2>
+              <h2 className="mb-4 text-xl font-bold sm:mb-6 sm:text-2xl">الإحصائيات</h2>
               <p className="mb-4 max-w-2xl text-sm text-muted-foreground">
                 تبدأ العدادات من الصفر. عند ربط التحليلات والحجوزات الحقيقية على المنصة ستنعكس هنا تلقائياً. لا
                 تُعرض إيرادات المحل — المنصة لا تتدخل في مالية صالونك.
@@ -428,6 +733,94 @@ export default function BarberDashboard() {
                 <StatsCard title="المشاهدات" value={statsZeros.totalViews} icon={Eye} color="purple" />
               </div>
 
+              <Card className="mt-6 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
+                    <Store className="h-5 w-5 text-primary" />
+                    حالة «مفتوح / مغلق» للعملاء
+                  </CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    يتحكم هذا الخيار في أيقونة نظام الرصد الذكي التي يراها العملاء. الباقة البرونزية لا تملك لوحة تحكم — لذلك يُوفَّر
+                    لها <strong>رابط سري</strong> من الإدارة بعد الاعتماد (يمكنك نسخه أدناه لمشاركته مع المحل).
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col gap-3 rounded-xl border border-border/80 bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1 text-right">
+                      <p className="text-sm font-semibold">قبول العملاء الآن عبر نظام الرصد الذكي</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء صلاحية حزمة رخصة النفاذ عن المنصة.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={barberData.openForCustomers !== false}
+                      disabled={shopOpenSaving}
+                      onCheckedChange={async (v) => {
+                        const token = barberData.openStatusToken?.trim() || '';
+                        if (!token) {
+                          toast.error(
+                            'لم يُحمّل رمز صفحة الفتح بعد. حدّث الصفحة، أو نفّذ ترحيل قاعدة البيانات 46 ثم أعد الاعتماد من الإدارة.'
+                          );
+                          return;
+                        }
+                        setShopOpenSaving(true);
+                        const prevOpen = barberData.openForCustomers !== false;
+                        setBarberData((d) => (d ? { ...d, openForCustomers: v } : d));
+                        const r = await setBarberShopOpenStatusRemote(token, v);
+                        setShopOpenSaving(false);
+                        if (!r.ok) {
+                          setBarberData((d) => (d ? { ...d, openForCustomers: prevOpen } : d));
+                          toast.error(r.error);
+                          return;
+                        }
+                        setBarberData((d) => {
+                          if (!d) return d;
+                          const next = { ...d, openForCustomers: v };
+                          try {
+                            localStorage.setItem('barberAuth', JSON.stringify({ ...next, loggedIn: true }));
+                          } catch {
+                            /* ignore */
+                          }
+                          return next;
+                        });
+                        toast.success(
+                          v ? 'تم ضبط المحل كـ «مفتوح» للعملاء عبر نظام الرصد الذكي.' : 'تم ضبط المحل كـ «مغلق» للعملاء عبر نظام الرصد الذكي.'
+                        );
+                      }}
+                      className="shrink-0 sm:mr-auto"
+                    />
+                  </div>
+                  {barberData.openStatusToken ? (
+                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={async () => {
+                          const link = buildShopOpenManageHashLink(barberData.openStatusToken || '');
+                          if (!link) return;
+                          try {
+                            await navigator.clipboard.writeText(link);
+                            toast.success('تم نسخ رابط التبديل السريع.');
+                          } catch {
+                            toast.error('تعذر النسخ من المتصفح.');
+                          }
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                        نسخ رابط التبديل السريع
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" asChild className="text-xs">
+                        <a href={buildShopOpenManageHashLink(barberData.openStatusToken || '') || '#'} target="_blank" rel="noreferrer">
+                          فتح صفحة التبديل
+                        </a>
+                      </Button>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+
               <Card className="mt-6">
                 <CardHeader>
                   <CardTitle>أحدث الجدول</CardTitle>
@@ -447,7 +840,9 @@ export default function BarberDashboard() {
               </Card>
             </motion.div>
           </TabsContent>
+          ) : null}
 
+          {tierTabs.showAppointments ? (
           <TabsContent value="appointments" className="space-y-6">
             <AppointmentsSection
               barberId={barberData.id}
@@ -455,24 +850,52 @@ export default function BarberDashboard() {
               onChange={persistSchedule}
             />
           </TabsContent>
+          ) : null}
 
+          {tierTabs.showMessages ? (
           <TabsContent value="messages" className="space-y-6">
             <MessagesSection
               barberId={barberData.id}
+              barberEmail={barberData.email}
+              subscriptionTier={barberData.subscription}
               threads={chatThreads}
               onThreadsChange={persistThreads}
               promoHint={
-                bannerState.showDiscountBadge && bannerState.discountPercent != null
-                  ? `عرض المنصة: خصم ${bannerState.discountPercent}% (يُدار من الإعدادات → البنر والعروض)`
-                  : null
+                tierTabs.isGoldLite
+                  ? null
+                  : bannerState.showDiscountBadge && bannerState.discountPercent != null
+                    ? `عرض المنصة: خصم ${bannerState.discountPercent}% (يُدار من الإعدادات → البنر والعروض)`
+                    : null
               }
             />
           </TabsContent>
+          ) : null}
 
+          {tierTabs.showPosts ? (
           <TabsContent value="posts" className="space-y-6">
-            <PostsSection posts={posts} barberId={barberData.id} onChange={persistPosts} />
+            <PostsSection
+              posts={posts}
+              barberId={barberData.id}
+              barberEmail={barberData.email}
+              subscriptionTier={barberData.subscription}
+              onChange={persistPosts}
+            />
           </TabsContent>
+          ) : null}
 
+          {tierTabs.showDigitalShift ? (
+          <TabsContent value="digital-shift" className="space-y-6">
+            <DigitalShiftTabGate
+              barberId={barberData.id}
+              barberEmail={barberData.email}
+              subscriptionTier={barberData.subscription}
+              bannerState={bannerState}
+              posts={posts}
+            />
+          </TabsContent>
+          ) : null}
+
+          {tierTabs.showSettings ? (
           <TabsContent value="settings" className="space-y-6">
             <SettingsSection
               barberId={barberData.id}
@@ -483,12 +906,21 @@ export default function BarberDashboard() {
               onRefreshPortalSession={syncPortalSessionFromServer}
             />
           </TabsContent>
+          ) : null}
 
+          {tierTabs.showQrRatings ? (
           <TabsContent value="qr-ratings" className="space-y-6">
             <QrRatingsSection barberId={barberData.id} ratingInviteToken={barberData.ratingInviteToken} />
           </TabsContent>
+          ) : null}
         </Tabs>
       </div>
+
+      <footer className="mt-auto border-t border-border/40 bg-muted/20 pb-[env(safe-area-inset-bottom)]">
+        <div className="container mx-auto px-3 py-6 sm:px-4">
+          <PlatformOfficialFooterStrip variant="light" />
+        </div>
+      </footer>
     </div>
 
     <Dialog open={deleteAccountDialogOpen} onOpenChange={setDeleteAccountDialogOpen}>
@@ -555,7 +987,7 @@ function QrRatingsSection({
       className="space-y-6"
     >
       <div>
-        <h2 className="mb-2 text-2xl font-bold">{RATING_QR_FEATURE_TITLE}</h2>
+        <h2 className="mb-2 text-xl font-bold sm:text-2xl">{RATING_QR_FEATURE_TITLE}</h2>
         <p className="max-w-2xl text-sm text-muted-foreground">{RATING_QR_DASHBOARD_LEDE}</p>
         <p className="mt-2 max-w-2xl text-xs text-muted-foreground/90">{RATING_QR_FEATURE_SHORT}</p>
       </div>
@@ -838,7 +1270,7 @@ function AppointmentsSection({
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">المواعيد والحجز</h2>
+          <h2 className="text-xl font-bold sm:text-2xl">المواعيد والحجز</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             أنشئ «أوقات متاحة للحجز» ليظهر للعميل أن لديك نافذة زمنية مفتوحة؛ حجوزات العملاء الفعلية ستصل لاحقاً من
             التطبيق. استخدم التبديل لإظهار نافذة الحجز أو إخفائها عن بطاقتك في هذا الجهاز (معاينة محلية).
@@ -923,13 +1355,118 @@ function AppointmentsSection({
   );
 }
 
+function PlatformSupportChatPanel({ barberId, barberEmail }: { barberId: string; barberEmail: string }) {
+  const [messages, setMessages] = useState<BarberSupportMessageRow[]>([]);
+  const [draft, setDraft] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const pollRef = useRef<number | null>(null);
+
+  const load = useCallback(async () => {
+    if (!barberId || !barberEmail.trim()) return;
+    setLoading(true);
+    const r = await fetchBarberSupportMessagesRemote({ barberId, email: barberEmail });
+    setLoading(false);
+    if (!r.ok) {
+      toast.error(r.error);
+      return;
+    }
+    setMessages(r.messages);
+  }, [barberId, barberEmail]);
+
+  useEffect(() => {
+    void load();
+    pollRef.current = window.setInterval(() => void load(), 10000);
+    return () => {
+      if (pollRef.current) window.clearInterval(pollRef.current);
+      pollRef.current = null;
+    };
+  }, [load]);
+
+  const send = async () => {
+    if (!draft.trim()) return;
+    setSending(true);
+    const r = await sendBarberSupportMessageRemote({
+      barberId,
+      email: barberEmail,
+      body: draft.trim(),
+    });
+    setSending(false);
+    if (!r.ok) {
+      toast.error(r.error);
+      return;
+    }
+    setDraft('');
+    await load();
+    toast.success('تم إرسال الرسالة إلى إدارة المنصة');
+  };
+
+  return (
+    <Card className="border-primary/20">
+      <CardHeader>
+        <CardTitle className="text-lg">محادثة مع إدارة المنصة</CardTitle>
+        <CardDescription>
+          قناة دعم مباشرة مع فريق حلاق ماب عبر اتصال مشفّر (HTTPS). لا تشارك كلمات مرور أو بيانات بطاقات هنا.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {loading && messages.length === 0 ? (
+          <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            جاري التحميل…
+          </div>
+        ) : (
+          <div className="max-h-72 space-y-3 overflow-y-auto rounded-md border border-border/60 bg-muted/20 p-3">
+            {messages.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">لا رسائل بعد — راسِل الإدارة لأي استفسار أو دعم.</p>
+            ) : (
+              messages.map((m) => (
+                <div key={m.id} className={`flex ${m.from_admin ? 'justify-start' : 'justify-end'}`}>
+                  <div
+                    className={`max-w-[90%] rounded-lg p-3 text-sm ${
+                      m.from_admin ? 'bg-muted border border-border' : 'bg-primary text-primary-foreground'
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                    <p className="mt-1 text-[11px] opacity-80">
+                      {m.from_admin ? 'إدارة المنصة' : 'أنت'} · {new Date(m.created_at).toLocaleString('ar-SA')}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Textarea
+            placeholder="رسالتك لإدارة المنصة…"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={3}
+            disabled={sending}
+            className="min-h-[72px] sm:flex-1"
+          />
+          <Button type="button" className="sm:self-end shrink-0 gap-2" disabled={!draft.trim() || sending} onClick={() => void send()}>
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            إرسال
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function MessagesSection({
   barberId,
+  barberEmail,
+  subscriptionTier,
   threads,
   onThreadsChange,
   promoHint,
 }: {
   barberId: string;
+  barberEmail: string;
+  subscriptionTier: SubscriptionTier;
   threads: BarberChatThread[];
   onThreadsChange: (next: BarberChatThread[]) => void;
   promoHint: string | null;
@@ -991,15 +1528,31 @@ function MessagesSection({
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-      <h2 className="mb-2 text-2xl font-bold">المحادثات</h2>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-8">
+      <h2 className="mb-2 text-xl font-bold sm:text-2xl">المحادثات</h2>
       <p className="mb-4 max-w-2xl text-sm text-muted-foreground">
-        يبدأ الحوار من العميل عبر حلاق ماب؛ تصلك رسالته كتنبيه، وبعدها يمكنك الرد من هنا. حتى يُفعّل الربط الكامل
-        بالخادم، تُعرض المحادثات التجريبية من هذا الجهاز فقط.
+        يبدأ الحوار من العميل عبر حلاق ماب؛ تصلك رسالته كتنبيه، وبعدها يمكنك الرد من هنا. عند ضبط Supabase تظهر
+        جلسات الشات الحية أدناه؛ وإلا تُعرض المحادثات التجريبية من هذا الجهاز فقط.
       </p>
       {promoHint ? (
         <p className="mb-4 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{promoHint}</p>
       ) : null}
+
+      {isSupabaseConfigured() ? (
+        <BarberCustomerPrivateChatPanel
+          barberId={barberId}
+          barberEmail={barberEmail}
+          subscriptionTier={subscriptionTier}
+        />
+      ) : (
+        <p className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-900 dark:text-amber-100">
+          شات العملاء الحي يتطلب ضبط <code className="rounded bg-background/60 px-1">VITE_SUPABASE_URL</code> و
+          <code className="rounded bg-background/60 px-1">VITE_SUPABASE_ANON_KEY</code> وتطبيق migration 42 على قاعدة
+          البيانات.
+        </p>
+      )}
+
+      <PlatformSupportChatPanel barberId={barberId} barberEmail={barberEmail} />
 
       <Card>
         <CardContent className="space-y-4 p-6">
@@ -1072,30 +1625,74 @@ function MessagesSection({
   );
 }
 
+function countGalleryImagesAcrossPosts(postList: Post[]): number {
+  return postList
+    .filter((p) => p.type === 'gallery')
+    .reduce((acc, p) => acc + (p.images?.length ?? 0), 0);
+}
+
+function effectiveGalleryImageCount(posts: Post[], editing: Post | null, gallerySlotCount: number): number {
+  const fromOthers = posts
+    .filter((p) => p.type === 'gallery' && (!editing || p.id !== editing.id))
+    .reduce((s, p) => s + (p.images?.length ?? 0), 0);
+  return fromOthers + gallerySlotCount;
+}
+
+type GalleryDraftSlot =
+  | { id: string; kind: 'remote'; url: string }
+  | { id: string; kind: 'local'; previewDataUrl: string; imageBase64: string };
+
+async function deletePortfolioStorageForUrls(barberId: string, email: string, urls: string[]): Promise<void> {
+  for (const url of urls) {
+    const pth = objectPathFromBarberPortfolioPublicUrl(url, barberId);
+    if (!pth) continue;
+    const r = await deleteBarberPortfolioObjectRemote({ barberId, email, objectPath: pth });
+    if (!r.ok) toast.error(r.error);
+  }
+}
+
 function PostsSection({
   posts,
   barberId,
+  barberEmail,
+  subscriptionTier,
   onChange,
 }: {
   posts: Post[];
   barberId: string;
+  barberEmail: string;
+  subscriptionTier: SubscriptionTier;
   onChange: (next: Post[]) => void;
 }) {
+  const portfolioMax = portfolioMaxImagesForSubscriptionTier(subscriptionTier);
+  const galleryCountSaved = useMemo(() => countGalleryImagesAcrossPosts(posts), [posts]);
+
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [type, setType] = useState<Post['type']>('gallery');
+  const [type, setType] = useState<Post['type']>('offer');
   const [discount, setDiscount] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [gallerySlots, setGallerySlots] = useState<GalleryDraftSlot[]>([]);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [savingPost, setSavingPost] = useState(false);
+  const galleryFileRef = useRef<HTMLInputElement | null>(null);
 
-  const openNew = () => {
+  const resetDialog = () => {
     setEditing(null);
     setTitle('');
     setContent('');
     setType('offer');
     setDiscount('');
     setImageUrl(IMAGES.BARBER_SHOP_1);
+    setGallerySlots([]);
+    setUploadingGallery(false);
+    setSavingPost(false);
+  };
+
+  const openNew = () => {
+    resetDialog();
     setOpen(true);
   };
 
@@ -1106,10 +1703,67 @@ function PostsSection({
     setType(p.type);
     setDiscount(p.discount != null ? String(p.discount) : '');
     setImageUrl(p.images[0] ?? IMAGES.BARBER_SHOP_1);
+    setGallerySlots(
+      p.type === 'gallery'
+        ? (p.images ?? []).map((url) => ({ id: newId(), kind: 'remote' as const, url }))
+        : [],
+    );
     setOpen(true);
   };
 
-  const savePost = () => {
+  const onTypeSelectChange = (next: Post['type']) => {
+    setType(next);
+    if (next === 'gallery') {
+      if (editing?.type === 'gallery') {
+        setGallerySlots((editing.images ?? []).map((url) => ({ id: newId(), kind: 'remote' as const, url })));
+      } else {
+        setGallerySlots([]);
+      }
+    }
+  };
+
+  const pickGalleryFile = () => galleryFileRef.current?.click();
+
+  const onGalleryFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const rawMsg = portfolioRawFileTooLargeMessage(file);
+    if (rawMsg) {
+      toast.error(rawMsg);
+      return;
+    }
+    const max = portfolioMaxImagesForSubscriptionTier(subscriptionTier);
+    if (max <= 0) {
+      toast.error('معرض الأعمال غير متاح لباقتك.');
+      return;
+    }
+    if (effectiveGalleryImageCount(posts, editing, gallerySlots.length) >= max) {
+      toast.error(`بلغت الحد الأقصى لصور المعرض (${max}). احذف صوراً قديمة من البوستات أو من هذا المعرض.`);
+      return;
+    }
+
+    setUploadingGallery(true);
+    const opt = await optimizeImageFileForBarberPortfolio(file);
+    setUploadingGallery(false);
+    if (!opt.ok) {
+      toast.error(opt.error);
+      return;
+    }
+    const previewDataUrl = `data:image/webp;base64,${opt.imageBase64}`;
+    setGallerySlots((prev) => [
+      ...prev,
+      { id: newId(), kind: 'local', previewDataUrl, imageBase64: opt.imageBase64 },
+    ]);
+    toast.success('أُضيفت صورة للمعاينة — اضغط «نشر» أو «حفظ التعديل» لرفعها نهائياً.');
+  };
+
+  const removeGalleryAt = (idx: number) => {
+    setGallerySlots((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const savePost = async () => {
+    if (savingPost) return;
     if (!title.trim()) {
       toast.error('أدخل عنواناً');
       return;
@@ -1123,8 +1777,75 @@ function PostsSection({
       }
       disc = n;
     }
+
+    if (type === 'gallery') {
+      if (gallerySlots.length === 0) {
+        toast.error('أضف صورة واحدة على الأقل لمعرض الأعمال (اختيار من الجهاز).');
+        return;
+      }
+      const max = portfolioMaxImagesForSubscriptionTier(subscriptionTier);
+      if (effectiveGalleryImageCount(posts, editing, gallerySlots.length) > max) {
+        toast.error(`عدد صور المعرض يتجاوز حد الباقة (${max}).`);
+        return;
+      }
+    }
+
     const img = imageUrl.trim() || IMAGES.BARBER_SHOP_1;
+
+    let finalGalleryUrls: string[] | null = null;
+    if (type === 'gallery') {
+      if (!barberEmail.trim()) {
+        toast.error('بريد الحساب غير متاح للرفع.');
+        return;
+      }
+      if (!isSupabaseConfigured()) {
+        toast.error('لم يُضبط Supabase في التطبيق — تعذر حفظ معرض الأعمال.');
+        return;
+      }
+      setSavingPost(true);
+      const uploadedPaths: string[] = [];
+      try {
+        const out: string[] = [];
+        for (const slot of gallerySlots) {
+          if (slot.kind === 'remote') {
+            out.push(slot.url);
+            continue;
+          }
+          const up = await uploadBarberPortfolioImageRemote({
+            barberId,
+            email: barberEmail.trim(),
+            imageBase64: slot.imageBase64,
+          });
+          if (!up.ok) throw new Error(up.error);
+          uploadedPaths.push(up.objectPath);
+          out.push(up.publicUrl);
+        }
+        finalGalleryUrls = out;
+      } catch (e) {
+        for (const pth of uploadedPaths) {
+          const r = await deleteBarberPortfolioObjectRemote({
+            barberId,
+            email: barberEmail.trim(),
+            objectPath: pth,
+          });
+          if (!r.ok) toast.error(r.error);
+        }
+        setSavingPost(false);
+        toast.error(e instanceof Error ? e.message : 'تعذر رفع إحدى الصور.');
+        return;
+      }
+      setSavingPost(false);
+    }
+
     if (editing) {
+      const prevUrls = editing.type === 'gallery' ? [...(editing.images ?? [])] : [];
+      if (editing.type === 'gallery' && type !== 'gallery' && barberEmail.trim()) {
+        await deletePortfolioStorageForUrls(barberId, barberEmail.trim(), prevUrls);
+      } else if (type === 'gallery' && finalGalleryUrls && barberEmail.trim()) {
+        const removed = prevUrls.filter((u) => !finalGalleryUrls!.includes(u));
+        await deletePortfolioStorageForUrls(barberId, barberEmail.trim(), removed);
+      }
+
       onChange(
         posts.map((p) =>
           p.id === editing.id
@@ -1133,7 +1854,7 @@ function PostsSection({
                 title: title.trim(),
                 content: content.trim(),
                 type,
-                images: [img],
+                images: type === 'gallery' && finalGalleryUrls ? [...finalGalleryUrls] : [img],
                 discount: type === 'offer' ? disc : undefined,
                 validUntil: p.validUntil,
               }
@@ -1147,7 +1868,7 @@ function PostsSection({
         barberId,
         title: title.trim(),
         content: content.trim(),
-        images: [img],
+        images: type === 'gallery' && finalGalleryUrls ? [...finalGalleryUrls] : [img],
         type,
         discount: type === 'offer' ? disc : undefined,
         validUntil: undefined,
@@ -1159,22 +1880,47 @@ function PostsSection({
       toast.success('تم إنشاء البوست');
     }
     setOpen(false);
+    resetDialog();
   };
 
-  const del = (id: string) => {
+  const del = async (id: string) => {
+    const post = posts.find((p) => p.id === id);
+    if (post?.type === 'gallery' && barberEmail.trim()) {
+      await deletePortfolioStorageForUrls(barberId, barberEmail.trim(), post.images ?? []);
+    }
     onChange(posts.filter((p) => p.id !== id));
     toast.message('تم حذف البوست');
   };
 
+  const atPortfolioCap = portfolioMax > 0 && galleryCountSaved >= portfolioMax;
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-      <div className="mb-6 flex items-center justify-between gap-2">
-        <h2 className="text-2xl font-bold">البوستات والعروض</h2>
-        <Button type="button" className="gap-2" onClick={openNew}>
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold sm:text-2xl">البوستات والعروض</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            معرض الأعمال:{' '}
+            <span className="font-semibold text-foreground" dir="ltr">
+              {galleryCountSaved}/{portfolioMax || '—'}
+            </span>{' '}
+            صورة (WebP مضغوطة تقريباً 100 كيلوبايت — تُرفع للخادم عند تأكيد «نشر» أو «حفظ التعديل» فقط).
+          </p>
+        </div>
+        <Button type="button" className="gap-2 shrink-0" onClick={openNew}>
           <Plus className="h-4 w-4" />
           بوست جديد
         </Button>
       </div>
+
+      {atPortfolioCap ? (
+        <Alert className="mb-4 border-amber-500/40 bg-amber-500/10">
+          <AlertDescription className="text-sm">
+            وصلتَ للحد الأقصى لصور معرض الأعمال لهذه الباقة. احذف صوراً من بوستات نوع «معرض» أو من داخل تعديل البوست
+            لتحرير خانات جديدة.
+          </AlertDescription>
+        </Alert>
+      ) : null}
 
       {posts.length === 0 ? (
         <Card>
@@ -1185,13 +1931,30 @@ function PostsSection({
           {posts.map((post) => (
             <Card key={post.id}>
               <CardContent className="p-6">
-                <div className="mb-4 aspect-video overflow-hidden rounded-lg">
-                  <img src={post.images[0]} alt={post.title} className="h-full w-full object-cover" />
+                <div className="mb-4 overflow-hidden rounded-lg">
+                  {post.type === 'gallery' && (post.images?.length ?? 0) > 1 ? (
+                    <div className="grid grid-cols-2 gap-1">
+                      {post.images.slice(0, 4).map((src) => (
+                        <div key={src} className="aspect-square overflow-hidden rounded-md bg-muted">
+                          <img src={src} alt="" className="h-full w-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="aspect-video overflow-hidden rounded-lg">
+                      <img src={post.images[0]} alt={post.title} className="h-full w-full object-cover" />
+                    </div>
+                  )}
                 </div>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <Badge variant={post.type === 'offer' ? 'default' : 'secondary'}>
-                    {post.type === 'offer' ? 'عرض' : post.type === 'gallery' ? 'معرض' : 'إعلان'}
+                    {post.type === 'offer' ? 'عرض' : post.type === 'gallery' ? 'معرض' : TERM_GEOSPATIAL_DIGITAL_ASSET_AR}
                   </Badge>
+                  {post.type === 'gallery' ? (
+                    <Badge variant="outline" dir="ltr">
+                      {(post.images?.length ?? 0).toString()} صور
+                    </Badge>
+                  ) : null}
                   {post.discount != null ? <Badge variant="destructive">خصم {post.discount}%</Badge> : null}
                 </div>
                 <h3 className="mb-2 text-lg font-bold">{post.title}</h3>
@@ -1205,7 +1968,7 @@ function PostsSection({
                     <Button type="button" size="sm" variant="outline" onClick={() => openEdit(post)}>
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button type="button" size="sm" variant="outline" onClick={() => del(post.id)}>
+                    <Button type="button" size="sm" variant="outline" onClick={() => void del(post.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -1216,7 +1979,13 @@ function PostsSection({
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          setOpen(v);
+          if (!v) resetDialog();
+        }}
+      >
         <DialogContent className="sm:max-w-lg" dir="rtl">
           <DialogHeader>
             <DialogTitle>{editing ? 'تعديل البوست' : 'بوست جديد'}</DialogTitle>
@@ -1235,11 +2004,11 @@ function PostsSection({
               <select
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={type}
-                onChange={(e) => setType(e.target.value as Post['type'])}
+                onChange={(e) => onTypeSelectChange(e.target.value as Post['type'])}
               >
                 <option value="offer">عرض / خصم</option>
                 <option value="gallery">معرض صور</option>
-                <option value="announcement">إعلان</option>
+                <option value="announcement">{TERM_GEOSPATIAL_DIGITAL_ASSET_AR}</option>
               </select>
             </div>
             {type === 'offer' ? (
@@ -1254,16 +2023,90 @@ function PostsSection({
                 />
               </div>
             ) : null}
-            <div className="space-y-2">
-              <Label>رابط صورة الغلاف</Label>
-              <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} dir="ltr" className="text-left" />
-            </div>
+
+            {type === 'gallery' ? (
+              <div className="space-y-3 rounded-lg border border-border/80 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Label className="text-base">صور المعرض</Label>
+                  <span className="text-xs text-muted-foreground" dir="ltr">
+                    {effectiveGalleryImageCount(posts, editing, gallerySlots.length)}/{portfolioMax}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  تُعالَج الصور محلياً: ختم «حلاق ماب» شبه شفاف في الزاوية السفلية ثم تحويل إلى WebP (~100 كيلوبايت
+                  تقريباً). لا تُحفظ على الخادم حتى تضغط «نشر» أو «حفظ التعديل». احذف من القائمة قبل الحفظ إن غيّرت
+                  رأيك — الصور المخزّنة مسبقاً تُحذف من التخزين عند الحفظ إذا أزلتها من القائمة.
+                </p>
+                <input
+                  ref={galleryFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => void onGalleryFile(e)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={
+                    savingPost ||
+                    uploadingGallery ||
+                    portfolioMax <= 0 ||
+                    effectiveGalleryImageCount(posts, editing, gallerySlots.length) >= portfolioMax
+                  }
+                  onClick={() => void pickGalleryFile()}
+                >
+                  {uploadingGallery ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                  إضافة صورة
+                </Button>
+                {gallerySlots.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">لا توجد صور بعد.</p>
+                ) : (
+                  <ul className="flex flex-wrap gap-2">
+                    {gallerySlots.map((slot, idx) => (
+                      <li
+                        key={slot.id}
+                        className="relative h-20 w-20 overflow-hidden rounded-md border border-border bg-muted"
+                      >
+                        <img
+                          src={slot.kind === 'remote' ? slot.url : slot.previewDataUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          className="absolute left-0 top-0 h-7 w-7 rounded-none rounded-br-md p-0 text-xs"
+                          title={
+                            slot.kind === 'local'
+                              ? 'إزالة من المعاينة (لم تُرفع بعد)'
+                              : 'إزالة من القائمة — يُحذف من التخزين عند الحفظ'
+                          }
+                          disabled={savingPost}
+                          onClick={() => removeGalleryAt(idx)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label>رابط صورة الغلاف</Label>
+                <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} dir="ltr" className="text-left" />
+              </div>
+            )}
           </div>
           <DialogFooter className="gap-2 sm:justify-start">
-            <Button type="button" onClick={savePost}>
+            <Button type="button" disabled={savingPost} onClick={() => void savePost()}>
+              {savingPost ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
               {editing ? 'حفظ التعديل' : 'نشر'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" disabled={savingPost} onClick={() => setOpen(false)}>
               إلغاء
             </Button>
           </DialogFooter>
@@ -1364,7 +2207,7 @@ function InclusiveCarePartnerSettingsCard({
         <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium">أقدّم هذه الخدمة (تسهيلات بالمحل و/أو زيارة منزلية بحسب الحالة)</p>
-            <p className="text-xs text-muted-foreground">عند الإيقاف يُحجب الإعلان للعملاء ويُصفَر السعر في العرض العام.</p>
+            <p className="text-xs text-muted-foreground">عند الإيقاف يُحجب {TERM_GEOSPATIAL_DIGITAL_ASSET_AR} للعملاء ويُصفَر السعر في العرض العام.</p>
           </div>
           <Switch checked={offered} onCheckedChange={(c) => setOffered(c === true)} />
         </div>
@@ -1388,7 +2231,7 @@ function InclusiveCarePartnerSettingsCard({
 
             <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-medium">إظهار الخدمة للعملاء على الخريطة والبطاقة</p>
+                <p className="text-sm font-medium">إظهار الخدمة للعملاء عبر نظام الرصد الذكي والبطاقة</p>
                 <p className="text-xs text-muted-foreground">عطّلها إن رغبت في الإخفاء المؤقت دون حذف باقي الإعدادات.</p>
               </div>
               <Switch checked={publicVisible} onCheckedChange={(c) => setPublicVisible(c === true)} />
@@ -1396,7 +2239,7 @@ function InclusiveCarePartnerSettingsCard({
 
             <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-medium">تقييد الإعلان بأيام محددة</p>
+                <p className="text-sm font-medium">تقييد {TERM_GEOSPATIAL_DIGITAL_ASSET_AR} بأيام محددة</p>
                 <p className="text-xs text-muted-foreground">
                   عند الإيقاف يُفهم أن التوفّر مرن (حسب الظروف) دون التزام تقويمي صارم في العرض.
                 </p>
@@ -1406,7 +2249,7 @@ function InclusiveCarePartnerSettingsCard({
 
             {restrictDays && (
               <div className="rounded-lg border border-border p-3 space-y-2">
-                <p className="text-sm font-medium">أيام توفّر الخدمة للإعلان</p>
+                <p className="text-sm font-medium">أيام توفر الخدمة لـ{TERM_GEOSPATIAL_DIGITAL_ASSET_AR}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {SAUDI_WEEK_DAY_LABELS.map((day) => (
                     <div key={day} className="flex items-center gap-2">
@@ -1515,14 +2358,15 @@ function SettingsSection({
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-      <h2 className="mb-6 text-2xl font-bold">الإعدادات</h2>
+      <h2 className="mb-4 text-xl font-bold sm:mb-6 sm:text-2xl">الإعدادات</h2>
 
       <Card className="mb-6 border-primary/20">
         <CardHeader>
           <CardTitle className="text-base sm:text-lg">البنر والعروض على حلاق ماب</CardTitle>
           <CardDescription>
-            يظهر اسم صالونك في أعلى لوحة التحكم من قاعدة البيانات كهوية المتحكم فيما يُعرض للجمهور. روابط البنرات
-            هنا تُحفظ على هذا الجهاز كمعاينة حتى يكتمل الربط بالتخزين السحابي للصور.
+            عنوان اللوحة أعلاه يعرض <strong>{partnerSalonDisplayName(barberData)}</strong> من حقل الاسم في حسابك (قاعدة
+            البيانات عبر البوابة). روابط البنرات هنا تُحفظ على هذا الجهاز كمعاينة حتى يكتمل الربط بالتخزين السحابي
+            للصور.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -1662,7 +2506,7 @@ function SettingsSection({
               جدولة المواعيد (ماسي)
             </CardTitle>
             <CardDescription>
-              تحكم بإظهار أو إخفاء كتلة الحجز على بطاقة صالونك في خريطة حلاق ماب. يُحفظ الإعداد في هذا المتصفح
+              تحكم بإظهار أو إخفاء كتلة الحجز على بطاقة صالونك في نظام الرصد الذكي لحلاق ماب. يُحفظ الإعداد في هذا المتصفح
               كمعاينة.
             </CardDescription>
           </CardHeader>
@@ -1670,7 +2514,7 @@ function SettingsSection({
             <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <p className="text-sm font-medium">إظهار جدولة المواعيد للعملاء</p>
-                <p className="text-xs text-muted-foreground">عند الإيقاف تختفي الكتلة من الخريطة على هذا الجهاز.</p>
+                <p className="text-xs text-muted-foreground">عند الإيقاف تختفي الكتلة من نظام الرصد الذكي على هذا الجهاز.</p>
               </div>
               <Switch
                 id="diamond-schedule-public"
@@ -1678,7 +2522,7 @@ function SettingsSection({
                 onCheckedChange={(checked) => {
                   setDiamondSchedulePublic(checked);
                   setDiamondSchedulingPublicLocal(barberId, checked);
-                  toast.success(checked ? 'ظهرت جدولة المواعيد للعملاء على الخريطة' : 'أُخفيت جدولة المواعيد عن العملاء');
+                  toast.success(checked ? 'ظهرت جدولة المواعيد للعملاء عبر نظام الرصد الذكي' : 'أُخفيت جدولة المواعيد عن العملاء');
                 }}
               />
             </div>
@@ -1724,6 +2568,12 @@ function SettingsSection({
           <div className="space-y-2">
             <Label>اسم الصالون</Label>
             <Input readOnly value={barberData.name} />
+            {isLegacyDemoSalonRegisteredName(barberData.name) ? (
+              <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-200/90">
+                الاسم المسجّل يطابق قالباً تجريبياً قديماً في المنصة. ليظهر اسمك الحقيقي في نظام الرصد الذكي وفي أعلى
+                اللوحة، اطلب من الإدارة تحديث حقل اسم الصالون في السجل المعتمد.
+              </p>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label>البريد الإلكتروني</Label>

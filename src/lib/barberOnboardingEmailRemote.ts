@@ -1,18 +1,58 @@
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { SubscriptionTier } from '@/lib';
 
+/** يطابق ملف Vercel: `api/send-barber-onboarding.ts` → مسار الإنتاج `/api/send-barber-onboarding` */
 const ONBOARDING_EMAIL_API = '/api/send-barber-onboarding';
 
-/** نفس أصل Vercel المستخدم لرفع المرفقات وحفظ الطلب — يوجّه POST البريد عندما تكون لوحة الإدارة على استضافة ثابتة. */
-function splitDeployApiOrigin(): string {
-  return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '').trim().replace(/\/$/, '');
+/**
+ * أصل خادم الدوال على Vercel (بدون شرطة أخيرة).
+ * ترتيب الأولوية يطابق مسارات التسجيل/الرفع حتى لا يُبنى الإنتاج بأصل ناقص.
+ */
+function resolveDeployApiOrigin(): string {
+  return String(
+    import.meta.env.VITE_API_BASE_URL ||
+      import.meta.env.VITE_API_URL ||
+      import.meta.env.VITE_REGISTRATION_API_ORIGIN ||
+      '',
+  )
+    .trim()
+    .replace(/\/$/, '');
+}
+
+/**
+ * يطابق أصل طلب الـ API مع أصل الصفحة عندما يختلفان فقط بـ www/بدون www لنفس النطاق،
+ * لتجنّب إعادة توجيه HTTP على OPTIONS (Redirect is not allowed for a preflight request).
+ */
+function alignApiOriginWithPageIfSameSite(apiOrigin: string): string {
+  const base = apiOrigin.replace(/\/$/, '');
+  if (typeof window === 'undefined') return base;
+  try {
+    const page = new URL(window.location.href);
+    const api = new URL(base.includes('://') ? base : `https://${base}`);
+    const root = (h: string) => h.replace(/^www\./i, '').toLowerCase();
+    if (root(api.hostname) === root(page.hostname)) {
+      return `${page.protocol}//${page.host}`;
+    }
+  } catch {
+    /* ignore */
+  }
+  return base;
 }
 
 function getEndpoint(): string {
   const explicit = String(import.meta.env.VITE_BARBER_ONBOARDING_EMAIL_URL || '').trim();
-  if (explicit) return explicit;
-  const origin = splitDeployApiOrigin();
-  if (!origin) return ONBOARDING_EMAIL_API;
+  if (explicit) {
+    try {
+      const u = new URL(explicit);
+      const aligned = alignApiOriginWithPageIfSameSite(u.origin);
+      return `${aligned.replace(/\/$/, '')}${u.pathname}${u.search}`;
+    } catch {
+      return explicit;
+    }
+  }
+  const raw = resolveDeployApiOrigin();
+  if (!raw) return ONBOARDING_EMAIL_API;
+  const origin = alignApiOriginWithPageIfSameSite(raw).replace(/\/$/, '');
   return `${origin}${ONBOARDING_EMAIL_API}`;
 }
 
@@ -66,7 +106,8 @@ export async function sendBarberOnboardingEmailRemote(input: {
     }
     const mid = typeof payload.messageId === 'string' && payload.messageId.trim() ? payload.messageId.trim() : undefined;
     return { ok: true, ...(mid ? { messageId: mid } : {}) };
-  } catch {
+  } catch (err) {
+    console.error('[sendBarberOnboardingEmailRemote] فشل الطلب', { endpoint, err });
     return { ok: false, error: 'تعذر الاتصال بخدمة الإرسال البريدي.' };
   }
 }
@@ -125,7 +166,8 @@ export async function sendOnboardingEmailsForActiveBarbersRemote(
       failedDetails: payload.failedDetails,
       invalidSamples: payload.invalidSamples,
     };
-  } catch {
+  } catch (err) {
+    console.error('[sendOnboardingEmailsForActiveBarbersRemote] فشل الطلب', { endpoint, err });
     return { ok: false, error: 'تعذر الاتصال بخدمة الإرسال البريدي.' };
   }
 }

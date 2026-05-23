@@ -1,4 +1,15 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/rate/:path*",
+      "destination": "/index.html"
+    }
+  ],
+  "framework": "vite",
+  "installCommand": "npm install --no-audit --no-fund --loglevel=error",
+  "buildCommand": "npm run build && node scripts/verify-dist-index.mjs",
+  "outputDirectory": "dist",
   "headers": [
     {
       "source": "/",
@@ -15,6 +26,33 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/workbox-(.*).js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     },
@@ -45,7 +83,7 @@
       "maxDuration": 20
     },
     "api/approve-barber.ts": {
-      "maxDuration": 30
+      "maxDuration": 45
     },
     "api/send-barber-onboarding.ts": {
       "maxDuration": 60
@@ -56,6 +94,15 @@
     "api/barber-inclusive-care-update.ts": {
       "maxDuration": 20
     },
+    "api/barber-portfolio.ts": {
+      "maxDuration": 25
+    },
+    "api/admin-support-chat.ts": {
+      "maxDuration": 25
+    },
+    "api/barber-support-chat.ts": {
+      "maxDuration": 25
+    },
     "api/interest-signup.ts": {
       "maxDuration": 15
     },
@@ -64,6 +111,93 @@
     },
     "api/cron-security-triage.ts": {
       "maxDuration": 60
+    },
+    "api/log-search-activity.ts": {
+      "maxDuration": 20
+    },
+    "api/public-rate-barber-context.ts": {
+      "maxDuration": 15
+    },
+    "api/barber-portal-magic-consume.ts": {
+      "maxDuration": 15
+    },
+    "api/simulate-booking-overlap.ts": {
+      "maxDuration": 20
+    },
+    "api/partner-promo.ts": {
+      "maxDuration": 15
+    },
+    "api/partner-promo-admin.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-sentinel-preflight.ts": {
+      "maxDuration": 15
+    },
+    "api/admin-sentinel-brief.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-radar-pulses.ts": {
+      "maxDuration": 30
+    },
+    "api/admin-sentinel-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-sentinel-action.ts": {
+      "maxDuration": 20
+    },
+    "api/ops-billing-monitor.ts": {
+      "maxDuration": 60
+    },
+    "api/ops-intelligence-report.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-system-crisis-advisor-lab-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-public-prosecutor-lab-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-public-prosecutor-dashboard.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-engineering-council.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-technical-consultant-lab-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-engineering-handshake.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-growth-architect.ts": {
+      "maxDuration": 25
+    },
+    "api/admin-marketing-lab-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-media-spokesperson-chat.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-super-intelligence-feed.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-resources-ai-analyze.ts": {
+      "maxDuration": 60
+    },
+    "api/admin/resources/update-from-ai.ts": {
+      "maxDuration": 30
+    },
+    "api/admin-financial-archive.ts": {
+      "maxDuration": 60
+    },
+    "api/admin-invite-send.ts": {
+      "maxDuration": 30
+    },
+    "api/admin-password-reset.ts": {
+      "maxDuration": 25
+    },
+    "api/webhooks/supabase-subscription.ts": {
+      "maxDuration": 45
     }
   },
   "crons": [
@@ -74,6 +208,14 @@
     {
       "path": "/api/cron-security-triage",
       "schedule": "20 4 * * *"
+    },
+    {
+      "path": "/api/ops-billing-monitor?cron=1",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/ops-intelligence-report?cron=1",
+      "schedule": "0 5 * * *"
     }
   ]
 }

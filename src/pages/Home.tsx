@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
@@ -8,20 +8,31 @@ import { BarberCard } from '@/components/BarberCards';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { BarberMap } from '@/components/BarberMap';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { buildHomeSearchQueryText, postLogSearchActivity } from '@/lib/searchActivityLogRemote';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import {
   PLATFORM_HERO_H1,
   PLATFORM_HERO_LEAD,
+  PLATFORM_HERO_TRUST_LINE,
   PLATFORM_HOME_WELCOME_FEATURES,
   PLATFORM_META_DESCRIPTION,
 } from '@/config/platformGrowthNarrative';
-const USER_TRUST_LINE = 'حدد موقعك بدقة · قارن حسب التقييم · تواصل مباشرة مع الصالون';
+import {
+  PLATFORM_HERO_BADGE,
+  PLATFORM_HOW_IT_WORKS_STEPS,
+  PLATFORM_SEARCH_EMPTY_HINT,
+  PLATFORM_SEARCH_EMPTY_LOADING,
+  PLATFORM_SEARCH_EMPTY_TITLE,
+} from '@/config/platformSmartTracking';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 
 export default function Home() {
+  const searchLogDedupe = useRef<{ key: string; at: number }>({ key: '', at: 0 });
+  const geoLogDedupe = useRef<{ key: string; at: number }>({ key: '', at: 0 });
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
@@ -115,6 +126,99 @@ export default function Home() {
     if (!userLocation) return [];
     return filterBarbersByDistance(catalogBarbers, userLocation, filters);
   }, [userLocation, filters, catalogBarbers]);
+
+  const filterSig = useMemo(
+    () =>
+      JSON.stringify({
+        maxDistance: filters.maxDistance,
+        minRating: filters.minRating,
+        tiers: filters.tiers,
+        openNow: filters.openNow,
+        categories: filters.categories,
+      }),
+    [filters.maxDistance, filters.minRating, filters.tiers, filters.openNow, filters.categories],
+  );
+
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !userLocation) return;
+
+    const geoKey = `${userLocation.lat.toFixed(5)},${userLocation.lng.toFixed(5)}`;
+    const now = Date.now();
+    if (geoLogDedupe.current.key === geoKey && now - geoLogDedupe.current.at < 12_000) return;
+
+    const timer = window.setTimeout(() => {
+      geoLogDedupe.current = { key: geoKey, at: Date.now() };
+      void postLogSearchActivity({
+        queryText: `رصد موقع — ${geoKey}`,
+        scopeType: 'geo_nearby',
+        userLat: userLocation.lat,
+        userLng: userLocation.lng,
+        locationSharing: true,
+      });
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [userLocation]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !userLocation || remoteStatus !== 'ready') return;
+
+    const radiusKm = Math.max(5, filters.maxDistance);
+    const timer = window.setTimeout(() => {
+      const queryText = buildHomeSearchQueryText({
+        radiusKm,
+        filters,
+        rpcResultCount: remoteBarbers.length,
+        listAfterLocalFilters: filteredBarbers.length,
+      });
+      const key = `${userLocation.lat.toFixed(5)},${userLocation.lng.toFixed(5)}|${filterSig}|rpc${remoteBarbers.length}|ui${filteredBarbers.length}`;
+      const now = Date.now();
+      if (searchLogDedupe.current.key === key && now - searchLogDedupe.current.at < 9000) return;
+      searchLogDedupe.current = { key, at: now };
+      void postLogSearchActivity({
+        queryText,
+        scopeType: 'composite',
+        userLat: userLocation.lat,
+        userLng: userLocation.lng,
+        locationSharing: true,
+        filters: {
+          maxDistance: filters.maxDistance,
+          minRating: filters.minRating,
+          tiers: filters.tiers,
+          openNow: filters.openNow,
+          categories: filters.categories,
+          radiusKm,
+        },
+        resultCount: filteredBarbers.length,
+        rpcResultCount: remoteBarbers.length,
+      });
+    }, 2600);
+
+    return () => window.clearTimeout(timer);
+  }, [userLocation, remoteStatus, filterSig, remoteBarbers.length, filteredBarbers.length]);
+
+  const onBarberRealtimePatch = useCallback((patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => {
+    setRemoteBarbers((prev) => {
+      const idx = prev.findIndex((b) => b.id === patch.id);
+      if (idx < 0) return prev;
+      const cur = prev[idx];
+      const next = [...prev];
+      const loc =
+        patch.lat != null && patch.lng != null
+          ? { ...cur.location, lat: patch.lat, lng: patch.lng }
+          : cur.location;
+      next[idx] = { ...cur, location: loc, isOpen: patch.isOpen };
+      return next;
+    });
+    setSelectedBarber((sel) => {
+      if (!sel || sel.id !== patch.id) return sel;
+      const loc =
+        patch.lat != null && patch.lng != null
+          ? { ...sel.location, lat: patch.lat, lng: patch.lng }
+          : sel.location;
+      return { ...sel, location: loc, isOpen: patch.isOpen };
+    });
+  }, []);
 
   const handleLocationDetected = (location: { lat: number; lng: number }) => {
     setUserLocation(location);
@@ -215,7 +319,7 @@ export default function Home() {
                 <Sparkles className="w-4 h-4 text-accent" />
               </motion.span>
               <span className="text-sm font-semibold text-primary tracking-wide">
-                منصة حلاق ماب الذكية
+                {PLATFORM_HERO_BADGE}
               </span>
             </motion.div>
 
@@ -241,16 +345,17 @@ export default function Home() {
               </motion.div>
 
               <motion.p
-                className="text-sm mb-8 max-w-xl mx-auto flex items-center justify-center gap-2 flex-wrap font-medium text-muted-foreground"
+                className="text-sm mb-6 max-w-xl mx-auto flex items-center justify-center gap-2 flex-wrap font-medium text-muted-foreground"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.48, duration: 0.6 }}
               >
                 <Shield className="w-4 h-4 text-accent shrink-0" aria-hidden />
-                <span>{USER_TRUST_LINE}</span>
+                <span>{PLATFORM_HERO_TRUST_LINE}</span>
               </motion.p>
 
               <motion.div
+                className="flex w-full justify-center mb-2"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.55, duration: 0.65 }}
@@ -265,28 +370,13 @@ export default function Home() {
                 transition={{ delay: 0.75, duration: 0.6 }}
               >
                 <p className="text-sm font-semibold text-primary mb-4 tracking-wide">
-                  كيف تعمل المنصة؟
+                  كيف يعمل نظام الرصد الذكي؟
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-right text-card-foreground">
                   {[
-                    {
-                      step: '١',
-                      icon: MapPin,
-                      title: 'حدّد موقعك',
-                      desc: 'نستخدم موقعك لإظهار الحلاقين الأقرب إليك فعلياً.',
-                    },
-                    {
-                      step: '٢',
-                      icon: Search,
-                      title: 'قارن وتصفّح',
-                      desc: 'فلترة بالمسافة، الباقة، التقييم، ونوع الخدمة.',
-                    },
-                    {
-                      step: '٣',
-                      icon: MessageCircle,
-                      title: 'تواصل أو احجز',
-                      desc: 'اتصال، واتساب، وخرائط — حسب ما يوفره الصالون.',
-                    },
+                    { icon: MapPin, ...PLATFORM_HOW_IT_WORKS_STEPS[0] },
+                    { icon: Search, ...PLATFORM_HOW_IT_WORKS_STEPS[1] },
+                    { icon: MessageCircle, ...PLATFORM_HOW_IT_WORKS_STEPS[2] },
                   ].map((item, index) => {
                     const StepIcon = item.icon;
                     return (
@@ -307,7 +397,7 @@ export default function Home() {
                             <StepIcon className="hidden sm:block w-4 h-4 text-accent shrink-0" />
                             <h3 className="font-semibold text-secondary-foreground text-sm md:text-base">{item.title}</h3>
                           </div>
-                          <p className="text-xs md:text-sm text-muted-foreground leading-snug">{item.desc}</p>
+                          <p className="text-xs md:text-sm text-muted-foreground leading-snug">{item.description}</p>
                         </div>
                       </div>
                     </motion.div>
@@ -366,6 +456,15 @@ export default function Home() {
               <FilterBar filters={filters} onFilterChange={setFilters} />
             </div>
 
+            {userLocation ? (
+              <BarberMap
+                barbers={filteredBarbers}
+                userLocation={userLocation}
+                onBarberPatch={onBarberRealtimePatch}
+                realtimeEnabled={isSupabaseConfigured()}
+              />
+            ) : null}
+
             {filteredBarbers.length === 0 ? (
               <motion.div
                 className="text-center py-16 max-w-2xl mx-auto"
@@ -386,13 +485,11 @@ export default function Home() {
                 >
                   <MapPin className="w-12 h-12 text-primary" />
                 </motion.div>
-                <h3 className="text-2xl font-bold mb-3">لا توجد حلاقين في هذا النطاق 🔍</h3>
+                <h3 className="text-2xl font-bold mb-3">{PLATFORM_SEARCH_EMPTY_TITLE} 🔍</h3>
                 {remoteStatus === 'loading' && (
-                  <p className="text-sm text-primary font-semibold mb-3">جاري تحديث النتائج الأقرب لموقعك...</p>
+                  <p className="text-sm text-primary font-semibold mb-3">{PLATFORM_SEARCH_EMPTY_LOADING}</p>
                 )}
-                <p className="text-muted-foreground text-lg mb-6">
-                  جرّب زيادة نطاق البحث من شريط المسافة (حتى 25 كم) أو إلغاء الفلاتر
-                </p>
+                <p className="text-muted-foreground text-lg mb-6">{PLATFORM_SEARCH_EMPTY_HINT}</p>
                 <div className="bg-muted/30 rounded-xl p-6 space-y-3">
                   <p className="text-sm text-muted-foreground">💡 <strong>نصيحة:</strong></p>
                   <ul className="text-sm text-muted-foreground space-y-2 text-right">

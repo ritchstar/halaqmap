@@ -17,6 +17,8 @@ export interface Database {
           phone: string | null
           avatar_url: string | null
           user_type: 'customer' | 'barber' | 'admin'
+          legal_disclaimer_accepted: boolean
+          acceptance_timestamp: string | null
           created_at: string
           updated_at: string
         }
@@ -27,6 +29,8 @@ export interface Database {
           phone?: string | null
           avatar_url?: string | null
           user_type?: 'customer' | 'barber' | 'admin'
+          legal_disclaimer_accepted?: boolean
+          acceptance_timestamp?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -37,6 +41,8 @@ export interface Database {
           phone?: string | null
           avatar_url?: string | null
           user_type?: 'customer' | 'barber' | 'admin'
+          legal_disclaimer_accepted?: boolean
+          acceptance_timestamp?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -45,6 +51,7 @@ export interface Database {
         Row: {
           id: string
           member_number: number | null
+          rating_invite_token: string | null
           user_id: string | null
           name: string
           email: string
@@ -69,12 +76,15 @@ export interface Database {
           inclusive_care_customer_note: string | null
           is_active: boolean
           is_verified: boolean
+          open_for_customers: boolean
+          open_status_token: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           member_number?: number
+          rating_invite_token?: string | null
           user_id?: string | null
           name: string
           email: string
@@ -99,12 +109,15 @@ export interface Database {
           inclusive_care_customer_note?: string | null
           is_active?: boolean
           is_verified?: boolean
+          open_for_customers?: boolean
+          open_status_token?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           member_number?: number
+          rating_invite_token?: string | null
           user_id?: string | null
           name?: string
           email?: string
@@ -129,6 +142,8 @@ export interface Database {
           inclusive_care_customer_note?: string | null
           is_active?: boolean
           is_verified?: boolean
+          open_for_customers?: boolean
+          open_status_token?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -151,6 +166,141 @@ export interface Database {
           email_normalized?: string
           consent_follow_updates?: boolean
           created_at?: string
+        }
+      }
+      barber_subscriptions: {
+        Row: {
+          id: string
+          moyasar_payment_id: string
+          moyasar_webhook_event_id: string | null
+          registration_request_id: string | null
+          barber_id: string | null
+          tier: 'bronze' | 'gold' | 'diamond' | null
+          /** bigint في قاعدة البيانات — قد يُعرَض كسلسلة من PostgREST */
+          amount_halalas: number | string | null
+          currency: string
+          /** دفع ميسر ناجح → paid؛ التفعيل عبر نظام الرصد الذكي فوري من Webhook عند ربط الحلاق؛ approved لاعتماد إداري لاحق إن لزم. */
+          status:
+            | 'pending'
+            | 'paid'
+            | 'failed'
+            | 'refunded'
+            | 'voided'
+            | 'authorized'
+            | 'cancelled'
+            | 'pending_review'
+            | 'approved'
+          last_webhook_type: string | null
+          metadata: Record<string, unknown>
+          failure_reason: string | null
+          failure_notification_sent_at: string | null
+          confirmation_email_sent_at: string | null
+          partner_unified_contract_email_sent_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          moyasar_payment_id: string
+          moyasar_webhook_event_id?: string | null
+          registration_request_id?: string | null
+          barber_id?: string | null
+          tier?: 'bronze' | 'gold' | 'diamond' | null
+          amount_halalas?: number | string | null
+          currency?: string
+          status?:
+            | 'pending'
+            | 'paid'
+            | 'failed'
+            | 'refunded'
+            | 'voided'
+            | 'authorized'
+            | 'cancelled'
+            | 'pending_review'
+            | 'approved'
+          last_webhook_type?: string | null
+          metadata?: Record<string, unknown>
+          failure_reason?: string | null
+          failure_notification_sent_at?: string | null
+          confirmation_email_sent_at?: string | null
+          partner_unified_contract_email_sent_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          moyasar_payment_id?: string
+          moyasar_webhook_event_id?: string | null
+          registration_request_id?: string | null
+          barber_id?: string | null
+          tier?: 'bronze' | 'gold' | 'diamond' | null
+          amount_halalas?: number | string | null
+          currency?: string
+          status?:
+            | 'pending'
+            | 'paid'
+            | 'failed'
+            | 'refunded'
+            | 'voided'
+            | 'authorized'
+            | 'cancelled'
+            | 'pending_review'
+            | 'approved'
+          last_webhook_type?: string | null
+          metadata?: Record<string, unknown>
+          failure_reason?: string | null
+          failure_notification_sent_at?: string | null
+          confirmation_email_sent_at?: string | null
+          partner_unified_contract_email_sent_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      search_activity_logs: {
+        Row: {
+          id: string
+          created_at: string
+          query_text: string
+          scope_type: 'district' | 'city' | 'service' | 'geo_nearby' | 'filter' | 'composite'
+          district_name: string | null
+          city_name: string | null
+          service_tags: string[] | null
+          user_lat: number | null
+          user_lng: number | null
+          location_sharing: boolean
+          filters_json: Json
+          result_count: number | null
+          rpc_result_count: number | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          query_text: string
+          scope_type: 'district' | 'city' | 'service' | 'geo_nearby' | 'filter' | 'composite'
+          district_name?: string | null
+          city_name?: string | null
+          service_tags?: string[] | null
+          user_lat?: number | null
+          user_lng?: number | null
+          location_sharing?: boolean
+          filters_json?: Json
+          result_count?: number | null
+          rpc_result_count?: number | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          query_text?: string
+          scope_type?: 'district' | 'city' | 'service' | 'geo_nearby' | 'filter' | 'composite'
+          district_name?: string | null
+          city_name?: string | null
+          service_tags?: string[] | null
+          user_lat?: number | null
+          user_lng?: number | null
+          location_sharing?: boolean
+          filters_json?: Json
+          result_count?: number | null
+          rpc_result_count?: number | null
         }
       }
       bookings: {

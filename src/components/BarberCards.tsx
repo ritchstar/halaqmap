@@ -42,6 +42,12 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
     barber.location.lng
   );
   const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
+  const previewSecretMarker = barber.previewListing ? (
+    <span className="text-muted-foreground font-normal" title="إدراج معاينة">
+      {" "}
+      *
+    </span>
+  ) : null;
 
   const openGoogleMaps = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${barber.location.lat},${barber.location.lng}`;
@@ -81,7 +87,10 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             <div className="p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-foreground mb-1">{barber.name}</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-1">
+                    {barber.name}
+                    {previewSecretMarker}
+                  </h3>
                   <div className="flex items-center gap-2 mb-2">
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
@@ -147,7 +156,10 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
           <div className="p-4">
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground mb-1">{barber.name}</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-1">
+                  {barber.name}
+                  {previewSecretMarker}
+                </h3>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
@@ -242,7 +254,10 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
           <div className="p-4">
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground mb-1">{barber.name}</h3>
+                <h3 className="text-xl font-bold text-foreground mb-1">
+                  {barber.name}
+                  {previewSecretMarker}
+                </h3>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
@@ -330,7 +345,10 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
         <div className="p-5">
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1">
-              <h3 className="text-2xl font-bold text-foreground mb-1">{barber.name}</h3>
+              <h3 className="text-2xl font-bold text-foreground mb-1">
+                {barber.name}
+                {previewSecretMarker}
+              </h3>
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
@@ -385,6 +403,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
               tier={SubscriptionTier.DIAMOND}
               barberId={barber.id}
               barberName={barber.name}
+              previewListing={barber.previewListing}
               compact
             />
           </div>

@@ -1,5 +1,11 @@
-import { type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { timingSafeEqual } from 'node:crypto';
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
+import { getBarberPortalMagicSecret, mintBarberPortalMagicToken } from './_lib/barberPortalMagicToken.js';
+import {
+  digitalShiftOnboardingSectionHtml,
+  digitalShiftOnboardingSectionPlain,
+} from './_lib/digitalShiftOnboardingMail.js';
 
 export const config = {
   maxDuration: 60,
@@ -17,6 +23,8 @@ type SinglePayload = {
   ratingInviteToken?: string;
   /** رقم طلب التسجيل (مثال HM-20260417-AB12CD) — مرجع الدعم */
   registrationOrderId?: string;
+  /** Add-on المناوب — تضمين دليل الإضافة البرمجية في رسالة الترحيب */
+  digitalShiftAddon?: boolean;
 };
 
 type BulkPayload = {
@@ -55,14 +63,22 @@ function buildRatingInviteUrlStatic(siteOrigin: string, barberId: string, token:
   return `${base}/#${hashPath}`;
 }
 
-function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+/**
+ * CORS صريح لهذا المسار — يتجنّب فشل preflight عندما تكون قائمة الأصول العامة غير متطابقة مع لوحة الإدارة.
+ * إن وُجد رأس Origin يُعاد كـ Access-Control-Allow-Origin (مطلوب مع Authorization على POST في المتصفحات الحديثة)؛ وإلا `*`.
+ * رؤوس الطلب المسموحة تشمل ما ترسله الواجهة مع JSON + جلسة الإدارة.
+ */
+function corsHeaders(request?: Request): Record<string, string> {
+  const origin = request?.headers.get('origin')?.trim();
+  const allowOrigin = origin && /^https?:\/\//i.test(origin) ? origin : '*';
+  const headers: Record<string, string> = {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-supabase-url, x-supabase-anon',
     'Access-Control-Max-Age': '86400',
   };
+  if (allowOrigin !== '*') headers.Vary = 'Origin';
+  return headers;
 }
 
 function tierLabelAr(tier: Tier | null | undefined): string {
@@ -125,6 +141,32 @@ function buildLinks(baseUrl: string): MailLinks {
   };
 }
 
+/** رابط لوحة التحكم موقّع لمرة واحدة (ذهبي/ماسي) عند ضبط سرّ التوقيع على الخادم */
+function linksWithMagicDashboardIfEligible(
+  links: MailLinks,
+  barberId: string | null,
+  barberEmail: string,
+  tierRaw: Tier | string | null | undefined,
+): MailLinks {
+  const secret = getBarberPortalMagicSecret();
+  const t = String(tierRaw ?? '').toLowerCase();
+  const id = String(barberId ?? '').trim();
+  const email = String(barberEmail ?? '').trim();
+  if (!secret || !id || !email || (t !== 'gold' && t !== 'diamond')) {
+    return links;
+  }
+  try {
+    const token = mintBarberPortalMagicToken(id, email, secret);
+    const b = links.siteBase.replace(/\/+$/, '');
+    return {
+      ...links,
+      dashboardUrl: `${b}/#/barber/enter?m=${encodeURIComponent(token)}`,
+    };
+  } catch {
+    return links;
+  }
+}
+
 function logoPublicUrl(links: MailLinks): string {
   return `${links.siteBase}/images/halaqmap_logo_20260409_073322.png`;
 }
@@ -159,7 +201,7 @@ function siteLinksCardBody(links: MailLinks): string {
     '" style="color:#0d9488;font-weight:700">من نحن</a> · ' +
     '<a href="' +
     h(links.registerUrl) +
-    '" style="color:#0d9488;font-weight:700">طلب اشتراك</a> · ' +
+    '" style="color:#0d9488;font-weight:700">طلب تفعيل الحزمة البرمجية</a> · ' +
     '<a href="' +
     h(links.privacyUrl) +
     '" style="color:#0d9488;font-weight:700">الخصوصية</a></p>'
@@ -185,12 +227,12 @@ function padBarberMember(n: number | null | undefined): string | null {
 async function loadBarberOnboardingRow(
   supabase: SupabaseClient,
   email: string,
-): Promise<{ id: string; rating_invite_token: string | null; member_number: number | null } | null> {
+): Promise<{ id: string; rating_invite_token: string | null; member_number: number | null; tier: string | null } | null> {
   const raw = email.trim();
   for (const addr of [raw, raw.toLowerCase()]) {
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, rating_invite_token, member_number')
+      .select('id, rating_invite_token, member_number, tier')
       .eq('email', addr)
       .eq('is_active', true)
       .maybeSingle();
@@ -201,12 +243,13 @@ async function loadBarberOnboardingRow(
       rating_invite_token: (data as { rating_invite_token: string | null }).rating_invite_token,
       member_number:
         mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
+      tier: (data as { tier?: string | null }).tier != null ? String((data as { tier?: string | null }).tier) : null,
     };
   }
   {
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, rating_invite_token, member_number')
+      .select('id, rating_invite_token, member_number, tier')
       .ilike('email', raw)
       .eq('is_active', true)
       .maybeSingle();
@@ -217,6 +260,7 @@ async function loadBarberOnboardingRow(
         rating_invite_token: (data as { rating_invite_token: string | null }).rating_invite_token,
         member_number:
           mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
+        tier: (data as { tier?: string | null }).tier != null ? String((data as { tier?: string | null }).tier) : null,
       };
     }
   }
@@ -316,7 +360,7 @@ function tierSpecificLines(k: 'bronze' | 'gold' | 'diamond'): string[] {
   ];
   if (k === 'diamond') {
     lines.push(
-      '- من «الإعدادات» أيضاً: جدولة المواعيد (ماسي) — إظهار أو إخفاء كتلة الحجز للعملاء على الخريطة (معاينة على الجهاز).',
+      '- من «الإعدادات» أيضاً: جدولة المواعيد (ماسي) — إظهار أو إخفاء كتلة الحجز للعملاء عبر نظام الرصد الذكي (معاينة على الجهاز).',
     );
   }
   return lines;
@@ -327,7 +371,7 @@ function orderRefPlainLines(registrationOrderId: string | null | undefined): str
   if (!id) return [];
   return [
     '',
-    'رقم طلب الاشتراك (مرجع الدعم):',
+    'رقم طلب تفعيل الحزمة البرمجية (مرجع الدعم):',
     id,
     'احفظ هذا الرقم عند التواصل مع الدعم أو فريق حلاق ماب.',
   ];
@@ -337,7 +381,7 @@ function orderRefSectionHtml(registrationOrderId: string | null | undefined): st
   const id = String(registrationOrderId || '').trim();
   if (!id) return '';
   const safe = escapeHtml(id);
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #bae6fd;background:#f0f9ff"><tr><td style="padding:14px 16px;font-size:14px;color:#0c4a6e;line-height:1.75"><p style="margin:0;font-weight:800">رقم طلب الاشتراك (مرجع الدعم)</p><p style="margin:6px 0 0;font-family:ui-monospace,monospace;font-size:15px;letter-spacing:0.02em" dir="ltr">${safe}</p><p style="margin:8px 0 0;font-size:12px;color:#0369a1">احفظه عند مراسلة الدعم أو فريق حلاق ماب.</p></td></tr></table>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #bae6fd;background:#f0f9ff"><tr><td style="padding:14px 16px;font-size:14px;color:#0c4a6e;line-height:1.75"><p style="margin:0;font-weight:800">رقم طلب تفعيل الحزمة البرمجية (مرجع الدعم)</p><p style="margin:6px 0 0;font-family:ui-monospace,monospace;font-size:15px;letter-spacing:0.02em" dir="ltr">${safe}</p><p style="margin:8px 0 0;font-size:12px;color:#0369a1">احفظه عند مراسلة الدعم أو فريق حلاق ماب.</p></td></tr></table>`;
 }
 
 function memberPlainLines(memberPadded: string | null | undefined): string[] {
@@ -360,14 +404,14 @@ function memberSectionHtml(memberPadded: string | null | undefined): string {
 
 function emailOpeningLines(name: string, tierLabel: string): string[] {
   return [
-    'حلاق ماب — منصة الحلاقين على الخريطة',
+    'حلاق ماب — منصة الحلاقين عبر نظام الرصد الذكي',
     '════════════════════════════════════',
     '',
     `🎉 أهلًا ${name}!`,
     '',
-    'نحن في حلاق ماب سعداء جدًا باعتماد حسابك — هذه ليست مجرد رسالة تأكيد، بل دعوة للانضمام إلى مسار نمو نعمل عليه بخطى مدروسة: انتشار منهجي في المدن والأحياء، خرائط أوضح، ووصول أقوى للعميل القريب منك.',
+    'نحن في حلاق ماب سعداء جدًا باعتماد حسابك — هذه ليست مجرد رسالة تأكيد، بل دعوة للانضمام إلى مسار نمو نعمل عليه بخطى مدروسة: انتشار منهجي في المدن والأحياء، رصد أوضح، ووصول أقوى للعميل القريب منك.',
     '',
-    'وجود صالونك على المنصة الآن إنجاز حقيقي: أنت من الشركاء الأوائل الذين يساعدوننا نبني شبكة حلاقين موثوقة يثق بها الزائر. مع توسع المنصة، يتعزز ظهورك تدريجيًا أمام من يبحث عنك في محيطه — هذا تقدم تسويقي ملموس مبني على القرب والخريطة والمحتوى، لا وعودًا فارغة.',
+    'وجود صالونك على المنصة الآن إنجاز حقيقي: أنت من الشركاء الأوائل الذين يساعدوننا نبني شبكة حلاقين موثوقة يثق بها الزائر. مع توسع المنصة، يتعزز ظهورك تدريجيًا أمام من يبحث عنك في محيطه — هذا تقدم تسويقي ملموس مبني على القرب ونظام الرصد الذكي والمحتوى، لا وعودًا فارغة.',
     '',
     `باقتك الحالية: ${tierLabel}. فيما يلي ما يهمك عمليًا: روابط الدخول، أمان تسجيل الدخول، وملخص لوحة التحكم (بنفس روح تجربة المنصة: وضوح، احتراف، وتركيز على صالونك).`,
   ];
@@ -381,6 +425,7 @@ function emailText(
   rating: RatingEmailContext,
   registrationOrderId?: string | null,
   memberPadded?: string | null,
+  digitalShiftAddon?: boolean,
 ): string {
   const k = tierKey(tier);
   const tierLines = tierSpecificLines(k);
@@ -396,7 +441,7 @@ function emailText(
     `- لوحة التحكم: ${links.dashboardUrl}`,
     `- سياسة الاشتراكات: ${links.policyUrl}`,
     `- الخصوصية: ${links.privacyUrl}`,
-    `- طلب اشتراك جديد (للمرجعية): ${links.registerUrl}`,
+    `- طلب تفعيل الحزمة البرمجية (للمرجعية): ${links.registerUrl}`,
     '',
     'تسجيل الدخول (آمن وواضح):',
     '- البريد الإلكتروني نفسه المسجّل في حسابك لدينا.',
@@ -424,10 +469,13 @@ function emailText(
     '- احفظ هذه الرسالة أو ضع روابط الدخول في مفضلة المتصفح للرجوع السريع.',
     '',
     supportContactPlain(),
+    ...(digitalShiftAddon && tierKey(tier) === 'diamond'
+      ? digitalShiftOnboardingSectionPlain(links.dashboardUrl)
+      : []),
     ...ratingSectionPlain(rating),
     ...adminFeedbackPlain(links),
     '',
-    'شكرًا لثقتك. نتطلع لرؤية صالونك يلمع على الخريطة ✨',
+    'شكرًا لثقتك. نتطلع لرؤية صالونك يلمع عبر نظام الرصد الذكي ✨',
     '',
     '— فريق حلاق ماب',
   ].join('\n');
@@ -441,6 +489,7 @@ function emailHtml(
   rating: RatingEmailContext,
   registrationOrderId?: string | null,
   memberPadded?: string | null,
+  digitalShiftAddon?: boolean,
 ): string {
   const nameSafe = escapeHtml(name);
   const tierSafe = escapeHtml(tierLabel);
@@ -456,7 +505,7 @@ function emailHtml(
       ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #d1fae5;background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);overflow:hidden"><tr><td style="padding:16px 18px;font-size:14px;color:#134e4a;line-height:1.85"><p style="margin:0;font-weight:700;color:#0f766e">باقتك البرونزية</p><p style="margin:8px 0 0">أوقات العمل كما سجّلتها عند التسجيل؛ لجدول أسبوعي متقدّم يمكنك لاحقًا الترقية إلى <strong>ذهبي</strong> أو <strong>ماسي</strong>.</p></td></tr></table>`
       : k === 'gold'
         ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #fcd34d;background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);overflow:hidden"><tr><td style="padding:16px 18px;font-size:14px;color:#78350f;line-height:1.85"><p style="margin:0;font-weight:800;color:#92400e">باقتك الذهبية</p><ul style="margin:10px 0 0;padding:0 20px 0 0"><li style="margin:0 0 6px"><strong>الإعدادات:</strong> جدول أوقات العمل الأسبوعي.</li><li style="margin:0"><strong>QR والتقييمات:</strong> رابط ورمز التقييم بعد الزيارة.</li></ul></td></tr></table>`
-        : `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #5eead4;background:linear-gradient(135deg,#ecfeff 0%,#ccfbf1 100%);overflow:hidden"><tr><td style="padding:16px 18px;font-size:14px;color:#115e59;line-height:1.85"><p style="margin:0;font-weight:800;color:#0f766e">باقتك الماسية</p><p style="margin:6px 0 10px;font-size:13px;color:#0d9488">تشمل مزايا الذهبي + إضافات ماسية</p><ul style="margin:0;padding:0 20px 0 0"><li style="margin:0 0 6px"><strong>الإعدادات:</strong> جدول أوقات العمل الأسبوعي.</li><li style="margin:0 0 6px"><strong>QR والتقييمات:</strong> رابط ورمز التقييم.</li><li style="margin:0"><strong>جدولة المواعيد (ماسي):</strong> إظهار أو إخفاء الحجز على الخريطة.</li></ul></td></tr></table>`;
+        : `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-radius:14px;border:1px solid #5eead4;background:linear-gradient(135deg,#ecfeff 0%,#ccfbf1 100%);overflow:hidden"><tr><td style="padding:16px 18px;font-size:14px;color:#115e59;line-height:1.85"><p style="margin:0;font-weight:800;color:#0f766e">باقتك الماسية</p><p style="margin:6px 0 10px;font-size:13px;color:#0d9488">تشمل مزايا الذهبي + إضافات ماسية</p><ul style="margin:0;padding:0 20px 0 0"><li style="margin:0 0 6px"><strong>الإعدادات:</strong> جدول أوقات العمل الأسبوعي.</li><li style="margin:0 0 6px"><strong>QR والتقييمات:</strong> رابط ورمز التقييم.</li><li style="margin:0"><strong>جدولة المواعيد (ماسي):</strong> إظهار أو إخفاء الحجز عبر نظام الرصد الذكي.</li></ul></td></tr></table>`;
 
   const btn = (href: string, label: string) =>
     `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:6px 6px 6px 0;padding:12px 22px;border-radius:12px;background:linear-gradient(180deg,#14b8a6,#0d9488);color:#ffffff;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 4px 14px rgba(13,148,136,0.35)">${label}</a>`;
@@ -484,13 +533,13 @@ function emailHtml(
 <tr><td style="padding:22px 20px 8px;text-align:center;background:radial-gradient(ellipse at top,#ecfdf5 0%,#ffffff 55%);">
   <img src="${logoSrc}" width="132" height="auto" alt="حلاق ماب" style="display:block;margin:0 auto 12px;max-width:132px;height:auto;border:0" />
   <p style="margin:0 0 4px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.02em;color:#0f172a;">حلاق ماب</p>
-  <p style="margin:0 0 18px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:600;color:#0d9488;">منصة الحلاقين على الخريطة</p>
-  <p style="margin:0 0 8px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:700;color:#0d9488;">🎉 خطوة مميزة على الخريطة</p>
+  <p style="margin:0 0 18px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:600;color:#0d9488;">منصة الحلاقين عبر نظام الرصد الذكي</p>
+  <p style="margin:0 0 8px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:700;color:#0d9488;">🎉 خطوة مميزة عبر نظام الرصد الذكي</p>
   <h1 style="margin:0 0 14px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:24px;font-weight:800;color:#0f172a;line-height:1.4;">أهلًا ${nameSafe}!</h1>
 </td></tr>
 <tr><td style="padding:0 22px 8px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:15px;color:#334155;line-height:1.95;">
-  <p style="margin:0 0 14px">نفرح باعتماد حسابك — هذه دعوة للانضمام إلى مسار نمو <strong style="color:#0f766e">مدروس</strong>: انتشار منهجي في المدن والأحياء، خرائط أوضح، ووصول أقوى للعميل القريب منك.</p>
-  <p style="margin:0 0 14px"><strong style="color:#0f172a">وجود صالونك الآن إنجاز كبير:</strong> أنت من الشركاء الأوائل الذين يساعدوننا نبني شبكة حلاقين موثوقة. مع توسع المنصة، يتعزز ظهورك تدريجيًا أمام من يبحث عنك في محيطه — تقدم تسويقي <strong>ملموس</strong> مبني على القرب والخريطة والمحتوى.</p>
+  <p style="margin:0 0 14px">نفرح باعتماد حسابك — هذه دعوة للانضمام إلى مسار نمو <strong style="color:#0f766e">مدروس</strong>: انتشار منهجي في المدن والأحياء، رصد أوضح، ووصول أقوى للعميل القريب منك.</p>
+  <p style="margin:0 0 14px"><strong style="color:#0f172a">وجود صالونك الآن إنجاز كبير:</strong> أنت من الشركاء الأوائل الذين يساعدوننا نبني شبكة حلاقين موثوقة. مع توسع المنصة، يتعزز ظهورك تدريجيًا أمام من يبحث عنك في محيطه — تقدم تسويقي <strong>ملموس</strong> مبني على القرب ونظام الرصد الذكي والمحتوى.</p>
   <p style="margin:0 0 18px">نوعدك بخطوات واضحة أمامك في لوحة التحكم: بنرات وعروض، أوقات متاحة، رسائل العملاء، وتجربة تصميم تحمل روح <strong style="color:#0d9488">حلاق ماب</strong> — وضوح، احتراف، وتركيز على صالونك.</p>
   <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 20px"><tr><td style="text-align:center">
     <span style="display:inline-block;padding:8px 18px;border-radius:999px;background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #facc15;color:#854d0e;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;font-weight:800;">الباقة المعتمدة: ${tierSafe}</span>
@@ -514,7 +563,7 @@ function emailHtml(
   ${emailCard('روابط الموقع', siteLinksCardBody(links))}
   ${emailCard(
     'خطواتك التالية (سريعة)',
-    '<ol style="margin:0;padding:0 22px 0 0;font-size:14px;color:#475569;line-height:1.95"><li style="margin:0 0 8px">سجّل الدخول من الزر أعلاه ببريدك ورمز المنصة.</li><li style="margin:0 0 8px">من «الإعدادات» حدّث <strong>البنر والعروض</strong> وصورك بأفضل جودة.</li><li style="margin:0 0 8px">من «المواعيد» أضف <strong>أوقاتًا متاحة</strong> للحجز إن رغبت.</li><li style="margin:0">تفقد ظهورك من <strong>الصفحة الرئيسية</strong> على الخريطة بعد التحديثات.</li></ol>',
+    '<ol style="margin:0;padding:0 22px 0 0;font-size:14px;color:#475569;line-height:1.95"><li style="margin:0 0 8px">سجّل الدخول من الزر أعلاه ببريدك ورمز المنصة.</li><li style="margin:0 0 8px">من «الإعدادات» حدّث <strong>البنر والعروض</strong> وصورك بأفضل جودة.</li><li style="margin:0 0 8px">من «المواعيد» أضف <strong>أوقاتًا متاحة</strong> للحجز إن رغبت.</li><li style="margin:0">تفقد ظهورك من <strong>الصفحة الرئيسية</strong> عبر نظام الرصد الذكي بعد التحديثات.</li></ol>',
   )}
   ${emailCard(
     'تسجيل الدخول — آمن',
@@ -525,6 +574,7 @@ function emailHtml(
     '<p style="margin:0;font-size:14px;color:#475569;line-height:1.85">اسم صالونك يظهر في الأعلى من بياناتنا المعتمدة. الإحصائيات تبدأ من الصفر؛ ونوضح بصدق: <strong>لا نعرض إيرادات محلك</strong> على المنصة.</p>',
   )}
   ${goldDiamondBox}
+  ${digitalShiftAddon && k === 'diamond' ? digitalShiftOnboardingSectionHtml(links.dashboardUrl) : ''}
   ${ratingAndQrSectionHtml(rating)}
   ${adminFeedbackSectionHtml(links)}
   ${emailCard(
@@ -538,7 +588,7 @@ function emailHtml(
   ${emailCard('مساعدتك تهمنا', supportContactHtml())}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 0;border-radius:14px;border:1px dashed #94a3b8;background:#f8fafc"><tr><td style="padding:16px 18px;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;font-size:13px;color:#475569;line-height:1.85;text-align:center">دقة الجوال والواتساب وساعات العمل = فرص أعلى ليصلك من يبحث عنك بالقرب ✨<br/><span style="font-size:12px;color:#94a3b8">احفظ هذه الرسالة أو أضف روابط الدخول إلى مفضلتك للرجوع السريع.</span></td></tr></table>
   <p style="margin:16px 0 0;text-align:center;font-size:11px;color:#94a3b8;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;" dir="ltr">${escapeHtml(links.siteBase)}</p>
-  <p style="margin:22px 0 6px;text-align:center;font-size:15px;font-weight:700;color:#0f172a;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">شكرًا لثقتك — نتطلع لرؤية صالونك يلمع على الخريطة</p>
+  <p style="margin:22px 0 6px;text-align:center;font-size:15px;font-weight:700;color:#0f172a;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">شكرًا لثقتك — نتطلع لرؤية صالونك يلمع عبر نظام الرصد الذكي</p>
   <p style="margin:0 0 18px;text-align:center;font-size:13px;color:#64748b;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">— فريق حلاق ماب</p>
 </td></tr>
 </table>
@@ -641,7 +691,7 @@ function isValidEmail(email: string): boolean {
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return new Response(null, { status: 200, headers: corsHeaders(request) });
 }
 
 /** تشخيص بدون أسرار — /api/send-barber-onboarding */
@@ -660,11 +710,24 @@ export async function GET(request: Request): Promise<Response> {
       resendApiKeySet,
       resendFromEmailSet: fromEmailSet,
       serviceRoleKeySet: serviceRoleSet,
-      postAuth: 'Authorization: Bearer <Supabase access_token> + active admin with manage_barbers',
+      postAuth:
+        'Authorization: Bearer <Supabase access_token> + manage_barbers — أو (للـ Webhook فقط) x-onboarding-internal-secret + ONBOARDING_INTERNAL_WEBHOOK_SECRET مع mode=single',
       ready: resendApiKeySet && fromEmailSet && Boolean(resolvedUrl) && serviceRoleSet,
     },
     { headers }
   );
+}
+
+function verifyOnboardingInternalWebhookSecret(request: Request): boolean {
+  const expected = (process.env.ONBOARDING_INTERNAL_WEBHOOK_SECRET || '').trim();
+  if (!expected) return false;
+  const got = (request.headers.get('x-onboarding-internal-secret') || '').trim();
+  if (got.length !== expected.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(expected, 'utf8'), Buffer.from(got, 'utf8'));
+  } catch {
+    return false;
+  }
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -690,19 +753,42 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  const adminAuth = await verifyManageBarbersAdminFromRequest(request, url, serviceRole);
-  if (!adminAuth.ok) {
-    return Response.json(adminAuth.json, { status: adminAuth.status, headers });
-  }
-  const supabase = adminAuth.supabase;
-
+  const bodyText = await request.text();
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(bodyText) as unknown;
   } catch {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400, headers });
   }
   const payload = body as Partial<OnboardingBody>;
+
+  const internalOk = verifyOnboardingInternalWebhookSecret(request);
+  let supabase: SupabaseClient;
+  if (internalOk) {
+    if (payload.mode !== 'single') {
+      return Response.json(
+        {
+          error: 'forbidden',
+          hint: 'Requests signed with x-onboarding-internal-secret may only use mode=single (server webhook).',
+        },
+        { status: 403, headers },
+      );
+    }
+    supabase = createClient(url, serviceRole, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  } else {
+    const adminAuth = await verifyManageBarbersAdminFromRequest(
+      new Request(request.url, { method: request.method, headers: request.headers, body: bodyText }),
+      url,
+      serviceRole,
+    );
+    if (adminAuth.ok === false) {
+      return Response.json(adminAuth.json, { status: adminAuth.status, headers });
+    }
+    supabase = adminAuth.supabase;
+  }
+
   const mode = payload.mode;
 
   const baseUrl = getSiteBaseUrl();
@@ -723,13 +809,24 @@ export async function POST(request: Request): Promise<Response> {
     let ratingTok: string | null = String((payload as SinglePayload).ratingInviteToken ?? '').trim() || null;
     let memberPadded: string | null = null;
     const onboardingRow = await loadBarberOnboardingRow(supabase, barberEmail);
+    let tierForMagic: string | null = null;
     if (onboardingRow) {
       if (!barberId) barberId = onboardingRow.id;
       if (!ratingTok?.trim()) ratingTok = onboardingRow.rating_invite_token;
       memberPadded = padBarberMember(onboardingRow.member_number);
+      tierForMagic = onboardingRow.tier;
     }
+    const linksForEmail = linksWithMagicDashboardIfEligible(
+      links,
+      barberId,
+      barberEmail,
+      tierForMagic ?? tierRaw,
+    );
     const ratingCtx = await buildRatingEmailContext(baseUrl, barberId, ratingTok);
     const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
+    const dsRaw = (payload as SinglePayload).digitalShiftAddon as unknown;
+    const digitalShiftAddon =
+      dsRaw === true || dsRaw === 'true' || dsRaw === 1 || dsRaw === '1';
     const attachments =
       ratingCtx.hasToken && ratingCtx.qrPngBase64
         ? [
@@ -741,9 +838,27 @@ export async function POST(request: Request): Promise<Response> {
             },
           ]
         : undefined;
-    const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك على الخريطة + روابط لوحة التحكم';
-    const text = emailText(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId, memberPadded);
-    const html = emailHtml(barberName, tier, tierRaw, links, ratingCtx, registrationOrderId, memberPadded);
+    const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك عبر نظام الرصد الذكي + روابط لوحة التحكم';
+    const text = emailText(
+      barberName,
+      tier,
+      tierRaw,
+      linksForEmail,
+      ratingCtx,
+      registrationOrderId,
+      memberPadded,
+      digitalShiftAddon,
+    );
+    const html = emailHtml(
+      barberName,
+      tier,
+      tierRaw,
+      linksForEmail,
+      ratingCtx,
+      registrationOrderId,
+      memberPadded,
+      digitalShiftAddon,
+    );
     const sent = await sendViaResend({
       to: barberEmail,
       subject,
@@ -811,10 +926,11 @@ export async function POST(request: Request): Promise<Response> {
               },
             ]
           : undefined;
-      const subject = '🎉 حلاق ماب | أنت على الخريطة — روابط لوحة التحكم ودليلك';
+      const subject = '🎉 حلاق ماب | أنت عبر نظام الرصد الذكي — روابط لوحة التحكم ودليلك';
       const bulkMember = padBarberMember(row.member_number);
-      const text = emailText(name, tier, row.tier, links, ratingCtx, null, bulkMember);
-      const html = emailHtml(name, tier, row.tier, links, ratingCtx, null, bulkMember);
+      const linksForRow = linksWithMagicDashboardIfEligible(links, String(row.id), email, row.tier);
+      const text = emailText(name, tier, row.tier, linksForRow, ratingCtx, null, bulkMember);
+      const html = emailHtml(name, tier, row.tier, linksForRow, ratingCtx, null, bulkMember);
       const sent = await sendViaResend({
         to: email,
         subject,

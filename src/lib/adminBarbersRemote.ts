@@ -1,4 +1,8 @@
 import { getSupabaseClient } from '@/integrations/supabase/client';
+import {
+  isBarberUpsertMissingInclusiveCareColumnError,
+  stripInclusiveCareKeysFromBarberUpsertRow,
+} from '@/lib/barberInclusiveCareUpsertGuard';
 import { SubscriptionRequest, SubscriptionTier } from '@/lib/index';
 
 const APPROVE_BARBER_API = '/api/approve-barber';
@@ -19,6 +23,8 @@ export type AdminBarberRow = {
   is_verified: boolean;
   profile_image: string | null;
   cover_image: string | null;
+  /** ISO من قاعدة البيانات — للعرض في لوحة الإدارة */
+  createdAt: string | null;
 };
 
 function tierFromDb(t: string | null): SubscriptionTier {
@@ -38,7 +44,7 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
   const { data, error } = await client
     .from('barbers')
     .select(
-      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
+      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image, created_at'
     )
     .order('created_at', { ascending: false });
 
@@ -71,7 +77,32 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
     is_verified: Boolean(row.is_verified),
     profile_image: row.profile_image != null ? String(row.profile_image) : null,
     cover_image: row.cover_image != null ? String(row.cover_image) : null,
+    createdAt: row.created_at != null ? String(row.created_at) : null,
   }));
+}
+
+/**
+ * حذف جميع صفوف الحلاقين (والمرتبطة CASCADE مثل subscriptions، reviews، …).
+ * يتطلب صلاحية أدمن كاملة على جدول barbers. للمالك فقط في الواجهة.
+ */
+export async function purgeAllBarbersRemote(): Promise<
+  { ok: true; deleted: number } | { ok: false; error: string; deletedPartial?: number }
+> {
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
+
+  const { data: rows, error: selErr } = await client.from('barbers').select('id');
+  if (selErr) return { ok: false, error: selErr.message };
+  const ids = (rows ?? []).map((r: { id: string }) => String(r.id));
+  let deleted = 0;
+  for (const id of ids) {
+    const { error } = await client.from('barbers').delete().eq('id', id);
+    if (error) {
+      return { ok: false, error: error.message, deletedPartial: deleted };
+    }
+    deleted += 1;
+  }
+  return { ok: true, deleted };
 }
 
 export async function setBarberActiveRemote(
@@ -157,7 +188,7 @@ export async function findDuplicateBarbersByContact(
   let query = client
     .from('barbers')
     .select(
-      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image'
+      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image, created_at'
     );
   if (emailTrim && phoneTrim) {
     query = query.or(`email.eq.${emailTrim},phone.eq.${phoneTrim}`);
@@ -192,12 +223,16 @@ export async function findDuplicateBarbersByContact(
     is_verified: Boolean(row.is_verified),
     profile_image: row.profile_image != null ? String(row.profile_image) : null,
     cover_image: row.cover_image != null ? String(row.cover_image) : null,
+    createdAt: row.created_at != null ? String(row.created_at) : null,
   }));
 }
 
 export async function upsertBarberFromApprovedRequest(
   request: SubscriptionRequest
-): Promise<{ ok: true; barberId: string; memberNumber: number | null } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; barberId: string; memberNumber: number | null; warning?: string; shopOpenQuickHashLink?: string }
+  | { ok: false; error: string }
+> {
   const row = {
     name: request.barberName.trim() || 'صالون بدون اسم',
     email: request.email.trim(),
@@ -239,25 +274,57 @@ export async function upsertBarberFromApprovedRequest(
 
   if (accessToken && client) {
     try {
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-          'x-client-supabase-url': getClientSupabaseUrl(),
-        },
-        body: JSON.stringify({ row }),
-      });
-      const json = (await resp.json().catch(() => ({}))) as {
-        barberId?: string;
-        memberNumber?: number | null;
-        error?: string;
+      const postRow = async (payload: Record<string, unknown>) => {
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            'x-client-supabase-url': getClientSupabaseUrl(),
+          },
+          body: JSON.stringify({
+            row: payload,
+            legalDisclaimerAccepted: request.legalDisclaimerAccepted === true,
+            legalDisclaimerAcceptedAtIso:
+              typeof request.legalDisclaimerAcceptedAtIso === 'string'
+                ? request.legalDisclaimerAcceptedAtIso.trim()
+                : undefined,
+          }),
+        });
+        const json = (await resp.json().catch(() => ({}))) as {
+          barberId?: string;
+          memberNumber?: number | null;
+          error?: string;
+          warning?: string;
+          shopOpenQuickHashLink?: string;
+        };
+        return { resp, json };
       };
+
+      let { resp, json } = await postRow(row as Record<string, unknown>);
+      if (
+        !resp.ok &&
+        json.error &&
+        isBarberUpsertMissingInclusiveCareColumnError(String(json.error))
+      ) {
+        ({ resp, json } = await postRow(stripInclusiveCareKeysFromBarberUpsertRow(row as Record<string, unknown>)));
+      }
       if (resp.ok && json.barberId) {
         const mn = json.memberNumber;
         const memberNumber =
           mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
-        return { ok: true, barberId: json.barberId, memberNumber };
+        const warning = typeof json.warning === 'string' && json.warning.trim() ? json.warning.trim() : undefined;
+        const shopOpenQuickHashLink =
+          typeof json.shopOpenQuickHashLink === 'string' && json.shopOpenQuickHashLink.trim()
+            ? json.shopOpenQuickHashLink.trim()
+            : undefined;
+        return {
+          ok: true,
+          barberId: json.barberId,
+          memberNumber,
+          ...(warning ? { warning } : {}),
+          ...(shopOpenQuickHashLink ? { shopOpenQuickHashLink } : {}),
+        };
       }
       // إن لم يكن مسار السيرفر متاحاً بعد، نرجع fallback.
       if (resp.status !== 404 && resp.status !== 405 && resp.status !== 503) {
@@ -270,16 +337,39 @@ export async function upsertBarberFromApprovedRequest(
 
   // Fallback (محلي/تطوير أو بدون جلسة): يعتمد على صلاحيات RLS للمستخدم.
   if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
-  const { data, error } = await client
+  let upsertBody: Record<string, unknown> = row as Record<string, unknown>;
+  let { data, error } = await client
     .from('barbers')
-    .upsert(row, { onConflict: 'email' })
+    .upsert(upsertBody, { onConflict: 'email' })
     .select('id, member_number')
     .single();
+  if (error && isBarberUpsertMissingInclusiveCareColumnError(error.message)) {
+    upsertBody = stripInclusiveCareKeysFromBarberUpsertRow(row as Record<string, unknown>);
+    const second = await client
+      .from('barbers')
+      .upsert(upsertBody, { onConflict: 'email' })
+      .select('id, member_number')
+      .single();
+    data = second.data;
+    error = second.error;
+  }
   if (error || !data) return { ok: false, error: error?.message ?? 'فشل upsert للحلاق' };
   const d = data as { id: string; member_number?: number | null };
   const memberNumber =
     d.member_number != null && Number.isFinite(Number(d.member_number))
       ? Math.floor(Number(d.member_number))
       : null;
-  return { ok: true, barberId: String(d.id), memberNumber };
+  const usedStrip =
+    Object.keys(upsertBody).length < Object.keys(row as Record<string, unknown>).length;
+  return {
+    ok: true,
+    barberId: String(d.id),
+    memberNumber,
+    ...(usedStrip
+      ? {
+          warning:
+            'تم حفظ الحلاق دون حقول «رعاية شاملة» لأن الأعمدة غير موجودة في المشروع. نفّذ ترحيل 32 أو 38 في Supabase.',
+        }
+      : {}),
+  };
 }

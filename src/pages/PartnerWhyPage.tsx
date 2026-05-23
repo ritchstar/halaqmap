@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/lib';
 import { PARTNER_WHY_PAGE } from '@/lib/partnerMarketingCopy';
+import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
 
 export default function PartnerWhyPage() {
   return (
@@ -48,6 +49,10 @@ export default function PartnerWhyPage() {
         </div>
       </section>
 
+      <div className="container mx-auto max-w-3xl px-4 pt-10">
+        <PlatformIdentityCard />
+      </div>
+
       <div className="container mx-auto max-w-3xl space-y-6 px-4 py-12">
         {PARTNER_WHY_PAGE.sections.map((sec, index) => (
           <motion.div
@@ -81,7 +86,7 @@ export default function PartnerWhyPage() {
               </NavLink>
               <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY}>
                 <Button size="lg" variant="outline">
-                  سياسة الاشتراك
+                  سياسة رخصة النفاذ الرقمية
                 </Button>
               </NavLink>
             </div>

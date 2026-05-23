@@ -2,9 +2,17 @@
  * التحقق من حالة دفع ميسر (Moyasar) على الخادم — لا يُعرَض مفتاح السرّ في الواجهة.
  * GET https://api.moyasar.com/v1/payments/:id — Basic Auth: اسم المستخدم = المفتاح السري، كلمة المرور فارغة.
  * @see https://docs.mysr.dev/api/payments/02-fetch-payment
+ *
+ * Production keys location (Vercel Environment Variables):
+ * - PAYMENT_ENV=live
+ * - MOYSAR_SECRET_LIVE_API_KEY=sk_live_...
+ * Optional sandbox:
+ * - PAYMENT_ENV=test
+ * - MOYSAR_SECRET_TEST_API_KEY=sk_test_...
  */
 
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = { maxDuration: 20 };
 
@@ -12,18 +20,26 @@ const MOYSAR_API_BASE = (process.env.MOYSAR_API_BASE || 'https://api.moyasar.com
 /** UUID كما تعيده ميسر في باراميتر ?id= */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const CORS_OPTS = {
+  allowMethods: 'GET, OPTIONS',
+  allowHeaders: 'Content-Type',
+} as const;
+
 function corsHeaders(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Max-Age': '86400',
-  };
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
+}
+
+function resolveMoyasarSecretKey(): string {
+  const mode = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase();
+  const testKey = (process.env.MOYSAR_SECRET_TEST_API_KEY || '').trim();
+  const liveKey = (process.env.MOYSAR_SECRET_LIVE_API_KEY || '').trim();
+  const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim();
+  if (mode === 'live') return liveKey || legacy;
+  return testKey || legacy;
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: corsHeaders(request) });
+  return publicApiOptionsResponse(request, CORS_OPTS);
 }
 
 type MoyasarPaymentJson = {
@@ -37,13 +53,15 @@ type MoyasarPaymentJson = {
 };
 
 export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
   const headers = corsHeaders(request);
   const guard = runRegistrationRouteGuards(request, 'verify-moyasar-payment');
-  if (!guard.ok) {
+  if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
 
-  const secret = (process.env.MOYSAR_SECRET_API_KEY || '').trim();
+  const secret = resolveMoyasarSecretKey();
   if (!secret) {
     return Response.json(
       {

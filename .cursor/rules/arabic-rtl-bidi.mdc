@@ -1,0 +1,70 @@
+---
+description: Arabic + bidi text handling convention for halaqmap (RTL-first platform)
+globs: src/**/*.{tsx,ts,css,html},api/**/*.{ts,tsx},supabase/**/*.sql,index.html
+alwaysApply: true
+---
+
+# Arabic / Bidi Text Convention — halaqmap
+
+halaqmap is an Arabic-first product. `<html lang="ar" dir="rtl">` and the
+global rule `unicode-bidi: plaintext` (in `src/index.css`) handle most
+prose elements (`p`, `li`, `h1-h6`, `td`, `th`, `caption`, `blockquote`,
+`figcaption`, `summary`, `label`, `span`, `strong`, `em`, …) automatically.
+**You almost never need to set `dir` manually.**
+
+## When writing Arabic strings (code / policies / prompts / SQL seeds)
+
+1. **End-of-sentence punctuation only.** Put `:` `،` `.` `؟` at the END of
+   the Arabic sentence, never at the start of a translated/literal line.
+
+2. **Isolate English/Latin tokens.** When the string is rendered as plain
+   text inside an Arabic paragraph, prefer one of these forms:
+   - Wrap with backticks so the platform auto-isolates them as `<code>`:
+     `` `B2B` `` or `` `gpt-4o` ``.
+   - Or put the English term on its own line.
+
+   ```ts
+   // ❌ BAD — neutral chars between Arabic and English will mis-align
+   `النموذج B2B: مع إضافة (برونزي، ذهبي، ماسي)`
+
+   // ✅ GOOD — English term isolated as inline code
+   'النموذج `B2B`: مع إضافة (برونزي، ذهبي، ماسي)'
+   ```
+
+3. **Do not start an Arabic paragraph with a Latin numeral / Markdown
+   header marker / hyphen.** Start with a strong Arabic character so
+   `unicode-bidi: plaintext` picks RTL as the paragraph base direction.
+
+   ```md
+   ❌ ### فهم للمنصة
+   ✅ **فهم للمنصة**
+   ```
+
+## When rendering dynamic Arabic content
+
+- Most prose elements get bidi-plaintext for free via the `:where()` rule.
+- For generated text inside a `<div>` (e.g. chat bubbles, AI replies,
+  `whitespace-pre-wrap` containers), add `dir="rtl"` + the
+  `chat-arabic-text` class so the explicit RTL base direction is set:
+
+  ```tsx
+  <div dir="rtl" className="chat-arabic-text whitespace-pre-wrap …">
+    {content}
+  </div>
+  ```
+
+- For containers that intentionally must NOT bidi-auto (e.g. a tightly
+  designed marquee, RTL-locked carousel), opt out with
+  `data-bidi="off"` or `className="bidi-off"`.
+
+## When writing AI system prompts that respond in Arabic
+
+Include this clause verbatim near the top of the system prompt so the
+model cooperates with the bidi layer:
+
+> اكتب بالعربية الفصيحة الواضحة، اتجاه RTL، علامات الترقيم في نهاية
+> الجملة العربية فقط. ضع أي مصطلح إنجليزي بين علامتي \`backtick\` أو على
+> سطر مستقل، ولا تخلطه داخل جملة عربية متّصلة. لا تبدأ الفقرة العربية
+> برقم لاتيني أو علامة Markdown مثل `###`.
+
+Reference: `api/_lib/marketingCouncilLab.ts` (CONVERSATION_DOCTRINE).

@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- canonical و og:url مضبوطة على www — إن كان نطاقك بدون www أو استضافة أخرى، عدّلها لتطابق Search Console -->
-<html lang="ar">
+<html lang="ar" dir="rtl">
   <head>
+    <meta name="domain-verification" content="05f735e4039c7d290a5f41d188fdc7995352fb2a7f8a211015099614270dd06f" />
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -10,11 +11,15 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="theme-color" content="#0d9488" />
+    <meta name="apple-mobile-web-app-title" content="حلاق ماب" />
+    <!-- شريط عنوان المتصفح / PWA — فاتح وداكن (مسار الخدمات البرمجية للمنصة يضبط لوناً أغمق عند التحميل من React) -->
+    <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#061223" media="(prefers-color-scheme: dark)" />
+    <meta name="format-detection" content="telephone=no" />
     <title>حلاق ماب | HALAQ MAP</title>
     <meta
       name="description"
-      content="حلاق ماب — منصة عربية تربط الحلّاقين بالزبائن عبر خريطة وتصفية ذكية في السعودية. ننمو بخطى مدروسة: تكثيف شركاء الحلّاقين أولاً ثم توسيع وصول المستخدمين عند جاهزية السوق."
+      content="حلاق ماب: المنصة الأولى المدعومة بنظام الرصد الذكي. محرك بحث جغرافي فائق السرعة يرصد ويحدد أقرب صالونات الحلاقة بدقة متناهية."
     />
     <meta name="author" content="حلاق ماب" />
     <meta name="robots" content="index, follow" />
@@ -24,29 +29,54 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
     <link rel="alternate icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="mask-icon" href="/favicon.svg" color="#0d9488" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
+    <link rel="apple-touch-icon" href="/icons/icon-152.png" sizes="152x152" />
     <link rel="canonical" href="https://www.halaqmap.com/" />
 
-    <meta property="og:title" content="حلاق ماب | منصة ذكية لربط الحلّاقين بالعملاء" />
+    <!-- Open Graph (فيسبوك، واتساب، لينكدإن، …) — og:image يجب أن يكون رابط ملف صورة (PNG/JPG) وليس الصفحة الرئيسية -->
+    <meta property="og:title" content="حلاق ماب | نظام الرصد الذكي" />
     <meta
       property="og:description"
-      content="حلاق ماب — منصة عربية تربط الحلّاقين بالزبائن عبر خريطة وتصفية ذكية في السعودية. ننمو بخطى مدروسة: تكثيف شركاء الحلّاقين أولاً ثم توسيع وصول المستخدمين عند جاهزية السوق."
+      content="محرك بحث جغرافي فائق السرعة، يرصد ويحدد أقرب صالونات الحلاقة إليك بدقة متناهية وفي أجزاء من الثانية."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.halaqmap.com/" />
+    <meta property="og:url" content="https://halaqmap.com/" />
+    <meta
+      property="og:image"
+      content="https://www.halaqmap.com/images/halaqmap_logo_20260409_073322.png"
+    />
+    <meta property="og:image:alt" content="شعار حلاق ماب" />
     <meta property="og:site_name" content="حلاق ماب" />
     <meta property="og:locale" content="ar_SA" />
 
+    <!-- X (تويتر) -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="حلاق ماب | HALAQ MAP" />
     <meta
       name="twitter:description"
-      content="منصة عربية لربط العملاء بالحلّاقين عبر الخريطة — نمو منطقي يبدأ بتجهيز قاعدة الشركاء."
+      content="منصة عربية مدعومة بنظام الرصد الذكي لربط العملاء بالحلاقين مجاناً وبلا تسجيل."
+    />
+    <meta
+      name="twitter:image"
+      content="https://www.halaqmap.com/images/halaqmap_logo_20260409_073322.png"
     />
   </head>
 
   <body>
+    <!-- HashRouter: الروابط الصحيحة للتقييم هي /#/rate/…?t=… — إن فُتحت /rate/… بدون # نُعيد التوجيه قبل تحميل React -->
+    <script>
+      (function () {
+        try {
+          var path = window.location.pathname || '';
+          var hash = window.location.hash || '';
+          if (path.indexOf('/rate/') === 0 && hash.length <= 1) {
+            window.location.replace(window.location.origin + '/#' + path + (window.location.search || ''));
+          }
+        } catch (e) {}
+      })();
+    </script>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <!-- ?v= يقلّل احتمال كاش قديم أثناء التطوير؛ الإنتاج يُضاف لها query على /assets/* عبر vite.config.ts -->
+    <script type="module" src="/src/main.tsx?v=2"></script>
   </body>
 </html>

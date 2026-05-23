@@ -1,4 +1,4 @@
-import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
+﻿import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
 import { compareBarbersByListingScore } from '@/lib/barberListingRank';
 
 export const ROUTE_PATHS = {
@@ -8,21 +8,46 @@ export const ROUTE_PATHS = {
   PARTNER_WHY: '/partners/why',
   /** قصة المنصة ومنطق المسار */
   PARTNER_STORY: '/partners/story',
+  /** فيديوهات تعليم الاشتراك للشركاء */
+  PARTNER_TUTORIALS: '/partners/tutorials',
   REGISTER: '/partners/register',
   /** تسجيل اهتمام مسبق (بريد + موافقة) — ما قبل الإطلاق الرسمي */
   PARTNER_INTEREST: '/partners/interest',
   REGISTER_SUCCESS: '/partners/register/success',
   ABOUT: '/about',
+  /** سياسة خصوصية المستخدم (موجزة — الموقع الجغرافي وعدم المشاركة الخارجية) */
+  USER_PRIVACY_POLICY: '/privacy-policy',
+  /** شروط الاستخدام العامة للمنصّة */
+  TERMS_OF_SERVICE: '/terms',
+  /** سياسة خصوصية المستخدم — النسخة التفصيلية (PDPL والأقسام الكاملة) */
+  PRIVACY_DETAILED: '/privacy/detailed',
+  /** إبقاء المسار القديم؛ يُعاد توجيهه إلى PRIVACY_DETAILED في التوجيه */
   PRIVACY: '/privacy',
   PARTNER_PRIVACY: '/partners/privacy',
   SUBSCRIPTION_POLICY: '/partners/subscription-policy',
   BARBER_LOGIN: '/partners/login',
+  /** دخول سريع من بريد الترحيب: ?m=رمز موقّع (مرة واحدة) */
+  BARBER_PORTAL_ENTER: '/barber/enter',
   BARBER_DASHBOARD: '/barber/dashboard',
   /** طلب حذف الحساب (باقة برونزية — نموذج يُحال للإدارة) */
   BARBER_ACCOUNT_DELETE_REQUEST: '/barber/request-account-deletion',
   PAYMENT: '/partners/payment',
   /** دعم فني للشركاء — محادثة خاصة بجلسة ساعة (?t=رمز_فريد) */
   PARTNER_SUPPORT: '/partners/support',
+  /** تبديل «مفتوح/مغلق» للعملاء عبر نظام الرصد الذكي برابط سري (?t=رمز) — مفيد للبرونزي */
+  SHOP_OPEN_STATUS: '/partners/shop-open',
+  /**
+   * بطاقة QR لمسار الخدمات البرمجية للمنصة (طباعة/حملات) — للإدارة والتسويق فقط.
+   * لا تُضاف روابط لها في الرئيسية أو مسار الخدمات البرمجية للمنصة أو القوائم.
+   */
+  INTERNAL_PARTNER_PATH_PRINT_CARD: '/m/hm-partner-path-card-q7',
+  /** معاينة فواتير اشتراك (PDF) — داخلي، بدون ربط من القوائم */
+  INVOICE_PREVIEW_SAMPLES: '/m/invoice-preview-samples',
+  /**
+   * معاينة البنرات والواجهات — للعملاء التجاريين فقط.
+   * لا تُضاف روابط لها من الرئيسية أو مسار المستهلك.
+   */
+  PARTNERS_BANNERS_PREVIEW: '/partners/banners-preview',
   /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
   RATE_BARBER: '/rate/:barberId',
 } as const;
@@ -96,6 +121,11 @@ export interface Barber {
   isOpen: boolean;
   verified: boolean;
   categories: string[];
+  /**
+   * إدراج معاينة عبر نظام الرصد الذكي (مثلاً قبل اكتمال ربط حساب الصالون).
+   * يُعرض للفريق علامة سرّية `*` في الواجهة — لا تُستخدم كمصدر حقيقي للاشتراك.
+   */
+  previewListing?: boolean;
   /** سرّي لبناء رابط دعوة التقييم عبر QR — لا يُجلب في قوائم الخريطة العامة */
   ratingInviteToken?: string;
   /** بطاقة ببنر علوي (عرض تصميم للباقة البرونزية مثل الذهبي/الماسي) */
@@ -105,6 +135,10 @@ export interface Barber {
    * إذا وُضعت `false` تُخفى من البيانات؛ يمكن أيضاً الإخفاء من لوحة الحلاق (محلي في المتصفح للمعاينة).
    */
   diamondAppointmentSchedulingEnabled?: boolean;
+  /** من بحث RPC: اشتراك شهري نشط في subscriptions */
+  hasActiveSubscription?: boolean;
+  /** ISO — آخر تحديث لملف الصالون (لعامل النشاط في الترتيب) */
+  profileUpdatedAt?: string;
 }
 
 export interface Appointment {
@@ -173,18 +207,15 @@ export interface BarberStats {
   totalChats: number;
 }
 
-/** روابط ملفات مرفوعة إلى Storage بعد إتمام migration 17 وتهيئة الحاوية registration-uploads */
+/** روابط ملفات مرفوعة إلى Storage (صور المحل والبنر وإيصال التحويل فقط — بروتوكول الخصوصية: لا تخزين لوثائق حكومية). */
 export interface RegistrationAttachmentUrls {
-  commercialRegistry?: string;
-  municipalLicense?: string;
-  healthCertificates?: string[];
   shopExterior?: string;
   shopInterior?: string;
   banners?: string[];
   receipt?: string;
 }
 
-/** تتبّع مصدر استقطاب الحلاق (UTM / مرجع الحملة) لمسار الشركاء. */
+/** تتبّع مصدر استقطاب الحلاق (UTM / مرجع الحملة) لمسار الخدمات البرمجية للمنصة. */
 export interface PartnerAttribution {
   capturedAtIso: string;
   pagePath: string;
@@ -234,6 +265,10 @@ export interface SubscriptionRequest {
   receiptDataUrl?: string;
   /** روابط المرفقات على Supabase Storage عند الرفع الناجح */
   registrationAttachmentUrls?: RegistrationAttachmentUrls;
+  /** تعهد قانوني إلزامي: امتثال المنشأة لاشتراطات وزارة التجارة والبلدية وتحمّل المسؤولية وإخلاء مسؤولية المنصة */
+  legalDisclaimerAccepted?: boolean;
+  /** وقت الموافقة على التعهد ISO 8601 (UTC) */
+  legalDisclaimerAcceptedAtIso?: string;
   /** أسبوع كامل (سبعة أيام) كما أُرسل مع طلب التسجيل */
   weeklyWorkingHours?: { day: string; open: string; close: string }[];
   servicesSummary?: string;
@@ -244,6 +279,11 @@ export interface SubscriptionRequest {
   registrationTermsAccepted?: boolean;
   /** وقت الموافقة ISO 8601 (UTC) */
   registrationTermsAcceptedAtIso?: string;
+  /** التزام مهني إلزامي — ميثاق Honor Board B2B */
+  professionalCommitmentAccepted?: boolean;
+  professionalCommitmentAcceptedAtIso?: string;
+  /** إضافة برمجية متقدمة (Software Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
+  digitalShiftAddonSelected?: boolean;
 }
 
 export interface Payment {
@@ -318,6 +358,7 @@ export function filterBarbersByDistance(
       ),
     }))
     .filter((barber) => {
+      if (barber.hasActiveSubscription !== true) return false;
       const skipDistance = isDemoShowcaseBarberId(barber.id);
       if (!skipDistance && barber.distance > filters.maxDistance) return false;
       if (filters.tiers.length > 0 && !filters.tiers.includes(barber.subscription)) return false;
@@ -333,20 +374,8 @@ export function filterBarbersByDistance(
     })
     .sort((a, b) =>
       compareBarbersByListingScore(
-        {
-          id: a.id,
-          subscription: a.subscription as 'bronze' | 'gold' | 'diamond',
-          distance: a.distance,
-          rating: a.rating,
-          reviewCount: a.reviewCount,
-        },
-        {
-          id: b.id,
-          subscription: b.subscription as 'bronze' | 'gold' | 'diamond',
-          distance: b.distance,
-          rating: b.rating,
-          reviewCount: b.reviewCount,
-        }
+        { id: a.id, distance: a.distance, isOpen: a.isOpen },
+        { id: b.id, distance: b.distance, isOpen: b.isOpen }
       )
     );
 }

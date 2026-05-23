@@ -36,7 +36,7 @@
 
 ### افتح Supabase SQL Editor:
 ```
-https://supabase.com/dashboard/project/lqzuhkzfhdhaosstduas/sql
+https://supabase.com/dashboard/project/YOUR_PROJECT_REF/sql
 ```
 
 ### نفذ الملفات بالترتيب:
@@ -51,7 +51,7 @@ https://supabase.com/dashboard/project/lqzuhkzfhdhaosstduas/sql
 ### أو استخدم CLI:
 ```bash
 cd halaqmap
-supabase link --project-ref lqzuhkzfhdhaosstduas
+supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
 

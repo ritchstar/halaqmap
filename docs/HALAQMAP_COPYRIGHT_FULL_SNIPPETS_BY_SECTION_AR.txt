@@ -1,0 +1,3400 @@
+﻿================================================================================
+  حلاق ماب — أكواد كاملة لأغراض التوثيق (حقوق المؤلف)
+  تم توليد هذا الملف بدمج محتوى الملفات المصدرية دون تعديل (UTF-8).
+  تاريخ التوليد: 2026-05-11 21:02  |  جذر المشروع: c:\Users\hp\Downloads\halaqmap\halaqmap (8)
+================================================================================
+
+################################################################################
+#  القسم 1 — البحث والموقع (PostGIS RPC + API + عميل + ترتيب القائمة)
+################################################################################
+
+========================================================================================
+SQL — تعريف الدالة search_barbers_nearby والأعمدة المرتبطة
+الملف: supabase\migrations\46_barber_open_for_customers.sql
+========================================================================================
+
+-- حالة «مفتوح للعملاء» على الخريطة (منفصلة عن is_active الإداري) + رمز لمسار ويب خفيف
+
+ALTER TABLE public.barbers
+  ADD COLUMN IF NOT EXISTS open_for_customers boolean NOT NULL DEFAULT true;
+
+ALTER TABLE public.barbers
+  ADD COLUMN IF NOT EXISTS open_status_token text;
+
+CREATE UNIQUE INDEX IF NOT EXISTS barbers_open_status_token_uidx
+  ON public.barbers (open_status_token)
+  WHERE open_status_token IS NOT NULL;
+
+COMMENT ON COLUMN public.barbers.open_for_customers IS
+  'عند false يُعرض الصالون كـ «مغلق» للعملاء على الخريطة مع بقاء الحساب النشط (is_active).';
+COMMENT ON COLUMN public.barbers.open_status_token IS
+  'رمز سري لمسار ويب خفيف يغيّر open_for_customers دون لوحة تحكم (مفيد للبرونزي).';
+
+-- ضمان وجود أعمدة الرعاية الشاملة قبل تعريف الدالة (تنفيذ هذا الملف وحده دون 31/32)
+ALTER TABLE public.barbers
+  ADD COLUMN IF NOT EXISTS inclusive_care_offered boolean NOT NULL DEFAULT false;
+
+ALTER TABLE public.barbers
+  ADD COLUMN IF NOT EXISTS inclusive_care_price_sar numeric(10, 2);
+
+COMMENT ON COLUMN public.barbers.inclusive_care_offered IS
+  'الحلاق يعلن صراحة توفير تسهيلات/زيارة منزلية للفئات المذكورة في المنيو.';
+COMMENT ON COLUMN public.barbers.inclusive_care_price_sar IS
+  'سعر معروض بالريال عند تفعيل inclusive_care_offered.';
+
+ALTER TABLE public.barbers
+  ADD COLUMN IF NOT EXISTS inclusive_care_public_visible boolean NOT NULL DEFAULT true;
+
+ALTER TABLE public.barbers
+  ADD COLUMN IF NOT EXISTS inclusive_care_restrict_days boolean NOT NULL DEFAULT false;
+
+ALTER TABLE public.barbers
+  ADD COLUMN IF NOT EXISTS inclusive_care_days jsonb NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE public.barbers
+  ADD COLUMN IF NOT EXISTS inclusive_care_customer_note text;
+
+COMMENT ON COLUMN public.barbers.inclusive_care_public_visible IS
+  'عند false تُخفى بيانات الخدمة عن واجهة العملاء رغم بقاء الإعدادات للحلاق.';
+COMMENT ON COLUMN public.barbers.inclusive_care_restrict_days IS
+  'عند true يُفترض الاعتماد على inclusive_care_days لأيام التوفّر.';
+COMMENT ON COLUMN public.barbers.inclusive_care_days IS
+  'خريطة أيام (مفاتيح عربية مثل «السبت») → boolean.';
+COMMENT ON COLUMN public.barbers.inclusive_care_customer_note IS
+  'ملاحظة قصيرة للعميل (ظروف، حجز مسبق، نطاق زيارة منزلية، …).';
+
+UPDATE public.barbers
+SET open_status_token = replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')
+WHERE open_status_token IS NULL OR trim(open_status_token) = '';
+
+-- توسيع نتيجة البحث الجغرافي بإخراج open_for_customers (بدون إخراج الرمز)
+DROP FUNCTION IF EXISTS public.search_barbers_nearby(
+  double precision,
+  double precision,
+  double precision,
+  integer,
+  integer,
+  text[],
+  numeric
+);
+
+CREATE OR REPLACE FUNCTION public.search_barbers_nearby(
+  p_lat double precision,
+  p_lng double precision,
+  p_radius_km double precision DEFAULT 25,
+  p_limit integer DEFAULT 120,
+  p_offset integer DEFAULT 0,
+  p_tiers text[] DEFAULT NULL,
+  p_min_rating numeric DEFAULT 0
+)
+RETURNS TABLE (
+  id uuid,
+  name text,
+  phone text,
+  latitude double precision,
+  longitude double precision,
+  address text,
+  tier text,
+  rating numeric,
+  total_reviews integer,
+  profile_image text,
+  cover_image text,
+  is_active boolean,
+  is_verified boolean,
+  account_linked boolean,
+  open_for_customers boolean,
+  specialties text[],
+  inclusive_care_offered boolean,
+  inclusive_care_price_sar numeric,
+  inclusive_care_public_visible boolean,
+  inclusive_care_restrict_days boolean,
+  inclusive_care_days jsonb,
+  inclusive_care_customer_note text,
+  distance_km double precision,
+  rank_score double precision
+)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+WITH user_point AS (
+  SELECT ST_SetSRID(ST_MakePoint(p_lng, p_lat), 4326)::geography AS g
+),
+base AS (
+  SELECT
+    b.id,
+    b.name,
+    b.phone,
+    b.latitude,
+    b.longitude,
+    b.address,
+    b.tier,
+    b.rating,
+    b.total_reviews,
+    b.profile_image,
+    b.cover_image,
+    b.is_active,
+    b.is_verified,
+    b.user_id,
+    b.open_for_customers,
+    b.specialties,
+    b.inclusive_care_offered,
+    b.inclusive_care_price_sar,
+    b.inclusive_care_public_visible,
+    b.inclusive_care_restrict_days,
+    b.inclusive_care_days,
+    b.inclusive_care_customer_note,
+    ST_Distance(loc.g, u.g) / 1000.0 AS distance_km
+  FROM public.barbers b
+  CROSS JOIN user_point u
+  CROSS JOIN LATERAL (
+    SELECT COALESCE(
+      b.location,
+      CASE
+        WHEN b.latitude IS NOT NULL AND b.longitude IS NOT NULL
+          THEN ST_SetSRID(ST_MakePoint(b.longitude, b.latitude), 4326)::geography
+        ELSE NULL
+      END
+    ) AS g
+  ) loc
+  WHERE b.is_active = true
+    AND loc.g IS NOT NULL
+    AND ST_DWithin(loc.g, u.g, GREATEST(1, COALESCE(p_radius_km, 25)) * 1000)
+    AND (p_tiers IS NULL OR array_length(p_tiers, 1) IS NULL OR b.tier = ANY (p_tiers))
+    AND COALESCE(b.rating, 0) >= COALESCE(p_min_rating, 0)
+)
+SELECT
+  b.id,
+  b.name,
+  b.phone,
+  b.latitude,
+  b.longitude,
+  b.address,
+  b.tier,
+  b.rating,
+  b.total_reviews,
+  b.profile_image,
+  b.cover_image,
+  b.is_active,
+  b.is_verified,
+  (b.user_id IS NOT NULL) AS account_linked,
+  COALESCE(b.open_for_customers, true) AS open_for_customers,
+  b.specialties,
+  b.inclusive_care_offered,
+  b.inclusive_care_price_sar,
+  b.inclusive_care_public_visible,
+  b.inclusive_care_restrict_days,
+  b.inclusive_care_days,
+  b.inclusive_care_customer_note,
+  b.distance_km,
+  (
+    0.35 * CASE b.tier
+      WHEN 'diamond' THEN 1.0
+      WHEN 'gold' THEN 0.6666666667
+      ELSE 0.3333333333
+    END
+    +
+    0.35 * EXP(-b.distance_km / 10.0)
+    +
+    0.30 * (
+      (
+        (
+          (GREATEST(0, COALESCE(b.total_reviews, 0))::double precision) /
+          (GREATEST(0, COALESCE(b.total_reviews, 0))::double precision + 8.0)
+        )
+        * COALESCE(LEAST(5.0, GREATEST(1.0, b.rating::double precision)), 3.5)
+      )
+      +
+      (
+        8.0 /
+        (GREATEST(0, COALESCE(b.total_reviews, 0))::double precision + 8.0)
+      ) * 3.5
+      - 1.0
+    ) / 4.0
+  ) AS rank_score
+FROM base b
+ORDER BY rank_score DESC, b.distance_km ASC
+LIMIT LEAST(200, GREATEST(1, COALESCE(p_limit, 120)))
+OFFSET GREATEST(0, COALESCE(p_offset, 0));
+$$;
+
+REVOKE ALL ON FUNCTION public.search_barbers_nearby(
+  double precision,
+  double precision,
+  double precision,
+  integer,
+  integer,
+  text[],
+  numeric
+) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.search_barbers_nearby(
+  double precision,
+  double precision,
+  double precision,
+  integer,
+  integer,
+  text[],
+  numeric
+) TO anon, authenticated, service_role;
+
+========================================================================================
+TypeScript — نقطة API عامة للحلاقين والبحث القريب
+الملف: api\public-barbers.ts
+========================================================================================
+
+import { createClient } from '@supabase/supabase-js';
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+
+export const config = {
+  maxDuration: 30,
+};
+
+const DEFAULT_RADIUS_KM = 25;
+const MAX_RADIUS_KM = 100;
+const DEFAULT_LIMIT = 120;
+const MAX_LIMIT = 200;
+
+const CORS_OPTS = {
+  allowMethods: 'GET, OPTIONS',
+  allowHeaders: 'Content-Type, x-supabase-anon, x-client-supabase-url',
+} as const;
+
+function corsHeaders(request: Request): Record<string, string> {
+  return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
+}
+
+function isTruthyBoolean(raw: string | null): boolean {
+  if (!raw) return false;
+  return raw === '1' || raw.toLowerCase() === 'true';
+}
+
+function parseFinite(value: string | null): number | null {
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function clamp(num: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, num));
+}
+
+function sanitizePublicBarberRows(rows: unknown): unknown[] {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((raw) => {
+      if (!raw || typeof raw !== 'object') return null;
+      const row = { ...(raw as Record<string, unknown>) };
+      const uid = row.user_id;
+      const uidStr = typeof uid === 'string' ? uid.trim() : '';
+      if (typeof row.account_linked !== 'boolean') {
+        row.account_linked = Boolean(uidStr);
+      }
+      delete row.user_id;
+      return row;
+    })
+    .filter(Boolean);
+}
+
+export async function OPTIONS(request: Request): Promise<Response> {
+  return publicApiOptionsResponse(request, CORS_OPTS);
+}
+
+/**
+ * /api/public-barbers
+ * - الوضع العادي: يرجع الحلاقين النشطين ذوي الإحداثيات.
+ * - وضع التشخيص: /api/public-barbers?health=1
+ */
+export async function GET(request: Request): Promise<Response> {
+  const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
+  if (blocked) return blocked;
+  const headers = corsHeaders(request);
+  const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
+  const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+  const expectedAnon = (
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    ''
+  ).trim();
+
+  const requestUrl = new URL(request.url);
+  const isHealth = isTruthyBoolean(requestUrl.searchParams.get('health'));
+  const lat = parseFinite(requestUrl.searchParams.get('lat'));
+  const lng = parseFinite(requestUrl.searchParams.get('lng'));
+  const radiusKm = clamp(
+    parseFinite(requestUrl.searchParams.get('radius_km')) ?? DEFAULT_RADIUS_KM,
+    1,
+    MAX_RADIUS_KM
+  );
+  const limit = clamp(
+    Math.floor(parseFinite(requestUrl.searchParams.get('limit')) ?? DEFAULT_LIMIT),
+    1,
+    MAX_LIMIT
+  );
+  const offset = Math.max(0, Math.floor(parseFinite(requestUrl.searchParams.get('offset')) ?? 0));
+  const minRating = clamp(parseFinite(requestUrl.searchParams.get('min_rating')) ?? 0, 0, 5);
+  const tiersRaw = (requestUrl.searchParams.get('tiers') || '')
+    .split(',')
+    .map((x) => x.trim().toLowerCase())
+    .filter((x) => x === 'bronze' || x === 'gold' || x === 'diamond');
+  const tiers = tiersRaw.length > 0 ? tiersRaw : null;
+
+  if (isHealth) {
+    return Response.json(
+      {
+        ok: true,
+        route: 'public-barbers',
+        supabaseUrlSet: Boolean(url),
+        serviceRoleKeySet: Boolean(serviceRole),
+        anonKeySetForVerification: Boolean(expectedAnon),
+        ready: Boolean(url && serviceRole && expectedAnon),
+        publicApiGuard: registrationGuardDiagnostics(),
+      },
+      { headers }
+    );
+  }
+
+  const guard = runRegistrationRouteGuards(request, 'public-barbers-get');
+  if (guard.ok === false) {
+    return Response.json(guard.json, { status: guard.status, headers });
+  }
+
+  if (!url || !serviceRole) {
+    return Response.json(
+      { error: 'Server not configured (SUPABASE_SERVICE_ROLE_KEY / URL)' },
+      { status: 503, headers }
+    );
+  }
+
+  if (!expectedAnon) {
+    return Response.json(
+      {
+        error: 'Server not configured (anon key required)',
+        hint: 'Set SUPABASE_ANON_KEY or VITE_SUPABASE_ANON_KEY on Vercel to match the browser x-supabase-anon header.',
+      },
+      { status: 503, headers }
+    );
+  }
+
+  const providedAnon = request.headers.get('x-supabase-anon')?.trim() || '';
+  if (providedAnon !== expectedAnon) {
+    return Response.json(
+      {
+        error: 'Unauthorized',
+        hint:
+          'Set SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY) on Vercel to match browser anon key.',
+      },
+      { status: 401, headers }
+    );
+  }
+
+  const supabase = createClient(url, serviceRole, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  // المسار السريع/الدقيق: بحث قريب مرتب على الخادم (PostGIS + score هجين)
+  if (lat !== null && lng !== null) {
+    const { data, error } = await supabase.rpc('search_barbers_nearby', {
+      p_lat: lat,
+      p_lng: lng,
+      p_radius_km: radiusKm,
+      p_limit: limit,
+      p_offset: offset,
+      p_tiers: tiers,
+      p_min_rating: minRating,
+    });
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500, headers });
+    }
+    return Response.json({ ok: true, mode: 'nearby_rpc', rows: sanitizePublicBarberRows(data ?? []) }, { headers });
+  }
+
+  // fallback عام عند عدم توفر إحداثيات مستخدم
+  const { data, error } = await supabase
+    .from('barbers')
+    .select(
+      `
+      id,
+      name,
+      phone,
+      latitude,
+      longitude,
+      address,
+      tier,
+      rating,
+      total_reviews,
+      profile_image,
+      cover_image,
+      is_active,
+      is_verified,
+      specialties,
+      inclusive_care_offered,
+      inclusive_care_price_sar,
+      inclusive_care_public_visible,
+      inclusive_care_restrict_days,
+      inclusive_care_days,
+      inclusive_care_customer_note,
+      open_for_customers,
+      user_id
+      `
+    )
+    .eq('is_active', true)
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null)
+    .order('updated_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500, headers });
+  }
+
+  return Response.json(
+    { ok: true, mode: 'fallback_recent', rows: sanitizePublicBarberRows(data ?? []) },
+    { headers }
+  );
+}
+
+========================================================================================
+TypeScript — جلب الحلاقين من Supabase أو عبر السيرفر
+الملف: src\lib\publicBarbersFromSupabase.ts
+========================================================================================
+
+import { IMAGES } from '@/assets/images';
+import { getSupabaseClient } from '@/integrations/supabase/client';
+import type { Barber, InclusiveAccessibleCareOffer } from '@/lib/index';
+import { SubscriptionTier } from '@/lib/index';
+import { sanitizeInclusiveCareDays } from '@/lib/barberInclusiveCareRemote';
+
+const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
+const PUBLIC_BARBERS_API = '/api/public-barbers';
+const DEFAULT_RADIUS_KM = 25;
+const DEFAULT_LIMIT = 120;
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const DEFAULT_WORKING_HOURS: Barber['workingHours'] = [
+  { day: 'السبت', open: '09:00', close: '22:00' },
+  { day: 'الأحد', open: '09:00', close: '22:00' },
+  { day: 'الاثنين', open: '09:00', close: '22:00' },
+  { day: 'الثلاثاء', open: '09:00', close: '22:00' },
+  { day: 'الأربعاء', open: '09:00', close: '22:00' },
+  { day: 'الخميس', open: '09:00', close: '22:00' },
+  { day: 'الجمعة', open: '14:00', close: '22:00' },
+];
+
+function tierFromDb(t: string | null): SubscriptionTier {
+  if (t === SubscriptionTier.GOLD) return SubscriptionTier.GOLD;
+  if (t === SubscriptionTier.DIAMOND) return SubscriptionTier.DIAMOND;
+  return SubscriptionTier.BRONZE;
+}
+
+type BarberRow = {
+  id: string;
+  name: string;
+  phone: string;
+  latitude: number | null;
+  longitude: number | null;
+  address: string;
+  tier: string | null;
+  rating: number | null;
+  total_reviews: number | null;
+  profile_image: string | null;
+  cover_image: string | null;
+  is_active: boolean | null;
+  is_verified: boolean | null;
+  specialties: string[] | null;
+  inclusive_care_offered?: boolean | null;
+  inclusive_care_price_sar?: number | string | null;
+  inclusive_care_public_visible?: boolean | null;
+  inclusive_care_restrict_days?: boolean | null;
+  inclusive_care_days?: unknown;
+  inclusive_care_customer_note?: string | null;
+  /** يُجلب للاشتقاق فقط — لا يُمرَّر إلى كائن العرض `Barber`. */
+  user_id?: string | null;
+  /** عند توفرها من RPC البحث الجغرافي (بدون إرجاع user_id للعميل). */
+  account_linked?: boolean | null;
+  open_for_customers?: boolean | null;
+  distance_km?: number | null;
+  rank_score?: number | null;
+};
+
+function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer | undefined {
+  if (row.inclusive_care_offered !== true) return undefined;
+  if (row.inclusive_care_public_visible === false) return undefined;
+  const raw = row.inclusive_care_price_sar;
+  const p = raw != null && raw !== '' ? Number(raw) : NaN;
+  const base: InclusiveAccessibleCareOffer = {
+    offered: true,
+    publicVisible: true,
+    restrictToDays: row.inclusive_care_restrict_days === true,
+  };
+  if (Number.isFinite(p) && p > 0) {
+    base.displayedPriceSar = Math.round(p * 100) / 100;
+  }
+  const note = row.inclusive_care_customer_note?.trim();
+  if (note) base.customerNote = note;
+  if (base.restrictToDays && row.inclusive_care_days && typeof row.inclusive_care_days === 'object') {
+    base.activeDayFlags = sanitizeInclusiveCareDays(row.inclusive_care_days as Record<string, boolean>);
+  }
+  return base;
+}
+
+export type NearbySearchInput = {
+  userLocation: { lat: number; lng: number };
+  radiusKm?: number;
+  limit?: number;
+  minRating?: number;
+  tiers?: SubscriptionTier[];
+  offset?: number;
+};
+
+function getPublicBarbersEndpoint(): string {
+  return String(import.meta.env.VITE_PUBLIC_BARBERS_URL || PUBLIC_BARBERS_API).trim();
+}
+
+function mapRow(row: BarberRow): Barber {
+  const lat = row.latitude ?? 0;
+  const lng = row.longitude ?? 0;
+  const imgs = [row.cover_image, row.profile_image].filter((u): u is string => Boolean(u && u.trim()));
+  const images = imgs.length > 0 ? imgs : [FALLBACK_IMAGE];
+  const phone = row.phone?.trim() || '';
+  const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];
+  const uid = row.user_id?.trim() || '';
+  const previewListing =
+    row.account_linked === false || (row.account_linked == null && (!uid || !UUID_RE.test(uid)));
+
+  return {
+    id: row.id,
+    name: row.name,
+    phone,
+    whatsapp: phone,
+    location: {
+      lat,
+      lng,
+      address: row.address?.trim() || '',
+    },
+    subscription: tierFromDb(row.tier),
+    rating: Number(row.rating) || 0,
+    reviewCount: Math.max(0, Math.floor(Number(row.total_reviews) || 0)),
+    images,
+    inclusiveAccessibleCare: mapInclusiveCareFromRow(row),
+    services: [{ name: 'للاستفسار والأسعار — تواصل مباشرة', price: 0 }],
+    workingHours: DEFAULT_WORKING_HOURS,
+    isOpen: row.is_active !== false && row.open_for_customers !== false,
+    verified: row.is_verified === true,
+    categories,
+    ...(previewListing ? { previewListing: true } : {}),
+  };
+}
+
+function normalizedNearbyInput(input: NearbySearchInput): Required<Omit<NearbySearchInput, 'tiers'>> & {
+  tiers?: SubscriptionTier[];
+} {
+  return {
+    userLocation: input.userLocation,
+    radiusKm: Math.min(100, Math.max(1, Number(input.radiusKm) || DEFAULT_RADIUS_KM)),
+    limit: Math.min(200, Math.max(1, Math.floor(Number(input.limit) || DEFAULT_LIMIT))),
+    minRating: Math.min(5, Math.max(0, Number(input.minRating) || 0)),
+    offset: Math.max(0, Math.floor(Number(input.offset) || 0)),
+    tiers: input.tiers?.length ? input.tiers : undefined,
+  };
+}
+
+/**
+ * جلب الحلاقين النشطين ذوي الإحداثيات لعرضهم على الخريطة/القائمة.
+ * يتطلب سياسة RLS تسمح بقراءة جدول `barbers` للعامة (أو للمستخدم الحالي).
+ */
+export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
+  const client = getSupabaseClient();
+  if (!client) {
+    return fetchPublicBarbersViaServer();
+  }
+
+  const { data, error } = await client
+    .from('barbers')
+    .select(
+      `
+      id,
+      name,
+      phone,
+      latitude,
+      longitude,
+      address,
+      tier,
+      rating,
+      total_reviews,
+      profile_image,
+      cover_image,
+      is_active,
+      is_verified,
+      specialties,
+      inclusive_care_offered,
+      inclusive_care_price_sar,
+      inclusive_care_public_visible,
+      inclusive_care_restrict_days,
+      inclusive_care_days,
+      inclusive_care_customer_note,
+      open_for_customers,
+      user_id
+    `
+    )
+    .eq('is_active', true)
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null);
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.warn('[fetchPublicBarbersFromSupabase] direct failed, trying /api/public-barbers', error.message);
+    }
+    return fetchPublicBarbersViaServer();
+  }
+
+  const rows = (data ?? []) as BarberRow[];
+  return rows.map(mapRow);
+}
+
+/**
+ * بحث قريب قابل للتوسع:
+ * - يفضّل RPC داخل Supabase (PostGIS + ترتيب هجين)
+ * - fallback إلى API السيرفر إذا فشلت صلاحيات/RLS في المتصفح
+ */
+export async function fetchNearbyPublicBarbersFromSupabase(
+  input: NearbySearchInput
+): Promise<Barber[]> {
+  const args = normalizedNearbyInput(input);
+  const client = getSupabaseClient();
+
+  if (client) {
+    const { data, error } = await client.rpc('search_barbers_nearby', {
+      p_lat: args.userLocation.lat,
+      p_lng: args.userLocation.lng,
+      p_radius_km: args.radiusKm,
+      p_limit: args.limit,
+      p_offset: args.offset,
+      p_tiers: args.tiers ?? null,
+      p_min_rating: args.minRating,
+    });
+
+    if (!error) {
+      const rows = (data ?? []) as BarberRow[];
+      return rows.map(mapRow);
+    }
+
+    if (import.meta.env.DEV) {
+      console.warn('[fetchNearbyPublicBarbersFromSupabase] rpc failed, trying /api/public-barbers', error.message);
+    }
+  }
+
+  return fetchPublicBarbersViaServer(args);
+}
+
+async function fetchPublicBarbersViaServer(input?: NearbySearchInput): Promise<Barber[]> {
+  const endpoint = getPublicBarbersEndpoint();
+  if (!endpoint) return [];
+
+  const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+  const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
+  const headers: Record<string, string> = {};
+  if (anonKey) headers['x-supabase-anon'] = anonKey;
+  if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+  const url = new URL(endpoint, window.location.origin);
+  if (input) {
+    const args = normalizedNearbyInput(input);
+    url.searchParams.set('lat', String(args.userLocation.lat));
+    url.searchParams.set('lng', String(args.userLocation.lng));
+    url.searchParams.set('radius_km', String(args.radiusKm));
+    url.searchParams.set('limit', String(args.limit));
+    url.searchParams.set('offset', String(args.offset));
+    url.searchParams.set('min_rating', String(args.minRating));
+    if (args.tiers && args.tiers.length > 0) {
+      url.searchParams.set('tiers', args.tiers.join(','));
+    }
+  }
+
+  const response = await fetch(url.toString(), { headers });
+  const payload = (await response.json().catch(() => ({}))) as {
+    rows?: unknown;
+    error?: string;
+  };
+  if (!response.ok) {
+    throw new Error(payload.error || `HTTP ${response.status}`);
+  }
+
+  const rows = Array.isArray(payload.rows) ? (payload.rows as BarberRow[]) : [];
+  return rows.map(mapRow);
+}
+
+========================================================================================
+TypeScript — درجة العرض الهرمية (باقة/مسافة/تقييم بايزي)
+الملف: src\lib\barberListingRank.ts
+========================================================================================
+
+import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
+
+/** أوزان موزونة = 1 — باقة / قرب / جودة تقييم (مع تصحيح بايزي لعيّنة المراجعات) */
+export const LISTING_WEIGHT_TIER = 0.35;
+export const LISTING_WEIGHT_DISTANCE = 0.35;
+export const LISTING_WEIGHT_RATING = 0.3;
+
+const PRIOR_RATING = 3.5;
+const PRIOR_REVIEW_WEIGHT = 8;
+const DISTANCE_DECAY_KM = 10;
+
+type TierToken = 'bronze' | 'gold' | 'diamond';
+
+function tierNormalized(tier: TierToken): number {
+  switch (tier) {
+    case 'diamond':
+      return 1;
+    case 'gold':
+      return 2 / 3;
+    case 'bronze':
+    default:
+      return 1 / 3;
+  }
+}
+
+/**
+ * متوسط بايزي على مقياس 1–5 ثم تحويل إلى [0،1].
+ * يقلّل من تضليل «5 نجوم» بمراجعة واحدة مقارنة بتقييم أقل بعدد أكبر.
+ */
+export function bayesianRating01(rawRating: number, reviewCount: number): number {
+  const v = Math.max(0, Math.floor(reviewCount));
+  const m = PRIOR_REVIEW_WEIGHT;
+  const R = v > 0 ? Math.min(5, Math.max(1, Number(rawRating) || PRIOR_RATING)) : PRIOR_RATING;
+  const bayes = (v / (v + m)) * R + (m / (v + m)) * PRIOR_RATING;
+  return (bayes - 1) / 4;
+}
+
+/** قرب: 1 عند 0 كم، يضعف ببعد المستخدم؛ عيّنات العرض التجريبي تُعامل كأفضل قرب للعرض. */
+export function distanceComponent01(distanceKm: number, barberId: string): number {
+  if (isDemoShowcaseBarberId(barberId)) return 1;
+  const d = Math.max(0, distanceKm);
+  return Math.exp(-d / DISTANCE_DECAY_KM);
+}
+
+export function listingCompositeScore(barber: {
+  id: string;
+  subscription: TierToken;
+  rating: number;
+  reviewCount: number;
+  distance: number;
+}): number {
+  const t = tierNormalized(barber.subscription);
+  const d = distanceComponent01(barber.distance, barber.id);
+  const r = bayesianRating01(barber.rating, barber.reviewCount);
+  return LISTING_WEIGHT_TIER * t + LISTING_WEIGHT_DISTANCE * d + LISTING_WEIGHT_RATING * r;
+}
+
+/** للترتيب: أعلى درجة أولاً، ثم أقرب، ثم باقة أعلى. */
+export function compareBarbersByListingScore(
+  a: { id: string; subscription: TierToken; distance: number; rating: number; reviewCount: number },
+  b: { id: string; subscription: TierToken; distance: number; rating: number; reviewCount: number }
+): number {
+  const sa = listingCompositeScore(a);
+  const sb = listingCompositeScore(b);
+  if (Math.abs(sa - sb) > 1e-9) return sb - sa;
+  if (a.distance !== b.distance) return a.distance - b.distance;
+  return tierNormalized(b.subscription) - tierNormalized(a.subscription);
+}
+
+========================================================================================
+TypeScript — مسارات، أنواع Barber، calculateDistance، filterBarbersByDistance
+الملف: src\lib\index.ts
+========================================================================================
+
+import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
+import { compareBarbersByListingScore } from '@/lib/barberListingRank';
+
+export const ROUTE_PATHS = {
+  HOME: '/',
+  BARBERS_LANDING: '/partners',
+  /** إقناع عميق: لماذا حلاق ماب وليس مجرد «حجز» */
+  PARTNER_WHY: '/partners/why',
+  /** قصة المنصة ومنطق المسار */
+  PARTNER_STORY: '/partners/story',
+  /** فيديوهات تعليم الاشتراك للشركاء */
+  PARTNER_TUTORIALS: '/partners/tutorials',
+  REGISTER: '/partners/register',
+  /** تسجيل اهتمام مسبق (بريد + موافقة) — ما قبل الإطلاق الرسمي */
+  PARTNER_INTEREST: '/partners/interest',
+  REGISTER_SUCCESS: '/partners/register/success',
+  ABOUT: '/about',
+  PRIVACY: '/privacy',
+  PARTNER_PRIVACY: '/partners/privacy',
+  SUBSCRIPTION_POLICY: '/partners/subscription-policy',
+  BARBER_LOGIN: '/partners/login',
+  /** دخول سريع من بريد الترحيب: ?m=رمز موقّع (مرة واحدة) */
+  BARBER_PORTAL_ENTER: '/barber/enter',
+  BARBER_DASHBOARD: '/barber/dashboard',
+  /** طلب حذف الحساب (باقة برونزية — نموذج يُحال للإدارة) */
+  BARBER_ACCOUNT_DELETE_REQUEST: '/barber/request-account-deletion',
+  PAYMENT: '/partners/payment',
+  /** دعم فني للشركاء — محادثة خاصة بجلسة ساعة (?t=رمز_فريد) */
+  PARTNER_SUPPORT: '/partners/support',
+  /** تبديل «مفتوح/مغلق» للعملاء على الخريطة برابط سري (?t=رمز) — مفيد للبرونزي */
+  SHOP_OPEN_STATUS: '/partners/shop-open',
+  /**
+   * بطاقة QR لمسار الشركاء (طباعة/حملات) — للإدارة والتسويق فقط.
+   * لا تُضاف روابط لها في الرئيسية أو مسار الشركاء أو القوائم.
+   */
+  INTERNAL_PARTNER_PATH_PRINT_CARD: '/m/hm-partner-path-card-q7',
+  /** معاينة فواتير اشتراك (PDF) — داخلي، بدون ربط من القوائم */
+  INVOICE_PREVIEW_SAMPLES: '/m/invoice-preview-samples',
+  /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
+  RATE_BARBER: '/rate/:barberId',
+} as const;
+
+/** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */
+export const LEGACY_PARTNER_ROUTE_PATHS = {
+  BARBERS_LANDING: '/for-barbers',
+  REGISTER: '/register',
+  REGISTER_SUCCESS: '/register/success',
+  SUBSCRIPTION_POLICY: '/subscription-policy',
+  BARBER_LOGIN: '/barber/login',
+  PAYMENT: '/payment',
+} as const;
+
+export enum SubscriptionTier {
+  BRONZE = 'bronze',
+  GOLD = 'gold',
+  DIAMOND = 'diamond',
+}
+
+export interface Subscription {
+  tier: SubscriptionTier;
+  price: number;
+  features: string[];
+  priority: number;
+}
+
+/**
+ * تسهيلات داخل المحل و/أو زيارة منزلية لكبار السن والمرضى وذوي الاحتياجات الخاصة بحسب ظروف العميل.
+ * إذا لم يُفعّل الحلاق الخيار لا يُعرَض التزام على المنصة.
+ */
+export interface InclusiveAccessibleCareOffer {
+  offered: boolean;
+  /** مطلوب عند offered === true (سعر معروض بالريال) */
+  displayedPriceSar?: number;
+  /** للذهبي/الماسي: إخفاء الخدمة عن العملاء دون حذف الإعدادات */
+  publicVisible?: boolean;
+  /** تقييد الإعلان بأيام محددة (انظر activeDayFlags) */
+  restrictToDays?: boolean;
+  /** أيام نشطة عند restrictToDays — مفاتيح بأسماء الأيام العربية (السبت …) */
+  activeDayFlags?: Record<string, boolean>;
+  /** ملاحظة للعميل (ظروف، حجز مسبق، نطاق زيارة منزلية، …) */
+  customerNote?: string;
+}
+
+export interface Barber {
+  id: string;
+  name: string;
+  phone: string;
+  whatsapp: string;
+  location: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
+  subscription: SubscriptionTier;
+  rating: number;
+  reviewCount: number;
+  images: string[];
+  /** إن وُجدت: يعلن الحلاق عن خدمة موحّدة للفئات الحسّاسة بسعر معروض */
+  inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
+  services: {
+    name: string;
+    price: number;
+  }[];
+  workingHours: {
+    day: string;
+    open: string;
+    close: string;
+  }[];
+  isOpen: boolean;
+  verified: boolean;
+  categories: string[];
+  /**
+   * إدراج معاينة على الخريطة (مثلاً قبل اكتمال ربط حساب الصالون).
+   * يُعرض للفريق علامة سرّية `*` في الواجهة — لا تُستخدم كمصدر حقيقي للاشتراك.
+   */
+  previewListing?: boolean;
+  /** سرّي لبناء رابط دعوة التقييم عبر QR — لا يُجلب في قوائم الخريطة العامة */
+  ratingInviteToken?: string;
+  /** بطاقة ببنر علوي (عرض تصميم للباقة البرونزية مثل الذهبي/الماسي) */
+  showcaseTopBanner?: boolean;
+  /**
+   * باقة ماسية فقط: إظهار كتلة جدولة المواعيد للعملاء على البطاقة والتفاصيل.
+   * إذا وُضعت `false` تُخفى من البيانات؛ يمكن أيضاً الإخفاء من لوحة الحلاق (محلي في المتصفح للمعاينة).
+   */
+  diamondAppointmentSchedulingEnabled?: boolean;
+}
+
+export interface Appointment {
+  id: string;
+  barberId: string;
+  customerName: string;
+  customerPhone: string;
+  date: string;
+  time: string;
+  service: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  qrCode?: string;
+}
+
+export interface Review {
+  id: string;
+  barberId: string;
+  customerName: string;
+  rating: number;
+  comment: string;
+  date: string;
+  verified: boolean;
+  /** سجّل عبر رابط دعوة QR */
+  viaQrInvite?: boolean;
+  /** false = مخفي عن الملف العام (يتحكم الحلاق) */
+  isPublished?: boolean;
+  /** يُعرَض في أعلى القائمة عند التفعيل */
+  isHighlighted?: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  barberId: string;
+  customerId: string;
+  sender: 'customer' | 'barber';
+  message: string;
+  messageType: 'text' | 'image' | 'audio';
+  mediaUrl?: string;
+  timestamp: string;
+  read: boolean;
+  translated?: string;
+}
+
+export interface Post {
+  id: string;
+  barberId: string;
+  title: string;
+  content: string;
+  images: string[];
+  type: 'offer' | 'announcement' | 'gallery';
+  discount?: number;
+  validUntil?: string;
+  createdAt: string;
+  likes: number;
+  views: number;
+}
+
+export interface BarberStats {
+  totalAppointments: number;
+  completedAppointments: number;
+  cancelledAppointments: number;
+  totalRevenue: number;
+  averageRating: number;
+  totalReviews: number;
+  totalViews: number;
+  totalChats: number;
+}
+
+/** روابط ملفات مرفوعة إلى Storage (صور المحل والبنر وإيصال التحويل فقط — بروتوكول الخصوصية: لا تخزين لوثائق حكومية). */
+export interface RegistrationAttachmentUrls {
+  shopExterior?: string;
+  shopInterior?: string;
+  banners?: string[];
+  receipt?: string;
+}
+
+/** تتبّع مصدر استقطاب الحلاق (UTM / مرجع الحملة) لمسار الشركاء. */
+export interface PartnerAttribution {
+  capturedAtIso: string;
+  pagePath: string;
+  referrer?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
+  gclid?: string;
+  fbclid?: string;
+  ttclid?: string;
+  msclkid?: string;
+}
+
+export interface SubscriptionRequest {
+  id: string;
+  barberName: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  location: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
+  tier: SubscriptionTier;
+  documents: string[];
+  shopImages: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
+  /** حالة الحساب بعد قرار الإدارة (مستقلة عن حالة الطلب الأساسية) */
+  adminAccountState?: 'active' | 'suspended' | 'deleted';
+  suspensionReason?: string;
+  linkedBarberId?: string;
+  /** رقم عضوية ثابت على المنصة (يُخزَّن بعد الموافقة — للدعم والأرشفة) */
+  barberMemberNumber?: number;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  /** طلبات نموذج التسجيل */
+  source?: 'registration';
+  partnerAttribution?: PartnerAttribution;
+  paymentMethod?: 'monthly' | 'bank_transfer';
+  receiptFileName?: string;
+  /** معاينة إيصال (صورة صغيرة أو PDF كـ data URL — قد يُحذف لاحقاً لتوفير المساحة) */
+  receiptDataUrl?: string;
+  /** روابط المرفقات على Supabase Storage عند الرفع الناجح */
+  registrationAttachmentUrls?: RegistrationAttachmentUrls;
+  /** تعهد قانوني إلزامي: امتثال المنشأة لاشتراطات وزارة التجارة والبلدية وتحمّل المسؤولية وإخلاء مسؤولية المنصة */
+  legalDisclaimerAccepted?: boolean;
+  /** وقت الموافقة على التعهد ISO 8601 (UTC) */
+  legalDisclaimerAcceptedAtIso?: string;
+  /** أسبوع كامل (سبعة أيام) كما أُرسل مع طلب التسجيل */
+  weeklyWorkingHours?: { day: string; open: string; close: string }[];
+  servicesSummary?: string;
+  /** تسهيلات بالمحل و/أو زيارة منزلية للفئات الحسّاسة — اختياري؛ عند التفعيل يلزم سعر معروض */
+  inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
+  categories?: string[];
+  /** موافقة صريحة على شروط التسجيل وسياسة الشركاء (إلزامية عند الإرسال) */
+  registrationTermsAccepted?: boolean;
+  /** وقت الموافقة ISO 8601 (UTC) */
+  registrationTermsAcceptedAtIso?: string;
+}
+
+export interface Payment {
+  id: string;
+  barberId: string;
+  barberName: string;
+  amount: number;
+  tier: SubscriptionTier;
+  method: 'bank_transfer' | 'card';
+  receipt?: string;
+  status: 'pending' | 'confirmed' | 'rejected';
+  period: string;
+  submittedAt: string;
+  confirmedAt?: string;
+}
+
+export interface AdminStats {
+  totalBarbers: number;
+  bronzeBarbers: number;
+  goldBarbers: number;
+  diamondBarbers: number;
+  totalRevenue: number;
+  monthlyRevenue: number;
+  activeSubscriptions: number;
+  expiredSubscriptions: number;
+  pendingRequests: number;
+  pendingPayments: number;
+  totalAppointments: number;
+  totalUsers: number;
+}
+
+export function calculateDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+export interface FilterState {
+  maxDistance: number;
+  tiers: SubscriptionTier[];
+  openNow: boolean;
+  minRating: number;
+  categories: string[];
+}
+
+export function filterBarbersByDistance(
+  barbers: Barber[],
+  userLocation: { lat: number; lng: number },
+  filters: FilterState
+): (Barber & { distance: number })[] {
+  return barbers
+    .map((barber) => ({
+      ...barber,
+      distance: calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        barber.location.lat,
+        barber.location.lng
+      ),
+    }))
+    .filter((barber) => {
+      const skipDistance = isDemoShowcaseBarberId(barber.id);
+      if (!skipDistance && barber.distance > filters.maxDistance) return false;
+      if (filters.tiers.length > 0 && !filters.tiers.includes(barber.subscription)) return false;
+      if (filters.openNow && !barber.isOpen) return false;
+      if (barber.rating < filters.minRating) return false;
+      if (filters.categories.length > 0) {
+        const hasCategory = filters.categories.some((cat) =>
+          barber.categories.includes(cat)
+        );
+        if (!hasCategory) return false;
+      }
+      return true;
+    })
+    .sort((a, b) =>
+      compareBarbersByListingScore(
+        {
+          id: a.id,
+          subscription: a.subscription as 'bronze' | 'gold' | 'diamond',
+          distance: a.distance,
+          rating: a.rating,
+          reviewCount: a.reviewCount,
+        },
+        {
+          id: b.id,
+          subscription: b.subscription as 'bronze' | 'gold' | 'diamond',
+          distance: b.distance,
+          rating: b.rating,
+          reviewCount: b.reviewCount,
+        }
+      )
+    );
+}
+
+################################################################################
+#  القسم 2 — الاشتراكات (قاعدة البيانات + Webhook ميسر)
+################################################################################
+
+========================================================================================
+SQL — جدول subscriptions والـ trigger
+الملف: supabase\migrations\05_create_subscriptions_table.sql
+========================================================================================
+
+-- =====================================================
+-- جدول الاشتراكات
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS public.subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  barber_id UUID REFERENCES public.barbers(id) ON DELETE CASCADE NOT NULL,
+  tier TEXT CHECK (tier IN ('bronze', 'gold', 'diamond')) NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  status TEXT CHECK (status IN ('active', 'expired', 'cancelled', 'pending')) DEFAULT 'pending',
+  auto_renew BOOLEAN DEFAULT false,
+  price DECIMAL(10, 2) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS subscriptions_barber_id_idx ON public.subscriptions(barber_id);
+CREATE INDEX IF NOT EXISTS subscriptions_status_idx ON public.subscriptions(status);
+CREATE INDEX IF NOT EXISTS subscriptions_end_date_idx ON public.subscriptions(end_date);
+
+-- تفعيل RLS
+ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- السياسات
+CREATE POLICY "Barbers can view their own subscriptions"
+  ON public.subscriptions FOR SELECT
+  USING (
+    barber_id IN (
+      SELECT id FROM public.barbers WHERE user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Admins can manage all subscriptions"
+  ON public.subscriptions FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id = auth.uid() AND user_type = 'admin'
+    )
+  );
+
+-- Trigger لتحديث updated_at
+CREATE TRIGGER on_subscription_updated
+  BEFORE UPDATE ON public.subscriptions
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- Function لتحديث tier الحلاق عند تفعيل الاشتراك
+CREATE OR REPLACE FUNCTION public.update_barber_tier_on_subscription()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.status = 'active' AND (OLD.status IS NULL OR OLD.status != 'active') THEN
+    UPDATE public.barbers
+    SET tier = NEW.tier
+    WHERE id = NEW.barber_id;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_subscription_activated
+  AFTER INSERT OR UPDATE ON public.subscriptions
+  FOR EACH ROW EXECUTE FUNCTION public.update_barber_tier_on_subscription();
+
+========================================================================================
+SQL — جدول barber_subscriptions (ميسر)
+الملف: supabase\migrations\51_barber_subscriptions_moyasar.sql
+========================================================================================
+
+-- =====================================================
+-- اشتراكات مرتبطة بدفع ميسر (Moyasar) — يحدّثها webhook على Edge
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS public.barber_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  moyasar_payment_id TEXT NOT NULL UNIQUE,
+  moyasar_webhook_event_id TEXT UNIQUE,
+  registration_request_id TEXT,
+  barber_id UUID REFERENCES public.barbers (id) ON DELETE SET NULL,
+  tier TEXT CHECK (tier IN ('bronze', 'gold', 'diamond')),
+  amount_halalas INTEGER,
+  currency TEXT NOT NULL DEFAULT 'SAR',
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'paid', 'failed', 'refunded', 'voided', 'authorized')),
+  last_webhook_type TEXT,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  confirmation_email_sent_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS barber_subscriptions_registration_request_id_idx
+  ON public.barber_subscriptions (registration_request_id);
+
+CREATE INDEX IF NOT EXISTS barber_subscriptions_barber_id_idx
+  ON public.barber_subscriptions (barber_id);
+
+CREATE INDEX IF NOT EXISTS barber_subscriptions_status_idx
+  ON public.barber_subscriptions (status);
+
+ALTER TABLE public.barber_subscriptions ENABLE ROW LEVEL SECURITY;
+
+COMMENT ON TABLE public.barber_subscriptions IS
+  'تتبع دفع اشتراك عبر Moyasar؛ التحديث عبر Edge Function بمفتاح service_role.';
+
+COMMENT ON COLUMN public.barber_subscriptions.moyasar_webhook_event_id IS
+  'معرّف حدث الـ webhook من Moyasar (لمنع التكرار عند إعادة الإرسال).';
+
+DROP TRIGGER IF EXISTS on_barber_subscription_updated ON public.barber_subscriptions;
+CREATE TRIGGER on_barber_subscription_updated
+  BEFORE UPDATE ON public.barber_subscriptions
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_updated_at();
+
+========================================================================================
+SQL — توسيع barber_subscriptions
+الملف: supabase\migrations\52_barber_subscriptions_financial_stability.sql
+========================================================================================
+
+-- =====================================================
+-- استقرار مالي: bigint للهللات + سبب الفشل + إلغاء الدفع + تتبع بريد التنبيه بالفشل
+-- =====================================================
+
+ALTER TABLE public.barber_subscriptions
+  ALTER COLUMN amount_halalas TYPE BIGINT USING amount_halalas::bigint;
+
+ALTER TABLE public.barber_subscriptions
+  ADD COLUMN IF NOT EXISTS failure_reason TEXT;
+
+ALTER TABLE public.barber_subscriptions
+  ADD COLUMN IF NOT EXISTS failure_notification_sent_at TIMESTAMPTZ;
+
+COMMENT ON COLUMN public.barber_subscriptions.failure_reason IS
+  'آخر سبب فشل/إلغاء من Moyasar (غالباً source.message).';
+
+COMMENT ON COLUMN public.barber_subscriptions.failure_notification_sent_at IS
+  'توقيت إرسال بريد التنبيه عند فشل الدفع (لتجنب التكرار).';
+
+ALTER TABLE public.barber_subscriptions DROP CONSTRAINT IF EXISTS barber_subscriptions_status_check;
+
+ALTER TABLE public.barber_subscriptions ADD CONSTRAINT barber_subscriptions_status_check
+  CHECK (status IN ('pending', 'paid', 'failed', 'refunded', 'voided', 'authorized', 'cancelled'));
+
+========================================================================================
+SQL — حالات pending_review / approved وRLS إدارية
+الملف: supabase\migrations\53_barber_subscriptions_manual_review_workflow.sql
+========================================================================================
+
+-- سير عمل الموافقة اليدوية بعد دفع ميسر: pending_review → approved (أو refunded)
+-- =====================================================
+
+ALTER TABLE public.barber_subscriptions DROP CONSTRAINT IF EXISTS barber_subscriptions_status_check;
+
+ALTER TABLE public.barber_subscriptions ADD CONSTRAINT barber_subscriptions_status_check
+  CHECK (
+    status IN (
+      'pending',
+      'paid',
+      'failed',
+      'refunded',
+      'voided',
+      'authorized',
+      'cancelled',
+      'pending_review',
+      'approved'
+    )
+  );
+
+COMMENT ON CONSTRAINT barber_subscriptions_status_check ON public.barber_subscriptions IS
+  'pending_review = تم استلام الدفع عبر ميسر وقيد مراجعة الجودة؛ approved = اعتماد إداري واكتمال التفعيل.';
+
+-- سياسات JWT للإدارة (is_jwt_platform_admin) — قراءة وتحديث صفوف الاشتراك المالي
+DROP POLICY IF EXISTS "jwt_admin_select_barber_subscriptions" ON public.barber_subscriptions;
+CREATE POLICY "jwt_admin_select_barber_subscriptions"
+  ON public.barber_subscriptions FOR SELECT TO authenticated
+  USING (public.is_jwt_platform_admin());
+
+DROP POLICY IF EXISTS "jwt_admin_update_barber_subscriptions" ON public.barber_subscriptions;
+CREATE POLICY "jwt_admin_update_barber_subscriptions"
+  ON public.barber_subscriptions FOR UPDATE TO authenticated
+  USING (public.is_jwt_platform_admin())
+  WITH CHECK (public.is_jwt_platform_admin());
+
+========================================================================================
+TypeScript (Deno) — Edge Function معالجة Webhook وتفعيل الحلاق
+الملف: supabase\functions\moyasar-webhook\index.ts
+========================================================================================
+
+/**
+ * Moyasar Webhook — Supabase Edge Function
+ *
+ * التحقق: حقل `secret_token` في جسم JSON يجب أن يطابق MOYASAR_WEBHOOK_SECRET (مقارنة آمنة زمنياً).
+ * @see https://docs.moyasar.com/api/other/webhooks/webhook-reference
+ *
+ * أسرار: MOYASAR_WEBHOOK_SECRET، RESEND_API_KEY، RESEND_FROM_EMAIL
+ * Production split keys (Supabase Edge secrets):
+ * - PAYMENT_ENV=live
+ * - MOYASAR_WEBHOOK_LIVE_SECRET=...
+ * - MOYSAR_SECRET_LIVE_API_KEY=sk_live_... (used by Vercel verify endpoint)
+ * Sandbox split keys:
+ * - PAYMENT_ENV=test
+ * - MOYASAR_WEBHOOK_TEST_SECRET=...
+ * - MOYSAR_SECRET_TEST_API_KEY=sk_test_...
+ * اختياري: INVOICE_PLACEHOLDER_URL — رابط الفاتورة الافتراضي إن لم يُمرَّر metadata.invoice_url
+ * تفعيل تلقائي + بريد الترحيب (نفس محتوى /api/send-barber-onboarding):
+ *   APP_PUBLIC_ORIGIN أو PUBLIC_SITE_ORIGIN — أصل الموقع (https://…)
+ *   ONBOARDING_INTERNAL_WEBHOOK_SECRET — يطابق سر Vercel نفسه في رأس x-onboarding-internal-secret
+ */
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+
+type MoyasarWebhookBody = {
+  id?: string;
+  type?: string;
+  created_at?: string;
+  secret_token?: string;
+  data?: Record<string, unknown> | null;
+};
+
+type PaymentData = {
+  id?: string;
+  status?: string;
+  amount?: number;
+  currency?: string;
+  metadata?: Record<string, unknown> | null;
+  source?: Record<string, unknown> | null;
+};
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function timingSafeEq(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  const ae = new TextEncoder().encode(a);
+  const be = new TextEncoder().encode(b);
+  let diff = 0;
+  for (let i = 0; i < ae.length; i += 1) diff |= ae[i]! ^ be[i]!;
+  return diff === 0;
+}
+
+function resolveWebhookSecret(): string {
+  const mode = (Deno.env.get("PAYMENT_ENV") ?? "test").trim().toLowerCase();
+  const testSecret = (Deno.env.get("MOYASAR_WEBHOOK_TEST_SECRET") ?? "").trim();
+  const liveSecret = (Deno.env.get("MOYASAR_WEBHOOK_LIVE_SECRET") ?? "").trim();
+  const legacy = (Deno.env.get("MOYASAR_WEBHOOK_SECRET") ?? "").trim();
+  if (mode === "live") return liveSecret || legacy;
+  return testSecret || legacy;
+}
+
+function jsonResponse(body: Record<string, unknown>, status: number, extraHeaders?: Record<string, string>): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      ...extraHeaders,
+    },
+  });
+}
+
+function tierFromMeta(meta: Record<string, unknown> | null | undefined): "bronze" | "gold" | "diamond" | null {
+  const t = String(meta?.tier ?? "").toLowerCase();
+  if (t === "bronze" || t === "gold" || t === "diamond") return t;
+  return null;
+}
+
+function expectedAmountHalalasFromTier(tier: "bronze" | "gold" | "diamond"): number {
+  // السعر الأساسي الشهري المعتمد في التسجيل/الدفع (قبل أي منطق ضرائب مستقبلي على الخادم).
+  if (tier === "gold") return 15000;
+  if (tier === "diamond") return 20000;
+  return 10000;
+}
+
+function expectedAmountHalalasFromMeta(meta: Record<string, unknown> | null | undefined): number | null {
+  if (!meta || typeof meta !== "object") return null;
+  const raw =
+    meta.expected_amount_halalas ??
+    meta.expectedAmountHalalas ??
+    meta.amount_halalas_expected ??
+    null;
+  if (raw == null) return null;
+  const n =
+    typeof raw === "number"
+      ? Math.trunc(raw)
+      : Number.parseInt(String(raw).trim(), 10);
+  if (!Number.isFinite(n) || n < 100) return null;
+  return n;
+}
+
+function extractCustomerEmail(payment: PaymentData): string | null {
+  const src = payment.source;
+  if (src && typeof src === "object") {
+    const em = String(src.email ?? "").trim();
+    if (em.includes("@")) return em;
+    const n = String(src.number ?? "").trim();
+    if (n.includes("@")) return n;
+  }
+  return null;
+}
+
+function extractFailureReason(data: PaymentData): string | null {
+  const src = data.source;
+  if (!src || typeof src !== "object") return null;
+  const msg = String(src.message ?? "").trim();
+  if (msg) return msg.slice(0, 4000);
+  const name = String(src.name ?? "").trim();
+  if (name) return name.slice(0, 4000);
+  return null;
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/** رابط فاتورة وهمي إلى أن يُربط توليد PDF / زاتكا — أو metadata.invoice_url من ميسر */
+function resolveInvoiceHref(meta: Record<string, unknown>): string {
+  const fromMeta = String(meta.invoice_url ?? "").trim();
+  if (fromMeta.startsWith("http://") || fromMeta.startsWith("https://")) return fromMeta;
+  const envPlaceholder = (Deno.env.get("INVOICE_PLACEHOLDER_URL") ?? "").trim();
+  if (envPlaceholder.startsWith("http://") || envPlaceholder.startsWith("https://")) return envPlaceholder;
+  return "https://www.halaqmap.com/#/partners/payment?invoice=pending";
+}
+
+function addOneMonth(d: Date): Date {
+  const out = new Date(d.getTime());
+  out.setMonth(out.getMonth() + 1);
+  return out;
+}
+
+function dateStr(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+async function logPaymentSecurityEvent(
+  supabase: ReturnType<typeof createClient>,
+  input: {
+    severity?: "info" | "warning" | "critical";
+    eventType: string;
+    paymentId: string | null;
+    registrationRequestId?: string | null;
+    barberId?: string | null;
+    reason?: string | null;
+    detail?: Record<string, unknown>;
+  },
+): Promise<void> {
+  try {
+    await supabase.from("payment_security_events").insert({
+      severity: input.severity ?? "warning",
+      event_type: input.eventType,
+      source: "moyasar_webhook",
+      payment_id: input.paymentId ?? null,
+      registration_request_id: input.registrationRequestId ?? null,
+      barber_id: input.barberId ?? null,
+      reason: input.reason ?? null,
+      detail: input.detail ?? {},
+    });
+  } catch {
+    // سجل اختياري: لا نوقف مسار الدفع إذا تعذّر إدراج السجل الأمني.
+  }
+}
+
+/** تفعيل فوري: حلاق نشط + اشتراك شهري active (نفس منطق اعتماد الإدارة السابق). */
+async function activateBarberAndSubscriptionPaid(
+  supabase: ReturnType<typeof createClient>,
+  barberId: string,
+  tier: "bronze" | "gold" | "diamond" | null,
+  amountHalalas: number | null,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const tierNorm = tier === "gold" || tier === "diamond" ? tier : "bronze";
+  const now = new Date();
+  const start = dateStr(now);
+  const end = dateStr(addOneMonth(now));
+  const amt = typeof amountHalalas === "number" && Number.isFinite(amountHalalas) ? amountHalalas : 0;
+  const priceSar = amt > 0 ? Math.round(amt) / 100 : 0;
+  const ts = now.toISOString();
+
+  const { error: barberErr } = await supabase
+    .from("barbers")
+    .update({
+      is_active: true,
+      is_verified: true,
+      open_for_customers: true,
+      tier: tierNorm,
+      updated_at: ts,
+    })
+    .eq("id", barberId);
+  if (barberErr) return { ok: false, error: barberErr.message };
+
+  const { data: latestSub, error: subSelErr } = await supabase
+    .from("subscriptions")
+    .select("id")
+    .eq("barber_id", barberId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (subSelErr) return { ok: false, error: subSelErr.message };
+
+  if (latestSub?.id) {
+    const { error: subUp } = await supabase
+      .from("subscriptions")
+      .update({
+        tier: tierNorm,
+        start_date: start,
+        end_date: end,
+        status: "active",
+        price: priceSar,
+        updated_at: ts,
+      })
+      .eq("id", latestSub.id);
+    if (subUp) return { ok: false, error: subUp.message };
+  } else {
+    const { error: subIn } = await supabase.from("subscriptions").insert({
+      barber_id: barberId,
+      tier: tierNorm,
+      start_date: start,
+      end_date: end,
+      status: "active",
+      auto_renew: false,
+      price: priceSar,
+    });
+    if (subIn) return { ok: false, error: subIn.message };
+  }
+  return { ok: true };
+}
+
+async function sendResendConfirmation(input: {
+  apiKey: string;
+  from: string;
+  to: string;
+  barberName: string;
+  tierLabel: string;
+  amountHalalas: number;
+  currency: string;
+  invoiceHref: string;
+  /** عند ربط حساب حلاق وتفعيله تلقائياً من الـ Webhook */
+  accountActivated: boolean;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const amountSar = (input.amountHalalas / 100).toFixed(2);
+  const subject = input.accountActivated
+    ? "حلاق ماب | تم الدفع وتفعيل حسابك"
+    : "حلاق ماب | تم استلام الدفع";
+  const activationBlock = input.accountActivated
+    ? `<p>تم <strong>تفعيل حسابك على الخريطة</strong> ويمكنك البدء باستقبال الطلبات من لوحة التحكم.</p>`
+    : `<p>تم استلام المبلغ بنجاح. إذا لم يظهر صالونك على الخريطة بعد، تأكد من إكمال التسجيل وربط معرّف الحلاق في عملية الدفع أو تواصل مع الدعم.</p>`;
+  const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
+<p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
+<p>شكرًا لك، تم استلام مبلغ الاشتراك بنجاح عبر <strong>ميسر (Moyasar)</strong>.</p>
+${activationBlock}
+<ul style="list-style:none;padding:0">
+<li>الباقة: <strong>${escapeHtml(input.tierLabel)}</strong></li>
+<li>المبلغ: <strong>${escapeHtml(amountSar)} ${escapeHtml(input.currency)}</strong></li>
+</ul>
+<p>مرجع الفاتورة/الإيصال: <a href="${escapeHtml(input.invoiceHref)}">عرض الرابط</a>
+<span style="font-size:12px;color:#64748b">(إن وُجد <code>invoice_url</code> في بيانات الدفع يُستبدل هذا الرابط تلقائياً)</span></p>
+<p>لأي استفسار ردّ على هذا البريد أو من صفحة التواصل في الموقع.</p>
+<p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
+</body></html>`;
+
+  const resp = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${input.apiKey}`,
+    },
+    body: JSON.stringify({
+      from: input.from,
+      to: [input.to],
+      subject,
+      html,
+    }),
+  });
+  const raw = await resp.text();
+  if (!resp.ok) {
+    let msg = raw.slice(0, 400);
+    try {
+      const j = JSON.parse(raw) as { message?: string };
+      if (j.message) msg = j.message;
+    } catch {
+      /* ignore */
+    }
+    return { ok: false, error: msg };
+  }
+  return { ok: true };
+}
+
+async function sendResendPaymentFailure(input: {
+  apiKey: string;
+  from: string;
+  to: string;
+  barberName: string;
+  reason: string;
+  paymentId: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const subject = "حلاق ماب | لم يكتمل دفع الاشتراك";
+  const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#fef2f2">
+<p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
+<p>لم نتمكن من إتمام عملية الدفع عبر ميسر.</p>
+<p><strong>التفاصيل:</strong> ${escapeHtml(input.reason || "غير محدد")}</p>
+<p style="font-size:13px;color:#64748b" dir="ltr">مرجع الدفع: ${escapeHtml(input.paymentId)}</p>
+<p>يرجى المحاولة مرة أخرى أو استخدام بطاقة دفع بديلة من صفحة الدفع في حلاق ماب.</p>
+<p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
+</body></html>`;
+
+  const resp = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${input.apiKey}`,
+    },
+    body: JSON.stringify({
+      from: input.from,
+      to: [input.to],
+      subject,
+      html,
+    }),
+  });
+  const raw = await resp.text();
+  if (!resp.ok) {
+    let msg = raw.slice(0, 400);
+    try {
+      const j = JSON.parse(raw) as { message?: string };
+      if (j.message) msg = j.message;
+    } catch {
+      /* ignore */
+    }
+    return { ok: false, error: msg };
+  }
+  return { ok: true };
+}
+
+async function resolveRecipientContext(
+  supabase: ReturnType<typeof createClient>,
+  registrationRequestId: string | null,
+  payment: PaymentData,
+  meta: Record<string, unknown>,
+): Promise<{ email: string | null; barberName: string; linkedBarberId: string | null; phone: string | null }> {
+  const fromMetaBarber = String(meta.linked_barber_id ?? meta.linkedBarberId ?? "").trim();
+  const sourcePhone = (() => {
+    const src = payment.source;
+    if (!src || typeof src !== "object") return "";
+    const n = String(src.number ?? "").trim();
+    if (!n) return "";
+    return n.startsWith("+") ? n : `+${n.replace(/^00/, "")}`;
+  })();
+
+  const fromPayment = extractCustomerEmail(payment);
+  if (fromPayment) {
+    const bid = UUID_RE.test(fromMetaBarber) ? fromMetaBarber : null;
+    return { email: fromPayment, barberName: "عميلنا الكريم", linkedBarberId: bid, phone: sourcePhone || null };
+  }
+
+  if (!registrationRequestId) {
+    const bidOnly = UUID_RE.test(fromMetaBarber) ? fromMetaBarber : null;
+    return { email: null, barberName: "عميلنا الكريم", linkedBarberId: bidOnly, phone: sourcePhone || null };
+  }
+
+  const { data, error } = await supabase
+    .from("registration_submissions")
+    .select("payload")
+    .eq("id", registrationRequestId)
+    .maybeSingle();
+  if (error || !data?.payload || typeof data.payload !== "object") {
+    const bidOnly = UUID_RE.test(fromMetaBarber) ? fromMetaBarber : null;
+    return { email: null, barberName: "عميلنا الكريم", linkedBarberId: bidOnly, phone: sourcePhone || null };
+  }
+
+  const p = data.payload as Record<string, unknown>;
+  const email = typeof p.email === "string" ? p.email.trim() : "";
+  const barberName = typeof p.barberName === "string" ? p.barberName.trim() : "عميلنا الكريم";
+  const phone = typeof p.phone === "string" ? p.phone.trim() : "";
+  const linkedPayload = typeof p.linkedBarberId === "string" ? p.linkedBarberId.trim() : "";
+  const linked = UUID_RE.test(fromMetaBarber)
+    ? fromMetaBarber
+    : UUID_RE.test(linkedPayload)
+      ? linkedPayload
+      : null;
+
+  return {
+    email: email && email.includes("@") ? email : null,
+    barberName: barberName || "عميلنا الكريم",
+    linkedBarberId: linked,
+    phone: phone || sourcePhone || null,
+  };
+}
+
+type WebhookPlatformPay = {
+  enable_internal_onboarding_email: boolean;
+  enable_whatsapp_payment_notify: boolean;
+  enable_resend_payment_receipt: boolean;
+  enforce_price_currency_match: boolean;
+};
+
+const WEBHOOK_PLATFORM_PAY_DEFAULT: WebhookPlatformPay = {
+  enable_internal_onboarding_email: true,
+  enable_whatsapp_payment_notify: false,
+  enable_resend_payment_receipt: true,
+  enforce_price_currency_match: true,
+};
+
+async function fetchPlatformPaymentSettingsForWebhook(
+  supabase: ReturnType<typeof createClient>,
+): Promise<WebhookPlatformPay> {
+  const { data, error } = await supabase
+    .from("platform_payment_settings")
+    .select(
+      "enable_internal_onboarding_email, enable_whatsapp_payment_notify, enable_resend_payment_receipt, enforce_price_currency_match",
+    )
+    .eq("id", 1)
+    .maybeSingle();
+  if (error || !data) return WEBHOOK_PLATFORM_PAY_DEFAULT;
+  const d = data as Record<string, unknown>;
+  return {
+    enable_internal_onboarding_email: d.enable_internal_onboarding_email !== false,
+    enable_whatsapp_payment_notify: d.enable_whatsapp_payment_notify === true,
+    enable_resend_payment_receipt: d.enable_resend_payment_receipt !== false,
+    enforce_price_currency_match: d.enforce_price_currency_match !== false,
+  };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      },
+    });
+  }
+
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "method_not_allowed" }, 405);
+  }
+
+  const webhookSecret = resolveWebhookSecret();
+  const resendKey = (Deno.env.get("RESEND_API_KEY") ?? "").trim();
+  const resendFrom = (Deno.env.get("RESEND_FROM_EMAIL") ?? "").trim();
+  const supabaseUrl = (Deno.env.get("SUPABASE_URL") ?? "").trim();
+  const serviceRole = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
+
+  if (!webhookSecret || !supabaseUrl || !serviceRole) {
+    return jsonResponse(
+      {
+        error: "server_misconfigured",
+        hint: "Set MOYASAR_WEBHOOK_SECRET and ensure Supabase secrets are present.",
+      },
+      503,
+    );
+  }
+
+  const rawBody = await req.text();
+  let body: MoyasarWebhookBody;
+  try {
+    body = JSON.parse(rawBody) as MoyasarWebhookBody;
+  } catch {
+    return jsonResponse({ error: "invalid_json" }, 400);
+  }
+
+  const token = String(body.secret_token ?? "");
+  if (!token || !timingSafeEq(token, webhookSecret)) {
+    return jsonResponse({ error: "invalid_secret_token" }, 401);
+  }
+
+  const eventId = String(body.id ?? "").trim();
+  const eventType = String(body.type ?? "").trim();
+  const data = (body.data ?? {}) as PaymentData;
+  const paymentId = String(data.id ?? "").trim();
+
+  if (!paymentId) {
+    return jsonResponse({ error: "missing_payment_id" }, 400);
+  }
+
+  const supabase = createClient(supabaseUrl, serviceRole, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const platformPay = await fetchPlatformPaymentSettingsForWebhook(supabase);
+
+  if (eventId) {
+    const { data: dup } = await supabase
+      .from("barber_subscriptions")
+      .select("id")
+      .eq("moyasar_webhook_event_id", eventId)
+      .maybeSingle();
+    if (dup) {
+      return jsonResponse({ ok: true, idempotent: true, eventId }, 200);
+    }
+  }
+
+  const meta = (data.metadata && typeof data.metadata === "object" ? data.metadata : {}) as Record<string, unknown>;
+  const requestId =
+    (typeof meta.request_id === "string" ? meta.request_id.trim() : "") ||
+    (typeof meta.requestId === "string" ? meta.requestId.trim() : "");
+  const tier = tierFromMeta(meta);
+  const rawAmount = data.amount;
+  const amount =
+    typeof rawAmount === "number" && Number.isFinite(rawAmount) ? Math.trunc(rawAmount) : null;
+  const currency = String(data.currency ?? "SAR").toUpperCase() || "SAR";
+  const paymentStatus = String(data.status ?? "").toLowerCase();
+  const paymentGateway = String(meta.payment_gateway ?? "MOYASAR")
+    .trim()
+    .toUpperCase();
+  const successStatus = paymentStatus === "paid" || paymentStatus === "success" || paymentStatus === "succeeded";
+
+  let rowStatus:
+    | "pending"
+    | "paid"
+    | "failed"
+    | "refunded"
+    | "voided"
+    | "authorized"
+    | "cancelled"
+    | "pending_review"
+    | "approved" = "pending";
+  /**
+   * عند `paid` من ميسر: `barber_subscriptions.status = paid` وتفعيل فوري للحلاق (barbers + subscriptions)
+   * عند توفر معرّف حلاق صالح في metadata / الطلب — دون انتظار إداري.
+   */
+  if (successStatus) rowStatus = "paid";
+  else if (paymentStatus === "failed" || paymentStatus === "faild") rowStatus = "failed";
+  else if (paymentStatus === "canceled" || paymentStatus === "cancelled") rowStatus = "cancelled";
+  else if (paymentStatus === "refunded") rowStatus = "refunded";
+  else if (paymentStatus === "voided") rowStatus = "voided";
+  else if (paymentStatus === "authorized") rowStatus = "authorized";
+
+  const failureReasonRaw = extractFailureReason(data);
+  const invoiceUrlStored = typeof meta.invoice_url === "string" ? meta.invoice_url.trim() : "";
+
+  const { email: resolvedEmail, barberName, linkedBarberId, phone: resolvedPhone } = await resolveRecipientContext(
+    supabase,
+    requestId || null,
+    data,
+    meta,
+  );
+
+  const barberId = linkedBarberId && UUID_RE.test(linkedBarberId) ? linkedBarberId : null;
+
+  /** يُخزَّن مع metadata لمساعدة الإدارة ومسار الاعتماد عندما يُمرَّر من صفحة الدفع (linkedBarberId / linked_barber_id). */
+  const linkedFromPaymentMeta = (() => {
+    const a = String(meta.linked_barber_id ?? "").trim();
+    const b = String(meta.linkedBarberId ?? "").trim();
+    if (UUID_RE.test(a)) return a;
+    if (UUID_RE.test(b)) return b;
+    return "";
+  })();
+
+  const metaPayload = {
+    moyasar_type: eventType,
+    payment_gateway: paymentGateway,
+    payment_status: paymentStatus,
+    moyasar_payment_status: paymentStatus,
+    raw_payment_id: paymentId,
+    ...(linkedFromPaymentMeta ? { linked_barber_id: linkedFromPaymentMeta } : {}),
+    ...(invoiceUrlStored ? { invoice_url: invoiceUrlStored } : {}),
+  };
+
+  const upsertRow: Record<string, unknown> = {
+    moyasar_payment_id: paymentId,
+    moyasar_webhook_event_id: eventId || null,
+    registration_request_id: requestId || null,
+    barber_id: barberId,
+    tier: tier ?? null,
+    amount_halalas: amount,
+    currency,
+    status: rowStatus,
+    last_webhook_type: eventType || null,
+    metadata: metaPayload,
+    failure_reason:
+      rowStatus === "failed" || rowStatus === "cancelled"
+        ? failureReasonRaw ?? null
+        : rowStatus === "refunded"
+          ? failureReasonRaw ?? "تمت إعادة المبلغ."
+          : null,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: existing, error: selErr } = await supabase
+    .from("barber_subscriptions")
+    .select("id,confirmation_email_sent_at,failure_notification_sent_at")
+    .eq("moyasar_payment_id", paymentId)
+    .maybeSingle();
+
+  if (selErr) {
+    return jsonResponse({ error: "db_select_failed", detail: selErr.message }, 500);
+  }
+
+  if (existing?.id) {
+    const { error: upErr } = await supabase.from("barber_subscriptions").update(upsertRow).eq("id", existing.id);
+    if (upErr) return jsonResponse({ error: "db_update_failed", detail: upErr.message }, 500);
+  } else {
+    const { error: insErr } = await supabase.from("barber_subscriptions").insert({
+      ...upsertRow,
+      created_at: new Date().toISOString(),
+    });
+    if (insErr) return jsonResponse({ error: "db_insert_failed", detail: insErr.message }, 500);
+  }
+
+  let accountActivated = false;
+  let onboardingApiOk = false;
+  let whatsappDraftOk = false;
+
+  if (rowStatus === "paid" && barberId) {
+    // Live activation gate: no activation unless paid event arrives from verified Moyasar webhook
+    // (secret_token validated above) and trusted payment event type is present.
+    const trustedPaidSource = Boolean(eventType && /^payment/i.test(eventType));
+    if (!trustedPaidSource) {
+      await logPaymentSecurityEvent(supabase, {
+        severity: "critical",
+        eventType: "untrusted_paid_event_type",
+        paymentId,
+        registrationRequestId: requestId || null,
+        barberId,
+        reason: "Paid status received from untrusted or missing event type.",
+        detail: { eventType, paymentStatus, metadata: metaPayload },
+      });
+      return jsonResponse(
+        {
+          error: "untrusted_paid_event_type",
+          paymentId,
+          eventId: eventId || null,
+        },
+        409,
+      );
+    }
+
+    const paidAmount = typeof amount === "number" && Number.isFinite(amount) ? amount : null;
+    const expectedFromMeta = expectedAmountHalalasFromMeta(meta);
+    const expectedFromTier = tier ? expectedAmountHalalasFromTier(tier) : null;
+    const expectedAmount = expectedFromMeta ?? expectedFromTier;
+    const expectedCurrency = String(meta.expected_currency ?? meta.expectedCurrency ?? "SAR")
+      .trim()
+      .toUpperCase();
+    const currencyOk = !expectedCurrency || expectedCurrency === currency;
+    const amountOk = expectedAmount != null && paidAmount != null && paidAmount === expectedAmount;
+
+    if (platformPay.enforce_price_currency_match) {
+      if (!amountOk || !currencyOk) {
+        const detail = {
+          reason: "price_mismatch_before_activation",
+          expected_amount_halalas: expectedAmount,
+          actual_amount_halalas: paidAmount,
+          expected_currency: expectedCurrency || null,
+          actual_currency: currency || null,
+          tier: tier ?? null,
+        };
+        const tsFail = new Date().toISOString();
+        await supabase
+          .from("barber_subscriptions")
+          .update({
+            failure_reason: "Payment amount/currency mismatch with expected package pricing.",
+            metadata: { ...metaPayload, ...detail, activation_blocked_at: tsFail },
+            updated_at: tsFail,
+          })
+          .eq("moyasar_payment_id", paymentId);
+
+        await logPaymentSecurityEvent(supabase, {
+          severity: "critical",
+          eventType: "price_mismatch_before_activation",
+          paymentId,
+          registrationRequestId: requestId || null,
+          barberId,
+          reason: "Payment amount/currency mismatch with expected package pricing.",
+          detail,
+        });
+
+        return jsonResponse(
+          {
+            error: "price_mismatch_before_activation",
+            detail,
+            paymentId,
+            eventId: eventId || null,
+          },
+          409,
+        );
+      }
+    }
+
+    const act = await activateBarberAndSubscriptionPaid(supabase, barberId, tier, amount);
+    if (!act.ok) {
+      console.warn("[moyasar-webhook] activateBarberAndSubscriptionPaid:", act.error);
+      return jsonResponse(
+        { error: "activation_failed", detail: act.error, paymentId, eventId: eventId || null },
+        502,
+      );
+    }
+    accountActivated = true;
+    const tsAct = new Date().toISOString();
+    await supabase
+      .from("barber_subscriptions")
+      .update({
+        metadata: { ...metaPayload, webhook_auto_activated_at: tsAct },
+        updated_at: tsAct,
+      })
+      .eq("moyasar_payment_id", paymentId);
+
+    const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "").trim().replace(
+      /\/+$/,
+      "",
+    );
+    const obSecret = (Deno.env.get("ONBOARDING_INTERNAL_WEBHOOK_SECRET") ?? "").trim();
+    const { data: bRow } = await supabase.from("barbers").select("email,name").eq("id", barberId).maybeSingle();
+    const toOnboarding =
+      bRow?.email && String(bRow.email).includes("@") ? String(bRow.email).trim() : resolvedEmail;
+    const nameOnboarding = (bRow?.name && String(bRow.name).trim()) || barberName;
+    if (appOrigin && obSecret && toOnboarding) {
+      const tierStr = tier === "diamond" ? "diamond" : tier === "gold" ? "gold" : "bronze";
+      if (platformPay.enable_internal_onboarding_email) {
+        try {
+          const obResp = await fetch(`${appOrigin}/api/send-barber-onboarding`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-onboarding-internal-secret": obSecret,
+            },
+            body: JSON.stringify({
+              mode: "single",
+              barberEmail: toOnboarding,
+              barberName: nameOnboarding,
+              tier: tierStr,
+              barberId,
+              registrationOrderId: requestId || undefined,
+            }),
+          });
+          if (obResp.ok) onboardingApiOk = true;
+          else console.warn("[moyasar-webhook] send-barber-onboarding:", await obResp.text());
+        } catch (e) {
+          console.warn("[moyasar-webhook] send-barber-onboarding fetch:", e);
+        }
+      }
+
+      if (platformPay.enable_whatsapp_payment_notify && resolvedPhone) {
+        const tierAr =
+          tier === "diamond" ? "ماسي" : tier === "gold" ? "ذهبي" : "برونزي";
+        const amountSar = ((amount ?? 0) / 100).toFixed(2);
+        try {
+          const waResp = await fetch(`${appOrigin}/api/send-payment-whatsapp-draft`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-onboarding-internal-secret": obSecret,
+            },
+            body: JSON.stringify({
+              phone: resolvedPhone,
+              barberName: nameOnboarding,
+              tierLabelAr: tierAr,
+              paymentId,
+              amountSar,
+            }),
+          });
+          if (waResp.ok) whatsappDraftOk = true;
+          else console.warn("[moyasar-webhook] send-payment-whatsapp-draft:", await waResp.text());
+        } catch (e) {
+          console.warn("[moyasar-webhook] send-payment-whatsapp-draft fetch:", e);
+        }
+      }
+    }
+  }
+
+  let emailSent = false;
+  let failureEmailSent = false;
+
+  if (rowStatus === "paid" && platformPay.enable_resend_payment_receipt && resendKey && resendFrom && resolvedEmail) {
+    const { data: rowAfter } = await supabase
+      .from("barber_subscriptions")
+      .select("confirmation_email_sent_at")
+      .eq("moyasar_payment_id", paymentId)
+      .maybeSingle();
+
+    if (!rowAfter?.confirmation_email_sent_at) {
+      const tierAr =
+        tier === "diamond" ? "ماسي" : tier === "gold" ? "ذهبي" : tier === "bronze" ? "برونزي" : "الباقة المختارة";
+      const invoiceHref = resolveInvoiceHref(meta);
+      const mail = await sendResendConfirmation({
+        apiKey: resendKey,
+        from: resendFrom,
+        to: resolvedEmail,
+        barberName,
+        tierLabel: tierAr,
+        amountHalalas: amount ?? 0,
+        currency,
+        invoiceHref,
+        accountActivated: accountActivated && Boolean(barberId),
+      });
+      if (mail.ok) {
+        emailSent = true;
+        await supabase
+          .from("barber_subscriptions")
+          .update({ confirmation_email_sent_at: new Date().toISOString() })
+          .eq("moyasar_payment_id", paymentId);
+      } else {
+        console.warn("[moyasar-webhook] resend:", mail.error);
+      }
+    }
+  }
+
+  if ((rowStatus === "failed" || rowStatus === "cancelled") && resendKey && resendFrom && resolvedEmail) {
+    const { data: rowFail } = await supabase
+      .from("barber_subscriptions")
+      .select("failure_notification_sent_at")
+      .eq("moyasar_payment_id", paymentId)
+      .maybeSingle();
+
+    if (!rowFail?.failure_notification_sent_at) {
+      const mail = await sendResendPaymentFailure({
+        apiKey: resendKey,
+        from: resendFrom,
+        to: resolvedEmail,
+        barberName,
+        reason: failureReasonRaw || (rowStatus === "cancelled" ? "تم إلغاء العملية." : "فشل التحقق من الدفع."),
+        paymentId,
+      });
+      if (mail.ok) {
+        failureEmailSent = true;
+        await supabase
+          .from("barber_subscriptions")
+          .update({ failure_notification_sent_at: new Date().toISOString() })
+          .eq("moyasar_payment_id", paymentId);
+      } else {
+        console.warn("[moyasar-webhook] resend failure mail:", mail.error);
+      }
+    }
+  }
+
+  if (rowStatus === "failed" || rowStatus === "cancelled" || rowStatus === "refunded") {
+    await logPaymentSecurityEvent(supabase, {
+      severity: rowStatus === "refunded" ? "info" : "warning",
+      eventType: `payment_${rowStatus}`,
+      paymentId,
+      registrationRequestId: requestId || null,
+      barberId,
+      reason: failureReasonRaw ?? null,
+      detail: {
+        paymentStatus,
+        currency,
+        amount_halalas: amount,
+        moyasar_event_type: eventType || null,
+      },
+    });
+  }
+
+  return jsonResponse(
+    {
+      ok: true,
+      paymentId,
+      eventId: eventId || null,
+      status: rowStatus,
+      emailSent,
+      failureEmailSent,
+      accountActivated,
+      onboardingApiOk,
+      whatsappDraftOk,
+    },
+    200,
+  );
+});
+
+################################################################################
+#  القسم 3 — الهيكل الرئيسي للمشروع (تعريف الحزمة وبناء Vite)
+################################################################################
+
+========================================================================================
+JSON — اسم الحزمة، السكربتات، التبعيات
+الملف: package.json
+========================================================================================
+
+{
+  "name": "halaqmap",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "VITE_ENABLE_ROUTE_MESSAGING=true vite",
+    "build": "vite build",
+    "build:dev": "VITE_ENABLE_ROUTE_MESSAGING=true vite build --mode development --sourcemap",
+    "build:map": "VITE_ENABLE_ROUTE_MESSAGING=true vite build --sourcemap",
+    "pwa:icons": "node scripts/generate-pwa-icons.mjs",
+    "typecheck:api": "tsc -p api/tsconfig.json",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "preview:dev": "npm run build:dev && npm run preview",
+    "test:edge-functions": "cd supabase/edge_function && deno task test",
+    "test:registration-guard": "npx --yes tsx scripts/test-registration-route-guard.mts",
+    "test:registration-intent": "npx --yes tsx scripts/test-registration-intent.mts",
+    "test:registration-security": "npm run test:registration-guard && npm run test:registration-intent",
+    "check:email-dns": "node scripts/check-email-dns-security.mjs",
+    "check:dns-mx-spf-dmarc": "node scripts/check-dns-mx-spf-dmarc.mjs"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@iconify/react": "^6.0.2",
+    "@radix-ui/react-accordion": "^1.2.0",
+    "@radix-ui/react-alert-dialog": "^1.1.1",
+    "@radix-ui/react-aspect-ratio": "^1.1.0",
+    "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-checkbox": "^1.1.1",
+    "@radix-ui/react-collapsible": "^1.1.0",
+    "@radix-ui/react-context-menu": "^2.2.1",
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-hover-card": "^1.1.1",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-menubar": "^1.1.1",
+    "@radix-ui/react-navigation-menu": "^1.2.0",
+    "@radix-ui/react-popover": "^1.1.1",
+    "@radix-ui/react-progress": "^1.1.0",
+    "@radix-ui/react-radio-group": "^1.2.0",
+    "@radix-ui/react-scroll-area": "^1.1.0",
+    "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-slider": "^1.2.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.1",
+    "@radix-ui/react-toggle": "^1.1.0",
+    "@radix-ui/react-toggle-group": "^1.1.0",
+    "@radix-ui/react-tooltip": "^1.1.4",
+    "@supabase/supabase-js": "^2.55.0",
+    "@tanstack/react-query": "^5.56.2",
+    "axios": "^1.13.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.0.0",
+    "date-fns": "^3.6.0",
+    "embla-carousel-react": "^8.3.0",
+    "framer-motion": "^11.15.0",
+    "html2canvas": "^1.4.1",
+    "input-otp": "^1.2.4",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^0.462.0",
+    "next-themes": "^0.3.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-icons": "^5.4.0",
+    "react-qr-code": "^2.0.18",
+    "react-resizable-panels": "^2.1.3",
+    "react-router-dom": "^6.26.2",
+    "recharts": "^2.12.7",
+    "sonner": "^1.5.0",
+    "tailwind-merge": "^2.5.2",
+    "tw-animate-css": "^1.4.0",
+    "vaul": "^0.9.3",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@babel/generator": "^7.28.0",
+    "@babel/parser": "^7.28.0",
+    "@babel/traverse": "^7.28.0",
+    "@babel/types": "^7.28.0",
+    "@eslint/js": "^9.9.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "^22.5.5",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^9.9.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.9",
+    "globals": "^15.9.0",
+    "lovable-tagger": "1.1.9",
+    "postcss": "^8.4.47",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.0.1",
+    "vite": "^5.4.1",
+    "vite-plugin-pwa": "^1.2.0"
+  }
+}
+
+========================================================================================
+TypeScript — إعداد Vite، PWA، alias @/src
+الملف: vite.config.ts
+========================================================================================
+
+// vite.config.ts
+import { defineConfig, type Plugin } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa';
+import fs from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import nodePath from 'node:path';
+import { componentTagger } from 'lovable-tagger';
+import path from "path";
+
+import { parse } from '@babel/parser';
+import _traverse from '@babel/traverse';
+import _generate from '@babel/generator';
+import * as t from '@babel/types';
+
+const projectRoot = nodePath.dirname(fileURLToPath(import.meta.url));
+const pkgJson = JSON.parse(
+  readFileSync(nodePath.join(projectRoot, 'package.json'), 'utf-8')
+) as { version?: string };
+const webAppManifest = JSON.parse(
+  readFileSync(nodePath.join(projectRoot, 'manifest.json'), 'utf-8')
+) as Record<string, unknown>;
+
+function resolveGitShortCommit(): string {
+  const full =
+    process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.VITE_BUILD_COMMIT?.trim();
+  if (full) return full.length > 7 ? full.slice(0, 7) : full;
+  try {
+    return execSync('git rev-parse --short HEAD', {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+    }).trim();
+  } catch {
+    return 'dev';
+  }
+}
+
+const appBuildTimeIso = new Date().toISOString();
+
+// CJS/ESM interop for Babel libs
+const traverse: typeof _traverse.default = ( (_traverse as any).default ?? _traverse ) as any;
+const generate: typeof _generate.default = ( (_generate as any).default ?? _generate ) as any;
+
+/** يُلحق ?v=… بروابط /assets/*.js و*.css في index.html بعد البناء لتسهيل كسر كاش HTTP/CDN (مع بقاء أسماء الملفات المُشفّرة). */
+function indexHtmlAssetCacheBustPlugin(): Plugin {
+  return {
+    name: 'index-html-asset-cache-bust',
+    apply: 'build',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '2').trim();
+      const q = raw.length > 0 ? raw : '2';
+      const suffix = `?v=${encodeURIComponent(q)}`;
+      let out = html
+        .replace(/src="(\/assets\/[^"?]+\.js)"/g, `src="$1${suffix}"`)
+        .replace(/href="(\/assets\/[^"?]+\.js)"/g, `href="$1${suffix}"`)
+        .replace(/href="(\/assets\/[^"?]+\.css)"/g, `href="$1${suffix}"`);
+      const escAttr = (s: string) =>
+        s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      const commit = escAttr(resolveGitShortCommit());
+      const buildTime = escAttr(new Date().toISOString());
+      const qEsc = escAttr(q);
+      if (!out.includes('name="halaqmap-build-commit"')) {
+        out = out.replace(
+          '<head>',
+          `<head>\n    <meta name="halaqmap-build-commit" content="${commit}" />\n    <meta name="halaqmap-build-time" content="${buildTime}" />\n    <meta name="halaqmap-asset-query" content="${qEsc}" />`
+        );
+      }
+      return out;
+    },
+  };
+}
+
+function cdnPrefixImages(): Plugin {
+  const DEBUG = process.env.CDN_IMG_DEBUG === '1';
+  let publicDir = '';              // absolute path to Vite public dir
+  const imageSet = new Set<string>(); // stores normalized '/images/...' paths
+
+  const isAbsolute = (p: string) =>
+    /^(?:[a-z]+:)?\/\//i.test(p) || p.startsWith('data:') || p.startsWith('blob:');
+
+  // normalize a ref like './images/x.png', '../images/x.png', '/images/x.png' -> '/images/x.png'
+  const normalizeRef = (p: string) => {
+    let s = p.trim();
+    // quick bail-outs
+    if (isAbsolute(s)) return s;
+    // strip leading ./ and any ../ segments (we treat public/ as root at runtime)
+    s = s.replace(/^(\.\/)+/, '');
+    while (s.startsWith('../')) s = s.slice(3);
+    if (s.startsWith('/')) s = s.slice(1);
+    // ensure it starts with images/
+    if (!s.startsWith('images/')) return p; // not under images → leave as is
+    return '/' + s; // canonical: '/images/...'
+  };
+
+  const toCDN = (p: string, cdn: string) => {
+    const n = normalizeRef(p);
+    if (isAbsolute(n)) return n;
+    if (!n.startsWith('/images/')) return p;           // not our folder
+    if (!imageSet.has(n)) return p;                    // not an existing file
+    const base = cdn.endsWith('/') ? cdn : cdn + '/';
+    return base + n.slice(1);                          // 'https://cdn/.../images/..'
+  };
+
+  const rewriteSrcsetList = (value: string, cdn: string) =>
+    value
+      .split(',')
+      .map((part) => {
+        const [url, desc] = part.trim().split(/\s+/, 2);
+        const out = toCDN(url, cdn);
+        return desc ? `${out} ${desc}` : out;
+      })
+      .join(', ');
+
+  const rewriteHtml = (html: string, cdn: string) => {
+    // src / href
+    html = html.replace(
+      /(src|href)\s*=\s*(['"])([^'"]+)\2/g,
+      (_m, k, q, p) => `${k}=${q}${toCDN(p, cdn)}${q}`
+    );
+    // srcset
+    html = html.replace(
+      /(srcset)\s*=\s*(['"])([^'"]+)\2/g,
+      (_m, k, q, list) => `${k}=${q}${rewriteSrcsetList(list, cdn)}${q}`
+    );
+    return html;
+  };
+
+  const rewriteCssUrls = (code: string, cdn: string) =>
+    code.replace(/url\((['"]?)([^'")]+)\1\)/g, (_m, q, p) => `url(${q}${toCDN(p, cdn)}${q})`);
+
+  const rewriteJsxAst = (code: string, id: string, cdn: string) => {
+    const ast = parse(code, { sourceType: 'module', plugins: ['typescript', 'jsx'] });
+    let rewrites = 0;
+
+    traverse(ast, {
+      JSXAttribute(path) {
+        const name = (path.node.name as t.JSXIdentifier).name;
+        const isSrc = name === 'src' || name === 'href';
+        const isSrcSet = name === 'srcSet' || name === 'srcset';
+        if (!isSrc && !isSrcSet) return;
+
+        const val = path.node.value;
+        if (!val) return;
+
+        if (t.isStringLiteral(val)) {
+          const before = val.value;
+          val.value = isSrc ? toCDN(val.value, cdn) : rewriteSrcsetList(val.value, cdn);
+          if (val.value !== before) rewrites++;
+          return;
+        }
+        if (t.isJSXExpressionContainer(val) && t.isStringLiteral(val.expression)) {
+          const before = val.expression.value;
+          val.expression.value = isSrc
+            ? toCDN(val.expression.value, cdn)
+            : rewriteSrcsetList(val.expression.value, cdn);
+          if (val.expression.value !== before) rewrites++;
+        }
+      },
+
+      StringLiteral(path) {
+        // skip object keys: { "image": "..." }
+        if (t.isObjectProperty(path.parent) && path.parentKey === 'key' && !path.parent.computed) return;
+        // skip import/export sources
+        if (t.isImportDeclaration(path.parent) || t.isExportAllDeclaration(path.parent) || t.isExportNamedDeclaration(path.parent)) return;
+        // skip inside JSX attribute (already handled)
+        if (path.findParent(p => p.isJSXAttribute())) return;
+
+        const before = path.node.value;
+        const after = toCDN(before, cdn);
+        if (after !== before) { path.node.value = after; rewrites++; }
+      },
+
+      TemplateLiteral(path) {
+        // handle `"/images/foo.png"` as template with NO expressions
+        if (path.node.expressions.length) return;
+        const raw = path.node.quasis.map(q => q.value.cooked ?? q.value.raw).join('');
+        const after = toCDN(raw, cdn);
+        if (after !== raw) {
+          path.replaceWith(t.stringLiteral(after));
+          rewrites++;
+        }
+      },
+
+    });
+
+    if (!rewrites) return null;
+    const out = generate(ast, { retainLines: true, sourceMaps: false }, code).code;
+    if (DEBUG) console.log(`[cdn] ${id} → ${rewrites} rewrites`);
+    return out;
+  };
+
+  async function collectPublicImagesFrom(dir: string) {
+    // Recursively collect every file under public/images into imageSet as '/images/relpath'
+    const imagesDir = nodePath.join(dir, 'images');
+    const stack = [imagesDir];
+    while (stack.length) {
+      const cur = stack.pop()!;
+      let entries: any[] = [];
+      try {
+        entries = await fs.readdir(cur, { withFileTypes: true });
+      } catch {
+        continue; // images/ may not exist
+      }
+      for (const ent of entries) {
+        const full = nodePath.join(cur, ent.name);
+        if (ent.isDirectory()) {
+          stack.push(full);
+        } else if (ent.isFile()) {
+          const rel = nodePath.relative(dir, full).split(nodePath.sep).join('/');
+          const canonical = '/' + rel; // '/images/...'
+          imageSet.add(canonical);
+          // also add variant without leading slash for safety
+          imageSet.add(canonical.slice(1)); // 'images/...'
+        }
+      }
+    }
+  }
+
+  return {
+    name: 'cdn-prefix-images-existing',
+    apply: 'build',
+    enforce: 'pre', // run before @vitejs/plugin-react
+
+    configResolved(cfg) {
+      publicDir = cfg.publicDir; // absolute
+      if (DEBUG) console.log('[cdn] publicDir =', publicDir);
+    },
+
+    async buildStart() {
+      await collectPublicImagesFrom(publicDir);
+      if (DEBUG) console.log('[cdn] images found:', imageSet.size);
+    },
+
+    transformIndexHtml(html) {
+      const cdn = process.env.CDN_IMG_PREFIX;
+      if (!cdn) return html;
+      const out = rewriteHtml(html, cdn);
+      if (DEBUG) console.log('[cdn] transformIndexHtml done');
+      return out;
+    },
+
+    transform(code, id) {
+      const cdn = process.env.CDN_IMG_PREFIX;
+      if (!cdn) return null;
+
+      if (/\.(jsx|tsx)$/.test(id)) {
+        const out = rewriteJsxAst(code, id, cdn);
+        return out ? { code: out, map: null } : null;
+      }
+
+      if (/\.(css|scss|sass|less|styl)$/i.test(id)) {
+        const out = rewriteCssUrls(code, cdn);
+        return out === code ? null : { code: out, map: null };
+      }
+
+      return null;
+    },
+  };
+}
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => {
+  return {
+    server: {
+      // 127.0.0.1 يقلّل مشاكل localhost/IPv6 على ويندوز؛ strictPort يمنع الالتفاف لمنفذ آخر دون أن تدري
+      host: '127.0.0.1',
+      port: 5173,
+      strictPort: true,
+      // يفتح المتصفح على الرابط الصحيح تلقائياً عند npm run dev
+      open: true,
+      // اختياري: مع `vercel dev` على منفذ آخر، عيّن VITE_PROXY_API_TO=http://127.0.0.1:3000 لتوجيه /api/* إلى نفس المشروع
+      ...(process.env.VITE_PROXY_API_TO?.trim()
+        ? {
+            proxy: {
+              '/api': {
+                target: process.env.VITE_PROXY_API_TO.trim(),
+                changeOrigin: true,
+              },
+            },
+          }
+        : {}),
+    },
+    plugins: [
+      tailwindcss(),
+      react(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: false,
+        manifestFilename: 'manifest.json',
+        manifest: webAppManifest,
+        includeAssets: [
+          'favicon.svg',
+          'robots.txt',
+          'sitemap.xml',
+          'icons/**/*.png',
+        ],
+        workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
+          cleanupOutdatedCaches: true,
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
+          globIgnores: ['**/halaqmap_barber_banner_*.png'],
+          maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api\//],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-stylesheets',
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-webfonts',
+                expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'supabase-api',
+                networkTimeoutSeconds: 10,
+                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 5 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              urlPattern: ({ url }) =>
+                url.origin === self.location.origin &&
+                /^\/images\//.test(url.pathname),
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'local-images',
+                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 14 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+          ],
+        },
+        devOptions: {
+          enabled: false,
+        },
+      }),
+      mode === 'development' &&
+      componentTagger(),
+      cdnPrefixImages(),
+      indexHtmlAssetCacheBustPlugin(),
+    ].filter(Boolean),
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+        // Proxy react-router-dom to our wrapper
+        "react-router-dom": path.resolve(__dirname, "./src/lib/react-router-dom-proxy.tsx"),
+        // Original react-router-dom under a different name
+        "react-router-dom-original": "react-router-dom",
+      },
+    },
+    define: {
+      // Define environment variables for build-time configuration
+      // In production, this will be false by default unless explicitly set to 'true'
+      // In development and test, this will be true by default
+      __ROUTE_MESSAGING_ENABLED__: JSON.stringify(
+        mode === 'production' 
+          ? process.env.VITE_ENABLE_ROUTE_MESSAGING === 'true'
+          : process.env.VITE_ENABLE_ROUTE_MESSAGING !== 'false'
+      ),
+      __APP_PKG_VERSION__: JSON.stringify(pkgJson.version ?? '0.0.0'),
+      __APP_GIT_COMMIT__: JSON.stringify(resolveGitShortCommit()),
+      __APP_BUILD_TIME_ISO__: JSON.stringify(appBuildTimeIso),
+    },
+  }
+});
+
+################################################################################
+#  القسم 4 — الواجهات الأمامية الرئيسية (توجيه + تخطيطات)
+################################################################################
+
+========================================================================================
+TypeScript — نقطة الدخول وPWA
+الملف: src\main.tsx
+========================================================================================
+
+import { createRoot } from 'react-dom/client'
+import { registerSW } from 'virtual:pwa-register'
+// مساعد الشركاء (الذكاء الاصطناعي) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
+import App from './App.tsx'
+import './index.css'
+import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
+import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
+
+if (import.meta.env.DEV) {
+  console.info(`[halaqmap] Partner assistant UI v${PARTNER_ASSISTANT_UI_VERSION}`)
+  void fetch(PARTNER_ASSISTANT_CHAT_API_PATH, { method: 'GET' })
+    .then(async (r) => {
+      const j = (await r.json().catch(() => ({}))) as Record<string, unknown>
+      console.info('[halaqmap] partner-assistant-chat GET', { status: r.status, body: j })
+    })
+    .catch((err) => {
+      console.warn('[halaqmap] partner-assistant-chat GET failed (تأكد من proxy /api في التطوير)', err)
+    })
+}
+
+function reloadForNewBuild() {
+  window.location.reload()
+}
+
+const updateServiceWorker = registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    reloadForNewBuild()
+  },
+  onRegisteredSW(_swUrl, registration) {
+    if (!registration) return
+    // Force regular SW update checks so stale app shells are replaced quickly.
+    window.setInterval(() => {
+      void registration.update()
+    }, 30_000)
+  },
+})
+
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  let refreshed = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshed) return
+    refreshed = true
+    reloadForNewBuild()
+  })
+
+  // If a waiting worker already exists, activate it immediately.
+  void navigator.serviceWorker.getRegistration().then((registration) => {
+    if (registration?.waiting) {
+      void updateServiceWorker(true)
+    }
+  })
+}
+
+createRoot(document.getElementById("root")!).render(<App />);
+
+========================================================================================
+TypeScript — تعريف جميع المسارات
+الملف: src\App.tsx
+========================================================================================
+
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Fragment } from "react";
+import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Layout } from "@/components/Layout";
+/** يتضمن PartnerLayout مساعد الشركاء الرقمي عبر PartnerDigitalBarberAssistant — المسار الوحيد للمساعد في مسار الشركاء. */
+import { PartnerLayout } from "@/components/PartnerLayout";
+import { ScrollToTop } from "@/components/ScrollToTop";
+import Home from "@/pages/Home";
+import Register from "@/pages/Register";
+import RegisterSuccess from "@/pages/RegisterSuccess";
+import ShopOpenStatus from "@/pages/ShopOpenStatus";
+import About from "@/pages/About";
+import BarberGrowthLanding from "@/pages/BarberGrowthLanding";
+import InternalPartnerPathPrintCard from "@/pages/InternalPartnerPathPrintCard";
+import InvoicePreviewSamples from "@/pages/InvoicePreviewSamples";
+import PartnerInterestLanding from "@/pages/PartnerInterestLanding";
+import PartnerWhyPage from "@/pages/PartnerWhyPage";
+import PartnerStoryPage from "@/pages/PartnerStoryPage";
+import Privacy from "@/pages/Privacy";
+import PartnerPrivacy from "@/pages/PartnerPrivacy";
+import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
+import BarberLogin from "@/pages/BarberLogin";
+import BarberPortalEnter from "@/pages/BarberPortalEnter";
+import BarberDashboard from "@/pages/BarberDashboard";
+import BarberAccountDeletionRequest from "@/pages/BarberAccountDeletionRequest";
+import AdminLogin from "@/pages/AdminLogin";
+import AdminDashboard from "@/pages/AdminDashboard";
+import Payment from "@/pages/Payment";
+import PartnerSupportChat from "@/pages/PartnerSupportChat";
+import PartnerSubscriptionTutorials from "@/pages/PartnerSubscriptionTutorials";
+import RateBarber from "@/pages/RateBarber";
+import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
+import AdminSentinelPage from "@/pages/AdminSentinelPage";
+import { getAdminPortalBasePaths } from "@/config/adminAuth";
+import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
+
+const queryClient = new QueryClient();
+
+const NotFound = () => (
+  <Layout>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center space-y-6 px-4">
+        <h1 className="text-6xl font-bold text-primary">404</h1>
+        <h2 className="text-2xl font-semibold text-foreground">الصفحة غير موجودة</h2>
+        <p className="text-muted-foreground">عذراً، الصفحة التي تبحث عنها غير متوفرة</p>
+        <a
+          href="#/"
+          className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          العودة للرئيسية
+        </a>
+      </div>
+    </div>
+  </Layout>
+);
+
+const LegacyPartnerRedirect = ({ to }: { to: string }) => {
+  const location = useLocation();
+  return <Navigate to={`${to}${location.search || ''}`} replace />;
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <HashRouter>
+        <AdminAuthHashGate>
+        <ScrollToTop />
+        <Routes>
+          <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
+          <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<InternalPartnerPathPrintCard />} />
+          <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<InvoicePreviewSamples />} />
+          <Route path={ROUTE_PATHS.ABOUT} element={<Layout><About /></Layout>} />
+          <Route path={ROUTE_PATHS.PRIVACY} element={<Layout><Privacy /></Layout>} />
+
+          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
+          <Route
+            path={ROUTE_PATHS.PARTNER_INTEREST}
+            element={
+              <PartnerLayout>
+                <PartnerInterestLanding />
+              </PartnerLayout>
+            }
+          />
+          <Route path={ROUTE_PATHS.PARTNER_WHY} element={<PartnerLayout><PartnerWhyPage /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_STORY} element={<PartnerLayout><PartnerStoryPage /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><Register /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<PartnerLayout><RegisterSuccess /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><ShopOpenStatus /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><PartnerPrivacy /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><SubscriptionPolicy /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<PartnerLayout><BarberLogin /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<PartnerLayout><BarberPortalEnter /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><Payment /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<PartnerLayout><PartnerSubscriptionTutorials /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<PartnerLayout><PartnerSupportChat /></PartnerLayout>} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBERS_LANDING} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER_SUCCESS} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER_SUCCESS} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<LegacyPartnerRedirect to={ROUTE_PATHS.SUBSCRIPTION_POLICY} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBER_LOGIN} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBER_LOGIN} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.PAYMENT} element={<LegacyPartnerRedirect to={ROUTE_PATHS.PAYMENT} />} />
+
+          <Route path={ROUTE_PATHS.BARBER_DASHBOARD} element={<BarberDashboard />} />
+          <Route
+            path={ROUTE_PATHS.BARBER_ACCOUNT_DELETE_REQUEST}
+            element={
+              <PartnerLayout>
+                <BarberAccountDeletionRequest />
+              </PartnerLayout>
+            }
+          />
+          {getAdminPortalBasePaths().map((adminBase) => (
+            <Fragment key={adminBase}>
+              <Route path={`${adminBase}/in`} element={<AdminLogin />} />
+              <Route path={`${adminBase}/ctrl`} element={<AdminDashboard />} />
+              <Route
+                path={`${adminBase}/sentinel`}
+                element={
+                  <AdminSentinelSecurityGate>
+                    <AdminSentinelPage />
+                  </AdminSentinelSecurityGate>
+                }
+              />
+            </Fragment>
+          ))}
+          <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        </AdminAuthHashGate>
+      </HashRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
+
+========================================================================================
+TypeScript — تخطيط الصفحات العامة للزائر
+الملف: src\components\Layout.tsx
+========================================================================================
+
+import { NavLink } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/lib';
+import { IMAGES } from '@/assets/images';
+import { Menu, X, MapPin, Phone, Mail } from 'lucide-react';
+import { SiX, SiFacebook, SiInstagram, SiWhatsapp } from 'react-icons/si';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { AppBuildStamp } from '@/components/AppBuildStamp';
+import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
+import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
+
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+export function Layout({ children }: LayoutProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navItems = [
+    { path: ROUTE_PATHS.HOME, label: 'الرئيسية' },
+    { path: ROUTE_PATHS.ABOUT, label: 'من نحن' },
+    { path: ROUTE_PATHS.PRIVACY, label: 'سياسة الخصوصية' },
+  ];
+
+  return (
+    <div className="min-h-[100dvh] min-h-screen flex flex-col bg-background" dir="rtl">
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-[env(safe-area-inset-top)]">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            <NavLink
+              to={ROUTE_PATHS.HOME}
+              className="flex items-center gap-3 group [perspective:640px]"
+            >
+              <motion.div
+                className="relative shrink-0 [transform-style:preserve-3d]"
+                animate={{ scale: [1, 1.06, 1] }}
+                transition={{
+                  duration: 2.6,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+                whileHover={{ scale: 1.08, rotateY: -10 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                <div
+                  className="relative h-12 w-12 overflow-hidden rounded-full
+                    ring-2 ring-primary/40 ring-offset-2 ring-offset-background
+                    shadow-[0_14px_32px_-8px_color-mix(in_srgb,var(--primary)_50%,transparent),0_6px_16px_-4px_rgba(0,0,0,0.22),inset_0_2px_6px_rgba(255,255,255,0.55)]
+                    transition-[box-shadow,ring-color] duration-300
+                    group-hover:ring-primary/60
+                    group-hover:shadow-[0_18px_40px_-10px_color-mix(in_srgb,var(--primary)_60%,transparent),0_8px_20px_-4px_rgba(0,0,0,0.28),inset_0_2px_8px_rgba(255,255,255,0.65)]"
+                >
+                  <span
+                    className="pointer-events-none absolute inset-x-1 top-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/50 to-transparent opacity-90"
+                    aria-hidden
+                  />
+                  <img
+                    src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
+                    alt="حلاق ماب"
+                    className="relative z-[1] h-full w-full object-cover [transform:translateZ(6px)]"
+                  />
+                </div>
+              </motion.div>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
+                  حلاق ماب
+                </span>
+                <span className="text-xs text-muted-foreground">HALAQ MAP</span>
+              </div>
+            </NavLink>
+
+            <nav className="hidden md:flex items-center gap-6">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition-colors hover:text-primary ${
+                      isActive ? 'text-primary' : 'text-foreground/80'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+
+            <button
+              type="button"
+              className="md:hidden min-h-11 min-w-11 inline-flex items-center justify-center p-2 hover:bg-muted rounded-xl transition-colors touch-manipulation"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="القائمة"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden border-t border-border/40 bg-background"
+            >
+              <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-foreground/80 hover:bg-muted'
+                      }`
+                    }
+                  >
+                    {item.label}
+                  </NavLink>
+                ))}
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+
+      <footer className="border-t border-border/40 bg-card mt-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+        <div className="container mx-auto px-4 py-10 md:py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 [perspective:640px]">
+                <div
+                  className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full
+                    ring-2 ring-primary/30 ring-offset-2 ring-offset-background
+                    shadow-[0_12px_28px_-8px_color-mix(in_srgb,var(--primary)_45%,transparent),0_4px_14px_-4px_rgba(0,0,0,0.18),inset_0_2px_5px_rgba(255,255,255,0.5)]
+                    [transform-style:preserve-3d] [transform:rotateX(4deg)]"
+                >
+                  <span
+                    className="pointer-events-none absolute inset-x-1 top-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/45 to-transparent opacity-90"
+                    aria-hidden
+                  />
+                  <img
+                    src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
+                    alt="حلاق ماب"
+                    className="relative z-[1] h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
+                    حلاق ماب
+                  </span>
+                  <span className="text-xs text-muted-foreground">HALAQ MAP</span>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{PLATFORM_FOOTER_TAGLINE}</p>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-foreground">روابط سريعة</h3>
+              <div className="space-y-2">
+                <NavLink
+                  to={ROUTE_PATHS.HOME}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  الرئيسية
+                </NavLink>
+                <NavLink
+                  to={ROUTE_PATHS.ABOUT}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  من نحن
+                </NavLink>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-foreground">تواصل معنا</h3>
+              <div className="space-y-3">
+                <a
+                  href="tel:+966559602685"
+                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Phone className="w-4 h-4 text-primary" />
+                  </div>
+                  <span dir="ltr">+966559602685</span>
+                </a>
+                <a
+                  href="mailto:admin@halaqmap.com"
+                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Mail className="w-4 h-4 text-primary" />
+                  </div>
+                  <span>admin@halaqmap.com</span>
+                </a>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-primary" />
+                  </div>
+                  <span>المملكة العربية السعودية</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-foreground">تابعنا</h3>
+              <div className="flex gap-3">
+                <a
+                  href="https://twitter.com/halaqmap"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all hover:scale-105 active:scale-95"
+                  aria-label="تويتر"
+                >
+                  <SiX className="w-5 h-5 text-primary" />
+                </a>
+                <a
+                  href="https://facebook.com/halaqmap"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all hover:scale-105 active:scale-95"
+                  aria-label="فيسبوك"
+                >
+                  <SiFacebook className="w-5 h-5 text-primary" />
+                </a>
+                <a
+                  href="https://instagram.com/halaqmap"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all hover:scale-105 active:scale-95"
+                  aria-label="انستقرام"
+                >
+                  <SiInstagram className="w-5 h-5 text-primary" />
+                </a>
+                <a
+                  href="https://wa.me/966559602685"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all hover:scale-105 active:scale-95"
+                  aria-label="واتساب"
+                >
+                  <SiWhatsapp className="w-5 h-5 text-primary" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <LegalEntityPublicStrip variant="light" />
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-border/40">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-muted-foreground text-center md:text-right">
+                © 2026 حلاق ماب. جميع الحقوق محفوظة.
+              </p>
+              <div className="flex gap-6">
+                <NavLink
+                  to={ROUTE_PATHS.PRIVACY}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  سياسة الخصوصية
+                </NavLink>
+                <NavLink
+                  to={ROUTE_PATHS.ABOUT}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  من نحن
+                </NavLink>
+              </div>
+            </div>
+            <AppBuildStamp className="mt-4" />
+          </div>
+        </div>
+      </footer>
+
+      <MobileBottomNav />
+    </div>
+  );
+}
+
+========================================================================================
+TypeScript — تخطيط مسار الشركاء والمساعد
+الملف: src\components\PartnerLayout.tsx
+========================================================================================
+
+import { useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { ArrowRight, Mail, Phone, PlayCircle } from 'lucide-react';
+import { ROUTE_PATHS } from '@/lib';
+import { IMAGES } from '@/assets/images';
+import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
+import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
+/** المساعد الحيّ (OpenAI/Anthropic) — المكوّن الوحيد؛ لا يوجد مسار استيراد قديم. */
+import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
+import { AppBuildStamp } from '@/components/AppBuildStamp';
+import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
+import { PartnerPromoVideoBand } from '@/components/partner/PartnerPromoVideoBand';
+
+interface PartnerLayoutProps {
+  children: React.ReactNode;
+}
+
+const partnerNavItems = [
+  { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الصفحة التسويقية' },
+  { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
+  { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
+  { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات الاشتراك' },
+  { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
+  { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم الشركاء' },
+  { path: ROUTE_PATHS.PARTNER_PRIVACY, label: 'خصوصية الشركاء' },
+  { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: 'سياسة الاشتراك' },
+  { path: ROUTE_PATHS.BARBER_LOGIN, label: 'دخول الحلاق' },
+];
+
+export function PartnerLayout({ children }: PartnerLayoutProps) {
+  const location = useLocation();
+
+  useEffect(() => {
+    capturePartnerAttributionFromLocation();
+  }, [location.pathname, location.search, location.hash]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#061223] via-background to-background" dir="rtl">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#071426]/88 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/72">
+        <div className="container mx-auto px-4">
+          <div className="flex min-h-16 flex-wrap items-center justify-between gap-3 py-2">
+            <div className="flex items-center gap-3">
+              <img
+                src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
+                alt="حلاق ماب"
+                className="h-11 w-11 rounded-full ring-2 ring-primary/30 ring-offset-2 ring-offset-background"
+              />
+              <div>
+                <p className="text-sm font-bold text-amber-100">مسار الشركاء</p>
+                <p className="text-xs text-slate-300">Landing + Onboarding Funnel</p>
+              </div>
+            </div>
+
+            <nav className="flex flex-wrap items-center gap-2">
+              {partnerNavItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-emerald-500/20 text-emerald-100'
+                        : 'text-slate-200 hover:bg-white/10 hover:text-white'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+
+            <NavLink
+              to={ROUTE_PATHS.PARTNER_TUTORIALS}
+              className={({ isActive }) =>
+                `inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive ? 'bg-primary/25 text-emerald-100' : 'text-slate-200 hover:bg-white/10 hover:text-white'
+                }`
+              }
+              title="فيديوهات شرح الاشتراك"
+            >
+              <PlayCircle className="h-4 w-4" />
+              <span>شرح الاشتراك</span>
+            </NavLink>
+
+            <NavLink
+              to={ROUTE_PATHS.HOME}
+              className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <ArrowRight className="h-4 w-4" />
+              الرجوع لمسار المستخدم
+            </NavLink>
+          </div>
+        </div>
+      </header>
+
+      <PartnerPromoVideoBand />
+
+      <main>{children}</main>
+
+      <PartnerDigitalBarberAssistant />
+
+      <footer className="border-t border-white/10 bg-[#071426]/70">
+        <div className="container mx-auto px-4 py-6">
+          <div className="mb-6">
+            <LegalEntityPublicStrip variant="dark" />
+          </div>
+          <div className="flex flex-col gap-3 text-sm text-slate-300 md:flex-row md:items-center md:justify-between">
+            <p className="max-w-3xl leading-relaxed">{PARTNER_LAYOUT_FOOTER_LINE}</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <a href="tel:+966559602685" className="inline-flex items-center gap-2 hover:text-emerald-200 transition-colors">
+                <Phone className="h-4 w-4" />
+                <span dir="ltr">+966559602685</span>
+              </a>
+              <a href="mailto:admin@halaqmap.com" className="inline-flex items-center gap-2 hover:text-emerald-200 transition-colors">
+                <Mail className="h-4 w-4" />
+                <span>admin@halaqmap.com</span>
+              </a>
+            </div>
+          </div>
+          <AppBuildStamp variant="dark" className="mt-2 border-t border-white/5 pt-3" />
+        </div>
+      </footer>
+    </div>
+  );
+}

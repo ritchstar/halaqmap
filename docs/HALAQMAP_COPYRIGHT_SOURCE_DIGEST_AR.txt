@@ -1,0 +1,406 @@
+================================================================================
+  مستند استخراج جوهري لشفرة منصة «حلاق ماب» (Halaq Map)
+  الغرض: توثيق / حقوق مؤلف — مقتطفات تمثيلية وليست المستودع الكامل
+  تاريخ الإعداد المرجعي: 2026-05-08
+  ملاحظة قانونية: هذا الملف يُلخّص أجزاءً من البرمجيات؛ الحقوق تبقى لأصحابها.
+================================================================================
+
+
+/* =============================================================================
+   القسم 1 — الهيكل الرئيسي للمشروع (Project Structure)
+   الوظيفة: إظهار تنظيم المجلدات والملفات الأساسية لمنصة ويب حديثة
+             (واجهة React + Vite، واجهات API، قاعدة Supabase/PostGIS).
+   ============================================================================= */
+
+halaqmap/
+├── package.json              # تعريف npm: سكربتات البناء، التبعيات (React, Vite, Supabase, …)
+├── vite.config.ts            # إعداد Vite (البناء، PWA إن وُجد، إلخ)
+├── tsconfig.json             # إعداد TypeScript للواجهة
+├── api/                      # دوال خادم (مثلاً Vercel Serverless)
+│   ├── public-barbers.ts     # GET عام: قائمة/بحث حلاقين عبر Supabase RPC
+│   ├── partner-assistant-chat.ts
+│   ├── admin-barber-subscription-action.ts
+│   └── _lib/                 # مكتبات مشتركة للـ API (CORS، حراسة المسارات، …)
+├── supabase/
+│   ├── migrations/           # ترحيلات SQL (جداول، دوال PostGIS، RLS، …)
+│   └── functions/            # Edge Functions (مثلاً webhook ميسر)
+└── src/
+    ├── main.tsx              # نقطة دخول React
+    ├── App.tsx               # تعريف المسارات (Router) والتخطيط العام
+    ├── pages/                # صفحات كاملة (الرئيسية، الشركاء، لوحة الحلاق، الإدارة، …)
+    ├── components/           # مكوّنات واجهة قابلة لإعادة الاستخدام + مجلد ui/
+    ├── lib/                  # منطق مشترك (أنواع الحلاق، ترتيب القوائم، جلب البيانات)
+    ├── integrations/supabase/# عميل Supabase وأنواع قاعدة البيانات
+    ├── config/               # إعدادات (صلاحيات إدارية، كتالوج تجريبي، …)
+    └── assets/               # صور ووسائط
+
+
+/* =============================================================================
+   القسم 2 — خوارزمية البحث عن أقرب حلاق وتحديد الموقع
+   الوظيفة: (أ) على الخادم/قاعدة البيانات: PostGIS لمسافة دقيقة + درجة ترتيب
+             هجينة (باقة، بعد، تقييم بايزي). (ب) على العميل: حساب مسافة
+             هافرساين عند التصفية المحلية، وترتيب متوافق مع أوزان العرض.
+   المصدر المرجعي للدالة المكانية: supabase/migrations/46_barber_open_for_customers.sql
+   ============================================================================= */
+
+-- [مقتطف SQL] دالة search_barbers_nearby: نقطة المستخدم + فلترة داخل نصف قطر + rank_score
+
+WITH user_point AS (
+  SELECT ST_SetSRID(ST_MakePoint(p_lng, p_lat), 4326)::geography AS g
+),
+base AS (
+  SELECT
+    b.id,
+    b.name,
+    /* ... أعمدة أخرى ... */
+    ST_Distance(loc.g, u.g) / 1000.0 AS distance_km
+  FROM public.barbers b
+  CROSS JOIN user_point u
+  CROSS JOIN LATERAL (
+    SELECT COALESCE(
+      b.location,
+      CASE
+        WHEN b.latitude IS NOT NULL AND b.longitude IS NOT NULL
+          THEN ST_SetSRID(ST_MakePoint(b.longitude, b.latitude), 4326)::geography
+        ELSE NULL
+      END
+    ) AS g
+  ) loc
+  WHERE b.is_active = true
+    AND loc.g IS NOT NULL
+    AND ST_DWithin(loc.g, u.g, GREATEST(1, COALESCE(p_radius_km, 25)) * 1000)
+    AND (p_tiers IS NULL OR array_length(p_tiers, 1) IS NULL OR b.tier = ANY (p_tiers))
+    AND COALESCE(b.rating, 0) >= COALESCE(p_min_rating, 0)
+)
+SELECT
+  b.id,
+  b.name,
+  b.distance_km,
+  (
+    0.35 * CASE b.tier
+      WHEN 'diamond' THEN 1.0
+      WHEN 'gold' THEN 0.6666666667
+      ELSE 0.3333333333
+    END
+    +
+    0.35 * EXP(-b.distance_km / 10.0)
+    +
+    0.30 * (
+      (
+        (
+          (GREATEST(0, COALESCE(b.total_reviews, 0))::double precision) /
+          (GREATEST(0, COALESCE(b.total_reviews, 0))::double precision + 8.0)
+        )
+        * COALESCE(LEAST(5.0, GREATEST(1.0, b.rating::double precision)), 3.5)
+      )
+      +
+      (
+        8.0 /
+        (GREATEST(0, COALESCE(b.total_reviews, 0))::double precision + 8.0)
+      ) * 3.5
+      - 1.0
+    ) / 4.0
+  ) AS rank_score
+FROM base b
+ORDER BY rank_score DESC, b.distance_km ASC
+LIMIT LEAST(200, GREATEST(1, COALESCE(p_limit, 120)))
+OFFSET GREATEST(0, COALESCE(p_offset, 0));
+
+
+// [مقتطف TypeScript — api/public-barbers.ts]
+// استدعاء RPC عند توفر lat/lng في طلب GET؛ خلاف ذلك قائمة احتياطية من الجدول.
+
+  if (lat !== null && lng !== null) {
+    const { data, error } = await supabase.rpc('search_barbers_nearby', {
+      p_lat: lat,
+      p_lng: lng,
+      p_radius_km: radiusKm,
+      p_limit: limit,
+      p_offset: offset,
+      p_tiers: tiers,
+      p_min_rating: minRating,
+    });
+    /* ... إرجاع JSON rows بعد إخفاء user_id للعموم ... */
+  }
+
+
+// [مقتطف TypeScript — src/lib/publicBarbersFromSupabase.ts]
+// العميل: محاولة RPC من المتصفح، ثم fallback إلى /api/public-barbers
+
+export async function fetchNearbyPublicBarbersFromSupabase(
+  input: NearbySearchInput
+): Promise<Barber[]> {
+  const args = normalizedNearbyInput(input);
+  const client = getSupabaseClient();
+
+  if (client) {
+    const { data, error } = await client.rpc('search_barbers_nearby', {
+      p_lat: args.userLocation.lat,
+      p_lng: args.userLocation.lng,
+      p_radius_km: args.radiusKm,
+      p_limit: args.limit,
+      p_offset: args.offset,
+      p_tiers: args.tiers ?? null,
+      p_min_rating: args.minRating,
+    });
+    if (!error) {
+      const rows = (data ?? []) as BarberRow[];
+      return rows.map(mapRow);
+    }
+  }
+  return fetchPublicBarbersViaServer(args);
+}
+
+
+// [مقتطف TypeScript — src/lib/index.ts — مسافة سطح الكرة + تصفية واجهة]
+
+export function calculateDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+export function filterBarbersByDistance(
+  barbers: Barber[],
+  userLocation: { lat: number; lng: number },
+  filters: FilterState
+): (Barber & { distance: number })[] {
+  return barbers
+    .map((barber) => ({
+      ...barber,
+      distance: calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        barber.location.lat,
+        barber.location.lng
+      ),
+    }))
+    .filter((barber) => {
+      const skipDistance = isDemoShowcaseBarberId(barber.id);
+      if (!skipDistance && barber.distance > filters.maxDistance) return false;
+      if (filters.tiers.length > 0 && !filters.tiers.includes(barber.subscription)) return false;
+      if (filters.openNow && !barber.isOpen) return false;
+      if (barber.rating < filters.minRating) return false;
+      if (filters.categories.length > 0) {
+        const hasCategory = filters.categories.some((cat) => barber.categories.includes(cat));
+        if (!hasCategory) return false;
+      }
+      return true;
+    })
+    .sort((a, b) =>
+      compareBarbersByListingScore(
+        { id: a.id, subscription: a.subscription as 'bronze' | 'gold' | 'diamond', distance: a.distance, rating: a.rating, reviewCount: a.reviewCount },
+        { id: b.id, subscription: b.subscription as 'bronze' | 'gold' | 'diamond', distance: b.distance, rating: b.rating, reviewCount: b.reviewCount }
+      )
+    );
+}
+
+
+// [مقتطف TypeScript — src/lib/barberListingRank.ts — نفس فكرة الأوزان على العميل]
+
+export function listingCompositeScore(barber: {
+  id: string;
+  subscription: 'bronze' | 'gold' | 'diamond';
+  rating: number;
+  reviewCount: number;
+  distance: number;
+}): number {
+  const t = tierNormalized(barber.subscription);
+  const d = distanceComponent01(barber.distance, barber.id);
+  const r = bayesianRating01(barber.rating, barber.reviewCount);
+  return LISTING_WEIGHT_TIER * t + LISTING_WEIGHT_DISTANCE * d + LISTING_WEIGHT_RATING * r;
+}
+
+
+/* =============================================================================
+   القسم 3 — نظام إدارة الاشتراكات للحلاقين
+   الوظيفة: جداول اشتراك شهرية، تتبع دفع Moyasar، تفعيل الحلاق عبر Webhook،
+             وسياسات RLS ومسارات إدارية لحالات استثنائية.
+   ============================================================================= */
+
+-- [مقتطف SQL — supabase/migrations/05_create_subscriptions_table.sql]
+-- جدول subscriptions: ربط barber_id، tier، تواريخ، حالة active/expired/...
+
+CREATE TABLE IF NOT EXISTS public.subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  barber_id UUID REFERENCES public.barbers(id) ON DELETE CASCADE NOT NULL,
+  tier TEXT CHECK (tier IN ('bronze', 'gold', 'diamond')) NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  status TEXT CHECK (status IN ('active', 'expired', 'cancelled', 'pending')) DEFAULT 'pending',
+  auto_renew BOOLEAN DEFAULT false,
+  price DECIMAL(10, 2) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+
+-- [مقتطف SQL — supabase/migrations/51_barber_subscriptions_moyasar.sql]
+-- جدول barber_subscriptions: ربط دفع ميسر بحالة pending/paid/...
+
+CREATE TABLE IF NOT EXISTS public.barber_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  moyasar_payment_id TEXT NOT NULL UNIQUE,
+  barber_id UUID REFERENCES public.barbers (id) ON DELETE SET NULL,
+  tier TEXT CHECK (tier IN ('bronze', 'gold', 'diamond')),
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'paid', 'failed', 'refunded', 'voided', 'authorized')),
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+
+// [مقتطف TypeScript — supabase/functions/moyasar-webhook/index.ts]
+// بعد دفع ناجح: تفعيل الحلاق على الخريطة + اشتراك active لمدة شهر تقريباً
+
+async function activateBarberAndSubscriptionPaid(
+  supabase: ReturnType<typeof createClient>,
+  barberId: string,
+  tier: "bronze" | "gold" | "diamond" | null,
+  amountHalalas: number | null,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const tierNorm = tier === "gold" || tier === "diamond" ? tier : "bronze";
+  /* ... حساب start/end و priceSar ... */
+  const { error: barberErr } = await supabase
+    .from("barbers")
+    .update({
+      is_active: true,
+      is_verified: true,
+      open_for_customers: true,
+      tier: tierNorm,
+      updated_at: ts,
+    })
+    .eq("id", barberId);
+  /* ... تحديث أو إدراج subscriptions بحالة active ... */
+  return { ok: true };
+}
+
+
+/* =============================================================================
+   القسم 4 — ملفات تعريف الواجهات الأمامية (Main UI Components & Routing)
+   الوظيفة: هيكلة التطبيق عبر React Router، تخطيط عام للزوار،
+             وتخطيط منفصل لمسار الشركاء مع مساعد رقمي.
+   ============================================================================= */
+
+// [مقتطف — src/App.tsx] تعريف المسارات الرئيسية (HashRouter)
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <HashRouter>
+        <AdminAuthHashGate>
+        <ScrollToTop />
+        <Routes>
+          <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
+          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><Register /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><Payment /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.BARBER_DASHBOARD} element={<BarberDashboard />} />
+          {/* ... مسارات أخرى: سياسات، دعم، إدارة، تقييم، ... */}
+        </Routes>
+        </AdminAuthHashGate>
+      </HashRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+
+// [مقتطف — src/lib/index.ts] ثوابت المسارات ونوع Barber المختصر
+
+export const ROUTE_PATHS = {
+  HOME: '/',
+  BARBERS_LANDING: '/partners',
+  REGISTER: '/partners/register',
+  BARBER_DASHBOARD: '/barber/dashboard',
+  PAYMENT: '/partners/payment',
+  /* ... */
+} as const;
+
+export interface Barber {
+  id: string;
+  name: string;
+  location: { lat: number; lng: number; address: string };
+  subscription: SubscriptionTier;
+  rating: number;
+  reviewCount: number;
+  /* ... */
+}
+
+
+// [مقتطف — src/components/Layout.tsx] غلاف الصفحات العامة (رأس، تنقّل سفلي للجوال)
+
+export function Layout({ children }: LayoutProps) {
+  return (
+    <div className="min-h-[100dvh] min-h-screen flex flex-col bg-background" dir="rtl">
+      <header className="sticky top-0 z-50 /* ... */">
+        {/* شعار، روابط الرئيسية / من نحن / الخصوصية */}
+      </header>
+      <main className="flex-1">{children}</main>
+      {/* تذييل، MobileBottomNav، ... */}
+    </div>
+  );
+}
+
+
+// [مقتطف — src/components/PartnerLayout.tsx] مسار الشركاء + مساعد رقمي
+
+const partnerNavItems = [
+  { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الصفحة التسويقية' },
+  { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
+  /* ... */
+];
+
+export function PartnerLayout({ children }: PartnerLayoutProps) {
+  return (
+    <div className="min-h-screen bg-gradient-to-b /* ... */" dir="rtl">
+      <header className="sticky top-0 /* ... */">{/* شعار وروابط الشركاء */}</header>
+      <main>{children}</main>
+      <PartnerDigitalBarberAssistant />
+    </div>
+  );
+}
+
+
+/* --- جرد مختصر لصفحات الواجهة (src/pages) --- */
+/*
+  Home.tsx                 — الخريطة والقائمة الرئيسية للزائر
+  Register.tsx             — تسجيل حلاق
+  Payment.tsx              — دفع الاشتراك (Moyasar)
+  BarberDashboard.tsx      — لوحة الحلاق
+  AdminDashboard.tsx       — لوحة الإدارة
+  PartnerSupportChat.tsx   — دعم الشركاء
+  RateBarber.tsx           — تقييم عبر دعوة
+  ... وغيرها (سياسات، خصوصية، دخول، ...)
+*/
+
+/* --- مكوّنات جوهرية للعرض (src/components) --- */
+/*
+  BarberCards.tsx, BarberDetailModal.tsx  — بطاقات وتفاصيل الحلاق
+  FilterBar.tsx, LocationButton.tsx       — فلاتر وموقع المستخدم
+  RegistrationForm.tsx                    — نموذج التسجيل المطوّل
+  MobileBottomNav.tsx                     — تنقّل جوّال
+  components/ui/*                       — مكوّنات واجهة أساسية (زر، حوار، ...)
+  components/partner/*                  — مساعد الشركاء، فيديو، QR، ...
+*/
+
+
+================================================================================
+  نهاية المستند — للطباعة كـ PDF: استخدم خطاً يدعم العربية (مثل Noto Naskh Arabic)
+  واتجاه RTL للصفحات العربية في محرّر PDF.
+================================================================================

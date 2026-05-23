@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Info, LayoutGrid } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
+import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
@@ -61,11 +62,25 @@ export function MobileBottomNav() {
             </SheetHeader>
             <div className="grid gap-2 mt-4">
               <NavLink
-                to={ROUTE_PATHS.PRIVACY}
+                to={ROUTE_PATHS.USER_PRIVACY_POLICY}
                 className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
                 onClick={() => setMoreOpen(false)}
               >
                 سياسة الخصوصية
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.PRIVACY_DETAILED}
+                className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
+                onClick={() => setMoreOpen(false)}
+              >
+                خصوصية (تفصيلية)
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.TERMS_OF_SERVICE}
+                className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
+                onClick={() => setMoreOpen(false)}
+              >
+                شروط الاستخدام
               </NavLink>
               <NavLink
                 to={ROUTE_PATHS.ABOUT}
@@ -73,6 +88,13 @@ export function MobileBottomNav() {
                 onClick={() => setMoreOpen(false)}
               >
                 من نحن
+              </NavLink>
+              <NavLink
+                to={ROUTE_PATHS.BARBERS_LANDING}
+                className="block rounded-xl px-4 py-3.5 text-base font-medium bg-muted/50 hover:bg-muted active:bg-muted/80 transition-colors touch-manipulation"
+                onClick={() => setMoreOpen(false)}
+              >
+                {SOFTWARE_SERVICES_PORTAL_LABEL}
               </NavLink>
             </div>
           </SheetContent>

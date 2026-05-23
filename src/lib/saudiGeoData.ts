@@ -37,11 +37,25 @@ export function loadSaudiGeoLite(): Promise<SaudiGeoBundle> {
       import('@/data/saudi-geo/regions_lite.json'),
       import('@/data/saudi-geo/cities_lite.json'),
       import('@/data/saudi-geo/districts_lite.json'),
-    ]).then(([regionsMod, citiesMod, districtsMod]) => ({
-      regions: (regionsMod.default ?? regionsMod) as SaudiRegionLite[],
-      cities: (citiesMod.default ?? citiesMod) as SaudiCityLite[],
-      districts: (districtsMod.default ?? districtsMod) as SaudiDistrictLite[],
-    }));
+      import('@/data/saudi-geo/districts_lite_supplement.json'),
+    ]).then(([regionsMod, citiesMod, districtsMod, supplementMod]) => {
+      const base = (districtsMod.default ?? districtsMod) as SaudiDistrictLite[];
+      const extra = (supplementMod.default ?? supplementMod) as SaudiDistrictLite[];
+      const seen = new Set(base.map((d) => d.district_id));
+      const merged = [
+        ...base,
+        ...extra.filter((d) => {
+          if (seen.has(d.district_id)) return false;
+          seen.add(d.district_id);
+          return true;
+        }),
+      ];
+      return {
+        regions: (regionsMod.default ?? regionsMod) as SaudiRegionLite[],
+        cities: (citiesMod.default ?? citiesMod) as SaudiCityLite[],
+        districts: merged,
+      };
+    });
   }
   return bundlePromise;
 }

@@ -1,15 +1,43 @@
-# HalaqMap Incident/Alert Protocol
+# 🚨 HALAQMAP SECURITY & INCIDENT RESPONSE PROTOCOL
 
-## Purpose
+## Part 1: Security & Monitoring (استنفار دائم)
+
+Role: Cyber Security Officer & Lead Dev.
+Status: CONSTANT VIGILANCE (استنفار دائم).
+
+### 1. Security Sweep (التفتيش الشامل):
+- Scan every code block for OWASP Top 10 vulnerabilities (Injection, Broken Auth, Data Exposure).
+- Automatically flag and block any attempt to include hardcoded API keys, Secrets, or DB Credentials.
+- Verify that every new endpoint or RPC function has strict RLS (Row Level Security) and proper authentication.
+
+### 2. Intrusion Monitoring (مراقبة الاختراق):
+- Inspect logic for "Race Conditions" in the booking system (as we did in create_booking_safe).
+- Monitor for "Insecure Direct Object References" (IDOR) - ensure no user can see another user's or barber's private data.
+- Validate all inputs strictly to prevent XSS or SQL Injection attacks.
+
+### 3. Continuous Auditing (انتباه مستمر):
+- Before applying any change, ask: "Does this introduce a security hole?"
+- Ensure `.env` and sensitive config files are NEVER indexed or suggested in code snippets.
+- If any suspicious pattern is detected, STOP and alert the user immediately.
+
+### 4. Platform Integrity:
+- All database interactions must happen through secure RPCs or strictly guarded Supabase policies.
+- Keep the system "Dry" and "Secure" - no unnecessary code that could be an entry point for hackers.
+
+---
+
+## Part 2: Incident Response & Escalation
+
+### Purpose
 - Define escalation behavior for agents and automation.
 - Ensure security and production stability checks run consistently.
 
-## Escalation levels
+### Escalation levels
 - `SEV-1`: Active security incident, data exposure, auth bypass, production outage.
 - `SEV-2`: High-risk vulnerability, failed security checks on default branch, cron critical failures.
 - `SEV-3`: Non-critical defects, flaky checks, minor operational drift.
 
-## Mandatory response protocol
+### Mandatory response protocol
 1. Detect and classify severity.
 2. Capture evidence (logs, failing command output, impacted endpoints/routes).
 3. Contain first: block/disable risky path or revert unsafe change.
@@ -19,13 +47,12 @@
 5. Assign owner and define next verification checkpoint.
 6. Keep incident notes current until closure.
 
-## Agent behavior requirements
-- Never bypass authentication/authorization checks to “make tests pass”.
+### Agent behavior requirements
+- Never bypass authentication/authorization checks to "make tests pass".
 - Never suppress security findings without documented rationale and owner approval.
 - If security checks fail on PR, treat as escalation and block merge until triaged.
 - If Vercel cron jobs fail repeatedly, escalate to `SEV-2`.
 
-## Deployment gates
+### Deployment gates
 - CI + security workflow must pass before merge to protected branch.
 - Bugbot (or equivalent automated security review) must run on each PR update.
-

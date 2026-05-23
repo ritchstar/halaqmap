@@ -1,0 +1,16 @@
+-- =============================================================================
+-- صيانة يدوية: حذف جميع الحلاقين (بيئة تجريبية / إعادة التشغيل من الصفر)
+-- =============================================================================
+-- تحذير: لا تشغّل على إنتاج دون نسخة احتياطية. حذف barbers يزيل الصفوف
+-- المرتبطة بـ ON DELETE CASCADE (مثل subscriptions، reviews، bookings، …).
+-- صفوف barber_subscriptions قد تبقى مع barber_id = NULL إن كان القيد SET NULL.
+--
+-- بعد الحذف، يُفضّل إعادة ضبط تسلسل أرقام العضوية ليبدأ التالي من 1:
+--   SELECT setval('public.barber_member_number_seq', 1, false);
+-- (أو من MAX(member_number) إذا أبقيت صفوفاً لم تُحذف.)
+--
+-- BEGIN;
+-- DELETE FROM public.barbers;
+-- -- اختياري: إعادة التسلسل
+-- SELECT setval('public.barber_member_number_seq', 1, false);
+-- COMMIT;
