@@ -54,7 +54,7 @@ export default function Register() {
               to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
               className="text-slate-300 hover:text-white underline underline-offset-2 mx-1"
             >
-              سياسة حزم الرخصة الرقمية
+              سياسة رخصة النفاذ الرقمية (نظام الاستجابة الذكية)
             </Link>
             و
             <Link

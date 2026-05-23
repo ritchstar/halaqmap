@@ -1,4 +1,10 @@
 import { SubscriptionTier } from '@/lib/index';
+import {
+  ON_DEMAND_VISIBILITY_FUNCTIONAL_DESCRIPTION_AR,
+  ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR,
+  ON_DEMAND_VISIBILITY_TAGLINE_SHORT_AR,
+  SMART_RESPONSE_SYSTEM_LABEL_AR,
+} from '@/config/onDemandVisibilityDoctrine';
 
 /**
  * تسمية وحدة المنتج — تظهر في بطاقات التسعير والتسجيل.
@@ -10,32 +16,36 @@ export const SOFTWARE_PACKAGE_UNIT_LABEL_AR = 'حزمة رخصة';
  * الاسم الرسمي الموحّد للمنتج B2B (مفرد).
  * يُستخدم في عناوين البطاقات والأقسام والمستندات الرسمية.
  *
- * التسمية المعتمدة (2026): «حزمة رخصة التواجد الرقمي الجغرافي على منصة حلاق ماب».
- * تؤكّد أن المنتج هو رخصة برمجية لتفعيل التواجد الرقمي الجغرافي للحلّاق على المنصة،
- * وليس عمولة على خدمة أو وساطة تجارية.
+ * التسمية المعتمدة (2026-05-23): «رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية)».
+ * تؤكّد أن المنتج هو رخصة برمجية بحضور غير ثابت يُفعَّل عند الطلب،
+ * وليس وساطة تجارية أو إشغالاً دائماً للمساحة الرقمية.
  */
 export const SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR =
-  'حزمة رخصة التواجد الرقمي الجغرافي على منصة حلاق ماب';
+  ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR;
 
 /**
  * الاسم الرسمي الموحّد للمنتج B2B (جمع) — يُستخدم في الفقرات والوصف.
  */
 export const SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR =
-  'حزم رخصة التواجد الرقمي الجغرافي على منصة حلاق ماب';
+  'حزم رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية)';
 
 /**
  * الأساس التقني الرسمي الذي تُبنى عليه الحزم — تسمية موحّدة معتمدة.
- * تحلّ محل أي ذكر سابق لـ"السيادة الرقمية" في وصف منتج الإدراج.
+ * تحلّ محل أي ذكر سابق لـ«السيادة الرقمية» أو «نظام الرصد الذكي والإدراج الرقمي»
+ * في وصف منتج الرخصة.
  */
 export const SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR =
-  'نظام الرصد الذكي والادراج الرقمي';
+  `${SMART_RESPONSE_SYSTEM_LABEL_AR} (الظهور عند الطلب · On-Demand Visibility)`;
 
 /**
  * فقرة الوصف الرسمية الكاملة — مصدر الحقيقة الوحيد، تستوردها كل واجهة تعرضها.
- * أي تعديل لاحق يحدث هنا فقط.
+ * أي تعديل لاحق يحدث في `onDemandVisibilityDoctrine.ts` فقط.
  */
 export const SOFTWARE_PACKAGE_GEO_PRESENCE_TAGLINE_AR =
-  'حزم رخصة التواجد الرقمي الجغرافي على منصة حلاق ماب مبنية على نظام الرصد الذكي والادراج الرقمي. اختر المستوى وعدد البطاقات (كل بطاقة = 30 يوم إدراج).';
+  `${ON_DEMAND_VISIBILITY_FUNCTIONAL_DESCRIPTION_AR} اختر المستوى وعدد الحزم (كل حزمة = 30 يوم نفاذ).`;
+
+/** سطر تسويقي قصير — للهيرو والشارات. */
+export const SOFTWARE_PACKAGE_SHORT_TAGLINE_AR = ON_DEMAND_VISIBILITY_TAGLINE_SHORT_AR;
 
 /** شارة مدة البطاقة (30 يوم إدراج) */
 export const SOFTWARE_PACKAGE_VALIDITY_LABEL_AR = `${SOFTWARE_PACKAGE_UNIT_LABEL_AR} · 30 يوم`;
@@ -54,23 +64,23 @@ export const DIGITAL_SHIFT_MONTHLY_ADDON_SAR = 25;
 export const DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR = 'إضافة برمجية متقدمة · Software Add-on';
 
 export const DIGITAL_SHIFT_ADDON_VALUE_AR =
-  'إضافة «المناوب الرقمي الذكي» تعزّز قيمة الرخصة التقنية للماسية — أتمتة ضيافة الشات والجدولة بذكاء، منفصلة عن حزمة الإدراج الأساسية.';
+  'إضافة «المناوب الرقمي الذكي» تعزّز قيمة رخصة النفاذ الماسية — أتمتة ضيافة الشات والاستجابة الذكية للطلب، منفصلة عن حزمة النفاذ الأساسية.';
 
 export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
-  'إضافة برمجية متقدمة: المناوب الرقمي الذكي (+25 ر.س/حزمة رخصة)';
+  'إضافة برمجية متقدمة: المناوب الرقمي الذكي (+25 ر.س/حزمة نفاذ)';
 
 /** خيارات منتج الباقة الماسية — واجهة التسعير */
 export const DIAMOND_LICENSE_TECHNICAL_VALUE_AR =
-  'أقوى رخصة تقنية للإدراج الجغرافي والتواجد الرقمي على المنصة';
+  'أقوى رخصة نفاذ ضمن نظام الاستجابة الذكية — أعلى أولوية ظهور برمجي عند تنشّط الطلب في محيطك';
 
-export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية — رخصة تقنية';
+export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية — رخصة نفاذ';
 export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المناوب (Add-on)';
 export const DIAMOND_PRODUCT_STANDARD_HINT_AR =
-  'رخصة تقنية للإدراج الجغرافي — 200 ر.س/حزمة رخصة';
+  'رخصة نفاذ ضمن نظام الاستجابة الذكية — 200 ر.س/حزمة';
 export const DIAMOND_PRODUCT_SMART_HINT_AR =
-  'رخصة ماسية + إضافة برمجية متقدمة — 225 ر.س/حزمة (+25 Add-on)';
+  'رخصة نفاذ ماسية + إضافة برمجية متقدمة — 225 ر.س/حزمة (+25 Add-on)';
 export const DIAMOND_ADDON_OPTION_LINE_AR =
-  'إضافة برمجية متقدمة اختيارية: المناوب الرقمي الذكي (Add-on) يعزّز قيمة الرخصة التقنية';
+  'إضافة برمجية متقدمة اختيارية: المناوب الرقمي الذكي (Add-on) يعزّز كفاءة الاستجابة عند الطلب';
 
 /** اسم المنتج — إضافة برمجية */
 export const DIGITAL_SHIFT_PRODUCT_NAME_AR = 'المناوب الرقمي الذكي 🌙';
@@ -94,11 +104,12 @@ export const DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR =
 export const DIGITAL_SHIFT_GATE_LOADING_AR = 'جاري التحقق من صلاحية إضافة المناوب…';
 
 /** فواتير وZATCA — تسميات موحّدة */
-export const INVOICE_DIAMOND_LICENSE_LABEL_AR = 'رخصة ماسية تقنية (200 ر.س)';
-export const INVOICE_DIAMOND_WITH_ADDON_LABEL_AR = 'رخصة ماسية + Add-on المناوب (225 ر.س)';
+export const INVOICE_DIAMOND_LICENSE_LABEL_AR = 'رخصة نفاذ ماسية (200 ر.س)';
+export const INVOICE_DIAMOND_WITH_ADDON_LABEL_AR =
+  'رخصة نفاذ ماسية + Add-on المناوب (225 ر.س)';
 
 export const INVOICE_DIGITAL_SHIFT_ADDON_LINE_AR =
   'إضافة برمجية متقدمة: المناوب الرقمي الذكي (Software Add-on)';
 
 export const ZATCA_PLATFORM_PACKAGES_NOTE_AR =
-  'حزم رخصة التواجد الرقمي الجغرافي B2B (برونزي/ذهبي/ماسي + Add-on المناوب البرمجي) — لا عمولة على الحلاقة.';
+  'حزم رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية) B2B — برونزي/ذهبي/ماسي + Add-on المناوب البرمجي. لا عمولة على الحلاقة، والظهور برمجي عند الطلب.';

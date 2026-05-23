@@ -647,7 +647,7 @@ export default function BarberGrowthLanding() {
                 </NavLink>
                 <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY}>
                   <Button size="lg" variant="link" className="w-full text-primary">
-                    سياسة حزم الرخصة الرقمية
+                    سياسة رخصة النفاذ الرقمية
                   </Button>
                 </NavLink>
               </div>

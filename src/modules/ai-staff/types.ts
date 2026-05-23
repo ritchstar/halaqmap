@@ -2,6 +2,7 @@ import type { AdminPermissionKey } from '@/lib/adminPermissions';
 
 /** Administrative boundary — strict separation of internal vs field vs covert ops. */
 export type AiStaffBoundaryId =
+  | 'supreme_defense'
   | 'internal_governance'
   | 'engineering_council'
   | 'marketing_council'
@@ -10,6 +11,7 @@ export type AiStaffBoundaryId =
   | 'covert_sovereign';
 
 export type AiStaffAgentId =
+  | 'cyber_defense_commander'
   | 'billing_treasurer'
   | 'zatca_tax_advisor'
   | 'digital_shift_field'
@@ -23,6 +25,7 @@ export type AiStaffAgentId =
   | 'media_spokesperson';
 
 export type AiStaffAgentIconKind =
+  | 'cyber_defense'
   | 'treasurer'
   | 'zatca_shield'
   | 'digital_shift'
@@ -36,6 +39,7 @@ export type AiStaffAgentIconKind =
   | 'media_spokesperson';
 
 export type AiStaffWorkspaceKind =
+  | 'cyber_defense_command'
   | 'billing_dialog'
   | 'zatca_settings'
   | 'digital_shift_oversight'

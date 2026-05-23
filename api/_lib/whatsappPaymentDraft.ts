@@ -26,7 +26,7 @@ function normalizePhone(raw: string): string {
 function buildMessage(input: WhatsAppDraftInput): string {
   return [
     `أهلًا ${input.barberName}`,
-    'تم تأكيد شراء حزمتك البرمجية لخدمات الإدراج البرمجية في حلاق ماب.',
+    'تم تأكيد شراء حزمة رخصة النفاذ الرقمية (نظام الاستجابة الذكية) في حلاق ماب.',
     `الباقة: ${input.tierLabelAr}`,
     `المبلغ: ${input.amountSar} SAR`,
     `مرجع الدفع: ${input.paymentId}`,

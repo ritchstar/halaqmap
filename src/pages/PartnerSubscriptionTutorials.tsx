@@ -41,9 +41,9 @@ export default function PartnerSubscriptionTutorials() {
     <div className="container mx-auto px-4 py-10 space-y-6">
       <div className="text-center space-y-3">
         <Badge variant="secondary" className="text-sm">
-          شرح حزم الرخصة
+          شرح حزم رخصة النفاذ الرقمية
         </Badge>
-        <h1 className="text-3xl font-bold">فيديوهات تعليم حزم الإدراج البرمجية في حلاق ماب</h1>
+        <h1 className="text-3xl font-bold">فيديوهات تعليم حزم رخصة النفاذ الرقمية في حلاق ماب</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           تابع الخطوات من التسجيل حتى التفعيل والدفع بشكل واضح. جميع الفيديوهات هنا مخصصة لمسار الخدمات البرمجية للمنصة.
         </p>

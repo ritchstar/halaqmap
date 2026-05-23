@@ -7,9 +7,12 @@ import {
   SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
   TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
+import {
+  ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR,
+} from '@/config/onDemandVisibilityDoctrine';
 
 export const LISTING_LICENSE_LEGAL_FOOTNOTE =
-  'تنبيه نظامي: جميع الباقات المذكورة هي حزم رخصة رقمية موحدة لخدمات الإدراج البرمجية على نظام الرصد الذكي التفاعلي لمنصة حلاق ماب (نشاط رقم 474151). المنتجات مسبقة الدفع وغير قابلة للإلغاء بعد التفعيل، ولا تشمل أي عمولات أو وساطة حجز.';
+  `تنبيه نظامي: جميع الباقات المذكورة هي حزم رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية) — نشاط برمجي رقم 474151. ${ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR} المنتجات مسبقة الدفع وغير قابلة للإلغاء بعد التفعيل، ولا تشمل أي عمولات أو وساطة حجز.`;
 
 export type ListingLicenseCardAccent = 'bronze' | 'gold' | 'diamond';
 
@@ -41,15 +44,16 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     nameAr: 'برونزي',
     badge: '🥉',
     productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
-    subtitleAr: 'بداية ذكية ليظهر صالونك لعملاء الحي في لحظة البحث',
+    subtitleAr:
+      'رخصة نفاذ بداية — يُفعَّل ظهور صالونك برمجياً عند وجود طلب نشط في حيّك',
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.BRONZE],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
     highlights: [
-      'ظهور محلي موثوق عندما يبحث العميل عن صالون قريب',
-      'بطاقة تعريف واضحة: موقع، اتصال، واتساب، وصور أساسية',
-      'حالة مفتوح/مغلق سهلة التحديث لتقليل الاتصالات غير المناسبة',
-      'خيار مناسب لبداية رسمية ومنظمة على حلاق ماب',
+      'استجابة برمجية موثوقة لكل طلب نشط في محيطك الجغرافي',
+      'بطاقة تعريف واضحة: موقع، اتصال، واتساب، وصور أساسية تظهر فور الاستجابة',
+      'حالة مفتوح/مغلق سهلة التحديث لرفع كفاءة الاستجابة الذكية',
+      'خيار مناسب لبداية رسمية ضمن نظام الاستجابة الذكية على حلاق ماب',
     ],
   },
   {
@@ -59,16 +63,16 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     title: 'ماسي',
     nameAr: 'الباقة الماسية',
     badge: '💎',
-    premiumRibbonAr: 'أقوى رخصة تقنية + Add-on اختياري',
+    premiumRibbonAr: 'أقوى رخصة نفاذ + Add-on اختياري',
     productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
     subtitleAr: DIAMOND_LICENSE_TECHNICAL_VALUE_AR,
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
     highlights: [
-      'تمييز ماسي في الظهور — واجهة نخبة وبنر فاخر وشارة صدارة',
+      'تمييز ماسي في الاستجابة — أعلى أولوية ظهور برمجي عند تنشّط الطلب',
       'معرض أعمال حتى 40 صورة مع شات مترجم وإدارة مواعيد من اللوحة',
-      'أعلى مستوى رخصة تقنية للإدراج الجغرافي على نظام الرصد الذكي',
+      'أعلى مستوى رخصة نفاذ ضمن نظام الاستجابة الذكية للظهور عند الطلب',
       DIAMOND_ADDON_OPTION_LINE_AR,
     ],
     digitalShiftAddonAvailable: true,
@@ -81,15 +85,16 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     nameAr: 'ذهبي',
     badge: '🥇',
     productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
-    subtitleAr: 'ظهور أقوى وثقة أعلى للصالونات الجاهزة لاستقبال طلب أكبر',
+    subtitleAr:
+      'رخصة نفاذ ذهبية — أولوية أعلى في الاستجابة وثقة أرفع عند تنشّط الطلب',
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.GOLD],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
     highlights: [
-      'إبراز ذهبي يرفع وضوح صالونك داخل نتائج القرب',
-      'معرض موسّع حتى 20 صورة لإقناع العميل قبل الزيارة',
-      'QR للتقييم، واتساب، وشات مباشر لزيادة الثقة والتحويل',
-      'لوحة تحكم للصور والمنيو والأسعار وأوقات العمل',
+      'إبراز ذهبي يرفع أولوية صالونك في استجابة النظام للطلبات داخل محيطك',
+      'معرض موسّع حتى 20 صورة لإقناع العميل عند ظهور صالونك في الاستجابة',
+      'QR للتقييم، واتساب، وشات مباشر لزيادة الثقة والتحويل بعد الاستجابة',
+      'لوحة تحكم للصور والمنيو والأسعار وأوقات العمل لرفع كفاءة الاستهداف',
     ],
   },
 ] as const;

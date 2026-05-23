@@ -12,6 +12,7 @@ import { TechnicalConsultantLabChat } from '@/components/admin/TechnicalConsulta
 import { ZatcaAdvisorLabChat } from '@/components/admin/ZatcaAdvisorLabChat';
 import { MarketingCouncilLabChat } from '@/components/admin/MarketingCouncilLabChat';
 import { MediaSpokespersonLabChat } from '@/components/admin/MediaSpokespersonLabChat';
+import { CyberDefenseCommanderLabChat } from '@/components/admin/CyberDefenseCommanderLabChat';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';
 import { staffMotion, staffTheme } from '@/components/admin/staff/staffTheme';
 import { Button } from '@/components/ui/button';
@@ -63,6 +64,7 @@ export function AiStaffControlRoom({
   const [b2cMarketingLabOpen, setB2cMarketingLabOpen] = useState(false);
   const [b2bMarketingLabOpen, setB2bMarketingLabOpen] = useState(false);
   const [mediaSpokespersonLabOpen, setMediaSpokespersonLabOpen] = useState(false);
+  const [cyberDefenseLabOpen, setCyberDefenseLabOpen] = useState(false);
   const [crisisModeActive, setCrisisModeActive] = useState(false);
 
   const crisisLabControlled = crisisLabOpenProp !== undefined && onCrisisLabOpenChange !== undefined;
@@ -78,7 +80,7 @@ export function AiStaffControlRoom({
       AI_STAFF_AGENT_REGISTRY.map((agent) => ({
         ...agent,
         permitted:
-          agent.id === 'fleet_director_general'
+          agent.id === 'fleet_director_general' || agent.id === 'cyber_defense_commander'
             ? isBootstrapAdmin || agent.requiredAny.some((p) => can(p))
             : agent.requiredAny.some((p) => can(p)),
       })),
@@ -110,6 +112,22 @@ export function AiStaffControlRoom({
   const handleActivate = (agent: ResolvedAgent) => {
     if (!agent.permitted || !agent.available) return;
 
+    if (agent.id === 'cyber_defense_commander') {
+      setCyberDefenseLabOpen(true);
+      setBillingOpen(false);
+      setDigitalShiftLabOpen(false);
+      setZatcaLabOpen(false);
+      setPartnerLiaisonLabOpen(false);
+      setFleetDirectorLabOpen(false);
+      setCrisisAdvisorLabOpen(false);
+      setPublicProsecutorLabOpen(false);
+      setTechnicalConsultantLabOpen(false);
+      setB2cMarketingLabOpen(false);
+      setB2bMarketingLabOpen(false);
+      setMediaSpokespersonLabOpen(false);
+      setWorkspaceAgentId(null);
+      return;
+    }
     if (agent.id === 'billing_treasurer') {
       setBillingOpen(true);
       setDigitalShiftLabOpen(false);
@@ -252,6 +270,9 @@ export function AiStaffControlRoom({
   );
   const showMediaSpokespersonLab = agents.some(
     (a) => a.id === 'media_spokesperson' && a.permitted,
+  );
+  const showCyberDefenseLab = agents.some(
+    (a) => a.id === 'cyber_defense_commander' && a.permitted,
   );
 
   const openPartnerReportsPanel = () => {
@@ -479,6 +500,27 @@ export function AiStaffControlRoom({
           }
           onSummonB2bMarketing={
             showB2bMarketingLab ? () => setB2bMarketingLabOpen(true) : undefined
+          }
+        />
+      ) : null}
+
+      {showCyberDefenseLab ? (
+        <CyberDefenseCommanderLabChat
+          permitted
+          open={cyberDefenseLabOpen}
+          onOpenChange={setCyberDefenseLabOpen}
+          hideTrigger
+          onSummonProsecutor={
+            showPublicProsecutorLab ? () => setPublicProsecutorLabOpen(true) : undefined
+          }
+          onSummonCrisisAdvisor={
+            showCrisisAdvisorLab ? () => setCrisisAdvisorLabOpen(true) : undefined
+          }
+          onSummonTechnicalConsultant={
+            showTechnicalConsultantLab ? () => setTechnicalConsultantLabOpen(true) : undefined
+          }
+          onSummonFleetDirector={
+            showFleetDirectorLab ? () => setFleetDirectorLabOpen(true) : undefined
           }
         />
       ) : null}

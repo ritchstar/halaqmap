@@ -88,7 +88,7 @@ export default function PartnerInterestLanding() {
             <NavLink to={ROUTE_PATHS.PARTNER_PRIVACY} className="font-semibold text-primary underline underline-offset-2">
               سياسة خصوصية الشركاء
             </NavLink>
-            . مسار حزمة الرخصة والإدراج الكامل (بما في ذلك التحقق النظامي ووسائل الدفع عند تفعيلها) يتم عبر{' '}
+            . مسار حزمة رخصة النفاذ والاستجابة الكامل (بما في ذلك التحقق النظامي ووسائل الدفع عند تفعيلها) يتم عبر{' '}
             <NavLink to={ROUTE_PATHS.REGISTER} className="font-semibold text-primary underline underline-offset-2">
               صفحة التسجيل للشركاء
             </NavLink>{' '}

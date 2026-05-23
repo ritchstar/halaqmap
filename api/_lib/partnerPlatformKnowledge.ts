@@ -27,9 +27,17 @@ import {
   TERM_GEOSPATIAL_DIGITAL_ASSET_AR,
   TERM_PACKAGE_ACTIVATION_AR,
 } from './softwareLicenseTerminology.js';
+import {
+  ON_DEMAND_VISIBILITY_FUNCTIONAL_DESCRIPTION_AR,
+  ON_DEMAND_VISIBILITY_LABEL_EN,
+  ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR,
+  ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
+  ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR,
+  SMART_RESPONSE_SYSTEM_LABEL_AR,
+} from './onDemandVisibilityDoctrine.js';
 
 /** زِد هذا الرقم/التاريخ عند إضافة release note جديد — يظهر في GET /api/partner-assistant-chat */
-export const PARTNER_ASSISTANT_KNOWLEDGE_VERSION = '2026-05-19.3' as const;
+export const PARTNER_ASSISTANT_KNOWLEDGE_VERSION = '2026-05-23.2' as const;
 
 export type PartnerReleaseNote = {
   id: string;
@@ -45,6 +53,50 @@ export type PartnerReleaseNote = {
  * المساعد **ملزم** بالإجابة من هذا القسم عند السؤال عن التحديثات أو الميزات المذكورة.
  */
 export const PARTNER_PLATFORM_RELEASE_NOTES: readonly PartnerReleaseNote[] = [
+  {
+    id: 'on-demand-visibility-doctrine-2026-05-23',
+    date: '2026-05-23',
+    titleAr: `${ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR} — منطق الظهور عند الطلب`,
+    summaryAr:
+      'تمت ترقية تسمية المنتج وعقيدته الرسمية: حزمنا التقنية أصبحت رخصة نفاذ رقمية ضمن نظام الاستجابة الذكية. الظهور برمجي يُفعَّل عند تنشّط الطلب في محيط المزود — لا قائمة دائمة على الخريطة.',
+    topics: [
+      'تسمية',
+      'رخصة',
+      'نفاذ',
+      'استجابة',
+      'الظهور عند الطلب',
+      'On-Demand Visibility',
+      'حزم',
+      'باقات',
+      'قانوني',
+      'حماية',
+      'PDPL',
+    ],
+    bulletsAr: [
+      `الاسم الرسمي الموحّد للمنتج: «${ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR}» — يحلّ محل التسميات السابقة في الباقات والوصف.`,
+      `النظام الذي تُبنى عليه الحزم: «${SMART_RESPONSE_SYSTEM_LABEL_AR}» (الظهور عند الطلب · ${ON_DEMAND_VISIBILITY_LABEL_EN}).`,
+      `الوصف الوظيفي للجمهور: ${ON_DEMAND_VISIBILITY_FUNCTIONAL_DESCRIPTION_AR}`,
+      `التعريف القانوني للامتثال والحماية: ${ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR}`,
+      `ما يُقال للشريك: ${ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR}`,
+      'ما يتغيّر عملياً للحلاق: لا تغيير في السعر (برونزي 100 · ذهبي 150 · ماسي 200) — يتغيّر فقط منطق الظهور: استجابة برمجية عند الطلب بدل قائمة دائمة، مع أولويات استجابة مختلفة لكل مستوى.',
+      'الحماية القانونية: الصياغة تحمي المنصة من شكاوى عدم الظهور الدائم، لأن الرخصة لا تتضمّن التزاماً بالإشغال الدائم للمساحات الرقمية.',
+    ],
+  },
+  {
+    id: 'platform-cyber-defense-shield',
+    date: '2026-05-23',
+    titleAr: 'درع الدفاع السيبراني — حماية المنصة على مدار الساعة',
+    summaryAr:
+      'منصة حلاق ماب محميّة بدرع دفاع سيبراني متقدّم — إجراءات أمنية موحّدة على بياناتك وعلى المدفوعات بمعايير `PDPL` السعودية.',
+    topics: ['أمان', 'حماية', 'سيبراني', 'PDPL', 'خصوصية', 'أمن'],
+    bulletsAr: [
+      'تشفير في النقل (`TLS 1.2+`) وعند الراحة لقاعدة البيانات والملفات.',
+      'فصل صارم لصلاحيات الإدارة — لا يستطيع أي مشغّل الوصول لبياناتك المالية إلا بضوابط الحوكمة.',
+      'مراقبة مستمرة للسلوك الشاذ، تنبيهات تلقائية، واستجابة حادثة بمعايير `NIST 800-61`.',
+      'الالتزام بنظام حماية البيانات الشخصية السعودي (`PDPL`) ومتطلبات الهيئة الوطنية للأمن السيبراني (`NCA ECC`).',
+      'لن تُكشف لك تفاصيل عمليات الدفاع — هذا حماية لك ولمنصتك.',
+    ],
+  },
   {
     id: 'partner-agent-council-orchestration',
     date: '2026-05-19',
@@ -91,11 +143,11 @@ export const PARTNER_PLATFORM_RELEASE_NOTES: readonly PartnerReleaseNote[] = [
   },
   {
     id: 'geospatial-license-manager',
-    date: '2026-05-19',
-    titleAr: 'نظام إدارة تراخيص برمجية — Geospatial License Asset',
+    date: '2026-05-23',
+    titleAr: `${ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR} — Digital Access Licence`,
     summaryAr:
-      'المنتج B2B هو حزم رخصة تواجد رقمي جغرافي (ISIC 474151) وليس وساطة حجز أو عمولة حلاقة.',
-    topics: ['رخصة', '474151', 'ISIC', 'Geospatial', 'اشتراك', 'إعلان'],
+      'المنتج B2B هو رخصة نفاذ رقمية ضمن نظام الاستجابة الذكية (ISIC 474151) — حضور غير ثابت يُفعَّل عند الطلب، وليس وساطة حجز أو عمولة حلاقة.',
+    topics: ['رخصة', '474151', 'ISIC', 'Geospatial', 'اشتراك', 'نفاذ', 'استجابة', 'On-Demand'],
     bulletsAr: [
       `التسمية: ${TERM_PACKAGE_ACTIVATION_AR} بدلاً من «اشتراك».`,
       `الأصل على الخريطة: ${TERM_GEOSPATIAL_DIGITAL_ASSET_AR} بدلاً من «إعلان».`,
@@ -109,18 +161,25 @@ export const PARTNER_PLATFORM_RELEASE_NOTES: readonly PartnerReleaseNote[] = [
 function composePartnerProductFactsPack(): string {
   return [
     '### حقائق المنتج والتسعير (مُحدَّثة تلقائياً — مصدر تشغيلي)',
-    `- ${PLATFORM_NAME_AR} — حزم رخصة التواجد الرقمي الجغرافي B2B.`,
+    `- ${PLATFORM_NAME_AR} — ${ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR}.`,
+    `- النظام التقني: ${SMART_RESPONSE_SYSTEM_LABEL_AR} (${ON_DEMAND_VISIBILITY_LABEL_EN}).`,
+    `- الوصف الوظيفي للجمهور: ${ON_DEMAND_VISIBILITY_FUNCTIONAL_DESCRIPTION_AR}`,
+    `- التعريف القانوني: ${ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR}`,
     `- ${ISIC_ACTIVITY_CODE_LABEL_AR}: **${ISIC_ACTIVITY_CODE}** (${GEOSPATIAL_LICENSE_ASSET_CLASS}).`,
-    '- أسعار حزمة الرخصة (30 يوم إدراج / بطاقة واحدة):',
+    '- أسعار حزمة رخصة النفاذ (30 يوم نفاذ / حزمة واحدة):',
     '  · برونزي: 100 ر.س/حزمة',
     '  · ذهبي: 150 ر.س/حزمة',
-    '  · ماسي (رخصة تقنية): 200 ر.س/حزمة',
+    '  · ماسي (رخصة نفاذ): 200 ر.س/حزمة',
     `  · ${DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR} — للماسية فقط (اختياري).`,
     `  · ${DIAMOND_PRODUCT_SMART_LABEL_AR}: **225 ر.س/حزمة** (= 200 + ${DIGITAL_SHIFT_MONTHLY_ADDON_SAR}).`,
     '',
+    '### رد جاهز على «لماذا لا يظهر اسمي دائماً على الخريطة؟»',
+    `- ${ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR}`,
+    '- التفسير المهني: الرخصة لا تشمل التزاماً بالظهور الدائم؛ هي رخصة استجابة برمجية عند الطلب — كفاءة استهداف لا قائمة دائمة.',
+    '',
     '### المناوب الرقمي الذكي — إجابة جاهزة (استخدمها عند السؤال)',
     `- **ما هو؟** ${DIGITAL_SHIFT_PRODUCT_NAME_AR} — ${DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR}.`,
-    `- **السعر:** +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س لكل حزمة رخصة ماسية (منفصل عن 200 ر.س).`,
+    `- **السعر:** +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س لكل حزمة رخصة نفاذ ماسية (منفصل عن 200 ر.س).`,
     `- **القيمة:** ${DIGITAL_SHIFT_ADDON_VALUE_AR}`,
     '- **التشغيل مع العملاء:**',
     '  1) يشتغل في الشات الخاص مع العميل (وليس واتساب خارجي).',

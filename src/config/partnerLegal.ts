@@ -17,4 +17,5 @@ export const PARTNER_SUPPORT_PHONE_E164 = '966559602685';
 export const PARTNER_SUPPORT_WHATSAPP_URL = `https://wa.me/${PARTNER_SUPPORT_PHONE_E164}`;
 
 /** عنوان سياسة حزم الرخصة — موحّد في الوثائق القانونية والتذييل والتسجيل */
-export const DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR = 'سياسة حزم رخصة التواجد الرقمي الجغرافي';
+export const DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR =
+  'سياسة رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية)';

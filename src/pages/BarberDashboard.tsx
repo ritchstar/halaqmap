@@ -604,9 +604,9 @@ export default function BarberDashboard() {
 
           <Card className="border-emerald-500/30 bg-emerald-500/5">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">صلاحية حزمة الإدراج البرمجية الرقمي</CardTitle>
+              <CardTitle className="text-lg">صلاحية رخصة النفاذ الرقمية (نظام الاستجابة الذكية)</CardTitle>
               <CardDescription className="text-sm leading-relaxed">
-                صلاحية الظهور عبر نظام الرصد الذكي مبنية على <strong>حزمة رخصة مسبقة الدفع</strong> لخدمات الإدراج البرمجية الموحدة.
+                صلاحية الاستجابة البرمجية ضمن نظام الاستجابة الذكية مبنية على <strong>حزمة رخصة نفاذ مسبقة الدفع</strong> — يُفعَّل ظهور صالونك عند وجود طلب نشط في محيطه.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -621,13 +621,13 @@ export default function BarberDashboard() {
                 </p>
                 {listingBalance?.validUntil ? (
                   <p className="text-xs text-muted-foreground">
-                    <strong>تاريخ انتهاء صلاحية حزمة الإدراج البرمجية:</strong>{' '}
+                    <strong>تاريخ انتهاء صلاحية حزمة رخصة النفاذ:</strong>{' '}
                     <span dir="ltr">{new Date(listingBalance.validUntil).toLocaleString('ar-SA')}</span>
                   </p>
                 ) : null}
               </motion.div>
               <Button type="button" variant="outline" size="sm" onClick={() => setRedeemDialogOpen(true)}>
-                استرداد رمز حزمة الرخصة
+                استرداد رمز حزمة رخصة النفاذ
               </Button>
             </CardContent>
           </Card>
@@ -644,13 +644,13 @@ export default function BarberDashboard() {
           <Dialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen}>
             <DialogContent dir="rtl" className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>استرداد رمز حزمة الإدراج البرمجية</DialogTitle>
+                <DialogTitle>استرداد رمز حزمة رخصة النفاذ</DialogTitle>
                 <DialogDescription>
-                  أدخل الرمز الذي وصلك بالبريد بعد شراء حزمة الرخصة (مثال: HM-LIC-XXXX-XXXX-XXXX).
+                  أدخل الرمز الذي وصلك بالبريد بعد شراء حزمة رخصة النفاذ (مثال: HM-LIC-XXXX-XXXX-XXXX).
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
-                <Label htmlFor="license-redeem-code">رمز حزمة الرخصة</Label>
+                <Label htmlFor="license-redeem-code">رمز حزمة رخصة النفاذ</Label>
                 <Input
                   id="license-redeem-code"
                   value={redeemCode}
@@ -749,7 +749,7 @@ export default function BarberDashboard() {
                     <div className="space-y-1 text-right">
                       <p className="text-sm font-semibold">قبول العملاء الآن عبر نظام الرصد الذكي</p>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء صلاحية حزمة الإدراج البرمجية عن المنصة.
+                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء صلاحية حزمة رخصة النفاذ عن المنصة.
                       </p>
                     </div>
                     <Switch

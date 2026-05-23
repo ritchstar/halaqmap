@@ -9,6 +9,7 @@ import {
   Moon,
   Scale,
   Shield,
+  ShieldAlert,
   Siren,
   Users,
 } from 'lucide-react';
@@ -38,6 +39,13 @@ type Props = {
 function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName: string }) {
   const base = 'flex h-10 w-10 shrink-0 items-center justify-center rounded-md border';
 
+  if (kind === 'cyber_defense') {
+    return (
+      <span className={cn(base, 'border-red-800/70 bg-red-950/60 relative')}>
+        <ShieldAlert className="h-5 w-5 text-red-300" strokeWidth={2} />
+      </span>
+    );
+  }
   if (kind === 'zatca_shield') {
     return (
       <span className={cn(base, 'border-amber-700/50 bg-amber-950/40 relative')}>

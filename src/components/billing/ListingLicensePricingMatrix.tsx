@@ -110,8 +110,7 @@ export function ListingLicensePricingMatrix({
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
             {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_PLURAL_AR} مبنية على{' '}
-            <strong className="font-semibold text-slate-200">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</strong>. اختر المستوى وعدد البطاقات (كل
-            بطاقة = 30 يوم إدراج).
+            <strong className="font-semibold text-slate-200">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</strong>: حضور جغرافي غير ثابت يُفعَّل برمجياً عند تنشّط الطلب في محيطك. اختر المستوى وعدد الحزم (كل حزمة = 30 يوم نفاذ).
           </p>
         </header>
       ) : null}

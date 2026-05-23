@@ -21,6 +21,13 @@ export const AI_STAFF_CONTROL_ROOM_SUBTITLE =
 
 export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
   {
+    id: 'supreme_defense',
+    titleAr: '◉ القيادة العليا للدفاع السيبراني',
+    subtitleAr:
+      'القائد الأعلى للدفاع — Cyber Defense Commander · يستفز كل الوكلاء لقيادة دفّة الدفاع. «المدعي العام» سلطة مستقلة ولا يخضع لأمره.',
+    gridClassName: 'max-w-3xl',
+  },
+  {
     id: 'internal_governance',
     titleAr: 'أ — الحوكمة الداخلية للمنصة',
     subtitleAr: 'خازن · ZATCA · مستشار الأزمات · المدعي العام — سجلات المنصة والامتثال والتعافي',
@@ -77,6 +84,44 @@ const PARTNER_LIAISON_DOCTRINE: string[] = [
 
 /** Unified registry — single source of truth for all virtual staff. */
 export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
+  {
+    id: 'cyber_defense_commander',
+    boundary: 'supreme_defense',
+    shortName: 'القائد الأعلى للدفاع 🛡️◉',
+    title: 'Cyber Defense Commander — القائد الأعلى للدفاع السيبراني',
+    statusBadgeAr: 'سيادة دفاع · Supreme Command',
+    ctaLabelAr: 'فتح غرفة الدفاع السيبراني 🛡️',
+    roleDescription:
+      'وكيل سيبراني من الطراز الأول — مزوّد بأقصى ما يمكن من علوم الأمن السيبراني (Defensive · Offensive · IR · Cloud · AppSec · Compliance). معرفته بمنصة حلاق ماب عامة فقط؛ يستفز كل الوكلاء (ما عدا المدعي العام صاحب السلطة المستقلة) ويوحّد قيادة الدفاع عند أي هجوم سيبراني. يصدر «أمر دفاع» قابلاً للتنفيذ لا قراراً تنفيذياً مباشراً.',
+    accentClass: staffTheme.accentSupremeDefense,
+    requiredAny: ['manage_admins', 'view_overview'],
+    available: true,
+    iconKind: 'cyber_defense',
+    workspaceKind: 'cyber_defense_command',
+    classification: 'elite_covert',
+    consultAgents: [
+      'technical_consultant_engineering',
+      'system_crisis_advisor',
+      'fleet_director_general',
+      'billing_treasurer',
+      'zatca_tax_advisor',
+      'partner_relations_liaison',
+      'digital_shift_field',
+      'media_spokesperson',
+      'public_prosecutor',
+    ],
+    doctrineNotes: [
+      'تخصص مطلق في الأمن السيبراني — معرفة المنصة عامة فقط، يستشير الوكيل المختص قبل أي قرار حساس.',
+      'القائد الأعلى للدفاع: جميع الوكلاء تحت إمرته باستثناء «المدعي العام» (سلطة مستقلة — تشاور لا أمر).',
+      'يصدر «أمر دفاع» (Defense Order) — لا تنفيذ مباشر على الإنتاج من المحادثة.',
+      'بروتوكول NIST 800-61: Detect → Triage → Contain → Eradicate → Recover → Lessons Learned.',
+      'يلتزم بـ PDPL/NCA ECC ولا يكشف أسراراً تشغيلية في أي رد.',
+    ],
+    productRef: {
+      apiRoutes: ['/api/admin-cyber-defense-commander-lab-chat'],
+      systemPromptBuilder: 'api/_lib/cyberDefenseCommanderLab.ts',
+    },
+  },
   {
     id: 'billing_treasurer',
     boundary: 'internal_governance',
@@ -160,6 +205,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
       'Radar Sync: نمط Inspector → تقرير وقائي في التغذية التشغيلية.',
       'Compliance Enforcement: تدقيق ComplianceCheckbox + ميثاق الالتزام المهني.',
       'Crisis Watch: مقاطعة إذا أُعطيت UX أولوية على Data Integrity — بروtokol P0.',
+      'سلطة مستقلة — لا يخضع لأمر القائد الأعلى للدفاع السيبراني؛ يتشاور معه ويراجع قراراته الحوكمية.',
     ],
     productRef: {
       apiRoutes: [

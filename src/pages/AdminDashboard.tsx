@@ -5720,7 +5720,7 @@ function SettingsSection({
             <div>
               <p className="font-medium">تفعيل احتساب الضريبة في الواجهة</p>
               <p className="text-sm text-muted-foreground mt-1">
-                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة حزم الرخصة الرقمية.
+                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة رخصة النفاذ الرقمية.
               </p>
             </div>
             <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} disabled={!canSavePlatformVat} />

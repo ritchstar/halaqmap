@@ -35,7 +35,7 @@ export default function SubscriptionPolicy() {
 
   const paymentMethods = [
     {
-      title: "شراء حزمة الرخصة الرقمية (بوابة ميسر Moyasar)",
+      title: "شراء حزمة رخصة النفاذ الرقمية (بوابة ميسر Moyasar)",
       description:
         "الطريقة المتاحة لشراء حزم الرخصة الحالية: دفع لمرة واحدة عبر بوابة ميسر (Moyasar) المعتمدة وفق الأنظمة المعمول بها في المملكة — برونزي 100 ر.س، ذهبي 150 ر.س، ماسي 200 ر.س — لمدة 30 يوماً لكل حزمة، دون تجديد تلقائي أو خصم دوري. للماسية: إضافة «المناوب الرقمي الذكي» إضافة برمجية متقدمة (Add-on) اختيارية +25 ر.س/حزمة — منفصلة عن الرخصة التقنية.",
       icon: CheckCircle2,
@@ -102,10 +102,10 @@ export default function SubscriptionPolicy() {
       >
         <motion.div variants={fadeInUp} className="text-center mb-12">
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-            سياسة حزم الرخصة الرقمية للإدراج البرمجي
+            سياسة رخصة النفاذ الرقمية (نظام الاستجابة الذكية)
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-l from-primary to-accent bg-clip-text text-transparent">
-            شروط شراء حزم الإدراج البرمجية
+            شروط شراء حزم رخصة النفاذ الرقمية
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             نلتزم بالشفافية الكاملة في بيع حزم الرخصة الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
@@ -138,7 +138,7 @@ export default function SubscriptionPolicy() {
         </motion.section>
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-4 text-center">أنواع باقات حزم الرخصة والأسعار</h2>
+          <h2 className="text-3xl font-bold mb-4 text-center">أنواع باقات حزم رخصة النفاذ والأسعار</h2>
           <p className="text-sm text-muted-foreground text-center max-w-3xl mx-auto mb-8 leading-relaxed">
             {SUBSCRIPTION_POLICY_TIERS_INTRO}
           </p>
@@ -263,7 +263,7 @@ export default function SubscriptionPolicy() {
                   <div>
                     <h3 className="font-semibold mb-1">انتهاء الصلاحية</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      عند انتهاء مدة حزمة الرخصة تتوقف صلاحية الإدراج عبر نظام الرصد الذكي حتى شراء حزمة رخصة جديدة أو استرداد كود تفعيل.
+                      عند انتهاء مدة حزمة رخصة النفاذ تتوقف صلاحية الاستجابة البرمجية ضمن نظام الاستجابة الذكية حتى شراء حزمة جديدة أو استرداد كود تفعيل.
                     </p>
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">انتهاء حزمة الرخصة وإعادة الشراء</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">انتهاء حزمة رخصة النفاذ وإعادة الشراء</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {cancellationSteps.map((item, index) => (
               <motion.div

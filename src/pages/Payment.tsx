@@ -398,10 +398,10 @@ export default function Payment() {
             </motion.div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-snug">
-              شراء حزمة رخصة لخدمات الإدراج البرمجية
+              شراء حزمة رخصة نفاذ — نظام الاستجابة الذكية
             </h1>
             <p className="text-lg text-muted-foreground">
-              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة الرخصة
+              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة رخصة النفاذ
             </p>
           </div>
         </motion.div>
@@ -456,7 +456,7 @@ export default function Payment() {
               {/* Subscription Summary */}
               <Card>
                 <CardHeader>
-                  <CardTitle>ملخص حزمة الرخصة الرقمية</CardTitle>
+                  <CardTitle>ملخص حزمة رخصة النفاذ الرقمية</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
@@ -593,7 +593,7 @@ export default function Payment() {
                             . يلتزم التاجر بـ SSL، والتحقق من الدفع في الخادم، وعدم تخزين بيانات البطاقة،
                             وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع أيضاً{' '}
                             <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
-                              سياسة حزم الرخصة الرقمية
+                              سياسة رخصة النفاذ الرقمية
                             </Link>
                             .
                           </p>

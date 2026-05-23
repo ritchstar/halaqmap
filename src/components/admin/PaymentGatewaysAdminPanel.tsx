@@ -112,7 +112,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
               بوابات الدفع والتحكم
             </CardTitle>
             <CardDescription className="mt-2 max-w-2xl leading-relaxed">
-              تحكم في القنوات المعروضة للشركاء، أتمتة البريد وواتساب بعد الدفع، ومراقبة حزم الإدراج البرمجية وأحداث الأمان.
+              تحكم في القنوات المعروضة للشركاء، أتمتة البريد وواتساب بعد الدفع، ومراقبة حزم رخصة النفاذ وأحداث الأمان.
               المفاتيح السرية تبقى في متغيرات الخادم فقط.
             </CardDescription>
           </div>
