@@ -15,6 +15,9 @@ import { KSA_VIEWBOX } from '@/modules/platform-radar/lib/saudiKingdomGeo';
 import { EXTERNAL_SOURCES, projectExternalSource } from '../lib/cyberGeo';
 import type { CyberEvent, CyberEventKind } from '../types';
 
+/** Max viewBox-unit distance to consider a pulse originating from a ring source. */
+const RING_PROXIMITY_SQ = 16 * 16; // 16 units
+
 type Props = {
   pulses: ReadonlyArray<CyberEvent>;
   narrator?: string | null;
@@ -62,8 +65,17 @@ const PULSE_PALETTE: Record<CyberEventKind, { glow: string; dot: string; ring: s
 function CyberPulseDot({ pulse }: { pulse: CyberEvent }) {
   const palette = PULSE_PALETTE[pulse.kind];
   const radius = pulse.severity === 'critical' ? 10 : pulse.severity === 'elevated' ? 8 : 6;
+  const hasVolume = typeof pulse.volume === 'number' && pulse.volume > 1;
+  const volumeLabel =
+    hasVolume && pulse.volume !== undefined
+      ? pulse.volume >= 1000
+        ? `×${(pulse.volume / 1000).toFixed(1)}k`
+        : `×${pulse.volume}`
+      : null;
+
   return (
     <g>
+      {/* Expanding glow halo */}
       <circle cx={pulse.source.x} cy={pulse.source.y} r={radius * 3.5} fill={palette.glow}>
         <animate
           attributeName="r"
@@ -78,6 +90,7 @@ function CyberPulseDot({ pulse }: { pulse: CyberEvent }) {
           repeatCount="indefinite"
         />
       </circle>
+      {/* Outer ring */}
       <circle
         cx={pulse.source.x}
         cy={pulse.source.y}
@@ -86,7 +99,23 @@ function CyberPulseDot({ pulse }: { pulse: CyberEvent }) {
         stroke={palette.ring}
         strokeWidth={1.5}
       />
+      {/* Core dot */}
       <circle cx={pulse.source.x} cy={pulse.source.y} r={radius * 0.7} fill={palette.dot} />
+      {/* Volume badge */}
+      {volumeLabel ? (
+        <text
+          x={pulse.source.x}
+          y={pulse.source.y - radius * 2.2}
+          textAnchor="middle"
+          fontSize="8.5"
+          fontFamily="system-ui, sans-serif"
+          fontWeight="bold"
+          fill={palette.dot}
+          style={{ paintOrder: 'stroke', stroke: 'rgba(0,0,0,0.85)', strokeWidth: 2.5 }}
+        >
+          {volumeLabel}
+        </text>
+      ) : null}
     </g>
   );
 }
@@ -127,6 +156,28 @@ export function CyberRadarCanvas({ pulses, narrator, className }: Props) {
     [],
   );
 
+  // Determine which external sources are actively threatening (a threat pulse
+  // is close to the ring node that represents that source).
+  const threatenedSourceIds = useMemo(() => {
+    const active = pulses.filter(
+      (p) => p.kind === 'threat_attack' || p.kind === 'threat_probe',
+    );
+    if (active.length === 0) return new Set<string>();
+    const threatened = new Set<string>();
+    for (const pulse of active) {
+      for (const src of externalLabels) {
+        const dx = pulse.source.x - src.x;
+        const dy = pulse.source.y - src.y;
+        if (dx * dx + dy * dy <= RING_PROXIMITY_SQ) {
+          threatened.add(src.id);
+        }
+      }
+    }
+    return threatened;
+  }, [pulses, externalLabels]);
+
+  const hasActiveAttack = pulses.some((p) => p.kind === 'threat_attack');
+
   return (
     <div className={`relative h-full w-full overflow-hidden bg-black ${className ?? ''}`}>
       <div
@@ -146,29 +197,77 @@ export function CyberRadarCanvas({ pulses, narrator, className }: Props) {
         >
           {/* Layer 2 — external source ring */}
           <g>
-            {externalLabels.map((s) => (
-              <g key={s.id}>
-                <circle cx={s.x} cy={s.y} r={5} fill="rgba(148,163,184,0.18)" />
-                <circle
-                  cx={s.x}
-                  cy={s.y}
-                  r={2}
-                  fill="rgba(148,163,184,0.55)"
-                />
-                <text
-                  x={s.x}
-                  y={s.y - 10}
-                  textAnchor="middle"
-                  fontSize="11"
-                  fontFamily="system-ui"
-                  fill="rgba(148,163,184,0.65)"
-                  style={{ paintOrder: 'stroke', stroke: 'rgba(0,0,0,0.7)', strokeWidth: 2 }}
-                >
-                  {s.labelAr}
-                </text>
-              </g>
-            ))}
+            {externalLabels.map((s) => {
+              const threatened = threatenedSourceIds.has(s.id);
+              const nodeColor = threatened
+                ? 'rgba(248,113,113,0.90)'
+                : 'rgba(148,163,184,0.55)';
+              const glowColor = threatened
+                ? 'rgba(248,113,113,0.25)'
+                : 'rgba(148,163,184,0.18)';
+              const textColor = threatened
+                ? 'rgba(252,165,165,0.95)'
+                : 'rgba(148,163,184,0.65)';
+              return (
+                <g key={s.id}>
+                  {/* Threat pulse ring on active attacker */}
+                  {threatened && (
+                    <circle cx={s.x} cy={s.y} r={12} fill="rgba(248,113,113,0.12)">
+                      <animate
+                        attributeName="r"
+                        values="6;18;6"
+                        dur="1.6s"
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="opacity"
+                        values="0.8;0.1;0.8"
+                        dur="1.6s"
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                  )}
+                  <circle cx={s.x} cy={s.y} r={5} fill={glowColor} />
+                  <circle cx={s.x} cy={s.y} r={2} fill={nodeColor} />
+                  <text
+                    x={s.x}
+                    y={s.y - 10}
+                    textAnchor="middle"
+                    fontSize="11"
+                    fontFamily="system-ui"
+                    fill={textColor}
+                    fontWeight={threatened ? 'bold' : 'normal'}
+                    style={{ paintOrder: 'stroke', stroke: 'rgba(0,0,0,0.7)', strokeWidth: 2 }}
+                  >
+                    {s.labelAr}
+                    {threatened ? ' ⚠' : ''}
+                  </text>
+                </g>
+              );
+            })}
           </g>
+
+          {/* Active attack warning ring around KSA center */}
+          {hasActiveAttack && (
+            <g opacity={0.35}>
+              <circle
+                cx={KSA_VIEWBOX.width / 2}
+                cy={KSA_VIEWBOX.height / 2}
+                r={60}
+                fill="none"
+                stroke="rgba(248,113,113,0.6)"
+                strokeWidth={1}
+                strokeDasharray="4 8"
+              >
+                <animate
+                  attributeName="stroke-dashoffset"
+                  values="0;-36"
+                  dur="1.8s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+            </g>
+          )}
 
           {/* Layer 3 — trace vectors (threats & defence) */}
           <g>
