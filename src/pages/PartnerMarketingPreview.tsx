@@ -7,7 +7,7 @@
  * يعتمد نفس نظام التصميم الداكن لصفحة /preview مع محتوى موجَّه للشريك.
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Scissors, Star, Shield, CheckCircle2, Clock, ArrowLeft,
@@ -20,6 +20,8 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
+import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -38,90 +40,7 @@ function useCounter(end: number, duration = 1800, enabled = true) {
   return count;
 }
 
-// ─── Simulated barber card preview ──────────────────────────────────────────
-function BarberCardPreview({ tier }: { tier: 'bronze' | 'gold' | 'diamond' }) {
-  const TIER_DATA = {
-    bronze: {
-      name: 'صالون الشرق الكلاسيكي',
-      badge: '🥉 برونزي',
-      badgeColor: 'border-amber-700/50 text-amber-700',
-      rating: 4.5,
-      dist: '٨٠٠م',
-      open: true,
-      services: ['قص شعر', 'حلاقة لحية'],
-      hasBanner: false,
-      hasChat: false,
-    },
-    gold: {
-      name: 'ستايل برو — حلاقة فاخرة',
-      badge: '🥇 ذهبي',
-      badgeColor: 'border-amber-400/60 text-amber-300',
-      rating: 4.8,
-      dist: '٣٠٠م',
-      open: true,
-      services: ['قص شعر', 'لحية', 'عناية بالبشرة'],
-      hasBanner: true,
-      hasChat: false,
-    },
-    diamond: {
-      name: 'برباشوب الماسي — VIP',
-      badge: '💎 ماسي',
-      badgeColor: 'border-cyan-400/60 text-cyan-300',
-      rating: 4.9,
-      dist: '١٥٠م',
-      open: true,
-      services: ['قص شعر', 'لحية', 'كيراتين', 'تلوين'],
-      hasBanner: true,
-      hasChat: true,
-    },
-  };
-  const d = TIER_DATA[tier];
-  return (
-    <div className="rounded-2xl border border-white/10 bg-[#0a1628]/80 p-4 backdrop-blur-sm" dir="rtl">
-      {d.hasBanner && (
-        <div className={`mb-3 h-24 w-full rounded-xl flex items-center justify-center text-xs text-slate-500
-          ${tier === 'diamond' ? 'bg-gradient-to-l from-cyan-900/40 to-teal-900/40 border border-cyan-400/20' : 'bg-gradient-to-l from-amber-900/30 to-yellow-900/20 border border-amber-400/15'}`}>
-          <ImageIcon className="h-5 w-5 me-2 opacity-40" />
-          بنر الصالون التسويقي
-        </div>
-      )}
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div>
-          <div className="text-sm font-bold text-white">{d.name}</div>
-          <div className="mt-0.5 flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              <span className="text-[0.7rem] text-amber-300 font-semibold">{d.rating}</span>
-            </div>
-            <span className="text-[0.65rem] text-slate-500">· {d.dist}</span>
-            <span className={`rounded-full px-2 py-0.5 text-[0.55rem] font-bold ${d.open ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-              {d.open ? 'مفتوح' : 'مغلق'}
-            </span>
-          </div>
-        </div>
-        <span className={`rounded-full border px-2 py-0.5 text-[0.6rem] font-bold ${d.badgeColor}`}>{d.badge}</span>
-      </div>
-      <div className="mb-3 flex flex-wrap gap-1.5">
-        {d.services.map((s) => (
-          <span key={s} className="rounded-full bg-white/5 px-2 py-0.5 text-[0.6rem] text-slate-400">{s}</span>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <a href={`/#${ROUTE_PATHS.HOME}`} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-teal-500/15 px-2 py-2 text-[0.65rem] font-semibold text-teal-300 hover:bg-teal-500/25 transition-colors">
-          <Navigation2 className="h-3 w-3" /> اكتشف القريب
-        </a>
-        <a href={`/#${ROUTE_PATHS.REGISTER}`} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-amber-500/15 px-2 py-2 text-[0.65rem] font-semibold text-amber-300 hover:bg-amber-500/25 transition-colors">
-          <Phone className="h-3 w-3" /> سجّل صالونك
-        </a>
-        {d.hasChat && (
-          <a href={`/#${ROUTE_PATHS.REGISTER}?tier=diamond`} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-violet-500/15 px-2 py-2 text-[0.65rem] font-semibold text-violet-300 hover:bg-violet-500/25 transition-colors">
-            <MessageCircle className="h-3 w-3" /> ماسي
-          </a>
-        )}
-      </div>
-    </div>
-  );
-}
+// BarberCardPreview حُذِف — يستخدم EndUserBarberBannerSim الحقيقي الآن
 
 // ─── Feature card ────────────────────────────────────────────────────────────
 function FeatureCard({ icon: Icon, title, desc, color, delay = 0, badge }: {
@@ -479,35 +398,38 @@ export default function PartnerMarketingPreview() {
             className="relative"
           >
             <div className="mb-4 flex items-center justify-center gap-2">
-              {(['bronze', 'gold', 'diamond'] as const).map((t) => (
+              {PARTNER_BANNERS_PREVIEW_TIERS.map((tier) => (
                 <button
-                  key={t}
-                  onClick={() => setActiveTab(t)}
+                  key={tier.id}
+                  onClick={() => setActiveTab(tier.id)}
                   className={`rounded-lg border px-4 py-2 text-xs font-semibold transition-all ${
-                    activeTab === t
-                      ? t === 'diamond' ? 'border-cyan-400/60 bg-cyan-500/15 text-cyan-200'
-                        : t === 'gold' ? 'border-amber-400/60 bg-amber-500/15 text-amber-200'
+                    activeTab === tier.id
+                      ? tier.id === 'diamond' ? 'border-cyan-400/60 bg-cyan-500/15 text-cyan-200'
+                        : tier.id === 'gold' ? 'border-amber-400/60 bg-amber-500/15 text-amber-200'
                         : 'border-amber-700/50 bg-amber-800/15 text-amber-600'
                       : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20'
                   }`}
                 >
-                  {t === 'bronze' ? '🥉 برونزي' : t === 'gold' ? '🥇 ذهبي' : '💎 ماسي'}
+                  {tier.badge} {tier.id === 'bronze' ? 'برونزي' : tier.id === 'gold' ? 'ذهبي' : 'ماسي'}
                 </button>
               ))}
             </div>
             <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.25 }}
-              >
-                <BarberCardPreview tier={activeTab} />
-              </motion.div>
+              {PARTNER_BANNERS_PREVIEW_TIERS.filter((t) => t.id === activeTab).map((tier) => (
+                <motion.div
+                  key={tier.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {/* المحاكاة الحقيقية من صفحة معاينة البنرات */}
+                  <EndUserBarberBannerSim tier={tier} startDelayMs={600} />
+                </motion.div>
+              ))}
             </AnimatePresence>
-            <p className="mt-3 text-center text-[0.65rem] text-slate-600">
-              هكذا يظهر صالونك للزبائن حسب باقتك
+            <p className="mt-3 text-center text-[0.65rem] text-slate-500">
+              محاكاة حقيقية لرحلة الزبون — اضغط التبويب لتغيير الباقة
             </p>
 
             {/* Floating indicators */}
@@ -705,19 +627,23 @@ export default function PartnerMarketingPreview() {
             </motion.h2>
             <p className="mt-3 text-slate-400">معاينة حقيقية لبطاقات الباقات الثلاث على المنصة</p>
           </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {(['bronze', 'gold', 'diamond'] as const).map((t, i) => (
+          <div className="grid gap-8 md:grid-cols-3">
+            {PARTNER_BANNERS_PREVIEW_TIERS.map((tier, i) => (
               <motion.div
-                key={t}
+                key={tier.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.12 }}
+                transition={{ delay: i * 0.15 }}
               >
-                <div className={`mb-3 text-center text-xs font-bold ${t === 'diamond' ? 'text-cyan-400' : t === 'gold' ? 'text-amber-400' : 'text-amber-700'}`}>
-                  {t === 'bronze' ? '🥉 البرونزي' : t === 'gold' ? '🥇 الذهبي' : '💎 الماسي'}
+                <div className={`mb-3 text-center text-xs font-bold ${tier.id === 'diamond' ? 'text-cyan-400' : tier.id === 'gold' ? 'text-amber-400' : 'text-amber-700'}`}>
+                  {tier.badge} {tier.id === 'bronze' ? 'البرونزي' : tier.id === 'gold' ? 'الذهبي' : 'الماسي'}
                 </div>
-                <BarberCardPreview tier={t} />
+                {/* محاكاة حقيقية مع صور وتفاعل */}
+                <EndUserBarberBannerSim
+                  tier={tier}
+                  startDelayMs={i * 800}
+                />
               </motion.div>
             ))}
           </div>
