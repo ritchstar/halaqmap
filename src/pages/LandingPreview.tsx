@@ -1,12 +1,12 @@
 /**
- * صفحة الهبوط التصميمية التجريبية — حلاق ماب
- * المسار: /preview
+ * صفحة الرئيسية الجديدة — حلاق ماب
+ * المسار: / (الرئيسية)
  *
- * تصور كامل لواجهة المستخدم الرئيسية مع أعلى مستوى تصميمي
- * يعكس هوية المنصة: تقنية ذكية · فخامة خليجية · حضور جغرافي
+ * الرادار الجغرافي الحيّ + البحث الحقيقي عن الصالونات
+ * تصميم تكتيكي داكن · فخامة خليجية · حضور جغرافي
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
@@ -16,7 +16,18 @@ import {
   Phone, MessageCircle, Heart, BarChart3, Crown
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/lib/index';
+import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
+import { LocationButton } from '@/components/LocationButton';
+import { FilterBar } from '@/components/FilterBar';
+import { BarberCard } from '@/components/BarberCards';
+import { BarberMap } from '@/components/BarberMap';
+import { BarberDetailModal } from '@/components/BarberDetailModal';
+import { LocationStatusBar } from '@/components/LocationStatusBar';
+import { KSACityClocksBar } from '@/components/KSACityClocksBar';
+import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { toast } from '@/components/ui/sonner';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -318,6 +329,50 @@ export default function LandingPreview() {
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  // ── Real barber search state ────────────────────────────────────────
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
+  const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
+  const [filters, setFilters] = useState<FilterState>({ maxDistance: 5, tiers: [], openNow: false, minRating: 0, categories: [] });
+  const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  const filteredBarbers = useMemo(() => {
+    if (!userLocation) return [];
+    return filterBarbersByDistance(remoteBarbers, userLocation, filters);
+  }, [userLocation, filters, remoteBarbers]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !userLocation) { setRemoteBarbers([]); setRemoteStatus('unused'); return; }
+    let cancelled = false;
+    setRemoteStatus('loading');
+    void (async () => {
+      try {
+        const list = await fetchNearbyPublicBarbersFromSupabase({ userLocation, radiusKm: Math.max(5, filters.maxDistance), limit: 120, minRating: filters.minRating, tiers: filters.tiers });
+        if (!cancelled) { setRemoteBarbers(list); setRemoteStatus('ready'); }
+      } catch {
+        if (!cancelled) { setRemoteStatus('error'); toast.error('تعذّر تحميل نتائج القرب — تحقق من الاتصال.'); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [userLocation, filters.maxDistance, filters.minRating, filters.tiers]);
+
+  const handleLocationDetected = useCallback((loc: { lat: number; lng: number }) => {
+    setUserLocation(loc);
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+  }, []);
+
+  const onBarberPatch = useCallback((patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => {
+    setRemoteBarbers((prev) => {
+      const idx = prev.findIndex((b) => b.id === patch.id);
+      if (idx < 0) return prev;
+      const next = [...prev];
+      const cur = next[idx];
+      next[idx] = { ...cur, isOpen: patch.isOpen, location: patch.lat != null ? { ...cur.location, lat: patch.lat!, lng: patch.lng! } : cur.location };
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', fn, { passive: true });
@@ -328,6 +383,15 @@ export default function LandingPreview() {
 
   return (
     <div dir="rtl" className="relative min-h-screen overflow-x-hidden bg-[#020912] font-[Tajawal,system-ui] text-slate-100">
+
+      {/* شريط مدن المملكة */}
+      <div className="relative z-[60]"><KSACityClocksBar /></div>
+
+      {/* شريط موقع المستخدم */}
+      {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
+
+      {/* أزرار عائمة */}
+      <FloatingPlatformActions />
 
       {/* ── Grid background texture ──────────────────────────────────────── */}
       <div
@@ -415,18 +479,26 @@ export default function LandingPreview() {
               بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.
             </p>
 
-            {/* Simulated search bar */}
-            <div className="mb-8 flex max-w-lg overflow-hidden rounded-2xl border border-white/15 bg-white/5 shadow-xl shadow-black/40 backdrop-blur-sm">
-              <div className="flex flex-1 items-center gap-3 px-4 py-3.5">
-                <Search className="h-5 w-5 shrink-0 text-teal-400" />
-                <span className="text-sm text-slate-400">أين تحتاج حلاقاً؟ — الرياض، جدة، مكة…</span>
-              </div>
-              <button
-                onClick={() => navigate(ROUTE_PATHS.HOME)}
-                className="shrink-0 bg-gradient-to-r from-teal-500 to-teal-700 px-5 py-3 text-sm font-bold text-white"
-              >
-                <Navigation2 className="h-4 w-4" />
-              </button>
+            {/* زر تحديد الموقع الحقيقي */}
+            <div className="mb-8 flex max-w-lg w-full">
+              {userLocation ? (
+                <div className="flex w-full items-center gap-3 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-3.5">
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-teal-400" />
+                  <span className="flex-1 text-sm text-teal-200">
+                    الرادار يعمل — <span className="font-bold">{filteredBarbers.length}</span> صالون في محيطك
+                  </span>
+                  <button
+                    onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    className="rounded-xl bg-teal-500/20 px-3 py-1.5 text-xs font-semibold text-teal-300 hover:bg-teal-500/30"
+                  >
+                    عرض النتائج ↓
+                  </button>
+                </div>
+              ) : (
+                <div className="w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5 shadow-xl shadow-black/40 backdrop-blur-sm">
+                  <LocationButton onLocationDetected={handleLocationDetected} />
+                </div>
+              )}
             </div>
 
             {/* Trust badges */}
@@ -528,6 +600,94 @@ export default function LandingPreview() {
           <ChevronDown className="h-6 w-6" />
         </motion.div>
       </section>
+
+      {/* ── نتائج البحث الحقيقية — تظهر بعد تحديد الموقع ─────────────── */}
+      <AnimatePresence>
+        {userLocation && (
+          <motion.div
+            ref={resultsRef}
+            key="search-results"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
+          >
+            {/* شريط الفلاتر */}
+            <div className="mx-auto max-w-7xl px-5 py-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <FilterBar filters={filters} onFilterChange={setFilters} />
+              </div>
+            </div>
+
+            {/* الخريطة */}
+            <div className="mx-auto max-w-7xl px-5 pb-4">
+              <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-teal-500/5">
+                <BarberMap
+                  barbers={filteredBarbers}
+                  userLocation={userLocation}
+                  onBarberPatch={onBarberPatch}
+                  realtimeEnabled={isSupabaseConfigured()}
+                />
+              </div>
+            </div>
+
+            {/* بطاقات الصالونات */}
+            <div className="mx-auto max-w-7xl px-5 pb-12">
+              {filteredBarbers.length === 0 ? (
+                <div className="py-16 text-center">
+                  <motion.div
+                    className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-teal-400/20 bg-teal-500/10"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2.5, repeat: Infinity }}
+                  >
+                    <MapPin className="h-10 w-10 text-teal-400" />
+                  </motion.div>
+                  <h3 className="mb-2 text-xl font-bold text-white">
+                    {remoteStatus === 'loading' ? 'الرادار يبحث…' : 'لا نتائج في هذا النطاق'}
+                  </h3>
+                  <p className="text-sm text-slate-400">جرّب توسيع نطاق البحث من شريط الفلاتر أعلاه</p>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-4 flex items-center justify-between">
+                    <p className="text-sm text-slate-400">
+                      <span className="font-bold text-teal-300">{filteredBarbers.length}</span> صالون في محيطك
+                    </p>
+                    <div className="flex items-center gap-1.5 text-[0.65rem] text-teal-400/70">
+                      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
+                      رصد حيّ
+                    </div>
+                  </div>
+                  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredBarbers.map((barber, i) => (
+                      <motion.div
+                        key={barber.id}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.04, duration: 0.4 }}
+                        onClick={() => setSelectedBarber(barber)}
+                        className="cursor-pointer"
+                      >
+                        <BarberCard barber={barber} userLocation={userLocation} />
+                      </motion.div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* نافذة تفاصيل الصالون */}
+      {selectedBarber && (
+        <BarberDetailModal
+          barber={selectedBarber}
+          isOpen
+          onClose={() => setSelectedBarber(null)}
+        />
+      )}
 
       {/* ── Stats strip ──────────────────────────────────────────────────── */}
       <section className="relative z-10 border-y border-white/5 bg-white/[0.02] py-14">

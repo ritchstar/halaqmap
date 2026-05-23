@@ -95,10 +95,17 @@ const App = () => (
         <AdminAuthHashGate>
         <ScrollToTop />
         <Routes>
-          <Route path={ROUTE_PATHS.HOME} element={<Layout><Home /></Layout>} />
+          {/* ── الصفحتان الرئيسيتان الجديدتان ─────────────────────────── */}
+          <Route path={ROUTE_PATHS.HOME} element={<LandingPreview />} />
+          <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<PlatformReviews />} />
+
+          {/* ── أرشيف الصفحات القديمة — ذكرى البدايات ──────────────── */}
+          <Route path="/archive/home" element={<Layout><Home /></Layout>} />
+          <Route path="/archive/partners" element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
+
+          {/* ── صفحات المعاينة — تبقى مرجعاً ──────────────────────── */}
           <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<PartnerMarketingPreview />} />
-          <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<PlatformReviews />} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<InternalPartnerPathPrintCard />} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<InvoicePreviewSamples />} />
           <Route path={ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW} element={<PartnerBannersPreviewLanding />} />
@@ -108,7 +115,8 @@ const App = () => (
           <Route path={ROUTE_PATHS.PRIVACY_DETAILED} element={<Layout><Privacy /></Layout>} />
           <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
 
-          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerLayout><BarberGrowthLanding /></PartnerLayout>} />
+          {/* مسار الشركاء — الصفحة الجديدة */}
+          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerMarketingPreview />} />
           <Route
             path={ROUTE_PATHS.PARTNER_INTEREST}
             element={

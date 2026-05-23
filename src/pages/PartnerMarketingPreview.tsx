@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
+import { KSACityClocksBar } from '@/components/KSACityClocksBar';
+import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -281,6 +283,10 @@ export default function PartnerMarketingPreview() {
 
   return (
     <div dir="rtl" className="relative min-h-screen overflow-x-hidden bg-[#020912] text-slate-100" style={{ fontFamily: 'Tajawal, system-ui' }}>
+
+      {/* شريط مدن المملكة + أزرار عائمة */}
+      <div className="relative z-[60]"><KSACityClocksBar /></div>
+      <FloatingPlatformActions />
 
       {/* ── Grid texture ─────────────────────────────────────────────────── */}
       <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.02]"
