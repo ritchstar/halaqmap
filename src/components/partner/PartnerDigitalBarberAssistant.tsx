@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { PARTNER_DIGITAL_ASSISTANT, partnerAssistantHintForPath } from '@/lib/partnerMarketingCopy';
 import { ROUTE_PATHS } from '@/lib';
-import { askPartnerAssistant, type PartnerAssistantMessage } from '@/lib/partnerAssistantRemote';
-import { PARTNER_ASSISTANT_UI_VERSION } from '@/lib/partnerAssistantUiVersion';
+import { askPartnerAssistant, fetchPartnerAssistantMeta, type PartnerAssistantMessage } from '@/lib/partnerAssistantRemote';
+import { PARTNER_ASSISTANT_KNOWLEDGE_VERSION, PARTNER_ASSISTANT_UI_VERSION } from '@/lib/partnerAssistantUiVersion';
 import { APP_BUILD } from '@/lib/appBuild';
 
 const MAX_CHAT_TURNS = 16;
@@ -21,16 +21,23 @@ export function PartnerDigitalBarberAssistant() {
   const [isSending, setIsSending] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const [knowledgeVersion, setKnowledgeVersion] = useState<string>(PARTNER_ASSISTANT_KNOWLEDGE_VERSION);
   const [messages, setMessages] = useState<PartnerAssistantMessage[]>([
     {
       role: 'assistant',
       content:
-        'مرحباً بك في مسار الخدمات البرمجية للمنصة، يسعدني خدمتك. اسألني عن خطوات الانضمام، الباقات، أو كيفية الاستفادة من صفحات الشركاء.',
+        'مرحباً بك في مسار الخدمات البرمجية للمنصة. اسألني عن الانضمام، الباقات، **المناوب الرقمي**، أو آخر التحديثات — أستند إلى معرفة المناوب والتشغيل المركزي للمنصة دون كشف تفاصيل داخلية.',
     },
   ]);
 
   const routeHint = useMemo(() => partnerAssistantHintForPath(pathname), [pathname]);
   const canSend = draft.trim().length > 0 && !isSending;
+
+  useEffect(() => {
+    void fetchPartnerAssistantMeta().then((meta) => {
+      if (meta?.knowledgeVersion) setKnowledgeVersion(meta.knowledgeVersion);
+    });
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -164,7 +171,7 @@ export function PartnerDigitalBarberAssistant() {
                     dir="ltr"
                     title={`بناء الواجهة ${APP_BUILD.builtAtIso}`}
                   >
-                    Assistant v{PARTNER_ASSISTANT_UI_VERSION} · build {APP_BUILD.commit}
+                    Assistant v{PARTNER_ASSISTANT_UI_VERSION} · KB {knowledgeVersion} · {APP_BUILD.commit}
                   </span>
                 </div>
 

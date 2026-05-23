@@ -1,6 +1,13 @@
 ﻿import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
-import { composePartnerPathKnowledgePack } from './_lib/partnerAssistantKnowledge.js';
+import { routeQuestionToCouncilAgents } from './_lib/partnerAssistantAgentCouncil.js';
+import { getPartnerAssistantKnowledgeMeta } from './_lib/partnerAssistantKnowledge.js';
+import {
+  buildOrchestratedPartnerSystemPrompt,
+  lastUserMessage,
+  runPartnerCouncilDeepConsult,
+  shouldDeepConsultForMessage,
+} from './_lib/partnerAssistantOrchestrator.js';
 
 export const config = {
   maxDuration: 45,
@@ -32,30 +39,6 @@ function resolveProvider(): 'openai' | 'anthropic' | null {
   if (openai) return 'openai';
   if (anthropic) return 'anthropic';
   return null;
-}
-
-function systemPrompt(pathnameHint: string): string {
-  const kb = composePartnerPathKnowledgePack();
-  return [
-    'أنت مساعد حلاق ماب الرقمي لمسار الخدمات البرمجية للمنصة (حلاق يرغب بالانضمام للمنصّة).',
-    'اللغة: جاوب بالعربية الفصحى المُبسّطة ما لم يكتب المستخدم بلغة أخرى؛ عندها جاوب بنفس لغة سؤاله مع الحفاظ على أسلوب مهني.',
-    'نبرة ترحيبية مهنية: افتتح بجملة لطيفة قصيرة عند الحاجة، ثم كن واضحاً ومختصراً.',
-    'النطاق: استخدم فقط المعلومات الواردة في قاعدة المعرفة أدناه عن «مسار الخدمات البرمجية للمنصة» (التسويق، لماذا تنضم، القصة، التسجيل، **الدفع ثم التفعيل التلقائي**، الباقات بمستوى المفاهيم دون أرقام أسعار محددة إن لم تُذكر صراحة في القاعدة)، وعن **تجربة المستخدم النهائي** (الباحث عن حلاق) عند السؤال عنها.',
-    'عند السؤال عن تجربة العميل/الزائر/المستخدم النهائي: اشرح بثقة من قسم «تجربة المستخدم النهائي» — لا تسجيل، لا رسوم للمنصة، لا وساطة، إذن الموقع لنظام الرصد الذكي فقط؛ لا تختلق حجزاً أو دفعاً من المنصة للزبائن.',
-    'إن سُئلت عن شيء خارج هذه القاعدة (أسعار صرف، قانون، منافسين، تفاصيل تقنية داخلية، بيانات مستخدمين): اعتذر بلطف واقترح فتح «الدعم الفني (واتساب)» من الواجهة أو قراءة صفحة سياسة الاشتراك/الخصوصية حسب السياق — دون اختلاق تفاصيل.',
-    'لا تعدّ أرقام اشتراك أو مبالغ مالية محددة إلا إذا وردت حرفياً في القاعدة؛ غالباً القاعدة تصف المستويات (برونزي/ذهبي/ماسي) دون سعر رقمي.',
-    'مسار الانضمام الحالي (إلزامي في أي قائمة مرقّمة أو خطوات): (1) تعبئة طلب الشراكة، (2) إتمام الدفع عبر بوابة الدفع، (3) التفعيل التلقائي عبر نظام الرصد الذكي بعد نجاح الدفع، (4) إدارة الملف من لوحة الحلاق.',
-    'ممنوع في الإجابات الاعتيادية ذكر خطوة منفصلة اسمها «مراجعة الطلب واعتماده» أو «انتظار اعتماد الإدارة» أو «مراجعة يدوية» كشرط للظهور بعد الدفع؛ الاستثناءات الإدارية فقط إذا سُئل المستخدم صراحة عن تأخير أو حالة خاصة.',
-    'لا تقل «يُسرّع المراجعة»؛ إن احتجت لفائدة الوضوح استخدم صياغة مثل «يُسرّع إتمام الطلب والدفع» أو «يُسرّع التفعيل» وفق القاعدة.',
-    pathnameHint
-      ? `سياق الصفحة الحالية (مسار URL تقريبي): ${pathnameHint}\nاستخدمه لتوجيه الإجابة دون الادّعاء بمعرفة محتوى غير مذكور في القاعدة.`
-      : '',
-    '',
-    '--- قاعدة المعرفة (مسار الخدمات البرمجية للمنصة) ---',
-    kb,
-  ]
-    .filter(Boolean)
-    .join('\n');
 }
 
 function validateMessages(raw: unknown): ChatTurn[] | null {
@@ -139,12 +122,19 @@ export async function GET(request: Request): Promise<Response> {
   if (blocked) return blocked;
   const headers = corsHeaders(request);
   const provider = resolveProvider();
+  const knowledge = getPartnerAssistantKnowledgeMeta();
   return Response.json(
     {
       ok: true,
       route: 'partner-assistant-chat',
       configured: Boolean(provider),
       provider,
+      knowledge,
+      orchestration: {
+        enabled: true,
+        deepConsultDefault: process.env.PARTNER_ASSISTANT_DEEP_CONSULT !== '0',
+        consultableAgentCount: 8,
+      },
       publicApiGuard: registrationGuardDiagnostics(),
     },
     { headers },
@@ -191,7 +181,23 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const pathnameHint = String((body as { pathname?: unknown }).pathname ?? '').trim().slice(0, 512);
-  const system = systemPrompt(pathnameHint);
+  const userQuestion = lastUserMessage(messages);
+  const agentIds = routeQuestionToCouncilAgents(userQuestion);
+
+  let councilNotes = '';
+  if (shouldDeepConsultForMessage(userQuestion, agentIds)) {
+    councilNotes = await runPartnerCouncilDeepConsult({
+      provider,
+      userQuestion,
+      agentIds,
+    });
+  }
+
+  const { system, councilMeta, deepConsultUsed } = buildOrchestratedPartnerSystemPrompt({
+    pathnameHint,
+    userQuestion,
+    councilNotes,
+  });
 
   try {
     const anthropicTurns =
@@ -208,7 +214,18 @@ export async function POST(request: Request): Promise<Response> {
       provider === 'openai'
         ? await callOpenAI(system, messages)
         : await callAnthropic(system, anthropicTurns);
-    return Response.json({ ok: true, reply, provider }, { headers });
+    return Response.json(
+      {
+        ok: true,
+        reply,
+        provider,
+        orchestration: {
+          routedAgents: councilMeta.routedAgents,
+          deepConsultUsed,
+        },
+      },
+      { headers },
+    );
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Assistant request failed';
     return Response.json({ error: msg }, { status: 502, headers });

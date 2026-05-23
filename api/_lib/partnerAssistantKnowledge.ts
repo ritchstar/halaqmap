@@ -3,6 +3,13 @@
  * ملاحظة: لا نعتمد على استيراد من `src/*` هنا حتى لا يحدث
  * ERR_MODULE_NOT_FOUND في بيئة Vercel serverless.
  */
+import {
+  composePartnerPlatformKnowledgePack,
+  getPartnerAssistantKnowledgeMeta,
+  PARTNER_ASSISTANT_KNOWLEDGE_VERSION,
+} from './partnerPlatformKnowledge.js';
+
+export { PARTNER_ASSISTANT_KNOWLEDGE_VERSION, getPartnerAssistantKnowledgeMeta };
 const PARTNER_PATH_KNOWLEDGE = `
 ### هوية المساعد
 - الاسم: مساعد الشركاء الرقمي
@@ -42,10 +49,12 @@ const PARTNER_PATH_KNOWLEDGE = `
 - قد تُدار **حالات اشتراك أو دفع استثنائية** (مراجعة يدوية، تعليق، استرداد) وفق سياسة المنصة — اذكر ذلك فقط إن سُئل عن استثناءات أو تأخير بعد الدفع، دون تقديمها كخطوة عادية لكل الحلاقين.
 - التحقق من صحة البيانات يمكن أن يكون **آلياً** قبل التفعيل؛ هذا لا يعني بالضرورة «موافقة بشرية» على كل طلب.
 
-### الباقات
-- برونزية: بداية أساسية عبر نظام الرصد الذكي.
-- ذهبية: ظهور أقوى وأدوات إضافية.
-- ماسية: أعلى تميّز وأولوية ظهور.
+### الباقات (حزم رخصة — 30 يوم إدراج)
+- برونزي (100 ر.س/حزمة): بداية أساسية — ظهور محلي وبطاقة تعريف.
+- ذهبي (150 ر.س/حزمة): إبراز أقوى، معرض 20 صورة، QR تقييم، شات.
+- ماسي — رخصة تقنية (200 ر.س/حزمة): أعلى تمييز، معرض 40 صورة، شات مترجم، مواعيد.
+- **Add-on اختياري للماسية فقط:** المناوب الرقمي الذكي 🌙 (+25 ر.س/حزمة) — إضافة برمجية متقدمة منفصلة عن الرخصة؛ الماسية + Add-on = 225 ر.س/حزمة.
+- للتفاصيل الكاملة عن المناوب وآخر التحديثات: راجع قسم «سجل التحديثات» و«حقائق المنتج» في نهاية القاعدة.
 
 ### QR لمسار الخدمات البرمجية للمنصة
 - امسح الكود للدخول مباشرة لمسار الخدمات البرمجية للمنصة.
@@ -70,5 +79,5 @@ const PARTNER_PATH_KNOWLEDGE = `
 `.trim();
 
 export function composePartnerPathKnowledgePack(): string {
-  return PARTNER_PATH_KNOWLEDGE;
+  return [PARTNER_PATH_KNOWLEDGE, '', composePartnerPlatformKnowledgePack()].join('\n');
 }

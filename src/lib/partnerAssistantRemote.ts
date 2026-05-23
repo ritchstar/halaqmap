@@ -25,6 +25,28 @@ export function toPartnerAssistantApiMessages(
   return out;
 }
 
+export async function fetchPartnerAssistantMeta(): Promise<{
+  configured: boolean;
+  knowledgeVersion: string | null;
+} | null> {
+  const ep = endpoint();
+  if (!ep) return null;
+  try {
+    const response = await fetch(ep, { method: 'GET' });
+    const payload = (await response.json().catch(() => ({}))) as {
+      configured?: boolean;
+      knowledge?: { version?: string };
+    };
+    if (!response.ok) return null;
+    return {
+      configured: payload.configured === true,
+      knowledgeVersion: payload.knowledge?.version ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function askPartnerAssistant(input: {
   messages: PartnerAssistantMessage[];
   pathname?: string;
