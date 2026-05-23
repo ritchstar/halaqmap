@@ -52,6 +52,8 @@ export const ROUTE_PATHS = {
   RATE_BARBER: '/rate/:barberId',
   /** صفحة الهبوط التصميمية التجريبية — معاينة فقط */
   LANDING_PREVIEW: '/preview',
+  /** صفحة هبوط مسار الخدمات التسويقية للشركاء — معاينة تصميمية */
+  LANDING_PARTNERS_PREVIEW: '/preview-partners',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

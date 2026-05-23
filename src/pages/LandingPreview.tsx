@@ -361,17 +361,20 @@ export default function LandingPreview() {
           </nav>
 
           <div className="flex items-center gap-2.5">
+            {/* شارة B2B — للانطباع التنظيمي، توجّه لمسار الشركاء */}
+            <a
+              href={`/#${ROUTE_PATHS.LANDING_PARTNERS_PREVIEW}`}
+              className="hidden items-center gap-1.5 rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1.5 text-[0.65rem] font-semibold text-amber-400/70 transition-colors hover:border-amber-400/50 hover:text-amber-300 md:flex"
+              title="للمنشآت والصالونات — مزوّد حلول تقنية B2B"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400/60" />
+              للمنشآت · B2B
+            </a>
             <button
               onClick={() => navigate(ROUTE_PATHS.HOME)}
-              className="hidden rounded-lg border border-white/15 px-4 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-teal-400/50 hover:text-teal-300 md:block"
-            >
-              ابحث عن حلاق الآن
-            </button>
-            <button
-              onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
               className="rounded-lg bg-gradient-to-r from-teal-500 to-teal-700 px-4 py-2 text-xs font-bold text-white shadow shadow-teal-500/30 transition-all hover:from-teal-400 hover:to-teal-600"
             >
-              انضم كحلاق
+              ابحث عن حلاق الآن
             </button>
           </div>
         </div>
@@ -687,135 +690,38 @@ export default function LandingPreview() {
         </div>
       </section>
 
-      {/* ── Pricing ──────────────────────────────────────────────────────── */}
-      <section id="الأسعار" className="relative z-10 py-24 border-y border-white/5 bg-white/[0.015]">
+      {/* ── B2B info strip — discreet, for regulatory impression only ──── */}
+      <section className="relative z-10 border-y border-white/5 bg-black/30 py-8">
         <div className="mx-auto max-w-5xl px-5">
-          <div className="mb-12 text-center">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300"
-            >
-              <Crown className="h-3 w-3" /> للصالونات والحلاقين
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-3 text-3xl font-black text-white md:text-4xl"
-            >
-              رخصة تقنية بسعر واضح
-            </motion.h2>
-            <p className="text-slate-400">لا عمولة على الخدمة · لا عقد ملزم · لا وساطة تجارية</p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            <PricingCard
-              tier="Bronze"
-              price={100}
-              name="برونزي"
-              badge="🥉"
-              accent="text-amber-700"
-              delay={0}
-              features={[
-                'ظهور عند الطلب للزبائن القريبين',
-                'بطاقة صالون كاملة (موقع، اتصال، واتساب)',
-                'صور واجهة + بنر أساسي',
-                'أوقات عمل وحالة مفتوح/مغلق',
-                'شهادة تفعيل رقمية',
-              ]}
-            />
-            <PricingCard
-              tier="Gold"
-              price={150}
-              name="ذهبي"
-              badge="🥇"
-              accent="text-amber-400"
-              recommended
-              delay={0.1}
-              features={[
-                'كل مميزات البرونزي +',
-                'ظهور متقدم في نتائج البحث',
-                'بنر تسويقي احترافي',
-                'إحصاءات الأداء الشهرية',
-                'خدمة كبار السن وذوي الاحتياجات',
-                'QR تقييم مع رابط الصالون',
-              ]}
-            />
-            <PricingCard
-              tier="Diamond"
-              price={200}
-              name="ماسي"
-              badge="💎"
-              accent="text-cyan-400"
-              delay={0.2}
-              features={[
-                'كل مميزات الذهبي +',
-                'صدارة نتائج المنطقة',
-                'شات مع الزبائن (واتساب ذكي)',
-                'المناوب الرقمي الذكي (Add-on +٢٥ر.س)',
-                'بورتفوليو صور غير محدود',
-                'تحليلات مفصّلة + خريطة حرارية',
-              ]}
-            />
-          </div>
-
-          <p className="mt-6 text-center text-xs text-slate-600">
-            * كل حزمة صالحة 30 يوم · مسبقة الدفع · لا تجديد تلقائي · ISIC4 474151
-          </p>
-        </div>
-      </section>
-
-      {/* ── For barbers CTA ───────────────────────────────────────────────── */}
-      <section id="للحلاقين" className="relative z-10 overflow-hidden py-28">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-32 top-0 h-[500px] w-[500px] rounded-full bg-teal-500/8 blur-[130px]" />
-          <div className="absolute -left-32 bottom-0 h-[400px] w-[400px] rounded-full bg-amber-500/6 blur-[110px]" />
-        </div>
-        <div className="relative mx-auto max-w-4xl px-5 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
+            className="flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-right"
           >
-            <div className="mb-6 text-5xl">✂️</div>
-            <h2 className="mb-5 text-3xl font-black leading-tight text-white md:text-[2.8rem]">
-              صالونك يستحق أن يُكتشف
-              <span className="block mt-1 text-teal-300">بشكل ذكي وسريع</span>
-            </h2>
-            <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-slate-400">
-              انضم إلى شبكة الصالونات على حلاق ماب وابدأ في استقبال زبائن حقيقيين من محيطك الجغرافي —
-              رخصة برمجية تقنية، لا عمولة على كل قصة شعر، لا وسيط تجاري.
-            </p>
-
-            <div className="mb-10 flex flex-wrap justify-center gap-4 text-sm">
-              {[
-                'بدون عمولة على الخدمة',
-                'تحكم كامل في بياناتك',
-                'ظهور عند الطلب فقط',
-                'إلغاء في أي وقت',
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-2 rounded-full border border-teal-400/25 bg-teal-500/10 px-4 py-2 text-teal-200">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  {item}
-                </div>
-              ))}
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-400/30 bg-amber-500/10">
+                <Crown className="h-4 w-4 text-amber-400" />
+              </div>
+              <div dir="rtl">
+                <div className="text-xs font-bold text-amber-300">مزوّد حلول تقنية · ISIC4 474151</div>
+                <div className="text-[0.65rem] text-slate-500">حزم رخصة نفاذ رقمية للمنشآت · B2B · لا عمولة على الخدمة</div>
+              </div>
             </div>
-
-            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <button
-                onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
-                className="rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-10 py-4 font-bold text-white shadow-xl shadow-teal-500/20 transition-all hover:from-teal-400 hover:to-teal-600"
-              >
-                ابدأ رحلة الانضمام
-              </button>
-              <button
-                onClick={() => navigate(ROUTE_PATHS.PARTNER_WHY)}
-                className="flex items-center gap-2 rounded-xl border border-white/15 px-8 py-4 font-semibold text-slate-200 transition-all hover:border-white/30 hover:text-white"
-              >
-                لماذا حلاق ماب؟ <ArrowLeft className="h-4 w-4" />
-              </button>
+            <div className="flex flex-wrap justify-center gap-2 md:justify-end">
+              {[
+                { name: 'برونزي 🥉', price: '١٠٠ ر.س', color: 'border-amber-800/40 text-amber-700/80' },
+                { name: 'ذهبي 🥇', price: '١٥٠ ر.س', color: 'border-amber-400/40 text-amber-300' },
+                { name: 'ماسي 💎', price: '٢٠٠ ر.س', color: 'border-cyan-400/40 text-cyan-300' },
+              ].map((t) => (
+                <a
+                  key={t.name}
+                  href={`/#${ROUTE_PATHS.LANDING_PARTNERS_PREVIEW}`}
+                  className={`rounded-full border px-3 py-1 text-[0.65rem] font-semibold transition-opacity hover:opacity-100 opacity-70 ${t.color}`}
+                >
+                  {t.name} · {t.price}/حزمة
+                </a>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -835,24 +741,24 @@ export default function LandingPreview() {
           <div className="flex flex-col gap-3">
             {[
               {
-                q: 'هل حلاق ماب تأخذ عمولة على كل خدمة؟',
-                a: 'لا — حلاق ماب مزوّد حلول تقنية فقط. تدفع رخصة نفاذ شهرية ثابتة، والعلاقة بين الصالون والزبون مباشرة بدون وسيط.',
+                q: 'كيف يعمل الرادار في حلاق ماب؟',
+                a: 'الرادار يرصد الصالونات المسجّلة في محيطك الجغرافي ويعرضها لك فور طلبك — كلما قلّت المسافة زادت الأولوية. لا تسجيل مسبق للبحث.',
               },
               {
-                q: 'كيف يجد الزبون صالوني؟',
-                a: 'عندما يبحث زبون قريب منك، يُفعَّل ظهورك برمجياً في نتائجه — هذا هو نظام «الظهور عند الطلب» الذي تعتمده المنصة.',
+                q: 'هل الخدمة مجانية للمستخدمين؟',
+                a: 'نعم — البحث عن الصالونات واستعراض بياناتها وتواصلك معها مباشرة مجاني بالكامل دون أي رسوم.',
               },
               {
-                q: 'ما الفرق بين الباقات الثلاث؟',
-                a: 'البرونزي للبداية بحضور رسمي، الذهبي لتعزيز الظهور وأدوات إضافية، والماسي للصالونات الجادة التي تريد الصدارة وتحليلات عميقة.',
+                q: 'كيف أعرف أن الصالون موثوق؟',
+                a: 'الصالونات المعروضة لها رخصة نفاذ رقمية موثّقة — تجد التقييمات الحقيقية وصور الصالون والحالة الفعلية (مفتوح/مغلق) في وقت بحثك.',
               },
               {
-                q: 'هل يمكنني إلغاء الاشتراك؟',
-                a: 'كل حزمة صالحة 30 يوماً مسبقة الدفع — لا تجديد تلقائي. تختار أنت متى تجدد ومتى لا.',
+                q: 'هل يمكنني تحديد المسافة التي أبحث فيها؟',
+                a: 'نعم — يمكنك ضبط نطاق البحث من 1 كم إلى 20 كم حسب حاجتك، مع فلاتر إضافية للتقييم ونوع الخدمة.',
               },
               {
                 q: 'هل الخدمة متاحة خارج الرياض؟',
-                a: 'نعم، تغطي المنصة حالياً 47+ مدينة سعودية وتتوسع بشكل مستمر.',
+                a: 'نعم، تغطي المنصة حالياً 47+ مدينة سعودية وتتوسع بشكل مستمر لتشمل كامل المملكة.',
               },
             ].map((item, i) => (
               <motion.div
@@ -893,7 +799,7 @@ export default function LandingPreview() {
       {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="relative z-10 border-t border-white/8 bg-black/40 py-12">
         <div className="mx-auto max-w-6xl px-5">
-          <div className="grid gap-10 md:grid-cols-3">
+          <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr]">
             {/* Brand */}
             <div>
               <div className="mb-3 flex items-center gap-2">
@@ -902,29 +808,39 @@ export default function LandingPreview() {
                 </div>
                 <span className="text-base font-black text-white">حلاق ماب</span>
               </div>
-              <p className="text-xs leading-relaxed text-slate-500">
-                مزوّد حلول تقنية (Technical Solutions Provider) لرخصة النفاذ الرقمية ضمن نظام الاستجابة الذكية.
-                ليست وسيطاً تجارياً.
+              <p className="mb-4 text-xs leading-relaxed text-slate-500">
+                منصة بحث جغرافي تقنية تربط العملاء بأقرب الصالونات — مجانية للمستخدمين.
               </p>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/#${ROUTE_PATHS.LANDING_PARTNERS_PREVIEW}`}
+                  className="rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1 text-[0.6rem] font-semibold text-amber-400/60 hover:text-amber-300"
+                >
+                  للمنشآت · B2B ↗
+                </a>
+              </div>
             </div>
 
             {/* For users */}
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">للمستخدمين</h4>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">روابط</h4>
               <div className="flex flex-col gap-2.5">
-                {['ابحث عن حلاق', 'كيف يعمل الرادار', 'سياسة الخصوصية', 'شروط الاستخدام'].map((link) => (
-                  <a key={link} href="#" className="text-sm text-slate-500 hover:text-teal-400">{link}</a>
+                {[
+                  { label: 'ابحث عن حلاق', href: '#' },
+                  { label: 'سياسة الخصوصية', href: '#' },
+                  { label: 'شروط الاستخدام', href: '#' },
+                ].map((link) => (
+                  <a key={link.label} href={link.href} className="text-sm text-slate-500 hover:text-teal-400">{link.label}</a>
                 ))}
               </div>
             </div>
 
-            {/* For barbers */}
+            {/* Social/Contact placeholder */}
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">للصالونات</h4>
-              <div className="flex flex-col gap-2.5">
-                {['انضم كحلاق', 'أسعار الرخص', 'سياسة الحزم', 'لوحة الشريك'].map((link) => (
-                  <a key={link} href="#" className="text-sm text-slate-500 hover:text-amber-400">{link}</a>
-                ))}
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">تواصل</h4>
+              <div className="flex flex-col gap-2.5 text-sm text-slate-500">
+                <span>📍 الرياض، المملكة العربية السعودية</span>
+                <span>🌐 halaqmap.com</span>
               </div>
             </div>
           </div>
