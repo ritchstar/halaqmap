@@ -18,6 +18,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { GeoRadarButton } from '@/components/GeoRadarButton';
+import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { FilterBar } from '@/components/FilterBar';
 import { BarberCard } from '@/components/BarberCards';
 import { BarberMap } from '@/components/BarberMap';
@@ -263,61 +264,6 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, size = 'normal
       <h3 className="mb-1.5 text-base font-bold text-white">{title}</h3>
       <p className="text-sm leading-relaxed text-slate-400">{desc}</p>
       <div className={`absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-gradient-to-br ${color} opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-20`} />
-    </motion.div>
-  );
-}
-
-// ─── Pricing tier card ───────────────────────────────────────────────────────
-function PricingCard({ tier, price, name, badge, features, accent, recommended = false, delay = 0 }: {
-  tier: string; price: number; name: string; badge: string;
-  features: string[]; accent: string; recommended?: boolean; delay?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay, duration: 0.5 }}
-      className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl
-        ${recommended
-          ? 'border-amber-400/60 bg-gradient-to-b from-amber-500/10 to-[#0a1628] shadow-amber-500/20 shadow-lg'
-          : 'border-white/10 bg-gradient-to-b from-white/5 to-[#060d1a]'
-        }`}
-      dir="rtl"
-    >
-      {recommended && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-4 py-0.5 text-[0.65rem] font-bold text-black shadow">
-          الأكثر طلباً
-        </div>
-      )}
-      <div className="mb-4 flex items-center gap-3">
-        <span className="text-3xl">{badge}</span>
-        <div>
-          <div className={`text-lg font-black ${accent}`}>{name}</div>
-          <div className="text-[0.65rem] text-slate-500">{tier} License</div>
-        </div>
-      </div>
-      <div className="mb-5 flex items-end gap-1">
-        <span className={`text-4xl font-black tabular-nums ${accent}`}>{price}</span>
-        <span className="mb-1 text-sm text-slate-400">ر.س / حزمة 30 يوم</span>
-      </div>
-      <ul className="mb-6 flex flex-col gap-2.5" dir="rtl">
-        {features.map((f, i) => (
-          <li key={i} className="flex items-start gap-2 text-[0.8rem] text-slate-300">
-            <CheckCircle2 className={`mt-0.5 h-4 w-4 shrink-0 ${accent}`} />
-            {f}
-          </li>
-        ))}
-      </ul>
-      <button className={`mt-auto w-full rounded-xl py-3 text-sm font-bold transition-all duration-200
-        ${recommended
-          ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-black hover:from-amber-300 hover:to-amber-500'
-          : 'border border-white/15 bg-white/5 text-white hover:bg-white/10'
-        }`}>
-        ابدأ الآن
-      </button>
     </motion.div>
   );
 }
@@ -970,6 +916,59 @@ export default function LandingPreview() {
                 </a>
               ))}
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── الباقات والتسعير ─────────────────────────────────────────────── */}
+      <section id="الأسعار" className="relative z-10 py-20 border-y border-white/5 bg-white/[0.015]">
+        <div className="pointer-events-none absolute -right-40 top-10 h-80 w-80 rounded-full bg-amber-500/6 blur-[120px]" />
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="mb-10 text-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300"
+            >
+              <Crown className="h-3 w-3" /> للمنشآت B2B · حزم رخصة النفاذ الرقمية
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-3 text-2xl font-black text-white md:text-3xl"
+            >
+              رخصة نفاذ رقمية للصالونات — سعر واضح لا مفاجآت
+            </motion.h2>
+            <p className="text-sm text-slate-400">
+              مسبقة الدفع · لا تجديد تلقائي · لا عمولة على الخدمة · ISIC4 474151
+            </p>
+          </div>
+
+          {/* مصفوفة التسعير الحقيقية */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <ListingLicensePricingMatrix variant="standalone-dark" />
+          </motion.div>
+
+          {/* رابط مسار الشركاء */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="mt-8 text-center"
+          >
+            <a
+              href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-500/8 px-6 py-3 text-sm font-semibold text-amber-300 transition-all hover:border-amber-400/60 hover:bg-amber-500/15"
+            >
+              اكتشف المزيد عن مسار انضمام الصالونات ←
+            </a>
           </motion.div>
         </div>
       </section>

@@ -269,7 +269,7 @@ export function Layout({ children }: LayoutProps) {
 
           {/* مصفوفة التسعير */}
           <div className="mt-10 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-            <ListingLicensePricingMatrix variant="embedded-light" />
+            <ListingLicensePricingMatrix variant="embedded-dark" />
           </div>
 
           <div className="mt-6">
