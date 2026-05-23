@@ -313,7 +313,7 @@ export default function LandingPreview() {
 
   const handleLocationDetected = useCallback((loc: { lat: number; lng: number }) => {
     setUserLocation(loc);
-    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+    // لا تمرير تلقائي — المستخدم يتحقق من موقعه أولاً ثم يختار النزول بنفسه
   }, []);
 
   const onBarberPatch = useCallback((patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => {

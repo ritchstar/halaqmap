@@ -1,211 +1,312 @@
-import { useState } from "react";
-import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { RotateCcw, Star } from "lucide-react";
-import { FilterState, SubscriptionTier } from "@/lib/index";
-import { motion } from "framer-motion";
-import { PLATFORM_SEARCH_RESULTS_CONTEXT } from "@/config/platformSmartTracking";
+/**
+ * FilterBar — لوحة فلاتر الرصد الذكي
+ * تصميم تكتيكي داكن يتناسق مع نظام الرادار الجغرافي
+ */
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { RotateCcw, Star, SlidersHorizontal, ChevronDown, MapPin, Clock, Crown } from 'lucide-react';
+import { FilterState, SubscriptionTier } from '@/lib/index';
 
 interface FilterBarProps {
   filters: FilterState;
   onFilterChange: (filters: FilterState) => void;
 }
 
+// ── Tier config ────────────────────────────────────────────────────────────────
+const TIERS = [
+  { id: SubscriptionTier.BRONZE, label: 'برونزي', emoji: '🥉', color: 'border-amber-700/50 text-amber-700 data-active:border-amber-600/70 data-active:bg-amber-700/15 data-active:text-amber-500' },
+  { id: SubscriptionTier.GOLD,   label: 'ذهبي',   emoji: '🥇', color: 'border-amber-400/40 text-amber-400 data-active:border-amber-400/70 data-active:bg-amber-500/15 data-active:text-amber-300' },
+  { id: SubscriptionTier.DIAMOND,label: 'ماسي',   emoji: '💎', color: 'border-cyan-400/40 text-cyan-400 data-active:border-cyan-400/70 data-active:bg-cyan-500/15 data-active:text-cyan-300' },
+] as const;
+
+const CATEGORIES = [
+  { id: 'رجالي',           label: 'رجالي',           emoji: '✂️' },
+  { id: 'أطفال',           label: 'أطفال',           emoji: '👦' },
+  { id: 'تقليدي',          label: 'تقليدي',          emoji: '🪒' },
+  { id: 'احتياجات خاصة',  label: 'احتياجات خاصة',  emoji: '♿' },
+  { id: 'زيارة منزلية',   label: 'زيارة منزلية',   emoji: '🏠' },
+];
+
+const RATINGS = [
+  { value: 0,   label: 'الكل' },
+  { value: 3,   label: '3+' },
+  { value: 4,   label: '4+' },
+  { value: 4.5, label: '4.5+' },
+];
+
+// ── Pill button ────────────────────────────────────────────────────────────────
+function Pill({
+  active, onClick, children, className = '',
+}: { active: boolean; onClick: () => void; children: React.ReactNode; className?: string }) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileTap={{ scale: 0.93 }}
+      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.72rem] font-semibold transition-all duration-200 cursor-pointer
+        ${active
+          ? 'border-teal-400/60 bg-teal-500/15 text-teal-200'
+          : 'border-white/12 bg-white/5 text-slate-400 hover:border-white/25 hover:text-slate-200'}
+        ${className}`}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+// ── Distance slider ────────────────────────────────────────────────────────────
+function DistanceSlider({
+  value, onChange,
+}: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div className="flex w-full items-center gap-3" dir="rtl">
+      <div className="flex shrink-0 items-center gap-1.5">
+        <MapPin className="h-3.5 w-3.5 text-teal-400/70" />
+        <span className="text-[0.7rem] font-medium text-slate-400">المسافة</span>
+      </div>
+      <div className="relative flex flex-1 items-center">
+        <input
+          type="range"
+          min={1}
+          max={25}
+          step={0.5}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 outline-none
+            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4
+            [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:rounded-full
+            [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-teal-400
+            [&::-webkit-slider-thumb]:bg-[#0a1628] [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(20,184,166,0.5)]
+            [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer
+            [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-teal-400
+            [&::-moz-range-thumb]:bg-[#0a1628] [&::-moz-range-thumb]:shadow-[0_0_8px_rgba(20,184,166,0.5)]"
+          style={{
+            background: `linear-gradient(to left, rgba(20,184,166,0.6) ${((value - 1) / 24) * 100}%, rgba(255,255,255,0.1) ${((value - 1) / 24) * 100}%)`,
+          }}
+        />
+      </div>
+      <div className="shrink-0 rounded-full border border-teal-400/30 bg-teal-500/10 px-2.5 py-0.5">
+        <span className="font-mono text-[0.72rem] font-bold tabular-nums text-teal-300">{value}كم</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Main FilterBar ─────────────────────────────────────────────────────────────
 export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const handleDistanceChange = (value: number[]) => {
-    onFilterChange({ ...filters, maxDistance: value[0] });
-  };
-
-  const handleTierToggle = (tier: SubscriptionTier) => {
-    const newTiers = filters.tiers.includes(tier)
-      ? filters.tiers.filter((t) => t !== tier)
-      : [...filters.tiers, tier];
-    onFilterChange({ ...filters, tiers: newTiers });
-  };
-
-  const handleOpenNowToggle = (checked: boolean) => {
-    onFilterChange({ ...filters, openNow: checked });
-  };
-
-  const handleRatingChange = (rating: number) => {
-    onFilterChange({ ...filters, minRating: rating });
-  };
-
-  const handleCategoryToggle = (category: string) => {
-    const newCategories = filters.categories.includes(category)
-      ? filters.categories.filter((c) => c !== category)
-      : [...filters.categories, category];
-    onFilterChange({ ...filters, categories: newCategories });
-  };
+  const [expanded, setExpanded] = useState(false);
 
   const handleReset = () => {
-    onFilterChange({
-      maxDistance: 5,
-      tiers: [],
-      openNow: false,
-      minRating: 0,
-      categories: [],
-    });
+    onFilterChange({ maxDistance: 5, tiers: [], openNow: false, minRating: 0, categories: [] });
   };
 
-  const tierLabels = {
-    [SubscriptionTier.BRONZE]: "برونزي",
-    [SubscriptionTier.GOLD]: "ذهبي",
-    [SubscriptionTier.DIAMOND]: "ماسي",
-  };
-
-  const categories = [
-    { id: "رجالي", label: "رجالي" },
-    { id: "أطفال", label: "أطفال" },
-    { id: "تقليدي", label: "تقليدي" },
-    { id: "احتياجات خاصة", label: "احتياجات خاصة" },
-    { id: "زيارة منزلية", label: "زيارة منزلية" },
-  ];
-
-  const ratingOptions = [0, 3, 4, 4.5];
+  const activeCount = [
+    filters.maxDistance !== 5 ? 1 : 0,
+    filters.openNow ? 1 : 0,
+    filters.tiers.length,
+    filters.minRating > 0 ? 1 : 0,
+    filters.categories.length,
+  ].reduce((a, b) => a + b, 0);
 
   return (
-    <Card className="w-full p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50 shadow-lg touch-manipulation">
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="overflow-hidden rounded-2xl border border-white/10 bg-[#0a1628]/85 backdrop-blur-md"
+      dir="rtl"
+    >
+      {/* ── Header bar ─────────────────────────────────── */}
+      <button
+        type="button"
+        onClick={() => setExpanded((o) => !o)}
+        className="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-white/5"
       >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-semibold text-foreground">فلاتر الرصد الذكي</h3>
-            <p className="text-xs text-muted-foreground mt-1 max-w-md leading-relaxed">{PLATFORM_SEARCH_RESULTS_CONTEXT}</p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            className="gap-2 hover:bg-accent/10"
+        <div className="flex items-center gap-2.5">
+          <SlidersHorizontal className="h-4 w-4 text-teal-400" />
+          <span className="text-sm font-bold text-white">فلاتر الرصد الذكي</span>
+          {activeCount > 0 && (
+            <motion.span
+              initial={{ scale: 0 }} animate={{ scale: 1 }}
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/25 text-[0.6rem] font-black text-teal-300 ring-1 ring-teal-400/40"
+            >
+              {activeCount}
+            </motion.span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {activeCount > 0 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); handleReset(); }}
+              className="flex items-center gap-1 rounded-full border border-rose-400/25 bg-rose-500/10 px-2.5 py-1 text-[0.62rem] font-semibold text-rose-300 hover:border-rose-400/50 transition-colors"
+            >
+              <RotateCcw className="h-2.5 w-2.5" />
+              إعادة
+            </button>
+          )}
+          <ChevronDown
+            className={`h-4 w-4 text-slate-500 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+          />
+        </div>
+      </button>
+
+      {/* ── Quick summary chips (always visible) ──────── */}
+      <div className="flex flex-wrap items-center gap-2 border-t border-white/6 px-4 py-2.5">
+        {/* Distance — always */}
+        <div
+          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[0.7rem] cursor-pointer hover:border-white/20 transition-colors"
+          onClick={() => setExpanded(true)}
+        >
+          <MapPin className="h-3 w-3 text-teal-400/70" />
+          <span className="text-slate-300">{filters.maxDistance}كم</span>
+        </div>
+
+        {/* Open now */}
+        <button
+          type="button"
+          onClick={() => onFilterChange({ ...filters, openNow: !filters.openNow })}
+          className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.7rem] font-semibold transition-all ${
+            filters.openNow
+              ? 'border-emerald-400/60 bg-emerald-500/15 text-emerald-200'
+              : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20'
+          }`}
+        >
+          <motion.div
+            animate={filters.openNow ? { opacity: [0.5, 1, 0.5] } : { opacity: 1 }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className={`h-1.5 w-1.5 rounded-full ${filters.openNow ? 'bg-emerald-400' : 'bg-slate-600'}`}
+          />
+          مفتوح الآن
+        </button>
+
+        {/* Active tiers */}
+        {TIERS.filter((t) => filters.tiers.includes(t.id)).map((t) => (
+          <button key={t.id} type="button"
+            onClick={() => onFilterChange({ ...filters, tiers: filters.tiers.filter((x) => x !== t.id) })}
+            className="flex items-center gap-1 rounded-full border border-teal-400/40 bg-teal-500/12 px-2.5 py-1.5 text-[0.7rem] font-semibold text-teal-200 hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-300 transition-all">
+            {t.emoji} {t.label} ×
+          </button>
+        ))}
+
+        {/* Active rating */}
+        {filters.minRating > 0 && (
+          <button type="button"
+            onClick={() => onFilterChange({ ...filters, minRating: 0 })}
+            className="flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-500/12 px-2.5 py-1.5 text-[0.7rem] font-semibold text-amber-200 hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-300 transition-all">
+            <Star className="h-2.5 w-2.5 fill-current" />
+            {filters.minRating}+ ×
+          </button>
+        )}
+
+        {/* Active categories */}
+        {filters.categories.map((c) => (
+          <button key={c} type="button"
+            onClick={() => onFilterChange({ ...filters, categories: filters.categories.filter((x) => x !== c) })}
+            className="flex items-center gap-1 rounded-full border border-violet-400/40 bg-violet-500/12 px-2.5 py-1.5 text-[0.7rem] font-semibold text-violet-200 hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-300 transition-all">
+            {c} ×
+          </button>
+        ))}
+      </div>
+
+      {/* ── Expanded filters ────────────────────────────── */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden"
           >
-            <RotateCcw className="w-4 h-4" />
-            إعادة تعيين
-          </Button>
-        </div>
+            <div className="space-y-4 border-t border-white/8 px-4 pb-4 pt-3">
 
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-base font-medium text-foreground">
-                المسافة القصوى
-              </Label>
-              <span className="text-sm font-semibold text-primary">
-                {filters.maxDistance} كم
-              </span>
-            </div>
-            <Slider
-              value={[filters.maxDistance]}
-              onValueChange={handleDistanceChange}
-              min={1}
-              max={25}
-              step={0.5}
-              className="w-full"
-            />
-          </div>
+              {/* Distance slider */}
+              <DistanceSlider
+                value={filters.maxDistance}
+                onChange={(v) => onFilterChange({ ...filters, maxDistance: v })}
+              />
 
-          <div className="space-y-3">
-            <Label className="text-base font-medium text-foreground">الفئة</Label>
-            <div className="grid grid-cols-3 gap-3">
-              {Object.entries(tierLabels).map(([tier, label]) => (
-                <div
-                  key={tier}
-                  className="flex items-center space-x-2 space-x-reverse"
-                >
-                  <Checkbox
-                    id={`tier-${tier}`}
-                    checked={filters.tiers.includes(tier as SubscriptionTier)}
-                    onCheckedChange={() =>
-                      handleTierToggle(tier as SubscriptionTier)
-                    }
-                    className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                  <Label
-                    htmlFor={`tier-${tier}`}
-                    className="text-sm cursor-pointer text-foreground"
-                  >
-                    {label}
-                  </Label>
+              {/* Divider */}
+              <div className="h-px bg-white/8" />
+
+              {/* Tiers */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1.5 text-[0.68rem] font-semibold text-slate-500">
+                  <Crown className="h-3 w-3" />
+                  الباقة:
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between py-2">
-            <Label htmlFor="open-now" className="text-base font-medium text-foreground">
-              مفتوح الآن
-            </Label>
-            <Switch
-              id="open-now"
-              checked={filters.openNow}
-              onCheckedChange={handleOpenNowToggle}
-              className="data-[state=checked]:bg-primary"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-base font-medium text-foreground">
-              التقييم الأدنى
-            </Label>
-            <div className="grid grid-cols-4 gap-2">
-              {ratingOptions.map((rating) => (
-                <Button
-                  key={rating}
-                  variant={filters.minRating === rating ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleRatingChange(rating)}
-                  className="gap-1 transition-all"
-                >
-                  {rating === 0 ? (
-                    "الكل"
-                  ) : (
-                    <>
-                      <Star className="w-3 h-3 fill-current" />
-                      {rating}
-                    </>
-                  )}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-base font-medium text-foreground">
-              نوع الخدمة
-            </Label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {categories.map((category) => (
-                <div
-                  key={category.id}
-                  className="flex items-center space-x-2 space-x-reverse"
-                >
-                  <Checkbox
-                    id={`category-${category.id}`}
-                    checked={filters.categories.includes(category.id)}
-                    onCheckedChange={() => handleCategoryToggle(category.id)}
-                    className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                  <Label
-                    htmlFor={`category-${category.id}`}
-                    className="text-sm cursor-pointer text-foreground"
+                {TIERS.map((t) => (
+                  <Pill key={t.id}
+                    active={filters.tiers.includes(t.id)}
+                    onClick={() => {
+                      const next = filters.tiers.includes(t.id)
+                        ? filters.tiers.filter((x) => x !== t.id)
+                        : [...filters.tiers, t.id];
+                      onFilterChange({ ...filters, tiers: next });
+                    }}
                   >
-                    {category.label}
-                  </Label>
+                    {t.emoji} {t.label}
+                  </Pill>
+                ))}
+              </div>
+
+              {/* Open now */}
+              <div className="flex items-center gap-3">
+                <Clock className="h-3.5 w-3.5 text-slate-500" />
+                <span className="text-[0.68rem] font-semibold text-slate-500">الحالة:</span>
+                <Pill
+                  active={filters.openNow}
+                  onClick={() => onFilterChange({ ...filters, openNow: !filters.openNow })}
+                >
+                  <motion.div
+                    animate={filters.openNow ? { opacity: [0.5, 1, 0.5] } : { opacity: 1 }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className={`h-1.5 w-1.5 rounded-full ${filters.openNow ? 'bg-emerald-400' : 'bg-slate-500'}`}
+                  />
+                  مفتوح الآن فقط
+                </Pill>
+              </div>
+
+              {/* Ratings */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1.5 text-[0.68rem] font-semibold text-slate-500">
+                  <Star className="h-3 w-3" />
+                  التقييم:
                 </div>
-              ))}
+                {RATINGS.map((r) => (
+                  <Pill key={r.value}
+                    active={filters.minRating === r.value}
+                    onClick={() => onFilterChange({ ...filters, minRating: r.value })}
+                  >
+                    {r.value > 0 && <Star className="h-2.5 w-2.5 fill-current text-amber-400" />}
+                    {r.label}
+                  </Pill>
+                ))}
+              </div>
+
+              {/* Categories */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="text-[0.68rem] font-semibold text-slate-500 w-full mb-0.5">نوع الخدمة:</div>
+                {CATEGORIES.map((cat) => (
+                  <Pill key={cat.id}
+                    active={filters.categories.includes(cat.id)}
+                    onClick={() => {
+                      const next = filters.categories.includes(cat.id)
+                        ? filters.categories.filter((x) => x !== cat.id)
+                        : [...filters.categories, cat.id];
+                      onFilterChange({ ...filters, categories: next });
+                    }}
+                  >
+                    {cat.emoji} {cat.label}
+                  </Pill>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      </motion.div>
-    </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
