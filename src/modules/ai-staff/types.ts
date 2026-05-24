@@ -24,7 +24,8 @@ export type AiStaffAgentId =
   | 'b2c_marketing_strategist'
   | 'b2b_marketing_strategist'
   | 'media_spokesperson'
-  | 'legal_observer';
+  | 'legal_observer'
+  | 'partner_assistant_legacy';
 
 export type AiStaffAgentIconKind =
   | 'cyber_defense'
@@ -74,6 +75,8 @@ export type AiStaffAgentDef = {
   ctaLabelAr?: string;
   iconKind?: AiStaffAgentIconKind;
   accentClass: string;
+  /** معفى من الخدمة — يُعرَض بشارة تقاعد ولا يُفعَّل */
+  retired?: boolean;
   requiredAny: AdminPermissionKey[];
   /** When true, agent card is shown; covert agents may still require elite visibility. */
   available: boolean;

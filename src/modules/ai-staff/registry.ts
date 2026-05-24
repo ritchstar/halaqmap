@@ -394,6 +394,28 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     },
   },
   {
+    id: 'partner_assistant_legacy',
+    boundary: 'external_partner_ops',
+    shortName: 'مساعد الشركاء 🏅',
+    title: 'مساعد الشركاء — معفى من الخدمة',
+    statusBadgeAr: '🏅 معفى من الخدمة',
+    ctaLabelAr: 'معفى من الخدمة',
+    roleDescription:
+      'مساعد الشركاء الأصلي — أدّى مهمته بشرف منذ الإطلاق وحتى استقدام مدير مبيعات B2B المتخصص. أُحيل للتقاعد الميداني ويبقى في المركز كسجل تاريخي. مهامه انتقلت كاملةً لمدير مبيعات B2B الذي يملك معرفة أوسع وأدوات إقناع أحدث.',
+    accentClass: staffTheme.accentMedia,
+    requiredAny: ['manage_admins', 'view_overview'],
+    available: false,
+    retired: true,
+    iconKind: 'partner_liaison',
+    workspaceKind: 'partner_analytics',
+    consultAgents: [],
+    doctrineNotes: [
+      'هذا الوكيل معفى من الخدمة الميدانية — لا يظهر في الصفحات الشريكة.',
+      'حلّ محله: مدير مبيعات B2B المتخصص بعلوم التسويق والمبيعات الحديثة.',
+      'يبقى في مركز الوكلاء كسجل تاريخي وذاكرة مؤسسية للمنصة.',
+    ],
+  },
+  {
     id: 'digital_shift_field',
     boundary: 'external_partner_ops',
     shortName: DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME,

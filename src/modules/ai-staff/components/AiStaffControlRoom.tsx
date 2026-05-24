@@ -351,6 +351,7 @@ export function AiStaffControlRoom({
                             statusBadgeAr={agent.statusBadgeAr}
                             ctaLabelAr={agent.ctaLabelAr}
                             iconKind={agent.iconKind}
+                            retired={Boolean(agent.retired)}
                             eliteCovert={agent.classification === 'elite_covert'}
                             attentionLevel={
                               agent.id === 'zatca_tax_advisor' &&

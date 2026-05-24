@@ -33,6 +33,7 @@ type Props = {
   iconKind?: AiStaffAgentIconKind;
   eliteCovert?: boolean;
   attentionLevel?: ZatcaAttentionLevel;
+  retired?: boolean;
   onActivate?: () => void;
 };
 
@@ -163,9 +164,10 @@ export function AiStaffEmployeeCard({
   iconKind,
   eliteCovert,
   attentionLevel = 'none',
+  retired = false,
   onActivate,
 }: Props) {
-  const interactive = available && !locked && Boolean(onActivate);
+  const interactive = available && !locked && !retired && Boolean(onActivate);
   const title = headline ?? shortName;
 
   return (
@@ -174,7 +176,8 @@ export function AiStaffEmployeeCard({
         'relative flex h-full min-h-[210px] flex-col rounded-lg border p-5 shadow-sm transition-colors duration-200',
         accentClass,
         interactive && 'cursor-pointer hover:border-slate-600',
-        !interactive && 'opacity-75',
+        !interactive && !retired && 'opacity-75',
+        retired && 'opacity-60 grayscale-[40%]',
       )}
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
@@ -192,9 +195,20 @@ export function AiStaffEmployeeCard({
     >
       <AttentionDot level={attentionLevel} />
 
+      {/* شارة التقاعد — تُعرَض فوق الكارت */}
+      {retired && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 rounded-full border border-slate-500/50 bg-slate-800 px-3 py-0.5 text-[0.65rem] font-bold text-slate-300 shadow-lg">
+          🏅 معفى من الخدمة
+        </div>
+      )}
+
       <div className="mb-3 flex items-start justify-between gap-2">
         <StaffIcon kind={iconKind} shortName={shortName} />
-        {comingSoonLabel ? (
+        {retired ? (
+          <Badge variant="secondary" className="text-xs bg-slate-700/80 text-slate-400 border-slate-600 gap-1">
+            🏅 متقاعد
+          </Badge>
+        ) : comingSoonLabel ? (
           <Badge variant="secondary" className="text-xs bg-slate-700 text-slate-300 border-slate-600">
             {comingSoonLabel}
           </Badge>
