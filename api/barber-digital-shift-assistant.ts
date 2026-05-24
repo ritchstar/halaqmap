@@ -224,8 +224,19 @@ export async function POST(request: Request): Promise<Response> {
           .map((t) => ({ role: t.role as 'user' | 'assistant', content: String(t.content ?? '').slice(0, 2000) }))
       : [];
 
+    // تعليمات ومهام الحلاق (من localStorage، تُرسل من العميل)
+    const instructions = Array.isArray(body.instructions)
+      ? (body.instructions as unknown[]).map(s => String(s)).filter(Boolean).slice(0, 20)
+      : [];
+    const tasks = Array.isArray(body.tasks)
+      ? (body.tasks as { text?: string; done?: boolean }[])
+          .map(t => ({ text: String(t.text ?? ''), done: Boolean(t.done) }))
+          .filter(t => t.text)
+          .slice(0, 30)
+      : [];
+
     try {
-      const reply = await generateDigitalShiftReply(ctx, 'barber', message, history);
+      const reply = await generateDigitalShiftReply(ctx, 'barber', message, history, { instructions, tasks });
       return Response.json({ ok: true, reply }, { headers });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'AI failed';

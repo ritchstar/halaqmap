@@ -18,6 +18,7 @@ import {
 } from '@/config/digitalShiftAssistant';
 import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
 import { DigitalShiftRecommendationsTable } from '@/components/barber/DigitalShiftRecommendationsTable';
+import { DigitalShiftPrivateOffice } from '@/components/barber/DigitalShiftPrivateOffice';
 import type { BarberPlatformBannerState } from '@/lib/barberDashboardLocalState';
 import type { Post } from '@/lib';
 import {
@@ -277,47 +278,14 @@ export function DigitalShiftAssistantHub({
         dismissingId={dismissingId}
       />
 
-      <Card className="border-violet-500/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Sparkles className="h-4 w-4 text-violet-600" />
-            محادثة مع المناوب (لوحة الحلاق)
-          </CardTitle>
-          <CardDescription>{DIGITAL_SHIFT_GREETING_PROMPT}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="max-h-64 overflow-y-auto space-y-2 rounded-lg border border-border/60 bg-muted/20 p-3">
-            {chatHistory.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-6">
-                يا عمنا تفضل — اكتب مهام اليوم أو اسأل عن الرصيد والبنرات.
-              </p>
-            ) : (
-              chatHistory.map((turn, i) => (
-                <div
-                  key={i}
-                  className={`rounded-lg px-3 py-2 text-sm leading-relaxed ${
-                    turn.role === 'user' ? 'bg-primary/10 ml-8' : 'bg-background border border-border/50 mr-8'
-                  }`}
-                >
-                  {turn.content}
-                </div>
-              ))
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Textarea
-              value={chatDraft}
-              onChange={(e) => setChatDraft(e.target.value)}
-              placeholder="وش مهام اليوم يا عمنا؟"
-              rows={2}
-              className="resize-none"
-            />
-            <Button type="button" size="icon" className="shrink-0 self-end" disabled={chatSending} onClick={() => void sendBarberChat()}>
-              {chatSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* ══ المكتب الخاص — الصندوق الفاخر ══ */}
+      <DigitalShiftPrivateOffice
+        barberId={barberId}
+        barberEmail={barberEmail}
+        barberName={summary?.context.barberName ?? 'الصالون'}
+        assistantName={assistantName}
+        listingDaysRemaining={summary?.context.listingDaysRemaining ?? 0}
+      />
     </div>
   );
 }

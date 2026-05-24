@@ -115,3 +115,49 @@ export function readBannerState(barberId: string): BarberPlatformBannerState {
 export function writeBannerState(barberId: string, state: BarberPlatformBannerState) {
   localStorage.setItem(bannerKey(barberId), JSON.stringify(state));
 }
+
+// ─── المناوب الرقمي — تعليمات ومهام خاصة بالحلاق ───────────────────────────
+
+export type ShiftInstruction = {
+  id: string;
+  text: string;
+  createdAt: string;
+  active: boolean;
+};
+
+export type ShiftTask = {
+  id: string;
+  text: string;
+  done: boolean;
+  createdAt: string;
+  dueLabel?: string;
+};
+
+function shiftInstructionsKey(barberId: string) {
+  return `halaqmap_shift_instructions_${barberId}`;
+}
+function shiftTasksKey(barberId: string) {
+  return `halaqmap_shift_tasks_${barberId}`;
+}
+
+export function readShiftInstructions(barberId: string): ShiftInstruction[] {
+  try {
+    const raw = localStorage.getItem(shiftInstructionsKey(barberId));
+    if (!raw) return [];
+    return JSON.parse(raw) as ShiftInstruction[];
+  } catch { return []; }
+}
+export function writeShiftInstructions(barberId: string, items: ShiftInstruction[]) {
+  localStorage.setItem(shiftInstructionsKey(barberId), JSON.stringify(items));
+}
+
+export function readShiftTasks(barberId: string): ShiftTask[] {
+  try {
+    const raw = localStorage.getItem(shiftTasksKey(barberId));
+    if (!raw) return [];
+    return JSON.parse(raw) as ShiftTask[];
+  } catch { return []; }
+}
+export function writeShiftTasks(barberId: string, tasks: ShiftTask[]) {
+  localStorage.setItem(shiftTasksKey(barberId), JSON.stringify(tasks));
+}

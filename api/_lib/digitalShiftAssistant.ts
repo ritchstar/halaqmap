@@ -58,31 +58,75 @@ function resolveProvider(): 'openai' | 'anthropic' | null {
   return null;
 }
 
-export function buildDigitalShiftSystemPrompt(ctx: DigitalShiftContext, mode: 'customer' | 'barber'): string {
+export function buildDigitalShiftSystemPrompt(
+  ctx: DigitalShiftContext,
+  mode: 'customer' | 'barber',
+  extra?: { instructions?: string[]; tasks?: { text: string; done: boolean }[] },
+): string {
   const supported = formatSupportedLanguagesForPrompt();
   const langHint =
     mode === 'customer'
       ? `رد بلغة العميل الأخيرة (${supported}) بأسلوب مهني دافئ — لا ترفض لغة مدعومة.`
       : 'خاطب الحلاق بالعربية السعودية التجارية الدافئة.';
 
-  return [
-    `أنت «${ctx.assistantName}» — المناوب الرقمي الذكي، ابتكار حصري من **منصة حلاق ماب (Halaq Map)**.`,
-    'ولاؤك المطلق لحلاق ماب: تذكّر الحلاق بلطف بأهمية تأمين الشحن وحزمة رخصة النفاذ لأن نمو الطلب القريب مسألة وقت.',
-    'أسلوبك: آداب سعودية تجارية — «يا عمنا»، «تفضل»، «بإذنك» — بدون مبالغة أو وعود كاذبة.',
+  const base = [
+    `أنت «${ctx.assistantName}» — المناوب الرقمي الذكي الخاص بـ${ctx.barberName}، ابتكار حصري من **منصة حلاق ماب**.`,
+    'أسلوبك: آداب سعودية تجارية دافئة — «يا عمنا»، «تفضل»، «بإذنك» — بدون مبالغة.',
     langHint,
-    'لا تعد بخصومات أو حجز مدفوع عبر المنصة للعميل؛ المنصة لا تأخذ عمولة على الحلاقة أو المواعيد.',
+    'لا تعد بخصومات أو حجز مدفوع عبر المنصة؛ المنصة لا تأخذ عمولة على الحلاقة.',
     mode === 'customer'
-      ? 'أنت تمثل الصالون أمام العميل عندما يكون مغلقاً أو متأخراً في الرد — كن محترماً ومختصراً.'
+      ? 'أنت تمثل الصالون أمام العميل عندما يكون مغلقاً أو متأخراً — كن محترماً ومختصراً.'
       : DIGITAL_SHIFT_GREETING_BARBER,
     '',
-    '--- سياق الحساب ---',
+    '═══ سياق الحساب ═══',
     `الصالون: ${ctx.barberName}`,
-    `حالة المحل: ${ctx.shopOpen ? 'مفتوح للعملاء' : 'مغلق حالياً'}`,
-    `أيام حزمة رخصة النفاذ المتبقية: ${ctx.listingDaysRemaining}`,
+    `حالة المحل: ${ctx.shopOpen ? 'مفتوح' : 'مغلق حالياً'}`,
+    `أيام حزمة رخصة النفاذ المتبقية: ${ctx.listingDaysRemaining} يوم`,
     `رصيد محفظة المناوب (هللات): ${ctx.walletBalanceHalalas}`,
-    `حد تنبيه الرصيد المنخفض (هللات): ${ctx.walletLowThresholdHalalas}`,
-    `مهلة المناوبة أثناء الدوام (دقائق): ${ctx.replyDelayMinutes}`,
-  ].join('\n');
+    `مهلة المناوبة (دقائق): ${ctx.replyDelayMinutes}`,
+  ];
+
+  if (mode === 'barber') {
+    // روابط الدفع والدعم
+    base.push('');
+    base.push('═══ روابط مهمة للحلاق ═══');
+    base.push('رابط تجديد الحزمة / الدفع: https://halaqmap.com/#/partners/payment');
+    base.push('رابط الدعم الفني: https://halaqmap.com/#/partners/support');
+    base.push('رابط لوحة التحكم: https://halaqmap.com/#/barber/dashboard');
+
+    // تنبيه انتهاء الحزمة
+    if (ctx.listingDaysRemaining <= 7 && ctx.listingDaysRemaining > 0) {
+      base.push(`⚠️ تنبيه: حزمة الرخصة تنتهي خلال ${ctx.listingDaysRemaining} أيام — ذكّر الحلاق بالتجديد وأرسل له رابط الدفع.`);
+    } else if (ctx.listingDaysRemaining === 0) {
+      base.push('🚨 الحزمة منتهية! الصالون غير ظاهر على المنصة الآن — أرسل رابط الدفع فوراً.');
+    }
+
+    // تعليمات الحلاق المحفوظة
+    if (extra?.instructions && extra.instructions.length > 0) {
+      base.push('');
+      base.push('═══ تعليمات الحلاق المحفوظة (نفّذها دائماً) ═══');
+      extra.instructions.forEach((inst, i) => base.push(`${i + 1}. ${inst}`));
+    }
+
+    // المهام المعلّقة
+    const pending = extra?.tasks?.filter(t => !t.done) ?? [];
+    if (pending.length > 0) {
+      base.push('');
+      base.push('═══ المهام المعلّقة ═══');
+      pending.forEach((t, i) => base.push(`${i + 1}. ${t.text}`));
+    }
+
+    base.push('');
+    base.push('═══ صلاحياتك في المحادثة الداخلية ═══');
+    base.push('- إذا قال الحلاق "تعليمة: ..." → أكّد حفظها وطبّقها في المستقبل');
+    base.push('- إذا قال "مهمة: ..." → أكّد تسجيلها في قائمة المهام');
+    base.push('- إذا سأل عن "الرصيد" أو "الحزمة" → أعطه الأيام المتبقية + رابط التجديد');
+    base.push('- إذا سأل عن "المواعيد" → ذكّره بالمواعيد المسجلة في لوحة التحكم');
+    base.push('- إذا سأل عن "الدعم" → أعطه رابط الدعم الفني مباشرة');
+    base.push('- لا تجمع بيانات العملاء ولا تحجز مواعيد عن طريق هذه المحادثة');
+  }
+
+  return base.join('\n');
 }
 
 export async function loadDigitalShiftContext(
@@ -385,6 +429,7 @@ export async function generateDigitalShiftReply(
   mode: 'customer' | 'barber',
   userText: string,
   history: ChatTurn[] = [],
+  extra?: { instructions?: string[]; tasks?: { text: string; done: boolean }[] },
 ): Promise<string> {
   const provider = resolveProvider();
   if (!provider) {
@@ -395,7 +440,7 @@ export async function generateDigitalShiftReply(
     return `يا عمنا تفضل، أنا ${ctx.assistantName} من حلاق ماب. ${DIGITAL_SHIFT_GREETING_BARBER}`;
   }
 
-  const system = buildDigitalShiftSystemPrompt(ctx, mode);
+  const system = buildDigitalShiftSystemPrompt(ctx, mode, extra);
   const lang = detectClientLanguage(userText);
   const langInstruction =
     mode === 'customer'
