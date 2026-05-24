@@ -40,6 +40,7 @@ import AdminSentinelPage from "@/pages/AdminSentinelPage";
 import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
 import AdminCyberOperationsPage from "@/app/admin/cyber/page";
 import StaffHubPage from "@/app/admin/staff-hub/page";
+import CosmicShowcase from "@/pages/CosmicShowcase";
 import LandingPreview from "@/pages/LandingPreview";
 import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
 import PlatformReviews from "@/pages/PlatformReviews";
@@ -99,6 +100,7 @@ const App = () => (
           {/* ── الصفحتان الرئيسيتان الجديدتان ─────────────────────────── */}
           <Route path={ROUTE_PATHS.HOME} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<PlatformReviews />} />
+          <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<CosmicShowcase />} />
 
           {/* ── أرشيف الصفحات القديمة — ذكرى البدايات ──────────────── */}
           <Route path="/archive/home" element={<Layout><Home /></Layout>} />

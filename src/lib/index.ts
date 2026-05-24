@@ -54,6 +54,8 @@ export const ROUTE_PATHS = {
   LANDING_PREVIEW: '/preview',
   /** صفحة هبوط مسار الخدمات التسويقية للشركاء — معاينة تصميمية */
   LANDING_PARTNERS_PREVIEW: '/preview-partners',
+  /** استعراض تقني كوني — HALAQ MAP Cosmic Showcase */
+  COSMIC_SHOWCASE: '/cosmic',
   /** صفحة آراء وتعليقات المستخدمين الحرة */
   PLATFORM_REVIEWS: '/reviews',
   /** مركز الوكلاء — صفحة مستقلة لبقية الوكلاء */
