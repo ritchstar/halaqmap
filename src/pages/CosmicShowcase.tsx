@@ -1,660 +1,541 @@
 /**
- * CosmicShowcase — استعراض تقني كوني لـ HALAQ MAP
+ * CosmicShowcase — استعراض تقني كوني نقي
  * Route: /cosmic
  *
- * 18+ طبقة بصرية متزامنة:
- * سديم · نجوم · شفق قطبي · شهب · أشعة نبضار · شبكة عصبية
- * ثقب دودي · انفجار نجمي · حلقات أينشتاين · أمطار بيانات
- * مذنبات · إزاحة لونية · شبكة منظور · باراكس الماوس
- * دورة ~120 ثانية
+ * بلا محور مركزي — الأداء يملأ الشاشة بالكامل
+ * 18+ طبقة بصرية + منظومة صوتية كاملة عبر Web Audio API
+ * لا شعار في الوسط — فقط الاستعراض التقني والأصوات
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// ─── Pre-computed star positions ──────────────────────────────────────────────
-const TINY = Array.from({ length: 120 }, (_, i) => ({
-  x: ((i * 67 + 13) % 100),
-  y: ((i * 43 + 7) % 100),
-  r: 0.5 + (i % 3) * 0.3,
-  d: 2 + (i % 4),
-  delay: (i % 7) * 0.7,
-}));
-const SMALL = Array.from({ length: 60 }, (_, i) => ({
-  x: ((i * 89 + 31) % 100),
-  y: ((i * 53 + 19) % 100),
-  r: 1 + (i % 3) * 0.5,
-  d: 3 + (i % 5),
-  delay: (i % 6) * 0.9,
-}));
-const BRIGHT = Array.from({ length: 20 }, (_, i) => ({
-  x: ((i * 113 + 47) % 100),
-  y: ((i * 71 + 23) % 100),
-  r: 2 + (i % 3),
-  d: 4 + (i % 4),
-  delay: (i % 5) * 1.2,
-  color: ['#fff', '#7df3ff', '#ffcf77', '#c084fc', '#86efac'][i % 5],
-}));
+// ─── Static star data ─────────────────────────────────────────────────────────
+const TINY  = Array.from({length:140},(_, i)=>({ x:(i*67+13)%100, y:(i*43+7)%100, r:.5+(i%3)*.3, d:2+(i%4), delay:(i%7)*.7 }));
+const SMALL = Array.from({length:70}, (_, i)=>({ x:(i*89+31)%100, y:(i*53+19)%100, r:1+(i%3)*.5, d:3+(i%5), delay:(i%6)*.9 }));
+const BRIGHT= Array.from({length:25}, (_, i)=>({ x:(i*113+47)%100, y:(i*71+23)%100, r:2+(i%3), d:4+(i%4), delay:(i%5)*1.2, color:['#fff','#7df3ff','#ffcf77','#c084fc','#86efac'][i%5] }));
 
-// ─── Neural network nodes ─────────────────────────────────────────────────────
-const NODES = Array.from({ length: 18 }, (_, i) => ({
-  x: 10 + ((i * 47 + 13) % 80),
-  y: 10 + ((i * 61 + 7) % 80),
-  id: i,
-}));
-const LINKS = NODES.flatMap((n, i) =>
-  NODES.slice(i + 1, i + 4).map((m) => ({ from: n.id, to: m.id }))
-).slice(0, 28);
+// Neural network
+const NODES = Array.from({length:22},(_, i)=>({ x:5+((i*47+13)%90), y:5+((i*61+7)%90), id:i }));
+const LINKS = NODES.flatMap((n,i)=>NODES.slice(i+1,i+4).map((m)=>({from:n.id,to:m.id}))).slice(0,35);
 
-// ─── Constellation points ──────────────────────────────────────────────────────
-const CONSTS = [
-  [20,15],[35,8],[50,20],[65,12],[80,18],
-  [25,35],[45,30],[60,38],[75,28],
-  [15,55],[38,50],[55,58],[72,52],[85,45],
+// Constellation
+const CONSTS:number[][] = [ [10,12],[28,6],[50,18],[72,9],[88,15],[18,32],[42,28],[60,35],[80,25],[8,55],[35,48],[58,55],[78,50],[90,42] ];
+const CLINES = [[0,1],[1,2],[2,3],[3,4],[0,5],[1,5],[2,6],[3,7],[4,7],[5,8],[6,9],[7,10],[8,11],[9,10],[10,11],[11,12],[12,13]];
+
+// Data rain
+const DATA = '01アBالرياض10ABCXYZحلاق01マップKSA';
+const RAIN  = Array.from({length:26},(_, i)=>({ x:(i/26)*100, speed:7+(i%5)*3, delay:(i*.7)%9, chars:Array.from({length:20},(_, j)=>DATA[(i*3+j*7)%DATA.length]) }));
+
+// Distributed pulse centers (not centered!)
+const PULSE_CENTERS = [
+  { x:20, y:22, color:'#0ff', size:180, dur:14 },
+  { x:75, y:70, color:'#8b00ff', size:220, dur:20 },
+  { x:65, y:25, color:'#0f8', size:150, dur:17 },
 ];
-const CONST_LINES = [
-  [0,1],[1,2],[2,3],[3,4],[0,5],[1,5],[2,6],[3,6],[4,7],
-  [5,9],[6,10],[7,11],[8,12],[9,10],[10,11],[11,12],[12,13],
+const ORBIT_CENTERS = [
+  { x:15, y:65, rings:[{ w:120, c:'#0ff', dur:10 }, { w:170, c:'#8b00ff', dur:15 }] },
+  { x:82, y:30, rings:[{ w:100, c:'#fa0', dur:12 }, { w:150, c:'#0ff', dur:18 }] },
 ];
 
-// ─── Data rain characters ──────────────────────────────────────────────────────
-const DATA_CHARS = '01アBالرياض10ABCXYZحلاق01マップ';
-const RAIN_COLS = Array.from({ length: 22 }, (_, i) => ({
-  x: (i / 22) * 100,
-  speed: 8 + (i % 5) * 3,
-  delay: (i * 0.7) % 8,
-  chars: Array.from({ length: 18 }, (_, j) => DATA_CHARS[(i * 3 + j * 7) % DATA_CHARS.length]),
-}));
+// ─── WEB AUDIO ENGINE ─────────────────────────────────────────────────────────
+function createReverb(ctx: AudioContext) {
+  const len = ctx.sampleRate * 3;
+  const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+  }
+  const conv = ctx.createConvolver();
+  conv.buffer = buf;
+  return conv;
+}
+
+function useCosmicAudio(audioOn: boolean, shooterEvent: number, supernovaEvent: boolean, wormholeEvent: boolean) {
+  const ctxRef = useRef<AudioContext | null>(null);
+  const droneSrc = useRef<OscillatorNode | null>(null);
+  const padSrc   = useRef<OscillatorNode[]>([]);
+  const reverbRef = useRef<ConveroNode | null>(null);
+  const masterRef = useRef<GainNode | null>(null);
+
+  const init = useCallback(() => {
+    if (ctxRef.current) return;
+    const ctx = new AudioContext();
+    ctxRef.current = ctx;
+
+    // Master gain
+    const master = ctx.createGain();
+    master.gain.value = 0.6;
+    master.connect(ctx.destination);
+    masterRef.current = master;
+
+    // Reverb
+    const reverb = createReverb(ctx);
+    const reverbGain = ctx.createGain();
+    reverbGain.gain.value = 0.4;
+    reverb.connect(reverbGain);
+    reverbGain.connect(master);
+    reverbRef.current = reverb as unknown as ConveroNode;
+
+    // ── Ambient drone (40Hz + 80Hz)
+    [40, 80, 53].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      const lfo = ctx.createOscillator();
+      const lfog = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      lfo.frequency.value = 0.05 + i * 0.03;
+      lfog.gain.value = freq * 0.04;
+      g.gain.value = [0.3, 0.15, 0.1][i];
+      lfo.connect(lfog); lfog.connect(osc.frequency);
+      osc.connect(g); g.connect(master); g.connect(reverb);
+      lfo.start(); osc.start();
+    });
+
+    // ── Aurora pad (evolving chord A2 C#3 E3 G3)
+    [110, 138.6, 165, 196].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      const lfo = ctx.createOscillator();
+      const lg  = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      g.gain.value = 0.06;
+      lfo.frequency.value = 0.07 + i * 0.02;
+      lg.gain.value = 4;
+      lfo.connect(lg); lg.connect(osc.frequency);
+      osc.connect(g); g.connect(reverb); g.connect(master);
+      lfo.start(); osc.start();
+      padSrc.current.push(osc);
+    });
+
+    // ── Neural hum (pulsing 220Hz)
+    const neural = ctx.createOscillator();
+    const neuralG = ctx.createGain();
+    const neuralLFO = ctx.createOscillator();
+    const neuralLG  = ctx.createGain();
+    neural.type = 'sine';
+    neural.frequency.value = 220;
+    neuralLFO.frequency.value = 0.4;
+    neuralLG.gain.value = 0.05;
+    neuralG.gain.value = 0.04;
+    neuralLFO.connect(neuralLG); neuralLG.connect(neuralG.gain);
+    neural.connect(neuralG); neuralG.connect(reverb);
+    neuralLFO.start(); neural.start();
+  }, []);
+
+  // Shooting star sound
+  useEffect(() => {
+    if (!audioOn || !ctxRef.current || !shooterEvent) return;
+    const ctx = ctxRef.current;
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(900 + Math.random() * 400, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 1.2);
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 1.2);
+  }, [audioOn, shooterEvent]);
+
+  // Supernova sound
+  useEffect(() => {
+    if (!audioOn || !ctxRef.current || !supernovaEvent) return;
+    const ctx = ctxRef.current;
+    const bufSize = ctx.sampleRate * 2.5;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufSize, 1.5);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const g = ctx.createGain();
+    const f = ctx.createBiquadFilter();
+    f.type = 'lowpass'; f.frequency.value = 600;
+    g.gain.setValueAtTime(1.2, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+    src.connect(f); f.connect(g); g.connect(ctx.destination);
+    src.start(); src.stop(ctx.currentTime + 2.5);
+    // Sub-bass kick
+    const kick = ctx.createOscillator();
+    const kg = ctx.createGain();
+    kick.frequency.setValueAtTime(80, ctx.currentTime);
+    kick.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.5);
+    kg.gain.setValueAtTime(1.5, ctx.currentTime);
+    kg.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    kick.connect(kg); kg.connect(ctx.destination);
+    kick.start(); kick.stop(ctx.currentTime + 0.8);
+  }, [audioOn, supernovaEvent]);
+
+  // Wormhole sound
+  useEffect(() => {
+    if (!audioOn || !ctxRef.current || !wormholeEvent) return;
+    const ctx = ctxRef.current;
+    [30, 45, 60].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(freq * 0.3, ctx.currentTime + 5);
+      g.gain.setValueAtTime(0, ctx.currentTime + i * 0.3);
+      g.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 1 + i * 0.3);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + 5);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 5);
+    });
+  }, [audioOn, wormholeEvent]);
+
+  useEffect(() => {
+    if (audioOn) init();
+  }, [audioOn, init]);
+
+  return { init };
+}
+
+// ─── Main page ─────────────────────────────────────────────────────────────────
+type Shooter = { id: number; angle: number; x: number; y: number; dur: number; color: string };
+type Comet   = { id: number; x: number; y: number; angle: number; len: number; color: string };
 
 export default function CosmicShowcase() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const [shooters, setShooters] = useState<{ id: number; angle: number; startX: number; startY: number; dur: number; color: string }[]>([]);
-  const [comets, setComets] = useState<{ id: number; x: number; y: number; angle: number; len: number; color: string }[]>([]);
+  const [audioOn, setAudioOn]     = useState(false);
+  const [showAudioBtn, setShowBtn]= useState(true);
+  const [mouse, setMouse]         = useState({ x: 0, y: 0 });
+  const [shooters, setShooters]   = useState<Shooter[]>([]);
+  const [comets, setComets]       = useState<Comet[]>([]);
   const [supernova, setSupernova] = useState(false);
-  const [wormhole, setWormhole] = useState(false);
+  const [wormholePos, setWormhole]= useState<{ x: number; y: number } | null>(null);
   const [chromatic, setChromatic] = useState(false);
-  const [pixelBurst, setPixelBurst] = useState(false);
+  const [shootTick, setShootTick] = useState(0);
+  const [snovaTick, setSnovaTick] = useState(0);
+  const [whTick, setWhTick]       = useState(0);
   const shootId = useRef(0);
   const cometId = useRef(0);
 
-  // Mouse parallax
-  const handleMouse = useCallback((e: MouseEvent) => {
-    const x = (e.clientX / window.innerWidth - 0.5) * 2;
-    const y = (e.clientY / window.innerHeight - 0.5) * 2;
-    setMouse({ x, y });
-  }, []);
+  useCosmicAudio(audioOn, shootTick, supernova, !!wormholePos);
 
-  useEffect(() => {
-    window.addEventListener('mousemove', handleMouse, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouse);
-  }, [handleMouse]);
+  const handleMouse = useCallback((e: MouseEvent) => {
+    setMouse({ x: (e.clientX / window.innerWidth - .5) * 2, y: (e.clientY / window.innerHeight - .5) * 2 });
+  }, []);
+  useEffect(() => { window.addEventListener('mousemove', handleMouse, { passive: true }); return () => window.removeEventListener('mousemove', handleMouse); }, [handleMouse]);
 
   // Shooting stars
   useEffect(() => {
-    const COLORS = ['#fff', '#7df3ff', '#c084fc', '#fbbf24', '#86efac'];
+    const COLS = ['#fff','#7df3ff','#c084fc','#fbbf24','#86efac'];
     const add = () => {
       const id = ++shootId.current;
-      const angle = -20 - Math.random() * 40;
-      const startX = Math.random() * 80;
-      const startY = Math.random() * 40;
-      const dur = 0.8 + Math.random() * 1.2;
-      const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-      setShooters((p) => [...p.slice(-6), { id, angle, startX, startY, dur, color }]);
-      setTimeout(() => setShooters((p) => p.filter((s) => s.id !== id)), dur * 1000 + 200);
+      const color = COLS[Math.floor(Math.random() * COLS.length)];
+      setShooters(p => [...p.slice(-8), { id, angle: -15 - Math.random()*50, x: Math.random()*80, y: Math.random()*45, dur: .8+Math.random()*1.4, color }]);
+      setShootTick(t => t + 1);
+      setTimeout(() => setShooters(p => p.filter(s => s.id !== id)), 2200);
     };
-    const interval = setInterval(add, 2500 + Math.random() * 3500);
+    const t = setInterval(add, 2200 + Math.random() * 3800);
     add();
-    return () => clearInterval(interval);
+    return () => clearInterval(t);
   }, []);
 
   // Comets
   useEffect(() => {
-    const COLS = ['#7df3ff88', '#c084fc88', '#fbbf2488'];
+    const COLS = ['#7df3ff88','#c084fc88','#fbbf2488'];
     const add = () => {
       const id = ++cometId.current;
-      const x = Math.random() * 100;
-      const y = Math.random() * 60;
-      const angle = 10 + Math.random() * 30;
-      const len = 80 + Math.random() * 120;
       const color = COLS[Math.floor(Math.random() * COLS.length)];
-      setComets((p) => [...p.slice(-4), { id, x, y, angle, len, color }]);
-      setTimeout(() => setComets((p) => p.filter((c) => c.id !== id)), 4000);
+      setComets(p => [...p.slice(-4), { id, x: Math.random()*80, y: Math.random()*55, angle: 10+Math.random()*30, len: 90+Math.random()*130, color }]);
+      setTimeout(() => setComets(p => p.filter(c => c.id !== id)), 4000);
     };
-    const interval = setInterval(add, 8000 + Math.random() * 6000);
-    return () => clearInterval(interval);
+    const t = setInterval(add, 9000 + Math.random() * 7000);
+    return () => clearInterval(t);
   }, []);
 
-  // Periodic effects
+  // Supernova
   useEffect(() => {
-    // Supernova every 30s
-    const sn = setInterval(() => {
-      setSupernova(true);
-      setTimeout(() => setSupernova(false), 1800);
-    }, 30000);
-    setTimeout(() => { setSupernova(true); setTimeout(() => setSupernova(false), 1800); }, 5000);
+    const fire = () => { setSupernova(true); setSnovaTick(t => t+1); setTimeout(() => setSupernova(false), 1800); };
+    setTimeout(fire, 6000);
+    const t = setInterval(fire, 32000);
+    return () => clearInterval(t);
+  }, []);
 
-    // Wormhole every 45s
-    const wh = setInterval(() => {
-      setWormhole(true);
-      setTimeout(() => setWormhole(false), 5000);
-    }, 45000);
-    setTimeout(() => { setWormhole(true); setTimeout(() => setWormhole(false), 5000); }, 18000);
+  // Wormhole — random position
+  useEffect(() => {
+    const show = () => {
+      const x = 20 + Math.random() * 60;
+      const y = 15 + Math.random() * 55;
+      setWormhole({ x, y }); setWhTick(t => t+1);
+      setTimeout(() => setWormhole(null), 5000);
+    };
+    setTimeout(show, 20000);
+    const t = setInterval(show, 48000);
+    return () => clearInterval(t);
+  }, []);
 
-    // Chromatic aberration every 20s
-    const ch = setInterval(() => {
-      setChromatic(true);
-      setTimeout(() => setChromatic(false), 800);
-    }, 20000);
+  // Chromatic aberration
+  useEffect(() => {
+    const t = setInterval(() => { setChromatic(true); setTimeout(() => setChromatic(false), 700); }, 22000);
+    setTimeout(() => { setChromatic(true); setTimeout(() => setChromatic(false), 700); }, 10000);
+    return () => clearInterval(t);
+  }, []);
 
-    // Pixel burst every 35s
-    const pb = setInterval(() => {
-      setPixelBurst(true);
-      setTimeout(() => setPixelBurst(false), 2500);
-    }, 35000);
-
-    return () => { clearInterval(sn); clearInterval(wh); clearInterval(ch); clearInterval(pb); };
+  // Periodic stellar pings (visual sparkles)
+  const [pings, setPings] = useState<{ id: number; x: number; y: number }[]>([]);
+  useEffect(() => {
+    let pid = 0;
+    const t = setInterval(() => {
+      const id = ++pid;
+      setPings(p => [...p.slice(-12), { id, x: Math.random()*95, y: Math.random()*95 }]);
+      setTimeout(() => setPings(p => p.filter(s => s.id !== id)), 1200);
+    }, 800);
+    return () => clearInterval(t);
   }, []);
 
   const px = mouse.x, py = mouse.y;
 
   return (
-    <div ref={containerRef}
-      className="relative h-screen w-screen overflow-hidden"
-      style={{ background: '#000005', fontFamily: 'system-ui' }}>
+    <div className="relative h-screen w-screen overflow-hidden select-none" style={{ background: '#000008', fontFamily: 'system-ui' }}>
 
-      {/* ══ CSS KEYFRAMES ══════════════════════════════════════════════════ */}
+      {/* ── CSS KEYFRAMES ───────────────────────────────────────────────── */}
       <style>{`
-        @keyframes twinkle {
-          0%,100%{opacity:.2;transform:scale(1)}
-          50%{opacity:1;transform:scale(1.4)}
-        }
-        @keyframes nebula-float {
-          0%,100%{transform:translate(0,0) scale(1);opacity:.55}
-          33%{transform:translate(3%,2%) scale(1.08);opacity:.7}
-          66%{transform:translate(-2%,3%) scale(.95);opacity:.45}
-        }
-        @keyframes aurora-wave {
-          0%{transform:translateX(-10%) scaleY(1);filter:hue-rotate(0deg)}
-          50%{transform:translateX(8%) scaleY(1.3);filter:hue-rotate(60deg)}
-          100%{transform:translateX(-10%) scaleY(1);filter:hue-rotate(0deg)}
-        }
-        @keyframes pulsar-spin {
-          from{transform:rotate(0deg)}
-          to{transform:rotate(360deg)}
-        }
-        @keyframes orbit-3d-1 {
-          from{transform:rotateX(75deg) rotateZ(0deg)}
-          to{transform:rotateX(75deg) rotateZ(360deg)}
-        }
-        @keyframes orbit-3d-2 {
-          from{transform:rotateX(60deg) rotateZ(120deg)}
-          to{transform:rotateX(60deg) rotateZ(480deg)}
-        }
-        @keyframes orbit-3d-3 {
-          from{transform:rotateX(80deg) rotateZ(240deg)}
-          to{transform:rotateX(80deg) rotateZ(600deg)}
-        }
-        @keyframes text-breathe {
-          0%,100%{
-            text-shadow:0 0 7px #fff,0 0 20px #0ff,0 0 40px #0ff,0 0 80px #0ff,0 0 120px #05f;
-            filter:brightness(1)
-          }
-          50%{
-            text-shadow:0 0 10px #fff,0 0 30px #0ff,0 0 70px #0ff,0 0 130px #0ff,0 0 200px #05f,0 0 250px #8b00ff;
-            filter:brightness(1.3)
-          }
-        }
-        @keyframes shoot {
-          0%{opacity:0;transform:translateX(0) translateY(0)}
-          5%{opacity:1}
-          80%{opacity:.8}
-          100%{opacity:0;transform:translateX(120vw) translateY(60vh)}
-        }
-        @keyframes comet-move {
-          0%{opacity:0;transform:translateX(0)}
-          10%{opacity:1}
-          90%{opacity:.6}
-          100%{opacity:0;transform:translateX(100vw)}
-        }
-        @keyframes supernova-expand {
-          0%{opacity:0;transform:scale(0)}
-          15%{opacity:1;transform:scale(1)}
-          40%{opacity:.9;transform:scale(1.5)}
-          100%{opacity:0;transform:scale(4)}
-        }
-        @keyframes wormhole-spin {
-          0%{transform:scale(0) rotate(0deg);opacity:0}
-          20%{transform:scale(1) rotate(180deg);opacity:1}
-          80%{transform:scale(1.1) rotate(900deg);opacity:.8}
-          100%{transform:scale(0) rotate(1800deg);opacity:0}
-        }
-        @keyframes einstein-ring {
-          0%{transform:scale(0);opacity:.8}
-          100%{transform:scale(3.5);opacity:0}
-        }
-        @keyframes data-fall {
-          0%{transform:translateY(-120%);opacity:0}
-          5%{opacity:.7}
-          95%{opacity:.4}
-          100%{transform:translateY(120vh);opacity:0}
-        }
-        @keyframes neural-pulse {
-          0%,100%{stroke-opacity:.15;stroke-dashoffset:100}
-          50%{stroke-opacity:.6;stroke-dashoffset:0}
-        }
-        @keyframes grid-breathe {
-          0%,100%{opacity:.08}
-          50%{opacity:.18}
-        }
-        @keyframes chroma-split {
-          0%{text-shadow:-6px 0 10px #f00,6px 0 10px #00f,0 0 40px #0ff}
-          50%{text-shadow:-10px 0 20px #f00,10px 0 20px #00f,0 0 60px #0ff}
-          100%{text-shadow:-6px 0 10px #f00,6px 0 10px #00f,0 0 40px #0ff}
-        }
-        @keyframes pixel-burst {
-          0%{letter-spacing:0px;opacity:1;filter:blur(0)}
-          30%{letter-spacing:12px;opacity:.6;filter:blur(4px)}
-          60%{letter-spacing:24px;opacity:.2;filter:blur(8px)}
-          80%{letter-spacing:0px;opacity:.8;filter:blur(2px)}
-          100%{letter-spacing:0px;opacity:1;filter:blur(0)}
-        }
-        @keyframes solar-flare {
-          0%,100%{opacity:0;transform:scale(.5)}
-          15%{opacity:.9;transform:scale(1)}
-          80%{opacity:.4;transform:scale(2)}
-        }
-        @keyframes hue-cycle {
-          from{filter:hue-rotate(0deg)}
-          to{filter:hue-rotate(360deg)}
-        }
-        @keyframes const-draw {
-          0%{stroke-dashoffset:300}
-          100%{stroke-dashoffset:0}
-        }
+        @keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
+        @keyframes nebula-float{0%,100%{transform:translate(0,0)scale(1);opacity:.5}33%{transform:translate(4%,2%)scale(1.1);opacity:.65}66%{transform:translate(-2%,4%)scale(.92);opacity:.4}}
+        @keyframes aurora-wave{0%{transform:translateX(-8%)scaleY(1);filter:hue-rotate(0deg)}50%{transform:translateX(7%)scaleY(1.35);filter:hue-rotate(70deg)}100%{transform:translateX(-8%)scaleY(1);filter:hue-rotate(0deg)}}
+        @keyframes pulsar-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes orbit-a{from{transform:rotateX(72deg)rotateZ(0deg)}to{transform:rotateX(72deg)rotateZ(360deg)}}
+        @keyframes orbit-b{from{transform:rotateX(58deg)rotateZ(120deg)}to{transform:rotateX(58deg)rotateZ(480deg)}}
+        @keyframes shoot{0%{opacity:0}5%{opacity:1}85%{opacity:.7}100%{opacity:0;transform:translate(110vw,55vh)}}
+        @keyframes comet-move{0%{opacity:0;transform:translateX(0)}8%{opacity:1}90%{opacity:.6}100%{opacity:0;transform:translateX(90vw)}}
+        @keyframes supernova-expand{0%{opacity:0;transform:scale(0)}12%{opacity:1;transform:scale(1)}40%{opacity:.8;transform:scale(1.6)}100%{opacity:0;transform:scale(5)}}
+        @keyframes wormhole-vortex{0%{transform:scale(0)rotate(0deg);opacity:0}15%{transform:scale(1)rotate(180deg);opacity:1}85%{transform:scale(1.2)rotate(900deg);opacity:.8}100%{transform:scale(0)rotate(1800deg);opacity:0}}
+        @keyframes einstein-ring{0%{transform:scale(0);opacity:.7}100%{transform:scale(3.5);opacity:0}}
+        @keyframes data-fall{0%{transform:translateY(-110%);opacity:0}5%{opacity:.6}95%{opacity:.3}100%{transform:translateY(115vh);opacity:0}}
+        @keyframes neural-pulse{0%,100%{stroke-opacity:.1;stroke-dashoffset:200}50%{stroke-opacity:.55;stroke-dashoffset:0}}
+        @keyframes grid-breathe{0%,100%{opacity:.07}50%{opacity:.18}}
+        @keyframes ping-star{0%{transform:scale(0);opacity:1}100%{transform:scale(2.5);opacity:0}}
+        @keyframes aurora-glow{0%,100%{opacity:.55}50%{opacity:.85}}
+        @keyframes chroma{0%{text-shadow:-8px 0 12px #f00,8px 0 12px #00f}50%{text-shadow:-14px 0 22px #f00,14px 0 22px #00f}100%{text-shadow:-8px 0 12px #f00,8px 0 12px #00f}}
+        @keyframes waveform{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
       `}</style>
 
-      {/* ══ LAYER 1 — Nebula Clouds ═════════════════════════════════════════ */}
-      <div className="pointer-events-none absolute inset-0"
-        style={{ transform: `translate(${px * -12}px, ${py * -8}px)` }}>
+      {/* ── L1: Nebulae ─────────────────────────────────────────────────── */}
+      <div className="pointer-events-none absolute inset-0" style={{ transform:`translate(${px*-15}px,${py*-10}px)` }}>
         {[
-          { x: 15, y: 20, w: 55, h: 45, color: '#0ff', hue: 190, dur: 18 },
-          { x: 55, y: 10, w: 50, h: 40, color: '#8b00ff', hue: 280, dur: 22 },
-          { x: 70, y: 50, w: 45, h: 55, color: '#00f', hue: 220, dur: 26 },
-          { x: 5, y: 60, w: 40, h: 40, color: '#0f8', hue: 150, dur: 20 },
-          { x: 40, y: 70, w: 50, h: 35, color: '#f0a', hue: 320, dur: 24 },
-          { x: 80, y: 15, w: 35, h: 45, color: '#fa0', hue: 45, dur: 16 },
-        ].map((n, i) => (
-          <div key={i}
-            style={{
-              position: 'absolute',
-              left: `${n.x}%`, top: `${n.y}%`,
-              width: `${n.w}%`, height: `${n.h}%`,
-              background: `radial-gradient(ellipse at center, ${n.color}22 0%, ${n.color}0a 40%, transparent 75%)`,
-              filter: `blur(60px)`,
-              animation: `nebula-float ${n.dur}s ease-in-out infinite`,
-              animationDelay: `${i * -4}s`,
-            }} />
+          { x:8,  y:10, w:55, h:50, c:'#0ff',    dur:20 },
+          { x:55, y:5,  w:50, h:45, c:'#8b00ff', dur:25 },
+          { x:72, y:52, w:45, h:55, c:'#00f',    dur:28 },
+          { x:3,  y:58, w:42, h:42, c:'#0f8',    dur:22 },
+          { x:38, y:72, w:52, h:38, c:'#f0a',    dur:26 },
+          { x:80, y:18, w:38, h:48, c:'#fa0',    dur:18 },
+        ].map((n,i) => (
+          <div key={i} style={{ position:'absolute', left:`${n.x}%`, top:`${n.y}%`, width:`${n.w}%`, height:`${n.h}%`,
+            background:`radial-gradient(ellipse,${n.c}28 0%,${n.c}0c 40%,transparent 75%)`,
+            filter:'blur(65px)', animation:`nebula-float ${n.dur}s ease-in-out infinite`, animationDelay:`${i*-4.5}s` }} />
         ))}
       </div>
 
-      {/* ══ LAYER 2 — Star Field ════════════════════════════════════════════ */}
-      <div className="pointer-events-none absolute inset-0"
-        style={{ transform: `translate(${px * -6}px, ${py * -4}px)` }}>
-        {TINY.map((s) => (
-          <div key={s.x + '' + s.y} style={{
-            position: 'absolute', left: `${s.x}%`, top: `${s.y}%`,
-            width: `${s.r}px`, height: `${s.r}px`,
-            borderRadius: '50%', background: '#fff',
-            opacity: 0.3, animation: `twinkle ${s.d}s ease-in-out infinite`,
-            animationDelay: `${s.delay}s`,
-          }} />
-        ))}
+      {/* ── L2: Stars ───────────────────────────────────────────────────── */}
+      <div className="pointer-events-none absolute inset-0" style={{ transform:`translate(${px*-5}px,${py*-3}px)` }}>
+        {TINY.map(s => <div key={`t${s.x}${s.y}`} style={{ position:'absolute', left:`${s.x}%`, top:`${s.y}%`, width:`${s.r}px`, height:`${s.r}px`, borderRadius:'50%', background:'#fff', opacity:.25, animation:`twinkle ${s.d}s ease-in-out infinite`, animationDelay:`${s.delay}s` }} />)}
       </div>
-      <div className="pointer-events-none absolute inset-0"
-        style={{ transform: `translate(${px * -10}px, ${py * -7}px)` }}>
-        {SMALL.map((s) => (
-          <div key={'sm' + s.x + s.y} style={{
-            position: 'absolute', left: `${s.x}%`, top: `${s.y}%`,
-            width: `${s.r}px`, height: `${s.r}px`,
-            borderRadius: '50%', background: '#fff',
-            boxShadow: `0 0 ${s.r * 2}px #fff`,
-            animation: `twinkle ${s.d}s ease-in-out infinite`,
-            animationDelay: `${s.delay}s`,
-          }} />
-        ))}
+      <div className="pointer-events-none absolute inset-0" style={{ transform:`translate(${px*-9}px,${py*-6}px)` }}>
+        {SMALL.map(s => <div key={`sm${s.x}${s.y}`} style={{ position:'absolute', left:`${s.x}%`, top:`${s.y}%`, width:`${s.r}px`, height:`${s.r}px`, borderRadius:'50%', background:'#fff', boxShadow:`0 0 ${s.r*2}px #fff`, animation:`twinkle ${s.d}s ease-in-out infinite`, animationDelay:`${s.delay}s` }} />)}
       </div>
-      <div className="pointer-events-none absolute inset-0"
-        style={{ transform: `translate(${px * -18}px, ${py * -12}px)` }}>
-        {BRIGHT.map((s) => (
-          <div key={'br' + s.x + s.y} style={{
-            position: 'absolute', left: `${s.x}%`, top: `${s.y}%`,
-            width: `${s.r}px`, height: `${s.r}px`,
-            borderRadius: '50%', background: s.color,
-            boxShadow: `0 0 ${s.r * 4}px ${s.color}, 0 0 ${s.r * 8}px ${s.color}55`,
-            animation: `twinkle ${s.d}s ease-in-out infinite`,
-            animationDelay: `${s.delay}s`,
-          }} />
+      <div className="pointer-events-none absolute inset-0" style={{ transform:`translate(${px*-16}px,${py*-11}px)` }}>
+        {BRIGHT.map(s => <div key={`br${s.x}${s.y}`} style={{ position:'absolute', left:`${s.x}%`, top:`${s.y}%`, width:`${s.r}px`, height:`${s.r}px`, borderRadius:'50%', background:s.color, boxShadow:`0 0 ${s.r*5}px ${s.color},0 0 ${s.r*10}px ${s.color}55`, animation:`twinkle ${s.d}s ease-in-out infinite`, animationDelay:`${s.delay}s` }} />)}
+      </div>
+
+      {/* ── L3: Aurora ──────────────────────────────────────────────────── */}
+      <div className="pointer-events-none absolute inset-x-0 top-0" style={{ height:'50%', zIndex:2 }}>
+        {[{c:'#0ffb',y:0,d:13,b:85},{c:'#8b00ffaa',y:4,d:17,b:105},{c:'#00fa99',y:8,d:15,b:95},{c:'#0055ffbb',y:1,d:19,b:115}].map((a,i)=>(
+          <div key={i} style={{ position:'absolute', inset:0, top:`${a.y}%`, height:'65%',
+            background:`linear-gradient(to bottom,${a.c} 0%,transparent 100%)`,
+            filter:`blur(${a.b}px)`, animation:`aurora-wave ${a.d}s ease-in-out infinite`, animationDelay:`${i*-3.5}s`, opacity:.55 }} />
         ))}
       </div>
 
-      {/* ══ LAYER 3 — Aurora Borealis ═══════════════════════════════════════ */}
-      <div className="pointer-events-none absolute inset-x-0 top-0"
-        style={{ height: '45%', zIndex: 2 }}>
-        {[
-          { color: '#0ffb', y: 0, dur: 12, blur: 80 },
-          { color: '#8b00ffaa', y: 5, dur: 16, blur: 100 },
-          { color: '#00fa99', y: 10, dur: 14, blur: 90 },
-          { color: '#0055ffbb', y: 2, dur: 18, blur: 110 },
-        ].map((a, i) => (
-          <div key={i} style={{
-            position: 'absolute', inset: 0,
-            top: `${a.y}%`, height: '60%',
-            background: `linear-gradient(to bottom, ${a.color} 0%, transparent 100%)`,
-            filter: `blur(${a.blur}px)`,
-            animation: `aurora-wave ${a.dur}s ease-in-out infinite`,
-            animationDelay: `${i * -3}s`,
-            opacity: 0.6,
-          }} />
-        ))}
-      </div>
-
-      {/* ══ LAYER 4 — Perspective Grid ══════════════════════════════════════ */}
-      <svg className="pointer-events-none absolute bottom-0 inset-x-0"
-        style={{ height: '45%', width: '100%', animation: 'grid-breathe 8s ease-in-out infinite' }}
-        viewBox="0 0 100 50" preserveAspectRatio="none">
+      {/* ── L4: Perspective grid ────────────────────────────────────────── */}
+      <svg className="pointer-events-none absolute bottom-0 inset-x-0" style={{ height:'42%', width:'100%', animation:'grid-breathe 9s ease-in-out infinite' }}
+        viewBox="0 0 100 45" preserveAspectRatio="none">
         <defs>
-          <linearGradient id="gridFade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0ff" stopOpacity="0" />
-            <stop offset="60%" stopColor="#0ff" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#0ff" stopOpacity="0.06" />
+          <linearGradient id="gf" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0ff" stopOpacity="0"/>
+            <stop offset="70%" stopColor="#0ff" stopOpacity="0.16"/>
+            <stop offset="100%" stopColor="#8b00ff" stopOpacity="0.08"/>
           </linearGradient>
         </defs>
-        {/* Horizontal lines */}
-        {[10,20,30,40,50,60,70,80,90].map((y) => (
-          <line key={`h${y}`} x1="0" y1={y * 0.5} x2="100" y2={y * 0.5} stroke="url(#gridFade)" strokeWidth="0.3" />
-        ))}
-        {/* Perspective vertical lines */}
-        {[-60,-40,-20,0,20,40,60,80,100,120,140,160].map((x) => (
-          <line key={`v${x}`} x1={50 + x * 0.5} y1="0" x2={50 + x * 2} y2="50" stroke="url(#gridFade)" strokeWidth="0.3" />
-        ))}
+        {[8,16,24,32,40,48,56,64,72,80,90].map(y=><line key={y} x1="0" y1={y*.45} x2="100" y2={y*.45} stroke="url(#gf)" strokeWidth="0.25"/>)}
+        {[-70,-50,-30,-10,10,30,50,70,90,110,130,150].map(x=><line key={x} x1={50+x*.4} y1="0" x2={50+x*1.8} y2="45" stroke="url(#gf)" strokeWidth="0.25"/>)}
       </svg>
 
-      {/* ══ LAYER 5 — Constellation Lines ══════════════════════════════════ */}
-      <svg className="pointer-events-none absolute inset-0"
-        style={{ width: '100%', height: '100%', transform: `translate(${px * -20}px, ${py * -14}px)` }}
+      {/* ── L5: Constellation ────────────────────────────────────────────── */}
+      <svg className="pointer-events-none absolute inset-0" style={{ width:'100%', height:'100%', transform:`translate(${px*-22}px,${py*-15}px)` }}
         viewBox="0 0 100 100" preserveAspectRatio="none">
-        {CONST_LINES.map(([a, b], i) => (
-          <line key={i}
-            x1={CONSTS[a][0]} y1={CONSTS[a][1]}
-            x2={CONSTS[b][0]} y2={CONSTS[b][1]}
-            stroke="#0ff" strokeWidth="0.15" strokeOpacity="0.35"
-            strokeDasharray="300" style={{ animation: `const-draw ${8 + i}s linear forwards`, animationDelay: `${i * 0.3}s` }}
-          />
-        ))}
-        {CONSTS.map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r="0.6" fill="#0ff" opacity="0.7"
-            style={{ animation: `twinkle ${3 + i % 3}s ease-in-out infinite`, animationDelay: `${i * 0.4}s` }} />
-        ))}
+        {CLINES.map(([a,b],i)=><line key={i} x1={CONSTS[a][0]} y1={CONSTS[a][1]} x2={CONSTS[b][0]} y2={CONSTS[b][1]} stroke="#0ff" strokeWidth=".15" strokeOpacity=".35" strokeDasharray="200" style={{strokeDashoffset:`${200-i*8}`,transition:'all 1s'}}/>)}
+        {CONSTS.map(([x,y],i)=><circle key={i} cx={x} cy={y} r=".7" fill="#7df3ff" opacity=".75" style={{animation:`twinkle ${3+i%3}s ease-in-out infinite`,animationDelay:`${i*.35}s`}}/>)}
       </svg>
 
-      {/* ══ LAYER 6 — Neural Network ════════════════════════════════════════ */}
-      <svg className="pointer-events-none absolute inset-0" style={{ width: '100%', height: '100%', opacity: 0.5 }}
-        viewBox="0 0 100 100" preserveAspectRatio="none">
-        {LINKS.map(({ from, to }, i) => (
-          <line key={i}
-            x1={NODES[from].x} y1={NODES[from].y}
-            x2={NODES[to].x} y2={NODES[to].y}
-            stroke="#8b00ff" strokeWidth="0.2"
-            strokeDasharray="100" strokeDashoffset="100"
-            style={{ animation: `neural-pulse ${5 + i % 4}s ease-in-out infinite`, animationDelay: `${i * 0.2}s` }} />
-        ))}
-        {NODES.map((n) => (
-          <circle key={n.id} cx={n.x} cy={n.y} r="0.8" fill="#c084fc" opacity="0.6"
-            style={{ animation: `twinkle ${2 + n.id % 3}s ease-in-out infinite`, animationDelay: `${n.id * 0.3}s` }} />
-        ))}
+      {/* ── L6: Neural Network ───────────────────────────────────────────── */}
+      <svg className="pointer-events-none absolute inset-0" style={{ width:'100%', height:'100%', opacity:.45 }} viewBox="0 0 100 100" preserveAspectRatio="none">
+        {LINKS.map(({from,to},i)=><line key={i} x1={NODES[from].x} y1={NODES[from].y} x2={NODES[to].x} y2={NODES[to].y} stroke="#8b00ff" strokeWidth=".18" strokeDasharray="200" strokeDashoffset="200" style={{animation:`neural-pulse ${5+i%4}s ease-in-out infinite`,animationDelay:`${i*.15}s`}}/>)}
+        {NODES.map(n=><circle key={n.id} cx={n.x} cy={n.y} r=".9" fill="#c084fc" opacity=".65" style={{animation:`twinkle ${2+n.id%3}s ease-in-out infinite`,animationDelay:`${n.id*.25}s`}}/>)}
       </svg>
 
-      {/* ══ LAYER 7 — Pulsar Beams ══════════════════════════════════════════ */}
-      <div className="pointer-events-none absolute" style={{ left: '50%', top: '50%', zIndex: 3 }}>
-        {[0, 60, 120, 180, 240, 300].map((deg, i) => (
-          <div key={i} style={{
-            position: 'absolute', left: 0, top: 0,
-            width: '55vw', height: '1px',
-            background: `linear-gradient(to right, transparent, ${['#0ff', '#8b00ff', '#0f8', '#fa0', '#f0a', '#05f'][i]}55, transparent)`,
-            transform: `rotate(${deg}deg)`,
-            transformOrigin: '0 50%',
-            animation: `pulsar-spin ${18 + i * 2}s linear infinite`,
-            animationDelay: `${i * -3}s`,
-            filter: 'blur(1px)',
-          }} />
-        ))}
-      </div>
-
-      {/* ══ LAYER 8 — Orbit Rings ═══════════════════════════════════════════ */}
-      <div className="pointer-events-none absolute" style={{ left: '50%', top: '50%', zIndex: 4 }}>
-        {[
-          { w: 340, h: 340, anim: 'orbit-3d-1', dur: 14, color: '#0ff' },
-          { w: 460, h: 460, anim: 'orbit-3d-2', dur: 20, color: '#8b00ff' },
-          { w: 580, h: 580, anim: 'orbit-3d-3', dur: 28, color: '#0f8' },
-        ].map((r, i) => (
-          <div key={i} style={{
-            position: 'absolute',
-            width: `${r.w}px`, height: `${r.h}px`,
-            left: `-${r.w / 2}px`, top: `-${r.h / 2}px`,
-            borderRadius: '50%',
-            border: `1px solid ${r.color}40`,
-            boxShadow: `0 0 12px ${r.color}25, inset 0 0 12px ${r.color}15`,
-            animation: `${r.anim} ${r.dur}s linear infinite`,
-          }}>
-            {/* Moving dot on ring */}
-            <div style={{
-              position: 'absolute', top: -4, left: '50%',
-              width: 8, height: 8, borderRadius: '50%',
-              background: r.color, boxShadow: `0 0 16px ${r.color}, 0 0 30px ${r.color}88`,
-            }} />
-          </div>
-        ))}
-      </div>
-
-      {/* ══ LAYER 9 — Data Rain ══════════════════════════════════════════════ */}
-      <div className="pointer-events-none absolute inset-0" style={{ zIndex: 2 }}>
-        {RAIN_COLS.map((col, ci) => (
-          <div key={ci} style={{
-            position: 'absolute', left: `${col.x}%`, top: 0,
-            display: 'flex', flexDirection: 'column', gap: '4px',
-            animation: `data-fall ${col.speed}s linear infinite`,
-            animationDelay: `${col.delay}s`,
-            fontFamily: 'monospace', fontSize: '11px',
-            color: '#0ff', opacity: 0.12,
-            writingMode: 'vertical-rl',
-          }}>
-            {col.chars.map((c, i) => (
-              <span key={i} style={{ opacity: 1 - i / col.chars.length }}>{c}</span>
-            ))}
-          </div>
-        ))}
-      </div>
-
-      {/* ══ LAYER 10 — Solar Flares ════════════════════════════════════════ */}
-      <div className="pointer-events-none absolute" style={{ left: '50%', top: '50%', zIndex: 3 }}>
-        {[45, 135, 225, 315].map((deg, i) => (
-          <div key={i} style={{
-            position: 'absolute', width: '30vw', height: '3px',
-            background: `linear-gradient(to right, #ffa500cc, transparent)`,
-            transform: `rotate(${deg}deg)`,
-            transformOrigin: '0 50%',
-            animation: `solar-flare ${12 + i * 3}s ease-in-out infinite`,
-            animationDelay: `${i * -4}s`,
-            filter: 'blur(2px)',
-          }} />
-        ))}
-      </div>
-
-      {/* ══ LAYER 11 — Shooting Stars ═══════════════════════════════════════ */}
-      {shooters.map((s) => (
-        <div key={s.id} style={{
-          position: 'absolute', left: `${s.startX}%`, top: `${s.startY}%`,
-          width: '160px', height: '2px',
-          background: `linear-gradient(to right, transparent, ${s.color}, ${s.color}ff)`,
-          boxShadow: `0 0 8px ${s.color}, 0 0 16px ${s.color}66`,
-          transform: `rotate(${s.angle}deg)`,
-          transformOrigin: 'left center',
-          animation: `shoot ${s.dur}s ease-out forwards`,
-          zIndex: 10,
-          filter: 'blur(0.5px)',
-        }} />
-      ))}
-
-      {/* ══ LAYER 12 — Comet Trails ═════════════════════════════════════════ */}
-      {comets.map((c) => (
-        <div key={c.id} style={{
-          position: 'absolute', left: `${c.x}%`, top: `${c.y}%`,
-          width: `${c.len}px`, height: '3px',
-          background: `linear-gradient(to right, transparent 0%, ${c.color} 40%, white 100%)`,
-          transform: `rotate(${c.angle}deg)`,
-          animation: 'comet-move 4s ease-in-out forwards',
-          zIndex: 9,
-          filter: 'blur(1px)',
-        }}>
-          {/* Particle tail */}
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              right: `${i * 12}px`, top: `${(i % 3) - 1}px`,
-              width: `${4 - i * 0.4}px`, height: `${4 - i * 0.4}px`,
-              borderRadius: '50%', background: c.color,
-              opacity: 1 - i / 8,
-            }} />
+      {/* ── L7: Distributed Pulsars ──────────────────────────────────────── */}
+      {PULSE_CENTERS.map((pc, pi) => (
+        <div key={pi} className="pointer-events-none absolute" style={{ left:`${pc.x}%`, top:`${pc.y}%`, zIndex:3 }}>
+          {[0,60,120,180,240,300].map((deg,i)=>(
+            <div key={i} style={{ position:'absolute', left:0, top:0, width:`${pc.size}px`, height:'1px',
+              background:`linear-gradient(to right,transparent,${['#0ff','#8b00ff','#0f8','#fa0','#f0a','#05f'][i]}55,transparent)`,
+              transform:`rotate(${deg}deg)`, transformOrigin:'0 50%',
+              animation:`pulsar-spin ${20+pi*6+i*2}s linear infinite`, animationDelay:`${i*-3+pi}s`, filter:'blur(1.5px)' }} />
           ))}
         </div>
       ))}
 
-      {/* ══ LAYER 13 — Einstein Rings ═══════════════════════════════════════ */}
-      <div className="pointer-events-none absolute" style={{ left: '50%', top: '50%', zIndex: 5 }}>
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} style={{
-            position: 'absolute', borderRadius: '50%',
-            width: `${100 * i}px`, height: `${100 * i}px`,
-            left: `${-50 * i}px`, top: `${-50 * i}px`,
-            border: '1px solid #0ff',
-            boxShadow: `0 0 12px #0ff44`,
-            animation: `einstein-ring ${6 + i}s ease-out infinite`,
-            animationDelay: `${i * 1.5}s`,
-          }} />
+      {/* ── L8: Distributed Orbit Rings ──────────────────────────────────── */}
+      {ORBIT_CENTERS.map((oc, oi) => (
+        <div key={oi} className="pointer-events-none absolute" style={{ left:`${oc.x}%`, top:`${oc.y}%`, zIndex:4 }}>
+          {oc.rings.map((r, ri) => (
+            <div key={ri} style={{ position:'absolute', width:`${r.w}px`, height:`${r.w}px`, left:`${-r.w/2}px`, top:`${-r.w/2}px`,
+              borderRadius:'50%', border:`1px solid ${r.c}45`, boxShadow:`0 0 10px ${r.c}22`,
+              animation:`${ri===0?'orbit-a':'orbit-b'} ${r.dur}s linear infinite` }}>
+              <div style={{ position:'absolute', top:-4, left:'50%', width:7, height:7, borderRadius:'50%', background:r.c, boxShadow:`0 0 14px ${r.c}` }} />
+            </div>
+          ))}
+        </div>
+      ))}
+
+      {/* ── L9: Data Rain ────────────────────────────────────────────────── */}
+      <div className="pointer-events-none absolute inset-0" style={{ zIndex:2 }}>
+        {RAIN.map((col,ci)=>(
+          <div key={ci} style={{ position:'absolute', left:`${col.x}%`, top:0, animation:`data-fall ${col.speed}s linear infinite`, animationDelay:`${col.delay}s`,
+            fontFamily:'monospace', fontSize:'10px', color:'#0ff', opacity:.1, display:'flex', flexDirection:'column', gap:'3px', writingMode:'vertical-rl' }}>
+            {col.chars.map((c,i)=><span key={i} style={{opacity:1-i/col.chars.length}}>{c}</span>)}
+          </div>
         ))}
       </div>
 
-      {/* ══ LAYER 14 — Wormhole (periodic) ═════════════════════════════════ */}
+      {/* ── L10: Einstein Rings (multiple centers) ───────────────────────── */}
+      <div className="pointer-events-none absolute inset-0" style={{ zIndex:5 }}>
+        {[[30,40],[65,70],[80,20],[15,75]].map(([cx,cy], pi) =>
+          [1,2,3].map(i=>(
+            <div key={`e${pi}${i}`} style={{ position:'absolute', left:`${cx}%`, top:`${cy}%`,
+              width:`${80*i}px`, height:`${80*i}px`, marginLeft:`${-40*i}px`, marginTop:`${-40*i}px`,
+              borderRadius:'50%', border:'1px solid #0ff', boxShadow:'0 0 8px #0ff33',
+              animation:`einstein-ring ${5+i+pi}s ease-out infinite`, animationDelay:`${pi*2+i*1.8}s` }} />
+          ))
+        )}
+      </div>
+
+      {/* ── L11: Stellar Pings ───────────────────────────────────────────── */}
+      {pings.map(p=>(
+        <div key={p.id} style={{ position:'absolute', left:`${p.x}%`, top:`${p.y}%`, width:'12px', height:'12px',
+          marginLeft:'-6px', marginTop:'-6px', borderRadius:'50%',
+          border:'1px solid #7df3ff', animation:'ping-star 1.2s ease-out forwards', zIndex:8 }} />
+      ))}
+
+      {/* ── L12: Shooting Stars ──────────────────────────────────────────── */}
+      {shooters.map(s=>(
+        <div key={s.id} style={{ position:'absolute', left:`${s.x}%`, top:`${s.y}%`,
+          width:'150px', height:'2px',
+          background:`linear-gradient(to right,transparent,${s.color})`,
+          boxShadow:`0 0 8px ${s.color}`, transform:`rotate(${s.angle}deg)`, transformOrigin:'left center',
+          animation:`shoot ${s.dur}s ease-out forwards`, zIndex:10, filter:'blur(.5px)' }}>
+          <div style={{ position:'absolute', right:0, top:'-1px', width:'4px', height:'4px', borderRadius:'50%', background:s.color, boxShadow:`0 0 10px ${s.color}` }} />
+        </div>
+      ))}
+
+      {/* ── L13: Comets ──────────────────────────────────────────────────── */}
+      {comets.map(c=>(
+        <div key={c.id} style={{ position:'absolute', left:`${c.x}%`, top:`${c.y}%`,
+          width:`${c.len}px`, height:'3px',
+          background:`linear-gradient(to right,transparent 0%,${c.color} 50%,white 100%)`,
+          transform:`rotate(${c.angle}deg)`, animation:'comet-move 4s ease-in-out forwards', zIndex:9, filter:'blur(1px)' }}>
+          {Array.from({length:10}).map((_,i)=>(
+            <div key={i} style={{ position:'absolute', right:`${i*11}px`, top:`${(i%3)-1}px`,
+              width:`${3.5-i*.3}px`, height:`${3.5-i*.3}px`, borderRadius:'50%',
+              background:c.color, opacity:1-i/10 }} />
+          ))}
+        </div>
+      ))}
+
+      {/* ── L14: Wormhole — random position ─────────────────────────────── */}
       <AnimatePresence>
-        {wormhole && (
-          <motion.div
-            style={{
-              position: 'absolute', left: '50%', top: '50%',
-              width: '300px', height: '300px',
-              marginLeft: '-150px', marginTop: '-150px',
-              borderRadius: '50%',
-              background: 'conic-gradient(from 0deg, #8b00ff, #0ff, #00f, #8b00ff)',
-              zIndex: 20,
-              filter: 'blur(8px)',
-              animation: 'wormhole-spin 5s ease-in-out forwards',
-              transformOrigin: 'center',
-            }}
-          />
+        {wormholePos && (
+          <motion.div style={{ position:'absolute', left:`${wormholePos.x}%`, top:`${wormholePos.y}%`,
+            width:'240px', height:'240px', marginLeft:'-120px', marginTop:'-120px',
+            borderRadius:'50%', background:'conic-gradient(from 0deg,#8b00ff,#0ff,#00f,#0f8,#8b00ff)',
+            zIndex:20, filter:'blur(10px)', animation:'wormhole-vortex 5s ease-in-out forwards' }} />
         )}
       </AnimatePresence>
 
-      {/* ══ LAYER 15 — Supernova (periodic) ════════════════════════════════ */}
+      {/* ── L15: Supernova ───────────────────────────────────────────────── */}
       <AnimatePresence>
         {supernova && (
-          <motion.div style={{
-            position: 'fixed', inset: 0, zIndex: 30,
-            background: 'radial-gradient(circle at center, #ffffffee 0%, #0ffaaa 30%, #8b00ff55 60%, transparent 80%)',
-            animation: 'supernova-expand 1.8s ease-out forwards',
-            pointerEvents: 'none',
-          }} />
+          <motion.div style={{ position:'fixed', inset:0, zIndex:30, pointerEvents:'none',
+            background:'radial-gradient(circle at center,#ffffffee 0%,#0ffaaa 25%,#8b00ff66 55%,transparent 75%)',
+            animation:'supernova-expand 1.8s ease-out forwards' }} />
         )}
       </AnimatePresence>
 
-      {/* ══ CENTRAL TEXT — HALAQ MAP ════════════════════════════════════════ */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center" style={{ zIndex: 15 }}>
-        <div style={{ textAlign: 'center', transform: `translate(${px * 8}px, ${py * 6}px)` }}>
-          {/* Glow halo behind text */}
-          <div style={{
-            position: 'absolute', inset: '-60px',
-            background: 'radial-gradient(ellipse at center, #0ff18 0%, #8b00ff12 40%, transparent 70%)',
-            filter: 'blur(40px)',
-            borderRadius: '50%',
-          }} />
-
-          {/* Main text */}
-          <h1 style={{
-            fontSize: 'clamp(3rem, 9vw, 10rem)',
-            fontFamily: '"Arial Black", "Impact", system-ui',
-            fontWeight: '900',
-            letterSpacing: '0.15em',
-            color: '#fff',
-            margin: 0,
-            position: 'relative',
-            animation: chromatic
-              ? 'chroma-split 0.8s ease-in-out'
-              : pixelBurst
-              ? 'pixel-burst 2.5s ease-in-out'
-              : 'text-breathe 4s ease-in-out infinite',
-            textShadow: '0 0 7px #fff, 0 0 20px #0ff, 0 0 40px #0ff, 0 0 80px #0ff, 0 0 120px #05f, 0 0 180px #8b00ff',
-            animationDuration: chromatic ? '0.8s' : pixelBurst ? '2.5s' : '4s',
-          }}>
-            HALAQ MAP
-          </h1>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2, duration: 2 }}
-            style={{
-              color: '#0ff', fontSize: '1rem', letterSpacing: '0.5em',
-              marginTop: '1rem', fontFamily: 'monospace',
-              textShadow: '0 0 10px #0ff', opacity: 0.65,
-            }}>
-            GEOGRAPHIC · INTELLIGENT · DIGITAL
-          </motion.p>
-        </div>
-      </div>
-
-      {/* ══ BOTTOM-LEFT TEXT ════════════════════════════════════════════════ */}
-      <div className="absolute bottom-4 left-4" style={{ zIndex: 20 }}>
-        <p style={{
-          color: 'rgba(0,255,255,0.35)', fontSize: '0.65rem',
-          fontFamily: 'monospace', letterSpacing: '0.15em',
-          lineHeight: '1.6',
-        }}>
-          HALAQ MAP · حلاق ماب<br />
-          On-Demand Visibility · KSA 2026<br />
-          <span style={{ opacity: 0.5 }}>B2B Technology Platform · ISIC4 474151</span>
-        </p>
-      </div>
-
-      {/* ══ TOP-RIGHT — Coordinates ═════════════════════════════════════════ */}
-      <div className="absolute top-4 right-4" style={{ zIndex: 20, textAlign: 'right' }}>
-        <p style={{ color: 'rgba(0,255,255,0.25)', fontSize: '0.6rem', fontFamily: 'monospace', letterSpacing: '0.1em' }}>
-          24.6877° N · 46.7219° E<br />
-          <span style={{ opacity: 0.5 }}>RIYADH · SAUDI ARABIA</span>
-        </p>
-      </div>
-
-      {/* ══ CENTER-BOTTOM — Waveform ═════════════════════════════════════════ */}
-      <div className="absolute bottom-12 inset-x-0 flex justify-center" style={{ zIndex: 6 }}>
-        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
-          {Array.from({ length: 40 }).map((_, i) => (
-            <motion.div key={i}
-              style={{ width: '2px', borderRadius: '1px', background: '#0ff' }}
-              animate={{ height: [4, 8 + Math.sin(i * 0.4) * 16, 4] }}
-              transition={{ duration: 1.2 + i * 0.05, repeat: Infinity, ease: 'easeInOut', delay: i * 0.04 }}
-            />
+      {/* ── L16: Waveform bar ─────────────────────────────────────────────── */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center" style={{ zIndex:6 }}>
+        <div style={{ display:'flex', gap:'2px', alignItems:'center' }}>
+          {Array.from({length:50}).map((_,i)=>(
+            <motion.div key={i} style={{ width:'2px', borderRadius:'1px',
+              background:`hsl(${180+i*3},100%,65%)`, originY:'50%' }}
+              animate={{ scaleY:[.3, .6+Math.sin(i*.5)*.4, .3] }}
+              transition={{ duration:1+i*.04, repeat:Infinity, ease:'easeInOut', delay:i*.035 }} />
           ))}
         </div>
+      </div>
+
+      {/* ── AUDIO BUTTON ─────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showAudioBtn && !audioOn && (
+          <motion.div
+            initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:10 }}
+            transition={{ delay:1.5 }}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ zIndex:50, background:'rgba(0,0,8,0.55)', backdropFilter:'blur(4px)' }}
+          >
+            <motion.button
+              onClick={() => { setAudioOn(true); setShowBtn(false); }}
+              whileHover={{ scale:1.06 }} whileTap={{ scale:.94 }}
+              className="flex flex-col items-center gap-3 rounded-3xl px-10 py-7"
+              style={{ background:'rgba(0,255,255,0.06)', border:'1px solid rgba(0,255,255,0.35)', boxShadow:'0 0 40px rgba(0,255,255,0.20)', color:'#fff' }}
+            >
+              <span style={{ fontSize:'3rem' }}>🔊</span>
+              <span style={{ fontSize:'.9rem', fontFamily:'monospace', letterSpacing:'.2em', color:'#0ff' }}>ACTIVATE AUDIO</span>
+              <span style={{ fontSize:'.65rem', color:'rgba(0,255,255,.5)', letterSpacing:'.15em' }}>انقر لتفعيل الصوت الكوني</span>
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Audio OFF button */}
+      {audioOn && (
+        <button onClick={() => setAudioOn(false)}
+          style={{ position:'absolute', top:16, left:16, zIndex:40, background:'rgba(0,255,255,.08)', border:'1px solid rgba(0,255,255,.25)', borderRadius:'50%', width:40, height:40, color:'#0ff', fontSize:'1.1rem', cursor:'pointer' }}
+          title="إيقاف الصوت">🔇</button>
+      )}
+
+      {/* ── BOTTOM-LEFT TEXT ─────────────────────────────────────────────── */}
+      <div style={{ position:'absolute', bottom:16, left:16, zIndex:20 }}>
+        <p style={{ color:'rgba(0,255,255,.32)', fontSize:'.6rem', fontFamily:'monospace', letterSpacing:'.14em', lineHeight:1.7 }}>
+          HALAQ MAP · حلاق ماب<br/>
+          On-Demand Visibility · KSA 2026<br/>
+          <span style={{ opacity:.45 }}>B2B Technology Platform · ISIC4 474151</span>
+        </p>
+      </div>
+
+      {/* ── TOP-RIGHT: Coordinates ───────────────────────────────────────── */}
+      <div style={{ position:'absolute', top:16, right:16, zIndex:20, textAlign:'right' }}>
+        <p style={{ color:'rgba(0,255,255,.22)', fontSize:'.58rem', fontFamily:'monospace', letterSpacing:'.1em' }}>
+          24.6877° N · 46.7219° E<br/>
+          <span style={{ opacity:.5 }}>RIYADH · SAUDI ARABIA</span>
+        </p>
       </div>
     </div>
   );
 }
+
+// Type workaround for ConvolverNode ref
+type ConveroNode = ConvolverNode;
