@@ -201,6 +201,9 @@
     },
     "api/public-media-spokesperson-chat.ts": {
       "maxDuration": 45
+    },
+    "api/public-digital-shift-chat.ts": {
+      "maxDuration": 50
     }
   },
   "crons": [

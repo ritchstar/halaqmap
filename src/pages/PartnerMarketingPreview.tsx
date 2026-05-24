@@ -276,7 +276,7 @@ export default function PartnerMarketingPreview() {
                 { label: 'كيف تنضم',      id: 'كيف تنضم',      icon: Navigation2 },
                 { label: 'مزايا الباقات', id: 'مزايا الباقات', icon: Sparkles },
                 { label: 'الأسعار',       id: 'الأسعار',       icon: Crown },
-                { label: 'معاينة البنرات',id: 'معاينة البنرات',icon: ImageIcon },
+                { label: 'البنرات والمناوب 🌙', id: 'معاينة البنرات', icon: ImageIcon },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -671,7 +671,7 @@ export default function PartnerMarketingPreview() {
               onClick={() => navigate(ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW)}
               className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-500/10 px-6 py-3 text-sm font-semibold text-amber-300 hover:border-amber-400/70 transition-all"
             >
-              <ImageIcon className="h-4 w-4" /> معاينة البنرات الكاملة
+              <ImageIcon className="h-4 w-4" /> معاينة البنرات والمناوب الذكي 🌙
             </button>
           </div>
         </div>

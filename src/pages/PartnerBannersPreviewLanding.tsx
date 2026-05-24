@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { BannersPageDigitalShift } from '@/components/BannersPageDigitalShift';
 import { motion, useReducedMotion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import { Radar } from 'lucide-react';
@@ -53,7 +54,7 @@ export default function PartnerBannersPreviewLanding() {
             </div>
             <div>
               <p className="text-xs font-semibold text-cyan-200/80">مسار الأعمال · شفافية بصرية</p>
-              <h1 className="text-lg font-extrabold text-white md:text-xl">نماذج التسويق — بنرات وميزات المنصة</h1>
+              <h1 className="text-lg font-extrabold text-white md:text-xl">معاينة البنرات والمناوب الذكي 🌙</h1>
             </div>
           </div>
           <p className="max-w-lg text-xs leading-relaxed text-slate-400">
@@ -190,8 +191,11 @@ export default function PartnerBannersPreviewLanding() {
       </main>
 
       <footer className="relative z-10 border-t border-white/10 px-4 py-6 text-center text-[11px] text-slate-500">
-        صفحة داخلية لمسار الخدمات البرمجية للمنصة — غير مرتبطة بواجهة المستهلك العامة.
+        معاينة البنرات والمناوب الذكي · مسار الخدمات التسويقية لحلاق ماب
       </footer>
+
+      {/* ── المناوب الرقمي الذكي — زر عائم لاستقبال الزوار ── */}
+      <BannersPageDigitalShift />
     </div>
   );
 }
