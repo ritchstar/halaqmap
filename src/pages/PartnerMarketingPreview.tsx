@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
 import {
   TIER_MONTHLY_SAR,
   DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
@@ -214,6 +215,7 @@ export default function PartnerMarketingPreview() {
 
       {/* أزرار عائمة */}
       <FloatingPlatformActions />
+      <B2BSalesManagerChat />
 
       {/* ── شبكة التكتير الخلفية ──────────────────────────────────────────── */}
       <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.02]"
