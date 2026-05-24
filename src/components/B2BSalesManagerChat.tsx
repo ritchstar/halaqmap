@@ -172,14 +172,14 @@ export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inli
 
   // Panel mode: fixed bottom-left, non-intrusive
   const wrapClass = mode === 'inline'
-    ? 'relative w-full'
+    ? `relative w-full ${open ? 'z-[50]' : 'z-10'}`
     : 'fixed bottom-24 left-0 z-[49] md:bottom-6';
 
   return (
     <>
-      {/* ── Backdrop ─────────────────────────────────── */}
+      {/* ── Backdrop — panel mode فقط ─────────────── */}
       <AnimatePresence>
-        {open && (
+        {open && mode === 'panel' && (
           <motion.div key="bd" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[48] bg-black/55 backdrop-blur-[3px]"
             onClick={() => setOpen(false)} />
@@ -190,7 +190,7 @@ export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inli
       <div
         dir="rtl"
         className={wrapClass}
-        style={{ pointerEvents: 'auto' }}
+        style={{ pointerEvents: 'auto', position: mode === 'inline' ? 'relative' : undefined }}
       >
         <AnimatePresence mode="wait">
           {!open ? (
@@ -201,19 +201,24 @@ export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inli
               animate={mode === 'inline' ? { opacity: 1, y: 0 } : { x: 0, opacity: 1 }}
               exit={mode === 'inline' ? { opacity: 0, y: 10 } : { x: -320, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-              className={`relative overflow-hidden ${mode === 'inline' ? 'rounded-2xl w-full' : 'rounded-r-none rounded-l-2xl'}`}
+              className={`relative overflow-hidden rounded-[32px] ${mode === 'inline' ? 'w-full' : ''}`}
               style={mode === 'panel' ? { width: '300px' } : {}}
             >
-              {/* Glass background */}
-              <div className={`absolute inset-0 border border-amber-400/35
-                bg-[#0a0600]/88 backdrop-blur-2xl
-                ${mode === 'inline'
-                  ? 'rounded-2xl shadow-[0_0_50px_rgba(245,158,11,0.20)]'
-                  : 'rounded-r-none rounded-l-2xl border-r-0 shadow-[8px_0_60px_rgba(245,158,11,0.25),2px_0_30px_rgba(0,0,0,0.6)]'
-                }`} />
+              {/* Main glass background — بيضاوي */}
+              <div className="absolute inset-0 rounded-[32px] border border-amber-400/40
+                bg-[#0a0600]/90 backdrop-blur-2xl" />
 
-              {/* Accent glow line */}
-              <div className={`absolute top-0 h-full w-1 bg-gradient-to-b from-amber-400/60 via-amber-500/40 to-amber-400/60 ${mode === 'inline' ? 'left-0 rounded-l-2xl' : 'left-0 rounded-l-2xl'}`} />
+              {/* توهج ذهبي من اليمين */}
+              <div className="pointer-events-none absolute right-0 top-1/2 h-[70%] w-4 -translate-y-1/2 rounded-r-full"
+                style={{ background: 'radial-gradient(ellipse at right, rgba(245,158,11,0.55) 0%, transparent 70%)' }} />
+
+              {/* توهج ذهبي من اليسار */}
+              <div className="pointer-events-none absolute left-0 top-1/2 h-[70%] w-4 -translate-y-1/2 rounded-l-full"
+                style={{ background: 'radial-gradient(ellipse at left, rgba(245,158,11,0.55) 0%, transparent 70%)' }} />
+
+              {/* ظل خارجي من الجانبين */}
+              <div className="pointer-events-none absolute inset-0 rounded-[32px]"
+                style={{ boxShadow: '-8px 0 30px rgba(245,158,11,0.20), 8px 0 30px rgba(245,158,11,0.20), 0 8px 40px rgba(0,0,0,0.5)' }} />
 
               {/* Shimmer sweep */}
               <motion.div
@@ -308,15 +313,18 @@ export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inli
               exit={mode === 'inline' ? { opacity: 0, y: 12 } : { x: -440, opacity: 0, scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 280, damping: 32 }}
               onClick={(e) => e.stopPropagation()}
-              className={`relative flex flex-col overflow-hidden ${mode === 'inline' ? 'rounded-2xl w-full' : 'rounded-r-none rounded-l-2xl'}`}
+              className={`relative flex flex-col overflow-hidden rounded-[28px] ${mode === 'inline' ? 'w-full' : ''}`}
               style={mode === 'inline' ? { height: 'min(85dvh, 620px)' } : { width: '440px', height: 'min(85dvh, 620px)' }}
             >
-              {/* Glass background */}
-              <div className={`absolute inset-0 border border-amber-400/35 bg-[#0a0600]/95 backdrop-blur-2xl
-                ${mode === 'inline'
-                  ? 'rounded-2xl shadow-[0_0_80px_rgba(245,158,11,0.25)]'
-                  : 'rounded-r-none rounded-l-2xl border-r-0 shadow-[8px_0_80px_rgba(245,158,11,0.30)]'}`} />
-              <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-amber-400/60 via-amber-500/40 to-amber-400/60 rounded-l-2xl" />
+              {/* Chat panel background */}
+              <div className="absolute inset-0 rounded-[28px] border border-amber-400/35
+                bg-[#0a0600]/95 backdrop-blur-2xl
+                shadow-[-8px_0_30px_rgba(245,158,11,0.20),8px_0_30px_rgba(245,158,11,0.20),0_8px_60px_rgba(0,0,0,0.7)]" />
+              {/* Side glows on chat too */}
+              <div className="pointer-events-none absolute right-0 top-1/4 h-1/2 w-3 rounded-r-full"
+                style={{ background: 'radial-gradient(ellipse at right, rgba(245,158,11,0.40) 0%, transparent 80%)' }} />
+              <div className="pointer-events-none absolute left-0 top-1/4 h-1/2 w-3 rounded-l-full"
+                style={{ background: 'radial-gradient(ellipse at left, rgba(245,158,11,0.40) 0%, transparent 80%)' }} />
 
               {/* ── Header ── */}
               <div className="relative shrink-0 flex items-center justify-between gap-3 border-b border-amber-500/18 px-4 py-3.5">
