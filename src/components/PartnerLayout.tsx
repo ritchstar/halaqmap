@@ -22,8 +22,8 @@ import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPub
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
 import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
-import { LegalObserverChat } from '@/components/LegalObserverChat';
 // PartnerDigitalBarberAssistant مُحال للتقاعد — موجود في مركز الوكلاء فقط
+// LegalObserverChat مُضمَّن مباشرةً في PartnerPrivacy و SubscriptionPolicy
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
@@ -298,11 +298,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <main className="min-h-0 w-full flex-1">{children}</main>
 
-      {/* الناظر القانوني على صفحات الخصوصية والسياسات — مدير المبيعات على بقية الصفحات */}
-      {[ROUTE_PATHS.PARTNER_PRIVACY, ROUTE_PATHS.SUBSCRIPTION_POLICY].includes(location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY)
-        ? <LegalObserverChat page="partners-privacy" />
-        : <B2BSalesManagerChat />
-      }
+      <B2BSalesManagerChat />
 
       {/* شريط تنقّل سفلي للجوال — نمط تطبيق */}
       <nav

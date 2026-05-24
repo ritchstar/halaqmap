@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { LegalObserverChat } from "@/components/LegalObserverChat";
 import { springPresets, fadeInUp, staggerContainer, staggerItem } from "@/lib/motion";
 import { CheckCircle2, XCircle, AlertCircle, Phone, Mail, MessageSquare, MapPin } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,6 +110,12 @@ export default function SubscriptionPolicy() {
             نلتزم بالشفافية الكاملة في بيع حزم الرخصة الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
           </p>
           <div className="mt-7 mx-auto h-px max-w-xs bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto mt-4 mb-2">
+          <LegalObserverChat page="سياسة الاشتراك" />
         </div>
       </div>
 
