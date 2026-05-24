@@ -119,6 +119,7 @@ export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inli
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [pitchIdx, setPitchIdx] = useState(0);
+  const [minimized, setMinimized] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([
     { role: 'assistant', content: getGreeting(), id: 'welcome' },
   ]);
@@ -133,6 +134,23 @@ export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inli
     const id = setInterval(() => setPitchIdx((i) => (i + 1) % PITCH_LINES.length), 3200);
     return () => clearInterval(id);
   }, []);
+
+  // تكمّش تلقائي عند دخول قسم البنرات (panel mode فقط)
+  useEffect(() => {
+    if (mode !== 'panel') return;
+    const handleScroll = () => {
+      const bannersEl = document.getElementById('معاينة البنرات');
+      if (!bannersEl) {
+        // fallback: threshold 2.8 screens
+        setMinimized(window.scrollY > window.innerHeight * 2.8);
+        return;
+      }
+      const rect = bannersEl.getBoundingClientRect();
+      setMinimized(rect.top < window.innerHeight * 0.6);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [mode]);
 
   useEffect(() => {
     if (open) { setTimeout(() => textRef.current?.focus(), 150); }
@@ -182,6 +200,30 @@ export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inli
   const wrapClass = mode === 'inline'
     ? `relative w-full ${open ? 'z-[50]' : 'z-10'}`
     : 'fixed bottom-24 left-0 z-[49] md:bottom-6';
+
+  // وضع التكمّش — يظهر فقط في panel mode عند الدخول لقسم البنرات
+  if (mode === 'panel' && minimized && !open) {
+    return (
+      <motion.button
+        initial={{ opacity: 0, scale: 0.7 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.7 }}
+        onClick={() => { setMinimized(false); setOpen(true); }}
+        className="fixed bottom-6 left-4 z-[49] flex h-12 w-12 items-center justify-center rounded-full border-2 border-amber-400/60 bg-[#0a0600] shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+        title="مدير مبيعات B2B"
+      >
+        <Building2 className="h-5 w-5 text-amber-300" />
+        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[0.38rem] font-black text-black">
+          B2B
+        </span>
+        <motion.span
+          className="absolute inset-0 rounded-full border-2 border-amber-400/40"
+          animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity }}
+        />
+      </motion.button>
+    );
+  }
 
   return (
     <>

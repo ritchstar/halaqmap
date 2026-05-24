@@ -854,7 +854,9 @@ export default function PartnerMarketingPreview() {
           </div>
 
           {/* ── العرض التأسيسي لمضاعفة الرخص ── */}
-          <FoundersOfferBanner onRegister={() => navigate(ROUTE_PATHS.REGISTER)} />
+          <FoundersOfferBanner onRegister={() => {
+            document.getElementById('الحزم-السنوية')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }} />
 
           <div className="grid gap-5 md:grid-cols-3">
             {/* ── برونزي ── من TIER_MONTHLY_SAR مباشرة */}
@@ -909,6 +911,133 @@ export default function PartnerMarketingPreview() {
           </div>
           <p className="mt-5 text-center text-[0.68rem] text-slate-700">
             كل حزمة صالحة ٣٠ يوماً · لا وساطة تجارية · لا عمولة على الخدمة · لا بيانات حكومية مطلوبة للتسجيل
+          </p>
+        </div>
+      </section>
+
+      {/* ══ الحزم السنوية — مضاعفة الرخص التأسيسية ══════════════════════════ */}
+      <section id="الحزم-السنوية" className="relative z-10 border-t border-amber-400/10 bg-gradient-to-b from-amber-950/20 via-[#060d1a] to-[#060d1a] py-24">
+        <div className="pointer-events-none absolute left-1/4 top-0 h-64 w-[50%] rounded-full bg-amber-500/6 blur-[120px]" />
+        <div className="mx-auto max-w-6xl px-5">
+          {/* رأس القسم */}
+          <div className="mb-12 text-center">
+            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/35 bg-amber-500/12 px-4 py-1.5 text-xs font-black text-amber-300">
+              ⚡ العرض التأسيسي لمضاعفة الرخص · رواد الألف
+            </motion.div>
+            <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="mb-2 text-3xl font-black text-white md:text-4xl">
+              الحزمة السنوية — ٣٦٠ يوم متواصل
+            </motion.h2>
+            <p className="text-slate-400">اشترِ سنة واحصل على سنة مجاناً — ٢ سنة بسعر ١</p>
+          </div>
+
+          {/* بطاقات الحزم السنوية */}
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                badge: '🥉', name: 'برونزي سنوي', price: PRICE_B * 12,
+                accent: 'text-amber-700', ring: 'border-amber-700/30',
+                saving: PRICE_B * 12, months: '٢٤', tierQuery: 'bronze',
+                perMonth: PRICE_B,
+              },
+              {
+                badge: '🥇', name: 'ذهبي سنوي', price: PRICE_G * 12,
+                accent: 'text-amber-400', ring: 'border-amber-400/40',
+                saving: PRICE_G * 12, months: '٢٤', tierQuery: 'gold',
+                best: true, perMonth: PRICE_G,
+              },
+              {
+                badge: '💎', name: 'ماسي سنوي', price: PRICE_D * 12,
+                accent: 'text-cyan-400', ring: 'border-cyan-400/30',
+                saving: PRICE_D * 12, months: '٢٤', tierQuery: 'diamond',
+                perMonth: PRICE_D,
+              },
+              {
+                badge: '💎🌙', name: 'ماسي + مناوب', price: PRICE_DA * 12,
+                accent: 'text-violet-400', ring: 'border-violet-400/30',
+                saving: PRICE_DA * 12, months: '٢٤', tierQuery: 'diamond',
+                perMonth: PRICE_DA, addon: true,
+              },
+            ].map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className={`relative flex flex-col rounded-2xl border p-5 transition-all hover:-translate-y-1
+                  ${t.best
+                    ? 'border-amber-400/50 bg-gradient-to-b from-amber-500/12 to-[#0a1020] shadow-[0_0_40px_rgba(251,191,36,0.10)]'
+                    : `${t.ring} bg-gradient-to-b from-white/[0.04] to-[#060d1a]`}`}
+                dir="rtl"
+              >
+                {t.best && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-3 py-0.5 text-[0.6rem] font-black text-black">
+                    الأعلى طلباً
+                  </div>
+                )}
+                {/* الرأس */}
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="text-2xl">{t.badge}</span>
+                  <div>
+                    <div className={`text-sm font-black ${t.accent}`}>{t.name}</div>
+                    <div className="text-[0.55rem] text-slate-600">360 يوم · ISIC4 474151</div>
+                  </div>
+                </div>
+                {/* السعر */}
+                <div className="mb-1 flex items-end gap-1">
+                  <span className={`text-3xl font-black tabular-nums ${t.accent}`}>
+                    {t.price.toLocaleString('ar-SA')}
+                  </span>
+                  <span className="mb-0.5 text-[0.62rem] text-slate-400">ر.س / سنة</span>
+                </div>
+                <p className="mb-4 text-[0.6rem] text-slate-500">= {t.perMonth} ر.س/شهر × ١٢ شهراً</p>
+
+                {/* صندوق مضاعفة العرض التأسيسي */}
+                <div className="mb-4 rounded-xl border border-amber-400/20 bg-amber-500/8 px-3 py-3">
+                  <div className="mb-1 text-[0.6rem] font-black uppercase tracking-wider text-amber-400/70">⚡ عرض المضاعفة</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-center">
+                      <div className="text-xs font-black text-white">تدفع</div>
+                      <div className={`text-base font-black tabular-nums ${t.accent}`}>{t.price.toLocaleString('ar-SA')}</div>
+                      <div className="text-[0.52rem] text-slate-500">ر.س</div>
+                    </div>
+                    <div className="text-amber-400 text-lg font-black">→</div>
+                    <div className="text-center">
+                      <div className="text-xs font-black text-white">تحصل</div>
+                      <div className="text-base font-black text-emerald-400">{t.months} شهر</div>
+                      <div className="text-[0.52rem] text-slate-500">حضور رقمي</div>
+                    </div>
+                    <div className="text-center rounded-lg bg-emerald-500/15 border border-emerald-400/25 px-2 py-1">
+                      <div className="text-[0.5rem] text-emerald-400/70">توفير</div>
+                      <div className="text-sm font-black text-emerald-400">{t.saving.toLocaleString('ar-SA')}</div>
+                      <div className="text-[0.5rem] text-emerald-400/70">ر.س</div>
+                    </div>
+                  </div>
+                </div>
+
+                {t.addon && (
+                  <div className="mb-3 rounded-lg border border-violet-400/20 bg-violet-500/8 px-2 py-1.5 text-[0.6rem] text-violet-300">
+                    🌙 المناوب الرقمي الذكي مفعّل — يرد على عملائك حتى أثناء إغلاق الصالون
+                  </div>
+                )}
+
+                <button
+                  onClick={() => navigate(`${ROUTE_PATHS.REGISTER}?tier=${t.tierQuery}&plan=annual`)}
+                  className={`mt-auto w-full rounded-xl py-2.5 text-sm font-black transition-all
+                    ${t.best
+                      ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-black hover:from-amber-300'
+                      : `border ${t.ring} bg-white/5 text-white hover:bg-white/10`}`}
+                >
+                  احجز مقعدك ←
+                </button>
+              </motion.div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-center text-[0.65rem] text-slate-700">
+            العرض مؤقت · حصري لأول ٥٠٠ صالون · لا عمولة على الخدمة · مسبقة الدفع · لا تجديد تلقائي
           </p>
         </div>
       </section>
