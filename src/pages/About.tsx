@@ -69,7 +69,6 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-background">
-      <LegalObserverChat page="من نحن" />
       {/* خلفية التكتير المتحركة */}
       <div className="pointer-events-none fixed inset-0 opacity-[0.025]"
         style={{ backgroundImage: 'linear-gradient(rgba(20,184,166,1) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,1) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
@@ -114,6 +113,13 @@ export default function About() {
           </motion.div>
         </div>
       </motion.section>
+
+      {/* الناظر القانوني — في أعلى محتوى الصفحة */}
+      <div className="container mx-auto px-4 pt-6 pb-2" dir="rtl">
+        <div className="max-w-5xl mx-auto">
+          <LegalObserverChat page="من نحن" />
+        </div>
+      </div>
 
       <section className="py-20 bg-card/50">
         <div className="container mx-auto px-4">

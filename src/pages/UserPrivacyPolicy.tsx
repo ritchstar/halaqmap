@@ -93,7 +93,6 @@ export default function UserPrivacyPolicy() {
 
   return (
     <div className="min-h-screen bg-background">
-      <LegalObserverChat page="سياسة الخصوصية" />
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/12 via-background to-background py-28">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_30%,rgba(20,184,166,0.12),transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(212,175,55,0.07),transparent_50%)]" />
@@ -132,6 +131,8 @@ export default function UserPrivacyPolicy() {
 
       <div className="container mx-auto px-4 py-16" dir="rtl">
         <div className="max-w-4xl mx-auto space-y-12">
+          {/* الناظر القانوني — في أعلى المحتوى قبل السياسات */}
+          <LegalObserverChat page="سياسة الخصوصية" />
           {sections.map((section, index) => {
             const Icon = section.icon;
             return (

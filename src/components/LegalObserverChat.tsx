@@ -1,36 +1,52 @@
 /**
- * LegalObserverChat — الناظر القانوني ⚖️
+ * LegalObserverChat — مكتب الناظر القانوني ⚖️
  *
- * زر عائم ذهبي التوهج يظهر في:
- *  - صفحة سياسة الخصوصية
- *  - صفحة شروط الاستخدام
- *  - صفحة من نحن
+ * مدمج في أعلى صفحات:
+ *  - سياسة الخصوصية
+ *  - شروط الاستخدام
+ *  - من نحن
  *
- * يستجيب لأسئلة الخصوصية والامتثال والشروط القانونية
- * مهمة سرية: يُسجِّل كل استفسار للمدعي العام
+ * تصميم: midnight navy + ذهب قانوني — مختلف تماماً عن مكتب المبيعات
+ * يظهر قبل النصوص الرسمية ليُرحِّب بالزائر ويُبسِّط له القانون
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Scale } from 'lucide-react';
+import { Scale, X, Send, ChevronDown, Shield } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
-type Props = { page: string }; // e.g. "سياسة الخصوصية"
+interface Props { page: string }
 
-// ─── Quick prompts by page ────────────────────────────────────────────────────
+// ─── Legal gold color ─────────────────────────────────────────────────────────
+const GOLD = '#c9a227';
+const GOLD_LIGHT = '#e8c547';
+const NAVY = '#06091a';
+const NAVY_MID = '#0d1225';
+
+// ─── Rotating pitch lines ─────────────────────────────────────────────────────
+const PITCH_LINES = [
+  'اقرأ سياستنا — لكن اسألني أولاً ⚖️',
+  'حقوقك محفوظة — وأنا هنا لشرحها',
+  'الشروط طويلة؟ أخبرني باهتمامك وأُلخِّص 📋',
+  'خصوصيتك أمانة لدينا — اسألني كيف',
+  'سؤالك القانوني يستحق إجابة واضحة',
+  'PDPL · حقوق المستخدم · شروط الاستخدام — موجود لكل شيء',
+];
+
+// ─── Quick prompts per page ───────────────────────────────────────────────────
 const QUICK_BY_PAGE: Record<string, string[]> = {
   'سياسة الخصوصية': [
-    'ماذا تجمع المنصة من بياناتي؟',
-    'هل تُشارَك بياناتي مع أطراف ثالثة؟',
+    'ماذا تجمعون من بياناتي؟',
+    'هل تُشارَك بياناتي مع أحد؟',
     'كيف أحذف بياناتي؟',
-    'هل تتبع المنصة موقعي باستمرار؟',
+    'هل تتبعون موقعي باستمرار؟',
   ],
   'شروط الاستخدام': [
     'هل يمكنني استرداد المبلغ؟',
     'ما مدة صلاحية الباقة؟',
-    'ماذا يحدث بعد انتهاء الباقة؟',
-    'ما هي حقوقي كمستخدم؟',
+    'ماذا بعد انتهاء الباقة؟',
+    'ما حقوقي كمستخدم؟',
   ],
   'من نحن': [
     'هل حلاق ماب تأخذ عمولة؟',
@@ -40,11 +56,18 @@ const QUICK_BY_PAGE: Record<string, string[]> = {
   ],
 };
 
-// ─── Greeting ─────────────────────────────────────────────────────────────────
-function getGreeting(page: string): string {
-  return `مرحباً، أنا الناظر القانوني لحلاق ماب ⚖️
-أتواجد هنا في صفحة "${page}" لأجيب عن أسئلتك المتعلقة بالخصوصية والشروط القانونية.
-كيف يمكنني مساعدتك؟`;
+// ─── Typing indicator ─────────────────────────────────────────────────────────
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1.5 px-4 py-3">
+      <span className="text-[0.68rem]" style={{ color: `${GOLD}99` }}>الناظر يقرأ</span>
+      {[0, 1, 2].map((i) => (
+        <motion.div key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: GOLD }}
+          animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+          transition={{ duration: 1, delay: i * 0.16, repeat: Infinity }} />
+      ))}
+    </div>
+  );
 }
 
 // ─── API call ─────────────────────────────────────────────────────────────────
@@ -54,82 +77,60 @@ async function sendMsg(msg: string, history: Turn[], page: string): Promise<stri
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: msg,
-        page,
+        message: msg, page,
         history: history.slice(-6).map((t) => ({ role: t.role, content: t.content })),
       }),
     });
     const data = (await res.json()) as { reply?: string };
-    return data.reply || 'لم أتمكن من الرد — حاول مجدداً.';
+    return data.reply || 'لم يصل الرد — عاود المحاولة.';
   } catch {
-    return 'حصل خلل في الاتصال — عاود المحاولة.';
+    return 'خلل في الاتصال — عاود المحاولة.';
   }
-}
-
-// ─── Typing dots ──────────────────────────────────────────────────────────────
-function TypingDots() {
-  return (
-    <div className="flex items-center gap-1.5 px-4 py-3">
-      <span className="text-[0.68rem] text-yellow-300/55">الناظر يقرأ…</span>
-      {[0, 1, 2].map((i) => (
-        <motion.div key={i} className="h-1.5 w-1.5 rounded-full bg-yellow-400"
-          animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-          transition={{ duration: 1, delay: i * 0.16, repeat: Infinity }} />
-      ))}
-    </div>
-  );
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function LegalObserverChat({ page }: Props) {
   const [open, setOpen] = useState(false);
+  const [pitchIdx, setPitchIdx] = useState(0);
   const [turns, setTurns] = useState<Turn[]>([
-    { role: 'assistant', content: getGreeting(page), id: 'welcome' },
+    {
+      role: 'assistant',
+      content: `مرحباً ⚖️\nأنا الناظر القانوني لحلاق ماب — متخصص في شرح سياسات المنصة وحقوق المستخدمين.\nأنت في صفحة "${page}" — اسألني أي شيء قبل أن تقرأ.`,
+      id: 'welcome',
+    },
   ]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
-  const [unread, setUnread] = useState(1);
   const endRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
   const quickPrompts = QUICK_BY_PAGE[page] ?? QUICK_BY_PAGE['سياسة الخصوصية'];
 
   useEffect(() => {
-    if (open) { setUnread(0); setTimeout(() => textRef.current?.focus(), 150); }
+    const id = setInterval(() => setPitchIdx((i) => (i + 1) % PITCH_LINES.length), 3400);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (open) { setTimeout(() => textRef.current?.focus(), 150); }
   }, [open]);
 
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [turns, loading, open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, [open]);
-
-  useEffect(() => {
-    const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
-    window.addEventListener('keydown', fn);
-    return () => window.removeEventListener('keydown', fn);
-  }, []);
-
   const handleSend = useCallback(async (text?: string) => {
     const msg = (text ?? draft).trim();
     if (!msg || loading) return;
     setDraft('');
     if (textRef.current) textRef.current.style.height = 'auto';
-
     const next: Turn[] = [...turns, { role: 'user', content: msg, id: `u-${++seq.current}` }];
     setTurns(next);
     setLoading(true);
-
     const reply = await sendMsg(msg, next, page);
     setTurns((p) => [...p, { role: 'assistant', content: reply, id: `a-${++seq.current}` }]);
     setLoading(false);
-    if (!open) setUnread((u) => u + 1);
-  }, [draft, loading, turns, open, page]);
+  }, [draft, loading, turns, page]);
 
   const handleKey = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend(); }
@@ -142,62 +143,177 @@ export function LegalObserverChat({ page }: Props) {
   }, []);
 
   return (
-    <>
-      {/* Backdrop */}
-      <AnimatePresence>
-        {open && (
-          <motion.div key="bd" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[56] bg-black/45 backdrop-blur-[2px]"
-            onClick={() => setOpen(false)} />
-        )}
-      </AnimatePresence>
+    <div dir="rtl" className="relative mb-6 w-full" style={{ zIndex: open ? 50 : 10 }}>
 
-      {/* Chat modal */}
-      <AnimatePresence>
-        {open && (
-          <motion.aside key="modal" dir="rtl"
-            initial={{ opacity: 0, y: 20, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 14, scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 34 }}
-            onClick={(e) => e.stopPropagation()}
-            className="fixed bottom-[88px] right-4 z-[57] flex w-[min(92vw,400px)] flex-col overflow-hidden rounded-2xl
-              border border-yellow-500/30 bg-[#100a00]/97 shadow-[0_-4px_50px_rgba(234,179,8,0.20)] backdrop-blur-xl
-              sm:right-6 sm:bottom-[96px]"
-            style={{ maxHeight: 'min(88dvh, 580px)' }}
+      <AnimatePresence mode="wait">
+        {!open ? (
+          /* ══════════ TEASER — لوحة قانونية أفقية ══════════ */
+          <motion.div key="teaser"
+            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}
+            className="relative overflow-hidden rounded-2xl cursor-pointer"
+            onClick={() => setOpen(true)}
           >
+            {/* Layer 1: Background */}
+            <div className="absolute inset-0 rounded-2xl"
+              style={{
+                background: `linear-gradient(135deg, ${NAVY} 0%, ${NAVY_MID} 50%, #0a0e20 100%)`,
+                border: `1px solid ${GOLD}45`,
+                boxShadow: `0 0 40px ${GOLD}18, 0 8px 32px rgba(0,0,0,0.6)`,
+              }} />
+
+            {/* Layer 2: Subtle legal grid pattern */}
+            <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.03]"
+              style={{ backgroundImage: `linear-gradient(${GOLD} 1px, transparent 1px), linear-gradient(90deg, ${GOLD} 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
+
+            {/* Layer 3: Left gold accent bar */}
+            <div className="absolute right-0 top-0 h-full w-1 rounded-r-2xl"
+              style={{ background: `linear-gradient(to bottom, transparent, ${GOLD}80, transparent)` }} />
+
+            {/* Layer 4: Shimmer */}
+            <motion.div className="pointer-events-none absolute inset-0 rounded-2xl"
+              style={{ background: `linear-gradient(135deg, transparent 40%, ${GOLD}06 50%, transparent 60%)` }}
+              animate={{ x: ['-100%', '200%'] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'linear', repeatDelay: 3 }} />
+
+            <div className="relative flex items-center gap-5 px-5 py-4">
+              {/* Scale icon */}
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+                <div className="absolute inset-0 rounded-2xl"
+                  style={{ background: `radial-gradient(circle, ${GOLD}25 0%, transparent 70%)`, filter: 'blur(6px)' }} />
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl"
+                  style={{
+                    background: `linear-gradient(135deg, ${NAVY_MID}, ${NAVY})`,
+                    border: `1.5px solid ${GOLD}55`,
+                    boxShadow: `0 0 18px ${GOLD}30, inset 0 1px 0 ${GOLD_LIGHT}20`,
+                  }}>
+                  <Scale className="h-6 w-6" style={{ color: GOLD }} strokeWidth={1.5} />
+                  {/* Shield badge */}
+                  <div className="absolute -bottom-1 -left-1 flex h-5 w-5 items-center justify-center rounded-full"
+                    style={{ background: GOLD, border: `2px solid ${NAVY}` }}>
+                    <Shield className="h-2.5 w-2.5 text-black" strokeWidth={2.5} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Text */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-black text-white">الناظر القانوني</p>
+                  <div className="flex items-center gap-1 rounded-full px-2 py-0.5"
+                    style={{ background: `${GOLD}18`, border: `1px solid ${GOLD}35` }}>
+                    <motion.div className="h-1.5 w-1.5 rounded-full" style={{ background: '#4ade80' }}
+                      animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }} />
+                    <span className="text-[0.52rem] font-bold" style={{ color: `${GOLD}cc` }}>متاح الآن</span>
+                  </div>
+                </div>
+                <AnimatePresence mode="wait">
+                  <motion.p key={pitchIdx}
+                    initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.3 }}
+                    className="text-[0.78rem] font-semibold leading-snug"
+                    style={{ color: `${GOLD}bb` }}>
+                    {PITCH_LINES[pitchIdx]}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
+
+              {/* Stats */}
+              <div className="hidden items-center gap-3 sm:flex">
+                {[
+                  { val: 'PDPL', lbl: 'امتثال' },
+                  { val: '٢٤/٧', lbl: 'متاح' },
+                  { val: '١٠٠٪', lbl: 'موثوق' },
+                ].map((s) => (
+                  <div key={s.lbl} className="flex flex-col items-center gap-0.5 rounded-xl px-3 py-2"
+                    style={{ background: `${GOLD}0e`, border: `1px solid ${GOLD}22` }}>
+                    <span className="text-[0.72rem] font-black text-white">{s.val}</span>
+                    <span className="text-[0.5rem]" style={{ color: `${GOLD}70` }}>{s.lbl}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <motion.div
+                className="shrink-0 flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[0.72rem] font-black"
+                style={{
+                  background: `linear-gradient(135deg, ${GOLD}, #a87e1a)`,
+                  color: '#000',
+                  boxShadow: `0 2px 14px ${GOLD}40`,
+                }}
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+              >
+                <Scale className="h-3.5 w-3.5" />
+                اسألني الآن
+              </motion.div>
+            </div>
+
+            {/* Bottom accent line */}
+            <div className="absolute bottom-0 inset-x-0 h-px"
+              style={{ background: `linear-gradient(90deg, transparent, ${GOLD}50, transparent)` }} />
+          </motion.div>
+
+        ) : (
+          /* ══════════ CHAT PANEL ══════════ */
+          <motion.div key="chat"
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+            className="relative flex flex-col overflow-hidden rounded-2xl"
+            style={{ height: 'min(85dvh, 580px)' }}
+          >
+            {/* Background */}
+            <div className="absolute inset-0 rounded-2xl"
+              style={{
+                background: `linear-gradient(160deg, ${NAVY_MID} 0%, ${NAVY} 100%)`,
+                border: `1px solid ${GOLD}40`,
+                boxShadow: `0 0 60px ${GOLD}20, 0 16px 60px rgba(0,0,0,0.7)`,
+              }} />
+            <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.025]"
+              style={{ backgroundImage: `linear-gradient(${GOLD} 1px, transparent 1px), linear-gradient(90deg, ${GOLD} 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
+            <div className="absolute right-0 top-0 h-full w-1 rounded-r-2xl"
+              style={{ background: `linear-gradient(to bottom, transparent, ${GOLD}70, transparent)` }} />
+
             {/* Header */}
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-yellow-500/15 bg-gradient-to-l from-yellow-500/10 to-transparent px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl
-                  border border-yellow-500/40 bg-gradient-to-br from-[#1a1200] to-[#080500]
-                  shadow-[0_0_18px_rgba(234,179,8,0.28)]">
-                  <Scale className="h-5 w-5 text-yellow-300" strokeWidth={1.8} />
-                  <motion.div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border border-[#100a00]"
+            <div className="relative shrink-0 flex items-center justify-between gap-3 px-4 py-3.5"
+              style={{ borderBottom: `1px solid ${GOLD}20` }}>
+              <div className="flex items-center gap-3">
+                <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+                  style={{ background: `linear-gradient(135deg, ${NAVY_MID}, ${NAVY})`, border: `1.5px solid ${GOLD}50`, boxShadow: `0 0 16px ${GOLD}25` }}>
+                  <Scale className="h-5 w-5" style={{ color: GOLD }} strokeWidth={1.8} />
+                  <motion.div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border"
+                    style={{ background: '#4ade80', borderColor: NAVY }}
                     animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity }} />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-yellow-100 leading-tight">الناظر القانوني ⚖️</p>
-                  <p className="text-[0.58rem] text-yellow-400/55">صفحة: {page} · متاح الآن</p>
+                  <p className="text-sm font-black text-white">الناظر القانوني ⚖️</p>
+                  <p className="text-[0.57rem]" style={{ color: `${GOLD}60` }}>صفحة: {page} · حلاق ماب</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-yellow-400/55 hover:bg-yellow-500/10 hover:text-yellow-200 transition-colors">
-                <X className="h-4 w-4" />
+              <button onClick={() => setOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+                style={{ color: `${GOLD}60` }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = GOLD_LIGHT)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = `${GOLD}60`)}>
+                <ChevronDown className="h-4 w-4" />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
+            <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
               <div className="flex flex-col gap-2.5">
                 {turns.map((t) => (
                   <motion.div key={t.id}
                     initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     className={t.role === 'assistant'
-                      ? 'self-start max-w-[92%] rounded-2xl rounded-tr-sm border border-yellow-500/18 bg-yellow-500/8 px-3.5 py-2.5 text-[0.85rem] leading-6 text-yellow-50'
-                      : 'self-end max-w-[92%] rounded-2xl rounded-tl-sm border border-white/12 bg-white/8 px-3.5 py-2.5 text-[0.85rem] leading-6 text-slate-100'}
+                      ? 'self-start max-w-[90%] rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-[0.875rem] leading-6'
+                      : 'self-end max-w-[90%] rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-[0.875rem] leading-6 text-slate-100'}
+                    style={t.role === 'assistant'
+                      ? { background: `${GOLD}0d`, border: `1px solid ${GOLD}22`, color: `${GOLD_LIGHT}f0` }
+                      : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
                   >
-                    <p className="mb-1 text-[0.57rem] font-bold opacity-45">
+                    <p className="mb-1 text-[0.55rem] font-bold opacity-40">
                       {t.role === 'assistant' ? 'الناظر القانوني ⚖️' : 'أنت'}
                     </p>
                     <p className="whitespace-pre-wrap break-words" style={{ unicodeBidi: 'plaintext' }}>{t.content}</p>
@@ -205,7 +321,8 @@ export function LegalObserverChat({ page }: Props) {
                 ))}
                 {loading && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className="self-start rounded-2xl rounded-tr-sm border border-yellow-500/18 bg-yellow-500/8">
+                    className="self-start rounded-2xl rounded-tr-sm"
+                    style={{ background: `${GOLD}0d`, border: `1px solid ${GOLD}22` }}>
                     <TypingDots />
                   </motion.div>
                 )}
@@ -215,12 +332,15 @@ export function LegalObserverChat({ page }: Props) {
 
             {/* Quick prompts */}
             {turns.length <= 2 && !loading && (
-              <div className="shrink-0 border-t border-yellow-500/10 px-3 py-2">
-                <p className="mb-1.5 text-[0.6rem] text-yellow-400/45">اسألني:</p>
+              <div className="shrink-0 px-3 py-2.5" style={{ borderTop: `1px solid ${GOLD}15` }}>
+                <p className="mb-2 text-[0.58rem]" style={{ color: `${GOLD}55` }}>اسألني مباشرة:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {quickPrompts.map((q) => (
                     <button key={q} type="button" onClick={() => void handleSend(q)}
-                      className="rounded-full border border-yellow-500/25 bg-yellow-500/8 px-3 py-1 text-[0.64rem] font-semibold text-yellow-300/85 hover:border-yellow-500/50 hover:bg-yellow-500/15 transition-all">
+                      className="rounded-full px-3 py-1.5 text-[0.64rem] font-semibold transition-all"
+                      style={{ background: `${GOLD}10`, border: `1px solid ${GOLD}28`, color: `${GOLD_LIGHT}cc` }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = `${GOLD}20`; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = `${GOLD}10`; }}>
                       {q}
                     </button>
                   ))}
@@ -229,67 +349,42 @@ export function LegalObserverChat({ page }: Props) {
             )}
 
             {/* Input */}
-            <div className="shrink-0 border-t border-yellow-500/15 bg-[#080500]/95 px-3 py-3">
+            <div className="relative shrink-0 px-3 py-3" style={{ borderTop: `1px solid ${GOLD}18` }}>
               <div className="flex items-end gap-2">
                 <textarea ref={textRef} value={draft} onChange={handleInput} onKeyDown={handleKey}
                   disabled={loading}
                   placeholder="سؤالك القانوني… (Enter للإرسال)"
                   rows={1}
-                  style={{ minHeight: '44px', maxHeight: '120px', resize: 'none', overflowY: 'auto' }}
-                  className="flex-1 rounded-xl border border-yellow-500/20 bg-[#100800] px-3.5 py-2.5 text-sm leading-6 text-white
-                    placeholder:text-yellow-400/28 outline-none focus:border-yellow-500/45 focus:ring-1 focus:ring-yellow-500/22 transition-all
-                    disabled:opacity-50"
+                  style={{
+                    minHeight: '44px', maxHeight: '120px', resize: 'none', overflowY: 'auto',
+                    background: `${NAVY_MID}`, border: `1px solid ${GOLD}25`, color: 'white',
+                    borderRadius: '12px', padding: '10px 14px', fontSize: '0.875rem', lineHeight: '1.5',
+                    outline: 'none',
+                  }}
+                  className="flex-1 placeholder-[rgba(201,162,39,0.28)] transition-all disabled:opacity-50 focus:ring-1"
+                  onFocus={(e) => { e.target.style.borderColor = `${GOLD}60`; }}
+                  onBlur={(e) => { e.target.style.borderColor = `${GOLD}25`; }}
                   dir="rtl"
                 />
                 <motion.button type="button"
                   onClick={() => void handleSend()}
                   disabled={!draft.trim() || loading}
                   whileTap={draft.trim() && !loading ? { scale: 0.9 } : undefined}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl
-                    bg-gradient-to-br from-yellow-500 to-yellow-700 text-black
-                    shadow shadow-yellow-500/25 transition-all hover:from-yellow-400
-                    disabled:cursor-not-allowed disabled:opacity-40">
-                  <Send className="h-4 w-4" />
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all disabled:cursor-not-allowed disabled:opacity-40"
+                  style={{
+                    background: `linear-gradient(135deg, ${GOLD}, #a87e1a)`,
+                    boxShadow: `0 4px 14px ${GOLD}35`,
+                  }}>
+                  <Send className="h-4 w-4 text-black" />
                 </motion.button>
               </div>
-              <p className="mt-1.5 text-center text-[0.53rem] text-yellow-400/18">
-                الناظر القانوني · مهمة سرية: يُسجِّل الاستفسارات للمدعي العام
+              <p className="mt-1.5 text-center text-[0.52rem]" style={{ color: `${GOLD}20` }}>
+                الناظر القانوني · حلاق ماب · مهمة سرية: يُسجِّل الاستفسارات
               </p>
             </div>
-          </motion.aside>
+          </motion.div>
         )}
       </AnimatePresence>
-
-      {/* ── Floating trigger ─────────────────────────────────── */}
-      <div className="fixed bottom-6 right-4 z-[55] sm:right-6 md:bottom-8">
-        <div className="relative">
-          {!open && unread > 0 && (
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-              className="absolute -right-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[0.55rem] font-black text-white ring-2 ring-[#100a00]">
-              {unread}
-            </motion.div>
-          )}
-
-          <motion.button type="button"
-            onClick={() => setOpen((o) => !o)}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, type: 'spring', stiffness: 380, damping: 28 }}
-            aria-label="فتح الناظر القانوني"
-            className="relative flex h-14 w-14 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
-          >
-            <div className="absolute inset-0 rounded-full border-2 border-yellow-500/45 bg-gradient-to-br from-[#1a1200] to-[#060400]
-              shadow-[0_0_32px_rgba(234,179,8,0.40),0_0_64px_rgba(234,179,8,0.12)]" />
-            <div className="relative z-10 flex flex-col items-center">
-              <Scale className="h-5 w-5 text-yellow-300" strokeWidth={1.8} />
-              <span className="mt-0.5 text-[0.42rem] font-black tracking-wider text-yellow-400/65">قانوني</span>
-            </div>
-            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-transparent via-yellow-400/5 to-yellow-300/12" />
-          </motion.button>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

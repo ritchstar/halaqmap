@@ -80,7 +80,6 @@ export default function TermsOfService() {
 
   return (
     <div className="min-h-screen bg-background">
-      <LegalObserverChat page="شروط الاستخدام" />
       <div className="relative overflow-hidden bg-gradient-to-b from-accent/8 via-background to-background py-28">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_25%,rgba(20,184,166,0.10),transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(212,175,55,0.08),transparent_55%)]" />
@@ -118,6 +117,11 @@ export default function TermsOfService() {
       </div>
 
       <div className="container mx-auto px-4 py-16" dir="rtl">
+        {/* الناظر القانوني — في أعلى المحتوى */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <LegalObserverChat page="شروط الاستخدام" />
+        </div>
+
         <div className="max-w-4xl mx-auto mb-12">
           <PlatformIdentityCard />
         </div>
