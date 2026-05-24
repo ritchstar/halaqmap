@@ -387,14 +387,23 @@ export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inli
                 </div>
               )}
 
-              {/* ── Register CTA ── */}
-              <div className="relative shrink-0 mx-3 mb-1 rounded-xl border border-amber-400/18 bg-gradient-to-l from-amber-500/8 to-transparent px-3 py-2">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-[0.62rem] text-amber-300/60">جاهز؟ ابدأ الانضمام الآن</p>
-                  <button onClick={() => { setOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
-                    className="flex items-center gap-1 rounded-lg bg-gradient-to-l from-amber-500 to-amber-700 px-3 py-1.5 text-[0.65rem] font-bold text-black hover:from-amber-400 transition-all shadow shadow-amber-500/25">
-                    سجّل <ArrowLeft className="h-3 w-3" />
-                  </button>
+              {/* ── Register CTA — ثابت وبارز ── */}
+              <div className="relative shrink-0 mx-3 mb-1.5 overflow-hidden rounded-2xl border border-amber-400/35 bg-gradient-to-l from-amber-500/14 via-amber-900/12 to-transparent px-4 py-3">
+                {/* Shimmer */}
+                <motion.div className="pointer-events-none absolute inset-0"
+                  style={{ background: 'linear-gradient(90deg,transparent,rgba(245,158,11,0.07),transparent)' }}
+                  animate={{ x: ['-100%','200%'] }} transition={{ duration: 3, repeat: Infinity, ease:'linear', repeatDelay: 2 }} />
+                <div className="relative flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-[0.72rem] font-black text-amber-200">جاهز للانضمام؟ 🚀</p>
+                    <p className="text-[0.58rem] text-amber-400/55">النموذج الرسمي يستغرق 3 دقائق فقط</p>
+                  </div>
+                  <motion.button
+                    onClick={() => { setOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
+                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 px-4 py-2.5 text-[0.72rem] font-black text-black shadow-[0_2px_14px_rgba(245,158,11,0.40)] hover:from-amber-400 transition-all">
+                    سجّل الآن <ArrowLeft className="h-3.5 w-3.5" />
+                  </motion.button>
                 </div>
               </div>
 
