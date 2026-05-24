@@ -215,7 +215,7 @@ export default function PartnerMarketingPreview() {
 
       {/* أزرار عائمة */}
       <FloatingPlatformActions />
-      <B2BSalesManagerChat />
+      {/* B2BSalesManagerChat مُدمَج في الهيرو بـ mode="inline" — لا حاجة لطائر ثانٍ */}
 
       {/* ── شبكة التكتير الخلفية ──────────────────────────────────────────── */}
       <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.02]"
@@ -399,13 +399,16 @@ export default function PartnerMarketingPreview() {
             </div>
           </motion.div>
 
-          {/* Card preview */}
+          {/* Card preview + مدير مبيعات B2B مدمج */}
           <motion.div
             initial={{ opacity: 0, scale: 0.93 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.35, duration: 0.7 }}
-            className="relative"
+            className="relative flex flex-col gap-4"
           >
+            {/* مدير مبيعات B2B — مدمج في العمود الأيسر */}
+            <B2BSalesManagerChat mode="inline" />
+
             <div className="mb-4 flex items-center justify-center gap-2">
               {PARTNER_BANNERS_PREVIEW_TIERS.map((tier) => (
                 <button
