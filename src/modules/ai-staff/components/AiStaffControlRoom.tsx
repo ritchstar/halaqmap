@@ -33,6 +33,9 @@ import { cn } from '@/lib/utils';
 
 type ResolvedAgent = AiStaffAgentDef & { permitted: boolean };
 
+// الحدود التي تبقى في لوحة التحكم الرئيسية فقط
+const DASHBOARD_BOUNDARIES = ['supreme_defense', 'covert_sovereign'] as const;
+
 type Props = {
   can: (perm: AdminPermissionKey) => boolean;
   canViewZatcaFinancialOffice: boolean;
@@ -41,6 +44,8 @@ type Props = {
   crisisLabOpen?: boolean;
   onCrisisLabOpenChange?: (open: boolean) => void;
   crisisMode?: boolean;
+  /** وضع لوحة التحكم: dashboard = الأمن والسيادة فقط · hub = بقية الوكلاء */
+  dashboardMode?: boolean;
 };
 
 export function AiStaffControlRoom({
@@ -51,6 +56,7 @@ export function AiStaffControlRoom({
   crisisLabOpen: crisisLabOpenProp,
   onCrisisLabOpenChange,
   crisisMode: crisisModeProp,
+  dashboardMode = false,
 }: Props) {
   const [expanded, setExpanded] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
@@ -92,9 +98,12 @@ export function AiStaffControlRoom({
 
   const canSeeCovertSovereign = isBootstrapAdmin || can('manage_admins');
 
-  const visibleBoundaries = AI_STAFF_BOUNDARIES.filter(
-    (b) => !b.covert || canSeeCovertSovereign,
-  );
+  const visibleBoundaries = AI_STAFF_BOUNDARIES.filter((b) => {
+    const inDashboard = (DASHBOARD_BOUNDARIES as readonly string[]).includes(b.id);
+    if (dashboardMode && !inDashboard) return false;
+    if (!dashboardMode && inDashboard) return false;
+    return !b.covert || canSeeCovertSovereign;
+  });
 
   const workspaceAgent = workspaceAgentId
     ? agents.find((a) => a.id === workspaceAgentId) ?? null

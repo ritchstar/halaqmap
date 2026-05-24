@@ -39,6 +39,7 @@ import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import AdminSentinelPage from "@/pages/AdminSentinelPage";
 import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
 import AdminCyberOperationsPage from "@/app/admin/cyber/page";
+import StaffHubPage from "@/app/admin/staff-hub/page";
 import LandingPreview from "@/pages/LandingPreview";
 import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
 import PlatformReviews from "@/pages/PlatformReviews";
@@ -167,6 +168,7 @@ const App = () => (
               />
               <Route path={`${adminBase}/radar/full-screen`} element={<AdminRadarFullScreenPage />} />
               <Route path={`${adminBase}/cyber`} element={<AdminCyberOperationsPage />} />
+              <Route path={`${adminBase}/staff-hub`} element={<StaffHubPage />} />
             </Fragment>
           ))}
           {/* Safety net for legacy invitation links built before VITE_ADMIN_PORTAL_BASE alignment. */}

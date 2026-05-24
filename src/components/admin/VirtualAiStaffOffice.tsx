@@ -11,7 +11,7 @@ type Props = {
   crisisMode?: boolean;
 };
 
-/** @deprecated Use `AiStaffControlRoom` — thin compatibility wrapper. */
+/** لوحة التحكم الرئيسية — الأمن والسيادة فقط */
 export function VirtualAiStaffOffice({
   can,
   canViewZatcaFinancialOffice,
@@ -30,6 +30,7 @@ export function VirtualAiStaffOffice({
       crisisLabOpen={crisisLabOpen}
       onCrisisLabOpenChange={onCrisisLabOpenChange}
       crisisMode={crisisMode}
+      dashboardMode={true}
     />
   );
 }

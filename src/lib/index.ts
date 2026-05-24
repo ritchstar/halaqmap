@@ -56,6 +56,8 @@ export const ROUTE_PATHS = {
   LANDING_PARTNERS_PREVIEW: '/preview-partners',
   /** صفحة آراء وتعليقات المستخدمين الحرة */
   PLATFORM_REVIEWS: '/reviews',
+  /** مركز الوكلاء — صفحة مستقلة لبقية الوكلاء */
+  ADMIN_STAFF_HUB: '/staff-hub',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

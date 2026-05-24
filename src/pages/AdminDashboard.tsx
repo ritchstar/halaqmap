@@ -793,6 +793,26 @@ export default function AdminDashboard() {
 
           {/* Overview Tab */}
           {can('view_overview') && <TabsContent value="overview" className="space-y-6">
+            {/* رابط مركز الوكلاء */}
+            <div className="flex items-center justify-between rounded-xl border border-teal-400/20 bg-teal-500/8 px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-teal-400/25 bg-teal-500/12">
+                  <span className="text-sm">👥</span>
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">مركز الوكلاء</p>
+                  <p className="text-[0.62rem] text-teal-400/60">المستشار المالي · ZATCA · الجناح الهندسي · التسويق · الإعلام · القانون</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STAFF_HUB}`)}
+                className="flex items-center gap-1.5 rounded-xl border border-teal-400/30 bg-teal-500/10 px-4 py-2 text-xs font-bold text-teal-200 hover:bg-teal-500/20 transition-all"
+              >
+                فتح المركز ←
+              </button>
+            </div>
+
             <VirtualAiStaffOffice
               can={can}
               canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
