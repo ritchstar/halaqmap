@@ -298,7 +298,10 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <main className="min-h-0 w-full flex-1">{children}</main>
 
-      <B2BSalesManagerChat />
+      {/* لا مدير مبيعات على صفحات الخصوصية والسياسات — الناظر القانوني مُضمَّن فيها */}
+      {![ROUTE_PATHS.PARTNER_PRIVACY, ROUTE_PATHS.SUBSCRIPTION_POLICY].includes(
+        location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY
+      ) && <B2BSalesManagerChat />}
 
       {/* شريط تنقّل سفلي للجوال — نمط تطبيق */}
       <nav
