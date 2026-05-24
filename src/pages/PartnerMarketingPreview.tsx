@@ -349,6 +349,17 @@ export default function PartnerMarketingPreview() {
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-2 lg:gap-20 lg:py-28">
           {/* Text */}
           <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
+
+            {/* ── مدير مبيعات B2B — تحت الهيدر وفوق النص ── */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.5 }}
+              className="mb-5"
+            >
+              <B2BSalesManagerChat mode="inline" />
+            </motion.div>
+
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300">
               <Sparkles className="h-3 w-3" /> مسار الخدمات التسويقية للشركاء
@@ -399,16 +410,13 @@ export default function PartnerMarketingPreview() {
             </div>
           </motion.div>
 
-          {/* Card preview + مدير مبيعات B2B مدمج */}
+          {/* Card preview */}
           <motion.div
             initial={{ opacity: 0, scale: 0.93 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.35, duration: 0.7 }}
             className="relative flex flex-col gap-4"
           >
-            {/* مدير مبيعات B2B — مدمج في العمود الأيسر */}
-            <B2BSalesManagerChat mode="inline" />
-
             <div className="mb-4 flex items-center justify-center gap-2">
               {PARTNER_BANNERS_PREVIEW_TIERS.map((tier) => (
                 <button
