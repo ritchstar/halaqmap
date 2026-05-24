@@ -348,9 +348,6 @@ export default function LandingPreview() {
       {/* أزرار عائمة للمستخدم */}
       <FloatingPlatformActions />
 
-      {/* المتحدث الإعلامي — مُندَب من لوحة التحكم لاستقبال الزوار */}
-      <PublicMediaSpokesperson />
-
       {/* ── Grid background texture ──────────────────────────────────────── */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.025]"
@@ -554,6 +551,11 @@ export default function LandingPreview() {
       <section className="relative min-h-[100dvh] overflow-hidden pt-24">
         {/* Anchor للبحث */}
         <div id="search-anchor" className="absolute top-32" />
+
+        {/* المتحدث الإعلامي — مدمج في الهيرو بطابع ضيافة */}
+        <div className="absolute bottom-[18%] left-[12%] z-20 hidden lg:block">
+          <PublicMediaSpokesperson mode="hero" />
+        </div>
         {/* Glow blobs */}
         <div className="pointer-events-none absolute -right-64 top-10 h-[600px] w-[600px] rounded-full bg-teal-500/8 blur-[140px]" />
         <div className="pointer-events-none absolute -left-48 bottom-20 h-[400px] w-[400px] rounded-full bg-amber-500/6 blur-[120px]" />

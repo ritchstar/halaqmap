@@ -1,37 +1,32 @@
 /**
- * PublicMediaSpokesperson — المتحدث الإعلامي على الصفحة الرئيسية
+ * PublicMediaSpokesperson — المتحدث الإعلامي
  *
- * نفس شخصية المتحدث الإعلامي في لوحة التحكم،
- * مُندَب لاستقبال المستخدمين على الصفحة الرئيسية.
+ * mode="hero"   → مدمج في الهيرو بطابع ضيافة فاخر
+ * mode="float"  → زر عائم (احتياطي)
  *
- * أيقونة: ميكروفون ذهبي فخم (✦ متمايز عن مساعد الشركاء)
- * موضع: أسفل يمين الشاشة (فوق FloatingPlatformActions)
- * لا يحتاج تسجيل دخول — مفتوح للجميع
+ * التصميم: أيقونة ميكروفون ذهبي (+25%) + اسم متوهج براق + طابع ضيافة
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Mic } from 'lucide-react';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
+interface Props { mode?: 'hero' | 'float' }
 
-// ─── Quick prompts ────────────────────────────────────────────────────────────
 const QUICK_PROMPTS = [
   'كيف أبحث عن حلاق؟',
   'هل الخدمة مجانية؟',
   'كم صالون في المنصة؟',
-  'ما الفرق بين الباقات؟',
+  'ما أفضل باقة للمستخدم؟',
 ];
 
-// ─── Greeting generator ───────────────────────────────────────────────────────
 function getGreeting(): string {
   const h = new Date().getHours();
-  const timeGreet = h < 12 ? 'صباح الخير' : h < 17 ? 'مساء الخير' : 'مساء النور';
-  return `${timeGreet}! 🌟 أنا المتحدث الإعلامي لحلاق ماب — هلا والله! كيف أخدمك اليوم؟`;
+  const t = h < 12 ? 'صباح الخير' : h < 17 ? 'مساء الخير' : 'مساء النور';
+  return `${t}! 🌟 أنا المتحدث الإعلامي لحلاق ماب — هلا والله! كيف أخدمك اليوم؟`;
 }
 
-// ─── API call ─────────────────────────────────────────────────────────────────
 async function sendMessage(message: string, history: Turn[]): Promise<string> {
   try {
     const res = await fetch('/api/public-media-spokesperson-chat', {
@@ -42,15 +37,13 @@ async function sendMessage(message: string, history: Turn[]): Promise<string> {
         history: history.slice(-6).map((t) => ({ role: t.role, content: t.content })),
       }),
     });
-    if (!res.ok) return 'عذراً، صار خلل بسيط. عاود بعد لحظة. 🙏';
     const data = (await res.json()) as { reply?: string; error?: string };
-    return data.reply || 'ما وصلني الرد — ممكن تعيد؟';
+    return data.reply || 'ما وصلني الرد — عاود المحاولة. 🙏';
   } catch {
-    return 'يبدو في مشكلة في الاتصال. جرّب مرة ثانية. 🛜';
+    return 'في مشكلة بالاتصال. جرّب مرة ثانية. 🛜';
   }
 }
 
-// ─── Typing indicator ─────────────────────────────────────────────────────────
 function TypingDots() {
   return (
     <div className="flex items-center gap-1.5 px-4 py-3">
@@ -64,62 +57,55 @@ function TypingDots() {
   );
 }
 
-// ─── The floating button icon ─────────────────────────────────────────────────
-function SpokespersonIcon({ pulse }: { pulse: boolean }) {
+// ─── Sparkle stars around the icon ────────────────────────────────────────────
+function Sparkles() {
+  const stars = [
+    { x: -24, y: -18, size: 6, delay: 0 },
+    { x: 28, y: -20, size: 4, delay: 0.5 },
+    { x: -28, y: 10, size: 5, delay: 1.0 },
+    { x: 26, y: 16, size: 4, delay: 1.5 },
+    { x: 2, y: -30, size: 5, delay: 0.8 },
+  ];
   return (
-    <div className="relative flex h-14 w-14 items-center justify-center rounded-full">
-      {/* Outer glow ring */}
-      <div className="absolute inset-0 rounded-full border-2 border-amber-400/35 bg-gradient-to-br from-[#1a1000] to-[#0a0800]
-        shadow-[0_0_30px_rgba(245,158,11,0.35),0_0_60px_rgba(245,158,11,0.12)]" />
-
-      {/* Pulse ring when new message */}
-      {pulse && (
-        <motion.div className="absolute inset-0 rounded-full border-2 border-amber-400/50"
-          animate={{ scale: [1, 1.5], opacity: [0.7, 0] }}
-          transition={{ duration: 1.2, repeat: 3 }} />
-      )}
-
-      {/* Mic icon */}
-      <div className="relative z-10 flex flex-col items-center">
-        <Mic className="h-5 w-5 text-amber-300" strokeWidth={2} />
-        {/* ن below mic — initial of متحدث */}
-        <div className="mt-0.5 text-[0.45rem] font-black tracking-widest text-amber-400/70">م.إ</div>
-      </div>
-
-      {/* Gold shine */}
-      <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-transparent via-amber-400/8 to-amber-300/12" />
+    <div className="pointer-events-none absolute inset-0">
+      {stars.map((s, i) => (
+        <motion.div
+          key={i}
+          className="absolute"
+          style={{ left: `calc(50% + ${s.x}px)`, top: `calc(50% + ${s.y}px)` }}
+          animate={{ opacity: [0, 0.9, 0], scale: [0.5, 1, 0.5] }}
+          transition={{ duration: 2.2, delay: s.delay, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <svg width={s.size} height={s.size} viewBox="0 0 8 8">
+            <path d="M4 0L4.5 3.5L8 4L4.5 4.5L4 8L3.5 4.5L0 4L3.5 3.5Z"
+              fill="#fbbf24" opacity="0.9" />
+          </svg>
+        </motion.div>
+      ))}
     </div>
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-export function PublicMediaSpokesperson() {
+export function PublicMediaSpokesperson({ mode = 'float' }: Props) {
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([
     { role: 'assistant', content: getGreeting(), id: 'welcome' },
   ]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
-  const [pulse, setPulse] = useState(false);
-  const [unread, setUnread] = useState(1); // shows badge on first load
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [unread, setUnread] = useState(mode === 'float' ? 1 : 0);
   const endRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
 
-  // Auto-scroll
+  useEffect(() => {
+    if (open) { setUnread(0); setTimeout(() => textRef.current?.focus(), 150); }
+  }, [open]);
+
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [turns, loading, open]);
 
-  // Focus textarea on open
-  useEffect(() => {
-    if (open) {
-      setUnread(0);
-      setTimeout(() => textareaRef.current?.focus(), 150);
-    }
-  }, [open]);
-
-  // Body scroll lock
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -127,114 +113,92 @@ export function PublicMediaSpokesperson() {
     return () => { document.body.style.overflow = prev; };
   }, [open]);
 
-  // Keyboard close
   useEffect(() => {
-    const fn = (e: KeyboardEvent) => { if (e.key === 'Escape' && open) setOpen(false); };
+    const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
     window.addEventListener('keydown', fn);
     return () => window.removeEventListener('keydown', fn);
-  }, [open]);
+  }, []);
 
   const handleSend = useCallback(async (text?: string) => {
     const msg = (text ?? draft).trim();
     if (!msg || loading) return;
     setDraft('');
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-
-    const id = `u-${++seq.current}`;
-    const nextTurns: Turn[] = [...turns, { role: 'user', content: msg, id }];
-    setTurns(nextTurns);
+    if (textRef.current) textRef.current.style.height = 'auto';
+    const next: Turn[] = [...turns, { role: 'user', content: msg, id: `u-${++seq.current}` }];
+    setTurns(next);
     setLoading(true);
-
-    const reply = await sendMessage(msg, nextTurns);
-
-    const aId = `a-${++seq.current}`;
-    setTurns((prev) => [...prev, { role: 'assistant', content: reply, id: aId }]);
+    const reply = await sendMessage(msg, next);
+    setTurns((p) => [...p, { role: 'assistant', content: reply, id: `a-${++seq.current}` }]);
     setLoading(false);
-    if (!open) { setPulse(true); setUnread((u) => u + 1); setTimeout(() => setPulse(false), 4000); }
+    if (!open) setUnread((u) => u + 1);
   }, [draft, loading, turns, open]);
 
   const handleKey = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      void handleSend();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend(); }
   }, [handleSend]);
 
   const handleInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDraft(e.target.value);
-    const el = e.target;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
   }, []);
 
   return (
-    <>
-      {/* ── Backdrop ───────────────────────────────────────── */}
+    <div dir="rtl">
+      {/* ── Backdrop */}
       <AnimatePresence>
         {open && (
           <motion.div key="bd" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[56] bg-black/40 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[56] bg-black/50 backdrop-blur-[2px]"
             onClick={() => setOpen(false)} />
         )}
       </AnimatePresence>
 
-      {/* ── Chat modal ─────────────────────────────────────── */}
+      {/* ── Chat modal */}
       <AnimatePresence>
         {open && (
-          <motion.aside
-            key="modal"
+          <motion.aside key="modal"
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 400, damping: 34 }}
             onClick={(e) => e.stopPropagation()}
             dir="rtl"
-            className="fixed bottom-[88px] left-4 z-[57] flex w-[min(90vw,380px)] flex-col overflow-hidden rounded-2xl
-              border border-amber-400/30 bg-[#0a0800]/97 shadow-[0_-4px_40px_rgba(245,158,11,0.18)] backdrop-blur-xl
-              sm:left-6 sm:bottom-[96px]"
-            style={{ maxHeight: 'min(85dvh, 580px)' }}
+            className="fixed bottom-6 left-4 z-[57] flex w-[min(90vw,380px)] flex-col overflow-hidden rounded-2xl
+              border border-amber-400/30 bg-[#030d1a]/97 shadow-2xl backdrop-blur-xl sm:left-6"
+            style={{ maxHeight: 'min(88dvh, 560px)' }}
           >
-            {/* ── Header ──────────────────────────────────── */}
+            {/* Header */}
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-400/15 bg-gradient-to-l from-amber-500/10 to-transparent px-4 py-3">
               <div className="flex items-center gap-2.5">
-                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
-                  border border-amber-400/30 bg-gradient-to-br from-[#1a1000] to-[#060400]
-                  shadow-[0_0_15px_rgba(245,158,11,0.25)]">
-                  <Mic className="h-4.5 w-4.5 text-amber-300" strokeWidth={2} />
-                  <motion.div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border border-[#0a0800]"
-                    animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity }} />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-400/30 bg-[#1a0e00] shadow-[0_0_14px_rgba(245,158,11,0.25)]">
+                  <Mic className="h-5 w-5 text-amber-300" strokeWidth={2} />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-amber-100 leading-tight">المتحدث الإعلامي</p>
-                  <p className="text-[0.6rem] text-amber-400/60">حلاق ماب · متاح الآن</p>
+                  <p className="text-sm font-black text-amber-100">المتحدث الإعلامي</p>
+                  <p className="text-[0.58rem] text-amber-400/55">حلاق ماب · متاح الآن</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-amber-400/60 hover:bg-amber-500/10 hover:text-amber-200 transition-colors">
+              <button onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-amber-400/50 hover:bg-amber-500/10 hover:text-amber-200">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            {/* ── Messages ────────────────────────────────── */}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
+            {/* Messages */}
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
               <div className="flex flex-col gap-2.5">
                 {turns.map((t) => (
-                  <motion.div key={t.id}
-                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
+                  <motion.div key={t.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     className={t.role === 'assistant'
                       ? 'self-start max-w-[90%] rounded-2xl rounded-tr-sm border border-amber-400/18 bg-amber-500/8 px-3.5 py-2.5 text-[0.85rem] leading-6 text-amber-50'
                       : 'self-end max-w-[90%] rounded-2xl rounded-tl-sm border border-white/12 bg-white/8 px-3.5 py-2.5 text-[0.85rem] leading-6 text-slate-100'}
                   >
-                    <p className="mb-1 text-[0.58rem] font-bold opacity-50">
-                      {t.role === 'assistant' ? 'المتحدث' : 'أنت'}
+                    <p className="mb-1 text-[0.55rem] font-bold opacity-40">
+                      {t.role === 'assistant' ? 'المتحدث الإعلامي 🌟' : 'أنت'}
                     </p>
-                    <p className="whitespace-pre-wrap break-words" style={{ unicodeBidi: 'plaintext' }}>
-                      {t.content}
-                    </p>
+                    <p className="whitespace-pre-wrap break-words" style={{ unicodeBidi: 'plaintext' }}>{t.content}</p>
                   </motion.div>
                 ))}
-
                 {loading && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                     className="self-start rounded-2xl rounded-tr-sm border border-amber-400/18 bg-amber-500/8">
@@ -245,14 +209,13 @@ export function PublicMediaSpokesperson() {
               </div>
             </div>
 
-            {/* ── Quick prompts ────────────────────────────── */}
+            {/* Quick prompts */}
             {turns.length <= 2 && !loading && (
               <div className="shrink-0 border-t border-amber-400/10 px-3 py-2">
                 <div className="flex flex-wrap gap-1.5">
                   {QUICK_PROMPTS.map((q) => (
-                    <button key={q} type="button"
-                      onClick={() => void handleSend(q)}
-                      className="rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1 text-[0.65rem] font-semibold text-amber-300/80 hover:border-amber-400/50 hover:bg-amber-500/15 transition-all">
+                    <button key={q} type="button" onClick={() => void handleSend(q)}
+                      className="rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1 text-[0.64rem] font-semibold text-amber-300/85 hover:border-amber-400/50 transition-all">
                       {q}
                     </button>
                   ))}
@@ -260,75 +223,126 @@ export function PublicMediaSpokesperson() {
               </div>
             )}
 
-            {/* ── Input ───────────────────────────────────── */}
+            {/* Input */}
             <div className="shrink-0 border-t border-amber-400/15 bg-[#060400]/95 px-3 py-3">
               <div className="flex items-end gap-2">
-                <textarea
-                  ref={textareaRef}
-                  value={draft}
-                  onChange={handleInput}
-                  onKeyDown={handleKey}
-                  disabled={loading}
-                  placeholder="اكتب سؤالك… (Enter للإرسال)"
-                  rows={1}
-                  style={{ minHeight: '44px', maxHeight: '120px', resize: 'none', overflowY: 'auto' }}
-                  className="flex-1 rounded-xl border border-amber-400/20 bg-[#100c00] px-3.5 py-2.5 text-sm leading-6 text-white placeholder:text-amber-400/30 outline-none focus:border-amber-400/45 focus:ring-1 focus:ring-amber-400/25 transition-all disabled:opacity-50"
+                <textarea ref={textRef} value={draft} onChange={handleInput} onKeyDown={handleKey}
+                  disabled={loading} placeholder="اكتب سؤالك… (Enter للإرسال)"
+                  rows={1} style={{ minHeight: '44px', maxHeight: '120px', resize: 'none', overflowY: 'auto' }}
+                  className="flex-1 rounded-xl border border-amber-400/20 bg-[#100800] px-3.5 py-2.5 text-sm text-white placeholder:text-amber-400/28 outline-none focus:border-amber-400/45 transition-all disabled:opacity-50"
                   dir="rtl"
                 />
-                <motion.button type="button"
-                  onClick={() => void handleSend()}
+                <motion.button type="button" onClick={() => void handleSend()}
                   disabled={!draft.trim() || loading}
                   whileTap={draft.trim() && !loading ? { scale: 0.9 } : undefined}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 text-black shadow shadow-amber-500/25 transition-all hover:from-amber-400 disabled:cursor-not-allowed disabled:opacity-40">
+                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 text-black shadow shadow-amber-500/25 disabled:opacity-40">
                   <Send className="h-4 w-4" />
                 </motion.button>
               </div>
-              <p className="mt-1.5 text-center text-[0.55rem] text-amber-400/25">
-                محادثة عامة · خارج نطاق الخصوصية الرسمية
-              </p>
             </div>
           </motion.aside>
         )}
       </AnimatePresence>
 
-      {/* ── Floating trigger button ──────────────────────── */}
-      <div className="fixed bottom-6 right-20 z-[55] sm:right-24 md:bottom-8 md:right-28">
-        <div className="relative">
-          {/* Unread badge */}
-          {!open && unread > 0 && (
+      {/* ── HERO MODE — مدمج في الهيرو بطابع ضيافة ─────────────────────── */}
+      {mode === 'hero' && !open && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.2, duration: 0.6, type: 'spring' }}
+          className="flex flex-col items-center gap-2 cursor-pointer select-none"
+          onClick={() => setOpen(true)}
+        >
+          {/* Outer glow rings — طابع ضيافة */}
+          <div className="relative flex items-center justify-center">
+            {/* Ring 1 — بطيء */}
             <motion.div
-              initial={{ scale: 0 }} animate={{ scale: 1 }}
-              className="absolute -right-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[0.55rem] font-black text-white ring-2 ring-[#020912]">
-              {unread > 9 ? '9+' : unread}
+              className="absolute rounded-full border border-amber-400/20"
+              style={{ width: 100, height: 100 }}
+              animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0, 0.4] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeOut' }}
+            />
+            {/* Ring 2 — متأخر */}
+            <motion.div
+              className="absolute rounded-full border border-amber-300/15"
+              style={{ width: 100, height: 100 }}
+              animate={{ scale: [1, 1.45, 1], opacity: [0.3, 0, 0.3] }}
+              transition={{ duration: 3.5, delay: 0.7, repeat: Infinity, ease: 'easeOut' }}
+            />
+
+            {/* Icon — 25% bigger than 56px = ~70px */}
+            <motion.div
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.93 }}
+              className="relative flex h-[70px] w-[70px] items-center justify-center rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, #1a0e00, #0a0500)',
+                border: '2px solid rgba(245,158,11,0.55)',
+                boxShadow: '0 0 32px rgba(245,158,11,0.40), 0 0 64px rgba(245,158,11,0.14), inset 0 1px 0 rgba(251,191,36,0.22)',
+              }}
+            >
+              {/* Sparkles */}
+              <Sparkles />
+
+              {/* Inner glow */}
+              <div className="absolute inset-0 rounded-full"
+                style={{ background: 'radial-gradient(circle at center, rgba(245,158,11,0.12) 0%, transparent 70%)' }} />
+
+              {/* Mic icon — slightly bigger */}
+              <Mic className="relative z-10 h-8 w-8 text-amber-300" strokeWidth={1.8} />
+
+              {/* Pulse dot — متاح */}
+              <motion.div
+                className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2"
+                style={{ background: '#4ade80', borderColor: '#030912' }}
+                animate={{ opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
             </motion.div>
-          )}
+          </div>
 
-          {/* Main button */}
-          <motion.button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, type: 'spring', stiffness: 380, damping: 28 }}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-            aria-label="فتح المتحدث الإعلامي"
-            aria-expanded={open}
-          >
-            <SpokespersonIcon pulse={pulse} />
-          </motion.button>
+          {/* Name label — براق خافت */}
+          <div className="flex flex-col items-center gap-0.5">
+            <motion.p
+              className="text-[0.72rem] font-black tracking-wider"
+              style={{ color: 'rgba(245,158,11,0.80)' }}
+              animate={{ opacity: [0.65, 0.95, 0.65] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              المتحدث الإعلامي
+            </motion.p>
+            <motion.p
+              className="text-[0.55rem] font-semibold tracking-widest"
+              style={{ color: 'rgba(245,158,11,0.40)' }}
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 3, delay: 0.5, repeat: Infinity }}
+            >
+              اضغط للحديث ✦
+            </motion.p>
+          </div>
+        </motion.div>
+      )}
 
-          {/* Tooltip on hover */}
-          <motion.div
-            initial={{ opacity: 0, x: 8 }}
-            whileHover={{ opacity: 1, x: 0 }}
-            className="pointer-events-none absolute left-full top-1/2 ms-2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-amber-400/25 bg-[#0a0800]/90 px-2.5 py-1 text-[0.65rem] font-semibold text-amber-200 backdrop-blur-sm opacity-0"
-          >
-            المتحدث الإعلامي 🎙
-          </motion.div>
+      {/* ── FLOAT MODE — زر احتياطي (if mode=float) ──────────────────────── */}
+      {mode === 'float' && !open && (
+        <div className="fixed bottom-6 right-20 z-[55] sm:right-24 md:bottom-8 md:right-28">
+          <div className="relative">
+            {!open && unread > 0 && (
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
+                className="absolute -right-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[0.55rem] font-black text-white ring-2 ring-[#020912]">
+                {unread > 9 ? '9+' : unread}
+              </motion.div>
+            )}
+            <motion.button type="button" onClick={() => setOpen(true)}
+              whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.5, type: 'spring' }}
+              className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-amber-400/40 bg-gradient-to-br from-[#1a1000] to-[#070400] shadow-[0_0_30px_rgba(245,158,11,0.35)]">
+              <Mic className="h-5 w-5 text-amber-300" strokeWidth={2} />
+            </motion.button>
+          </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 }
