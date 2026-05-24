@@ -7,7 +7,7 @@
  * يعتمد نفس نظام التصميم الداكن لصفحة /preview مع محتوى موجَّه للشريك.
  */
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Scissors, Star, Shield, CheckCircle2, Clock, ArrowLeft,
@@ -45,6 +45,127 @@ function useCounter(end: number, duration = 1800, enabled = true) {
     }, 16);
   }
   return count;
+}
+
+// ─── Founders Offer Banner — العرض التشغيلي التأسيسي لمضاعفة الرخص ────────
+function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
+  const [spots, setSpots] = useState(347);
+  const [pulse, setPulse] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+
+  // عداد تناقصي يحاكي الاشتراكات اللحظية
+  useEffect(() => {
+    const tick = () => {
+      setSpots(s => {
+        if (s <= 1) return 1;
+        const drop = Math.random() < 0.4 ? 1 : 0;
+        if (drop) setPulse(true);
+        setTimeout(() => setPulse(false), 600);
+        return s - drop;
+      });
+    };
+    const t = setInterval(tick, 9000 + Math.random() * 7000);
+    return () => clearInterval(t);
+  }, []);
+
+  const pct = Math.round((1 - spots / 500) * 100);
+
+  const DEALS = [
+    { label: '٣ حزم', bonus: '+ ٣ مجاناً', total: '٦ أشهر', icon: '🎁', savings: { bronze: 300, gold: 450, diamond: 600 } },
+    { label: '٦ حزم', bonus: '+ ٦ مجاناً', total: 'سنة كاملة', icon: '🔥', savings: { bronze: 600, gold: 900, diamond: 1200 }, best: true },
+    { label: '١٢ حزمة', bonus: '+ ١٢ مجاناً', total: 'سنتان بسعر واحدة', icon: '⚡', savings: { bronze: 1200, gold: 1800, diamond: 2400 } },
+  ];
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6 }}
+      className="mb-10 overflow-hidden rounded-2xl border border-amber-400/25 bg-gradient-to-br from-amber-950/40 via-slate-900/60 to-amber-950/30"
+      style={{ boxShadow: '0 0 60px rgba(251,191,36,0.08), inset 0 1px 0 rgba(251,191,36,0.12)' }}
+    >
+      {/* ── شريط الرأس ── */}
+      <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-amber-400/15 px-6 py-4">
+        <div className="flex items-center gap-3">
+          <span className="animate-pulse text-xl">⚡</span>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-400/70">عرض تشغيلي مؤقت · رواد الألف</p>
+            <h3 className="text-base font-black text-white md:text-lg">مضاعفة الرخص التأسيسية — اشترِ فاحصل على ضعفه مجاناً</h3>
+          </div>
+        </div>
+        {/* عداد المقاعد */}
+        <div className={`flex items-center gap-2 rounded-xl border px-4 py-2 transition-all duration-300 ${pulse ? 'border-red-400/60 bg-red-500/15' : 'border-amber-400/30 bg-amber-500/10'}`}>
+          <span className={`h-2 w-2 rounded-full ${pulse ? 'bg-red-400' : 'bg-amber-400'} animate-pulse`} />
+          <div className="text-right">
+            <p className={`text-xl font-black tabular-nums ${pulse ? 'text-red-300' : 'text-amber-300'}`}>{spots}</p>
+            <p className="text-[0.6rem] text-slate-400">مقعد متبقي من ٥٠٠</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── شريط التقدم ── */}
+      <div className="px-6 pt-3">
+        <div className="mb-1 flex justify-between text-[0.65rem] text-slate-500">
+          <span>٠</span>
+          <span className="text-amber-400/70 font-semibold">{pct}% مكتمل</span>
+          <span>٥٠٠ مشترك</span>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+          <motion.div
+            className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400"
+            initial={{ width: 0 }}
+            animate={inView ? { width: `${pct}%` } : {}}
+            transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
+          />
+        </div>
+      </div>
+
+      {/* ── جدول المضاعفة ── */}
+      <div className="grid gap-3 p-5 md:grid-cols-3">
+        {DEALS.map((d, i) => (
+          <div key={i}
+            className={`relative rounded-xl border p-4 text-center transition-all ${d.best
+              ? 'border-amber-400/50 bg-amber-500/12 shadow-lg shadow-amber-500/10'
+              : 'border-white/8 bg-white/[0.03]'}`}>
+            {d.best && (
+              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-0.5 text-[0.6rem] font-black text-black">
+                الأفضل قيمةً
+              </span>
+            )}
+            <p className="mb-1 text-2xl">{d.icon}</p>
+            <p className="text-lg font-black text-white">{d.label}</p>
+            <p className="text-sm font-bold text-amber-400">{d.bonus}</p>
+            <p className="mt-1 text-[0.65rem] text-slate-400">{d.total} من الظهور الرقمي</p>
+            <div className="mt-3 space-y-0.5 text-[0.62rem] text-slate-500">
+              <p>توفير برونزي: <span className="font-bold text-amber-700">{d.savings.bronze} ر.س</span></p>
+              <p>توفير ذهبي: <span className="font-bold text-amber-400">{d.savings.gold} ر.س</span></p>
+              <p>توفير ماسي: <span className="font-bold text-cyan-400">{d.savings.diamond} ر.س</span></p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── ملاحظات + CTA ── */}
+      <div className="border-t border-white/5 px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1 text-[0.68rem] text-slate-400">
+            <p>✅ ينطبق على جميع الباقات: 🥉 برونزي · 🥇 ذهبي · 💎 ماسي</p>
+            <p>✅ لا عمولات على خدماتك · ظهور جغرافي ذكي عند الطلب فقط</p>
+            <p>🚨 العرض يُغلق عند اكتمال ٥٠٠ مشترك · غير قابل للتمديد</p>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+            onClick={onRegister}
+            className="rounded-xl bg-gradient-to-l from-amber-500 to-yellow-400 px-6 py-2.5 text-sm font-black text-black shadow-lg shadow-amber-500/25"
+          >
+            احجز مقعدك الآن ←
+          </motion.button>
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 // BarberCardPreview حُذِف — يستخدم EndUserBarberBannerSim الحقيقي الآن
@@ -591,6 +712,9 @@ export default function PartnerMarketingPreview() {
             </motion.h2>
             <p className="text-slate-400">مسبقة الدفع · لا تجديد تلقائي · ISIC4 474151</p>
           </div>
+
+          {/* ── العرض التأسيسي لمضاعفة الرخص ── */}
+          <FoundersOfferBanner onRegister={() => navigate(ROUTE_PATHS.PARTNER_REGISTER)} />
 
           <div className="grid gap-5 md:grid-cols-3">
             {/* ── برونزي ── من TIER_MONTHLY_SAR مباشرة */}
