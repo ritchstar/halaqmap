@@ -66,6 +66,7 @@ export const staffTheme = {
   accentMarketingConsumer: 'border-slate-700 border-r-4 border-r-rose-500 bg-slate-800',
   accentMarketingPartner: 'border-slate-700 border-r-4 border-r-sky-500 bg-slate-800',
   accentMedia: 'border-slate-700 border-r-4 border-r-purple-500 bg-slate-800',
+  accentLegal: 'border-slate-700 border-r-4 border-r-yellow-500 bg-slate-800',
   /** Supreme Defense — القائد الأعلى للدفاع السيبراني */
   accentSupremeDefense: 'border-red-900/60 border-r-4 border-r-red-700 bg-slate-950',
 } as const;

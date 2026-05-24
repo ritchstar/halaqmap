@@ -204,6 +204,9 @@
     },
     "api/public-digital-shift-chat.ts": {
       "maxDuration": 50
+    },
+    "api/public-legal-observer-chat.ts": {
+      "maxDuration": 45
     }
   },
   "crons": [

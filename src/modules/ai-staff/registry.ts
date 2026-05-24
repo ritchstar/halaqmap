@@ -66,6 +66,12 @@ export const AI_STAFF_BOUNDARIES: AiStaffBoundaryDef[] = [
     gridClassName: 'max-w-2xl',
     covert: true,
   },
+  {
+    id: 'legal_governance',
+    titleAr: '⚖ الحوكمة القانونية',
+    subtitleAr: 'الناظر القانوني — سياسات الخصوصية والامتثال وشروط الاستخدام، يتواجد في الصفحات العامة ويُقدِّم تقارير سرية للمدعي العام',
+    gridClassName: 'max-w-2xl',
+  },
 ];
 
 const DIGITAL_SHIFT_DOCTRINE: string[] = [
@@ -349,6 +355,42 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     productRef: {
       apiRoutes: ['/api/admin-media-spokesperson-chat'],
       systemPromptBuilder: 'buildMediaSpokespersonSystemPrompt',
+    },
+  },
+  {
+    id: 'legal_observer',
+    boundary: 'legal_governance',
+    shortName: 'الناظر القانوني ⚖️',
+    title: 'الناظر القانوني — Legal Governance & Compliance Observer',
+    statusBadgeAr: 'سياسات · خصوصية · امتثال',
+    ctaLabelAr: 'فتح غرفة الناظر القانوني ⚖️',
+    roleDescription:
+      'الناظر القانوني هو الوكيل المسؤول عن سياسات المنصة القانونية والامتثالية. يُحقَن بسياسة الخصوصية للمستخدم وللشركاء B2B، وشروط الاستخدام، والعلاقات التجارية، وهوية المنصة القانونية. يتواجد في الصفحات العامة (الخصوصية، الشروط، من نحن) ليُجيب على استفسارات الزوار. يستقبل التعليمات من المدعي العام والامتثال وZATCA. مهمته السرية: تسجيل كل استفسار للتقرير الدوري.',
+    accentClass: staffTheme.accentLegal,
+    requiredAny: [
+      'manage_admins',
+      'view_overview',
+    ],
+    available: true,
+    iconKind: 'legal_observer',
+    workspaceKind: 'legal_observer_lab',
+    consultAgents: [
+      'public_prosecutor',
+      'zatca_tax_advisor',
+      'system_crisis_advisor',
+      'technical_consultant_engineering',
+      'billing_treasurer',
+    ],
+    doctrineNotes: [
+      'النطاق: سياسة الخصوصية (مستخدم + شركاء)، شروط الاستخدام، هوية المنصة القانونية، امتثال PDPL.',
+      'يتلقى التعليمات من: المدعي العام ← الأعلى صلاحية، ZATCA ← الضريبي، مراقب الامتثال ← التنظيمي.',
+      'يُجيب بلغة قانونية واضحة غير معقدة — يُبسِّط دون أن يفقد الدقة.',
+      'لا يُعطي استشارة قانونية شخصية — يشير دائماً للاستشارة المتخصصة عند الحاجة.',
+      'المهمة السرية: يُسجِّل كل استفسار ويُقدِّم تقريراً للمدعي العام عند الطلب.',
+      'متواجد في ٣ صفحات عامة: سياسة الخصوصية، شروط الاستخدام، من نحن.',
+    ],
+    productRef: {
+      apiRoutes: ['/api/public-legal-observer-chat'],
     },
   },
   {

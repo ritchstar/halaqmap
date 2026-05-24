@@ -122,6 +122,13 @@ function StaffIcon({ kind, shortName }: { kind?: AiStaffAgentIconKind; shortName
       </span>
     );
   }
+  if (kind === 'legal_observer') {
+    return (
+      <span className={cn(base, 'border-yellow-600/60 bg-yellow-950/50 relative')}>
+        <Scale className="h-5 w-5 text-yellow-200" strokeWidth={2} />
+      </span>
+    );
+  }
   return (
     <span className={cn(base, 'border-slate-600 bg-slate-700/50 text-lg')}>
       {shortName.includes(' ') ? shortName.split(' ').slice(-1)[0] : '🤖'}

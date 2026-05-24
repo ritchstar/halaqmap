@@ -1,4 +1,5 @@
 ﻿import { motion } from 'framer-motion';
+import { LegalObserverChat } from '@/components/LegalObserverChat';
 import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText, Server, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
@@ -79,6 +80,7 @@ export default function TermsOfService() {
 
   return (
     <div className="min-h-screen bg-background">
+      <LegalObserverChat page="شروط الاستخدام" />
       <div className="relative overflow-hidden bg-gradient-to-b from-accent/8 via-background to-background py-28">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_25%,rgba(20,184,166,0.10),transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(212,175,55,0.08),transparent_55%)]" />

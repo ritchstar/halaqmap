@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { MapPin, Target, Eye, Zap, Shield, Award } from "lucide-react";
 import { IMAGES } from "@/assets/images";
+import { LegalObserverChat } from '@/components/LegalObserverChat';
 import {
   PLATFORM_ABOUT_FEATURE_QUALITY,
   PLATFORM_ABOUT_HERO_SUBTITLE,
@@ -68,6 +69,7 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-background">
+      <LegalObserverChat page="من نحن" />
       {/* خلفية التكتير المتحركة */}
       <div className="pointer-events-none fixed inset-0 opacity-[0.025]"
         style={{ backgroundImage: 'linear-gradient(rgba(20,184,166,1) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,1) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
