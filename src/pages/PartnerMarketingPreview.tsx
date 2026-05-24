@@ -48,119 +48,259 @@ function useCounter(end: number, duration = 1800, enabled = true) {
 }
 
 // ─── Founders Offer Banner — العرض التشغيلي التأسيسي لمضاعفة الرخص ────────
+const PRICE_B = 100, PRICE_G = 150, PRICE_D = 200, PRICE_DA = 225;
+
 function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
   const [spots, setSpots] = useState(347);
   const [pulse, setPulse] = useState(false);
+  const [activeRow, setActiveRow] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
 
-  // عداد تناقصي يحاكي الاشتراكات اللحظية
   useEffect(() => {
     const tick = () => {
-      setSpots(s => {
-        if (s <= 1) return 1;
-        const drop = Math.random() < 0.4 ? 1 : 0;
-        if (drop) setPulse(true);
-        setTimeout(() => setPulse(false), 600);
-        return s - drop;
-      });
+      if (Math.random() < 0.45) {
+        setPulse(true);
+        setSpots(s => Math.max(1, s - 1));
+        setTimeout(() => setPulse(false), 700);
+      }
     };
-    const t = setInterval(tick, 9000 + Math.random() * 7000);
+    const t = setInterval(tick, 10000 + Math.random() * 8000);
     return () => clearInterval(t);
   }, []);
 
-  const pct = Math.round((1 - spots / 500) * 100);
+  const pct = Math.round(((500 - spots) / 500) * 100);
 
-  const DEALS = [
-    { label: '٣ حزم', bonus: '+ ٣ مجاناً', total: '٦ أشهر', icon: '🎁', savings: { bronze: 300, gold: 450, diamond: 600 } },
-    { label: '٦ حزم', bonus: '+ ٦ مجاناً', total: 'سنة كاملة', icon: '🔥', savings: { bronze: 600, gold: 900, diamond: 1200 }, best: true },
-    { label: '١٢ حزمة', bonus: '+ ١٢ مجاناً', total: 'سنتان بسعر واحدة', icon: '⚡', savings: { bronze: 1200, gold: 1800, diamond: 2400 } },
+  // صفوف المضاعفة — مرتّبة من الأبسط للأقوى
+  const ROWS = [
+    { n: 3,  icon: '🎁', label: 'اشترِ ٣ حزم', bonus: '+ ٣ حزم مجاناً', months: '٦ أشهر حضور رقمي' },
+    { n: 6,  icon: '🔥', label: 'اشترِ ٦ حزم', bonus: '+ ٦ حزم مجاناً', months: 'سنة كاملة على الرادار', best: true },
+    { n: 12, icon: '⚡', label: 'اشترِ ١٢ حزمة', bonus: '+ ١٢ حزمة مجاناً', months: 'سنتان بسعر سنة واحدة' },
   ];
+
+  // جدول التوفير الكامل لكل تركيبة
+  const savings = (price: number, n: number) => (price * n).toLocaleString('ar-SA');
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6 }}
-      className="mb-10 overflow-hidden rounded-2xl border border-amber-400/25 bg-gradient-to-br from-amber-950/40 via-slate-900/60 to-amber-950/30"
-      style={{ boxShadow: '0 0 60px rgba(251,191,36,0.08), inset 0 1px 0 rgba(251,191,36,0.12)' }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
+      className="relative mb-12 overflow-hidden rounded-3xl"
+      style={{
+        background: 'linear-gradient(135deg, #0c0800 0%, #130d00 40%, #0a0600 100%)',
+        border: '1px solid rgba(251,191,36,0.22)',
+        boxShadow: '0 0 80px rgba(251,191,36,0.10), 0 0 160px rgba(251,191,36,0.04), inset 0 1px 0 rgba(251,191,36,0.15)',
+      }}
     >
-      {/* ── شريط الرأس ── */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-amber-400/15 px-6 py-4">
-        <div className="flex items-center gap-3">
-          <span className="animate-pulse text-xl">⚡</span>
+      {/* ── خلفية توهج ── */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
+        <div className="absolute -top-24 left-1/4 h-48 w-96 rounded-full bg-amber-500/8 blur-[80px]" />
+        <div className="absolute -bottom-12 right-1/4 h-40 w-80 rounded-full bg-yellow-500/6 blur-[70px]" />
+        <motion.div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(135deg, transparent 40%, rgba(251,191,36,0.025) 50%, transparent 60%)' }}
+          animate={{ x: ['-100%', '200%'] }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'linear', repeatDelay: 4 }}
+        />
+      </div>
+
+      {/* ══ الرأس ══ */}
+      <div className="relative border-b border-amber-400/12 px-6 py-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          {/* العنوان */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-amber-400/70">عرض تشغيلي مؤقت · رواد الألف</p>
-            <h3 className="text-base font-black text-white md:text-lg">مضاعفة الرخص التأسيسية — اشترِ فاحصل على ضعفه مجاناً</h3>
-          </div>
-        </div>
-        {/* عداد المقاعد */}
-        <div className={`flex items-center gap-2 rounded-xl border px-4 py-2 transition-all duration-300 ${pulse ? 'border-red-400/60 bg-red-500/15' : 'border-amber-400/30 bg-amber-500/10'}`}>
-          <span className={`h-2 w-2 rounded-full ${pulse ? 'bg-red-400' : 'bg-amber-400'} animate-pulse`} />
-          <div className="text-right">
-            <p className={`text-xl font-black tabular-nums ${pulse ? 'text-red-300' : 'text-amber-300'}`}>{spots}</p>
-            <p className="text-[0.6rem] text-slate-400">مقعد متبقي من ٥٠٠</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── شريط التقدم ── */}
-      <div className="px-6 pt-3">
-        <div className="mb-1 flex justify-between text-[0.65rem] text-slate-500">
-          <span>٠</span>
-          <span className="text-amber-400/70 font-semibold">{pct}% مكتمل</span>
-          <span>٥٠٠ مشترك</span>
-        </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-          <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400"
-            initial={{ width: 0 }}
-            animate={inView ? { width: `${pct}%` } : {}}
-            transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
-          />
-        </div>
-      </div>
-
-      {/* ── جدول المضاعفة ── */}
-      <div className="grid gap-3 p-5 md:grid-cols-3">
-        {DEALS.map((d, i) => (
-          <div key={i}
-            className={`relative rounded-xl border p-4 text-center transition-all ${d.best
-              ? 'border-amber-400/50 bg-amber-500/12 shadow-lg shadow-amber-500/10'
-              : 'border-white/8 bg-white/[0.03]'}`}>
-            {d.best && (
-              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-0.5 text-[0.6rem] font-black text-black">
-                الأفضل قيمةً
+            <div className="mb-1.5 flex items-center gap-2">
+              <motion.span
+                animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 1.8, repeat: Infinity }}
+                className="text-lg"
+              >⚡</motion.span>
+              <span className="rounded-full border border-amber-400/30 bg-amber-500/12 px-3 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.2em] text-amber-400">
+                عرض تشغيلي مؤقت · رواد الألف
               </span>
-            )}
-            <p className="mb-1 text-2xl">{d.icon}</p>
-            <p className="text-lg font-black text-white">{d.label}</p>
-            <p className="text-sm font-bold text-amber-400">{d.bonus}</p>
-            <p className="mt-1 text-[0.65rem] text-slate-400">{d.total} من الظهور الرقمي</p>
-            <div className="mt-3 space-y-0.5 text-[0.62rem] text-slate-500">
-              <p>توفير برونزي: <span className="font-bold text-amber-700">{d.savings.bronze} ر.س</span></p>
-              <p>توفير ذهبي: <span className="font-bold text-amber-400">{d.savings.gold} ر.س</span></p>
-              <p>توفير ماسي: <span className="font-bold text-cyan-400">{d.savings.diamond} ر.س</span></p>
             </div>
+            <h3 className="text-xl font-black leading-tight text-white md:text-2xl">
+              مضاعفة الرخص التأسيسية
+            </h3>
+            <p className="mt-0.5 text-sm text-amber-300/70">
+              اشترِ أي حزمة واحصل على ضعفها مجاناً — ينطبق على جميع الباقات
+            </p>
           </div>
-        ))}
+          {/* عداد المقاعد المتبقية */}
+          <motion.div
+            animate={pulse ? { scale: [1, 1.06, 1] } : {}}
+            transition={{ duration: 0.3 }}
+            className={`flex items-center gap-3 rounded-2xl border px-5 py-3 transition-all duration-500 ${
+              pulse ? 'border-red-400/50 bg-red-500/12 shadow-[0_0_20px_rgba(239,68,68,0.20)]'
+                    : 'border-amber-400/25 bg-amber-500/8'
+            }`}
+          >
+            <div className="text-right">
+              <div className={`text-3xl font-black tabular-nums leading-none ${pulse ? 'text-red-300' : 'text-amber-300'}`}>
+                {spots}
+              </div>
+              <div className="text-[0.58rem] text-slate-400">مقعد متبقي</div>
+              <div className="text-[0.55rem] text-slate-600">من إجمالي ٥٠٠</div>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <motion.div
+                className={`h-2.5 w-2.5 rounded-full ${pulse ? 'bg-red-400' : 'bg-amber-400'}`}
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+              />
+              <span className="text-[0.5rem] text-slate-500 rotate-90 mt-1">LIVE</span>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* شريط التقدم */}
+        <div className="mt-4">
+          <div className="mb-1 flex items-center justify-between text-[0.62rem]">
+            <span className="text-slate-600">٠ مشترك</span>
+            <span className={`font-bold ${pct >= 80 ? 'text-red-400' : 'text-amber-400/80'}`}>
+              {pct}% مُحجوز
+            </span>
+            <span className="text-slate-600">٥٠٠ مشترك</span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800/80">
+            <motion.div
+              className="h-full rounded-full"
+              style={{
+                background: pct >= 80
+                  ? 'linear-gradient(90deg, #ef4444, #f97316)'
+                  : 'linear-gradient(90deg, #d97706, #fbbf24, #fde68a)',
+                boxShadow: '0 0 8px rgba(251,191,36,0.5)',
+              }}
+              initial={{ width: 0 }}
+              animate={inView ? { width: `${pct}%` } : {}}
+              transition={{ duration: 1.4, delay: 0.3, ease: 'easeOut' }}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* ── ملاحظات + CTA ── */}
-      <div className="border-t border-white/5 px-6 py-4">
+      {/* ══ صفوف مستويات المضاعفة ══ */}
+      <div className="relative px-6 py-5">
+        <div className="mb-4 flex items-center gap-2">
+          <div className="h-px flex-1 bg-gradient-to-l from-amber-400/20 to-transparent" />
+          <span className="text-[0.65rem] font-bold tracking-widest text-amber-400/50">مستويات المضاعفة</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-amber-400/20 to-transparent" />
+        </div>
+
+        <div className="space-y-3">
+          {ROWS.map((row, i) => (
+            <motion.div
+              key={i}
+              onHoverStart={() => setActiveRow(i)}
+              onHoverEnd={() => setActiveRow(null)}
+              className={`relative overflow-hidden rounded-2xl border transition-all duration-300 cursor-default ${
+                row.best
+                  ? 'border-amber-400/45 bg-amber-500/10 shadow-[0_0_24px_rgba(251,191,36,0.10)]'
+                  : activeRow === i
+                    ? 'border-amber-400/25 bg-amber-500/5'
+                    : 'border-white/6 bg-white/[0.02]'
+              }`}
+            >
+              {row.best && (
+                <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-2xl bg-amber-400 px-3 py-0.5 text-[0.58rem] font-black text-black">
+                  الأفضل قيمةً ✦
+                </div>
+              )}
+              <div className="flex items-center gap-4 px-5 py-4">
+                {/* الأيقونة */}
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ${
+                  row.best ? 'bg-amber-500/20 shadow-[0_0_16px_rgba(251,191,36,0.20)]' : 'bg-white/5'
+                }`}>
+                  {row.icon}
+                </div>
+                {/* النص الرئيسي */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-black text-white">{row.label}</span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-black ${
+                      row.best ? 'bg-amber-400/20 text-amber-300' : 'bg-white/8 text-slate-300'
+                    }`}>{row.bonus}</span>
+                  </div>
+                  <p className="mt-0.5 text-[0.7rem] text-slate-400">{row.months}</p>
+                </div>
+                {/* التوفير لكل باقة */}
+                <div className="hidden shrink-0 items-center gap-3 md:flex">
+                  {[
+                    { label: '🥉', price: PRICE_B, color: 'text-amber-700' },
+                    { label: '🥇', price: PRICE_G, color: 'text-amber-400' },
+                    { label: '💎', price: PRICE_D, color: 'text-cyan-400' },
+                    { label: '💎🌙', price: PRICE_DA, color: 'text-violet-400' },
+                  ].map(t => (
+                    <div key={t.label} className="text-center">
+                      <div className="text-[0.55rem]">{t.label}</div>
+                      <div className={`text-xs font-black tabular-nums ${t.color}`}>
+                        {savings(t.price, row.n)} ر.س
+                      </div>
+                      <div className="text-[0.48rem] text-slate-600">توفير</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* جوال: التوفير في صف منفصل */}
+              <div className="flex items-center gap-3 border-t border-white/5 px-5 py-2.5 md:hidden">
+                <span className="text-[0.6rem] text-slate-500">التوفير:</span>
+                {[
+                  { label: '🥉 برونزي', price: PRICE_B, color: 'text-amber-700' },
+                  { label: '🥇 ذهبي', price: PRICE_G, color: 'text-amber-400' },
+                  { label: '💎 ماسي', price: PRICE_D, color: 'text-cyan-400' },
+                  { label: '💎🌙 ماسي+مناوب', price: PRICE_DA, color: 'text-violet-400' },
+                ].map(t => (
+                  <div key={t.label} className="text-center">
+                    <div className={`text-[0.6rem] font-black ${t.color}`}>{savings(t.price, row.n)}</div>
+                    <div className="text-[0.5rem] text-slate-600">{t.label}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* أعمدة التوفير — تعليق توضيحي desktop */}
+        <div className="mt-2 hidden justify-end gap-3 pr-5 md:flex">
+          {['🥉 برونزي', '🥇 ذهبي', '💎 ماسي', '💎🌙 +مناوب'].map(l => (
+            <div key={l} className="w-14 text-center text-[0.5rem] text-slate-600">{l}</div>
+          ))}
+        </div>
+      </div>
+
+      {/* ══ الفوتر: الشروط + CTA ══ */}
+      <div className="relative border-t border-amber-400/10 px-6 py-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-1 text-[0.68rem] text-slate-400">
-            <p>✅ ينطبق على جميع الباقات: 🥉 برونزي · 🥇 ذهبي · 💎 ماسي</p>
-            <p>✅ لا عمولات على خدماتك · ظهور جغرافي ذكي عند الطلب فقط</p>
-            <p>🚨 العرض يُغلق عند اكتمال ٥٠٠ مشترك · غير قابل للتمديد</p>
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.67rem] text-slate-400">
+              <span>✅ ينطبق على جميع الباقات الأربع</span>
+              <span>✅ لا عمولات على خدماتك</span>
+              <span>✅ ظهور جغرافي ذكي عند الطلب</span>
+            </div>
+            <p className="text-[0.62rem] text-amber-500/50">
+              🚨 العرض حصري لأول ٥٠٠ مشترك فقط — يُغلق فور اكتمال العدد ولا يُمدَّد
+            </p>
           </div>
           <motion.button
-            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+            type="button"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onRegister}
-            className="rounded-xl bg-gradient-to-l from-amber-500 to-yellow-400 px-6 py-2.5 text-sm font-black text-black shadow-lg shadow-amber-500/25"
+            className="relative overflow-hidden rounded-2xl px-8 py-3.5 text-sm font-black text-black shadow-[0_4px_28px_rgba(251,191,36,0.40)]"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #fbbf24, #fde68a)' }}
           >
-            احجز مقعدك الآن ←
+            <motion.div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(135deg, transparent 35%, rgba(255,255,255,0.25) 50%, transparent 65%)' }}
+              animate={{ x: ['-100%', '200%'] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
+            />
+            <span className="relative flex items-center gap-2">
+              احجز مقعدك الآن
+              <ArrowLeft className="h-4 w-4" />
+            </span>
           </motion.button>
         </div>
       </div>
@@ -714,7 +854,7 @@ export default function PartnerMarketingPreview() {
           </div>
 
           {/* ── العرض التأسيسي لمضاعفة الرخص ── */}
-          <FoundersOfferBanner onRegister={() => navigate(ROUTE_PATHS.PARTNER_REGISTER)} />
+          <FoundersOfferBanner onRegister={() => navigate(ROUTE_PATHS.REGISTER)} />
 
           <div className="grid gap-5 md:grid-cols-3">
             {/* ── برونزي ── من TIER_MONTHLY_SAR مباشرة */}
