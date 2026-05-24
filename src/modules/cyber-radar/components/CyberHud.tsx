@@ -11,7 +11,6 @@ import { useMemo, useState } from 'react';
 import {
   Activity,
   AlertOctagon,
-  Briefcase,
   Crown,
   Globe2,
   Pause,
@@ -159,21 +158,21 @@ export function CyberStatsStrip({
 // ============================================================================
 
 const AGENT_ICONS = {
-  public_prosecutor: Crown,
-  compliance: Shield,
-  engineering: Wrench,
-  partner_liaison: Briefcase,
-  ops_controller: Activity,
-  cyber_defense: ShieldAlert,
+  public_prosecutor: Crown,       // المُدّعي العام — جنائي وقانوني
+  compliance: Shield,             // مراقب الامتثال — معايير أمنية
+  engineering: Wrench,            // الجناح الهندسي — البنية التحتية
+  ops_controller: Activity,       // مراقب العمليات — رصد لحظي
+  cyber_defense: ShieldAlert,     // قائد الدفاع السيبراني — الدور المحوري
+  covert_sovereign: Globe2,       // السيادة الخفية — استخبارات وقناة مشفرة
 } as const;
 
 const AGENT_ACCENT = {
   public_prosecutor: 'border-amber-400/60 bg-amber-500/10 text-amber-100',
-  compliance: 'border-sky-400/50 bg-sky-500/10 text-sky-100',
-  engineering: 'border-emerald-400/50 bg-emerald-500/10 text-emerald-100',
-  partner_liaison: 'border-violet-400/50 bg-violet-500/10 text-violet-100',
-  ops_controller: 'border-rose-400/50 bg-rose-500/10 text-rose-100',
-  cyber_defense: 'border-cyan-400/60 bg-cyan-950/35 text-cyan-100',
+  compliance:        'border-sky-400/50  bg-sky-500/10  text-sky-100',
+  engineering:       'border-emerald-400/50 bg-emerald-500/10 text-emerald-100',
+  ops_controller:    'border-rose-400/50 bg-rose-500/10 text-rose-100',
+  cyber_defense:     'border-cyan-400/60 bg-cyan-950/35 text-cyan-100',
+  covert_sovereign:  'border-purple-500/55 bg-purple-950/35 text-purple-100',
 } as const;
 
 export function AgentResponseFeed({ entries }: { entries: ReadonlyArray<CyberAgentResponse> }) {

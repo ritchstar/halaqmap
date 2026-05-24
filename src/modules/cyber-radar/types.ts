@@ -50,7 +50,13 @@ export type CyberEvent = {
 export type CyberAgentResponse = {
   id: string;
   /** Agent identifier — drives colour / icon. */
-  agentId: 'public_prosecutor' | 'compliance' | 'engineering' | 'partner_liaison' | 'ops_controller';
+  agentId:
+    | 'public_prosecutor'   // المُدّعي العام — جنائي وقانوني
+    | 'compliance'          // مراقب الامتثال — معايير أمنية
+    | 'engineering'         // الجناح الهندسي — البنية التحتية
+    | 'ops_controller'      // مراقب العمليات — رصد لحظي
+    | 'cyber_defense'       // قائد الدفاع السيبراني — الدور المحوري
+    | 'covert_sovereign';   // السيادة الخفية — استخبارات وقناة مشفرة
   agentLabelAr: string;
   /** Short action verb shown in the badge (e.g. "تفعيل Rate-Limit"). */
   actionLabelAr: string;

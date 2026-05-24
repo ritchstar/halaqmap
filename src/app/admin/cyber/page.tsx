@@ -353,11 +353,11 @@ const AMBIENT_SET_ANALYSIS: CyberAgentResponse[] = [
   },
   {
     id: 'live-a2',
-    agentId: 'partner_liaison',
-    agentLabelAr: 'مُنسّق الشركاء',
-    actionLabelAr: 'مُتابعة التفعيلات',
+    agentId: 'covert_sovereign',
+    agentLabelAr: 'السيادة الخفية',
+    actionLabelAr: 'مراقبة القنوات الخلفية',
     explanationAr:
-      'آخر 6 ساعات: 14 طلب تفعيل رخصة جديدة، جميعها من مناطق جديدة (الطائف، خميس مشيط، الجوف). النمو مُتسارع.',
+      'قناة الاستخبارات نَشطة — أَرصُد 14 عُقدة مناوبة عَبر القناة الخَلفية المُشَفَّرة. لا اختراقات داخلية مَرصودة. المَنفَذ السري في حالة الاستعداد الكاملة.',
     severity: 'info',
     timestamp: ts(),
   },
