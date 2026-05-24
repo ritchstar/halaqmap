@@ -301,7 +301,16 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       {/* لا مدير مبيعات على صفحات الخصوصية والسياسات — الناظر القانوني مُضمَّن فيها */}
       {![ROUTE_PATHS.PARTNER_PRIVACY, ROUTE_PATHS.SUBSCRIPTION_POLICY].includes(
         location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY
-      ) && <B2BSalesManagerChat />}
+      ) && (
+        <B2BSalesManagerChat
+          startMinimized={[
+            ROUTE_PATHS.REGISTER,
+            ROUTE_PATHS.REGISTER_SUCCESS,
+            ROUTE_PATHS.BARBER_LOGIN,
+            ROUTE_PATHS.BARBER_PORTAL_ENTER,
+          ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
+        />
+      )}
 
       {/* شريط تنقّل سفلي للجوال — نمط تطبيق */}
       <nav

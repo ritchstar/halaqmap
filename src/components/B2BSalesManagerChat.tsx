@@ -115,11 +115,11 @@ function OfficeIcon({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
  * mode="panel" → لوحة ثابتة أسفل يسار الشاشة (لصفحات PartnerLayout)
  * mode="inline" → مدمج داخل تصميم الصفحة بلا fixed (لـ PartnerMarketingPreview)
  */
-export function B2BSalesManagerChat({ mode = 'panel' }: { mode?: 'panel' | 'inline' }) {
+export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: { mode?: 'panel' | 'inline'; startMinimized?: boolean }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [pitchIdx, setPitchIdx] = useState(0);
-  const [minimized, setMinimized] = useState(false);
+  const [minimized, setMinimized] = useState(startMinimized);
   const [turns, setTurns] = useState<Turn[]>([
     { role: 'assistant', content: getGreeting(), id: 'welcome' },
   ]);
