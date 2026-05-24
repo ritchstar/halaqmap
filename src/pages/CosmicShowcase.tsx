@@ -3,8 +3,7 @@
  * Route: /cosmic
  *
  * بلا محور مركزي — الأداء يملأ الشاشة بالكامل
- * 18+ طبقة بصرية + منظومة صوتية كاملة عبر Web Audio API
- * لا شعار في الوسط — فقط الاستعراض التقني والأصوات
+ * 18+ طبقة بصرية | بدون صوت
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -27,7 +26,7 @@ const CLINES = [[0,1],[1,2],[2,3],[3,4],[0,5],[1,5],[2,6],[3,7],[4,7],[5,8],[6,9
 const DATA = '01アBالرياض10ABCXYZحلاق01マップKSA';
 const RAIN  = Array.from({length:26},(_, i)=>({ x:(i/26)*100, speed:7+(i%5)*3, delay:(i*.7)%9, chars:Array.from({length:20},(_, j)=>DATA[(i*3+j*7)%DATA.length]) }));
 
-// Distributed pulse centers (not centered!)
+// Distributed pulse centers
 const PULSE_CENTERS = [
   { x:20, y:22, color:'#0ff', size:180, dur:14 },
   { x:75, y:70, color:'#8b00ff', size:220, dur:20 },
@@ -38,186 +37,28 @@ const ORBIT_CENTERS = [
   { x:82, y:30, rings:[{ w:100, c:'#fa0', dur:12 }, { w:150, c:'#0ff', dur:18 }] },
 ];
 
-// ─── WEB AUDIO ENGINE ─────────────────────────────────────────────────────────
-function createReverb(ctx: AudioContext) {
-  const len = ctx.sampleRate * 3;
-  const buf = ctx.createBuffer(2, len, ctx.sampleRate);
-  for (let ch = 0; ch < 2; ch++) {
-    const d = buf.getChannelData(ch);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
-  }
-  const conv = ctx.createConvolver();
-  conv.buffer = buf;
-  return conv;
-}
-
-function useCosmicAudio(audioOn: boolean, shooterEvent: number, supernovaEvent: boolean, wormholeEvent: boolean) {
-  const ctxRef = useRef<AudioContext | null>(null);
-  const droneSrc = useRef<OscillatorNode | null>(null);
-  const padSrc   = useRef<OscillatorNode[]>([]);
-  const reverbRef = useRef<ConveroNode | null>(null);
-  const masterRef = useRef<GainNode | null>(null);
-
-  const init = useCallback(() => {
-    if (ctxRef.current) return;
-    const ctx = new AudioContext();
-    ctxRef.current = ctx;
-
-    // Master gain
-    const master = ctx.createGain();
-    master.gain.value = 0.6;
-    master.connect(ctx.destination);
-    masterRef.current = master;
-
-    // Reverb
-    const reverb = createReverb(ctx);
-    const reverbGain = ctx.createGain();
-    reverbGain.gain.value = 0.4;
-    reverb.connect(reverbGain);
-    reverbGain.connect(master);
-    reverbRef.current = reverb as unknown as ConveroNode;
-
-    // ── Ambient drone (40Hz + 80Hz)
-    [40, 80, 53].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      const lfo = ctx.createOscillator();
-      const lfog = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      lfo.frequency.value = 0.05 + i * 0.03;
-      lfog.gain.value = freq * 0.04;
-      g.gain.value = [0.3, 0.15, 0.1][i];
-      lfo.connect(lfog); lfog.connect(osc.frequency);
-      osc.connect(g); g.connect(master); g.connect(reverb);
-      lfo.start(); osc.start();
-    });
-
-    // ── Aurora pad (evolving chord A2 C#3 E3 G3)
-    [110, 138.6, 165, 196].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      const lfo = ctx.createOscillator();
-      const lg  = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = freq;
-      g.gain.value = 0.06;
-      lfo.frequency.value = 0.07 + i * 0.02;
-      lg.gain.value = 4;
-      lfo.connect(lg); lg.connect(osc.frequency);
-      osc.connect(g); g.connect(reverb); g.connect(master);
-      lfo.start(); osc.start();
-      padSrc.current.push(osc);
-    });
-
-    // ── Neural hum (pulsing 220Hz)
-    const neural = ctx.createOscillator();
-    const neuralG = ctx.createGain();
-    const neuralLFO = ctx.createOscillator();
-    const neuralLG  = ctx.createGain();
-    neural.type = 'sine';
-    neural.frequency.value = 220;
-    neuralLFO.frequency.value = 0.4;
-    neuralLG.gain.value = 0.05;
-    neuralG.gain.value = 0.04;
-    neuralLFO.connect(neuralLG); neuralLG.connect(neuralG.gain);
-    neural.connect(neuralG); neuralG.connect(reverb);
-    neuralLFO.start(); neural.start();
-  }, []);
-
-  // Shooting star sound
-  useEffect(() => {
-    if (!audioOn || !ctxRef.current || !shooterEvent) return;
-    const ctx = ctxRef.current;
-    const osc = ctx.createOscillator();
-    const g   = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(900 + Math.random() * 400, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 1.2);
-    g.gain.setValueAtTime(0.15, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(); osc.stop(ctx.currentTime + 1.2);
-  }, [audioOn, shooterEvent]);
-
-  // Supernova sound
-  useEffect(() => {
-    if (!audioOn || !ctxRef.current || !supernovaEvent) return;
-    const ctx = ctxRef.current;
-    const bufSize = ctx.sampleRate * 2.5;
-    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufSize, 1.5);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const g = ctx.createGain();
-    const f = ctx.createBiquadFilter();
-    f.type = 'lowpass'; f.frequency.value = 600;
-    g.gain.setValueAtTime(1.2, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
-    src.connect(f); f.connect(g); g.connect(ctx.destination);
-    src.start(); src.stop(ctx.currentTime + 2.5);
-    // Sub-bass kick
-    const kick = ctx.createOscillator();
-    const kg = ctx.createGain();
-    kick.frequency.setValueAtTime(80, ctx.currentTime);
-    kick.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.5);
-    kg.gain.setValueAtTime(1.5, ctx.currentTime);
-    kg.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-    kick.connect(kg); kg.connect(ctx.destination);
-    kick.start(); kick.stop(ctx.currentTime + 0.8);
-  }, [audioOn, supernovaEvent]);
-
-  // Wormhole sound
-  useEffect(() => {
-    if (!audioOn || !ctxRef.current || !wormholeEvent) return;
-    const ctx = ctxRef.current;
-    [30, 45, 60].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      osc.frequency.linearRampToValueAtTime(freq * 0.3, ctx.currentTime + 5);
-      g.gain.setValueAtTime(0, ctx.currentTime + i * 0.3);
-      g.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 1 + i * 0.3);
-      g.gain.linearRampToValueAtTime(0, ctx.currentTime + 5);
-      osc.connect(g); g.connect(ctx.destination);
-      osc.start(); osc.stop(ctx.currentTime + 5);
-    });
-  }, [audioOn, wormholeEvent]);
-
-  useEffect(() => {
-    if (audioOn) init();
-  }, [audioOn, init]);
-
-  return { init };
-}
-
-// ─── Main page ─────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 type Shooter = { id: number; angle: number; x: number; y: number; dur: number; color: string };
 type Comet   = { id: number; x: number; y: number; angle: number; len: number; color: string };
 
+// ─── Main page ─────────────────────────────────────────────────────────────────
 export default function CosmicShowcase() {
-  const [audioOn, setAudioOn]     = useState(false);
-  const [showAudioBtn, setShowBtn]= useState(true);
   const [mouse, setMouse]         = useState({ x: 0, y: 0 });
   const [shooters, setShooters]   = useState<Shooter[]>([]);
   const [comets, setComets]       = useState<Comet[]>([]);
   const [supernova, setSupernova] = useState(false);
   const [wormholePos, setWormhole]= useState<{ x: number; y: number } | null>(null);
-  const [chromatic, setChromatic] = useState(false);
-  const [shootTick, setShootTick] = useState(0);
-  const [snovaTick, setSnovaTick] = useState(0);
-  const [whTick, setWhTick]       = useState(0);
+  const [pings, setPings]         = useState<{ id: number; x: number; y: number }[]>([]);
   const shootId = useRef(0);
   const cometId = useRef(0);
-
-  useCosmicAudio(audioOn, shootTick, supernova, !!wormholePos);
 
   const handleMouse = useCallback((e: MouseEvent) => {
     setMouse({ x: (e.clientX / window.innerWidth - .5) * 2, y: (e.clientY / window.innerHeight - .5) * 2 });
   }, []);
-  useEffect(() => { window.addEventListener('mousemove', handleMouse, { passive: true }); return () => window.removeEventListener('mousemove', handleMouse); }, [handleMouse]);
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouse, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouse);
+  }, [handleMouse]);
 
   // Shooting stars
   useEffect(() => {
@@ -226,7 +67,6 @@ export default function CosmicShowcase() {
       const id = ++shootId.current;
       const color = COLS[Math.floor(Math.random() * COLS.length)];
       setShooters(p => [...p.slice(-8), { id, angle: -15 - Math.random()*50, x: Math.random()*80, y: Math.random()*45, dur: .8+Math.random()*1.4, color }]);
-      setShootTick(t => t + 1);
       setTimeout(() => setShooters(p => p.filter(s => s.id !== id)), 2200);
     };
     const t = setInterval(add, 2200 + Math.random() * 3800);
@@ -249,10 +89,10 @@ export default function CosmicShowcase() {
 
   // Supernova
   useEffect(() => {
-    const fire = () => { setSupernova(true); setSnovaTick(t => t+1); setTimeout(() => setSupernova(false), 1800); };
-    setTimeout(fire, 6000);
-    const t = setInterval(fire, 32000);
-    return () => clearInterval(t);
+    const fire = () => { setSupernova(true); setTimeout(() => setSupernova(false), 1800); };
+    const t1 = setTimeout(fire, 6000);
+    const t2 = setInterval(fire, 32000);
+    return () => { clearTimeout(t1); clearInterval(t2); };
   }, []);
 
   // Wormhole — random position
@@ -260,23 +100,15 @@ export default function CosmicShowcase() {
     const show = () => {
       const x = 20 + Math.random() * 60;
       const y = 15 + Math.random() * 55;
-      setWormhole({ x, y }); setWhTick(t => t+1);
+      setWormhole({ x, y });
       setTimeout(() => setWormhole(null), 5000);
     };
-    setTimeout(show, 20000);
-    const t = setInterval(show, 48000);
-    return () => clearInterval(t);
+    const t1 = setTimeout(show, 20000);
+    const t2 = setInterval(show, 48000);
+    return () => { clearTimeout(t1); clearInterval(t2); };
   }, []);
 
-  // Chromatic aberration
-  useEffect(() => {
-    const t = setInterval(() => { setChromatic(true); setTimeout(() => setChromatic(false), 700); }, 22000);
-    setTimeout(() => { setChromatic(true); setTimeout(() => setChromatic(false), 700); }, 10000);
-    return () => clearInterval(t);
-  }, []);
-
-  // Periodic stellar pings (visual sparkles)
-  const [pings, setPings] = useState<{ id: number; x: number; y: number }[]>([]);
+  // Stellar pings
   useEffect(() => {
     let pid = 0;
     const t = setInterval(() => {
@@ -309,9 +141,6 @@ export default function CosmicShowcase() {
         @keyframes neural-pulse{0%,100%{stroke-opacity:.1;stroke-dashoffset:200}50%{stroke-opacity:.55;stroke-dashoffset:0}}
         @keyframes grid-breathe{0%,100%{opacity:.07}50%{opacity:.18}}
         @keyframes ping-star{0%{transform:scale(0);opacity:1}100%{transform:scale(2.5);opacity:0}}
-        @keyframes aurora-glow{0%,100%{opacity:.55}50%{opacity:.85}}
-        @keyframes chroma{0%{text-shadow:-8px 0 12px #f00,8px 0 12px #00f}50%{text-shadow:-14px 0 22px #f00,14px 0 22px #00f}100%{text-shadow:-8px 0 12px #f00,8px 0 12px #00f}}
-        @keyframes waveform{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
       `}</style>
 
       {/* ── L1: Nebulae ─────────────────────────────────────────────────── */}
@@ -367,7 +196,7 @@ export default function CosmicShowcase() {
       {/* ── L5: Constellation ────────────────────────────────────────────── */}
       <svg className="pointer-events-none absolute inset-0" style={{ width:'100%', height:'100%', transform:`translate(${px*-22}px,${py*-15}px)` }}
         viewBox="0 0 100 100" preserveAspectRatio="none">
-        {CLINES.map(([a,b],i)=><line key={i} x1={CONSTS[a][0]} y1={CONSTS[a][1]} x2={CONSTS[b][0]} y2={CONSTS[b][1]} stroke="#0ff" strokeWidth=".15" strokeOpacity=".35" strokeDasharray="200" style={{strokeDashoffset:`${200-i*8}`,transition:'all 1s'}}/>)}
+        {CLINES.map(([a,b],i)=><line key={i} x1={CONSTS[a][0]} y1={CONSTS[a][1]} x2={CONSTS[b][0]} y2={CONSTS[b][1]} stroke="#0ff" strokeWidth=".15" strokeOpacity=".35" strokeDasharray="200" style={{strokeDashoffset:`${200-i*8}`}}/>)}
         {CONSTS.map(([x,y],i)=><circle key={i} cx={x} cy={y} r=".7" fill="#7df3ff" opacity=".75" style={{animation:`twinkle ${3+i%3}s ease-in-out infinite`,animationDelay:`${i*.35}s`}}/>)}
       </svg>
 
@@ -412,7 +241,7 @@ export default function CosmicShowcase() {
         ))}
       </div>
 
-      {/* ── L10: Einstein Rings (multiple centers) ───────────────────────── */}
+      {/* ── L10: Einstein Rings ───────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0" style={{ zIndex:5 }}>
         {[[30,40],[65,70],[80,20],[15,75]].map(([cx,cy], pi) =>
           [1,2,3].map(i=>(
@@ -456,7 +285,7 @@ export default function CosmicShowcase() {
         </div>
       ))}
 
-      {/* ── L14: Wormhole — random position ─────────────────────────────── */}
+      {/* ── L14: Wormhole ────────────────────────────────────────────────── */}
       <AnimatePresence>
         {wormholePos && (
           <motion.div style={{ position:'absolute', left:`${wormholePos.x}%`, top:`${wormholePos.y}%`,
@@ -487,36 +316,6 @@ export default function CosmicShowcase() {
         </div>
       </div>
 
-      {/* ── AUDIO BUTTON ─────────────────────────────────────────────────── */}
-      <AnimatePresence>
-        {showAudioBtn && !audioOn && (
-          <motion.div
-            initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:10 }}
-            transition={{ delay:1.5 }}
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ zIndex:50, background:'rgba(0,0,8,0.55)', backdropFilter:'blur(4px)' }}
-          >
-            <motion.button
-              onClick={() => { setAudioOn(true); setShowBtn(false); }}
-              whileHover={{ scale:1.06 }} whileTap={{ scale:.94 }}
-              className="flex flex-col items-center gap-3 rounded-3xl px-10 py-7"
-              style={{ background:'rgba(0,255,255,0.06)', border:'1px solid rgba(0,255,255,0.35)', boxShadow:'0 0 40px rgba(0,255,255,0.20)', color:'#fff' }}
-            >
-              <span style={{ fontSize:'3rem' }}>🔊</span>
-              <span style={{ fontSize:'.9rem', fontFamily:'monospace', letterSpacing:'.2em', color:'#0ff' }}>ACTIVATE AUDIO</span>
-              <span style={{ fontSize:'.65rem', color:'rgba(0,255,255,.5)', letterSpacing:'.15em' }}>انقر لتفعيل الصوت الكوني</span>
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Audio OFF button */}
-      {audioOn && (
-        <button onClick={() => setAudioOn(false)}
-          style={{ position:'absolute', top:16, left:16, zIndex:40, background:'rgba(0,255,255,.08)', border:'1px solid rgba(0,255,255,.25)', borderRadius:'50%', width:40, height:40, color:'#0ff', fontSize:'1.1rem', cursor:'pointer' }}
-          title="إيقاف الصوت">🔇</button>
-      )}
-
       {/* ── BOTTOM-LEFT TEXT ─────────────────────────────────────────────── */}
       <div style={{ position:'absolute', bottom:16, left:16, zIndex:20 }}>
         <p style={{ color:'rgba(0,255,255,.32)', fontSize:'.6rem', fontFamily:'monospace', letterSpacing:'.14em', lineHeight:1.7 }}>
@@ -536,6 +335,3 @@ export default function CosmicShowcase() {
     </div>
   );
 }
-
-// Type workaround for ConvolverNode ref
-type ConveroNode = ConvolverNode;
