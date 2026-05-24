@@ -22,6 +22,19 @@ export const PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT = {
     'أهلاً فيك يا طويل العمر 🌟 عندنا كرسي فاضي الحين مع أحد فريقنا الجاهزين — ثبتّ لك الموعد على طول وأرسلت لك تأكيد الوصول. تشرفنا فيك ونكون بانتظارك!',
 } as const;
 
+export const PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE = {
+  eyebrow: '🌙 المكتب الخاص — Diamond حصراً',
+  title: 'مساعدك التشغيلي الشخصي داخل لوحة التحكم',
+  bullets: [
+    { icon: '📋', label: 'تعليمات دائمة', desc: 'أعطِ المناوب تعليمات تُطبَّق تلقائياً مع كل زبون' },
+    { icon: '✅', label: 'قائمة مهام', desc: 'سجّل مهامك التشغيلية وتابع إنجازها بضغطة واحدة' },
+    { icon: '💳', label: 'رصيد الحزمة', desc: 'اعرف كم يوم تبقّى ورابط التجديد في ثانية' },
+    { icon: '🆘', label: 'دعم فوري', desc: 'رابط الدعم الفني مباشرة داخل المحادثة' },
+    { icon: '🔔', label: 'تنبيه الانتهاء', desc: 'تحذير ذكي قبل انتهاء الرخصة بـ14 يوم' },
+    { icon: '🔒', label: 'محادثة خاصة', desc: 'حصراً للحلاق — لا يراها الزبائن أبداً' },
+  ],
+} as const;
+
 export type DashboardNeonToolId = 'live_schedule' | 'chairs_staff' | 'shifts';
 
 export type DashboardNeonToolConfig = {

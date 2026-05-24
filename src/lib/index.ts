@@ -60,6 +60,8 @@ export const ROUTE_PATHS = {
   PLATFORM_REVIEWS: '/reviews',
   /** مركز الوكلاء — صفحة مستقلة لبقية الوكلاء */
   ADMIN_STAFF_HUB: '/staff-hub',
+  /** شرح مفصّل للمناوب الرقمي الذكي */
+  DIGITAL_SHIFT_FEATURE: '/partners/digital-shift',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

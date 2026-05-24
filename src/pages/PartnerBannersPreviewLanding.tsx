@@ -19,7 +19,9 @@ import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/End
 import {
   PARTNER_FEATURE_PREVIEW_DASHBOARD,
   PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT,
+  PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE,
 } from '@/config/partnerFeaturePreviewsCopy';
+import { NavLink as NavLinkDom } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   PLATFORM_IDENTITY_BADGE_AR,
@@ -187,6 +189,56 @@ export default function PartnerBannersPreviewLanding() {
           </div>
 
           <DigitalShiftAdminTrainingPreview />
+        </motion.section>
+
+        {/* ══ المكتب الخاص — ميزة Diamond الجديدة ══ */}
+        <motion.section
+          initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.55, delay: 0.06 }}
+          className="overflow-hidden rounded-3xl border border-violet-500/25 pt-0"
+          style={{ background: 'linear-gradient(145deg,#06000f 0%,#0d0020 60%,#080010 100%)', boxShadow: '0 0 80px rgba(139,92,246,0.08)' }}
+        >
+          {/* رأس القسم */}
+          <div className="border-b border-violet-500/15 px-8 py-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-violet-400/30 bg-violet-500/12 px-3 py-1 text-xs font-black text-violet-300">
+                  {PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE.eyebrow}
+                </span>
+                <h2 className="mt-2 text-xl font-extrabold leading-snug text-white md:text-2xl">
+                  {PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE.title}
+                </h2>
+                <p className="mt-1 text-sm text-slate-400">محادثة داخلية حصرية — أنت والمناوب فقط، لا يراها الزبائن</p>
+              </div>
+              <NavLinkDom to="/partners/digital-shift">
+                <button type="button"
+                  className="flex items-center gap-2 rounded-xl border border-violet-400/35 bg-violet-500/15 px-5 py-2.5 text-sm font-bold text-violet-200 hover:bg-violet-500/25 transition-all">
+                  شرح مفصّل للميزة ←
+                </button>
+              </NavLinkDom>
+            </div>
+          </div>
+          {/* شبكة الميزات */}
+          <div className="grid gap-3 p-7 sm:grid-cols-2 lg:grid-cols-3">
+            {PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE.bullets.map(b => (
+              <div key={b.label}
+                className="flex items-start gap-3 rounded-2xl border border-violet-400/12 bg-violet-950/25 px-4 py-4 transition-all hover:border-violet-400/25 hover:bg-violet-950/40">
+                <span className="mt-0.5 text-xl shrink-0">{b.icon}</span>
+                <div>
+                  <p className="text-sm font-black text-violet-100">{b.label}</p>
+                  <p className="mt-0.5 text-[0.72rem] leading-relaxed text-slate-400">{b.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* فوتر */}
+          <div className="border-t border-violet-500/12 px-8 py-4 text-center">
+            <p className="text-[0.65rem] text-violet-400/40">
+              متوفر حصراً مع إضافة المناوب الرقمي الذكي 🌙 (+25 ر.س/حزمة) على الباقة الماسية
+            </p>
+          </div>
         </motion.section>
       </main>
 

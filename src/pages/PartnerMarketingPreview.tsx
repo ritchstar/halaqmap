@@ -385,9 +385,29 @@ function PricingCard({
         <span className="mb-1 text-xs text-slate-400">ر.س / حزمة ٣٠ يوم</span>
       </div>
       {addOnAvailable && (
-        <div className="mb-4 rounded-lg border border-violet-400/25 bg-violet-500/8 px-3 py-2 text-[0.65rem] text-violet-300">
-          ✦ Add-on: المناوب الرقمي الذكي 🌙 (+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة)
-          <span className="ms-1 text-violet-400/60">= {price + DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س مع المناوب</span>
+        <div className="mb-4 rounded-xl border border-violet-400/25 bg-violet-500/8 px-3 py-3">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[0.6rem] font-black uppercase tracking-wider text-violet-400/70">Add-on اختياري 🌙</span>
+            <span className="rounded-full bg-violet-500/20 border border-violet-400/25 px-2 py-0.5 text-[0.55rem] font-black text-violet-300">+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة</span>
+          </div>
+          <p className="mb-2 text-[0.72rem] font-bold text-violet-200">المناوب الرقمي الذكي + المكتب الخاص</p>
+          <div className="space-y-1">
+            {[
+              'يرد على زبائنك عند الإغلاق أو الانشغال',
+              'مكتب خاص: تعليمات + مهام + رصيد الحزمة',
+              'تنبيه تلقائي قبل انتهاء رخصتك',
+            ].map(f => (
+              <div key={f} className="flex items-center gap-1.5 text-[0.65rem] text-violet-300/80">
+                <span className="text-violet-400">✦</span> {f}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => navigate('/partners/digital-shift')}
+            className="mt-2 text-[0.6rem] text-violet-400/55 hover:text-violet-300 underline transition-colors"
+          >
+            شرح مفصّل للمناوب ←
+          </button>
         </div>
       )}
       <ul className="mb-6 flex flex-col gap-2" dir="rtl">
