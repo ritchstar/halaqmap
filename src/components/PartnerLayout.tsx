@@ -21,7 +21,8 @@ import { SOFTWARE_SERVICES_PORTAL_HEADING, SOFTWARE_SERVICES_PORTAL_LABEL } from
 import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPublic';
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
-import { PartnerDigitalBarberAssistant } from '@/components/partner/PartnerDigitalBarberAssistant';
+import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
+// PartnerDigitalBarberAssistant مُحال للتقاعد — موجود في مركز الوكلاء فقط
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
@@ -296,7 +297,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <main className="min-h-0 w-full flex-1">{children}</main>
 
-      <PartnerDigitalBarberAssistant />
+      <B2BSalesManagerChat />
 
       {/* شريط تنقّل سفلي للجوال — نمط تطبيق */}
       <nav

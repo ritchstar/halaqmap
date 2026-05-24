@@ -207,6 +207,9 @@
     },
     "api/public-legal-observer-chat.ts": {
       "maxDuration": 45
+    },
+    "api/public-b2b-sales-manager-chat.ts": {
+      "maxDuration": 50
     }
   },
   "crons": [
