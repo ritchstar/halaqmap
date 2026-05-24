@@ -1,51 +1,53 @@
 /**
- * B2BSalesManagerChat — مدير مبيعات B2B 💼
+ * B2BSalesManagerChat — مكتب مدير مبيعات B2B الفاخر
  *
- * يحلّ محل مساعد الشركاء على كل صفحات مسار الشركاء
- * خبير B2B متكامل — يُقنع بالعلم والأرقام
- * أيقونة: حقيبة ذهبية مع نجمة B2B
- * موضع: أسفل يسار (كمساعد الشركاء السابق)
+ * ليس زراً عائماً — بل مكتب تفاوض حقيقي مدمج في الصفحة
+ * يتواجد على جميع صفحات مسار الشركاء
+ *
+ * حالتان:
+ *  TEASER: لوحة ذهبية بنصوص متحركة تستقطب الزائر
+ *  OPEN:   شات موسّع زجاجي فاخر مع كل مزايا المفاوضة
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Briefcase, TrendingUp, ArrowLeft } from 'lucide-react';
+import {
+  X, Send, Building2, TrendingUp, ChevronDown,
+  ArrowLeft, Briefcase, Star, PhoneCall
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 
-// ─── Quick prompts ────────────────────────────────────────────────────────────
-const QUICK_PROMPTS = [
+// ─── Rotating pitch lines ─────────────────────────────────────────────────────
+const PITCH_LINES = [
+  'صالونك يستحق مدير مبيعات حقيقي 💼',
+  'تحدث معي — كلّ دقيقة تُفرق 📈',
+  'استثمار بـ100 ر.س يُغطّيه زبون واحد',
+  'منافسك قد يسبقك — تصرّف الآن 🚀',
+  'أشرح لك العائد بالأرقام الحقيقية',
+  'لديك أسئلة؟ أنا هنا — بلا ضغط 👌',
+];
+
+// ─── Quick prompts ─────────────────────────────────────────────────────────────
+const QUICK = [
+  'ما العائد الاقتصادي الفعلي؟ 📊',
   'ما الفرق بين الباقات؟ 💎',
-  'ما العائد الاقتصادي؟ 📈',
   'كيف يعمل نظام الظهور؟',
-  'ما تكلفة الانضمام؟ 💼',
   'هل تأخذون عمولة؟',
+  'كيف أبدأ الانضمام؟ 🚀',
 ];
 
 // ─── Greeting ─────────────────────────────────────────────────────────────────
 function getGreeting(): string {
   const h = new Date().getHours();
-  const time = h < 12 ? 'صباح النشاط' : h < 17 ? 'مساء التوفيق' : 'مساء الخير';
-  return `${time} يا صاحبي! 💼
-أنا مدير مبيعات B2B في حلاق ماب — وش الجديد؟
-جاهز أشرح لك بالأرقام والحقائق كيف تحوّل صالونك من مكان محلي إلى وجهة رقمية يجدها الزبائن.`;
-}
+  const t = h < 12 ? 'صباح النجاح' : h < 17 ? 'مساء التوفيق' : 'مساء الخير';
+  return `${t} يا صاحبي! 💼
+أنا مدير مبيعات B2B في حلاق ماب — جاهز أشرح لك بالأرقام الحقيقية كيف يُحوِّل صالونك من مجرد مكان محلي إلى وجهة رقمية يبحث عنها الزبائن.
 
-// ─── Typing dots ──────────────────────────────────────────────────────────────
-function TypingDots() {
-  return (
-    <div className="flex items-center gap-1.5 px-4 py-3">
-      <span className="text-[0.68rem] text-amber-300/55">مدير المبيعات يفكّر</span>
-      {[0, 1, 2].map((i) => (
-        <motion.div key={i} className="h-1.5 w-1.5 rounded-full bg-amber-400"
-          animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-          transition={{ duration: 1, delay: i * 0.16, repeat: Infinity }} />
-      ))}
-    </div>
-  );
+وش يهمّك أكثر؟`;
 }
 
 // ─── API call ─────────────────────────────────────────────────────────────────
@@ -62,26 +64,66 @@ async function sendMsg(msg: string, history: Turn[]): Promise<string> {
     const data = (await res.json()) as { reply?: string };
     return data.reply || 'ما وصلني الرد — حاول مجدداً.';
   } catch {
-    return 'خلل في الاتصال — عاود المحاولة بعد ثانية.';
+    return 'خلل في الاتصال — عاود المحاولة.';
   }
+}
+
+// ─── Typing dots ──────────────────────────────────────────────────────────────
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1.5 px-4 py-3">
+      <span className="text-[0.68rem] text-amber-300/55">مدير المبيعات يفكّر</span>
+      {[0, 1, 2].map((i) => (
+        <motion.div key={i} className="h-1.5 w-1.5 rounded-full bg-amber-400"
+          animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+          transition={{ duration: 1, delay: i * 0.16, repeat: Infinity }} />
+      ))}
+    </div>
+  );
+}
+
+// ─── The Office Icon ──────────────────────────────────────────────────────────
+function OfficeIcon({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  const dim = size === 'lg' ? 'h-16 w-16' : size === 'md' ? 'h-12 w-12' : 'h-9 w-9';
+  const icon = size === 'lg' ? 'h-7 w-7' : size === 'md' ? 'h-5 w-5' : 'h-4 w-4';
+  return (
+    <div className={`relative flex shrink-0 items-center justify-center ${dim}`}>
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-700/20 blur-md" />
+      <div className={`relative flex ${dim} items-center justify-center rounded-2xl
+        border-2 border-amber-400/50 bg-gradient-to-br from-[#1e1000] to-[#080400]
+        shadow-[0_0_24px_rgba(245,158,11,0.40),inset_0_1px_0_rgba(251,191,36,0.22)]`}>
+        <Building2 className={`${icon} text-amber-300`} strokeWidth={1.5} />
+        {/* B2B badge */}
+        <span className="absolute -bottom-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[0.38rem] font-black text-black ring-2 ring-[#080400]">
+          B2B
+        </span>
+      </div>
+    </div>
+  );
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function B2BSalesManagerChat() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [pitchIdx, setPitchIdx] = useState(0);
   const [turns, setTurns] = useState<Turn[]>([
     { role: 'assistant', content: getGreeting(), id: 'welcome' },
   ]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
-  const [unread, setUnread] = useState(1);
   const endRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
 
+  // Rotate pitch lines
   useEffect(() => {
-    if (open) { setUnread(0); setTimeout(() => textRef.current?.focus(), 150); }
+    const id = setInterval(() => setPitchIdx((i) => (i + 1) % PITCH_LINES.length), 3200);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (open) { setTimeout(() => textRef.current?.focus(), 150); }
   }, [open]);
 
   useEffect(() => {
@@ -106,15 +148,13 @@ export function B2BSalesManagerChat() {
     if (!msg || loading) return;
     setDraft('');
     if (textRef.current) textRef.current.style.height = 'auto';
-
     const next: Turn[] = [...turns, { role: 'user', content: msg, id: `u-${++seq.current}` }];
     setTurns(next);
     setLoading(true);
     const reply = await sendMsg(msg, next);
     setTurns((p) => [...p, { role: 'assistant', content: reply, id: `a-${++seq.current}` }]);
     setLoading(false);
-    if (!open) setUnread((u) => u + 1);
-  }, [draft, loading, turns, open]);
+  }, [draft, loading, turns]);
 
   const handleKey = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend(); }
@@ -123,197 +163,246 @@ export function B2BSalesManagerChat() {
   const handleInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDraft(e.target.value);
     e.target.style.height = 'auto';
-    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+    e.target.style.height = Math.min(e.target.scrollHeight, 130) + 'px';
   }, []);
 
   return (
     <>
-      {/* Backdrop */}
+      {/* ── Backdrop ─────────────────────────────────── */}
       <AnimatePresence>
         {open && (
           <motion.div key="bd" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[58] bg-black/50 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[48] bg-black/55 backdrop-blur-[3px]"
             onClick={() => setOpen(false)} />
         )}
       </AnimatePresence>
 
-      {/* Chat modal */}
-      <AnimatePresence>
-        {open && (
-          <motion.aside key="modal" dir="rtl"
-            initial={{ opacity: 0, y: 24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 34 }}
-            onClick={(e) => e.stopPropagation()}
-            className="fixed bottom-[88px] left-4 z-[59] flex w-[min(92vw,420px)] flex-col overflow-hidden rounded-2xl
-              border border-amber-500/35 bg-[#0a0700]/97
-              shadow-[0_-4px_60px_rgba(245,158,11,0.25),0_20px_60px_rgba(0,0,0,0.6)]
-              backdrop-blur-xl sm:left-6 sm:bottom-[96px]"
-            style={{ maxHeight: 'min(90dvh, 620px)' }}
-          >
-            {/* Header */}
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-500/15 bg-gradient-to-l from-amber-500/12 to-transparent px-4 py-3.5">
-              <div className="flex items-center gap-3">
-                {/* Icon */}
-                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-700/20 blur-sm" />
-                  <div className="relative flex h-12 w-12 items-center justify-center rounded-xl
-                    border border-amber-400/40 bg-gradient-to-br from-[#1a0e00] to-[#080500]
-                    shadow-[0_0_20px_rgba(245,158,11,0.30),inset_0_1px_0_rgba(251,191,36,0.18)]">
-                    <Briefcase className="h-5 w-5 text-amber-300" strokeWidth={1.8} />
-                    <motion.span
-                      className="absolute -bottom-0.5 -left-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[0.42rem] font-black text-black ring-2 ring-[#0a0700]"
-                      animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2.5, repeat: Infinity }}>
-                      B2B
-                    </motion.span>
+      {/* ── OFFICE PANEL — fixed right side ─────────── */}
+      <div
+        dir="rtl"
+        className="fixed right-0 top-1/2 z-[49] -translate-y-1/2"
+        style={{ pointerEvents: 'auto' }}
+      >
+        <AnimatePresence mode="wait">
+          {!open ? (
+            /* ═══════════ TEASER PANEL ═══════════ */
+            <motion.div
+              key="teaser"
+              initial={{ x: 320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 320, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+              className="relative overflow-hidden rounded-r-none rounded-l-2xl"
+              style={{ width: '300px' }}
+            >
+              {/* Glass background */}
+              <div className="absolute inset-0 rounded-r-none rounded-l-2xl border border-r-0 border-amber-400/35
+                bg-[#0a0600]/88 backdrop-blur-2xl
+                shadow-[-8px_0_60px_rgba(245,158,11,0.25),-2px_0_30px_rgba(0,0,0,0.6)]" />
+
+              {/* Top glow line */}
+              <div className="absolute right-0 top-0 h-full w-1 bg-gradient-to-b from-amber-400/60 via-amber-500/40 to-amber-400/60" />
+
+              {/* Shimmer sweep */}
+              <motion.div
+                className="pointer-events-none absolute inset-0 rounded-l-2xl"
+                style={{ background: 'linear-gradient(135deg, transparent 40%, rgba(245,158,11,0.04) 50%, transparent 60%)' }}
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
+              />
+
+              <div className="relative px-5 py-5">
+                {/* Header */}
+                <div className="mb-4 flex items-center gap-3">
+                  <OfficeIcon size="md" />
+                  <div className="min-w-0">
+                    <p className="text-[0.65rem] font-bold tracking-widest text-amber-400/55 uppercase">حلاق ماب</p>
+                    <p className="text-sm font-black leading-tight text-amber-100">مدير مبيعات B2B</p>
+                    <div className="mt-0.5 flex items-center gap-1.5">
+                      <motion.div className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+                        animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }} />
+                      <span className="text-[0.55rem] font-semibold text-emerald-300/80">متاح للتفاوض الآن</span>
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-black text-amber-100">مدير مبيعات B2B</p>
-                    <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
-                  </div>
-                  <p className="text-[0.58rem] text-amber-400/55">حلاق ماب · خبير الانضمام والنمو</p>
+                {/* Animated pitch line */}
+                <div className="mb-4 min-h-[48px] overflow-hidden rounded-xl border border-amber-400/20 bg-amber-500/8 px-3 py-2.5">
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={pitchIdx}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35 }}
+                      className="text-[0.78rem] font-bold leading-snug text-amber-100"
+                      style={{ unicodeBidi: 'plaintext' }}
+                    >
+                      {PITCH_LINES[pitchIdx]}
+                    </motion.p>
+                  </AnimatePresence>
                 </div>
-              </div>
 
-              <button onClick={() => setOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-amber-400/55 hover:bg-amber-500/12 hover:text-amber-200 transition-colors">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Messages */}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
-              <div className="flex flex-col gap-2.5">
-                {turns.map((t) => (
-                  <motion.div key={t.id}
-                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22 }}
-                    className={t.role === 'assistant'
-                      ? 'self-start max-w-[90%] rounded-2xl rounded-tr-sm border border-amber-500/18 bg-amber-500/8 px-3.5 py-2.5 text-[0.875rem] leading-6 text-amber-50'
-                      : 'self-end max-w-[90%] rounded-2xl rounded-tl-sm border border-white/12 bg-white/8 px-3.5 py-2.5 text-[0.875rem] leading-6 text-slate-100'}
-                  >
-                    <p className="mb-1 text-[0.57rem] font-bold opacity-40">
-                      {t.role === 'assistant' ? 'مدير مبيعات B2B 💼' : 'أنت'}
-                    </p>
-                    <p className="whitespace-pre-wrap break-words" style={{ unicodeBidi: 'plaintext' }}>{t.content}</p>
-                  </motion.div>
-                ))}
-
-                {loading && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className="self-start rounded-2xl rounded-tr-sm border border-amber-500/18 bg-amber-500/8">
-                    <TypingDots />
-                  </motion.div>
-                )}
-                <div ref={endRef} className="h-1" />
-              </div>
-            </div>
-
-            {/* Quick prompts */}
-            {turns.length <= 2 && !loading && (
-              <div className="shrink-0 border-t border-amber-500/10 px-3 py-2.5">
-                <p className="mb-2 text-[0.6rem] text-amber-400/45">أسئلة مباشرة:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {QUICK_PROMPTS.map((q) => (
-                    <button key={q} type="button" onClick={() => void handleSend(q)}
-                      className="rounded-full border border-amber-400/28 bg-amber-500/8 px-3 py-1.5 text-[0.65rem] font-semibold text-amber-300/85 hover:border-amber-400/55 hover:bg-amber-500/16 transition-all">
-                      {q}
-                    </button>
+                {/* Stats row */}
+                <div className="mb-4 grid grid-cols-3 gap-2">
+                  {[
+                    { icon: TrendingUp, label: 'عائد مثبت', val: '100%' },
+                    { icon: Star, label: 'باقات', val: '3' },
+                    { icon: PhoneCall, label: 'استجابة', val: 'فورية' },
+                  ].map((s) => (
+                    <div key={s.label} className="flex flex-col items-center gap-0.5 rounded-lg border border-amber-400/15 bg-amber-500/6 px-1.5 py-2">
+                      <s.icon className="h-3.5 w-3.5 text-amber-400" strokeWidth={2} />
+                      <span className="text-[0.68rem] font-black text-amber-100">{s.val}</span>
+                      <span className="text-[0.5rem] text-amber-400/50">{s.label}</span>
+                    </div>
                   ))}
                 </div>
-              </div>
-            )}
 
-            {/* Register CTA */}
-            <div className="shrink-0 mx-3 mb-1 rounded-xl border border-amber-400/18 bg-amber-500/6 px-3 py-2">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[0.62rem] text-amber-300/70">مستعد للانضمام؟</p>
-                <button
-                  onClick={() => { setOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
-                  className="flex items-center gap-1 rounded-lg bg-gradient-to-l from-amber-500 to-amber-700 px-3 py-1.5 text-[0.65rem] font-bold text-black hover:from-amber-400 transition-all"
+                {/* CTA button */}
+                <motion.button
+                  type="button"
+                  onClick={() => setOpen(true)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 py-3 text-sm font-black text-black shadow-[0_4px_20px_rgba(245,158,11,0.40)] transition-all hover:shadow-[0_4px_28px_rgba(245,158,11,0.55)]"
                 >
-                  سجّل الآن <ArrowLeft className="h-3 w-3" />
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-transparent"
+                    animate={{ x: ['-100%', '200%'] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear', repeatDelay: 1.5 }}
+                  />
+                  <span className="relative flex items-center justify-center gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    تحدث مع مدير المبيعات
+                  </span>
+                </motion.button>
+
+                {/* Register shortcut */}
+                <button
+                  onClick={() => navigate(ROUTE_PATHS.REGISTER)}
+                  className="mt-2 flex w-full items-center justify-center gap-1 text-[0.65rem] text-amber-400/50 hover:text-amber-300 transition-colors"
+                >
+                  أو سجّل مباشرة <ArrowLeft className="h-3 w-3" />
                 </button>
               </div>
-            </div>
-
-            {/* Input */}
-            <div className="shrink-0 border-t border-amber-500/15 bg-[#060400]/95 px-3 py-3">
-              <div className="flex items-end gap-2">
-                <textarea ref={textRef} value={draft} onChange={handleInput} onKeyDown={handleKey}
-                  disabled={loading}
-                  placeholder="اسألني عن الباقات، العائد، الانضمام… (Enter للإرسال)"
-                  rows={1}
-                  style={{ minHeight: '44px', maxHeight: '120px', resize: 'none', overflowY: 'auto' }}
-                  className="flex-1 rounded-xl border border-amber-400/20 bg-[#100800] px-3.5 py-2.5 text-sm leading-6 text-white placeholder:text-amber-400/28 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/22 transition-all disabled:opacity-50"
-                  dir="rtl"
-                />
-                <motion.button type="button"
-                  onClick={() => void handleSend()}
-                  disabled={!draft.trim() || loading}
-                  whileTap={draft.trim() && !loading ? { scale: 0.9 } : undefined}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 text-black shadow shadow-amber-500/30 transition-all hover:from-amber-400 disabled:cursor-not-allowed disabled:opacity-40">
-                  <Send className="h-4 w-4" />
-                </motion.button>
-              </div>
-              <p className="mt-1.5 text-center text-[0.53rem] text-amber-400/18">
-                مدير مبيعات B2B · حلاق ماب · مزوّد حلول تقنية
-              </p>
-            </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
-
-      {/* ── Floating button ───────────────────────────────────── */}
-      <div className="fixed bottom-6 left-4 z-[57] sm:left-6 md:bottom-8">
-        <div className="relative">
-          {/* Version badge */}
-          <span className="pointer-events-none absolute -top-1 z-10 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold leading-none text-black shadow right-0">
-            B2B
-          </span>
-
-          {/* Unread badge */}
-          {!open && unread > 0 && (
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-              className="absolute -right-1 top-4 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[0.5rem] font-black text-white ring-2 ring-[#0a0700]">
-              {unread}
             </motion.div>
+          ) : (
+            /* ═══════════ CHAT PANEL ═══════════ */
+            <motion.aside
+              key="chat"
+              dir="rtl"
+              initial={{ x: 440, opacity: 0, scale: 0.97 }}
+              animate={{ x: 0, opacity: 1, scale: 1 }}
+              exit={{ x: 440, opacity: 0, scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 32 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative flex flex-col overflow-hidden rounded-r-none rounded-l-2xl"
+              style={{ width: '440px', height: 'min(85dvh, 620px)' }}
+            >
+              {/* Glass background */}
+              <div className="absolute inset-0 rounded-r-none rounded-l-2xl border border-r-0 border-amber-400/35
+                bg-[#0a0600]/95 backdrop-blur-2xl
+                shadow-[-8px_0_80px_rgba(245,158,11,0.30),-2px_0_40px_rgba(0,0,0,0.7)]" />
+              <div className="absolute right-0 top-0 h-full w-1 bg-gradient-to-b from-amber-400/60 via-amber-500/40 to-amber-400/60" />
+
+              {/* ── Header ── */}
+              <div className="relative shrink-0 flex items-center justify-between gap-3 border-b border-amber-500/18 px-4 py-3.5">
+                <div className="flex items-center gap-3">
+                  <OfficeIcon size="sm" />
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-black text-amber-100">مدير مبيعات B2B</p>
+                      <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
+                    </div>
+                    <p className="text-[0.55rem] text-amber-400/50">حلاق ماب · خبير الانضمام والنمو</p>
+                  </div>
+                </div>
+                <button onClick={() => setOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-amber-400/50 hover:bg-amber-500/12 hover:text-amber-200 transition-colors">
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* ── Messages ── */}
+              <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
+                {/* Subtle inner glow */}
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_40%_at_50%_0%,rgba(245,158,11,0.04),transparent)]" />
+                <div className="relative flex flex-col gap-2.5">
+                  {turns.map((t) => (
+                    <motion.div key={t.id}
+                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                      className={t.role === 'assistant'
+                        ? 'self-start max-w-[90%] rounded-2xl rounded-tr-sm border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-amber-800/5 px-4 py-3 text-[0.875rem] leading-6 text-amber-50 shadow-[0_2px_12px_rgba(245,158,11,0.08)]'
+                        : 'self-end max-w-[90%] rounded-2xl rounded-tl-sm border border-white/12 bg-white/8 px-4 py-3 text-[0.875rem] leading-6 text-slate-100'}
+                    >
+                      <p className="mb-1 text-[0.55rem] font-bold opacity-40">
+                        {t.role === 'assistant' ? 'مدير مبيعات B2B 💼' : 'أنت'}
+                      </p>
+                      <p className="whitespace-pre-wrap break-words" style={{ unicodeBidi: 'plaintext' }}>{t.content}</p>
+                    </motion.div>
+                  ))}
+                  {loading && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      className="self-start rounded-2xl rounded-tr-sm border border-amber-500/20 bg-amber-500/8">
+                      <TypingDots />
+                    </motion.div>
+                  )}
+                  <div ref={endRef} className="h-1" />
+                </div>
+              </div>
+
+              {/* ── Quick prompts ── */}
+              {turns.length <= 2 && !loading && (
+                <div className="relative shrink-0 border-t border-amber-500/12 px-3 py-2.5">
+                  <p className="mb-2 text-[0.58rem] text-amber-400/40">اسألني مباشرة:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {QUICK.map((q) => (
+                      <button key={q} type="button" onClick={() => void handleSend(q)}
+                        className="rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1 text-[0.64rem] font-semibold text-amber-300/85 hover:border-amber-400/55 hover:bg-amber-500/15 transition-all">
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Register CTA ── */}
+              <div className="relative shrink-0 mx-3 mb-1 rounded-xl border border-amber-400/18 bg-gradient-to-l from-amber-500/8 to-transparent px-3 py-2">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[0.62rem] text-amber-300/60">جاهز؟ ابدأ الانضمام الآن</p>
+                  <button onClick={() => { setOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
+                    className="flex items-center gap-1 rounded-lg bg-gradient-to-l from-amber-500 to-amber-700 px-3 py-1.5 text-[0.65rem] font-bold text-black hover:from-amber-400 transition-all shadow shadow-amber-500/25">
+                    سجّل <ArrowLeft className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Input ── */}
+              <div className="relative shrink-0 border-t border-amber-500/18 px-3 py-3">
+                <div className="flex items-end gap-2">
+                  <textarea ref={textRef} value={draft} onChange={handleInput} onKeyDown={handleKey}
+                    disabled={loading}
+                    placeholder="اسألني عن الباقات، العائد، أي شيء… (Enter للإرسال)"
+                    rows={1}
+                    style={{ minHeight: '46px', maxHeight: '130px', resize: 'none', overflowY: 'auto' }}
+                    className="flex-1 rounded-xl border border-amber-400/22 bg-[#120900] px-4 py-3 text-sm leading-6 text-white placeholder:text-amber-400/28 outline-none focus:border-amber-400/55 focus:ring-1 focus:ring-amber-400/25 transition-all disabled:opacity-50"
+                    dir="rtl"
+                  />
+                  <motion.button type="button"
+                    onClick={() => void handleSend()}
+                    disabled={!draft.trim() || loading}
+                    whileTap={draft.trim() && !loading ? { scale: 0.88 } : undefined}
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 text-black shadow-[0_4px_16px_rgba(245,158,11,0.35)] transition-all hover:from-amber-400 hover:shadow-[0_4px_22px_rgba(245,158,11,0.50)] disabled:cursor-not-allowed disabled:opacity-40">
+                    <Send className="h-4.5 w-4.5" />
+                  </motion.button>
+                </div>
+                <p className="mt-1.5 text-center text-[0.52rem] text-amber-400/18">
+                  مدير مبيعات B2B · حلاق ماب
+                </p>
+              </div>
+            </motion.aside>
           )}
-
-          <motion.button type="button"
-            onClick={() => setOpen((o) => !o)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, type: 'spring', stiffness: 380, damping: 28 }}
-            aria-label="فتح مدير مبيعات B2B"
-            aria-expanded={open}
-            className="relative flex h-14 w-14 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-          >
-            {/* Pulse ring on first load */}
-            <motion.div className="absolute inset-0 rounded-full border-2 border-amber-400/40"
-              animate={{ scale: [1, 1.3], opacity: [0.6, 0] }}
-              transition={{ duration: 2, repeat: 3, delay: 2 }} />
-
-            {/* Button body */}
-            <div className="absolute inset-0 rounded-full border-2 border-amber-400/45 bg-gradient-to-br from-[#1a0e00] to-[#070400]
-              shadow-[0_0_35px_rgba(245,158,11,0.45),0_0_70px_rgba(245,158,11,0.12)]" />
-
-            {/* Briefcase icon */}
-            <div className="relative z-10 flex flex-col items-center">
-              <Briefcase className="h-5 w-5 text-amber-300" strokeWidth={1.8} />
-              <span className="mt-0.5 text-[0.4rem] font-black tracking-wider text-amber-400/65">مبيعات</span>
-            </div>
-
-            {/* Shine */}
-            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-transparent via-amber-400/6 to-amber-300/14" />
-          </motion.button>
-        </div>
+        </AnimatePresence>
       </div>
     </>
   );
