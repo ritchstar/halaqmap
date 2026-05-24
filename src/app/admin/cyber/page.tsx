@@ -289,6 +289,16 @@ const ts = () => new Date().toISOString();
 
 const AMBIENT_SET_QUIET: CyberAgentResponse[] = [
   {
+    id: 'live-q0',
+    agentId: 'cyber_defense',
+    agentLabelAr: 'قائد الدفاع السيبراني',
+    actionLabelAr: 'وَضع الاستعداد',
+    explanationAr:
+      'غُرفة العمليات مُفعَّلة. جدار الحماية يعمل على المستويين L3/L7. لا تَهديدات نَشطة مَرصودة. أنا في وَضع الإنذار المُبكر — جاهز للتَّدخُّل الفوري عند أي اختراق.',
+    severity: 'info',
+    timestamp: ts(),
+  },
+  {
     id: 'live-q1',
     agentId: 'ops_controller',
     agentLabelAr: 'مراقب العمليات',
@@ -322,6 +332,16 @@ const AMBIENT_SET_QUIET: CyberAgentResponse[] = [
 
 const AMBIENT_SET_ANALYSIS: CyberAgentResponse[] = [
   {
+    id: 'live-a0',
+    agentId: 'cyber_defense',
+    agentLabelAr: 'قائد الدفاع السيبراني',
+    actionLabelAr: 'تَحليل التَّهديدات',
+    explanationAr:
+      'رصدت 7 نقاط اتصال خارجية بروتوكولها غير معتاد — خضعت للفَحص ولم تُشكّل خطراً. الـ Firewall يُطبّق قواعد GeoIP تلقائياً على الاتصالات من نطاقات عالية الخطورة.',
+    severity: 'info',
+    timestamp: ts(),
+  },
+  {
     id: 'live-a1',
     agentId: 'compliance',
     agentLabelAr: 'مراقب الامتثال',
@@ -354,6 +374,16 @@ const AMBIENT_SET_ANALYSIS: CyberAgentResponse[] = [
 ];
 
 const AMBIENT_SET_NETWORK: CyberAgentResponse[] = [
+  {
+    id: 'live-n0',
+    agentId: 'cyber_defense',
+    agentLabelAr: 'قائد الدفاع السيبراني',
+    actionLabelAr: 'مُراجعة الدِّرع الرَّقمي',
+    explanationAr:
+      'Rate limiting نَشط على جميع نقاط الـ API — الحد الأقصى 60 طلب/دقيقة/مصدر. جدار الحماية DDoS يَعمَل بكامل طاقته. لا ثُغرات مكشوفة. الشَّبكة آمنة.',
+    severity: 'info',
+    timestamp: ts(),
+  },
   {
     id: 'live-n1',
     agentId: 'engineering',

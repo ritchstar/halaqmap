@@ -276,6 +276,14 @@ const ddosAttack: CyberScenario = {
       })),
       agentResponses: [
         {
+          agentId: 'cyber_defense',
+          agentLabelAr: 'قائد الدفاع السيبراني',
+          actionLabelAr: '🚨 إنذار DDoS — تَفعيل درع الطَّوارئ',
+          explanationAr:
+            '12,000 طلب/ثانية من +1,000 IP — هذا هجوم منسَّق. فعّلت Anycast Routing لتوزيع الحِمل فَوراً. حَجَبتُ نطاقات ASN المَعروفة بشراء حركة مُزيَّفة. الشَّبكة في وَضع الحِصن — كل IP يَحتاج PoW قبل العُبور.',
+          severity: 'critical',
+        },
+        {
           agentId: 'compliance',
           agentLabelAr: 'مسؤول الامتثال',
           actionLabelAr: 'تَفعيل Cloudflare Under-Attack',
@@ -301,6 +309,14 @@ const ddosAttack: CyberScenario = {
         },
       ],
       agentResponses: [
+        {
+          agentId: 'cyber_defense',
+          agentLabelAr: 'قائد الدفاع السيبراني',
+          actionLabelAr: '⚡ عَزل مَصدر الاختراق',
+          explanationAr:
+            'رَصَدتُ حَمولة SQL مُشوَّشة (obfuscated) داخل User-Agent غير الاعتيادي. عَزَلتُ المَصدر وأَضَفتُه لقائمة الحَظر الدائم. WAF rule جديد يَصفّي حَمولات مُشابهة تلقائياً.',
+          severity: 'critical',
+        },
         {
           agentId: 'public_prosecutor',
           agentLabelAr: 'المُدّعي العام الرقمي',
@@ -387,6 +403,14 @@ const ddosAttack: CyberScenario = {
       atMs: 52_000,
       narratorAr: '00:52 — الهَجوم يَخفّ بَعد فَشل كل المُحاولات. نَتَنَفَّس.',
       agentResponses: [
+        {
+          agentId: 'cyber_defense',
+          agentLabelAr: 'قائد الدفاع السيبراني',
+          actionLabelAr: '✅ الدِّرع صَمَد — تَقرير الجَولة',
+          explanationAr:
+            'الهجوم فَشِل على جميع المَراحل: L3 Volumetric ← أَوقَفَه Anycast · L7 SQL/XSS ← أَوقَفَه WAF · Brute-force ← أَوقَفَه Lockout+TOTP. البنية الأمنية تَعمَل كما صُمِّمت. أُوصي بمُراجعة القواعد الجديدة وتثبيتها دائمة.',
+          severity: 'info',
+        },
         {
           agentId: 'ops_controller',
           agentLabelAr: 'مراقب العمليات',

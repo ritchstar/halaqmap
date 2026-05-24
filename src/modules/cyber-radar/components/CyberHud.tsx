@@ -164,6 +164,7 @@ const AGENT_ICONS = {
   engineering: Wrench,
   partner_liaison: Briefcase,
   ops_controller: Activity,
+  cyber_defense: ShieldAlert,
 } as const;
 
 const AGENT_ACCENT = {
@@ -172,6 +173,7 @@ const AGENT_ACCENT = {
   engineering: 'border-emerald-400/50 bg-emerald-500/10 text-emerald-100',
   partner_liaison: 'border-violet-400/50 bg-violet-500/10 text-violet-100',
   ops_controller: 'border-rose-400/50 bg-rose-500/10 text-rose-100',
+  cyber_defense: 'border-cyan-400/60 bg-cyan-950/35 text-cyan-100',
 } as const;
 
 export function AgentResponseFeed({ entries }: { entries: ReadonlyArray<CyberAgentResponse> }) {
