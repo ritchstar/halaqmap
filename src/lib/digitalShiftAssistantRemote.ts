@@ -120,3 +120,23 @@ export async function digitalShiftBarberChatRemote(params: {
   if ('error' in r && !('reply' in r)) return { ok: false, error: r.error || 'Failed' };
   return { ok: true, reply: String(r.reply ?? '') };
 }
+
+export type FleetDirective = {
+  id: string;
+  title: string;
+  body: string;
+  created_at: string;
+  priority: number;
+};
+
+export async function fleetDirectivesReadRemote(params: {
+  barberId: string;
+  email: string;
+}): Promise<{ ok: true; directives: FleetDirective[] } | { ok: false; error: string }> {
+  const r = await post<{ ok: true; directives: FleetDirective[] }>({
+    action: 'fleet_directives_read',
+    ...params,
+  });
+  if ('error' in r && !('directives' in r)) return { ok: false, error: r.error || 'Failed' };
+  return { ok: true, directives: (r as { directives: FleetDirective[] }).directives ?? [] };
+}

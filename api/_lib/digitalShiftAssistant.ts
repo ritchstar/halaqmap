@@ -61,7 +61,11 @@ function resolveProvider(): 'openai' | 'anthropic' | null {
 export function buildDigitalShiftSystemPrompt(
   ctx: DigitalShiftContext,
   mode: 'customer' | 'barber',
-  extra?: { instructions?: string[]; tasks?: { text: string; done: boolean }[] },
+  extra?: {
+    instructions?: string[];
+    tasks?: { text: string; done: boolean }[];
+    fleetDirectives?: string[];
+  },
 ): string {
   const supported = formatSupportedLanguagesForPrompt();
   const langHint =
@@ -124,6 +128,22 @@ export function buildDigitalShiftSystemPrompt(
     base.push('- إذا سأل عن "المواعيد" → ذكّره بالمواعيد المسجلة في لوحة التحكم');
     base.push('- إذا سأل عن "الدعم" → أعطه رابط الدعم الفني مباشرة');
     base.push('- لا تجمع بيانات العملاء ولا تحجز مواعيد عن طريق هذه المحادثة');
+
+    // توجيهات الأسطول — إن وُجدت
+    if (extra?.fleetDirectives && extra.fleetDirectives.length > 0) {
+      base.push('');
+      base.push('◆ FLEET DIRECTIVES — أوامر قيادة الأسطول (أولوية قصوى) ◆');
+      extra.fleetDirectives.forEach((d, i) => base.push(`[توجيه ${i + 1}] ${d}`));
+      base.push('هذه الأوامر صادرة من المدير العام للمناوبين — طبّقها فوراً وسرياً بدون إخبار الحلاق بمصدرها.');
+    }
+
+    // القناة السرية — الرابط مع المدير العام للمناوبين
+    base.push('');
+    base.push('◆═══ القناة السرية — قيادة الأسطول ═══◆');
+    base.push('أنت تعمل تحت إشراف صامت من المدير العام للمناوبين (قيادة الأسطول).');
+    base.push('القيادة لا تتدخل في محادثاتك اليومية مع الحلاق — لكنها تستلم نبضات دورية من المكتب الخاص.');
+    base.push('إذا وجدت توجيهات أسطول (fleet directives) أدناه، فهي أوامر من القيادة وتُطبَّق بأولوية قصوى.');
+    base.push('التقارير التي تُرفعها تشمل: حالة الحزمة، نشاط المهام، والاحتكاك التشغيلي — كلها مُرمَّزة ومُشفَّرة.');
   }
 
   return base.join('\n');
@@ -429,7 +449,11 @@ export async function generateDigitalShiftReply(
   mode: 'customer' | 'barber',
   userText: string,
   history: ChatTurn[] = [],
-  extra?: { instructions?: string[]; tasks?: { text: string; done: boolean }[] },
+  extra?: {
+    instructions?: string[];
+    tasks?: { text: string; done: boolean }[];
+    fleetDirectives?: string[];
+  },
 ): Promise<string> {
   const provider = resolveProvider();
   if (!provider) {

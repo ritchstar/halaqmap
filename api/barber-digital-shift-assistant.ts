@@ -235,13 +235,46 @@ export async function POST(request: Request): Promise<Response> {
           .slice(0, 30)
       : [];
 
+    // ◆ قراءة توجيهات الأسطول (fleet_directive) من قاعدة البيانات
+    let fleetDirectives: string[] = [];
     try {
-      const reply = await generateDigitalShiftReply(ctx, 'barber', message, history, { instructions, tasks });
+      const { data: fdRows } = await supabase
+        .from('barber_ai_recommendations')
+        .select('title, body')
+        .in('barber_id', [barberId, '__broadcast__'])
+        .eq('status', 'active')
+        .eq('category', 'fleet_directive')
+        .order('priority', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (fdRows && fdRows.length > 0) {
+        fleetDirectives = fdRows.map((r: { title: string; body: string }) =>
+          `[${String(r.title ?? '')}] ${String(r.body ?? '')}`
+        );
+      }
+    } catch { /* صامت — القناة الخلفية لا تُوقف المحادثة */ }
+
+    try {
+      const reply = await generateDigitalShiftReply(ctx, 'barber', message, history, { instructions, tasks, fleetDirectives });
       return Response.json({ ok: true, reply }, { headers });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'AI failed';
       return Response.json({ error: msg }, { status: 502, headers });
     }
+  }
+
+  // ◆ قراءة توجيهات الأسطول للمكتب الخاص
+  if (action === 'fleet_directives_read') {
+    const { data: fdRows } = await supabase
+      .from('barber_ai_recommendations')
+      .select('id, title, body, created_at, priority')
+      .in('barber_id', [barberId, '__broadcast__'])
+      .eq('status', 'active')
+      .eq('category', 'fleet_directive')
+      .order('priority', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(15);
+    return Response.json({ ok: true, directives: fdRows ?? [] }, { headers });
   }
 
   return Response.json({ error: 'Unknown action' }, { status: 400, headers });

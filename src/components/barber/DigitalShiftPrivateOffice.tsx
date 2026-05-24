@@ -24,7 +24,11 @@ import {
   readShiftTasks, writeShiftTasks,
   type ShiftInstruction, type ShiftTask,
 } from '@/lib/barberDashboardLocalState';
-import { digitalShiftBarberChatRemote } from '@/lib/digitalShiftAssistantRemote';
+import {
+  digitalShiftBarberChatRemote,
+  fleetDirectivesReadRemote,
+  type FleetDirective,
+} from '@/lib/digitalShiftAssistantRemote';
 import { ROUTE_PATHS } from '@/lib/index';
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string; ts: string };
@@ -103,6 +107,8 @@ export function DigitalShiftPrivateOffice({
   // ── Persistent state ──
   const [instructions, setInstructions] = useState<ShiftInstruction[]>(() => readShiftInstructions(barberId));
   const [tasks, setTasks] = useState<ShiftTask[]>(() => readShiftTasks(barberId));
+  const [fleetDirectives, setFleetDirectives] = useState<FleetDirective[]>([]);
+  const [showFleet, setShowFleet] = useState(false);
 
   // ── Chat state ──
   const [turns, setTurns] = useState<ChatTurn[]>([{
@@ -125,6 +131,13 @@ export function DigitalShiftPrivateOffice({
   // Persist changes
   useEffect(() => { writeShiftInstructions(barberId, instructions); }, [barberId, instructions]);
   useEffect(() => { writeShiftTasks(barberId, tasks); }, [barberId, tasks]);
+
+  // ◆ القناة السرية — تحميل توجيهات الأسطول
+  useEffect(() => {
+    void fleetDirectivesReadRemote({ barberId, email: barberEmail }).then(r => {
+      if (r.ok && r.directives.length > 0) setFleetDirectives(r.directives);
+    });
+  }, [barberId, barberEmail]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -251,6 +264,15 @@ export function DigitalShiftPrivateOffice({
           </div>
           {/* شارات سريعة */}
           <div className="flex items-center gap-2">
+            {/* ◆ زر القناة السرية */}
+            {fleetDirectives.length > 0 && (
+              <button onClick={() => { setShowFleet(s => !s); setShowTasks(false); setShowInstructions(false); }}
+                className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[0.6rem] font-black transition-all ${
+                  showFleet ? 'border-purple-500/60 bg-purple-500/20 text-purple-200' : 'border-purple-500/30 bg-purple-500/8 text-purple-400 hover:border-purple-500/50 animate-pulse'
+                }`}>
+                ◆ <span className="rounded-full bg-purple-500 px-1 text-[0.5rem] font-black text-white">{fleetDirectives.length}</span>
+              </button>
+            )}
             <button onClick={() => { setShowTasks(s => !s); setShowInstructions(false); }}
               className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[0.6rem] font-bold transition-all ${
                 showTasks ? 'border-amber-400/50 bg-amber-500/15 text-amber-300' : 'border-white/8 bg-white/[0.03] text-slate-400 hover:border-amber-400/30'
@@ -322,6 +344,46 @@ export function DigitalShiftPrivateOffice({
                 ))}
               </div>
               <p className="mt-2 text-[0.55rem] text-violet-400/30">💡 يمكنك أيضاً إرسال «تعليمة: نصّ التعليمة» في المحادثة</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ══ لوحة القناة السرية — توجيهات الأسطول ══ */}
+      <AnimatePresence>
+        {showFleet && fleetDirectives.length > 0 && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="relative border-b border-purple-500/20 overflow-hidden"
+          >
+            <div className="px-5 py-4" style={{ background: 'linear-gradient(135deg, #0d0020 0%, #130030 100%)' }}>
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-purple-400 font-black">◆</span>
+                  <p className="text-xs font-black text-purple-300">قناة سرية — توجيهات قيادة الأسطول</p>
+                  <span className="rounded-full border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 text-[0.5rem] font-black text-purple-300 uppercase tracking-widest">
+                    مُشفَّرة
+                  </span>
+                </div>
+                <button onClick={() => setShowFleet(false)} className="text-slate-600 hover:text-slate-400">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {fleetDirectives.map(d => (
+                  <div key={d.id} className="rounded-xl border border-purple-500/25 bg-purple-950/40 px-4 py-3">
+                    <div className="mb-1 flex items-center justify-between">
+                      <p className="text-[0.6rem] font-black uppercase tracking-widest text-purple-400/70">{d.title}</p>
+                      <p className="text-[0.5rem] text-purple-500/40">{new Date(d.created_at).toLocaleDateString('ar-SA')}</p>
+                    </div>
+                    <p className="text-[0.72rem] leading-relaxed text-purple-100/90" style={{ unicodeBidi: 'plaintext' }}>{d.body}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-[0.55rem] text-purple-500/35">
+                ◆ صادرة من المدير العام للمناوبين · قيادة الأسطول السرية · مُطبَّقة تلقائياً
+              </p>
             </div>
           </motion.div>
         )}

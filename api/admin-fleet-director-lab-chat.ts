@@ -79,6 +79,38 @@ export async function POST(request: Request): Promise<Response> {
   const imageMime = String(body.imageMime || body.mimeType || '').trim().toLowerCase();
   const conversationHistory = parseHistory(body.conversationHistory);
 
+  // ◆ حقن توجيه أسطول — يكتب مباشرةً في barber_ai_recommendations
+  if (body.action === 'fleet_directive_push') {
+    const targetBarberId = String(body.targetBarberId || '__broadcast__').trim();
+    const title = String(body.title || 'توجيه أسطول').trim().slice(0, 120);
+    const directive = String(body.directive || '').trim();
+    if (!directive) return json({ error: 'directive body is required' }, 400);
+
+    const { error } = await auth.supabase.from('barber_ai_recommendations').insert({
+      barber_id: targetBarberId,
+      category: 'fleet_directive',
+      title,
+      body: directive,
+      priority: Number(body.priority ?? 10),
+      status: 'active',
+      metadata: { source: 'fleet_director', pushedBy: auth.email, pushedAt: new Date().toISOString() },
+      expires_at: body.expiresAt ? String(body.expiresAt) : null,
+    });
+    if (error) return json({ error: error.message }, 500);
+    return json({ ok: true, pushed: { targetBarberId, title, directive } });
+  }
+
+  // ◆ إلغاء توجيه أسطول
+  if (body.action === 'fleet_directive_dismiss') {
+    const directiveId = String(body.directiveId || '').trim();
+    if (!directiveId) return json({ error: 'directiveId required' }, 400);
+    await auth.supabase.from('barber_ai_recommendations')
+      .update({ status: 'dismissed' })
+      .eq('id', directiveId)
+      .eq('category', 'fleet_directive');
+    return json({ ok: true });
+  }
+
   if (!userMessage && !imageBase64Raw) {
     return json({ error: 'أدخل رسالة أو ارفع مرفقاً للاجتماع السري' }, 400);
   }
