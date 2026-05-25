@@ -10,7 +10,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, Radio, Swords, ShieldOff, BarChart3 } from 'lucide-react';
+import { ArrowRight, Radio, Swords, ShieldOff, BarChart3, Volume2, VolumeX } from 'lucide-react';
 import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
@@ -25,6 +25,7 @@ import {
 import { useCyberPlayback } from '@/modules/cyber-radar/hooks/useCyberPlayback';
 import { useCyberLiveStream } from '@/modules/cyber-radar/hooks/useCyberLiveStream';
 import { useCyberThreatRecorder, sessionToScenario } from '@/modules/cyber-radar/hooks/useCyberThreatRecorder';
+import { useCyberAudio } from '@/modules/cyber-radar/hooks/useCyberAudio';
 import { CyberThreatRecordsPanel } from '@/modules/cyber-radar/components/CyberThreatRecordsPanel';
 import { CYBER_SCENARIOS, getScenarioById } from '@/modules/cyber-radar/scenarios';
 import type { CyberAgentResponse, CyberMode, CyberThreatSession, CyberScenario } from '@/modules/cyber-radar/types';
@@ -150,6 +151,8 @@ export default function AdminCyberOperationsPage() {
   // ◆ تقارير الوكلاء الحقيقية
   const [agentReports, setAgentReports] = useState<CyberAgentResponse[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(false);
+  // ◆ منظومة الصوت
+  const audio = useCyberAudio();
   // ◆ أحداث أمنية حية من Supabase Realtime
   const [liveSecEvents, setLiveSecEvents] = useState<LiveSecurityEvent[]>([]);
 
@@ -171,6 +174,24 @@ export default function AdminCyberOperationsPage() {
     void fetchRealThreatData().then(setRealThreatData);
     setCfLoading(false);
   };
+
+  // ◆ تشغيل أصوات الأحداث (live + scenario)
+  const lastPulseCount = useRef(0);
+  const lastPulseId = useRef('');
+  useEffect(() => {
+    const current = pulses.length;
+    if (current > lastPulseCount.current) {
+      // العثور على النبضات الجديدة
+      const newPulses = pulses.slice(lastPulseCount.current);
+      newPulses.forEach(p => {
+        if (p.id !== lastPulseId.current) {
+          lastPulseId.current = p.id;
+          audio.playEventSound(p.kind);
+        }
+      });
+    }
+    lastPulseCount.current = current;
+  }, [pulses, audio]);
 
   // ◆ Supabase Realtime — اشتراك في أحداث الأمان الحية
   useEffect(() => {
@@ -412,6 +433,25 @@ export default function AdminCyberOperationsPage() {
               <>🎬 مُحاكاة</>
             )}
           </div>
+          {/* زر الصوت */}
+          <button
+            type="button"
+            onClick={() => {
+              if (!audio.muted && !('activated' in audio)) audio.activate();
+              audio.activate();
+              audio.toggleMute();
+            }}
+            onMouseDown={() => audio.activate()}
+            className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-all ${
+              audio.muted
+                ? 'border-slate-600/50 bg-black/30 text-slate-500'
+                : 'border-cyan-400/30 bg-cyan-500/10 text-cyan-300'
+            }`}
+            title={audio.muted ? 'تشغيل الصوت' : 'كتم الصوت'}
+          >
+            {audio.muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+          </button>
+
           <button
             type="button"
             onClick={() => navigate(getAdminDashboardPathFor(location.pathname))}
