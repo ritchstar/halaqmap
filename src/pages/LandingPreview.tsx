@@ -965,95 +965,8 @@ export default function LandingPreview() {
         </div>
       </section>
 
-      {/* ── B2B info strip — discreet, for regulatory impression only ──── */}
-      <section className="relative z-10 border-y border-white/5 bg-black/30 py-8">
-        <div className="mx-auto max-w-5xl px-5">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-right"
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-400/30 bg-amber-500/10">
-                <Crown className="h-4 w-4 text-amber-400" />
-              </div>
-              <div dir="rtl">
-                <div className="text-xs font-bold text-amber-300">مزوّد حلول تقنية · ISIC4 474151</div>
-                <div className="text-[0.65rem] text-slate-500">حزم رخصة نفاذ رقمية للمنشآت · B2B · لا عمولة على الخدمة</div>
-              </div>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2 md:justify-end">
-              {[
-                { name: 'برونزي 🥉', price: '١٠٠ ر.س', color: 'border-amber-800/40 text-amber-700/80' },
-                { name: 'ذهبي 🥇', price: '١٥٠ ر.س', color: 'border-amber-400/40 text-amber-300' },
-                { name: 'ماسي 💎', price: '٢٠٠ ر.س', color: 'border-cyan-400/40 text-cyan-300' },
-              ].map((t) => (
-                <a
-                  key={t.name}
-                  href={`/#${ROUTE_PATHS.LANDING_PARTNERS_PREVIEW}`}
-                  className={`rounded-full border px-3 py-1 text-[0.65rem] font-semibold transition-opacity hover:opacity-100 opacity-70 ${t.color}`}
-                >
-                  {t.name} · {t.price}/حزمة
-                </a>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── الباقات والتسعير ─────────────────────────────────────────────── */}
-      <section id="الأسعار" className="relative z-10 py-20 border-y border-white/5 bg-white/[0.015]">
-        <div className="pointer-events-none absolute -right-40 top-10 h-80 w-80 rounded-full bg-amber-500/6 blur-[120px]" />
-        <div className="mx-auto max-w-6xl px-5">
-          <div className="mb-10 text-center">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300"
-            >
-              <Crown className="h-3 w-3" /> للمنشآت B2B · حزم رخصة النفاذ الرقمية
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-3 text-2xl font-black text-white md:text-3xl"
-            >
-              رخصة نفاذ رقمية للصالونات — سعر واضح لا مفاجآت
-            </motion.h2>
-            <p className="text-sm text-slate-400">
-              مسبقة الدفع · لا تجديد تلقائي · لا عمولة على الخدمة · ISIC4 474151
-            </p>
-          </div>
-
-          {/* مصفوفة التسعير الحقيقية */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <ListingLicensePricingMatrix variant="standalone-dark" />
-          </motion.div>
-
-          {/* رابط مسار الشركاء */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="mt-8 text-center"
-          >
-            <a
-              href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
-              className="inline-flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-500/8 px-6 py-3 text-sm font-semibold text-amber-300 transition-all hover:border-amber-400/60 hover:bg-amber-500/15"
-            >
-              اكتشف المزيد عن مسار انضمام الصالونات ←
-            </a>
-          </motion.div>
-        </div>
-      </section>
+      {/* ── عروض التأسيس السنوية ─────────────────────────────────────────── */}
+      <FoundingOffersSection navigate={navigate} />
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section className="relative z-10 border-t border-white/5 py-20">
@@ -1190,5 +1103,332 @@ export default function LandingPreview() {
 
       <B2BMediaSpokespersonChat audience="consumer" mode="panel" collapseOnScroll={false} />
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// عروض التأسيس السنوية — قسم مستقل فاخر
+// ─────────────────────────────────────────────────────────────────────────────
+function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
+  type PlanId = 'bronze' | 'gold' | 'diamond' | 'diamond_office';
+  const plans: {
+    id: PlanId;
+    emoji: string;
+    name: string;
+    nameEn: string;
+    price: number;
+    addOn: number;
+    total: number;
+    accentFrom: string;
+    accentTo: string;
+    borderColor: string;
+    glowColor: string;
+    badge?: string;
+    featured?: boolean;
+    features: string[];
+    cta: string;
+  }[] = [
+    {
+      id: 'bronze',
+      emoji: '🥉',
+      name: 'برونزي',
+      nameEn: 'Bronze',
+      price: 100,
+      addOn: 0,
+      total: 100,
+      accentFrom: '#92400e',
+      accentTo: '#b45309',
+      borderColor: 'rgba(180,83,9,0.35)',
+      glowColor: 'rgba(180,83,9,0.18)',
+      features: [
+        'ظهور جغرافي على الرادار',
+        'بطاقة صالون أساسية',
+        'مدة 30 يوم',
+        'دون تجديد تلقائي',
+      ],
+      cta: 'ابدأ بالبرونزي',
+    },
+    {
+      id: 'gold',
+      emoji: '🥇',
+      name: 'ذهبي',
+      nameEn: 'Gold',
+      price: 150,
+      addOn: 0,
+      total: 150,
+      accentFrom: '#b45309',
+      accentTo: '#d97706',
+      borderColor: 'rgba(217,119,6,0.4)',
+      glowColor: 'rgba(217,119,6,0.22)',
+      features: [
+        'ظهور مُميَّز وأولوية أعلى',
+        'معرض أعمال 20 صورة',
+        'QR تقييم حقيقي',
+        'شات مباشر مع العملاء',
+      ],
+      cta: 'ابدأ بالذهبي',
+    },
+    {
+      id: 'diamond',
+      emoji: '💎',
+      name: 'ماسي',
+      nameEn: 'Diamond',
+      price: 200,
+      addOn: 0,
+      total: 200,
+      accentFrom: '#0891b2',
+      accentTo: '#06b6d4',
+      borderColor: 'rgba(6,182,212,0.45)',
+      glowColor: 'rgba(6,182,212,0.25)',
+      badge: 'الأكثر اختياراً',
+      featured: true,
+      features: [
+        'أعلى ظهور على الرادار',
+        'معرض أعمال 40 صورة',
+        'شات مترجم بـ 7 لغات',
+        'إدارة مواعيد متكاملة',
+      ],
+      cta: 'ابدأ بالماسي',
+    },
+    {
+      id: 'diamond_office',
+      emoji: '🏛️',
+      name: 'ماسي + المكتب الخاص',
+      nameEn: 'Diamond + Private Office',
+      price: 200,
+      addOn: 25,
+      total: 225,
+      accentFrom: '#4f46e5',
+      accentTo: '#7c3aed',
+      borderColor: 'rgba(124,58,237,0.45)',
+      glowColor: 'rgba(124,58,237,0.28)',
+      badge: '✦ الأكمل',
+      features: [
+        'كل مزايا الماسي',
+        'مساعد داخلي يستقبل تعليماتك',
+        'مناوب شات ينفّذها أمام الزبائن',
+        'تقارير كل محادثة تصلك فوراً',
+      ],
+      cta: 'ابدأ بالماسي + المكتب',
+    },
+  ];
+
+  function goRegister(planId: PlanId) {
+    const tierMap: Record<PlanId, string> = {
+      bronze: 'bronze',
+      gold: 'gold',
+      diamond: 'diamond',
+      diamond_office: 'diamond',
+    };
+    navigate(`${ROUTE_PATHS.REGISTER}?tier=${tierMap[planId]}${planId === 'diamond_office' ? '&addon=office' : ''}`);
+  }
+
+  return (
+    <section
+      id="عروض-التأسيس"
+      dir="rtl"
+      className="relative z-10 overflow-hidden py-28"
+      style={{ background: 'linear-gradient(180deg,#020a14 0%,#010810 55%,#020a14 100%)' }}
+    >
+      {/* خلفية سديمية */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/4 top-0 h-96 w-96 rounded-full bg-cyan-500/8 blur-[160px]" />
+        <div className="absolute right-1/4 bottom-0 h-96 w-96 rounded-full bg-violet-500/10 blur-[160px]" />
+        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/5 blur-[200px]" />
+      </div>
+
+      {/* خط علوي */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/20 to-transparent" />
+
+      <div className="relative mx-auto max-w-6xl px-5">
+
+        {/* الرأسية */}
+        <div className="mb-16 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-gradient-to-l from-amber-500/15 to-transparent px-5 py-2 text-[0.7rem] font-black tracking-[0.15em] text-amber-300/90"
+          >
+            <Sparkles className="h-3 w-3" />
+            عروض التأسيس · رخصة نفاذ رقمية للصالونات
+            <Sparkles className="h-3 w-3" />
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.08 }}
+            className="mb-4 text-3xl font-black leading-tight text-white md:text-4xl lg:text-5xl"
+          >
+            اختر باقتك — انطلق
+            <span className="block bg-gradient-to-l from-amber-300 via-cyan-300 to-violet-300 bg-clip-text text-transparent">
+              بدون مفاجآت
+            </span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.16 }}
+            className="mx-auto max-w-xl text-sm leading-relaxed text-slate-400"
+          >
+            مسبقة الدفع · لا تجديد تلقائي · لا عمولة على الحلاقة · كل حزمة 30 يوم صلاحية
+          </motion.p>
+        </div>
+
+        {/* الكروت */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {plans.map((plan, i) => (
+            <motion.div
+              key={plan.id}
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08, duration: 0.55, ease: 'easeOut' }}
+              className="group relative flex flex-col overflow-hidden rounded-3xl"
+              style={{
+                border: `1px solid ${plan.borderColor}`,
+                background: `linear-gradient(160deg,${plan.accentFrom}18 0%,#040d1a 55%,${plan.accentTo}0e 100%)`,
+                boxShadow: plan.featured
+                  ? `0 0 60px ${plan.glowColor},0 0 120px ${plan.glowColor},inset 0 1px 0 ${plan.borderColor}`
+                  : `0 0 30px ${plan.glowColor},inset 0 1px 0 ${plan.borderColor}`,
+              }}
+            >
+              {/* شارة مميز */}
+              {plan.badge && (
+                <div
+                  className="absolute left-4 top-4 rounded-full px-3 py-0.5 text-[0.6rem] font-black tracking-wide"
+                  style={{
+                    background: `linear-gradient(135deg,${plan.accentFrom},${plan.accentTo})`,
+                    color: '#fff',
+                    boxShadow: `0 0 14px ${plan.glowColor}`,
+                  }}
+                >
+                  {plan.badge}
+                </div>
+              )}
+
+              {/* توهج علوي داخلي */}
+              <div
+                className="pointer-events-none absolute inset-x-0 top-0 h-32 opacity-60"
+                style={{
+                  background: `radial-gradient(ellipse 100% 100% at 50% 0%,${plan.accentTo}22,transparent)`,
+                }}
+              />
+
+              {/* نبض على hover */}
+              <motion.div
+                className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                style={{ background: `radial-gradient(ellipse 80% 80% at 50% 50%,${plan.accentTo}12,transparent)` }}
+              />
+
+              <div className="relative flex flex-col gap-5 p-6 flex-1">
+                {/* الرأسية */}
+                <div>
+                  <div className="mb-3 flex items-center gap-3">
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-2xl text-2xl"
+                      style={{
+                        background: `linear-gradient(135deg,${plan.accentFrom}30,${plan.accentTo}20)`,
+                        border: `1px solid ${plan.borderColor}`,
+                        boxShadow: `0 0 20px ${plan.glowColor}`,
+                      }}
+                    >
+                      {plan.emoji}
+                    </div>
+                    <div>
+                      <p className="text-base font-black text-white leading-tight">{plan.name}</p>
+                      <p className="text-[0.6rem] font-semibold tracking-wider uppercase" style={{ color: plan.accentTo }}>
+                        {plan.nameEn}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* السعر */}
+                  <div className="flex items-end gap-2">
+                    <span
+                      className="font-mono text-4xl font-black leading-none tabular-nums"
+                      style={{ color: plan.accentTo, textShadow: `0 0 30px ${plan.glowColor}` }}
+                    >
+                      {plan.total}
+                    </span>
+                    <div className="mb-1 flex flex-col leading-none">
+                      <span className="text-xs font-bold text-slate-300">ر.س</span>
+                      <span className="text-[0.55rem] text-slate-500">/30 يوم</span>
+                    </div>
+                  </div>
+                  {plan.addOn > 0 && (
+                    <p className="mt-1 text-[0.58rem] text-slate-500">
+                      ({plan.price} ماسي + {plan.addOn} المكتب الخاص)
+                    </p>
+                  )}
+                </div>
+
+                {/* الفاصل */}
+                <div className="h-px w-full" style={{ background: `linear-gradient(90deg,transparent,${plan.borderColor},transparent)` }} />
+
+                {/* المزايا */}
+                <ul className="flex flex-1 flex-col gap-2.5">
+                  {plan.features.map((feat) => (
+                    <li key={feat} className="flex items-start gap-2.5 text-sm text-slate-300">
+                      <CheckCircle2
+                        className="mt-0.5 h-4 w-4 shrink-0"
+                        style={{ color: plan.accentTo }}
+                      />
+                      <span className="leading-snug">{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* زر التسجيل */}
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => goRegister(plan.id)}
+                  className="relative mt-2 w-full overflow-hidden rounded-2xl py-3.5 text-sm font-black text-white transition-all"
+                  style={{
+                    background: `linear-gradient(135deg,${plan.accentFrom},${plan.accentTo})`,
+                    boxShadow: `0 0 28px ${plan.glowColor},0 4px 16px ${plan.glowColor}`,
+                  }}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {plan.cta}
+                    <ArrowLeft className="h-4 w-4" />
+                  </span>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                </motion.button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* ضمانات أسفل */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center text-[0.7rem] text-slate-500"
+        >
+          {[
+            { icon: Shield, text: 'بوابة دفع ميسر المعتمدة' },
+            { icon: Lock, text: 'لا تجديد تلقائي' },
+            { icon: Zap, text: 'تفعيل فوري بعد الدفع' },
+            { icon: Award, text: 'شهادة رخصة نفاذ' },
+            { icon: Building2, text: 'ISIC4 474151' },
+          ].map(({ icon: Icon, text }) => (
+            <span key={text} className="flex items-center gap-1.5">
+              <Icon className="h-3.5 w-3.5 text-slate-600" />
+              {text}
+            </span>
+          ))}
+        </motion.div>
+      </div>
+    </section>
   );
 }
