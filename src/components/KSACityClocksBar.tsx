@@ -139,69 +139,67 @@ export function KSACityClocksBar() {
       dir="rtl"
       className="relative w-full overflow-hidden"
       style={{
-        height: '52px',
-        background: 'linear-gradient(180deg, #060e1a 0%, #030912 50%, #060e1a 100%)',
-        borderBottom: '1px solid rgba(20,184,166,0.18)',
+        height: '72px',
+        background:
+          'linear-gradient(180deg, #04111f 0%, #020c18 55%, #04111f 100%)',
+        borderBottom: '1px solid rgba(20,184,166,0.14)',
       }}
     >
-      {/* ── خط مسح أفقي متحرك ─────────────────────────── */}
+      {/* ── خط مسح أفقي ─── */}
       <div
         className="pointer-events-none absolute inset-y-0 w-[22%] transition-none"
         style={{
           left: `${scanX}%`,
           background:
-            'linear-gradient(90deg, transparent 0%, rgba(20,184,166,0.05) 30%, rgba(20,184,166,0.14) 50%, rgba(20,184,166,0.05) 70%, transparent 100%)',
+            'linear-gradient(90deg,transparent 0%,rgba(20,184,166,0.04) 30%,rgba(20,184,166,0.11) 50%,rgba(20,184,166,0.04) 70%,transparent 100%)',
         }}
       />
 
-      {/* ── توهج علوي فاخر ──────────────────────────────── */}
+      {/* ── خط توهج علوي ─── */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[1.5px]"
         style={{
           background:
-            'linear-gradient(90deg, transparent, rgba(20,184,166,0.5) 30%, rgba(245,158,11,0.3) 60%, rgba(20,184,166,0.5) 80%, transparent)',
+            'linear-gradient(90deg,transparent 0%,rgba(20,184,166,0.45) 25%,rgba(245,158,11,0.35) 55%,rgba(20,184,166,0.45) 80%,transparent 100%)',
         }}
       />
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 h-px"
         style={{
           background:
-            'linear-gradient(90deg, transparent, rgba(20,184,166,0.25) 40%, rgba(20,184,166,0.25) 60%, transparent)',
+            'linear-gradient(90deg,transparent,rgba(20,184,166,0.18) 40%,rgba(20,184,166,0.18) 60%,transparent)',
         }}
       />
 
-      {/* ── المحتوى الرئيسي ─────────────────────────────── */}
-      <div className="relative flex h-full items-center justify-between gap-2 px-3 sm:px-4">
+      {/* ── المحتوى ─── */}
+      <div className="relative flex h-full items-center justify-between gap-3 px-4 sm:px-6">
 
-        {/* يمين: الساعة + LIVE ─────────────────────────── */}
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        {/* يمين: الساعة */}
+        <div className="flex shrink-0 flex-col items-start gap-0.5">
           <div className="flex items-baseline gap-0.5">
-            <span className="font-mono text-[1.05rem] font-black tabular-nums tracking-tight text-teal-100/95 sm:text-[1.1rem]">
+            <span className="font-mono text-[1.2rem] font-black tabular-nums tracking-tight text-teal-50/95 sm:text-[1.3rem]">
               {time.h}:{time.m}
             </span>
             <motion.span
-              animate={{ opacity: [1, 0.25, 1] }}
+              animate={{ opacity: [1, 0.2, 1] }}
               transition={{ duration: 1, repeat: Infinity }}
-              className="font-mono text-[0.65rem] font-bold tabular-nums text-teal-400/55"
+              className="font-mono text-[0.7rem] font-bold tabular-nums text-teal-400/45"
             >
               :{time.s}
             </motion.span>
           </div>
-
-          <div className="hidden h-4 w-px bg-teal-400/15 sm:block" />
-
-          <div className="hidden items-center gap-1.5 rounded-full border border-teal-400/30 bg-teal-500/12 px-2.5 py-1 sm:flex">
+          <div className="flex items-center gap-1.5">
             <motion.div
-              animate={{ opacity: [0.35, 0.7, 0.35] }}
+              animate={{ opacity: [0.3, 0.8, 0.3] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="h-2 w-2 rounded-full bg-teal-400/80 shadow-[0_0_8px_rgba(45,212,191,0.45)]"
+              className="h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.6)]"
             />
-            <span className="text-[0.6rem] font-black tracking-[0.18em] text-teal-300">LIVE</span>
+            <span className="text-[0.52rem] font-black tracking-[0.22em] text-teal-400/75">LIVE · KSA</span>
           </div>
         </div>
 
-        {/* وسط: المدن ──────────────────────────────────── */}
-        <div className="flex min-w-0 flex-1 items-center justify-center gap-0 overflow-x-auto px-1 scrollbar-none sm:px-4">
+        {/* وسط: المدن */}
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-0 overflow-x-auto scrollbar-none px-2 sm:px-6">
           {KSA_CITIES_GEO.map((city, i) => {
             const temp = displayTemps[i];
             const isHottest = temp === maxTemp;
@@ -212,86 +210,85 @@ export function KSACityClocksBar() {
 
             return (
               <div key={city.id} className="flex shrink-0 items-center">
-                {i > 0 && <div className="mx-1.5 h-4 w-px bg-white/8 sm:mx-2" />}
+                {i > 0 && <div className="mx-2 h-5 w-px bg-white/6 sm:mx-2.5" />}
 
                 <motion.div
-                  className="relative flex flex-col items-center justify-center rounded-lg px-1.5 py-1 transition-[border-color,background] duration-[1.8s] ease-in-out sm:px-2"
+                  className="relative flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 transition-[border-color,background] duration-[2s] ease-in-out sm:px-2.5"
                   style={{
-                    background: isActive || isUserCity ? `${color}10` : 'transparent',
+                    background:
+                      isActive || isUserCity
+                        ? `linear-gradient(160deg,${color}18 0%,${color}0c 100%)`
+                        : 'transparent',
                     border:
                       isUserCity
-                        ? `1px solid ${color}55`
+                        ? `1px solid ${color}50`
                         : isActive
-                          ? `1px solid ${color}35`
+                          ? `1px solid ${color}30`
                           : '1px solid transparent',
+                    boxShadow:
+                      isActive || isUserCity
+                        ? `0 0 18px ${color}14,inset 0 1px 0 ${color}18`
+                        : 'none',
                   }}
                 >
+                  {/* توهج سديمي داخلي */}
                   {(isActive || isUserCity) && (
                     <motion.div
-                      className="pointer-events-none absolute inset-0 rounded-lg"
+                      className="pointer-events-none absolute inset-0 rounded-xl"
                       style={{
-                        background: `radial-gradient(circle at 50% 55%, ${color}30 0%, ${color}10 45%, transparent 72%)`,
-                        filter: 'blur(7px)',
+                        background: `radial-gradient(circle at 50% 60%,${color}28 0%,transparent 70%)`,
+                        filter: 'blur(8px)',
                       }}
-                      animate={{ opacity: isActive ? [0.28, 0.62, 0.28] : [0.22, 0.38, 0.22] }}
-                      transition={{
-                        duration: isActive ? 5.5 : 7,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                      }}
+                      animate={{ opacity: isActive ? [0.3, 0.65, 0.3] : [0.18, 0.35, 0.18] }}
+                      transition={{ duration: isActive ? 5 : 7, repeat: Infinity, ease: 'easeInOut' }}
                     />
                   )}
 
-                  {(isActive || isUserCity) && (
-                    <div
-                      className="pointer-events-none absolute inset-0 rounded-lg opacity-40"
-                      style={{
-                        background: `radial-gradient(ellipse 90% 80% at 50% 100%, ${color}14, transparent)`,
-                      }}
-                    />
-                  )}
-
+                  {/* اسم + إيموجي */}
                   <div className="relative flex items-center gap-1">
-                    <span className="text-[0.7rem] leading-none">{city.emoji}</span>
+                    <span className="text-[0.75rem] leading-none">{city.emoji}</span>
                     <span
-                      className={`hidden text-[0.6rem] font-semibold leading-tight sm:block ${isActive || isUserCity ? 'text-white/90' : 'text-slate-400/70'}`}
+                      className={`hidden text-[0.62rem] font-semibold leading-none sm:block ${isActive || isUserCity ? 'text-white/95' : 'text-slate-400/60'}`}
                     >
                       {city.nameAr}
                     </span>
                   </div>
 
+                  {/* الحرارة */}
                   <div className="relative flex items-center gap-0.5">
                     {(isHottest || isCoolest) && (
-                      <span className="text-[0.5rem]" style={{ color }}>
+                      <span className="text-[0.48rem] leading-none" style={{ color }}>
                         {isHottest ? '▲' : '▼'}
                       </span>
                     )}
                     <span
-                      className="font-mono text-[0.8rem] font-black tabular-nums leading-tight sm:text-[0.85rem]"
+                      className="font-mono text-[0.88rem] font-black tabular-nums leading-none sm:text-[0.95rem]"
                       style={{ color }}
                     >
                       {temp}°
                     </span>
                   </div>
 
+                  {/* شارة «أنت» */}
                   {isUserCity && (
                     <span
-                      className="absolute -top-2 left-1/2 hidden -translate-x-1/2 rounded-full px-1 py-0 text-[0.42rem] font-bold sm:inline"
-                      style={{ background: `${color}22`, color }}
+                      className="absolute -top-2.5 left-1/2 hidden -translate-x-1/2 rounded-full px-1.5 py-px text-[0.44rem] font-bold sm:inline"
+                      style={{ background: `${color}20`, color, border: `1px solid ${color}35` }}
                     >
                       أنت
                     </span>
                   )}
 
+                  {/* توهج سفلي للمدينة النشطة */}
                   {isActive && (
                     <motion.div
-                      className="pointer-events-none absolute -bottom-1 left-1/2 h-2.5 w-7 -translate-x-1/2 rounded-full"
+                      className="pointer-events-none absolute -bottom-1 left-1/2 h-3 w-8 -translate-x-1/2 rounded-full"
                       style={{
-                        background: `radial-gradient(ellipse at center, ${color} 0%, ${color}55 35%, transparent 72%)`,
-                        filter: 'blur(4px)',
+                        background: `radial-gradient(ellipse at center,${color} 0%,${color}44 40%,transparent 72%)`,
+                        filter: 'blur(5px)',
                       }}
-                      animate={{ opacity: [0.2, 0.55, 0.2], scaleX: [0.9, 1.12, 0.9] }}
-                      transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+                      animate={{ opacity: [0.18, 0.5, 0.18], scaleX: [0.85, 1.15, 0.85] }}
+                      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
                     />
                   )}
                 </motion.div>
@@ -300,12 +297,14 @@ export function KSACityClocksBar() {
           })}
         </div>
 
-        {/* يسار: حرارة منطقة المستخدم ───────────────── */}
+        {/* يسار: بطاقة الطقس الزجاجية */}
         <div
-          className="flex shrink-0 items-center gap-2 rounded-lg border px-2 py-1 sm:gap-2.5 sm:px-2.5"
+          className="relative flex shrink-0 items-center gap-2.5 overflow-hidden rounded-2xl border px-3 py-2 sm:px-4 sm:py-2.5"
           style={{
-            borderColor: `${regionColor}40`,
-            background: `${regionColor}12`,
+            borderColor: `${regionColor}38`,
+            background: `linear-gradient(135deg,${regionColor}16 0%,${regionColor}09 60%,transparent 100%)`,
+            boxShadow: `0 0 24px ${regionColor}14,inset 0 1px 0 ${regionColor}20`,
+            backdropFilter: 'blur(12px)',
           }}
           title={
             coordsFromDevice
@@ -313,45 +312,63 @@ export function KSACityClocksBar() {
               : `درجة الحرارة في ${userRegion.city.nameAr} — افتراضي حتى تحديد موقعك`
           }
         >
-          <Thermometer className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" style={{ color: regionColor }} />
-          <div className="flex min-w-0 flex-col items-end leading-tight">
+          {/* توهج خلفي للبطاقة */}
+          <motion.div
+            className="pointer-events-none absolute inset-0 rounded-2xl"
+            style={{ background: `radial-gradient(ellipse 80% 90% at 50% 50%,${regionColor}12,transparent)` }}
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+
+          {/* أيقونة الحرارة */}
+          <div
+            className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border"
+            style={{
+              borderColor: `${regionColor}35`,
+              background: `${regionColor}18`,
+              boxShadow: `0 0 14px ${regionColor}20`,
+            }}
+          >
+            <Thermometer className="h-5 w-5" style={{ color: regionColor }} />
+          </div>
+
+          {/* البيانات */}
+          <div className="relative flex flex-col items-end leading-none gap-1">
             <div className="flex items-baseline gap-1">
               <span
-                className="font-mono text-[1rem] font-black tabular-nums sm:text-[1.15rem]"
-                style={{ color: regionColor }}
+                className="font-mono text-[1.35rem] font-black tabular-nums sm:text-[1.5rem]"
+                style={{ color: regionColor, textShadow: `0 0 18px ${regionColor}60` }}
               >
                 {weatherLoading ? '…' : `${regionTempValue}°`}
               </span>
-              <span className="text-[0.55rem] font-bold text-slate-400">C</span>
+              <span className="text-[0.62rem] font-bold text-slate-400/80 mb-0.5">C</span>
             </div>
-            <div className="flex max-w-[7.5rem] items-center gap-1 truncate">
+            <div className="flex items-center gap-1">
               {coordsFromDevice && (
-                <MapPin className="h-2.5 w-2.5 shrink-0" style={{ color: regionColor }} aria-hidden />
+                <MapPin className="h-2.5 w-2.5 shrink-0 opacity-70" style={{ color: regionColor }} aria-hidden />
               )}
-              <span className="truncate text-[0.55rem] font-semibold text-slate-300 sm:text-[0.58rem]">
+              <span className="text-[0.62rem] font-bold text-slate-200/85">
                 {userRegion.city.nameAr}
               </span>
-              <span className="hidden text-[0.5rem] text-slate-500 sm:inline">
-                · {coordsFromDevice ? 'منطقتك' : 'UTC+3'}
-              </span>
             </div>
-            <span className="hidden text-[0.48rem] text-slate-600 sm:inline">
-              {riyadhMonth}
+            <span className="text-[0.5rem] font-medium text-slate-500">
+              {coordsFromDevice ? 'منطقتك · ' : ''}{riyadhMonth}
             </span>
           </div>
         </div>
+
       </div>
 
-      {/* ── توهج سديمي بطيء عند تغيير المدينة ─────────────────── */}
+      {/* ── توهج سديمي عند تغيير المدينة ─── */}
       <motion.div
         key={activeCityIdx}
         className="pointer-events-none absolute inset-0"
-        initial={{ opacity: 0.14 }}
+        initial={{ opacity: 0.12 }}
         animate={{ opacity: 0 }}
-        transition={{ duration: 2.4, ease: 'easeOut' }}
+        transition={{ duration: 2.8, ease: 'easeOut' }}
         style={{
-          background: `radial-gradient(ellipse 55% 120% at 50% 50%, ${tempColor(displayTemps[activeCityIdx])}14, transparent 68%)`,
-          filter: 'blur(10px)',
+          background: `radial-gradient(ellipse 50% 130% at 50% 50%,${tempColor(displayTemps[activeCityIdx])}12,transparent 70%)`,
+          filter: 'blur(12px)',
         }}
       />
     </div>
