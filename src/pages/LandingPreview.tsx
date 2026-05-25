@@ -31,7 +31,7 @@ import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackgroun
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
-import { PublicMediaSpokesperson } from '@/components/PublicMediaSpokesperson';
+import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
@@ -566,10 +566,6 @@ export default function LandingPreview() {
         {/* Anchor للبحث */}
         <div id="search-anchor" className="absolute top-32" />
 
-        {/* المتحدث الإعلامي — مدمج في الهيرو بطابع ضيافة */}
-        <div className="absolute bottom-[18%] left-[12%] z-20 hidden lg:block">
-          <PublicMediaSpokesperson mode="hero" />
-        </div>
         {/* Glow blobs */}
         <div className="pointer-events-none absolute -right-64 top-10 h-[600px] w-[600px] rounded-full bg-teal-500/8 blur-[140px]" />
         <div className="pointer-events-none absolute -left-48 bottom-20 h-[400px] w-[400px] rounded-full bg-amber-500/6 blur-[120px]" />
@@ -1191,6 +1187,8 @@ export default function LandingPreview() {
           </div>
         </div>
       </footer>
+
+      <B2BMediaSpokespersonChat audience="consumer" mode="panel" collapseOnScroll={false} />
     </div>
   );
 }

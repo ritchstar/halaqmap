@@ -1,36 +1,48 @@
 /**
- * B2BMediaSpokespersonChat — مكتب المتحدث الإعلامي (مسار الشركاء)
+ * B2BMediaSpokespersonChat — مكتب المتحدث الإعلامي
  *
  * تصميم موازٍ لـ B2BSalesManagerChat — لوحة ثابتة أسفل يمين الشاشة
+ * audience="partner" → مسار الشركاء · audience="consumer" → الرئيسية B2C
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Send, Mic, ChevronDown, ArrowLeft, Megaphone, Star, Radio,
+  Send, Mic, ChevronDown, ArrowLeft, Megaphone, Star, Radio, MapPin,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
+type Audience = 'partner' | 'consumer';
 
-const PITCH_LINES = [
-  '🎙️ من الفكرة إلى الاستجابة الذكية — هذا مسار حلاق ماب',
-  'رؤية واضحة: رقمنة قطاع الحلاقة بدون وساطة تجارية',
-  'حلاق ماب مزوّد حلول تقنية — لا عمولة على خدمة الحلاقة',
-  'الظهور عند الطلب — كل ظهور فرصة حقيقية لا وجود شكلي',
-  'شريك اليوم — رائد في قطاع الحلاقة الرقمي بالمملكة',
-  'قصة المنصة: من الرادار الجغرافي إلى نظام الاستجابة الذكية',
-];
+type AudienceCopy = {
+  pitchLines: string[];
+  quick: string[];
+  greeting: string;
+  stats: { icon: LucideIcon; label: string; val: string }[];
+  headerSub: string;
+  inputPlaceholder: string;
+  teaserLinkLabel: string;
+  ctaTitle: string;
+  ctaSub: string;
+  ctaButton: string;
+};
 
-const QUICK = [
-  'ما قصة مسار المنصة؟ 🎙️',
-  'لماذا الاستجابة الذكية؟',
-  'هل حلاق ماب وسيط تجاري؟',
-  'كيف أبدأ كشريك؟ 🚀',
-];
+function buildConsumerGreeting(): string {
+  const h = new Date().getHours();
+  const t = h < 12 ? 'صباح الخير' : h < 17 ? 'مساء الخير' : 'مساء النور';
+  return `${t}! 🌟
 
-function getGreeting(): string {
+أنا المتحدث الإعلامي لحلاق ماب — هلا والله!
+
+أساعدك تفهم كيف تبحث عن أقرب صالون، كيف يعمل الرادار الجغرافي، ولماذا الخدمة مجانية للمستخدم.
+
+وش يهمّك؟ 👇`;
+}
+
+function buildPartnerGreeting(): string {
   const h = new Date().getHours();
   const t = h < 12 ? 'صباح الخير' : h < 17 ? 'مساء النور' : 'مساء الخير';
   return `${t}! 🎙️
@@ -42,7 +54,67 @@ function getGreeting(): string {
 ما الذي تريد معرفته عن القصة أو المسار؟ 👇`;
 }
 
-async function sendMsg(msg: string, history: Turn[]): Promise<string> {
+function getAudienceCopy(audience: Audience): AudienceCopy {
+  if (audience === 'consumer') {
+    return {
+      pitchLines: [
+        '🌟 رادار جغرافي يكشف أقرب الصالونات فور بحثك',
+        'بيانات حقيقية وتقييمات موثوقة — بدون وسيط',
+        'تواصل مباشر مع الصالون — هاتف أو واتساب',
+        'حلاق ماب مجاني للمستخدم — ابحث واختر الأقرب',
+        'نظام الاستجابة الذكية · On-Demand Visibility',
+      ],
+      quick: [
+        'كيف أبحث عن حلاق؟',
+        'هل الخدمة مجانية؟',
+        'كيف يعمل الرادار الجغرافي؟',
+        'هل تحفظون موقعي؟',
+      ],
+      greeting: buildConsumerGreeting(),
+      stats: [
+        { icon: MapPin, label: 'رادار', val: 'ذكي' },
+        { icon: Star, label: 'تقييم', val: '✓' },
+        { icon: Radio, label: 'ردّ', val: 'فوري' },
+      ],
+      headerSub: 'حلاق ماب · دليلك للبحث',
+      inputPlaceholder: 'اسألني عن البحث، الخصوصية، أو المنصة… (Enter للإرسال)',
+      teaserLinkLabel: 'أو ابحث عن حلاق الآن',
+      ctaTitle: 'صاحب صالون؟ 💼',
+      ctaSub: 'انتقل لمسار المنشآت B2B',
+      ctaButton: 'للمنشآت',
+    };
+  }
+  return {
+    pitchLines: [
+      '🎙️ من الفكرة إلى الاستجابة الذكية — هذا مسار حلاق ماب',
+      'رؤية واضحة: رقمنة قطاع الحلاقة بدون وساطة تجارية',
+      'حلاق ماب مزوّد حلول تقنية — لا عمولة على خدمة الحلاقة',
+      'الظهور عند الطلب — كل ظهور فرصة حقيقية لا وجود شكلي',
+      'شريك اليوم — رائد في قطاع الحلاقة الرقمي بالمملكة',
+      'قصة المنصة: من الرادار الجغرافي إلى نظام الاستجابة الذكية',
+    ],
+    quick: [
+      'ما قصة مسار المنصة؟ 🎙️',
+      'لماذا الاستجابة الذكية؟',
+      'هل حلاق ماب وسيط تجاري؟',
+      'كيف أبدأ كشريك؟ 🚀',
+    ],
+    greeting: buildPartnerGreeting(),
+    stats: [
+      { icon: Megaphone, label: 'رؤية', val: '2030' },
+      { icon: Star, label: 'قصة', val: '✦' },
+      { icon: Radio, label: 'ردّ', val: 'فوري' },
+    ],
+    headerSub: 'حلاق ماب · الرؤية والقصة',
+    inputPlaceholder: 'اسألني عن الرؤية، المسار، أو المنصة… (Enter للإرسال)',
+    teaserLinkLabel: 'أو اقرأ القصة والمسار',
+    ctaTitle: 'تريد معرفة المزيد؟ 📖',
+    ctaSub: 'اقرأ قصة مسار الخدمات البرمجية',
+    ctaButton: 'لماذا تنضم؟',
+  };
+}
+
+async function sendMsg(msg: string, history: Turn[], audience: Audience): Promise<string> {
   try {
     const res = await fetch('/api/public-media-spokesperson-chat', {
       method: 'POST',
@@ -50,7 +122,7 @@ async function sendMsg(msg: string, history: Turn[]): Promise<string> {
       body: JSON.stringify({
         message: msg,
         history: history.slice(-10).map((t) => ({ role: t.role, content: t.content })),
-        audience: 'partner',
+        audience,
       }),
     });
     const data = (await res.json()) as { reply?: string };
@@ -91,13 +163,24 @@ function SpokespersonIcon({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   );
 }
 
-export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = false }: { mode?: 'panel' | 'inline'; startMinimized?: boolean }) {
+export function B2BMediaSpokespersonChat({
+  mode = 'panel',
+  startMinimized = false,
+  audience = 'partner',
+  collapseOnScroll = true,
+}: {
+  mode?: 'panel' | 'inline';
+  startMinimized?: boolean;
+  audience?: Audience;
+  collapseOnScroll?: boolean;
+}) {
   const navigate = useNavigate();
+  const copy = useMemo(() => getAudienceCopy(audience), [audience]);
   const [open, setOpen] = useState(false);
   const [pitchIdx, setPitchIdx] = useState(0);
   const [minimized, setMinimized] = useState(startMinimized);
   const [turns, setTurns] = useState<Turn[]>([
-    { role: 'assistant', content: getGreeting(), id: 'welcome' },
+    { role: 'assistant', content: copy.greeting, id: 'welcome' },
   ]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
@@ -106,12 +189,12 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
   const seq = useRef(0);
 
   useEffect(() => {
-    const id = setInterval(() => setPitchIdx((i) => (i + 1) % PITCH_LINES.length), 3400);
+    const id = setInterval(() => setPitchIdx((i) => (i + 1) % copy.pitchLines.length), 3400);
     return () => clearInterval(id);
-  }, []);
+  }, [copy.pitchLines.length]);
 
   useEffect(() => {
-    if (mode !== 'panel') return;
+    if (mode !== 'panel' || !collapseOnScroll) return;
     const handleScroll = () => {
       const bannersEl = document.getElementById('معاينة البنرات');
       if (!bannersEl) {
@@ -123,7 +206,7 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [mode]);
+  }, [mode, collapseOnScroll]);
 
   useEffect(() => {
     if (open) setTimeout(() => textRef.current?.focus(), 150);
@@ -154,10 +237,10 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
     const next: Turn[] = [...turns, { role: 'user', content: msg, id: `u-${++seq.current}` }];
     setTurns(next);
     setLoading(true);
-    const reply = await sendMsg(msg, next);
+    const reply = await sendMsg(msg, next, audience);
     setTurns((p) => [...p, { role: 'assistant', content: reply, id: `a-${++seq.current}` }]);
     setLoading(false);
-  }, [draft, loading, turns]);
+  }, [audience, draft, loading, turns]);
 
   const handleKey = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend(); }
@@ -168,6 +251,21 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
     e.target.style.height = 'auto';
     e.target.style.height = Math.min(e.target.scrollHeight, 130) + 'px';
   }, []);
+
+  const scrollToSearch = useCallback(() => {
+    document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const handleTeaserLink = useCallback(() => {
+    if (audience === 'consumer') scrollToSearch();
+    else navigate(ROUTE_PATHS.PARTNER_STORY);
+  }, [audience, navigate, scrollToSearch]);
+
+  const handleCta = useCallback(() => {
+    setOpen(false);
+    if (audience === 'consumer') navigate(ROUTE_PATHS.BARBERS_LANDING);
+    else navigate(ROUTE_PATHS.PARTNER_WHY);
+  }, [audience, navigate]);
 
   const wrapClass = mode === 'inline'
     ? `relative w-full ${open ? 'z-[50]' : 'z-10'}`
@@ -257,17 +355,13 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
                       className="text-[0.65rem] font-bold leading-snug text-cyan-50"
                       style={{ unicodeBidi: 'plaintext' }}
                     >
-                      {PITCH_LINES[pitchIdx]}
+                      {copy.pitchLines[pitchIdx]}
                     </motion.p>
                   </AnimatePresence>
                 </div>
 
                 <div className="mb-3 grid grid-cols-3 gap-1">
-                  {[
-                    { icon: Megaphone, label: 'رؤية', val: '2030' },
-                    { icon: Star, label: 'قصة', val: '✦' },
-                    { icon: Radio, label: 'ردّ', val: 'فوري' },
-                  ].map((s) => (
+                  {copy.stats.map((s) => (
                     <div key={s.label} className="flex flex-col items-center gap-0.5 rounded-md border border-cyan-400/15 bg-cyan-500/6 px-1 py-1.5">
                       <s.icon className="h-3 w-3 text-cyan-400" strokeWidth={2} />
                       <span className="text-[0.58rem] font-black text-cyan-50">{s.val}</span>
@@ -295,10 +389,11 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
                 </motion.button>
 
                 <button
-                  onClick={() => navigate(ROUTE_PATHS.PARTNER_STORY)}
+                  type="button"
+                  onClick={handleTeaserLink}
                   className="mt-2 flex w-full items-center justify-center gap-1 text-[0.65rem] text-cyan-400/50 hover:text-cyan-300 transition-colors"
                 >
-                  أو اقرأ القصة والمسار <ArrowLeft className="h-3 w-3" />
+                  {copy.teaserLinkLabel} <ArrowLeft className="h-3 w-3" />
                 </button>
               </div>
             </motion.div>
@@ -329,7 +424,7 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
                       <p className="text-sm font-black text-cyan-50">المتحدث الإعلامي</p>
                       <Megaphone className="h-3.5 w-3.5 text-cyan-400" />
                     </div>
-                    <p className="text-[0.55rem] text-cyan-400/50">حلاق ماب · الرؤية والقصة</p>
+                    <p className="text-[0.55rem] text-cyan-400/50">{copy.headerSub}</p>
                   </div>
                 </div>
                 <button onClick={() => setOpen(false)}
@@ -368,7 +463,7 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
                 <div className="relative shrink-0 border-t border-cyan-500/12 px-3 py-2.5">
                   <p className="mb-2 text-[0.58rem] text-cyan-400/40">اسألني مباشرة:</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {QUICK.map((q) => (
+                    {copy.quick.map((q) => (
                       <button key={q} type="button" onClick={() => void handleSend(q)}
                         className="rounded-full border border-cyan-400/25 bg-cyan-500/8 px-3 py-1 text-[0.64rem] font-semibold text-cyan-300/85 hover:border-cyan-400/55 hover:bg-cyan-500/15 transition-all">
                         {q}
@@ -384,14 +479,15 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
                   animate={{ x: ['-100%','200%'] }} transition={{ duration: 3, repeat: Infinity, ease:'linear', repeatDelay: 2 }} />
                 <div className="relative flex items-center justify-between gap-2">
                   <div>
-                    <p className="text-[0.72rem] font-black text-cyan-200">تريد معرفة المزيد؟ 📖</p>
-                    <p className="text-[0.58rem] text-cyan-400/55">اقرأ قصة مسار الخدمات البرمجية</p>
+                    <p className="text-[0.72rem] font-black text-cyan-200">{copy.ctaTitle}</p>
+                    <p className="text-[0.58rem] text-cyan-400/55">{copy.ctaSub}</p>
                   </div>
                   <motion.button
-                    onClick={() => { setOpen(false); navigate(ROUTE_PATHS.PARTNER_WHY); }}
+                    type="button"
+                    onClick={handleCta}
                     whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                     className="flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-cyan-500 to-teal-600 px-4 py-2.5 text-[0.72rem] font-black text-black shadow-[0_2px_14px_rgba(34,211,238,0.40)] hover:from-cyan-400 transition-all">
-                    لماذا تنضم؟ <ArrowLeft className="h-3.5 w-3.5" />
+                    {copy.ctaButton} <ArrowLeft className="h-3.5 w-3.5" />
                   </motion.button>
                 </div>
               </div>
@@ -400,7 +496,7 @@ export function B2BMediaSpokespersonChat({ mode = 'panel', startMinimized = fals
                 <div className="flex items-end gap-2">
                   <textarea ref={textRef} value={draft} onChange={handleInput} onKeyDown={handleKey}
                     disabled={loading}
-                    placeholder="اسألني عن الرؤية، المسار، أو المنصة… (Enter للإرسال)"
+                    placeholder={copy.inputPlaceholder}
                     rows={1}
                     style={{ minHeight: '46px', maxHeight: '130px', resize: 'none', overflowY: 'auto' }}
                     className="flex-1 rounded-xl border border-cyan-400/22 bg-[#041018] px-4 py-3 text-sm leading-6 text-white placeholder:text-cyan-400/28 outline-none focus:border-cyan-400/55 focus:ring-1 focus:ring-cyan-400/25 transition-all disabled:opacity-50"
