@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto.js';
 import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 import { validateRegistrationCompliancePayload } from './_lib/registrationCompliance.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
@@ -61,6 +62,9 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  // ◆ حماية ضد bots والـ IPs المحجوبة
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 10 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();

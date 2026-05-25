@@ -8,6 +8,7 @@ import {
   loadDigitalShiftContext,
   upsertRecommendation,
 } from './_lib/digitalShiftAssistant.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 45 };
 
@@ -37,6 +38,8 @@ export async function POST(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
   const headers = corsHeaders(request);
+  const guard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 20 });
+  if (!guard.allowed) return guard.response;
 
   const guard = runRegistrationRouteGuards(request, 'customer-digital-shift-intercept');
   if (guard.ok === false) {

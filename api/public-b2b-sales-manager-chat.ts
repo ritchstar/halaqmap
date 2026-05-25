@@ -8,6 +8,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 // أسعار الباقات (مصدر الحقيقة: src/config/subscriptionPricing.ts)
 const PRICE_BRONZE = 100;
@@ -340,6 +341,9 @@ export async function OPTIONS(): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: false });
+  if (!secGuard.allowed) return secGuard.response;
+
   let body: Record<string, unknown>;
   try { body = (await request.json()) as Record<string, unknown>; }
   catch { return json({ error: 'Invalid JSON' }, 400); }

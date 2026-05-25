@@ -9,6 +9,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 45 };
 
@@ -183,6 +184,9 @@ export async function OPTIONS(): Promise<Response> {
 
 // ─── POST /api/public-media-spokesperson-chat ─────────────────────────────────
 export async function POST(request: Request): Promise<Response> {
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: false });
+  if (!secGuard.allowed) return secGuard.response;
+
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;
