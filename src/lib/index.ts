@@ -62,6 +62,8 @@ export const ROUTE_PATHS = {
   ADMIN_STAFF_HUB: '/staff-hub',
   /** شرح مفصّل للمناوب الرقمي الذكي */
   DIGITAL_SHIFT_FEATURE: '/partners/digital-shift',
+  /** دليل إضافة المكتب الخاص — تعليمات الاستخدام المفصّلة */
+  PRIVATE_OFFICE_GUIDE: '/partners/private-office-guide',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

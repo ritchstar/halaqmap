@@ -42,6 +42,7 @@ import AdminCyberOperationsPage from "@/app/admin/cyber/page";
 import StaffHubPage from "@/app/admin/staff-hub/page";
 import CosmicShowcase from "@/pages/CosmicShowcase";
 import DigitalShiftFeaturePage from "@/pages/DigitalShiftFeaturePage";
+import PrivateOfficeGuide from "@/pages/PrivateOfficeGuide";
 import LandingPreview from "@/pages/LandingPreview";
 import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
 import PlatformReviews from "@/pages/PlatformReviews";
@@ -103,6 +104,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<PlatformReviews />} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<CosmicShowcase />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<DigitalShiftFeaturePage />} />
+          <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<PrivateOfficeGuide />} />
 
           {/* ── أرشيف الصفحات القديمة — ذكرى البدايات ──────────────── */}
           <Route path="/archive/home" element={<Layout><Home /></Layout>} />

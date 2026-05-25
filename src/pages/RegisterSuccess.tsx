@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Copy, CreditCard, Download, Home, Loader2, Mail } from 'lucide-react';
+import { CheckCircle2, Copy, CreditCard, Download, Home, Loader2, Mail, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -233,6 +233,26 @@ export default function RegisterSuccess() {
                 </a>
               </Button>
             </div>
+
+            {/* دليل المكتب الخاص — للماسي فقط */}
+            {data.tier === SubscriptionTier.DIAMOND && (
+              <div className="rounded-xl border border-violet-500/40 bg-gradient-to-br from-violet-950/50 to-violet-900/20 p-4 text-right"
+                style={{ boxShadow: '0 0 20px rgba(139,92,246,0.08)' }}>
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="text-lg">🏛️</span>
+                  <p className="font-black text-violet-200 text-sm">دليل إضافة المكتب الخاص</p>
+                </div>
+                <p className="mb-3 text-xs leading-relaxed text-slate-400">
+                  مرفق مع اشتراكك الماسي — تعلّم كيف تكتب <strong className="text-violet-300">«تعليمة:»</strong> كرمز توجيه يُباشر مناوبك تلقائياً مع كل زبون.
+                </p>
+                <Button className="w-full gap-2 bg-violet-700 hover:bg-violet-600 text-white font-bold" asChild>
+                  <Link to={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} target="_blank">
+                    <BookOpen className="w-4 h-4" />
+                    افتح دليل المكتب الخاص
+                  </Link>
+                </Button>
+              </div>
+            )}
 
             <div className="flex flex-col gap-2 pt-2">
               <Button variant="secondary" className="w-full gap-2" asChild>
