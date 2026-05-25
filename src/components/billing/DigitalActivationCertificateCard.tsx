@@ -3,13 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import {
   BARBER_NAME_LABEL_AR,
-  GEOSPATIAL_LICENSE_ASSET_CLASS,
   ISIC_ACTIVITY_CODE,
   ISIC_ACTIVITY_CODE_LABEL_AR,
   MAP_INTEGRATION_PROTOCOL,
   PLATFORM_NAME_AR,
   SOFTWARE_LICENSE_MANAGER_LABEL_AR,
-  UNIFIED_DIGITAL_LICENSE_LABEL_AR,
   type DigitalActivationCertificateView,
 } from '@/config/geospatialLicenseDoctrine';
 import { INVOICE_PRODUCT_DESCRIPTION_EN } from '@/config/softwareLicenseTerminology';
@@ -63,20 +61,36 @@ export function DigitalActivationCertificateCard({ certificate, barberName, clas
           </Badge>
         </div>
         <CardTitle className={cn('text-xl font-extrabold text-white', compact && 'text-lg')}>
-          شهادة تفعيل رقمية — {PLATFORM_NAME_AR}
+          شهادة تفعيل رقمية فاخرة — {PLATFORM_NAME_AR}
         </CardTitle>
         <CardDescription className="text-slate-300">
-          {SOFTWARE_LICENSE_MANAGER_LABEL_AR} — {GEOSPATIAL_LICENSE_ASSET_CLASS}
+          {SOFTWARE_LICENSE_MANAGER_LABEL_AR} — وثيقة رسمية تُثبت ملكيتك لمنتجنا الرقمي
         </CardDescription>
       </CardHeader>
       <CardContent className={cn('space-y-4', compact && 'pt-0')}>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-3 sm:col-span-2">
-            <p className="text-[10px] font-semibold text-cyan-200/80">{UNIFIED_DIGITAL_LICENSE_LABEL_AR}</p>
-            <p className="mt-1 font-mono text-lg font-bold tracking-wide text-white" dir="ltr">
+        <div className="relative overflow-hidden rounded-2xl border border-amber-400/45 bg-gradient-to-br from-amber-950/40 via-slate-950 to-black/50 p-4 sm:col-span-2">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-amber-200/5 to-transparent" />
+          <div className="relative text-center sm:text-right">
+            <p className="text-[10px] font-bold tracking-wide text-amber-200/80">
+              كود التفعيل — مفتاح رخصة النفاذ الرقمي
+            </p>
+            <p
+              className="mt-2 font-mono text-xl font-black tracking-[0.1em] text-transparent sm:text-2xl"
+              dir="ltr"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+              }}
+            >
               {certificate.certificateNumber}
             </p>
+            <p className="mt-2 text-[11px] leading-relaxed text-amber-100/50">
+              احفظ هذا الرمز — مرجعك للتحقق، الدعم، وربط لوحة التحكم
+            </p>
           </div>
+        </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-3">
             <p className="text-[10px] text-slate-400">{ISIC_ACTIVITY_CODE_LABEL_AR}</p>
             <p className="mt-1 font-mono text-sm font-bold text-emerald-200" dir="ltr">

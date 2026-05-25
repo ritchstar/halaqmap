@@ -809,45 +809,117 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
 }
 
 // ─── Digital certificate mockup ──────────────────────────────────────────────
+const DEMO_ACTIVATION_CODE = 'HM-LIC-A3F9-K2M1-7X4P';
+
 function CertificateMockup() {
   return (
-    <div
-      className="relative mx-auto max-w-sm overflow-hidden rounded-2xl border border-amber-400/30 bg-gradient-to-b from-[#0d1b0d] to-[#030d03] p-6 shadow-xl shadow-amber-500/10"
-      dir="rtl"
-    >
-      <div className="absolute inset-0 opacity-5"
-        style={{ backgroundImage: 'repeating-linear-gradient(45deg, #d4af37 0, #d4af37 1px, transparent 0, transparent 50%)', backgroundSize: '8px 8px' }} />
-      <div className="relative">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-700 shadow-lg">
-            <Scissors className="h-6 w-6 text-black" />
-          </div>
-          <div>
-            <div className="text-xs font-bold text-amber-400">حلاق ماب — HALAQ MAP</div>
-            <div className="text-[0.6rem] text-slate-500">شهادة التفعيل الرقمية</div>
-          </div>
-        </div>
-        <div className="mb-4 rounded-xl border border-amber-400/20 bg-black/40 p-4">
-          <div className="mb-2 text-[0.6rem] text-slate-500 uppercase tracking-wider">رخصة النفاذ الرقمية</div>
-          <div className="text-sm font-bold text-white">صالون ستايل برو للرجال</div>
-          <div className="mt-1 font-mono text-[0.65rem] text-amber-400">HM-LIC-A3F9-K2M1-7X4P</div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 text-[0.62rem]">
-          {[
-            { label: 'الباقة', value: 'ذهبي 🥇' },
-            { label: 'النظام', value: 'الاستجابة الذكية' },
-            { label: 'تاريخ التفعيل', value: '٢٣ مايو ٢٠٢٦' },
-            { label: 'انتهاء الصلاحية', value: '٢٢ يونيو ٢٠٢٦' },
-          ].map((item) => (
-            <div key={item.label} className="rounded-lg border border-white/8 bg-white/5 p-2">
-              <div className="text-slate-500">{item.label}</div>
-              <div className="font-semibold text-white">{item.value}</div>
+    <div className="relative mx-auto max-w-md" dir="rtl">
+      {/* هالة خارجية */}
+      <div className="pointer-events-none absolute -inset-3 rounded-[1.75rem] bg-gradient-to-br from-amber-400/25 via-amber-600/10 to-emerald-500/15 blur-xl" />
+
+      <div className="relative overflow-hidden rounded-3xl border-2 border-amber-400/45 bg-gradient-to-b from-[#0f1a0f] via-[#071007] to-[#030803] p-6 shadow-2xl shadow-amber-500/15 sm:p-7">
+        {/* زخرفة diagonal */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, #d4af37 0, #d4af37 1px, transparent 0, transparent 50%)',
+            backgroundSize: '10px 10px',
+          }}
+        />
+        {/* توهج علوي */}
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-24 rounded-full bg-amber-400/10 blur-3xl" />
+
+        <div className="relative space-y-5">
+          {/* الرأس */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-800 shadow-lg shadow-amber-500/30 ring-2 ring-amber-200/30">
+                <Scissors className="h-7 w-7 text-black" />
+                <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full border-2 border-[#071007] bg-emerald-400" />
+              </div>
+              <div>
+                <p className="text-[0.65rem] font-bold tracking-[0.2em] text-amber-300/80">HALAQ MAP</p>
+                <h3 className="text-base font-black text-white sm:text-lg">شهادة تفعيل رقمية فاخرة</h3>
+                <p className="mt-0.5 text-[0.68rem] leading-relaxed text-slate-400">
+                  وثيقة رسمية تُثبت ملكيتك لمنتج حلاق ماب الرقمي
+                </p>
+              </div>
             </div>
-          ))}
-        </div>
-        <div className="mt-4 flex items-center gap-2 rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-2">
-          <FileCheck className="h-4 w-4 text-emerald-400" />
-          <span className="text-[0.65rem] text-emerald-300">مُفعَّلة ومُسجَّلة على نظام المنصة</span>
+            <span className="shrink-0 rounded-full border border-amber-400/35 bg-amber-500/10 px-2.5 py-1 text-[0.55rem] font-black text-amber-200">
+              موثّقة
+            </span>
+          </div>
+
+          {/* صاحب الرخصة */}
+          <div className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3">
+            <p className="text-[0.58rem] font-semibold tracking-wide text-slate-500">صاحب الرخصة · رخصة النفاذ الرقمية</p>
+            <p className="mt-1 text-base font-bold text-white sm:text-lg">صالون ستايل برو للرجال</p>
+          </div>
+
+          {/* كود التفعيل — البطل */}
+          <motion.div
+            className="relative overflow-hidden rounded-2xl border border-amber-400/50 bg-gradient-to-br from-amber-950/50 via-[#120a00] to-black/60 px-4 py-5 text-center shadow-[inset_0_1px_0_rgba(251,191,36,0.2),0_0_40px_rgba(245,158,11,0.12)]"
+            animate={{ boxShadow: ['0 0 30px rgba(245,158,11,0.10)', '0 0 50px rgba(245,158,11,0.22)', '0 0 30px rgba(245,158,11,0.10)'] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <motion.div
+              className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-amber-200/10 to-transparent"
+              animate={{ x: ['-120%', '220%'] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'linear', repeatDelay: 2.5 }}
+            />
+            <div className="relative">
+              <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-0.5">
+                <Sparkles className="h-3 w-3 text-amber-300" />
+                <span className="text-[0.62rem] font-bold text-amber-200">كود التفعيل — مفتاح رخصتك</span>
+              </div>
+              <p
+                className="font-mono text-[1.15rem] font-black tracking-[0.12em] text-transparent sm:text-[1.35rem]"
+                dir="ltr"
+                style={{
+                  backgroundImage: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 45%, #f59e0b 100%)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                }}
+              >
+                {DEMO_ACTIVATION_CODE}
+              </p>
+              <p className="mt-2 text-[0.62rem] leading-relaxed text-amber-100/55">
+                احفظ هذا الرمز — مرجعك الوحيد للتحقق، الدعم، وربط لوحة التحكم
+              </p>
+            </div>
+          </motion.div>
+
+          {/* التفاصيل */}
+          <div className="grid grid-cols-2 gap-2.5 text-[0.62rem] sm:gap-3">
+            {[
+              { label: 'الباقة المختارة', value: 'ذهبي 🥇' },
+              { label: 'نظام الاستجابة', value: 'الظهور عند الطلب' },
+              { label: 'تاريخ الإصدار', value: '٢٣ مايو ٢٠٢٦' },
+              { label: 'صلاحية الرخصة', value: '٢٢ يونيو ٢٠٢٦' },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-white/10 bg-white/[0.04] p-2.5 sm:p-3"
+              >
+                <p className="text-slate-500">{item.label}</p>
+                <p className="mt-1 font-bold text-white">{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* التذييل */}
+          <div className="flex items-start gap-2.5 rounded-xl border border-emerald-400/35 bg-emerald-500/10 px-3 py-2.5">
+            <FileCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+            <div>
+              <p className="text-[0.68rem] font-bold text-emerald-200">
+                مُصدَرة ومُسجَّلة على نظام حلاق ماب
+              </p>
+              <p className="mt-0.5 text-[0.58rem] leading-relaxed text-emerald-100/60">
+                منتج رقمي رسمي — يصلك فور نجاح الدفع؛ نعتني بكل رخصة كأصلٍ يستحق الفخر
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1271,7 +1343,7 @@ export default function PartnerMarketingPreview() {
             <FeatureCard icon={Brain} title="إضافة المكتب الخاص 🏛️" desc="مساعد داخلي + مناوب شات مترابطان — أعطِ تعليماتك، المناوب ينفّذها، والتقارير تصلك فوراً." color="from-violet-600 to-indigo-600" delay={0.24} badge="Diamond Add-on" />
             <FeatureCard icon={Users} title="خدمة كبار السن وذوي الاحتياجات" desc="إعلان موجَّه لشريحة لا تجدها في أي منصة أخرى — ميزة تنافسية حقيقية." color="from-sky-500 to-blue-400" delay={0.08} badge="Gold +" />
             <FeatureCard icon={QrCode} title="بورتفوليو صور" desc="اعرض أعمالك الفعلية — المزيد من الصور = المزيد من الثقة قبل الزيارة." color="from-orange-500 to-red-500" delay={0.16} badge="Diamond +" />
-            <FeatureCard icon={FileCheck} title="شهادة التفعيل الرقمية" desc="وثيقة رسمية بعد كل دفعة: رقم الرخصة، تاريخ التفعيل، نوع الباقة." color="from-amber-600 to-orange-500" delay={0.24} />
+            <FeatureCard icon={FileCheck} title="شهادة تفعيل فاخرة" desc="وثيقة رقمية رسمية بعد كل دفعة — كود تفعيل بارز، بيانات الرخصة، واهتمام حلاق ماب بمنتجها." color="from-amber-600 to-orange-500" delay={0.24} />
           </div>
         </div>
       </section>
@@ -1537,19 +1609,19 @@ export default function PartnerMarketingPreview() {
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} dir="rtl">
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300">
-                <FileCheck className="h-3 w-3" /> بعد كل دفعة
+                <FileCheck className="h-3 w-3" /> بعد كل دفعة — فوراً
               </div>
-              <h2 className="mb-5 text-3xl font-black text-white">شهادة تفعيل رقمية رسمية</h2>
+              <h2 className="mb-5 text-3xl font-black text-white">شهادة تفعيل تليق بشراكتك</h2>
               <p className="mb-6 text-base leading-relaxed text-slate-400">
-                مع كل حزمة مدفوعة تصلك شهادة تفعيل رقمية تتضمن:
-                رقم الرخصة الفريد، نوع الباقة، تاريخ التفعيل وانتهاء الصلاحية — وثيقة رسمية تُثبت حضورك على المنصة.
+                حلاق ماب لا تبيع «اشتراكاً» فقط — تُسلّمك وثيقة رقمية فاخرة تُثبت ملكيتك لرخصة النفاذ:
+                اسم منشأتك، باقتك، تواريخ الصلاحية، و**كود تفعيل فريد** يُبرز كمفتاح رخصتك الرسمي.
               </p>
               <div className="flex flex-col gap-2.5">
                 {[
-                  'رقم رخصة فريد بتنسيق HM-LIC-XXXX-XXXX',
-                  'تاريخ التفعيل وانتهاء الصلاحية',
-                  'اسم المنشأة والباقة المشتراة',
-                  'مرجع مقبول للتحقق الإداري الرسمي',
+                  'كود تفعيل بارز بتنسيق `HM-LIC-XXXX-XXXX-XXXX`',
+                  'إصدار فوري بعد نجاح الدفع — دون انتظار',
+                  'اسم المنشأة والباقة وصلاحية الرخصة موثّقة',
+                  'مرجع رسمي للتحقق والدعم ولوحة التحكم',
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2 text-sm text-slate-300">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-amber-400" />
