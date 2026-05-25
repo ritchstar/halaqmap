@@ -156,6 +156,7 @@ export function Layout({ children }: LayoutProps) {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </header>
 
       <main className="relative z-10 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
