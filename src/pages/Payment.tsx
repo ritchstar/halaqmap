@@ -75,6 +75,11 @@ export default function Payment() {
   /** يُمرَّر في metadata.linked_barber_id بعد اعتماد الإدارة أو عبر الرابط ?linkedBarberId= */
   const linkedBarberId = useMemo(() => searchParams.get('linkedBarberId')?.trim() ?? '', [searchParams]);
   const barberName = useMemo(() => searchParams.get('barberName')?.trim() ?? '', [searchParams]);
+  /** purpose: 'new' (شراء أول لعميل جديد) | 'recharge' (شحن لحلاق مسجَّل) */
+  const purchasePurpose = useMemo(() => {
+    const p = searchParams.get('purpose')?.trim().toLowerCase();
+    return p === 'recharge' ? 'recharge' : 'new';
+  }, [searchParams]);
   const [pubPayConfig, setPubPayConfig] = useState<PublicPaymentPageConfig | null>(null);
 
   useEffect(() => {
@@ -397,11 +402,29 @@ export default function Payment() {
               <CreditCard className="w-10 h-10 text-primary" />
             </motion.div>
 
+            {/* شارة تمييز الغرض */}
+            <div className={`mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold ${
+              purchasePurpose === 'recharge'
+                ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300'
+                : 'border-amber-400/40 bg-amber-500/10 text-amber-300'
+            }`}>
+              {purchasePurpose === 'recharge'
+                ? '🔄 شحن حزمة جديدة لحسابك المسجَّل'
+                : '🆕 شراؤك الأول — تأكيد البيانات والدفع'
+              }
+            </div>
+
             <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-snug">
-              شراء حزمة رخصة نفاذ — نظام الاستجابة الذكية
+              {purchasePurpose === 'recharge'
+                ? 'شحن حزمة رخصة نفاذ جديدة'
+                : 'شراء حزمة رخصة نفاذ — نظام الاستجابة الذكية'
+              }
             </h1>
             <p className="text-lg text-muted-foreground">
-              منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة رخصة النفاذ
+              {purchasePurpose === 'recharge'
+                ? 'إضافة حزمة جديدة لحسابك — بياناتك محفوظة، لن نطلبها مجدداً'
+                : 'منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة رخصة النفاذ'
+              }
             </p>
           </div>
         </motion.div>

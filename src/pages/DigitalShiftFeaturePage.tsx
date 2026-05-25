@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
 import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR } from '@/config/subscriptionPricing';
+import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 
 const PRICE_D = 200;
 
@@ -321,7 +322,7 @@ export default function DigitalShiftFeaturePage() {
             <h2 className="mb-2 text-2xl font-black text-white">جاهز لتفعيل المناوب؟</h2>
             <p className="mb-6 text-slate-400">ابدأ بالباقة الماسية وأضف المناوب — {PRICE_D + DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة فقط</p>
             <div className="flex flex-wrap justify-center gap-3">
-              <button onClick={() => navigate(`${ROUTE_PATHS.REGISTER}?tier=diamond`)}
+              <button onClick={() => routeToBuyPackage(navigate, { tier: 'diamond', plan: 'annual', digitalShiftAddon: true })}
                 className="flex items-center gap-2 rounded-2xl px-8 py-3 text-sm font-black text-white"
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', boxShadow: '0 4px 24px rgba(139,92,246,0.35)' }}>
                 <Moon className="h-4 w-4" /> سجّل الآن واحصل على المناوب

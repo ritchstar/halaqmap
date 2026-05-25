@@ -29,6 +29,7 @@ import {
 import { SubscriptionTier } from '@/lib/index';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
+import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -431,7 +432,10 @@ function PricingCard({
         ))}
       </ul>
       <button
-        onClick={() => navigate(`${ROUTE_PATHS.REGISTER}${tierQuery ? `?tier=${tierQuery}` : ''}`)}
+        onClick={() => routeToBuyPackage(navigate, {
+          tier: (tierQuery as 'bronze' | 'gold' | 'diamond') ?? 'gold',
+          plan: 'monthly',
+        })}
         className={`mt-auto w-full rounded-xl py-3 text-sm font-bold transition-all
           ${recommended
             ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-black hover:from-amber-300'
@@ -583,20 +587,16 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
   ];
 
   const handleBuy = (tierId: string) => {
-    const tierMap: Record<string, string> = {
+    const tierMap: Record<string, 'bronze' | 'gold' | 'diamond'> = {
       'bronze': 'bronze', 'gold': 'gold', 'diamond': 'diamond', 'diamond-office': 'diamond',
     };
-    const tierQuery = tierMap[tierId] ?? 'gold';
+    const tier = tierMap[tierId] ?? 'gold';
+    const isOffice = tierId === 'diamond-office';
     setConfirming(true);
     setTimeout(() => {
-      const session = localStorage.getItem('barberAuth');
-      if (session) {
-        navigate(`${ROUTE_PATHS.PAYMENT}?tier=${tierQuery}&plan=annual`);
-      } else {
-        navigate(`${ROUTE_PATHS.REGISTER}?tier=${tierQuery}&plan=annual`);
-      }
+      routeToBuyPackage(navigate, { tier, plan: 'annual', digitalShiftAddon: isOffice });
       setConfirming(false);
-    }, 250); // تأخير بصري بسيط لتأكيد الاختيار
+    }, 250);
   };
 
   const selectedTier = TIERS.find(t => t.id === selected);
