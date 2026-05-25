@@ -50,6 +50,18 @@ export async function isIpBlocked(supabase: SupabaseClient, ip: string): Promise
   }
 }
 
+// ─── جلب موقع IP الجغرافي (ip-api.com — مجاني) ────────────────────────────
+async function getIpGeo(ip: string): Promise<{ ip_lat?: number; ip_lng?: number; ip_country?: string; ip_city?: string }> {
+  if (!ip || ip === 'unknown' || ip.startsWith('127.') || ip.startsWith('10.') || ip.startsWith('192.168.')) return {};
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 1800);
+    const res = await fetch(`http://ip-api.com/json/${ip}?fields=lat,lon,country,city`, { signal: ctrl.signal });
+    const d = (await res.json()) as { lat?: number; lon?: number; country?: string; city?: string };
+    return { ip_lat: d.lat, ip_lng: d.lon, ip_country: d.country, ip_city: d.city };
+  } catch { return {}; }
+}
+
 // ─── تسجيل حدث أمني ──────────────────────────────────────────────────────
 export async function logSecurityEvent(
   supabase: SupabaseClient,
@@ -60,9 +72,12 @@ export async function logSecurityEvent(
     endpoint?: string;
     user_agent?: string;
     detail?: Record<string, unknown>;
+    withGeo?: boolean;
   },
 ): Promise<void> {
   try {
+    // جلب الموقع الجغرافي للأحداث الحرجة أو عند الطلب الصريح
+    const geoData = (params.withGeo || params.severity === 'critical') ? await getIpGeo(params.ip) : {};
     await supabase.from('security_events').insert({
       ip: params.ip,
       event_type: params.event_type,
@@ -70,6 +85,7 @@ export async function logSecurityEvent(
       endpoint: params.endpoint,
       user_agent: params.user_agent,
       detail: params.detail ?? {},
+      ...geoData,
     });
   } catch {
     /* صامت — التسجيل لا يوقف الخدمة */

@@ -13,6 +13,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight, Radio, Swords, ShieldOff, BarChart3 } from 'lucide-react';
 import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { CyberRadarCanvas } from '@/modules/cyber-radar/components/CyberRadarCanvas';
 import {
@@ -30,6 +31,20 @@ import { CYBER_SCENARIOS, getScenarioById } from '@/modules/cyber-radar/scenario
 import type { CyberAgentResponse, CyberMode, CyberThreatSession, CyberScenario } from '@/modules/cyber-radar/types';
 
 type AuthPhase = 'loading' | 'ok' | 'denied' | 'nologin';
+
+// نوع حدث أمني حي من Supabase Realtime
+type LiveSecurityEvent = {
+  id: string;
+  ip: string;
+  event_type: string;
+  severity: string;
+  endpoint?: string;
+  ip_country?: string;
+  ip_city?: string;
+  ip_lat?: number;
+  ip_lng?: number;
+  created_at: string;
+};
 
 type CfStatus = {
   cfConfigured: boolean;
@@ -127,6 +142,9 @@ export default function AdminCyberOperationsPage() {
   const [cfStatus, setCfStatus] = useState<CfStatus | null>(null);
   const [cfLoading, setCfLoading] = useState(false);
   const [attackModeChanging, setAttackModeChanging] = useState(false);
+  // ◆ أحداث أمنية حية من Supabase Realtime
+  const [liveSecEvents, setLiveSecEvents] = useState<LiveSecurityEvent[]>([]);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
     if (phase !== 'ok') return;
@@ -146,6 +164,28 @@ export default function AdminCyberOperationsPage() {
     void fetchRealThreatData().then(setRealThreatData);
     setCfLoading(false);
   };
+
+  // ◆ Supabase Realtime — اشتراك في أحداث الأمان الحية
+  useEffect(() => {
+    if (phase !== 'ok' || !isSupabaseConfigured()) return;
+    const client = getSupabaseClient();
+    if (!client) return;
+
+    const channel = client
+      .channel('cyber-ops-security-live')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'security_events',
+      }, (payload) => {
+        const evt = payload.new as LiveSecurityEvent;
+        setLiveSecEvents(prev => [evt, ...prev].slice(0, 30));
+      })
+      .subscribe();
+
+    channelRef.current = channel;
+    return () => { void client.removeChannel(channel); };
+  }, [phase]);
 
   const handleToggleAttackMode = async () => {
     if (!cfStatus) return;
@@ -519,6 +559,38 @@ export default function AdminCyberOperationsPage() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ◆ أحداث أمنية حية — Supabase Realtime */}
+          {liveSecEvents.length > 0 && (
+            <div className="mt-2 border-t border-rose-500/10 pt-2">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <motion.div className="h-2 w-2 rounded-full bg-rose-500"
+                  animate={{ opacity:[0.4,1,0.4] }} transition={{ duration:1, repeat:Infinity }} />
+                <h2 className="text-[0.58rem] font-bold uppercase tracking-wider text-rose-400/70">
+                  أحداث حية · LIVE
+                </h2>
+              </div>
+              <div className="max-h-36 overflow-y-auto space-y-1">
+                {liveSecEvents.map(e => (
+                  <div key={e.id}
+                    className={`flex items-start gap-1.5 rounded-lg border px-2 py-1.5 text-[0.52rem] ${
+                      e.severity === 'critical' ? 'border-rose-500/30 bg-rose-950/30' : 'border-amber-500/20 bg-amber-950/15'
+                    }`}>
+                    <span>{e.severity === 'critical' ? '🚨' : '⚠️'}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-black text-rose-200" dir="ltr">{e.ip}</p>
+                      <p className="text-slate-500">{e.event_type}
+                        {e.ip_city && <span className="text-slate-600"> · {e.ip_city}</span>}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-[0.45rem] text-slate-700">
+                      {new Date(e.created_at).toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit', second:'2-digit' })}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

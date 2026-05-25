@@ -129,6 +129,25 @@ export function useCyberThreatRecorder(
       return next;
     });
 
+    // ◆ حفظ الجلسة في Supabase للمراجعة الدائمة
+    void fetch('/api/admin-dvr-sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save',
+        session: {
+          id: session.id,
+          recordedAt: session.recordedAt,
+          titleAr: session.titleAr,
+          subtitleAr: session.subtitleAr,
+          durationMs: session.durationMs,
+          events: session.events,
+          stats: session.stats,
+          prosecutorReport: session.prosecutorReport,
+        },
+      }),
+    }).catch(() => { /* صامت */ });
+
     // ◆ تنبيه بريدي حقيقي للمؤسس عند تسجيل تهديد حقيقي
     if (session.stats.totalThreats >= 3) {
       void fetch('/api/admin-security-alert', {
