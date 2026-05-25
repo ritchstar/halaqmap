@@ -70,3 +70,16 @@ export const ON_DEMAND_VISIBILITY_TECH_FACTS = {
   systemLabelAr: SMART_RESPONSE_SYSTEM_LABEL_AR,
   labelEn: ON_DEMAND_VISIBILITY_LABEL_EN,
 } as const;
+
+/**
+ * ── الجملة التسويقية الجوهرية — وصول المنصة حتمي ──
+ * تُحقَن في واجهة الرئيسية والوكلاء ذوي العلاقة التسويقية.
+ */
+export const HALAQMAP_GROWTH_INEVITABILITY_AR =
+  'وصول حلاق ماب للمستخدمين مسألة وقت — المنصة تنمو بالطلب الطبيعي لخدمة الحلاقة (الحاجة متكررة وغير قابلة للإلغاء). السؤال الحقيقي ليس «هل ستنتشر المنصة؟» بل «هل سيكون صالونك في القائمة حين تصل؟»' as const;
+
+export const HALAQMAP_GROWTH_INEVITABILITY_SHORT_AR =
+  'وصول حلاق ماب للمستخدمين مسألة وقت — فقط تأكّد أن صالونك في القائمة قبل أن يبحث عنك الزبون.' as const;
+
+export const HALAQMAP_GROWTH_INEVITABILITY_SALES_AR =
+  'بصراحة يا صاحبي — وصول حلاق ماب للمستخدمين مسألة وقت لا مسألة «إذا». الحلاقة حاجة متكررة، والرادار الجغرافي يربط الزبون بأقرب صالون فوراً. من يسجّل الآن يحجز موقعه قبل المنافسين — ومن يتأخر يجد منافسه قد أخذ المكان.' as const;

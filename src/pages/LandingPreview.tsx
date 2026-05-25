@@ -965,6 +965,35 @@ export default function LandingPreview() {
         </div>
       </section>
 
+      {/* ── بانر الحتمية — وصول المنصة مسألة وقت ────────────────────────── */}
+      <section dir="rtl" className="relative z-10 overflow-hidden border-y border-white/5 bg-gradient-to-l from-cyan-950/40 via-[#020c18] to-amber-950/30 py-5">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-cyan-400/5 to-transparent" />
+          <div className="absolute left-0 top-0 h-full w-1/3 bg-gradient-to-r from-amber-400/5 to-transparent" />
+        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="relative mx-auto flex max-w-4xl flex-col items-center gap-3 px-5 text-center sm:flex-row sm:justify-between sm:text-right"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan-400/25 bg-cyan-500/10">
+              <TrendingUp className="h-4 w-4 text-cyan-400" />
+            </div>
+            <p className="text-sm font-bold text-white/90 leading-snug">
+              وصول حلاق ماب للمستخدمين{' '}
+              <span className="bg-gradient-to-l from-amber-300 to-cyan-300 bg-clip-text font-black text-transparent">
+                مسألة وقت
+              </span>
+            </p>
+          </div>
+          <p className="max-w-sm text-[0.72rem] leading-relaxed text-slate-400">
+            الحلاقة حاجة متكررة غير قابلة للإلغاء — السؤال الوحيد: هل سيكون صالونك في القائمة حين يبحث عنك الزبون؟
+          </p>
+        </motion.div>
+      </section>
+
       {/* ── عروض التأسيس السنوية ─────────────────────────────────────────── */}
       <FoundingOffersSection navigate={navigate} />
 
