@@ -647,10 +647,442 @@ const combinedCrisis: CyberScenario = {
   ],
 };
 
+// ---------------------------------------------------------------------------
+// Scenario 4 — Account Takeover Storm (هجوم سرقة حسابات الصالونات)
+// Credential stuffing على بوابة دخول الحلاقين
+// ---------------------------------------------------------------------------
+const accountTakeoverStorm: CyberScenario = {
+  id: 'account_takeover',
+  titleAr: 'عاصفة سرقة الحسابات — Credential Stuffing',
+  subtitleAr: 'هجوم منظَّم يستهدف بوابة دخول الحلاقين بقوائم بيانات مسرَّبة',
+  totalDurationMs: 55_000,
+  steps: [
+    {
+      atMs: 0,
+      narratorAr: '00:00 — نشاط طبيعي على بوابة دخول الصالونات.',
+      events: [
+        { kind: 'login_success', severity: 'info', source: cityPoint('الرياض'), description: 'دخول صالون — الرياض' },
+        { kind: 'login_success', severity: 'info', source: cityPoint('جدة'), description: 'دخول صالون — جدة' },
+      ],
+      agentResponses: [{
+        agentId: 'proactive_scout', agentLabelAr: 'عميل الاستطلاع الاستباقي',
+        actionLabelAr: '🔍 رصد بوابة الدخول',
+        explanationAr: 'معدل المحاولات الطبيعي: 3-5 دخول/دقيقة. لا شيء مريب حتى الآن — مراقبة مستمرة.',
+        severity: 'info',
+      }],
+    },
+    {
+      atMs: 8_000,
+      narratorAr: '00:08 — ارتفاع مفاجئ في محاولات الدخول الفاشلة من IPs متعددة.',
+      events: Array.from({ length: 6 }, (_, i) => ({
+        kind: 'threat_probe' as const,
+        severity: 'elevated' as const,
+        source: projectExternalSource((['americas', 'east_europe', 'east_asia', 'central_asia', 'horn_of_africa', 'south_asia'] as const)[i]),
+        target: cityPoint('الرياض'),
+        description: `محاولة دخول فاشلة #${i + 1} — بيانات مسرَّبة`,
+        originLabelAr: ['أمريكا', 'أوروبا الشرقية', 'آسيا', 'آسيا الوسطى', 'أفريقيا', 'جنوب آسيا'][i],
+        protocolTag: 'POST /api/barber-portal-login',
+        lifetimeMs: 5_000,
+      })),
+      agentResponses: [
+        {
+          agentId: 'proactive_scout', agentLabelAr: 'عميل الاستطلاع الاستباقي',
+          actionLabelAr: '🚨 إنذار مبكر — Credential Stuffing',
+          explanationAr: 'رَصَدتُ نمط Credential Stuffing: IPs متعددة، نفس الـ endpoint، معدل متصاعد بشكل تصاعدي. هذا ليس مستخدمين حقيقيين — هذا bot يجرّب قائمة بيانات مسرَّبة. أُوصي بالتدخل الفوري.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 16_000,
+      narratorAr: '00:16 — الهجوم يتصاعد: 800 محاولة/دقيقة من 40+ مصدر.',
+      events: Array.from({ length: 8 }, (_, i) => ({
+        kind: 'threat_attack' as const,
+        severity: 'critical' as const,
+        source: projectExternalSource((['americas', 'east_europe', 'east_asia', 'central_asia', 'horn_of_africa', 'south_asia', 'east_europe', 'americas'] as const)[i]),
+        target: cityPoint('الرياض'),
+        description: `Credential Stuffing — محاولة #${(i + 1) * 100}`,
+        originLabelAr: 'مصادر موزّعة',
+        protocolTag: 'POST /login — known leaked credentials',
+        lifetimeMs: 6_000,
+        volume: 100,
+      })),
+      agentResponses: [
+        {
+          agentId: 'forensic_analyst', agentLabelAr: 'محلل الجنائيات الرقمية',
+          actionLabelAr: '🔬 تحديد البيانات المسرَّبة',
+          explanationAr: 'الحمولة تحتوي بيانات بصيغة "email:password" مع نمط هاش MD5 — مصدرها تسريب 2023 لقاعدة بيانات خدمة خليجية. هذه قائمة معروفة تباع في منتديات Dark Web. أرفع ملف التعريف للمدعي العام.',
+          severity: 'critical',
+        },
+        {
+          agentId: 'cyber_defense', agentLabelAr: 'قائد الدفاع السيبراني',
+          actionLabelAr: '⚡ تفعيل CAPTCHA + Account Lockout',
+          explanationAr: 'فعّلت إجبارية CAPTCHA على بوابة الدخول + قفل تلقائي بعد 5 محاولات فاشلة من نفس IP. المصادر الخارجية الـ 40+ باتت ترى تحدياً رياضياً قبل كل محاولة.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 28_000,
+      narratorAr: '00:28 — محيّد التهديدات يُنفّذ الحظر الشامل.',
+      events: Array.from({ length: 5 }, () => ({
+        kind: 'defence_action' as const,
+        severity: 'critical' as const,
+        source: CENTER,
+        description: 'تحييد شامل — حظر IP على DB + Cloudflare',
+        originLabelAr: 'محيّد التهديدات',
+        protocolTag: 'BLOCK: credential-stuffing-ips',
+        lifetimeMs: 5_000,
+      })),
+      agentResponses: [
+        {
+          agentId: 'threat_neutralizer', agentLabelAr: 'محيّد التهديدات',
+          actionLabelAr: '⚡ تحييد شامل — 40 IP في ثانية',
+          explanationAr: 'نفّذت الحظر الثنائي: 40 IP في Supabase Block List + Cloudflare Edge Block في نفس اللحظة. معدل المحاولات انخفض من 800 إلى 12 في الدقيقة. آخر 12 يتحدّون CAPTCHA.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 40_000,
+      narratorAr: '00:40 — الهجوم فشل. 0 حسابات مُخترَقة.',
+      agentResponses: [
+        {
+          agentId: 'public_prosecutor', agentLabelAr: 'المُدّعي العام الرقمي',
+          actionLabelAr: '📋 تقرير جنائي — Credential Stuffing',
+          explanationAr: '11,429 محاولة دخول فاشلة مُسجَّلة. 0 حسابات مُخترَقة. البيانات المستخدمة مُعرَّفة ومحفوظة كدليل رقمي. البروتوكول: إشعار الحسابات المستهدفة بتغيير كلمة المرور احترازياً.',
+          severity: 'info',
+        },
+      ],
+    },
+    { atMs: 55_000, narratorAr: '00:55 — الحماية صمدت. الحسابات سليمة 🟢' },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Scenario 5 — Intelligence Scraping Raid (غارة كشط بيانات الصالونات)
+// بوت يستهدف رصد الصالونات والمواقع لصالح منافس
+// ---------------------------------------------------------------------------
+const dataScrapingRaid: CyberScenario = {
+  id: 'data_scraping',
+  titleAr: 'غارة كشط البيانات الاستخباراتية',
+  subtitleAr: 'بوت منظَّم يستخرج مواقع وأسعار الصالونات لصالح جهة منافسة',
+  totalDurationMs: 50_000,
+  steps: [
+    {
+      atMs: 0,
+      narratorAr: '00:00 — زيارات طبيعية لبحث الصالونات من مختلف المدن.',
+      events: [
+        { kind: 'visit_internal', severity: 'info', source: cityPoint('الرياض'), description: 'بحث صالونات — الرياض' },
+        { kind: 'visit_internal', severity: 'info', source: cityPoint('جدة'), description: 'بحث صالونات — جدة' },
+        { kind: 'visit_internal', severity: 'info', source: cityPoint('الدمام'), description: 'بحث صالونات — الدمام' },
+      ],
+    },
+    {
+      atMs: 7_000,
+      narratorAr: '00:07 — نمط غير طبيعي: نفس الـ IP يطلب كل الصالونات في منطقة بالكامل.',
+      events: Array.from({ length: 6 }, (_, i) => ({
+        kind: 'threat_probe' as const,
+        severity: 'elevated' as const,
+        source: projectExternalSource('east_asia'),
+        target: [cityPoint('الرياض'), cityPoint('جدة'), cityPoint('الدمام'), cityPoint('مكة المكرمة'), cityPoint('المدينة المنورة'), cityPoint('الطائف')][i],
+        description: `كشط منهجي — صالون ${i + 1}/200`,
+        originLabelAr: 'آسيا (IP Proxy)',
+        protocolTag: 'GET /api/public-barbers?region=all',
+        lifetimeMs: 4_000,
+        volume: 50,
+      })),
+      agentResponses: [
+        {
+          agentId: 'forensic_analyst', agentLabelAr: 'محلل الجنائيات الرقمية',
+          actionLabelAr: '🔬 كشف بوت كشط منظَّم',
+          explanationAr: 'نمط الطلبات يكشف بوتاً منهجياً: طلب كل 1.3 ثانية بالضبط، User-Agent ثابت، تسلسل جغرافي منطقي (يمسح المناطق بالترتيب). الهدف: استخراج كامل قاعدة بيانات الصالونات لصالح طرف منافس.',
+          severity: 'elevated',
+        },
+        {
+          agentId: 'covert_sovereign', agentLabelAr: 'السيادة الخفية',
+          actionLabelAr: '◆ تحليل استخباراتي',
+          explanationAr: 'الـ IP يعود لخادم Virtual Private Server مؤجَّر في سنغافورة — نمط معتاد لشركات الاستخبارات التنافسية. يرجّح أن وراء هذا منصة تحاول نسخ قاعدة بياناتنا قبل الإطلاق الرسمي.',
+          severity: 'elevated',
+        },
+      ],
+    },
+    {
+      atMs: 18_000,
+      narratorAr: '00:18 — البوت يتكيّف ويوزّع الطلبات على IPs مختلفة.',
+      events: Array.from({ length: 8 }, (_, i) => ({
+        kind: 'threat_attack' as const,
+        severity: 'critical' as const,
+        source: projectExternalSource((['east_asia', 'americas', 'east_europe', 'south_asia', 'east_asia', 'americas', 'central_asia', 'horn_of_africa'] as const)[i]),
+        target: [cityPoint('الرياض'), cityPoint('جدة'), cityPoint('الدمام'), cityPoint('الطائف'), cityPoint('المدينة المنورة'), cityPoint('أبها'), cityPoint('تبوك'), cityPoint('حائل')][i],
+        description: 'كشط موزّع — botnet منظَّم',
+        protocolTag: 'GET /api/public-barbers — distributed scraping',
+        lifetimeMs: 5_000,
+        volume: 200,
+      })),
+      agentResponses: [
+        {
+          agentId: 'cyber_defense', agentLabelAr: 'قائد الدفاع السيبراني',
+          actionLabelAr: '🛡 تفعيل Rate Limit + Honeypot',
+          explanationAr: 'ضيّقتُ نافذة الـ API لـ 10 طلبات/دقيقة/IP وأضفت Honeypot fields في البيانات — أي من يقرأها بوت وليس إنساناً. البوت الذي يصطادها يُضاف تلقائياً لقائمة الحظر.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 32_000,
+      narratorAr: '00:32 — الـ Honeypot يصطاد البوتات. بدء التحييد الشامل.',
+      events: Array.from({ length: 6 }, () => ({
+        kind: 'defence_action' as const,
+        severity: 'elevated' as const,
+        source: CENTER,
+        description: 'Honeypot triggered — IP في قائمة الحظر',
+        originLabelAr: 'منظومة الدفاع',
+        protocolTag: 'HONEYPOT → BLOCK',
+        lifetimeMs: 4_000,
+      })),
+      agentResponses: [
+        {
+          agentId: 'threat_neutralizer', agentLabelAr: 'محيّد التهديدات',
+          actionLabelAr: '⚡ صيد الـ Honeypot — 8 IPs مُحيَّدة',
+          explanationAr: '8 IPs اصطادها الـ Honeypot — محجوبة فوراً على DB + Cloudflare. البيانات التي سرقوها مُلوَّثة ببيانات مزيّفة. أي منافس يبني عليها قاعدة بياناته سيحصل على معلومات خاطئة.',
+          severity: 'elevated',
+        },
+        {
+          agentId: 'public_prosecutor', agentLabelAr: 'المُدّعي العام الرقمي',
+          actionLabelAr: '📋 توثيق انتهاك تنافسي',
+          explanationAr: 'هذه عملية تجسس تجاري — تُشكّل انتهاكاً لنظام مكافحة الجرائم المعلوماتية المادة 13 (الحصول غير المشروع على بيانات). تمّ توثيق الأدلة الجنائية: IPs، timestamps، حجم البيانات المُسرَّبة.',
+          severity: 'critical',
+        },
+      ],
+    },
+    { atMs: 50_000, narratarAr: '00:50 — الغارة فُشلت. البيانات المسرَّبة: مُلوَّثة بالـ Honeypot 🟢' },
+  ] as CyberScenario['steps'],
+};
+
+// ---------------------------------------------------------------------------
+// Scenario 6 — Fake Pioneers Flood (إغراق مقاعد الألف الرواد بتسجيلات وهمية)
+// هجوم يستهدف حجز مقاعد العرض التأسيسي بهويات مزيّفة
+// ---------------------------------------------------------------------------
+const fakePioneersFlood: CyberScenario = {
+  id: 'fake_pioneers',
+  titleAr: 'إغراق مقاعد الألف الرواد — تسجيلات وهمية',
+  subtitleAr: 'هجوم منظَّم يحاول سرقة مقاعد العرض التأسيسي وشارة الرائد بهويات مزيّفة',
+  totalDurationMs: 60_000,
+  steps: [
+    {
+      atMs: 0,
+      narratorAr: '00:00 — تدفق طلبات تسجيل عادي من صالونات حقيقية.',
+      events: [
+        { kind: 'registration', severity: 'info', source: cityPoint('الرياض'), description: 'تسجيل صالون جديد — الرياض' },
+        { kind: 'registration', severity: 'info', source: cityPoint('جدة'), description: 'تسجيل صالون — جدة' },
+      ],
+    },
+    {
+      atMs: 6_000,
+      narratorAr: '00:06 — ارتفاع مفاجئ في التسجيلات من IPs متكررة.',
+      events: Array.from({ length: 8 }, (_, i) => ({
+        kind: 'registration' as const,
+        severity: 'elevated' as const,
+        source: projectExternalSource((['east_europe', 'central_asia', 'south_asia', 'americas', 'east_asia', 'horn_of_africa', 'east_europe', 'central_asia'] as const)[i]),
+        description: `تسجيل مشبوه #${i + 1} — بيانات مولَّدة`,
+        originLabelAr: 'مصادر خارجية',
+        protocolTag: 'POST /api/register-submission — bot',
+        lifetimeMs: 5_000,
+        volume: 10,
+      })),
+      agentResponses: [
+        {
+          agentId: 'proactive_scout', agentLabelAr: 'عميل الاستطلاع الاستباقي',
+          actionLabelAr: '🚨 كشف تسجيلات وهمية',
+          explanationAr: 'رصدت تدفق تسجيلات بمعدل ×12 فوق الطبيعي. التحليل: User-Agent متطابق، أرقام هواتف تبدأ بـ +966 مع تسلسل رياضي واضح (0501234567، 0501234568...)، أسماء صالونات مُولَّدة بـ AI.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 15_000,
+      narratorAr: '00:15 — الهجوم يتصاعد: محاولة حجز 500 مقعد من الألف.',
+      events: Array.from({ length: 10 }, (_, i) => ({
+        kind: 'threat_attack' as const,
+        severity: 'critical' as const,
+        source: projectExternalSource((['east_europe', 'central_asia', 'south_asia', 'americas', 'east_asia', 'horn_of_africa', 'east_europe', 'central_asia', 'east_asia', 'americas'] as const)[i]),
+        target: CENTER,
+        description: 'إغراق مقاعد الرواد — تسجيل وهمي',
+        originLabelAr: 'شبكة بوت منظّمة',
+        protocolTag: 'POST /api/register-submission — fake pioneers attack',
+        lifetimeMs: 6_000,
+        volume: 50,
+      })),
+      agentResponses: [
+        {
+          agentId: 'forensic_analyst', agentLabelAr: 'محلل الجنائيات الرقمية',
+          actionLabelAr: '🔬 تحليل هوية البوت',
+          explanationAr: 'فحص 200 تسجيل: 98% منها بأسماء صالونات لا تتطابق مع أي محل حلاقة في خرائط Google. بيانات الموقع الجغرافي كلها تشير لنفس الإحداثيات مع إزاحة عشوائية. هذا هجوم منظَّم يستهدف سرقة مقاعد العرض التأسيسي.',
+          severity: 'critical',
+        },
+        {
+          agentId: 'cyber_defense', agentLabelAr: 'قائد الدفاع السيبراني',
+          actionLabelAr: '🛡 تفعيل فلتر التحقق المتقدّم',
+          explanationAr: 'فعّلتُ طبقة تحقق إضافية: رقم هاتف يجب تأكيده بـ OTP، صورة الصالون تُفحص بـ AI للتحقق من وجودها فعلاً، حد 1 تسجيل/IP/24 ساعة. البوتات الآن عالقة عند OTP.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 30_000,
+      narratorAr: '00:30 — محيّد التهديدات يُعدم الهجوم على المستويين.',
+      events: Array.from({ length: 5 }, () => ({
+        kind: 'defence_action' as const,
+        severity: 'critical' as const,
+        source: CENTER,
+        description: 'تصفية تسجيلات وهمية — إلغاء جماعي',
+        originLabelAr: 'محيّد التهديدات',
+        protocolTag: 'BLOCK + INVALIDATE',
+        lifetimeMs: 5_000,
+      })),
+      agentResponses: [
+        {
+          agentId: 'threat_neutralizer', agentLabelAr: 'محيّد التهديدات',
+          actionLabelAr: '⚡ إلغاء 487 تسجيل وهمي + حظر شامل',
+          explanationAr: '487 تسجيلاً وهمياً مُلغى — المقاعد أُعيدت لقائمة الألف الرواد. 23 IP مصدر الهجوم محجوبة على DB + Cloudflare. شارة رائد لم تُسلَّم لأي من البوتات. المقاعد الحقيقية محفوظة.',
+          severity: 'critical',
+        },
+        {
+          agentId: 'public_prosecutor', agentLabelAr: 'المُدّعي العام الرقمي',
+          actionLabelAr: '📋 توثيق الاحتيال التجاري',
+          explanationAr: 'محاولة تزوير للحصول على عرض تجاري بطريق الاحتيال — نظام مكافحة الجرائم المعلوماتية المادة 3. الأدلة: IPs، أنماط البيانات المولَّدة، timestamps. ملف جاهز للإحالة عند الحاجة.',
+          severity: 'critical',
+        },
+      ],
+    },
+    { atMs: 60_000, narratorAr: '01:00 — الهجوم مُوقَف. مقاعد الألف الرواد محمية 🟢' },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Scenario 7 — Advanced Persistent Threat (تهديد متقدم ومتواصل — APT)
+// هجوم بطيء ومتعدد المراحل يستهدف البنية التحتية
+// ---------------------------------------------------------------------------
+const advancedPersistentThreat: CyberScenario = {
+  id: 'advanced_apt',
+  titleAr: 'تهديد متقدم ومتواصل — APT',
+  subtitleAr: 'هجوم صبور متعدد المراحل: استطلاع → تسلل → تصعيد → نفّذ قائد الدفاع',
+  totalDurationMs: 70_000,
+  steps: [
+    {
+      atMs: 0,
+      narratorAr: '00:00 — استطلاع خفيف جداً — يشبه الزيارات العادية.',
+      events: Array.from({ length: 4 }, (_, i) => ({
+        kind: 'visit_external' as const,
+        severity: 'info' as const,
+        source: projectExternalSource('east_europe'),
+        description: `استطلاع خفيف — نقطة ${i + 1}`,
+        protocolTag: 'GET — low & slow recon',
+        lifetimeMs: 3_000,
+      })),
+      agentResponses: [{
+        agentId: 'forensic_analyst', agentLabelAr: 'محلل الجنائيات الرقمية',
+        actionLabelAr: '🔬 رصد استطلاع خفيف',
+        explanationAr: 'رصدتُ نمطاً خفياً: 4 زيارات من نفس الـ subnet بفاصل 45 ثانية بالضبط. التوقيت الحسابي يشير لأوتوماتيكية. هذا استطلاع مبرمَج يحاول تجنب Rate Limiting. أُضيفه لقائمة المراقبة.',
+        severity: 'info',
+      }],
+    },
+    {
+      atMs: 12_000,
+      narratorAr: '00:12 — المهاجم يجرّب نقاط ضعف في الـ API.',
+      events: Array.from({ length: 5 }, (_, i) => ({
+        kind: 'threat_probe' as const,
+        severity: 'elevated' as const,
+        source: projectExternalSource('east_europe'),
+        target: CENTER,
+        description: `فحص نقطة ${['register', 'login', 'admin', 'payment', 'barbers'][i]} API`,
+        originLabelAr: 'أوروبا الشرقية',
+        protocolTag: [`OPTIONS /api/register`, `HEAD /api/admin-login`, `GET /api/admin`, `POST /api/payment`, `GET /api/barbers?admin=true`][i],
+        lifetimeMs: 4_000,
+      })),
+      agentResponses: [
+        {
+          agentId: 'proactive_scout', agentLabelAr: 'عميل الاستطلاع الاستباقي',
+          actionLabelAr: '🚨 تصعيد — مسح نقاط الـ API',
+          explanationAr: 'المهاجم ينتقل للمرحلة الثانية: يفحص نقاط الـ API بطلبات OPTIONS/HEAD غير مألوفة — يبحث عن نقاط غير محمية. طلب واحد استهدف /api/admin — هذا مؤشر خطير على نية التصعيد.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 24_000,
+      narratorAr: '00:24 — محاولة تصعيد صلاحيات على مسار الأدمن.',
+      events: Array.from({ length: 6 }, (_, i) => ({
+        kind: 'threat_attack' as const,
+        severity: 'critical' as const,
+        source: projectExternalSource('east_europe'),
+        target: CENTER,
+        description: `محاولة اختراق أدمن #${i + 1}`,
+        originLabelAr: 'أوروبا الشرقية',
+        protocolTag: 'POST /api/admin-login — privilege escalation',
+        lifetimeMs: 5_000,
+      })),
+      agentResponses: [
+        {
+          agentId: 'cyber_defense', agentLabelAr: 'قائد الدفاع السيبراني',
+          actionLabelAr: '⚡ حماية المسارات الحساسة',
+          explanationAr: 'جميع مسارات /api/admin محمية بـ MFA + JWT signature. المهاجم يحاول حقن JWT مزيّف — مستحيل بدون المفتاح السري. فعّلتُ تسجيل كل طلب لهذا الـ IP في سجل الجنائيات.',
+          severity: 'critical',
+        },
+        {
+          agentId: 'covert_sovereign', agentLabelAr: 'السيادة الخفية',
+          actionLabelAr: '◆ تتبع مجموعة APT',
+          explanationAr: 'بناءً على التكتيكات والأدوات (TTP): هذا يشبه مجموعة APT28 "Fancy Bear" المتخصصة بالاستطلاع الممنهج. أُوصي بحظر كامل الـ ASN المصدر — ليس IP واحداً فقط.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 42_000,
+      narratorAr: '00:42 — قائد الدفاع يُنهي الهجوم بتحييد كامل للمصدر.',
+      events: Array.from({ length: 4 }, () => ({
+        kind: 'defence_action' as const,
+        severity: 'critical' as const,
+        source: CENTER,
+        description: 'حظر ASN كامل — تحييد مجموعة APT',
+        originLabelAr: 'منظومة الدفاع المتكاملة',
+        protocolTag: 'CF: BLOCK ASN + DB: BLOCK IP-RANGE',
+        lifetimeMs: 5_000,
+      })),
+      agentResponses: [
+        {
+          agentId: 'threat_neutralizer', agentLabelAr: 'محيّد التهديدات',
+          actionLabelAr: '⚡ تحييد نطاق ASN كامل',
+          explanationAr: 'بناءً على توصية السيادة الخفية: حجبتُ كامل نطاق ASN (لا IP واحد). Cloudflare rule يُحجب 4,096 عنوان IP من نفس المصدر. هذا يُنهي أي محاولة انتقال داخل نفس الشبكة.',
+          severity: 'critical',
+        },
+      ],
+    },
+    {
+      atMs: 55_000,
+      narratorAr: '00:55 — الهجوم مُوقَف عند محاولة التصعيد. 0 اختراقات.',
+      agentResponses: [
+        {
+          agentId: 'public_prosecutor', agentLabelAr: 'المُدّعي العام الرقمي',
+          actionLabelAr: '📋 تقرير APT — ملف جنائي كامل',
+          explanationAr: 'موثَّق: 4 مراحل هجوم APT — استطلاع، مسح، محاولة تصعيد، انسحاب. 0 اختراقات. الملف الجنائي يحتوي على TTP كاملة للمجموعة. أوصي بإشعار الجهات الأمنية السعودية (CITC/NCA) بنمط الهجوم.',
+          severity: 'info',
+        },
+      ],
+    },
+    { atMs: 70_000, narratorAr: '01:10 — المنصة صمدت أمام APT كامل المراحل 🟢' },
+  ],
+};
+
 export const CYBER_SCENARIOS: ReadonlyArray<CyberScenario> = [
   massEnrollmentStorm,
   ddosAttack,
   combinedCrisis,
+  accountTakeoverStorm,
+  dataScrapingRaid,
+  fakePioneersFlood,
+  advancedPersistentThreat,
 ];
 
 export function getScenarioById(id: string): CyberScenario | undefined {
