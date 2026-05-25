@@ -67,6 +67,8 @@ const QUICK_BY_PAGE: Record<string, string[]> = {
     'ما مدة صلاحية حزمة الرخصة؟',
     'هل يوجد تجديد تلقائي؟',
     'ماذا يحدث عند انتهاء الحزمة؟',
+    'هل أحتاج وثائق حكومية؟',
+    'كيف أتواصل مع الدعم؟',
   ],
 };
 
@@ -345,9 +347,9 @@ export function LegalObserverChat({ page }: Props) {
             </div>
 
             {/* Quick prompts */}
-            {turns.length <= 2 && !loading && (
+            {!loading && (
               <div className="shrink-0 px-3 py-2.5" style={{ borderTop: `1px solid ${GOLD}15` }}>
-                <p className="mb-2 text-[0.58rem]" style={{ color: `${GOLD}55` }}>اسألني مباشرة:</p>
+                <p className="mb-2 text-[0.58rem]" style={{ color: `${GOLD}55` }}>اختر سؤالاً أو اكتب رسالتك:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {quickPrompts.map((q) => (
                     <button key={q} type="button" onClick={() => void handleSend(q)}

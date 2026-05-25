@@ -69,6 +69,8 @@ function getAudienceCopy(audience: Audience): AudienceCopy {
         'هل الخدمة مجانية؟',
         'كيف يعمل الرادار الجغرافي؟',
         'هل تحفظون موقعي؟',
+        'كيف أتواصل مع الصالون؟',
+        'ما هي حلاق ماب؟',
       ],
       greeting: buildConsumerGreeting(),
       stats: [
@@ -97,6 +99,8 @@ function getAudienceCopy(audience: Audience): AudienceCopy {
       'ما قصة مسار المنصة؟ 🎙️',
       'لماذا الاستجابة الذكية؟',
       'هل حلاق ماب وسيط تجاري؟',
+      'ما مدة صلاحية الحزمة؟',
+      'هل يمكن استرداد المبلغ؟',
       'كيف أبدأ كشريك؟ 🚀',
     ],
     greeting: buildPartnerGreeting(),
@@ -459,9 +463,9 @@ export function B2BMediaSpokespersonChat({
                 </div>
               </div>
 
-              {turns.length <= 2 && !loading && (
+              {!loading && (
                 <div className="relative shrink-0 border-t border-cyan-500/12 px-3 py-2.5">
-                  <p className="mb-2 text-[0.58rem] text-cyan-400/40">اسألني مباشرة:</p>
+                  <p className="mb-2 text-[0.58rem] text-cyan-400/40">اختر سؤالاً أو اكتب رسالتك:</p>
                   <div className="flex flex-wrap gap-1.5">
                     {copy.quick.map((q) => (
                       <button key={q} type="button" onClick={() => void handleSend(q)}

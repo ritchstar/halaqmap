@@ -18,7 +18,9 @@ const QUICK_PROMPTS = [
   'كيف أبحث عن حلاق؟',
   'هل الخدمة مجانية؟',
   'كم صالون في المنصة؟',
-  'ما أفضل باقة للمستخدم؟',
+  'كيف يعمل الرادار الجغرافي؟',
+  'هل تحفظون موقعي؟',
+  'كيف أتواصل مع الصالون؟',
 ];
 
 function getGreeting(): string {
@@ -210,8 +212,9 @@ export function PublicMediaSpokesperson({ mode = 'float' }: Props) {
             </div>
 
             {/* Quick prompts */}
-            {turns.length <= 2 && !loading && (
+            {!loading && (
               <div className="shrink-0 border-t border-amber-400/10 px-3 py-2">
+                <p className="mb-2 text-[0.58rem] text-amber-400/40">اختر سؤالاً أو اكتب رسالتك:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {QUICK_PROMPTS.map((q) => (
                     <button key={q} type="button" onClick={() => void handleSend(q)}

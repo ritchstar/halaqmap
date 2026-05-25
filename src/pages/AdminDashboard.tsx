@@ -945,6 +945,9 @@ export default function AdminDashboard() {
               canManageAdmins={can('manage_admins')}
               bootstrapAdmin={adminData.bootstrap}
               canSavePlatformVat={can('manage_platform_commerce_rules')}
+              canActivateZatcaTaxLive={
+                can('activate_zatca_tax_live') || can('manage_platform_commerce_rules')
+              }
               canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
               canViewPartnerMarketing={can('view_partner_marketing')}
               canManagePartnerMarketing={can('manage_partner_marketing')}
@@ -4846,6 +4849,7 @@ function SettingsSection({
   canManageAdmins,
   bootstrapAdmin,
   canSavePlatformVat,
+  canActivateZatcaTaxLive,
   canViewZatcaFinancialOffice,
   canViewPartnerMarketing,
   canManagePartnerMarketing,
@@ -4855,6 +4859,8 @@ function SettingsSection({
   bootstrapAdmin: boolean;
   /** ضريبة العرض والقواعد التجارية على الواجهات العامة */
   canSavePlatformVat: boolean;
+  /** تفعيل ض.ق.م حياً من مكتب ZATCA عند بلوغ الحد الإلزامي */
+  canActivateZatcaTaxLive: boolean;
   canViewZatcaFinancialOffice: boolean;
   canViewPartnerMarketing: boolean;
   canManagePartnerMarketing: boolean;
@@ -4872,6 +4878,7 @@ function SettingsSection({
         view_command_center: false,
         manage_command_center: false,
         view_messages: false,
+        view_settings: true,
         manage_admins: false,
         manage_payment_settings: false,
         manage_subscriber_comms: false,
@@ -4881,8 +4888,41 @@ function SettingsSection({
         view_partner_marketing: false,
         manage_partner_marketing: false,
         manage_platform_commerce_rules: false,
+        activate_zatca_tax_live: true,
         view_admin_financial_archive: true,
         manage_admin_financial_archive: true,
+      },
+    },
+    {
+      key: 'zatca_tax_advisor',
+      label: 'خبير ZATCA (زميل خازن)',
+      permissions: {
+        ...FULL_ADMIN_PERMISSIONS,
+        view_requests: false,
+        review_requests: false,
+        manage_barbers: false,
+        view_payments: true,
+        review_payments: false,
+        view_command_center: false,
+        manage_command_center: false,
+        view_messages: false,
+        view_settings: true,
+        manage_admins: false,
+        view_payment_settings: false,
+        manage_payment_settings: false,
+        manage_subscriber_comms: false,
+        manage_subscriber_lifecycle: false,
+        manage_partner_billing: false,
+        manage_centralized_billing_ops: false,
+        view_ops_billing_monitor: true,
+        view_partner_marketing: false,
+        manage_partner_marketing: false,
+        manage_platform_commerce_rules: false,
+        activate_zatca_tax_live: true,
+        view_admin_financial_archive: true,
+        manage_admin_financial_archive: false,
+        view_ops_controller: false,
+        submit_ops_controller: false,
       },
     },
     {
@@ -5720,7 +5760,7 @@ function SettingsSection({
           <CardContent>
             <ZatcaTaxActivationAlert
               canRunRadar={canViewZatcaFinancialOffice}
-              canActivate={canSavePlatformVat}
+              canActivate={canActivateZatcaTaxLive}
             />
           </CardContent>
         </Card>

@@ -55,6 +55,18 @@ async function authorizeWrite(request: Request) {
   return { ok: true as const, supabase: gate.supabase, actorEmail: gate.actorEmail };
 }
 
+async function authorizeTaxLiveActivation(request: Request) {
+  const base = await getServiceSupabase();
+  if (!base.ok) return { ok: false as const, status: base.status, json: base.body };
+
+  const gate = await verifyPlatformAdminFromRequestAny(request, base.url, process.env.SUPABASE_SERVICE_ROLE_KEY || '', [
+    'activate_zatca_tax_live',
+    'manage_platform_commerce_rules',
+  ]);
+  if (gate.ok === false) return { ok: false as const, status: gate.status, json: gate.json };
+  return { ok: true as const, supabase: gate.supabase, actorEmail: gate.actorEmail };
+}
+
 export async function GET(request: Request): Promise<Response> {
   const auth = await authorizeRead(request);
   if (auth.ok === false) return json(auth.json, auth.status);
@@ -155,15 +167,37 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (action === 'activate_tax_live' || action === 'activateTaxLive') {
-    const result = await agent.activateTaxLive(auth.actorEmail);
-    const { ok: _ok, ...activation } = result;
-    return json({
-      ok: true,
-      route: 'admin-zatca-tax-advisor',
-      action,
-      ...activation,
-      uiVatSettings: { enabled: true, ratePercent: result.vatRatePercent },
-    });
+    const activateAuth = await authorizeTaxLiveActivation(request);
+    if (activateAuth.ok === false) return json(activateAuth.json, activateAuth.status);
+
+    const agent = new ZatcaTaxAdvisorAgent(activateAuth.supabase);
+    try {
+      const result = await agent.activateTaxLive(activateAuth.actorEmail);
+      const { ok: _ok, ...activation } = result;
+      return json({
+        ok: true,
+        route: 'admin-zatca-tax-advisor',
+        action,
+        ...activation,
+        uiVatSettings: { enabled: true, ratePercent: result.vatRatePercent },
+      });
+    } catch (e) {
+      const code = e instanceof Error ? e.message : 'activation_failed';
+      if (code === 'tax_already_enabled') {
+        return json({ error: 'ضريبة القيمة المضافة مفعّلة مسبقاً على الواجهة.', code }, 409);
+      }
+      if (code === 'activation_not_ready') {
+        return json(
+          {
+            error:
+              'التفعيل متاح فقط بعد بلوغ الحد الإلزامي (375,000 ر.س) أو ظهور تنبيه التفعيل من رادار ZATCA.',
+            code,
+          },
+          403,
+        );
+      }
+      return json({ error: e instanceof Error ? e.message : 'تعذر التفعيل', code }, 500);
+    }
   }
 
   return json({ error: 'Unknown action', allowed: ['run_radar', 'refresh_intel', 'activate_tax_live'] }, 400);

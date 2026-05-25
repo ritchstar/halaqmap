@@ -255,7 +255,7 @@ export function ZatcaAdvisorLabChat({
         <div className="border-t p-3 space-y-2 shrink-0 bg-background">
           {!permitted ? (
             <p className="text-[11px] text-destructive text-right">
-              يتطلب صلاحية manage_platform_commerce_rules أو view_ops_billing_monitor.
+              يتطلب صلاحية `view_ops_billing_monitor` أو `activate_zatca_tax_live` للمكتب المالي.
             </p>
           ) : null}
 

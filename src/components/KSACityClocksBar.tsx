@@ -78,11 +78,11 @@ export function KSACityClocksBar() {
     return () => clearInterval(id);
   }, [refreshWeather]);
 
-  // تسليط الضوء على مدينة مختلفة كل 3 ثوان
+  // تسليط الضوء على مدينة مختلفة — إيقاع بطيء كالتنفس
   useEffect(() => {
     const id = setInterval(() => {
       setActiveCityIdx((i) => (i + 1) % KSA_CITIES_GEO.length);
-    }, 3000);
+    }, 6000);
     return () => clearInterval(id);
   }, []);
 
@@ -192,9 +192,9 @@ export function KSACityClocksBar() {
 
           <div className="hidden items-center gap-1.5 rounded-full border border-teal-400/30 bg-teal-500/12 px-2.5 py-1 sm:flex">
             <motion.div
-              animate={{ opacity: [0.4, 1, 0.4], scale: [0.7, 1.2, 0.7] }}
-              transition={{ duration: 1.6, repeat: Infinity }}
-              className="h-2 w-2 rounded-full bg-teal-400"
+              animate={{ opacity: [0.35, 0.7, 0.35] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              className="h-2 w-2 rounded-full bg-teal-400/80 shadow-[0_0_8px_rgba(45,212,191,0.45)]"
             />
             <span className="text-[0.6rem] font-black tracking-[0.18em] text-teal-300">LIVE</span>
           </div>
@@ -215,9 +215,7 @@ export function KSACityClocksBar() {
                 {i > 0 && <div className="mx-1.5 h-4 w-px bg-white/8 sm:mx-2" />}
 
                 <motion.div
-                  animate={isActive ? { scale: [1, 1.06, 1] } : { scale: 1 }}
-                  transition={{ duration: 0.6, ease: 'easeInOut' }}
-                  className="relative flex flex-col items-center justify-center rounded-lg px-1.5 py-1 transition-all duration-300 sm:px-2"
+                  className="relative flex flex-col items-center justify-center rounded-lg px-1.5 py-1 transition-[border-color,background] duration-[1.8s] ease-in-out sm:px-2"
                   style={{
                     background: isActive || isUserCity ? `${color}10` : 'transparent',
                     border:
@@ -229,9 +227,27 @@ export function KSACityClocksBar() {
                   }}
                 >
                   {(isActive || isUserCity) && (
+                    <motion.div
+                      className="pointer-events-none absolute inset-0 rounded-lg"
+                      style={{
+                        background: `radial-gradient(circle at 50% 55%, ${color}30 0%, ${color}10 45%, transparent 72%)`,
+                        filter: 'blur(7px)',
+                      }}
+                      animate={{ opacity: isActive ? [0.28, 0.62, 0.28] : [0.22, 0.38, 0.22] }}
+                      transition={{
+                        duration: isActive ? 5.5 : 7,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                      }}
+                    />
+                  )}
+
+                  {(isActive || isUserCity) && (
                     <div
-                      className="pointer-events-none absolute inset-0 rounded-lg blur-sm"
-                      style={{ background: `${color}18` }}
+                      className="pointer-events-none absolute inset-0 rounded-lg opacity-40"
+                      style={{
+                        background: `radial-gradient(ellipse 90% 80% at 50% 100%, ${color}14, transparent)`,
+                      }}
                     />
                   )}
 
@@ -269,10 +285,13 @@ export function KSACityClocksBar() {
 
                   {isActive && (
                     <motion.div
-                      className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full"
-                      style={{ background: color }}
-                      animate={{ opacity: [0.5, 1, 0.5], scale: [0.8, 1.3, 0.8] }}
-                      transition={{ duration: 1, repeat: Infinity }}
+                      className="pointer-events-none absolute -bottom-1 left-1/2 h-2.5 w-7 -translate-x-1/2 rounded-full"
+                      style={{
+                        background: `radial-gradient(ellipse at center, ${color} 0%, ${color}55 35%, transparent 72%)`,
+                        filter: 'blur(4px)',
+                      }}
+                      animate={{ opacity: [0.2, 0.55, 0.2], scaleX: [0.9, 1.12, 0.9] }}
+                      transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
                     />
                   )}
                 </motion.div>
@@ -323,15 +342,16 @@ export function KSACityClocksBar() {
         </div>
       </div>
 
-      {/* ── نبضة ضوئية عند تغيير المدينة ─────────────────── */}
+      {/* ── توهج سديمي بطيء عند تغيير المدينة ─────────────────── */}
       <motion.div
         key={activeCityIdx}
         className="pointer-events-none absolute inset-0"
-        initial={{ opacity: 0.3 }}
+        initial={{ opacity: 0.14 }}
         animate={{ opacity: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 2.4, ease: 'easeOut' }}
         style={{
-          background: `radial-gradient(ellipse 40% 100% at 50% 50%, ${tempColor(displayTemps[activeCityIdx])}18, transparent)`,
+          background: `radial-gradient(ellipse 55% 120% at 50% 50%, ${tempColor(displayTemps[activeCityIdx])}14, transparent 68%)`,
+          filter: 'blur(10px)',
         }}
       />
     </div>

@@ -246,6 +246,12 @@ export function ZatcaTaxActivationAlert({
                 {alert.ctaLabelAr}
               </Button>
             </div>
+            {!canActivate ? (
+              <p className="text-xs text-cyan-200/70">
+                يتطلب صلاحية «تفعيل ض.ق.م عند بلوغ الحد» (`activate_zatca_tax_live`) — اطلبها من المشرف أو استخدم
+                قالب «خبير ZATCA».
+              </p>
+            ) : null}
           </div>
         </div>
       ) : null}

@@ -38,6 +38,8 @@ export type AdminPermissionKey =
   | 'manage_partner_marketing'
   /** ضريبة العرض على الواجهات العامة وما يشابهها من «قواعد العرض التجاري» */
   | 'manage_platform_commerce_rules'
+  /** تفعيل ض.ق.م حياً من مكتب ZATCA عند بلوغ الحد الإلزامي — دون تعديل إعدادات العرض اليدوية */
+  | 'activate_zatca_tax_live'
   /** مزامنة وتعديل لوحة التزامات التشغيل والفوترة (Vercel/Supabase/مزودين) — مخصص للسوبر */
   | 'manage_centralized_billing_ops'
   /** عرض أرشيف فواتير/وثائق الإدارة */
@@ -76,6 +78,7 @@ export const ADMIN_PERMISSION_ROLE_HINT: Record<AdminPermissionKey, AdminPermiss
   view_partner_marketing: 'admin',
   manage_partner_marketing: 'admin',
   manage_platform_commerce_rules: 'super',
+  activate_zatca_tax_live: 'admin',
   manage_centralized_billing_ops: 'super',
   view_admin_financial_archive: 'admin',
   manage_admin_financial_archive: 'super',
@@ -142,6 +145,7 @@ export const ADMIN_PERMISSION_UI_SECTIONS: AdminPermissionSection[] = [
       'manage_admins',
       'manage_subscriber_lifecycle',
       'manage_platform_commerce_rules',
+      'activate_zatca_tax_live',
     ],
   },
   {
@@ -190,6 +194,7 @@ export const ADMIN_PERMISSION_LABELS: Record<AdminPermissionKey, string> = {
   view_partner_marketing: 'عرض أقسام المحتوى التسويقي للشركاء',
   manage_partner_marketing: 'تعديل فيديو الترحيب وفيديوهات شروحات حزم الرخصة',
   manage_platform_commerce_rules: 'حفظ ضريبة العرض والقواعد التجارية على الواجهات العامة',
+  activate_zatca_tax_live: 'تفعيل ض.ق.م حياً من مكتب ZATCA عند بلوغ الحد الإلزامي',
   manage_centralized_billing_ops: 'مزامنة وتعديل لوحة التزامات التشغيل (سوبر أدمن)',
   view_admin_financial_archive: 'عرض أرشيف فواتير ووثائق الإدارة',
   manage_admin_financial_archive: 'رفع وحذف أرشيف الفواتير وتحديث التزامات التشغيل',
@@ -221,6 +226,7 @@ export const DEFAULT_ADMIN_PERMISSIONS: AdminPermissions = {
   view_partner_marketing: false,
   manage_partner_marketing: false,
   manage_platform_commerce_rules: false,
+  activate_zatca_tax_live: false,
   manage_centralized_billing_ops: false,
   view_admin_financial_archive: false,
   manage_admin_financial_archive: false,
@@ -250,6 +256,7 @@ export const FULL_ADMIN_PERMISSIONS: AdminPermissions = {
   view_partner_marketing: true,
   manage_partner_marketing: true,
   manage_platform_commerce_rules: true,
+  activate_zatca_tax_live: true,
   manage_centralized_billing_ops: true,
   view_admin_financial_archive: true,
   manage_admin_financial_archive: true,
@@ -307,6 +314,14 @@ export function normalizeAdminPermissions(value: unknown): AdminPermissions {
     }
     if (k === 'manage_platform_commerce_rules') {
       out[k] = Boolean(incoming.manage_platform_commerce_rules ?? viewSettings);
+      continue;
+    }
+    if (k === 'activate_zatca_tax_live') {
+      out[k] = Boolean(
+        incoming.activate_zatca_tax_live ??
+          incoming.manage_platform_commerce_rules ??
+          false,
+      );
       continue;
     }
     if (k === 'view_admin_financial_archive') {

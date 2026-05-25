@@ -62,6 +62,7 @@ export type PlatformAdminPermissionKey =
   | 'view_partner_marketing'
   | 'manage_partner_marketing'
   | 'manage_platform_commerce_rules'
+  | 'activate_zatca_tax_live'
   | 'manage_centralized_billing_ops'
   | 'view_admin_financial_archive'
   | 'manage_admin_financial_archive'

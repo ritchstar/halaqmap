@@ -37,9 +37,10 @@ const PITCH_LINES = [
 const QUICK = [
   'فسّر لي عرض المضاعفة 🎁',
   'ما هي إضافة المكتب الخاص؟ 🏛️',
-  'كيف يعمل رمز التوجيه «تعليمة:»؟',
   'ما الفرق بين الباقات؟ 💎',
+  'هل في عمولة على القصة؟',
   'كيف يعمل نظام الظهور الجغرافي؟',
+  'ما مدة صلاحية الحزمة؟',
   'كيف أبدأ الانضمام؟ 🚀',
 ];
 
@@ -423,9 +424,9 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               </div>
 
               {/* ── Quick prompts ── */}
-              {turns.length <= 2 && !loading && (
+              {!loading && (
                 <div className="relative shrink-0 border-t border-amber-500/12 px-3 py-2.5">
-                  <p className="mb-2 text-[0.58rem] text-amber-400/40">اسألني مباشرة:</p>
+                  <p className="mb-2 text-[0.58rem] text-amber-400/40">اختر سؤالاً أو اكتب رسالتك:</p>
                   <div className="flex flex-wrap gap-1.5">
                     {QUICK.map((q) => (
                       <button key={q} type="button" onClick={() => void handleSend(q)}

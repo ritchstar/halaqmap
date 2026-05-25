@@ -587,16 +587,18 @@ export function DigitalShiftPrivateOffice({
         </div>
       </div>
 
-      {/* ══ اقتراحات سريعة (عند البداية فقط) ══ */}
-      {turns.length <= 1 && (
+      {/* ══ اقتراحات سريعة — تبقى ظاهرة بعد كل رد ══ */}
+      {!loading && (
         <div className="border-t border-violet-500/10 px-5 py-3">
-          <p className="mb-2 text-[0.58rem] text-violet-400/40">أسئلة سريعة:</p>
+          <p className="mb-2 text-[0.58rem] text-violet-400/40">اختر سؤالاً أو اكتب رسالتك:</p>
           <div className="flex flex-wrap gap-1.5">
             {[
               'كم يوم باقي في حزمتي؟',
               'أرسل لي رابط التجديد',
               'وين رابط الدعم؟',
               'ما هي تعليماتي الحالية؟',
+              'كيف أستخدم رمز «تعليمة:»؟',
+              'ما الفرق بين الباقات؟',
             ].map(q => (
               <button key={q} onClick={() => void send(q)}
                 className="rounded-full border border-violet-400/20 bg-violet-500/8 px-3 py-1 text-[0.62rem] font-semibold text-violet-300/80 hover:border-violet-400/40 hover:bg-violet-500/15 transition-all">

@@ -68,10 +68,10 @@ function buildAdminActivationAlert(
   return {
     priority: 'critical',
     agentId: 'zatca_tax_advisor',
-    agentLabelAr: 'زميل خازن',
-    titleAr: 'بلوغ الحد الإلزامي — تفعيل الضريبة بانتظار موافقتك',
+    agentLabelAr: 'خبير ZATCA 🛡️',
+    titleAr: 'بلوغ الحد الإلزامي — تفعيل الضريبة جاهز',
     bodyAr:
-      'زميل خازن: تم رصد بلوغ الحد الإلزامي لهيئة الزكاة والدخل بنجاح. كافة الحسب والتقارير جاهزة بنسبة 15%. يرجى مراجعة شهادة التسجيل والضغط هنا للتفعيل الفوري الحي.',
+      'خبير ZATCA: تم رصد بلوغ الحد الإلزامي لهيئة الزكاة والضريبة والجمارك. كافة الحسب والتقارير جاهزة بنسبة 15%. يرجى مراجعة شهادة التسجيل والضغط هنا للتفعيل الفوري الحي.',
     ctaLabelAr: 'التفعيل الفوري الحي',
     ctaAction: 'activate_tax_live',
     glow: true,
@@ -117,7 +117,7 @@ async function upsertStateRow(
 
 /**
  * زميل لخازن — ZATCA financial agent: proactive revenue radar + non-blocking fulfillment prep.
- * Never flips `tax_enabled` to true without explicit Super Admin activation.
+ * Never flips `tax_enabled` to true without explicit admin activation at mandatory threshold.
  */
 export class ZatcaTaxAdvisorAgent {
   constructor(private readonly supabase: ZatcaTaxAdvisorSupabase) {}
@@ -244,11 +244,30 @@ export class ZatcaTaxAdvisorAgent {
   }
 
   /**
-   * Super Admin explicit live activation — sets `tax_enabled` true (only path to flip live flag).
+   * Explicit live activation — sets `tax_enabled` true when mandatory threshold is met.
+   * Requires `activate_zatca_tax_live` or `manage_platform_commerce_rules`.
    */
   async activateTaxLive(actorEmail: string | null): Promise<ZatcaTaxLiveActivationResult> {
     const nowIso = new Date().toISOString();
     const existing = await loadStateRow(this.supabase);
+
+    if (existing?.tax_enabled === true) {
+      throw new Error('tax_already_enabled');
+    }
+
+    const snap = existing?.cached_revenue_snapshot;
+    const analytics =
+      snap && typeof snap === 'object' && 'totalHistoricalHalalas' in snap
+        ? (snap as ZatcaRevenueAnalytics)
+        : null;
+    const mandatoryBreached = analytics ? isMandatoryLimitBreached(analytics) : false;
+    const hasActivationAlert = existing?.admin_activation_alert != null;
+    const hasMandatoryTimestamp = existing?.mandatory_breached_at != null;
+
+    if (!mandatoryBreached && !hasActivationAlert && !hasMandatoryTimestamp) {
+      throw new Error('activation_not_ready');
+    }
+
     const prepared =
       existing?.cached_vat_config && typeof existing.cached_vat_config === 'object'
         ? (existing.cached_vat_config as ZatcaPreparedVatConfig)

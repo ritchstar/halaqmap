@@ -156,6 +156,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
       'manage_platform_commerce_rules',
       'view_ops_billing_monitor',
       'manage_centralized_billing_ops',
+      'activate_zatca_tax_live',
     ],
     available: true,
     iconKind: 'zatca_shield',
@@ -163,7 +164,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     doctrineNotes: [
       'رادار إيرادات المنصة + تقرير استباقي باحتسابات افتراضية (187,500 / 375,000 ر.س).',
       'مسح دوري لمواقع ZATCA الرسمية — ليس بديلاً عن مستشار ضريبي مرخّص.',
-      'تفعيل ض.ق.م 15% على الواجهة يتطلب موافقة Super Admin صريحة.',
+      'تفعيل ض.ق.م 15% على الواجهة عند بلوغ 375,000 ر.س — صلاحية `activate_zatca_tax_live` أو سوبر أدمن.',
     ],
     productRef: {
       apiRoutes: ['/api/admin-zatca-tax-advisor', '/api/admin-zatca-advisor-lab-chat'],

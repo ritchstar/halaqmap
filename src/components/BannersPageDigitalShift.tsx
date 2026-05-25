@@ -19,6 +19,7 @@ const QUICK = [
   'كيف يساعد صالوني؟',
   'بكم Add-on المناوب؟',
   'ما الفرق بين الباقات؟',
+  'هل في عمولة على القصة؟',
   'كيف أشترك؟',
 ];
 
@@ -207,9 +208,9 @@ export function BannersPageDigitalShift() {
             </div>
 
             {/* Quick prompts */}
-            {turns.length <= 2 && !loading && (
+            {!loading && (
               <div className="shrink-0 border-t border-violet-400/10 px-3 py-2">
-                <p className="mb-1.5 text-[0.6rem] text-violet-400/50">اسألني بسرعة:</p>
+                <p className="mb-1.5 text-[0.6rem] text-violet-400/50">اختر سؤالاً أو اكتب رسالتك:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {QUICK.map((q) => (
                     <button key={q} type="button" onClick={() => void handleSend(q)}
