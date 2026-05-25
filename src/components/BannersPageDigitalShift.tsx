@@ -224,7 +224,7 @@ export function BannersPageDigitalShift() {
 
             {/* Referral note */}
             <div className="shrink-0 mx-3 mb-1 rounded-lg border border-teal-400/15 bg-teal-500/5 px-3 py-1.5 text-[0.6rem] text-teal-300/60">
-              💬 أسئلة الانضمام؟ مساعد الشركاء (الزر الأخضر) أخصائي في هذا!
+              💼 أسئلة الانضمام؟ مدير المبيعات B2B (الزر الأخضر) أخصائي في هذا!
             </div>
 
             {/* Input */}
