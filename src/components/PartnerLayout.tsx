@@ -22,6 +22,7 @@ import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPub
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
 import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
+import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
@@ -316,20 +317,30 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <main className="relative z-10 min-h-0 w-full flex-1">{children}</main>
 
-      {/* لا مدير مبيعات على صفحات الخصوصية، السياسات، والدفع */}
+      {/* لا مدير مبيعات / متحدث على صفحات الخصوصية، السياسات، والدفع */}
       {![
         ROUTE_PATHS.PARTNER_PRIVACY,
         ROUTE_PATHS.SUBSCRIPTION_POLICY,
         ROUTE_PATHS.PAYMENT,            // صفحة الدفع — لا تشتيت
       ].includes(location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY) && (
-        <B2BSalesManagerChat
-          startMinimized={[
-            ROUTE_PATHS.REGISTER,
-            ROUTE_PATHS.REGISTER_SUCCESS,
-            ROUTE_PATHS.BARBER_LOGIN,
-            ROUTE_PATHS.BARBER_PORTAL_ENTER,
-          ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
-        />
+        <>
+          <B2BSalesManagerChat
+            startMinimized={[
+              ROUTE_PATHS.REGISTER,
+              ROUTE_PATHS.REGISTER_SUCCESS,
+              ROUTE_PATHS.BARBER_LOGIN,
+              ROUTE_PATHS.BARBER_PORTAL_ENTER,
+            ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
+          />
+          <B2BMediaSpokespersonChat
+            startMinimized={[
+              ROUTE_PATHS.REGISTER,
+              ROUTE_PATHS.REGISTER_SUCCESS,
+              ROUTE_PATHS.BARBER_LOGIN,
+              ROUTE_PATHS.BARBER_PORTAL_ENTER,
+            ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
+          />
+        </>
       )}
 
       {/* شريط تنقّل سفلي للجوال — نمط تطبيق */}
