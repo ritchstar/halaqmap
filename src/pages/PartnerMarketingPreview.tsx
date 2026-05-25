@@ -120,7 +120,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
                 className="text-lg"
               >⚡</motion.span>
               <span className="rounded-full border border-amber-400/30 bg-amber-500/12 px-3 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.2em] text-amber-400">
-                ⭐ عرض تشغيلي مؤقت · ألف الرواد التأسيسيين
+                ⭐ عرض تشغيلي مؤقت · الألف الرواد
               </span>
             </div>
             <h3 className="text-xl font-black leading-tight text-white md:text-2xl">
@@ -1067,7 +1067,7 @@ export default function PartnerMarketingPreview() {
               ⭐ كل مشترك من الأوائل الألف يحصل على شارة رائد لامعة على بنره — دون تمييز بين الباقات
             </div>
             <p className="text-[0.62rem] text-slate-700">
-              العرض مؤقت · حصري لألف الرواد التأسيسيين · لا عمولة · مسبقة الدفع · لا تجديد تلقائي
+              العرض مؤقت · حصري للألف الرواد · لا عمولة · مسبقة الدفع · لا تجديد تلقائي
             </p>
           </div>
         </div>

@@ -113,7 +113,7 @@ function FoundersDealBanner() {
         <div className="flex items-center gap-2">
           <Zap className="h-4 w-4 text-amber-400 animate-pulse" />
           <div>
-            <p className="text-[0.58rem] font-black uppercase tracking-widest text-amber-400/70">⭐ عرض تشغيلي مؤقت · ألف الرواد التأسيسيين</p>
+            <p className="text-[0.58rem] font-black uppercase tracking-widest text-amber-400/70">⭐ عرض تشغيلي مؤقت · الألف الرواد</p>
             <p className="text-sm font-black text-white">مضاعفة الرخص + شارة رائد لامعة — أول ١٠٠٠ صالون فقط</p>
           </div>
         </div>
@@ -157,7 +157,7 @@ function FoundersDealBanner() {
       <div className="mx-4 mb-3 flex items-center gap-2 rounded-xl border border-amber-400/25 bg-amber-500/8 px-3 py-2">
         <span className="text-lg">⭐</span>
         <div>
-          <p className="text-xs font-black text-amber-300">شارة رائد — حصرية لألف الرواد التأسيسيين</p>
+          <p className="text-xs font-black text-amber-300">شارة رائد — حصرية للألف الرواد</p>
           <p className="text-[0.58rem] text-slate-400">كل مشترك من ١ إلى ١٠٠٠ يحصل على شارة رائد لامعة على بنره · لا تُمنح لغير الألف الأوائل · بلا تمييز بين الباقات</p>
         </div>
       </div>
