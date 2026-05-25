@@ -10,7 +10,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, Radio, Swords } from 'lucide-react';
+import { ArrowRight, Radio, Swords, ShieldOff, BarChart3 } from 'lucide-react';
 import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
@@ -31,6 +31,42 @@ import type { CyberAgentResponse, CyberMode, CyberThreatSession, CyberScenario }
 
 type AuthPhase = 'loading' | 'ok' | 'denied' | 'nologin';
 
+type RealThreatData = {
+  period: string;
+  summary: {
+    totalEvents: number;
+    criticalEvents: number;
+    blockedAttempts: number;
+    paymentSecurityEvents: number;
+    registrationSubmissions: number;
+    uniqueIps: number;
+  };
+  topSuspiciousIps: { ip: string; count: number }[];
+};
+
+async function fetchRealThreatData(): Promise<RealThreatData | null> {
+  try {
+    const res = await fetch('/api/admin-security-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_threat_data', hours: 24 }),
+    });
+    const data = (await res.json()) as RealThreatData & { ok?: boolean };
+    return data.ok !== false ? data : null;
+  } catch { return null; }
+}
+
+async function blockIpReal(ip: string, reason: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/admin-security-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'block_ip', ip, reason }),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
 export default function AdminCyberOperationsPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,6 +83,24 @@ export default function AdminCyberOperationsPage() {
 
   const playback = useCyberPlayback(activeScenario);
   const live = useCyberLiveStream(mode === 'live');
+
+  // ◆ البيانات الأمنية الحقيقية
+  const [realThreatData, setRealThreatData] = useState<RealThreatData | null>(null);
+  const [blockingIp, setBlockingIp] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (phase !== 'ok') return;
+    void fetchRealThreatData().then(setRealThreatData);
+    const t = setInterval(() => void fetchRealThreatData().then(setRealThreatData), 120_000);
+    return () => clearInterval(t);
+  }, [phase]);
+
+  const handleBlockIp = async (ip: string) => {
+    setBlockingIp(ip);
+    const ok = await blockIpReal(ip, 'Blocked by Public Prosecutor — Cyber Ops Theater');
+    setBlockingIp(null);
+    if (ok) void fetchRealThreatData().then(setRealThreatData);
+  };
 
   // ◆ DVR — التسجيل التلقائي لجلسات التهديد
   const dvr = useCyberThreatRecorder(live.pulses, mode === 'live' && phase === 'ok');
@@ -285,6 +339,53 @@ export default function AdminCyberOperationsPage() {
             سِجِل الأَحداث
           </h2>
           <CyberEventLog events={pulses} />
+
+          {/* ◆ بيانات أمنية حقيقية — المدعي العام الرقمي */}
+          {realThreatData && (
+            <div className="mt-2 border-t border-amber-400/10 pt-2">
+              <div className="flex items-center gap-1.5 mb-2">
+                <BarChart3 className="h-3 w-3 text-amber-400/70" />
+                <h2 className="text-[0.6rem] font-bold uppercase tracking-wider text-amber-400/70">
+                  تقرير حقيقي · المدعي العام — {realThreatData.period}
+                </h2>
+              </div>
+              <div className="grid grid-cols-3 gap-1 mb-2">
+                {[
+                  { v: realThreatData.summary.totalEvents, l: 'حدث', c: 'text-slate-300' },
+                  { v: realThreatData.summary.criticalEvents, l: 'حرج', c: 'text-rose-400' },
+                  { v: realThreatData.summary.blockedAttempts, l: 'محجوب', c: 'text-amber-400' },
+                ].map(s => (
+                  <div key={s.l} className="rounded-lg border border-white/5 bg-black/30 p-1.5 text-center">
+                    <p className={`text-sm font-black ${s.c}`}>{s.v}</p>
+                    <p className="text-[0.45rem] text-slate-600">{s.l}</p>
+                  </div>
+                ))}
+              </div>
+              {realThreatData.topSuspiciousIps.length > 0 && (
+                <div className="rounded-lg border border-amber-400/10 bg-black/20 p-2">
+                  <p className="mb-1.5 text-[0.5rem] font-bold uppercase text-amber-400/50">أكثر IPs نشاطاً</p>
+                  <div className="space-y-1 max-h-28 overflow-y-auto">
+                    {realThreatData.topSuspiciousIps.slice(0, 8).map(({ ip, count }) => (
+                      <div key={ip} className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-[0.55rem] text-rose-300/80" dir="ltr">{ip}</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[0.5rem] text-slate-600">×{count}</span>
+                          <button
+                            onClick={() => void handleBlockIp(ip)}
+                            disabled={blockingIp === ip}
+                            className="flex items-center gap-0.5 rounded border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[0.48rem] font-black text-rose-300 hover:bg-rose-500/20 transition-all disabled:opacity-50"
+                          >
+                            <ShieldOff className="h-2.5 w-2.5" />
+                            {blockingIp === ip ? '…' : 'حظر'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ◆ تسجيلات DVR — بطاقات جنائية مرفقة بتقارير المدعي العام */}
           <div className="mt-2 border-t border-white/5 pt-2">

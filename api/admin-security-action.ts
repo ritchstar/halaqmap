@@ -1,0 +1,169 @@
+/**
+ * admin-security-action — قيادة الدفاع الحقيقية من غرفة العمليات
+ *
+ * Actions:
+ *  · block_ip      — حظر IP في قاعدة البيانات (يسري فوراً)
+ *  · unblock_ip    — رفع الحظر
+ *  · get_threat_data — بيانات التهديد الحقيقية للمدعي العام
+ *  · get_block_list  — قائمة الحظر النشطة
+ */
+
+import { createClient } from '@supabase/supabase-js';
+import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
+
+export const config = { maxDuration: 20 };
+
+function json(data: unknown, status = 200): Response {
+  return Response.json(data, {
+    status,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'private, no-store' },
+  });
+}
+
+export async function POST(request: Request): Promise<Response> {
+  const serverUrl = (process.env.SUPABASE_URL || '').trim();
+  const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+
+  // تحقق من صلاحية الأدمن
+  const auth = await verifyPlatformAdminFromRequestAny(request, serverUrl, serviceKey, ['manage_admins', 'view_command_center']);
+  if (!auth.ok) return json(auth.json, auth.status);
+
+  let body: Record<string, unknown>;
+  try { body = (await request.json()) as Record<string, unknown>; }
+  catch { return json({ error: 'Invalid JSON' }, 400); }
+
+  const action = String(body.action || '').trim();
+  const supabase = createClient(serverUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+
+  // ── حظر IP حقيقي ──────────────────────────────────────────────────
+  if (action === 'block_ip') {
+    const ip = String(body.ip || '').trim();
+    const reason = String(body.reason || 'Blocked from Cyber Ops Theater').trim().slice(0, 500);
+    const expiresHours = typeof body.expiresHours === 'number' ? body.expiresHours : null;
+    if (!ip) return json({ error: 'IP required' }, 400);
+
+    const expiresAt = expiresHours
+      ? new Date(Date.now() + expiresHours * 3_600_000).toISOString()
+      : null;
+
+    const { error } = await supabase.from('security_block_list').upsert({
+      ip,
+      reason,
+      blocked_by: auth.email,
+      active: true,
+      expires_at: expiresAt,
+      metadata: { source: 'cyber_ops_theater', timestamp: new Date().toISOString() },
+    }, { onConflict: 'ip' });
+
+    if (error) return json({ error: error.message }, 500);
+
+    // سجّل الحدث
+    await supabase.from('security_events').insert({
+      ip, event_type: 'blocked_ip_attempt', severity: 'critical',
+      endpoint: '/admin/security/block',
+      detail: { action: 'block', reason, blocked_by: auth.email, expires_at: expiresAt },
+    });
+
+    return json({ ok: true, message: `IP ${ip} محجوب فوراً` });
+  }
+
+  // ── رفع الحظر ─────────────────────────────────────────────────────
+  if (action === 'unblock_ip') {
+    const ip = String(body.ip || '').trim();
+    if (!ip) return json({ error: 'IP required' }, 400);
+
+    await supabase.from('security_block_list').update({ active: false }).eq('ip', ip);
+    return json({ ok: true, message: `تم رفع الحظر عن ${ip}` });
+  }
+
+  // ── بيانات التهديد الحقيقية — للمدعي العام ────────────────────────
+  if (action === 'get_threat_data') {
+    const hours = Number(body.hours ?? 24);
+    const since = new Date(Date.now() - hours * 3_600_000).toISOString();
+
+    // أحداث أمنية حقيقية
+    const [
+      { data: events, count: eventCount },
+      { data: critical },
+      { data: blockedAttempts },
+      { data: topIps },
+    ] = await Promise.all([
+      supabase.from('security_events')
+        .select('*', { count: 'exact' })
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabase.from('security_events')
+        .select('*')
+        .eq('severity', 'critical')
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(10),
+      supabase.from('security_events')
+        .select('*')
+        .eq('event_type', 'blocked_ip_attempt')
+        .gte('created_at', since),
+      supabase.from('security_events')
+        .select('ip')
+        .gte('created_at', since),
+    ]);
+
+    // تحليل أكثر IPs نشاطاً
+    const ipCounts: Record<string, number> = {};
+    for (const e of topIps ?? []) {
+      ipCounts[e.ip] = (ipCounts[e.ip] ?? 0) + 1;
+    }
+    const sortedIps = Object.entries(ipCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([ip, count]) => ({ ip, count }));
+
+    // أحداث دفع مريبة (من جدول موجود)
+    const { count: paymentSecCount } = await supabase
+      .from('payment_security_events')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', since);
+
+    // سجل طلبات التسجيل (قد يشير لبوت)
+    const { count: regCount } = await supabase
+      .from('registration_submissions')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', since);
+
+    return json({
+      ok: true,
+      period: `آخر ${hours} ساعة`,
+      summary: {
+        totalEvents: eventCount ?? 0,
+        criticalEvents: critical?.length ?? 0,
+        blockedAttempts: blockedAttempts?.length ?? 0,
+        paymentSecurityEvents: paymentSecCount ?? 0,
+        registrationSubmissions: regCount ?? 0,
+        uniqueIps: Object.keys(ipCounts).length,
+      },
+      topSuspiciousIps: sortedIps,
+      recentCritical: critical ?? [],
+      recentEvents: events ?? [],
+    });
+  }
+
+  // ── قائمة الحظر النشطة ────────────────────────────────────────────
+  if (action === 'get_block_list') {
+    const { data } = await supabase
+      .from('security_block_list')
+      .select('*')
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    return json({ ok: true, blocked: data ?? [] });
+  }
+
+  return json({ error: 'Unknown action' }, 400);
+}
+
+export async function OPTIONS(): Promise<Response> {
+  return new Response(null, {
+    status: 204,
+    headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' },
+  });
+}

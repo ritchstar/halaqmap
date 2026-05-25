@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import {
   ensureConfigRow,
@@ -63,6 +64,10 @@ export async function POST(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
   const headers = corsHeaders(request);
+
+  // ◆ فحص أمني حقيقي — يتحقق من قائمة الحظر
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 30 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const guard = runRegistrationRouteGuards(request, 'barber-digital-shift-assistant');
   if (guard.ok === false) {

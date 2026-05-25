@@ -67,6 +67,12 @@
     }
   ],
   "functions": {
+    "api/admin-security-action.ts": {
+      "maxDuration": 20
+    },
+    "api/admin-security-alert.ts": {
+      "maxDuration": 20
+    },
     "api/register-upload-file.ts": {
       "maxDuration": 60
     },

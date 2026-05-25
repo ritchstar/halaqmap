@@ -129,6 +129,23 @@ export function useCyberThreatRecorder(
       return next;
     });
 
+    // ◆ تنبيه بريدي حقيقي للمؤسس عند تسجيل تهديد حقيقي
+    if (session.stats.totalThreats >= 3) {
+      void fetch('/api/admin-security-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: session.id,
+          title: session.titleAr,
+          subtitle: session.subtitleAr,
+          totalThreats: session.stats.totalThreats,
+          durationMs: session.durationMs,
+          peakSeverity: session.stats.peakSeverity,
+          prosecutorReport: session.prosecutorReport.body,
+        }),
+      }).catch(() => { /* صامت */ });
+    }
+
     // إعادة تعيين
     sessionStartRef.current = null;
     recordedRef.current = [];
