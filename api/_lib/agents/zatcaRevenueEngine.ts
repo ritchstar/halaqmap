@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { isMissingDbRelationError } from '../financialOfficeCoordination.js';
 import {
   ZATCA_MANDATORY_LIMIT_HALALAS,
   ZATCA_RUN_RATE_HORIZON_DAYS,
@@ -19,7 +20,7 @@ export const ZATCA_WARNING_COPY_AR: Record<ZatcaWarningLevel, string> = {
   critical_run_rate:
     'تحذير حرج: بناءً على تحليل الإيرادات الحالي، ستتجاوز المنصة حد التسجيل الإلزامي خلال 30 يوماً. يرجى تجهيز الأوراق الضريبية فوراً.',
   mandatory_breached:
-    'زميل خازن: تم رصد بلوغ الحد الإلزامي لهيئة الزكاة والدخل بنجاح. كافة الحسب والتقارير جاهزة بنسبة 15%. يرجى مراجعة شهادة التسجيل والضغط هنا للتفعيل الفوري الحي.',
+    'خبير ZATCA: تم رصد بلوغ الحد الإلزامي. كافة الحسب والتقارير جاهزة بنسبة 15%. يرجى مراجعة شهادة التسجيل والضغط على «التفعيل الفوري الحي».',
 };
 
 function halalasToSar(halalas: number): number {
@@ -72,8 +73,20 @@ export async function loadPlatformRevenueOrders(
       .order('paid_at', { ascending: true, nullsFirst: false }),
   ]);
 
-  if (ordersRes.error) throw new Error(`listing_license_orders: ${ordersRes.error.message}`);
-  if (paymentsRes.error) throw new Error(`payments: ${paymentsRes.error.message}`);
+  if (ordersRes.error) {
+    if (isMissingDbRelationError(ordersRes.error.message)) {
+      console.warn('[zatca-radar] listing_license_orders unavailable:', ordersRes.error.message);
+    } else {
+      throw new Error(`listing_license_orders: ${ordersRes.error.message}`);
+    }
+  }
+  if (paymentsRes.error) {
+    if (isMissingDbRelationError(paymentsRes.error.message)) {
+      console.warn('[zatca-radar] payments unavailable:', paymentsRes.error.message);
+    } else {
+      throw new Error(`payments: ${paymentsRes.error.message}`);
+    }
+  }
 
   const moyasarIdsFromOrders = new Set<string>();
   for (const row of (ordersRes.data ?? []) as ListingLicenseOrderDbRow[]) {

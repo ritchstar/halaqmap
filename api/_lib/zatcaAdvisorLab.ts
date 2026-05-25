@@ -1,11 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ZatcaTaxAdvisorAgent } from './agents/ZatcaTaxAdvisorAgent.js';
+import { buildZatcaComplianceReport } from './agents/zatcaComplianceReport.js';
 import {
   ZATCA_MANDATORY_LIMIT_SAR,
   ZATCA_PREPARED_VAT_RATE_PERCENT,
   ZATCA_VOLUNTARY_LIMIT_SAR,
 } from './agents/zatcaTaxTypes.js';
 import { assertVisionMime } from './opsBillingAi.js';
+import { buildFinancialOfficePromptBlock } from './financialOfficeCoordination.js';
 import { ZATCA_PLATFORM_PACKAGES_NOTE_AR } from './subscriptionPricingCopy.js';
 
 export type ZatcaLabChatTurn = { role: 'user' | 'assistant'; content: string };
@@ -23,10 +25,26 @@ export type ZatcaLabContext = {
 
 export async function loadZatcaLabContext(supabase: SupabaseClient): Promise<ZatcaLabContext> {
   const agent = new ZatcaTaxAdvisorAgent(supabase);
-  const [state, brief] = await Promise.all([
-    agent.getState(),
-    agent.getComplianceBrief({ refreshIntel: false }),
-  ]);
+  let state = null;
+  let brief: Awaited<ReturnType<ZatcaTaxAdvisorAgent['getComplianceBrief']>>;
+  try {
+    [state, brief] = await Promise.all([
+      agent.getState(),
+      agent.getComplianceBrief({ refreshIntel: false }),
+    ]);
+  } catch {
+    state = null;
+    brief = {
+      analytics: null,
+      complianceReport: buildZatcaComplianceReport(null),
+      externalIntel: {
+        fetchedAt: new Date().toISOString(),
+        sources: [],
+        summaryAr: 'لم يُحمَّل الرادار بعد — شغّل «تحديث رادار الإيرادات» من المكتب المالي.',
+        learningTopicsAr: [],
+      },
+    };
+  }
 
   const analytics = brief.analytics;
   const report = brief.complianceReport;
@@ -75,6 +93,8 @@ export function buildZatcaAdvisorLabSystemPrompt(ctx: ZatcaLabContext): string {
     '- المنصة: ' + ZATCA_PLATFORM_PACKAGES_NOTE_AR,
     '- مصادر: `listing_license_orders` + مدفوعات legacy — رادار إيرادات + تقرير استباقي + مسح مصادر ZATCA الرسمية.',
     '',
+    buildFinancialOfficePromptBlock(),
+    '',
     '## عقيدة — حدود مهمة',
     '- **لست مستشاراً ضريبياً مرخّصاً** — قدّم إرشاداً تشغيلياً وتخطيطياً مع تنبيه «استشر مختصاً مرخّصاً للقرارات النهائية».',
     '- لا تختلق أرقام إيرادات — استخدم اللقطة أدناه أو قل «شغّل الرادار من المكتب المالي».',
@@ -105,6 +125,7 @@ export function buildZatcaAdvisorLabSystemPrompt(ctx: ZatcaLabContext): string {
     '## تعليمات الرد',
     '- رد بالعربية الواضحة — Markdown خفيف مسموح.',
     '- كن محادثياً ومباشراً مثل زميل خازن في اجتماع إداري.',
+    '- إذا سُئلت عن فاتورة مزود (Vercel/OpenAI): وجّه لـ **خازن 🪙** — أنت مسؤول عن الإيرادات B2B والضريبة.',
     '- إذا سُئلت عن تفعيل حي: وجّه إلى المكتب المالي وزر «التفعيل الفوري الحي» بعد مراجعة الشهادة.',
   ].join('\n');
 }

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { OpsBillingSupabase } from './opsBillingSync.js';
+import { buildFinancialOfficePromptBlock } from './financialOfficeCoordination.js';
 
 export const OPS_BILLING_VENDORS = [
   'vercel',
@@ -148,6 +149,10 @@ export function buildOpsBillingAiSystemPrompt(commitments: Record<string, unknow
   const anchor = getOpsBillingTemporalAnchor();
   return `You are **خازن 🪙** — the expert financial treasurer for Halaq Map (حلاق ماب) platform operations.
 Your job is to parse invoices, billing screenshots, and owner questions; detect the provider (GoDaddy, OpenAI, Supabase, Vercel, Resend, GitHub); extract price, **next renewal date**, billing cycle, and payment status; and map updates to the correct row in جدول الالتزامات (platform_ops_billing_commitments).
+
+You work in **tandem with ZATCA Tax Advisor 🛡️** — partner revenue (license packages) is his radar; your table is for **operating costs**. Never flip live VAT on the storefront; defer tax activation questions to ZATCA at mandatory threshold (375,000 SAR).
+
+${buildFinancialOfficePromptBlock()}
 
 **Temporal anchor (mandatory):**
 - Today in Asia/Riyadh: ${anchor.labelAr} (${anchor.todayYmd})

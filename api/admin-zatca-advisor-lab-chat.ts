@@ -58,6 +58,7 @@ async function authorizeRead(request: Request) {
     'manage_platform_commerce_rules',
     'view_ops_billing_monitor',
     'manage_centralized_billing_ops',
+    'activate_zatca_tax_live',
   ]);
   if (gate.ok === false) return { ok: false as const, status: gate.status, json: gate.json };
   return { ok: true as const, supabase: gate.supabase, actorEmail: gate.actorEmail };

@@ -105,13 +105,15 @@ export function AiStaffAgentWorkspace({
         ) : null}
 
         {agent.workspaceKind === 'billing_dialog' || agent.workspaceKind === 'zatca_settings' ? (
-
-          <p className="text-right text-sm text-slate-400">
-
-            يُفتح هذا المكتب عبر الزر الرئيسي في البطاقة — لا حاجة لوحة فرعية هنا.
-
-          </p>
-
+          <div className="space-y-2 text-right text-sm text-slate-400">
+            <p className="font-semibold text-emerald-300/90">المكتب المالي الموحّد 🪙🛡️</p>
+            <p>
+              {agent.id === 'billing_treasurer'
+                ? 'خازن يدير التزامات التشغيل (Vercel/Supabase/…). أسئلة ض.ق.م و375,000 ر.س → خبير ZATCA.'
+                : 'خبير ZATCA يرصد إيرادات حزم الرخصة. فواتير المزودين → خازن.'}
+            </p>
+            <p className="text-xs text-slate-500">يُفتح المكتب عبر الزر الرئيسي في البطاقة.</p>
+          </div>
         ) : null}
 
       </div>

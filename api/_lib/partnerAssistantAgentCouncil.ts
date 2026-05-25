@@ -132,7 +132,9 @@ export const PARTNER_CONSULTABLE_AGENTS: readonly PartnerCouncilAgentDef[] = [
     topicKeywords: ['ضريبة', 'zatca', 'ض.ق.م', 'vat', 'فاتورة', '15%', 'زكاة'],
     publicBriefLines: [
       ZATCA_PLATFORM_PACKAGES_NOTE_AR,
-      '- ض.ق.م 15% تُعرض على الواجهة فقط عند تفعيلها من إعدادات المنصة — ليست استشارة ضريبية شخصية.',
+      '- ض.ق.م 15% تُعرض على الواجهة فقط عند بلوغ 375,000 ر.س إيرادات مُرصَدة — زر «التفعيل الفوري الحي» في المكتب المالي.',
+      '- حدود: اختياري 187,500 ر.س · إلزامي 375,000 ر.س — رادار يفرز `listing_license_orders` بالهللة.',
+      '- فواتير حزم الرخصة → إيراد B2B (ZATCA)؛ فواتير Vercel/OpenAI → التزامات تشغيل (خازن).',
       '- للقرارات النهائية: استشر مختصاً مرخّصاً.',
     ],
   },
@@ -165,6 +167,8 @@ export const PARTNER_CONSULTABLE_AGENTS: readonly PartnerCouncilAgentDef[] = [
       `${TERM_PACKAGE_ACTIVATION_AR} — دفع لمرة واحدة، 30 يوم، **لا تجديد تلقائي**.`,
       'إيصال وشهادة تفعيل بعد الدفع — فاتورة رسمية عند تفعيل نظام الفوترة.',
       'انتهاء المدة → يتوقف الإدراج حتى شراء حزمة جديدة.',
+      'فواتير **التشغيل** (Vercel/Supabase/…): خازن يحدّث جدول الالتزامات — ليست إيرادات B2B.',
+      'أسئلة ض.ق.م و375,000 ر.س → زميل ZATCA في المكتب المالي (لا يُذكر اسمه للشريك).',
     ],
   },
   {
@@ -239,6 +243,23 @@ export function routeQuestionToCouncilAgents(question: string): PartnerCouncilAg
   ) {
     top.push('fleet_operations_center');
   }
+  const taxHit =
+    top.includes('zatca_tax_advisor') ||
+    q.includes('ضريبة') ||
+    q.includes('zatca') ||
+    q.includes('ض.ق.م') ||
+    q.includes('vat') ||
+    q.includes('زكاة');
+  if (taxHit && !top.includes('billing_treasurer')) {
+    top.push('billing_treasurer');
+  }
+  if (
+    top.includes('billing_treasurer') &&
+    (q.includes('فاتورة') || q.includes('إيصال') || taxHit) &&
+    !top.includes('zatca_tax_advisor')
+  ) {
+    top.push('zatca_tax_advisor');
+  }
   return [...new Set(top)];
 }
 
@@ -265,7 +286,8 @@ export function shouldRunCouncilDeepConsult(
     (id) =>
       id === 'digital_shift_field' ||
       id === 'fleet_operations_center' ||
-      id === 'zatca_tax_advisor',
+      id === 'zatca_tax_advisor' ||
+      id === 'billing_treasurer',
   );
   return specialist || agentIds.length >= 2;
 }

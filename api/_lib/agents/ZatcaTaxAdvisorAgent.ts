@@ -7,6 +7,7 @@ import {
   isMandatoryLimitBreached,
   loadPlatformRevenueOrders,
 } from './zatcaRevenueEngine.js';
+import { isMissingDbRelationError } from '../financialOfficeCoordination.js';
 import {
   ZATCA_PLATFORM_STATE_ID,
   ZATCA_PREPARED_VAT_RATE_PERCENT,
@@ -88,7 +89,10 @@ async function loadStateRow(supabase: ZatcaTaxAdvisorSupabase): Promise<ZatcaPla
     .eq('id', ZATCA_PLATFORM_STATE_ID)
     .maybeSingle();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (isMissingDbRelationError(error.message)) return null;
+    throw new Error(error.message);
+  }
   if (!data) return null;
   return data as ZatcaPlatformTaxStateRow;
 }
@@ -156,14 +160,18 @@ export class ZatcaTaxAdvisorAgent {
     });
 
     if (options?.refreshIntel || !cachedIntel) {
-      await upsertStateRow(this.supabase, {
-        cached_vat_config: {
-          ...(existing?.cached_vat_config && typeof existing.cached_vat_config === 'object'
-            ? existing.cached_vat_config
-            : {}),
-          externalIntel,
-        },
-      });
+      try {
+        await upsertStateRow(this.supabase, {
+          cached_vat_config: {
+            ...(existing?.cached_vat_config && typeof existing.cached_vat_config === 'object'
+              ? existing.cached_vat_config
+              : {}),
+            externalIntel,
+          },
+        });
+      } catch {
+        /* non-blocking — intel still returned */
+      }
     }
 
     return { complianceReport, externalIntel, analytics };
@@ -227,7 +235,11 @@ export class ZatcaTaxAdvisorAgent {
       statePatch.admin_activation_alert = null;
     }
 
-    await upsertStateRow(this.supabase, statePatch);
+    try {
+      await upsertStateRow(this.supabase, statePatch);
+    } catch (e) {
+      console.warn('[zatca-radar] state persist skipped:', e);
+    }
 
     return {
       ok: true,

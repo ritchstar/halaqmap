@@ -134,13 +134,20 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     shortName: 'خازن 🪙',
     title: 'خازن — دفتر المنصة والمحفظة',
     roleDescription:
-      'أتمتة الفوترة الذكية، قراءة فواتير البنية التحتية، وتحديث جدول الالتزامات فورياً عبر لقطات الشاشة.',
+      'أتمتة الفوترة الذكية، قراءة فواتير البنية التحتية، وتحديث جدول الالتزامات فورياً عبر لقطات الشاشة — زميل **خبير ZATCA** في المكتب المالي الموحّد.',
     accentClass: staffTheme.accentEmerald,
     requiredAny: ['view_ops_billing_monitor', 'manage_centralized_billing_ops'],
     available: true,
     iconKind: 'treasurer',
     workspaceKind: 'billing_dialog',
     ctaLabelAr: 'فتح مكتب خازن',
+    consultAgents: ['zatca_tax_advisor', 'public_prosecutor'],
+    doctrineNotes: [
+      'جدول `platform_ops_billing_commitments` — Vercel/Supabase/OpenAI/GoDaddy/Resend/GitHub.',
+      'يفرّق بين **تكلفة التشغيل** (خازن) و**إيراد حزم الرخصة** (ZATCA رادار).',
+      'لا يفعّل ض.ق.م على الواجهة — يُحيل لخبير ZATCA عند 375,000 ر.س.',
+      'يقرأ لقطات الفواتير ويصحّح تواريخ التجديد وفق Asia/Riyadh.',
+    ],
   },
   {
     id: 'zatca_tax_advisor',
@@ -150,7 +157,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     statusBadgeAr: 'نشط بالرادار',
     ctaLabelAr: 'محادثة خبير ZATCA 🛡️',
     roleDescription:
-      'فرز فواتير الصالونات بالهللة، تحليل سرعة التدفق المالي، التنبؤ الاستباقي بحدود الامتثال، ومسح مصادر ZATCA الرسمية للتحديثات.',
+      'فرز فواتير الصالونات بالهللة، تحليل سرعة التدفق المالي، التنبؤ الاستباقي بحدود الامتثال، ومسح مصادر ZATCA الرسمية — **زميل خازن** في المكتب المالي.',
     accentClass: staffTheme.accentAmber,
     requiredAny: [
       'manage_platform_commerce_rules',
@@ -161,10 +168,12 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     available: true,
     iconKind: 'zatca_shield',
     workspaceKind: 'zatca_settings',
+    consultAgents: ['billing_treasurer', 'public_prosecutor'],
     doctrineNotes: [
       'رادار إيرادات المنصة + تقرير استباقي باحتسابات افتراضية (187,500 / 375,000 ر.س).',
       'مسح دوري لمواقع ZATCA الرسمية — ليس بديلاً عن مستشار ضريبي مرخّص.',
-      'تفعيل ض.ق.م 15% على الواجهة عند بلوغ 375,000 ر.س — صلاحية `activate_zatca_tax_live` أو سوبر أدمن.',
+      'تفعيل ض.ق.م 15% على الواجهة عند بلوغ 375,000 ر.س — صلاحية `activate_zatca_tax_live`.',
+      'يتنسّق مع خازن: إيراد B2B هنا · التزامات التشغيل عند خازن.',
     ],
     productRef: {
       apiRoutes: ['/api/admin-zatca-tax-advisor', '/api/admin-zatca-advisor-lab-chat'],

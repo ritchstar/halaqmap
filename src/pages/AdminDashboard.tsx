@@ -514,7 +514,8 @@ export default function AdminDashboard() {
     Boolean(adminData?.bootstrap) ||
     can('manage_platform_commerce_rules') ||
     can('view_ops_billing_monitor') ||
-    can('manage_centralized_billing_ops');
+    can('manage_centralized_billing_ops') ||
+    can('activate_zatca_tax_live');
   const allowedTabs = useMemo(() => {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
