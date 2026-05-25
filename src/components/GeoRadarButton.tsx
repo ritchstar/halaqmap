@@ -9,6 +9,7 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scissors } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { storeUserCoords } from '@/lib/userRegionWeather';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type GeoPhase = 'idle' | 'searching' | 'found' | 'denied';
@@ -64,6 +65,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setCoords(loc); setAccuracy(Math.round(pos.coords.accuracy));
+        storeUserCoords(loc);
         setPhase('found'); onLocationDetected(loc); busy.current = false;
       },
       (err) => {

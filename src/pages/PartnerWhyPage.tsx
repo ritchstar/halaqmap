@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/lib';
 import { PARTNER_WHY_PAGE } from '@/lib/partnerMarketingCopy';
 import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
+import { LegalObserverChat } from '@/components/LegalObserverChat';
 
 export default function PartnerWhyPage() {
   return (
@@ -49,7 +50,11 @@ export default function PartnerWhyPage() {
         </div>
       </section>
 
-      <div className="container mx-auto max-w-3xl px-4 pt-10">
+      <div className="container mx-auto max-w-3xl px-4 pt-8">
+        <LegalObserverChat page="لماذا تنضم" />
+      </div>
+
+      <div className="container mx-auto max-w-3xl px-4 pt-6">
         <PlatformIdentityCard />
       </div>
 
