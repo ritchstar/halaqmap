@@ -205,6 +205,11 @@ function AdminCyberOperationsPageInner() {
     setCfLoading(false);
   };
 
+  // ◆ pulses + narrator + agentLog — يجب أن تُعرَّف هنا (قبل أي effect يستخدمها)
+  // كانت معرَّفة بعد early returns ما يسبب TDZ error في minified build
+  const pulses = mode === 'scenario' ? playback.pulses : live.pulses;
+  const narrator = mode === 'scenario' ? playback.narrator : null;
+
   // ◆ تشغيل أصوات الأحداث — pulses فقط في deps (audio عبر ref)
   const lastPulseCount = useRef(0);
   const lastPulseId = useRef('');
@@ -417,8 +422,7 @@ function AdminCyberOperationsPageInner() {
     );
   }
 
-  const pulses = mode === 'scenario' ? playback.pulses : live.pulses;
-  const narrator = mode === 'scenario' ? playback.narrator : null;
+  // pulses و narrator مُعرَّفان أعلى الملف (قبل early returns) لتجنّب TDZ
   const agentLog =
     mode === 'scenario' ? playback.agentLog : ALL_AMBIENT_LOGS[ambientIdx];
 
