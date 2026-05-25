@@ -103,8 +103,8 @@ const FOUNDER_DEALS = [
 ] as const;
 
 function FoundersDealBanner() {
-  const [spots] = useState(() => 347 - Math.floor(Math.random() * 12));
-  const pct = Math.round(((500 - spots) / 500) * 100);
+  const [spots] = useState(() => 731 - Math.floor(Math.random() * 8)); // متبقٍ من الألف
+  const pct = Math.round(((1000 - spots) / 1000) * 100);
   return (
     <div className="mb-6 overflow-hidden rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-950/50 via-slate-900/70 to-amber-950/40"
       style={{ boxShadow: '0 0 40px rgba(251,191,36,0.07), inset 0 1px 0 rgba(251,191,36,0.12)' }}>
@@ -113,15 +113,15 @@ function FoundersDealBanner() {
         <div className="flex items-center gap-2">
           <Zap className="h-4 w-4 text-amber-400 animate-pulse" />
           <div>
-            <p className="text-[0.58rem] font-black uppercase tracking-widest text-amber-400/70">عرض تشغيلي مؤقت · رواد الألف</p>
-            <p className="text-sm font-black text-white">مضاعفة الرخص التأسيسية — اشترِ وخذ ضعفه مجاناً</p>
+            <p className="text-[0.58rem] font-black uppercase tracking-widest text-amber-400/70">⭐ عرض تشغيلي مؤقت · ألف الرواد التأسيسيين</p>
+            <p className="text-sm font-black text-white">مضاعفة الرخص + شارة رائد لامعة — أول ١٠٠٠ صالون فقط</p>
           </div>
         </div>
         <div className="flex items-center gap-2 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3 py-1.5 text-center">
           <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
           <div>
             <p className="text-base font-black tabular-nums text-amber-300">{spots}</p>
-            <p className="text-[0.5rem] text-slate-500">مقعد متبقي / ٥٠٠</p>
+            <p className="text-[0.5rem] text-slate-500">رائد متبقٍ / ١٠٠٠</p>
           </div>
         </div>
       </div>
@@ -153,10 +153,18 @@ function FoundersDealBanner() {
           </div>
         ))}
       </div>
+      {/* شارة رائد */}
+      <div className="mx-4 mb-3 flex items-center gap-2 rounded-xl border border-amber-400/25 bg-amber-500/8 px-3 py-2">
+        <span className="text-lg">⭐</span>
+        <div>
+          <p className="text-xs font-black text-amber-300">شارة رائد — حصرية لألف الرواد التأسيسيين</p>
+          <p className="text-[0.58rem] text-slate-400">كل مشترك من ١ إلى ١٠٠٠ يحصل على شارة رائد لامعة على بنره · لا تُمنح لغير الألف الأوائل · بلا تمييز بين الباقات</p>
+        </div>
+      </div>
       {/* ذيل */}
       <div className="border-t border-amber-400/10 px-5 py-2.5 text-[0.58rem] text-slate-500">
-        ✅ ينطبق على جميع الباقات الأربع &nbsp;·&nbsp; ✅ لا عمولات &nbsp;·&nbsp;
-        🚨 يُغلق عند اكتمال ٥٠٠ مشترك
+        ✅ ينطبق على جميع الباقات &nbsp;·&nbsp; ✅ لا عمولات &nbsp;·&nbsp;
+        🚨 يُغلق فور اكتمال الألف الرواد
       </div>
     </div>
   );
@@ -263,11 +271,11 @@ const SUBSCRIPTION_PLANS: {
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     features: [
       { kind: 'map_hero' },
+      { kind: 'line', text: '⭐ شارة رائد لامعة على بنرك — حصرية لألف الرواد الأوائل بلا تمييز بين الباقات' },
       { kind: 'line', text: 'ظهور عند الطلب للزبائن القريبين منك عندما يبحثون الآن' },
       { kind: 'line', text: 'بطاقة صالون واضحة: موقع، اتصال، واتساب، وصور أساسية' },
       { kind: 'line', text: 'صور واجهة وداخل + بنر أساسي تعطي انطباعاً حقيقياً قبل الزيارة' },
       { kind: 'line', text: 'أوقات عمل وحالة مفتوح/مغلق لتقليل الاتصالات في الوقت الخطأ' },
-      { kind: 'line', text: 'مناسبة كبداية ذكية لاختبار طلب الحي بتكلفة منخفضة' },
       { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_BRONZE },
     ],
   },
@@ -277,11 +285,11 @@ const SUBSCRIPTION_PLANS: {
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     features: [
       { kind: 'map_hero' },
+      { kind: 'line', text: '⭐ شارة رائد لامعة على بنرك — حصرية لألف الرواد الأوائل بلا تمييز بين الباقات' },
       { kind: 'line', text: 'أولوية ذهبية عند الطلب تمنح صالونك حضوراً أوضح أمام المنافسين' },
       { kind: 'line', text: 'معرض أعمال حتى 20 صورة لإقناع العميل قبل أن يتواصل' },
       { kind: 'line', text: RATING_QR_PLAN_LINE },
       { kind: 'line', text: 'واتساب وشات مباشر بجلسة خاصة لتقليل تردد العميل وتحويل الظهور إلى تواصل' },
-      { kind: 'line', text: 'لوحة تحكم لتحديث الصور، البنر، المنيو، الأسعار، وأوقات العمل' },
       { kind: 'line', text: 'خدمات كبار السن وذوي الاحتياجات مع تحكم في السعر والظهور والملاحظات' },
       { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
     ],
@@ -294,10 +302,10 @@ const SUBSCRIPTION_PLANS: {
     digitalShiftAddonAvailable: true,
     features: [
       { kind: 'map_hero' },
+      { kind: 'line', text: '⭐ شارة رائد لامعة على بنرك — حصرية لألف الرواد الأوائل بلا تمييز بين الباقات' },
       { kind: 'line', text: 'أعلى أولوية ماسية للطلبات القريبة لمن يريد صدارة منطقته' },
       { kind: 'line', text: 'واجهة فاخرة: بنر متوهج، معرض حتى 40 صورة، وشارة نخبة للثقة' },
       { kind: 'line', text: 'شات خاص مع ترجمة فورية لخدمة السياح والعملاء متعددي اللغات' },
-      { kind: 'line', text: 'إدارة المواعيد والحجوزات من نفس اللوحة لتقليل الفوضى ورفع الجاهزية' },
       { kind: 'line', text: 'Add-on اختياري: المناوب الرقمي يرد عند الإغلاق أو تأخر الرد' },
       { kind: 'line', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
     ],

@@ -50,8 +50,10 @@ function useCounter(end: number, duration = 1800, enabled = true) {
 // ─── Founders Offer Banner — العرض التشغيلي التأسيسي لمضاعفة الرخص ────────
 const PRICE_B = 100, PRICE_G = 150, PRICE_D = 200, PRICE_DA = 225;
 
+const PIONEER_TOTAL = 1000; // ألف الرواد — الحد التأسيسي الأقصى
+
 function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
-  const [spots, setSpots] = useState(347);
+  const [spots, setSpots] = useState(731); // متبقٍ من الألف
   const [pulse, setPulse] = useState(false);
   const [activeRow, setActiveRow] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -69,7 +71,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
     return () => clearInterval(t);
   }, []);
 
-  const pct = Math.round(((500 - spots) / 500) * 100);
+  const pct = Math.round(((PIONEER_TOTAL - spots) / PIONEER_TOTAL) * 100);
 
   // صفوف المضاعفة — مرتّبة من الأبسط للأقوى
   const ROWS = [
@@ -118,7 +120,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
                 className="text-lg"
               >⚡</motion.span>
               <span className="rounded-full border border-amber-400/30 bg-amber-500/12 px-3 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.2em] text-amber-400">
-                عرض تشغيلي مؤقت · رواد الألف
+                ⭐ عرض تشغيلي مؤقت · ألف الرواد التأسيسيين
               </span>
             </div>
             <h3 className="text-xl font-black leading-tight text-white md:text-2xl">
@@ -141,8 +143,8 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
               <div className={`text-3xl font-black tabular-nums leading-none ${pulse ? 'text-red-300' : 'text-amber-300'}`}>
                 {spots}
               </div>
-              <div className="text-[0.58rem] text-slate-400">مقعد متبقي</div>
-              <div className="text-[0.55rem] text-slate-600">من إجمالي ٥٠٠</div>
+              <div className="text-[0.58rem] text-slate-400">رائد متبقٍ</div>
+              <div className="text-[0.55rem] text-slate-600">من ألف الرواد</div>
             </div>
             <div className="flex flex-col items-center gap-1">
               <motion.div
@@ -162,7 +164,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
             <span className={`font-bold ${pct >= 80 ? 'text-red-400' : 'text-amber-400/80'}`}>
               {pct}% مُحجوز
             </span>
-            <span className="text-slate-600">٥٠٠ مشترك</span>
+            <span className="text-slate-600">١٠٠٠ رائد</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800/80">
             <motion.div
@@ -275,12 +277,16 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.67rem] text-slate-400">
-              <span>✅ ينطبق على جميع الباقات الأربع</span>
+              <span>✅ ينطبق على جميع الباقات — برونزي وذهبي وماسي</span>
               <span>✅ لا عمولات على خدماتك</span>
               <span>✅ ظهور جغرافي ذكي عند الطلب</span>
+              <span className="flex items-center gap-1">
+                <span className="inline-block rounded-full border border-amber-400/50 bg-amber-500/15 px-2 py-0.5 text-amber-300 font-bold">⭐ شارة رائد</span>
+                لكل مشترك من ١ إلى ١٠٠٠ — لامعة على البنر · لا تُمنح بعد اكتمال الألف
+              </span>
             </div>
             <p className="text-[0.62rem] text-amber-500/50">
-              🚨 العرض حصري لأول ٥٠٠ مشترك فقط — يُغلق فور اكتمال العدد ولا يُمدَّد
+              ⭐ كل مشترك من ١ إلى ١٠٠٠ يحصل على <strong className="text-amber-300">شارة رائد</strong> لامعة على بنره — حصرية لا تُمنح لغير الألف الأوائل &nbsp;·&nbsp; 🚨 يُغلق فور اكتمال العدد
             </p>
           </div>
           <motion.button
@@ -1056,9 +1062,14 @@ export default function PartnerMarketingPreview() {
             ))}
           </div>
 
-          <p className="mt-6 text-center text-[0.65rem] text-slate-700">
-            العرض مؤقت · حصري لأول ٥٠٠ صالون · لا عمولة على الخدمة · مسبقة الدفع · لا تجديد تلقائي
-          </p>
+          <div className="mt-6 space-y-2 text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-[0.65rem] font-bold text-amber-300">
+              ⭐ كل مشترك من الأوائل الألف يحصل على شارة رائد لامعة على بنره — دون تمييز بين الباقات
+            </div>
+            <p className="text-[0.62rem] text-slate-700">
+              العرض مؤقت · حصري لألف الرواد التأسيسيين · لا عمولة · مسبقة الدفع · لا تجديد تلقائي
+            </p>
+          </div>
         </div>
       </section>
 
