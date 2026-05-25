@@ -113,17 +113,16 @@ export function Layout({ children }: LayoutProps) {
 
             <div className="flex items-center gap-2 md:hidden">
               <PlatformAmbientToggle variant="compact" />
-            {/* زر القائمة — موبايل */}
-            <button
-              type="button"
-              className="md:hidden min-h-11 min-w-11 inline-flex items-center justify-center p-2 rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-colors touch-manipulation"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="القائمة"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+              <button
+                type="button"
+                className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 p-2 text-slate-300 transition-colors touch-manipulation hover:bg-white/10 hover:text-white"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="القائمة"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
-        </div>
 
         {/* قائمة موبايل */}
         <AnimatePresence>
