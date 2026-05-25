@@ -15,6 +15,7 @@ import { BarberDashboardNeonPreview } from '@/components/partner/banners-preview
 import { BannersPreviewAmbient } from '@/components/partner/banners-preview/BannersPreviewAmbient';
 import { DigitalShiftImpactPreview } from '@/components/partner/banners-preview/DigitalShiftImpactPreview';
 import { DigitalShiftAdminTrainingPreview } from '@/components/partner/banners-preview/DigitalShiftAdminTrainingPreview';
+import { PrivateOfficeSimPreview } from '@/components/partner/banners-preview/PrivateOfficeSimPreview';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
 import {
   PARTNER_FEATURE_PREVIEW_DASHBOARD,
@@ -220,8 +221,34 @@ export default function PartnerBannersPreviewLanding() {
               </NavLinkDom>
             </div>
           </div>
+          {/* المحاكاة التفاعلية */}
+          <div className="grid gap-8 p-7 lg:grid-cols-2">
+            <PrivateOfficeSimPreview />
+            <div className="flex flex-col justify-center space-y-4">
+              <h3 className="text-lg font-black text-white">كيف تعمل دورة المكتب الخاص؟</h3>
+              <div className="space-y-3 text-sm text-slate-400">
+                {[
+                  { n:'1', t:'اضغط رمز التوجيه', d:'اختر «عرض:» أو «تعليمة:» أو أي من ٩ رموز — يُدرج في الشات تلقائياً' },
+                  { n:'2', t:'اكتب وأرسل', d:'أكمل النص بعد الرمز واضغط إرسال — المكتب يُأكّد الحفظ' },
+                  { n:'3', t:'المناوب ينفّذ', d:'عند تواصل الزبون، المناوب يطبّق العرض/التعليمة بسرية' },
+                  { n:'4', t:'التقرير يصلك', d:'ملخص كل محادثة يصلك في المكتب — تعرف ما جرى أثناء غيابك' },
+                ].map(s => (
+                  <div key={s.n} className="flex gap-3">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-violet-500/30 bg-violet-500/10 text-xs font-black text-violet-300">{s.n}</div>
+                    <div>
+                      <p className="font-bold text-violet-200">{s.t}</p>
+                      <p className="text-[0.72rem]">{s.d}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-violet-500/12 px-7 pb-5">
+            <p className="mb-3 text-xs font-black text-violet-400/60">ميزات المكتب الخاص الكاملة</p>
           {/* شبكة الميزات */}
-          <div className="grid gap-3 p-7 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE.bullets.map(b => (
               <div key={b.label}
                 className="flex items-start gap-3 rounded-2xl border border-violet-400/12 bg-violet-950/25 px-4 py-4 transition-all hover:border-violet-400/25 hover:bg-violet-950/40">
@@ -232,11 +259,13 @@ export default function PartnerBannersPreviewLanding() {
                 </div>
               </div>
             ))}
-          </div>
+          </div>{/* إغلاق شبكة الميزات */}
+          </div>{/* إغلاق div التقسيم px-7 */}
+
           {/* فوتر */}
           <div className="border-t border-violet-500/12 px-8 py-4 text-center">
             <p className="text-[0.65rem] text-violet-400/40">
-              متوفر حصراً مع إضافة المناوب الرقمي الذكي 🌙 (+25 ر.س/حزمة) على الباقة الماسية
+              متوفر حصراً مع إضافة المكتب الخاص 🏛️ (+25 ر.س/حزمة) على الباقة الماسية
             </p>
           </div>
         </motion.section>
