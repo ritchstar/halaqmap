@@ -1124,16 +1124,17 @@ export default function PartnerMarketingPreview() {
             </motion.div>
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="text-3xl font-black text-white md:text-4xl">
-              ٤ خطوات لتفعيل وجودك
+              ٤ خطوات — التفعيل آلي وفوري
             </motion.h2>
+            <p className="mt-2 text-sm text-emerald-400/70 font-semibold">✅ لا مراجعة إدارية · لا انتظار · تفعيل فوري بعد السداد</p>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {[
-              { step: '١', icon: Scissors, title: 'أكمل النموذج', desc: 'بيانات صالونك الأساسية: الاسم، الموقع، الخدمات، صور الواجهة.', color: 'from-amber-500 to-yellow-500' },
-              { step: '٢', icon: Shield, title: 'مراجعة الإدارة', desc: 'نتحقق من البيانات خلال 24-48 ساعة ونُخطرك بالقبول.', color: 'from-teal-500 to-cyan-500' },
-              { step: '٣', icon: Crown, title: 'اختر الباقة وادفع', desc: 'برونزي أو ذهبي أو ماسي — ادفع مسبقاً عبر بوابة ميسر الآمنة.', color: 'from-violet-500 to-purple-500' },
-              { step: '٤', icon: Wifi, title: 'ظهورك يبدأ فوراً', desc: 'بعد تفعيل الكود تظهر في نتائج البحث لأقرب الزبائن منك.', color: 'from-emerald-500 to-green-500' },
+              { step: '١', icon: Scissors, title: 'أكمل نموذج التسجيل', desc: 'بيانات صالونك الأساسية: الاسم، الموقع، الخدمات، صور الواجهة — في دقائق.', color: 'from-amber-500 to-yellow-500' },
+              { step: '٢', icon: Crown, title: 'اختر حزمتك', desc: 'برونزي (١٠٠ ر.س) · ذهبي (١٥٠ ر.س) · ماسي (٢٠٠ ر.س) — أو الحزمة السنوية بعرض المضاعفة.', color: 'from-violet-500 to-purple-500' },
+              { step: '٣', icon: Shield, title: 'ادفع بأمان فوراً', desc: 'عبر بوابة ميسر الآمنة (مدى · فيزا · ماستركارد) — مسبقة الدفع، لا تجديد تلقائي.', color: 'from-teal-500 to-cyan-500' },
+              { step: '٤', icon: Wifi, title: 'ظهورك يبدأ فوراً ⚡', desc: 'بمجرد نجاح السداد يُفعَّل صالونك تلقائياً ويظهر لأقرب الزبائن منك على الرادار.', color: 'from-emerald-500 to-green-500' },
             ].map((step, i) => (
               <motion.div
                 key={step.step}
