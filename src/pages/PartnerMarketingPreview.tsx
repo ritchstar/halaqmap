@@ -228,7 +228,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
                   <p className="mt-0.5 text-[0.7rem] text-slate-400">{row.months}</p>
                 </div>
                 {/* التوفير لكل باقة */}
-                <div className="hidden shrink-0 items-center gap-3 md:flex">
+                <div className="hidden shrink-0 items-center gap-3 lg:flex">
                   {[
                     { label: '🥉', price: PRICE_B, color: 'text-amber-700' },
                     { label: '🥇', price: PRICE_G, color: 'text-amber-400' },
@@ -246,7 +246,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
                 </div>
               </div>
               {/* جوال: التوفير في صف منفصل */}
-              <div className="flex items-center gap-3 border-t border-white/5 px-5 py-2.5 md:hidden">
+              <div className="flex items-center gap-3 border-t border-white/5 px-4 py-2 lg:hidden">
                 <span className="text-[0.6rem] text-slate-500">التوفير:</span>
                 {[
                   { label: '🥉 برونزي', price: PRICE_B, color: 'text-amber-700' },
@@ -265,7 +265,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
         </div>
 
         {/* أعمدة التوفير — تعليق توضيحي desktop */}
-        <div className="mt-2 hidden justify-end gap-3 pr-5 md:flex">
+        <div className="mt-2 hidden justify-end gap-3 pr-5 lg:flex">
           {['🥉 برونزي', '🥇 ذهبي', '💎 ماسي', '💎🌙 +مناوب'].map(l => (
             <div key={l} className="w-14 text-center text-[0.5rem] text-slate-600">{l}</div>
           ))}
@@ -631,6 +631,36 @@ export default function PartnerMarketingPreview() {
 
           {/* خط التوهج السفلي — ذهبي */}
           <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
+
+          {/* ── قائمة موبايل ──────────────────────────────────────────── */}
+          <AnimatePresence>
+            {scrolled && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                className="relative border-t border-white/5 bg-[#020912]/97 px-4 py-3 md:hidden"
+              >
+                <div className="flex flex-col gap-1">
+                  {[
+                    { label: 'كيف تنضم', id: 'كيف تنضم' },
+                    { label: 'مزايا الباقات', id: 'مزايا الباقات' },
+                    { label: 'الأسعار', id: 'الأسعار' },
+                    { label: 'الحزم السنوية', id: 'الحزم-السنوية' },
+                    { label: 'البنرات', id: 'معاينة البنرات' },
+                  ].map(item => (
+                    <button key={item.id} type="button"
+                      onClick={() => { setScrolled(false); document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }); }}
+                      className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-slate-300 hover:bg-amber-500/8 hover:text-amber-200 transition-all">
+                      {item.label}
+                    </button>
+                  ))}
+                  <button onClick={() => { setScrolled(false); navigate(ROUTE_PATHS.REGISTER); }}
+                    className="mt-1 w-full rounded-xl bg-amber-500/15 border border-amber-400/30 py-2.5 text-sm font-black text-amber-300">
+                    سجّل صالونك ←
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 

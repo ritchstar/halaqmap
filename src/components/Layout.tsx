@@ -31,7 +31,7 @@ export function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="platform-dark min-h-[100dvh] min-h-screen flex flex-col bg-background" dir="rtl" style={{ fontFamily: 'Tajawal, IBM Plex Sans Arabic, system-ui' }}>
+    <div className="platform-dark min-h-[100dvh] min-h-screen flex flex-col bg-background overflow-x-hidden" dir="rtl" style={{ fontFamily: 'Tajawal, IBM Plex Sans Arabic, system-ui' }}>
       {/* شبكة التكتير الخفية — تظهر على كل الصفحات */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"

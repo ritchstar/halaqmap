@@ -196,10 +196,10 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
     e.target.style.height = Math.min(e.target.scrollHeight, 130) + 'px';
   }, []);
 
-  // Panel mode: fixed bottom-left, non-intrusive
+  // Panel mode: fixed bottom-left — مخفي على الجوال في الوضع المصغّر
   const wrapClass = mode === 'inline'
     ? `relative w-full ${open ? 'z-[50]' : 'z-10'}`
-    : 'fixed bottom-24 left-0 z-[49] md:bottom-6';
+    : 'hidden sm:block fixed bottom-24 left-0 z-[49] md:bottom-6';
 
   // وضع التكمّش — يظهر فقط في panel mode عند الدخول لقسم البنرات
   if (mode === 'panel' && minimized && !open) {
@@ -209,7 +209,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.7 }}
         onClick={() => { setMinimized(false); setOpen(true); }}
-        className="fixed bottom-6 left-4 z-[49] flex h-12 w-12 items-center justify-center rounded-full border-2 border-amber-400/60 bg-[#0a0600] shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+        className="hidden sm:flex fixed bottom-6 left-4 z-[49] h-10 w-10 items-center justify-center rounded-full border-2 border-amber-400/60 bg-[#0a0600] shadow-[0_0_20px_rgba(245,158,11,0.35)]"
         title="مدير مبيعات B2B"
       >
         <Building2 className="h-5 w-5 text-amber-300" />
@@ -251,11 +251,11 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               animate={mode === 'inline' ? { opacity: 1, y: 0 } : { x: 0, opacity: 1 }}
               exit={mode === 'inline' ? { opacity: 0, y: 10 } : { x: -320, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-              className={`relative overflow-hidden rounded-[32px] ${mode === 'inline' ? 'w-full' : ''}`}
-              style={mode === 'panel' ? { width: '300px' } : {}}
+              className={`relative overflow-hidden rounded-[22px] ${mode === 'inline' ? 'w-full' : ''}`}
+              style={mode === 'panel' ? { width: '210px' } : {}}
             >
               {/* Main glass background — بيضاوي */}
-              <div className="absolute inset-0 rounded-[32px] border border-amber-400/40
+              <div className="absolute inset-0 rounded-[22px] border border-amber-400/40
                 bg-[#0a0600]/90 backdrop-blur-2xl" />
 
               {/* توهج ذهبي من اليمين */}
@@ -267,8 +267,8 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                 style={{ background: 'radial-gradient(ellipse at left, rgba(245,158,11,0.55) 0%, transparent 70%)' }} />
 
               {/* ظل خارجي من الجانبين */}
-              <div className="pointer-events-none absolute inset-0 rounded-[32px]"
-                style={{ boxShadow: '-8px 0 30px rgba(245,158,11,0.20), 8px 0 30px rgba(245,158,11,0.20), 0 8px 40px rgba(0,0,0,0.5)' }} />
+              <div className="pointer-events-none absolute inset-0 rounded-[22px]"
+                style={{ boxShadow: '-4px 0 16px rgba(245,158,11,0.15), 4px 0 16px rgba(245,158,11,0.15), 0 6px 24px rgba(0,0,0,0.5)' }} />
 
               {/* Shimmer sweep */}
               <motion.div
@@ -278,31 +278,31 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                 transition={{ duration: 4, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
               />
 
-              <div className="relative px-5 py-5">
+              <div className="relative px-3 py-3">
                 {/* Header */}
-                <div className="mb-4 flex items-center gap-3">
-                  <OfficeIcon size="md" />
+                <div className="mb-2.5 flex items-center gap-2">
+                  <OfficeIcon size="sm" />
                   <div className="min-w-0">
-                    <p className="text-[0.65rem] font-bold tracking-widest text-amber-400/55 uppercase">حلاق ماب</p>
-                    <p className="text-sm font-black leading-tight text-amber-100">مدير مبيعات B2B</p>
-                    <div className="mt-0.5 flex items-center gap-1.5">
+                    <p className="text-[0.55rem] font-bold tracking-widest text-amber-400/55 uppercase">حلاق ماب</p>
+                    <p className="text-[0.72rem] font-black leading-tight text-amber-100">مدير مبيعات B2B</p>
+                    <div className="mt-0.5 flex items-center gap-1">
                       <motion.div className="h-1.5 w-1.5 rounded-full bg-emerald-400"
                         animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }} />
-                      <span className="text-[0.55rem] font-semibold text-emerald-300/80">متاح للتفاوض الآن</span>
+                      <span className="text-[0.48rem] font-semibold text-emerald-300/80">متاح للتفاوض</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Animated pitch line */}
-                <div className="mb-4 min-h-[48px] overflow-hidden rounded-xl border border-amber-400/20 bg-amber-500/8 px-3 py-2.5">
+                <div className="mb-3 min-h-[36px] overflow-hidden rounded-lg border border-amber-400/20 bg-amber-500/8 px-2 py-2">
                   <AnimatePresence mode="wait">
                     <motion.p
                       key={pitchIdx}
-                      initial={{ opacity: 0, y: 8 }}
+                      initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.35 }}
-                      className="text-[0.78rem] font-bold leading-snug text-amber-100"
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-[0.65rem] font-bold leading-snug text-amber-100"
                       style={{ unicodeBidi: 'plaintext' }}
                     >
                       {PITCH_LINES[pitchIdx]}
@@ -310,17 +310,17 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                   </AnimatePresence>
                 </div>
 
-                {/* Stats row */}
-                <div className="mb-4 grid grid-cols-3 gap-2">
+                {/* Stats row — مخفي في الوضع المصغّر */}
+                <div className="mb-3 grid grid-cols-3 gap-1">
                   {[
-                    { icon: TrendingUp, label: 'عائد مثبت', val: '100%' },
+                    { icon: TrendingUp, label: 'عائد', val: '100%' },
                     { icon: Star, label: 'باقات', val: '3' },
-                    { icon: PhoneCall, label: 'استجابة', val: 'فورية' },
+                    { icon: PhoneCall, label: 'ردّ', val: 'فوري' },
                   ].map((s) => (
-                    <div key={s.label} className="flex flex-col items-center gap-0.5 rounded-lg border border-amber-400/15 bg-amber-500/6 px-1.5 py-2">
-                      <s.icon className="h-3.5 w-3.5 text-amber-400" strokeWidth={2} />
-                      <span className="text-[0.68rem] font-black text-amber-100">{s.val}</span>
-                      <span className="text-[0.5rem] text-amber-400/50">{s.label}</span>
+                    <div key={s.label} className="flex flex-col items-center gap-0.5 rounded-md border border-amber-400/15 bg-amber-500/6 px-1 py-1.5">
+                      <s.icon className="h-3 w-3 text-amber-400" strokeWidth={2} />
+                      <span className="text-[0.58rem] font-black text-amber-100">{s.val}</span>
+                      <span className="text-[0.45rem] text-amber-400/50">{s.label}</span>
                     </div>
                   ))}
                 </div>
@@ -331,7 +331,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                   onClick={() => setOpen(true)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 py-3 text-sm font-black text-black shadow-[0_4px_20px_rgba(245,158,11,0.40)] transition-all hover:shadow-[0_4px_28px_rgba(245,158,11,0.55)]"
+                  className="group relative w-full overflow-hidden rounded-lg bg-gradient-to-l from-amber-500 to-amber-700 py-2 text-[0.72rem] font-black text-black shadow-[0_3px_12px_rgba(245,158,11,0.35)] transition-all hover:shadow-[0_3px_16px_rgba(245,158,11,0.50)]"
                 >
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-transparent"
@@ -364,7 +364,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               transition={{ type: 'spring', stiffness: 280, damping: 32 }}
               onClick={(e) => e.stopPropagation()}
               className={`relative flex flex-col overflow-hidden rounded-[28px] ${mode === 'inline' ? 'w-full' : ''}`}
-              style={mode === 'inline' ? { height: 'min(85dvh, 620px)' } : { width: '440px', height: 'min(85dvh, 620px)' }}
+              style={mode === 'inline' ? { height: 'min(75dvh, 480px)' } : { width: '300px', height: 'min(75dvh, 480px)' }}
             >
               {/* Chat panel background */}
               <div className="absolute inset-0 rounded-[28px] border border-amber-400/35
