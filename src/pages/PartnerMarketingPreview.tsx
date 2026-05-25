@@ -444,52 +444,82 @@ function PricingCard({
   );
 }
 
-// ─── أيقونات الباقات السنوية المخصصة ─────────────────────────────────────────
+// ─── أيقونات الباقات — تصميم حصري ────────────────────────────────────────────
+// برونزي: موجات إشارة تتمدد من نقطة مركزية (الحضور الرقمي)
+// ذهبي: سلّم صاعد من كتل (الصعود في النتائج)
+// ماسي: بلورة مقطوعة ثمانية الأضلاع (جودة استثنائية)
+// ماسي+مكتب: مركز قيادة بمدارات متصلة (نظام ذكي مترابط)
 function TierIcon({ tier }: { tier: 'bronze' | 'gold' | 'diamond' | 'office' }) {
   if (tier === 'bronze') return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-      <rect x="6" y="4" width="32" height="36" rx="6" stroke="#b45309" strokeWidth="2" fill="#431407" fillOpacity=".6"/>
-      <rect x="12" y="14" width="20" height="2.5" rx="1.2" fill="#b45309" fillOpacity=".7"/>
-      <rect x="12" y="20" width="14" height="2.5" rx="1.2" fill="#b45309" fillOpacity=".5"/>
-      <rect x="12" y="26" width="17" height="2.5" rx="1.2" fill="#b45309" fillOpacity=".5"/>
-      <path d="M22 6 L38 12 V24 C38 32 30 38 22 40 C14 38 6 32 6 24 V12 Z" stroke="#b45309" strokeWidth="1.5" fill="none" strokeOpacity=".4"/>
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+      {/* نقطة مركزية */}
+      <circle cx="24" cy="30" r="3" fill="#b45309"/>
+      {/* موجة 1 */}
+      <path d="M16 30 Q16 22 24 22 Q32 22 32 30" stroke="#b45309" strokeWidth="2" fill="none" strokeLinecap="round" strokeOpacity=".9"/>
+      {/* موجة 2 */}
+      <path d="M10 30 Q10 15 24 15 Q38 15 38 30" stroke="#b45309" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeOpacity=".55"/>
+      {/* موجة 3 */}
+      <path d="M5 30 Q5 8 24 8 Q43 8 43 30" stroke="#b45309" strokeWidth="1" fill="none" strokeLinecap="round" strokeOpacity=".25"/>
+      {/* خط الأرضية */}
+      <line x1="18" y1="34" x2="30" y2="34" stroke="#b45309" strokeWidth="1.5" strokeLinecap="round" strokeOpacity=".4"/>
     </svg>
   );
   if (tier === 'gold') return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-      <polygon points="22,4 27,16 40,16 30,24 34,37 22,30 10,37 14,24 4,16 17,16" fill="#78350f" fillOpacity=".7" stroke="#f59e0b" strokeWidth="1.5"/>
-      <polygon points="22,10 25.5,19 35,19 27.5,24.5 30,33 22,28 14,33 16.5,24.5 9,19 18.5,19" fill="#f59e0b" fillOpacity=".25"/>
-      <circle cx="22" cy="22" r="5" fill="#f59e0b" fillOpacity=".5"/>
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+      {/* كتلة 1 — أعلى */}
+      <rect x="19" y="6" width="10" height="7" rx="2" fill="#f59e0b" fillOpacity=".9"/>
+      {/* كتلة 2 */}
+      <rect x="14" y="16" width="20" height="7" rx="2" fill="#f59e0b" fillOpacity=".6"/>
+      {/* كتلة 3 */}
+      <rect x="9" y="26" width="30" height="7" rx="2" fill="#f59e0b" fillOpacity=".35"/>
+      {/* سهم صاعد */}
+      <path d="M24 4 L28 9 L24 7 L20 9 Z" fill="#f59e0b"/>
+      {/* قاعدة */}
+      <rect x="6" y="36" width="36" height="2.5" rx="1.2" fill="#f59e0b" fillOpacity=".2"/>
     </svg>
   );
   if (tier === 'diamond') return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-      <path d="M22 4 L40 18 L22 40 L4 18 Z" fill="#164e63" fillOpacity=".7" stroke="#22d3ee" strokeWidth="1.5"/>
-      <path d="M22 4 L40 18 L22 23 L4 18 Z" fill="#22d3ee" fillOpacity=".15"/>
-      <path d="M22 23 L40 18 L22 40 Z" fill="#22d3ee" fillOpacity=".08"/>
-      <path d="M22 23 L4 18 L22 40 Z" fill="#22d3ee" fillOpacity=".05"/>
-      <line x1="22" y1="4" x2="22" y2="40" stroke="#22d3ee" strokeWidth=".8" strokeOpacity=".3"/>
-      <line x1="4" y1="18" x2="40" y2="18" stroke="#22d3ee" strokeWidth=".8" strokeOpacity=".3"/>
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+      {/* مثمن الأضلاع (بلورة مقطوعة) */}
+      <polygon points="24,5 34,9 41,19 41,29 34,39 24,43 14,39 7,29 7,19 14,9" 
+        fill="#164e63" fillOpacity=".5" stroke="#22d3ee" strokeWidth="1.5"/>
+      {/* أضلاع داخلية (وجوه البلورة) */}
+      <polygon points="24,11 31,14 35,21 35,27 31,34 24,37 17,34 13,27 13,21 17,14"
+        fill="none" stroke="#22d3ee" strokeWidth=".8" strokeOpacity=".4"/>
+      {/* خطوط المحاور */}
+      <line x1="24" y1="5" x2="24" y2="43" stroke="#22d3ee" strokeWidth=".6" strokeOpacity=".25"/>
+      <line x1="7" y1="24" x2="41" y2="24" stroke="#22d3ee" strokeWidth=".6" strokeOpacity=".25"/>
+      {/* مركز */}
+      <circle cx="24" cy="24" r="3.5" fill="#22d3ee" fillOpacity=".5"/>
     </svg>
   );
-  // office — diamond + circuit
+  // office — مركز قيادة ذكي بمدارات
   return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-      <path d="M22 4 L40 18 L22 40 L4 18 Z" fill="#2e1065" fillOpacity=".7" stroke="#a78bfa" strokeWidth="1.5"/>
-      <path d="M22 4 L40 18 L22 23 L4 18 Z" fill="#a78bfa" fillOpacity=".2"/>
-      <circle cx="22" cy="18" r="3.5" fill="#a78bfa" fillOpacity=".6"/>
-      <line x1="22" y1="14.5" x2="22" y2="4" stroke="#a78bfa" strokeWidth="1" strokeOpacity=".5"/>
-      <line x1="25.5" y1="18" x2="36" y2="18" stroke="#a78bfa" strokeWidth="1" strokeOpacity=".4"/>
-      <circle cx="36" cy="18" r="2" fill="#a78bfa" fillOpacity=".5"/>
-      <line x1="18.5" y1="18" x2="10" y2="14" stroke="#a78bfa" strokeWidth="1" strokeOpacity=".4"/>
-      <circle cx="10" cy="14" r="1.5" fill="#a78bfa" fillOpacity=".5"/>
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+      {/* مدار خارجي */}
+      <ellipse cx="24" cy="24" rx="18" ry="8" stroke="#a78bfa" strokeWidth="1" fill="none" strokeOpacity=".3"
+        transform="rotate(-30 24 24)"/>
+      {/* مدار داخلي */}
+      <ellipse cx="24" cy="24" rx="12" ry="5" stroke="#a78bfa" strokeWidth="1.2" fill="none" strokeOpacity=".55"
+        transform="rotate(40 24 24)"/>
+      {/* النواة */}
+      <circle cx="24" cy="24" r="5" fill="#2e1065" stroke="#a78bfa" strokeWidth="1.5"/>
+      <circle cx="24" cy="24" r="2.5" fill="#a78bfa" fillOpacity=".8"/>
+      {/* أقمار صناعية */}
+      <circle cx="38" cy="16" r="2.5" fill="#a78bfa" fillOpacity=".6"/>
+      <circle cx="10" cy="34" r="2" fill="#a78bfa" fillOpacity=".45"/>
+      <circle cx="36" cy="35" r="1.5" fill="#a78bfa" fillOpacity=".4"/>
+      {/* روابط */}
+      <line x1="29" y1="21" x2="36" y2="17" stroke="#a78bfa" strokeWidth=".8" strokeOpacity=".4"/>
+      <line x1="19" y1="27" x2="11" y2="33" stroke="#a78bfa" strokeWidth=".8" strokeOpacity=".35"/>
     </svg>
   );
 }
 
-// ─── قسم الحزم السنوية المُعاد تصميمه ────────────────────────────────────────
+// ─── قسم الحزم السنوية — تصميم موحّد وواضح ────────────────────────────────────
 function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void }) {
   const [selected, setSelected] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
 
   const TIERS = [
     {
@@ -557,16 +587,19 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
       'bronze': 'bronze', 'gold': 'gold', 'diamond': 'diamond', 'diamond-office': 'diamond',
     };
     const tierQuery = tierMap[tierId] ?? 'gold';
-    // فحص إذا كان المستخدم مسجَّلاً
-    const session = localStorage.getItem('barberAuth');
-    if (session) {
-      // مسجَّل → صفحة الدفع مباشرةً
-      navigate(`${ROUTE_PATHS.PAYMENT}?tier=${tierQuery}&plan=annual`);
-    } else {
-      // غير مسجَّل → التسجيل أولاً مع الحزمة محفوظة
-      navigate(`${ROUTE_PATHS.REGISTER}?tier=${tierQuery}&plan=annual`);
-    }
+    setConfirming(true);
+    setTimeout(() => {
+      const session = localStorage.getItem('barberAuth');
+      if (session) {
+        navigate(`${ROUTE_PATHS.PAYMENT}?tier=${tierQuery}&plan=annual`);
+      } else {
+        navigate(`${ROUTE_PATHS.REGISTER}?tier=${tierQuery}&plan=annual`);
+      }
+      setConfirming(false);
+    }, 250); // تأخير بصري بسيط لتأكيد الاختيار
   };
+
+  const selectedTier = TIERS.find(t => t.id === selected);
 
   return (
     <section id="الحزم-السنوية" className="relative z-10 border-t border-white/5 py-20 md:py-28">
@@ -688,40 +721,66 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                     ))}
                   </ul>
 
-                  {/* زر الشراء — خطوتان: اختيار ثم شراء */}
+                  {/* زر الاختيار — نقرة واحدة → تحديد، والشراء من الشريط السفلي */}
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isSelected) {
-                        // الخطوة الثانية — انتقل لنموذج التسجيل
-                        handleBuy(t.id);
-                      } else {
-                        // الخطوة الأولى — اختر الحزمة فقط
-                        setSelected(t.id);
-                      }
-                    }}
-                    className="mt-auto w-full rounded-xl py-2.5 text-[0.75rem] font-black transition-all hover:scale-[1.02] active:scale-95"
+                    onClick={(e) => { e.stopPropagation(); setSelected(t.id); }}
+                    className="mt-auto w-full rounded-xl py-2.5 text-[0.72rem] font-black transition-all hover:scale-[1.01] active:scale-[0.98]"
                     style={{
-                      background: isSelected ? t.color : 'rgba(255,255,255,0.05)',
+                      background: isSelected ? t.color : 'rgba(255,255,255,0.04)',
                       color: isSelected ? '#000' : t.color,
-                      border: `1px solid ${t.color}55`,
-                      boxShadow: isSelected ? `0 4px 20px ${t.color}50` : 'none',
+                      border: `1.5px solid ${isSelected ? t.color : t.color + '44'}`,
+                      boxShadow: isSelected ? `0 4px 20px ${t.color}45` : 'none',
                     }}
                   >
-                    {isSelected
-                      ? '← ابدأ تعبئة الطلب'
-                      : 'اختر هذه الحزمة'}
+                    {isSelected ? '✓ محدد' : 'اختر هذه الحزمة'}
                   </button>
-                  {isSelected && (
-                    <p className="mt-1.5 text-center text-[0.55rem] text-slate-500">
-                      سيُحمَّل نموذج التسجيل مع الحزمة محددة مسبقاً
-                    </p>
-                  )}
                 </div>
               </motion.div>
             );
           })}
         </div>
+
+        {/* ── شريط التأكيد والانتقال — يظهر عند الاختيار ── */}
+        <AnimatePresence>
+          {selected && selectedTier && (
+            <motion.div
+              initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:16 }}
+              transition={{ type:'spring', stiffness:320, damping:28 }}
+              className="sticky bottom-6 z-30 mt-6 overflow-hidden rounded-2xl border"
+              style={{ borderColor: `${selectedTier.color}50`, boxShadow: `0 8px 40px ${selectedTier.color}25` }}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
+                style={{ background: `linear-gradient(135deg, ${selectedTier.color}18 0%, rgba(6,13,26,0.97) 60%)` }}>
+                <div className="flex items-center gap-3">
+                  <TierIcon tier={selectedTier.icon} />
+                  <div>
+                    <p className="text-xs font-bold text-slate-400">الحزمة المختارة</p>
+                    <p className="text-base font-black text-white">{selectedTier.name} — {selectedTier.price.toLocaleString('ar-SA')} ر.س/سنة</p>
+                    <p className="text-[0.6rem] text-emerald-400">⚡ تدفع ١٢ شهراً وتحصل على ٢٤ · توفير {selectedTier.saving.toLocaleString('ar-SA')} ر.س</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setSelected(null)}
+                    className="text-[0.65rem] text-slate-500 hover:text-slate-300 transition-colors">
+                    تغيير
+                  </button>
+                  <motion.button
+                    onClick={() => handleBuy(selected)}
+                    disabled={confirming}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-black text-black transition-all disabled:opacity-70"
+                    style={{ background: selectedTier.color, boxShadow: `0 4px 20px ${selectedTier.color}50` }}
+                  >
+                    {confirming ? (
+                      <span className="inline-block h-4 w-4 rounded-full border-2 border-black/30 border-t-black animate-spin" />
+                    ) : null}
+                    ابدأ تعبئة الطلب ←
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* شارة رائد + ملاحظات */}
         <div className="mt-10 space-y-3 text-center">
@@ -1282,9 +1341,8 @@ export default function PartnerMarketingPreview() {
       {/* ══ الحزم السنوية — مضاعفة الرخص التأسيسية ══════════════════════════ */}
       <AnnualPackagesSection navigate={navigate} />
 
-      {/* ── spacer ─────────────────────────────────────────────────────────── */}
-      <section id="_annual_anchor" className="hidden"><div id="الحزم-السنوية" /></section>
-      <section id="الحزم-السنوية_DISABLED" className="hidden">
+      {/* ══ كان هنا قسم الحزم السنوية القديم — مُحذوف نهائياً ══ */}
+      <section id="الحزم-السنوية_REMOVED" style={{ display: 'none' }}>
         <div className="pointer-events-none absolute left-1/4 top-0 h-64 w-[50%] rounded-full bg-amber-500/6 blur-[120px]" />
         <div className="mx-auto max-w-6xl px-5">
           {/* رأس القسم */}
