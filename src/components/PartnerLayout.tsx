@@ -298,10 +298,12 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <main className="min-h-0 w-full flex-1">{children}</main>
 
-      {/* لا مدير مبيعات على صفحات الخصوصية والسياسات — الناظر القانوني مُضمَّن فيها */}
-      {![ROUTE_PATHS.PARTNER_PRIVACY, ROUTE_PATHS.SUBSCRIPTION_POLICY].includes(
-        location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY
-      ) && (
+      {/* لا مدير مبيعات على صفحات الخصوصية، السياسات، والدفع */}
+      {![
+        ROUTE_PATHS.PARTNER_PRIVACY,
+        ROUTE_PATHS.SUBSCRIPTION_POLICY,
+        ROUTE_PATHS.PAYMENT,            // صفحة الدفع — لا تشتيت
+      ].includes(location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY) && (
         <B2BSalesManagerChat
           startMinimized={[
             ROUTE_PATHS.REGISTER,
