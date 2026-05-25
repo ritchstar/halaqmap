@@ -216,9 +216,6 @@
     },
     "api/public-b2b-sales-manager-chat.ts": {
       "maxDuration": 50
-    },
-    "api/whatsapp-webhook.ts": {
-      "maxDuration": 30
     }
   },
   "crons": [
