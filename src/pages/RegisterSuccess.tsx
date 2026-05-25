@@ -127,14 +127,18 @@ export default function RegisterSuccess() {
           <CardHeader className="text-center">
             <div className="mb-3 flex justify-center">
               <Badge variant="secondary" className="border-primary/40 bg-primary/10 px-4 py-1 text-sm font-semibold">
-                حسابك نشط الآن
+                طلبك مُسجَّل — ادفع للتفعيل الفوري
               </Badge>
             </div>
-            <CardTitle className="text-2xl">تم استلام طلبك بنجاح! 🎉</CardTitle>
+            <CardTitle className="text-2xl">خطوة واحدة للتفعيل الفوري ⚡</CardTitle>
             <CardDescription className="text-center leading-relaxed">
-              طلبك مسجّل على المنصة. بعد إتمام الدفع وتفعيل حزمة رخصة النفاذ الرقمية (نظام الاستجابة الذكية) يمكنك البدء فوراً. في هذا المسار{' '}
-              <strong>لم تُخزَّن مستنداتك الحكومية الثقيلة على خوادمنا</strong> ولن نطلب منك إعادة تقديمها لاحقاً ضمن
-              نفس الإجراء. احتفظ برقم الطلب للمتابعة أو الدعم عند الحاجة.
+              طلبك مسجَّل — <strong>ادفع الآن وتُفعَّل رخصتك فوراً</strong> بلا انتظار ولا مراجعة إدارية.
+              التفعيل يبدأ تلقائياً بمجرد نجاح السداد — لا مراجعة ولا انتظار.
+              {data.tier === SubscriptionTier.DIAMOND && (
+                <span className="mt-2 block rounded-lg border border-violet-500/30 bg-violet-950/30 px-3 py-1.5 text-sm text-violet-300 font-semibold">
+                  🏛️ إضافة المكتب الخاص تُفعَّل تلقائياً مع باقتك الماسية عند السداد.
+                </span>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -197,12 +201,22 @@ export default function RegisterSuccess() {
               {absolutePaymentUrl}
             </div>
 
+            {/* عرض المضاعفة التأسيسي */}
+            <div className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-950/40 via-slate-900/50 to-amber-950/30 p-4 text-sm leading-relaxed text-right"
+              style={{ boxShadow: '0 0 24px rgba(251,191,36,0.07)' }}>
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-base">⚡</span>
+                <p className="font-black text-amber-300">عرض الألف الرواد التأسيسي — مضاعفة الرخص</p>
+              </div>
+              <p className="text-amber-100/80 text-xs leading-relaxed">
+                إذا اخترت الحزمة بعروض المضاعفة (٣+٣، ٦+٦، ١٢+١٢) تُطبَّق تلقائياً عند السداد — أنت من الألف الرواد الأوائل وستحصل على <strong className="text-amber-300">⭐ شارة رائد</strong> لامعة على بنرك بمجرد التفعيل.
+              </p>
+            </div>
+
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
-              <p className="font-semibold text-foreground mb-1">ظهورك عبر نظام الرصد الذكي والحجوزات</p>
+              <p className="font-semibold text-foreground mb-1">ظهورك يبدأ فور التفعيل</p>
               <p className="text-muted-foreground">
-                صالونك متاح الآن للعملاء عبر نظام الرصد الذكي، يمكنك البدء باستقبال الحجوزات فوراً. يوفّر لك رابطاً سرياً خفيفاً
-                لتحديث أيقونة «مفتوح / مغلق» دون لوحة تحكم كاملة — مفيد خصوصاً لباقة البرونزي؛ وفي الباقات الذهبية
-                والماسية يتوفر التبديل أيضاً من لوحة التحكم مع بقاء نفس الرابط احتياطاً.
+                بمجرد نجاح الدفع يُفعَّل ظهور صالونك آلياً ضمن نظام الرصد الذكي. ستحصل على رابط سري لتحديث حالة «مفتوح / مغلق» لحظياً من جوّالك — والباقات الذهبية والماسية تتيح تحكّماً كاملاً من لوحة التحكم.
               </p>
             </div>
 

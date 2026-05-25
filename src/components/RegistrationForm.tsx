@@ -882,7 +882,7 @@ export function RegistrationForm() {
         mailtoBodyShort,
       });
 
-      toast.success('تم إرسال الطلب. طلبك قيد المراجعة وسيتم التواصل معك بعد التدقيق.');
+      toast.success('✅ تم تقديم الطلب — ادفع الآن لتفعيل رخصتك فوراً!');
       await new Promise((r) => setTimeout(r, 600));
       navigate(ROUTE_PATHS.REGISTER_SUCCESS);
     } finally {
@@ -1302,7 +1302,7 @@ export function RegistrationForm() {
                     <Sparkles className="h-4 w-4 text-slate-300" />
                     <AlertDescription className="text-sm leading-relaxed text-slate-300">
                       بعد تفعيل حزمتك البرمجية يمكنك <strong>إضافة وحذف وتعديل</strong> صور المحل والبنر من{' '}
-                      <strong>لوحة التحكم</strong> في أي وقت. ما ترفعه هنا هو المعتمد لمراجعة الطلب الأولى.
+                      <strong>لوحة التحكم</strong> في أي وقت. ما ترفعه هنا يظهر على بطاقتك فور التفعيل.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -1437,8 +1437,8 @@ export function RegistrationForm() {
                     <Sparkles className="h-4 w-4 text-slate-300" />
                     <AlertDescription className="text-sm leading-relaxed text-slate-300">
                       باقتك تتيح لك بعد التفعيل <strong>تحكّماً كاملاً</strong> في أوقات العمل لكل يوم من{' '}
-                      <strong>لوحة التحكم</strong> (جدول أسبوعي). ما تُدخله الآن يُستخدم لمراجعة الطلب؛ يمكنك
-                      تعديله لاحقاً بحرية.
+                      <strong>لوحة التحكم</strong> (جدول أسبوعي). ما تُدخله الآن يظهر فور التفعيل ويمكنك
+                      تعديله بحرية في أي وقت.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -1667,8 +1667,7 @@ export function RegistrationForm() {
                       حزمة الرخصة الرقمية على المنصة.
                     </p>
                     <p className={regMutedClass}>
-                      بعد مراجعة طلبك والموافقة عليه، ستتلقى رابط الدفع لإتمام السداد بأمان عبر بوابة ميسر (مدى،
-                      فيزا، ماستركارد). لا يوجد تحويل بنكي أو رفع إيصال ضمن التسجيل.
+                      الدفع آلي ومباشر — بعد إرسال الطلب ستنتقل فوراً لصفحة الدفع عبر بوابة ميسر (مدى، فيزا، ماستركارد). <strong>التفعيل يبدأ فور نجاح السداد</strong> بلا انتظار.
                     </p>
                     {selectedPlan && monthlyPriceBreakdown && (
                       <p className="font-medium text-slate-100">
