@@ -27,7 +27,10 @@ import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
+import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
+import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { PublicMediaSpokesperson } from '@/components/PublicMediaSpokesperson';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
@@ -280,6 +283,7 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, size = 'normal
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function LandingPreview() {
   const navigate = useNavigate();
+  const { effectivePhase, control } = usePlatformAmbient();
   const [selectedBeacon, setSelectedBeacon] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -338,7 +342,12 @@ export default function LandingPreview() {
   const beacon = selectedBeacon ? DEMO_BEACONS.find((b) => b.id === selectedBeacon) : null;
 
   return (
-    <div dir="rtl" className="relative min-h-screen overflow-x-hidden bg-[#020912] font-[Tajawal,system-ui] text-slate-100">
+    <div
+      dir="rtl"
+      className="platform-dark platform-ambient relative min-h-screen overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100"
+      data-ambient-phase={effectivePhase}
+      data-ambient-control={control}
+    >
 
       {/* شريط مدن المملكة */}
       <div className="relative z-[60]"><KSACityClocksBar /></div>
@@ -358,6 +367,8 @@ export default function LandingPreview() {
           backgroundSize: '60px 60px',
         }}
       />
+
+      <PlatformAmbientBackground variant="default" />
 
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
@@ -478,6 +489,8 @@ export default function LandingPreview() {
                   B2B
                 </span>
               </a>
+
+              <PlatformAmbientToggle variant="compact" className="hidden sm:inline-flex" />
 
               {/* زر القائمة — موبايل */}
               <button

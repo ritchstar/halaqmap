@@ -22,6 +22,9 @@ import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPub
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
 import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
+import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
+import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
+import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 // PartnerDigitalBarberAssistant مُحال للتقاعد — موجود في مركز الوكلاء فقط
 // LegalObserverChat مُضمَّن مباشرةً في PartnerPrivacy و SubscriptionPolicy
 import { AppBuildStamp } from '@/components/AppBuildStamp';
@@ -122,6 +125,7 @@ function PartnerPathDealPulseTitle({ className }: { className?: string }) {
 export function PartnerLayout({ children }: PartnerLayoutProps) {
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { effectivePhase, control } = usePlatformAmbient();
   const { visible: tutorialsVisible } = usePartnerTutorialSectionVisible();
   const navItems = tutorialsVisible
     ? partnerNavItems
@@ -169,9 +173,21 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
   return (
     <div
-      className="platform-dark flex min-h-dvh flex-col bg-gradient-to-b from-[#061223] via-background to-background pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] md:pb-0"
+      className="platform-dark platform-ambient relative flex min-h-dvh flex-col bg-gradient-to-b from-[#061223] via-background to-background pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] md:pb-0"
       dir="rtl"
+      data-ambient-phase={effectivePhase}
+      data-ambient-control={control}
     >
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.018]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(245,158,11,1) 1px,transparent 1px),linear-gradient(90deg,rgba(245,158,11,1) 1px,transparent 1px)',
+          backgroundSize: '60px 60px',
+        }}
+        aria-hidden
+      />
+      <PlatformAmbientBackground variant="partner" />
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <header className="sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75">
           <div className="container mx-auto px-3 sm:px-4">
@@ -195,6 +211,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </div>
               <PartnerPathDealPulseTitle className="min-w-0 flex-1 text-center text-[12px] sm:text-sm" />
               <div className="flex shrink-0 items-center gap-1.5">
+                <PlatformAmbientToggle variant="partner" className="hidden sm:inline-flex" />
                 <Button
                   type="button"
                   variant="outline"
@@ -249,6 +266,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                     {item.label}
                   </NavLink>
                 ))}
+                <PlatformAmbientToggle variant="partner" className="hidden xl:inline-flex" />
               </nav>
 
               <NavLink
@@ -296,7 +314,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       <PartnerPromoVideoBand />
 
-      <main className="min-h-0 w-full flex-1">{children}</main>
+      <main className="relative z-10 min-h-0 w-full flex-1">{children}</main>
 
       {/* لا مدير مبيعات على صفحات الخصوصية، السياسات، والدفع */}
       {![

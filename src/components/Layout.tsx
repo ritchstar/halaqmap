@@ -15,6 +15,9 @@ import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
+import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
+import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,6 +25,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { effectivePhase, control } = usePlatformAmbient();
 
   const navItems = [
     { path: ROUTE_PATHS.HOME, label: 'الرئيسية' },
@@ -31,7 +35,13 @@ export function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="platform-dark min-h-[100dvh] min-h-screen flex flex-col bg-background overflow-x-hidden" dir="rtl" style={{ fontFamily: 'Tajawal, IBM Plex Sans Arabic, system-ui' }}>
+    <div
+      className="platform-dark platform-ambient min-h-[100dvh] min-h-screen flex flex-col bg-background overflow-x-hidden"
+      dir="rtl"
+      style={{ fontFamily: 'Tajawal, IBM Plex Sans Arabic, system-ui' }}
+      data-ambient-phase={effectivePhase}
+      data-ambient-control={control}
+    >
       {/* شبكة التكتير الخفية — تظهر على كل الصفحات */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
@@ -39,9 +49,7 @@ export function Layout({ children }: LayoutProps) {
         aria-hidden
       />
 
-      {/* توهج خلفي ديناميكي */}
-      <div className="pointer-events-none fixed -right-64 top-20 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[150px] opacity-60" aria-hidden />
-      <div className="pointer-events-none fixed -left-48 bottom-10 h-[400px] w-[400px] rounded-full bg-accent/4 blur-[130px] opacity-40" aria-hidden />
+      <PlatformAmbientBackground variant="default" />
 
       {/* شريط توقيت مدن المملكة */}
       <KSACityClocksBar />
@@ -100,8 +108,11 @@ export function Layout({ children }: LayoutProps) {
                 <Star className="h-3.5 w-3.5" />
                 آراؤنا
               </NavLink>
+              <PlatformAmbientToggle variant="compact" className="hidden lg:inline-flex" />
             </nav>
 
+            <div className="flex items-center gap-2 md:hidden">
+              <PlatformAmbientToggle variant="compact" />
             {/* زر القائمة — موبايل */}
             <button
               type="button"
@@ -147,7 +158,7 @@ export function Layout({ children }: LayoutProps) {
         </AnimatePresence>
       </header>
 
-      <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <main className="relative z-10 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
 
       {/* أزرار عائمة: مشاركة + تقييم + آراء */}
       <FloatingPlatformActions />

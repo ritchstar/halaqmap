@@ -30,7 +30,10 @@ import { SubscriptionTier } from '@/lib/index';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
+import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
+import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
+import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -854,6 +857,7 @@ function CertificateMockup() {
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function PartnerMarketingPreview() {
   const navigate = useNavigate();
+  const { effectivePhase, control } = usePlatformAmbient();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'bronze' | 'gold' | 'diamond'>('gold');
   const [scrolled, setScrolled] = useState(false);
@@ -865,7 +869,13 @@ export default function PartnerMarketingPreview() {
   const searches = useCounter(18000, 2000, statsInView);
 
   return (
-    <div dir="rtl" className="relative min-h-screen overflow-x-hidden bg-[#020912] text-slate-100" style={{ fontFamily: 'Tajawal, system-ui' }}>
+    <div
+      dir="rtl"
+      className="platform-dark platform-ambient relative min-h-screen overflow-x-hidden bg-background text-slate-100"
+      style={{ fontFamily: 'Tajawal, system-ui' }}
+      data-ambient-phase={effectivePhase}
+      data-ambient-control={control}
+    >
 
       {/* أزرار عائمة */}
       <FloatingPlatformActions />
@@ -874,6 +884,8 @@ export default function PartnerMarketingPreview() {
       {/* ── شبكة التكتير الخلفية ──────────────────────────────────────────── */}
       <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.02]"
         style={{ backgroundImage: 'linear-gradient(rgba(245,158,11,1) 1px,transparent 1px),linear-gradient(90deg,rgba(245,158,11,1) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+
+      <PlatformAmbientBackground variant="partner" />
 
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
@@ -960,6 +972,8 @@ export default function PartnerMarketingPreview() {
 
             {/* ── زر التسجيل ───────────────────────────────────────────── */}
             <div className="flex items-center gap-2">
+              <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
+              <PlatformAmbientToggle variant="partner" className="inline-flex md:hidden" />
               <motion.button
                 onClick={() => navigate(ROUTE_PATHS.REGISTER)}
                 whileHover={{ scale: 1.03 }}

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Fragment } from "react";
 import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { Layout } from "@/components/Layout";
 /** يتضمن PartnerLayout مساعد الشركاء الرقمي عبر PartnerDigitalBarberAssistant — المسار الوحيد للمساعد في مسار الخدمات البرمجية للمنصة. */
 import { PartnerLayout } from "@/components/PartnerLayout";
@@ -92,6 +93,7 @@ const LegacyAdminRedirect = ({ suffix }: { suffix: string }) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <PlatformAmbientProvider>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -190,6 +192,7 @@ const App = () => (
         </AdminAuthHashGate>
       </HashRouter>
     </TooltipProvider>
+    </PlatformAmbientProvider>
   </QueryClientProvider>
 );
 
