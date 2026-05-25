@@ -840,7 +840,7 @@ function CertificateMockup() {
               </div>
               <div>
                 <p className="text-[0.65rem] font-bold tracking-[0.2em] text-amber-300/80">HALAQ MAP</p>
-                <h3 className="text-base font-black text-white sm:text-lg">شهادة تفعيل رقمية فاخرة</h3>
+                <h3 className="text-base font-black text-white sm:text-lg">شهادة تفعيل رقمية معتمدة</h3>
                 <p className="mt-0.5 text-[0.68rem] leading-relaxed text-slate-400">
                   وثيقة رسمية تُثبت ملكيتك لمنتج حلاق ماب الرقمي
                 </p>
@@ -1343,7 +1343,7 @@ export default function PartnerMarketingPreview() {
             <FeatureCard icon={Brain} title="إضافة المكتب الخاص 🏛️" desc="مساعد داخلي + مناوب شات مترابطان — أعطِ تعليماتك، المناوب ينفّذها، والتقارير تصلك فوراً." color="from-violet-600 to-indigo-600" delay={0.24} badge="Diamond Add-on" />
             <FeatureCard icon={Users} title="خدمة كبار السن وذوي الاحتياجات" desc="إعلان موجَّه لشريحة لا تجدها في أي منصة أخرى — ميزة تنافسية حقيقية." color="from-sky-500 to-blue-400" delay={0.08} badge="Gold +" />
             <FeatureCard icon={QrCode} title="بورتفوليو صور" desc="اعرض أعمالك الفعلية — المزيد من الصور = المزيد من الثقة قبل الزيارة." color="from-orange-500 to-red-500" delay={0.16} badge="Diamond +" />
-            <FeatureCard icon={FileCheck} title="شهادة تفعيل فاخرة" desc="وثيقة رقمية رسمية بعد كل دفعة — كود تفعيل بارز، بيانات الرخصة، واهتمام حلاق ماب بمنتجها." color="from-amber-600 to-orange-500" delay={0.24} />
+            <FeatureCard icon={FileCheck} title="شهادة تفعيل معتمدة" desc="وثيقة رقمية رسمية بعد كل دفعة — كود تفعيل بارز، بيانات الرخصة، واهتمام حلاق ماب بمنتجها." color="from-amber-600 to-orange-500" delay={0.24} />
           </div>
         </div>
       </section>
@@ -1613,7 +1613,7 @@ export default function PartnerMarketingPreview() {
               </div>
               <h2 className="mb-5 text-3xl font-black text-white">شهادة تفعيل تليق بشراكتك</h2>
               <p className="mb-6 text-base leading-relaxed text-slate-400">
-                حلاق ماب لا تبيع «اشتراكاً» فقط — تُسلّمك وثيقة رقمية فاخرة تُثبت ملكيتك لرخصة النفاذ:
+                حلاق ماب لا تبيع «اشتراكاً» فقط — تُسلّمك وثيقة رقمية معتمدة تُثبت ملكيتك لرخصة النفاذ:
                 اسم منشأتك، باقتك، تواريخ الصلاحية، و**كود تفعيل فريد** يُبرز كمفتاح رخصتك الرسمي.
               </p>
               <div className="flex flex-col gap-2.5">

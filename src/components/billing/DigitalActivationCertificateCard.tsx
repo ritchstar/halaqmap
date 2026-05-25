@@ -61,7 +61,7 @@ export function DigitalActivationCertificateCard({ certificate, barberName, clas
           </Badge>
         </div>
         <CardTitle className={cn('text-xl font-extrabold text-white', compact && 'text-lg')}>
-          شهادة تفعيل رقمية فاخرة — {PLATFORM_NAME_AR}
+          شهادة تفعيل رقمية معتمدة — {PLATFORM_NAME_AR}
         </CardTitle>
         <CardDescription className="text-slate-300">
           {SOFTWARE_LICENSE_MANAGER_LABEL_AR} — وثيقة رسمية تُثبت ملكيتك لمنتجنا الرقمي
