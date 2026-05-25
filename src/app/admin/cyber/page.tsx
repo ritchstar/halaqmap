@@ -30,6 +30,34 @@ import { CyberThreatRecordsPanel } from '@/modules/cyber-radar/components/CyberT
 import { CYBER_SCENARIOS, getScenarioById } from '@/modules/cyber-radar/scenarios';
 import type { CyberAgentResponse, CyberMode, CyberThreatSession, CyberScenario } from '@/modules/cyber-radar/types';
 
+// ─── ErrorBoundary لمنع الشاشة البيضاء نهائياً ───────────────────────────────
+import React from 'react';
+class CyberOpsErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="flex h-[100dvh] w-[100dvw] flex-col items-center justify-center gap-4 bg-[#03000a] p-6 text-white" dir="rtl">
+          <p className="text-rose-400 text-lg font-bold">⚠️ خطأ في غرفة العمليات</p>
+          <p className="text-slate-400 text-sm max-w-md text-center">{this.state.error.message}</p>
+          <button onClick={() => this.setState({ error: null })}
+            className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-6 py-2 text-cyan-300 text-sm">
+            إعادة المحاولة
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 type AuthPhase = 'loading' | 'ok' | 'denied' | 'nologin';
 
 // نوع حدث أمني حي من Supabase Realtime
@@ -125,7 +153,7 @@ async function blockIpReal(ip: string, reason: string): Promise<boolean> {
   } catch { return false; }
 }
 
-export default function AdminCyberOperationsPage() {
+function AdminCyberOperationsPageInner() {
   const navigate = useNavigate();
   const location = useLocation();
   const [phase, setPhase] = useState<AuthPhase>('loading');
@@ -151,8 +179,10 @@ export default function AdminCyberOperationsPage() {
   // ◆ تقارير الوكلاء الحقيقية
   const [agentReports, setAgentReports] = useState<CyberAgentResponse[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(false);
-  // ◆ منظومة الصوت
+  // ◆ منظومة الصوت — نستخدم ref لتجنب إعادة تشغيل effect في كل render
   const audio = useCyberAudio();
+  const audioRef = useRef(audio);
+  audioRef.current = audio; // تحديث دائم بدون إعادة تشغيل effects
   // ◆ أحداث أمنية حية من Supabase Realtime
   const [liveSecEvents, setLiveSecEvents] = useState<LiveSecurityEvent[]>([]);
 
@@ -175,23 +205,25 @@ export default function AdminCyberOperationsPage() {
     setCfLoading(false);
   };
 
-  // ◆ تشغيل أصوات الأحداث (live + scenario)
+  // ◆ تشغيل أصوات الأحداث — pulses فقط في deps (audio عبر ref)
   const lastPulseCount = useRef(0);
   const lastPulseId = useRef('');
   useEffect(() => {
-    const current = pulses.length;
-    if (current > lastPulseCount.current) {
-      // العثور على النبضات الجديدة
-      const newPulses = pulses.slice(lastPulseCount.current);
-      newPulses.forEach(p => {
-        if (p.id !== lastPulseId.current) {
-          lastPulseId.current = p.id;
-          audio.playEventSound(p.kind);
-        }
-      });
-    }
-    lastPulseCount.current = current;
-  }, [pulses, audio]);
+    try {
+      const current = pulses.length;
+      if (current > lastPulseCount.current) {
+        const newPulses = pulses.slice(lastPulseCount.current);
+        newPulses.forEach(p => {
+          if (p.id !== lastPulseId.current) {
+            lastPulseId.current = p.id;
+            audioRef.current.playEventSound(p.kind);
+          }
+        });
+      }
+      lastPulseCount.current = current;
+    } catch { /* صامت — الصوت لا يوقف الغرفة */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pulses]);
 
   // ◆ Supabase Realtime — اشتراك في أحداث الأمان الحية
   useEffect(() => {
@@ -747,6 +779,15 @@ export default function AdminCyberOperationsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Wrapper مع ErrorBoundary ──────────────────────────────────────────────
+export default function AdminCyberOperationsPage() {
+  return (
+    <CyberOpsErrorBoundary>
+      <AdminCyberOperationsPageInner />
+    </CyberOpsErrorBoundary>
   );
 }
 
