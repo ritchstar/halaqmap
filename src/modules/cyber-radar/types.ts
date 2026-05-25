@@ -56,7 +56,10 @@ export type CyberAgentResponse = {
     | 'engineering'         // الجناح الهندسي — البنية التحتية
     | 'ops_controller'      // مراقب العمليات — رصد لحظي
     | 'cyber_defense'       // قائد الدفاع السيبراني — الدور المحوري
-    | 'covert_sovereign';   // السيادة الخفية — استخبارات وقناة مشفرة
+    | 'covert_sovereign'    // السيادة الخفية — استخبارات وقناة مشفرة
+    | 'proactive_scout'     // عميل الاستطلاع الاستباقي — يكشف قبل الهجوم
+    | 'forensic_analyst'    // محلل الجنائيات الرقمية — أنماط خفية
+    | 'threat_neutralizer'; // محيّد التهديدات — تحييد شامل DB+CF
   agentLabelAr: string;
   /** Short action verb shown in the badge (e.g. "تفعيل Rate-Limit"). */
   actionLabelAr: string;

@@ -142,6 +142,9 @@ export default function AdminCyberOperationsPage() {
   const [cfStatus, setCfStatus] = useState<CfStatus | null>(null);
   const [cfLoading, setCfLoading] = useState(false);
   const [attackModeChanging, setAttackModeChanging] = useState(false);
+  // ◆ تقارير الوكلاء الحقيقية
+  const [agentReports, setAgentReports] = useState<CyberAgentResponse[]>([]);
+  const [agentsLoading, setAgentsLoading] = useState(false);
   // ◆ أحداث أمنية حية من Supabase Realtime
   const [liveSecEvents, setLiveSecEvents] = useState<LiveSecurityEvent[]>([]);
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -186,6 +189,27 @@ export default function AdminCyberOperationsPage() {
     channelRef.current = channel;
     return () => { void client.removeChannel(channel); };
   }, [phase]);
+
+  // ◆ تشغيل تحليل الوكلاء الثلاثة الحقيقي
+  const runAgentAnalysis = async () => {
+    setAgentsLoading(true);
+    try {
+      const [scout, forensic] = await Promise.all([
+        fetch('/api/admin-security-agents', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'proactive_scout', windowMinutes: 15 }),
+        }).then(r => r.json()) as Promise<{ agentResponse?: CyberAgentResponse }>,
+        fetch('/api/admin-security-agents', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'forensic_analysis', hours: 6 }),
+        }).then(r => r.json()) as Promise<{ agentResponse?: CyberAgentResponse }>,
+      ]);
+      const reports = [scout.agentResponse, forensic.agentResponse].filter((r): r is CyberAgentResponse => !!r);
+      if (reports.length) setAgentReports(prev => [...reports, ...prev].slice(0, 10));
+    } finally {
+      setAgentsLoading(false);
+    }
+  };
 
   const handleToggleAttackMode = async () => {
     if (!cfStatus) return;
@@ -414,6 +438,63 @@ export default function AdminCyberOperationsPage() {
 
         {/* Right — scenario controls + legend */}
         <aside className="order-3 flex min-h-0 flex-col gap-2 overflow-y-auto rounded-2xl border border-amber-400/20 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
+          {/* ◆ وكلاء الأمن السيبراني الحقيقيون */}
+          <div className="mb-2 rounded-xl border border-teal-400/20 bg-black/40 p-3 backdrop-blur-md">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm">🤖</span>
+                <span className="text-[0.6rem] font-bold uppercase tracking-wider text-teal-300/80">وكلاء الأمن الحقيقيون</span>
+              </div>
+              <button onClick={() => void runAgentAnalysis()} disabled={agentsLoading}
+                className="flex items-center gap-1 rounded-lg border border-teal-400/30 bg-teal-500/10 px-2 py-1 text-[0.55rem] font-black text-teal-300 hover:bg-teal-500/20 transition-all disabled:opacity-50">
+                {agentsLoading ? '…' : '▶ تحليل الآن'}
+              </button>
+            </div>
+            {/* حالة الوكلاء */}
+            <div className="grid grid-cols-3 gap-1 mb-2">
+              {[
+                { id: 'proactive_scout', label: 'استطلاع', icon: '🔍', color: 'text-teal-300' },
+                { id: 'forensic_analyst', label: 'جنائيات', icon: '🔬', color: 'text-indigo-300' },
+                { id: 'threat_neutralizer', label: 'تحييد', icon: '⚡', color: 'text-red-300' },
+              ].map(a => {
+                const report = agentReports.find(r => r.agentId === a.id);
+                return (
+                  <div key={a.id} className={`rounded-lg border px-1.5 py-1.5 text-center ${
+                    report?.severity === 'critical' ? 'border-rose-500/40 bg-rose-950/20' :
+                    report?.severity === 'elevated' ? 'border-amber-500/30 bg-amber-950/15' :
+                    'border-white/5 bg-black/20'
+                  }`}>
+                    <p className="text-sm">{a.icon}</p>
+                    <p className={`text-[0.48rem] font-black ${a.color}`}>{a.label}</p>
+                    <p className="text-[0.42rem] text-slate-600">
+                      {report ? (report.severity === 'critical' ? '🚨' : report.severity === 'elevated' ? '⚠️' : '✅') : '—'}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            {/* آخر تقارير الوكلاء */}
+            {agentReports.length > 0 && (
+              <div className="max-h-28 space-y-1.5 overflow-y-auto">
+                {agentReports.slice(0, 4).map((r, i) => (
+                  <div key={i} className={`rounded-lg border px-2 py-1.5 text-[0.52rem] ${
+                    r.severity === 'critical' ? 'border-rose-500/25 bg-rose-950/20' :
+                    r.severity === 'elevated' ? 'border-amber-500/20 bg-amber-950/15' :
+                    'border-teal-500/15 bg-teal-950/10'
+                  }`}>
+                    <p className="font-black text-[0.6rem]" style={{color: r.agentId === 'proactive_scout' ? '#5eead4' : r.agentId === 'forensic_analyst' ? '#a5b4fc' : '#fca5a5'}}>
+                      {r.agentLabelAr} — {r.actionLabelAr}
+                    </p>
+                    <p className="mt-0.5 text-slate-400 leading-relaxed line-clamp-2">{r.explanationAr}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            {agentReports.length === 0 && (
+              <p className="text-center text-[0.52rem] text-slate-700 py-2">اضغط «تحليل الآن» لتشغيل الوكلاء الحقيقيين</p>
+            )}
+          </div>
+
           {/* ◆ Cloudflare Shield — حماية Edge حقيقية */}
           {cfStatus && (
             <div className="mb-2 rounded-xl border border-orange-400/25 bg-black/40 p-3 backdrop-blur-md">
@@ -627,6 +708,27 @@ export default function AdminCyberOperationsPage() {
 // ---------------------------------------------------------------------------
 const ts = () => new Date().toISOString();
 
+const AMBIENT_SET_AGENTS: CyberAgentResponse[] = [
+  {
+    id: 'live-ag1', agentId: 'proactive_scout', agentLabelAr: 'عميل الاستطلاع الاستباقي',
+    actionLabelAr: '🔍 مسح دوري',
+    explanationAr: 'المسح الاستباقي مُكتمَل — لا ارتفاع في معدل الطلبات الواردة. بروتوكول المراقبة المبكرة نشط على جميع نقاط الـ API. التهديد المتوقع: منخفض.',
+    severity: 'info', timestamp: ts(),
+  },
+  {
+    id: 'live-ag2', agentId: 'forensic_analyst', agentLabelAr: 'محلل الجنائيات الرقمية',
+    actionLabelAr: '🔬 تحليل الأنماط',
+    explanationAr: 'فحص أنماط الـ 24 ساعة الأخيرة: لا هجمات موزّعة مكتشفة، لا هجمات بطيئة جارية. توزيع جغرافي طبيعي للزيارات. سجلات الجنائيات نظيفة.',
+    severity: 'info', timestamp: ts(),
+  },
+  {
+    id: 'live-ag3', agentId: 'threat_neutralizer', agentLabelAr: 'محيّد التهديدات',
+    actionLabelAr: '⚡ استعداد كامل',
+    explanationAr: 'منظومة التحييد جاهزة — DB Block + Cloudflare Edge Block مُتزامنان. في انتظار إشارة من عميل الاستطلاع أو المدعي العام لتنفيذ التحييد الشامل.',
+    severity: 'info', timestamp: ts(),
+  },
+];
+
 const AMBIENT_SET_QUIET: CyberAgentResponse[] = [
   {
     id: 'live-q0',
@@ -761,4 +863,5 @@ const ALL_AMBIENT_LOGS: ReadonlyArray<CyberAgentResponse[]> = [
   AMBIENT_SET_QUIET,
   AMBIENT_SET_ANALYSIS,
   AMBIENT_SET_NETWORK,
+  AMBIENT_SET_AGENTS,   // ◆ الوكلاء المتخصصون الجدد
 ];

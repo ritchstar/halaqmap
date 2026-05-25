@@ -276,6 +276,13 @@ const ddosAttack: CyberScenario = {
       })),
       agentResponses: [
         {
+          agentId: 'proactive_scout',
+          agentLabelAr: 'عميل الاستطلاع الاستباقي',
+          actionLabelAr: '⚠️ إنذار مبكر — معدل متصاعد',
+          explanationAr: 'رَصَدتُ ارتفاعاً حاداً في معدل الطلبات قبل 47 ثانية — كان بإمكاني إطلاق التنبيه مبكراً. الدرس: حدّ الإنذار المبكر سيُخفَّض من 5 إلى 3 أحداث/دقيقة بعد هذه الجلسة.',
+          severity: 'elevated',
+        },
+        {
           agentId: 'cyber_defense',
           agentLabelAr: 'قائد الدفاع السيبراني',
           actionLabelAr: '🚨 إنذار DDoS — تَفعيل درع الطَّوارئ',
@@ -404,11 +411,25 @@ const ddosAttack: CyberScenario = {
       narratorAr: '00:52 — الهَجوم يَخفّ بَعد فَشل كل المُحاولات. نَتَنَفَّس.',
       agentResponses: [
         {
+          agentId: 'forensic_analyst',
+          agentLabelAr: 'محلل الجنائيات الرقمية',
+          actionLabelAr: '🔬 تحليل جنائي ما بعد الهجوم',
+          explanationAr: 'الهجوم كان موزّعاً من +1,000 IP — نمط botnet كلاسيكي مستأجر. المصادر من 5 نطاقات ASN معروفة بيع حركة مزيّفة. أوصي بإضافتها لقائمة الحظر الدائمة. الملفات الجنائية جاهزة.',
+          severity: 'critical',
+        },
+        {
           agentId: 'cyber_defense',
           agentLabelAr: 'قائد الدفاع السيبراني',
           actionLabelAr: '✅ الدِّرع صَمَد — تَقرير الجَولة',
           explanationAr:
             'الهجوم فَشِل على جميع المَراحل: L3 Volumetric ← أَوقَفَه Anycast · L7 SQL/XSS ← أَوقَفَه WAF · Brute-force ← أَوقَفَه Lockout+TOTP. البنية الأمنية تَعمَل كما صُمِّمت. أُوصي بمُراجعة القواعد الجديدة وتثبيتها دائمة.',
+          severity: 'info',
+        },
+        {
+          agentId: 'threat_neutralizer',
+          agentLabelAr: 'محيّد التهديدات',
+          actionLabelAr: '⚡ تحييد شامل منتهٍ',
+          explanationAr: 'تمّ تحييد 14,392 طلب خبيث عبر المنظومة الثلاثية: Rate Limiter (التصفية الأولى) → Supabase Block List → Cloudflare Edge Block. كل الطبقات عملت بتناسق. 0 بيانات مُسرَّبة.',
           severity: 'info',
         },
         {
