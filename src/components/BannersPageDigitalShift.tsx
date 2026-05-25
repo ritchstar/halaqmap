@@ -15,12 +15,12 @@ type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 
 // ─── Quick prompts ────────────────────────────────────────────────────────────
 const QUICK = [
-  'ما هو المناوب الرقمي الذكي؟ 🌙',
-  'كيف يساعد صالوني؟',
-  'بكم Add-on المناوب؟',
+  'ما هو المكتب الخاص؟ 🏛️',
+  'كيف أعطي المناوب تعليمات؟',
+  'ما الفرق بين المكتب والمناوب؟',
+  'بكم إضافة المكتب الخاص؟',
   'ما الفرق بين الباقات؟',
-  'هل في عمولة على القصة؟',
-  'كيف أشترك؟',
+  'كيف أشترك؟ 🚀',
 ];
 
 // ─── Greetings ────────────────────────────────────────────────────────────────
@@ -171,7 +171,7 @@ export function BannersPageDigitalShift() {
                 </div>
                 <div>
                   <p className="text-sm font-black text-violet-100 leading-tight">المناوب الرقمي الذكي 🌙</p>
-                  <p className="text-[0.58rem] text-violet-400/55">Add-on ماسي · نموذج حي</p>
+                  <p className="text-[0.58rem] text-violet-400/55">إضافة المكتب الخاص 🏛️ · نموذج حي</p>
                 </div>
               </div>
               <button type="button" onClick={() => setOpen(false)}
