@@ -393,27 +393,33 @@ function PricingCard({
       {addOnAvailable && (
         <div className="mb-4 rounded-xl border border-violet-400/25 bg-violet-500/8 px-3 py-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-[0.6rem] font-black uppercase tracking-wider text-violet-400/70">Add-on اختياري 🌙</span>
+            <span className="text-[0.6rem] font-black uppercase tracking-wider text-violet-400/70">🏛️ إضافة المكتب الخاص</span>
             <span className="rounded-full bg-violet-500/20 border border-violet-400/25 px-2 py-0.5 text-[0.55rem] font-black text-violet-300">+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة</span>
           </div>
-          <p className="mb-2 text-[0.72rem] font-bold text-violet-200">المناوب الرقمي الذكي + المكتب الخاص</p>
+          <p className="mb-1.5 text-[0.72rem] font-bold text-violet-200">مساعد داخلي + مناوب شات — مترابطان</p>
           <div className="space-y-1">
             {[
-              'يرد على زبائنك عند الإغلاق أو الانشغال',
-              'مكتب خاص: تعليمات + مهام + رصيد الحزمة',
-              'تنبيه تلقائي قبل انتهاء رخصتك',
+              '📋 أعطِ تعليماتك بـ«تعليمة:» — المناوب ينفّذها مع كل زبون',
+              '🌙 المناوب يرد بذكاء بـ7 لغات عند الإغلاق أو الانشغال',
+              '📡 تقارير كل محادثة تصلك تلقائياً في المكتب',
+              '💳 رصيد حزمتك + رابط التجديد في ثانية',
             ].map(f => (
               <div key={f} className="flex items-center gap-1.5 text-[0.65rem] text-violet-300/80">
-                <span className="text-violet-400">✦</span> {f}
+                {f}
               </div>
             ))}
           </div>
-          <button
-            onClick={() => navigate('/partners/digital-shift')}
-            className="mt-2 text-[0.6rem] text-violet-400/55 hover:text-violet-300 underline transition-colors"
-          >
-            شرح مفصّل للمناوب ←
-          </button>
+          <div className="mt-2 flex gap-2">
+            <button onClick={() => navigate(ROUTE_PATHS.PRIVATE_OFFICE_GUIDE)}
+              className="text-[0.6rem] text-violet-400/55 hover:text-violet-300 underline transition-colors">
+              دليل الاستخدام ←
+            </button>
+            <span className="text-violet-500/30">·</span>
+            <button onClick={() => navigate(ROUTE_PATHS.DIGITAL_SHIFT_FEATURE)}
+              className="text-[0.6rem] text-violet-400/55 hover:text-violet-300 underline transition-colors">
+              شرح تقني ←
+            </button>
+          </div>
         </div>
       )}
       <ul className="mb-6 flex flex-col gap-2" dir="rtl">
@@ -565,7 +571,7 @@ export default function PartnerMarketingPreview() {
                 { label: 'كيف تنضم',      id: 'كيف تنضم',      icon: Navigation2 },
                 { label: 'مزايا الباقات', id: 'مزايا الباقات', icon: Sparkles },
                 { label: 'الأسعار',       id: 'الأسعار',       icon: Crown },
-                { label: 'البنرات والمناوب 🌙', id: 'معاينة البنرات', icon: ImageIcon },
+                { label: 'البنرات والمكتب الخاص 🏛️', id: 'معاينة البنرات', icon: ImageIcon },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -855,7 +861,7 @@ export default function PartnerMarketingPreview() {
             <FeatureCard icon={Clock} title="مفتوح/مغلق لحظياً" desc="اضبط حالة صالونك في أي وقت عبر رابط سري — بدون دخول لوحة التحكم." color="from-emerald-500 to-green-500" delay={0.16} />
             <FeatureCard icon={Star} title="تقييمات موثّقة + QR" desc="كود QR يُرسل لزبونك لتقييمك بعد الخدمة — تقييمات حقيقية لا وهمية." color="from-rose-500 to-pink-500" delay={0.08} badge="Gold +" />
             <FeatureCard icon={BarChart3} title="إحصاءات الأداء" desc="كم بحث عنك، من أي حي، وفي أي وقت — خريطة حرارية لفهم زبائنك." color="from-violet-500 to-purple-500" delay={0.16} badge="Gold +" />
-            <FeatureCard icon={Brain} title="المناوب الرقمي الذكي 🌙" desc="Add-on للماسية — يرد على الشات عند إغلاق الصالون أو الانشغال، يرحّب ويُنظّم." color="from-indigo-500 to-blue-500" delay={0.24} badge="Diamond Add-on" />
+            <FeatureCard icon={Brain} title="إضافة المكتب الخاص 🏛️" desc="مساعد داخلي + مناوب شات مترابطان — أعطِ تعليماتك، المناوب ينفّذها، والتقارير تصلك فوراً." color="from-violet-600 to-indigo-600" delay={0.24} badge="Diamond Add-on" />
             <FeatureCard icon={Users} title="خدمة كبار السن وذوي الاحتياجات" desc="إعلان موجَّه لشريحة لا تجدها في أي منصة أخرى — ميزة تنافسية حقيقية." color="from-sky-500 to-blue-400" delay={0.08} badge="Gold +" />
             <FeatureCard icon={QrCode} title="بورتفوليو صور" desc="اعرض أعمالك الفعلية — المزيد من الصور = المزيد من الثقة قبل الزيارة." color="from-orange-500 to-red-500" delay={0.16} badge="Diamond +" />
             <FeatureCard icon={FileCheck} title="شهادة التفعيل الرقمية" desc="وثيقة رسمية بعد كل دفعة: رقم الرخصة، تاريخ التفعيل، نوع الباقة." color="from-amber-600 to-orange-500" delay={0.24} />
@@ -931,7 +937,7 @@ export default function PartnerMarketingPreview() {
                 'شات مع الزبائن عبر واتساب ذكي',
                 'بورتفوليو صور غير محدود',
                 'تحليلات مفصّلة + تقارير أداء متقدمة',
-                `${DIAMOND_PRODUCT_STANDARD_LABEL_AR} | +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س للمناوب الذكي 🌙`,
+                `${DIAMOND_PRODUCT_STANDARD_LABEL_AR} | +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س إضافة المكتب الخاص 🏛️`,
               ]}
             />
           </div>
@@ -1045,7 +1051,7 @@ export default function PartnerMarketingPreview() {
 
                 {t.addon && (
                   <div className="mb-3 rounded-lg border border-violet-400/20 bg-violet-500/8 px-2 py-1.5 text-[0.6rem] text-violet-300">
-                    🌙 المناوب الرقمي الذكي مفعّل — يرد على عملائك حتى أثناء إغلاق الصالون
+                    🏛️ إضافة المكتب الخاص — مساعد داخلي ومناوب شات مترابطان، تعليماتك تُنفَّذ والتقارير تصلك
                   </div>
                 )}
 
@@ -1108,7 +1114,7 @@ export default function PartnerMarketingPreview() {
               onClick={() => navigate(ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW)}
               className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-500/10 px-6 py-3 text-sm font-semibold text-amber-300 hover:border-amber-400/70 transition-all"
             >
-              <ImageIcon className="h-4 w-4" /> معاينة البنرات والمناوب الذكي 🌙
+              <ImageIcon className="h-4 w-4" /> معاينة البنرات والمكتب الخاص 🏛️
             </button>
           </div>
         </div>

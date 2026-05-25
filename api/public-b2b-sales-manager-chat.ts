@@ -233,8 +233,9 @@ function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): stri
 - «أعطه تعليمة مرة واحدة — يطبّقها مع كل زبون لحين تغييرها»
 - «تقارير المناوب تصلك فور ردّه — تعرف بالضبط ما جرى أثناء غيابك»
 
-【رابط شرح مفصل للميزة】
-https://halaqmap.com/#/partners/digital-shift
+【روابط مهمة للمكتب الخاص】
+- دليل الاستخدام المفصّل بالأمثلة: https://halaqmap.com/#/partners/private-office-guide
+- شرح تقني: https://halaqmap.com/#/partners/digital-shift
 
 【قصص نجاح (للإقناع)】
 - صالون في حي السليمانية بالرياض: من 3 زبائن يوميًا إلى 11 في أسبوعين

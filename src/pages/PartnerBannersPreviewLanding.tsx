@@ -56,7 +56,7 @@ export default function PartnerBannersPreviewLanding() {
             </div>
             <div>
               <p className="text-xs font-semibold text-cyan-200/80">مسار الأعمال · شفافية بصرية</p>
-              <h1 className="text-lg font-extrabold text-white md:text-xl">معاينة البنرات والمناوب الذكي 🌙</h1>
+              <h1 className="text-lg font-extrabold text-white md:text-xl">معاينة البنرات وإضافة المكتب الخاص 🏛️</h1>
             </div>
           </div>
           <p className="max-w-lg text-xs leading-relaxed text-slate-400">
@@ -243,7 +243,11 @@ export default function PartnerBannersPreviewLanding() {
       </main>
 
       <footer className="relative z-10 border-t border-white/10 px-4 py-6 text-center text-[11px] text-slate-500">
-        معاينة البنرات والمناوب الذكي · مسار الخدمات التسويقية لحلاق ماب
+        معاينة البنرات وإضافة المكتب الخاص 🏛️ · مسار الخدمات التسويقية لحلاق ماب
+        <span className="mx-3 text-slate-700">·</span>
+        <NavLinkDom to="/partners/private-office-guide" className="text-violet-400/60 hover:text-violet-300 underline transition-colors">
+          دليل المكتب الخاص ←
+        </NavLinkDom>
       </footer>
 
       {/* ── المناوب الرقمي الذكي — زر عائم لاستقبال الزوار ── */}
