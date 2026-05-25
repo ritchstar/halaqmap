@@ -24,8 +24,10 @@ import {
 } from '@/modules/cyber-radar/components/CyberHud';
 import { useCyberPlayback } from '@/modules/cyber-radar/hooks/useCyberPlayback';
 import { useCyberLiveStream } from '@/modules/cyber-radar/hooks/useCyberLiveStream';
+import { useCyberThreatRecorder, sessionToScenario } from '@/modules/cyber-radar/hooks/useCyberThreatRecorder';
+import { CyberThreatRecordsPanel } from '@/modules/cyber-radar/components/CyberThreatRecordsPanel';
 import { CYBER_SCENARIOS, getScenarioById } from '@/modules/cyber-radar/scenarios';
-import type { CyberAgentResponse, CyberMode } from '@/modules/cyber-radar/types';
+import type { CyberAgentResponse, CyberMode, CyberThreatSession, CyberScenario } from '@/modules/cyber-radar/types';
 
 type AuthPhase = 'loading' | 'ok' | 'denied' | 'nologin';
 
@@ -36,13 +38,31 @@ export default function AdminCyberOperationsPage() {
 
   const [mode, setMode] = useState<CyberMode>('live');
   const [activeScenarioId, setActiveScenarioId] = useState<string>(CYBER_SCENARIOS[0].id);
-  const activeScenario = useMemo(
-    () => (mode === 'scenario' ? getScenarioById(activeScenarioId) ?? null : null),
-    [mode, activeScenarioId],
-  );
+  const [customScenario, setCustomScenario] = useState<CyberScenario | null>(null);
+  const activeScenario = useMemo(() => {
+    if (mode !== 'scenario') return null;
+    if (customScenario) return customScenario;
+    return getScenarioById(activeScenarioId) ?? null;
+  }, [mode, activeScenarioId, customScenario]);
 
   const playback = useCyberPlayback(activeScenario);
   const live = useCyberLiveStream(mode === 'live');
+
+  // ◆ DVR — التسجيل التلقائي لجلسات التهديد
+  const dvr = useCyberThreatRecorder(live.pulses, mode === 'live' && phase === 'ok');
+
+  const handlePlayRecording = (session: CyberThreatSession) => {
+    const scenario = sessionToScenario(session);
+    setCustomScenario(scenario);
+    setMode('scenario');
+    playback.reset();
+    setTimeout(() => playback.play(), 300);
+  };
+
+  const handleScenarioChange = (id: string) => {
+    setCustomScenario(null); // مسح أي تسجيل مخصص
+    setActiveScenarioId(id);
+  };
 
   // Cumulative defence counter — each emitted threat in playback or live
   // probe is treated as "blocked" since the platform's defences cover both.
@@ -242,20 +262,20 @@ export default function AdminCyberOperationsPage() {
         <aside className="order-3 flex min-h-0 flex-col gap-2 overflow-y-auto rounded-2xl border border-amber-400/20 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
           <ScenarioControlPanel
             mode={mode}
-            setMode={setMode}
+            setMode={(m) => { setCustomScenario(null); setMode(m); }}
             scenarios={CYBER_SCENARIOS}
-            activeScenarioId={activeScenarioId}
-            setActiveScenarioId={setActiveScenarioId}
+            activeScenarioId={customScenario ? 'dvr_replay' : activeScenarioId}
+            setActiveScenarioId={handleScenarioChange}
             state={playback.state}
             elapsedMs={playback.elapsedMs}
             onPlay={playback.play}
             onPause={playback.pause}
-            onReset={playback.reset}
+            onReset={() => { setCustomScenario(null); playback.reset(); }}
           />
           <SecurityLegend />
         </aside>
 
-        {/* Left — agent feed + event log */}
+        {/* Left — agent feed + event log + DVR records */}
         <aside className="order-4 flex min-h-0 flex-col gap-2 overflow-y-auto rounded-2xl border border-white/10 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1">
           <h2 className="px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
             مَلَفّ تَفاعل الوُكَلاء
@@ -265,6 +285,18 @@ export default function AdminCyberOperationsPage() {
             سِجِل الأَحداث
           </h2>
           <CyberEventLog events={pulses} />
+
+          {/* ◆ تسجيلات DVR — بطاقات جنائية مرفقة بتقارير المدعي العام */}
+          <div className="mt-2 border-t border-white/5 pt-2">
+            <CyberThreatRecordsPanel
+              sessions={dvr.sessions}
+              isRecording={dvr.isRecording}
+              currentBuffer={dvr.currentBuffer}
+              onPlaySession={handlePlayRecording}
+              onDeleteSession={dvr.clearSession}
+              onClearAll={dvr.clearAll}
+            />
+          </div>
         </aside>
 
         {/* Bottom — stats strip */}

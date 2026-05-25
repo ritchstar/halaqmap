@@ -101,3 +101,38 @@ export type CyberStats = {
 
 /** Top-level mode for the page. */
 export type CyberMode = 'live' | 'scenario';
+
+// ─── DVR: تسجيل جلسات التهديد الحقيقية ─────────────────────────────────────
+
+/** حدث مسجَّل بإزاحة زمنية عن بداية الجلسة */
+export type RecordedEvent = {
+  kind: CyberEventKind;
+  severity: CyberSeverity;
+  source: ViewPoint;
+  target?: ViewPoint;
+  description: string;
+  originLabelAr?: string;
+  protocolTag?: string;
+  volume?: number;
+  offsetMs: number; // milliseconds from session start
+};
+
+/** جلسة تهديد مسجَّلة — تُخزَّن في localStorage */
+export type CyberThreatSession = {
+  id: string;
+  recordedAt: string;          // ISO timestamp of session start
+  titleAr: string;
+  subtitleAr: string;
+  durationMs: number;
+  events: RecordedEvent[];
+  stats: {
+    totalThreats: number;
+    attackKinds: string[];      // e.g. ['DDoS','SQLi']
+    sourcesCount: number;
+    peakSeverity: CyberSeverity;
+  };
+  prosecutorReport: {
+    title: string;
+    body: string;
+  };
+};
