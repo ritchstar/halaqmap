@@ -27,6 +27,7 @@ import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PublicMediaSpokesperson } from '@/components/PublicMediaSpokesperson';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
@@ -617,6 +618,7 @@ export default function LandingPreview() {
                   <span>{b.text}</span>
                 </div>
               ))}
+              <PlatformTlsTrustBadge variant="compact" tone="dark" />
             </div>
           </motion.div>
 
@@ -938,7 +940,7 @@ export default function LandingPreview() {
             <FeatureCard
               icon={Shield}
               title="الأمان والخصوصية"
-              desc="بياناتك محمية بأعلى معايير PDPL السعودية. لا مشاركة دون إذن."
+              desc="بياناتك محمية بأعلى معايير PDPL السعودية — اتصال HTTPS/TLS بتقييم SSL Labs A+. لا مشاركة دون إذن."
               color="from-violet-500 to-purple-500"
               delay={0.16}
             />

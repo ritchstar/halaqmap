@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { MapPin, Target, Eye, Zap, Shield, Award } from "lucide-react";
 import { IMAGES } from "@/assets/images";
 import { LegalObserverChat } from '@/components/LegalObserverChat';
+import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import {
   PLATFORM_ABOUT_FEATURE_QUALITY,
   PLATFORM_ABOUT_HERO_SUBTITLE,
@@ -269,6 +270,27 @@ export default function About() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-card/50">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="max-w-3xl mx-auto"
+          >
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-full text-emerald-700 dark:text-emerald-300 font-semibold mb-4">
+                <Shield className="w-5 h-5" />
+                <span>أمان الاتصال</span>
+              </div>
+              <h2 className="text-3xl font-bold text-foreground">اتصالك بالمنصة محمي بأعلى المعايير</h2>
+            </div>
+            <PlatformTlsTrustBadge variant="strip" />
+          </motion.div>
         </div>
       </section>
 

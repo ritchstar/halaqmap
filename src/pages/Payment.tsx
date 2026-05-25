@@ -9,7 +9,6 @@ import {
   AlertCircle,
   Loader2,
   Shield,
-  Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,6 +40,7 @@ import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
+import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
@@ -708,22 +708,8 @@ export default function Payment() {
             <div className="space-y-6">
               {/* Security Badge */}
               <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                      <Shield className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">دفع آمن ومشفر</h3>
-                      <p className="text-sm text-muted-foreground">
-                        جميع المعاملات محمية بتشفير SSL 256-bit
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Lock className="w-4 h-4" />
-                    <span>معلوماتك محمية بالكامل</span>
-                  </div>
+                <CardContent className="p-2">
+                  <PlatformTlsTrustBadge variant="card" />
                 </CardContent>
               </Card>
 

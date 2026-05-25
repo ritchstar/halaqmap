@@ -30,6 +30,7 @@ import { SubscriptionTier } from '@/lib/index';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
+import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -1075,6 +1076,7 @@ export default function PartnerMarketingPreview() {
                   {b.text}
                 </div>
               ))}
+              <PlatformTlsTrustBadge variant="compact" tone="dark" />
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -1208,7 +1210,7 @@ export default function PartnerMarketingPreview() {
             {[
               { step: '١', icon: Scissors, title: 'أكمل نموذج التسجيل', desc: 'بيانات صالونك الأساسية: الاسم، الموقع، الخدمات، صور الواجهة — في دقائق.', color: 'from-amber-500 to-yellow-500' },
               { step: '٢', icon: Crown, title: 'اختر حزمتك', desc: 'برونزي (١٠٠ ر.س) · ذهبي (١٥٠ ر.س) · ماسي (٢٠٠ ر.س) — أو الحزمة السنوية بعرض المضاعفة.', color: 'from-violet-500 to-purple-500' },
-              { step: '٣', icon: Shield, title: 'ادفع بأمان فوراً', desc: 'عبر بوابة ميسر الآمنة (مدى · فيزا · ماستركارد) — مسبقة الدفع، لا تجديد تلقائي.', color: 'from-teal-500 to-cyan-500' },
+              { step: '٣', icon: Shield, title: 'ادفع بأمان فوراً', desc: 'عبر بوابة ميسر الآمنة (مدى · فيزا · ماستركارد) — اتصال HTTPS/TLS بتقييم SSL Labs A+، مسبقة الدفع، لا تجديد تلقائي.', color: 'from-teal-500 to-cyan-500' },
               { step: '٤', icon: Wifi, title: 'ظهورك يبدأ فوراً ⚡', desc: 'بمجرد نجاح السداد يُفعَّل صالونك تلقائياً ويظهر لأقرب الزبائن منك على الرادار.', color: 'from-emerald-500 to-green-500' },
             ].map((step, i) => (
               <motion.div

@@ -12,6 +12,8 @@ import {
   END_USER_EXPERIENCE_POLICY_CONTENT,
   END_USER_EXPERIENCE_POLICY_TITLE,
 } from "@/config/endUserExperiencePolicy";
+import { PLATFORM_TLS_POLICY_LINE_AR } from "@/config/platformTlsTrust";
+import { PlatformTlsTrustBadge } from "@/components/PlatformTlsTrustBadge";
 
 export default function Privacy() {
   const sections = [
@@ -74,7 +76,8 @@ export default function Privacy() {
       title: "حماية البيانات",
       content:
         "نتخذ إجراءات أمنية صارمة لحماية بياناتك:\n\n" +
-        "- تشفير البيانات أثناء النقل (TLS/SSL) حيث ينطبق، وحماية البيانات المخزّنة لدينا (إن وُجدت) بضوابط مناسبة\n" +
+        `- ${PLATFORM_TLS_POLICY_LINE_AR}\n` +
+        "- حماية البيانات المخزّنة لدينا (إن وُجدت) بضوابط مناسبة\n" +
         "- خوادم آمنة مع جدران حماية متقدمة\n" +
         "- الوصول المحدود للبيانات (فقط للموظفين المصرح لهم)\n" +
         "- نسخ احتياطية منتظمة ومشفرة للبيانات التشغيلية المخزّنة\n" +
@@ -146,8 +149,9 @@ export default function Privacy() {
       </div>
 
       <div className="container mx-auto px-4 py-16" dir="rtl">
-        <div className="max-w-4xl mx-auto mb-12">
+        <div className="max-w-4xl mx-auto mb-8 space-y-6">
           <PlatformIdentityCard />
+          <PlatformTlsTrustBadge variant="strip" />
         </div>
 
         <div className="max-w-4xl mx-auto space-y-12">

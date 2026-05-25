@@ -8,6 +8,8 @@ import {
   END_USER_EXPERIENCE_POLICY_CONTENT,
   END_USER_EXPERIENCE_POLICY_TITLE,
 } from '@/config/endUserExperiencePolicy';
+import { PLATFORM_TLS_POLICY_LINE_AR } from '@/config/platformTlsTrust';
+import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 
 /**
  * سياسة خصوصية المستخدمين — موقع جغرافي لحظي فقط (بدون تخزين)، وعدم مشاركة مع أطراف خارجية.
@@ -65,7 +67,7 @@ export default function UserPrivacyPolicy() {
       icon: Lock,
       title: 'الأمان',
       content:
-        '- نطبّق إجراءات تقنية معقولة مثل التشفير أثناء النقل (TLS) حيث ينطبق.\n' +
+        `- ${PLATFORM_TLS_POLICY_LINE_AR}\n` +
         '- نحدّ من وصول البيانات للصلاحيات الضرورية للتشغيل.\n' +
         '- **لا نعتمد على تخزين دائم لإحداثيات موقعك** في بنيتنا لأغراض عرض «الأقرب إليك»؛ المعالجة مرتبطة بجلسة الاستخدام الحالية.',
     },
@@ -133,6 +135,7 @@ export default function UserPrivacyPolicy() {
         <div className="max-w-4xl mx-auto space-y-12">
           {/* الناظر القانوني — في أعلى المحتوى قبل السياسات */}
           <LegalObserverChat page="سياسة الخصوصية" />
+          <PlatformTlsTrustBadge variant="strip" />
           {sections.map((section, index) => {
             const Icon = section.icon;
             return (

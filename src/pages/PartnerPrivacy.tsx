@@ -11,6 +11,7 @@ import {
 } from "@/config/partnerLegal";
 import { HonorBoard } from "@/components/b2b/HonorBoard";
 import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
+import { PlatformTlsTrustBadge } from "@/components/PlatformTlsTrustBadge";
 import {
   PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
   PLATFORM_IDENTITY_PARAGRAPH_AR,
@@ -65,7 +66,7 @@ export default function PartnerPrivacy() {
       icon: Lock,
       title: "الحماية والاحتفاظ",
       content:
-        "- نقل البيانات عبر اتصالات مشفرة (TLS).\n- تقييد الوصول للبيانات حسب الصلاحيات التشغيلية.\n- **طلب حزمة الرخصة:** قد تُحفظ حقول النموذج (بما فيها **بيان التعهد النظامي** الذي يؤكد الامتثال النظامي) في سجل الطلب لدى الإدارة للمدة اللازمة للمراجعة والتشغيل والامتثال، دون رفع أو حفظ مرفقات وثائق حكومية إلزامية ضمن هذا المسار.\n- الاحتفاظ بالبيانات للفترة اللازمة للتشغيل أو الالتزام النظامي، مع إمكانية الحذف أو التصحيح وفق المسارات المعتمدة.\n- يحق للشريك طلب تحديث أو تصحيح بياناته عبر قنوات الدعم.",
+        "- نقل البيانات عبر اتصالات مشفرة (TLS) مع تقييم SSL Labs A+ على halaqmap.com.\n- تقييد الوصول للبيانات حسب الصلاحيات التشغيلية.\n- **طلب حزمة الرخصة:** قد تُحفظ حقول النموذج (بما فيها **بيان التعهد النظامي** الذي يؤكد الامتثال النظامي) في سجل الطلب لدى الإدارة للمدة اللازمة للمراجعة والتشغيل والامتثال، دون رفع أو حفظ مرفقات وثائق حكومية إلزامية ضمن هذا المسار.\n- الاحتفاظ بالبيانات للفترة اللازمة للتشغيل أو الالتزام النظامي، مع إمكانية الحذف أو التصحيح وفق المسارات المعتمدة.\n- يحق للشريك طلب تحديث أو تصحيح بياناته عبر قنوات الدعم.",
     },
     {
       icon: Bell,
@@ -109,8 +110,9 @@ export default function PartnerPrivacy() {
         <div className="max-w-4xl mx-auto mb-8">
           <LegalObserverChat page="سياسة خصوصية الشركاء" />
         </div>
-        <div className="max-w-4xl mx-auto mb-8">
+        <div className="max-w-4xl mx-auto mb-8 space-y-6">
           <PlatformIdentityCard />
+          <PlatformTlsTrustBadge variant="strip" />
         </div>
 
         <div className="max-w-4xl mx-auto space-y-8">
