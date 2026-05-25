@@ -59,8 +59,11 @@ async function fetchCfStatus(): Promise<CfStatus | null> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'cf_status' }),
     });
-    const data = (await res.json()) as CfStatus & { ok?: boolean };
-    return data.ok !== false ? data : null;
+    if (!res.ok) return null;
+    const data = (await res.json()) as Partial<CfStatus> & { ok?: boolean };
+    // تحقق صارم من اكتمال البيانات
+    if (!data.ok || !data.security || !Array.isArray(data.firewallRules) || !data.analytics24h) return null;
+    return data as CfStatus;
   } catch { return null; }
 }
 
@@ -102,8 +105,11 @@ async function fetchRealThreatData(): Promise<RealThreatData | null> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'get_threat_data', hours: 24 }),
     });
-    const data = (await res.json()) as RealThreatData & { ok?: boolean };
-    return data.ok !== false ? data : null;
+    if (!res.ok) return null;
+    const data = (await res.json()) as Partial<RealThreatData> & { ok?: boolean };
+    // تحقق صارم من اكتمال البيانات قبل الاستخدام
+    if (!data.ok || !data.summary || !Array.isArray(data.topSuspiciousIps)) return null;
+    return data as RealThreatData;
   } catch { return null; }
 }
 
@@ -548,7 +554,7 @@ export default function AdminCyberOperationsPage() {
               {cfStatus.firewallRules.length > 0 && (
                 <div className="max-h-24 overflow-y-auto space-y-1">
                   <p className="text-[0.48rem] font-bold uppercase text-orange-400/50 mb-1">IPs محجوبة على Cloudflare</p>
-                  {cfStatus.firewallRules.slice(0, 8).map(r => (
+                  {(cfStatus.firewallRules ?? []).slice(0, 8).map(r => (
                     <div key={r.id} className="flex items-center justify-between text-[0.52rem]">
                       <span className="font-mono text-orange-300/70" dir="ltr">{r.ip}</span>
                       <span className="text-slate-600">{r.mode}</span>
@@ -586,7 +592,7 @@ export default function AdminCyberOperationsPage() {
           <CyberEventLog events={pulses} />
 
           {/* ◆ بيانات أمنية حقيقية — المدعي العام الرقمي */}
-          {realThreatData && (
+          {realThreatData?.summary && (
             <div className="mt-2 border-t border-amber-400/10 pt-2">
               <div className="flex items-center gap-1.5 mb-2">
                 <BarChart3 className="h-3 w-3 text-amber-400/70" />
@@ -596,9 +602,9 @@ export default function AdminCyberOperationsPage() {
               </div>
               <div className="grid grid-cols-3 gap-1 mb-2">
                 {[
-                  { v: realThreatData.summary.totalEvents, l: 'حدث', c: 'text-slate-300' },
-                  { v: realThreatData.summary.criticalEvents, l: 'حرج', c: 'text-rose-400' },
-                  { v: realThreatData.summary.blockedAttempts, l: 'محجوب', c: 'text-amber-400' },
+                  { v: realThreatData.summary.totalEvents ?? 0, l: 'حدث', c: 'text-slate-300' },
+                  { v: realThreatData.summary.criticalEvents ?? 0, l: 'حرج', c: 'text-rose-400' },
+                  { v: realThreatData.summary.blockedAttempts ?? 0, l: 'محجوب', c: 'text-amber-400' },
                 ].map(s => (
                   <div key={s.l} className="rounded-lg border border-white/5 bg-black/30 p-1.5 text-center">
                     <p className={`text-sm font-black ${s.c}`}>{s.v}</p>
@@ -606,7 +612,7 @@ export default function AdminCyberOperationsPage() {
                   </div>
                 ))}
               </div>
-              {realThreatData.topSuspiciousIps.length > 0 && (
+              {(realThreatData.topSuspiciousIps?.length ?? 0) > 0 && (
                 <div className="rounded-lg border border-amber-400/10 bg-black/20 p-2">
                   <p className="mb-1.5 text-[0.5rem] font-bold uppercase text-amber-400/50">أكثر IPs نشاطاً</p>
                   <div className="space-y-1 max-h-28 overflow-y-auto">
