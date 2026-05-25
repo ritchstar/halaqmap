@@ -444,6 +444,291 @@ function PricingCard({
   );
 }
 
+// ─── أيقونات الباقات السنوية المخصصة ─────────────────────────────────────────
+function TierIcon({ tier }: { tier: 'bronze' | 'gold' | 'diamond' | 'office' }) {
+  if (tier === 'bronze') return (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+      <rect x="6" y="4" width="32" height="36" rx="6" stroke="#b45309" strokeWidth="2" fill="#431407" fillOpacity=".6"/>
+      <rect x="12" y="14" width="20" height="2.5" rx="1.2" fill="#b45309" fillOpacity=".7"/>
+      <rect x="12" y="20" width="14" height="2.5" rx="1.2" fill="#b45309" fillOpacity=".5"/>
+      <rect x="12" y="26" width="17" height="2.5" rx="1.2" fill="#b45309" fillOpacity=".5"/>
+      <path d="M22 6 L38 12 V24 C38 32 30 38 22 40 C14 38 6 32 6 24 V12 Z" stroke="#b45309" strokeWidth="1.5" fill="none" strokeOpacity=".4"/>
+    </svg>
+  );
+  if (tier === 'gold') return (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+      <polygon points="22,4 27,16 40,16 30,24 34,37 22,30 10,37 14,24 4,16 17,16" fill="#78350f" fillOpacity=".7" stroke="#f59e0b" strokeWidth="1.5"/>
+      <polygon points="22,10 25.5,19 35,19 27.5,24.5 30,33 22,28 14,33 16.5,24.5 9,19 18.5,19" fill="#f59e0b" fillOpacity=".25"/>
+      <circle cx="22" cy="22" r="5" fill="#f59e0b" fillOpacity=".5"/>
+    </svg>
+  );
+  if (tier === 'diamond') return (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+      <path d="M22 4 L40 18 L22 40 L4 18 Z" fill="#164e63" fillOpacity=".7" stroke="#22d3ee" strokeWidth="1.5"/>
+      <path d="M22 4 L40 18 L22 23 L4 18 Z" fill="#22d3ee" fillOpacity=".15"/>
+      <path d="M22 23 L40 18 L22 40 Z" fill="#22d3ee" fillOpacity=".08"/>
+      <path d="M22 23 L4 18 L22 40 Z" fill="#22d3ee" fillOpacity=".05"/>
+      <line x1="22" y1="4" x2="22" y2="40" stroke="#22d3ee" strokeWidth=".8" strokeOpacity=".3"/>
+      <line x1="4" y1="18" x2="40" y2="18" stroke="#22d3ee" strokeWidth=".8" strokeOpacity=".3"/>
+    </svg>
+  );
+  // office — diamond + circuit
+  return (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+      <path d="M22 4 L40 18 L22 40 L4 18 Z" fill="#2e1065" fillOpacity=".7" stroke="#a78bfa" strokeWidth="1.5"/>
+      <path d="M22 4 L40 18 L22 23 L4 18 Z" fill="#a78bfa" fillOpacity=".2"/>
+      <circle cx="22" cy="18" r="3.5" fill="#a78bfa" fillOpacity=".6"/>
+      <line x1="22" y1="14.5" x2="22" y2="4" stroke="#a78bfa" strokeWidth="1" strokeOpacity=".5"/>
+      <line x1="25.5" y1="18" x2="36" y2="18" stroke="#a78bfa" strokeWidth="1" strokeOpacity=".4"/>
+      <circle cx="36" cy="18" r="2" fill="#a78bfa" fillOpacity=".5"/>
+      <line x1="18.5" y1="18" x2="10" y2="14" stroke="#a78bfa" strokeWidth="1" strokeOpacity=".4"/>
+      <circle cx="10" cy="14" r="1.5" fill="#a78bfa" fillOpacity=".5"/>
+    </svg>
+  );
+}
+
+// ─── قسم الحزم السنوية المُعاد تصميمه ────────────────────────────────────────
+function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void }) {
+  const [selected, setSelected] = useState<string | null>(null);
+
+  const TIERS = [
+    {
+      id: 'bronze',
+      icon: 'bronze' as const,
+      name: 'البرونزي',
+      nameEn: 'BRONZE',
+      color: '#b45309',
+      border: 'border-amber-700/35',
+      bg: 'from-amber-950/40 to-[#060d1a]',
+      glow: '0 0 30px rgba(180,83,9,0.12)',
+      price: PRICE_B * 12,
+      perMonth: PRICE_B,
+      saving: PRICE_B * 12,
+      features: ['ظهور عند الطلب', 'بطاقة صالون كاملة', 'حالة مفتوح/مغلق', 'شارة رائد ⭐'],
+    },
+    {
+      id: 'gold',
+      icon: 'gold' as const,
+      name: 'الذهبي',
+      nameEn: 'GOLD',
+      color: '#f59e0b',
+      border: 'border-amber-400/45',
+      bg: 'from-amber-900/30 to-[#060d1a]',
+      glow: '0 0 40px rgba(245,158,11,0.15)',
+      price: PRICE_G * 12,
+      perMonth: PRICE_G,
+      saving: PRICE_G * 12,
+      best: true,
+      features: ['أولوية ذهبية في النتائج', 'معرض ٢٠ صورة + QR', 'إحصاءات شهرية', 'شارة رائد ⭐'],
+    },
+    {
+      id: 'diamond',
+      icon: 'diamond' as const,
+      name: 'الماسي',
+      nameEn: 'DIAMOND',
+      color: '#22d3ee',
+      border: 'border-cyan-400/35',
+      bg: 'from-cyan-950/30 to-[#060d1a]',
+      glow: '0 0 35px rgba(34,211,238,0.12)',
+      price: PRICE_D * 12,
+      perMonth: PRICE_D,
+      saving: PRICE_D * 12,
+      features: ['صدارة المنطقة', 'معرض ٤٠ صورة', 'بورتفوليو + شات', 'شارة رائد ⭐'],
+    },
+    {
+      id: 'diamond-office',
+      icon: 'office' as const,
+      name: 'الماسي + المكتب',
+      nameEn: 'DIAMOND PRO',
+      color: '#a78bfa',
+      border: 'border-violet-400/35',
+      bg: 'from-violet-950/30 to-[#060d1a]',
+      glow: '0 0 35px rgba(167,139,250,0.12)',
+      price: PRICE_DA * 12,
+      perMonth: PRICE_DA,
+      saving: PRICE_DA * 12,
+      addon: true,
+      features: ['كل مزايا الماسي', 'مساعد داخلي 🏛️', 'مناوب شات ذكي', 'تقارير + تعليمات'],
+    },
+  ];
+
+  const handleBuy = (tierId: string) => {
+    const tierMap: Record<string, string> = {
+      'bronze': 'bronze', 'gold': 'gold', 'diamond': 'diamond', 'diamond-office': 'diamond',
+    };
+    const tierQuery = tierMap[tierId] ?? 'gold';
+    // فحص إذا كان المستخدم مسجَّلاً
+    const session = localStorage.getItem('barberAuth');
+    if (session) {
+      // مسجَّل → صفحة الدفع مباشرةً
+      navigate(`${ROUTE_PATHS.PAYMENT}?tier=${tierQuery}&plan=annual`);
+    } else {
+      // غير مسجَّل → التسجيل أولاً مع الحزمة محفوظة
+      navigate(`${ROUTE_PATHS.REGISTER}?tier=${tierQuery}&plan=annual`);
+    }
+  };
+
+  return (
+    <section id="الحزم-السنوية" className="relative z-10 border-t border-white/5 py-20 md:py-28">
+      {/* خلفية */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-amber-950/10 via-transparent to-transparent" />
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-5">
+        {/* رأس القسم */}
+        <div className="mb-14 text-center">
+          <motion.div initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }}
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-black text-amber-300">
+            ⚡ العرض التأسيسي لمضاعفة الرخص · الألف الرواد
+          </motion.div>
+          <motion.h2 initial={{ opacity:0, y:14 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
+            className="mb-3 text-3xl font-black text-white md:text-4xl">
+            الحزمة السنوية — ٣٦٠ يوم + ٣٦٠ مجاناً
+          </motion.h2>
+          <p className="text-slate-400 text-sm">اختر حزمتك · سجّل حسابك · ادفع وتفعَّل فوراً</p>
+
+          {/* مراحل الشراء */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-0">
+            {['اختر الحزمة','سجّل حسابك','أكمل الدفع','تفعيل فوري'].map((step, i, arr) => (
+              <div key={step} className="flex items-center">
+                <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.62rem] font-bold ${
+                  i === 0 ? 'bg-amber-500/20 text-amber-300 border border-amber-400/30' :
+                  i === 3 ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/25' :
+                  'bg-white/5 text-slate-400 border border-white/8'
+                }`}>
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-current/20 text-[0.5rem] font-black">{i+1}</span>
+                  {step}
+                </div>
+                {i < arr.length - 1 && <span className="mx-1 text-slate-700 text-xs">›</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* البطاقات */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {TIERS.map((t, i) => {
+            const isSelected = selected === t.id;
+            return (
+              <motion.div
+                key={t.id}
+                initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }}
+                viewport={{ once:true }} transition={{ delay: i * 0.07 }}
+                onClick={() => setSelected(t.id)}
+                className={`relative flex flex-col overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 ${
+                  isSelected ? `${t.border} ring-2 ring-offset-2 ring-offset-[#060d1a]` : `${t.border} opacity-90 hover:opacity-100`
+                } bg-gradient-to-b ${t.bg}`}
+                style={{ boxShadow: isSelected ? t.glow : 'none' }}
+                dir="rtl"
+              >
+                {t.best && !isSelected && (
+                  <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-2xl px-2.5 py-0.5 text-[0.52rem] font-black text-black"
+                    style={{ background: t.color }}>
+                    الأعلى طلباً
+                  </div>
+                )}
+
+                {/* بانر الأيقونة */}
+                <div className="relative flex h-24 items-center justify-center overflow-hidden border-b border-white/5"
+                  style={{ background: `radial-gradient(ellipse at center, ${t.color}18 0%, transparent 70%)` }}>
+                  <motion.div animate={isSelected ? { scale:[1,1.12,1] } : {}} transition={{ duration:1.5, repeat: isSelected ? Infinity : 0 }}>
+                    <TierIcon tier={t.icon} />
+                  </motion.div>
+                  <div className="absolute bottom-2 right-3">
+                    <span className="text-[0.48rem] font-black tracking-[0.3em] opacity-30" style={{ color: t.color }}>{t.nameEn}</span>
+                  </div>
+                  {/* مؤشر الاختيار */}
+                  <div className={`absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all ${
+                    isSelected ? 'border-current bg-current/30' : 'border-white/20 bg-transparent'
+                  }`} style={{ borderColor: isSelected ? t.color : undefined }}>
+                    {isSelected && <div className="h-2 w-2 rounded-full" style={{ background: t.color }} />}
+                  </div>
+                </div>
+
+                {/* محتوى البطاقة */}
+                <div className="flex flex-1 flex-col p-4">
+                  <p className="mb-0.5 text-xs font-black" style={{ color: t.color }}>{t.name}</p>
+                  <p className="text-[0.52rem] text-slate-600 mb-3">360 يوم · ISIC4 474151</p>
+
+                  {/* السعر */}
+                  <div className="mb-1 flex items-end gap-1">
+                    <span className="text-2xl font-black tabular-nums" style={{ color: t.color }}>
+                      {t.price.toLocaleString('ar-SA')}
+                    </span>
+                    <span className="mb-0.5 text-[0.58rem] text-slate-400">ر.س / سنة</span>
+                  </div>
+                  <p className="mb-3 text-[0.55rem] text-slate-500">{t.perMonth} ر.س/شهر × ١٢ شهراً</p>
+
+                  {/* مضاعفة العرض */}
+                  <div className="mb-3 rounded-xl border border-white/8 bg-black/25 p-2.5 text-center">
+                    <p className="text-[0.52rem] font-black uppercase tracking-wider mb-1" style={{ color: t.color, opacity:.7 }}>⚡ عرض المضاعفة</p>
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="text-center">
+                        <p className="text-[0.6rem] font-black text-white">{t.price.toLocaleString('ar-SA')}</p>
+                        <p className="text-[0.45rem] text-slate-600">تدفع</p>
+                      </div>
+                      <span className="text-[0.6rem]" style={{ color: t.color }}>→</span>
+                      <div className="text-center">
+                        <p className="text-[0.6rem] font-black text-emerald-400">٢٤ شهر</p>
+                        <p className="text-[0.45rem] text-slate-600">تحصل</p>
+                      </div>
+                      <div className="rounded-lg border border-emerald-400/20 bg-emerald-500/10 px-1.5 py-1">
+                        <p className="text-[0.45rem] text-emerald-400/60">توفير</p>
+                        <p className="text-[0.62rem] font-black text-emerald-400">{t.saving.toLocaleString('ar-SA')}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* الميزات */}
+                  <ul className="mb-4 flex flex-col gap-1.5 flex-1">
+                    {t.features.map(f => (
+                      <li key={f} className="flex items-center gap-1.5 text-[0.65rem] text-slate-300">
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: t.color, opacity:.7 }} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* زر الشراء */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelected(t.id); handleBuy(t.id); }}
+                    className="mt-auto w-full rounded-xl py-2.5 text-[0.72rem] font-black transition-all hover:scale-[1.02] active:scale-95"
+                    style={{
+                      background: isSelected ? t.color : 'rgba(255,255,255,0.05)',
+                      color: isSelected ? '#000' : t.color,
+                      border: `1px solid ${t.color}55`,
+                      boxShadow: isSelected ? `0 4px 16px ${t.color}40` : 'none',
+                    }}
+                  >
+                    {isSelected ? 'اشترِ الآن ←' : 'اختر هذه الحزمة'}
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* شارة رائد + ملاحظات */}
+        <div className="mt-10 space-y-3 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-5 py-2 text-[0.68rem] font-bold text-amber-300">
+            ⭐ كل مشترك من ١ إلى ١٠٠٠ يحصل على شارة رائد لامعة على بنره — دون تمييز بين الباقات
+          </div>
+          <div className="flex flex-wrap justify-center gap-4 text-[0.6rem] text-slate-600">
+            {['لا عمولات على الخدمة','مسبقة الدفع','لا تجديد تلقائي','تفعيل فوري بعد السداد','ISIC4 474151'].map(n => (
+              <span key={n} className="flex items-center gap-1">
+                <span className="h-1 w-1 rounded-full bg-slate-700" /> {n}
+              </span>
+            ))}
+          </div>
+          {/* تلميح مراحل الشراء */}
+          <p className="text-[0.58rem] text-slate-700 mt-2">
+            💡 إذا كنت جديداً — ستُحوَّل لصفحة إنشاء الحساب أولاً، ثم يتواصل معك فريقنا لإتمام الدفع
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Digital certificate mockup ──────────────────────────────────────────────
 function CertificateMockup() {
   return (
@@ -978,7 +1263,11 @@ export default function PartnerMarketingPreview() {
       </section>
 
       {/* ══ الحزم السنوية — مضاعفة الرخص التأسيسية ══════════════════════════ */}
-      <section id="الحزم-السنوية" className="relative z-10 border-t border-amber-400/10 bg-gradient-to-b from-amber-950/20 via-[#060d1a] to-[#060d1a] py-24">
+      <AnnualPackagesSection navigate={navigate} />
+
+      {/* ── spacer ─────────────────────────────────────────────────────────── */}
+      <section id="_annual_anchor" className="hidden"><div id="الحزم-السنوية" /></section>
+      <section id="الحزم-السنوية_DISABLED" className="hidden">
         <div className="pointer-events-none absolute left-1/4 top-0 h-64 w-[50%] rounded-full bg-amber-500/6 blur-[120px]" />
         <div className="mx-auto max-w-6xl px-5">
           {/* رأس القسم */}
