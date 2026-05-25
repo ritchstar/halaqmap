@@ -1,75 +1,125 @@
-import { Link } from 'react-router-dom';
+/**
+ * Register — صفحة التسجيل المُعاد تصميمها
+ * تتبع هوية المنصة الداكنة وتُقدّم الحزم السنوية أولاً
+ */
+
+import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { RegistrationForm } from '@/components/RegistrationForm';
 import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundary';
 import { ROUTE_PATHS } from '@/lib/index';
-import { PARTNER_REGISTER_INTRO_PARAGRAPHS } from '@/lib/partnerMarketingCopy';
-import { PLATFORM_PARTNER_SMART_TRACKING_HEADLINE } from '@/config/platformSmartTracking';
-import {
-  SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
-  SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
-} from '@/config/subscriptionPricing';
+import { Scissors, Shield, ChevronRight } from 'lucide-react';
 
 export default function Register() {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const planParam = params.get('plan'); // 'annual' | 'monthly'
+  const tierParam = params.get('tier'); // 'bronze' | 'gold' | 'diamond'
+
+  const isAnnual = planParam === 'annual';
+
   return (
-    <div className="min-h-screen bg-slate-950" dir="rtl">
-      <div className="container mx-auto px-3 sm:px-4 py-10 sm:py-14">
-        <header className="mx-auto mb-10 max-w-3xl text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">B2B · ISIC4 474151</p>
-          <h1 className="mt-3 text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight text-pretty">
-            {PLATFORM_PARTNER_SMART_TRACKING_HEADLINE}
+    <div
+      dir="rtl"
+      className="min-h-screen overflow-x-hidden"
+      style={{ background: 'linear-gradient(160deg, #020912 0%, #040d1a 50%, #020912 100%)', fontFamily: 'Tajawal, system-ui' }}
+    >
+      {/* ── شريط التنقل العلوي ── */}
+      <header className="sticky top-0 z-40 border-b border-white/5 bg-[#020912]/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+          <Link to={ROUTE_PATHS.BARBERS_LANDING}
+            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+            <ChevronRight className="h-4 w-4" />
+            العودة للشركاء
+          </Link>
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-400/25 bg-amber-500/10">
+              <Scissors className="h-4 w-4 text-amber-300" />
+            </div>
+            <span className="text-sm font-black text-white">حلاق ماب</span>
+            <span className="hidden sm:inline text-[0.6rem] text-slate-500">· مسار الشركاء</span>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-500/8 px-2.5 py-1">
+            <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[0.58rem] font-bold text-emerald-300">تفعيل فوري</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-5xl px-4 pb-16 pt-8">
+        {/* ── رأس الصفحة ── */}
+        <motion.header
+          initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5 }}
+          className="mb-10 text-center"
+        >
+          {/* شارة العرض التأسيسي */}
+          {isAnnual && (
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-black text-amber-300">
+              ⚡ عرض الألف الرواد · مضاعفة الرخص
+            </div>
+          )}
+
+          <h1 className="mb-3 text-3xl font-black leading-tight text-white sm:text-4xl">
+            {isAnnual
+              ? 'سجّل صالونك واحصل على ضعف المدة مجاناً'
+              : 'سجّل صالونك في منصة حلاق ماب'
+            }
           </h1>
-          <p className="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed">
-            {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} — مبنية على{' '}
-            <span className="text-slate-200">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</span>{' '}
-            لشركاء حلاق ماب.
+          <p className="mx-auto max-w-xl text-sm leading-7 text-slate-400">
+            {isAnnual
+              ? `حزمة ${tierParam === 'bronze' ? 'برونزي' : tierParam === 'gold' ? 'ذهبي' : tierParam === 'diamond' ? 'ماسي' : 'سنوية'} — اشترِ ١٢ شهراً واحصل على ١٢ مجاناً. التفعيل فوري بعد السداد.`
+              : 'رخصة نفاذ رقمية تُفعَّل ظهورك عند الطلب — اختر حزمتك، سجّل، وادفع الآن.'
+            }
           </p>
-          <div className="mt-6 space-y-3 text-sm leading-relaxed text-slate-400">
-            {PARTNER_REGISTER_INTRO_PARAGRAPHS.map((para, i) => (
-              <p key={i} className="text-pretty">
-                {para}
-              </p>
+
+          {/* مراحل الشراء */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-1">
+            {['اختر الحزمة', 'أكمل البيانات', 'ادفع الآن', 'تفعيل فوري ⚡'].map((s, i, arr) => (
+              <div key={s} className="flex items-center">
+                <span className={`rounded-full px-2.5 py-1 text-[0.6rem] font-bold ${
+                  i === 0 ? 'bg-amber-500/15 text-amber-300 border border-amber-400/30' :
+                  i === 3 ? 'bg-emerald-500/12 text-emerald-300 border border-emerald-400/25' :
+                  'bg-white/5 text-slate-500 border border-white/8'
+                }`}>{s}</span>
+                {i < arr.length - 1 && <ChevronRight className="h-3 w-3 text-slate-700 mx-0.5" />}
+              </div>
             ))}
           </div>
-          <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm font-medium">
-            <Link to={ROUTE_PATHS.PARTNER_WHY} className="text-slate-300 hover:text-white underline-offset-4 hover:underline">
-              لماذا تنضم؟ — اقرأ قبل إكمال الطلب
-            </Link>
-            <Link to={ROUTE_PATHS.PARTNER_STORY} className="text-slate-300 hover:text-white underline-offset-4 hover:underline">
-              القصة والمسار
-            </Link>
-          </div>
-        </header>
 
-        <section className="mx-auto max-w-4xl">
-          <h2 className="mb-6 text-center text-xl font-bold text-white sm:text-2xl">نموذج التسجيل</h2>
+          {/* تأكيدات */}
+          <div className="mt-4 flex flex-wrap justify-center gap-3 text-[0.6rem] text-slate-600">
+            {['✅ لا مراجعة إدارية', '✅ تفعيل فوري', '✅ لا عمولات', '✅ لا تجديد تلقائي', '⭐ شارة رائد للألف الأوائل'].map(t => (
+              <span key={t}>{t}</span>
+            ))}
+          </div>
+        </motion.header>
+
+        {/* ── نموذج التسجيل ── */}
+        <motion.section
+          initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5, delay:.15 }}
+          className="mx-auto max-w-4xl"
+        >
           <RegistrationErrorBoundary>
             <RegistrationForm />
           </RegistrationErrorBoundary>
-        </section>
+        </motion.section>
 
-        <footer className="mx-auto mt-12 max-w-3xl text-center">
-          <p className="text-slate-500 mb-4 text-sm">
-            بالتسجيل، أنت توافق على{' '}
-            <Link
-              to={ROUTE_PATHS.SUBSCRIPTION_POLICY}
-              className="text-slate-300 hover:text-white underline underline-offset-2 mx-1"
-            >
-              سياسة رخصة النفاذ الرقمية (نظام الاستجابة الذكية)
-            </Link>
-            و
-            <Link
-              to={ROUTE_PATHS.PARTNER_PRIVACY}
-              className="text-slate-300 hover:text-white underline underline-offset-2 mr-1"
-            >
-              سياسة خصوصية الشركاء
-            </Link>
-          </p>
-          <p className="text-sm text-slate-500">
-            لديك حساب بالفعل؟{' '}
-            <Link to={ROUTE_PATHS.HOME} className="text-slate-300 hover:text-white font-semibold mr-1">
-              العودة للرئيسية
-            </Link>
-          </p>
+        {/* ── تذييل ── */}
+        <footer className="mx-auto mt-10 max-w-3xl text-center">
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <Shield className="h-3.5 w-3.5 text-slate-600" />
+            <p className="text-slate-600 text-xs">
+              بالتسجيل توافق على{' '}
+              <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="text-slate-400 underline hover:text-amber-300">
+                سياسة رخصة النفاذ
+              </Link>
+              {' '}و{' '}
+              <Link to={ROUTE_PATHS.PARTNER_PRIVACY} className="text-slate-400 underline hover:text-amber-300">
+                سياسة الخصوصية
+              </Link>
+            </p>
+          </div>
+          <p className="text-xs text-slate-700">ISIC4 474151 · حلاق ماب · B2B Technology Platform</p>
         </footer>
       </div>
     </div>

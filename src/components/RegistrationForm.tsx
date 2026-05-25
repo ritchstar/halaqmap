@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -198,6 +198,8 @@ function RegStepShell({
 
 interface FormData {
   tier: SubscriptionTier | '';
+  /** الخطة: سنوية (أولوية) أو شهرية */
+  plan: 'annual' | 'monthly';
   /** إضافة برمجية متقدمة (Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
   digitalShiftAddon: boolean;
   shopName: string;
@@ -338,14 +340,22 @@ const MAX_RECEIPT_STORAGE_BYTES = 600 * 1024;
 
 export function RegistrationForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const vatSettings = usePlatformVatSettings();
   const formTopRef = useRef<HTMLDivElement>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const bannerPicker = useBarberBannerImagePicker();
+
+  // قراءة المعاملات من URL لضبط الحزمة المُختارة مسبقاً
+  const urlParams = new URLSearchParams(location.search);
+  const urlTier = urlParams.get('tier') as SubscriptionTier | null;
+  const urlPlan = urlParams.get('plan') as 'annual' | 'monthly' | null;
+
   const [formData, setFormData] = useState<FormData>({
-    tier: '',
+    tier: (urlTier && Object.values(SubscriptionTier).includes(urlTier)) ? urlTier : '',
+    plan: urlPlan === 'monthly' ? 'monthly' : 'annual', // السنوية افتراضياً
     digitalShiftAddon: false,
     shopName: '',
     email: '',
@@ -900,13 +910,15 @@ export function RegistrationForm() {
 
   const selectedUnitSar = useMemo(() => {
     if (!formData.tier) return 0;
-    return computeListingLicenseUnitSar(
+    const monthly = computeListingLicenseUnitSar(
       formData.tier as SubscriptionTier,
       isDigitalShiftAddonAllowed(formData.tier as SubscriptionTier, formData.digitalShiftAddon)
         ? { digitalShiftAddon: true }
         : undefined,
     );
-  }, [formData.tier, formData.digitalShiftAddon]);
+    // للحزمة السنوية: السعر السنوي = الشهري × 12
+    return formData.plan === 'annual' ? monthly * 12 : monthly;
+  }, [formData.tier, formData.digitalShiftAddon, formData.plan]);
 
   const selectedPlan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
   const monthlyPriceBreakdown = useMemo(
@@ -975,32 +987,112 @@ export function RegistrationForm() {
 
       <div key={currentStep} className="min-w-0">
           {currentStep === 1 && (
-            <div className="rounded-xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-slate-100">
-              <header className="mb-6 space-y-2 text-right">
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  حزم رخصة B2B
-                </p>
-                <h2 className="text-2xl font-bold text-white">اختر حزمة الرخصة المناسبة</h2>
-                <p className="text-sm leading-relaxed text-slate-300">
-                  {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR} — مبنية على{' '}
-                  <span className="font-semibold text-slate-100">{SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR}</span>{' '}
-                  كأساس تقني لكل مستوى.
-                </p>
+            <div className="rounded-xl border border-slate-700 bg-slate-900 p-5 md:p-7 text-slate-100">
+              <header className="mb-5 text-right">
+                <h2 className="text-xl font-black text-white">اختر حزمتك</h2>
+                <p className="mt-1 text-sm text-slate-400">الحزم السنوية موصى بها — تدفع ١٢ شهراً وتحصل على ٢٤</p>
               </header>
-              <FoundersDealBanner />
 
-              <RadioGroup
-                value={formData.tier}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    tier: value as SubscriptionTier,
-                    digitalShiftAddon:
-                      value === SubscriptionTier.DIAMOND ? prev.digitalShiftAddon : false,
-                  }))
-                }
-                className="grid gap-4 md:grid-cols-3 md:items-stretch"
-              >
+              {/* ── تبديل السنوي / الشهري ── */}
+              <div className="mb-5 flex overflow-hidden rounded-xl border border-slate-700 bg-slate-800/50">
+                <button type="button"
+                  onClick={() => setFormData(p => ({ ...p, plan: 'annual' }))}
+                  className={`flex-1 py-2.5 text-sm font-black transition-all ${
+                    formData.plan === 'annual'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black'
+                      : 'text-slate-400 hover:text-white'
+                  }`}>
+                  ⚡ سنوي — الألف الرواد (موصى به)
+                </button>
+                <button type="button"
+                  onClick={() => setFormData(p => ({ ...p, plan: 'monthly' }))}
+                  className={`flex-1 py-2.5 text-sm font-semibold transition-all ${
+                    formData.plan === 'monthly'
+                      ? 'bg-slate-700 text-white'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}>
+                  شهري
+                </button>
+              </div>
+
+              {/* ── الحزم السنوية (الأولوية) ── */}
+              {formData.plan === 'annual' && (
+                <div className="mb-6">
+                  <FoundersDealBanner />
+                  <RadioGroup
+                    value={formData.tier}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev, tier: value as SubscriptionTier,
+                        digitalShiftAddon: value === SubscriptionTier.DIAMOND ? prev.digitalShiftAddon : false,
+                      }))
+                    }
+                    className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+                  >
+                    {([
+                      { tier: SubscriptionTier.BRONZE, name: 'برونزي سنوي', price: 100, color: 'text-amber-700', border: 'border-amber-700/30', months: '٢٤', saving: 1200 },
+                      { tier: SubscriptionTier.GOLD, name: 'ذهبي سنوي', price: 150, color: 'text-amber-400', border: 'border-amber-400/40', months: '٢٤', saving: 1800, best: true },
+                      { tier: SubscriptionTier.DIAMOND, name: 'ماسي سنوي', price: 200, color: 'text-cyan-400', border: 'border-cyan-400/30', months: '٢٤', saving: 2400 },
+                      { tier: SubscriptionTier.DIAMOND, name: 'ماسي + مكتب', price: 225, color: 'text-violet-400', border: 'border-violet-400/30', months: '٢٤', saving: 2700, addon: true },
+                    ] as const).map((t, i) => {
+                      const isSelected = formData.tier === t.tier && (i < 3 || formData.digitalShiftAddon);
+                      return (
+                        <label key={i} className="relative flex cursor-pointer flex-col">
+                          {t.best && (
+                            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-0.5 text-[0.55rem] font-black text-black z-10">
+                              الأعلى طلباً
+                            </span>
+                          )}
+                          <RadioGroupItem
+                            value={t.tier}
+                            id={`annual-${i}`}
+                            className="sr-only"
+                            onClick={() => {
+                              if (t.addon) setFormData(p => ({ ...p, tier: t.tier, digitalShiftAddon: true }));
+                              else setFormData(p => ({ ...p, tier: t.tier, digitalShiftAddon: false }));
+                            }}
+                          />
+                          <div className={`flex flex-col rounded-xl border p-3.5 transition-all ${
+                            isSelected
+                              ? `${t.border} bg-gradient-to-b from-white/8 to-transparent ring-2 ring-current/20`
+                              : `${t.border} bg-white/[0.025] hover:bg-white/5`
+                          }`}>
+                            <p className={`text-xs font-black mb-1 ${t.color}`}>{t.name}</p>
+                            <div className="flex items-end gap-1 mb-1">
+                              <span className={`text-xl font-black tabular-nums ${t.color}`}>
+                                {(t.price * 12).toLocaleString('ar-SA')}
+                              </span>
+                              <span className="mb-0.5 text-[0.55rem] text-slate-500">ر.س/سنة</span>
+                            </div>
+                            <p className="text-[0.5rem] text-slate-600 mb-2">{t.price} ر.س × ١٢ شهراً</p>
+                            <div className="rounded-lg border border-amber-400/15 bg-amber-500/6 px-2 py-1.5 text-center">
+                              <p className="text-[0.48rem] text-amber-400/60 mb-0.5">⚡ عرض المضاعفة</p>
+                              <p className="text-[0.6rem] font-black text-emerald-400">{t.months} شهراً</p>
+                              <p className="text-[0.45rem] text-emerald-400/60">توفير {t.saving.toLocaleString('ar-SA')} ر.س</p>
+                            </div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </RadioGroup>
+                </div>
+              )}
+
+              {/* ── الحزم الشهرية (بديل) ── */}
+              {formData.plan === 'monthly' && (
+                <div>
+                  <RadioGroup
+                    value={formData.tier}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        tier: value as SubscriptionTier,
+                        digitalShiftAddon:
+                          value === SubscriptionTier.DIAMOND ? prev.digitalShiftAddon : false,
+                      }))
+                    }
+                    className="grid gap-4 md:grid-cols-3 md:items-stretch"
+                  >
                 {registrationPlansOrdered.map((plan) => {
                   const isSelected = formData.tier === plan.tier;
                   const isStrategic = plan.strategic === true;
@@ -1097,6 +1189,28 @@ export function RegistrationForm() {
                   );
                 })}
               </RadioGroup>
+                </div>
+              )}
+
+              {/* تلميح التبديل */}
+              {formData.plan === 'annual' && (
+                <p className="mt-3 text-center text-[0.6rem] text-slate-600">
+                  تفضّل الشهري؟{' '}
+                  <button type="button" onClick={() => setFormData(p => ({ ...p, plan: 'monthly' }))}
+                    className="text-slate-400 underline hover:text-amber-300 transition-colors">
+                    اختر الباقة الشهرية
+                  </button>
+                </p>
+              )}
+              {formData.plan === 'monthly' && (
+                <p className="mt-3 text-center text-[0.6rem] text-amber-400/60">
+                  ⚡{' '}
+                  <button type="button" onClick={() => setFormData(p => ({ ...p, plan: 'annual' }))}
+                    className="text-amber-400 underline hover:text-amber-300 transition-colors">
+                    احصل على ضعف المدة بالسنوي — عرض الألف الرواد
+                  </button>
+                </p>
+              )}
             </div>
           )}
           {currentStep === 2 && (
@@ -1671,10 +1785,11 @@ export function RegistrationForm() {
                     </p>
                     {selectedPlan && monthlyPriceBreakdown && (
                       <p className="font-medium text-slate-100">
-                        المبلغ المتوقع لحزمة الرخصة (30 يوماً):{' '}
+                        المبلغ المتوقع لحزمة الرخصة ({formData.plan === 'annual' ? '٣٦٠ يوم سنوي' : '٣٠ يوماً'}):{' '}
                         {vatSettings.enabled && monthlyPriceBreakdown.vat > 0
                           ? `${monthlyPriceBreakdown.total} ر.س (شامل ضريبة ${vatSettings.ratePercent}%)`
                           : `${selectedUnitSar} ر.س`}
+                        {formData.plan === 'annual' && <span className="ms-2 text-emerald-400 text-xs font-black">⚡ تحصل على ٢٤ شهراً</span>}
                       </p>
                     )}
                   </AlertDescription>
