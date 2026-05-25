@@ -86,7 +86,81 @@ import {
   Loader2,
   Clock,
   Lightbulb,
+  Zap,
 } from 'lucide-react';
+import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
+
+// ─── بانر العرض التأسيسي — مضاعفة الرخص ──────────────────────────────────────
+const PRICE_B = TIER_MONTHLY_SAR[SubscriptionTier.BRONZE];   // 100
+const PRICE_G = TIER_MONTHLY_SAR[SubscriptionTier.GOLD];     // 150
+const PRICE_D = TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND];  // 200
+const PRICE_DA = PRICE_D + 25;                               // 225
+
+const FOUNDER_DEALS = [
+  { n: 3,  icon: '🎁', label: '٣ + ٣ مجاناً',  months: '٦ أشهر',          savings: [300, 450, 600, 675] },
+  { n: 6,  icon: '🔥', label: '٦ + ٦ مجاناً',  months: 'سنة كاملة',        savings: [600, 900, 1200, 1350], best: true },
+  { n: 12, icon: '⚡', label: '١٢ + ١٢ مجاناً', months: 'سنتان بسعر واحدة', savings: [1200, 1800, 2400, 2700] },
+] as const;
+
+function FoundersDealBanner() {
+  const [spots] = useState(() => 347 - Math.floor(Math.random() * 12));
+  const pct = Math.round(((500 - spots) / 500) * 100);
+  return (
+    <div className="mb-6 overflow-hidden rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-950/50 via-slate-900/70 to-amber-950/40"
+      style={{ boxShadow: '0 0 40px rgba(251,191,36,0.07), inset 0 1px 0 rgba(251,191,36,0.12)' }}>
+      {/* رأس العرض */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-400/15 px-5 py-3">
+        <div className="flex items-center gap-2">
+          <Zap className="h-4 w-4 text-amber-400 animate-pulse" />
+          <div>
+            <p className="text-[0.58rem] font-black uppercase tracking-widest text-amber-400/70">عرض تشغيلي مؤقت · رواد الألف</p>
+            <p className="text-sm font-black text-white">مضاعفة الرخص التأسيسية — اشترِ وخذ ضعفه مجاناً</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3 py-1.5 text-center">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <div>
+            <p className="text-base font-black tabular-nums text-amber-300">{spots}</p>
+            <p className="text-[0.5rem] text-slate-500">مقعد متبقي / ٥٠٠</p>
+          </div>
+        </div>
+      </div>
+      {/* شريط التقدم */}
+      <div className="px-5 pt-2.5">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+          <div className="h-full rounded-full bg-gradient-to-r from-amber-600 to-amber-400"
+            style={{ width: `${pct}%`, boxShadow: '0 0 6px rgba(251,191,36,0.4)' }} />
+        </div>
+        <p className="mt-0.5 text-left text-[0.5rem] text-amber-400/50">{pct}% مُحجوز</p>
+      </div>
+      {/* صفوف المضاعفة */}
+      <div className="grid grid-cols-3 gap-2 p-4">
+        {FOUNDER_DEALS.map(d => (
+          <div key={d.n}
+            className={`relative rounded-xl border p-3 text-center text-right ${d.best ? 'border-amber-400/50 bg-amber-500/10' : 'border-white/8 bg-white/[0.025]'}`}>
+            {d.best && (
+              <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-2 py-0.5 text-[0.48rem] font-black text-black">الأفضل</span>
+            )}
+            <p className="text-base">{d.icon}</p>
+            <p className="text-xs font-black text-white">{d.label}</p>
+            <p className="text-[0.58rem] text-slate-400">{d.months}</p>
+            <div className="mt-1.5 space-y-0.5 text-[0.5rem]">
+              <p>🥉 <span className="font-bold text-amber-700">{d.savings[0].toLocaleString('ar-SA')} ر.س</span></p>
+              <p>🥇 <span className="font-bold text-amber-400">{d.savings[1].toLocaleString('ar-SA')} ر.س</span></p>
+              <p>💎 <span className="font-bold text-cyan-400">{d.savings[2].toLocaleString('ar-SA')} ر.س</span></p>
+              <p>💎🌙 <span className="font-bold text-violet-400">{d.savings[3].toLocaleString('ar-SA')} ر.س</span></p>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* ذيل */}
+      <div className="border-t border-amber-400/10 px-5 py-2.5 text-[0.58rem] text-slate-500">
+        ✅ ينطبق على جميع الباقات الأربع &nbsp;·&nbsp; ✅ لا عمولات &nbsp;·&nbsp;
+        🚨 يُغلق عند اكتمال ٥٠٠ مشترك
+      </div>
+    </div>
+  );
+}
 
 const regFieldClass =
   'border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500 focus-visible:ring-slate-400';
@@ -903,6 +977,8 @@ export function RegistrationForm() {
                   كأساس تقني لكل مستوى.
                 </p>
               </header>
+              <FoundersDealBanner />
+
               <RadioGroup
                 value={formData.tier}
                 onValueChange={(value) =>
