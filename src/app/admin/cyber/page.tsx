@@ -31,6 +31,43 @@ import type { CyberAgentResponse, CyberMode, CyberThreatSession, CyberScenario }
 
 type AuthPhase = 'loading' | 'ok' | 'denied' | 'nologin';
 
+type CfStatus = {
+  cfConfigured: boolean;
+  security: { securityLevel: string; underAttack: boolean };
+  firewallRules: { id: string; mode: string; ip: string; notes: string; created: string }[];
+  analytics24h: { threats: number; totalRequests: number; cachedRequests: number };
+};
+
+async function fetchCfStatus(): Promise<CfStatus | null> {
+  try {
+    const res = await fetch('/api/admin-security-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'cf_status' }),
+    });
+    const data = (await res.json()) as CfStatus & { ok?: boolean };
+    return data.ok !== false ? data : null;
+  } catch { return null; }
+}
+
+async function cfBlockIp(ip: string, mode: 'block' | 'challenge'): Promise<{ ok: boolean }> {
+  const res = await fetch('/api/admin-security-action', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'cf_block_ip', ip, mode, reason: 'Blocked from Cyber Ops Theater' }),
+  });
+  return res.json() as Promise<{ ok: boolean }>;
+}
+
+async function cfUnderAttack(enabled: boolean): Promise<{ ok: boolean }> {
+  const res = await fetch('/api/admin-security-action', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'cf_under_attack', enabled }),
+  });
+  return res.json() as Promise<{ ok: boolean }>;
+}
+
 type RealThreatData = {
   period: string;
   summary: {
@@ -87,13 +124,36 @@ export default function AdminCyberOperationsPage() {
   // ◆ البيانات الأمنية الحقيقية
   const [realThreatData, setRealThreatData] = useState<RealThreatData | null>(null);
   const [blockingIp, setBlockingIp] = useState<string | null>(null);
+  const [cfStatus, setCfStatus] = useState<CfStatus | null>(null);
+  const [cfLoading, setCfLoading] = useState(false);
+  const [attackModeChanging, setAttackModeChanging] = useState(false);
 
   useEffect(() => {
     if (phase !== 'ok') return;
     void fetchRealThreatData().then(setRealThreatData);
-    const t = setInterval(() => void fetchRealThreatData().then(setRealThreatData), 120_000);
+    void fetchCfStatus().then(setCfStatus);
+    const t = setInterval(() => {
+      void fetchRealThreatData().then(setRealThreatData);
+      void fetchCfStatus().then(setCfStatus);
+    }, 90_000);
     return () => clearInterval(t);
   }, [phase]);
+
+  const handleCfBlock = async (ip: string) => {
+    setCfLoading(true);
+    await cfBlockIp(ip, 'block');
+    void fetchCfStatus().then(setCfStatus);
+    void fetchRealThreatData().then(setRealThreatData);
+    setCfLoading(false);
+  };
+
+  const handleToggleAttackMode = async () => {
+    if (!cfStatus) return;
+    setAttackModeChanging(true);
+    await cfUnderAttack(!cfStatus.security.underAttack);
+    void fetchCfStatus().then(setCfStatus);
+    setAttackModeChanging(false);
+  };
 
   const handleBlockIp = async (ip: string) => {
     setBlockingIp(ip);
@@ -314,6 +374,68 @@ export default function AdminCyberOperationsPage() {
 
         {/* Right — scenario controls + legend */}
         <aside className="order-3 flex min-h-0 flex-col gap-2 overflow-y-auto rounded-2xl border border-amber-400/20 bg-black/45 p-3 backdrop-blur-md lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
+          {/* ◆ Cloudflare Shield — حماية Edge حقيقية */}
+          {cfStatus && (
+            <div className="mb-2 rounded-xl border border-orange-400/25 bg-black/40 p-3 backdrop-blur-md">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base">🔥</span>
+                  <span className="text-[0.62rem] font-bold uppercase tracking-wider text-orange-300/80">
+                    Cloudflare Edge
+                  </span>
+                  <span className={`rounded-full border px-1.5 py-0.5 text-[0.48rem] font-black ${
+                    cfStatus.security.underAttack
+                      ? 'border-rose-500/60 bg-rose-500/20 text-rose-200'
+                      : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                  }`}>
+                    {cfStatus.security.underAttack ? '🚨 Under Attack' : '🟢 ' + cfStatus.security.securityLevel}
+                  </span>
+                </div>
+              </div>
+              {/* Cloudflare Analytics */}
+              {cfStatus.analytics24h && (
+                <div className="mb-2 grid grid-cols-3 gap-1">
+                  {[
+                    { v: cfStatus.analytics24h.threats.toLocaleString('ar'), l: 'تهديد CF', c: 'text-rose-400' },
+                    { v: Math.round(cfStatus.analytics24h.totalRequests / 1000) + 'k', l: 'طلب كلي', c: 'text-slate-300' },
+                    { v: cfStatus.firewallRules.length, l: 'قاعدة نشطة', c: 'text-amber-400' },
+                  ].map(s => (
+                    <div key={s.l} className="rounded-lg border border-white/5 bg-black/30 p-1.5 text-center">
+                      <p className={`text-[0.72rem] font-black ${s.c}`}>{s.v}</p>
+                      <p className="text-[0.42rem] text-slate-600">{s.l}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* زر Under Attack Mode */}
+              <button
+                onClick={() => void handleToggleAttackMode()}
+                disabled={attackModeChanging}
+                className={`mb-2 w-full rounded-xl border py-2 text-[0.65rem] font-black transition-all ${
+                  cfStatus.security.underAttack
+                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20'
+                    : 'border-rose-500/50 bg-rose-500/15 text-rose-200 hover:bg-rose-500/25'
+                } disabled:opacity-50`}
+              >
+                {attackModeChanging ? '…' : cfStatus.security.underAttack
+                  ? '✅ إيقاف Under Attack Mode'
+                  : '🚨 تفعيل Under Attack Mode'}
+              </button>
+              {/* قواعد الجدار الناري */}
+              {cfStatus.firewallRules.length > 0 && (
+                <div className="max-h-24 overflow-y-auto space-y-1">
+                  <p className="text-[0.48rem] font-bold uppercase text-orange-400/50 mb-1">IPs محجوبة على Cloudflare</p>
+                  {cfStatus.firewallRules.slice(0, 8).map(r => (
+                    <div key={r.id} className="flex items-center justify-between text-[0.52rem]">
+                      <span className="font-mono text-orange-300/70" dir="ltr">{r.ip}</span>
+                      <span className="text-slate-600">{r.mode}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <ScenarioControlPanel
             mode={mode}
             setMode={(m) => { setCustomScenario(null); setMode(m); }}
@@ -370,14 +492,27 @@ export default function AdminCyberOperationsPage() {
                         <span className="font-mono text-[0.55rem] text-rose-300/80" dir="ltr">{ip}</span>
                         <div className="flex items-center gap-1">
                           <span className="text-[0.5rem] text-slate-600">×{count}</span>
-                          <button
-                            onClick={() => void handleBlockIp(ip)}
-                            disabled={blockingIp === ip}
-                            className="flex items-center gap-0.5 rounded border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[0.48rem] font-black text-rose-300 hover:bg-rose-500/20 transition-all disabled:opacity-50"
-                          >
-                            <ShieldOff className="h-2.5 w-2.5" />
-                            {blockingIp === ip ? '…' : 'حظر'}
-                          </button>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => void handleBlockIp(ip)}
+                              disabled={blockingIp === ip}
+                              className="flex items-center gap-0.5 rounded border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[0.48rem] font-black text-rose-300 hover:bg-rose-500/20 transition-all disabled:opacity-50"
+                              title="حظر محلي (Supabase)"
+                            >
+                              <ShieldOff className="h-2.5 w-2.5" />
+                              {blockingIp === ip ? '…' : 'DB'}
+                            </button>
+                            {cfStatus?.cfConfigured && (
+                              <button
+                                onClick={() => void handleCfBlock(ip)}
+                                disabled={cfLoading}
+                                className="flex items-center gap-0.5 rounded border border-orange-500/40 bg-orange-500/12 px-1.5 py-0.5 text-[0.48rem] font-black text-orange-300 hover:bg-orange-500/22 transition-all disabled:opacity-50"
+                                title="حظر على Cloudflare Edge"
+                              >
+                                🔥 CF
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}

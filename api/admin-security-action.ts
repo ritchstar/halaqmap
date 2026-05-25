@@ -10,6 +10,15 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
+import {
+  blockIpCloudflare,
+  unblockIpCloudflare,
+  setUnderAttackMode,
+  getCfSecurityStatus,
+  getCfFirewallRules,
+  getCfThreatAnalytics,
+  cfConfigured,
+} from './_lib/cloudflareGuard.js';
 
 export const config = { maxDuration: 20 };
 
@@ -156,6 +165,85 @@ export async function POST(request: Request): Promise<Response> {
       .order('created_at', { ascending: false })
       .limit(100);
     return json({ ok: true, blocked: data ?? [] });
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // ◆ Cloudflare — حماية Edge حقيقية
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── حظر IP على Cloudflare Edge (لا يصل للسيرفر أبداً) ────────────
+  if (action === 'cf_block_ip') {
+    const ip = String(body.ip || '').trim();
+    const reason = String(body.reason || 'Blocked from Cyber Ops Theater').trim().slice(0, 500);
+    const mode = (['block', 'challenge', 'js_challenge'].includes(String(body.mode)) ? body.mode : 'block') as 'block' | 'challenge' | 'js_challenge';
+    if (!ip) return json({ error: 'IP required' }, 400);
+
+    // ١. Cloudflare Edge block
+    const cfResult = await blockIpCloudflare(ip, reason, mode);
+
+    // ٢. سجّل في Supabase أيضاً (للتتبع المحلي)
+    await supabase.from('security_block_list').upsert({
+      ip, reason: `[CF] ${reason}`, blocked_by: auth.email, active: true,
+      metadata: { source: 'cloudflare', cf_rule_id: cfResult.ruleId, mode },
+    }, { onConflict: 'ip' });
+
+    await supabase.from('security_events').insert({
+      ip, event_type: 'blocked_ip_attempt', severity: 'critical',
+      endpoint: '/cf/block',
+      detail: { cf_ok: cfResult.ok, rule_id: cfResult.ruleId, mode, blocked_by: auth.email },
+    });
+
+    return json({ ok: cfResult.ok, cfConfigured: true, ruleId: cfResult.ruleId, error: cfResult.error });
+  }
+
+  // ── رفع حظر من Cloudflare ────────────────────────────────────────
+  if (action === 'cf_unblock_ip') {
+    const ip = String(body.ip || '').trim();
+    const ruleId = String(body.ruleId || '').trim();
+    if (!ip && !ruleId) return json({ error: 'ip or ruleId required' }, 400);
+
+    let cfOk = true;
+    if (ruleId) {
+      const res = await unblockIpCloudflare(ruleId);
+      cfOk = res.ok;
+    }
+    await supabase.from('security_block_list').update({ active: false }).eq('ip', ip);
+    return json({ ok: cfOk });
+  }
+
+  // ── تفعيل Under Attack Mode ───────────────────────────────────────
+  if (action === 'cf_under_attack') {
+    const enabled = body.enabled !== false;
+    const result = await setUnderAttackMode(enabled);
+    await supabase.from('security_events').insert({
+      ip: 'system', event_type: 'suspicious_pattern', severity: enabled ? 'critical' : 'info',
+      endpoint: '/cf/under_attack',
+      detail: { action: enabled ? 'enable_under_attack' : 'disable_under_attack', triggered_by: auth.email },
+    });
+    return json({ ok: result.ok, mode: enabled ? 'under_attack' : 'medium', error: result.error });
+  }
+
+  // ── حالة Cloudflare الأمنية الحالية ──────────────────────────────
+  if (action === 'cf_status') {
+    const [status, rules, analytics] = await Promise.all([
+      getCfSecurityStatus(),
+      getCfFirewallRules(),
+      getCfThreatAnalytics(24),
+    ]);
+    return json({
+      ok: true,
+      cfConfigured: cfConfigured(),
+      security: status,
+      firewallRules: rules.rules,
+      analytics24h: analytics,
+    });
+  }
+
+  // ── Cloudflare Analytics فقط ──────────────────────────────────────
+  if (action === 'cf_analytics') {
+    const hours = Number(body.hours ?? 24);
+    const analytics = await getCfThreatAnalytics(hours);
+    return json({ ok: true, cfConfigured: cfConfigured(), analytics });
   }
 
   return json({ error: 'Unknown action' }, 400);
