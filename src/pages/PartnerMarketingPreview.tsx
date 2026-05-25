@@ -688,19 +688,35 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                     ))}
                   </ul>
 
-                  {/* زر الشراء */}
+                  {/* زر الشراء — خطوتان: اختيار ثم شراء */}
                   <button
-                    onClick={(e) => { e.stopPropagation(); setSelected(t.id); handleBuy(t.id); }}
-                    className="mt-auto w-full rounded-xl py-2.5 text-[0.72rem] font-black transition-all hover:scale-[1.02] active:scale-95"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isSelected) {
+                        // الخطوة الثانية — انتقل لنموذج التسجيل
+                        handleBuy(t.id);
+                      } else {
+                        // الخطوة الأولى — اختر الحزمة فقط
+                        setSelected(t.id);
+                      }
+                    }}
+                    className="mt-auto w-full rounded-xl py-2.5 text-[0.75rem] font-black transition-all hover:scale-[1.02] active:scale-95"
                     style={{
                       background: isSelected ? t.color : 'rgba(255,255,255,0.05)',
                       color: isSelected ? '#000' : t.color,
                       border: `1px solid ${t.color}55`,
-                      boxShadow: isSelected ? `0 4px 16px ${t.color}40` : 'none',
+                      boxShadow: isSelected ? `0 4px 20px ${t.color}50` : 'none',
                     }}
                   >
-                    {isSelected ? 'اشترِ الآن ←' : 'اختر هذه الحزمة'}
+                    {isSelected
+                      ? '← ابدأ تعبئة الطلب'
+                      : 'اختر هذه الحزمة'}
                   </button>
+                  {isSelected && (
+                    <p className="mt-1.5 text-center text-[0.55rem] text-slate-500">
+                      سيُحمَّل نموذج التسجيل مع الحزمة محددة مسبقاً
+                    </p>
+                  )}
                 </div>
               </motion.div>
             );

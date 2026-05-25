@@ -1192,8 +1192,21 @@ export function RegistrationForm() {
                 </div>
               )}
 
+              {/* إشارة للخطوة التالية بعد الاختيار */}
+              {formData.plan === 'annual' && formData.tier && (
+                <div className="mt-3 flex items-center justify-between rounded-xl border border-amber-400/25 bg-amber-500/8 px-4 py-2.5">
+                  <p className="text-[0.65rem] text-amber-200">
+                    ✅ الحزمة محددة — اضغط «ابدأ تعبئة الطلب» للمتابعة
+                  </p>
+                  <button type="button" onClick={handleNext}
+                    className="rounded-lg bg-amber-500 px-3 py-1 text-[0.62rem] font-black text-black hover:bg-amber-400 transition-all">
+                    التالي ←
+                  </button>
+                </div>
+              )}
+
               {/* تلميح التبديل */}
-              {formData.plan === 'annual' && (
+              {formData.plan === 'annual' && !formData.tier && (
                 <p className="mt-3 text-center text-[0.6rem] text-slate-600">
                   تفضّل الشهري؟{' '}
                   <button type="button" onClick={() => setFormData(p => ({ ...p, plan: 'monthly' }))}
@@ -1876,10 +1889,16 @@ export function RegistrationForm() {
           <Button
             onClick={handleNext}
             disabled={isSubmitting}
-            className="bg-slate-100 text-slate-900 hover:bg-white"
+            className={currentStep === 1 && formData.tier
+              ? 'bg-gradient-to-l from-amber-500 to-amber-600 text-black font-black shadow-[0_4px_20px_rgba(245,158,11,0.40)] hover:from-amber-400 px-6 py-2.5 text-base'
+              : 'bg-slate-100 text-slate-900 hover:bg-white'
+            }
           >
-            التالي
-            <ChevronRight className="w-4 h-4 mr-2" />
+            {currentStep === 1 && formData.tier
+              ? 'ابدأ تعبئة الطلب ←'
+              : 'التالي'
+            }
+            {!(currentStep === 1 && formData.tier) && <ChevronRight className="w-4 h-4 mr-2" />}
           </Button>
         ) : (
           <Button
