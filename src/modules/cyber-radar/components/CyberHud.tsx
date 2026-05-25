@@ -198,8 +198,9 @@ export function AgentResponseFeed({ entries }: { entries: ReadonlyArray<CyberAge
   return (
     <div dir="rtl" className="flex flex-col gap-2">
       {entries.map((entry) => {
-        const Icon = AGENT_ICONS[entry.agentId];
-        const accent = AGENT_ACCENT[entry.agentId];
+        const Icon = AGENT_ICONS[entry.agentId as keyof typeof AGENT_ICONS] ?? Shield;
+        const accent = AGENT_ACCENT[entry.agentId as keyof typeof AGENT_ACCENT]
+          ?? 'border-slate-400/40 bg-slate-500/10 text-slate-100';
         return (
           <article
             key={entry.id}

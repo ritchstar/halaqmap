@@ -13,7 +13,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight, Radio, Swords, ShieldOff, BarChart3 } from 'lucide-react';
 import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
-import type { RealtimeChannel } from '@supabase/supabase-js';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { CyberRadarCanvas } from '@/modules/cyber-radar/components/CyberRadarCanvas';
 import {
@@ -147,7 +146,6 @@ export default function AdminCyberOperationsPage() {
   const [agentsLoading, setAgentsLoading] = useState(false);
   // ◆ أحداث أمنية حية من Supabase Realtime
   const [liveSecEvents, setLiveSecEvents] = useState<LiveSecurityEvent[]>([]);
-  const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
     if (phase !== 'ok') return;
@@ -174,20 +172,24 @@ export default function AdminCyberOperationsPage() {
     const client = getSupabaseClient();
     if (!client) return;
 
-    const channel = client
-      .channel('cyber-ops-security-live')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'security_events',
-      }, (payload) => {
-        const evt = payload.new as LiveSecurityEvent;
-        setLiveSecEvents(prev => [evt, ...prev].slice(0, 30));
-      })
-      .subscribe();
+    let channel: ReturnType<typeof client.channel> | null = null;
+    try {
+      channel = client
+        .channel('cyber-ops-security-live')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'security_events',
+        }, (payload) => {
+          try {
+            const evt = payload.new as LiveSecurityEvent;
+            setLiveSecEvents(prev => [evt, ...prev].slice(0, 30));
+          } catch { /* صامت */ }
+        })
+        .subscribe();
+    } catch { /* Realtime قد لا يكون مُفعَّلاً — لا يوقف الغرفة */ }
 
-    channelRef.current = channel;
-    return () => { void client.removeChannel(channel); };
+    return () => { if (channel) void client.removeChannel(channel); };
   }, [phase]);
 
   // ◆ تشغيل تحليل الوكلاء الثلاثة الحقيقي
