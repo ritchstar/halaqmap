@@ -36,6 +36,19 @@ import { ROUTE_PATHS } from '@/lib/index';
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string; ts: string };
 
+// ─── رموز التوجيه — كل رمز يُدرج في الشات ويُعالَج تلقائياً ──────────────────
+const CODE_BUTTONS = [
+  { code: 'تعليمة', label: 'تعليمة:', color: 'border-violet-400/40 bg-violet-500/15 text-violet-200', hint: 'توجيه دائم للمناوب يُطبَّق مع الزبائن', affects: 'shift' },
+  { code: 'عرض',    label: 'عرض:',    color: 'border-amber-400/40 bg-amber-500/15 text-amber-200',   hint: 'عرض أو تخفيض يذكره المناوب للزبائن',   affects: 'shift' },
+  { code: 'جدول',   label: 'جدول:',   color: 'border-sky-400/40 bg-sky-500/15 text-sky-200',         hint: 'أوقات العمل والإجازات',                  affects: 'shift' },
+  { code: 'خدمة',   label: 'خدمة:',   color: 'border-teal-400/40 bg-teal-500/15 text-teal-200',      hint: 'خدمات وأسعار يردّ بها المناوب',          affects: 'shift' },
+  { code: 'موقع',   label: 'موقع:',   color: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200', hint: 'وصف الموقع والوصول للصالون',         affects: 'shift' },
+  { code: 'رد',     label: 'رد:',     color: 'border-rose-400/40 bg-rose-500/15 text-rose-200',       hint: 'قالب رد لموقف محدد',                     affects: 'shift' },
+  { code: 'تنبيه',  label: 'تنبيه:',  color: 'border-orange-400/40 bg-orange-500/15 text-orange-200', hint: 'تنبيه مؤقت — إغلاق أو حدث',            affects: 'shift' },
+  { code: 'مهمة',   label: 'مهمة:',   color: 'border-lime-400/40 bg-lime-500/15 text-lime-200',       hint: 'مهمة تُضاف لقائمة المهام',               affects: 'tasks' },
+  { code: 'تذكير',  label: 'تذكير:',  color: 'border-pink-400/40 bg-pink-500/15 text-pink-200',       hint: 'تذكير شخصي بموعد أو مهمة قادمة',        affects: 'tasks' },
+] as const;
+
 function nowTs() {
   return new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
 }
@@ -203,18 +216,28 @@ export function DigitalShiftPrivateOffice({
     setDraft('');
     if (textRef.current) { textRef.current.style.height = 'auto'; }
 
-    // Auto-detect instruction prefix
-    const isInstruction = /^تعليمة[:：]/.test(msg);
-    const isTask = /^مهمة[:：]/.test(msg);
-    if (isInstruction) {
-      const instText = msg.replace(/^تعليمة[:：]\s*/, '');
-      if (instText) {
-        setInstructions(prev => [{ id: nid(), text: instText, createdAt: new Date().toISOString(), active: true }, ...prev]);
+    // ── كشف رموز التوجيه تلقائياً ──────────────────────────────────────────────
+    const SHIFT_CODES = ['تعليمة', 'عرض', 'جدول', 'خدمة', 'موقع', 'رد', 'تنبيه'];
+    const TASK_CODES  = ['مهمة', 'تذكير'];
+    const allCodes = [...SHIFT_CODES, ...TASK_CODES];
+    const codeRegex = new RegExp(`^(${allCodes.join('|')})[:：]\\s*`);
+    const codeMatch = msg.match(codeRegex);
+
+    if (codeMatch) {
+      const code = codeMatch[1];
+      const text = msg.replace(codeMatch[0], '').trim();
+      if (text) {
+        if (TASK_CODES.includes(code)) {
+          // مهمة أو تذكير → قائمة المهام
+          setTasks(prev => [{ id: nid(), text: `[${code}] ${text}`, done: false, createdAt: new Date().toISOString() }, ...prev]);
+          toast.success(`تمّت إضافة ${code} ✅`);
+        } else {
+          // كل الرموز الأخرى → تعليمات للمناوب بعلامة الفئة
+          const taggedText = code === 'تعليمة' ? text : `[${code}] ${text}`;
+          setInstructions(prev => [{ id: nid(), text: taggedText, createdAt: new Date().toISOString(), active: true }, ...prev]);
+          toast.success(`تمّت إضافة ${code} ✅`);
+        }
       }
-    }
-    if (isTask) {
-      const taskText = msg.replace(/^مهمة[:：]\s*/, '');
-      if (taskText) setTasks(prev => [{ id: nid(), text: taskText, done: false, createdAt: new Date().toISOString() }, ...prev]);
     }
 
     const userTurn: ChatTurn = { role: 'user', content: msg, ts: nowTs() };
@@ -564,17 +587,16 @@ export function DigitalShiftPrivateOffice({
         </div>
       </div>
 
-      {/* ══ اقتراحات سريعة ══ */}
+      {/* ══ اقتراحات سريعة (عند البداية فقط) ══ */}
       {turns.length <= 1 && (
         <div className="border-t border-violet-500/10 px-5 py-3">
-          <p className="mb-2 text-[0.58rem] text-violet-400/40">اقتراحات:</p>
+          <p className="mb-2 text-[0.58rem] text-violet-400/40">أسئلة سريعة:</p>
           <div className="flex flex-wrap gap-1.5">
             {[
               'كم يوم باقي في حزمتي؟',
               'أرسل لي رابط التجديد',
-              'أضف مهمة: مراجعة الإعدادات',
-              'تعليمة: لا ترحّب بعملاء بعد العاشرة',
               'وين رابط الدعم؟',
+              'ما هي تعليماتي الحالية؟',
             ].map(q => (
               <button key={q} onClick={() => void send(q)}
                 className="rounded-full border border-violet-400/20 bg-violet-500/8 px-3 py-1 text-[0.62rem] font-semibold text-violet-300/80 hover:border-violet-400/40 hover:bg-violet-500/15 transition-all">
@@ -586,7 +608,33 @@ export function DigitalShiftPrivateOffice({
       )}
 
       {/* ══ حقل الإدخال ══ */}
-      <div className="relative border-t border-violet-500/15 px-4 py-3">
+      <div className="relative border-t border-violet-500/15 px-4 pt-2.5 pb-3">
+        {/* ── أزرار رموز التوجيه ── */}
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          <p className="w-full text-[0.5rem] text-violet-400/30 mb-0.5">رموز التوجيه — اضغط لإدراج الرمز ثم اكتب:</p>
+          {CODE_BUTTONS.map(cb => (
+            <button
+              key={cb.code}
+              type="button"
+              title={cb.hint}
+              onClick={() => {
+                setDraft(`${cb.code}: `);
+                setTimeout(() => {
+                  if (textRef.current) {
+                    textRef.current.focus();
+                    const len = textRef.current.value.length;
+                    textRef.current.setSelectionRange(len, len);
+                  }
+                }, 30);
+              }}
+              className={`rounded-lg border px-2.5 py-1 text-[0.6rem] font-black transition-all hover:opacity-90 active:scale-95 ${cb.color}`}
+            >
+              {cb.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── حقل النص + زر الإرسال ── */}
         <div className="flex items-end gap-2">
           <textarea
             ref={textRef}
@@ -598,11 +646,11 @@ export function DigitalShiftPrivateOffice({
             }}
             onKeyDown={handleKey}
             disabled={loading}
-            placeholder='اكتب أمراً أو سؤالاً أو تعليمة: ... أو مهمة: ...'
+            placeholder='اختر رمزاً أعلاه أو اكتب مباشرةً — مثال: تعليمة: لا مواعيد بعد 10'
             rows={1}
             dir="rtl"
             style={{ minHeight: '44px', maxHeight: '120px', resize: 'none', overflowY: 'auto' }}
-            className="flex-1 rounded-2xl border border-violet-400/18 bg-violet-950/50 px-4 py-2.5 text-sm text-white placeholder:text-violet-400/25 outline-none focus:border-violet-400/45 focus:ring-1 focus:ring-violet-400/20 transition-all disabled:opacity-50"
+            className="flex-1 rounded-2xl border border-violet-400/18 bg-violet-950/50 px-4 py-2.5 text-sm text-white placeholder:text-violet-400/22 outline-none focus:border-violet-400/45 focus:ring-1 focus:ring-violet-400/20 transition-all disabled:opacity-50"
           />
           <motion.button
             type="button"
@@ -615,7 +663,7 @@ export function DigitalShiftPrivateOffice({
             <Send className="h-4 w-4 text-white" />
           </motion.button>
         </div>
-        <p className="mt-1.5 text-center text-[0.5rem] text-violet-400/18">
+        <p className="mt-1.5 text-center text-[0.5rem] text-violet-400/15">
           {assistantName} · مكتبك الخاص · حلاق ماب Diamond
         </p>
       </div>

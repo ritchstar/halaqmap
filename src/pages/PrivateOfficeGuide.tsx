@@ -192,7 +192,51 @@ export default function PrivateOfficeGuide() {
           </div>
         </section>
 
-        {/* ══ القسم الثاني: رمز المهمة ══ */}
+        {/* ══ القسم الثاني: جميع رموز التوجيه الكاملة ══ */}
+        <section>
+          <div className="mb-6">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs font-black text-amber-300">
+              <Zap className="h-3 w-3" /> جميع الرموز
+            </div>
+            <h2 className="text-xl font-black text-white">الدليل الكامل للرموز — ٩ رموز لكل احتياج</h2>
+            <p className="mt-2 text-sm leading-7 text-slate-400">
+              كل رمز له زر ملوّن في المكتب الخاص — اضغطه يُدرَج تلقائياً في الشات، اكتب ما يليه وأرسل.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {([
+              { code: 'تعليمة', tc: 'text-violet-300', bc: 'border-violet-400/25 bg-violet-950/25', title: 'توجيه عام للمناوب', affects: 'مناوب الشات — يُطبَّق مع كل زبون بسرية', examples: ['لا تقبل مواعيد بعد الساعة 10 مساءً', 'ابدأ كل رد بـ«أهلاً وسهلاً»'] },
+              { code: 'عرض',    tc: 'text-amber-300',   bc: 'border-amber-400/25 bg-amber-950/25',   title: 'عرض أو تخفيض',    affects: 'مناوب الشات — يذكره عند المناسبة', examples: ['قصة + لحية بـ40 ريال هذا الأسبوع', 'تخفيض 20% على الحجز المسبق'] },
+              { code: 'جدول',   tc: 'text-sky-300',     bc: 'border-sky-400/25 bg-sky-950/25',       title: 'أوقات العمل',     affects: 'مناوب الشات — يجيب عن مواعيد العمل', examples: ['مفتوح السبت-الخميس 10ص-10م، عطلة الجمعة', 'إجازة الأسبوع القادم أيام الأحد والاثنين'] },
+              { code: 'خدمة',   tc: 'text-teal-300',    bc: 'border-teal-400/25 bg-teal-950/25',     title: 'خدمات وأسعار',    affects: 'مناوب الشات — يجيب عن الأسعار', examples: ['قصة شعر 40، تشذيب لحية 20، صبغة 80 ريال', 'نوفر زيارة منزلية بـ80 ريال لكبار السن'] },
+              { code: 'موقع',   tc: 'text-emerald-300', bc: 'border-emerald-400/25 bg-emerald-950/25', title: 'الموقع والوصول', affects: 'مناوب الشات — يُرشد الزبائن للصالون', examples: ['في حي النزهة قرب مسجد الفاروق، الشارع الرئيسي', 'بجانب صيدلية النهدي في الدور الأرضي'] },
+              { code: 'رد',     tc: 'text-rose-300',    bc: 'border-rose-400/25 bg-rose-950/25',     title: 'قالب رد جاهز',    affects: 'مناوب الشات — يستخدمه في الموقف المحدد', examples: ['عند السؤال عن الانتظار: المدة 20-30 دقيقة', 'عند الشكوى: آسفين وبنعوّض عليك'] },
+              { code: 'تنبيه',  tc: 'text-orange-300',  bc: 'border-orange-400/25 bg-orange-950/25', title: 'تنبيه مؤقت',      affects: 'مناوب الشات — يُبلّغ كل من يتواصل', examples: ['الصالون مغلق غداً لإجازة طارئة', 'نغلق من 2-4 لزيارة صحية اليوم فقط'] },
+              { code: 'مهمة',   tc: 'text-lime-300',    bc: 'border-lime-400/25 bg-lime-950/25',     title: 'مهمة تشغيلية',   affects: 'قائمة مهامك — تتابعها وتؤشّر إنجازها', examples: ['تجديد حزمة الرخصة قبل نهاية الشهر', 'رفع صور الإضاءة الجديدة على المعرض'] },
+              { code: 'تذكير',  tc: 'text-pink-300',    bc: 'border-pink-400/25 bg-pink-950/25',     title: 'تذكير شخصي',     affects: 'قائمة مهامك — تذكير بموعد قادم', examples: ['تجديد الرخصة التجارية نهاية هذا الشهر', 'موعد الفحص الصحي الأسبوع القادم'] },
+            ] as const).map(entry => (
+              <div key={entry.code} className={`overflow-hidden rounded-2xl border p-4 ${entry.bc}`}>
+                <div className="mb-2 flex items-center gap-3">
+                  <span className={`rounded-xl border border-current/30 px-3 py-1 font-mono text-sm font-black ${entry.tc} bg-black/20`}>{entry.code}:</span>
+                  <div>
+                    <p className={`text-sm font-black ${entry.tc}`}>{entry.title}</p>
+                    <p className="text-[0.58rem] text-slate-500">{entry.affects}</p>
+                  </div>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {entry.examples.map(ex => (
+                    <div key={ex} className="flex items-center gap-2 rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                      <p className="flex-1 font-mono text-[0.65rem] text-white">{entry.code}: {ex}</p>
+                      <CopyBtn text={`${entry.code}: ${ex}`} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ القسم القديم للمهام — مُحوَّل لقسم الأسئلة ══ */}
         <section>
           <div className="mb-6">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs font-black text-amber-300">
