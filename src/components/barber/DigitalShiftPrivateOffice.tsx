@@ -15,8 +15,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Moon, Send, Plus, Trash2, CheckCircle2, Circle,
-  Zap, CreditCard, HeadphonesIcon, ChevronDown, ChevronUp,
-  BookOpen, ListTodo, AlertTriangle, Sparkles, X,
+  Zap, CreditCard, HeadphonesIcon,
+  BookOpen, ListTodo, Sparkles, X, FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -27,7 +27,10 @@ import {
 import {
   digitalShiftBarberChatRemote,
   fleetDirectivesReadRemote,
+  syncInstructionsRemote,
+  shiftReportsReadRemote,
   type FleetDirective,
+  type ShiftReport,
 } from '@/lib/digitalShiftAssistantRemote';
 import { ROUTE_PATHS } from '@/lib/index';
 
@@ -109,6 +112,8 @@ export function DigitalShiftPrivateOffice({
   const [tasks, setTasks] = useState<ShiftTask[]>(() => readShiftTasks(barberId));
   const [fleetDirectives, setFleetDirectives] = useState<FleetDirective[]>([]);
   const [showFleet, setShowFleet] = useState(false);
+  const [shiftReports, setShiftReports] = useState<ShiftReport[]>([]);
+  const [showReports, setShowReports] = useState(false);
 
   // ── Chat state ──
   const [turns, setTurns] = useState<ChatTurn[]>([{
@@ -128,14 +133,33 @@ export function DigitalShiftPrivateOffice({
   const endRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
-  // Persist changes
+  // Persist changes locally
   useEffect(() => { writeShiftInstructions(barberId, instructions); }, [barberId, instructions]);
   useEffect(() => { writeShiftTasks(barberId, tasks); }, [barberId, tasks]);
+
+  // ◆ مزامنة التعليمات مع Supabase → تصل للمناوب على الشات
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void syncInstructionsRemote({
+        barberId,
+        email: barberEmail,
+        instructions: instructions.map(i => ({ id: i.id, text: i.text, active: i.active })),
+      });
+    }, 1500); // تأخير بسيط لتجنب الاستدعاء المتكرر عند الكتابة
+    return () => clearTimeout(timer);
+  }, [barberId, barberEmail, instructions]);
 
   // ◆ القناة السرية — تحميل توجيهات الأسطول
   useEffect(() => {
     void fleetDirectivesReadRemote({ barberId, email: barberEmail }).then(r => {
       if (r.ok && r.directives.length > 0) setFleetDirectives(r.directives);
+    });
+  }, [barberId, barberEmail]);
+
+  // ◆ تحميل تقارير المناوب
+  useEffect(() => {
+    void shiftReportsReadRemote({ barberId, email: barberEmail }).then(r => {
+      if (r.ok) setShiftReports(r.reports);
     });
   }, [barberId, barberEmail]);
 
@@ -264,6 +288,15 @@ export function DigitalShiftPrivateOffice({
           </div>
           {/* شارات سريعة */}
           <div className="flex items-center gap-2">
+            {/* زر تقارير المناوب */}
+            <button onClick={() => { setShowReports(s => !s); setShowFleet(false); setShowTasks(false); setShowInstructions(false); }}
+              className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[0.6rem] font-bold transition-all ${
+                showReports ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300' : 'border-white/8 bg-white/[0.03] text-slate-400 hover:border-emerald-500/30'
+              }`}>
+              <FileText className="h-3 w-3" />
+              {shiftReports.length > 0 && <span className="rounded-full bg-emerald-500 px-1 text-[0.5rem] font-black text-white">{shiftReports.length}</span>}
+              تقارير
+            </button>
             {/* ◆ زر القناة السرية */}
             {fleetDirectives.length > 0 && (
               <button onClick={() => { setShowFleet(s => !s); setShowTasks(false); setShowInstructions(false); }}
@@ -344,6 +377,50 @@ export function DigitalShiftPrivateOffice({
                 ))}
               </div>
               <p className="mt-2 text-[0.55rem] text-violet-400/30">💡 يمكنك أيضاً إرسال «تعليمة: نصّ التعليمة» في المحادثة</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ══ لوحة تقارير المناوب (ما استقبله من الزبائن) ══ */}
+      <AnimatePresence>
+        {showReports && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="relative border-b border-emerald-500/15 overflow-hidden"
+          >
+            <div className="bg-emerald-950/25 px-5 py-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-3.5 w-3.5 text-emerald-400" />
+                  <p className="text-xs font-black text-emerald-300">تقارير المناوب — ما استقبله من الزبائن</p>
+                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[0.5rem] text-emerald-400">مباشر</span>
+                </div>
+                <button onClick={() => setShowReports(false)} className="text-slate-600 hover:text-slate-400">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              {shiftReports.length === 0 ? (
+                <p className="py-6 text-center text-[0.65rem] text-emerald-400/30">
+                  لا تقارير بعد — المناوب لم يرد على أي زبون حتى الآن
+                </p>
+              ) : (
+                <div className="max-h-56 space-y-2 overflow-y-auto">
+                  {shiftReports.map(r => (
+                    <div key={r.id} className="rounded-xl border border-emerald-500/20 bg-emerald-950/30 px-4 py-3">
+                      <div className="mb-1 flex items-center justify-between">
+                        <p className="text-[0.65rem] font-black text-emerald-300">{r.title}</p>
+                        <p className="text-[0.5rem] text-emerald-500/40">{new Date(r.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
+                      <p className="whitespace-pre-wrap text-[0.65rem] leading-relaxed text-slate-300" style={{ unicodeBidi: 'plaintext' }}>{r.body}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="mt-2 text-[0.52rem] text-emerald-400/25">
+                📡 يصلك تلقائياً كل مرة يتدخّل فيها المناوب مع زبون · التعليمات التي أعطيتها مُطبَّقة
+              </p>
             </div>
           </motion.div>
         )}

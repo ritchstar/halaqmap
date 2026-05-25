@@ -161,9 +161,28 @@ export async function POST(request: Request): Promise<Response> {
     content: m.body,
   }));
 
+  // ◆ قراءة تعليمات المكتب الخاص لهذا الحلاق
+  let privateOfficeInstructions: string[] = [];
+  try {
+    const { data: instRows } = await supabase
+      .from('barber_ai_recommendations')
+      .select('body')
+      .eq('barber_id', barberId)
+      .eq('category', 'private_office_instruction')
+      .eq('status', 'active')
+      .order('priority', { ascending: false })
+      .limit(15);
+    if (instRows && instRows.length > 0) {
+      privateOfficeInstructions = instRows.map((r: { body: string }) => String(r.body ?? ''));
+    }
+  } catch { /* صامت — لا نوقف الرد */ }
+
   let replyText: string;
   try {
-    replyText = await generateDigitalShiftReply(ctx, 'customer', lastCustomerBody, history);
+    replyText = await generateDigitalShiftReply(
+      ctx, 'customer', lastCustomerBody, history,
+      privateOfficeInstructions.length > 0 ? { instructions: privateOfficeInstructions } : undefined,
+    );
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'AI failed';
     return Response.json({ error: msg }, { status: 502, headers });
@@ -187,6 +206,38 @@ export async function POST(request: Request): Promise<Response> {
   if (insErr) {
     return Response.json({ error: insErr.message }, { status: 500, headers });
   }
+
+  // ◆ تقرير المناوب → المكتب الخاص
+  const reportTitle = decision.trigger === 'shop_closed'
+    ? '🌙 المناوب رد أثناء الإغلاق'
+    : '⏱️ المناوب تدخل بعد تأخر الرد';
+  const reportBody = [
+    `رسالة الزبون: «${lastCustomerBody.slice(0, 200)}»`,
+    `رد المناوب: «${replyText.trim().slice(0, 200)}»`,
+    `الحالة: ${decision.trigger === 'shop_closed' ? 'المحل مغلق' : 'تأخر الرد أثناء الدوام'}`,
+    privateOfficeInstructions.length > 0
+      ? `التعليمات المطبّقة: ${privateOfficeInstructions.length} تعليمة`
+      : '',
+  ].filter(Boolean).join('\n');
+
+  try {
+    await supabase.from('barber_ai_recommendations').insert({
+      barber_id: barberId,
+      category: 'shift_report',
+      title: reportTitle,
+      body: reportBody,
+      priority: 70,
+      status: 'active',
+      metadata: {
+        trigger: decision.trigger,
+        conversationId,
+        customerMessage: lastCustomerBody.slice(0, 300),
+        shiftReply: replyText.trim().slice(0, 300),
+        instructionsApplied: privateOfficeInstructions.length,
+        reportedAt: new Date().toISOString(),
+      },
+    });
+  } catch { /* صامت — التقرير لا يوقف الرد */ }
 
   await upsertRecommendation(supabase, {
     barberId,

@@ -74,7 +74,7 @@ export function buildDigitalShiftSystemPrompt(
       : 'خاطب الحلاق بالعربية السعودية التجارية الدافئة.';
 
   const base = [
-    `أنت «${ctx.assistantName}» — المناوب الرقمي الذكي الخاص بـ${ctx.barberName}، ابتكار حصري من **منصة حلاق ماب**.`,
+    `أنت «${ctx.assistantName}» — مناوب إضافة المكتب الخاص لصالون ${ctx.barberName}، من منصة حلاق ماب.`,
     'أسلوبك: آداب سعودية تجارية دافئة — «يا عمنا»، «تفضل»، «بإذنك» — بدون مبالغة.',
     langHint,
     'لا تعد بخصومات أو حجز مدفوع عبر المنصة؛ المنصة لا تأخذ عمولة على الحلاقة.',
@@ -89,6 +89,14 @@ export function buildDigitalShiftSystemPrompt(
     `رصيد محفظة المناوب (هللات): ${ctx.walletBalanceHalalas}`,
     `مهلة المناوبة (دقائق): ${ctx.replyDelayMinutes}`,
   ];
+
+  // تعليمات المكتب الخاص — تُطبَّق في كلا الوضعين (عميل + حلاق)
+  if (extra?.instructions && extra.instructions.length > 0 && mode === 'customer') {
+    base.push('');
+    base.push('═══ تعليمات مدير المكتب الخاص (طبّقها بأولوية قصوى) ═══');
+    base.push('هذه تعليمات أعطاها الحلاق لك مسبقاً — طبّقها دائماً بدون إخبار العميل بمصدرها:');
+    extra.instructions.forEach((inst, i) => base.push(`${i + 1}. ${inst}`));
+  }
 
   if (mode === 'barber') {
     // روابط الدفع والدعم

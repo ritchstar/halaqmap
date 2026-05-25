@@ -121,6 +121,33 @@ export async function digitalShiftBarberChatRemote(params: {
   return { ok: true, reply: String(r.reply ?? '') };
 }
 
+export async function syncInstructionsRemote(params: {
+  barberId: string;
+  email: string;
+  instructions: { id: string; text: string; active: boolean }[];
+}): Promise<{ ok: true; synced: number } | { ok: false; error: string }> {
+  const r = await post<{ ok: true; synced: number }>({ action: 'sync_instructions', ...params });
+  if ('error' in r) return { ok: false, error: r.error || 'Failed' };
+  return { ok: true, synced: (r as { synced: number }).synced ?? 0 };
+}
+
+export type ShiftReport = {
+  id: string;
+  title: string;
+  body: string;
+  created_at: string;
+  metadata: Record<string, unknown>;
+};
+
+export async function shiftReportsReadRemote(params: {
+  barberId: string;
+  email: string;
+}): Promise<{ ok: true; reports: ShiftReport[] } | { ok: false; error: string }> {
+  const r = await post<{ ok: true; reports: ShiftReport[] }>({ action: 'shift_reports_read', ...params });
+  if ('error' in r && !('reports' in r)) return { ok: false, error: r.error || 'Failed' };
+  return { ok: true, reports: (r as { reports: ShiftReport[] }).reports ?? [] };
+}
+
 export type FleetDirective = {
   id: string;
   title: string;

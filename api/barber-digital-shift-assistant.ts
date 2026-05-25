@@ -263,6 +263,52 @@ export async function POST(request: Request): Promise<Response> {
     }
   }
 
+  // ◆ مزامنة تعليمات المكتب الخاص → Supabase (لتصلها للمناوب على الشات)
+  if (action === 'sync_instructions') {
+    const newInstructions = Array.isArray(body.instructions)
+      ? (body.instructions as { id?: string; text?: string; active?: boolean }[])
+          .filter(i => i.active !== false && i.text)
+          .map(i => ({ id: String(i.id ?? ''), text: String(i.text ?? '').slice(0, 500) }))
+          .slice(0, 20)
+      : [];
+
+    // احذف التعليمات القديمة من المكتب الخاص لهذا الحلاق
+    await supabase
+      .from('barber_ai_recommendations')
+      .update({ status: 'dismissed' })
+      .eq('barber_id', barberId)
+      .eq('category', 'private_office_instruction');
+
+    // أضف التعليمات الجديدة
+    if (newInstructions.length > 0) {
+      await supabase.from('barber_ai_recommendations').insert(
+        newInstructions.map((inst, idx) => ({
+          barber_id: barberId,
+          category: 'private_office_instruction',
+          title: `تعليمة #${idx + 1}`,
+          body: inst.text,
+          priority: 80,
+          status: 'active',
+          metadata: { localId: inst.id, source: 'private_office' },
+        }))
+      );
+    }
+    return Response.json({ ok: true, synced: newInstructions.length }, { headers });
+  }
+
+  // ◆ قراءة تقارير المناوب للمكتب الخاص
+  if (action === 'shift_reports_read') {
+    const { data: reports } = await supabase
+      .from('barber_ai_recommendations')
+      .select('id, title, body, created_at, metadata')
+      .eq('barber_id', barberId)
+      .eq('category', 'shift_report')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    return Response.json({ ok: true, reports: reports ?? [] }, { headers });
+  }
+
   // ◆ قراءة توجيهات الأسطول للمكتب الخاص
   if (action === 'fleet_directives_read') {
     const { data: fdRows } = await supabase

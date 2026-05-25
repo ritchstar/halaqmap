@@ -57,59 +57,59 @@ export const TIER_MONTHLY_SAR: Record<SubscriptionTier, number> = {
   [SubscriptionTier.DIAMOND]: 200,
 };
 
-/** إضافة المناوب الرقمي الذكي — للباقة الماسية فقط (لكل بطاقة 30 يوم) */
+/** إضافة المكتب الخاص — للباقة الماسية فقط (لكل بطاقة 30 يوم) */
 export const DIGITAL_SHIFT_MONTHLY_ADDON_SAR = 25;
 
 /** تسمية الإضافة البرمجية المتقدمة — Add-on منفصل عن رخصة الإدراج */
-export const DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR = 'إضافة برمجية متقدمة · Software Add-on';
+export const DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR = 'إضافة المكتب الخاص · Software Add-on';
 
 export const DIGITAL_SHIFT_ADDON_VALUE_AR =
-  'إضافة «المناوب الرقمي الذكي» تعزّز رخصة النفاذ الماسية — يرد على الشات عند الإغلاق أو تأخر الرد، يرحّب بالعميل، ويساعد على تنظيم الاستجابة بدون ضغط تشغيل دائم.';
+  'إضافة «المكتب الخاص» تمنح رخصتك الماسية قدرتين متصلتين: مساعد داخلي في لوحة تحكمك يستقبل تعليماتك ويُقدّم لك التقارير، ومناوب على الشات يُنفّذ تعليماتك أمام الزبائن ويرسل لك ما يستقبله.';
 
 export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
-  'إضافة برمجية متقدمة: المناوب الرقمي الذكي (+25 ر.س/حزمة نفاذ)';
+  'إضافة المكتب الخاص (+25 ر.س/حزمة): مساعد داخلي + مناوب شات مترابطان';
 
 /** خيارات منتج الباقة الماسية — واجهة التسعير */
 export const DIAMOND_LICENSE_TECHNICAL_VALUE_AR =
   'أقوى رخصة نفاذ للصالونات الجادة: صدارة في الطلبات القريبة، صورة أقوى، وتنظيم مواعيد أفضل';
 
 export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية — رخصة نفاذ';
-export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المناوب (Add-on)';
+export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المكتب الخاص';
 export const DIAMOND_PRODUCT_STANDARD_HINT_AR =
   'رخصة نفاذ ضمن نظام الاستجابة الذكية — 200 ر.س/حزمة';
 export const DIAMOND_PRODUCT_SMART_HINT_AR =
-  'رخصة نفاذ ماسية + إضافة برمجية متقدمة — 225 ر.س/حزمة (+25 Add-on)';
+  'رخصة نفاذ ماسية + إضافة المكتب الخاص — 225 ر.س/حزمة (+25 Add-on)';
 export const DIAMOND_ADDON_OPTION_LINE_AR =
-  'Add-on اختياري: المناوب الرقمي الذكي يساعدك لا تترك الشات بلا رد عند الإغلاق أو الانشغال';
+  'Add-on اختياري: إضافة المكتب الخاص — مساعد داخلي يأخذ تعليماتك + مناوب شات ينفّذها أمام الزبائن';
 
-/** اسم المنتج — إضافة برمجية */
-export const DIGITAL_SHIFT_PRODUCT_NAME_AR = 'المناوب الرقمي الذكي 🌙';
+/** اسم المنتج — إضافة المكتب الخاص */
+export const DIGITAL_SHIFT_PRODUCT_NAME_AR = 'إضافة المكتب الخاص 🏛️';
 
 /** بريد/تفعيل — بعد شراء Add-on */
 export const DIGITAL_SHIFT_ONBOARDING_ACTIVATED_AR =
-  'تم تفعيل إضافة «المناوب الرقمي الذكي» — إضافة برمجية متقدمة (Software Add-on) على رخصتك الماسية التقنية.';
+  'تم تفعيل إضافة «المكتب الخاص» — مساعد داخلي + مناوب شات مترابطان على رخصتك الماسية.';
 
-export const DIGITAL_SHIFT_ONBOARDING_HEADLINE_AR = 'أهلًا — إضافة المناوب الرقمي الذكي مفعّلة';
+export const DIGITAL_SHIFT_ONBOARDING_HEADLINE_AR = 'أهلًا — إضافة المكتب الخاص مفعّلة';
 
 export const DIGITAL_SHIFT_ONBOARDING_SECTION_TITLE_AR =
-  '🌙 إضافة برمجية متقدمة — المناوب الرقمي الذكي مفعّل';
+  '🏛️ إضافة المكتب الخاص — المساعد الداخلي والمناوب متصلان';
 
 export const DIGITAL_SHIFT_ONBOARDING_SECTION_PLAIN_HEADER_AR =
-  '—— المناوب الرقمي الذكي (Software Add-on · رخصة ماسية) ——';
+  '—— إضافة المكتب الخاص (Software Add-on · رخصة ماسية) ——';
 
 /** API / لوحة الحلاق — عند غياب Add-on */
 export const DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR =
-  'المناوب الذكي غير مفعّل — فعّل إضافة المناوب الرقمي (Add-on +25 ر.س/حزمة) مع رخصة الماسية التقنية';
+  'إضافة المكتب الخاص غير مفعّلة — فعّلها (+25 ر.س/حزمة) مع رخصة الماسية للحصول على المساعد الداخلي والمناوب';
 
-export const DIGITAL_SHIFT_GATE_LOADING_AR = 'جاري التحقق من صلاحية إضافة المناوب…';
+export const DIGITAL_SHIFT_GATE_LOADING_AR = 'جاري التحقق من صلاحية إضافة المكتب الخاص…';
 
 /** فواتير وZATCA — تسميات موحّدة */
 export const INVOICE_DIAMOND_LICENSE_LABEL_AR = 'رخصة نفاذ ماسية (200 ر.س)';
 export const INVOICE_DIAMOND_WITH_ADDON_LABEL_AR =
-  'رخصة نفاذ ماسية + Add-on المناوب (225 ر.س)';
+  'رخصة نفاذ ماسية + إضافة المكتب الخاص (225 ر.س)';
 
 export const INVOICE_DIGITAL_SHIFT_ADDON_LINE_AR =
-  'إضافة برمجية متقدمة: المناوب الرقمي الذكي (Software Add-on)';
+  'إضافة المكتب الخاص (مساعد داخلي + مناوب شات · Software Add-on)';
 
 export const ZATCA_PLATFORM_PACKAGES_NOTE_AR =
-  'حزم رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية) B2B — برونزي/ذهبي/ماسي + Add-on المناوب البرمجي. لا عمولة على الحلاقة، والظهور برمجي عند الطلب.';
+  'حزم رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية) B2B — برونزي/ذهبي/ماسي + إضافة المكتب الخاص. لا عمولة على الحلاقة، والظهور برمجي عند الطلب.';
