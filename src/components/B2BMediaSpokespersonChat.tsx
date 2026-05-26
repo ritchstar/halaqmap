@@ -273,7 +273,7 @@ export function B2BMediaSpokespersonChat({
 
   const wrapClass = mode === 'inline'
     ? `relative w-full ${open ? 'z-[50]' : 'z-10'}`
-    : 'hidden sm:block fixed bottom-24 right-0 z-[49] md:bottom-6';
+    : 'hidden sm:block fixed bottom-24 left-0 z-[49] md:bottom-6';
 
   if (mode === 'panel' && minimized && !open) {
     return (
@@ -282,7 +282,7 @@ export function B2BMediaSpokespersonChat({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.7 }}
         onClick={() => { setMinimized(false); setOpen(true); }}
-        className="hidden sm:flex fixed bottom-6 right-4 z-[49] h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-400/60 bg-[#020912] shadow-[0_0_20px_rgba(34,211,238,0.35)]"
+        className="hidden sm:flex fixed bottom-6 left-4 z-[49] h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-400/60 bg-[#020912] shadow-[0_0_20px_rgba(34,211,238,0.35)]"
         title="المتحدث الإعلامي"
       >
         <Mic className="h-5 w-5 text-cyan-300" />

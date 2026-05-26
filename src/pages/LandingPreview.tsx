@@ -35,6 +35,116 @@ import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
 
+// ─── Left Agent Stack — ثلاثة ألسنة يسار ──────────────────────────────────
+function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
+  const agents = [
+    {
+      id: 'spokesperson',
+      emoji: '🎙️',
+      label: 'المتحدث',
+      title: 'المتحدث الإعلامي',
+      accentFrom: '#0e1e3a',
+      accentTo: '#0ea5e9',
+      border: 'rgba(14,165,233,0.42)',
+      glow: 'rgba(14,165,233,0.28)',
+      dot: '#38bdf8',
+      onClick: () => {
+        const btn = document.querySelector('[data-spokesperson-open]') as HTMLButtonElement | null;
+        btn?.click();
+      },
+    },
+    {
+      id: 'legal',
+      emoji: '⚖️',
+      label: 'الناظر',
+      title: 'الناظر القانوني',
+      accentFrom: '#1c1408',
+      accentTo: '#c9a227',
+      border: 'rgba(201,162,39,0.42)',
+      glow: 'rgba(201,162,39,0.22)',
+      dot: '#fbbf24',
+      onClick: () => navigate(ROUTE_PATHS.SUBSCRIPTION_POLICY),
+    },
+    {
+      id: 'saudi',
+      emoji: '🇸🇦',
+      label: 'سعودي',
+      title: 'سعودي — الوكيل الذكي',
+      accentFrom: '#0b2e14',
+      accentTo: '#22913f',
+      border: 'rgba(34,145,63,0.42)',
+      glow: 'rgba(201,162,39,0.18)',
+      dot: '#4ade80',
+      onClick: () => navigate(ROUTE_PATHS.SAUDI_AGENT),
+    },
+  ];
+
+  return (
+    <motion.div
+      className="pointer-events-none fixed left-0 z-[48] hidden sm:flex flex-col items-start gap-2"
+      style={{ top: '50%', transform: 'translateY(-50%)' }}
+      initial={{ opacity: 0, x: -30 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 1.2, type: 'spring', stiffness: 280, damping: 26 }}
+    >
+      {agents.map((agent, i) => (
+        <motion.button
+          key={agent.id}
+          type="button"
+          onClick={agent.onClick}
+          whileHover={{ x: 5, scale: 1.04 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 1.3 + i * 0.12, type: 'spring', stiffness: 300, damping: 28 }}
+          className="pointer-events-auto group relative flex flex-col items-center gap-1.5 py-3 px-2.5"
+          style={{
+            background: `linear-gradient(180deg,${agent.accentFrom} 0%,${agent.accentFrom}ee 50%,${agent.accentFrom} 100%)`,
+            border: `1.5px solid ${agent.border}`,
+            borderRight: 'none',
+            borderRadius: '0 0 0 14px',
+            boxShadow: `4px 0 20px ${agent.glow},0 0 10px ${agent.glow}`,
+          }}
+          title={agent.title}
+        >
+          {/* توهج نبضي */}
+          <motion.span
+            className="pointer-events-none absolute inset-0"
+            style={{ background: `${agent.accentTo}08`, borderRadius: 'inherit' }}
+            animate={{ opacity: [0.3, 0.8, 0.3] }}
+            transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.8 }}
+          />
+          {/* الإيموجي */}
+          <span
+            className="relative z-10 text-lg leading-none"
+            style={{ filter: `drop-shadow(0 0 5px ${agent.accentTo}90)` }}
+          >
+            {agent.emoji}
+          </span>
+          {/* نقطة حية */}
+          <motion.span
+            className="relative z-10 h-1.5 w-1.5 rounded-full"
+            style={{ background: agent.dot, boxShadow: `0 0 5px ${agent.dot}` }}
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.4 }}
+          />
+          {/* تسمية عمودية */}
+          <span
+            className="relative z-10 text-[0.5rem] font-black tracking-widest transition-colors"
+            style={{
+              writingMode: 'vertical-rl',
+              textOrientation: 'mixed',
+              color: `${agent.accentTo}aa`,
+            }}
+          >
+            {agent.label}
+          </span>
+        </motion.button>
+      ))}
+    </motion.div>
+  );
+}
+
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
   const [count, setCount] = useState(0);
@@ -357,58 +467,8 @@ export default function LandingPreview() {
       {/* أزرار عائمة للمستخدم */}
       <FloatingPlatformActions />
 
-      {/* ── زر سعودي — fixed يسار وسط الشاشة ── */}
-      <motion.div
-        className="hidden sm:block fixed left-0 z-[48]"
-        style={{ top: '50%', transform: 'translateY(-50%)' }}
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.6, type: 'spring', stiffness: 300, damping: 28 }}
-      >
-        <motion.button
-          type="button"
-          onClick={() => navigate(ROUTE_PATHS.SAUDI_AGENT)}
-          whileHover={{ x: 4 }}
-          whileTap={{ scale: 0.94 }}
-          dir="rtl"
-          className="group relative flex flex-col items-center gap-1.5 rounded-r-none rounded-l-2xl px-2 py-4"
-          style={{
-            background: 'linear-gradient(180deg,#0b2e14 0%,#0e3d1c 50%,#0b2e14 100%)',
-            border: '1.5px solid rgba(201,162,39,0.40)',
-            borderRight: 'none',
-            boxShadow: '-4px 0 28px rgba(26,110,59,0.35),0 0 12px rgba(201,162,39,0.15)',
-          }}
-        >
-          {/* نبض */}
-          <motion.span
-            className="absolute inset-0 rounded-l-2xl"
-            style={{ background: 'rgba(201,162,39,0.06)' }}
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          {/* العلم */}
-          <span
-            className="relative z-10 text-xl"
-            style={{ filter: 'drop-shadow(0 0 6px rgba(201,162,39,0.65))' }}
-          >
-            🇸🇦
-          </span>
-          {/* نقطة حية */}
-          <motion.span
-            className="h-1.5 w-1.5 rounded-full bg-emerald-400"
-            animate={{ opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 1.8, repeat: Infinity }}
-            style={{ boxShadow: '0 0 5px rgba(52,211,153,0.8)' }}
-          />
-          {/* تسمية عمودية */}
-          <span
-            className="text-[0.52rem] font-black tracking-widest text-yellow-400/65 group-hover:text-yellow-300 transition-colors"
-            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
-          >
-            سعودي
-          </span>
-        </motion.button>
-      </motion.div>
+      {/* ── ألسنة الوكلاء — يسار وسط الشاشة ── */}
+      <LeftAgentStack navigate={navigate} />
 
 
       {/* ── Grid background texture ──────────────────────────────────────── */}
