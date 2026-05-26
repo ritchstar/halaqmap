@@ -32,6 +32,7 @@ import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PartnerPromoVideoBand } from '@/components/partner/PartnerPromoVideoBand';
+import { B2BAmbientGlowField } from '@/components/b2b/B2BAmbientGlowField';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -189,6 +190,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         aria-hidden
       />
       <PlatformAmbientBackground variant="partner" />
+      <B2BAmbientGlowField />
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <header className="sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75">
           <div className="container mx-auto px-3 sm:px-4">
