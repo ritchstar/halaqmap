@@ -1254,7 +1254,7 @@ function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNa
 
   return (
     <section
-      id="عروض-التأسيس"
+      id="الأسعار"
       dir="rtl"
       className="relative z-10 overflow-hidden py-28"
       style={{ background: 'linear-gradient(180deg,#020a14 0%,#010810 55%,#020a14 100%)' }}
