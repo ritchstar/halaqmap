@@ -13,7 +13,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, Sparkles, Zap } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
 
@@ -82,6 +82,7 @@ function saving(tier: typeof TIERS[number], months: number): number {
 }
 
 export function LicenseRechargeWidget({ mode = 'register', showHeader = true, className = '' }: Props) {
+  const navigate = useNavigate();
   const [selectedTier, setSelectedTier] = useState<TierId>('diamond');
   const [months, setMonths] = useState(1);
 
@@ -98,6 +99,9 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
   const rechargeTo = `${ROUTE_PATHS.PAYMENT}?tier=${tierQuery}&qty=${months}${addonParam}`;
   const ctaTo = mode === 'recharge' ? rechargeTo : registerTo;
   const ctaLabel = mode === 'recharge' ? 'شحن الرصيد الآن' : 'سجّل وابدأ الآن';
+  const handleCta = () => {
+    navigate(ctaTo);
+  };
 
   return (
     <div dir="rtl" className={`relative overflow-hidden rounded-3xl ${className}`}
@@ -321,11 +325,12 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                 </div>
 
                 {/* زر CTA */}
-                <NavLink to={ctaTo}>
-                  <motion.div
+                <motion.button
+                    type="button"
+                    onClick={handleCta}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="relative overflow-hidden rounded-xl py-3.5 text-center text-sm font-black text-white cursor-pointer"
+                    className="relative w-full overflow-hidden rounded-xl py-3.5 text-center text-sm font-black text-white cursor-pointer"
                     style={{
                       background: `linear-gradient(135deg,${tier.accentFrom},${tier.accentTo})`,
                       boxShadow: `0 0 28px ${tier.glow},0 4px 14px ${tier.glow}`,
@@ -337,8 +342,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                       <ChevronRight className="h-4 w-4" />
                     </span>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
-                  </motion.div>
-                </NavLink>
+                </motion.button>
               </motion.div>
             </AnimatePresence>
           </div>
