@@ -357,6 +357,59 @@ export default function LandingPreview() {
       {/* أزرار عائمة للمستخدم */}
       <FloatingPlatformActions />
 
+      {/* ── زر سعودي — fixed يسار وسط الشاشة ── */}
+      <motion.div
+        className="hidden sm:block fixed left-0 z-[48]"
+        style={{ top: '50%', transform: 'translateY(-50%)' }}
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 1.6, type: 'spring', stiffness: 300, damping: 28 }}
+      >
+        <motion.button
+          type="button"
+          onClick={() => navigate(ROUTE_PATHS.SAUDI_AGENT)}
+          whileHover={{ x: 4 }}
+          whileTap={{ scale: 0.94 }}
+          dir="rtl"
+          className="group relative flex flex-col items-center gap-1.5 rounded-r-none rounded-l-2xl px-2 py-4"
+          style={{
+            background: 'linear-gradient(180deg,#0b2e14 0%,#0e3d1c 50%,#0b2e14 100%)',
+            border: '1.5px solid rgba(201,162,39,0.40)',
+            borderRight: 'none',
+            boxShadow: '-4px 0 28px rgba(26,110,59,0.35),0 0 12px rgba(201,162,39,0.15)',
+          }}
+        >
+          {/* نبض */}
+          <motion.span
+            className="absolute inset-0 rounded-l-2xl"
+            style={{ background: 'rgba(201,162,39,0.06)' }}
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          {/* العلم */}
+          <span
+            className="relative z-10 text-xl"
+            style={{ filter: 'drop-shadow(0 0 6px rgba(201,162,39,0.65))' }}
+          >
+            🇸🇦
+          </span>
+          {/* نقطة حية */}
+          <motion.span
+            className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.8, repeat: Infinity }}
+            style={{ boxShadow: '0 0 5px rgba(52,211,153,0.8)' }}
+          />
+          {/* تسمية عمودية */}
+          <span
+            className="text-[0.52rem] font-black tracking-widest text-yellow-400/65 group-hover:text-yellow-300 transition-colors"
+            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+          >
+            سعودي
+          </span>
+        </motion.button>
+      </motion.div>
+
 
       {/* ── Grid background texture ──────────────────────────────────────── */}
       <div
@@ -601,62 +654,7 @@ export default function LandingPreview() {
 
             {/* الرادار الجغرافي — أيقونة تحديد الموقع الرئيسية */}
             <div className="mb-8 flex w-full flex-col items-center gap-4">
-              {/* صف الرادار + وكيل سعودي */}
-              <div className="flex items-center gap-4">
-                <GeoRadarButton onLocationDetected={handleLocationDetected} />
-                {/* أيقونة وكيل سعودي — مكملة للرادار */}
-                <motion.button
-                  type="button"
-                  onClick={() => navigate(ROUTE_PATHS.SAUDI_AGENT)}
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.9, type: 'spring', stiffness: 320, damping: 26 }}
-                  className="group relative flex flex-col items-center gap-1.5"
-                  title="سعودي — الوكيل الذكي"
-                >
-                  {/* الأيقونة */}
-                  <div
-                    className="relative flex h-14 w-14 items-center justify-center rounded-2xl"
-                    style={{
-                      background: 'linear-gradient(135deg,#0b2e14 0%,#143d1e 50%,#0e2918 100%)',
-                      border: '1.5px solid rgba(201,162,39,0.45)',
-                      boxShadow: '0 0 22px rgba(26,110,59,0.40),0 0 8px rgba(201,162,39,0.20)',
-                    }}
-                  >
-                    {/* نبض حلقي */}
-                    <motion.span
-                      className="absolute inset-0 rounded-2xl border border-yellow-400/30"
-                      animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-                      transition={{ duration: 2.4, repeat: Infinity }}
-                    />
-                    {/* خط مسح دوراني ذهبي */}
-                    <motion.div
-                      className="pointer-events-none absolute inset-0 rounded-2xl"
-                      style={{ background: 'conic-gradient(from 0deg,transparent 80%,rgba(201,162,39,0.35) 100%)' }}
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-                    />
-                    {/* العلم */}
-                    <span className="relative z-10 text-2xl" style={{ filter: 'drop-shadow(0 0 6px rgba(201,162,39,0.7))' }}>
-                      🇸🇦
-                    </span>
-                    {/* نقطة حية */}
-                    <motion.span
-                      className="absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-[#020c14] bg-emerald-400"
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 1.8, repeat: Infinity }}
-                      style={{ boxShadow: '0 0 6px rgba(52,211,153,0.8)' }}
-                    />
-                  </div>
-                  {/* التسمية */}
-                  <span className="text-[0.6rem] font-black tracking-wider text-yellow-400/70 group-hover:text-yellow-300 transition-colors">
-                    سعودي
-                  </span>
-                </motion.button>
-              </div>
-
+              <GeoRadarButton onLocationDetected={handleLocationDetected} />
               {userLocation && filteredBarbers.length > 0 && (
                 <motion.button
                   initial={{ opacity: 0, y: 8 }}

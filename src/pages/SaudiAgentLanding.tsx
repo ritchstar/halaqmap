@@ -7,7 +7,9 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, ChevronDown, Sparkles, Globe2, BookOpen, MapPin } from 'lucide-react';
+import { Send, ChevronDown, Sparkles, Globe2, BookOpen, MapPin, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/lib';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
@@ -120,6 +122,7 @@ function StarField() {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function SaudiAgentLanding() {
+  const navigate = useNavigate();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
@@ -175,6 +178,21 @@ export default function SaudiAgentLanding() {
       style={{ background: 'linear-gradient(160deg,#0a1f0f 0%,#061510 40%,#0d1c08 70%,#0a1810 100%)' }}
     >
       <StarField />
+
+      {/* ── زر العودة للرئيسية ── */}
+      <motion.button
+        type="button"
+        onClick={() => navigate(ROUTE_PATHS.HOME)}
+        initial={{ opacity: 0, x: -12 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4 }}
+        whileHover={{ x: -3 }}
+        className="fixed top-5 right-5 z-50 flex items-center gap-2 rounded-2xl border border-yellow-500/30 bg-[#0a1f0f]/90 px-4 py-2.5 text-[0.75rem] font-bold text-yellow-300/80 backdrop-blur-md transition-all hover:border-yellow-400/55 hover:text-yellow-200"
+        style={{ boxShadow: '0 0 16px rgba(26,110,59,0.25)' }}
+      >
+        <ArrowRight className="h-4 w-4" />
+        العودة للرئيسية
+      </motion.button>
 
       {/* ── خلفية سديمية ── */}
       <div className="pointer-events-none absolute inset-0">
