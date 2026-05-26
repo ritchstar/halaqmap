@@ -30,12 +30,22 @@ import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackgroun
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
+import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
+import { LegalObserverChat } from '@/components/LegalObserverChat';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
 
+type LandingAgentPanel = 'media' | 'legal' | null;
+
 // ─── Left Agent Stack — ثلاثة ألسنة يسار ──────────────────────────────────
-function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
+function LeftAgentStack({
+  navigate,
+  onOpenPanel,
+}: {
+  navigate: ReturnType<typeof useNavigate>;
+  onOpenPanel: (panel: Exclude<LandingAgentPanel, null>) => void;
+}) {
   const agents = [
     {
       id: 'spokesperson',
@@ -47,7 +57,7 @@ function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate>
       border: 'rgba(14,165,233,0.42)',
       glow: 'rgba(14,165,233,0.28)',
       dot: '#38bdf8',
-      onClick: () => navigate(ROUTE_PATHS.BARBERS_LANDING),
+      onClick: () => onOpenPanel('media'),
     },
     {
       id: 'legal',
@@ -59,7 +69,7 @@ function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate>
       border: 'rgba(201,162,39,0.42)',
       glow: 'rgba(201,162,39,0.22)',
       dot: '#fbbf24',
-      onClick: () => navigate(ROUTE_PATHS.USER_PRIVACY_POLICY),
+      onClick: () => onOpenPanel('legal'),
     },
     {
       id: 'saudi',
@@ -138,6 +148,60 @@ function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate>
         </motion.button>
       ))}
     </motion.div>
+  );
+}
+
+function LandingAgentPanel({
+  activePanel,
+  onClose,
+}: {
+  activePanel: LandingAgentPanel;
+  onClose: () => void;
+}) {
+  return (
+    <AnimatePresence>
+      {activePanel ? (
+        <>
+          <motion.div
+            key="agent-panel-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[56] bg-black/45 backdrop-blur-[2px]"
+            onClick={onClose}
+          />
+          <motion.aside
+            key={activePanel}
+            dir="rtl"
+            initial={{ opacity: 0, x: -24, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -24, scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+            onClick={(e) => e.stopPropagation()}
+            className="fixed left-12 top-1/2 z-[57] w-[min(92vw,560px)] -translate-y-1/2"
+          >
+            <button
+              type="button"
+              onClick={onClose}
+              className="mb-2 rounded-xl border border-white/10 bg-black/70 px-3 py-1.5 text-xs font-bold text-slate-300 backdrop-blur-md hover:text-white"
+            >
+              إغلاق
+            </button>
+            {activePanel === 'media' ? (
+              <B2BMediaSpokespersonChat
+                key="landing-media-agent"
+                audience="consumer"
+                mode="inline"
+                collapseOnScroll={false}
+                defaultOpen
+              />
+            ) : (
+              <LegalObserverChat key="landing-legal-agent" page="سياسة الخصوصية" defaultOpen />
+            )}
+          </motion.aside>
+        </>
+      ) : null}
+    </AnimatePresence>
   );
 }
 
@@ -400,6 +464,7 @@ export default function LandingPreview() {
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
   const [filters, setFilters] = useState<FilterState>({ maxDistance: 5, tiers: [], openNow: false, minRating: 0, categories: [] });
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
+  const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const filteredBarbers = useMemo(() => {
@@ -464,7 +529,8 @@ export default function LandingPreview() {
       <FloatingPlatformActions />
 
       {/* ── ألسنة الوكلاء — يسار وسط الشاشة ── */}
-      <LeftAgentStack navigate={navigate} />
+      <LeftAgentStack navigate={navigate} onOpenPanel={setActiveAgentPanel} />
+      <LandingAgentPanel activePanel={activeAgentPanel} onClose={() => setActiveAgentPanel(null)} />
 
 
       {/* ── Grid background texture ──────────────────────────────────────── */}

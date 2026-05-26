@@ -18,7 +18,7 @@ import { Scale, X, Send, ChevronDown, Shield } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
-interface Props { page: string }
+interface Props { page: string; defaultOpen?: boolean }
 
 // ─── Legal gold color ─────────────────────────────────────────────────────────
 const GOLD = '#c9a227';
@@ -105,8 +105,8 @@ async function sendMsg(msg: string, history: Turn[], page: string): Promise<stri
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function LegalObserverChat({ page }: Props) {
-  const [open, setOpen] = useState(false);
+export function LegalObserverChat({ page, defaultOpen = false }: Props) {
+  const [open, setOpen] = useState(defaultOpen);
   const [pitchIdx, setPitchIdx] = useState(0);
   const [turns, setTurns] = useState<Turn[]>([
     {

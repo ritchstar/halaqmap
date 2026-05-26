@@ -172,15 +172,17 @@ export function B2BMediaSpokespersonChat({
   startMinimized = false,
   audience = 'partner',
   collapseOnScroll = true,
+  defaultOpen = false,
 }: {
   mode?: 'panel' | 'inline';
   startMinimized?: boolean;
   audience?: Audience;
   collapseOnScroll?: boolean;
+  defaultOpen?: boolean;
 }) {
   const navigate = useNavigate();
   const copy = useMemo(() => getAudienceCopy(audience), [audience]);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [pitchIdx, setPitchIdx] = useState(0);
   const [minimized, setMinimized] = useState(startMinimized);
   const [turns, setTurns] = useState<Turn[]>([
