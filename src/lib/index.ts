@@ -10,6 +10,8 @@ export const ROUTE_PATHS = {
   PARTNER_STORY: '/partners/story',
   /** فيديوهات تعليم الاشتراك للشركاء */
   PARTNER_TUTORIALS: '/partners/tutorials',
+  /** مجتمع ماب — مساحة تواصل مهنية للشركاء */
+  MAP_COMMUNITY: '/partners/community',
   REGISTER: '/partners/register',
   /** تسجيل اهتمام مسبق (بريد + موافقة) — ما قبل الإطلاق الرسمي */
   PARTNER_INTEREST: '/partners/interest',

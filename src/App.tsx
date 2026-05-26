@@ -34,6 +34,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import Payment from "@/pages/Payment";
 import PartnerSupportChat from "@/pages/PartnerSupportChat";
 import PartnerSubscriptionTutorials from "@/pages/PartnerSubscriptionTutorials";
+import MapCommunity from "@/pages/MapCommunity";
 import PartnerBannersPreviewLanding from "@/pages/PartnerBannersPreviewLanding";
 import RateBarber from "@/pages/RateBarber";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
@@ -147,6 +148,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<PartnerLayout><BarberPortalEnter /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><Payment /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<PartnerLayout><PartnerSubscriptionTutorials /></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.MAP_COMMUNITY} element={<PartnerLayout><MapCommunity /></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<PartnerLayout><PartnerSupportChat /></PartnerLayout>} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBERS_LANDING} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
