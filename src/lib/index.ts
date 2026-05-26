@@ -64,6 +64,8 @@ export const ROUTE_PATHS = {
   DIGITAL_SHIFT_FEATURE: '/partners/digital-shift',
   /** دليل إضافة المكتب الخاص — تعليمات الاستخدام المفصّلة */
   PRIVATE_OFFICE_GUIDE: '/partners/private-office-guide',
+  /** وكيل سعودي — الصفحة الرئيسية */
+  SAUDI_AGENT: '/saudi',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

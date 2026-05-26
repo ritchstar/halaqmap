@@ -47,6 +47,7 @@ import PrivateOfficeGuide from "@/pages/PrivateOfficeGuide";
 import LandingPreview from "@/pages/LandingPreview";
 import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
 import PlatformReviews from "@/pages/PlatformReviews";
+import SaudiAgentLanding from "@/pages/SaudiAgentLanding";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
@@ -105,6 +106,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.HOME} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<PlatformReviews />} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<CosmicShowcase />} />
+          <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<SaudiAgentLanding />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<DigitalShiftFeaturePage />} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<PrivateOfficeGuide />} />
 
