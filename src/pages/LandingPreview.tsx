@@ -47,7 +47,7 @@ function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate>
       border: 'rgba(14,165,233,0.42)',
       glow: 'rgba(14,165,233,0.28)',
       dot: '#38bdf8',
-      onClick: () => navigate(ROUTE_PATHS.LANDING_PARTNERS_PREVIEW),
+      onClick: () => navigate(ROUTE_PATHS.BARBERS_LANDING),
     },
     {
       id: 'legal',
@@ -59,7 +59,7 @@ function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate>
       border: 'rgba(201,162,39,0.42)',
       glow: 'rgba(201,162,39,0.22)',
       dot: '#fbbf24',
-      onClick: () => navigate(ROUTE_PATHS.SUBSCRIPTION_POLICY),
+      onClick: () => navigate(ROUTE_PATHS.PRIVACY_DETAILED),
     },
     {
       id: 'saudi',

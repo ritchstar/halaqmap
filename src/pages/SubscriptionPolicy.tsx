@@ -36,15 +36,15 @@ export default function SubscriptionPolicy() {
 
   const paymentMethods = [
     {
-      title: "ط´ط±ط§ط، ط­ط²ظ…ط© ط±ط®طµط© ط§ظ„ظ†ظپط§ط° ط§ظ„ط±ظ‚ظ…ظٹط© (ط¨ظˆط§ط¨ط© ظ…ظٹط³ط± Moyasar)",
+      title: "شراء حزمة رخصة النفاذ الرقمية (بوابة ميسر Moyasar)",
       description:
-        "ط§ظ„ط·ط±ظٹظ‚ط© ط§ظ„ظ…طھط§ط­ط© ظ„ط´ط±ط§ط، ط­ط²ظ… ط§ظ„ط±ط®طµط© ط§ظ„ط­ط§ظ„ظٹط©: ط¯ظپط¹ ظ„ظ…ط±ط© ظˆط§ط­ط¯ط© ط¹ط¨ط± ط¨ظˆط§ط¨ط© ظ…ظٹط³ط± (Moyasar) ط§ظ„ظ…ط¹طھظ…ط¯ط© ظˆظپظ‚ ط§ظ„ط£ظ†ط¸ظ…ط© ط§ظ„ظ…ط¹ظ…ظˆظ„ ط¨ظ‡ط§ ظپظٹ ط§ظ„ظ…ظ…ظ„ظƒط© â€” ط¨ط±ظˆظ†ط²ظٹ 100 ط±.ط³طŒ ط°ظ‡ط¨ظٹ 150 ط±.ط³طŒ ظ…ط§ط³ظٹ 200 ط±.ط³ â€” ظ„ظ…ط¯ط© 30 ظٹظˆظ…ط§ظ‹ ظ„ظƒظ„ ط­ط²ظ…ط©طŒ ط¯ظˆظ† طھط¬ط¯ظٹط¯ طھظ„ظ‚ط§ط¦ظٹ ط£ظˆ ط®طµظ… ط¯ظˆط±ظٹ. ظ„ظ„ظ…ط§ط³ظٹط©: ط¥ط¶ط§ظپط© آ«ط§ظ„ظ…ظ†ط§ظˆط¨ ط§ظ„ط±ظ‚ظ…ظٹ ط§ظ„ط°ظƒظٹآ» ط¥ط¶ط§ظپط© ط¨ط±ظ…ط¬ظٹط© ظ…طھظ‚ط¯ظ…ط© (Add-on) ط§ط®طھظٹط§ط±ظٹط© +25 ط±.ط³/ط­ط²ظ…ط© â€” ظ…ظ†ظپطµظ„ط© ط¹ظ† ط§ظ„ط±ط®طµط© ط§ظ„طھظ‚ظ†ظٹط©.",
+        "الطريقة المتاحة لشراء حزم الرخصة الحالية: دفع لمرة واحدة عبر بوابة ميسر (Moyasar) المعتمدة وفق الأنظمة المعمول بها في المملكة — برونزي 100 ر.س، ذهبي 150 ر.س، ماسي 200 ر.س — لمدة 30 يوماً لكل حزمة، دون تجديد تلقائي أو خصم دوري. للماسية: إضافة «المناوب الرقمي الذكي» إضافة برمجية متقدمة (Add-on) اختيارية +25 ر.س/حزمة — منفصلة عن الرخصة التقنية.",
       icon: CheckCircle2,
       benefits: [
-        "ط¯ظپط¹ ظ„ظ…ط±ط© ظˆط§ط­ط¯ط© ظ…ظ‚ط§ط¨ظ„ ط­ط²ظ…ط© ط±ط®طµط© ط´ظ‡ط±ظٹط© (30 ظٹظˆظ…ط§ظ‹) â€” ط¨ط±ظˆظ†ط²ظٹ 100 آ· ط°ظ‡ط¨ظٹ 150 آ· ظ…ط§ط³ظٹ 200 ط±.ط³ â€” ظƒظ…ط§ ظپظٹ ط¬ط¯ظˆظ„ ط§ظ„ط¨ط§ظ‚ط§طھ ط£ط¹ظ„ط§ظ‡",
-        "ظ„ط§ ظٹط®ط²ظ† ط§ظ„ظ…ظˆظ‚ط¹ ط±ظ‚ظ… ط§ظ„ط¨ط·ط§ظ‚ط© ط£ظˆ ط±ظ…ط² ط§ظ„ط£ظ…ط§ظ† â€” طھطھظ… ط§ظ„ظ…ط¹ط§ظ„ط¬ط© ظ„ط¯ظ‰ ظ…ط²ظˆط¯ ط§ظ„ط¯ظپط¹ ط§ظ„ظ…ط¹طھظ…ط¯",
-        "ط¥ظٹطµط§ظ„ ط¥ظ„ظƒطھط±ظˆظ†ظٹ ظˆط¥ط´ط¹ط§ط± ط¨ط±ظٹط¯ ط¨ط¹ط¯ ط¥طھظ…ط§ظ… ط§ظ„ط¯ظپط¹",
-        "طھظپط¹ظٹظ„ طھظ„ظ‚ط§ط¦ظٹ ط¹ط¨ط± ظ†ط¸ط§ظ… ط§ظ„ط±طµط¯ ط§ظ„ط°ظƒظٹ ط¨ط¹ط¯ ظ†ط¬ط§ط­ ط§ظ„ط¯ظپط¹ ظˆظ…ط¹ط§ظ„ط¬ط© ط§ظ„ظˆظٹط¨ ظ‡ظˆظƒ",
+        "دفع لمرة واحدة مقابل حزمة رخصة شهرية (30 يوماً) — برونزي 100 · ذهبي 150 · ماسي 200 ر.س — كما في جدول الباقات أعلاه",
+        "لا يخزن الموقع رقم البطاقة أو رمز الأمان — تتم المعالجة لدى مزود الدفع المعتمد",
+        "إيصال إلكتروني وإشعار بريد بعد إتمام الدفع",
+        "تفعيل تلقائي عبر نظام الرصد الذكي بعد نجاح الدفع ومعالجة الويب هوك",
       ],
     },
   ];
@@ -52,42 +52,42 @@ export default function SubscriptionPolicy() {
   const cancellationSteps = [
     {
       step: "1",
-      title: "ط§ظ†طھظ‡ط§ط، طµظ„ط§ط­ظٹط© ط­ط²ظ…ط© ط§ظ„ط±ط®طµط©",
-      description: "طھظ†طھظ‡ظٹ طµظ„ط§ط­ظٹط© ط§ظ„ط¥ط¯ط±ط§ط¬ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظپظٹ طھط§ط±ظٹط® ط§ظ†طھظ‡ط§ط، ط­ط²ظ…ط© ط§ظ„ط±ط®طµط© ط§ظ„ظ…ط¯ظپظˆط¹ ظ…ط³ط¨ظ‚ط§ظ‹ ط¯ظˆظ† طھط¬ط¯ظٹط¯ طھظ„ظ‚ط§ط¦ظٹ",
+      title: "انتهاء صلاحية حزمة الرخصة",
+      description: "تنتهي صلاحية الإدراج تلقائياً في تاريخ انتهاء حزمة الرخصة المدفوع مسبقاً دون تجديد تلقائي",
     },
     {
       step: "2",
-      title: "ط´ط±ط§ط، ط­ط²ظ…ط© ط±ط®طµط© ط¬ط¯ظٹط¯ط©",
-      description: "ظٹظ…ظƒظ† ط´ط±ط§ط، ط­ط²ظ…ط© ط±ط®طµط© ط¬ط¯ظٹط¯ط© ط£ظˆ ط§ط³طھط±ط¯ط§ط¯ ظƒظˆط¯ طھظپط¹ظٹظ„ ظ„ظ…ط¯ط© ط¥ط¶ط§ظپظٹط© ظˆظپظ‚ ط§ظ„ظ…ظ†طھط¬ ط§ظ„ظ…ط¹ط±ظˆط¶",
+      title: "شراء حزمة رخصة جديدة",
+      description: "يمكن شراء حزمة رخصة جديدة أو استرداد كود تفعيل لمدة إضافية وفق المنتج المعروض",
     },
     {
       step: "3",
-      title: "ط·ظ„ط¨ ط¥ظٹظ‚ط§ظپ ظ…ط¨ظƒط±",
-      description: "ظ„ط·ظ„ط¨ط§طھ ط®ط§طµط© ط¨ط§ظ„ط¥ظٹظ‚ط§ظپ ط£ظˆ ط§ظ„ط­ط°ظپطŒ طھظˆط§طµظ„ ظ…ط¹ ط§ظ„ط¯ط¹ظ… â€” ظ„ط§ ظٹطھط±طھط¨ ط§ط³طھط±ط¯ط§ط¯ ظ…ط§ظ„ظٹ ط¨ط¹ط¯ طھظپط¹ظٹظ„ ط­ط²ظ…ط© ط§ظ„ط±ط®طµط©",
+      title: "طلب إيقاف مبكر",
+      description: "لطلبات خاصة بالإيقاف أو الحذف، تواصل مع الدعم — لا يترتب استرداد مالي بعد تفعيل حزمة الرخصة",
     },
     {
       step: "4",
-      title: "ط¥ط®ظپط§ط، ظ…ظ† ظ†ط¸ط§ظ… ط§ظ„ط±طµط¯ ط§ظ„ط°ظƒظٹ",
-      description: "ط¨ط¹ط¯ ط§ظ†طھظ‡ط§ط، ط§ظ„طµظ„ط§ط­ظٹط© ظٹظڈط®ظپظ‰ ط§ظ„ظ…ط­ظ„ ظ…ظ† ظ†طھط§ط¦ط¬ ط§ظ„ط¨ط­ط« ط­طھظ‰ طھط¬ط¯ظٹط¯ ط­ط²ظ…ط© ط§ظ„ط±ط®طµط©",
+      title: "إخفاء من نظام الرصد الذكي",
+      description: "بعد انتهاء الصلاحية يُخفى المحل من نتائج البحث حتى تجديد حزمة الرخصة",
     },
   ];
 
   const refundPolicy = [
     {
-      condition: "ظ‚ط¨ظ„ طھظپط¹ظٹظ„ ظƒظˆط¯ ط­ط²ظ…ط© ط§ظ„ط±ط®طµط©",
-      refund: "ظ…ط±ط§ط¬ط¹ط© ط¥ط¯ط§ط±ظٹط© ط­ط³ط¨ ط§ظ„ط­ط§ظ„ط©",
+      condition: "قبل تفعيل كود حزمة الرخصة",
+      refund: "مراجعة إدارية حسب الحالة",
       icon: AlertCircle,
       color: "text-yellow-500",
     },
     {
-      condition: "ط¨ط¹ط¯ طھظپط¹ظٹظ„ ط­ط²ظ…ط© ط§ظ„ط±ط®طµط©",
-      refund: "ط؛ظٹط± ظ‚ط§ط¨ظ„ ظ„ظ„ط¥ظ„ط؛ط§ط، ط£ظˆ ط§ظ„ط§ط³طھط±ط¯ط§ط¯",
+      condition: "بعد تفعيل حزمة الرخصة",
+      refund: "غير قابل للإلغاء أو الاسترداد",
       icon: XCircle,
       color: "text-red-500",
     },
     {
-      condition: "ط®ظ„ظ„ طھظ‚ظ†ظٹ ط¨ط¹ط¯ ط§ظ„ط¯ظپط¹",
-      refund: "ط§ط³طھط±ط¯ط§ط¯ ظƒط§ظ…ظ„ ط£ظˆ طھظپط¹ظٹظ„ ظٹط¯ظˆظٹ",
+      condition: "خلل تقني بعد الدفع",
+      refund: "استرداد كامل أو تفعيل يدوي",
       icon: CheckCircle2,
       color: "text-green-500",
     },
@@ -95,26 +95,26 @@ export default function SubscriptionPolicy() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ظ‡ظٹط±ظˆ طھظƒطھظٹظƒظٹ */}
+      {/* هيرو تكتيكي */}
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-24">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,rgba(20,184,166,0.12),transparent_70%)]" />
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b from-transparent to-background" />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary">
-            âœ¦ ط³ظٹط§ط³ط© ط±ط®طµط© ط§ظ„ظ†ظپط§ط° ط§ظ„ط±ظ‚ظ…ظٹط©
+            ✦ سياسة رخصة النفاذ الرقمية
           </div>
           <h1 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-l from-primary via-accent to-primary bg-clip-text text-transparent">
-            ط´ط±ظˆط· ط´ط±ط§ط، ط­ط²ظ… ط±ط®طµط© ط§ظ„ظ†ظپط§ط° ط§ظ„ط±ظ‚ظ…ظٹط©
+            شروط شراء حزم رخصة النفاذ الرقمية
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            ظ†ظ„طھط²ظ… ط¨ط§ظ„ط´ظپط§ظپظٹط© ط§ظ„ظƒط§ظ…ظ„ط© ظپظٹ ط¨ظٹط¹ ط­ط²ظ… ط§ظ„ط±ط®طµط© ط§ظ„ط±ظ‚ظ…ظٹط© ظ…ط³ط¨ظ‚ط© ط§ظ„ط¯ظپط¹. ط§ظ‚ط±ط£ ظ‡ط°ظ‡ ط§ظ„ط³ظٹط§ط³ط© ط¨ط¹ظ†ط§ظٹط© ظ‚ط¨ظ„ ط§ظ„ط´ط±ط§ط، ط£ظˆ ط§ظ„طھط³ط¬ظٹظ„.
+            نلتزم بالشفافية الكاملة في بيع حزم الرخصة الرقمية مسبقة الدفع. اقرأ هذه السياسة بعناية قبل الشراء أو التسجيل.
           </p>
           <p className="mt-4 text-sm font-semibold text-primary/90 max-w-2xl mx-auto">
-            ظ‚ط¨ظ„ ط§ظ„ط´ط±ط§ط، â€” ط§ط³طھط´ط± ط§ظ„ظ†ط§ط¸ط± ط§ظ„ظ‚ط§ظ†ظˆظ†ظٹ âڑ–ï¸ڈ
+            قبل الشراء — استشر الناظر القانوني ⚖️
           </p>
           <div className="mt-8 mx-auto h-px max-w-xs bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           <div className="mt-8 max-w-3xl mx-auto text-right">
-            <LegalObserverChat page="ط³ظٹط§ط³ط© ط§ظ„ط§ط´طھط±ط§ظƒ" />
+            <LegalObserverChat page="سياسة الاشتراك" />
           </div>
         </div>
       </div>
@@ -138,14 +138,14 @@ export default function SubscriptionPolicy() {
         <motion.section variants={staggerItem} className="mb-16">
           <Card className="max-w-4xl mx-auto border-primary/30 bg-primary/5">
             <CardHeader>
-              <CardTitle className="text-xl text-center text-white">ط·ط¨ظٹط¹ط© ط§ظ„ط®ط¯ظ…ط© ظˆط§ظ„ظ…ظ†طھط¬ ط§ظ„ط±ظ‚ظ…ظٹ</CardTitle>
+              <CardTitle className="text-xl text-center">طبيعة الخدمة والمنتج الرقمي</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                طھظڈظ‚ط±ظ‘ ط§ظ„ظ…ظ†ط´ط£ط© ط§ظ„ظ…ط³طھظپظٹط¯ط© (طµط§ظ„ظˆظ† ط§ظ„ط­ظ„ط§ظ‚ط©) ط¨ط£ظ† ط§ظ„ظ…ظ†طھط¬ ط§ظ„ظ…ط´طھط±ظ‰ ط¹ط¨ط± ط§ظ„ظ…ظ†طµط© ظ‡ظˆ (ط­ط²ظ…ط© ط±ط®طµط© ظ„ط®ط¯ظ…ط§طھ ط¥ط¯ط±ط§ط¬ ط¨ط±ظ…ط¬ظٹط©
-                ظ…ظˆط­ط¯ط©) ط¹ظ„ظ‰ ظ†ط¸ط§ظ… ط§ظ„ط±طµط¯ ط§ظ„ط°ظƒظٹ ط§ظ„طھظپط§ط¹ظ„ظٹ ظ„ظ…ظ†طµط© (ط­ظ„ط§ظ‚ ظ…ط§ط¨). ظ‡ط°ط§ ط§ظ„ظ…ظ†طھط¬ ظ‡ظˆ ظ…ط³ط§ط­ط© ط¨ط±ظ…ط¬ظٹط© ظ…ط®طµطµط© ظˆظ…ط·ظˆط±ط© ظ„ط¹ط±ط¶ ط§ظ„ط¨ظٹط§ظ†ط§طھ
-                ط§ظ„ط¬ط؛ط±ط§ظپظٹط© ظˆط§ظ„ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„طھط´ط؛ظٹظ„ظٹط© ظ„ظ„طµط§ظ„ظˆظ†طŒ ظˆطھط­ط¯ظٹط«ظ‡ط§ طھظ‚ظ†ظٹظ‹ط§ ظ„ط±ط¨ط·ظ‡ ظˆط¥ط¯ط±ط§ط¬ ط¨ظٹط§ظ†ط§طھظ‡ ظ„ظ„ط¨ط§ط­ط«ظٹظ† ظپظٹ ظ…ط­ظٹط·ظ‡ ط§ظ„ط¬ط؛ط±ط§ظپظٹ.
-                طھظڈط¹ط¯ ظ‡ط°ظ‡ ط­ط²ظ… ط§ظ„ط±ط®طµط© ظ…ظ†طھط¬ط§طھ ط±ظ‚ظ…ظٹط© ظ…ط³ط¨ظ‚ط© ط§ظ„ط¯ظپط¹ ظˆط؛ظٹط± ظ‚ط§ط¨ظ„ط© ظ„ظ„ط¥ظ„ط؛ط§ط، ط£ظˆ ط§ظ„ط§ط³طھط±ط¯ط§ط¯ ط¨ط¹ط¯ ط§ظ„طھظپط¹ظٹظ„.
+                تُقرّ المنشأة المستفيدة (صالون الحلاقة) بأن المنتج المشترى عبر المنصة هو (حزمة رخصة لخدمات إدراج برمجية
+                موحدة) على نظام الرصد الذكي التفاعلي لمنصة (حلاق ماب). هذا المنتج هو مساحة برمجية مخصصة ومطورة لعرض البيانات
+                الجغرافية والمعلومات التشغيلية للصالون، وتحديثها تقنيًا لربطه وإدراج بياناته للباحثين في محيطه الجغرافي.
+                تُعد هذه حزم الرخصة منتجات رقمية مسبقة الدفع وغير قابلة للإلغاء أو الاسترداد بعد التفعيل.
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
                 {PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR}
@@ -155,7 +155,7 @@ export default function SubscriptionPolicy() {
         </motion.section>
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-black mb-4 text-center text-white">ط£ظ†ظˆط§ط¹ ط¨ط§ظ‚ط§طھ ط­ط²ظ… ط±ط®طµط© ط§ظ„ظ†ظپط§ط° ظˆط§ظ„ط£ط³ط¹ط§ط±</h2>
+          <h2 className="text-3xl font-black mb-4 text-center text-white">أنواع باقات حزم رخصة النفاذ والأسعار</h2>
           <p className="text-sm text-muted-foreground text-center max-w-3xl mx-auto mb-8 leading-relaxed">
             {SUBSCRIPTION_POLICY_TIERS_INTRO}
           </p>
@@ -169,10 +169,10 @@ export default function SubscriptionPolicy() {
                 <Card className="relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300">
                   <div className={`absolute top-0 left-0 right-0 h-2 ${tier.color}`} />
                   <CardHeader className="text-center pb-4">
-                    <CardTitle className="text-2xl mb-2 text-white">{tier.name}</CardTitle>
+                    <CardTitle className="text-2xl mb-2">{tier.name}</CardTitle>
                     <div className="flex items-baseline justify-center gap-2">
                       <span className="text-4xl font-bold text-primary">{tier.priceSar}</span>
-                      <span className="text-muted-foreground">ط±ظٹط§ظ„</span>
+                      <span className="text-muted-foreground">ريال</span>
                     </div>
                     <CardDescription>{tier.periodLabelAr}</CardDescription>
                   </CardHeader>
@@ -196,7 +196,7 @@ export default function SubscriptionPolicy() {
                                 </div>
                                 <CheckCircle2
                                   className="h-5 w-5 shrink-0 text-primary"
-                                  aria-label="ظ…ط´ظ…ظˆظ„"
+                                  aria-label="مشمول"
                                 />
                               </div>
                             </div>
@@ -224,7 +224,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-black mb-8 text-center text-white">ط·ط±ظ‚ ط§ظ„ط¯ظپط¹ ط§ظ„ظ…طھط§ط­ط©</h2>
+          <h2 className="text-3xl font-black mb-8 text-center text-white">طرق الدفع المتاحة</h2>
           <div className="max-w-2xl mx-auto">
             {paymentMethods.map((method, index) => (
               <motion.div
@@ -238,7 +238,7 @@ export default function SubscriptionPolicy() {
                       <div className="p-2 rounded-lg bg-primary/10">
                         <method.icon className="w-6 h-6 text-primary" />
                       </div>
-                      <CardTitle className="text-xl text-white">{method.title}</CardTitle>
+                      <CardTitle className="text-xl">{method.title}</CardTitle>
                     </div>
                     <CardDescription>{method.description}</CardDescription>
                   </CardHeader>
@@ -261,26 +261,26 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-black mb-4 text-center text-white">ط¹ط¯ظ… ط§ظ„طھط¬ط¯ظٹط¯ ط§ظ„طھظ„ظ‚ط§ط¦ظٹ</h2>
+          <h2 className="text-3xl font-black mb-4 text-center text-white">عدم التجديد التلقائي</h2>
           <Card className="max-w-3xl mx-auto">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">ط¯ظپط¹ ظ„ظ…ط±ط© ظˆط§ط­ط¯ط© ظپظ‚ط·</h3>
+                    <h3 className="font-semibold mb-1">دفع لمرة واحدة فقط</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      ظ„ط§ ظٹظˆط¬ط¯ طھط¬ط¯ظٹط¯ طھظ„ظ‚ط§ط¦ظٹ ط´ظ‡ط±ظٹ ظˆظ„ط§ ط®طµظ… ط¯ظˆط±ظٹ ظ…ظ† ط¨ط·ط§ظ‚طھظƒ. ظƒظ„ ط¹ظ…ظ„ظٹط© ط´ط±ط§ط، طھظ…ط«ظ„ ط­ط²ظ…ط©ظ‹ ط¨ط±ظ…ط¬ظٹط© ط±ظ‚ظ…ظٹط§ظ‹ ظ…ط³ط¨ظ‚ ط§ظ„ط¯ظپط¹ ط¨ظ…ط¯ط©
-                      ظ…ط­ط¯ط¯ط©.
+                      لا يوجد تجديد تلقائي شهري ولا خصم دوري من بطاقتك. كل عملية شراء تمثل حزمةً برمجية رقمياً مسبق الدفع بمدة
+                      محددة.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-6 h-6 text-yellow-500 shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">ط§ظ†طھظ‡ط§ط، ط§ظ„طµظ„ط§ط­ظٹط©</h3>
+                    <h3 className="font-semibold mb-1">انتهاء الصلاحية</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      ط¹ظ†ط¯ ط§ظ†طھظ‡ط§ط، ظ…ط¯ط© ط­ط²ظ…ط© ط±ط®طµط© ط§ظ„ظ†ظپط§ط° طھطھظˆظ‚ظپ طµظ„ط§ط­ظٹط© ط§ظ„ط§ط³طھط¬ط§ط¨ط© ط§ظ„ط¨ط±ظ…ط¬ظٹط© ط¶ظ…ظ† ظ†ط¸ط§ظ… ط§ظ„ط§ط³طھط¬ط§ط¨ط© ط§ظ„ط°ظƒظٹط© ط­طھظ‰ ط´ط±ط§ط، ط­ط²ظ…ط© ط¬ط¯ظٹط¯ط© ط£ظˆ ط§ط³طھط±ط¯ط§ط¯ ظƒظˆط¯ طھظپط¹ظٹظ„.
+                      عند انتهاء مدة حزمة رخصة النفاذ تتوقف صلاحية الاستجابة البرمجية ضمن نظام الاستجابة الذكية حتى شراء حزمة جديدة أو استرداد كود تفعيل.
                     </p>
                   </div>
                 </div>
@@ -292,7 +292,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-black mb-8 text-center text-white">ط§ظ†طھظ‡ط§ط، ط­ط²ظ…ط© ط±ط®طµط© ط§ظ„ظ†ظپط§ط° ظˆط¥ط¹ط§ط¯ط© ط§ظ„ط´ط±ط§ط،</h2>
+          <h2 className="text-3xl font-black mb-8 text-center text-white">انتهاء حزمة رخصة النفاذ وإعادة الشراء</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {cancellationSteps.map((item, index) => (
               <motion.div
@@ -305,7 +305,7 @@ export default function SubscriptionPolicy() {
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                       <span className="text-2xl font-bold text-primary">{item.step}</span>
                     </div>
-                    <CardTitle className="text-lg text-white">{item.title}</CardTitle>
+                    <CardTitle className="text-lg">{item.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">{item.description}</p>
@@ -319,7 +319,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-black mb-8 text-center text-white">ط³ظٹط§ط³ط© ط§ط³طھط±ط¯ط§ط¯ ط§ظ„ط£ظ…ظˆط§ظ„</h2>
+          <h2 className="text-3xl font-black mb-8 text-center text-white">سياسة استرداد الأموال</h2>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {refundPolicy.map((policy, index) => (
               <motion.div
@@ -330,7 +330,7 @@ export default function SubscriptionPolicy() {
                 <Card className="text-center h-full">
                   <CardHeader>
                     <policy.icon className={`w-12 h-12 mx-auto mb-3 ${policy.color}`} />
-                    <CardTitle className="text-lg text-white">{policy.condition}</CardTitle>
+                    <CardTitle className="text-lg">{policy.condition}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Badge variant="outline" className="text-base px-4 py-1">
@@ -344,19 +344,19 @@ export default function SubscriptionPolicy() {
           <Card className="mt-8 max-w-3xl mx-auto bg-muted/50">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground text-center">
-                <strong>ظ…ظ„ط§ط­ط¸ط© ظ‡ط§ظ…ط©:</strong> ط­ط²ظ… ط§ظ„ط±ط®طµط© ط§ظ„ط±ظ‚ظ…ظٹط© ظ…ط³ط¨ظ‚ط© ط§ظ„ط¯ظپط¹ ط؛ظٹط± ظ‚ط§ط¨ظ„ط© ظ„ظ„ط¥ظ„ط؛ط§ط، ط£ظˆ ط§ظ„ط§ط³طھط±ط¯ط§ط¯ ط¨ط¹ط¯ طھظپط¹ظٹظ„ ظƒظˆط¯ ط­ط²ظ…ط© ط§ظ„ط±ط®طµط©.
+                <strong>ملاحظة هامة:</strong> حزم الرخصة الرقمية مسبقة الدفع غير قابلة للإلغاء أو الاسترداد بعد تفعيل كود حزمة الرخصة.
               </p>
             </CardContent>
           </Card>
           <Card className="mt-8 max-w-3xl mx-auto border-primary/25">
             <CardHeader>
-              <CardTitle className="text-lg text-center">ط§ط³طھط±ط¯ط§ط¯ ظپظٹ ط­ط§ظ„ ط®ظ„ظ„ طھظ‚ظ†ظٹ ط¨ط¹ط¯ ظ†ط¬ط§ط­ ط§ظ„ط¯ظپط¹</CardTitle>
+              <CardTitle className="text-lg text-center">استرداد في حال خلل تقني بعد نجاح الدفع</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                ظپظٹ ط­ط§ظ„ ظ†ط¬ط§ط­ ط¹ظ…ظ„ظٹط© ط§ظ„ط¯ظپط¹ ظˆط¹ط¯ظ… طھظپط¹ظٹظ„ ط­ط²ظ…ط© ط§ظ„ط±ط®طµط© ط£ظˆ ظƒظˆط¯ ط§ظ„طھظپط¹ظٹظ„ ط¨ط³ط¨ط¨ ط®ظ„ظ„ ظپظ†ظٹطŒ ظٹظ„طھط²ظ… ط§ظ„ظ…ظˆظ‚ط¹ ط¨ظ…ط¹ط§ظ„ط¬ط© ط§ظ„ط·ظ„ط¨ ظˆط¥ط¹ط§ط¯ط©
-                ظƒط§ظ…ظ„ ط§ظ„ظ…ط¨ظ„ط؛ ظ„ظ„ط­ط³ط§ط¨ ط§ظ„ظ…طµط¯ط± ط®ظ„ط§ظ„ 7 ط¥ظ„ظ‰ 14 ظٹظˆظ… ط¹ظ…ظ„طŒ ظ…ط§ ظ„ظ… ظٹظپط¶ظ„ ط§ظ„ظ…ط´طھط±ظٹ طھظپط¹ظٹظ„ ط­ط²ظ…ط© ط§ظ„ط±ط®طµط© ظٹط¯ظˆظٹط§ظ‹ ط¹ط¨ط± ط§ظ„طھظˆط§طµظ„ ظ…ط¹
-                ط§ظ„ط¯ط¹ظ… ط§ظ„ظپظ†ظٹ.
+                في حال نجاح عملية الدفع وعدم تفعيل حزمة الرخصة أو كود التفعيل بسبب خلل فني، يلتزم الموقع بمعالجة الطلب وإعادة
+                كامل المبلغ للحساب المصدر خلال 7 إلى 14 يوم عمل، ما لم يفضل المشتري تفعيل حزمة الرخصة يدوياً عبر التواصل مع
+                الدعم الفني.
               </p>
             </CardContent>
           </Card>
@@ -400,7 +400,7 @@ export default function SubscriptionPolicy() {
             {SUBSCRIPTION_POLICY_PACKAGE_RENEWAL.items.map((item) => (
               <Card key={item.title} className="h-full">
                 <CardHeader>
-                  <CardTitle className="text-lg text-white">{item.title}</CardTitle>
+                  <CardTitle className="text-lg">{item.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground leading-relaxed">{item.body}</p>
@@ -413,27 +413,27 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-black mb-8 text-center text-white">ط§ظ„طھظˆط¶ظٹط­ ط§ظ„ط¶ط±ظٹط¨ظٹ ظˆط£ظ…ظ† ط§ظ„ظ…ط¯ظپظˆط¹ط§طھ</h2>
+          <h2 className="text-3xl font-black mb-8 text-center text-white">التوضيح الضريبي وأمن المدفوعات</h2>
           <div className="max-w-4xl mx-auto space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg text-white">ط§ظ„طھظˆط¶ظٹط­ ط§ظ„ط¶ط±ظٹط¨ظٹ (ط¶ط±ظٹط¨ط© ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط¶ط§ظپط©)</CardTitle>
+                <CardTitle className="text-lg">التوضيح الضريبي (ضريبة القيمة المضافة)</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                  ط¬ظ…ظٹط¹ ظ‚ظٹظ… ط­ط²ظ… ط§ظ„ط±ط®طµط© ط§ظ„ط±ظ‚ظ…ظٹط© ط§ظ„ظ…ظˆط¶ط­ط© ظ‡ظٹ ظ…ط¨ط§ظ„ط؛ ظ†ظ‡ط§ط¦ظٹط©طŒ ظˆظ„ط§ ظٹطھظ… طھط­طµظٹظ„ ط¶ط±ظٹط¨ط© ظ‚ظٹظ…ط© ظ…ط¶ط§ظپط© (VAT) ط­ط§ظ„ظٹط§ظ‹ ظ†ط¸ط±ط§ظ‹
-                  ظ„ط¹ط¯ظ… ظˆطµظˆظ„ ط§ظ„ظ…ط¤ط³ط³ط© ظ„ظ„ط­ط¯ ط§ظ„ط¥ظ„ط²ط§ظ…ظٹ ظ„ظ„طھط³ط¬ظٹظ„ ط§ظ„ط¶ط±ظٹط¨ظٹ.
+                  جميع قيم حزم الرخصة الرقمية الموضحة هي مبالغ نهائية، ولا يتم تحصيل ضريبة قيمة مضافة (VAT) حالياً نظراً
+                  لعدم وصول المؤسسة للحد الإلزامي للتسجيل الضريبي.
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg text-white">ط£ظ…ظ† ط§ظ„ظ…ط¯ظپظˆط¹ط§طھ ظˆط¨ظˆط§ط¨ط© ط§ظ„ط¯ظپط¹</CardTitle>
+                <CardTitle className="text-lg">أمن المدفوعات وبوابة الدفع</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                  ظٹطھظ… ظ…ط¹ط§ظ„ط¬ط© ط¬ظ…ظٹط¹ ط§ظ„ظ…ط¯ظپظˆط¹ط§طھ ط¹ط¨ط± ظ…ط²ظˆط¯ ط®ط¯ظ…ط© ط¯ظپط¹ ظ…ط±ط®طµ ظ…ظ† ط§ظ„ط¨ظ†ظƒ ط§ظ„ظ…ط±ظƒط²ظٹ ط§ظ„ط³ط¹ظˆط¯ظٹ (SAMA)طŒ ظˆظ„ط§ ظٹظ‚ظˆظ… ط§ظ„ظ…ظˆظ‚ط¹
-                  ط¨طھط®ط²ظٹظ† ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¨ط·ط§ظ‚ط§طھ ط§ظ„ط§ط¦طھظ…ط§ظ†ظٹط© ظ„ط¯ظٹظ‡.
+                  يتم معالجة جميع المدفوعات عبر مزود خدمة دفع مرخص من البنك المركزي السعودي (SAMA)، ولا يقوم الموقع
+                  بتخزين بيانات البطاقات الائتمانية لديه.
                 </p>
               </CardContent>
             </Card>
@@ -443,7 +443,7 @@ export default function SubscriptionPolicy() {
         <Separator className="my-16" />
 
         <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-black mb-8 text-center text-white">ط§ظ„ط´ط±ظˆط· ظˆط§ظ„ط£ط­ظƒط§ظ… ط§ظ„ط¹ط§ظ…ط©</h2>
+          <h2 className="text-3xl font-black mb-8 text-center text-white">الشروط والأحكام العامة</h2>
           <Card className="max-w-4xl mx-auto">
             <CardContent className="pt-6">
               <ul className="space-y-4">
@@ -452,7 +452,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">1</span>
                   </div>
                   <p className="text-sm">
-                    طھط­طھظپط¸ ظ…ظ†طµط© ط­ظ„ط§ظ‚ ظ…ط§ط¨ ط¨ط§ظ„ط­ظ‚ ظپظٹ طھط¹ط¯ظٹظ„ ط§ظ„ط£ط³ط¹ط§ط± ظˆط§ظ„ط¨ط§ظ‚ط§طھ ظ…ط¹ ط¥ط´ط¹ط§ط± ظ…ط³ط¨ظ‚ ظ„ظ…ط¯ط© 30 ظٹظˆظ…ط§ظ‹.
+                    تحتفظ منصة حلاق ماب بالحق في تعديل الأسعار والباقات مع إشعار مسبق لمدة 30 يوماً.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -460,7 +460,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">2</span>
                   </div>
                   <p className="text-sm">
-                    ظٹط¬ط¨ ط¹ظ„ظ‰ ط§ظ„ط­ظ„ط§ظ‚ ط§ظ„ط§ظ„طھط²ط§ظ… ط¨ظ…ط¹ط§ظٹظٹط± ط§ظ„ط¬ظˆط¯ط© ظˆط§ظ„ط§ط­طھط±ط§ظپظٹط©. ظ‚ط¯ ظٹطھظ… طھط¹ظ„ظٹظ‚ ط§ظ„ط­ط³ط§ط¨ ظپظٹ ط­ط§ظ„ط© ط§ظ„ظ…ط®ط§ظ„ظپط§طھ.
+                    يجب على الحلاق الالتزام بمعايير الجودة والاحترافية. قد يتم تعليق الحساب في حالة المخالفات.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -468,7 +468,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">3</span>
                   </div>
                   <p className="text-sm">
-                    ط§ظ„ظ…ظ†طµط© ط؛ظٹط± ظ…ط³ط¤ظˆظ„ط© ط¹ظ† ط¬ظˆط¯ط© ط§ظ„ط®ط¯ظ…ط§طھ ط§ظ„ظ…ظ‚ط¯ظ…ط© ظ…ظ† ط§ظ„ط­ظ„ط§ظ‚ظٹظ†. ط§ظ„ط¹ظ„ط§ظ‚ط© ط§ظ„طھط¹ط§ظ‚ط¯ظٹط© ظ…ط¨ط§ط´ط±ط© ط¨ظٹظ† ط§ظ„ط­ظ„ط§ظ‚ ظˆط§ظ„ط¹ظ…ظٹظ„.
+                    المنصة غير مسؤولة عن جودة الخدمات المقدمة من الحلاقين. العلاقة التعاقدية مباشرة بين الحلاق والعميل.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -476,10 +476,10 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">4</span>
                   </div>
                   <p className="text-sm">
-                    ظٹط´طھط±ط· ط§ظ„طھط£ط´ظٹط± ط¹ظ„ظ‰ طھط¹ظ‡ط¯ ط§ظ„ظ…ط´طھط±ظƒ ط¨ط£ظ† ظ…ظ†ط´ط£طھظ‡ ظ…ظ…طھط«ظ„ط© ظ„ط§ط´طھط±ط§ط·ط§طھ ط§ظ„ط¬ظ‡ط§طھ ط°ط§طھ ط§ظ„ط¹ظ„ط§ظ‚ط© ظ„ظ…ظ…ط§ط±ط³ط© ظ†ط´ط§ط· ط§ظ„ط­ظ„ط§ظ‚ط© ط¨ط´ظƒظ„
-                    ط±ط³ظ…ظٹطŒ ظˆط£ظ†ظ‡ ظٹطھط­ظ…ظ„ ظƒط§ظ…ظ„ ط§ظ„ظ…ط³ط¤ظˆظ„ظٹط© ط§ظ„ظ†ط¸ط§ظ…ظٹط© ط¹ظ† طµط­ط© ظ‡ط°ط§ ط§ظ„طھط¹ظ‡ط¯. طھطھظ… ظ…ط±ط§ط¬ط¹ط© ظ‡ط°ط§ ط§ظ„طھط¹ظ‡ط¯ طھظ‚ظ†ظٹط§ظ‹طŒ ظˆطھظڈط±ط³ظ„
-                    طھظ†ط¨ظٹظ‡ط§طھ طھظ‚ظ†ظٹط© ط¹ظ†ط¯ ط±طµط¯ ظ…ط®ط§ظ„ظپط§طھ ط£ظˆ طھط¬ط§ظˆط²ط§طھ ظپظٹ ط§ظ„ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ…ظ‚ط¯ظ…ط© ط£ظˆ ط§ظ„طµظˆط± ط£ظˆ ظ…ط­طھظˆظ‰ ط§ظ„ط´ط§طھ ط§ظ„ظƒطھط§ط¨ظٹطŒ
-                    ظˆظٹط¬ظˆط² ظ„ظ„ظ…ظ†طµط© ط±ظپط¶ ط§ظ„ط·ظ„ط¨ ط£ظˆ ط¥ظٹظ‚ط§ظپ ط­ط²ظ…ط© ط§ظ„ط±ط®طµط© ظپظˆط±ط§ظ‹ ظˆظپظ‚ ط§ظ„ط³ظٹط§ط³ط© ط§ظ„ظ…ط¹طھظ…ط¯ط©.
+                    يشترط التأشير على تعهد المشترك بأن منشأته ممتثلة لاشتراطات الجهات ذات العلاقة لممارسة نشاط الحلاقة بشكل
+                    رسمي، وأنه يتحمل كامل المسؤولية النظامية عن صحة هذا التعهد. تتم مراجعة هذا التعهد تقنياً، وتُرسل
+                    تنبيهات تقنية عند رصد مخالفات أو تجاوزات في المعلومات المقدمة أو الصور أو محتوى الشات الكتابي،
+                    ويجوز للمنصة رفض الطلب أو إيقاف حزمة الرخصة فوراً وفق السياسة المعتمدة.
                   </p>
                 </li>
                 <li className="flex items-start gap-3">
@@ -487,7 +487,7 @@ export default function SubscriptionPolicy() {
                     <span className="text-xs font-bold text-primary">5</span>
                   </div>
                   <p className="text-sm">
-                    ظپظٹ ط­ط§ظ„ط© ط§ظ„ظ†ط²ط§ط¹ط§طھطŒ ظٹطھظ… ط§ظ„ط±ط¬ظˆط¹ ط¥ظ„ظ‰ ط§ظ„ط£ظ†ط¸ظ…ط© ظˆط§ظ„ظ„ظˆط§ط¦ط­ ط§ظ„ظ…ط¹ظ…ظˆظ„ ط¨ظ‡ط§ ظپظٹ ط§ظ„ظ…ظ…ظ„ظƒط© ط§ظ„ط¹ط±ط¨ظٹط© ط§ظ„ط³ط¹ظˆط¯ظٹط©.
+                    في حالة النزاعات، يتم الرجوع إلى الأنظمة واللوائح المعمول بها في المملكة العربية السعودية.
                   </p>
                 </li>
               </ul>
@@ -495,38 +495,38 @@ export default function SubscriptionPolicy() {
           </Card>
         </motion.section>
 
-        {/* â•گâ•گ ط§ظ„ط¯ط¹ظ… ط§ظ„ظپظ†ظٹ â€” طھطµظ…ظٹظ… طھظ‚ظ†ظٹ ظ…طھظˆظ‡ط¬ â•گâ•گ */}
+        {/* ══ الدعم الفني — تصميم تقني متوهج ══ */}
         <motion.section variants={staggerItem} className="relative overflow-hidden rounded-3xl" dir="rtl"
           style={{
             background: 'linear-gradient(160deg,#040d1a 0%,#020810 50%,#040d1a 100%)',
             border: '1px solid rgba(20,184,166,0.14)',
           }}
         >
-          {/* ط¥ط¶ط§ط،ط© ظٹظ…ظٹظ† ظˆظٹط³ط§ط± â€” ط¹ط±ط¶ طھظ‚ظ†ظٹ */}
+          {/* إضاءة يمين ويسار — عرض تقني */}
           <div className="pointer-events-none absolute inset-0">
-            {/* ظٹظ…ظٹظ† */}
+            {/* يمين */}
             <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-teal-500/14 blur-[100px]" />
             <div className="absolute bottom-0 right-0 h-48 w-64 rounded-full bg-cyan-400/10 blur-[70px]" />
-            {/* ظٹط³ط§ط± */}
+            {/* يسار */}
             <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-violet-500/14 blur-[100px]" />
             <div className="absolute bottom-0 left-0 h-48 w-64 rounded-full bg-indigo-400/10 blur-[70px]" />
-            {/* ظˆط³ط· ط¹ظ„ظˆظٹ */}
+            {/* وسط علوي */}
             <div className="absolute top-0 left-1/2 h-32 w-96 -translate-x-1/2 rounded-full bg-teal-400/6 blur-[80px]" />
-            {/* ط®ط· ظ…ط³ط­ ظ…طھط­ط±ظƒ */}
+            {/* خط مسح متحرك */}
             <motion.div
               className="absolute inset-y-0 w-[30%] opacity-40"
               style={{ background: 'linear-gradient(90deg,transparent,rgba(20,184,166,0.06),transparent)' }}
               animate={{ x: ['-100%', '450%'] }}
               transition={{ duration: 8, repeat: Infinity, ease: 'linear', repeatDelay: 4 }}
             />
-            {/* ظ†ظ‚ط§ط· ط´ط¨ظƒظٹط© ط®ظ„ظپظٹط© */}
+            {/* نقاط شبكية خلفية */}
             <div className="absolute inset-0 opacity-[0.03]"
               style={{ backgroundImage: 'radial-gradient(circle,rgba(20,184,166,1) 1px,transparent 1px)', backgroundSize: '32px 32px' }}
             />
           </div>
 
           <div className="relative px-8 py-12">
-            {/* ط§ظ„ط±ط£ط³ظٹط© */}
+            {/* الرأسية */}
             <div className="mb-10 text-center">
               <motion.div
                 variants={fadeInUp}
@@ -536,53 +536,53 @@ export default function SubscriptionPolicy() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-400" />
                 </span>
-                ظ‚ظ†ظˆط§طھ ط§ظ„ط¯ط¹ظ… آ· ظ…طھط§ط­ط© ط§ظ„ط¢ظ†
+                قنوات الدعم · متاحة الآن
               </motion.div>
               <motion.h2
                 variants={fadeInUp}
                 className="text-3xl font-black text-white md:text-4xl"
                 style={{ textShadow: '0 0 40px rgba(20,184,166,0.25)' }}
               >
-                ط·ط±ظ‚ ط§ظ„ط¯ط¹ظ… ط§ظ„ظ…طھط§ط­ط©
+                طرق الدعم المتاحة
               </motion.h2>
               <motion.p variants={fadeInUp} className="mt-2 text-sm text-slate-400">
-                ظپط±ظٹظ‚ ط­ظ„ط§ظ‚ ظ…ط§ط¨ ط¬ط§ظ‡ط² ط¹ط¨ط± ط«ظ„ط§ط« ظ‚ظ†ظˆط§طھ â€” ط§ط®طھط± ط§ظ„ط£ظ†ط³ط¨ ظ„ظƒ
+                فريق حلاق ماب جاهز عبر ثلاث قنوات — اختر الأنسب لك
               </motion.p>
             </div>
 
-            {/* ط§ظ„ظƒط±ظˆطھ */}
+            {/* الكروت */}
             <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
               {[
                 {
                   icon: Phone,
-                  label: 'ط§ظ„ظ‡ط§طھظپ',
-                  badge: '10 طµ â€“ 5 ظ…',
+                  label: 'الهاتف',
+                  badge: '10 ص – 5 م',
                   value: `+${PARTNER_SUPPORT_PHONE_E164}`,
                   href: `tel:+${PARTNER_SUPPORT_PHONE_E164}`,
                   accentFrom: '#0f766e', accentTo: '#14b8a6',
                   border: 'rgba(20,184,166,0.35)', glow: 'rgba(20,184,166,0.20)',
-                  desc: 'طھط­ط¯ظ‘ط« ظ…ط¨ط§ط´ط±ط© ظ…ط¹ ظپط±ظٹظ‚ ط§ظ„ط¯ط¹ظ…',
+                  desc: 'تحدّث مباشرة مع فريق الدعم',
                 },
                 {
                   icon: MessageSquare,
-                  label: 'ظˆط§طھط³ط§ط¨',
-                  badge: 'ط±ط¯ ظپظˆط±ظٹ',
-                  value: 'ط±ط§ط³ظ„ظ†ط§ ط¹ظ„ظ‰ ظˆط§طھط³ط§ط¨',
+                  label: 'واتساب',
+                  badge: 'رد فوري',
+                  value: 'راسلنا على واتساب',
                   href: PARTNER_SUPPORT_WHATSAPP_URL,
                   accentFrom: '#166534', accentTo: '#22c55e',
                   border: 'rgba(34,197,94,0.35)', glow: 'rgba(34,197,94,0.20)',
-                  desc: 'ط£ط³ط±ط¹ ظ‚ظ†ط§ط© â€” ط±ط¯ ط®ظ„ط§ظ„ ط¯ظ‚ط§ط¦ظ‚',
+                  desc: 'أسرع قناة — رد خلال دقائق',
                   external: true,
                 },
                 {
                   icon: Mail,
-                  label: 'ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ',
-                  badge: 'ط®ظ„ط§ظ„ 24 ط³ط§ط¹ط©',
+                  label: 'البريد الإلكتروني',
+                  badge: 'خلال 24 ساعة',
                   value: PARTNER_SUPPORT_EMAIL,
                   href: `mailto:${PARTNER_SUPPORT_EMAIL}`,
                   accentFrom: '#1e1b4b', accentTo: '#818cf8',
                   border: 'rgba(129,140,248,0.35)', glow: 'rgba(129,140,248,0.20)',
-                  desc: 'ظ„ظ„ط§ط³طھظپط³ط§ط±ط§طھ ط§ظ„طھظپطµظٹظ„ظٹط© ظˆط§ظ„ظˆط«ط§ط¦ظ‚',
+                  desc: 'للاستفسارات التفصيلية والوثائق',
                 },
               ].map((ch, i) => (
                 <motion.a
@@ -600,13 +600,13 @@ export default function SubscriptionPolicy() {
                     boxShadow: `0 0 30px ${ch.glow},inset 0 1px 0 ${ch.border}`,
                   }}
                 >
-                  {/* طھظˆظ‡ط¬ hover */}
+                  {/* توهج hover */}
                   <div
                     className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                     style={{ background: `radial-gradient(ellipse 80% 80% at 50% 50%,${ch.accentTo}12,transparent)` }}
                   />
 
-                  {/* ط§ظ„ط£ظٹظ‚ظˆظ†ط© */}
+                  {/* الأيقونة */}
                   <div
                     className="relative flex h-14 w-14 items-center justify-center rounded-2xl"
                     style={{
@@ -616,7 +616,7 @@ export default function SubscriptionPolicy() {
                     }}
                   >
                     <ch.icon className="h-6 w-6" style={{ color: ch.accentTo }} />
-                    {/* ظ†ط¨ط¶ */}
+                    {/* نبض */}
                     <motion.div
                       className="absolute inset-0 rounded-2xl"
                       style={{ border: `1px solid ${ch.accentTo}`, opacity: 0 }}
@@ -625,7 +625,7 @@ export default function SubscriptionPolicy() {
                     />
                   </div>
 
-                  {/* ط§ظ„ط¨ط§ط¯ط¬ */}
+                  {/* البادج */}
                   <div
                     className="rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold"
                     style={{ background: `${ch.accentTo}20`, color: ch.accentTo, border: `1px solid ${ch.border}` }}
@@ -633,13 +633,13 @@ export default function SubscriptionPolicy() {
                     {ch.badge}
                   </div>
 
-                  {/* ط§ظ„ظ†طµ */}
+                  {/* النص */}
                   <div>
                     <p className="text-base font-black text-white">{ch.label}</p>
                     <p className="mt-0.5 text-[0.7rem] text-slate-400">{ch.desc}</p>
                   </div>
 
-                  {/* ط§ظ„ظ‚ظٹظ…ط© */}
+                  {/* القيمة */}
                   <p
                     className="break-all text-sm font-bold transition-colors group-hover:underline"
                     style={{ color: ch.accentTo }}
@@ -650,10 +650,10 @@ export default function SubscriptionPolicy() {
               ))}
             </div>
 
-            {/* ط®ط· طھظ‚ظ†ظٹ ط³ظپظ„ظٹ */}
+            {/* خط تقني سفلي */}
             <div className="mt-10 flex items-center justify-between gap-4">
               <div className="h-px flex-1" style={{ background: 'linear-gradient(to right,transparent,rgba(20,184,166,0.25),transparent)' }} />
-              <p className="text-[0.65rem] font-bold tracking-widest text-slate-600">HALAQ MAP آ· SUPPORT NETWORK</p>
+              <p className="text-[0.65rem] font-bold tracking-widest text-slate-600">HALAQ MAP · SUPPORT NETWORK</p>
               <div className="h-px flex-1" style={{ background: 'linear-gradient(to left,transparent,rgba(20,184,166,0.25),transparent)' }} />
             </div>
           </div>
@@ -666,19 +666,19 @@ export default function SubscriptionPolicy() {
         <motion.div variants={fadeInUp} className="mt-16 text-center space-y-6">
           <Card className="max-w-2xl mx-auto border-border/80">
             <CardHeader>
-              <CardTitle className="text-base">ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„طھط¬ط§ط±ظٹط© ظ„ظ„ظ…ظ†ط´ط£ط©</CardTitle>
+              <CardTitle className="text-base">البيانات التجارية للمنشأة</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">{LEGAL_TRADE_NAME_AR}</p>
               <p>
-                ط§ظ„ط±ظ‚ظ… ط§ظ„ظˆط·ظ†ظٹ ط§ظ„ظ…ظˆط­ط¯ ظ„ظ„ظ…ظ†ط´ط£ط©:{' '}
+                الرقم الوطني الموحد للمنشأة:{' '}
                 <span dir="ltr" className="font-mono">
                   {LEGAL_NATIONAL_UNIFIED_NUMBER}
                 </span>
               </p>
               {commercialReg ? (
                 <p>
-                  ط±ظ‚ظ… ط§ظ„ط³ط¬ظ„ ط§ظ„طھط¬ط§ط±ظٹ: <span dir="ltr">{commercialReg}</span>
+                  رقم السجل التجاري: <span dir="ltr">{commercialReg}</span>
                 </p>
               ) : null}
             </CardContent>
@@ -686,7 +686,7 @@ export default function SubscriptionPolicy() {
           <Card className="max-w-2xl mx-auto bg-muted/30">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">
-                ط¢ط®ط± طھط­ط¯ظٹط«: 4 ظ…ط§ظٹظˆ 2026 | ط¬ظ…ظٹط¹ ط§ظ„ط­ظ‚ظˆظ‚ ظ…ط­ظپظˆط¸ط© آ© 2026 ط­ظ„ط§ظ‚ ظ…ط§ط¨
+                آخر تحديث: 4 مايو 2026 | جميع الحقوق محفوظة © 2026 حلاق ماب
               </p>
             </CardContent>
           </Card>
