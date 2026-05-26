@@ -47,7 +47,7 @@ const partnerNavItems = [
   { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
   { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات رخصة النفاذ' },
-  { path: ROUTE_PATHS.MAP_COMMUNITY, label: 'مجتمع ماب' },
+  { path: ROUTE_PATHS.MAP_COMMUNITY, label: 'مجتمع ماب', Icon: MessageCircle },
   { path: ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW, label: 'البنرات والمناوب 🌙' },
   { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'الدعم الفني (واتساب)' },
@@ -269,7 +269,10 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               <nav className="flex max-w-[58%] flex-1 flex-wrap items-center justify-end gap-2 lg:max-w-none">
                 {navItems.map((item) => (
                   <NavLink key={item.path} to={item.path} className={({ isActive }) => desktopNavClass(isActive)}>
-                    {item.label}
+                    <span className="inline-flex items-center gap-1.5">
+                      {'Icon' in item && item.Icon ? <item.Icon className="h-3.5 w-3.5 text-emerald-300" /> : null}
+                      {item.label}
+                    </span>
                   </NavLink>
                 ))}
                 <PlatformAmbientToggle variant="partner" className="hidden xl:inline-flex" />
@@ -303,7 +306,10 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) => sheetNavClass(isActive)}
               >
-                {item.label}
+                <span className="flex items-center gap-2">
+                  {'Icon' in item && item.Icon ? <item.Icon className="h-4 w-4 text-emerald-300" /> : null}
+                  {item.label}
+                </span>
               </NavLink>
             ))}
             <NavLink
