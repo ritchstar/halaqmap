@@ -46,7 +46,7 @@ import {
   PARTNER_LANDING_WHY_SECTION,
 } from '@/lib/partnerMarketingCopy';
 import { generatePartnerSupportThreadToken } from '@/lib/partnerSupportChat';
-import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
+import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 
 function PartnerSupportStudioLink({ variant = 'hero' }: { variant?: 'hero' | 'footer' }) {
   const to = useMemo(() => `${ROUTE_PATHS.PARTNER_SUPPORT}?t=${generatePartnerSupportThreadToken()}`, []);
@@ -587,7 +587,7 @@ export default function BarberGrowthLanding() {
       {/* بطاقات حزم الرخصة الرقمية — متجر البرمجيات */}
       <section className="border-t border-border/60 bg-[#061223] py-14 md:py-18">
         <div className="container mx-auto px-4">
-          <ListingLicensePricingMatrix variant="standalone-dark" />
+          <LicenseRechargeWidget mode="register" />
         </div>
       </section>
 

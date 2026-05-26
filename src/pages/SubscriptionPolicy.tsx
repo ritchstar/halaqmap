@@ -495,60 +495,167 @@ export default function SubscriptionPolicy() {
           </Card>
         </motion.section>
 
-        <Separator className="my-16" />
+        {/* ══ الدعم الفني — تصميم تقني متوهج ══ */}
+        <motion.section variants={staggerItem} className="relative overflow-hidden rounded-3xl" dir="rtl"
+          style={{
+            background: 'linear-gradient(160deg,#040d1a 0%,#020810 50%,#040d1a 100%)',
+            border: '1px solid rgba(20,184,166,0.14)',
+          }}
+        >
+          {/* إضاءة يمين ويسار — عرض تقني */}
+          <div className="pointer-events-none absolute inset-0">
+            {/* يمين */}
+            <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-teal-500/14 blur-[100px]" />
+            <div className="absolute bottom-0 right-0 h-48 w-64 rounded-full bg-cyan-400/10 blur-[70px]" />
+            {/* يسار */}
+            <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-violet-500/14 blur-[100px]" />
+            <div className="absolute bottom-0 left-0 h-48 w-64 rounded-full bg-indigo-400/10 blur-[70px]" />
+            {/* وسط علوي */}
+            <div className="absolute top-0 left-1/2 h-32 w-96 -translate-x-1/2 rounded-full bg-teal-400/6 blur-[80px]" />
+            {/* خط مسح متحرك */}
+            <motion.div
+              className="absolute inset-y-0 w-[30%] opacity-40"
+              style={{ background: 'linear-gradient(90deg,transparent,rgba(20,184,166,0.06),transparent)' }}
+              animate={{ x: ['-100%', '450%'] }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'linear', repeatDelay: 4 }}
+            />
+            {/* نقاط شبكية خلفية */}
+            <div className="absolute inset-0 opacity-[0.03]"
+              style={{ backgroundImage: 'radial-gradient(circle,rgba(20,184,166,1) 1px,transparent 1px)', backgroundSize: '32px 32px' }}
+            />
+          </div>
 
-        <motion.section variants={staggerItem}>
-          <h2 className="text-3xl font-bold mb-8 text-center">الدعم الفني والشكاوى</h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <Phone className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">الهاتف</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-2">متاح من 10 صباحاً - 5 مساءً</p>
-                <a href={`tel:+${PARTNER_SUPPORT_PHONE_E164}`} className="text-primary hover:underline font-medium">
-                  +{PARTNER_SUPPORT_PHONE_E164}
-                </a>
-              </CardContent>
-            </Card>
+          <div className="relative px-8 py-12">
+            {/* الرأسية */}
+            <div className="mb-10 text-center">
+              <motion.div
+                variants={fadeInUp}
+                className="mb-3 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-xs font-bold tracking-wider text-teal-300"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-400" />
+                </span>
+                قنوات الدعم · متاحة الآن
+              </motion.div>
+              <motion.h2
+                variants={fadeInUp}
+                className="text-3xl font-black text-white md:text-4xl"
+                style={{ textShadow: '0 0 40px rgba(20,184,166,0.25)' }}
+              >
+                طرق الدعم المتاحة
+              </motion.h2>
+              <motion.p variants={fadeInUp} className="mt-2 text-sm text-slate-400">
+                فريق حلاق ماب جاهز عبر ثلاث قنوات — اختر الأنسب لك
+              </motion.p>
+            </div>
 
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <MessageSquare className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">واتساب</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-2">رد فوري خلال دقائق</p>
-                <a
-                  href={PARTNER_SUPPORT_WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline font-medium"
+            {/* الكروت */}
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+              {[
+                {
+                  icon: Phone,
+                  label: 'الهاتف',
+                  badge: '10 ص – 5 م',
+                  value: `+${PARTNER_SUPPORT_PHONE_E164}`,
+                  href: `tel:+${PARTNER_SUPPORT_PHONE_E164}`,
+                  accentFrom: '#0f766e', accentTo: '#14b8a6',
+                  border: 'rgba(20,184,166,0.35)', glow: 'rgba(20,184,166,0.20)',
+                  desc: 'تحدّث مباشرة مع فريق الدعم',
+                },
+                {
+                  icon: MessageSquare,
+                  label: 'واتساب',
+                  badge: 'رد فوري',
+                  value: 'راسلنا على واتساب',
+                  href: PARTNER_SUPPORT_WHATSAPP_URL,
+                  accentFrom: '#166534', accentTo: '#22c55e',
+                  border: 'rgba(34,197,94,0.35)', glow: 'rgba(34,197,94,0.20)',
+                  desc: 'أسرع قناة — رد خلال دقائق',
+                  external: true,
+                },
+                {
+                  icon: Mail,
+                  label: 'البريد الإلكتروني',
+                  badge: 'خلال 24 ساعة',
+                  value: PARTNER_SUPPORT_EMAIL,
+                  href: `mailto:${PARTNER_SUPPORT_EMAIL}`,
+                  accentFrom: '#1e1b4b', accentTo: '#818cf8',
+                  border: 'rgba(129,140,248,0.35)', glow: 'rgba(129,140,248,0.20)',
+                  desc: 'للاستفسارات التفصيلية والوثائق',
+                },
+              ].map((ch, i) => (
+                <motion.a
+                  key={ch.label}
+                  href={ch.href}
+                  target={ch.external ? '_blank' : undefined}
+                  rel={ch.external ? 'noopener noreferrer' : undefined}
+                  variants={fadeInUp}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  className="group relative flex flex-col items-center gap-4 overflow-hidden rounded-2xl p-6 text-center no-underline transition-all duration-300"
+                  style={{
+                    border: `1px solid ${ch.border}`,
+                    background: `linear-gradient(155deg,${ch.accentFrom}22 0%,#040d1a 55%,${ch.accentTo}10 100%)`,
+                    boxShadow: `0 0 30px ${ch.glow},inset 0 1px 0 ${ch.border}`,
+                  }}
                 >
-                  راسلنا على واتساب
-                </a>
-              </CardContent>
-            </Card>
+                  {/* توهج hover */}
+                  <div
+                    className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                    style={{ background: `radial-gradient(ellipse 80% 80% at 50% 50%,${ch.accentTo}12,transparent)` }}
+                  />
 
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <Mail className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">البريد الإلكتروني</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-2">رد خلال 24 ساعة</p>
-                <a href={`mailto:${PARTNER_SUPPORT_EMAIL}`} className="text-primary hover:underline font-medium">
-                  {PARTNER_SUPPORT_EMAIL}
-                </a>
-              </CardContent>
-            </Card>
+                  {/* الأيقونة */}
+                  <div
+                    className="relative flex h-14 w-14 items-center justify-center rounded-2xl"
+                    style={{
+                      background: `linear-gradient(135deg,${ch.accentFrom}40,${ch.accentTo}28)`,
+                      border: `1px solid ${ch.border}`,
+                      boxShadow: `0 0 20px ${ch.glow}`,
+                    }}
+                  >
+                    <ch.icon className="h-6 w-6" style={{ color: ch.accentTo }} />
+                    {/* نبض */}
+                    <motion.div
+                      className="absolute inset-0 rounded-2xl"
+                      style={{ border: `1px solid ${ch.accentTo}`, opacity: 0 }}
+                      animate={{ scale: [1, 1.4], opacity: [0.5, 0] }}
+                      transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.6 }}
+                    />
+                  </div>
+
+                  {/* البادج */}
+                  <div
+                    className="rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold"
+                    style={{ background: `${ch.accentTo}20`, color: ch.accentTo, border: `1px solid ${ch.border}` }}
+                  >
+                    {ch.badge}
+                  </div>
+
+                  {/* النص */}
+                  <div>
+                    <p className="text-base font-black text-white">{ch.label}</p>
+                    <p className="mt-0.5 text-[0.7rem] text-slate-400">{ch.desc}</p>
+                  </div>
+
+                  {/* القيمة */}
+                  <p
+                    className="break-all text-sm font-bold transition-colors group-hover:underline"
+                    style={{ color: ch.accentTo }}
+                  >
+                    {ch.value}
+                  </p>
+                </motion.a>
+              ))}
+            </div>
+
+            {/* خط تقني سفلي */}
+            <div className="mt-10 flex items-center justify-between gap-4">
+              <div className="h-px flex-1" style={{ background: 'linear-gradient(to right,transparent,rgba(20,184,166,0.25),transparent)' }} />
+              <p className="text-[0.65rem] font-bold tracking-widest text-slate-600">HALAQ MAP · SUPPORT NETWORK</p>
+              <div className="h-px flex-1" style={{ background: 'linear-gradient(to left,transparent,rgba(20,184,166,0.25),transparent)' }} />
+            </div>
           </div>
         </motion.section>
 
