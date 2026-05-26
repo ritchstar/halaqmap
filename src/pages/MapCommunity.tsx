@@ -27,6 +27,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { resolveAdminAccess } from '@/lib/adminAccessRemote';
+import { ROUTE_PATHS } from '@/lib';
+import { Link } from 'react-router-dom';
 
 type CommunityMessage = {
   id: string;
@@ -45,10 +49,11 @@ type CommunityVideo = {
   views: string;
 };
 
-const currentBarber = {
-  name: 'صالون الندى',
-  isVerified: true,
-};
+type CommunityAccess =
+  | { status: 'checking' }
+  | { status: 'nologin' }
+  | { status: 'denied'; email: string | null }
+  | { status: 'allowed'; role: 'admin' | 'barber'; name: string; isVerified: boolean; email: string | null };
 
 const badWords = ['سب', 'قذف', 'عنصري', 'إهانة', 'فضيحة'];
 
@@ -145,6 +150,7 @@ async function askMapAssistant(message: string, history: CommunityMessage[]) {
 }
 
 export default function MapCommunity() {
+  const [access, setAccess] = useState<CommunityAccess>({ status: 'checking' });
   const [messages, setMessages] = useState<CommunityMessage[]>(starterMessages);
   const [draft, setDraft] = useState('');
   const [aiThinking, setAiThinking] = useState(false);
@@ -152,6 +158,70 @@ export default function MapCommunity() {
   const seq = useRef(0);
 
   const socketMode = Boolean(import.meta.env.VITE_MAP_COMMUNITY_SOCKET_URL);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      if (!isSupabaseConfigured()) {
+        if (!cancelled) setAccess({ status: 'denied', email: null });
+        return;
+      }
+
+      const client = getSupabaseClient();
+      if (!client) {
+        if (!cancelled) setAccess({ status: 'denied', email: null });
+        return;
+      }
+
+      const { data: sessionData } = await client.auth.getSession();
+      const user = sessionData.session?.user;
+      const email = user?.email ?? null;
+      if (!user || !email) {
+        if (!cancelled) setAccess({ status: 'nologin' });
+        return;
+      }
+
+      const admin = await resolveAdminAccess(email);
+      if (admin.allowed) {
+        if (!cancelled) {
+          setAccess({
+            status: 'allowed',
+            role: 'admin',
+            name: admin.displayName || 'مشرف حلاق ماب',
+            isVerified: true,
+            email,
+          });
+        }
+        return;
+      }
+
+      const { data: barber } = await client
+        .from('barbers')
+        .select('name, is_active, is_verified')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (barber?.is_active === true) {
+        if (!cancelled) {
+          setAccess({
+            status: 'allowed',
+            role: 'barber',
+            name: String(barber.name || 'حلاق ماب'),
+            isVerified: Boolean(barber.is_verified),
+            email,
+          });
+        }
+        return;
+      }
+
+      if (!cancelled) setAccess({ status: 'denied', email });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -192,7 +262,7 @@ export default function MapCommunity() {
     }
 
     const userMessage: Omit<CommunityMessage, 'id' | 'timestamp'> = {
-      author: currentBarber.name,
+      author: access.status === 'allowed' ? access.name : 'زائر',
       role: 'barber',
       content,
     };
@@ -210,7 +280,48 @@ export default function MapCommunity() {
     if (ai.shouldReply && ai.reply) {
       pushMessage({ author: 'مساعد ماب', role: 'ai', content: ai.reply });
     }
-  }, [aiThinking, draft, messages, pushMessage]);
+  }, [access, aiThinking, draft, messages, pushMessage]);
+
+  if (access.status === 'checking') {
+    return (
+      <div dir="rtl" className="flex min-h-[70vh] items-center justify-center bg-[#0a0f0d] px-4 text-white">
+        <div className="rounded-3xl border border-emerald-400/20 bg-slate-950/80 p-8 text-center shadow-[0_0_45px_rgba(16,185,129,0.12)]">
+          <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-emerald-400/30" />
+          <p className="font-black">جاري التحقق من صلاحية الدخول لمجتمع ماب…</p>
+          <p className="mt-2 text-sm text-slate-500">المجتمع مخصص لمنسوبي حلاق ماب فقط.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (access.status === 'nologin' || access.status === 'denied') {
+    return (
+      <div dir="rtl" className="relative min-h-[70vh] overflow-hidden bg-[#0a0f0d] px-4 py-12 text-white">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute right-1/4 top-10 h-80 w-80 rounded-full bg-emerald-500/10 blur-[110px]" />
+          <div className="absolute left-1/4 bottom-0 h-80 w-80 rounded-full bg-cyan-500/10 blur-[120px]" />
+        </div>
+        <div className="relative mx-auto max-w-2xl rounded-3xl border border-amber-400/25 bg-slate-950/80 p-8 text-center shadow-[0_0_55px_rgba(245,158,11,0.12)] backdrop-blur-xl">
+          <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-amber-300" />
+          <h1 className="text-2xl font-black">مجتمع ماب مخصص لمنسوبي حلاق ماب</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-slate-400">
+            لا يمكن الدخول لغير الإداريين والمشرفين والحلاقين المفعّلين داخل منصة حلاق ماب. سجّل دخولك بالحساب المرتبط بالمنصة أو فعّل رخصة النفاذ أولاً.
+          </p>
+          {access.status === 'denied' && access.email ? (
+            <p className="mt-3 text-xs text-slate-600">الحساب الحالي: {access.email}</p>
+          ) : null}
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button asChild className="bg-emerald-500 text-black hover:bg-emerald-400">
+              <Link to={ROUTE_PATHS.BARBER_LOGIN}>دخول الحلاق</Link>
+            </Button>
+            <Button asChild variant="outline" className="border-amber-400/35 bg-amber-500/10 text-amber-100">
+              <Link to={ROUTE_PATHS.REGISTER}>تفعيل رخصة النفاذ</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -277,7 +388,7 @@ export default function MapCommunity() {
               </h2>
               <p className="mt-1 text-xs text-slate-500">فيديوهات قصيرة لا تتجاوز دقيقة واحدة</p>
             </div>
-            {currentBarber.isVerified ? (
+            {access.isVerified ? (
               <Button className="gap-2 border border-emerald-400/30 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25">
                 <UploadCloud className="h-4 w-4" />
                 رفع فيديو

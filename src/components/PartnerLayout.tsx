@@ -8,6 +8,7 @@ import {
   LogIn,
   Mail,
   Menu,
+  MessageCircle,
   Phone,
   UserPlus,
 } from 'lucide-react';
@@ -57,6 +58,7 @@ const partnerNavItems = [
 
 const partnerBottomNav = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الرئيسية', Icon: Home },
+  { path: ROUTE_PATHS.MAP_COMMUNITY, label: 'مجتمع', Icon: MessageCircle },
   { path: ROUTE_PATHS.REGISTER, label: 'تسجيل', Icon: UserPlus },
   { path: ROUTE_PATHS.BARBER_LOGIN, label: 'دخول', Icon: LogIn },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم', Icon: Headphones },
@@ -317,6 +319,30 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       </Sheet>
 
       <PartnerPromoVideoBand />
+
+      {location.pathname !== ROUTE_PATHS.MAP_COMMUNITY ? (
+        <div className="relative z-10 border-b border-emerald-400/10 bg-[#061223]/70 px-3 py-3 backdrop-blur-md">
+          <div className="container mx-auto">
+            <NavLink
+              to={ROUTE_PATHS.MAP_COMMUNITY}
+              className="group flex items-center justify-between gap-3 rounded-2xl border border-emerald-400/25 bg-gradient-to-l from-emerald-500/12 via-cyan-500/8 to-transparent px-4 py-3 text-right transition-all hover:border-emerald-300/45 hover:bg-emerald-500/16"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/30 bg-emerald-500/12 text-emerald-200">
+                  <MessageCircle className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-black text-emerald-50">مجتمع ماب — مساحة الحلاقين المهنية</p>
+                  <p className="truncate text-xs text-slate-400">فيديوهات قصيرة · Map Chat · مساعد ماب لتطوير الصالونات</p>
+                </div>
+              </div>
+              <span className="shrink-0 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-[0.65rem] font-bold text-cyan-200 group-hover:text-white">
+                دخول المجتمع
+              </span>
+            </NavLink>
+          </div>
+        </div>
+      ) : null}
 
       <main className="relative z-10 min-h-0 w-full flex-1">{children}</main>
 
