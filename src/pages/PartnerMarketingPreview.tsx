@@ -266,18 +266,25 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
                 {/* الفاصل */}
                 <div className="h-px" style={{ background: `linear-gradient(90deg,transparent,${tier.border},transparent)` }} />
 
-                {/* التوفير لكل باقة */}
+                {/* التوفير — الأرقام تتحدث */}
                 <div className="grid grid-cols-2 gap-2">
                   {plans.map(plan => (
                     <div
                       key={plan.name}
-                      className="flex items-center justify-between rounded-xl px-3 py-2"
-                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                      className="flex flex-col items-center justify-center rounded-2xl py-3"
+                      style={{
+                        background: `${plan.color}10`,
+                        border: `1px solid ${plan.color}30`,
+                      }}
                     >
-                      <span className="text-[0.6rem] text-slate-500">{plan.emoji} {plan.name}</span>
-                      <span className="font-mono text-xs font-black tabular-nums" style={{ color: plan.color }}>
-                        {(plan.price * tier.n).toLocaleString('ar-SA')} ر.س
+                      <span className="text-base leading-none">{plan.emoji}</span>
+                      <span
+                        className="mt-1.5 font-mono text-xl font-black tabular-nums leading-none"
+                        style={{ color: plan.color, textShadow: `0 0 16px ${plan.color}60` }}
+                      >
+                        {(plan.price * tier.n).toLocaleString('ar-SA')}
                       </span>
+                      <span className="mt-0.5 text-[0.58rem] font-bold text-slate-500">ر.س</span>
                     </div>
                   ))}
                 </div>
