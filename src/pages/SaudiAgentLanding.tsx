@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, ChevronDown, Sparkles, Globe2, BookOpen, MapPin, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
+import { SaudiBackground } from '@/components/SaudiBackground';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
@@ -123,6 +124,7 @@ function StarField() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function SaudiAgentLanding() {
   const navigate = useNavigate();
+  const [chatEvent, setChatEvent] = useState<'sent' | 'received' | null>(null);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
@@ -154,10 +156,14 @@ export default function SaudiAgentLanding() {
     const next = [...turns, userTurn];
     setTurns(next);
     setLoading(true);
+    setChatEvent('sent');
+    setTimeout(() => setChatEvent(null), 600);
 
     const reply = await sendMsg(msg, next);
     setTurns((p) => [...p, { role: 'assistant', content: reply, id: `a-${++seq.current}` }]);
     setLoading(false);
+    setChatEvent('received');
+    setTimeout(() => setChatEvent(null), 800);
     setTimeout(() => textRef.current?.focus(), 100);
   }, [draft, loading, turns]);
 
@@ -174,10 +180,10 @@ export default function SaudiAgentLanding() {
   return (
     <div
       dir="rtl"
-      className="relative min-h-screen overflow-x-hidden"
-      style={{ background: 'linear-gradient(160deg,#0a1f0f 0%,#061510 40%,#0d1c08 70%,#0a1810 100%)' }}
+      className="relative min-h-screen overflow-x-hidden bg-[#040d08]"
     >
-      <StarField />
+      {/* الخلفية التفاعلية */}
+      <SaudiBackground chatEvent={chatEvent} />
 
       {/* ── زر العودة للرئيسية ── */}
       <motion.button
