@@ -14,35 +14,101 @@ import { SaudiBackground } from '@/components/SaudiBackground';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
+type AgentId = 'saudi' | 'saudia';
 
 // ─── Quick Prompts ───────────────────────────────────────────────────────────
-const QUICK_TOPICS = [
-  { label: '🏆 كأس العالم ٢٠٣٤', prompt: 'حدثني عن استضافة المملكة لكأس العالم ٢٠٣٤' },
-  { label: '🌆 إكسبو ٢٠٣٠', prompt: 'وش هو إكسبو ٢٠٣٠ الرياض؟ شفّلي تفاصيله' },
-  { label: '🏗️ مشروع نيوم', prompt: 'قولي عن نيوم وذا لاين' },
-  { label: '📜 تاريخ المملكة', prompt: 'احكيلي عن تأسيس المملكة العربية السعودية من البداية' },
-  { label: '🌴 العُلا والحجر', prompt: 'وش في العُلا؟ أبي أسافر لها' },
-  { label: '👀 رؤية ٢٠٣٠', prompt: 'شرحلي رؤية ٢٠٣٠ وش تبي تحقق؟' },
-  { label: '🦅 رموز الوطن', prompt: 'حدثني عن رموز المملكة العربية السعودية' },
-  { label: '✂️ حلاق ماب', prompt: 'وش هي منصة حلاق ماب؟' },
-];
+const QUICK_TOPICS: Record<AgentId, { label: string; prompt: string }[]> = {
+  saudi: [
+    { label: '🏆 كأس العالم ٢٠٣٤', prompt: 'حدثني عن استضافة المملكة لكأس العالم ٢٠٣٤' },
+    { label: '🌆 إكسبو ٢٠٣٠', prompt: 'وش هو إكسبو ٢٠٣٠ الرياض؟ شفّلي تفاصيله' },
+    { label: '🏗️ مشروع نيوم', prompt: 'قولي عن نيوم وذا لاين' },
+    { label: '📜 تاريخ المملكة', prompt: 'احكيلي عن تأسيس المملكة العربية السعودية من البداية' },
+    { label: '👀 رؤية ٢٠٣٠', prompt: 'شرحلي رؤية ٢٠٣٠ وش تبي تحقق؟' },
+    { label: '✂️ حلاق ماب', prompt: 'وش هي منصة حلاق ماب؟' },
+  ],
+  saudia: [
+    { label: '🌴 العُلا والحجر', prompt: 'يا سعودية، أبي تجربة سياحية في العلا' },
+    { label: '🎭 موسم الرياض', prompt: 'وش يميز موسم الرياض؟' },
+    { label: '👗 الأزياء السعودية', prompt: 'حدثيني عن الأزياء السعودية والتراثية' },
+    { label: '🍽️ المطبخ السعودي', prompt: 'وش أشهر الأكلات السعودية وقصصها؟' },
+    { label: '🎶 الفنون الشعبية', prompt: 'قولي لي عن العرضة والسامري والفنون السعودية' },
+    { label: '🌊 وجهات سياحية', prompt: 'اقترحي لي وجهات سياحية سعودية جميلة' },
+  ],
+};
 
 // ─── Saudi Greetings carousel ────────────────────────────────────────────────
-const GREETINGS = [
-  'يا هلا والله ومسهلا بك 🇸🇦',
-  'الله يحييك وين ما كنت 🌴',
-  'أبشر بسعدك يا صديقي 🤝',
-  'هلا هلا — شرّفت وزيّنت 🌟',
-];
+const GREETINGS: Record<AgentId, string[]> = {
+  saudi: [
+    'يا هلا والله ومسهلا بك 🇸🇦',
+    'الله يحييك وين ما كنت 🌴',
+    'أبشر بسعدك يا صديقي 🤝',
+    'هلا هلا — شرّفت وزيّنت 🌟',
+  ],
+  saudia: [
+    'يا هلا وغلا بك يا ذوق 🌸',
+    'حياك الله في ديرتك 🇸🇦',
+    'أبشر بسعدك طال عمرك ✨',
+    'نورتي/نورت المكان يا مرحبا 💜',
+  ],
+};
+
+const AGENT_COPY: Record<AgentId, {
+  name: string;
+  avatar: string;
+  title: string;
+  subtitle: string;
+  field: string;
+  activeLabel: string;
+  primary: string;
+  secondary: string;
+  border: string;
+  panelBg: string;
+  userBubble: string;
+  assistantBubble: string;
+  placeholder: string;
+}> = {
+  saudi: {
+    name: 'سعودي',
+    avatar: '🇸🇦',
+    title: 'سعودي 🤝',
+    subtitle: 'التاريخ · الأنظمة · المشاريع الكبرى',
+    field: 'يتولى التاريخ العريق، الأنظمة، الاتفاقيات، نيوم وذا لاين',
+    activeLabel: 'سعودي يكتب',
+    primary: '#22c55e',
+    secondary: '#c9a227',
+    border: 'rgba(201,162,39,0.30)',
+    panelBg: 'linear-gradient(160deg,rgba(26,110,59,0.12) 0%,rgba(6,21,16,0.95) 40%,rgba(13,28,8,0.98) 100%)',
+    userBubble: 'border border-yellow-500/20 bg-gradient-to-br from-yellow-900/20 to-yellow-950/15 text-yellow-50',
+    assistantBubble: 'border border-green-500/20 bg-gradient-to-br from-green-900/25 to-green-950/15 text-green-50',
+    placeholder: 'اكتب سؤالك عن التاريخ، نيوم، الأنظمة، رؤية ٢٠٣٠…',
+  },
+  saudia: {
+    name: 'سعودية',
+    avatar: '🌸',
+    title: 'سعودية 🌸',
+    subtitle: 'الثقافة · المواسم · السياحة · جودة الحياة',
+    field: 'تتولى الفنون، الأزياء، المطبخ، موسم الرياض، العلا والوجهات',
+    activeLabel: 'سعودية تكتب',
+    primary: '#d946ef',
+    secondary: '#f0abfc',
+    border: 'rgba(240,171,252,0.35)',
+    panelBg: 'linear-gradient(160deg,rgba(112,26,117,0.20) 0%,rgba(30,12,35,0.96) 45%,rgba(10,31,15,0.88) 100%)',
+    userBubble: 'border border-fuchsia-300/20 bg-gradient-to-br from-fuchsia-900/20 to-pink-950/15 text-fuchsia-50',
+    assistantBubble: 'border border-fuchsia-300/22 bg-gradient-to-br from-fuchsia-900/25 to-violet-950/18 text-fuchsia-50',
+    placeholder: 'اكتبي سؤالك عن الثقافة، العلا، موسم الرياض، الأزياء، الأكلات…',
+  },
+};
 
 // ─── Typing indicator ────────────────────────────────────────────────────────
-function TypingDots() {
+function TypingDots({ agent }: { agent: AgentId }) {
+  const copy = AGENT_COPY[agent];
   return (
     <div className="flex items-center gap-2 px-5 py-3.5">
-      <span className="text-[0.72rem] text-green-300/60">سعودي يكتب</span>
+      <span className="text-[0.72rem]" style={{ color: `${copy.primary}99` }}>{copy.activeLabel}</span>
       {[0, 1, 2].map((i) => (
         <motion.div key={i}
-          className="h-2 w-2 rounded-full bg-green-400"
+          className="h-2 w-2 rounded-full"
+          style={{ backgroundColor: copy.primary }}
           animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
           transition={{ duration: 0.9, delay: i * 0.15, repeat: Infinity }}
         />
@@ -52,12 +118,13 @@ function TypingDots() {
 }
 
 // ─── API call ────────────────────────────────────────────────────────────────
-async function sendMsg(msg: string, history: Turn[]): Promise<string> {
+async function sendMsg(agent: AgentId, msg: string, history: Turn[]): Promise<string> {
   try {
     const res = await fetch('/api/public-saudi-agent-chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        agent,
         message: msg,
         history: history.slice(-14).map((t) => ({ role: t.role, content: t.content })),
       }),
@@ -124,8 +191,9 @@ function StarField() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function SaudiAgentLanding() {
   const navigate = useNavigate();
+  const [activeAgent, setActiveAgent] = useState<AgentId>('saudi');
   const [chatEvent, setChatEvent] = useState<'sent' | 'received' | null>(null);
-  const [turns, setTurns] = useState<Turn[]>([]);
+  const [turnsByAgent, setTurnsByAgent] = useState<Record<AgentId, Turn[]>>({ saudi: [], saudia: [] });
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
   const [greetingIdx, setGreetingIdx] = useState(0);
@@ -133,12 +201,14 @@ export default function SaudiAgentLanding() {
   const endRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
+  const turns = turnsByAgent[activeAgent];
+  const activeCopy = AGENT_COPY[activeAgent];
 
   // تدوير التحيات
   useEffect(() => {
-    const t = setInterval(() => setGreetingIdx((i) => (i + 1) % GREETINGS.length), 4000);
+    const t = setInterval(() => setGreetingIdx((i) => (i + 1) % GREETINGS[activeAgent].length), 4000);
     return () => clearInterval(t);
-  }, []);
+  }, [activeAgent]);
 
   // Auto-scroll
   useEffect(() => {
@@ -154,18 +224,21 @@ export default function SaudiAgentLanding() {
 
     const userTurn: Turn = { role: 'user', content: msg, id: `u-${++seq.current}` };
     const next = [...turns, userTurn];
-    setTurns(next);
+    setTurnsByAgent((prev) => ({ ...prev, [activeAgent]: next }));
     setLoading(true);
     setChatEvent('sent');
     setTimeout(() => setChatEvent(null), 600);
 
-    const reply = await sendMsg(msg, next);
-    setTurns((p) => [...p, { role: 'assistant', content: reply, id: `a-${++seq.current}` }]);
+    const reply = await sendMsg(activeAgent, msg, next);
+    setTurnsByAgent((prev) => ({
+      ...prev,
+      [activeAgent]: [...prev[activeAgent], { role: 'assistant', content: reply, id: `a-${++seq.current}` }],
+    }));
     setLoading(false);
     setChatEvent('received');
     setTimeout(() => setChatEvent(null), 800);
     setTimeout(() => textRef.current?.focus(), 100);
-  }, [draft, loading, turns]);
+  }, [activeAgent, draft, loading, turns]);
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend(); }
@@ -256,10 +329,10 @@ export default function SaudiAgentLanding() {
                 filter: 'drop-shadow(0 0 40px rgba(201,162,39,0.5))',
               }}
             >
-              سعودي
+              سعودي وسعودية
             </h1>
             <p className="mt-2 text-lg font-semibold text-green-300/80">
-              مرافقك الذكي إلى قلب المملكة العربية السعودية
+              ثنائي ذكي يأخذك إلى قلب المملكة: تاريخها وثقافتها ومستقبلها
             </p>
           </div>
         </motion.div>
@@ -280,7 +353,7 @@ export default function SaudiAgentLanding() {
               transition={{ duration: 0.4 }}
               className="text-xl font-bold text-yellow-300"
             >
-              {GREETINGS[greetingIdx]}
+              {GREETINGS[activeAgent][greetingIdx]}
             </motion.p>
           </AnimatePresence>
         </motion.div>
@@ -292,7 +365,7 @@ export default function SaudiAgentLanding() {
           className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-400"
         >
           صديقك السعودي الذكي — يحكيلك عن تاريخ المملكة، رؤية ٢٠٣٠، الفعاليات الكبرى، المدن، الثقافة،
-          ويرد عليك بأي لغة تكتب. سمّه، ناقشه، واسأله عن كل شيء.
+          ومعه سعودية بروح الثقافة والسياحة وجودة الحياة. اختر من تحب، وكلّمهم بأي لغة.
         </motion.p>
 
         {/* بادجات إمكانيات */}
@@ -303,8 +376,8 @@ export default function SaudiAgentLanding() {
           className="mt-6 flex flex-wrap justify-center gap-2"
         >
           {[
-            { icon: BookOpen, text: 'تاريخ المملكة' },
-            { icon: MapPin, text: 'الجغرافيا والمدن' },
+            { icon: BookOpen, text: 'سعودي: التاريخ والأنظمة' },
+            { icon: MapPin, text: 'سعودية: السياحة والثقافة' },
             { icon: Globe2, text: 'متعدد اللغات' },
             { icon: Sparkles, text: 'رؤية ٢٠٣٠' },
           ].map(({ icon: Icon, text }) => (
@@ -323,6 +396,56 @@ export default function SaudiAgentLanding() {
       ════════════════════════════════════════ */}
       <section className="relative mx-auto max-w-3xl px-4 pb-20">
 
+        {/* اختيار الشخصية */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28 }}
+          className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
+        >
+          {(['saudi', 'saudia'] as const).map((agent) => {
+            const copy = AGENT_COPY[agent];
+            const active = activeAgent === agent;
+            return (
+              <motion.button
+                key={agent}
+                type="button"
+                onClick={() => {
+                  setActiveAgent(agent);
+                  setGreetingIdx(0);
+                  setDraft('');
+                  setTimeout(() => textRef.current?.focus(), 120);
+                }}
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative overflow-hidden rounded-3xl p-4 text-right"
+                style={{
+                  border: `1.5px solid ${active ? copy.border : 'rgba(255,255,255,0.08)'}`,
+                  background: active
+                    ? `linear-gradient(155deg,${copy.primary}1f 0%,rgba(6,21,16,0.9) 55%,${copy.secondary}12 100%)`
+                    : 'rgba(255,255,255,0.035)',
+                  boxShadow: active ? `0 0 34px ${copy.primary}30,inset 0 1px 0 ${copy.border}` : 'none',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{copy.avatar}</span>
+                  <div className="min-w-0">
+                    <p className="font-black text-white">{copy.title}</p>
+                    <p className="text-[0.68rem] leading-relaxed text-slate-400">{copy.field}</p>
+                  </div>
+                </div>
+                {active ? (
+                  <motion.span
+                    layoutId="active-agent-ring"
+                    className="pointer-events-none absolute inset-0 rounded-3xl"
+                    style={{ border: `1.5px solid ${copy.primary}55` }}
+                  />
+                ) : null}
+              </motion.button>
+            );
+          })}
+        </motion.div>
+
         {/* لوحة المحادثة */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -330,9 +453,9 @@ export default function SaudiAgentLanding() {
           transition={{ delay: 0.35, duration: 0.6 }}
           className="overflow-hidden rounded-3xl"
           style={{
-            border: '1px solid rgba(201,162,39,0.30)',
-            background: 'linear-gradient(160deg,rgba(26,110,59,0.12) 0%,rgba(6,21,16,0.95) 40%,rgba(13,28,8,0.98) 100%)',
-            boxShadow: '0 0 80px rgba(26,110,59,0.20),0 0 160px rgba(201,162,39,0.08),inset 0 1px 0 rgba(201,162,39,0.20)',
+            border: `1px solid ${activeCopy.border}`,
+            background: activeCopy.panelBg,
+            boxShadow: `0 0 80px ${activeCopy.primary}24,0 0 160px ${activeCopy.secondary}12,inset 0 1px 0 ${activeCopy.border}`,
             backdropFilter: 'blur(20px)',
           }}
         >
@@ -340,7 +463,7 @@ export default function SaudiAgentLanding() {
           <div className="flex items-center justify-between border-b border-yellow-500/15 bg-gradient-to-l from-green-900/20 via-transparent to-yellow-900/10 px-6 py-4">
             <div className="flex items-center gap-3">
               <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-500/35 bg-gradient-to-br from-green-800/50 to-yellow-900/30">
-                <span className="text-2xl">🇸🇦</span>
+                <span className="text-2xl">{activeCopy.avatar}</span>
                 <motion.div
                   className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#0a1f0f] bg-emerald-400"
                   animate={{ opacity: [0.5, 1, 0.5] }}
@@ -349,8 +472,8 @@ export default function SaudiAgentLanding() {
                 />
               </div>
               <div>
-                <p className="text-base font-black text-yellow-200">سعودي 🤝</p>
-                <p className="text-[0.62rem] text-green-400/60">الوكيل الذكي · متاح الآن · يرد بلغتك</p>
+                <p className="text-base font-black text-yellow-200">{activeCopy.title}</p>
+                <p className="text-[0.62rem] text-green-400/60">{activeCopy.subtitle} · يرد بلغتك</p>
               </div>
             </div>
             <div className="flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/8 px-3 py-1">
@@ -372,13 +495,11 @@ export default function SaudiAgentLanding() {
                 animate={{ opacity: 1, y: 0 }}
                 className="self-start max-w-[88%] rounded-2xl rounded-tr-sm border border-green-500/22 bg-gradient-to-br from-green-900/30 to-green-950/20 px-5 py-4"
               >
-                <p className="mb-1.5 text-[0.62rem] font-bold text-green-400/50">سعودي 🇸🇦</p>
+                <p className="mb-1.5 text-[0.62rem] font-bold text-green-400/50">{activeCopy.title}</p>
                 <p className="text-[1rem] leading-7 text-green-50">
-                  يا هلا وسهلا! 🇸🇦 أنا «سعودي» — رفيقك الذكي من قلب المملكة.
-                  <br />
-                  سلني عن أي شيء: تاريخنا، مدننا، رؤية ٢٠٣٠، الفعاليات القادمة، أو أي سؤال في بالك.
-                  <br />
-                  وإذا تبي تكلمني بالإنجليزي أو أي لغة ثانية — أنا هنا! 😄
+                  {activeAgent === 'saudi'
+                    ? 'يا هلا وسهلا! أنا «سعودي» — اسألني عن التاريخ، الأنظمة، رؤية ٢٠٣٠، نيوم والمشاريع الكبرى. وإذا تبي تكلمني بأي لغة — أنا حاضر.'
+                    : 'يا هلا وغلا بك! أنا «سعودية» — اسألني عن الثقافة، الأزياء، الأكلات، المواسم، العُلا والوجهات الجميلة. وأبشر بسعدك بأي لغة تكتب.'}
                 </p>
               </motion.div>
             )}
@@ -392,11 +513,11 @@ export default function SaudiAgentLanding() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22 }}
                   className={t.role === 'assistant'
-                    ? 'self-start max-w-[88%] rounded-2xl rounded-tr-sm border border-green-500/20 bg-gradient-to-br from-green-900/25 to-green-950/15 px-5 py-4 text-[1rem] leading-7 text-green-50'
-                    : 'self-end max-w-[88%] rounded-2xl rounded-tl-sm border border-yellow-500/20 bg-gradient-to-br from-yellow-900/20 to-yellow-950/15 px-5 py-4 text-[1rem] leading-7 text-yellow-50'}
+                    ? `self-start max-w-[88%] rounded-2xl rounded-tr-sm px-5 py-4 text-[1rem] leading-7 ${activeCopy.assistantBubble}`
+                    : `self-end max-w-[88%] rounded-2xl rounded-tl-sm px-5 py-4 text-[1rem] leading-7 ${activeCopy.userBubble}`}
                 >
                   <p className="mb-1.5 text-[0.62rem] font-bold opacity-45">
-                    {t.role === 'assistant' ? 'سعودي 🇸🇦' : 'أنت'}
+                    {t.role === 'assistant' ? activeCopy.title : 'أنت'}
                   </p>
                   <p className="whitespace-pre-wrap break-words" style={{ unicodeBidi: 'plaintext' }}>{t.content}</p>
                 </motion.div>
@@ -405,7 +526,7 @@ export default function SaudiAgentLanding() {
               {loading && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className="self-start rounded-2xl rounded-tr-sm border border-green-500/18 bg-green-900/20">
-                  <TypingDots />
+                  <TypingDots agent={activeAgent} />
                 </motion.div>
               )}
               <div ref={endRef} className="h-2" />
@@ -417,7 +538,7 @@ export default function SaudiAgentLanding() {
             <div className="border-t border-yellow-500/10 bg-black/20 px-4 py-3.5">
               <p className="mb-2.5 text-[0.65rem] font-bold text-yellow-500/40">💡 اختر موضوعاً أو اكتب سؤالك:</p>
               <div className="flex flex-wrap gap-2">
-                {QUICK_TOPICS.map((q) => (
+                {QUICK_TOPICS[activeAgent].map((q) => (
                   <button
                     key={q.label}
                     type="button"
@@ -440,10 +561,17 @@ export default function SaudiAgentLanding() {
                 onChange={handleInput}
                 onKeyDown={handleKey}
                 disabled={loading}
-                placeholder="اكتب سؤالك بأي لغة… (Enter للإرسال، Shift+Enter سطر جديد)"
+                placeholder={activeCopy.placeholder}
                 rows={2}
-                style={{ minHeight: '60px', maxHeight: '160px', resize: 'none', overflowY: 'auto' }}
-                className="flex-1 rounded-2xl border border-green-500/25 bg-[#071510]/80 px-5 py-3.5 text-[1rem] leading-7 text-white placeholder:text-green-400/30 outline-none focus:border-green-400/55 focus:ring-2 focus:ring-green-400/20 transition-all disabled:opacity-50"
+                className="flex-1 rounded-2xl border bg-[#071510]/80 px-5 py-3.5 text-[1rem] leading-7 text-white placeholder:text-white/30 outline-none transition-all disabled:opacity-50"
+                style={{
+                  minHeight: '60px',
+                  maxHeight: '160px',
+                  resize: 'none',
+                  overflowY: 'auto',
+                  borderColor: `${activeCopy.primary}40`,
+                  boxShadow: `0 0 0 1px ${activeCopy.primary}00`,
+                }}
                 dir="rtl"
               />
               <motion.button
@@ -453,15 +581,15 @@ export default function SaudiAgentLanding() {
                 whileTap={draft.trim() && !loading ? { scale: 0.9 } : undefined}
                 className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition-all disabled:cursor-not-allowed disabled:opacity-40"
                 style={{
-                  background: 'linear-gradient(135deg,#1a6e3b,#22913f)',
-                  boxShadow: '0 0 24px rgba(26,110,59,0.5)',
+                  background: `linear-gradient(135deg,${activeCopy.primary},${activeCopy.secondary})`,
+                  boxShadow: `0 0 24px ${activeCopy.primary}60`,
                 }}
               >
                 <Send className="h-5 w-5 text-white" />
               </motion.button>
             </div>
             <p className="mt-2 text-center text-[0.58rem] text-green-400/20">
-              سعودي · وكيل ذكي مدعوم بالذكاء الاصطناعي · يرد بلغتك
+              {activeCopy.name} · وكيل ذكي مدعوم بالذكاء الاصطناعي · يرد بلغتك
             </p>
           </div>
         </motion.div>
@@ -484,8 +612,8 @@ export default function SaudiAgentLanding() {
       <section className="relative border-t border-yellow-500/10 px-5 py-16">
         <div className="mx-auto max-w-4xl">
           <div className="mb-12 text-center">
-            <p className="text-[0.7rem] font-black tracking-widest text-yellow-500/50">ما يعرفه سعودي</p>
-            <h2 className="mt-2 text-3xl font-black text-white">معرفة شاملة بلا حدود</h2>
+            <p className="text-[0.7rem] font-black tracking-widest text-yellow-500/50">ثنائي سعودي وسعودية</p>
+            <h2 className="mt-2 text-3xl font-black text-white">معرفة موزعة بروح واحدة</h2>
           </div>
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -555,7 +683,7 @@ export default function SaudiAgentLanding() {
           <div className="h-px flex-1 max-w-[120px]" style={{ background: 'linear-gradient(to left,transparent,rgba(201,162,39,0.3))' }} />
         </div>
         <p className="text-[0.65rem] text-slate-600">
-          سعودي · وكيل ذكي مدعوم بالذكاء الاصطناعي · مقدّم من منصة حلاق ماب 🇸🇦
+          سعودي وسعودية · ثنائي ذكي مدعوم بالذكاء الاصطناعي · مقدّم من منصة حلاق ماب 🇸🇦
         </p>
         <p className="mt-1 text-[0.58rem] text-slate-700">
           المعلومات للإثراء المعرفي فقط — الرجوع للمصادر الرسمية للقرارات الرسمية
