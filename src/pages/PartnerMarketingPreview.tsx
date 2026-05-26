@@ -87,10 +87,10 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
   ];
 
   const plans = [
-    { emoji: '🥉', name: 'برونزي',     price: PRICE_B,  color: '#b45309' },
-    { emoji: '🥇', name: 'ذهبي',       price: PRICE_G,  color: '#fbbf24' },
-    { emoji: '💎', name: 'ماسي',       price: PRICE_D,  color: '#22d3ee' },
-    { emoji: '🏛️', name: 'ماسي+مكتب', price: PRICE_DA, color: '#a78bfa' },
+    { name: 'برونزي',     price: PRICE_B,  color: '#b45309' },
+    { name: 'ذهبي',       price: PRICE_G,  color: '#fbbf24' },
+    { name: 'ماسي',       price: PRICE_D,  color: '#22d3ee' },
+    { name: 'ماسي+مكتب', price: PRICE_DA, color: '#a78bfa' },
   ];
 
   return (
@@ -207,94 +207,75 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
               className="group relative flex flex-col overflow-hidden rounded-2xl"
               style={{
                 border: `1px solid ${tier.border}`,
-                background: `linear-gradient(155deg,${tier.accentFrom}1a 0%,#040d1a 60%,${tier.accentTo}0d 100%)`,
+                background: `linear-gradient(155deg,${tier.accentFrom}28 0%,rgba(8,14,26,0.96) 45%,${tier.accentTo}14 100%)`,
                 boxShadow: tier.best
-                  ? `0 0 50px ${tier.glow},0 0 100px ${tier.glow},inset 0 1px 0 ${tier.border}`
-                  : `0 0 25px ${tier.glow},inset 0 1px 0 ${tier.border}`,
+                  ? `0 0 60px ${tier.glow},0 0 120px ${tier.glow},inset 0 1px 0 ${tier.border},inset 0 -1px 0 ${tier.glow}`
+                  : `0 0 28px ${tier.glow},inset 0 1px 0 ${tier.border}`,
+                backdropFilter: 'blur(18px)',
               }}
             >
+              {/* زجاج لامع — طبقة علوية */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-2xl"
+                style={{ background: `linear-gradient(180deg,${tier.accentTo}18 0%,transparent 100%)` }} />
+              <div className="pointer-events-none absolute inset-0 rounded-2xl"
+                style={{ background: 'linear-gradient(135deg,rgba(255,255,255,0.07) 0%,transparent 50%,rgba(255,255,255,0.02) 100%)' }} />
+
               {/* شارة الأفضل */}
               {tier.best && (
                 <div className="absolute left-0 right-0 top-0 flex justify-center">
-                  <div
-                    className="rounded-b-xl px-4 py-1 text-[0.6rem] font-black text-black"
-                    style={{ background: `linear-gradient(90deg,${tier.accentFrom},${tier.accentTo})` }}
-                  >
-                    ✦ الأفضل قيمةً
+                  <div className="rounded-b-xl px-5 py-1 text-[0.62rem] font-black text-black"
+                    style={{ background: `linear-gradient(90deg,${tier.accentFrom},${tier.accentTo})`, boxShadow: `0 4px 12px ${tier.glow}` }}>
+                    الأفضل
                   </div>
                 </div>
               )}
 
-              {/* توهج علوي */}
-              <div
-                className="pointer-events-none absolute inset-x-0 top-0 h-28 opacity-50"
-                style={{ background: `radial-gradient(ellipse 100% 100% at 50% 0%,${tier.accentTo}20,transparent)` }}
-              />
-
               {/* توهج hover */}
-              <div
-                className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-700 group-hover:opacity-100"
-                style={{ background: `radial-gradient(ellipse 80% 80% at 50% 50%,${tier.accentTo}12,transparent)` }}
-              />
+              <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                style={{ background: `radial-gradient(ellipse 80% 80% at 50% 50%,${tier.accentTo}18,transparent)` }} />
 
-              <div className={`relative flex flex-col gap-4 p-5 ${tier.best ? 'pt-8' : ''}`}>
-                {/* الأيقونة + العنوان */}
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl"
-                    style={{
-                      background: `linear-gradient(135deg,${tier.accentFrom}30,${tier.accentTo}20)`,
-                      border: `1px solid ${tier.border}`,
-                      boxShadow: `0 0 18px ${tier.glow}`,
-                    }}
-                  >
-                    {tier.emoji}
+              <div className={`relative flex flex-col gap-4 p-5 ${tier.best ? 'pt-8' : 'pt-5'}`}>
+                {/* العنوان + المكافأة */}
+                <div>
+                  <p className="text-base font-black text-white">{tier.label}</p>
+                  <div className="mt-1 inline-flex rounded-full px-3 py-0.5 text-[0.68rem] font-black"
+                    style={{ background: `${tier.accentTo}20`, color: tier.accentTo, border: `1px solid ${tier.border}` }}>
+                    {tier.bonus}
                   </div>
-                  <div>
-                    <p className="font-black text-white leading-tight">{tier.label}</p>
-                    <div
-                      className="mt-0.5 inline-flex rounded-full px-2.5 py-0.5 text-xs font-black"
-                      style={{ background: `${tier.accentTo}22`, color: tier.accentTo, border: `1px solid ${tier.border}` }}
-                    >
-                      {tier.bonus}
-                    </div>
-                  </div>
+                  <p className="mt-1 text-[0.68rem] text-slate-400">{tier.subtitle}</p>
                 </div>
-
-                <p className="text-[0.72rem] text-slate-400 leading-snug">{tier.subtitle}</p>
 
                 {/* الفاصل */}
                 <div className="h-px" style={{ background: `linear-gradient(90deg,transparent,${tier.border},transparent)` }} />
 
-                {/* التوفير — الأرقام تتحدث */}
+                {/* الأرقام — كبيرة بدون إيموجي */}
                 <div className="grid grid-cols-2 gap-2">
                   {plans.map(plan => (
-                    <div
-                      key={plan.name}
-                      className="flex flex-col items-center justify-center rounded-2xl py-3"
+                    <div key={plan.name}
+                      className="relative overflow-hidden flex flex-col items-center justify-center rounded-2xl py-3.5"
                       style={{
-                        background: `${plan.color}10`,
-                        border: `1px solid ${plan.color}30`,
+                        background: `linear-gradient(155deg,${plan.color}14 0%,rgba(4,13,26,0.9) 100%)`,
+                        border: `1px solid ${plan.color}28`,
+                        backdropFilter: 'blur(8px)',
+                        boxShadow: `inset 0 1px 0 ${plan.color}20`,
                       }}
                     >
-                      <span className="text-base leading-none">{plan.emoji}</span>
+                      {/* بريق زجاجي داخلي */}
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2"
+                        style={{ background: `linear-gradient(180deg,${plan.color}12 0%,transparent 100%)` }} />
                       <span
-                        className="mt-1.5 font-mono text-xl font-black tabular-nums leading-none"
-                        style={{ color: plan.color, textShadow: `0 0 16px ${plan.color}60` }}
+                        className="relative font-mono text-2xl font-black tabular-nums leading-none"
+                        style={{ color: plan.color, textShadow: `0 0 20px ${plan.color}80` }}
                       >
                         {(plan.price * tier.n).toLocaleString('ar-SA')}
                       </span>
-                      <span className="mt-0.5 text-[0.58rem] font-bold text-slate-500">ر.س</span>
+                      <span className="mt-1 text-[0.55rem] font-bold text-slate-500">ر.س · {plan.name}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* CTA */}
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={onRegister}
+                <motion.button type="button" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onRegister}
                   className="relative mt-1 w-full overflow-hidden rounded-xl py-3 text-sm font-black"
                   style={{
                     background: `linear-gradient(135deg,${tier.accentFrom},${tier.accentTo})`,
@@ -302,11 +283,11 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
                     boxShadow: `0 0 24px ${tier.glow},0 4px 12px ${tier.glow}`,
                   }}
                 >
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 to-white/10" />
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     احجز مقعدك
                     <ArrowLeft className="h-4 w-4" />
                   </span>
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
                 </motion.button>
               </div>
             </motion.div>
