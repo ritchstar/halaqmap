@@ -30,7 +30,6 @@ import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackgroun
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
-import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
@@ -48,10 +47,7 @@ function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate>
       border: 'rgba(14,165,233,0.42)',
       glow: 'rgba(14,165,233,0.28)',
       dot: '#38bdf8',
-      onClick: () => {
-        const btn = document.querySelector('[data-spokesperson-open]') as HTMLButtonElement | null;
-        btn?.click();
-      },
+      onClick: () => navigate(ROUTE_PATHS.LANDING_PARTNERS_PREVIEW),
     },
     {
       id: 'legal',
@@ -1243,7 +1239,6 @@ export default function LandingPreview() {
         </div>
       </footer>
 
-      <B2BMediaSpokespersonChat audience="consumer" mode="panel" collapseOnScroll={false} />
     </div>
   );
 }
