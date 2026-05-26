@@ -333,6 +333,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
           />
           <B2BMediaSpokespersonChat
+            collapseOnScroll
             startMinimized={[
               ROUTE_PATHS.REGISTER,
               ROUTE_PATHS.REGISTER_SUCCESS,

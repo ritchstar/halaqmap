@@ -136,18 +136,18 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
     return () => clearInterval(id);
   }, []);
 
-  // تكمّش تلقائي عند دخول قسم البنرات (panel mode فقط)
+  // تكمّش تلقائي عند النزول (panel mode فقط)
   useEffect(() => {
     if (mode !== 'panel') return;
     const handleScroll = () => {
       const bannersEl = document.getElementById('معاينة البنرات');
-      if (!bannersEl) {
-        // fallback: threshold 2.8 screens
-        setMinimized(window.scrollY > window.innerHeight * 2.8);
-        return;
+      if (bannersEl) {
+        const rect = bannersEl.getBoundingClientRect();
+        setMinimized(rect.top < window.innerHeight * 0.6);
+      } else {
+        // الصفحات الفرعية: ينزل بعد شاشة واحدة
+        setMinimized(window.scrollY > window.innerHeight * 1.0);
       }
-      const rect = bannersEl.getBoundingClientRect();
-      setMinimized(rect.top < window.innerHeight * 0.6);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -202,26 +202,44 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
     ? `relative w-full ${open ? 'z-[50]' : 'z-10'}`
     : 'hidden sm:block fixed bottom-24 left-0 z-[49] md:bottom-6';
 
-  // وضع التكمّش — يظهر فقط في panel mode عند الدخول لقسم البنرات
+  // وضع التكمّش — لسان ذهبي يسار
   if (mode === 'panel' && minimized && !open) {
     return (
       <motion.button
-        initial={{ opacity: 0, scale: 0.7 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.7 }}
+        initial={{ opacity: 0, x: -22 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -22 }}
         onClick={() => { setMinimized(false); setOpen(true); }}
-        className="hidden sm:flex fixed bottom-6 left-4 z-[49] h-10 w-10 items-center justify-center rounded-full border-2 border-amber-400/60 bg-[#0a0600] shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+        className="hidden sm:flex fixed left-0 z-[49] flex-col items-center gap-1.5 py-3 px-2.5"
+        style={{
+          top: '38%',
+          background: 'linear-gradient(180deg,#1c0800 0%,#2a1100 50%,#1c0800 100%)',
+          border: '1.5px solid rgba(245,158,11,0.42)',
+          borderRight: 'none',
+          borderRadius: '0 0 0 14px',
+          boxShadow: '4px 0 20px rgba(245,158,11,0.22)',
+        }}
         title="مدير مبيعات B2B"
       >
-        <Building2 className="h-5 w-5 text-amber-300" />
-        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[0.38rem] font-black text-black">
-          B2B
-        </span>
         <motion.span
-          className="absolute inset-0 rounded-full border-2 border-amber-400/40"
-          animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity }}
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'rgba(245,158,11,0.06)', borderRadius: 'inherit' }}
+          animate={{ opacity: [0.3, 0.8, 0.3] }}
+          transition={{ duration: 2.5, repeat: Infinity }}
         />
+        <span className="relative z-10 text-lg" style={{ filter: 'drop-shadow(0 0 5px rgba(245,158,11,0.8))' }}>💼</span>
+        <motion.span
+          className="relative z-10 h-1.5 w-1.5 rounded-full bg-amber-400"
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 1.8, repeat: Infinity }}
+          style={{ boxShadow: '0 0 5px rgba(245,158,11,0.8)' }}
+        />
+        <span
+          className="relative z-10 text-[0.5rem] font-black tracking-widest text-amber-400/70"
+          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+        >
+          المبيعات
+        </span>
       </motion.button>
     );
   }

@@ -201,12 +201,12 @@ export function B2BMediaSpokespersonChat({
     if (mode !== 'panel' || !collapseOnScroll) return;
     const handleScroll = () => {
       const bannersEl = document.getElementById('معاينة البنرات');
-      if (!bannersEl) {
-        setMinimized(window.scrollY > window.innerHeight * 2.8);
-        return;
+      if (bannersEl) {
+        const rect = bannersEl.getBoundingClientRect();
+        setMinimized(rect.top < window.innerHeight * 0.6);
+      } else {
+        setMinimized(window.scrollY > window.innerHeight * 1.0);
       }
-      const rect = bannersEl.getBoundingClientRect();
-      setMinimized(rect.top < window.innerHeight * 0.6);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -273,27 +273,45 @@ export function B2BMediaSpokespersonChat({
 
   const wrapClass = mode === 'inline'
     ? `relative w-full ${open ? 'z-[50]' : 'z-10'}`
-    : 'hidden sm:block fixed bottom-24 left-0 z-[49] md:bottom-6';
+    : 'hidden sm:block fixed bottom-24 right-0 z-[49] md:bottom-6';
 
   if (mode === 'panel' && minimized && !open) {
     return (
       <motion.button
-        initial={{ opacity: 0, scale: 0.7 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.7 }}
+        initial={{ opacity: 0, x: -22 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -22 }}
         onClick={() => { setMinimized(false); setOpen(true); }}
-        className="hidden sm:flex fixed bottom-6 left-4 z-[49] h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-400/60 bg-[#020912] shadow-[0_0_20px_rgba(34,211,238,0.35)]"
+        className="hidden sm:flex fixed left-0 z-[49] flex-col items-center gap-1.5 py-3 px-2.5"
+        style={{
+          top: '53%',
+          background: 'linear-gradient(180deg,#020e1e 0%,#041a2e 50%,#020e1e 100%)',
+          border: '1.5px solid rgba(14,165,233,0.42)',
+          borderRight: 'none',
+          borderRadius: '0 0 0 14px',
+          boxShadow: '4px 0 20px rgba(14,165,233,0.22)',
+        }}
         title="المتحدث الإعلامي"
       >
-        <Mic className="h-5 w-5 text-cyan-300" />
-        <span className="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[0.38rem] font-black text-black">
-          PR
-        </span>
         <motion.span
-          className="absolute inset-0 rounded-full border-2 border-cyan-400/40"
-          animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity }}
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'rgba(14,165,233,0.06)', borderRadius: 'inherit' }}
+          animate={{ opacity: [0.3, 0.8, 0.3] }}
+          transition={{ duration: 3, repeat: Infinity }}
         />
+        <span className="relative z-10 text-lg" style={{ filter: 'drop-shadow(0 0 5px rgba(14,165,233,0.8))' }}>🎙️</span>
+        <motion.span
+          className="relative z-10 h-1.5 w-1.5 rounded-full bg-sky-400"
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 1.8, repeat: Infinity, delay: 0.5 }}
+          style={{ boxShadow: '0 0 5px rgba(14,165,233,0.8)' }}
+        />
+        <span
+          className="relative z-10 text-[0.5rem] font-black tracking-widest text-sky-400/70"
+          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+        >
+          المتحدث
+        </span>
       </motion.button>
     );
   }
