@@ -36,6 +36,88 @@ import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
 
+// ─── Saudi Agent FAB ──────────────────────────────────────────────────────
+function SaudiAgentFAB() {
+  const navigate = useNavigate();
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      className="fixed bottom-6 right-4 z-[49] sm:bottom-8 sm:right-6"
+      initial={{ opacity: 0, scale: 0.7 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 1.4, type: 'spring', stiffness: 340, damping: 28 }}
+    >
+      {/* تلميح نصي يظهر عند الـ hover */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 10 }}
+            dir="rtl"
+            className="absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-2xl border border-yellow-500/40 bg-[#0a1f0f]/95 px-3.5 py-2 shadow-xl backdrop-blur-md"
+            style={{ boxShadow: '0 0 24px rgba(201,162,39,0.25)' }}
+          >
+            <p className="text-[0.72rem] font-black text-yellow-300">سعودي 🇸🇦</p>
+            <p className="text-[0.58rem] text-green-400/70">الوكيل الذكي السعودي</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        type="button"
+        onClick={() => navigate(ROUTE_PATHS.SAUDI_AGENT)}
+        onHoverStart={() => setHovered(true)}
+        onHoverEnd={() => setHovered(false)}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.94 }}
+        className="relative flex h-14 w-14 items-center justify-center rounded-2xl"
+        style={{
+          background: 'linear-gradient(135deg,#0d3d1a,#1a6e3b)',
+          border: '2px solid rgba(201,162,39,0.55)',
+          boxShadow: '0 0 30px rgba(26,110,59,0.45),0 0 60px rgba(201,162,39,0.15)',
+        }}
+      >
+        {/* نبض حلقي */}
+        <motion.span
+          className="absolute inset-0 rounded-2xl border-2 border-yellow-400/40"
+          animate={{ scale: [1, 1.55], opacity: [0.6, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity }}
+        />
+        <motion.span
+          className="absolute inset-0 rounded-2xl border border-green-400/30"
+          animate={{ scale: [1, 1.35], opacity: [0.4, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, delay: 0.6 }}
+        />
+
+        {/* العلم السعودي */}
+        <span className="relative z-10 text-2xl leading-none" style={{ filter: 'drop-shadow(0 0 8px rgba(201,162,39,0.7))' }}>
+          🇸🇦
+        </span>
+
+        {/* نقطة نشطة */}
+        <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-[#061510]"
+          style={{ background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,0.8)' }}>
+          <motion.span
+            className="h-full w-full rounded-full bg-emerald-400"
+            animate={{ scale: [1, 1.6], opacity: [0.8, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity }}
+          />
+        </span>
+
+        {/* بريق ذهبي دوراني */}
+        <motion.div
+          className="pointer-events-none absolute inset-0 rounded-2xl"
+          style={{ background: 'linear-gradient(135deg,transparent 35%,rgba(201,162,39,0.18) 50%,transparent 65%)' }}
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+        />
+      </motion.button>
+    </motion.div>
+  );
+}
+
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
   const [count, setCount] = useState(0);
@@ -357,6 +439,9 @@ export default function LandingPreview() {
 
       {/* أزرار عائمة للمستخدم */}
       <FloatingPlatformActions />
+
+      {/* ── زر وكيل سعودي العائم — يمين الشاشة ── */}
+      <SaudiAgentFAB />
 
       {/* ── Grid background texture ──────────────────────────────────────── */}
       <div
