@@ -267,7 +267,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </div>
 
               <nav className="flex max-w-[58%] flex-1 flex-wrap items-center justify-end gap-2 lg:max-w-none">
-                {navItems.map((item) => (
+                {navItems.filter((item) => item.path !== ROUTE_PATHS.MAP_COMMUNITY).map((item) => (
                   <NavLink key={item.path} to={item.path} className={({ isActive }) => desktopNavClass(isActive)}>
                     <span className="inline-flex items-center gap-1.5">
                       {'Icon' in item && item.Icon ? <item.Icon className="h-3.5 w-3.5 text-emerald-300" /> : null}
@@ -277,6 +277,21 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                 ))}
                 <PlatformAmbientToggle variant="partner" className="hidden xl:inline-flex" />
               </nav>
+
+              <NavLink
+                to={ROUTE_PATHS.MAP_COMMUNITY}
+                className={({ isActive }) =>
+                  cn(
+                    'inline-flex shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-black transition-all',
+                    isActive
+                      ? 'border-cyan-300/70 bg-cyan-500/20 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.28)]'
+                      : 'border-cyan-400/40 bg-cyan-500/12 text-cyan-200 hover:border-cyan-300/70 hover:bg-cyan-500/20 hover:text-white',
+                  )
+                }
+              >
+                <MessageCircle className="h-[18px] w-[18px] text-cyan-200" />
+                مجتمع ماب
+              </NavLink>
 
               <NavLink
                 to={ROUTE_PATHS.HOME}
