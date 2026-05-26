@@ -59,7 +59,7 @@ function LeftAgentStack({ navigate }: { navigate: ReturnType<typeof useNavigate>
       border: 'rgba(201,162,39,0.42)',
       glow: 'rgba(201,162,39,0.22)',
       dot: '#fbbf24',
-      onClick: () => navigate(ROUTE_PATHS.PRIVACY_DETAILED),
+      onClick: () => navigate(ROUTE_PATHS.USER_PRIVACY_POLICY),
     },
     {
       id: 'saudi',
