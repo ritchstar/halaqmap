@@ -816,7 +816,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
           </div>
           {/* تلميح مراحل الشراء */}
           <p className="text-[0.58rem] text-slate-700 mt-2">
-            💡 إذا كنت جديداً — ستُحوَّل لصفحة إنشاء الحساب أولاً، ثم يتواصل معك فريقنا لإتمام الدفع
+            ✅ التفعيل بعد اتمام تعبئة طلب التسجيل وإتمام الدفع
           </p>
         </div>
       </div>
