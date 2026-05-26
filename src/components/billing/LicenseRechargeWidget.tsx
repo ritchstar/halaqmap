@@ -141,7 +141,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setSelectedTier(t.id)}
-                  className="relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl p-3.5 text-center transition-all duration-300"
+                  className="relative flex h-[6.5rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl px-2 text-center transition-all duration-300"
                   style={{
                     border: selectedTier === t.id ? `1.5px solid ${t.border}` : '1.5px solid rgba(255,255,255,0.07)',
                     background: selectedTier === t.id
@@ -160,13 +160,15 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                       </span>
                     </div>
                   )}
-                  <span className={`text-2xl ${t.badge ? 'mt-3' : ''}`}>{t.emoji}</span>
+                  {/* مسافة ثابتة للبادج — موجودة أم لا */}
+                  <span className="block h-3.5 w-full shrink-0" />
+                  <span className="text-xl leading-none">{t.emoji}</span>
                   <span className="text-xs font-black leading-tight text-white">{t.name}</span>
                   <span
-                    className="text-[0.65rem] font-bold tabular-nums"
+                    className="text-[0.62rem] font-bold tabular-nums"
                     style={{ color: t.accentTo }}
                   >
-                    {t.pricePerMonth + t.addonPrice} ر.س/شهر
+                    {t.pricePerMonth + t.addonPrice} ر.س
                   </span>
                   {selectedTier === t.id && (
                     <motion.div
