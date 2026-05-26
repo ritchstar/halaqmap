@@ -19,7 +19,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { GeoRadarButton } from '@/components/GeoRadarButton';
-import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
 import { FilterBar } from '@/components/FilterBar';
 import { BarberCard } from '@/components/BarberCards';
 import { BarberMap } from '@/components/BarberMap';

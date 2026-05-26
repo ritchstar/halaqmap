@@ -12,7 +12,7 @@ import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooter
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
 import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
-import { ListingLicensePricingMatrix } from '@/components/billing/ListingLicensePricingMatrix';
+import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
@@ -278,9 +278,9 @@ export function Layout({ children }: LayoutProps) {
             </div>
           </div>
 
-          {/* مصفوفة التسعير */}
-          <div className="mt-10 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-            <ListingLicensePricingMatrix variant="embedded-dark" />
+          {/* شاحن رخصة النفاذ */}
+          <div className="mt-10">
+            <LicenseRechargeWidget mode="register" showHeader={true} />
           </div>
 
           <div className="mt-6">
