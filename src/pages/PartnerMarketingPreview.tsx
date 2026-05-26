@@ -58,9 +58,8 @@ const PRICE_B = 100, PRICE_G = 150, PRICE_D = 200, PRICE_DA = 225;
 const PIONEER_TOTAL = 1000; // ألف الرواد — الحد التأسيسي الأقصى
 
 function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
-  const [spots, setSpots] = useState(731); // متبقٍ من الألف
+  const [spots, setSpots] = useState(731);
   const [pulse, setPulse] = useState(false);
-  const [activeRow, setActiveRow] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
 
@@ -78,241 +77,251 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
 
   const pct = Math.round(((PIONEER_TOTAL - spots) / PIONEER_TOTAL) * 100);
 
-  // صفوف المضاعفة — مرتّبة من الأبسط للأقوى
-  const ROWS = [
-    { n: 3,  icon: '🎁', label: 'اشترِ ٣ حزم', bonus: '+ ٣ حزم مجاناً', months: '٦ أشهر حضور رقمي' },
-    { n: 6,  icon: '🔥', label: 'اشترِ ٦ حزم', bonus: '+ ٦ حزم مجاناً', months: 'سنة كاملة على الرادار', best: true },
-    { n: 12, icon: '⚡', label: 'اشترِ ١٢ حزمة', bonus: '+ ١٢ حزمة مجاناً', months: 'سنتان بسعر سنة واحدة' },
+  const TIERS = [
+    { n: 3,  emoji: '🎁', label: 'اشترِ ٣ حزم', bonus: '+ ٣ مجاناً', subtitle: '٦ أشهر حضور رقمي',
+      accentFrom: '#92400e', accentTo: '#d97706', border: 'rgba(217,119,6,0.38)', glow: 'rgba(217,119,6,0.22)' },
+    { n: 6,  emoji: '🔥', label: 'اشترِ ٦ حزم', bonus: '+ ٦ مجاناً', subtitle: 'سنة كاملة على الرادار', best: true,
+      accentFrom: '#b45309', accentTo: '#fbbf24', border: 'rgba(251,191,36,0.50)', glow: 'rgba(251,191,36,0.30)' },
+    { n: 12, emoji: '⚡', label: 'اشترِ ١٢ حزمة', bonus: '+ ١٢ مجاناً', subtitle: 'سنتان بسعر سنة واحدة',
+      accentFrom: '#1e3a5f', accentTo: '#06b6d4', border: 'rgba(6,182,212,0.40)', glow: 'rgba(6,182,212,0.22)' },
   ];
 
-  // جدول التوفير الكامل لكل تركيبة
-  const savings = (price: number, n: number) => (price * n).toLocaleString('ar-SA');
+  const plans = [
+    { emoji: '🥉', name: 'برونزي',     price: PRICE_B,  color: '#b45309' },
+    { emoji: '🥇', name: 'ذهبي',       price: PRICE_G,  color: '#fbbf24' },
+    { emoji: '💎', name: 'ماسي',       price: PRICE_D,  color: '#22d3ee' },
+    { emoji: '🏛️', name: 'ماسي+مكتب', price: PRICE_DA, color: '#a78bfa' },
+  ];
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 24 }}
+      dir="rtl"
+      initial={{ opacity: 0, y: 28 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, ease: 'easeOut' }}
       className="relative mb-12 overflow-hidden rounded-3xl"
       style={{
-        background: 'linear-gradient(135deg, #0c0800 0%, #130d00 40%, #0a0600 100%)',
-        border: '1px solid rgba(251,191,36,0.22)',
-        boxShadow: '0 0 80px rgba(251,191,36,0.10), 0 0 160px rgba(251,191,36,0.04), inset 0 1px 0 rgba(251,191,36,0.15)',
+        background: 'linear-gradient(160deg,#060e00 0%,#030912 50%,#090600 100%)',
+        border: '1px solid rgba(251,191,36,0.18)',
+        boxShadow: '0 0 100px rgba(251,191,36,0.08),inset 0 1px 0 rgba(251,191,36,0.12)',
       }}
     >
-      {/* ── خلفية توهج ── */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
-        <div className="absolute -top-24 left-1/4 h-48 w-96 rounded-full bg-amber-500/8 blur-[80px]" />
-        <div className="absolute -bottom-12 right-1/4 h-40 w-80 rounded-full bg-yellow-500/6 blur-[70px]" />
+      {/* خلفية سديمية */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-20 right-1/4 h-64 w-96 rounded-full bg-amber-500/10 blur-[100px]" />
+        <div className="absolute -bottom-16 left-1/4 h-48 w-80 rounded-full bg-cyan-500/8 blur-[90px]" />
         <motion.div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(135deg, transparent 40%, rgba(251,191,36,0.025) 50%, transparent 60%)' }}
+          style={{ background: 'linear-gradient(90deg,transparent 30%,rgba(251,191,36,0.03) 50%,transparent 70%)' }}
           animate={{ x: ['-100%', '200%'] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'linear', repeatDelay: 4 }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'linear', repeatDelay: 5 }}
         />
       </div>
 
-      {/* ══ الرأس ══ */}
-      <div className="relative border-b border-amber-400/12 px-6 py-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      {/* ══ رأسية القسم ══ */}
+      <div className="relative border-b border-amber-400/10 px-6 py-6">
+        <div className="flex flex-wrap items-start justify-between gap-5">
           {/* العنوان */}
           <div>
-            <div className="mb-1.5 flex items-center gap-2">
-              <motion.span
-                animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
-                transition={{ duration: 1.8, repeat: Infinity }}
-                className="text-lg"
-              >⚡</motion.span>
-              <span className="rounded-full border border-amber-400/30 bg-amber-500/12 px-3 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.2em] text-amber-400">
-                ⭐ عرض تشغيلي مؤقت · الألف الرواد
-              </span>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/12 px-4 py-1 text-[0.62rem] font-black tracking-[0.15em] text-amber-300">
+              <motion.span animate={{ scale: [1,1.35,1], opacity:[0.6,1,0.6] }} transition={{ duration: 1.8, repeat: Infinity }}>⚡</motion.span>
+              عرض تشغيلي مؤقت · الألف الرواد
             </div>
-            <h3 className="text-xl font-black leading-tight text-white md:text-2xl">
+            <h3 className="text-2xl font-black text-white md:text-3xl">
               مضاعفة الرخص التأسيسية
             </h3>
-            <p className="mt-0.5 text-sm text-amber-300/70">
+            <p className="mt-1 text-sm leading-relaxed text-amber-300/65">
               اشترِ أي حزمة واحصل على ضعفها مجاناً — ينطبق على جميع الباقات
             </p>
           </div>
-          {/* عداد المقاعد المتبقية */}
+
+          {/* عداد المقاعد */}
           <motion.div
-            animate={pulse ? { scale: [1, 1.06, 1] } : {}}
+            animate={pulse ? { scale:[1,1.08,1] } : {}}
             transition={{ duration: 0.3 }}
-            className={`flex items-center gap-3 rounded-2xl border px-5 py-3 transition-all duration-500 ${
-              pulse ? 'border-red-400/50 bg-red-500/12 shadow-[0_0_20px_rgba(239,68,68,0.20)]'
-                    : 'border-amber-400/25 bg-amber-500/8'
-            }`}
+            className="flex items-center gap-3 overflow-hidden rounded-2xl border px-5 py-3.5 transition-all duration-500"
+            style={{
+              borderColor: pulse ? 'rgba(239,68,68,0.5)' : 'rgba(251,191,36,0.28)',
+              background: pulse ? 'rgba(239,68,68,0.10)' : 'rgba(251,191,36,0.08)',
+              boxShadow: pulse ? '0 0 28px rgba(239,68,68,0.22)' : '0 0 20px rgba(251,191,36,0.10)',
+            }}
           >
-            <div className="text-right">
-              <div className={`text-3xl font-black tabular-nums leading-none ${pulse ? 'text-red-300' : 'text-amber-300'}`}>
+            <div className="text-right leading-tight">
+              <div className={`font-mono text-3xl font-black tabular-nums ${pulse ? 'text-red-300' : 'text-amber-300'}`} style={{ textShadow: pulse ? '0 0 20px rgba(239,68,68,0.6)' : '0 0 20px rgba(251,191,36,0.5)' }}>
                 {spots}
               </div>
-              <div className="text-[0.58rem] text-slate-400">رائد متبقٍ</div>
-              <div className="text-[0.55rem] text-slate-600">من ألف الرواد</div>
+              <div className="text-[0.6rem] text-slate-400">رائد متبقٍ</div>
+              <div className="text-[0.52rem] text-slate-600">من ألف الرواد</div>
             </div>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1.5">
               <motion.div
                 className={`h-2.5 w-2.5 rounded-full ${pulse ? 'bg-red-400' : 'bg-amber-400'}`}
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 1.2, repeat: Infinity }}
+                animate={{ opacity:[0.3,1,0.3] }} transition={{ duration: 1.2, repeat: Infinity }}
+                style={{ boxShadow: pulse ? '0 0 8px rgba(239,68,68,0.7)' : '0 0 8px rgba(251,191,36,0.7)' }}
               />
-              <span className="text-[0.5rem] text-slate-500 rotate-90 mt-1">LIVE</span>
+              <span className="rotate-90 text-[0.48rem] font-bold tracking-widest text-slate-500">LIVE</span>
             </div>
           </motion.div>
         </div>
 
         {/* شريط التقدم */}
-        <div className="mt-4">
-          <div className="mb-1 flex items-center justify-between text-[0.62rem]">
+        <div className="mt-5">
+          <div className="mb-2 flex items-center justify-between text-[0.62rem]">
             <span className="text-slate-600">٠ مشترك</span>
-            <span className={`font-bold ${pct >= 80 ? 'text-red-400' : 'text-amber-400/80'}`}>
-              {pct}% مُحجوز
-            </span>
+            <span className={`font-black ${pct >= 80 ? 'text-red-400' : 'text-amber-400'}`}>{pct}% مُحجوز</span>
             <span className="text-slate-600">١٠٠٠ رائد</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800/80">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-800/70">
             <motion.div
               className="h-full rounded-full"
               style={{
                 background: pct >= 80
-                  ? 'linear-gradient(90deg, #ef4444, #f97316)'
-                  : 'linear-gradient(90deg, #d97706, #fbbf24, #fde68a)',
-                boxShadow: '0 0 8px rgba(251,191,36,0.5)',
+                  ? 'linear-gradient(90deg,#ef4444,#f97316)'
+                  : 'linear-gradient(90deg,#b45309,#fbbf24,#fde68a)',
+                boxShadow: pct >= 80 ? '0 0 12px rgba(239,68,68,0.6)' : '0 0 12px rgba(251,191,36,0.55)',
               }}
               initial={{ width: 0 }}
               animate={inView ? { width: `${pct}%` } : {}}
-              transition={{ duration: 1.4, delay: 0.3, ease: 'easeOut' }}
+              transition={{ duration: 1.5, delay: 0.4, ease: 'easeOut' }}
             />
           </div>
         </div>
       </div>
 
-      {/* ══ صفوف مستويات المضاعفة ══ */}
-      <div className="relative px-6 py-5">
-        <div className="mb-4 flex items-center gap-2">
-          <div className="h-px flex-1 bg-gradient-to-l from-amber-400/20 to-transparent" />
-          <span className="text-[0.65rem] font-bold tracking-widest text-amber-400/50">مستويات المضاعفة</span>
-          <div className="h-px flex-1 bg-gradient-to-r from-amber-400/20 to-transparent" />
+      {/* ══ كروت مستويات المضاعفة ══ */}
+      <div className="relative px-6 py-7">
+        <div className="mb-6 flex items-center gap-3">
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(to left,rgba(251,191,36,0.25),transparent)' }} />
+          <span className="text-[0.65rem] font-black tracking-[0.2em] text-amber-400/50">مستويات المضاعفة</span>
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(to right,rgba(251,191,36,0.25),transparent)' }} />
         </div>
 
-        <div className="space-y-3">
-          {ROWS.map((row, i) => (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {TIERS.map((tier, i) => (
             <motion.div
               key={i}
-              onHoverStart={() => setActiveRow(i)}
-              onHoverEnd={() => setActiveRow(null)}
-              className={`relative overflow-hidden rounded-2xl border transition-all duration-300 cursor-default ${
-                row.best
-                  ? 'border-amber-400/45 bg-amber-500/10 shadow-[0_0_24px_rgba(251,191,36,0.10)]'
-                  : activeRow === i
-                    ? 'border-amber-400/25 bg-amber-500/5'
-                    : 'border-white/6 bg-white/[0.02]'
-              }`}
+              initial={{ opacity: 0, y: 22 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.2 + i * 0.1, duration: 0.55 }}
+              className="group relative flex flex-col overflow-hidden rounded-2xl"
+              style={{
+                border: `1px solid ${tier.border}`,
+                background: `linear-gradient(155deg,${tier.accentFrom}1a 0%,#040d1a 60%,${tier.accentTo}0d 100%)`,
+                boxShadow: tier.best
+                  ? `0 0 50px ${tier.glow},0 0 100px ${tier.glow},inset 0 1px 0 ${tier.border}`
+                  : `0 0 25px ${tier.glow},inset 0 1px 0 ${tier.border}`,
+              }}
             >
-              {row.best && (
-                <div className="absolute right-0 top-0 rounded-bl-xl rounded-tr-2xl bg-amber-400 px-3 py-0.5 text-[0.58rem] font-black text-black">
-                  الأفضل قيمةً ✦
+              {/* شارة الأفضل */}
+              {tier.best && (
+                <div className="absolute left-0 right-0 top-0 flex justify-center">
+                  <div
+                    className="rounded-b-xl px-4 py-1 text-[0.6rem] font-black text-black"
+                    style={{ background: `linear-gradient(90deg,${tier.accentFrom},${tier.accentTo})` }}
+                  >
+                    ✦ الأفضل قيمةً
+                  </div>
                 </div>
               )}
-              <div className="flex items-center gap-4 px-5 py-4">
-                {/* الأيقونة */}
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ${
-                  row.best ? 'bg-amber-500/20 shadow-[0_0_16px_rgba(251,191,36,0.20)]' : 'bg-white/5'
-                }`}>
-                  {row.icon}
-                </div>
-                {/* النص الرئيسي */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-black text-white">{row.label}</span>
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-black ${
-                      row.best ? 'bg-amber-400/20 text-amber-300' : 'bg-white/8 text-slate-300'
-                    }`}>{row.bonus}</span>
+
+              {/* توهج علوي */}
+              <div
+                className="pointer-events-none absolute inset-x-0 top-0 h-28 opacity-50"
+                style={{ background: `radial-gradient(ellipse 100% 100% at 50% 0%,${tier.accentTo}20,transparent)` }}
+              />
+
+              {/* توهج hover */}
+              <div
+                className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+                style={{ background: `radial-gradient(ellipse 80% 80% at 50% 50%,${tier.accentTo}12,transparent)` }}
+              />
+
+              <div className={`relative flex flex-col gap-4 p-5 ${tier.best ? 'pt-8' : ''}`}>
+                {/* الأيقونة + العنوان */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl"
+                    style={{
+                      background: `linear-gradient(135deg,${tier.accentFrom}30,${tier.accentTo}20)`,
+                      border: `1px solid ${tier.border}`,
+                      boxShadow: `0 0 18px ${tier.glow}`,
+                    }}
+                  >
+                    {tier.emoji}
                   </div>
-                  <p className="mt-0.5 text-[0.7rem] text-slate-400">{row.months}</p>
+                  <div>
+                    <p className="font-black text-white leading-tight">{tier.label}</p>
+                    <div
+                      className="mt-0.5 inline-flex rounded-full px-2.5 py-0.5 text-xs font-black"
+                      style={{ background: `${tier.accentTo}22`, color: tier.accentTo, border: `1px solid ${tier.border}` }}
+                    >
+                      {tier.bonus}
+                    </div>
+                  </div>
                 </div>
+
+                <p className="text-[0.72rem] text-slate-400 leading-snug">{tier.subtitle}</p>
+
+                {/* الفاصل */}
+                <div className="h-px" style={{ background: `linear-gradient(90deg,transparent,${tier.border},transparent)` }} />
+
                 {/* التوفير لكل باقة */}
-                <div className="hidden shrink-0 items-center gap-3 lg:flex">
-                  {[
-                    { label: '🥉', price: PRICE_B, color: 'text-amber-700' },
-                    { label: '🥇', price: PRICE_G, color: 'text-amber-400' },
-                    { label: '💎', price: PRICE_D, color: 'text-cyan-400' },
-                    { label: '💎🌙', price: PRICE_DA, color: 'text-violet-400' },
-                  ].map(t => (
-                    <div key={t.label} className="text-center">
-                      <div className="text-[0.55rem]">{t.label}</div>
-                      <div className={`text-xs font-black tabular-nums ${t.color}`}>
-                        {savings(t.price, row.n)} ر.س
-                      </div>
-                      <div className="text-[0.48rem] text-slate-600">توفير</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {plans.map(plan => (
+                    <div
+                      key={plan.name}
+                      className="flex items-center justify-between rounded-xl px-3 py-2"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    >
+                      <span className="text-[0.6rem] text-slate-500">{plan.emoji} {plan.name}</span>
+                      <span className="font-mono text-xs font-black tabular-nums" style={{ color: plan.color }}>
+                        {(plan.price * tier.n).toLocaleString('ar-SA')} ر.س
+                      </span>
                     </div>
                   ))}
                 </div>
-              </div>
-              {/* جوال: التوفير في صف منفصل */}
-              <div className="flex items-center gap-3 border-t border-white/5 px-4 py-2 lg:hidden">
-                <span className="text-[0.6rem] text-slate-500">التوفير:</span>
-                {[
-                  { label: '🥉 برونزي', price: PRICE_B, color: 'text-amber-700' },
-                  { label: '🥇 ذهبي', price: PRICE_G, color: 'text-amber-400' },
-                  { label: '💎 ماسي', price: PRICE_D, color: 'text-cyan-400' },
-                  { label: '💎🌙 ماسي+مناوب', price: PRICE_DA, color: 'text-violet-400' },
-                ].map(t => (
-                  <div key={t.label} className="text-center">
-                    <div className={`text-[0.6rem] font-black ${t.color}`}>{savings(t.price, row.n)}</div>
-                    <div className="text-[0.5rem] text-slate-600">{t.label}</div>
-                  </div>
-                ))}
+
+                {/* CTA */}
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={onRegister}
+                  className="relative mt-1 w-full overflow-hidden rounded-xl py-3 text-sm font-black"
+                  style={{
+                    background: `linear-gradient(135deg,${tier.accentFrom},${tier.accentTo})`,
+                    color: tier.best ? '#000' : '#fff',
+                    boxShadow: `0 0 24px ${tier.glow},0 4px 12px ${tier.glow}`,
+                  }}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    احجز مقعدك
+                    <ArrowLeft className="h-4 w-4" />
+                  </span>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
+                </motion.button>
               </div>
             </motion.div>
           ))}
         </div>
-
-        {/* أعمدة التوفير — تعليق توضيحي desktop */}
-        <div className="mt-2 hidden justify-end gap-3 pr-5 lg:flex">
-          {['🥉 برونزي', '🥇 ذهبي', '💎 ماسي', '💎🌙 +مناوب'].map(l => (
-            <div key={l} className="w-14 text-center text-[0.5rem] text-slate-600">{l}</div>
-          ))}
-        </div>
       </div>
 
-      {/* ══ الفوتر: الشروط + CTA ══ */}
+      {/* ══ الفوتر ══ */}
       <div className="relative border-t border-amber-400/10 px-6 py-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.67rem] text-slate-400">
-              <span>✅ ينطبق على جميع الباقات — برونزي وذهبي وماسي</span>
-              <span>✅ لا عمولات على خدماتك</span>
-              <span>✅ ظهور جغرافي ذكي عند الطلب</span>
-              <span className="flex items-center gap-1">
-                <span className="inline-block rounded-full border border-amber-400/50 bg-amber-500/15 px-2 py-0.5 text-amber-300 font-bold">⭐ شارة رائد</span>
-                لكل مشترك من ١ إلى ١٠٠٠ — لامعة على البنر · لا تُمنح بعد اكتمال الألف
-              </span>
-            </div>
-            <p className="text-[0.62rem] text-amber-500/50">
-              ⭐ كل مشترك من ١ إلى ١٠٠٠ يحصل على <strong className="text-amber-300">شارة رائد</strong> لامعة على بنره — حصرية لا تُمنح لغير الألف الأوائل &nbsp;·&nbsp; 🚨 يُغلق فور اكتمال العدد
-            </p>
-          </div>
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onRegister}
-            className="relative overflow-hidden rounded-2xl px-8 py-3.5 text-sm font-black text-black shadow-[0_4px_28px_rgba(251,191,36,0.40)]"
-            style={{ background: 'linear-gradient(135deg, #f59e0b, #fbbf24, #fde68a)' }}
-          >
-            <motion.div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(135deg, transparent 35%, rgba(255,255,255,0.25) 50%, transparent 65%)' }}
-              animate={{ x: ['-100%', '200%'] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
-            />
-            <span className="relative flex items-center gap-2">
-              احجز مقعدك الآن
-              <ArrowLeft className="h-4 w-4" />
+          <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[0.65rem] text-slate-500">
+            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✅</span>ينطبق على جميع الباقات</span>
+            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✅</span>لا عمولات على خدماتك</span>
+            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✅</span>ظهور جغرافي ذكي عند الطلب</span>
+            <span className="flex items-center gap-1.5">
+              <span className="rounded-full border border-amber-400/45 bg-amber-500/15 px-2 py-px text-[0.6rem] font-bold text-amber-300">⭐ شارة رائد</span>
+              لكل مشترك من ١ إلى ١٠٠٠ — حصرية للأبد
             </span>
-          </motion.button>
+          </div>
+          <p className="text-[0.58rem] text-amber-500/45">
+            🚨 يُغلق العرض فور اكتمال الألف رائد
+          </p>
         </div>
       </div>
     </motion.div>
