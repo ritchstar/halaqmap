@@ -1,4 +1,4 @@
-﻿import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
+import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
 import { compareBarbersByListingScore } from '@/lib/barberListingRank';
 
 export const ROUTE_PATHS = {
