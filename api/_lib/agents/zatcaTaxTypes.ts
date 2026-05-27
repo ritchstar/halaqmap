@@ -80,7 +80,7 @@ export type ZatcaFilteredRevenueLog = {
 export type ZatcaAdminActivationAlert = {
   priority: 'critical';
   agentId: 'zatca_tax_advisor';
-  agentLabelAr: 'ط²ظ…ظٹظ„ ط®ط§ط²ظ†';
+  agentLabelAr: string;
   titleAr: string;
   bodyAr: string;
   ctaLabelAr: string;
