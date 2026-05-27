@@ -1,10 +1,10 @@
-﻿/**
- * admin-security-agents â€” ظˆظƒظ„ط§ط، ط§ظ„ط£ظ…ظ† ط§ظ„ط³ظٹط¨ط±ط§ظ†ظٹ ط§ظ„ط­ظ‚ظٹظ‚ظٹظˆظ†
+/**
+ * admin-security-agents — وكلاء الأمن السيبراني الحقيقيون
  *
  * Actions:
- *  proactive_scout    â€” ظٹط³طھط¹ظ„ظ… security_events ظˆظٹط±طµط¯ IPs ط°ط§طھ ظ…ط¹ط¯ظ„ ظ…طھطµط§ط¹ط¯
- *  forensic_analysis  â€” ظٹظƒط´ظپ ط£ظ†ظ…ط§ط· ط§ظ„ظ‡ط¬ظˆظ… ط§ظ„ظ…ظˆط²ظ‘ط¹ ظˆط§ظ„ط¨ط·ظٹط،
- *  threat_neutralize  â€” ظٹظڈظ†ظپظ‘ط° ط­ط¸ط±ط§ظ‹ ط´ط§ظ…ظ„ط§ظ‹ (DB + Cloudflare) ظپظٹ ط¢ظ†ظچ ظˆط§ط­ط¯
+ *  proactive_scout    — يستعلم security_events ويرصد IPs ذات معدل متصاعد
+ *  forensic_analysis  — يكشف أنماط الهجوم الموزّع والبطيء
+ *  threat_neutralize  — يُنفّذ حظراً شاملاً (DB + Cloudflare) في آنٍ واحد
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -33,14 +33,14 @@ export async function POST(request: Request): Promise<Response> {
   const action = String(body.action || '').trim();
   const supabase = createClient(serverUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-  // â—† ط¹ظ…ظٹظ„ ط§ظ„ط§ط³طھط·ظ„ط§ط¹ ط§ظ„ط§ط³طھط¨ط§ظ‚ظٹ â€” ظٹظƒط´ظپ ط§ظ„طھظ‡ط¯ظٹط¯ط§طھ ظ‚ط¨ظ„ ظˆظ‚ظˆط¹ظ‡ط§
-  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+  // ══════════════════════════════════════════════════════════════════
+  // ◆ عميل الاستطلاع الاستباقي — يكشف التهديدات قبل وقوعها
+  // ══════════════════════════════════════════════════════════════════
   if (action === 'proactive_scout') {
     const windowMin = Number(body.windowMinutes ?? 10);
     const since = new Date(Date.now() - windowMin * 60_000).toISOString();
 
-    // ظ،. IPs ط°ط§طھ ظ…ط¹ط¯ظ„ ظ…طھطµط§ط¹ط¯ ط®ظ„ط§ظ„ ط§ظ„ظ€ N ط¯ظ‚ط§ط¦ظ‚ ط§ظ„ط£ط®ظٹط±ط©
+    // ١. IPs ذات معدل متصاعد خلال الـ N دقائق الأخيرة
     const { data: recentEvents } = await supabase
       .from('security_events')
       .select('ip, event_type, severity, created_at')
@@ -48,7 +48,7 @@ export async function POST(request: Request): Promise<Response> {
       .order('created_at', { ascending: false })
       .limit(200);
 
-    // طھط­ظ„ظٹظ„ ظ…ط¹ط¯ظ„ ط§ظ„ط·ظ„ط¨ط§طھ ظ„ظƒظ„ IP
+    // تحليل معدل الطلبات لكل IP
     const ipStats: Record<string, { count: number; critical: number; warning: number; endpoints: Set<string> }> = {};
     for (const ev of recentEvents ?? []) {
       if (!ipStats[ev.ip]) ipStats[ev.ip] = { count: 0, critical: 0, warning: 0, endpoints: new Set() };
@@ -57,14 +57,14 @@ export async function POST(request: Request): Promise<Response> {
       if (ev.severity === 'warning') ipStats[ev.ip].warning++;
     }
 
-    // ط§ظ„ظ€ IPs ط§ظ„ظ…ط´ط¨ظˆظ‡ط© (ط£ظƒط«ط± ظ…ظ† 5 ط£ط­ط¯ط§ط« ظپظٹ ط§ظ„ظپطھط±ط©)
+    // الـ IPs المشبوهة (أكثر من 5 أحداث في الفترة)
     const suspicious = Object.entries(ipStats)
       .filter(([, s]) => s.count >= 5)
       .sort(([, a], [, b]) => b.critical - a.critical || b.count - a.count)
       .slice(0, 10)
       .map(([ip, s]) => ({ ip, count: s.count, critical: s.critical, warning: s.warning }));
 
-    // ظ¢. طھط­ظ„ظٹظ„ ظ…ط¹ط¯ظ„ ط§ظ„طھط³ط§ط±ط¹ (ظ‡ظ„ ظٹطھطµط§ط¹ط¯طں)
+    // ٢. تحليل معدل التسارع (هل يتصاعد؟)
     const halfWindow = new Date(Date.now() - (windowMin / 2) * 60_000).toISOString();
     const { count: recentHalf } = await supabase
       .from('security_events')
@@ -79,17 +79,17 @@ export async function POST(request: Request): Promise<Response> {
     const acceleration = (olderHalf ?? 0) > 0 ? ((recentHalf ?? 0) / (olderHalf ?? 1)) : 1;
     const threatLevel = acceleration > 3 ? 'critical' : acceleration > 1.5 ? 'elevated' : 'normal';
 
-    // طھظ‚ط±ظٹط± ط§ظ„ظˆظƒظٹظ„
+    // تقرير الوكيل
     const reportLines: string[] = [];
-    reportLines.push(`ط¹ظ…ظٹظ„ ط§ظ„ط§ط³طھط·ظ„ط§ط¹ ط§ظ„ط§ط³طھط¨ط§ظ‚ظٹ â€” طھظ‚ط±ظٹط± ${windowMin} ط¯ظ‚ظٹظ‚ط© ط§ظ„ط£ط®ظٹط±ط©`);
-    reportLines.push(`ظ…ط³طھظˆظ‰ ط§ظ„طھظ‡ط¯ظٹط¯: ${threatLevel === 'critical' ? 'ًںڑ¨ ط­ط±ط¬' : threatLevel === 'elevated' ? 'âڑ ï¸ڈ ظ…ط±طھظپط¹' : 'âœ… ط·ط¨ظٹط¹ظٹ'}`);
-    reportLines.push(`ظ…ط¹ط¯ظ„ ط§ظ„طھط³ط§ط±ط¹: أ—${acceleration.toFixed(1)} (ط§ظ„ظ†طµظپ ط§ظ„ط«ط§ظ†ظٹ vs ط§ظ„ط£ظˆظ„)`);
+    reportLines.push(`عميل الاستطلاع الاستباقي — تقرير ${windowMin} دقيقة الأخيرة`);
+    reportLines.push(`مستوى التهديد: ${threatLevel === 'critical' ? '🚨 حرج' : threatLevel === 'elevated' ? '⚠️ مرتفع' : '✅ طبيعي'}`);
+    reportLines.push(`معدل التسارع: ×${acceleration.toFixed(1)} (النصف الثاني vs الأول)`);
     if (suspicious.length > 0) {
-      reportLines.push(`IPs ظ…ط´ط¨ظˆظ‡ط©: ${suspicious.length}`);
+      reportLines.push(`IPs مشبوهة: ${suspicious.length}`);
       suspicious.slice(0, 3).forEach(s =>
-        reportLines.push(`  آ· ${s.ip} â€” ${s.count} ط­ط¯ط« (${s.critical} ط­ط±ط¬)`));
+        reportLines.push(`  · ${s.ip} — ${s.count} حدث (${s.critical} حرج)`));
     } else {
-      reportLines.push('ظ„ط§ ظ…طµط§ط¯ط± ظ…ط´ط¨ظˆظ‡ط© ط¨ط§ط±ط²ط© ظپظٹ ط§ظ„ظپطھط±ط© ط§ظ„ظ…ط±ط§ظ‚ظژط¨ط©');
+      reportLines.push('لا مصادر مشبوهة بارزة في الفترة المراقَبة');
     }
 
     return json({
@@ -101,18 +101,18 @@ export async function POST(request: Request): Promise<Response> {
       report: reportLines.join('\n'),
       agentResponse: {
         agentId: 'proactive_scout',
-        agentLabelAr: 'ط¹ظ…ظٹظ„ ط§ظ„ط§ط³طھط·ظ„ط§ط¹ ط§ظ„ط§ط³طھط¨ط§ظ‚ظٹ',
-        actionLabelAr: threatLevel === 'critical' ? 'ًںڑ¨ طھط­ط°ظٹط± ظ…ط¨ظƒط±' : 'ًں”چ ظ…ط³ط­ ط§ط³طھط¨ط§ظ‚ظٹ',
-        explanationAr: reportLines.join(' آ· '),
+        agentLabelAr: 'عميل الاستطلاع الاستباقي',
+        actionLabelAr: threatLevel === 'critical' ? '🚨 تحذير مبكر' : '🔍 مسح استباقي',
+        explanationAr: reportLines.join(' · '),
         severity: threatLevel === 'critical' ? 'critical' : threatLevel === 'elevated' ? 'elevated' : 'info',
         timestamp: new Date().toISOString(),
       },
     });
   }
 
-  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-  // â—† ظ…ط­ظ„ظ„ ط§ظ„ط¬ظ†ط§ط¦ظٹط§طھ ط§ظ„ط±ظ‚ظ…ظٹط© â€” ظٹظƒط´ظپ ط§ظ„ط£ظ†ظ…ط§ط· ط§ظ„ط®ظپظٹط©
-  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+  // ══════════════════════════════════════════════════════════════════
+  // ◆ محلل الجنائيات الرقمية — يكشف الأنماط الخفية
+  // ══════════════════════════════════════════════════════════════════
   if (action === 'forensic_analysis') {
     const hours = Number(body.hours ?? 24);
     const since = new Date(Date.now() - hours * 3_600_000).toISOString();
@@ -126,7 +126,7 @@ export async function POST(request: Request): Promise<Response> {
 
     const evs = events ?? [];
 
-    // ظ،. ظƒط´ظپ ط§ظ„ظ‡ط¬ظˆظ… ط§ظ„ظ…ظˆط²ظ‘ط¹ (ظ†ظپط³ ط§ظ„ظ€ endpointطŒ IPs ظ…ط®طھظ„ظپط©)
+    // ١. كشف الهجوم الموزّع (نفس الـ endpoint، IPs مختلفة)
     const endpointTargets: Record<string, Set<string>> = {};
     for (const e of evs) {
       if (e.endpoint) {
@@ -140,7 +140,7 @@ export async function POST(request: Request): Promise<Response> {
       .slice(0, 5)
       .map(([endpoint, ips]) => ({ endpoint, uniqueIps: ips.size }));
 
-    // ظ¢. ظƒط´ظپ ط§ظ„ظ‡ط¬ظˆظ… ط§ظ„ط¨ط·ظٹط، (IP ظˆط§ط­ط¯طŒ ظپطھط±ط© ط·ظˆظٹظ„ط©)
+    // ٢. كشف الهجوم البطيء (IP واحد، فترة طويلة)
     const ipTimeline: Record<string, number[]> = {};
     for (const e of evs) {
       if (!ipTimeline[e.ip]) ipTimeline[e.ip] = [];
@@ -151,7 +151,7 @@ export async function POST(request: Request): Promise<Response> {
         if (times.length < 5) return false;
         const span = (times[times.length - 1] - times[0]) / 60_000; // minutes
         const rate = times.length / span;
-        return span > 30 && rate < 2; // ط¨ط·ظٹط، ط¬ط¯ط§ظ‹ â€” ظٹطھط¬ظ†ط¨ rate limiting
+        return span > 30 && rate < 2; // بطيء جداً — يتجنب rate limiting
       })
       .map(([ip, times]) => ({
         ip,
@@ -160,7 +160,7 @@ export async function POST(request: Request): Promise<Response> {
       }))
       .slice(0, 5);
 
-    // ظ£. طھط­ظ„ظٹظ„ ط¬ط؛ط±ط§ظپظٹ
+    // ٣. تحليل جغرافي
     const countries: Record<string, number> = {};
     for (const e of evs) {
       if (e.ip_country) countries[e.ip_country] = (countries[e.ip_country] ?? 0) + 1;
@@ -168,17 +168,17 @@ export async function POST(request: Request): Promise<Response> {
     const topCountries = Object.entries(countries).sort(([,a],[,b])=>b-a).slice(0, 5).map(([c,n])=>({country:c,count:n}));
 
     const findings: string[] = [];
-    findings.push(`ظ…ط­ظ„ظ„ ط§ظ„ط¬ظ†ط§ط¦ظٹط§طھ ط§ظ„ط±ظ‚ظ…ظٹط© â€” طھط­ظ„ظٹظ„ ${hours} ط³ط§ط¹ط© ط§ظ„ط£ط®ظٹط±ط©`);
+    findings.push(`محلل الجنائيات الرقمية — تحليل ${hours} ساعة الأخيرة`);
     if (distributedAttacks.length > 0) {
-      findings.push(`ًں”´ ظ‡ط¬ظˆظ… ظ…ظˆط²ظ‘ط¹ ط¹ظ„ظ‰ ${distributedAttacks[0].endpoint} ظ…ظ† ${distributedAttacks[0].uniqueIps} ظ…طµط§ط¯ط±`);
+      findings.push(`🔴 هجوم موزّع على ${distributedAttacks[0].endpoint} من ${distributedAttacks[0].uniqueIps} مصادر`);
     }
     if (slowAttackers.length > 0) {
-      findings.push(`ًںگ¢ ظ‡ط¬ظˆظ… ط¨ط·ظٹط، ظ…ظƒطھط´ظپ: ${slowAttackers[0].ip} â€” ${slowAttackers[0].events} ط­ط¯ط« ط®ظ„ط§ظ„ ${slowAttackers[0].spanMinutes} ط¯ظ‚ظٹظ‚ط©`);
+      findings.push(`🐢 هجوم بطيء مكتشف: ${slowAttackers[0].ip} — ${slowAttackers[0].events} حدث خلال ${slowAttackers[0].spanMinutes} دقيقة`);
     }
     if (topCountries.length > 0) {
-      findings.push(`ًںŒچ ط£ظƒط«ط± ظ…طµط¯ط± ط¬ط؛ط±ط§ظپظٹ: ${topCountries[0].country} (${topCountries[0].count} ط­ط¯ط«)`);
+      findings.push(`🌍 أكثر مصدر جغرافي: ${topCountries[0].country} (${topCountries[0].count} حدث)`);
     }
-    if (findings.length === 1) findings.push('ظ„ط§ ط£ظ†ظ…ط§ط· ظ‡ط¬ظˆظ… ط®ظپظٹط© ظ…ظƒطھط´ظپط© ظپظٹ ط§ظ„ظپطھط±ط© ط§ظ„ظ…ط­ظ„ظ„ط©');
+    if (findings.length === 1) findings.push('لا أنماط هجوم خفية مكتشفة في الفترة المحللة');
 
     return json({
       ok: true,
@@ -189,18 +189,18 @@ export async function POST(request: Request): Promise<Response> {
       report: findings.join('\n'),
       agentResponse: {
         agentId: 'forensic_analyst',
-        agentLabelAr: 'ظ…ط­ظ„ظ„ ط§ظ„ط¬ظ†ط§ط¦ظٹط§طھ ط§ظ„ط±ظ‚ظ…ظٹط©',
-        actionLabelAr: distributedAttacks.length > 0 ? 'ًں”´ ظ‡ط¬ظˆظ… ظ…ظˆط²ظ‘ط¹ ظ…ظƒطھط´ظپ' : slowAttackers.length > 0 ? 'ًںگ¢ ظ‡ط¬ظˆظ… ط¨ط·ظٹط، ظ…ظƒطھط´ظپ' : 'âœ… ظ„ط§ ط£ظ†ظ…ط§ط· ط®ظپظٹط©',
-        explanationAr: findings.join(' آ· '),
+        agentLabelAr: 'محلل الجنائيات الرقمية',
+        actionLabelAr: distributedAttacks.length > 0 ? '🔴 هجوم موزّع مكتشف' : slowAttackers.length > 0 ? '🐢 هجوم بطيء مكتشف' : '✅ لا أنماط خفية',
+        explanationAr: findings.join(' · '),
         severity: distributedAttacks.length > 0 ? 'critical' : slowAttackers.length > 0 ? 'elevated' : 'info',
         timestamp: new Date().toISOString(),
       },
     });
   }
 
-  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-  // â—† ظ…ط­ظٹظ‘ط¯ ط§ظ„طھظ‡ط¯ظٹط¯ط§طھ â€” طھط­ظٹظٹط¯ ط´ط§ظ…ظ„ DB + Cloudflare
-  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+  // ══════════════════════════════════════════════════════════════════
+  // ◆ محيّد التهديدات — تحييد شامل DB + Cloudflare
+  // ══════════════════════════════════════════════════════════════════
   if (action === 'threat_neutralize') {
     const targets = Array.isArray(body.ips)
       ? (body.ips as unknown[]).map(String).filter(Boolean).slice(0, 20)
@@ -208,20 +208,20 @@ export async function POST(request: Request): Promise<Response> {
 
     if (targets.length === 0) return json({ error: 'No IPs provided' }, 400);
 
-    const reason = String(body.reason || 'Threat Neutralizer â€” coordinated neutralization').trim();
+    const reason = String(body.reason || 'Threat Neutralizer — coordinated neutralization').trim();
     const results: { ip: string; db: boolean; cf: boolean; cfRuleId?: string }[] = [];
 
     for (const ip of targets) {
-      // ظ،. ط­ط¸ط± ظپظٹ Supabase
+      // ١. حظر في Supabase
       const { error: dbErr } = await supabase.from('security_block_list').upsert({
         ip, reason: `[NEUTRALIZER] ${reason}`, blocked_by: auth.actorEmail, active: true,
         metadata: { source: 'threat_neutralizer', timestamp: new Date().toISOString() },
       }, { onConflict: 'ip' });
 
-      // ظ¢. ط­ط¸ط± ط¹ظ„ظ‰ Cloudflare Edge
+      // ٢. حظر على Cloudflare Edge
       const cfResult = cfConfigured() ? await blockIpCloudflare(ip, reason, 'block') : { ok: false };
 
-      // ظ£. طھط³ط¬ظٹظ„ ط§ظ„ط­ط¯ط«
+      // ٣. تسجيل الحدث
       await supabase.from('security_events').insert({
         ip, event_type: 'blocked_ip_attempt', severity: 'critical',
         endpoint: '/security/neutralize',
@@ -240,9 +240,9 @@ export async function POST(request: Request): Promise<Response> {
       results,
       agentResponse: {
         agentId: 'threat_neutralizer',
-        agentLabelAr: 'ظ…ط­ظٹظ‘ط¯ ط§ظ„طھظ‡ط¯ظٹط¯ط§طھ',
-        actionLabelAr: allNeutralized ? 'âڑ، طھط­ظٹظٹط¯ ط´ط§ظ…ظ„ â€” DB + CF' : partialNeutralized ? 'âڑ، طھط­ظٹظٹط¯ ط¬ط²ط¦ظٹ' : 'â‌Œ ظپط´ظ„ ط§ظ„طھط­ظٹظٹط¯',
-        explanationAr: `طھظ…ظ‘ طھط­ظٹظٹط¯ ${targets.length} ظ…طµط¯ط± طھظ‡ط¯ظٹط¯. ${results.filter(r=>r.db).length} ظ…ط­ط¬ظˆط¨ ظپظٹ DB ظˆ${results.filter(r=>r.cf).length} ظ…ط­ط¬ظˆط¨ ط¹ظ„ظ‰ Cloudflare Edge. ط§ظ„طھط£ط«ظٹط±: ظپظˆط±ظٹ ط¹ظ„ظ‰ ط¬ظ…ظٹط¹ ط§ظ„ظ…ط³ط§ط±ط§طھ.`,
+        agentLabelAr: 'محيّد التهديدات',
+        actionLabelAr: allNeutralized ? '⚡ تحييد شامل — DB + CF' : partialNeutralized ? '⚡ تحييد جزئي' : '❌ فشل التحييد',
+        explanationAr: `تمّ تحييد ${targets.length} مصدر تهديد. ${results.filter(r=>r.db).length} محجوب في DB و${results.filter(r=>r.cf).length} محجوب على Cloudflare Edge. التأثير: فوري على جميع المسارات.`,
         severity: 'critical',
         timestamp: new Date().toISOString(),
       },
@@ -258,4 +258,3 @@ export async function OPTIONS(): Promise<Response> {
     headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' },
   });
 }
-

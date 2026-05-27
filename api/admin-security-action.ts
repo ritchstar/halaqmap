@@ -1,11 +1,11 @@
-﻿/**
- * admin-security-action â€” ظ‚ظٹط§ط¯ط© ط§ظ„ط¯ظپط§ط¹ ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…ظ† ط؛ط±ظپط© ط§ظ„ط¹ظ…ظ„ظٹط§طھ
+/**
+ * admin-security-action — قيادة الدفاع الحقيقية من غرفة العمليات
  *
  * Actions:
- *  آ· block_ip      â€” ط­ط¸ط± IP ظپظٹ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ (ظٹط³ط±ظٹ ظپظˆط±ط§ظ‹)
- *  آ· unblock_ip    â€” ط±ظپط¹ ط§ظ„ط­ط¸ط±
- *  آ· get_threat_data â€” ط¨ظٹط§ظ†ط§طھ ط§ظ„طھظ‡ط¯ظٹط¯ ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ„ظ„ظ…ط¯ط¹ظٹ ط§ظ„ط¹ط§ظ…
- *  آ· get_block_list  â€” ظ‚ط§ط¦ظ…ط© ط§ظ„ط­ط¸ط± ط§ظ„ظ†ط´ط·ط©
+ *  · block_ip      — حظر IP في قاعدة البيانات (يسري فوراً)
+ *  · unblock_ip    — رفع الحظر
+ *  · get_threat_data — بيانات التهديد الحقيقية للمدعي العام
+ *  · get_block_list  — قائمة الحظر النشطة
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -33,7 +33,7 @@ export async function POST(request: Request): Promise<Response> {
   const serverUrl = (process.env.SUPABASE_URL || '').trim();
   const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
-  // طھط­ظ‚ظ‚ ظ…ظ† طµظ„ط§ط­ظٹط© ط§ظ„ط£ط¯ظ…ظ†
+  // تحقق من صلاحية الأدمن
   const auth = await verifyPlatformAdminFromRequestAny(request, serverUrl, serviceKey, ['manage_admins', 'view_command_center']);
   if (!auth.ok) return json(auth.json, auth.status);
 
@@ -44,7 +44,7 @@ export async function POST(request: Request): Promise<Response> {
   const action = String(body.action || '').trim();
   const supabase = createClient(serverUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  // â”€â”€ ط­ط¸ط± IP ط­ظ‚ظٹظ‚ظٹ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── حظر IP حقيقي ──────────────────────────────────────────────────
   if (action === 'block_ip') {
     const ip = String(body.ip || '').trim();
     const reason = String(body.reason || 'Blocked from Cyber Ops Theater').trim().slice(0, 500);
@@ -66,31 +66,31 @@ export async function POST(request: Request): Promise<Response> {
 
     if (error) return json({ error: error.message }, 500);
 
-    // ط³ط¬ظ‘ظ„ ط§ظ„ط­ط¯ط«
+    // سجّل الحدث
     await supabase.from('security_events').insert({
       ip, event_type: 'blocked_ip_attempt', severity: 'critical',
       endpoint: '/admin/security/block',
       detail: { action: 'block', reason, blocked_by: auth.actorEmail, expires_at: expiresAt },
     });
 
-    return json({ ok: true, message: `IP ${ip} ظ…ط­ط¬ظˆط¨ ظپظˆط±ط§ظ‹` });
+    return json({ ok: true, message: `IP ${ip} محجوب فوراً` });
   }
 
-  // â”€â”€ ط±ظپط¹ ط§ظ„ط­ط¸ط± â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── رفع الحظر ─────────────────────────────────────────────────────
   if (action === 'unblock_ip') {
     const ip = String(body.ip || '').trim();
     if (!ip) return json({ error: 'IP required' }, 400);
 
     await supabase.from('security_block_list').update({ active: false }).eq('ip', ip);
-    return json({ ok: true, message: `طھظ… ط±ظپط¹ ط§ظ„ط­ط¸ط± ط¹ظ† ${ip}` });
+    return json({ ok: true, message: `تم رفع الحظر عن ${ip}` });
   }
 
-  // â”€â”€ ط¨ظٹط§ظ†ط§طھ ط§ظ„طھظ‡ط¯ظٹط¯ ط§ظ„ط­ظ‚ظٹظ‚ظٹط© â€” ظ„ظ„ظ…ط¯ط¹ظٹ ط§ظ„ط¹ط§ظ… â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── بيانات التهديد الحقيقية — للمدعي العام ────────────────────────
   if (action === 'get_threat_data') {
     const hours = Number(body.hours ?? 24);
     const since = new Date(Date.now() - hours * 3_600_000).toISOString();
 
-    // ط£ط­ط¯ط§ط« ط£ظ…ظ†ظٹط© ط­ظ‚ظٹظ‚ظٹط©
+    // أحداث أمنية حقيقية
     const [
       { data: events, count: eventCount },
       { data: critical },
@@ -117,7 +117,7 @@ export async function POST(request: Request): Promise<Response> {
         .gte('created_at', since),
     ]);
 
-    // طھط­ظ„ظٹظ„ ط£ظƒط«ط± IPs ظ†ط´ط§ط·ط§ظ‹
+    // تحليل أكثر IPs نشاطاً
     const ipCounts: Record<string, number> = {};
     for (const e of topIps ?? []) {
       ipCounts[e.ip] = (ipCounts[e.ip] ?? 0) + 1;
@@ -127,13 +127,13 @@ export async function POST(request: Request): Promise<Response> {
       .slice(0, 10)
       .map(([ip, count]) => ({ ip, count }));
 
-    // ط£ط­ط¯ط§ط« ط¯ظپط¹ ظ…ط±ظٹط¨ط© (ظ…ظ† ط¬ط¯ظˆظ„ ظ…ظˆط¬ظˆط¯)
+    // أحداث دفع مريبة (من جدول موجود)
     const { count: paymentSecCount } = await supabase
       .from('payment_security_events')
       .select('id', { count: 'exact', head: true })
       .gte('created_at', since);
 
-    // ط³ط¬ظ„ ط·ظ„ط¨ط§طھ ط§ظ„طھط³ط¬ظٹظ„ (ظ‚ط¯ ظٹط´ظٹط± ظ„ط¨ظˆطھ)
+    // سجل طلبات التسجيل (قد يشير لبوت)
     const { count: regCount } = await supabase
       .from('registration_submissions')
       .select('id', { count: 'exact', head: true })
@@ -141,7 +141,7 @@ export async function POST(request: Request): Promise<Response> {
 
     return json({
       ok: true,
-      period: `ط¢ط®ط± ${hours} ط³ط§ط¹ط©`,
+      period: `آخر ${hours} ساعة`,
       summary: {
         totalEvents: eventCount ?? 0,
         criticalEvents: critical?.length ?? 0,
@@ -156,7 +156,7 @@ export async function POST(request: Request): Promise<Response> {
     });
   }
 
-  // â”€â”€ ظ‚ط§ط¦ظ…ط© ط§ظ„ط­ط¸ط± ط§ظ„ظ†ط´ط·ط© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── قائمة الحظر النشطة ────────────────────────────────────────────
   if (action === 'get_block_list') {
     const { data } = await supabase
       .from('security_block_list')
@@ -167,21 +167,21 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: true, blocked: data ?? [] });
   }
 
-  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-  // â—† Cloudflare â€” ط­ظ…ط§ظٹط© Edge ط­ظ‚ظٹظ‚ظٹط©
-  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+  // ══════════════════════════════════════════════════════════════════
+  // ◆ Cloudflare — حماية Edge حقيقية
+  // ══════════════════════════════════════════════════════════════════
 
-  // â”€â”€ ط­ط¸ط± IP ط¹ظ„ظ‰ Cloudflare Edge (ظ„ط§ ظٹطµظ„ ظ„ظ„ط³ظٹط±ظپط± ط£ط¨ط¯ط§ظ‹) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── حظر IP على Cloudflare Edge (لا يصل للسيرفر أبداً) ────────────
   if (action === 'cf_block_ip') {
     const ip = String(body.ip || '').trim();
     const reason = String(body.reason || 'Blocked from Cyber Ops Theater').trim().slice(0, 500);
     const mode = (['block', 'challenge', 'js_challenge'].includes(String(body.mode)) ? body.mode : 'block') as 'block' | 'challenge' | 'js_challenge';
     if (!ip) return json({ error: 'IP required' }, 400);
 
-    // ظ،. Cloudflare Edge block
+    // ١. Cloudflare Edge block
     const cfResult = await blockIpCloudflare(ip, reason, mode);
 
-    // ظ¢. ط³ط¬ظ‘ظ„ ظپظٹ Supabase ط£ظٹط¶ط§ظ‹ (ظ„ظ„طھطھط¨ط¹ ط§ظ„ظ…ط­ظ„ظٹ)
+    // ٢. سجّل في Supabase أيضاً (للتتبع المحلي)
     await supabase.from('security_block_list').upsert({
       ip, reason: `[CF] ${reason}`, blocked_by: auth.actorEmail, active: true,
       metadata: { source: 'cloudflare', cf_rule_id: cfResult.ruleId, mode },
@@ -196,7 +196,7 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: cfResult.ok, cfConfigured: true, ruleId: cfResult.ruleId, error: cfResult.error });
   }
 
-  // â”€â”€ ط±ظپط¹ ط­ط¸ط± ظ…ظ† Cloudflare â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── رفع حظر من Cloudflare ────────────────────────────────────────
   if (action === 'cf_unblock_ip') {
     const ip = String(body.ip || '').trim();
     const ruleId = String(body.ruleId || '').trim();
@@ -211,7 +211,7 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: cfOk });
   }
 
-  // â”€â”€ طھظپط¹ظٹظ„ Under Attack Mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── تفعيل Under Attack Mode ───────────────────────────────────────
   if (action === 'cf_under_attack') {
     const enabled = body.enabled !== false;
     const result = await setUnderAttackMode(enabled);
@@ -223,7 +223,7 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: result.ok, mode: enabled ? 'under_attack' : 'medium', error: result.error });
   }
 
-  // â”€â”€ ط­ط§ظ„ط© Cloudflare ط§ظ„ط£ظ…ظ†ظٹط© ط§ظ„ط­ط§ظ„ظٹط© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── حالة Cloudflare الأمنية الحالية ──────────────────────────────
   if (action === 'cf_status') {
     const [status, rules, analytics] = await Promise.all([
       getCfSecurityStatus(),
@@ -239,7 +239,7 @@ export async function POST(request: Request): Promise<Response> {
     });
   }
 
-  // â”€â”€ Cloudflare Analytics ظپظ‚ط· â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Cloudflare Analytics فقط ──────────────────────────────────────
   if (action === 'cf_analytics') {
     const hours = Number(body.hours ?? 24);
     const analytics = await getCfThreatAnalytics(hours);
@@ -255,4 +255,3 @@ export async function OPTIONS(): Promise<Response> {
     headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' },
   });
 }
-
