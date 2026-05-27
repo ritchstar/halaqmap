@@ -64,6 +64,8 @@ const partnerBottomNav = [
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم', Icon: Headphones },
 ] as const;
 
+const HAS_NEW_MAP_COMMUNITY_POSTS = true;
+
 /** يطابق رأس مسار الخدمات البرمجية للمنصة — شريط عنوان المتصفح / PWA على الجوال */
 const PARTNER_THEME_COLOR = '#071426';
 
@@ -290,6 +292,12 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                 }
               >
                 <MessageCircle className="h-[18px] w-[18px] text-cyan-200" />
+                {HAS_NEW_MAP_COMMUNITY_POSTS ? (
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-fuchsia-400 opacity-75" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-fuchsia-300 shadow-[0_0_10px_rgba(217,70,239,0.95)]" />
+                  </span>
+                ) : null}
                 مجتمع ماب
               </NavLink>
 

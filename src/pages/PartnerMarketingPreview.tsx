@@ -56,6 +56,7 @@ function useCounter(end: number, duration = 1800, enabled = true) {
 const PRICE_B = 100, PRICE_G = 150, PRICE_D = 200, PRICE_DA = 225;
 
 const PIONEER_TOTAL = 1000; // ألف الرواد — الحد التأسيسي الأقصى
+const HAS_NEW_MAP_COMMUNITY_POSTS = true;
 
 function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
   const [spots, setSpots] = useState(731);
@@ -1126,10 +1127,16 @@ export default function PartnerMarketingPreview() {
           style={{
             transformStyle: 'preserve-3d',
             background:
-              'linear-gradient(155deg,rgba(34,211,238,0.16) 0%,rgba(6,18,35,0.82) 45%,rgba(16,185,129,0.13) 100%)',
-            border: '1px solid rgba(103,232,249,0.38)',
+              HAS_NEW_MAP_COMMUNITY_POSTS
+                ? 'linear-gradient(155deg,rgba(34,211,238,0.22) 0%,rgba(6,18,35,0.82) 42%,rgba(217,70,239,0.18) 100%)'
+                : 'linear-gradient(155deg,rgba(34,211,238,0.16) 0%,rgba(6,18,35,0.82) 45%,rgba(16,185,129,0.13) 100%)',
+            border: HAS_NEW_MAP_COMMUNITY_POSTS
+              ? '1px solid rgba(217,70,239,0.48)'
+              : '1px solid rgba(103,232,249,0.38)',
             boxShadow:
-              '0 0 32px rgba(34,211,238,0.25),0 0 70px rgba(16,185,129,0.10),inset 0 1px 0 rgba(255,255,255,0.18)',
+              HAS_NEW_MAP_COMMUNITY_POSTS
+                ? '0 0 42px rgba(217,70,239,0.34),0 0 90px rgba(34,211,238,0.18),inset 0 1px 0 rgba(255,255,255,0.20)'
+                : '0 0 32px rgba(34,211,238,0.25),0 0 70px rgba(16,185,129,0.10),inset 0 1px 0 rgba(255,255,255,0.18)',
             backdropFilter: 'blur(18px)',
           }}
           title="مجتمع ماب"
@@ -1137,10 +1144,24 @@ export default function PartnerMarketingPreview() {
           {/* breathing halo */}
           <motion.span
             className="pointer-events-none absolute inset-0 rounded-[1.35rem]"
-            style={{ background: 'radial-gradient(circle at 50% 50%,rgba(34,211,238,0.18),transparent 68%)' }}
-            animate={{ opacity: [0.35, 0.85, 0.35], scale: [0.96, 1.08, 0.96] }}
-            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ background: HAS_NEW_MAP_COMMUNITY_POSTS ? 'radial-gradient(circle at 50% 50%,rgba(217,70,239,0.24),transparent 68%)' : 'radial-gradient(circle at 50% 50%,rgba(34,211,238,0.18),transparent 68%)' }}
+            animate={{ opacity: HAS_NEW_MAP_COMMUNITY_POSTS ? [0.55, 1, 0.55] : [0.35, 0.85, 0.35], scale: HAS_NEW_MAP_COMMUNITY_POSTS ? [0.94, 1.16, 0.94] : [0.96, 1.08, 0.96] }}
+            transition={{ duration: HAS_NEW_MAP_COMMUNITY_POSTS ? 2.2 : 3.6, repeat: Infinity, ease: 'easeInOut' }}
           />
+          {HAS_NEW_MAP_COMMUNITY_POSTS ? (
+            <>
+              <motion.span
+                className="pointer-events-none absolute -inset-2 rounded-[1.55rem] border border-fuchsia-400/45"
+                animate={{ scale: [1, 1.22], opacity: [0.65, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }}
+              />
+              <motion.span
+                className="pointer-events-none absolute -inset-4 rounded-[1.75rem] border border-cyan-300/30"
+                animate={{ scale: [1, 1.28], opacity: [0.4, 0] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: 0.35 }}
+              />
+            </>
+          ) : null}
           {/* glass shine */}
           <motion.span
             className="pointer-events-none absolute inset-0 rounded-[1.35rem]"
@@ -1148,12 +1169,18 @@ export default function PartnerMarketingPreview() {
             animate={{ x: ['-120%', '160%'] }}
             transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 2.2, ease: 'linear' }}
           />
-          <span className="relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-300/35 bg-cyan-500/12 shadow-[0_0_20px_rgba(34,211,238,0.22)]">
-            <MessageCircle className="h-6 w-6 text-cyan-200" />
+          <span
+            className="relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl border shadow-[0_0_20px_rgba(34,211,238,0.22)]"
+            style={{
+              borderColor: HAS_NEW_MAP_COMMUNITY_POSTS ? 'rgba(217,70,239,0.55)' : 'rgba(103,232,249,0.35)',
+              background: HAS_NEW_MAP_COMMUNITY_POSTS ? 'rgba(217,70,239,0.16)' : 'rgba(34,211,238,0.12)',
+            }}
+          >
+            <MessageCircle className={HAS_NEW_MAP_COMMUNITY_POSTS ? 'h-6 w-6 text-fuchsia-200' : 'h-6 w-6 text-cyan-200'} />
             <motion.span
-              className="absolute inset-0 rounded-2xl border border-cyan-300/45"
-              animate={{ scale: [1, 1.45], opacity: [0.5, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className={HAS_NEW_MAP_COMMUNITY_POSTS ? 'absolute inset-0 rounded-2xl border border-fuchsia-300/55' : 'absolute inset-0 rounded-2xl border border-cyan-300/45'}
+              animate={{ scale: [1, HAS_NEW_MAP_COMMUNITY_POSTS ? 1.65 : 1.45], opacity: [0.55, 0] }}
+              transition={{ duration: HAS_NEW_MAP_COMMUNITY_POSTS ? 1.45 : 2, repeat: Infinity }}
             />
           </span>
           <span className="relative z-10 text-[0.68rem] font-black tracking-widest text-cyan-100">
