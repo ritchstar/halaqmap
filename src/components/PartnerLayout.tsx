@@ -379,7 +379,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       {![
         ROUTE_PATHS.PARTNER_PRIVACY,
         ROUTE_PATHS.SUBSCRIPTION_POLICY,
-        ROUTE_PATHS.PAYMENT,            // صفحة الدفع — لا تشتيت
+        ROUTE_PATHS.PAYMENT,
+        ROUTE_PATHS.MAP_COMMUNITY,      // مجتمع ماب — سعودي فقط
       ].includes(location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY) && (
         <>
           <B2BSalesManagerChat

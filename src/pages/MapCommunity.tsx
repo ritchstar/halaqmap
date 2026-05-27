@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { ROUTE_PATHS } from '@/lib';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 type CommunityMessage = {
   id: string;
@@ -152,6 +152,7 @@ async function askMapAssistant(message: string, history: CommunityMessage[]) {
 
 export default function MapCommunity() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const founderView = searchParams.get('view') === 'founder';
   const [access, setAccess] = useState<CommunityAccess>({ status: 'checking' });
   const [messages, setMessages] = useState<CommunityMessage[]>(starterMessages);
@@ -333,6 +334,49 @@ export default function MapCommunity() {
       dir="rtl"
       className="relative min-h-screen overflow-hidden bg-[#0a0f0d] px-4 py-10 text-slate-100"
     >
+      {/* لسان سعودي — يسار ثابت */}
+      <motion.button
+        type="button"
+        onClick={() => navigate(ROUTE_PATHS.SAUDI_AGENT)}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 1, type: 'spring', stiffness: 280, damping: 26 }}
+        whileHover={{ x: 5, scale: 1.04 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed left-0 z-[48] hidden flex-col items-center gap-1.5 py-3 px-2.5 sm:flex"
+        style={{
+          top: '50%',
+          transform: 'translateY(-50%)',
+          background: 'linear-gradient(180deg,#0b2e14 0%,#0e3d1c 50%,#0b2e14 100%)',
+          border: '1.5px solid rgba(34,145,63,0.48)',
+          borderRight: 'none',
+          borderRadius: '0 0 0 14px',
+          boxShadow: '4px 0 22px rgba(34,145,63,0.30),0 0 12px rgba(201,162,39,0.15)',
+        }}
+        title="سعودي — الوكيل الذكي"
+      >
+        <motion.span
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'rgba(34,145,63,0.08)', borderRadius: 'inherit' }}
+          animate={{ opacity: [0.3, 0.8, 0.3] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <span className="relative z-10 text-lg leading-none" style={{ filter: 'drop-shadow(0 0 5px rgba(201,162,39,0.65))' }}>
+          🇸🇦
+        </span>
+        <motion.span
+          className="relative z-10 h-1.5 w-1.5 rounded-full bg-emerald-400"
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 1.8, repeat: Infinity }}
+          style={{ boxShadow: '0 0 5px rgba(52,211,153,0.8)' }}
+        />
+        <span
+          className="relative z-10 text-[0.5rem] font-black tracking-widest text-yellow-400/70"
+          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+        >
+          سعودي
+        </span>
+      </motion.button>
       {/* شريط المؤسس — اطلاع صامت */}
       {isFounder && (
         <motion.div
