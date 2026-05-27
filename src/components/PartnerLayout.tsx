@@ -421,7 +421,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         {/* فوتر مضغوط للجوال */}
         <div className="container mx-auto px-3 py-4 md:hidden">
           <div className="mb-4">
-            <LicenseRechargeWidget mode="register" showHeader={false} />
+            <LicenseRechargeWidget mode="auto" showHeader={false} />
           </div>
           <LegalEntityPublicStrip variant="dark" />
           <p className="mt-3 rounded-md border border-amber-400/25 bg-amber-500/[0.06] px-3 py-2 text-center text-[10.5px] leading-relaxed text-amber-100/90">
@@ -458,7 +458,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
         <div className="container mx-auto hidden px-4 py-6 md:block">
           <div className="mb-8">
-            <LicenseRechargeWidget mode="register" />
+            <LicenseRechargeWidget mode="auto" />
           </div>
           <div className="mb-6">
             <LegalEntityPublicStrip variant="dark" />

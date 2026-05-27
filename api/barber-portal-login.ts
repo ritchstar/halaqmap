@@ -115,16 +115,24 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   let passwordAccepted = Boolean(portalPassword) && password === portalPassword;
+  let authSession: { access_token: string; refresh_token: string } | null = null;
   if (!passwordAccepted && anonKey) {
     const anonClient = createClient(url, anonKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
-    const { error: signErr } = await anonClient.auth.signInWithPassword({
+    const { data: signData, error: signErr } = await anonClient.auth.signInWithPassword({
       email: rawEmail,
       password,
     });
     if (!signErr) {
       passwordAccepted = true;
+      const session = signData.session;
+      if (session?.access_token && session.refresh_token) {
+        authSession = {
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        };
+      }
       await anonClient.auth.signOut();
     }
   }
@@ -226,6 +234,7 @@ export async function POST(request: Request): Promise<Response> {
             : '',
         inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(barber),
       },
+      ...(authSession ? { authSession } : {}),
     },
     { headers },
   );

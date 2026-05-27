@@ -30,6 +30,11 @@ function tierFromDb(t: string | null | undefined): SubscriptionTier {
   return SubscriptionTier.BRONZE;
 }
 
+export type SupabaseAuthSessionPayload = {
+  access_token: string;
+  refresh_token: string;
+};
+
 export type BarberPortalSession = {
   id: string;
   name: string;
@@ -50,7 +55,10 @@ export type BarberPortalSession = {
 export async function barberPortalLoginRemote(input: {
   email: string;
   password: string;
-}): Promise<{ ok: true; session: BarberPortalSession } | { ok: false; error: string; code?: string }> {
+}): Promise<
+  | { ok: true; session: BarberPortalSession; authSession?: SupabaseAuthSessionPayload | null }
+  | { ok: false; error: string; code?: string }
+> {
   const ep = endpoint();
   if (!ep) return { ok: false, error: 'مسار تسجيل الدخول غير مضبوط.' };
 
@@ -66,6 +74,7 @@ export async function barberPortalLoginRemote(input: {
     const payload = (await response.json().catch(() => ({}))) as {
       error?: string;
       code?: string;
+      authSession?: SupabaseAuthSessionPayload;
       barber?: {
         id: string;
         name: string;
@@ -94,6 +103,10 @@ export async function barberPortalLoginRemote(input: {
     const mn = b.member_number;
     const memberNumber =
       mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
+    const authSession =
+      payload.authSession?.access_token && payload.authSession.refresh_token
+        ? payload.authSession
+        : null;
     return {
       ok: true,
       session: {
@@ -108,6 +121,7 @@ export async function barberPortalLoginRemote(input: {
         openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
       },
+      authSession,
     };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بالخادم. تحقق من الشبكة أو من إعدادات النشر.' };

@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
 import type { BarberPortalInclusiveCareSnapshot } from '@/lib/barberInclusiveCareRemote';
+import { persistBarberAuthSession } from '@/lib/barberPortalSession';
 import { toast } from 'sonner';
 
 const MAGIC_ENDPOINT = String(import.meta.env.VITE_BARBER_PORTAL_MAGIC_CONSUME_URL || '/api/barber-portal-magic-consume').trim();
@@ -83,20 +84,16 @@ export default function BarberPortalEnter() {
         const memberNumber =
           mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
 
-        localStorage.setItem(
-          'barberAuth',
-          JSON.stringify({
-            id: b.id,
-            name: b.name,
-            email: b.email,
-            phone: b.phone || '',
-            subscription: tierFromDb(b.tier),
-            ratingInviteToken: String(b.rating_invite_token ?? ''),
-            memberNumber,
-            inclusiveCare: b.inclusiveCare,
-            loggedIn: true,
-          }),
-        );
+        persistBarberAuthSession({
+          id: b.id,
+          name: b.name,
+          email: b.email,
+          phone: b.phone || '',
+          subscription: tierFromDb(b.tier),
+          ratingInviteToken: String(b.rating_invite_token ?? ''),
+          memberNumber,
+          inclusiveCare: b.inclusiveCare,
+        });
         toast.success(`مرحباً ${partnerSalonDisplayName({ name: b.name, email: b.email })}`);
         navigate(ROUTE_PATHS.BARBER_DASHBOARD, { replace: true });
       } catch {

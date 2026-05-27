@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Mail, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,10 +11,16 @@ import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { PLATFORM_PARTNER_DASHBOARD_TAGLINE } from '@/config/platformSmartTracking';
 import { IMAGES } from '@/assets/images';
 import { barberPortalLoginRemote } from '@/lib/barberPortalLoginRemote';
+import {
+  establishSupabaseSessionForPartner,
+  persistBarberAuthSession,
+  resolveSafePartnerRedirect,
+} from '@/lib/barberPortalSession';
 import { toast } from 'sonner';
 
 export default function BarberLogin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,15 +40,20 @@ export default function BarberLogin() {
         setIsLoading(false);
         return;
       }
-      localStorage.setItem(
-        'barberAuth',
-        JSON.stringify({
-          ...result.session,
-          loggedIn: true,
-        }),
-      );
+      persistBarberAuthSession(result.session);
+      const supabaseLinked = await establishSupabaseSessionForPartner({
+        email,
+        password,
+        authSession: result.authSession,
+      });
+      if (!supabaseLinked.ok) {
+        toast.message('تنبيه', {
+          description:
+            'تم الدخول للوحة التحكم. لمجتمع ماب والنشر المباشر استخدم كلمة مرور حسابك على المنصة (وليس الرمز الموحّد فقط).',
+        });
+      }
       toast.success(`مرحباً ${partnerSalonDisplayName(result.session)}`);
-      navigate(ROUTE_PATHS.BARBER_DASHBOARD);
+      navigate(resolveSafePartnerRedirect(searchParams.get('next')));
     } catch {
       toast.error('حدث خطأ غير متوقع');
     } finally {

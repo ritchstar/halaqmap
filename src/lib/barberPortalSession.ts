@@ -1,3 +1,10 @@
+/**
+ * barberPortalSession — ربط جلسة الحلاق (barberAuth) مع Supabase اختيارياً.
+ *
+ * ليس دمج بوابات: لا يغيّر مسارات الدخول ولا يوحّد واجهات الشريك.
+ * يوفّر فقط قراءة/حفظ barberAuth، وربط Supabase عند توفر كلمة مرور الحساب،
+ * وتسجيل خروج متسق للوحة التحكم ومجتمع ماب.
+ */
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { ROUTE_PATHS } from '@/lib';
 import type { BarberPortalSession } from '@/lib/barberPortalLoginRemote';
@@ -21,7 +28,7 @@ export function readBarberAuthSession(): BarberPortalSession | null {
     const raw = window.localStorage.getItem(BARBER_AUTH_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<BarberPortalSession> & { loggedIn?: boolean };
-    if (!parsed || (!parsed.email && !parsed.id)) return null;
+    if (!parsed?.id || !parsed?.email || !parsed?.name) return null;
     return parsed as BarberPortalSession;
   } catch {
     return null;
@@ -61,7 +68,8 @@ export async function establishSupabaseSessionForPartner(input: {
   return error ? { ok: false } : { ok: true };
 }
 
-export async function clearPartnerPortalSession(): Promise<void> {
+/** يزيل barberAuth ويُنهي جلسة Supabase في المتصفح (لوحة التحكم + مجتمع ماب). */
+export async function clearBarberLinkedSession(): Promise<void> {
   if (typeof window !== 'undefined') {
     window.localStorage.removeItem(BARBER_AUTH_KEY);
   }
@@ -70,6 +78,9 @@ export async function clearPartnerPortalSession(): Promise<void> {
     await client.auth.signOut().catch(() => undefined);
   }
 }
+
+/** @deprecated استخدم clearBarberLinkedSession */
+export const clearPartnerPortalSession = clearBarberLinkedSession;
 
 export function resolveSafePartnerRedirect(next: string | null | undefined): string {
   const raw = (next || '').trim();
@@ -82,7 +93,10 @@ export function resolveSafePartnerRedirect(next: string | null | undefined): str
   return raw;
 }
 
-export function buildPartnerLoginUrl(next?: string): string {
+export function buildBarberLoginUrl(next?: string): string {
   if (!next?.trim()) return ROUTE_PATHS.BARBER_LOGIN;
   return `${ROUTE_PATHS.BARBER_LOGIN}?next=${encodeURIComponent(next)}`;
 }
+
+/** @deprecated استخدم buildBarberLoginUrl */
+export const buildPartnerLoginUrl = buildBarberLoginUrl;
