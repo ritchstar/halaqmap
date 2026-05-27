@@ -50,7 +50,9 @@ export const PLATFORM_IDENTITY_PROOF_POINTS_AR: readonly string[] = [
 export const PLATFORM_IDENTITY_BOILERPLATE_AR =
   'حلاق ماب — مزوّد حلول تقنية (Technical Solutions Provider) لرخصة النفاذ الرقمية ضمن نظام الاستجابة الذكية (الظهور عند الطلب · On-Demand Visibility). ليست وسيطاً تجارياً ولا تتقاضى عمولة على خدمة الحلاقة.';
 
-/** عنوان ثقة تقنية — للعرض في Hero والدفع والسياسات. */
+/** دور المنصة تجاه الشريك B2B — «شريك تقني» لا «منصة تُدار من فوق». */
+export const PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR =
+  'تجاه الحلاق والصالون: شريك تقني يوفّر رخصة نفاذ ونظام استجابة ذكية — أنت تدير صالونك، والمنصة توفّر البنية البرمجية.';
 export const PLATFORM_TRUST_HEADLINE_AR =
   'منصة تقنية محمية — مشفّرة، مباشرة، وشفافة';
 

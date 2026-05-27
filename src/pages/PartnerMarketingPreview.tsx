@@ -33,9 +33,18 @@ import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/End
 import { BannerRadiationField, bannerRadiationTierFromId, type BannerRadiationTier } from '@/components/BannerRadiationField';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
 import {
+  PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE,
   PARTNER_PRODUCT_HUB_SUMMARY_CARDS,
   PARTNER_PRODUCT_HUB_TAGLINE,
 } from '@/config/partnerProductHubCopy';
+import {
+  PARTNER_TECHNICAL_PARTNER_HEADLINE,
+  PARTNER_TECHNICAL_PARTNER_HERO_CHIPS,
+  PARTNER_TECHNICAL_PARTNER_LABEL_AR,
+  PARTNER_TECHNICAL_PARTNER_TAGLINE,
+} from '@/config/partnerTechnicalPartnerDoctrine';
+import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentity';
+import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
@@ -1040,6 +1049,7 @@ export default function PartnerMarketingPreview() {
                 { label: 'كيف تنضم',      id: 'كيف تنضم',      icon: Navigation2 },
                 { label: 'مزايا الباقات', id: 'مزايا الباقات', icon: Sparkles },
                 { label: 'الأسعار',       id: 'الأسعار',       icon: Crown },
+                { label: 'منطق الشراكة', id: 'منطق-الشراكة', icon: Users },
                 { label: 'معاينة الباقات 🏛️', id: 'معاينة البنرات', icon: ImageIcon },
               ].map((item) => (
                 <button
@@ -1244,9 +1254,11 @@ export default function PartnerMarketingPreview() {
             </h1>
 
             <p className="mb-8 max-w-xl text-base leading-relaxed text-slate-400">
-              رخصة نفاذ رقمية تُفعِّل وجودك الجغرافي على منصة حلاق ماب —
-              تظهر عندما يبحث زبون قريب، وتختفي حين لا يوجد طلب.
-              <span className="block mt-2 text-[0.85rem] text-amber-400/70">
+              {PARTNER_TECHNICAL_PARTNER_HEADLINE}
+              <span className="mt-2 block text-[0.9rem] leading-relaxed text-slate-300">
+                {PARTNER_TECHNICAL_PARTNER_TAGLINE}
+              </span>
+              <span className="mt-2 block text-[0.85rem] text-amber-400/70">
                 لا عمولة · لا وسيط · لا عقد مُلزِم
               </span>
             </p>
@@ -1254,9 +1266,13 @@ export default function PartnerMarketingPreview() {
             <PlatformTrustStrip variant="strip" tone="dark" className="mb-8 max-w-xl" />
 
             <div className="mb-8 flex flex-wrap gap-3">
+              {PARTNER_TECHNICAL_PARTNER_HERO_CHIPS.map((text) => (
+                <div key={text} className="flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/8 px-3 py-1.5 text-[0.75rem] text-emerald-100">
+                  <Shield className="h-3.5 w-3.5 text-emerald-300" />
+                  {text}
+                </div>
+              ))}
               {[
-                { icon: Shield, text: 'لا عمولة على الخدمة' },
-                { icon: Lock, text: 'تحكم كامل في بياناتك' },
                 { icon: Globe2, text: '47+ مدينة سعودية' },
                 { icon: Clock, text: 'حزمة 30 يوم مسبقة الدفع' },
               ].map((b) => (
@@ -1385,6 +1401,13 @@ export default function PartnerMarketingPreview() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Technical partner doctrine ───────────────────────────────────── */}
+      <section id="منطق-الشراكة" className="relative z-10 border-y border-white/5 bg-white/[0.015] py-20">
+        <div className="mx-auto max-w-5xl px-5">
+          <PartnerTechnicalPartnerCompare variant="full" />
         </div>
       </section>
 
@@ -1687,7 +1710,7 @@ export default function PartnerMarketingPreview() {
               هكذا يظهر صالونك
             </motion.h2>
             <p className="mt-3 text-slate-400">معاينة سريعة للبنرات الثلاث — التفاصيل الكاملة للمناوب والمكتب في صفحة المعاينة</p>
-            <p className="mx-auto mt-2 max-w-2xl text-xs leading-relaxed text-violet-300/70">{PARTNER_PRODUCT_HUB_TAGLINE}</p>
+            <p className="mx-auto mt-2 max-w-2xl text-xs leading-relaxed text-violet-300/70">{PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE}</p>
           </div>
 
           <div className="space-y-16">
@@ -1778,7 +1801,7 @@ export default function PartnerMarketingPreview() {
           </motion.h2>
           <div className="flex flex-col gap-3">
             {[
-              { q: 'هل حلاق ماب تأخذ عمولة على كل قصة شعر؟', a: 'لا — حلاق ماب مزوّد حلول تقنية فقط. تدفع رخصة نفاذ شهرية ثابتة، والعلاقة بين صالونك والزبون مباشرة بدون وسيط أو عمولة.' },
+              { q: 'هل حلاق ماب تأخذ عمولة على كل قصة شعر؟', a: 'لا — حلاق ماب شريكك التقني فقط. تدفع رخصة نفاذ شهرية ثابتة، والعلاقة بين صالونك والزبون مباشرة بدون وسيط أو عمولة.' },
               { q: 'ما معنى "الظهور عند الطلب"؟', a: 'يظهر صالونك في نتائج البحث فقط عندما يبحث زبون فعلي قريب منك — هذا يعني أن كل ظهور هو فرصة حقيقية، لا وجود شكلي.' },
               { q: 'كيف أشترك إذا لم تكن المنطقة مغطاة؟', a: 'لا تقلق، سوف نصلك قريباً — راسل الدعم.' },
               { q: 'هل يمكنني تغيير باقتي لاحقاً؟', a: 'نعم — عند انتهاء الحزمة الحالية تشتري الباقة الجديدة التي تناسبك. لا عقد ملزم ولا رسوم ترقية.' },
@@ -1859,8 +1882,10 @@ export default function PartnerMarketingPreview() {
                 <span className="text-base font-black text-white">حلاق ماب — مسار الشركاء</span>
               </div>
               <p className="text-xs leading-relaxed text-slate-500">
-                مزوّد حلول تقنية (Technical Solutions Provider) — رخصة نفاذ رقمية ضمن نظام الاستجابة الذكية.
-                ليست وسيطاً تجارياً ولا تتقاضى عمولة على خدمة الحلاقة.
+                {PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR}
+                <span className="mt-2 block">
+                  مزوّد حلول تقنية · {PARTNER_TECHNICAL_PARTNER_LABEL_AR} · ISIC4 474151 · المملكة العربية السعودية — ليست وسيطاً تجارياً.
+                </span>
               </p>
             </div>
             <div dir="rtl">

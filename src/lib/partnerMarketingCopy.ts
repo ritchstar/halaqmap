@@ -11,11 +11,22 @@ import {
 import {
   ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
 } from '@/config/onDemandVisibilityDoctrine';
+import {
+  PARTNER_TECHNICAL_PARTNER_ASSISTANT_WELCOME,
+  PARTNER_TECHNICAL_PARTNER_BEFORE_AFTER_SUBTITLE,
+  PARTNER_TECHNICAL_PARTNER_COMMITMENT,
+  PARTNER_TECHNICAL_PARTNER_FOOTER_LINE,
+  PARTNER_TECHNICAL_PARTNER_LABEL_AR,
+  PARTNER_TECHNICAL_PARTNER_PLANS_LEAD,
+  PARTNER_TECHNICAL_PARTNER_REGISTER_LINE,
+  PARTNER_TECHNICAL_PARTNER_STORY_LEAD,
+  PARTNER_TECHNICAL_PARTNER_WHY_CLOSING,
+} from '@/config/partnerTechnicalPartnerDoctrine';
 
 /** فقرات متعددة لصفحة التسجيل — تُعرض ككتل منفصلة لسهولة القراءة على الجوال */
 export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
   `${PLATFORM_PARTNER_SMART_TRACKING_HEADLINE}. ${PLATFORM_PARTNER_SMART_TRACKING_LEAD} رخصة نفاذ حلاق ماب الرقمية تعتمد على «الظهور عند الطلب» (On-Demand Visibility): يُفعَّل ظهور صالونك برمجياً حصراً عند وجود طلب نشط في محيطه الجغرافي — كفاءة استهداف، لا قائمة دائمة.`,
-  'انضمامك كشريك يعني دخول شبكة استجابة ذكية موثوقة: تسجيل، دفع لحزمة رخصة النفاذ، ثم **تفعيل تلقائي للاستجابة البرمجية** بعد نجاح الدفع. الباقات (برونزي · ذهبي · ماسي) تترجم ذلك إلى استثمار تقني واضح بأولويات استجابة متفاوتة.',
+  PARTNER_TECHNICAL_PARTNER_REGISTER_LINE,
   'كل أسبوع تأخّر قد يعني أن طلباً في حيّك يستجيب له صالون آخر قبلك ضمن نفس المحيط. نافس على مكان القرار: استجابة فورية، دقة جغرافية، وثقة الشبكة.',
   ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
 ] as const;
@@ -23,14 +34,13 @@ export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
 /** نسخة سطر واحد للأماكن التي تتطلب نصاً قصيراً */
 export const PARTNER_REGISTER_INTRO = PARTNER_REGISTER_INTRO_PARAGRAPHS.join(' ');
 
-export const PARTNER_LAYOUT_FOOTER_LINE =
-  'حلاق ماب: المنصة الأولى المدعومة بنظام الاستجابة الذكية — رخصة نفاذ تُفعِّل ظهور صالونك برمجياً عند وجود طلب نشط في محيطك.';
+export const PARTNER_LAYOUT_FOOTER_LINE = PARTNER_TECHNICAL_PARTNER_FOOTER_LINE;
 
 /** يُحدَّث من الإدارة ليعكس العدد الفعلي عند الحاجة (عرض تسويقي). */
 export const PARTNER_LANDING_SOCIAL_COUNT_LABEL = '+300 صالون شريك';
 
 export const PARTNER_LANDING_HERO = {
-  badge: 'نظام الاستجابة الذكية · للحلاقين والصالونات',
+  badge: `${PARTNER_TECHNICAL_PARTNER_LABEL_AR} · نظام الاستجابة الذكية`,
   title: PLATFORM_PARTNER_SMART_TRACKING_HEADLINE,
   lead: PLATFORM_SMART_TRACKING_SUBTEXT,
 } as const;
@@ -45,8 +55,8 @@ export const PARTNER_LANDING_HERO_HIGHLIGHTS = [
     body: 'خوارزمية «الظهور عند الطلب» تُفعِّل صالونك حصراً للطلبات النشطة في محيطه — تسجيل، دفع، ثم استجابة تلقائية بعد نجاح المعاملة.',
   },
   {
-    title: 'شراكة موثوقة',
-    body: 'تحقق تقني وحماية للشبكة — الزبون يثق بالنتائج المُستجيبة لطلبه، واسمك يجاور صالونات معتمدة عند ظهورك البرمجي.',
+    title: 'شريك تقني — لا تبعية',
+    body: PARTNER_TECHNICAL_PARTNER_COMMITMENT,
   },
 ] as const;
 
@@ -86,7 +96,7 @@ export const PARTNER_LANDING_BENEFITS_SECTION = {
 
 export const PARTNER_LANDING_BEFORE_AFTER = {
   title: 'قبل وبعد التسجيل',
-  subtitle: 'الفرق باختصار — من غير منظر إلى ظهور يخدمك:',
+  subtitle: PARTNER_TECHNICAL_PARTNER_BEFORE_AFTER_SUBTITLE,
   before: {
     label: 'قبل التسجيل',
     bullets: ['ما يستجيب لطلب قريب منه', 'بدون ملف يجمع صورتك وخدماتك', 'بدون تقييمات تدعم جودتك'],
@@ -193,8 +203,7 @@ export const PARTNER_LANDING_PROCESS_STEPS = [
 
 export const PARTNER_LANDING_PLANS_SECTION = {
   title: 'حزم رخصة النفاذ — اختر ما يخدم مرحلة صالونك',
-  lead:
-    'كل باقة مبنية على منفعة واضحة للحلاق: زبون قريب يراك، يثق بك، ويتواصل معك بسرعة. ابدأ بسيطاً أو ادخل بقوة حسب جاهزية صالونك.',
+  lead: PARTNER_TECHNICAL_PARTNER_PLANS_LEAD,
 } as const;
 
 export const PARTNER_LANDING_PLAN_CARDS = [
@@ -282,8 +291,7 @@ export const PARTNER_WHY_PAGE = {
     },
   ],
 
-  closingQuote:
-    'حلاق ماب — **مزوّد حلول تقنية**، لا وسيط تجاري؛ نبيع رخصة نفاذ رقمية ضمن نظام الاستجابة الذكية (الظهور عند الطلب)، ونترك العلاقة التعاقدية مع العميل بينك وبينه مباشرةً. لا عمولة على القص، لا حجز نيابة، لا إشغال دائم للمساحة الرقمية.',
+  closingQuote: PARTNER_TECHNICAL_PARTNER_WHY_CLOSING,
   ctaPrimary: 'ابدأ طلب الشراكة',
   ctaSecondary: 'العودة للصفحة التسويقية',
 } as const;
@@ -292,8 +300,7 @@ export const PARTNER_WHY_PAGE = {
 export const PARTNER_STORY_PAGE = {
   heroBadge: 'منطق السوق',
   heroTitle: 'قصة مسار الخدمات البرمجية — من الفكرة إلى الاستجابة الذكية عند الطلب',
-  heroLead:
-    'نبني منصة عربية ترى الحلاق شريكاً في نمو السوق — لا مجرد حساب في نظام. نظام الاستجابة الذكية هو المسرح؛ حزم الرخصة هي الصلاحيات؛ **إتمام الدفع هو بوابة تفعيل الاستجابة البرمجية** عند الطلب.',
+  heroLead: PARTNER_TECHNICAL_PARTNER_STORY_LEAD,
 
   chapters: [
     {
@@ -336,8 +343,7 @@ export const PARTNER_DIGITAL_ASSISTANT = {
   name: 'مساعد الشركاء الرقمي',
   role: 'حلاق رقمي',
   greeting: 'أهلًا بك في مسار الخدمات البرمجية للمنصة',
-  welcome:
-    'أنا هنا لأرحّب بك بابتسامة، وأذكّرك أن حلاق ماب تجمع بين دقة المقص في التفاصيل ودقة نظام الاستجابة الذكية في الوصول إليك عند الطلب — خطوة واحدة نحو حضور مهني يُفعَّل وقت ما يطلبك زبون قريب.',
+  welcome: PARTNER_TECHNICAL_PARTNER_ASSISTANT_WELCOME,
   tips: [
     'اسألني عن «ما الجديد؟» أو عن المناوب الرقمي في الباقة الماسية — أنا مُحدَّث بآخر إطلاقات المنصة.',
     'اقرأ صفحة «لماذا تنضم؟» و«القصة والمسار» إن أردت الإقناع العميق قبل تعبئة الطلب.',

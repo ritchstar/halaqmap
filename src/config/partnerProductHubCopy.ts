@@ -5,6 +5,10 @@ import {
 } from '@/config/subscriptionPricing';
 import { SubscriptionTier } from '@/lib/index';
 import {
+  PARTNER_TECHNICAL_PARTNER_COMMITMENT,
+  PARTNER_TECHNICAL_PARTNER_TAGLINE,
+} from '@/config/partnerTechnicalPartnerDoctrine';
+import {
   PARTNER_BANNERS_PREVIEW_TIERS,
 } from '@/config/partnerBannersPreviewCopy';
 import {
@@ -40,11 +44,13 @@ export const PARTNER_PRODUCT_HUB_SECTIONS: readonly PartnerProductHubSection[] =
 
 export const PARTNER_PRODUCT_HUB_TITLE = 'معاينة الباقات وإضافة المكتب الخاص 🏛️';
 
-export const PARTNER_PRODUCT_HUB_TAGLINE =
+export const PARTNER_PRODUCT_HUB_TAGLINE = PARTNER_TECHNICAL_PARTNER_TAGLINE;
+
+export const PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE =
   `إضافة المكتب الخاص = مساعد داخلي 🏛️ + مناوب شات 🌙 — للماسي فقط (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة)`;
 
 export const PARTNER_PRODUCT_HUB_INTRO =
-  'محاكاة تلقائية لرحلة الزبون على الرادار، ثم أدوات التشغيل والماسي وإضافة المكتب — في صفحة واحدة مفهرسة.';
+  `${PARTNER_TECHNICAL_PARTNER_COMMITMENT} محاكاة البنرات، لوحة التحكم، والمكتب الخاص — في صفحة واحدة مفهرسة.`;
 
 export type PartnerTierComparisonColumn = {
   id: string;

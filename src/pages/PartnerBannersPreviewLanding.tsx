@@ -30,7 +30,9 @@ import {
   PLATFORM_IDENTITY_BOILERPLATE_AR,
 } from '@/config/platformIdentity';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
+import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
+import { PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE } from '@/config/partnerProductHubCopy';
 
 const PRIVATE_OFFICE_CYCLE_STEPS = [
   { n: '1', t: 'اضغط رمز التوجيه', d: 'اختر «عرض:» أو «تعليمة:» أو أي من ٩ رموز — يُدرج في الشات تلقائياً' },
@@ -101,6 +103,10 @@ export default function PartnerBannersPreviewLanding() {
           </div>
           <div className="mt-3">
             <PlatformTrustStrip variant="strip" tone="dark" />
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-violet-300/75">{PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE}</p>
+          <div className="mt-5">
+            <PartnerTechnicalPartnerCompare variant="compact" />
           </div>
         </div>
       </div>
