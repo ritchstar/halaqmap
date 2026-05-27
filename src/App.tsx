@@ -100,6 +100,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
+        {/* توجيه nota-council.com → مجتمع ماب */}
+        {typeof window !== 'undefined' &&
+          /nota-council\.com/.test(window.location.hostname) &&
+          !window.location.hash.includes('/partners/community') &&
+          (() => { window.location.replace('/#/partners/community'); return null; })()}
         <AdminAuthHashGate>
         <ScrollToTop />
         <Routes>

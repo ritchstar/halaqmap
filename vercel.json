@@ -1,18 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "(?:www\\.)?nota-council\\.com"
-        }
-      ],
-      "destination": "https://halaqmap.com/#/partners/community",
-      "permanent": false
-    }
-  ],
   "rewrites": [
     {
       "source": "/rate/:path*",
