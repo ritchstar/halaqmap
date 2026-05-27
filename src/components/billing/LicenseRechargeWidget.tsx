@@ -134,7 +134,8 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
           </div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="banner-radiation-stage">
+        <div className="relative z-[1] grid gap-6 lg:grid-cols-[1fr_300px]">
           {/* عمود اليمين: اختيار الباقة */}
           <div className="flex flex-col gap-3">
             <p className="text-[0.7rem] font-black tracking-widest text-slate-500">① اختر مستوى الرخصة</p>
@@ -259,7 +260,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
           {/* عمود اليسار: ملخص + CTA */}
           <div className="flex flex-col justify-between overflow-visible">
             <AnimatePresence mode="wait">
-              <BannerRadiationField tier={bannerRadiationTierFromId(selectedTier)} intensity="high" className="h-full">
+              <BannerRadiationField tier={bannerRadiationTierFromId(selectedTier)} className="h-full">
               <motion.div
                 key={`${selectedTier}-${months}`}
                 initial={{ opacity: 0, scale: 0.97 }}
@@ -348,6 +349,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
               </BannerRadiationField>
             </AnimatePresence>
           </div>
+        </div>
         </div>
 
         {/* الفوتر */}

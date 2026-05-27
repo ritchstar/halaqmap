@@ -13,33 +13,23 @@ export function bannerRadiationTierFromId(id: string): BannerRadiationTier {
 
 type Props = {
   tier: BannerRadiationTier;
-  /** `high` — شبكات التسعير والبنرات المجمّعة */
-  intensity?: 'default' | 'high';
   className?: string;
   children: ReactNode;
 };
 
 /**
- * غلاف إشعاع خلف البنر: النواة الساطعة تختبئ خلف جسم البطاقة،
- * والهالة الواسعة تنتشر على خلفية الصفحة.
+ * منطق التوهج الموحّد للبنرات الكبرى:
+ * — نواة ساطعة خلف البطاقة (مخفية بجسم معتم)
+ * — هالة ناعمة تنتشر على الخلفية
+ * — حافة خفيفة لا تتداخل مع محتوى البنر
  */
-export function BannerRadiationField({
-  tier,
-  intensity = 'default',
-  className,
-  children,
-}: Props) {
+export function BannerRadiationField({ tier, className, children }: Props) {
   return (
     <div
-      className={cn(
-        'banner-radiation-field',
-        intensity === 'high' && 'banner-radiation-field--high',
-        className,
-      )}
+      className={cn('banner-radiation-field', className)}
       data-banner-radiation-tier={tier}
     >
       <div className="banner-radiation-ambient" aria-hidden />
-      <div className="banner-radiation-floor" aria-hidden />
       <div className="banner-radiation-core" aria-hidden />
       <div className="banner-radiation-edge" aria-hidden />
       <div className="banner-radiation-body">{children}</div>

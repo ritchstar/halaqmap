@@ -279,7 +279,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
 
           {/* شاحن رخصة النفاذ */}
-          <div className="mt-10">
+          <div className="mt-10 overflow-visible">
             <LicenseRechargeWidget mode="register" showHeader={true} />
           </div>
 

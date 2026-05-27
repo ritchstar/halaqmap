@@ -137,7 +137,7 @@ export function ListingLicensePricingMatrix({
             card.accent === 'diamond' ? 'diamond' : card.accent === 'gold' ? 'gold' : 'bronze';
 
           return (
-            <BannerRadiationField key={card.tier} tier={radiationTier} intensity="high" className="h-full">
+            <BannerRadiationField key={card.tier} tier={radiationTier} className="h-full">
             <article className={cn(isDiamond ? cardDiamond : cardBase, 'h-full')}>
               {isDiamond && card.premiumRibbonAr ? (
                 <span className="mb-3 inline-flex self-end rounded-md border border-slate-500 bg-slate-700 px-2.5 py-1 text-[11px] font-semibold text-slate-100">

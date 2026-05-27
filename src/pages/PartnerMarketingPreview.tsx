@@ -375,7 +375,7 @@ function PricingCard({
       transition={{ delay, duration: 0.5 }}
       className="overflow-visible"
     >
-      <BannerRadiationField tier={radiationTier} intensity="high">
+      <BannerRadiationField tier={radiationTier}>
       <div
       className={`relative flex flex-col rounded-2xl border p-6 transition-all hover:-translate-y-1 hover:shadow-2xl
         ${recommended
@@ -614,11 +614,6 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
 
   return (
     <section id="الحزم-السنوية" className="relative z-10 overflow-visible border-t border-white/5 py-20 md:py-28">
-      {/* خلفية القسم — قاعدة إضاءة للشبكة */}
-      <div className="pointer-events-none absolute inset-0 overflow-visible">
-        <div className="absolute inset-x-0 top-1/4 h-[70%] bg-gradient-to-b from-amber-500/[0.07] via-teal-400/[0.04] to-transparent" />
-        <div className="absolute inset-x-[5%] top-[28%] h-[55%] rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(253,224,71,0.09),transparent_68%)] blur-3xl" />
-      </div>
 
       <div className="relative mx-auto max-w-6xl overflow-visible px-4 sm:px-5">
         {/* رأس القسم */}
@@ -664,7 +659,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                 onClick={() => setSelected(t.id)}
                 className="relative z-[1] cursor-pointer overflow-visible"
               >
-              <BannerRadiationField tier={bannerRadiationTierFromId(t.id)} intensity="high">
+              <BannerRadiationField tier={bannerRadiationTierFromId(t.id)}>
               <div
                 className={`relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 ${
                   isSelected ? `${t.border} ring-2 ring-offset-2 ring-offset-[#060d1a]` : `${t.border} opacity-90 hover:opacity-100`
@@ -1680,7 +1675,8 @@ export default function PartnerMarketingPreview() {
             </motion.h2>
             <p className="mt-3 text-slate-400">معاينة حقيقية لبطاقات الباقات الثلاث على المنصة</p>
           </div>
-          <div className="grid gap-8 overflow-visible md:grid-cols-3">
+          <div className="banner-radiation-stage">
+          <div className="relative z-[1] grid gap-8 overflow-visible md:grid-cols-3 md:gap-10">
             {PARTNER_BANNERS_PREVIEW_TIERS.map((tier, i) => (
               <motion.div
                 key={tier.id}
@@ -1700,6 +1696,7 @@ export default function PartnerMarketingPreview() {
                 />
               </motion.div>
             ))}
+          </div>
           </div>
           <div className="mt-10 text-center">
             <button
