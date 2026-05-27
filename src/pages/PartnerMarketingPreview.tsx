@@ -30,7 +30,7 @@ import {
 import { SubscriptionTier } from '@/lib/index';
 import { BannerPreviewTierSection } from '@/components/partner/banners-preview/BannerPreviewTierSection';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
-import { BannerRadiationField, type BannerRadiationTier } from '@/components/BannerRadiationField';
+import { BannerRadiationField, bannerRadiationTierFromId, type BannerRadiationTier } from '@/components/BannerRadiationField';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
