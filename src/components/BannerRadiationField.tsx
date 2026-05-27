@@ -20,8 +20,9 @@ type Props = {
 /**
  * منطق التوهج الموحّد للبنرات الكبرى:
  * — نواة ساطعة خلف البطاقة (مخفية بجسم معتم)
- * — هالة ناعمة تنتشر على الخلفية
+ * — هالة ناعمة تنتشر على الخلفية (مُعطّلة داخل `.banner-radiation-stage` — تُستبدل بـ `::before`)
  * — حافة خفيفة لا تتداخل مع محتوى البنر
+ * — داخل `.banner-radiation-grid` يُقصّ الإشعاع داخل عمود الشبكة لمنع التداخل
  */
 export function BannerRadiationField({ tier, className, children }: Props) {
   return (

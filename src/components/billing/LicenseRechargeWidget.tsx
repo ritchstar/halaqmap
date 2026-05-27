@@ -135,7 +135,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
         )}
 
         <div className="banner-radiation-stage">
-        <div className="relative z-[1] grid gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="banner-radiation-grid relative z-[1] grid gap-6 lg:grid-cols-[1fr_300px]">
           {/* عمود اليمين: اختيار الباقة */}
           <div className="flex flex-col gap-3">
             <p className="text-[0.7rem] font-black tracking-widest text-slate-500">① اختر مستوى الرخصة</p>

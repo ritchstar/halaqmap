@@ -31,7 +31,7 @@ export function PlatformAmbientToggle({
 
   const PhaseIcon = PHASE_ICONS[effectivePhase];
   const isCompact = variant === 'compact';
-  const isBrightDay = control === 'bright' || effectivePhase === 'dhuhr';
+  const isBrightNoon = effectivePhase === 'dhuhr';
 
   const shellClass =
     variant === 'partner'
@@ -45,7 +45,7 @@ export function PlatformAmbientToggle({
       className={cn(
         'group inline-flex items-center gap-2 rounded-xl border transition-all duration-300 touch-manipulation',
         shellClass,
-        isBrightDay && 'platform-ambient-toggle-bright',
+        isBrightNoon && 'platform-ambient-toggle-bright',
         isCompact ? 'min-h-10 px-2.5 py-2' : 'min-h-10 px-3 py-2',
         className,
       )}

@@ -373,7 +373,7 @@ function PricingCard({
       initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay, duration: 0.5 }}
-      className="overflow-visible"
+      className="relative"
     >
       <BannerRadiationField tier={radiationTier}>
       <div
@@ -647,7 +647,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
 
         {/* البطاقات */}
         <div className="banner-radiation-stage">
-        <div className="relative z-[1] grid gap-6 overflow-visible sm:grid-cols-2 sm:gap-8 lg:grid-cols-4 lg:gap-5">
+        <div className="banner-radiation-grid relative z-[1] grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4 lg:gap-5">
           {TIERS.map((t, i) => {
             const isSelected = selected === t.id;
             return (
@@ -656,7 +656,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                 initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ delay: i * 0.07 }}
                 onClick={() => setSelected(t.id)}
-                className="relative z-[1] cursor-pointer overflow-visible"
+                className="relative z-[1] cursor-pointer"
               >
               <BannerRadiationField tier={bannerRadiationTierFromId(t.id)}>
               <div
@@ -1474,7 +1474,7 @@ export default function PartnerMarketingPreview() {
           }} />
 
           <div className="banner-radiation-stage">
-          <div className="relative z-[1] grid gap-6 overflow-visible md:grid-cols-3 md:gap-8">
+          <div className="banner-radiation-grid relative z-[1] grid gap-6 md:grid-cols-3 md:gap-8">
             {/* ── برونزي ── من TIER_MONTHLY_SAR مباشرة */}
             <PricingCard
               tier="Bronze" tierQuery="bronze"
@@ -1681,7 +1681,7 @@ export default function PartnerMarketingPreview() {
             <p className="mt-3 text-slate-400">معاينة حقيقية لبطاقات الباقات الثلاث على المنصة</p>
           </div>
           <div className="banner-radiation-stage">
-          <div className="relative z-[1] grid gap-8 overflow-visible md:grid-cols-3 md:gap-10">
+          <div className="banner-radiation-grid relative z-[1] grid gap-8 md:grid-cols-3 md:gap-10">
             {PARTNER_BANNERS_PREVIEW_TIERS.map((tier, i) => (
               <motion.div
                 key={tier.id}
@@ -1689,7 +1689,7 @@ export default function PartnerMarketingPreview() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15 }}
-                className="overflow-visible"
+                className="relative"
               >
                 <div className={`mb-3 text-center text-xs font-bold ${tier.id === 'diamond' ? 'text-cyan-400' : tier.id === 'gold' ? 'text-amber-400' : 'text-amber-700'}`}>
                   {tier.badge} {tier.id === 'bronze' ? 'البرونزي' : tier.id === 'gold' ? 'الذهبي' : 'الماسي'}

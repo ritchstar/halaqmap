@@ -166,7 +166,8 @@
     linear-gradient(180deg, rgba(255, 251, 235, 0.07) 0%, rgba(240, 253, 250, 0.05) 28%, transparent 46%);
 }
 
-.platform-ambient[data-ambient-control='bright'] .platform-ambient-surface {
+/* تثبيت «إضاءة ظهر دائمة» — نفس منطق الظهر التلقائي مع دفعة إضافية خفيفة */
+.platform-ambient[data-ambient-phase='dhuhr'][data-ambient-control='bright'] .platform-ambient-surface {
   background:
     radial-gradient(ellipse 105% 72% at 50% -10%, rgba(253, 224, 71, 0.16), transparent 50%),
     radial-gradient(ellipse 98% 64% at 50% -4%, rgba(45, 212, 191, 0.24), transparent 56%),
@@ -175,18 +176,8 @@
 }
 
 .platform-ambient-sun-wash {
-  opacity: 0.85;
+  opacity: 0;
   transition: opacity 2.5s ease;
-  background: radial-gradient(
-    ellipse 90% 55% at 50% -5%,
-    rgba(253, 224, 71, 0.06),
-    transparent 58%
-  );
-}
-
-.platform-ambient[data-ambient-phase='dhuhr'] .platform-ambient-sun-wash,
-.platform-ambient[data-ambient-control='bright'] .platform-ambient-sun-wash {
-  opacity: 1;
   background:
     radial-gradient(
       ellipse 110% 72% at 50% -6%,
@@ -199,6 +190,10 @@
       rgba(34, 211, 238, 0.04) 0%,
       transparent 62%
     );
+}
+
+.platform-ambient[data-ambient-phase='dhuhr'] .platform-ambient-sun-wash {
+  opacity: 1;
 }
 
 @keyframes platform-ambient-sun-icon-pulse {
@@ -226,7 +221,8 @@
   border-color: rgba(251, 191, 36, 0.48) !important;
 }
 
-.platform-ambient-toggle-bright .platform-ambient-toggle-icon-shell {
+/* توهج زر الشمس — ظهر مشرق فقط */
+.platform-ambient[data-ambient-phase='dhuhr'] .platform-ambient-toggle-bright .platform-ambient-toggle-icon-shell {
   animation: platform-ambient-sun-icon-pulse 3.5s ease-in-out infinite;
 }
 
@@ -299,7 +295,7 @@
     animation: none;
   }
 
-  .platform-ambient-toggle-bright .platform-ambient-toggle-icon-shell {
+  .platform-ambient[data-ambient-phase='dhuhr'] .platform-ambient-toggle-bright .platform-ambient-toggle-icon-shell {
     animation: none;
   }
 
@@ -776,7 +772,11 @@
     transparent 66%
   );
   filter: blur(32px);
-  animation: banner-radiation-core-pulse 6s ease-in-out infinite;
+  opacity: 0;
+  animation: none;
+  transition:
+    opacity 2s ease,
+    filter 2s ease;
 }
 
 .banner-radiation-field .banner-radiation-ambient {
@@ -791,7 +791,11 @@
     transparent 72%
   );
   filter: blur(72px);
-  animation: banner-radiation-ambient-pulse 7.5s ease-in-out infinite;
+  opacity: 0;
+  animation: none;
+  transition:
+    opacity 2s ease,
+    filter 2s ease;
 }
 
 .banner-radiation-field .banner-radiation-edge {
@@ -803,7 +807,11 @@
   box-shadow:
     0 0 42px 4px var(--banner-radiation-edge, rgba(34, 211, 238, 0.34)),
     0 0 108px 16px var(--banner-radiation-edge-far, rgba(34, 211, 238, 0.14));
-  animation: banner-radiation-edge-pulse 5.5s ease-in-out infinite;
+  opacity: 0;
+  animation: none;
+  transition:
+    opacity 2s ease,
+    box-shadow 2s ease;
 }
 
 /* شبكة بنرات/تسعير — إضاءة خلفية خفيفة تملأ الفراغات دون طمس البطاقات */
@@ -814,20 +822,53 @@
   padding: 2.5rem 0.75rem;
 }
 
+/* ─── شبكة متعددة: منع تداخل إشعاع البنرات بين الأعمدة ─── */
+.banner-radiation-stage .banner-radiation-grid {
+  position: relative;
+  z-index: 1;
+}
+
+.banner-radiation-stage .banner-radiation-grid > * {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  overflow: clip;
+  min-width: 0;
+  padding-block: 1.25rem;
+  padding-inline: 0.35rem;
+}
+
+/* الهالة الواسعة موحّدة من ::before — لا طبقة ambient لكل بطاقة داخل الشبكة */
+.banner-radiation-stage .banner-radiation-field .banner-radiation-ambient {
+  display: none;
+}
+
+.banner-radiation-stage .banner-radiation-field .banner-radiation-core {
+  inset: -10% -3% -12% -3%;
+}
+
+.banner-radiation-stage .banner-radiation-field .banner-radiation-edge {
+  inset: -5% -2% -6% -2%;
+  box-shadow:
+    0 0 32px 3px var(--banner-radiation-edge, rgba(34, 211, 238, 0.34)),
+    0 0 64px 10px var(--banner-radiation-edge-far, rgba(34, 211, 238, 0.14));
+}
+
 .banner-radiation-stage::before {
   content: '';
   position: absolute;
   inset: -1rem -0.25rem;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.72;
+  opacity: 0;
+  animation: none;
+  transition: opacity 2s ease, filter 2s ease;
   background:
     radial-gradient(ellipse 34% 68% at 90% 50%, rgba(217, 119, 6, 0.14) 0%, transparent 70%),
     radial-gradient(ellipse 34% 68% at 64% 48%, rgba(251, 191, 36, 0.16) 0%, transparent 70%),
     radial-gradient(ellipse 34% 68% at 36% 48%, rgba(34, 211, 238, 0.18) 0%, transparent 70%),
     radial-gradient(ellipse 34% 68% at 10% 50%, rgba(167, 139, 250, 0.18) 0%, transparent 70%);
   filter: blur(56px);
-  animation: banner-radiation-ambient-pulse 9s ease-in-out infinite;
 }
 
 [data-banner-radiation-tier='bronze'] {
@@ -878,30 +919,34 @@
   --banner-radiation-edge-ring: rgba(196, 181, 253, 0.26);
 }
 
-.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-stage::before,
-.platform-ambient[data-ambient-control='bright'] .banner-radiation-stage::before {
-  opacity: 0.88;
-  filter: blur(68px) brightness(1.1);
-}
-
-.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-field .banner-radiation-ambient,
-.platform-ambient[data-ambient-control='bright'] .banner-radiation-field .banner-radiation-ambient {
-  filter: blur(78px) brightness(1.08);
-  opacity: 0.92;
-}
-
-.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-field .banner-radiation-core,
-.platform-ambient[data-ambient-control='bright'] .banner-radiation-field .banner-radiation-core {
+/* ─── ظهر مشرق فقط: إشعاع البنرات + شبكة التسعير + زر الشمس ─── */
+.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-field .banner-radiation-core {
+  animation: banner-radiation-core-pulse 6s ease-in-out infinite;
   filter: blur(36px) brightness(1.06);
-  opacity: 0.96;
 }
 
-.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-field .banner-radiation-edge,
-.platform-ambient[data-ambient-control='bright'] .banner-radiation-field .banner-radiation-edge {
-  opacity: 0.78;
+.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-field .banner-radiation-ambient {
+  animation: banner-radiation-ambient-pulse 7.5s ease-in-out infinite;
+  filter: blur(78px) brightness(1.08);
+}
+
+.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-field .banner-radiation-edge {
+  animation: banner-radiation-edge-pulse 5.5s ease-in-out infinite;
   box-shadow:
     0 0 48px 5px var(--banner-radiation-edge),
     0 0 120px 18px var(--banner-radiation-edge-far);
+}
+
+.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-stage .banner-radiation-field .banner-radiation-edge {
+  box-shadow:
+    0 0 36px 4px var(--banner-radiation-edge),
+    0 0 72px 12px var(--banner-radiation-edge-far);
+}
+
+.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-stage::before {
+  opacity: 0.88;
+  filter: blur(68px) brightness(1.1);
+  animation: banner-radiation-ambient-pulse 9s ease-in-out infinite;
 }
 
 .diamond-pricing-aura {
@@ -910,6 +955,9 @@
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
+  opacity: 0;
+  animation: none;
+  transition: opacity 2s ease, filter 2s ease;
   background:
     radial-gradient(
       ellipse 72% 58% at 50% 46%,
@@ -919,8 +967,11 @@
     ),
     radial-gradient(ellipse 48% 42% at 82% 18%, rgba(30, 58, 138, 0.22) 0%, transparent 62%),
     radial-gradient(ellipse 40% 36% at 12% 78%, rgba(148, 163, 184, 0.14) 0%, transparent 58%);
-  animation: banner-radiation-ambient-pulse 7.2s ease-in-out infinite;
   filter: blur(56px);
+}
+
+.platform-ambient[data-ambient-phase='dhuhr'] .diamond-pricing-aura {
+  animation: banner-radiation-ambient-pulse 7.2s ease-in-out infinite;
 }
 
 .diamond-pricing-aura::after {

@@ -174,9 +174,8 @@ export function PlatformAmbientBackground({
   const reduceMotion = useReducedMotion();
   const ambient = usePlatformAmbientOptional();
   const phase: AmbientPhaseId = ambient?.effectivePhase ?? 'layl';
-  const control = ambient?.control ?? 'auto';
   const blobs = PHASE_BLOBS[phase][variant];
-  const showSunWash = phase === 'dhuhr' || phase === 'fajr' || control === 'bright';
+  const isBrightNoon = phase === 'dhuhr';
 
   return (
     <div
@@ -186,7 +185,7 @@ export function PlatformAmbientBackground({
       {/* طبقة تدرج سطحية حسب الوضع */}
       <div className={cn('platform-ambient-surface absolute inset-0 transition-colors duration-[2000ms]')} />
 
-      {showSunWash ? (
+      {isBrightNoon ? (
         <div className="platform-ambient-sun-wash absolute inset-0 transition-opacity duration-[2500ms]" />
       ) : null}
 

@@ -117,7 +117,7 @@ export function ListingLicensePricingMatrix({
       ) : null}
 
       <div className="banner-radiation-stage">
-      <div className="relative z-[1] grid gap-6 overflow-visible lg:grid-cols-3 lg:items-stretch lg:gap-8">
+      <div className="banner-radiation-grid relative z-[1] grid gap-6 lg:grid-cols-3 lg:items-stretch lg:gap-8">
         {orderedCards.map((card) => {
           const isDiamond = card.accent === 'diamond';
           const qty = quantities[card.tier];

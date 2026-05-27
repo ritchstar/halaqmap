@@ -41,7 +41,7 @@ export const AMBIENT_PHASES_ORDER: readonly AmbientPhaseDefinition[] = [
     labelAr: 'ظهر مشرق',
     shortLabelAr: 'ظهر',
     start: '06:30',
-    descriptionAr: 'إضاءة علوية تيل — أقصى سطوع للمنصة',
+    descriptionAr: 'إضاءة علوية تيل — أقصى سطوع للمنصة وإشعاع البنرات الكبرى',
   },
   {
     id: 'ghuroob',
@@ -62,7 +62,7 @@ export const AMBIENT_CONTROL_LABELS: Record<
   },
   bright: {
     labelAr: 'إضاءة ظهر دائمة',
-    hintAr: 'ظهر مشرق — للقراءة والثقة',
+    hintAr: 'ظهر مشرق — إشعاع البنرات والصفحة معاً',
   },
   night: {
     labelAr: 'ليل دائم',
