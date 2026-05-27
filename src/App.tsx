@@ -93,15 +93,23 @@ const LegacyAdminRedirect = ({ suffix }: { suffix: string }) => {
   );
 };
 
-// ── redirect nota-council.com → مجتمع ماب ───────────────────────────────────
+// ── Dedicated Map Community domain ───────────────────────────────────────────
 function NotaCouncilRedirect() {
-  if (
-    typeof window !== 'undefined' &&
-    /nota-council\.com/.test(window.location.hostname) &&
-    !window.location.hash.includes('/partners/community')
-  ) {
+  if (typeof window === 'undefined') return null;
+
+  const host = window.location.hostname.toLowerCase();
+  const isCommunityDomain = host === 'community.nota-council.com';
+  const isNotaRoot = host === 'nota-council.com' || host === 'www.nota-council.com';
+
+  if (isNotaRoot) {
+    window.location.replace('https://community.nota-council.com/#/partners/community');
+    return null;
+  }
+
+  if (isCommunityDomain && !window.location.hash.includes('/partners/community')) {
     window.location.replace('/#/partners/community');
   }
+
   return null;
 }
 
