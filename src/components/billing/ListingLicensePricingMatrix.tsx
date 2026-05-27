@@ -116,7 +116,8 @@ export function ListingLicensePricingMatrix({
         </header>
       ) : null}
 
-      <div className="grid gap-4 overflow-visible lg:grid-cols-3 lg:items-stretch">
+      <div className="banner-radiation-stage">
+      <div className="relative z-[1] grid gap-6 overflow-visible lg:grid-cols-3 lg:items-stretch lg:gap-8">
         {orderedCards.map((card) => {
           const isDiamond = card.accent === 'diamond';
           const qty = quantities[card.tier];
@@ -136,7 +137,7 @@ export function ListingLicensePricingMatrix({
             card.accent === 'diamond' ? 'diamond' : card.accent === 'gold' ? 'gold' : 'bronze';
 
           return (
-            <BannerRadiationField key={card.tier} tier={radiationTier} className="h-full">
+            <BannerRadiationField key={card.tier} tier={radiationTier} intensity="high" className="h-full">
             <article className={cn(isDiamond ? cardDiamond : cardBase, 'h-full')}>
               {isDiamond && card.premiumRibbonAr ? (
                 <span className="mb-3 inline-flex self-end rounded-md border border-slate-500 bg-slate-700 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
@@ -253,6 +254,7 @@ export function ListingLicensePricingMatrix({
             </BannerRadiationField>
           );
         })}
+      </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════

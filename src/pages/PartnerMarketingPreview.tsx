@@ -375,7 +375,7 @@ function PricingCard({
       transition={{ delay, duration: 0.5 }}
       className="overflow-visible"
     >
-      <BannerRadiationField tier={radiationTier}>
+      <BannerRadiationField tier={radiationTier} intensity="high">
       <div
       className={`relative flex flex-col rounded-2xl border p-6 transition-all hover:-translate-y-1 hover:shadow-2xl
         ${recommended
@@ -613,11 +613,14 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
   const selectedTier = TIERS.find(t => t.id === selected);
 
   return (
-    <section id="الحزم-السنوية" className="relative z-10 border-t border-white/5 py-20 md:py-28">
-      {/* خلفية */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-amber-950/10 via-transparent to-transparent" />
+    <section id="الحزم-السنوية" className="relative z-10 overflow-visible border-t border-white/5 py-20 md:py-28">
+      {/* خلفية القسم — قاعدة إضاءة للشبكة */}
+      <div className="pointer-events-none absolute inset-0 overflow-visible">
+        <div className="absolute inset-x-0 top-1/4 h-[70%] bg-gradient-to-b from-amber-500/[0.07] via-teal-400/[0.04] to-transparent" />
+        <div className="absolute inset-x-[5%] top-[28%] h-[55%] rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(253,224,71,0.09),transparent_68%)] blur-3xl" />
+      </div>
 
-      <div className="mx-auto max-w-6xl px-4 sm:px-5">
+      <div className="relative mx-auto max-w-6xl overflow-visible px-4 sm:px-5">
         {/* رأس القسم */}
         <div className="mb-14 text-center">
           <motion.div initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }}
@@ -649,7 +652,8 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
         </div>
 
         {/* البطاقات */}
-        <div className="grid gap-4 overflow-visible sm:grid-cols-2 lg:grid-cols-4">
+        <div className="banner-radiation-stage">
+        <div className="relative z-[1] grid gap-6 overflow-visible sm:grid-cols-2 sm:gap-8 lg:grid-cols-4 lg:gap-5">
           {TIERS.map((t, i) => {
             const isSelected = selected === t.id;
             return (
@@ -658,9 +662,9 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                 initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ delay: i * 0.07 }}
                 onClick={() => setSelected(t.id)}
-                className="cursor-pointer overflow-visible"
+                className="relative z-[1] cursor-pointer overflow-visible"
               >
-              <BannerRadiationField tier={bannerRadiationTierFromId(t.id)}>
+              <BannerRadiationField tier={bannerRadiationTierFromId(t.id)} intensity="high">
               <div
                 className={`relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 ${
                   isSelected ? `${t.border} ring-2 ring-offset-2 ring-offset-[#060d1a]` : `${t.border} opacity-90 hover:opacity-100`
@@ -754,6 +758,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
               </motion.div>
             );
           })}
+        </div>
         </div>
 
         {/* ── شريط التأكيد والانتقال — يظهر عند الاختيار ── */}
@@ -1468,7 +1473,8 @@ export default function PartnerMarketingPreview() {
             document.getElementById('الحزم-السنوية')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }} />
 
-          <div className="grid gap-5 overflow-visible md:grid-cols-3">
+          <div className="banner-radiation-stage">
+          <div className="relative z-[1] grid gap-6 overflow-visible md:grid-cols-3 md:gap-8">
             {/* ── برونزي ── من TIER_MONTHLY_SAR مباشرة */}
             <PricingCard
               tier="Bronze" tierQuery="bronze"
@@ -1521,6 +1527,7 @@ export default function PartnerMarketingPreview() {
                 `${DIAMOND_PRODUCT_STANDARD_LABEL_AR} | +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س إضافة المكتب الخاص 🏛️`,
               ]}
             />
+          </div>
           </div>
           <p className="mt-5 text-center text-[0.68rem] text-slate-700">
             كل حزمة صالحة ٣٠ يوماً · لا وساطة تجارية · لا عمولة على الخدمة · لا بيانات حكومية مطلوبة للتسجيل

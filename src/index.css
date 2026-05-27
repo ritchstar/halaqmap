@@ -734,7 +734,7 @@
 .banner-radiation-field .banner-radiation-ambient {
   position: absolute;
   inset: -58% -52% -64% -52%;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   background:
     radial-gradient(
@@ -755,6 +755,84 @@
     );
   filter: blur(56px);
   animation: banner-radiation-ambient-pulse 7.2s ease-in-out infinite;
+}
+
+.banner-radiation-field .banner-radiation-floor {
+  display: none;
+}
+
+/* شبكة البنرات / التسعير — إشعاع عالٍ يملأ الخلفية */
+.banner-radiation-stage {
+  position: relative;
+  overflow: visible;
+  isolation: isolate;
+  padding: 2.75rem 0.75rem;
+}
+
+.banner-radiation-stage::before {
+  content: '';
+  position: absolute;
+  inset: -1.5rem -0.5rem;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 38% 72% at 90% 52%, rgba(217, 119, 6, 0.24) 0%, transparent 72%),
+    radial-gradient(ellipse 38% 72% at 64% 48%, rgba(251, 191, 36, 0.28) 0%, transparent 72%),
+    radial-gradient(ellipse 38% 72% at 36% 48%, rgba(34, 211, 238, 0.3) 0%, transparent 72%),
+    radial-gradient(ellipse 38% 72% at 10% 52%, rgba(167, 139, 250, 0.3) 0%, transparent 72%),
+    radial-gradient(ellipse 95% 55% at 50% 58%, rgba(253, 224, 71, 0.08) 0%, transparent 68%);
+  filter: blur(52px);
+  animation: banner-radiation-ambient-pulse 8.5s ease-in-out infinite;
+}
+
+.platform-ambient[data-ambient-phase='dhuhr'] .banner-radiation-stage::before,
+.platform-ambient[data-ambient-control='bright'] .banner-radiation-stage::before {
+  filter: blur(64px) brightness(1.18);
+  opacity: 1;
+}
+
+.banner-radiation-field--high .banner-radiation-ambient {
+  inset: -90% -78% -95% -78%;
+  z-index: 0;
+  filter: blur(82px) brightness(1.22);
+  mix-blend-mode: screen;
+  opacity: 1;
+}
+
+.banner-radiation-field--high .banner-radiation-floor {
+  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: -55%;
+  z-index: 0;
+  width: 220%;
+  height: 140%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 68% 52% at 50% 38%,
+    var(--banner-radiation-ambient-mid, rgba(34, 211, 238, 0.34)) 0%,
+    var(--banner-radiation-ambient-far, rgba(34, 211, 238, 0.14)) 46%,
+    transparent 72%
+  );
+  filter: blur(64px);
+  mix-blend-mode: screen;
+  animation: banner-radiation-ambient-pulse 6.8s ease-in-out infinite;
+}
+
+.banner-radiation-field--high .banner-radiation-core {
+  inset: -14%;
+  filter: blur(34px) brightness(1.15);
+  opacity: 1;
+}
+
+.banner-radiation-field--high .banner-radiation-edge {
+  inset: -10%;
+  box-shadow:
+    0 0 52px 6px var(--banner-radiation-edge, rgba(34, 211, 238, 0.42)),
+    0 0 140px 22px var(--banner-radiation-edge-far, rgba(34, 211, 238, 0.2)),
+    inset 0 0 0 1px var(--banner-radiation-edge-ring, rgba(34, 211, 238, 0.28));
+  opacity: 1;
 }
 
 .banner-radiation-field .banner-radiation-edge {
@@ -996,7 +1074,9 @@
 @media (prefers-reduced-motion: reduce) {
   .banner-radiation-field .banner-radiation-core,
   .banner-radiation-field .banner-radiation-ambient,
+  .banner-radiation-field .banner-radiation-floor,
   .banner-radiation-field .banner-radiation-edge,
+  .banner-radiation-stage::before,
   .diamond-pricing-aura,
   .diamond-pricing-aura::after,
   .diamond-sheen-wrap::after,

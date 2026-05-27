@@ -259,7 +259,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
           {/* عمود اليسار: ملخص + CTA */}
           <div className="flex flex-col justify-between overflow-visible">
             <AnimatePresence mode="wait">
-              <BannerRadiationField tier={bannerRadiationTierFromId(selectedTier)} className="h-full">
+              <BannerRadiationField tier={bannerRadiationTierFromId(selectedTier)} intensity="high" className="h-full">
               <motion.div
                 key={`${selectedTier}-${months}`}
                 initial={{ opacity: 0, scale: 0.97 }}
