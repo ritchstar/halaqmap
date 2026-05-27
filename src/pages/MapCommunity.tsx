@@ -12,6 +12,9 @@ import {
   Bot,
   Eye,
   Film,
+  HelpCircle,
+  Lightbulb,
+  Link2,
   MessageCircle,
   Send,
   Sparkles,
@@ -34,6 +37,12 @@ import {
 } from '@/lib/mapCommunityRemote';
 import { POLL_MS } from '@/lib/pollingPolicy';
 import { readBarberAuthSession, buildBarberLoginUrl } from '@/lib/barberPortalSession';
+import {
+  MAP_COMMUNITY_DISCUSSION_PROMPTS,
+  MAP_COMMUNITY_FAQ,
+  MAP_COMMUNITY_PRO_TIPS,
+  MAP_COMMUNITY_QUICK_LINKS,
+} from '@/config/mapCommunityCopy';
 
 type CommunityMessage = {
   id: string;
@@ -342,6 +351,11 @@ export default function MapCommunity() {
     () => [...baseMessages, ...ephemeralMessages],
     [baseMessages, ephemeralMessages],
   );
+
+  const tipOfDay = useMemo(() => {
+    const dayIndex = Math.floor(Date.now() / 86_400_000);
+    return MAP_COMMUNITY_PRO_TIPS[dayIndex % MAP_COMMUNITY_PRO_TIPS.length];
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -688,6 +702,34 @@ export default function MapCommunity() {
           </div>
         </section>
 
+        <section className="rounded-3xl border border-white/10 bg-slate-950/60 p-5 backdrop-blur-xl md:p-6">
+          <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 text-lg font-black text-white">
+                <Sparkles className="h-5 w-5 text-amber-300" />
+                ابدأ نقاشاً
+              </h2>
+              <p className="mt-1 text-xs text-slate-500">اضغط موضوعاً جاهزاً ليظهر في Map Chat — أو عدّله قبل الإرسال</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {MAP_COMMUNITY_DISCUSSION_PROMPTS.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                disabled={isFounder || aiThinking}
+                onClick={() => {
+                  setDraft(prompt);
+                  void send(prompt);
+                }}
+                className="rounded-full border border-emerald-400/25 bg-emerald-500/8 px-3.5 py-2 text-right text-xs leading-6 text-emerald-100 transition-colors hover:border-emerald-300/45 hover:bg-emerald-500/14 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        </section>
+
         <section className="grid gap-5 lg:grid-cols-[1fr_22rem]">
           <div className="overflow-hidden rounded-3xl border border-emerald-400/18 bg-slate-950/70 shadow-[0_0_50px_rgba(16,185,129,0.10)] backdrop-blur-xl">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
@@ -772,42 +814,92 @@ export default function MapCommunity() {
             )}
           </div>
 
-          <aside className="rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-5 shadow-[0_0_45px_rgba(34,211,238,0.10)] backdrop-blur-xl">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-400/35 bg-cyan-500/15">
-                <Bot className="h-6 w-6 text-cyan-200" />
+          <aside className="space-y-5">
+            <div className="rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-5 shadow-[0_0_45px_rgba(34,211,238,0.10)] backdrop-blur-xl">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-400/35 bg-cyan-500/15">
+                  <Bot className="h-6 w-6 text-cyan-200" />
+                </div>
+                <div>
+                  <p className="font-black text-white">مساعد ماب</p>
+                  <p className="text-xs text-cyan-300/70">وكيل تطوير الصالونات</p>
+                </div>
               </div>
-              <div>
-                <p className="font-black text-white">مساعد ماب</p>
-                <p className="text-xs text-cyan-300/70">وكيل تطوير الصالونات</p>
+              <div className="space-y-3 text-sm leading-7 text-slate-400">
+                <p>
+                  يتدخل عند مناداته بـ <span className="font-mono text-cyan-300">@مساعد_ماب</span> أو عند ظهور سؤال مهني.
+                </p>
+                <p>محقون بمعرفة عن تطوير الصالونات، صيحات القصات، إدارة الأعمال، وتحسين تجربة العميل.</p>
               </div>
+              <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-500/8 p-4">
+                <p className="mb-2 flex items-center gap-2 text-xs font-bold text-emerald-200">
+                  <ShieldCheck className="h-4 w-4" />
+                  سياسة المجتمع
+                </p>
+                <p className="text-xs leading-6 text-slate-500">
+                  الرسائل تمر على رقابة تقنية تمنع الإساءة وتضمن نقاشاً مهنياً محترماً بين الشركاء.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="mt-5 w-full border-cyan-400/30 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20"
+                onClick={() => {
+                  void send('@مساعد_ماب أعطني موضوع نقاش اليوم للحلاقين');
+                }}
+                disabled={isFounder}
+              >
+                <Sparkles className="ml-2 h-4 w-4" />
+                افتح موضوع اليوم
+              </Button>
             </div>
-            <div className="space-y-3 text-sm leading-7 text-slate-400">
-              <p>
-                يتدخل عند مناداته بـ <span className="font-mono text-cyan-300">@مساعد_ماب</span> أو عند ظهور سؤال مهني.
+
+            <div className="rounded-3xl border border-amber-400/20 bg-slate-950/70 p-5 backdrop-blur-xl">
+              <p className="mb-3 flex items-center gap-2 text-sm font-black text-amber-100">
+                <Lightbulb className="h-4 w-4 text-amber-300" />
+                نصيحة اليوم
               </p>
-              <p>محقون بمعرفة عن تطوير الصالونات، صيحات القصات، إدارة الأعمال، وتحسين تجربة العميل.</p>
+              <p className="text-sm leading-7 text-slate-400">{tipOfDay}</p>
             </div>
-            <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-500/8 p-4">
-              <p className="mb-2 flex items-center gap-2 text-xs font-bold text-emerald-200">
-                <ShieldCheck className="h-4 w-4" />
-                سياسة المجتمع
+
+            <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-5 backdrop-blur-xl">
+              <p className="mb-4 flex items-center gap-2 text-sm font-black text-white">
+                <Link2 className="h-4 w-4 text-emerald-300" />
+                روابط تشغيلية
               </p>
-              <p className="text-xs leading-6 text-slate-500">
-                الرسائل تمر على رقابة تقنية تمنع الإساءة وتضمن نقاشاً مهنياً محترماً بين الشركاء.
-              </p>
+              <ul className="space-y-2">
+                {MAP_COMMUNITY_QUICK_LINKS.map((item) => (
+                  <li key={item.path}>
+                    <Link
+                      to={item.path}
+                      className="group flex items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3.5 py-3 transition-colors hover:border-emerald-400/25 hover:bg-emerald-500/8"
+                    >
+                      <div className="min-w-0 text-right">
+                        <p className="text-sm font-bold text-slate-100 group-hover:text-emerald-100">{item.label}</p>
+                        <p className="mt-0.5 text-[0.65rem] leading-5 text-slate-500">{item.hint}</p>
+                      </div>
+                      <span className="shrink-0 text-slate-600 group-hover:text-emerald-300" aria-hidden>
+                        ←
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <Button
-              variant="outline"
-              className="mt-5 w-full border-cyan-400/30 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20"
-              onClick={() => {
-                void send('@مساعد_ماب أعطني موضوع نقاش اليوم للحلاقين');
-              }}
-              disabled={isFounder}
-            >
-              <Sparkles className="ml-2 h-4 w-4" />
-              افتح موضوع اليوم
-            </Button>
+
+            <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-5 backdrop-blur-xl">
+              <p className="mb-4 flex items-center gap-2 text-sm font-black text-white">
+                <HelpCircle className="h-4 w-4 text-cyan-300" />
+                أسئلة شائعة
+              </p>
+              <ul className="space-y-4">
+                {MAP_COMMUNITY_FAQ.map((item) => (
+                  <li key={item.q} className="border-b border-white/5 pb-4 last:border-0 last:pb-0">
+                    <p className="text-sm font-bold text-slate-200">{item.q}</p>
+                    <p className="mt-1.5 text-xs leading-6 text-slate-500">{item.a}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </aside>
         </section>
       </div>

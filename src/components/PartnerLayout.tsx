@@ -138,6 +138,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
   const navItems = tutorialsVisible
     ? partnerNavItems
     : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
+  const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
 
   useEffect(() => {
     capturePartnerAttributionFromLocation();
@@ -348,9 +349,9 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         </SheetContent>
       </Sheet>
 
-      <PartnerPromoVideoBand />
+      {!isMapCommunityPage ? <PartnerPromoVideoBand /> : null}
 
-      {location.pathname !== ROUTE_PATHS.MAP_COMMUNITY ? (
+      {!isMapCommunityPage ? (
         <div className="relative z-10 border-b border-emerald-400/10 bg-[#061223]/70 px-3 py-3 backdrop-blur-md">
           <div className="container mx-auto">
             <NavLink
@@ -420,9 +421,11 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       <footer className="shrink-0 border-t border-white/10 bg-[#071426]/70">
         {/* فوتر مضغوط للجوال */}
         <div className="container mx-auto px-3 py-4 md:hidden">
-          <div className="mb-4">
-            <LicenseRechargeWidget mode="auto" showHeader={false} />
-          </div>
+          {!isMapCommunityPage ? (
+            <div className="mb-4">
+              <LicenseRechargeWidget mode="auto" showHeader={false} />
+            </div>
+          ) : null}
           <LegalEntityPublicStrip variant="dark" />
           <p className="mt-3 rounded-md border border-amber-400/25 bg-amber-500/[0.06] px-3 py-2 text-center text-[10.5px] leading-relaxed text-amber-100/90">
             {PLATFORM_IDENTITY_BOILERPLATE_AR}
@@ -457,9 +460,11 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         </div>
 
         <div className="container mx-auto hidden px-4 py-6 md:block">
-          <div className="mb-8">
-            <LicenseRechargeWidget mode="auto" />
-          </div>
+          {!isMapCommunityPage ? (
+            <div className="mb-8">
+              <LicenseRechargeWidget mode="auto" />
+            </div>
+          ) : null}
           <div className="mb-6">
             <LegalEntityPublicStrip variant="dark" />
           </div>
