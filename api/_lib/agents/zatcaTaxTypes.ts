@@ -1,4 +1,4 @@
-/** ZATCA / Zakat revenue thresholds (Saudi B2B voluntary & mandatory registration bands). */
+﻿/** ZATCA / Zakat revenue thresholds (Saudi B2B voluntary & mandatory registration bands). */
 
 export const ZATCA_VOLUNTARY_LIMIT_SAR = 187_500;
 export const ZATCA_MANDATORY_LIMIT_SAR = 375_000;
@@ -80,7 +80,7 @@ export type ZatcaFilteredRevenueLog = {
 export type ZatcaAdminActivationAlert = {
   priority: 'critical';
   agentId: 'zatca_tax_advisor';
-  agentLabelAr: 'زميل خازن';
+  agentLabelAr: 'ط²ظ…ظٹظ„ ط®ط§ط²ظ†';
   titleAr: string;
   bodyAr: string;
   ctaLabelAr: string;
@@ -185,3 +185,4 @@ export type ZatcaTaxAdvisorRunResult = {
   complianceReport: ZatcaComplianceReport;
   externalIntel: ZatcaExternalIntelBrief;
 };
+

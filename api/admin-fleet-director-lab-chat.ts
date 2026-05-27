@@ -1,4 +1,4 @@
-import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
+﻿import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import {
   buildFleetDirectorAdminLabSystemPrompt,
   callFleetDirectorAdminLabVision,
@@ -79,10 +79,10 @@ export async function POST(request: Request): Promise<Response> {
   const imageMime = String(body.imageMime || body.mimeType || '').trim().toLowerCase();
   const conversationHistory = parseHistory(body.conversationHistory);
 
-  // ◆ حقن توجيه أسطول — يكتب مباشرةً في barber_ai_recommendations
+  // â—† ط­ظ‚ظ† طھظˆط¬ظٹظ‡ ط£ط³ط·ظˆظ„ â€” ظٹظƒطھط¨ ظ…ط¨ط§ط´ط±ط©ظ‹ ظپظٹ barber_ai_recommendations
   if (body.action === 'fleet_directive_push') {
     const targetBarberId = String(body.targetBarberId || '__broadcast__').trim();
-    const title = String(body.title || 'توجيه أسطول').trim().slice(0, 120);
+    const title = String(body.title || 'طھظˆط¬ظٹظ‡ ط£ط³ط·ظˆظ„').trim().slice(0, 120);
     const directive = String(body.directive || '').trim();
     if (!directive) return json({ error: 'directive body is required' }, 400);
 
@@ -93,14 +93,14 @@ export async function POST(request: Request): Promise<Response> {
       body: directive,
       priority: Number(body.priority ?? 10),
       status: 'active',
-      metadata: { source: 'fleet_director', pushedBy: auth.email, pushedAt: new Date().toISOString() },
+      metadata: { source: 'fleet_director', pushedBy: auth.actorEmail, pushedAt: new Date().toISOString() },
       expires_at: body.expiresAt ? String(body.expiresAt) : null,
     });
     if (error) return json({ error: error.message }, 500);
     return json({ ok: true, pushed: { targetBarberId, title, directive } });
   }
 
-  // ◆ إلغاء توجيه أسطول
+  // â—† ط¥ظ„ط؛ط§ط، طھظˆط¬ظٹظ‡ ط£ط³ط·ظˆظ„
   if (body.action === 'fleet_directive_dismiss') {
     const directiveId = String(body.directiveId || '').trim();
     if (!directiveId) return json({ error: 'directiveId required' }, 400);
@@ -112,7 +112,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (!userMessage && !imageBase64Raw) {
-    return json({ error: 'أدخل رسالة أو ارفع مرفقاً للاجتماع السري' }, 400);
+    return json({ error: 'ط£ط¯ط®ظ„ ط±ط³ط§ظ„ط© ط£ظˆ ط§ط±ظپط¹ ظ…ط±ظپظ‚ط§ظ‹ ظ„ظ„ط§ط¬طھظ…ط§ط¹ ط§ظ„ط³ط±ظٹ' }, 400);
   }
 
   let imageBase64: string | undefined;
@@ -121,7 +121,7 @@ export async function POST(request: Request): Promise<Response> {
     if (mimeErr) return json({ error: mimeErr }, 400);
     const buf = Buffer.from(imageBase64Raw, 'base64');
     if (buf.length > MAX_IMAGE_BYTES) {
-      return json({ error: 'حجم الصورة يتجاوز 4 ميغابايت' }, 400);
+      return json({ error: 'ط­ط¬ظ… ط§ظ„طµظˆط±ط© ظٹطھط¬ط§ظˆط² 4 ظ…ظٹط؛ط§ط¨ط§ظٹطھ' }, 400);
     }
     imageBase64 = imageBase64Raw;
   }
@@ -132,7 +132,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const reply = await callFleetDirectorAdminLabVision({
       system,
-      userText: userMessage || 'حلّل المرفق في سياق قيادة الأسطول السرية.',
+      userText: userMessage || 'ط­ظ„ظ‘ظ„ ط§ظ„ظ…ط±ظپظ‚ ظپظٹ ط³ظٹط§ظ‚ ظ‚ظٹط§ط¯ط© ط§ظ„ط£ط³ط·ظˆظ„ ط§ظ„ط³ط±ظٹط©.',
       imageBase64,
       imageMime: imageBase64 ? imageMime : undefined,
       conversationHistory,
@@ -144,7 +144,8 @@ export async function POST(request: Request): Promise<Response> {
       fleetContext: labContext,
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'تعذّر توليد الرد';
+    const msg = e instanceof Error ? e.message : 'طھط¹ط°ظ‘ط± طھظˆظ„ظٹط¯ ط§ظ„ط±ط¯';
     return json({ error: msg }, 502);
   }
 }
+
