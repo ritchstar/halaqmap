@@ -373,7 +373,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         </div>
       ) : null}
 
-      <main className="relative z-10 min-h-0 w-full flex-1">{children}</main>
+      <main className="b2b-nebula-scope relative z-10 min-h-0 w-full flex-1">{children}</main>
 
       {/* لا مدير مبيعات / متحدث على صفحات الخصوصية، السياسات، والدفع */}
       {![

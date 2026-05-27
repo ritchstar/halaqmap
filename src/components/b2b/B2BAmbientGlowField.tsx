@@ -12,23 +12,23 @@ import { motion } from 'framer-motion';
 
 const nebulaSpots = [
   {
-    className: 'right-[4%] top-[10rem] h-[32rem] w-[32rem] bg-white/[0.055]',
+    className: 'right-[4%] top-[10rem] h-[38rem] w-[38rem] bg-white/[0.085]',
     delay: 0,
   },
   {
-    className: 'left-[3%] top-[46rem] h-[38rem] w-[38rem] bg-cyan-300/[0.075]',
+    className: 'left-[3%] top-[46rem] h-[44rem] w-[44rem] bg-cyan-200/[0.11]',
     delay: 0.8,
   },
   {
-    className: 'right-[15%] top-[92rem] h-[44rem] w-[44rem] bg-emerald-200/[0.065]',
+    className: 'right-[15%] top-[92rem] h-[52rem] w-[52rem] bg-emerald-100/[0.095]',
     delay: 1.6,
   },
   {
-    className: 'left-[18%] top-[138rem] h-[42rem] w-[42rem] bg-amber-100/[0.05]',
+    className: 'left-[18%] top-[138rem] h-[50rem] w-[50rem] bg-amber-50/[0.075]',
     delay: 2.4,
   },
   {
-    className: 'right-[0%] bottom-[18rem] h-[46rem] w-[46rem] bg-white/[0.045]',
+    className: 'right-[0%] bottom-[18rem] h-[56rem] w-[56rem] bg-white/[0.075]',
     delay: 3.2,
   },
 ] as const;
@@ -53,6 +53,23 @@ export function B2BAmbientGlowField() {
           }}
         />
       ))}
+
+      {/* أضواء جانبية ممتدة تظهر خلف البنرات من الأطراف */}
+      <motion.div
+        className="absolute left-[-18rem] top-[22rem] h-[90rem] w-[28rem] rounded-full bg-white/[0.055] blur-[95px]"
+        animate={{ opacity: [0.35, 0.72, 0.35], scaleY: [0.96, 1.08, 0.96] }}
+        transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute right-[-18rem] top-[58rem] h-[100rem] w-[30rem] rounded-full bg-cyan-100/[0.06] blur-[105px]"
+        animate={{ opacity: [0.3, 0.66, 0.3], scaleY: [1.04, 0.98, 1.04] }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute left-1/2 top-[116rem] h-[22rem] w-[82vw] -translate-x-1/2 rounded-full bg-white/[0.04] blur-[70px]"
+        animate={{ opacity: [0.25, 0.55, 0.25], scaleX: [0.9, 1.08, 0.9] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+      />
 
       {/* أبعاد رادارية خافتة في منتصف التدفق */}
       <motion.div

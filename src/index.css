@@ -1175,3 +1175,42 @@ html.platform-radar-fullscreen #root {
     opacity: 0.25;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   B2B Nebula Card Glow — visual-only enhancement for partner pages
+   يمنح البطاقات/البنرات الكبيرة هالة خلفية بيضاء/سماوية ظاهرة من الجوانب.
+   ═══════════════════════════════════════════════════════════════════════ */
+.b2b-nebula-scope :where(section, article, .rounded-3xl):not(button):not(a):not(input):not(textarea) {
+  position: relative;
+}
+
+.b2b-nebula-scope :where(section, article, .rounded-3xl):not(button):not(a):not(input):not(textarea)::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: -22px;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse 70% 42% at 12% 50%, rgba(255,255,255,0.105), transparent 68%),
+    radial-gradient(ellipse 70% 42% at 88% 50%, rgba(103,232,249,0.095), transparent 68%),
+    radial-gradient(ellipse 85% 35% at 50% 105%, rgba(212,175,55,0.065), transparent 70%);
+  filter: blur(18px);
+  opacity: 0.74;
+}
+
+.b2b-nebula-scope :where(section, article, .rounded-3xl):not(button):not(a):not(input):not(textarea)::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 1px;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.035), transparent 42%, rgba(103,232,249,0.025));
+  opacity: 0.55;
+}
+
+.b2b-nebula-scope :where(section, article, .rounded-3xl) > * {
+  position: relative;
+  z-index: 1;
+}
