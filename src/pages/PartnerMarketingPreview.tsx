@@ -1113,6 +1113,57 @@ export default function PartnerMarketingPreview() {
         <div className="pointer-events-none absolute -right-80 top-0 h-[700px] w-[700px] rounded-full bg-amber-500/6 blur-[150px]" />
         <div className="pointer-events-none absolute -left-60 bottom-0 h-[500px] w-[500px] rounded-full bg-teal-500/5 blur-[130px]" />
 
+        {/* أيقونة مجتمع ماب — زجاجية مستقلة في الفراغ اليساري */}
+        <motion.button
+          type="button"
+          onClick={() => navigate(ROUTE_PATHS.MAP_COMMUNITY)}
+          initial={{ opacity: 0, x: -28, rotateY: -18 }}
+          animate={{ opacity: 1, x: 0, rotateY: 0 }}
+          transition={{ delay: 0.95, type: 'spring', stiffness: 260, damping: 22 }}
+          whileHover={{ scale: 1.08, rotateY: -10, x: 6 }}
+          whileTap={{ scale: 0.96 }}
+          className="group absolute left-8 top-[33%] z-20 hidden flex-col items-center gap-2 rounded-[1.35rem] px-3 py-4 text-center lg:flex"
+          style={{
+            transformStyle: 'preserve-3d',
+            background:
+              'linear-gradient(155deg,rgba(34,211,238,0.16) 0%,rgba(6,18,35,0.82) 45%,rgba(16,185,129,0.13) 100%)',
+            border: '1px solid rgba(103,232,249,0.38)',
+            boxShadow:
+              '0 0 32px rgba(34,211,238,0.25),0 0 70px rgba(16,185,129,0.10),inset 0 1px 0 rgba(255,255,255,0.18)',
+            backdropFilter: 'blur(18px)',
+          }}
+          title="مجتمع ماب"
+        >
+          {/* breathing halo */}
+          <motion.span
+            className="pointer-events-none absolute inset-0 rounded-[1.35rem]"
+            style={{ background: 'radial-gradient(circle at 50% 50%,rgba(34,211,238,0.18),transparent 68%)' }}
+            animate={{ opacity: [0.35, 0.85, 0.35], scale: [0.96, 1.08, 0.96] }}
+            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          {/* glass shine */}
+          <motion.span
+            className="pointer-events-none absolute inset-0 rounded-[1.35rem]"
+            style={{ background: 'linear-gradient(135deg,transparent 25%,rgba(255,255,255,0.14) 50%,transparent 75%)' }}
+            animate={{ x: ['-120%', '160%'] }}
+            transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 2.2, ease: 'linear' }}
+          />
+          <span className="relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-300/35 bg-cyan-500/12 shadow-[0_0_20px_rgba(34,211,238,0.22)]">
+            <MessageCircle className="h-6 w-6 text-cyan-200" />
+            <motion.span
+              className="absolute inset-0 rounded-2xl border border-cyan-300/45"
+              animate={{ scale: [1, 1.45], opacity: [0.5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </span>
+          <span className="relative z-10 text-[0.68rem] font-black tracking-widest text-cyan-100">
+            مجتمع ماب
+          </span>
+          <span className="relative z-10 text-[0.5rem] font-bold text-emerald-300/70">
+            حلاقون · نقاش · فيديو
+          </span>
+        </motion.button>
+
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-2 lg:gap-20 lg:py-28">
           {/* Text */}
           <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
@@ -1176,6 +1227,14 @@ export default function PartnerMarketingPreview() {
                 لماذا نحن؟ <ArrowLeft className="h-4 w-4" />
               </button>
             </div>
+            <button
+              type="button"
+              onClick={() => navigate(ROUTE_PATHS.MAP_COMMUNITY)}
+              className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-400/35 bg-cyan-500/10 px-5 py-3 text-sm font-black text-cyan-100 shadow-[0_0_22px_rgba(34,211,238,0.12)] transition-all hover:border-cyan-300/60 hover:bg-cyan-500/18 lg:hidden"
+            >
+              <MessageCircle className="h-4 w-4" />
+              دخول مجتمع ماب
+            </button>
           </motion.div>
 
           {/* Card preview */}
