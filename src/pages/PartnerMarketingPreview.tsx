@@ -32,6 +32,10 @@ import { BannerPreviewTierSection } from '@/components/partner/banners-preview/B
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
 import { BannerRadiationField, bannerRadiationTierFromId, type BannerRadiationTier } from '@/components/BannerRadiationField';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
+import {
+  PARTNER_PRODUCT_HUB_SUMMARY_CARDS,
+  PARTNER_PRODUCT_HUB_TAGLINE,
+} from '@/config/partnerProductHubCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
@@ -1036,7 +1040,7 @@ export default function PartnerMarketingPreview() {
                 { label: 'كيف تنضم',      id: 'كيف تنضم',      icon: Navigation2 },
                 { label: 'مزايا الباقات', id: 'مزايا الباقات', icon: Sparkles },
                 { label: 'الأسعار',       id: 'الأسعار',       icon: Crown },
-                { label: 'البنرات والمكتب الخاص 🏛️', id: 'معاينة البنرات', icon: ImageIcon },
+                { label: 'معاينة الباقات 🏛️', id: 'معاينة البنرات', icon: ImageIcon },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -1682,7 +1686,8 @@ export default function PartnerMarketingPreview() {
               className="text-3xl font-black text-white md:text-4xl">
               هكذا يظهر صالونك
             </motion.h2>
-            <p className="mt-3 text-slate-400">معاينة حقيقية لبطاقات الباقات الثلاث — مع الشروحات التسويقية لكل مستوى</p>
+            <p className="mt-3 text-slate-400">معاينة سريعة للبنرات الثلاث — التفاصيل الكاملة للمناوب والمكتب في صفحة المعاينة</p>
+            <p className="mx-auto mt-2 max-w-2xl text-xs leading-relaxed text-violet-300/70">{PARTNER_PRODUCT_HUB_TAGLINE}</p>
           </div>
 
           <div className="space-y-16">
@@ -1697,12 +1702,33 @@ export default function PartnerMarketingPreview() {
             ))}
           </div>
 
+          <div className="mt-12 grid gap-4 md:grid-cols-2">
+            {PARTNER_PRODUCT_HUB_SUMMARY_CARDS.map((card) => (
+              <button
+                key={card.id}
+                type="button"
+                onClick={() =>
+                  navigate(`${ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW}#${card.sectionId}`)
+                }
+                className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-right transition-all hover:border-violet-400/30 hover:bg-violet-500/8"
+              >
+                <p className="text-2xl">{card.emoji}</p>
+                <p className="mt-2 text-base font-black text-white group-hover:text-violet-100">{card.title}</p>
+                <p className="mt-2 text-sm leading-7 text-slate-400">{card.desc}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-cyan-300/80 group-hover:text-cyan-200">
+                  شاهد المحاكاة
+                  <ArrowRight className="h-3.5 w-3.5 rotate-180" />
+                </span>
+              </button>
+            ))}
+          </div>
+
           <div className="mt-10 text-center">
             <button
               onClick={() => navigate(ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW)}
-              className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-500/10 px-6 py-3 text-sm font-semibold text-amber-300 hover:border-amber-400/70 transition-all"
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-500/10 px-6 py-3 text-sm font-semibold text-amber-300 transition-all hover:border-amber-400/70"
             >
-              <ImageIcon className="h-4 w-4" /> معاينة البنرات والمكتب الخاص 🏛️ — الصفحة الكاملة
+              <ImageIcon className="h-4 w-4" /> معاينة الباقات والمكتب الخاص — الصفحة الكاملة
             </button>
           </div>
         </div>

@@ -86,7 +86,7 @@ export default function DigitalShiftFeaturePage() {
       {/* ── شريط العودة ── */}
       <div className="sticky top-0 z-40 border-b border-violet-500/15 bg-[#03000a]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3">
-          <button onClick={() => navigate(ROUTE_PATHS.LANDING_PARTNERS_PREVIEW)}
+          <button onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
             className="flex items-center gap-2 text-sm text-violet-400/70 hover:text-violet-300 transition-colors">
             <ArrowLeft className="h-4 w-4 rotate-180" /> العودة
           </button>
@@ -327,7 +327,7 @@ export default function DigitalShiftFeaturePage() {
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', boxShadow: '0 4px 24px rgba(139,92,246,0.35)' }}>
                 <Moon className="h-4 w-4" /> سجّل الآن واحصل على المناوب
               </button>
-              <button onClick={() => navigate(ROUTE_PATHS.LANDING_PARTNERS_PREVIEW)}
+              <button onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
                 className="flex items-center gap-2 rounded-2xl border border-violet-400/30 bg-violet-500/10 px-6 py-3 text-sm font-semibold text-violet-300 hover:bg-violet-500/18 transition-all">
                 <ArrowLeft className="h-4 w-4 rotate-180" /> العودة لصفحة الباقات
               </button>

@@ -141,7 +141,14 @@ const App = () => (
           <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<PartnerMarketingPreview />} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<InternalPartnerPathPrintCard />} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<InvoicePreviewSamples />} />
-          <Route path={ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW} element={<PartnerBannersPreviewLanding />} />
+          <Route
+            path={ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW}
+            element={
+              <PartnerLayout>
+                <PartnerBannersPreviewLanding />
+              </PartnerLayout>
+            }
+          />
           <Route path={ROUTE_PATHS.ABOUT} element={<Layout><About /></Layout>} />
           <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<Layout><TermsOfService /></Layout>} />
           <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<Layout><UserPrivacyPolicy /></Layout>} />
