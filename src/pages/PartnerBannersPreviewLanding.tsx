@@ -85,14 +85,9 @@ export default function PartnerBannersPreviewLanding() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.55, delay: index * 0.06 }}
-              className={cn(
-                'grid items-center gap-8 lg:grid-cols-2 lg:gap-12',
-                isDiamond && 'relative lg:z-10',
-              )}
+              className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12"
             >
-              {isDiamond ? <div aria-hidden className="diamond-pricing-aura -inset-4 hidden lg:block" /> : null}
-
-              <div className={cn('order-2 lg:order-1', index % 2 === 1 && 'lg:order-2')}>
+              <div className={cn('order-2 overflow-visible lg:order-1', index % 2 === 1 && 'lg:order-2')}>
                 <EndUserBarberBannerSim tier={tier} startDelayMs={index * 1400} />
               </div>
 

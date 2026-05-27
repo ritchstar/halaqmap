@@ -29,6 +29,7 @@ import {
 } from '@/config/subscriptionPricing';
 import { SubscriptionTier } from '@/lib/index';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
+import { BannerRadiationField, bannerRadiationTierFromId, type BannerRadiationTier } from '@/components/BannerRadiationField';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
@@ -355,11 +356,13 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, badge }: {
 // ─── Pricing card ────────────────────────────────────────────────────────────
 function PricingCard({
   tier, price, name, badge, features, accent,
-  ringColor, recommended = false, delay = 0, addOnAvailable = false, tierQuery
+  ringColor, recommended = false, delay = 0, addOnAvailable = false, tierQuery,
+  radiationTier,
 }: {
   tier: string; price: number; name: string; badge: string;
   features: string[]; accent: string; ringColor: string;
   recommended?: boolean; delay?: number; addOnAvailable?: boolean; tierQuery?: string;
+  radiationTier: BannerRadiationTier;
 }) {
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
@@ -370,9 +373,13 @@ function PricingCard({
       initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay, duration: 0.5 }}
+      className="overflow-visible"
+    >
+      <BannerRadiationField tier={radiationTier}>
+      <div
       className={`relative flex flex-col rounded-2xl border p-6 transition-all hover:-translate-y-1 hover:shadow-2xl
         ${recommended
-          ? `border-amber-400/60 bg-gradient-to-b from-amber-500/10 to-[#0a1628] shadow-[0_0_40px_rgba(245,158,11,0.12)]`
+          ? `border-amber-400/60 bg-gradient-to-b from-amber-500/10 to-[#0a1628]`
           : 'border-white/10 bg-gradient-to-b from-white/5 to-[#060d1a]'
         }`}
       dir="rtl"
@@ -446,6 +453,8 @@ function PricingCard({
       >
         ابدأ بهذه الباقة →
       </button>
+      </div>
+      </BannerRadiationField>
     </motion.div>
   );
 }
@@ -640,7 +649,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
         </div>
 
         {/* البطاقات */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 overflow-visible sm:grid-cols-2 lg:grid-cols-4">
           {TIERS.map((t, i) => {
             const isSelected = selected === t.id;
             return (
@@ -649,10 +658,13 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                 initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ delay: i * 0.07 }}
                 onClick={() => setSelected(t.id)}
-                className={`relative flex flex-col overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 ${
+                className="cursor-pointer overflow-visible"
+              >
+              <BannerRadiationField tier={bannerRadiationTierFromId(t.id)}>
+              <div
+                className={`relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 ${
                   isSelected ? `${t.border} ring-2 ring-offset-2 ring-offset-[#060d1a]` : `${t.border} opacity-90 hover:opacity-100`
                 } bg-gradient-to-b ${t.bg}`}
-                style={{ boxShadow: isSelected ? t.glow : 'none' }}
                 dir="rtl"
               >
                 {t.best && !isSelected && (
@@ -737,6 +749,8 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                     {isSelected ? '✓ محدد' : 'اختر هذه الحزمة'}
                   </button>
                 </div>
+              </div>
+              </BannerRadiationField>
               </motion.div>
             );
           })}
@@ -1270,7 +1284,7 @@ export default function PartnerMarketingPreview() {
             initial={{ opacity: 0, scale: 0.93 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.35, duration: 0.7 }}
-            className="relative flex flex-col gap-4"
+            className="relative flex flex-col gap-4 overflow-visible"
           >
             <div className="mb-4 flex items-center justify-center gap-2">
               {PARTNER_BANNERS_PREVIEW_TIERS.map((tier) => (
@@ -1297,6 +1311,7 @@ export default function PartnerMarketingPreview() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
+                  className="overflow-visible"
                 >
                   {/* المحاكاة الحقيقية من صفحة معاينة البنرات */}
                   <EndUserBarberBannerSim tier={tier} startDelayMs={600} />
@@ -1453,10 +1468,11 @@ export default function PartnerMarketingPreview() {
             document.getElementById('الحزم-السنوية')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }} />
 
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-5 overflow-visible md:grid-cols-3">
             {/* ── برونزي ── من TIER_MONTHLY_SAR مباشرة */}
             <PricingCard
               tier="Bronze" tierQuery="bronze"
+              radiationTier="bronze"
               price={TIER_MONTHLY_SAR[SubscriptionTier.BRONZE]}
               name="برونزي" badge="🥉"
               accent="text-amber-700" ringColor="border-amber-700/30"
@@ -1473,6 +1489,7 @@ export default function PartnerMarketingPreview() {
             {/* ── ذهبي ── */}
             <PricingCard
               tier="Gold" tierQuery="gold"
+              radiationTier="gold"
               price={TIER_MONTHLY_SAR[SubscriptionTier.GOLD]}
               name="ذهبي" badge="🥇"
               accent="text-amber-400" ringColor="border-amber-400/40"
@@ -1490,6 +1507,7 @@ export default function PartnerMarketingPreview() {
             {/* ── ماسي + Add-on اختياري ── */}
             <PricingCard
               tier="Diamond" tierQuery="diamond"
+              radiationTier="diamond"
               price={TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND]}
               name="ماسي" badge="💎"
               accent="text-cyan-400" ringColor="border-cyan-400/30"
@@ -1655,7 +1673,7 @@ export default function PartnerMarketingPreview() {
             </motion.h2>
             <p className="mt-3 text-slate-400">معاينة حقيقية لبطاقات الباقات الثلاث على المنصة</p>
           </div>
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-8 overflow-visible md:grid-cols-3">
             {PARTNER_BANNERS_PREVIEW_TIERS.map((tier, i) => (
               <motion.div
                 key={tier.id}
@@ -1663,6 +1681,7 @@ export default function PartnerMarketingPreview() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15 }}
+                className="overflow-visible"
               >
                 <div className={`mb-3 text-center text-xs font-bold ${tier.id === 'diamond' ? 'text-cyan-400' : tier.id === 'gold' ? 'text-amber-400' : 'text-amber-700'}`}>
                   {tier.badge} {tier.id === 'bronze' ? 'البرونزي' : tier.id === 'gold' ? 'الذهبي' : 'الماسي'}

@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, Sparkles, Zap } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
+import { BannerRadiationField, bannerRadiationTierFromId } from '@/components/BannerRadiationField';
 
 type Mode = 'register' | 'recharge' | 'auto';
 
@@ -256,18 +257,18 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
           </div>
 
           {/* عمود اليسار: ملخص + CTA */}
-          <div className="flex flex-col justify-between">
+          <div className="flex flex-col justify-between overflow-visible">
             <AnimatePresence mode="wait">
+              <BannerRadiationField tier={bannerRadiationTierFromId(selectedTier)} className="h-full">
               <motion.div
                 key={`${selectedTier}-${months}`}
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.25 }}
-                className="flex flex-col gap-4 overflow-hidden rounded-2xl p-5"
+                className="flex h-full flex-col gap-4 overflow-hidden rounded-2xl p-5"
                 style={{
                   border: `1.5px solid ${tier.border}`,
                   background: `linear-gradient(155deg,${tier.accentFrom}1a 0%,#040d1a 60%,${tier.accentTo}0e 100%)`,
-                  boxShadow: `0 0 40px ${tier.glow},inset 0 1px 0 ${tier.border}`,
                 }}
               >
                 {/* شعار الباقة */}
@@ -344,6 +345,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
                 </motion.button>
               </motion.div>
+              </BannerRadiationField>
             </AnimatePresence>
           </div>
         </div>

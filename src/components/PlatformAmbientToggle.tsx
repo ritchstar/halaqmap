@@ -31,6 +31,7 @@ export function PlatformAmbientToggle({
 
   const PhaseIcon = PHASE_ICONS[effectivePhase];
   const isCompact = variant === 'compact';
+  const isBrightDay = control === 'bright' || effectivePhase === 'dhuhr';
 
   const shellClass =
     variant === 'partner'
@@ -44,6 +45,7 @@ export function PlatformAmbientToggle({
       className={cn(
         'group inline-flex items-center gap-2 rounded-xl border transition-all duration-300 touch-manipulation',
         shellClass,
+        isBrightDay && 'platform-ambient-toggle-bright',
         isCompact ? 'min-h-10 px-2.5 py-2' : 'min-h-10 px-3 py-2',
         className,
       )}
@@ -52,13 +54,13 @@ export function PlatformAmbientToggle({
     >
       <span
         className={cn(
-          'flex shrink-0 items-center justify-center rounded-lg',
+          'platform-ambient-toggle-icon-shell flex shrink-0 items-center justify-center rounded-lg',
           variant === 'partner' ? 'bg-amber-500/15' : 'bg-teal-500/15',
           isCompact ? 'h-7 w-7' : 'h-8 w-8',
         )}
       >
         {control === 'bright' ? (
-          <Sun className={cn('text-amber-300', isCompact ? 'h-3.5 w-3.5' : 'h-4 w-4')} />
+          <Sun className={cn('text-amber-200 drop-shadow-[0_0_8px_rgba(253,224,71,0.65)]', isCompact ? 'h-3.5 w-3.5' : 'h-4 w-4')} />
         ) : control === 'night' ? (
           <Moon className={cn('text-slate-300', isCompact ? 'h-3.5 w-3.5' : 'h-4 w-4')} />
         ) : (

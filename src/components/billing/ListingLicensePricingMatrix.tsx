@@ -33,6 +33,7 @@ import {
   VisaMastercardBadgeIcon,
 } from '@/components/billing/PaymentMethodBadgeIcons';
 import { cn } from '@/lib/utils';
+import { BannerRadiationField, type BannerRadiationTier } from '@/components/BannerRadiationField';
 
 type Variant = 'embedded-light' | 'embedded-dark' | 'standalone-dark';
 
@@ -115,7 +116,7 @@ export function ListingLicensePricingMatrix({
         </header>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-3 lg:items-stretch">
+      <div className="grid gap-4 overflow-visible lg:grid-cols-3 lg:items-stretch">
         {orderedCards.map((card) => {
           const isDiamond = card.accent === 'diamond';
           const qty = quantities[card.tier];
@@ -131,9 +132,12 @@ export function ListingLicensePricingMatrix({
           });
           if (diamondAddonActive) paymentParams.set('aiAddon', '1');
           const paymentTo = `${ROUTE_PATHS.PAYMENT}?${paymentParams.toString()}`;
+          const radiationTier: BannerRadiationTier =
+            card.accent === 'diamond' ? 'diamond' : card.accent === 'gold' ? 'gold' : 'bronze';
 
           return (
-            <article key={card.tier} className={cn(isDiamond ? cardDiamond : cardBase)}>
+            <BannerRadiationField key={card.tier} tier={radiationTier} className="h-full">
+            <article className={cn(isDiamond ? cardDiamond : cardBase, 'h-full')}>
               {isDiamond && card.premiumRibbonAr ? (
                 <span className="mb-3 inline-flex self-end rounded-md border border-slate-500 bg-slate-700 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
                   {card.premiumRibbonAr}
@@ -246,6 +250,7 @@ export function ListingLicensePricingMatrix({
                 <VisaMastercardBadgeIcon className="opacity-70" />
               </div>
             </article>
+            </BannerRadiationField>
           );
         })}
       </div>

@@ -5,6 +5,7 @@ import { Barber, SubscriptionTier, calculateDistance } from "@/lib/index";
 import { useDiamondAppointmentSchedulingShown } from "@/lib/diamondSchedulingVisibility";
 import { DiamondAppointmentBooking } from "@/components/DiamondAppointmentBooking";
 import { CustomerBarberChatPreview } from "@/components/CustomerBarberChatPreview";
+import { BannerRadiationField } from "@/components/BannerRadiationField";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -70,7 +71,9 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 35 }}
+          className="overflow-visible"
         >
+          <BannerRadiationField tier="bronze">
           <Card className="overflow-hidden bg-gradient-to-br from-card via-card to-muted/25 border-border hover:shadow-lg transition-all duration-200">
             <div className="relative h-40 sm:h-44 overflow-hidden">
               <img
@@ -142,6 +145,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
               </div>
             </div>
           </Card>
+          </BannerRadiationField>
         </motion.div>
       );
     }
@@ -151,7 +155,9 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 35 }}
+        className="overflow-visible"
       >
+        <BannerRadiationField tier="bronze">
         <Card className="overflow-hidden bg-gradient-to-br from-card via-card to-muted/20 border-border hover:shadow-lg transition-all duration-200">
           <div className="p-4">
             <div className="flex items-start justify-between mb-3">
@@ -220,6 +226,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             </div>
           </div>
         </Card>
+        </BannerRadiationField>
       </motion.div>
     );
   }
@@ -230,7 +237,9 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 35 }}
+        className="overflow-visible"
       >
+        <BannerRadiationField tier="gold">
         <Card className="overflow-hidden bg-gradient-to-br from-card via-card to-accent/5 border-accent/25 shadow-md hover:shadow-xl hover:shadow-accent/10 transition-all duration-200 ring-1 ring-accent/20">
           <div className="relative h-48 sm:h-52 overflow-hidden">
             <img
@@ -309,6 +318,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             </div>
           </div>
         </Card>
+        </BannerRadiationField>
       </motion.div>
     );
   }
@@ -318,7 +328,9 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 35 }}
+      className="overflow-visible"
     >
+      <BannerRadiationField tier="diamond">
       <Card className="overflow-hidden bg-gradient-to-br from-card via-accent/5 to-accent/10 border-accent/30 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-200 ring-2 ring-accent/20">
         <div className="relative h-56 sm:h-64 overflow-hidden">
           <img
@@ -414,6 +426,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
           )}
         </div>
       </Card>
+      </BannerRadiationField>
     </motion.div>
   );
 }

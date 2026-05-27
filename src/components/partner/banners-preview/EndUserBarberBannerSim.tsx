@@ -11,6 +11,7 @@ import { SiWhatsapp } from 'react-icons/si';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { BannerPreviewTierConfig } from '@/config/partnerBannersPreviewCopy';
 import { useBannerPreviewSim, type BannerSimPhase } from '@/hooks/useBannerPreviewSim';
+import { BannerRadiationField } from '@/components/BannerRadiationField';
 import { cn } from '@/lib/utils';
 
 // ── Phase labels ──────────────────────────────────────────────────────────────
@@ -25,7 +26,6 @@ const TIER_THEME = {
   bronze: {
     card:    'from-[#0d1c10] via-[#091410] to-[#060d0a]',
     border:  'border-amber-700/35',
-    glow:    'shadow-[0_0_25px_rgba(146,90,30,0.18)]',
     accent:  '#d4903a',
     badgeBg: 'bg-gradient-to-r from-amber-700/80 to-amber-600/80 text-amber-50',
     ring:    'ring-amber-700/20',
@@ -34,7 +34,6 @@ const TIER_THEME = {
   gold: {
     card:    'from-[#1a1400] via-[#120f00] to-[#0a0900]',
     border:  'border-amber-400/50',
-    glow:    'shadow-[0_0_30px_rgba(212,175,55,0.22)]',
     accent:  '#fbbf24',
     badgeBg: 'bg-gradient-to-r from-amber-400/90 to-yellow-500/90 text-black',
     ring:    'ring-amber-400/25',
@@ -43,7 +42,6 @@ const TIER_THEME = {
   diamond: {
     card:    'from-[#040f1a] via-[#050e1c] to-[#020912]',
     border:  'border-cyan-400/55',
-    glow:    'shadow-[0_0_40px_rgba(34,211,238,0.20),0_0_80px_rgba(34,211,238,0.08)]',
     accent:  '#22d3ee',
     badgeBg: 'bg-gradient-to-r from-cyan-500/90 to-sky-400/90 text-white',
     ring:    'ring-cyan-400/30',
@@ -87,14 +85,15 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
       </div>
 
       {/* The card */}
-      <motion.div
-        className={cn(
-          'relative overflow-hidden rounded-2xl border bg-gradient-to-b',
-          theme.card, theme.border, theme.glow,
-          'ring-1', theme.ring,
-        )}
-        layout
-      >
+      <BannerRadiationField tier={tier.id}>
+        <motion.div
+          className={cn(
+            'relative overflow-hidden rounded-2xl border bg-gradient-to-b',
+            theme.card, theme.border,
+            'ring-1', theme.ring,
+          )}
+          layout
+        >
         {/* Top scan line decoration */}
         <div className="absolute inset-x-0 top-0 h-px"
           style={{ background: `linear-gradient(90deg, transparent, ${theme.accent}55, transparent)` }} />
@@ -332,7 +331,8 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
         {/* Bottom glow line */}
         <div className="absolute inset-x-0 bottom-0 h-px"
           style={{ background: `linear-gradient(90deg, transparent, ${theme.accent}40, transparent)` }} />
-      </motion.div>
+        </motion.div>
+      </BannerRadiationField>
     </div>
   );
 }

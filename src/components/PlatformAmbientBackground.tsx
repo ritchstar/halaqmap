@@ -81,35 +81,49 @@ const PHASE_BLOBS: Record<AmbientPhaseId, Record<Variant, BlobSpec[]>> = {
     default: [
       {
         className:
-          'absolute left-1/2 -top-40 h-[560px] w-[720px] -translate-x-1/2 rounded-full opacity-60 blur-[130px]',
-        style: { background: 'rgba(45,212,191,0.18)' },
+          'absolute left-1/2 -top-52 h-[720px] w-[900px] -translate-x-1/2 rounded-full opacity-80 blur-[150px]',
+        style: { background: 'rgba(253,224,71,0.16)' },
+        animate: true,
       },
       {
         className:
-          'absolute -right-48 top-1/3 h-[380px] w-[380px] rounded-full opacity-35 blur-[110px]',
-        style: { background: 'rgba(125,211,252,0.12)' },
+          'absolute left-1/2 -top-44 h-[620px] w-[780px] -translate-x-1/2 rounded-full opacity-72 blur-[135px]',
+        style: { background: 'rgba(45,212,191,0.24)' },
+        animate: true,
       },
       {
         className:
-          'absolute -left-32 bottom-16 h-[300px] w-[300px] rounded-full opacity-25 blur-[100px]',
-        style: { background: 'rgba(255,255,255,0.06)' },
+          'absolute -right-52 top-1/3 h-[420px] w-[420px] rounded-full opacity-42 blur-[115px]',
+        style: { background: 'rgba(125,211,252,0.16)' },
+      },
+      {
+        className:
+          'absolute -left-36 bottom-12 h-[340px] w-[340px] rounded-full opacity-30 blur-[105px]',
+        style: { background: 'rgba(255,255,255,0.08)' },
       },
     ],
     partner: [
       {
         className:
-          'absolute left-1/2 -top-36 h-[540px] w-[680px] -translate-x-1/2 rounded-full opacity-55 blur-[125px]',
-        style: { background: 'rgba(251,191,36,0.14)' },
+          'absolute left-1/2 -top-48 h-[680px] w-[860px] -translate-x-1/2 rounded-full opacity-75 blur-[145px]',
+        style: { background: 'rgba(253,224,71,0.14)' },
+        animate: true,
       },
       {
         className:
-          'absolute -right-44 top-1/4 h-[360px] w-[360px] rounded-full opacity-35 blur-[105px]',
-        style: { background: 'rgba(45,212,191,0.12)' },
+          'absolute left-1/2 -top-40 h-[580px] w-[720px] -translate-x-1/2 rounded-full opacity-62 blur-[130px]',
+        style: { background: 'rgba(251,191,36,0.18)' },
+        animate: true,
       },
       {
         className:
-          'absolute -left-28 bottom-12 h-[280px] w-[280px] rounded-full opacity-22 blur-[95px]',
-        style: { background: 'rgba(255,255,255,0.07)' },
+          'absolute -right-48 top-1/4 h-[400px] w-[400px] rounded-full opacity-42 blur-[110px]',
+        style: { background: 'rgba(45,212,191,0.16)' },
+      },
+      {
+        className:
+          'absolute -left-32 bottom-10 h-[300px] w-[300px] rounded-full opacity-28 blur-[100px]',
+        style: { background: 'rgba(255,255,255,0.08)' },
       },
     ],
   },
@@ -160,7 +174,9 @@ export function PlatformAmbientBackground({
   const reduceMotion = useReducedMotion();
   const ambient = usePlatformAmbientOptional();
   const phase: AmbientPhaseId = ambient?.effectivePhase ?? 'layl';
+  const control = ambient?.control ?? 'auto';
   const blobs = PHASE_BLOBS[phase][variant];
+  const showSunWash = phase === 'dhuhr' || phase === 'fajr' || control === 'bright';
 
   return (
     <div
@@ -169,6 +185,10 @@ export function PlatformAmbientBackground({
     >
       {/* طبقة تدرج سطحية حسب الوضع */}
       <div className={cn('platform-ambient-surface absolute inset-0 transition-colors duration-[2000ms]')} />
+
+      {showSunWash ? (
+        <div className="platform-ambient-sun-wash absolute inset-0 transition-opacity duration-[2500ms]" />
+      ) : null}
 
       {blobs.map((blob, i) => (
         <div
