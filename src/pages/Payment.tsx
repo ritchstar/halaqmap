@@ -41,6 +41,7 @@ import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
+import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
@@ -708,7 +709,8 @@ export default function Payment() {
             <div className="space-y-6">
               {/* Security Badge */}
               <Card>
-                <CardContent className="p-2">
+                <CardContent className="space-y-4 p-4">
+                  <PlatformTrustStrip variant="strip" />
                   <PlatformTlsTrustBadge variant="card" />
                 </CardContent>
               </Card>

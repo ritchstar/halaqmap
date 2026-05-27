@@ -50,6 +50,28 @@ export const PLATFORM_IDENTITY_PROOF_POINTS_AR: readonly string[] = [
 export const PLATFORM_IDENTITY_BOILERPLATE_AR =
   'حلاق ماب — مزوّد حلول تقنية (Technical Solutions Provider) لرخصة النفاذ الرقمية ضمن نظام الاستجابة الذكية (الظهور عند الطلب · On-Demand Visibility). ليست وسيطاً تجارياً ولا تتقاضى عمولة على خدمة الحلاقة.';
 
+/** عنوان ثقة تقنية — للعرض في Hero والدفع والسياسات. */
+export const PLATFORM_TRUST_HEADLINE_AR =
+  'منصة تقنية محمية — مشفّرة، مباشرة، وشفافة';
+
+/** سطر تذييل مختصر للثقة التقنية. */
+export const PLATFORM_TRUST_FOOTER_AR = 'اتصال مشفّر · علاقة مباشرة · شفافية مالية';
+
+export type PlatformTrustPillarId = 'encrypted' | 'direct' | 'transparent';
+
+export type PlatformTrustPillar = {
+  id: PlatformTrustPillarId;
+  labelAr: string;
+  hintAr: string;
+};
+
+/** أركان الثقة الثلاثة — تُعرض كـ badges مع تلميح عند التمرير. */
+export const PLATFORM_TRUST_PILLARS_AR: readonly PlatformTrustPillar[] = [
+  { id: 'encrypted', labelAr: 'مشفّرة', hintAr: 'HTTPS/TLS · SSL Labs A+' },
+  { id: 'direct', labelAr: 'مباشرة', hintAr: 'لا وسيط · لا عمولة' },
+  { id: 'transparent', labelAr: 'شفافة', hintAr: 'مسبقة الدفع · لا تجديد تلقائي' },
+] as const;
+
 /** فقرة قانونية مخصّصة لإدراجها في "الشروط والأحكام" و"سياسة الخصوصية". */
 export const PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR =
   'يُقرّ المستخدم بأن دور حلاق ماب يقتصر على تقديم حلول تقنية للإدراج والبحث الجغرافي. لا تُعدّ المنصة وكيلاً تجارياً ولا وسيطاً مالياً ولا مقدّماً لخدمة الحجز بالعمولة، ولا تتحمّل مسؤولية جودة أو دقة أو سلامة الخدمة البدنية (الحلاقة وما يرتبط بها) التي يقدّمها الصالون — تلك مسؤولية الصالون مباشرة تجاه العميل ووفق الأنظمة السعودية ذات الصلة.';

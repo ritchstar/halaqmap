@@ -17,11 +17,11 @@ import {
   PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT,
   PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE,
 } from '@/config/partnerFeaturePreviewsCopy';
-import { NavLink as NavLinkDom } from 'react-router-dom';
 import {
   PLATFORM_IDENTITY_BADGE_AR,
   PLATFORM_IDENTITY_BOILERPLATE_AR,
 } from '@/config/platformIdentity';
+import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 
 export default function PartnerBannersPreviewLanding() {
   const reduceMotion = useReducedMotion();
@@ -65,6 +65,9 @@ export default function PartnerBannersPreviewLanding() {
               {PLATFORM_IDENTITY_BADGE_AR}
             </span>
             {PLATFORM_IDENTITY_BOILERPLATE_AR}
+          </div>
+          <div className="mt-3">
+            <PlatformTrustStrip variant="strip" tone="dark" />
           </div>
         </div>
       </header>

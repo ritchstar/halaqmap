@@ -11,6 +11,7 @@ import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
+import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
@@ -171,6 +172,7 @@ export function Layout({ children }: LayoutProps) {
             <p className="text-center text-[0.65rem] text-slate-600 leading-relaxed">
               {PLATFORM_IDENTITY_BOILERPLATE_AR}
             </p>
+            <PlatformTrustStrip variant="inline" tone="dark" className="mt-2" />
           </div>
         </div>
 

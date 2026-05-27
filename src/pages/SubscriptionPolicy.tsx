@@ -25,6 +25,7 @@ import {
 } from "@/config/partnerLegal";
 import { HonorBoard } from "@/components/b2b/HonorBoard";
 import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
+import { PlatformTrustStrip } from "@/components/PlatformTrustStrip";
 import {
   PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
 } from "@/config/platformIdentity";
@@ -128,6 +129,12 @@ export default function SubscriptionPolicy() {
       >
         <motion.div variants={fadeInUp} className="text-center mb-12">
         </motion.div>
+
+        <motion.section variants={staggerItem} className="mb-12">
+          <div className="max-w-4xl mx-auto">
+            <PlatformTrustStrip variant="strip" />
+          </div>
+        </motion.section>
 
         <motion.section variants={staggerItem} className="mb-12">
           <div className="max-w-4xl mx-auto">

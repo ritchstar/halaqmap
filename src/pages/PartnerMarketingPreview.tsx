@@ -36,6 +36,7 @@ import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
+import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
@@ -1245,6 +1246,8 @@ export default function PartnerMarketingPreview() {
                 لا عمولة · لا وسيط · لا عقد مُلزِم
               </span>
             </p>
+
+            <PlatformTrustStrip variant="strip" tone="dark" className="mb-8 max-w-xl" />
 
             <div className="mb-8 flex flex-wrap gap-3">
               {[
