@@ -30,6 +30,9 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit -p tsconfig.app.json
 
+      - name: Typecheck API routes
+        run: npm run typecheck:api
+
       - name: Production build
         run: npm run build
         env:

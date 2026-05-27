@@ -1,18 +1,13 @@
 /**
  * MapCommunity — مجتمع ماب للشركاء.
  *
- * صفحة واجهة داخل مسار الشركاء:
- * - معرض فيديوهات دقيقة واحدة.
- * - شات عام Map Chat.
- * - مساعد ماب يتدخل عند @مساعد_ماب أو الأسئلة المهنية.
- *
- * ملاحظة تقنية:
- * تم تصميم طبقة الشات لتكون Socket.io-ready عبر VITE_MAP_COMMUNITY_SOCKET_URL،
- * مع fallback محلي/API كي تعمل فوراً على Vercel بدون خادم WebSocket دائم.
+ * Phase A: live feed from Supabase via Vercel API + YouTube embeds.
+ * Falls back to local mock data when the API returns 503 / is unavailable.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import {
   Bot,
   Eye,
@@ -20,7 +15,6 @@ import {
   MessageCircle,
   Send,
   Sparkles,
-  UploadCloud,
   Users,
   Video,
   ShieldCheck,
@@ -32,11 +26,18 @@ import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { ROUTE_PATHS } from '@/lib';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { MapCommunityYoutubeEmbed } from '@/components/MapCommunityYoutubeEmbed';
+import {
+  fetchMapCommunityFeedRemote,
+  markMapCommunityReadRemote,
+  postMapCommunityMessageRemote,
+} from '@/lib/mapCommunityRemote';
+import { POLL_MS } from '@/lib/pollingPolicy';
 
 type CommunityMessage = {
   id: string;
   author: string;
-  role: 'barber' | 'ai' | 'system';
+  role: 'barber' | 'ai' | 'system' | 'admin';
   content: string;
   timestamp: string;
 };
@@ -46,8 +47,9 @@ type CommunityVideo = {
   barberName: string;
   title: string;
   duration: string;
-  gradient: string;
   views: string;
+  gradient?: string;
+  youtubeVideoId?: string;
 };
 
 type CommunityAccess =
@@ -58,7 +60,7 @@ type CommunityAccess =
 
 const badWords = ['سب', 'قذف', 'عنصري', 'إهانة', 'فضيحة'];
 
-const videos: CommunityVideo[] = [
+const FALLBACK_VIDEOS: CommunityVideo[] = [
   {
     id: 'v1',
     barberName: 'حلاق الرياض الذهبي',
@@ -93,7 +95,7 @@ const videos: CommunityVideo[] = [
   },
 ];
 
-const starterMessages: CommunityMessage[] = [
+const FALLBACK_MESSAGES: CommunityMessage[] = [
   {
     id: 'm1',
     author: 'مساعد ماب',
@@ -118,11 +120,29 @@ const starterMessages: CommunityMessage[] = [
   },
 ];
 
+const FALLBACK_STATS = [
+  { label: 'حلاق نشط', value: '128', tone: 'text-emerald-300' },
+  { label: 'فيديو هذا الأسبوع', value: '36', tone: 'text-cyan-300' },
+  { label: 'سؤال مهني', value: '214', tone: 'text-amber-300' },
+];
+
+const VIDEO_GRADIENTS = [
+  'from-emerald-500/25 via-cyan-500/15 to-slate-950',
+  'from-amber-500/25 via-orange-500/10 to-slate-950',
+  'from-blue-500/25 via-cyan-500/10 to-slate-950',
+  'from-violet-500/25 via-emerald-500/10 to-slate-950',
+];
+
 function formatTime(iso: string): string {
   return new Intl.DateTimeFormat('ar-SA', {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(iso));
+}
+
+function normalizeRole(raw: string): CommunityMessage['role'] {
+  if (raw === 'ai' || raw === 'system' || raw === 'admin') return raw;
+  return 'barber';
 }
 
 function containsBadWords(text: string): boolean {
@@ -153,15 +173,17 @@ async function askMapAssistant(message: string, history: CommunityMessage[]) {
 export default function MapCommunity() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const founderView = searchParams.get('view') === 'founder';
   const [access, setAccess] = useState<CommunityAccess>({ status: 'checking' });
-  const [messages, setMessages] = useState<CommunityMessage[]>(starterMessages);
+  const [ephemeralMessages, setEphemeralMessages] = useState<CommunityMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [aiThinking, setAiThinking] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const seq = useRef(0);
 
   const socketMode = Boolean(import.meta.env.VITE_MAP_COMMUNITY_SOCKET_URL);
+  const feedEnabled = access.status === 'allowed';
 
   useEffect(() => {
     let cancelled = false;
@@ -225,23 +247,81 @@ export default function MapCommunity() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [founderView]);
+
+  const feedQuery = useQuery({
+    queryKey: ['map-community-feed'],
+    queryFn: async () => {
+      const res = await fetchMapCommunityFeedRemote();
+      if (res.ok === false) throw new Error(res.error);
+      return res.body;
+    },
+    enabled: feedEnabled,
+    refetchInterval: POLL_MS.MAP_COMMUNITY_FEED,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    staleTime: POLL_MS.MAP_COMMUNITY_FEED - 5_000,
+    retry: 1,
+  });
+
+  const usingFallback = feedQuery.isError || !feedQuery.data?.ok;
+
+  useEffect(() => {
+    if (access.status !== 'allowed' || usingFallback) return;
+    void markMapCommunityReadRemote().then(() => {
+      void queryClient.invalidateQueries({ queryKey: ['map-community-badge'] });
+    });
+  }, [access.status, usingFallback, queryClient]);
+
+  const baseMessages = useMemo((): CommunityMessage[] => {
+    if (usingFallback || !feedQuery.data?.messages?.length) {
+      return FALLBACK_MESSAGES;
+    }
+    return feedQuery.data.messages.map((m) => ({
+      id: m.id,
+      author: m.author,
+      role: normalizeRole(m.role),
+      content: m.content,
+      timestamp: m.timestamp,
+    }));
+  }, [usingFallback, feedQuery.data?.messages]);
+
+  const videos = useMemo((): CommunityVideo[] => {
+    if (usingFallback || !feedQuery.data?.videos?.length) {
+      return FALLBACK_VIDEOS;
+    }
+    return feedQuery.data.videos.map((v, i) => ({
+      id: v.id,
+      barberName: v.barberName,
+      title: v.title,
+      duration: v.duration,
+      views: v.views,
+      youtubeVideoId: v.youtubeVideoId,
+      gradient: VIDEO_GRADIENTS[i % VIDEO_GRADIENTS.length],
+    }));
+  }, [usingFallback, feedQuery.data?.videos]);
+
+  const stats = useMemo(() => {
+    if (usingFallback || !feedQuery.data?.stats) return FALLBACK_STATS;
+    const s = feedQuery.data.stats;
+    return [
+      { label: 'حلاق نشط', value: String(s.activeBarbers || 0), tone: 'text-emerald-300' },
+      { label: 'فيديو هذا الأسبوع', value: String(s.videosThisWeek || 0), tone: 'text-cyan-300' },
+      { label: 'سؤال مهني', value: String(s.professionalQuestions || 0), tone: 'text-amber-300' },
+    ];
+  }, [usingFallback, feedQuery.data?.stats]);
+
+  const messages = useMemo(
+    () => [...baseMessages, ...ephemeralMessages],
+    [baseMessages, ephemeralMessages],
+  );
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages, aiThinking]);
 
-  const stats = useMemo(
-    () => [
-      { label: 'حلاق نشط', value: '128', tone: 'text-emerald-300' },
-      { label: 'فيديو هذا الأسبوع', value: '36', tone: 'text-cyan-300' },
-      { label: 'سؤال مهني', value: '214', tone: 'text-amber-300' },
-    ],
-    [],
-  );
-
-  const pushMessage = useCallback((msg: Omit<CommunityMessage, 'id' | 'timestamp'>) => {
-    setMessages((prev) => [
+  const pushEphemeral = useCallback((msg: Omit<CommunityMessage, 'id' | 'timestamp'>) => {
+    setEphemeralMessages((prev) => [
       ...prev,
       {
         ...msg,
@@ -253,10 +333,10 @@ export default function MapCommunity() {
 
   const send = useCallback(async (overrideText?: string) => {
     const content = (overrideText ?? draft).trim();
-    if (!content || aiThinking) return;
+    if (!content || aiThinking || access.status !== 'allowed') return;
 
     if (containsBadWords(content)) {
-      pushMessage({
+      pushEphemeral({
         author: 'نظام المجتمع',
         role: 'system',
         content: 'تم إيقاف الرسالة قبل النشر. خلّونا نحافظ على مجتمع مهني ومحترم.',
@@ -265,26 +345,80 @@ export default function MapCommunity() {
       return;
     }
 
-    const userMessage: Omit<CommunityMessage, 'id' | 'timestamp'> = {
-      author: access.status === 'allowed' ? access.name : 'زائر',
-      role: 'barber',
-      content,
-    };
-    pushMessage(userMessage);
+    const isFounder = access.role === 'founder';
+    if (isFounder) return;
+
+    let historyBase = messages;
+
+    if (!usingFallback) {
+      const posted = await postMapCommunityMessageRemote({
+        content,
+        silentView: founderView,
+      });
+      if (posted.ok === false) {
+        if (posted.moderated && posted.reply) {
+          pushEphemeral({ author: 'نظام المجتمع', role: 'system', content: posted.reply });
+          setDraft('');
+          return;
+        }
+        pushEphemeral({
+          author: 'نظام المجتمع',
+          role: 'system',
+          content: posted.error || 'تعذر نشر الرسالة.',
+        });
+        setDraft('');
+        return;
+      }
+      await feedQuery.refetch();
+      historyBase = [
+        ...baseMessages,
+        {
+          ...posted.message,
+          role: normalizeRole(posted.message.role),
+        },
+      ];
+    } else {
+      pushEphemeral({
+        author: access.name || 'عضو',
+        role: 'barber',
+        content,
+      });
+      historyBase = [
+        ...messages,
+        {
+          id: 'draft',
+          author: access.name || 'عضو',
+          role: 'barber' as const,
+          content,
+          timestamp: new Date().toISOString(),
+        },
+      ];
+    }
+
     if (!overrideText) setDraft('');
 
     setAiThinking(true);
-    const ai = await askMapAssistant(content, [...messages, { ...userMessage, id: 'draft', timestamp: new Date().toISOString() }]);
+    const ai = await askMapAssistant(content, historyBase);
     setAiThinking(false);
 
     if (ai.moderated && ai.reply) {
-      pushMessage({ author: 'نظام المجتمع', role: 'system', content: ai.reply });
+      pushEphemeral({ author: 'نظام المجتمع', role: 'system', content: ai.reply });
       return;
     }
     if (ai.shouldReply && ai.reply) {
-      pushMessage({ author: 'مساعد ماب', role: 'ai', content: ai.reply });
+      pushEphemeral({ author: 'مساعد ماب', role: 'ai', content: ai.reply });
     }
-  }, [access, aiThinking, draft, messages, pushMessage]);
+  }, [
+    access,
+    aiThinking,
+    baseMessages,
+    draft,
+    feedQuery,
+    founderView,
+    messages,
+    pushEphemeral,
+    usingFallback,
+  ]);
 
   if (access.status === 'checking') {
     return (
@@ -334,7 +468,6 @@ export default function MapCommunity() {
       dir="rtl"
       className="relative min-h-screen overflow-hidden bg-[#0a0f0d] px-4 py-10 text-slate-100"
     >
-      {/* لسان سعودي — يسار ثابت */}
       <motion.button
         type="button"
         onClick={() => navigate(ROUTE_PATHS.SAUDI_AGENT)}
@@ -377,7 +510,7 @@ export default function MapCommunity() {
           سعودي
         </span>
       </motion.button>
-      {/* شريط المؤسس — اطلاع صامت */}
+
       {isFounder && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -400,7 +533,12 @@ export default function MapCommunity() {
         </motion.div>
       )}
 
-      {/* Glow Background */}
+      {usingFallback ? (
+        <p className="relative z-40 mb-3 text-center text-[0.62rem] text-amber-300/80">
+          وضع احتياطي — البيانات الحية غير متاحة مؤقتاً (تحقق من ترحيل Supabase 93).
+        </p>
+      ) : null}
+
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute right-[-10%] top-12 h-96 w-96 rounded-full bg-emerald-500/10 blur-[110px]" />
         <div className="absolute left-[-8%] top-1/3 h-96 w-96 rounded-full bg-cyan-500/10 blur-[120px]" />
@@ -416,7 +554,6 @@ export default function MapCommunity() {
       </div>
 
       <div className="relative mx-auto max-w-7xl space-y-8">
-        {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -435,8 +572,7 @@ export default function MapCommunity() {
                 </span>
               </h1>
               <p className="max-w-2xl text-sm leading-7 text-slate-400">
-                شارك أعمالك القصيرة، ناقش زملاءك، واسأل مساعد ماب عن تطوير الصالون، صيحات القصات،
-                وإدارة العمل اليومي باحتراف.
+                شارك أفكارك، ناقش زملاءك، وتابع فيديوهات YouTube المختارة — واسأل مساعد ماب عن تطوير الصالون باحتراف.
               </p>
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -450,7 +586,6 @@ export default function MapCommunity() {
           </div>
         </motion.header>
 
-        {/* Videos */}
         <section className="rounded-3xl border border-white/10 bg-slate-950/65 p-5 shadow-[0_0_45px_rgba(34,211,238,0.08)] backdrop-blur-xl md:p-6">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
@@ -458,14 +593,8 @@ export default function MapCommunity() {
                 <Film className="h-5 w-5 text-cyan-300" />
                 معرض فيديوهات الحلاقين
               </h2>
-              <p className="mt-1 text-xs text-slate-500">فيديوهات قصيرة لا تتجاوز دقيقة واحدة</p>
+              <p className="mt-1 text-xs text-slate-500">فيديوهات YouTube قصيرة لا تتجاوز دقيقة واحدة</p>
             </div>
-            {access.isVerified ? (
-              <Button className="gap-2 border border-emerald-400/30 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25">
-                <UploadCloud className="h-4 w-4" />
-                رفع فيديو
-              </Button>
-            ) : null}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -478,17 +607,28 @@ export default function MapCommunity() {
                 transition={{ delay: i * 0.08 }}
                 className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035]"
               >
-                <div className={`relative aspect-[9/14] bg-gradient-to-br ${video.gradient}`}>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.14),transparent_48%)]" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-black/40 backdrop-blur-md transition-transform group-hover:scale-110">
-                      <Video className="h-7 w-7 text-white" />
-                    </div>
-                  </div>
-                  <span className="absolute bottom-3 left-3 rounded-full bg-black/60 px-2.5 py-1 text-[0.65rem] font-bold text-white">
+                <div
+                  className={cn(
+                    'relative aspect-[9/14] bg-gradient-to-br',
+                    video.youtubeVideoId ? 'bg-black' : video.gradient || VIDEO_GRADIENTS[0],
+                  )}
+                >
+                  {video.youtubeVideoId ? (
+                    <MapCommunityYoutubeEmbed videoId={video.youtubeVideoId} title={video.title} />
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.14),transparent_48%)]" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-black/40 backdrop-blur-md transition-transform group-hover:scale-110">
+                          <Video className="h-7 w-7 text-white" />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <span className="absolute bottom-3 left-3 z-10 rounded-full bg-black/60 px-2.5 py-1 text-[0.65rem] font-bold text-white">
                     {video.duration}
                   </span>
-                  <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/40 px-2.5 py-1 text-[0.62rem] text-slate-200">
+                  <span className="absolute right-3 top-3 z-10 rounded-full border border-white/15 bg-black/40 px-2.5 py-1 text-[0.62rem] text-slate-200">
                     {video.views} مشاهدة
                   </span>
                 </div>
@@ -501,7 +641,6 @@ export default function MapCommunity() {
           </div>
         </section>
 
-        {/* Chat */}
         <section className="grid gap-5 lg:grid-cols-[1fr_22rem]">
           <div className="overflow-hidden rounded-3xl border border-emerald-400/18 bg-slate-950/70 shadow-[0_0_50px_rgba(16,185,129,0.10)] backdrop-blur-xl">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
@@ -511,11 +650,15 @@ export default function MapCommunity() {
                   Map Chat
                 </h2>
                 <p className="mt-1 text-xs text-slate-500">
-                  {socketMode ? 'متصل بطبقة Socket.io' : 'وضع تشغيل محلي سريع · Socket-ready'}
+                  {usingFallback
+                    ? 'وضع احتياطي · Socket-ready'
+                    : socketMode
+                      ? 'بيانات حية · Socket-ready'
+                      : 'بيانات حية · تحديث كل 30 ثانية'}
                 </p>
               </div>
               <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-200">
-                مباشر الآن
+                {usingFallback ? 'احتياطي' : 'مباشر'}
               </span>
             </div>
 
@@ -582,7 +725,6 @@ export default function MapCommunity() {
             )}
           </div>
 
-          {/* AI Agent Card */}
           <aside className="rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-5 shadow-[0_0_45px_rgba(34,211,238,0.10)] backdrop-blur-xl">
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-400/35 bg-cyan-500/15">
@@ -614,6 +756,7 @@ export default function MapCommunity() {
               onClick={() => {
                 void send('@مساعد_ماب أعطني موضوع نقاش اليوم للحلاقين');
               }}
+              disabled={isFounder}
             >
               <Sparkles className="ml-2 h-4 w-4" />
               افتح موضوع اليوم

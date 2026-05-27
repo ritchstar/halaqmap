@@ -15,6 +15,7 @@ import {
 } from '@/modules/platform-radar/lib/platformRadarRealtime';
 import { playTacticalUserPulseSound } from '@/modules/platform-radar/lib/platformRadarPulseSound';
 import { cn } from '@/lib/utils';
+import { POLL_MS } from '@/lib/pollingPolicy';
 
 type Props = {
   commandMode?: boolean;
@@ -60,7 +61,7 @@ export function PlatformRadar({ commandMode = false, soundEnabled = true, founde
     enabled: true,
     soundEnabled,
     realtimeEnabled: true,
-    pollMs: 3_000,
+    pollMs: POLL_MS.RADAR_PULSES,
   });
 
   // Stable handler — Realtime subscription should never tear down/re-open

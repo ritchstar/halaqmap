@@ -16,6 +16,7 @@ import {
 } from '@/lib/barberCustomerPrivateChatRemote';
 import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
 import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
+import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 
 function remainingMs(expiresAtIso: string): number {
   const t = new Date(expiresAtIso).getTime();
@@ -56,7 +57,8 @@ export function BarberCustomerPrivateChatPanel({
     [conversations, selectedId]
   );
 
-  const pollConversations = useCallback(async () => {
+  const pollConversations = useCallback(async (force = false) => {
+    if (!force && !isPollingTabActive()) return;
     const res = await barberListPrivateConversationsRemote({ barberId, email: barberEmail });
     if (!res.ok) return;
     setConversations(res.conversations);
@@ -67,7 +69,8 @@ export function BarberCustomerPrivateChatPanel({
   }, [barberId, barberEmail]);
 
   const loadMessages = useCallback(
-    async (conversationId: string) => {
+    async (conversationId: string, opts?: { force?: boolean }) => {
+      if (!opts?.force && !isPollingTabActive()) return;
       setLoadingMsgs(true);
       try {
         const res = await barberListPrivateMessagesRemote({
@@ -82,7 +85,7 @@ export function BarberCustomerPrivateChatPanel({
         }
         if (res.expired) {
           setMessages([]);
-          void pollConversations();
+          void pollConversations(true);
           return;
         }
         setMessages(res.messages);
@@ -97,7 +100,7 @@ export function BarberCustomerPrivateChatPanel({
     let cancelled = false;
     (async () => {
       setLoadingList(true);
-      await pollConversations();
+      await pollConversations(true);
       if (!cancelled) setLoadingList(false);
     })();
     return () => {
@@ -115,7 +118,7 @@ export function BarberCustomerPrivateChatPanel({
   useEffect(() => {
     const iv = window.setInterval(() => {
       void pollConversations();
-    }, 4000);
+    }, POLL_MS.PRIVATE_CHAT_LIST);
     return () => window.clearInterval(iv);
   }, [pollConversations]);
 
@@ -124,10 +127,10 @@ export function BarberCustomerPrivateChatPanel({
       setMessages([]);
       return;
     }
-    void loadMessages(selectedId);
+    void loadMessages(selectedId, { force: true });
     const iv = window.setInterval(() => {
       void loadMessages(selectedId);
-    }, 2500);
+    }, POLL_MS.PRIVATE_CHAT_MESSAGES);
     return () => window.clearInterval(iv);
   }, [selectedId, loadMessages]);
 
@@ -140,13 +143,14 @@ export function BarberCustomerPrivateChatPanel({
   useEffect(() => {
     if (!isDiamond || !selectedId) return;
     const tick = async () => {
+      if (!isPollingTabActive()) return;
       const r = await customerDigitalShiftInterceptRemote(selectedId);
       if (r.ok && r.replied) {
-        await loadMessages(selectedId);
+        await loadMessages(selectedId, { force: true });
       }
     };
     void tick();
-    const id = window.setInterval(() => void tick(), 25_000);
+    const id = window.setInterval(() => void tick(), POLL_MS.PRIVATE_CHAT_INTERCEPT);
     return () => window.clearInterval(id);
   }, [isDiamond, selectedId, loadMessages]);
 
@@ -187,8 +191,8 @@ export function BarberCustomerPrivateChatPanel({
         return;
       }
       setDraft('');
-      await loadMessages(selectedId);
-      await pollConversations();
+      await loadMessages(selectedId, { force: true });
+      await pollConversations(true);
     } finally {
       setSending(false);
     }
@@ -208,7 +212,7 @@ export function BarberCustomerPrivateChatPanel({
         </CardTitle>
         <CardDescription className="text-sm leading-relaxed">
           تظهر هنا الجلسات النشطة فقط (ساعة واحدة لكل جلسة). يبدأ العميل المحادثة من التطبيق؛ تُحدَّث الرسائل
-          تلقائياً كل بضع ثوانٍ.
+          تلقائياً كل نحو 30 ثانية.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

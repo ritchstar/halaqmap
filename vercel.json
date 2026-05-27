@@ -8,7 +8,7 @@
   ],
   "framework": "vite",
   "installCommand": "npm install --no-audit --no-fund --loglevel=error",
-  "buildCommand": "npm run build && node scripts/verify-dist-index.mjs",
+  "buildCommand": "npm run typecheck:api && npm run build && node scripts/verify-dist-index.mjs",
   "outputDirectory": "dist",
   "headers": [
     {
@@ -219,6 +219,15 @@
     },
     "api/map-community-ai.ts": {
       "maxDuration": 45
+    },
+    "api/map-community-feed.ts": {
+      "maxDuration": 30
+    },
+    "api/map-community-message.ts": {
+      "maxDuration": 25
+    },
+    "api/map-community-read.ts": {
+      "maxDuration": 15
     },
     "api/public-saudi-agent-chat.ts": {
       "maxDuration": 60

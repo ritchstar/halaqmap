@@ -13,8 +13,9 @@ import {
   type PlatformRadarForcePulse,
 } from '@/modules/platform-radar/lib/platformRadarRealtime';
 import type { PlatformRadarMapPulse } from '@/modules/platform-radar/types';
+import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 
-const DEFAULT_POLL_MS = 3_000;
+const DEFAULT_POLL_MS = POLL_MS.RADAR_PULSES;
 const DEFAULT_WINDOW_MINUTES = 120;
 const FORCE_PULSE_TTL_MS = 4_500;
 const MAX_TRACKED_PULSE_IDS = 1500;
@@ -57,6 +58,7 @@ export function usePlatformRadarPulses(options?: {
     new BoundedPulseIdSet({ maxEntries: MAX_TRACKED_PULSE_IDS, maxAgeMs: TRACKED_PULSE_TTL_MS }),
   );
   const isFirstLoadRef = useRef(true);
+  const lastGeneratedAtRef = useRef<string | null>(null);
   const forcePulseTimersRef = useRef<Map<string, number>>(new Map());
   const soundEnabledRef = useRef(soundEnabled);
   const realtimeConnectedRef = useRef(realtimeConnected);
@@ -140,13 +142,22 @@ export function usePlatformRadarPulses(options?: {
   );
 
   const load = useCallback(async () => {
-    if (!enabled) return;
+    if (!enabled || !isPollingTabActive()) return;
     try {
       const res = await fetchAdminRadarPulses(windowMinutes);
       if (!res.ok) {
         setError(res.error);
         return;
       }
+
+      if (
+        !isFirstLoadRef.current &&
+        lastGeneratedAtRef.current === res.body.generatedAt
+      ) {
+        setError(null);
+        return;
+      }
+      lastGeneratedAtRef.current = res.body.generatedAt;
 
       const next = res.body.pulses;
       const newUserPulses = next.filter(

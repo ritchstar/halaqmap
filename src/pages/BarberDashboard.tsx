@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -103,6 +104,7 @@ import {
   sendBarberSupportMessageRemote,
   type BarberSupportMessageRow,
 } from '@/lib/barberSupportChatRemote';
+import { POLL_MS } from '@/lib/pollingPolicy';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { portfolioMaxImagesForSubscriptionTier } from '@/lib/barberPortfolioPolicy';
 import {
@@ -1356,32 +1358,31 @@ function AppointmentsSection({
 }
 
 function PlatformSupportChatPanel({ barberId, barberEmail }: { barberId: string; barberEmail: string }) {
-  const [messages, setMessages] = useState<BarberSupportMessageRow[]>([]);
   const [draft, setDraft] = useState('');
-  const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
-  const pollRef = useRef<number | null>(null);
 
-  const load = useCallback(async () => {
-    if (!barberId || !barberEmail.trim()) return;
-    setLoading(true);
-    const r = await fetchBarberSupportMessagesRemote({ barberId, email: barberEmail });
-    setLoading(false);
-    if (!r.ok) {
-      toast.error(r.error);
-      return;
-    }
-    setMessages(r.messages);
-  }, [barberId, barberEmail]);
+  const {
+    data: messages = [],
+    isLoading: loading,
+    refetch,
+    error: loadError,
+  } = useQuery({
+    queryKey: ['barber-support-messages', barberId, barberEmail],
+    queryFn: async () => {
+      const r = await fetchBarberSupportMessagesRemote({ barberId, email: barberEmail });
+      if (!r.ok) throw new Error(r.error);
+      return r.messages;
+    },
+    enabled: Boolean(barberId && barberEmail.trim()),
+    refetchInterval: POLL_MS.BARBER_SUPPORT_CHAT,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    staleTime: POLL_MS.BARBER_SUPPORT_CHAT - 5_000,
+  });
 
   useEffect(() => {
-    void load();
-    pollRef.current = window.setInterval(() => void load(), 10000);
-    return () => {
-      if (pollRef.current) window.clearInterval(pollRef.current);
-      pollRef.current = null;
-    };
-  }, [load]);
+    if (loadError instanceof Error) toast.error(loadError.message);
+  }, [loadError]);
 
   const send = async () => {
     if (!draft.trim()) return;
@@ -1397,7 +1398,7 @@ function PlatformSupportChatPanel({ barberId, barberEmail }: { barberId: string;
       return;
     }
     setDraft('');
-    await load();
+    await refetch();
     toast.success('تم إرسال الرسالة إلى إدارة المنصة');
   };
 

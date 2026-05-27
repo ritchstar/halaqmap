@@ -30,6 +30,12 @@ import {
 } from '@/config/platformSmartTracking';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
+/** Minimum wait after filter/location settles before logging search activity. */
+const SEARCH_ACTIVITY_LOG_DEBOUNCE_MS = 1_000;
+/** Suppress duplicate composite logs for identical filter+location snapshots. */
+const SEARCH_ACTIVITY_LOG_DEDUPE_MS = 15_000;
+const GEO_SEARCH_LOG_DEBOUNCE_MS = 800;
+const GEO_SEARCH_LOG_DEDUPE_MS = 12_000;
 
 export default function Home() {
   const searchLogDedupe = useRef<{ key: string; at: number }>({ key: '', at: 0 });
@@ -145,7 +151,7 @@ export default function Home() {
 
     const geoKey = `${userLocation.lat.toFixed(5)},${userLocation.lng.toFixed(5)}`;
     const now = Date.now();
-    if (geoLogDedupe.current.key === geoKey && now - geoLogDedupe.current.at < 12_000) return;
+    if (geoLogDedupe.current.key === geoKey && now - geoLogDedupe.current.at < GEO_SEARCH_LOG_DEDUPE_MS) return;
 
     const timer = window.setTimeout(() => {
       geoLogDedupe.current = { key: geoKey, at: Date.now() };
@@ -156,7 +162,7 @@ export default function Home() {
         userLng: userLocation.lng,
         locationSharing: true,
       });
-    }, 450);
+    }, GEO_SEARCH_LOG_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timer);
   }, [userLocation]);
@@ -174,7 +180,7 @@ export default function Home() {
       });
       const key = `${userLocation.lat.toFixed(5)},${userLocation.lng.toFixed(5)}|${filterSig}|rpc${remoteBarbers.length}|ui${filteredBarbers.length}`;
       const now = Date.now();
-      if (searchLogDedupe.current.key === key && now - searchLogDedupe.current.at < 9000) return;
+      if (searchLogDedupe.current.key === key && now - searchLogDedupe.current.at < SEARCH_ACTIVITY_LOG_DEDUPE_MS) return;
       searchLogDedupe.current = { key, at: now };
       void postLogSearchActivity({
         queryText,
@@ -193,7 +199,7 @@ export default function Home() {
         resultCount: filteredBarbers.length,
         rpcResultCount: remoteBarbers.length,
       });
-    }, 2600);
+    }, SEARCH_ACTIVITY_LOG_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timer);
   }, [userLocation, remoteStatus, filterSig, remoteBarbers.length, filteredBarbers.length]);
