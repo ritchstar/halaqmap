@@ -1,5 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?:www\\.)?nota-council\\.com"
+        }
+      ],
+      "destination": "https://halaqmap.com/#/partners/community",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/rate/:path*",
@@ -216,6 +229,12 @@
     },
     "api/public-b2b-sales-manager-chat.ts": {
       "maxDuration": 50
+    },
+    "api/map-community-ai.ts": {
+      "maxDuration": 45
+    },
+    "api/public-saudi-agent-chat.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [
