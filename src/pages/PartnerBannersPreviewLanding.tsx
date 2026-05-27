@@ -1,14 +1,9 @@
 import { useEffect } from 'react';
 import { BannersPageDigitalShift } from '@/components/BannersPageDigitalShift';
 import { motion, useReducedMotion } from 'framer-motion';
-import { NavLink } from 'react-router-dom';
+import { NavLink as NavLinkDom } from 'react-router-dom';
 import { Radar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ROUTE_PATHS } from '@/lib';
 import {
-  PARTNER_BANNERS_PREVIEW_CTA,
-  PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX,
-  PARTNER_BANNERS_PREVIEW_GOLD_GALLERY_MAX,
   PARTNER_BANNERS_PREVIEW_TIERS,
 } from '@/config/partnerBannersPreviewCopy';
 import { BarberDashboardNeonPreview } from '@/components/partner/banners-preview/BarberDashboardNeonPreview';
@@ -16,14 +11,13 @@ import { BannersPreviewAmbient } from '@/components/partner/banners-preview/Bann
 import { DigitalShiftImpactPreview } from '@/components/partner/banners-preview/DigitalShiftImpactPreview';
 import { DigitalShiftAdminTrainingPreview } from '@/components/partner/banners-preview/DigitalShiftAdminTrainingPreview';
 import { PrivateOfficeSimPreview } from '@/components/partner/banners-preview/PrivateOfficeSimPreview';
-import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
+import { BannerPreviewTierSection } from '@/components/partner/banners-preview/BannerPreviewTierSection';
 import {
   PARTNER_FEATURE_PREVIEW_DASHBOARD,
   PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT,
   PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE,
 } from '@/config/partnerFeaturePreviewsCopy';
 import { NavLink as NavLinkDom } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 import {
   PLATFORM_IDENTITY_BADGE_AR,
   PLATFORM_IDENTITY_BOILERPLATE_AR,
@@ -76,62 +70,9 @@ export default function PartnerBannersPreviewLanding() {
       </header>
 
       <main className="relative z-10 container mx-auto max-w-6xl space-y-16 px-4 py-10 md:py-14">
-        {PARTNER_BANNERS_PREVIEW_TIERS.map((tier, index) => {
-          const isDiamond = tier.id === 'diamond';
-          return (
-            <motion.section
-              key={tier.id}
-              initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.55, delay: index * 0.06 }}
-              className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12"
-            >
-              <div className={cn('order-2 overflow-visible lg:order-1', index % 2 === 1 && 'lg:order-2')}>
-                <EndUserBarberBannerSim tier={tier} startDelayMs={index * 1400} />
-              </div>
-
-              <div className={cn('order-1 space-y-5 lg:order-2', index % 2 === 1 && 'lg:order-1')}>
-                <div>
-                  <span className="mb-2 inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-bold text-slate-200">
-                    {tier.badge} {tier.name}
-                  </span>
-                  <h2 className="text-xl font-extrabold leading-snug text-white md:text-2xl">{tier.marketingTitle}</h2>
-                </div>
-
-                <div className="space-y-4 text-sm leading-8 text-slate-300">
-                  {tier.marketingParagraphs.map((p) => (
-                    <p key={p}>{p}</p>
-                  ))}
-                </div>
-
-                {isDiamond && (
-                  <p className="rounded-xl border border-cyan-400/20 bg-cyan-950/25 p-3 text-xs leading-relaxed text-cyan-100/85">
-                    بنر الفيديو الماسي يُحمَّل كسولاً داخل الملف الداخلي فقط (WebM، حتى 10 ثوانٍ، صامت) — صفر تأثير
-                    على سرعة تصفح العملاء على المنصة.
-                  </p>
-                )}
-
-                <p className="text-[11px] text-slate-500">
-                  حد المعرض في النظام: ذهبي {PARTNER_BANNERS_PREVIEW_GOLD_GALLERY_MAX} صورة · ماسي{' '}
-                  {PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX} صورة.
-                </p>
-
-                <NavLink to={ROUTE_PATHS.REGISTER}>
-                  <Button
-                    type="button"
-                    className={cn(
-                      'h-auto min-h-12 w-full whitespace-normal py-3 text-sm font-bold sm:w-auto sm:min-w-[280px]',
-                      isDiamond ? 'diamond-cta' : 'bg-primary hover:bg-primary/90',
-                    )}
-                  >
-                    {PARTNER_BANNERS_PREVIEW_CTA}
-                  </Button>
-                </NavLink>
-              </div>
-            </motion.section>
-          );
-        })}
+        {PARTNER_BANNERS_PREVIEW_TIERS.map((tier, index) => (
+          <BannerPreviewTierSection key={tier.id} tier={tier} index={index} />
+        ))}
 
         <motion.section
           initial={reduceMotion ? false : { opacity: 0, y: 28 }}

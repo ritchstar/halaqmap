@@ -28,8 +28,9 @@ import {
   DIAMOND_PRODUCT_STANDARD_LABEL_AR,
 } from '@/config/subscriptionPricing';
 import { SubscriptionTier } from '@/lib/index';
+import { BannerPreviewTierSection } from '@/components/partner/banners-preview/BannerPreviewTierSection';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
-import { BannerRadiationField, bannerRadiationTierFromId, type BannerRadiationTier } from '@/components/BannerRadiationField';
+import { BannerRadiationField, type BannerRadiationTier } from '@/components/BannerRadiationField';
 import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
@@ -1678,37 +1679,27 @@ export default function PartnerMarketingPreview() {
               className="text-3xl font-black text-white md:text-4xl">
               هكذا يظهر صالونك
             </motion.h2>
-            <p className="mt-3 text-slate-400">معاينة حقيقية لبطاقات الباقات الثلاث على المنصة</p>
+            <p className="mt-3 text-slate-400">معاينة حقيقية لبطاقات الباقات الثلاث — مع الشروحات التسويقية لكل مستوى</p>
           </div>
-          <div className="banner-radiation-stage">
-          <div className="banner-radiation-grid relative z-[1] grid gap-8 md:grid-cols-3 md:gap-10">
-            {PARTNER_BANNERS_PREVIEW_TIERS.map((tier, i) => (
-              <motion.div
+
+          <div className="space-y-16">
+            {PARTNER_BANNERS_PREVIEW_TIERS.map((tier, index) => (
+              <BannerPreviewTierSection
                 key={tier.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="relative"
-              >
-                <div className={`mb-3 text-center text-xs font-bold ${tier.id === 'diamond' ? 'text-cyan-400' : tier.id === 'gold' ? 'text-amber-400' : 'text-amber-700'}`}>
-                  {tier.badge} {tier.id === 'bronze' ? 'البرونزي' : tier.id === 'gold' ? 'الذهبي' : 'الماسي'}
-                </div>
-                {/* محاكاة حقيقية مع صور وتفاعل */}
-                <EndUserBarberBannerSim
-                  tier={tier}
-                  startDelayMs={i * 800}
-                />
-              </motion.div>
+                tier={tier}
+                index={index}
+                showCta={false}
+                className="border-b border-white/5 pb-16 last:border-b-0 last:pb-0"
+              />
             ))}
           </div>
-          </div>
+
           <div className="mt-10 text-center">
             <button
               onClick={() => navigate(ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW)}
               className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-500/10 px-6 py-3 text-sm font-semibold text-amber-300 hover:border-amber-400/70 transition-all"
             >
-              <ImageIcon className="h-4 w-4" /> معاينة البنرات والمكتب الخاص 🏛️
+              <ImageIcon className="h-4 w-4" /> معاينة البنرات والمكتب الخاص 🏛️ — الصفحة الكاملة
             </button>
           </div>
         </div>
