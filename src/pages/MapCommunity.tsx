@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bot,
+  Eye,
   Film,
   MessageCircle,
   Send,
@@ -30,7 +31,7 @@ import { cn } from '@/lib/utils';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { ROUTE_PATHS } from '@/lib';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 type CommunityMessage = {
   id: string;
@@ -53,7 +54,7 @@ type CommunityAccess =
   | { status: 'checking' }
   | { status: 'nologin' }
   | { status: 'denied'; email: string | null }
-  | { status: 'allowed'; role: 'admin' | 'barber'; name: string; isVerified: boolean; email: string | null };
+  | { status: 'allowed'; role: 'admin' | 'barber' | 'founder'; name: string; isVerified: boolean; email: string | null };
 
 const badWords = ['سب', 'قذف', 'عنصري', 'إهانة', 'فضيحة'];
 
@@ -150,6 +151,8 @@ async function askMapAssistant(message: string, history: CommunityMessage[]) {
 }
 
 export default function MapCommunity() {
+  const [searchParams] = useSearchParams();
+  const founderView = searchParams.get('view') === 'founder';
   const [access, setAccess] = useState<CommunityAccess>({ status: 'checking' });
   const [messages, setMessages] = useState<CommunityMessage[]>(starterMessages);
   const [draft, setDraft] = useState('');
@@ -186,8 +189,8 @@ export default function MapCommunity() {
         if (!cancelled) {
           setAccess({
             status: 'allowed',
-            role: 'admin',
-            name: admin.displayName || 'مشرف حلاق ماب',
+            role: founderView && admin.bootstrap ? 'founder' : 'admin',
+            name: founderView && admin.bootstrap ? '' : (admin.displayName || 'مشرف حلاق ماب'),
             isVerified: true,
             email,
           });
@@ -323,11 +326,36 @@ export default function MapCommunity() {
     );
   }
 
+  const isFounder = access.status === 'allowed' && access.role === 'founder';
+
   return (
     <div
       dir="rtl"
       className="relative min-h-screen overflow-hidden bg-[#0a0f0d] px-4 py-10 text-slate-100"
     >
+      {/* شريط المؤسس — اطلاع صامت */}
+      {isFounder && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-50 mb-4 flex items-center justify-between gap-3 rounded-2xl border border-fuchsia-400/35 bg-fuchsia-500/10 px-5 py-3 shadow-[0_0_24px_rgba(217,70,239,0.18)] backdrop-blur-md"
+        >
+          <div className="flex items-center gap-2.5">
+            <Eye className="h-5 w-5 text-fuchsia-300" />
+            <div>
+              <p className="text-sm font-black text-fuchsia-100">وضع الاطلاع الصامت</p>
+              <p className="text-[0.62rem] text-fuchsia-300/70">هويتك غير مكشوفة للمجتمع · القراءة فقط · لا تفاعل</p>
+            </div>
+          </div>
+          <motion.span
+            className="h-2.5 w-2.5 rounded-full bg-fuchsia-300"
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            style={{ boxShadow: '0 0 8px rgba(217,70,239,0.9)' }}
+          />
+        </motion.div>
+      )}
+
       {/* Glow Background */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute right-[-10%] top-12 h-96 w-96 rounded-full bg-emerald-500/10 blur-[110px]" />
@@ -479,29 +507,35 @@ export default function MapCommunity() {
               </div>
             </div>
 
-            <div className="border-t border-white/10 p-4">
-              <div className="flex items-end gap-3">
-                <Textarea
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      void send();
-                    }
-                  }}
-                  placeholder="اكتب رسالة للمجتمع… أو نادِ @مساعد_ماب"
-                  className="min-h-14 flex-1 resize-none rounded-2xl border-emerald-400/20 bg-[#07120f] text-white placeholder:text-slate-600"
-                />
-                <Button
-                  onClick={() => void send()}
-                  disabled={!draft.trim() || aiThinking}
-                  className="h-14 w-14 rounded-2xl bg-emerald-500 text-black hover:bg-emerald-400"
-                >
-                  <Send className="h-5 w-5" />
-                </Button>
+            {!isFounder ? (
+              <div className="border-t border-white/10 p-4">
+                <div className="flex items-end gap-3">
+                  <Textarea
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        void send();
+                      }
+                    }}
+                    placeholder="اكتب رسالة للمجتمع… أو نادِ @مساعد_ماب"
+                    className="min-h-14 flex-1 resize-none rounded-2xl border-emerald-400/20 bg-[#07120f] text-white placeholder:text-slate-600"
+                  />
+                  <Button
+                    onClick={() => void send()}
+                    disabled={!draft.trim() || aiThinking}
+                    className="h-14 w-14 rounded-2xl bg-emerald-500 text-black hover:bg-emerald-400"
+                  >
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="border-t border-fuchsia-400/15 p-4 text-center text-[0.65rem] text-fuchsia-400/55">
+                <Eye className="mx-auto mb-1 h-4 w-4 opacity-50" /> اطلاع صامت — التفاعل للمشرفين المعينين
+              </div>
+            )}
           </div>
 
           {/* AI Agent Card */}

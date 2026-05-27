@@ -11,7 +11,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, X, Send, Users, Bot } from 'lucide-react';
+import { ArrowRight, X, Send, Users, Bot, MessageCircle, Eye } from 'lucide-react';
+import { ROUTE_PATHS } from '@/lib';
 import { getAdminDashboardPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
@@ -213,12 +214,32 @@ export default function StaffHubPage() {
               <p className="text-[0.58rem] text-teal-400/55">Staff Intelligence Hub</p>
             </div>
           </div>
-          <button
-            onClick={() => navigate(getAdminDashboardPathFor(location.pathname))}
-            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 transition-colors"
-          >
-            <ArrowRight className="h-3.5 w-3.5" /> لوحة التحكم
-          </button>
+          <div className="flex items-center gap-2">
+            {isBootstrap && (
+              <motion.button
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate(`${ROUTE_PATHS.MAP_COMMUNITY}?view=founder`)}
+                className="relative flex items-center gap-2 rounded-xl border border-fuchsia-400/40 bg-fuchsia-500/12 px-3.5 py-2 text-xs font-black text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.20)] transition-all hover:border-fuchsia-300/65 hover:bg-fuchsia-500/20"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span>مجتمع ماب</span>
+                <motion.span
+                  className="h-2 w-2 rounded-full bg-fuchsia-300"
+                  animate={{ opacity: [0.4, 1, 0.4], scale: [0.8, 1.3, 0.8] }}
+                  transition={{ duration: 1.6, repeat: Infinity }}
+                  style={{ boxShadow: '0 0 7px rgba(217,70,239,0.9)' }}
+                />
+              </motion.button>
+            )}
+            <button
+              onClick={() => navigate(getAdminDashboardPathFor(location.pathname))}
+              className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 transition-colors"
+            >
+              <ArrowRight className="h-3.5 w-3.5" /> لوحة التحكم
+            </button>
+          </div>
         </div>
       </header>
 
