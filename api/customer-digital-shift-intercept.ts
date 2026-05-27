@@ -38,12 +38,12 @@ export async function POST(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
   const headers = corsHeaders(request);
-  const guard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 20 });
-  if (!guard.allowed) return guard.response;
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 20 });
+  if (!secGuard.allowed) return secGuard.response;
 
-  const guard = runRegistrationRouteGuards(request, 'customer-digital-shift-intercept');
-  if (guard.ok === false) {
-    return Response.json(guard.json, { status: guard.status, headers });
+  const routeGuard = runRegistrationRouteGuards(request, 'customer-digital-shift-intercept');
+  if (routeGuard.ok === false) {
+    return Response.json(routeGuard.json, { status: routeGuard.status, headers });
   }
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();

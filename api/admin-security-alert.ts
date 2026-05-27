@@ -111,7 +111,8 @@ export async function POST(request: Request): Promise<Response> {
       }),
     });
 
-    const data = (await resp.json().catch(() => ({}))).id ? { id: (await resp.json().catch(() => ({}))).id } : {};
+    const resendJson = (await resp.json().catch(() => ({}))) as { id?: string };
+    const data = resendJson.id ? { id: resendJson.id } : {};
     return json({ ok: resp.ok, ...data });
   } catch (e) {
     return json({ ok: false, error: e instanceof Error ? e.message : 'send_failed' }, 500);
