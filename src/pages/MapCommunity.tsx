@@ -33,6 +33,7 @@ import {
   postMapCommunityMessageRemote,
 } from '@/lib/mapCommunityRemote';
 import { POLL_MS } from '@/lib/pollingPolicy';
+import { readBarberAuthSession, buildBarberLoginUrl } from '@/lib/barberPortalSession';
 
 type CommunityMessage = {
   id: string;
@@ -56,7 +57,7 @@ type CommunityAccess =
   | { status: 'checking' }
   | { status: 'nologin' }
   | { status: 'denied'; email: string | null }
-  | { status: 'allowed'; role: 'admin' | 'barber' | 'founder'; name: string; isVerified: boolean; email: string | null };
+  | { status: 'allowed'; role: 'admin' | 'barber' | 'founder'; name: string; isVerified: boolean; email: string | null; canPostLive?: boolean };
 
 const badWords = ['سب', 'قذف', 'عنصري', 'إهانة', 'فضيحة'];
 
@@ -202,46 +203,72 @@ export default function MapCommunity() {
       const { data: sessionData } = await client.auth.getSession();
       const user = sessionData.session?.user;
       const email = user?.email ?? null;
-      if (!user || !email) {
-        if (!cancelled) setAccess({ status: 'nologin' });
-        return;
-      }
-
-      const admin = await resolveAdminAccess(email);
-      if (admin.allowed) {
-        if (!cancelled) {
-          setAccess({
-            status: 'allowed',
-            role: founderView && admin.bootstrap ? 'founder' : 'admin',
-            name: founderView && admin.bootstrap ? '' : (admin.displayName || 'مشرف حلاق ماب'),
-            isVerified: true,
-            email,
-          });
+      if (user && email) {
+        const admin = await resolveAdminAccess(email);
+        if (admin.allowed) {
+          if (!cancelled) {
+            setAccess({
+              status: 'allowed',
+              role: founderView && admin.bootstrap ? 'founder' : 'admin',
+              name: founderView && admin.bootstrap ? '' : (admin.displayName || 'مشرف حلاق ماب'),
+              isVerified: true,
+              email,
+              canPostLive: true,
+            });
+          }
+          return;
         }
-        return;
-      }
 
-      const { data: barber } = await client
-        .from('barbers')
-        .select('name, is_active, is_verified')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .maybeSingle();
+        const { data: barber } = await client
+          .from('barbers')
+          .select('name, is_active, is_verified')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .maybeSingle();
 
-      if (barber?.is_active === true) {
-        if (!cancelled) {
-          setAccess({
-            status: 'allowed',
-            role: 'barber',
-            name: String(barber.name || 'حلاق ماب'),
-            isVerified: Boolean(barber.is_verified),
-            email,
-          });
+        if (barber?.is_active === true) {
+          if (!cancelled) {
+            setAccess({
+              status: 'allowed',
+              role: 'barber',
+              name: String(barber.name || 'حلاق ماب'),
+              isVerified: Boolean(barber.is_verified),
+              email,
+              canPostLive: true,
+            });
+          }
+          return;
         }
+
+        if (!cancelled) setAccess({ status: 'denied', email });
         return;
       }
 
-      if (!cancelled) setAccess({ status: 'denied', email });
+      const portalSession = readBarberAuthSession();
+      if (portalSession?.email) {
+        const { data: barber } = await client
+          .from('barbers')
+          .select('name, is_active, is_verified')
+          .ilike('email', portalSession.email.trim())
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (barber?.is_active === true) {
+          if (!cancelled) {
+            setAccess({
+              status: 'allowed',
+              role: 'barber',
+              name: String(barber.name || portalSession.name || 'حلاق ماب'),
+              isVerified: Boolean(barber.is_verified),
+              email: portalSession.email,
+              canPostLive: false,
+            });
+          }
+          return;
+        }
+      }
+
+      if (!cancelled) setAccess({ status: 'nologin' });
     })();
 
     return () => {
@@ -351,6 +378,16 @@ export default function MapCommunity() {
     let historyBase = messages;
 
     if (!usingFallback) {
+      if (access.canPostLive === false) {
+        pushEphemeral({
+          author: 'نظام المجتمع',
+          role: 'system',
+          content:
+            'يمكنك تصفّح مجتمع ماب، لكن النشر المباشر يتطلّب الدخول بكلمة مرور حسابك على المنصة (وليس الرمز الموحّد فقط) من صفحة دخول الحلاق.',
+        });
+        setDraft('');
+        return;
+      }
       const posted = await postMapCommunityMessageRemote({
         content,
         silentView: founderView,
@@ -450,7 +487,7 @@ export default function MapCommunity() {
           ) : null}
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button asChild className="bg-emerald-500 text-black hover:bg-emerald-400">
-              <Link to={ROUTE_PATHS.BARBER_LOGIN}>دخول الحلاق</Link>
+              <Link to={buildBarberLoginUrl(ROUTE_PATHS.MAP_COMMUNITY)}>دخول الحلاق</Link>
             </Button>
             <Button asChild variant="outline" className="border-amber-400/35 bg-amber-500/10 text-amber-100">
               <Link to={ROUTE_PATHS.REGISTER}>تفعيل رخصة النفاذ</Link>
@@ -462,12 +499,22 @@ export default function MapCommunity() {
   }
 
   const isFounder = access.status === 'allowed' && access.role === 'founder';
+  const readOnlyCommunity = access.status === 'allowed' && access.canPostLive === false;
 
   return (
     <div
       dir="rtl"
       className="relative min-h-screen overflow-hidden bg-[#0a0f0d] px-4 py-10 text-slate-100"
     >
+      {readOnlyCommunity ? (
+        <div className="relative z-20 mx-auto mb-6 max-w-4xl rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-center text-sm leading-7 text-amber-100">
+          أنت داخل مجتمع ماب بتصفّح مرتبط بلوحة التحكم. للنشر المباشر وشارة «جديد»، أعد الدخول من{' '}
+          <Link to={buildBarberLoginUrl(ROUTE_PATHS.MAP_COMMUNITY)} className="font-bold underline underline-offset-2">
+            صفحة دخول الحلاق
+          </Link>{' '}
+          بكلمة مرور حسابك على المنصة (وليس الرمز الموحّد فقط).
+        </div>
+      ) : null}
       <motion.button
         type="button"
         onClick={() => navigate(ROUTE_PATHS.SAUDI_AGENT)}

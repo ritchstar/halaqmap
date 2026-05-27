@@ -9,6 +9,10 @@
  */
 
 import { ROUTE_PATHS } from '@/lib/index';
+import {
+  isBarberLoggedIn,
+  readBarberAuthSession,
+} from '@/lib/barberPortalSession';
 
 export type BuyPackageParams = {
   /** نوع الباقة */
@@ -17,21 +21,11 @@ export type BuyPackageParams = {
   plan?: 'monthly' | 'annual';
   /** هل المناوب/المكتب الخاص مفعَّل (للماسي فقط) */
   digitalShiftAddon?: boolean;
+  /** عدد أشهر الرخصة (يُمرَّر كـ qty في صفحة الدفع) */
+  licenseMonths?: number;
 };
 
-/**
- * فحص حالة تسجيل الحلاق (محلياً)
- */
-export function isBarberLoggedIn(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    const auth = localStorage.getItem('barberAuth');
-    if (!auth) return false;
-    // فحص بسيط للتأكد أن الجلسة ليست منتهية
-    const parsed = JSON.parse(auth);
-    return Boolean(parsed && (parsed.email || parsed.id));
-  } catch { return false; }
-}
+export { isBarberLoggedIn };
 
 /**
  * بناء URL الانتقال الصحيح
@@ -41,16 +35,21 @@ export function isBarberLoggedIn(): boolean {
 export function buildBuyPackageUrl(params: BuyPackageParams): string {
   const tier = params.tier;
   const plan = params.plan ?? 'annual'; // افتراضي: سنوي
-  const isLoggedIn = isBarberLoggedIn();
+  const portalSession = readBarberAuthSession();
+  const loggedIn = portalSession != null;
 
   const search = new URLSearchParams();
   search.set('tier', tier);
   search.set('plan', plan);
   if (params.digitalShiftAddon) search.set('addon', 'office');
+  if (params.licenseMonths != null && params.licenseMonths > 0) {
+    search.set('qty', String(params.licenseMonths));
+  }
 
-  if (isLoggedIn) {
-    // حلاق مسجَّل → شحن حزمة جديدة لحسابه
+  if (loggedIn) {
     search.set('purpose', 'recharge');
+    if (portalSession.id) search.set('linkedBarberId', portalSession.id);
+    if (portalSession.name) search.set('barberName', portalSession.name);
     return `${ROUTE_PATHS.PAYMENT}?${search.toString()}`;
   }
 

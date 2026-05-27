@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, Sparkles, Zap } from 'lucide-react';
-import { ROUTE_PATHS } from '@/lib';
+import { buildBuyPackageUrl, isBarberLoggedIn } from '@/lib/buyPackageRouter';
 import { BannerRadiationField, bannerRadiationTierFromId } from '@/components/BannerRadiationField';
 
 type Mode = 'register' | 'recharge' | 'auto';
@@ -94,14 +94,19 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
   const isAnnual = months === 12;
 
   const tierQuery = selectedTier === 'diamond_office' ? 'diamond' : selectedTier;
-  const addonParam = selectedTier === 'diamond_office' ? '&addon=office' : '';
-
-  const registerTo = `${ROUTE_PATHS.REGISTER}?tier=${tierQuery}&months=${months}${addonParam}`;
-  const rechargeTo = `${ROUTE_PATHS.PAYMENT}?tier=${tierQuery}&qty=${months}${addonParam}`;
-  const ctaTo = mode === 'recharge' ? rechargeTo : registerTo;
-  const ctaLabel = mode === 'recharge' ? 'شحن الرصيد الآن' : 'سجّل وابدأ الآن';
+  const digitalShiftAddon = selectedTier === 'diamond_office';
+  const effectiveMode =
+    mode === 'auto' ? (isBarberLoggedIn() ? 'recharge' : 'register') : mode;
+  const ctaLabel = effectiveMode === 'recharge' ? 'شحن الرصيد الآن' : 'سجّل وابدأ الآن';
   const handleCta = () => {
-    navigate(ctaTo);
+    navigate(
+      buildBuyPackageUrl({
+        tier: tierQuery,
+        plan: months === 12 ? 'annual' : 'monthly',
+        digitalShiftAddon,
+        licenseMonths: months,
+      }),
+    );
   };
 
   return (
@@ -123,10 +128,10 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
           <div className="mb-8 text-center">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-[0.7rem] font-black tracking-wider text-teal-300">
               <Sparkles className="h-3.5 w-3.5" />
-              {mode === 'recharge' ? 'شحن رصيد رخصة النفاذ' : 'رخصة نفاذ رقمية · احجز موقعك'}
+              {effectiveMode === 'recharge' ? 'شحن رصيد رخصة النفاذ' : 'رخصة نفاذ رقمية · احجز موقعك'}
             </div>
             <h2 className="text-2xl font-black text-white md:text-3xl">
-              {mode === 'recharge' ? 'اختر باقتك وعدد الأشهر' : 'اختر باقتك وابدأ الآن'}
+              {effectiveMode === 'recharge' ? 'اختر باقتك وعدد الأشهر' : 'اختر باقتك وابدأ الآن'}
             </h2>
             <p className="mt-1 text-sm text-slate-400">
               مسبقة الدفع · لا تجديد تلقائي · لا عمولة · كل حزمة = 30 يوم نفاذ

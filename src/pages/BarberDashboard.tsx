@@ -70,6 +70,11 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { refreshBarberPortalSessionRemote, type BarberPortalSession } from '@/lib/barberPortalLoginRemote';
+import {
+  clearBarberLinkedSession,
+  persistBarberAuthSession,
+  readBarberAuthSession,
+} from '@/lib/barberPortalSession';
 import { buildShopOpenManageHashLink, setBarberShopOpenStatusRemote } from '@/lib/barberShopOpenStatusRemote';
 import {
   updateBarberInclusiveCareRemote,
@@ -178,30 +183,24 @@ export default function BarberDashboard() {
   const [redeemLoading, setRedeemLoading] = useState(false);
 
   useEffect(() => {
-    const auth = localStorage.getItem('barberAuth');
-    if (!auth) {
+    const parsed = readBarberAuthSession();
+    if (!parsed) {
       navigate(ROUTE_PATHS.BARBER_LOGIN);
       return;
     }
     try {
-      const parsed = JSON.parse(auth) as Partial<BarberPortalSession> & { loggedIn?: boolean };
-      if (!parsed?.id || !parsed?.email || !parsed?.name) {
-        localStorage.removeItem('barberAuth');
-        navigate(ROUTE_PATHS.BARBER_LOGIN);
-        return;
-      }
       const tier = Object.values(SubscriptionTier).includes(parsed.subscription as SubscriptionTier)
         ? (parsed.subscription as SubscriptionTier)
         : SubscriptionTier.BRONZE;
       if (tier === SubscriptionTier.BRONZE) {
-        localStorage.removeItem('barberAuth');
+        void clearBarberLinkedSession();
         toast.error(
           'باقتك البرونزية لا تتضمن لوحة التحكم الإلكترونية. رقِ للذهبي أو الماسي للوصول إلى المحادثات والتقييمات والجدولة.',
         );
         navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
         return;
       }
-      const mn = (parsed as { memberNumber?: number | null }).memberNumber;
+      const mn = parsed.memberNumber;
       const memberNumber =
         mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
       setBarberData({
@@ -212,12 +211,12 @@ export default function BarberDashboard() {
         subscription: tier,
         ratingInviteToken: parsed.ratingInviteToken ?? '',
         memberNumber,
-        openForCustomers: (parsed as { openForCustomers?: boolean }).openForCustomers !== false,
-        openStatusToken: String((parsed as { openStatusToken?: string }).openStatusToken ?? '').trim(),
-        inclusiveCare: (parsed as { inclusiveCare?: BarberPortalInclusiveCareSnapshot }).inclusiveCare,
+        openForCustomers: parsed.openForCustomers !== false,
+        openStatusToken: String(parsed.openStatusToken ?? '').trim(),
+        inclusiveCare: parsed.inclusiveCare,
       });
     } catch {
-      localStorage.removeItem('barberAuth');
+      void clearBarberLinkedSession();
       navigate(ROUTE_PATHS.BARBER_LOGIN);
     }
   }, [navigate]);
@@ -321,11 +320,7 @@ export default function BarberDashboard() {
         prev.openStatusToken === merged.openStatusToken &&
         JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null);
       if (same) return prev;
-      try {
-        localStorage.setItem('barberAuth', JSON.stringify({ ...merged, loggedIn: true }));
-      } catch {
-        /* ignore */
-      }
+      persistBarberAuthSession(merged);
       return merged;
     });
   }, []);
@@ -337,11 +332,7 @@ export default function BarberDashboard() {
     const r = await refreshBarberPortalSessionRemote({ barberId: id, email });
     if (!r.ok) {
       if (r.code === 'TIER_BRONZE_NO_DASHBOARD') {
-        try {
-          localStorage.removeItem('barberAuth');
-        } catch {
-          /* ignore */
-        }
+        void clearBarberLinkedSession();
         toast.error(r.error || 'لم تعد باقتك تسمح بلوحة التحكم.');
         navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
       }
@@ -427,8 +418,9 @@ export default function BarberDashboard() {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem('barberAuth');
-    navigate(ROUTE_PATHS.HOME);
+    void clearBarberLinkedSession().finally(() => {
+      navigate(ROUTE_PATHS.HOME);
+    });
   };
 
   const statsZeros = useMemo(
@@ -778,11 +770,7 @@ export default function BarberDashboard() {
                         setBarberData((d) => {
                           if (!d) return d;
                           const next = { ...d, openForCustomers: v };
-                          try {
-                            localStorage.setItem('barberAuth', JSON.stringify({ ...next, loggedIn: true }));
-                          } catch {
-                            /* ignore */
-                          }
+                          persistBarberAuthSession(next);
                           return next;
                         });
                         toast.success(
