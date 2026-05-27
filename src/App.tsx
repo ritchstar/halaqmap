@@ -93,6 +93,18 @@ const LegacyAdminRedirect = ({ suffix }: { suffix: string }) => {
   );
 };
 
+// ── redirect nota-council.com → مجتمع ماب ───────────────────────────────────
+function NotaCouncilRedirect() {
+  if (
+    typeof window !== 'undefined' &&
+    /nota-council\.com/.test(window.location.hostname) &&
+    !window.location.hash.includes('/partners/community')
+  ) {
+    window.location.replace('/#/partners/community');
+  }
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <PlatformAmbientProvider>
@@ -100,11 +112,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
-        {/* توجيه nota-council.com → مجتمع ماب */}
-        {typeof window !== 'undefined' &&
-          /nota-council\.com/.test(window.location.hostname) &&
-          !window.location.hash.includes('/partners/community') &&
-          (() => { window.location.replace('/#/partners/community'); return null; })()}
+        <NotaCouncilRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
         <Routes>
