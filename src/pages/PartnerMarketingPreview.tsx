@@ -377,11 +377,8 @@ function PricingCard({
     >
       <BannerRadiationField tier={radiationTier}>
       <div
-      className={`relative flex flex-col rounded-2xl border p-6 transition-all hover:-translate-y-1 hover:shadow-2xl
-        ${recommended
-          ? `border-amber-400/60 bg-gradient-to-b from-amber-500/10 to-[#0a1628]`
-          : 'border-white/10 bg-gradient-to-b from-white/5 to-[#060d1a]'
-        }`}
+      className={`banner-major-card-face relative flex flex-col rounded-2xl border p-6 transition-all hover:-translate-y-1 hover:shadow-2xl
+        ${recommended ? 'border-amber-400/60' : 'border-white/10'}`}
       dir="rtl"
     >
       {recommended && (
@@ -389,24 +386,25 @@ function PricingCard({
           الأكثر طلباً
         </div>
       )}
+      <div className="banner-major-card-copy">
       <div className="mb-4 flex items-center gap-3">
         <span className="text-3xl">{badge}</span>
         <div>
-          <div className={`text-lg font-black ${accent}`}>{name}</div>
-          <div className="text-[0.62rem] text-slate-600">{tier} License · ISIC4 474151</div>
+          <div className="banner-glow-safe-text text-lg font-black">{name}</div>
+          <div className="banner-glow-safe-text-muted text-[0.62rem]">{tier} License · ISIC4 474151</div>
         </div>
       </div>
       <div className="mb-2 flex items-end gap-1">
-        <span className={`text-4xl font-black tabular-nums ${accent}`}>{price}</span>
-        <span className="mb-1 text-xs text-slate-400">ر.س / حزمة ٣٠ يوم</span>
+        <span className="banner-glow-safe-price text-4xl tabular-nums">{price}</span>
+        <span className="banner-glow-safe-text-muted mb-1 text-xs">ر.س / حزمة ٣٠ يوم</span>
       </div>
       {addOnAvailable && (
-        <div className="mb-4 rounded-xl border border-violet-400/25 bg-violet-500/8 px-3 py-3">
+        <div className="banner-glow-safe-panel mb-4 rounded-xl border border-violet-400/20 px-3 py-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-[0.6rem] font-black uppercase tracking-wider text-violet-400/70">🏛️ إضافة المكتب الخاص</span>
-            <span className="rounded-full bg-violet-500/20 border border-violet-400/25 px-2 py-0.5 text-[0.55rem] font-black text-violet-300">+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة</span>
+            <span className="banner-glow-safe-text-muted text-[0.6rem] font-black uppercase tracking-wider">🏛️ إضافة المكتب الخاص</span>
+            <span className="banner-glow-safe-text rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[0.55rem] font-black">+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة</span>
           </div>
-          <p className="mb-1.5 text-[0.72rem] font-bold text-violet-200">مساعد داخلي + مناوب شات — مترابطان</p>
+          <p className="banner-glow-safe-text mb-1.5 text-[0.72rem] font-bold">مساعد داخلي + مناوب شات — مترابطان</p>
           <div className="space-y-1">
             {[
               '📋 أعطِ تعليماتك بـ«تعليمة:» — المناوب ينفّذها مع كل زبون',
@@ -414,19 +412,19 @@ function PricingCard({
               '📡 تقارير كل محادثة تصلك تلقائياً في المكتب',
               '💳 رصيد حزمتك + رابط التجديد في ثانية',
             ].map(f => (
-              <div key={f} className="flex items-center gap-1.5 text-[0.65rem] text-violet-300/80">
+              <div key={f} className="banner-glow-safe-text-muted flex items-center gap-1.5 text-[0.65rem]">
                 {f}
               </div>
             ))}
           </div>
           <div className="mt-2 flex gap-2">
             <button onClick={() => navigate(ROUTE_PATHS.PRIVATE_OFFICE_GUIDE)}
-              className="text-[0.6rem] text-violet-400/55 hover:text-violet-300 underline transition-colors">
+              className="banner-glow-safe-text-muted text-[0.6rem] underline transition-colors hover:text-white">
               دليل الاستخدام ←
             </button>
-            <span className="text-violet-500/30">·</span>
+            <span className="banner-glow-safe-text-muted text-white/20">·</span>
             <button onClick={() => navigate(ROUTE_PATHS.DIGITAL_SHIFT_FEATURE)}
-              className="text-[0.6rem] text-violet-400/55 hover:text-violet-300 underline transition-colors">
+              className="banner-glow-safe-text-muted text-[0.6rem] underline transition-colors hover:text-white">
               شرح تقني ←
             </button>
           </div>
@@ -434,8 +432,8 @@ function PricingCard({
       )}
       <ul className="mb-6 flex flex-col gap-2" dir="rtl">
         {features.map((f, i) => (
-          <li key={i} className="flex items-start gap-2 text-[0.78rem] text-slate-300">
-            <CheckCircle2 className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${accent}`} />
+          <li key={i} className="banner-glow-safe-text flex items-start gap-2 text-[0.78rem]">
+            <CheckCircle2 className="banner-glow-safe-text mt-0.5 h-3.5 w-3.5 shrink-0" />
             {f}
           </li>
         ))}
@@ -448,11 +446,12 @@ function PricingCard({
         className={`mt-auto w-full rounded-xl py-3 text-sm font-bold transition-all
           ${recommended
             ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-black hover:from-amber-300'
-            : `border ${ringColor} bg-white/5 text-white hover:bg-white/10`
+            : 'banner-glow-safe-text border border-white/25 bg-white/[0.06] hover:bg-white/10'
           }`}
       >
         ابدأ بهذه الباقة →
       </button>
+      </div>
       </div>
       </BannerRadiationField>
     </motion.div>
@@ -661,9 +660,9 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
               >
               <BannerRadiationField tier={bannerRadiationTierFromId(t.id)}>
               <div
-                className={`relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 ${
-                  isSelected ? `${t.border} ring-2 ring-offset-2 ring-offset-[#060d1a]` : `${t.border} opacity-90 hover:opacity-100`
-                } bg-gradient-to-b ${t.bg}`}
+                className={`banner-major-card-face relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 ${
+                  isSelected ? `${t.border} ring-2 ring-offset-2 ring-offset-[#060d1a]` : `${t.border} opacity-95 hover:opacity-100`
+                }`}
                 dir="rtl"
               >
                 {t.best && !isSelected && (
@@ -691,44 +690,44 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                 </div>
 
                 {/* محتوى البطاقة */}
-                <div className="flex flex-1 flex-col p-4">
-                  <p className="mb-0.5 text-xs font-black" style={{ color: t.color }}>{t.name}</p>
-                  <p className="text-[0.52rem] text-slate-600 mb-3">360 يوم · ISIC4 474151</p>
+                <div className="banner-major-card-copy flex flex-1 flex-col p-4">
+                  <p className="banner-glow-safe-text mb-0.5 text-xs font-black">{t.name}</p>
+                  <p className="banner-glow-safe-text-muted mb-3 text-[0.52rem]">360 يوم · ISIC4 474151</p>
 
                   {/* السعر */}
                   <div className="mb-1 flex items-end gap-1">
-                    <span className="text-2xl font-black tabular-nums" style={{ color: t.color }}>
+                    <span className="banner-glow-safe-price text-2xl tabular-nums">
                       {t.price.toLocaleString('ar-SA')}
                     </span>
-                    <span className="mb-0.5 text-[0.58rem] text-slate-400">ر.س / سنة</span>
+                    <span className="banner-glow-safe-text-muted mb-0.5 text-[0.58rem]">ر.س / سنة</span>
                   </div>
-                  <p className="mb-3 text-[0.55rem] text-slate-500">{t.perMonth} ر.س/شهر × ١٢ شهراً</p>
+                  <p className="banner-glow-safe-text-muted mb-3 text-[0.55rem]">{t.perMonth} ر.س/شهر × ١٢ شهراً</p>
 
                   {/* مضاعفة العرض */}
-                  <div className="mb-3 rounded-xl border border-white/8 bg-black/25 p-2.5 text-center">
-                    <p className="text-[0.52rem] font-black uppercase tracking-wider mb-1" style={{ color: t.color, opacity:.7 }}>⚡ عرض المضاعفة</p>
+                  <div className="banner-glow-safe-panel mb-3 rounded-xl border p-2.5 text-center">
+                    <p className="banner-glow-safe-text-muted mb-1 text-[0.52rem] font-black uppercase tracking-wider">⚡ عرض المضاعفة</p>
                     <div className="flex items-center justify-between gap-1">
                       <div className="text-center">
-                        <p className="text-[0.6rem] font-black text-white">{t.price.toLocaleString('ar-SA')}</p>
-                        <p className="text-[0.45rem] text-slate-600">تدفع</p>
+                        <p className="banner-glow-safe-text text-[0.6rem] font-black">{t.price.toLocaleString('ar-SA')}</p>
+                        <p className="banner-glow-safe-text-muted text-[0.45rem]">تدفع</p>
                       </div>
-                      <span className="text-[0.6rem]" style={{ color: t.color }}>→</span>
+                      <span className="banner-glow-safe-text-muted text-[0.6rem]">→</span>
                       <div className="text-center">
-                        <p className="text-[0.6rem] font-black text-emerald-400">٢٤ شهر</p>
-                        <p className="text-[0.45rem] text-slate-600">تحصل</p>
+                        <p className="banner-glow-safe-accent text-[0.6rem] font-black">٢٤ شهر</p>
+                        <p className="banner-glow-safe-text-muted text-[0.45rem]">تحصل</p>
                       </div>
-                      <div className="rounded-lg border border-emerald-400/20 bg-emerald-500/10 px-1.5 py-1">
-                        <p className="text-[0.45rem] text-emerald-400/60">توفير</p>
-                        <p className="text-[0.62rem] font-black text-emerald-400">{t.saving.toLocaleString('ar-SA')}</p>
+                      <div className="rounded-lg border border-emerald-400/25 bg-emerald-950/50 px-1.5 py-1">
+                        <p className="banner-glow-safe-text-muted text-[0.45rem]">توفير</p>
+                        <p className="banner-glow-safe-accent text-[0.62rem] font-black">{t.saving.toLocaleString('ar-SA')}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* الميزات */}
-                  <ul className="mb-4 flex flex-col gap-1.5 flex-1">
+                  <ul className="mb-4 flex flex-1 flex-col gap-1.5">
                     {t.features.map(f => (
-                      <li key={f} className="flex items-center gap-1.5 text-[0.65rem] text-slate-300">
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: t.color, opacity:.7 }} />
+                      <li key={f} className="banner-glow-safe-text flex items-center gap-1.5 text-[0.65rem]">
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-200 shadow-[0_0_4px_rgba(0,0,0,0.8)]" />
                         {f}
                       </li>
                     ))}
@@ -737,13 +736,19 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                   {/* زر الاختيار — نقرة واحدة → تحديد، والشراء من الشريط السفلي */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setSelected(t.id); }}
-                    className="mt-auto w-full rounded-xl py-2.5 text-[0.72rem] font-black transition-all hover:scale-[1.01] active:scale-[0.98]"
-                    style={{
-                      background: isSelected ? t.color : 'rgba(255,255,255,0.04)',
-                      color: isSelected ? '#000' : t.color,
-                      border: `1.5px solid ${isSelected ? t.color : t.color + '44'}`,
-                      boxShadow: isSelected ? `0 4px 20px ${t.color}45` : 'none',
-                    }}
+                    className={`mt-auto w-full rounded-xl py-2.5 text-[0.72rem] font-black transition-all hover:scale-[1.01] active:scale-[0.98] ${
+                      isSelected ? '' : 'banner-glow-safe-text border border-white/25 bg-white/[0.06] hover:bg-white/10'
+                    }`}
+                    style={
+                      isSelected
+                        ? {
+                            background: t.color,
+                            color: '#000',
+                            border: `1.5px solid ${t.color}`,
+                            boxShadow: `0 4px 20px ${t.color}45`,
+                          }
+                        : undefined
+                    }
                   >
                     {isSelected ? '✓ محدد' : 'اختر هذه الحزمة'}
                   </button>

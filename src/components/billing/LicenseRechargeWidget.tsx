@@ -266,12 +266,10 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.25 }}
-                className="flex h-full flex-col gap-4 overflow-hidden rounded-2xl p-5"
-                style={{
-                  border: `1.5px solid ${tier.border}`,
-                  background: `linear-gradient(155deg,${tier.accentFrom}1a 0%,#040d1a 60%,${tier.accentTo}0e 100%)`,
-                }}
+                className="banner-major-card-face flex h-full flex-col gap-4 overflow-hidden rounded-2xl border p-5"
+                style={{ borderColor: tier.border }}
               >
+                <div className="banner-major-card-copy flex flex-1 flex-col gap-4">
                 {/* شعار الباقة */}
                 <div className="flex items-center gap-3">
                   <div
@@ -281,37 +279,33 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                     {tier.emoji}
                   </div>
                   <div>
-                    <p className="text-base font-black text-white leading-tight">{tier.name}</p>
-                    <p className="text-[0.62rem] text-slate-400">{plural(months)} نفاذ متواصل</p>
+                    <p className="banner-glow-safe-text text-base font-black leading-tight">{tier.name}</p>
+                    <p className="banner-glow-safe-text-muted text-[0.62rem]">{plural(months)} نفاذ متواصل</p>
                   </div>
                 </div>
 
                 {/* الفاصل */}
-                <div className="h-px" style={{ background: `linear-gradient(90deg,transparent,${tier.border},transparent)` }} />
+                <div className="h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
                 {/* السعر */}
                 <div className="text-center">
                   <div className="flex items-end justify-center gap-1">
-                    <span
-                      className="font-mono text-4xl font-black tabular-nums"
-                      style={{ color: tier.accentTo, textShadow: `0 0 24px ${tier.glow}` }}
-                    >
+                    <span className="banner-glow-safe-price font-mono text-4xl tabular-nums">
                       {total.toLocaleString('ar-SA')}
                     </span>
                     <div className="mb-1 flex flex-col text-right leading-none">
-                      <span className="text-sm font-bold text-slate-300">ر.س</span>
-                      <span className="text-[0.52rem] text-slate-500">إجمالي</span>
+                      <span className="banner-glow-safe-text text-sm font-bold">ر.س</span>
+                      <span className="banner-glow-safe-text-muted text-[0.52rem]">إجمالي</span>
                     </div>
                   </div>
-                  <p className="mt-1 text-[0.65rem] text-slate-400">
+                  <p className="banner-glow-safe-text-muted mt-1 text-[0.65rem]">
                     {unitPrice} ر.س × {months} {months === 1 ? 'شهر' : 'أشهر'}
                   </p>
                   {saved > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[0.62rem] font-black"
-                      style={{ background: `${tier.accentTo}20`, color: tier.accentTo, border: `1px solid ${tier.border}` }}
+                      className="banner-glow-safe-accent mt-2 inline-flex items-center gap-1 rounded-full border border-emerald-400/25 bg-emerald-950/50 px-3 py-1 text-[0.62rem] font-black"
                     >
                       <Zap className="h-3 w-3" />
                       {isAnnual ? 'سنة كاملة — قيمة مضافة' : `توفير ${saved} ر.س إضافي`}
@@ -320,7 +314,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                 </div>
 
                 {/* ضمانات مختصرة */}
-                <div className="space-y-1.5 text-[0.62rem] text-slate-500">
+                <div className="banner-glow-safe-text-muted space-y-1.5 text-[0.62rem]">
                   <p>✅ دفع لمرة واحدة · لا تجديد تلقائي</p>
                   <p>✅ تفعيل فوري بعد الدفع</p>
                   <p>✅ شهادة رخصة نفاذ رقمية</p>
@@ -332,7 +326,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                     onClick={handleCta}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="relative w-full overflow-hidden rounded-xl py-3.5 text-center text-sm font-black text-white cursor-pointer"
+                    className="relative w-full overflow-hidden rounded-xl py-3.5 text-center text-sm font-black cursor-pointer"
                     style={{
                       background: `linear-gradient(135deg,${tier.accentFrom},${tier.accentTo})`,
                       boxShadow: `0 0 28px ${tier.glow},0 4px 14px ${tier.glow}`,
@@ -345,6 +339,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
                     </span>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
                 </motion.button>
+                </div>
               </motion.div>
               </BannerRadiationField>
             </AnimatePresence>
