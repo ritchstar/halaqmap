@@ -11,6 +11,7 @@ import {
   resolvePlatformCityFromSearch,
   snapPulseToCity,
 } from './platformCoveredCities.js';
+import { SHOWCASE_BARBER_SOUTH_BBOX } from './showcaseRadarPlacement.js';
 
 export type ShowcaseRadarMode = 'live' | 'curated';
 
@@ -65,14 +66,13 @@ const CURATED_DEMO_CITIES = [
 ] as const;
 
 const CURATED_DEMO_BARBER_CITIES = [
-  'الرياض',
-  'جدة',
-  'الدمام',
-  'مكة',
-  'المدينة',
-  'الطائف',
-  'الخبر',
   'أبها',
+  'خميس مشيط',
+  'الباحة',
+  'جازان',
+  'نجران',
+  'بيشة',
+  'صبيا',
 ] as const;
 
 function buildCuratedDemoPulses(): ShowcaseRadarPulse[] {
@@ -173,6 +173,8 @@ type BarberRow = {
   id: string;
   city: string | null;
   is_active: boolean | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 export async function buildShowcaseRadarPayload(
@@ -191,8 +193,14 @@ export async function buildShowcaseRadarPayload(
       .limit(200),
     supabase
       .from('barbers')
-      .select('id, city, is_active')
+      .select('id, city, is_active, latitude, longitude')
       .eq('is_active', true)
+      .not('latitude', 'is', null)
+      .not('longitude', 'is', null)
+      .gte('latitude', SHOWCASE_BARBER_SOUTH_BBOX.minLat)
+      .lte('latitude', SHOWCASE_BARBER_SOUTH_BBOX.maxLat)
+      .gte('longitude', SHOWCASE_BARBER_SOUTH_BBOX.minLng)
+      .lte('longitude', SHOWCASE_BARBER_SOUTH_BBOX.maxLng)
       .limit(500),
   ]);
 
@@ -223,7 +231,7 @@ export async function buildShowcaseRadarPayload(
   const salonByCity = new Map<string, number>();
   for (const b of barberRows) {
     const city = resolvePlatformCity(b.city);
-    if (!city) continue;
+    if (!city || !isBarberPulseCityAllowed(city)) continue;
     salonByCity.set(city.nameAr, (salonByCity.get(city.nameAr) ?? 0) + 1);
   }
 

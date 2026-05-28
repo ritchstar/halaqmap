@@ -2,6 +2,25 @@
  * Showcase radar city anchors — keep in sync with
  * `CITY_BEACONS_LNGLAT` in `src/modules/platform-radar/lib/saudiKingdomGeo.ts`.
  */
+
+/** pilot جنوبي — الباحة · عسير · جازان · نجران */
+export const SHOWCASE_BARBER_SOUTH_BBOX = {
+  minLat: 16.85,
+  maxLat: 20.15,
+  minLng: 41.35,
+  maxLng: 47.15,
+} as const;
+
+export function isInsideShowcaseBarberSouthBbox(lat: number, lng: number): boolean {
+  return (
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= SHOWCASE_BARBER_SOUTH_BBOX.minLat &&
+    lat <= SHOWCASE_BARBER_SOUTH_BBOX.maxLat &&
+    lng >= SHOWCASE_BARBER_SOUTH_BBOX.minLng &&
+    lng <= SHOWCASE_BARBER_SOUTH_BBOX.maxLng
+  );
+}
 const SHOWCASE_CITY_BEACONS_LNGLAT: ReadonlyArray<{
   nameAr: string;
   lng: number;

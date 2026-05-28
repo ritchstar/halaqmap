@@ -34,8 +34,13 @@ export type PlatformCity = {
   aliases?: readonly string[];
 };
 
-/** pilot: ['asir','baha','jazan','najran'] — فارغ = كل المملكة */
-export const SHOWCASE_BARBER_REGION_ALLOWLIST: readonly PlatformCityRegion[] = [];
+/** pilot جنوبي — الباحة · عسير · جازان · نجران */
+export const SHOWCASE_BARBER_REGION_ALLOWLIST: readonly PlatformCityRegion[] = [
+  'asir',
+  'baha',
+  'jazan',
+  'najran',
+];
 
 export const KSA_TACTICAL_BOUNDS = {
   minLat: 16.0,
