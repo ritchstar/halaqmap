@@ -106,7 +106,7 @@ function buildCuratedBarberDemoPulses(): ShowcaseRadarPulse[] {
       lng: coords.lng,
       cityAr: city.nameAr,
       createdAt: new Date(Date.now() - ageMinutes * 60_000).toISOString(),
-      labelAr: `نبض حلاق — ${city.nameAr} (توضيحي)`,
+      labelAr: `ربط — ${city.nameAr} (توضيحي)`,
     });
   }
   return pulses;
@@ -117,8 +117,9 @@ function formatUserPulseLabel(cityAr: string, districtAr?: string | null): strin
   return `نبض مستخدم — ${cityAr}`;
 }
 
-function formatBarberPulseLabel(cityAr: string, count: number): string {
-  return `نبض حلاق — ${cityAr} (${count})`;
+function formatBarberPulseLabel(cityAr: string, count: number, curated = false): string {
+  if (curated) return `ربط — ${cityAr} (توضيحي)`;
+  return count > 1 ? `ربط — ${cityAr} (${count})` : `ربط — ${cityAr}`;
 }
 
 type SearchRow = {

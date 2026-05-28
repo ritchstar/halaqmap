@@ -91,8 +91,8 @@ export function ShowcaseRadarShell({ payload, loading, error, className }: Props
               <span className="text-[0.62rem] text-slate-300">نبض مستخدم</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="inline-flex h-3 w-3 rounded-full border border-teal-200/50 bg-[radial-gradient(circle_at_30%_25%,#ccfbf1_0%,#14b8a6_70%,#115e59_100%)] shadow-[0_0_8px_rgba(20,184,166,0.7)]" />
-              <span className="text-[0.62rem] text-slate-300">نبض حلاق</span>
+              <span className="inline-flex h-2.5 w-2.5 rounded-full border border-teal-200/50 bg-[radial-gradient(circle_at_30%_25%,#ccfbf1_0%,#14b8a6_70%,#115e59_100%)] shadow-[0_0_6px_rgba(20,184,166,0.55)]" />
+              <span className="text-[0.62rem] text-slate-300">ربط — نبض حلاق</span>
             </div>
           </div>
         </div>
@@ -112,6 +112,14 @@ export function ShowcaseRadarShell({ payload, loading, error, className }: Props
                     .join(' · ')
                 : '—'}
             </p>
+            <div className="mt-2.5 space-y-1.5 border-t border-white/10 pt-2.5" dir="rtl">
+              <p className="text-[clamp(0.62rem,1vw,0.74rem)] leading-relaxed text-slate-400">
+                {SHOWCASE_RADAR_CONFIG.userPulseHintAr}
+              </p>
+              <p className="text-[clamp(0.62rem,1vw,0.74rem)] leading-relaxed text-teal-200/90">
+                {SHOWCASE_RADAR_CONFIG.barberLinkHintAr}
+              </p>
+            </div>
           </div>
         </aside>
 

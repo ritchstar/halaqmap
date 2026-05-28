@@ -28,6 +28,8 @@ export const SHOWCASE_RADAR_CONFIG = {
     'خريطة حية لنبض الطلب الجغرافي على المملكة — الظهور عند الطلب، لا إشغال دائم.',
   onDemandTaglineAr:
     'الظهور عند الطلب · On-Demand Visibility — الصالون يظهر حين يبحث زبون قريب.',
+  userPulseHintAr: 'نبض مستخدم — باحث عن خدمة في المدينة.',
+  barberLinkHintAr: 'ربط — حلاق تم التواصل معه من مستخدم عبر المنصة.',
   apiPath: '/api/public-radar-showcase',
 } as const;
 
