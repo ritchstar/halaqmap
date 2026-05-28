@@ -5,8 +5,11 @@ import { PULSE_MAP_CONFIG } from '@/config/pulseMapConfig';
 import { PULSE_MAP_VIEWBOX } from '@/config/pulseMapSlots';
 import { PulseMapBackdrop } from '@/modules/pulse-map/components/PulseMapBackdrop';
 import { PulseMapCityMarkers } from '@/modules/pulse-map/components/PulseMapCityMarkers';
+import { PulseMapCompassOrnament } from '@/modules/pulse-map/components/PulseMapCompassOrnament';
 import { PulseMapDots } from '@/modules/pulse-map/components/PulseMapDots';
+import { PulseMapKingdomSweep } from '@/modules/pulse-map/components/PulseMapKingdomSweep';
 import { PulseMapHudEnd, PulseMapHudStart } from '@/modules/pulse-map/components/PulseMapHud';
+import { getPulseMapCityMarker } from '@/modules/pulse-map/lib/pulseMapCities';
 import { placePulses } from '@/modules/pulse-map/lib/pulsePlacement';
 import type { PulseMapPayload, PulseMapSlot } from '@/modules/pulse-map/types';
 
@@ -17,6 +20,7 @@ type Props = {
   className?: string;
   showCities?: boolean;
   showPulses?: boolean;
+  showOrnaments?: boolean;
   startPanel?: ReactNode;
   endPanel?: ReactNode;
   mapClassName?: string;
@@ -29,6 +33,7 @@ export function PulseMapShell({
   className,
   showCities: showCitiesProp,
   showPulses: showPulsesProp,
+  showOrnaments = true,
   startPanel,
   endPanel,
   mapClassName,
@@ -46,6 +51,7 @@ export function PulseMapShell({
 
   const showPulses = showPulsesProp ?? PULSE_MAP_CONFIG.showPulses;
   const showCities = showCitiesProp ?? PULSE_MAP_CONFIG.showCities;
+  const riyadh = getPulseMapCityMarker('riyadh');
   const aspect = `${PULSE_MAP_VIEWBOX.width} / ${PULSE_MAP_VIEWBOX.height}`;
 
   const start = startPanel ?? <PulseMapHudStart payload={payload} loading={loading} />;
@@ -67,9 +73,15 @@ export function PulseMapShell({
             aria-label="رادار الرصد — Halaq Map Platform — المملكة العربية السعودية"
           >
             <PulseMapBackdrop />
+            {showOrnaments && riyadh ? (
+              <PulseMapKingdomSweep cx={riyadh.x} cy={riyadh.y} />
+            ) : null}
             {showCities ? <PulseMapCityMarkers /> : null}
             {showPulses ? <PulseMapDots pulses={placedPulses} /> : null}
           </svg>
+          {showOrnaments ? (
+            <PulseMapCompassOrnament className="absolute right-2 top-2 z-10 sm:right-3 sm:top-3" />
+          ) : null}
         </div>
       </div>
 
