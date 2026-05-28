@@ -16,15 +16,29 @@
     <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#061223" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
-    <!-- تنظيف لمرة واحدة بعد نشر معطّل — يزيل SW/كاش قديم يسبب شاشة بيضاء -->
+    <!-- تنظيف URL من معاملات _b= المتراكمة + كاش SW لمرة واحدة -->
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v3';
+          var u = new URL(window.location.href);
+          while (u.searchParams.has('_b')) u.searchParams.delete('_b');
+          var clean = u.pathname + u.search + u.hash;
+          if (clean !== window.location.pathname + window.location.search + window.location.hash) {
+            window.history.replaceState(null, '', clean);
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script>
+      (function () {
+        try {
+          var flag = 'hm-sw-reset-v4';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v3');
           localStorage.removeItem('hm-sw-reset-v2');
           sessionStorage.removeItem('hm-chunk-recover');
+          sessionStorage.removeItem('hm-build-sync-auto-reloaded');
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function (regs) {
               return Promise.all(regs.map(function (r) { return r.unregister(); }));

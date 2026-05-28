@@ -4,10 +4,9 @@ import App from './App.tsx'
 import './index.css'
 import { RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
-import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 
 ensureDomainVerificationMeta()
-initPlatformBuildSync()
+// build-sync التلقائي مُعطّل — كان يسبب حلقة reload (_b=…) وremoveChild أثناء تشغيل React
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 

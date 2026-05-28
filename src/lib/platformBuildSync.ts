@@ -67,11 +67,14 @@ async function clearWorkboxCaches(): Promise<void> {
 async function performHardReload(): Promise<void> {
   await unregisterServiceWorkers();
   await clearWorkboxCaches();
-  if (typeof window !== 'undefined') {
-    const sep = window.location.search ? '&' : '?';
-    window.location.replace(`${window.location.pathname}${window.location.search}${sep}_b=${Date.now()}${window.location.hash}`);
-  }
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  url.searchParams.delete('_b');
+  url.searchParams.set('_b', String(Date.now()));
+  window.location.replace(`${url.pathname}${url.search}${url.hash}`);
 }
+
+const AUTO_RELOAD_GUARD = 'hm-build-sync-auto-reloaded';
 
 let lastChecked = 0;
 let inFlight: Promise<void> | null = null;
@@ -80,6 +83,9 @@ async function checkOnce(): Promise<void> {
   if (typeof window === 'undefined') return;
   if (Date.now() - lastChecked < 30_000) return;
   lastChecked = Date.now();
+
+  // لا حلقة reload — مرة واحدة كحد أقصى لكل جلسة
+  if (sessionStorage.getItem(AUTO_RELOAD_GUARD)) return;
 
   const bakedCommit = readMetaContent(META_COMMIT);
   const bakedBuildTime = readMetaContent(META_BUILD_TIME);
@@ -97,6 +103,7 @@ async function checkOnce(): Promise<void> {
       '[halaqmap] Build mismatch detected — reloading to pick up latest UI',
       { baked: { bakedCommit, bakedBuildTime }, live },
     );
+    sessionStorage.setItem(AUTO_RELOAD_GUARD, '1');
     await performHardReload();
   }
 }
