@@ -6,6 +6,7 @@ import {
   loadSystemCrisisLabContext,
   type SystemCrisisLabChatTurn,
 } from './_lib/systemCrisisAdvisorLab.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 
 export const config = { maxDuration: 60 };
 
@@ -94,11 +95,19 @@ export async function POST(request: Request): Promise<Response> {
       : userMessage;
 
   try {
-    const reply = await callSystemCrisisAdvisorLabChat({
-      system,
-      userText: prefixedUser,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'system_crisis_advisor',
+      prefixedUser,
+      'admin_system_crisis_advisor_lab',
+      () =>
+        callSystemCrisisAdvisorLabChat({
+          system,
+          userText: prefixedUser,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail, sessionMeta: { crisisMode } },
+    );
 
     return json({
       ok: true,

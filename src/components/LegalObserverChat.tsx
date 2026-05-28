@@ -332,7 +332,7 @@ export function LegalObserverChat({ page, defaultOpen = false }: Props) {
                     <p className="mb-1 text-[0.55rem] font-bold opacity-40">
                       {t.role === 'assistant' ? 'الناظر القانوني ⚖️' : 'أنت'}
                     </p>
-                    <p className="whitespace-pre-wrap break-words" style={{ unicodeBidi: 'plaintext' }}>{t.content}</p>
+                    <div dir="rtl" className="chat-arabic-text whitespace-pre-wrap break-words">{t.content}</div>
                   </motion.div>
                 ))}
                 {loading && (
@@ -394,8 +394,8 @@ export function LegalObserverChat({ page, defaultOpen = false }: Props) {
                   <Send className="h-4 w-4 text-black" />
                 </motion.button>
               </div>
-              <p className="mt-1.5 text-center text-[0.52rem]" style={{ color: `${GOLD}20` }}>
-                الناظر القانوني · حلاق ماب · مهمة سرية: يُسجِّل الاستفسارات
+              <p className="mt-1.5 text-center text-[0.52rem] leading-relaxed" style={{ color: `${GOLD}35` }}>
+                الناظر القانوني (سعودي) · أسئلة تنظيمية/ترخيصية تُحال لإدارة المنصة · المحادثات تُسجَّل للتقارير
               </p>
             </div>
           </motion.div>

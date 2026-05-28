@@ -5,6 +5,7 @@ import {
   loadFleetDirectorLabContext,
   type FleetDirectorLabChatTurn,
 } from './_lib/fleetDirectorAdminLab.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 import { assertVisionMime } from './_lib/opsBillingAi.js';
 
 export const config = { maxDuration: 60 };
@@ -130,13 +131,21 @@ export async function POST(request: Request): Promise<Response> {
   const system = buildFleetDirectorAdminLabSystemPrompt(labContext);
 
   try {
-    const reply = await callFleetDirectorAdminLabVision({
-      system,
-      userText: userMessage || 'حلّل المرفق في سياق قيادة الأسطول السرية.',
-      imageBase64,
-      imageMime: imageBase64 ? imageMime : undefined,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'fleet_director_general',
+      userMessage || '[صورة]',
+      'admin_fleet_director_lab',
+      () =>
+        callFleetDirectorAdminLabVision({
+          system,
+          userText: userMessage || 'حلّل المرفق في سياق قيادة الأسطول السرية.',
+          imageBase64,
+          imageMime: imageBase64 ? imageMime : undefined,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail, sessionMeta: { hasImage: Boolean(imageBase64) } },
+    );
 
     return json({
       ok: true,

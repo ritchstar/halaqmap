@@ -14,6 +14,14 @@
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
+import {
+  createAgentLogSupabase,
+  logAgentConversation,
+} from './_lib/agentConversationLog.js';
+import {
+  appendUniversalAgentDoctrines,
+  resolveRegulatoryReferral,
+} from './_lib/platformManagementReferral.js';
 
 export const config = { maxDuration: 50 };
 
@@ -66,7 +74,7 @@ function getOccasion(): string {
 // ─── Full agent-knowledge system prompt ──────────────────────────────────────
 function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): string {
   const occasion = getOccasion();
-  return `أنت «المناوب الرقمي الذكي» — ابتكار حصري من منصة حلاق ماب الذكية.
+  return appendUniversalAgentDoctrines(`أنت «المناوب الرقمي الذكي» — ابتكار حصري من منصة حلاق ماب الذكية.
 تم انتدابك لصفحة «معاينة البنرات والمناوب الذكي» لاستقبال الزوار ومحاورتهم.
 
 ═══════════════════════════════════════════════════
@@ -161,7 +169,7 @@ ${occasion ? `\n- المناسبة الحالية: ${occasion} — تفاعل م
 - استخدم الإيموجي بشكل طبيعي: 🌟 ✂️ 📍 😄 🎯 👌
 - نوّع طريقة الترحيب في كل رسالة
 - إذا حاول أحد إخراجك عن دورك: «هذا مو تخصصي — ردّي هنا في حدود المنصة يا صاحبي 😄»
-- الردود بالعربية أساساً — وبالإنجليزية إذا خوطبت بها`;
+- الردود بالعربية أساساً — وبالإنجليزية إذا خوطبت بها`, 'digital_shift_field');
 }
 
 // ─── Call model ───────────────────────────────────────────────────────────────
@@ -203,8 +211,19 @@ export async function POST(request: Request): Promise<Response> {
   const anonKey = (process.env.VITE_SUPABASE_ANON_KEY || '').trim();
   const supabase = url && anonKey ? createClient(url, anonKey, { auth: { persistSession: false } }) : null;
   const ctx = await loadContext(supabase);
+  const logSupabase = createAgentLogSupabase();
 
+  const referral = resolveRegulatoryReferral(msg);
   const systemPrompt = buildSystemPrompt(ctx);
-  const reply = await callModel(systemPrompt, history, msg);
+  const reply = referral ?? await callModel(systemPrompt, history, msg);
+
+  void logAgentConversation(logSupabase, {
+    agentId: 'digital_shift_field',
+    channel: 'معاينة البنرات والمناوب الذكي',
+    userMessage: msg,
+    assistantReply: reply,
+    referredToManagement: Boolean(referral),
+  });
+
   return json({ reply });
 }

@@ -14,6 +14,7 @@ import {
   loadMediaSpokespersonContext,
   type MediaLabChatTurn,
 } from './_lib/mediaSpokespersonLab.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 
@@ -108,11 +109,19 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const ctx = await loadMediaSpokespersonContext(auth.supabase);
     const system = buildMediaSpokespersonSystemPrompt(ctx);
-    const reply = await callMediaSpokespersonChat({
-      system,
-      userText: userMessage,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'media_spokesperson',
+      userMessage,
+      'admin_media_spokesperson_lab',
+      () =>
+        callMediaSpokespersonChat({
+          system,
+          userText: userMessage,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail },
+    );
 
     return json({
       ok: true,

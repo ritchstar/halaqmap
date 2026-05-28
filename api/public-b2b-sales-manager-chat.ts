@@ -9,6 +9,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
+import {
+  createAgentLogSupabase,
+  logAgentConversation,
+} from './_lib/agentConversationLog.js';
+import {
+  appendUniversalAgentDoctrines,
+  resolveRegulatoryReferral,
+} from './_lib/platformManagementReferral.js';
 
 // أسعار الباقات (مصدر الحقيقة: src/config/subscriptionPricing.ts)
 const PRICE_BRONZE = 100;
@@ -39,7 +47,7 @@ function parseHistory(raw: unknown): Turn[] {
 }
 
 function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): string {
-  return `أنت «مدير مبيعات B2B» في منصة حلاق ماب — الشخصية الأولى في مواجهة الصالونات والمنشآت.
+  return appendUniversalAgentDoctrines(`أنت «مدير مبيعات B2B» في منصة حلاق ماب — الشخصية الأولى في مواجهة الصالونات والمنشآت.
 
 ═══════════════════════════════════════════════════
 هويتك وأسلوبك:
@@ -313,7 +321,7 @@ function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): stri
 - أرقام + دليل + دعوة للعمل في كل رد رئيسي
 - 🚀 💼 💎 📈 ✅ — استخدمها بذكاء لا إفراط
 - اختتم دائماً بسؤال مفتوح: «وش الشيء اللي يمنعك الآن؟»
-- اللغة العربية أساساً — إنجليزي إذا خوطبت به`;
+- اللغة العربية أساساً — إنجليزي إذا خوطبت به`, 'b2b_sales_manager');
 }
 
 async function loadContext(supabase: SupabaseClient<any> | null) {
@@ -372,7 +380,19 @@ export async function POST(request: Request): Promise<Response> {
   const supabase = url && anonKey ? createClient(url, anonKey, { auth: { persistSession: false } }) : null;
 
   const ctx = await loadContext(supabase);
+  const logSupabase = createAgentLogSupabase();
+
+  const referral = resolveRegulatoryReferral(msg);
   const systemPrompt = buildSystemPrompt(ctx);
-  const reply = await callModel(systemPrompt, history, msg);
+  const reply = referral ?? await callModel(systemPrompt, history, msg);
+
+  void logAgentConversation(logSupabase, {
+    agentId: 'b2b_sales_manager',
+    channel: 'مسار الشركاء',
+    userMessage: msg,
+    assistantReply: reply,
+    referredToManagement: Boolean(referral),
+  });
+
   return json({ reply });
 }

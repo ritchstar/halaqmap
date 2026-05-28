@@ -5,6 +5,7 @@ import {
   loadDigitalShiftFleetSnapshot,
   type DigitalShiftLabChatTurn,
 } from './_lib/digitalShiftAdminLab.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 import { assertVisionMime } from './_lib/opsBillingAi.js';
 
 export const config = { maxDuration: 60 };
@@ -97,13 +98,21 @@ export async function POST(request: Request): Promise<Response> {
   const system = buildDigitalShiftAdminLabSystemPrompt(snapshot);
 
   try {
-    const reply = await callDigitalShiftAdminLabVision({
-      system,
-      userText: userMessage || 'حلّل الصورة المرفقة في سياق المناوب الرقمي.',
-      imageBase64,
-      imageMime: imageBase64 ? imageMime : undefined,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'digital_shift_field',
+      userMessage || '[صورة]',
+      'admin_digital_shift_lab',
+      () =>
+        callDigitalShiftAdminLabVision({
+          system,
+          userText: userMessage || 'حلّل الصورة المرفقة في سياق المناوب الرقمي.',
+          imageBase64,
+          imageMime: imageBase64 ? imageMime : undefined,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail, sessionMeta: { hasImage: Boolean(imageBase64) } },
+    );
 
     return json({
       ok: true,

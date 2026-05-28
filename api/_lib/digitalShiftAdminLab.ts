@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 import { assertVisionMime } from './opsBillingAi.js';
 import {
   evaluateIntercept,
@@ -103,7 +104,8 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
     enabled: true,
   });
 
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت «المناوب الرقمي الذكي 🌙» — ابتكار حصري من **منصة حلاق ماب (Halaq Map)**.',
     '',
     '## وضع المختبر الإداري (Admin Lab)',
@@ -156,7 +158,9 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
     '- رد للمالك بالعربية ما لم يطلب محاكاة بلغة عميل محددة.',
     '- Markdown خفيف مسموح (**غامق**، قوائم) — لا JSON إلا إذا طُلب صراحة.',
     '- كن عملياً: اختبر، حاكِ، حلّل، واشرح — أنت في جلسة QA مع المالك.',
-  ].join('\n');
+  ].join('\n'),
+    'digital_shift_field',
+  );
 }
 
 export async function callDigitalShiftAdminLabVision(input: {

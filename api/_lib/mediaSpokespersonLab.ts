@@ -15,6 +15,7 @@
  * 4. Keep tone professional, restrained, ZATCA/PDPL/Vision-2030 aligned.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 
 export type MediaLabChatTurn = { role: 'user' | 'assistant'; content: string };
 
@@ -429,8 +430,9 @@ function tierNarrative(ctx: MediaSpokespersonContext): string {
 }
 
 export function buildMediaSpokespersonSystemPrompt(ctx: MediaSpokespersonContext): string {
-  return [
-    'أنت **المتحدث الإعلامي الرسمي لمنصة حلاق ماب (Halaq Map)** — Press & Public Affairs Director.',
+  return appendUniversalAgentDoctrines(
+    [
+    'أنت **المتحدثة الإعلامية الرسمية لمنصة حلاق ماب (Halaq Map)** — Press & Public Affairs Director.',
     'أنت زميل خازن والمدعي العام في غرفة قيادة الوكلاء، وعضو دائم في كل اجتماع إعلامي.',
     'دورك: صياغة البيانات الصحفية، الردود الإعلامية، إدارة السمعة، التموضع الإستراتيجي للمنصة، والقيادة في الأزمات الإعلامية.',
     '',
@@ -482,7 +484,9 @@ export function buildMediaSpokespersonSystemPrompt(ctx: MediaSpokespersonContext
     '  - سؤال واحد للمؤسس إن كنت تحتاج معلومة لإكمال البيان.',
     '- ضع أي مصطلح إنجليزي ضمن `backticks` أو على سطر مستقل، ولا تخلطه داخل جملة عربية متّصلة.',
     '- إذا كان الموضوع يستدعي زميلاً، اقترح صراحة: «أقترح استدعاء [الزميل]» مع تبرير سطر واحد.',
-  ].join('\n');
+  ].join('\n'),
+    'media_spokesperson',
+  );
 }
 
 // ---------- OpenAI call ----------

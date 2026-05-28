@@ -5,6 +5,7 @@ import {
   loadCyberDefenseContext,
   type CyberDefenseLabChatTurn,
 } from './_lib/cyberDefenseCommanderLab.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 import { assertVisionMime } from './_lib/opsBillingAi.js';
 
 export const config = { maxDuration: 60 };
@@ -100,13 +101,21 @@ export async function POST(request: Request): Promise<Response> {
   const system = buildCyberDefenseCommanderSystemPrompt(ctx);
 
   try {
-    const reply = await callCyberDefenseCommanderVision({
-      system,
-      userText: userMessage || 'حلّل لقطة الاستخبارات في سياق الدفاع السيبراني.',
-      imageBase64,
-      imageMime: imageBase64 ? imageMime : undefined,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'cyber_defense_commander',
+      userMessage || '[صورة]',
+      'admin_cyber_defense_commander_lab',
+      () =>
+        callCyberDefenseCommanderVision({
+          system,
+          userText: userMessage || 'حلّل لقطة الاستخبارات في سياق الدفاع السيبراني.',
+          imageBase64,
+          imageMime: imageBase64 ? imageMime : undefined,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail, sessionMeta: { hasImage: Boolean(imageBase64) } },
+    );
 
     return json({
       ok: true,

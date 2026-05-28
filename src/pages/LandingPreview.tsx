@@ -28,6 +28,7 @@ import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
+import { RadarShowcaseLink } from '@/components/RadarShowcaseLink';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
@@ -651,6 +652,8 @@ export default function LandingPreview() {
               {/* ── فاصل رفيع ── */}
               <div className="hidden h-6 w-px bg-white/12 md:block" />
 
+              <RadarShowcaseLink className="hidden md:flex" />
+
               {/* ── أيقونة B2B — للمنشآت والصالونات ── */}
               <a
                 href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
@@ -714,6 +717,7 @@ export default function LandingPreview() {
                 {[
                   { label: 'للمنشآت B2B', href: `/#${ROUTE_PATHS.BARBERS_LANDING}` },
                   { label: 'آراء المستخدمين', href: `/#${ROUTE_PATHS.PLATFORM_REVIEWS}` },
+                  { label: 'معاينة الرصد الذكي', href: `/#${ROUTE_PATHS.RADAR_SHOWCASE}` },
                 ].map((item) => (
                   <a
                     key={item.label}
@@ -1279,6 +1283,7 @@ export default function LandingPreview() {
                 </button>
                 {[
                   { label: 'آراء المستخدمين ⭐', href: `/#${ROUTE_PATHS.PLATFORM_REVIEWS}` },
+                  { label: 'نظام الرصد الذكي 🛰', href: `/#${ROUTE_PATHS.RADAR_SHOWCASE}` },
                   { label: 'من نحن', href: `/#${ROUTE_PATHS.ABOUT}` },
                   { label: 'سياسة الخصوصية', href: `/#${ROUTE_PATHS.USER_PRIVACY_POLICY}` },
                   { label: 'شروط الاستخدام', href: `/#${ROUTE_PATHS.TERMS_OF_SERVICE}` },

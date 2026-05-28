@@ -15,6 +15,7 @@ import {
   runDoubleBlindPeerReview,
   runProsecutorGate,
 } from './_lib/superIntelligenceProtocol.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 
 export const config = { maxDuration: 60 };
 
@@ -88,11 +89,19 @@ export async function POST(request: Request): Promise<Response> {
   const system = buildTechnicalConsultantLabSystemPrompt(ctx);
 
   try {
-    const reply = await callTechnicalConsultantLabChat({
-      system,
-      userText: userMessage,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'technical_consultant_engineering',
+      userMessage,
+      'admin_technical_consultant_lab',
+      () =>
+        callTechnicalConsultantLabChat({
+          system,
+          userText: userMessage,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail },
+    );
 
     const baseline = await capturePlatformBaseline(auth.supabase);
     const prosecutorGate = runProsecutorGate(reply, userMessage);

@@ -10,6 +10,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
+import {
+  createAgentLogSupabase,
+  logAgentConversation,
+} from './_lib/agentConversationLog.js';
+import {
+  appendUniversalAgentDoctrines,
+  resolveRegulatoryReferral,
+} from './_lib/platformManagementReferral.js';
 
 export const config = { maxDuration: 45 };
 
@@ -86,7 +94,7 @@ function buildPublicSystemPrompt(basics: { activeBarbers: number; cities: number
     ? `\n\n🎉 المناسبة الحالية: ${occasion} — تفاعل معها بشكل طبيعي وعفوي إذا ناسب السياق.`
     : '';
 
-  return `أنت "المتحدث الإعلامي" لمنصة حلاق ماب — شخصية ودودة ومحبوبة تستقبل زوار الموقع.
+  return appendUniversalAgentDoctrines(`أنت «المتحدثة الإعلامية» لمنصة حلاق ماب — شخصية سعودية ودودة ومحبوبة تستقبل زوار الموقع.
 
 ═══════════════════════════════════════
 شخصيتك وأسلوبك:
@@ -142,7 +150,7 @@ function buildPublicSystemPrompt(basics: { activeBarbers: number; cities: number
 - استخدم الإيموجي بتوازن: 🌟 ✂️ 📍 🇸🇦 ⭐ — لا إفراط
 - لا تبدأ دائماً بنفس الجملة — نوّع الترحيب
 - اجعل الشخص يبتسم ويرتاح
-- ردودك باللغة العربية فقط إلا إذا كلّمك أحد بالإنجليزية فأجبه بها`;
+- ردودك باللغة العربية فقط إلا إذا كلّمك أحد بالإنجليزية فأجيبيه بها`, 'media_spokesperson');
 }
 
 // ─── Call OpenAI ───────────────────────────────────────────────────────────────
@@ -213,8 +221,19 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const basics = await loadPlatformBasics(supabase);
+  const logSupabase = createAgentLogSupabase();
+
+  const referral = resolveRegulatoryReferral(userMessage);
   const systemPrompt = buildPublicSystemPrompt(basics);
-  const reply = await callModel(systemPrompt, history, userMessage);
+  const reply = referral ?? await callModel(systemPrompt, history, userMessage);
+
+  void logAgentConversation(logSupabase, {
+    agentId: 'media_spokesperson',
+    channel: 'الصفحة الرئيسية',
+    userMessage,
+    assistantReply: reply,
+    referredToManagement: Boolean(referral),
+  });
 
   return json({ reply });
 }

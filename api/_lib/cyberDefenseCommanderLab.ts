@@ -9,6 +9,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 import { assertVisionMime } from './opsBillingAi.js';
 
 export type CyberDefenseLabChatTurn = { role: 'user' | 'assistant'; content: string };
@@ -131,7 +132,8 @@ const POSTURE_LABEL: Record<CyberDefensePostureLevel, string> = {
 export function buildCyberDefenseCommanderSystemPrompt(ctx: CyberDefenseContext): string {
   const subordinates = ctx.subordinateAgents.join(', ');
 
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **القائد الأعلى للدفاع السيبراني** في منصة **حلاق ماب (Halaq Map)** — Supreme Commander · Cyber Defense.',
     '',
     '## الهوية والتخصص',
@@ -221,7 +223,9 @@ export function buildCyberDefenseCommanderSystemPrompt(ctx: CyberDefenseContext)
     '- لا تكتفِ بالموافقة — قدّم Defense Order بأسبابه.',
   ]
     .filter(Boolean)
-    .join('\n');
+    .join('\n'),
+    'cyber_defense_commander',
+  );
 }
 
 export async function callCyberDefenseCommanderVision(input: {

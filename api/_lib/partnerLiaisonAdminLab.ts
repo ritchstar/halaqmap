@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 import { composePartnerPathKnowledgePack } from './partnerAssistantKnowledge.js';
 import { assertVisionMime } from './opsBillingAi.js';
 
@@ -125,7 +126,8 @@ export function buildPartnerLiaisonAdminLabSystemPrompt(
 ): string {
   const kb = composePartnerPathKnowledgePack();
 
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **مساعد الشركاء — علاقات المسار البرمجي** في منصة **حلاق ماب (Halaq Map)**.',
     '',
     '## وضع المحادثة الإدارية (Admin Lab)',
@@ -178,7 +180,9 @@ export function buildPartnerLiaisonAdminLabSystemPrompt(
     '- عند تحليل احتكاك: (1) التشخيص (2) التأثير (3) اقتراح قصير/متوسط المدى.',
   ]
     .filter(Boolean)
-    .join('\n');
+    .join('\n'),
+    'partner_relations_liaison',
+  );
 }
 
 export async function callPartnerLiaisonAdminLabVision(input: {

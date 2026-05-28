@@ -48,6 +48,7 @@ import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTech
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
+import { RadarShowcaseLink } from '@/components/RadarShowcaseLink';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
@@ -1063,9 +1064,9 @@ export default function PartnerMarketingPreview() {
                 </button>
               ))}
 
-              <div className="mx-1 h-5 w-px bg-white/10" />
+              <RadarShowcaseLink variant="pill" className="hidden lg:inline-flex" />
 
-              {/* رابط المستخدمين */}
+              <div className="mx-1 h-5 w-px bg-white/10" />
               <a
                 href={`/#${ROUTE_PATHS.HOME}`}
                 className="group flex items-center gap-1.5 rounded-xl border border-teal-400/15 bg-teal-500/5 px-3.5 py-2 text-[0.78rem] font-semibold text-teal-400/65 transition-all hover:border-teal-400/35 hover:bg-teal-500/10 hover:text-teal-300"
@@ -1078,6 +1079,7 @@ export default function PartnerMarketingPreview() {
 
             {/* ── زر التسجيل ───────────────────────────────────────────── */}
             <div className="flex items-center gap-2">
+              <RadarShowcaseLink className="hidden sm:flex" />
               <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
               <PlatformAmbientToggle variant="partner" className="inline-flex md:hidden" />
               <motion.button
@@ -1894,6 +1896,7 @@ export default function PartnerMarketingPreview() {
                         {[
                   { label: 'التسجيل', href: `/#${ROUTE_PATHS.REGISTER}` },
                   { label: 'الباقات والأسعار', href: `/#${ROUTE_PATHS.BARBERS_LANDING}` },
+                  { label: 'معاينة الرصد الذكي 🛰', href: `/#${ROUTE_PATHS.RADAR_SHOWCASE}` },
                   { label: 'سياسة الحزم', href: `/#${ROUTE_PATHS.SUBSCRIPTION_POLICY}` },
                   { label: 'لوحة الشريك', href: `/#${ROUTE_PATHS.BARBER_LOGIN}` },
                   { label: 'خدمة العملاء', href: `/#${ROUTE_PATHS.PARTNER_SUPPORT}` },

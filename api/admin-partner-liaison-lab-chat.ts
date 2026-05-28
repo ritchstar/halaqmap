@@ -5,6 +5,7 @@ import {
   loadPartnerLiaisonAnalyticsSnapshot,
   type PartnerLiaisonLabChatTurn,
 } from './_lib/partnerLiaisonAdminLab.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 import { assertVisionMime } from './_lib/opsBillingAi.js';
 
 export const config = { maxDuration: 60 };
@@ -101,13 +102,21 @@ export async function POST(request: Request): Promise<Response> {
   const system = buildPartnerLiaisonAdminLabSystemPrompt(snapshot);
 
   try {
-    const reply = await callPartnerLiaisonAdminLabVision({
-      system,
-      userText: userMessage || 'حلّل الصورة المرفقة في سياق مساعد الشركاء.',
-      imageBase64,
-      imageMime: imageBase64 ? imageMime : undefined,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'partner_relations_liaison',
+      userMessage || '[صورة]',
+      'admin_partner_liaison_lab',
+      () =>
+        callPartnerLiaisonAdminLabVision({
+          system,
+          userText: userMessage || 'حلّل الصورة المرفقة في سياق مساعد الشركاء.',
+          imageBase64,
+          imageMime: imageBase64 ? imageMime : undefined,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail, sessionMeta: { hasImage: Boolean(imageBase64) } },
+    );
 
     return json({
       ok: true,

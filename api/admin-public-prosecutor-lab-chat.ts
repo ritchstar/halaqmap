@@ -6,6 +6,7 @@ import {
   loadPublicProsecutorLabContext,
   type PublicProsecutorLabChatTurn,
 } from './_lib/publicProsecutorLab.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 
 export const config = { maxDuration: 60 };
 
@@ -94,11 +95,22 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   try {
-    const reply = await callPublicProsecutorLabChat({
-      system,
-      userText: userMessage,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'public_prosecutor',
+      userMessage,
+      'admin_public_prosecutor_lab',
+      () =>
+        callPublicProsecutorLabChat({
+          system,
+          userText: userMessage,
+          conversationHistory,
+        }),
+      {
+        actorEmail: auth.actorEmail,
+        sessionMeta: { watchAgent, crisisMode, hasInterject: Boolean(interject) },
+      },
+    );
 
     return json({
       ok: true,

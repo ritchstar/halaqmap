@@ -23,6 +23,7 @@ import {
 } from './_lib/marketingCouncilLab.js';
 import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 
 export const config = { maxDuration: 60 };
 
@@ -130,11 +131,19 @@ export async function POST(request: Request): Promise<Response> {
     if (channel === 'b2b') {
       const ctx = await loadB2bMarketingContext(auth.supabase);
       const system = buildB2bMarketingSystemPrompt(ctx);
-      const reply = await callMarketingCouncilChat({
-        system,
-        userText: userMessage,
-        conversationHistory,
-      });
+      const { reply } = await finalizeAgentReply(
+        auth.supabase,
+        'b2b_marketing_strategist',
+        userMessage,
+        'admin_marketing_lab:b2b',
+        () =>
+          callMarketingCouncilChat({
+            system,
+            userText: userMessage,
+            conversationHistory,
+          }),
+        { actorEmail: auth.actorEmail },
+      );
       return json({
         ok: true,
         channel,
@@ -150,11 +159,19 @@ export async function POST(request: Request): Promise<Response> {
 
     const ctx = await loadB2cMarketingContext(auth.supabase);
     const system = buildB2cMarketingSystemPrompt(ctx);
-    const reply = await callMarketingCouncilChat({
-      system,
-      userText: userMessage,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'b2c_marketing_strategist',
+      userMessage,
+      'admin_marketing_lab:b2c',
+      () =>
+        callMarketingCouncilChat({
+          system,
+          userText: userMessage,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail },
+    );
     return json({
       ok: true,
       channel,

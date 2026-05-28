@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 import { ZatcaTaxAdvisorAgent } from './agents/ZatcaTaxAdvisorAgent.js';
 import { buildZatcaComplianceReport } from './agents/zatcaComplianceReport.js';
 import {
@@ -72,7 +73,8 @@ export async function loadZatcaLabContext(supabase: SupabaseClient): Promise<Zat
 }
 
 export function buildZatcaAdvisorLabSystemPrompt(ctx: ZatcaLabContext): string {
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **خبير زكاة وضريبة (ZATCA) 🛡️** — زميل **خازن** في منصة **حلاق ماب (Halaq Map)**.',
     '',
     '## وضع المحادثة الإدارية (Admin Lab)',
@@ -127,7 +129,9 @@ export function buildZatcaAdvisorLabSystemPrompt(ctx: ZatcaLabContext): string {
     '- كن محادثياً ومباشراً مثل زميل خازن في اجتماع إداري.',
     '- إذا سُئلت عن فاتورة مزود (Vercel/OpenAI): وجّه لـ **خازن 🪙** — أنت مسؤول عن الإيرادات B2B والضريبة.',
     '- إذا سُئلت عن تفعيل حي: وجّه إلى المكتب المالي وزر «التفعيل الفوري الحي» بعد مراجعة الشهادة.',
-  ].join('\n');
+  ].join('\n'),
+    'zatca_tax_advisor',
+  );
 }
 
 export async function callZatcaAdvisorLabVision(input: {

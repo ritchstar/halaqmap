@@ -5,6 +5,7 @@ import {
   loadZatcaLabContext,
   type ZatcaLabChatTurn,
 } from './_lib/zatcaAdvisorLab.js';
+import { finalizeAgentReply } from './_lib/agentConversationLog.js';
 import { assertVisionMime } from './_lib/opsBillingAi.js';
 import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
@@ -111,13 +112,21 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const labContext = await loadZatcaLabContext(auth.supabase);
     const system = buildZatcaAdvisorLabSystemPrompt(labContext);
-    const reply = await callZatcaAdvisorLabVision({
-      system,
-      userText: userMessage || 'حلّل الصورة المرفقة في سياق ZATCA وامتثال حلاق ماب.',
-      imageBase64,
-      imageMime: imageBase64 ? imageMime : undefined,
-      conversationHistory,
-    });
+    const { reply } = await finalizeAgentReply(
+      auth.supabase,
+      'zatca_tax_advisor',
+      userMessage || '[صورة]',
+      'admin_zatca_advisor_lab',
+      () =>
+        callZatcaAdvisorLabVision({
+          system,
+          userText: userMessage || 'حلّل الصورة المرفقة في سياق ZATCA وامتثال حلاق ماب.',
+          imageBase64,
+          imageMime: imageBase64 ? imageMime : undefined,
+          conversationHistory,
+        }),
+      { actorEmail: auth.actorEmail, sessionMeta: { hasImage: Boolean(imageBase64) } },
+    );
 
     return json({
       ok: true,

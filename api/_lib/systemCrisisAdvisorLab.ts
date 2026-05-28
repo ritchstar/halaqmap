@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 import { getOpsBillingTemporalAnchor } from './opsBillingAi.js';
 
 export type SystemCrisisLabChatTurn = { role: 'user' | 'assistant'; content: string };
@@ -109,7 +110,8 @@ export function buildSystemCrisisAdvisorLabSystemPrompt(
       ? playbook.slice(0, 18_000)
       : '(تعذّر تحميل Crisis Playbook من docs/crisis-playbook.md على الخادم)';
 
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **مستشار الأزمات التقنية (Strategic Technical Consultant)** في منصة **حلاق ماب (Halaq Map)**.',
     '',
     '## الهوية',
@@ -145,7 +147,9 @@ export function buildSystemCrisisAdvisorLabSystemPrompt(
     '- لا تكشف أسرار env للمستخدم؛ اذكر **أسماء** المتغيرات لا قيمها.',
     '- إذا lacked info، اسأل سؤالاً واحداً حاسماً ثم قدّم خطة افتراضية.',
     '- العربية افتراضياً؛ المصطلحات التقنية بالإنجليزية عند الحاجة.',
-  ].join('\n');
+  ].join('\n'),
+    'system_crisis_advisor',
+  );
 }
 
 export async function callSystemCrisisAdvisorLabChat(input: {

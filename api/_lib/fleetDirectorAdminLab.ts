@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 import { assertVisionMime } from './opsBillingAi.js';
 import {
   DIGITAL_SHIFT_REPLY_COST_HALALAS,
@@ -110,7 +111,8 @@ export async function loadFleetDirectorLabContext(
 export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabContext): string {
   const { fleetSnapshot: snap } = ctx;
 
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **المدير العام للمناوبين — قيادة الأسطول ◆** في منصة **حلاق ماب (Halaq Map)**.',
     '',
     '## تصنيف الجلسة',
@@ -203,7 +205,9 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
     '- العربية الرسمية السرية — «يا قيادة»، «◆ تقرير أسطول».',
     '- Markdown: عناوين، جداول بسيطة، قوائم مرقّمة.',
     '- الطول: كافٍ للخطط المعقدة — لا إيجاز مخل.',
-  ].join('\n');
+  ].join('\n'),
+    'fleet_director_general',
+  );
 }
 
 export async function callFleetDirectorAdminLabVision(input: {

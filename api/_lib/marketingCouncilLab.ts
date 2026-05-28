@@ -16,6 +16,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 
 export type MarketingLabChatTurn = { role: 'user' | 'assistant'; content: string };
 
@@ -340,7 +341,8 @@ function topCitiesNarrative(ctx: B2cMarketingContext): string {
 }
 
 export function buildB2cMarketingSystemPrompt(ctx: B2cMarketingContext): string {
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **استراتيجي التسويق B2C 🎯** في منصة **حلاق ماب (Halaq Map)** — زميل خازن في المجلس التسويقي.',
     'دورك: نمو قاعدة المستخدم النهائي (الباحث عن حلاق) — اكتساب · تنشيط · احتفاظ · إحالة · إيراد غير مباشر للمنصة.',
     '',
@@ -373,7 +375,9 @@ export function buildB2cMarketingSystemPrompt(ctx: B2cMarketingContext): string 
     '- اربط كل توصية بمدينة/كلمة من اللقطة الحية أعلاه — لا توصيات مجرّدة.',
     '- ضع أي مصطلح إنجليزي ضمن `backticks` أو على سطر مستقل، ولا تخلطه داخل جملة عربية متّصلة.',
     '- اختم بسؤال واحد فقط للمؤسس أو بسطر «هل أستدعي المدعي العام لمراجعة الامتثال؟» إن كانت التوصية حساسة.',
-  ].join('\n');
+  ].join('\n'),
+    'b2c_marketing_strategist',
+  );
 }
 
 function tierBreakdownNarrative(ctx: B2bMarketingContext): string {
@@ -389,7 +393,8 @@ function tierBreakdownNarrative(ctx: B2bMarketingContext): string {
 }
 
 export function buildB2bMarketingSystemPrompt(ctx: B2bMarketingContext): string {
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **استراتيجي التسويق B2B 🏢** في منصة **حلاق ماب (Halaq Map)** — زميل خازن في المجلس التسويقي.',
     'دورك: نمو قاعدة الشركاء (الصالونات) — اكتساب · تفعيل · ترقية بين الباقات · احتفاظ · إحالة شريك→شريك.',
     '',
@@ -425,7 +430,9 @@ export function buildB2bMarketingSystemPrompt(ctx: B2bMarketingContext): string 
     '- ضع أي مصطلح إنجليزي ضمن `backticks` أو على سطر مستقل، ولا تخلطه داخل جملة عربية متّصلة.',
     '- عند تجهيز lead لإحالة غرفة القيادة، أضف في نهاية الرد كتلة حقول: **الاسم:** · **المدينة:** · **المنطقة:** · **العنوان:** · **الجوال:** · **انستقرام:** · **الموقع:** · **الباقة:** · **رسالة الواتساب:** — لتعبئة pipeline التشغيل (الإرسال يبقى يدوياً).',
     '- اختم بسؤال واحد فقط للمؤسس أو بسطر «هل أستدعي مساعد الشركاء أو المدعي العام؟» إن كانت التوصية حساسة.',
-  ].join('\n');
+  ].join('\n'),
+    'b2b_marketing_strategist',
+  );
 }
 
 // ---------- OpenAI call ----------

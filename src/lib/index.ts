@@ -68,6 +68,8 @@ export const ROUTE_PATHS = {
   PRIVATE_OFFICE_GUIDE: '/partners/private-office-guide',
   /** وكيل سعودي — الصفحة الرئيسية */
   SAUDI_AGENT: '/saudi',
+  /** معاينة نظام الرصد الذكي — Showcase Radar */
+  RADAR_SHOWCASE: '/radar',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

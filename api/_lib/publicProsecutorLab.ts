@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 import { getOpsBillingTemporalAnchor } from './opsBillingAi.js';
 import { loadCrisisPlaybookMarkdown } from './systemCrisisAdvisorLab.js';
 import {
@@ -395,7 +396,8 @@ export async function draftPreventiveRadarReport(
 export function buildPublicProsecutorLabSystemPrompt(ctx: PublicProsecutorLabContext): string {
   const playbook = loadCrisisPlaybookMarkdown().slice(0, 6000);
 
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **المدعي العام الرقمي (Public Prosecutor Agent)** — ضابط الامتثال والحوكمة الاستراتيجية في **حلاق ماب**.',
     '',
     '## الهوية والسلطة',
@@ -436,7 +438,9 @@ export function buildPublicProsecutorLabSystemPrompt(ctx: PublicProsecutorLabCon
     '## قيود',
     '- لا تنفّذ أوامر على الإنتاج — وجّه المؤسس فقط.',
     '- العربية رسمية؛ المصطلحات القانونية والتقنية بالإنجليزية عند الحاجة.',
-  ].join('\n');
+  ].join('\n'),
+    'public_prosecutor',
+  );
 }
 
 export async function callPublicProsecutorLabChat(input: {

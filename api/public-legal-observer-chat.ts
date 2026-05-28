@@ -6,10 +6,16 @@
  * مهمة سرية: يُسجّل الاستفسارات في Supabase للتقارير الدورية
  */
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 import { LICENSED_ACTIVITY_AI_DOCTRINE_AR } from './_lib/legalActivityScope.js';
+import {
+  createAgentLogSupabase,
+  logAgentConversation,
+} from './_lib/agentConversationLog.js';
+import {
+  appendUniversalAgentDoctrines,
+  resolveRegulatoryReferral,
+} from './_lib/platformManagementReferral.js';
 
 export const config = { maxDuration: 45 };
 type Turn = { role: 'user' | 'assistant'; content: string };
@@ -35,7 +41,7 @@ function parseHistory(raw: unknown): Turn[] {
 
 // ─── الشخصية والسياق القانوني الكامل ─────────────────────────────────────────
 function buildSystemPrompt(page: string): string {
-  return `أنت «الناظر القانوني» لمنصة حلاق ماب — وكيل متخصص في الشأن القانوني والامتثالي.
+  const base = `أنت «الناظر القانوني» لمنصة حلاق ماب — وكيل سعودي متخصص في الشأن القانوني والامتثالي.
 تواجدك الحالي: صفحة "${page}".
 
 ═══════════════════════════════════════════════════
@@ -121,28 +127,12 @@ ZATCA 🧾:
 ١. أجب عن أي سؤال يخص الخصوصية أو الشروط أو هوية المنصة بدقة ووضوح
 ٢. وجِّه لقراءة الوثيقة الكاملة عند الحاجة للتفصيل
 ٣. عند السؤال عن شكوى أو نزاع: «تواصل مع فريق الدعم عبر admin@halaqmap.com»
-٤. عند سؤال خارج اختصاصك: «هذا السؤال يحتاج متخصصاً — أنصح بالاستشارة القانونية»
-٥. لا تُعطي آراء قانونية شخصية أو تفسيرات ملزمة
+٤. عند سؤال تنظيمي/ترخيصي/تفتيش/هيئة إعلام: أحِل فوراً إلى **إدارة المنصة** — لا تُجيب عن حالة ترخيص حكومي
+٥. عند سؤال خارج اختصاصك: «هذا السؤال يحتاج متخصصاً — أنصح بالاستشارة القانونية»
+٦. لا تُعطي آراء قانونية شخصية أو تفسيرات ملزمة
 
 أسلوب الردود: مختصرة ودقيقة (2-4 جمل) — مع تفصيل عند الطلب.`;
-}
-
-// ─── Log inquiry (mission secrete) ────────────────────────────────────────────
-async function logInquiry(
-  supabase: SupabaseClient<any> | null,
-  question: string,
-  page: string,
-): Promise<void> {
-  if (!supabase) return;
-  try {
-    await supabase.from('legal_observer_inquiries').insert({
-      question: question.slice(0, 500),
-      page,
-      asked_at: new Date().toISOString(),
-    });
-  } catch {
-    // Table may not exist yet — silent fail
-  }
+  return appendUniversalAgentDoctrines(base, 'legal_observer');
 }
 
 // ─── Call model ───────────────────────────────────────────────────────────────
@@ -182,18 +172,19 @@ export async function POST(request: Request): Promise<Response> {
 
   const page = String(body.page ?? 'غير محدد');
   const history = parseHistory(body.history);
+  const logSupabase = createAgentLogSupabase();
 
-  // Supabase client
-  const url = normalizeSupabaseUrl(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL);
-  const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-  const supabase = url && serviceKey
-    ? createClient(url, serviceKey, { auth: { persistSession: false } })
-    : null;
-
-  // Secret mission: log inquiry
-  void logInquiry(supabase, msg, page);
-
+  const referral = resolveRegulatoryReferral(msg);
   const systemPrompt = buildSystemPrompt(page);
-  const reply = await callModel(systemPrompt, history, msg);
+  const reply = referral ?? await callModel(systemPrompt, history, msg);
+
+  void logAgentConversation(logSupabase, {
+    agentId: 'legal_observer',
+    channel: page,
+    userMessage: msg,
+    assistantReply: reply,
+    referredToManagement: Boolean(referral),
+  });
+
   return json({ reply });
 }

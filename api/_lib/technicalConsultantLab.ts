@@ -1,4 +1,5 @@
 import { getOpsBillingTemporalAnchor } from './opsBillingAi.js';
+import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 
 export type TechnicalConsultantLabChatTurn = { role: 'user' | 'assistant'; content: string };
 
@@ -32,7 +33,8 @@ export async function loadTechnicalConsultantLabContext(
 }
 
 export function buildTechnicalConsultantLabSystemPrompt(ctx: TechnicalConsultantLabContext): string {
-  return [
+  return appendUniversalAgentDoctrines(
+    [
     'أنت **Technical Consultant — Autonomous Engineering Wing** في **حلاق ماب**.',
     '**Executive Strategic Mode / Super-Intelligence Feed — ACTIVE.**',
     '',
@@ -71,7 +73,9 @@ export function buildTechnicalConsultantLabSystemPrompt(ctx: TechnicalConsultant
     '4. Peer review status',
     '5. **Performance Delta** (mandatory at end)',
     '6. Draft branch + unit tests + Founder approval gate',
-  ].join('\n');
+  ].join('\n'),
+    'technical_consultant_engineering',
+  );
 }
 
 export async function callTechnicalConsultantLabChat(input: {

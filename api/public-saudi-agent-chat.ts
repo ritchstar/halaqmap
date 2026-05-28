@@ -8,6 +8,15 @@
  * يستخدم OpenAI GPT-4o مع system prompt محكم وأدوات متخصصة.
  */
 
+import {
+  createAgentLogSupabase,
+  logAgentConversation,
+} from './_lib/agentConversationLog.js';
+import {
+  appendUniversalAgentDoctrines,
+  resolveRegulatoryReferral,
+} from './_lib/platformManagementReferral.js';
+
 export const config = { maxDuration: 60 };
 
 type Turn = { role: 'user' | 'assistant'; content: string };
@@ -226,7 +235,11 @@ ${HALAQMAP_BRIEF}
 }
 
 function buildSystemPrompt(agent: SaudiAgentId): string {
-  return agent === 'saudia' ? buildSaudiaSystemPrompt() : buildSaudiSystemPrompt();
+  const base = agent === 'saudia' ? buildSaudiaSystemPrompt() : buildSaudiSystemPrompt();
+  return appendUniversalAgentDoctrines(
+    base,
+    agent === 'saudia' ? 'saudia_cultural_agent' : 'saudi_cultural_agent',
+  );
 }
 
 // ─── استدعاء OpenAI مع أدوات ────────────────────────────────────────────────
@@ -418,9 +431,18 @@ export async function POST(request: Request): Promise<Response> {
 
   const history = parseHistory(body.history);
   const systemPrompt = buildSystemPrompt(agent);
+  const logSupabase = createAgentLogSupabase();
+  const referral = resolveRegulatoryReferral(msg);
 
   try {
-    const reply = await callOpenAI(systemPrompt, history, msg);
+    const reply = referral ?? await callOpenAI(systemPrompt, history, msg);
+    void logAgentConversation(logSupabase, {
+      agentId: agent === 'saudia' ? 'saudia_cultural_agent' : 'saudi_cultural_agent',
+      channel: agent === 'saudia' ? 'سعودية' : 'سعودي',
+      userMessage: msg,
+      assistantReply: reply,
+      referredToManagement: Boolean(referral),
+    });
     return json({ reply });
   } catch (e) {
     console.error('[saudi-agent]', e);
