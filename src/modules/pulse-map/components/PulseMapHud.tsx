@@ -1,5 +1,6 @@
 import { Radar } from 'lucide-react';
 import { PULSE_MAP_CONFIG } from '@/config/pulseMapConfig';
+import { PULSE_MAP_CITY_MARKERS } from '@/modules/pulse-map/lib/pulseMapCities';
 import type { PulseMapPayload } from '@/modules/pulse-map/types';
 
 type Props = {
@@ -42,6 +43,15 @@ export function PulseMapHud({ payload, loading }: Props) {
           <p className="mt-1.5 text-[0.6rem] leading-relaxed text-amber-200/75">
             {PULSE_MAP_CONFIG.phaseHintAr}
           </p>
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-3 left-1/2 z-20 -translate-x-1/2">
+        <div className="pointer-events-auto rounded-full border border-white/10 bg-black/55 px-4 py-2 backdrop-blur-md">
+          <span className="text-[0.62rem] text-slate-400">مدن </span>
+          <span className="text-sm font-bold tabular-nums text-white">
+            {payload?.stats.slotsActive ?? PULSE_MAP_CITY_MARKERS.length}
+          </span>
         </div>
       </div>
     </>

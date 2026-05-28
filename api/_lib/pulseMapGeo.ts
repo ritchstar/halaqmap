@@ -178,21 +178,6 @@ export function ringsLngLatToSvgPaths(rings: ReadonlyArray<ReadonlyArray<PulseMa
 
 export const PULSE_MAP_KINGDOM_OUTLINE_PATHS = ringsLngLatToSvgPaths(PULSE_MAP_KINGDOM_RINGS_LNGLAT);
 
-/** Step 2+ — major city anchors (empty until city layer is added). */
-export type PulseMapCityAnchor = {
-  id: string;
-  nameAr: string;
-  region?: string;
-  lng: number;
-  lat: number;
-};
-
-export const PULSE_MAP_CITY_ANCHORS: readonly PulseMapCityAnchor[] = [];
-
-export function projectPulseMapCity(anchor: PulseMapCityAnchor): { x: number; y: number } {
-  return projectPulseMapLngLat(anchor.lng, anchor.lat);
-}
-
 export function isInsideKingdomOutline(lng: number, lat: number): boolean {
   for (const ring of PULSE_MAP_KINGDOM_RINGS_LNGLAT) {
     if (pointInRing(lng, lat, ring)) return true;

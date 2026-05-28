@@ -3,7 +3,6 @@
  * Regenerate: `node scripts/generate-pulse-map-kingdom-outline.mjs`
  * Source: Natural Earth 50m ne_50m_admin_0_countries (ISO SAU)
  */
-import type { PlatformCityRegion } from '@/config/platformCoveredCities';
 
 export type PulseMapLngLat = [number, number];
 
@@ -178,21 +177,6 @@ export function ringsLngLatToSvgPaths(rings: ReadonlyArray<ReadonlyArray<PulseMa
 }
 
 export const PULSE_MAP_KINGDOM_OUTLINE_PATHS = ringsLngLatToSvgPaths(PULSE_MAP_KINGDOM_RINGS_LNGLAT);
-
-/** Step 2+ — major city anchors (empty until city layer is added). */
-export type PulseMapCityAnchor = {
-  id: string;
-  nameAr: string;
-  region?: PlatformCityRegion;
-  lng: number;
-  lat: number;
-};
-
-export const PULSE_MAP_CITY_ANCHORS: readonly PulseMapCityAnchor[] = [];
-
-export function projectPulseMapCity(anchor: PulseMapCityAnchor): { x: number; y: number } {
-  return projectPulseMapLngLat(anchor.lng, anchor.lat);
-}
 
 export function isInsideKingdomOutline(lng: number, lat: number): boolean {
   for (const ring of PULSE_MAP_KINGDOM_RINGS_LNGLAT) {

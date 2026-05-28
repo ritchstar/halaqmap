@@ -63,7 +63,7 @@ function buildGeoModule({ bounds, rings, meta }, isServer) {
  * Regenerate: \`node scripts/generate-pulse-map-kingdom-outline.mjs\`
  * Source: ${meta.source}
  */
-${isServer ? '' : "import type { PlatformCityRegion } from '@/config/platformCoveredCities';\n"}
+${isServer ? '' : ''}
 export type PulseMapLngLat = [number, number];
 
 /** Equirectangular canvas bounds — kingdom bbox + breathing margin. */
@@ -108,21 +108,6 @@ export function ringsLngLatToSvgPaths(rings: ReadonlyArray<ReadonlyArray<PulseMa
 }
 
 export const PULSE_MAP_KINGDOM_OUTLINE_PATHS = ringsLngLatToSvgPaths(PULSE_MAP_KINGDOM_RINGS_LNGLAT);
-
-/** Step 2+ — major city anchors (empty until city layer is added). */
-export type PulseMapCityAnchor = {
-  id: string;
-  nameAr: string;
-  region?: PlatformCityRegion;
-  lng: number;
-  lat: number;
-};
-
-export const PULSE_MAP_CITY_ANCHORS: readonly PulseMapCityAnchor[] = [];
-
-export function projectPulseMapCity(anchor: PulseMapCityAnchor): { x: number; y: number } {
-  return projectPulseMapLngLat(anchor.lng, anchor.lat);
-}
 
 export function isInsideKingdomOutline(lng: number, lat: number): boolean {
   for (const ring of PULSE_MAP_KINGDOM_RINGS_LNGLAT) {
@@ -186,12 +171,8 @@ async function main() {
 
   const clientPath = path.join(ROOT, 'src/modules/pulse-map/lib/pulseMapGeo.ts');
   const serverPath = path.join(ROOT, 'api/_lib/pulseMapGeo.ts');
-  const serverModule = buildGeoModule(payload, true).replace(
-    'region?: PlatformCityRegion;',
-    'region?: string;',
-  );
   fs.writeFileSync(clientPath, buildGeoModule(payload, false), 'utf8');
-  fs.writeFileSync(serverPath, serverModule, 'utf8');
+  fs.writeFileSync(serverPath, buildGeoModule(payload, true), 'utf8');
 
   console.log('Wrote', OUT_JSON);
   console.log('Wrote', clientPath);

@@ -75,7 +75,7 @@ function buildPhase1Payload(): PulseMapPayload {
     stats: {
       demandCount: 0,
       linkCount: 0,
-      slotsActive: 0,
+      slotsActive: PULSE_MAP_SLOTS.length,
     },
   };
 }

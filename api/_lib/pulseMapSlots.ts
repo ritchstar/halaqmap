@@ -1,9 +1,10 @@
 /**
  * Pulse Map — city slot registry (server copy).
- * Step 1: outline only — slots empty until city anchors are added.
  * Keep in sync with `src/config/pulseMapSlots.ts`.
  */
 import type { PlatformCityRegion } from './platformCoveredCities.js';
+import { SHOWCASE_BARBER_REGION_ALLOWLIST } from './platformCoveredCities.js';
+import { PULSE_MAP_CITY_MARKERS } from './pulseMapCities.js';
 
 export type PulseMapSlot = {
   id: string;
@@ -20,14 +21,25 @@ export {
   projectPulseMapLngLat,
 } from './pulseMapGeo.js';
 
-export const PULSE_MAP_PILOT_REGIONS: readonly PlatformCityRegion[] = [];
+export { PULSE_MAP_CITY_MARKERS } from './pulseMapCities.js';
 
-export const PULSE_MAP_SLOTS: readonly PulseMapSlot[] = [];
+export const PULSE_MAP_PILOT_REGIONS: readonly PlatformCityRegion[] =
+  SHOWCASE_BARBER_REGION_ALLOWLIST;
 
-export function getPulseMapSlot(_slotId: string): PulseMapSlot | null {
-  return null;
+export const PULSE_MAP_SLOTS: readonly PulseMapSlot[] = PULSE_MAP_CITY_MARKERS.map((city) => ({
+  id: city.id,
+  nameAr: city.nameAr,
+  region: city.region,
+  x: city.x,
+  y: city.y,
+}));
+
+const SLOT_BY_ID = new Map(PULSE_MAP_SLOTS.map((s) => [s.id, s]));
+
+export function getPulseMapSlot(slotId: string): PulseMapSlot | null {
+  return SLOT_BY_ID.get(slotId) ?? null;
 }
 
-export function isPulseMapPilotRegion(_region: PlatformCityRegion | undefined): boolean {
-  return false;
+export function isPulseMapPilotRegion(region: PlatformCityRegion | undefined): boolean {
+  return region != null && PULSE_MAP_PILOT_REGIONS.includes(region);
 }

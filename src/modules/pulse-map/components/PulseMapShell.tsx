@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { PULSE_MAP_CONFIG } from '@/config/pulseMapConfig';
 import { PULSE_MAP_VIEWBOX } from '@/config/pulseMapSlots';
 import { PulseMapBackdrop } from '@/modules/pulse-map/components/PulseMapBackdrop';
+import { PulseMapCityMarkers } from '@/modules/pulse-map/components/PulseMapCityMarkers';
 import { PulseMapDots } from '@/modules/pulse-map/components/PulseMapDots';
 import { PulseMapHud } from '@/modules/pulse-map/components/PulseMapHud';
 import { PulseMapLinks } from '@/modules/pulse-map/components/PulseMapLinks';
@@ -35,6 +36,7 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
   );
 
   const showPulses = PULSE_MAP_CONFIG.showPulses;
+  const showCities = PULSE_MAP_CONFIG.showCities;
   const showLinks =
     showPulses &&
     (payload?.phase ?? PULSE_MAP_CONFIG.phase) > 1 &&
@@ -62,6 +64,7 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
           aria-label="خريطة النبض — المملكة العربية السعودية"
         >
           <PulseMapBackdrop />
+          {showCities ? <PulseMapCityMarkers /> : null}
           {showSlotAnchors ? <PulseMapSlotAnchors slots={payload?.slots ?? []} /> : null}
           {showLinks ? <PulseMapLinks links={placedLinks} /> : null}
           {showPulses ? <PulseMapDots pulses={placedPulses} /> : null}

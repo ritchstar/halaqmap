@@ -67,7 +67,7 @@ export default function PulseMapPage() {
         </motion.div>
 
         <p className="mt-8 text-center text-[0.65rem] leading-relaxed text-slate-600">
-          خطوة 1 — outline المملكة فقط. الخطوة التالية: إضافة مواقع المدن الرئيسية.
+          خطوة 2 — outline المملكة + مواقع المدن. الخطوة التالية: نبض الطلب والربط.
         </p>
       </div>
     </div>
