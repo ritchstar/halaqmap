@@ -90,6 +90,40 @@
       })();
     </script>
     <div id="root"></div>
+    <!-- استرداد تلقائي إذا فشل تحميل حزمة JS بعد نشر جديد (كاش SW/ CDN قديم) -->
+    <script>
+      (function () {
+        var key = 'hm-chunk-recover';
+        if (sessionStorage.getItem(key)) return;
+        window.addEventListener(
+          'error',
+          function (ev) {
+            var t = ev.target;
+            if (!t || t.tagName !== 'SCRIPT') return;
+            var src = t.src || '';
+            if (src.indexOf('/assets/') === -1) return;
+            sessionStorage.setItem(key, '1');
+            var reload = function () {
+              window.location.reload();
+            };
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker
+                .getRegistrations()
+                .then(function (regs) {
+                  return Promise.all(regs.map(function (r) {
+                    return r.unregister();
+                  }));
+                })
+                .catch(function () {})
+                .finally(reload);
+            } else {
+              reload();
+            }
+          },
+          true,
+        );
+      })();
+    </script>
     <!-- ?v= يقلّل احتمال كاش قديم أثناء التطوير؛ الإنتاج يُضاف لها query على /assets/* عبر vite.config.ts -->
     <script type="module" src="/src/main.tsx?v=2"></script>
   </body>

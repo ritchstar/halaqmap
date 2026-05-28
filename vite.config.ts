@@ -309,6 +309,18 @@ export default defineConfig(({ mode }) => {
           navigateFallbackDenylist: [/^\/api\//],
           runtimeCaching: [
             {
+              urlPattern: ({ url }) =>
+                url.origin === self.location.origin &&
+                /^\/assets\/.*\.js$/i.test(url.pathname),
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'app-js-assets',
+                networkTimeoutSeconds: 4,
+                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 7 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',
               options: {
@@ -379,31 +391,6 @@ export default defineConfig(({ mode }) => {
       __APP_PKG_VERSION__: JSON.stringify(pkgJson.version ?? '0.0.0'),
       __APP_GIT_COMMIT__: JSON.stringify(resolveGitShortCommit()),
       __APP_BUILD_TIME_ISO__: JSON.stringify(appBuildTimeIso),
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (!id.includes('node_modules')) return;
-            if (
-              id.includes('node_modules/react-dom/') ||
-              id.includes('node_modules/react/') ||
-              id.includes('node_modules/react-router') ||
-              id.includes('node_modules/scheduler/')
-            ) {
-              return 'vendor-react';
-            }
-            if (id.includes('framer-motion')) return 'vendor-motion';
-            if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
-            if (id.includes('@supabase')) return 'vendor-supabase';
-            if (id.includes('@radix-ui')) return 'vendor-radix';
-            if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
-            if (id.includes('html2canvas') || id.includes('jspdf')) return 'vendor-pdf';
-            if (id.includes('@tanstack/react-query')) return 'vendor-query';
-            return 'vendor-misc';
-          },
-        },
-      },
     },
   }
 });
