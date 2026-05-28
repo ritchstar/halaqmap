@@ -18,10 +18,10 @@ import {
 import {
   LEGAL_TRADE_NAME_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
+  LEGAL_UNIFIED_NUMBER_LABEL_AR,
   PARTNER_SUPPORT_EMAIL,
   PARTNER_SUPPORT_PHONE_E164,
   PARTNER_SUPPORT_WHATSAPP_URL,
-  getLegalCommercialRegistrationDisplay,
 } from "@/config/partnerLegal";
 import { HonorBoard } from "@/components/b2b/HonorBoard";
 import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
@@ -29,10 +29,11 @@ import { PlatformTrustStrip } from "@/components/PlatformTrustStrip";
 import {
   PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
 } from "@/config/platformIdentity";
+import { LicensedActivityScopeCard } from '@/components/legal/LicensedActivityScopeCard';
+import { formatLicensedActivityScopeLegalSection } from '@/config/legalActivityScope';
 
 
 export default function SubscriptionPolicy() {
-  const commercialReg = getLegalCommercialRegistrationDisplay();
   const subscriptionTiers = SUBSCRIPTION_POLICY_TIERS;
 
   const paymentMethods = [
@@ -142,12 +143,21 @@ export default function SubscriptionPolicy() {
           </div>
         </motion.section>
 
+        <motion.section variants={staggerItem} className="mb-12">
+          <div className="max-w-4xl mx-auto">
+            <LicensedActivityScopeCard />
+          </div>
+        </motion.section>
+
         <motion.section variants={staggerItem} className="mb-16">
           <Card className="max-w-4xl mx-auto border-primary/30 bg-primary/5">
             <CardHeader>
               <CardTitle className="text-xl text-center">طبيعة الخدمة والمنتج الرقمي</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground leading-relaxed text-justify">
+                {formatLicensedActivityScopeLegalSection()}
+              </p>
               <p className="text-sm text-muted-foreground leading-relaxed text-justify">
                 تُقرّ المنشأة المستفيدة (صالون الحلاقة) بأن المنتج المشترى عبر المنصة هو (حزمة رخصة لخدمات إدراج برمجية
                 موحدة) على نظام الرصد الذكي التفاعلي لمنصة (حلاق ماب). هذا المنتج هو مساحة برمجية مخصصة ومطورة لعرض البيانات
@@ -678,16 +688,11 @@ export default function SubscriptionPolicy() {
             <CardContent className="space-y-2 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">{LEGAL_TRADE_NAME_AR}</p>
               <p>
-                الرقم الوطني الموحد للمنشأة:{' '}
+                {LEGAL_UNIFIED_NUMBER_LABEL_AR}:{' '}
                 <span dir="ltr" className="font-mono">
                   {LEGAL_NATIONAL_UNIFIED_NUMBER}
                 </span>
               </p>
-              {commercialReg ? (
-                <p>
-                  رقم السجل التجاري: <span dir="ltr">{commercialReg}</span>
-                </p>
-              ) : null}
             </CardContent>
           </Card>
           <Card className="max-w-2xl mx-auto bg-muted/30">

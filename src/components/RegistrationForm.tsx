@@ -45,8 +45,10 @@ import { ComplianceCheckbox } from '@/components/b2b/ComplianceCheckbox';
 import {
   LegalPledgeModalContent,
   ProfessionalCommitmentModalContent,
+  SoftwareProductPurchaseModalContent,
 } from '@/components/b2b/ComplianceManifestoContent';
 import { REGISTRATION_LEGAL_DISCLAIMER_AR, HONOR_BOARD_PROFESSIONAL_COMMITMENT_LEAD } from '@/config/honorBoardManifesto';
+import { SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR } from '@/config/legalActivityScope';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
@@ -211,6 +213,8 @@ interface FormData {
   legalDisclaimerAccepted: boolean;
   /** التزام مهني إلزامي قبل إتمام التسجيل */
   professionalCommitmentAccepted: boolean;
+  /** إقرار شراء منتج برمجي رقمي وفق ISIC4 474151 */
+  softwareProductAcknowledged: boolean;
   location: {
     lat: string;
     lng: string;
@@ -364,6 +368,7 @@ export function RegistrationForm() {
     categories: [],
     legalDisclaimerAccepted: false,
     professionalCommitmentAccepted: false,
+    softwareProductAcknowledged: false,
     location: {
       lat: '',
       lng: '',
@@ -609,6 +614,13 @@ export function RegistrationForm() {
       );
       return;
     }
+    if (!formData.softwareProductAcknowledged) {
+      toast.error('يجب تأشير إقرار شراء المنتج البرمجي الرقمي قبل الإرسال.');
+      window.requestAnimationFrame(() =>
+        formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      );
+      return;
+    }
     if (!formData.images.shopExterior || !formData.images.shopInterior) {
       alert('يرجى إكمال خطوة الصور: صورة خارجية وصورة داخلية إلزاميتان.');
       return;
@@ -771,6 +783,8 @@ export function RegistrationForm() {
         registrationTermsAcceptedAtIso: submittedAtIso,
         professionalCommitmentAccepted: true,
         professionalCommitmentAcceptedAtIso: submittedAtIso,
+        softwareProductAcknowledged: true,
+        softwareProductAcknowledgedAtIso: submittedAtIso,
         digitalShiftAddonSelected:
           formData.tier === SubscriptionTier.DIAMOND &&
           isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon),
@@ -1831,6 +1845,17 @@ export function RegistrationForm() {
                     modalContent={<ProfessionalCommitmentModalContent />}
                     disabled={isSubmitting}
                   />
+                  <ComplianceCheckbox
+                    id="software-product-ack"
+                    label={SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR}
+                    checked={formData.softwareProductAcknowledged}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({ ...prev, softwareProductAcknowledged: checked }))
+                    }
+                    modalTitle="إقرار شراء المنتج البرمجي"
+                    modalContent={<SoftwareProductPurchaseModalContent />}
+                    disabled={isSubmitting}
+                  />
                   <div className="flex items-start gap-3 rounded-lg border border-slate-600/80 bg-slate-800/40 px-4 py-3">
                     <Checkbox
                       id="registration-terms-accept"
@@ -1907,7 +1932,8 @@ export function RegistrationForm() {
               isSubmitting ||
               !formData.registrationTermsAccepted ||
               !formData.legalDisclaimerAccepted ||
-              !formData.professionalCommitmentAccepted
+              !formData.professionalCommitmentAccepted ||
+              !formData.softwareProductAcknowledged
             }
             className="bg-slate-100 text-slate-900 hover:bg-white"
           >

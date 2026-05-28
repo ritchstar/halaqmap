@@ -5,8 +5,18 @@ import {
 } from './onDemandVisibilityDoctrine.js';
 
 export const ISIC_ACTIVITY_CODE = '474151' as const;
-export const ISIC_ACTIVITY_LABEL_AR =
-  'بيع برمجيات بالتجزئة في المتاجر المتخصصة (ISIC4 474151)' as const;
+
+/** GaStat · ISIC4 */
+export const ISIC_ACTIVITY_LABEL_AR = 'البيع بالتجزئة للبرمجيات (ISIC4 474151)' as const;
+
+export const ISIC_MOC_ACTIVITY_NAME_AR = 'البيع بالتجزئة للبرمجيات' as const;
+export const ISIC_MOC_MAIN_SECTOR_AR =
+  'تجارة الجملة والتجزئة وإصلاح المركبات ذات المحركات والدرجات النارية' as const;
+export const ISIC_MOC_SUB_SECTOR_AR =
+  'بيع الحواسيب والمعدات الطرفية للحواسيب، والبرمجيات، ومعدات الاتصالات بالتجزئة في المتاجر المتخصصة' as const;
+
+export const ISIC_ACTIVITY_GASTAT_DEFINITION_AR =
+  `${ISIC_ACTIVITY_CODE} هو رمز ISIC4 لنشاط البيع بالتجزئة للبرمجيات — تجارة وعرض وبيع برمجيات حاسوبية جاهزة (Software).` as const;
 
 export const GEOSPATIAL_LICENSE_ASSET_CLASS = 'Geospatial_License_Asset' as const;
 

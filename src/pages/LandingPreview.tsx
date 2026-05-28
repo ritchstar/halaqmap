@@ -583,14 +583,14 @@ export default function LandingPreview() {
               {/* اسم المنصة */}
               <div className="leading-tight">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[0.95rem] font-black tracking-wide text-white">حلاق ماب</span>
+                  <span className="text-[1.19rem] font-black tracking-wide text-white">حلاق ماب</span>
                   <motion.div
                     animate={{ opacity: [0.5, 1, 0.5], scale: [0.9, 1.1, 0.9] }}
                     transition={{ duration: 2, repeat: Infinity }}
                     className="h-1.5 w-1.5 rounded-full bg-teal-400"
                   />
                 </div>
-                <div className="text-[0.48rem] font-bold tracking-[0.3em] text-teal-400/55">HALAQ MAP · LIVE</div>
+                <div className="text-[0.6rem] font-bold tracking-[0.3em] text-teal-400/55">HALAQ MAP · LIVE</div>
               </div>
 
               {/* عدد الصالونات النشطة */}
@@ -600,7 +600,7 @@ export default function LandingPreview() {
                   transition={{ duration: 2.5, repeat: Infinity }}
                   className="h-1.5 w-1.5 rounded-full bg-emerald-400"
                 />
-                <span className="text-[0.55rem] font-bold text-emerald-300/80">رادار نشط</span>
+                <span className="text-[0.69rem] font-bold text-emerald-300/80">رادار نشط</span>
               </div>
             </a>
 
@@ -615,7 +615,7 @@ export default function LandingPreview() {
                   key={item.label}
                   type="button"
                   onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.78rem] font-semibold text-slate-400 transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
+                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.98rem] font-semibold text-slate-400 transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
                 >
                   <item.icon className="h-3.5 w-3.5 text-teal-500/50 transition-colors group-hover:text-teal-400" />
                   {item.label}
@@ -633,7 +633,7 @@ export default function LandingPreview() {
                 }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-xs font-black text-white shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all hover:shadow-[0_0_30px_rgba(20,184,166,0.5)]"
+                className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.94rem] font-black text-white shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all hover:shadow-[0_0_30px_rgba(20,184,166,0.5)]"
               >
                 {/* Shimmer */}
                 <motion.div
@@ -660,7 +660,7 @@ export default function LandingPreview() {
               >
                 <Building2 className="h-4 w-4" />
                 {/* شارة B2B صغيرة */}
-                <span className="absolute -bottom-1.5 -left-1 rounded-full bg-amber-500 px-1 py-0 text-[0.42rem] font-black leading-tight tracking-wider text-black">
+                <span className="absolute -bottom-1.5 -left-1 rounded-full bg-amber-500 px-1 py-0 text-[0.53rem] font-black leading-tight tracking-wider text-black">
                   B2B
                 </span>
               </a>
@@ -706,7 +706,7 @@ export default function LandingPreview() {
                       setMobileNavOpen(false);
                       setTimeout(() => document.getElementById(item.sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
                     }}
-                    className="rounded-xl px-4 py-3 text-right text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
+                    className="rounded-xl px-4 py-3 text-right text-[1.09rem] font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
                   >
                     {item.label}
                   </button>
@@ -719,14 +719,14 @@ export default function LandingPreview() {
                     key={item.label}
                     href={item.href}
                     onClick={() => setMobileNavOpen(false)}
-                    className="rounded-xl px-4 py-3 text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
+                    className="rounded-xl px-4 py-3 text-[1.09rem] font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
                   >
                     {item.label}
                   </a>
                 ))}
                 <button
                   onClick={() => { setMobileNavOpen(false); document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' }); }}
-                  className="mt-2 w-full rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 py-3 text-sm font-bold text-white"
+                  className="mt-2 w-full rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 py-3 text-[1.09rem] font-bold text-white"
                 >
                   ابحث عن حلاق الآن
                 </button>
@@ -1187,7 +1187,7 @@ export default function LandingPreview() {
             {[
               {
                 q: 'كيف يعمل الرادار في حلاق ماب؟',
-                a: 'الرادار يرصد الصالونات المسجّلة في محيطك الجغرافي ويعرضها لك فور طلبك — كلما قلّت المسافة زادت الأولوية. لا تسجيل مسبق للبحث.',
+                a: 'الرادار يرصد الصالونات المسجّلة في محيطك الجغرافي ويعرضها لك فوراً بناءً على موقعك — كلما قلّت المسافة زادت الأولوية. لا تسجيل مسبق للبحث.',
               },
               {
                 q: 'هل الخدمة مجانية للمستخدمين؟',

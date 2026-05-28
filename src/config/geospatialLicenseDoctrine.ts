@@ -5,8 +5,25 @@ import {
 } from '@/config/onDemandVisibilityDoctrine';
 
 export const ISIC_ACTIVITY_CODE = '474151' as const;
-export const ISIC_ACTIVITY_LABEL_AR =
-  'بيع برمجيات بالتجزئة في المتاجر المتخصصة (ISIC4 474151)' as const;
+
+/** التسمية الرسمية — وزارة التجارة · الدليل الوطني ISIC4 */
+export const ISIC_ACTIVITY_LABEL_AR = 'البيع بالتجزئة للبرمجيات (ISIC4 474151)' as const;
+
+/** اسم النشاط كما في البحث الاسترشادي — وزارة التجارة */
+export const ISIC_MOC_ACTIVITY_NAME_AR = 'البيع بالتجزئة للبرمجيات' as const;
+
+/** القطاع الرئيسي — ISIC4 · وزارة التجارة */
+export const ISIC_MOC_MAIN_SECTOR_AR =
+  'تجارة الجملة والتجزئة وإصلاح المركبات ذات المحركات والدرجات النارية' as const;
+
+/** القطاع الفرعي — ISIC4 · وزارة التجارة (474…) */
+export const ISIC_MOC_SUB_SECTOR_AR =
+  'بيع الحواسيب والمعدات الطرفية للحواسيب، والبرمجيات، ومعدات الاتصالات بالتجزئة في المتاجر المتخصصة' as const;
+
+/** تعريف GaStat الرسمي لنشاط 474151 — يُستورد في الوثائق القانونية */
+export const ISIC_ACTIVITY_GASTAT_DEFINITION_AR =
+  `${ISIC_ACTIVITY_CODE} هو رمز التصنيف الصناعي الدولي الموحد لجميع الأنشطة الاقتصادية (ISIC4) لنشاط **البيع بالتجزئة للبرمجيات**. ` +
+  'يتخصّص هذا النشاط في **تجارة وعرض وبيع البرمجيات الحاسوبية الجاهزة** (`Software`)، وممارسته بشكل رسمي يستلزم الحصول على التراخيص ذات الصلة.' as const;
 
 export const GEOSPATIAL_LICENSE_ASSET_CLASS = 'Geospatial_License_Asset' as const;
 

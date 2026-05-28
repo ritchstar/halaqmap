@@ -5,6 +5,8 @@ import {
   HONOR_BOARD_PROFESSIONAL_COMMITMENT_LEAD,
   REGISTRATION_LEGAL_DISCLAIMER_AR,
 } from '@/config/honorBoardManifesto';
+import { SOFTWARE_PRODUCT_PURCHASE_ACK_MODAL_AR } from '@/config/legalActivityScope';
+import { renderLegalContentBlocks } from '@/lib/legalPageRender';
 
 function CoreValuesList({ compact = false }: { compact?: boolean }) {
   return (
@@ -21,6 +23,14 @@ function CoreValuesList({ compact = false }: { compact?: boolean }) {
           <p className="text-sm leading-relaxed text-slate-300">{section.body}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+export function SoftwareProductPurchaseModalContent() {
+  return (
+    <div className="space-y-3">
+      {renderLegalContentBlocks(SOFTWARE_PRODUCT_PURCHASE_ACK_MODAL_AR)}
     </div>
   );
 }

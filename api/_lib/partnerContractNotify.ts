@@ -137,7 +137,8 @@ export async function tryEmailPartnerUnifiedContractAfterApprove(input: {
   }
 
   const orderId = input.registrationRequestId?.trim() || null;
-  let commercialRegistration: string | null = (process.env.LEGAL_COMMERCIAL_REGISTRATION || '').trim() || null;
+  let commercialRegistration: string | null =
+    (process.env.LEGAL_COMMERCIAL_REGISTRATION || '').trim() || '7054117093';
   let establishmentName = input.barberName;
 
   if (orderId) {

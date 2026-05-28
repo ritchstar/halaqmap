@@ -43,6 +43,10 @@ import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
+import {
+  SOFTWARE_PRODUCT_PURCHASE_ACK_AR,
+  SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR,
+} from '@/config/legalActivityScope';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
 import { toast } from 'sonner';
@@ -103,6 +107,7 @@ export default function Payment() {
   const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card'>('moyasar');
   /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
   const [moyasarTermsAccepted, setMoyasarTermsAccepted] = useState(false);
+  const [softwareProductAcknowledged, setSoftwareProductAcknowledged] = useState(false);
   /** بعد العودة من ميسر بـ ?id= — التحقق من الخادم */
   const [moyasarReturnVerify, setMoyasarReturnVerify] = useState<
     'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
@@ -281,7 +286,7 @@ export default function Payment() {
   /** تهيئة نموذج ميسر داخل الصفحة بعد الإقرار بالشروط. */
   useEffect(() => {
     if (selectedGateway !== 'MOYASAR' || !showMoyasarCheckout) return;
-    if (paymentMethod !== 'moyasar' || !moyasarTermsAccepted || !moyasarKeyOk) {
+    if (paymentMethod !== 'moyasar' || !moyasarTermsAccepted || !softwareProductAcknowledged || !moyasarKeyOk) {
       setMoyasarFormError(null);
       if (moyasarHostRef.current) moyasarHostRef.current.innerHTML = '';
       return;
@@ -366,6 +371,7 @@ export default function Payment() {
   }, [
     paymentMethod,
     moyasarTermsAccepted,
+    softwareProductAcknowledged,
     moyasarKeyOk,
     monthlyAmountHalalas,
     tier,
@@ -625,6 +631,19 @@ export default function Payment() {
                       </Alert>
                       <div className="flex items-start gap-3">
                         <Checkbox
+                          id="software-product-ack"
+                          checked={softwareProductAcknowledged}
+                          onCheckedChange={(c) => setSoftwareProductAcknowledged(c === true)}
+                          className="mt-1"
+                        />
+                        <Label htmlFor="software-product-ack" className="cursor-pointer text-sm font-normal leading-relaxed">
+                          <span className="font-semibold text-foreground">{SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR}</span>
+                          {' — '}
+                          {SOFTWARE_PRODUCT_PURCHASE_ACK_AR.replace(/\*\*/g, '')}
+                        </Label>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
                           id="moyasar-merchant-terms"
                           checked={moyasarTermsAccepted}
                           onCheckedChange={(c) => setMoyasarTermsAccepted(c === true)}
@@ -648,11 +667,11 @@ export default function Payment() {
                         </Alert>
                       )}
 
-                      {moyasarKeyOk && !moyasarTermsAccepted && (
-                        <p className="text-sm text-muted-foreground">فعّل الإقرار أعلاه لعرض نموذج ميسر.</p>
+                      {moyasarKeyOk && (!softwareProductAcknowledged || !moyasarTermsAccepted) && (
+                        <p className="text-sm text-muted-foreground">فعّل الإقرارات أعلاه لعرض نموذج ميسر.</p>
                       )}
 
-                      {moyasarKeyOk && moyasarTermsAccepted && (
+                      {moyasarKeyOk && softwareProductAcknowledged && moyasarTermsAccepted && (
                         <Card className="border-primary/20">
                           <CardHeader className="pb-2">
                             <CardTitle className="text-lg">{paymentActivateNowCtaAr(price)}</CardTitle>

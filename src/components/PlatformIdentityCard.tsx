@@ -4,6 +4,7 @@
  */
 
 import { CheckCircle2, XCircle, Shield, Zap } from 'lucide-react';
+import { ISIC_ACTIVITY_CODE, ISIC_ACTIVITY_CODE_LABEL_AR } from '@/config/legalActivityScope';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 };
 
 const IS_POINTS = [
-  'مزوّد حلول تقنية (Technical Solutions Provider)',
+  'GaStat · ISIC4 474151 — البيع بالتجزئة للبرمجيات (Software جاهز)',
   'بائع رخص إدراج رقمية مسبقة الدفع',
   'مشغّل نظام رصد جغرافي ذكي للبحث',
   'طرف تقني بين الصالون والعميل',
@@ -51,7 +52,7 @@ export function PlatformIdentityCard({ compact, className }: Props) {
         <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-teal-400/30 bg-teal-500/10 px-3 py-1">
           <Shield className="h-3.5 w-3.5 text-teal-400" />
           <span className="text-[0.65rem] font-black tracking-widest text-teal-300 uppercase">
-            مزوّد حلول تقنية — لا وسيط تجاري
+            {ISIC_ACTIVITY_CODE_LABEL_AR}: {ISIC_ACTIVITY_CODE}
           </span>
         </div>
 

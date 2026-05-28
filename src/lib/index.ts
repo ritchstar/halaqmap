@@ -300,6 +300,9 @@ export interface SubscriptionRequest {
   /** التزام مهني إلزامي — ميثاق Honor Board B2B */
   professionalCommitmentAccepted?: boolean;
   professionalCommitmentAcceptedAtIso?: string;
+  /** إقرار شراء منتج برمجي رقمي وفق ISIC4 474151 */
+  softwareProductAcknowledged?: boolean;
+  softwareProductAcknowledgedAtIso?: string;
   /** إضافة برمجية متقدمة (Software Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
   digitalShiftAddonSelected?: boolean;
 }

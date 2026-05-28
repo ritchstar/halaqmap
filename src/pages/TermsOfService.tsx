@@ -1,6 +1,6 @@
 ﻿import { motion } from 'framer-motion';
 import { LegalObserverChat } from '@/components/LegalObserverChat';
-import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText, Server, Users } from 'lucide-react';
+import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText, Server, Users, Building2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';
@@ -14,6 +14,8 @@ import {
   PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
   PLATFORM_IDENTITY_PARAGRAPH_AR,
 } from '@/config/platformIdentity';
+import { formatLicensedActivityScopeLegalSection } from '@/config/legalActivityScope';
+import { LicensedActivityScopeCard } from '@/components/legal/LicensedActivityScopeCard';
 
 export default function TermsOfService() {
   const sections = [
@@ -23,6 +25,11 @@ export default function TermsOfService() {
       content:
         'مرحبًا بك في **حلاق ماب**. باستخدامك للمنصة (الموقع الإلكتروني أو التطبيق أو أي واجهة رسمية تابعة لنا) فإنك تقر بأنك اطلعت على هذه الشروط ووافقت على الالتزام بها. إذا لم توافق، يُرجى عدم استخدام المنصة.\n\n' +
         'تُدار المنصة وفق الأنظمة المعمول بها في المملكة العربية السعودية.',
+    },
+    {
+      icon: Building2,
+      title: 'نطاق النشاط المرخّص — ISIC4 474151',
+      content: formatLicensedActivityScopeLegalSection(),
     },
     {
       icon: Server,
@@ -124,6 +131,10 @@ export default function TermsOfService() {
 
         <div className="max-w-4xl mx-auto mb-12">
           <PlatformIdentityCard />
+        </div>
+
+        <div className="max-w-4xl mx-auto mb-12">
+          <LicensedActivityScopeCard />
         </div>
 
         <div className="max-w-4xl mx-auto space-y-12">

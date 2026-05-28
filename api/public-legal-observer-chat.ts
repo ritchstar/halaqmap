@@ -9,6 +9,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
+import { LICENSED_ACTIVITY_AI_DOCTRINE_AR } from './_lib/legalActivityScope.js';
 
 export const config = { maxDuration: 45 };
 type Turn = { role: 'user' | 'assistant'; content: string };
@@ -52,6 +53,7 @@ function buildSystemPrompt(page: string): string {
 
 【١ — هوية المنصة القانونية】
 - حلاق ماب: مزوّد حلول تقنية (Technical Solutions Provider) — ISIC4 474151
+${LICENSED_ACTIVITY_AI_DOCTRINE_AR}
 - تبيع رخص إدراج رقمية مسبقة الدفع — لا عمولة على الخدمة
 - ليست وسيطاً تجارياً ولا وكيل حجز — لا تتعاقد نيابة عن أحد
 - العلاقة بين الصالون والزبون مباشرة — المنصة طرف تقني فقط
