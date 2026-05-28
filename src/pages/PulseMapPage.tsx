@@ -67,7 +67,7 @@ export default function PulseMapPage() {
         </motion.div>
 
         <p className="mt-8 text-center text-[0.65rem] leading-relaxed text-slate-600">
-          خطوة 3 — نبض مستخدم (ذهبي) ونبض حلاق (أخضر مائي) تجريبياً. الخطوة التالية: ربط البيانات الحية.
+          ربط حي — نبضة واحدة لكل مدينة عند أي بحث أو تفاعل حديث (آخر 120 دقيقة).
         </p>
       </div>
     </div>

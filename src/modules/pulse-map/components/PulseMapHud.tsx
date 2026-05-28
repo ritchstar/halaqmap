@@ -66,6 +66,7 @@ export function PulseMapHudEnd({ payload, loading }: Props) {
 
   const showPulses = PULSE_MAP_CONFIG.showPulses;
   const isDemo = payload?.mode === 'demo' || payload?.mode === 'curated';
+  const isLive = payload?.mode === 'live';
 
   return (
     <aside
@@ -73,16 +74,18 @@ export function PulseMapHudEnd({ payload, loading }: Props) {
       dir="rtl"
     >
       <div className="flex items-center gap-2">
-        {!isDemo ? (
+        {!isDemo && isLive ? (
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
           </span>
-        ) : (
+        ) : isDemo ? (
           <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+        ) : (
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
         )}
         <span className="text-xs font-semibold text-emerald-100">
-          {loading ? 'جاري التحميل…' : isDemo ? 'تجريبي' : 'نبض حي'}
+          {loading ? 'جاري التحميل…' : isLive ? 'نبض حي' : isDemo ? 'تجريبي' : PULSE_MAP_CONFIG.phaseBadgeAr}
         </span>
       </div>
       <p className="mt-1 text-[0.62rem] tabular-nums text-slate-400">آخر مزامنة · {syncLabel}</p>

@@ -1,4 +1,4 @@
-/** Pulse Map rollout phase — increment when enabling live data, links, etc. */
-export const PULSE_MAP_PHASE = 1 as const;
+/** Pulse Map rollout phase — 2 = live slot pulses from Supabase */
+export const PULSE_MAP_PHASE = 2 as const;
 
 export type PulseMapPhase = typeof PULSE_MAP_PHASE;
