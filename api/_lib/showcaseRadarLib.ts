@@ -4,6 +4,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   PLATFORM_CITY_COUNT,
+  type PlatformCity,
+  isBarberPulseCityAllowed,
+  isShowcasePulseCoordValid,
   resolvePlatformCity,
   resolvePlatformCityFromSearch,
   snapPulseToCity,
@@ -77,17 +80,13 @@ function buildCuratedDemoPulses(): ShowcaseRadarPulse[] {
   for (const [index, cityAr] of CURATED_DEMO_CITIES.entries()) {
     const city = resolvePlatformCity(cityAr);
     if (!city) continue;
-    const coords = snapPulseToCity(city, `demo-${city.id}`);
     const ageMinutes = 8 + index * 11;
-    pulses.push({
+    const pulse = emitDemandPulse(city, `demo-${city.id}`, {
       id: `demo-${city.id}`,
-      kind: 'demand',
-      lat: coords.lat,
-      lng: coords.lng,
-      cityAr: city.nameAr,
       createdAt: new Date(Date.now() - ageMinutes * 60_000).toISOString(),
       labelAr: `نبض مستخدم — ${city.nameAr}`,
     });
+    if (pulse) pulses.push(pulse);
   }
   return pulses;
 }
@@ -97,17 +96,13 @@ function buildCuratedBarberDemoPulses(): ShowcaseRadarPulse[] {
   for (const [index, cityAr] of CURATED_DEMO_BARBER_CITIES.entries()) {
     const city = resolvePlatformCity(cityAr);
     if (!city) continue;
-    const coords = snapPulseToCity(city, `demo-barber-${city.id}`);
     const ageMinutes = 5 + index * 9;
-    pulses.push({
+    const pulse = emitBarberPulse(city, `demo-barber-${city.id}`, {
       id: `demo-barber-${city.id}`,
-      kind: 'salon_cluster',
-      lat: coords.lat,
-      lng: coords.lng,
-      cityAr: city.nameAr,
       createdAt: new Date(Date.now() - ageMinutes * 60_000).toISOString(),
-      labelAr: `ربط — ${city.nameAr} (توضيحي)`,
+      labelAr: formatBarberPulseLabel(city.nameAr, 1, true),
     });
+    if (pulse) pulses.push(pulse);
   }
   return pulses;
 }
@@ -120,6 +115,49 @@ function formatUserPulseLabel(cityAr: string, districtAr?: string | null): strin
 function formatBarberPulseLabel(cityAr: string, count: number, curated = false): string {
   if (curated) return `ربط — ${cityAr} (توضيحي)`;
   return count > 1 ? `ربط — ${cityAr} (${count})` : `ربط — ${cityAr}`;
+}
+
+function emitDemandPulse(
+  city: PlatformCity,
+  seed: string,
+  meta: {
+    id: string;
+    createdAt: string;
+    labelAr: string;
+    districtAr?: string;
+  },
+): ShowcaseRadarPulse | null {
+  const coords = snapPulseToCity(city, seed);
+  if (!isShowcasePulseCoordValid(coords.lat, coords.lng)) return null;
+  return {
+    id: meta.id,
+    kind: 'demand',
+    lat: coords.lat,
+    lng: coords.lng,
+    cityAr: city.nameAr,
+    districtAr: meta.districtAr,
+    createdAt: meta.createdAt,
+    labelAr: meta.labelAr,
+  };
+}
+
+function emitBarberPulse(
+  city: PlatformCity,
+  seed: string,
+  meta: { id: string; createdAt: string; labelAr: string },
+): ShowcaseRadarPulse | null {
+  if (!isBarberPulseCityAllowed(city)) return null;
+  const coords = snapPulseToCity(city, seed);
+  if (!isShowcasePulseCoordValid(coords.lat, coords.lng)) return null;
+  return {
+    id: meta.id,
+    kind: 'salon_cluster',
+    lat: coords.lat,
+    lng: coords.lng,
+    cityAr: city.nameAr,
+    createdAt: meta.createdAt,
+    labelAr: meta.labelAr,
+  };
 }
 
 type SearchRow = {
@@ -170,20 +208,16 @@ export async function buildShowcaseRadarPayload(
     const city = resolvePlatformCityFromSearch(row.city_name, row.user_lat, row.user_lng);
     if (!city) continue;
 
-    const coords = snapPulseToCity(city, row.id);
     const cityAr = city.nameAr;
     cityPulseCounts.set(cityAr, (cityPulseCounts.get(cityAr) ?? 0) + 1);
 
-    demandPulses.push({
+    const pulse = emitDemandPulse(city, row.id, {
       id: row.id,
-      kind: 'demand',
-      lat: coords.lat,
-      lng: coords.lng,
-      cityAr,
-      districtAr: row.district_name?.trim() || undefined,
       createdAt: row.created_at,
       labelAr: formatUserPulseLabel(cityAr, row.district_name),
+      districtAr: row.district_name?.trim() || undefined,
     });
+    if (pulse) demandPulses.push(pulse);
   }
 
   const salonByCity = new Map<string, number>();
@@ -198,16 +232,12 @@ export async function buildShowcaseRadarPayload(
     if (salonClusters.length >= SHOWCASE_LIMITS.salonClusterMax) break;
     const city = resolvePlatformCity(cityAr);
     if (!city) continue;
-    const coords = snapPulseToCity(city, `salon-${city.id}`);
-    salonClusters.push({
+    const pulse = emitBarberPulse(city, `salon-${city.id}`, {
       id: `salon-cluster-${city.id}`,
-      kind: 'salon_cluster',
-      lat: coords.lat,
-      lng: coords.lng,
-      cityAr: city.nameAr,
       createdAt: new Date().toISOString(),
       labelAr: formatBarberPulseLabel(city.nameAr, count),
     });
+    if (pulse) salonClusters.push(pulse);
   }
 
   const curatedDemos = buildCuratedDemoPulses();
