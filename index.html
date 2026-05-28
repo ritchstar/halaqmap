@@ -16,6 +16,27 @@
     <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#061223" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
+    <!-- تنظيف لمرة واحدة بعد نشر معطّل — يزيل SW/كاش قديم يسبب شاشة بيضاء -->
+    <script>
+      (function () {
+        try {
+          var flag = 'hm-sw-reset-v2';
+          if (localStorage.getItem(flag)) return;
+          localStorage.setItem(flag, '1');
+          sessionStorage.removeItem('hm-chunk-recover');
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            });
+          }
+          if ('caches' in window) {
+            caches.keys().then(function (keys) {
+              return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

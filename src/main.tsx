@@ -1,8 +1,8 @@
 import { createRoot } from 'react-dom/client'
-import { registerSW } from 'virtual:pwa-register'
 // مساعد الشركاء (الذكاء الاصطناعي) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
 import App from './App.tsx'
 import './index.css'
+import { RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
 import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 
@@ -23,36 +23,11 @@ if (import.meta.env.DEV) {
     })
 }
 
-function reloadForNewBuild() {
-  window.location.reload()
+const rootEl = document.getElementById('root')
+if (rootEl) {
+  createRoot(rootEl).render(
+    <RootErrorBoundary>
+      <App />
+    </RootErrorBoundary>,
+  )
 }
-
-const updateServiceWorker = registerSW({
-  immediate: true,
-  onNeedRefresh() {
-    reloadForNewBuild()
-  },
-  onRegisteredSW(_swUrl, registration) {
-    if (!registration) return
-    window.setInterval(() => {
-      void registration.update()
-    }, 30_000)
-  },
-})
-
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  let refreshed = false
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshed) return
-    refreshed = true
-    reloadForNewBuild()
-  })
-
-  void navigator.serviceWorker.getRegistration().then((registration) => {
-    if (registration?.waiting) {
-      void updateServiceWorker(true)
-    }
-  })
-}
-
-createRoot(document.getElementById("root")!).render(<App />);
