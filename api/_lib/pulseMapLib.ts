@@ -15,8 +15,9 @@ import {
   type PlatformCity,
 } from './platformCoveredCities.js';
 import { SHOWCASE_BARBER_SOUTH_BBOX } from './showcaseRadarPlacement.js';
+import { buildDemoPulses } from './pulseMapDemo.js';
 
-export type PulseMapMode = 'live' | 'curated' | 'phase1';
+export type PulseMapMode = 'live' | 'curated' | 'phase1' | 'demo';
 
 export type PulseMapKind = 'demand' | 'link';
 
@@ -57,24 +58,24 @@ const LIMITS = {
 } as const;
 
 function cityToSlotId(city: PlatformCity): string | null {
-  if (!isPulseMapPilotRegion(city.region)) return null;
   const slot = getPulseMapSlot(city.id);
   return slot ? slot.id : null;
 }
 
 function buildPhase1Payload(): PulseMapPayload {
+  const pulses = buildDemoPulses();
   return {
     ok: true,
     phase: PULSE_MAP_PHASE,
-    mode: 'phase1',
+    mode: 'demo',
     collectedAt: new Date().toISOString(),
     pilotRegions: PULSE_MAP_PILOT_REGIONS,
     slots: PULSE_MAP_SLOTS,
-    pulses: [],
+    pulses,
     links: [],
     stats: {
-      demandCount: 0,
-      linkCount: 0,
+      demandCount: pulses.filter((p) => p.kind === 'demand').length,
+      linkCount: pulses.filter((p) => p.kind === 'link').length,
       slotsActive: PULSE_MAP_SLOTS.length,
     },
   };

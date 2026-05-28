@@ -1,4 +1,4 @@
-export type PulseMapMode = 'live' | 'curated' | 'phase1';
+export type PulseMapMode = 'live' | 'curated' | 'phase1' | 'demo';
 
 export type PulseMapKind = 'demand' | 'link';
 

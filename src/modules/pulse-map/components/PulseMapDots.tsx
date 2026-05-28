@@ -10,7 +10,7 @@ export function PulseMapDots({ pulses }: Props) {
     <g role="presentation">
       {pulses.map((pulse) => {
         const colors = PULSE_MAP_COLORS[pulse.kind];
-        const r = pulse.kind === 'demand' ? 5.5 : 4.5;
+        const r = pulse.kind === 'demand' ? 4 : 4.8;
         return (
           <g key={pulse.id} className="pulse-map-dot">
             <circle

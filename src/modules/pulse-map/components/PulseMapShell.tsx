@@ -6,9 +6,7 @@ import { PulseMapBackdrop } from '@/modules/pulse-map/components/PulseMapBackdro
 import { PulseMapCityMarkers } from '@/modules/pulse-map/components/PulseMapCityMarkers';
 import { PulseMapDots } from '@/modules/pulse-map/components/PulseMapDots';
 import { PulseMapHud } from '@/modules/pulse-map/components/PulseMapHud';
-import { PulseMapLinks } from '@/modules/pulse-map/components/PulseMapLinks';
-import { PulseMapSlotAnchors } from '@/modules/pulse-map/components/PulseMapSlotAnchors';
-import { placeLinks, placePulses } from '@/modules/pulse-map/lib/pulsePlacement';
+import { placePulses } from '@/modules/pulse-map/lib/pulsePlacement';
 import type { PulseMapPayload, PulseMapSlot } from '@/modules/pulse-map/types';
 
 type Props = {
@@ -30,18 +28,8 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
     [payload?.pulses, slotById],
   );
 
-  const placedLinks = useMemo(
-    () => placeLinks(payload?.links ?? [], slotById, placedPulses),
-    [payload?.links, slotById, placedPulses],
-  );
-
   const showPulses = PULSE_MAP_CONFIG.showPulses;
   const showCities = PULSE_MAP_CONFIG.showCities;
-  const showLinks =
-    showPulses &&
-    (payload?.phase ?? PULSE_MAP_CONFIG.phase) > 1 &&
-    (payload?.links.length ?? 0) > 0;
-  const showSlotAnchors = showPulses && (payload?.phase ?? PULSE_MAP_CONFIG.phase) === 1;
 
   const aspect = `${PULSE_MAP_VIEWBOX.width} / ${PULSE_MAP_VIEWBOX.height}`;
 
@@ -65,8 +53,6 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
         >
           <PulseMapBackdrop />
           {showCities ? <PulseMapCityMarkers /> : null}
-          {showSlotAnchors ? <PulseMapSlotAnchors slots={payload?.slots ?? []} /> : null}
-          {showLinks ? <PulseMapLinks links={placedLinks} /> : null}
           {showPulses ? <PulseMapDots pulses={placedPulses} /> : null}
         </svg>
       </div>

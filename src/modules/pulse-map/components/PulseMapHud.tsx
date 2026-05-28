@@ -1,5 +1,6 @@
-import { Radar } from 'lucide-react';
-import { PULSE_MAP_CONFIG } from '@/config/pulseMapConfig';
+import type { ReactNode } from 'react';
+import { Activity, Radar } from 'lucide-react';
+import { PULSE_MAP_CONFIG, PULSE_MAP_COLORS } from '@/config/pulseMapConfig';
 import { PULSE_MAP_CITY_MARKERS } from '@/modules/pulse-map/lib/pulseMapCities';
 import type { PulseMapPayload } from '@/modules/pulse-map/types';
 
@@ -16,13 +17,23 @@ export function PulseMapHud({ payload, loading }: Props) {
       })
     : '…';
 
+  const showPulses = PULSE_MAP_CONFIG.showPulses;
+  const isDemo = payload?.mode === 'demo' || payload?.mode === 'curated';
+
   return (
     <>
       <div className="pointer-events-none absolute top-2 inset-inline-end-2 z-20 sm:top-3 sm:inset-inline-end-3">
         <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-black/60 px-3 py-2 backdrop-blur-md">
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+          {!isDemo ? (
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            </span>
+          ) : (
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+          )}
           <span className="text-xs font-semibold text-emerald-100">
-            {loading ? 'جاري التحميل…' : PULSE_MAP_CONFIG.phaseBadgeAr}
+            {loading ? 'جاري التحميل…' : isDemo ? 'تجريبي' : PULSE_MAP_CONFIG.phaseBadgeAr}
           </span>
           <span className="text-[0.62rem] tabular-nums text-slate-400">{syncLabel}</span>
         </div>
@@ -43,17 +54,74 @@ export function PulseMapHud({ payload, loading }: Props) {
           <p className="mt-1.5 text-[0.6rem] leading-relaxed text-amber-200/75">
             {PULSE_MAP_CONFIG.phaseHintAr}
           </p>
+          {showPulses ? (
+            <div className="mt-3 flex flex-wrap gap-4 border-t border-white/10 pt-2.5">
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-flex h-3 w-3 rounded-full"
+                  style={{
+                    background: PULSE_MAP_COLORS.demand.fill,
+                    boxShadow: `0 0 10px ${PULSE_MAP_COLORS.demand.glow}`,
+                  }}
+                />
+                <span className="text-[0.65rem] text-slate-300">{PULSE_MAP_CONFIG.legendDemandAr}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-flex h-3 w-3 rounded-full"
+                  style={{
+                    background: PULSE_MAP_COLORS.link.fill,
+                    boxShadow: `0 0 8px ${PULSE_MAP_COLORS.link.glow}`,
+                  }}
+                />
+                <span className="text-[0.65rem] text-slate-300">{PULSE_MAP_CONFIG.legendLinkAr}</span>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
 
       <div className="pointer-events-none absolute bottom-3 left-1/2 z-20 -translate-x-1/2">
-        <div className="pointer-events-auto rounded-full border border-white/10 bg-black/55 px-4 py-2 backdrop-blur-md">
-          <span className="text-[0.62rem] text-slate-400">مدن </span>
-          <span className="text-sm font-bold tabular-nums text-white">
-            {payload?.stats.slotsActive ?? PULSE_MAP_CITY_MARKERS.length}
-          </span>
+        <div className="pointer-events-auto flex items-center gap-4 rounded-full border border-white/10 bg-black/55 px-4 py-2 backdrop-blur-md">
+          {showPulses ? (
+            <>
+              <Stat
+                icon={<Activity className="h-3.5 w-3.5 text-amber-300" />}
+                label={PULSE_MAP_CONFIG.legendDemandAr}
+                value={payload?.stats.demandCount ?? 0}
+              />
+              <Stat
+                icon={<Activity className="h-3.5 w-3.5 text-teal-300" />}
+                label={PULSE_MAP_CONFIG.legendLinkAr}
+                value={payload?.stats.linkCount ?? 0}
+              />
+            </>
+          ) : null}
+          <Stat
+            icon={<Radar className="h-3.5 w-3.5 text-sky-300" />}
+            label="مدن"
+            value={payload?.stats.slotsActive ?? PULSE_MAP_CITY_MARKERS.length}
+          />
         </div>
       </div>
     </>
+  );
+}
+
+function Stat({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {icon}
+      <span className="text-[0.62rem] text-slate-400">{label}</span>
+      <span className="text-sm font-bold tabular-nums text-white">{value}</span>
+    </div>
   );
 }
