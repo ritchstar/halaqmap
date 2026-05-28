@@ -5,7 +5,7 @@ import { PULSE_MAP_VIEWBOX } from '@/config/pulseMapSlots';
 import { PulseMapBackdrop } from '@/modules/pulse-map/components/PulseMapBackdrop';
 import { PulseMapCityMarkers } from '@/modules/pulse-map/components/PulseMapCityMarkers';
 import { PulseMapDots } from '@/modules/pulse-map/components/PulseMapDots';
-import { PulseMapHud } from '@/modules/pulse-map/components/PulseMapHud';
+import { PulseMapHudEnd, PulseMapHudStart } from '@/modules/pulse-map/components/PulseMapHud';
 import { placePulses } from '@/modules/pulse-map/lib/pulsePlacement';
 import type { PulseMapPayload, PulseMapSlot } from '@/modules/pulse-map/types';
 
@@ -30,38 +30,39 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
 
   const showPulses = PULSE_MAP_CONFIG.showPulses;
   const showCities = PULSE_MAP_CONFIG.showCities;
-
   const aspect = `${PULSE_MAP_VIEWBOX.width} / ${PULSE_MAP_VIEWBOX.height}`;
 
   return (
-    <div
-      className={cn(
-        'relative min-h-[min(44rem,72vh)] overflow-hidden rounded-2xl border border-sky-400/15 bg-[#020617] text-white',
-        className,
-      )}
-      dir="rtl"
-    >
-      <div
-        className="relative mx-auto w-full max-h-[min(44rem,72vh)]"
-        style={{ aspectRatio: aspect }}
-      >
-        <svg
-          viewBox={`0 0 ${PULSE_MAP_VIEWBOX.width} ${PULSE_MAP_VIEWBOX.height}`}
-          className="h-full w-full"
-          preserveAspectRatio="xMidYMid meet"
-          aria-label="خريطة النبض — المملكة العربية السعودية"
-        >
-          <PulseMapBackdrop />
-          {showCities ? <PulseMapCityMarkers /> : null}
-          {showPulses ? <PulseMapDots pulses={placedPulses} /> : null}
-        </svg>
+    <div className={cn('grid gap-3 lg:grid-cols-[minmax(11rem,13.5rem)_1fr_minmax(11rem,13.5rem)]', className)} dir="rtl">
+      <div className="order-2 lg:order-none">
+        <PulseMapHudStart payload={payload} loading={loading} />
       </div>
 
-      <PulseMapHud payload={payload} loading={loading} />
+      <div className="order-1 overflow-hidden rounded-2xl border border-sky-400/15 bg-[#020617] lg:order-none">
+        <div
+          className="relative mx-auto w-full max-h-[min(44rem,72vh)]"
+          style={{ aspectRatio: aspect }}
+        >
+          <svg
+            viewBox={`0 0 ${PULSE_MAP_VIEWBOX.width} ${PULSE_MAP_VIEWBOX.height}`}
+            className="h-full w-full"
+            preserveAspectRatio="xMidYMid meet"
+            aria-label="خريطة النبض — المملكة العربية السعودية"
+          >
+            <PulseMapBackdrop />
+            {showCities ? <PulseMapCityMarkers /> : null}
+            {showPulses ? <PulseMapDots pulses={placedPulses} /> : null}
+          </svg>
+        </div>
+      </div>
+
+      <div className="order-3 lg:order-none">
+        <PulseMapHudEnd payload={payload} loading={loading} />
+      </div>
 
       {error ? (
         <p
-          className="absolute left-1/2 top-1/2 z-30 max-w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-red-500/40 bg-red-950/80 px-4 py-3 text-sm text-red-100 backdrop-blur-md"
+          className="col-span-full rounded-xl border border-red-500/40 bg-red-950/80 px-4 py-3 text-sm text-red-100 backdrop-blur-md lg:col-span-3"
           dir="rtl"
         >
           {error}

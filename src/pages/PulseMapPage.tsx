@@ -42,7 +42,7 @@ export default function PulseMapPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-5 pb-16 pt-10">
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-5">
         <motion.header
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
