@@ -18,6 +18,7 @@ import {
   type MarketingLabReplyContext,
 } from '@/lib/marketingCouncilLabRemote';
 import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { PartnerProspectHandoffPanel } from '@/components/admin/PartnerProspectHandoffPanel';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
@@ -143,7 +144,8 @@ export function MarketingCouncilLabChat({
   const [loadingStep, setLoadingStep] = useState(0);
   const [modelLabel, setModelLabel] = useState<string | null>(null);
   const [lastContext, setLastContext] = useState<MarketingLabReplyContext | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -165,9 +167,8 @@ export function MarketingCouncilLabChat({
     return () => window.clearInterval(id);
   }, [busy]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, busy]);
+  useAgentChatScroll(messagesScrollRef, [messages, busy]);
+  useAgentChatInputFocus(busy, inputRef, open && permitted);
 
   const send = useCallback(async () => {
     if (!permitted || busy) return;
@@ -267,7 +268,7 @@ export function MarketingCouncilLabChat({
           </div>
         </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-3 py-3">
+        <ScrollArea ref={messagesScrollRef} className="flex-1 min-h-0 px-3 py-3">
           <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
               <CopyableMessage
@@ -285,7 +286,6 @@ export function MarketingCouncilLabChat({
                 accentText={meta.accentText}
               />
             ) : null}
-            <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
@@ -313,6 +313,7 @@ export function MarketingCouncilLabChat({
           ) : null}
 
           <Textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={meta.placeholder}

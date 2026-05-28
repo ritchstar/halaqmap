@@ -25,6 +25,7 @@ import {
   CompactAttachmentControl,
   CopyableMessage,
 } from '@/components/admin/lab-chat-shared';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -93,7 +94,8 @@ export function DigitalShiftAdminLabChat({
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [modelLabel, setModelLabel] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -117,9 +119,8 @@ export function DigitalShiftAdminLabChat({
     return () => window.clearInterval(id);
   }, [busy]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, busy]);
+  useAgentChatScroll(messagesScrollRef, [messages, busy]);
+  useAgentChatInputFocus(busy, inputRef, open && permitted);
 
   const clearAttachment = useCallback(() => {
     setAttachedFile(null);
@@ -227,7 +228,8 @@ export function DigitalShiftAdminLabChat({
         </CollapsibleLabHeader>
 
         <ScrollArea
-          className="flex-1 px-3 py-3"
+          ref={messagesScrollRef}
+          className="flex-1 min-h-0 px-3 py-3"
           onDragOver={(e) => e.preventDefault()}
           onDrop={onDrop}
         >
@@ -241,7 +243,6 @@ export function DigitalShiftAdminLabChat({
               />
             ))}
             {busy ? <LoadingIndicator stepIndex={loadingStep} /> : null}
-            <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
@@ -259,6 +260,7 @@ export function DigitalShiftAdminLabChat({
           />
 
           <Textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="مثال: حاكِ اعتراض عميل تركي — أو حلّل البنر المرفق"

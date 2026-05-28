@@ -7,6 +7,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useAgentChatInputFocus, useAgentChatOpenFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Moon } from 'lucide-react';
 
@@ -71,19 +72,17 @@ export function BannersPageDigitalShift() {
   const [loading, setLoading] = useState(false);
   const [unread, setUnread] = useState(1);
   const [hasPulsed, setHasPulsed] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
 
-  // Auto-scroll
-  useEffect(() => {
-    if (open) endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [turns, loading, open]);
+  useAgentChatScroll(messagesRef, [turns, loading, open]);
+  useAgentChatInputFocus(loading, textRef, open);
 
-  // Focus + clear badge
   useEffect(() => {
-    if (open) { setUnread(0); setTimeout(() => textRef.current?.focus(), 150); }
+    if (open) setUnread(0);
   }, [open]);
+  useAgentChatOpenFocus(open, textRef);
 
   // Body lock
   useEffect(() => {
@@ -181,7 +180,7 @@ export function BannersPageDigitalShift() {
             </div>
 
             {/* Messages */}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
+            <div ref={messagesRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
               <div className="flex flex-col gap-2.5">
                 {turns.map((t) => (
                   <motion.div key={t.id}
@@ -203,7 +202,6 @@ export function BannersPageDigitalShift() {
                     <TypingDots />
                   </motion.div>
                 )}
-                <div ref={endRef} className="h-1" />
               </div>
             </div>
 

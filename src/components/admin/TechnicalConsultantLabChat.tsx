@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { chatWithTechnicalConsultantLab } from '@/lib/technicalConsultantLabRemote';
 import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -46,11 +47,11 @@ export function TechnicalConsultantLabChat({
   const [messages, setMessages] = useState<ChatMsg[]>([{ role: 'assistant', content: GREETING }]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, busy]);
+  useAgentChatScroll(messagesScrollRef, [messages, busy]);
+  useAgentChatInputFocus(busy, inputRef, open && permitted);
 
   const send = useCallback(async () => {
     if (!permitted || busy) return;
@@ -112,7 +113,7 @@ export function TechnicalConsultantLabChat({
           </p>
         </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-3 py-3 bg-slate-950">
+        <ScrollArea ref={messagesScrollRef} className="flex-1 min-h-0 px-3 py-3 bg-slate-950">
           <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
               <CopyableMessage
@@ -129,12 +130,12 @@ export function TechnicalConsultantLabChat({
                 استشارة المدعي العام…
               </div>
             ) : null}
-            <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
         <div className="shrink-0 space-y-2 border-t border-cyan-900/30 p-3">
           <Textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="صف refactor أو استشارة cross-agent…"

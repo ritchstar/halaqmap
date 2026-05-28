@@ -6,6 +6,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, ChevronDown, Sparkles, Globe2, BookOpen, MapPin, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -210,34 +211,8 @@ export default function SaudiAgentLanding() {
     return () => clearInterval(t);
   }, [activeAgent]);
 
-  // تمرير داخل صندوق الرسائل فقط — بدون تحريك الصفحة
-  useEffect(() => {
-    const box = messagesRef.current;
-    if (!box) return;
-    box.scrollTop = box.scrollHeight;
-  }, [turns, loading]);
-
-  const wasLoadingRef = useRef(false);
-
-  // إرجاع مؤشر الكتابة لمربع الإدخال بعد انتهاء رد الوكيل
-  useEffect(() => {
-    if (loading) {
-      wasLoadingRef.current = true;
-      return;
-    }
-    if (!wasLoadingRef.current) return;
-    wasLoadingRef.current = false;
-
-    const id = window.setTimeout(() => {
-      const el = textRef.current;
-      if (!el || el.disabled) return;
-      el.focus({ preventScroll: true });
-      const end = el.value.length;
-      el.setSelectionRange(end, end);
-    }, 50);
-
-    return () => window.clearTimeout(id);
-  }, [loading]);
+  useAgentChatScroll(messagesRef, [turns, loading]);
+  useAgentChatInputFocus(loading, textRef);
 
   const handleSend = useCallback(async (text?: string) => {
     const msg = (text ?? draft).trim();

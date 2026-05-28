@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { PublicProsecutorInterjectBanner } from '@/components/admin/PublicProsecutorInterjectBanner';
 import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import {
   chatWithPublicProsecutorLab,
   fetchPublicProsecutorLabDiagnostics,
@@ -71,7 +72,8 @@ export function PublicProsecutorLabChat({
   const [loadingStep, setLoadingStep] = useState(0);
   const [modelLabel, setModelLabel] = useState<string | null>(null);
   const [lastInterject, setLastInterject] = useState<PublicProsecutorGovernanceAction | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -93,9 +95,8 @@ export function PublicProsecutorLabChat({
     return () => window.clearInterval(id);
   }, [busy]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, busy, lastInterject]);
+  useAgentChatScroll(messagesScrollRef, [messages, busy, lastInterject]);
+  useAgentChatInputFocus(busy, inputRef, open && permitted);
 
   const send = useCallback(async () => {
     if (!permitted || busy) return;
@@ -179,7 +180,7 @@ export function PublicProsecutorLabChat({
           ) : null}
         </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-3 py-3 bg-slate-950">
+        <ScrollArea ref={messagesScrollRef} className="flex-1 min-h-0 px-3 py-3 bg-slate-950">
           <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
               <CopyableMessage
@@ -192,7 +193,6 @@ export function PublicProsecutorLabChat({
             ))}
             {lastInterject ? <PublicProsecutorInterjectBanner interject={lastInterject} /> : null}
             {busy ? <LoadingIndicator stepIndex={loadingStep} /> : null}
-            <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
@@ -210,6 +210,7 @@ export function PublicProsecutorLabChat({
             </Button>
           ) : null}
           <Textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="صف الانحراف الإجرائي أو اطلب تدقيق حوكمة…"

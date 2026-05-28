@@ -17,6 +17,7 @@ import {
 import { evaluatePublicProsecutorInterject } from '@/lib/publicProsecutorLabRemote';
 import { PublicProsecutorInterjectBanner } from '@/components/admin/PublicProsecutorInterjectBanner';
 import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import type { PublicProsecutorGovernanceAction } from '@/modules/ai-staff/types';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
@@ -81,7 +82,8 @@ export function SystemCrisisAdvisorLabChat({
   const [prosecutorInterject, setProsecutorInterject] = useState<PublicProsecutorGovernanceAction | null>(
     null,
   );
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const panicBootstrappedRef = useRef(false);
 
@@ -119,9 +121,8 @@ export function SystemCrisisAdvisorLabChat({
     return () => window.clearInterval(id);
   }, [busy]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, busy]);
+  useAgentChatScroll(messagesScrollRef, [messages, busy]);
+  useAgentChatInputFocus(busy, inputRef, open && permitted);
 
   const send = useCallback(async () => {
     if (!permitted || busy) return;
@@ -222,7 +223,7 @@ export function SystemCrisisAdvisorLabChat({
           </div>
         </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-3 py-3 bg-slate-950">
+        <ScrollArea ref={messagesScrollRef} className="flex-1 min-h-0 px-3 py-3 bg-slate-950">
           <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
               <CopyableMessage
@@ -237,7 +238,6 @@ export function SystemCrisisAdvisorLabChat({
             {prosecutorInterject ? (
               <PublicProsecutorInterjectBanner interject={prosecutorInterject} />
             ) : null}
-            <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
@@ -255,6 +255,7 @@ export function SystemCrisisAdvisorLabChat({
             </Button>
           ) : null}
           <Textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="صف الحادث — الأعراض، التوقيت، النطاق المتأثر…"

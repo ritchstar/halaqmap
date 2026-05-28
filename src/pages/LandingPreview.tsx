@@ -652,7 +652,7 @@ export default function LandingPreview() {
               {/* ── فاصل رفيع ── */}
               <div className="hidden h-6 w-px bg-white/12 md:block" />
 
-              <RadarShowcaseLink className="hidden md:flex" />
+              <RadarShowcaseLink variant="showcase" className="hidden shrink-0 md:inline-flex" />
 
               {/* ── أيقونة B2B — للمنشآت والصالونات ── */}
               <a
@@ -697,6 +697,9 @@ export default function LandingPreview() {
               className="relative overflow-hidden border-t border-white/8 bg-[#020912]/98 md:hidden"
             >
               <nav className="flex flex-col gap-1 px-5 py-4" dir="rtl">
+                <div className="mb-4 flex justify-center">
+                  <RadarShowcaseLink variant="showcase" />
+                </div>
                 {[
                   { label: 'كيف يعمل', sectionId: 'كيف يعمل' },
                   { label: 'المميزات', sectionId: 'المميزات' },
@@ -773,10 +776,24 @@ export default function LandingPreview() {
               </span>
             </h1>
 
-            <p className="mb-8 max-w-lg text-base leading-relaxed text-slate-400">
+            <p className="mb-6 max-w-lg text-base leading-relaxed text-slate-400">
               رادار جغرافي ذكي يكشف لك أقرب الصالونات المتاحة فور بحثك —
               بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.
             </p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="mb-8 flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4"
+            >
+              <RadarShowcaseLink variant="showcase" />
+              <p className="max-w-xs text-[0.78rem] leading-relaxed text-slate-500">
+                استعرض رادار الرصد الحي — نبض الطلب على{' '}
+                <span className="font-semibold text-cyan-400/90">٤٧ مدينة</span>{' '}
+                في المملكة
+              </p>
+            </motion.div>
 
             {/* الرادار الجغرافي — أيقونة تحديد الموقع الرئيسية */}
             <div className="mb-8 flex w-full flex-col items-center gap-4">
@@ -844,17 +861,20 @@ export default function LandingPreview() {
                 </div>
 
                 {/* Bottom info strip */}
-                <div className="flex items-center justify-around px-3 py-3 text-[0.65rem] text-slate-400">
-                  {Object.entries(TIER_COLOR).map(([t, c]) => (
-                    <div key={t} className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-full" style={{ background: c }} />
-                      <span className="capitalize">{t === 'diamond' ? 'ماسي' : t === 'gold' ? 'ذهبي' : 'برونزي'}</span>
+                <div className="flex items-center justify-between gap-3 px-3 py-3">
+                  <div className="flex flex-1 items-center justify-around text-[0.65rem] text-slate-400">
+                    {Object.entries(TIER_COLOR).map(([t, c]) => (
+                      <div key={t} className="flex items-center gap-1">
+                        <span className="h-2 w-2 rounded-full" style={{ background: c }} />
+                        <span className="capitalize">{t === 'diamond' ? 'ماسي' : t === 'gold' ? 'ذهبي' : 'برونزي'}</span>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-1">
+                      <span className="h-2 w-2 rounded-full bg-red-500" />
+                      <span>مغلق</span>
                     </div>
-                  ))}
-                  <div className="flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-red-500" />
-                    <span>مغلق</span>
                   </div>
+                  <RadarShowcaseLink variant="showcase" className="hidden scale-[0.88] origin-left sm:inline-flex lg:scale-100" />
                 </div>
               </div>
 
@@ -1094,6 +1114,18 @@ export default function LandingPreview() {
               </span>
             </motion.h2>
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <RadarShowcaseLink variant="showcase" />
+            <p className="max-w-md text-center text-sm leading-relaxed text-slate-400 sm:text-right">
+              افتح رادار الرصد — خريطة حية لنبض الطلب والربط الجغرافي على مستوى المملكة
+            </p>
+          </motion.div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <FeatureCard

@@ -1,4 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useAgentChatInputFocus, useAgentChatOpenFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Headphones, MapPin, Scissors, SendHorizonal, Smile, X } from 'lucide-react';
@@ -35,7 +36,7 @@ export function PartnerDigitalBarberAssistant() {
   const [chatError, setChatError] = useState<string | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const [knowledgeVersion, setKnowledgeVersion] = useState<string>(PARTNER_ASSISTANT_KNOWLEDGE_VERSION);
   const [messages, setMessages] = useState<PartnerAssistantMessage[]>([
     {
@@ -59,17 +60,14 @@ export function PartnerDigitalBarberAssistant() {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const t = window.setTimeout(() => textareaRef.current?.focus(), 120);
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
     window.addEventListener('keydown', onKey);
-    return () => { document.body.style.overflow = prev; window.clearTimeout(t); window.removeEventListener('keydown', onKey); };
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
   }, [open]);
 
-  /* ── Auto-scroll to latest ──────────────────────────────────────── */
-  useEffect(() => {
-    if (!open) return;
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [messages, isSending, open]);
+  useAgentChatOpenFocus(open, textareaRef);
+  useAgentChatScroll(messagesRef, [messages, isSending, open]);
+  useAgentChatInputFocus(isSending, textareaRef, open);
 
   /* ── Auto-grow textarea ─────────────────────────────────────────── */
   const handleDraftChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -180,7 +178,7 @@ export function PartnerDigitalBarberAssistant() {
                 </div>
 
                 {/* ── Messages ──────────────────────────────────────── */}
-                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5">
+                <div ref={messagesRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5">
                   <div className="flex flex-col gap-2.5">
                     {messages.map((m, idx) => (
                       <motion.div
@@ -212,8 +210,6 @@ export function PartnerDigitalBarberAssistant() {
                       <p className="text-center text-[0.72rem] text-rose-300/80">{chatError}</p>
                     )}
 
-                    {/* Auto-scroll anchor */}
-                    <div ref={messagesEndRef} className="h-1" />
                   </div>
                 </div>
 

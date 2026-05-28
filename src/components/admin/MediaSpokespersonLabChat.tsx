@@ -13,6 +13,7 @@ import {
   type MediaLabReplyContext,
 } from '@/lib/mediaSpokespersonLabRemote';
 import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -102,7 +103,8 @@ export function MediaSpokespersonLabChat({
   const [loadingStep, setLoadingStep] = useState(0);
   const [modelLabel, setModelLabel] = useState<string | null>(null);
   const [lastContext, setLastContext] = useState<MediaLabReplyContext | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -124,9 +126,8 @@ export function MediaSpokespersonLabChat({
     return () => window.clearInterval(id);
   }, [busy]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, busy]);
+  useAgentChatScroll(messagesScrollRef, [messages, busy]);
+  useAgentChatInputFocus(busy, inputRef, open && permitted);
 
   const send = useCallback(
     async (overrideText?: string) => {
@@ -248,7 +249,7 @@ export function MediaSpokespersonLabChat({
           </div>
         </CollapsibleLabHeader>
 
-        <ScrollArea className="flex-1 px-3 py-3">
+        <ScrollArea ref={messagesScrollRef} className="flex-1 min-h-0 px-3 py-3">
           <div className="space-y-2.5 pb-2">
             {messages.map((msg, i) => (
               <CopyableMessage
@@ -259,7 +260,6 @@ export function MediaSpokespersonLabChat({
               />
             ))}
             {busy ? <LoadingIndicator stepIndex={loadingStep} /> : null}
-            <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
@@ -287,6 +287,7 @@ export function MediaSpokespersonLabChat({
           </div>
 
           <Textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="مثال: «اكتب بياناً صحفياً للإعلان عن وصولنا إلى N مدينة سعودية»"

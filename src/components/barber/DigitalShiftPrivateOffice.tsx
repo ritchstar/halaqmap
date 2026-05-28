@@ -12,6 +12,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Moon, Send, Plus, Trash2, CheckCircle2, Circle,
@@ -143,7 +144,7 @@ export function DigitalShiftPrivateOffice({
   const [newInstText, setNewInstText] = useState('');
   const [newTaskText, setNewTaskText] = useState('');
 
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
   // Persist changes locally
@@ -176,9 +177,8 @@ export function DigitalShiftPrivateOffice({
     });
   }, [barberId, barberEmail]);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [turns, loading]);
+  useAgentChatScroll(messagesRef, [turns, loading]);
+  useAgentChatInputFocus(loading, textRef);
 
   // ── Instructions CRUD ──
   const addInstruction = useCallback(() => {
@@ -544,7 +544,7 @@ export function DigitalShiftPrivateOffice({
       </AnimatePresence>
 
       {/* ══ منطقة المحادثة ══ */}
-      <div className="relative" style={{ height: '380px', overflowY: 'auto', overscrollBehavior: 'contain' }}>
+      <div ref={messagesRef} className="relative" style={{ height: '380px', overflowY: 'auto', overscrollBehavior: 'contain' }}>
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_30%_at_50%_0%,rgba(139,92,246,0.04),transparent)]" />
         <div className="relative flex flex-col gap-3 px-5 py-4">
           {turns.map((t, i) => (
@@ -583,7 +583,6 @@ export function DigitalShiftPrivateOffice({
               </div>
             </motion.div>
           )}
-          <div ref={endRef} className="h-1" />
         </div>
       </div>
 

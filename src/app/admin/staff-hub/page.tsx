@@ -9,6 +9,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useAgentChatInputFocus, useAgentChatOpenFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, X, Send, Users, Bot, MessageCircle, Eye } from 'lucide-react';
@@ -39,17 +40,13 @@ function HubAgentChat({
   ]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [turns, loading]);
-
-  useEffect(() => {
-    setTimeout(() => textRef.current?.focus(), 100);
-  }, []);
+  useAgentChatScroll(messagesRef, [turns, loading]);
+  useAgentChatInputFocus(loading, textRef);
+  useAgentChatOpenFocus(true, textRef);
 
   const handleSend = useCallback(async () => {
     const msg = draft.trim();
@@ -97,7 +94,7 @@ function HubAgentChat({
       </div>
 
       {/* Messages */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+      <div ref={messagesRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
         <div className="flex flex-col gap-2.5">
           {turns.map((t) => (
             <motion.div key={t.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
@@ -119,7 +116,6 @@ function HubAgentChat({
               ))}
             </div>
           )}
-          <div ref={endRef} className="h-1" />
         </div>
       </div>
 

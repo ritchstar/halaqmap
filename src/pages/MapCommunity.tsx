@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
@@ -189,7 +190,8 @@ export default function MapCommunity() {
   const [ephemeralMessages, setEphemeralMessages] = useState<CommunityMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [aiThinking, setAiThinking] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
 
   const socketMode = Boolean(import.meta.env.VITE_MAP_COMMUNITY_SOCKET_URL);
@@ -357,9 +359,8 @@ export default function MapCommunity() {
     return MAP_COMMUNITY_PRO_TIPS[dayIndex % MAP_COMMUNITY_PRO_TIPS.length];
   }, []);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [messages, aiThinking]);
+  useAgentChatScroll(messagesRef, [messages, aiThinking]);
+  useAgentChatInputFocus(aiThinking, inputRef);
 
   const pushEphemeral = useCallback((msg: Omit<CommunityMessage, 'id' | 'timestamp'>) => {
     setEphemeralMessages((prev) => [
@@ -751,7 +752,7 @@ export default function MapCommunity() {
               </span>
             </div>
 
-            <div className="h-[30rem] overflow-y-auto px-5 py-4">
+            <div ref={messagesRef} className="h-[30rem] overflow-y-auto px-5 py-4">
               <div className="flex flex-col gap-3">
                 {messages.map((m) => (
                   <motion.div
@@ -779,7 +780,6 @@ export default function MapCommunity() {
                     مساعد ماب يكتب…
                   </div>
                 ) : null}
-                <div ref={endRef} />
               </div>
             </div>
 
@@ -787,6 +787,7 @@ export default function MapCommunity() {
               <div className="border-t border-white/10 p-4">
                 <div className="flex items-end gap-3">
                   <Textarea
+                    ref={inputRef}
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => {

@@ -10,6 +10,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useAgentChatInputFocus, useAgentChatOpenFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Send, Building2, TrendingUp, ChevronDown,
@@ -126,7 +127,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
   ]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
 
@@ -153,13 +154,10 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [mode]);
 
-  useEffect(() => {
-    if (open) { setTimeout(() => textRef.current?.focus(), 150); }
-  }, [open]);
+  useAgentChatOpenFocus(open, textRef);
 
-  useEffect(() => {
-    if (open) endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [turns, loading, open]);
+  useAgentChatScroll(messagesRef, [turns, loading, open]);
+  useAgentChatInputFocus(loading, textRef, open);
 
   useEffect(() => {
     if (!open) return;
@@ -423,7 +421,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               </div>
 
               {/* ── Messages ── */}
-              <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
+              <div ref={messagesRef} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_35%_at_50%_0%,rgba(245,158,11,0.04),transparent)]" />
                 <div className="relative flex flex-col gap-4">
                   {turns.map((t) => (
@@ -446,7 +444,6 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                       <TypingDots />
                     </motion.div>
                   )}
-                  <div ref={endRef} className="h-2" />
                 </div>
               </div>
 

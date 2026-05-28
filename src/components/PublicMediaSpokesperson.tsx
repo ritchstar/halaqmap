@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useAgentChatInputFocus, useAgentChatOpenFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Mic } from 'lucide-react';
 
@@ -96,17 +97,16 @@ export function PublicMediaSpokesperson({ mode = 'float' }: Props) {
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
   const [unread, setUnread] = useState(mode === 'float' ? 1 : 0);
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
 
   useEffect(() => {
-    if (open) { setUnread(0); setTimeout(() => textRef.current?.focus(), 150); }
+    if (open) setUnread(0);
   }, [open]);
-
-  useEffect(() => {
-    if (open) endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [turns, loading, open]);
+  useAgentChatOpenFocus(open, textRef);
+  useAgentChatScroll(messagesRef, [turns, loading, open]);
+  useAgentChatInputFocus(loading, textRef, open);
 
   useEffect(() => {
     if (!open) return;
@@ -187,7 +187,7 @@ export function PublicMediaSpokesperson({ mode = 'float' }: Props) {
             </div>
 
             {/* Messages */}
-            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+            <div ref={messagesRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
               <div className="flex flex-col gap-2.5">
                 {turns.map((t) => (
                   <motion.div key={t.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
@@ -207,7 +207,6 @@ export function PublicMediaSpokesperson({ mode = 'float' }: Props) {
                     <TypingDots />
                   </motion.div>
                 )}
-                <div ref={endRef} className="h-1" />
               </div>
             </div>
 
