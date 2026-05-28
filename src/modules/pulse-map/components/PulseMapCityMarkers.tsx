@@ -45,6 +45,9 @@ export function PulseMapCityMarkers() {
     <g aria-label="مواقع المدن">
       {PULSE_MAP_CITY_MARKERS.map((city) => {
         const style = TIER_STYLE[city.tier];
+        const labelSize = city.showLabel && style.labelSize === 0 ? 9.5 : style.labelSize;
+        const labelWeight = city.showLabel && style.labelSize === 0 ? 600 : style.labelWeight;
+        const labelY = city.y - (city.tier === 'city' && city.showLabel ? 9 : labelOffset(city.tier));
         return (
           <g key={city.id}>
             <circle
@@ -58,11 +61,11 @@ export function PulseMapCityMarkers() {
             {city.showLabel ? (
               <text
                 x={city.x}
-                y={city.y - labelOffset(city.tier)}
+                y={labelY}
                 textAnchor="middle"
                 fill="rgba(226,232,240,0.92)"
-                fontSize={style.labelSize}
-                fontWeight={style.labelWeight}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
                 fontFamily="system-ui"
                 style={{ pointerEvents: 'none' }}
               >

@@ -185,6 +185,21 @@ export function isInsideKingdomOutline(lng: number, lat: number): boolean {
   return false;
 }
 
+const PULSE_MAP_CENTROID_LNG = (PULSE_MAP_BOUNDS.minLng + PULSE_MAP_BOUNDS.maxLng) / 2;
+const PULSE_MAP_CENTROID_LAT = (PULSE_MAP_BOUNDS.minLat + PULSE_MAP_BOUNDS.maxLat) / 2;
+
+/** Nudge border cities inward so markers sit on the drawn kingdom outline. */
+export function snapPulseMapCityLngLat(lng: number, lat: number): { lng: number; lat: number } {
+  if (isInsideKingdomOutline(lng, lat)) return { lng, lat };
+  for (let step = 1; step <= 20; step += 1) {
+    const t = step / 20;
+    const lng2 = lng + (PULSE_MAP_CENTROID_LNG - lng) * t;
+    const lat2 = lat + (PULSE_MAP_CENTROID_LAT - lat) * t;
+    if (isInsideKingdomOutline(lng2, lat2)) return { lng: lng2, lat: lat2 };
+  }
+  return { lng, lat };
+}
+
 function pointInRing(lng: number, lat: number, ring: ReadonlyArray<PulseMapLngLat>): boolean {
   let inside = false;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {

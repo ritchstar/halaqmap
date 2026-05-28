@@ -4,6 +4,7 @@
  */
 import {
   PLATFORM_COVERED_CITIES,
+  isInsideKsaTactical,
   type PlatformCity,
   type PlatformCityRegion,
 } from './platformCoveredCities.js';
@@ -11,6 +12,7 @@ import {
   PULSE_MAP_VIEWBOX,
   isInsideKingdomOutline,
   projectPulseMapLngLat,
+  snapPulseMapCityLngLat,
 } from './pulseMapGeo.js';
 
 export type PulseMapCityTier = 'capital' | 'major' | 'hub' | 'city';
@@ -56,19 +58,27 @@ function clampViewCoord(value: number, max: number): number {
 }
 
 function buildCityMarker(city: PlatformCity): PulseMapCityMarker | null {
-  if (!city.region || !isInsideKingdomOutline(city.lng, city.lat)) return null;
+  if (!city.region || !isInsideKsaTactical(city.lat, city.lng)) return null;
+
+  const nativeInside = isInsideKingdomOutline(city.lng, city.lat);
+  const snapped = nativeInside
+    ? { lng: city.lng, lat: city.lat }
+    : snapPulseMapCityLngLat(city.lng, city.lat);
+
   const tier = BEACON_TIER_BY_ID[city.id] ?? 'city';
-  const { x, y } = projectPulseMapLngLat(city.lng, city.lat);
+  const showLabel = tier !== 'city' || !nativeInside;
+  const { x, y } = projectPulseMapLngLat(snapped.lng, snapped.lat);
+
   return {
     id: city.id,
     nameAr: city.nameAr,
     region: city.region,
-    lng: city.lng,
-    lat: city.lat,
+    lng: snapped.lng,
+    lat: snapped.lat,
     x: clampViewCoord(x, PULSE_MAP_VIEWBOX.width),
     y: clampViewCoord(y, PULSE_MAP_VIEWBOX.height),
     tier,
-    showLabel: tier !== 'city',
+    showLabel,
   };
 }
 
@@ -81,3 +91,5 @@ const MARKER_BY_ID = new Map(PULSE_MAP_CITY_MARKERS.map((m) => [m.id, m]));
 export function getPulseMapCityMarker(cityId: string): PulseMapCityMarker | null {
   return MARKER_BY_ID.get(cityId) ?? null;
 }
+
+export const PULSE_MAP_CITY_MARKER_COUNT = PULSE_MAP_CITY_MARKERS.length;
