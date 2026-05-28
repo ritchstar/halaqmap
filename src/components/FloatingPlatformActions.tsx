@@ -42,7 +42,7 @@ function ShareModal({ onClose }: { onClose: () => void }) {
     >
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-bold text-white">شارك حلاق ماب</h3>
-        <button onClick={onClose} className="rounded-full p-1 text-slate-500 hover:text-slate-300">
+        <button type="button" onClick={onClose} aria-label="إغلاق" className="rounded-full p-1 text-slate-500 hover:text-slate-300">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -70,7 +70,9 @@ function ShareModal({ onClose }: { onClose: () => void }) {
         </a>
         {/* Copy */}
         <button
+          type="button"
           onClick={copyLink}
+          aria-label={copied ? 'تم نسخ الرابط' : 'نسخ الرابط'}
           className="flex flex-1 flex-col items-center gap-1.5 rounded-xl border border-teal-400/30 bg-teal-500/10 px-3 py-3 text-teal-300 transition-all hover:border-teal-400/60"
         >
           {copied ? <Check className="h-5 w-5 text-emerald-400" /> : <Copy className="h-5 w-5" />}
@@ -116,7 +118,7 @@ function RatingModal({ onClose }: { onClose: () => void }) {
       className="fixed bottom-28 left-4 right-4 z-50 mx-auto max-w-sm overflow-hidden rounded-2xl border border-white/15 bg-[#030d1a]/95 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:left-auto sm:right-6 sm:w-72"
       dir="rtl"
     >
-      <button onClick={onClose} className="absolute left-3 top-3 rounded-full p-1 text-slate-500 hover:text-slate-300">
+      <button type="button" onClick={onClose} aria-label="إغلاق" className="absolute left-3 top-3 rounded-full p-1 text-slate-500 hover:text-slate-300">
         <X className="h-4 w-4" />
       </button>
 
@@ -133,6 +135,8 @@ function RatingModal({ onClose }: { onClose: () => void }) {
             {[1, 2, 3, 4, 5].map((s) => (
               <button
                 key={s}
+                type="button"
+                aria-label={`${s} من 5 نجوم`}
                 onMouseEnter={() => setHover(s)}
                 onMouseLeave={() => setHover(0)}
                 onClick={() => setStars(s)}
@@ -243,7 +247,10 @@ export function FloatingPlatformActions() {
 
         {/* Main toggle button */}
         <motion.button
+          type="button"
           onClick={() => setOpen((o) => !o)}
+          aria-label={open ? 'إغلاق قائمة الإجراءات' : 'فتح قائمة الإجراءات السريعة'}
+          aria-expanded={open}
           whileTap={{ scale: 0.92 }}
           className={`flex h-12 w-12 items-center justify-center rounded-2xl shadow-xl backdrop-blur-md transition-all duration-300 ${
             open
@@ -260,10 +267,12 @@ export function FloatingPlatformActions() {
         <AnimatePresence>
           {showScrollTop && !open && (
             <motion.button
+              type="button"
               initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.7 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              aria-label="العودة إلى أعلى الصفحة"
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-black/60 text-slate-400 backdrop-blur-md hover:text-white"
             >
               <ChevronUp className="h-4 w-4" />

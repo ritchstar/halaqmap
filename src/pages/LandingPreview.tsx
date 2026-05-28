@@ -346,7 +346,7 @@ function BarberPopup({ beacon, onClose }: { beacon: typeof DEMO_BEACONS[0]; onCl
       className="absolute left-1/2 top-1/4 z-20 w-56 -translate-x-1/2 rounded-2xl border border-white/15 bg-[#0a1628]/90 p-4 shadow-2xl backdrop-blur-xl"
       dir="rtl"
     >
-      <button onClick={onClose} className="absolute left-2 top-2 rounded-full bg-white/10 p-1 text-white/60 hover:text-white">
+      <button type="button" onClick={onClose} aria-label="إغلاق" className="absolute left-2 top-2 rounded-full bg-white/10 p-1 text-white/60 hover:text-white">
         <X className="h-3 w-3" />
       </button>
       <div className="mb-2 flex items-center gap-2">

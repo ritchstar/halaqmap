@@ -42,6 +42,7 @@ export function RadarShowcaseLink({ variant = 'icon', className }: Props) {
       <Link
         to={SHOWCASE_RADAR_ROUTE}
         title="رادار الرصد — استعراض تقنيات المنصة حياً"
+        aria-label="رادار الرصد — استعراض تقنيات المنصة حياً"
         className={cn(
           'group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl border border-cyan-400/40 bg-[#050f1f]/95 px-4 py-2.5 shadow-[0_0_22px_rgba(34,211,238,0.14)] backdrop-blur-sm transition-all duration-300 hover:border-cyan-300/55 hover:shadow-[0_0_32px_rgba(34,211,238,0.26)] hover:-translate-y-0.5 active:translate-y-0',
           className,
