@@ -7,6 +7,7 @@ import { renderLegalContentBlocks } from '@/lib/legalPageRender';
 import {
   END_USER_EXPERIENCE_POLICY_CONTENT,
   END_USER_EXPERIENCE_POLICY_TITLE,
+  END_USER_TRANSPARENCY_CONTENT,
 } from '@/config/endUserExperiencePolicy';
 import { PLATFORM_TLS_POLICY_LINE_AR } from '@/config/platformTlsTrust';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -44,8 +45,8 @@ export default function UserPrivacyPolicy() {
       title: 'الموقع الجغرافي اللحظي — المعالجة والاستخدام',
       content:
         'عندما تمنح إذن الموقع من المتصفح أو الجهاز، تُستخدم إحداثياتك **لحظياً** **فقط** من أجل:\n\n' +
-        '- عرض الصالونات والحلاقين **الأقرب إليك** عبر نظام الرصد الذكي أو في القائمة، وحساب المسافة أو ترتيب النتائج ضمن جلسة التصفح الحالية.\n' +
-        '- تحسين تجربة البحث ضمن نطاق جغرافي تختاره (مثل دائرة البحث) **أثناء استخدامك النشط للمنصة**.\n\n' +
+        '- عرض الصالونات والحلاقين **الأقرب إليك** عبر نظام الرصد الذكي، وحساب المسافة أو ترتيب النتائج ضمن جلسة التصفح الحالية.\n' +
+        '- ضبط **مسافة البحث** (دائرة المسافة) **أثناء استخدامك النشط** — بعد منح إذن الموقع فقط.\n\n' +
         '**لا نقوم ببيع موقعك أو مشاركته مع أطراف خارجية** لأغراض إعلانية أو تسويقية أو إعادة بيع البيانات.',
     },
     {
@@ -60,8 +61,7 @@ export default function UserPrivacyPolicy() {
     {
       icon: Eye,
       title: 'الشفافية',
-      content:
-        'إذا لم تمنح إذن الموقع، يمكنك غالبًا مواصلة التصفح مع محدودية (مثل إدخال منطقة يدويًا أو استخدام نظام الرصد الذكي بدون دقة موقعك الفورية — حسب إتاحة الواجهة).',
+      content: END_USER_TRANSPARENCY_CONTENT,
     },
     {
       icon: Lock,
