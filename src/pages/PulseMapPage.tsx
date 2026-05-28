@@ -52,10 +52,6 @@ export default function PulseMapPage() {
             <Radar className="h-7 w-7 text-sky-300" />
           </div>
           <h1 className="text-2xl font-black text-white sm:text-3xl">{PULSE_MAP_CONFIG.heroTitleAr}</h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
-            {PULSE_MAP_CONFIG.heroSubtitleAr}
-          </p>
-          <p className="mx-auto mt-2 text-xs text-sky-300/70">{PULSE_MAP_CONFIG.onDemandTaglineAr}</p>
         </motion.header>
 
         <motion.div
@@ -65,10 +61,6 @@ export default function PulseMapPage() {
         >
           <PulseMapShell payload={payload} loading={loading} error={error} />
         </motion.div>
-
-        <p className="mt-8 text-center text-[0.65rem] leading-relaxed text-slate-600">
-          ربط حي — نبضة واحدة لكل مدينة عند أي بحث أو تفاعل حديث (آخر 120 دقيقة).
-        </p>
       </div>
     </div>
   );

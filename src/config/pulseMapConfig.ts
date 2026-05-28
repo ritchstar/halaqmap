@@ -15,12 +15,9 @@ export const PULSE_MAP_CONFIG = {
   pollMs: 25_000,
   pageTitleAr: 'خريطة النبض — ربط حي · حلاق ماب',
   heroTitleAr: 'خريطة النبض — ربط حي',
-  heroSubtitleAr:
-    'نبضة واحدة لكل مدينة: بحث مستخدم حديث (ذهبي) · تفاعل حلاق على البanner/حجز/شات (أخضر مائي) — نافذة 120 دقيقة.',
   phaseBadgeAr: 'ربط حي',
   phaseHintAr: 'نبضة/مدينة — أي نشاط حديث يكفي',
   pilotLabelAr: 'المملكة العربية السعودية',
-  onDemandTaglineAr: 'يتم التحديث كل 25 ثانية من `Supabase`',
   legendDemandAr: 'نبض مستخدم',
   legendLinkAr: 'نبض حلاق',
 } as const;
