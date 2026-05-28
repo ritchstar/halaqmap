@@ -62,23 +62,23 @@ const CURATED_DEMO_CITIES = [
 ] as const;
 
 function buildCuratedDemoPulses(): ShowcaseRadarPulse[] {
-  return CURATED_DEMO_CITIES.map((cityAr, index) => {
+  const pulses: ShowcaseRadarPulse[] = [];
+  for (const [index, cityAr] of CURATED_DEMO_CITIES.entries()) {
     const city = resolvePlatformCity(cityAr);
-    if (!city) {
-      return null;
-    }
+    if (!city) continue;
     const coords = snapPulseToCity(city, `demo-${city.id}`);
     const ageMinutes = 8 + index * 11;
-    return {
+    pulses.push({
       id: `demo-${city.id}`,
-      kind: 'demand' as const,
+      kind: 'demand',
       lat: coords.lat,
       lng: coords.lng,
       cityAr: city.nameAr,
       createdAt: new Date(Date.now() - ageMinutes * 60_000).toISOString(),
       labelAr: `نبض مستخدم — ${city.nameAr}`,
-    };
-  }).filter((p): p is ShowcaseRadarPulse => p != null);
+    });
+  }
+  return pulses;
 }
 
 function formatUserPulseLabel(cityAr: string, districtAr?: string | null): string {
