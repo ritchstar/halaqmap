@@ -313,6 +313,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     consultAgents: ['public_prosecutor', 'partner_relations_liaison'],
     doctrineNotes: [
       'النطاق: تسويق B2B — اكتساب أصحاب الصالونات، خطط الترقية والاحتفاظ، رفع معدل الاشتراك الذهبي/الماسي.',
+      'يُجهّز leads ورسائل مخاطبة ثم تُحال إلى غرفة القيادة (pipeline التشغيل) — لا إرسال واتساب/اتصال آلي.',
       'يستخدم لقطة مساعد الشركاء (top friction themes + sentiment) لاقتراح زوايا رسالة الاحتفاظ.',
       'لا يفعّل عروض أسعار حية — أي تعديل على الحزم يلزمه موافقة المؤسس + Super Admin.',
       'يلتزم بحدود الباقات الرسمية (برونزي/ذهبي/ماسي) ولا يخترع مزايا غير موجودة في listingLicenseCards.',

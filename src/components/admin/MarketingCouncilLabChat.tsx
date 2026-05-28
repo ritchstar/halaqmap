@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Briefcase, Gavel, Loader2, Megaphone, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -18,6 +18,7 @@ import {
   type MarketingLabReplyContext,
 } from '@/lib/marketingCouncilLabRemote';
 import { CollapsibleLabHeader, CopyableMessage } from '@/components/admin/lab-chat-shared';
+import { PartnerProspectHandoffPanel } from '@/components/admin/PartnerProspectHandoffPanel';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
@@ -80,6 +81,7 @@ const CHANNEL_META: Record<
       '- «أين تسرّب القمع 30ي وما الحلول؟»\n' +
       '- «خطة ABM لـ 50 صالون VIP في جدة»\n' +
       '- «رسائل ترقية برونزي → ذهبي مع KPIs»\n\n' +
+      'بعد تجهيز lead، استخدم **إحالة إلى غرفة القيادة** أسفل المحادثة — الإرسال يبقى يدوياً من pipeline التشغيل.\n\n' +
       '⚖️ **المدعي العام دائم الحضور** + 🤝 **مساعد الشركاء** زميل على نفس الطاولة — اطلب استدعاء أيهما عند الحاجة.',
     sendLabel: 'إرسال لاستراتيجي B2B',
   },
@@ -111,6 +113,8 @@ type Props = {
   onOpenChange?: (open: boolean) => void;
   hideTrigger?: boolean;
   onSummonProsecutor?: () => void;
+  canManageCommandCenter?: boolean;
+  onOpenCommandCenter?: () => void;
 };
 
 export function MarketingCouncilLabChat({
@@ -120,6 +124,8 @@ export function MarketingCouncilLabChat({
   onOpenChange: onOpenChangeProp,
   hideTrigger = false,
   onSummonProsecutor,
+  canManageCommandCenter = false,
+  onOpenCommandCenter,
 }: Props) {
   const meta = CHANNEL_META[channel];
   const Icon = meta.icon;
@@ -204,6 +210,13 @@ export function MarketingCouncilLabChat({
     }
   }, [busy, channel, input, messages, permitted]);
 
+  const lastAssistantText = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      if (messages[i]?.role === 'assistant') return messages[i].content;
+    }
+    return '';
+  }, [messages]);
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       {!hideTrigger ? (
@@ -277,6 +290,22 @@ export function MarketingCouncilLabChat({
         </ScrollArea>
 
         <div className="border-t p-3 space-y-2 shrink-0 bg-background">
+          {channel === 'b2b' ? (
+            <PartnerProspectHandoffPanel
+              permitted={permitted}
+              canManage={canManageCommandCenter}
+              lastAssistantText={lastAssistantText}
+              onOpenCommandCenter={
+                onOpenCommandCenter
+                  ? () => {
+                      onOpenCommandCenter();
+                      setOpen(false);
+                    }
+                  : undefined
+              }
+            />
+          ) : null}
+
           {!permitted ? (
             <p className="text-[11px] text-destructive text-right">
               يتطلب صلاحية manage_admins أو view_overview أو view_partner_marketing.

@@ -41,6 +41,7 @@ type Props = {
   canViewZatcaFinancialOffice: boolean;
   isBootstrapAdmin: boolean;
   onOpenZatcaFinancialOffice?: () => void;
+  onOpenCommandCenter?: () => void;
   crisisLabOpen?: boolean;
   onCrisisLabOpenChange?: (open: boolean) => void;
   crisisMode?: boolean;
@@ -53,6 +54,7 @@ export function AiStaffControlRoom({
   canViewZatcaFinancialOffice,
   isBootstrapAdmin,
   onOpenZatcaFinancialOffice,
+  onOpenCommandCenter,
   crisisLabOpen: crisisLabOpenProp,
   onCrisisLabOpenChange,
   crisisMode: crisisModeProp,
@@ -487,6 +489,8 @@ export function AiStaffControlRoom({
           open={b2bMarketingLabOpen}
           onOpenChange={setB2bMarketingLabOpen}
           hideTrigger
+          canManageCommandCenter={can('manage_command_center')}
+          onOpenCommandCenter={onOpenCommandCenter}
           onSummonProsecutor={
             showPublicProsecutorLab ? () => setPublicProsecutorLabOpen(true) : undefined
           }

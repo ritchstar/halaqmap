@@ -6,6 +6,7 @@ type Props = {
   canViewZatcaFinancialOffice: boolean;
   isBootstrapAdmin?: boolean;
   onOpenZatcaFinancialOffice?: () => void;
+  onOpenCommandCenter?: () => void;
   crisisLabOpen?: boolean;
   onCrisisLabOpenChange?: (open: boolean) => void;
   crisisMode?: boolean;
@@ -17,6 +18,7 @@ export function VirtualAiStaffOffice({
   canViewZatcaFinancialOffice,
   isBootstrapAdmin = false,
   onOpenZatcaFinancialOffice,
+  onOpenCommandCenter,
   crisisLabOpen,
   onCrisisLabOpenChange,
   crisisMode,
@@ -27,6 +29,7 @@ export function VirtualAiStaffOffice({
       canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
       isBootstrapAdmin={isBootstrapAdmin}
       onOpenZatcaFinancialOffice={onOpenZatcaFinancialOffice}
+      onOpenCommandCenter={onOpenCommandCenter}
       crisisLabOpen={crisisLabOpen}
       onCrisisLabOpenChange={onCrisisLabOpenChange}
       crisisMode={crisisMode}

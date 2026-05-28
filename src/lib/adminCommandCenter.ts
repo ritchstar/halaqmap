@@ -1,103 +1,47 @@
 export type CommandLeadChannel = 'whatsapp' | 'instagram' | 'email' | 'website' | 'phone';
 export type CommandLeadStatus = 'new' | 'contacted' | 'waiting' | 'won' | 'lost';
+export type PartnerProspectTierFit = 'gold' | 'diamond' | 'mixed';
+export type PartnerProspectSource = 'manual' | 'seed' | 'b2b_strategist' | 'import';
 
-export interface CommandCenterLead {
+/** Partner acquisition lead — persisted in `partner_prospects` (Command Center pipeline). */
+export interface PartnerProspect {
   id: string;
+  legacyId?: string | null;
   name: string;
   city: string;
   region: string;
-  tierFit: 'gold' | 'diamond' | 'mixed';
+  address?: string | null;
+  tierFit: PartnerProspectTierFit;
   channel: CommandLeadChannel;
-  phone?: string;
-  email?: string;
-  instagram?: string;
-  website?: string;
+  phone?: string | null;
+  email?: string | null;
+  instagram?: string | null;
+  website?: string | null;
+  status: CommandLeadStatus;
+  assignedTo?: string | null;
+  notes?: string | null;
+  lastContactAt?: string | null;
+  followUpDate?: string | null;
+  suggestedPitch?: string | null;
+  source: PartnerProspectSource;
+  sourceMeta?: Record<string, unknown>;
+  createdByEmail?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 }
 
-export const COMMAND_CENTER_LEADS: CommandCenterLead[] = [
-  {
-    id: 'lead-address-riyadh',
-    name: 'صالون العنوان',
-    city: 'الرياض',
-    region: 'الوسطى',
-    tierFit: 'diamond',
-    channel: 'website',
-    website: 'https://theaddressbarbershop.com',
-    instagram: '@theaddressbarber',
-  },
-  {
-    id: 'lead-30degrees-ksa',
-    name: 'صالون 30 ديقريز',
-    city: 'فروع المملكة',
-    region: 'متعدد المناطق',
-    tierFit: 'mixed',
-    channel: 'email',
-    phone: '920035655',
-    email: 'info@30degrees.sa',
-    instagram: '@30degreesbarbershop',
-    website: 'https://30degrees.sa',
-  },
-  {
-    id: 'lead-249-riyadh',
-    name: 'صالون 249+ Barber',
-    city: 'الرياض',
-    region: 'الوسطى',
-    tierFit: 'gold',
-    channel: 'whatsapp',
-    phone: '966563137432',
-    instagram: '@249_barber_riyadh',
-  },
-  {
-    id: 'lead-fadi-jeddah',
-    name: 'صالون فادي',
-    city: 'جدة',
-    region: 'الغربية',
-    tierFit: 'diamond',
-    channel: 'whatsapp',
-    phone: '966506622434',
-    instagram: '@fadisalon',
-  },
-  {
-    id: 'lead-groom-jeddah',
-    name: 'ذا جروم',
-    city: 'جدة',
-    region: 'الغربية',
-    tierFit: 'diamond',
-    channel: 'whatsapp',
-    phone: '966556677424',
-    instagram: '@thegroomsa',
-  },
-  {
-    id: 'lead-taper-khobar',
-    name: 'تايبر أند فيد',
-    city: 'الخبر',
-    region: 'الشرقية',
-    tierFit: 'gold',
-    channel: 'whatsapp',
-    phone: '966533122115',
-    instagram: '@taperandfadesa',
-  },
-  {
-    id: 'lead-vaz-madinah',
-    name: 'صالون فاز',
-    city: 'المدينة المنورة',
-    region: 'المدينة',
-    tierFit: 'gold',
-    channel: 'whatsapp',
-    phone: '966561118161',
-    instagram: '@vaz_barber',
-  },
-  {
-    id: 'lead-piccasso-riyadh',
-    name: 'صالون بيكاسو',
-    city: 'الرياض',
-    region: 'الوسطى',
-    tierFit: 'gold',
-    channel: 'phone',
-    phone: '966593782389',
-    instagram: '@odao_',
-  },
-];
+/** @deprecated Use PartnerProspect — kept for existing imports */
+export type CommandCenterLead = PartnerProspect;
+
+export const DEFAULT_OUTREACH_MESSAGE =
+  'السلام عليكم، معكم فريق منصة حلاق ماب. نرغب بدعوتكم للانضمام للمنصة وزيادة الظهور المحلي للعملاء القريبين. هل يمكن إرسال التفاصيل؟';
+
+export function prospectOutreachMessage(prospect: Pick<PartnerProspect, 'name' | 'suggestedPitch'>): string {
+  if (prospect.suggestedPitch?.trim()) {
+    return prospect.suggestedPitch.trim();
+  }
+  return `مرحباً ${prospect.name}،\n${DEFAULT_OUTREACH_MESSAGE}`;
+}
 
 export function normalizePhoneForWa(raw: string): string {
   const digits = raw.replace(/\D/g, '');
@@ -109,3 +53,10 @@ export function normalizePhoneForWa(raw: string): string {
 export function buildWaDeepLink(phone: string, message: string): string {
   return `https://wa.me/${normalizePhoneForWa(phone)}?text=${encodeURIComponent(message)}`;
 }
+
+export const PARTNER_PROSPECT_SOURCE_LABELS: Record<PartnerProspectSource, string> = {
+  manual: 'يدوي',
+  seed: 'بذرة',
+  b2b_strategist: 'استراتيجي B2B',
+  import: 'استيراد',
+};
