@@ -43,6 +43,8 @@ export function prospectOutreachMessage(prospect: Pick<PartnerProspect, 'name' |
   return `مرحباً ${prospect.name}،\n${DEFAULT_OUTREACH_MESSAGE}`;
 }
 
+export const PARTNER_PROSPECT_UNKNOWN_LABEL = 'غير محدد';
+
 export function normalizePhoneForWa(raw: string): string {
   const digits = raw.replace(/\D/g, '');
   if (digits.startsWith('966')) return digits;

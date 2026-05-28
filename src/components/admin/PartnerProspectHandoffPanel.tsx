@@ -12,7 +12,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import type { CommandLeadChannel, PartnerProspectTierFit } from '@/lib/adminCommandCenter';
+import {
+  PARTNER_PROSPECT_UNKNOWN_LABEL,
+  type CommandLeadChannel,
+  type PartnerProspectTierFit,
+} from '@/lib/adminCommandCenter';
 import { parsePartnerProspectFromAssistantText } from '@/lib/partnerProspectParse';
 import { createPartnerProspect } from '@/lib/partnerProspectsRemote';
 
@@ -80,18 +84,19 @@ export function PartnerProspectHandoffPanel({
 
   const submit = async () => {
     if (!canSubmit) return;
-    if (!form.name.trim() || !form.city.trim() || !form.region.trim()) {
-      toast({ title: 'أكمل الاسم والمدينة والمنطقة', variant: 'destructive' });
+    const phone = form.phone.trim();
+    if (!phone) {
+      toast({ title: 'رقم الواتساب مطلوب للمراسلة', variant: 'destructive' });
       return;
     }
 
     setBusy(true);
     const result = await createPartnerProspect({
-      name: form.name.trim(),
-      city: form.city.trim(),
-      region: form.region.trim(),
+      name: form.name.trim() || `محل — ${phone.slice(-4)}`,
+      city: form.city.trim() || PARTNER_PROSPECT_UNKNOWN_LABEL,
+      region: form.region.trim() || PARTNER_PROSPECT_UNKNOWN_LABEL,
       address: form.address.trim() || undefined,
-      phone: form.phone.trim() || undefined,
+      phone,
       email: form.email.trim() || undefined,
       instagram: form.instagram.trim() || undefined,
       website: form.website.trim() || undefined,
@@ -118,7 +123,7 @@ export function PartnerProspectHandoffPanel({
 
   const helper = useMemo(
     () =>
-      'بعد تجهيز lead مع استراتيجي B2B، راجع الحقول وأحِلها إلى pipeline التشغيل. الإرسال الفعلي يبقى يدوياً من غرفة القيادة.',
+      'للمراسلة عبر واتساب يكفي رقم الجوال. الاسم والمدينة اختياريان — يُستخرجان من الصور في غرفة القيادة أو من رد استراتيجي B2B.',
     [],
   );
 
@@ -146,9 +151,9 @@ export function PartnerProspectHandoffPanel({
           <Label className="text-[11px]">العنوان</Label>
           <Input value={form.address} onChange={(e) => patchField('address', e.target.value)} disabled={!canSubmit || busy} />
         </div>
-        <div className="space-y-1">
-          <Label className="text-[11px]">الجوال / واتساب</Label>
-          <Input value={form.phone} onChange={(e) => patchField('phone', e.target.value)} disabled={!canSubmit || busy} dir="ltr" />
+        <div className="space-y-1 sm:col-span-2">
+          <Label className="text-[11px]">الجوال / واتساب *</Label>
+          <Input value={form.phone} onChange={(e) => patchField('phone', e.target.value)} disabled={!canSubmit || busy} dir="ltr" placeholder="+9665xxxxxxxx" />
         </div>
         <div className="space-y-1">
           <Label className="text-[11px]">انستقرام</Label>

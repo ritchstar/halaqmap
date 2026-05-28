@@ -42,6 +42,7 @@ import {
   type PartnerProspectPatch,
 } from '@/lib/partnerProspectsRemote';
 import { PulseMapAdmin } from '@/modules/pulse-map/components/PulseMapAdmin';
+import { PartnerProspectBulkScanPanel } from '@/components/admin/PartnerProspectBulkScanPanel';
 
 export const WEEKLY_SOP_PLAN = [
   { day: 'الأحد', focus: 'استهداف صالونات ماسية', target: 12, note: 'ابدأ بالرياض وجدة للحالات عالية العائد.' },
@@ -608,6 +609,18 @@ export function CommandCenterSection({
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متابعة اليوم</p><p className="text-2xl font-bold text-amber-600">{dueSummary.dueToday}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">متأخرة</p><p className="text-2xl font-bold text-red-600">{dueSummary.overdue}</p></CardContent></Card>
       </div>
+
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">استيراد leads من الصور</CardTitle>
+          <CardDescription>
+            صوّر قائمة محلات أو لقطات متعددة — يُستخرج الاسم ورقم الواتساب ثم تُضاف دفعة واحدة إلى pipeline.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PartnerProspectBulkScanPanel canManage={canManage} onImported={() => void loadProspects()} />
+        </CardContent>
+      </Card>
 
       <Card className="mb-6">
         <CardContent className="p-4">
