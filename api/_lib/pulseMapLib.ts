@@ -2,6 +2,7 @@
  * Pulse Map — public API aggregation (slot-based, no raw GPS on wire).
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { PULSE_MAP_PHASE } from './pulseMapConfig.js';
 import {
   PULSE_MAP_PILOT_REGIONS,
   PULSE_MAP_SLOTS,
@@ -15,7 +16,7 @@ import {
 } from './platformCoveredCities.js';
 import { SHOWCASE_BARBER_SOUTH_BBOX } from './showcaseRadarPlacement.js';
 
-export type PulseMapMode = 'live' | 'curated';
+export type PulseMapMode = 'live' | 'curated' | 'phase1';
 
 export type PulseMapKind = 'demand' | 'link';
 
@@ -34,6 +35,7 @@ export type PulseMapLink = {
 
 export type PulseMapPayload = {
   ok: true;
+  phase: typeof PULSE_MAP_PHASE;
   mode: PulseMapMode;
   collectedAt: string;
   pilotRegions: readonly string[];
@@ -54,14 +56,74 @@ const LIMITS = {
   demandMaxAgeMinutes: 120,
 } as const;
 
-const CURATED_DEMAND_SLOTS = ['abha', 'jazan', 'baha', 'najran', 'khamis-mushait', 'sabya'] as const;
-const CURATED_LINK_SLOTS = ['abha', 'jazan', 'najran', 'baha'] as const;
+const PHASE1_DEMAND_SLOTS = [
+  'baha',
+  'bisha',
+  'an-namas',
+  'abha',
+  'khamis-mushait',
+  'najran',
+  'jazan',
+  'sabya',
+] as const;
+
+const PHASE1_LINK_SLOTS = [
+  'muhayil',
+  'abha',
+  'abu-arish',
+  'najran',
+  'sharurah',
+] as const;
+
+function buildPhase1Payload(): PulseMapPayload {
+  const now = Date.now();
+  const pulses: PulseMapPulse[] = [];
+  const activeSlots = new Set<string>();
+
+  for (const [i, slotId] of PHASE1_DEMAND_SLOTS.entries()) {
+    activeSlots.add(slotId);
+    pulses.push({
+      id: `p1-demand-${slotId}`,
+      kind: 'demand',
+      slotId,
+      createdAt: new Date(now - (6 + i * 7) * 60_000).toISOString(),
+    });
+  }
+  for (const [i, slotId] of PHASE1_LINK_SLOTS.entries()) {
+    activeSlots.add(slotId);
+    pulses.push({
+      id: `p1-link-${slotId}`,
+      kind: 'link',
+      slotId,
+      createdAt: new Date(now - (4 + i * 9) * 60_000).toISOString(),
+    });
+  }
+
+  return {
+    ok: true,
+    phase: PULSE_MAP_PHASE,
+    mode: 'phase1',
+    collectedAt: new Date().toISOString(),
+    pilotRegions: PULSE_MAP_PILOT_REGIONS,
+    slots: PULSE_MAP_SLOTS,
+    pulses,
+    links: [],
+    stats: {
+      demandCount: PHASE1_DEMAND_SLOTS.length,
+      linkCount: PHASE1_LINK_SLOTS.length,
+      slotsActive: activeSlots.size,
+    },
+  };
+}
 
 function cityToSlotId(city: PlatformCity): string | null {
   if (!isPulseMapPilotRegion(city.region)) return null;
   const slot = getPulseMapSlot(city.id);
   return slot ? slot.id : null;
 }
+
+const CURATED_DEMAND_SLOTS = ['abha', 'jazan', 'baha', 'najran', 'khamis-mushait', 'sabya'] as const;
+const CURATED_LINK_SLOTS = ['abha', 'jazan', 'najran', 'baha'] as const;
 
 function buildCuratedPayload(): Pick<PulseMapPayload, 'pulses' | 'links' | 'mode'> {
   const now = Date.now();
@@ -106,6 +168,16 @@ type BarberRow = {
 };
 
 export async function buildPulseMapPayload(
+  supabase: SupabaseClient<any>,
+): Promise<PulseMapPayload> {
+  if (PULSE_MAP_PHASE === 1) {
+    return buildPhase1Payload();
+  }
+
+  return buildPulseMapLivePayload(supabase);
+}
+
+async function buildPulseMapLivePayload(
   supabase: SupabaseClient<any>,
 ): Promise<PulseMapPayload> {
   const demandSince = new Date(
@@ -199,6 +271,7 @@ export async function buildPulseMapPayload(
 
   return {
     ok: true,
+    phase: PULSE_MAP_PHASE,
     mode,
     collectedAt: new Date().toISOString(),
     pilotRegions: PULSE_MAP_PILOT_REGIONS,

@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import { PULSE_MAP_CONFIG } from '@/config/pulseMapConfig';
 import { PULSE_MAP_VIEWBOX } from '@/config/pulseMapSlots';
 import { PulseMapBackdrop } from '@/modules/pulse-map/components/PulseMapBackdrop';
 import { PulseMapDots } from '@/modules/pulse-map/components/PulseMapDots';
 import { PulseMapHud } from '@/modules/pulse-map/components/PulseMapHud';
 import { PulseMapLinks } from '@/modules/pulse-map/components/PulseMapLinks';
+import { PulseMapSlotAnchors } from '@/modules/pulse-map/components/PulseMapSlotAnchors';
 import { placeLinks, placePulses } from '@/modules/pulse-map/lib/pulsePlacement';
 import type { PulseMapPayload, PulseMapSlot } from '@/modules/pulse-map/types';
 
@@ -32,6 +34,10 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
     [payload?.links, slotById, placedPulses],
   );
 
+  const showLinks =
+    (payload?.phase ?? PULSE_MAP_CONFIG.phase) > 1 && (payload?.links.length ?? 0) > 0;
+  const showSlotAnchors = (payload?.phase ?? PULSE_MAP_CONFIG.phase) === 1;
+
   const aspect = `${PULSE_MAP_VIEWBOX.width} / ${PULSE_MAP_VIEWBOX.height}`;
 
   return (
@@ -53,7 +59,8 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
           aria-label="خريطة نبض جنوب المملكة"
         >
           <PulseMapBackdrop />
-          <PulseMapLinks links={placedLinks} />
+          {showSlotAnchors ? <PulseMapSlotAnchors slots={payload?.slots ?? []} /> : null}
+          {showLinks ? <PulseMapLinks links={placedLinks} /> : null}
           <PulseMapDots pulses={placedPulses} />
         </svg>
       </div>

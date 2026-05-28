@@ -16,16 +16,21 @@ export function PulseMapHud({ payload, loading }: Props) {
       })
     : '…';
 
+  const phase = payload?.phase ?? PULSE_MAP_CONFIG.phase;
+  const isPhase1 = phase === 1;
+
   return (
     <>
       <div className="pointer-events-none absolute top-2 inset-inline-end-2 z-20 sm:top-3 sm:inset-inline-end-3">
         <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-black/60 px-3 py-2 backdrop-blur-md">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+            {!isPhase1 ? (
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+            ) : null}
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
           </span>
           <span className="text-xs font-semibold text-emerald-100">
-            {loading ? 'جاري المزامنة…' : 'نبض حي'}
+            {loading ? 'جاري التحميل…' : isPhase1 ? PULSE_MAP_CONFIG.phaseBadgeAr : 'نبض حي'}
           </span>
           <span className="text-[0.62rem] tabular-nums text-slate-400">{syncLabel}</span>
         </div>
@@ -33,14 +38,23 @@ export function PulseMapHud({ payload, loading }: Props) {
 
       <div className="pointer-events-none absolute top-2 inset-inline-start-2 z-20 sm:top-3 sm:inset-inline-start-3 md:top-4 md:inset-inline-start-4">
         <div className="pointer-events-auto max-w-[min(40vw,18rem)] rounded-xl border border-sky-400/20 bg-black/60 px-4 py-3 backdrop-blur-md">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Radar className="h-4 w-4 text-sky-300" />
             <p className="text-sm font-black text-sky-100">خريطة النبض</p>
+            {isPhase1 ? (
+              <span className="rounded-full border border-sky-400/30 bg-sky-500/15 px-2 py-0.5 text-[0.58rem] font-bold text-sky-200">
+                {PULSE_MAP_CONFIG.phaseBadgeAr}
+              </span>
+            ) : null}
           </div>
           <p className="mt-1 text-[0.68rem] leading-relaxed text-slate-400">
             {PULSE_MAP_CONFIG.pilotLabelAr}
           </p>
-          {payload?.mode === 'curated' ? (
+          {isPhase1 ? (
+            <p className="mt-1.5 text-[0.6rem] leading-relaxed text-amber-200/75">
+              {PULSE_MAP_CONFIG.phaseHintAr}
+            </p>
+          ) : payload?.mode === 'curated' ? (
             <p className="mt-1.5 text-[0.6rem] text-amber-200/75">عرض توضيحي</p>
           ) : null}
           <div className="mt-3 flex flex-wrap gap-4 border-t border-white/10 pt-2.5">

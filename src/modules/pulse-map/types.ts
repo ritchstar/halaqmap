@@ -1,4 +1,4 @@
-export type PulseMapMode = 'live' | 'curated';
+export type PulseMapMode = 'live' | 'curated' | 'phase1';
 
 export type PulseMapKind = 'demand' | 'link';
 
@@ -25,6 +25,7 @@ export type PulseMapLink = {
 
 export type PulseMapPayload = {
   ok: true;
+  phase: number;
   mode: PulseMapMode;
   collectedAt: string;
   pilotRegions: readonly string[];
