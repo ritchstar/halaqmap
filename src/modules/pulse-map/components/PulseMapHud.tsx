@@ -18,6 +18,7 @@ export function PulseMapHud({ payload, loading }: Props) {
 
   const phase = payload?.phase ?? PULSE_MAP_CONFIG.phase;
   const isPhase1 = phase === 1;
+  const showPulses = PULSE_MAP_CONFIG.showPulses;
 
   return (
     <>
@@ -57,29 +58,35 @@ export function PulseMapHud({ payload, loading }: Props) {
           ) : payload?.mode === 'curated' ? (
             <p className="mt-1.5 text-[0.6rem] text-amber-200/75">عرض توضيحي</p>
           ) : null}
-          <div className="mt-3 flex flex-wrap gap-4 border-t border-white/10 pt-2.5">
-            <div className="flex items-center gap-2">
-              <span
-                className="inline-flex h-3 w-3 rounded-full"
-                style={{ background: PULSE_MAP_COLORS.demand.fill, boxShadow: `0 0 10px ${PULSE_MAP_COLORS.demand.glow}` }}
-              />
-              <span className="text-[0.65rem] text-slate-300">{PULSE_MAP_CONFIG.legendDemandAr}</span>
+          {showPulses ? (
+            <div className="mt-3 flex flex-wrap gap-4 border-t border-white/10 pt-2.5">
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-flex h-3 w-3 rounded-full"
+                  style={{ background: PULSE_MAP_COLORS.demand.fill, boxShadow: `0 0 10px ${PULSE_MAP_COLORS.demand.glow}` }}
+                />
+                <span className="text-[0.65rem] text-slate-300">{PULSE_MAP_CONFIG.legendDemandAr}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-flex h-3 w-3 rounded-full"
+                  style={{ background: PULSE_MAP_COLORS.link.fill, boxShadow: `0 0 8px ${PULSE_MAP_COLORS.link.glow}` }}
+                />
+                <span className="text-[0.65rem] text-slate-300">{PULSE_MAP_CONFIG.legendLinkAr}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span
-                className="inline-flex h-3 w-3 rounded-full"
-                style={{ background: PULSE_MAP_COLORS.link.fill, boxShadow: `0 0 8px ${PULSE_MAP_COLORS.link.glow}` }}
-              />
-              <span className="text-[0.65rem] text-slate-300">{PULSE_MAP_CONFIG.legendLinkAr}</span>
-            </div>
-          </div>
+          ) : null}
         </div>
       </div>
 
       <div className="pointer-events-none absolute bottom-3 left-1/2 z-20 -translate-x-1/2">
         <div className="pointer-events-auto flex items-center gap-4 rounded-full border border-white/10 bg-black/55 px-4 py-2 backdrop-blur-md">
-          <Stat icon={<Activity className="h-3.5 w-3.5 text-amber-300" />} label="طلب" value={payload?.stats.demandCount ?? 0} />
-          <Stat icon={<Activity className="h-3.5 w-3.5 text-teal-300" />} label="ربط" value={payload?.stats.linkCount ?? 0} />
+          {showPulses ? (
+            <>
+              <Stat icon={<Activity className="h-3.5 w-3.5 text-amber-300" />} label="طلب" value={payload?.stats.demandCount ?? 0} />
+              <Stat icon={<Activity className="h-3.5 w-3.5 text-teal-300" />} label="ربط" value={payload?.stats.linkCount ?? 0} />
+            </>
+          ) : null}
           <Stat icon={<Radar className="h-3.5 w-3.5 text-sky-300" />} label="مدن" value={payload?.stats.slotsActive ?? 0} />
         </div>
       </div>

@@ -98,18 +98,18 @@ export default function PulseMapPage() {
         <section className="mt-10 grid gap-4 sm:grid-cols-3">
           <ValueCard
             accent="sky"
-            title="Slots ثابتة"
-            body="11 مدينة pilot — موضع كل slot مُ calibrate داخل المضلّع، بدون GPS على الخريطة."
+            title="حدود حقيقية"
+            body="مضلّع مُقتطع من outline المملكة — ساحل البحر الأحمر، الحد الجنوبي، وقوس الربع الخالي."
           />
           <ValueCard
             accent="amber"
-            title="نبض طلب"
-            body="نقطة ذهبية = نشاط بحث (توضيحي في المرحلة 1)."
+            title="Slots pilot"
+            body="11 مدينة جنوبية — مواضعها من إحداثيات WGS-84 داخل المضلّع، بدون GPS على الخريطة."
           />
           <ValueCard
             accent="teal"
-            title="نبض ربط"
-            body="نقطة خضراء = حلاق في pilot (توضيحي). خطوط الربط في المرحلة 2."
+            title="النبض لاحقاً"
+            body="نبض الطلب والربط معطّل مؤقتاً حتى يُضبط الشكل الجغرافي بالكامل."
           />
         </section>
 
@@ -133,7 +133,7 @@ export default function PulseMapPage() {
         </div>
 
         <p className="mt-8 text-center text-[0.65rem] leading-relaxed text-slate-600">
-          المرحلة 1 — نواة خريطة النبض (pilot جنوبي). البيانات الحية وخطوط الربط في المراحل التالية.
+          المرحلة 1 — ضبط الشكل الجغرافي لجنوب المملكة. النبضات والبيانات الحية في المراحل التالية.
         </p>
       </div>
     </div>

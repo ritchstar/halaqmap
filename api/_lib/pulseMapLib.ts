@@ -75,30 +75,13 @@ const PHASE1_LINK_SLOTS = [
   'sharurah',
 ] as const;
 
+function cityToSlotId(city: PlatformCity): string | null {
+  if (!isPulseMapPilotRegion(city.region)) return null;
+  const slot = getPulseMapSlot(city.id);
+  return slot ? slot.id : null;
+}
+
 function buildPhase1Payload(): PulseMapPayload {
-  const now = Date.now();
-  const pulses: PulseMapPulse[] = [];
-  const activeSlots = new Set<string>();
-
-  for (const [i, slotId] of PHASE1_DEMAND_SLOTS.entries()) {
-    activeSlots.add(slotId);
-    pulses.push({
-      id: `p1-demand-${slotId}`,
-      kind: 'demand',
-      slotId,
-      createdAt: new Date(now - (6 + i * 7) * 60_000).toISOString(),
-    });
-  }
-  for (const [i, slotId] of PHASE1_LINK_SLOTS.entries()) {
-    activeSlots.add(slotId);
-    pulses.push({
-      id: `p1-link-${slotId}`,
-      kind: 'link',
-      slotId,
-      createdAt: new Date(now - (4 + i * 9) * 60_000).toISOString(),
-    });
-  }
-
   return {
     ok: true,
     phase: PULSE_MAP_PHASE,
@@ -106,20 +89,14 @@ function buildPhase1Payload(): PulseMapPayload {
     collectedAt: new Date().toISOString(),
     pilotRegions: PULSE_MAP_PILOT_REGIONS,
     slots: PULSE_MAP_SLOTS,
-    pulses,
+    pulses: [],
     links: [],
     stats: {
-      demandCount: PHASE1_DEMAND_SLOTS.length,
-      linkCount: PHASE1_LINK_SLOTS.length,
-      slotsActive: activeSlots.size,
+      demandCount: 0,
+      linkCount: 0,
+      slotsActive: PULSE_MAP_SLOTS.length,
     },
   };
-}
-
-function cityToSlotId(city: PlatformCity): string | null {
-  if (!isPulseMapPilotRegion(city.region)) return null;
-  const slot = getPulseMapSlot(city.id);
-  return slot ? slot.id : null;
 }
 
 const CURATED_DEMAND_SLOTS = ['abha', 'jazan', 'baha', 'najran', 'khamis-mushait', 'sabya'] as const;

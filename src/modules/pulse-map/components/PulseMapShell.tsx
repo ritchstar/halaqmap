@@ -34,9 +34,12 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
     [payload?.links, slotById, placedPulses],
   );
 
+  const showPulses = PULSE_MAP_CONFIG.showPulses;
   const showLinks =
-    (payload?.phase ?? PULSE_MAP_CONFIG.phase) > 1 && (payload?.links.length ?? 0) > 0;
-  const showSlotAnchors = (payload?.phase ?? PULSE_MAP_CONFIG.phase) === 1;
+    showPulses &&
+    (payload?.phase ?? PULSE_MAP_CONFIG.phase) > 1 &&
+    (payload?.links.length ?? 0) > 0;
+  const showSlotAnchors = showPulses && (payload?.phase ?? PULSE_MAP_CONFIG.phase) === 1;
 
   const aspect = `${PULSE_MAP_VIEWBOX.width} / ${PULSE_MAP_VIEWBOX.height}`;
 
@@ -61,7 +64,7 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
           <PulseMapBackdrop />
           {showSlotAnchors ? <PulseMapSlotAnchors slots={payload?.slots ?? []} /> : null}
           {showLinks ? <PulseMapLinks links={placedLinks} /> : null}
-          <PulseMapDots pulses={placedPulses} />
+          {showPulses ? <PulseMapDots pulses={placedPulses} /> : null}
         </svg>
       </div>
 

@@ -80,7 +80,7 @@ export function isInsideTacticalCanvas(lng: number, lat: number): boolean {
  * coasts and pushes them outward by 0.2°–0.4° so every beacon clears
  * the border line with safety margin.
  */
-const KSA_OUTLINE_LNGLAT: ReadonlyArray<[number, number]> = [
+export const KSA_OUTLINE_LNGLAT: ReadonlyArray<[number, number]> = [
   // === North-west: Gulf of Aqaba → Jordan corner ===
   [34.85, 29.35], // Aqaba bay NW
   [34.95, 28.95],

@@ -9,14 +9,16 @@ export const PULSE_MAP_ROUTE = '/radar';
 
 export const PULSE_MAP_CONFIG = {
   phase: PULSE_MAP_PHASE,
+  /** المرحلة 1 — ضبط الشكل الجغرافي أولاً */
+  showPulses: false,
   apiPath: '/api/public-pulse-map',
   pollMs: 25_000,
   pageTitleAr: 'خريطة النبض — المرحلة 1 · حلاق ماب',
-  heroTitleAr: 'المرحلة 1 — نواة خريطة النبض',
+  heroTitleAr: 'المرحلة 1 — رسم جنوب المملكة',
   heroSubtitleAr:
-    'Slots ثابتة جنوب المملكة، نبضان بالألوان فقط (طلب · ربط)، بدون نص على الخريطة ولا GPS خام.',
+    'مضلّع مُقتطع من حدود المملكة الفعلية (ساحل البحر الأحمر · الحد الجنوبي · الربع الخالي) — النبضات لاحقاً.',
   phaseBadgeAr: 'المرحلة 1',
-  phaseHintAr: 'نواة — slots مُ calibrate + عرض توضيحي للألوان',
+  phaseHintAr: 'ضبط الشكل الجغرافي — مقطع جنوبي من outline المملكة',
   pilotLabelAr: 'Pilot: الباحة · عسير · جازان · نجران',
   onDemandTaglineAr:
     'الظهور عند الطلب — الصالون يظهر حين يبحث زبون قريب.',
