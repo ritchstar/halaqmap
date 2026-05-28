@@ -77,6 +77,7 @@ export function ShowcaseRadarMap({ pulses, showSalonClusters = true, className }
             top={p.top}
             createdAt={p.createdAt}
             labelAr={p.labelAr}
+            pulseKind="user"
             opacity={pulseOpacity(p.ageMs, false)}
           />
         ))}
@@ -89,7 +90,7 @@ export function ShowcaseRadarMap({ pulses, showSalonClusters = true, className }
             top={p.top}
             createdAt={p.createdAt}
             labelAr={p.labelAr}
-            salonCluster
+            pulseKind="barber"
             opacity={pulseOpacity(p.ageMs, true)}
           />
         ))}

@@ -2,6 +2,12 @@
  * Showcase Radar — server-side aggregation (sanitized, no raw user coords).
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+  PLATFORM_CITY_COUNT,
+  resolvePlatformCity,
+  resolvePlatformCityFromSearch,
+  snapPulseToCity,
+} from './platformCoveredCities.js';
 
 export type ShowcaseRadarMode = 'live' | 'curated';
 
@@ -33,85 +39,55 @@ export type ShowcaseRadarPayload = {
 const SHOWCASE_LIMITS = {
   pulseMaxVisible: 24,
   pulseMaxAgeMinutes: 120,
-  jitterDeg: 0.22,
+  salonClusterMax: 12,
 } as const;
 
 const ON_DEMAND_TAGLINE_AR =
   'الظهور عند الطلب · On-Demand Visibility — الصالون يظهر حين يبحث زبون قريب.';
 
-const KSA_MAJOR_CITIES: { nameAr: string; lat: number; lng: number }[] = [
-  { nameAr: 'الرياض', lat: 24.7136, lng: 46.6753 },
-  { nameAr: 'جدة', lat: 21.4858, lng: 39.1925 },
-  { nameAr: 'مكة', lat: 21.3891, lng: 39.8579 },
-  { nameAr: 'المدينة', lat: 24.5247, lng: 39.5692 },
-  { nameAr: 'الدمام', lat: 26.3927, lng: 49.9777 },
-  { nameAr: 'الخبر', lat: 26.2172, lng: 50.1971 },
-  { nameAr: 'أبها', lat: 18.2164, lng: 42.5053 },
-  { nameAr: 'تبوك', lat: 28.3838, lng: 36.555 },
-  { nameAr: 'بريدة', lat: 26.326, lng: 43.975 },
-  { nameAr: 'حائل', lat: 27.5114, lng: 41.7208 },
-  { nameAr: 'نجران', lat: 17.5656, lng: 44.2289 },
-  { nameAr: 'جازان', lat: 16.8894, lng: 42.5706 },
-];
+/** عرض مُ curate — موزّع على مدن مغطاة (لا إحداثيات خام). */
+const CURATED_DEMO_CITIES = [
+  'الرياض',
+  'جدة',
+  'الدمام',
+  'مكة',
+  'المدينة',
+  'الطائف',
+  'أبها',
+  'تبوك',
+  'بريدة',
+  'حائل',
+  'الخبر',
+  'جازان',
+] as const;
 
-/** عرض مُ curate عند غياب البيانات الحية */
-const CURATED_DEMO_PULSES: ShowcaseRadarPulse[] = [
-  {
-    id: 'demo-riyadh-1',
-    kind: 'demand',
-    lat: 24.74,
-    lng: 46.72,
-    cityAr: 'الرياض',
-    createdAt: new Date(Date.now() - 8 * 60_000).toISOString(),
-    labelAr: 'طلب — الرياض',
-  },
-  {
-    id: 'demo-jeddah-1',
-    kind: 'demand',
-    lat: 21.51,
-    lng: 39.21,
-    cityAr: 'جدة',
-    createdAt: new Date(Date.now() - 22 * 60_000).toISOString(),
-    labelAr: 'طلب — جدة',
-  },
-  {
-    id: 'demo-dammam-1',
-    kind: 'demand',
-    lat: 26.41,
-    lng: 49.98,
-    cityAr: 'الدمام',
-    createdAt: new Date(Date.now() - 35 * 60_000).toISOString(),
-    labelAr: 'طلب — الدمام',
-  },
-];
-
-function resolveCityCoordinates(cityName: string | null | undefined): { lat: number; lng: number; cityAr: string } | null {
-  if (!cityName?.trim()) return null;
-  const normalized = cityName.trim();
-  const hit = KSA_MAJOR_CITIES.find(
-    (c) => normalized.includes(c.nameAr) || c.nameAr.includes(normalized),
-  );
-  return hit ? { lat: hit.lat, lng: hit.lng, cityAr: hit.nameAr } : null;
+function buildCuratedDemoPulses(): ShowcaseRadarPulse[] {
+  return CURATED_DEMO_CITIES.map((cityAr, index) => {
+    const city = resolvePlatformCity(cityAr);
+    if (!city) {
+      return null;
+    }
+    const coords = snapPulseToCity(city, `demo-${city.id}`);
+    const ageMinutes = 8 + index * 11;
+    return {
+      id: `demo-${city.id}`,
+      kind: 'demand' as const,
+      lat: coords.lat,
+      lng: coords.lng,
+      cityAr: city.nameAr,
+      createdAt: new Date(Date.now() - ageMinutes * 60_000).toISOString(),
+      labelAr: `نبض مستخدم — ${city.nameAr}`,
+    };
+  }).filter((p): p is ShowcaseRadarPulse => p != null);
 }
 
-function stableJitter(id: string, baseLat: number, baseLng: number): { lat: number; lng: number } {
-  let h = 0;
-  for (let i = 0; i < id.length; i += 1) h = (h * 31 + id.charCodeAt(i)) | 0;
-  const a = ((h & 0xffff) / 0xffff) * Math.PI * 2;
-  const r = SHOWCASE_LIMITS.jitterDeg * (0.35 + ((h >> 16) & 0xff) / 255);
-  return {
-    lat: baseLat + Math.sin(a) * r,
-    lng: baseLng + Math.cos(a) * r,
-  };
+function formatUserPulseLabel(cityAr: string, districtAr?: string | null): string {
+  if (districtAr?.trim()) return `نبض مستخدم — ${cityAr} · ${districtAr.trim()}`;
+  return `نبض مستخدم — ${cityAr}`;
 }
 
-function isInKsa(lat: number, lng: number): boolean {
-  return lat >= 16 && lat <= 33.5 && lng >= 34 && lng <= 56.5;
-}
-
-function formatPulseLabel(cityAr: string, districtAr?: string | null): string {
-  if (districtAr?.trim()) return `طلب — ${cityAr} · ${districtAr.trim()}`;
-  return `طلب — ${cityAr}`;
+function formatBarberPulseLabel(cityAr: string, count: number): string {
+  return `نبض حلاق — ${cityAr} (${count})`;
 }
 
 type SearchRow = {
@@ -159,59 +135,59 @@ export async function buildShowcaseRadarPayload(
   for (const row of searchRows) {
     if (demandPulses.length >= SHOWCASE_LIMITS.pulseMaxVisible) break;
 
-    let city = resolveCityCoordinates(row.city_name);
-    if (!city && row.user_lat != null && row.user_lng != null && isInKsa(row.user_lat, row.user_lng)) {
-      city = { lat: row.user_lat, lng: row.user_lng, cityAr: row.city_name?.trim() || 'المملكة' };
-    }
+    const city = resolvePlatformCityFromSearch(row.city_name, row.user_lat, row.user_lng);
     if (!city) continue;
 
-    const jittered = stableJitter(row.id, city.lat, city.lng);
-    const cityAr = city.cityAr;
+    const coords = snapPulseToCity(city, row.id);
+    const cityAr = city.nameAr;
     cityPulseCounts.set(cityAr, (cityPulseCounts.get(cityAr) ?? 0) + 1);
 
     demandPulses.push({
       id: row.id,
       kind: 'demand',
-      lat: jittered.lat,
-      lng: jittered.lng,
+      lat: coords.lat,
+      lng: coords.lng,
       cityAr,
       districtAr: row.district_name?.trim() || undefined,
       createdAt: row.created_at,
-      labelAr: formatPulseLabel(cityAr, row.district_name),
+      labelAr: formatUserPulseLabel(cityAr, row.district_name),
     });
   }
 
   const salonByCity = new Map<string, number>();
   for (const b of barberRows) {
-    const resolved = resolveCityCoordinates(b.city);
-    const key = resolved?.cityAr ?? b.city?.trim();
-    if (!key) continue;
-    salonByCity.set(key, (salonByCity.get(key) ?? 0) + 1);
+    const city = resolvePlatformCity(b.city);
+    if (!city) continue;
+    salonByCity.set(city.nameAr, (salonByCity.get(city.nameAr) ?? 0) + 1);
   }
 
   const salonClusters: ShowcaseRadarPulse[] = [];
   for (const [cityAr, count] of salonByCity.entries()) {
-    if (salonClusters.length >= 12) break;
-    const coords = resolveCityCoordinates(cityAr);
-    if (!coords) continue;
-    const jittered = stableJitter(`salon-${cityAr}`, coords.lat, coords.lng);
+    if (salonClusters.length >= SHOWCASE_LIMITS.salonClusterMax) break;
+    const city = resolvePlatformCity(cityAr);
+    if (!city) continue;
+    const coords = snapPulseToCity(city, `salon-${city.id}`);
     salonClusters.push({
-      id: `salon-cluster-${cityAr}`,
+      id: `salon-cluster-${city.id}`,
       kind: 'salon_cluster',
-      lat: jittered.lat,
-      lng: jittered.lng,
-      cityAr,
+      lat: coords.lat,
+      lng: coords.lng,
+      cityAr: city.nameAr,
       createdAt: new Date().toISOString(),
-      labelAr: `صالونات نشطة — ${cityAr} (${count})`,
+      labelAr: formatBarberPulseLabel(city.nameAr, count),
     });
   }
 
+  const curatedDemos = buildCuratedDemoPulses();
   let mode: ShowcaseRadarMode = 'live';
-  let pulses = [...demandPulses, ...salonClusters].slice(0, SHOWCASE_LIMITS.pulseMaxVisible + 12);
+  let pulses = [...demandPulses, ...salonClusters].slice(
+    0,
+    SHOWCASE_LIMITS.pulseMaxVisible + SHOWCASE_LIMITS.salonClusterMax,
+  );
 
   if (demandPulses.length === 0) {
     mode = 'curated';
-    pulses = [...CURATED_DEMO_PULSES, ...salonClusters.slice(0, 6)];
+    pulses = [...curatedDemos, ...salonClusters.slice(0, 6)];
   }
 
   const citySignals = [...cityPulseCounts.entries()]
@@ -220,14 +196,12 @@ export async function buildShowcaseRadarPayload(
     .slice(0, 8);
 
   if (citySignals.length === 0 && mode === 'curated') {
-    citySignals.push(
-      { cityAr: 'الرياض', pulseCount24h: 2 },
-      { cityAr: 'جدة', pulseCount24h: 1 },
-      { cityAr: 'الدمام', pulseCount24h: 1 },
-    );
+    for (const demo of curatedDemos.slice(0, 3)) {
+      citySignals.push({ cityAr: demo.cityAr, pulseCount24h: 1 });
+    }
   }
 
-  const citiesCovered = new Set([
+  const liveCityCount = new Set([
     ...demandPulses.map((p) => p.cityAr),
     ...salonByCity.keys(),
   ]).size;
@@ -237,8 +211,8 @@ export async function buildShowcaseRadarPayload(
     mode,
     collectedAt: new Date().toISOString(),
     stats: {
-      citiesCovered: citiesCovered || citySignals.length,
-      pulsesVisible: demandPulses.length || CURATED_DEMO_PULSES.length,
+      citiesCovered: liveCityCount > 0 ? liveCityCount : PLATFORM_CITY_COUNT,
+      pulsesVisible: demandPulses.length || curatedDemos.length,
       activeSalonsApprox: barberRows.length,
     },
     citySignals,

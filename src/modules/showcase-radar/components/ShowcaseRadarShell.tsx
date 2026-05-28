@@ -85,6 +85,16 @@ export function ShowcaseRadarShell({ payload, loading, error, className }: Props
               عرض توضيحي — البيانات التشغيلية الكاملة لدى إدارة المنصة.
             </p>
           ) : null}
+          <div className="mt-3 flex flex-wrap gap-3 border-t border-white/10 pt-2.5" dir="rtl">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full border border-amber-200/50 bg-[radial-gradient(circle_at_30%_25%,#fef3c7_0%,#f59e0b_70%,#92400e_100%)] shadow-[0_0_8px_rgba(251,191,36,0.7)]" />
+              <span className="text-[0.62rem] text-slate-300">نبض مستخدم</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="inline-flex h-3 w-3 rounded-full border border-teal-200/50 bg-[radial-gradient(circle_at_30%_25%,#ccfbf1_0%,#14b8a6_70%,#115e59_100%)] shadow-[0_0_8px_rgba(20,184,166,0.7)]" />
+              <span className="text-[0.62rem] text-slate-300">نبض حلاق</span>
+            </div>
+          </div>
         </div>
       </div>
 
