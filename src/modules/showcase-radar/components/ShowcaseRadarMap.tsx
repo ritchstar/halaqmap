@@ -57,6 +57,7 @@ export function ShowcaseRadarMap({ pulses, showSalonClusters = true, className }
         'flex items-center justify-center',
         className,
       )}
+      dir="ltr"
       role="img"
       aria-label="معاينة نظام الرصد الذكي — خريطة المملكة"
     >
