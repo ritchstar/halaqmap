@@ -20,9 +20,10 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v2';
+          var flag = 'hm-sw-reset-v3';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v2');
           sessionStorage.removeItem('hm-chunk-recover');
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function (regs) {
