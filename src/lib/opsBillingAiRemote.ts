@@ -124,10 +124,14 @@ export async function analyzeOpsBillingWithAi(
 
 export async function applyOpsBillingAiUpdate(input: {
   proposal_token: string;
-  commitment_id: string;
+  action?: 'update' | 'create';
+  commitment_id?: string | null;
   patch: OpsBillingAiPatch;
+  detected_vendor?: string | null;
+  external_stable_key?: string | null;
+  detected_provider_label?: string;
 }): Promise<
-  | { ok: true; before: Record<string, unknown>; after: Record<string, unknown> }
+  | { ok: true; action: 'update' | 'create'; commitment_id: string; before: Record<string, unknown>; after: Record<string, unknown> }
   | { ok: false; error: string }
 > {
   const h = await authHeaders();
@@ -137,9 +141,13 @@ export async function applyOpsBillingAiUpdate(input: {
     headers: h,
     body: JSON.stringify({
       confirm: true,
+      action: input.action ?? (input.commitment_id ? 'update' : 'create'),
       proposal_token: input.proposal_token,
-      commitment_id: input.commitment_id,
+      commitment_id: input.commitment_id ?? undefined,
       patch: input.patch,
+      detected_vendor: input.detected_vendor,
+      external_stable_key: input.external_stable_key,
+      detected_provider_label: input.detected_provider_label,
     }),
   });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
@@ -148,6 +156,8 @@ export async function applyOpsBillingAiUpdate(input: {
   }
   return {
     ok: true,
+    action: (json.action === 'create' ? 'create' : 'update') as 'update' | 'create',
+    commitment_id: String(json.commitment_id || input.commitment_id || ''),
     before: (json.before as Record<string, unknown>) || {},
     after: (json.after as Record<string, unknown>) || {},
   };

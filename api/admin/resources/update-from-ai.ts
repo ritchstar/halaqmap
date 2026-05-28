@@ -1,11 +1,14 @@
 import { authorizeOpsBillingWrite } from '../../_lib/opsBillingAuth.js';
 import {
   applyOpsBillingAiPatch,
+  createOpsBillingAiCommitment,
   enrichKhazenApplyPatch,
   enrichProposalsWithRows,
   loadCommitmentRows,
   type OpsBillingAiPatch,
+  type OpsBillingVendor,
   validateAiPatch,
+  OPS_BILLING_VENDORS,
 } from '../../_lib/opsBillingAi.js';
 
 export const config = { maxDuration: 30 };
@@ -63,11 +66,19 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error: 'يجب إرسال confirm: true لتطبيق التحديث' }, 400);
   }
 
-  const commitmentId = String(body.commitment_id || body.commitmentId || '').trim();
+  const actionRaw = String(body.action || '').trim().toLowerCase();
+  const action = actionRaw === 'create' ? 'create' : 'update';
+  const commitmentId = String(body.commitment_id || body.commitmentId || '').trim() || null;
   const proposalToken = String(body.proposal_token || body.proposalToken || '').trim();
   const patch = parsePatch(body.patch);
+  const detectedVendorRaw = String(body.detected_vendor || body.detectedVendor || '').trim();
+  const detected_vendor = OPS_BILLING_VENDORS.includes(detectedVendorRaw as OpsBillingVendor)
+    ? (detectedVendorRaw as OpsBillingVendor)
+    : 'manual';
+  const externalStableKey =
+    typeof body.external_stable_key === 'string' ? body.external_stable_key.trim() : null;
+  const displayLabel = typeof patch?.display_label === 'string' ? patch.display_label.trim() : '';
 
-  if (!commitmentId) return json({ error: 'commitment_id required' }, 400);
   if (!proposalToken) return json({ error: 'proposal_token required' }, 400);
   if (!patch) return json({ error: 'patch object required' }, 400);
 
@@ -75,6 +86,57 @@ export async function POST(request: Request): Promise<Response> {
   if (loadErr) return json({ error: loadErr }, 500);
 
   const rowsById = new Map(rows.map((r) => [String(r.id), r]));
+
+  if (action === 'create') {
+    const label = displayLabel || String(body.detected_provider_label || '').trim();
+    if (!label) return json({ error: 'display_label required for create' }, 400);
+
+    const enrichedPatch = enrichKhazenApplyPatch({ ...patch, display_label: label }, null);
+    const patchErr = validateAiPatch(enrichedPatch);
+    if (patchErr) return json({ error: patchErr }, 400);
+
+    const created = await createOpsBillingAiCommitment(auth.supabase, {
+      vendor: detected_vendor,
+      display_label: label,
+      external_stable_key: externalStableKey,
+      patch: enrichedPatch,
+    });
+    if (created.ok === false) return json({ error: created.error }, 500);
+
+    const { rows: rowsAfter } = await loadCommitmentRows(auth.supabase);
+    const afterMap = new Map(rowsAfter.map((r) => [String(r.id), r]));
+    const after = afterMap.has(created.id)
+      ? enrichProposalsWithRows(
+          [
+            {
+              proposal_token: proposalToken,
+              action: 'create',
+              commitment_id: null,
+              match_confidence: 'high',
+              detected_vendor,
+              detected_provider_label: label,
+              payment_status: null,
+              before: {},
+              after: {},
+              patch: enrichedPatch,
+            },
+          ],
+          afterMap,
+        )[0]!.before
+      : {};
+
+    return json({
+      ok: true,
+      action: 'create',
+      commitment_id: created.id,
+      proposal_token: proposalToken,
+      before: {},
+      after,
+      updatedBy: auth.actorEmail,
+    });
+  }
+
+  if (!commitmentId) return json({ error: 'commitment_id required for update' }, 400);
   if (!rowsById.has(commitmentId)) {
     return json({ error: 'صف الالتزام غير موجود في الجدول' }, 404);
   }
@@ -88,6 +150,7 @@ export async function POST(request: Request): Promise<Response> {
     [
       {
         proposal_token: proposalToken,
+        action: 'update',
         commitment_id: commitmentId,
         match_confidence: 'high',
         detected_vendor: null,
@@ -111,6 +174,7 @@ export async function POST(request: Request): Promise<Response> {
         [
           {
             proposal_token: proposalToken,
+            action: 'update',
             commitment_id: commitmentId,
             match_confidence: 'high',
             detected_vendor: null,
@@ -127,6 +191,7 @@ export async function POST(request: Request): Promise<Response> {
 
   return json({
     ok: true,
+    action: 'update',
     commitment_id: commitmentId,
     proposal_token: proposalToken,
     before,

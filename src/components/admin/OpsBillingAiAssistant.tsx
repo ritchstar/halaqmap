@@ -103,6 +103,24 @@ function formatValue(key: string, v: unknown): string {
 }
 
 function DiffPreview({ proposal }: { proposal: OpsBillingAiProposal }) {
+  if (proposal.action === 'create') {
+    const keys = Object.keys(proposal.after).filter(
+      (k) => proposal.after[k] != null && proposal.after[k] !== '',
+    );
+    if (keys.length === 0) {
+      return <p className="text-sm text-muted-foreground">لا حقول للمعاينة.</p>;
+    }
+    return (
+      <ul className="space-y-2 text-sm">
+        {keys.map((k) => (
+          <li key={k} className="rounded-md border bg-muted/30 px-3 py-2">
+            <div className="font-medium text-foreground">{formatFieldLabel(k)}</div>
+            <div className="text-primary font-medium">{formatValue(k, proposal.after[k])}</div>
+          </li>
+        ))}
+      </ul>
+    );
+  }
   const keys = new Set([...Object.keys(proposal.before), ...Object.keys(proposal.after)]);
   const changed = [...keys].filter((k) => proposal.before[k] !== proposal.after[k]);
   if (changed.length === 0) {
@@ -153,7 +171,10 @@ export function OpsBillingAiAssistant({
     {
       role: 'assistant',
       content:
-        'مرحباً — أنا **خازن 🪙**، خزّان العمليات المالي. ارفع لقطة فاتورة (JPEG/PNG) أو اكتب سؤالاً عن تجديد GoDaddy أو Supabase أو OpenAI، وسأقترح تحديث صف في جدول الالتزامات للمراجعة قبل الحفظ. أستخدم تاريخ اليوم في الرياض كمرجع زمني ولا أقبل تواريخ تجديد في الماضي.',
+        'مرحباً — أنا **خازن 🪙**، خزّان العمليات المالي.\n\n' +
+        '**كل خدمة = صف مستقل** في جدول الالتزامات (مثال: نطاق `GoDaddy` ≠ `Notion`).\n' +
+        'ارفع لقطة فاتورة (JPEG/PNG) أو اكتب سؤالاً — سأقترح **تحديث** صف موجود أو **إضافة** صف جديد للمراجعة قبل الحفظ.\n' +
+        'لا أدمج فاتورة خدمة جديدة في صف خدمة سابقة.',
     },
   ]);
   const [input, setInput] = useState('');
@@ -315,15 +336,21 @@ export function OpsBillingAiAssistant({
     setApplying(true);
     const r = await applyOpsBillingAiUpdate({
       proposal_token: pending.proposal_token,
+      action: pending.action ?? (pending.commitment_id ? 'update' : 'create'),
       commitment_id: pending.commitment_id,
       patch: pending.patch,
+      detected_vendor: pending.detected_vendor,
+      external_stable_key: pending.external_stable_key,
+      detected_provider_label: pending.detected_provider_label,
     });
     setApplying(false);
     if (r.ok === false) {
       toast({ title: r.error, variant: 'destructive' });
       return;
     }
-    toast({ title: 'تم تحديث صف الالتزام في قاعدة البيانات' });
+    toast({
+      title: r.action === 'create' ? 'تمت إضافة التزام جديد' : 'تم تحديث صف الالتزام في قاعدة البيانات',
+    });
     if (r.after.data_gap_kind) {
       toast({
         title: 'تنبيه: لا يزال هناك فجوة بيانات على الصف',
@@ -336,7 +363,9 @@ export function OpsBillingAiAssistant({
       {
         role: 'assistant',
         content:
-          `✅ تم التطبيق على **${String(pending.before.display_label || pending.detected_provider_label || 'الصف')}**.` +
+          (r.action === 'create'
+            ? `✅ تمت **إضافة** التزام جديد: **${String(pending.after.display_label || pending.detected_provider_label || 'خدمة')}**.`
+            : `✅ تم **تحديث** **${String(pending.before.display_label || pending.detected_provider_label || 'الصف')}**.`) +
           (r.after.next_renewal_at
             ? `\nموعد التجديد: ${formatValue('next_renewal_at', r.after.next_renewal_at)}`
             : '') +
@@ -390,7 +419,12 @@ export function OpsBillingAiAssistant({
         {pending && (
           <div className="mx-4 mb-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-4 space-y-3 shrink-0">
             <div className="flex flex-wrap items-center gap-2 justify-between">
-              <span className="font-medium text-sm">معاينة التحديث المقترح</span>
+              <span className="font-medium text-sm">
+                {pending.action === 'create' ? 'معاينة إضافة التزام جديد' : 'معاينة التحديث المقترح'}
+              </span>
+              <Badge variant={pending.action === 'create' ? 'default' : 'outline'}>
+                {pending.action === 'create' ? 'إضافة' : 'تحديث'}
+              </Badge>
               <Badge variant="outline">{pending.detected_provider_label || pending.detected_vendor}</Badge>
               <Badge
                 variant={
@@ -405,7 +439,9 @@ export function OpsBillingAiAssistant({
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              رسالة خازن أعلاه لا تُحدّث الجدول تلقائياً — راجع المعاينة ثم اضغط «تأكيد التحديث».
+              {pending.action === 'create'
+                ? 'رسالة خازن أعلاه لا تُضيف صفاً تلقائياً — راجع المعاينة ثم اضغط «تأكيد الإضافة».'
+                : 'رسالة خازن أعلاه لا تُحدّث الجدول تلقائياً — راجع المعاينة ثم اضغط «تأكيد التحديث».'}
             </p>
             {pending.warnings && pending.warnings.length > 0 && (
               <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 space-y-1">
@@ -433,7 +469,7 @@ export function OpsBillingAiAssistant({
                 onClick={() => void confirmApply()}
               >
                 {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 ml-1" />}
-                تأكيد التحديث
+                {pending.action === 'create' ? 'تأكيد الإضافة' : 'تأكيد التحديث'}
               </Button>
             </div>
             {!canMutate && (

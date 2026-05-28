@@ -115,6 +115,7 @@ export async function POST(request: Request): Promise<Response> {
     const parsed = sanitizeOpsBillingAnalyzeResult(parseOpsBillingAiJson(rawModel), {
       userMessage,
       hasImage: Boolean(imageBase64),
+      rowsById: new Map(rows.map((r) => [String(r.id), r])),
     });
     const rowsById = new Map(rows.map((r) => [String(r.id), r]));
     const proposals = enrichProposalsWithRows(parsed.proposals, rowsById);

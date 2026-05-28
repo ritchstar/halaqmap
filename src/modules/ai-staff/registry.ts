@@ -143,7 +143,8 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     ctaLabelAr: 'فتح مكتب خازن',
     consultAgents: ['zatca_tax_advisor', 'public_prosecutor'],
     doctrineNotes: [
-      'جدول `platform_ops_billing_commitments` — Vercel/Supabase/OpenAI/GoDaddy/Resend/GitHub.',
+      'جدول `platform_ops_billing_commitments` — Vercel/Supabase/OpenAI/GoDaddy/Resend/GitHub/يدوي (Notion…).',
+      '**كل خدمة = صف مستقل** — فاتورة Notion تُضاف كصف جديد ولا تُدمج في صف GoDaddy.',
       'يفرّق بين **تكلفة التشغيل** (خازن) و**إيراد حزم الرخصة** (ZATCA رادار).',
       'لا يفعّل ض.ق.م على الواجهة — يُحيل لخبير ZATCA عند 375,000 ر.س.',
       'يقرأ لقطات الفواتير ويصحّح تواريخ التجديد وفق Asia/Riyadh.',

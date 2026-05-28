@@ -14,6 +14,8 @@ export const OPS_BILLING_VENDORS = [
 
 export type OpsBillingVendor = (typeof OPS_BILLING_VENDORS)[number];
 
+export type OpsBillingAiProposalAction = 'update' | 'create';
+
 export type OpsBillingAiPatch = {
   display_label?: string;
   next_renewal_at?: string | null;
@@ -28,7 +30,9 @@ export type OpsBillingAiPatch = {
 
 export type OpsBillingAiProposal = {
   proposal_token: string;
-  commitment_id: string;
+  action: OpsBillingAiProposalAction;
+  commitment_id: string | null;
+  external_stable_key?: string | null;
   match_confidence: 'high' | 'medium' | 'low';
   detected_vendor: OpsBillingVendor | null;
   detected_provider_label: string;
@@ -148,7 +152,7 @@ export function buildOpsBillingAiSystemPrompt(commitments: Record<string, unknow
   const tableJson = JSON.stringify(commitments, null, 2);
   const anchor = getOpsBillingTemporalAnchor();
   return `You are **خازن 🪙** — the expert financial treasurer for Halaq Map (حلاق ماب) platform operations.
-Your job is to parse invoices, billing screenshots, and owner questions; detect the provider (GoDaddy, OpenAI, Supabase, Vercel, Resend, GitHub); extract price, **next renewal date**, billing cycle, and payment status; and map updates to the correct row in جدول الالتزامات (platform_ops_billing_commitments).
+Your job is to parse invoices, billing screenshots, and owner questions; detect the provider/service; extract price, **next renewal date**, billing cycle, and payment status; and either **update an existing row** or **create a new row** in جدول الالتزامات (platform_ops_billing_commitments).
 
 You work in **tandem with ZATCA Tax Advisor 🛡️** — partner revenue (license packages) is his radar; your table is for **operating costs**. Never flip live VAT on the storefront; defer tax activation questions to ZATCA at mandatory threshold (375,000 SAR).
 
@@ -162,10 +166,17 @@ ${buildFinancialOfficePromptBlock()}
 - If the year on the document looks like a OCR/vision mistake (e.g. 2023 while we are in ${anchor.year}), prefer ${anchor.year} or ${anchor.year + 1}.
 - When the owner says "we are in ${anchor.year}" or corrects a date, acknowledge the mistake in Arabic and output corrected dates.
 
-Allowed vendor codes: ${OPS_BILLING_VENDORS.join(', ')}.
-Provider hints: GoDaddy→godaddy, OpenAI→openai, Supabase→supabase_mgmt, Vercel→vercel, Resend→resend, GitHub→github.
+**Critical — one service = one row (do NOT merge invoices):**
+- Each distinct subscription/service gets its **own row**. Examples: GoDaddy domain for halaqmap.com ≠ Notion workspace ≠ OpenAI API — **never** apply a Notion invoice to a GoDaddy row or vice versa.
+- Use **action: "update"** ONLY when the document clearly renews/updates **the same service** already listed (match commitment_id + same vendor/brand in display_label).
+- Use **action: "create"** when the invoice is for a **new service** not yet in the table, or when the owner uploads a **second/third invoice** for a different provider than existing rows.
+- If the table already has "GoDaddy — halaqmap" and the image is **Notion**, output **create** — **never** update the GoDaddy row.
+- When unsure between update vs create, prefer **create** for a clearly different brand name, or set needs_clarification true.
 
-Current commitments table (JSON array — match by id when confident):
+Allowed vendor codes: ${OPS_BILLING_VENDORS.join(', ')}.
+Provider hints: GoDaddy/domain→godaddy, OpenAI→openai, Supabase→supabase_mgmt, Vercel→vercel, Resend→resend, GitHub→github, Notion/other SaaS→manual.
+
+Current commitments table (JSON array — match by id only for **update** when same service):
 ${tableJson}
 
 Rules:
@@ -176,7 +187,7 @@ Rules:
 - Set clear_gap:true when invoice proves the row is paid/current and gap kinds like token_expired or discovery_pending should be cleared.
 - Set last_sync_status to "ok" when payment/renewal is confirmed from the document.
 - If unsure which row OR dates are ambiguous, set needs_clarification true and proposals may be empty.
-- Include at most one primary proposal unless multiple distinct services appear.
+- Include at most one primary proposal per distinct service in the document.
 - assistant_message must be in clear Arabic for the platform owner.
 
 Output JSON schema:
@@ -185,20 +196,29 @@ Output JSON schema:
   "needs_clarification": false,
   "proposals": [
     {
-      "commitment_id": "uuid from table",
+      "action": "update",
+      "commitment_id": "uuid from table — same service only",
       "match_confidence": "high|medium|low",
       "detected_vendor": "godaddy",
-      "detected_provider_label": "GoDaddy",
+      "detected_provider_label": "GoDaddy — halaqmap.com",
       "payment_status": "paid|pending|unknown",
+      "patch": { "next_renewal_at": "...", "monthly_estimate_sar": 45, "clear_gap": true, "last_sync_status": "ok" }
+    },
+    {
+      "action": "create",
+      "commitment_id": null,
+      "external_stable_key": "notion-workspace",
+      "match_confidence": "high",
+      "detected_vendor": "manual",
+      "detected_provider_label": "Notion",
+      "payment_status": "paid",
       "patch": {
-        "next_renewal_at": "${anchor.year + 1}-05-01T00:00:00.000Z",
-        "monthly_estimate_sar": 45,
-        "amount_expected": 540,
-        "amount_currency": "SAR",
+        "display_label": "Notion — Workspace",
+        "next_renewal_at": "${anchor.year + 1}-01-15T00:00:00.000Z",
+        "monthly_estimate_sar": 40,
         "billing_cycle": "annual",
         "clear_gap": true,
-        "last_sync_status": "ok",
-        "manual_notes": "optional short note"
+        "last_sync_status": "ok"
       }
     }
   ]
@@ -234,6 +254,84 @@ function applyPatchToSummary(before: Record<string, unknown>, patch: OpsBillingA
   return after;
 }
 
+function normalizeServiceLabel(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^\p{L}\p{N}\s.-]+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const SERVICE_BRAND_KEYWORDS = [
+  'notion',
+  'godaddy',
+  'vercel',
+  'supabase',
+  'openai',
+  'resend',
+  'github',
+  'halaqmap',
+  'حلاق',
+  'نطاق',
+  'domain',
+] as const;
+
+function detectServiceBrand(label: string): string | null {
+  const normalized = normalizeServiceLabel(label);
+  for (const brand of SERVICE_BRAND_KEYWORDS) {
+    if (normalized.includes(brand)) return brand;
+  }
+  return null;
+}
+
+/** Returns true when an update proposal likely targets the wrong existing row. */
+export function shouldCreateInsteadOfUpdate(
+  existingRow: Record<string, unknown>,
+  detectedLabel: string,
+  detectedVendor: OpsBillingVendor | null,
+): boolean {
+  const existingLabel = String(existingRow.display_label || '');
+  const existingVendor = String(existingRow.vendor || '');
+  const a = normalizeServiceLabel(existingLabel);
+  const b = normalizeServiceLabel(detectedLabel);
+  if (!b) return false;
+
+  const detectedBrand = detectServiceBrand(b);
+  const existingBrand = detectServiceBrand(a);
+
+  if (detectedBrand && existingBrand && detectedBrand !== existingBrand) {
+    return true;
+  }
+
+  if (detectedBrand === 'notion' && !a.includes('notion')) return true;
+  if (detectedBrand === 'godaddy' && existingBrand === 'notion') return true;
+  if (detectedBrand === 'notion' && existingBrand === 'godaddy') return true;
+
+  if (detectedVendor && existingVendor && detectedVendor !== existingVendor) {
+    const bothManual = detectedVendor === 'manual' && existingVendor === 'manual';
+    if (!bothManual && !a.includes(b.split(' ')[0] || '')) {
+      return true;
+    }
+  }
+
+  if (b.length >= 4 && !a.includes(b) && !b.includes(a)) {
+    const bTokens = b.split(' ').filter((t) => t.length >= 4);
+    const overlap = bTokens.some((t) => a.includes(t));
+    if (!overlap && detectedBrand) return true;
+  }
+
+  return false;
+}
+
+function slugifyStableKey(label: string): string {
+  const base = normalizeServiceLabel(label)
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9\u0600-\u06FF-]+/g, '')
+    .slice(0, 48);
+  return base || `manual-${Date.now()}`;
+}
+
 export function parseOpsBillingAiJson(raw: string): OpsBillingAiAnalyzeResult {
   let parsed: Record<string, unknown>;
   try {
@@ -254,8 +352,20 @@ export function parseOpsBillingAiJson(raw: string): OpsBillingAiAnalyzeResult {
   for (const item of rawProposals.slice(0, 3)) {
     if (!item || typeof item !== 'object') continue;
     const o = item as Record<string, unknown>;
-    const commitment_id = String(o.commitment_id || '').trim();
-    if (!commitment_id) continue;
+    const actionRaw = String(o.action || '').trim().toLowerCase();
+    let action: OpsBillingAiProposalAction =
+      actionRaw === 'create' ? 'create' : actionRaw === 'update' ? 'update' : 'update';
+    const commitment_id_raw = o.commitment_id;
+    const commitment_id =
+      commitment_id_raw == null || commitment_id_raw === ''
+        ? null
+        : String(commitment_id_raw).trim() || null;
+    if (action === 'update' && !commitment_id) {
+      action = 'create';
+    }
+    if (action === 'create' && commitment_id) {
+      action = 'update';
+    }
     const conf = String(o.match_confidence || 'medium');
     const match_confidence =
       conf === 'high' || conf === 'low' ? conf : ('medium' as const);
@@ -285,12 +395,28 @@ export function parseOpsBillingAiJson(raw: string): OpsBillingAiAnalyzeResult {
     const st = String(patchRaw.last_sync_status || '').trim();
     if (st === 'ok' || st === 'partial') patch.last_sync_status = st;
 
+    const detected_provider_label = String(o.detected_provider_label || detected_vendor || patch.display_label || '').trim();
+    if (action === 'create' && !patch.display_label && detected_provider_label) {
+      patch.display_label = detected_provider_label;
+    }
+
+    const external_stable_key =
+      typeof o.external_stable_key === 'string' && o.external_stable_key.trim()
+        ? o.external_stable_key.trim()
+        : action === 'create'
+          ? slugifyStableKey(patch.display_label || detected_provider_label)
+          : null;
+
+    if (action === 'create' && !patch.display_label) continue;
+
     proposals.push({
       proposal_token: randomUUID(),
+      action,
       commitment_id,
+      external_stable_key,
       match_confidence,
-      detected_vendor,
-      detected_provider_label: String(o.detected_provider_label || detected_vendor || '').trim(),
+      detected_vendor: detected_vendor ?? (action === 'create' ? 'manual' : null),
+      detected_provider_label,
       payment_status: typeof o.payment_status === 'string' ? o.payment_status : null,
       before: {},
       after: {},
@@ -305,19 +431,66 @@ export function parseOpsBillingAiJson(raw: string): OpsBillingAiAnalyzeResult {
 /** تحقق وتصحيح مقترحات خازن قبل عرضها أو حفظها */
 export function sanitizeOpsBillingAnalyzeResult(
   result: OpsBillingAiAnalyzeResult,
-  context?: { userMessage?: string; hasImage?: boolean },
+  context?: {
+    userMessage?: string;
+    hasImage?: boolean;
+    rowsById?: Map<string, Record<string, unknown>>;
+  },
 ): OpsBillingAiAnalyzeResult {
   const warnings: string[] = [];
   let needs_clarification = result.needs_clarification;
   let assistant_message = result.assistant_message;
   const userMessage = (context?.userMessage || '').trim();
   const temporalCorrection = isTemporalCorrectionUserMessage(userMessage);
+  const rowsById = context?.rowsById;
 
   const proposals: OpsBillingAiProposal[] = [];
 
   for (const p of result.proposals) {
+    let action = p.action;
+    let commitment_id = p.commitment_id;
     const patch = { ...p.patch };
     const proposalWarnings: string[] = [...(p.warnings || [])];
+    let detected_vendor = p.detected_vendor;
+    let external_stable_key = p.external_stable_key;
+
+    if (action === 'update' && commitment_id && rowsById) {
+      const row = rowsById.get(commitment_id);
+      if (!row) {
+        proposalWarnings.push('الصف المقترح غير موجود — سيتم التعامل كإضافة جديدة.');
+        action = 'create';
+        commitment_id = null;
+        detected_vendor = detected_vendor ?? 'manual';
+        external_stable_key =
+          external_stable_key || slugifyStableKey(patch.display_label || p.detected_provider_label);
+      } else if (
+        shouldCreateInsteadOfUpdate(row, p.detected_provider_label, p.detected_vendor)
+      ) {
+        const existingLabel = String(row.display_label || '');
+        proposalWarnings.push(
+          `فاتورة «${p.detected_provider_label || 'غير معروف'}» لا تطابق الصف الحالي «${existingLabel}» — خازن يقترح **إضافة صف جديد** بدلاً من التحديث.`,
+        );
+        warnings.push(proposalWarnings[proposalWarnings.length - 1]!);
+        action = 'create';
+        commitment_id = null;
+        detected_vendor = detected_vendor ?? 'manual';
+        if (!patch.display_label && p.detected_provider_label) {
+          patch.display_label = p.detected_provider_label;
+        }
+        external_stable_key =
+          external_stable_key || slugifyStableKey(patch.display_label || p.detected_provider_label);
+      }
+    }
+
+    if (action === 'create' && !patch.display_label) {
+      patch.display_label = p.detected_provider_label || 'التزام تشغيلي';
+    }
+    if (action === 'create' && !external_stable_key) {
+      external_stable_key = slugifyStableKey(patch.display_label || p.detected_provider_label);
+    }
+    if (action === 'create') {
+      detected_vendor = detected_vendor ?? 'manual';
+    }
 
     if (patch.next_renewal_at) {
       const repaired = repairPastRenewalDate(patch.next_renewal_at);
@@ -359,6 +532,10 @@ export function sanitizeOpsBillingAnalyzeResult(
 
     proposals.push({
       ...p,
+      action,
+      commitment_id,
+      detected_vendor,
+      external_stable_key,
       patch,
       warnings: proposalWarnings.length > 0 ? proposalWarnings : undefined,
       match_confidence,
@@ -394,7 +571,17 @@ export function enrichProposalsWithRows(
   rowsById: Map<string, Record<string, unknown>>,
 ): OpsBillingAiProposal[] {
   return proposals.map((p) => {
-    const row = rowsById.get(p.commitment_id);
+    if (p.action === 'create') {
+      const after = applyPatchToSummary(
+        {
+          display_label: p.patch.display_label ?? p.detected_provider_label,
+          vendor: p.detected_vendor ?? 'manual',
+        },
+        p.patch,
+      );
+      return { ...p, before: {}, after };
+    }
+    const row = p.commitment_id ? rowsById.get(p.commitment_id) : undefined;
     const before = row ? pickSummaryFields(row) : {};
     const after = applyPatchToSummary(before, p.patch);
     return { ...p, before, after };
@@ -493,6 +680,66 @@ export async function applyOpsBillingAiPatch(
   const { error } = await supabase.from('platform_ops_billing_commitments').update(dbPatch).eq('id', commitmentId);
   if (error) return { ok: false, error: error.message };
   return { ok: true };
+}
+
+export async function createOpsBillingAiCommitment(
+  supabase: OpsBillingSupabase,
+  input: {
+    vendor: OpsBillingVendor;
+    display_label: string;
+    external_stable_key?: string | null;
+    patch: OpsBillingAiPatch;
+  },
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const label = input.display_label.trim();
+  if (!label) return { ok: false, error: 'display_label required for new commitment' };
+
+  const finalPatch = enrichKhazenApplyPatch(input.patch, null);
+  const err = validateAiPatch(finalPatch);
+  if (err) return { ok: false, error: err };
+
+  const vendor = input.vendor || 'manual';
+  const stableKey = (input.external_stable_key || slugifyStableKey(label)).trim();
+
+  const row = {
+    vendor,
+    display_label: label,
+    integration_mode: vendor === 'manual' ? 'manual_only' : 'api_polling',
+    billing_cycle: finalPatch.billing_cycle || 'unknown',
+    amount_expected: finalPatch.amount_expected ?? null,
+    amount_currency: finalPatch.amount_currency || 'SAR',
+    monthly_estimate_sar: finalPatch.monthly_estimate_sar ?? null,
+    next_renewal_at: finalPatch.next_renewal_at ?? null,
+    last_synced_at: new Date().toISOString(),
+    last_sync_status: finalPatch.last_sync_status || 'ok',
+    last_sync_error: null,
+    external_stable_key: stableKey,
+    external_ref: {},
+    vendor_payload: {},
+    is_manual: vendor === 'manual',
+    manual_notes: finalPatch.manual_notes ?? null,
+    data_gap_kind: null,
+    data_gap_message: null,
+    credential_env_hint: null,
+  };
+
+  const { data, error } = await supabase
+    .from('platform_ops_billing_commitments')
+    .insert(row)
+    .select('id')
+    .maybeSingle();
+
+  if (error) {
+    if (error.message.includes('platform_ops_billing_commitments_vendor_stable_uidx')) {
+      return {
+        ok: false,
+        error: 'هذا التزام مسجّل مسبقاً — استخدم تحديث الصف الحالي بدلاً من إضافة مكررة.',
+      };
+    }
+    return { ok: false, error: error.message };
+  }
+  if (!data?.id) return { ok: false, error: 'تعذّر إنشاء صف الالتزام' };
+  return { ok: true, id: String(data.id) };
 }
 
 const VISION_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);

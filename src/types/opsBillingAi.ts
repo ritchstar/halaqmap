@@ -1,3 +1,5 @@
+export type OpsBillingAiProposalAction = 'update' | 'create';
+
 export type OpsBillingAiPatch = {
   display_label?: string;
   next_renewal_at?: string | null;
@@ -12,7 +14,9 @@ export type OpsBillingAiPatch = {
 
 export type OpsBillingAiProposal = {
   proposal_token: string;
-  commitment_id: string;
+  action: OpsBillingAiProposalAction;
+  commitment_id: string | null;
+  external_stable_key?: string | null;
   match_confidence: 'high' | 'medium' | 'low';
   detected_vendor: string | null;
   detected_provider_label: string;
