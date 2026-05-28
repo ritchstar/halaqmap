@@ -6,7 +6,7 @@
  * تصميم تكتيكي داكن · فخامة خليجية · حضور جغرافي
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, Suspense } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
@@ -19,23 +19,24 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { GeoRadarButton } from '@/components/GeoRadarButton';
-import { FilterBar } from '@/components/FilterBar';
-import { BarberCard } from '@/components/BarberCards';
-import { BarberMap } from '@/components/BarberMap';
-import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
-import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
-import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
-import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { RadarShowcaseLink } from '@/components/RadarShowcaseLink';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
+import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
-import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
-import { LegalObserverChat } from '@/components/LegalObserverChat';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
+import { LandingSectionFallback } from '@/pages/landing/LandingSectionFallback';
+import { useDeferredMount } from '@/pages/landing/useDeferredMount';
+import {
+  LandingAgentPanelBody,
+  LandingBarberDetailModal,
+  LandingFloatingPlatformActions,
+  LandingPlatformAmbientBackground,
+  LandingSearchResults,
+} from '@/pages/landing/lazyLandingParts';
 
 type LandingAgentPanel = 'media' | 'legal' | null;
 
@@ -188,17 +189,9 @@ function LandingAgentPanel({
             >
               إغلاق
             </button>
-            {activePanel === 'media' ? (
-              <B2BMediaSpokespersonChat
-                key="landing-media-agent"
-                audience="consumer"
-                mode="inline"
-                collapseOnScroll={false}
-                defaultOpen
-              />
-            ) : (
-              <LegalObserverChat key="landing-legal-agent" page="سياسة الخصوصية" defaultOpen />
-            )}
+            <Suspense fallback={<LandingSectionFallback label="جاري فتح المكتب…" />}>
+              <LandingAgentPanelBody panel={activePanel} />
+            </Suspense>
           </motion.aside>
         </>
       ) : null}
@@ -467,6 +460,7 @@ export default function LandingPreview() {
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const deferBelowFold = useDeferredMount();
 
   const filteredBarbers = useMemo(() => {
     if (!userLocation) return [];
@@ -527,7 +521,11 @@ export default function LandingPreview() {
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
 
       {/* أزرار عائمة للمستخدم */}
-      <FloatingPlatformActions />
+      {deferBelowFold ? (
+        <Suspense fallback={null}>
+          <LandingFloatingPlatformActions />
+        </Suspense>
+      ) : null}
 
       {/* ── ألسنة الوكلاء — يسار وسط الشاشة ── */}
       <LeftAgentStack navigate={navigate} onOpenPanel={setActiveAgentPanel} />
@@ -544,7 +542,11 @@ export default function LandingPreview() {
         }}
       />
 
-      <PlatformAmbientBackground variant="default" />
+      {deferBelowFold ? (
+        <Suspense fallback={null}>
+          <LandingPlatformAmbientBackground variant="default" />
+        </Suspense>
+      ) : null}
 
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
@@ -927,81 +929,31 @@ export default function LandingPreview() {
             transition={{ duration: 0.5 }}
             className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
           >
-            {/* شريط الفلاتر */}
-            <div className="mx-auto max-w-7xl px-5 py-4">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <FilterBar filters={filters} onFilterChange={setFilters} />
-              </div>
-            </div>
-
-            {/* الخريطة */}
-            <div className="mx-auto max-w-7xl px-5 pb-4">
-              <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-teal-500/5">
-                <BarberMap
-                  barbers={filteredBarbers}
-                  userLocation={userLocation}
-                  onBarberPatch={onBarberPatch}
-                  realtimeEnabled={isSupabaseConfigured()}
-                />
-              </div>
-            </div>
-
-            {/* بطاقات الصالونات */}
-            <div className="mx-auto max-w-7xl px-5 pb-12">
-              {filteredBarbers.length === 0 ? (
-                <div className="py-16 text-center">
-                  <motion.div
-                    className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-teal-400/20 bg-teal-500/10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2.5, repeat: Infinity }}
-                  >
-                    <MapPin className="h-10 w-10 text-teal-400" />
-                  </motion.div>
-                  <h3 className="mb-2 text-xl font-bold text-white">
-                    {remoteStatus === 'loading' ? 'الرادار يبحث…' : 'لا نتائج في هذا النطاق'}
-                  </h3>
-                  <p className="text-sm text-slate-400">جرّب توسيع نطاق البحث من شريط الفلاتر أعلاه</p>
-                </div>
-              ) : (
-                <>
-                  <div className="mb-4 flex items-center justify-between">
-                    <p className="text-sm text-slate-400">
-                      <span className="font-bold text-teal-300">{filteredBarbers.length}</span> صالون في محيطك
-                    </p>
-                    <div className="flex items-center gap-1.5 text-[0.65rem] text-teal-400/70">
-                      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                      رصد حيّ
-                    </div>
-                  </div>
-                  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredBarbers.map((barber, i) => (
-                      <motion.div
-                        key={barber.id}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.04, duration: 0.4 }}
-                        onClick={() => setSelectedBarber(barber)}
-                        className="cursor-pointer"
-                      >
-                        <BarberCard barber={barber} userLocation={userLocation} />
-                      </motion.div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+            <Suspense fallback={<LandingSectionFallback label="جاري تحميل نتائج الرادار…" />}>
+              <LandingSearchResults
+                userLocation={userLocation}
+                filters={filters}
+                onFilterChange={setFilters}
+                filteredBarbers={filteredBarbers}
+                remoteStatus={remoteStatus}
+                onBarberPatch={onBarberPatch}
+                onSelectBarber={setSelectedBarber}
+              />
+            </Suspense>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* نافذة تفاصيل الصالون */}
-      {selectedBarber && (
-        <BarberDetailModal
-          barber={selectedBarber}
-          isOpen
-          onClose={() => setSelectedBarber(null)}
-        />
-      )}
+      {selectedBarber ? (
+        <Suspense fallback={null}>
+          <LandingBarberDetailModal
+            barber={selectedBarber}
+            isOpen
+            onClose={() => setSelectedBarber(null)}
+          />
+        </Suspense>
+      ) : null}
 
       {/* ── Stats strip ──────────────────────────────────────────────────── */}
       <section className="relative z-10 border-y border-white/5 bg-white/[0.02] py-14">
