@@ -11,7 +11,9 @@
 
 import { useMemo } from 'react';
 import { TacticalKingdomBackdrop } from '@/modules/platform-radar/components/TacticalKingdomBackdrop';
-import { KSA_VIEWBOX } from '@/modules/platform-radar/lib/saudiKingdomGeo';
+import { KSA_OUTLINE_PATH, KSA_VIEWBOX, RIYADH_VIEW } from '@/modules/platform-radar/lib/saudiKingdomGeo';
+import { PulseMapCompassOrnament } from '@/modules/pulse-map/components/PulseMapCompassOrnament';
+import { PulseMapKingdomSweep } from '@/modules/pulse-map/components/PulseMapKingdomSweep';
 import { EXTERNAL_SOURCES, projectExternalSource } from '../lib/cyberGeo';
 import type { CyberEvent, CyberEventKind } from '../types';
 
@@ -22,6 +24,7 @@ type Props = {
   pulses: ReadonlyArray<CyberEvent>;
   narrator?: string | null;
   className?: string;
+  showOrnaments?: boolean;
 };
 
 const PULSE_PALETTE: Record<CyberEventKind, { glow: string; dot: string; ring: string }> = {
@@ -142,7 +145,7 @@ function TraceVector({ pulse }: { pulse: CyberEvent }) {
   );
 }
 
-export function CyberRadarCanvas({ pulses, narrator, className }: Props) {
+export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = true }: Props) {
   const viewBox = `0 0 ${KSA_VIEWBOX.width} ${KSA_VIEWBOX.height}`;
 
   // External source ring labels — calculated once, the labels themselves are
@@ -186,7 +189,10 @@ export function CyberRadarCanvas({ pulses, narrator, className }: Props) {
       >
         {/* Layer 1 — KSA tactical backdrop */}
         <div className="absolute inset-0">
-          <TacticalKingdomBackdrop />
+          <TacticalKingdomBackdrop
+            showTacticalSweep={!showOrnaments}
+            showCompassRose={!showOrnaments}
+          />
         </div>
 
         {/* Overlay SVG — ring labels + vectors + pulses share the same viewBox */}
@@ -195,6 +201,15 @@ export function CyberRadarCanvas({ pulses, narrator, className }: Props) {
           viewBox={viewBox}
           preserveAspectRatio="xMidYMid meet"
         >
+          {showOrnaments ? (
+            <PulseMapKingdomSweep
+              cx={RIYADH_VIEW.x}
+              cy={RIYADH_VIEW.y}
+              variant="cyber"
+              clipPaths={[KSA_OUTLINE_PATH]}
+            />
+          ) : null}
+
           {/* Layer 2 — external source ring */}
           <g>
             {externalLabels.map((s) => {
@@ -285,6 +300,13 @@ export function CyberRadarCanvas({ pulses, narrator, className }: Props) {
             ))}
           </g>
         </svg>
+
+        {showOrnaments ? (
+          <PulseMapCompassOrnament
+            variant="cyber"
+            className="absolute right-2 top-2 z-20 sm:right-3 sm:top-3"
+          />
+        ) : null}
 
         {/* Layer 5 — narrator banner (HTML, not SVG, so it can wrap RTL) */}
         {narrator ? (

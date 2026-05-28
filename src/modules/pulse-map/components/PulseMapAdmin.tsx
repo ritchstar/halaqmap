@@ -14,6 +14,7 @@ type Props = {
 export function PulseMapAdmin({ commandMode = false, className, pollMs }: Props) {
   const [showCities, setShowCities] = useState(true);
   const [showPulses, setShowPulses] = useState(true);
+  const [showOrnaments, setShowOrnaments] = useState(true);
   const { payload, loading, refreshing, error, windowMinutes, setWindowMinutes, refresh } =
     usePulseMapAdminData({ pollMs });
 
@@ -24,6 +25,8 @@ export function PulseMapAdmin({ commandMode = false, className, pollMs }: Props)
       error={error}
       showCities={showCities}
       showPulses={showPulses}
+      showOrnaments={showOrnaments}
+      ornamentVariant="admin"
       className={cn(commandMode ? 'h-full min-h-0 gap-2 p-2 lg:grid-cols-[minmax(10rem,12rem)_1fr_minmax(13rem,16rem)]' : className)}
       mapClassName={commandMode ? 'max-h-[min(52rem,88vh)]' : undefined}
       startPanel={<PulseMapHudStart payload={payload} loading={loading} />}
@@ -39,6 +42,8 @@ export function PulseMapAdmin({ commandMode = false, className, pollMs }: Props)
           showPulses={showPulses}
           onShowCitiesChange={setShowCities}
           onShowPulsesChange={setShowPulses}
+          showOrnaments={showOrnaments}
+          onShowOrnamentsChange={setShowOrnaments}
           compact={commandMode}
         />
       }

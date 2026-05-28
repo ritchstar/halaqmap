@@ -18,6 +18,7 @@ import { CyberRadarCanvas } from '@/modules/cyber-radar/components/CyberRadarCan
 import {
   AgentResponseFeed,
   CyberEventLog,
+  CyberRadarDisplayControls,
   CyberStatsStrip,
   ScenarioControlPanel,
   SecurityLegend,
@@ -319,6 +320,7 @@ function AdminCyberOperationsPageInner() {
 
   // Rotate the ambient agent log in live mode so it doesn't feel static.
   const [ambientIdx, setAmbientIdx] = useState(0);
+  const [showOrnaments, setShowOrnaments] = useState(true);
   useEffect(() => {
     if (mode !== 'live') return;
     const id = window.setInterval(() => {
@@ -503,7 +505,7 @@ function AdminCyberOperationsPageInner() {
 
         {/* Centre — radar canvas */}
         <section className="order-2 min-h-[18rem] overflow-hidden rounded-2xl border border-cyan-300/20 bg-black shadow-[0_0_60px_rgba(34,211,238,0.10)] lg:order-none lg:col-start-2 lg:row-start-2 lg:min-h-0">
-          <CyberRadarCanvas pulses={pulses} narrator={null} />
+          <CyberRadarCanvas pulses={pulses} narrator={null} showOrnaments={showOrnaments} />
         </section>
 
         {/* Centre top — narrator / status banner */}
@@ -652,6 +654,10 @@ function AdminCyberOperationsPageInner() {
             onPlay={playback.play}
             onPause={playback.pause}
             onReset={() => { setCustomScenario(null); playback.reset(); }}
+          />
+          <CyberRadarDisplayControls
+            showOrnaments={showOrnaments}
+            onShowOrnamentsChange={setShowOrnaments}
           />
           <SecurityLegend />
         </aside>

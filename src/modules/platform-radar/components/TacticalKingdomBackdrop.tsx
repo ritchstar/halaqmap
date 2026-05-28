@@ -31,8 +31,12 @@ import {
  */
 export function TacticalKingdomBackdrop({
   showCapitalHeartbeat = true,
+  showTacticalSweep = true,
+  showCompassRose = true,
 }: {
   showCapitalHeartbeat?: boolean;
+  showTacticalSweep?: boolean;
+  showCompassRose?: boolean;
 }) {
   const { width: VBW, height: VBH } = KSA_VIEWBOX;
 
@@ -298,15 +302,18 @@ export function TacticalKingdomBackdrop({
       ) : null}
 
       {/* Layer 9: Rotating tactical scan sweep — anchored at Riyadh */}
-      <g
-        className="tactical-sweep-rotor"
-        style={{ transformOrigin: `${RIYADH_VIEW.x}px ${RIYADH_VIEW.y}px` }}
-      >
-        <path d={sweep} fill="url(#tk-sweep-gradient)" />
-      </g>
+      {showTacticalSweep ? (
+        <g
+          className="tactical-sweep-rotor"
+          style={{ transformOrigin: `${RIYADH_VIEW.x}px ${RIYADH_VIEW.y}px` }}
+        >
+          <path d={sweep} fill="url(#tk-sweep-gradient)" />
+        </g>
+      ) : null}
 
       {/* Layer 10: Compass rose (bottom-left) */}
-      <g transform={`translate(${compassCx} ${compassCy})`}>
+      {showCompassRose ? (
+        <g transform={`translate(${compassCx} ${compassCy})`}>
         <circle r={compassR} fill="rgba(0,0,0,0.55)" stroke="rgba(56,189,248,0.35)" strokeWidth="1" />
         <circle r={compassR * 0.72} fill="none" stroke="rgba(56,189,248,0.18)" strokeWidth="0.5" />
         <g stroke="rgba(186,230,253,0.7)" strokeWidth="1.2" strokeLinecap="round">
@@ -361,6 +368,7 @@ export function TacticalKingdomBackdrop({
           E
         </text>
       </g>
+      ) : null}
 
       {/* Layer 11: Corner brackets — HUD framing */}
       <g

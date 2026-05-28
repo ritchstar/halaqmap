@@ -24,6 +24,8 @@ type Props = {
   showPulses: boolean;
   onShowCitiesChange: (value: boolean) => void;
   onShowPulsesChange: (value: boolean) => void;
+  showOrnaments: boolean;
+  onShowOrnamentsChange: (value: boolean) => void;
   compact?: boolean;
 };
 
@@ -38,6 +40,8 @@ export function PulseMapAdminControls({
   showPulses,
   onShowCitiesChange,
   onShowPulsesChange,
+  showOrnaments,
+  onShowOrnamentsChange,
   compact = false,
 }: Props) {
   const admin = payload?.admin;
@@ -105,6 +109,7 @@ export function PulseMapAdminControls({
         <p className="text-[0.62rem] font-semibold text-slate-500">عرض الخريطة</p>
         <ToggleRow label="مدن المنصة" checked={showCities} onCheckedChange={onShowCitiesChange} />
         <ToggleRow label="نبضات حية" checked={showPulses} onCheckedChange={onShowPulsesChange} />
+        <ToggleRow label="مسح الرادار والبوصلة" checked={showOrnaments} onCheckedChange={onShowOrnamentsChange} />
       </div>
 
       <div className="mt-4 space-y-2 border-t border-white/10 pt-4">

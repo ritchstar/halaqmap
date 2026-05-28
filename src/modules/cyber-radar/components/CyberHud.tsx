@@ -15,6 +15,7 @@ import {
   Globe2,
   Pause,
   Play,
+  Radar,
   RefreshCcw,
   Shield,
   ShieldAlert,
@@ -24,6 +25,7 @@ import {
   Search,
   Zap,
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import type {
   CyberAgentResponse,
   CyberEvent,
@@ -323,6 +325,32 @@ const LEGEND_ROWS: { kind: CyberEventKind; labelAr: string }[] = [
   { kind: 'threat_attack', labelAr: 'هجوم نشط (DDoS / اختراق)' },
   { kind: 'defence_action', labelAr: 'إجراء دفاعي من وكيل' },
 ];
+
+export function CyberRadarDisplayControls({
+  showOrnaments,
+  onShowOrnamentsChange,
+}: {
+  showOrnaments: boolean;
+  onShowOrnamentsChange: (value: boolean) => void;
+}) {
+  return (
+    <div
+      dir="rtl"
+      className="rounded-xl border border-amber-400/20 bg-black/55 p-3 backdrop-blur-md"
+    >
+      <div className="mb-2 flex items-center gap-2">
+        <Radar className="h-3.5 w-3.5 text-amber-300/80" aria-hidden />
+        <p className="text-[0.62rem] font-bold uppercase tracking-wider text-amber-200/75">
+          عرض الخريطة
+        </p>
+      </div>
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2">
+        <span className="text-[0.67rem] text-slate-300">مسح الرادار والبوصلة</span>
+        <Switch checked={showOrnaments} onCheckedChange={onShowOrnamentsChange} />
+      </div>
+    </div>
+  );
+}
 
 export function SecurityLegend() {
   const [open, setOpen] = useState(false);

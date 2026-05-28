@@ -7,7 +7,7 @@ import { PulseMapBackdrop } from '@/modules/pulse-map/components/PulseMapBackdro
 import { PulseMapCityMarkers } from '@/modules/pulse-map/components/PulseMapCityMarkers';
 import { PulseMapCompassOrnament } from '@/modules/pulse-map/components/PulseMapCompassOrnament';
 import { PulseMapDots } from '@/modules/pulse-map/components/PulseMapDots';
-import { PulseMapKingdomSweep } from '@/modules/pulse-map/components/PulseMapKingdomSweep';
+import { PulseMapKingdomSweep, type PulseMapOrnamentVariant } from '@/modules/pulse-map/components/PulseMapKingdomSweep';
 import { PulseMapHudEnd, PulseMapHudStart } from '@/modules/pulse-map/components/PulseMapHud';
 import { getPulseMapCityMarker } from '@/modules/pulse-map/lib/pulseMapCities';
 import { placePulses } from '@/modules/pulse-map/lib/pulsePlacement';
@@ -21,6 +21,7 @@ type Props = {
   showCities?: boolean;
   showPulses?: boolean;
   showOrnaments?: boolean;
+  ornamentVariant?: PulseMapOrnamentVariant;
   startPanel?: ReactNode;
   endPanel?: ReactNode;
   mapClassName?: string;
@@ -34,6 +35,7 @@ export function PulseMapShell({
   showCities: showCitiesProp,
   showPulses: showPulsesProp,
   showOrnaments = true,
+  ornamentVariant = 'public',
   startPanel,
   endPanel,
   mapClassName,
@@ -61,7 +63,12 @@ export function PulseMapShell({
     <div className={cn('grid gap-3 lg:grid-cols-[minmax(11rem,13.5rem)_1fr_minmax(11rem,13.5rem)]', className)} dir="rtl">
       <div className="order-2 lg:order-none">{start}</div>
 
-      <div className="order-1 overflow-hidden rounded-2xl border border-sky-400/15 bg-[#020617] lg:order-none">
+      <div
+        className={cn(
+          'order-1 overflow-hidden rounded-2xl bg-[#020617] lg:order-none',
+          ornamentVariant === 'admin' ? 'border border-violet-400/20' : 'border border-sky-400/15',
+        )}
+      >
         <div
           className={cn('relative mx-auto w-full max-h-[min(44rem,72vh)]', mapClassName)}
           style={{ aspectRatio: aspect }}
@@ -74,13 +81,16 @@ export function PulseMapShell({
           >
             <PulseMapBackdrop />
             {showOrnaments && riyadh ? (
-              <PulseMapKingdomSweep cx={riyadh.x} cy={riyadh.y} />
+              <PulseMapKingdomSweep cx={riyadh.x} cy={riyadh.y} variant={ornamentVariant} />
             ) : null}
             {showCities ? <PulseMapCityMarkers /> : null}
             {showPulses ? <PulseMapDots pulses={placedPulses} /> : null}
           </svg>
           {showOrnaments ? (
-            <PulseMapCompassOrnament className="absolute right-2 top-2 z-10 sm:right-3 sm:top-3" />
+            <PulseMapCompassOrnament
+              variant={ornamentVariant}
+              className="absolute right-2 top-2 z-10 sm:right-3 sm:top-3"
+            />
           ) : null}
         </div>
       </div>
