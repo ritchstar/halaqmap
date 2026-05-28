@@ -198,7 +198,7 @@ export default function SaudiAgentLanding() {
   const [loading, setLoading] = useState(false);
   const [greetingIdx, setGreetingIdx] = useState(0);
   const [chatStarted, setChatStarted] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
   const turns = turnsByAgent[activeAgent];
@@ -210,10 +210,34 @@ export default function SaudiAgentLanding() {
     return () => clearInterval(t);
   }, [activeAgent]);
 
-  // Auto-scroll
+  // تمرير داخل صندوق الرسائل فقط — بدون تحريك الصفحة
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    const box = messagesRef.current;
+    if (!box) return;
+    box.scrollTop = box.scrollHeight;
   }, [turns, loading]);
+
+  const wasLoadingRef = useRef(false);
+
+  // إرجاع مؤشر الكتابة لمربع الإدخال بعد انتهاء رد الوكيل
+  useEffect(() => {
+    if (loading) {
+      wasLoadingRef.current = true;
+      return;
+    }
+    if (!wasLoadingRef.current) return;
+    wasLoadingRef.current = false;
+
+    const id = window.setTimeout(() => {
+      const el = textRef.current;
+      if (!el || el.disabled) return;
+      el.focus({ preventScroll: true });
+      const end = el.value.length;
+      el.setSelectionRange(end, end);
+    }, 50);
+
+    return () => window.clearTimeout(id);
+  }, [loading]);
 
   const handleSend = useCallback(async (text?: string) => {
     const msg = (text ?? draft).trim();
@@ -237,7 +261,6 @@ export default function SaudiAgentLanding() {
     setLoading(false);
     setChatEvent('received');
     setTimeout(() => setChatEvent(null), 800);
-    setTimeout(() => textRef.current?.focus(), 100);
   }, [activeAgent, draft, loading, turns]);
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -451,8 +474,9 @@ export default function SaudiAgentLanding() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.6 }}
-          className="overflow-hidden rounded-3xl"
+          className="flex flex-col overflow-hidden rounded-3xl"
           style={{
+            height: 'min(78dvh, 880px)',
             border: `1px solid ${activeCopy.border}`,
             background: activeCopy.panelBg,
             boxShadow: `0 0 80px ${activeCopy.primary}24,0 0 160px ${activeCopy.secondary}12,inset 0 1px 0 ${activeCopy.border}`,
@@ -460,7 +484,7 @@ export default function SaudiAgentLanding() {
           }}
         >
           {/* هيدر المحادثة */}
-          <div className="flex items-center justify-between border-b border-yellow-500/15 bg-gradient-to-l from-green-900/20 via-transparent to-yellow-900/10 px-6 py-4">
+          <div className="flex shrink-0 items-center justify-between border-b border-yellow-500/15 bg-gradient-to-l from-green-900/20 via-transparent to-yellow-900/10 px-6 py-4">
             <div className="flex items-center gap-3">
               <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-500/35 bg-gradient-to-br from-green-800/50 to-yellow-900/30">
                 <span className="text-2xl">{activeCopy.avatar}</span>
@@ -483,10 +507,10 @@ export default function SaudiAgentLanding() {
             </div>
           </div>
 
-          {/* منطقة الرسائل */}
+          {/* منطقة الرسائل — ارتفاع ثابت، تمرير داخلي فقط */}
           <div
-            className="relative overflow-y-auto overscroll-contain px-5 py-5 scroll-smooth"
-            style={{ minHeight: chatStarted ? '380px' : '120px', maxHeight: '55dvh', transition: 'min-height 0.4s ease' }}
+            ref={messagesRef}
+            className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 scroll-smooth"
           >
             {/* رسالة ترحيب */}
             {turns.length === 0 && !loading && (
@@ -529,13 +553,12 @@ export default function SaudiAgentLanding() {
                   <TypingDots agent={activeAgent} />
                 </motion.div>
               )}
-              <div ref={endRef} className="h-2" />
             </div>
           </div>
 
           {/* أسئلة سريعة */}
           {!loading && (
-            <div className="border-t border-yellow-500/10 bg-black/20 px-4 py-3.5">
+            <div className="shrink-0 border-t border-yellow-500/10 bg-black/20 px-4 py-3.5">
               <p className="mb-2.5 text-[0.65rem] font-bold text-yellow-500/40">💡 اختر موضوعاً أو اكتب سؤالك:</p>
               <div className="flex flex-wrap gap-2">
                 {QUICK_TOPICS[activeAgent].map((q) => (
@@ -553,7 +576,7 @@ export default function SaudiAgentLanding() {
           )}
 
           {/* منطقة الكتابة */}
-          <div className="border-t border-yellow-500/12 bg-gradient-to-t from-black/40 to-transparent px-4 py-4">
+          <div className="shrink-0 border-t border-yellow-500/12 bg-gradient-to-t from-black/40 to-transparent px-4 py-4">
             <div className="flex items-end gap-3">
               <textarea
                 ref={textRef}
@@ -563,14 +586,13 @@ export default function SaudiAgentLanding() {
                 disabled={loading}
                 placeholder={activeCopy.placeholder}
                 rows={2}
-                className="flex-1 rounded-2xl border bg-[#071510]/80 px-5 py-3.5 text-[1rem] leading-7 text-white placeholder:text-white/30 outline-none transition-all disabled:opacity-50"
+                className="flex-1 rounded-2xl border bg-[#071510]/80 px-5 py-3.5 text-[1rem] leading-7 text-white placeholder:text-white/30 outline-none transition-all focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/25 disabled:cursor-not-allowed disabled:opacity-50"
                 style={{
                   minHeight: '60px',
                   maxHeight: '160px',
                   resize: 'none',
                   overflowY: 'auto',
                   borderColor: `${activeCopy.primary}40`,
-                  boxShadow: `0 0 0 1px ${activeCopy.primary}00`,
                 }}
                 dir="rtl"
               />
