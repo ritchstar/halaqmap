@@ -12,6 +12,7 @@ import {
 import { HonorBoard } from "@/components/b2b/HonorBoard";
 import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
 import { PlatformTlsTrustBadge } from "@/components/PlatformTlsTrustBadge";
+import { LegalPolicySection } from "@/components/legal/LegalPolicySection";
 import {
   PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
   PLATFORM_IDENTITY_PARAGRAPH_AR,
@@ -86,7 +87,7 @@ export default function PartnerPrivacy() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background partner-legal-page">
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(13,148,136,0.15),transparent_50%)]" />
         <motion.div
@@ -116,52 +117,32 @@ export default function PartnerPrivacy() {
         </div>
 
         <div className="max-w-4xl mx-auto space-y-8">
-          {sections.map((section, index) => {
-            const Icon = section.icon;
-            return (
-              <motion.div
-                key={section.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.06 }}
-                className="rounded-2xl border border-border bg-card p-6"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold mb-2">{section.title}</h2>
-                    <div className="space-y-2">
-                      {section.content.split("\n").map((line, i) => (
-                        <p key={i} className="text-muted-foreground leading-relaxed">
-                          {line}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+          {sections.map((section, index) => (
+            <LegalPolicySection
+              key={section.title}
+              icon={section.icon}
+              title={section.title}
+              content={section.content}
+              index={index}
+            />
+          ))}
 
-          <div className="rounded-2xl border border-border bg-card p-6 text-right">
-            <h2 className="text-lg font-bold mb-3">البيانات التجارية للمنشأة</h2>
-            <p className="text-sm font-medium text-foreground mb-2">{LEGAL_TRADE_NAME_AR}</p>
-            <p className="text-sm text-muted-foreground mb-2">
+          <div className="partner-legal-section rounded-2xl border border-white/12 bg-[#0b1628]/95 p-6 text-right text-slate-100">
+            <h2 className="mb-3 text-lg font-bold text-slate-50">البيانات التجارية للمنشأة</h2>
+            <p className="mb-2 text-sm font-medium text-slate-100">{LEGAL_TRADE_NAME_AR}</p>
+            <p className="mb-2 text-sm text-slate-300">
               الرقم الوطني الموحد للمنشأة:{' '}
-              <span dir="ltr" className="font-mono">
+              <span dir="ltr" className="font-mono text-slate-100">
                 {LEGAL_NATIONAL_UNIFIED_NUMBER}
               </span>
             </p>
             {commercialReg ? (
-              <p className="text-sm text-muted-foreground mb-6">
-                رقم السجل التجاري: <span dir="ltr">{commercialReg}</span>
+              <p className="mb-6 text-sm text-slate-300">
+                رقم السجل التجاري: <span dir="ltr" className="text-slate-100">{commercialReg}</span>
               </p>
             ) : null}
-            <h3 className="text-base font-semibold mb-2">الدعم الفني والشكاوى</h3>
-            <ul className="text-sm text-muted-foreground space-y-1 list-none p-0 m-0">
+            <h3 className="mb-2 text-base font-semibold text-slate-50">الدعم الفني والشكاوى</h3>
+            <ul className="m-0 list-none space-y-1 p-0 text-sm text-slate-300">
               <li>
                 بريد:{' '}
                 <a href={`mailto:${PARTNER_SUPPORT_EMAIL}`} className="text-primary underline-offset-2 hover:underline">
@@ -193,7 +174,7 @@ export default function PartnerPrivacy() {
             <HonorBoard context="legal" variant="legal" />
           </div>
 
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
+          <div className="rounded-xl border border-teal-400/20 bg-teal-500/8 p-4 text-sm text-slate-400">
             آخر تحديث: 4 مايو 2026
           </div>
         </div>

@@ -11,9 +11,9 @@ export function renderLegalContentBlocks(content: string) {
     blocks.push(
       <ul key={`ul-${keyBase}`} className="list-disc list-inside space-y-2 pr-1 text-right">
         {bullets.map((line, i) => (
-          <li key={`li-${keyBase}-${i}`} className="text-muted-foreground leading-relaxed">
+          <li key={`li-${keyBase}-${i}`} className="leading-relaxed text-slate-300">
             {line.split('**').map((part, idx) =>
-              idx % 2 === 0 ? part : <strong key={idx} className="text-foreground">{part}</strong>
+              idx % 2 === 0 ? part : <strong key={idx} className="font-semibold text-slate-100">{part}</strong>
             )}
           </li>
         ))}
@@ -37,7 +37,7 @@ export function renderLegalContentBlocks(content: string) {
     pushBullets(i);
     if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
       blocks.push(
-        <h3 key={`h-${i}`} className="text-lg font-semibold text-foreground mt-4 mb-2 text-right">
+        <h3 key={`h-${i}`} className="mb-2 mt-4 text-right text-lg font-semibold text-slate-50">
           {paragraph.replace(/\*\*/g, '')}
         </h3>
       );
@@ -45,9 +45,9 @@ export function renderLegalContentBlocks(content: string) {
     }
 
     blocks.push(
-      <p key={`p-${i}`} className="text-muted-foreground leading-relaxed mb-4 text-right">
+      <p key={`p-${i}`} className="mb-4 text-right leading-relaxed text-slate-300">
         {paragraph.split('**').map((part, idx) =>
-          idx % 2 === 0 ? part : <strong key={idx} className="text-foreground">{part}</strong>
+          idx % 2 === 0 ? part : <strong key={idx} className="font-semibold text-slate-100">{part}</strong>
         )}
       </p>
     );
