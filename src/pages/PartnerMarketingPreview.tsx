@@ -52,6 +52,8 @@ import { RadarShowcaseLink } from '@/components/RadarShowcaseLink';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
+import { SOFTWARE_SERVICES_PORTAL_HEADING } from '@/config/partnerPortal';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -962,6 +964,7 @@ function CertificateMockup() {
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function PartnerMarketingPreview() {
   const navigate = useNavigate();
+  useDocumentTitle(SOFTWARE_SERVICES_PORTAL_HEADING);
   const { effectivePhase, control } = usePlatformAmbient();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'bronze' | 'gold' | 'diamond'>('gold');

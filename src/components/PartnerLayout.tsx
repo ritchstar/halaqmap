@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -21,6 +21,7 @@ import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { DOMAIN_VERIFICATION_META_CONTENT, ensureDomainVerificationMeta } from '@/config/domainVerification';
 import { SOFTWARE_SERVICES_PORTAL_HEADING, SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPublic';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
 import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
@@ -139,6 +140,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     ? partnerNavItems
     : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
   const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
+
+  useDocumentTitle(SOFTWARE_SERVICES_PORTAL_HEADING);
 
   useEffect(() => {
     capturePartnerAttributionFromLocation();

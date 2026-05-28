@@ -2,21 +2,19 @@
  * PulseMapPage — خريطة النبض (خطوة 1: رسم المملكة)
  * Route: /radar
  */
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Radar } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
 import { PULSE_MAP_CONFIG, PULSE_MAP_ROUTE } from '@/config/pulseMapConfig';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PulseMapShell, usePulseMapData } from '@/modules/pulse-map';
 
 export default function PulseMapPage() {
   const navigate = useNavigate();
   const { payload, loading, error } = usePulseMapData();
 
-  useEffect(() => {
-    document.title = PULSE_MAP_CONFIG.pageTitleAr;
-  }, []);
+  useDocumentTitle(PULSE_MAP_CONFIG.pageTitleAr);
 
   return (
     <div
