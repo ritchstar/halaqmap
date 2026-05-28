@@ -2,21 +2,19 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { Layout } from "@/components/Layout";
 /** يتضمن PartnerLayout مساعد الشركاء الرقمي عبر PartnerDigitalBarberAssistant — المسار الوحيد للمساعد في مسار الخدمات البرمجية للمنصة. */
 import { PartnerLayout } from "@/components/PartnerLayout";
+import { RouteLoadingFallback } from "@/components/RouteLoadingFallback";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/Home";
-import Register from "@/pages/Register";
 import RegisterSuccess from "@/pages/RegisterSuccess";
 import ShopOpenStatus from "@/pages/ShopOpenStatus";
 import About from "@/pages/About";
 import BarberGrowthLanding from "@/pages/BarberGrowthLanding";
-import InternalPartnerPathPrintCard from "@/pages/InternalPartnerPathPrintCard";
-import InvoicePreviewSamples from "@/pages/InvoicePreviewSamples";
 import PartnerInterestLanding from "@/pages/PartnerInterestLanding";
 import PartnerWhyPage from "@/pages/PartnerWhyPage";
 import PartnerStoryPage from "@/pages/PartnerStoryPage";
@@ -27,29 +25,34 @@ import PartnerPrivacy from "@/pages/PartnerPrivacy";
 import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
 import BarberLogin from "@/pages/BarberLogin";
 import BarberPortalEnter from "@/pages/BarberPortalEnter";
-import BarberDashboard from "@/pages/BarberDashboard";
 import BarberAccountDeletionRequest from "@/pages/BarberAccountDeletionRequest";
-import AdminLogin from "@/pages/AdminLogin";
-import AdminDashboard from "@/pages/AdminDashboard";
 import Payment from "@/pages/Payment";
 import PartnerSupportChat from "@/pages/PartnerSupportChat";
 import PartnerSubscriptionTutorials from "@/pages/PartnerSubscriptionTutorials";
-import MapCommunity from "@/pages/MapCommunity";
 import PartnerBannersPreviewLanding from "@/pages/PartnerBannersPreviewLanding";
 import RateBarber from "@/pages/RateBarber";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
-import AdminSentinelPage from "@/pages/AdminSentinelPage";
-import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
-import AdminCyberOperationsPage from "@/app/admin/cyber/page";
-import StaffHubPage from "@/app/admin/staff-hub/page";
-import CosmicShowcase from "@/pages/CosmicShowcase";
 import DigitalShiftFeaturePage from "@/pages/DigitalShiftFeaturePage";
 import PrivateOfficeGuide from "@/pages/PrivateOfficeGuide";
 import LandingPreview from "@/pages/LandingPreview";
 import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
 import PlatformReviews from "@/pages/PlatformReviews";
-import SaudiAgentLanding from "@/pages/SaudiAgentLanding";
 import PulseMapPage from "@/pages/PulseMapPage";
+import {
+  AdminCyberOperationsPage,
+  AdminDashboard,
+  AdminLogin,
+  AdminRadarFullScreenPage,
+  AdminSentinelPage,
+  BarberDashboard,
+  CosmicShowcase,
+  InternalPartnerPathPrintCard,
+  InvoicePreviewSamples,
+  MapCommunity,
+  Register,
+  SaudiAgentLanding,
+  StaffHubPage,
+} from "@/app/lazyPages";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 
@@ -124,6 +127,7 @@ const App = () => (
         <NotaCouncilRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
+        <Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
           {/* ── الصفحتان الرئيسيتان الجديدتان ─────────────────────────── */}
           <Route path={ROUTE_PATHS.HOME} element={<LandingPreview />} />
@@ -223,6 +227,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<RateBarber />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         </AdminAuthHashGate>
       </HashRouter>
     </TooltipProvider>
