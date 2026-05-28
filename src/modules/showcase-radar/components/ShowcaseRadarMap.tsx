@@ -2,8 +2,10 @@ import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { TacticalKingdomBackdrop } from '@/modules/platform-radar/components/TacticalKingdomBackdrop';
 import { TacticalPulseNetwork } from '@/modules/platform-radar/components/TacticalPulseNetwork';
-import { projectKsaToPercent } from '@/modules/platform-radar/lib/saudiKingdomProjection';
-import { isInsideKsaSilhouette, KSA_VIEWBOX } from '@/modules/platform-radar/lib/saudiKingdomGeo';
+import {
+  KSA_VIEWBOX,
+  projectShowcaseCityPercent,
+} from '@/modules/platform-radar/lib/saudiKingdomGeo';
 import { ShowcasePulseMarker } from '@/modules/showcase-radar/components/ShowcasePulseMarker';
 import type { ShowcaseRadarPulse } from '@/modules/showcase-radar/types';
 
@@ -25,9 +27,9 @@ export function ShowcaseRadarMap({ pulses, showSalonClusters = true, className }
     const now = Date.now();
     return pulses
       .filter((p) => showSalonClusters || p.kind !== 'salon_cluster')
-      .filter((p) => isInsideKsaSilhouette(p.lng, p.lat))
       .map((p) => {
-        const pos = projectKsaToPercent(p.lat, p.lng);
+        const pulseKind = p.kind === 'salon_cluster' ? 'barber' : 'user';
+        const pos = projectShowcaseCityPercent(p.cityAr, p.lng, p.lat, p.id, pulseKind);
         return {
           ...p,
           left: pos.left,

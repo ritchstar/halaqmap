@@ -69,7 +69,7 @@ export function ShowcaseRadarShell({ payload, loading, error, className }: Props
         </div>
       </header>
 
-      <div className="pointer-events-none absolute right-0 top-0 z-30 p-[clamp(0.75rem,2vw,1.5rem)]">
+      <div className="pointer-events-none absolute right-0 top-0 z-30 pt-[clamp(1.35rem,3.5vw,2.75rem)] pr-[clamp(1.35rem,3.5vw,2.75rem)] pl-4 pb-4">
         <div className="pointer-events-auto max-w-[min(92vw,22rem)] rounded-xl border border-sky-400/20 bg-black/55 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-2">
             <Radar className="h-4 w-4 text-sky-300" />
@@ -98,8 +98,8 @@ export function ShowcaseRadarShell({ payload, loading, error, className }: Props
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-3 px-[clamp(0.5rem,1.5vw,1.25rem)] pb-[clamp(0.35rem,1vw,0.7rem)]">
-        <aside className="pointer-events-auto max-w-[min(58vw,24rem)]">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-3 pr-[clamp(0.5rem,1.5vw,1.25rem)] pb-[clamp(1.1rem,2.8vw,2.25rem)] pl-[clamp(1.35rem,3.5vw,2.75rem)]">
+        <aside className="pointer-events-auto max-w-[min(52vw,22rem)]">
           <div className="rounded-xl border border-white/10 bg-black/55 p-2.5 backdrop-blur-md">
             <p className="text-[clamp(0.72rem,1.2vw,0.86rem)] font-semibold text-amber-200" dir="rtl">
               نبض الطلب الجغرافي

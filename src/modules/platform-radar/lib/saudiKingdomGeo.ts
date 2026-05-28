@@ -471,6 +471,74 @@ export const CITY_BEACONS: ReadonlyArray<CityBeacon> = CITY_BEACONS_LNGLAT.map((
 /** Capital coordinates (Riyadh) — used for heartbeat pulse + radar centre. */
 export const RIYADH_VIEW = projectLngLatToView(46.6753, 24.7136);
 
+function matchCityBeacon(cityAr: string): CityBeacon | null {
+  const query = cityAr.trim();
+  if (!query) return null;
+  return (
+    CITY_BEACONS.find((c) => query.includes(c.nameAr) || c.nameAr.includes(query)) ?? null
+  );
+}
+
+/** مطابقة اسم مدينة → إحداثيات الـ beacon المُ calibrate على الخريطة. */
+export function resolveBeaconLngLat(cityAr: string): { lng: number; lat: number } | null {
+  const hit = CITY_BEACONS_LNGLAT.find((c) => {
+    const query = cityAr.trim();
+    return query && (query.includes(c.nameAr) || c.nameAr.includes(query));
+  });
+  return hit ? { lng: hit.lng, lat: hit.lat } : null;
+}
+
+/** نفس موضع تسمية المدينة على الخلفية (viewBox SVG). */
+export function resolveBeaconView(cityAr: string): ViewPoint | null {
+  return matchCityBeacon(cityAr)?.view ?? null;
+}
+
+/** اسحب نقطة العرض نحو الداخل (اتجاه الرياض) لتبقى داخل الشكل المرئي. */
+export function nudgeViewTowardInterior(view: ViewPoint, strength = 0.12): ViewPoint {
+  const cx = RIYADH_VIEW.x;
+  const cy = RIYADH_VIEW.y;
+  return {
+    x: view.x + (cx - view.x) * strength,
+    y: view.y + (cy - view.y) * strength,
+  };
+}
+
+/**
+ * Showcase radar placement — anchor on CITY_BEACON view coords (same layer as
+ * map labels) so coastal pulses never drift into the sea on equirectangular
+ * projection. Falls back to lng/lat + interior nudge for cities without beacons.
+ */
+export function projectShowcaseCityPercent(
+  cityAr: string,
+  fallbackLng: number,
+  fallbackLat: number,
+  seed: string,
+  kind: 'user' | 'barber',
+): { left: number; top: number } {
+  const beaconView = resolveBeaconView(cityAr);
+  let view: ViewPoint;
+  if (beaconView) {
+    view = { x: beaconView.x, y: beaconView.y };
+  } else {
+    view = projectLngLatToView(fallbackLng, fallbackLat);
+    view = nudgeViewTowardInterior(view, kind === 'barber' ? 0.18 : 0.12);
+  }
+
+  let h = 0;
+  for (let i = 0; i < seed.length; i += 1) h = (h * 31 + seed.charCodeAt(i)) | 0;
+  const jitter = beaconView ? (kind === 'barber' ? 0.2 : 0.38) : kind === 'barber' ? 0.24 : 0.48;
+  const jx = (((h & 0xff) / 255) - 0.5) * jitter * 2;
+  const jy = ((((h >> 8) & 0xff) / 255) - 0.5) * jitter * 2;
+
+  const x = Math.min(KSA_VIEWBOX.width, Math.max(0, view.x + jx));
+  const y = Math.min(KSA_VIEWBOX.height, Math.max(0, view.y + jy));
+
+  return {
+    left: (x / KSA_VIEWBOX.width) * 100,
+    top: (y / KSA_VIEWBOX.height) * 100,
+  };
+}
+
 /**
  * Latitude/longitude graticule lines — every 2° within tactical bounds,
  * pre-projected so the backdrop can draw them as simple `<line>` elements.

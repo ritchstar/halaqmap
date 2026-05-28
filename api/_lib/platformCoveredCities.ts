@@ -6,6 +6,7 @@ import {
   ensureInsideKsaSilhouette,
   isInsideKsaSilhouette,
 } from './ksaSilhouetteGeo.js';
+import { resolveShowcaseBeaconLngLat } from './showcaseRadarPlacement.js';
 
 export type PlatformCityRegion =
   | 'riyadh'
@@ -117,6 +118,8 @@ export function isInsideKsaTactical(lat: number, lng: number): boolean {
 }
 
 export function cityRadarCoords(city: PlatformCity): { lat: number; lng: number } {
+  const beacon = resolveShowcaseBeaconLngLat(city.nameAr);
+  if (beacon) return { lat: beacon.lat, lng: beacon.lng };
   return {
     lat: city.radarLat ?? city.lat,
     lng: city.radarLng ?? city.lng,

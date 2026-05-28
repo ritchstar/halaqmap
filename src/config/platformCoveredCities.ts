@@ -5,6 +5,7 @@
 import {
   ensureInsideKsaSilhouette,
   isInsideKsaSilhouette,
+  resolveBeaconLngLat,
 } from '@/modules/platform-radar/lib/saudiKingdomGeo';
 
 export type PlatformCityRegion =
@@ -119,6 +120,8 @@ export function isInsideKsaTactical(lat: number, lng: number): boolean {
 }
 
 export function cityRadarCoords(city: PlatformCity): { lat: number; lng: number } {
+  const beacon = resolveBeaconLngLat(city.nameAr);
+  if (beacon) return { lat: beacon.lat, lng: beacon.lng };
   return {
     lat: city.radarLat ?? city.lat,
     lng: city.radarLng ?? city.lng,
