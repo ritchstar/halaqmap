@@ -158,7 +158,6 @@ import { FounderSystemStatusPanel } from '@/modules/ai-staff/components/FounderS
 import { GrowthArchitectPanel } from '@/modules/ai-staff/components/GrowthArchitectPanel';
 import { SuperIntelligenceFeedPanel } from '@/modules/ai-staff/components/SuperIntelligenceFeedPanel';
 import { PublicProsecutorDashboard } from '@/modules/ai-staff/components/PublicProsecutorDashboard';
-import { PlatformRadar } from '@/modules/platform-radar';
 import { fetchEngineeringHandshakeStatus } from '@/lib/engineeringHandshakeRemote';
 import {
   FounderCommandShell,
@@ -629,8 +628,8 @@ export default function AdminDashboard() {
                 variant="ghost"
                 size="sm"
                 className="h-9 shrink-0 gap-1.5 border border-cyan-500/30 bg-cyan-500/10 px-2.5 text-cyan-100 hover:bg-cyan-500/20 hover:text-white"
-                title="Command Mode — فتح شاشة الرادار للعرض والبث"
-                aria-label="Command Mode — Platform Radar full screen"
+                title="Command Mode — فتح خريطة النبض للعرض والبث"
+                aria-label="Command Mode — Pulse Map full screen"
                 onClick={() => {
                   const path = getAdminPlatformRadarFullScreenPathFor(location.pathname);
                   const url = `${window.location.origin}${window.location.pathname}#${path}`;

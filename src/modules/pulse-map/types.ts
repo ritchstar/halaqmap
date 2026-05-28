@@ -37,6 +37,25 @@ export type PulseMapPayload = {
     linkCount: number;
     slotsActive: number;
   };
+  admin?: PulseMapAdminInsight;
+};
+
+export type PulseMapAdminCitySignal = {
+  slotId: string;
+  nameAr: string;
+  demand: boolean;
+  link: boolean;
+  latestAt: string | null;
+};
+
+export type PulseMapAdminInsight = {
+  windowMinutes: number;
+  raw: {
+    searches: number;
+    conversations: number;
+    bookings: number;
+  };
+  citySignals: PulseMapAdminCitySignal[];
 };
 
 export type PlacedPulse = PulseMapPulse & {

@@ -41,7 +41,7 @@ import {
   migrateLegacyCommandCenterState,
   type PartnerProspectPatch,
 } from '@/lib/partnerProspectsRemote';
-import { PlatformRadar } from '@/modules/platform-radar';
+import { PulseMapAdmin } from '@/modules/pulse-map/components/PulseMapAdmin';
 
 export const WEEKLY_SOP_PLAN = [
   { day: 'الأحد', focus: 'استهداف صالونات ماسية', target: 12, note: 'ابدأ بالرياض وجدة للحالات عالية العائد.' },
@@ -409,7 +409,7 @@ export function CommandCenterSection({
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <div className="mb-6 overflow-hidden rounded-2xl border border-sky-400/15 shadow-[0_0_48px_rgba(56,189,248,0.08)]">
-        <PlatformRadar soundEnabled={false} className="min-h-[min(52rem,78vh)]" />
+        <PulseMapAdmin className="min-h-[min(52rem,78vh)]" />
       </div>
 
       <div className="flex items-center justify-between mb-6">

@@ -2,18 +2,25 @@
  * Pulse Map — live aggregation (one pulse per city per kind).
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
-import {
-  PULSE_MAP_SLOTS,
-  getPulseMapSlot,
-} from './pulseMapSlots.js';
+import { PULSE_MAP_SLOTS, getPulseMapSlot } from './pulseMapSlots.js';
 import {
   resolvePlatformCity,
   resolvePlatformCityFromSearch,
   type PlatformCity,
 } from './platformCoveredCities.js';
-import type { PulseMapPayload, PulseMapPulse } from './pulseMapTypes.js';
+import type {
+  PulseMapAdminCitySignal,
+  PulseMapAdminInsight,
+  PulseMapPayload,
+  PulseMapPulse,
+} from './pulseMapTypes.js';
 
 export const PULSE_MAP_INTERACTION_WINDOW_MINUTES = 120;
+
+export type PulseMapLiveOptions = {
+  windowMinutes?: number;
+  includeAdmin?: boolean;
+};
 
 type SearchRow = {
   id: string;
@@ -94,14 +101,60 @@ function aggregateLinkPulses(
   }));
 }
 
+function buildAdminInsight(
+  windowMinutes: number,
+  searchRows: SearchRow[],
+  conversationRows: ConversationRow[],
+  bookingRows: BookingRow[],
+  demandPulses: PulseMapPulse[],
+  linkPulses: PulseMapPulse[],
+): PulseMapAdminInsight {
+  const slotNameById = new Map(PULSE_MAP_SLOTS.map((s) => [s.id, s.nameAr]));
+  const signals = new Map<string, PulseMapAdminCitySignal>();
+
+  const touch = (slotId: string, kind: 'demand' | 'link', createdAt: string) => {
+    const prev = signals.get(slotId) ?? {
+      slotId,
+      nameAr: slotNameById.get(slotId) ?? slotId,
+      demand: false,
+      link: false,
+      latestAt: null as string | null,
+    };
+    if (kind === 'demand') prev.demand = true;
+    if (kind === 'link') prev.link = true;
+    if (!prev.latestAt || createdAt > prev.latestAt) prev.latestAt = createdAt;
+    signals.set(slotId, prev);
+  };
+
+  for (const pulse of demandPulses) touch(pulse.slotId, 'demand', pulse.createdAt);
+  for (const pulse of linkPulses) touch(pulse.slotId, 'link', pulse.createdAt);
+
+  const citySignals = [...signals.values()].sort((a, b) =>
+    (b.latestAt ?? '').localeCompare(a.latestAt ?? ''),
+  );
+
+  return {
+    windowMinutes,
+    raw: {
+      searches: searchRows.length,
+      conversations: conversationRows.length,
+      bookings: bookingRows.length,
+    },
+    citySignals,
+  };
+}
+
 export async function buildPulseMapLivePayload(
   supabase: SupabaseClient<any>,
   phase: PulseMapPayload['phase'],
   pilotRegions: PulseMapPayload['pilotRegions'],
+  options: PulseMapLiveOptions = {},
 ): Promise<PulseMapPayload> {
-  const since = new Date(
-    Date.now() - PULSE_MAP_INTERACTION_WINDOW_MINUTES * 60_000,
-  ).toISOString();
+  const windowMinutes = Math.min(
+    720,
+    Math.max(15, Math.round(options.windowMinutes ?? PULSE_MAP_INTERACTION_WINDOW_MINUTES)),
+  );
+  const since = new Date(Date.now() - windowMinutes * 60_000).toISOString();
 
   const [searchRes, conversationsRes, bookingsRes] = await Promise.all([
     supabase
@@ -155,7 +208,7 @@ export async function buildPulseMapLivePayload(
   const linkPulses = aggregateLinkPulses(conversationRows, bookingRows, barberCityById);
   const pulses = [...demandPulses, ...linkPulses];
 
-  return {
+  const payload: PulseMapPayload = {
     ok: true,
     phase,
     mode: 'live',
@@ -170,4 +223,17 @@ export async function buildPulseMapLivePayload(
       slotsActive: PULSE_MAP_SLOTS.length,
     },
   };
+
+  if (options.includeAdmin) {
+    payload.admin = buildAdminInsight(
+      windowMinutes,
+      searchRows,
+      conversationRows,
+      bookingRows,
+      demandPulses,
+      linkPulses,
+    );
+  }
+
+  return payload;
 }

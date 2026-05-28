@@ -22,6 +22,24 @@ export type PulseMapStats = {
   slotsActive: number;
 };
 
+export type PulseMapAdminCitySignal = {
+  slotId: string;
+  nameAr: string;
+  demand: boolean;
+  link: boolean;
+  latestAt: string | null;
+};
+
+export type PulseMapAdminInsight = {
+  windowMinutes: number;
+  raw: {
+    searches: number;
+    conversations: number;
+    bookings: number;
+  };
+  citySignals: PulseMapAdminCitySignal[];
+};
+
 export type PulseMapPayload = {
   ok: true;
   phase: number;
@@ -38,4 +56,5 @@ export type PulseMapPayload = {
   pulses: PulseMapPulse[];
   links: PulseMapLink[];
   stats: PulseMapStats;
+  admin?: PulseMapAdminInsight;
 };

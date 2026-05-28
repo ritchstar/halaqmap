@@ -1,41 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Volume2 } from 'lucide-react';
-import { PlatformRadar } from '@/modules/platform-radar';
 import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
-import { playTacticalUserPulseSound } from '@/modules/platform-radar/lib/platformRadarPulseSound';
-
-const SOUND_PREF_KEY = 'halaqmap.platformRadar.soundEnabled';
-
-function readSoundPref(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    return window.localStorage.getItem(SOUND_PREF_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-
-function writeSoundPref(enabled: boolean): void {
-  try {
-    window.localStorage.setItem(SOUND_PREF_KEY, enabled ? '1' : '0');
-  } catch {
-    // ignore
-  }
-}
+import { PulseMapAdmin } from '@/modules/pulse-map/components/PulseMapAdmin';
 
 /**
- * Full-screen cast-ready command center — renders ONLY PlatformRadar (zero chrome).
+ * Full-screen cast-ready command center — خريطة النبض الإدارية (zero chrome).
  * Route: `{adminBase}/radar/full-screen`
  */
 export default function AdminRadarFullScreenPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [phase, setPhase] = useState<'loading' | 'ok' | 'denied' | 'nologin'>('loading');
-  const [founderMode, setFounderMode] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(() => readSoundPref());
 
   useEffect(() => {
     document.documentElement.classList.add('platform-radar-fullscreen');
@@ -81,10 +58,7 @@ export default function AdminRadarFullScreenPage() {
         return;
       }
 
-      if (!cancelled) {
-        setFounderMode(access.bootstrap);
-        setPhase('ok');
-      }
+      if (!cancelled) setPhase('ok');
     })();
 
     return () => {
@@ -92,16 +66,10 @@ export default function AdminRadarFullScreenPage() {
     };
   }, []);
 
-  const enableSound = () => {
-    setSoundEnabled(true);
-    writeSoundPref(true);
-    playTacticalUserPulseSound(0.1);
-  };
-
   if (phase === 'loading') {
     return (
-      <div className="flex h-[100dvh] w-[100dvw] items-center justify-center bg-[#030303] text-white" dir="rtl">
-        <p className="text-[clamp(1.25rem,3vw,2rem)] font-medium text-slate-200">جاري تحميل Tactical Mission Control…</p>
+      <div className="flex h-[100dvh] w-[100dvw] items-center justify-center bg-[#020617] text-white" dir="rtl">
+        <p className="text-[clamp(1.25rem,3vw,2rem)] font-medium text-slate-200">جاري تحميل خريطة النبض…</p>
       </div>
     );
   }
@@ -109,7 +77,7 @@ export default function AdminRadarFullScreenPage() {
   if (phase === 'nologin') {
     return (
       <div
-        className="flex h-[100dvh] w-[100dvw] flex-col items-center justify-center gap-4 bg-[#030303] p-6 text-white"
+        className="flex h-[100dvh] w-[100dvw] flex-col items-center justify-center gap-4 bg-[#020617] p-6 text-white"
         dir="rtl"
       >
         <p className="text-[clamp(1.25rem,3vw,2rem)] font-medium">يلزم تسجيل دخول الإدارة</p>
@@ -127,10 +95,10 @@ export default function AdminRadarFullScreenPage() {
   if (phase === 'denied') {
     return (
       <div
-        className="flex h-[100dvh] w-[100dvw] flex-col items-center justify-center gap-4 bg-[#030303] p-6 text-white"
+        className="flex h-[100dvh] w-[100dvw] flex-col items-center justify-center gap-4 bg-[#020617] p-6 text-white"
         dir="rtl"
       >
-        <p className="text-[clamp(1.25rem,3vw,2rem)] font-medium text-amber-200">لا تملك صلاحية عرض الرادار</p>
+        <p className="text-[clamp(1.25rem,3vw,2rem)] font-medium text-amber-200">لا تملك صلاحية عرض خريطة النبض</p>
         <button
           type="button"
           className="text-[clamp(1rem,2vw,1.25rem)] text-cyan-300 underline"
@@ -143,18 +111,8 @@ export default function AdminRadarFullScreenPage() {
   }
 
   return (
-    <div className="relative h-[100dvh] w-[100dvw] overflow-hidden bg-[#030303]">
-      {!soundEnabled ? (
-        <button
-          type="button"
-          onClick={enableSound}
-          className="absolute bottom-[clamp(1rem,3vh,2rem)] left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-cyan-400/40 bg-black/70 px-[clamp(1rem,3vw,1.75rem)] py-[clamp(0.5rem,1.5vh,0.85rem)] text-[clamp(0.95rem,1.8vw,1.2rem)] font-medium text-cyan-100 shadow-[0_0_24px_rgba(34,211,238,0.2)] backdrop-blur-md"
-        >
-          <Volume2 className="h-5 w-5" />
-          تفعيل نبض الصوت
-        </button>
-      ) : null}
-      <PlatformRadar commandMode soundEnabled={soundEnabled} founderMode={founderMode} />
+    <div className="relative h-[100dvh] w-[100dvw] overflow-hidden bg-[#020617]">
+      <PulseMapAdmin commandMode pollMs={20_000} className="h-full" />
     </div>
   );
 }
