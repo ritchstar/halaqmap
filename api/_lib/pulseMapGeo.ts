@@ -1,93 +1,21 @@
 /**
- * Pulse Map geometry — server copy (keep in sync with src/modules/pulse-map/lib/pulseMapGeo.ts).
+ * Pulse Map — kingdom geometry from Natural Earth 50m admin boundaries (ISO SAU).
+ * Regenerate: `node scripts/generate-pulse-map-kingdom-outline.mjs`
+ * Source: Natural Earth 50m ne_50m_admin_0_countries (ISO SAU)
  */
 
-export type LngLat = [number, number];
+export type PulseMapLngLat = [number, number];
 
-/** Same vertices as `KSA_OUTLINE_LNGLAT` in saudiKingdomGeo.ts */
-const KSA_OUTLINE_LNGLAT: ReadonlyArray<LngLat> = [
-  [34.85, 29.35],
-  [34.95, 28.95],
-  [35.3, 28.1],
-  [35.45, 27.55],
-  [35.85, 26.65],
-  [36.2, 26.1],
-  [36.85, 25.4],
-  [37.25, 24.85],
-  [37.6, 24.45],
-  [37.8, 24.05],
-  [38.1, 23.4],
-  [38.4, 22.85],
-  [38.7, 22.3],
-  [38.9, 21.8],
-  [39.0, 21.45],
-  [39.1, 21.05],
-  [39.35, 20.45],
-  [39.75, 19.75],
-  [40.4, 19.05],
-  [41.1, 18.4],
-  [41.55, 17.65],
-  [42.1, 17.1],
-  [42.55, 16.85],
-  [42.8, 16.6],
-  [43.4, 16.95],
-  [44.4, 17.35],
-  [44.7, 17.4],
-  [45.9, 17.55],
-  [46.85, 17.3],
-  [47.7, 17.15],
-  [48.6, 17.6],
-  [49.5, 18.15],
-  [49.95, 18.65],
-  [51.7, 18.95],
-  [52.4, 19.05],
-  [53.65, 19.45],
-  [55.2, 20.05],
-  [55.7, 20.65],
-  [55.85, 21.6],
-  [55.1, 22.55],
-  [54.4, 22.85],
-  [53.05, 23.55],
-  [52.4, 24.05],
-  [51.4, 24.2],
-  [50.95, 24.5],
-  [50.65, 24.85],
-  [50.85, 25.35],
-  [50.15, 26.0],
-  [50.1, 26.4],
-  [49.95, 27.1],
-  [49.2, 27.95],
-  [48.85, 28.55],
-  [48.65, 28.95],
-  [48.4, 29.05],
-  [47.85, 29.1],
-  [46.55, 29.1],
-  [44.7, 29.45],
-  [43.2, 30.55],
-  [42.45, 31.2],
-  [41.3, 31.6],
-  [40.2, 31.95],
-  [39.3, 32.2],
-  [38.55, 31.85],
-  [37.65, 31.05],
-  [36.85, 30.35],
-  [36.2, 29.8],
-  [35.55, 29.45],
-  [35.1, 29.4],
-  [34.85, 29.35],
-];
-
-export const PULSE_MAP_SOUTHERN_BOUNDS = {
-  minLat: 16.55,
-  maxLat: 20.45,
-  minLng: 39.5,
-  maxLng: 48.05,
+/** Equirectangular canvas bounds — kingdom bbox + breathing margin. */
+export const PULSE_MAP_BOUNDS = {
+  minLng: 34.275,
+  maxLng: 55.991,
+  minLat: 16.1218,
+  maxLat: 32.3745,
 } as const;
 
-export type PulseMapBounds = typeof PULSE_MAP_SOUTHERN_BOUNDS;
-
-const LNG_SPAN = PULSE_MAP_SOUTHERN_BOUNDS.maxLng - PULSE_MAP_SOUTHERN_BOUNDS.minLng;
-const LAT_SPAN = PULSE_MAP_SOUTHERN_BOUNDS.maxLat - PULSE_MAP_SOUTHERN_BOUNDS.minLat;
+const LNG_SPAN = PULSE_MAP_BOUNDS.maxLng - PULSE_MAP_BOUNDS.minLng;
+const LAT_SPAN = PULSE_MAP_BOUNDS.maxLat - PULSE_MAP_BOUNDS.minLat;
 
 export const PULSE_MAP_VIEWBOX = {
   width: 1000,
@@ -95,118 +23,192 @@ export const PULSE_MAP_VIEWBOX = {
 } as const;
 
 export function projectPulseMapLngLat(lng: number, lat: number): { x: number; y: number } {
-  const x = ((lng - PULSE_MAP_SOUTHERN_BOUNDS.minLng) / LNG_SPAN) * PULSE_MAP_VIEWBOX.width;
-  const y =
-    ((PULSE_MAP_SOUTHERN_BOUNDS.maxLat - lat) / LAT_SPAN) * PULSE_MAP_VIEWBOX.height;
+  const x = ((lng - PULSE_MAP_BOUNDS.minLng) / LNG_SPAN) * PULSE_MAP_VIEWBOX.width;
+  const y = ((PULSE_MAP_BOUNDS.maxLat - lat) / LAT_SPAN) * PULSE_MAP_VIEWBOX.height;
   return { x, y };
 }
 
-function intersectX(a: LngLat, b: LngLat, x: number): LngLat {
-  const t = (x - a[0]) / (b[0] - a[0] + Number.EPSILON);
-  return [x, a[1] + t * (b[1] - a[1])];
+/** Douglas-Peucker simplified rings (ε=0.04°). Mainland + exclaves/islands. */
+export const PULSE_MAP_KINGDOM_RINGS_LNGLAT: ReadonlyArray<ReadonlyArray<PulseMapLngLat>> = [
+[
+    [36.9017, 25.3831],
+    [36.5303, 25.6016],
+    [36.5336, 25.6887],
+    [36.9548, 25.4146],
+    [36.9017, 25.3831],
+  ],
+[
+    [41.9877, 16.7156],
+    [42.065, 16.7101],
+    [42.06, 16.8035],
+    [42.1704, 16.7086],
+    [42.1578, 16.5707],
+    [42.0718, 16.6715],
+    [41.9642, 16.6535],
+    [41.8016, 16.7788],
+    [41.7761, 16.8469],
+    [41.8582, 16.8929],
+    [41.8604, 17.0025],
+    [41.9479, 16.9364],
+    [41.9877, 16.7156],
+  ],
+[
+    [51.9776, 18.9961],
+    [49.042, 18.5818],
+    [48.1722, 18.1569],
+    [47.5796, 17.4483],
+    [47.4418, 17.1119],
+    [47.1436, 16.9467],
+    [46.9757, 16.9535],
+    [46.7276, 17.2656],
+    [46.3104, 17.2313],
+    [45.5354, 17.3021],
+    [45.148, 17.4274],
+    [44.156, 17.3985],
+    [43.917, 17.3247],
+    [43.418, 17.5163],
+    [43.1909, 17.3594],
+    [43.2369, 17.2665],
+    [43.156, 17.205],
+    [43.1165, 16.942],
+    [43.1845, 16.8118],
+    [43.165, 16.6894],
+    [42.7993, 16.3718],
+    [42.6988, 16.737],
+    [42.3833, 17.1225],
+    [42.2939, 17.435],
+    [41.75, 17.8857],
+    [41.4317, 18.4524],
+    [41.2295, 18.6784],
+    [41.116, 19.0822],
+    [40.7592, 19.7555],
+    [40.0807, 20.2659],
+    [39.7283, 20.3903],
+    [39.2761, 20.974],
+    [39.0936, 21.3104],
+    [39.1471, 21.519],
+    [38.9879, 21.8817],
+    [39.0959, 22.3928],
+    [39.062, 22.5922],
+    [38.4642, 23.7119],
+    [37.9197, 24.1854],
+    [37.5431, 24.2917],
+    [37.1809, 24.82],
+    [37.2663, 24.9601],
+    [37.1488, 25.2911],
+    [36.9207, 25.6412],
+    [36.7627, 25.7513],
+    [36.6752, 26.0389],
+    [36.5187, 26.1049],
+    [36.2496, 26.5948],
+    [35.1805, 28.0349],
+    [34.7221, 28.1307],
+    [34.625, 28.0645],
+    [34.7799, 28.5073],
+    [34.9508, 29.3535],
+    [36.0685, 29.2005],
+    [36.4761, 29.4951],
+    [36.7553, 29.866],
+    [37.4692, 29.9951],
+    [37.6499, 30.331],
+    [37.9801, 30.5],
+    [36.9586, 31.4915],
+    [38.9623, 31.9949],
+    [39.1454, 32.1245],
+    [40.3693, 31.939],
+    [42.0744, 31.0804],
+    [44.6908, 29.2023],
+    [47.4332, 28.9896],
+    [47.6713, 28.5332],
+    [48.4425, 28.5429],
+    [48.6264, 28.1326],
+    [48.809, 27.8959],
+    [48.7972, 27.7243],
+    [49.2375, 27.4927],
+    [49.1751, 27.4376],
+    [49.4053, 27.181],
+    [49.5377, 27.1518],
+    [49.7165, 26.9559],
+    [49.9861, 26.8289],
+    [50.1498, 26.6626],
+    [50.0081, 26.6785],
+    [50.0273, 26.5269],
+    [50.185, 26.4049],
+    [50.2139, 26.3085],
+    [50.1555, 26.1005],
+    [50.0316, 26.111],
+    [50.0811, 25.9614],
+    [50.239, 25.6229],
+    [50.4552, 25.4248],
+    [50.5579, 25.0867],
+    [50.8557, 24.6796],
+    [50.966, 24.5739],
+    [51.4112, 24.5708],
+    [51.3099, 24.3404],
+    [51.5684, 24.2862],
+    [51.5926, 24.0789],
+    [52.5551, 22.9328],
+    [55.1043, 22.6215],
+    [55.1858, 22.7041],
+    [55.641, 22.0019],
+    [54.9773, 19.9959],
+    [51.9776, 18.9961],
+  ],
+[
+    [36.5955, 25.7128],
+    [36.5439, 25.7343],
+    [36.5827, 25.8555],
+    [36.5955, 25.7128],
+  ],
+];
+
+export function ringsLngLatToSvgPaths(rings: ReadonlyArray<ReadonlyArray<PulseMapLngLat>>): string[] {
+  return rings
+    .filter((ring) => ring.length >= 3)
+    .map((ring) => {
+      const parts: string[] = [];
+      ring.forEach(([lng, lat], idx) => {
+        const { x, y } = projectPulseMapLngLat(lng, lat);
+        parts.push(`${idx === 0 ? 'M' : 'L'}${x.toFixed(2)} ${y.toFixed(2)}`);
+      });
+      parts.push('Z');
+      return parts.join(' ');
+    });
 }
 
-function intersectY(a: LngLat, b: LngLat, y: number): LngLat {
-  const t = (y - a[1]) / (b[1] - a[1] + Number.EPSILON);
-  return [a[0] + t * (b[0] - a[0]), y];
+export const PULSE_MAP_KINGDOM_OUTLINE_PATHS = ringsLngLatToSvgPaths(PULSE_MAP_KINGDOM_RINGS_LNGLAT);
+
+/** Step 2+ — major city anchors (empty until city layer is added). */
+export type PulseMapCityAnchor = {
+  id: string;
+  nameAr: string;
+  region?: string;
+  lng: number;
+  lat: number;
+};
+
+export const PULSE_MAP_CITY_ANCHORS: readonly PulseMapCityAnchor[] = [];
+
+export function projectPulseMapCity(anchor: PulseMapCityAnchor): { x: number; y: number } {
+  return projectPulseMapLngLat(anchor.lng, anchor.lat);
 }
 
-function clipPolygonToBounds(polygon: ReadonlyArray<LngLat>, bounds: PulseMapBounds): LngLat[] {
-  let points = [...polygon];
-  const clips: Array<{
-    inside: (p: LngLat) => boolean;
-    intersect: (a: LngLat, b: LngLat) => LngLat;
-  }> = [
-    {
-      inside: (p) => p[0] >= bounds.minLng,
-      intersect: (a, b) => intersectX(a, b, bounds.minLng),
-    },
-    {
-      inside: (p) => p[0] <= bounds.maxLng,
-      intersect: (a, b) => intersectX(a, b, bounds.maxLng),
-    },
-    {
-      inside: (p) => p[1] >= bounds.minLat,
-      intersect: (a, b) => intersectY(a, b, bounds.minLat),
-    },
-    {
-      inside: (p) => p[1] <= bounds.maxLat,
-      intersect: (a, b) => intersectY(a, b, bounds.maxLat),
-    },
-  ];
-
-  for (const clip of clips) {
-    const next: LngLat[] = [];
-    if (points.length === 0) break;
-    for (let i = 0; i < points.length; i += 1) {
-      const curr = points[i];
-      const prev = points[(i + points.length - 1) % points.length];
-      const currIn = clip.inside(curr);
-      const prevIn = clip.inside(prev);
-      if (currIn) {
-        if (!prevIn) next.push(clip.intersect(prev, curr));
-        next.push(curr);
-      } else if (prevIn) {
-        next.push(clip.intersect(prev, curr));
-      }
-    }
-    points = next;
+export function isInsideKingdomOutline(lng: number, lat: number): boolean {
+  for (const ring of PULSE_MAP_KINGDOM_RINGS_LNGLAT) {
+    if (pointInRing(lng, lat, ring)) return true;
   }
-  return points;
+  return false;
 }
 
-export function buildSouthernKsaOutlineLngLat(): LngLat[] {
-  return clipPolygonToBounds(KSA_OUTLINE_LNGLAT, PULSE_MAP_SOUTHERN_BOUNDS);
-}
-
-export function outlineLngLatToSvgPath(vertices: ReadonlyArray<LngLat>): string {
-  if (vertices.length < 3) return '';
-  const parts: string[] = [];
-  vertices.forEach(([lng, lat], idx) => {
-    const { x, y } = projectPulseMapLngLat(lng, lat);
-    parts.push(`${idx === 0 ? 'M' : 'L'}${x.toFixed(2)} ${y.toFixed(2)}`);
-  });
-  parts.push('Z');
-  return parts.join(' ');
-}
-
-export const PULSE_MAP_SOUTHERN_OUTLINE_LNGLAT = buildSouthernKsaOutlineLngLat();
-
-export const PULSE_MAP_SOUTHERN_OUTLINE_PATH = outlineLngLatToSvgPath(
-  PULSE_MAP_SOUTHERN_OUTLINE_LNGLAT,
-);
-
-export function isInsideSouthernOutline(lng: number, lat: number): boolean {
-  const polygon = PULSE_MAP_SOUTHERN_OUTLINE_LNGLAT;
+function pointInRing(lng: number, lat: number, ring: ReadonlyArray<PulseMapLngLat>): boolean {
   let inside = false;
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i, i += 1) {
-    const [xi, yi] = polygon[i];
-    const [xj, yj] = polygon[j];
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
     const intersects =
       (yi > lat) !== (yj > lat) &&
       lng < ((xj - xi) * (lat - yi)) / (yj - yi + Number.EPSILON) + xi;
     if (intersects) inside = !inside;
   }
   return inside;
-}
-
-export function nudgeLngLatInsideOutline(
-  lng: number,
-  lat: number,
-  anchorLng: number,
-  anchorLat: number,
-): { lng: number; lat: number } {
-  if (isInsideSouthernOutline(lng, lat)) return { lng, lat };
-  if (isInsideSouthernOutline(anchorLng, anchorLat)) {
-    return { lng: anchorLng, lat: anchorLat };
-  }
-  const cx = 43.2;
-  const cy = 18.4;
-  for (let step = 1; step <= 14; step += 1) {
-    const t = step / 14;
-    const lng2 = anchorLng + (cx - anchorLng) * t;
-    const lat2 = anchorLat + (cy - anchorLat) * t;
-    if (isInsideSouthernOutline(lng2, lat2)) return { lng: lng2, lat: lat2 };
-  }
-  return { lng: anchorLng, lat: anchorLat };
 }

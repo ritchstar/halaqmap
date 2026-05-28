@@ -1,37 +1,14 @@
 /**
- * PulseMapPage — خريطة النبض الحي (slot-based)
+ * PulseMapPage — خريطة النبض (خطوة 1: رسم المملكة)
  * Route: /radar
  */
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Radar, Search } from 'lucide-react';
+import { ArrowLeft, Radar } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
 import { PULSE_MAP_CONFIG, PULSE_MAP_ROUTE } from '@/config/pulseMapConfig';
 import { PulseMapShell, usePulseMapData } from '@/modules/pulse-map';
-
-function ValueCard({
-  title,
-  body,
-  accent,
-}: {
-  title: string;
-  body: string;
-  accent: 'teal' | 'amber' | 'sky';
-}) {
-  const border =
-    accent === 'teal'
-      ? 'border-teal-400/25 bg-teal-500/8'
-      : accent === 'amber'
-        ? 'border-amber-400/25 bg-amber-500/8'
-        : 'border-sky-400/25 bg-sky-500/8';
-  return (
-    <div className={`rounded-2xl border p-4 ${border}`}>
-      <p className="font-black text-white">{title}</p>
-      <p className="mt-2 text-sm leading-relaxed text-slate-400">{body}</p>
-    </div>
-  );
-}
 
 export default function PulseMapPage() {
   const navigate = useNavigate();
@@ -61,13 +38,7 @@ export default function PulseMapPage() {
             <Radar className="h-4 w-4 text-sky-400" />
             <span className="text-sm font-black text-sky-100">خريطة النبض</span>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
-            className="hidden rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-1.5 text-xs font-black text-amber-200 sm:inline-flex"
-          >
-            مسار الشركاء
-          </button>
+          <div className="hidden w-[4.5rem] sm:block" aria-hidden />
         </div>
       </div>
 
@@ -95,45 +66,8 @@ export default function PulseMapPage() {
           <PulseMapShell payload={payload} loading={loading} error={error} />
         </motion.div>
 
-        <section className="mt-10 grid gap-4 sm:grid-cols-3">
-          <ValueCard
-            accent="sky"
-            title="حدود حقيقية"
-            body="مضلّع مُقتطع من outline المملكة — ساحل البحر الأحمر، الحد الجنوبي، وقوس الربع الخالي."
-          />
-          <ValueCard
-            accent="amber"
-            title="Slots pilot"
-            body="11 مدينة جنوبية — مواضعها من إحداثيات WGS-84 داخل المضلّع، بدون GPS على الخريطة."
-          />
-          <ValueCard
-            accent="teal"
-            title="النبض لاحقاً"
-            body="نبض الطلب والربط معطّل مؤقتاً حتى يُضبط الشكل الجغرافي بالكامل."
-          />
-        </section>
-
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => navigate(`${ROUTE_PATHS.HOME}#search-anchor`)}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-6 py-3 text-sm font-black text-white shadow-[0_0_24px_rgba(20,184,166,0.25)]"
-          >
-            <Search className="h-4 w-4" />
-            جرّب البحث الآن
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
-            className="inline-flex items-center gap-2 rounded-xl border border-amber-400/35 bg-amber-500/10 px-6 py-3 text-sm font-black text-amber-100"
-          >
-            <Building2 className="h-4 w-4" />
-            انضم وثبّت مرساك
-          </button>
-        </div>
-
         <p className="mt-8 text-center text-[0.65rem] leading-relaxed text-slate-600">
-          المرحلة 1 — ضبط الشكل الجغرافي لجنوب المملكة. النبضات والبيانات الحية في المراحل التالية.
+          خطوة 1 — outline المملكة فقط. الخطوة التالية: إضافة مواقع المدن الرئيسية.
         </p>
       </div>
     </div>

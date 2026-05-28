@@ -56,25 +56,6 @@ const LIMITS = {
   demandMaxAgeMinutes: 120,
 } as const;
 
-const PHASE1_DEMAND_SLOTS = [
-  'baha',
-  'bisha',
-  'an-namas',
-  'abha',
-  'khamis-mushait',
-  'najran',
-  'jazan',
-  'sabya',
-] as const;
-
-const PHASE1_LINK_SLOTS = [
-  'muhayil',
-  'abha',
-  'abu-arish',
-  'najran',
-  'sharurah',
-] as const;
-
 function cityToSlotId(city: PlatformCity): string | null {
   if (!isPulseMapPilotRegion(city.region)) return null;
   const slot = getPulseMapSlot(city.id);
@@ -94,7 +75,7 @@ function buildPhase1Payload(): PulseMapPayload {
     stats: {
       demandCount: 0,
       linkCount: 0,
-      slotsActive: PULSE_MAP_SLOTS.length,
+      slotsActive: 0,
     },
   };
 }

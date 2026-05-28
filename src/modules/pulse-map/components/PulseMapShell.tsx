@@ -59,7 +59,7 @@ export function PulseMapShell({ payload, loading, error, className }: Props) {
           viewBox={`0 0 ${PULSE_MAP_VIEWBOX.width} ${PULSE_MAP_VIEWBOX.height}`}
           className="h-full w-full"
           preserveAspectRatio="xMidYMid meet"
-          aria-label="خريطة نبض جنوب المملكة"
+          aria-label="خريطة النبض — المملكة العربية السعودية"
         >
           <PulseMapBackdrop />
           {showSlotAnchors ? <PulseMapSlotAnchors slots={payload?.slots ?? []} /> : null}

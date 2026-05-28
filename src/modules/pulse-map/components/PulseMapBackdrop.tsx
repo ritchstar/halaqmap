@@ -1,8 +1,6 @@
 import {
-  PULSE_MAP_SEA_LABELS,
-  PULSE_MAP_SOUTHERN_OUTLINE_PATH,
+  PULSE_MAP_KINGDOM_OUTLINE_PATHS,
   PULSE_MAP_VIEWBOX,
-  projectPulseMapLngLat,
 } from '@/modules/pulse-map/lib/pulseMapGeo';
 
 export function PulseMapBackdrop() {
@@ -58,42 +56,27 @@ export function PulseMapBackdrop() {
         );
       })}
 
-      {PULSE_MAP_SOUTHERN_OUTLINE_PATH ? (
-        <>
-          <path
-            d={PULSE_MAP_SOUTHERN_OUTLINE_PATH}
-            fill="url(#pm-land)"
-            stroke="rgba(56,189,248,0.55)"
-            strokeWidth={2}
-            strokeLinejoin="round"
-            filter="url(#pm-glow)"
-          />
-          <path
-            d={PULSE_MAP_SOUTHERN_OUTLINE_PATH}
-            fill="none"
-            stroke="rgba(125,211,252,0.22)"
-            strokeWidth={4.5}
-            strokeLinejoin="round"
-            opacity={0.55}
-          />
-        </>
-      ) : null}
-
-      <g
-        fill="rgba(125,211,252,0.42)"
-        fontSize="13"
-        fontFamily="system-ui"
-        fontStyle="italic"
-        letterSpacing="1.5"
-      >
-        {PULSE_MAP_SEA_LABELS.map((sea) => {
-          const { x, y } = projectPulseMapLngLat(sea.lng, sea.lat);
-          return (
-            <text key={sea.id} x={x} y={y} textAnchor="middle">
-              {sea.labelAr}
-            </text>
-          );
-        })}
+      <g>
+        {PULSE_MAP_KINGDOM_OUTLINE_PATHS.map((d, idx) => (
+          <g key={`land-${idx}`}>
+            <path
+              d={d}
+              fill="url(#pm-land)"
+              stroke="rgba(56,189,248,0.55)"
+              strokeWidth={2}
+              strokeLinejoin="round"
+              filter="url(#pm-glow)"
+            />
+            <path
+              d={d}
+              fill="none"
+              stroke="rgba(125,211,252,0.22)"
+              strokeWidth={4.5}
+              strokeLinejoin="round"
+              opacity={0.55}
+            />
+          </g>
+        ))}
       </g>
     </>
   );
