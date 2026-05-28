@@ -18,10 +18,17 @@ export function PulseMapHudStart({ payload, loading }: Props) {
       className="flex flex-col rounded-2xl border border-sky-400/20 bg-black/55 p-4 backdrop-blur-md lg:min-h-[min(44rem,72vh)]"
       dir="rtl"
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <Radar className="h-4 w-4 text-sky-300" />
-        <p className="text-sm font-black text-sky-100">خريطة النبض</p>
-        <span className="rounded-full border border-sky-400/30 bg-sky-500/15 px-2 py-0.5 text-[0.58rem] font-bold text-sky-200">
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-start gap-2">
+          <Radar className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+          <div className="min-w-0">
+            <p className="text-sm font-black text-sky-100">{PULSE_MAP_CONFIG.titleAr}</p>
+            <p className="text-[0.62rem] font-medium text-sky-300/75" dir="ltr">
+              {PULSE_MAP_CONFIG.subtitleEn}
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex rounded-full border border-sky-400/30 bg-sky-500/15 px-2 py-0.5 text-[0.58rem] font-bold text-sky-200">
           {PULSE_MAP_CONFIG.phaseBadgeAr}
         </span>
       </div>

@@ -614,7 +614,7 @@ export function CommandCenterSection({
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">استيراد leads من الصور</CardTitle>
           <CardDescription>
-            صوّر قائمة محلات أو لقطات متعددة — يُستخرج الاسم ورقم الواتساب ثم تُضاف دفعة واحدة إلى pipeline.
+            ارفع لقطة جدول (Sheets/Excel) — يُقرأ الاسم والحي/المنطقة ورقم الواتساب من كل صف تلقائياً.
           </CardDescription>
         </CardHeader>
         <CardContent>

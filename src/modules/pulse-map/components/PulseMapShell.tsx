@@ -64,7 +64,7 @@ export function PulseMapShell({
             viewBox={`0 0 ${PULSE_MAP_VIEWBOX.width} ${PULSE_MAP_VIEWBOX.height}`}
             className="h-full w-full"
             preserveAspectRatio="xMidYMid meet"
-            aria-label="خريطة النبض — المملكة العربية السعودية"
+            aria-label="رادار الرصد — Halaq Map Platform — المملكة العربية السعودية"
           >
             <PulseMapBackdrop />
             {showCities ? <PulseMapCityMarkers /> : null}

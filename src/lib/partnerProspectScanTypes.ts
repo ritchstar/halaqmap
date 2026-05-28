@@ -3,4 +3,5 @@ export type ScannedPartnerLead = {
   phone: string;
   city?: string;
   region?: string;
+  address?: string;
 };

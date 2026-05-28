@@ -760,6 +760,7 @@ export async function callOpenAIOpsBillingVision(input: {
   conversationHistory?: OpsBillingChatTurn[];
   /** Server-side OpenAI fetch timeout (ms). Defaults to 52s — leaves headroom under Vercel 60s. */
   timeoutMs?: number;
+  maxTokens?: number;
 }): Promise<string> {
   const key = (process.env.OPENAI_API_KEY || '').trim();
   if (!key) throw new Error('OPENAI_API_KEY not configured on server');
@@ -798,7 +799,7 @@ export async function callOpenAIOpsBillingVision(input: {
       body: JSON.stringify({
         model,
         temperature: 0.15,
-        max_tokens: 1600,
+        max_tokens: input.maxTokens ?? 1600,
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: input.system },

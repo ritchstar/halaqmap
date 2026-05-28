@@ -5,21 +5,30 @@ export type ScannedPartnerLead = {
   phone: string;
   city?: string;
   region?: string;
+  address?: string;
 };
 
 const SCAN_SYSTEM = `أنت مستخرج leads B2B لمنصة حلاق ماب السعودية.
-مهمتك: قراءة الصورة (لقطة شاشة خرائط، انستقرام، قائمة جهات اتصال، بطاقة محل، إلخ) واستخراج كل محل/صالون حلاقة ظاهر.
+اقرأ الصورة (جدول Excel/Sheets، لقطة شاشة، خرائط، انستقرام، قائمة محلات…) واستخرج كل صف/محل حلاقة.
 
-أعد JSON فقط بهذا الشكل:
-{"leads":[{"name":"اسم المحل","phone":"05xxxxxxxx أو +9665…","city":"اختياري","region":"اختياري"}]}
+أعد JSON فقط:
+{"leads":[{"name":"…","phone":"+9665…","city":"…","region":"…","address":"…"}]}
+
+إن كانت الصورة جدولاً بأعمدة مثل:
+- **اسم الصالون** → name
+- **الحي / المنطقة** → region (وaddress بنفس النص إن لم يوجد عمود عنوان منفصل)
+- **رقم الهاتف** → phone (حتى لو عمود «هل يدعم واتساب» يقول نعم)
+- **المدينة** إن وُجدت عموداً لها → city؛ وإلا استنتج city من الحي (مثل الربوة/الملقا → الرياض)
 
 قواعد:
-- phone مطلوب لكل lead؛ تجاهل أي صف بلا رقم سعودي واضح.
-- name: اسم المحل أو الشخص؛ إن لم يظهر استخدم "محل حلاق".
-- city/region اختياريان؛ إن لم يظهرا اتركهما فارغين.
-- طبّع أرقام السعودية: 05xxxxxxxx أو 9665xxxxxxxx.
-- لا تكرّر نفس الرقم مرتين.
-- لا تضف حقولاً أخرى.`;
+- phone مطلوب؛ تجاهل الصف بلا رقم سعودي (+966 أو 05).
+- name مطلوب؛ من عمود اسم المحل/الصالون.
+- region/address: من عمود الحي أو المنطقة أو العنوان.
+- city: المدينة السعودية إن ظهرت أو استنتجت من الحي.
+- طبّع phone إلى 9665xxxxxxxx (12 رقم).
+- استخرج **كل الصفوف** الظاهرة في الجدول — لا تتوقف عند 5.
+- لا تكرّر نفس phone.
+- لا حقول إضافية.`;
 
 export function normalizeScannedPhone(raw: string): string | null {
   const digits = raw.replace(/\D/g, '');
@@ -31,11 +40,24 @@ export function normalizeScannedPhone(raw: string): string | null {
   return null;
 }
 
-function cleanLabel(raw: unknown, fallback: string, max = 120): string {
-  if (typeof raw !== 'string') return fallback;
+function cleanLabel(raw: unknown, max = 120): string | undefined {
+  if (typeof raw !== 'string') return undefined;
   const t = raw.replace(/\s+/g, ' ').trim();
-  if (t.length < 2) return fallback;
+  if (t.length < 2) return undefined;
   return t.slice(0, max);
+}
+
+function cleanName(raw: unknown): string {
+  return cleanLabel(raw, 200) ?? 'محل حلاق';
+}
+
+function inferCityFromRegion(region: string | undefined): string | undefined {
+  if (!region) return undefined;
+  const known = ['الرياض', 'جدة', 'مكة', 'المدينة', 'الدمام', 'الخبر', 'الظهران', 'تبوك', 'أبها', 'الطائف'];
+  for (const city of known) {
+    if (region.includes(city)) return city;
+  }
+  return undefined;
 }
 
 function parseScanJson(text: string): ScannedPartnerLead[] {
@@ -56,14 +78,19 @@ function parseScanJson(text: string): ScannedPartnerLead[] {
     const row = item as Record<string, unknown>;
     const phone = normalizeScannedPhone(String(row.phone ?? ''));
     if (!phone) continue;
-    const name = cleanLabel(row.name, 'محل حلاق', 200);
-    const city = cleanLabel(row.city, '', 120);
-    const region = cleanLabel(row.region, '', 120);
+
+    const name = cleanName(row.name);
+    const region = cleanLabel(row.region, 120);
+    const address = cleanLabel(row.address, 400) ?? region;
+    let city = cleanLabel(row.city, 120);
+    if (!city) city = inferCityFromRegion(region) ?? inferCityFromRegion(address);
+
     byPhone.set(phone, {
       name,
       phone,
       ...(city ? { city } : {}),
       ...(region ? { region } : {}),
+      ...(address ? { address } : {}),
     });
   }
 
@@ -80,10 +107,11 @@ export async function scanPartnerProspectsFromImage(
   const raw = await callOpenAIOpsBillingVision({
     system: SCAN_SYSTEM,
     userText:
-      'استخرج كل leads ظاهرة في الصورة: الاسم ورقم واتساب/جوال سعودي. ركّز على أرقام المراسلة.',
+      'استخرج كل الصفوف: اسم الصالون، الحي/المنطقة (عنوان)، رقم الهاتف/واتساب. إن كانت صورة جدول — لا تفوّت أي صف.',
     imageBase64,
     imageMime,
     timeoutMs: 52_000,
+    maxTokens: 4096,
   });
 
   return parseScanJson(raw);

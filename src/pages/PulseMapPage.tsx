@@ -34,9 +34,14 @@ export default function PulseMapPage() {
             <ArrowLeft className="h-4 w-4 rotate-180" />
             الرئيسية
           </button>
-          <div className="flex items-center gap-2">
-            <Radar className="h-4 w-4 text-sky-400" />
-            <span className="text-sm font-black text-sky-100">خريطة النبض</span>
+          <div className="flex flex-col items-center gap-0.5">
+            <div className="flex items-center gap-2">
+              <Radar className="h-4 w-4 text-sky-400" />
+              <span className="text-sm font-black text-sky-100">{PULSE_MAP_CONFIG.titleAr}</span>
+            </div>
+            <span className="text-[0.62rem] font-medium text-sky-300/75" dir="ltr">
+              {PULSE_MAP_CONFIG.subtitleEn}
+            </span>
           </div>
           <div className="hidden w-[4.5rem] sm:block" aria-hidden />
         </div>
@@ -52,6 +57,9 @@ export default function PulseMapPage() {
             <Radar className="h-7 w-7 text-sky-300" />
           </div>
           <h1 className="text-2xl font-black text-white sm:text-3xl">{PULSE_MAP_CONFIG.heroTitleAr}</h1>
+          <p className="mt-1 text-sm font-medium text-sky-300/80" dir="ltr">
+            {PULSE_MAP_CONFIG.subtitleEn}
+          </p>
         </motion.header>
 
         <motion.div
