@@ -29,7 +29,11 @@ import {
  *  10. Compass rose (bottom-left)
  *  11. Corner brackets / HUD framing
  */
-export function TacticalKingdomBackdrop() {
+export function TacticalKingdomBackdrop({
+  showCapitalHeartbeat = true,
+}: {
+  showCapitalHeartbeat?: boolean;
+}) {
   const { width: VBW, height: VBH } = KSA_VIEWBOX;
 
   // Tactical sweep — a translucent fan emitted from Riyadh.
@@ -274,22 +278,24 @@ export function TacticalKingdomBackdrop() {
       </g>
 
       {/* Layer 8: Riyadh heartbeat — pulsing concentric rings on the capital */}
-      <g className="tactical-riyadh-heartbeat" style={{ transformOrigin: `${RIYADH_VIEW.x}px ${RIYADH_VIEW.y}px` }}>
-        {[0, 1, 2].map((idx) => (
-          <circle
-            key={`heart-${idx}`}
-            cx={RIYADH_VIEW.x}
-            cy={RIYADH_VIEW.y}
-            r="6"
-            fill="none"
-            stroke="rgba(56,189,248,0.55)"
-            strokeWidth="1.2"
-            className="tactical-heartbeat-ring"
-            style={{ animationDelay: `${idx * 1.0}s` }}
-            vectorEffect="non-scaling-stroke"
-          />
-        ))}
-      </g>
+      {showCapitalHeartbeat ? (
+        <g className="tactical-riyadh-heartbeat" style={{ transformOrigin: `${RIYADH_VIEW.x}px ${RIYADH_VIEW.y}px` }}>
+          {[0, 1, 2].map((idx) => (
+            <circle
+              key={`heart-${idx}`}
+              cx={RIYADH_VIEW.x}
+              cy={RIYADH_VIEW.y}
+              r="6"
+              fill="none"
+              stroke="rgba(56,189,248,0.55)"
+              strokeWidth="1.2"
+              className="tactical-heartbeat-ring"
+              style={{ animationDelay: `${idx * 1.0}s` }}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+        </g>
+      ) : null}
 
       {/* Layer 9: Rotating tactical scan sweep — anchored at Riyadh */}
       <g

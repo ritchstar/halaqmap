@@ -61,6 +61,17 @@ const CURATED_DEMO_CITIES = [
   'جازان',
 ] as const;
 
+const CURATED_DEMO_BARBER_CITIES = [
+  'الرياض',
+  'جدة',
+  'الدمام',
+  'مكة',
+  'المدينة',
+  'الطائف',
+  'الخبر',
+  'أبها',
+] as const;
+
 function buildCuratedDemoPulses(): ShowcaseRadarPulse[] {
   const pulses: ShowcaseRadarPulse[] = [];
   for (const [index, cityAr] of CURATED_DEMO_CITIES.entries()) {
@@ -76,6 +87,26 @@ function buildCuratedDemoPulses(): ShowcaseRadarPulse[] {
       cityAr: city.nameAr,
       createdAt: new Date(Date.now() - ageMinutes * 60_000).toISOString(),
       labelAr: `نبض مستخدم — ${city.nameAr}`,
+    });
+  }
+  return pulses;
+}
+
+function buildCuratedBarberDemoPulses(): ShowcaseRadarPulse[] {
+  const pulses: ShowcaseRadarPulse[] = [];
+  for (const [index, cityAr] of CURATED_DEMO_BARBER_CITIES.entries()) {
+    const city = resolvePlatformCity(cityAr);
+    if (!city) continue;
+    const coords = snapPulseToCity(city, `demo-barber-${city.id}`);
+    const ageMinutes = 5 + index * 9;
+    pulses.push({
+      id: `demo-barber-${city.id}`,
+      kind: 'salon_cluster',
+      lat: coords.lat,
+      lng: coords.lng,
+      cityAr: city.nameAr,
+      createdAt: new Date(Date.now() - ageMinutes * 60_000).toISOString(),
+      labelAr: `نبض حلاق — ${city.nameAr} (توضيحي)`,
     });
   }
   return pulses;
@@ -179,6 +210,7 @@ export async function buildShowcaseRadarPayload(
   }
 
   const curatedDemos = buildCuratedDemoPulses();
+  const curatedBarberDemos = buildCuratedBarberDemoPulses();
   let mode: ShowcaseRadarMode = 'live';
   let pulses = [...demandPulses, ...salonClusters].slice(
     0,
@@ -187,7 +219,11 @@ export async function buildShowcaseRadarPayload(
 
   if (demandPulses.length === 0) {
     mode = 'curated';
-    pulses = [...curatedDemos, ...salonClusters.slice(0, 6)];
+    pulses = [
+      ...curatedDemos,
+      ...curatedBarberDemos,
+      ...salonClusters.slice(0, 6),
+    ];
   }
 
   const citySignals = [...cityPulseCounts.entries()]
@@ -206,6 +242,9 @@ export async function buildShowcaseRadarPayload(
     ...salonByCity.keys(),
   ]).size;
 
+  const curatedSalonCount =
+    barberRows.length > 0 ? barberRows.length : mode === 'curated' ? curatedBarberDemos.length : 0;
+
   return {
     ok: true,
     mode,
@@ -213,7 +252,7 @@ export async function buildShowcaseRadarPayload(
     stats: {
       citiesCovered: liveCityCount > 0 ? liveCityCount : PLATFORM_CITY_COUNT,
       pulsesVisible: demandPulses.length || curatedDemos.length,
-      activeSalonsApprox: barberRows.length,
+      activeSalonsApprox: curatedSalonCount,
     },
     citySignals,
     pulses,

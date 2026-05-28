@@ -158,6 +158,51 @@ const KSA_OUTLINE_LNGLAT: ReadonlyArray<[number, number]> = [
   [34.85, 29.35],
 ];
 
+/** Ray-cast point-in-polygon — vertices in [lng, lat] order. */
+function pointInLngLatPolygon(
+  lng: number,
+  lat: number,
+  polygon: ReadonlyArray<[number, number]>,
+): boolean {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i, i += 1) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const intersects =
+      (yi > lat) !== (yj > lat) &&
+      lng < ((xj - xi) * (lat - yi)) / (yj - yi + Number.EPSILON) + xi;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+/** True when a coordinate lies inside the hand-drawn KSA silhouette. */
+export function isInsideKsaSilhouette(lng: number, lat: number): boolean {
+  return pointInLngLatPolygon(lng, lat, KSA_OUTLINE_LNGLAT);
+}
+
+const KSA_SILHOUETTE_CENTROID = { lat: 24.0, lng: 45.0 } as const;
+
+/** Nudge a coordinate inward until it clears the silhouette border. */
+export function ensureInsideKsaSilhouette(
+  lat: number,
+  lng: number,
+  anchorLat: number,
+  anchorLng: number,
+): { lat: number; lng: number } {
+  if (isInsideKsaSilhouette(lng, lat)) return { lat, lng };
+  if (isInsideKsaSilhouette(anchorLng, anchorLat)) {
+    return { lat: anchorLat, lng: anchorLng };
+  }
+  for (let step = 1; step <= 12; step += 1) {
+    const t = step / 12;
+    const lat2 = anchorLat + (KSA_SILHOUETTE_CENTROID.lat - anchorLat) * t;
+    const lng2 = anchorLng + (KSA_SILHOUETTE_CENTROID.lng - anchorLng) * t;
+    if (isInsideKsaSilhouette(lng2, lat2)) return { lat: lat2, lng: lng2 };
+  }
+  return { lat: anchorLat, lng: anchorLng };
+}
+
 /** Convert a lat/lng polygon into an SVG `M …Lx y Lx y… Z` path string. */
 function toSvgPath(vertices: ReadonlyArray<[number, number]>): string {
   const parts: string[] = [];

@@ -84,20 +84,12 @@ export function ShowcasePulseMarker({
             : 'h-[clamp(0.85rem,1.5vw,1.15rem)] w-[clamp(0.85rem,1.5vw,1.15rem)]',
         )}
       >
-        {!isBarber && (
-          <>
-            <span className="golden-pulse-halo golden-pulse-halo--user golden-pulse-halo--ring-1" aria-hidden />
-            <span className="golden-pulse-halo golden-pulse-halo--user golden-pulse-halo--ring-2" aria-hidden />
-            <span className="golden-pulse-halo golden-pulse-halo--user golden-pulse-halo--ring-3" aria-hidden />
-          </>
-        )}
-
         <motion.div
           className={cn(
             'relative z-10 flex items-center justify-center rounded-full border-2',
             isBarber
               ? 'h-[clamp(2rem,3.6vw,2.75rem)] w-[clamp(2rem,3.6vw,2.75rem)] border-teal-200/50 bg-[radial-gradient(circle_at_30%_25%,#ccfbf1_0%,#14b8a6_42%,#115e59_100%)] shadow-[0_0_28px_rgba(20,184,166,0.75)]'
-              : 'h-[clamp(0.6rem,1.08vw,0.825rem)] w-[clamp(0.6rem,1.08vw,0.825rem)] border-amber-200/50 bg-[radial-gradient(circle_at_30%_25%,#fef3c7_0%,#f59e0b_42%,#92400e_100%)] shadow-[0_0_14px_rgba(251,191,36,0.75)]',
+              : 'h-[clamp(0.6rem,1.08vw,0.825rem)] w-[clamp(0.6rem,1.08vw,0.825rem)] border-amber-200/40 bg-[radial-gradient(circle_at_30%_25%,#fef3c7_0%,#f59e0b_42%,#92400e_100%)] shadow-[0_0_8px_rgba(251,191,36,0.55)]',
           )}
         >
           {isBarber ? (

@@ -2,6 +2,7 @@
  * المدن التي تغطيها المنصة (~47) — نسخة الخادم.
  * Keep in sync with `src/config/platformCoveredCities.ts`.
  */
+import { ensureInsideKsaSilhouette } from './ksaSilhouetteGeo.js';
 
 export type PlatformCity = {
   id: string;
@@ -146,11 +147,15 @@ function clampTactical(lat: number, lng: number): { lat: number; lng: number } {
 export function snapPulseToCity(
   city: PlatformCity,
   seed: string,
-  jitterDeg = 0.055,
+  jitterDeg = 0.035,
 ): { lat: number; lng: number } {
   let h = 0;
   for (let i = 0; i < seed.length; i += 1) h = (h * 31 + seed.charCodeAt(i)) | 0;
   const angle = ((h & 0xffff) / 0xffff) * Math.PI * 2;
   const radius = jitterDeg * (0.35 + ((h >> 16) & 0xff) / 255);
-  return clampTactical(city.lat + Math.sin(angle) * radius, city.lng + Math.cos(angle) * radius);
+  const jittered = clampTactical(
+    city.lat + Math.sin(angle) * radius,
+    city.lng + Math.cos(angle) * radius,
+  );
+  return ensureInsideKsaSilhouette(jittered.lat, jittered.lng, city.lat, city.lng);
 }

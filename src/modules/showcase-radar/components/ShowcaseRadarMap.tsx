@@ -66,7 +66,7 @@ export function ShowcaseRadarMap({ pulses, showSalonClusters = true, className }
           maxHeight: `min(100%, calc(100% * (${KSA_VIEWBOX.width} / ${KSA_VIEWBOX.height})))`,
         }}
       >
-        <TacticalKingdomBackdrop />
+        <TacticalKingdomBackdrop showCapitalHeartbeat={false} />
         <TacticalPulseNetwork nodes={networkNodes} maxDistance={18} maxLinksPerNode={2} />
 
         {demandPulses.map((p) => (
