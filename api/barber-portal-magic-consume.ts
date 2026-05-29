@@ -3,6 +3,7 @@ import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib
 import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
 import { verifyBarberPortalMagicToken, getBarberPortalMagicSecret } from './_lib/barberPortalMagicToken.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { getBarberPortalSessionSecret, mintBarberPortalSessionToken } from './_lib/barberPortalAuth.js';
 
 export const config = { maxDuration: 15 };
 
@@ -172,6 +173,9 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  const sessionSecret = getBarberPortalSessionSecret();
+  const barberSessionToken = sessionSecret ? mintBarberPortalSessionToken(String(b.id), String(b.email ?? ''), sessionSecret) : null;
+
   const jti = verified.jti;
   const { error: insErr } = await supabase.from('barber_portal_magic_redemptions').insert({
     jti,
@@ -192,6 +196,7 @@ export async function POST(request: Request): Promise<Response> {
   return Response.json(
     {
       ok: true,
+      barber_session_token: barberSessionToken,
       barber: {
         id: String(b.id),
         name: String(b.name ?? ''),
