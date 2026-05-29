@@ -126,7 +126,43 @@
         } catch (e) {}
       })();
     </script>
-    <div id="root"></div>
+    <div id="root">
+      <!-- قشرة أول رسم — تضمن FCP لـ PageSpeed/Lighthouse قبل تحميل React (تُستبدل عند الـ mount) -->
+      <div
+        id="hm-initial-paint"
+        dir="rtl"
+        style="
+          min-height: 100dvh;
+          margin: 0;
+          padding: 6.5rem 1.25rem 2rem;
+          box-sizing: border-box;
+          background: #020912;
+          color: #e2e8f0;
+          font-family: Tajawal, system-ui, sans-serif;
+        "
+      >
+        <main style="max-width: 72rem; margin: 0 auto">
+          <p style="margin: 0 0 1rem; font-size: 0.75rem; font-weight: 600; color: #5eead4">
+            نظام الاستجابة الذكية · حلاق ماب
+          </p>
+          <h1
+            style="
+              margin: 0 0 1rem;
+              font-size: clamp(2rem, 5.5vw, 3.25rem);
+              font-weight: 800;
+              line-height: 1.15;
+              color: #ffffff;
+            "
+          >
+            حلاقك المثالي
+            <span style="display: block; color: #5eead4">في محيطك الآن</span>
+          </h1>
+          <p style="margin: 0; max-width: 32rem; font-size: 0.95rem; line-height: 1.65; color: #94a3b8">
+            رادار جغرافي ذكي — جاري تحميل التجربة…
+          </p>
+        </main>
+      </div>
+    </div>
     <!-- استرداد تلقائي إذا فشل تحميل حزمة JS بعد نشر جديد (كاش SW/ CDN قديم) -->
     <script>
       (function () {
