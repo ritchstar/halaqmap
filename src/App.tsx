@@ -16,6 +16,9 @@ import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/Admin
 import LandingPreview from "@/pages/LandingPreview";
 import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
 import PulseMapPage from "@/pages/PulseMapPage";
+import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
+import AdminCyberOperationsPage from "@/app/admin/cyber/page";
+import StaffHubPage from "@/app/admin/staff-hub/page";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -46,9 +49,6 @@ const MapCommunity = lazy(() => import("@/pages/MapCommunity"));
 const PartnerBannersPreviewLanding = lazy(() => import("@/pages/PartnerBannersPreviewLanding"));
 const RateBarber = lazy(() => import("@/pages/RateBarber"));
 const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
-const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-screen/page"));
-const AdminCyberOperationsPage = lazy(() => import("@/app/admin/cyber/page"));
-const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
@@ -236,9 +236,9 @@ const App = () => (
                   </AdminSentinelSecurityGate>
                 }
               />
-              <Route path={`${adminBase}/radar/full-screen`} element={<LazyRoute><AdminRadarFullScreenPage /></LazyRoute>} />
-              <Route path={`${adminBase}/cyber`} element={<LazyRoute><AdminCyberOperationsPage /></LazyRoute>} />
-              <Route path={`${adminBase}/staff-hub`} element={<LazyRoute><StaffHubPage /></LazyRoute>} />
+              <Route path={`${adminBase}/radar/full-screen`} element={<AdminRadarFullScreenPage />} />
+              <Route path={`${adminBase}/cyber`} element={<AdminCyberOperationsPage />} />
+              <Route path={`${adminBase}/staff-hub`} element={<StaffHubPage />} />
             </Fragment>
           ))}
           {/* Safety net for legacy invitation links built before VITE_ADMIN_PORTAL_BASE alignment. */}

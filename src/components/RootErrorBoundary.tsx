@@ -24,8 +24,13 @@ export class RootErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error): void {
     if (typeof window === 'undefined' || !isDomRemoveChildError(error)) return;
     try {
-      if (sessionStorage.getItem(RECOVER_FLAG) === '1') return;
+      const pathKey = `${window.location.pathname}${window.location.search}`;
+      const scopedFlag = `${RECOVER_FLAG}:${pathKey}`;
+      if (sessionStorage.getItem(RECOVER_FLAG) === '1' || sessionStorage.getItem(scopedFlag) === '1') {
+        return;
+      }
       sessionStorage.setItem(RECOVER_FLAG, '1');
+      sessionStorage.setItem(scopedFlag, '1');
       localStorage.removeItem('hm-sw-reset-v5');
       localStorage.removeItem('hm-sw-reset-v3');
       if ('serviceWorker' in navigator) {
@@ -36,7 +41,7 @@ export class RootErrorBoundary extends Component<Props, State> {
       if ('caches' in window) {
         void caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
       }
-      window.setTimeout(() => window.location.reload(), 80);
+      window.setTimeout(() => window.location.reload(), 250);
     } catch {
       /* ignore recovery errors */
     }
