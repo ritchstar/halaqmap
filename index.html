@@ -32,9 +32,10 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v4';
+          var flag = 'hm-sw-reset-v5';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v4');
           localStorage.removeItem('hm-sw-reset-v3');
           localStorage.removeItem('hm-sw-reset-v2');
           sessionStorage.removeItem('hm-chunk-recover');
