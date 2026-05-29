@@ -33,6 +33,8 @@ import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackgroun
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 import { LandingSectionFallback } from '@/pages/landing/LandingSectionFallback';
 import { useLandingDeferredChunk } from '@/pages/landing/useLandingDeferredChunk';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { dismissInitialPaintShell } from '@/lib/dismissInitialPaintShell';
 import type { LandingSearchResults as LandingSearchResultsType } from '@/pages/landing/LandingSearchResults';
 import type { LandingAgentPanelBody as LandingAgentPanelBodyType } from '@/pages/landing/LandingAgentPanelBody';
 import type { BarberDetailModal as BarberDetailModalType } from '@/components/BarberDetailModal';
@@ -460,6 +462,8 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, size = 'normal
 export default function LandingPreview() {
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+  const skipHeroMotion = reduceMotion || isMobile;
   const { effectivePhase, control } = usePlatformAmbient();
   const [selectedBeacon, setSelectedBeacon] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -474,6 +478,7 @@ export default function LandingPreview() {
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const heroH1Ref = useRef<HTMLHeadingElement>(null);
 
   const SearchResults = useLandingDeferredChunk<LandingSearchResultsType>(
     loadSearchResults,
@@ -487,6 +492,37 @@ export default function LandingPreview() {
     loadBarberDetailModal,
     selectedBarber != null,
   );
+
+  const [deferMobileExtras, setDeferMobileExtras] = useState(
+    () => typeof window === 'undefined' || window.innerWidth >= 768,
+  );
+
+  useEffect(() => {
+    dismissInitialPaintShell(heroH1Ref.current);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) {
+      setDeferMobileExtras(true);
+      return;
+    }
+    let cancelled = false;
+    const enable = () => {
+      if (!cancelled) setDeferMobileExtras(true);
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(enable, { timeout: 2200 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(id);
+      };
+    }
+    const t = window.setTimeout(enable, 600);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [isMobile]);
 
   const filteredBarbers = useMemo(() => {
     if (!userLocation) return [];
@@ -543,15 +579,18 @@ export default function LandingPreview() {
       {/* شريط موقع المستخدم */}
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
 
-      <FloatingPlatformActions />
+      {deferMobileExtras ? <FloatingPlatformActions /> : null}
 
-      {/* ── ألسنة الوكلاء — يسار وسط الشاشة ── */}
-      <LeftAgentStack navigate={navigate} onOpenPanel={setActiveAgentPanel} />
-      <LandingAgentPanel
-        activePanel={activeAgentPanel}
-        onClose={() => setActiveAgentPanel(null)}
-        PanelBody={AgentPanelBody}
-      />
+      {deferMobileExtras ? (
+        <>
+          <LeftAgentStack navigate={navigate} onOpenPanel={setActiveAgentPanel} />
+          <LandingAgentPanel
+            activePanel={activeAgentPanel}
+            onClose={() => setActiveAgentPanel(null)}
+            PanelBody={AgentPanelBody}
+          />
+        </>
+      ) : null}
 
 
       {/* ── Grid background texture ──────────────────────────────────────── */}
@@ -564,7 +603,7 @@ export default function LandingPreview() {
         }}
       />
 
-      <PlatformAmbientBackground variant="default" />
+      {deferMobileExtras ? <PlatformAmbientBackground variant="default" /> : null}
 
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
@@ -580,7 +619,7 @@ export default function LandingPreview() {
 
         {/* ── شريط مدن المملكة ───────────────────────────── */}
         <div className="relative border-b border-teal-400/10">
-          <KSACityClocksBar />
+          {!isMobile || deferMobileExtras ? <KSACityClocksBar /> : null}
         </div>
 
         {/* ── التنقل الرئيسي ─────────────────────────────── */}
@@ -775,21 +814,21 @@ export default function LandingPreview() {
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-2 lg:gap-16 lg:py-24">
           {/* Left — text */}
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, x: 40 }}
+            initial={skipHeroMotion ? false : { opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.7, ease: 'easeOut' }}
+            transition={{ duration: skipHeroMotion ? 0 : 0.7, ease: 'easeOut' }}
           >
             <motion.div
-              initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+              initial={skipHeroMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: reduceMotion ? 0 : 0.2 }}
+              transition={{ delay: skipHeroMotion ? 0 : 0.2 }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold text-teal-300"
             >
               <Sparkles className="h-3 w-3" />
               نظام الاستجابة الذكية · On-Demand Visibility
             </motion.div>
 
-            <h1 className="mb-6 text-[clamp(2.4rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
+            <h1 ref={heroH1Ref} className="mb-6 text-[clamp(2.4rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
               حلاقك المثالي
               <span className="block bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
                 في محيطك الآن
@@ -802,9 +841,9 @@ export default function LandingPreview() {
             </p>
 
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={skipHeroMotion ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
+              transition={{ delay: skipHeroMotion ? 0 : 0.35 }}
               className="mb-8 flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4"
             >
               <RadarShowcaseLink variant="showcase" />
