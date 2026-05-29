@@ -612,9 +612,10 @@ export function CommandCenterSection({
 
       <Card className="mb-6">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">استيراد leads من الصور</CardTitle>
+          <CardTitle className="text-lg">استيراد leads (صور أو Excel)</CardTitle>
           <CardDescription>
-            ارفع لقطة جدول (Sheets/Excel) — يُقرأ الاسم والحي/المنطقة ورقم الواتساب من كل صف تلقائياً.
+            لقطات جدول بالذكاء الاصطناعي، أو ملفات Excel جاهزة مثل `halaqmap_*_barbers_FINAL.xlsx` لكل منطقة —
+            يُستخرج الاسم والحي/المنطقة ورقم الواتساب من كل صف.
           </CardDescription>
         </CardHeader>
         <CardContent>
