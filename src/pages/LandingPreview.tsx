@@ -34,6 +34,7 @@ import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagemen
 import { LandingSectionFallback } from '@/pages/landing/LandingSectionFallback';
 import { useLandingDeferredChunk } from '@/pages/landing/useLandingDeferredChunk';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { dismissInitialPaintShell } from '@/lib/dismissInitialPaintShell';
 import type { LandingSearchResults as LandingSearchResultsType } from '@/pages/landing/LandingSearchResults';
 import type { LandingAgentPanelBody as LandingAgentPanelBodyType } from '@/pages/landing/LandingAgentPanelBody';
 import type { BarberDetailModal as BarberDetailModalType } from '@/components/BarberDetailModal';
@@ -477,6 +478,7 @@ export default function LandingPreview() {
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const heroH1Ref = useRef<HTMLHeadingElement>(null);
 
   const SearchResults = useLandingDeferredChunk<LandingSearchResultsType>(
     loadSearchResults,
@@ -496,7 +498,7 @@ export default function LandingPreview() {
   );
 
   useEffect(() => {
-    document.getElementById('hm-initial-paint')?.remove();
+    dismissInitialPaintShell(heroH1Ref.current);
   }, []);
 
   useEffect(() => {
@@ -617,7 +619,7 @@ export default function LandingPreview() {
 
         {/* ── شريط مدن المملكة ───────────────────────────── */}
         <div className="relative border-b border-teal-400/10">
-          <KSACityClocksBar />
+          {!isMobile || deferMobileExtras ? <KSACityClocksBar /> : null}
         </div>
 
         {/* ── التنقل الرئيسي ─────────────────────────────── */}
@@ -826,7 +828,7 @@ export default function LandingPreview() {
               نظام الاستجابة الذكية · On-Demand Visibility
             </motion.div>
 
-            <h1 className="mb-6 text-[clamp(2.4rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
+            <h1 ref={heroH1Ref} className="mb-6 text-[clamp(2.4rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
               حلاقك المثالي
               <span className="block bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
                 في محيطك الآن
