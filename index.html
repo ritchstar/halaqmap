@@ -126,10 +126,11 @@
         } catch (e) {}
       })();
     </script>
-    <!-- قشرة LCP — خارج #root حتى لا يمسحها React قبل رسم الهيرو -->
+    <!-- قشرة LCP — خارج #root؛ pointer-events:none حتى لا تحجب التفاعل -->
     <div
       id="hm-initial-paint"
       dir="rtl"
+      aria-hidden="true"
       style="
         position: fixed;
         inset: 0;
@@ -142,6 +143,7 @@
         background: #020912;
         color: #e2e8f0;
         font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        pointer-events: none;
       "
     >
       <main style="max-width: 72rem; margin: 0 auto">
@@ -165,8 +167,39 @@
         </p>
       </main>
     </div>
-    <div id="root"></div>
-    <!-- شبكة أمان: لا تُبقي القشرة فوق التطبيق إذا تعطّل JS أو تأخّر التحميل -->
+    <div
+      id="root"
+      style="position: relative; z-index: 101; min-height: 100dvh; isolation: isolate"
+    ></div>
+    <!-- إخفاء القشرة فور أول رسم في #root — لا يعتمد على React modules -->
+    <script>
+      (function () {
+        var root = document.getElementById('root');
+        var shell = document.getElementById('hm-initial-paint');
+        if (!root || !shell) return;
+
+        function hideShell() {
+          if (shell.dataset.dismissing === '1') return;
+          shell.dataset.dismissing = '1';
+          shell.style.pointerEvents = 'none';
+          shell.style.transition = 'opacity 120ms ease';
+          shell.style.opacity = '0';
+          window.setTimeout(function () {
+            shell.remove();
+          }, 130);
+        }
+
+        var obs = new MutationObserver(function () {
+          if (root.childElementCount > 0) {
+            hideShell();
+            obs.disconnect();
+          }
+        });
+        obs.observe(root, { childList: true, subtree: true });
+        window.setTimeout(hideShell, 3000);
+      })();
+    </script>
+    <!-- شبكة أمان إضافية إذا تعطّل JS بالكامل -->
     <script>
       (function () {
         window.setTimeout(function () {
