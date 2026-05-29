@@ -37,11 +37,15 @@ function ProsecutorReport({ report }: { report: { title: string; body: string } 
         <span className="flex-1 text-[0.58rem] font-bold text-amber-200/80">{report.title}</span>
         {open ? <ChevronUp className="h-3 w-3 text-amber-400/50" /> : <ChevronDown className="h-3 w-3 text-amber-400/50" />}
       </button>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {open && (
-          <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }}
-            exit={{ height:0, opacity:0 }} transition={{ duration:0.25 }}
-            className="overflow-hidden">
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
             <pre className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-amber-400/12 bg-black/30 px-2 py-2 text-[0.55rem] leading-5 text-amber-100/70">
               {report.body}
             </pre>
