@@ -4,6 +4,12 @@ import { Component } from 'react';
 type Props = { children: ReactNode };
 type State = { error: Error | null };
 
+const RECOVER_FLAG = 'hm-dom-recover-v1';
+
+function isDomRemoveChildError(error: Error): boolean {
+  return /removeChild/i.test(error.message) || /not a child of this node/i.test(error.message);
+}
+
 /** يمنع الشاشة البيضاء الصامتة ويعرض رسالة خطأ قابلة للفهم */
 export class RootErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -15,8 +21,30 @@ export class RootErrorBoundary extends Component<Props, State> {
     return { error };
   }
 
+  componentDidCatch(error: Error): void {
+    if (typeof window === 'undefined' || !isDomRemoveChildError(error)) return;
+    try {
+      if (sessionStorage.getItem(RECOVER_FLAG) === '1') return;
+      sessionStorage.setItem(RECOVER_FLAG, '1');
+      localStorage.removeItem('hm-sw-reset-v4');
+      localStorage.removeItem('hm-sw-reset-v3');
+      if ('serviceWorker' in navigator) {
+        void navigator.serviceWorker.getRegistrations().then((regs) =>
+          Promise.all(regs.map((r) => r.unregister())),
+        );
+      }
+      if ('caches' in window) {
+        void caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
+      }
+      window.setTimeout(() => window.location.reload(), 80);
+    } catch {
+      /* ignore recovery errors */
+    }
+  }
+
   render() {
     if (this.state.error) {
+      const domMismatch = isDomRemoveChildError(this.state.error);
       return (
         <div
           dir="rtl"
@@ -24,6 +52,11 @@ export class RootErrorBoundary extends Component<Props, State> {
         >
           <p className="text-lg font-bold text-rose-300">تعذّر تحميل المنصة</p>
           <p className="max-w-md text-sm text-slate-400">{this.state.error.message}</p>
+          {domMismatch ? (
+            <p className="max-w-md text-xs text-slate-500">
+              جارٍ تنظيف الكاش تلقائياً — إن لم تُحدَّث الصفحة، اضغط إعادة التحميل مرة واحدة.
+            </p>
+          ) : null}
           <button
             type="button"
             className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-2 text-sm font-semibold text-cyan-200"

@@ -6,7 +6,7 @@
  * تصميم تكتيكي داكن · فخامة خليجية · حضور جغرافي
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
@@ -28,15 +28,12 @@ import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { toast } from '@/components/ui/sonner';
-import { LandingSectionFallback } from '@/pages/landing/LandingSectionFallback';
-import { useDeferredMount } from '@/pages/landing/useDeferredMount';
-import {
-  LandingAgentPanelBody,
-  LandingBarberDetailModal,
-  LandingFloatingPlatformActions,
-  LandingPlatformAmbientBackground,
-  LandingSearchResults,
-} from '@/pages/landing/lazyLandingParts';
+import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
+import { BarberDetailModal } from '@/components/BarberDetailModal';
+import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
+import { LandingAgentPanelBody } from '@/pages/landing/LandingAgentPanelBody';
+import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
 
 type LandingAgentPanel = 'media' | 'legal' | null;
 
@@ -161,26 +158,29 @@ function LandingAgentPanel({
   onClose: () => void;
 }) {
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {activePanel ? (
-        <>
-          <motion.div
-            key="agent-panel-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[56] bg-black/45 backdrop-blur-[2px]"
+        <motion.div
+          key={activePanel}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[56]"
+        >
+          <button
+            type="button"
+            aria-label="إغلاق اللوحة"
+            className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
             onClick={onClose}
           />
           <motion.aside
-            key={activePanel}
             dir="rtl"
             initial={{ opacity: 0, x: -24, scale: 0.96 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -24, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
             onClick={(e) => e.stopPropagation()}
-            className="fixed left-12 top-1/2 z-[57] w-[min(92vw,560px)] -translate-y-1/2"
+            className="pointer-events-auto fixed left-12 top-1/2 z-[1] w-[min(92vw,560px)] -translate-y-1/2"
           >
             <button
               type="button"
@@ -189,11 +189,9 @@ function LandingAgentPanel({
             >
               إغلاق
             </button>
-            <Suspense fallback={<LandingSectionFallback label="جاري فتح المكتب…" />}>
-              <LandingAgentPanelBody panel={activePanel} />
-            </Suspense>
+            <LandingAgentPanelBody panel={activePanel} />
           </motion.aside>
-        </>
+        </motion.div>
       ) : null}
     </AnimatePresence>
   );
@@ -460,7 +458,6 @@ export default function LandingPreview() {
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const deferBelowFold = useDeferredMount();
 
   const filteredBarbers = useMemo(() => {
     if (!userLocation) return [];
@@ -514,18 +511,10 @@ export default function LandingPreview() {
       data-ambient-control={control}
     >
 
-      {/* شريط مدن المملكة */}
-      <div className="relative z-[60]"><KSACityClocksBar /></div>
-
       {/* شريط موقع المستخدم */}
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
 
-      {/* أزرار عائمة للمستخدم */}
-      {deferBelowFold ? (
-        <Suspense fallback={null}>
-          <LandingFloatingPlatformActions />
-        </Suspense>
-      ) : null}
+      <FloatingPlatformActions />
 
       {/* ── ألسنة الوكلاء — يسار وسط الشاشة ── */}
       <LeftAgentStack navigate={navigate} onOpenPanel={setActiveAgentPanel} />
@@ -542,11 +531,7 @@ export default function LandingPreview() {
         }}
       />
 
-      {deferBelowFold ? (
-        <Suspense fallback={null}>
-          <LandingPlatformAmbientBackground variant="default" />
-        </Suspense>
-      ) : null}
+      <PlatformAmbientBackground variant="default" />
 
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
@@ -918,41 +903,35 @@ export default function LandingPreview() {
       </section>
 
       {/* ── نتائج البحث الحقيقية — تظهر بعد تحديد الموقع ─────────────── */}
-      <AnimatePresence>
-        {userLocation && (
-          <motion.div
-            ref={resultsRef}
-            key="search-results"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
-          >
-            <Suspense fallback={<LandingSectionFallback label="جاري تحميل نتائج الرادار…" />}>
-              <LandingSearchResults
-                userLocation={userLocation}
-                filters={filters}
-                onFilterChange={setFilters}
-                filteredBarbers={filteredBarbers}
-                remoteStatus={remoteStatus}
-                onBarberPatch={onBarberPatch}
-                onSelectBarber={setSelectedBarber}
-              />
-            </Suspense>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* نافذة تفاصيل الصالون */}
-      {selectedBarber ? (
-        <Suspense fallback={null}>
-          <LandingBarberDetailModal
-            barber={selectedBarber}
-            isOpen
-            onClose={() => setSelectedBarber(null)}
+      {userLocation ? (
+        <motion.div
+          ref={resultsRef}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
+        >
+          <LandingSearchResults
+            userLocation={userLocation}
+            filters={filters}
+            onFilterChange={setFilters}
+            filteredBarbers={filteredBarbers}
+            remoteStatus={remoteStatus}
+            onBarberPatch={onBarberPatch}
+            onSelectBarber={setSelectedBarber}
           />
-        </Suspense>
+          <div className="mx-auto max-w-4xl px-5 pb-10">
+            <PlatformVoluntaryEngagementStrip variant="compact" />
+          </div>
+        </motion.div>
+      ) : null}
+
+      {selectedBarber ? (
+        <BarberDetailModal
+          barber={selectedBarber}
+          isOpen
+          onClose={() => setSelectedBarber(null)}
+        />
       ) : null}
 
       {/* ── Stats strip ──────────────────────────────────────────────────── */}
@@ -961,6 +940,14 @@ export default function LandingPreview() {
           <StatsStrip />
         </div>
       </section>
+
+      {!userLocation ? (
+        <section className="relative z-10 px-5 py-10">
+          <div className="mx-auto max-w-4xl">
+            <PlatformVoluntaryEngagementStrip />
+          </div>
+        </section>
+      ) : null}
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
       <section id="كيف يعمل" className="relative z-10 py-24">
@@ -1209,20 +1196,13 @@ export default function LandingPreview() {
                   {item.q}
                   <ChevronDown className={`h-4 w-4 shrink-0 transition-transform text-teal-400 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
-                <AnimatePresence>
-                  {openFaq === i && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                    >
-                      <p className="border-t border-white/8 px-5 py-4 text-sm leading-relaxed text-slate-400">
-                        {item.a}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {openFaq === i ? (
+                  <div>
+                    <p className="border-t border-white/8 px-5 py-4 text-sm leading-relaxed text-slate-400">
+                      {item.a}
+                    </p>
+                  </div>
+                ) : null}
               </motion.div>
             ))}
           </div>
