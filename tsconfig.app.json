@@ -18,7 +18,7 @@
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
 
     "baseUrl": ".",
