@@ -171,7 +171,7 @@ export async function assertBarberEmailOwnsRow<T extends BarberRowBase>(
     return { ok: false, status: 404, message: 'Barber not found' };
   }
 
-  const b = row as T;
+  const b = row as unknown as T;
   const rowEmail = normalizeEmail(String(b.email ?? ''));
   if (!rowEmail || rowEmail !== emailNorm) {
     return { ok: false, status: 403, message: 'Email does not match this barber account' };
