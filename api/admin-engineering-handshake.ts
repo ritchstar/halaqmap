@@ -50,7 +50,7 @@ export async function GET(request: Request): Promise<Response> {
   if (shouldAutoRun) {
     try {
       const result = await runEngineeringWingHandshake();
-      await persistHandshake(auth.supabase, result, auth.actorEmail);
+      await persistHandshake(auth.supabase, result);
       stored = await readStoredHandshake(auth.supabase);
     } catch {
       // Surface whatever was stored previously; the manual button can retry.
@@ -99,7 +99,7 @@ export async function POST(request: Request): Promise<Response> {
   const result = await runEngineeringWingHandshake();
 
   try {
-    await persistHandshake(auth.supabase, result, auth.actorEmail);
+    await persistHandshake(auth.supabase, result);
   } catch (err) {
     return json(
       {

@@ -1,7 +1,7 @@
 /**
  * Showcase Radar — server-side aggregation (sanitized, no raw user coords).
  */
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { UntypedSupabaseClient } from './untypedSupabase.js';
 import {
   PLATFORM_CITY_COUNT,
   type PlatformCity,
@@ -178,7 +178,7 @@ type BarberRow = {
 };
 
 export async function buildShowcaseRadarPayload(
-  supabase: SupabaseClient<any>,
+  supabase: UntypedSupabaseClient,
 ): Promise<ShowcaseRadarPayload> {
   const since = new Date(
     Date.now() - SHOWCASE_LIMITS.pulseMaxAgeMinutes * 60 * 1000,

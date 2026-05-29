@@ -441,8 +441,6 @@ export function buildActivationCertificateEmailBodies(input: {
   return { subject, html, text };
 }
 
-const SOFTWARE_LICENSE_MANAGER_LABEL = SOFTWARE_LICENSE_MANAGER_LABEL_AR;
-
 /**
  * Doctrine entry point — LicenseEngine.generate + GeospatialLink.connect
  * @example activateGeospatialLicense(partnerId, packageType)

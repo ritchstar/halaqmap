@@ -6,13 +6,14 @@
  * يُحيل للوكلاء المختصين — يُقنع بالعلم لا بالضغط
  */
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 import {
   createAgentLogSupabase,
   logAgentConversation,
 } from './_lib/agentConversationLog.js';
+import type { UntypedSupabaseClient } from './_lib/untypedSupabase.js';
 import {
   appendUniversalAgentDoctrines,
   resolveRegulatoryReferral,
@@ -324,7 +325,7 @@ function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): stri
 - اللغة العربية أساساً — إنجليزي إذا خوطبت به`, 'b2b_sales_manager');
 }
 
-async function loadContext(supabase: SupabaseClient<any> | null) {
+async function loadContext(supabase: UntypedSupabaseClient | null) {
   let activeBarbers = 0, cities = 0;
   if (supabase) {
     try {

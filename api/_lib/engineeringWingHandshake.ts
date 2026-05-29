@@ -419,7 +419,6 @@ export async function readStoredHandshake(
 export async function persistHandshake(
   supabase: SupabaseClient,
   result: EngineeringWingHandshakeResult,
-  actorEmail: string,
 ): Promise<void> {
   const now = new Date().toISOString();
   await supabase.from('platform_engineering_handshake').upsert(

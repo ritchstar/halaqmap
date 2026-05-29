@@ -134,7 +134,7 @@ function buildVatActivationSummary(
   return {
     triggerSar,
     triggerLabelAr: 'تفعيل عرض ض.ق.م على واجهات الدفع',
-    recommendEnableUiVat: mandatoryBreached,
+    recommendEnableUiVat: recommendEnableUiVat,
     urgency,
     summaryAr,
     voluntaryLimitSar: ZATCA_VOLUNTARY_LIMIT_SAR,

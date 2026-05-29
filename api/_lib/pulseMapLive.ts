@@ -1,7 +1,7 @@
 /**
  * Pulse Map — live aggregation (one pulse per city per kind).
  */
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { UntypedSupabaseClient } from './untypedSupabase.js';
 import { PULSE_MAP_SLOTS, getPulseMapSlot } from './pulseMapSlots.js';
 import {
   resolvePlatformCity,
@@ -145,7 +145,7 @@ function buildAdminInsight(
 }
 
 export async function buildPulseMapLivePayload(
-  supabase: SupabaseClient<any>,
+  supabase: UntypedSupabaseClient,
   phase: PulseMapPayload['phase'],
   pilotRegions: PulseMapPayload['pilotRegions'],
   options: PulseMapLiveOptions = {},

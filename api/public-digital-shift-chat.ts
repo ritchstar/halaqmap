@@ -12,12 +12,13 @@
  *  ← جميع الوكلاء: يمررون توصياتهم في مجالاتهم
  */
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 import {
   createAgentLogSupabase,
   logAgentConversation,
 } from './_lib/agentConversationLog.js';
+import type { UntypedSupabaseClient } from './_lib/untypedSupabase.js';
 import {
   appendUniversalAgentDoctrines,
   resolveRegulatoryReferral,
@@ -48,7 +49,7 @@ function parseHistory(raw: unknown): Turn[] {
 }
 
 // ─── Platform context ─────────────────────────────────────────────────────────
-async function loadContext(supabase: SupabaseClient<any> | null) {
+async function loadContext(supabase: UntypedSupabaseClient | null) {
   let activeBarbers = 0, cities = 0;
   if (supabase) {
     try {
