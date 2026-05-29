@@ -67,6 +67,11 @@ function LazyRoute({ children, fallback = <RouteBusy /> }: { children: ReactNode
   return <Suspense fallback={fallback}>{children}</Suspense>;
 }
 
+/** خلفية داكنة أثناء تحميل LandingPreview — يمنع الشاشة البيضاء */
+const LandingRouteFallback = () => (
+  <div dir="rtl" className="min-h-[100dvh] bg-[#020912]" aria-hidden="true" />
+);
+
 const NotFound = () => (
   <Layout>
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -142,7 +147,7 @@ const App = () => (
           <Route
             path={ROUTE_PATHS.HOME}
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LandingRouteFallback />}>
                 <LandingPreview />
               </Suspense>
             }
@@ -177,7 +182,7 @@ const App = () => (
           <Route
             path={ROUTE_PATHS.LANDING_PREVIEW}
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LandingRouteFallback />}>
                 <LandingPreview />
               </Suspense>
             }
