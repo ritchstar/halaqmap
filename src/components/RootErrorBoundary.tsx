@@ -23,14 +23,14 @@ export class RootErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error): void {
     if (typeof window === 'undefined' || !isDomRemoveChildError(error)) return;
+    /* لا إعادة تحميل تلقائية — تسبب وميضاً عند أخطاء removeChild المستمرة (لوحة الإدارة، الرادار). */
+  }
+
+  private handleRecoverClick = (): void => {
     try {
+      sessionStorage.removeItem(RECOVER_FLAG);
       const pathKey = `${window.location.pathname}${window.location.search}`;
-      const scopedFlag = `${RECOVER_FLAG}:${pathKey}`;
-      if (sessionStorage.getItem(RECOVER_FLAG) === '1' || sessionStorage.getItem(scopedFlag) === '1') {
-        return;
-      }
-      sessionStorage.setItem(RECOVER_FLAG, '1');
-      sessionStorage.setItem(scopedFlag, '1');
+      sessionStorage.removeItem(`${RECOVER_FLAG}:${pathKey}`);
       localStorage.removeItem('hm-sw-reset-v5');
       localStorage.removeItem('hm-sw-reset-v3');
       if ('serviceWorker' in navigator) {
@@ -41,11 +41,11 @@ export class RootErrorBoundary extends Component<Props, State> {
       if ('caches' in window) {
         void caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
       }
-      window.setTimeout(() => window.location.reload(), 250);
     } catch {
-      /* ignore recovery errors */
+      /* ignore */
     }
-  }
+    window.location.reload();
+  };
 
   render() {
     if (this.state.error) {
@@ -59,13 +59,13 @@ export class RootErrorBoundary extends Component<Props, State> {
           <p className="max-w-md text-sm text-slate-400">{this.state.error.message}</p>
           {domMismatch ? (
             <p className="max-w-md text-xs text-slate-500">
-              جارٍ تنظيف الكاش تلقائياً — إن لم تُحدَّث الصفحة، اضغط إعادة التحميل مرة واحدة.
+              اضغط إعادة التحميل لتنظيف الكاش يدوياً — إن استمر الخطأ جرّب نافذة خاصة أو تواصل مع الدعم.
             </p>
           ) : null}
           <button
             type="button"
             className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-2 text-sm font-semibold text-cyan-200"
-            onClick={() => window.location.reload()}
+            onClick={domMismatch ? this.handleRecoverClick : () => window.location.reload()}
           >
             إعادة التحميل
           </button>

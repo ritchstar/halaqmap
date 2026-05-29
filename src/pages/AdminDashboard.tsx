@@ -41,7 +41,6 @@ import {
   ShieldAlert,
   KeyRound,
   UserCog,
-  Users,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -479,7 +478,7 @@ export default function AdminDashboard() {
   const canAccessOpsBillingTab = canViewOpsBilling || canAccessFinancialArchive;
   const canAccessOpsControllerTab =
     (can('view_ops_controller') || can('submit_ops_controller')) &&
-    (!Boolean(adminData?.bootstrap) || engineeringWingOpsEnabled);
+    (!adminData?.bootstrap || engineeringWingOpsEnabled);
   const canManageFinancialArchive =
     can('manage_admin_financial_archive') || can('manage_centralized_billing_ops');
   const canViewZatcaFinancialOffice =
@@ -501,7 +500,7 @@ export default function AdminDashboard() {
     if (canAccessOpsBillingTab) out.push('ops-billing');
     if (canAccessOpsControllerTab) out.push('ops-controller');
     if (can('view_settings')) out.push('settings');
-    if (Boolean(adminData?.bootstrap)) out.push('resources');
+    if (adminData?.bootstrap) out.push('resources');
     return out;
   }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog, canAccessOpsBillingTab, canAccessOpsControllerTab]);
 
@@ -536,7 +535,15 @@ export default function AdminDashboard() {
   }, [activeTab, zatcaScrollToken, canViewZatcaFinancialOffice]);
 
   if (!adminData) {
-    return null;
+    return (
+      <div
+        dir="rtl"
+        className="flex min-h-screen flex-col items-center justify-center gap-3 bg-slate-950 text-slate-200"
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-cyan-400" aria-hidden />
+        <p className="text-sm font-medium text-slate-400">جاري تحميل لوحة التحكم…</p>
+      </div>
+    );
   }
 
   /** تعديل بيانات الحلاق «العميق» — للمالك (bootstrap) فقط؛ من يملك manage_admins يدير الجدول وليس نسخ المالك هنا. */
