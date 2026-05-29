@@ -2,7 +2,6 @@ import { createRoot } from 'react-dom/client'
 // مساعد الشركاء (الذكاء الاصطناعي) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
 import App from './App.tsx'
 import './index.css'
-import { RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
 
 ensureDomainVerificationMeta()
@@ -24,9 +23,5 @@ if (import.meta.env.DEV) {
 
 const rootEl = document.getElementById('root')
 if (rootEl) {
-  createRoot(rootEl).render(
-    <RootErrorBoundary>
-      <App />
-    </RootErrorBoundary>,
-  )
+  createRoot(rootEl).render(<App />)
 }

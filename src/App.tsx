@@ -3,16 +3,19 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Fragment, lazy, Suspense, type ReactNode } from "react";
-import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { Layout } from "@/components/Layout";
 /** ???????? PartnerLayout ?????? ????????? ?????????? ??? PartnerDigitalBarberAssistant ??? ???????? ????????? ?????????? ??? ????? ????????? ??????????? ??????????. */
 import { PartnerLayout } from "@/components/PartnerLayout";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 import LandingPreview from "@/pages/LandingPreview";
+import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
+import PulseMapPage from "@/pages/PulseMapPage";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -49,10 +52,8 @@ const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
-const PartnerMarketingPreview = lazy(() => import("@/pages/PartnerMarketingPreview"));
 const PlatformReviews = lazy(() => import("@/pages/PlatformReviews"));
 const SaudiAgentLanding = lazy(() => import("@/pages/SaudiAgentLanding"));
-const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
 
 const queryClient = new QueryClient();
 
@@ -73,12 +74,12 @@ const NotFound = () => (
         <h1 className="text-6xl font-bold text-primary">404</h1>
         <h2 className="text-2xl font-semibold text-foreground">??????? ???? ?????????</h2>
         <p className="text-muted-foreground">???????? ??????? ?????? ???? ?????? ???? ????????</p>
-        <a
-          href="#/"
+        <Link
+          to={ROUTE_PATHS.HOME}
           className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
         >
-          ???????? ????????????
-        </a>
+          العودة للرئيسية
+        </Link>
       </div>
     </div>
   </Layout>
@@ -132,6 +133,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
+        <RouteScopedErrorBoundary>
         <NotaCouncilRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
@@ -141,7 +143,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<LazyRoute><SaudiAgentLanding /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<LazyRoute><PulseMapPage /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<PulseMapPage />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
 
@@ -166,7 +168,7 @@ const App = () => (
 
           {/* ?????? ????? ???????????? ??? ?????? ???????? ???????????????????????????????????????????????????????????????????????? */}
           <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LandingPreview />} />
-          <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<PartnerMarketingPreview />} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<LazyRoute><InternalPartnerPathPrintCard /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<LazyRoute><InvoicePreviewSamples /></LazyRoute>} />
           <Route
@@ -184,7 +186,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
 
           {/* ????? ????????? ??? ??????? ????????? */}
-          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerMarketingPreview />} />
           <Route
             path={ROUTE_PATHS.PARTNER_INTEREST}
             element={
@@ -250,6 +252,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         </AdminAuthHashGate>
+        </RouteScopedErrorBoundary>
       </HashRouter>
     </TooltipProvider>
     </PlatformAmbientProvider>
