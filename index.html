@@ -166,6 +166,22 @@
       </main>
     </div>
     <div id="root"></div>
+    <!-- شبكة أمان: لا تُبقي القشرة فوق التطبيق إذا تعطّل JS أو تأخّر التحميل -->
+    <script>
+      (function () {
+        window.setTimeout(function () {
+          var shell = document.getElementById('hm-initial-paint');
+          if (!shell || shell.dataset.dismissing === '1') return;
+          shell.dataset.dismissing = '1';
+          shell.style.transition = 'opacity 120ms ease';
+          shell.style.opacity = '0';
+          shell.style.pointerEvents = 'none';
+          window.setTimeout(function () {
+            shell.remove();
+          }, 130);
+        }, 6000);
+      })();
+    </script>
     <!-- استرداد تلقائي إذا فشل تحميل حزمة JS بعد نشر جديد (كاش SW/ CDN قديم) -->
     <script>
       (function () {
