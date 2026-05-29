@@ -88,7 +88,7 @@ function LeftAgentStack({
   return (
     <motion.div
       className="pointer-events-none fixed left-0 z-[48] hidden sm:flex flex-col items-start gap-2"
-      style={{ top: '50%', transform: 'translateY(calc(-50% - 2.75rem))' }}
+      style={{ top: '42%', transform: 'translateY(-50%)' }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 1.2, type: 'spring', stiffness: 280, damping: 26 }}
