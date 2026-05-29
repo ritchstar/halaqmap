@@ -540,8 +540,15 @@ export default function LandingPreview() {
 
   const handleLocationDetected = useCallback((loc: { lat: number; lng: number }) => {
     setUserLocation(loc);
-    // لا تمرير تلقائي — المستخدم يتحقق من موقعه أولاً ثم يختار النزول بنفسه
   }, []);
+
+  useEffect(() => {
+    if (!userLocation) return;
+    const scrollTimer = window.setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 400);
+    return () => window.clearTimeout(scrollTimer);
+  }, [userLocation]);
 
   const onBarberPatch = useCallback((patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => {
     setRemoteBarbers((prev) => {
@@ -851,7 +858,7 @@ export default function LandingPreview() {
             {/* الرادار الجغرافي — أيقونة تحديد الموقع الرئيسية */}
             <div className="mb-8 flex w-full flex-col items-center gap-4">
               <GeoRadarButton onLocationDetected={handleLocationDetected} />
-              {userLocation && filteredBarbers.length > 0 && (
+              {userLocation && (
                 <motion.button
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -859,7 +866,11 @@ export default function LandingPreview() {
                   className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-200 hover:bg-teal-500/20 transition-all"
                 >
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                  {filteredBarbers.length} صالون في محيطك — اعرض النتائج ↓
+                  {remoteStatus === 'loading'
+                    ? 'جاري البحث عن صالونات قريبة…'
+                    : filteredBarbers.length > 0
+                      ? `${filteredBarbers.length} صالون في محيطك — اعرض النتائج ↓`
+                      : 'اعرض نتائج الرادار ↓'}
                 </motion.button>
               )}
             </div>

@@ -24,10 +24,27 @@ function toDMS(val: number, pos: string, neg: string): string {
   return `${pad(d)}° ${pad(m)}' ${pad(s)}" ${val >= 0 ? pos : neg}`;
 }
 
+function requestGeoPosition(highAccuracy: boolean): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: highAccuracy,
+      timeout: highAccuracy ? 12_000 : 20_000,
+      maximumAge: highAccuracy ? 0 : 120_000,
+    });
+  });
+}
+
+function geoErrorMessage(code: number | undefined): string {
+  if (code === 1) return 'تم رفض الإذن — فعّل الموقع من إعدادات المتصفح ثم اضغط مجدداً';
+  if (code === 2) return 'إشارة الموقع غير متوفرة — تحقق من GPS أو الشبكة';
+  if (code === 3) return 'انتهت مهلة التحديد — جرّب مجدداً في مكان مكشوف';
+  return 'تعذّر تحديد موقعك — حاول مرة أخرى';
+}
+
 // ─── Searching animation: rotating dots ring ──────────────────────────────────
 function SearchingRing() {
   return (
-    <div className="absolute inset-0 rounded-full">
+    <div className="pointer-events-none absolute inset-0 rounded-full">
       {Array.from({ length: 8 }).map((_, i) => {
         const angle = (i * 45 * Math.PI) / 180;
         const r = 90;
@@ -54,26 +71,58 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
   const [accuracy, setAccuracy] = useState<number | null>(null);
   const busy = useRef(false);
 
-  const handleClick = useCallback(() => {
-    if (busy.current || phase === 'found') return;
-    if (phase === 'denied') { setPhase('idle'); busy.current = false; return; }
-    busy.current = true; setPhase('searching');
+  const handleClick = useCallback(async () => {
+    if (busy.current) return;
+
     if (!navigator.geolocation) {
-      setPhase('denied'); toast.error('متصفحك لا يدعم تحديد الموقع'); busy.current = false; return;
+      setPhase('denied');
+      toast.error('متصفحك لا يدعم تحديد الموقع');
+      return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setCoords(loc); setAccuracy(Math.round(pos.coords.accuracy));
-        storeUserCoords(loc);
-        setPhase('found'); onLocationDetected(loc); busy.current = false;
-      },
-      (err) => {
-        setPhase('denied'); busy.current = false;
-        toast.error(err.code === 1 ? 'تم رفض الإذن — افتح إعدادات المتصفح' : 'تعذّر تحديد موقعك');
-      },
-      { enableHighAccuracy: true, timeout: 14000, maximumAge: 60000 },
-    );
+
+    if (phase === 'found') {
+      setPhase('idle');
+      setCoords(null);
+      setAccuracy(null);
+    }
+
+    busy.current = true;
+    setPhase('searching');
+
+    // تحميل مسبق لنتائج الرادار أثناء انتظار GPS
+    void import('@/pages/landing/LandingSearchResults').catch(() => undefined);
+
+    const watchdog = window.setTimeout(() => {
+      if (!busy.current) return;
+      busy.current = false;
+      setPhase('denied');
+      toast.error('انتهت مهلة تحديد الموقع — حاول مجدداً');
+    }, 22_000);
+
+    try {
+      let pos: GeolocationPosition;
+      try {
+        pos = await requestGeoPosition(true);
+      } catch (firstErr) {
+        const code = (firstErr as GeolocationPositionError).code;
+        if (code === 1) throw firstErr;
+        pos = await requestGeoPosition(false);
+      }
+
+      const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      setCoords(loc);
+      setAccuracy(Math.round(pos.coords.accuracy));
+      storeUserCoords(loc);
+      setPhase('found');
+      onLocationDetected(loc);
+      toast.success('تم تحديد موقعك — جارٍ عرض أقرب الصالونات');
+    } catch (err) {
+      setPhase('denied');
+      toast.error(geoErrorMessage((err as GeolocationPositionError).code));
+    } finally {
+      window.clearTimeout(watchdog);
+      busy.current = false;
+    }
   }, [phase, onLocationDetected]);
 
   const isSearching = phase === 'searching';
@@ -102,13 +151,13 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
           {(isIdle || isSearching) && (
             <>
               <motion.div key="ring1"
-                className="absolute inset-0 rounded-full border"
+                className="pointer-events-none absolute inset-0 rounded-full border"
                 style={{ borderColor: `${theme.ring}0.25)` }}
                 animate={{ scale: [1, 1.45], opacity: [0.55, 0] }}
                 transition={{ duration: isSearching ? 1.4 : 2.8, repeat: Infinity, ease: 'easeOut' }}
               />
               <motion.div key="ring2"
-                className="absolute inset-0 rounded-full border"
+                className="pointer-events-none absolute inset-0 rounded-full border"
                 style={{ borderColor: `${theme.ring}0.15)` }}
                 animate={{ scale: [1, 1.70], opacity: [0.35, 0] }}
                 transition={{ duration: isSearching ? 1.4 : 2.8, delay: isSearching ? 0.35 : 0.7, repeat: Infinity, ease: 'easeOut' }}
@@ -119,7 +168,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
 
         {/* Found: green ripple */}
         {isFound && (
-          <motion.div className="absolute inset-0 rounded-full border-2"
+          <motion.div className="pointer-events-none absolute inset-0 rounded-full border-2"
             style={{ borderColor: 'rgba(52,211,153,0.55)' }}
             animate={{ scale: [1, 1.35], opacity: [0.8, 0] }}
             transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }} />
@@ -130,17 +179,19 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
 
         {/* ── Main circle button ─────────────────────────── */}
         <motion.button
-          onClick={handleClick}
+          type="button"
+          onClick={() => void handleClick()}
           disabled={isSearching}
-          whileHover={!isSearching && !isFound ? { scale: 1.04 } : undefined}
+          whileHover={!isSearching ? { scale: 1.04 } : undefined}
           whileTap={!isSearching ? { scale: 0.96 } : undefined}
-          className="relative flex h-full w-full flex-col items-center justify-center rounded-full border focus:outline-none overflow-hidden cursor-pointer"
+          className="relative z-10 flex h-full w-full flex-col items-center justify-center rounded-full border focus:outline-none overflow-hidden cursor-pointer touch-manipulation"
           style={{
             background: theme.bg,
             borderColor: theme.border,
             boxShadow: `0 0 55px 12px ${theme.glow}, 0 0 110px 24px ${theme.glow.replace('0.', '0.0')}`,
           }}
           aria-label="تحديد موقعي الجغرافي"
+          aria-busy={isSearching}
         >
           {/* Inner subtle radial accent */}
           <div className="pointer-events-none absolute inset-0 rounded-full"
@@ -219,7 +270,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
               )}
               {isFound && (
                 <p className={`text-[0.62rem] font-semibold ${theme.sub}`}>
-                  تحقق من موقعك ↓
+                  النتائج بالأسفل ↓
                 </p>
               )}
               {isDenied && (
@@ -274,7 +325,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
               </svg>
             </motion.a>
 
-            <p className="text-[0.55rem] text-slate-700">يفتح تطبيق الخرائط على موقعك الذي رصدناه</p>
+            <p className="text-[0.55rem] text-slate-500">يفتح تطبيق الخرائط على موقعك الذي رصدناه</p>
           </motion.div>
         )}
       </AnimatePresence>

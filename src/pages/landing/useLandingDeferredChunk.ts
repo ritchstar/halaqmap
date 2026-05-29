@@ -13,11 +13,15 @@ export function useLandingDeferredChunk<T>(
       return;
     }
     let cancelled = false;
-    void loader().then((mod) => {
-      if (cancelled) return;
-      const resolved = (mod as { default?: T }).default ?? (mod as T);
-      setComponent(resolved);
-    });
+    void loader()
+      .then((mod) => {
+        if (cancelled) return;
+        const resolved = (mod as { default?: T }).default ?? (mod as T);
+        setComponent(resolved);
+      })
+      .catch(() => {
+        if (!cancelled) setComponent(null);
+      });
     return () => {
       cancelled = true;
     };
