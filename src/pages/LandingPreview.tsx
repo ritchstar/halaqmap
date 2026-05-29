@@ -6,7 +6,7 @@
  * تصميم تكتيكي داكن · فخامة خليجية · حضور جغرافي
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, startTransition } from 'react';
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
@@ -31,19 +31,10 @@ import { toast } from '@/components/ui/sonner';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
-import { LandingSectionFallback } from '@/pages/landing/LandingSectionFallback';
-import { useLandingDeferredChunk } from '@/pages/landing/useLandingDeferredChunk';
+import { LandingAgentPanelBody } from '@/pages/landing/LandingAgentPanelBody';
+import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
+import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { useIsMobile } from '@/hooks/use-mobile';
-import type { LandingSearchResults as LandingSearchResultsType } from '@/pages/landing/LandingSearchResults';
-import type { LandingAgentPanelBody as LandingAgentPanelBodyType } from '@/pages/landing/LandingAgentPanelBody';
-import type { BarberDetailModal as BarberDetailModalType } from '@/components/BarberDetailModal';
-
-const loadSearchResults = () =>
-  import('@/pages/landing/LandingSearchResults').then((m) => m.LandingSearchResults);
-const loadAgentPanelBody = () =>
-  import('@/pages/landing/LandingAgentPanelBody').then((m) => m.LandingAgentPanelBody);
-const loadBarberDetailModal = () =>
-  import('@/components/BarberDetailModal').then((m) => m.BarberDetailModal);
 
 type LandingAgentPanel = 'media' | 'legal' | null;
 
@@ -163,11 +154,9 @@ function LeftAgentStack({
 function LandingAgentPanel({
   activePanel,
   onClose,
-  PanelBody,
 }: {
   activePanel: LandingAgentPanel;
   onClose: () => void;
-  PanelBody: typeof LandingAgentPanelBodyType | null;
 }) {
   return (
     <AnimatePresence mode="wait">
@@ -201,11 +190,7 @@ function LandingAgentPanel({
             >
               إغلاق
             </button>
-            {PanelBody ? (
-              <PanelBody panel={activePanel} />
-            ) : (
-              <LandingSectionFallback label="جاري فتح المكتب…" />
-            )}
+            <LandingAgentPanelBody panel={activePanel} />
           </motion.aside>
         </motion.div>
       ) : null}
@@ -478,19 +463,6 @@ export default function LandingPreview() {
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const SearchResults = useLandingDeferredChunk<LandingSearchResultsType>(
-    loadSearchResults,
-    Boolean(userLocation),
-  );
-  const AgentPanelBody = useLandingDeferredChunk<LandingAgentPanelBodyType>(
-    loadAgentPanelBody,
-    activeAgentPanel != null,
-  );
-  const DetailModal = useLandingDeferredChunk<typeof BarberDetailModalType>(
-    loadBarberDetailModal,
-    selectedBarber != null,
-  );
-
   const [deferMobileExtras, setDeferMobileExtras] = useState(
     () => typeof window === 'undefined' || window.innerWidth >= 768,
   );
@@ -539,14 +511,18 @@ export default function LandingPreview() {
   }, [userLocation, filters.maxDistance, filters.minRating, filters.tiers]);
 
   const handleLocationDetected = useCallback((loc: { lat: number; lng: number }) => {
-    setUserLocation(loc);
+    startTransition(() => {
+      setUserLocation(loc);
+    });
   }, []);
 
   useEffect(() => {
     if (!userLocation) return;
     const scrollTimer = window.setTimeout(() => {
-      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 400);
+      requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }, 500);
     return () => window.clearTimeout(scrollTimer);
   }, [userLocation]);
 
@@ -588,7 +564,6 @@ export default function LandingPreview() {
           <LandingAgentPanel
             activePanel={activeAgentPanel}
             onClose={() => setActiveAgentPanel(null)}
-            PanelBody={AgentPanelBody}
           />
         </>
       ) : null}
@@ -981,34 +956,27 @@ export default function LandingPreview() {
 
       {/* ── نتائج البحث الحقيقية — تظهر بعد تحديد الموقع ─────────────── */}
       {userLocation ? (
-        <motion.div
+        <div
           ref={resultsRef}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
           className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
         >
-          {SearchResults && userLocation ? (
-            <SearchResults
-              userLocation={userLocation}
-              filters={filters}
-              onFilterChange={setFilters}
-              filteredBarbers={filteredBarbers}
-              remoteStatus={remoteStatus}
-              onBarberPatch={onBarberPatch}
-              onSelectBarber={setSelectedBarber}
-            />
-          ) : (
-            <LandingSectionFallback label="جاري تحميل نتائج الرادار…" />
-          )}
+          <LandingSearchResults
+            userLocation={userLocation}
+            filters={filters}
+            onFilterChange={setFilters}
+            filteredBarbers={filteredBarbers}
+            remoteStatus={remoteStatus}
+            onBarberPatch={onBarberPatch}
+            onSelectBarber={setSelectedBarber}
+          />
           <div className="mx-auto max-w-4xl px-5 pb-10">
             <PlatformVoluntaryEngagementStrip variant="compact" />
           </div>
-        </motion.div>
+        </div>
       ) : null}
 
-      {selectedBarber && DetailModal ? (
-        <DetailModal
+      {selectedBarber ? (
+        <BarberDetailModal
           barber={selectedBarber}
           isOpen
           onClose={() => setSelectedBarber(null)}

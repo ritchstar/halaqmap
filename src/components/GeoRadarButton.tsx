@@ -89,9 +89,6 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
     busy.current = true;
     setPhase('searching');
 
-    // تحميل مسبق لنتائج الرادار أثناء انتظار GPS
-    void import('@/pages/landing/LandingSearchResults').catch(() => undefined);
-
     const watchdog = window.setTimeout(() => {
       if (!busy.current) return;
       busy.current = false;
@@ -114,7 +111,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
       setAccuracy(Math.round(pos.coords.accuracy));
       storeUserCoords(loc);
       setPhase('found');
-      onLocationDetected(loc);
+      requestAnimationFrame(() => onLocationDetected(loc));
       toast.success('تم تحديد موقعك — جارٍ عرض أقرب الصالونات');
     } catch (err) {
       setPhase('denied');
@@ -203,83 +200,65 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
 
           {/* ── Icon zone ──────────────────────────────────── */}
           <div className="relative z-10 mb-4 flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              {isFound ? (
-                /* Found: checkmark circle */
-                <motion.div key="check"
-                  initial={{ scale: 0, rotate: -90 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 320, damping: 20 }}
-                  className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 border-emerald-400/50 bg-emerald-500/15"
-                >
-                  <svg viewBox="0 0 28 28" width="38" height="38" fill="none">
-                    <motion.path d="M5 14 L11 20 L23 8" stroke="#34d399" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, ease: 'easeOut' }} />
-                  </svg>
-                </motion.div>
-              ) : isDenied ? (
-                /* Denied: X */
-                <motion.div key="denied"
-                  initial={{ scale: 0 }} animate={{ scale: 1 }}
-                  className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 border-rose-400/50 bg-rose-500/15">
-                  <svg viewBox="0 0 28 28" width="38" height="38" fill="none">
-                    <line x1="7" y1="7" x2="21" y2="21" stroke="#f87171" strokeWidth="3" strokeLinecap="round" />
-                    <line x1="21" y1="7" x2="7" y2="21" stroke="#f87171" strokeWidth="3" strokeLinecap="round" />
-                  </svg>
-                </motion.div>
-              ) : (
-                /* Idle / Searching: scissors */
-                <motion.div key="scissors"
-                  animate={isSearching
-                    ? { rotate: [-18, 18, -18], scale: [1, 1.08, 1] }
-                    : { rotate: 0, scale: 1 }}
-                  transition={isSearching
-                    ? { duration: 0.9, repeat: Infinity, ease: 'easeInOut' }
-                    : { duration: 0.4 }}>
-                  <Scissors
-                    style={{ color: theme.icon, width: 68, height: 68 }}
-                    strokeWidth={1.35}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isFound ? (
+              <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 border-emerald-400/50 bg-emerald-500/15">
+                <svg viewBox="0 0 28 28" width="38" height="38" fill="none">
+                  <path d="M5 14 L11 20 L23 8" stroke="#34d399" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            ) : isDenied ? (
+              <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 border-rose-400/50 bg-rose-500/15">
+                <svg viewBox="0 0 28 28" width="38" height="38" fill="none">
+                  <line x1="7" y1="7" x2="21" y2="21" stroke="#f87171" strokeWidth="3" strokeLinecap="round" />
+                  <line x1="21" y1="7" x2="7" y2="21" stroke="#f87171" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+              </div>
+            ) : (
+              <motion.div
+                animate={isSearching
+                  ? { rotate: [-18, 18, -18], scale: [1, 1.08, 1] }
+                  : { rotate: 0, scale: 1 }}
+                transition={isSearching
+                  ? { duration: 0.9, repeat: Infinity, ease: 'easeInOut' }
+                  : { duration: 0.4 }}>
+                <Scissors
+                  style={{ color: theme.icon, width: 68, height: 68 }}
+                  strokeWidth={1.35}
+                />
+              </motion.div>
+            )}
           </div>
 
           {/* ── Text zone ──────────────────────────────────── */}
-          <AnimatePresence mode="wait">
-            <motion.div key={phase}
-              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.25 }}
-              className="relative z-10 flex flex-col items-center gap-1.5">
-              <p className={`text-[1.05rem] font-black leading-tight ${theme.text}`}>
-                {isFound ? 'موقعك مُثبَّت' : isSearching ? 'جاري التحديد…' : isDenied ? 'تعذّر التحديد' : 'اكتشف حلاقك الآن'}
+          <div className="relative z-10 flex flex-col items-center gap-1.5">
+            <p className={`text-[1.05rem] font-black leading-tight ${theme.text}`}>
+              {isFound ? 'موقعك مُثبَّت' : isSearching ? 'جاري التحديد…' : isDenied ? 'تعذّر التحديد' : 'اكتشف حلاقك الآن'}
+            </p>
+            {isIdle && (
+              <p className={`text-[0.62rem] font-semibold ${theme.sub}`}>
+                اضغط لتحديد موقعك
               </p>
-              {isIdle && (
-                <p className={`text-[0.62rem] font-semibold ${theme.sub}`}>
-                  اضغط لتحديد موقعك
-                </p>
-              )}
-              {isSearching && (
-                <div className="flex items-center gap-1.5">
-                  {[0, 1, 2].map((i) => (
-                    <motion.div key={i} className="h-1.5 w-1.5 rounded-full bg-teal-400"
-                      animate={{ opacity: [0.25, 1, 0.25], scale: [0.7, 1.2, 0.7] }}
-                      transition={{ duration: 1.1, delay: i * 0.18, repeat: Infinity }} />
-                  ))}
-                </div>
-              )}
-              {isFound && (
-                <p className={`text-[0.62rem] font-semibold ${theme.sub}`}>
-                  النتائج بالأسفل ↓
-                </p>
-              )}
-              {isDenied && (
-                <p className={`text-[0.62rem] font-semibold ${theme.sub}`}>
-                  اضغط للمحاولة مجدداً
-                </p>
-              )}
-            </motion.div>
-          </AnimatePresence>
+            )}
+            {isSearching && (
+              <div className="flex items-center gap-1.5">
+                {[0, 1, 2].map((i) => (
+                  <motion.div key={i} className="h-1.5 w-1.5 rounded-full bg-teal-400"
+                    animate={{ opacity: [0.25, 1, 0.25], scale: [0.7, 1.2, 0.7] }}
+                    transition={{ duration: 1.1, delay: i * 0.18, repeat: Infinity }} />
+                ))}
+              </div>
+            )}
+            {isFound && (
+              <p className={`text-[0.62rem] font-semibold ${theme.sub}`}>
+                النتائج بالأسفل ↓
+              </p>
+            )}
+            {isDenied && (
+              <p className={`text-[0.62rem] font-semibold ${theme.sub}`}>
+                اضغط للمحاولة مجدداً
+              </p>
+            )}
+          </div>
         </motion.button>
       </div>
 

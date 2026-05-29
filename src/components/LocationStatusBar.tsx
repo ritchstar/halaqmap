@@ -6,8 +6,8 @@
  * تصميم: زجاجي مضيء، خط صغير، يتلاشى عند النقر عليه مؤقتاً.
  */
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { MapPin, Clock, X, Navigation2 } from 'lucide-react';
 
 // ─── قاعدة بيانات المدن السعودية (reverse geocode محلي) ─────────────────
@@ -96,15 +96,13 @@ export function LocationStatusBar({ lat, lng }: Props) {
   const lngStr = fmtCoord(lng, 'ق', 'غ');
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, x: -20, y: -8 }}
-        animate={{ opacity: 1, x: 0, y: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="fixed left-3 top-[96px] z-40 md:top-[80px]"
-        dir="rtl"
-      >
+    <motion.div
+      initial={{ opacity: 0, x: -20, y: -8 }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="fixed left-3 top-[96px] z-40 md:top-[80px]"
+      dir="rtl"
+    >
         <div
           className="relative cursor-pointer overflow-hidden rounded-xl border border-teal-400/20 bg-[#030d1a]/80 shadow-lg shadow-teal-500/10 backdrop-blur-xl transition-all duration-300 hover:border-teal-400/40"
           onClick={() => setDetailOpen((o) => !o)}
@@ -138,34 +136,25 @@ export function LocationStatusBar({ lat, lng }: Props) {
           </div>
 
           {/* التفاصيل (تظهر عند النقر) */}
-          <AnimatePresence>
-            {detailOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden border-t border-teal-400/10"
-              >
-                <div className="flex flex-col gap-0.5 px-2.5 py-2">
-                  <div className="flex items-center gap-1 text-[0.55rem] text-slate-400">
-                    <MapPin className="h-2 w-2 text-teal-500" />
-                    <span className="font-mono">{latStr}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-[0.55rem] text-slate-400">
-                    <MapPin className="h-2 w-2 text-teal-500" />
-                    <span className="font-mono">{lngStr}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-[0.55rem] text-slate-500">
-                    <Clock className="h-2 w-2" />
-                    <span>UTC+3 · توقيت المملكة</span>
-                  </div>
+          {detailOpen ? (
+            <div className="overflow-hidden border-t border-teal-400/10">
+              <div className="flex flex-col gap-0.5 px-2.5 py-2">
+                <div className="flex items-center gap-1 text-[0.55rem] text-slate-400">
+                  <MapPin className="h-2 w-2 text-teal-500" />
+                  <span className="font-mono">{latStr}</span>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <div className="flex items-center gap-1 text-[0.55rem] text-slate-400">
+                  <MapPin className="h-2 w-2 text-teal-500" />
+                  <span className="font-mono">{lngStr}</span>
+                </div>
+                <div className="flex items-center gap-1 text-[0.55rem] text-slate-500">
+                  <Clock className="h-2 w-2" />
+                  <span>UTC+3 · توقيت المملكة</span>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
-      </motion.div>
-    </AnimatePresence>
+    </motion.div>
   );
 }
