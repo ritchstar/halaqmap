@@ -16,7 +16,7 @@ import {
   TrendingUp, QrCode, ImageIcon, Brain, Moon, FileCheck,
   ChevronLeft, ArrowRight, Wifi, Menu
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
@@ -968,7 +968,7 @@ export default function PartnerMarketingPreview() {
   const { effectivePhase, control } = usePlatformAmbient();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'bronze' | 'gold' | 'diamond'>('gold');
-  const [scrolled, setScrolled] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const statsRef = useRef<HTMLDivElement>(null);
   const statsInView = useInView(statsRef, { once: true });
@@ -1014,7 +1014,7 @@ export default function PartnerMarketingPreview() {
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
 
             {/* الشعار */}
-            <a href={`/#${ROUTE_PATHS.HOME}`} className="flex items-center gap-3 no-underline">
+            <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-3 no-underline">
               <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-700/20 blur-sm" />
                 <motion.div
@@ -1045,9 +1045,7 @@ export default function PartnerMarketingPreview() {
                 />
                 <span className="text-[0.55rem] font-bold text-amber-300/80">مسار نشط</span>
               </div>
-            </a>
-
-            {/* ── روابط التنقل ──────────────────────────────────────────── */}
+            </Link>
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
               {[
                 { label: 'كيف تنضم',      id: 'كيف تنضم',      icon: Navigation2 },
@@ -1070,17 +1068,16 @@ export default function PartnerMarketingPreview() {
               <RadarShowcaseLink variant="pill" className="hidden lg:inline-flex" />
 
               <div className="mx-1 h-5 w-px bg-white/10" />
-              <a
-                href={`/#${ROUTE_PATHS.HOME}`}
+              <Link
+                to={ROUTE_PATHS.HOME}
                 className="group flex items-center gap-1.5 rounded-xl border border-teal-400/15 bg-teal-500/5 px-3.5 py-2 text-[0.78rem] font-semibold text-teal-400/65 transition-all hover:border-teal-400/35 hover:bg-teal-500/10 hover:text-teal-300"
               >
                 <Globe2 className="h-3.5 w-3.5" />
                 للمستخدمين
                 <ArrowRight className="h-3 w-3 opacity-50 group-hover:opacity-100" />
-              </a>
+              </Link>
             </nav>
 
-            {/* ── زر التسجيل ───────────────────────────────────────────── */}
             <div className="flex items-center gap-2">
               <RadarShowcaseLink className="hidden sm:flex" />
               <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
@@ -1106,7 +1103,7 @@ export default function PartnerMarketingPreview() {
               {/* موبايل — أيقونة القائمة */}
               <button
                 type="button"
-                onClick={() => setScrolled((s) => !s)}
+                onClick={() => setMobileNavOpen((open) => !open)}
                 className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 md:hidden"
                 aria-label="القائمة"
               >
@@ -1119,10 +1116,9 @@ export default function PartnerMarketingPreview() {
           <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
 
           {/* ── قائمة موبايل ──────────────────────────────────────────── */}
-          <AnimatePresence>
-            {scrolled && (
+            {mobileNavOpen && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
                 className="relative border-t border-white/5 bg-[#020912]/97 px-4 py-3 md:hidden"
               >
                 <div className="flex flex-col gap-1">
@@ -1134,19 +1130,18 @@ export default function PartnerMarketingPreview() {
                     { label: 'البنرات', id: 'معاينة البنرات' },
                   ].map(item => (
                     <button key={item.id} type="button"
-                      onClick={() => { setScrolled(false); document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }); }}
+                      onClick={() => { setMobileNavOpen(false); document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }); }}
                       className="rounded-xl px-4 py-2.5 text-right text-sm font-semibold text-slate-300 hover:bg-amber-500/8 hover:text-amber-200 transition-all">
                       {item.label}
                     </button>
                   ))}
-                  <button onClick={() => { setScrolled(false); navigate(ROUTE_PATHS.REGISTER); }}
+                  <button onClick={() => { setMobileNavOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
                     className="mt-1 w-full rounded-xl bg-amber-500/15 border border-amber-400/30 py-2.5 text-sm font-black text-amber-300">
                     سجّل صالونك ←
                   </button>
                 </div>
               </motion.div>
             )}
-          </AnimatePresence>
         </div>
       </header>
 
@@ -1337,21 +1332,21 @@ export default function PartnerMarketingPreview() {
                 </button>
               ))}
             </div>
-            <AnimatePresence mode="wait">
-              {PARTNER_BANNERS_PREVIEW_TIERS.filter((t) => t.id === activeTab).map((tier) => (
+            {(() => {
+              const activeBannerTier = PARTNER_BANNERS_PREVIEW_TIERS.find((t) => t.id === activeTab);
+              if (!activeBannerTier) return null;
+              return (
                 <motion.div
-                  key={tier.id}
+                  key={activeBannerTier.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                   className="overflow-visible"
                 >
-                  {/* المحاكاة الحقيقية من صفحة معاينة البنرات */}
-                  <EndUserBarberBannerSim tier={tier} startDelayMs={600} />
+                  <EndUserBarberBannerSim tier={activeBannerTier} startDelayMs={600} />
                 </motion.div>
-              ))}
-            </AnimatePresence>
+              );
+            })()}
             <p className="mt-3 text-center text-[0.65rem] text-slate-500">
               محاكاة حقيقية لرحلة الزبون — اضغط التبويب لتغيير الباقة
             </p>
@@ -1896,25 +1891,25 @@ export default function PartnerMarketingPreview() {
             <div dir="rtl">
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">مسار الشركاء</h4>
               <div className="flex flex-col gap-2.5 text-sm text-slate-500">
-                        {[
-                  { label: 'التسجيل', href: `/#${ROUTE_PATHS.REGISTER}` },
-                  { label: 'الباقات والأسعار', href: `/#${ROUTE_PATHS.BARBERS_LANDING}` },
-                  { label: 'معاينة الرصد الذكي 🛰', href: `/#${ROUTE_PATHS.RADAR_SHOWCASE}` },
-                  { label: 'سياسة الحزم', href: `/#${ROUTE_PATHS.SUBSCRIPTION_POLICY}` },
-                  { label: 'لوحة الشريك', href: `/#${ROUTE_PATHS.BARBER_LOGIN}` },
-                  { label: 'خدمة العملاء', href: `/#${ROUTE_PATHS.PARTNER_SUPPORT}` },
-                  { label: 'خصوصية الشركاء', href: `/#${ROUTE_PATHS.PARTNER_PRIVACY}` },
+                {[
+                  { label: 'التسجيل', to: ROUTE_PATHS.REGISTER },
+                  { label: 'الباقات والأسعار', to: ROUTE_PATHS.BARBERS_LANDING },
+                  { label: 'معاينة الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
+                  { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
+                  { label: 'لوحة الشريك', to: ROUTE_PATHS.BARBER_LOGIN },
+                  { label: 'خدمة العملاء', to: ROUTE_PATHS.PARTNER_SUPPORT },
+                  { label: 'خصوصية الشركاء', to: ROUTE_PATHS.PARTNER_PRIVACY },
                 ].map((link) => (
-                  <a key={link.label} href={link.href} className="hover:text-amber-400 transition-colors">{link.label}</a>
+                  <Link key={link.label} to={link.to} className="hover:text-amber-400 transition-colors">{link.label}</Link>
                 ))}
               </div>
             </div>
             <div dir="rtl">
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">المستخدمون</h4>
               <div className="flex flex-col gap-2.5">
-                <a href={`/#${ROUTE_PATHS.HOME}`} className="text-sm text-slate-500 hover:text-teal-400 transition-colors">ابحث عن حلاق ↗</a>
-                <a href={`/#${ROUTE_PATHS.PARTNER_PRIVACY}`} className="text-sm text-slate-500 hover:text-teal-400">سياسة الخصوصية</a>
-                <a href={`/#${ROUTE_PATHS.TERMS_OF_SERVICE}`} className="text-sm text-slate-500 hover:text-teal-400">شروط الاستخدام</a>
+                <Link to={ROUTE_PATHS.HOME} className="text-sm text-slate-500 hover:text-teal-400 transition-colors">ابحث عن حلاق ↗</Link>
+                <Link to={ROUTE_PATHS.PARTNER_PRIVACY} className="text-sm text-slate-500 hover:text-teal-400">سياسة الخصوصية</Link>
+                <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-sm text-slate-500 hover:text-teal-400">شروط الاستخدام</Link>
               </div>
             </div>
           </div>

@@ -16,7 +16,7 @@ import {
   Phone, MessageCircle, Heart, BarChart3, Crown, Menu,
   Building2
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { GeoRadarButton } from '@/components/GeoRadarButton';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
@@ -603,7 +603,7 @@ export default function LandingPreview() {
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
 
             {/* ── الشعار (يمين في RTL) ────────── */}
-            <a href={`/#${ROUTE_PATHS.HOME}`} className="flex items-center gap-3 no-underline">
+            <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-3 no-underline">
               {/* أيقونة المقص الدوّارة */}
               <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-400/20 to-teal-700/20 blur-sm" />
@@ -638,7 +638,7 @@ export default function LandingPreview() {
                 />
                 <span className="text-[0.69rem] font-bold text-emerald-300/80">رادار نشط</span>
               </div>
-            </a>
+            </Link>
 
             {/* ── روابط التنقل (للمستخدمين فقط) ── */}
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
@@ -690,8 +690,8 @@ export default function LandingPreview() {
               <RadarShowcaseLink variant="showcase" className="hidden shrink-0 md:inline-flex" />
 
               {/* ── أيقونة B2B — للمنشآت والصالونات ── */}
-              <a
-                href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
+              <Link
+                to={ROUTE_PATHS.BARBERS_LANDING}
                 title="مسار الخدمات التسويقية للمنشآت — B2B"
                 className="group relative hidden h-9 w-9 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-500/8 text-amber-400/70 transition-all hover:border-amber-400/50 hover:bg-amber-500/15 hover:text-amber-300 md:flex"
                 aria-label="مسار الشركاء B2B"
@@ -701,9 +701,7 @@ export default function LandingPreview() {
                 <span className="absolute -bottom-1.5 -left-1 rounded-full bg-amber-500 px-1 py-0 text-[0.53rem] font-black leading-tight tracking-wider text-black">
                   B2B
                 </span>
-              </a>
-
-              <PlatformAmbientToggle variant="compact" className="hidden sm:inline-flex" />
+              </Link>
 
               {/* زر القائمة — موبايل */}
               <button
@@ -753,18 +751,18 @@ export default function LandingPreview() {
                   </button>
                 ))}
                 {[
-                  { label: 'للمنشآت B2B', href: `/#${ROUTE_PATHS.BARBERS_LANDING}` },
-                  { label: 'آراء المستخدمين', href: `/#${ROUTE_PATHS.PLATFORM_REVIEWS}` },
-                  { label: 'معاينة الرصد الذكي', href: `/#${ROUTE_PATHS.RADAR_SHOWCASE}` },
+                  { label: 'للمنشآت B2B', to: ROUTE_PATHS.BARBERS_LANDING },
+                  { label: 'آراء المستخدمين', to: ROUTE_PATHS.PLATFORM_REVIEWS },
+                  { label: 'معاينة الرصد الذكي', to: ROUTE_PATHS.RADAR_SHOWCASE },
                 ].map((item) => (
-                  <a
+                  <Link
                     key={item.label}
-                    href={item.href}
+                    to={item.to}
                     onClick={() => setMobileNavOpen(false)}
                     className="rounded-xl px-4 py-3 text-[1.09rem] font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 ))}
                 <button
                   onClick={() => { setMobileNavOpen(false); document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' }); }}
@@ -1274,12 +1272,12 @@ export default function LandingPreview() {
                 منصة بحث جغرافي تقنية تربط العملاء بأقرب الصالونات — مجانية للمستخدمين.
               </p>
               <div className="flex items-center gap-2">
-                <a
-                  href={`/#${ROUTE_PATHS.BARBERS_LANDING}`}
+                <Link
+                  to={ROUTE_PATHS.BARBERS_LANDING}
                   className="rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1 text-[0.6rem] font-semibold text-amber-400/60 hover:text-amber-300"
                 >
                   للمنشآت · B2B ↗
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -1295,13 +1293,13 @@ export default function LandingPreview() {
                   ابحث عن حلاق الآن
                 </button>
                 {[
-                  { label: 'آراء المستخدمين ⭐', href: `/#${ROUTE_PATHS.PLATFORM_REVIEWS}` },
-                  { label: 'نظام الرصد الذكي 🛰', href: `/#${ROUTE_PATHS.RADAR_SHOWCASE}` },
-                  { label: 'من نحن', href: `/#${ROUTE_PATHS.ABOUT}` },
-                  { label: 'سياسة الخصوصية', href: `/#${ROUTE_PATHS.USER_PRIVACY_POLICY}` },
-                  { label: 'شروط الاستخدام', href: `/#${ROUTE_PATHS.TERMS_OF_SERVICE}` },
+                  { label: 'آراء المستخدمين ⭐', to: ROUTE_PATHS.PLATFORM_REVIEWS },
+                  { label: 'نظام الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
+                  { label: 'من نحن', to: ROUTE_PATHS.ABOUT },
+                  { label: 'سياسة الخصوصية', to: ROUTE_PATHS.USER_PRIVACY_POLICY },
+                  { label: 'شروط الاستخدام', to: ROUTE_PATHS.TERMS_OF_SERVICE },
                 ].map((link) => (
-                  <a key={link.label} href={link.href} className="text-sm text-slate-500 hover:text-teal-400">{link.label}</a>
+                  <Link key={link.label} to={link.to} className="text-sm text-slate-500 hover:text-teal-400">{link.label}</Link>
                 ))}
               </div>
             </div>
