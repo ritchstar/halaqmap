@@ -4,7 +4,7 @@ import { Component } from 'react';
 type Props = { children: ReactNode };
 type State = { error: Error | null };
 
-const RECOVER_FLAG = 'hm-dom-recover-v1';
+const RECOVER_FLAG = 'hm-dom-recover-v2';
 
 function isDomRemoveChildError(error: Error): boolean {
   return /removeChild/i.test(error.message) || /not a child of this node/i.test(error.message);
@@ -26,7 +26,7 @@ export class RootErrorBoundary extends Component<Props, State> {
     try {
       if (sessionStorage.getItem(RECOVER_FLAG) === '1') return;
       sessionStorage.setItem(RECOVER_FLAG, '1');
-      localStorage.removeItem('hm-sw-reset-v4');
+      localStorage.removeItem('hm-sw-reset-v5');
       localStorage.removeItem('hm-sw-reset-v3');
       if ('serviceWorker' in navigator) {
         void navigator.serviceWorker.getRegistrations().then((regs) =>
