@@ -12,6 +12,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
+import { InitialPaintShellGuard } from "@/components/InitialPaintShellGuard";
 
 const LandingPreview = lazy(() => import("@/pages/LandingPreview"));
 const ArchiveHome = lazy(() => import("@/pages/Home"));
@@ -132,6 +133,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
+        <InitialPaintShellGuard />
         <NotaCouncilRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />

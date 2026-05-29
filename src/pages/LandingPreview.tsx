@@ -6,7 +6,7 @@
  * تصميم تكتيكي داكن · فخامة خليجية · حضور جغرافي
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
@@ -497,7 +497,7 @@ export default function LandingPreview() {
     () => typeof window === 'undefined' || window.innerWidth >= 768,
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     dismissInitialPaintShell(heroH1Ref.current);
   }, []);
 
