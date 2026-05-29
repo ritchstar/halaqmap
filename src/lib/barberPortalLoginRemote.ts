@@ -12,7 +12,18 @@ function refreshEndpoint(): string {
   return String(import.meta.env.VITE_BARBER_PORTAL_SESSION_REFRESH_URL || DEFAULT_REFRESH_ENDPOINT).trim();
 }
 
-function baseHeaders(): Record<string, string> {
+function readStoredBarberSessionToken(): string {
+  try {
+    const raw = localStorage.getItem('barberAuth');
+    if (!raw) return '';
+    const parsed = JSON.parse(raw) as { barberSessionToken?: unknown };
+    return String(parsed.barberSessionToken ?? '').trim();
+  } catch {
+    return '';
+  }
+}
+
+function baseHeaders(opts?: { includeSessionToken?: boolean }): Record<string, string> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -20,6 +31,10 @@ function baseHeaders(): Record<string, string> {
   const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
   if (anonKey) headers['x-supabase-anon'] = anonKey;
   if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+  if (opts?.includeSessionToken !== false) {
+    const token = readStoredBarberSessionToken();
+    if (token) headers['x-barber-portal-session'] = token;
+  }
   return headers;
 }
 
@@ -50,6 +65,8 @@ export type BarberPortalSession = {
   openStatusToken?: string;
   /** إعدادات خدمة كبار السن والمرضى وذوي الاحتياجات (من قاعدة البيانات) */
   inclusiveCare?: BarberPortalInclusiveCareSnapshot;
+  /** توكن جلسة موقّع يستخدمه API لحماية مسارات البوابة الحساسة */
+  barberSessionToken?: string;
 };
 
 export async function barberPortalLoginRemote(input: {
@@ -65,7 +82,7 @@ export async function barberPortalLoginRemote(input: {
   try {
     const response = await fetch(ep, {
       method: 'POST',
-      headers: baseHeaders(),
+      headers: baseHeaders({ includeSessionToken: false }),
       body: JSON.stringify({
         email: input.email.trim(),
         password: input.password,
@@ -75,6 +92,7 @@ export async function barberPortalLoginRemote(input: {
       error?: string;
       code?: string;
       authSession?: SupabaseAuthSessionPayload;
+      barber_session_token?: string | null;
       barber?: {
         id: string;
         name: string;
@@ -107,6 +125,7 @@ export async function barberPortalLoginRemote(input: {
       payload.authSession?.access_token && payload.authSession.refresh_token
         ? payload.authSession
         : null;
+    const barberSessionToken = String(payload.barber_session_token ?? '').trim();
     return {
       ok: true,
       session: {
@@ -120,6 +139,7 @@ export async function barberPortalLoginRemote(input: {
         openForCustomers: b.open_for_customers !== false,
         openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
+        barberSessionToken,
       },
       authSession,
     };
@@ -151,6 +171,7 @@ export async function refreshBarberPortalSessionRemote(input: {
     const payload = (await response.json().catch(() => ({}))) as {
       error?: string;
       code?: string;
+      barber_session_token?: string | null;
       barber?: {
         id: string;
         name: string;
@@ -179,6 +200,7 @@ export async function refreshBarberPortalSessionRemote(input: {
     const mn = b.member_number;
     const memberNumber =
       mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
+    const barberSessionToken = String(payload.barber_session_token ?? '').trim() || readStoredBarberSessionToken();
     return {
       ok: true,
       session: {
@@ -192,6 +214,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         openForCustomers: b.open_for_customers !== false,
         openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
+        barberSessionToken,
       },
     };
   } catch {

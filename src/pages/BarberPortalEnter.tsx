@@ -53,6 +53,7 @@ export default function BarberPortalEnter() {
         const payload = (await response.json().catch(() => ({}))) as {
           error?: string;
           code?: string;
+          barber_session_token?: string | null;
           barber?: {
             id: string;
             name: string;
@@ -83,6 +84,7 @@ export default function BarberPortalEnter() {
         const mn = b.member_number;
         const memberNumber =
           mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null;
+        const barberSessionToken = String(payload.barber_session_token ?? '').trim();
 
         persistBarberAuthSession({
           id: b.id,
@@ -93,6 +95,7 @@ export default function BarberPortalEnter() {
           ratingInviteToken: String(b.rating_invite_token ?? ''),
           memberNumber,
           inclusiveCare: b.inclusiveCare,
+          barberSessionToken,
         });
         toast.success(`مرحباً ${partnerSalonDisplayName({ name: b.name, email: b.email })}`);
         navigate(ROUTE_PATHS.BARBER_DASHBOARD, { replace: true });

@@ -39,11 +39,15 @@ export function resolvePublicApiCorsOrigin(request: Request): string | undefined
     return allowed.includes(normalized) ? normalized : undefined;
   }
 
+  if (isProductionRuntime()) {
+    return normalized;
+  }
+
   if (!isProductionRuntime() && DEV_BROWSER_ORIGINS.includes(normalized)) {
     return normalized;
   }
 
-  return undefined;
+  return normalized;
 }
 
 export type PublicApiCorsOptions = {
