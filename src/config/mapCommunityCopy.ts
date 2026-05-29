@@ -13,6 +13,18 @@ export const MAP_COMMUNITY_CHECKING_AR =
 export const MAP_COMMUNITY_ACCESS_DENIED_AR =
   'مجتمع ماب مخصص للحلاقين المسجّلين والمفعّلين في حلاق ماب. ادخل بحسابك المفعّل للمشاركة.' as const;
 
+/** زر لوحة التحكم — ذهبي/ماسي */
+export const MAP_COMMUNITY_DASHBOARD_CTA_TITLE = 'مجتمع ماب' as const;
+
+export const MAP_COMMUNITY_DASHBOARD_CTA_BODY =
+  'دخول مباشر من جلستك الحالية — نقاش مهني مع الحلاقين المفعّلين في حلاق ماب.' as const;
+
+export const MAP_COMMUNITY_DASHBOARD_CTA_POST_READY =
+  'جلستك مفعّلة — يمكنك التصفّح والنشر في Map Chat فوراً.' as const;
+
+export const MAP_COMMUNITY_DASHBOARD_CTA_BROWSE_ONLY =
+  'تصفّح مباشر من جلستك — للنشر في Map Chat أعد الدخول بكلمة مرور حسابك على المنصة.' as const;
+
 /** مواضيع جاهزة لبدء نقاش مهني في Map Chat */
 export const MAP_COMMUNITY_DISCUSSION_PROMPTS: readonly string[] = [
   'كيف أرفع تقييم صالوني بدون خصومات مبالغ فيها؟',

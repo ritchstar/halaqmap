@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import {
   Calendar,
   MessageSquare,
+  MessageCircle,
   Image as ImageIcon,
   Settings,
   LogOut,
@@ -47,6 +48,15 @@ import {
 } from '@/components/ui/dialog';
 import QRCode from 'react-qr-code';
 import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib';
+import {
+  MAP_COMMUNITY_DASHBOARD_CTA_BODY,
+  MAP_COMMUNITY_DASHBOARD_CTA_BROWSE_ONLY,
+  MAP_COMMUNITY_DASHBOARD_CTA_POST_READY,
+  MAP_COMMUNITY_DASHBOARD_CTA_TITLE,
+  MAP_COMMUNITY_DOCTRINE_AR,
+} from '@/config/mapCommunityCopy';
+import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { IMAGES } from '@/assets/images';
 import {
@@ -464,6 +474,25 @@ export default function BarberDashboard() {
     };
   }, [barberData]);
 
+  const { hasNewPosts: hasNewMapCommunityPosts } = useMapCommunityBadge();
+  const [communityPostReady, setCommunityPostReady] = useState(false);
+
+  useEffect(() => {
+    if (!barberData || !isSupabaseConfigured()) {
+      setCommunityPostReady(false);
+      return;
+    }
+    const client = getSupabaseClient();
+    if (!client) return;
+    void client.auth.getSession().then(({ data }) => {
+      setCommunityPostReady(Boolean(data.session?.access_token));
+    });
+  }, [barberData?.id, barberData?.email]);
+
+  const canOpenMapCommunity =
+    barberData?.subscription === SubscriptionTier.GOLD ||
+    barberData?.subscription === SubscriptionTier.DIAMOND;
+
   if (!barberData) {
     return null;
   }
@@ -513,6 +542,25 @@ export default function BarberDashboard() {
               </div>
             </div>
             <div className="flex shrink-0 items-center justify-end gap-1 sm:justify-start">
+              {canOpenMapCommunity ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="relative shrink-0 gap-1.5 border-cyan-500/35 bg-cyan-500/10 text-cyan-900 hover:bg-cyan-500/15 dark:text-cyan-100"
+                >
+                  <Link to={ROUTE_PATHS.MAP_COMMUNITY} title={MAP_COMMUNITY_DASHBOARD_CTA_BODY}>
+                    <MessageCircle className="h-4 w-4 shrink-0" />
+                    <span className="hidden sm:inline">{MAP_COMMUNITY_DASHBOARD_CTA_TITLE}</span>
+                    {hasNewMapCommunityPosts ? (
+                      <span className="absolute -left-0.5 -top-0.5 flex h-2.5 w-2.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-fuchsia-400 opacity-75" />
+                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-fuchsia-300" />
+                      </span>
+                    ) : null}
+                  </Link>
+                </Button>
+              ) : null}
               {(barberData.subscription === SubscriptionTier.GOLD ||
                 barberData.subscription === SubscriptionTier.DIAMOND) && (
                 <Button
@@ -594,6 +642,29 @@ export default function BarberDashboard() {
               20 صورة محسّنة)، و<strong>QR والتقييمات</strong>. جدولة المواعيد المتقدّمة والبنرات والإعدادات الكاملة متاحة في
               الباقة <strong>الماسية</strong> (معرض حتى 40 صورة).
             </p>
+          ) : null}
+
+          {canOpenMapCommunity ? (
+            <Card className="border-cyan-500/30 bg-gradient-to-l from-cyan-500/10 via-emerald-500/5 to-transparent">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <MessageCircle className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
+                  {MAP_COMMUNITY_DASHBOARD_CTA_TITLE}
+                </CardTitle>
+                <CardDescription className="text-sm leading-relaxed">{MAP_COMMUNITY_DOCTRINE_AR}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {MAP_COMMUNITY_DASHBOARD_CTA_BODY}{' '}
+                  {communityPostReady
+                    ? MAP_COMMUNITY_DASHBOARD_CTA_POST_READY
+                    : MAP_COMMUNITY_DASHBOARD_CTA_BROWSE_ONLY}
+                </p>
+                <Button asChild className="shrink-0 bg-emerald-600 hover:bg-emerald-500">
+                  <Link to={ROUTE_PATHS.MAP_COMMUNITY}>افتح مجتمع ماب</Link>
+                </Button>
+              </CardContent>
+            </Card>
           ) : null}
 
           <Card className="border-emerald-500/30 bg-emerald-500/5">
