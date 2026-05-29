@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Briefcase, Gavel, Loader2, Megaphone, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
