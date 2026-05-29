@@ -185,7 +185,12 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
   return (
     <div
-      className="platform-dark platform-ambient relative flex min-h-dvh flex-col bg-gradient-to-b from-[#061223] via-background to-background pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] md:pb-0"
+      className={cn(
+        'platform-dark platform-ambient relative flex min-h-dvh flex-col bg-gradient-to-b from-[#061223] via-background to-background md:pb-0',
+        isMapCommunityPage
+          ? 'pb-0'
+          : 'pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))]',
+      )}
       dir="rtl"
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
@@ -202,8 +207,58 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       <PlatformAmbientBackground variant="partner" />
       <B2BAmbientGlowField />
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
-        <header className="sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75">
+        <header
+          className={cn(
+            'sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75',
+            isMapCommunityPage && 'border-emerald-500/15',
+          )}
+        >
           <div className="container mx-auto px-3 sm:px-4">
+            {isMapCommunityPage ? (
+              <div className="flex h-12 items-center gap-2">
+                <HalaqmapBrandMark
+                  className={cn(
+                    'h-9 w-9 shrink-0 rounded-xl ring-2 ring-primary/40 ring-offset-2',
+                    partnerBrandMarkSurfaceClass,
+                  )}
+                />
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <MessageCircle className="h-4 w-4 shrink-0 text-cyan-300" aria-hidden />
+                  <p className="truncate text-sm font-black text-emerald-50">مجتمع ماب</p>
+                  {hasNewMapCommunityPosts ? (
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-fuchsia-400 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-fuchsia-300" />
+                    </span>
+                  ) : null}
+                  <span className="hidden text-[0.65rem] text-slate-500 sm:inline">· مساحة الحلاقين</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 shrink-0 border-white/15 bg-white/5 px-2 text-[0.65rem] text-slate-200 hover:bg-white/10 sm:px-2.5 sm:text-xs"
+                  asChild
+                >
+                  <NavLink to={ROUTE_PATHS.HOME}>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                    <span className="hidden xs:inline max-[420px]:hidden sm:inline">للمستخدم</span>
+                  </NavLink>
+                </Button>
+                <SheetTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 border-emerald-500/30 bg-emerald-500/15 text-emerald-50 hover:bg-emerald-500/25"
+                    aria-label={`فتح قائمة ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
+                  >
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+              </div>
+            ) : (
+              <>
             {/* شريط علوي للجوال — بدون تفاف يشغل نصف الشاشة */}
             <div className="flex min-h-14 items-center gap-2 py-2 md:hidden">
               <div className="group flex min-h-11 shrink-0 items-center [perspective:640px]">
@@ -314,6 +369,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                 الرجوع لمسار المستخدم
               </NavLink>
             </div>
+              </>
+            )}
           </div>
         </header>
 
@@ -378,7 +435,14 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         </div>
       ) : null}
 
-      <main className="b2b-nebula-scope relative z-10 min-h-0 w-full flex-1">{children}</main>
+      <main
+        className={cn(
+          'b2b-nebula-scope relative z-10 min-h-0 w-full flex-1',
+          isMapCommunityPage && 'flex flex-col overflow-hidden',
+        )}
+      >
+        {children}
+      </main>
 
       {/* لا مدير مبيعات / متحدث على صفحات الخصوصية، السياسات، والدفع */}
       {![
@@ -408,19 +472,22 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         </>
       )}
 
-      {/* شريط تنقّل سفلي للجوال — نمط تطبيق */}
-      <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-white/10 bg-[#071426]/95 pb-[max(0.35rem,env(safe-area-inset-bottom,0px))] pt-1 shadow-[0_-8px_24px_rgba(0,0,0,0.35)] backdrop-blur-md md:hidden"
-        aria-label={`تنقّل سريع — ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
-      >
-        {partnerBottomNav.map(({ path, label, Icon }) => (
-          <NavLink key={path} to={path} className={({ isActive }) => bottomNavClass(isActive)} end={path === ROUTE_PATHS.BARBERS_LANDING}>
-            <Icon className="h-5 w-5 shrink-0 opacity-90" aria-hidden />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      {/* شريط تنقّل سفلي للجوال — يُخفى داخل مجتمع ماب (له شريط خاص) */}
+      {!isMapCommunityPage ? (
+        <nav
+          className="fixed inset-x-0 bottom-0 z-40 flex border-t border-white/10 bg-[#071426]/95 pb-[max(0.35rem,env(safe-area-inset-bottom,0px))] pt-1 shadow-[0_-8px_24px_rgba(0,0,0,0.35)] backdrop-blur-md md:hidden"
+          aria-label={`تنقّل سريع — ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
+        >
+          {partnerBottomNav.map(({ path, label, Icon }) => (
+            <NavLink key={path} to={path} className={({ isActive }) => bottomNavClass(isActive)} end={path === ROUTE_PATHS.BARBERS_LANDING}>
+              <Icon className="h-5 w-5 shrink-0 opacity-90" aria-hidden />
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      ) : null}
 
+      {!isMapCommunityPage ? (
       <footer className="shrink-0 border-t border-white/10 bg-[#071426]/70">
         {/* فوتر مضغوط للجوال */}
         <div className="container mx-auto px-3 py-4 md:hidden">
@@ -505,6 +572,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           <AppBuildStamp variant="dark" className="mt-4 border-t border-white/5 pt-3" />
         </div>
       </footer>
+      ) : null}
     </div>
   );
 }
