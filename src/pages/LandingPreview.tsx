@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
   CheckCircle2, Clock, ArrowLeft, Sparkles,
@@ -459,6 +459,7 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, size = 'normal
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function LandingPreview() {
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
   const { effectivePhase, control } = usePlatformAmbient();
   const [selectedBeacon, setSelectedBeacon] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -774,14 +775,14 @@ export default function LandingPreview() {
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-2 lg:gap-16 lg:py-24">
           {/* Left — text */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
+            initial={reduceMotion ? false : { opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : 0.7, ease: 'easeOut' }}
           >
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={reduceMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: reduceMotion ? 0 : 0.2 }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold text-teal-300"
             >
               <Sparkles className="h-3 w-3" />
