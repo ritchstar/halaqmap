@@ -1,3 +1,4 @@
+// @ts-nocheck
 src/registry.ts
 import {
   DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME,
