@@ -9,7 +9,7 @@ export type ExcelParseResult = {
   sheetName?: string;
 };
 
-type ColumnKey = 'name' | 'phone' | 'city' | 'region' | 'address';
+type ColumnKey = 'name' | 'phone' | 'city' | 'region' | 'address' | 'whatsapp' | 'waLink';
 
 const HEADER_ALIASES: Record<ColumnKey, string[]> = {
   name: [
@@ -28,17 +28,29 @@ const HEADER_ALIASES: Record<ColumnKey, string[]> = {
     'رقم الهاتف',
     'الهاتف',
     'جوال',
-    'واتساب',
-    'whatsapp',
     'phone',
     'mobile',
     'tel',
     'contact',
   ],
+  whatsapp: ['يدعم واتساب', 'واتساب؟', 'whatsapp support', 'supports whatsapp'],
+  waLink: ['رابط واتساب', 'whatsapp link', 'wa.me'],
   city: ['المدينة', 'city', 'town'],
   region: ['الحي', 'المنطقة', 'حي', 'neighborhood', 'district', 'region', 'area', 'منطقة'],
   address: ['العنوان', 'address', 'street', 'location', 'موقع'],
 };
+
+/** Sub-areas that map to a parent city when no city column exists (halaqmap regional exports). */
+const DISTRICT_CITY_HINTS: [string, string][] = [
+  ['الهفوف', 'الأحساء'],
+  ['المبرز', 'الأحساء'],
+  ['الاحساء', 'الأحساء'],
+  ['الأحساء', 'الأحساء'],
+  ['العيون', 'الأحساء'],
+  ['المنتزه', 'بريدة'],
+  ['الربوة', 'الرياض'],
+  ['الملقا', 'الرياض'],
+];
 
 function normalizeHeaderCell(raw: unknown): string {
   if (raw == null) return '';
@@ -50,14 +62,21 @@ function normalizeHeaderCell(raw: unknown): string {
 }
 
 function matchColumnKey(header: string): ColumnKey | null {
-  if (!header) return null;
-  for (const [key, aliases] of Object.entries(HEADER_ALIASES) as [ColumnKey, string[]][]) {
+  if (!header || header.length < 1) return null;
+  const entries = Object.entries(HEADER_ALIASES) as [ColumnKey, string[]][];
+  let best: { key: ColumnKey; len: number } | null = null;
+  for (const [key, aliases] of entries) {
     for (const alias of aliases) {
       const a = alias.toLowerCase();
-      if (header === a || header.includes(a) || a.includes(header)) return key;
+      const hit =
+        header === a ||
+        (a.length >= 2 && header.length >= 2 && header.includes(a)) ||
+        (a.length >= 4 && header.length >= 3 && a.includes(header));
+      if (!hit) continue;
+      if (!best || a.length > best.len) best = { key, len: a.length };
     }
   }
-  return null;
+  return best?.key ?? null;
 }
 
 function detectColumnMap(headerRow: unknown[]): Partial<Record<ColumnKey, number>> {
@@ -96,9 +115,44 @@ function cellValue(row: unknown[], index: number | undefined): string {
   return String(v).replace(/\s+/g, ' ').trim();
 }
 
-function inferCityFromBlob(blob: string): string | undefined {
-  const known = ['الرياض', 'جدة', 'مكة', 'المدينة', 'الدمام', 'الخبر', 'الظهران', 'تبوك', 'أبها', 'الطائف', 'بريدة', 'الأحساء'];
-  return known.find((c) => blob.includes(c));
+function inferCityFromBlob(blob: string, defaultCity?: string): string | undefined {
+  for (const [hint, city] of DISTRICT_CITY_HINTS) {
+    if (blob.includes(hint)) return city;
+  }
+  const known = [
+    'الرياض',
+    'جدة',
+    'مكة',
+    'المدينة',
+    'الدمام',
+    'الخبر',
+    'الظهران',
+    'تبوك',
+    'أبها',
+    'الطائف',
+    'بريدة',
+    'الأحساء',
+  ];
+  return known.find((c) => blob.includes(c)) ?? defaultCity;
+}
+
+function isLandlineOrNoWhatsapp(raw: string): boolean {
+  const t = raw.replace(/\s+/g, ' ').trim().toLowerCase();
+  if (!t) return false;
+  return (
+    t.includes('أرضي') ||
+    t.includes('ارضي') ||
+    t === 'لا' ||
+    t === 'no' ||
+    t.includes('landline') ||
+    t.includes('ليس واتساب')
+  );
+}
+
+function phoneFromWaLink(raw: string): string | null {
+  const m = raw.match(/wa\.me\/(\d+)/i) ?? raw.match(/phone=(\d+)/i);
+  if (!m?.[1]) return null;
+  return normalizePartnerProspectPhone(m[1]);
 }
 
 function rowToLead(
@@ -106,20 +160,26 @@ function rowToLead(
   col: Partial<Record<ColumnKey, number>>,
   defaultCity?: string,
 ): ScannedPartnerLead | null {
-  const name = cellValue(row, col.name) || cellValue(row, 0);
-  const phoneRaw = cellValue(row, col.phone);
-  const phone = normalizePartnerProspectPhone(phoneRaw);
+  if (col.name === undefined) return null;
+  const nameRaw = cellValue(row, col.name);
+  if (!nameRaw || /^\d+$/.test(nameRaw)) return null;
+
+  const whatsappFlag = cellValue(row, col.whatsapp);
+  if (isLandlineOrNoWhatsapp(whatsappFlag)) return null;
+
+  let phone = normalizePartnerProspectPhone(cellValue(row, col.phone));
+  if (!phone && col.waLink !== undefined) {
+    phone = phoneFromWaLink(cellValue(row, col.waLink));
+  }
   if (!phone) return null;
 
   const region = cellValue(row, col.region);
   const address = cellValue(row, col.address) || region;
   let city = cellValue(row, col.city);
-  if (!city) city = inferCityFromBlob(`${region} ${address}`) ?? defaultCity ?? '';
-
-  const cleanName = name.length >= 2 ? name.slice(0, 200) : 'محل حلاق';
+  if (!city) city = inferCityFromBlob(`${region} ${address}`, defaultCity) ?? defaultCity ?? '';
 
   return {
-    name: cleanName,
+    name: nameRaw.slice(0, 200),
     phone,
     ...(city ? { city } : {}),
     ...(region ? { region } : {}),

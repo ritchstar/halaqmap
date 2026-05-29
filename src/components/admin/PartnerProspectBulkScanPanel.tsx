@@ -273,7 +273,7 @@ export function PartnerProspectBulkScanPanel({ canManage, onImported }: Props) {
           icon={parsingExcel ? <Loader2 className="h-7 w-7 animate-spin" /> : <FileSpreadsheet className="h-7 w-7" />}
           title={parsingExcel ? progress || 'جاري قراءة Excel…' : 'ملفات Excel للمناطق'}
           hint={
-            'ارفع ملفات مثل `halaqmap_buraydah_barbers_FINAL.xlsx` — تُقرأ الأعمدة: اسم الصالون، الحي/المنطقة، رقم الهاتف. يمكن رفع عدة ملفات لمناطق مختلفة دفعة واحدة.'
+            'قالب `حلاق ماب`: صف عنوان ثم أعمدة (م، اسم الصالون، الحي، العنوان، رقم الهاتف، يدعم واتساب؟…). يُتخطى الصف إذا كان «أرضي». اسم الملف يحدد المدينة (`halaqmap_alahsa_barbers_FINAL.xlsx`).'
           }
           badgeLabel="رفع Excel / CSV"
           onActivate={() => {
