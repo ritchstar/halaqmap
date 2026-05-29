@@ -12,7 +12,8 @@ import {
   Star, MessageSquare, Send, Scissors, ChevronDown,
   Heart, ThumbsUp, Share2, ArrowLeft
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { PLATFORM_VOLUNTARY_ENGAGEMENT } from '@/config/platformVoluntaryEngagement';
 import { ROUTE_PATHS } from '@/lib/index';
 
 // ─── Types ────────────────────────────────────────────────────────────────
@@ -198,7 +199,12 @@ export default function PlatformReviews() {
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [formOpen, setFormOpen] = useState(() => searchParams.get('write') === '1');
+
+  useEffect(() => {
+    if (searchParams.get('write') === '1') setFormOpen(true);
+  }, [searchParams]);
 
   useEffect(() => {
     try {
@@ -209,13 +215,14 @@ export default function PlatformReviews() {
     }
   }, []);
 
-  const avgRating = reviews.length
-    ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+  const ratedReviews = reviews.filter((r) => r.rating > 0);
+  const avgRating = ratedReviews.length
+    ? ratedReviews.reduce((s, r) => s + r.rating, 0) / ratedReviews.length
     : 0;
 
   const submitReview = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !comment.trim() || rating === 0) return;
+    if (!name.trim() || !comment.trim()) return;
     setSubmitting(true);
     setTimeout(() => {
       const newReview: Review = {
@@ -293,7 +300,8 @@ export default function PlatformReviews() {
         >
           <div className="mb-4 text-5xl">💬</div>
           <h1 className="mb-3 text-3xl font-black text-white md:text-4xl">آراء المستخدمين</h1>
-          <p className="text-slate-400">تعليقات حقيقية من مجتمع حلاق ماب — شارك تجربتك</p>
+          <p className="mx-auto max-w-xl text-slate-400 leading-relaxed">{PLATFORM_VOLUNTARY_ENGAGEMENT.lead}</p>
+          <p className="mt-2 text-[0.72rem] text-teal-400/70">{PLATFORM_VOLUNTARY_ENGAGEMENT.badge}</p>
 
           {/* Rating summary */}
           {reviews.length > 0 && (
@@ -329,8 +337,8 @@ export default function PlatformReviews() {
                   <MessageSquare className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white">شارك تجربتك</div>
-                  <div className="text-[0.65rem] text-slate-500">أضف رأيك وساعد المجتمع</div>
+                  <div className="text-sm font-bold text-white">ترك تعليق (اختياري)</div>
+                  <div className="text-[0.65rem] text-slate-500">لست مُلزَماً — شارك فقط إن رغبت</div>
                 </div>
               </div>
               <ChevronDown className={`h-5 w-5 text-teal-400 transition-transform ${formOpen ? 'rotate-180' : ''}`} />
@@ -383,8 +391,9 @@ export default function PlatformReviews() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-[0.7rem] font-semibold text-slate-400">تقييمك *</label>
+                        <label className="mb-2 block text-[0.7rem] font-semibold text-slate-400">تقييمك (اختياري)</label>
                         <StarInput value={rating} onChange={setRating} />
+                        <p className="mt-1 text-center text-[0.62rem] text-slate-500">يمكنك إرسال التعليق دون نجوم</p>
                       </div>
 
                       <div>
@@ -402,7 +411,7 @@ export default function PlatformReviews() {
 
                       <button
                         type="submit"
-                        disabled={submitting || !name.trim() || !comment.trim() || rating === 0}
+                        disabled={submitting || !name.trim() || !comment.trim()}
                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/20 transition-all hover:from-teal-400 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {submitting ? (
