@@ -16,6 +16,14 @@
     <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#061223" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #020912;
+        color: #e2e8f0;
+      }
+    </style>
     <!-- تنظيف URL من معاملات _b= المتراكمة + كاش SW لمرة واحدة -->
     <script>
       (function () {
@@ -169,9 +177,9 @@
     </div>
     <div
       id="root"
-      style="position: relative; z-index: 101; min-height: 100dvh; isolation: isolate"
+      style="position: relative; z-index: 101; min-height: 100dvh; isolation: isolate; background: #020912"
     ></div>
-    <!-- إخفاء القشرة فور أول رسم في #root — لا يعتمد على React modules -->
+    <!-- إخفاء القشرة فقط بعد رسم h1 الحقيقي — لا عند أول عقدة React -->
     <script>
       (function () {
         var root = document.getElementById('root');
@@ -190,13 +198,13 @@
         }
 
         var obs = new MutationObserver(function () {
-          if (root.childElementCount > 0) {
+          if (root.querySelector('h1')) {
             hideShell();
             obs.disconnect();
           }
         });
         obs.observe(root, { childList: true, subtree: true });
-        window.setTimeout(hideShell, 3000);
+        window.setTimeout(hideShell, 8000);
       })();
     </script>
     <!-- شبكة أمان إضافية إذا تعطّل JS بالكامل -->

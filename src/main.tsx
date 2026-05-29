@@ -4,7 +4,6 @@ import App from './App.tsx'
 import './index.css'
 import { RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
-import { dismissInitialPaintShell } from '@/lib/dismissInitialPaintShell'
 
 ensureDomainVerificationMeta()
 // build-sync التلقائي مُعطّل — كان يسبب حلقة reload (_b=…) وremoveChild أثناء تشغيل React
@@ -30,5 +29,4 @@ if (rootEl) {
       <App />
     </RootErrorBoundary>,
   )
-  dismissInitialPaintShell()
 }
