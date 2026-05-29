@@ -16,6 +16,7 @@ import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
@@ -292,22 +293,12 @@ export function Layout({ children }: LayoutProps) {
             <PlatformOfficialFooterStrip variant="light" />
           </div>
 
+          <div className="mt-10 max-w-3xl mx-auto">
+            <PlatformVoluntaryEngagementStrip variant="compact" />
+          </div>
+
           {/* الشريط السفلي */}
           <div className="mt-10 pt-6 border-t border-white/8 flex flex-col items-center gap-4">
-            {/* تقييم المنصة */}
-            <div className="flex items-center gap-2">
-              <span className="text-[0.65rem] text-slate-600">قيّم تجربتك:</span>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <NavLink key={s} to={ROUTE_PATHS.PLATFORM_REVIEWS}>
-                    <Star className="h-4 w-4 text-amber-400/50 transition-all hover:text-amber-400 hover:fill-amber-400 hover:scale-110" />
-                  </NavLink>
-                ))}
-              </div>
-              <NavLink to={ROUTE_PATHS.PLATFORM_REVIEWS} className="text-[0.65rem] text-slate-600 hover:text-amber-300 transition-colors">
-                اقرأ الآراء
-              </NavLink>
-            </div>
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
               {[
                 { path: ROUTE_PATHS.TERMS_OF_SERVICE, label: 'الشروط' },

@@ -28,6 +28,7 @@ import {
   PLATFORM_SEARCH_EMPTY_LOADING,
   PLATFORM_SEARCH_EMPTY_TITLE,
 } from '@/config/platformSmartTracking';
+import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 /** Minimum wait after filter/location settles before logging search activity. */
@@ -477,6 +478,12 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            <div className="container mx-auto px-4 pb-12">
+              <div className="mx-auto max-w-4xl">
+                <PlatformVoluntaryEngagementStrip />
+              </div>
+            </div>
           </motion.div>
         ) : (
           /* بعد البحث — نتائج الصالونات */
@@ -562,6 +569,12 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            <div className="container mx-auto px-4 pb-10">
+              <div className="mx-auto max-w-4xl">
+                <PlatformVoluntaryEngagementStrip variant="compact" />
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
