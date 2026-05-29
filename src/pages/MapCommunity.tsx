@@ -1,5 +1,5 @@
 /**
- * MapCommunity — مجتمع ماب للشركاء.
+ * MapCommunity — مجتمع ماب للحلاقين المسجّلين والمفعّلون في حلاق ماب.
  *
  * Phase A: live feed from Supabase via Vercel API + YouTube embeds.
  * Falls back to local mock data when the API returns 503 / is unavailable.
@@ -39,7 +39,10 @@ import {
 import { POLL_MS } from '@/lib/pollingPolicy';
 import { readBarberAuthSession, buildBarberLoginUrl } from '@/lib/barberPortalSession';
 import {
+  MAP_COMMUNITY_ACCESS_DENIED_AR,
+  MAP_COMMUNITY_CHECKING_AR,
   MAP_COMMUNITY_DISCUSSION_PROMPTS,
+  MAP_COMMUNITY_DOCTRINE_AR,
   MAP_COMMUNITY_FAQ,
   MAP_COMMUNITY_PRO_TIPS,
   MAP_COMMUNITY_QUICK_LINKS,
@@ -489,8 +492,8 @@ export default function MapCommunity() {
       <div dir="rtl" className="flex min-h-[70vh] items-center justify-center bg-[#0a0f0d] px-4 text-white">
         <div className="rounded-3xl border border-emerald-400/20 bg-slate-950/80 p-8 text-center shadow-[0_0_45px_rgba(16,185,129,0.12)]">
           <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-emerald-400/30" />
-          <p className="font-black">جاري التحقق من صلاحية الدخول لمجتمع ماب…</p>
-          <p className="mt-2 text-sm text-slate-500">المجتمع مخصص لمنسوبي حلاق ماب فقط.</p>
+          <p className="font-black">{MAP_COMMUNITY_CHECKING_AR}</p>
+          <p className="mt-2 text-sm text-slate-500">{MAP_COMMUNITY_DOCTRINE_AR}</p>
         </div>
       </div>
     );
@@ -505,19 +508,13 @@ export default function MapCommunity() {
         </div>
         <div className="relative mx-auto max-w-2xl rounded-3xl border border-amber-400/25 bg-slate-950/80 p-8 text-center shadow-[0_0_55px_rgba(245,158,11,0.12)] backdrop-blur-xl">
           <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-amber-300" />
-          <h1 className="text-2xl font-black">مجتمع ماب مخصص لمنسوبي حلاق ماب</h1>
+          <h1 className="text-2xl font-black">مجتمع ماب</h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-slate-400">
-            لا يمكن الدخول لغير الإداريين والمشرفين والحلاقين المفعّلين داخل منصة حلاق ماب. سجّل دخولك بالحساب المرتبط بالمنصة أو فعّل رخصة النفاذ أولاً.
+            {MAP_COMMUNITY_ACCESS_DENIED_AR}
           </p>
-          {access.status === 'denied' && access.email ? (
-            <p className="mt-3 text-xs text-slate-600">الحساب الحالي: {access.email}</p>
-          ) : null}
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button asChild className="bg-emerald-500 text-black hover:bg-emerald-400">
-              <Link to={buildBarberLoginUrl(ROUTE_PATHS.MAP_COMMUNITY)}>دخول الحلاق</Link>
-            </Button>
-            <Button asChild variant="outline" className="border-amber-400/35 bg-amber-500/10 text-amber-100">
-              <Link to={ROUTE_PATHS.REGISTER}>تفعيل رخصة النفاذ</Link>
+              <Link to={buildBarberLoginUrl(ROUTE_PATHS.MAP_COMMUNITY)}>دخول الحلاق المفعّل</Link>
             </Button>
           </div>
         </div>
@@ -531,6 +528,10 @@ export default function MapCommunity() {
 
   const toolsPanel = (
     <div className="space-y-4 p-4 md:p-0">
+      <p className="rounded-2xl border border-emerald-400/20 bg-emerald-500/8 px-4 py-3 text-xs leading-6 text-emerald-100">
+        {MAP_COMMUNITY_DOCTRINE_AR}
+      </p>
+
       <div className="rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-4">
         <div className="mb-3 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/35 bg-cyan-500/15">
@@ -570,7 +571,7 @@ export default function MapCommunity() {
       <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
         <p className="mb-3 flex items-center gap-2 text-sm font-black text-white">
           <Link2 className="h-4 w-4 text-emerald-300" />
-          روابط تشغيلية
+          لوحة الحلاق
         </p>
         <ul className="space-y-2">
           {MAP_COMMUNITY_QUICK_LINKS.map((item) => (
@@ -610,9 +611,9 @@ export default function MapCommunity() {
     <div dir="rtl" className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#0a0f0d] text-slate-100">
       {readOnlyCommunity ? (
         <div className="relative z-20 shrink-0 border-b border-amber-400/20 bg-amber-500/10 px-3 py-2 text-center text-xs leading-6 text-amber-100">
-          للنشر المباشر أعد الدخول من{' '}
+          للنشر المباشر في المجتمع أعد الدخول من{' '}
           <Link to={buildBarberLoginUrl(ROUTE_PATHS.MAP_COMMUNITY)} className="font-bold underline underline-offset-2">
-            دخول الحلاق
+            دخول الحلاق المفعّل
           </Link>
         </div>
       ) : null}
@@ -687,6 +688,7 @@ export default function MapCommunity() {
       </div>
 
       <div className="relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-slate-950/85 px-3 py-2 backdrop-blur-md md:px-4">
+        <p className="text-[0.65rem] leading-5 text-slate-500 md:text-xs">{MAP_COMMUNITY_DOCTRINE_AR}</p>
         <div className="flex flex-wrap items-center gap-2">
           {stats.map((s) => (
             <div

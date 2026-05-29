@@ -141,7 +141,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
   const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
 
-  useDocumentTitle(SOFTWARE_SERVICES_PORTAL_HEADING);
+  useDocumentTitle(isMapCommunityPage ? 'مجتمع ماب' : SOFTWARE_SERVICES_PORTAL_HEADING);
 
   useEffect(() => {
     capturePartnerAttributionFromLocation();
@@ -231,7 +231,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-fuchsia-300" />
                     </span>
                   ) : null}
-                  <span className="hidden text-[0.65rem] text-slate-500 sm:inline">· مساحة الحلاقين</span>
+                  <span className="hidden text-[0.65rem] text-slate-500 sm:inline">· Map Chat</span>
                 </div>
                 <Button
                   type="button"
@@ -380,10 +380,34 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           className="flex w-[min(100vw,20rem)] flex-col border-white/10 bg-[#071426] text-white [&>button]:text-slate-300 [&>button]:hover:text-white"
         >
           <SheetHeader className="space-y-1 border-b border-white/10 pb-4 text-right">
-            <SheetTitle className="text-emerald-50">تصفّح {SOFTWARE_SERVICES_PORTAL_LABEL}</SheetTitle>
-            <SheetDescription className="text-slate-400">جميع الصفحات والوثائق</SheetDescription>
+            <SheetTitle className="text-emerald-50">
+              {isMapCommunityPage ? 'مجتمع ماب' : `تصفّح ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
+            </SheetTitle>
+            <SheetDescription className="text-slate-400">
+              {isMapCommunityPage ? 'للحلاقين المسجّلين والمفعّلين في حلاق ماب' : 'جميع الصفحات والوثائق'}
+            </SheetDescription>
           </SheetHeader>
-          <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-6" aria-label="صفحات الشركاء">
+          <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-6" aria-label={isMapCommunityPage ? 'مجتمع ماب' : 'صفحات الشركاء'}>
+            {isMapCommunityPage ? (
+              <>
+                <NavLink
+                  to={ROUTE_PATHS.BARBER_DASHBOARD}
+                  onClick={() => setMobileNavOpen(false)}
+                  className={({ isActive }) => sheetNavClass(isActive)}
+                >
+                  لوحة تحكم الحلاق
+                </NavLink>
+                <NavLink
+                  to={ROUTE_PATHS.HOME}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-white/20 py-3 text-sm font-medium text-slate-200 touch-manipulation hover:bg-white/10"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                  مسار المستخدم
+                </NavLink>
+              </>
+            ) : (
+              <>
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
@@ -405,6 +429,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               <ArrowRight className="h-4 w-4" />
               الرجوع لمسار المستخدم
             </NavLink>
+              </>
+            )}
           </nav>
         </SheetContent>
       </Sheet>
