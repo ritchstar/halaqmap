@@ -96,7 +96,6 @@ export function buildDigitalShiftSystemPrompt(
     const byCode: Record<string, string[]> = {
       تعليمة: [], عرض: [], جدول: [], خدمة: [], موقع: [], رد: [], تنبيه: [],
     };
-    const other: string[] = [];
     for (const inst of extra.instructions) {
       const tagMatch = inst.match(/^\[(عرض|جدول|خدمة|موقع|رد|تنبيه)\]\s*/);
       if (tagMatch) byCode[tagMatch[1]].push(inst.replace(tagMatch[0], '').trim());

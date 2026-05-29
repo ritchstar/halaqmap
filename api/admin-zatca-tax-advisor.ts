@@ -89,7 +89,8 @@ export async function GET(request: Request): Promise<Response> {
     if (runRadar) {
       const result = await agent.runRevenueRadar({ refreshIntel });
       const state = await agent.getState();
-      const { ok: _ok, ...radar } = result;
+      const { ok, ...radar } = result;
+      void ok;
       return json({ ok: true, route: 'admin-zatca-tax-advisor', mode: 'radar', state, ...radar });
     }
 
@@ -161,7 +162,8 @@ export async function POST(request: Request): Promise<Response> {
       const agent = new ZatcaTaxAdvisorAgent(auth.supabase);
       const result = await agent.runRevenueRadar({ refreshIntel });
       const state = await agent.getState();
-      const { ok: _ok, ...radar } = result;
+      const { ok, ...radar } = result;
+      void ok;
       return json({ ok: true, route: 'admin-zatca-tax-advisor', action, state, ...radar });
     } catch (e) {
       console.error('[admin-zatca-tax-advisor] run_radar failed:', e);
@@ -190,7 +192,8 @@ export async function POST(request: Request): Promise<Response> {
     const agent = new ZatcaTaxAdvisorAgent(activateAuth.supabase);
     try {
       const result = await agent.activateTaxLive(activateAuth.actorEmail);
-      const { ok: _ok, ...activation } = result;
+      const { ok, ...activation } = result;
+      void ok;
       return json({
         ok: true,
         route: 'admin-zatca-tax-advisor',

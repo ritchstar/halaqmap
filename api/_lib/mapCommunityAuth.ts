@@ -1,5 +1,6 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { isBootstrapAdminEmail } from './adminManageBarbersAuth.js';
+import type { UntypedSupabaseClient } from './untypedSupabase.js';
 
 function normalizeEmail(v: string): string {
   return v.trim().toLowerCase();
@@ -41,7 +42,7 @@ function readBearerToken(request: Request): string {
 
 export async function verifyMapCommunityActor(
   request: Request,
-  supabase: SupabaseClient<any>,
+  supabase: UntypedSupabaseClient,
   opts?: { silentView?: boolean },
 ): Promise<MapCommunityActor> {
   const accessToken = readBearerToken(request);
@@ -136,14 +137,14 @@ export async function verifyMapCommunityActor(
   };
 }
 
-export function createServiceSupabase(url: string, serviceRole: string): SupabaseClient<any> {
+export function createServiceSupabase(url: string, serviceRole: string): UntypedSupabaseClient {
   return createClient(url, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
 
 export async function computeHasNewCommunityPosts(
-  supabase: SupabaseClient<any>,
+  supabase: UntypedSupabaseClient,
   userId: string | null,
 ): Promise<boolean> {
   if (!userId) return false;

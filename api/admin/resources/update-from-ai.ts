@@ -91,7 +91,7 @@ export async function POST(request: Request): Promise<Response> {
     const label = displayLabel || String(body.detected_provider_label || '').trim();
     if (!label) return json({ error: 'display_label required for create' }, 400);
 
-    const enrichedPatch = enrichKhazenApplyPatch({ ...patch, display_label: label }, null);
+    const enrichedPatch = enrichKhazenApplyPatch({ ...patch, display_label: label });
     const patchErr = validateAiPatch(enrichedPatch);
     if (patchErr) return json({ error: patchErr }, 400);
 
@@ -141,8 +141,7 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error: 'صف الالتزام غير موجود في الجدول' }, 404);
   }
 
-  const existingRow = rowsById.get(commitmentId)!;
-  const enrichedPatch = enrichKhazenApplyPatch(patch, existingRow);
+  const enrichedPatch = enrichKhazenApplyPatch(patch);
   const patchErr = validateAiPatch(enrichedPatch);
   if (patchErr) return json({ error: patchErr }, 400);
 

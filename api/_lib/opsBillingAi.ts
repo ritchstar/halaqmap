@@ -614,10 +614,7 @@ export async function loadCommitmentRows(
   return { rows: (data || []) as Record<string, unknown>[] };
 }
 
-export function enrichKhazenApplyPatch(
-  patch: OpsBillingAiPatch,
-  _existingRow?: Record<string, unknown> | null,
-): OpsBillingAiPatch {
+export function enrichKhazenApplyPatch(patch: OpsBillingAiPatch): OpsBillingAiPatch {
   const enriched: OpsBillingAiPatch = { ...patch };
   const hasInvoiceFields =
     (enriched.next_renewal_at != null && enriched.next_renewal_at !== '') ||
@@ -653,7 +650,7 @@ export async function applyOpsBillingAiPatch(
   if (loadErr) return { ok: false, error: loadErr.message };
   if (!existing?.id) return { ok: false, error: 'صف الالتزام غير موجود' };
 
-  const finalPatch = enrichKhazenApplyPatch(patch, existing as Record<string, unknown>);
+  const finalPatch = enrichKhazenApplyPatch(patch);
 
   const err = validateAiPatch(finalPatch);
   if (err) return { ok: false, error: err };
@@ -694,7 +691,7 @@ export async function createOpsBillingAiCommitment(
   const label = input.display_label.trim();
   if (!label) return { ok: false, error: 'display_label required for new commitment' };
 
-  const finalPatch = enrichKhazenApplyPatch(input.patch, null);
+  const finalPatch = enrichKhazenApplyPatch(input.patch);
   const err = validateAiPatch(finalPatch);
   if (err) return { ok: false, error: err };
 

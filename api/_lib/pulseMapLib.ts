@@ -1,7 +1,7 @@
 /**
  * Pulse Map — public API aggregation (slot-based, no raw GPS on wire).
  */
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { UntypedSupabaseClient } from './untypedSupabase.js';
 import { PULSE_MAP_PHASE } from './pulseMapConfig.js';
 import { buildPulseMapLivePayload } from './pulseMapLive.js';
 import { PULSE_MAP_PILOT_REGIONS } from './pulseMapSlots.js';
@@ -16,7 +16,7 @@ export type {
 } from './pulseMapTypes.js';
 
 export async function buildPulseMapPayload(
-  supabase: SupabaseClient<any>,
+  supabase: UntypedSupabaseClient,
 ): Promise<PulseMapPayload> {
   return buildPulseMapLivePayload(supabase, PULSE_MAP_PHASE, PULSE_MAP_PILOT_REGIONS);
 }

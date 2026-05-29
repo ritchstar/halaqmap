@@ -3,7 +3,7 @@
  * Persists user/assistant turns with Saudi persona metadata (سعودي / سعودية).
  */
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { normalizeSupabaseUrl } from './supabaseUrl.js';
 import {
   AGENT_PERSONAS,
@@ -11,6 +11,7 @@ import {
   getAgentPersona,
 } from './agentPersonas.js';
 import { resolveRegulatoryReferral } from './platformManagementReferral.js';
+import type { UntypedSupabaseClient } from './untypedSupabase.js';
 
 export type AgentConversationLogInput = {
   agentId: AgentPersonaId;
@@ -22,7 +23,7 @@ export type AgentConversationLogInput = {
   sessionMeta?: Record<string, unknown>;
 };
 
-export function createAgentLogSupabase(): SupabaseClient<any> | null {
+export function createAgentLogSupabase(): UntypedSupabaseClient | null {
   const url = normalizeSupabaseUrl(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL);
   const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   if (!url || !serviceKey) return null;
@@ -30,7 +31,7 @@ export function createAgentLogSupabase(): SupabaseClient<any> | null {
 }
 
 export async function logAgentConversation(
-  supabase: SupabaseClient<any> | null,
+  supabase: UntypedSupabaseClient | null,
   input: AgentConversationLogInput,
 ): Promise<void> {
   if (!supabase) return;
@@ -55,7 +56,7 @@ export async function logAgentConversation(
 }
 
 export async function finalizeAgentReply(
-  supabase: SupabaseClient<any> | null,
+  supabase: UntypedSupabaseClient | null,
   agentId: AgentPersonaId,
   userMessage: string,
   channel: string,
