@@ -20,6 +20,7 @@ import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
 import AdminCyberOperationsPage from "@/app/admin/cyber/page";
 import StaffHubPage from "@/app/admin/staff-hub/page";
 import AdminDashboard from "@/pages/AdminDashboard";
+import SaudiAgentLanding from "@/pages/SaudiAgentLanding";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -53,7 +54,6 @@ const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
 const PlatformReviews = lazy(() => import("@/pages/PlatformReviews"));
-const SaudiAgentLanding = lazy(() => import("@/pages/SaudiAgentLanding"));
 
 const queryClient = new QueryClient();
 
@@ -142,7 +142,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.HOME} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<LazyRoute><SaudiAgentLanding /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<SaudiAgentLanding />} />
           <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<PulseMapPage />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />

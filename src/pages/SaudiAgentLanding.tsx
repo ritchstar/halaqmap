@@ -7,9 +7,9 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Send, ChevronDown, Sparkles, Globe2, BookOpen, MapPin, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import { SaudiBackground } from '@/components/SaudiBackground';
 
@@ -191,7 +191,6 @@ function StarField() {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function SaudiAgentLanding() {
-  const navigate = useNavigate();
   const [activeAgent, setActiveAgent] = useState<AgentId>('saudi');
   const [chatEvent, setChatEvent] = useState<'sent' | 'received' | null>(null);
   const [turnsByAgent, setTurnsByAgent] = useState<Record<AgentId, Turn[]>>({ saudi: [], saudia: [] });
@@ -257,19 +256,14 @@ export default function SaudiAgentLanding() {
       <SaudiBackground chatEvent={chatEvent} />
 
       {/* ── زر العودة للرئيسية ── */}
-      <motion.button
-        type="button"
-        onClick={() => navigate(ROUTE_PATHS.HOME)}
-        initial={{ opacity: 0, x: -12 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4 }}
-        whileHover={{ x: -3 }}
-        className="fixed top-5 right-5 z-50 flex items-center gap-2 rounded-2xl border border-yellow-500/30 bg-[#0a1f0f]/90 px-4 py-2.5 text-[0.75rem] font-bold text-yellow-300/80 backdrop-blur-md transition-all hover:border-yellow-400/55 hover:text-yellow-200"
+      <Link
+        to={ROUTE_PATHS.HOME}
+        className="fixed top-5 right-5 z-50 flex items-center gap-2 rounded-2xl border border-yellow-500/30 bg-[#0a1f0f]/90 px-4 py-2.5 text-[0.75rem] font-bold text-yellow-300/80 backdrop-blur-md transition-all hover:border-yellow-400/55 hover:text-yellow-200 no-underline"
         style={{ boxShadow: '0 0 16px rgba(26,110,59,0.25)' }}
       >
         <ArrowRight className="h-4 w-4" />
         العودة للرئيسية
-      </motion.button>
+      </Link>
 
       {/* ── خلفية سديمية ── */}
       <div className="pointer-events-none absolute inset-0">
@@ -342,18 +336,15 @@ export default function SaudiAgentLanding() {
           transition={{ delay: 0.2 }}
           className="mb-4 h-8"
         >
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={greetingIdx}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.4 }}
-              className="text-xl font-bold text-yellow-300"
-            >
-              {GREETINGS[activeAgent][greetingIdx]}
-            </motion.p>
-          </AnimatePresence>
+          <motion.p
+            key={`${activeAgent}-${greetingIdx}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="text-xl font-bold text-yellow-300"
+          >
+            {GREETINGS[activeAgent][greetingIdx]}
+          </motion.p>
         </motion.div>
 
         <motion.p
@@ -433,8 +424,7 @@ export default function SaudiAgentLanding() {
                   </div>
                 </div>
                 {active ? (
-                  <motion.span
-                    layoutId="active-agent-ring"
+                  <span
                     className="pointer-events-none absolute inset-0 rounded-3xl"
                     style={{ border: `1.5px solid ${copy.primary}55` }}
                   />
