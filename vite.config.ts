@@ -51,7 +51,7 @@ function indexHtmlAssetCacheBustPlugin(): Plugin {
     apply: 'build',
     enforce: 'post',
     transformIndexHtml(html) {
-      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '3').trim();
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '4').trim();
       const q = raw.length > 0 ? raw : '2';
       const suffix = `?v=${encodeURIComponent(q)}`;
       let out = html
@@ -387,10 +387,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes('framer-motion')) return 'vendor-motion';
             if (id.includes('@supabase')) return 'vendor-supabase';
             if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
-            if (id.includes('@radix-ui')) return 'vendor-radix';
-            if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
-            if (id.includes('react-dom') || id.includes('/react/')) return 'vendor-react';
-            return 'vendor-misc';
+            return 'vendor-core';
           },
         },
       },

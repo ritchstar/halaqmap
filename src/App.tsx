@@ -12,9 +12,8 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
-import { InitialPaintShellGuard } from "@/components/InitialPaintShellGuard";
+import LandingPreview from "@/pages/LandingPreview";
 
-const LandingPreview = lazy(() => import("@/pages/LandingPreview"));
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const Register = lazy(() => import("@/pages/Register"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
@@ -66,11 +65,6 @@ const RouteBusy = () => (
 function LazyRoute({ children, fallback = <RouteBusy /> }: { children: ReactNode; fallback?: ReactNode }) {
   return <Suspense fallback={fallback}>{children}</Suspense>;
 }
-
-/** خلفية داكنة أثناء تحميل LandingPreview — يمنع الشاشة البيضاء */
-const LandingRouteFallback = () => (
-  <div dir="rtl" className="min-h-[100dvh] bg-[#020912]" aria-hidden="true" />
-);
 
 const NotFound = () => (
   <Layout>
@@ -138,20 +132,12 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
-        <InitialPaintShellGuard />
         <NotaCouncilRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
         <Routes>
           {/* ?????? ?????????? ?????????????? ???????????? ????????????????????????????????????????????????????????????????????????????????? */}
-          <Route
-            path={ROUTE_PATHS.HOME}
-            element={
-              <Suspense fallback={<LandingRouteFallback />}>
-                <LandingPreview />
-              </Suspense>
-            }
-          />
+          <Route path={ROUTE_PATHS.HOME} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<LazyRoute><SaudiAgentLanding /></LazyRoute>} />
@@ -179,14 +165,7 @@ const App = () => (
           <Route path="/archive/partners" element={<PartnerLayout><LazyRoute><BarberGrowthLanding /></LazyRoute></PartnerLayout>} />
 
           {/* ?????? ????? ???????????? ??? ?????? ???????? ???????????????????????????????????????????????????????????????????????? */}
-          <Route
-            path={ROUTE_PATHS.LANDING_PREVIEW}
-            element={
-              <Suspense fallback={<LandingRouteFallback />}>
-                <LandingPreview />
-              </Suspense>
-            }
-          />
+          <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LandingPreview />} />
           <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<LazyRoute><InternalPartnerPathPrintCard /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<LazyRoute><InvoicePreviewSamples /></LazyRoute>} />
