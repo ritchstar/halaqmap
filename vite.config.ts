@@ -379,6 +379,22 @@ export default defineConfig(({ mode }) => {
         "react-router-dom-original": "react-router-dom",
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+            if (id.includes('framer-motion')) return 'vendor-motion';
+            if (id.includes('@supabase')) return 'vendor-supabase';
+            if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
+            if (id.includes('@radix-ui')) return 'vendor-radix';
+            if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
+            if (id.includes('react-dom') || id.includes('/react/')) return 'vendor-react';
+            return 'vendor-misc';
+          },
+        },
+      },
+    },
     define: {
       // Define environment variables for build-time configuration
       // In production, this will be false by default unless explicitly set to 'true'

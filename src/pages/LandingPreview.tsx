@@ -30,10 +30,19 @@ import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSup
 import { toast } from '@/components/ui/sonner';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
-import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
-import { LandingAgentPanelBody } from '@/pages/landing/LandingAgentPanelBody';
-import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
+import { LandingSectionFallback } from '@/pages/landing/LandingSectionFallback';
+import { useLandingDeferredChunk } from '@/pages/landing/useLandingDeferredChunk';
+import type { LandingSearchResults as LandingSearchResultsType } from '@/pages/landing/LandingSearchResults';
+import type { LandingAgentPanelBody as LandingAgentPanelBodyType } from '@/pages/landing/LandingAgentPanelBody';
+import type { BarberDetailModal as BarberDetailModalType } from '@/components/BarberDetailModal';
+
+const loadSearchResults = () =>
+  import('@/pages/landing/LandingSearchResults').then((m) => m.LandingSearchResults);
+const loadAgentPanelBody = () =>
+  import('@/pages/landing/LandingAgentPanelBody').then((m) => m.LandingAgentPanelBody);
+const loadBarberDetailModal = () =>
+  import('@/components/BarberDetailModal').then((m) => m.BarberDetailModal);
 
 type LandingAgentPanel = 'media' | 'legal' | null;
 
@@ -153,9 +162,11 @@ function LeftAgentStack({
 function LandingAgentPanel({
   activePanel,
   onClose,
+  PanelBody,
 }: {
   activePanel: LandingAgentPanel;
   onClose: () => void;
+  PanelBody: typeof LandingAgentPanelBodyType | null;
 }) {
   return (
     <AnimatePresence mode="wait">
@@ -189,7 +200,11 @@ function LandingAgentPanel({
             >
               إغلاق
             </button>
-            <LandingAgentPanelBody panel={activePanel} />
+            {PanelBody ? (
+              <PanelBody panel={activePanel} />
+            ) : (
+              <LandingSectionFallback label="جاري فتح المكتب…" />
+            )}
           </motion.aside>
         </motion.div>
       ) : null}
@@ -459,6 +474,19 @@ export default function LandingPreview() {
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  const SearchResults = useLandingDeferredChunk<LandingSearchResultsType>(
+    loadSearchResults,
+    Boolean(userLocation),
+  );
+  const AgentPanelBody = useLandingDeferredChunk<LandingAgentPanelBodyType>(
+    loadAgentPanelBody,
+    activeAgentPanel != null,
+  );
+  const DetailModal = useLandingDeferredChunk<typeof BarberDetailModalType>(
+    loadBarberDetailModal,
+    selectedBarber != null,
+  );
+
   const filteredBarbers = useMemo(() => {
     if (!userLocation) return [];
     return filterBarbersByDistance(remoteBarbers, userLocation, filters);
@@ -518,7 +546,11 @@ export default function LandingPreview() {
 
       {/* ── ألسنة الوكلاء — يسار وسط الشاشة ── */}
       <LeftAgentStack navigate={navigate} onOpenPanel={setActiveAgentPanel} />
-      <LandingAgentPanel activePanel={activeAgentPanel} onClose={() => setActiveAgentPanel(null)} />
+      <LandingAgentPanel
+        activePanel={activeAgentPanel}
+        onClose={() => setActiveAgentPanel(null)}
+        PanelBody={AgentPanelBody}
+      />
 
 
       {/* ── Grid background texture ──────────────────────────────────────── */}
@@ -911,23 +943,27 @@ export default function LandingPreview() {
           transition={{ duration: 0.5 }}
           className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
         >
-          <LandingSearchResults
-            userLocation={userLocation}
-            filters={filters}
-            onFilterChange={setFilters}
-            filteredBarbers={filteredBarbers}
-            remoteStatus={remoteStatus}
-            onBarberPatch={onBarberPatch}
-            onSelectBarber={setSelectedBarber}
-          />
+          {SearchResults && userLocation ? (
+            <SearchResults
+              userLocation={userLocation}
+              filters={filters}
+              onFilterChange={setFilters}
+              filteredBarbers={filteredBarbers}
+              remoteStatus={remoteStatus}
+              onBarberPatch={onBarberPatch}
+              onSelectBarber={setSelectedBarber}
+            />
+          ) : (
+            <LandingSectionFallback label="جاري تحميل نتائج الرادار…" />
+          )}
           <div className="mx-auto max-w-4xl px-5 pb-10">
             <PlatformVoluntaryEngagementStrip variant="compact" />
           </div>
         </motion.div>
       ) : null}
 
-      {selectedBarber ? (
-        <BarberDetailModal
+      {selectedBarber && DetailModal ? (
+        <DetailModal
           barber={selectedBarber}
           isOpen
           onClose={() => setSelectedBarber(null)}
