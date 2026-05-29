@@ -19,6 +19,7 @@ import PulseMapPage from "@/pages/PulseMapPage";
 import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
 import AdminCyberOperationsPage from "@/app/admin/cyber/page";
 import StaffHubPage from "@/app/admin/staff-hub/page";
+import AdminDashboard from "@/pages/AdminDashboard";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -41,7 +42,6 @@ const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberDashboard = lazy(() => import("@/pages/BarberDashboard"));
 const BarberAccountDeletionRequest = lazy(() => import("@/pages/BarberAccountDeletionRequest"));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
-const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
 const Payment = lazy(() => import("@/pages/Payment"));
 const PartnerSupportChat = lazy(() => import("@/pages/PartnerSupportChat"));
 const PartnerSubscriptionTutorials = lazy(() => import("@/pages/PartnerSubscriptionTutorials"));
@@ -227,7 +227,7 @@ const App = () => (
           {getAdminPortalBasePaths().map((adminBase) => (
             <Fragment key={adminBase}>
               <Route path={`${adminBase}/in`} element={<LazyRoute><AdminLogin /></LazyRoute>} />
-              <Route path={`${adminBase}/ctrl`} element={<LazyRoute><AdminDashboard /></LazyRoute>} />
+              <Route path={`${adminBase}/ctrl`} element={<AdminDashboard />} />
               <Route
                 path={`${adminBase}/sentinel`}
                 element={
