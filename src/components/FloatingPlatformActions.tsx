@@ -66,7 +66,7 @@ export function FloatingPlatformActions() {
         {modal === 'rate' && <RateEngagementModal onClose={closeModal} />}
       </AnimatePresence>
 
-      <div className="fixed bottom-6 left-4 z-40 flex flex-col-reverse items-end gap-2 sm:bottom-8 sm:left-6">
+      <div className="fixed bottom-14 left-4 z-40 flex flex-col-reverse items-end gap-2 pb-[env(safe-area-inset-bottom,0px)] sm:bottom-[4.5rem] sm:left-6">
         <AnimatePresence>
           {open && actions.map((action, i) => (
             <motion.button
