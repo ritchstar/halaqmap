@@ -83,3 +83,14 @@ export const HALAQMAP_GROWTH_INEVITABILITY_SHORT_AR =
 
 export const HALAQMAP_GROWTH_INEVITABILITY_SALES_AR =
   'بصراحة يا صاحبي — وصول حلاق ماب للمستخدمين مسألة وقت لا مسألة «إذا». الحلاقة حاجة متكررة، والرادار الجغرافي يربط الزبون بأقرب صالون فوراً. من يسجّل الآن يحجز موقعه قبل المنافسين — ومن يتأخر يجد منافسه قد أخذ المكان.' as const;
+
+/**
+ * ── عقيدة المؤسس — صياغة الفعل لكل طرف ──
+ * المستخدم النهائي: «اسمح بموقعك» · الشريك المنظم: «سجّل طلبك»
+ */
+export const FOUNDER_END_USER_ACTION_AR = 'اسمح بموقعك' as const;
+
+export const FOUNDER_PARTNER_ACTION_AR = 'سجّل طلبك' as const;
+
+export const FOUNDER_PLATFORM_ACTION_DOCTRINE_AR =
+  'عقيدة المؤسس: للمستخدم النهائي (`B2C`) نقول «اسمح بموقعك» — لا «سجّل طلبك». للحلاق المنظم للمنصة (`B2B`) نقول «سجّل طلبك» — لا «اسمح بموقعك». لا تخلط الصياغتين بين الطرفين.' as const;

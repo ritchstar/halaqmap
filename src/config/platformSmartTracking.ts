@@ -5,6 +5,7 @@
  */
 
 import {
+  FOUNDER_END_USER_ACTION_AR,
   ON_DEMAND_VISIBILITY_END_USER_NOTE_AR,
   ON_DEMAND_VISIBILITY_TAGLINE_SHORT_AR,
   SMART_RESPONSE_SYSTEM_LABEL_AR,
@@ -14,7 +15,7 @@ export const PLATFORM_SMART_TRACKING_SLOGAN =
   'حلاق ماب: المنصة الأولى المدعومة بنظام الاستجابة الذكية (الظهور عند الطلب)';
 
 export const PLATFORM_SMART_TRACKING_SUBTEXT =
-  'محرك ربط جغرافي ذكي يستجيب لطلبك في اللحظة — يُظهر المزودين المؤهَّلين المتزامنين مع طلبك في محيطك بدقة متناهية، لا قائمة دائمة.';
+  'محرك ربط جغرافي ذكي يستجيب في اللحظة عندما تسمح بموقعك — يُظهر المزودين المؤهَّلين في محيطك بدقة متناهية، لا قائمة دائمة.';
 
 /** شارة الهيرو — الصفحة الرئيسية */
 export const PLATFORM_HERO_BADGE = `${SMART_RESPONSE_SYSTEM_LABEL_AR} · حلاق ماب`;
@@ -29,17 +30,17 @@ export const PLATFORM_HERO_SHORT_TAGLINE = ON_DEMAND_VISIBILITY_TAGLINE_SHORT_AR
 export const PLATFORM_HERO_TRUST_LINE =
   'استجابة جغرافية دقيقة · ظهور برمجي عند الطلب · تواصل مباشر مع الصالون';
 
-/** زر ومحفّز تحديد الموقع (بحث المستخدم) */
-export const PLATFORM_SEARCH_LOCATION_BUTTON = 'ابدأ الاستجابة الذكية — حدّد موقعك';
-export const PLATFORM_SEARCH_LOCATION_LOADING = 'جاري معالجة طلبك وتحديد محيطك…';
+/** زر ومحفّز تحديد الموقع (بحث المستخدم) — عقيدة المؤسس: اسمح بموقعك */
+export const PLATFORM_SEARCH_LOCATION_BUTTON = `${FOUNDER_END_USER_ACTION_AR} — ابدأ الاستجابة الذكية`;
+export const PLATFORM_SEARCH_LOCATION_LOADING = 'جارٍ تحديد موقعك وتنشيط الاستجابة…';
 export const PLATFORM_SEARCH_LOCATION_SUCCESS =
-  'تم تسجيل طلبك — جارٍ تنشيط استجابة المزودين المؤهَّلين';
+  'تم تحديد موقعك — جارٍ تنشيط استجابة المزودين المؤهَّلين';
 
 /** سياق شريط الفلاتر بعد تفعيل الموقع */
 export const PLATFORM_SEARCH_RESULTS_CONTEXT =
   'نظام الاستجابة الذكية يعرض المزودين المؤهَّلين ضمن النطاق الذي تختاره — صفِّ النتائج بالمسافة والتقييم والباقة.';
 
-export const PLATFORM_SEARCH_EMPTY_LOADING = 'جاري معالجة طلبك وتفعيل استجابة المزودين…';
+export const PLATFORM_SEARCH_EMPTY_LOADING = 'جارٍ تحديد موقعك وتفعيل استجابة المزودين…';
 export const PLATFORM_SEARCH_EMPTY_TITLE = 'لا يوجد مزود مستجيب ضمن نطاق طلبك حالياً';
 export const PLATFORM_SEARCH_EMPTY_HINT =
   'وسّع نطاق الطلب من شريط المسافة (حتى 25 كم) أو ألغِ الفلاتر لزيادة احتمال استجابة مزود قريب — الظهور برمجي عند الطلب وليس قائمة دائمة.';
@@ -48,9 +49,9 @@ export const PLATFORM_SEARCH_EMPTY_HINT =
 export const PLATFORM_HOW_IT_WORKS_STEPS = [
   {
     step: '١',
-    title: 'سجّل طلبك واحدّد محيطك',
+    title: FOUNDER_END_USER_ACTION_AR,
     description:
-      'يحدّد موقعك بدقة ليبدأ نظام الاستجابة الذكية بتنشيط المزودين المؤهَّلين في محيطك.',
+      'تمنح إذن الموقع من المتصفح أو الجهاز — فيبدأ نظام الاستجابة الذكية بتنشيط المزودين المؤهَّلين في محيطك.',
   },
   {
     step: '٢',
