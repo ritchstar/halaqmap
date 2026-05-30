@@ -50,6 +50,8 @@ export const ROUTE_PATHS = {
    * لا تُضاف روابط لها من الرئيسية أو مسار المستهلك.
    */
   PARTNERS_BANNERS_PREVIEW: '/partners/banners-preview',
+  /** طلب B2B للمنشآت الفندقية: بنرات QR مجانية مع الشحن */
+  HOSPITALITY_B2B_REQUEST: '/partners/hospitality-request',
   /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
   RATE_BARBER: '/rate/:barberId',
   /** صفحة الهبوط التصميمية التجريبية — معاينة فقط */
