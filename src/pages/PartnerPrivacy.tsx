@@ -1,6 +1,5 @@
 ﻿import { motion } from "framer-motion";
 import { Shield, Lock, FileCheck, Database, Bell, Mail, Scale, CreditCard, Server } from "lucide-react";
-import { LegalObserverChat } from "@/components/LegalObserverChat";
 import {
   LEGAL_TRADE_NAME_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
@@ -107,9 +106,6 @@ export default function PartnerPrivacy() {
       </div>
 
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto mb-8">
-          <LegalObserverChat page="سياسة خصوصية الشركاء" />
-        </div>
         <div className="max-w-4xl mx-auto mb-8 space-y-6">
           <PlatformIdentityCard />
           <PlatformTlsTrustBadge variant="strip" />

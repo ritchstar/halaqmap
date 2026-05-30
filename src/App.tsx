@@ -22,12 +22,18 @@ import StaffHubPage from "@/app/admin/staff-hub/page";
 import AdminDashboard from "@/pages/AdminDashboard";
 import SaudiAgentLanding from "@/pages/SaudiAgentLanding";
 import About from "@/pages/About";
+import Privacy from "@/pages/Privacy";
 import TermsOfService from "@/pages/TermsOfService";
 import UserPrivacyPolicy from "@/pages/UserPrivacyPolicy";
 import PlatformReviews from "@/pages/PlatformReviews";
+import Register from "@/pages/Register";
+import PartnerPrivacy from "@/pages/PartnerPrivacy";
+import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
+import BarberLogin from "@/pages/BarberLogin";
+import PartnerSupportChat from "@/pages/PartnerSupportChat";
+import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
-const Register = lazy(() => import("@/pages/Register"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
 const ShopOpenStatus = lazy(() => import("@/pages/ShopOpenStatus"));
 const BarberGrowthLanding = lazy(() => import("@/pages/BarberGrowthLanding"));
@@ -36,16 +42,11 @@ const InvoicePreviewSamples = lazy(() => import("@/pages/InvoicePreviewSamples")
 const PartnerInterestLanding = lazy(() => import("@/pages/PartnerInterestLanding"));
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
-const Privacy = lazy(() => import("@/pages/Privacy"));
-const PartnerPrivacy = lazy(() => import("@/pages/PartnerPrivacy"));
-const SubscriptionPolicy = lazy(() => import("@/pages/SubscriptionPolicy"));
-const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberDashboard = lazy(() => import("@/pages/BarberDashboard"));
 const BarberAccountDeletionRequest = lazy(() => import("@/pages/BarberAccountDeletionRequest"));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
 const Payment = lazy(() => import("@/pages/Payment"));
-const PartnerSupportChat = lazy(() => import("@/pages/PartnerSupportChat"));
 const PartnerSubscriptionTutorials = lazy(() => import("@/pages/PartnerSubscriptionTutorials"));
 const MapCommunity = lazy(() => import("@/pages/MapCommunity"));
 const PartnerBannersPreviewLanding = lazy(() => import("@/pages/PartnerBannersPreviewLanding"));
@@ -146,6 +147,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<PulseMapPage />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} element={<Layout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></Layout>} />
 
           {/* ?????? ?????? ???????? ??????????? ??? ?????? ?????????? ???????????????????????????????????????????????? */}
           <Route
@@ -202,6 +204,10 @@ const App = () => (
           <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><LazyRoute><ShopOpenStatus /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><LazyRoute><PartnerPrivacy /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><LazyRoute><SubscriptionPolicy /></LazyRoute></PartnerLayout>} />
+          <Route path="/partners/hospitality-request/" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
+          <Route path="/partners/hospitality-b2b-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
+          <Route path="/partners/hospitality-qr-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
+          <Route path="/hospitality-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<PartnerLayout><LazyRoute><BarberLogin /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<PartnerLayout><LazyRoute><BarberPortalEnter /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><LazyRoute><Payment /></LazyRoute></PartnerLayout>} />

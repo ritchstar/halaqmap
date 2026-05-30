@@ -1860,6 +1860,12 @@ export default function PartnerMarketingPreview() {
                 <Scissors className="h-5 w-5" /> سجّل صالونك الآن
               </button>
               <button
+                onClick={() => navigate(ROUTE_PATHS.HOSPITALITY_B2B_REQUEST)}
+                className="flex items-center gap-2 rounded-xl border border-sky-300/40 bg-sky-500/10 px-8 py-4 font-semibold text-sky-100 hover:border-sky-200/60 hover:bg-sky-500/15 transition-all"
+              >
+                <QrCode className="h-4 w-4" /> طلب ضيافة B2B (فنادق/شقق)
+              </button>
+              <button
                 onClick={() => navigate(ROUTE_PATHS.PARTNER_WHY)}
                 className="flex items-center gap-2 rounded-xl border border-white/15 px-8 py-4 font-semibold text-slate-200 hover:border-white/30 transition-all"
               >
@@ -1894,6 +1900,7 @@ export default function PartnerMarketingPreview() {
                 {[
                   { label: 'التسجيل', to: ROUTE_PATHS.REGISTER },
                   { label: 'الباقات والأسعار', to: ROUTE_PATHS.BARBERS_LANDING },
+                  { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'معاينة الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'لوحة الشريك', to: ROUTE_PATHS.BARBER_LOGIN },
