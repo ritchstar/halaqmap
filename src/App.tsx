@@ -15,6 +15,7 @@ import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminA
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 import LandingPreview from "@/pages/LandingPreview";
 import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
+import PulseMapPage from "@/pages/PulseMapPage";
 import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
 import AdminCyberOperationsPage from "@/app/admin/cyber/page";
 import StaffHubPage from "@/app/admin/staff-hub/page";
@@ -24,7 +25,6 @@ import About from "@/pages/About";
 import TermsOfService from "@/pages/TermsOfService";
 import UserPrivacyPolicy from "@/pages/UserPrivacyPolicy";
 import PlatformReviews from "@/pages/PlatformReviews";
-import RadarShowcasePage from "@/pages/RadarShowcasePage";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -143,7 +143,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<SaudiAgentLanding />} />
-          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<RadarShowcasePage />} />
+          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<PulseMapPage />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
 
