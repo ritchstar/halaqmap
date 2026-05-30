@@ -10,6 +10,7 @@ import { Layout } from "@/components/Layout";
 import { PartnerLayout } from "@/components/PartnerLayout";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
+import { ChunkLoadErrorBoundary } from "@/components/ChunkLoadErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
@@ -27,8 +28,8 @@ import UserPrivacyPolicy from "@/pages/UserPrivacyPolicy";
 import PlatformReviews from "@/pages/PlatformReviews";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
-const Register = lazy(() => import("@/pages/Register"));
-const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
+import Register from "@/pages/Register";
+import RegisterSuccess from "@/pages/RegisterSuccess";
 const ShopOpenStatus = lazy(() => import("@/pages/ShopOpenStatus"));
 const BarberGrowthLanding = lazy(() => import("@/pages/BarberGrowthLanding"));
 const InternalPartnerPathPrintCard = lazy(() => import("@/pages/InternalPartnerPathPrintCard"));
@@ -64,7 +65,11 @@ const RouteBusy = () => (
 );
 
 function LazyRoute({ children, fallback = <RouteBusy /> }: { children: ReactNode; fallback?: ReactNode }) {
-  return <Suspense fallback={fallback}>{children}</Suspense>;
+  return (
+    <ChunkLoadErrorBoundary>
+      <Suspense fallback={fallback}>{children}</Suspense>
+    </ChunkLoadErrorBoundary>
+  );
 }
 
 const NotFound = () => (

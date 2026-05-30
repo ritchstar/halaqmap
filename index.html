@@ -122,6 +122,10 @@
           var hash = window.location.hash || '';
           if (path.indexOf('/rate/') === 0 && hash.length <= 1) {
             window.location.replace(window.location.origin + '/#' + path + (window.location.search || ''));
+            return;
+          }
+          if (path.indexOf('/partners') === 0 && hash.length <= 1) {
+            window.location.replace(window.location.origin + '/#' + path + (window.location.search || ''));
           }
         } catch (e) {}
       })();
@@ -163,5 +167,22 @@
     </script>
     <!-- ?v= يقلّل احتمال كاش قديم أثناء التطوير؛ الإنتاج يُضاف لها query على /assets/* عبر vite.config.ts -->
     <script type="module" src="/src/main.tsx?v=2"></script>
+    <script>
+      (function () {
+        window.setTimeout(function () {
+          try {
+            var root = document.getElementById('root');
+            if (!root || root.childNodes.length > 0) return;
+            root.innerHTML =
+              '<div dir="rtl" style="min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:1.5rem;text-align:center;font-family:Tajawal,system-ui;background:#061223;color:#e2e8f0">' +
+              '<p style="font-size:1.1rem;font-weight:700;color:#fbbf24">تعذّر تحميل المنصة</p>' +
+              '<p style="max-width:22rem;font-size:0.875rem;color:#94a3b8">قد يكون التطبيق المثبّت أو الكاش قديماً. جرّب إعادة التحميل أو افتح الرابط من المتصفح مباشرة.</p>' +
+              '<button type="button" onclick="sessionStorage.removeItem(\'hm-chunk-recover\');location.reload()" style="border-radius:0.75rem;border:1px solid rgba(251,191,36,0.4);background:rgba(245,158,11,0.12);padding:0.65rem 1.25rem;font-weight:600;color:#fde68a;cursor:pointer">إعادة التحميل</button>' +
+              '<a href="/#/partners" style="font-size:0.875rem;color:#67e8f9">العودة لصفحة الشركاء</a>' +
+              '</div>';
+          } catch (e) {}
+        }, 9000);
+      })();
+    </script>
   </body>
 </html>

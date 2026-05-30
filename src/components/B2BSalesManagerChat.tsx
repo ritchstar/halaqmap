@@ -16,7 +16,7 @@ import {
   X, Send, Building2, TrendingUp, ChevronDown,
   ArrowLeft, Briefcase, Star, PhoneCall
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { cn } from '@/lib/utils';
 
@@ -221,6 +221,14 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
     return () => { document.body.style.overflow = prev; };
   }, [open, mode]);
 
+  /** استعادة التمرير عند مغادرة المكوّن — يمنع شاشة «عالقة» بعد التنقّل */
+  useEffect(() => () => { document.body.style.removeProperty('overflow'); }, []);
+
+  const goToRegister = useCallback(() => {
+    document.body.style.removeProperty('overflow');
+    navigate(ROUTE_PATHS.REGISTER);
+  }, [navigate]);
+
   useEffect(() => {
     const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
     window.addEventListener('keydown', fn);
@@ -393,12 +401,13 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                 </motion.button>
 
                 {/* Register shortcut */}
-                <button
-                  onClick={() => navigate(ROUTE_PATHS.REGISTER)}
+                <Link
+                  to={ROUTE_PATHS.REGISTER}
+                  onClick={() => document.body.style.removeProperty('overflow')}
                   className="mt-2 flex w-full items-center justify-center gap-1 text-[0.65rem] text-amber-400/50 hover:text-amber-300 transition-colors"
                 >
                   أو سجّل مباشرة <ArrowLeft className="h-3 w-3" />
-                </button>
+                </Link>
               </div>
               </SaudiFlexibleDialogShell>
             </motion.div>
@@ -502,10 +511,11 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                     <p className="text-[0.65rem] text-amber-400/55">✅ التفعيل بعد اتمام تعبئة الطلب والدفع</p>
                   </div>
                   <motion.button
-                    onClick={() => { setOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
+                    type="button"
+                    onClick={goToRegister}
                     whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                     className="flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 px-5 py-3 text-sm font-black text-black shadow-[0_2px_16px_rgba(245,158,11,0.40)] transition-all hover:from-amber-400 sm:w-auto">
-                    سجّل الآن <ArrowLeft className="h-4 w-4" />
+                    انضم الآن <ArrowLeft className="h-4 w-4" />
                   </motion.button>
                 </div>
               </div>
