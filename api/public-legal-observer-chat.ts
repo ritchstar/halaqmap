@@ -14,6 +14,7 @@ import {
 } from './_lib/agentConversationLog.js';
 import {
   appendUniversalAgentDoctrines,
+  isPlatformRegulatoryInquiry,
   resolveRegulatoryReferral,
 } from './_lib/platformManagementReferral.js';
 
@@ -37,6 +38,59 @@ function parseHistory(raw: unknown): Turn[] {
     if (!role || !content) return null;
     return { role, content: content.slice(0, 2000) };
   }).filter((x): x is Turn => x !== null).slice(-8);
+}
+
+function buildGeneralThenReferralReply(general: string, referral: string): string {
+  return `بشكل عام: ${general}\n\nللتحقق التخصصي: ${referral}`;
+}
+
+function resolveLegalObserverSpecialistReferral(message: string): string | null {
+  const m = message.trim();
+  if (!m) return null;
+
+  if (isPlatformRegulatoryInquiry(m)) {
+    return buildGeneralThenReferralReply(
+      'الأسئلة التنظيمية الخاصة بحالة ترخيص المنصة أو مخاطبات الجهات الرسمية تحتاج قناة متابعة رسمية موثقة.',
+      'يُحال الطلب إلى إدارة المنصة عبر `admin@halaqmap.com` بعنوان «استفسار تنظيمي»، وهي الجهة الوحيدة المخوّلة للمتابعة الرسمية.',
+    );
+  }
+
+  if (/(ضريب|زكاة|value\s*added|vat|فاتور(?:ة|ه)|zatca|ض\.?\s*ق\.?\s*م)/iu.test(m)) {
+    return buildGeneralThenReferralReply(
+      'المسائل الضريبية والفوترة الرسمية تُدار ضمن متطلبات الامتثال والأنظمة المحاسبية المعتمدة.',
+      'للتفاصيل التنفيذية أحيلك إلى خبير ZATCA داخل المنصة، وللمستندات الرسمية تواصل مع إدارة المنصة عبر `admin@halaqmap.com`.',
+    );
+  }
+
+  if (/(اختراق|ثغر|hack|security|cyber|بلاغ\s*أمن|تسريب|هجوم)/iu.test(m)) {
+    return buildGeneralThenReferralReply(
+      'بلاغات الأمن السيبراني تُعامل كأولوية عالية وتحتاج مسار تصعيد تقني رسمي.',
+      'أحيلك إلى قائد الدفاع السيبراني، وللإبلاغ الرسمي العاجل أرسل إلى `admin@halaqmap.com` بعنوان «بلاغ أمني».',
+    );
+  }
+
+  if (/(تعطل|انقطاع|incident|outage|توقف|استمرارية|crisis)/iu.test(m)) {
+    return buildGeneralThenReferralReply(
+      'الأعطال التشغيلية الحرجة تتطلب تقييم أثر واستجابة فنية وفق إجراءات الطوارئ.',
+      'أحيلك إلى مستشار الأزمات التقنية، ومعه متابعة رسمية عبر إدارة المنصة عند الحاجة.',
+    );
+  }
+
+  if (/(دفع|مدفوع|تحويل|استرداد|refund|moyasar|ميسر|عملية\s*مالية|فشل\s*سداد)/iu.test(m)) {
+    return buildGeneralThenReferralReply(
+      'المدفوعات والاسترداد تخضع لسياسة الدفع المعلنة وشروط مزود الدفع المعتمد.',
+      'أحيلك إلى خازن المنصة للمسار التنفيذي، وللمراجعة الرسمية أرسل التفاصيل إلى `admin@halaqmap.com`.',
+    );
+  }
+
+  if (/(قضي[ةه]|محكم|دعوى|استشارة\s*قانونية\s*شخصية|تمثيل\s*قانوني)/iu.test(m)) {
+    return buildGeneralThenReferralReply(
+      'يمكنني شرح سياسات المنصة بشكل عام، لكن التقييم القانوني الشخصي أو التمثيل أمام جهة قضائية يتطلب مختصاً مرخصاً.',
+      'أوصي بالرجوع إلى محامٍ مرخّص، ويمكنك مراسلة إدارة المنصة عبر `admin@halaqmap.com` إذا كان الطلب مرتبطاً بسجلات المنصة.',
+    );
+  }
+
+  return null;
 }
 
 // ─── الشخصية والسياق القانوني الكامل ─────────────────────────────────────────
@@ -128,7 +182,7 @@ ZATCA 🧾:
 ٢. وجِّه لقراءة الوثيقة الكاملة عند الحاجة للتفصيل
 ٣. عند السؤال عن شكوى أو نزاع: «تواصل مع فريق الدعم عبر admin@halaqmap.com»
 ٤. عند سؤال تنظيمي/ترخيصي/تفتيش/هيئة إعلام: أحِل فوراً إلى **إدارة المنصة** — لا تُجيب عن حالة ترخيص حكومي
-٥. عند سؤال خارج اختصاصك: «هذا السؤال يحتاج متخصصاً — أنصح بالاستشارة القانونية»
+٥. عند سؤال خارج اختصاصك: قدّم **إجابة عامة مختصرة أولاً** من سياسات المنصة، ثم أحِل بوضوح إلى المختص المناسب (وكيل مختص داخل المنصة أو جهة بشرية).
 ٦. لا تُعطي آراء قانونية شخصية أو تفسيرات ملزمة
 
 أسلوب الردود: مختصرة ودقيقة (2-4 جمل) — مع تفصيل عند الطلب.`;
@@ -174,7 +228,9 @@ export async function POST(request: Request): Promise<Response> {
   const history = parseHistory(body.history);
   const logSupabase = createAgentLogSupabase();
 
-  const referral = resolveRegulatoryReferral(msg);
+  const referral =
+    resolveLegalObserverSpecialistReferral(msg) ??
+    resolveRegulatoryReferral(msg);
   const systemPrompt = buildSystemPrompt(page);
   const reply = referral ?? await callModel(systemPrompt, history, msg);
 
