@@ -20,12 +20,16 @@ import AdminCyberOperationsPage from "@/app/admin/cyber/page";
 import StaffHubPage from "@/app/admin/staff-hub/page";
 import AdminDashboard from "@/pages/AdminDashboard";
 import SaudiAgentLanding from "@/pages/SaudiAgentLanding";
+import About from "@/pages/About";
+import TermsOfService from "@/pages/TermsOfService";
+import UserPrivacyPolicy from "@/pages/UserPrivacyPolicy";
+import PlatformReviews from "@/pages/PlatformReviews";
+import RadarShowcasePage from "@/pages/RadarShowcasePage";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const Register = lazy(() => import("@/pages/Register"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
 const ShopOpenStatus = lazy(() => import("@/pages/ShopOpenStatus"));
-const About = lazy(() => import("@/pages/About"));
 const BarberGrowthLanding = lazy(() => import("@/pages/BarberGrowthLanding"));
 const InternalPartnerPathPrintCard = lazy(() => import("@/pages/InternalPartnerPathPrintCard"));
 const InvoicePreviewSamples = lazy(() => import("@/pages/InvoicePreviewSamples"));
@@ -33,8 +37,6 @@ const PartnerInterestLanding = lazy(() => import("@/pages/PartnerInterestLanding
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
-const UserPrivacyPolicy = lazy(() => import("@/pages/UserPrivacyPolicy"));
-const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const PartnerPrivacy = lazy(() => import("@/pages/PartnerPrivacy"));
 const SubscriptionPolicy = lazy(() => import("@/pages/SubscriptionPolicy"));
 const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
@@ -52,8 +54,6 @@ const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
-const PlatformReviews = lazy(() => import("@/pages/PlatformReviews"));
-const RadarShowcasePage = lazy(() => import("@/pages/RadarShowcasePage"));
 
 const queryClient = new QueryClient();
 
@@ -143,7 +143,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<SaudiAgentLanding />} />
-          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<LazyRoute><RadarShowcasePage /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<RadarShowcasePage />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
 

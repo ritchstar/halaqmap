@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { LegalObserverChat } from '@/components/LegalObserverChat';
 import { MapPin, Shield, Lock, Eye, UserCheck, Bell, Mail, Phone, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
@@ -138,8 +137,6 @@ export default function UserPrivacyPolicy() {
 
       <div className="container mx-auto px-4 py-16" dir="rtl">
         <div className="max-w-4xl mx-auto space-y-12">
-          {/* الناظر القانوني — في أعلى المحتوى قبل السياسات */}
-          <LegalObserverChat page="سياسة الخصوصية" />
           <PlatformTlsTrustBadge variant="strip" />
           {sections.map((section, index) => {
             const Icon = section.icon;
