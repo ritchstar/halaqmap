@@ -139,9 +139,12 @@ function FoundersDealBanner() {
       <div className="grid grid-cols-3 gap-2 p-4">
         {FOUNDER_DEALS.map(d => (
           <div key={d.n}
-            className={`relative rounded-xl border p-3 text-center text-right ${d.best ? 'border-amber-400/50 bg-amber-500/10' : 'border-white/8 bg-white/[0.025]'}`}>
-            {d.best && (
-              <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-2 py-0.5 text-[0.48rem] font-black text-black">الأفضل</span>
+            className={`relative rounded-xl border p-3 text-center text-right ${(d as any).best ? 'border-amber-500' : 'border-gray-200'}`}
+          >
+            {(d as any).best && (
+              <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 text-white px-2 py-0.5 text-[0.6rem] font-bold">
+                المميزة
+              </span>
             )}
             <p className="text-base">{d.icon}</p>
             <p className="text-xs font-black text-white">{d.label}</p>
@@ -660,7 +663,7 @@ export function RegistrationForm() {
 
       const minted = await mintRegistrationIntentTokenRemote(orderId);
       if (!minted.ok) {
-        toast.error(minted.error);
+            toast.error((minted as any).error);
         setIsSubmitting(false);
         return;
       }
@@ -1052,7 +1055,7 @@ export function RegistrationForm() {
                       const isSelected = formData.tier === t.tier && (i < 3 || formData.digitalShiftAddon);
                       return (
                         <label key={i} className="relative flex cursor-pointer flex-col">
-                          {t.best && (
+                                      {(t as any).best && (
                             <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-0.5 text-[0.55rem] font-black text-black z-10">
                               الأعلى طلباً
                             </span>
@@ -1061,11 +1064,10 @@ export function RegistrationForm() {
                             value={t.tier}
                             id={`annual-${i}`}
                             className="sr-only"
-                            onClick={() => {
-                              if (t.addon) setFormData(p => ({ ...p, tier: t.tier, digitalShiftAddon: true }));
-                              else setFormData(p => ({ ...p, tier: t.tier, digitalShiftAddon: false }));
-                            }}
-                          />
+             onClick={() => {
+              setFormData((p) => ({ ...p, tier: t.tier }));
+            }}
+          />
                           <div className={`flex flex-col rounded-xl border p-3.5 transition-all ${
                             isSelected
                               ? `${t.border} bg-gradient-to-b from-white/8 to-transparent ring-2 ring-current/20`
