@@ -8,14 +8,18 @@ import { fetchAdminSentinelPreflight } from '@/lib/adminSentinelRemote';
 function authReturnNeedsHandling(): boolean {
   if (typeof window === 'undefined') return false;
   if (!isSupabaseConfigured()) return false;
-  const h = window.location.hash;
-  const s = window.location.search;
-  return (
-    h.includes('access_token') ||
-    h.includes('error=') ||
-    h.includes('error_description') ||
-    s.includes('code=')
-  );
+  const hashRaw = window.location.hash.startsWith('#')
+    ? window.location.hash.slice(1)
+    : window.location.hash;
+  const search = new URLSearchParams(window.location.search);
+
+  // Supabase implicit/OAuth callback in hash comes as key-value pairs,
+  // not as router-style paths (e.g. "/partners/...").
+  const hashLooksLikeAuthCallback =
+    /(^|&)(access_token|error|error_description)=/i.test(hashRaw) &&
+    !hashRaw.startsWith('/');
+
+  return hashLooksLikeAuthCallback || search.has('code');
 }
 
 function replaceHashOnly(route: string) {
@@ -37,11 +41,13 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
     if (gate !== 'checking' || handledRef.current) return;
 
+    const hashRaw = window.location.hash.startsWith('#')
+      ? window.location.hash.slice(1)
+      : window.location.hash;
     const hasImplicit =
-      window.location.hash.includes('access_token') ||
-      window.location.hash.includes('error=') ||
-      window.location.hash.includes('error_description');
-    const hasPkce = window.location.search.includes('code=');
+      /(^|&)(access_token|error|error_description)=/i.test(hashRaw) &&
+      !hashRaw.startsWith('/');
+    const hasPkce = new URLSearchParams(window.location.search).has('code');
 
     if (!hasImplicit && !hasPkce) {
       setGate('done');
