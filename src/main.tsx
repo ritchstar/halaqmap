@@ -9,6 +9,66 @@ ensureDomainVerificationMeta()
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 
+const CHUNK_RELOAD_ONCE_PREFIX = 'hm-chunk-reload-once:'
+
+function currentRouteReloadKey(): string {
+  return `${CHUNK_RELOAD_ONCE_PREFIX}${window.location.pathname}${window.location.search}${window.location.hash}`
+}
+
+function toErrorMessage(reason: unknown): string {
+  if (typeof reason === 'string') return reason
+  if (reason instanceof Error) return reason.message
+  if (typeof reason === 'object' && reason !== null) {
+    const msg = (reason as { message?: unknown }).message
+    if (typeof msg === 'string') return msg
+  }
+  return ''
+}
+
+function isDynamicImportChunkError(reason: unknown): boolean {
+  const msg = toErrorMessage(reason)
+  return (
+    /Failed to fetch dynamically imported module/i.test(msg) ||
+    /Importing a module script failed/i.test(msg) ||
+    /Unable to preload CSS/i.test(msg) ||
+    /ChunkLoadError/i.test(msg) ||
+    /Loading chunk [\w-]+ failed/i.test(msg)
+  )
+}
+
+function reloadOnceForChunkError(): void {
+  try {
+    const key = currentRouteReloadKey()
+    if (sessionStorage.getItem(key)) return
+    sessionStorage.setItem(key, '1')
+  } catch {
+    // ignore storage errors and still attempt reload
+  }
+  window.location.reload()
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('vite:preloadError', (event) => {
+    ;(event as Event).preventDefault()
+    reloadOnceForChunkError()
+  })
+
+  window.addEventListener('unhandledrejection', (event) => {
+    if (!isDynamicImportChunkError(event.reason)) return
+    event.preventDefault()
+    reloadOnceForChunkError()
+  })
+
+  window.addEventListener('error', (event) => {
+    const scriptErrorLike =
+      isDynamicImportChunkError(event.error ?? event.message) ||
+      (typeof event.filename === 'string' && /\/assets\/.+\.(js|css)(\?|$)/i.test(event.filename))
+    if (!scriptErrorLike) return
+    event.preventDefault()
+    reloadOnceForChunkError()
+  }, true)
+}
+
 if (import.meta.env.DEV) {
   console.info(`[halaqmap] Partner assistant UI v${PARTNER_ASSISTANT_UI_VERSION}`)
   void fetch(PARTNER_ASSISTANT_CHAT_API_PATH, { method: 'GET' })
