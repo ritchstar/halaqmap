@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
+import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 
 ensureDomainVerificationMeta()
 // build-sync التلقائي مُعطّل — كان يسبب حلقة reload (_b=…) وremoveChild أثناء تشغيل React
@@ -75,6 +76,7 @@ function installDomMismatchGuard(): void {
 }
 
 installDomMismatchGuard()
+initPlatformBuildSync()
 
 function currentRouteReloadKey(): string {
   return `${CHUNK_RELOAD_ONCE_PREFIX}${window.location.pathname}${window.location.search}${window.location.hash}`
