@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Fragment, lazy, Suspense, type ReactNode } from "react";
+import { Fragment, lazy, Suspense, type ReactNode, useEffect, useState } from "react";
 import { HashRouter, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
 import { Layout } from "@/components/Layout";
@@ -66,7 +66,22 @@ const RouteBusy = () => (
 );
 
 function LazyRoute({ children, fallback = <RouteBusy /> }: { children: ReactNode; fallback?: ReactNode }) {
-  return <Suspense fallback={fallback}>{children}</Suspense>;
+  const [content, setContent] = useState<ReactNode>(null);
+  
+  useEffect(() => {
+    let cancelled = false;
+    // Use microtask to avoid synchronous DOM manipulation during unmount
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setContent(children);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [children]);
+  
+  return <Suspense fallback={fallback}>{content || fallback}</Suspense>;
 }
 
 const NotFound = () => (

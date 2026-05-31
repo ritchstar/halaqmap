@@ -28,16 +28,24 @@ export class RootErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error): void {
-    if (typeof window === 'undefined' || !isDomRemoveChildError(error)) return;
-    // Self-heal once per route/session to avoid persistent white screen in admin surfaces.
-    try {
-      const pathKey = `${RECOVER_FLAG}:${currentRecoverPathKey()}`;
-      const alreadyRecovered = sessionStorage.getItem(pathKey) === '1';
-      if (alreadyRecovered) return;
-      sessionStorage.setItem(pathKey, '1');
-      void forceHardRefresh();
-    } catch {
-      window.location.reload();
+    // Log error for monitoring (Sentry, LogRocket, etc.)
+    if (import.meta.env.DEV) {
+      console.error('[RootErrorBoundary] Caught error:', error);
+    }
+    
+    // For DOM-related errors, attempt one auto-recovery per route
+    if (typeof window !== 'undefined' && isDomRemoveChildError(error)) {
+      try {
+        const pathKey = `${RECOVER_FLAG}:${currentRecoverPathKey()}`;
+        const alreadyRecovered = sessionStorage.getItem(pathKey) === '1';
+        if (!alreadyRecovered) {
+          sessionStorage.setItem(pathKey, '1');
+          void forceHardRefresh();
+        }
+      } catch {
+        // Fallback to simple reload if sessionStorage fails
+        window.location.reload();
+      }
     }
   }
 
