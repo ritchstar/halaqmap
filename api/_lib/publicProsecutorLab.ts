@@ -14,6 +14,7 @@ const PUBLIC_PROSECUTOR_DOCTRINE = [
   'Compliance Enforcement: تدقيق تلقائي لمسار ComplianceCheckbox في التسجيل B2B مقابل ميثاق الالتزام المهني.',
   'Crisis Watch: حضور إلزامي في خيوط Crisis Advisor — مقاطعة فورية إذا أُعطيت UX أولوية على Data Integrity.',
   'Professional Sovereignty: تنبيهات سيادة مهنية عند انحراف أي وكيل عن الحدود المؤسسية.',
+  'اعتراض إلزامي: بعد أي تقييم صارم يرصد انحرافاً حرجاً، يجب إصدار «ورقة اعتراض» تشغيلية وتوثيقها قبل أي تنفيذ.',
 ] as const;
 
 const PUBLIC_PROSECUTOR_LAB_AGENTS = [
@@ -310,6 +311,27 @@ export function buildWorkingPapersFromContext(ctx: PublicProsecutorLabContext) {
     });
   }
 
+  const strictEvaluationDetected =
+    ctx.complianceGaps > 0 ||
+    ctx.inspectorPulseCount24h >= 5 ||
+    ctx.urgentOpsReports24h > 0 ||
+    (ctx.failedPayments24h ?? 0) > 0;
+
+  if (strictEvaluationDetected) {
+    papers.push({
+      id: `objection-${now}`,
+      kind: 'objection_paper',
+      severity: 'urgent',
+      titleAr: 'ورقة اعتراض — إلزام ما بعد التقييم الصارم',
+      summaryAr:
+        'رُصد انحراف تشغيلي/امتثالي يستوجب الاعتراض الرسمي. لا انتقال إلى التنفيذ حتى معالجة أسباب الاعتراض واعتماد الإغلاق.',
+      issuedAt: now,
+      targetAgent: 'system_crisis_advisor',
+      recommendedActionAr:
+        'تجميد التنفيذ، فتح مسار تصحيح إلزامي، وتوثيق قرار رفع الاعتراض في غرفة القيادة قبل أي GO.',
+    });
+  }
+
   if (ctx.crisisWatchActive) {
     papers.push({
       id: `crisis-${now}`,
@@ -433,7 +455,8 @@ export function buildPublicProsecutorLabSystemPrompt(ctx: PublicProsecutorLabCon
     '1. **تقييم امتثال** (جملة واحدة — شدة الانحراف).',
     '2. **توجيهات إلزامية** (numbered list).',
     '3. **مقاطعة** (إن لزم — صراحةً مع اسم الوكيل).',
-    '4. **ما يُحظر** على القيادة الآن.',
+    '4. **ورقة اعتراض** (إلزامية بعد التقييم الصارم إذا رُصد انحراف حرج).',
+    '5. **ما يُحظر** على القيادة الآن.',
     '',
     '## قيود',
     '- لا تنفّذ أوامر على الإنتاج — وجّه المؤسس فقط.',

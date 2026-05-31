@@ -215,6 +215,35 @@ const BASE_ADMIN_STATS: AdminStats = {
 };
 
 const ADMIN_REQUESTS_MARKETING_FILTERS_KEY = 'halaqmap.admin.requestsMarketingFilters.v1';
+const FORENSIC_GATE_STATE_KEY = 'halaqmap.commandCenter.forensicGateState.v1';
+const FORENSIC_RESPONSE_READINESS_RUNBOOK = [
+  'الاحتواء الفوري: تفعيل الوضع الآمن وإيقاف أي Fast-Lane خلال أول 5 دقائق.',
+  'العزل التقني: تحديد الوكيل/المسار المتسبب وحصر الأثر التشغيلي قبل أي إصلاح.',
+  'الاسترجاع المنضبط: Rollback للإعدادات أو الإصدار المستقر مع اختبار دخاني.',
+  'منع التكرار: توثيق السبب الجذري (RCA) وإضافة حواجز تشغيلية قبل إعادة التفعيل.',
+] as const;
+
+const FORENSIC_SEVEN_PHASES = [
+  'المرحلة الأولى: رسم الخريطة الجنائية الشاملة للمسارات والوكلاء المستهدفين.',
+  'المرحلة الثانية: تحليل سلسلة الفشل من الواجهة حتى مزود النموذج الخارجي.',
+  'المرحلة الثالثة: فحص الحواجز الحالية (Timeout/Retry/Rate Limit/Fallback).',
+  'المرحلة الرابعة: تحليل الانهيار المتسلسل ومنع امتداد العطل بين الوكلاء.',
+  'المرحلة الخامسة: تدقيق جاهزية التعافي (Kill Switch, Safe Mode, Rollback).',
+  'المرحلة السادسة: بوابة قرار تشغيلية صارمة بصيغة Go/No-Go قابلة للقياس.',
+  'المرحلة السابعة: الكاشفة العميقة للمنطق والآثار الجانبية في ناتج كل تغيير وإضافة.',
+] as const;
+
+const FORENSIC_CRITICAL_GATES = [
+  { id: 'kill-switch-global', label: 'تفعيل Kill Switch عام للوكلاء المنتدبين' },
+  { id: 'kill-switch-per-agent', label: 'تفعيل Kill Switch مستقل لكل وكيل مستهدف' },
+  { id: 'safe-mode-rollback', label: 'جاهزية Safe Mode + Rollback مثبتة بالاختبار' },
+  { id: 'timeout-abort-all', label: 'تغطية Timeout/Abort لكل واجهات ومسارات الوكلاء المستهدفين' },
+  { id: 'rate-limit-guard', label: 'تفعيل Rate Limit/Guard موحّد للمسارات المنتدبة' },
+  { id: 'forensic-observability', label: 'توفر Telemetry جنائي (TTFT/Timeout/Fallback/Error)' },
+  { id: 'prosecutor-objection-paper', label: 'المدعي العام رفع «ورقة اعتراض» بعد التقييم الصارم (عند الانحراف الحرج)' },
+] as const;
+
+type ForensicGateId = (typeof FORENSIC_CRITICAL_GATES)[number]['id'];
 
 const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
   {
@@ -311,6 +340,12 @@ export default function AdminDashboard() {
   const [crisisLabOpen, setCrisisLabOpen] = useState(false);
   const [crisisMode, setCrisisMode] = useState(false);
   const [engineeringWingOpsEnabled, setEngineeringWingOpsEnabled] = useState(false);
+  const [forensicGateState, setForensicGateState] = useState<Record<ForensicGateId, boolean>>(
+    () =>
+      Object.fromEntries(
+        FORENSIC_CRITICAL_GATES.map((gate) => [gate.id, false]),
+      ) as Record<ForensicGateId, boolean>,
+  );
 
   const bumpRemoteData = () => setDataRefreshNonce((n) => n + 1);
 
@@ -414,6 +449,31 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('halaqmap-subscription-requests-changed', onChange);
   }, []);
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(FORENSIC_GATE_STATE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      setForensicGateState((prev) => {
+        const next = { ...prev };
+        for (const gate of FORENSIC_CRITICAL_GATES) {
+          next[gate.id] = parsed[gate.id] === true;
+        }
+        return next;
+      });
+    } catch {
+      /* ignore invalid persisted forensic state */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(FORENSIC_GATE_STATE_KEY, JSON.stringify(forensicGateState));
+    } catch {
+      /* ignore storage failures */
+    }
+  }, [forensicGateState]);
+
   const handleLogout = async () => {
     const client = getSupabaseClient();
     await client?.auth.signOut();
@@ -454,6 +514,16 @@ export default function AdminDashboard() {
   }, [remoteStats, pendingRequestCount, pendingPaymentCount]);
 
   const can = (perm: AdminPermissionKey) => Boolean(adminData?.permissions?.[perm]);
+  const forensicGateDoneCount = useMemo(
+    () => FORENSIC_CRITICAL_GATES.filter((gate) => forensicGateState[gate.id]).length,
+    [forensicGateState],
+  );
+  const forensicGateTotal = FORENSIC_CRITICAL_GATES.length;
+  const forensicDecisionGo = forensicGateDoneCount === forensicGateTotal;
+  const forensicDecisionLabel = forensicDecisionGo ? 'GO' : 'NO-GO';
+  const forensicDecisionTone = forensicDecisionGo
+    ? 'text-emerald-300'
+    : 'text-rose-300';
   const canViewSecurityOpsLog = can('view_overview') || can('manage_barbers');
   const canViewPaymentGateways =
     can('view_payment_settings') ||
@@ -879,6 +949,67 @@ export default function AdminDashboard() {
           </TabsContent>}
 
           {can('view_command_center') && <TabsContent value="command-center" className="space-y-6">
+            <Card className="border-rose-500/35 bg-rose-500/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ShieldAlert className="h-5 w-5 text-rose-400" />
+                  اعتماد الحوكمة الجنائية والاستجابة للانهيار
+                </CardTitle>
+                <CardDescription>
+                  القرار الحالي:{' '}
+                  <span className={`font-semibold ${forensicDecisionTone}`}>{forensicDecisionLabel}</span>{' '}
+                  ({forensicGateDoneCount}/{forensicGateTotal}) — يتغير تلقائياً حسب إغلاق البوابات الحرجة.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="rounded-lg border border-border/70 bg-background/70 p-3">
+                  <p className="text-sm font-semibold mb-2">بوابات الاعتماد الحرجة (ديناميكي)</p>
+                  <div className="space-y-2">
+                    {FORENSIC_CRITICAL_GATES.map((gate) => (
+                      <div key={gate.id} className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2">
+                        <span className="text-xs text-muted-foreground">{gate.label}</span>
+                        <Switch
+                          checked={Boolean(forensicGateState[gate.id])}
+                          onCheckedChange={(checked) =>
+                            setForensicGateState((prev) => ({ ...prev, [gate.id]: checked === true }))
+                          }
+                          disabled={!can('manage_command_center')}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-background/70 p-3">
+                  <p className="text-sm font-semibold mb-2">مراحل البحث الجنائي (7 مراحل)</p>
+                  <ul className="space-y-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {FORENSIC_SEVEN_PHASES.map((phase) => (
+                      <li key={phase}>{phase}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-background/70 p-3">
+                  <p className="text-sm font-semibold mb-2">Runbook الاستجابة لأسوأ الاحتمالات</p>
+                  <ul className="space-y-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {FORENSIC_RESPONSE_READINESS_RUNBOOK.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {forensicDecisionGo ? (
+                    <Badge className="bg-emerald-600 hover:bg-emerald-600">GO نشط</Badge>
+                  ) : (
+                    <Badge variant="destructive">NO-GO نشط</Badge>
+                  )}
+                  <Badge variant="outline">Kill Switch إلزامي قبل GO</Badge>
+                  <Badge variant="outline">Safe Mode + Rollback إلزامي</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
             <CommandCenterSection
               stats={stats}
               requests={subscriptionRequests}

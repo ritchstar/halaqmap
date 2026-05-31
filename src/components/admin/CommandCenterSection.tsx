@@ -56,6 +56,13 @@ export const WEEKLY_SOP_PLAN = [
 
 const COMMAND_CENTER_SOP_CHECK_KEY = 'halaqmap_command_center_sop_check_v1';
 
+function isHospitalityB2BRequest(prospect: PartnerProspect): boolean {
+  const meta = prospect.sourceMeta;
+  if (!meta || typeof meta !== 'object') return false;
+  const program = (meta as Record<string, unknown>).program;
+  return program === 'hospitality_qr_b2b';
+}
+
 function StatsCard({
   title,
   value,
@@ -110,6 +117,7 @@ export function CommandCenterSection({
   const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://www.halaqmap.com';
   const partnersLandingUrl = `${siteOrigin}/#/partners`;
   const partnersRegisterUrl = `${siteOrigin}/#/partners/register`;
+  const hospitalityB2BRequestUrl = `${siteOrigin}/#${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}`;
   const partnerPathPrintCardUrl = `${siteOrigin}/#${ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD}`;
   const privatePartnerFaq = [
     {
@@ -142,6 +150,7 @@ export function CommandCenterSection({
   const [statusFilter, setStatusFilter] = useState<'all' | CommandLeadStatus>('all');
   const [tierFilter, setTierFilter] = useState<'all' | PartnerProspect['tierFit']>('all');
   const [onlyDue, setOnlyDue] = useState(false);
+  const [onlyHospitality, setOnlyHospitality] = useState(false);
   const [sopChecks, setSopChecks] = useState<Record<string, boolean>>({});
 
   const todayIso = new Date().toISOString().slice(0, 10);
@@ -263,6 +272,7 @@ export function CommandCenterSection({
       const matchesTier = tierFilter === 'all' || prospect.tierFit === tierFilter;
       const followUpDate = prospect.followUpDate;
       const matchesDue = !onlyDue || (!!followUpDate && followUpDate <= todayIso);
+      const matchesHospitality = !onlyHospitality || isHospitalityB2BRequest(prospect);
       const matchesQuery =
         q.length === 0 ||
         prospect.name.toLowerCase().includes(q) ||
@@ -271,9 +281,25 @@ export function CommandCenterSection({
         (prospect.instagram ?? '').toLowerCase().includes(q) ||
         (prospect.phone ?? '').includes(q) ||
         (prospect.notes ?? '').toLowerCase().includes(q);
-      return matchesRegion && matchesChannel && matchesStatus && matchesTier && matchesDue && matchesQuery;
+      return matchesRegion && matchesChannel && matchesStatus && matchesTier && matchesDue && matchesHospitality && matchesQuery;
     });
-  }, [prospects, query, region, channel, statusFilter, tierFilter, onlyDue, todayIso]);
+  }, [prospects, query, region, channel, statusFilter, tierFilter, onlyDue, onlyHospitality, todayIso]);
+
+  const hospitalityProspects = useMemo(
+    () => prospects.filter((prospect) => isHospitalityB2BRequest(prospect)),
+    [prospects],
+  );
+
+  const hospitalityStageCounts = useMemo(() => {
+    const counts = { new: 0, approved: 0, inExecution: 0, closed: 0 };
+    hospitalityProspects.forEach((prospect) => {
+      if (prospect.status === 'new') counts.new += 1;
+      else if (prospect.status === 'contacted') counts.approved += 1;
+      else if (prospect.status === 'waiting') counts.inExecution += 1;
+      else if (prospect.status === 'won') counts.closed += 1;
+    });
+    return counts;
+  }, [hospitalityProspects]);
 
   const setLeadPatch = (id: string, patch: PartnerProspectPatch) => {
     setProspects((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
@@ -548,6 +574,12 @@ export function CommandCenterSection({
                   </a>
                 </p>
                 <p>
+                  رابط B2B للضيافة (فنادق/شقق مفروشة):{' '}
+                  <a className="underline" href={hospitalityB2BRequestUrl} target="_blank" rel="noopener noreferrer">
+                    {hospitalityB2BRequestUrl}
+                  </a>
+                </p>
+                <p>
                   بطاقة QR للطباعة والحملات (صفحة داخلية — لا تظهر في القوائم العامة):{' '}
                   <a className="underline" href={partnerPathPrintCardUrl} target="_blank" rel="noopener noreferrer">
                     {partnerPathPrintCardUrl}
@@ -599,6 +631,113 @@ export function CommandCenterSection({
           color="green"
         />
       </div>
+
+      <Card className="mb-6 border-sky-500/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">غرفة طلبات الضيافة B2B</CardTitle>
+          <CardDescription>
+            الطلبات القادمة من رابط الفنادق/الشقق المفروشة (QR بنرات) تظهر هنا لاعتمادها وتحويلها للمختص ثم إغلاقها.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-sm">
+            إجمالي طلبات الضيافة: <span className="font-bold">{hospitalityProspects.length}</span>
+          </div>
+          <div className="grid gap-2 md:grid-cols-4">
+            <div className="rounded-md border border-border bg-background px-3 py-2 text-xs">
+              جديد: <span className="font-bold">{hospitalityStageCounts.new}</span>
+            </div>
+            <div className="rounded-md border border-border bg-background px-3 py-2 text-xs">
+              معتمد: <span className="font-bold">{hospitalityStageCounts.approved}</span>
+            </div>
+            <div className="rounded-md border border-border bg-background px-3 py-2 text-xs">
+              قيد التنفيذ: <span className="font-bold">{hospitalityStageCounts.inExecution}</span>
+            </div>
+            <div className="rounded-md border border-border bg-background px-3 py-2 text-xs">
+              مغلق: <span className="font-bold">{hospitalityStageCounts.closed}</span>
+            </div>
+          </div>
+          {hospitalityProspects.length === 0 ? (
+            <p className="text-sm text-muted-foreground">لا توجد طلبات ضيافة جديدة حالياً.</p>
+          ) : (
+            hospitalityProspects.slice(0, 8).map((prospect) => {
+              const meta = (prospect.sourceMeta ?? {}) as Record<string, unknown>;
+              const receptionCount = Number(meta.receptionBannersCount ?? 0);
+              const roomsCount = Number(meta.roomsBannersCount ?? 0);
+              const mapsUrl = typeof meta.shippingGoogleMapsUrl === 'string' ? meta.shippingGoogleMapsUrl : '';
+              return (
+                <div key={prospect.id} className="rounded-lg border border-border p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <p className="font-semibold">{prospect.name}</p>
+                    <Badge variant="outline">{prospect.region} — {prospect.city}</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    استقبال: {Number.isFinite(receptionCount) ? receptionCount : 0} | غرف/أجنحة:{' '}
+                    {Number.isFinite(roomsCount) ? roomsCount : 0}
+                  </p>
+                  {mapsUrl ? (
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex text-xs text-sky-700 underline"
+                    >
+                      فتح رابط التوثيق على الخرائط
+                    </a>
+                  ) : null}
+                  <div className="grid gap-2 md:grid-cols-3">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={!canManage}
+                      onClick={() =>
+                        setLeadPatch(prospect.id, {
+                          status: 'contacted',
+                          notes: `${prospect.notes ?? ''}\n[اعتماد] تمت مراجعة الطلب واعتماده.`.trim(),
+                          lastContactAt: new Date().toLocaleString('ar-SA'),
+                        })
+                      }
+                    >
+                      اعتماد الطلب
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={!canManage}
+                      onClick={() =>
+                        setLeadPatch(prospect.id, {
+                          status: 'waiting',
+                          assignedTo: prospect.assignedTo ?? 'admin_hospitality_ops',
+                          notes: `${prospect.notes ?? ''}\n[تحويل] أُحيل للمختص التنفيذي.`.trim(),
+                          lastContactAt: new Date().toLocaleString('ar-SA'),
+                        })
+                      }
+                    >
+                      تحويل للمختص
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={!canManage}
+                      onClick={() =>
+                        setLeadPatch(prospect.id, {
+                          status: 'won',
+                          notes: `${prospect.notes ?? ''}\n[إغلاق] تم التنفيذ وإقفال الطلب.`.trim(),
+                          lastContactAt: new Date().toLocaleString('ar-SA'),
+                        })
+                      }
+                    >
+                      إقفال الطلب
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-7 mb-6">
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">جديد</p><p className="text-2xl font-bold">{pipelineCounts.new}</p></CardContent></Card>
@@ -688,6 +827,10 @@ export function CommandCenterSection({
             <div className="flex items-center justify-between rounded-md border px-3">
               <span className="text-sm text-muted-foreground">فقط مستحقات المتابعة</span>
               <Switch checked={onlyDue} onCheckedChange={setOnlyDue} disabled={!canManage} />
+            </div>
+            <div className="flex items-center justify-between rounded-md border px-3">
+              <span className="text-sm text-muted-foreground">طلبات الضيافة فقط</span>
+              <Switch checked={onlyHospitality} onCheckedChange={setOnlyHospitality} disabled={!canManage} />
             </div>
             <Button variant="outline" onClick={downloadCsv} disabled={!canManage}>
               <Download className="w-4 h-4 ml-2" />

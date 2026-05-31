@@ -752,6 +752,7 @@ export default function LandingPreview() {
                 ))}
                 {[
                   { label: 'للمنشآت B2B', to: ROUTE_PATHS.BARBERS_LANDING },
+                  { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'آراء المستخدمين', to: ROUTE_PATHS.PLATFORM_REVIEWS },
                   { label: 'معاينة الرصد الذكي', to: ROUTE_PATHS.RADAR_SHOWCASE },
                 ].map((item) => (
@@ -1278,6 +1279,12 @@ export default function LandingPreview() {
                 >
                   للمنشآت · B2B ↗
                 </Link>
+                <Link
+                  to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}
+                  className="rounded-full border border-sky-400/25 bg-sky-500/8 px-3 py-1 text-[0.6rem] font-semibold text-sky-300/80 hover:text-sky-200"
+                >
+                  ضيافة فنادق · طلب بنرات QR ↗
+                </Link>
               </div>
             </div>
 
@@ -1293,6 +1300,7 @@ export default function LandingPreview() {
                   ابحث عن حلاق الآن
                 </button>
                 {[
+                  { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'آراء المستخدمين ⭐', to: ROUTE_PATHS.PLATFORM_REVIEWS },
                   { label: 'نظام الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'من نحن', to: ROUTE_PATHS.ABOUT },
