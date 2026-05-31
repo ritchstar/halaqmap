@@ -288,7 +288,8 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       react(),
       VitePWA({
-        registerType: 'autoUpdate',
+        // Prompt-based updates avoid forcing reload behavior mid-session.
+        registerType: 'prompt',
         injectRegister: false,
         manifestFilename: 'manifest.json',
         manifest: webAppManifest,
@@ -299,8 +300,10 @@ export default defineConfig(({ mode }) => {
           'icons/**/*.png',
         ],
         workbox: {
-          skipWaiting: true,
-          clientsClaim: true,
+          // Activate the new SW only after old clients are naturally released.
+          skipWaiting: false,
+          // Do not immediately take control of currently open tabs.
+          clientsClaim: false,
           cleanupOutdatedCaches: true,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
           globIgnores: ['**/halaqmap_barber_banner_*.png'],
