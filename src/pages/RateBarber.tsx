@@ -113,25 +113,27 @@ function RateBarberInner() {
         return;
       }
 
-      if (res.reason === 'missing_params') {
+      const reason = 'reason' in res ? res.reason : 'server';
+
+      if (reason === 'missing_params') {
         setPhase('missing_token');
         return;
       }
-      if (res.reason === 'invalid_token') {
+      if (reason === 'invalid_token') {
         setPhase('invite_failed');
         return;
       }
-      if (res.reason === 'not_found') {
+      if (reason === 'not_found') {
         setPhase('invalid_id');
         return;
       }
-      if (res.reason === 'rate_limited') {
+      if (reason === 'rate_limited') {
         setLoadErrorDetail('طلبات كثيرة من نفس الجهاز. انتظر قليلاً ثم أعد المحاولة.');
         setPhase('load_error');
         return;
       }
       setLoadErrorDetail(
-        res.reason === 'network'
+        reason === 'network'
           ? 'تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى.'
           : 'تعذّر تحميل بيانات الصالون.',
       );
