@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Component } from 'react';
+import { forceHardRefresh } from '@/lib/platformBuildSync';
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
@@ -8,6 +9,11 @@ const RECOVER_FLAG = 'hm-dom-recover-v2';
 
 function isDomRemoveChildError(error: Error): boolean {
   return /removeChild/i.test(error.message) || /not a child of this node/i.test(error.message);
+}
+
+function currentRecoverPathKey(): string {
+  if (typeof window === 'undefined') return '';
+  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
 }
 
 /** يمنع الشاشة البيضاء الصامتة ويعرض رسالة خطأ قابلة للفهم */
@@ -23,7 +29,16 @@ export class RootErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error): void {
     if (typeof window === 'undefined' || !isDomRemoveChildError(error)) return;
-    /* لا إعادة تحميل تلقائية — تسبب وميضاً عند أخطاء removeChild المستمرة (لوحة الإدارة، الرادار). */
+    // Self-heal once per route/session to avoid persistent white screen in admin surfaces.
+    try {
+      const pathKey = `${RECOVER_FLAG}:${currentRecoverPathKey()}`;
+      const alreadyRecovered = sessionStorage.getItem(pathKey) === '1';
+      if (alreadyRecovered) return;
+      sessionStorage.setItem(pathKey, '1');
+      void forceHardRefresh();
+    } catch {
+      window.location.reload();
+    }
   }
 
   private handleRecoverClick = (): void => {
