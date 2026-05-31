@@ -1899,7 +1899,7 @@ export default function PartnerMarketingPreview() {
               <div className="flex flex-col gap-2.5 text-sm text-slate-500">
                 {[
                   { label: 'التسجيل', to: ROUTE_PATHS.REGISTER },
-                  { label: 'الباقات والأسعار', to: ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW },
+                  { label: 'الباقات والأسعار', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'معاينة الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
@@ -1915,7 +1915,7 @@ export default function PartnerMarketingPreview() {
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">المستخدمون</h4>
               <div className="flex flex-col gap-2.5">
                 <Link to={ROUTE_PATHS.HOME} className="text-sm text-slate-500 hover:text-teal-400 transition-colors">ابحث عن حلاق ↗</Link>
-                <Link to={ROUTE_PATHS.PARTNER_PRIVACY} className="text-sm text-slate-500 hover:text-teal-400">سياسة الخصوصية</Link>
+                <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-sm text-slate-500 hover:text-teal-400">سياسة الخصوصية</Link>
                 <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-sm text-slate-500 hover:text-teal-400">شروط الاستخدام</Link>
               </div>
             </div>

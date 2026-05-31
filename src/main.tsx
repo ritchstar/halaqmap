@@ -13,6 +13,7 @@ import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 const CHUNK_RELOAD_ONCE_PREFIX = 'hm-chunk-reload-once:'
 const DOM_GUARD_PATCH_FLAG = '__halaqmapDomGuardPatched'
 const DOM_GUARD_LOG_KEY = 'hm-dom-guard-events-v1'
+const APP_BOOTSTRAP_FLAG = '__halaqmapAppBootstrapped'
 
 /**
  * Emergency DOM guard for production stability:
@@ -150,5 +151,11 @@ if (import.meta.env.DEV) {
 
 const rootEl = document.getElementById('root')
 if (rootEl) {
-  createRoot(rootEl).render(<App />)
+  const bootMarker = window as Window & { [APP_BOOTSTRAP_FLAG]?: boolean }
+  if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
+    bootMarker[APP_BOOTSTRAP_FLAG] = true
+    createRoot(rootEl).render(<App />)
+  } else if (import.meta.env.DEV) {
+    console.warn('[halaqmap] Duplicate bootstrap prevented')
+  }
 }

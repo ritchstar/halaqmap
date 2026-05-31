@@ -260,6 +260,7 @@ const App = () => (
           <Route path="/admin/sentinel" element={<LegacyAdminRedirect suffix="/sentinel" />} />
           <Route path="/admin/radar/full-screen" element={<LegacyAdminRedirect suffix="/radar/full-screen" />} />
           <Route path="/admin/cyber" element={<LegacyAdminRedirect suffix="/cyber" />} />
+          <Route path="/admin/staff-hub" element={<LegacyAdminRedirect suffix="/staff-hub" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />
           <Route path="*" element={<NotFound />} />
