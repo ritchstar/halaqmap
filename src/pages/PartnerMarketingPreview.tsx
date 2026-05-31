@@ -1899,7 +1899,7 @@ export default function PartnerMarketingPreview() {
               <div className="flex flex-col gap-2.5 text-sm text-slate-500">
                 {[
                   { label: 'التسجيل', to: ROUTE_PATHS.REGISTER },
-                  { label: 'الباقات والأسعار', to: ROUTE_PATHS.BARBERS_LANDING },
+                  { label: 'الباقات والأسعار', to: ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW },
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'معاينة الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
