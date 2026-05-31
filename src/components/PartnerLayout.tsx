@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Headphones,
   Home,
+  type LucideIcon,
   LogIn,
   Mail,
   Menu,
@@ -209,7 +210,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <header
           className={cn(
-            'sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75',
+            'sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75',
             isMapCommunityPage && 'border-emerald-500/15',
           )}
         >
@@ -329,14 +330,17 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </div>
 
               <nav className="flex max-w-[58%] flex-1 flex-wrap items-center justify-end gap-2 lg:max-w-none">
-                {navItems.filter((item) => item.path !== ROUTE_PATHS.MAP_COMMUNITY).map((item) => (
-                  <NavLink key={item.path} to={item.path} className={({ isActive }) => desktopNavClass(isActive)}>
-                    <span className="inline-flex items-center gap-1.5">
-                      {'Icon' in item && item.Icon ? <item.Icon className="h-3.5 w-3.5 text-emerald-300" /> : null}
-                      {item.label}
-                    </span>
-                  </NavLink>
-                ))}
+                {navItems.filter((item) => item.path !== ROUTE_PATHS.MAP_COMMUNITY).map((item) => {
+                  const ItemIcon = ('Icon' in item ? item.Icon : undefined) as LucideIcon | undefined;
+                  return (
+                    <NavLink key={item.path} to={item.path} className={({ isActive }) => desktopNavClass(isActive)}>
+                      <span className="inline-flex items-center gap-1.5">
+                        {ItemIcon ? <ItemIcon className="h-3.5 w-3.5 text-emerald-300" /> : null}
+                        {item.label}
+                      </span>
+                    </NavLink>
+                  );
+                })}
                 <PlatformAmbientToggle variant="partner" className="hidden xl:inline-flex" />
               </nav>
 

@@ -13,24 +13,26 @@ import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary"
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
-import LandingPreview from "@/pages/LandingPreview";
-import PartnerMarketingPreview from "@/pages/PartnerMarketingPreview";
-import PulseMapPage from "@/pages/PulseMapPage";
-import AdminRadarFullScreenPage from "@/app/admin/radar/full-screen/page";
-import AdminCyberOperationsPage from "@/app/admin/cyber/page";
-import StaffHubPage from "@/app/admin/staff-hub/page";
-import AdminDashboard from "@/pages/AdminDashboard";
-import SaudiAgentLanding from "@/pages/SaudiAgentLanding";
-import About from "@/pages/About";
-import Privacy from "@/pages/Privacy";
-import TermsOfService from "@/pages/TermsOfService";
-import UserPrivacyPolicy from "@/pages/UserPrivacyPolicy";
-import PlatformReviews from "@/pages/PlatformReviews";
-import Register from "@/pages/Register";
-import PartnerPrivacy from "@/pages/PartnerPrivacy";
-import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
-import BarberLogin from "@/pages/BarberLogin";
-import PartnerSupportChat from "@/pages/PartnerSupportChat";
+import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
+
+const LandingPreview = lazy(() => import("@/pages/LandingPreview"));
+const PartnerMarketingPreview = lazy(() => import("@/pages/PartnerMarketingPreview"));
+const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
+const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-screen/page"));
+const AdminCyberOperationsPage = lazy(() => import("@/app/admin/cyber/page"));
+const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const SaudiAgentLanding = lazy(() => import("@/pages/SaudiAgentLanding"));
+const About = lazy(() => import("@/pages/About"));
+const Privacy = lazy(() => import("@/pages/Privacy"));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
+const UserPrivacyPolicy = lazy(() => import("@/pages/UserPrivacyPolicy"));
+const PlatformReviews = lazy(() => import("@/pages/PlatformReviews"));
+const Register = lazy(() => import("@/pages/Register"));
+const PartnerPrivacy = lazy(() => import("@/pages/PartnerPrivacy"));
+const SubscriptionPolicy = lazy(() => import("@/pages/SubscriptionPolicy"));
+const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
+const PartnerSupportChat = lazy(() => import("@/pages/PartnerSupportChat"));
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
@@ -58,7 +60,7 @@ const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
 const queryClient = new QueryClient();
 
 const RouteBusy = () => (
-  <div dir="rtl" className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
+  <div dir="rtl" className="flex min-h-[48vh] items-center justify-center text-sm text-muted-foreground">
     جاري التحميل…
   </div>
 );
@@ -139,14 +141,21 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           {/* ?????? ?????????? ?????????????? ???????????? ????????????????????????????????????????????????????????????????????????????????? */}
-          <Route path={ROUTE_PATHS.HOME} element={<LandingPreview />} />
+          <Route path={ROUTE_PATHS.HOME} element={<LazyRoute><LandingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<SaudiAgentLanding />} />
-          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<PulseMapPage />} />
+          <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<LazyRoute><SaudiAgentLanding /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<LazyRoute><PulseMapPage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} element={<Navigate to={ROUTE_PATHS.BARBERS_LANDING} replace />} />
+          <Route
+            path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}
+            element={<Layout><HospitalityB2BRequestLanding /></Layout>}
+          />
+          <Route
+            path={`${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}/`}
+            element={<Layout><HospitalityB2BRequestLanding /></Layout>}
+          />
 
           {/* ?????? ?????? ???????? ??????????? ??? ?????? ?????????? ???????????????????????????????????????????????? */}
           <Route
@@ -168,8 +177,8 @@ const App = () => (
           <Route path="/archive/partners" element={<PartnerLayout><LazyRoute><BarberGrowthLanding /></LazyRoute></PartnerLayout>} />
 
           {/* ?????? ????? ???????????? ??? ?????? ???????? ???????????????????????????????????????????????????????????????????????? */}
-          <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LandingPreview />} />
-          <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<PartnerMarketingPreview />} />
+          <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LazyRoute><LandingPreview /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<LazyRoute><InternalPartnerPathPrintCard /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<LazyRoute><InvoicePreviewSamples /></LazyRoute>} />
           <Route
@@ -187,7 +196,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
 
           {/* ????? ????????? ??? ??????? ????????? */}
-          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<PartnerMarketingPreview />} />
+          <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.PARTNER_INTEREST}
             element={
@@ -203,7 +212,6 @@ const App = () => (
           <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><LazyRoute><ShopOpenStatus /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><LazyRoute><PartnerPrivacy /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><LazyRoute><SubscriptionPolicy /></LazyRoute></PartnerLayout>} />
-          <Route path="/partners/hospitality-request/" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/partners/hospitality-b2b-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/partners/hospitality-qr-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/hospitality-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
@@ -232,7 +240,7 @@ const App = () => (
           {getAdminPortalBasePaths().map((adminBase) => (
             <Fragment key={adminBase}>
               <Route path={`${adminBase}/in`} element={<LazyRoute><AdminLogin /></LazyRoute>} />
-              <Route path={`${adminBase}/ctrl`} element={<AdminDashboard />} />
+              <Route path={`${adminBase}/ctrl`} element={<LazyRoute><AdminDashboard /></LazyRoute>} />
               <Route
                 path={`${adminBase}/sentinel`}
                 element={
@@ -241,9 +249,9 @@ const App = () => (
                   </AdminSentinelSecurityGate>
                 }
               />
-              <Route path={`${adminBase}/radar/full-screen`} element={<AdminRadarFullScreenPage />} />
-              <Route path={`${adminBase}/cyber`} element={<AdminCyberOperationsPage />} />
-              <Route path={`${adminBase}/staff-hub`} element={<StaffHubPage />} />
+              <Route path={`${adminBase}/radar/full-screen`} element={<LazyRoute><AdminRadarFullScreenPage /></LazyRoute>} />
+              <Route path={`${adminBase}/cyber`} element={<LazyRoute><AdminCyberOperationsPage /></LazyRoute>} />
+              <Route path={`${adminBase}/staff-hub`} element={<LazyRoute><StaffHubPage /></LazyRoute>} />
             </Fragment>
           ))}
           {/* Safety net for legacy invitation links built before VITE_ADMIN_PORTAL_BASE alignment. */}
