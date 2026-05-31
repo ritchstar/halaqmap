@@ -778,7 +778,7 @@ export default function LandingPreview() {
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[100dvh] overflow-hidden pt-[calc(6rem+env(safe-area-inset-top))]">
+      <section className="relative min-h-[100svh] overflow-hidden pt-24">
         {/* Anchor للبحث */}
         <div id="search-anchor" className="absolute top-32" />
 

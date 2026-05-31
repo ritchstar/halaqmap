@@ -49,6 +49,31 @@ function resolveEffectivePhase(control: AmbientControlMode, autoPhase: AmbientPh
 
 const CONTROL_CYCLE: AmbientControlMode[] = ['auto', 'bright', 'night'];
 
+function createFallbackAmbientValue(): PlatformAmbientContextValue {
+  const autoPhase = resolveAmbientPhaseFromRiyadhTime();
+  const effectivePhase = autoPhase;
+  const phaseDef = getAmbientPhaseDefinition(effectivePhase);
+  const control: AmbientControlMode = 'auto';
+  const controlMeta = AMBIENT_CONTROL_LABELS[control];
+
+  return {
+    control,
+    autoPhase,
+    effectivePhase,
+    phaseLabelAr: phaseDef.labelAr,
+    phaseDescriptionAr: phaseDef.descriptionAr,
+    riyadhTimeLabel: formatRiyadhTime(),
+    controlLabelAr: controlMeta.labelAr,
+    controlHintAr: controlMeta.hintAr,
+    setControl: () => {
+      /* no-op fallback outside provider */
+    },
+    cycleControl: () => {
+      /* no-op fallback outside provider */
+    },
+  };
+}
+
 export function PlatformAmbientProvider({ children }: { children: ReactNode }) {
   const [control, setControlState] = useState<AmbientControlMode>(() => readStoredControl());
   const [autoPhase, setAutoPhase] = useState<AmbientPhaseId>(() =>
@@ -126,7 +151,10 @@ export function PlatformAmbientProvider({ children }: { children: ReactNode }) {
 export function usePlatformAmbient(): PlatformAmbientContextValue {
   const ctx = useContext(PlatformAmbientContext);
   if (!ctx) {
-    throw new Error('usePlatformAmbient must be used within PlatformAmbientProvider');
+    if (import.meta.env.DEV) {
+      console.warn('[PlatformAmbient] Missing provider, using safe fallback context');
+    }
+    return createFallbackAmbientValue();
   }
   return ctx;
 }
