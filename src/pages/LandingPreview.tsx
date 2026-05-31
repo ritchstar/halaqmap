@@ -584,7 +584,7 @@ export default function LandingPreview() {
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
           ══════════════════════════════════════════════════════════════════ */}
-      <header className="fixed inset-x-0 top-0 z-50 transition-all duration-500">
+      <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
 
         {/* ── طبقة الخلفية الزجاجية ──────────────────────── */}
         <div className={`absolute inset-0 transition-all duration-500 ${
@@ -778,7 +778,7 @@ export default function LandingPreview() {
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[100dvh] overflow-hidden pt-24">
+      <section className="relative min-h-[100dvh] overflow-hidden pt-[calc(6rem+env(safe-area-inset-top))]">
         {/* Anchor للبحث */}
         <div id="search-anchor" className="absolute top-32" />
 
