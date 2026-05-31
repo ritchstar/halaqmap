@@ -210,7 +210,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <header
           className={cn(
-            'sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75',
+            'sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75',
             isMapCommunityPage && 'border-emerald-500/15',
           )}
         >

@@ -645,7 +645,7 @@ export default function AdminDashboard() {
   const shellTheme = isFounderView ? founderTheme : staffTheme;
 
   const adminHeader = (
-    <header className={shellTheme.header}>
+    <header className={`${shellTheme.header} pt-[env(safe-area-inset-top)]`}>
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex h-[4.25rem] items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">

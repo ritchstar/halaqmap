@@ -546,7 +546,8 @@
     -webkit-tap-highlight-color: color-mix(in srgb, var(--primary) 18%, transparent);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
-    padding-top: env(safe-area-inset-top);
+    /* Keep top inset at header level only to avoid double top spacing on mobile pages. */
+    padding-top: 0;
     padding-bottom: env(safe-area-inset-bottom);
   }
 
