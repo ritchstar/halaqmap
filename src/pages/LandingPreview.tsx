@@ -584,7 +584,7 @@ export default function LandingPreview() {
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
           ══════════════════════════════════════════════════════════════════ */}
-      <header className="fixed inset-x-0 top-0 z-50 transition-all duration-500">
+      <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
 
         {/* ── طبقة الخلفية الزجاجية ──────────────────────── */}
         <div className={`absolute inset-0 transition-all duration-500 ${
@@ -752,6 +752,7 @@ export default function LandingPreview() {
                 ))}
                 {[
                   { label: 'للمنشآت B2B', to: ROUTE_PATHS.BARBERS_LANDING },
+                  { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'آراء المستخدمين', to: ROUTE_PATHS.PLATFORM_REVIEWS },
                   { label: 'معاينة الرصد الذكي', to: ROUTE_PATHS.RADAR_SHOWCASE },
                 ].map((item) => (
@@ -777,7 +778,7 @@ export default function LandingPreview() {
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[100dvh] overflow-hidden pt-24">
+      <section className="relative min-h-[100dvh] overflow-hidden pt-[calc(6rem+env(safe-area-inset-top))]">
         {/* Anchor للبحث */}
         <div id="search-anchor" className="absolute top-32" />
 
@@ -830,7 +831,10 @@ export default function LandingPreview() {
 
             {/* الرادار الجغرافي — أيقونة تحديد الموقع الرئيسية */}
             <div className="mb-8 flex w-full flex-col items-center gap-4">
-              <GeoRadarButton onLocationDetected={handleLocationDetected} />
+              <GeoRadarButton
+                onLocationDetected={handleLocationDetected}
+                onLocationReset={() => setUserLocation(null)}
+              />
               {userLocation && (
                 <motion.button
                   initial={{ opacity: 0, y: 8 }}
@@ -1278,6 +1282,12 @@ export default function LandingPreview() {
                 >
                   للمنشآت · B2B ↗
                 </Link>
+                <Link
+                  to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}
+                  className="rounded-full border border-sky-400/25 bg-sky-500/8 px-3 py-1 text-[0.6rem] font-semibold text-sky-300/80 hover:text-sky-200"
+                >
+                  ضيافة فنادق · طلب بنرات QR ↗
+                </Link>
               </div>
             </div>
 
@@ -1293,6 +1303,7 @@ export default function LandingPreview() {
                   ابحث عن حلاق الآن
                 </button>
                 {[
+                  { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'آراء المستخدمين ⭐', to: ROUTE_PATHS.PLATFORM_REVIEWS },
                   { label: 'نظام الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'من نحن', to: ROUTE_PATHS.ABOUT },

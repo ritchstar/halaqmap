@@ -13,7 +13,6 @@ import {
   formatRiyadhMonthAr,
   readStoredUserCoords,
   resolveUserRegion,
-  storeUserCoords,
   tempColor,
   type UserCoords,
 } from '@/lib/userRegionWeather';
@@ -115,14 +114,14 @@ export function KSACityClocksBar() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        storeUserCoords(coords);
         setUserCoords(coords);
         setCoordsFromDevice(true);
       },
       () => {
         /* الافتراضي: الرياض */
       },
-      { enableHighAccuracy: false, timeout: 9000, maximumAge: 60 * 60_000 },
+      // This bar is informational only; never seed shared storage from coarse/stale fixes.
+      { enableHighAccuracy: false, timeout: 9000, maximumAge: 0 },
     );
 
     return () => window.removeEventListener('halaqmap:user-coords', onCoords);

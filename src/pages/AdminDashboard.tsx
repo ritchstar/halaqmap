@@ -1,6 +1,5 @@
 ﻿import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import QRCode from 'react-qr-code';
 import {
   Shield,
@@ -39,6 +38,7 @@ import {
   Radar,
   Cast,
   ShieldAlert,
+  Lightbulb,
   KeyRound,
   UserCog,
   ChevronDown,
@@ -148,6 +148,7 @@ import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutor
 import { ResourceManagementSection } from '@/components/admin/ResourceManagementSection';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
+import { GeolocationDiagnosticsPanel } from '@/components/admin/GeolocationDiagnosticsPanel';
 import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
 import { SystemCrisisPanicButton } from '@/components/admin/SystemCrisisPanicButton';
 import { HonorBoard } from '@/components/b2b/HonorBoard';
@@ -178,7 +179,6 @@ import {
   StaffMetricTile,
   StaffProfessionalCard,
   StaffWorkspaceShell,
-  staffMotion,
   staffTheme,
 } from '@/components/admin/staff';
 import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArchivePanel';
@@ -215,6 +215,36 @@ const BASE_ADMIN_STATS: AdminStats = {
 };
 
 const ADMIN_REQUESTS_MARKETING_FILTERS_KEY = 'halaqmap.admin.requestsMarketingFilters.v1';
+const FORENSIC_GATE_STATE_KEY = 'halaqmap.commandCenter.forensicGateState.v1';
+const FOUNDER_LIGHTING_STATE_KEY = 'halaqmap.commandCenter.founderLightingState.v1';
+const FORENSIC_RESPONSE_READINESS_RUNBOOK = [
+  'الاحتواء الفوري: تفعيل الوضع الآمن وإيقاف أي Fast-Lane خلال أول 5 دقائق.',
+  'العزل التقني: تحديد الوكيل/المسار المتسبب وحصر الأثر التشغيلي قبل أي إصلاح.',
+  'الاسترجاع المنضبط: Rollback للإعدادات أو الإصدار المستقر مع اختبار دخاني.',
+  'منع التكرار: توثيق السبب الجذري (RCA) وإضافة حواجز تشغيلية قبل إعادة التفعيل.',
+] as const;
+
+const FORENSIC_SEVEN_PHASES = [
+  'المرحلة الأولى: رسم الخريطة الجنائية الشاملة للمسارات والوكلاء المستهدفين.',
+  'المرحلة الثانية: تحليل سلسلة الفشل من الواجهة حتى مزود النموذج الخارجي.',
+  'المرحلة الثالثة: فحص الحواجز الحالية (Timeout/Retry/Rate Limit/Fallback).',
+  'المرحلة الرابعة: تحليل الانهيار المتسلسل ومنع امتداد العطل بين الوكلاء.',
+  'المرحلة الخامسة: تدقيق جاهزية التعافي (Kill Switch, Safe Mode, Rollback).',
+  'المرحلة السادسة: بوابة قرار تشغيلية صارمة بصيغة Go/No-Go قابلة للقياس.',
+  'المرحلة السابعة: الكاشفة العميقة للمنطق والآثار الجانبية في ناتج كل تغيير وإضافة.',
+] as const;
+
+const FORENSIC_CRITICAL_GATES = [
+  { id: 'kill-switch-global', label: 'تفعيل Kill Switch عام للوكلاء المنتدبين' },
+  { id: 'kill-switch-per-agent', label: 'تفعيل Kill Switch مستقل لكل وكيل مستهدف' },
+  { id: 'safe-mode-rollback', label: 'جاهزية Safe Mode + Rollback مثبتة بالاختبار' },
+  { id: 'timeout-abort-all', label: 'تغطية Timeout/Abort لكل واجهات ومسارات الوكلاء المستهدفين' },
+  { id: 'rate-limit-guard', label: 'تفعيل Rate Limit/Guard موحّد للمسارات المنتدبة' },
+  { id: 'forensic-observability', label: 'توفر Telemetry جنائي (TTFT/Timeout/Fallback/Error)' },
+  { id: 'prosecutor-objection-paper', label: 'المدعي العام رفع «ورقة اعتراض» بعد التقييم الصارم (عند الانحراف الحرج)' },
+] as const;
+
+type ForensicGateId = (typeof FORENSIC_CRITICAL_GATES)[number]['id'];
 
 const MOCK_SUBSCRIPTION_REQUESTS: SubscriptionRequest[] = [
   {
@@ -311,6 +341,13 @@ export default function AdminDashboard() {
   const [crisisLabOpen, setCrisisLabOpen] = useState(false);
   const [crisisMode, setCrisisMode] = useState(false);
   const [engineeringWingOpsEnabled, setEngineeringWingOpsEnabled] = useState(false);
+  const [founderLightingEnabled, setFounderLightingEnabled] = useState(false);
+  const [forensicGateState, setForensicGateState] = useState<Record<ForensicGateId, boolean>>(
+    () =>
+      Object.fromEntries(
+        FORENSIC_CRITICAL_GATES.map((gate) => [gate.id, false]),
+      ) as Record<ForensicGateId, boolean>,
+  );
 
   const bumpRemoteData = () => setDataRefreshNonce((n) => n + 1);
 
@@ -414,6 +451,52 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('halaqmap-subscription-requests-changed', onChange);
   }, []);
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(FORENSIC_GATE_STATE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      setForensicGateState((prev) => {
+        const next = { ...prev };
+        for (const gate of FORENSIC_CRITICAL_GATES) {
+          next[gate.id] = parsed[gate.id] === true;
+        }
+        return next;
+      });
+    } catch {
+      /* ignore invalid persisted forensic state */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(FORENSIC_GATE_STATE_KEY, JSON.stringify(forensicGateState));
+    } catch {
+      /* ignore storage failures */
+    }
+  }, [forensicGateState]);
+
+  useEffect(() => {
+    if (!adminData?.bootstrap) {
+      setFounderLightingEnabled(false);
+      return;
+    }
+    try {
+      setFounderLightingEnabled(localStorage.getItem(FOUNDER_LIGHTING_STATE_KEY) === 'on');
+    } catch {
+      setFounderLightingEnabled(false);
+    }
+  }, [adminData?.bootstrap]);
+
+  useEffect(() => {
+    if (!adminData?.bootstrap) return;
+    try {
+      localStorage.setItem(FOUNDER_LIGHTING_STATE_KEY, founderLightingEnabled ? 'on' : 'off');
+    } catch {
+      /* ignore storage failures */
+    }
+  }, [adminData?.bootstrap, founderLightingEnabled]);
+
   const handleLogout = async () => {
     const client = getSupabaseClient();
     await client?.auth.signOut();
@@ -454,6 +537,16 @@ export default function AdminDashboard() {
   }, [remoteStats, pendingRequestCount, pendingPaymentCount]);
 
   const can = (perm: AdminPermissionKey) => Boolean(adminData?.permissions?.[perm]);
+  const forensicGateDoneCount = useMemo(
+    () => FORENSIC_CRITICAL_GATES.filter((gate) => forensicGateState[gate.id]).length,
+    [forensicGateState],
+  );
+  const forensicGateTotal = FORENSIC_CRITICAL_GATES.length;
+  const forensicDecisionGo = forensicGateDoneCount === forensicGateTotal;
+  const forensicDecisionLabel = forensicDecisionGo ? 'GO' : 'NO-GO';
+  const forensicDecisionTone = forensicDecisionGo
+    ? 'text-emerald-300'
+    : 'text-rose-300';
   const canViewSecurityOpsLog = can('view_overview') || can('manage_barbers');
   const canViewPaymentGateways =
     can('view_payment_settings') ||
@@ -552,7 +645,7 @@ export default function AdminDashboard() {
   const shellTheme = isFounderView ? founderTheme : staffTheme;
 
   const adminHeader = (
-    <header className={shellTheme.header}>
+    <header className={`${shellTheme.header} pt-[env(safe-area-inset-top)]`}>
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex h-[4.25rem] items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
@@ -622,6 +715,17 @@ export default function AdminDashboard() {
               )}
             </div>
             {isFounderView ? (
+              <div className="hidden md:flex items-center gap-2 rounded-xl border border-amber-400/35 bg-black/30 px-2.5 py-1.5 text-[11px] text-amber-100/90">
+                <Lightbulb className={`h-3.5 w-3.5 ${founderLightingEnabled ? 'text-amber-300' : 'text-slate-400'}`} />
+                <span className="font-semibold tracking-wide">إضاءة القيادة</span>
+                <Switch
+                  checked={founderLightingEnabled}
+                  onCheckedChange={(checked) => setFounderLightingEnabled(checked === true)}
+                  aria-label="تشغيل وإيقاف إضاءة غرفة التحكم"
+                />
+              </div>
+            ) : null}
+            {isFounderView ? (
               <SystemCrisisPanicButton
                 onActivate={() => {
                   setCrisisMode(true);
@@ -685,8 +789,12 @@ export default function AdminDashboard() {
   );
 
   const dashboardBody = (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className={`${shellTheme.navRail} h-auto`}>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className={`space-y-8 ${isFounderView && founderLightingEnabled ? 'founder-lighting-content-scope' : ''}`}
+        >
+          <TabsList className={`${shellTheme.navRail} h-auto ${isFounderView && founderLightingEnabled ? 'founder-lighting-nav-rail' : ''}`}>
             {can('view_overview') && (
             <TabsTrigger value="overview" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <TrendingUp className="w-4 h-4" />
@@ -879,6 +987,69 @@ export default function AdminDashboard() {
           </TabsContent>}
 
           {can('view_command_center') && <TabsContent value="command-center" className="space-y-6">
+            <Card className="border-rose-500/35 bg-rose-500/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ShieldAlert className="h-5 w-5 text-rose-400" />
+                  اعتماد الحوكمة الجنائية والاستجابة للانهيار
+                </CardTitle>
+                <CardDescription>
+                  القرار الحالي:{' '}
+                  <span className={`font-semibold ${forensicDecisionTone}`}>{forensicDecisionLabel}</span>{' '}
+                  ({forensicGateDoneCount}/{forensicGateTotal}) — يتغير تلقائياً حسب إغلاق البوابات الحرجة.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="rounded-lg border border-border/70 bg-background/70 p-3">
+                  <p className="text-sm font-semibold mb-2">بوابات الاعتماد الحرجة (ديناميكي)</p>
+                  <div className="space-y-2">
+                    {FORENSIC_CRITICAL_GATES.map((gate) => (
+                      <div key={gate.id} className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2">
+                        <span className="text-xs text-muted-foreground">{gate.label}</span>
+                        <Switch
+                          checked={Boolean(forensicGateState[gate.id])}
+                          onCheckedChange={(checked) =>
+                            setForensicGateState((prev) => ({ ...prev, [gate.id]: checked === true }))
+                          }
+                          disabled={!can('manage_command_center')}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-background/70 p-3">
+                  <p className="text-sm font-semibold mb-2">مراحل البحث الجنائي (7 مراحل)</p>
+                  <ul className="space-y-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {FORENSIC_SEVEN_PHASES.map((phase) => (
+                      <li key={phase}>{phase}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-background/70 p-3">
+                  <p className="text-sm font-semibold mb-2">Runbook الاستجابة لأسوأ الاحتمالات</p>
+                  <ul className="space-y-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {FORENSIC_RESPONSE_READINESS_RUNBOOK.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {forensicDecisionGo ? (
+                    <Badge className="bg-emerald-600 hover:bg-emerald-600">GO نشط</Badge>
+                  ) : (
+                    <Badge variant="destructive">NO-GO نشط</Badge>
+                  )}
+                  <Badge variant="outline">Kill Switch إلزامي قبل GO</Badge>
+                  <Badge variant="outline">Safe Mode + Rollback إلزامي</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <GeolocationDiagnosticsPanel canRun={can('manage_command_center')} />
+
             <CommandCenterSection
               stats={stats}
               requests={subscriptionRequests}
@@ -981,6 +1152,7 @@ export default function AdminDashboard() {
   if (isFounderView) {
     return (
       <FounderCommandShell
+        className={founderLightingEnabled ? 'founder-lighting-on' : 'founder-lighting-off'}
         header={adminHeader}
         footer={<HonorBoard context="admin" variant="core-values" />}
       >
@@ -1107,12 +1279,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold">سجل الأمان والعمليات</h2>
@@ -1224,7 +1391,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -1244,7 +1411,7 @@ function OverviewSection({
 }) {
   if (!isFounderView) {
     return (
-      <motion.div {...staffMotion.enter} className="space-y-6">
+      <div className="space-y-6">
         <header className="space-y-2 text-right">
           <p className={staffTheme.pageEyebrow}>Operations</p>
           <h2 className={staffTheme.pageTitle}>مؤشرات التشغيل</h2>
@@ -1330,7 +1497,7 @@ function OverviewSection({
             </div>
           </StaffProfessionalCard>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -1809,11 +1976,7 @@ function RequestsSection({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div>
       {isSupabaseConfigured() ? (
         <p className="text-sm text-muted-foreground mb-4 rounded-lg border border-border bg-muted/40 px-4 py-3 leading-relaxed">
           الطلبات من جدول <code className="text-xs">registration_submissions</code> بعد تسجيل دخول الإدارة وتطبيق
@@ -2137,7 +2300,7 @@ function RequestsSection({
           );
         })}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -3407,16 +3570,13 @@ function BarbersSection({
   };
 
   const sectionTheme = isFounderView ? founderTheme : staffTheme;
-  const sectionMotion = isFounderView
-    ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } }
-    : staffMotion.enter;
   const BarberPanel = isFounderView ? FounderGlassCard : StaffProfessionalCard;
   const statsBarClass = isFounderView
     ? 'mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-gray-900/30 px-3 py-2'
     : 'mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2';
 
   return (
-    <motion.div {...sectionMotion}>
+    <div>
       <header className="mb-6 space-y-1 text-right">
         <p className={sectionTheme.pageEyebrow}>Barber registry</p>
         <h2 className={sectionTheme.pageTitle}>إدارة الحلاقين</h2>
@@ -3734,7 +3894,7 @@ function BarbersSection({
         registrationRequests={registrationRequests}
         onRegistrationPayloadSynced={onRegistrationPayloadSynced}
       />
-    </motion.div>
+    </div>
   );
 }
 
@@ -3757,12 +3917,7 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="space-y-4"
-    >
+    <div className="space-y-4">
       <div>
         <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (حزم رخصة إدراج)</h2>
         <p className="text-sm text-muted-foreground">
@@ -3799,7 +3954,7 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
           </CardContent>
         </Card>
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -3814,11 +3969,7 @@ function PaymentsSection({
   canReview: boolean;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div>
       <h2 className="text-2xl font-bold mb-6">إدارة المدفوعات</h2>
 
       <div className="space-y-4">
@@ -3858,7 +4009,7 @@ function PaymentsSection({
           </Card>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -4079,12 +4230,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
     '';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2">الرسائل والدعم الفني</h2>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
@@ -4212,7 +4358,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
           </Card>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 

@@ -68,6 +68,15 @@ export function storeUserCoords(coords: UserCoords): void {
   }
 }
 
+export function clearStoredUserCoords(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.removeItem(USER_COORDS_SESSION_KEY);
+  } catch {
+    /* ignore quota */
+  }
+}
+
 export function resolveUserRegion(coords: UserCoords | null, fromDevice: boolean): UserRegion {
   if (coords) {
     return { city: findNearestKsaCity(coords.lat, coords.lng), coords, fromDevice };

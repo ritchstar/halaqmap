@@ -222,6 +222,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
       'Radar Sync: نمط Inspector → تقرير وقائي في التغذية التشغيلية.',
       'Compliance Enforcement: تدقيق ComplianceCheckbox + ميثاق الالتزام المهني.',
       'Crisis Watch: مقاطعة إذا أُعطيت UX أولوية على Data Integrity — بروtokol P0.',
+      'بعد أي تقييم صارم يكشف انحرافاً حرجاً: يصدر «ورقة اعتراض» تشغيلية قبل السماح بأي تنفيذ.',
       'سلطة مستقلة — لا يخضع لأمر القائد الأعلى للدفاع السيبراني؛ يتشاور معه ويراجع قراراته الحوكمية.',
     ],
     productRef: {
