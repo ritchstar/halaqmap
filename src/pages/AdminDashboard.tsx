@@ -1,6 +1,5 @@
 ﻿import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import QRCode from 'react-qr-code';
 import {
   Shield,
@@ -180,7 +179,6 @@ import {
   StaffMetricTile,
   StaffProfessionalCard,
   StaffWorkspaceShell,
-  staffMotion,
   staffTheme,
 } from '@/components/admin/staff';
 import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArchivePanel';
@@ -1281,12 +1279,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold">سجل الأمان والعمليات</h2>
@@ -1398,7 +1391,7 @@ function SecurityOpsLogSection({ isActive, bumpNonce }: { isActive: boolean; bum
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -1418,7 +1411,7 @@ function OverviewSection({
 }) {
   if (!isFounderView) {
     return (
-      <motion.div {...staffMotion.enter} className="space-y-6">
+      <div className="space-y-6">
         <header className="space-y-2 text-right">
           <p className={staffTheme.pageEyebrow}>Operations</p>
           <h2 className={staffTheme.pageTitle}>مؤشرات التشغيل</h2>
@@ -1504,7 +1497,7 @@ function OverviewSection({
             </div>
           </StaffProfessionalCard>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -1983,11 +1976,7 @@ function RequestsSection({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div>
       {isSupabaseConfigured() ? (
         <p className="text-sm text-muted-foreground mb-4 rounded-lg border border-border bg-muted/40 px-4 py-3 leading-relaxed">
           الطلبات من جدول <code className="text-xs">registration_submissions</code> بعد تسجيل دخول الإدارة وتطبيق
@@ -2311,7 +2300,7 @@ function RequestsSection({
           );
         })}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -3581,16 +3570,13 @@ function BarbersSection({
   };
 
   const sectionTheme = isFounderView ? founderTheme : staffTheme;
-  const sectionMotion = isFounderView
-    ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } }
-    : staffMotion.enter;
   const BarberPanel = isFounderView ? FounderGlassCard : StaffProfessionalCard;
   const statsBarClass = isFounderView
     ? 'mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-gray-900/30 px-3 py-2'
     : 'mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2';
 
   return (
-    <motion.div {...sectionMotion}>
+    <div>
       <header className="mb-6 space-y-1 text-right">
         <p className={sectionTheme.pageEyebrow}>Barber registry</p>
         <h2 className={sectionTheme.pageTitle}>إدارة الحلاقين</h2>
@@ -3908,7 +3894,7 @@ function BarbersSection({
         registrationRequests={registrationRequests}
         onRegistrationPayloadSynced={onRegistrationPayloadSynced}
       />
-    </motion.div>
+    </div>
   );
 }
 
@@ -3931,12 +3917,7 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="space-y-4"
-    >
+    <div className="space-y-4">
       <div>
         <h2 className="text-2xl font-bold mb-2">سجل دفعات ميسر (حزم رخصة إدراج)</h2>
         <p className="text-sm text-muted-foreground">
@@ -3973,7 +3954,7 @@ function MoyasarSubscriptionsArchiveSection({ rows }: { rows: BarberSubscription
           </CardContent>
         </Card>
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -3988,11 +3969,7 @@ function PaymentsSection({
   canReview: boolean;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div>
       <h2 className="text-2xl font-bold mb-6">إدارة المدفوعات</h2>
 
       <div className="space-y-4">
@@ -4032,7 +4009,7 @@ function PaymentsSection({
           </Card>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -4253,12 +4230,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
     '';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2">الرسائل والدعم الفني</h2>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
@@ -4386,7 +4358,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
           </Card>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 
