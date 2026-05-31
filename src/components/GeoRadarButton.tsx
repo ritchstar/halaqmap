@@ -9,7 +9,12 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scissors } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { clearStoredUserCoords, storeUserCoords } from '@/lib/userRegionWeather';
+import {
+  clearStoredUserCoords,
+  readStoredUserCoords,
+  storeUserCoords,
+} from '@/lib/userRegionWeather';
+import { resolveStrictUserLocation } from '@/lib/strictGeolocation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type GeoPhase = 'idle' | 'searching' | 'found' | 'denied';
@@ -25,58 +30,6 @@ function toDMS(val: number, pos: string, neg: string): string {
   const d = Math.floor(abs), m = Math.floor((abs - d) * 60);
   const s = Math.floor(((abs - d) * 60 - m) * 60);
   return `${pad(d)}° ${pad(m)}' ${pad(s)}" ${val >= 0 ? pos : neg}`;
-}
-
-function requestGeoPosition(highAccuracy: boolean): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: highAccuracy,
-      timeout: highAccuracy ? 12_000 : 20_000,
-      // Always ask for a fresh fix; do not reuse stale cached coordinates.
-      maximumAge: 0,
-    });
-  });
-}
-
-async function requestBestGeoPosition(
-  initial: GeolocationPosition,
-  windowMs = 7000,
-): Promise<GeolocationPosition> {
-  if (!navigator.geolocation) return initial;
-
-  let best = initial;
-  if ((initial.coords.accuracy ?? Infinity) <= 35) return initial;
-
-  return new Promise((resolve) => {
-    const stopAt = Date.now() + windowMs;
-    let watchId: number | null = null;
-
-    const finish = () => {
-      if (watchId != null) navigator.geolocation.clearWatch(watchId);
-      resolve(best);
-    };
-
-    watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        if ((pos.coords.accuracy ?? Infinity) < (best.coords.accuracy ?? Infinity)) {
-          best = pos;
-        }
-        if ((best.coords.accuracy ?? Infinity) <= 35 || Date.now() >= stopAt) {
-          finish();
-        }
-      },
-      () => {
-        finish();
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10_000,
-        maximumAge: 0,
-      },
-    );
-
-    window.setTimeout(finish, windowMs + 250);
-  });
 }
 
 function geoErrorMessage(code: number | undefined): string {
@@ -134,36 +87,35 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
     busy.current = true;
     setPhase('searching');
 
-    const watchdog = window.setTimeout(() => {
-      if (!busy.current) return;
-      busy.current = false;
-      setPhase('denied');
-      toast.error('انتهت مهلة تحديد الموقع — حاول مجدداً');
-    }, 22_000);
-
     try {
-      let pos: GeolocationPosition;
-      try {
-        pos = await requestGeoPosition(true);
-      } catch (firstErr) {
-        const code = (firstErr as GeolocationPositionError).code;
-        if (code === 1) throw firstErr;
-        pos = await requestGeoPosition(false);
+      const previousCoords = coords ?? readStoredUserCoords();
+      const strict = await resolveStrictUserLocation({
+        previousCoords,
+        highAccuracyTimeoutMs: 12_000,
+        sampleWindowMs: 9_000,
+        minDesiredAccuracyM: 60,
+        maxAcceptableAccuracyM: 350,
+      });
+      if (!strict.ok) {
+        setPhase('denied');
+        toast.error(strict.error || geoErrorMessage(undefined));
+        return;
       }
 
-      const bestPos = await requestBestGeoPosition(pos);
-      const loc = { lat: bestPos.coords.latitude, lng: bestPos.coords.longitude };
+      const loc = strict.coords;
       setCoords(loc);
-      setAccuracy(Math.round(bestPos.coords.accuracy));
+      setAccuracy(strict.accuracyM);
       storeUserCoords(loc);
       setPhase('found');
       requestAnimationFrame(() => onLocationDetected(loc));
-      toast.success('تم تحديد موقعك — جارٍ عرض أقرب الصالونات');
+      toast.success(`تم تحديد موقعك بدقة ±${strict.accuracyM}م — جارٍ عرض أقرب الصالونات`);
+      if (strict.warning) {
+        toast.message('تنبيه دقة', { description: strict.warning });
+      }
     } catch (err) {
       setPhase('denied');
       toast.error(geoErrorMessage((err as GeolocationPositionError).code));
     } finally {
-      window.clearTimeout(watchdog);
       busy.current = false;
     }
   }, [onLocationDetected, onLocationReset]);
