@@ -38,6 +38,47 @@ function requestGeoPosition(highAccuracy: boolean): Promise<GeolocationPosition>
   });
 }
 
+async function requestBestGeoPosition(
+  initial: GeolocationPosition,
+  windowMs = 7000,
+): Promise<GeolocationPosition> {
+  if (!navigator.geolocation) return initial;
+
+  let best = initial;
+  if ((initial.coords.accuracy ?? Infinity) <= 35) return initial;
+
+  return new Promise((resolve) => {
+    const stopAt = Date.now() + windowMs;
+    let watchId: number | null = null;
+
+    const finish = () => {
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      resolve(best);
+    };
+
+    watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        if ((pos.coords.accuracy ?? Infinity) < (best.coords.accuracy ?? Infinity)) {
+          best = pos;
+        }
+        if ((best.coords.accuracy ?? Infinity) <= 35 || Date.now() >= stopAt) {
+          finish();
+        }
+      },
+      () => {
+        finish();
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10_000,
+        maximumAge: 0,
+      },
+    );
+
+    window.setTimeout(finish, windowMs + 250);
+  });
+}
+
 function geoErrorMessage(code: number | undefined): string {
   if (code === 1) return 'تم رفض الإذن — فعّل الموقع من إعدادات المتصفح ثم اضغط مجدداً';
   if (code === 2) return 'إشارة الموقع غير متوفرة — تحقق من GPS أو الشبكة';
@@ -110,9 +151,10 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
         pos = await requestGeoPosition(false);
       }
 
-      const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const bestPos = await requestBestGeoPosition(pos);
+      const loc = { lat: bestPos.coords.latitude, lng: bestPos.coords.longitude };
       setCoords(loc);
-      setAccuracy(Math.round(pos.coords.accuracy));
+      setAccuracy(Math.round(bestPos.coords.accuracy));
       storeUserCoords(loc);
       setPhase('found');
       requestAnimationFrame(() => onLocationDetected(loc));
