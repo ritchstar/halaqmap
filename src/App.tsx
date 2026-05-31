@@ -147,7 +147,14 @@ const App = () => (
           <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<PulseMapPage />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} element={<Layout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></Layout>} />
+          <Route
+            path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}
+            element={<Layout><HospitalityB2BRequestLanding /></Layout>}
+          />
+          <Route
+            path={`${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}/`}
+            element={<Layout><HospitalityB2BRequestLanding /></Layout>}
+          />
 
           {/* ?????? ?????? ???????? ??????????? ??? ?????? ?????????? ???????????????????????????????????????????????? */}
           <Route
@@ -204,7 +211,6 @@ const App = () => (
           <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><LazyRoute><ShopOpenStatus /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><LazyRoute><PartnerPrivacy /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><LazyRoute><SubscriptionPolicy /></LazyRoute></PartnerLayout>} />
-          <Route path="/partners/hospitality-request/" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/partners/hospitality-b2b-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/partners/hospitality-qr-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/hospitality-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
