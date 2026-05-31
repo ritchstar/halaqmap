@@ -4231,15 +4231,6 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">الرسائل والدعم الفني</h2>
-        <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          محادثة مباشرة مع الحلاق عبر الخادم (HTTPS). يُتحقق من جلسة Supabase وصلاحية{' '}
-          <span className="font-medium text-foreground">عرض الرسائل</span> قبل أي قراءة أو إرسال؛ بيانات الرسائل
-          لا تُعرَض إلا لمن يملك المفتاح نفسه في لوحة الإدارة.
-        </p>
-      </div>
-
       {!canUseChat ? (
         <Card>
           <CardContent className="p-6 text-sm text-muted-foreground">لا تملك صلاحية عرض الرسائل.</CardContent>
