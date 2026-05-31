@@ -4,6 +4,7 @@ import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase
 import { getAdminDashboardPath, getAdminLoginPath } from '@/config/adminAuth';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { fetchAdminSentinelPreflight } from '@/lib/adminSentinelRemote';
+import { ROUTE_PATHS } from '@/lib';
 
 function authReturnNeedsHandling(): boolean {
   if (typeof window === 'undefined') return false;
@@ -20,11 +21,6 @@ function authReturnNeedsHandling(): boolean {
     !hashRaw.startsWith('/');
 
   return hashLooksLikeAuthCallback || search.has('code');
-}
-
-function replaceHashOnly(route: string) {
-  const path = window.location.pathname || '/';
-  window.history.replaceState(null, '', `${path}#${route}`);
 }
 
 /**
@@ -57,8 +53,7 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
     const client = getSupabaseClient();
     if (!client) {
       handledRef.current = true;
-      replaceHashOnly(getAdminLoginPath());
-      navigate(getAdminLoginPath(), { replace: true });
+      navigate(ROUTE_PATHS.HOME, { replace: true });
       setGate('done');
       return;
     }
@@ -72,9 +67,7 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
           if (exchangeErr) {
             const { data: retrySession } = await client.auth.getSession();
             if (!retrySession.session) {
-              await client.auth.signOut();
-              replaceHashOnly(getAdminLoginPath());
-              navigate(getAdminLoginPath(), { replace: true });
+              navigate(ROUTE_PATHS.HOME, { replace: true });
               setGate('done');
               return;
             }
@@ -87,13 +80,14 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
         } = await client.auth.getSession();
 
         const access = session?.user?.email ? await resolveAdminAccess(session.user.email) : { allowed: false };
-        if (error || !session?.user?.email || !access.allowed) {
-          await client.auth.signOut();
-          replaceHashOnly(getAdminLoginPath());
+        if (error || !session?.user?.email) {
           navigate(getAdminLoginPath(), { replace: true });
-        } else {
-          replaceHashOnly(getAdminDashboardPath());
+        } else if (access.allowed) {
           navigate(getAdminDashboardPath(), { replace: true });
+        } else {
+          // Non-admin auth callbacks (e.g. partner/community flows) must never be
+          // force-signed-out or redirected to hidden admin routes.
+          navigate(ROUTE_PATHS.MAP_COMMUNITY, { replace: true });
         }
       } finally {
         setGate('done');
