@@ -187,8 +187,23 @@ function rowToLead(
   };
 }
 
-async function loadXlsx() {
-  return import('xlsx');
+type XlsxModule = {
+  read: (
+    data: ArrayBuffer,
+    opts: { type: 'array'; cellDates: boolean },
+  ) => { SheetNames: string[]; Sheets: Record<string, unknown> };
+  utils: {
+    sheet_to_json<T = unknown[]>(sheet: unknown, opts: { header: 1; defval: string }): T[];
+  };
+};
+
+/**
+ * Load SheetJS from an ESM CDN at runtime.
+ * This avoids hard build-time coupling to a local `node_modules/xlsx` install
+ * that can be missing in some CI/hosted environments.
+ */
+async function loadXlsx(): Promise<XlsxModule> {
+  return import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm') as Promise<XlsxModule>;
 }
 
 export async function parsePartnerProspectSpreadsheetFile(file: File): Promise<ExcelParseResult> {
