@@ -65,7 +65,7 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
 
   const handleVerifyLocation = () => {
     if (detectedLocation) {
-      const mapsUrl = `https://www.google.com/maps?q=${detectedLocation.lat},${detectedLocation.lng}`;
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${detectedLocation.lat},${detectedLocation.lng}`;
       window.open(mapsUrl, '_blank');
     }
   };

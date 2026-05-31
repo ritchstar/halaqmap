@@ -29,7 +29,8 @@ function requestGeoPosition(highAccuracy: boolean): Promise<GeolocationPosition>
     navigator.geolocation.getCurrentPosition(resolve, reject, {
       enableHighAccuracy: highAccuracy,
       timeout: highAccuracy ? 12_000 : 20_000,
-      maximumAge: highAccuracy ? 0 : 120_000,
+      // Always ask for a fresh fix; do not reuse stale cached coordinates.
+      maximumAge: 0,
     });
   });
 }
@@ -288,7 +289,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
 
             {/* Map verification button */}
             <motion.a
-              href={`https://www.google.com/maps?q=${coords.lat},${coords.lng}&z=16`}
+              href={`https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`}
               target="_blank" rel="noopener noreferrer"
               initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, type: 'spring', stiffness: 300 }}
