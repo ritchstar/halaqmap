@@ -9,11 +9,19 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scissors } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { storeUserCoords } from '@/lib/userRegionWeather';
+import {
+  clearStoredUserCoords,
+  readStoredUserCoords,
+  storeUserCoords,
+} from '@/lib/userRegionWeather';
+import { resolveStrictUserLocation } from '@/lib/strictGeolocation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type GeoPhase = 'idle' | 'searching' | 'found' | 'denied';
-interface Props { onLocationDetected: (loc: { lat: number; lng: number }) => void; }
+interface Props {
+  onLocationDetected: (loc: { lat: number; lng: number }) => void;
+  onLocationReset?: () => void;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function pad(n: number) { return Math.floor(n).toString().padStart(2, '0'); }
@@ -22,16 +30,6 @@ function toDMS(val: number, pos: string, neg: string): string {
   const d = Math.floor(abs), m = Math.floor((abs - d) * 60);
   const s = Math.floor(((abs - d) * 60 - m) * 60);
   return `${pad(d)}° ${pad(m)}' ${pad(s)}" ${val >= 0 ? pos : neg}`;
-}
-
-function requestGeoPosition(highAccuracy: boolean): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: highAccuracy,
-      timeout: highAccuracy ? 12_000 : 20_000,
-      maximumAge: highAccuracy ? 0 : 120_000,
-    });
-  });
 }
 
 function geoErrorMessage(code: number | undefined): string {
@@ -65,7 +63,7 @@ function SearchingRing() {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function GeoRadarButton({ onLocationDetected }: Props) {
+export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
   const [phase, setPhase] = useState<GeoPhase>('idle');
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [accuracy, setAccuracy] = useState<number | null>(null);
@@ -80,47 +78,47 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
       return;
     }
 
-    if (phase === 'found') {
-      setPhase('idle');
-      setCoords(null);
-      setAccuracy(null);
-    }
+    // Never keep stale coordinates when user asks for a new fix.
+    onLocationReset?.();
+    setCoords(null);
+    setAccuracy(null);
+    clearStoredUserCoords();
 
     busy.current = true;
     setPhase('searching');
 
-    const watchdog = window.setTimeout(() => {
-      if (!busy.current) return;
-      busy.current = false;
-      setPhase('denied');
-      toast.error('انتهت مهلة تحديد الموقع — حاول مجدداً');
-    }, 22_000);
-
     try {
-      let pos: GeolocationPosition;
-      try {
-        pos = await requestGeoPosition(true);
-      } catch (firstErr) {
-        const code = (firstErr as GeolocationPositionError).code;
-        if (code === 1) throw firstErr;
-        pos = await requestGeoPosition(false);
+      const previousCoords = coords ?? readStoredUserCoords();
+      const strict = await resolveStrictUserLocation({
+        previousCoords,
+        highAccuracyTimeoutMs: 12_000,
+        sampleWindowMs: 9_000,
+        minDesiredAccuracyM: 60,
+        maxAcceptableAccuracyM: 350,
+      });
+      if (!strict.ok) {
+        setPhase('denied');
+        toast.error(strict.error || geoErrorMessage(undefined));
+        return;
       }
 
-      const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const loc = strict.coords;
       setCoords(loc);
-      setAccuracy(Math.round(pos.coords.accuracy));
+      setAccuracy(strict.accuracyM);
       storeUserCoords(loc);
       setPhase('found');
       requestAnimationFrame(() => onLocationDetected(loc));
-      toast.success('تم تحديد موقعك — جارٍ عرض أقرب الصالونات');
+      toast.success(`تم تحديد موقعك بدقة ±${strict.accuracyM}م — جارٍ عرض أقرب الصالونات`);
+      if (strict.warning) {
+        toast.message('تنبيه دقة', { description: strict.warning });
+      }
     } catch (err) {
       setPhase('denied');
       toast.error(geoErrorMessage((err as GeolocationPositionError).code));
     } finally {
-      window.clearTimeout(watchdog);
       busy.current = false;
     }
-  }, [phase, onLocationDetected]);
+  }, [onLocationDetected, onLocationReset]);
 
   const isSearching = phase === 'searching';
   const isFound = phase === 'found';
@@ -288,7 +286,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
 
             {/* Map verification button */}
             <motion.a
-              href={`https://www.google.com/maps?q=${coords.lat},${coords.lng}&z=16`}
+              href={`https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`}
               target="_blank" rel="noopener noreferrer"
               initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, type: 'spring', stiffness: 300 }}

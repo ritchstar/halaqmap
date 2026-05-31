@@ -4,23 +4,23 @@ import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase
 import { getAdminDashboardPath, getAdminLoginPath } from '@/config/adminAuth';
 import { resolveAdminAccess } from '@/lib/adminAccessRemote';
 import { fetchAdminSentinelPreflight } from '@/lib/adminSentinelRemote';
+import { ROUTE_PATHS } from '@/lib';
 
 function authReturnNeedsHandling(): boolean {
   if (typeof window === 'undefined') return false;
   if (!isSupabaseConfigured()) return false;
-  const h = window.location.hash;
-  const s = window.location.search;
-  return (
-    h.includes('access_token') ||
-    h.includes('error=') ||
-    h.includes('error_description') ||
-    s.includes('code=')
-  );
-}
+  const hashRaw = window.location.hash.startsWith('#')
+    ? window.location.hash.slice(1)
+    : window.location.hash;
+  const search = new URLSearchParams(window.location.search);
 
-function replaceHashOnly(route: string) {
-  const path = window.location.pathname || '/';
-  window.history.replaceState(null, '', `${path}#${route}`);
+  // Supabase implicit/OAuth callback in hash comes as key-value pairs,
+  // not as router-style paths (e.g. "/partners/...").
+  const hashLooksLikeAuthCallback =
+    /(^|&)(access_token|error|error_description)=/i.test(hashRaw) &&
+    !hashRaw.startsWith('/');
+
+  return hashLooksLikeAuthCallback || search.has('code');
 }
 
 /**
@@ -37,11 +37,13 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
     if (gate !== 'checking' || handledRef.current) return;
 
+    const hashRaw = window.location.hash.startsWith('#')
+      ? window.location.hash.slice(1)
+      : window.location.hash;
     const hasImplicit =
-      window.location.hash.includes('access_token') ||
-      window.location.hash.includes('error=') ||
-      window.location.hash.includes('error_description');
-    const hasPkce = window.location.search.includes('code=');
+      /(^|&)(access_token|error|error_description)=/i.test(hashRaw) &&
+      !hashRaw.startsWith('/');
+    const hasPkce = new URLSearchParams(window.location.search).has('code');
 
     if (!hasImplicit && !hasPkce) {
       setGate('done');
@@ -51,8 +53,7 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
     const client = getSupabaseClient();
     if (!client) {
       handledRef.current = true;
-      replaceHashOnly(getAdminLoginPath());
-      navigate(getAdminLoginPath(), { replace: true });
+      navigate(ROUTE_PATHS.HOME, { replace: true });
       setGate('done');
       return;
     }
@@ -66,9 +67,7 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
           if (exchangeErr) {
             const { data: retrySession } = await client.auth.getSession();
             if (!retrySession.session) {
-              await client.auth.signOut();
-              replaceHashOnly(getAdminLoginPath());
-              navigate(getAdminLoginPath(), { replace: true });
+              navigate(ROUTE_PATHS.HOME, { replace: true });
               setGate('done');
               return;
             }
@@ -81,13 +80,14 @@ export function AdminAuthHashGate({ children }: { children: ReactNode }) {
         } = await client.auth.getSession();
 
         const access = session?.user?.email ? await resolveAdminAccess(session.user.email) : { allowed: false };
-        if (error || !session?.user?.email || !access.allowed) {
-          await client.auth.signOut();
-          replaceHashOnly(getAdminLoginPath());
+        if (error || !session?.user?.email) {
           navigate(getAdminLoginPath(), { replace: true });
-        } else {
-          replaceHashOnly(getAdminDashboardPath());
+        } else if (access.allowed) {
           navigate(getAdminDashboardPath(), { replace: true });
+        } else {
+          // Non-admin auth callbacks (e.g. partner/community flows) must never be
+          // force-signed-out or redirected to hidden admin routes.
+          navigate(ROUTE_PATHS.MAP_COMMUNITY, { replace: true });
         }
       } finally {
         setGate('done');

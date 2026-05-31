@@ -94,7 +94,9 @@ export default function RegisterSuccess() {
         paymentMethod: data.paymentMethod,
       });
       if (!r.ok) {
-        const hint = r.detail ? `${r.error}: ${r.detail}` : r.error;
+        const errorText = 'error' in r ? r.error : 'unknown';
+        const detailText = 'detail' in r ? r.detail : undefined;
+        const hint = detailText ? `${errorText}: ${detailText}` : errorText;
         toast.error('تعذر إرسال البريد', { description: hint });
         return;
       }

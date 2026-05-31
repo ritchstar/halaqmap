@@ -8,6 +8,12 @@ import {
   PLATFORM_SEARCH_LOCATION_LOADING,
   PLATFORM_SEARCH_LOCATION_SUCCESS,
 } from "@/config/platformSmartTracking";
+import {
+  clearStoredUserCoords,
+  readStoredUserCoords,
+  storeUserCoords,
+} from '@/lib/userRegionWeather';
+import { resolveStrictUserLocation } from '@/lib/strictGeolocation';
 
 interface LocationButtonProps {
   onLocationDetected: (location: { lat: number; lng: number }) => void;
@@ -26,46 +32,38 @@ export function LocationButton({ onLocationDetected }: LocationButtonProps) {
       setIsLoading(false);
       return;
     }
+    const previousCoords = detectedLocation ?? readStoredUserCoords();
+    setDetectedLocation(null);
+    clearStoredUserCoords();
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const location = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        setDetectedLocation(location);
-        onLocationDetected(location);
+    try {
+      const strict = await resolveStrictUserLocation({
+        previousCoords,
+        highAccuracyTimeoutMs: 12_000,
+        sampleWindowMs: 9_000,
+        minDesiredAccuracyM: 60,
+        maxAcceptableAccuracyM: 350,
+      });
+      if (!strict.ok) {
+        setError(strict.error);
         setIsLoading(false);
-      },
-      (error) => {
-        let errorMessage = "حدث خطأ في تحديد الموقع";
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage = "تم رفض إذن الوصول للموقع. يرجى السماح بالوصول للموقع من إعدادات المتصفح";
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = "معلومات الموقع غير متوفرة حالياً";
-            break;
-          case error.TIMEOUT:
-            errorMessage = "انتهت مهلة طلب الموقع. يرجى المحاولة مرة أخرى";
-            break;
-        }
-        
-        setError(errorMessage);
-        setIsLoading(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+        return;
       }
-    );
+      const location = strict.coords;
+      setDetectedLocation(location);
+      storeUserCoords(location);
+      onLocationDetected(location);
+      if (strict.warning) {
+        setError(strict.warning);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleVerifyLocation = () => {
     if (detectedLocation) {
-      const mapsUrl = `https://www.google.com/maps?q=${detectedLocation.lat},${detectedLocation.lng}`;
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${detectedLocation.lat},${detectedLocation.lng}`;
       window.open(mapsUrl, '_blank');
     }
   };

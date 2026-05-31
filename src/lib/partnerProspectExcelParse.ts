@@ -187,8 +187,23 @@ function rowToLead(
   };
 }
 
-async function loadXlsx() {
-  return import('xlsx');
+type XlsxModule = {
+  read: (
+    data: ArrayBuffer,
+    opts: { type: 'array'; cellDates: boolean },
+  ) => { SheetNames: string[]; Sheets: Record<string, unknown> };
+  utils: {
+    sheet_to_json<T = unknown[]>(sheet: unknown, opts: { header: 1; defval: string }): T[];
+  };
+};
+
+/**
+ * Load SheetJS at runtime without a static import specifier.
+ * This avoids Vite/Rollup hard-failing during build-time module resolution.
+ */
+async function loadXlsx(): Promise<XlsxModule> {
+  const dynamicImport = new Function('s', 'return import(s)') as (specifier: string) => Promise<unknown>;
+  return dynamicImport('xlsx') as Promise<XlsxModule>;
 }
 
 export async function parsePartnerProspectSpreadsheetFile(file: File): Promise<ExcelParseResult> {
