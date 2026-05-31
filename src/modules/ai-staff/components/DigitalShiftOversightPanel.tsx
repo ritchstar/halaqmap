@@ -20,13 +20,13 @@ export function DigitalShiftOversightPanel({ doctrineNotes = [] }: Props) {
           title="رموز مناوبة نشطة الآن"
           value={snap.activeNow.toLocaleString('ar-SA')}
           icon={Activity}
-          accent="indigo"
+          accent="violet"
         />
         <StaffMetricTile
           title="إجمالي المنشور (المملكة)"
           value={snap.deployedTokensKingdomWide.toLocaleString('ar-SA')}
           icon={Globe}
-          accent="indigo"
+          accent="violet"
         />
       </div>
 

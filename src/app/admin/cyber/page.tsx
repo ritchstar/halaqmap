@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight, Radio, Swords, ShieldOff, BarChart3, Volume2, VolumeX } from 'lucide-react';
 import { getAdminDashboardPathFor, getAdminLoginPathFor } from '@/config/adminAuth';
