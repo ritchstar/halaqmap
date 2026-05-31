@@ -72,6 +72,8 @@ export const ROUTE_PATHS = {
   SAUDI_AGENT: '/saudi',
   /** معاينة نظام الرصد الذكي — Showcase Radar */
   RADAR_SHOWCASE: '/radar',
+  /** صفحة هبوط تجريبية — Roo Landing Lab Experiment */
+  ROO_LANDING_LAB: '/lab/roo-landing',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */
