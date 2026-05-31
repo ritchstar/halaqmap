@@ -23,7 +23,7 @@ export const ISIC_MOC_SUB_SECTOR_AR =
 /** تعريف GaStat الرسمي لنشاط 474151 — يُستورد في الوثائق القانونية */
 export const ISIC_ACTIVITY_GASTAT_DEFINITION_AR =
   `${ISIC_ACTIVITY_CODE} هو رمز التصنيف الصناعي الدولي الموحد لجميع الأنشطة الاقتصادية (ISIC4) لنشاط **البيع بالتجزئة للبرمجيات**. ` +
-  'يتخصّص هذا النشاط في **تجارة وعرض وبيع البرمجيات الحاسوبية الجاهزة** (`Software`)، وممارسته بشكل رسمي يستلزم الحصول على التراخيص ذات الصلة.' as const;
+  'يتخصّص هذا النشاط في **تجارة وعرض وبيع البرمجيات الحاسوبية الجاهزة** (`Software`)، وممارسته بشكل رسمي يستلزم الحصول على التراخيص ذات الصلة.';
 
 export const GEOSPATIAL_LICENSE_ASSET_CLASS = 'Geospatial_License_Asset' as const;
 

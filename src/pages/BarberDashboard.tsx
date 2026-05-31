@@ -120,7 +120,6 @@ import {
   type BarberSupportMessageRow,
 } from '@/lib/barberSupportChatRemote';
 import { POLL_MS } from '@/lib/pollingPolicy';
-import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { portfolioMaxImagesForSubscriptionTier } from '@/lib/barberPortfolioPolicy';
 import {
   optimizeImageFileForBarberPortfolio,

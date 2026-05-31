@@ -7,6 +7,7 @@ import {
   invoiceLineDescriptionAr,
   invoiceLineDescriptionEn,
 } from '@/config/softwareLicenseTerminology';
+import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 
 export type InvoicePreviewLine = {
   descriptionAr: string;
