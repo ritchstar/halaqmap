@@ -7,16 +7,12 @@ import {
   SUPER_INTELLIGENCE_DOCTRINE,
   SUPER_INTELLIGENCE_PROTOCOL_LABELS_AR,
 } from '@/config/superIntelligenceFeed';
-import { fetchSuperIntelligenceFeed } from '@/lib/superIntelligenceFeedRemote';
+import { fetchSuperIntelligenceFeed, type SuperIntelligenceFeedSnapshot } from '@/lib/superIntelligenceFeedRemote';
 import { toast } from '@/components/ui/sonner';
 
 export function SuperIntelligenceFeedPanel() {
   const [loading, setLoading] = useState(true);
-  const [snapshot, setSnapshot] = useState<
-    Awaited<ReturnType<typeof fetchSuperIntelligenceFeed>> extends { ok: true; snapshot: infer S }
-      ? S
-      : null
-  >(null);
+  const [snapshot, setSnapshot] = useState<SuperIntelligenceFeedSnapshot | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);

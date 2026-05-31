@@ -1,4 +1,3 @@
-import type { AdminPermissionKey } from '@/lib/adminPermissions';
 import type { OpsController, OpsReportCategory, OpsReportSeverity } from '@/modules/ops-controller/types';
 import { OPS_MANAGER_ROLE } from '@/modules/ops-controller/types';
 
@@ -11,7 +10,7 @@ export const OPS_CONTROLLER_DEF: OpsController = {
   role: OPS_MANAGER_ROLE,
   titleAr: OPS_CONTROLLER_WORKSPACE_TITLE_AR,
   subtitleAr: OPS_CONTROLLER_WORKSPACE_SUBTITLE_AR,
-  requiredAny: ['view_ops_controller', 'submit_ops_controller'] as AdminPermissionKey[],
+  requiredAny: ['view_ops_controller', 'submit_ops_controller'] as const,
 };
 
 export const OPS_REPORT_CATEGORY_OPTIONS: {

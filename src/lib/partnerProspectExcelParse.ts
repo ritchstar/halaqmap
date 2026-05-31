@@ -198,12 +198,12 @@ type XlsxModule = {
 };
 
 /**
- * Load SheetJS from an ESM CDN at runtime.
- * This avoids hard build-time coupling to a local `node_modules/xlsx` install
- * that can be missing in some CI/hosted environments.
+ * Load SheetJS at runtime without a static import specifier.
+ * This avoids Vite/Rollup hard-failing during build-time module resolution.
  */
 async function loadXlsx(): Promise<XlsxModule> {
-  return import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm') as Promise<XlsxModule>;
+  const dynamicImport = new Function('s', 'return import(s)') as (specifier: string) => Promise<unknown>;
+  return dynamicImport('xlsx') as Promise<XlsxModule>;
 }
 
 export async function parsePartnerProspectSpreadsheetFile(file: File): Promise<ExcelParseResult> {

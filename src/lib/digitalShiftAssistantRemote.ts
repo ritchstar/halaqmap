@@ -83,7 +83,11 @@ export async function refreshDigitalShiftRecommendationsRemote(params: {
     ...params,
   });
   if ('error' in r && !('recommendations' in r)) return { ok: false, error: r.error || 'Failed' };
-  return { ok: true, recommendations: r.recommendations ?? [] };
+  const recommendations =
+    'recommendations' in r && Array.isArray(r.recommendations)
+      ? (r.recommendations as DigitalShiftRecommendation[])
+      : [];
+  return { ok: true, recommendations };
 }
 
 export async function updateDigitalShiftSettingsRemote(params: {
@@ -94,7 +98,7 @@ export async function updateDigitalShiftSettingsRemote(params: {
   replyDelayMinutes?: number;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const r = await post<{ ok: true }>({ action: 'update_settings', ...params });
-  if ('error' in r && r.ok !== true) return { ok: false, error: (r as { error: string }).error };
+  if ('error' in r) return { ok: false, error: (r as { error: string }).error };
   return { ok: true };
 }
 
@@ -104,7 +108,7 @@ export async function dismissDigitalShiftRecommendationRemote(params: {
   recommendationId: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const r = await post<{ ok: true }>({ action: 'dismiss_recommendation', ...params });
-  if ('error' in r && r.ok !== true) return { ok: false, error: (r as { error: string }).error };
+  if ('error' in r) return { ok: false, error: (r as { error: string }).error };
   return { ok: true };
 }
 
