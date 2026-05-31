@@ -39,6 +39,7 @@ import {
   Radar,
   Cast,
   ShieldAlert,
+  Lightbulb,
   KeyRound,
   UserCog,
   ChevronDown,
@@ -148,6 +149,7 @@ import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutor
 import { ResourceManagementSection } from '@/components/admin/ResourceManagementSection';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
+import { GeolocationDiagnosticsPanel } from '@/components/admin/GeolocationDiagnosticsPanel';
 import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
 import { SystemCrisisPanicButton } from '@/components/admin/SystemCrisisPanicButton';
 import { HonorBoard } from '@/components/b2b/HonorBoard';
@@ -216,6 +218,7 @@ const BASE_ADMIN_STATS: AdminStats = {
 
 const ADMIN_REQUESTS_MARKETING_FILTERS_KEY = 'halaqmap.admin.requestsMarketingFilters.v1';
 const FORENSIC_GATE_STATE_KEY = 'halaqmap.commandCenter.forensicGateState.v1';
+const FOUNDER_LIGHTING_STATE_KEY = 'halaqmap.commandCenter.founderLightingState.v1';
 const FORENSIC_RESPONSE_READINESS_RUNBOOK = [
   'الاحتواء الفوري: تفعيل الوضع الآمن وإيقاف أي Fast-Lane خلال أول 5 دقائق.',
   'العزل التقني: تحديد الوكيل/المسار المتسبب وحصر الأثر التشغيلي قبل أي إصلاح.',
@@ -340,6 +343,7 @@ export default function AdminDashboard() {
   const [crisisLabOpen, setCrisisLabOpen] = useState(false);
   const [crisisMode, setCrisisMode] = useState(false);
   const [engineeringWingOpsEnabled, setEngineeringWingOpsEnabled] = useState(false);
+  const [founderLightingEnabled, setFounderLightingEnabled] = useState(false);
   const [forensicGateState, setForensicGateState] = useState<Record<ForensicGateId, boolean>>(
     () =>
       Object.fromEntries(
@@ -473,6 +477,27 @@ export default function AdminDashboard() {
       /* ignore storage failures */
     }
   }, [forensicGateState]);
+
+  useEffect(() => {
+    if (!adminData?.bootstrap) {
+      setFounderLightingEnabled(false);
+      return;
+    }
+    try {
+      setFounderLightingEnabled(localStorage.getItem(FOUNDER_LIGHTING_STATE_KEY) === 'on');
+    } catch {
+      setFounderLightingEnabled(false);
+    }
+  }, [adminData?.bootstrap]);
+
+  useEffect(() => {
+    if (!adminData?.bootstrap) return;
+    try {
+      localStorage.setItem(FOUNDER_LIGHTING_STATE_KEY, founderLightingEnabled ? 'on' : 'off');
+    } catch {
+      /* ignore storage failures */
+    }
+  }, [adminData?.bootstrap, founderLightingEnabled]);
 
   const handleLogout = async () => {
     const client = getSupabaseClient();
@@ -692,6 +717,17 @@ export default function AdminDashboard() {
               )}
             </div>
             {isFounderView ? (
+              <div className="hidden md:flex items-center gap-2 rounded-xl border border-amber-400/35 bg-black/30 px-2.5 py-1.5 text-[11px] text-amber-100/90">
+                <Lightbulb className={`h-3.5 w-3.5 ${founderLightingEnabled ? 'text-amber-300' : 'text-slate-400'}`} />
+                <span className="font-semibold tracking-wide">إضاءة القيادة</span>
+                <Switch
+                  checked={founderLightingEnabled}
+                  onCheckedChange={(checked) => setFounderLightingEnabled(checked === true)}
+                  aria-label="تشغيل وإيقاف إضاءة غرفة التحكم"
+                />
+              </div>
+            ) : null}
+            {isFounderView ? (
               <SystemCrisisPanicButton
                 onActivate={() => {
                   setCrisisMode(true);
@@ -755,8 +791,12 @@ export default function AdminDashboard() {
   );
 
   const dashboardBody = (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className={`${shellTheme.navRail} h-auto`}>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className={`space-y-8 ${isFounderView && founderLightingEnabled ? 'founder-lighting-content-scope' : ''}`}
+        >
+          <TabsList className={`${shellTheme.navRail} h-auto ${isFounderView && founderLightingEnabled ? 'founder-lighting-nav-rail' : ''}`}>
             {can('view_overview') && (
             <TabsTrigger value="overview" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <TrendingUp className="w-4 h-4" />
@@ -1010,6 +1050,8 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
+            <GeolocationDiagnosticsPanel canRun={can('manage_command_center')} />
+
             <CommandCenterSection
               stats={stats}
               requests={subscriptionRequests}
@@ -1112,6 +1154,7 @@ export default function AdminDashboard() {
   if (isFounderView) {
     return (
       <FounderCommandShell
+        className={founderLightingEnabled ? 'founder-lighting-on' : 'founder-lighting-off'}
         header={adminHeader}
         footer={<HonorBoard context="admin" variant="core-values" />}
       >
