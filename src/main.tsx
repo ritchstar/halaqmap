@@ -10,6 +10,34 @@ import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 
 const CHUNK_RELOAD_ONCE_PREFIX = 'hm-chunk-reload-once:'
+const DOM_GUARD_PATCH_FLAG = '__halaqmapDomGuardPatched'
+
+/**
+ * Emergency DOM guard:
+ * Some production sessions hit a transient DOM mismatch race
+ * (`removeChild` called with a non-child node), which crashes React tree render.
+ * We short-circuit that specific mismatch so the app stays alive while
+ * we continue root-cause hardening in feature code.
+ */
+function installDomMismatchGuard(): void {
+  if (typeof window === 'undefined' || typeof Node === 'undefined') return
+  const marker = window as Window & { [DOM_GUARD_PATCH_FLAG]?: boolean }
+  if (marker[DOM_GUARD_PATCH_FLAG] === true) return
+  marker[DOM_GUARD_PATCH_FLAG] = true
+
+  const originalRemoveChild = Node.prototype.removeChild
+  Node.prototype.removeChild = function patchedRemoveChild<T extends Node>(child: T): T {
+    if (child && child.parentNode !== this) {
+      if (import.meta.env.DEV) {
+        console.warn('[halaqmap] DOM guard bypassed removeChild mismatch')
+      }
+      return child
+    }
+    return originalRemoveChild.call(this, child) as T
+  }
+}
+
+installDomMismatchGuard()
 
 function currentRouteReloadKey(): string {
   return `${CHUNK_RELOAD_ONCE_PREFIX}${window.location.pathname}${window.location.search}${window.location.hash}`
