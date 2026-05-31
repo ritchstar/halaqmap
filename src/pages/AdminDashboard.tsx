@@ -148,6 +148,7 @@ import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutor
 import { ResourceManagementSection } from '@/components/admin/ResourceManagementSection';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
+import { GeolocationDiagnosticsPanel } from '@/components/admin/GeolocationDiagnosticsPanel';
 import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
 import { SystemCrisisPanicButton } from '@/components/admin/SystemCrisisPanicButton';
 import { HonorBoard } from '@/components/b2b/HonorBoard';
@@ -1009,6 +1010,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            <GeolocationDiagnosticsPanel canRun={can('manage_command_center')} />
 
             <CommandCenterSection
               stats={stats}
