@@ -184,6 +184,7 @@ import {
 import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArchivePanel';
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
+import { useIsMobile } from '@/hooks/use-mobile';
 const EMPTY_ADMIN_STATS: AdminStats = {
   totalBarbers: 0,
   bronzeBarbers: 0,
@@ -4150,6 +4151,7 @@ function PaymentReviewDialog({
 
 // Messages Section — دردشة دعم المنصة (TLS + تحقق خادمي؛ المحتوى في قاعدة البيانات بصلاحيات مقيدة)
 function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
+  const isMobile = useIsMobile();
   const [threads, setThreads] = useState<AdminSupportThread[]>([]);
   const [barbers, setBarbers] = useState<AdminBarberRow[]>([]);
   const [selectedBarberId, setSelectedBarberId] = useState('');
@@ -4237,6 +4239,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,280px)_1fr]">
+          {!isMobile ? (
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">المحادثات</CardTitle>
@@ -4284,6 +4287,7 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
               ) : null}
             </CardContent>
           </Card>
+          ) : null}
 
           <Card>
             <CardHeader className="pb-3">
@@ -4293,8 +4297,51 @@ function MessagesSection({ canUseChat }: { canUseChat: boolean }) {
               <CardDescription>الرسائل تُحدَّث تلقائياً كل بضع ثوانٍ أثناء بقائك هنا</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {isMobile ? (
+                <div className="space-y-3 rounded-md border border-border/60 bg-muted/20 p-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    disabled={loadingThreads}
+                    onClick={() => void loadThreads()}
+                  >
+                    {loadingThreads ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+                    تحديث القائمة
+                  </Button>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">اختيار المحادثة</Label>
+                    <Select
+                      value={selectedBarberId || undefined}
+                      onValueChange={(v) => setSelectedBarberId(v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر الحلاق…" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        {threads.map((t) => (
+                          <SelectItem key={t.barberId} value={t.barberId}>
+                            {t.barberName} — آخر رسالة: {t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleString('ar-SA') : '—'}
+                          </SelectItem>
+                        ))}
+                        {barbers
+                          .filter((b) => !threads.some((t) => t.barberId === b.id))
+                          .map((b) => (
+                            <SelectItem key={b.id} value={b.id}>
+                              {b.name} (بدء جديد)
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : null}
+
               {!selectedBarberId ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">اختر حساباً من العمود الأيمن.</p>
+                <p className="text-sm text-muted-foreground py-6 text-center">
+                  {isMobile ? 'اختر حساباً من القائمة أعلاه.' : 'اختر حساباً من العمود الأيمن.'}
+                </p>
               ) : loadingMessages && messages.length === 0 ? (
                 <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
