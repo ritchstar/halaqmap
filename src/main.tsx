@@ -10,6 +10,34 @@ import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 
 const CHUNK_RELOAD_ONCE_PREFIX = 'hm-chunk-reload-once:'
+const DOM_GUARD_PATCH_FLAG = '__halaqmapDomGuardPatched'
+
+/**
+ * Emergency DOM guard for production stability:
+ * Some sessions still hit a transient DOM detach race where removeChild
+ * is called with a node that is no longer attached to the expected parent.
+ * This guard short-circuits that mismatch to prevent full app collapse.
+ */
+function installDomMismatchGuard(): void {
+  if (typeof window === 'undefined' || typeof Node === 'undefined') return
+
+  const marker = window as Window & { [DOM_GUARD_PATCH_FLAG]?: boolean }
+  if (marker[DOM_GUARD_PATCH_FLAG] === true) return
+  marker[DOM_GUARD_PATCH_FLAG] = true
+
+  const originalRemoveChild = Node.prototype.removeChild
+  Node.prototype.removeChild = function patchedRemoveChild<T extends Node>(child: T): T {
+    if (child && child.parentNode !== this) {
+      if (import.meta.env.DEV) {
+        console.warn('[halaqmap] DOM guard bypassed removeChild mismatch')
+      }
+      return child
+    }
+    return originalRemoveChild.call(this, child) as T
+  }
+}
+
+installDomMismatchGuard()
 
 function currentRouteReloadKey(): string {
   return `${CHUNK_RELOAD_ONCE_PREFIX}${window.location.pathname}${window.location.search}${window.location.hash}`

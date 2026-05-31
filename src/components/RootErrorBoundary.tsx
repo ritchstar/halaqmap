@@ -52,8 +52,7 @@ export class RootErrorBoundary extends Component<Props, State> {
   private handleRecoverClick = (): void => {
     try {
       sessionStorage.removeItem(RECOVER_FLAG);
-      const pathKey = `${window.location.pathname}${window.location.search}`;
-      sessionStorage.removeItem(`${RECOVER_FLAG}:${pathKey}`);
+      sessionStorage.removeItem(`${RECOVER_FLAG}:${currentRecoverPathKey()}`);
       localStorage.removeItem('hm-sw-reset-v5');
       localStorage.removeItem('hm-sw-reset-v3');
       if ('serviceWorker' in navigator) {
