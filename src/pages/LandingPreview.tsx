@@ -831,7 +831,10 @@ export default function LandingPreview() {
 
             {/* الرادار الجغرافي — أيقونة تحديد الموقع الرئيسية */}
             <div className="mb-8 flex w-full flex-col items-center gap-4">
-              <GeoRadarButton onLocationDetected={handleLocationDetected} />
+              <GeoRadarButton
+                onLocationDetected={handleLocationDetected}
+                onLocationReset={() => setUserLocation(null)}
+              />
               {userLocation && (
                 <motion.button
                   initial={{ opacity: 0, y: 8 }}

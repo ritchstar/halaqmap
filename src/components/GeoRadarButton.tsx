@@ -9,11 +9,14 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scissors } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { storeUserCoords } from '@/lib/userRegionWeather';
+import { clearStoredUserCoords, storeUserCoords } from '@/lib/userRegionWeather';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type GeoPhase = 'idle' | 'searching' | 'found' | 'denied';
-interface Props { onLocationDetected: (loc: { lat: number; lng: number }) => void; }
+interface Props {
+  onLocationDetected: (loc: { lat: number; lng: number }) => void;
+  onLocationReset?: () => void;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function pad(n: number) { return Math.floor(n).toString().padStart(2, '0'); }
@@ -66,7 +69,7 @@ function SearchingRing() {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function GeoRadarButton({ onLocationDetected }: Props) {
+export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
   const [phase, setPhase] = useState<GeoPhase>('idle');
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [accuracy, setAccuracy] = useState<number | null>(null);
@@ -81,11 +84,11 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
       return;
     }
 
-    if (phase === 'found') {
-      setPhase('idle');
-      setCoords(null);
-      setAccuracy(null);
-    }
+    // Never keep stale coordinates when user asks for a new fix.
+    onLocationReset?.();
+    setCoords(null);
+    setAccuracy(null);
+    clearStoredUserCoords();
 
     busy.current = true;
     setPhase('searching');
@@ -121,7 +124,7 @@ export function GeoRadarButton({ onLocationDetected }: Props) {
       window.clearTimeout(watchdog);
       busy.current = false;
     }
-  }, [phase, onLocationDetected]);
+  }, [onLocationDetected, onLocationReset]);
 
   const isSearching = phase === 'searching';
   const isFound = phase === 'found';
