@@ -11,6 +11,7 @@ import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 
 const CHUNK_RELOAD_ONCE_PREFIX = 'hm-chunk-reload-once:'
 const DOM_GUARD_PATCH_FLAG = '__halaqmapDomGuardPatched'
+const DOM_GUARD_LOG_KEY = 'hm-dom-guard-events-v1'
 
 /**
  * Emergency DOM guard for production stability:
@@ -26,14 +27,50 @@ function installDomMismatchGuard(): void {
   marker[DOM_GUARD_PATCH_FLAG] = true
 
   const originalRemoveChild = Node.prototype.removeChild
+  const isDomMismatchError = (error: unknown): boolean => {
+    if (error instanceof DOMException && error.name === 'NotFoundError') return true
+    if (error instanceof Error) {
+      return /removeChild/i.test(error.message) || /not a child of this node/i.test(error.message)
+    }
+    return false
+  }
+  const recordGuardEvent = (phase: 'precheck' | 'catch', parent: Node, child: Node | null | undefined): void => {
+    try {
+      const payload = {
+        phase,
+        parentNode: parent.nodeName,
+        childNode: child?.nodeName ?? 'unknown',
+        path: `${window.location.pathname}${window.location.search}${window.location.hash}`,
+        ts: Date.now(),
+      }
+      const current = JSON.parse(sessionStorage.getItem(DOM_GUARD_LOG_KEY) ?? '[]') as Array<Record<string, unknown>>
+      current.push(payload)
+      const trimmed = current.slice(-25)
+      sessionStorage.setItem(DOM_GUARD_LOG_KEY, JSON.stringify(trimmed))
+      window.dispatchEvent(new CustomEvent('halaqmap:dom-guard', { detail: payload }))
+    } catch {
+      // ignore diagnostics failures
+    }
+  }
+
   Node.prototype.removeChild = function patchedRemoveChild<T extends Node>(child: T): T {
     if (child && child.parentNode !== this) {
       if (import.meta.env.DEV) {
         console.warn('[halaqmap] DOM guard bypassed removeChild mismatch')
       }
+      recordGuardEvent('precheck', this, child)
       return child
     }
-    return originalRemoveChild.call(this, child) as T
+    try {
+      return originalRemoveChild.call(this, child) as T
+    } catch (error) {
+      if (!isDomMismatchError(error)) throw error
+      if (import.meta.env.DEV) {
+        console.warn('[halaqmap] DOM guard caught runtime removeChild race', error)
+      }
+      recordGuardEvent('catch', this, child)
+      return child
+    }
   }
 }
 

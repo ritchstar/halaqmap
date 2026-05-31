@@ -11,7 +11,7 @@ const RECOVER_FLAG = 'hm-dom-recover-v2';
  */
 export function RouteScopedErrorBoundary({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const routeKey = `${location.pathname}${location.search}`;
+  const routeKey = `${location.pathname}${location.search}${location.hash}`;
   const prevRouteKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
