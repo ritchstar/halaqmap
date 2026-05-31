@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Component } from 'react';
+import { forceHardRefresh } from '@/lib/platformBuildSync';
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
@@ -8,6 +9,11 @@ const RECOVER_FLAG = 'hm-dom-recover-v2';
 
 function isDomRemoveChildError(error: Error): boolean {
   return /removeChild/i.test(error.message) || /not a child of this node/i.test(error.message);
+}
+
+function currentRecoverPathKey(): string {
+  if (typeof window === 'undefined') return '';
+  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
 }
 
 /** يمنع الشاشة البيضاء الصامتة ويعرض رسالة خطأ قابلة للفهم */
@@ -22,15 +28,31 @@ export class RootErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error): void {
-    if (typeof window === 'undefined' || !isDomRemoveChildError(error)) return;
-    /* لا إعادة تحميل تلقائية — تسبب وميضاً عند أخطاء removeChild المستمرة (لوحة الإدارة، الرادار). */
+    // Log error for monitoring (Sentry, LogRocket, etc.)
+    if (import.meta.env.DEV) {
+      console.error('[RootErrorBoundary] Caught error:', error);
+    }
+    
+    // For DOM-related errors, attempt one auto-recovery per route
+    if (typeof window !== 'undefined' && isDomRemoveChildError(error)) {
+      try {
+        const pathKey = `${RECOVER_FLAG}:${currentRecoverPathKey()}`;
+        const alreadyRecovered = sessionStorage.getItem(pathKey) === '1';
+        if (!alreadyRecovered) {
+          sessionStorage.setItem(pathKey, '1');
+          void forceHardRefresh();
+        }
+      } catch {
+        // Fallback to simple reload if sessionStorage fails
+        window.location.reload();
+      }
+    }
   }
 
   private handleRecoverClick = (): void => {
     try {
       sessionStorage.removeItem(RECOVER_FLAG);
-      const pathKey = `${window.location.pathname}${window.location.search}`;
-      sessionStorage.removeItem(`${RECOVER_FLAG}:${pathKey}`);
+      sessionStorage.removeItem(`${RECOVER_FLAG}:${currentRecoverPathKey()}`);
       localStorage.removeItem('hm-sw-reset-v5');
       localStorage.removeItem('hm-sw-reset-v3');
       if ('serviceWorker' in navigator) {

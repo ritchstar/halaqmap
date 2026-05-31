@@ -31,7 +31,6 @@ import PartnerPrivacy from "@/pages/PartnerPrivacy";
 import SubscriptionPolicy from "@/pages/SubscriptionPolicy";
 import BarberLogin from "@/pages/BarberLogin";
 import PartnerSupportChat from "@/pages/PartnerSupportChat";
-import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
 
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
@@ -147,7 +146,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<PulseMapPage />} />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} element={<Layout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></Layout>} />
+          <Route path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} element={<Navigate to={ROUTE_PATHS.BARBERS_LANDING} replace />} />
 
           {/* ?????? ?????? ???????? ??????????? ??? ?????? ?????????? ???????????????????????????????????????????????? */}
           <Route

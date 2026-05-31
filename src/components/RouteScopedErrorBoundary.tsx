@@ -7,12 +7,11 @@ const RECOVER_FLAG = 'hm-dom-recover-v2';
 
 /**
  * يعيد mount لحدّ الخطأ عند تغيير المسار حتى لا تبقى شاشة الخطأ بعد تنقّل SPA.
- * لا يمسح علامة الاسترداد عند أول mount — وإلا تتكرر إعادة التحميل التلقائية (~80ms)
- * عند أخطاء removeChild المستمرة (رادار الإدارة، غرفة العمليات).
+ * يمسح علامة الاسترداد فقط عند التنقل الفعلي (ليس عند أول mount) لتجنب حلقات reload.
  */
 export function RouteScopedErrorBoundary({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const routeKey = `${location.pathname}${location.search}`;
+  const routeKey = `${location.pathname}${location.search}${location.hash}`;
   const prevRouteKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
