@@ -463,6 +463,134 @@
    Roo Landing Lab — light-only tri-variants (v1/v2/v3)
    Scope: /#/lab/roo-landing
    ═══════════════════════════════════════════════════════════════════════ */
+.roo-light-clone {
+  --roo-bg-solid-1: #f7fcff;
+  --roo-bg-solid-2: #ecf9ff;
+  --roo-bg-solid-3: #e5f3ff;
+  --roo-bg-top: rgba(252, 255, 255, 0.98);
+  --roo-bg-mid: rgba(236, 249, 255, 0.95);
+  --roo-bg-bottom: rgba(229, 243, 255, 0.95);
+  --roo-surface-1: rgba(255, 255, 255, 0.96);
+  --roo-surface-2: rgba(244, 251, 255, 0.93);
+  --roo-border-soft: rgba(14, 116, 144, 0.22);
+  --roo-border-strong: rgba(8, 145, 178, 0.3);
+  --roo-text-strong: rgb(15, 23, 42);
+  --roo-text-normal: rgb(30, 41, 59);
+  --roo-text-muted: rgb(51, 65, 85);
+  --roo-accent-from: rgb(6, 182, 212);
+  --roo-accent-to: rgb(8, 145, 178);
+  --roo-accent-glow: rgba(6, 182, 212, 0.34);
+}
+
+.roo-light-clone.roo-lab-v1 {
+  --roo-text-strong: rgb(15, 23, 42);
+  --roo-text-normal: rgb(30, 41, 59);
+  --roo-text-muted: rgb(51, 65, 85);
+  --roo-accent-from: rgb(14, 165, 233);
+  --roo-accent-to: rgb(8, 145, 178);
+  --roo-accent-glow: rgba(14, 165, 233, 0.4);
+}
+
+.roo-light-clone.roo-lab-v2 {
+  --roo-bg-solid-1: #fffaf0;
+  --roo-bg-solid-2: #fff2de;
+  --roo-bg-solid-3: #fce8cd;
+  --roo-bg-top: rgba(255, 250, 240, 0.99);
+  --roo-bg-mid: rgba(255, 242, 222, 0.97);
+  --roo-bg-bottom: rgba(252, 232, 205, 0.95);
+  --roo-surface-1: rgba(255, 252, 244, 0.97);
+  --roo-surface-2: rgba(255, 247, 233, 0.95);
+  --roo-border-soft: rgba(13, 148, 136, 0.24);
+  --roo-border-strong: rgba(15, 118, 110, 0.34);
+  --roo-text-strong: rgb(52, 30, 14);
+  --roo-text-normal: rgb(74, 45, 24);
+  --roo-text-muted: rgb(97, 60, 34);
+  --roo-accent-from: rgb(20, 184, 166);
+  --roo-accent-to: rgb(15, 118, 110);
+  --roo-accent-glow: rgba(20, 184, 166, 0.38);
+}
+
+.roo-light-clone.roo-lab-v3 {
+  --roo-bg-solid-1: #effff9;
+  --roo-bg-solid-2: #d9fff2;
+  --roo-bg-solid-3: #bbf7ee;
+  --roo-bg-top: rgba(241, 255, 250, 0.99);
+  --roo-bg-mid: rgba(216, 255, 242, 0.97);
+  --roo-bg-bottom: rgba(187, 247, 238, 0.96);
+  --roo-surface-1: rgba(243, 255, 251, 0.97);
+  --roo-surface-2: rgba(230, 254, 247, 0.95);
+  --roo-border-soft: rgba(13, 148, 136, 0.28);
+  --roo-border-strong: rgba(20, 184, 166, 0.38);
+  --roo-text-strong: rgb(6, 49, 47);
+  --roo-text-normal: rgb(17, 78, 74);
+  --roo-text-muted: rgb(20, 103, 98);
+  --roo-accent-from: rgb(45, 212, 191);
+  --roo-accent-to: rgb(13, 148, 136);
+  --roo-accent-glow: rgba(45, 212, 191, 0.45);
+}
+
+/* Global readability rules for all cloned lab pages (including non-platform pages) */
+.roo-light-clone {
+  color: var(--roo-text-normal);
+}
+
+.roo-light-clone :where(.text-xs) {
+  font-size: calc(0.75rem * 1.12) !important;
+  line-height: 1.6 !important;
+}
+
+.roo-light-clone :where(.text-sm) {
+  font-size: calc(0.875rem * 1.1) !important;
+  line-height: 1.65 !important;
+}
+
+.roo-light-clone :where(.text-base) {
+  font-size: calc(1rem * 1.06) !important;
+  line-height: 1.7 !important;
+}
+
+.roo-light-clone :where(h1, h2, h3, h4, h5, h6, .text-white, .text-slate-50, .text-slate-100, .text-slate-200) {
+  color: var(--roo-text-strong) !important;
+}
+
+.roo-light-clone :where(.text-slate-300, .text-slate-400, .text-slate-500, .text-slate-600, .text-muted-foreground) {
+  color: var(--roo-text-normal) !important;
+}
+
+.roo-light-clone :is(
+  [class*='bg-[#020912]'],
+  [class*='bg-[#010810]'],
+  [class*='bg-[#030d1a]'],
+  [class*='bg-[#060d1a]'],
+  [class*='bg-[#0a1628]'],
+  [class*='from-[#020912]'],
+  [class*='to-[#020912]'],
+  [class*='from-cyan-950'],
+  [class*='via-[#020c18]'],
+  [class*='to-amber-950']
+) {
+  background-color: var(--roo-surface-1) !important;
+  background-image: linear-gradient(165deg, var(--roo-surface-2), var(--roo-surface-1)) !important;
+  border-color: var(--roo-border-soft) !important;
+}
+
+.roo-light-clone :is(
+  [style*='#020a14'],
+  [style*='#020810'],
+  [style*='#010810'],
+  [style*='#040d1a'],
+  [style*='#060d1a'],
+  [style*='#020c18']
+) {
+  background: linear-gradient(
+    170deg,
+    color-mix(in srgb, var(--roo-surface-2) 88%, white) 0%,
+    color-mix(in srgb, var(--roo-surface-1) 92%, white) 58%,
+    color-mix(in srgb, var(--roo-accent-from) 10%, white) 100%
+  ) !important;
+  border-color: var(--roo-border-soft) !important;
+}
+
 .roo-light-clone .platform-dark.platform-ambient {
   color-scheme: light;
 
@@ -621,6 +749,102 @@
 
 .roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar .ksa-clocks-weather-city {
   color: var(--roo-text-strong) !important;
+}
+
+/* Lab radar mood: comfort + safety (not military) */
+.roo-light-clone .pulse-map-page--lab {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--roo-surface-2) 86%, white) 0%,
+    color-mix(in srgb, var(--roo-surface-1) 94%, white) 52%,
+    color-mix(in srgb, var(--roo-accent-from) 10%, white) 100%
+  ) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-topbar {
+  background: color-mix(in srgb, var(--roo-surface-1) 92%, white) !important;
+  border-bottom-color: color-mix(in srgb, var(--roo-accent-from) 35%, white) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-home-btn,
+.roo-light-clone .pulse-map-page--lab .pulse-map-topbar-title span,
+.roo-light-clone .pulse-map-page--lab .pulse-map-hero h1,
+.roo-light-clone .pulse-map-page--lab .pulse-map-hero p {
+  color: var(--roo-text-strong) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-hero-icon {
+  border-color: color-mix(in srgb, var(--roo-accent-from) 45%, white) !important;
+  background: color-mix(in srgb, var(--roo-accent-from) 14%, white) !important;
+  box-shadow: 0 10px 24px -16px var(--roo-accent-glow) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-brand-wrap {
+  justify-content: flex-end;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-barber-brand {
+  border: 1px solid color-mix(in srgb, var(--roo-accent-from) 35%, white) !important;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--roo-surface-1) 92%, white) 0%,
+    color-mix(in srgb, var(--roo-surface-2) 90%, white) 100%
+  ) !important;
+  box-shadow:
+    0 10px 24px -16px rgba(15, 23, 42, 0.25),
+    0 0 0 1px color-mix(in srgb, var(--roo-accent-to) 18%, white) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-hud {
+  background: color-mix(in srgb, var(--roo-surface-1) 94%, white) !important;
+  border-color: color-mix(in srgb, var(--roo-accent-from) 30%, white) !important;
+  box-shadow: 0 12px 26px -20px rgba(15, 23, 42, 0.24) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-hud :where(p, span, .text-slate-400, .text-slate-500, .text-sky-100, .text-sky-300, .text-emerald-100) {
+  color: var(--roo-text-normal) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-stat-row {
+  background: color-mix(in srgb, var(--roo-surface-2) 90%, white) !important;
+  border-color: color-mix(in srgb, var(--roo-accent-from) 22%, white) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-stat-row span:last-child {
+  color: var(--roo-text-strong) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-canvas-frame {
+  background: linear-gradient(
+    170deg,
+    color-mix(in srgb, var(--roo-surface-2) 88%, white) 0%,
+    color-mix(in srgb, var(--roo-surface-1) 95%, white) 58%,
+    color-mix(in srgb, var(--roo-accent-from) 12%, white) 100%
+  ) !important;
+  border-color: color-mix(in srgb, var(--roo-accent-from) 28%, white) !important;
+  box-shadow: 0 14px 30px -22px rgba(15, 23, 42, 0.24) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-svg {
+  filter: saturate(0.92) brightness(1.06);
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-mini-cyber {
+  background: color-mix(in srgb, var(--roo-surface-1) 94%, white) !important;
+  border-color: color-mix(in srgb, var(--roo-accent-from) 30%, white) !important;
+  box-shadow: 0 12px 24px -18px rgba(15, 23, 42, 0.22) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-mini-cyber p {
+  color: var(--roo-text-strong) !important;
+}
+
+.roo-light-clone .pulse-map-page--lab .pulse-map-mini-cyber-canvas {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--roo-surface-2) 85%, white) 0%,
+    color-mix(in srgb, var(--roo-surface-1) 94%, white) 100%
+  ) !important;
 }
 
 /* Footer must remain light and readable */

@@ -1,8 +1,11 @@
 import type { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Activity, Radar } from 'lucide-react';
 import { PULSE_MAP_CONFIG, PULSE_MAP_COLORS } from '@/config/pulseMapConfig';
 import { PULSE_MAP_CITY_MARKERS } from '@/modules/pulse-map/lib/pulseMapCities';
 import type { PulseMapPayload } from '@/modules/pulse-map/types';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
+import { isLabClonePath } from '@/lab/labCloneRouting';
 
 type Props = {
   payload: PulseMapPayload | null;
@@ -12,12 +15,24 @@ type Props = {
 /** يمين الشاشة (RTL start) — عنوان الخريطة والمفتاح */
 export function PulseMapHudStart({ payload, loading }: Props) {
   const showPulses = PULSE_MAP_CONFIG.showPulses;
+  const location = useLocation();
+  const showLabBrand = isLabClonePath(location.pathname);
 
   return (
     <aside
-      className="flex flex-col rounded-2xl border border-sky-400/20 bg-black/55 p-4 backdrop-blur-md lg:min-h-[min(44rem,72vh)]"
+      className="pulse-map-hud pulse-map-hud-start flex flex-col rounded-2xl border border-sky-400/20 bg-black/55 p-4 backdrop-blur-md lg:min-h-[min(44rem,72vh)]"
       dir="rtl"
     >
+      {showLabBrand ? (
+        <div className="pulse-map-brand-wrap mb-3 flex items-center justify-end">
+          <HalaqmapBrandMark
+            alt="شعار حلاق ماب"
+            className="pulse-map-barber-brand h-12 w-12 rounded-2xl"
+            imgClassName="rounded-2xl"
+          />
+        </div>
+      ) : null}
+
       <div className="space-y-2">
         <div className="flex flex-wrap items-start gap-2">
           <Radar className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
@@ -77,7 +92,7 @@ export function PulseMapHudEnd({ payload, loading }: Props) {
 
   return (
     <aside
-      className="flex flex-col rounded-2xl border border-emerald-500/20 bg-black/55 p-4 backdrop-blur-md lg:min-h-[min(44rem,72vh)]"
+      className="pulse-map-hud pulse-map-hud-end flex flex-col rounded-2xl border border-emerald-500/20 bg-black/55 p-4 backdrop-blur-md lg:min-h-[min(44rem,72vh)]"
       dir="rtl"
     >
       <div className="flex items-center gap-2">
@@ -153,7 +168,7 @@ function StatRow({
   value: number;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5">
+    <div className="pulse-map-stat-row flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5">
       <div className="flex items-center gap-2">
         {icon}
         <span className="text-[0.65rem] text-slate-400">{label}</span>

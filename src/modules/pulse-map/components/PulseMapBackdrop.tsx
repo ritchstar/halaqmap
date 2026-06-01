@@ -3,18 +3,35 @@ import {
   PULSE_MAP_VIEWBOX,
 } from '@/modules/pulse-map/lib/pulseMapGeo';
 
-export function PulseMapBackdrop() {
+type PulseMapBackdropTone = 'tactical' | 'comfort';
+
+type LayerProps = {
+  tone?: PulseMapBackdropTone;
+};
+
+export function PulseMapBackdropLayer({ tone = 'tactical' }: LayerProps) {
+  const isComfort = tone === 'comfort';
+  const skyStops = isComfort
+    ? ['#eefaff', '#e8f7ff', '#f4fbff']
+    : ['#020617', '#041018', '#030712'];
+  const landStops = isComfort
+    ? ['rgba(20,184,166,0.2)', 'rgba(56,189,248,0.14)']
+    : ['rgba(14,116,144,0.28)', 'rgba(6,78,59,0.16)'];
+  const gridStroke = isComfort ? 'rgba(14,165,233,0.065)' : 'rgba(56,189,248,0.035)';
+  const outlineStroke = isComfort ? 'rgba(14,165,233,0.42)' : 'rgba(56,189,248,0.55)';
+  const haloStroke = isComfort ? 'rgba(45,212,191,0.22)' : 'rgba(125,211,252,0.22)';
+
   return (
     <>
       <defs>
         <linearGradient id="pm-sky" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#020617" />
-          <stop offset="55%" stopColor="#041018" />
-          <stop offset="100%" stopColor="#030712" />
+          <stop offset="0%" stopColor={skyStops[0]} />
+          <stop offset="55%" stopColor={skyStops[1]} />
+          <stop offset="100%" stopColor={skyStops[2]} />
         </linearGradient>
         <linearGradient id="pm-land" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="rgba(14,116,144,0.28)" />
-          <stop offset="100%" stopColor="rgba(6,78,59,0.16)" />
+          <stop offset="0%" stopColor={landStops[0]} />
+          <stop offset="100%" stopColor={landStops[1]} />
         </linearGradient>
         <filter id="pm-glow" x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="2.5" result="blur" />
@@ -36,7 +53,7 @@ export function PulseMapBackdrop() {
             y1={0}
             x2={x}
             y2={PULSE_MAP_VIEWBOX.height}
-            stroke="rgba(56,189,248,0.035)"
+            stroke={gridStroke}
             strokeWidth={1}
           />
         );
@@ -50,7 +67,7 @@ export function PulseMapBackdrop() {
             y1={y}
             x2={PULSE_MAP_VIEWBOX.width}
             y2={y}
-            stroke="rgba(56,189,248,0.035)"
+            stroke={gridStroke}
             strokeWidth={1}
           />
         );
@@ -62,7 +79,7 @@ export function PulseMapBackdrop() {
             <path
               d={d}
               fill="url(#pm-land)"
-              stroke="rgba(56,189,248,0.55)"
+              stroke={outlineStroke}
               strokeWidth={2}
               strokeLinejoin="round"
               filter="url(#pm-glow)"
@@ -70,7 +87,7 @@ export function PulseMapBackdrop() {
             <path
               d={d}
               fill="none"
-              stroke="rgba(125,211,252,0.22)"
+              stroke={haloStroke}
               strokeWidth={4.5}
               strokeLinejoin="round"
               opacity={0.55}
@@ -80,4 +97,8 @@ export function PulseMapBackdrop() {
       </g>
     </>
   );
+}
+
+export function PulseMapBackdrop({ tone = 'tactical' }: LayerProps) {
+  return <PulseMapBackdropLayer tone={tone} />;
 }

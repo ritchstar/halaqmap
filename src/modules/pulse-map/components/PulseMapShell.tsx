@@ -25,6 +25,7 @@ type Props = {
   startPanel?: ReactNode;
   endPanel?: ReactNode;
   mapClassName?: string;
+  tone?: 'tactical' | 'comfort';
 };
 
 export function PulseMapShell({
@@ -39,6 +40,7 @@ export function PulseMapShell({
   startPanel,
   endPanel,
   mapClassName,
+  tone = 'tactical',
 }: Props) {
   const slotById = useMemo(() => {
     const map = new Map<string, PulseMapSlot>();
@@ -60,26 +62,26 @@ export function PulseMapShell({
   const end = endPanel ?? <PulseMapHudEnd payload={payload} loading={loading} />;
 
   return (
-    <div className={cn('grid gap-3 lg:grid-cols-[minmax(11rem,13.5rem)_1fr_minmax(11rem,13.5rem)]', className)} dir="rtl">
+    <div className={cn('pulse-map-shell grid gap-3 lg:grid-cols-[minmax(11rem,13.5rem)_1fr_minmax(11rem,13.5rem)]', className)} dir="rtl">
       <div className="order-2 lg:order-none">{start}</div>
 
       <div
         className={cn(
-          'order-1 overflow-hidden rounded-2xl bg-[#020617] lg:order-none',
+          'pulse-map-canvas-frame order-1 overflow-hidden rounded-2xl bg-[#020617] lg:order-none',
           ornamentVariant === 'admin' ? 'border border-violet-400/20' : 'border border-sky-400/15',
         )}
       >
         <div
-          className={cn('relative mx-auto w-full max-h-[min(44rem,72vh)]', mapClassName)}
+          className={cn('pulse-map-canvas relative mx-auto w-full max-h-[min(44rem,72vh)]', mapClassName)}
           style={{ aspectRatio: aspect }}
         >
           <svg
             viewBox={`0 0 ${PULSE_MAP_VIEWBOX.width} ${PULSE_MAP_VIEWBOX.height}`}
-            className="h-full w-full"
+            className="pulse-map-svg h-full w-full"
             preserveAspectRatio="xMidYMid meet"
             aria-label="رادار الرصد — Halaq Map Platform — المملكة العربية السعودية"
           >
-            <PulseMapBackdrop />
+            <PulseMapBackdrop tone={tone} />
             {showOrnaments && riyadh ? (
               <PulseMapKingdomSweep cx={riyadh.x} cy={riyadh.y} variant={ornamentVariant} />
             ) : null}
