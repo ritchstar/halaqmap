@@ -4,6 +4,7 @@ import App from './App.tsx'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
 import { initPlatformBuildSync } from '@/lib/platformBuildSync'
+import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
 
 ensureDomainVerificationMeta()
 // build-sync التلقائي مُعطّل — كان يسبب حلقة reload (_b=…) وremoveChild أثناء تشغيل React
@@ -14,15 +15,10 @@ const CHUNK_RELOAD_ONCE_PREFIX = 'hm-chunk-reload-once:'
 const DOM_GUARD_PATCH_FLAG = '__halaqmapDomGuardPatched'
 const DOM_GUARD_LOG_KEY = 'hm-dom-guard-events-v1'
 const APP_BOOTSTRAP_FLAG = '__halaqmapAppBootstrapped'
+const ENABLE_DOM_GUARD = import.meta.env.VITE_ENABLE_DOM_GUARD === 'true'
 
-/**
- * Emergency DOM guard for production stability:
- * Some sessions still hit a transient DOM detach race where removeChild
- * is called with a node that is no longer attached to the expected parent.
- * This guard short-circuits that mismatch to prevent full app collapse.
- */
 function installDomMismatchGuard(): void {
-  if (typeof window === 'undefined' || typeof Node === 'undefined') return
+  if (!ENABLE_DOM_GUARD || typeof window === 'undefined' || typeof Node === 'undefined') return
 
   const marker = window as Window & { [DOM_GUARD_PATCH_FLAG]?: boolean }
   if (marker[DOM_GUARD_PATCH_FLAG] === true) return
@@ -36,7 +32,11 @@ function installDomMismatchGuard(): void {
     }
     return false
   }
-  const recordGuardEvent = (phase: 'precheck' | 'catch', parent: Node, child: Node | null | undefined): void => {
+  const recordGuardEvent = (
+    phase: 'reroute' | 'catch',
+    parent: Node,
+    child: Node | null | undefined,
+  ): void => {
     try {
       const payload = {
         phase,
@@ -58,9 +58,19 @@ function installDomMismatchGuard(): void {
   Node.prototype.removeChild = function patchedRemoveChild<T extends Node>(child: T): T {
     if (child && child.parentNode !== this) {
       if (import.meta.env.DEV) {
-        console.warn('[halaqmap] DOM guard bypassed removeChild mismatch')
+        console.warn('[halaqmap] DOM guard rerouted removeChild mismatch')
       }
-      recordGuardEvent('precheck', this, child)
+      const actualParent = child.parentNode
+      if (actualParent) {
+        try {
+          return originalRemoveChild.call(actualParent, child) as T
+        } catch (error) {
+          if (!isDomMismatchError(error)) throw error
+          recordGuardEvent('reroute', this, child)
+          return child
+        }
+      }
+      recordGuardEvent('reroute', this, child)
       return child
     }
     try {
@@ -76,6 +86,7 @@ function installDomMismatchGuard(): void {
   }
 }
 
+assertRuntimeEnvSafety()
 installDomMismatchGuard()
 initPlatformBuildSync()
 

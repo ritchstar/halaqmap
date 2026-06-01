@@ -4,6 +4,7 @@ import { getAdminPortalBasePaths } from '@/config/adminAuth';
 import { Layout } from '@/components/Layout';
 import { PartnerLayout } from '@/components/PartnerLayout';
 import { AdminSentinelSecurityGate } from '@/components/AdminAuthHashGate';
+import { RouteScopedErrorBoundary } from '@/components/RouteScopedErrorBoundary';
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from '@/lib';
 import { LabCloneProvider } from '@/lab/LabCloneProvider';
 import { toCanonicalFromLabPath } from '@/lab/labCloneRouting';
@@ -202,5 +203,9 @@ function buildLabRoutes(): RouteObject[] {
 
 export default function LabCloneSandbox() {
   const element = useRoutes(buildLabRoutes());
-  return <LabCloneProvider>{element}</LabCloneProvider>;
+  return (
+    <LabCloneProvider>
+      <RouteScopedErrorBoundary>{element}</RouteScopedErrorBoundary>
+    </LabCloneProvider>
+  );
 }

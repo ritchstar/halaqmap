@@ -99,7 +99,7 @@ interface Meteor {
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
-export function SaudiBackground({ chatEvent }: Props) {
+export function SaudiBackground({ chatEvent = null }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef({
     particles: [] as Particle[],

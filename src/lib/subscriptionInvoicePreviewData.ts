@@ -38,6 +38,8 @@ export type SubscriptionInvoicePreviewPayload = {
   totalSar: number;
   servicePeriodStartIso?: string;
   servicePeriodEndIso?: string;
+  coverageNoteAr?: string;
+  coverageNoteEn?: string;
   nextRenewalIso?: string;
   nextRenewalNoteAr?: string;
   nextRenewalNoteEn?: string;
@@ -95,6 +97,8 @@ export function buildMonthlySubscriptionPreview(issueDate: Date = new Date()): S
     totalSar: monthly,
     servicePeriodStartIso: formatIsoDate(issueDate),
     servicePeriodEndIso: formatIsoDate(periodEnd),
+    coverageNoteAr: 'فترة الخدمة المعتمدة للحزمة الحالية موضحة أدناه.',
+    coverageNoteEn: 'The active service period for the current package is shown below.',
     nextRenewalIso: formatIsoDate(nextRenewal),
     nextRenewalNoteAr: `تاريخ التجديد المتوقع للدورة التالية: ${formatGregorianAr(nextRenewal)} (${formatIsoDate(nextRenewal)}).`,
     nextRenewalNoteEn: `Next cycle renewal date: ${formatIsoDate(nextRenewal)}.`,

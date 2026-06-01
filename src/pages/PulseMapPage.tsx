@@ -82,12 +82,11 @@ export default function PulseMapPage() {
       .map((pulse, index) => {
         const slot = slotById.get(pulse.slotId);
         if (!slot) return null;
-        return {
+        const event: CyberEvent = {
           id: `mini-live-${pulse.id}-${index}`,
           kind: pulse.kind === 'link' ? 'defence_action' : 'visit_internal',
           severity: pulse.kind === 'link' ? 'normal' : 'info',
           source: toCyberPoint(slot.x, slot.y),
-          target: pulse.kind === 'link' ? RIYADH_VIEW : undefined,
           description:
             pulse.kind === 'link'
               ? `ربط نشط من ${slot.nameAr}`
@@ -96,9 +95,11 @@ export default function PulseMapPage() {
           timestamp: pulse.createdAt,
           lifetimeMs: 5200,
           volume: 1,
-        } satisfies CyberEvent;
+          ...(pulse.kind === 'link' ? { target: RIYADH_VIEW } : {}),
+        };
+        return event;
       })
-      .filter((event): event is CyberEvent => event != null);
+      .filter((event): event is CyberEvent => event !== null);
 
     return [...ambientCityGlow, ...livePulseEvents].slice(-40);
   }, [payload]);

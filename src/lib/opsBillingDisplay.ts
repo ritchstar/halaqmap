@@ -215,7 +215,7 @@ export function consolidateOpsBillingRows(rows: OpsBillingCommitmentRow[]): OpsB
   if (openai) consolidated.push(openai);
   if (resend) consolidated.push(resend);
 
-  const passthrough = rows
+  const passthrough: OpsBillingDisplayRow[] = rows
     .filter((r) => !DEPRECATED_OPS_BILLING_STABLE_KEYS.has(stableKey(r)))
     .filter((r) => {
       const sk = stableKey(r);
@@ -225,13 +225,13 @@ export function consolidateOpsBillingRows(rows: OpsBillingCommitmentRow[]): OpsB
       if (resend && v === 'resend' && RESEND_STABLE_KEYS.has(sk)) return false;
       return true;
     })
-    .map((r) => ({
+    .map((r): OpsBillingDisplayRow => ({
       ...r,
       displayKey: stableKey(r) || String(r.id),
       consolidated: false,
     }));
 
-  const merged = [...consolidated, ...passthrough];
+  const merged: OpsBillingDisplayRow[] = [...consolidated, ...passthrough];
 
   const vendorOrder = ['vercel', 'supabase_mgmt', 'godaddy', 'openai', 'resend', 'github', 'manual'];
   merged.sort((a, b) => {

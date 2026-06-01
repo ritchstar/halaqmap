@@ -78,7 +78,7 @@ export function getAdminPortalBasePaths(): string[] {
 
 /** القاعدة الافتراضية (الأولى في القائمة) — للروابط العامة. */
 export function getAdminPortalBasePath(): string {
-  return getAdminPortalBasePaths()[0];
+  return getAdminPortalBasePaths()[0] ?? ADMIN_PORTAL_DEFAULT_BASE;
 }
 
 /**

@@ -10,6 +10,7 @@
     "build:map": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --sourcemap",
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",
     "typecheck:api": "tsc -p api/tsconfig.json",
+    "typecheck:phase2": "tsc -p tsconfig.phase2-strict.json",
     "prepush": "npm run typecheck:api && npm run lint",
     "lint": "eslint .",
     "preview": "vite preview",

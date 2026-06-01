@@ -7,6 +7,7 @@ import type { ZatcaComplianceReport, ZatcaExternalIntelBrief, ZatcaTaxAdvisorSna
 
 async function authHeaders(): Promise<Record<string, string>> {
   const supabase = getSupabaseClient();
+  if (!supabase) throw new Error('تعذّر تهيئة جلسة Supabase للمشرف');
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error('يجب تسجيل الدخول كمشرف');
