@@ -1,4 +1,5 @@
 import * as React from "react";
+import { isLabClonePath, resolveLabPathOrFallback, toCanonicalFromLabPath } from "@/lab/labCloneRouting";
 
 // Runtime import of the real library under a different name (see vite.config alias)
 // @ts-expect-error - This is resolved at runtime by Vite alias
@@ -7,6 +8,71 @@ import * as RRD from "react-router-dom-original";
 // Re-export everything so other imports keep working
 // @ts-expect-error - This is resolved at runtime by Vite alias
 export * from "react-router-dom-original";
+
+const EXTERNAL_TO_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
+
+type ToValue = React.ComponentProps<typeof RRD.Link>["to"];
+
+function isExternalLikeTo(to: ToValue): boolean {
+  if (typeof to !== "string") return false;
+  const trimmed = to.trim();
+  if (!trimmed) return false;
+  if (trimmed.startsWith("#")) return true;
+  return EXTERNAL_TO_PATTERN.test(trimmed);
+}
+
+function rewriteToForLabContext(to: ToValue, currentPathname: string): ToValue {
+  if (!isLabClonePath(currentPathname)) return to;
+  if (isExternalLikeTo(to)) return to;
+
+  const resolved = RRD.resolvePath(to as any, currentPathname);
+  const targetPathname = resolved.pathname || currentPathname;
+  if (isLabClonePath(targetPathname)) return to;
+  const canonicalPathname = toCanonicalFromLabPath(targetPathname);
+  const labPathname = resolveLabPathOrFallback(canonicalPathname);
+  const nextPath = `${labPathname}${resolved.search || ""}${resolved.hash || ""}`;
+  return nextPath;
+}
+
+function useLabAwareTo(to: ToValue): ToValue {
+  const location = RRD.useLocation();
+  return React.useMemo(
+    () => rewriteToForLabContext(to, location.pathname),
+    [to, location.pathname],
+  );
+}
+
+export function Link(props: React.ComponentProps<typeof RRD.Link>) {
+  const to = useLabAwareTo(props.to);
+  return React.createElement(RRD.Link, { ...props, to });
+}
+
+export function NavLink(props: React.ComponentProps<typeof RRD.NavLink>) {
+  const to = useLabAwareTo(props.to);
+  return React.createElement(RRD.NavLink, { ...props, to });
+}
+
+export function Navigate(props: React.ComponentProps<typeof RRD.Navigate>) {
+  const to = useLabAwareTo(props.to);
+  return React.createElement(RRD.Navigate, { ...props, to });
+}
+
+export function useNavigate(): ReturnType<typeof RRD.useNavigate> {
+  const navigate = RRD.useNavigate();
+  const location = RRD.useLocation();
+
+  return React.useCallback(
+    ((to: any, options?: any) => {
+      if (typeof to === "number") {
+        navigate(to);
+        return;
+      }
+      const rewrittenTo = rewriteToForLabContext(to, location.pathname);
+      navigate(rewrittenTo as any, options);
+    }) as ReturnType<typeof RRD.useNavigate>,
+    [navigate, location.pathname],
+  );
+}
 
 /** --------------------- Outbound: route list (once) --------------------- */
 let routesPosted = false;

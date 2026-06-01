@@ -136,7 +136,7 @@ export function KSACityClocksBar() {
   return (
     <div
       dir="rtl"
-      className="relative w-full overflow-hidden"
+      className="ksa-clocks-bar relative w-full overflow-hidden"
       style={{
         height: '72px',
         background:
@@ -176,13 +176,13 @@ export function KSACityClocksBar() {
         {/* يمين: الساعة */}
         <div className="flex shrink-0 flex-col items-start gap-0.5">
           <div className="flex items-baseline gap-0.5">
-            <span className="font-mono text-[1.2rem] font-black tabular-nums tracking-tight text-teal-50/95 sm:text-[1.3rem]">
+            <span className="ksa-clocks-time-main font-mono text-[1.2rem] font-black tabular-nums tracking-tight text-teal-50/95 sm:text-[1.3rem]">
               {time.h}:{time.m}
             </span>
             <motion.span
               animate={{ opacity: [1, 0.2, 1] }}
               transition={{ duration: 1, repeat: Infinity }}
-              className="font-mono text-[0.7rem] font-bold tabular-nums text-teal-400/45"
+              className="ksa-clocks-time-sec font-mono text-[0.7rem] font-bold tabular-nums text-teal-400/45"
             >
               :{time.s}
             </motion.span>
@@ -193,7 +193,7 @@ export function KSACityClocksBar() {
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               className="h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.6)]"
             />
-            <span className="text-[0.52rem] font-black tracking-[0.22em] text-teal-400/75">LIVE · KSA</span>
+            <span className="ksa-clocks-live-label text-[0.52rem] font-black tracking-[0.22em] text-teal-400/75">LIVE · KSA</span>
           </div>
         </div>
 
@@ -247,7 +247,7 @@ export function KSACityClocksBar() {
                   <div className="relative flex items-center gap-1">
                     <span className="text-[0.75rem] leading-none">{city.emoji}</span>
                     <span
-                      className={`hidden text-[0.62rem] font-semibold leading-none sm:block ${isActive || isUserCity ? 'text-white/95' : 'text-slate-400/60'}`}
+                      className={`ksa-clocks-city-name hidden text-[0.62rem] font-semibold leading-none sm:block ${isActive || isUserCity ? 'text-white/95' : 'text-slate-400/60'}`}
                     >
                       {city.nameAr}
                     </span>
@@ -340,17 +340,17 @@ export function KSACityClocksBar() {
               >
                 {weatherLoading ? '…' : `${regionTempValue}°`}
               </span>
-              <span className="text-[0.62rem] font-bold text-slate-400/80 mb-0.5">C</span>
+              <span className="ksa-clocks-weather-unit mb-0.5 text-[0.62rem] font-bold text-slate-400/80">C</span>
             </div>
             <div className="flex items-center gap-1">
               {coordsFromDevice && (
                 <MapPin className="h-2.5 w-2.5 shrink-0 opacity-70" style={{ color: regionColor }} aria-hidden />
               )}
-              <span className="text-[0.62rem] font-bold text-slate-200/85">
+              <span className="ksa-clocks-weather-city text-[0.62rem] font-bold text-slate-200/85">
                 {userRegion.city.nameAr}
               </span>
             </div>
-            <span className="text-[0.5rem] font-medium text-slate-500">
+            <span className="ksa-clocks-weather-meta text-[0.5rem] font-medium text-slate-500">
               {coordsFromDevice ? 'منطقتك · ' : ''}{riyadhMonth}
             </span>
           </div>

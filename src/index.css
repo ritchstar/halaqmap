@@ -562,6 +562,67 @@
   border-color: var(--roo-border-soft) !important;
 }
 
+/* Pricing section hard override: remove remaining dark shell */
+.roo-light-clone .platform-dark.platform-ambient section[id='الأسعار'] {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--roo-surface-2) 72%, white) 0%,
+    color-mix(in srgb, var(--roo-surface-1) 90%, white) 55%,
+    color-mix(in srgb, var(--roo-surface-2) 70%, white) 100%
+  ) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient section[id='الأسعار'] :where(.text-white) {
+  color: var(--roo-text-strong) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient section[id='الأسعار'] :where(.text-slate-300, .text-slate-400, .text-slate-500, .text-slate-600) {
+  color: var(--roo-text-normal) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient section[id='الأسعار'] .group.relative.flex.flex-col.overflow-hidden.rounded-3xl {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--roo-surface-2) 92%, white) 0%,
+    color-mix(in srgb, var(--roo-surface-1) 94%, white) 58%,
+    color-mix(in srgb, var(--roo-accent-from) 14%, white) 100%
+  ) !important;
+  border-color: var(--roo-border-strong) !important;
+  box-shadow:
+    0 18px 34px -24px rgba(15, 23, 42, 0.2),
+    0 0 0 1px color-mix(in srgb, var(--roo-accent-from) 22%, white) !important;
+}
+
+/* City clocks bar hard override: remove dark shell */
+.roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--roo-surface-2) 84%, white) 0%,
+    color-mix(in srgb, var(--roo-surface-1) 94%, white) 55%,
+    color-mix(in srgb, var(--roo-surface-2) 82%, white) 100%
+  ) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--roo-accent-from) 35%, white) !important;
+  box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.25) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar .ksa-clocks-time-main {
+  color: var(--roo-text-strong) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar :is(
+  .ksa-clocks-time-sec,
+  .ksa-clocks-live-label,
+  .ksa-clocks-city-name,
+  .ksa-clocks-weather-unit,
+  .ksa-clocks-weather-meta
+) {
+  color: var(--roo-text-normal) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient .ksa-clocks-bar .ksa-clocks-weather-city {
+  color: var(--roo-text-strong) !important;
+}
+
 /* Footer must remain light and readable */
 .roo-light-clone .platform-dark.platform-ambient footer {
   background: var(--roo-footer-bg) !important;
