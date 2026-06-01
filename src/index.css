@@ -469,6 +469,51 @@
     linear-gradient(180deg, #f8fcff 0%, #eef9ff 56%, #f3fbff 100%) !important;
 }
 
+/* Light surfaces: readable dark text */
+.roo-light-clone .platform-dark.platform-ambient :where(.text-slate-100, .text-slate-200) {
+  color: rgb(15 23 42) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient :where(.text-slate-300, .text-slate-400, .text-slate-500, .text-muted-foreground) {
+  color: rgb(51 65 85) !important;
+}
+
+/* Dark surfaces/cards: restore light text for contrast */
+.roo-light-clone .platform-dark.platform-ambient :is(
+  [class*="bg-[#020912]"],
+  [class*="bg-slate-9"],
+  [class*="bg-gray-9"],
+  [class*="bg-black"],
+  [class*="from-[#020912]"],
+  [class*="to-[#020912]"],
+  [class*="from-slate-9"],
+  [class*="to-slate-9"],
+  footer
+) :where(.text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-slate-500, .text-muted-foreground) {
+  color: rgb(226 232 240) !important;
+}
+
+/* Slight readability bump across the lab clone */
+.roo-light-clone .platform-dark.platform-ambient .text-xs {
+  font-size: calc(0.75rem * 1.12) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient .text-sm {
+  font-size: calc(0.875rem * 1.12) !important;
+}
+
+/* Footer gets stronger treatment (requested +25%) */
+.roo-light-clone .platform-dark.platform-ambient footer {
+  background:
+    linear-gradient(180deg, rgba(7, 19, 36, 0.92) 0%, rgba(5, 14, 30, 0.96) 100%) !important;
+  border-top-color: rgba(34, 211, 238, 0.22) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient footer :where(.text-xs, .text-sm, .text-[0.7rem]) {
+  font-size: 1.25em !important;
+  line-height: 1.65 !important;
+}
+
 .roo-light-clone .platform-dark.platform-ambient > .fixed.inset-0.z-0 {
   opacity: 0.012 !important;
 }
