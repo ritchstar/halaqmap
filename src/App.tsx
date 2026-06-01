@@ -14,7 +14,6 @@ import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
-import { lazyWithRetry } from "@/lib/lazyWithRetry";
 
 const LandingPreview = lazy(() => import("@/pages/LandingPreview"));
 const PartnerMarketingPreview = lazy(() => import("@/pages/PartnerMarketingPreview"));
@@ -57,7 +56,6 @@ const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
-const LabCloneSandbox = lazyWithRetry(() => import("@/lab/LabCloneSandbox"), "lab-clone-sandbox");
 
 const queryClient = new QueryClient();
 
@@ -181,7 +179,6 @@ const App = () => (
           {/* ?????? ????? ???????????? ??? ?????? ???????? ???????????????????????????????????????????????????????????????????????? */}
           <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LazyRoute><LandingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
-          <Route path={`${ROUTE_PATHS.ROO_LANDING_LAB}/*`} element={<LazyRoute><LabCloneSandbox /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<LazyRoute><InternalPartnerPathPrintCard /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<LazyRoute><InvoicePreviewSamples /></LazyRoute>} />
           <Route

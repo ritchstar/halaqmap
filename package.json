@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite",
     "build": "vite build",
+    "dev:lab": "vite --config vite.lab.config.ts",
+    "build:lab": "vite build --config vite.lab.config.ts",
+    "preview:lab": "vite preview --config vite.lab.config.ts",
     "build:dev": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --mode development --sourcemap",
     "build:map": "cross-env VITE_ENABLE_ROUTE_MESSAGING=true vite build --sourcemap",
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",

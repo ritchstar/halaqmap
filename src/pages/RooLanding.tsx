@@ -1,12 +1,12 @@
 /**
- * RooLanding — صفحة هبوط تجريبية
- * المسار: /lab/roo-landing
+ * RooLanding — صفحة الهبوط الافتراضية لمختبر lab.nota-council.com
+ * المسار الأساسي في المختبر: /
  * 
  * تصميم حيوي أقل عتمة · RTL عربي · واجهة تجريبية مستقلة
  * ممنوع تعديل صفحات الإنتاج أو منطق الأعمال
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, type ComponentProps } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
@@ -16,6 +16,13 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
+import { buildLabProductionUrl } from '@/lab/labExternalUrls';
+
+function ProductionRouteLink(
+  { to, ...props }: ComponentProps<'a'> & { to: string }
+) {
+  return <a {...props} href={buildLabProductionUrl(to)} />;
+}
 
 // ─── Hero Section ────────────────────────────────────────────────────────────
 function HeroSection() {
@@ -65,21 +72,21 @@ function HeroSection() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-6">
-              <Link to={ROUTE_PATHS.ABOUT} className="text-sm font-medium text-slate-700 hover:text-sky-600 transition-colors">
+              <ProductionRouteLink to={ROUTE_PATHS.ABOUT} className="text-sm font-medium text-slate-700 hover:text-sky-600 transition-colors">
                 عن المنصة
-              </Link>
-              <Link to={ROUTE_PATHS.BARBERS_LANDING} className="text-sm font-medium text-slate-700 hover:text-sky-600 transition-colors">
+              </ProductionRouteLink>
+              <ProductionRouteLink to={ROUTE_PATHS.BARBERS_LANDING} className="text-sm font-medium text-slate-700 hover:text-sky-600 transition-colors">
                 للشركاء
-              </Link>
-              <Link to={ROUTE_PATHS.PLATFORM_REVIEWS} className="text-sm font-medium text-slate-700 hover:text-sky-600 transition-colors">
+              </ProductionRouteLink>
+              <ProductionRouteLink to={ROUTE_PATHS.PLATFORM_REVIEWS} className="text-sm font-medium text-slate-700 hover:text-sky-600 transition-colors">
                 الآراء
-              </Link>
-              <Link
+              </ProductionRouteLink>
+              <ProductionRouteLink
                 to={ROUTE_PATHS.REGISTER}
                 className="rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
               >
                 ابدأ الآن
-              </Link>
+              </ProductionRouteLink>
             </div>
 
             {/* Mobile Menu Button */}
@@ -102,34 +109,34 @@ function HeroSection() {
               className="md:hidden border-t border-slate-200/50 bg-white/95 backdrop-blur-md"
             >
               <div className="space-y-1 px-4 py-3">
-                <Link
+                <ProductionRouteLink
                   to={ROUTE_PATHS.ABOUT}
                   className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   عن المنصة
-                </Link>
-                <Link
+                </ProductionRouteLink>
+                <ProductionRouteLink
                   to={ROUTE_PATHS.BARBERS_LANDING}
                   className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   للشركاء
-                </Link>
-                <Link
+                </ProductionRouteLink>
+                <ProductionRouteLink
                   to={ROUTE_PATHS.PLATFORM_REVIEWS}
                   className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   الآراء
-                </Link>
-                <Link
+                </ProductionRouteLink>
+                <ProductionRouteLink
                   to={ROUTE_PATHS.REGISTER}
                   className="block rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 px-6 py-2 text-center text-sm font-semibold text-white shadow-lg mt-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   ابدأ الآن
-                </Link>
+                </ProductionRouteLink>
               </div>
             </motion.div>
           )}
@@ -183,7 +190,7 @@ function HeroSection() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Link
+            <ProductionRouteLink
               to={ROUTE_PATHS.HOME}
               className="group relative overflow-hidden rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 px-8 py-4 text-lg font-bold text-white shadow-2xl transition-all hover:shadow-sky-500/50 hover:scale-105"
             >
@@ -192,14 +199,14 @@ function HeroSection() {
                 ابحث الآن
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-sky-500 opacity-0 transition-opacity group-hover:opacity-100" />
-            </Link>
+            </ProductionRouteLink>
 
-            <Link
+            <ProductionRouteLink
               to={ROUTE_PATHS.BARBERS_LANDING}
               className="rounded-full border-2 border-slate-300 bg-white/80 backdrop-blur-sm px-8 py-4 text-lg font-bold text-slate-700 shadow-lg transition-all hover:border-sky-500 hover:text-sky-600 hover:shadow-xl hover:scale-105"
             >
               انضم كشريك
-            </Link>
+            </ProductionRouteLink>
           </motion.div>
 
           {/* Stats */}
@@ -441,7 +448,7 @@ function CTASection() {
             انضم إلى آلاف العملاء الذين يثقون بحلاق ماب للحصول على أفضل خدمة حلاقة
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
+            <ProductionRouteLink
               to={ROUTE_PATHS.HOME}
               className="group relative overflow-hidden rounded-full bg-white px-8 py-4 text-lg font-bold text-sky-600 shadow-2xl transition-all hover:shadow-white/50 hover:scale-105"
             >
@@ -449,13 +456,13 @@ function CTASection() {
                 <Search className="h-5 w-5" />
                 ابدأ البحث الآن
               </span>
-            </Link>
-            <Link
+            </ProductionRouteLink>
+            <ProductionRouteLink
               to={ROUTE_PATHS.BARBERS_LANDING}
               className="rounded-full border-2 border-white bg-transparent px-8 py-4 text-lg font-bold text-white shadow-lg transition-all hover:bg-white hover:text-sky-600 hover:shadow-xl hover:scale-105"
             >
               للشركاء: انضم الآن
-            </Link>
+            </ProductionRouteLink>
           </div>
         </motion.div>
       </div>
@@ -484,18 +491,18 @@ function Footer() {
           <div>
             <h3 className="font-bold mb-4">روابط سريعة</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to={ROUTE_PATHS.ABOUT} className="text-slate-400 hover:text-white transition-colors">عن المنصة</Link></li>
-              <li><Link to={ROUTE_PATHS.BARBERS_LANDING} className="text-slate-400 hover:text-white transition-colors">للشركاء</Link></li>
-              <li><Link to={ROUTE_PATHS.PLATFORM_REVIEWS} className="text-slate-400 hover:text-white transition-colors">الآراء</Link></li>
+              <li><ProductionRouteLink to={ROUTE_PATHS.ABOUT} className="text-slate-400 hover:text-white transition-colors">عن المنصة</ProductionRouteLink></li>
+              <li><ProductionRouteLink to={ROUTE_PATHS.BARBERS_LANDING} className="text-slate-400 hover:text-white transition-colors">للشركاء</ProductionRouteLink></li>
+              <li><ProductionRouteLink to={ROUTE_PATHS.PLATFORM_REVIEWS} className="text-slate-400 hover:text-white transition-colors">الآراء</ProductionRouteLink></li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-bold mb-4">قانوني</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-slate-400 hover:text-white transition-colors">شروط الاستخدام</Link></li>
-              <li><Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-slate-400 hover:text-white transition-colors">سياسة الخصوصية</Link></li>
-              <li><Link to={ROUTE_PATHS.PRIVACY_DETAILED} className="text-slate-400 hover:text-white transition-colors">الخصوصية التفصيلية</Link></li>
+              <li><ProductionRouteLink to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-slate-400 hover:text-white transition-colors">شروط الاستخدام</ProductionRouteLink></li>
+              <li><ProductionRouteLink to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-slate-400 hover:text-white transition-colors">سياسة الخصوصية</ProductionRouteLink></li>
+              <li><ProductionRouteLink to={ROUTE_PATHS.PRIVACY_DETAILED} className="text-slate-400 hover:text-white transition-colors">الخصوصية التفصيلية</ProductionRouteLink></li>
             </ul>
           </div>
 
