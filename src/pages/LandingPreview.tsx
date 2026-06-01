@@ -35,6 +35,9 @@ import { LandingAgentPanelBody } from '@/pages/landing/LandingAgentPanelBody';
 import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { CyberRadarCanvas } from '@/modules/cyber-radar/components/CyberRadarCanvas';
+import type { CyberEvent } from '@/modules/cyber-radar/types';
+import { KSA_VIEWBOX, RIYADH_VIEW } from '@/modules/platform-radar/lib/saudiKingdomGeo';
 
 type LandingAgentPanel = 'media' | 'legal' | null;
 
@@ -233,97 +236,54 @@ const TIER_COLOR: Record<string, string> = {
 
 // ─── Radar canvas ───────────────────────────────────────────────────────────
 function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
-  const [sweep, setSweep] = useState(0);
-  const [activeBeacons, setActiveBeacons] = useState<Set<number>>(new Set());
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setSweep((s) => (s + 1.2) % 360);
-    }, 16);
-    return () => clearInterval(id);
-  }, []);
-
-  // Beacon "lights up" as the sweep passes over it
-  useEffect(() => {
-    DEMO_BEACONS.forEach((b) => {
-      const beaconAngle = Math.atan2(b.y - 50, b.x - 50) * (180 / Math.PI) + 180;
-      const diff = ((sweep - beaconAngle) % 360 + 360) % 360;
-      if (diff < 4) {
-        setActiveBeacons((prev) => new Set([...prev, b.id]));
-        setTimeout(() => {
-          setActiveBeacons((prev) => {
-            const next = new Set(prev);
-            next.delete(b.id);
-            return next;
-          });
-        }, 1800);
-      }
-    });
-  }, [sweep]);
-
-  const rad = (deg: number) => (deg * Math.PI) / 180;
-  const sweepX = 50 + 42 * Math.cos(rad(sweep - 90));
-  const sweepY = 50 + 42 * Math.sin(rad(sweep - 90));
+  const cyberEvents = useMemo<CyberEvent[]>(() => (
+    DEMO_BEACONS.map((b, idx) => {
+      const x = (b.x / 100) * KSA_VIEWBOX.width;
+      const y = (b.y / 100) * KSA_VIEWBOX.height;
+      return {
+        id: `hero-cyber-${b.id}-${idx}`,
+        kind: b.open ? 'visit_internal' : 'threat_probe',
+        severity: b.open ? 'info' : 'elevated',
+        source: { x, y },
+        target: b.open ? undefined : RIYADH_VIEW,
+        description: b.name,
+        originLabelAr: b.name,
+        timestamp: new Date().toISOString(),
+        lifetimeMs: 6000,
+        volume: b.open ? 1 : 2,
+      };
+    })
+  ), []);
 
   return (
-    <div className="relative h-full w-full select-none" style={{ fontFamily: 'system-ui' }}>
-      <svg viewBox="0 0 100 100" className="h-full w-full" style={{ filter: 'drop-shadow(0 0 20px rgba(20,184,166,0.3))' }}>
-        {/* Background rings */}
-        {[10, 20, 30, 42].map((r) => (
-          <circle key={r} cx="50" cy="50" r={r} fill="none"
-            stroke="rgba(20,184,166,0.12)" strokeWidth="0.3" />
-        ))}
-        {/* Cross hairs */}
-        <line x1="8" y1="50" x2="92" y2="50" stroke="rgba(20,184,166,0.08)" strokeWidth="0.2" />
-        <line x1="50" y1="8" x2="50" y2="92" stroke="rgba(20,184,166,0.08)" strokeWidth="0.2" />
+    <div className="relative h-full w-full select-none overflow-hidden rounded-2xl" style={{ fontFamily: 'system-ui' }}>
+      <CyberRadarCanvas pulses={cyberEvents} narrator={null} showOrnaments={false} className="h-full w-full" />
 
-        {/* Sweep sector */}
-        <path
-          d={`M 50 50 L ${sweepX.toFixed(2)} ${sweepY.toFixed(2)} A 42 42 0 0 0 ${(50 + 42 * Math.cos(rad(sweep - 90 - 40))).toFixed(2)} ${(50 + 42 * Math.sin(rad(sweep - 90 - 40))).toFixed(2)} Z`}
-          fill="url(#sweepGrad)"
-          opacity="0.55"
-        />
-        {/* Sweep line */}
-        <line x1="50" y1="50" x2={sweepX.toFixed(2)} y2={sweepY.toFixed(2)}
-          stroke="#2dd4bf" strokeWidth="0.6" />
-
-        <defs>
-          <radialGradient id="sweepGrad" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#14b8a6" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        {/* User position */}
-        <circle cx="50" cy="50" r="2" fill="#14b8a6">
-          <animate attributeName="r" values="1.5;3;1.5" dur="2s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="50" cy="50" r="5" fill="none" stroke="#14b8a6" strokeWidth="0.4" opacity="0.6">
-          <animate attributeName="r" values="3;8;3" dur="2s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.7;0;0.7" dur="2s" repeatCount="indefinite" />
-        </circle>
-
-        {/* Beacons */}
-        {DEMO_BEACONS.map((b) => {
-          const lit = activeBeacons.has(b.id);
-          const color = TIER_COLOR[b.tier];
-          return (
-            <g key={b.id} style={{ cursor: 'pointer' }} onClick={() => onBeaconClick(b.id)}>
-              {lit && (
-                <circle cx={b.x} cy={b.y} r="4" fill={color} opacity="0.25">
-                  <animate attributeName="r" values="3;7;3" dur="1.2s" repeatCount="2" />
-                  <animate attributeName="opacity" values="0.4;0;0.4" dur="1.2s" repeatCount="2" />
-                </circle>
-              )}
-              <circle cx={b.x} cy={b.y} r="2.2" fill={color} opacity={lit ? 1 : 0.45} />
-              <circle cx={b.x} cy={b.y} r="1.1" fill="white" opacity={lit ? 1 : 0.6} />
-              {!b.open && (
-                <circle cx={b.x + 1.5} cy={b.y - 1.5} r="0.8" fill="#ef4444" />
-              )}
-            </g>
-          );
-        })}
-      </svg>
+      {/* Interactive barber hotspots on top of cyber radar */}
+      {DEMO_BEACONS.map((b) => (
+        <button
+          key={b.id}
+          type="button"
+          aria-label={b.name}
+          onClick={() => onBeaconClick(b.id)}
+          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white/45 transition-transform hover:scale-110"
+          style={{
+            left: `${b.x}%`,
+            top: `${b.y}%`,
+            width: '11px',
+            height: '11px',
+            background: TIER_COLOR[b.tier],
+            boxShadow: `0 0 0 3px ${TIER_COLOR[b.tier]}33, 0 0 16px ${TIER_COLOR[b.tier]}77`,
+          }}
+        >
+          {!b.open ? (
+            <span
+              className="absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-1 ring-white/70"
+              aria-hidden
+            />
+          ) : null}
+        </button>
+      ))}
     </div>
   );
 }
