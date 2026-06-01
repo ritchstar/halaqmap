@@ -16,7 +16,7 @@ import {
   TrendingUp, QrCode, ImageIcon, Brain, Moon, FileCheck,
   ChevronLeft, ArrowRight, Wifi, Menu
 } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
@@ -964,6 +964,9 @@ function CertificateMockup() {
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function PartnerMarketingPreview() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isStrictPartnerPath =
+    location.pathname === ROUTE_PATHS.BARBERS_LANDING || location.pathname.startsWith('/partners/');
   useDocumentTitle(SOFTWARE_SERVICES_PORTAL_HEADING);
   const { effectivePhase, control } = usePlatformAmbient();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -1232,14 +1235,16 @@ export default function PartnerMarketingPreview() {
           <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
 
             {/* ── مدير مبيعات B2B — تحت الهيدر وفوق النص ── */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.5 }}
-              className="mb-5 w-full min-w-0"
-            >
-              <B2BSalesManagerChat mode="inline" />
-            </motion.div>
+            {isStrictPartnerPath ? (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.5 }}
+                className="mb-5 w-full min-w-0"
+              >
+                <B2BSalesManagerChat mode="inline" />
+              </motion.div>
+            ) : null}
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300">

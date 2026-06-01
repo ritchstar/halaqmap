@@ -141,6 +141,16 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     ? partnerNavItems
     : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
   const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
+  const isStrictPartnerPath =
+    location.pathname === ROUTE_PATHS.BARBERS_LANDING || location.pathname.startsWith('/partners/');
+  const shouldRenderPartnerChats =
+    isStrictPartnerPath &&
+    ![
+      ROUTE_PATHS.PARTNER_PRIVACY,
+      ROUTE_PATHS.SUBSCRIPTION_POLICY,
+      ROUTE_PATHS.PAYMENT,
+      ROUTE_PATHS.MAP_COMMUNITY, // مجتمع ماب — سعودي فقط
+    ].includes(location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY);
 
   useDocumentTitle(isMapCommunityPage ? 'مجتمع ماب' : SOFTWARE_SERVICES_PORTAL_HEADING);
 
@@ -475,12 +485,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       </main>
 
       {/* لا مدير مبيعات / متحدث على صفحات الخصوصية، السياسات، والدفع */}
-      {![
-        ROUTE_PATHS.PARTNER_PRIVACY,
-        ROUTE_PATHS.SUBSCRIPTION_POLICY,
-        ROUTE_PATHS.PAYMENT,
-        ROUTE_PATHS.MAP_COMMUNITY,      // مجتمع ماب — سعودي فقط
-      ].includes(location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY) && (
+      {shouldRenderPartnerChats && (
         <>
           <B2BSalesManagerChat
             startMinimized={[
