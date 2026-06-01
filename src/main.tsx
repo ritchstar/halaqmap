@@ -1,12 +1,10 @@
 import { createRoot } from 'react-dom/client'
-// مساعد الشركاء (الذكاء الاصطناعي) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
-import App from './App.tsx'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
+import { RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
 
-ensureDomainVerificationMeta()
 // build-sync التلقائي مُعطّل — كان يسبب حلقة reload (_b=…) وremoveChild أثناء تشغيل React
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
@@ -87,10 +85,6 @@ function installDomMismatchGuard(): void {
   }
 }
 
-assertRuntimeEnvSafety()
-installDomMismatchGuard()
-initPlatformBuildSync()
-
 function currentRouteReloadKey(): string {
   return `${CHUNK_RELOAD_ONCE_PREFIX}${window.location.pathname}${window.location.search}${window.location.hash}`
 }
@@ -125,6 +119,26 @@ function reloadOnceForChunkError(): void {
     // ignore storage errors and still attempt reload
   }
   window.location.reload()
+}
+
+function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
+  const message = toErrorMessage(reason) || 'حدث خطأ غير متوقع أثناء تشغيل المنصة.'
+  createRoot(rootEl).render(
+    <div
+      dir="rtl"
+      className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#061223] px-6 text-center text-slate-100"
+    >
+      <p className="text-lg font-bold text-rose-300">تعذّر تشغيل المنصة</p>
+      <p className="max-w-md text-sm text-slate-400">{message}</p>
+      <button
+        type="button"
+        className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-2 text-sm font-semibold text-cyan-200"
+        onClick={() => window.location.reload()}
+      >
+        إعادة التحميل
+      </button>
+    </div>,
+  )
 }
 
 if (typeof window !== 'undefined') {
@@ -168,40 +182,63 @@ function markAppMounted(): void {
   window.dispatchEvent(new CustomEvent('halaqmap:mounted'))
 }
 
-const rootEl = document.getElementById('root')
-if (rootEl) {
+async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
   const bootMarker = window as Window & {
     [APP_BOOTSTRAP_FLAG]?: boolean
     [APP_MOUNTED_FLAG]?: boolean
   }
   if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
     bootMarker[APP_BOOTSTRAP_FLAG] = true
-    createRoot(rootEl).render(<App />)
+    try {
+      ensureDomainVerificationMeta()
+      assertRuntimeEnvSafety()
+      installDomMismatchGuard()
+      initPlatformBuildSync()
 
-    const markIfMounted = () => {
-      if (rootEl.childElementCount > 0 || rootEl.textContent?.trim()) {
-        markAppMounted()
+      const { default: App } = await import('./App.tsx')
+      createRoot(rootEl).render(
+        <RootErrorBoundary>
+          <App />
+        </RootErrorBoundary>,
+      )
+
+      const markIfMounted = () => {
+        if (rootEl.childElementCount > 0 || rootEl.textContent?.trim()) {
+          markAppMounted()
+        }
       }
+
+      // Fast path: mark on first paint if React rendered any content.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(markIfMounted)
+      })
+
+      // Robust path: detect first real DOM mount under #root.
+      const observer = new MutationObserver(() => {
+        if (bootMarker[APP_MOUNTED_FLAG] === true) return
+        markIfMounted()
+        if (bootMarker[APP_MOUNTED_FLAG] === true) {
+          observer.disconnect()
+        }
+      })
+      observer.observe(rootEl, { childList: true, subtree: true, characterData: true })
+
+      // Safety stop to avoid leaving observer alive forever on broken boots.
+      window.setTimeout(() => observer.disconnect(), 12_000)
+    } catch (error) {
+      if (isDynamicImportChunkError(error)) {
+        reloadOnceForChunkError()
+        return
+      }
+      console.error('[halaqmap] App bootstrap failed', error)
+      renderBootstrapFailure(rootEl, error)
     }
-
-    // Fast path: mark on first paint if React rendered any content.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(markIfMounted)
-    })
-
-    // Robust path: detect first real DOM mount under #root.
-    const observer = new MutationObserver(() => {
-      if (bootMarker[APP_MOUNTED_FLAG] === true) return
-      markIfMounted()
-      if (bootMarker[APP_MOUNTED_FLAG] === true) {
-        observer.disconnect()
-      }
-    })
-    observer.observe(rootEl, { childList: true, subtree: true, characterData: true })
-
-    // Safety stop to avoid leaving observer alive forever on broken boots.
-    window.setTimeout(() => observer.disconnect(), 12_000)
   } else if (import.meta.env.DEV) {
     console.warn('[halaqmap] Duplicate bootstrap prevented')
   }
+}
+
+const rootEl = document.getElementById('root')
+if (rootEl) {
+  void bootstrapApp(rootEl)
 }
