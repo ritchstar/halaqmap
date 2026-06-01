@@ -100,29 +100,29 @@
 .platform-dark {
   color-scheme: dark;
 
-  /* الخلفية الرئيسية — #020912 */
-  --background: oklch(0.07 0.03 254);
-  --foreground: oklch(0.95 0.008 248);
+  /* الخلفية الرئيسية — محسّنة للتباين */
+  --background: oklch(0.10 0.03 254);
+  --foreground: oklch(0.96 0.008 248);
 
-  /* البطاقات — #0d1b2e */
-  --card: oklch(0.14 0.05 251);
-  --card-foreground: oklch(0.93 0.008 248);
+  /* البطاقات — أفتح للتباين الأفضل */
+  --card: oklch(0.17 0.05 251);
+  --card-foreground: oklch(0.95 0.008 248);
 
   /* Popover */
-  --popover: oklch(0.12 0.04 253);
-  --popover-foreground: oklch(0.93 0.008 248);
+  --popover: oklch(0.15 0.04 253);
+  --popover-foreground: oklch(0.95 0.008 248);
 
   /* اللون الأساسي — تيل */
   --primary: oklch(0.70 0.15 184);
   --primary-foreground: oklch(0.07 0.03 254);
 
-  /* الثانوي — لوح داكن */
-  --secondary: oklch(0.17 0.04 252);
-  --secondary-foreground: oklch(0.90 0.008 248);
+  /* الثانوي — أفتح */
+  --secondary: oklch(0.20 0.04 252);
+  --secondary-foreground: oklch(0.92 0.008 248);
 
-  /* خافت - Enhanced contrast */
-  --muted: oklch(0.17 0.04 252);
-  --muted-foreground: oklch(0.68 0.03 250);
+  /* خافت - تحسين التباين من 0.68 إلى 0.75 */
+  --muted: oklch(0.20 0.04 252);
+  --muted-foreground: oklch(0.75 0.03 250);
 
   /* اللون المميَّز — ذهبي */
   --accent: oklch(0.77 0.13 78);
@@ -132,19 +132,19 @@
   --destructive: oklch(0.62 0.22 15);
   --destructive-foreground: oklch(0.97 0.005 15);
 
-  /* الحدود والمدخلات */
-  --border: oklch(0.95 0 0 / 0.12);
-  --input: oklch(0.95 0 0 / 0.08);
+  /* الحدود والمدخلات - أوضح */
+  --border: oklch(0.95 0 0 / 0.15);
+  --input: oklch(0.95 0 0 / 0.12);
   --ring: oklch(0.70 0.15 184);
 
   /* الشريط الجانبي */
-  --sidebar: oklch(0.11 0.04 253);
-  --sidebar-foreground: oklch(0.90 0.01 248);
+  --sidebar: oklch(0.14 0.04 253);
+  --sidebar-foreground: oklch(0.92 0.01 248);
   --sidebar-primary: oklch(0.70 0.15 184);
   --sidebar-primary-foreground: oklch(0.07 0.03 254);
   --sidebar-accent: oklch(0.77 0.13 78);
   --sidebar-accent-foreground: oklch(0.07 0.03 254);
-  --sidebar-border: oklch(0.95 0 0 / 0.10);
+  --sidebar-border: oklch(0.95 0 0 / 0.12);
   --sidebar-ring: oklch(0.70 0.15 184);
 }
 
@@ -167,11 +167,56 @@
 }
 
 .platform-dark .partner-legal-page .text-muted-foreground {
-  color: oklch(0.78 0.02 250);
+  color: oklch(0.82 0.02 250);
 }
 
 .platform-dark .partner-legal-page :where(h2, h3, [class*="CardTitle"]) {
   color: oklch(0.97 0.008 248);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Utility Classes للتباين المحسّن
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* نصوص محسّنة للقراءة */
+.text-readable {
+  @apply text-slate-200;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.625;
+}
+
+.text-readable-lg {
+  @apply text-slate-100;
+  font-size: 1rem; /* 16px */
+  line-height: 1.625;
+}
+
+.text-readable-sm {
+  @apply text-slate-300;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.5;
+}
+
+/* خلفيات محسّنة */
+.bg-card-elevated {
+  @apply bg-slate-800 border border-slate-700;
+}
+
+.bg-surface-light {
+  @apply bg-slate-700 border border-slate-600;
+}
+
+.bg-surface-lighter {
+  @apply bg-slate-600 border border-slate-500;
+}
+
+/* تحسينات للنصوص الخافتة */
+.platform-dark .text-muted-improved {
+  @apply text-slate-300;
+}
+
+.platform-dark .text-secondary-improved {
+  @apply text-slate-200;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
