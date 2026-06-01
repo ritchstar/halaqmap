@@ -288,8 +288,8 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       react(),
       VitePWA({
-        // Prompt-based updates avoid forcing reload behavior mid-session.
-        registerType: 'prompt',
+        // Keep clients on a single SW generation to avoid old-chunk/new-manifest mismatches.
+        registerType: 'autoUpdate',
         injectRegister: false,
         manifestFilename: 'manifest.json',
         manifest: webAppManifest,
@@ -300,10 +300,9 @@ export default defineConfig(({ mode }) => {
           'icons/**/*.png',
         ],
         workbox: {
-          // Activate the new SW only after old clients are naturally released.
-          skipWaiting: false,
-          // Do not immediately take control of currently open tabs.
-          clientsClaim: false,
+          // Activate new worker immediately and claim tabs to keep asset generations aligned.
+          skipWaiting: true,
+          clientsClaim: true,
           cleanupOutdatedCaches: true,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
           globIgnores: ['**/halaqmap_barber_banner_*.png'],
@@ -311,18 +310,6 @@ export default defineConfig(({ mode }) => {
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//],
           runtimeCaching: [
-            {
-              urlPattern: ({ url }) =>
-                url.origin === self.location.origin &&
-                /^\/assets\/.*\.js$/i.test(url.pathname),
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'app-js-assets',
-                networkTimeoutSeconds: 4,
-                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 7 },
-                cacheableResponse: { statuses: [0, 200] },
-              },
-            },
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',

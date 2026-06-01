@@ -32,9 +32,10 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v6';
+          var flag = 'hm-sw-reset-v7';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v6');
           localStorage.removeItem('hm-sw-reset-v5');
           localStorage.removeItem('hm-sw-reset-v3');
           localStorage.removeItem('hm-sw-reset-v2');
@@ -53,6 +54,104 @@
         } catch (e) {}
       })();
     </script>
+    <!-- خط دفاع أخير ضد الشاشة البيضاء: إذا لم يتم mount للتطبيق خلال المهلة، ننفّذ إنعاش إنقاذي مرة واحدة -->
+    <script>
+      (function () {
+        try {
+          var mountedFlag = '__halaqmapAppMountedV1';
+          var overlayId = 'hm-boot-emergency-overlay-v1';
+          var key =
+            'hm-boot-watchdog-v1:' +
+            window.location.pathname +
+            window.location.search +
+            window.location.hash;
+
+          if (window[mountedFlag] !== true) {
+            window[mountedFlag] = false;
+          }
+
+          var removeOverlay = function () {
+            var existing = document.getElementById(overlayId);
+            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+          };
+
+          var showOverlay = function () {
+            if (document.getElementById(overlayId)) return;
+            var el = document.createElement('div');
+            el.id = overlayId;
+            el.setAttribute('dir', 'rtl');
+            el.style.cssText =
+              'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:#f8fafc;color:#0f172a;font-family:Tajawal,system-ui,sans-serif;padding:24px;';
+            el.innerHTML =
+              '<div style="max-width:640px;background:#ffffff;border:1px solid #cbd5e1;border-radius:16px;padding:18px 16px;box-shadow:0 24px 48px -32px rgba(15,23,42,.35)">' +
+              '<h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#0f172a">نقوم باستعادة الصفحة تلقائياً…</h2>' +
+              '<p style="margin:0 0 12px;font-size:14px;line-height:1.8;color:#334155">تم رصد تعثّر في الإقلاع. يجري الآن تنظيف الكاش وإعادة التحميل الآمن.</p>' +
+              '<button id="hm-boot-emergency-btn" style="border:0;border-radius:10px;padding:10px 14px;background:#0ea5e9;color:#fff;font-weight:700;cursor:pointer">إعادة تحميل فورية</button>' +
+              '</div>';
+            document.body.appendChild(el);
+            var btn = document.getElementById('hm-boot-emergency-btn');
+            if (btn) {
+              btn.addEventListener('click', function () {
+                try {
+                  sessionStorage.removeItem(key);
+                } catch (e) {}
+                window.location.reload();
+              });
+            }
+          };
+
+          window.addEventListener('halaqmap:mounted', function () {
+            window[mountedFlag] = true;
+            removeOverlay();
+          });
+
+          window.setTimeout(function () {
+            try {
+              if (window[mountedFlag] === true) return;
+              if (sessionStorage.getItem(key) === '1') return;
+              sessionStorage.setItem(key, '1');
+              showOverlay();
+
+              var reload = function () {
+                try {
+                  var u = new URL(window.location.href);
+                  u.searchParams.set('_boot', String(Date.now()));
+                  window.location.replace(u.pathname + u.search + u.hash);
+                } catch (e) {
+                  window.location.reload();
+                }
+              };
+
+              var clearCaches = function () {
+                if (!('caches' in window)) return Promise.resolve();
+                return caches
+                  .keys()
+                  .then(function (keys) {
+                    return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                  })
+                  .catch(function () {});
+              };
+
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker
+                  .getRegistrations()
+                  .then(function (regs) {
+                    return Promise.all(regs.map(function (r) { return r.unregister(); }));
+                  })
+                  .catch(function () {})
+                  .then(clearCaches)
+                  .finally(reload);
+              } else {
+                clearCaches().finally(reload);
+              }
+            } catch (e) {
+              showOverlay();
+              window.location.reload();
+            }
+          }, 7000);
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -67,7 +166,7 @@
         href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap"
       />
     </noscript>
-    <title>حلاق ماب | HALAQ MAP</title>
+    <title>حلاق ماب — منصة الرصد الذكي للبحث عن صالونات الحلاقة القريبة</title>
     <meta
       name="description"
       content="حلاق ماب: المنصة الأولى المدعومة بنظام الرصد الذكي. محرك بحث جغرافي فائق السرعة يرصد ويحدد أقرب صالونات الحلاقة بدقة متناهية."
