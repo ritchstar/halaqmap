@@ -250,10 +250,12 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
     e.target.style.height = Math.min(e.target.scrollHeight, 130) + 'px';
   }, []);
 
-  // Panel mode: fixed bottom-left — مخفي على الجوال في الوضع المصغّر
+  // Panel mode: teaser ثابت، وعند الفتح يصبح «مجلس ضيوف» أمامي كبير (3/4 الشاشة تقريباً)
   const wrapClass = mode === 'inline'
     ? `relative w-full max-w-full ${open ? 'z-[50]' : 'z-10'}`
-    : 'hidden sm:block fixed bottom-24 left-0 z-[49] md:bottom-6';
+    : open
+      ? 'fixed inset-0 z-[72] flex items-center justify-center px-2 py-3 sm:px-4 sm:py-6'
+      : 'fixed bottom-24 left-0 z-[49] md:bottom-6';
 
   // وضع التكمّش — لسان ذهبي يسار
   if (mode === 'panel' && minimized && !open) {
@@ -263,7 +265,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -22 }}
         onClick={() => { setMinimized(false); setOpen(true); }}
-        className="hidden sm:flex fixed left-0 z-[49] flex-col items-center gap-1.5 py-3 px-2.5"
+        className="fixed left-0 z-[49] flex flex-col items-center gap-1.5 py-3 px-2.5"
         style={{
           top: '38%',
           background: 'linear-gradient(180deg,#1c0800 0%,#2a1100 50%,#1c0800 100%)',
@@ -323,7 +325,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               animate={mode === 'inline' ? { opacity: 1, y: 0 } : { x: 0, opacity: 1 }}
               exit={mode === 'inline' ? { opacity: 0, y: 10 } : { x: -320, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-              className={mode === 'inline' ? 'w-full' : 'w-[min(100vw-0.75rem,13.5rem)]'}
+              className={mode === 'inline' ? 'w-full' : 'w-[min(100vw-0.75rem,14.5rem)]'}
             >
               <SaudiFlexibleDialogShell compact>
               <div className="px-[clamp(0.65rem,2vw,0.85rem)] py-[clamp(0.65rem,2vw,0.85rem)]">
@@ -414,10 +416,15 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               onClick={(e) => e.stopPropagation()}
               className={cn(
                 'w-full',
-                mode === 'panel' && 'w-[min(calc(100vw-1rem),38rem)]',
+                mode === 'panel' && 'w-[min(95vw,74rem)]',
               )}
             >
-              <SaudiFlexibleDialogShell fluidHeight>
+              <SaudiFlexibleDialogShell
+                fluidHeight
+                className={cn(
+                  mode === 'panel' && 'h-[min(84dvh,54rem)] max-h-[84dvh]',
+                )}
+              >
               {/* ── Header ── */}
               <div className="relative shrink-0 flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/15 bg-gradient-to-l from-amber-500/8 via-transparent to-transparent px-[clamp(0.85rem,2.5vw,1.25rem)] py-[clamp(0.75rem,2vw,1rem)]">
                 <div className="flex items-center gap-3">
