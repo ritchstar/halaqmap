@@ -161,6 +161,13 @@ if (import.meta.env.DEV) {
     })
 }
 
+function markAppMounted(): void {
+  const bootMarker = window as Window & { [APP_MOUNTED_FLAG]?: boolean }
+  if (bootMarker[APP_MOUNTED_FLAG] === true) return
+  bootMarker[APP_MOUNTED_FLAG] = true
+  window.dispatchEvent(new CustomEvent('halaqmap:mounted'))
+}
+
 const rootEl = document.getElementById('root')
 if (rootEl) {
   const bootMarker = window as Window & {
@@ -170,7 +177,30 @@ if (rootEl) {
   if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
     bootMarker[APP_BOOTSTRAP_FLAG] = true
     createRoot(rootEl).render(<App />)
-    bootMarker[APP_MOUNTED_FLAG] = true
+
+    const markIfMounted = () => {
+      if (rootEl.childElementCount > 0 || rootEl.textContent?.trim()) {
+        markAppMounted()
+      }
+    }
+
+    // Fast path: mark on first paint if React rendered any content.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(markIfMounted)
+    })
+
+    // Robust path: detect first real DOM mount under #root.
+    const observer = new MutationObserver(() => {
+      if (bootMarker[APP_MOUNTED_FLAG] === true) return
+      markIfMounted()
+      if (bootMarker[APP_MOUNTED_FLAG] === true) {
+        observer.disconnect()
+      }
+    })
+    observer.observe(rootEl, { childList: true, subtree: true, characterData: true })
+
+    // Safety stop to avoid leaving observer alive forever on broken boots.
+    window.setTimeout(() => observer.disconnect(), 12_000)
   } else if (import.meta.env.DEV) {
     console.warn('[halaqmap] Duplicate bootstrap prevented')
   }
