@@ -56,7 +56,7 @@ const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
-const RooLanding = lazy(() => import("@/pages/RooLanding"));
+const RooLanding = lazy(() => import("@/pages/RooLandingLightClone"));
 
 const queryClient = new QueryClient();
 
