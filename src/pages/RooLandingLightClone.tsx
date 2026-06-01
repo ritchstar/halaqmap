@@ -4,9 +4,9 @@ import { useSearchParams } from 'react-router-dom'
 type LabVariant = 'v1' | 'v2' | 'v3'
 
 const VARIANTS: Array<{ key: LabVariant; label: string; hint: string }> = [
-  { key: 'v1', label: 'V1', hint: 'Baseline Light' },
-  { key: 'v2', label: 'V2', hint: 'Contrast Balanced' },
-  { key: 'v3', label: 'V3', hint: 'Luminous Accent' },
+  { key: 'v1', label: 'V1', hint: 'Neutral Blue Light' },
+  { key: 'v2', label: 'V2', hint: 'Warm Cream Light' },
+  { key: 'v3', label: 'V3', hint: 'Fresh Aqua Light' },
 ]
 
 function normalizeVariant(value: string | null): LabVariant {

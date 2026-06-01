@@ -464,21 +464,61 @@
    Scope: /#/lab/roo-landing
    ═══════════════════════════════════════════════════════════════════════ */
 .roo-light-clone .platform-dark.platform-ambient {
+  --roo-bg-top: rgba(255, 255, 255, 0.96);
+  --roo-bg-mid: rgba(236, 252, 255, 0.9);
+  --roo-bg-bottom: rgba(239, 246, 255, 0.84);
+  --roo-bg-solid-1: #f7fcff;
+  --roo-bg-solid-2: #eef8ff;
+  --roo-bg-solid-3: #f3faff;
+  --roo-surface: rgba(255, 255, 255, 0.72);
+  --roo-surface-strong: rgba(255, 255, 255, 0.9);
+  --roo-surface-border: rgba(14, 116, 144, 0.18);
+  --roo-text-primary: rgb(15 23 42);
+  --roo-text-secondary: rgb(51 65 85);
+  --roo-text-muted: rgb(71 85 105);
+  --roo-footer-bg: linear-gradient(180deg, rgba(237, 248, 255, 0.98) 0%, rgba(226, 242, 255, 0.96) 100%);
+  --roo-footer-border: rgba(14, 116, 144, 0.2);
+  --roo-accent-glow: rgba(6, 182, 212, 0.32);
+
   background:
-    radial-gradient(88% 55% at 50% 0%, rgba(255, 255, 255, 0.92) 0%, rgba(236, 252, 255, 0.88) 58%, rgba(240, 249, 255, 0.82) 100%),
-    linear-gradient(180deg, #f8fcff 0%, #eef9ff 56%, #f3fbff 100%) !important;
+    radial-gradient(88% 55% at 50% 0%, var(--roo-bg-top) 0%, var(--roo-bg-mid) 58%, var(--roo-bg-bottom) 100%),
+    linear-gradient(180deg, var(--roo-bg-solid-1) 0%, var(--roo-bg-solid-2) 56%, var(--roo-bg-solid-3) 100%) !important;
 }
 
 /* Light surfaces: readable dark text */
 .roo-light-clone .platform-dark.platform-ambient :where(.text-slate-100, .text-slate-200) {
-  color: rgb(15 23 42) !important;
+  color: var(--roo-text-primary) !important;
 }
 
 .roo-light-clone .platform-dark.platform-ambient :where(.text-slate-300, .text-slate-400, .text-slate-500, .text-muted-foreground) {
-  color: rgb(51 65 85) !important;
+  color: var(--roo-text-secondary) !important;
 }
 
-/* Dark surfaces/cards: restore light text for contrast */
+/* Convert dark cards/panels into bright cards for the lab */
+.roo-light-clone .platform-dark.platform-ambient :is(
+  [class*="bg-[#020912]"],
+  [class*="bg-slate-9"],
+  [class*="bg-gray-9"],
+  [class*="bg-black"],
+  [class*="from-[#020912]"],
+  [class*="to-[#020912]"],
+  [class*="from-slate-9"],
+  [class*="to-slate-9"]
+) {
+  background-color: var(--roo-surface) !important;
+  border-color: var(--roo-surface-border) !important;
+  backdrop-filter: blur(10px);
+}
+
+.roo-light-clone .platform-dark.platform-ambient :is(
+  [class*="from-[#020912]"],
+  [class*="from-slate-9"],
+  [class*="to-[#020912]"],
+  [class*="to-slate-9"]
+) {
+  background-image: linear-gradient(180deg, var(--roo-surface-strong), var(--roo-surface)) !important;
+}
+
 .roo-light-clone .platform-dark.platform-ambient :is(
   [class*="bg-[#020912]"],
   [class*="bg-slate-9"],
@@ -490,7 +530,21 @@
   [class*="to-slate-9"],
   footer
 ) :where(.text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-slate-500, .text-muted-foreground) {
-  color: rgb(226 232 240) !important;
+  color: var(--roo-text-primary) !important;
+}
+
+.roo-light-clone .platform-dark.platform-ambient :is(
+  [class*="bg-[#020912]"],
+  [class*="bg-slate-9"],
+  [class*="bg-gray-9"],
+  [class*="bg-black"],
+  [class*="from-[#020912]"],
+  [class*="to-[#020912]"],
+  [class*="from-slate-9"],
+  [class*="to-slate-9"],
+  footer
+) :where(.text-slate-400, .text-slate-500, .text-muted-foreground) {
+  color: var(--roo-text-muted) !important;
 }
 
 /* Slight readability bump across the lab clone */
@@ -504,23 +558,22 @@
 
 /* Footer gets stronger treatment (requested +25%) */
 .roo-light-clone .platform-dark.platform-ambient footer {
-  background:
-    linear-gradient(180deg, rgba(7, 19, 36, 0.92) 0%, rgba(5, 14, 30, 0.96) 100%) !important;
-  border-top-color: rgba(34, 211, 238, 0.22) !important;
+  background: var(--roo-footer-bg) !important;
+  border-top-color: var(--roo-footer-border) !important;
 }
 
-.roo-light-clone .platform-dark.platform-ambient footer :where(.text-xs, .text-sm, .text-[0.7rem]) {
+.roo-light-clone .platform-dark.platform-ambient footer :where(.text-xs, .text-sm) {
   font-size: 1.25em !important;
   line-height: 1.65 !important;
 }
 
 .roo-light-clone .platform-dark.platform-ambient > .fixed.inset-0.z-0 {
-  opacity: 0.012 !important;
+  opacity: 0.007 !important;
 }
 
 .roo-light-clone .platform-dark.platform-ambient > .pointer-events-none.absolute.-right-64.top-10,
 .roo-light-clone .platform-dark.platform-ambient > .pointer-events-none.absolute.-left-48.bottom-20 {
-  opacity: 0.18 !important;
+  opacity: 0.12 !important;
 }
 
 /* Lab organizer switcher */
@@ -590,43 +643,190 @@
   color: rgba(226, 232, 240, 0.82);
 }
 
-/* v2 — توازن قراءة أعلى مع تحكم أدق بالحدة */
-.roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient {
+/* ═══════════════════════════════════════════════════════════════════════
+   v1 — Neutral Blue Light (Clean Professional)
+   هوية: أبيض نقي مع لمسات زرقاء فاتحة، نص داكن عالي التباين
+   ═══════════════════════════════════════════════════════════════════════ */
+.roo-light-clone.roo-lab-v1 .platform-dark.platform-ambient {
+  --roo-bg-top: rgba(255, 255, 255, 1);
+  --roo-bg-mid: rgba(240, 249, 255, 0.98);
+  --roo-bg-bottom: rgba(235, 245, 255, 0.96);
+  --roo-bg-solid-1: #ffffff;
+  --roo-bg-solid-2: #f0f9ff;
+  --roo-bg-solid-3: #e0f2fe;
+  --roo-surface: rgba(255, 255, 255, 0.95);
+  --roo-surface-strong: rgba(255, 255, 255, 1);
+  --roo-surface-border: rgba(14, 116, 144, 0.25);
+  --roo-text-primary: rgb(15, 23, 42);
+  --roo-text-secondary: rgb(30, 41, 59);
+  --roo-text-muted: rgb(51, 65, 85);
+  --roo-footer-bg: linear-gradient(180deg, rgba(240, 249, 255, 1) 0%, rgba(224, 242, 254, 1) 100%);
+  --roo-footer-border: rgba(14, 116, 144, 0.3);
+  --roo-accent-glow: rgba(6, 182, 212, 0.4);
+  
   background:
-    radial-gradient(86% 52% at 50% 0%, rgba(255, 255, 255, 0.9) 0%, rgba(236, 252, 255, 0.82) 60%, rgba(236, 248, 255, 0.76) 100%),
-    linear-gradient(180deg, #f2f8fd 0%, #e7f2fb 56%, #edf7ff 100%) !important;
+    radial-gradient(90% 60% at 50% 0%, rgba(240, 249, 255, 1) 0%, rgba(235, 245, 255, 0.98) 60%, rgba(255, 255, 255, 1) 100%),
+    linear-gradient(180deg, #ffffff 0%, #f0f9ff 50%, #e0f2fe 100%) !important;
+}
+
+/* v1: نص داكن جداً على كل الخلفيات */
+.roo-light-clone.roo-lab-v1 .platform-dark.platform-ambient :where(h1, h2, h3, h4, h5, h6) {
+  color: rgb(15, 23, 42) !important;
+  font-weight: 700 !important;
+}
+
+.roo-light-clone.roo-lab-v1 .platform-dark.platform-ambient :where(p, span, div) {
+  color: rgb(30, 41, 59) !important;
+}
+
+.roo-light-clone.roo-lab-v1 .platform-dark.platform-ambient footer {
+  background: linear-gradient(180deg, rgba(240, 249, 255, 1) 0%, rgba(224, 242, 254, 1) 100%) !important;
+  border-top: 2px solid rgba(14, 116, 144, 0.3) !important;
+}
+
+.roo-light-clone.roo-lab-v1 .platform-dark.platform-ambient footer * {
+  color: rgb(15, 23, 42) !important;
+}
+
+/* v1: CTA buttons - blue theme */
+.roo-light-clone.roo-lab-v1 .platform-dark.platform-ambient :is(
+  [class*='from-teal-500'][class*='to-teal-700'],
+  [class*='from-cyan-500'][class*='to-teal-500'],
+  [class*='from-teal-500'][class*='to-cyan-500'],
+  button[class*='bg-gradient']
+) {
+  background: linear-gradient(135deg, rgb(6, 182, 212) 0%, rgb(8, 145, 178) 100%) !important;
+  color: white !important;
+  border: 2px solid rgba(6, 182, 212, 0.4) !important;
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35), 0 0 0 1px rgba(6, 182, 212, 0.2) !important;
+  font-weight: 600 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   v2 — Warm Cream Light (Premium Luxury)
+   هوية: كريمي دافئ مع نصوص بنية داكنة، إحساس فاخر
+   ═══════════════════════════════════════════════════════════════════════ */
+.roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient {
+  --roo-bg-top: rgba(255, 251, 240, 1);
+  --roo-bg-mid: rgba(254, 243, 219, 0.98);
+  --roo-bg-bottom: rgba(253, 237, 207, 0.96);
+  --roo-bg-solid-1: #fffbf0;
+  --roo-bg-solid-2: #fef3db;
+  --roo-bg-solid-3: #fde9c8;
+  --roo-surface: rgba(255, 250, 235, 0.95);
+  --roo-surface-strong: rgba(255, 253, 245, 1);
+  --roo-surface-border: rgba(180, 83, 9, 0.3);
+  --roo-text-primary: rgb(55, 30, 10);
+  --roo-text-secondary: rgb(78, 45, 20);
+  --roo-text-muted: rgb(102, 60, 30);
+  --roo-footer-bg: linear-gradient(180deg, rgba(254, 243, 219, 1) 0%, rgba(253, 230, 195, 1) 100%);
+  --roo-footer-border: rgba(217, 119, 6, 0.35);
+  --roo-accent-glow: rgba(251, 146, 60, 0.45);
+  
+  background:
+    radial-gradient(88% 58% at 50% 0%, rgba(255, 251, 240, 1) 0%, rgba(254, 243, 219, 0.98) 58%, rgba(253, 237, 207, 1) 100%),
+    linear-gradient(180deg, #fffbf0 0%, #fef3db 50%, #fde9c8 100%) !important;
+}
+
+/* v2: نص بني داكن على كل الخلفيات */
+.roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient :where(h1, h2, h3, h4, h5, h6) {
+  color: rgb(55, 30, 10) !important;
+  font-weight: 700 !important;
+}
+
+.roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient :where(p, span, div) {
+  color: rgb(78, 45, 20) !important;
+}
+
+.roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient footer {
+  background: linear-gradient(180deg, rgba(254, 243, 219, 1) 0%, rgba(253, 230, 195, 1) 100%) !important;
+  border-top: 2px solid rgba(217, 119, 6, 0.35) !important;
+}
+
+.roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient footer * {
+  color: rgb(55, 30, 10) !important;
+}
+
+/* v2: CTA buttons - warm orange/amber theme */
+.roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient :is(
+  [class*='from-teal-500'][class*='to-teal-700'],
+  [class*='from-cyan-500'][class*='to-teal-500'],
+  [class*='from-teal-500'][class*='to-cyan-500'],
+  button[class*='bg-gradient']
+) {
+  background: linear-gradient(135deg, rgb(251, 146, 60) 0%, rgb(217, 119, 6) 100%) !important;
+  color: white !important;
+  border: 2px solid rgba(251, 146, 60, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(251, 146, 60, 0.4), 0 0 0 1px rgba(217, 119, 6, 0.3) !important;
+  font-weight: 600 !important;
 }
 
 .roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient .text-sm {
-  font-size: calc(0.875rem * 1.16) !important;
+  font-size: calc(0.875rem * 1.15) !important;
 }
 
-.roo-light-clone.roo-lab-v2 .platform-dark.platform-ambient :where(.text-slate-300, .text-slate-400, .text-slate-500, .text-muted-foreground) {
-  color: rgb(30 41 59) !important;
-}
-
-/* v3 — نسخة مضيئة وCTA أكثر بروزاً */
+/* ═══════════════════════════════════════════════════════════════════════
+   v3 — Fresh Aqua Light (Vibrant Modern)
+   هوية: نعناعي/سماوي فاتح، CTA أوضح، طاقة حديثة
+   ═══════════════════════════════════════════════════════════════════════ */
 .roo-light-clone.roo-lab-v3 .platform-dark.platform-ambient {
+  --roo-bg-top: rgba(240, 255, 250, 1);
+  --roo-bg-mid: rgba(220, 252, 245, 0.98);
+  --roo-bg-bottom: rgba(204, 251, 241, 0.96);
+  --roo-bg-solid-1: #f0fffa;
+  --roo-bg-solid-2: #ccfbf1;
+  --roo-bg-solid-3: #99f6e4;
+  --roo-surface: rgba(240, 253, 250, 0.95);
+  --roo-surface-strong: rgba(247, 254, 252, 1);
+  --roo-surface-border: rgba(13, 148, 136, 0.35);
+  --roo-text-primary: rgb(4, 47, 46);
+  --roo-text-secondary: rgb(19, 78, 74);
+  --roo-text-muted: rgb(31, 98, 94);
+  --roo-footer-bg: linear-gradient(180deg, rgba(220, 252, 245, 1) 0%, rgba(204, 251, 241, 1) 100%);
+  --roo-footer-border: rgba(13, 148, 136, 0.4);
+  --roo-accent-glow: rgba(20, 184, 166, 0.5);
+  
   background:
-    radial-gradient(92% 58% at 50% 0%, rgba(255, 255, 255, 0.96) 0%, rgba(240, 253, 250, 0.9) 58%, rgba(224, 242, 254, 0.86) 100%),
-    linear-gradient(180deg, #f7fdff 0%, #edfaff 52%, #ecfffb 100%) !important;
+    radial-gradient(92% 62% at 50% 0%, rgba(240, 255, 250, 1) 0%, rgba(220, 252, 245, 0.98) 60%, rgba(204, 251, 241, 1) 100%),
+    linear-gradient(180deg, #f0fffa 0%, #ccfbf1 50%, #99f6e4 100%) !important;
 }
 
+/* v3: نص داكن مخضر على كل الخلفيات */
+.roo-light-clone.roo-lab-v3 .platform-dark.platform-ambient :where(h1, h2, h3, h4, h5, h6) {
+  color: rgb(4, 47, 46) !important;
+  font-weight: 700 !important;
+}
+
+.roo-light-clone.roo-lab-v3 .platform-dark.platform-ambient :where(p, span, div) {
+  color: rgb(19, 78, 74) !important;
+}
+
+.roo-light-clone.roo-lab-v3 .platform-dark.platform-ambient footer {
+  background: linear-gradient(180deg, rgba(220, 252, 245, 1) 0%, rgba(204, 251, 241, 1) 100%) !important;
+  border-top: 2px solid rgba(13, 148, 136, 0.4) !important;
+}
+
+.roo-light-clone.roo-lab-v3 .platform-dark.platform-ambient footer * {
+  color: rgb(4, 47, 46) !important;
+}
+
+/* v3: CTA buttons - vibrant teal/emerald with stronger presence */
 .roo-light-clone.roo-lab-v3 .platform-dark.platform-ambient :is(
   [class*='from-teal-500'][class*='to-teal-700'],
   [class*='from-cyan-500'][class*='to-teal-500'],
-  [class*='from-teal-500'][class*='to-cyan-500']
+  [class*='from-teal-500'][class*='to-cyan-500'],
+  button[class*='bg-gradient']
 ) {
-  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.24), 0 14px 28px -16px rgba(6, 182, 212, 0.55) !important;
+  background: linear-gradient(135deg, rgb(20, 184, 166) 0%, rgb(13, 148, 136) 100%) !important;
+  color: white !important;
+  border: 2px solid rgba(20, 184, 166, 0.6) !important;
+  box-shadow: 0 6px 18px rgba(20, 184, 166, 0.45), 0 0 0 1px rgba(13, 148, 136, 0.3) !important;
+  font-weight: 700 !important;
+  transform: scale(1.02);
 }
 
 .roo-light-clone.roo-lab-v3 .platform-dark.platform-ambient .text-sm {
   font-size: calc(0.875rem * 1.18) !important;
-}
-
-.roo-light-clone.roo-lab-v3 .platform-dark.platform-ambient footer {
-  background:
-    linear-gradient(180deg, rgba(8, 22, 42, 0.94) 0%, rgba(7, 16, 34, 0.98) 100%) !important;
 }
 
 /* ──────────────── Legacy .dark class ──────────────────────────────── */
