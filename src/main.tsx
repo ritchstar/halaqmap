@@ -15,6 +15,7 @@ const CHUNK_RELOAD_ONCE_PREFIX = 'hm-chunk-reload-once:'
 const DOM_GUARD_PATCH_FLAG = '__halaqmapDomGuardPatched'
 const DOM_GUARD_LOG_KEY = 'hm-dom-guard-events-v1'
 const APP_BOOTSTRAP_FLAG = '__halaqmapAppBootstrapped'
+const APP_MOUNTED_FLAG = '__halaqmapAppMountedV1'
 const ENABLE_DOM_GUARD = import.meta.env.VITE_ENABLE_DOM_GUARD === 'true'
 
 function installDomMismatchGuard(): void {
@@ -162,10 +163,14 @@ if (import.meta.env.DEV) {
 
 const rootEl = document.getElementById('root')
 if (rootEl) {
-  const bootMarker = window as Window & { [APP_BOOTSTRAP_FLAG]?: boolean }
+  const bootMarker = window as Window & {
+    [APP_BOOTSTRAP_FLAG]?: boolean
+    [APP_MOUNTED_FLAG]?: boolean
+  }
   if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
     bootMarker[APP_BOOTSTRAP_FLAG] = true
     createRoot(rootEl).render(<App />)
+    bootMarker[APP_MOUNTED_FLAG] = true
   } else if (import.meta.env.DEV) {
     console.warn('[halaqmap] Duplicate bootstrap prevented')
   }

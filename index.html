@@ -32,9 +32,10 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v6';
+          var flag = 'hm-sw-reset-v7';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v6');
           localStorage.removeItem('hm-sw-reset-v5');
           localStorage.removeItem('hm-sw-reset-v3');
           localStorage.removeItem('hm-sw-reset-v2');
@@ -50,6 +51,64 @@
               return Promise.all(keys.map(function (k) { return caches.delete(k); }));
             });
           }
+        } catch (e) {}
+      })();
+    </script>
+    <!-- خط دفاع أخير ضد الشاشة البيضاء: إذا لم يتم mount للتطبيق خلال المهلة، ننفّذ إنعاش إنقاذي مرة واحدة -->
+    <script>
+      (function () {
+        try {
+          var mountedFlag = '__halaqmapAppMountedV1';
+          var key =
+            'hm-boot-watchdog-v1:' +
+            window.location.pathname +
+            window.location.search +
+            window.location.hash;
+
+          window[mountedFlag] = false;
+
+          window.setTimeout(function () {
+            try {
+              if (window[mountedFlag] === true) return;
+              if (sessionStorage.getItem(key) === '1') return;
+              sessionStorage.setItem(key, '1');
+
+              var reload = function () {
+                try {
+                  var u = new URL(window.location.href);
+                  u.searchParams.set('_boot', String(Date.now()));
+                  window.location.replace(u.pathname + u.search + u.hash);
+                } catch (e) {
+                  window.location.reload();
+                }
+              };
+
+              var clearCaches = function () {
+                if (!('caches' in window)) return Promise.resolve();
+                return caches
+                  .keys()
+                  .then(function (keys) {
+                    return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                  })
+                  .catch(function () {});
+              };
+
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker
+                  .getRegistrations()
+                  .then(function (regs) {
+                    return Promise.all(regs.map(function (r) { return r.unregister(); }));
+                  })
+                  .catch(function () {})
+                  .then(clearCaches)
+                  .finally(reload);
+              } else {
+                clearCaches().finally(reload);
+              }
+            } catch (e) {
+              window.location.reload();
+            }
+          }, 7000);
         } catch (e) {}
       })();
     </script>
