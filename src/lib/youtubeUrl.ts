@@ -8,7 +8,7 @@ export function parseYoutubeVideoId(raw: string): string | null {
     const host = url.hostname.replace(/^www\./, '').toLowerCase();
 
     if (host === 'youtu.be') {
-      const id = url.pathname.replace(/^\//, '').split('/')[0];
+      const id = url.pathname.replace(/^\//, '').split('/')[0] ?? '';
       return /^[\w-]{11}$/.test(id) ? id : null;
     }
 

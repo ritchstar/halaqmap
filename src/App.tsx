@@ -14,6 +14,7 @@ import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
+import { lazyWithRetry } from "@/lib/lazyWithRetry";
 
 const LandingPreview = lazy(() => import("@/pages/LandingPreview"));
 const PartnerMarketingPreview = lazy(() => import("@/pages/PartnerMarketingPreview"));
@@ -56,7 +57,7 @@ const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
-const LabCloneSandbox = lazy(() => import("@/lab/LabCloneSandbox"));
+const LabCloneSandbox = lazyWithRetry(() => import("@/lab/LabCloneSandbox"), "lab-clone-sandbox");
 
 const queryClient = new QueryClient();
 

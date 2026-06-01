@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.phase2-strict.json",
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true
+  },
+  "include": [
+    "src/vite-env.d.ts",
+    "src/config/runtimeEnvGuard.ts",
+    "src/config/adminAuth.ts",
+    "src/config/siteOrigin.ts",
+    "src/lab/labCloneRouting.ts",
+    "src/lib/partnerAttribution.ts",
+    "src/lib/youtubeUrl.ts"
+  ]
+}

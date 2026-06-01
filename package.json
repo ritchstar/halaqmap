@@ -11,6 +11,7 @@
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",
     "typecheck:api": "tsc -p api/tsconfig.json",
     "typecheck:phase2": "tsc -p tsconfig.phase2-strict.json",
+    "typecheck:phase2:indexed": "tsc -p tsconfig.phase2-indexed.json",
     "prepush": "npm run typecheck:api && npm run lint",
     "lint": "eslint .",
     "preview": "vite preview",
