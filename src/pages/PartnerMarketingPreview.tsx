@@ -7,7 +7,7 @@
  * يعتمد نفس نظام التصميم الداكن لصفحة /preview مع محتوى موجَّه للشريك.
  */
 
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Scissors, Star, Shield, CheckCircle2, Clock, ArrowLeft,
@@ -76,6 +76,23 @@ function useCounter(end: number, duration = 1800, enabled = true) {
 const PRICE_B = 100, PRICE_G = 150, PRICE_D = 200, PRICE_DA = 225;
 
 const PIONEER_TOTAL = 1000; // ألف الرواد — الحد التأسيسي الأقصى
+
+let landingPreviewPreloadPromise: Promise<unknown> | null = null;
+let registerPreloadPromise: Promise<unknown> | null = null;
+
+function preloadLandingPreviewRoute(): Promise<unknown> {
+  if (!landingPreviewPreloadPromise) {
+    landingPreviewPreloadPromise = import('@/pages/LandingPreview');
+  }
+  return landingPreviewPreloadPromise;
+}
+
+function preloadRegisterRoute(): Promise<unknown> {
+  if (!registerPreloadPromise) {
+    registerPreloadPromise = import('@/pages/Register');
+  }
+  return registerPreloadPromise;
+}
 
 function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
   const [spots, setSpots] = useState(731);
@@ -979,6 +996,16 @@ export default function PartnerMarketingPreview() {
   const cities = useCounter(47, 1400, statsInView);
   const searches = useCounter(18000, 2000, statsInView);
   const { hasNewPosts: hasNewMapCommunityPosts } = useMapCommunityBadge();
+  const warmHomeRoute = useCallback(() => {
+    void preloadLandingPreviewRoute();
+  }, []);
+  const warmRegisterRoute = useCallback(() => {
+    void preloadRegisterRoute();
+  }, []);
+  const handleRegisterNavigate = useCallback(() => {
+    warmRegisterRoute();
+    navigate(ROUTE_PATHS.REGISTER);
+  }, [navigate, warmRegisterRoute]);
 
   return (
     <div
@@ -1017,7 +1044,14 @@ export default function PartnerMarketingPreview() {
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
 
             {/* الشعار */}
-            <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-3 no-underline">
+            <Link
+              to={ROUTE_PATHS.HOME}
+              onMouseEnter={warmHomeRoute}
+              onFocus={warmHomeRoute}
+              onPointerDown={warmHomeRoute}
+              onTouchStart={warmHomeRoute}
+              className="flex items-center gap-3 no-underline"
+            >
               <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-700/20 blur-sm" />
                 <motion.div
@@ -1073,6 +1107,10 @@ export default function PartnerMarketingPreview() {
               <div className="mx-1 h-5 w-px bg-white/10" />
               <Link
                 to={ROUTE_PATHS.HOME}
+                onMouseEnter={warmHomeRoute}
+                onFocus={warmHomeRoute}
+                onPointerDown={warmHomeRoute}
+                onTouchStart={warmHomeRoute}
                 className="group flex items-center gap-1.5 rounded-xl border border-teal-400/15 bg-teal-500/5 px-3.5 py-2 text-[0.78rem] font-semibold text-teal-400/65 transition-all hover:border-teal-400/35 hover:bg-teal-500/10 hover:text-teal-300"
               >
                 <Globe2 className="h-3.5 w-3.5" />
@@ -1086,7 +1124,11 @@ export default function PartnerMarketingPreview() {
               <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
               <PlatformAmbientToggle variant="partner" className="inline-flex md:hidden" />
               <motion.button
-                onClick={() => navigate(ROUTE_PATHS.REGISTER)}
+                onMouseEnter={warmRegisterRoute}
+                onFocus={warmRegisterRoute}
+                onPointerDown={warmRegisterRoute}
+                onTouchStart={warmRegisterRoute}
+                onClick={handleRegisterNavigate}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 px-4 py-2.5 text-xs font-black text-black shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.5)]"
@@ -1138,7 +1180,12 @@ export default function PartnerMarketingPreview() {
                       {item.label}
                     </button>
                   ))}
-                  <button onClick={() => { setMobileNavOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
+                  <button
+                    onMouseEnter={warmRegisterRoute}
+                    onFocus={warmRegisterRoute}
+                    onPointerDown={warmRegisterRoute}
+                    onTouchStart={warmRegisterRoute}
+                    onClick={() => { setMobileNavOpen(false); handleRegisterNavigate(); }}
                     className="mt-1 w-full rounded-xl bg-amber-500/15 border border-amber-400/30 py-2.5 text-sm font-black text-amber-300">
                     سجّل صالونك ←
                   </button>
@@ -1291,7 +1338,11 @@ export default function PartnerMarketingPreview() {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
-                onClick={() => navigate(ROUTE_PATHS.REGISTER)}
+                onMouseEnter={warmRegisterRoute}
+                onFocus={warmRegisterRoute}
+                onPointerDown={warmRegisterRoute}
+                onTouchStart={warmRegisterRoute}
+                onClick={handleRegisterNavigate}
                 className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 px-8 py-4 font-bold text-black shadow-xl shadow-amber-500/25 hover:from-amber-400"
               >
                 <Scissors className="h-4 w-4" /> ابدأ رحلة الانضمام
@@ -1859,7 +1910,11 @@ export default function PartnerMarketingPreview() {
             </p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <button
-                onClick={() => navigate(ROUTE_PATHS.REGISTER)}
+                onMouseEnter={warmRegisterRoute}
+                onFocus={warmRegisterRoute}
+                onPointerDown={warmRegisterRoute}
+                onTouchStart={warmRegisterRoute}
+                onClick={handleRegisterNavigate}
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 px-10 py-4 font-bold text-black shadow-2xl shadow-amber-500/25 hover:from-amber-400 transition-all"
               >
                 <Scissors className="h-5 w-5" /> سجّل صالونك الآن
@@ -1919,7 +1974,16 @@ export default function PartnerMarketingPreview() {
             <div dir="rtl">
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">المستخدمون</h4>
               <div className="flex flex-col gap-2.5">
-                <Link to={ROUTE_PATHS.HOME} className="text-sm text-slate-500 hover:text-teal-400 transition-colors">ابحث عن حلاق ↗</Link>
+                <Link
+                  to={ROUTE_PATHS.HOME}
+                  onMouseEnter={warmHomeRoute}
+                  onFocus={warmHomeRoute}
+                  onPointerDown={warmHomeRoute}
+                  onTouchStart={warmHomeRoute}
+                  className="text-sm text-slate-500 hover:text-teal-400 transition-colors"
+                >
+                  ابحث عن حلاق ↗
+                </Link>
                 <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-sm text-slate-500 hover:text-teal-400">سياسة الخصوصية</Link>
                 <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-sm text-slate-500 hover:text-teal-400">شروط الاستخدام</Link>
               </div>
