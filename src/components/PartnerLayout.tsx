@@ -25,8 +25,6 @@ import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPub
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
-import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
-import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
@@ -141,16 +139,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     ? partnerNavItems
     : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
   const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
-  const isStrictPartnerPath =
-    location.pathname === ROUTE_PATHS.BARBERS_LANDING || location.pathname.startsWith('/partners/');
-  const shouldRenderPartnerChats =
-    isStrictPartnerPath &&
-    ![
-      ROUTE_PATHS.PARTNER_PRIVACY,
-      ROUTE_PATHS.SUBSCRIPTION_POLICY,
-      ROUTE_PATHS.PAYMENT,
-      ROUTE_PATHS.MAP_COMMUNITY, // مجتمع ماب — سعودي فقط
-    ].includes(location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY);
 
   useDocumentTitle(isMapCommunityPage ? 'مجتمع ماب' : SOFTWARE_SERVICES_PORTAL_HEADING);
 
@@ -483,29 +471,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       >
         {children}
       </main>
-
-      {/* لا مدير مبيعات / متحدث على صفحات الخصوصية، السياسات، والدفع */}
-      {shouldRenderPartnerChats && (
-        <>
-          <B2BSalesManagerChat
-            startMinimized={[
-              ROUTE_PATHS.REGISTER,
-              ROUTE_PATHS.REGISTER_SUCCESS,
-              ROUTE_PATHS.BARBER_LOGIN,
-              ROUTE_PATHS.BARBER_PORTAL_ENTER,
-            ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
-          />
-          <B2BMediaSpokespersonChat
-            collapseOnScroll
-            startMinimized={[
-              ROUTE_PATHS.REGISTER,
-              ROUTE_PATHS.REGISTER_SUCCESS,
-              ROUTE_PATHS.BARBER_LOGIN,
-              ROUTE_PATHS.BARBER_PORTAL_ENTER,
-            ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
-          />
-        </>
-      )}
 
       {/* شريط تنقّل سفلي للجوال — يُخفى داخل مجتمع ماب (له شريط خاص) */}
       {!isMapCommunityPage ? (
