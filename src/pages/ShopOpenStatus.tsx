@@ -36,8 +36,8 @@ export default function ShopOpenStatus() {
     setLoading(true);
     const r = await fetchBarberShopOpenStatusRemote(token);
     setLoading(false);
-    if (!r.ok) {
-      const errorText = 'error' in r ? r.error : 'تعذّر تحميل حالة المحل.';
+    if (r.ok === false) {
+      const errorText = r.error || 'تعذّر تحميل حالة المحل.';
       toast.error(errorText);
       return;
     }
@@ -58,9 +58,9 @@ export default function ShopOpenStatus() {
     setOpenForCustomers(next);
     const r = await setBarberShopOpenStatusRemote(token, next);
     setSaving(false);
-    if (!r.ok) {
+    if (r.ok === false) {
       setOpenForCustomers(prev);
-      const errorText = 'error' in r ? r.error : 'تعذّر تحديث الحالة.';
+      const errorText = r.error || 'تعذّر تحديث الحالة.';
       toast.error(errorText);
       return;
     }
