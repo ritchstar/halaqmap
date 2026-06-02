@@ -145,8 +145,8 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
     >
       {/* خلفية سديمية */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-20 right-1/4 h-64 w-96 rounded-full bg-amber-500/10 blur-[100px]" />
-        <div className="absolute -bottom-16 left-1/4 h-48 w-80 rounded-full bg-cyan-500/8 blur-[90px]" />
+        <div className="absolute -top-20 right-1/4 h-64 w-96 rounded-full bg-amber-400/6 blur-[72px]" />
+        <div className="absolute -bottom-16 left-1/4 h-48 w-80 rounded-full bg-cyan-400/5 blur-[64px]" />
         <motion.div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(90deg,transparent 30%,rgba(251,191,36,0.03) 50%,transparent 70%)' }}
@@ -1028,7 +1028,7 @@ export default function PartnerMarketingPreview() {
           backgroundSize: '60px 60px',
         }}
       />
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.14),transparent_32%),radial-gradient(circle_at_20%_20%,rgba(251,191,36,0.12),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.1),transparent_26%)]" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.08),transparent_28%),radial-gradient(circle_at_20%_20%,rgba(251,191,36,0.07),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.06),transparent_22%)]" />
 
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
@@ -1201,8 +1201,8 @@ export default function PartnerMarketingPreview() {
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative min-h-[100dvh] overflow-hidden pt-24">
-        <div className="pointer-events-none absolute -right-80 top-0 h-[700px] w-[700px] rounded-full bg-amber-300/25 blur-[150px]" />
-        <div className="pointer-events-none absolute -left-60 bottom-0 h-[500px] w-[500px] rounded-full bg-teal-300/20 blur-[130px]" />
+        <div className="pointer-events-none absolute -right-80 top-0 h-[700px] w-[700px] rounded-full bg-amber-300/12 blur-[110px]" />
+        <div className="pointer-events-none absolute -left-60 bottom-0 h-[500px] w-[500px] rounded-full bg-teal-300/10 blur-[92px]" />
 
         {/* أيقونة مجتمع ماب — زجاجية مستقلة في الفراغ اليساري */}
         <motion.button
@@ -1234,7 +1234,7 @@ export default function PartnerMarketingPreview() {
           {/* breathing halo */}
           <motion.span
             className="pointer-events-none absolute inset-0 rounded-[1.35rem]"
-            style={{ background: hasNewMapCommunityPosts ? 'radial-gradient(circle at 50% 50%,rgba(217,70,239,0.24),transparent 68%)' : 'radial-gradient(circle at 50% 50%,rgba(34,211,238,0.18),transparent 68%)' }}
+            style={{ background: hasNewMapCommunityPosts ? 'radial-gradient(circle at 50% 50%,rgba(217,70,239,0.14),transparent 62%)' : 'radial-gradient(circle at 50% 50%,rgba(34,211,238,0.1),transparent 62%)' }}
             animate={{ opacity: hasNewMapCommunityPosts ? [0.55, 1, 0.55] : [0.35, 0.85, 0.35], scale: hasNewMapCommunityPosts ? [0.94, 1.16, 0.94] : [0.96, 1.08, 0.96] }}
             transition={{ duration: hasNewMapCommunityPosts ? 2.2 : 3.6, repeat: Infinity, ease: 'easeInOut' }}
           />
@@ -1473,7 +1473,7 @@ export default function PartnerMarketingPreview() {
 
       {/* ── How to join ──────────────────────────────────────────────────── */}
       <section id="كيف تنضم" className="relative z-10 py-24">
-        <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-amber-300/20 blur-[100px]" />
+        <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-amber-300/10 blur-[72px]" />
         <div className="mx-auto max-w-5xl px-5">
           <div className="mb-14 text-center">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
@@ -1520,7 +1520,7 @@ export default function PartnerMarketingPreview() {
 
       {/* ── Features ─────────────────────────────────────────────────────── */}
       <section id="مزايا الباقات" className="relative z-10 border-y border-slate-100 bg-slate-50/80 py-24">
-        <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-violet-300/16 blur-[120px]" />
+        <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-violet-300/8 blur-[84px]" />
         <div className="mx-auto max-w-6xl px-5">
           <div className="mb-14 text-center">
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
@@ -1545,7 +1545,7 @@ export default function PartnerMarketingPreview() {
 
       {/* ── Pricing ──────────────────────────────────────────────────────── */}
       <section id="الأسعار" className="relative z-10 py-24">
-        <div className="pointer-events-none absolute right-0 top-20 h-96 w-96 rounded-full bg-amber-300/18 blur-[130px]" />
+        <div className="pointer-events-none absolute right-0 top-20 h-96 w-96 rounded-full bg-amber-300/9 blur-[88px]" />
         <div className="mx-auto max-w-5xl px-5">
           <div className="mb-14 text-center">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
@@ -1631,7 +1631,7 @@ export default function PartnerMarketingPreview() {
 
       {/* ══ كان هنا قسم الحزم السنوية القديم — مُحذوف نهائياً ══ */}
       <section id="الحزم-السنوية_REMOVED" style={{ display: 'none' }}>
-        <div className="pointer-events-none absolute left-1/4 top-0 h-64 w-[50%] rounded-full bg-amber-500/6 blur-[120px]" />
+        <div className="pointer-events-none absolute left-1/4 top-0 h-64 w-[50%] rounded-full bg-amber-400/4 blur-[84px]" />
         <div className="mx-auto max-w-6xl px-5">
           {/* رأس القسم */}
           <div className="mb-12 text-center">
@@ -1819,7 +1819,7 @@ export default function PartnerMarketingPreview() {
 
       {/* ── Digital certificate ───────────────────────────────────────────── */}
       <section className="relative z-10 py-24">
-        <div className="pointer-events-none absolute left-0 top-0 h-80 w-80 rounded-full bg-amber-300/18 blur-[100px]" />
+        <div className="pointer-events-none absolute left-0 top-0 h-80 w-80 rounded-full bg-amber-300/9 blur-[72px]" />
         <div className="mx-auto max-w-5xl px-5">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} dir="rtl">
@@ -1899,8 +1899,8 @@ export default function PartnerMarketingPreview() {
       {/* ── Final CTA ─────────────────────────────────────────────────────── */}
       <section className="relative z-10 overflow-hidden border-t border-slate-100 py-24">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-40 top-0 h-[500px] w-[500px] rounded-full bg-amber-300/20 blur-[140px]" />
-          <div className="absolute -left-40 bottom-0 h-[400px] w-[400px] rounded-full bg-teal-300/18 blur-[120px]" />
+          <div className="absolute -right-40 top-0 h-[500px] w-[500px] rounded-full bg-amber-300/10 blur-[96px]" />
+          <div className="absolute -left-40 bottom-0 h-[400px] w-[400px] rounded-full bg-teal-300/9 blur-[84px]" />
         </div>
         <div className="relative mx-auto max-w-3xl px-5 text-center">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
