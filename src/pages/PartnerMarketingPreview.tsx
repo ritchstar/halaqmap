@@ -138,9 +138,9 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
       transition={{ duration: 0.7, ease: 'easeOut' }}
       className="relative mb-12 overflow-hidden rounded-3xl"
       style={{
-        background: 'linear-gradient(160deg,#060e00 0%,#030912 50%,#090600 100%)',
-        border: '1px solid rgba(251,191,36,0.18)',
-        boxShadow: '0 0 100px rgba(251,191,36,0.08),inset 0 1px 0 rgba(251,191,36,0.12)',
+        background: 'linear-gradient(160deg,#fffdf8 0%,#f8fbff 52%,#fffaf1 100%)',
+        border: '1px solid rgba(251,191,36,0.28)',
+        boxShadow: '0 20px 50px rgba(148,163,184,0.12), inset 0 1px 0 rgba(255,255,255,0.88)',
       }}
     >
       {/* خلفية سديمية */}
@@ -156,18 +156,18 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
       </div>
 
       {/* ══ رأسية القسم ══ */}
-      <div className="relative border-b border-amber-400/10 px-6 py-6">
+      <div className="relative border-b border-amber-200/80 px-6 py-6">
         <div className="flex flex-wrap items-start justify-between gap-5">
           {/* العنوان */}
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/12 px-4 py-1 text-[0.62rem] font-black tracking-[0.15em] text-amber-300">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1 text-[0.62rem] font-black tracking-[0.15em] text-amber-700">
               <motion.span animate={{ scale: [1,1.35,1], opacity:[0.6,1,0.6] }} transition={{ duration: 1.8, repeat: Infinity }}>⚡</motion.span>
               عرض تشغيلي مؤقت · الألف الرواد
             </div>
-            <h3 className="text-2xl font-black text-white md:text-3xl">
+            <h3 className="text-2xl font-black text-slate-900 md:text-3xl">
               مضاعفة الرخص التأسيسية
             </h3>
-            <p className="mt-1 text-sm leading-relaxed text-amber-300/65">
+            <p className="mt-1 text-sm leading-relaxed text-slate-600">
               اشترِ أي حزمة واحصل على ضعفها مجاناً — ينطبق على جميع الباقات
             </p>
           </div>
@@ -178,17 +178,17 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
             transition={{ duration: 0.3 }}
             className="flex items-center gap-3 overflow-hidden rounded-2xl border px-5 py-3.5 transition-all duration-500"
             style={{
-              borderColor: pulse ? 'rgba(239,68,68,0.5)' : 'rgba(251,191,36,0.28)',
-              background: pulse ? 'rgba(239,68,68,0.10)' : 'rgba(251,191,36,0.08)',
-              boxShadow: pulse ? '0 0 28px rgba(239,68,68,0.22)' : '0 0 20px rgba(251,191,36,0.10)',
+              borderColor: pulse ? 'rgba(239,68,68,0.28)' : 'rgba(251,191,36,0.24)',
+              background: pulse ? 'rgba(254,242,242,0.96)' : 'rgba(255,251,235,0.92)',
+              boxShadow: pulse ? '0 12px 28px rgba(239,68,68,0.10)' : '0 12px 26px rgba(245,158,11,0.08)',
             }}
           >
             <div className="text-right leading-tight">
-              <div className={`font-mono text-3xl font-black tabular-nums ${pulse ? 'text-red-300' : 'text-amber-300'}`} style={{ textShadow: pulse ? '0 0 20px rgba(239,68,68,0.6)' : '0 0 20px rgba(251,191,36,0.5)' }}>
+              <div className={`font-mono text-3xl font-black tabular-nums ${pulse ? 'text-red-600' : 'text-amber-700'}`}>
                 {spots}
               </div>
-              <div className="text-[0.6rem] text-slate-400">رائد متبقٍ</div>
-              <div className="text-[0.52rem] text-slate-600">من ألف الرواد</div>
+              <div className="text-[0.6rem] text-slate-600">رائد متبقٍ</div>
+              <div className="text-[0.52rem] text-slate-500">من ألف الرواد</div>
             </div>
             <div className="flex flex-col items-center gap-1.5">
               <motion.div
@@ -204,11 +204,11 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
         {/* شريط التقدم */}
         <div className="mt-5">
           <div className="mb-2 flex items-center justify-between text-[0.62rem]">
-            <span className="text-slate-600">٠ مشترك</span>
-            <span className={`font-black ${pct >= 80 ? 'text-red-400' : 'text-amber-400'}`}>{pct}% مُحجوز</span>
-            <span className="text-slate-600">١٠٠٠ رائد</span>
+            <span className="text-slate-500">٠ مشترك</span>
+            <span className={`font-black ${pct >= 80 ? 'text-red-600' : 'text-amber-700'}`}>{pct}% مُحجوز</span>
+            <span className="text-slate-500">١٠٠٠ رائد</span>
           </div>
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-800/70">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
             <motion.div
               className="h-full rounded-full"
               style={{
@@ -229,7 +229,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
       <div className="relative px-6 py-7">
         <div className="mb-6 flex items-center gap-3">
           <div className="h-px flex-1" style={{ background: 'linear-gradient(to left,rgba(251,191,36,0.25),transparent)' }} />
-          <span className="text-[0.65rem] font-black tracking-[0.2em] text-amber-400/50">مستويات المضاعفة</span>
+          <span className="text-[0.65rem] font-black tracking-[0.2em] text-amber-700/70">مستويات المضاعفة</span>
           <div className="h-px flex-1" style={{ background: 'linear-gradient(to right,rgba(251,191,36,0.25),transparent)' }} />
         </div>
 
@@ -243,10 +243,10 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
               className="group relative flex flex-col overflow-hidden rounded-2xl"
               style={{
                 border: `1px solid ${tier.border}`,
-                background: `linear-gradient(155deg,${tier.accentFrom}28 0%,rgba(8,14,26,0.96) 45%,${tier.accentTo}14 100%)`,
+                background: `linear-gradient(155deg,${tier.accentFrom}12 0%,rgba(255,255,255,0.96) 48%,${tier.accentTo}10 100%)`,
                 boxShadow: tier.best
-                  ? `0 0 60px ${tier.glow},0 0 120px ${tier.glow},inset 0 1px 0 ${tier.border},inset 0 -1px 0 ${tier.glow}`
-                  : `0 0 28px ${tier.glow},inset 0 1px 0 ${tier.border}`,
+                  ? `0 18px 42px rgba(148,163,184,0.14),0 0 22px ${tier.glow},inset 0 1px 0 rgba(255,255,255,0.9)`
+                  : `0 16px 34px rgba(148,163,184,0.10),inset 0 1px 0 rgba(255,255,255,0.85)`,
                 backdropFilter: 'blur(18px)',
               }}
             >
@@ -260,7 +260,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
               {tier.best && (
                 <div className="absolute left-0 right-0 top-0 flex justify-center">
                   <div className="rounded-b-xl px-5 py-1 text-[0.62rem] font-black text-black"
-                    style={{ background: `linear-gradient(90deg,${tier.accentFrom},${tier.accentTo})`, boxShadow: `0 4px 12px ${tier.glow}` }}>
+                    style={{ background: `linear-gradient(90deg,${tier.accentFrom},${tier.accentTo})`, boxShadow: `0 8px 18px ${tier.glow}` }}>
                     الأفضل
                   </div>
                 </div>
@@ -273,12 +273,12 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
               <div className={`relative flex flex-col gap-4 p-5 ${tier.best ? 'pt-8' : 'pt-5'}`}>
                 {/* العنوان + المكافأة */}
                 <div>
-                  <p className="text-base font-black text-white">{tier.label}</p>
+                  <p className="text-base font-black text-slate-900">{tier.label}</p>
                   <div className="mt-1 inline-flex rounded-full px-3 py-0.5 text-[0.68rem] font-black"
                     style={{ background: `${tier.accentTo}20`, color: tier.accentTo, border: `1px solid ${tier.border}` }}>
                     {tier.bonus}
                   </div>
-                  <p className="mt-1 text-[0.68rem] text-slate-400">{tier.subtitle}</p>
+                  <p className="mt-1 text-[0.68rem] text-slate-600">{tier.subtitle}</p>
                 </div>
 
                 {/* الفاصل */}
@@ -290,7 +290,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
                     <div key={plan.name}
                       className="relative overflow-hidden flex flex-col items-center justify-center rounded-2xl py-3.5"
                       style={{
-                        background: `linear-gradient(155deg,${plan.color}14 0%,rgba(4,13,26,0.9) 100%)`,
+                        background: `linear-gradient(155deg,${plan.color}10 0%,rgba(255,255,255,0.98) 100%)`,
                         border: `1px solid ${plan.color}28`,
                         backdropFilter: 'blur(8px)',
                         boxShadow: `inset 0 1px 0 ${plan.color}20`,
@@ -334,16 +334,16 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
       {/* ══ الفوتر ══ */}
       <div className="relative border-t border-amber-400/10 px-6 py-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[0.65rem] text-slate-500">
-            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✅</span>ينطبق على جميع الباقات</span>
-            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✅</span>لا عمولات على خدماتك</span>
-            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✅</span>ظهور جغرافي ذكي عند الطلب</span>
+          <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[0.65rem] text-slate-600">
+            <span className="flex items-center gap-1.5"><span className="text-emerald-600">✅</span>ينطبق على جميع الباقات</span>
+            <span className="flex items-center gap-1.5"><span className="text-emerald-600">✅</span>لا عمولات على خدماتك</span>
+            <span className="flex items-center gap-1.5"><span className="text-emerald-600">✅</span>ظهور جغرافي ذكي عند الطلب</span>
             <span className="flex items-center gap-1.5">
-              <span className="rounded-full border border-amber-400/45 bg-amber-500/15 px-2 py-px text-[0.6rem] font-bold text-amber-300">⭐ شارة رائد</span>
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-px text-[0.6rem] font-bold text-amber-700">⭐ شارة رائد</span>
               لكل مشترك من ١ إلى ١٠٠٠ — حصرية للأبد
             </span>
           </div>
-          <p className="text-[0.58rem] text-amber-500/45">
+          <p className="text-[0.58rem] text-amber-700/70">
             🚨 يُغلق العرض فور اكتمال الألف رائد
           </p>
         </div>
