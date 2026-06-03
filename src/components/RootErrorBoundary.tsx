@@ -93,6 +93,9 @@ export class RootErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       const domMismatch = isDomRemoveChildError(this.state.error);
+      const stack = typeof this.state.error.stack === 'string'
+        ? this.state.error.stack.split('\n').slice(0, 8).join('\n')
+        : null;
       return (
         <div
           dir="rtl"
@@ -100,6 +103,14 @@ export class RootErrorBoundary extends Component<Props, State> {
         >
           <p className="text-lg font-bold text-rose-300">تعذّر تحميل المنصة</p>
           <p className="max-w-md text-sm text-slate-400">{this.state.error.message}</p>
+          {stack ? (
+            <pre
+              dir="ltr"
+              className="max-w-3xl overflow-auto rounded-xl border border-white/10 bg-black/30 p-4 text-left text-[11px] leading-5 text-slate-300"
+            >
+              {stack}
+            </pre>
+          ) : null}
           {domMismatch ? (
             <p className="max-w-md text-xs text-slate-500">
               اضغط إعادة التحميل لتنظيف الكاش يدوياً — إن استمر الخطأ جرّب نافذة خاصة أو تواصل مع الدعم.

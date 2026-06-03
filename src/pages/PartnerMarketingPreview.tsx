@@ -14,13 +14,12 @@ import {
   Sparkles, ChevronDown, Globe2, Users, Award, BarChart3,
   Crown, Zap, Navigation2, Phone, MessageCircle, Lock,
   TrendingUp, QrCode, ImageIcon, Brain, Moon, FileCheck,
-  ChevronLeft, ArrowRight, Wifi, Menu
+  ChevronLeft, ArrowRight, Wifi, Menu, BriefcaseBusiness
 } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
-import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import {
   TIER_MONTHLY_SAR,
@@ -47,12 +46,12 @@ import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentit
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
-import { RadarShowcaseLink } from '@/components/RadarShowcaseLink';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { SOFTWARE_SERVICES_PORTAL_HEADING } from '@/config/partnerPortal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { cn } from '@/lib/utils';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -69,6 +68,10 @@ function useCounter(end: number, duration = 1800, enabled = true) {
     }, 16);
   }
   return count;
+}
+
+function formatEnglishNumber(value: number): string {
+  return value.toLocaleString('en-US');
 }
 
 // ─── Founders Offer Banner — العرض التشغيلي التأسيسي لمضاعفة الرخص ────────
@@ -114,11 +117,11 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
   const pct = Math.round(((PIONEER_TOTAL - spots) / PIONEER_TOTAL) * 100);
 
   const TIERS = [
-    { n: 3,  emoji: '🎁', label: 'اشترِ ٣ حزم', bonus: '+ ٣ مجاناً', subtitle: '٦ أشهر حضور رقمي',
+    { n: 3,  emoji: '🎁', label: 'اشترِ 3 حزم', bonus: '+ 3 مجاناً', subtitle: '6 أشهر حضور رقمي',
       accentFrom: '#92400e', accentTo: '#d97706', border: 'rgba(217,119,6,0.38)', glow: 'rgba(217,119,6,0.22)' },
-    { n: 6,  emoji: '🔥', label: 'اشترِ ٦ حزم', bonus: '+ ٦ مجاناً', subtitle: 'سنة كاملة على الرادار', best: true,
+    { n: 6,  emoji: '🔥', label: 'اشترِ 6 حزم', bonus: '+ 6 مجاناً', subtitle: 'سنة كاملة على الرادار', best: true,
       accentFrom: '#b45309', accentTo: '#fbbf24', border: 'rgba(251,191,36,0.50)', glow: 'rgba(251,191,36,0.30)' },
-    { n: 12, emoji: '⚡', label: 'اشترِ ١٢ حزمة', bonus: '+ ١٢ مجاناً', subtitle: 'سنتان بسعر سنة واحدة',
+    { n: 12, emoji: '⚡', label: 'اشترِ 12 حزمة', bonus: '+ 12 مجاناً', subtitle: 'سنتان بسعر سنة واحدة',
       accentFrom: '#1e3a5f', accentTo: '#06b6d4', border: 'rgba(6,182,212,0.40)', glow: 'rgba(6,182,212,0.22)' },
   ];
 
@@ -204,9 +207,9 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
         {/* شريط التقدم */}
         <div className="mt-5">
           <div className="mb-2 flex items-center justify-between text-[0.62rem]">
-            <span className="text-slate-500">٠ مشترك</span>
+            <span className="text-slate-500">0 مشترك</span>
             <span className={`font-black ${pct >= 80 ? 'text-red-600' : 'text-amber-700'}`}>{pct}% مُحجوز</span>
-            <span className="text-slate-500">١٠٠٠ رائد</span>
+            <span className="text-slate-500">1000 رائد</span>
           </div>
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
             <motion.div
@@ -303,7 +306,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
                         className="relative font-mono text-2xl font-black tabular-nums leading-none"
                         style={{ color: plan.color, textShadow: `0 0 20px ${plan.color}80` }}
                       >
-                        {(plan.price * tier.n).toLocaleString('ar-SA')}
+                        {formatEnglishNumber(plan.price * tier.n)}
                       </span>
                       <span className="mt-1 text-[0.55rem] font-bold text-slate-500">ر.س · {plan.name}</span>
                     </div>
@@ -657,7 +660,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
           </motion.div>
           <motion.h2 initial={{ opacity:0, y:14 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
             className="mb-3 text-3xl font-black text-slate-900 md:text-4xl">
-            الحزمة السنوية — ٣٦٠ يوم + ٣٦٠ مجاناً
+            الحزمة السنوية — 360 يوم + 360 مجاناً
           </motion.h2>
           <p className="text-sm text-slate-600">اختر حزمتك · سجّل حسابك · ادفع وتفعَّل فوراً</p>
 
@@ -731,28 +734,28 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                   {/* السعر */}
                   <div className="mb-1 flex items-end gap-1">
                     <span className="text-2xl font-black tabular-nums text-slate-900">
-                      {t.price.toLocaleString('ar-SA')}
+                      {formatEnglishNumber(t.price)}
                     </span>
                     <span className="mb-0.5 text-[0.58rem] text-slate-500">ر.س / سنة</span>
                   </div>
-                  <p className="mb-3 text-[0.55rem] text-slate-500">{t.perMonth} ر.س/شهر × ١٢ شهراً</p>
+                  <p className="mb-3 text-[0.55rem] text-slate-500">{formatEnglishNumber(t.perMonth)} ر.س/شهر × 12 شهراً</p>
 
                   {/* مضاعفة العرض */}
                   <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50/70 p-2.5 text-center">
                     <p className="mb-1 text-[0.52rem] font-black uppercase tracking-wider text-amber-700">⚡ عرض المضاعفة</p>
                     <div className="flex items-center justify-between gap-1">
                       <div className="text-center">
-                        <p className="text-[0.6rem] font-black text-slate-900">{t.price.toLocaleString('ar-SA')}</p>
+                        <p className="text-[0.6rem] font-black text-slate-900">{formatEnglishNumber(t.price)}</p>
                         <p className="text-[0.45rem] text-slate-500">تدفع</p>
                       </div>
                       <span className="text-[0.6rem] text-slate-500">→</span>
                       <div className="text-center">
-                        <p className="text-[0.6rem] font-black text-emerald-700">٢٤ شهر</p>
+                        <p className="text-[0.6rem] font-black text-emerald-700">24 شهر</p>
                         <p className="text-[0.45rem] text-slate-500">تحصل</p>
                       </div>
                       <div className="rounded-lg border border-emerald-200 bg-white px-1.5 py-1">
                         <p className="text-[0.45rem] text-slate-500">توفير</p>
-                        <p className="text-[0.62rem] font-black text-emerald-700">{t.saving.toLocaleString('ar-SA')}</p>
+                        <p className="text-[0.62rem] font-black text-emerald-700">{formatEnglishNumber(t.saving)}</p>
                       </div>
                     </div>
                   </div>
@@ -810,8 +813,8 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
                   <TierIcon tier={selectedTier.icon} />
                   <div>
                     <p className="text-xs font-bold text-slate-500">الحزمة المختارة</p>
-                    <p className="text-base font-black text-slate-900">{selectedTier.name} — {selectedTier.price.toLocaleString('ar-SA')} ر.س/سنة</p>
-                    <p className="text-[0.6rem] text-emerald-700">⚡ تدفع ١٢ شهراً وتحصل على ٢٤ · توفير {selectedTier.saving.toLocaleString('ar-SA')} ر.س</p>
+                    <p className="text-base font-black text-slate-900">{selectedTier.name} — {formatEnglishNumber(selectedTier.price)} ر.س/سنة</p>
+                    <p className="text-[0.6rem] text-emerald-700">⚡ تدفع 12 شهراً وتحصل على 24 · توفير {formatEnglishNumber(selectedTier.saving)} ر.س</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -839,7 +842,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
 
         {/* شارة رائد + ملاحظات */}
         <div className="mt-10 space-y-3 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-5 py-2 text-[0.68rem] font-bold text-amber-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-5 py-2 text-[0.68rem] font-bold text-slate-950">
             ⭐ كل مشترك من ١ إلى ١٠٠٠ يحصل على شارة رائد لامعة على بنره — دون تمييز بين الباقات
           </div>
           <div className="flex flex-wrap justify-center gap-4 text-[0.6rem] text-slate-600">
@@ -850,7 +853,7 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
             ))}
           </div>
           {/* تلميح مراحل الشراء */}
-          <p className="text-[0.58rem] text-slate-700 mt-2">
+          <p className="mt-2 text-[0.82rem] text-slate-700">
             ✅ التفعيل بعد اتمام تعبئة طلب التسجيل وإتمام الدفع
           </p>
         </div>
@@ -860,15 +863,80 @@ function AnnualPackagesSection({ navigate }: { navigate: (to: string) => void })
 }
 
 // ─── Digital certificate mockup ──────────────────────────────────────────────
-const DEMO_ACTIVATION_CODE = 'HM-LIC-A3F9-K2M1-7X4P';
+type CertificateMockTier = 'bronze' | 'gold' | 'diamond';
 
-function CertificateMockup() {
+const CERTIFICATE_MOCK_DATA: Record<
+  CertificateMockTier,
+  {
+    activationCode: string;
+    salonName: string;
+    responseModel: string;
+    issuedAt: string;
+    validUntil: string;
+    statusLabel: string;
+    statusTone: string;
+    accentBorder: string;
+    accentGlow: string;
+    badgeTone: string;
+    footerTone: string;
+  }
+> = {
+  bronze: {
+    activationCode: 'HM-LIC-BRZ-4F2M-8Q1L',
+    salonName: 'صالون الرواد للحلاقة',
+    responseModel: 'الظهور الأساسي عند الطلب',
+    issuedAt: '١٨ مايو ٢٠٢٦',
+    validUntil: '١٧ يونيو ٢٠٢٦',
+    statusLabel: 'مفعّلة — برونزي',
+    statusTone: 'text-amber-200',
+    accentBorder: 'border-amber-400/45',
+    accentGlow: 'from-amber-950/45 via-[#120a00] to-black/60',
+    badgeTone: 'border-amber-400/30 bg-amber-500/10 text-amber-200',
+    footerTone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200',
+  },
+  gold: {
+    activationCode: 'HM-LIC-GLD-A3F9-K2M1',
+    salonName: 'صالون ستايل برو للرجال',
+    responseModel: 'الظهور الذهبي عند الطلب',
+    issuedAt: '٢٣ مايو ٢٠٢٦',
+    validUntil: '٢٢ يونيو ٢٠٢٦',
+    statusLabel: 'مفعّلة — ذهبي',
+    statusTone: 'text-amber-200',
+    accentBorder: 'border-amber-400/45',
+    accentGlow: 'from-amber-950/50 via-[#120a00] to-black/60',
+    badgeTone: 'border-amber-400/30 bg-amber-500/10 text-amber-200',
+    footerTone: 'border-emerald-400/35 bg-emerald-500/10 text-emerald-200',
+  },
+  diamond: {
+    activationCode: 'HM-LIC-DMD-V8R2-X6P4',
+    salonName: 'صالون العرض الماسي',
+    responseModel: 'الصدارة الذكية + البورتفوليو الماسي',
+    issuedAt: '٢٦ مايو ٢٠٢٦',
+    validUntil: '٢٥ يونيو ٢٠٢٦',
+    statusLabel: 'مفعّلة — ماسي',
+    statusTone: 'text-cyan-200',
+    accentBorder: 'border-cyan-400/40',
+    accentGlow: 'from-cyan-950/35 via-[#07141a] to-black/55',
+    badgeTone: 'border-cyan-400/25 bg-cyan-500/10 text-cyan-100',
+    footerTone: 'border-cyan-300/28 bg-cyan-500/10 text-cyan-100',
+  },
+};
+
+function CertificateMockup({ tier }: { tier: CertificateMockTier }) {
+  const tierConfig = PARTNER_BANNERS_PREVIEW_TIERS.find((item) => item.id === tier) ?? PARTNER_BANNERS_PREVIEW_TIERS[1]!;
+  const mock = CERTIFICATE_MOCK_DATA[tier];
+
   return (
     <div className="relative mx-auto max-w-md" dir="rtl">
       {/* هالة خارجية */}
       <div className="pointer-events-none absolute -inset-3 rounded-[1.75rem] bg-gradient-to-br from-amber-400/25 via-amber-600/10 to-emerald-500/15 blur-xl" />
 
-      <div className="relative overflow-hidden rounded-3xl border-2 border-amber-400/45 bg-gradient-to-b from-[#0f1a0f] via-[#071007] to-[#030803] p-6 shadow-2xl shadow-amber-500/15 sm:p-7">
+      <div className={cn(
+        'relative overflow-hidden rounded-3xl border-2 bg-gradient-to-b p-6 shadow-2xl sm:p-7',
+        mock.accentBorder,
+        mock.accentGlow,
+        tier === 'diamond' ? 'shadow-cyan-500/10' : 'shadow-amber-500/15',
+      )}>
         {/* زخرفة diagonal */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -897,15 +965,15 @@ function CertificateMockup() {
                 </p>
               </div>
             </div>
-            <span className="shrink-0 rounded-full border border-amber-400/35 bg-amber-500/10 px-2.5 py-1 text-[0.55rem] font-black text-amber-200">
-              موثّقة
+            <span className={cn('shrink-0 rounded-full px-2.5 py-1 text-[0.55rem] font-black', mock.badgeTone)}>
+              {mock.statusLabel}
             </span>
           </div>
 
           {/* صاحب الرخصة */}
           <div className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3">
             <p className="text-[0.58rem] font-semibold tracking-wide text-slate-500">صاحب الرخصة · رخصة النفاذ الرقمية</p>
-            <p className="mt-1 text-base font-bold text-white sm:text-lg">صالون ستايل برو للرجال</p>
+            <p className="mt-1 text-base font-bold text-white sm:text-lg">{mock.salonName}</p>
           </div>
 
           {/* كود التفعيل — البطل */}
@@ -933,7 +1001,7 @@ function CertificateMockup() {
                   backgroundClip: 'text',
                 }}
               >
-                {DEMO_ACTIVATION_CODE}
+                {mock.activationCode}
               </p>
               <p className="mt-2 text-[0.62rem] leading-relaxed text-amber-100/55">
                 احفظ هذا الرمز — مرجعك الوحيد للتحقق، الدعم، وربط لوحة التحكم
@@ -944,10 +1012,10 @@ function CertificateMockup() {
           {/* التفاصيل */}
           <div className="grid grid-cols-2 gap-2.5 text-[0.62rem] sm:gap-3">
             {[
-              { label: 'الباقة المختارة', value: 'ذهبي 🥇' },
-              { label: 'نظام الاستجابة', value: 'الظهور عند الطلب' },
-              { label: 'تاريخ الإصدار', value: '٢٣ مايو ٢٠٢٦' },
-              { label: 'صلاحية الرخصة', value: '٢٢ يونيو ٢٠٢٦' },
+              { label: 'الباقة المختارة', value: `${tierConfig.badge} ${tierConfig.name}` },
+              { label: 'نظام الاستجابة', value: mock.responseModel },
+              { label: 'تاريخ الإصدار', value: mock.issuedAt },
+              { label: 'صلاحية الرخصة', value: mock.validUntil },
             ].map((item) => (
               <div
                 key={item.label}
@@ -960,14 +1028,14 @@ function CertificateMockup() {
           </div>
 
           {/* التذييل */}
-          <div className="flex items-start gap-2.5 rounded-xl border border-emerald-400/35 bg-emerald-500/10 px-3 py-2.5">
-            <FileCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+          <div className={cn('flex items-start gap-2.5 rounded-xl border px-3 py-2.5', mock.footerTone)}>
+            <FileCheck className={cn('mt-0.5 h-4 w-4 shrink-0', mock.statusTone)} />
             <div>
-              <p className="text-[0.68rem] font-bold text-emerald-200">
-                مُصدَرة ومُسجَّلة على نظام حلاق ماب
+              <p className={cn('text-[0.68rem] font-bold', mock.statusTone)}>
+                مُصدَرة ومُسجَّلة على نظام حلاق ماب — {mock.statusLabel}
               </p>
-              <p className="mt-0.5 text-[0.58rem] leading-relaxed text-emerald-100/60">
-                منتج رقمي رسمي — يصلك فور نجاح الدفع؛ نعتني بكل رخصة كأصلٍ يستحق الفخر
+              <p className="mt-0.5 text-[0.58rem] leading-relaxed text-slate-300/80">
+                منتج رقمي رسمي — تتبدل الشهادة منطقيًا بحسب الباقة، مدة النفاذ، ونظام الاستجابة المفعّل
               </p>
             </div>
           </div>
@@ -1017,7 +1085,7 @@ export default function PartnerMarketingPreview() {
 
       {/* أزرار عائمة */}
       <FloatingPlatformActions />
-      {/* B2BSalesManagerChat مُدمَج في الهيرو بـ mode="inline" — لا حاجة لطائر ثانٍ */}
+      {/* مكتب مدير المبيعات أصبح صفحة مستقلة — بطاقة الدخول موجودة داخل الهيرو */}
 
       {/* ── شبكة التكتير الخلفية ──────────────────────────────────────────── */}
       <div
@@ -1106,8 +1174,6 @@ export default function PartnerMarketingPreview() {
                 </button>
               ))}
 
-              <RadarShowcaseLink variant="pill" className="hidden lg:inline-flex" />
-
               <div className="mx-1 h-5 w-px bg-slate-200" />
               <Link
                 to={ROUTE_PATHS.HOME}
@@ -1124,7 +1190,6 @@ export default function PartnerMarketingPreview() {
             </nav>
 
             <div className="flex items-center gap-2">
-              <RadarShowcaseLink className="hidden sm:flex" />
               <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
               <PlatformAmbientToggle variant="partner" className="inline-flex md:hidden" />
               <motion.button
@@ -1285,18 +1350,6 @@ export default function PartnerMarketingPreview() {
           {/* Text */}
           <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
 
-            {/* ── مدير مبيعات B2B — تحت الهيدر وفوق النص ── */}
-            {isStrictPartnerPath ? (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.5 }}
-              className="mb-5 w-full min-w-0"
-              >
-                <B2BSalesManagerChat mode="inline" />
-              </motion.div>
-            ) : null}
-
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
               <Sparkles className="h-3 w-3" /> مسار الخدمات التسويقية للشركاء
@@ -1308,6 +1361,53 @@ export default function PartnerMarketingPreview() {
                 يُكتشف بذكاء
               </span>
             </h1>
+
+            {/* ── بوابة مكتب مدير المبيعات — مباشرة تحت العنوان الرئيسي ── */}
+            {isStrictPartnerPath ? (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.5 }}
+                className="mb-6 w-full min-w-0"
+              >
+                <Link
+                  to={ROUTE_PATHS.PARTNER_SALES_OFFICE}
+                  className="group block overflow-hidden rounded-[1.5rem] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,251,243,0.98),rgba(255,255,255,0.96))] p-4 shadow-[0_16px_38px_rgba(245,158,11,0.10)] transition-all hover:border-amber-300 hover:shadow-[0_18px_42px_rgba(245,158,11,0.14)]"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-14 w-14 items-center justify-center rounded-[1.15rem] border border-amber-200 bg-[linear-gradient(145deg,#fffdf8,#f8efdb)] shadow-[0_10px_24px_rgba(245,158,11,0.12)]">
+                        <Scissors className="h-6 w-6 text-amber-700" />
+                        <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-cyan-200 bg-white text-[0.42rem] font-black text-cyan-700">
+                          B2B
+                        </div>
+                      </div>
+                      <div className="min-w-0">
+                        <div className="mb-1 inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50/80 px-2.5 py-1 text-[0.6rem] font-black text-cyan-800">
+                          <BriefcaseBusiness className="h-3.5 w-3.5" />
+                          تحدث مع مدير المبيعات
+                        </div>
+                        <p className="text-lg font-black text-slate-950">ادخل مكتب المبيعات التجاري</p>
+                        <p className="mt-1 max-w-xl text-[0.84rem] leading-6 text-slate-600">
+                          مكتب مستقل يشرح الباقات، مضاعفة الرخص، والعائد التجاري بلغة أقرب للصالونات والمنشآت.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="hidden shrink-0 flex-col items-end gap-2 md:flex">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[0.68rem] font-bold text-emerald-700">
+                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        مجلس حيّ ومباشر
+                      </div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.68rem] font-bold text-slate-700">
+                        <ArrowLeft className="h-3.5 w-3.5" />
+                        افتح المكتب
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ) : null}
 
             <p className="mb-8 max-w-xl text-base leading-relaxed text-slate-600">
               {PARTNER_TECHNICAL_PARTNER_HEADLINE}
@@ -1846,7 +1946,7 @@ export default function PartnerMarketingPreview() {
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
-              <CertificateMockup />
+              <CertificateMockup tier={activeTab} />
             </motion.div>
           </div>
         </div>

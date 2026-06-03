@@ -36,6 +36,8 @@ export const ROUTE_PATHS = {
   PAYMENT: '/partners/payment',
   /** دعم فني للشركاء — محادثة خاصة بجلسة ساعة (?t=رمز_فريد) */
   PARTNER_SUPPORT: '/partners/support',
+  /** مكتب مدير المبيعات B2B — صفحة مستقلة للتفاوض والشرح والانضمام */
+  PARTNER_SALES_OFFICE: '/partners/sales-office',
   /** تبديل «مفتوح/مغلق» للعملاء عبر نظام الرصد الذكي برابط سري (?t=رمز) — مفيد للبرونزي */
   SHOP_OPEN_STATUS: '/partners/shop-open',
   /**

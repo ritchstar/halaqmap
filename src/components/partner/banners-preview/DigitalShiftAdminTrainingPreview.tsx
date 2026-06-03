@@ -15,19 +15,19 @@ const CATEGORY_STYLES: Record<
   { badge: string; prompt: string; response: string }
 > = {
   operations: {
-    badge: 'border-cyan-400/30 bg-cyan-950/40 text-cyan-100',
-    prompt: 'bg-emerald-500/15 text-emerald-50 border-emerald-400/25',
-    response: 'border-white/10 bg-black/20',
+    badge: 'border-cyan-300/70 bg-cyan-50 text-cyan-900',
+    prompt: 'border-emerald-300/70 bg-emerald-50 text-emerald-900',
+    response: 'border-slate-200 bg-white/92',
   },
   hospitality: {
-    badge: 'border-violet-400/30 bg-violet-950/40 text-violet-100',
-    prompt: 'bg-emerald-500/15 text-emerald-50 border-emerald-400/25',
-    response: 'border-white/10 bg-black/20',
+    badge: 'border-violet-300/70 bg-violet-50 text-violet-900',
+    prompt: 'border-emerald-300/70 bg-emerald-50 text-emerald-900',
+    response: 'border-slate-200 bg-white/92',
   },
   multilingual: {
-    badge: 'border-amber-400/30 bg-amber-950/40 text-amber-100',
-    prompt: 'bg-emerald-500/15 text-emerald-50 border-emerald-400/25',
-    response: 'border-white/10 bg-black/20',
+    badge: 'border-amber-300/70 bg-amber-50 text-amber-900',
+    prompt: 'border-emerald-300/70 bg-emerald-50 text-emerald-900',
+    response: 'border-slate-200 bg-white/92',
   },
 };
 
@@ -35,19 +35,19 @@ function ScenarioResponse({ scenario }: { scenario: DigitalShiftTrainingScenario
   const styles = CATEGORY_STYLES[scenario.category];
 
   return (
-    <div className={cn('rounded-xl border p-4 space-y-3', styles.response)}>
-      <p className="text-sm leading-relaxed text-slate-200">{scenario.introAr}</p>
+    <div className={cn('rounded-xl border p-4 space-y-3 shadow-sm', styles.response)}>
+      <p className="text-sm leading-relaxed text-slate-800">{scenario.introAr}</p>
       <ol className="space-y-3">
         {scenario.steps.map((step, i) => (
-          <li key={step.titleAr} className="text-sm leading-relaxed text-slate-300">
-            <span className="font-bold text-violet-100">
+          <li key={step.titleAr} className="text-sm leading-relaxed text-slate-700">
+            <span className="font-bold text-violet-800">
               {i + 1}. {step.titleAr}:
             </span>{' '}
             {step.bodyAr}
           </li>
         ))}
       </ol>
-      <p className="text-sm leading-relaxed text-slate-400 border-t border-white/10 pt-3">{scenario.conclusionAr}</p>
+      <p className="border-t border-slate-200 pt-3 text-sm leading-relaxed text-slate-600">{scenario.conclusionAr}</p>
     </div>
   );
 }
@@ -66,17 +66,17 @@ export function DigitalShiftAdminTrainingPreview() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5, delay: 0.08 }}
-      className="feature-preview-glass w-full overflow-hidden rounded-2xl border border-white/10 p-4 md:p-5"
+      className="feature-preview-glass w-full overflow-hidden rounded-[1.6rem] border border-slate-200/85 p-4 md:p-5"
       dir="rtl"
     >
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1 text-right">
-          <div className="flex items-center justify-end gap-2 text-[10px] font-semibold text-violet-200/80">
+          <div className="flex items-center justify-end gap-2 text-[10px] font-semibold text-violet-700">
             <GraduationCap className="h-3.5 w-3.5" aria-hidden />
             {DIGITAL_SHIFT_ADMIN_TRAINING_SECTION.eyebrow}
           </div>
-          <h3 className="text-base font-bold text-white md:text-lg">{DIGITAL_SHIFT_ADMIN_TRAINING_SECTION.title}</h3>
-          <p className="max-w-2xl text-xs leading-relaxed text-slate-400">{DIGITAL_SHIFT_ADMIN_TRAINING_SECTION.subtitle}</p>
+          <h3 className="text-base font-bold text-slate-950 md:text-lg">{DIGITAL_SHIFT_ADMIN_TRAINING_SECTION.title}</h3>
+          <p className="max-w-2xl text-xs leading-relaxed text-slate-600">{DIGITAL_SHIFT_ADMIN_TRAINING_SECTION.subtitle}</p>
         </div>
       </div>
 
@@ -90,8 +90,8 @@ export function DigitalShiftAdminTrainingPreview() {
             className={cn(
               'h-auto min-h-8 whitespace-normal py-1.5 text-[11px] font-medium',
               scenario.id === activeId
-                ? 'bg-violet-600 hover:bg-violet-500 text-white border-violet-400/40'
-                : 'border-white/15 bg-black/20 text-slate-300 hover:bg-white/5 hover:text-white',
+                ? 'border-violet-200 bg-white text-violet-800 shadow-[0_8px_18px_rgba(139,92,246,0.08)] hover:bg-violet-50'
+                : 'border-slate-200 bg-white/88 text-slate-700 hover:bg-white hover:text-slate-950',
             )}
             onClick={() => setActiveId(scenario.id)}
           >
@@ -114,9 +114,9 @@ export function DigitalShiftAdminTrainingPreview() {
           <span className="text-[10px] text-slate-500">سيناريو تدريبي · لا يُنفَّذ على بيانات حقيقية</span>
         </div>
 
-        <div className="space-y-3 rounded-xl border border-white/10 bg-black/25 p-3">
+        <div className="space-y-3 rounded-[1.2rem] border border-slate-200 bg-white/90 p-3 shadow-[0_18px_40px_rgba(148,163,184,0.10)]">
           <div className="flex flex-col items-end gap-1 max-w-[95%] mr-0 ml-auto">
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
               <User className="h-3 w-3" />
               <span>سؤال التدريب الإداري</span>
             </div>
@@ -131,8 +131,8 @@ export function DigitalShiftAdminTrainingPreview() {
           </div>
 
           <div className="flex flex-col items-start gap-1">
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-              <MessageCircle className="h-3 w-3 text-violet-300" />
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+              <MessageCircle className="h-3 w-3 text-violet-500" />
               <span>رد المناوب · نموذج مرجعي</span>
             </div>
             <ScenarioResponse scenario={active} />

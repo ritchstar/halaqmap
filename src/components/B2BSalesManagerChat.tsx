@@ -13,8 +13,8 @@ import { useState, useRef, useEffect, useCallback, type ReactNode } from 'react'
 import { useAgentChatInputFocus, useAgentChatOpenFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Send, Building2, TrendingUp, ChevronDown,
-  ArrowLeft, Briefcase, Star, PhoneCall
+  Send, TrendingUp, ChevronDown,
+  ArrowLeft, Briefcase, Star, PhoneCall, Scissors, Store, MapPin
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
@@ -83,9 +83,9 @@ async function sendMsg(msg: string, history: Turn[]): Promise<string> {
 function TypingDots() {
   return (
     <div className="flex items-center gap-1.5 px-4 py-3">
-      <span className="text-[0.68rem] text-amber-300/55">مدير المبيعات يفكّر</span>
+      <span className="text-[0.68rem] text-slate-500">مدير المبيعات يحضّر الرد</span>
       {[0, 1, 2].map((i) => (
-        <motion.div key={i} className="h-1.5 w-1.5 rounded-full bg-amber-400"
+        <motion.div key={i} className="h-1.5 w-1.5 rounded-full bg-amber-500"
           animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
           transition={{ duration: 1, delay: i * 0.16, repeat: Infinity }} />
       ))}
@@ -99,13 +99,13 @@ function OfficeIcon({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const icon = size === 'lg' ? 'h-7 w-7' : size === 'md' ? 'h-5 w-5' : 'h-4 w-4';
   return (
     <div className={`relative flex shrink-0 items-center justify-center ${dim}`}>
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-700/20 blur-md" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-200/40 via-cyan-100/25 to-emerald-100/25 blur-md" />
       <div className={`relative flex ${dim} items-center justify-center rounded-2xl
-        border-2 border-amber-400/50 bg-gradient-to-br from-[#1e1000] to-[#080400]
-        shadow-[0_0_24px_rgba(245,158,11,0.40),inset_0_1px_0_rgba(251,191,36,0.22)]`}>
-        <Building2 className={`${icon} text-amber-300`} strokeWidth={1.5} />
+        border border-amber-200 bg-[linear-gradient(145deg,#fffdf8,#f9f4e7)]
+        shadow-[0_12px_28px_rgba(245,158,11,0.12),inset_0_1px_0_rgba(255,255,255,0.85)]`}>
+        <Scissors className={`${icon} text-amber-700`} strokeWidth={1.7} />
         {/* B2B badge */}
-        <span className="absolute -bottom-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[0.38rem] font-black text-black ring-2 ring-[#080400]">
+        <span className="absolute -bottom-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-cyan-200 bg-white text-[0.38rem] font-black text-cyan-700 ring-2 ring-white">
           B2B
         </span>
       </div>
@@ -130,38 +130,42 @@ function SaudiFlexibleDialogShell({
       className={cn(
         'relative flex w-full flex-col overflow-hidden',
         'rounded-[clamp(1.125rem,3.2vw,1.875rem)]',
-        'border border-amber-400/38',
-        'bg-[linear-gradient(168deg,#0d0803_0%,#060300_42%,#0a0600_100%)]',
+        'border border-slate-200/90',
+        'bg-[linear-gradient(165deg,#fffefa_0%,#fbf7ef_42%,#f8fbff_100%)]',
         'backdrop-blur-2xl',
-        'shadow-[inset_0_1px_0_rgba(251,191,36,0.16),inset_0_-1px_0_rgba(0,0,0,0.35),0_14px_48px_rgba(0,0,0,0.5)]',
+        'shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_20px_60px_rgba(148,163,184,0.22)]',
         fluidHeight &&
-          'min-h-[clamp(18rem,48dvh,22rem)] max-h-[min(94dvh,52rem)] h-[clamp(22rem,min(82dvh,44rem),48rem)]',
+          'min-h-[clamp(22rem,52dvh,28rem)] max-h-[min(90dvh,54rem)] h-[min(80dvh,54rem)]',
         compact && 'min-h-0 max-h-none h-auto',
         className,
       )}
     >
-      <div className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-amber-500/12" aria-hidden />
+      <div className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-white/80" aria-hidden />
       <div
-        className="pointer-events-none absolute inset-[clamp(4px,1.2vw,7px)] rounded-[clamp(0.875rem,2.6vw,1.5rem)] border border-amber-400/14"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute right-0 top-[10%] h-[80%] w-[3px] rounded-full opacity-80"
-        style={{ background: 'linear-gradient(180deg, transparent, rgba(245,158,11,0.45), transparent)' }}
+        className="pointer-events-none absolute inset-[clamp(4px,1.2vw,7px)] rounded-[clamp(0.875rem,2.6vw,1.5rem)] border border-amber-100/80"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute left-0 top-[10%] h-[80%] w-[3px] rounded-full opacity-80"
-        style={{ background: 'linear-gradient(180deg, transparent, rgba(245,158,11,0.45), transparent)' }}
+        className="pointer-events-none absolute inset-x-0 top-0 h-28 opacity-90"
+        style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.14), rgba(255,255,255,0))' }}
         aria-hidden
       />
-      <motion.div
-        className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-60"
-        style={{ background: 'linear-gradient(118deg, transparent 42%, rgba(245,158,11,0.05) 50%, transparent 58%)' }}
-        animate={{ x: ['-120%', '220%'] }}
-        transition={{ duration: 5.5, repeat: Infinity, ease: 'linear', repeatDelay: 2.5 }}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(135deg, rgba(15,23,42,0.7) 0, rgba(15,23,42,0.7) 1px, transparent 1px, transparent 12px)',
+        }}
         aria-hidden
       />
+      <div
+        className="pointer-events-none absolute left-6 top-5 flex gap-2 opacity-20"
+        aria-hidden
+      >
+        <div className="h-8 w-8 rounded-full border border-amber-200 bg-white/80" />
+        <div className="h-8 w-8 rounded-full border border-cyan-200 bg-white/70" />
+        <div className="h-8 w-8 rounded-full border border-emerald-200 bg-white/70" />
+      </div>
       <div className="relative z-[1] flex min-h-0 flex-1 flex-col">{children}</div>
     </div>
   );
@@ -170,11 +174,18 @@ function SaudiFlexibleDialogShell({
 // ─── Main component ───────────────────────────────────────────────────────────
 /**
  * mode="panel" → لوحة ثابتة أسفل يسار الشاشة (لصفحات PartnerLayout)
- * mode="inline" → مدمج داخل تصميم الصفحة بلا fixed (لـ PartnerMarketingPreview)
+ * mode="inline" → مدمج داخل تصميم الصفحة بلا fixed
+ * mode="office" → مفتوح دائماً داخل صفحة مكتب مستقلة
  */
-export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: { mode?: 'panel' | 'inline'; startMinimized?: boolean }) {
+export function B2BSalesManagerChat({
+  mode = 'panel',
+  startMinimized = false,
+}: {
+  mode?: 'panel' | 'inline' | 'office';
+  startMinimized?: boolean;
+}) {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(mode === 'inline');
+  const [open, setOpen] = useState(mode === 'office');
   const [pitchIdx, setPitchIdx] = useState(0);
   const [minimized, setMinimized] = useState(startMinimized);
   const [turns, setTurns] = useState<Turn[]>([
@@ -222,10 +233,14 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
   }, [open, mode]);
 
   useEffect(() => {
-    const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    const fn = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (mode === 'office') navigate(ROUTE_PATHS.BARBERS_LANDING);
+      else setOpen(false);
+    };
     window.addEventListener('keydown', fn);
     return () => window.removeEventListener('keydown', fn);
-  }, []);
+  }, [mode, navigate]);
 
   const handleSend = useCallback(async (text?: string) => {
     const msg = (text ?? draft).trim();
@@ -251,8 +266,12 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
   }, []);
 
   // Panel mode: teaser ثابت، وعند الفتح يصبح «مجلس ضيوف» أمامي كبير (3/4 الشاشة تقريباً)
-  const wrapClass = mode === 'inline'
-    ? `relative w-full max-w-full ${open ? 'z-[50]' : 'z-10'}`
+  const wrapClass = mode === 'office'
+    ? 'relative z-10 w-full max-w-full'
+    : mode === 'inline'
+    ? open
+      ? 'fixed inset-0 z-[72] flex items-center justify-center px-2 py-3 sm:px-4 sm:py-5'
+      : 'relative z-10 w-full max-w-full'
     : open
       ? 'fixed inset-0 z-[72] flex items-center justify-center px-2 py-3 sm:px-4 sm:py-6'
       : 'fixed bottom-24 left-0 z-[49] md:bottom-6';
@@ -268,29 +287,29 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
         className="fixed left-0 z-[49] flex flex-col items-center gap-1.5 py-3 px-2.5"
         style={{
           top: '38%',
-          background: 'linear-gradient(180deg,#1c0800 0%,#2a1100 50%,#1c0800 100%)',
-          border: '1.5px solid rgba(245,158,11,0.42)',
+          background: 'linear-gradient(180deg,#fffaf0 0%,#f9efdb 50%,#fffaf0 100%)',
+          border: '1.5px solid rgba(245,158,11,0.24)',
           borderRight: 'none',
           borderRadius: '0 0 0 14px',
-          boxShadow: '4px 0 20px rgba(245,158,11,0.22)',
+          boxShadow: '4px 0 20px rgba(245,158,11,0.10)',
         }}
         title="مدير مبيعات B2B"
       >
         <motion.span
           className="pointer-events-none absolute inset-0"
-          style={{ background: 'rgba(245,158,11,0.06)', borderRadius: 'inherit' }}
+          style={{ background: 'rgba(245,158,11,0.04)', borderRadius: 'inherit' }}
           animate={{ opacity: [0.3, 0.8, 0.3] }}
           transition={{ duration: 2.5, repeat: Infinity }}
         />
-        <span className="relative z-10 text-lg" style={{ filter: 'drop-shadow(0 0 5px rgba(245,158,11,0.8))' }}>💼</span>
+        <span className="relative z-10 text-lg">💼</span>
         <motion.span
           className="relative z-10 h-1.5 w-1.5 rounded-full bg-amber-400"
           animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ duration: 1.8, repeat: Infinity }}
-          style={{ boxShadow: '0 0 5px rgba(245,158,11,0.8)' }}
+          style={{ boxShadow: '0 0 5px rgba(245,158,11,0.28)' }}
         />
         <span
-          className="relative z-10 text-[0.5rem] font-black tracking-widest text-amber-400/70"
+          className="relative z-10 text-[0.5rem] font-black tracking-widest text-amber-700/80"
           style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
         >
           المبيعات
@@ -301,11 +320,16 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
 
   return (
     <>
-      {/* ── Backdrop — panel mode فقط ─────────────── */}
+      {/* ── Backdrop ─────────────── */}
       <AnimatePresence>
-        {open && mode === 'panel' && (
+        {open && mode !== 'office' && (
           <motion.div key="bd" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[48] bg-black/55 backdrop-blur-[3px]"
+            className={cn(
+              'fixed inset-0 z-[48] backdrop-blur-[4px]',
+              mode === 'inline'
+                ? 'bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.58),rgba(248,250,252,0.74),rgba(15,23,42,0.22))]'
+                : 'bg-black/55',
+            )}
             onClick={() => setOpen(false)} />
         )}
       </AnimatePresence>
@@ -317,7 +341,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
         style={{ pointerEvents: 'auto', position: mode === 'inline' ? 'relative' : undefined }}
       >
         <AnimatePresence mode="wait">
-          {!open ? (
+          {!open && mode !== 'office' ? (
               /* ═══════════ TEASER PANEL ═══════════ */
             <motion.div
               key="teaser"
@@ -325,26 +349,26 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               animate={mode === 'inline' ? { opacity: 1, y: 0 } : { x: 0, opacity: 1 }}
               exit={mode === 'inline' ? { opacity: 0, y: 10 } : { x: -320, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-              className={mode === 'inline' ? 'w-full' : 'w-[min(100vw-0.75rem,14.5rem)]'}
+              className={mode === 'inline' ? 'w-full' : 'w-[min(100vw-0.75rem,18rem)]'}
             >
               <SaudiFlexibleDialogShell compact>
-              <div className="px-[clamp(0.65rem,2vw,0.85rem)] py-[clamp(0.65rem,2vw,0.85rem)]">
+              <div className="px-[clamp(0.8rem,2vw,1rem)] py-[clamp(0.8rem,2vw,1rem)]">
                 {/* Header */}
-                <div className="mb-2.5 flex items-center gap-2">
+                <div className="mb-3 flex items-center gap-2.5">
                   <OfficeIcon size="sm" />
                   <div className="min-w-0">
-                    <p className="text-[0.55rem] font-bold tracking-widest text-amber-400/55 uppercase">حلاق ماب</p>
-                    <p className="text-[0.72rem] font-black leading-tight text-amber-100">مدير مبيعات B2B</p>
+                    <p className="text-[0.55rem] font-bold tracking-widest text-amber-700/70 uppercase">حلاق ماب</p>
+                    <p className="text-[0.8rem] font-black leading-tight text-slate-950">مدير مبيعات B2B</p>
                     <div className="mt-0.5 flex items-center gap-1">
                       <motion.div className="h-1.5 w-1.5 rounded-full bg-emerald-400"
                         animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }} />
-                      <span className="text-[0.48rem] font-semibold text-emerald-300/80">متاح للتفاوض</span>
+                      <span className="text-[0.5rem] font-semibold text-emerald-700">متاح للتفاوض</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Animated pitch line */}
-                <div className="mb-3 min-h-[36px] overflow-hidden rounded-lg border border-amber-400/20 bg-amber-500/8 px-2 py-2">
+                <div className="mb-3 min-h-[48px] overflow-hidden rounded-xl border border-amber-200 bg-white/90 px-3 py-2.5 shadow-[0_8px_18px_rgba(245,158,11,0.08)]">
                   <AnimatePresence mode="wait">
                     <motion.p
                       key={pitchIdx}
@@ -352,7 +376,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.3 }}
-                      className="text-[0.65rem] font-bold leading-snug text-amber-100"
+                      className="text-[0.68rem] font-bold leading-snug text-slate-800"
                       style={{ unicodeBidi: 'plaintext' }}
                     >
                       {PITCH_LINES[pitchIdx]}
@@ -367,10 +391,23 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                     { icon: Star, label: 'باقات', val: '3' },
                     { icon: PhoneCall, label: 'ردّ', val: 'فوري' },
                   ].map((s) => (
-                    <div key={s.label} className="flex flex-col items-center gap-0.5 rounded-md border border-amber-400/15 bg-amber-500/6 px-1 py-1.5">
-                      <s.icon className="h-3 w-3 text-amber-400" strokeWidth={2} />
-                      <span className="text-[0.58rem] font-black text-amber-100">{s.val}</span>
-                      <span className="text-[0.45rem] text-amber-400/50">{s.label}</span>
+                    <div key={s.label} className="flex flex-col items-center gap-0.5 rounded-lg border border-slate-200 bg-white/88 px-1 py-1.5">
+                      <s.icon className="h-3 w-3 text-amber-600" strokeWidth={2} />
+                      <span className="text-[0.58rem] font-black text-slate-900">{s.val}</span>
+                      <span className="text-[0.45rem] text-slate-500">{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mb-3 flex flex-wrap gap-1.5">
+                  {[
+                    { icon: Scissors, label: 'صالونات' },
+                    { icon: Store, label: 'رخصة نفاذ' },
+                    { icon: MapPin, label: 'ظهور جغرافي' },
+                  ].map((item) => (
+                    <div key={item.label} className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50/70 px-2 py-1 text-[0.52rem] font-bold text-cyan-800">
+                      <item.icon className="h-3 w-3" />
+                      {item.label}
                     </div>
                   ))}
                 </div>
@@ -381,7 +418,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                   onClick={() => setOpen(true)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="group relative w-full overflow-hidden rounded-lg bg-gradient-to-l from-amber-500 to-amber-700 py-2 text-[0.72rem] font-black text-black shadow-[0_3px_12px_rgba(245,158,11,0.35)] transition-all hover:shadow-[0_3px_16px_rgba(245,158,11,0.50)]"
+                  className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 py-2.5 text-[0.76rem] font-black text-black shadow-[0_8px_18px_rgba(245,158,11,0.22)] transition-all hover:shadow-[0_10px_22px_rgba(245,158,11,0.28)]"
                 >
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-transparent"
@@ -397,7 +434,7 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                 {/* Register shortcut */}
                 <button
                   onClick={() => navigate(ROUTE_PATHS.REGISTER)}
-                  className="mt-2 flex w-full items-center justify-center gap-1 text-[0.65rem] text-amber-400/50 hover:text-amber-300 transition-colors"
+                  className="mt-2 flex w-full items-center justify-center gap-1 text-[0.65rem] text-slate-500 hover:text-amber-700 transition-colors"
                 >
                   أو سجّل مباشرة <ArrowLeft className="h-3 w-3" />
                 </button>
@@ -416,35 +453,45 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               onClick={(e) => e.stopPropagation()}
               className={cn(
                 'w-full',
-                mode === 'panel' && 'w-[min(95vw,74rem)]',
+                mode === 'office' && 'w-[min(96vw,92rem)]',
+                mode === 'inline' && 'w-[min(80vw,82rem)]',
+                mode === 'panel' && 'w-[min(94vw,78rem)]',
               )}
             >
               <SaudiFlexibleDialogShell
                 fluidHeight
                 className={cn(
-                  mode === 'panel' && 'h-[min(84dvh,54rem)] max-h-[84dvh]',
+                  mode === 'office' && 'h-[min(82dvh,62rem)] max-h-[82dvh] rounded-[1rem]',
+                  mode === 'inline' && 'h-[min(80dvh,56rem)] max-h-[80dvh] rounded-[1.15rem]',
+                  mode === 'panel' && 'h-[min(80dvh,54rem)] max-h-[80dvh]',
                 )}
               >
               {/* ── Header ── */}
-              <div className="relative shrink-0 flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/15 bg-gradient-to-l from-amber-500/8 via-transparent to-transparent px-[clamp(0.85rem,2.5vw,1.25rem)] py-[clamp(0.75rem,2vw,1rem)]">
+              <div className="relative shrink-0 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-[linear-gradient(90deg,rgba(245,158,11,0.08),rgba(255,255,255,0.82),rgba(34,211,238,0.08))] px-[clamp(0.85rem,2.5vw,1.25rem)] py-[clamp(0.8rem,2vw,1rem)]">
                 <div className="flex items-center gap-3">
                   <OfficeIcon size="sm" />
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-base font-black text-amber-100">مدير مبيعات B2B</p>
-                      <TrendingUp className="h-4 w-4 text-amber-400" />
+                      <p className="text-base font-black text-slate-950">مدير مبيعات B2B</p>
+                      <TrendingUp className="h-4 w-4 text-amber-600" />
                       <motion.div
                         className="h-2 w-2 rounded-full bg-emerald-400"
                         animate={{ opacity: [0.4, 1, 0.4] }}
                         transition={{ duration: 2, repeat: Infinity }}
-                        style={{ boxShadow: '0 0 6px rgba(52,211,153,0.7)' }}
+                        style={{ boxShadow: '0 0 6px rgba(52,211,153,0.35)' }}
                       />
                     </div>
-                    <p className="text-xs text-amber-400/45">حلاق ماب · Enter للإرسال · Shift+Enter سطر جديد</p>
+                    <p className="text-xs text-slate-500">حلاق ماب · Enter للإرسال · Shift+Enter سطر جديد</p>
                   </div>
                 </div>
-                <button onClick={() => setOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-400/20 text-amber-400/60 hover:border-amber-400/50 hover:bg-amber-500/12 hover:text-amber-200 transition-all">
+                <div className="hidden items-center gap-2 md:flex">
+                  <div className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50/80 px-2.5 py-1 text-[0.62rem] font-bold text-cyan-800">
+                    <Store className="h-3 w-3" />
+                    صالونات · رخصة · تفعيل
+                  </div>
+                </div>
+                <button onClick={() => (mode === 'office' ? navigate(ROUTE_PATHS.BARBERS_LANDING) : setOpen(false))}
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700 transition-all">
                   <ChevronDown className="h-5 w-5" />
                 </button>
               </div>
@@ -452,9 +499,20 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
               {/* ── Messages ── */}
               <div
                 ref={messagesRef}
-                className="relative min-h-[clamp(10rem,28dvh,16rem)] flex-1 overflow-y-auto overscroll-contain px-[clamp(0.85rem,2.5vw,1.25rem)] py-[clamp(0.75rem,2vw,1.1rem)]"
+                className="relative min-h-[clamp(12rem,30dvh,18rem)] flex-1 overflow-y-auto overscroll-contain px-[clamp(0.85rem,2.5vw,1.25rem)] py-[clamp(0.85rem,2vw,1.1rem)]"
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_35%_at_50%_0%,rgba(245,158,11,0.04),transparent)]" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_72%_38%_at_50%_0%,rgba(245,158,11,0.08),transparent),radial-gradient(circle_at_bottom_left,rgba(34,211,238,0.06),transparent_28%)]" />
+                <div className="pointer-events-none absolute inset-x-5 top-4 flex flex-wrap gap-2 opacity-80">
+                  {[
+                    'صندوق تفاوض واضح ومباشر',
+                    'مبني على واقع الصالونات ورخص النفاذ',
+                    'جاهز لشرح التوفير والعائد',
+                  ].map((chip) => (
+                    <span key={chip} className="rounded-full border border-amber-100 bg-white/80 px-3 py-1 text-[0.58rem] font-bold text-slate-600">
+                      {chip}
+                    </span>
+                  ))}
+                </div>
                 <div className="relative flex flex-col gap-3 sm:gap-4">
                   {turns.map((t) => (
                     <motion.div key={t.id}
@@ -464,11 +522,11 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                         'w-fit max-w-[min(100%,34rem)] rounded-[clamp(0.875rem,2vw,1.125rem)] px-[clamp(0.85rem,2.2vw,1.15rem)] py-[clamp(0.65rem,1.8vw,1rem)]',
                         'text-[clamp(0.9rem,2.2vw,1rem)] leading-[1.65]',
                         t.role === 'assistant'
-                          ? 'self-start rounded-tr-sm border border-amber-500/24 bg-gradient-to-br from-amber-500/14 to-amber-900/10 text-amber-50 shadow-[0_2px_16px_rgba(245,158,11,0.09)]'
-                          : 'self-end rounded-tl-sm border border-white/14 bg-white/10 text-slate-100',
+                          ? 'self-start rounded-tr-sm border border-amber-200 bg-[linear-gradient(145deg,#fffdf7,#fbf4e6)] text-slate-800 shadow-[0_12px_28px_rgba(245,158,11,0.08)]'
+                          : 'self-end rounded-tl-sm border border-cyan-200 bg-[linear-gradient(145deg,#f4fbfd,#eef8fb)] text-slate-800 shadow-[0_10px_24px_rgba(34,211,238,0.08)]',
                       )}
                     >
-                      <p className="mb-1.5 text-[0.62rem] font-bold opacity-45">
+                      <p className="mb-1.5 text-[0.62rem] font-bold text-slate-500">
                         {t.role === 'assistant' ? 'مدير مبيعات B2B 💼' : 'أنت'}
                       </p>
                       <div dir="rtl" className="chat-arabic-text whitespace-pre-wrap break-words">{t.content}</div>
@@ -476,21 +534,37 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                   ))}
                   {loading && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                      className="self-start rounded-2xl rounded-tr-sm border border-amber-500/20 bg-amber-500/8">
+                      className="self-start rounded-2xl rounded-tr-sm border border-amber-200 bg-white/90 shadow-[0_8px_20px_rgba(245,158,11,0.08)]">
                       <TypingDots />
                     </motion.div>
                   )}
                 </div>
               </div>
 
-              {/* ── Quick prompts ── */}
+              {/* ── Quick prompts + CTA ── */}
               {!loading && (
-                <div className="relative shrink-0 border-t border-amber-500/10 bg-[#060300]/60 px-[clamp(0.75rem,2.2vw,1rem)] py-[clamp(0.65rem,1.8vw,0.85rem)]">
-                  <p className="mb-2 text-[0.65rem] font-semibold text-amber-400/40">اختر سؤالاً أو اكتب رسالتك:</p>
+                <div className="relative shrink-0 border-t border-slate-200 bg-white/80 px-[clamp(0.75rem,2.2vw,1rem)] py-[clamp(0.75rem,1.8vw,0.95rem)]">
+                  <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[0.68rem] font-semibold text-slate-600">اختر سؤالاً أو اكتب رسالتك:</p>
+                    <div className="flex items-center gap-2">
+                      <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50/80 px-2.5 py-1 text-[0.54rem] font-bold text-amber-700">
+                        <Briefcase className="h-3 w-3" />
+                        مجلس حلاق ماب التجاري
+                      </div>
+                      <motion.button
+                        onClick={() => { setOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
+                        whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-l from-amber-500 to-amber-700 px-3 py-1.5 text-[0.66rem] font-black text-black shadow-[0_8px_16px_rgba(245,158,11,0.16)] transition-all hover:from-amber-400"
+                      >
+                        سجّل الآن
+                        <ArrowLeft className="h-3 w-3" />
+                      </motion.button>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,9.25rem),1fr))] gap-2">
                     {QUICK.map((q) => (
                       <button key={q} type="button" onClick={() => void handleSend(q)}
-                        className="min-h-[2.35rem] rounded-[clamp(0.65rem,1.8vw,1rem)] border border-amber-400/28 bg-amber-500/10 px-2.5 py-1.5 text-center text-[clamp(0.65rem,1.8vw,0.72rem)] font-semibold leading-snug text-amber-300/90 transition-all hover:border-amber-400/60 hover:bg-amber-500/18 hover:text-amber-200">
+                        className="min-h-[2.5rem] rounded-[clamp(0.75rem,1.8vw,1rem)] border border-amber-200 bg-white px-2.5 py-1.5 text-center text-[clamp(0.66rem,1.8vw,0.74rem)] font-semibold leading-snug text-slate-700 transition-all hover:border-amber-300 hover:bg-amber-50 hover:text-amber-900">
                         {q}
                       </button>
                     ))}
@@ -498,47 +572,30 @@ export function B2BSalesManagerChat({ mode = 'panel', startMinimized = false }: 
                 </div>
               )}
 
-              {/* ── Register CTA ── */}
-              <div className="relative mx-[clamp(0.65rem,2vw,1rem)] mb-2 shrink-0 overflow-hidden rounded-[clamp(0.75rem,2vw,1rem)] border border-amber-400/35 bg-gradient-to-l from-amber-500/14 via-amber-900/10 to-transparent px-[clamp(0.75rem,2.2vw,1.15rem)] py-[clamp(0.65rem,1.8vw,0.9rem)]">
-                <motion.div className="pointer-events-none absolute inset-0"
-                  style={{ background: 'linear-gradient(90deg,transparent,rgba(245,158,11,0.06),transparent)' }}
-                  animate={{ x: ['-100%','200%'] }} transition={{ duration: 3, repeat: Infinity, ease:'linear', repeatDelay: 2 }} />
-                <div className="relative flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
-                  <div className="min-w-0 text-center sm:text-start">
-                    <p className="text-[clamp(0.82rem,2vw,0.9rem)] font-black text-amber-200">جاهز للانضمام؟ 🚀</p>
-                    <p className="text-[0.65rem] text-amber-400/55">✅ التفعيل بعد اتمام تعبئة الطلب والدفع</p>
-                  </div>
-                  <motion.button
-                    onClick={() => { setOpen(false); navigate(ROUTE_PATHS.REGISTER); }}
-                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                    className="flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-amber-500 to-amber-700 px-5 py-3 text-sm font-black text-black shadow-[0_2px_16px_rgba(245,158,11,0.40)] transition-all hover:from-amber-400 sm:w-auto">
-                    سجّل الآن <ArrowLeft className="h-4 w-4" />
-                  </motion.button>
+              {/* ── Input Dock ── */}
+              <div className="relative shrink-0 border-t border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(248,250,252,0.98))] px-[clamp(0.75rem,2.2vw,1rem)] py-[clamp(0.8rem,2vw,1rem)]">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <p className="text-[0.58rem] font-medium text-slate-500">اكتب هنا وسيبقى موضع القراءة محفوظًا تلقائيًا</p>
+                  <p className="text-[0.58rem] text-slate-400">Enter للإرسال · Shift+Enter سطر جديد</p>
                 </div>
-              </div>
 
-              {/* ── Input ── */}
-              <div className="relative shrink-0 border-t border-amber-500/15 bg-[#060300]/80 px-[clamp(0.75rem,2.2vw,1rem)] py-[clamp(0.75rem,2vw,1rem)]">
-                <div className="flex items-end gap-3">
+                <div className="flex items-end gap-2.5 rounded-[1.15rem] border border-slate-200 bg-white p-3 shadow-[0_10px_24px_rgba(148,163,184,0.08)]">
                   <textarea ref={textRef} value={draft} onChange={handleInput} onKeyDown={handleKey}
                     disabled={loading}
-                    placeholder="اسألني عن الباقات، العائد، المكتب الخاص، أي شيء… (Enter للإرسال)"
-                    rows={2}
-                    style={{ minHeight: '60px', maxHeight: '180px', resize: 'none', overflowY: 'auto' }}
-                    className="flex-1 rounded-2xl border border-amber-400/25 bg-[#0e0700] px-5 py-3.5 text-[1rem] leading-7 text-white placeholder:text-amber-400/30 outline-none focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/20 transition-all disabled:opacity-50"
+                    placeholder="اسألني عن الباقات، العائد، المكتب الخاص، أي شيء…"
+                    rows={3}
+                    style={{ minHeight: '92px', maxHeight: '180px', resize: 'none', overflowY: 'auto' }}
+                    className="flex-1 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-[0.98rem] leading-7 text-slate-900 placeholder:text-slate-400 outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-200/60 transition-all disabled:opacity-50"
                     dir="rtl"
                   />
                   <motion.button type="button"
                     onClick={() => void handleSend()}
                     disabled={!draft.trim() || loading}
                     whileTap={draft.trim() && !loading ? { scale: 0.88 } : undefined}
-                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-black shadow-[0_4px_20px_rgba(245,158,11,0.40)] transition-all hover:from-amber-400 hover:shadow-[0_4px_28px_rgba(245,158,11,0.55)] disabled:cursor-not-allowed disabled:opacity-40">
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-black shadow-[0_8px_20px_rgba(245,158,11,0.18)] transition-all hover:from-amber-400 hover:shadow-[0_10px_24px_rgba(245,158,11,0.24)] disabled:cursor-not-allowed disabled:opacity-40">
                     <Send className="h-5 w-5" />
                   </motion.button>
                 </div>
-                <p className="mt-2 text-center text-[0.58rem] text-amber-400/20">
-                  Enter للإرسال · Shift+Enter سطر جديد
-                </p>
               </div>
               </SaudiFlexibleDialogShell>
             </motion.aside>

@@ -1610,11 +1610,12 @@
 .banner-major-card-face {
   background: linear-gradient(
     180deg,
-    rgba(8, 14, 24, 0.98) 0%,
-    rgba(5, 10, 20, 0.99) 52%,
-    rgba(3, 7, 14, 1) 100%
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.99) 52%,
+    rgba(241, 245, 249, 1) 100%
   ) !important;
   backdrop-filter: blur(10px);
+  box-shadow: 0 22px 54px rgba(148, 163, 184, 0.16);
 }
 
 .banner-major-card-copy {
@@ -1623,33 +1624,29 @@
 }
 
 .banner-glow-safe-text {
-  color: #f4f4f5;
-  text-shadow:
-    0 1px 2px rgba(2, 6, 14, 0.94),
-    0 0 10px rgba(2, 6, 14, 0.5);
+  color: #0f172a;
+  text-shadow: none;
 }
 
 .banner-glow-safe-text-muted {
-  color: #d4d4d8;
-  text-shadow: 0 1px 2px rgba(2, 6, 14, 0.88);
+  color: #475569;
+  text-shadow: none;
 }
 
 .banner-glow-safe-price {
-  color: #ffffff;
+  color: #020617;
   font-weight: 900;
-  text-shadow:
-    0 2px 4px rgba(2, 6, 14, 0.96),
-    0 0 1px rgba(0, 0, 0, 1);
+  text-shadow: none;
 }
 
 .banner-glow-safe-accent {
-  color: #bbf7d0;
-  text-shadow: 0 1px 2px rgba(2, 6, 14, 0.9);
+  color: #047857;
+  text-shadow: none;
 }
 
 .banner-glow-safe-panel {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  background: rgba(2, 8, 16, 0.88) !important;
+  border-color: rgba(203, 213, 225, 0.9) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
 }
 
 .banner-radiation-field .banner-radiation-core {
@@ -1777,27 +1774,27 @@
 }
 
 [data-banner-radiation-tier='gold'] {
-  --banner-radiation-hot: rgba(251, 191, 36, 0.68);
-  --banner-radiation-core-mid: rgba(245, 158, 11, 0.36);
-  --banner-radiation-ambient-mid: rgba(251, 191, 36, 0.24);
-  --banner-radiation-ambient-far: rgba(245, 158, 11, 0.11);
-  --banner-radiation-accent-far: rgba(180, 83, 9, 0.16);
-  --banner-radiation-accent-near: rgba(251, 191, 36, 0.13);
-  --banner-radiation-edge: rgba(251, 191, 36, 0.34);
-  --banner-radiation-edge-far: rgba(245, 158, 11, 0.14);
-  --banner-radiation-edge-ring: rgba(251, 191, 36, 0.24);
+  --banner-radiation-hot: rgba(231, 191, 96, 0.34);
+  --banner-radiation-core-mid: rgba(194, 146, 63, 0.20);
+  --banner-radiation-ambient-mid: rgba(231, 191, 96, 0.12);
+  --banner-radiation-ambient-far: rgba(194, 146, 63, 0.05);
+  --banner-radiation-accent-far: rgba(161, 98, 7, 0.08);
+  --banner-radiation-accent-near: rgba(231, 191, 96, 0.07);
+  --banner-radiation-edge: rgba(212, 170, 83, 0.16);
+  --banner-radiation-edge-far: rgba(194, 146, 63, 0.06);
+  --banner-radiation-edge-ring: rgba(231, 191, 96, 0.10);
 }
 
 [data-banner-radiation-tier='diamond'] {
-  --banner-radiation-hot: rgba(34, 211, 238, 0.78);
-  --banner-radiation-core-mid: rgba(14, 116, 144, 0.42);
-  --banner-radiation-ambient-mid: rgba(34, 211, 238, 0.32);
-  --banner-radiation-ambient-far: rgba(34, 211, 238, 0.12);
-  --banner-radiation-accent-far: rgba(30, 58, 138, 0.24);
-  --banner-radiation-accent-near: rgba(148, 163, 184, 0.16);
-  --banner-radiation-edge: rgba(34, 211, 238, 0.38);
-  --banner-radiation-edge-far: rgba(34, 211, 238, 0.16);
-  --banner-radiation-edge-ring: rgba(103, 232, 249, 0.28);
+  --banner-radiation-hot: rgba(75, 184, 205, 0.22);
+  --banner-radiation-core-mid: rgba(24, 104, 122, 0.13);
+  --banner-radiation-ambient-mid: rgba(75, 184, 205, 0.08);
+  --banner-radiation-ambient-far: rgba(24, 104, 122, 0.03);
+  --banner-radiation-accent-far: rgba(14, 116, 144, 0.06);
+  --banner-radiation-accent-near: rgba(186, 230, 253, 0.05);
+  --banner-radiation-edge: rgba(75, 184, 205, 0.10);
+  --banner-radiation-edge-far: rgba(24, 104, 122, 0.04);
+  --banner-radiation-edge-ring: rgba(125, 211, 252, 0.06);
 }
 
 [data-banner-radiation-tier='office'] {
@@ -2215,8 +2212,9 @@
 }
 
 .feature-preview-glass {
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.72), rgba(11, 15, 25, 0.88));
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.96));
   backdrop-filter: blur(14px);
+  box-shadow: 0 26px 60px rgba(148, 163, 184, 0.18);
 }
 
 .feature-preview-neon-halo-cyan {
@@ -2234,8 +2232,8 @@
   border-radius: inherit;
   pointer-events: none;
   box-shadow:
-    0 0 32px 4px rgba(167, 139, 250, 0.45),
-    inset 0 0 0 24px rgba(139, 92, 246, 0.12);
+    0 0 24px 2px rgba(167, 139, 250, 0.22),
+    inset 0 0 0 16px rgba(139, 92, 246, 0.08);
   animation: banner-sim-neon-pulse 2.2s ease-in-out infinite;
 }
 
@@ -2243,8 +2241,8 @@
   background: linear-gradient(
     105deg,
     transparent 0%,
-    rgba(167, 139, 250, 0.55) 45%,
-    rgba(139, 92, 246, 0.35) 55%,
+    rgba(196, 181, 253, 0.38) 45%,
+    rgba(167, 139, 250, 0.22) 55%,
     transparent 100%
   );
   animation: feature-preview-purple-sweep 1.2s ease-out forwards;

@@ -50,6 +50,7 @@ const partnerNavItems = [
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
   { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات رخصة النفاذ' },
   { path: ROUTE_PATHS.MAP_COMMUNITY, label: 'مجتمع ماب', Icon: MessageCircle },
+  { path: ROUTE_PATHS.PARTNER_SALES_OFFICE, label: 'مكتب مدير المبيعات' },
   { path: ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW, label: 'معاينة الباقات 🏛️' },
   { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'الدعم الفني (واتساب)' },

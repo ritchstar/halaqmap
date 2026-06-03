@@ -41,13 +41,13 @@ export function TacticalKingdomBackdrop({
   const { width: VBW, height: VBH } = KSA_VIEWBOX;
 
   // Tactical sweep — a translucent fan emitted from Riyadh.
-  const sweepRadius = Math.max(VBW, VBH) * 0.85;
+  const sweepRadius = Math.max(VBW, VBH) * 0.78;
   const sweep = useMemo(() => {
     const cx = RIYADH_VIEW.x;
     const cy = RIYADH_VIEW.y;
-    // 28° fan — start angle 0, sweep clockwise.
-    const startAngle = 0;
-    const endAngle = 28;
+    // Fan tilted gently for better visual balance across the kingdom.
+    const startAngle = -8;
+    const endAngle = 14;
     const a0 = (startAngle * Math.PI) / 180;
     const a1 = (endAngle * Math.PI) / 180;
     const p0 = { x: cx + sweepRadius * Math.cos(a0), y: cy + sweepRadius * Math.sin(a0) };
@@ -92,8 +92,9 @@ export function TacticalKingdomBackdrop({
 
         {/* Gold sweep gradient — wedge fading to nothing */}
         <radialGradient id="tk-sweep-gradient" cx="0%" cy="0%" r="100%">
-          <stop offset="0%" stopColor="rgba(251,191,36,0.40)" />
-          <stop offset="55%" stopColor="rgba(251,191,36,0.12)" />
+          <stop offset="0%" stopColor="rgba(125,211,252,0.22)" />
+          <stop offset="32%" stopColor="rgba(56,189,248,0.12)" />
+          <stop offset="60%" stopColor="rgba(251,191,36,0.06)" />
           <stop offset="100%" stopColor="rgba(251,191,36,0)" />
         </radialGradient>
 
@@ -308,6 +309,15 @@ export function TacticalKingdomBackdrop({
           style={{ transformOrigin: `${RIYADH_VIEW.x}px ${RIYADH_VIEW.y}px` }}
         >
           <path d={sweep} fill="url(#tk-sweep-gradient)" />
+          <line
+            x1={RIYADH_VIEW.x}
+            y1={RIYADH_VIEW.y}
+            x2={RIYADH_VIEW.x}
+            y2={RIYADH_VIEW.y - sweepRadius}
+            stroke="rgba(125,211,252,0.22)"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
+          />
         </g>
       ) : null}
 

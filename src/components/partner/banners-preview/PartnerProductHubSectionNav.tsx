@@ -16,7 +16,7 @@ export function PartnerProductHubSectionNav({ sections, className }: Props) {
     <nav
       aria-label="فهرس أقسام المعاينة"
       className={cn(
-        'sticky top-14 z-30 border-b border-white/10 bg-[#0b0f19]/92 backdrop-blur-md md:top-16',
+        'sticky top-14 z-30 border-b border-slate-200/85 bg-white/88 shadow-[0_12px_32px_rgba(148,163,184,0.10)] backdrop-blur-xl md:top-16',
         className,
       )}
     >
@@ -26,7 +26,7 @@ export function PartnerProductHubSectionNav({ sections, className }: Props) {
             key={section.id}
             type="button"
             onClick={() => scrollTo(section.id)}
-            className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-bold text-slate-300 transition-colors hover:border-cyan-400/35 hover:bg-cyan-500/10 hover:text-cyan-100"
+            className="shrink-0 rounded-full border border-slate-200 bg-white/92 px-3.5 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-800"
           >
             <span className="hidden sm:inline">{section.label}</span>
             <span className="sm:hidden">{section.shortLabel ?? section.label}</span>
