@@ -47,31 +47,31 @@ export function BannerPreviewTierSection({
 
       <div
         className={cn(
-          'relative z-[2] order-1 space-y-5 lg:order-2',
+          'relative z-[2] order-1 space-y-5 rounded-[1.75rem] border border-slate-300/90 bg-white/96 p-5 shadow-[0_22px_52px_rgba(148,163,184,0.14)] backdrop-blur-sm lg:order-2 lg:p-6',
           index % 2 === 1 && 'lg:order-1',
         )}
       >
         <div>
-          <span className="mb-2 inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-bold text-slate-200">
+          <span className="mb-2 inline-flex items-center gap-1 rounded-full border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-800">
             {tier.badge} {tier.name}
           </span>
-          <h2 className="text-xl font-extrabold leading-snug text-white md:text-2xl">{tier.marketingTitle}</h2>
+          <h2 className="text-xl font-extrabold leading-snug text-slate-950 md:text-2xl">{tier.marketingTitle}</h2>
         </div>
 
-        <div className="space-y-4 text-sm leading-8 text-slate-300">
+        <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-white/92 p-4 text-sm leading-8 text-slate-800">
           {tier.marketingParagraphs.map((p) => (
             <p key={p}>{p}</p>
           ))}
         </div>
 
         {isDiamond ? (
-          <p className="rounded-xl border border-cyan-400/20 bg-cyan-950/25 p-3 text-xs leading-relaxed text-cyan-100/85">
+          <p className="rounded-xl border border-cyan-200 bg-cyan-50/95 p-3 text-xs leading-relaxed text-cyan-900">
             بنر الفيديو الماسي يُحمَّل كسولاً داخل الملف الداخلي فقط (`WebM`، حتى 10 ثوانٍ، صامت) — صفر تأثير
             على سرعة تصفح العملاء على المنصة.
           </p>
         ) : null}
 
-        <p className="text-[11px] text-slate-500">
+        <p className="text-[11px] text-slate-700">
           حد المعرض في النظام: ذهبي {PARTNER_BANNERS_PREVIEW_GOLD_GALLERY_MAX} صورة · ماسي{' '}
           {PARTNER_BANNERS_PREVIEW_DIAMOND_GALLERY_MAX} صورة.
         </p>
