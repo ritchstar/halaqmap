@@ -1382,10 +1382,10 @@ export default function PartnerMarketingPreview() {
                   onClick={() => setActiveTab(tier.id)}
                   className={`rounded-lg border px-4 py-2 text-xs font-semibold transition-all ${
                     activeTab === tier.id
-                      ? tier.id === 'diamond' ? 'border-cyan-400/60 bg-cyan-500/15 text-cyan-200'
-                        : tier.id === 'gold' ? 'border-amber-400/60 bg-amber-500/15 text-amber-200'
-                        : 'border-amber-700/50 bg-amber-800/15 text-amber-600'
-                      : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20'
+                      ? tier.id === 'diamond' ? 'border-cyan-300 bg-cyan-100 text-cyan-800 shadow-sm'
+                        : tier.id === 'gold' ? 'border-amber-300 bg-amber-100 text-amber-800 shadow-sm'
+                        : 'border-amber-300 bg-amber-50 text-amber-800 shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
                   {tier.badge} {tier.id === 'bronze' ? 'برونزي' : tier.id === 'gold' ? 'ذهبي' : 'ماسي'}
