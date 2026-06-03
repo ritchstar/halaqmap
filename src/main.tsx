@@ -123,6 +123,31 @@ function reloadOnceForChunkError(): void {
 
 function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
   const message = toErrorMessage(reason) || 'حدث خطأ غير متوقع أثناء تشغيل المنصة.'
+  const stack =
+    reason instanceof Error && typeof reason.stack === 'string'
+      ? reason.stack.split('\n').slice(0, 7).join('\n')
+      : null
+  const debugInfo = (() => {
+    if (reason instanceof Error) {
+      return `name: ${reason.name}\nmessage: ${reason.message}`
+    }
+    if (typeof reason === 'object' && reason !== null) {
+      try {
+        const withKnown = reason as { name?: unknown; message?: unknown; stack?: unknown }
+        return [
+          `type: object`,
+          withKnown.name ? `name: ${String(withKnown.name)}` : null,
+          withKnown.message ? `message: ${String(withKnown.message)}` : null,
+          withKnown.stack ? `stack: ${String(withKnown.stack).split('\n').slice(0, 4).join('\n')}` : null,
+        ]
+          .filter(Boolean)
+          .join('\n')
+      } catch {
+        return 'type: object'
+      }
+    }
+    return `type: ${typeof reason}\nvalue: ${String(reason)}`
+  })()
   createRoot(rootEl).render(
     <div
       dir="rtl"
@@ -130,6 +155,20 @@ function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
     >
       <p className="text-lg font-bold text-rose-300">تعذّر تشغيل المنصة</p>
       <p className="max-w-md text-sm text-slate-400">{message}</p>
+      <pre
+        dir="ltr"
+        className="max-w-3xl overflow-auto rounded-xl border border-white/10 bg-black/20 p-3 text-left text-[11px] leading-5 text-slate-400"
+      >
+        {debugInfo}
+      </pre>
+      {stack ? (
+        <pre
+          dir="ltr"
+          className="max-w-3xl overflow-auto rounded-xl border border-white/10 bg-black/30 p-4 text-left text-[11px] leading-5 text-slate-300"
+        >
+          {stack}
+        </pre>
+      ) : null}
       <button
         type="button"
         className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-2 text-sm font-semibold text-cyan-200"

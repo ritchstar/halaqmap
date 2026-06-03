@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { isLabClonePath, resolveLabPathOrFallback, toCanonicalFromLabPath } from "@/lab/labCloneRouting";
 
 // Runtime import of the real library under a different name (see vite.config alias)
@@ -36,7 +37,7 @@ function rewriteToForLabContext(to: ToValue, currentPathname: string): ToValue {
 
 function useLabAwareTo(to: ToValue): ToValue {
   const location = RRD.useLocation();
-  return React.useMemo(
+  return useMemo(
     () => rewriteToForLabContext(to, location.pathname),
     [to, location.pathname],
   );
@@ -61,7 +62,7 @@ export function useNavigate(): ReturnType<typeof RRD.useNavigate> {
   const navigate = RRD.useNavigate();
   const location = RRD.useLocation();
 
-  return React.useCallback(
+  return useCallback(
     ((to: any, options?: any) => {
       if (typeof to === "number") {
         navigate(to);
@@ -160,7 +161,7 @@ function postAllRoutesOnce(children: AnyEl) {
 
 /** Our patched <Routes/>: same API, just posts route list once. */
 export function Routes(props: React.ComponentProps<typeof RRD.Routes>) {
-  React.useEffect(() => { postAllRoutesOnce(props.children); }, []);
+  useEffect(() => { postAllRoutesOnce(props.children); }, []);
   return React.createElement(RRD.Routes, { ...props });
 }
 
@@ -205,7 +206,7 @@ function RouterBridge(): null {
   const location = RRD.useLocation();
   const navigate = RRD.useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       // Ensure ROUTES_INFO is delivered first
       await routesReadyOrTimeout();   // waits for <Routes/> to post, or times out (dev-safety)
@@ -214,7 +215,7 @@ function RouterBridge(): null {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.key, location.pathname, location.search, location.hash]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     function onMessage(e: MessageEvent) {
       const data = e.data as IframeCmd | any;
       if (!data) return;

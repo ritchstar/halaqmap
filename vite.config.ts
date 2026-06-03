@@ -361,13 +361,19 @@ export default defineConfig(({ mode }) => {
       indexHtmlAssetCacheBustPlugin(),
     ].filter(Boolean),
     resolve: {
+      dedupe: ['react', 'react-dom'],
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        "react": path.resolve(__dirname, "./node_modules/react"),
+        "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
         // Proxy react-router-dom to our wrapper
         "react-router-dom": path.resolve(__dirname, "./src/lib/react-router-dom-proxy.tsx"),
         // Original react-router-dom under a different name
         "react-router-dom-original": "react-router-dom",
       },
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react/jsx-runtime', '@tanstack/react-query'],
     },
     build: {
       rollupOptions: {

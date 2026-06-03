@@ -76,16 +76,16 @@ export function DigitalShiftImpactPreview() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5 }}
-      className="feature-preview-glass relative w-full overflow-hidden rounded-2xl border border-white/10 p-4 md:p-5"
+      className="feature-preview-glass relative w-full overflow-hidden rounded-[1.6rem] border border-slate-200/85 p-4 md:p-5"
       dir="rtl"
     >
       <div className="mb-3 flex items-center justify-between gap-2">
-        <span className="text-[10px] font-semibold text-violet-200/80">محاكاة تفاعلية · المناوب الذكي</span>
+        <span className="text-[10px] font-semibold text-violet-700">محاكاة تفاعلية · المناوب الذكي</span>
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 gap-1.5 border border-white/10 text-[11px] text-slate-300 hover:bg-white/5 hover:text-white"
+          className="h-8 gap-1.5 border border-slate-200 bg-white/80 text-[11px] text-slate-700 hover:bg-white hover:text-slate-950"
           onClick={runSimulation}
         >
           <RotateCcw className="h-3.5 w-3.5" aria-hidden />
@@ -113,7 +113,7 @@ export function DigitalShiftImpactPreview() {
               exit={{ opacity: 0 }}
             />
           )}
-          <Badge className="absolute top-2 left-2 border-violet-300/40 bg-violet-600/90 text-[10px] text-white">
+          <Badge className="absolute top-2 left-2 border border-violet-200 bg-white/92 text-[10px] text-violet-700 shadow-[0_6px_14px_rgba(15,23,42,0.06)]">
             <Sparkles className="ml-1 h-3 w-3" />
             ماسي
           </Badge>
@@ -127,26 +127,26 @@ export function DigitalShiftImpactPreview() {
             className={cn(
               'rounded-lg border px-2.5 py-2 text-center text-[11px] font-semibold leading-relaxed transition-colors duration-500',
               bannerActive
-                ? 'border-violet-400/50 bg-violet-950/50 text-violet-100 shadow-[0_0_24px_-4px_rgba(167,139,250,0.55)]'
-                : 'border-border/60 bg-muted/40 text-muted-foreground',
+                ? 'border-violet-200 bg-white text-violet-900 shadow-[0_14px_28px_rgba(139,92,246,0.10)]'
+                : 'border-border/80 bg-white/88 text-slate-600',
             )}
           >
             {bannerActive
               ? PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.bannerActiveStatus
               : PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT.bannerIdleStatus}
           </motion.div>
-          <p className="text-[10px] text-muted-foreground">حالة الضيافة والتوفر — بلا أي بيانات مالية</p>
+          <p className="text-[10px] text-slate-600">حالة الضيافة والتوفر — بلا أي بيانات مالية</p>
         </div>
       </motion.div>
 
-      <div className="space-y-3 rounded-xl border border-white/10 bg-black/25 p-3">
+      <div className="space-y-3 rounded-[1.2rem] border border-slate-200 bg-white/90 p-3 shadow-[0_18px_40px_rgba(148,163,184,0.10)]">
         {(phase === 'client_sent' ||
           phase === 'processing' ||
           phase === 'banner_live' ||
           phase === 'typing' ||
           phase === 'done') && (
           <div className="flex flex-col items-end gap-1 max-w-[92%] mr-0 ml-auto">
-            <motion.div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+            <motion.div className="flex items-center gap-1.5 text-[10px] text-slate-500">
               <User className="h-3 w-3" />
               <span>العميل</span>
             </motion.div>
@@ -160,7 +160,7 @@ export function DigitalShiftImpactPreview() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-center gap-2 rounded-lg border border-violet-400/25 bg-violet-950/30 px-3 py-2 text-[11px] text-violet-100"
+            className="flex items-center justify-center gap-2 rounded-lg border border-violet-200 bg-violet-50/60 px-3 py-2 text-[11px] text-violet-900"
           >
             <span className="feature-preview-ai-dots inline-flex gap-1" aria-hidden>
               <span />
@@ -173,11 +173,11 @@ export function DigitalShiftImpactPreview() {
 
         {showAssistant && (
           <div className="flex flex-col items-start gap-1 max-w-[95%]">
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-              <MessageCircle className="h-3 w-3 text-violet-300" />
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+              <MessageCircle className="h-3 w-3 text-violet-500" />
               <span>المناوب · رد ضيافة</span>
             </div>
-            <motion.div className="rounded-2xl rounded-bl-md border border-violet-400/20 bg-violet-950/40 px-3 py-2 text-sm leading-relaxed text-violet-50">
+            <motion.div className="rounded-2xl rounded-bl-md border border-violet-100 bg-white px-3 py-2 text-sm leading-relaxed text-slate-800 shadow-[0_8px_18px_rgba(15,23,42,0.05)]">
               {reply.slice(0, typedLen)}
               {phase === 'typing' && (
                 <span className="mr-0.5 inline-block h-4 w-0.5 animate-pulse bg-violet-300 align-middle" />

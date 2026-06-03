@@ -34,15 +34,15 @@ const DELAYS: Record<Phase, number> = {
 };
 
 const CODE_BUTTONS = [
-  { code: 'تعليمة', label: 'تعليمة:', color: 'border-violet-400/40 bg-violet-500/15 text-violet-200' },
-  { code: 'عرض',    label: 'عرض:',    color: 'border-amber-400/40 bg-amber-500/15 text-amber-200' },
-  { code: 'جدول',   label: 'جدول:',   color: 'border-sky-400/40 bg-sky-500/15 text-sky-200' },
-  { code: 'خدمة',   label: 'خدمة:',   color: 'border-teal-400/40 bg-teal-500/15 text-teal-200' },
-  { code: 'موقع',   label: 'موقع:',   color: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200' },
-  { code: 'رد',     label: 'رد:',     color: 'border-rose-400/40 bg-rose-500/15 text-rose-200' },
-  { code: 'تنبيه',  label: 'تنبيه:',  color: 'border-orange-400/40 bg-orange-500/15 text-orange-200' },
-  { code: 'مهمة',   label: 'مهمة:',   color: 'border-lime-400/40 bg-lime-500/15 text-lime-200' },
-  { code: 'تذكير',  label: 'تذكير:',  color: 'border-pink-400/40 bg-pink-500/15 text-pink-200' },
+  { code: 'تعليمة', label: 'تعليمة:', color: 'border-violet-200 bg-violet-50 text-violet-800' },
+  { code: 'عرض',    label: 'عرض:',    color: 'border-amber-200 bg-amber-50 text-amber-800' },
+  { code: 'جدول',   label: 'جدول:',   color: 'border-sky-200 bg-sky-50 text-sky-800' },
+  { code: 'خدمة',   label: 'خدمة:',   color: 'border-teal-200 bg-teal-50 text-teal-800' },
+  { code: 'موقع',   label: 'موقع:',   color: 'border-emerald-200 bg-emerald-50 text-emerald-800' },
+  { code: 'رد',     label: 'رد:',     color: 'border-rose-200 bg-rose-50 text-rose-800' },
+  { code: 'تنبيه',  label: 'تنبيه:',  color: 'border-orange-200 bg-orange-50 text-orange-800' },
+  { code: 'مهمة',   label: 'مهمة:',   color: 'border-lime-200 bg-lime-50 text-lime-800' },
+  { code: 'تذكير',  label: 'تذكير:',  color: 'border-pink-200 bg-pink-50 text-pink-800' },
 ] as const;
 
 const DEMO_CODE = 'عرض';
@@ -153,34 +153,34 @@ export function PrivateOfficeSimPreview() {
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5 }}
       dir="rtl"
-      className="relative w-full overflow-hidden rounded-2xl border border-violet-500/20 bg-gradient-to-b from-[#06000f] to-[#0a0018] p-4"
-      style={{ boxShadow: '0 0 40px rgba(139,92,246,0.06)' }}
+      className="feature-preview-glass relative w-full overflow-hidden rounded-[1.6rem] border border-violet-200/80 p-4"
+      style={{ boxShadow: '0 22px 54px rgba(148,163,184,0.16)' }}
     >
       {/* ─ رأس ─ */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-base">🏛️</span>
-          <span className="text-[0.65rem] font-bold text-violet-300/70">محاكاة · المكتب الخاص</span>
+          <span className="text-[0.65rem] font-bold text-violet-700">محاكاة · المكتب الخاص</span>
         </div>
         <Button type="button" variant="ghost" size="sm"
-          className="h-7 gap-1 border border-white/10 text-[0.6rem] text-slate-300 hover:bg-white/5"
+          className="h-7 gap-1 border border-slate-200 bg-white/80 text-[0.6rem] text-slate-700 hover:bg-white"
           onClick={runSim}>
           <RotateCcw className="h-3 w-3" /> إعادة التشغيل
         </Button>
       </div>
 
       {/* ─ المكتب الخاص (القسم الأيسر في الشاشة الحقيقية) ─ */}
-      <div className="mb-4 overflow-hidden rounded-2xl border border-violet-500/20 bg-black/30">
+      <div className="mb-4 overflow-hidden rounded-[1.3rem] border border-violet-200 bg-white/92 shadow-[0_18px_40px_rgba(148,163,184,0.10)]">
         {/* هيدر المكتب */}
-        <div className="flex items-center gap-2 border-b border-violet-500/15 px-3 py-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-violet-500/30 bg-violet-900/50 text-sm">🌙</div>
+        <div className="flex items-center gap-2 border-b border-violet-100 px-3 py-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 text-sm">🌙</div>
           <div>
-            <p className="text-[0.58rem] font-black text-violet-200">المناوب الرقمي</p>
-            <p className="text-[0.48rem] text-violet-400/45">مكتبك الخاص · محادثة داخلية</p>
+            <p className="text-[0.58rem] font-black text-violet-900">المناوب الرقمي</p>
+            <p className="text-[0.48rem] text-violet-600">مكتبك الخاص · محادثة داخلية</p>
           </div>
-          <div className="mr-auto flex items-center gap-1 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5">
+          <div className="mr-auto flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-1.5 py-0.5">
             <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[0.45rem] text-emerald-300">متصل</span>
+            <span className="text-[0.45rem] text-emerald-700">متصل</span>
           </div>
         </div>
 
@@ -191,9 +191,9 @@ export function PrivateOfficeSimPreview() {
             {msgSent && (
               <motion.div initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
                 className="flex flex-row-reverse gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-amber-500/25 bg-amber-900/40 text-[0.6rem]">✂️</div>
-                <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-amber-500/18 bg-amber-500/10 px-3 py-2">
-                  <p className="text-[0.68rem] font-bold text-amber-200">{FULL_MSG}</p>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-[0.6rem]">✂️</div>
+                <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-amber-200 bg-amber-50 px-3 py-2">
+                  <p className="text-[0.68rem] font-bold text-amber-900">{FULL_MSG}</p>
                 </div>
               </motion.div>
             )}
@@ -204,9 +204,9 @@ export function PrivateOfficeSimPreview() {
             {showAck && (
               <motion.div initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
                 className="flex gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-violet-500/30 bg-violet-900/50 text-[0.6rem]">🏛️</div>
-                <div className="max-w-[85%] rounded-2xl rounded-tr-sm border border-violet-500/20 bg-violet-500/10 px-3 py-2">
-                  <p className="text-[0.65rem] text-violet-100">{ACK_MSG.slice(0, ackLen)}{ackLen < ACK_MSG.length && <span className="inline-block w-0.5 h-3 bg-violet-300 animate-pulse mr-0.5 align-middle" />}</p>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 text-[0.6rem]">🏛️</div>
+                <div className="max-w-[85%] rounded-2xl rounded-tr-sm border border-violet-200 bg-violet-50 px-3 py-2">
+                  <p className="text-[0.65rem] text-violet-900">{ACK_MSG.slice(0, ackLen)}{ackLen < ACK_MSG.length && <span className="mr-0.5 inline-block h-3 w-0.5 animate-pulse align-middle bg-violet-400" />}</p>
                 </div>
               </motion.div>
             )}
@@ -214,16 +214,16 @@ export function PrivateOfficeSimPreview() {
 
           {/* حالة المعالجة */}
           {phase === 'highlight_btn' && (
-            <p className="py-4 text-center text-[0.6rem] text-violet-400/30">اضغط «عرض:» لإرسال عرضك للمناوب…</p>
+            <p className="py-4 text-center text-[0.6rem] text-violet-500">اضغط «عرض:» لإرسال عرضك للمناوب…</p>
           )}
           {phase === 'idle' && (
-            <p className="py-4 text-center text-[0.6rem] text-violet-400/25">اكتب أمراً أو سؤالاً أو اضغط أحد رموز التوجيه</p>
+            <p className="py-4 text-center text-[0.6rem] text-violet-500">اكتب أمراً أو سؤالاً أو اضغط أحد رموز التوجيه</p>
           )}
         </div>
 
         {/* أزرار الرموز */}
-        <div className="border-t border-violet-500/12 px-3 pt-2 pb-1">
-          <p className="mb-1.5 text-[0.45rem] text-violet-400/30">رموز التوجيه:</p>
+        <div className="border-t border-violet-100 px-3 pb-1 pt-2">
+          <p className="mb-1.5 text-[0.45rem] text-violet-500">رموز التوجيه:</p>
           <div className="flex flex-wrap gap-1">
             {CODE_BUTTONS.map(cb => (
               <motion.div key={cb.code}
@@ -242,23 +242,23 @@ export function PrivateOfficeSimPreview() {
 
         {/* حقل الإدخال */}
         <div className="px-3 pb-3 pt-2">
-          <div className="flex items-center gap-2 rounded-xl border border-violet-400/18 bg-violet-950/50 px-3 py-2">
-            <p className="flex-1 text-[0.68rem] text-white font-mono min-h-[1.2rem]">
+          <div className="flex items-center gap-2 rounded-xl border border-violet-200 bg-white px-3 py-2 shadow-sm">
+            <p className="min-h-[1.2rem] flex-1 font-mono text-[0.68rem] text-slate-900">
               {codeInserted && !msgSent ? (
                 <>
                   <span className="text-amber-300 font-black">{DEMO_CODE}:</span>
                   <span> {DEMO_TEXT.slice(0, typedLen)}</span>
-                  {phase === 'typing_text' && <span className="inline-block w-0.5 h-3 bg-white animate-pulse ml-0.5 align-middle" />}
+                  {phase === 'typing_text' && <span className="ml-0.5 inline-block h-3 w-0.5 animate-pulse align-middle bg-slate-900" />}
                 </>
               ) : msgSent ? (
-                <span className="text-violet-400/30">اكتب أمراً أو رمزاً…</span>
+                <span className="text-violet-400">اكتب أمراً أو رمزاً…</span>
               ) : (
-                <span className="text-violet-400/25">اختر رمزاً أو اكتب…</span>
+                <span className="text-violet-400">اختر رمزاً أو اكتب…</span>
               )}
             </p>
             <motion.div animate={phase === 'barber_sent' ? { scale:[1,0.85,1] } : {}}
-              className="flex h-7 w-7 items-center justify-center rounded-xl bg-violet-700/60">
-              <Send className="h-3 w-3 text-violet-200" />
+              className="flex h-7 w-7 items-center justify-center rounded-xl bg-violet-600">
+              <Send className="h-3 w-3 text-white" />
             </motion.div>
           </div>
         </div>
@@ -268,23 +268,23 @@ export function PrivateOfficeSimPreview() {
       <AnimatePresence>
         {showShift && (
           <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
-            className="mb-4 overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-950/15">
-            <div className="border-b border-emerald-500/12 px-3 py-1.5">
-              <p className="text-[0.55rem] font-bold text-emerald-400/70">📱 شات الزبون — المناوب طبّق العرض</p>
+            className="mb-4 overflow-hidden rounded-2xl border border-emerald-200 bg-emerald-50/85">
+            <div className="border-b border-emerald-100 px-3 py-1.5">
+              <p className="text-[0.55rem] font-bold text-emerald-700">📱 شات الزبون — المناوب طبّق العرض</p>
             </div>
             <div className="space-y-2 px-3 py-2.5">
               {/* رسالة الزبون */}
               <div className="flex flex-row-reverse gap-2">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-700 text-[0.5rem]">👤</div>
-                <div className="rounded-2xl rounded-tl-sm bg-slate-700/50 px-3 py-1.5">
-                  <p className="text-[0.65rem] text-slate-200">{CUSTOMER_MSG}</p>
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[0.5rem]">👤</div>
+                <div className="rounded-2xl rounded-tl-sm bg-white px-3 py-1.5 shadow-sm">
+                  <p className="text-[0.65rem] text-slate-700">{CUSTOMER_MSG}</p>
                 </div>
               </div>
               {/* رد المناوب */}
               <div className="flex gap-2">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-900/50 text-[0.5rem]">🌙</div>
-                <div className="rounded-2xl rounded-tr-sm border border-emerald-500/20 bg-emerald-950/40 px-3 py-1.5">
-                  <p className="text-[0.65rem] leading-relaxed text-emerald-100">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-100 text-[0.5rem]">🌙</div>
+                <div className="rounded-2xl rounded-tr-sm border border-emerald-200 bg-white px-3 py-1.5">
+                  <p className="text-[0.65rem] leading-relaxed text-emerald-900">
                     {SHIFT_REPLY.slice(0, shiftLen)}
                     {shiftLen < SHIFT_REPLY.length && <span className="inline-block w-0.5 h-3 bg-emerald-300 animate-pulse mr-0.5 align-middle" />}
                   </p>
@@ -299,15 +299,15 @@ export function PrivateOfficeSimPreview() {
       <AnimatePresence>
         {showReport && (
           <motion.div initial={{ opacity:0, x:12 }} animate={{ opacity:1, x:0 }}
-            className="overflow-hidden rounded-2xl border border-violet-500/25 bg-violet-950/25">
+            className="overflow-hidden rounded-2xl border border-violet-200 bg-violet-50/90">
             <div className="flex items-center gap-2 px-3 py-2">
               <FileText className="h-3 w-3 text-emerald-400" />
-              <p className="text-[0.58rem] font-black text-emerald-300">📡 تقرير وصل للمكتب الخاص</p>
+              <p className="text-[0.58rem] font-black text-emerald-700">📡 تقرير وصل للمكتب الخاص</p>
               <motion.span animate={{ opacity:[0.5,1,0.5] }} transition={{ duration:1.5, repeat:Infinity }}
-                className="mr-auto rounded-full bg-emerald-500 px-1.5 py-0.5 text-[0.45rem] font-black text-white">جديد</motion.span>
+                className="mr-auto rounded-full border border-emerald-200 bg-white/92 px-1.5 py-0.5 text-[0.45rem] font-black text-emerald-700 shadow-[0_6px_12px_rgba(16,185,129,0.08)]">جديد</motion.span>
             </div>
-            <div className="border-t border-violet-500/10 px-3 py-2.5">
-              <p className="whitespace-pre-line text-[0.62rem] leading-relaxed text-slate-300">{REPORT_MSG}</p>
+            <div className="border-t border-violet-100 px-3 py-2.5">
+              <p className="whitespace-pre-line text-[0.62rem] leading-relaxed text-slate-700">{REPORT_MSG}</p>
             </div>
           </motion.div>
         )}
@@ -328,7 +328,7 @@ export function PrivateOfficeSimPreview() {
           );
         })}
       </div>
-      <div className="mt-1 flex justify-between text-[0.45rem] text-violet-400/30">
+      <div className="mt-1 flex justify-between text-[0.45rem] text-violet-500">
         <span>الضغط</span><span>الإرسال</span><span>التأكيد</span><span>المناوب</span><span>التقرير</span>
       </div>
     </motion.div>
