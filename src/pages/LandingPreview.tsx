@@ -1572,7 +1572,7 @@ function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNa
               style={{
                 border: `1px solid ${plan.borderColor}`,
                 background: `linear-gradient(160deg,${plan.accentFrom}18 0%,#040d1a 55%,${plan.accentTo}0e 100%)`,
-                boxShadow: plan.featured
+                boxShadow: (plan.featured || plan.id === 'bronze' || plan.id === 'gold')
                   ? `0 0 60px ${plan.glowColor},0 0 120px ${plan.glowColor},inset 0 1px 0 ${plan.borderColor}`
                   : `0 0 30px ${plan.glowColor},inset 0 1px 0 ${plan.borderColor}`,
               }}
