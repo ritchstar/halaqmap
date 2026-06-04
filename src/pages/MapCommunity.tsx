@@ -7,7 +7,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAgentChatInputFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Bot,
@@ -37,7 +36,7 @@ import {
   postMapCommunityMessageRemote,
 } from '@/lib/mapCommunityRemote';
 import { POLL_MS } from '@/lib/pollingPolicy';
-import { readBarberAuthSession, buildBarberLoginUrl } from '@/lib/barberPortalSession';
+import { readBarberAuthSession } from '@/lib/barberPortalSession';
 import {
   MAP_COMMUNITY_ACCESS_DENIED_AR,
   MAP_COMMUNITY_CHECKING_AR,
@@ -198,19 +197,27 @@ async function askMapAssistant(message: string, history: CommunityMessage[]) {
 export default function MapCommunity() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const founderView = searchParams.get('view') === 'founder';
   const [access, setAccess] = useState<CommunityAccess>({ status: 'checking' });
   const [ephemeralMessages, setEphemeralMessages] = useState<CommunityMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [aiThinking, setAiThinking] = useState(false);
   const [activeTab, setActiveTab] = useState<CommunityTab>('chat');
+  const [feedData, setFeedData] = useState<Awaited<ReturnType<typeof fetchMapCommunityFeedRemote>>['body'] | null>(null);
+  const [feedLoading, setFeedLoading] = useState(false);
+  const [feedError, setFeedError] = useState<Error | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const seq = useRef(0);
 
   const socketMode = Boolean(import.meta.env.VITE_MAP_COMMUNITY_SOCKET_URL);
   const feedEnabled = access.status === 'allowed';
+
+  const refreshFeed = useCallback(async () => {
+    const res = await fetchMapCommunityFeedRemote();
+    if (res.ok === false) throw new Error(res.error);
+    return res.body;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -302,48 +309,69 @@ export default function MapCommunity() {
     };
   }, [founderView]);
 
-  const feedQuery = useQuery({
-    queryKey: ['map-community-feed'],
-    queryFn: async () => {
-      const res = await fetchMapCommunityFeedRemote();
-      if (res.ok === false) throw new Error(res.error);
-      return res.body;
-    },
-    enabled: feedEnabled,
-    refetchInterval: POLL_MS.MAP_COMMUNITY_FEED,
-    refetchIntervalInBackground: false,
-    refetchOnWindowFocus: false,
-    staleTime: POLL_MS.MAP_COMMUNITY_FEED - 5_000,
-    retry: 1,
-  });
+  useEffect(() => {
+    if (!feedEnabled) {
+      setFeedData(null);
+      setFeedError(null);
+      setFeedLoading(false);
+      return;
+    }
 
-  const usingFallback = feedQuery.isError || !feedQuery.data?.ok;
+    let cancelled = false;
+    const load = async () => {
+      if (!cancelled) setFeedLoading(true);
+      try {
+        const res = await refreshFeed();
+        if (!cancelled) {
+          setFeedData(res);
+          setFeedError(null);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setFeedError(e instanceof Error ? e : new Error('تعذّر تحميل مجتمع ماب'));
+          setFeedData(null);
+        }
+      } finally {
+        if (!cancelled) setFeedLoading(false);
+      }
+    };
+
+    void load();
+    const id = window.setInterval(() => {
+      void load();
+    }, POLL_MS.MAP_COMMUNITY_FEED);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [feedEnabled, refreshFeed]);
+
+  const usingFallback = Boolean(feedError) || !feedData?.ok;
 
   useEffect(() => {
     if (access.status !== 'allowed' || usingFallback) return;
-    void markMapCommunityReadRemote().then(() => {
-      void queryClient.invalidateQueries({ queryKey: ['map-community-badge'] });
-    });
-  }, [access.status, usingFallback, queryClient]);
+    void markMapCommunityReadRemote();
+  }, [access.status, usingFallback]);
 
   const baseMessages = useMemo((): CommunityMessage[] => {
-    if (usingFallback || !feedQuery.data?.messages?.length) {
+    if (usingFallback || !feedData?.messages?.length) {
       return FALLBACK_MESSAGES;
     }
-    return feedQuery.data.messages.map((m) => ({
+    return feedData.messages.map((m) => ({
       id: m.id,
       author: m.author,
       role: normalizeRole(m.role),
       content: m.content,
       timestamp: m.timestamp,
     }));
-  }, [usingFallback, feedQuery.data?.messages]);
+  }, [usingFallback, feedData?.messages]);
 
   const videos = useMemo((): CommunityVideo[] => {
-    if (usingFallback || !feedQuery.data?.videos?.length) {
+    if (usingFallback || !feedData?.videos?.length) {
       return FALLBACK_VIDEOS;
     }
-    return feedQuery.data.videos.map((v, i) => ({
+    return feedData.videos.map((v, i) => ({
       id: v.id,
       barberName: v.barberName,
       title: v.title,
@@ -352,17 +380,17 @@ export default function MapCommunity() {
       youtubeVideoId: v.youtubeVideoId,
       gradient: VIDEO_GRADIENTS[i % VIDEO_GRADIENTS.length],
     }));
-  }, [usingFallback, feedQuery.data?.videos]);
+  }, [usingFallback, feedData?.videos]);
 
   const stats = useMemo(() => {
-    if (usingFallback || !feedQuery.data?.stats) return FALLBACK_STATS;
-    const s = feedQuery.data.stats;
+    if (usingFallback || !feedData?.stats) return FALLBACK_STATS;
+    const s = feedData.stats;
     return [
       { label: 'حلاق نشط', value: String(s.activeBarbers || 0), tone: 'text-emerald-300' },
       { label: 'فيديو هذا الأسبوع', value: String(s.videosThisWeek || 0), tone: 'text-cyan-300' },
       { label: 'سؤال مهني', value: String(s.professionalQuestions || 0), tone: 'text-amber-300' },
     ];
-  }, [usingFallback, feedQuery.data?.stats]);
+  }, [usingFallback, feedData?.stats]);
 
   const messages = useMemo(
     () => [...baseMessages, ...ephemeralMessages],
@@ -413,7 +441,7 @@ export default function MapCommunity() {
           author: 'نظام المجتمع',
           role: 'system',
           content:
-            'يمكنك تصفّح مجتمع ماب، لكن النشر المباشر يتطلّب الدخول بكلمة مرور حسابك على المنصة (وليس الرمز الموحّد فقط) من صفحة دخول الحلاق.',
+            'يمكنك تصفّح مجتمع ماب، لكن النشر المباشر يتطلّب الوصول عبر رابطك الخاص الذي وصلك في البريد من منصة حلاق ماب.',
         });
         setDraft('');
         return;
@@ -436,7 +464,8 @@ export default function MapCommunity() {
         setDraft('');
         return;
       }
-      await feedQuery.refetch();
+      const refreshed = await refreshFeed();
+      setFeedData(refreshed);
       historyBase = [
         ...baseMessages,
         {
@@ -480,10 +509,10 @@ export default function MapCommunity() {
     aiThinking,
     baseMessages,
     draft,
-    feedQuery,
     founderView,
     messages,
     pushEphemeral,
+    refreshFeed,
     usingFallback,
   ]);
 
@@ -514,7 +543,7 @@ export default function MapCommunity() {
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button asChild className="bg-emerald-500 text-black hover:bg-emerald-400">
-              <Link to={buildBarberLoginUrl(ROUTE_PATHS.MAP_COMMUNITY)}>دخول الحلاق المفعّل</Link>
+              <Link to={ROUTE_PATHS.BARBERS_LANDING}>الصفحة التسويقية</Link>
             </Button>
           </div>
         </div>
@@ -611,10 +640,7 @@ export default function MapCommunity() {
     <div dir="rtl" className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#0a0f0d] text-slate-100">
       {readOnlyCommunity ? (
         <div className="relative z-20 shrink-0 border-b border-amber-400/20 bg-amber-500/10 px-3 py-2 text-center text-xs leading-6 text-amber-100">
-          للنشر المباشر في المجتمع أعد الدخول من{' '}
-          <Link to={buildBarberLoginUrl(ROUTE_PATHS.MAP_COMMUNITY)} className="font-bold underline underline-offset-2">
-            دخول الحلاق المفعّل
-          </Link>
+          للنشر المباشر في المجتمع استخدم رابطك الخاص المرسل إلى بريدك من منصة حلاق ماب
         </div>
       ) : null}
       <motion.button

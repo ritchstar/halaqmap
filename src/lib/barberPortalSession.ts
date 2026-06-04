@@ -94,8 +94,8 @@ export function resolveSafePartnerRedirect(next: string | null | undefined): str
 }
 
 export function buildBarberLoginUrl(next?: string): string {
-  if (!next?.trim()) return ROUTE_PATHS.BARBER_LOGIN;
-  return `${ROUTE_PATHS.BARBER_LOGIN}?next=${encodeURIComponent(next)}`;
+  if (!next?.trim()) return ROUTE_PATHS.BARBERS_LANDING;
+  return `${ROUTE_PATHS.BARBERS_LANDING}?next=${encodeURIComponent(next)}`;
 }
 
 /** @deprecated استخدم buildBarberLoginUrl */

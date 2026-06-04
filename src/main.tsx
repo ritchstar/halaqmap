@@ -1,11 +1,10 @@
 import { createRoot } from 'react-dom/client'
-// مساعد الشركاء (الذكاء الاصطناعي) يُعرَض من PartnerLayout فقط — لا يُستورد مساعد قديم هنا.
-import App from './App.tsx'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
+import { RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { initPlatformBuildSync } from '@/lib/platformBuildSync'
+import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
 
-ensureDomainVerificationMeta()
 // build-sync التلقائي مُعطّل — كان يسبب حلقة reload (_b=…) وremoveChild أثناء تشغيل React
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
@@ -14,15 +13,11 @@ const CHUNK_RELOAD_ONCE_PREFIX = 'hm-chunk-reload-once:'
 const DOM_GUARD_PATCH_FLAG = '__halaqmapDomGuardPatched'
 const DOM_GUARD_LOG_KEY = 'hm-dom-guard-events-v1'
 const APP_BOOTSTRAP_FLAG = '__halaqmapAppBootstrapped'
+const APP_MOUNTED_FLAG = '__halaqmapAppMountedV1'
+const ENABLE_DOM_GUARD = import.meta.env.VITE_ENABLE_DOM_GUARD === 'true'
 
-/**
- * Emergency DOM guard for production stability:
- * Some sessions still hit a transient DOM detach race where removeChild
- * is called with a node that is no longer attached to the expected parent.
- * This guard short-circuits that mismatch to prevent full app collapse.
- */
 function installDomMismatchGuard(): void {
-  if (typeof window === 'undefined' || typeof Node === 'undefined') return
+  if (!ENABLE_DOM_GUARD || typeof window === 'undefined' || typeof Node === 'undefined') return
 
   const marker = window as Window & { [DOM_GUARD_PATCH_FLAG]?: boolean }
   if (marker[DOM_GUARD_PATCH_FLAG] === true) return
@@ -36,7 +31,11 @@ function installDomMismatchGuard(): void {
     }
     return false
   }
-  const recordGuardEvent = (phase: 'precheck' | 'catch', parent: Node, child: Node | null | undefined): void => {
+  const recordGuardEvent = (
+    phase: 'reroute' | 'catch',
+    parent: Node,
+    child: Node | null | undefined,
+  ): void => {
     try {
       const payload = {
         phase,
@@ -58,9 +57,19 @@ function installDomMismatchGuard(): void {
   Node.prototype.removeChild = function patchedRemoveChild<T extends Node>(child: T): T {
     if (child && child.parentNode !== this) {
       if (import.meta.env.DEV) {
-        console.warn('[halaqmap] DOM guard bypassed removeChild mismatch')
+        console.warn('[halaqmap] DOM guard rerouted removeChild mismatch')
       }
-      recordGuardEvent('precheck', this, child)
+      const actualParent = child.parentNode
+      if (actualParent) {
+        try {
+          return originalRemoveChild.call(actualParent, child) as T
+        } catch (error) {
+          if (!isDomMismatchError(error)) throw error
+          recordGuardEvent('reroute', this, child)
+          return child
+        }
+      }
+      recordGuardEvent('reroute', this, child)
       return child
     }
     try {
@@ -75,9 +84,6 @@ function installDomMismatchGuard(): void {
     }
   }
 }
-
-installDomMismatchGuard()
-initPlatformBuildSync()
 
 function currentRouteReloadKey(): string {
   return `${CHUNK_RELOAD_ONCE_PREFIX}${window.location.pathname}${window.location.search}${window.location.hash}`
@@ -115,6 +121,65 @@ function reloadOnceForChunkError(): void {
   window.location.reload()
 }
 
+function renderBootstrapFailure(rootEl: HTMLElement, reason: unknown): void {
+  const message = toErrorMessage(reason) || 'حدث خطأ غير متوقع أثناء تشغيل المنصة.'
+  const stack =
+    reason instanceof Error && typeof reason.stack === 'string'
+      ? reason.stack.split('\n').slice(0, 7).join('\n')
+      : null
+  const debugInfo = (() => {
+    if (reason instanceof Error) {
+      return `name: ${reason.name}\nmessage: ${reason.message}`
+    }
+    if (typeof reason === 'object' && reason !== null) {
+      try {
+        const withKnown = reason as { name?: unknown; message?: unknown; stack?: unknown }
+        return [
+          `type: object`,
+          withKnown.name ? `name: ${String(withKnown.name)}` : null,
+          withKnown.message ? `message: ${String(withKnown.message)}` : null,
+          withKnown.stack ? `stack: ${String(withKnown.stack).split('\n').slice(0, 4).join('\n')}` : null,
+        ]
+          .filter(Boolean)
+          .join('\n')
+      } catch {
+        return 'type: object'
+      }
+    }
+    return `type: ${typeof reason}\nvalue: ${String(reason)}`
+  })()
+  createRoot(rootEl).render(
+    <div
+      dir="rtl"
+      className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#061223] px-6 text-center text-slate-100"
+    >
+      <p className="text-lg font-bold text-rose-300">تعذّر تشغيل المنصة</p>
+      <p className="max-w-md text-sm text-slate-400">{message}</p>
+      <pre
+        dir="ltr"
+        className="max-w-3xl overflow-auto rounded-xl border border-white/10 bg-black/20 p-3 text-left text-[11px] leading-5 text-slate-400"
+      >
+        {debugInfo}
+      </pre>
+      {stack ? (
+        <pre
+          dir="ltr"
+          className="max-w-3xl overflow-auto rounded-xl border border-white/10 bg-black/30 p-4 text-left text-[11px] leading-5 text-slate-300"
+        >
+          {stack}
+        </pre>
+      ) : null}
+      <button
+        type="button"
+        className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-2 text-sm font-semibold text-cyan-200"
+        onClick={() => window.location.reload()}
+      >
+        إعادة التحميل
+      </button>
+    </div>,
+  )
+}
+
 if (typeof window !== 'undefined') {
   window.addEventListener('vite:preloadError', (event) => {
     ;(event as Event).preventDefault()
@@ -149,13 +214,70 @@ if (import.meta.env.DEV) {
     })
 }
 
-const rootEl = document.getElementById('root')
-if (rootEl) {
-  const bootMarker = window as Window & { [APP_BOOTSTRAP_FLAG]?: boolean }
+function markAppMounted(): void {
+  const bootMarker = window as Window & { [APP_MOUNTED_FLAG]?: boolean }
+  if (bootMarker[APP_MOUNTED_FLAG] === true) return
+  bootMarker[APP_MOUNTED_FLAG] = true
+  window.dispatchEvent(new CustomEvent('halaqmap:mounted'))
+}
+
+async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
+  const bootMarker = window as Window & {
+    [APP_BOOTSTRAP_FLAG]?: boolean
+    [APP_MOUNTED_FLAG]?: boolean
+  }
   if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
     bootMarker[APP_BOOTSTRAP_FLAG] = true
-    createRoot(rootEl).render(<App />)
+    try {
+      ensureDomainVerificationMeta()
+      assertRuntimeEnvSafety()
+      installDomMismatchGuard()
+      initPlatformBuildSync()
+
+      const { default: App } = await import('./App.tsx')
+      createRoot(rootEl).render(
+        <RootErrorBoundary>
+          <App />
+        </RootErrorBoundary>,
+      )
+
+      const markIfMounted = () => {
+        if (rootEl.childElementCount > 0 || rootEl.textContent?.trim()) {
+          markAppMounted()
+        }
+      }
+
+      // Fast path: mark on first paint if React rendered any content.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(markIfMounted)
+      })
+
+      // Robust path: detect first real DOM mount under #root.
+      const observer = new MutationObserver(() => {
+        if (bootMarker[APP_MOUNTED_FLAG] === true) return
+        markIfMounted()
+        if (bootMarker[APP_MOUNTED_FLAG] === true) {
+          observer.disconnect()
+        }
+      })
+      observer.observe(rootEl, { childList: true, subtree: true, characterData: true })
+
+      // Safety stop to avoid leaving observer alive forever on broken boots.
+      window.setTimeout(() => observer.disconnect(), 12_000)
+    } catch (error) {
+      if (isDynamicImportChunkError(error)) {
+        reloadOnceForChunkError()
+        return
+      }
+      console.error('[halaqmap] App bootstrap failed', error)
+      renderBootstrapFailure(rootEl, error)
+    }
   } else if (import.meta.env.DEV) {
     console.warn('[halaqmap] Duplicate bootstrap prevented')
   }
+}
+
+const rootEl = document.getElementById('root')
+if (rootEl) {
+  void bootstrapApp(rootEl)
 }

@@ -14,10 +14,10 @@ function CompareCard({ side, variant }: { side: PartnerTechnicalPartnerCompareSi
   return (
     <div
       className={cn(
-        'rounded-2xl border p-5 text-right',
+        'rounded-2xl border p-5 text-right shadow-[0_18px_40px_rgba(148,163,184,0.08)]',
         isHalaqmap
-          ? 'border-emerald-400/30 bg-emerald-500/[0.07] shadow-[0_0_28px_rgba(16,185,129,0.08)]'
-          : 'border-white/10 bg-white/[0.03]',
+          ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-teal-50'
+          : 'border-slate-200 bg-white/95',
         variant === 'compact' && 'p-4',
       )}
     >
@@ -25,17 +25,17 @@ function CompareCard({ side, variant }: { side: PartnerTechnicalPartnerCompareSi
       <p
         className={cn(
           'mt-1 font-mono text-[0.65rem]',
-          isHalaqmap ? 'text-emerald-300/80' : 'text-slate-500',
+          isHalaqmap ? 'text-emerald-700' : 'text-slate-500',
         )}
       >
         {side.eyebrow}
       </p>
-      <h3 className={cn('mt-2 font-black text-white', variant === 'compact' ? 'text-base' : 'text-lg')}>
+      <h3 className={cn('mt-2 font-black text-slate-900', variant === 'compact' ? 'text-base' : 'text-lg')}>
         {side.title}
       </h3>
       <ul className={cn('mt-3 space-y-2', variant === 'compact' ? 'text-[0.72rem]' : 'text-sm')}>
         {side.bullets.map((bullet) => (
-          <li key={bullet} className="leading-relaxed text-slate-300">
+          <li key={bullet} className="leading-relaxed text-slate-600">
             {bullet}
           </li>
         ))}
@@ -60,8 +60,8 @@ export function PartnerTechnicalPartnerCompare({ variant = 'full', className }: 
   return (
     <div className={className}>
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-black text-white md:text-3xl">{sectionTitle}</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-400">{sectionLead}</p>
+        <h2 className="text-2xl font-black text-slate-900 md:text-3xl">{sectionTitle}</h2>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600">{sectionLead}</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         {sides.map((side) => (

@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -194,7 +193,7 @@ export default function BarberDashboard() {
   useEffect(() => {
     const parsed = readBarberAuthSession();
     if (!parsed) {
-      navigate(ROUTE_PATHS.BARBER_LOGIN);
+      navigate(ROUTE_PATHS.BARBERS_LANDING);
       return;
     }
     try {
@@ -206,7 +205,7 @@ export default function BarberDashboard() {
         toast.error(
           'باقتك البرونزية لا تتضمن لوحة التحكم الإلكترونية. رقِ للذهبي أو الماسي للوصول إلى المحادثات والتقييمات والجدولة.',
         );
-        navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
+        navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
         return;
       }
       const mn = parsed.memberNumber;
@@ -226,7 +225,7 @@ export default function BarberDashboard() {
       });
     } catch {
       void clearBarberLinkedSession();
-      navigate(ROUTE_PATHS.BARBER_LOGIN);
+      navigate(ROUTE_PATHS.BARBERS_LANDING);
     }
   }, [navigate]);
 
@@ -343,7 +342,7 @@ export default function BarberDashboard() {
       if (r.code === 'TIER_BRONZE_NO_DASHBOARD') {
         void clearBarberLinkedSession();
         toast.error(r.error || 'لم تعد باقتك تسمح بلوحة التحكم.');
-        navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
+        navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
       }
       return;
     }
@@ -1418,25 +1417,45 @@ function AppointmentsSection({
 function PlatformSupportChatPanel({ barberId, barberEmail }: { barberId: string; barberEmail: string }) {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [messages, setMessages] = useState<Awaited<ReturnType<typeof fetchBarberSupportMessagesRemote>> extends { ok: true; messages: infer T } ? T : []>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<Error | null>(null);
 
-  const {
-    data: messages = [],
-    isLoading: loading,
-    refetch,
-    error: loadError,
-  } = useQuery({
-    queryKey: ['barber-support-messages', barberId, barberEmail],
-    queryFn: async () => {
+  const loadMessages = useCallback(async () => {
+    if (!barberId || !barberEmail.trim()) {
+      setMessages([]);
+      setLoadError(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
       const r = await fetchBarberSupportMessagesRemote({ barberId, email: barberEmail });
       if (!r.ok) throw new Error(r.error);
-      return r.messages;
-    },
-    enabled: Boolean(barberId && barberEmail.trim()),
-    refetchInterval: POLL_MS.BARBER_SUPPORT_CHAT,
-    refetchIntervalInBackground: false,
-    refetchOnWindowFocus: false,
-    staleTime: POLL_MS.BARBER_SUPPORT_CHAT - 5_000,
-  });
+      setMessages(r.messages);
+      setLoadError(null);
+    } catch (e) {
+      setLoadError(e instanceof Error ? e : new Error('تعذّر تحميل الرسائل'));
+    } finally {
+      setLoading(false);
+    }
+  }, [barberEmail, barberId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const wrapped = async () => {
+      if (cancelled) return;
+      await loadMessages();
+    };
+    void wrapped();
+    const id = window.setInterval(() => {
+      void wrapped();
+    }, POLL_MS.BARBER_SUPPORT_CHAT);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [loadMessages]);
 
   useEffect(() => {
     if (loadError instanceof Error) toast.error(loadError.message);
@@ -1456,7 +1475,7 @@ function PlatformSupportChatPanel({ barberId, barberEmail }: { barberId: string;
       return;
     }
     setDraft('');
-    await refetch();
+    await loadMessages();
     toast.success('تم إرسال الرسالة إلى إدارة المنصة');
   };
 

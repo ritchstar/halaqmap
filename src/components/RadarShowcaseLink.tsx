@@ -64,12 +64,15 @@ export function RadarShowcaseLink({ variant = 'icon', className }: Props) {
         to={SHOWCASE_RADAR_ROUTE}
         title="معاينة نظام الرصد الذكي — حلاق ماب"
         className={cn(
-          'group inline-flex items-center gap-2 rounded-xl border border-sky-400/25 bg-sky-500/10 px-3.5 py-2 text-[0.82rem] font-bold text-sky-200 transition-all hover:border-sky-400/50 hover:bg-sky-500/15',
+          'group inline-flex items-center gap-2 rounded-xl border border-sky-300/45 bg-sky-100/65 px-3.5 py-2 text-[0.82rem] font-bold text-slate-900 shadow-[0_8px_18px_rgba(56,189,248,0.10)] transition-all hover:border-sky-400/55 hover:bg-sky-100/80',
           className,
         )}
       >
-        <Radar className="h-4 w-4 text-sky-400 transition-transform group-hover:scale-110" />
-        <span>الرصد الذكي</span>
+        <span className="relative flex h-5 w-5 items-center justify-center">
+          <span className="absolute inline-flex h-4 w-4 rounded-full border border-sky-400/40 animate-ping opacity-60" />
+          <SmartRadarGlyph className="relative h-4 w-4 text-sky-500 transition-transform duration-300 group-hover:scale-105" />
+        </span>
+        <span className="text-slate-900">الرصد الذكي</span>
       </Link>
     );
   }

@@ -25,8 +25,6 @@ import { usePartnerTutorialSectionVisible } from '@/lib/partnerTutorialVideosPub
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 import { DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR } from '@/config/partnerLegal';
-import { B2BSalesManagerChat } from '@/components/B2BSalesManagerChat';
-import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
@@ -51,20 +49,17 @@ const partnerNavItems = [
   { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
   { path: ROUTE_PATHS.PARTNER_TUTORIALS, label: 'فيديوهات رخصة النفاذ' },
-  { path: ROUTE_PATHS.MAP_COMMUNITY, label: 'مجتمع ماب', Icon: MessageCircle },
-  { path: ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW, label: 'معاينة الباقات 🏛️' },
+  { path: ROUTE_PATHS.PARTNER_SALES_OFFICE, label: 'مكتب مدير المبيعات' },
+  { path: ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW, label: 'مركز الباقات 🏛️' },
   { path: ROUTE_PATHS.REGISTER, label: 'التسجيل كحلاق' },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'الدعم الفني (واتساب)' },
   { path: ROUTE_PATHS.PARTNER_PRIVACY, label: 'خصوصية الشركاء' },
   { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR },
-  { path: ROUTE_PATHS.BARBER_LOGIN, label: 'دخول الحلاق' },
 ];
 
 const partnerBottomNav = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الرئيسية', Icon: Home },
-  { path: ROUTE_PATHS.MAP_COMMUNITY, label: 'مجتمع', Icon: MessageCircle },
   { path: ROUTE_PATHS.REGISTER, label: 'تسجيل', Icon: UserPlus },
-  { path: ROUTE_PATHS.BARBER_LOGIN, label: 'دخول', Icon: LogIn },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم', Icon: Headphones },
 ] as const;
 
@@ -141,16 +136,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     ? partnerNavItems
     : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
   const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
-  const isStrictPartnerPath =
-    location.pathname === ROUTE_PATHS.BARBERS_LANDING || location.pathname.startsWith('/partners/');
-  const shouldRenderPartnerChats =
-    isStrictPartnerPath &&
-    ![
-      ROUTE_PATHS.PARTNER_PRIVACY,
-      ROUTE_PATHS.SUBSCRIPTION_POLICY,
-      ROUTE_PATHS.PAYMENT,
-      ROUTE_PATHS.MAP_COMMUNITY, // مجتمع ماب — سعودي فقط
-    ].includes(location.pathname as typeof ROUTE_PATHS.PARTNER_PRIVACY);
 
   useDocumentTitle(isMapCommunityPage ? 'مجتمع ماب' : SOFTWARE_SERVICES_PORTAL_HEADING);
 
@@ -355,27 +340,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </nav>
 
               <NavLink
-                to={ROUTE_PATHS.MAP_COMMUNITY}
-                className={({ isActive }) =>
-                  cn(
-                    'inline-flex shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-black transition-all',
-                    isActive
-                      ? 'border-cyan-300/70 bg-cyan-500/20 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.28)]'
-                      : 'border-cyan-400/40 bg-cyan-500/12 text-cyan-200 hover:border-cyan-300/70 hover:bg-cyan-500/20 hover:text-white',
-                  )
-                }
-              >
-                <MessageCircle className="h-[18px] w-[18px] text-cyan-200" />
-                {hasNewMapCommunityPosts ? (
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-fuchsia-400 opacity-75" />
-                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-fuchsia-300 shadow-[0_0_10px_rgba(217,70,239,0.95)]" />
-                  </span>
-                ) : null}
-                مجتمع ماب
-              </NavLink>
-
-              <NavLink
                 to={ROUTE_PATHS.HOME}
                 className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
               >
@@ -404,13 +368,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-6" aria-label={isMapCommunityPage ? 'مجتمع ماب' : 'صفحات الشركاء'}>
             {isMapCommunityPage ? (
               <>
-                <NavLink
-                  to={ROUTE_PATHS.BARBER_DASHBOARD}
-                  onClick={() => setMobileNavOpen(false)}
-                  className={({ isActive }) => sheetNavClass(isActive)}
-                >
-                  لوحة تحكم الحلاق
-                </NavLink>
                 <NavLink
                   to={ROUTE_PATHS.HOME}
                   onClick={() => setMobileNavOpen(false)}
@@ -451,30 +408,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
       {!isMapCommunityPage ? <PartnerPromoVideoBand /> : null}
 
-      {!isMapCommunityPage ? (
-        <div className="relative z-10 border-b border-emerald-400/10 bg-[#061223]/70 px-3 py-3 backdrop-blur-md">
-          <div className="container mx-auto">
-            <NavLink
-              to={ROUTE_PATHS.MAP_COMMUNITY}
-              className="group flex items-center justify-between gap-3 rounded-2xl border border-emerald-400/25 bg-gradient-to-l from-emerald-500/12 via-cyan-500/8 to-transparent px-4 py-3 text-right transition-all hover:border-emerald-300/45 hover:bg-emerald-500/16"
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/30 bg-emerald-500/12 text-emerald-200">
-                  <MessageCircle className="h-5 w-5" />
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-emerald-50">مجتمع ماب — مساحة الحلاقين المهنية</p>
-                  <p className="truncate text-xs text-slate-400">فيديوهات قصيرة · Map Chat · مساعد ماب لتطوير الصالونات</p>
-                </div>
-              </div>
-              <span className="shrink-0 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-[0.65rem] font-bold text-cyan-200 group-hover:text-white">
-                دخول المجتمع
-              </span>
-            </NavLink>
-          </div>
-        </div>
-      ) : null}
-
       <main
         className={cn(
           'b2b-nebula-scope relative z-10 min-h-0 w-full flex-1',
@@ -483,29 +416,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       >
         {children}
       </main>
-
-      {/* لا مدير مبيعات / متحدث على صفحات الخصوصية، السياسات، والدفع */}
-      {shouldRenderPartnerChats && (
-        <>
-          <B2BSalesManagerChat
-            startMinimized={[
-              ROUTE_PATHS.REGISTER,
-              ROUTE_PATHS.REGISTER_SUCCESS,
-              ROUTE_PATHS.BARBER_LOGIN,
-              ROUTE_PATHS.BARBER_PORTAL_ENTER,
-            ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
-          />
-          <B2BMediaSpokespersonChat
-            collapseOnScroll
-            startMinimized={[
-              ROUTE_PATHS.REGISTER,
-              ROUTE_PATHS.REGISTER_SUCCESS,
-              ROUTE_PATHS.BARBER_LOGIN,
-              ROUTE_PATHS.BARBER_PORTAL_ENTER,
-            ].includes(location.pathname as typeof ROUTE_PATHS.REGISTER)}
-          />
-        </>
-      )}
 
       {/* شريط تنقّل سفلي للجوال — يُخفى داخل مجتمع ماب (له شريط خاص) */}
       {!isMapCommunityPage ? (

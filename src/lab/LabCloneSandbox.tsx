@@ -24,7 +24,6 @@ const PlatformReviews = lazy(() => import('@/pages/PlatformReviews'));
 const Register = lazy(() => import('@/pages/Register'));
 const PartnerPrivacy = lazy(() => import('@/pages/PartnerPrivacy'));
 const SubscriptionPolicy = lazy(() => import('@/pages/SubscriptionPolicy'));
-const BarberLogin = lazy(() => import('@/pages/BarberLogin'));
 const PartnerSupportChat = lazy(() => import('@/pages/PartnerSupportChat'));
 const RegisterSuccess = lazy(() => import('@/pages/RegisterSuccess'));
 const ShopOpenStatus = lazy(() => import('@/pages/ShopOpenStatus'));
@@ -157,7 +156,7 @@ function buildLabRoutes(): RouteObject[] {
         { path: 'partners/shop-open', element: withPartnerLayout(<ShopOpenStatus />) },
         { path: 'partners/privacy', element: withPartnerLayout(<PartnerPrivacy />) },
         { path: 'partners/subscription-policy', element: withPartnerLayout(<SubscriptionPolicy />) },
-        { path: 'partners/login', element: withPartnerLayout(<BarberLogin />) },
+        { path: 'partners/login', element: <Navigate to={ROUTE_PATHS.BARBERS_LANDING} replace /> },
         { path: 'barber/enter', element: withPartnerLayout(<BarberPortalEnter />) },
         { path: 'partners/payment', element: withPartnerLayout(<Payment />) },
         { path: 'partners/tutorials', element: withPartnerLayout(<PartnerSubscriptionTutorials />) },
@@ -191,7 +190,7 @@ function buildLabRoutes(): RouteObject[] {
         { path: LEGACY_PARTNER_ROUTE_PATHS.REGISTER.slice(1), element: <Navigate to={ROUTE_PATHS.REGISTER} replace /> },
         { path: LEGACY_PARTNER_ROUTE_PATHS.REGISTER_SUCCESS.slice(1), element: <Navigate to={ROUTE_PATHS.REGISTER_SUCCESS} replace /> },
         { path: LEGACY_PARTNER_ROUTE_PATHS.SUBSCRIPTION_POLICY.slice(1), element: <Navigate to={ROUTE_PATHS.SUBSCRIPTION_POLICY} replace /> },
-        { path: LEGACY_PARTNER_ROUTE_PATHS.BARBER_LOGIN.slice(1), element: <Navigate to={ROUTE_PATHS.BARBER_LOGIN} replace /> },
+        { path: LEGACY_PARTNER_ROUTE_PATHS.BARBER_LOGIN.slice(1), element: <Navigate to={ROUTE_PATHS.BARBERS_LANDING} replace /> },
         { path: LEGACY_PARTNER_ROUTE_PATHS.PAYMENT.slice(1), element: <Navigate to={ROUTE_PATHS.PAYMENT} replace /> },
 
         { path: '*', element: <LabCatchAllFallback /> },

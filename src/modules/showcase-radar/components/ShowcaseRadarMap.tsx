@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { TacticalKingdomBackdrop } from '@/modules/platform-radar/components/TacticalKingdomBackdrop';
 import { TacticalPulseNetwork } from '@/modules/platform-radar/components/TacticalPulseNetwork';
 import {
+  CITY_BEACONS,
   KSA_VIEWBOX,
   projectShowcaseCityPercent,
 } from '@/modules/platform-radar/lib/saudiKingdomGeo';
@@ -42,10 +43,25 @@ export function ShowcaseRadarMap({ pulses, showSalonClusters = true, className }
 
   const demandPulses = placed.filter((p) => p.kind === 'demand');
   const salonPulses = placed.filter((p) => p.kind === 'salon_cluster');
+  const ambientCitySignals = useMemo(
+    () =>
+      CITY_BEACONS.map((city, index) => ({
+        id: `ambient-city-${city.nameAr}-${index}`,
+        left: (city.view.x / KSA_VIEWBOX.width) * 100,
+        top: (city.view.y / KSA_VIEWBOX.height) * 100,
+        cityAr: city.nameAr,
+        tier: city.tier,
+        variantIndex: index,
+      })),
+    [],
+  );
 
   const networkNodes = useMemo(
-    () => placed.map((p) => ({ id: p.id, left: p.left, top: p.top })),
-    [placed],
+    () => [
+      ...ambientCitySignals.map((p) => ({ id: p.id, left: p.left, top: p.top })),
+      ...placed.map((p) => ({ id: p.id, left: p.left, top: p.top })),
+    ],
+    [ambientCitySignals, placed],
   );
 
   const kingdomAspect = `${KSA_VIEWBOX.width} / ${KSA_VIEWBOX.height}`;
@@ -72,6 +88,21 @@ export function ShowcaseRadarMap({ pulses, showSalonClusters = true, className }
       >
         <TacticalKingdomBackdrop showCapitalHeartbeat={false} />
         <TacticalPulseNetwork nodes={networkNodes} maxDistance={18} maxLinksPerNode={2} />
+
+        {ambientCitySignals.map((city) => (
+          <ShowcasePulseMarker
+            key={city.id}
+            id={city.id}
+            left={city.left}
+            top={city.top}
+            createdAt={new Date().toISOString()}
+            labelAr={`إشارة مدينة — ${city.cityAr}`}
+            pulseKind="city"
+            signalTier={city.tier}
+            variantIndex={city.variantIndex}
+            opacity={city.tier === 'capital' ? 0.95 : city.tier === 'major' ? 0.78 : 0.62}
+          />
+        ))}
 
         {demandPulses.map((p) => (
           <ShowcasePulseMarker

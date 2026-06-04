@@ -41,13 +41,13 @@ export function TacticalKingdomBackdrop({
   const { width: VBW, height: VBH } = KSA_VIEWBOX;
 
   // Tactical sweep — a translucent fan emitted from Riyadh.
-  const sweepRadius = Math.max(VBW, VBH) * 0.85;
+  const sweepRadius = Math.max(VBW, VBH) * 0.78;
   const sweep = useMemo(() => {
     const cx = RIYADH_VIEW.x;
     const cy = RIYADH_VIEW.y;
-    // 28° fan — start angle 0, sweep clockwise.
-    const startAngle = 0;
-    const endAngle = 28;
+    // Fan tilted gently for better visual balance across the kingdom.
+    const startAngle = -8;
+    const endAngle = 14;
     const a0 = (startAngle * Math.PI) / 180;
     const a1 = (endAngle * Math.PI) / 180;
     const p0 = { x: cx + sweepRadius * Math.cos(a0), y: cy + sweepRadius * Math.sin(a0) };
@@ -92,8 +92,9 @@ export function TacticalKingdomBackdrop({
 
         {/* Gold sweep gradient — wedge fading to nothing */}
         <radialGradient id="tk-sweep-gradient" cx="0%" cy="0%" r="100%">
-          <stop offset="0%" stopColor="rgba(251,191,36,0.40)" />
-          <stop offset="55%" stopColor="rgba(251,191,36,0.12)" />
+          <stop offset="0%" stopColor="rgba(125,211,252,0.22)" />
+          <stop offset="32%" stopColor="rgba(56,189,248,0.12)" />
+          <stop offset="60%" stopColor="rgba(251,191,36,0.06)" />
           <stop offset="100%" stopColor="rgba(251,191,36,0)" />
         </radialGradient>
 
@@ -212,10 +213,12 @@ export function TacticalKingdomBackdrop({
       {/* Layer 6: City beacons */}
       <g>
         {CITY_BEACONS.map((c) => {
-          const glowRadius =
-            c.tier === 'capital' ? 28 : c.tier === 'major' ? 18 : 12;
-          const dotRadius = c.tier === 'capital' ? 4 : c.tier === 'major' ? 2.8 : 2.2;
-          const fillUrl = c.tier === 'capital' ? 'url(#tk-capital-glow)' : 'url(#tk-city-glow)';
+          const displayLabel =
+            c.nameAr === 'خميس مشيط' ? 'نجران' : c.nameAr === 'نجران' ? null : c.nameAr;
+          const isCapital = c.tier === 'capital';
+          const glowRadius = isCapital ? 28 : 0;
+          const dotRadius = isCapital ? 4 : 0;
+          const fillUrl = 'url(#tk-capital-glow)';
           const fontSize = c.tier === 'capital' ? 14 : c.tier === 'major' ? 12 : 11;
           // Above: label sits above the glow. Below: drops it under the dot,
           // with a small extra offset so the baseline clears the glow halo.
@@ -225,35 +228,39 @@ export function TacticalKingdomBackdrop({
               : c.view.y - (glowRadius + 2);
           return (
             <g key={`city-${c.nameAr}`}>
-              <circle cx={c.view.x} cy={c.view.y} r={glowRadius} fill={fillUrl} />
-              <circle
-                cx={c.view.x}
-                cy={c.view.y}
-                r={dotRadius}
-                fill={c.tier === 'capital' ? '#bae6fd' : '#fef3c7'}
-              />
-              <text
-                x={c.view.x}
-                y={labelY}
-                textAnchor="middle"
-                fontSize={fontSize}
-                fontFamily="system-ui"
-                fontWeight={c.tier === 'capital' ? 700 : c.tier === 'major' ? 600 : 500}
-                fill={
-                  c.tier === 'capital'
-                    ? 'rgba(186,230,253,0.95)'
-                    : c.tier === 'major'
-                      ? 'rgba(254,243,199,0.95)'
-                      : 'rgba(254,243,199,0.85)'
-                }
-                style={{
-                  paintOrder: 'stroke',
-                  stroke: 'rgba(0,0,0,0.78)',
-                  strokeWidth: 2.5,
-                }}
-              >
-                {c.nameAr}
-              </text>
+              {isCapital ? <circle cx={c.view.x} cy={c.view.y} r={glowRadius} fill={fillUrl} /> : null}
+              {isCapital ? (
+                <circle
+                  cx={c.view.x}
+                  cy={c.view.y}
+                  r={dotRadius}
+                  fill="#bae6fd"
+                />
+              ) : null}
+              {displayLabel ? (
+                <text
+                  x={c.view.x}
+                  y={labelY}
+                  textAnchor="middle"
+                  fontSize={fontSize}
+                  fontFamily="system-ui"
+                  fontWeight={c.tier === 'capital' ? 700 : c.tier === 'major' ? 600 : 500}
+                  fill={
+                    c.tier === 'capital'
+                      ? 'rgba(186,230,253,0.95)'
+                      : c.tier === 'major'
+                        ? 'rgba(254,243,199,0.95)'
+                        : 'rgba(254,243,199,0.85)'
+                  }
+                  style={{
+                    paintOrder: 'stroke',
+                    stroke: 'rgba(0,0,0,0.78)',
+                    strokeWidth: 2.5,
+                  }}
+                >
+                  {displayLabel}
+                </text>
+              ) : null}
             </g>
           );
         })}
@@ -308,6 +315,15 @@ export function TacticalKingdomBackdrop({
           style={{ transformOrigin: `${RIYADH_VIEW.x}px ${RIYADH_VIEW.y}px` }}
         >
           <path d={sweep} fill="url(#tk-sweep-gradient)" />
+          <line
+            x1={RIYADH_VIEW.x}
+            y1={RIYADH_VIEW.y}
+            x2={RIYADH_VIEW.x}
+            y2={RIYADH_VIEW.y - sweepRadius}
+            stroke="rgba(125,211,252,0.22)"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
+          />
         </g>
       ) : null}
 
