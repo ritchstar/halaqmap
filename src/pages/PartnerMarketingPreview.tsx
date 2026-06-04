@@ -20,7 +20,6 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
-import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import {
   TIER_MONTHLY_SAR,
   DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
@@ -1062,7 +1061,6 @@ export default function PartnerMarketingPreview() {
   const salons = useCounter(2300, 1800, statsInView);
   const cities = useCounter(47, 1400, statsInView);
   const searches = useCounter(18000, 2000, statsInView);
-  const { hasNewPosts: hasNewMapCommunityPosts } = useMapCommunityBadge();
   const warmHomeRoute = useCallback(() => {
     void preloadLandingPreviewRoute();
   }, []);
@@ -1269,83 +1267,6 @@ export default function PartnerMarketingPreview() {
         <div className="pointer-events-none absolute -right-80 top-0 h-[700px] w-[700px] rounded-full bg-amber-300/12 blur-[110px]" />
         <div className="pointer-events-none absolute -left-60 bottom-0 h-[500px] w-[500px] rounded-full bg-teal-300/10 blur-[92px]" />
 
-        {/* أيقونة مجتمع ماب — زجاجية مستقلة في الفراغ اليساري */}
-        <motion.button
-          type="button"
-          onClick={() => navigate(ROUTE_PATHS.MAP_COMMUNITY)}
-          initial={{ opacity: 0, x: -28, rotateY: -18 }}
-          animate={{ opacity: 1, x: 0, rotateY: 0 }}
-          transition={{ delay: 0.95, type: 'spring', stiffness: 260, damping: 22 }}
-          whileHover={{ scale: 1.08, rotateY: -10, x: 6 }}
-          whileTap={{ scale: 0.96 }}
-          className="group absolute left-8 top-[33%] z-20 hidden flex-col items-center gap-2 rounded-[1.35rem] px-3 py-4 text-center lg:flex"
-          style={{
-            transformStyle: 'preserve-3d',
-            background:
-              hasNewMapCommunityPosts
-                ? 'linear-gradient(155deg,rgba(34,211,238,0.18) 0%,rgba(255,255,255,0.95) 45%,rgba(217,70,239,0.14) 100%)'
-                : 'linear-gradient(155deg,rgba(34,211,238,0.12) 0%,rgba(255,255,255,0.96) 45%,rgba(16,185,129,0.11) 100%)',
-            border: hasNewMapCommunityPosts
-              ? '1px solid rgba(217,70,239,0.48)'
-              : '1px solid rgba(103,232,249,0.38)',
-            boxShadow:
-              hasNewMapCommunityPosts
-                ? '0 12px 40px rgba(217,70,239,0.16),0 16px 52px rgba(34,211,238,0.12),inset 0 1px 0 rgba(255,255,255,0.8)'
-                : '0 10px 34px rgba(34,211,238,0.12),0 14px 46px rgba(16,185,129,0.08),inset 0 1px 0 rgba(255,255,255,0.8)',
-            backdropFilter: 'blur(18px)',
-          }}
-          title="مجتمع ماب"
-        >
-          {/* breathing halo */}
-          <motion.span
-            className="pointer-events-none absolute inset-0 rounded-[1.35rem]"
-            style={{ background: hasNewMapCommunityPosts ? 'radial-gradient(circle at 50% 50%,rgba(217,70,239,0.14),transparent 62%)' : 'radial-gradient(circle at 50% 50%,rgba(34,211,238,0.1),transparent 62%)' }}
-            animate={{ opacity: hasNewMapCommunityPosts ? [0.55, 1, 0.55] : [0.35, 0.85, 0.35], scale: hasNewMapCommunityPosts ? [0.94, 1.16, 0.94] : [0.96, 1.08, 0.96] }}
-            transition={{ duration: hasNewMapCommunityPosts ? 2.2 : 3.6, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          {hasNewMapCommunityPosts ? (
-            <>
-              <motion.span
-                className="pointer-events-none absolute -inset-2 rounded-[1.55rem] border border-fuchsia-400/45"
-                animate={{ scale: [1, 1.22], opacity: [0.65, 0] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }}
-              />
-              <motion.span
-                className="pointer-events-none absolute -inset-4 rounded-[1.75rem] border border-cyan-300/30"
-                animate={{ scale: [1, 1.28], opacity: [0.4, 0] }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: 0.35 }}
-              />
-            </>
-          ) : null}
-          {/* glass shine */}
-          <motion.span
-            className="pointer-events-none absolute inset-0 rounded-[1.35rem]"
-            style={{ background: 'linear-gradient(135deg,transparent 25%,rgba(255,255,255,0.14) 50%,transparent 75%)' }}
-            animate={{ x: ['-120%', '160%'] }}
-            transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 2.2, ease: 'linear' }}
-          />
-          <span
-            className="relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl border shadow-[0_0_20px_rgba(34,211,238,0.22)]"
-            style={{
-              borderColor: hasNewMapCommunityPosts ? 'rgba(217,70,239,0.55)' : 'rgba(103,232,249,0.35)',
-              background: hasNewMapCommunityPosts ? 'rgba(217,70,239,0.10)' : 'rgba(34,211,238,0.08)',
-            }}
-          >
-            <MessageCircle className={hasNewMapCommunityPosts ? 'h-6 w-6 text-fuchsia-700' : 'h-6 w-6 text-cyan-700'} />
-            <motion.span
-              className={hasNewMapCommunityPosts ? 'absolute inset-0 rounded-2xl border border-fuchsia-300/55' : 'absolute inset-0 rounded-2xl border border-cyan-300/45'}
-              animate={{ scale: [1, hasNewMapCommunityPosts ? 1.65 : 1.45], opacity: [0.55, 0] }}
-              transition={{ duration: hasNewMapCommunityPosts ? 1.45 : 2, repeat: Infinity }}
-            />
-          </span>
-          <span className="relative z-10 text-[0.68rem] font-black tracking-widest text-cyan-100">
-            مجتمع ماب
-          </span>
-          <span className="relative z-10 text-[0.5rem] font-bold text-emerald-300/70">
-            حلاقون · نقاش · فيديو
-          </span>
-        </motion.button>
-
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-2 lg:gap-20 lg:py-28">
           {/* Text */}
           <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
@@ -1458,14 +1379,6 @@ export default function PartnerMarketingPreview() {
                 لماذا نحن؟ <ArrowLeft className="h-4 w-4" />
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => navigate(ROUTE_PATHS.MAP_COMMUNITY)}
-              className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-200 bg-cyan-50 px-5 py-3 text-sm font-black text-cyan-800 shadow-[0_10px_24px_rgba(34,211,238,0.08)] transition-all hover:border-cyan-300 hover:bg-cyan-100 lg:hidden"
-            >
-              <MessageCircle className="h-4 w-4" />
-              دخول مجتمع ماب
-            </button>
           </motion.div>
 
           {/* Card preview */}
@@ -2067,7 +1980,7 @@ export default function PartnerMarketingPreview() {
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'معاينة الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
-                  { label: 'لوحة الشريك', to: ROUTE_PATHS.BARBER_LOGIN },
+                  { label: 'مكتب مدير المبيعات', to: ROUTE_PATHS.PARTNER_SALES_OFFICE },
                   { label: 'خدمة العملاء', to: ROUTE_PATHS.PARTNER_SUPPORT },
                   { label: 'خصوصية الشركاء', to: ROUTE_PATHS.PARTNER_PRIVACY },
                 ].map((link) => (
