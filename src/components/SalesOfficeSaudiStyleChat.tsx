@@ -115,15 +115,13 @@ export function SalesOfficeSaudiStyleChat() {
   };
 
   return (
-    <section className="relative mx-auto max-w-[76rem] [overflow-anchor:none]">
+    <section className="relative mx-auto max-w-[84rem] [overflow-anchor:none]">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55 }}
         className="flex flex-col overflow-hidden rounded-3xl"
         style={{
-          height: 'min(86dvh, 980px)',
-          minHeight: 'min(36rem, 78dvh)',
           border: '1px solid rgba(201,162,39,0.24)',
           background: 'linear-gradient(165deg,#fffefa 0%,#fbf7ef 42%,#f8fbff 100%)',
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.85),0 24px 60px rgba(148,163,184,0.18),0 0 80px rgba(245,158,11,0.06)',
@@ -188,17 +186,16 @@ export function SalesOfficeSaudiStyleChat() {
 
         <div
           ref={messagesRef}
-          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 scroll-smooth md:px-6"
+          className="relative px-4 py-5 md:px-6"
         >
-          <div className="pointer-events-none sticky top-0 z-10 -mx-4 mb-2 h-8 bg-gradient-to-b from-[#fffefa] via-[#fffefa]/92 to-transparent md:-mx-6" />
           {turns.length === 1 && !loading ? (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 rounded-2xl rounded-tr-sm border border-amber-200 bg-[linear-gradient(145deg,#fffdf7,#fbf4e6)] px-5 py-4 shadow-[0_16px_30px_rgba(245,158,11,0.08)]"
+              className="mb-5 w-full rounded-[1.6rem] border border-amber-200 bg-[linear-gradient(145deg,#fffdf7,#fbf4e6)] px-5 py-4 shadow-[0_16px_30px_rgba(245,158,11,0.08)]"
             >
               <p className="mb-1.5 text-[0.62rem] font-bold text-slate-500">مدير المبيعات التجاري</p>
-              <p className="whitespace-pre-wrap text-[1rem] leading-7 text-slate-800" style={{ unicodeBidi: 'plaintext' }}>
+              <p className="whitespace-pre-wrap text-[1rem] leading-8 text-slate-800" style={{ unicodeBidi: 'plaintext' }}>
                 {turns[0].content}
               </p>
             </motion.div>
@@ -213,8 +210,8 @@ export function SalesOfficeSaudiStyleChat() {
                 transition={{ duration: 0.22 }}
                 className={
                   turn.role === 'assistant'
-                    ? 'self-start max-w-[90%] rounded-2xl rounded-tr-sm border border-amber-200 bg-[linear-gradient(145deg,#fffdf7,#fbf4e6)] px-5 py-4 text-[1rem] leading-7 text-slate-800 shadow-[0_14px_26px_rgba(245,158,11,0.08)]'
-                    : 'self-end max-w-[90%] rounded-2xl rounded-tl-sm border border-cyan-200 bg-[linear-gradient(145deg,#f4fbfd,#eef8fb)] px-5 py-4 text-[1rem] leading-7 text-slate-800 shadow-[0_14px_26px_rgba(34,211,238,0.08)]'
+                    ? 'w-full self-stretch max-w-none rounded-[1.6rem] border border-amber-200 bg-[linear-gradient(145deg,#fffdf7,#fbf4e6)] px-5 py-4 text-[1rem] leading-8 text-slate-800 shadow-[0_14px_26px_rgba(245,158,11,0.08)]'
+                    : 'self-end w-full max-w-[92%] rounded-[1.4rem] rounded-tl-sm border border-cyan-200 bg-[linear-gradient(145deg,#f4fbfd,#eef8fb)] px-5 py-4 text-[1rem] leading-8 text-slate-800 shadow-[0_14px_26px_rgba(34,211,238,0.08)]'
                 }
               >
                 <p className="mb-1.5 text-[0.62rem] font-bold text-slate-500">
@@ -230,7 +227,7 @@ export function SalesOfficeSaudiStyleChat() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="self-start rounded-2xl rounded-tr-sm border border-amber-200 bg-white/90 shadow-[0_8px_20px_rgba(245,158,11,0.08)]"
+                className="w-fit self-start rounded-2xl rounded-tr-sm border border-amber-200 bg-white/90 shadow-[0_8px_20px_rgba(245,158,11,0.08)]"
               >
                 <TypingDots />
               </motion.div>
