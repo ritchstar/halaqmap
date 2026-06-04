@@ -110,11 +110,11 @@ export function Layout({ children }: LayoutProps) {
                 <Star className="h-3.5 w-3.5" />
                 آراؤنا
               </NavLink>
-              <PlatformAmbientToggle variant="compact" className="hidden lg:inline-flex" />
+              <PlatformAmbientToggle variant="partner" className="hidden lg:inline-flex" />
             </nav>
 
             <div className="flex items-center gap-2 md:hidden">
-              <PlatformAmbientToggle variant="compact" />
+              <PlatformAmbientToggle variant="partner" />
               <button
                 type="button"
                 className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 p-2 text-slate-300 transition-colors touch-manipulation hover:bg-white/10 hover:text-white"

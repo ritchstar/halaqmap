@@ -34,6 +34,7 @@ import {
   fetchMapCommunityFeedRemote,
   markMapCommunityReadRemote,
   postMapCommunityMessageRemote,
+  type MapCommunityFeedResponse,
 } from '@/lib/mapCommunityRemote';
 import { POLL_MS } from '@/lib/pollingPolicy';
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
@@ -203,7 +204,7 @@ export default function MapCommunity() {
   const [draft, setDraft] = useState('');
   const [aiThinking, setAiThinking] = useState(false);
   const [activeTab, setActiveTab] = useState<CommunityTab>('chat');
-  const [feedData, setFeedData] = useState<Awaited<ReturnType<typeof fetchMapCommunityFeedRemote>>['body'] | null>(null);
+  const [feedData, setFeedData] = useState<MapCommunityFeedResponse | null>(null);
   const [feedLoading, setFeedLoading] = useState(false);
   const [feedError, setFeedError] = useState<Error | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);

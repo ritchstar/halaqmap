@@ -221,7 +221,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<PartnerLayout><LazyRoute><PartnerSubscriptionTutorials /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.MAP_COMMUNITY} element={<PartnerLayout><LazyRoute><MapCommunity /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<PartnerLayout><LazyRoute><PartnerSupportChat /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.PARTNER_SALES_OFFICE} element={<PartnerLayout><LazyRoute><PartnerSalesOfficePage /></LazyRoute></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_SALES_OFFICE} element={<LazyRoute><PartnerSalesOfficePage /></LazyRoute>} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBERS_LANDING} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER_SUCCESS} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER_SUCCESS} />} />
