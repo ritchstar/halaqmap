@@ -1417,7 +1417,7 @@ function AppointmentsSection({
 function PlatformSupportChatPanel({ barberId, barberEmail }: { barberId: string; barberEmail: string }) {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
-  const [messages, setMessages] = useState<Awaited<ReturnType<typeof fetchBarberSupportMessagesRemote>> extends { ok: true; messages: infer T } ? T : []>([]);
+  const [messages, setMessages] = useState<BarberSupportMessageRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<Error | null>(null);
 

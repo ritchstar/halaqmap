@@ -256,7 +256,8 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
       const observer = new MutationObserver(() => {
         if (bootMarker[APP_MOUNTED_FLAG] === true) return
         markIfMounted()
-        if (bootMarker[APP_MOUNTED_FLAG] === true) {
+        const mountedFlag = (window as Window & { [APP_MOUNTED_FLAG]?: boolean })[APP_MOUNTED_FLAG]
+        if (mountedFlag === true) {
           observer.disconnect()
         }
       })

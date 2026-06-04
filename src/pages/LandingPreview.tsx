@@ -287,13 +287,12 @@ function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
       ['جازان', 'الدمام'],
     ] as const;
 
-    return routes
-      .map(([from, to], idx) => {
+    return routes.flatMap(([from, to], idx) => {
         const source = byName.get(from);
         const target = byName.get(to);
-        if (!source || !target) return null;
+        if (!source || !target) return [];
         const isSouthPriority = from === 'أبها' || from === 'خميس مشيط' || from === 'نجران';
-        return {
+        return [{
           id: `hero-flow-${from}-${to}-${idx}`,
           kind: (isSouthPriority
             ? idx % 2 === 0
@@ -314,9 +313,8 @@ function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
           timestamp: new Date(Date.now() - idx * 35_000).toISOString(),
           lifetimeMs: 8200,
           volume: isSouthPriority ? 5 : idx % 2 === 0 ? 3 : 2,
-        } satisfies CyberEvent;
-      })
-      .filter((event): event is CyberEvent => event !== null);
+        } satisfies CyberEvent];
+      });
   }, []);
 
   const cyberEvents = useMemo<CyberEvent[]>(() => (
@@ -335,7 +333,7 @@ function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
         timestamp: new Date().toISOString(),
         lifetimeMs: 6000,
         volume: b.open ? 1 : 2,
-      };
+      } satisfies CyberEvent;
       }),
       ...cityFlowEvents,
     ]
@@ -707,6 +705,8 @@ export default function LandingPreview() {
 
             {/* ── زر البحث + أيقونة B2B مُدمَجة ── */}
             <div className="flex items-center gap-2">
+              <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
+
               {/* زر البحث */}
               <motion.button
                 onClick={() => {
@@ -776,6 +776,9 @@ export default function LandingPreview() {
               className="relative overflow-hidden border-t border-white/8 bg-[#020912]/98 md:hidden"
             >
               <nav className="flex flex-col gap-1 px-5 py-4" dir="rtl">
+                <div className="mb-2 flex justify-center">
+                  <PlatformAmbientToggle variant="partner" />
+                </div>
                 <div className="mb-4 flex justify-center">
                   <RadarShowcaseLink variant="showcase" />
                 </div>

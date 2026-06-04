@@ -44,7 +44,13 @@ interface PartnerLayoutProps {
   children: React.ReactNode;
 }
 
-const partnerNavItems = [
+type PartnerNavItem = {
+  path: string;
+  label: string;
+  Icon?: LucideIcon;
+};
+
+const partnerNavItems: PartnerNavItem[] = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الصفحة التسويقية' },
   { path: ROUTE_PATHS.PARTNER_WHY, label: 'لماذا تنضم؟' },
   { path: ROUTE_PATHS.PARTNER_STORY, label: 'القصة والمسار' },
@@ -57,11 +63,11 @@ const partnerNavItems = [
   { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR },
 ];
 
-const partnerBottomNav = [
+const partnerBottomNav: ReadonlyArray<Required<PartnerNavItem>> = [
   { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الرئيسية', Icon: Home },
   { path: ROUTE_PATHS.REGISTER, label: 'تسجيل', Icon: UserPlus },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم', Icon: Headphones },
-] as const;
+];
 
 /** يطابق رأس مسار الخدمات البرمجية للمنصة — شريط عنوان المتصفح / PWA على الجوال */
 const PARTNER_THEME_COLOR = '#071426';
@@ -325,8 +331,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </div>
 
               <nav className="flex max-w-[58%] flex-1 flex-wrap items-center justify-end gap-2 lg:max-w-none">
-                {navItems.filter((item) => item.path !== ROUTE_PATHS.MAP_COMMUNITY).map((item) => {
-                  const ItemIcon = ('Icon' in item ? item.Icon : undefined) as LucideIcon | undefined;
+                {navItems.map((item) => {
+                  const ItemIcon = item.Icon;
                   return (
                     <NavLink key={item.path} to={item.path} className={({ isActive }) => desktopNavClass(isActive)}>
                       <span className="inline-flex items-center gap-1.5">
@@ -379,19 +385,22 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </>
             ) : (
               <>
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={() => setMobileNavOpen(false)}
-                className={({ isActive }) => sheetNavClass(isActive)}
-              >
-                <span className="flex items-center gap-2">
-                  {'Icon' in item && item.Icon ? <item.Icon className="h-4 w-4 text-emerald-300" /> : null}
-                  {item.label}
-                </span>
-              </NavLink>
-            ))}
+            {navItems.map((item) => {
+              const ItemIcon = item.Icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileNavOpen(false)}
+                  className={({ isActive }) => sheetNavClass(isActive)}
+                >
+                  <span className="flex items-center gap-2">
+                    {ItemIcon ? <ItemIcon className="h-4 w-4 text-emerald-300" /> : null}
+                    {item.label}
+                  </span>
+                </NavLink>
+              );
+            })}
             <NavLink
               to={ROUTE_PATHS.HOME}
               onClick={() => setMobileNavOpen(false)}

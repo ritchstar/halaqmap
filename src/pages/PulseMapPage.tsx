@@ -77,28 +77,25 @@ export default function PulseMapPage() {
       volume: 1,
     }));
 
-    const livePulseEvents: CyberEvent[] = payload.pulses
-      .slice(-26)
-      .map((pulse, index) => {
-        const slot = slotById.get(pulse.slotId);
-        if (!slot) return null;
-        return {
-          id: `mini-live-${pulse.id}-${index}`,
-          kind: pulse.kind === 'link' ? 'defence_action' : 'visit_internal',
-          severity: pulse.kind === 'link' ? 'normal' : 'info',
-          source: toCyberPoint(slot.x, slot.y),
-          target: pulse.kind === 'link' ? RIYADH_VIEW : undefined,
-          description:
-            pulse.kind === 'link'
-              ? `ربط نشط من ${slot.nameAr}`
-              : `بحث نشط من ${slot.nameAr}`,
-          originLabelAr: slot.nameAr,
-          timestamp: pulse.createdAt,
-          lifetimeMs: 5200,
-          volume: 1,
-        } satisfies CyberEvent;
-      })
-      .filter((event): event is CyberEvent => event != null);
+    const livePulseEvents: CyberEvent[] = payload.pulses.slice(-26).flatMap((pulse, index) => {
+      const slot = slotById.get(pulse.slotId);
+      if (!slot) return [];
+      return [{
+        id: `mini-live-${pulse.id}-${index}`,
+        kind: pulse.kind === 'link' ? 'defence_action' : 'visit_internal',
+        severity: pulse.kind === 'link' ? 'normal' : 'info',
+        source: toCyberPoint(slot.x, slot.y),
+        target: pulse.kind === 'link' ? RIYADH_VIEW : undefined,
+        description:
+          pulse.kind === 'link'
+            ? `ربط نشط من ${slot.nameAr}`
+            : `بحث نشط من ${slot.nameAr}`,
+        originLabelAr: slot.nameAr,
+        timestamp: pulse.createdAt,
+        lifetimeMs: 5200,
+        volume: 1,
+      } satisfies CyberEvent];
+    });
 
     return [...ambientCityGlow, ...livePulseEvents].slice(-40);
   }, [payload]);
