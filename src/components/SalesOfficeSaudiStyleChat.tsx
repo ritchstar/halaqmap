@@ -92,12 +92,12 @@ export function SalesOfficeSaudiStyleChat() {
     setDraft('');
     if (textRef.current) textRef.current.style.height = 'auto';
 
-    const nextTurns = [...turns, { role: 'user', content: msg, id: `u-${++seq.current}` }];
+    const nextTurns: Turn[] = [...turns, { role: 'user', content: msg, id: `u-${++seq.current}` }];
     setTurns(nextTurns);
     setLoading(true);
 
     const reply = await sendMsg(msg, nextTurns);
-    setTurns((prev) => [...prev, { role: 'assistant', content: reply, id: `a-${++seq.current}` }]);
+    setTurns((prev): Turn[] => [...prev, { role: 'assistant', content: reply, id: `a-${++seq.current}` }]);
     setLoading(false);
   }, [draft, loading, turns]);
 

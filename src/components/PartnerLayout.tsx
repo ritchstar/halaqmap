@@ -385,19 +385,22 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </>
             ) : (
               <>
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={() => setMobileNavOpen(false)}
-                className={({ isActive }) => sheetNavClass(isActive)}
-              >
-                <span className="flex items-center gap-2">
-                  {item.Icon ? <item.Icon className="h-4 w-4 text-emerald-300" /> : null}
-                  {item.label}
-                </span>
-              </NavLink>
-            ))}
+            {navItems.map((item) => {
+              const ItemIcon = item.Icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileNavOpen(false)}
+                  className={({ isActive }) => sheetNavClass(isActive)}
+                >
+                  <span className="flex items-center gap-2">
+                    {ItemIcon ? <ItemIcon className="h-4 w-4 text-emerald-300" /> : null}
+                    {item.label}
+                  </span>
+                </NavLink>
+              );
+            })}
             <NavLink
               to={ROUTE_PATHS.HOME}
               onClick={() => setMobileNavOpen(false)}
