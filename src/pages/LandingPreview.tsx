@@ -449,7 +449,7 @@ function StatsStrip() {
           <div className={`text-3xl font-black tabular-nums ${s.color}`}>
             {s.value.toLocaleString('ar-SA')}{s.suffix}
           </div>
-          <div className="text-center text-xs text-slate-400">{s.label}</div>
+          <div className="text-center text-xs text-white/88 [text-shadow:0_0_10px_rgba(255,255,255,0.12)]">{s.label}</div>
         </motion.div>
       ))}
     </div>
@@ -479,8 +479,8 @@ function FeatureCard({ icon: Icon, title, desc, color, delay = 0, size = 'normal
           <Icon className="h-5 w-5 text-white" />
         </div>
       </div>
-      <h3 className="mb-1.5 text-base font-bold text-white">{title}</h3>
-      <p className="text-sm leading-relaxed text-slate-400">{desc}</p>
+      <h3 className="mb-1.5 text-base font-bold text-white [text-shadow:0_0_12px_rgba(255,255,255,0.10)]">{title}</h3>
+      <p className="text-sm leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">{desc}</p>
       <div className={`absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-gradient-to-br ${color} opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-20`} />
     </motion.div>
   );
@@ -695,7 +695,7 @@ export default function LandingPreview() {
                   key={item.label}
                   type="button"
                   onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.98rem] font-semibold text-slate-400 transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
+                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.98rem] font-semibold text-white/82 [text-shadow:0_0_10px_rgba(255,255,255,0.10)] transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
                 >
                   <item.icon className="h-3.5 w-3.5 text-teal-500/50 transition-colors group-hover:text-teal-400" />
                   {item.label}
@@ -859,7 +859,7 @@ export default function LandingPreview() {
               </span>
             </h1>
 
-            <p className="mb-6 max-w-lg text-base leading-relaxed text-slate-400">
+            <p className="mb-6 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
               رادار جغرافي ذكي يكشف لك أقرب الصالونات المتاحة فور بحثك —
               بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.
             </p>
@@ -871,7 +871,7 @@ export default function LandingPreview() {
               className="mb-8 flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4"
             >
               <RadarShowcaseLink variant="showcase" />
-              <p className="max-w-xs text-[0.78rem] leading-relaxed text-slate-500">
+              <p className="max-w-xs text-[0.78rem] leading-relaxed text-white/82 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">
                 استعرض رادار الرصد الحي — نبض الطلب على{' '}
                 <span className="font-semibold text-cyan-400/90">٤٧ مدينة</span>{' '}
                 في المملكة
@@ -902,7 +902,7 @@ export default function LandingPreview() {
             </div>
 
             {/* Trust badges */}
-            <div className="flex flex-wrap items-center gap-4 text-[0.75rem] text-slate-400">
+            <div className="flex flex-wrap items-center gap-4 text-[0.75rem] text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
               {[
                 { icon: Shield, text: 'صالونات موثّقة رسمياً' },
                 { icon: MapPin, text: '47+ مدينة سعودية' },
@@ -934,7 +934,7 @@ export default function LandingPreview() {
                       <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
                       رصد حَيّ
                     </div>
-                    <div className="text-[0.6rem] tabular-nums text-slate-500">
+                    <div className="text-[0.6rem] tabular-nums text-white/78 [text-shadow:0_0_8px_rgba(255,255,255,0.10)]">
                       {DEMO_BEACONS.filter((b) => b.open).length} صالون متاح
                     </div>
                   </div>
@@ -952,7 +952,7 @@ export default function LandingPreview() {
 
                 {/* Bottom info strip */}
                 <div className="flex items-center justify-between gap-3 px-3 py-3">
-                  <div className="flex flex-1 items-center justify-around text-[0.65rem] text-slate-400">
+                  <div className="flex flex-1 items-center justify-around text-[0.65rem] text-white/82 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
                     {Object.entries(TIER_COLOR).map(([t, c]) => (
                       <div key={t} className="flex items-center gap-1">
                         <span className="h-2 w-2 rounded-full" style={{ background: c }} />
@@ -974,7 +974,7 @@ export default function LandingPreview() {
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute -left-6 top-10 rounded-xl border border-amber-400/30 bg-[#0a1628]/90 px-3 py-2 shadow-lg shadow-amber-500/10 backdrop-blur-md"
               >
-                <div className="text-[0.6rem] text-slate-400">أقرب صالون</div>
+                <div className="text-[0.6rem] text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">أقرب صالون</div>
                 <div className="text-[0.75rem] font-bold text-amber-300">٢٠٠م منك 🧭</div>
               </motion.div>
 
@@ -1114,7 +1114,7 @@ export default function LandingPreview() {
                   {step.step}
                 </div>
                 <h3 className="mb-2 text-base font-bold text-white">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-400">{step.desc}</p>
+                <p className="text-sm leading-relaxed text-white/86 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">{step.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -1148,7 +1148,7 @@ export default function LandingPreview() {
               className="text-3xl font-black text-white md:text-4xl"
             >
               تقنية لا مثيل لها
-              <span className="block text-lg font-normal text-slate-400 mt-2">
+              <span className="mt-2 block text-lg font-normal text-white/90 [text-shadow:0_0_14px_rgba(255,255,255,0.16)]">
                 مُصمَّمة خصيصاً لسوق الحلاقة السعودي
               </span>
             </motion.h2>
@@ -1161,7 +1161,7 @@ export default function LandingPreview() {
             className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
             <RadarShowcaseLink variant="showcase" />
-            <p className="max-w-md text-center text-sm leading-relaxed text-slate-400 sm:text-right">
+            <p className="max-w-md text-center text-sm leading-relaxed text-white/85 [text-shadow:0_0_12px_rgba(255,255,255,0.14)] sm:text-right">
               افتح رادار الرصد — خريطة حية لنبض الطلب والربط الجغرافي على مستوى المملكة
             </p>
           </motion.div>
@@ -1238,7 +1238,7 @@ export default function LandingPreview() {
               </span>
             </p>
           </div>
-          <p className="max-w-sm text-[0.72rem] leading-relaxed text-slate-400">
+          <p className="max-w-sm text-[0.72rem] leading-relaxed text-white/84 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">
             الحلاقة حاجة متكررة غير قابلة للإلغاء — السؤال الوحيد: هل سيكون صالونك في القائمة حين يبحث عنك الزبون؟
           </p>
         </motion.div>
@@ -1298,7 +1298,7 @@ export default function LandingPreview() {
                 </button>
                 {openFaq === i ? (
                   <div>
-                    <p className="border-t border-white/8 px-5 py-4 text-sm leading-relaxed text-slate-400">
+                    <p className="border-t border-white/8 px-5 py-4 text-sm leading-relaxed text-white/86 [text-shadow:0_0_12px_rgba(255,255,255,0.10)]">
                       {item.a}
                     </p>
                   </div>
@@ -1321,7 +1321,7 @@ export default function LandingPreview() {
                 </div>
                 <span className="text-base font-black text-white">حلاق ماب</span>
               </div>
-              <p className="mb-4 text-xs leading-relaxed text-slate-500">
+              <p className="mb-4 text-xs leading-relaxed text-white/78 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
                 منصة بحث جغرافي تقنية تربط العملاء بأقرب الصالونات — مجانية للمستخدمين.
               </p>
               <div className="flex items-center gap-2">
@@ -1342,12 +1342,12 @@ export default function LandingPreview() {
 
             {/* For users */}
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">روابط</h4>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">روابط</h4>
               <div className="flex flex-col gap-2.5">
                 <button
                   type="button"
                   onClick={() => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-right text-sm text-slate-500 hover:text-teal-400 transition-colors"
+                  className="text-right text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] hover:text-teal-300 transition-colors"
                 >
                   ابحث عن حلاق الآن
                 </button>
@@ -1359,24 +1359,24 @@ export default function LandingPreview() {
                   { label: 'سياسة الخصوصية', to: ROUTE_PATHS.USER_PRIVACY_POLICY },
                   { label: 'شروط الاستخدام', to: ROUTE_PATHS.TERMS_OF_SERVICE },
                 ].map((link) => (
-                  <Link key={link.label} to={link.to} className="text-sm text-slate-500 hover:text-teal-400">{link.label}</Link>
+                  <Link key={link.label} to={link.to} className="text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] hover:text-teal-300">{link.label}</Link>
                 ))}
               </div>
             </div>
 
             {/* Social/Contact placeholder */}
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">تواصل</h4>
-              <div className="flex flex-col gap-2.5 text-sm text-slate-500">
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">تواصل</h4>
+              <div className="flex flex-col gap-2.5 text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">
                 <span>📍 الرياض، المملكة العربية السعودية</span>
                 <span>🌐 halaqmap.com</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/8 pt-8 text-center text-[0.7rem] text-slate-600 md:flex-row md:justify-between md:text-right">
+          <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/8 pt-8 text-center text-[0.7rem] text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] md:flex-row md:justify-between md:text-right">
             <span>© ٢٠٢٦ حلاق ماب — جميع الحقوق محفوظة</span>
-            <span className="text-slate-700">نشاط تقني رقم ISIC4 474151 · المملكة العربية السعودية</span>
+            <span className="text-white/70 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">نشاط تقني رقم ISIC4 474151 · المملكة العربية السعودية</span>
           </div>
         </div>
       </footer>
@@ -1553,7 +1553,7 @@ function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNa
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.16 }}
-            className="mx-auto max-w-xl text-sm leading-relaxed text-slate-400"
+            className="mx-auto max-w-xl text-sm leading-relaxed text-white/86 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]"
           >
             مسبقة الدفع · لا تجديد تلقائي · لا عمولة على الحلاقة · كل حزمة 30 يوم صلاحية
           </motion.p>
@@ -1637,11 +1637,11 @@ function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNa
                     </span>
                     <div className="mb-1 flex flex-col leading-none">
                       <span className="text-xs font-bold text-slate-300">ر.س</span>
-                      <span className="text-[0.55rem] text-slate-500">/30 يوم</span>
+                      <span className="text-[0.55rem] text-white/76 [text-shadow:0_0_8px_rgba(255,255,255,0.10)]">/30 يوم</span>
                     </div>
                   </div>
                   {plan.addOn > 0 && (
-                    <p className="mt-1 text-[0.58rem] text-slate-500">
+                    <p className="mt-1 text-[0.58rem] text-white/76 [text-shadow:0_0_8px_rgba(255,255,255,0.10)]">
                       ({plan.price} ماسي + {plan.addOn} المكتب الخاص)
                     </p>
                   )}
@@ -1692,7 +1692,7 @@ function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNa
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center text-[0.7rem] text-slate-500"
+          className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center text-[0.7rem] text-white/78 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]"
         >
           {[
             { icon: Shield, text: 'بوابة دفع ميسر المعتمدة' },
@@ -1702,7 +1702,7 @@ function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNa
             { icon: Building2, text: 'ISIC4 474151' },
           ].map(({ icon: Icon, text }) => (
             <span key={text} className="flex items-center gap-1.5">
-              <Icon className="h-3.5 w-3.5 text-slate-600" />
+              <Icon className="h-3.5 w-3.5 text-white/60" />
               {text}
             </span>
           ))}
