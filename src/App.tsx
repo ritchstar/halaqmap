@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Fragment, lazy, Suspense, type ReactNode } from "react";
 import { HashRouter, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
@@ -55,6 +56,8 @@ const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
+
+const queryClient = new QueryClient();
 
 const RouteBusy = () => (
   <div dir="rtl" className="flex min-h-[48vh] items-center justify-center text-sm text-muted-foreground">
@@ -126,7 +129,8 @@ function NotaCouncilRedirect() {
 }
 
 const App = () => (
-  <PlatformAmbientProvider>
+  <QueryClientProvider client={queryClient}>
+    <PlatformAmbientProvider>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -266,7 +270,8 @@ const App = () => (
         </RouteScopedErrorBoundary>
       </HashRouter>
     </TooltipProvider>
-  </PlatformAmbientProvider>
+    </PlatformAmbientProvider>
+  </QueryClientProvider>
 );
 
 export default App;
