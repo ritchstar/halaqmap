@@ -58,6 +58,22 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
 
   const strong = variant === 'dark' ? 'text-slate-100' : 'text-foreground';
 
+  const cardClass =
+    variant === 'dark'
+      ? 'border-white/10 bg-white/[0.04]'
+      : 'border-border/50 bg-background/70';
+
+  const detailRows = [
+    { label: 'الاسم التجاري', value: LEGAL_TRADE_NAME_AR, mono: false },
+    { label: LEGAL_UNIFIED_NUMBER_LABEL_AR, value: LEGAL_NATIONAL_UNIFIED_NUMBER, mono: true },
+    { label: 'نوع الكيان', value: LEGAL_ENTITY_TYPE_AR, mono: false },
+    { label: 'حالة السجل', value: `${LEGAL_REGISTRATION_STATUS_AR} — ${LEGAL_REGISTRATION_ISSUING_AUTHORITY_AR}`, mono: false },
+    { label: 'تاريخ إصدار السجل', value: LEGAL_COMMERCIAL_REGISTRATION_ISSUED_AT_AR, mono: false },
+    { label: ISIC_ACTIVITY_CODE_LABEL_AR, value: `${ISIC_ACTIVITY_CODE} — ${ISIC_MOC_ACTIVITY_NAME_AR}`, mono: false },
+    { label: 'القطاع الرئيسي (ISIC4)', value: ISIC_MOC_MAIN_SECTOR_AR, mono: false },
+    { label: 'القطاع الفرعي (ISIC4)', value: ISIC_MOC_SUB_SECTOR_AR, mono: false },
+  ] as const;
+
 
 
   return (
@@ -72,69 +88,30 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
 
     >
 
-      <p className={`font-medium ${strong}`}>بيانات المنشأة</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className={`font-medium ${strong}`}>بيانات المنشأة</p>
+        <p className={`text-xs ${muted}`}>إفصاح نظامي مختصر</p>
+      </div>
 
-      <ul className={`mt-2 space-y-1 ${muted}`}>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        {detailRows.map((row) => (
+          <div key={row.label} className={`rounded-lg border px-3 py-3 ${cardClass}`}>
+            <p className={`text-xs font-medium ${muted}`}>{row.label}</p>
+            <p
+              className={`mt-1 text-sm leading-7 ${strong} ${row.mono ? 'font-mono tracking-wide' : ''}`}
+              dir={row.mono ? 'ltr' : 'rtl'}
+            >
+              {row.value}
+            </p>
+          </div>
+        ))}
+      </div>
 
-        <li>
+      <div className={`mt-3 rounded-lg border px-3 py-3 text-xs leading-relaxed ${cardClass} ${muted}`}>
+        {ISIC_ACTIVITY_GASTAT_DEFINITION_AR.replace(/\*\*/g, '')}
+      </div>
 
-          <span className={strong}>الاسم التجاري:</span> {LEGAL_TRADE_NAME_AR}
-
-        </li>
-
-        <li>
-
-          <span className={strong}>{LEGAL_UNIFIED_NUMBER_LABEL_AR}:</span>{' '}
-
-          <span dir="ltr" className="font-mono">
-
-            {LEGAL_NATIONAL_UNIFIED_NUMBER}
-
-          </span>
-
-        </li>
-
-        <li>
-
-          <span className={strong}>نوع الكيان:</span> {LEGAL_ENTITY_TYPE_AR}
-
-        </li>
-
-        <li>
-
-          <span className={strong}>حالة السجل:</span> {LEGAL_REGISTRATION_STATUS_AR} — {LEGAL_REGISTRATION_ISSUING_AUTHORITY_AR}
-
-        </li>
-
-        <li>
-
-          <span className={strong}>تاريخ إصدار السجل:</span> {LEGAL_COMMERCIAL_REGISTRATION_ISSUED_AT_AR}
-
-        </li>
-
-        <li>
-
-          <span className={strong}>{ISIC_ACTIVITY_CODE_LABEL_AR}:</span> {ISIC_ACTIVITY_CODE} — {ISIC_MOC_ACTIVITY_NAME_AR}
-
-        </li>
-
-        <li>
-
-          <span className={strong}>القطاع الرئيسي (ISIC4):</span> {ISIC_MOC_MAIN_SECTOR_AR}
-
-        </li>
-
-        <li>
-
-          <span className={strong}>القطاع الفرعي (ISIC4):</span> {ISIC_MOC_SUB_SECTOR_AR}
-
-        </li>
-
-      </ul>
-
-      <p className={`mt-3 text-xs leading-relaxed ${muted}`}>{ISIC_ACTIVITY_GASTAT_DEFINITION_AR.replace(/\*\*/g, '')}</p>
-
-      <p className={`mt-2 text-xs ${muted}`}>
+      <p className={`mt-3 text-xs leading-relaxed ${muted}`}>
 
         النشاط المرخّص: {ISIC_ACTIVITY_LABEL_AR}. خدمة رقمية: شراء منتج برمجي (رخصة نفاذ و/أو إضافة برمجية) ضمن هذا
 
