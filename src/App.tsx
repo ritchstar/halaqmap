@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Fragment, lazy, Suspense, type ReactNode } from "react";
 import { HashRouter, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
@@ -31,7 +30,6 @@ const PlatformReviews = lazy(() => import("@/pages/PlatformReviews"));
 const Register = lazy(() => import("@/pages/Register"));
 const PartnerPrivacy = lazy(() => import("@/pages/PartnerPrivacy"));
 const SubscriptionPolicy = lazy(() => import("@/pages/SubscriptionPolicy"));
-const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
 const PartnerSupportChat = lazy(() => import("@/pages/PartnerSupportChat"));
 const PartnerSalesOfficePage = lazy(() => import("@/pages/PartnerSalesOfficePage"));
 
@@ -57,8 +55,6 @@ const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
-
-const queryClient = new QueryClient();
 
 const RouteBusy = () => (
   <div dir="rtl" className="flex min-h-[48vh] items-center justify-center text-sm text-muted-foreground">
@@ -130,8 +126,7 @@ function NotaCouncilRedirect() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <PlatformAmbientProvider>
+  <PlatformAmbientProvider>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -216,7 +211,7 @@ const App = () => (
           <Route path="/partners/hospitality-b2b-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/partners/hospitality-qr-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/hospitality-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
-          <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<PartnerLayout><LazyRoute><BarberLogin /></LazyRoute></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<Navigate to={ROUTE_PATHS.BARBERS_LANDING} replace />} />
           <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<PartnerLayout><LazyRoute><BarberPortalEnter /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><LazyRoute><Payment /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<PartnerLayout><LazyRoute><PartnerSubscriptionTutorials /></LazyRoute></PartnerLayout>} />
@@ -227,7 +222,7 @@ const App = () => (
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER_SUCCESS} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER_SUCCESS} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<LegacyPartnerRedirect to={ROUTE_PATHS.SUBSCRIPTION_POLICY} />} />
-          <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBER_LOGIN} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBER_LOGIN} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBER_LOGIN} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.PAYMENT} element={<LegacyPartnerRedirect to={ROUTE_PATHS.PAYMENT} />} />
 
           <Route path={ROUTE_PATHS.BARBER_DASHBOARD} element={<LazyRoute><BarberDashboard /></LazyRoute>} />
@@ -271,8 +266,7 @@ const App = () => (
         </RouteScopedErrorBoundary>
       </HashRouter>
     </TooltipProvider>
-    </PlatformAmbientProvider>
-  </QueryClientProvider>
+  </PlatformAmbientProvider>
 );
 
 export default App;

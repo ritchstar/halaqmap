@@ -39,7 +39,7 @@ export default function BarberPortalEnter() {
     if (!token) {
       setBusy(false);
       toast.error('رابط الدخول غير صالح (ناقص الرمز).');
-      navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
+      navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
       return;
     }
 
@@ -69,7 +69,7 @@ export default function BarberPortalEnter() {
         if (!response.ok) {
           setBusy(false);
           toast.error(payload.error || 'تعذر تسجيل الدخول عبر الرابط.');
-          navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
+          navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
           return;
         }
 
@@ -77,7 +77,7 @@ export default function BarberPortalEnter() {
         if (!b?.id) {
           setBusy(false);
           toast.error('استجابة غير صالحة من الخادم.');
-          navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
+          navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
           return;
         }
 
@@ -102,7 +102,7 @@ export default function BarberPortalEnter() {
       } catch {
         setBusy(false);
         toast.error('تعذر الاتصال بالخادم.');
-        navigate(ROUTE_PATHS.BARBER_LOGIN, { replace: true });
+        navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
       }
     })();
   }, [navigate, params]);
@@ -112,8 +112,8 @@ export default function BarberPortalEnter() {
       <Loader2 className="h-10 w-10 animate-spin text-primary" aria-hidden />
       <p className="text-sm text-muted-foreground">جاري تسجيل الدخول عبر الرابط الآمن…</p>
       {!busy ? (
-        <Link to={ROUTE_PATHS.BARBER_LOGIN} className="text-sm text-primary underline">
-          الانتقال لتسجيل الدخول اليدوي
+        <Link to={ROUTE_PATHS.BARBERS_LANDING} className="text-sm text-primary underline">
+          العودة للمسار التسويقي
         </Link>
       ) : null}
     </div>

@@ -52,12 +52,12 @@ export type MapCommunityQuickLink = {
   path: string;
 };
 
-/** رابط تشغيلي واحد داخل المجتمع — لوحة الحلاق المفعّل فقط */
+/** روابط عامة داخل المجتمع — بدون دخول علني للوحة الحلاق */
 export const MAP_COMMUNITY_QUICK_LINKS: readonly MapCommunityQuickLink[] = [
   {
-    label: 'لوحة تحكم الحلاق',
-    hint: 'جدولك، تقييماتك، معرض أعمالك',
-    path: ROUTE_PATHS.BARBER_DASHBOARD,
+    label: 'الصفحة التسويقية',
+    hint: 'العودة لمسار الشركاء والمنتجات',
+    path: ROUTE_PATHS.BARBERS_LANDING,
   },
 ];
 

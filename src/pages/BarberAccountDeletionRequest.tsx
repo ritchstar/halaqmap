@@ -116,12 +116,12 @@ export default function BarberAccountDeletionRequest() {
               تسجيل الدخول مطلوب
             </CardTitle>
             <CardDescription>
-              لإرسال طلب حذف الحساب للإدارة يجب تسجيل الدخول إلى لوحة تحكم الصالون أولاً.
+              لإرسال طلب حذف الحساب للإدارة استخدم رابطك الخاص الذي وصلك في البريد من منصة حلاق ماب.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3">
             <Button asChild>
-              <Link to={ROUTE_PATHS.BARBER_LOGIN}>تسجيل الدخول</Link>
+              <Link to={ROUTE_PATHS.BARBERS_LANDING}>الصفحة التسويقية</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link to={ROUTE_PATHS.HOME}>الرئيسية</Link>

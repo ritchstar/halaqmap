@@ -37,7 +37,7 @@ import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CyberRadarCanvas } from '@/modules/cyber-radar/components/CyberRadarCanvas';
 import type { CyberEvent } from '@/modules/cyber-radar/types';
-import { KSA_VIEWBOX, RIYADH_VIEW } from '@/modules/platform-radar/lib/saudiKingdomGeo';
+import { CITY_BEACONS, KSA_VIEWBOX, RIYADH_VIEW } from '@/modules/platform-radar/lib/saudiKingdomGeo';
 
 type LandingAgentPanel = 'media' | 'legal' | null;
 
@@ -234,10 +234,94 @@ const TIER_COLOR: Record<string, string> = {
   bronze: '#cd7f32',
 };
 
+const HERO_CITY_ROUTE_OVERRIDES: Record<string, { x: number; y: number }> = {
+  // Override Najran to the exact visual node used in the hero radar composition.
+  'نجران': {
+    x: (64 / 100) * KSA_VIEWBOX.width,
+    y: (62 / 100) * KSA_VIEWBOX.height,
+  },
+};
+
 // ─── Radar canvas ───────────────────────────────────────────────────────────
 function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
+  const cityFlowEvents = useMemo<CyberEvent[]>(() => {
+    const byName = new Map(
+      CITY_BEACONS.map((city) => [
+        city.nameAr,
+        HERO_CITY_ROUTE_OVERRIDES[city.nameAr] ?? city.view,
+      ] as const),
+    );
+    const routes = [
+      ['جدة', 'الرياض'],
+      ['الدمام', 'الرياض'],
+      ['المدينة', 'الدمام'],
+      ['تبوك', 'الرياض'],
+      ['حائل', 'الدمام'],
+      ['جازان', 'مكة'],
+      ['أبها', 'جدة'],
+      ['أبها', 'الرياض'],
+      ['أبها', 'الأحساء'],
+      ['الرياض', 'أبها'],
+      ['جدة', 'أبها'],
+      ['الأحساء', 'أبها'],
+      ['خميس مشيط', 'الرياض'],
+      ['خميس مشيط', 'جدة'],
+      ['الرياض', 'خميس مشيط'],
+      ['الباحة', 'الرياض'],
+      ['الخبر', 'المدينة'],
+      ['ينبع', 'الرياض'],
+      ['بريدة', 'جدة'],
+      ['نجران', 'الرياض'],
+      ['الجبيل', 'أبها'],
+      ['الطائف', 'الدمام'],
+      ['الأحساء', 'المدينة'],
+      ['عرعر', 'الرياض'],
+      ['سكاكا', 'الدمام'],
+      ['حفر الباطن', 'الرياض'],
+      ['تبوك', 'جدة'],
+      ['سكاكا', 'المدينة'],
+      ['عرعر', 'حائل'],
+      ['جازان', 'الرياض'],
+      ['نجران', 'جدة'],
+      ['الباحة', 'جدة'],
+      ['جازان', 'الدمام'],
+    ] as const;
+
+    return routes
+      .map(([from, to], idx) => {
+        const source = byName.get(from);
+        const target = byName.get(to);
+        if (!source || !target) return null;
+        const isSouthPriority = from === 'أبها' || from === 'خميس مشيط' || from === 'نجران';
+        return {
+          id: `hero-flow-${from}-${to}-${idx}`,
+          kind: (isSouthPriority
+            ? idx % 2 === 0
+              ? 'visit_external'
+              : 'registration'
+            : idx % 4 === 0
+              ? 'visit_external'
+              : idx % 4 === 1
+                ? 'registration'
+                : idx % 4 === 2
+                  ? 'visit_internal'
+                  : 'defence_action') as CyberEvent['kind'],
+          severity: isSouthPriority ? 'critical' : idx % 3 === 0 ? 'elevated' : 'info',
+          source,
+          target,
+          description: `نبضة رادارية — ${from} → ${to}`,
+          originLabelAr: from,
+          timestamp: new Date(Date.now() - idx * 35_000).toISOString(),
+          lifetimeMs: 8200,
+          volume: isSouthPriority ? 5 : idx % 2 === 0 ? 3 : 2,
+        } satisfies CyberEvent;
+      })
+      .filter((event): event is CyberEvent => event !== null);
+  }, []);
+
   const cyberEvents = useMemo<CyberEvent[]>(() => (
-    DEMO_BEACONS.map((b, idx) => {
+    [
+      ...DEMO_BEACONS.map((b, idx) => {
       const x = (b.x / 100) * KSA_VIEWBOX.width;
       const y = (b.y / 100) * KSA_VIEWBOX.height;
       return {
@@ -252,8 +336,10 @@ function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
         lifetimeMs: 6000,
         volume: b.open ? 1 : 2,
       };
-    })
-  ), []);
+      }),
+      ...cityFlowEvents,
+    ]
+  ), [cityFlowEvents]);
 
   return (
     <div className="relative h-full w-full select-none overflow-hidden rounded-2xl" style={{ fontFamily: 'system-ui' }}>

@@ -134,12 +134,18 @@ function TraceVector({ pulse }: { pulse: CyberEvent }) {
   const midY = (source.y + target.y) / 2 + jitter * 0.4;
   const pathD = `M${source.x.toFixed(1)} ${source.y.toFixed(1)} Q${midX.toFixed(1)} ${midY.toFixed(1)} ${target.x.toFixed(1)} ${target.y.toFixed(1)}`;
   return (
-    <g opacity={0.85}>
-      <path d={pathD} fill="none" stroke={palette.ring} strokeWidth={1.2} strokeDasharray="4 6">
-        <animate attributeName="stroke-dashoffset" values="0;-30" dur="1.2s" repeatCount="indefinite" />
+    <g opacity={0.95}>
+      <path d={pathD} fill="none" stroke={palette.glow} strokeWidth={2.8} opacity={0.18}>
+        <animate attributeName="opacity" values="0.12;0.24;0.12" dur="3.4s" repeatCount="indefinite" />
       </path>
-      <circle r={3} fill={palette.dot}>
-        <animateMotion dur="1.6s" repeatCount="indefinite" path={pathD} />
+      <path d={pathD} fill="none" stroke={palette.ring} strokeWidth={1.7} strokeDasharray="4 6">
+        <animate attributeName="stroke-dashoffset" values="0;-30" dur="2.4s" repeatCount="indefinite" />
+      </path>
+      <circle r={3.4} fill={palette.dot}>
+        <animateMotion dur="2.8s" repeatCount="indefinite" path={pathD} />
+      </circle>
+      <circle r={2.2} fill={palette.dot} opacity={0.72}>
+        <animateMotion dur="3.25s" begin="0.55s" repeatCount="indefinite" path={pathD} />
       </circle>
     </g>
   );
