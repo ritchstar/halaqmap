@@ -44,6 +44,8 @@ import {
   MAP_COMMUNITY_DISCUSSION_PROMPTS,
   MAP_COMMUNITY_DOCTRINE_AR,
   MAP_COMMUNITY_FAQ,
+  MAP_COMMUNITY_LOUNGE_HERO,
+  MAP_COMMUNITY_LOUNGE_STRIPS,
   MAP_COMMUNITY_PRO_TIPS,
   MAP_COMMUNITY_QUICK_LINKS,
 } from '@/config/mapCommunityCopy';
@@ -164,17 +166,6 @@ function containsBadWords(text: string): boolean {
   return badWords.some((w) => normalized.includes(w));
 }
 
-type CommunityTab = 'chat' | 'videos' | 'tools';
-
-function communityTabClass(active: boolean): string {
-  return cn(
-    'inline-flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 text-[11px] font-bold transition-colors touch-manipulation md:flex-none md:flex-row md:gap-2 md:rounded-xl md:px-4 md:py-2 md:text-sm',
-    active
-      ? 'text-emerald-200 md:border md:border-emerald-400/35 md:bg-emerald-500/15'
-      : 'text-slate-500 hover:text-slate-300 md:border md:border-transparent md:hover:bg-white/5',
-  );
-}
-
 async function askMapAssistant(message: string, history: CommunityMessage[]) {
   const res = await fetch('/api/map-community-ai', {
     method: 'POST',
@@ -199,16 +190,19 @@ export default function MapCommunity() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const founderView = searchParams.get('view') === 'founder';
+  const localPreviewMode = import.meta.env.DEV && searchParams.get('preview') === '1';
   const [access, setAccess] = useState<CommunityAccess>({ status: 'checking' });
   const [ephemeralMessages, setEphemeralMessages] = useState<CommunityMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [aiThinking, setAiThinking] = useState(false);
-  const [activeTab, setActiveTab] = useState<CommunityTab>('chat');
   const [feedData, setFeedData] = useState<MapCommunityFeedResponse | null>(null);
   const [feedLoading, setFeedLoading] = useState(false);
   const [feedError, setFeedError] = useState<Error | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const chatSectionRef = useRef<HTMLElement>(null);
+  const videosSectionRef = useRef<HTMLElement>(null);
+  const toolsSectionRef = useRef<HTMLElement>(null);
   const seq = useRef(0);
 
   const socketMode = Boolean(import.meta.env.VITE_MAP_COMMUNITY_SOCKET_URL);
@@ -223,6 +217,20 @@ export default function MapCommunity() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      if (localPreviewMode) {
+        if (!cancelled) {
+          setAccess({
+            status: 'allowed',
+            role: 'admin',
+            name: 'معاينة محلية',
+            isVerified: true,
+            email: null,
+            canPostLive: false,
+          });
+        }
+        return;
+      }
+
       if (!isSupabaseConfigured()) {
         if (!cancelled) setAccess({ status: 'denied', email: null });
         return;
@@ -308,7 +316,7 @@ export default function MapCommunity() {
     return () => {
       cancelled = true;
     };
-  }, [founderView]);
+  }, [founderView, localPreviewMode]);
 
   useEffect(() => {
     if (!feedEnabled) {
@@ -523,7 +531,7 @@ export default function MapCommunity() {
         <div className="rounded-3xl border border-emerald-400/20 bg-slate-950/80 p-8 text-center shadow-[0_0_45px_rgba(16,185,129,0.12)]">
           <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-emerald-400/30" />
           <p className="font-black">{MAP_COMMUNITY_CHECKING_AR}</p>
-          <p className="mt-2 text-sm text-slate-500">{MAP_COMMUNITY_DOCTRINE_AR}</p>
+          <p className="mt-2 text-[0.95rem] leading-7 text-slate-500">{MAP_COMMUNITY_DOCTRINE_AR}</p>
         </div>
       </div>
     );
@@ -539,7 +547,7 @@ export default function MapCommunity() {
         <div className="relative mx-auto max-w-2xl rounded-3xl border border-amber-400/25 bg-slate-950/80 p-8 text-center shadow-[0_0_55px_rgba(245,158,11,0.12)] backdrop-blur-xl">
           <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-amber-300" />
           <h1 className="text-2xl font-black">مجتمع ماب</h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-slate-400">
+          <p className="mx-auto mt-3 max-w-md text-[0.96rem] leading-8 text-slate-400">
             {MAP_COMMUNITY_ACCESS_DENIED_AR}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -557,30 +565,27 @@ export default function MapCommunity() {
   const liveLabel = usingFallback ? 'احتياطي' : socketMode ? 'مباشر' : 'محدّث';
 
   const toolsPanel = (
-    <div className="space-y-4 p-4 md:p-0">
-      <p className="rounded-2xl border border-emerald-400/20 bg-emerald-500/8 px-4 py-3 text-xs leading-6 text-emerald-100">
-        {MAP_COMMUNITY_DOCTRINE_AR}
-      </p>
-
-      <div className="rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-4">
+    <div className="grid gap-4 lg:grid-cols-2">
+      <div className="rounded-[1.6rem] border border-cyan-200 bg-[linear-gradient(155deg,rgba(236,254,255,0.96),rgba(255,255,255,0.98))] p-5 shadow-[0_18px_38px_rgba(34,211,238,0.10)]">
         <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/35 bg-cyan-500/15">
-            <Bot className="h-5 w-5 text-cyan-200" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-200 bg-cyan-50 text-cyan-700">
+            <Bot className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-black text-white">مساعد ماب</p>
-            <p className="text-xs text-cyan-300/70">وكيل تطوير الصالونات</p>
+            <p className="font-black text-slate-950">مساعد ماب</p>
+            <p className="text-[0.84rem] leading-6 text-cyan-700/80">رفيق النقاش اليومي للحلاقين</p>
           </div>
         </div>
-        <p className="text-xs leading-6 text-slate-400">
-          نادِه بـ <span className="font-mono text-cyan-300">@مساعد_ماب</span> في Map Chat.
+        <p className="text-[0.98rem] leading-8 text-slate-600">
+          نادِه بـ <span className="font-mono text-cyan-700">@مساعد_ماب</span> داخل المجلس، واسأله عن
+          فكرة اليوم أو تطوير خدمة أو رفع جودة النتيجة.
         </p>
         <Button
           variant="outline"
           size="sm"
-          className="mt-3 w-full border-cyan-400/30 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20"
+          className="mt-4 w-full border-cyan-200 bg-cyan-50/80 text-cyan-800 hover:bg-cyan-100"
           onClick={() => {
-            setActiveTab('chat');
+            chatSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             void send('@مساعد_ماب أعطني موضوع نقاش اليوم للحلاقين');
           }}
           disabled={isFounder}
@@ -590,29 +595,29 @@ export default function MapCommunity() {
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-amber-400/20 bg-slate-950/70 p-4">
-        <p className="mb-2 flex items-center gap-2 text-sm font-black text-amber-100">
-          <Lightbulb className="h-4 w-4 text-amber-300" />
+      <div className="rounded-[1.6rem] border border-amber-200 bg-[linear-gradient(155deg,rgba(255,247,237,0.96),rgba(255,255,255,0.98))] p-5 shadow-[0_18px_38px_rgba(245,158,11,0.10)]">
+        <p className="mb-2 flex items-center gap-2 text-sm font-black text-amber-800">
+          <Lightbulb className="h-4 w-4 text-amber-500" />
           نصيحة اليوم
         </p>
-        <p className="text-sm leading-7 text-slate-400">{tipOfDay}</p>
+        <p className="text-sm leading-7 text-slate-600">{tipOfDay}</p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-        <p className="mb-3 flex items-center gap-2 text-sm font-black text-white">
-          <Link2 className="h-4 w-4 text-emerald-300" />
-          لوحة الحلاق
+      <div className="rounded-[1.6rem] border border-emerald-200 bg-[linear-gradient(155deg,rgba(236,253,245,0.96),rgba(255,255,255,0.98))] p-5 shadow-[0_18px_38px_rgba(16,185,129,0.10)]">
+        <p className="mb-3 flex items-center gap-2 text-sm font-black text-emerald-800">
+          <Link2 className="h-4 w-4 text-emerald-600" />
+          اختصارات مفيدة
         </p>
         <ul className="space-y-2">
           {MAP_COMMUNITY_QUICK_LINKS.map((item) => (
             <li key={item.path}>
               <Link
                 to={item.path}
-                className="group flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5 transition-colors hover:border-emerald-400/25 hover:bg-emerald-500/8"
+                className="group flex items-center justify-between gap-3 rounded-xl border border-emerald-100 bg-white/90 px-3 py-2.5 transition-colors hover:border-emerald-200 hover:bg-emerald-50/70"
               >
                 <div className="min-w-0 text-right">
-                  <p className="text-sm font-bold text-slate-100 group-hover:text-emerald-100">{item.label}</p>
-                  <p className="mt-0.5 text-[0.65rem] leading-5 text-slate-500">{item.hint}</p>
+                  <p className="text-[0.98rem] font-bold text-slate-950 group-hover:text-emerald-900">{item.label}</p>
+                  <p className="mt-0.5 text-[0.84rem] leading-6 text-slate-500">{item.hint}</p>
                 </div>
               </Link>
             </li>
@@ -620,16 +625,16 @@ export default function MapCommunity() {
         </ul>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-        <p className="mb-3 flex items-center gap-2 text-sm font-black text-white">
-          <HelpCircle className="h-4 w-4 text-cyan-300" />
-          أسئلة شائعة
+      <div className="rounded-[1.6rem] border border-slate-200 bg-white/95 p-5 shadow-[0_18px_38px_rgba(148,163,184,0.10)]">
+        <p className="mb-3 flex items-center gap-2 text-sm font-black text-slate-900">
+          <HelpCircle className="h-4 w-4 text-cyan-600" />
+          أسئلة متكررة بين الحلاقين
         </p>
         <ul className="space-y-3">
           {MAP_COMMUNITY_FAQ.map((item) => (
-            <li key={item.q} className="border-b border-white/5 pb-3 last:border-0 last:pb-0">
-              <p className="text-sm font-bold text-slate-200">{item.q}</p>
-              <p className="mt-1 text-xs leading-6 text-slate-500">{item.a}</p>
+            <li key={item.q} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+              <p className="text-[0.98rem] font-bold text-slate-800">{item.q}</p>
+              <p className="mt-1 text-[0.9rem] leading-7 text-slate-500">{item.a}</p>
             </li>
           ))}
         </ul>
@@ -638,12 +643,30 @@ export default function MapCommunity() {
   );
 
   return (
-    <div dir="rtl" className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#0a0f0d] text-slate-100">
-      {readOnlyCommunity ? (
-        <div className="relative z-20 shrink-0 border-b border-amber-400/20 bg-amber-500/10 px-3 py-2 text-center text-xs leading-6 text-amber-100">
-          للنشر المباشر في المجتمع استخدم رابطك الخاص المرسل إلى بريدك من منصة حلاق ماب
+    <div dir="rtl" className="relative min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#fcfbf6_0%,#f2f8f5_38%,#f3f7fb_100%)] text-slate-900">
+      {localPreviewMode ? (
+        <div className="relative z-20 border-b border-cyan-200 bg-cyan-50/95 px-3 py-2 text-center text-[0.9rem] leading-7 text-cyan-900">
+          وضع معاينة محلي فقط — هذا المسار مخصص للتطوير ولن يعمل بهذا الشكل في الإنتاج
         </div>
       ) : null}
+      {readOnlyCommunity ? (
+        <div className="relative z-20 border-b border-amber-200 bg-amber-50/95 px-3 py-2 text-center text-[0.9rem] leading-7 text-amber-900">
+          للنشر المباشر في المجتمع استخدم رابطك الخاص المرسل إلى بريدك من منصة حلاق ماب.
+        </div>
+      ) : null}
+      {isFounder ? (
+        <div className="relative z-20 flex items-center justify-center gap-2 border-b border-fuchsia-200 bg-fuchsia-50/95 px-3 py-2 text-[0.88rem] text-fuchsia-800">
+          <Eye className="h-4 w-4 shrink-0 text-fuchsia-500" />
+          <span className="font-bold">اطلاع صامت</span>
+          <span className="text-fuchsia-700/75">قراءة فقط</span>
+        </div>
+      ) : null}
+      {usingFallback ? (
+        <p className="relative z-20 border-b border-amber-200 bg-amber-50/95 px-3 py-1.5 text-center text-[0.86rem] leading-7 text-amber-800">
+          وضع احتياطي — البيانات الحية غير متاحة مؤقتاً
+        </p>
+      ) : null}
+
       <motion.button
         type="button"
         onClick={() => navigate(ROUTE_PATHS.SAUDI_AGENT)}
@@ -652,9 +675,9 @@ export default function MapCommunity() {
         transition={{ delay: 1, type: 'spring', stiffness: 280, damping: 26 }}
         whileHover={{ x: 5, scale: 1.04 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed left-0 z-[48] hidden flex-col items-center gap-1.5 py-3 px-2.5 sm:flex"
+        className="fixed left-0 z-[48] hidden flex-col items-center gap-1.5 px-2.5 py-3 sm:flex"
         style={{
-          top: '50%',
+          top: '42%',
           transform: 'translateY(-50%)',
           background: 'linear-gradient(180deg,#0b2e14 0%,#0e3d1c 50%,#0b2e14 100%)',
           border: '1.5px solid rgba(34,145,63,0.48)',
@@ -687,226 +710,305 @@ export default function MapCommunity() {
         </span>
       </motion.button>
 
-      {isFounder ? (
-        <div className="relative z-20 flex shrink-0 items-center gap-2 border-b border-fuchsia-400/20 bg-fuchsia-500/10 px-3 py-2 text-xs text-fuchsia-100">
-          <Eye className="h-4 w-4 shrink-0 text-fuchsia-300" />
-          <span className="font-bold">اطلاع صامت</span>
-          <span className="text-fuchsia-300/70">· قراءة فقط</span>
-        </div>
-      ) : null}
-
-      {usingFallback ? (
-        <p className="relative z-20 shrink-0 border-b border-amber-400/15 bg-amber-500/5 px-3 py-1.5 text-center text-[0.62rem] text-amber-300/90">
-          وضع احتياطي — البيانات الحية غير متاحة مؤقتاً
-        </p>
-      ) : null}
-
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute right-[-10%] top-12 h-96 w-96 rounded-full bg-emerald-500/10 blur-[110px]" />
-        <div className="absolute left-[-8%] top-1/3 h-96 w-96 rounded-full bg-cyan-500/10 blur-[120px]" />
+        <div className="absolute right-[8%] top-[5%] h-[28rem] w-[28rem] rounded-full bg-emerald-300/7 blur-[135px]" />
+        <div className="absolute left-[4%] top-[24%] h-[26rem] w-[26rem] rounded-full bg-cyan-200/10 blur-[135px]" />
+        <div className="absolute bottom-[8%] right-[20%] h-[18rem] w-[18rem] rounded-full bg-amber-200/9 blur-[110px]" />
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.022]"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(34,197,94,1) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,1) 1px,transparent 1px)',
-            backgroundSize: '54px 54px',
+              'radial-gradient(circle, rgba(148,163,184,0.8) 1px, transparent 1px)',
+            backgroundSize: '36px 36px',
           }}
         />
       </div>
 
-      <div className="relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-slate-950/85 px-3 py-2 backdrop-blur-md md:px-4">
-        <p className="text-[0.65rem] leading-5 text-slate-500 md:text-xs">{MAP_COMMUNITY_DOCTRINE_AR}</p>
-        <div className="flex flex-wrap items-center gap-2">
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1"
-            >
-              <span className={`font-mono text-sm font-black ${s.tone}`}>{s.value}</span>
-              <span className="text-[0.6rem] text-slate-500">{s.label}</span>
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-6 md:px-5 md:py-8">
+        <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 p-5 shadow-[0_22px_50px_rgba(148,163,184,0.14)] backdrop-blur md:p-7">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-[0.82rem] font-black text-emerald-800">
+              <MessageCircle className="h-3.5 w-3.5" />
+              {MAP_COMMUNITY_LOUNGE_HERO.badge}
             </div>
-          ))}
-        </div>
-        <div className="hidden items-center gap-1 md:flex">
-          <button type="button" onClick={() => setActiveTab('chat')} className={communityTabClass(activeTab === 'chat')}>
-            <MessageCircle className="h-4 w-4" />
-            Map Chat
-          </button>
-          <button type="button" onClick={() => setActiveTab('videos')} className={communityTabClass(activeTab === 'videos')}>
-            <Film className="h-4 w-4" />
-            فيديو
-          </button>
-          <button type="button" onClick={() => setActiveTab('tools')} className={communityTabClass(activeTab === 'tools')}>
-            <LayoutGrid className="h-4 w-4" />
-            أدوات
-          </button>
-        </div>
-        <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-0.5 text-[0.65rem] font-bold text-emerald-200">
-          {liveLabel}
-        </span>
-      </div>
-
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col pb-[calc(3.25rem+env(safe-area-inset-bottom,0px))] md:pb-0">
-        {activeTab === 'chat' ? (
-          <div className="flex min-h-0 flex-1">
-            <div className="flex min-h-0 flex-1 flex-col">
-              <div className="shrink-0 border-b border-white/5 px-3 py-2">
-                <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {MAP_COMMUNITY_DISCUSSION_PROMPTS.map((prompt) => (
-                    <button
-                      key={prompt}
-                      type="button"
-                      disabled={isFounder || aiThinking}
-                      onClick={() => {
-                        setDraft(prompt);
-                        void send(prompt);
-                      }}
-                      className="shrink-0 rounded-full border border-emerald-400/25 bg-emerald-500/8 px-3 py-1.5 text-xs text-emerald-100 transition-colors hover:bg-emerald-500/14 disabled:opacity-45"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div ref={messagesRef} className="min-h-0 flex-1 overflow-y-auto px-3 py-3 md:px-4">
-                <div className="mx-auto flex max-w-3xl flex-col gap-3">
-                  {messages.map((m) => (
-                    <motion.div
-                      key={m.id}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={cn(
-                        'max-w-[90%] rounded-2xl border px-3.5 py-2.5',
-                        m.role === 'ai'
-                          ? 'self-start border-cyan-400/25 bg-cyan-500/10 text-cyan-50'
-                          : m.role === 'system'
-                            ? 'self-center border-amber-400/25 bg-amber-500/10 text-amber-100'
-                            : 'self-end border-white/10 bg-white/[0.06] text-slate-100',
-                      )}
-                    >
-                      <div className="mb-1 flex items-center justify-between gap-3 text-[0.62rem] opacity-60">
-                        <span>{m.author}</span>
-                        <span dir="ltr">{formatTime(m.timestamp)}</span>
-                      </div>
-                      <p dir="rtl" className="chat-arabic-text whitespace-pre-wrap break-words text-sm leading-7">
-                        {m.content}
-                      </p>
-                    </motion.div>
-                  ))}
-                  {aiThinking ? (
-                    <div className="self-start rounded-2xl border border-cyan-400/25 bg-cyan-500/10 px-3.5 py-2.5 text-sm text-cyan-100">
-                      مساعد ماب يكتب…
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-
-              {!isFounder ? (
-                <div className="shrink-0 border-t border-white/10 bg-[#0a0f0d]/95 p-3 backdrop-blur-md md:p-4">
-                  <div className="mx-auto flex max-w-3xl items-end gap-2">
-                    <Textarea
-                      ref={inputRef}
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          void send();
-                        }
-                      }}
-                      placeholder="اكتب للمجتمع… أو @مساعد_ماب"
-                      className="min-h-12 flex-1 resize-none rounded-2xl border-emerald-400/20 bg-[#07120f] text-white placeholder:text-slate-600"
-                    />
-                    <Button
-                      onClick={() => void send()}
-                      disabled={!draft.trim() || aiThinking}
-                      className="h-12 w-12 shrink-0 rounded-2xl bg-emerald-500 text-black hover:bg-emerald-400"
-                    >
-                      <Send className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="shrink-0 border-t border-fuchsia-400/15 p-3 text-center text-[0.65rem] text-fuchsia-400/55">
-                  اطلاع صامت — لا تفاعل
-                </div>
-              )}
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-[0.8rem] font-bold text-cyan-800">
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              {liveLabel}
             </div>
-
-            <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-white/10 bg-slate-950/40 p-3 xl:block">
-              <div className="rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-3">
-                <p className="text-sm font-black text-white">مساعد ماب</p>
-                <p className="mt-1 text-xs leading-6 text-slate-500">@مساعد_ماب في المحادثة</p>
-              </div>
-              <div className="mt-3 rounded-2xl border border-amber-400/20 bg-slate-950/70 p-3">
-                <p className="text-xs font-bold text-amber-100">نصيحة اليوم</p>
-                <p className="mt-1 text-xs leading-6 text-slate-500">{tipOfDay}</p>
-              </div>
-            </aside>
           </div>
-        ) : null}
 
-        {activeTab === 'videos' ? (
-          <div className="min-h-0 flex-1 overflow-y-auto p-3 md:p-4">
-            <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {videos.map((video, i) => (
-                <motion.article
-                  key={video.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035]"
-                >
-                  <div
+          <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)]">
+            <div>
+              <h1 className="text-[clamp(2rem,4.4vw,3.1rem)] font-black leading-[1.1] text-slate-950">
+                {MAP_COMMUNITY_LOUNGE_HERO.title}
+              </h1>
+              <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600">
+                {MAP_COMMUNITY_LOUNGE_HERO.lead}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {MAP_COMMUNITY_LOUNGE_STRIPS.map((strip) => (
+                  <span
+                    key={strip}
+                    className="inline-flex max-w-full items-start gap-2 rounded-full border border-white bg-white/92 px-4 py-2.5 text-[0.95rem] leading-7 text-slate-700 shadow-[0_10px_22px_rgba(148,163,184,0.07)]"
+                  >
+                    <Sparkles className="mt-1 h-3.5 w-3.5 shrink-0 text-amber-500" />
+                    <span>{strip}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[1.6rem] border border-amber-200 bg-[linear-gradient(155deg,rgba(255,247,237,0.92),rgba(255,255,255,0.98))] p-5 shadow-[0_18px_38px_rgba(245,158,11,0.10)]">
+              <p className="mb-2 flex items-center gap-2 text-sm font-black text-amber-800">
+                <Lightbulb className="h-4 w-4 text-amber-500" />
+                نبضة اليوم
+              </p>
+              <p className="text-sm leading-7 text-slate-600">{tipOfDay}</p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                {stats.map((s) => (
+                  <div key={s.label} className="rounded-2xl border border-white/70 bg-white/85 px-4 py-3 shadow-sm">
+                    <p className={`text-lg font-black tabular-nums ${s.tone}`}>{s.value}</p>
+                    <p className="mt-1 text-[0.82rem] font-bold text-slate-600">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => chatSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-emerald-500 to-emerald-700 px-5 py-3 text-sm font-black text-white shadow-[0_10px_24px_rgba(16,185,129,0.18)]"
+            >
+              <MessageCircle className="h-4 w-4" />
+              ابدأ من مجلس المحادثة
+            </button>
+            <button
+              type="button"
+              onClick={() => videosSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="inline-flex items-center gap-2 rounded-xl border border-cyan-200 bg-cyan-50/90 px-5 py-3 text-sm font-bold text-cyan-800"
+            >
+              <Film className="h-4 w-4" />
+              فيديوهات الحلاقين
+            </button>
+            <button
+              type="button"
+              onClick={() => toolsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              مساعدات يومية
+            </button>
+          </div>
+        </section>
+
+        <section ref={chatSectionRef} className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(19rem,0.72fr)]">
+          <div className="overflow-hidden rounded-[1.8rem] border border-slate-200 bg-white/92 shadow-[0_20px_46px_rgba(148,163,184,0.12)] backdrop-blur">
+            <div className="border-b border-slate-200 px-4 py-4 md:px-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-[0.82rem] font-black tracking-[0.16em] text-emerald-700">مجلس اليوم</p>
+                  <h2 className="mt-1 text-2xl font-black text-slate-950">Map Chat</h2>
+                  <p className="mt-2 text-[0.96rem] leading-8 text-slate-600">
+                    مساحة السؤال اليومي وتبادل الخبرة بين الحلاقين المفعّلين في حلاق ماب.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-900">
+                  <p className="font-black">{access.name}</p>
+                  <p className="mt-1 text-[0.82rem] text-emerald-700/80">
+                    {readOnlyCommunity ? 'تصفّح مباشر من جلستك الحالية' : 'جلسة نشطة داخل المجتمع'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-b border-slate-100 px-4 py-3 md:px-5">
+              <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {MAP_COMMUNITY_DISCUSSION_PROMPTS.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    disabled={isFounder || aiThinking}
+                    onClick={() => {
+                      setDraft(prompt);
+                      void send(prompt);
+                    }}
+                    className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1.5 text-[0.84rem] font-semibold text-emerald-800 transition-colors hover:bg-emerald-100 disabled:opacity-45"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div ref={messagesRef} className="max-h-[min(55vh,38rem)] overflow-y-auto px-4 py-4 md:px-5">
+              <div className="mx-auto flex max-w-3xl flex-col gap-3">
+                {messages.map((m) => (
+                  <motion.div
+                    key={m.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
                     className={cn(
-                      'relative aspect-[9/14] bg-gradient-to-br',
-                      video.youtubeVideoId ? 'bg-black' : video.gradient || VIDEO_GRADIENTS[0],
+                      'max-w-[92%] rounded-[1.35rem] border px-4 py-3 shadow-sm',
+                      m.role === 'ai'
+                        ? 'self-start border-cyan-200 bg-cyan-50/95 text-slate-800'
+                        : m.role === 'system'
+                          ? 'self-center border-amber-200 bg-amber-50/95 text-amber-900'
+                          : 'self-end border-emerald-200 bg-white text-slate-900',
                     )}
                   >
-                    {video.youtubeVideoId ? (
-                      <MapCommunityYoutubeEmbed videoId={video.youtubeVideoId} title={video.title} />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Video className="h-8 w-8 text-white/80" />
-                      </div>
-                    )}
-                    <span className="absolute bottom-2 left-2 z-10 rounded-full bg-black/60 px-2 py-0.5 text-[0.6rem] font-bold text-white">
-                      {video.duration}
-                    </span>
+                    <div className="mb-1 flex items-center justify-between gap-3 text-[0.76rem] text-slate-500">
+                      <span className="font-bold">{m.author}</span>
+                      <span dir="ltr">{formatTime(m.timestamp)}</span>
+                    </div>
+                    <p dir="rtl" className="chat-arabic-text whitespace-pre-wrap break-words text-[0.96rem] leading-8">
+                      {m.content}
+                    </p>
+                  </motion.div>
+                ))}
+                {aiThinking ? (
+                  <div className="self-start rounded-2xl border border-cyan-200 bg-cyan-50/95 px-4 py-3 text-[0.94rem] text-cyan-900">
+                    مساعد ماب يكتب…
                   </div>
-                  <div className="space-y-0.5 p-2.5">
-                    <p className="text-sm font-bold text-white">{video.title}</p>
-                    <p className="text-xs text-emerald-300">{video.barberName}</p>
-                  </div>
-                </motion.article>
-              ))}
+                ) : null}
+              </div>
+            </div>
+
+            {!isFounder ? (
+              <div className="border-t border-slate-200 bg-white/95 p-4 md:p-5">
+                <div className="mx-auto flex max-w-3xl items-end gap-2">
+                  <Textarea
+                    ref={inputRef}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        void send();
+                      }
+                    }}
+                    placeholder="اكتب للمجلس… أو نادِ @مساعد_ماب"
+                    className="min-h-12 flex-1 resize-none rounded-2xl border-emerald-200 bg-slate-50 text-[0.96rem] text-slate-900 placeholder:text-slate-400"
+                  />
+                  <Button
+                    onClick={() => void send()}
+                    disabled={!draft.trim() || aiThinking}
+                    className="h-12 w-12 shrink-0 rounded-2xl bg-emerald-500 text-black hover:bg-emerald-400"
+                  >
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="border-t border-fuchsia-200 p-3 text-center text-[0.68rem] text-fuchsia-700/70">
+                اطلاع صامت — لا تفاعل
+              </div>
+            )}
+          </div>
+
+          <aside className="space-y-4">
+            <div className="rounded-[1.6rem] border border-cyan-200 bg-[linear-gradient(155deg,rgba(236,254,255,0.96),rgba(255,255,255,0.98))] p-5 shadow-[0_18px_38px_rgba(34,211,238,0.10)]">
+              <div className="mb-3 flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-200 bg-cyan-50 text-cyan-700">
+                  <Bot className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-black text-slate-950">مساعد ماب</p>
+                  <p className="text-[0.82rem] text-cyan-700/80">يرافقك في موضوع اليوم</p>
+                </div>
+              </div>
+              <p className="text-[0.96rem] leading-8 text-slate-600">
+                اكتب <span className="font-mono text-cyan-700">@مساعد_ماب</span> داخل المجلس، أو اطلب منه
+                أن يفتح موضوعًا مناسبًا لصالونك هذا الأسبوع.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4 w-full border-cyan-200 bg-cyan-50/80 text-cyan-800 hover:bg-cyan-100"
+                onClick={() => void send('@مساعد_ماب أعطني موضوع نقاش اليوم للحلاقين')}
+                disabled={isFounder}
+              >
+                <Sparkles className="ml-2 h-4 w-4" />
+                افتح موضوع اليوم
+              </Button>
+            </div>
+
+            <div className="rounded-[1.6rem] border border-amber-200 bg-[linear-gradient(155deg,rgba(255,247,237,0.96),rgba(255,255,255,0.98))] p-5 shadow-[0_18px_38px_rgba(245,158,11,0.10)]">
+              <p className="mb-2 flex items-center gap-2 text-sm font-black text-amber-800">
+                <Lightbulb className="h-4 w-4 text-amber-500" />
+                نبضة اليوم
+              </p>
+              <p className="text-[0.96rem] leading-8 text-slate-600">{tipOfDay}</p>
+            </div>
+
+            <div className="rounded-[1.6rem] border border-emerald-200 bg-[linear-gradient(155deg,rgba(236,253,245,0.96),rgba(255,255,255,0.98))] p-5 shadow-[0_18px_38px_rgba(16,185,129,0.10)]">
+              <p className="mb-2 flex items-center gap-2 text-sm font-black text-emerald-800">
+                <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                من يدخل المجلس؟
+              </p>
+              <p className="text-[0.96rem] leading-8 text-slate-600">{MAP_COMMUNITY_DOCTRINE_AR}</p>
+            </div>
+          </aside>
+        </section>
+
+        <section ref={videosSectionRef} className="mt-8">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[0.82rem] font-black tracking-[0.16em] text-cyan-700">لقطات يومية</p>
+              <h2 className="mt-1 text-2xl font-black text-slate-950">فيديوهات الحلاقين</h2>
+              <p className="mt-2 text-[0.96rem] leading-8 text-slate-600">
+                لقطات قصيرة من أعمال المجتمع، أفكار تصوير، ونتائج يحب الحلاق أن يراها بسرعة.
+              </p>
             </div>
           </div>
-        ) : null}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {videos.map((video, i) => (
+              <motion.article
+                key={video.id}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.04 }}
+                className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white/95 shadow-[0_16px_34px_rgba(148,163,184,0.10)]"
+              >
+                <div
+                  className={cn(
+                    'relative aspect-[9/14] bg-gradient-to-br',
+                    video.youtubeVideoId ? 'bg-black' : video.gradient || VIDEO_GRADIENTS[0],
+                  )}
+                >
+                  {video.youtubeVideoId ? (
+                    <MapCommunityYoutubeEmbed videoId={video.youtubeVideoId} title={video.title} />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Video className="h-8 w-8 text-white/80" />
+                    </div>
+                  )}
+                  <span className="absolute bottom-2 left-2 z-10 rounded-full bg-black/60 px-2 py-0.5 text-[0.6rem] font-bold text-white">
+                    {video.duration}
+                  </span>
+                </div>
+                <div className="space-y-1 p-3">
+                  <p className="text-sm font-black text-slate-950">{video.title}</p>
+                  <p className="text-[0.84rem] font-semibold text-emerald-700">{video.barberName}</p>
+                </div>
+              </motion.article>
+            ))}
+          </div>
+        </section>
 
-        {activeTab === 'tools' ? (
-          <div className="min-h-0 flex-1 overflow-y-auto">{toolsPanel}</div>
-        ) : null}
+        <section ref={toolsSectionRef} className="mt-8 pb-10">
+          <div className="mb-4">
+            <p className="text-[0.82rem] font-black tracking-[0.16em] text-amber-700">مساعدات يومية</p>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">أدوات خفيفة تخدم يومك</h2>
+            <p className="mt-2 text-[0.96rem] leading-8 text-slate-600">
+              كل ما تحتاجه للبقاء داخل النبض اليومي: موضوع جاهز، نصيحة، اختصار، وسؤال متكرر بين الحلاقين.
+            </p>
+          </div>
+          {toolsPanel}
+        </section>
       </div>
-
-      <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-white/10 bg-[#071426]/96 pb-[max(0.35rem,env(safe-area-inset-bottom,0px))] pt-1 backdrop-blur-md md:hidden"
-        aria-label="تنقّل مجتمع ماب"
-      >
-        <button type="button" onClick={() => setActiveTab('chat')} className={communityTabClass(activeTab === 'chat')}>
-          <MessageCircle className="h-5 w-5" />
-          نقاش
-        </button>
-        <button type="button" onClick={() => setActiveTab('videos')} className={communityTabClass(activeTab === 'videos')}>
-          <Film className="h-5 w-5" />
-          فيديو
-        </button>
-        <button type="button" onClick={() => setActiveTab('tools')} className={communityTabClass(activeTab === 'tools')}>
-          <LayoutGrid className="h-5 w-5" />
-          أدوات
-        </button>
-      </nav>
     </div>
   );
 }
