@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { usePlatformAmbientOptional } from '@/context/PlatformAmbientContext';
 import { cn } from '@/lib/utils';
 import type { AmbientPhaseId } from '@/config/platformAmbientPhases';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Variant = 'default' | 'partner';
 
@@ -172,10 +173,12 @@ export function PlatformAmbientBackground({
   className,
 }: PlatformAmbientBackgroundProps) {
   const reduceMotion = useReducedMotion();
+  const isMobile = useIsMobile();
   const ambient = usePlatformAmbientOptional();
   const phase: AmbientPhaseId = ambient?.effectivePhase ?? 'layl';
   const blobs = PHASE_BLOBS[phase][variant];
   const isBrightNoon = phase === 'dhuhr';
+  const visibleBlobs = isMobile ? blobs.slice(0, Math.max(1, Math.ceil(blobs.length / 2))) : blobs;
 
   return (
     <div
@@ -189,20 +192,21 @@ export function PlatformAmbientBackground({
         <div className="platform-ambient-sun-wash absolute inset-0 transition-opacity duration-[2500ms]" />
       ) : null}
 
-      {blobs.map((blob, i) => (
+      {visibleBlobs.map((blob, i) => (
         <div
           key={`${phase}-${i}`}
           className={cn(
             blob.className,
+            isMobile && 'scale-75 opacity-70',
             'transition-all duration-[2500ms] ease-in-out',
-            blob.animate && !reduceMotion && 'platform-ambient-pulse',
+            blob.animate && !reduceMotion && !isMobile && 'platform-ambient-pulse',
           )}
           style={blob.style}
         />
       ))}
 
       {/* خط أفقي خفيف — فجر/غروب */}
-      {(phase === 'fajr' || phase === 'ghuroob') && !reduceMotion && (
+      {(phase === 'fajr' || phase === 'ghuroob') && !reduceMotion && !isMobile && (
         <div
           className={cn(
             'platform-ambient-horizon absolute inset-x-0 h-px opacity-40',

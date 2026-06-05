@@ -149,7 +149,6 @@ import { ResourceManagementSection } from '@/components/admin/ResourceManagement
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { GeolocationDiagnosticsPanel } from '@/components/admin/GeolocationDiagnosticsPanel';
-import { VirtualAiStaffOffice } from '@/components/admin/VirtualAiStaffOffice';
 import { SystemCrisisPanicButton } from '@/components/admin/SystemCrisisPanicButton';
 import { HonorBoard } from '@/components/b2b/HonorBoard';
 import { FounderOperationalFeedPanel, OpsControllerWorkspace } from '@/modules/ops-controller';
@@ -328,7 +327,6 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
-  const [zatcaScrollToken, setZatcaScrollToken] = useState(0);
   const [adminData, setAdminData] = useState<AdminSessionInfo | null>(null);
   const [adminAccessToken, setAdminAccessToken] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
@@ -339,8 +337,6 @@ export default function AdminDashboard() {
   const [remotePayments, setRemotePayments] = useState<Payment[]>([]);
   const [moyasarSubRows, setMoyasarSubRows] = useState<BarberSubscriptionAdminRow[]>([]);
   const [dataRefreshNonce, setDataRefreshNonce] = useState(0);
-  const [crisisLabOpen, setCrisisLabOpen] = useState(false);
-  const [crisisMode, setCrisisMode] = useState(false);
   const [engineeringWingOpsEnabled, setEngineeringWingOpsEnabled] = useState(false);
   const [founderLightingEnabled, setFounderLightingEnabled] = useState(false);
   const [forensicGateState, setForensicGateState] = useState<Record<ForensicGateId, boolean>>(
@@ -614,20 +610,6 @@ export default function AdminDashboard() {
     });
   }, [adminData?.bootstrap]);
 
-  useEffect(() => {
-    if (activeTab !== 'settings' || zatcaScrollToken <= 0 || !canViewZatcaFinancialOffice) return;
-
-    const scrollToOffice = () => {
-      document.getElementById('zatca-financial-office')?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    };
-
-    const t = window.setTimeout(scrollToOffice, 320);
-    return () => window.clearTimeout(t);
-  }, [activeTab, zatcaScrollToken, canViewZatcaFinancialOffice]);
-
   if (!adminData) {
     return (
       <div
@@ -729,8 +711,7 @@ export default function AdminDashboard() {
             {isFounderView ? (
               <SystemCrisisPanicButton
                 onActivate={() => {
-                  setCrisisMode(true);
-                  setCrisisLabOpen(true);
+                  navigate(`${getAdminPortalBasePath()}${ROUTE_PATHS.ADMIN_STAFF_HUB}`);
                 }}
               />
             ) : null}
@@ -890,7 +871,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white">مركز الوكلاء</p>
-                  <p className="text-[0.62rem] text-teal-400/60">المستشار المالي · ZATCA · الجناح الهندسي · التسويق · الإعلام · القانون</p>
+                  <p className="text-[0.62rem] text-teal-400/60">القائد الأعلى للدفاع السيبراني · قيادة الأسطول · التمويل · ZATCA · الهندسة · التسويق · الإعلام · القانون</p>
                 </div>
               </div>
               <button
@@ -902,40 +883,6 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <VirtualAiStaffOffice
-              can={can}
-              canViewZatcaFinancialOffice={canViewZatcaFinancialOffice}
-              isBootstrapAdmin={Boolean(adminData.bootstrap)}
-              crisisLabOpen={crisisLabOpen}
-              onCrisisLabOpenChange={(open) => {
-                setCrisisLabOpen(open);
-                if (!open) setCrisisMode(false);
-              }}
-              crisisMode={crisisMode}
-              onOpenCommandCenter={() => setActiveTab('command-center')}
-              onOpenZatcaFinancialOffice={() => {
-                if (!canViewZatcaFinancialOffice) {
-                  toast({
-                    title: 'المكتب المالي غير متاح',
-                    description:
-                      'تحتاج صلاحية مراقبة التزامات التشغيل أو إدارة قواعد المنصة التجارية للوصول إلى مكتب ZATCA.',
-                    variant: 'destructive',
-                  });
-                  return;
-                }
-                if (!can('view_settings')) {
-                  toast({
-                    title: 'تبويب الإعدادات غير متاح',
-                    description:
-                      'المكتب المالي داخل الإعدادات — اطلب صلاحية «عرض الإعدادات» من مسؤول المنصة.',
-                    variant: 'destructive',
-                  });
-                  return;
-                }
-                setActiveTab('settings');
-                setZatcaScrollToken((n) => n + 1);
-              }}
-            />
             <OverviewSection
               stats={stats}
               isFounderView={isFounderView}

@@ -9,6 +9,7 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scissors } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   clearStoredUserCoords,
   readStoredUserCoords,
@@ -64,6 +65,7 @@ function SearchingRing() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
+  const isMobile = useIsMobile();
   const [phase, setPhase] = useState<GeoPhase>('idle');
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [accuracy, setAccuracy] = useState<number | null>(null);
@@ -143,7 +145,7 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
 
         {/* Pulse rings — idle & searching */}
         <AnimatePresence>
-          {(isIdle || isSearching) && (
+          {(isIdle || isSearching) && !isMobile && (
             <>
               <motion.div key="ring1"
                 className="pointer-events-none absolute inset-0 rounded-full border"
@@ -170,7 +172,7 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
         )}
 
         {/* Searching: dots orbit */}
-        {isSearching && <SearchingRing />}
+        {isSearching && !isMobile && <SearchingRing />}
 
         {/* ── Main circle button ─────────────────────────── */}
         <motion.button
@@ -308,11 +310,13 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
       </AnimatePresence>
 
       {/* ── Scan line decoration ─────────────────────────── */}
-      <motion.div
-        className="h-px w-32 bg-gradient-to-l from-transparent via-teal-400/20 to-transparent"
-        animate={{ scaleX: [0.2, 1, 0.2], opacity: [0.2, 0.5, 0.2] }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-      />
+      {!isMobile ? (
+        <motion.div
+          className="h-px w-32 bg-gradient-to-l from-transparent via-teal-400/20 to-transparent"
+          animate={{ scaleX: [0.2, 1, 0.2], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ) : null}
     </div>
   );
 }

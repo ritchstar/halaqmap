@@ -263,6 +263,8 @@ export interface SubscriptionRequest {
   email: string;
   phone: string;
   whatsapp: string;
+  /** الرقم الضريبي للمنشأة المشترية للحزمة البرمجية (إن وُجد/إن كانت مسجلة ضريبياً). */
+  taxNumber?: string;
   location: {
     lat: number;
     lng: number;

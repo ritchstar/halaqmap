@@ -243,7 +243,7 @@ export default function StaffHubPage() {
       <main className="relative z-10 mx-auto max-w-7xl px-5 py-8">
         <div className="mb-6">
           <p className="text-sm text-slate-500">
-            جميع الوكلاء المتخصصين — التمويل · الامتثال · الهندسة · التسويق · الإعلام · القانون
+            جميع الوكلاء المتخصصين في مركز واحد — القائد الأعلى للدفاع السيبراني · قيادة الأسطول · التمويل · الامتثال · الهندسة · التسويق · الإعلام · القانون
           </p>
         </div>
 

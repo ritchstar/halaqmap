@@ -13,12 +13,17 @@ export function useBannerPreviewSim(
   visibleGallerySlots: number,
   reduceMotion: boolean | null,
   startDelayMs = 0,
+  enabled = true,
 ): { phase: BannerSimPhase; portfolioIndex: number } {
   const [phase, setPhase] = useState<BannerSimPhase>('portfolio');
   const [portfolioIndex, setPortfolioIndex] = useState(0);
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || !enabled) {
+      setPhase('portfolio');
+      setPortfolioIndex(0);
+      return;
+    }
 
     let phaseIdx = 0;
     let phaseTimeout: ReturnType<typeof setTimeout>;
@@ -45,7 +50,7 @@ export function useBannerPreviewSim(
       clearTimeout(phaseTimeout);
       clearInterval(galleryTimer);
     };
-  }, [visibleGallerySlots, reduceMotion, startDelayMs]);
+  }, [visibleGallerySlots, reduceMotion, startDelayMs, enabled]);
 
   return { phase, portfolioIndex };
 }

@@ -12,7 +12,7 @@ type Props = {
   crisisMode?: boolean;
 };
 
-/** لوحة التحكم الرئيسية — الأمن والسيادة فقط */
+/** توافق قديم للوحة المؤسس بعد نقل الوكلاء بالكامل إلى مركز الوكلاء */
 export function VirtualAiStaffOffice({
   can,
   canViewZatcaFinancialOffice,

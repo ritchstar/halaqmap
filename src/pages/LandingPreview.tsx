@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
+import { cn } from '@/lib/utils';
 import { GeoRadarButton } from '@/components/GeoRadarButton';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
@@ -243,7 +244,7 @@ const HERO_CITY_ROUTE_OVERRIDES: Record<string, { x: number; y: number }> = {
 };
 
 // ─── Radar canvas ───────────────────────────────────────────────────────────
-function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
+function RadarHero({ onBeaconClick, mobileLite = false }: { onBeaconClick: (id: number) => void; mobileLite?: boolean }) {
   const cityFlowEvents = useMemo<CyberEvent[]>(() => {
     const byName = new Map(
       CITY_BEACONS.map((city) => [
@@ -287,7 +288,8 @@ function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
       ['جازان', 'الدمام'],
     ] as const;
 
-    return routes.flatMap(([from, to], idx) => {
+    const selectedRoutes = mobileLite ? routes.slice(0, 8) : routes;
+    return selectedRoutes.flatMap(([from, to], idx) => {
         const source = byName.get(from);
         const target = byName.get(to);
         if (!source || !target) return [];
@@ -315,7 +317,7 @@ function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
           volume: isSouthPriority ? 5 : idx % 2 === 0 ? 3 : 2,
         } satisfies CyberEvent];
       });
-  }, []);
+  }, [mobileLite]);
 
   const cyberEvents = useMemo<CyberEvent[]>(() => (
     [
@@ -341,10 +343,10 @@ function RadarHero({ onBeaconClick }: { onBeaconClick: (id: number) => void }) {
 
   return (
     <div className="relative h-full w-full select-none overflow-hidden rounded-2xl" style={{ fontFamily: 'system-ui' }}>
-      <CyberRadarCanvas pulses={cyberEvents} narrator={null} showOrnaments={false} className="h-full w-full" />
+      <CyberRadarCanvas pulses={cyberEvents} narrator={null} showOrnaments={false} mobileLite={mobileLite} className="h-full w-full" />
 
       {/* Interactive barber hotspots on top of cyber radar */}
-      {DEMO_BEACONS.map((b) => (
+      {(mobileLite ? DEMO_BEACONS.slice(0, 4) : DEMO_BEACONS).map((b) => (
         <button
           key={b.id}
           type="button"
@@ -615,7 +617,7 @@ export default function LandingPreview() {
 
       {/* ── Grid background texture ──────────────────────────────────────── */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.025]"
+        className={cn('pointer-events-none fixed inset-0 z-0', isMobile ? 'opacity-[0.015]' : 'opacity-[0.025]')}
         style={{
           backgroundImage:
             'linear-gradient(rgba(20,184,166,1) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,166,1) 1px, transparent 1px)',
@@ -633,8 +635,12 @@ export default function LandingPreview() {
         {/* ── طبقة الخلفية الزجاجية ──────────────────────── */}
         <div className={`absolute inset-0 transition-all duration-500 ${
           scrolled
-            ? 'bg-[#020912]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.6)]'
-            : 'bg-[#020912]/85 backdrop-blur-xl'
+            ? isMobile
+              ? 'bg-[#020912]/97 shadow-[0_4px_22px_rgba(0,0,0,0.42)]'
+              : 'bg-[#020912]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.6)]'
+            : isMobile
+              ? 'bg-[#020912]/92'
+              : 'bg-[#020912]/85 backdrop-blur-xl'
         }`} />
 
         {/* ── شريط مدن المملكة ───────────────────────────── */}
@@ -664,22 +670,30 @@ export default function LandingPreview() {
               <div className="leading-tight">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[1.19rem] font-black tracking-wide text-white">حلاق ماب</span>
-                  <motion.div
-                    animate={{ opacity: [0.5, 1, 0.5], scale: [0.9, 1.1, 0.9] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="h-1.5 w-1.5 rounded-full bg-teal-400"
-                  />
+                  {skipHeroMotion ? (
+                    <div className="h-1.5 w-1.5 rounded-full bg-teal-400" />
+                  ) : (
+                    <motion.div
+                      animate={{ opacity: [0.5, 1, 0.5], scale: [0.9, 1.1, 0.9] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="h-1.5 w-1.5 rounded-full bg-teal-400"
+                    />
+                  )}
                 </div>
                 <div className="text-[0.6rem] font-bold tracking-[0.3em] text-teal-400/55">HALAQ MAP · LIVE</div>
               </div>
 
               {/* عدد الصالونات النشطة */}
               <div className="hidden items-center gap-1 rounded-full border border-teal-400/20 bg-teal-500/8 px-2.5 py-1 sm:flex">
-                <motion.div
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 2.5, repeat: Infinity }}
-                  className="h-1.5 w-1.5 rounded-full bg-emerald-400"
-                />
+                {skipHeroMotion ? (
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                ) : (
+                  <motion.div
+                    animate={{ opacity: [0.4, 1, 0.4] }}
+                    transition={{ duration: 2.5, repeat: Infinity }}
+                    className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+                  />
+                )}
                 <span className="text-[0.69rem] font-bold text-emerald-300/80">رادار نشط</span>
               </div>
             </Link>
@@ -718,11 +732,13 @@ export default function LandingPreview() {
                 className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.94rem] font-black text-white shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all hover:shadow-[0_0_30px_rgba(20,184,166,0.5)]"
               >
                 {/* Shimmer */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-l from-transparent via-white/15 to-transparent"
-                  animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
-                />
+                {!skipHeroMotion ? (
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-l from-transparent via-white/15 to-transparent"
+                    animate={{ x: ['-100%', '200%'] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
+                  />
+                ) : null}
                 <span className="relative flex items-center gap-1.5">
                   <Search className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">ابحث عن حلاق</span>
@@ -832,8 +848,18 @@ export default function LandingPreview() {
         <div id="search-anchor" className="absolute top-32" />
 
         {/* Glow blobs */}
-        <div className="pointer-events-none absolute -right-64 top-10 h-[600px] w-[600px] rounded-full bg-teal-500/8 blur-[140px]" />
-        <div className="pointer-events-none absolute -left-48 bottom-20 h-[400px] w-[400px] rounded-full bg-amber-500/6 blur-[120px]" />
+        <div className={cn(
+          'pointer-events-none absolute rounded-full bg-teal-500/8',
+          isMobile
+            ? '-right-20 top-8 h-[280px] w-[280px] blur-[70px]'
+            : '-right-64 top-10 h-[600px] w-[600px] blur-[140px]',
+        )} />
+        <div className={cn(
+          'pointer-events-none absolute rounded-full bg-amber-500/6',
+          isMobile
+            ? '-left-10 bottom-24 h-[220px] w-[220px] blur-[60px]'
+            : '-left-48 bottom-20 h-[400px] w-[400px] blur-[120px]',
+        )} />
 
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-2 lg:gap-16 lg:py-24">
           {/* Left — text */}
@@ -919,9 +945,9 @@ export default function LandingPreview() {
 
           {/* Right — Radar */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
+            initial={skipHeroMotion ? false : { opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
+            transition={{ delay: skipHeroMotion ? 0 : 0.3, duration: skipHeroMotion ? 0 : 0.8 }}
             className="relative"
           >
             <div className="relative mx-auto max-w-[440px]">
@@ -941,7 +967,7 @@ export default function LandingPreview() {
 
                   {/* Radar canvas */}
                   <div className="relative aspect-square w-full">
-                    <RadarHero onBeaconClick={setSelectedBeacon} />
+                    <RadarHero onBeaconClick={setSelectedBeacon} mobileLite={isMobile} />
                     <AnimatePresence>
                       {beacon && (
                         <BarberPopup beacon={beacon} onClose={() => setSelectedBeacon(null)} />
@@ -969,6 +995,7 @@ export default function LandingPreview() {
               </div>
 
               {/* Floating badge */}
+              {!isMobile ? (
               <motion.div
                 animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
@@ -977,7 +1004,9 @@ export default function LandingPreview() {
                 <div className="text-[0.6rem] text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">أقرب صالون</div>
                 <div className="text-[0.75rem] font-bold text-amber-300">٢٠٠م منك 🧭</div>
               </motion.div>
+              ) : null}
 
+              {!isMobile ? (
               <motion.div
                 animate={{ y: [0, 5, 0] }}
                 transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
@@ -991,18 +1020,21 @@ export default function LandingPreview() {
                   <Star className="h-3 w-3 fill-amber-400 text-amber-400" /> ٤.٩
                 </div>
               </motion.div>
+              ) : null}
             </div>
           </motion.div>
         </div>
 
         {/* Scroll indicator */}
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-teal-400/50"
-        >
-          <ChevronDown className="h-6 w-6" />
-        </motion.div>
+        {!skipHeroMotion ? (
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-teal-400/50"
+          >
+            <ChevronDown className="h-6 w-6" />
+          </motion.div>
+        ) : null}
       </section>
 
       {/* ── نتائج البحث الحقيقية — تظهر بعد تحديد الموقع ─────────────── */}

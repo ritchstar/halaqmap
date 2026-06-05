@@ -2433,9 +2433,27 @@ html.platform-radar-fullscreen #root {
   will-change: transform;
 }
 
+@keyframes ksa-clocks-scan-sweep {
+  0% {
+    transform: translateX(-32%);
+  }
+  100% {
+    transform: translateX(132%);
+  }
+}
+
+.ksa-clocks-scanline {
+  left: -22%;
+  animation: ksa-clocks-scan-sweep 18s linear infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tactical-sweep-rotor,
   .tactical-heartbeat-ring {
+    animation: none;
+  }
+  .ksa-clocks-scanline {
     animation: none;
   }
   .tactical-heartbeat-ring {

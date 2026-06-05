@@ -33,8 +33,16 @@ import { cn } from '@/lib/utils';
 
 type ResolvedAgent = AiStaffAgentDef & { permitted: boolean };
 
-// الحدود التي تبقى في لوحة التحكم الرئيسية فقط
-const DASHBOARD_BOUNDARIES = ['supreme_defense', 'covert_sovereign'] as const;
+const HUB_BOUNDARY_ORDER = [
+  'supreme_defense',
+  'covert_sovereign',
+  'internal_governance',
+  'engineering_council',
+  'marketing_council',
+  'media_office',
+  'external_partner_ops',
+  'legal_governance',
+] as const;
 
 type Props = {
   can: (perm: AdminPermissionKey) => boolean;
@@ -45,7 +53,7 @@ type Props = {
   crisisLabOpen?: boolean;
   onCrisisLabOpenChange?: (open: boolean) => void;
   crisisMode?: boolean;
-  /** وضع لوحة التحكم: dashboard = الأمن والسيادة فقط · hub = بقية الوكلاء */
+  /** وضع العرض: dashboard = إخفاء بطاقات الوكلاء من لوحة المؤسس · hub = عرض مركز الوكلاء الكامل */
   dashboardMode?: boolean;
 };
 
@@ -100,12 +108,18 @@ export function AiStaffControlRoom({
 
   const canSeeCovertSovereign = isBootstrapAdmin || can('manage_admins');
 
-  const visibleBoundaries = AI_STAFF_BOUNDARIES.filter((b) => {
-    const inDashboard = (DASHBOARD_BOUNDARIES as readonly string[]).includes(b.id);
-    if (dashboardMode && !inDashboard) return false;
-    if (!dashboardMode && inDashboard) return false;
-    return !b.covert || canSeeCovertSovereign;
-  });
+  const visibleBoundaries = AI_STAFF_BOUNDARIES
+    .filter((b) => {
+      if (dashboardMode) return false;
+      return !b.covert || canSeeCovertSovereign;
+    })
+    .sort((a, b) => {
+      const aIndex = HUB_BOUNDARY_ORDER.indexOf(a.id as (typeof HUB_BOUNDARY_ORDER)[number]);
+      const bIndex = HUB_BOUNDARY_ORDER.indexOf(b.id as (typeof HUB_BOUNDARY_ORDER)[number]);
+      const safeAIndex = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+      const safeBIndex = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+      return safeAIndex - safeBIndex;
+    });
 
   const workspaceAgent = workspaceAgentId
     ? agents.find((a) => a.id === workspaceAgentId) ?? null
