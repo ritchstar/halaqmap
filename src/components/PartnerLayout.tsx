@@ -69,6 +69,29 @@ const partnerBottomNav: ReadonlyArray<Required<PartnerNavItem>> = [
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم', Icon: Headphones },
 ];
 
+const COMPACT_PARTNER_HEADER_PATHS = new Set<string>([
+  ROUTE_PATHS.REGISTER,
+  ROUTE_PATHS.REGISTER_SUCCESS,
+  ROUTE_PATHS.PAYMENT,
+  ROUTE_PATHS.PARTNER_SUPPORT,
+  ROUTE_PATHS.PARTNER_PRIVACY,
+  ROUTE_PATHS.SUBSCRIPTION_POLICY,
+  ROUTE_PATHS.BARBER_PORTAL_ENTER,
+  ROUTE_PATHS.BARBER_ACCOUNT_DELETE_REQUEST,
+]);
+
+function compactPartnerHeaderTitle(pathname: string): string {
+  if (pathname === ROUTE_PATHS.REGISTER) return 'التسجيل في المنصة';
+  if (pathname === ROUTE_PATHS.REGISTER_SUCCESS) return 'تم إرسال الطلب';
+  if (pathname === ROUTE_PATHS.PAYMENT) return 'إتمام الدفع';
+  if (pathname === ROUTE_PATHS.PARTNER_SUPPORT) return 'الدعم الفني';
+  if (pathname === ROUTE_PATHS.PARTNER_PRIVACY) return 'خصوصية الشركاء';
+  if (pathname === ROUTE_PATHS.SUBSCRIPTION_POLICY) return DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR;
+  if (pathname === ROUTE_PATHS.BARBER_PORTAL_ENTER) return 'الدخول الخاص';
+  if (pathname === ROUTE_PATHS.BARBER_ACCOUNT_DELETE_REQUEST) return 'طلب حذف الحساب';
+  return SOFTWARE_SERVICES_PORTAL_LABEL;
+}
+
 /** يطابق رأس مسار الخدمات البرمجية للمنصة — شريط عنوان المتصفح / PWA على الجوال */
 const PARTNER_THEME_COLOR = '#071426';
 
@@ -142,6 +165,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     ? partnerNavItems
     : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
   const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
+  const isCompactHeaderPage = COMPACT_PARTNER_HEADER_PATHS.has(location.pathname);
+  const compactTitle = compactPartnerHeaderTitle(location.pathname);
 
   useDocumentTitle(isMapCommunityPage ? 'مجتمع ماب' : SOFTWARE_SERVICES_PORTAL_HEADING);
 
@@ -260,6 +285,85 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
                 </SheetTrigger>
               </div>
             ) : (
+              isCompactHeaderPage ? (
+              <>
+            <div className="flex min-h-12 items-center justify-between gap-3 py-2.5 md:hidden">
+              <div className="flex min-w-0 items-center gap-2">
+                <HalaqmapBrandMark
+                  className={cn(
+                    'h-10 w-10 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
+                    partnerBrandMarkSurfaceClass,
+                  )}
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-black text-emerald-50">{compactTitle}</p>
+                  <p className="text-[0.65rem] text-slate-400">خطوة تنفيذية داخل مسار الشركاء</p>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-9 border-white/20 bg-white/5 px-2.5 text-xs text-slate-100 hover:bg-white/10"
+                  asChild
+                >
+                  <NavLink to={ROUTE_PATHS.BARBERS_LANDING}>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                    <span className="max-[380px]:hidden">للمسار</span>
+                  </NavLink>
+                </Button>
+                <SheetTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="h-10 w-10 shrink-0 border-emerald-500/30 bg-emerald-500/15 text-emerald-50 hover:bg-emerald-500/25"
+                    aria-label={`فتح قائمة ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+              </div>
+            </div>
+
+            <div className="hidden min-h-14 items-center justify-between gap-4 py-2.5 md:flex">
+              <div className="flex min-w-0 items-center gap-3">
+                <HalaqmapBrandMark
+                  className={cn(
+                    'h-11 w-11 shrink-0 rounded-2xl ring-2 ring-primary/40 ring-offset-2',
+                    partnerBrandMarkSurfaceClass,
+                  )}
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-base font-black text-emerald-50">{compactTitle}</p>
+                  <p className="text-xs text-slate-400">مسار مختصر يركز على الإجراء الأساسي</p>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2">
+                <NavLink
+                  to={ROUTE_PATHS.BARBERS_LANDING}
+                  className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                  العودة للمسار التسويقي
+                </NavLink>
+                <SheetTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="h-10 w-10 shrink-0 border-emerald-500/30 bg-emerald-500/15 text-emerald-50 hover:bg-emerald-500/25"
+                    aria-label={`فتح قائمة ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+              </div>
+            </div>
+              </>
+              ) : (
               <>
             {/* شريط علوي للجوال — بدون تفاف يشغل نصف الشاشة */}
             <div className="flex min-h-14 items-center gap-2 py-2 md:hidden">
@@ -354,6 +458,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               </NavLink>
             </div>
               </>
+              )
             )}
           </div>
         </header>
@@ -415,7 +520,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         </SheetContent>
       </Sheet>
 
-      {!isMapCommunityPage ? <PartnerPromoVideoBand /> : null}
+      {!isMapCommunityPage && !isCompactHeaderPage ? <PartnerPromoVideoBand /> : null}
 
       <main
         className={cn(
