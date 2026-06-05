@@ -13,6 +13,7 @@ import type { BannerPreviewTierConfig } from '@/config/partnerBannersPreviewCopy
 import { useBannerPreviewSim, type BannerSimPhase } from '@/hooks/useBannerPreviewSim';
 import { BannerRadiationField } from '@/components/BannerRadiationField';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // ── Phase labels ──────────────────────────────────────────────────────────────
 const PHASE_LABEL: Record<BannerSimPhase, { text: string; color: string }> = {
@@ -53,11 +54,26 @@ const TIER_THEME = {
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
-type Props = { tier: BannerPreviewTierConfig; startDelayMs?: number };
+type Props = {
+  tier: BannerPreviewTierConfig;
+  startDelayMs?: number;
+  active?: boolean;
+  performanceMode?: 'full' | 'lite';
+};
 
-export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
+export function EndUserBarberBannerSim({
+  tier,
+  startDelayMs = 0,
+  active = true,
+  performanceMode = 'full',
+}: Props) {
   const reduceMotion = useReducedMotion();
-  const { phase, portfolioIndex } = useBannerPreviewSim(tier.galleryVisibleSlots, reduceMotion, startDelayMs);
+  const isMobile = useIsMobile();
+  const isLite = performanceMode === 'lite';
+  const visibleSlots = isLite ? Math.min(4, tier.galleryVisibleSlots) : tier.galleryVisibleSlots;
+  const galleryImages = tier.galleryImages.slice(0, isLite ? Math.min(4, tier.galleryImages.length) : tier.galleryImages.length);
+  const simEnabled = active && !isLite;
+  const { phase, portfolioIndex } = useBannerPreviewSim(visibleSlots, reduceMotion, startDelayMs, simEnabled);
 
   const isDiamond = tier.id === 'diamond';
   const isGold    = tier.id === 'gold';
@@ -66,9 +82,9 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
 
   const simCounter = Math.min(
     tier.galleryMax,
-    Math.floor((portfolioIndex / Math.max(1, tier.galleryVisibleSlots - 1)) * tier.galleryMax) + 1,
+    Math.floor((portfolioIndex / Math.max(1, visibleSlots - 1)) * tier.galleryMax) + 1,
   );
-  const heroSrc = tier.galleryImages[portfolioIndex % tier.galleryImages.length] ?? tier.heroImage;
+  const heroSrc = galleryImages[portfolioIndex % galleryImages.length] ?? tier.heroImage;
   const phaseInfo = PHASE_LABEL[phase];
 
   return (
@@ -78,11 +94,15 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
       <div className="mb-2 flex items-center justify-center">
         <motion.div
           key={phase}
-          initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+          initial={isLite ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
           className={cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-semibold', phaseInfo.color)}
         >
-          <motion.div className="h-1.5 w-1.5 rounded-full bg-current"
-            animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.2, repeat: Infinity }} />
+          {isLite ? (
+            <div className="h-1.5 w-1.5 rounded-full bg-current" />
+          ) : (
+            <motion.div className="h-1.5 w-1.5 rounded-full bg-current"
+              animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.2, repeat: Infinity }} />
+          )}
           {phaseInfo.text}
         </motion.div>
       </div>
@@ -109,9 +129,11 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
               src={heroSrc}
               alt=""
               className="h-full w-full object-cover"
-              initial={{ opacity: 0.7, scale: 1.04 }}
+              loading={isMobile ? 'lazy' : 'eager'}
+              decoding="async"
+              initial={isLite ? false : { opacity: 0.7, scale: 1.04 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: isLite ? 0 : 0.6 }}
             />
             {/* Gradient overlay — platform branded */}
             <div className="absolute inset-0"
@@ -232,12 +254,12 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
                       'relative aspect-square overflow-hidden rounded-[0.95rem] border shadow-[0_6px_14px_rgba(15,23,42,0.05)]',
                       isDiamond ? 'border-[#d5e9f0]' : 'border-white/85',
                     )}
-                    animate={isActive ? { scale: 1.05 } : { scale: 1 }}
-                    transition={{ duration: 0.3 }}
+                    animate={isLite ? { scale: 1 } : isActive ? { scale: 1.05 } : { scale: 1 }}
+                    transition={{ duration: isLite ? 0 : 0.3 }}
                   >
-                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <img src={src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     {/* Active indicator */}
-                    {isActive && (
+                    {isActive && !isLite && (
                       <motion.div className="absolute inset-0 rounded-lg"
                         style={{ boxShadow: `inset 0 0 0 2px ${theme.accent}, 0 3px 10px ${theme.accent}08`, background: `${theme.accent}05` }}
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
@@ -262,11 +284,11 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
                 theme.btnPrimary,
                 'transition-all',
               )}
-              animate={phase === 'map' ? { scale: [1, 1.04, 1] } : { scale: 1 }}
-              transition={{ duration: 0.6, repeat: phase === 'map' ? Infinity : 0 }}
+              animate={isLite ? { scale: 1 } : phase === 'map' ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+              transition={{ duration: isLite ? 0 : 0.6, repeat: !isLite && phase === 'map' ? Infinity : 0 }}
             >
               {/* Map ripple */}
-              {phase === 'map' && (
+              {phase === 'map' && !isLite && (
                 <>
                   <motion.div className="absolute inset-0 rounded-xl border-2 border-white/50"
                     animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
@@ -285,10 +307,10 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
               type="button" tabIndex={-1} aria-hidden
               className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[1rem] text-white"
               style={{ background: 'linear-gradient(135deg, #2bbd6a, #1c7d6a)', boxShadow: phase === 'comms' ? '0 0 12px #25D36644' : '0 8px 16px rgba(37,211,102,0.15)' }}
-              animate={phase === 'comms' ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-              transition={{ duration: 0.5, repeat: phase === 'comms' ? Infinity : 0 }}
+              animate={isLite ? { scale: 1 } : phase === 'comms' ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+              transition={{ duration: isLite ? 0 : 0.5, repeat: !isLite && phase === 'comms' ? Infinity : 0 }}
             >
-              {phase === 'comms' && (
+              {phase === 'comms' && !isLite && (
                 <motion.div className="absolute inset-0 rounded-xl bg-white/30"
                   animate={{ opacity: [0.3, 0] }} transition={{ duration: 0.8, repeat: Infinity }} />
               )}
@@ -312,10 +334,10 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
                     ? `0 0 10px ${theme.accent}28`
                     : `0 7px 14px ${theme.accent}11`,
               }}
-              animate={phase === 'comms' ? { scale: [1, 1.08, 1] } : { scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.1, repeat: phase === 'comms' ? Infinity : 0 }}
+              animate={isLite ? { scale: 1 } : phase === 'comms' ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+              transition={{ duration: isLite ? 0 : 0.5, delay: 0.1, repeat: !isLite && phase === 'comms' ? Infinity : 0 }}
             >
-              {phase === 'comms' && (
+              {phase === 'comms' && !isLite && (
                 <motion.div className="absolute inset-0 rounded-xl bg-white/25"
                   animate={{ opacity: [0.25, 0] }} transition={{ duration: 0.8, delay: 0.1, repeat: Infinity }} />
               )}
@@ -326,7 +348,7 @@ export function EndUserBarberBannerSim({ tier, startDelayMs = 0 }: Props) {
           </div>
 
           {/* Map phase toast */}
-          {phase === 'map' && (
+          {phase === 'map' && !isLite && (
             <motion.div
               initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
               className="mt-2.5 flex items-center gap-2 rounded-xl border px-3 py-2 text-[0.68rem] font-medium shadow-[0_6px_12px_rgba(15,23,42,0.045)]"

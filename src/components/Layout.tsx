@@ -3,7 +3,7 @@ import { ROUTE_PATHS } from '@/lib';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { Menu, X, MapPin, Phone, Mail, Star, MessageSquare } from 'lucide-react';
 import { SiX, SiFacebook, SiInstagram, SiWhatsapp } from 'react-icons/si';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
@@ -20,6 +20,8 @@ import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagemen
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -27,7 +29,11 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
   const { effectivePhase, control } = usePlatformAmbient();
+  const [deferMobileExtras, setDeferMobileExtras] = useState(
+    () => typeof window === 'undefined' || window.innerWidth >= 768,
+  );
 
   const navItems = [
     { path: ROUTE_PATHS.HOME, label: 'الرئيسية' },
@@ -35,6 +41,29 @@ export function Layout({ children }: LayoutProps) {
     { path: ROUTE_PATHS.ABOUT, label: 'من نحن' },
     { path: ROUTE_PATHS.PRIVACY_DETAILED, label: 'سياسة الخصوصية' },
   ];
+
+  useEffect(() => {
+    if (!isMobile) {
+      setDeferMobileExtras(true);
+      return;
+    }
+    let cancelled = false;
+    const enable = () => {
+      if (!cancelled) setDeferMobileExtras(true);
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(enable, { timeout: 2200 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(id);
+      };
+    }
+    const t = window.setTimeout(enable, 900);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [isMobile]);
 
   return (
     <div
@@ -51,13 +80,16 @@ export function Layout({ children }: LayoutProps) {
         aria-hidden
       />
 
-      <PlatformAmbientBackground variant="default" />
+      {deferMobileExtras ? <PlatformAmbientBackground variant="default" /> : null}
 
       {/* شريط توقيت مدن المملكة */}
-      <KSACityClocksBar />
+      {!isMobile || deferMobileExtras ? <KSACityClocksBar /> : null}
 
       {/* ── التنقل الرئيسي — داكن زجاجي ──────────────────────────────── */}
-      <header className="sticky top-0 z-50 w-full border-b border-teal-400/10 bg-[#020912]/92 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
+      <header className={cn(
+        'sticky top-0 z-50 w-full border-b border-teal-400/10 pt-[env(safe-area-inset-top)]',
+        isMobile ? 'bg-[#020912]/96' : 'bg-[#020912]/92 backdrop-blur-xl',
+      )}>
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* الشعار */}
@@ -163,7 +195,7 @@ export function Layout({ children }: LayoutProps) {
       <main className="relative z-10 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
 
       {/* أزرار عائمة: مشاركة + تقييم + آراء */}
-      <FloatingPlatformActions />
+      {deferMobileExtras ? <FloatingPlatformActions /> : null}
 
       {/* ── الفوتر — داكن احترافي ──────────────────────────────────────── */}
       <footer className="border-t border-teal-400/10 bg-[#020912] mt-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">

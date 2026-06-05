@@ -25,6 +25,7 @@ type Props = {
   narrator?: string | null;
   className?: string;
   showOrnaments?: boolean;
+  mobileLite?: boolean;
 };
 
 const PULSE_PALETTE: Record<CyberEventKind, { glow: string; dot: string; ring: string }> = {
@@ -151,8 +152,15 @@ function TraceVector({ pulse }: { pulse: CyberEvent }) {
   );
 }
 
-export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = true }: Props) {
+export function CyberRadarCanvas({
+  pulses,
+  narrator,
+  className,
+  showOrnaments = true,
+  mobileLite = false,
+}: Props) {
   const viewBox = `0 0 ${KSA_VIEWBOX.width} ${KSA_VIEWBOX.height}`;
+  const renderedPulses = mobileLite ? pulses.slice(0, 10) : pulses;
 
   // External source ring labels — calculated once, the labels themselves are
   // static so this never re-renders without prop change.
@@ -168,7 +176,7 @@ export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = 
   // Determine which external sources are actively threatening (a threat pulse
   // is close to the ring node that represents that source).
   const threatenedSourceIds = useMemo(() => {
-    const active = pulses.filter(
+    const active = renderedPulses.filter(
       (p) => p.kind === 'threat_attack' || p.kind === 'threat_probe',
     );
     if (active.length === 0) return new Set<string>();
@@ -183,9 +191,9 @@ export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = 
       }
     }
     return threatened;
-  }, [pulses, externalLabels]);
+  }, [renderedPulses, externalLabels]);
 
-  const hasActiveAttack = pulses.some((p) => p.kind === 'threat_attack');
+  const hasActiveAttack = renderedPulses.some((p) => p.kind === 'threat_attack');
 
   return (
     <div className={`relative h-full w-full overflow-hidden bg-black ${className ?? ''}`}>
@@ -196,8 +204,9 @@ export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = 
         {/* Layer 1 — KSA tactical backdrop */}
         <div className="absolute inset-0">
           <TacticalKingdomBackdrop
-            showTacticalSweep={!showOrnaments}
-            showCompassRose={!showOrnaments}
+            showCapitalHeartbeat={!mobileLite}
+            showTacticalSweep={!showOrnaments && !mobileLite}
+            showCompassRose={!showOrnaments && !mobileLite}
           />
         </div>
 
@@ -207,7 +216,7 @@ export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = 
           viewBox={viewBox}
           preserveAspectRatio="xMidYMid meet"
         >
-          {showOrnaments ? (
+          {showOrnaments && !mobileLite ? (
             <PulseMapKingdomSweep
               cx={RIYADH_VIEW.x}
               cy={RIYADH_VIEW.y}
@@ -217,6 +226,7 @@ export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = 
           ) : null}
 
           {/* Layer 2 — external source ring */}
+          {!mobileLite ? (
           <g>
             {externalLabels.map((s) => {
               const threatened = threatenedSourceIds.has(s.id);
@@ -267,9 +277,10 @@ export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = 
               );
             })}
           </g>
+          ) : null}
 
           {/* Active attack warning ring around KSA center */}
-          {hasActiveAttack && (
+          {hasActiveAttack && !mobileLite && (
             <g opacity={0.35}>
               <circle
                 cx={KSA_VIEWBOX.width / 2}
@@ -291,23 +302,25 @@ export function CyberRadarCanvas({ pulses, narrator, className, showOrnaments = 
           )}
 
           {/* Layer 3 — trace vectors (threats & defence) */}
+          {!mobileLite ? (
           <g>
-            {pulses
+            {renderedPulses
               .filter((p) => p.target)
               .map((p) => (
                 <TraceVector key={`vec-${p.id}`} pulse={p} />
               ))}
           </g>
+          ) : null}
 
           {/* Layer 4 — pulse dots */}
           <g>
-            {pulses.map((p) => (
+            {renderedPulses.map((p) => (
               <CyberPulseDot key={p.id} pulse={p} />
             ))}
           </g>
         </svg>
 
-        {showOrnaments ? (
+        {showOrnaments && !mobileLite ? (
           <PulseMapCompassOrnament
             variant="cyber"
             className="absolute right-2 top-2 z-20 sm:right-3 sm:top-3"

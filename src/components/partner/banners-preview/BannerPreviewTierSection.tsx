@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,6 +10,8 @@ import {
 import { ROUTE_PATHS } from '@/lib';
 import { cn } from '@/lib/utils';
 import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useRef } from 'react';
 
 type Props = {
   tier: BannerPreviewTierConfig;
@@ -26,10 +28,16 @@ export function BannerPreviewTierSection({
   className,
 }: Props) {
   const reduceMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const inView = useInView(sectionRef, { once: false, margin: '240px 0px 240px 0px' });
   const isDiamond = tier.id === 'diamond';
+  const simulationActive = !isMobile || inView || index === 0;
+  const perfMode = isMobile ? 'lite' : 'full';
 
   return (
     <motion.section
+      ref={sectionRef}
       initial={reduceMotion ? false : { opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
@@ -42,7 +50,12 @@ export function BannerPreviewTierSection({
           index % 2 === 1 && 'lg:order-2',
         )}
       >
-        <EndUserBarberBannerSim tier={tier} startDelayMs={index * 1400} />
+        <EndUserBarberBannerSim
+          tier={tier}
+          startDelayMs={index * 1400}
+          active={simulationActive}
+          performanceMode={perfMode}
+        />
       </div>
 
       <div

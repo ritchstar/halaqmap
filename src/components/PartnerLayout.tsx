@@ -39,6 +39,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PartnerLayoutProps {
   children: React.ReactNode;
@@ -157,6 +158,7 @@ function PartnerPathDealPulseTitle({ className }: { className?: string }) {
 
 export function PartnerLayout({ children }: PartnerLayoutProps) {
   const location = useLocation();
+  const isMobile = useIsMobile();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { effectivePhase, control } = usePlatformAmbient();
   const { visible: tutorialsVisible } = usePartnerTutorialSectionVisible();
@@ -165,6 +167,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     ? partnerNavItems
     : partnerNavItems.filter((item) => item.path !== ROUTE_PATHS.PARTNER_TUTORIALS);
   const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
+  const isPreviewHeavyPage = location.pathname === ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW;
   const isCompactHeaderPage = COMPACT_PARTNER_HEADER_PATHS.has(location.pathname);
   const compactTitle = compactPartnerHeaderTitle(location.pathname);
 
@@ -231,12 +234,15 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         }}
         aria-hidden
       />
-      <PlatformAmbientBackground variant="partner" />
-      <B2BAmbientGlowField />
+      {!(isMobile && isPreviewHeavyPage) ? <PlatformAmbientBackground variant="partner" /> : null}
+      {!(isMobile && isPreviewHeavyPage) ? <B2BAmbientGlowField /> : null}
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <header
           className={cn(
-            'sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#071426]/92 pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75',
+            'sticky top-0 z-50 shrink-0 border-b border-white/10 pt-[env(safe-area-inset-top)]',
+            isMobile && isPreviewHeavyPage
+              ? 'bg-[#071426]/96'
+              : 'bg-[#071426]/92 backdrop-blur supports-[backdrop-filter]:bg-[#071426]/75',
             isMapCommunityPage && 'border-emerald-500/15',
           )}
         >
@@ -520,7 +526,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         </SheetContent>
       </Sheet>
 
-      {!isMapCommunityPage && !isCompactHeaderPage ? <PartnerPromoVideoBand /> : null}
+      {!isMapCommunityPage && !isCompactHeaderPage && !(isMobile && isPreviewHeavyPage) ? <PartnerPromoVideoBand /> : null}
 
       <main
         className={cn(

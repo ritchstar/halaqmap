@@ -4,10 +4,11 @@
  * كأن المنصة تُنير كل مدينة بنبضة تيل ذهبية
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Thermometer } from 'lucide-react';
 import { KSA_CITIES_GEO } from '@/config/ksaCitiesGeo';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   fetchTemperatureCelsius,
   formatRiyadhMonthAr,
@@ -31,10 +32,9 @@ function getKSATime() {
 
 // ─────────────────────────────────────────────────────────────────────────────
 export function KSACityClocksBar() {
+  const isMobile = useIsMobile();
   const [time, setTime] = useState(getKSATime);
   const [activeCityIdx, setActiveCityIdx] = useState(0);
-  const scanRef = useRef(0);
-  const [scanX, setScanX] = useState(-30);
   const [userCoords, setUserCoords] = useState<UserCoords | null>(() => readStoredUserCoords());
   const [coordsFromDevice, setCoordsFromDevice] = useState(Boolean(readStoredUserCoords()));
   const [cityTemps, setCityTemps] = useState<(number | null)[]>(() =>
@@ -82,15 +82,6 @@ export function KSACityClocksBar() {
     const id = setInterval(() => {
       setActiveCityIdx((i) => (i + 1) % KSA_CITIES_GEO.length);
     }, 6000);
-    return () => clearInterval(id);
-  }, []);
-
-  // خط المسح المتحرك
-  useEffect(() => {
-    const id = setInterval(() => {
-      scanRef.current = scanRef.current > 108 ? -30 : scanRef.current + 0.6;
-      setScanX(scanRef.current);
-    }, 16);
     return () => clearInterval(id);
   }, []);
 
@@ -146,9 +137,8 @@ export function KSACityClocksBar() {
     >
       {/* ── خط مسح أفقي ─── */}
       <div
-        className="pointer-events-none absolute inset-y-0 w-[22%] transition-none"
+        className="ksa-clocks-scanline pointer-events-none absolute inset-y-0 w-[22%]"
         style={{
-          left: `${scanX}%`,
           background:
             'linear-gradient(90deg,transparent 0%,rgba(20,184,166,0.04) 30%,rgba(20,184,166,0.11) 50%,rgba(20,184,166,0.04) 70%,transparent 100%)',
         }}
@@ -179,20 +169,30 @@ export function KSACityClocksBar() {
             <span className="ksa-clocks-time-main font-mono text-[1.2rem] font-black tabular-nums tracking-tight text-teal-50/95 sm:text-[1.3rem]">
               {time.h}:{time.m}
             </span>
-            <motion.span
-              animate={{ opacity: [1, 0.2, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-              className="ksa-clocks-time-sec font-mono text-[0.7rem] font-bold tabular-nums text-teal-400/45"
-            >
-              :{time.s}
-            </motion.span>
+            {isMobile ? (
+              <span className="ksa-clocks-time-sec font-mono text-[0.7rem] font-bold tabular-nums text-teal-400/45">
+                :{time.s}
+              </span>
+            ) : (
+              <motion.span
+                animate={{ opacity: [1, 0.2, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                className="ksa-clocks-time-sec font-mono text-[0.7rem] font-bold tabular-nums text-teal-400/45"
+              >
+                :{time.s}
+              </motion.span>
+            )}
           </div>
           <div className="flex items-center gap-1.5">
-            <motion.div
-              animate={{ opacity: [0.3, 0.8, 0.3] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.6)]"
-            />
+            {isMobile ? (
+              <div className="h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.6)]" />
+            ) : (
+              <motion.div
+                animate={{ opacity: [0.3, 0.8, 0.3] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.6)]"
+              />
+            )}
             <span className="ksa-clocks-live-label text-[0.52rem] font-black tracking-[0.22em] text-teal-400/75">LIVE · KSA</span>
           </div>
         </div>
@@ -231,7 +231,7 @@ export function KSACityClocksBar() {
                   }}
                 >
                   {/* توهج سديمي داخلي */}
-                  {(isActive || isUserCity) && (
+                  {(isActive || isUserCity) && !isMobile && (
                     <motion.div
                       className="pointer-events-none absolute inset-0 rounded-xl"
                       style={{
@@ -279,7 +279,7 @@ export function KSACityClocksBar() {
                   )}
 
                   {/* توهج سفلي للمدينة النشطة */}
-                  {isActive && (
+                  {isActive && !isMobile && (
                     <motion.div
                       className="pointer-events-none absolute -bottom-1 left-1/2 h-3 w-8 -translate-x-1/2 rounded-full"
                       style={{
@@ -303,7 +303,7 @@ export function KSACityClocksBar() {
             borderColor: `${regionColor}38`,
             background: `linear-gradient(135deg,${regionColor}16 0%,${regionColor}09 60%,transparent 100%)`,
             boxShadow: `0 0 24px ${regionColor}14,inset 0 1px 0 ${regionColor}20`,
-            backdropFilter: 'blur(12px)',
+            backdropFilter: isMobile ? 'none' : 'blur(12px)',
           }}
           title={
             coordsFromDevice
@@ -312,12 +312,14 @@ export function KSACityClocksBar() {
           }
         >
           {/* توهج خلفي للبطاقة */}
-          <motion.div
-            className="pointer-events-none absolute inset-0 rounded-2xl"
-            style={{ background: `radial-gradient(ellipse 80% 90% at 50% 50%,${regionColor}12,transparent)` }}
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          />
+          {!isMobile ? (
+            <motion.div
+              className="pointer-events-none absolute inset-0 rounded-2xl"
+              style={{ background: `radial-gradient(ellipse 80% 90% at 50% 50%,${regionColor}12,transparent)` }}
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          ) : null}
 
           {/* أيقونة الحرارة */}
           <div

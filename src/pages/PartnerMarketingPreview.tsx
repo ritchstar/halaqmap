@@ -20,6 +20,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   TIER_MONTHLY_SAR,
   DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
@@ -1048,6 +1049,7 @@ function CertificateMockup({ tier }: { tier: CertificateMockTier }) {
 export default function PartnerMarketingPreview() {
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
   const isStrictPartnerPath =
     location.pathname === ROUTE_PATHS.BARBERS_LANDING || location.pathname.startsWith('/partners/');
   useDocumentTitle(SOFTWARE_SERVICES_PORTAL_HEADING);
@@ -1055,6 +1057,9 @@ export default function PartnerMarketingPreview() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'bronze' | 'gold' | 'diamond'>('gold');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [deferMobilePartnerContent, setDeferMobilePartnerContent] = useState(
+    () => typeof window === 'undefined' || window.innerWidth >= 768,
+  );
 
   const statsRef = useRef<HTMLDivElement>(null);
   const statsInView = useInView(statsRef, { once: true });
@@ -1072,6 +1077,29 @@ export default function PartnerMarketingPreview() {
     navigate(ROUTE_PATHS.REGISTER);
   }, [navigate, warmRegisterRoute]);
 
+  useEffect(() => {
+    if (!isMobile) {
+      setDeferMobilePartnerContent(true);
+      return;
+    }
+    let cancelled = false;
+    const enable = () => {
+      if (!cancelled) setDeferMobilePartnerContent(true);
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(enable, { timeout: 1800 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(id);
+      };
+    }
+    const t = window.setTimeout(enable, 900);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [isMobile]);
+
   return (
     <div
       dir="rtl"
@@ -1082,7 +1110,7 @@ export default function PartnerMarketingPreview() {
     >
 
       {/* أزرار عائمة */}
-      <FloatingPlatformActions />
+      {deferMobilePartnerContent ? <FloatingPlatformActions /> : null}
       {/* مكتب مدير المبيعات أصبح صفحة مستقلة — بطاقة الدخول موجودة داخل الهيرو */}
 
       {/* ── شبكة التكتير الخلفية ──────────────────────────────────────────── */}
@@ -1102,12 +1130,17 @@ export default function PartnerMarketingPreview() {
       <header className="fixed inset-x-0 top-0 z-50 transition-all duration-500">
 
         {/* خلفية زجاجية */}
-        <div className="absolute inset-0 border-b border-sky-200/80 bg-white/85 backdrop-blur-2xl shadow-[0_12px_40px_rgba(148,163,184,0.16)]" />
+        <div className={cn(
+          'absolute inset-0 border-b border-sky-200/80 bg-white/85 shadow-[0_12px_40px_rgba(148,163,184,0.16)]',
+          isMobile ? 'backdrop-blur-0' : 'backdrop-blur-2xl',
+        )} />
 
         {/* ── شريط مدن المملكة ────────────────────────────────────────── */}
-        <div className="relative border-b border-sky-100/90">
-          <KSACityClocksBar />
-        </div>
+        {!isMobile || deferMobilePartnerContent ? (
+          <div className="relative border-b border-sky-100/90">
+            <KSACityClocksBar />
+          </div>
+        ) : null}
 
         {/* ── التنقل الرئيسي ──────────────────────────────────────────── */}
         <div className="relative">
@@ -1263,13 +1296,25 @@ export default function PartnerMarketingPreview() {
       </header>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[100dvh] overflow-hidden pt-24">
-        <div className="pointer-events-none absolute -right-80 top-0 h-[700px] w-[700px] rounded-full bg-amber-300/12 blur-[110px]" />
-        <div className="pointer-events-none absolute -left-60 bottom-0 h-[500px] w-[500px] rounded-full bg-teal-300/10 blur-[92px]" />
+      <section className={cn(
+        'relative overflow-hidden',
+        isMobile ? 'pt-20' : 'min-h-[100dvh] pt-24',
+      )}>
+        <div className={cn(
+          'pointer-events-none absolute rounded-full bg-amber-300/12',
+          isMobile ? '-right-24 top-4 h-[260px] w-[260px] blur-[52px]' : '-right-80 top-0 h-[700px] w-[700px] blur-[110px]',
+        )} />
+        <div className={cn(
+          'pointer-events-none absolute rounded-full bg-teal-300/10',
+          isMobile ? '-left-20 bottom-8 h-[220px] w-[220px] blur-[44px]' : '-left-60 bottom-0 h-[500px] w-[500px] blur-[92px]',
+        )} />
 
-        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-2 lg:gap-20 lg:py-28">
+        <div className={cn(
+          'relative z-10 mx-auto max-w-7xl px-5',
+          isMobile ? 'py-10' : 'grid items-center gap-12 py-20 lg:grid-cols-2 lg:gap-20 lg:py-28',
+        )}>
           {/* Text */}
-          <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
+          <motion.div initial={{ opacity: 0, x: isMobile ? 0 : 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
@@ -1284,7 +1329,7 @@ export default function PartnerMarketingPreview() {
             </h1>
 
             {/* ── بوابة مكتب مدير المبيعات — مباشرة تحت العنوان الرئيسي ── */}
-            {isStrictPartnerPath ? (
+            {isStrictPartnerPath && !isMobile ? (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1330,38 +1375,54 @@ export default function PartnerMarketingPreview() {
               </motion.div>
             ) : null}
 
-            <p className="mb-8 max-w-xl text-base leading-relaxed text-slate-600">
-              {PARTNER_TECHNICAL_PARTNER_HEADLINE}
-              <span className="mt-2 block text-[0.9rem] leading-relaxed text-slate-500">
-                {PARTNER_TECHNICAL_PARTNER_TAGLINE}
-              </span>
-              <span className="mt-2 block text-[0.85rem] text-amber-700/80">
-                لا عمولة · لا وسيط · لا عقد مُلزِم
-              </span>
-            </p>
-
-            <PlatformTrustStrip variant="strip" tone="light" className="mb-8 max-w-xl" />
-
-            <div className="mb-8 flex flex-wrap gap-3">
-              {PARTNER_TECHNICAL_PARTNER_HERO_CHIPS.map((text) => (
-                <div key={text} className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[0.75rem] text-emerald-800">
-                  <Shield className="h-3.5 w-3.5 text-emerald-600" />
-                  {text}
+            {isMobile ? (
+              <>
+                <p className="mb-5 max-w-lg text-[0.98rem] leading-8 text-slate-600">
+                  منصة تجعل صالونك أقرب للعميل حين يبحث فعلاً عن حلاق قريب. ابدأ الآن بخطوة واضحة وسريعة.
+                </p>
+                <div className="mb-5 rounded-[1.35rem] border border-emerald-200 bg-white/92 p-4 shadow-sm">
+                  <p className="text-[0.78rem] font-black text-emerald-700">قرار سريع</p>
+                  <p className="mt-1 text-[0.9rem] leading-7 text-slate-600">
+                    اختر التسجيل مباشرة، أو افتح مكتب المبيعات إذا أردت شرح الباقات والعائد قبل البدء.
+                  </p>
                 </div>
-              ))}
-              {[
-                { icon: Globe2, text: '47+ مدينة سعودية' },
-                { icon: Clock, text: 'حزمة 30 يوم مسبقة الدفع' },
-              ].map((b) => (
-                <div key={b.text} className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.75rem] text-slate-700 shadow-sm">
-                  <b.icon className="h-3.5 w-3.5 text-amber-600" />
-                  {b.text}
-                </div>
-              ))}
-              <PlatformTlsTrustBadge variant="compact" tone="light" />
-            </div>
+              </>
+            ) : (
+              <>
+                <p className="mb-8 max-w-xl text-base leading-relaxed text-slate-600">
+                  {PARTNER_TECHNICAL_PARTNER_HEADLINE}
+                  <span className="mt-2 block text-[0.9rem] leading-relaxed text-slate-500">
+                    {PARTNER_TECHNICAL_PARTNER_TAGLINE}
+                  </span>
+                  <span className="mt-2 block text-[0.85rem] text-amber-700/80">
+                    لا عمولة · لا وسيط · لا عقد مُلزِم
+                  </span>
+                </p>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+                <PlatformTrustStrip variant="strip" tone="light" className="mb-8 max-w-xl" />
+
+                <div className="mb-8 flex flex-wrap gap-3">
+                  {PARTNER_TECHNICAL_PARTNER_HERO_CHIPS.map((text) => (
+                    <div key={text} className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[0.75rem] text-emerald-800">
+                      <Shield className="h-3.5 w-3.5 text-emerald-600" />
+                      {text}
+                    </div>
+                  ))}
+                  {[
+                    { icon: Globe2, text: '47+ مدينة سعودية' },
+                    { icon: Clock, text: 'حزمة 30 يوم مسبقة الدفع' },
+                  ].map((b) => (
+                    <div key={b.text} className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.75rem] text-slate-700 shadow-sm">
+                      <b.icon className="h-3.5 w-3.5 text-amber-600" />
+                      {b.text}
+                    </div>
+                  ))}
+                  <PlatformTlsTrustBadge variant="compact" tone="light" />
+                </div>
+              </>
+            )}
+
+            <div className={cn('flex flex-col gap-3 sm:flex-row', isMobile && 'sm:flex-col')}>
               <button
                 onMouseEnter={warmRegisterRoute}
                 onFocus={warmRegisterRoute}
@@ -1373,15 +1434,17 @@ export default function PartnerMarketingPreview() {
                 <Scissors className="h-4 w-4" /> ابدأ رحلة الانضمام
               </button>
               <button
-                onClick={() => navigate(ROUTE_PATHS.PARTNER_WHY)}
+                onClick={() => navigate(isMobile ? ROUTE_PATHS.PARTNER_SALES_OFFICE : ROUTE_PATHS.PARTNER_WHY)}
                 className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-4 font-semibold text-slate-800 shadow-sm hover:border-slate-300"
               >
-                لماذا نحن؟ <ArrowLeft className="h-4 w-4" />
+                {isMobile ? 'مكتب مدير المبيعات' : 'لماذا نحن؟'} <ArrowLeft className="h-4 w-4" />
               </button>
             </div>
+
           </motion.div>
 
           {/* Card preview */}
+          {!isMobile ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.93 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -1443,14 +1506,17 @@ export default function PartnerMarketingPreview() {
               <div className="text-sm font-black text-amber-700">٤٧ بحث 📍</div>
             </motion.div>
           </motion.div>
+          ) : null}
         </div>
 
         <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-teal-500/50">
+          className={cn('absolute bottom-8 left-1/2 -translate-x-1/2 text-teal-500/50', isMobile && 'hidden')}>
           <ChevronDown className="h-6 w-6" />
         </motion.div>
       </section>
 
+      {isMobile && !deferMobilePartnerContent ? null : (
+      <>
       {/* ── Stats ────────────────────────────────────────────────────────── */}
       <section className="relative z-10 border-y border-sky-100 bg-white/65 py-12 backdrop-blur-sm">
         <div ref={statsRef} className="mx-auto max-w-4xl px-5">
@@ -2012,6 +2078,8 @@ export default function PartnerMarketingPreview() {
           </div>
         </div>
       </footer>
+      </>
+      )}
     </div>
   );
 }
