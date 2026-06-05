@@ -211,6 +211,7 @@ interface FormData {
   email: string;
   phone: string;
   whatsapp: string;
+  taxNumber: string;
   categories: string[];
   /** تعهد قانوني إلزامي قبل إتمام التسجيل */
   legalDisclaimerAccepted: boolean;
@@ -368,6 +369,7 @@ export function RegistrationForm() {
     email: '',
     phone: '',
     whatsapp: '',
+    taxNumber: '',
     categories: [],
     legalDisclaimerAccepted: false,
     professionalCommitmentAccepted: false,
@@ -432,6 +434,11 @@ export function RegistrationForm() {
       }
       if (!phoneRegex.test(formData.whatsapp)) {
         alert('يرجى إدخال رقم واتساب صحيح (يبدأ بـ 05 ويتكون من 10 أرقام)');
+        return;
+      }
+      const normalizedTax = formData.taxNumber.replace(/\s+/g, '');
+      if (normalizedTax && !/^\d{15}$/.test(normalizedTax)) {
+        alert('إذا أدخلت الرقم الضريبي فيجب أن يكون 15 رقمًا.');
         return;
       }
     }
@@ -748,6 +755,7 @@ export function RegistrationForm() {
         email: formData.email,
         phone: saPhoneToInternational(formData.phone),
         whatsapp: saPhoneToInternational(formData.whatsapp),
+        ...(formData.taxNumber.replace(/\s+/g, '') ? { taxNumber: formData.taxNumber.replace(/\s+/g, '') } : {}),
         location: {
           lat,
           lng,
@@ -846,6 +854,7 @@ export function RegistrationForm() {
         `البريد: ${formData.email}\n` +
         `الهاتف: ${formData.phone}\n` +
         `الواتساب: ${formData.whatsapp}\n` +
+        `الرقم الضريبي: ${formData.taxNumber.replace(/\s+/g, '') || '—'}\n` +
         `الباقة: ${tierPackageSummary(
           tierName,
           unitSarForSummary,
@@ -888,6 +897,7 @@ export function RegistrationForm() {
         `رقم الطلب: ${orderId}\n` +
         `التقديم: ${submittedAtLabel}\n` +
         `المحل: ${formData.shopName}\n` +
+        `الرقم الضريبي: ${formData.taxNumber.replace(/\s+/g, '') || '—'}\n` +
         `الباقة: ${tierPackageSummary(
           tierName,
           unitSarForSummary,
@@ -1307,6 +1317,29 @@ export function RegistrationForm() {
                       required
                     />
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="taxNumber" className={regLabelClass}>
+                    الرقم الضريبي للمنشأة
+                  </Label>
+                  <Input
+                    id="taxNumber"
+                    inputMode="numeric"
+                    placeholder="15 رقمًا — إذا كانت المنشأة مسجلة ضريبياً"
+                    value={formData.taxNumber}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, taxNumber: e.target.value.replace(/[^\d\s]/g, '') }))
+                    }
+                    className={regFieldClass}
+                  />
+                  <Alert className={regAlertClass}>
+                    <AlertCircle className="h-4 w-4 text-slate-400" />
+                    <AlertDescription className="text-slate-300">
+                      يُستخدم هذا الحقل لإدراج الرقم الضريبي على فواتير الحزم البرمجية ودعم الامتثال مع متطلبات
+                      الفوترة الإلكترونية ومرجعية `ZATCA` عند الحاجة. إذا كانت منشأتك غير مسجلة ضريبياً بعد يمكنك
+                      تركه فارغًا مؤقتًا.
+                    </AlertDescription>
+                  </Alert>
                 </div>
                 <div className="space-y-2">
                   <Label className={regLabelClass}>نوع الخدمات *</Label>
