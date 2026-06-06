@@ -135,10 +135,10 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
     denied:    { ring: 'rgba(239,68,68,',  border: 'rgba(239,68,68,0.50)',  glow: 'rgba(239,68,68,0.32)',  bg: 'radial-gradient(circle at 42% 38%, #2d0a0a 0%, #1a0505 45%, #020912 100%)', icon: '#f87171', text: 'text-rose-100', sub: 'text-rose-400/65' },
   }[phase];
 
-  const SIZE = 220;
+  const SIZE = isMobile ? 184 : 220;
 
   return (
-    <div className="flex flex-col items-center gap-6 select-none" dir="rtl">
+    <div className="flex flex-col items-center gap-4 select-none" dir="rtl">
 
       {/* ── The button ───────────────────────────────────── */}
       <div className="relative" style={{ width: SIZE, height: SIZE }}>
@@ -201,13 +201,13 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
           {/* ── Icon zone ──────────────────────────────────── */}
           <div className="relative z-10 mb-4 flex items-center justify-center">
             {isFound ? (
-              <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 border-emerald-400/50 bg-emerald-500/15">
+              <div className={`flex items-center justify-center rounded-full border-2 border-emerald-400/50 bg-emerald-500/15 ${isMobile ? 'h-[60px] w-[60px]' : 'h-[72px] w-[72px]'}`}>
                 <svg viewBox="0 0 28 28" width="38" height="38" fill="none">
                   <path d="M5 14 L11 20 L23 8" stroke="#34d399" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
             ) : isDenied ? (
-              <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 border-rose-400/50 bg-rose-500/15">
+              <div className={`flex items-center justify-center rounded-full border-2 border-rose-400/50 bg-rose-500/15 ${isMobile ? 'h-[60px] w-[60px]' : 'h-[72px] w-[72px]'}`}>
                 <svg viewBox="0 0 28 28" width="38" height="38" fill="none">
                   <line x1="7" y1="7" x2="21" y2="21" stroke="#f87171" strokeWidth="3" strokeLinecap="round" />
                   <line x1="21" y1="7" x2="7" y2="21" stroke="#f87171" strokeWidth="3" strokeLinecap="round" />
@@ -222,7 +222,7 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
                   ? { duration: 0.9, repeat: Infinity, ease: 'easeInOut' }
                   : { duration: 0.4 }}>
                 <Scissors
-                  style={{ color: theme.icon, width: 68, height: 68 }}
+                  style={{ color: theme.icon, width: isMobile ? 56 : 68, height: isMobile ? 56 : 68 }}
                   strokeWidth={1.35}
                 />
               </motion.div>
@@ -231,11 +231,11 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
 
           {/* ── Text zone ──────────────────────────────────── */}
           <div className="relative z-10 flex flex-col items-center gap-1.5">
-            <p className={`text-[1.05rem] font-black leading-tight ${theme.text}`}>
+            <p className={`${isMobile ? 'text-[0.95rem]' : 'text-[1.05rem]'} font-black leading-tight ${theme.text}`}>
               {isFound ? 'موقعك مُثبَّت' : isSearching ? 'جاري التحديد…' : isDenied ? 'تعذّر التحديد' : 'اكتشف حلاقك الآن'}
             </p>
             {isIdle && (
-              <p className={`text-[0.62rem] font-semibold ${theme.sub}`}>
+              <p className={`${isMobile ? 'text-[0.58rem]' : 'text-[0.62rem]'} font-semibold ${theme.sub}`}>
                 اضغط لتحديد موقعك
               </p>
             )}
@@ -264,7 +264,7 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
 
       {/* ── After found: coordinates + verify button ─────── */}
       <AnimatePresence>
-        {isFound && coords && (
+        {isFound && coords && !isMobile && (
           <motion.div key="result"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}

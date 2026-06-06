@@ -152,14 +152,42 @@
         } catch (e) {}
       })();
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap"
-      media="print"
-      onload="this.media='all'"
-    />
+    <script>
+      (function () {
+        try {
+          var isMobile = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+          var saveData = navigator.connection && navigator.connection.saveData === true;
+          if (isMobile || saveData) return;
+          var loaded = false;
+          var loadTajawal = function () {
+            if (loaded) return;
+            loaded = true;
+            var preconnectApi = document.createElement('link');
+            preconnectApi.rel = 'preconnect';
+            preconnectApi.href = 'https://fonts.googleapis.com';
+            document.head.appendChild(preconnectApi);
+
+            var preconnectStatic = document.createElement('link');
+            preconnectStatic.rel = 'preconnect';
+            preconnectStatic.href = 'https://fonts.gstatic.com';
+            preconnectStatic.crossOrigin = 'anonymous';
+            document.head.appendChild(preconnectStatic);
+
+            var stylesheet = document.createElement('link');
+            stylesheet.rel = 'stylesheet';
+            stylesheet.href = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap';
+            stylesheet.setAttribute('data-hm-font', 'tajawal');
+            document.head.appendChild(stylesheet);
+          };
+
+          if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(loadTajawal, { timeout: 2500 });
+          } else {
+            window.setTimeout(loadTajawal, 1200);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <noscript>
       <link
         rel="stylesheet"

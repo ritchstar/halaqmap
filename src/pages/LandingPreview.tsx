@@ -6,20 +6,19 @@
  * تصميم تكتيكي داكن · فخامة خليجية · حضور جغرافي
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo, startTransition } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, startTransition, lazy, Suspense } from 'react';
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
   CheckCircle2, Clock, ArrowLeft, Sparkles,
   Navigation2, ChevronDown, Globe2, Lock,
   Users, Award, Wifi, TrendingUp, Play, X,
-  Phone, MessageCircle, Heart, BarChart3, Crown, Menu,
+  Phone, MessageCircle, Heart, BarChart3, Crown,
   Building2
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { cn } from '@/lib/utils';
-import { GeoRadarButton } from '@/components/GeoRadarButton';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { RadarShowcaseLink } from '@/components/RadarShowcaseLink';
@@ -32,13 +31,24 @@ import { toast } from '@/components/ui/sonner';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
-import { LandingAgentPanelBody } from '@/pages/landing/LandingAgentPanelBody';
 import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { CyberRadarCanvas } from '@/modules/cyber-radar/components/CyberRadarCanvas';
-import type { CyberEvent } from '@/modules/cyber-radar/types';
-import { CITY_BEACONS, KSA_VIEWBOX, RIYADH_VIEW } from '@/modules/platform-radar/lib/saudiKingdomGeo';
+
+const LazyLandingAgentPanelBody = lazy(async () => {
+  const mod = await import('@/pages/landing/LandingAgentPanelBody');
+  return { default: mod.LandingAgentPanelBody };
+});
+
+const LazyDesktopLandingRadarHero = lazy(async () => {
+  const mod = await import('@/pages/landing/DesktopLandingRadarHero');
+  return { default: mod.DesktopLandingRadarHero };
+});
+
+const LazyGeoRadarButton = lazy(async () => {
+  const mod = await import('@/components/GeoRadarButton');
+  return { default: mod.GeoRadarButton };
+});
 
 type LandingAgentPanel = 'media' | 'legal' | null;
 
@@ -194,7 +204,15 @@ function LandingAgentPanel({
             >
               إغلاق
             </button>
-            <LandingAgentPanelBody panel={activePanel} />
+            <Suspense
+              fallback={
+                <div className="rounded-3xl border border-white/10 bg-[#071426]/95 p-6 text-sm text-slate-300">
+                  جاري تحميل لوحة الوكلاء…
+                </div>
+              }
+            >
+              <LazyLandingAgentPanelBody panel={activePanel} />
+            </Suspense>
           </motion.aside>
         </motion.div>
       ) : null}
@@ -235,141 +253,122 @@ const TIER_COLOR: Record<string, string> = {
   bronze: '#cd7f32',
 };
 
-const HERO_CITY_ROUTE_OVERRIDES: Record<string, { x: number; y: number }> = {
-  // Override Najran to the exact visual node used in the hero radar composition.
-  'نجران': {
-    x: (64 / 100) * KSA_VIEWBOX.width,
-    y: (62 / 100) * KSA_VIEWBOX.height,
-  },
-};
-
-// ─── Radar canvas ───────────────────────────────────────────────────────────
-function RadarHero({ onBeaconClick, mobileLite = false }: { onBeaconClick: (id: number) => void; mobileLite?: boolean }) {
-  const cityFlowEvents = useMemo<CyberEvent[]>(() => {
-    const byName = new Map(
-      CITY_BEACONS.map((city) => [
-        city.nameAr,
-        HERO_CITY_ROUTE_OVERRIDES[city.nameAr] ?? city.view,
-      ] as const),
-    );
-    const routes = [
-      ['جدة', 'الرياض'],
-      ['الدمام', 'الرياض'],
-      ['المدينة', 'الدمام'],
-      ['تبوك', 'الرياض'],
-      ['حائل', 'الدمام'],
-      ['جازان', 'مكة'],
-      ['أبها', 'جدة'],
-      ['أبها', 'الرياض'],
-      ['أبها', 'الأحساء'],
-      ['الرياض', 'أبها'],
-      ['جدة', 'أبها'],
-      ['الأحساء', 'أبها'],
-      ['خميس مشيط', 'الرياض'],
-      ['خميس مشيط', 'جدة'],
-      ['الرياض', 'خميس مشيط'],
-      ['الباحة', 'الرياض'],
-      ['الخبر', 'المدينة'],
-      ['ينبع', 'الرياض'],
-      ['بريدة', 'جدة'],
-      ['نجران', 'الرياض'],
-      ['الجبيل', 'أبها'],
-      ['الطائف', 'الدمام'],
-      ['الأحساء', 'المدينة'],
-      ['عرعر', 'الرياض'],
-      ['سكاكا', 'الدمام'],
-      ['حفر الباطن', 'الرياض'],
-      ['تبوك', 'جدة'],
-      ['سكاكا', 'المدينة'],
-      ['عرعر', 'حائل'],
-      ['جازان', 'الرياض'],
-      ['نجران', 'جدة'],
-      ['الباحة', 'جدة'],
-      ['جازان', 'الدمام'],
-    ] as const;
-
-    const selectedRoutes = mobileLite ? routes.slice(0, 8) : routes;
-    return selectedRoutes.flatMap(([from, to], idx) => {
-        const source = byName.get(from);
-        const target = byName.get(to);
-        if (!source || !target) return [];
-        const isSouthPriority = from === 'أبها' || from === 'خميس مشيط' || from === 'نجران';
-        return [{
-          id: `hero-flow-${from}-${to}-${idx}`,
-          kind: (isSouthPriority
-            ? idx % 2 === 0
-              ? 'visit_external'
-              : 'registration'
-            : idx % 4 === 0
-              ? 'visit_external'
-              : idx % 4 === 1
-                ? 'registration'
-                : idx % 4 === 2
-                  ? 'visit_internal'
-                  : 'defence_action') as CyberEvent['kind'],
-          severity: isSouthPriority ? 'critical' : idx % 3 === 0 ? 'elevated' : 'info',
-          source,
-          target,
-          description: `نبضة رادارية — ${from} → ${to}`,
-          originLabelAr: from,
-          timestamp: new Date(Date.now() - idx * 35_000).toISOString(),
-          lifetimeMs: 8200,
-          volume: isSouthPriority ? 5 : idx % 2 === 0 ? 3 : 2,
-        } satisfies CyberEvent];
-      });
-  }, [mobileLite]);
-
-  const cyberEvents = useMemo<CyberEvent[]>(() => (
-    [
-      ...DEMO_BEACONS.map((b, idx) => {
-      const x = (b.x / 100) * KSA_VIEWBOX.width;
-      const y = (b.y / 100) * KSA_VIEWBOX.height;
-      return {
-        id: `hero-cyber-${b.id}-${idx}`,
-        kind: b.open ? 'visit_internal' : 'threat_probe',
-        severity: b.open ? 'info' : 'elevated',
-        source: { x, y },
-        target: b.open ? undefined : RIYADH_VIEW,
-        description: b.name,
-        originLabelAr: b.name,
-        timestamp: new Date().toISOString(),
-        lifetimeMs: 6000,
-        volume: b.open ? 1 : 2,
-      } satisfies CyberEvent;
-      }),
-      ...cityFlowEvents,
-    ]
-  ), [cityFlowEvents]);
+function MobileHeroLite() {
+  const openCount = DEMO_BEACONS.filter((b) => b.open).length;
 
   return (
-    <div className="relative h-full w-full select-none overflow-hidden rounded-2xl" style={{ fontFamily: 'system-ui' }}>
-      <CyberRadarCanvas pulses={cyberEvents} narrator={null} showOrnaments={false} mobileLite={mobileLite} className="h-full w-full" />
+    <div className="relative h-full overflow-hidden rounded-2xl border border-teal-400/15 bg-[radial-gradient(circle_at_top,rgba(20,184,166,0.18),transparent_42%),linear-gradient(180deg,#071426_0%,#030d1a_100%)] p-4">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[0.64rem] font-black tracking-[0.22em] text-teal-300/70">FAST MOBILE MODE</p>
+          <h3 className="mt-1 text-lg font-black text-white">الوصول للحلاق الأقرب أسرع</h3>
+        </div>
+        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-center">
+          <p className="text-[0.58rem] text-emerald-300/70">المتاح الآن</p>
+          <p className="text-xl font-black text-emerald-200">{openCount}</p>
+        </div>
+      </div>
 
-      {/* Interactive barber hotspots on top of cyber radar */}
-      {(mobileLite ? DEMO_BEACONS.slice(0, 4) : DEMO_BEACONS).map((b) => (
-        <button
-          key={b.id}
-          type="button"
-          aria-label={b.name}
-          onClick={() => onBeaconClick(b.id)}
-          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white/45 transition-transform hover:scale-110"
-          style={{
-            left: `${b.x}%`,
-            top: `${b.y}%`,
-            width: '11px',
-            height: '11px',
-            background: TIER_COLOR[b.tier],
-            boxShadow: `0 0 0 3px ${TIER_COLOR[b.tier]}33, 0 0 16px ${TIER_COLOR[b.tier]}77`,
-          }}
-        >
-          {!b.open ? (
-            <span
-              className="absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-1 ring-white/70"
-              aria-hidden
-            />
-          ) : null}
-        </button>
-      ))}
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { label: 'رادار خفيف', value: 'بدون مؤثرات ثقيلة' },
+          { label: 'التغطية', value: '47+ مدينة' },
+          { label: 'النتائج', value: 'حقيقية' },
+          { label: 'التواصل', value: 'مباشر' },
+        ].map((item) => (
+          <div key={item.label} className="rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-3">
+            <p className="text-[0.62rem] text-slate-400">{item.label}</p>
+            <p className="mt-1 text-sm font-bold text-white">{item.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-teal-400/10 bg-teal-500/[0.06] px-4 py-3 text-sm leading-6 text-slate-200">
+        تم تبسيط البطل على الجوال لتقليل زمن التحميل ورفع سرعة التصفح في الصفحة الرئيسية.
+      </div>
+    </div>
+  );
+}
+
+function MobileQuickSearchButton({
+  onLocationDetected,
+  onLocationReset,
+}: {
+  onLocationDetected: (loc: { lat: number; lng: number }) => void;
+  onLocationReset: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  const handleDetect = useCallback(async () => {
+    if (busy) return;
+    if (!navigator.geolocation) {
+      toast.error('متصفحك لا يدعم تحديد الموقع');
+      return;
+    }
+
+    setBusy(true);
+    onLocationReset();
+
+    try {
+      const [{ resolveStrictUserLocation }, { readStoredUserCoords, clearStoredUserCoords, storeUserCoords }] =
+        await Promise.all([
+          import('@/lib/strictGeolocation'),
+          import('@/lib/userRegionWeather'),
+        ]);
+
+      const previousCoords = readStoredUserCoords();
+      clearStoredUserCoords();
+
+      const strict = await resolveStrictUserLocation({
+        previousCoords,
+        highAccuracyTimeoutMs: 12_000,
+        sampleWindowMs: 9_000,
+        minDesiredAccuracyM: 60,
+        maxAcceptableAccuracyM: 350,
+      });
+
+      if (!strict.ok) {
+        toast.error(strict.error || 'تعذّر تحديد موقعك');
+        return;
+      }
+
+      storeUserCoords(strict.coords);
+      onLocationDetected(strict.coords);
+      toast.success(`تم تحديد موقعك بدقة ±${strict.accuracyM}م`);
+      if (strict.warning) {
+        toast.message('تنبيه دقة', { description: strict.warning });
+      }
+    } catch {
+      toast.error('تعذّر تحديد موقعك — حاول مرة أخرى');
+    } finally {
+      setBusy(false);
+    }
+  }, [busy, onLocationDetected, onLocationReset]);
+
+  return (
+    <div className="flex w-full flex-col items-center gap-3" dir="rtl">
+      <button
+        type="button"
+        onClick={() => void handleDetect()}
+        disabled={busy}
+        className="flex w-full max-w-[19rem] items-center justify-center gap-3 rounded-3xl border border-teal-400/25 bg-gradient-to-b from-[#0a2431] to-[#071426] px-5 py-5 text-right shadow-[0_10px_40px_rgba(20,184,166,0.10)] transition-colors active:bg-[#0a1f2a] disabled:opacity-80"
+        aria-label="ابحث عن حلاق وحدد موقعك"
+      >
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-500/10">
+          <Navigation2 className="h-6 w-6 text-teal-300" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-base font-black text-white">
+            {busy ? 'جاري تحديد موقعك…' : 'ابحث عن حلاق'}
+          </div>
+          <div className="mt-1 text-[0.78rem] leading-5 text-teal-200/72">
+            {busy ? 'لحظات وسيتم عرض الأقرب إليك' : 'اضغط وحدد موقعك لعرض الأقرب فورًا'}
+          </div>
+        </div>
+      </button>
+      <p className="text-center text-[0.72rem] leading-5 text-slate-400">
+        الخدمة تبدأ من موقعك مباشرة، ثم نعرض لك النتائج القريبة دون خطوات إضافية.
+      </p>
     </div>
   );
 }
@@ -498,7 +497,6 @@ export default function LandingPreview() {
   const [selectedBeacon, setSelectedBeacon] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // ── Real barber search state ────────────────────────────────────────
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -602,9 +600,9 @@ export default function LandingPreview() {
       {/* شريط موقع المستخدم */}
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
 
-      {deferMobileExtras ? <FloatingPlatformActions /> : null}
+      {!isMobile && deferMobileExtras ? <FloatingPlatformActions /> : null}
 
-      {deferMobileExtras ? (
+      {!isMobile && deferMobileExtras ? (
         <>
           <LeftAgentStack navigate={navigate} onOpenPanel={setActiveAgentPanel} />
           <LandingAgentPanel
@@ -625,7 +623,7 @@ export default function LandingPreview() {
         }}
       />
 
-      {deferMobileExtras ? <PlatformAmbientBackground variant="default" /> : null}
+      {!isMobile && deferMobileExtras ? <PlatformAmbientBackground variant="default" /> : null}
 
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
@@ -645,201 +643,150 @@ export default function LandingPreview() {
 
         {/* ── شريط مدن المملكة ───────────────────────────── */}
         <div className="relative border-b border-teal-400/10">
-          {!isMobile || deferMobileExtras ? <KSACityClocksBar /> : null}
+          {!isMobile ? <KSACityClocksBar /> : null}
         </div>
 
         {/* ── التنقل الرئيسي ─────────────────────────────── */}
         <div className="relative">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
-
-            {/* ── الشعار (يمين في RTL) ────────── */}
-            <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-3 no-underline">
-              {/* أيقونة المقص الدوّارة */}
-              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-400/20 to-teal-700/20 blur-sm" />
-                <motion.div
-                  className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-teal-400/30 bg-gradient-to-br from-[#0d2a28] to-[#020912] shadow-[0_0_20px_rgba(20,184,166,0.25),inset_0_1px_0_rgba(45,212,191,0.15)]"
-                  whileHover={{ scale: 1.08, rotate: 15 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                >
+          {isMobile ? (
+            <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+              <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-2 no-underline">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-400/25 bg-[#071426]">
                   <Scissors className="h-4 w-4 text-teal-300" />
-                </motion.div>
-              </div>
-
-              {/* اسم المنصة */}
-              <div className="leading-tight">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[1.19rem] font-black tracking-wide text-white">حلاق ماب</span>
-                  {skipHeroMotion ? (
-                    <div className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-                  ) : (
-                    <motion.div
-                      animate={{ opacity: [0.5, 1, 0.5], scale: [0.9, 1.1, 0.9] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="h-1.5 w-1.5 rounded-full bg-teal-400"
-                    />
-                  )}
                 </div>
-                <div className="text-[0.6rem] font-bold tracking-[0.3em] text-teal-400/55">HALAQ MAP · LIVE</div>
-              </div>
-
-              {/* عدد الصالونات النشطة */}
-              <div className="hidden items-center gap-1 rounded-full border border-teal-400/20 bg-teal-500/8 px-2.5 py-1 sm:flex">
-                {skipHeroMotion ? (
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                ) : (
-                  <motion.div
-                    animate={{ opacity: [0.4, 1, 0.4] }}
-                    transition={{ duration: 2.5, repeat: Infinity }}
-                    className="h-1.5 w-1.5 rounded-full bg-emerald-400"
-                  />
-                )}
-                <span className="text-[0.69rem] font-bold text-emerald-300/80">رادار نشط</span>
-              </div>
-            </Link>
-
-            {/* ── روابط التنقل (للمستخدمين فقط) ── */}
-            <nav className="hidden items-center gap-1 md:flex" dir="rtl">
-              {[
-                { label: 'كيف يعمل', icon: Navigation2, id: 'كيف يعمل' },
-                { label: 'المميزات',  icon: Sparkles,   id: 'المميزات' },
-                { label: 'الأسعار',  icon: Crown,      id: 'الأسعار' },
-              ].map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.98rem] font-semibold text-white/82 [text-shadow:0_0_10px_rgba(255,255,255,0.10)] transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
-                >
-                  <item.icon className="h-3.5 w-3.5 text-teal-500/50 transition-colors group-hover:text-teal-400" />
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-
-            {/* ── زر البحث + أيقونة B2B مُدمَجة ── */}
-            <div className="flex items-center gap-2">
-              <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
-
-              {/* زر البحث */}
-              <motion.button
-                onClick={() => {
-                  const el = document.getElementById('search-anchor');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.94rem] font-black text-white shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all hover:shadow-[0_0_30px_rgba(20,184,166,0.5)]"
-              >
-                {/* Shimmer */}
-                {!skipHeroMotion ? (
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-l from-transparent via-white/15 to-transparent"
-                    animate={{ x: ['-100%', '200%'] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
-                  />
-                ) : null}
-                <span className="relative flex items-center gap-1.5">
-                  <Search className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">ابحث عن حلاق</span>
-                  <span className="sm:hidden">بحث</span>
-                </span>
-              </motion.button>
-
-              {/* ── فاصل رفيع ── */}
-              <div className="hidden h-6 w-px bg-white/12 md:block" />
-
-              <RadarShowcaseLink variant="showcase" className="hidden shrink-0 md:inline-flex" />
-
-              {/* ── أيقونة B2B — للمنشآت والصالونات ── */}
-              <Link
-                to={ROUTE_PATHS.BARBERS_LANDING}
-                title="مسار الخدمات التسويقية للمنشآت — B2B"
-                className="group relative hidden h-9 w-9 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-500/8 text-amber-400/70 transition-all hover:border-amber-400/50 hover:bg-amber-500/15 hover:text-amber-300 md:flex"
-                aria-label="مسار الشركاء B2B"
-              >
-                <Building2 className="h-4 w-4" />
-                {/* شارة B2B صغيرة */}
-                <span className="absolute -bottom-1.5 -left-1 rounded-full bg-amber-500 px-1 py-0 text-[0.53rem] font-black leading-tight tracking-wider text-black">
-                  B2B
-                </span>
+                <div className="leading-tight">
+                  <div className="text-[1rem] font-black tracking-wide text-white">حلاق ماب</div>
+                  <div className="text-[0.58rem] font-bold text-teal-400/70">ابحث عن حلاق قريب</div>
+                </div>
               </Link>
 
-              {/* زر القائمة — موبايل */}
               <button
                 type="button"
-                onClick={() => setMobileNavOpen((o) => !o)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 md:hidden"
-                aria-label="القائمة"
+                onClick={() => {
+                  const el = document.getElementById('search-anchor');
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="rounded-2xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.9rem] font-black text-white shadow-[0_0_18px_rgba(20,184,166,0.28)]"
               >
-                {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                ابحث الآن
               </button>
             </div>
-          </div>
+          ) : (
+            <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
 
-          {/* ── خط التوهج السفلي ───────────────── */}
-          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent" />
-        </div>
+              {/* ── الشعار (يمين في RTL) ────────── */}
+              <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-3 no-underline">
+                {/* أيقونة المقص الدوّارة */}
+                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-400/20 to-teal-700/20 blur-sm" />
+                  <motion.div
+                    className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-teal-400/30 bg-gradient-to-br from-[#0d2a28] to-[#020912] shadow-[0_0_20px_rgba(20,184,166,0.25),inset_0_1px_0_rgba(45,212,191,0.15)]"
+                    whileHover={{ scale: 1.08, rotate: 15 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                  >
+                    <Scissors className="h-4 w-4 text-teal-300" />
+                  </motion.div>
+                </div>
 
-        {/* ── قائمة الموبايل المنسدلة ─────────────── */}
-        <AnimatePresence>
-          {mobileNavOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25 }}
-              className="relative overflow-hidden border-t border-white/8 bg-[#020912]/98 md:hidden"
-            >
-              <nav className="flex flex-col gap-1 px-5 py-4" dir="rtl">
-                <div className="mb-2 flex justify-center">
-                  <PlatformAmbientToggle variant="partner" />
+                {/* اسم المنصة */}
+                <div className="leading-tight">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[1.19rem] font-black tracking-wide text-white">حلاق ماب</span>
+                    {skipHeroMotion ? (
+                      <div className="h-1.5 w-1.5 rounded-full bg-teal-400" />
+                    ) : (
+                      <motion.div
+                        animate={{ opacity: [0.5, 1, 0.5], scale: [0.9, 1.1, 0.9] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="h-1.5 w-1.5 rounded-full bg-teal-400"
+                      />
+                    )}
+                  </div>
+                  <div className="text-[0.6rem] font-bold tracking-[0.3em] text-teal-400/55">HALAQ MAP · LIVE</div>
                 </div>
-                <div className="mb-4 flex justify-center">
-                  <RadarShowcaseLink variant="showcase" />
+
+                {/* عدد الصالونات النشطة */}
+                <div className="hidden items-center gap-1 rounded-full border border-teal-400/20 bg-teal-500/8 px-2.5 py-1 sm:flex">
+                  {skipHeroMotion ? (
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  ) : (
+                    <motion.div
+                      animate={{ opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 2.5, repeat: Infinity }}
+                      className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+                    />
+                  )}
+                  <span className="text-[0.69rem] font-bold text-emerald-300/80">رادار نشط</span>
                 </div>
+              </Link>
+
+              {/* ── روابط التنقل (للمستخدمين فقط) ── */}
+              <nav className="hidden items-center gap-1 md:flex" dir="rtl">
                 {[
-                  { label: 'كيف يعمل', sectionId: 'كيف يعمل' },
-                  { label: 'المميزات', sectionId: 'المميزات' },
-                  { label: 'الأسعار', sectionId: 'الأسعار' },
+                  { label: 'كيف يعمل', icon: Navigation2, id: 'كيف يعمل' },
+                  { label: 'المميزات',  icon: Sparkles,   id: 'المميزات' },
+                  { label: 'الأسعار',  icon: Crown,      id: 'الأسعار' },
                 ].map((item) => (
                   <button
                     key={item.label}
                     type="button"
-                    onClick={() => {
-                      setMobileNavOpen(false);
-                      setTimeout(() => document.getElementById(item.sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
-                    }}
-                    className="rounded-xl px-4 py-3 text-right text-[1.09rem] font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
+                    onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.98rem] font-semibold text-white/82 [text-shadow:0_0_10px_rgba(255,255,255,0.10)] transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
                   >
+                    <item.icon className="h-3.5 w-3.5 text-teal-500/50 transition-colors group-hover:text-teal-400" />
                     {item.label}
                   </button>
                 ))}
-                {[
-                  { label: 'للمنشآت B2B', to: ROUTE_PATHS.BARBERS_LANDING },
-                  { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
-                  { label: 'آراء المستخدمين', to: ROUTE_PATHS.PLATFORM_REVIEWS },
-                  { label: 'معاينة الرصد الذكي', to: ROUTE_PATHS.RADAR_SHOWCASE },
-                ].map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.to}
-                    onClick={() => setMobileNavOpen(false)}
-                    className="rounded-xl px-4 py-3 text-[1.09rem] font-medium text-slate-300 hover:bg-white/5 hover:text-teal-300 transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                <button
-                  onClick={() => { setMobileNavOpen(false); document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' }); }}
-                  className="mt-2 w-full rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 py-3 text-[1.09rem] font-bold text-white"
-                >
-                  ابحث عن حلاق الآن
-                </button>
               </nav>
-            </motion.div>
+
+              {/* ── زر البحث + أيقونة B2B مُدمَجة ── */}
+              <div className="flex items-center gap-2">
+                <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
+
+                <motion.button
+                  onClick={() => {
+                    const el = document.getElementById('search-anchor');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="group relative overflow-hidden rounded-xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.94rem] font-black text-white shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all hover:shadow-[0_0_30px_rgba(20,184,166,0.5)]"
+                >
+                  {!skipHeroMotion ? (
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-l from-transparent via-white/15 to-transparent"
+                      animate={{ x: ['-100%', '200%'] }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
+                    />
+                  ) : null}
+                  <span className="relative flex items-center gap-1.5">
+                    <Search className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">ابحث عن حلاق</span>
+                    <span className="sm:hidden">بحث</span>
+                  </span>
+                </motion.button>
+
+                <div className="hidden h-6 w-px bg-white/12 md:block" />
+
+                <RadarShowcaseLink variant="showcase" className="hidden shrink-0 md:inline-flex" />
+
+                <Link
+                  to={ROUTE_PATHS.BARBERS_LANDING}
+                  title="مسار الخدمات التسويقية للمنشآت — B2B"
+                  className="group relative hidden h-9 w-9 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-500/8 text-amber-400/70 transition-all hover:border-amber-400/50 hover:bg-amber-500/15 hover:text-amber-300 md:flex"
+                  aria-label="مسار الشركاء B2B"
+                >
+                  <Building2 className="h-4 w-4" />
+                  <span className="absolute -bottom-1.5 -left-1 rounded-full bg-amber-500 px-1 py-0 text-[0.53rem] font-black leading-tight tracking-wider text-black">
+                    B2B
+                  </span>
+                </Link>
+              </div>
+            </div>
           )}
-        </AnimatePresence>
+
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent" />
+        </div>
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
@@ -848,26 +795,21 @@ export default function LandingPreview() {
         <div id="search-anchor" className="absolute top-32" />
 
         {/* Glow blobs */}
-        <div className={cn(
-          'pointer-events-none absolute rounded-full bg-teal-500/8',
-          isMobile
-            ? '-right-20 top-8 h-[280px] w-[280px] blur-[70px]'
-            : '-right-64 top-10 h-[600px] w-[600px] blur-[140px]',
-        )} />
-        <div className={cn(
-          'pointer-events-none absolute rounded-full bg-amber-500/6',
-          isMobile
-            ? '-left-10 bottom-24 h-[220px] w-[220px] blur-[60px]'
-            : '-left-48 bottom-20 h-[400px] w-[400px] blur-[120px]',
-        )} />
+        {!isMobile ? (
+          <>
+            <div className="-right-64 top-10 pointer-events-none absolute h-[600px] w-[600px] rounded-full bg-teal-500/8 blur-[140px]" />
+            <div className="-left-48 bottom-20 pointer-events-none absolute h-[400px] w-[400px] rounded-full bg-amber-500/6 blur-[120px]" />
+          </>
+        ) : null}
 
-        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-2 lg:gap-16 lg:py-24">
+        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 lg:grid-cols-2 lg:gap-16 lg:py-24">
           {/* Left — text */}
           <motion.div
             initial={skipHeroMotion ? false : { opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: skipHeroMotion ? 0 : 0.7, ease: 'easeOut' }}
           >
+            {!isMobile ? (
             <motion.div
               initial={skipHeroMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -877,39 +819,58 @@ export default function LandingPreview() {
               <Sparkles className="h-3 w-3" />
               نظام الاستجابة الذكية · On-Demand Visibility
             </motion.div>
+            ) : null}
 
-            <h1 className="mb-6 text-[clamp(2.4rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
+            <h1 className="mb-4 text-[clamp(2rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
               حلاقك المثالي
               <span className="block bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
                 في محيطك الآن
               </span>
             </h1>
 
-            <p className="mb-6 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
-              رادار جغرافي ذكي يكشف لك أقرب الصالونات المتاحة فور بحثك —
-              بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.
+            <p className="mb-5 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
+              {isMobile
+                ? 'اضغط زر البحث وحدد موقعك لنُظهر لك أقرب الحلاقين فورًا.'
+                : 'رادار جغرافي ذكي يكشف لك أقرب الصالونات المتاحة فور بحثك — بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.'}
             </p>
 
-            <motion.div
-              initial={skipHeroMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: skipHeroMotion ? 0 : 0.35 }}
-              className="mb-8 flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4"
-            >
-              <RadarShowcaseLink variant="showcase" />
-              <p className="max-w-xs text-[0.78rem] leading-relaxed text-white/82 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">
-                استعرض رادار الرصد الحي — نبض الطلب على{' '}
-                <span className="font-semibold text-cyan-400/90">٤٧ مدينة</span>{' '}
-                في المملكة
-              </p>
-            </motion.div>
+            {!isMobile ? (
+              <motion.div
+                initial={skipHeroMotion ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: skipHeroMotion ? 0 : 0.35 }}
+                className="mb-8 flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4"
+              >
+                <RadarShowcaseLink variant="showcase" />
+                <p className="max-w-xs text-[0.78rem] leading-relaxed text-white/82 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">
+                  استعرض رادار الرصد الحي — نبض الطلب على{' '}
+                  <span className="font-semibold text-cyan-400/90">٤٧ مدينة</span>{' '}
+                  في المملكة
+                </p>
+              </motion.div>
+            ) : null}
 
             {/* الرادار الجغرافي — أيقونة تحديد الموقع الرئيسية */}
-            <div className="mb-8 flex w-full flex-col items-center gap-4">
-              <GeoRadarButton
-                onLocationDetected={handleLocationDetected}
-                onLocationReset={() => setUserLocation(null)}
-              />
+            <div className="mb-6 flex w-full flex-col items-center gap-4">
+              {isMobile ? (
+                <MobileQuickSearchButton
+                  onLocationDetected={handleLocationDetected}
+                  onLocationReset={() => setUserLocation(null)}
+                />
+              ) : (
+                <Suspense
+                  fallback={
+                    <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full border border-teal-400/20 bg-[#071426] text-sm text-slate-300">
+                      جاري تحميل زر البحث…
+                    </div>
+                  }
+                >
+                  <LazyGeoRadarButton
+                    onLocationDetected={handleLocationDetected}
+                    onLocationReset={() => setUserLocation(null)}
+                  />
+                </Suspense>
+              )}
               {userLocation && (
                 <motion.button
                   initial={{ opacity: 0, y: 8 }}
@@ -928,6 +889,7 @@ export default function LandingPreview() {
             </div>
 
             {/* Trust badges */}
+            {!isMobile ? (
             <div className="flex flex-wrap items-center gap-4 text-[0.75rem] text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
               {[
                 { icon: Shield, text: 'صالونات موثّقة رسمياً' },
@@ -941,9 +903,11 @@ export default function LandingPreview() {
               ))}
               <PlatformTlsTrustBadge variant="compact" tone="dark" />
             </div>
+            ) : null}
           </motion.div>
 
           {/* Right — Radar */}
+          {!isMobile ? (
           <motion.div
             initial={skipHeroMotion ? false : { opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -967,12 +931,26 @@ export default function LandingPreview() {
 
                   {/* Radar canvas */}
                   <div className="relative aspect-square w-full">
-                    <RadarHero onBeaconClick={setSelectedBeacon} mobileLite={isMobile} />
-                    <AnimatePresence>
-                      {beacon && (
-                        <BarberPopup beacon={beacon} onClose={() => setSelectedBeacon(null)} />
-                      )}
-                    </AnimatePresence>
+                    {isMobile ? (
+                      <MobileHeroLite />
+                    ) : (
+                      <Suspense
+                        fallback={
+                          <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-[#071426] text-sm text-slate-300">
+                            جاري تحميل الرادار…
+                          </div>
+                        }
+                      >
+                        <LazyDesktopLandingRadarHero onBeaconClick={setSelectedBeacon} />
+                      </Suspense>
+                    )}
+                    {!isMobile ? (
+                      <AnimatePresence>
+                        {beacon && (
+                          <BarberPopup beacon={beacon} onClose={() => setSelectedBeacon(null)} />
+                        )}
+                      </AnimatePresence>
+                    ) : null}
                   </div>
                 </div>
 
@@ -1023,10 +1001,11 @@ export default function LandingPreview() {
               ) : null}
             </div>
           </motion.div>
+          ) : null}
         </div>
 
         {/* Scroll indicator */}
-        {!skipHeroMotion ? (
+        {!isMobile && !skipHeroMotion ? (
           <motion.div
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
@@ -1052,9 +1031,11 @@ export default function LandingPreview() {
             onBarberPatch={onBarberPatch}
             onSelectBarber={setSelectedBarber}
           />
-          <div className="mx-auto max-w-4xl px-5 pb-10">
-            <PlatformVoluntaryEngagementStrip variant="compact" />
-          </div>
+          {!isMobile ? (
+            <div className="mx-auto max-w-4xl px-5 pb-10">
+              <PlatformVoluntaryEngagementStrip variant="compact" />
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -1067,13 +1048,15 @@ export default function LandingPreview() {
       ) : null}
 
       {/* ── Stats strip ──────────────────────────────────────────────────── */}
-      <section className="relative z-10 border-y border-white/5 bg-white/[0.02] py-14">
-        <div className="mx-auto max-w-4xl px-5">
-          <StatsStrip />
-        </div>
-      </section>
+      {!isMobile ? (
+        <section className="relative z-10 border-y border-white/5 bg-white/[0.02] py-14">
+          <div className="mx-auto max-w-4xl px-5">
+            <StatsStrip />
+          </div>
+        </section>
+      ) : null}
 
-      {!userLocation ? (
+      {!isMobile && !userLocation ? (
         <section className="relative z-10 px-5 py-10">
           <div className="mx-auto max-w-4xl">
             <PlatformVoluntaryEngagementStrip />
@@ -1082,6 +1065,7 @@ export default function LandingPreview() {
       ) : null}
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
+      {!isMobile ? (
       <section id="كيف يعمل" className="relative z-10 py-24">
         <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-cyan-500/5 blur-[100px]" />
         <div className="mx-auto max-w-5xl px-5">
@@ -1167,8 +1151,10 @@ export default function LandingPreview() {
           </motion.div>
         </div>
       </section>
+      ) : null}
 
       {/* ── Features bento ───────────────────────────────────────────────── */}
+      {!isMobile ? (
       <section id="المميزات" className="relative z-10 py-20">
         <div className="pointer-events-none absolute right-0 top-20 h-96 w-96 rounded-full bg-amber-500/5 blur-[120px]" />
         <div className="mx-auto max-w-6xl px-5">
@@ -1246,8 +1232,10 @@ export default function LandingPreview() {
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* ── بانر الحتمية — وصول المنصة مسألة وقت ────────────────────────── */}
+      {!isMobile ? (
       <section dir="rtl" className="relative z-10 overflow-hidden border-y border-white/5 bg-gradient-to-l from-cyan-950/40 via-[#020c18] to-amber-950/30 py-5">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-cyan-400/5 to-transparent" />
@@ -1275,11 +1263,13 @@ export default function LandingPreview() {
           </p>
         </motion.div>
       </section>
+      ) : null}
 
       {/* ── عروض التأسيس السنوية ─────────────────────────────────────────── */}
-      <FoundingOffersSection navigate={navigate} />
+      {!isMobile ? <FoundingOffersSection navigate={navigate} /> : null}
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
+      {!isMobile ? (
       <section className="relative z-10 border-t border-white/5 py-20">
         <div className="mx-auto max-w-3xl px-5">
           <motion.h2
@@ -1340,6 +1330,7 @@ export default function LandingPreview() {
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="relative z-10 border-t border-white/8 bg-black/40 py-12">

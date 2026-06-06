@@ -169,6 +169,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
   const isMapCommunityPage = location.pathname === ROUTE_PATHS.MAP_COMMUNITY;
   const isPreviewHeavyPage = location.pathname === ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW;
   const isCompactHeaderPage = COMPACT_PARTNER_HEADER_PATHS.has(location.pathname);
+  const shouldTrimMobileChrome = isMobile && isCompactHeaderPage;
   const compactTitle = compactPartnerHeaderTitle(location.pathname);
 
   useDocumentTitle(isMapCommunityPage ? 'مجتمع ماب' : SOFTWARE_SERVICES_PORTAL_HEADING);
@@ -234,8 +235,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         }}
         aria-hidden
       />
-      {!(isMobile && isPreviewHeavyPage) ? <PlatformAmbientBackground variant="partner" /> : null}
-      {!(isMobile && isPreviewHeavyPage) ? <B2BAmbientGlowField /> : null}
+      {!(isMobile && isPreviewHeavyPage) && !shouldTrimMobileChrome ? <PlatformAmbientBackground variant="partner" /> : null}
+      {!(isMobile && isPreviewHeavyPage) && !shouldTrimMobileChrome ? <B2BAmbientGlowField /> : null}
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <header
           className={cn(
@@ -556,7 +557,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       <footer className="shrink-0 border-t border-white/10 bg-[#071426]/70">
         {/* فوتر مضغوط للجوال */}
         <div className="container mx-auto px-3 py-4 md:hidden">
-          {!isMapCommunityPage ? (
+          {!isMapCommunityPage && !shouldTrimMobileChrome ? (
             <div className="mb-4">
               <LicenseRechargeWidget mode="auto" showHeader={false} />
             </div>

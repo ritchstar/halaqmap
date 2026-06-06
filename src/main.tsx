@@ -14,6 +14,7 @@ const DOM_GUARD_PATCH_FLAG = '__halaqmapDomGuardPatched'
 const DOM_GUARD_LOG_KEY = 'hm-dom-guard-events-v1'
 const APP_BOOTSTRAP_FLAG = '__halaqmapAppBootstrapped'
 const APP_MOUNTED_FLAG = '__halaqmapAppMountedV1'
+const BUILD_SYNC_SCHEDULED_FLAG = '__halaqmapBuildSyncScheduledV1'
 const ENABLE_DOM_GUARD = import.meta.env.VITE_ENABLE_DOM_GUARD === 'true'
 
 function installDomMismatchGuard(): void {
@@ -221,6 +222,36 @@ function markAppMounted(): void {
   window.dispatchEvent(new CustomEvent('halaqmap:mounted'))
 }
 
+function schedulePlatformBuildSync(): void {
+  if (typeof window === 'undefined') return
+  const flags = window as Window & { [BUILD_SYNC_SCHEDULED_FLAG]?: boolean }
+  if (flags[BUILD_SYNC_SCHEDULED_FLAG] === true) return
+  flags[BUILD_SYNC_SCHEDULED_FLAG] = true
+
+  const run = () => {
+    try {
+      initPlatformBuildSync()
+    } catch {
+      // build-sync is best-effort and must never delay initial rendering
+    }
+  }
+
+  const scheduleIdle = () => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(run, { timeout: 6000 })
+      return
+    }
+    window.setTimeout(run, 3500)
+  }
+
+  if (document.readyState === 'complete') {
+    scheduleIdle()
+    return
+  }
+
+  window.addEventListener('load', scheduleIdle, { once: true })
+}
+
 async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
   const bootMarker = window as Window & {
     [APP_BOOTSTRAP_FLAG]?: boolean
@@ -232,7 +263,6 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
       ensureDomainVerificationMeta()
       assertRuntimeEnvSafety()
       installDomMismatchGuard()
-      initPlatformBuildSync()
 
       const { default: App } = await import('./App.tsx')
       createRoot(rootEl).render(
@@ -240,6 +270,7 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
           <App />
         </RootErrorBoundary>,
       )
+      schedulePlatformBuildSync()
 
       const markIfMounted = () => {
         if (rootEl.childElementCount > 0 || rootEl.textContent?.trim()) {
