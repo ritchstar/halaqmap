@@ -872,19 +872,33 @@ export default function LandingPreview() {
                 </Suspense>
               )}
               {userLocation && (
-                <motion.button
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                  className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-200 hover:bg-teal-500/20 transition-all"
-                >
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                  {remoteStatus === 'loading'
-                    ? 'جاري البحث عن صالونات قريبة…'
-                    : filteredBarbers.length > 0
-                      ? `${filteredBarbers.length} صالون في محيطك — اعرض النتائج ↓`
-                      : 'اعرض نتائج الرادار ↓'}
-                </motion.button>
+                <div className="flex flex-col items-center gap-2.5">
+                  <motion.button
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    className="flex items-center gap-2 rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-2.5 text-sm font-semibold text-teal-200 hover:bg-teal-500/20 transition-all"
+                  >
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
+                    {remoteStatus === 'loading'
+                      ? 'جاري البحث عن صالونات قريبة…'
+                      : filteredBarbers.length > 0
+                        ? `${filteredBarbers.length} صالون في محيطك — اعرض النتائج ↓`
+                        : 'اعرض نتائج الرادار ↓'}
+                  </motion.button>
+                  <motion.a
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.08 }}
+                    href={`https://www.google.com/maps/search/?api=1&query=${userLocation.lat},${userLocation.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-2xl border border-emerald-400/25 bg-emerald-500/10 px-4 py-2 text-[0.82rem] font-semibold text-emerald-200 hover:bg-emerald-500/18 transition-all"
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    تأكد من موقعك على الخريطة
+                  </motion.a>
+                </div>
               )}
             </div>
 
