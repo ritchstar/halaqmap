@@ -10,8 +10,17 @@ import {
   PLATFORM_VISION_BODY,
   PLATFORM_WHY_FEATURES_INTRO,
 } from "@/config/platformGrowthNarrative";
+import { ISIC_ACTIVITY_CODE, ISIC_MOC_ACTIVITY_NAME_AR } from '@/config/geospatialLicenseDoctrine';
 
 export default function About() {
+  const licensedActivities = [
+    { code: ISIC_ACTIVITY_CODE, label: ISIC_MOC_ACTIVITY_NAME_AR, primary: true },
+    { code: '620101', label: 'تكامل الأنظمة', primary: false },
+    { code: '620102', label: 'تصميم وبرمجة البرمجيات الخاصة', primary: false },
+    { code: '620111', label: 'تطوير التطبيقات', primary: false },
+    { code: '631121', label: 'خدمات الاستضافة للمواقع والتطبيقات', primary: false },
+  ] as const;
+
   const features = [
     {
       icon: MapPin,
@@ -153,6 +162,40 @@ export default function About() {
                 alt=""
                 className="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover"
               />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="max-w-5xl mx-auto"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-3">الأنشطة التجارية</h2>
+              <p className="text-sm text-muted-foreground">
+                الأنشطة المرتبطة بالمؤسسة كما تظهر في السجلات الرسمية، مع تمييز النشاط الرسمي المعتمد للمنصة.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {licensedActivities.map((activity) => (
+                <div
+                  key={activity.code}
+                  className={
+                    activity.primary
+                      ? 'rounded-2xl border border-emerald-400/40 bg-emerald-500/12 px-4 py-2 text-sm font-bold text-emerald-200 shadow-[0_0_18px_rgba(16,185,129,0.14)]'
+                      : 'rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300'
+                  }
+                >
+                  {activity.label} ({activity.code})
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>

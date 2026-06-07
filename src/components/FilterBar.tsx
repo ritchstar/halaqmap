@@ -1,6 +1,6 @@
 /**
- * FilterBar — لوحة فلاتر الرصد الذكي
- * تصميم تكتيكي داكن يتناسق مع نظام الرادار الجغرافي
+ * FilterBar — لوحة فلاتر الاستعلام والتوفر
+ * تصميم تكتيكي داكن يتناسق مع نظام الاستجابة الذكية
  */
 
 import { useState } from 'react';
@@ -24,8 +24,8 @@ const CATEGORIES = [
   { id: 'رجالي',           label: 'رجالي',           emoji: '✂️' },
   { id: 'أطفال',           label: 'أطفال',           emoji: '👦' },
   { id: 'تقليدي',          label: 'تقليدي',          emoji: '🪒' },
-  { id: 'احتياجات خاصة',  label: 'احتياجات خاصة',  emoji: '♿' },
-  { id: 'زيارة منزلية',   label: 'زيارة منزلية',   emoji: '🏠' },
+  { id: 'احتياجات خاصة',  label: 'كبار سن واحتياجات',  emoji: '♿' },
+  { id: 'زيارة منزلية',   label: 'خدمة منزلية',   emoji: '🏠' },
 ];
 
 const RATINGS = [
@@ -55,58 +55,20 @@ function Pill({
   );
 }
 
-// ── Distance slider ────────────────────────────────────────────────────────────
-function DistanceSlider({
-  value, onChange,
-}: { value: number; onChange: (v: number) => void }) {
-  return (
-    <div className="flex w-full items-center gap-3" dir="rtl">
-      <div className="flex shrink-0 items-center gap-1.5">
-        <MapPin className="h-3.5 w-3.5 text-teal-400/70" />
-        <span className="text-[0.7rem] font-medium text-slate-400">المسافة</span>
-      </div>
-      <div className="relative flex flex-1 items-center">
-        <input
-          type="range"
-          min={1}
-          max={25}
-          step={0.5}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 outline-none
-            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4
-            [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:rounded-full
-            [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-teal-400
-            [&::-webkit-slider-thumb]:bg-[#0a1628] [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(20,184,166,0.5)]
-            [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer
-            [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-teal-400
-            [&::-moz-range-thumb]:bg-[#0a1628] [&::-moz-range-thumb]:shadow-[0_0_8px_rgba(20,184,166,0.5)]"
-          style={{
-            background: `linear-gradient(to left, rgba(20,184,166,0.6) ${((value - 1) / 24) * 100}%, rgba(255,255,255,0.1) ${((value - 1) / 24) * 100}%)`,
-          }}
-        />
-      </div>
-      <div className="shrink-0 rounded-full border border-teal-400/30 bg-teal-500/10 px-2.5 py-0.5">
-        <span className="font-mono text-[0.72rem] font-bold tabular-nums text-teal-300">{value}كم</span>
-      </div>
-    </div>
-  );
-}
-
 // ── Main FilterBar ─────────────────────────────────────────────────────────────
 export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
   const [expanded, setExpanded] = useState(false);
 
   const handleReset = () => {
-    onFilterChange({ maxDistance: 5, tiers: [], openNow: false, minRating: 0, categories: [] });
+    onFilterChange({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [] });
   };
 
   const activeCount = [
-    filters.maxDistance !== 5 ? 1 : 0,
     filters.openNow ? 1 : 0,
     filters.tiers.length,
     filters.minRating > 0 ? 1 : 0,
     filters.categories.length,
+    filters.maxDistance !== 1 ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -125,7 +87,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
       >
         <div className="flex items-center gap-2.5">
           <SlidersHorizontal className="h-4 w-4 text-teal-400" />
-          <span className="text-sm font-bold text-white">فلاتر الرصد الذكي</span>
+          <span className="text-sm font-bold text-white">فلاتر التوفر</span>
           {activeCount > 0 && (
             <motion.span
               initial={{ scale: 0 }} animate={{ scale: 1 }}
@@ -154,15 +116,6 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
 
       {/* ── Quick summary chips (always visible) ──────── */}
       <div className="flex flex-wrap items-center gap-2 border-t border-white/6 px-4 py-2.5">
-        {/* Distance — always */}
-        <div
-          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[0.7rem] cursor-pointer hover:border-white/20 transition-colors"
-          onClick={() => setExpanded(true)}
-        >
-          <MapPin className="h-3 w-3 text-teal-400/70" />
-          <span className="text-slate-300">{filters.maxDistance}كم</span>
-        </div>
-
         {/* Open now */}
         <button
           type="button"
@@ -221,15 +174,6 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
             className="overflow-hidden"
           >
             <div className="space-y-4 border-t border-white/8 px-4 pb-4 pt-3">
-
-              {/* Distance slider */}
-              <DistanceSlider
-                value={filters.maxDistance}
-                onChange={(v) => onFilterChange({ ...filters, maxDistance: v })}
-              />
-
-              {/* Divider */}
-              <div className="h-px bg-white/8" />
 
               {/* Tiers */}
               <div className="flex flex-wrap items-center gap-2">
@@ -303,6 +247,32 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
                   </Pill>
                 ))}
               </div>
+
+              {/* Location */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1.5 text-[0.68rem] font-semibold text-slate-500">
+                  <MapPin className="h-3 w-3" />
+                  الموقع:
+                </div>
+                <label className="flex items-center gap-1.5 rounded-full border border-white/12 bg-white/5 px-3 py-1.5 text-[0.72rem]">
+                  <span className="text-slate-300">حتى</span>
+                  <select
+                    value={filters.maxDistance}
+                    onChange={(e) => onFilterChange({ ...filters, maxDistance: Number(e.target.value) })}
+                    className="rounded-full bg-transparent text-teal-300 outline-none"
+                  >
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((km) => (
+                      <option key={km} value={km} className="bg-[#0a1628] text-white">
+                        {km} كم
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <p className="text-[0.65rem] text-slate-500">
+                فلتر الموقع يعتمد على بيان الموقع الذي يضيفه الحلاق ضمن بيانات حسابه.
+              </p>
             </div>
           </motion.div>
         )}
