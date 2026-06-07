@@ -372,7 +372,7 @@ export default function Home() {
                 transition={{ delay: 0.82, duration: 0.6 }}
               >
                 <p className="text-xs font-bold uppercase tracking-widest text-teal-400/60 mb-5">
-                  كيف يعمل نظام الرصد الذكي؟
+                  كيف تعمل الاستجابة الذكية؟
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-right">
                   {[
@@ -546,11 +546,11 @@ export default function Home() {
               <div className="container mx-auto px-4 pb-12">
                 <div className="flex items-center justify-between mb-5">
                   <p className="text-sm text-slate-400">
-                    <span className="font-bold text-teal-300">{filteredBarbers.length}</span> صالون في محيطك
+                    <span className="font-bold text-teal-300">{filteredBarbers.length}</span> خدمة متاحة لك
                   </p>
                   <div className="flex items-center gap-1.5">
                     <div className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse" />
-                    <span className="text-[0.65rem] text-teal-400/70">رصد حيّ</span>
+                    <span className="text-[0.65rem] text-teal-400/70">نبض لحظي</span>
                   </div>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">

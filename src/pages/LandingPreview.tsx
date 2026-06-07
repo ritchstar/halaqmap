@@ -2,8 +2,8 @@
  * صفحة الرئيسية الجديدة — حلاق ماب
  * المسار: / (الرئيسية)
  *
- * الرادار الجغرافي الحيّ + البحث الحقيقي عن الصالونات
- * تصميم تكتيكي داكن · فخامة خليجية · حضور جغرافي
+ * استجابة ذكية فورية + البحث الحقيقي عن الصالونات
+ * تصميم تكتيكي داكن · فخامة خليجية · وصول مباشر للخدمة
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo, startTransition, lazy, Suspense } from 'react';
@@ -261,7 +261,7 @@ function MobileHeroLite() {
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <p className="text-[0.64rem] font-black tracking-[0.22em] text-teal-300/70">FAST MOBILE MODE</p>
-          <h3 className="mt-1 text-lg font-black text-white">الوصول للحلاق الأقرب أسرع</h3>
+          <h3 className="mt-1 text-lg font-black text-white">إتاحة الوصول إلى مقدم الخدمة المناسب</h3>
         </div>
         <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-center">
           <p className="text-[0.58rem] text-emerald-300/70">المتاح الآن</p>
@@ -271,7 +271,7 @@ function MobileHeroLite() {
 
       <div className="grid grid-cols-2 gap-3">
         {[
-          { label: 'رادار خفيف', value: 'بدون مؤثرات ثقيلة' },
+          { label: 'عرض خفيف', value: 'بدون مؤثرات ثقيلة' },
           { label: 'التغطية', value: '47+ مدينة' },
           { label: 'النتائج', value: 'حقيقية' },
           { label: 'التواصل', value: 'مباشر' },
@@ -362,12 +362,12 @@ function MobileQuickSearchButton({
             {busy ? 'جاري تحديد موقعك…' : 'ابحث عن حلاق'}
           </div>
           <div className="mt-1 text-[0.78rem] leading-5 text-teal-200/72">
-            {busy ? 'لحظات وسيتم عرض الأقرب إليك' : 'اضغط وحدد موقعك لعرض الأقرب فورًا'}
+            {busy ? 'لحظات وسيتم عرض النتائج المناسبة لك' : 'اضغط وحدد موقعك لعرض النتائج المناسبة فورًا'}
           </div>
         </div>
       </button>
       <p className="text-center text-[0.72rem] leading-5 text-slate-400">
-        الخدمة تبدأ من موقعك مباشرة، ثم نعرض لك النتائج القريبة دون خطوات إضافية.
+        الخدمة تبدأ من استعلامك مباشرة، ثم نعرض لك النتائج المناسبة دون خطوات إضافية.
       </p>
     </div>
   );
@@ -548,7 +548,7 @@ export default function LandingPreview() {
         const list = await fetchNearbyPublicBarbersFromSupabase({ userLocation, radiusKm: Math.max(5, filters.maxDistance), limit: 120, minRating: filters.minRating, tiers: filters.tiers });
         if (!cancelled) { setRemoteBarbers(list); setRemoteStatus('ready'); }
       } catch {
-        if (!cancelled) { setRemoteStatus('error'); toast.error('تعذّر تحميل نتائج القرب — تحقق من الاتصال.'); }
+        if (!cancelled) { setRemoteStatus('error'); toast.error('تعذّر تحميل النتائج المتاحة — تحقق من الاتصال.'); }
       }
     })();
     return () => { cancelled = true; };
@@ -716,7 +716,7 @@ export default function LandingPreview() {
                       className="h-1.5 w-1.5 rounded-full bg-emerald-400"
                     />
                   )}
-                  <span className="text-[0.69rem] font-bold text-emerald-300/80">رادار نشط</span>
+                  <span className="text-[0.69rem] font-bold text-emerald-300/80">نبض نشط</span>
                 </div>
               </Link>
 
@@ -761,8 +761,8 @@ export default function LandingPreview() {
                   ) : null}
                   <span className="relative flex items-center gap-1.5">
                     <Search className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">ابحث عن حلاق</span>
-                    <span className="sm:hidden">بحث</span>
+                    <span className="hidden sm:inline">استعلم الآن</span>
+                    <span className="sm:hidden">استعلم</span>
                   </span>
                 </motion.button>
 
@@ -824,14 +824,14 @@ export default function LandingPreview() {
             <h1 className="mb-4 text-[clamp(2rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
               حلاقك المثالي
               <span className="block bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
-                في محيطك الآن
+                عند طلبك الآن
               </span>
             </h1>
 
             <p className="mb-5 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
               {isMobile
-                ? 'اضغط زر البحث وحدد موقعك لنُظهر لك أقرب الحلاقين فورًا.'
-                : 'رادار جغرافي ذكي يكشف لك أقرب الصالونات المتاحة فور بحثك — بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.'}
+                ? 'اضغط زر الاستعلام وحدد موقعك لنُظهر لك النتائج المناسبة فورًا.'
+                : 'منصة ذكية تساعدك على إتاحة الوصول إلى مقدم الخدمة المناسب فور بحثك — بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.'}
             </p>
 
             {!isMobile ? (
@@ -843,14 +843,14 @@ export default function LandingPreview() {
               >
                 <RadarShowcaseLink variant="showcase" />
                 <p className="max-w-xs text-[0.78rem] leading-relaxed text-white/82 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">
-                  استعرض رادار الرصد الحي — نبض الطلب على{' '}
+                  استعرض النبض اللحظي — مستخدم يستعلم · حلاق متوفر على{' '}
                   <span className="font-semibold text-cyan-400/90">٤٧ مدينة</span>{' '}
                   في المملكة
                 </p>
               </motion.div>
             ) : null}
 
-            {/* الرادار الجغرافي — أيقونة تحديد الموقع الرئيسية */}
+            {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة */}
             <div className="mb-6 flex w-full flex-col items-center gap-4">
               {isMobile ? (
                 <MobileQuickSearchButton
@@ -881,10 +881,10 @@ export default function LandingPreview() {
                   >
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
                     {remoteStatus === 'loading'
-                      ? 'جاري البحث عن صالونات قريبة…'
+                      ? 'جارٍ عرض الصالونات المناسبة…'
                       : filteredBarbers.length > 0
-                        ? `${filteredBarbers.length} صالون في محيطك — اعرض النتائج ↓`
-                        : 'اعرض نتائج الرادار ↓'}
+                        ? `${filteredBarbers.length} نتيجة متاحة — اعرض الخدمات ↓`
+                        : 'اعرض الخدمات المتاحة ↓'}
                   </motion.button>
                   <motion.a
                     initial={{ opacity: 0, y: 8 }}
@@ -936,7 +936,7 @@ export default function LandingPreview() {
                   <div className="mb-3 flex items-center justify-between px-2">
                     <div className="flex items-center gap-1.5 text-[0.65rem] text-teal-400">
                       <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                      رصد حَيّ
+                      نبض لحظي
                     </div>
                     <div className="text-[0.6rem] tabular-nums text-white/78 [text-shadow:0_0_8px_rgba(255,255,255,0.10)]">
                       {DEMO_BEACONS.filter((b) => b.open).length} صالون متاح
@@ -951,7 +951,7 @@ export default function LandingPreview() {
                       <Suspense
                         fallback={
                           <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-[#071426] text-sm text-slate-300">
-                            جاري تحميل الرادار…
+                            جاري تحميل العرض…
                           </div>
                         }
                       >
@@ -993,7 +993,7 @@ export default function LandingPreview() {
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute -left-6 top-10 rounded-xl border border-amber-400/30 bg-[#0a1628]/90 px-3 py-2 shadow-lg shadow-amber-500/10 backdrop-blur-md"
               >
-                <div className="text-[0.6rem] text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">أقرب صالون</div>
+                <div className="text-[0.6rem] text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">مقدم خدمة متاح</div>
                 <div className="text-[0.75rem] font-bold text-amber-300">٢٠٠م منك 🧭</div>
               </motion.div>
               ) : null}
@@ -1108,7 +1108,7 @@ export default function LandingPreview() {
                 step: '١',
                 icon: Navigation2,
                 title: 'شارك موقعك',
-                desc: 'اضغط «ابحث في محيطي» ويرصد الرادار الصالونات المتاحة حولك فوراً — لا تسجيل مسبق مطلوب.',
+                desc: 'اضغط زر البحث واسمح بموقعك لتعرض لك المنصة البيانات المتاحة فوراً — لا تسجيل مسبق مطلوب.',
                 color: 'from-teal-500 to-cyan-500',
                 delay: 0,
               },
@@ -1194,23 +1194,23 @@ export default function LandingPreview() {
           >
             <RadarShowcaseLink variant="showcase" />
             <p className="max-w-md text-center text-sm leading-relaxed text-white/85 [text-shadow:0_0_12px_rgba(255,255,255,0.14)] sm:text-right">
-              افتح رادار الرصد — خريطة حية لنبض الطلب والربط الجغرافي على مستوى المملكة
+              افتح معاينة الاستجابة الذكية — عرض حي لنبض الطلب ووصول الباحث إلى مقدم الخدمة المناسب
             </p>
           </motion.div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <FeatureCard
               icon={Wifi}
-              title="رصد حَيّ لحظي"
-              desc="كل اتصال بالمنصة يظهر على الرادار فوراً — سواء كان بحثاً عن صالون أو تصفحاً للموقع."
+              title="نبض لحظي"
+              desc="كل استخدام للمنصة ينعكس فورًا في العرض اللحظي — سواء كان بحثًا عن صالون أو تصفحًا للموقع."
               color="from-teal-500 to-cyan-500"
               delay={0}
               size="wide"
             />
             <FeatureCard
               icon={MapPin}
-              title="دقة الموقع الجغرافي"
-              desc="خوارزمية بحث تعتمد على المسافة الفعلية، لا الدوائر العامة."
+              title="دقة الوصول للخدمة"
+              desc="منطق ذكي يعرض البيانات المتاحة وفق موقع المستخدم وفلترته للوصول إلى مقدم الخدمة المناسب بسرعة ووضوح."
               color="from-cyan-500 to-blue-500"
               delay={0.08}
             />
@@ -1297,8 +1297,8 @@ export default function LandingPreview() {
           <div className="flex flex-col gap-3">
             {[
               {
-                q: 'كيف يعمل الرادار في حلاق ماب؟',
-                a: 'الرادار يرصد الصالونات المسجّلة في محيطك الجغرافي ويعرضها لك فوراً بناءً على موقعك — كلما قلّت المسافة زادت الأولوية. لا تسجيل مسبق للبحث.',
+                q: 'كيف تعمل المنصة في حلاق ماب؟',
+                a: 'تعتمد المنصة على المعالجة اللحظية لطلب المستخدم وتزويده بمقدم الخدمة المناسب وفق البيانات المتاحة. لا تسجيل مسبق للبحث.',
               },
               {
                 q: 'هل الخدمة مجانية للمستخدمين؟',
@@ -1309,8 +1309,8 @@ export default function LandingPreview() {
                 a: 'الصالونات المعروضة لها رخصة نفاذ رقمية موثّقة — تجد التقييمات الحقيقية وصور الصالون والحالة الفعلية (مفتوح/مغلق) في وقت بحثك.',
               },
               {
-                q: 'هل يمكنني تحديد المسافة التي أبحث فيها؟',
-                a: 'نعم — يمكنك ضبط نطاق البحث من 1 كم إلى 20 كم حسب حاجتك، مع فلاتر إضافية للتقييم ونوع الخدمة.',
+                q: 'هل يمكنني تضييق أو توسيع نطاق العرض؟',
+                a: 'نعم — يمكنك ضبط نطاق العرض حسب حاجتك، مع فلاتر إضافية للتقييم ونوع الخدمة.',
               },
               {
                 q: 'هل الخدمة متاحة خارج الرياض؟',
@@ -1359,7 +1359,7 @@ export default function LandingPreview() {
                 <span className="text-base font-black text-white">حلاق ماب</span>
               </div>
               <p className="mb-4 text-xs leading-relaxed text-white/78 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
-                منصة بحث جغرافي تقنية تربط العملاء بأقرب الصالونات — مجانية للمستخدمين.
+                منصة رقمية ذكية تتيح الوصول إلى مقدم الخدمة المناسب وتسهّل التواصل المباشر — مجانية للمستخدمين.
               </p>
               <div className="flex items-center gap-2">
                 <Link
@@ -1391,7 +1391,7 @@ export default function LandingPreview() {
                 {[
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'آراء المستخدمين ⭐', to: ROUTE_PATHS.PLATFORM_REVIEWS },
-                  { label: 'نظام الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
+                  { label: 'معاينة الاستجابة الذكية 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'من نحن', to: ROUTE_PATHS.ABOUT },
                   { label: 'سياسة الخصوصية', to: ROUTE_PATHS.USER_PRIVACY_POLICY },
                   { label: 'شروط الاستخدام', to: ROUTE_PATHS.TERMS_OF_SERVICE },
@@ -1457,7 +1457,7 @@ function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNa
       borderColor: 'rgba(180,83,9,0.35)',
       glowColor: 'rgba(180,83,9,0.18)',
       features: [
-        'ظهور جغرافي على الرادار',
+        'ظهور ذكي عند الطلب',
         'بطاقة صالون أساسية',
         'مدة 30 يوم',
         'دون تجديد تلقائي',
@@ -1499,7 +1499,7 @@ function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNa
       badge: 'الأكثر اختياراً',
       featured: true,
       features: [
-        'أعلى ظهور على الرادار',
+        'أعلى ظهور عند الطلب',
         'معرض أعمال 40 صورة',
         'شات مترجم بـ 7 لغات',
         'إدارة مواعيد متكاملة',

@@ -340,7 +340,7 @@ function FoundersOfferBanner({ onRegister }: { onRegister: () => void }) {
           <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[0.65rem] text-slate-600">
             <span className="flex items-center gap-1.5"><span className="text-emerald-600">✅</span>ينطبق على جميع الباقات</span>
             <span className="flex items-center gap-1.5"><span className="text-emerald-600">✅</span>لا عمولات على خدماتك</span>
-            <span className="flex items-center gap-1.5"><span className="text-emerald-600">✅</span>ظهور جغرافي ذكي عند الطلب</span>
+            <span className="flex items-center gap-1.5"><span className="text-emerald-600">✅</span>ظهور ذكي عند الطلب</span>
             <span className="flex items-center gap-1.5">
               <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-px text-[0.6rem] font-bold text-amber-700">⭐ شارة رائد</span>
               لكل مشترك من ١ إلى ١٠٠٠ — حصرية للأبد
@@ -1571,7 +1571,7 @@ export default function PartnerMarketingPreview() {
               { step: '١', icon: Scissors, title: 'أكمل نموذج التسجيل', desc: 'بيانات صالونك الأساسية: الاسم، الموقع، الخدمات، صور الواجهة — في دقائق.', color: 'from-amber-500 to-yellow-500' },
               { step: '٢', icon: Crown, title: 'اختر حزمتك', desc: 'برونزي (١٠٠ ر.س) · ذهبي (١٥٠ ر.س) · ماسي (٢٠٠ ر.س) — أو الحزمة السنوية بعرض المضاعفة.', color: 'from-violet-500 to-purple-500' },
               { step: '٣', icon: Shield, title: 'ادفع بأمان فوراً', desc: 'عبر بوابة ميسر الآمنة (مدى · فيزا · ماستركارد) — اتصال HTTPS/TLS بتقييم SSL Labs A+، مسبقة الدفع، لا تجديد تلقائي.', color: 'from-teal-500 to-cyan-500' },
-              { step: '٤', icon: Wifi, title: 'ظهورك يبدأ فوراً ⚡', desc: 'بمجرد نجاح السداد يُفعَّل صالونك تلقائياً ويظهر لأقرب الزبائن منك على الرادار.', color: 'from-emerald-500 to-green-500' },
+              { step: '٤', icon: Wifi, title: 'ظهورك يبدأ فوراً ⚡', desc: 'بمجرد نجاح السداد يُفعَّل صالونك تلقائياً ويظهر للمستخدمين المناسبين ضمن الاستعلام اللحظي.', color: 'from-emerald-500 to-green-500' },
             ].map((step, i) => (
               <motion.div
                 key={step.step}
@@ -1609,7 +1609,7 @@ export default function PartnerMarketingPreview() {
             <p className="mt-3 text-slate-600">كل ما تحتاجه لإدارة حضورك الرقمي باستقلالية تامة</p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <FeatureCard icon={Navigation2} title="ظهور عند الطلب" desc="تُفعَّل برمجياً فقط عند وجود طلب نشط في محيطك — لا إشغال دائم للمساحة الرقمية." color="from-amber-500 to-yellow-500" delay={0} />
+            <FeatureCard icon={Navigation2} title="ظهور عند الطلب" desc="تُفعَّل برمجياً فقط عند وجود طلب نشط تنطبق عليه البيانات المتاحة والفلترة — لا إشغال دائم للمساحة الرقمية." color="from-amber-500 to-yellow-500" delay={0} />
             <FeatureCard icon={ImageIcon} title="بطاقة + بنر احترافي" desc="صفحة صالونك كاملة: صور واجهة، بنر تسويقي، خدمات، أسعار، وساعات العمل." color="from-teal-500 to-cyan-500" delay={0.08} />
             <FeatureCard icon={Clock} title="مفتوح/مغلق لحظياً" desc="اضبط حالة صالونك في أي وقت عبر رابط سري — بدون دخول لوحة التحكم." color="from-emerald-500 to-green-500" delay={0.16} />
             <FeatureCard icon={Star} title="تقييمات موثّقة + QR" desc="كود QR يُرسل لزبونك لتقييمك بعد الخدمة — تقييمات حقيقية لا وهمية." color="from-rose-500 to-pink-500" delay={0.08} badge="Gold +" />
@@ -2044,7 +2044,7 @@ export default function PartnerMarketingPreview() {
                   { label: 'التسجيل', to: ROUTE_PATHS.REGISTER },
                   { label: 'الباقات والأسعار', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
-                  { label: 'معاينة الرصد الذكي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
+                  { label: 'معاينة الربط الحي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'مكتب مدير المبيعات', to: ROUTE_PATHS.PARTNER_SALES_OFFICE },
                   { label: 'خدمة العملاء', to: ROUTE_PATHS.PARTNER_SUPPORT },

@@ -35,14 +35,14 @@ function SmartRadarGlyph({ className }: { className?: string }) {
   );
 }
 
-/** أيقونة/رابط معاينة نظام الرصد الذكي */
+/** أيقونة/رابط معاينة الربط الحي والنبض اللحظي */
 export function RadarShowcaseLink({ variant = 'icon', className }: Props) {
   if (variant === 'showcase') {
     return (
       <Link
         to={SHOWCASE_RADAR_ROUTE}
-        title="رادار الرصد — استعراض تقنيات المنصة حياً"
-        aria-label="رادار الرصد — استعراض تقنيات المنصة حياً"
+        title="الربط الحي — استعراض تقنيات المنصة حياً"
+        aria-label="الربط الحي — استعراض تقنيات المنصة حياً"
         className={cn(
           'group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl border border-cyan-400/40 bg-[#050f1f]/95 px-4 py-2.5 shadow-[0_0_22px_rgba(34,211,238,0.14)] backdrop-blur-sm transition-all duration-300 hover:border-cyan-300/55 hover:shadow-[0_0_32px_rgba(34,211,238,0.26)] hover:-translate-y-0.5 active:translate-y-0',
           className,
@@ -50,9 +50,9 @@ export function RadarShowcaseLink({ variant = 'icon', className }: Props) {
       >
         <span className="pointer-events-none absolute inset-0 bg-gradient-to-l from-cyan-500/8 via-transparent to-cyan-400/10 opacity-0 transition-opacity group-hover:opacity-100" />
         <SmartRadarGlyph className="relative text-cyan-400 transition-transform duration-300 group-hover:scale-105" />
-        <span className="relative flex flex-col items-start leading-none">
-          <span className="text-[0.94rem] font-black tracking-tight text-white">الرصد</span>
-          <span className="mt-0.5 text-[0.94rem] font-black tracking-tight text-white">الذكي</span>
+          <span className="relative flex flex-col items-start leading-none">
+          <span className="text-[0.94rem] font-black tracking-tight text-white">ربط</span>
+          <span className="mt-0.5 text-[0.94rem] font-black tracking-tight text-white">حي</span>
         </span>
       </Link>
     );
@@ -62,7 +62,7 @@ export function RadarShowcaseLink({ variant = 'icon', className }: Props) {
     return (
       <Link
         to={SHOWCASE_RADAR_ROUTE}
-        title="معاينة نظام الرصد الذكي — حلاق ماب"
+        title="معاينة الربط الحي — حلاق ماب"
         className={cn(
           'group inline-flex items-center gap-2 rounded-xl border border-sky-300/45 bg-sky-100/65 px-3.5 py-2 text-[0.82rem] font-bold text-slate-900 shadow-[0_8px_18px_rgba(56,189,248,0.10)] transition-all hover:border-sky-400/55 hover:bg-sky-100/80',
           className,
@@ -72,7 +72,7 @@ export function RadarShowcaseLink({ variant = 'icon', className }: Props) {
           <span className="absolute inline-flex h-4 w-4 rounded-full border border-sky-400/40 animate-ping opacity-60" />
           <SmartRadarGlyph className="relative h-4 w-4 text-sky-500 transition-transform duration-300 group-hover:scale-105" />
         </span>
-        <span className="text-slate-900">الرصد الذكي</span>
+        <span className="text-slate-900">ربط حي</span>
       </Link>
     );
   }
@@ -80,8 +80,8 @@ export function RadarShowcaseLink({ variant = 'icon', className }: Props) {
   return (
     <Link
       to={SHOWCASE_RADAR_ROUTE}
-      title="معاينة نظام الرصد الذكي — حلاق ماب"
-      aria-label="معاينة نظام الرصد الذكي"
+      title="معاينة الربط الحي — حلاق ماب"
+      aria-label="معاينة الربط الحي"
       className={cn(
         'group relative flex h-9 w-9 items-center justify-center rounded-xl border border-sky-400/25 bg-sky-500/10 text-sky-300/80 transition-all hover:border-sky-400/50 hover:bg-sky-500/15 hover:text-sky-200',
         className,

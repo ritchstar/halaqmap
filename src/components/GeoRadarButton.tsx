@@ -110,7 +110,7 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
       storeUserCoords(loc);
       setPhase('found');
       requestAnimationFrame(() => onLocationDetected(loc));
-      toast.success(`تم تحديد موقعك بدقة ±${strict.accuracyM}م — جارٍ عرض أقرب الصالونات`);
+      toast.success(`تم تحديد موقعك بدقة ±${strict.accuracyM}م — جارٍ عرض الخدمات المتاحة المناسبة`);
       if (strict.warning) {
         toast.message('تنبيه دقة', { description: strict.warning });
       }

@@ -14,7 +14,7 @@ import { PLATFORM_VOLUNTARY_ENGAGEMENT } from '@/config/platformVoluntaryEngagem
 export function ShareEngagementModal({ onClose }: { onClose: () => void }) {
   const [copied, setCopied] = useState(false);
   const url = window.location.origin + '/#' + ROUTE_PATHS.HOME;
-  const text = 'حلاق ماب — اعثر على أقرب حلاق إليك لحظياً عبر الرادار الجغرافي 📍✂️';
+  const text = 'حلاق ماب — استعلم فوراً عن الحلاق المناسب لك وتواصل معه مباشرة 📍✂️';
 
   const copyLink = async () => {
     try {

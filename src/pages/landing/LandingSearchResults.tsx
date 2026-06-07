@@ -54,8 +54,8 @@ export function LandingSearchResults({
             >
               <MapPin className="h-10 w-10 text-teal-400" />
             </motion.div>
-            <h3 className="mb-2 text-xl font-bold text-white">
-              {remoteStatus === 'loading' ? 'الرادار يبحث…' : 'لا نتائج في هذا النطاق'}
+              <h3 className="mb-2 text-xl font-bold text-white">
+              {remoteStatus === 'loading' ? 'جارٍ عرض الخدمات المتاحة…' : 'لا نتائج متاحة في هذا النطاق'}
             </h3>
             <p className="text-sm text-slate-400">جرّب توسيع نطاق البحث من شريط الفلاتر أعلاه</p>
           </div>
@@ -63,11 +63,11 @@ export function LandingSearchResults({
           <>
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm text-slate-400">
-                <span className="font-bold text-teal-300">{filteredBarbers.length}</span> صالون في محيطك
+                <span className="font-bold text-teal-300">{filteredBarbers.length}</span> نتيجة متاحة
               </p>
               <div className="flex items-center gap-1.5 text-[0.65rem] text-teal-400/70">
                 <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                رصد حيّ
+                مستخدم يستعلم · حلاق متوفر
               </div>
             </div>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">

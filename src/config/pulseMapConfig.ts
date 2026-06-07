@@ -1,5 +1,5 @@
 /**
- * Pulse Map — إعدادات الرادار الجديد (slot-based).
+ * Pulse Map — إعدادات الربط الحي (slot-based).
  */
 
 /** المرحلة 2 — ربط حي: نبضة واحدة لكل مدينة */
@@ -13,15 +13,15 @@ export const PULSE_MAP_CONFIG = {
   showPulses: true,
   apiPath: '/api/public-pulse-map',
   pollMs: 25_000,
-  pageTitleAr: 'رادار الرصد · Halaq Map Platform',
-  heroTitleAr: 'رادار الرصد',
-  titleAr: 'رادار الرصد',
+  pageTitleAr: 'الربط الحي · Halaq Map Platform',
+  heroTitleAr: 'الربط الحي',
+  titleAr: 'الربط الحي',
   subtitleEn: 'Halaq Map Platform',
   phaseBadgeAr: 'ربط حي',
   phaseHintAr: 'نبضة/مدينة — أي نشاط حديث يكفي',
   pilotLabelAr: 'المملكة العربية السعودية',
   legendDemandAr: 'نبض مستخدم',
-  legendLinkAr: 'نبض حلاق',
+  legendLinkAr: 'تفاعل حلاق',
 } as const;
 
 export const PULSE_MAP_COLORS = {

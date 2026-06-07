@@ -377,12 +377,12 @@ export default function BarberGrowthLanding() {
             <div className="order-2 text-center lg:order-1 lg:text-right">
               <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
                 <MapPin className="h-4 w-4" />
-                نظام الرصد الذكي في حيّك
+                نظام الاستجابة الذكية لخدمتك
               </div>
               <h2 className="text-2xl font-bold text-foreground md:text-3xl">ظهورك حيث يبحث الزبون</h2>
               <p className="mt-3 leading-7 text-muted-foreground">
-                الزبون ما يدور في كتالوج طويل — يدور عبر نظام الرصد الذكي: وين الصالون؟ قد إيش يبعد؟ كيف أوصله؟ حلاق ماب تجمع
-                هالأسئلة في شاشة واحدة.
+                الزبون ما يدور في كتالوج طويل — يدور عبر نظام الاستجابة الذكية: من المتاح الآن؟ ما الذي يعرضه؟ وكيف
+                أتواصل معه؟ حلاق ماب تجمع هالأسئلة في شاشة واحدة.
               </p>
               <ul className="mt-5 space-y-2 text-right text-sm text-muted-foreground">
                 <li className="flex items-center justify-end gap-2">
@@ -400,7 +400,7 @@ export default function BarberGrowthLanding() {
                 <div className="relative aspect-[4/3] overflow-hidden rounded-[1.35rem] bg-[#0a1628]">
                   <motion.img
                     src={IMAGES.SCREENSHOT4144_49}
-                    alt="لقطة من تطبيق حلاق ماب — نظام الرصد الذكي وصالونات"
+                    alt="لقطة من تطبيق حلاق ماب — نظام الاستجابة الذكية وبيانات الصالونات"
                     className="h-full w-full object-cover object-top opacity-95"
                     initial={{ scale: 1.04 }}
                     whileInView={{ scale: 1 }}
@@ -410,10 +410,10 @@ export default function BarberGrowthLanding() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#061223]/80 via-transparent to-transparent" />
                   <div className="absolute bottom-4 right-4 left-4 flex flex-wrap items-center justify-end gap-2">
                     <span className="rounded-lg bg-black/55 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
-                      صالونات قريبة منك
+                      صالونات متاحة لك
                     </span>
                     <span className="rounded-lg bg-emerald-600/90 px-3 py-1.5 text-xs font-bold text-white">
-                      حيّك عبر نظام الرصد الذكي
+                      متاح لك عبر نظام الاستجابة الذكية
                     </span>
                   </div>
                 </div>

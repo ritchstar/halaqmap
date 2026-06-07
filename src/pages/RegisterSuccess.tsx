@@ -218,7 +218,7 @@ export default function RegisterSuccess() {
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
               <p className="font-semibold text-foreground mb-1">ظهورك يبدأ فور التفعيل</p>
               <p className="text-muted-foreground">
-                بمجرد نجاح الدفع يُفعَّل ظهور صالونك آلياً ضمن نظام الرصد الذكي. ستحصل على رابط سري لتحديث حالة «مفتوح / مغلق» لحظياً من جوّالك — والباقات الذهبية والماسية تتيح تحكّماً كاملاً من لوحة التحكم.
+                بمجرد نجاح الدفع يُفعَّل ظهور صالونك آلياً ضمن نظام الاستجابة الذكية. ستحصل على رابط سري لتحديث حالة «مفتوح / مغلق» لحظياً من جوّالك — والباقات الذهبية والماسية تتيح تحكّماً كاملاً من لوحة التحكم.
               </p>
             </div>
 

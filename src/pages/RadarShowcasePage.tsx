@@ -1,5 +1,5 @@
 /**
- * RadarShowcasePage — معاينة نظام الرصد الذكي (Showcase Radar)
+ * RadarShowcasePage — معاينة الربط الحي والنبض اللحظي
  * Route: /radar
  */
 import { useEffect } from 'react';
@@ -62,7 +62,7 @@ export default function RadarShowcasePage() {
           </button>
           <div className="flex items-center gap-2">
             <Radar className="h-4 w-4 text-sky-400" />
-            <span className="text-sm font-black text-sky-100">نظام الرصد الذكي</span>
+            <span className="text-sm font-black text-sky-100">نظام الربط الحي</span>
           </div>
           <button
             type="button"
@@ -102,17 +102,17 @@ export default function RadarShowcasePage() {
           <ValueCard
             accent="teal"
             title="للمستخدم"
-            body="بحث مجاني بالموقع — يُفعَّل نظام الرصد الذكي ويُظهر أقرب صالون مشترك في محيطك."
+            body="استعلام مجاني بالموقع — يُفعَّل نظام الربط الحي ويعرض لك مقدم الخدمة المناسب من الصالونات المشتركة."
           />
           <ValueCard
             accent="amber"
             title="للحلاق"
-            body="حزمة الرخصة = مرسى على الرادار. بدون اشتراك لا ظهور — مع الاشتراك تظهر عند طلب زبون قريب."
+            body="حزمة الرخصة = تفعيل للظهور اللحظي. بدون اشتراك لا ظهور — ومع الاشتراك تظهر عند الطلب المناسب."
           />
           <ValueCard
             accent="sky"
             title="للمنصة"
-            body="رصد تقني جغرافي — لا وساطة تجارية، لا عمولة على خدمة الحلاقة."
+            body="خدمة رقمية للربط والعرض اللحظي — لا وساطة تجارية، لا عمولة على خدمة الحلاقة."
           />
         </section>
 

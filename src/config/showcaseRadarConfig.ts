@@ -1,6 +1,6 @@
 /**
  * Showcase Radar — ما نعرضه وما نحجبه في صفحة المعاينة العامة.
- * منفصل عن Platform Radar الإداري (غرفة القيادة).
+ * منفصل عن منصة المتابعة الإدارية الداخلية.
  */
 
 export type ShowcaseRadarMode = 'live' | 'curated';
@@ -22,14 +22,14 @@ export const SHOWCASE_RADAR_CONFIG = {
   pulseMaxVisible: 24,
   pulseMaxAgeMinutes: 120,
   stats: ['cities', 'pulses', 'activeSalons'] as const,
-  pageTitleAr: 'معاينة نظام الرصد الذكي — حلاق ماب',
-  heroTitleAr: 'شاهد نظام الرصد الذكي يعمل',
+  pageTitleAr: 'معاينة الربط الحي — حلاق ماب',
+  heroTitleAr: 'شاهد الربط الحي يعمل',
   heroSubtitleAr:
-    'خريطة حية لنبض الطلب الجغرافي على المملكة — الظهور عند الطلب، لا إشغال دائم.',
+    'عرض حي لحركة الطلب والتفاعل على مستوى المملكة — ظهور عند الطلب، لا إشغال دائم.',
   onDemandTaglineAr:
-    'الظهور عند الطلب · On-Demand Visibility — الصالون يظهر حين يبحث زبون قريب.',
+    'مستخدم يستعلم · حلاق متوفر — والصالون يظهر حين يصدر طلب مناسب.',
   userPulseHintAr: 'نبض مستخدم — باحث عن خدمة في المدينة.',
-  barberLinkHintAr: 'ربط — حلاق تم التواصل معه من مستخدم عبر المنصة.',
+  barberLinkHintAr: 'حلاق متوفر — تم التواصل معه من مستخدم عبر المنصة.',
   apiPath: '/api/public-radar-showcase',
 } as const;
 
