@@ -502,7 +502,7 @@ export default function LandingPreview() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
-  const [filters, setFilters] = useState<FilterState>({ maxDistance: 5, tiers: [], openNow: false, minRating: 0, categories: [] });
+  const [filters, setFilters] = useState<FilterState>({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [] });
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -545,7 +545,7 @@ export default function LandingPreview() {
     setRemoteStatus('loading');
     void (async () => {
       try {
-        const list = await fetchNearbyPublicBarbersFromSupabase({ userLocation, radiusKm: Math.max(5, filters.maxDistance), limit: 120, minRating: filters.minRating, tiers: filters.tiers });
+        const list = await fetchNearbyPublicBarbersFromSupabase({ userLocation, radiusKm: Math.max(1, filters.maxDistance), limit: 120, minRating: filters.minRating, tiers: filters.tiers });
         if (!cancelled) { setRemoteBarbers(list); setRemoteStatus('ready'); }
       } catch {
         if (!cancelled) { setRemoteStatus('error'); toast.error('تعذّر تحميل النتائج المتاحة — تحقق من الاتصال.'); }
@@ -1298,7 +1298,7 @@ export default function LandingPreview() {
             {[
               {
                 q: 'كيف تعمل المنصة في حلاق ماب؟',
-                a: 'تعتمد المنصة على المعالجة اللحظية لطلب المستخدم وتزويده بمقدم الخدمة المناسب وفق البيانات المتاحة. لا تسجيل مسبق للبحث.',
+                a: 'تعمل المنصة بنظام الاستجابة الذكية، ويقتصر دورها على المعالجة والفلترة اللحظية بين استعلام المستخدمين وبيانات الحلاقين المتاحة داخلها، ثم عرض النتيجة المناسبة وفق البيانات المتاحة. لا تسجيل مسبق للبحث.',
               },
               {
                 q: 'هل الخدمة مجانية للمستخدمين؟',

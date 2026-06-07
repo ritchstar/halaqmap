@@ -46,9 +46,9 @@ export default function Home() {
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
   const [filters, setFilters] = useState<FilterState>({
-    maxDistance: 5,
+    maxDistance: 1,
     tiers: [],
-    openNow: false,
+    openNow: true,
     minRating: 0,
     categories: [],
   });
@@ -108,7 +108,7 @@ export default function Home() {
       try {
         const list = await fetchNearbyPublicBarbersFromSupabase({
           userLocation,
-          radiusKm: Math.max(5, filters.maxDistance),
+          radiusKm: Math.max(1, filters.maxDistance),
           limit: 120,
           minRating: filters.minRating,
           tiers: filters.tiers,
@@ -171,7 +171,7 @@ export default function Home() {
   useEffect(() => {
     if (!isSupabaseConfigured() || !userLocation || remoteStatus !== 'ready') return;
 
-    const radiusKm = Math.max(5, filters.maxDistance);
+    const radiusKm = Math.max(1, filters.maxDistance);
     const timer = window.setTimeout(() => {
       const queryText = buildHomeSearchQueryText({
         radiusKm,
