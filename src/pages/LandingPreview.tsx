@@ -843,7 +843,7 @@ export default function LandingPreview() {
               >
                 <RadarShowcaseLink variant="showcase" />
                 <p className="max-w-xs text-[0.78rem] leading-relaxed text-white/82 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">
-                  استعرض النبض اللحظي — مستخدم يستعلم · حلاق متوفر على{' '}
+                  استعرض مسارات النبض — مستخدم يستعلم · حلاق متوفر على{' '}
                   <span className="font-semibold text-cyan-400/90">٤٧ مدينة</span>{' '}
                   في المملكة
                 </p>
@@ -1414,6 +1414,9 @@ export default function LandingPreview() {
           <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/8 pt-8 text-center text-[0.7rem] text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] md:flex-row md:justify-between md:text-right">
             <span>© ٢٠٢٦ حلاق ماب — جميع الحقوق محفوظة</span>
             <span className="text-white/70 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">نشاط تقني رقم ISIC4 474151 · المملكة العربية السعودية</span>
+          </div>
+          <div className="mt-2 text-center text-[0.68rem] text-white/70 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">
+            ترخيص الهيئة العامة لتنظيم الإعلام رقم 167220
           </div>
         </div>
       </footer>
