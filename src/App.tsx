@@ -128,6 +128,8 @@ function NotaCouncilRedirect() {
   return null;
 }
 
+const PUBLIC_PULSE_EXPERIENCE_ENABLED = false;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <PlatformAmbientProvider>
@@ -145,7 +147,14 @@ const App = () => (
           <Route path={ROUTE_PATHS.PLATFORM_REVIEWS} element={<LazyRoute><PlatformReviews /></LazyRoute>} />
           <Route path={ROUTE_PATHS.COSMIC_SHOWCASE} element={<LazyRoute><CosmicShowcase /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SAUDI_AGENT} element={<LazyRoute><SaudiAgentLanding /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.RADAR_SHOWCASE} element={<LazyRoute><PulseMapPage /></LazyRoute>} />
+          <Route
+            path={ROUTE_PATHS.RADAR_SHOWCASE}
+            element={
+              PUBLIC_PULSE_EXPERIENCE_ENABLED
+                ? <LazyRoute><PulseMapPage /></LazyRoute>
+                : <Navigate to={ROUTE_PATHS.HOME} replace />
+            }
+          />
           <Route path={ROUTE_PATHS.DIGITAL_SHIFT_FEATURE} element={<LazyRoute><DigitalShiftFeaturePage /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
           <Route

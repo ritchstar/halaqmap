@@ -2044,7 +2044,6 @@ export default function PartnerMarketingPreview() {
                   { label: 'التسجيل', to: ROUTE_PATHS.REGISTER },
                   { label: 'الباقات والأسعار', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
-                  { label: 'معاينة الربط الحي 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'سياسة الحزم', to: ROUTE_PATHS.SUBSCRIPTION_POLICY },
                   { label: 'مكتب مدير المبيعات', to: ROUTE_PATHS.PARTNER_SALES_OFFICE },
                   { label: 'خدمة العملاء', to: ROUTE_PATHS.PARTNER_SUPPORT },

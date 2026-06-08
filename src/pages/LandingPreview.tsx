@@ -21,7 +21,6 @@ import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib
 import { cn } from '@/lib/utils';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
-import { RadarShowcaseLink } from '@/components/RadarShowcaseLink';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
@@ -834,22 +833,6 @@ export default function LandingPreview() {
                 : 'منصة ذكية تساعدك على إتاحة الوصول إلى مقدم الخدمة المناسب فور بحثك — بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.'}
             </p>
 
-            {!isMobile ? (
-              <motion.div
-                initial={skipHeroMotion ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: skipHeroMotion ? 0 : 0.35 }}
-                className="mb-8 flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4"
-              >
-                <RadarShowcaseLink variant="showcase" />
-                <p className="max-w-xs text-[0.78rem] leading-relaxed text-white/82 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">
-                  استعرض مسارات النبض — مستخدم يستعلم · حلاق متوفر على{' '}
-                  <span className="font-semibold text-cyan-400/90">٤٧ مدينة</span>{' '}
-                  في المملكة
-                </p>
-              </motion.div>
-            ) : null}
-
             {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة */}
             <div className="mb-6 flex w-full flex-col items-center gap-4">
               {isMobile ? (
@@ -920,7 +903,7 @@ export default function LandingPreview() {
             ) : null}
           </motion.div>
 
-          {/* Right — Radar */}
+          {/* Right — Public value card */}
           {!isMobile ? (
           <motion.div
             initial={skipHeroMotion ? false : { opacity: 0, scale: 0.92 }}
@@ -929,90 +912,32 @@ export default function LandingPreview() {
             className="relative"
           >
             <div className="relative mx-auto max-w-[440px]">
-              {/* Radar frame */}
-              <div className="relative overflow-hidden rounded-3xl border border-teal-400/20 bg-[#030d1a] p-1 shadow-2xl shadow-teal-500/10">
-                <div className="rounded-2xl bg-[#060d1a] p-3 pb-0">
-                  {/* Top bar */}
-                  <div className="mb-3 flex items-center justify-between px-2">
-                    <div className="flex items-center gap-1.5 text-[0.65rem] text-teal-400">
-                      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
-                      نبض لحظي
-                    </div>
-                    <div className="text-[0.6rem] tabular-nums text-white/78 [text-shadow:0_0_8px_rgba(255,255,255,0.10)]">
-                      {DEMO_BEACONS.filter((b) => b.open).length} صالون متاح
-                    </div>
+              <div className="relative overflow-hidden rounded-3xl border border-teal-400/20 bg-[#030d1a] p-6 shadow-2xl shadow-teal-500/10">
+                <div className="rounded-2xl border border-white/8 bg-[#060d1a] p-6">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[0.72rem] font-bold text-emerald-200">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    بيانات متاحة وموثقة
                   </div>
-
-                  {/* Radar canvas */}
-                  <div className="relative aspect-square w-full">
-                    {isMobile ? (
-                      <MobileHeroLite />
-                    ) : (
-                      <Suspense
-                        fallback={
-                          <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-[#071426] text-sm text-slate-300">
-                            جاري تحميل العرض…
-                          </div>
-                        }
-                      >
-                        <LazyDesktopLandingRadarHero onBeaconClick={setSelectedBeacon} />
-                      </Suspense>
-                    )}
-                    {!isMobile ? (
-                      <AnimatePresence>
-                        {beacon && (
-                          <BarberPopup beacon={beacon} onClose={() => setSelectedBeacon(null)} />
-                        )}
-                      </AnimatePresence>
-                    ) : null}
-                  </div>
-                </div>
-
-                {/* Bottom info strip */}
-                <div className="flex items-center justify-between gap-3 px-3 py-3">
-                  <div className="flex flex-1 items-center justify-around text-[0.65rem] text-white/82 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
-                    {Object.entries(TIER_COLOR).map(([t, c]) => (
-                      <div key={t} className="flex items-center gap-1">
-                        <span className="h-2 w-2 rounded-full" style={{ background: c }} />
-                        <span className="capitalize">{t === 'diamond' ? 'ماسي' : t === 'gold' ? 'ذهبي' : 'برونزي'}</span>
+                  <h3 className="mt-4 text-2xl font-black text-white">
+                    كل ما يحتاجه المستخدم في مكان واحد
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">
+                    تعرض المنصة بيانات الصالونات المفعّلة، مثل صور المنشأة، حالة العمل الحالية، ووسائل التواصل، بما يسهّل على المستخدم اختيار مقدم الخدمة المناسب دون تعقيد.
+                  </p>
+                  <div className="mt-5 grid gap-3">
+                    {[
+                      'بنر وصور تعريفية محدثة',
+                      'وسائل تواصل مباشرة',
+                      'حالة العمل الحالية: مفتوح / مغلق',
+                      'بيانات مناسبة لطلب المستخدم',
+                    ].map((item) => (
+                      <div key={item} className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-slate-200">
+                        {item}
                       </div>
                     ))}
-                    <div className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-full bg-red-500" />
-                      <span>مغلق</span>
-                    </div>
                   </div>
-                  <RadarShowcaseLink variant="showcase" className="hidden scale-[0.88] origin-left sm:inline-flex lg:scale-100" />
                 </div>
               </div>
-
-              {/* Floating badge */}
-              {!isMobile ? (
-              <motion.div
-                animate={{ y: [0, -6, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -left-6 top-10 rounded-xl border border-amber-400/30 bg-[#0a1628]/90 px-3 py-2 shadow-lg shadow-amber-500/10 backdrop-blur-md"
-              >
-                <div className="text-[0.6rem] text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">مقدم خدمة متاح</div>
-                <div className="text-[0.75rem] font-bold text-amber-300">٢٠٠م منك 🧭</div>
-              </motion.div>
-              ) : null}
-
-              {!isMobile ? (
-              <motion.div
-                animate={{ y: [0, 5, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-                className="absolute -right-4 bottom-16 rounded-xl border border-emerald-400/30 bg-[#0a1628]/90 px-3 py-2 shadow-lg backdrop-blur-md"
-              >
-                <div className="flex items-center gap-1 text-[0.6rem] text-emerald-400">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  مفتوح الآن
-                </div>
-                <div className="flex items-center gap-1 text-[0.75rem] font-bold text-white">
-                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" /> ٤.٩
-                </div>
-              </motion.div>
-              ) : null}
             </div>
           </motion.div>
           ) : null}
@@ -1391,7 +1316,6 @@ export default function LandingPreview() {
                 {[
                   { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'آراء المستخدمين ⭐', to: ROUTE_PATHS.PLATFORM_REVIEWS },
-                  { label: 'معاينة الاستجابة الذكية 🛰', to: ROUTE_PATHS.RADAR_SHOWCASE },
                   { label: 'من نحن', to: ROUTE_PATHS.ABOUT },
                   { label: 'سياسة الخصوصية', to: ROUTE_PATHS.USER_PRIVACY_POLICY },
                   { label: 'شروط الاستخدام', to: ROUTE_PATHS.TERMS_OF_SERVICE },
