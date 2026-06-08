@@ -874,7 +874,6 @@ export default function LandingPreview() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 rounded-2xl border border-emerald-400/25 bg-emerald-500/10 px-4 py-2 text-[0.82rem] font-semibold text-emerald-200 hover:bg-emerald-500/18 transition-all"
                   >
-                    <MapPin className="h-3.5 w-3.5" />
                     اعرض الأنسب لي
                   </motion.a>
                 </div>
