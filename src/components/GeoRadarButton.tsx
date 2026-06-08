@@ -304,7 +304,6 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
               </svg>
             </motion.a>
 
-            <p className="text-[0.55rem] text-slate-500">يفتح تطبيق الخرائط على موقعك الذي رصدناه</p>
           </motion.div>
         )}
       </AnimatePresence>
