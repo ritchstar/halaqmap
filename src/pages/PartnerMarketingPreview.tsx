@@ -1613,7 +1613,7 @@ export default function PartnerMarketingPreview() {
             <FeatureCard icon={ImageIcon} title="بطاقة + بنر احترافي" desc="صفحة صالونك كاملة: صور واجهة، بنر تسويقي، خدمات، أسعار، وساعات العمل." color="from-teal-500 to-cyan-500" delay={0.08} />
             <FeatureCard icon={Clock} title="مفتوح/مغلق لحظياً" desc="اضبط حالة صالونك في أي وقت عبر رابط سري — بدون دخول لوحة التحكم." color="from-emerald-500 to-green-500" delay={0.16} />
             <FeatureCard icon={Star} title="تقييمات موثّقة + QR" desc="كود QR يُرسل لزبونك لتقييمك بعد الخدمة — تقييمات حقيقية لا وهمية." color="from-rose-500 to-pink-500" delay={0.08} badge="Gold +" />
-            <FeatureCard icon={BarChart3} title="إحصاءات الأداء" desc="كم بحث عنك، من أي حي، وفي أي وقت — خريطة حرارية لفهم زبائنك." color="from-violet-500 to-purple-500" delay={0.16} badge="Gold +" />
+            <FeatureCard icon={BarChart3} title="متابعة داخلية منظّمة" desc="أدوات داخلية تساعد الصالون على إدارة حضوره الرقمي بهدوء ووضوح داخل حسابه." color="from-violet-500 to-purple-500" delay={0.16} badge="Gold +" />
             <FeatureCard icon={Brain} title="إضافة المكتب الخاص 🏛️" desc="مساعد داخلي + مناوب شات مترابطان — أعطِ تعليماتك، المناوب ينفّذها، والتقارير تصلك فوراً." color="from-violet-600 to-indigo-600" delay={0.24} badge="Diamond Add-on" />
             <FeatureCard icon={Users} title="خدمة كبار السن وذوي الاحتياجات" desc="إعلان موجَّه لشريحة لا تجدها في أي منصة أخرى — ميزة تنافسية حقيقية." color="from-sky-500 to-blue-400" delay={0.08} badge="Gold +" />
             <FeatureCard icon={QrCode} title="بورتفوليو صور" desc="اعرض أعمالك الفعلية — المزيد من الصور = المزيد من الثقة قبل الزيارة." color="from-orange-500 to-red-500" delay={0.16} badge="Diamond +" />
@@ -1674,7 +1674,7 @@ export default function PartnerMarketingPreview() {
                 'كل مزايا البرونزي +',
                 'ظهور أولوية في نتائج المنطقة',
                 'بنر تسويقي احترافي بصري',
-                'إحصاءات أداء شهرية + خريطة حرارية',
+                'متابعة داخلية منظّمة داخل الحساب',
                 'خدمة كبار السن وذوي الاحتياجات الخاصة',
                 'QR تقييم موثّق + رابط الصالون',
               ]}

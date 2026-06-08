@@ -40,8 +40,9 @@ const QUICK = [
   'فسّر لي عرض المضاعفة 🎁',
   'ما هي إضافة المكتب الخاص؟ 🏛️',
   'ما الفرق بين الباقات؟ 💎',
+  'اشرح لي الوضع النظامي والتوثيق الرسمي 🧾',
   'هل في عمولة على القصة؟',
-  'كيف يعمل نظام الظهور الجغرافي؟',
+  'كيف يعمل نظام الظهور عند الطلب؟',
   'ما مدة صلاحية الحزمة؟',
   'كيف أبدأ الانضمام؟ 🚀',
 ];
@@ -403,7 +404,7 @@ export function B2BSalesManagerChat({
                   {[
                     { icon: Scissors, label: 'صالونات' },
                     { icon: Store, label: 'رخصة نفاذ' },
-                    { icon: MapPin, label: 'ظهور جغرافي' },
+                    { icon: MapPin, label: 'ظهور عند الطلب' },
                   ].map((item) => (
                     <div key={item.label} className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50/70 px-2 py-1 text-[0.52rem] font-bold text-cyan-800">
                       <item.icon className="h-3 w-3" />

@@ -1162,8 +1162,8 @@ export default function LandingPreview() {
             />
             <FeatureCard
               icon={BarChart3}
-              title="تحليلات ذكية"
-              desc="الحلاق يرى إحصاءات صالونه: كم بحث عنه، من أي حي، وفي أي وقت."
+              title="إدارة أهدأ للصالون"
+              desc="أدوات داخلية تساعد الشريك على متابعة حضوره الرقمي وإدارة صفحته بسهولة."
               color="from-rose-500 to-pink-500"
               delay={0.24}
               size="wide"
