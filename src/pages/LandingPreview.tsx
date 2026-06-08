@@ -767,8 +767,6 @@ export default function LandingPreview() {
 
                 <div className="hidden h-6 w-px bg-white/12 md:block" />
 
-                <RadarShowcaseLink variant="showcase" className="hidden shrink-0 md:inline-flex" />
-
                 <Link
                   to={ROUTE_PATHS.BARBERS_LANDING}
                   title="مسار الخدمات التسويقية للمنشآت — B2B"
@@ -1115,11 +1113,13 @@ export default function LandingPreview() {
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+            className="mb-10 rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-5 text-center sm:text-right"
           >
-            <RadarShowcaseLink variant="showcase" />
-            <p className="max-w-md text-center text-sm leading-relaxed text-white/85 [text-shadow:0_0_12px_rgba(255,255,255,0.14)] sm:text-right">
-              افتح معاينة الاستجابة الذكية — عرض حي لنبض الطلب ووصول الباحث إلى مقدم الخدمة المناسب
+            <p className="text-xs font-black tracking-[0.18em] text-teal-300/80">
+              استجابة فورية
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-white/85 [text-shadow:0_0_12px_rgba(255,255,255,0.14)]">
+              عند بدء الاستعلام تعرض المنصة البيانات المتاحة مباشرة وفق طلب المستخدم والفلترة المختارة، دون أي صفحة معاينة عامة إضافية.
             </p>
           </motion.div>
 
