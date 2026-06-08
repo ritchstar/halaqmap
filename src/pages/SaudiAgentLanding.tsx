@@ -17,6 +17,11 @@ import { SaudiBackground } from '@/components/SaudiBackground';
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 type AgentId = 'saudi' | 'saudia';
 
+const SAUDI_AGENT_DISCLAIMER_LINES = [
+  'المعلومات المقدمة عبر المساعد الذكي لأغراض إرشادية وتثقيفية عامة فقط، ولا تُعد مرجعاً رسمياً أو قانونياً للأنظمة أو المشاريع الحكومية.',
+  'تُذكر أسماء الجهات والمشاريع والشعارات لأغراض تعريفية تثقيفية فقط، مع وجوب احترام حقوق الملكية الفكرية لكل جهة ومشروع رسمي.',
+] as const;
+
 // ─── Quick Prompts ───────────────────────────────────────────────────────────
 const QUICK_TOPICS: Record<AgentId, { label: string; prompt: string }[]> = {
   saudi: [
@@ -472,6 +477,19 @@ export default function SaudiAgentLanding() {
             </div>
           </div>
 
+          <div className="shrink-0 border-b border-yellow-500/10 bg-black/15 px-5 py-3">
+            <div className="rounded-2xl border border-yellow-500/18 bg-[linear-gradient(135deg,rgba(201,162,39,0.10),rgba(10,31,15,0.35))] px-4 py-3">
+              <p className="text-[0.68rem] font-black tracking-[0.16em] text-yellow-300/85">
+                إخلاء مسؤولية
+              </p>
+              <div className="mt-2 space-y-1.5 text-[0.78rem] leading-6 text-slate-300">
+                {SAUDI_AGENT_DISCLAIMER_LINES.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* منطقة الرسائل — ارتفاع ثابت، تمرير داخلي فقط */}
           <div
             ref={messagesRef}
@@ -673,7 +691,7 @@ export default function SaudiAgentLanding() {
           سعودي وسعودية · ثنائي ذكي مدعوم بالذكاء الاصطناعي · مقدّم من منصة حلاق ماب 🇸🇦
         </p>
         <p className="mt-1 text-[0.58rem] text-slate-700">
-          المعلومات للإثراء المعرفي فقط — الرجوع للمصادر الرسمية للقرارات الرسمية
+          المعلومات للإثراء المعرفي فقط، والجهات والمشاريع الرسمية تُذكر تعريفياً مع احترام حقوقها وملكيتها الفكرية
         </p>
       </footer>
     </div>
