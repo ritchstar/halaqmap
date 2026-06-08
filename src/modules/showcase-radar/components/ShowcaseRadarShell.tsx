@@ -92,7 +92,7 @@ export function ShowcaseRadarShell({ payload, loading, error, className }: Props
             </div>
             <div className="flex items-center gap-1.5">
               <span className="inline-flex h-2.5 w-2.5 rounded-full border border-teal-200/50 bg-[radial-gradient(circle_at_30%_25%,#ccfbf1_0%,#14b8a6_70%,#115e59_100%)] shadow-[0_0_6px_rgba(20,184,166,0.55)]" />
-              <span className="text-[0.62rem] text-slate-300">نبض لحظي — تفاعل حلاق</span>
+              <span className="text-[0.62rem] text-slate-300">تفاعل حلاق — مسار نشط</span>
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ export function ShowcaseRadarShell({ payload, loading, error, className }: Props
         <aside className="pointer-events-auto max-w-[min(52vw,22rem)]">
           <div className="rounded-xl border border-white/10 bg-black/55 p-2.5 backdrop-blur-md">
             <p className="text-[clamp(0.72rem,1.2vw,0.86rem)] font-semibold text-amber-200" dir="rtl">
-              نبض الطلب اللحظي
+              مسارات النبض
             </p>
             <p className="mt-1 line-clamp-2 text-[clamp(0.68rem,1.1vw,0.8rem)] leading-relaxed text-slate-300" dir="rtl">
               {payload?.citySignals?.length

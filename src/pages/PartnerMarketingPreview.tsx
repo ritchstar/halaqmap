@@ -2076,6 +2076,9 @@ export default function PartnerMarketingPreview() {
             <span>© ٢٠٢٦ حلاق ماب — جميع الحقوق محفوظة</span>
             <span className="text-slate-500">مزوّد حلول تقنية · ISIC4 474151 · المملكة العربية السعودية</span>
           </div>
+          <div className="mt-2 text-center text-[0.68rem] text-slate-500">
+            ترخيص الهيئة العامة لتنظيم الإعلام رقم 167220
+          </div>
         </div>
       </footer>
       </>

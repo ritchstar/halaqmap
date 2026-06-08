@@ -33,6 +33,10 @@ export const PLATFORM_FOOTER_TAGLINE = PLATFORM_SMART_TRACKING_SUBTEXT;
 export const PLATFORM_OFFICIAL_FOOTER_LEGAL_LINE =
   'جميع الحقوق محفوظة © ٢٠٢٦ | حلاق ماب هي إحدى مشاريع مؤسسة أحمد بن عبدالله بن سراء التجارية';
 
+/** سطر الترخيص الإعلامي الرسمي في التذييل */
+export const PLATFORM_MEDIA_LICENSE_FOOTER_LINE =
+  'ترخيص الهيئة العامة لتنظيم الإعلام رقم 167220';
+
 /** رابط التذييل إلى صفحة «من نحن» (محتوى تعريفي بالمؤسسة) */
 export const PLATFORM_OFFICIAL_ENTITY_ABOUT_LINK_LABEL = 'عن المؤسسة';
 
