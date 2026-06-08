@@ -865,17 +865,6 @@ export default function LandingPreview() {
                       ? 'يجري تصنيف الخدمات…'
                       : 'اعرض الخدمات المتاحة'}
                   </motion.button>
-                  <motion.a
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.08 }}
-                    href={`https://www.google.com/maps/search/?api=1&query=${userLocation.lat},${userLocation.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 rounded-2xl border border-emerald-400/25 bg-emerald-500/10 px-4 py-2 text-[0.82rem] font-semibold text-emerald-200 hover:bg-emerald-500/18 transition-all"
-                  >
-                    اعرض الأنسب لي
-                  </motion.a>
                 </div>
               )}
             </div>
