@@ -301,7 +301,7 @@ function MobileQuickSearchButton({
   const handleDetect = useCallback(async () => {
     if (busy) return;
     if (!navigator.geolocation) {
-      toast.error('متصفحك لا يدعم تحديد الموقع');
+      toast.error('الخدمة غير مدعومة في هذا المتصفح');
       return;
     }
 
@@ -327,18 +327,18 @@ function MobileQuickSearchButton({
       });
 
       if (!strict.ok) {
-        toast.error(strict.error || 'تعذّر تحديد موقعك');
+        toast.error(strict.error || 'تعذّر بدء الاستعلام');
         return;
       }
 
       storeUserCoords(strict.coords);
       onLocationDetected(strict.coords);
-      toast.success(`تم تحديد موقعك بدقة ±${strict.accuracyM}م`);
+      toast.success('يجري تصنيف الخدمات المناسبة لك');
       if (strict.warning) {
         toast.message('تنبيه دقة', { description: strict.warning });
       }
     } catch {
-      toast.error('تعذّر تحديد موقعك — حاول مرة أخرى');
+      toast.error('تعذّر بدء الاستعلام — حاول مرة أخرى');
     } finally {
       setBusy(false);
     }
@@ -351,17 +351,17 @@ function MobileQuickSearchButton({
         onClick={() => void handleDetect()}
         disabled={busy}
         className="flex w-full max-w-[19rem] items-center justify-center gap-3 rounded-3xl border border-teal-400/25 bg-gradient-to-b from-[#0a2431] to-[#071426] px-5 py-5 text-right shadow-[0_10px_40px_rgba(20,184,166,0.10)] transition-colors active:bg-[#0a1f2a] disabled:opacity-80"
-        aria-label="ابحث عن حلاق وحدد موقعك"
+        aria-label="ابدأ الاستعلام"
       >
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-500/10">
           <Navigation2 className="h-6 w-6 text-teal-300" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-base font-black text-white">
-            {busy ? 'جاري تحديد موقعك…' : 'ابحث عن حلاق'}
+            {busy ? 'يجري الاستعلام…' : 'ابدأ الآن'}
           </div>
           <div className="mt-1 text-[0.78rem] leading-5 text-teal-200/72">
-            {busy ? 'لحظات وسيتم عرض النتائج المناسبة لك' : 'اضغط وحدد موقعك لعرض النتائج المناسبة فورًا'}
+            {busy ? 'لحظات وسيتم تصنيف الخدمات المناسبة لك' : 'ابدأ الاستعلام لعرض الخدمات المناسبة فورًا'}
           </div>
         </div>
       </button>
@@ -827,7 +827,7 @@ export default function LandingPreview() {
 
             <p className="mb-5 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
               {isMobile
-                ? 'اضغط زر الاستعلام وحدد موقعك لنُظهر لك النتائج المناسبة فورًا.'
+                ? 'اضغط زر الاستعلام لنُظهر لك النتائج المناسبة فورًا.'
                 : 'منصة ذكية تساعدك على إتاحة الوصول إلى مقدم الخدمة المناسب فور بحثك — بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.'}
             </p>
 
@@ -877,7 +877,7 @@ export default function LandingPreview() {
                     className="flex items-center gap-2 rounded-2xl border border-emerald-400/25 bg-emerald-500/10 px-4 py-2 text-[0.82rem] font-semibold text-emerald-200 hover:bg-emerald-500/18 transition-all"
                   >
                     <MapPin className="h-3.5 w-3.5" />
-                    تأكد من موقعك على الخريطة
+                    راجع الخريطة المرجعية
                   </motion.a>
                 </div>
               )}
@@ -1030,8 +1030,8 @@ export default function LandingPreview() {
               {
                 step: '١',
                 icon: Navigation2,
-                title: 'شارك موقعك',
-                desc: 'اضغط زر البحث واسمح بموقعك لتعرض لك المنصة البيانات المتاحة فوراً — لا تسجيل مسبق مطلوب.',
+                title: 'ابدأ الاستعلام',
+                desc: 'اضغط زر البحث لتبدأ المنصة معالجة الطلب وعرض البيانات المتاحة فوراً — لا تسجيل مسبق مطلوب.',
                 color: 'from-teal-500 to-cyan-500',
                 delay: 0,
               },

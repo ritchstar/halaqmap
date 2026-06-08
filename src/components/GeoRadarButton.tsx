@@ -24,20 +24,11 @@ interface Props {
   onLocationReset?: () => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function pad(n: number) { return Math.floor(n).toString().padStart(2, '0'); }
-function toDMS(val: number, pos: string, neg: string): string {
-  const abs = Math.abs(val);
-  const d = Math.floor(abs), m = Math.floor((abs - d) * 60);
-  const s = Math.floor(((abs - d) * 60 - m) * 60);
-  return `${pad(d)}° ${pad(m)}' ${pad(s)}" ${val >= 0 ? pos : neg}`;
-}
-
 function geoErrorMessage(code: number | undefined): string {
-  if (code === 1) return 'تم رفض الإذن — فعّل الموقع من إعدادات المتصفح ثم اضغط مجدداً';
-  if (code === 2) return 'إشارة الموقع غير متوفرة — تحقق من GPS أو الشبكة';
-  if (code === 3) return 'انتهت مهلة التحديد — جرّب مجدداً في مكان مكشوف';
-  return 'تعذّر تحديد موقعك — حاول مرة أخرى';
+  if (code === 1) return 'تعذّر بدء الاستعلام — أعد المحاولة';
+  if (code === 2) return 'الخدمة غير جاهزة الآن — أعد المحاولة بعد لحظة';
+  if (code === 3) return 'انتهت مهلة الاستعلام — جرّب مجدداً';
+  return 'تعذّر بدء الاستعلام — حاول مرة أخرى';
 }
 
 // ─── Searching animation: rotating dots ring ──────────────────────────────────
@@ -68,7 +59,6 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
   const isMobile = useIsMobile();
   const [phase, setPhase] = useState<GeoPhase>('idle');
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
   const busy = useRef(false);
 
   const handleClick = useCallback(async () => {
@@ -76,14 +66,13 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
 
     if (!navigator.geolocation) {
       setPhase('denied');
-      toast.error('متصفحك لا يدعم تحديد الموقع');
+      toast.error('الخدمة غير مدعومة في هذا المتصفح');
       return;
     }
 
     // Never keep stale coordinates when user asks for a new fix.
     onLocationReset?.();
     setCoords(null);
-    setAccuracy(null);
     clearStoredUserCoords();
 
     busy.current = true;
@@ -106,11 +95,10 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
 
       const loc = strict.coords;
       setCoords(loc);
-      setAccuracy(strict.accuracyM);
       storeUserCoords(loc);
       setPhase('found');
       requestAnimationFrame(() => onLocationDetected(loc));
-      toast.success(`تم تحديد موقعك بدقة ±${strict.accuracyM}م — جارٍ عرض الخدمات المتاحة المناسبة`);
+      toast.success('يجري تصنيف الخدمات المناسبة لك');
       if (strict.warning) {
         toast.message('تنبيه دقة', { description: strict.warning });
       }
@@ -187,7 +175,7 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
             borderColor: theme.border,
             boxShadow: `0 0 55px 12px ${theme.glow}, 0 0 110px 24px ${theme.glow.replace('0.', '0.0')}`,
           }}
-          aria-label="تحديد موقعي الجغرافي"
+          aria-label="ابدأ الاستعلام"
           aria-busy={isSearching}
         >
           {/* Inner subtle radial accent */}
@@ -232,11 +220,11 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
           {/* ── Text zone ──────────────────────────────────── */}
           <div className="relative z-10 flex flex-col items-center gap-1.5">
             <p className={`${isMobile ? 'text-[0.95rem]' : 'text-[1.05rem]'} font-black leading-tight ${theme.text}`}>
-              {isFound ? 'موقعك مُثبَّت' : isSearching ? 'جاري التحديد…' : isDenied ? 'تعذّر التحديد' : 'اكتشف حلاقك الآن'}
+              {isFound ? 'جاري تصنيف الخدمات' : isSearching ? 'يجري الاستعلام…' : isDenied ? 'تعذّر الاستعلام' : 'ابدأ الآن'}
             </p>
             {isIdle && (
               <p className={`${isMobile ? 'text-[0.58rem]' : 'text-[0.62rem]'} font-semibold ${theme.sub}`}>
-                اضغط لتحديد موقعك
+                ابدأ الاستعلام
               </p>
             )}
             {isSearching && (
@@ -271,21 +259,6 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
             transition={{ duration: 0.45, delay: 0.2 }}
             className="flex flex-col items-center gap-3">
 
-            {/* Coordinates */}
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center gap-3 font-mono text-[0.62rem] tabular-nums">
-                <span className="text-emerald-400/60 tracking-widest">LAT</span>
-                <span className="text-emerald-200">{toDMS(coords.lat, 'ش', 'ج')}</span>
-              </div>
-              <div className="flex items-center gap-3 font-mono text-[0.62rem] tabular-nums">
-                <span className="text-emerald-400/60 tracking-widest">LNG</span>
-                <span className="text-emerald-200">{toDMS(coords.lng, 'ق', 'غ')}</span>
-              </div>
-              {accuracy !== null && (
-                <p className="text-[0.56rem] text-emerald-500/50">● دقة الإشارة ±{accuracy}م · UTC+3</p>
-              )}
-            </div>
-
             {/* Map verification button */}
             <motion.a
               href={`https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`}
@@ -298,7 +271,7 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
               <svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor" className="shrink-0 text-emerald-400">
                 <path fillRule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.544l.062.029.018.008.006.003zM10 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" clipRule="evenodd"/>
               </svg>
-              تحقق من موقعك على الخريطة
+              راجع الخريطة المرجعية
               <svg viewBox="0 0 12 12" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" className="shrink-0 text-emerald-400/60">
                 <path d="M2 10L10 2M10 2H5.5M10 2V6.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
