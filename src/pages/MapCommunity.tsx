@@ -962,6 +962,14 @@ export default function MapCommunity() {
               </p>
             </div>
           </div>
+          <div className="mb-4 rounded-[1.35rem] border border-amber-200 bg-[linear-gradient(155deg,rgba(255,247,237,0.96),rgba(255,255,255,0.98))] px-4 py-4 shadow-[0_16px_34px_rgba(245,158,11,0.08)]">
+            <p className="text-[0.74rem] font-black tracking-[0.14em] text-amber-800">
+              مسؤولية النشر والامتثال
+            </p>
+            <p className="mt-2 text-[0.92rem] leading-7 text-slate-700">
+              يلتزم صاحب الصالون بأن تكون المقاطع المنشورة خالية من أي مخالفات تشريعية أو لقطات تمس الذوق العام، ويُمنع نشر موسيقى صاخبة أو تصوير أي زبون أو شخص آخر دون موافقته الخطية الصريحة. المسؤولية الكاملة تقع على الناشر بصفته المتحكم بالمحتوى، مع خضوع الفيديوهات لرقابة تقنية صارمة.
+            </p>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {videos.map((video, i) => (
               <motion.article

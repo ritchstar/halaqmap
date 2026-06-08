@@ -1699,6 +1699,14 @@ export default function PartnerMarketingPreview() {
             />
           </div>
           </div>
+          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50/85 px-5 py-4 text-right shadow-[0_12px_28px_rgba(245,158,11,0.08)]">
+            <p className="text-[0.72rem] font-black tracking-[0.16em] text-amber-800">
+              تنبيه امتثال لمحتوى الفيديو
+            </p>
+            <p className="mt-2 text-sm leading-7 text-slate-700">
+              عند تفعيل المزايا التي تتضمن عرض الفيديو، يلتزم الصالون بأن تكون المقاطع خالية من أي مخالفات تشريعية أو ملاحظات تمس الذوق العام، بما في ذلك الموسيقى الصاخبة أو تصوير أي زبون أو شخص آخر دون موافقته الخطية الصريحة. وتبقى المسؤولية كاملة على الصالون بوصفه الناشر والمتحكم بمحتوى ملفه، مع خضوع المواد المعروضة لرقابة تقنية صارمة من المنصة.
+            </p>
+          </div>
           <p className="mt-5 text-center text-[0.68rem] text-slate-700">
             كل حزمة صالحة ٣٠ يوماً · لا وساطة تجارية · لا عمولة على الخدمة · لا بيانات حكومية مطلوبة للتسجيل
           </p>
