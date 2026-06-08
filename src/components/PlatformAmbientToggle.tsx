@@ -1,6 +1,12 @@
+import { useEffect, useState } from 'react';
 import { Moon, Sun, SunDim, Sunrise, Sunset } from 'lucide-react';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import type { AmbientPhaseId } from '@/config/platformAmbientPhases';
+import {
+  readStoredUserCoords,
+  resolveUserRegion,
+  type UserCoords,
+} from '@/lib/userRegionWeather';
 import { cn } from '@/lib/utils';
 
 const PHASE_ICONS: Record<AmbientPhaseId, typeof Sun> = {
@@ -19,6 +25,7 @@ export function PlatformAmbientToggle({
   variant = 'default',
   className,
 }: PlatformAmbientToggleProps) {
+  const [userCoords, setUserCoords] = useState<UserCoords | null>(() => readStoredUserCoords());
   const {
     effectivePhase,
     phaseLabelAr,
@@ -32,6 +39,20 @@ export function PlatformAmbientToggle({
   const PhaseIcon = PHASE_ICONS[effectivePhase];
   const isCompact = variant === 'compact';
   const isBrightNoon = effectivePhase === 'dhuhr';
+  const userRegion = resolveUserRegion(userCoords, Boolean(userCoords));
+  const cityNightLabel = `ليل ${userRegion.city.nameAr}`;
+
+  useEffect(() => {
+    const onCoords = (event: Event) => {
+      const detail = (event as CustomEvent<UserCoords>).detail;
+      if (detail?.lat != null && detail?.lng != null) {
+        setUserCoords(detail);
+      }
+    };
+
+    window.addEventListener('halaqmap:user-coords', onCoords);
+    return () => window.removeEventListener('halaqmap:user-coords', onCoords);
+  }, []);
 
   const shellClass =
     variant === 'partner'
@@ -49,8 +70,8 @@ export function PlatformAmbientToggle({
         isCompact ? 'min-h-10 px-2.5 py-2' : 'min-h-10 px-3 py-2',
         className,
       )}
-      aria-label={`${controlLabelAr} — ${phaseLabelAr} — الرياض ${riyadhTimeLabel}`}
-      title={`${controlHintAr}\nالوضع: ${phaseLabelAr}\nالرياض: ${riyadhTimeLabel}`}
+      aria-label={`${controlLabelAr} — ${effectivePhase === 'layl' ? cityNightLabel : phaseLabelAr} — الرياض ${riyadhTimeLabel}`}
+      title={`${controlHintAr}\nالوضع: ${effectivePhase === 'layl' ? cityNightLabel : phaseLabelAr}\nالرياض: ${riyadhTimeLabel}`}
     >
       <span
         className={cn(
@@ -76,7 +97,13 @@ export function PlatformAmbientToggle({
       {!isCompact && (
         <span className="flex min-w-0 flex-col items-start leading-tight">
           <span className="max-w-[9rem] truncate text-[0.72rem] font-black text-slate-900 sm:max-w-none sm:text-xs">
-            {control === 'auto' ? phaseLabelAr : control === 'bright' ? 'ظهر مشرق' : 'ليل الرادار'}
+            {control === 'auto'
+              ? effectivePhase === 'layl'
+                ? cityNightLabel
+                : phaseLabelAr
+              : control === 'bright'
+                ? 'ظهر مشرق'
+                : cityNightLabel}
           </span>
           <span className="hidden text-[0.58rem] font-medium text-slate-600 sm:inline">
             {control === 'auto' ? `الرياض ${riyadhTimeLabel}` : controlLabelAr}

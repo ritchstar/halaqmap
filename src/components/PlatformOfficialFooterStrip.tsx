@@ -31,7 +31,7 @@ export function PlatformOfficialFooterStrip({ variant = 'light' }: { variant?: V
       >
         {PLATFORM_OFFICIAL_FOOTER_LEGAL_LINE}
       </p>
-      <p className={`mt-2 text-center text-xs leading-relaxed sm:text-sm ${titleColor}`}>
+      <p className={`mt-2 text-center text-sm font-bold leading-relaxed sm:text-base ${titleColor}`}>
         {PLATFORM_MEDIA_LICENSE_FOOTER_LINE}
       </p>
       <div className="mt-3 flex justify-center">

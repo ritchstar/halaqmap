@@ -24,10 +24,10 @@ export type AmbientPhaseDefinition = {
 export const AMBIENT_PHASES_ORDER: readonly AmbientPhaseDefinition[] = [
   {
     id: 'layl',
-    labelAr: 'ليل الرادار',
+    labelAr: 'ليل الرياض',
     shortLabelAr: 'ليل',
     start: '19:00',
-    descriptionAr: 'توهج تيل/سيان خافت — جو الرادار الليلي',
+    descriptionAr: 'توهج تيل/سيان خافت — جو ليلي هادئ',
   },
   {
     id: 'fajr',
@@ -66,6 +66,6 @@ export const AMBIENT_CONTROL_LABELS: Record<
   },
   night: {
     labelAr: 'ليل دائم',
-    hintAr: 'رادار ليلي — الهوية التكتيكية',
+    hintAr: 'هوية ليلية هادئة وثابتة',
   },
 };

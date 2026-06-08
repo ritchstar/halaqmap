@@ -35,7 +35,7 @@ export const PLATFORM_OFFICIAL_FOOTER_LEGAL_LINE =
 
 /** سطر الترخيص الإعلامي الرسمي في التذييل */
 export const PLATFORM_MEDIA_LICENSE_FOOTER_LINE =
-  'ترخيص الهيئة العامة لتنظيم الإعلام رقم 167220';
+  'تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222';
 
 /** رابط التذييل إلى صفحة «من نحن» (محتوى تعريفي بالمؤسسة) */
 export const PLATFORM_OFFICIAL_ENTITY_ABOUT_LINK_LABEL = 'عن المؤسسة';

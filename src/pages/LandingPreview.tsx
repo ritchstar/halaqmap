@@ -1337,8 +1337,8 @@ export default function LandingPreview() {
             <span>© ٢٠٢٦ حلاق ماب — جميع الحقوق محفوظة</span>
             <span className="text-white/70 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">نشاط تقني رقم ISIC4 474151 · المملكة العربية السعودية</span>
           </div>
-          <div className="mt-2 text-center text-[0.68rem] text-white/70 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">
-            ترخيص الهيئة العامة لتنظيم الإعلام رقم 167220
+          <div className="mt-2 text-center text-sm font-bold text-white/85 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] sm:text-base">
+            تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222
           </div>
         </div>
       </footer>
