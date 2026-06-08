@@ -266,14 +266,10 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
               initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, type: 'spring', stiffness: 300 }}
               whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 rounded-xl border border-emerald-400/35 bg-emerald-500/10 px-5 py-2.5 text-[0.75rem] font-bold text-emerald-200 shadow-[0_0_16px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/60 hover:bg-emerald-500/18 hover:shadow-[0_0_24px_rgba(16,185,129,0.28)]"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-400/35 bg-emerald-500/10 text-emerald-200 shadow-[0_0_16px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/60 hover:bg-emerald-500/18 hover:shadow-[0_0_24px_rgba(16,185,129,0.28)]"
             >
               <svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor" className="shrink-0 text-emerald-400">
                 <path fillRule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.544l.062.029.018.008.006.003zM10 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" clipRule="evenodd"/>
-              </svg>
-              اعرض الأنسب لي
-              <svg viewBox="0 0 12 12" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" className="shrink-0 text-emerald-400/60">
-                <path d="M2 10L10 2M10 2H5.5M10 2V6.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </motion.a>
 
