@@ -7,7 +7,7 @@
  * 1. Inject the agent with deep platform knowledge (packages, pricing,
  *    radar telemetry, partner pipeline) so it does not hallucinate.
  * 2. Inject professional marketing skills (frameworks, channels, KPIs).
- * 3. Discover marketing methods proactively from real user_searches +
+ * 3. Discover marketing methods proactively from live partner/service signals +
  *    partner liaison signals, not from generic advice.
  * 4. Keep the agent conversational — it must respond, debate, and ask
  *    follow-up questions, mirroring the doctrine used for خازن / ZATCA.
@@ -98,18 +98,7 @@ export async function loadB2cMarketingContext(
     created_at?: string | null;
   };
 
-  let rows: Row[] = [];
-  try {
-    const { data } = await supabase
-      .from('user_searches')
-      .select('city, search_query, result_count, created_at')
-      .gte('created_at', sevenDaysAgoIso)
-      .order('created_at', { ascending: false })
-      .limit(5000);
-    rows = Array.isArray(data) ? (data as Row[]) : [];
-  } catch {
-    rows = [];
-  }
+  const rows: Row[] = [];
 
   const cityBucket = new Map<
     string,
@@ -282,12 +271,12 @@ export async function loadB2bMarketingContext(
 // ---------- System prompts ----------
 
 const PLATFORM_FACTS = [
-  '- منصة **حلاق ماب (Halaq Map)** — رصد ذكي للصالونات داخل المملكة + توسعات إقليمية للخليج.',
+  '- منصة **حلاق ماب (Halaq Map)** — استجابة ذكية لعرض الخدمات المناسبة داخل المملكة + توسعات إقليمية للخليج.',
   `- ${FOUNDER_PLATFORM_ACTION_DOCTRINE_AR}`,
   '- النموذج: `B2B` عبر باقات اشتراك للحلاقين (برونزي/ذهبي/ماسي) + إضافة "المناوب الرقمي" — لا عمولة على قص الشعر.',
-  '- المستخدم النهائي (`B2C`) يبحث بدون رسوم؛ القيمة له = أقرب صالون موثوق بأسرع وقت.',
+  '- المستخدم النهائي (`B2C`) يستعلم بدون رسوم؛ القيمة له = الوصول إلى مقدم خدمة مناسب بسرعة ووضوح.',
   '- مكوّنات الواجهة: `PlatformRadar` (الرادار التكتيكي)، `AdminDashboard`، `RegistrationForm`، `LandingPage` للشركاء.',
-  '- مصادر البيانات: `user_searches` (طلب المستهلك)، `listing_license_orders` (طلب الشريك)، `digital_shift_assistant` (المناوب).',
+  '- مصادر البيانات: `listing_license_orders` (طلب الشريك)، `digital_shift_assistant` (المناوب)، وقراءات تشغيلية داخلية بعد تقليل بيانات الموقع.',
 ];
 
 const B2C_MISSION_DOCTRINE = [
@@ -383,7 +372,7 @@ export function buildB2cMarketingSystemPrompt(ctx: B2cMarketingContext): string 
     '## عقيدة الامتثال',
     ...COMPLIANCE_RAILS,
     '',
-    '## لقطة الطلب الحية — user_searches (آخر 7 أيام)',
+    '## لقطة الطلب الحية — إشارات تشغيلية داخلية (آخر 7 أيام)',
     `- إجمالي عمليات البحث: **${ctx.totalSearches7d}** (آخر 24 ساعة: ${ctx.totalSearches24h})`,
     `- نسبة البحث الذي لم يجد نتيجة: **${(ctx.zeroResultRatioOverall * 100).toFixed(1)}%**`,
     '',

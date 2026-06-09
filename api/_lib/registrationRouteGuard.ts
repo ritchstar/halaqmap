@@ -93,9 +93,6 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'interest-signup') {
     return envInt('INTEREST_SIGNUP_RATE_LIMIT_MAX', 10);
   }
-  if (routeId === 'log-search-activity') {
-    return envInt('LOG_SEARCH_ACTIVITY_RATE_LIMIT_MAX', 200);
-  }
   if (routeId === 'public-rate-barber-context') {
     return envInt('PUBLIC_RATE_BARBER_CONTEXT_RATE_LIMIT_MAX', 80);
   }

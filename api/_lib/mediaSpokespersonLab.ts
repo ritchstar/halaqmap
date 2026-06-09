@@ -102,18 +102,7 @@ async function loadDemandTelemetry(supabase: SupabaseClient): Promise<{
     created_at?: string | null;
   };
 
-  let rows: Row[] = [];
-  try {
-    const { data } = await supabase
-      .from('user_searches')
-      .select('city, result_count, created_at')
-      .gte('created_at', sevenDaysAgoIso)
-      .order('created_at', { ascending: false })
-      .limit(5000);
-    rows = Array.isArray(data) ? (data as Row[]) : [];
-  } catch {
-    rows = [];
-  }
+  const rows: Row[] = [];
 
   const cityBucket = new Map<string, { searches7d: number; zeroResult: number }>();
   let zeroResult = 0;

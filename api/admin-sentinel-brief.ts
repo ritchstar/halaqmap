@@ -23,7 +23,7 @@ function corsHeaders(request: Request): Record<string, string> {
 /** أسماء منطقية للمخطط (تطابق طلب المنتج) ↔ الجداول الفعلية في قاعدة البيانات. */
 const DATA_SOURCES = {
   Users_Activity:
-    'profiles (إنشاء الحسابات) + private_conversations (بدء محادثات) + public.search_activity_logs (بحث المستخدمين؛ ملخص 24س)',
+    'profiles (إنشاء الحسابات) + private_conversations (بدء محادثات)',
   Barbers_Directory: 'public.barbers',
   Chat_Logs: 'private_messages (عينة خادمية) + platform_support_messages (إحصاءات)',
   Subscriptions_Finance: 'public.payments',
@@ -197,7 +197,6 @@ export async function GET(request: Request): Promise<Response> {
     failedPaymentsRes,
     registrationRecentRes,
     interestCountRes,
-    searchLogsRes,
   ] = await Promise.all([
     supabase.from('payments').select('amount, status, tier, created_at').gte('created_at', since30d),
     supabase.from('barbers').select('id, name, tier, total_reviews, city, address, latitude, longitude').limit(5000),
@@ -231,11 +230,6 @@ export async function GET(request: Request): Promise<Response> {
       .from('barber_interest_signups')
       .select('id', { count: 'exact', head: true })
       .gte('created_at', since24h),
-    supabase
-      .from('search_activity_logs')
-      .select('district_name, city_name')
-      .gte('created_at', since24h)
-      .limit(8000),
   ]);
 
   const pingT0 = Date.now();
@@ -330,7 +324,7 @@ export async function GET(request: Request): Promise<Response> {
     address: string;
   }[];
 
-  const searchRows = (searchLogsRes.data ?? []) as { district_name: string | null; city_name: string | null }[];
+  const searchRows: { district_name: string | null; city_name: string | null }[] = [];
   const searchAgg = aggregateSearchDistricts24h(searchRows);
   const topDistricts24h = searchAgg.topDistricts;
   const topCitiesNoDistrict24h = aggregateSearchCitiesNoDistrict24h(searchRows);
@@ -421,38 +415,12 @@ export async function GET(request: Request): Promise<Response> {
     },
   };
 
-  const logsScanned24h = searchRows.length;
-  const searchQueryError = searchLogsRes.error?.message ?? null;
+  const logsScanned24h = 0;
+  const searchQueryError = null;
+  const searchDemandLine =
+    'تم إيقاف سجل البحث الجغرافي وملخصات الطلب المرتبطة به نهائياً التزاماً بنهج المعالجة اللحظية في الذاكرة فقط.';
 
-  let searchDemandLine: string;
-  if (searchQueryError) {
-    searchDemandLine = `تعذر جلب سجل البحث: ${searchQueryError}`;
-  } else if (topDistricts24h.length === 0) {
-    searchDemandLine =
-      logsScanned24h === 0
-        ? 'بحث 24س: لا سجلات بعد — يُبنى التتبع من الصفحة الرئيسية بعد تفعيل الموقع.'
-        : 'بحث 24س: لا أحياء مُجمّعة في السجل بعد (غالباً تحتاج مشاركة موقع أو تسمية حي من الخادم).';
-  } else {
-    searchDemandLine =
-      'أكثر 5 أحياء بحثاً (24س): ' +
-      topDistricts24h.map((t) => `${t.districtName} (${t.searchCount})`).join('، ');
-    if (topCitiesNoDistrict24h.length) {
-      searchDemandLine += ` — بحث بمدينة دون حي: ${topCitiesNoDistrict24h
-        .slice(0, 3)
-        .map((c) => `${c.cityName} (${c.searchCount})`)
-        .join('، ')}`;
-    }
-  }
-
-  const recruitmentAlertsLine =
-    recruitmentAlerts.length > 0
-      ? recruitmentAlerts
-          .map(
-            (a) =>
-              `${a.label}: ${a.districtName}${a.cityName ? ` — ${a.cityName}` : ''} (بحث ${a.searchCount24h}، حلاق مطابقون تقريباً ${a.approximateBarbers})`,
-          )
-          .join(' | ')
-      : undefined;
+  const recruitmentAlertsLine = undefined;
 
   const executiveSummary = buildExecutiveSummary({
     completedSar,

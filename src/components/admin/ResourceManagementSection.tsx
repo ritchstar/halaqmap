@@ -208,7 +208,7 @@ export function ResourceManagementSection({ isActive }: Props) {
               <div className="rounded-lg border border-border/80 p-4">
                 <p className="text-sm font-semibold mb-2">سجلات قاعدة البيانات</p>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>search_activity_logs: {snap.logs.search_activity_logs_count.toLocaleString('ar-SA')}</li>
+                  <li>search_activity_logs: {snap.logs.search_activity_logs_count.toLocaleString('ar-SA')} (معطّل)</li>
                   <li>payment_security_events: {snap.logs.payment_security_events_count.toLocaleString('ar-SA')}</li>
                 </ul>
               </div>
@@ -287,7 +287,7 @@ export function ResourceManagementSection({ isActive }: Props) {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              يحذف من search_activity_logs و payment_security_events ما هو أقدم من العدد المحدد.
+              يحذف من payment_security_events ما هو أقدم من العدد المحدد. سجل البحث الجغرافي تمت إزالته من الخلفية.
             </p>
           </div>
         </CardContent>

@@ -184,13 +184,7 @@ export async function buildShowcaseRadarPayload(
     Date.now() - SHOWCASE_LIMITS.pulseMaxAgeMinutes * 60 * 1000,
   ).toISOString();
 
-  const [searchRes, barbersRes] = await Promise.all([
-    supabase
-      .from('user_searches')
-      .select('id, created_at, user_lat, user_lng, district_name, city_name')
-      .gte('created_at', since)
-      .order('created_at', { ascending: false })
-      .limit(200),
+  const [barbersRes] = await Promise.all([
     supabase
       .from('barbers')
       .select('id, city, is_active, latitude, longitude')
@@ -204,7 +198,7 @@ export async function buildShowcaseRadarPayload(
       .limit(500),
   ]);
 
-  const searchRows = searchRes.error ? [] : ((searchRes.data ?? []) as SearchRow[]);
+  const searchRows: SearchRow[] = [];
   const barberRows = barbersRes.error ? [] : ((barbersRes.data ?? []) as BarberRow[]);
 
   const demandPulses: ShowcaseRadarPulse[] = [];

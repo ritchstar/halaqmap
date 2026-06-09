@@ -289,23 +289,6 @@ export function subscribePlatformRadarChannel(opts: {
       .on('broadcast', { event: PLATFORM_RADAR_USER_SEARCH_EVENT }, (msg) => {
         opts.onUserSearch(msg.payload ?? msg);
       })
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'user_searches' },
-        (payload) => {
-          const row = (payload.new ?? {}) as Record<string, unknown>;
-          opts.onUserSearch({
-            id: row.id,
-            kind: 'user_search',
-            lat: row.user_lat,
-            lng: row.user_lng,
-            createdAt: row.created_at,
-            label: row.district_name,
-            suspicious: row.suspicious,
-            scopeType: row.scope_type,
-          });
-        },
-      )
       .subscribe((status, err) => {
         if (status === 'SUBSCRIBED') {
           opts.onStatus?.(true);

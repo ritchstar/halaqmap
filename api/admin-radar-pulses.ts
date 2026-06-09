@@ -1,6 +1,6 @@
 /**
  * GET /api/admin-radar-pulses
- * Live geo pulses for Platform Radar tactical map (search activity + security events).
+ * Live tactical pulses for Platform Radar (security events only after removing search geo logging).
  */
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
@@ -16,31 +16,6 @@ const CORS_OPTS = {
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
-
-type UserSearchRow = {
-  id: string;
-  created_at: string;
-  search_log_id: string | null;
-  user_lat: number;
-  user_lng: number;
-  district_name: string | null;
-  city_name: string | null;
-  scope_type: string;
-  suspicious: boolean;
-};
-
-type SearchRow = {
-  id: string;
-  created_at: string;
-  user_lat: number | null;
-  user_lng: number | null;
-  district_name: string | null;
-  city_name: string | null;
-  scope_type: string;
-  result_count: number | null;
-  rpc_result_count: number | null;
-  location_sharing: boolean;
-};
 
 type SecurityRow = {
   id: string;
@@ -60,38 +35,6 @@ type BarberCoordRow = {
 
 function isInKsa(lat: number, lng: number): boolean {
   return lat >= 16 && lat <= 33.5 && lng >= 34 && lng <= 56.5;
-}
-
-function coordKey(lat: number, lng: number): string {
-  return `${lat.toFixed(3)}|${lng.toFixed(3)}`;
-}
-
-function markSuspiciousSearchRows(rows: SearchRow[]): Map<string, boolean> {
-  const freq = new Map<string, number>();
-  for (const r of rows) {
-    const lat = r.user_lat;
-    const lng = r.user_lng;
-    if (lat == null || lng == null) continue;
-    const k = coordKey(lat, lng);
-    freq.set(k, (freq.get(k) ?? 0) + 1);
-  }
-
-  const out = new Map<string, boolean>();
-  for (const r of rows) {
-    const lat = r.user_lat;
-    const lng = r.user_lng;
-    if (lat == null || lng == null) {
-      out.set(r.id, false);
-      continue;
-    }
-    const zeroResults =
-      (r.result_count != null && r.result_count === 0) ||
-      (r.rpc_result_count != null && r.rpc_result_count === 0);
-    const rapidCluster = (freq.get(coordKey(lat, lng)) ?? 0) >= 3;
-    const probeScope = r.scope_type === 'filter' || r.scope_type === 'composite';
-    out.set(r.id, zeroResults || rapidCluster || probeScope);
-  }
-  return out;
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -128,23 +71,7 @@ export async function GET(request: Request): Promise<Response> {
 
   const supabase = adminAuth.supabase;
 
-  const [searchRes, userSearchRes, securityRes] = await Promise.all([
-    supabase
-      .from('search_activity_logs')
-      .select(
-        'id, created_at, user_lat, user_lng, district_name, city_name, scope_type, result_count, rpc_result_count, location_sharing',
-      )
-      .gte('created_at', since)
-      .not('user_lat', 'is', null)
-      .not('user_lng', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(400),
-    supabase
-      .from('user_searches')
-      .select('id, created_at, search_log_id, user_lat, user_lng, district_name, city_name, scope_type, suspicious')
-      .gte('created_at', since)
-      .order('created_at', { ascending: false })
-      .limit(400),
+  const [securityRes] = await Promise.all([
     supabase
       .from('platform_booking_security_log')
       .select('id, created_at, severity, event_code, message, barber_id')
@@ -153,16 +80,9 @@ export async function GET(request: Request): Promise<Response> {
       .limit(120),
   ]);
 
-  if (searchRes.error) {
-    return Response.json({ error: searchRes.error.message || 'Search pulse query failed' }, { status: 500, headers });
-  }
   if (securityRes.error) {
     return Response.json({ error: securityRes.error.message || 'Security pulse query failed' }, { status: 500, headers });
   }
-
-  const searchRows = (searchRes.data ?? []) as SearchRow[];
-  const userSearchRows = userSearchRes.error ? [] : ((userSearchRes.data ?? []) as UserSearchRow[]);
-  const suspiciousMap = markSuspiciousSearchRows(searchRows);
 
   const securityRows = (securityRes.data ?? []) as SecurityRow[];
   const barberIds = [
@@ -182,40 +102,16 @@ export async function GET(request: Request): Promise<Response> {
     }
   }
 
-  const userPulsesFromLogs = searchRows
-    .filter((r) => {
-      const lat = r.user_lat;
-      const lng = r.user_lng;
-      return lat != null && lng != null && isInKsa(lat, lng);
-    })
-    .map((r) => ({
-      id: r.id,
-      kind: 'user_search' as const,
-      lat: r.user_lat as number,
-      lng: r.user_lng as number,
-      createdAt: r.created_at,
-      label: [r.district_name, r.city_name].filter(Boolean).join(' · ') || r.scope_type,
-      suspicious: suspiciousMap.get(r.id) ?? false,
-      scopeType: r.scope_type,
-    }));
-
-  const userPulsesFromRadar = userSearchRows
-    .filter((r) => isInKsa(r.user_lat, r.user_lng))
-    .map((r) => ({
-      id: r.id,
-      kind: 'user_search' as const,
-      lat: r.user_lat,
-      lng: r.user_lng,
-      createdAt: r.created_at,
-      label: [r.district_name, r.city_name].filter(Boolean).join(' · ') || r.scope_type,
-      suspicious: r.suspicious,
-      scopeType: r.scope_type,
-    }));
-
-  const userPulseById = new Map<string, (typeof userPulsesFromRadar)[number]>();
-  for (const p of userPulsesFromLogs) userPulseById.set(p.id, p);
-  for (const p of userPulsesFromRadar) userPulseById.set(p.id, p);
-  const userPulses = [...userPulseById.values()];
+  const userPulses: {
+    id: string;
+    kind: 'user_search';
+    lat: number;
+    lng: number;
+    createdAt: string;
+    label: string;
+    suspicious: boolean;
+    scopeType: string;
+  }[] = [];
 
   const securityPulses = securityRows
     .map((r) => {

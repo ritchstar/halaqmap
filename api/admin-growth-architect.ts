@@ -3,9 +3,8 @@
  * Growth Architect Agent — first tactical marketing recommendation.
  *
  * Activated automatically once Engineering Wing handshake reports OK.
- * Reads recent user_searches to identify high-demand cities/districts
- * and returns ranked recommendations (recruit barbers, ad spend hot-zones,
- * neglected districts) for the founder dashboard.
+ * بعد إزالة سجل البحث الجغرافي من الخلفية، يعود هذا المسار
+ * برسالة تعطيل نظيفة بدل الاعتماد على user_searches.
  *
  * Read-only — no schema changes, no destructive operations.
  */
@@ -209,7 +208,7 @@ function buildRecommendations(cities: CityAggregate[]): GrowthRecommendation[] {
         'سجل البحث لا يحتوي على إشارات كافية لاستخراج توصيات استراتيجية حالياً — تحتاج المنظومة إلى 7+ أيام من حركة المستخدمين قبل تفعيل أولى توصيات النمو.',
       metric: { searches7d: 0, searches24h: 0, zeroResultRatio: 0 },
       callToActionAr:
-        'تأكد من أن نقطة /api/log-search-activity تستقبل النبضات من المستخدمين الحقيقيين، ثم راجع هذا التقرير بعد أسبوع.',
+        'هذا المسار متوقف حالياً بعد حذف سجل البحث الجغرافي من الخلفية التزاماً بنهج المعالجة اللحظية.',
     });
   }
 
@@ -243,40 +242,17 @@ export async function GET(request: Request): Promise<Response> {
       recommendations: [],
     });
   }
-
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await auth.supabase
-    .from('user_searches')
-    .select('city_name, district_name, suspicious, result_count, rpc_result_count, created_at')
-    .gte('created_at', sevenDaysAgo)
-    .order('created_at', { ascending: false })
-    .limit(5000);
-
-  if (error) {
-    return json(
-      {
-        ok: false,
-        error: 'growth_architect_query_failed',
-        detail: error.message,
-        activated: true,
-      },
-      500,
-    );
-  }
-
-  const rows = (data || []) as UserSearchSlim[];
-  const cities = aggregateByCity(rows);
-  const recommendations = buildRecommendations(cities);
-
   return json({
     ok: true,
-    activated: true,
+    activated: false,
     generatedAt: new Date().toISOString(),
+    gateMessageAr:
+      'تم إيقاف توصيات الطلب الجغرافي بعد حذف سجل البحث من الخلفية التزاماً بنهج المعالجة اللحظية في الذاكرة فقط.',
     sample: {
-      searchCount7d: rows.length,
-      citiesAnalyzed: cities.length,
+      searchCount7d: 0,
+      citiesAnalyzed: 0,
     },
-    topCities: cities.slice(0, 6),
-    recommendations,
+    topCities: [],
+    recommendations: [],
   });
 }

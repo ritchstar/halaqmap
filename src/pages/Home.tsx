@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
@@ -11,7 +11,6 @@ import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { BarberMap } from '@/components/BarberMap';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
-import { buildHomeSearchQueryText, postLogSearchActivity } from '@/lib/searchActivityLogRemote';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import {
@@ -31,16 +30,7 @@ import {
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
-/** Minimum wait after filter/location settles before logging search activity. */
-const SEARCH_ACTIVITY_LOG_DEBOUNCE_MS = 1_000;
-/** Suppress duplicate composite logs for identical filter+location snapshots. */
-const SEARCH_ACTIVITY_LOG_DEDUPE_MS = 15_000;
-const GEO_SEARCH_LOG_DEBOUNCE_MS = 800;
-const GEO_SEARCH_LOG_DEDUPE_MS = 12_000;
-
 export default function Home() {
-  const searchLogDedupe = useRef<{ key: string; at: number }>({ key: '', at: 0 });
-  const geoLogDedupe = useRef<{ key: string; at: number }>({ key: '', at: 0 });
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
@@ -134,76 +124,6 @@ export default function Home() {
     if (!userLocation) return [];
     return filterBarbersByDistance(catalogBarbers, userLocation, filters);
   }, [userLocation, filters, catalogBarbers]);
-
-  const filterSig = useMemo(
-    () =>
-      JSON.stringify({
-        maxDistance: filters.maxDistance,
-        minRating: filters.minRating,
-        tiers: filters.tiers,
-        openNow: filters.openNow,
-        categories: filters.categories,
-      }),
-    [filters.maxDistance, filters.minRating, filters.tiers, filters.openNow, filters.categories],
-  );
-
-  useEffect(() => {
-    if (!isSupabaseConfigured() || !userLocation) return;
-
-    const geoKey = `${userLocation.lat.toFixed(5)},${userLocation.lng.toFixed(5)}`;
-    const now = Date.now();
-    if (geoLogDedupe.current.key === geoKey && now - geoLogDedupe.current.at < GEO_SEARCH_LOG_DEDUPE_MS) return;
-
-    const timer = window.setTimeout(() => {
-      geoLogDedupe.current = { key: geoKey, at: Date.now() };
-      void postLogSearchActivity({
-        queryText: `رصد موقع — ${geoKey}`,
-        scopeType: 'geo_nearby',
-        userLat: userLocation.lat,
-        userLng: userLocation.lng,
-        locationSharing: true,
-      });
-    }, GEO_SEARCH_LOG_DEBOUNCE_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [userLocation]);
-
-  useEffect(() => {
-    if (!isSupabaseConfigured() || !userLocation || remoteStatus !== 'ready') return;
-
-    const radiusKm = Math.max(1, filters.maxDistance);
-    const timer = window.setTimeout(() => {
-      const queryText = buildHomeSearchQueryText({
-        radiusKm,
-        filters,
-        rpcResultCount: remoteBarbers.length,
-        listAfterLocalFilters: filteredBarbers.length,
-      });
-      const key = `${userLocation.lat.toFixed(5)},${userLocation.lng.toFixed(5)}|${filterSig}|rpc${remoteBarbers.length}|ui${filteredBarbers.length}`;
-      const now = Date.now();
-      if (searchLogDedupe.current.key === key && now - searchLogDedupe.current.at < SEARCH_ACTIVITY_LOG_DEDUPE_MS) return;
-      searchLogDedupe.current = { key, at: now };
-      void postLogSearchActivity({
-        queryText,
-        scopeType: 'composite',
-        userLat: userLocation.lat,
-        userLng: userLocation.lng,
-        locationSharing: true,
-        filters: {
-          maxDistance: filters.maxDistance,
-          minRating: filters.minRating,
-          tiers: filters.tiers,
-          openNow: filters.openNow,
-          categories: filters.categories,
-          radiusKm,
-        },
-        resultCount: filteredBarbers.length,
-        rpcResultCount: remoteBarbers.length,
-      });
-    }, SEARCH_ACTIVITY_LOG_DEBOUNCE_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [userLocation, remoteStatus, filterSig, remoteBarbers.length, filteredBarbers.length]);
 
   const onBarberRealtimePatch = useCallback((patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => {
     setRemoteBarbers((prev) => {

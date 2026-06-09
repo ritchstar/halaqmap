@@ -86,67 +86,9 @@ async function countInspectorPulses(
   supabase: SupabaseClient,
   since: string,
 ): Promise<{ count: number; labels: string[] }> {
-  const labels: string[] = [];
-  let count = 0;
-
-  try {
-    const { data: userRows } = await supabase
-      .from('user_searches')
-      .select('id, district_name, city_name, scope_type, suspicious, created_at')
-      .gte('created_at', since)
-      .eq('suspicious', true)
-      .order('created_at', { ascending: false })
-      .limit(40);
-
-    for (const row of userRows ?? []) {
-      count += 1;
-      const label = [row.district_name, row.city_name, row.scope_type].filter(Boolean).join(' · ');
-      if (label) labels.push(label.slice(0, 80));
-    }
-  } catch {
-    // partial
-  }
-
-  if (count === 0) {
-    try {
-      const { data: searchRows } = await supabase
-        .from('search_activity_logs')
-        .select(
-          'id, user_lat, user_lng, district_name, city_name, scope_type, result_count, rpc_result_count, created_at',
-        )
-        .gte('created_at', since)
-        .not('user_lat', 'is', null)
-        .not('user_lng', 'is', null)
-        .order('created_at', { ascending: false })
-        .limit(200);
-
-      const freq = new Map<string, number>();
-      for (const r of searchRows ?? []) {
-        const lat = r.user_lat as number;
-        const lng = r.user_lng as number;
-        freq.set(coordKey(lat, lng), (freq.get(coordKey(lat, lng)) ?? 0) + 1);
-      }
-
-      for (const r of searchRows ?? []) {
-        const lat = r.user_lat as number;
-        const lng = r.user_lng as number;
-        const zeroResults =
-          (r.result_count != null && r.result_count === 0) ||
-          (r.rpc_result_count != null && r.rpc_result_count === 0);
-        const rapidCluster = (freq.get(coordKey(lat, lng)) ?? 0) >= 3;
-        const probeScope = r.scope_type === 'filter' || r.scope_type === 'composite';
-        if (zeroResults || rapidCluster || probeScope) {
-          count += 1;
-          const label = [r.district_name, r.city_name, r.scope_type].filter(Boolean).join(' · ');
-          if (label) labels.push(label.slice(0, 80));
-        }
-      }
-    } catch {
-      // partial
-    }
-  }
-
-  return { count, labels: labels.slice(0, 6) };
+  void supabase;
+  void since;
+  return { count: 0, labels: [] };
 }
 
 async function auditRegistrationCompliance(

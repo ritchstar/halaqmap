@@ -156,13 +156,7 @@ export async function buildPulseMapLivePayload(
   );
   const since = new Date(Date.now() - windowMinutes * 60_000).toISOString();
 
-  const [searchRes, conversationsRes, bookingsRes] = await Promise.all([
-    supabase
-      .from('user_searches')
-      .select('id, created_at, user_lat, user_lng, city_name')
-      .gte('created_at', since)
-      .order('created_at', { ascending: false })
-      .limit(500),
+  const [conversationsRes, bookingsRes] = await Promise.all([
     supabase
       .from('private_conversations')
       .select('barber_id, started_at')
@@ -178,7 +172,7 @@ export async function buildPulseMapLivePayload(
       .limit(400),
   ]);
 
-  const searchRows = searchRes.error ? [] : ((searchRes.data ?? []) as SearchRow[]);
+  const searchRows: SearchRow[] = [];
   const conversationRows = conversationsRes.error
     ? []
     : ((conversationsRes.data ?? []) as ConversationRow[]);
