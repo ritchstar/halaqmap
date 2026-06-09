@@ -85,7 +85,7 @@ export function KSACityClocksBar() {
     return () => clearInterval(id);
   }, []);
 
-  // موقع المستخدم — من الجلسة أو GPS (بدون إزعاج إن وُجد إذن سابق)
+  // موقع المستخدم — من الجلسة أو من مسار الاستعلام الصريح فقط
   useEffect(() => {
     const onCoords = (event: Event) => {
       const detail = (event as CustomEvent<UserCoords>).detail;
@@ -95,25 +95,6 @@ export function KSACityClocksBar() {
       }
     };
     window.addEventListener('halaqmap:user-coords', onCoords);
-
-    if (readStoredUserCoords()) return () => window.removeEventListener('halaqmap:user-coords', onCoords);
-
-    if (!navigator.geolocation) {
-      return () => window.removeEventListener('halaqmap:user-coords', onCoords);
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setUserCoords(coords);
-        setCoordsFromDevice(true);
-      },
-      () => {
-        /* الافتراضي: الرياض */
-      },
-      // This bar is informational only; never seed shared storage from coarse/stale fixes.
-      { enableHighAccuracy: false, timeout: 9000, maximumAge: 0 },
-    );
 
     return () => window.removeEventListener('halaqmap:user-coords', onCoords);
   }, []);

@@ -285,6 +285,9 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
           transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
         />
       ) : null}
+      <p className="max-w-[19rem] text-center text-[0.72rem] leading-5 text-slate-400">
+        هذه الخدمة تتطلب إذن الموقع لإكمال الاستعلام وعرض الخدمات المناسبة لك، وفق سياسة الخصوصية.
+      </p>
     </div>
   );
 }

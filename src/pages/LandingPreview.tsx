@@ -366,7 +366,7 @@ function MobileQuickSearchButton({
         </div>
       </button>
       <p className="text-center text-[0.72rem] leading-5 text-slate-400">
-        الخدمة تبدأ من استعلامك مباشرة، ثم نعرض لك النتائج المناسبة دون خطوات إضافية.
+        هذه الخدمة تتطلب إذن الموقع لإكمال الاستعلام وعرض الخدمات المناسبة لك، وفق سياسة الخصوصية.
       </p>
     </div>
   );
