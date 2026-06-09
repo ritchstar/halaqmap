@@ -92,89 +92,6 @@ import {
 } from 'lucide-react';
 import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 
-// ─── بانر العرض التأسيسي — مضاعفة الرخص ──────────────────────────────────────
-const PRICE_B = TIER_MONTHLY_SAR[SubscriptionTier.BRONZE];   // 100
-const PRICE_G = TIER_MONTHLY_SAR[SubscriptionTier.GOLD];     // 150
-const PRICE_D = TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND];  // 200
-const PRICE_DA = PRICE_D + 25;                               // 225
-
-const FOUNDER_DEALS = [
-  { n: 3,  icon: '🎁', label: '٣ + ٣ مجاناً',  months: '٦ أشهر',          savings: [300, 450, 600, 675] },
-  { n: 6,  icon: '🔥', label: '٦ + ٦ مجاناً',  months: 'سنة كاملة',        savings: [600, 900, 1200, 1350], best: true },
-  { n: 12, icon: '⚡', label: '١٢ + ١٢ مجاناً', months: 'سنتان بسعر واحدة', savings: [1200, 1800, 2400, 2700] },
-] as const;
-
-function FoundersDealBanner() {
-  const [spots] = useState(() => 731 - Math.floor(Math.random() * 8)); // متبقٍ من الألف
-  const pct = Math.round(((1000 - spots) / 1000) * 100);
-  return (
-    <div className="mb-6 overflow-hidden rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-950/50 via-slate-900/70 to-amber-950/40"
-      style={{ boxShadow: '0 0 40px rgba(251,191,36,0.07), inset 0 1px 0 rgba(251,191,36,0.12)' }}>
-      {/* رأس العرض */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-400/15 px-5 py-3">
-        <div className="flex items-center gap-2">
-          <Zap className="h-4 w-4 text-amber-400 animate-pulse" />
-          <div>
-            <p className="text-[0.58rem] font-black uppercase tracking-widest text-amber-400/70">⭐ عرض تشغيلي مؤقت · الألف الرواد</p>
-            <p className="text-sm font-black text-white">مضاعفة الرخص + شارة رائد لامعة — أول ١٠٠٠ صالون فقط</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3 py-1.5 text-center">
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-          <div>
-            <p className="text-base font-black tabular-nums text-amber-300">{spots}</p>
-            <p className="text-[0.5rem] text-slate-500">رائد متبقٍ / ١٠٠٠</p>
-          </div>
-        </div>
-      </div>
-      {/* شريط التقدم */}
-      <div className="px-5 pt-2.5">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-          <div className="h-full rounded-full bg-gradient-to-r from-amber-600 to-amber-400"
-            style={{ width: `${pct}%`, boxShadow: '0 0 6px rgba(251,191,36,0.4)' }} />
-        </div>
-        <p className="mt-0.5 text-left text-[0.5rem] text-amber-400/50">{pct}% مُحجوز</p>
-      </div>
-      {/* صفوف المضاعفة */}
-      <div className="grid grid-cols-3 gap-2 p-4">
-        {FOUNDER_DEALS.map(d => (
-          <div key={d.n}
-            className={`relative rounded-xl border p-3 text-center text-right ${(d as any).best ? 'border-amber-500' : 'border-gray-200'}`}
-          >
-            {(d as any).best && (
-              <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 text-white px-2 py-0.5 text-[0.6rem] font-bold">
-                المميزة
-              </span>
-            )}
-            <p className="text-base">{d.icon}</p>
-            <p className="text-xs font-black text-white">{d.label}</p>
-            <p className="text-[0.58rem] text-slate-400">{d.months}</p>
-            <div className="mt-1.5 space-y-0.5 text-[0.5rem]">
-              <p>🥉 <span className="font-bold text-amber-700">{d.savings[0].toLocaleString('ar-SA')} ر.س</span></p>
-              <p>🥇 <span className="font-bold text-amber-400">{d.savings[1].toLocaleString('ar-SA')} ر.س</span></p>
-              <p>💎 <span className="font-bold text-cyan-400">{d.savings[2].toLocaleString('ar-SA')} ر.س</span></p>
-              <p>💎🌙 <span className="font-bold text-violet-400">{d.savings[3].toLocaleString('ar-SA')} ر.س</span></p>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* شارة رائد */}
-      <div className="mx-4 mb-3 flex items-center gap-2 rounded-xl border border-amber-400/25 bg-amber-500/8 px-3 py-2">
-        <span className="text-lg">⭐</span>
-        <div>
-          <p className="text-xs font-black text-amber-300">شارة رائد — حصرية للألف الرواد</p>
-          <p className="text-[0.58rem] text-slate-400">كل مشترك من ١ إلى ١٠٠٠ يحصل على شارة رائد لامعة على بنره · لا تُمنح لغير الألف الأوائل · بلا تمييز بين الباقات</p>
-        </div>
-      </div>
-      {/* ذيل */}
-      <div className="border-t border-amber-400/10 px-5 py-2.5 text-[0.58rem] text-slate-500">
-        ✅ ينطبق على جميع الباقات &nbsp;·&nbsp; ✅ لا عمولات &nbsp;·&nbsp;
-        🚨 يُغلق فور اكتمال الألف الرواد
-      </div>
-    </div>
-  );
-}
-
 const regFieldClass =
   'border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500 focus-visible:ring-slate-400';
 const regLabelClass = 'text-slate-300';
@@ -203,8 +120,8 @@ function RegStepShell({
 
 interface FormData {
   tier: SubscriptionTier | '';
-  /** الخطة: سنوية (أولوية) أو شهرية */
-  plan: 'annual' | 'monthly';
+  /** نوع الحزمة الحالي في المسار المعتمد */
+  plan: 'monthly';
   /** إضافة برمجية متقدمة (Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
   digitalShiftAddon: boolean;
   shopName: string;
@@ -281,7 +198,6 @@ const SUBSCRIPTION_PLANS: {
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: '⭐ شارة رائد لامعة على بنرك — حصرية لألف الرواد الأوائل بلا تمييز بين الباقات' },
       { kind: 'line', text: 'ظهور عند الطلب للزبائن القريبين منك عندما يبحثون الآن' },
       { kind: 'line', text: 'بطاقة صالون واضحة: موقع، اتصال، واتساب، وصور أساسية' },
       { kind: 'line', text: 'صور واجهة وداخل + بنر أساسي تعطي انطباعاً حقيقياً قبل الزيارة' },
@@ -295,7 +211,6 @@ const SUBSCRIPTION_PLANS: {
     label: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: '⭐ شارة رائد لامعة على بنرك — حصرية لألف الرواد الأوائل بلا تمييز بين الباقات' },
       { kind: 'line', text: 'أولوية ذهبية عند الطلب تمنح صالونك حضوراً أوضح أمام المنافسين' },
       { kind: 'line', text: 'معرض أعمال حتى 20 صورة لإقناع العميل قبل أن يتواصل' },
       { kind: 'line', text: RATING_QR_PLAN_LINE },
@@ -312,7 +227,6 @@ const SUBSCRIPTION_PLANS: {
     digitalShiftAddonAvailable: true,
     features: [
       { kind: 'map_hero' },
-      { kind: 'line', text: '⭐ شارة رائد لامعة على بنرك — حصرية لألف الرواد الأوائل بلا تمييز بين الباقات' },
       { kind: 'line', text: 'أعلى أولوية ماسية للطلبات القريبة لمن يريد صدارة منطقته' },
       { kind: 'line', text: 'واجهة فاخرة: بنر متوهج، معرض حتى 40 صورة، وشارة نخبة للثقة' },
       { kind: 'line', text: 'شات خاص مع ترجمة فورية لخدمة السياح والعملاء متعددي اللغات' },
@@ -359,11 +273,9 @@ export function RegistrationForm() {
   // قراءة المعاملات من URL لضبط الحزمة المُختارة مسبقاً
   const urlParams = new URLSearchParams(location.search);
   const urlTier = urlParams.get('tier') as SubscriptionTier | null;
-  const urlPlan = urlParams.get('plan') as 'annual' | 'monthly' | null;
-
   const [formData, setFormData] = useState<FormData>({
     tier: (urlTier && Object.values(SubscriptionTier).includes(urlTier)) ? urlTier : '',
-    plan: urlPlan === 'monthly' ? 'monthly' : 'annual', // السنوية افتراضياً
+    plan: 'monthly',
     digitalShiftAddon: false,
     shopName: '',
     email: '',
@@ -919,7 +831,7 @@ export function RegistrationForm() {
         mailtoBodyShort,
       });
 
-      toast.success('✅ تم تقديم الطلب — ادفع الآن لتفعيل رخصتك فوراً!');
+      toast.success('✅ تم تقديم الطلب — يمكنك الآن الانتقال إلى الدفع لبدء مسار التفعيل.');
       await new Promise((r) => setTimeout(r, 600));
       navigate(ROUTE_PATHS.REGISTER_SUCCESS);
     } finally {
@@ -943,9 +855,8 @@ export function RegistrationForm() {
         ? { digitalShiftAddon: true }
         : undefined,
     );
-    // للحزمة السنوية: السعر السنوي = الشهري × 12
-    return formData.plan === 'annual' ? monthly * 12 : monthly;
-  }, [formData.tier, formData.digitalShiftAddon, formData.plan]);
+    return monthly;
+  }, [formData.tier, formData.digitalShiftAddon]);
 
   const selectedPlan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
   const monthlyPriceBreakdown = useMemo(
@@ -1017,96 +928,10 @@ export function RegistrationForm() {
             <div className="rounded-xl border border-slate-700 bg-slate-900 p-5 md:p-7 text-slate-100">
               <header className="mb-5 text-right">
                 <h2 className="text-xl font-black text-white">اختر حزمتك</h2>
-                <p className="mt-1 text-sm text-slate-400">الحزم السنوية موصى بها — تدفع ١٢ شهراً وتحصل على ٢٤</p>
+                <p className="mt-1 text-sm text-slate-400">اختر الحزمة الشهرية المناسبة ثم أكمل بيانات الطلب.</p>
               </header>
 
-              {/* ── تبديل السنوي / الشهري ── */}
-              <div className="mb-5 flex overflow-hidden rounded-xl border border-slate-700 bg-slate-800/50">
-                <button type="button"
-                  onClick={() => setFormData(p => ({ ...p, plan: 'annual' }))}
-                  className={`flex-1 py-2.5 text-sm font-black transition-all ${
-                    formData.plan === 'annual'
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black'
-                      : 'text-slate-400 hover:text-white'
-                  }`}>
-                  ⚡ سنوي — الألف الرواد (موصى به)
-                </button>
-                <button type="button"
-                  onClick={() => setFormData(p => ({ ...p, plan: 'monthly' }))}
-                  className={`flex-1 py-2.5 text-sm font-semibold transition-all ${
-                    formData.plan === 'monthly'
-                      ? 'bg-slate-700 text-white'
-                      : 'text-slate-500 hover:text-slate-300'
-                  }`}>
-                  شهري
-                </button>
-              </div>
-
-              {/* ── الحزم السنوية (الأولوية) ── */}
-              {formData.plan === 'annual' && (
-                <div className="mb-6">
-                  <FoundersDealBanner />
-                  <RadioGroup
-                    value={formData.tier}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev, tier: value as SubscriptionTier,
-                        digitalShiftAddon: value === SubscriptionTier.DIAMOND ? prev.digitalShiftAddon : false,
-                      }))
-                    }
-                    className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
-                  >
-                    {([
-                      { tier: SubscriptionTier.BRONZE, name: 'برونزي سنوي', price: 100, color: 'text-amber-700', border: 'border-amber-700/30', months: '٢٤', saving: 1200 },
-                      { tier: SubscriptionTier.GOLD, name: 'ذهبي سنوي', price: 150, color: 'text-amber-400', border: 'border-amber-400/40', months: '٢٤', saving: 1800, best: true },
-                      { tier: SubscriptionTier.DIAMOND, name: 'ماسي سنوي', price: 200, color: 'text-cyan-400', border: 'border-cyan-400/30', months: '٢٤', saving: 2400 },
-                      { tier: SubscriptionTier.DIAMOND, name: 'ماسي + مكتب', price: 225, color: 'text-violet-400', border: 'border-violet-400/30', months: '٢٤', saving: 2700, addon: true },
-                    ] as const).map((t, i) => {
-                      const isSelected = formData.tier === t.tier && (i < 3 || formData.digitalShiftAddon);
-                      return (
-                        <label key={i} className="relative flex cursor-pointer flex-col">
-                                      {(t as any).best && (
-                            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-0.5 text-[0.55rem] font-black text-black z-10">
-                              الأعلى طلباً
-                            </span>
-                          )}
-                          <RadioGroupItem
-                            value={t.tier}
-                            id={`annual-${i}`}
-                            className="sr-only"
-             onClick={() => {
-              setFormData((p) => ({ ...p, tier: t.tier }));
-            }}
-          />
-                          <div className={`flex flex-col rounded-xl border p-3.5 transition-all ${
-                            isSelected
-                              ? `${t.border} bg-gradient-to-b from-white/8 to-transparent ring-2 ring-current/20`
-                              : `${t.border} bg-white/[0.025] hover:bg-white/5`
-                          }`}>
-                            <p className={`text-xs font-black mb-1 ${t.color}`}>{t.name}</p>
-                            <div className="flex items-end gap-1 mb-1">
-                              <span className={`text-xl font-black tabular-nums ${t.color}`}>
-                                {(t.price * 12).toLocaleString('ar-SA')}
-                              </span>
-                              <span className="mb-0.5 text-[0.55rem] text-slate-500">ر.س/سنة</span>
-                            </div>
-                            <p className="text-[0.5rem] text-slate-600 mb-2">{t.price} ر.س × ١٢ شهراً</p>
-                            <div className="rounded-lg border border-amber-400/15 bg-amber-500/6 px-2 py-1.5 text-center">
-                              <p className="text-[0.48rem] text-amber-400/60 mb-0.5">⚡ عرض المضاعفة</p>
-                              <p className="text-[0.6rem] font-black text-emerald-400">{t.months} شهراً</p>
-                              <p className="text-[0.45rem] text-emerald-400/60">توفير {t.saving.toLocaleString('ar-SA')} ر.س</p>
-                            </div>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </RadioGroup>
-                </div>
-              )}
-
-              {/* ── الحزم الشهرية (بديل) ── */}
-              {formData.plan === 'monthly' && (
-                <div>
+              <div>
                   <RadioGroup
                     value={formData.tier}
                     onValueChange={(value) =>
@@ -1216,40 +1041,6 @@ export function RegistrationForm() {
                 })}
               </RadioGroup>
                 </div>
-              )}
-
-              {/* إشارة للخطوة التالية بعد الاختيار */}
-              {formData.plan === 'annual' && formData.tier && (
-                <div className="mt-3 flex items-center justify-between rounded-xl border border-amber-400/25 bg-amber-500/8 px-4 py-2.5">
-                  <p className="text-[0.65rem] text-amber-200">
-                    ✅ الحزمة محددة — اضغط «ابدأ تعبئة الطلب» للمتابعة
-                  </p>
-                  <button type="button" onClick={handleNext}
-                    className="rounded-lg bg-amber-500 px-3 py-1 text-[0.62rem] font-black text-black hover:bg-amber-400 transition-all">
-                    التالي ←
-                  </button>
-                </div>
-              )}
-
-              {/* تلميح التبديل */}
-              {formData.plan === 'annual' && !formData.tier && (
-                <p className="mt-3 text-center text-[0.6rem] text-slate-600">
-                  تفضّل الشهري؟{' '}
-                  <button type="button" onClick={() => setFormData(p => ({ ...p, plan: 'monthly' }))}
-                    className="text-slate-400 underline hover:text-amber-300 transition-colors">
-                    اختر الباقة الشهرية
-                  </button>
-                </p>
-              )}
-              {formData.plan === 'monthly' && (
-                <p className="mt-3 text-center text-[0.6rem] text-amber-400/60">
-                  ⚡{' '}
-                  <button type="button" onClick={() => setFormData(p => ({ ...p, plan: 'annual' }))}
-                    className="text-amber-400 underline hover:text-amber-300 transition-colors">
-                    احصل على ضعف المدة بالسنوي — عرض الألف الرواد
-                  </button>
-                </p>
-              )}
             </div>
           )}
           {currentStep === 2 && (
@@ -1843,15 +1634,14 @@ export function RegistrationForm() {
                       حزمة الرخصة الرقمية على المنصة.
                     </p>
                     <p className={regMutedClass}>
-                      الدفع آلي ومباشر — بعد إرسال الطلب ستنتقل فوراً لصفحة الدفع عبر بوابة ميسر (مدى، فيزا، ماستركارد). <strong>التفعيل يبدأ فور نجاح السداد</strong> بلا انتظار.
+                      الدفع آلي ومباشر — بعد إرسال الطلب ستنتقل إلى صفحة الدفع عبر بوابة ميسر (مدى، فيزا، ماستركارد). يبدأ تفعيل الحزمة وفق مسار الدفع والحالة الحالية في النظام.
                     </p>
                     {selectedPlan && monthlyPriceBreakdown && (
                       <p className="font-medium text-slate-100">
-                        المبلغ المتوقع لحزمة الرخصة ({formData.plan === 'annual' ? '٣٦٠ يوم سنوي' : '٣٠ يوماً'}):{' '}
+                        المبلغ المتوقع لحزمة الرخصة (٣٠ يوماً):{' '}
                         {vatSettings.enabled && monthlyPriceBreakdown.vat > 0
                           ? `${monthlyPriceBreakdown.total} ر.س (شامل ضريبة ${vatSettings.ratePercent}%)`
                           : `${selectedUnitSar} ر.س`}
-                        {formData.plan === 'annual' && <span className="ms-2 text-emerald-400 text-xs font-black">⚡ تحصل على ٢٤ شهراً</span>}
                       </p>
                     )}
                   </AlertDescription>

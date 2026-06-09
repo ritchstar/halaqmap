@@ -129,16 +129,16 @@ export default function RegisterSuccess() {
           <CardHeader className="text-center">
             <div className="mb-3 flex justify-center">
               <Badge variant="secondary" className="border-primary/40 bg-primary/10 px-4 py-1 text-sm font-semibold">
-                طلبك مُسجَّل — ادفع للتفعيل الفوري
+                طلبك مُسجَّل — انتقل للدفع
               </Badge>
             </div>
-            <CardTitle className="text-2xl">خطوة واحدة للتفعيل الفوري ⚡</CardTitle>
+            <CardTitle className="text-2xl">خطوة الدفع والتفعيل</CardTitle>
             <CardDescription className="text-center leading-relaxed">
-              طلبك مسجَّل — <strong>ادفع الآن وتُفعَّل رخصتك فوراً</strong> بلا انتظار ولا مراجعة إدارية.
-              التفعيل يبدأ تلقائياً بمجرد نجاح السداد — لا مراجعة ولا انتظار.
+              طلبك مسجَّل — <strong>أكمل الدفع لتبدأ معالجة التفعيل</strong> وفق حالة الطلب الحالية داخل النظام.
+              يبدأ التفعيل بعد نجاح السداد بحسب المسار المعتمد دون الحاجة إلى إعادة إدخال بياناتك.
               {data.tier === SubscriptionTier.DIAMOND && (
                 <span className="mt-2 block rounded-lg border border-violet-500/30 bg-violet-950/30 px-3 py-1.5 text-sm text-violet-300 font-semibold">
-                  🏛️ إضافة المكتب الخاص تُفعَّل تلقائياً مع باقتك الماسية عند السداد.
+                  🏛️ إضافة المكتب الخاص تدخل في مسار التفعيل مع باقتك الماسية بعد اكتمال الدفع وفق الحالة الحالية.
                 </span>
               )}
             </CardDescription>
@@ -201,18 +201,6 @@ export default function RegisterSuccess() {
 
             <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground break-all" dir="ltr">
               {absolutePaymentUrl}
-            </div>
-
-            {/* عرض المضاعفة التأسيسي */}
-            <div className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-950/40 via-slate-900/50 to-amber-950/30 p-4 text-sm leading-relaxed text-right"
-              style={{ boxShadow: '0 0 24px rgba(251,191,36,0.07)' }}>
-              <div className="mb-2 flex items-center gap-2">
-                <span className="text-base">⚡</span>
-                <p className="font-black text-amber-300">عرض الألف الرواد التأسيسي — مضاعفة الرخص</p>
-              </div>
-              <p className="text-amber-100/80 text-xs leading-relaxed">
-                إذا اخترت الحزمة بعروض المضاعفة (٣+٣، ٦+٦، ١٢+١٢) تُطبَّق تلقائياً عند السداد — أنت من الألف الرواد الأوائل وستحصل على <strong className="text-amber-300">⭐ شارة رائد</strong> لامعة على بنرك بمجرد التفعيل.
-              </p>
             </div>
 
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">

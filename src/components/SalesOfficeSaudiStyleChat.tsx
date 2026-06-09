@@ -13,7 +13,6 @@ import { useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 
 const QUICK_TOPICS = [
-  { label: 'شرح عرض المضاعفة', prompt: 'اشرح لي عرض مضاعفة الرخص بالأرقام وبشكل مختصر.' },
   { label: 'الفرق بين الباقات', prompt: 'ما الفرق بين البرونزية والذهبية والماسية؟' },
   { label: 'الوضع النظامي والتوثيق', prompt: 'اشرح لي الوضع النظامي الحالي للمنصة والأنشطة الرسمية والترخيص والتوثيق.' },
   { label: 'اعتراض السعر', prompt: 'كيف ترد على اعتراض السعر لصالون متردد؟' },
@@ -25,7 +24,7 @@ const QUICK_TOPICS = [
 ] as const;
 
 const PITCH_LINES = [
-  'العرض التشغيلي التأسيسي نشط الآن: مضاعفة الرخص للألف الرواد فقط.',
+  'الباقات الحالية واضحة ومسبقة الدفع وفق السياسة المعتمدة داخل المنصة.',
   'التواجد المبكر داخل المنصة ليس شكلياً؛ هو تموضع يسبق اتساع الطلب في المنطقة.',
   'الإدارة تجهز الحلاقين أولاً ثم توسع وصول المستخدمين عليهم — هكذا يُبنى السوق الصحيح.',
   'إضافة المكتب الخاص ترفع جودة التشغيل وتحوّل الصفحة إلى قناة متابعة أدق.',
@@ -35,7 +34,7 @@ const PITCH_LINES = [
 function getGreeting(): string {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'صباح المبيعات' : hour < 17 ? 'مساء الإنجاز' : 'مساء الإقفال الذكي';
-  return `${greeting}.\n\nأنا مدير المبيعات التجاري لمنصة حلاق ماب.\nمهمتي هنا أن أوضح لك قيمة الباقات، منطق التواجد المبكر، وخطة المنصة في تجهيز الحلاقين قبل توسيع الوصول للمستخدمين داخل مناطق المملكة.\n\nببساطة: ليس من المنطقي أن تبني الإدارة سوقاً للمستخدمين قبل أن تملأه بصلونات جاهزة. لهذا السبب، الوجود المبكر داخل المنصة يعطي الحلاق موضعاً أقوى عندما يبدأ اتساع الطلب.\n\nاذكر لي ما الذي تريد حسمه أولاً: السعر، الباقة، العائد، أم ميزة الدخول المبكر؟`;
+  return `${greeting}.\n\nأنا مدير المبيعات التجاري لمنصة حلاق ماب.\nمهمتي هنا أن أوضح لك الباقات الفعلية الحالية، منطق التواجد المبكر، وخطة المنصة في تجهيز الحلاقين قبل توسيع الوصول للمستخدمين داخل مناطق المملكة.\n\nببساطة: ليس من المنطقي أن تبني الإدارة سوقاً للمستخدمين قبل أن تملأه بصلونات جاهزة. لهذا السبب، الوجود المبكر داخل المنصة يعطي الحلاق موضعاً أقوى عندما يبدأ اتساع الطلب.\n\nاذكر لي ما الذي تريد حسمه أولاً: السعر، الباقة، أم ميزة الدخول المبكر؟`;
 }
 
 async function sendMsg(msg: string, history: Turn[]): Promise<string> {
@@ -145,7 +144,7 @@ export function SalesOfficeSaudiStyleChat() {
             </div>
             <div className="min-w-0">
               <p className="truncate text-base font-black text-slate-950">مدير المبيعات التجاري</p>
-              <p className="text-[0.68rem] text-slate-500">الباقات · المضاعفة · الظهور · الإقفال التجاري</p>
+              <p className="text-[0.68rem] text-slate-500">الباقات · الظهور · التفعيل · الإقفال التجاري</p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1.5">
@@ -162,7 +161,7 @@ export function SalesOfficeSaudiStyleChat() {
           <div className="mb-3 flex flex-wrap gap-2">
             {[
               { icon: Scissors, text: 'مخصص للصالونات' },
-              { icon: Store, text: 'مضاعفة الرخص' },
+              { icon: Store, text: 'رخصة النفاذ' },
               { icon: MapPin, text: 'ظهور عند الطلب' },
               { icon: Sparkles, text: 'إضافة المكتب الخاص' },
             ].map((item) => (
@@ -276,7 +275,7 @@ export function SalesOfficeSaudiStyleChat() {
                 onChange={handleInput}
                 onKeyDown={handleKey}
                 disabled={loading}
-                placeholder="اكتب سؤالك عن السعر أو الباقة أو العائد أو اعتراض العميل…"
+                placeholder="اكتب سؤالك عن السعر أو الباقة أو التفعيل أو اعتراض العميل…"
                 rows={2}
                 className="flex-1 rounded-[1.1rem] border border-slate-200 bg-slate-50/70 px-4 py-3.5 text-[1rem] leading-7 text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-amber-300 focus:ring-2 focus:ring-amber-200/60 disabled:cursor-not-allowed disabled:opacity-50"
                 style={{

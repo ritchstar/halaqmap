@@ -21,7 +21,7 @@ export const PARTNER_TECHNICAL_PARTNER_COMMITMENT =
   'شراكتنا تقنية: أنت تدير صالونك وتمتثل للسياسات، ونحن نوفّر الرخصة والاستجابة البرمجية — بدون عمولة ولا تبعية.';
 
 export const PARTNER_TECHNICAL_PARTNER_FOOTER_LINE =
-  'حلاق ماب — شريكك التقني في الظهور والاستجابة: رخصة نفاذ تُفعِّل حضور صالونك عند الطلب، لا منصة تستExtract من وقتك.';
+  'حلاق ماب — شريكك التقني في الظهور والاستجابة: رخصة نفاذ تُفعِّل حضور صالونك عند الطلب، لا منصة تستنزف من وقتك.';
 
 export type PartnerTechnicalPartnerCompareSide = {
   id: 'legacy' | 'halaqmap';

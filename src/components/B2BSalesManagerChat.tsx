@@ -25,21 +25,19 @@ type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 
 // ─── Rotating pitch lines ─────────────────────────────────────────────────────
 const PITCH_LINES = [
-  '⚡ عرض محدود: اشترِ ٦ حزم واحصل على ٦ مجاناً — سنة كاملة بنصف السعر!',
-  '🎁 مضاعفة الرخص التأسيسية — الألف الرواد · احجز مقعدك قبل اكتماله',
+  '💼 باقات واضحة ومسبقة الدفع — اختر الحزمة المناسبة وفق السياسة المعتمدة.',
+  '✂️ الظهور عند الطلب يبدأ من رخصة النفاذ البرمجية — بلا عمولات على الخدمة.',
   '🏛️ الماسية + إضافة المكتب الخاص — مساعد داخلي + مناوب شات مترابطان',
   '📋 أعطِ تعليماتك بـ«تعليمة:» والمناوب ينفّذها — والتقارير تصلك تلقائياً',
-  '📈 اشترِ ١٢ حزمة + ١٢ مجاناً = سنتان بسعر سنة واحدة!',
-  'استثمار بـ١٠٠ ر.س يُغطّيه زبون واحد — والباقي ربح صافٍ',
-  '🚨 المقاعد تنفد — منافسك قد يسبقك، تصرّف الآن',
-  '🔥 الذهبي ٦+٦ مجاناً = ١,٨٠٠ ر.س توفيراً مضموناً',
+  '📈 اختر الباقة بحسب جاهزية صالونك واحتياجك التشغيلي الفعلي.',
+  '🔒 الأسعار والمدة والتفعيل تخضع دائمًا لما هو ظاهر في مسار الشراء المعتمد.',
+  '🌙 إضافة المكتب الخاص توسّع قدرة الرد والتشغيل خارج أوقات الانشغال.',
 ];
 
 // ─── Quick prompts ─────────────────────────────────────────────────────────────
 const QUICK = [
-  'فسّر لي عرض المضاعفة 🎁',
-  'ما هي إضافة المكتب الخاص؟ 🏛️',
   'ما الفرق بين الباقات؟ 💎',
+  'ما هي إضافة المكتب الخاص؟ 🏛️',
   'اشرح لي الوضع النظامي والتوثيق الرسمي 🧾',
   'هل في عمولة على القصة؟',
   'كيف يعمل نظام الظهور عند الطلب؟',
@@ -53,13 +51,11 @@ function getGreeting(): string {
   const t = h < 12 ? 'صباح النجاح' : h < 17 ? 'مساء التوفيق' : 'مساء الخير';
   return `${t} يا صاحبي! 💼
 
-أنا مدير مبيعات B2B في حلاق ماب — وعندي لك خبر مهم:
+أنا مدير مبيعات B2B في حلاق ماب.
 
-⚡ العرض التشغيلي التأسيسي لمضاعفة الرخص نشط الآن!
-اشترِ أي حزمة واحصل على ضعفها مجاناً — ٣+٣، ٦+٦، أو ١٢+١٢.
-العرض حصري للألف الرواد (١٠٠٠ صالون فقط) — والمقاعد تنفد. كل مشترك يحصل على ⭐ شارة رائد لامعة على بنره.
+مهمتي أن أوضح لك الباقات الفعلية الحالية، وآلية الظهور عند الطلب، وما يناسب صالونك تشغيليًا وفق السياسة المعتمدة.
 
-وش يهمّك أكثر؟ أشرح لك التوفير بالأرقام الآن 👇`;
+وش يهمّك أكثر؟ أشرح لك الفرق بين الباقات، أو إضافة المكتب الخاص، أو مسار التفعيل 👇`;
 }
 
 // ─── API call ─────────────────────────────────────────────────────────────────
@@ -388,9 +384,9 @@ export function B2BSalesManagerChat({
                 {/* Stats row — مخفي في الوضع المصغّر */}
                 <div className="mb-3 grid grid-cols-3 gap-1">
                   {[
-                    { icon: TrendingUp, label: 'عائد', val: '100%' },
+                    { icon: TrendingUp, label: 'خيار', val: 'واضح' },
                     { icon: Star, label: 'باقات', val: '3' },
-                    { icon: PhoneCall, label: 'ردّ', val: 'فوري' },
+                    { icon: PhoneCall, label: 'ردّ', val: 'سريع' },
                   ].map((s) => (
                     <div key={s.label} className="flex flex-col items-center gap-0.5 rounded-lg border border-slate-200 bg-white/88 px-1 py-1.5">
                       <s.icon className="h-3 w-3 text-amber-600" strokeWidth={2} />
@@ -507,7 +503,7 @@ export function B2BSalesManagerChat({
                   {[
                     'صندوق تفاوض واضح ومباشر',
                     'مبني على واقع الصالونات ورخص النفاذ',
-                    'جاهز لشرح التوفير والعائد',
+                    'جاهز لشرح الباقات والتفعيل',
                   ].map((chip) => (
                     <span key={chip} className="rounded-full border border-amber-100 bg-white/80 px-3 py-1 text-[0.58rem] font-bold text-slate-600">
                       {chip}
@@ -583,7 +579,7 @@ export function B2BSalesManagerChat({
                 <div className="flex items-end gap-2.5 rounded-[1.15rem] border border-slate-200 bg-white p-3 shadow-[0_10px_24px_rgba(148,163,184,0.08)]">
                   <textarea ref={textRef} value={draft} onChange={handleInput} onKeyDown={handleKey}
                     disabled={loading}
-                    placeholder="اسألني عن الباقات، العائد، المكتب الخاص، أي شيء…"
+                    placeholder="اسألني عن الباقات، التفعيل، المكتب الخاص، أو أي تفصيل آخر…"
                     rows={3}
                     style={{ minHeight: '92px', maxHeight: '180px', resize: 'none', overflowY: 'auto' }}
                     className="flex-1 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-[0.98rem] leading-7 text-slate-900 placeholder:text-slate-400 outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-200/60 transition-all disabled:opacity-50"
