@@ -457,7 +457,7 @@ export default function Home() {
                 <p className="text-slate-400 text-lg mb-6">{PLATFORM_SEARCH_EMPTY_HINT}</p>
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-2 text-right">
                   <p className="text-sm text-teal-300 font-semibold mb-3">💡 نصيحة:</p>
-                  {['تأكد من أن موقعك محدد بشكل صحيح', 'قم بزيادة نطاق البحث من شريط الفلاتر', 'ألغِ فلتر «مفتوح الآن» إذا كان مفعّلاً', 'جرّب إلغاء فلتر الباقة لرؤية المزيد'].map((tip) => (
+                  {['تأكد من أن الاستعلام بدأ بشكل صحيح', 'قم بزيادة نطاق البحث من شريط الفلاتر', 'ألغِ فلتر «مفتوح الآن» إذا كان مفعّلاً', 'جرّب إلغاء فلتر الباقة لرؤية المزيد'].map((tip) => (
                     <p key={tip} className="text-sm text-slate-400">• {tip}</p>
                   ))}
                 </div>

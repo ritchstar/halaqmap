@@ -86,11 +86,11 @@ export const HALAQMAP_GROWTH_INEVITABILITY_SALES_AR =
 
 /**
  * ── عقيدة المؤسس — صياغة الفعل لكل طرف ──
- * المستخدم النهائي: «اسمح بموقعك» · الشريك المنظم: «سجّل طلبك»
+ * المستخدم النهائي: «ابدأ الاستعلام» · الشريك المنظم: «سجّل طلبك»
  */
-export const FOUNDER_END_USER_ACTION_AR = 'اسمح بموقعك' as const;
+export const FOUNDER_END_USER_ACTION_AR = 'ابدأ الاستعلام' as const;
 
 export const FOUNDER_PARTNER_ACTION_AR = 'سجّل طلبك' as const;
 
 export const FOUNDER_PLATFORM_ACTION_DOCTRINE_AR =
-  'عقيدة المؤسس: للمستخدم النهائي (`B2C`) نقول «اسمح بموقعك» — لا «سجّل طلبك». للحلاق المنظم للمنصة (`B2B`) نقول «سجّل طلبك» — لا «اسمح بموقعك». لا تخلط الصياغتين بين الطرفين.' as const;
+  'عقيدة المؤسس: للمستخدم النهائي (`B2C`) نقول «ابدأ الاستعلام» — لا «سجّل طلبك». للحلاق المنظم للمنصة (`B2B`) نقول «سجّل طلبك» — لا «ابدأ الاستعلام». لا تخلط الصياغتين بين الطرفين.' as const;

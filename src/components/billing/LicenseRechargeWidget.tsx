@@ -128,7 +128,7 @@ export function LicenseRechargeWidget({ mode = 'register', showHeader = true, cl
           <div className="mb-8 text-center">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-[0.7rem] font-black tracking-wider text-teal-300">
               <Sparkles className="h-3.5 w-3.5" />
-              {effectiveMode === 'recharge' ? 'شحن رصيد رخصة النفاذ' : 'رخصة نفاذ رقمية · احجز موقعك'}
+              {effectiveMode === 'recharge' ? 'شحن رصيد رخصة النفاذ' : 'رخصة نفاذ رقمية · ابدأ التفعيل'}
             </div>
             <h2 className="text-2xl font-black text-white md:text-3xl">
               {effectiveMode === 'recharge' ? 'اختر باقتك وعدد الأشهر' : 'اختر باقتك وابدأ الآن'}

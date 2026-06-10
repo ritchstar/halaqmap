@@ -34,7 +34,7 @@ export interface PartnerProspect {
 export type CommandCenterLead = PartnerProspect;
 
 export const DEFAULT_OUTREACH_MESSAGE =
-  'السلام عليكم، معكم فريق منصة حلاق ماب. نرغب بدعوتكم للانضمام للمنصة وزيادة الظهور المحلي للعملاء القريبين. هل يمكن إرسال التفاصيل؟';
+  'السلام عليكم، معكم فريق منصة حلاق ماب. نرغب بدعوتكم للانضمام للمنصة وزيادة فرص الظهور المناسب عند تنشّط الاستعلامات. هل يمكن إرسال التفاصيل؟';
 
 export function prospectOutreachMessage(prospect: Pick<PartnerProspect, 'name' | 'suggestedPitch'>): string {
   if (prospect.suggestedPitch?.trim()) {

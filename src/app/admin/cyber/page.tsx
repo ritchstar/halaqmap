@@ -3,7 +3,7 @@
  * Route: `{adminBase}/cyber`
  *
  * Combines:
- *  - Live realtime feed of user_searches (platform_radar channel)
+ *  - Live realtime operational feed for cyber scenarios
  *  - 3 pre-recorded scenarios (mass enrollment / DDoS / combined crisis)
  *  - Side panel with stats, scenario controls, and AI agent reactions
  */

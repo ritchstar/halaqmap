@@ -30,17 +30,17 @@ export const PLATFORM_HERO_SHORT_TAGLINE = ON_DEMAND_VISIBILITY_TAGLINE_SHORT_AR
 export const PLATFORM_HERO_TRUST_LINE =
   'مستخدم يستعلم · حلاق متوفر · تواصل مباشر';
 
-/** زر ومحفّز تحديد الموقع (بحث المستخدم) — عقيدة المؤسس: اسمح بموقعك */
-export const PLATFORM_SEARCH_LOCATION_BUTTON = `${FOUNDER_END_USER_ACTION_AR} — ابدأ الاستجابة الذكية`;
-export const PLATFORM_SEARCH_LOCATION_LOADING = 'جارٍ تحديد موقعك وبدء الاستعلام…';
+/** زر ومحفّز بدء الاستعلام للمستخدم */
+export const PLATFORM_SEARCH_LOCATION_BUTTON = `${FOUNDER_END_USER_ACTION_AR} — اعرض الخدمات المناسبة`;
+export const PLATFORM_SEARCH_LOCATION_LOADING = 'يجري الاستعلام وعرض الخدمات المناسبة…';
 export const PLATFORM_SEARCH_LOCATION_SUCCESS =
-  'تم تحديد موقعك — جارٍ عرض الخدمات المتاحة المناسبة';
+  'اكتمل الاستعلام — جارٍ عرض الخدمات المتاحة المناسبة';
 
 /** سياق شريط الفلاتر بعد تفعيل الموقع */
 export const PLATFORM_SEARCH_RESULTS_CONTEXT =
-  'نظام الاستجابة الذكية يعرض الخدمات المتاحة وفق موقعك وفلترتك المختارة — صفِّ النتائج بما يناسب حاجتك.';
+  'نظام الاستجابة الذكية يعرض الخدمات المتاحة وفق بيانات الجلسة وفلترتك المختارة — صفِّ النتائج بما يناسب حاجتك.';
 
-export const PLATFORM_SEARCH_EMPTY_LOADING = 'جارٍ تحديد موقعك وعرض الخدمات المتاحة…';
+export const PLATFORM_SEARCH_EMPTY_LOADING = 'يجري الاستعلام وعرض الخدمات المتاحة…';
 export const PLATFORM_SEARCH_EMPTY_TITLE = 'لا توجد خدمات متاحة ضمن هذا النطاق حالياً';
 export const PLATFORM_SEARCH_EMPTY_HINT =
   'وسّع نطاق العرض أو ألغِ بعض الفلاتر لزيادة احتمال ظهور خدمات متاحة — الظهور برمجي عند الطلب وليس قائمة دائمة.';
@@ -51,7 +51,7 @@ export const PLATFORM_HOW_IT_WORKS_STEPS = [
     step: '١',
     title: FOUNDER_END_USER_ACTION_AR,
     description:
-      'تمنح إذن الموقع أثناء الجلسة لبدء الاستعلام وعرض الخدمات المتاحة لك وفق موقعك وفلترتك.',
+      'تبدأ الاستعلام، وعند الحاجة التقنية تُمنح أذونات الجلسة اللازمة لعرض الخدمات المتاحة وفق الفلاتر المختارة.',
   },
   {
     step: '٢',

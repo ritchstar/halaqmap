@@ -73,7 +73,7 @@ export function randomKsaCityPoint(): { point: ViewPoint; nameAr: string } {
   return { point: beacon.view, nameAr: beacon.nameAr };
 }
 
-/** Project an arbitrary KSA lng/lat (for live user_searches feed). */
+/** Project an arbitrary KSA lng/lat (for live simulated operational feed). */
 export function ksaLngLatToView(lng: number, lat: number): ViewPoint {
   return projectLngLatToView(lng, lat);
 }
