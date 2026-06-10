@@ -271,7 +271,7 @@ export const PARTNER_LIAISON_ANALYTICS_MOCK: PartnerLiaisonAnalyticsSnapshot = {
     { themeAr: 'تأخير تفعيل الماسي بعد الدفع', count: 7 },
     { themeAr: 'صعوبة رفع صور المعرض', count: 5 },
     { themeAr: 'إعداد أوقات العمل والورديات', count: 4 },
-    { themeAr: 'استفسارات نظام الرصد الذكي', count: 3 },
+    { themeAr: 'استفسارات نظام الاستجابة الذكية', count: 3 },
   ],
   recentChats: [
     {

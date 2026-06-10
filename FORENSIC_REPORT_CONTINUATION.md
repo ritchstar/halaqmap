@@ -140,7 +140,7 @@ git commit -m "perf(queries): optimize React Query cache settings"
 **الإصلاح الآمن:**
 - ✅ اختبار على أجهزة حقيقية (iOS + Android)
 - ✅ fallback لـ IP-based location
-- ❌ لا تُغيّر GPS permissions logic
+- ❌ لا تُغيّر منطق أذونات الموقع عالية الدقة
 
 ---
 

@@ -239,7 +239,7 @@ GRANT EXECUTE ON FUNCTION public.search_barbers_nearby(
 ) TO anon, authenticated, service_role;
 
 ========================================================================================
-TypeScript — نقطة API عامة للحلاقين والبحث القريب
+TypeScript — نقطة API عامة للحلاقين والاستعلام العام
 الملف: api\public-barbers.ts
 ========================================================================================
 
