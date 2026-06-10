@@ -362,25 +362,38 @@ export async function POST(request: Request): Promise<Response> {
     const tier = tierRaw === 'gold' || tierRaw === 'diamond' ? tierRaw : 'bronze';
     const ts = new Date().toISOString();
 
-    const sku = defaultMoyasarSkuForTier(tier);
-    const productLoaded = await loadProductBySku(supabase, sku);
-    if (!productLoaded.ok) {
-      return Response.json(
-        { error: 'license_product_not_found', detail: productLoaded.error },
-        { status: 500, headers },
-      );
+    const paymentId = String(row.moyasar_payment_id ?? '').trim();
+    let entitlementAlreadyFulfilled = false;
+    if (paymentId) {
+      const { data: existingOrder } = await supabase
+        .from('listing_license_orders')
+        .select('id')
+        .eq('moyasar_payment_id', paymentId)
+        .maybeSingle();
+      entitlementAlreadyFulfilled = Boolean(existingOrder?.id);
     }
 
-    const credit = await creditBarberListingEntitlement(supabase, {
-      barberId: resolved.barberId,
-      product: productLoaded.product,
-      source: 'admin_payment_approve',
-    });
-    if (!credit.ok) {
-      return Response.json(
-        { error: 'listing_entitlement_failed', detail: credit.error },
-        { status: 500, headers },
-      );
+    if (!entitlementAlreadyFulfilled) {
+      const sku = defaultMoyasarSkuForTier(tier);
+      const productLoaded = await loadProductBySku(supabase, sku);
+      if (!productLoaded.ok) {
+        return Response.json(
+          { error: 'license_product_not_found', detail: productLoaded.error },
+          { status: 500, headers },
+        );
+      }
+
+      const credit = await creditBarberListingEntitlement(supabase, {
+        barberId: resolved.barberId,
+        product: productLoaded.product,
+        source: 'admin_payment_approve',
+      });
+      if (!credit.ok) {
+        return Response.json(
+          { error: 'listing_entitlement_failed', detail: credit.error },
+          { status: 500, headers },
+        );
+      }
     }
 
     const prevMeta =

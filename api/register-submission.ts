@@ -4,6 +4,7 @@ import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 import { validateRegistrationCompliancePayload } from './_lib/registrationCompliance.js';
+import { validateRegistrationBusinessPayload } from './_lib/registrationBusinessValidation.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
@@ -113,12 +114,27 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  const business = validateRegistrationBusinessPayload(payload as Record<string, unknown>);
+  if (!business.ok) {
+    return Response.json(
+      { error: business.error, code: business.code },
+      { status: 400, headers },
+    );
+  }
+
+  const normalizedPayload = {
+    ...(payload as Record<string, unknown>),
+    tier: business.tier,
+    listingLicenseQuantity: business.listingLicenseQuantity,
+    digitalShiftAddonSelected: business.digitalShiftAddonSelected,
+  };
+
   const auth = assertRegistrationServerAuth(request, rowId, expectedAnon);
   if (auth.ok === false) {
     return Response.json(auth.json, { status: auth.status, headers });
   }
 
-  const payloadText = JSON.stringify(payload);
+  const payloadText = JSON.stringify(normalizedPayload);
   if (new TextEncoder().encode(payloadText).byteLength > MAX_PAYLOAD_TEXT_BYTES) {
     return Response.json({ error: 'Payload too large' }, { status: 413, headers });
   }
@@ -129,7 +145,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const { error } = await supabase.from(TABLE).insert({
     id: rowId,
-    payload,
+    payload: normalizedPayload,
   });
 
   if (error) {

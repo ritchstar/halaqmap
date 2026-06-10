@@ -104,6 +104,7 @@ import {
   deleteRegistrationSubmissionRemote,
   patchRegistrationSubmissionPayloadRemote,
 } from '@/lib/registrationSubmissionsRemote';
+import { registrationPostApproveFulfillRemote } from '@/lib/registrationPostApproveFulfillRemote';
 import {
   sendBarberOnboardingEmailRemote,
   sendOnboardingEmailsForActiveBarbersRemote,
@@ -2299,28 +2300,45 @@ function RequestReviewDialog({
       onAfterDecision();
       return;
     }
-    const upsert = await upsertBarberFromApprovedRequest(request);
-    if (!upsert.ok) {
-      setSaving(false);
-      toast({
-        title: 'تعذر مزامنة الحلاق',
-        description: errorText(upsert, 'تعذر مزامنة الحلاق.'),
-        variant: 'destructive',
-      });
-      return;
-    }
-    if (upsert.warning) {
-      toast({
-        title: 'تنبيه: أعمدة الرعاية الشاملة',
-        description: upsert.warning,
-      });
-    }
-    if (upsert.shopOpenQuickHashLink) {
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      toast({
-        title: 'رابط حالة المحل للصالون',
-        description: `${origin}${upsert.shopOpenQuickHashLink} — أرسله للحلاق (مفيد للبرونزي دون لوحة تحكم).`,
-      });
+    const existingLinkedId =
+      typeof request.linkedBarberId === 'string' && request.linkedBarberId.trim()
+        ? request.linkedBarberId.trim()
+        : '';
+
+    let upsert: Awaited<ReturnType<typeof upsertBarberFromApprovedRequest>>;
+    if (existingLinkedId) {
+      upsert = {
+        ok: true,
+        barberId: existingLinkedId,
+        memberNumber:
+          request.barberMemberNumber != null && Number.isFinite(request.barberMemberNumber)
+            ? request.barberMemberNumber
+            : null,
+      };
+    } else {
+      upsert = await upsertBarberFromApprovedRequest(request);
+      if (!upsert.ok) {
+        setSaving(false);
+        toast({
+          title: 'تعذر مزامنة الحلاق',
+          description: errorText(upsert, 'تعذر مزامنة الحلاق.'),
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (upsert.warning) {
+        toast({
+          title: 'تنبيه: أعمدة الرعاية الشاملة',
+          description: upsert.warning,
+        });
+      }
+      if (upsert.shopOpenQuickHashLink) {
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        toast({
+          title: 'رابط حالة المحل للصالون',
+          description: `${origin}${upsert.shopOpenQuickHashLink} — أرسله للحلاق (مفيد للبرونزي دون لوحة تحكم).`,
+        });
+      }
     }
     const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
       status: 'approved',
@@ -2340,6 +2358,26 @@ function RequestReviewDialog({
       toast({ title: 'فشل الحفظ', description: errorText(res, 'تعذر تحديث الطلب.'), variant: 'destructive' });
       return;
     }
+
+    if (!existingLinkedId) {
+      const fulfill = await registrationPostApproveFulfillRemote({
+        registrationRequestId: request.id,
+        barberId: upsert.barberId,
+      });
+      if (!fulfill.ok) {
+        toast({
+          title: 'تنبيه: استرداد القسائم',
+          description: `تم اعتماد الطلب لكن تعذّر الاسترداد التلقائي للقسائم المدفوعة: ${errorText(fulfill, fulfill.error)}`,
+          variant: 'destructive',
+        });
+      } else if (fulfill.listingActivated) {
+        toast({
+          title: 'تفعيل الإدراج تلقائياً',
+          description: `تم استرداد ${fulfill.redeemedCount} قسيمة مدفوعة وربطها بالحساب — يمكن للحلاق الظهور فوراً عند صلاحية النفاذ.`,
+        });
+      }
+    }
+
     // تحقق صارم: تأكد أن الحلاق موجود فعلياً في نفس مشروع Supabase الحالي.
     const verifyRows = await listBarbersForAdmin();
     const emailNorm = request.email.trim().toLowerCase();

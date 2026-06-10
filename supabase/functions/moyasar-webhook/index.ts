@@ -161,6 +161,122 @@ function digitalShiftAddonFromMeta(meta: Record<string, unknown>): boolean {
   return raw === true || raw === "true" || raw === 1 || raw === "1";
 }
 
+function clampRegistrationQty(raw: unknown): number {
+  const n =
+    typeof raw === "number" && Number.isFinite(raw)
+      ? Math.trunc(raw)
+      : Number.parseInt(String(raw ?? "1").trim(), 10);
+  if (!Number.isFinite(n)) return 1;
+  return Math.min(12, Math.max(1, n));
+}
+
+async function validateRegistrationPaymentAgainstMeta(
+  supabase: ReturnType<typeof createClient>,
+  registrationRequestId: string,
+  meta: Record<string, unknown>,
+  tier: "bronze" | "gold" | "diamond" | null,
+  licenseQty: number,
+): Promise<{ ok: true } | { ok: false; code: string; detail: Record<string, unknown> }> {
+  const { data, error } = await supabase
+    .from("registration_submissions")
+    .select("payload")
+    .eq("id", registrationRequestId)
+    .maybeSingle();
+  if (error || !data?.payload || typeof data.payload !== "object" || Array.isArray(data.payload)) {
+    return { ok: true };
+  }
+
+  const p = data.payload as Record<string, unknown>;
+  const regTier = String(p.tier ?? "").trim().toLowerCase();
+  const payTier = tier ?? "";
+  if (regTier && payTier && regTier !== payTier) {
+    return {
+      ok: false,
+      code: "registration_payment_tier_mismatch",
+      detail: { registrationTier: regTier, paymentTier: payTier },
+    };
+  }
+
+  const regQty = clampRegistrationQty(p.listingLicenseQuantity);
+  if (regQty !== licenseQty) {
+    return {
+      ok: false,
+      code: "registration_payment_qty_mismatch",
+      detail: { registrationQty: regQty, paymentQty: licenseQty },
+    };
+  }
+
+  const regAddonRaw = p.digitalShiftAddonSelected;
+  const regAddon =
+    regAddonRaw === true || regAddonRaw === "true" || regAddonRaw === 1 || regAddonRaw === "1";
+  const regAddonAllowed = regTier === "diamond" && regAddon;
+  const payAddon = digitalShiftAddonFromMeta(meta);
+  if (regAddonAllowed !== payAddon) {
+    return {
+      ok: false,
+      code: "registration_payment_addon_mismatch",
+      detail: { registrationAddon: regAddonAllowed, paymentAddon: payAddon },
+    };
+  }
+
+  return { ok: true };
+}
+
+async function provisionBarberViaInternalApi(input: {
+  registrationRequestId: string | null;
+  buyerEmail: string | null;
+  buyerName: string;
+  buyerPhone: string | null;
+  tier: "bronze" | "gold" | "diamond" | null;
+  moyasarPaymentId: string;
+}): Promise<
+  | { ok: true; barberId: string; created: boolean; credentialEmailSent: boolean }
+  | { ok: false; error: string }
+> {
+  const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "").trim().replace(
+    /\/+$/,
+    "",
+  );
+  const secret = (Deno.env.get("BARBER_PROVISION_INTERNAL_SECRET") ?? Deno.env.get("LISTING_LICENSE_INTERNAL_SECRET") ?? "").trim();
+  if (!appOrigin || !secret) {
+    return { ok: false, error: "barber_provision_internal_not_configured" };
+  }
+  try {
+    const resp = await fetch(`${appOrigin}/api/barber-provision-from-payment-internal`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-barber-provision-internal-secret": secret,
+      },
+      body: JSON.stringify({
+        registrationRequestId: input.registrationRequestId,
+        buyerEmail: input.buyerEmail,
+        buyerName: input.buyerName,
+        buyerPhone: input.buyerPhone,
+        tier: input.tier ?? "bronze",
+        moyasarPaymentId: input.moyasarPaymentId,
+      }),
+    });
+    const text = await resp.text();
+    if (!resp.ok) {
+      return { ok: false, error: text.slice(0, 500) || `http_${resp.status}` };
+    }
+    const j = JSON.parse(text) as { barberId?: string; created?: boolean; credentialEmailSent?: boolean };
+    const bid = String(j.barberId ?? "").trim();
+    if (!UUID_RE.test(bid)) {
+      return { ok: false, error: "provision_missing_barber_id" };
+    }
+    return {
+      ok: true,
+      barberId: bid,
+      created: j.created === true,
+      credentialEmailSent: j.credentialEmailSent === true,
+    };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "provision_fetch_failed" };
+  }
+}
+
 async function fulfillListingLicenseViaInternalApi(input: {
   skuCode: string;
   tier: "bronze" | "gold" | "diamond" | null;
@@ -375,9 +491,19 @@ async function resolveRecipientContext(
   })();
 
   const fromPayment = extractCustomerEmail(payment);
+  const sourceName = (() => {
+    const src = payment.source;
+    if (!src || typeof src !== "object") return "";
+    return String(src.name ?? "").trim();
+  })();
   if (fromPayment) {
     const bid = UUID_RE.test(fromMetaBarber) ? fromMetaBarber : null;
-    return { email: fromPayment, barberName: "عميلنا الكريم", linkedBarberId: bid, phone: sourcePhone || null };
+    return {
+      email: fromPayment,
+      barberName: sourceName || "عميلنا الكريم",
+      linkedBarberId: bid,
+      phone: sourcePhone || null,
+    };
   }
 
   if (!registrationRequestId) {
@@ -706,18 +832,123 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (requestId) {
+      const regMatch = await validateRegistrationPaymentAgainstMeta(
+        supabase,
+        requestId,
+        meta,
+        tier,
+        licenseQty,
+      );
+      if (!regMatch.ok) {
+        const tsFail = new Date().toISOString();
+        await supabase
+          .from("barber_subscriptions")
+          .update({
+            failure_reason: "Registration payload mismatch with payment metadata.",
+            metadata: { ...metaPayload, ...regMatch.detail, activation_blocked_at: tsFail, code: regMatch.code },
+            updated_at: tsFail,
+          })
+          .eq("moyasar_payment_id", paymentId);
+
+        await logPaymentSecurityEvent(supabase, {
+          severity: "critical",
+          eventType: regMatch.code,
+          paymentId,
+          registrationRequestId: requestId,
+          barberId: barberId ?? null,
+          reason: "Registration payload mismatch with payment metadata.",
+          detail: regMatch.detail,
+        });
+
+        return jsonResponse(
+          {
+            error: regMatch.code,
+            detail: regMatch.detail,
+            paymentId,
+            eventId: eventId || null,
+          },
+          409,
+        );
+      }
+    }
+
     const skuCode = licenseSkuFromMeta(meta, tier);
+
+    let effectiveBarberId = barberId;
+    if (!effectiveBarberId && (requestId || (resolvedEmail && resolvedEmail.includes("@")))) {
+      const provision = await provisionBarberViaInternalApi({
+        registrationRequestId: requestId || null,
+        buyerEmail: resolvedEmail,
+        buyerName: barberName,
+        buyerPhone: resolvedPhone,
+        tier,
+        moyasarPaymentId: paymentId,
+      });
+      if (!provision.ok) {
+        const tsFail = new Date().toISOString();
+        await supabase
+          .from("barber_subscriptions")
+          .update({
+            failure_reason: "Barber account provisioning failed after successful payment.",
+            metadata: {
+              ...metaPayload,
+              barber_provision_error: provision.error,
+              activation_blocked_at: tsFail,
+            },
+            updated_at: tsFail,
+          })
+          .eq("moyasar_payment_id", paymentId);
+
+        await logPaymentSecurityEvent(supabase, {
+          severity: "critical",
+          eventType: "barber_provision_failed",
+          paymentId,
+          registrationRequestId: requestId || null,
+          barberId: null,
+          reason: "Barber account provisioning failed after successful payment.",
+          detail: { error: provision.error },
+        });
+
+        return jsonResponse(
+          {
+            error: "barber_provision_failed",
+            detail: provision.error,
+            paymentId,
+            eventId: eventId || null,
+          },
+          502,
+        );
+      }
+
+      effectiveBarberId = provision.barberId;
+      const tsProv = new Date().toISOString();
+      await supabase
+        .from("barber_subscriptions")
+        .update({
+          barber_id: effectiveBarberId,
+          metadata: {
+            ...metaPayload,
+            barber_provisioned_at: tsProv,
+            barber_provision_created: provision.created,
+            barber_credentials_emailed: provision.credentialEmailSent,
+          },
+          updated_at: tsProv,
+        })
+        .eq("moyasar_payment_id", paymentId);
+    }
+
     const fulfill = await fulfillListingLicenseViaInternalApi({
       skuCode,
       tier,
-      barberId,
+      barberId: effectiveBarberId,
       buyerEmail: resolvedEmail,
       buyerName: barberName,
       moyasarPaymentId: paymentId,
       registrationRequestId: requestId || null,
       amountHalalas: paidAmount,
       quantity: licenseQty,
-      autoRedeem: Boolean(barberId),
+      autoRedeem: Boolean(effectiveBarberId),
       paymentMetadata: meta,
     });
     if (!fulfill.ok) {
@@ -747,13 +978,13 @@ Deno.serve(async (req) => {
       "",
     );
     const obSecret = (Deno.env.get("ONBOARDING_INTERNAL_WEBHOOK_SECRET") ?? "").trim();
-    const { data: bRow } = barberId
-      ? await supabase.from("barbers").select("email,name").eq("id", barberId).maybeSingle()
+    const { data: bRow } = effectiveBarberId
+      ? await supabase.from("barbers").select("email,name").eq("id", effectiveBarberId).maybeSingle()
       : { data: null };
     const toOnboarding =
       bRow?.email && String(bRow.email).includes("@") ? String(bRow.email).trim() : resolvedEmail;
     const nameOnboarding = (bRow?.name && String(bRow.name).trim()) || barberName;
-    if (appOrigin && obSecret && toOnboarding && barberId) {
+    if (appOrigin && obSecret && toOnboarding && effectiveBarberId) {
       const tierStr = tier === "diamond" ? "diamond" : tier === "gold" ? "gold" : "bronze";
       if (platformPay.enable_internal_onboarding_email) {
         try {
@@ -768,7 +999,7 @@ Deno.serve(async (req) => {
               barberEmail: toOnboarding,
               barberName: nameOnboarding,
               tier: tierStr,
-              barberId,
+              barberId: effectiveBarberId,
               registrationOrderId: requestId || undefined,
               digitalShiftAddon: digitalShiftAddonFromMeta(meta),
             }),
@@ -787,7 +1018,7 @@ Deno.serve(async (req) => {
               "x-onboarding-internal-secret": obSecret,
             },
             body: JSON.stringify({
-              barberId,
+              barberId: effectiveBarberId,
               barberEmail: toOnboarding,
               barberName: nameOnboarding,
             }),
@@ -851,7 +1082,7 @@ Deno.serve(async (req) => {
         amountHalalas: amount ?? 0,
         currency,
         invoiceHref,
-        accountActivated: accountActivated && Boolean(barberId),
+        accountActivated: accountActivated && Boolean(effectiveBarberId),
       });
       if (mail.ok) {
         emailSent = true;

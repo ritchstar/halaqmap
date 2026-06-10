@@ -27,7 +27,6 @@ import {
   UserX,
   Loader2,
   Shield,
-  Store,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,7 +83,6 @@ import {
   persistBarberAuthSession,
   readBarberAuthSession,
 } from '@/lib/barberPortalSession';
-import { buildShopOpenManageHashLink, setBarberShopOpenStatusRemote } from '@/lib/barberShopOpenStatusRemote';
 import {
   updateBarberInclusiveCareRemote,
   mergeInclusiveCareDaysFromSnapshot,
@@ -132,6 +130,7 @@ import {
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
 import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
+import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
 import {
   fetchListingLicenseBalanceRemote,
   redeemListingLicenseRemote,
@@ -723,6 +722,16 @@ export default function BarberDashboard() {
             </CardContent>
           </Card>
 
+          {listingBalance?.hasActiveListing && barberData ? (
+            <BarberShopOpenStatusCard
+              barberData={barberData}
+              shopOpenSaving={shopOpenSaving}
+              setShopOpenSaving={setShopOpenSaving}
+              onBarberDataChange={setBarberData}
+              persistSession={persistBarberAuthSession}
+            />
+          ) : null}
+
           <Alert className="border-primary/30 bg-primary/5">
             <Shield className="h-4 w-4 text-primary" />
             <AlertDescription className="text-sm leading-relaxed">
@@ -824,89 +833,9 @@ export default function BarberDashboard() {
                 <StatsCard title="المشاهدات" value={statsZeros.totalViews} icon={Eye} color="purple" />
               </div>
 
-              <Card className="mt-6 border-primary/20">
-                <CardHeader>
-                  <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
-                    <Store className="h-5 w-5 text-primary" />
-                    حالة «مفتوح / مغلق» للعملاء
-                  </CardTitle>
-                  <CardDescription className="text-sm leading-relaxed">
-                    يتحكم هذا الخيار في أيقونة نظام الرصد الذكي التي يراها العملاء. الباقة البرونزية لا تملك لوحة تحكم — لذلك يُوفَّر
-                    لها <strong>رابط سري</strong> من الإدارة بعد الاعتماد (يمكنك نسخه أدناه لمشاركته مع المحل).
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col gap-3 rounded-xl border border-border/80 bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="space-y-1 text-right">
-                      <p className="text-sm font-semibold">قبول العملاء الآن عبر نظام الرصد الذكي</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        عند الإيقاف يظهر المحل كـ «مغلق» دون إخفاء صلاحية حزمة رخصة النفاذ عن المنصة.
-                      </p>
-                    </div>
-                    <Switch
-                      checked={barberData.openForCustomers !== false}
-                      disabled={shopOpenSaving}
-                      onCheckedChange={async (v) => {
-                        const token = barberData.openStatusToken?.trim() || '';
-                        if (!token) {
-                          toast.error(
-                            'لم يُحمّل رمز صفحة الفتح بعد. حدّث الصفحة، أو نفّذ ترحيل قاعدة البيانات 46 ثم أعد الاعتماد من الإدارة.'
-                          );
-                          return;
-                        }
-                        setShopOpenSaving(true);
-                        const prevOpen = barberData.openForCustomers !== false;
-                        setBarberData((d) => (d ? { ...d, openForCustomers: v } : d));
-                        const r = await setBarberShopOpenStatusRemote(token, v);
-                        setShopOpenSaving(false);
-                        if (!r.ok) {
-                          setBarberData((d) => (d ? { ...d, openForCustomers: prevOpen } : d));
-                          toast.error(r.error);
-                          return;
-                        }
-                        setBarberData((d) => {
-                          if (!d) return d;
-                          const next = { ...d, openForCustomers: v };
-                          persistBarberAuthSession(next);
-                          return next;
-                        });
-                        toast.success(
-                          v ? 'تم ضبط المحل كـ «مفتوح» للعملاء عبر نظام الرصد الذكي.' : 'تم ضبط المحل كـ «مغلق» للعملاء عبر نظام الرصد الذكي.'
-                        );
-                      }}
-                      className="shrink-0 sm:mr-auto"
-                    />
-                  </div>
-                  {barberData.openStatusToken ? (
-                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={async () => {
-                          const link = buildShopOpenManageHashLink(barberData.openStatusToken || '');
-                          if (!link) return;
-                          try {
-                            await navigator.clipboard.writeText(link);
-                            toast.success('تم نسخ رابط التبديل السريع.');
-                          } catch {
-                            toast.error('تعذر النسخ من المتصفح.');
-                          }
-                        }}
-                      >
-                        <Copy className="h-4 w-4" />
-                        نسخ رابط التبديل السريع
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" asChild className="text-xs">
-                        <a href={buildShopOpenManageHashLink(barberData.openStatusToken || '') || '#'} target="_blank" rel="noreferrer">
-                          فتح صفحة التبديل
-                        </a>
-                      </Button>
-                    </div>
-                  ) : null}
-                </CardContent>
-              </Card>
+              <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
+                ضبط حالة «مفتوح / مغلق» للعملاء متاح في البطاقة أعلى هذه التبويبات — مع رابط التبديل السريع.
+              </p>
 
               <Card className="mt-6">
                 <CardHeader>

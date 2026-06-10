@@ -99,6 +99,12 @@ export function registrationSubmissionErrorForToast(message: string): string {
   if (m.includes('registration_compliance_incomplete')) {
     return 'تعذّر حفظ الطلب: بيانات الامتثال القانوني غير مكتملة — أعد تأشير جميع خانات الموافقة.';
   }
+  if (m.includes('invalid_tier')) {
+    return 'تعذّر حفظ الطلب: الباقة المختارة غير صالحة — أعد اختيار الباقة من الرابط الرسمي.';
+  }
+  if (m.includes('invalid_digital_shift_addon')) {
+    return 'تعذّر حفظ الطلب: الإضافة البرمجية المتقدمة متاحة للباقة الماسية فقط.';
+  }
   return (
     'تعذّر حفظ الطلب في قاعدة البيانات.\n\n' +
     ltrBlock([`Server message: ${message}`])
