@@ -27,6 +27,7 @@ const About = lazy(() => import("@/pages/About"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const UserPrivacyPolicy = lazy(() => import("@/pages/UserPrivacyPolicy"));
+const EphemeralProcessingGovernance = lazy(() => import("@/pages/EphemeralProcessingGovernance"));
 const PlatformReviews = lazy(() => import("@/pages/PlatformReviews"));
 const Register = lazy(() => import("@/pages/Register"));
 const PartnerPrivacy = lazy(() => import("@/pages/PartnerPrivacy"));
@@ -201,6 +202,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.ABOUT} element={<Layout><LazyRoute><About /></LazyRoute></Layout>} />
           <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<Layout><LazyRoute><TermsOfService /></LazyRoute></Layout>} />
           <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<Layout><LazyRoute><UserPrivacyPolicy /></LazyRoute></Layout>} />
+          <Route path={ROUTE_PATHS.EPHEMERAL_PROCESSING_GOVERNANCE} element={<Layout><LazyRoute><EphemeralProcessingGovernance /></LazyRoute></Layout>} />
           <Route path={ROUTE_PATHS.PRIVACY_DETAILED} element={<Layout><LazyRoute><Privacy /></LazyRoute></Layout>} />
           <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
 

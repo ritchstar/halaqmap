@@ -273,6 +273,7 @@ export function Layout({ children }: LayoutProps) {
                 {[
                   { path: ROUTE_PATHS.TERMS_OF_SERVICE, label: 'شروط الاستخدام' },
                   { path: ROUTE_PATHS.USER_PRIVACY_POLICY, label: 'سياسة الخصوصية' },
+                  { path: ROUTE_PATHS.EPHEMERAL_PROCESSING_GOVERNANCE, label: 'حوكمة المعالجة اللحظية' },
                   { path: ROUTE_PATHS.PRIVACY_DETAILED, label: 'خصوصية تفصيلية' },
                   { path: ROUTE_PATHS.SUBSCRIPTION_POLICY, label: 'سياسة الرخص' },
                 ].map((link) => (

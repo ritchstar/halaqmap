@@ -198,6 +198,24 @@ export default function UserPrivacyPolicy() {
         </motion.div>
 
         <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-4xl mx-auto mt-6 rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-6 text-center"
+        >
+          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+            وللاطلاع على المرجع التأسيسي الذي يشرح **حوكمة المعالجة اللحظية** وحدود **إتلاف الأثر البرمجي** بعد انتهاء
+            الجلسة:
+          </p>
+          <NavLink
+            to={ROUTE_PATHS.EPHEMERAL_PROCESSING_GOVERNANCE}
+            className="inline-flex items-center justify-center text-primary font-semibold hover:underline touch-manipulation"
+          >
+            حوكمة المعالجة اللحظية وإتلاف الأثر البرمجي
+          </NavLink>
+        </motion.div>
+
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
