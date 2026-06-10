@@ -71,7 +71,7 @@ export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
 
 /** خيارات منتج الباقة الماسية — واجهة التسعير */
 export const DIAMOND_LICENSE_TECHNICAL_VALUE_AR =
-  'أقوى رخصة نفاذ للصالونات الجادة: صدارة في الطلبات القريبة، صورة أقوى، وتنظيم مواعيد أفضل';
+  'أقوى رخصة نفاذ للصالونات الجادة: أولوية أعلى عند تنشّط الاستعلام، صورة أقوى، وتنظيم مواعيد أفضل';
 
 export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية — رخصة نفاذ';
 export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المكتب الخاص';

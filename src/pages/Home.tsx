@@ -372,7 +372,7 @@ export default function Home() {
                   animate={{ opacity: 1 }}
                   className="text-center text-xs font-bold uppercase tracking-widest text-teal-400/50 mb-8"
                 >
-                  اضغط «حدّد موقعي» لعرض الصالونات القريبة
+                  ابدأ الاستعلام لعرض الخدمات المناسبة
                 </motion.p>
                 <div className="grid md:grid-cols-3 gap-5">
                   {[

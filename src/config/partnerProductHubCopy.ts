@@ -87,7 +87,7 @@ export const PARTNER_TIER_COMPARISON_COLUMNS: readonly PartnerTierComparisonColu
     features: [
       '❌ المناوب غير مفعّل',
       '❌ المكتب الخاص غير مفعّل',
-      '✅ صدارة النتائج القريبة',
+      '✅ صدارة في الاستجابة المناسبة',
       '✅ معرض حتى 40 صورة',
       '✅ جدولة مواعيد (ماسي)',
     ],

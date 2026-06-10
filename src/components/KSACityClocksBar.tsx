@@ -288,8 +288,8 @@ export function KSACityClocksBar() {
           }}
           title={
             coordsFromDevice
-              ? `درجة الحرارة عند ${userRegion.city.nameAr} — أقرب مدينة لموقعك`
-              : `درجة الحرارة في ${userRegion.city.nameAr} — افتراضي حتى تحديد موقعك`
+              ? `درجة الحرارة قرب ${userRegion.city.nameAr} — مدينة مرجعية للاستعلام`
+              : `درجة الحرارة في ${userRegion.city.nameAr} — مرجع افتراضي حتى بدء الاستعلام`
           }
         >
           {/* توهج خلفي للبطاقة */}

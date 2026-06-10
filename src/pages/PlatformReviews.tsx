@@ -31,47 +31,47 @@ interface Review {
 const SEED_REVIEWS: Review[] = [
   {
     id: 'seed-1',
-    name: 'أحمد الشهراني',
+    name: 'مثال توضيحي',
     city: 'الرياض',
     rating: 5,
     comment: 'تطبيق رائع جداً! وجدت حلاقاً مناسباً لي خلال ثوانٍ ودون الحاجة لأي تسجيل. الاستجابة اللحظية ممتازة والتجربة واضحة جداً. أنصح به بشدة لكل مقيم في الرياض.',
-    date: '٢٠ مايو ٢٠٢٦',
+    date: 'نموذج عرض',
     likes: 24,
   },
   {
     id: 'seed-2',
-    name: 'محمد العتيبي',
+    name: 'مثال توضيحي',
     city: 'جدة',
     rating: 5,
     comment: 'أخيراً منصة سعودية متخصصة تعمل بكفاءة. الصالونات المعروضة لها بيانات كاملة وحقيقية، والنظام يُظهرها فقط حين تكون متاحة. ممتاز.',
-    date: '١٨ مايو ٢٠٢٦',
+    date: 'نموذج عرض',
     likes: 18,
   },
   {
     id: 'seed-3',
-    name: 'عبدالرحمن القحطاني',
+    name: 'مثال توضيحي',
     city: 'الدمام',
     rating: 4,
     comment: 'تجربة سلسة جداً — الخريطة سريعة الاستجابة والمعلومات محدّثة. أتمنى فقط إضافة خاصية تحديد موعد مسبق.',
-    date: '١٥ مايو ٢٠٢٦',
+    date: 'نموذج عرض',
     likes: 12,
   },
   {
     id: 'seed-4',
-    name: 'فهد المالكي',
+    name: 'مثال توضيحي',
     city: 'مكة المكرمة',
     rating: 5,
     comment: 'المنصة تحترم الخصوصية ولا تطلب أي تسجيل للبحث. هذا بالضبط ما يحتاجه المستخدم — بساطة وسرعة وبدون إزعاج.',
-    date: '١٢ مايو ٢٠٢٦',
+    date: 'نموذج عرض',
     likes: 31,
   },
   {
     id: 'seed-5',
-    name: 'خالد السهلي',
+    name: 'مثال توضيحي',
     city: 'أبها',
     rating: 4,
     comment: 'وجدت صالوناً قريباً مني في وقت قياسي. النظام يعمل بشكل جيد والمعلومات دقيقة. تطبيق مفيد للغاية.',
-    date: '١٠ مايو ٢٠٢٦',
+    date: 'نموذج عرض',
     likes: 8,
   },
 ];
@@ -327,6 +327,9 @@ export default function PlatformReviews() {
 
         {/* Submit form toggle */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-8">
+          <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-right text-[0.78rem] leading-6 text-amber-100/85">
+            الأمثلة المعروضة افتراضياً في هذه الصفحة هي أمثلة توضيحية لعرض شكل التقييمات، وليست شهادات موثقة من مستخدمين فعليين ما لم تُنشر من الزوار مباشرة.
+          </div>
           <button
             onClick={() => setFormOpen((o) => !o)}
             className="w-full rounded-2xl border border-teal-400/30 bg-teal-500/10 px-5 py-4 text-right transition-all hover:border-teal-400/60"
@@ -474,7 +477,7 @@ export default function PlatformReviews() {
           className="mt-12 rounded-2xl border border-teal-400/20 bg-teal-500/5 p-8 text-center"
         >
           <p className="mb-4 text-sm text-slate-400">
-            جرّب المنصة الآن وابحث عن أقرب حلاق إليك
+            جرّب المنصة الآن واعثر على الحلاق الأنسب لك
           </p>
           <button
             onClick={() => navigate(ROUTE_PATHS.HOME)}

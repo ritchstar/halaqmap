@@ -1093,7 +1093,7 @@ export default function PartnerMarketingPreview() {
               accent="text-amber-700" ringColor="border-amber-700/30"
               delay={0}
               features={[
-                'ظهور عند الطلب للزبائن القريبين',
+                'ظهور عند الطلب للمستخدمين المناسبين',
                 'بطاقة صالون كاملة: موقع، اتصال، واتساب',
                 'صور واجهة ٣ صور + بنر أساسي',
                 'أوقات عمل أسبوعية + حالة مفتوح/مغلق',

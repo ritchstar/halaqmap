@@ -391,7 +391,7 @@ export function LegalObserverChat({ page, defaultOpen = false }: Props) {
                 </motion.button>
               </div>
               <p className="mt-1.5 text-center text-[0.52rem] leading-relaxed" style={{ color: `${GOLD}35` }}>
-                الناظر القانوني (سعودي) · أسئلة تنظيمية/ترخيصية تُحال لإدارة المنصة · المحادثات تُسجَّل للتقارير
+                الناظر القانوني (سعودي) · أسئلة تنظيمية/ترخيصية تُحال لإدارة المنصة · قد تُسجَّل المحادثات للتقارير والتحسين
               </p>
             </div>
           </motion.div>

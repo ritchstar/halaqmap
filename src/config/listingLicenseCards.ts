@@ -20,7 +20,7 @@ export const LISTING_LICENSE_LEGAL_FOOTNOTE =
  * جذب طلب قريب، رفع الثقة، تسريع التواصل، تقليل الفوضى، أو إدارة الملف دون انتظار.
  */
 export const LISTING_LICENSE_FEATURE_DISCOVERY_LOGIC_AR = [
-  'كل ما يساعد الزبون القريب على اختيار الصالون بسرعة يُصاغ كميزة تحويل.',
+  'كل ما يساعد المستخدم المناسب على اختيار الصالون بسرعة يُصاغ كميزة تحويل.',
   'كل أداة تقلل مكالمة ضائعة أو سؤالاً متكرراً تُصاغ كميزة راحة تشغيلية.',
   'كل عنصر يثبت الجدية (صور، تقييم، QR، حالة مفتوح، شهادة تفعيل) يُصاغ كميزة ثقة.',
   'كل صلاحية لوحة تحكم تُصاغ كميزة استقلال للحلاق دون انتظار تعديل يدوي.',
@@ -57,12 +57,12 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     badge: '🥉',
     productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
     subtitleAr:
-      'ابدأ بحضور رسمي: زبون قريب يطلب، وصالونك يظهر له ببيانات واضحة',
+      'ابدأ بحضور رسمي: عند تنشّط الاستعلام يظهر صالونك ببيانات واضحة للمستخدم المناسب',
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.BRONZE],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
     highlights: [
-      'ظهور عند الطلب للزبائن القريبين منك — لا تضيع لحظة البحث في الحي',
+      'ظهور عند الطلب للمستخدمين المناسبين وقت الاستعلام — لا تضيع لحظة الجاهزية',
       'بطاقة صالون جاهزة: موقع، اتصال، واتساب، وصور أساسية تقنع بسرعة',
       'صور واجهة وداخل + بنر أساسي تعطي الزبون انطباعاً حقيقياً قبل الزيارة',
       'أوقات عمل أسبوعية وحالة مفتوح/مغلق تقلل الاتصالات غير المناسبة',
@@ -83,7 +83,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
     highlights: [
-      'أعلى أولوية استجابة للطلبات القريبة — مناسب لمن يريد صدارة منطقته',
+      'أعلى أولوية استجابة عند تنشّط الطلب — مناسب لمن يريد صدارة منطقته',
       'معرض حتى 40 صورة وبنر فاخر وشارة ماسية لعرض قوة الصالون بصرياً',
       'شات خاص مع ترجمة فورية يساعدك تخدم الزوار والعملاء متعددي اللغات',
       'إدارة مواعيد وحجوزات من اللوحة لتقليل الفوضى وتنظيم وقت الفريق',
@@ -106,7 +106,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
     highlights: [
-      'أولوية ذهبية عند الطلب تساعد صالونك يظهر بثقة أعلى داخل محيطك',
+      'أولوية ذهبية عند الطلب تساعد صالونك يظهر بثقة أعلى داخل الاستعلامات النشطة',
       'معرض حتى 20 صورة يثبت جودة القصات والديكور قبل أول اتصال',
       'QR تقييم رسمي: اجمع آراء الزبائن وابرز الأفضل لرفع الثقة',
       'واتساب وشات مباشر بجلسة خاصة 60 دقيقة لتسريع قرار العميل',

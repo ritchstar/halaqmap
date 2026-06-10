@@ -203,6 +203,11 @@ export default function PartnerSupportChat() {
                   مفتاح يربط رابطك فقط بهذه الجلسة (للعرض هنا فقط). للمعاملات الحساسة استخدم قنوات رسمية
                   مشفّرة.
                 </p>
+                <p>
+                  عند انتقالك إلى واتساب، تصبح المعالجة داخل تلك القناة خاضعة أيضاً لسياسات وشروط مزوّدها، لذلك
+                  تجنّب إرسال بيانات حساسة غير لازمة، واستخدم البريد أو القنوات الرسمية البديلة إذا كانت الحالة
+                  تتطلب سرية أعلى.
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="secondary" size="sm" className="gap-1.5" onClick={copyPrivateLink}>
                     <Copy className="h-3.5 w-3.5" />

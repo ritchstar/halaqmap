@@ -110,7 +110,7 @@ export default function HospitalityB2BRequestLanding() {
           </h1>
           <p className="mx-auto mt-4 max-w-3xl text-lg leading-relaxed text-muted-foreground">
             نوفر بنرات أكريليك أنيقة مجانًا مع الشحن للمنشآت الفندقية والشقق المفروشة ودور الضيافة، لمساعدة النزيل في
-            الوصول إلى أقرب حلاق عبر مسح رمز الاستجابة.
+            الوصول إلى حلاق مناسب عبر مسح رمز الاستجابة.
           </p>
         </div>
       </section>
@@ -120,7 +120,7 @@ export default function HospitalityB2BRequestLanding() {
           <Card>
             <CardContent className="pt-6 text-sm text-muted-foreground">
               <QrCode className="mb-2 h-5 w-5 text-primary" />
-              تجربة QR مباشرة للنزيل للوصول إلى أقرب حلاق في المنطقة.
+              تجربة QR مباشرة للنزيل للوصول إلى حلاق مناسب في المنطقة.
             </CardContent>
           </Card>
           <Card>

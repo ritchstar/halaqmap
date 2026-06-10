@@ -35,7 +35,7 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
     color: 'bg-gradient-to-br from-amber-700 to-amber-900',
     features: [
       { kind: 'map_hero' },
-      { kind: 'text', value: 'ظهور عند الطلب للزبائن القريبين منك عند وجود طلب نشط في محيطك' },
+      { kind: 'text', value: 'ظهور عند الطلب للمستخدمين المناسبين عند وجود استعلام نشط يطابق بيانات صالونك' },
       { kind: 'text', value: 'بطاقة صالون مختصرة تجمع الموقع، الاتصال، الواتساب، والصور الأساسية' },
       { kind: 'text', value: 'صورتان أساسيتان للواجهة والداخل + أربع صور بنر مع طلب الباقة' },
       { kind: 'text', value: 'جدول أسبوعي لأوقات العمل حتى يعرف العميل متى يتواصل معك' },
@@ -53,7 +53,7 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
     features: [
       { kind: 'map_hero' },
       { kind: 'text', value: RATING_QR_PLAN_LINE },
-      { kind: 'text', value: 'كل مميزات البرونزي مع أولوية ذهبية عند تنشّط الطلب في محيطك' },
+      { kind: 'text', value: 'كل مميزات البرونزي مع أولوية ذهبية عند تنشّط الاستعلام المناسب' },
       { kind: 'text', value: 'معرض أعمال حتى 20 صورة لعرض القصات، الديكور، النظافة، والتفاصيل' },
       { kind: 'text', value: 'إدارة صور المحل والبنر من لوحة التحكم بعد التفعيل دون انتظار تعديل يدوي' },
       { kind: 'text', value: 'تحديث المنيو والأسعار وأوقات العمل من لوحة سهلة تخفف الأسئلة المتكررة' },
@@ -78,7 +78,7 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
     features: [
       { kind: 'map_hero' },
       { kind: 'text', value: RATING_QR_PLAN_LINE },
-      { kind: 'text', value: 'كل مميزات الذهبي مع أعلى أولوية ماسية للطلبات القريبة' },
+      { kind: 'text', value: 'كل مميزات الذهبي مع أعلى أولوية ماسية عند تنشّط الاستعلام المناسب' },
       { kind: 'text', value: 'معرض أعمال حتى 40 صورة مع بنر فاخر وشارة ماسية ترفع الانطباع' },
       { kind: 'text', value: 'إدارة صور المحل والبنر والمنيو والأسعار من لوحة التحكم بعد التفعيل' },
       { kind: 'text', value: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)' },
@@ -99,7 +99,7 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
 ] as const;
 
 export const SUBSCRIPTION_POLICY_TIERS_INTRO =
-  `كل حزمة = ${SOFTWARE_PACKAGE_VALIDITY_LABEL_AR} نفاذ ضمن نظام الاستجابة الذكية — دفع لمرة واحدة عبر moyasar، تفعيل تلقائي بعد نجاح الدفع، دون تجديد تلقائي أو خصم دوري. الظهور برمجي يُفعَّل عند وجود طلب نشط في محيطك الجغرافي.`;
+  `كل حزمة = ${SOFTWARE_PACKAGE_VALIDITY_LABEL_AR} نفاذ ضمن نظام الاستجابة الذكية — دفع لمرة واحدة عبر moyasar، تفعيل تلقائي بعد نجاح الدفع، دون تجديد تلقائي أو خصم دوري. الظهور برمجي يُفعَّل عند وجود استعلام نشط يطابق بيانات الصالون وفلترة المستخدم.`;
 
 export const SUBSCRIPTION_POLICY_PACKAGE_RENEWAL = {
   title: 'تجديد حزمة رخصة النفاذ أو تغيير المستوى',

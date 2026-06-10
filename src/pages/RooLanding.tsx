@@ -158,7 +158,7 @@ function HeroSection() {
             className="mb-6 text-5xl sm:text-6xl lg:text-7xl font-black leading-tight"
           >
             <span className="bg-gradient-to-r from-sky-600 via-emerald-600 to-sky-600 bg-clip-text text-transparent">
-              اكتشف أقرب صالون
+              اكتشف الصالون الأنسب
             </span>
             <br />
             <span className="text-slate-800">
@@ -246,8 +246,8 @@ function FeaturesSection() {
   const features = [
     {
       icon: Navigation2,
-      title: 'رادار جغرافي ذكي',
-      desc: 'اكتشف الصالونات القريبة منك بدقة عالية باستخدام تقنية GPS المتقدمة',
+      title: 'استعلام ذكي',
+      desc: 'اكتشف الصالونات المناسبة لك بسرعة ووضوح عند بدء الاستعلام',
       color: 'from-sky-500 to-blue-500',
       delay: 0,
     },
@@ -340,7 +340,7 @@ function HowItWorksSection() {
       number: '1',
       icon: Search,
       title: 'ابحث عن صالون',
-      desc: 'استخدم الرادار الجغرافي للعثور على أقرب الصالونات',
+      desc: 'استخدم الاستعلام الذكي للعثور على الصالونات المناسبة',
       color: 'from-sky-500 to-blue-500',
     },
     {

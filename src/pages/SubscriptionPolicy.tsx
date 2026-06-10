@@ -30,10 +30,12 @@ import {
 } from "@/config/platformIdentity";
 import { LicensedActivityScopeCard } from '@/components/legal/LicensedActivityScopeCard';
 import { formatLicensedActivityScopeLegalSection } from '@/config/legalActivityScope';
+import { getPlatformVatSettings, getSubscriptionPricingVatClauseAr } from '@/lib/platformVatSettings';
 
 
 export default function SubscriptionPolicy() {
   const subscriptionTiers = SUBSCRIPTION_POLICY_TIERS;
+  const vatClause = getSubscriptionPricingVatClauseAr(getPlatformVatSettings());
 
   const paymentMethods = [
     {
@@ -435,8 +437,7 @@ export default function SubscriptionPolicy() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground leading-relaxed text-justify">
-                  جميع قيم حزم الرخصة الرقمية الموضحة هي مبالغ نهائية، ولا يتم تحصيل ضريبة قيمة مضافة (VAT) حالياً نظراً
-                  لعدم وصول المؤسسة للحد الإلزامي للتسجيل الضريبي.
+                  {vatClause}
                 </p>
               </CardContent>
             </Card>

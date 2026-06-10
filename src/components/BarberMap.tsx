@@ -71,7 +71,7 @@ export function BarberMap({ barbers, userLocation, onBarberPatch, realtimeEnable
   return (
     <div className="mb-8 rounded-2xl border border-border/80 bg-card/80 p-4 shadow-sm backdrop-blur-sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">رصد ذكي قريب</h3>
+        <h3 className="text-sm font-semibold text-foreground">معاينة الاستجابة النشطة</h3>
         <p className="text-[11px] text-muted-foreground">
           تحديث فوري للدبابيس عند تغيّر الحلاق لحالته عبر الرابط السريع (Realtime)
         </p>
@@ -79,7 +79,7 @@ export function BarberMap({ barbers, userLocation, onBarberPatch, realtimeEnable
       <div
         className="relative h-52 w-full overflow-hidden rounded-xl border border-border/60 bg-gradient-to-b from-sky-950/25 via-muted/40 to-emerald-950/15 md:h-60"
         role="img"
-        aria-label="معاينة مواقع الحلاقين القريبين"
+        aria-label="معاينة مواقع الحلاقين المتاحين"
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.12] [background-image:radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)] [background-size:18px_18px] text-foreground" />
 
@@ -89,7 +89,7 @@ export function BarberMap({ barbers, userLocation, onBarberPatch, realtimeEnable
         >
           <Navigation className="h-7 w-7 text-sky-500 drop-shadow-md" aria-hidden />
           <span className="mt-0.5 rounded bg-background/90 px-1.5 py-0.5 text-[10px] font-medium text-foreground shadow">
-            أنت
+            نقطة الاستعلام
           </span>
         </div>
 
@@ -120,11 +120,11 @@ export function BarberMap({ barbers, userLocation, onBarberPatch, realtimeEnable
         </span>
         <span className="inline-flex items-center gap-1">
           <MapPin className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
-          مغلق عبر نظام الرصد الذكي
+          مغلق ضمن حالة التوفر
         </span>
         <span className="inline-flex items-center gap-1">
           <Navigation className="h-3.5 w-3.5 text-sky-500" aria-hidden />
-          موقعك
+          نقطة الاستعلام
         </span>
       </div>
     </div>

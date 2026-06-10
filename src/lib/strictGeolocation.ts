@@ -133,7 +133,7 @@ export async function resolveStrictUserLocation(options: StrictGeoOptions = {}):
     if (!Number.isFinite(accuracyM) || accuracyM > maxAcceptableAccuracyM) {
       return {
         ok: false,
-        error: `دقة الموقع ضعيفة جدًا (±${Number.isFinite(accuracyM) ? accuracyM : '∞'}م). حاول من مكان مكشوف أو فعّل GPS.`,
+        error: `دقة الموقع ضعيفة جدًا (±${Number.isFinite(accuracyM) ? accuracyM : '∞'}م). حاول من مكان مكشوف أو فعّل خدمات الموقع عالية الدقة.`,
       };
     }
 
