@@ -4,7 +4,7 @@
  *
  * Activated automatically once Engineering Wing handshake reports OK.
  * بعد إزالة سجل البحث الجغرافي من الخلفية، يعود هذا المسار
- * برسالة تعطيل نظيفة بدل الاعتماد على user_searches.
+ * برسالة تعطيل نظيفة بدل الاعتماد على جداول الطلب الملغاة.
  *
  * Read-only — no schema changes, no destructive operations.
  */
