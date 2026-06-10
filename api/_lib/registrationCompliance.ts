@@ -113,6 +113,14 @@ export function validateRegistrationCompliancePayload(payload: RegistrationCompl
     return { ok: false, error: 'registration_compliance_incomplete' };
   }
 
+  if (
+    payload.softwareProductAcknowledged !== true ||
+    typeof payload.softwareProductAcknowledgedAtIso !== 'string' ||
+    !payload.softwareProductAcknowledgedAtIso.trim()
+  ) {
+    return { ok: false, error: 'software_product_ack_required' };
+  }
+
   return { ok: true };
 }
 

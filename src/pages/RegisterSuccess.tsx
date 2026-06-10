@@ -41,12 +41,22 @@ export default function RegisterSuccess() {
     const q = new URLSearchParams({
       tier: data.tier,
       requestId: data.orderId,
+      qty: String(data.licenseQuantity ?? 1),
     });
+    if (data.digitalShiftAddonSelected) q.set('aiAddon', '1');
     return `${ROUTE_PATHS.PAYMENT}?${q.toString()}`;
   }, [data]);
 
   const absolutePaymentUrl = useMemo(
-    () => (data ? buildAbsolutePartnerPaymentUrl({ tier: data.tier, requestId: data.orderId }) : ''),
+    () =>
+      data
+        ? buildAbsolutePartnerPaymentUrl({
+            tier: data.tier,
+            requestId: data.orderId,
+            qty: data.licenseQuantity,
+            aiAddon: data.digitalShiftAddonSelected,
+          })
+        : '',
     [data],
   );
 
@@ -135,7 +145,7 @@ export default function RegisterSuccess() {
             <CardTitle className="text-2xl">خطوة الدفع والتفعيل</CardTitle>
             <CardDescription className="text-center leading-relaxed">
               طلبك مسجَّل — <strong>أكمل الدفع لتبدأ معالجة التفعيل</strong> وفق حالة الطلب الحالية داخل النظام.
-              يبدأ التفعيل بعد نجاح السداد بحسب المسار المعتمد دون الحاجة إلى إعادة إدخال بياناتك.
+              بعد نجاح السداد يُستكمل مسار التفعيل وفق الحالة المعتمدة للطلب دون الحاجة إلى إعادة إدخال بياناتك.
               {data.tier === SubscriptionTier.DIAMOND && (
                 <span className="mt-2 block rounded-lg border border-violet-500/30 bg-violet-950/30 px-3 py-1.5 text-sm text-violet-300 font-semibold">
                   🏛️ إضافة المكتب الخاص تدخل في مسار التفعيل مع باقتك الماسية بعد اكتمال الدفع وفق الحالة الحالية.
@@ -175,6 +185,10 @@ export default function RegisterSuccess() {
                   حزمة رخصة (ميسر)
                 </span>
               </p>
+              <p>
+                <span className="text-muted-foreground">عدد الحزم:</span>{' '}
+                <span className="font-medium">{data.licenseQuantity}</span>
+              </p>
               {data.receiptFileName && (
                 <p>
                   <span className="text-muted-foreground">مرفق الإيصال:</span>{' '}
@@ -204,16 +218,17 @@ export default function RegisterSuccess() {
             </div>
 
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
-              <p className="font-semibold text-foreground mb-1">ظهورك يبدأ فور التفعيل</p>
+              <p className="font-semibold text-foreground mb-1">ظهورك يبدأ بعد اكتمال التفعيل</p>
               <p className="text-muted-foreground">
-                بمجرد نجاح الدفع يُفعَّل ظهور صالونك آلياً ضمن نظام الاستجابة الذكية. ستحصل على رابط سري لتحديث حالة «مفتوح / مغلق» لحظياً من جوّالك — والباقات الذهبية والماسية تتيح تحكّماً كاملاً من لوحة التحكم.
+                بعد اكتمال الدفع يُستكمل تفعيل حزمة الرخصة وفق حالة الطلب المرتبطة بها داخل النظام. يبدأ ظهور صالونك عند
+                اكتمال التفعيل الفعلي، وتُتاح لك أدوات التحكم المناسبة بحسب حالة الحزمة والباقة.
               </p>
             </div>
 
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground leading-relaxed">
-                أرسلنا لبريدك ملخصاً يضم رابط الدفع المباشر (عبر خادمنا وResend). يمكنك أيضاً تحميل ملف نصي أو فتح
-                تطبيق البريد يدوياً.
+                يمكنك إرسال نسخة إلى بريدك الآن أو تحميل ملف نصي أو فتح تطبيق البريد يدويًا. لا تعتمد على البريد وحده
+                ما دام رابط الدفع الظاهر أمامك متاحًا مباشرة.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button className="flex-1 gap-2" onClick={downloadSummary}>

@@ -120,6 +120,8 @@ export interface RegisterOrderConfirmation {
   shopName: string;
   tier: SubscriptionTier;
   paymentMethod: 'monthly' | 'bank_transfer';
+  licenseQuantity: number;
+  digitalShiftAddonSelected?: boolean;
   receiptFileName?: string;
   summaryForDownload: string;
   mailtoBodyShort: string;

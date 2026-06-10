@@ -34,9 +34,17 @@ export async function fetchAdminStats(): Promise<AdminStats> {
   if (!barbersRes.error && barbersRes.data) {
     const rows = barbersRes.data as { tier: string | null; is_active: boolean | null }[];
     out.totalBarbers = rows.length;
-    const active = rows.filter((r) => r.is_active !== false);
-    out.activeSubscriptions = active.length;
-    for (const r of active) {
+    const eligibleRows = rows.filter((r) => r.is_active !== false);
+
+    const activeListingsRes = await client.from('barbers_public_directory').select('tier');
+    const activeListingRows = !activeListingsRes.error && activeListingsRes.data
+      ? (activeListingsRes.data as { tier: string | null }[])
+      : [];
+
+    out.activeSubscriptions = activeListingRows.length;
+    out.expiredSubscriptions = Math.max(0, eligibleRows.length - activeListingRows.length);
+
+    for (const r of activeListingRows) {
       const t = (r.tier ?? 'bronze').toLowerCase();
       if (t === 'gold') out.goldBarbers += 1;
       else if (t === 'diamond') out.diamondBarbers += 1;

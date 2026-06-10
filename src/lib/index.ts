@@ -130,6 +130,12 @@ export interface Barber {
     lat: number;
     lng: number;
     address: string;
+    saudi?: {
+      regionId?: string;
+      cityId?: string;
+      districtId?: string;
+      districtOther?: string;
+    };
   };
   subscription: SubscriptionTier;
   rating: number;
@@ -317,6 +323,8 @@ export interface SubscriptionRequest {
   softwareProductAcknowledgedAtIso?: string;
   /** إضافة برمجية متقدمة (Software Add-on): المناوب الرقمي — ماسي فقط (+25 ر.س/حزمة) */
   digitalShiftAddonSelected?: boolean;
+  /** عدد حزم/أشهر النفاذ المطلوب شراؤها ضمن نفس الطلب */
+  listingLicenseQuantity?: number;
 }
 
 export interface Payment {

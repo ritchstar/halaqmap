@@ -148,6 +148,14 @@ function subscriptionTierLabelAr(tier: SubscriptionTier): string {
   return 'برونزي';
 }
 
+function subscriptionTierFromString(raw: string | null | undefined): SubscriptionTier | null {
+  const v = String(raw || '').trim().toLowerCase();
+  if (v === SubscriptionTier.DIAMOND) return SubscriptionTier.DIAMOND;
+  if (v === SubscriptionTier.GOLD) return SubscriptionTier.GOLD;
+  if (v === SubscriptionTier.BRONZE) return SubscriptionTier.BRONZE;
+  return null;
+}
+
 function buildTierAccountDeletionMailto(session: BarberPortalSession): string {
   const subject = encodeURIComponent(`طلب حذف حساب شريك — ${subscriptionTierLabelAr(session.subscription)}`);
   const mn = formatBarberMemberNumber(session.memberNumber);
@@ -244,6 +252,11 @@ export default function BarberDashboard() {
     void refreshListingBalance();
   }, [refreshListingBalance]);
 
+  const effectiveListingTier = useMemo(() => {
+    if (!listingBalance?.hasActiveListing) return null;
+    return subscriptionTierFromString(listingBalance.activeTier) ?? barberData?.subscription ?? null;
+  }, [listingBalance?.hasActiveListing, listingBalance?.activeTier, barberData?.subscription]);
+
   /** ذهبي: تبويبات الرسائل + QR فقط — ماسي: لوحة كاملة */
   const tierTabs = useMemo(() => {
     if (!barberData) {
@@ -259,7 +272,20 @@ export default function BarberDashboard() {
         showGoldLiteBanner: false,
       };
     }
-    if (barberData.subscription === SubscriptionTier.DIAMOND) {
+    if (listingBalance && !listingBalance.hasActiveListing) {
+      return {
+        showOverview: true,
+        showAppointments: false,
+        showMessages: false,
+        showPosts: false,
+        showSettings: false,
+        showQrRatings: false,
+        showDigitalShift: false,
+        isGoldLite: false,
+        showGoldLiteBanner: false,
+      };
+    }
+    if (effectiveListingTier === SubscriptionTier.DIAMOND) {
       return {
         showOverview: true,
         showAppointments: true,
@@ -272,7 +298,7 @@ export default function BarberDashboard() {
         showGoldLiteBanner: false,
       };
     }
-    if (barberData.subscription === SubscriptionTier.GOLD) {
+    if (effectiveListingTier === SubscriptionTier.GOLD) {
       return {
         showOverview: false,
         showAppointments: false,
@@ -296,7 +322,7 @@ export default function BarberDashboard() {
       isGoldLite: false,
       showGoldLiteBanner: false,
     };
-  }, [barberData]);
+  }, [barberData, effectiveListingTier, listingBalance]);
 
   useEffect(() => {
     if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;
@@ -519,7 +545,9 @@ export default function BarberDashboard() {
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                    {subscriptionTierLabelAr(barberData.subscription)}
+                    {listingBalance?.hasActiveListing && effectiveListingTier
+                      ? `${subscriptionTierLabelAr(effectiveListingTier)} · نفاذ ساري`
+                      : `${subscriptionTierLabelAr(barberData.subscription)} · آخر باقة`}
                   </Badge>
                   <Badge
                     variant={listingBalance?.hasActiveListing ? 'default' : 'outline'}

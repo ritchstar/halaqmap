@@ -90,6 +90,12 @@ export function registrationSubmissionErrorForToast(message: string): string {
       'أعد تأشير «أوافق على الالتزام المهني» في الخطوة الأخيرة قبل الإرسال.'
     );
   }
+  if (m.includes('software_product_ack_required')) {
+    return (
+      'تعذّر حفظ الطلب: إقرار شراء المنتج البرمجي إلزامي.\n' +
+      'أعد تأشير «أوافق على إقرار شراء المنتج البرمجي» في الخطوة الأخيرة قبل الإرسال.'
+    );
+  }
   if (m.includes('registration_compliance_incomplete')) {
     return 'تعذّر حفظ الطلب: بيانات الامتثال القانوني غير مكتملة — أعد تأشير جميع خانات الموافقة.';
   }

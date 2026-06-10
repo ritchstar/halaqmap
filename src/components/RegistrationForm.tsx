@@ -37,8 +37,10 @@ import {
 } from '@/config/subscriptionPricing';
 import { LISTING_LICENSE_PRICING_DISPLAY_ORDER } from '@/config/listingLicenseCards';
 import {
+  clampListingLicenseQuantity,
   computeListingLicenseUnitSar,
   isDigitalShiftAddonAllowed,
+  parseDigitalShiftAddonParam,
 } from '@/config/listingLicenseQuantity';
 import { DigitalShiftAddonToggle } from '@/components/billing/DigitalShiftAddonToggle';
 import { ComplianceCheckbox } from '@/components/b2b/ComplianceCheckbox';
@@ -273,10 +275,13 @@ export function RegistrationForm() {
   // قراءة المعاملات من URL لضبط الحزمة المُختارة مسبقاً
   const urlParams = new URLSearchParams(location.search);
   const urlTier = urlParams.get('tier') as SubscriptionTier | null;
+  const urlQty = clampListingLicenseQuantity(urlParams.get('qty'));
+  const urlAddonSelected =
+    parseDigitalShiftAddonParam(urlParams.get('aiAddon')) || urlParams.get('addon')?.trim().toLowerCase() === 'office';
   const [formData, setFormData] = useState<FormData>({
     tier: (urlTier && Object.values(SubscriptionTier).includes(urlTier)) ? urlTier : '',
     plan: 'monthly',
-    digitalShiftAddon: false,
+    digitalShiftAddon: (urlTier === SubscriptionTier.DIAMOND) && urlAddonSelected,
     shopName: '',
     email: '',
     phone: '',
@@ -672,6 +677,14 @@ export function RegistrationForm() {
           lat,
           lng,
           address: formData.location.address || '—',
+          saudi: {
+            regionId: formData.location.saudi.regionId,
+            cityId: formData.location.saudi.cityId,
+            districtId: formData.location.saudi.districtId,
+            ...(formData.location.saudi.districtOther.trim()
+              ? { districtOther: formData.location.saudi.districtOther.trim() }
+              : {}),
+          },
         },
         tier: formData.tier as SubscriptionTier,
         documents: docLabels,
@@ -711,6 +724,7 @@ export function RegistrationForm() {
         digitalShiftAddonSelected:
           formData.tier === SubscriptionTier.DIAMOND &&
           isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon),
+        listingLicenseQuantity: urlQty,
       };
 
       /* 3) حفظ الطلب في قاعدة البيانات ثم النسخ المحلي (عند تهيئة Supabase) */
@@ -772,6 +786,7 @@ export function RegistrationForm() {
           unitSarForSummary,
           formData.tier === SubscriptionTier.DIAMOND && formData.digitalShiftAddon,
         )}\n` +
+        `عدد الحزم: ${urlQty}\n` +
         `تصنيفات: ${formData.categories.join('، ') || '—'}\n` +
         `طريقة الدفع: ${payLabel}\n` +
         `${attributionLines}\n` +
@@ -815,6 +830,7 @@ export function RegistrationForm() {
           unitSarForSummary,
           formData.tier === SubscriptionTier.DIAMOND && formData.digitalShiftAddon,
         )}\n` +
+        `عدد الحزم: ${urlQty}\n` +
         `الدفع: ${payLabel}\n` +
         `\n` +
         `للاطلاع على التفاصيل الكاملة استخدم زر «تحميل ملخص الطلب» في صفحة التأكيد.\n`;
@@ -827,6 +843,10 @@ export function RegistrationForm() {
         shopName: formData.shopName,
         tier: formData.tier as SubscriptionTier,
         paymentMethod: formData.payment.method,
+        licenseQuantity: urlQty,
+        digitalShiftAddonSelected:
+          formData.tier === SubscriptionTier.DIAMOND &&
+          isDigitalShiftAddonAllowed(SubscriptionTier.DIAMOND, formData.digitalShiftAddon),
         summaryForDownload,
         mailtoBodyShort,
       });
@@ -849,19 +869,21 @@ export function RegistrationForm() {
 
   const selectedUnitSar = useMemo(() => {
     if (!formData.tier) return 0;
-    const monthly = computeListingLicenseUnitSar(
+    const unitSar = computeListingLicenseUnitSar(
       formData.tier as SubscriptionTier,
       isDigitalShiftAddonAllowed(formData.tier as SubscriptionTier, formData.digitalShiftAddon)
         ? { digitalShiftAddon: true }
         : undefined,
     );
-    return monthly;
+    return unitSar;
   }, [formData.tier, formData.digitalShiftAddon]);
+
+  const selectedTotalSar = useMemo(() => selectedUnitSar * urlQty, [selectedUnitSar, urlQty]);
 
   const selectedPlan = SUBSCRIPTION_PLANS.find((p) => p.tier === formData.tier);
   const monthlyPriceBreakdown = useMemo(
-    () => (formData.tier ? calcVatBreakdown(selectedUnitSar, vatSettings) : null),
-    [formData.tier, selectedUnitSar, vatSettings],
+    () => (formData.tier ? calcVatBreakdown(selectedTotalSar, vatSettings) : null),
+    [formData.tier, selectedTotalSar, vatSettings],
   );
 
   const tierPackageSummary = (tierName: string, unitSar: number, withShift: boolean) =>
@@ -1607,7 +1629,7 @@ export function RegistrationForm() {
                           {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
                             ? ' (+ Add-on المناوب)'
                             : ''}{' '}
-                          — قيمة حزمة الرخصة الرقمية الموحد {monthlyPriceBreakdown.subtotal} ر.س + ضريبة
+                          — قيمة حزمة الرخصة الرقمية ({urlQty} حزمة) {monthlyPriceBreakdown.subtotal} ر.س + ضريبة
                           القيمة المضافة ({vatSettings.ratePercent}%){' '}
                           {monthlyPriceBreakdown.vat} ر.س = الإجمالي{' '}
                           <strong>{monthlyPriceBreakdown.total} ر.س</strong>
@@ -1618,7 +1640,7 @@ export function RegistrationForm() {
                           {formData.digitalShiftAddon && formData.tier === SubscriptionTier.DIAMOND
                             ? ' (+ Add-on المناوب)'
                             : ''}{' '}
-                          — {selectedUnitSar} ريال لحزمة الرخصة
+                          — {selectedTotalSar} ريال لحزمة الرخصة ({urlQty} حزمة)
                           <span className={`block text-xs mt-1 ${regMutedClass}`}>
                             المبلغ المعروض قيمة حزمة رخصة فقط دون ضريبة قيمة مضافة في الوضع الحالي.
                           </span>
@@ -1641,7 +1663,7 @@ export function RegistrationForm() {
                         المبلغ المتوقع لحزمة الرخصة (٣٠ يوماً):{' '}
                         {vatSettings.enabled && monthlyPriceBreakdown.vat > 0
                           ? `${monthlyPriceBreakdown.total} ر.س (شامل ضريبة ${vatSettings.ratePercent}%)`
-                          : `${selectedUnitSar} ر.س`}
+                          : `${selectedTotalSar} ر.س`}
                       </p>
                     )}
                   </AlertDescription>

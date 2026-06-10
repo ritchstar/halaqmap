@@ -104,6 +104,8 @@ export async function POST(request: Request): Promise<Response> {
         error:
           compliance.error === 'professional_commitment_required'
             ? 'يجب تأشير الالتزام المهني وحفظ طابعه الزمني قبل إرسال الطلب.'
+            : compliance.error === 'software_product_ack_required'
+              ? 'يجب تأشير إقرار شراء المنتج البرمجي وحفظ طابعه الزمني قبل إرسال الطلب.'
             : 'بيانات الامتثال القانوني غير مكتملة — أعد تأشير خانات الموافقة.',
         code: compliance.error,
       },

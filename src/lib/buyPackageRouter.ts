@@ -34,14 +34,14 @@ export { isBarberLoggedIn };
  */
 export function buildBuyPackageUrl(params: BuyPackageParams): string {
   const tier = params.tier;
-  const plan = params.plan ?? 'annual'; // افتراضي: سنوي
+  const plan = params.plan ?? 'monthly';
   const portalSession = readBarberAuthSession();
   const loggedIn = portalSession != null;
 
   const search = new URLSearchParams();
   search.set('tier', tier);
   search.set('plan', plan);
-  if (params.digitalShiftAddon) search.set('addon', 'office');
+  if (params.digitalShiftAddon) search.set('aiAddon', '1');
   if (params.licenseMonths != null && params.licenseMonths > 0) {
     search.set('qty', String(params.licenseMonths));
   }

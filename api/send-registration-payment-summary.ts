@@ -54,10 +54,21 @@ function paymentMethodLabelAr(method: string): string {
   return method === 'bank_transfer' ? 'تحويل بنكي (فترة مسبقة الدفع)' : 'تفعيل الحزمة البرمجية (بطاقة / ميسر)';
 }
 
-function buildPaymentUrl(siteBase: string, tier: string, orderId: string): string {
+function buildPaymentUrl(
+  siteBase: string,
+  tier: string,
+  orderId: string,
+  opts?: { qty?: number; aiAddon?: boolean },
+): string {
   const q = new URLSearchParams();
   q.set('tier', tier.trim().toLowerCase());
   if (orderId.trim()) q.set('requestId', orderId.trim());
+  if (opts?.qty != null && Number.isFinite(opts.qty) && opts.qty > 1) {
+    q.set('qty', String(Math.trunc(opts.qty)));
+  }
+  if (opts?.aiAddon === true) {
+    q.set('aiAddon', '1');
+  }
   return `${sanitizeBaseUrl(siteBase)}/#/partners/payment?${q.toString()}`;
 }
 
@@ -171,8 +182,16 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'tier_mismatch' }, { status: 400, headers });
   }
 
+  const storedQtyRaw = payload.listingLicenseQuantity;
+  const storedQty =
+    typeof storedQtyRaw === 'number'
+      ? Math.trunc(storedQtyRaw)
+      : Number.parseInt(String(storedQtyRaw ?? '1').trim(), 10);
+  const safeQty = Number.isFinite(storedQty) && storedQty > 0 ? Math.min(12, Math.max(1, storedQty)) : 1;
+  const aiAddon = payload.digitalShiftAddonSelected === true;
+
   const siteBase = getSiteBaseUrl();
-  const paymentUrl = buildPaymentUrl(siteBase, tierRaw, orderId);
+  const paymentUrl = buildPaymentUrl(siteBase, tierRaw, orderId, { qty: safeQty, aiAddon });
   const tierAr = tierLabelAr(tierRaw);
   const payAr = paymentMethodLabelAr(paymentMethod);
 
@@ -184,12 +203,13 @@ export async function POST(request: Request): Promise<Response> {
     `- رقم الطلب: ${orderId}`,
     `- اسم المحل: ${shopName}`,
     `- الباقة: ${tierAr}`,
+    `- عدد الحزم: ${safeQty}`,
     `- طريقة الدفع المختارة عند التقديم: ${payAr}`,
     '',
     `رابط إتمام الدفع (احفظه أو افتحه من أي جهاز):`,
     paymentUrl,
     '',
-    'يمكنك إكمال الدفع من هذا الرابط في أي وقت لتفعيل حزمتك البرمجية بعد اعتماد الإدارة للطلب.',
+    'يمكنك إكمال الدفع من هذا الرابط في أي وقت لاستكمال مسار التفعيل وفق حالة الطلب المعتمدة في النظام.',
     '',
     '— فريق حلاق ماب',
   ].join('\n');
@@ -201,10 +221,11 @@ export async function POST(request: Request): Promise<Response> {
 <li><strong>رقم الطلب:</strong> <span dir="ltr">${escapeHtml(orderId)}</span></li>
 <li><strong>اسم المحل:</strong> ${escapeHtml(shopName)}</li>
 <li><strong>الباقة:</strong> ${escapeHtml(tierAr)}</li>
+<li><strong>عدد الحزم:</strong> ${safeQty}</li>
 <li><strong>طريقة الدفع عند التقديم:</strong> ${escapeHtml(payAr)}</li>
 </ul>
 <p><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;padding:12px 22px;background:#0d9488;color:#fff;text-decoration:none;border-radius:10px;font-weight:700">فتح صفحة الدفع</a></p>
-<p style="font-size:14px;color:#334155">يمكنك إكمال الدفع من هذا الرابط في أي وقت لتفعيل حزمتك البرمجية بعد اعتماد الإدارة للطلب.</p>
+<p style="font-size:14px;color:#334155">يمكنك إكمال الدفع من هذا الرابط في أي وقت لاستكمال مسار التفعيل وفق حالة الطلب المعتمدة في النظام.</p>
 <p style="font-size:12px;color:#64748b" dir="ltr">${escapeHtml(paymentUrl)}</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`;
