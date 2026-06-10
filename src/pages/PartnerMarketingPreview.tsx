@@ -1061,7 +1061,7 @@ export default function PartnerMarketingPreview() {
             <FeatureCard icon={Brain} title="إضافة المكتب الخاص 🏛️" desc="مساعد داخلي + مناوب شات مترابطان — أعطِ تعليماتك، المناوب ينفّذها، والتقارير تصلك داخل المسار التشغيلي." color="from-violet-600 to-indigo-600" delay={0.24} badge="Diamond Add-on" />
             <FeatureCard icon={Users} title="خدمة كبار السن وذوي الاحتياجات" desc="إعلان موجَّه لشريحة لا تجدها في أي منصة أخرى — ميزة تنافسية حقيقية." color="from-sky-500 to-blue-400" delay={0.08} badge="Gold +" />
             <FeatureCard icon={QrCode} title="بورتفوليو صور" desc="اعرض أعمالك الفعلية — المزيد من الصور = المزيد من الثقة قبل الزيارة." color="from-orange-500 to-red-500" delay={0.16} badge="Diamond +" />
-            <FeatureCard icon={FileCheck} title="شهادة تفعيل رقمية" desc="وثيقة رقمية صادرة من المنصة بعد كل دفعة — تتضمن كود التفعيل وبيانات الرخصة وفق الحالة المعتمدة." color="from-amber-600 to-orange-500" delay={0.24} />
+            <FeatureCard icon={FileCheck} title="شهادة تفعيل رقمية" desc="وثيقة رقمية صادرة من المنصة بعد كل دفعة — تتضمن كود التفعيل وبيانات الرخصة وفق الحالة الحالية في النظام." color="from-amber-600 to-orange-500" delay={0.24} />
           </div>
         </div>
       </section>
@@ -1226,7 +1226,7 @@ export default function PartnerMarketingPreview() {
                 {[
                   'كود تفعيل بارز بتنسيق `HM-LIC-XXXX-XXXX-XXXX`',
                   'إصدار بعد اكتمال الدفع وفق حالة التفعيل الحالية',
-                  'اسم المنشأة والباقة وصلاحية الرخصة موثّقة',
+                  'اسم المنشأة والباقة وصلاحية الرخصة موضحة',
                   'مرجع رسمي للتحقق والدعم ولوحة التحكم',
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2 text-sm text-slate-700">
