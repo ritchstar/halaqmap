@@ -58,6 +58,9 @@ type BarberRow = {
   rank_score?: number | null;
   has_active_subscription?: boolean | null;
   profile_updated_at?: string | null;
+  gallery_count?: number | null;
+  featured_images?: unknown;
+  is_showcase_preview?: boolean | null;
 };
 
 function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer | undefined {
@@ -94,11 +97,40 @@ function getPublicBarbersEndpoint(): string {
   return String(import.meta.env.VITE_PUBLIC_BARBERS_URL || PUBLIC_BARBERS_API).trim();
 }
 
+function parseFeaturedImages(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const item of raw) {
+    const u = typeof item === 'string' ? item.trim() : '';
+    if (!u || seen.has(u)) continue;
+    seen.add(u);
+    out.push(u);
+    if (out.length >= 4) break;
+  }
+  return out;
+}
+
+function mergePublicBarberImages(cover: string | null, profile: string | null, featured: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const u of [cover, ...featured, profile]) {
+    const t = u?.trim();
+    if (!t || seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out.length > 0 ? out : [FALLBACK_IMAGE];
+}
+
 function mapRow(row: BarberRow): Barber {
   const lat = row.latitude ?? 0;
   const lng = row.longitude ?? 0;
-  const imgs = [row.cover_image, row.profile_image].filter((u): u is string => Boolean(u && u.trim()));
-  const images = imgs.length > 0 ? imgs : [FALLBACK_IMAGE];
+  const featured = parseFeaturedImages(row.featured_images);
+  const cover = row.cover_image?.trim() || null;
+  const profile = row.profile_image?.trim() || null;
+  const images = mergePublicBarberImages(cover, profile, featured);
+  const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
   const phone = row.phone?.trim() || '';
   const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];
   const uid = row.user_id?.trim() || '';
@@ -128,6 +160,9 @@ function mapRow(row: BarberRow): Barber {
     ...(previewListing ? { previewListing: true } : {}),
     hasActiveSubscription: row.has_active_subscription === true,
     ...(row.profile_updated_at ? { profileUpdatedAt: row.profile_updated_at } : {}),
+    ...(featured.length > 0 ? { featuredImages: featured } : {}),
+    ...(galleryCount > 0 ? { galleryCount } : {}),
+    ...(row.is_showcase_preview === true ? { showcasePreview: true } : {}),
   };
 }
 
@@ -180,7 +215,9 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
       inclusive_care_customer_note,
       open_for_customers,
       user_id,
-      has_active_subscription
+      has_active_subscription,
+      gallery_count,
+      featured_images
     `
     )
     .eq('is_active', true)
@@ -222,7 +259,14 @@ export async function fetchNearbyPublicBarbersFromSupabase(
 
     if (!error) {
       const rows = (data ?? []) as BarberRow[];
-      return rows.map(mapRow);
+      if (rows.length > 0) return rows.map(mapRow);
+
+      const viaServer = await fetchPublicBarbersViaServer(args);
+      if (viaServer.length > 0) return viaServer;
+
+      const { fetchPublicShowcaseFallbackRemote } = await import('@/lib/platformShowcaseRemote');
+      const fallback = await fetchPublicShowcaseFallbackRemote();
+      return fallback ? [fallback.barber] : [];
     }
 
     if (import.meta.env.DEV) {
@@ -230,7 +274,12 @@ export async function fetchNearbyPublicBarbersFromSupabase(
     }
   }
 
-  return fetchPublicBarbersViaServer(args);
+  const viaServer = await fetchPublicBarbersViaServer(args);
+  if (viaServer.length > 0) return viaServer;
+
+  const { fetchPublicShowcaseFallbackRemote } = await import('@/lib/platformShowcaseRemote');
+  const fallback = await fetchPublicShowcaseFallbackRemote();
+  return fallback ? [fallback.barber] : [];
 }
 
 async function fetchPublicBarbersViaServer(input?: NearbySearchInput): Promise<Barber[]> {

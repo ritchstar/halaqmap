@@ -173,6 +173,15 @@ export interface Barber {
   hasActiveSubscription?: boolean;
   /** ISO — آخر تحديث لملف الصالون (لعامل النشاط في الترتيب) */
   profileUpdatedAt?: string;
+  /** صور مميزة على البنر (حتى 4) — ذهبي/ماسي */
+  featuredImages?: string[];
+  /** إجمالي صور المعرض المنشور */
+  galleryCount?: number;
+  /**
+   * حلاق معاينة ماسي — يظهر للمستخدم عند غياب نتائج حقيقية فقط.
+   * شارة تعليمية واضحة؛ ليس شريكاً تجارياً في المنطقة.
+   */
+  showcasePreview?: boolean;
 }
 
 export interface Appointment {
@@ -399,8 +408,8 @@ export function filterBarbersByDistance(
       ),
     }))
     .filter((barber) => {
-      if (barber.hasActiveSubscription !== true) return false;
-      const skipDistance = isDemoShowcaseBarberId(barber.id);
+      if (barber.hasActiveSubscription !== true && barber.showcasePreview !== true) return false;
+      const skipDistance = isDemoShowcaseBarberId(barber.id) || barber.showcasePreview === true;
       if (!skipDistance && barber.distance > filters.maxDistance) return false;
       if (filters.tiers.length > 0 && !filters.tiers.includes(barber.subscription)) return false;
       if (filters.openNow && !barber.isOpen) return false;

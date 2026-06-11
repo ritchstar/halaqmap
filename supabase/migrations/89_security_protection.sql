@@ -42,11 +42,13 @@ ALTER TABLE public.security_block_list ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.security_events ENABLE ROW LEVEL SECURITY;
 
 -- service role يكتب ويقرأ بحرية (من API)
+DROP POLICY IF EXISTS "service_role_all_block_list" ON public.security_block_list;
 CREATE POLICY "service_role_all_block_list"
   ON public.security_block_list FOR ALL
   USING (auth.role() = 'service_role')
   WITH CHECK (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "service_role_all_security_events" ON public.security_events;
 CREATE POLICY "service_role_all_security_events"
   ON public.security_events FOR ALL
   USING (auth.role() = 'service_role')

@@ -11,6 +11,8 @@ import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { BarberMap } from '@/components/BarberMap';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { fetchPublicShowcaseFallbackRemote } from '@/lib/platformShowcaseRemote';
+import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import {
@@ -26,6 +28,7 @@ import {
   PLATFORM_SEARCH_EMPTY_HINT,
   PLATFORM_SEARCH_EMPTY_LOADING,
   PLATFORM_SEARCH_EMPTY_TITLE,
+  PLATFORM_SHOWCASE_EDUCATION_INTRO,
 } from '@/config/platformSmartTracking';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 
@@ -34,6 +37,7 @@ export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
+  const [showcaseFallback, setShowcaseFallback] = useState<{ barber: Barber; intro: string } | null>(null);
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
   const [filters, setFilters] = useState<FilterState>({
     maxDistance: 1,
@@ -104,7 +108,22 @@ export default function Home() {
           tiers: filters.tiers,
         });
         if (cancelled) return;
-        setRemoteBarbers(list);
+        const showcaseItem = list.find((b) => b.showcasePreview);
+        const realOnly = list.filter((b) => !b.showcasePreview);
+        setRemoteBarbers(realOnly);
+        if (realOnly.length === 0) {
+          const fbMeta = await fetchPublicShowcaseFallbackRemote();
+          if (showcaseItem || fbMeta) {
+            setShowcaseFallback({
+              barber: showcaseItem ?? fbMeta!.barber,
+              intro: fbMeta?.intro ?? PLATFORM_SHOWCASE_EDUCATION_INTRO,
+            });
+          } else {
+            setShowcaseFallback(null);
+          }
+        } else {
+          setShowcaseFallback(null);
+        }
         setRemoteStatus('ready');
       } catch {
         if (cancelled) return;
@@ -124,6 +143,16 @@ export default function Home() {
     if (!userLocation) return [];
     return filterBarbersByDistance(catalogBarbers, userLocation, filters);
   }, [userLocation, filters, catalogBarbers]);
+
+  const showcaseActive =
+    remoteStatus === 'ready' && filteredBarbers.length === 0 && showcaseFallback != null;
+
+  const mapBarbers = useMemo(() => {
+    if (showcaseActive && showcaseFallback && userLocation) {
+      return [{ ...showcaseFallback.barber, distance: 0 }];
+    }
+    return filteredBarbers;
+  }, [showcaseActive, showcaseFallback, userLocation, filteredBarbers]);
 
   const onBarberRealtimePatch = useCallback((patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => {
     setRemoteBarbers((prev) => {
@@ -426,7 +455,7 @@ export default function Home() {
               <div className="container mx-auto px-4 pb-6">
                 <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-teal-500/5">
                   <BarberMap
-                    barbers={filteredBarbers}
+                    barbers={mapBarbers}
                     userLocation={userLocation}
                     onBarberPatch={onBarberRealtimePatch}
                     realtimeEnabled={isSupabaseConfigured()}
@@ -436,7 +465,24 @@ export default function Home() {
             )}
 
             {/* النتائج */}
-            {filteredBarbers.length === 0 ? (
+            {showcaseActive && showcaseFallback && userLocation ? (
+              <>
+                <ShowcaseEducationBanner intro={showcaseFallback.intro} />
+                <div className="container mx-auto px-4 pb-12">
+                  <div className="mx-auto max-w-lg">
+                    <motion.div
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      onClick={() => setSelectedBarber(showcaseFallback.barber)}
+                      className="cursor-pointer rounded-2xl"
+                    >
+                      <BarberCard barber={showcaseFallback.barber} userLocation={userLocation} />
+                    </motion.div>
+                  </div>
+                </div>
+              </>
+            ) : filteredBarbers.length === 0 ? (
               <motion.div
                 className="text-center py-16 max-w-2xl mx-auto container px-4"
                 initial={{ opacity: 0, scale: 0.95 }}

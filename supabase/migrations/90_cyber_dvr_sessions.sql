@@ -25,6 +25,7 @@ ALTER TABLE public.cyber_dvr_sessions REPLICA IDENTITY FULL;
 -- RLS: service role فقط
 ALTER TABLE public.cyber_dvr_sessions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "service_role_all_dvr" ON public.cyber_dvr_sessions;
 CREATE POLICY "service_role_all_dvr"
   ON public.cyber_dvr_sessions FOR ALL
   USING (auth.role() = 'service_role')

@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Star, MapPin, Phone, MessageCircle, Shield, Sparkles } from "lucide-react";
+import { Star, MapPin, Phone, MessageCircle, Shield, Sparkles, Images } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { Barber, SubscriptionTier, calculateDistance } from "@/lib/index";
 import { useDiamondAppointmentSchedulingShown } from "@/lib/diamondSchedulingVisibility";
 import { DiamondAppointmentBooking } from "@/components/DiamondAppointmentBooking";
 import { CustomerBarberChatPreview } from "@/components/CustomerBarberChatPreview";
+import { ShowcasePreviewCardBadge } from "@/components/ShowcaseEducationBanner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,6 +13,23 @@ import { Card } from "@/components/ui/card";
 interface BarberCardProps {
   barber: Barber;
   userLocation: { lat: number; lng: number };
+}
+
+function PublicGalleryCountBadge({ barber }: { barber: Barber }) {
+  const total = barber.galleryCount ?? 0;
+  if (total <= 1) return null;
+  if (
+    barber.subscription !== SubscriptionTier.GOLD &&
+    barber.subscription !== SubscriptionTier.DIAMOND
+  ) {
+    return null;
+  }
+  return (
+    <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1 rounded-full border border-border/60 bg-background/85 px-2.5 py-1 text-[11px] font-semibold text-foreground backdrop-blur-sm">
+      <Images className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
+      <span dir="ltr">{total} صور</span>
+    </div>
+  );
 }
 
 function InclusiveCareInline({ barber }: { barber: Barber }) {
@@ -48,6 +66,9 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
       *
     </span>
   ) : null;
+  const showcaseCardRing = barber.showcasePreview
+    ? 'ring-2 ring-teal-400/50 shadow-[0_0_40px_rgba(20,184,166,0.15)]'
+    : '';
 
   const openGoogleMaps = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${barber.location.lat},${barber.location.lng}`;
@@ -250,6 +271,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 موثق
               </Badge>
             )}
+            <PublicGalleryCountBadge barber={barber} />
           </div>
 
           <div className="p-4">
@@ -320,7 +342,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 35 }}
     >
-      <Card className="overflow-hidden bg-gradient-to-br from-card via-accent/5 to-accent/10 border-accent/30 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-200 ring-2 ring-accent/20">
+      <Card className={`overflow-hidden bg-gradient-to-br from-card via-accent/5 to-accent/10 border-accent/30 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-200 ring-2 ring-accent/20 ${showcaseCardRing}`}>
         <div className="relative h-56 sm:h-64 overflow-hidden">
           <img
             src={barber.images[0]}
@@ -332,15 +354,18 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             <Sparkles className="w-4 h-4 ml-1 animate-pulse" />
             ماسي
           </Badge>
-          {barber.verified && (
+          {barber.showcasePreview ? (
+            <ShowcasePreviewCardBadge />
+          ) : barber.verified ? (
             <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground shadow-lg">
               <Shield className="w-4 h-4 ml-1" />
               موثق
             </Badge>
-          )}
+          ) : null}
           <div className="absolute bottom-3 right-3 bg-accent/90 backdrop-blur-sm text-accent-foreground px-3 py-1 rounded-full text-xs font-semibold">
             أولوية الظهور
           </div>
+          <PublicGalleryCountBadge barber={barber} />
         </div>
 
         <div className="p-5">

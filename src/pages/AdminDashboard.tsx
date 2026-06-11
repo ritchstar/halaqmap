@@ -34,6 +34,7 @@ import {
   FlaskConical,
   Landmark,
   HardDrive,
+  GraduationCap,
   ClipboardList,
   Radar,
   Cast,
@@ -147,6 +148,7 @@ import {
 import { PartnerPromoVideoAdminPanel } from '@/components/admin/PartnerPromoVideoAdminPanel';
 import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutorialVideosAdminPanel';
 import { ResourceManagementSection } from '@/components/admin/ResourceManagementSection';
+import { BarberShowcaseOfficePanel } from '@/components/admin/BarberShowcaseOfficePanel';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { GeolocationDiagnosticsPanel } from '@/components/admin/GeolocationDiagnosticsPanel';
@@ -592,6 +594,7 @@ export default function AdminDashboard() {
     if (canAccessOpsControllerTab) out.push('ops-controller');
     if (can('view_settings')) out.push('settings');
     if (adminData?.bootstrap) out.push('resources');
+    if (adminData?.bootstrap) out.push('showcase-office');
     return out;
   }, [adminData, canViewPaymentGateways, canViewSecurityOpsLog, canAccessOpsBillingTab, canAccessOpsControllerTab]);
 
@@ -678,6 +681,25 @@ export default function AdminDashboard() {
                   <Landmark className="h-4 w-4" />
                 </Button>
               ) : null}
+              {Boolean(adminData?.bootstrap) && (
+                <Button
+                  type="button"
+                  variant={activeTab === 'showcase-office' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className={
+                    isFounderView
+                      ? 'h-9 shrink-0 gap-1.5 px-2.5 text-slate-300 hover:text-cyan-100 hover:bg-cyan-500/10'
+                      : 'h-9 shrink-0 gap-1.5 px-2.5 text-slate-400 hover:text-slate-100 hover:bg-slate-700'
+                  }
+                  title="مكتب المعاينة الماسي"
+                  aria-label="مكتب المعاينة الماسي"
+                  aria-pressed={activeTab === 'showcase-office'}
+                  onClick={() => setActiveTab('showcase-office')}
+                >
+                  <GraduationCap className="h-4 w-4" />
+                  <span className="hidden md:inline">معاينة ماسي</span>
+                </Button>
+              )}
               {Boolean(adminData?.bootstrap) && (
                 <Button
                   type="button"
@@ -852,6 +874,12 @@ export default function AdminDashboard() {
             <TabsTrigger value="settings" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">الإعدادات</span>
+            </TabsTrigger>
+            )}
+            {Boolean(adminData?.bootstrap) && (
+            <TabsTrigger value="showcase-office" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
+              <GraduationCap className="w-4 h-4" />
+              <span className="hidden sm:inline">معاينة ماسي</span>
             </TabsTrigger>
             )}
             {Boolean(adminData?.bootstrap) && (
@@ -1053,6 +1081,12 @@ export default function AdminDashboard() {
               canManagePartnerMarketing={can('manage_partner_marketing')}
             />
           </TabsContent>}
+
+          {adminData.bootstrap && (
+            <TabsContent value="showcase-office" className="space-y-6">
+              <BarberShowcaseOfficePanel isActive={activeTab === 'showcase-office'} />
+            </TabsContent>
+          )}
 
           {adminData.bootstrap && (
             <TabsContent value="resources" className="space-y-6">

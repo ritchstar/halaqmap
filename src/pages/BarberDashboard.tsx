@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -127,6 +127,11 @@ import {
   objectPathFromBarberPortfolioPublicUrl,
   uploadBarberPortfolioImageRemote,
 } from '@/lib/barberPortfolioRemote';
+import {
+  collectGalleryUrlsFromPosts,
+  fetchBarberGalleryRemote,
+  syncBarberGalleryRemote,
+} from '@/lib/barberGalleryRemote';
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
 import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
@@ -177,7 +182,19 @@ function buildTierAccountDeletionMailto(session: BarberPortalSession): string {
   return `mailto:admin@halaqmap.com?subject=${subject}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
 }
 
-export default function BarberDashboard() {
+type BarberDashboardProps = {
+  founderPreview?: boolean;
+  previewSession?: BarberPortalSession | null;
+  previewListingBalance?: ListingLicenseBalance | null;
+  previewChrome?: ReactNode;
+};
+
+export default function BarberDashboard({
+  founderPreview = false,
+  previewSession = null,
+  previewListingBalance = null,
+  previewChrome = null,
+}: BarberDashboardProps = {}) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
@@ -198,6 +215,11 @@ export default function BarberDashboard() {
   const [redeemLoading, setRedeemLoading] = useState(false);
 
   useEffect(() => {
+    if (founderPreview && previewSession) {
+      setBarberData(previewSession);
+      if (previewListingBalance) setListingBalance(previewListingBalance);
+      return;
+    }
     const parsed = readBarberAuthSession();
     if (!parsed) {
       navigate(ROUTE_PATHS.BARBERS_LANDING);
@@ -234,9 +256,10 @@ export default function BarberDashboard() {
       void clearBarberLinkedSession();
       navigate(ROUTE_PATHS.BARBERS_LANDING);
     }
-  }, [navigate]);
+  }, [navigate, founderPreview, previewSession, previewListingBalance]);
 
   const refreshListingBalance = useCallback(async () => {
+    if (founderPreview) return;
     if (!barberData?.id || !barberData.email) return;
     setListingBalanceLoading(true);
     const res = await fetchListingLicenseBalanceRemote({
@@ -245,11 +268,12 @@ export default function BarberDashboard() {
     });
     setListingBalanceLoading(false);
     if (res.ok) setListingBalance(res.balance);
-  }, [barberData?.id, barberData?.email]);
+  }, [barberData?.id, barberData?.email, founderPreview]);
 
   useEffect(() => {
+    if (founderPreview) return;
     void refreshListingBalance();
-  }, [refreshListingBalance]);
+  }, [refreshListingBalance, founderPreview]);
 
   const effectiveListingTier = useMemo(() => {
     if (!listingBalance?.hasActiveListing) return null;
@@ -375,6 +399,7 @@ export default function BarberDashboard() {
   }, [applyPortalSession, navigate]);
 
   useEffect(() => {
+    if (founderPreview) return;
     if (!barberData?.id || !barberData?.email) return;
     let cancelled = false;
     void syncPortalSessionFromServer().then(() => {
@@ -383,9 +408,10 @@ export default function BarberDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [barberData?.id, barberData?.email, syncPortalSessionFromServer]);
+  }, [barberData?.id, barberData?.email, syncPortalSessionFromServer, founderPreview]);
 
   useEffect(() => {
+    if (founderPreview) return;
     if (!barberData?.id || !barberData?.email) return;
     let debounce: ReturnType<typeof setTimeout> | undefined;
     const scheduleSync = () => {
@@ -402,7 +428,7 @@ export default function BarberDashboard() {
       window.removeEventListener('focus', scheduleSync);
       window.removeEventListener('pageshow', scheduleSync);
     };
-  }, [barberData?.id, barberData?.email, syncPortalSessionFromServer]);
+  }, [barberData?.id, barberData?.email, syncPortalSessionFromServer, founderPreview]);
 
   const barberId = barberData?.id;
 
@@ -523,6 +549,9 @@ export default function BarberDashboard() {
   return (
     <>
     <div className="flex min-h-screen flex-col bg-background" dir="rtl">
+      {previewChrome ? (
+        <div className="border-b border-border/40 bg-muted/30 px-3 py-3 sm:px-4">{previewChrome}</div>
+      ) : null}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex min-h-16 flex-col gap-2 py-2 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-0">
@@ -893,7 +922,7 @@ export default function BarberDashboard() {
               posts={posts}
               barberId={barberData.id}
               barberEmail={barberData.email}
-              subscriptionTier={barberData.subscription}
+              subscriptionTier={effectiveListingTier ?? barberData.subscription}
               onChange={persistPosts}
             />
           </TabsContent>
@@ -1686,6 +1715,20 @@ async function deletePortfolioStorageForUrls(barberId: string, email: string, ur
   }
 }
 
+async function syncPublicGalleryFromPosts(
+  barberId: string,
+  barberEmail: string,
+  postList: Post[],
+): Promise<{ ok: true; galleryCount: number } | { ok: false; error: string }> {
+  const res = await syncBarberGalleryRemote({
+    barberId,
+    email: barberEmail.trim(),
+    galleryUrls: collectGalleryUrlsFromPosts(postList),
+  });
+  if (!res.ok) return res;
+  return { ok: true, galleryCount: res.data.galleryCount };
+}
+
 function PostsSection({
   posts,
   barberId,
@@ -1701,6 +1744,20 @@ function PostsSection({
 }) {
   const portfolioMax = portfolioMaxImagesForSubscriptionTier(subscriptionTier);
   const galleryCountSaved = useMemo(() => countGalleryImagesAcrossPosts(posts), [posts]);
+  const [serverGalleryCount, setServerGalleryCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!barberId || !barberEmail.trim()) return;
+    let cancelled = false;
+    void fetchBarberGalleryRemote({ barberId, email: barberEmail.trim() }).then((r) => {
+      if (!cancelled && r.ok) setServerGalleryCount(r.galleryCount);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [barberId, barberEmail]);
+
+  const galleryCountDisplay = serverGalleryCount ?? galleryCountSaved;
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
@@ -1881,22 +1938,31 @@ function PostsSection({
         await deletePortfolioStorageForUrls(barberId, barberEmail.trim(), removed);
       }
 
-      onChange(
-        posts.map((p) =>
-          p.id === editing.id
-            ? {
-                ...p,
-                title: title.trim(),
-                content: content.trim(),
-                type,
-                images: type === 'gallery' && finalGalleryUrls ? [...finalGalleryUrls] : [img],
-                discount: type === 'offer' ? disc : undefined,
-                validUntil: p.validUntil,
-              }
-            : p,
-        ),
+      const nextPosts = posts.map((p) =>
+        p.id === editing.id
+          ? {
+              ...p,
+              title: title.trim(),
+              content: content.trim(),
+              type,
+              images: type === 'gallery' && finalGalleryUrls ? [...finalGalleryUrls] : [img],
+              discount: type === 'offer' ? disc : undefined,
+              validUntil: p.validUntil,
+            }
+          : p,
       );
-      toast.success('تم تحديث البوست');
+      onChange(nextPosts);
+      if (barberEmail.trim()) {
+        const synced = await syncPublicGalleryFromPosts(barberId, barberEmail.trim(), nextPosts);
+        if (synced.ok) {
+          setServerGalleryCount(synced.galleryCount);
+          toast.success('تم تحديث البوست ومزامنة المعرض مع البنر العام');
+        } else {
+          toast.error(`تم حفظ البوست محلياً لكن تعذرت مزامنة البنر: ${synced.error}`);
+        }
+      } else {
+        toast.success('تم تحديث البوست');
+      }
     } else {
       const post: Post = {
         id: newId(),
@@ -1911,8 +1977,19 @@ function PostsSection({
         likes: 0,
         views: 0,
       };
-      onChange([post, ...posts]);
-      toast.success('تم إنشاء البوست');
+      const nextPosts = [post, ...posts];
+      onChange(nextPosts);
+      if (barberEmail.trim()) {
+        const synced = await syncPublicGalleryFromPosts(barberId, barberEmail.trim(), nextPosts);
+        if (synced.ok) {
+          setServerGalleryCount(synced.galleryCount);
+          toast.success('تم إنشاء البوست ومزامنة المعرض مع البنر العام');
+        } else {
+          toast.error(`تم حفظ البوست محلياً لكن تعذرت مزامنة البنر: ${synced.error}`);
+        }
+      } else {
+        toast.success('تم إنشاء البوست');
+      }
     }
     setOpen(false);
     resetDialog();
@@ -1923,11 +2000,22 @@ function PostsSection({
     if (post?.type === 'gallery' && barberEmail.trim()) {
       await deletePortfolioStorageForUrls(barberId, barberEmail.trim(), post.images ?? []);
     }
-    onChange(posts.filter((p) => p.id !== id));
-    toast.message('تم حذف البوست');
+    const nextPosts = posts.filter((p) => p.id !== id);
+    onChange(nextPosts);
+    if (barberEmail.trim()) {
+      const synced = await syncPublicGalleryFromPosts(barberId, barberEmail.trim(), nextPosts);
+      if (synced.ok) {
+        setServerGalleryCount(synced.galleryCount);
+        toast.message('تم حذف البوست ومزامنة المعرض');
+      } else {
+        toast.error(`تم الحذف محلياً لكن تعذرت مزامنة البنر: ${synced.error}`);
+      }
+    } else {
+      toast.message('تم حذف البوست');
+    }
   };
 
-  const atPortfolioCap = portfolioMax > 0 && galleryCountSaved >= portfolioMax;
+  const atPortfolioCap = portfolioMax > 0 && galleryCountDisplay >= portfolioMax;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -1937,9 +2025,9 @@ function PostsSection({
           <p className="mt-1 text-sm text-muted-foreground">
             معرض الأعمال:{' '}
             <span className="font-semibold text-foreground" dir="ltr">
-              {galleryCountSaved}/{portfolioMax || '—'}
+              {galleryCountDisplay}/{portfolioMax || '—'}
             </span>{' '}
-            صورة (WebP مضغوطة تقريباً 100 كيلوبايت — تُرفع للخادم عند تأكيد «نشر» أو «حفظ التعديل» فقط).
+            صورة — تُزامَن تلقائياً مع البنر العام (4 صور مميزة + المزيد في معرض كامل للعميل).
           </p>
         </div>
         <Button type="button" className="gap-2 shrink-0" onClick={openNew}>

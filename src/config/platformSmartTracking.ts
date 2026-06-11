@@ -45,6 +45,13 @@ export const PLATFORM_SEARCH_EMPTY_TITLE = 'لا توجد خدمات متاحة 
 export const PLATFORM_SEARCH_EMPTY_HINT =
   'وسّع نطاق العرض أو ألغِ بعض الفلاتر لزيادة احتمال ظهور خدمات متاحة — الظهور برمجي عند الطلب وليس قائمة دائمة.';
 
+/** نص تعليمي عند ظهور بنر المعاينة الماسي — للمستخدم النهائي */
+export const PLATFORM_SHOWCASE_EDUCATION_INTRO =
+  'هذا عرض توضيحي من منصة حلاق ماب — لتتعرف على شكل البنر والمعرض قبل انضمام صالونات حقيقية في منطقتك.';
+
+/** شارة بطاقة المعاينة — واضحة للمستخدم */
+export const PLATFORM_SHOWCASE_BADGE_LABEL = 'عرض تعليمي';
+
 /** خطوات «كيف تعمل» — الصفحة الرئيسية */
 export const PLATFORM_HOW_IT_WORKS_STEPS = [
   {

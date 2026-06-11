@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { mapShowcaseRowToApiPayload, resolveShowcaseFallbackForPublic } from './_lib/platformShowcasePreview.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
@@ -162,7 +163,23 @@ export async function GET(request: Request): Promise<Response> {
     if (error) {
       return Response.json({ error: error.message }, { status: 500, headers });
     }
-    return Response.json({ ok: true, mode: 'nearby_rpc', rows: sanitizePublicBarberRows(data ?? []) }, { headers });
+    const sanitized = sanitizePublicBarberRows(data ?? []);
+    if (sanitized.length === 0) {
+      const fallback = await resolveShowcaseFallbackForPublic(supabase);
+      if (fallback.ok) {
+        return Response.json(
+          {
+            ok: true,
+            mode: 'nearby_rpc_showcase_fallback',
+            rows: [mapShowcaseRowToApiPayload(fallback.row)],
+            showcase_fallback: true,
+            education_intro_ar: fallback.educationIntroAr,
+          },
+          { headers },
+        );
+      }
+    }
+    return Response.json({ ok: true, mode: 'nearby_rpc', rows: sanitized }, { headers });
   }
 
   // fallback عام عند عدم توفر إحداثيات مستخدم
@@ -192,7 +209,9 @@ export async function GET(request: Request): Promise<Response> {
       inclusive_care_customer_note,
       open_for_customers,
       user_id,
-      has_active_subscription
+      has_active_subscription,
+      gallery_count,
+      featured_images
       `
     )
     .eq('is_active', true)

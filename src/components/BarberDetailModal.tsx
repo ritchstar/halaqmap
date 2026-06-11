@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Barber, SubscriptionTier } from '@/lib/index';
 import { getMergedReviewsForBarber } from '@/lib/qrReviewsStorage';
+import { fetchPublicBarberGalleryRemote } from '@/lib/barberGalleryRemote';
+import { PORTFOLIO_FEATURED_BANNER_MAX } from '@/lib/barberPortfolioPolicy';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -8,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Phone, MapPin, MessageCircle, Star, Shield, Clock, QrCode } from 'lucide-react';
+import { Phone, MapPin, MessageCircle, Star, Shield, Clock, QrCode, Images, Loader2 } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
@@ -34,9 +36,38 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
   ) : null;
   const chatPreviewRef = useRef<HTMLDivElement>(null);
   const [barberReviews, setBarberReviews] = useState(() => getMergedReviewsForBarber(barber.id));
+  const [fullGalleryUrls, setFullGalleryUrls] = useState<string[] | null>(null);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [galleryView, setGalleryView] = useState<'featured' | 'full'>('featured');
+
+  const featuredPreview = useMemo(() => {
+    if (barber.featuredImages?.length) {
+      return barber.featuredImages.slice(0, PORTFOLIO_FEATURED_BANNER_MAX);
+    }
+    return barber.images.slice(0, PORTFOLIO_FEATURED_BANNER_MAX);
+  }, [barber.featuredImages, barber.images]);
+
+  const galleryTotal = barber.galleryCount ?? featuredPreview.length;
+  const showGalleryControls =
+    (barber.subscription === SubscriptionTier.GOLD || barber.subscription === SubscriptionTier.DIAMOND) &&
+    galleryTotal > 1;
+
+  const carouselImages =
+    galleryView === 'full' && fullGalleryUrls?.length
+      ? fullGalleryUrls
+      : featuredPreview.length > 0
+        ? featuredPreview
+        : barber.images;
 
   useEffect(() => {
     setBarberReviews(getMergedReviewsForBarber(barber.id));
+  }, [barber.id, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setFullGalleryUrls(null);
+    setGalleryView('featured');
+    setGalleryLoading(false);
   }, [barber.id, isOpen]);
 
   useEffect(() => {
@@ -57,6 +88,20 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
 
   const handlePhoneClick = () => {
     window.location.href = `tel:${barber.phone}`;
+  };
+
+  const openFullGallery = async () => {
+    if (fullGalleryUrls?.length) {
+      setGalleryView('full');
+      return;
+    }
+    setGalleryLoading(true);
+    const res = await fetchPublicBarberGalleryRemote(barber.id);
+    setGalleryLoading(false);
+    if (res.ok && res.publicUrls.length > 0) {
+      setFullGalleryUrls(res.publicUrls);
+      setGalleryView('full');
+    }
   };
 
   const getTierBadge = () => {
@@ -121,23 +166,64 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
           transition={{ duration: 0.3 }}
           className="space-y-6 mt-4"
         >
+          {featuredPreview.length > 1 && galleryView === 'featured' ? (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {featuredPreview.map((src) => (
+                <div key={src} className="aspect-square overflow-hidden rounded-lg border border-border bg-muted">
+                  <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          ) : null}
+
           <Carousel className="w-full" dir="ltr">
             <CarouselContent>
-              {barber.images.map((image, index) => (
-                <CarouselItem key={index}>
+              {carouselImages.map((image, index) => (
+                <CarouselItem key={`${image}-${index}`}>
                   <div className="relative aspect-video rounded-lg overflow-hidden">
                     <img
                       src={image}
                       alt={`${barber.name} - صورة ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading={index === 0 ? 'eager' : 'lazy'}
                     />
                   </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
+            {carouselImages.length > 1 ? (
+              <>
+                <CarouselPrevious className="left-4" />
+                <CarouselNext className="right-4" />
+              </>
+            ) : null}
           </Carousel>
+
+          {showGalleryControls ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {galleryTotal > featuredPreview.length ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="gap-2"
+                  disabled={galleryLoading}
+                  onClick={() => void openFullGallery()}
+                >
+                  {galleryLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  ) : (
+                    <Images className="h-4 w-4" aria-hidden />
+                  )}
+                  عرض المعرض كاملاً ({galleryTotal} صورة)
+                </Button>
+              ) : null}
+              {galleryView === 'full' ? (
+                <Button type="button" variant="outline" onClick={() => setGalleryView('featured')}>
+                  الصور المميزة
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button

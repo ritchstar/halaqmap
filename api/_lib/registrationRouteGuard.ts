@@ -102,6 +102,12 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'barber-portfolio') {
     return envInt('BARBER_PORTFOLIO_RATE_LIMIT_MAX', 80);
   }
+  if (routeId === 'barber-gallery-sync') {
+    return envInt('BARBER_GALLERY_SYNC_RATE_LIMIT_MAX', 60);
+  }
+  if (routeId === 'public-barber-gallery') {
+    return envInt('PUBLIC_BARBER_GALLERY_RATE_LIMIT_MAX', 120);
+  }
   if (routeId.startsWith('barber-portal')) {
     const barberOnly = envInt('BARBER_PORTAL_RATE_LIMIT_MAX', -1);
     if (barberOnly >= 0) return barberOnly;
