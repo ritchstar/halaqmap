@@ -148,11 +148,13 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">البوابة والوضع</CardTitle>
-            <CardDescription>أي بوابة تُفضّل للبطاقات، ووضع العرض للفريق (لا يغيّر مفاتيح API تلقائياً).</CardDescription>
+            <CardDescription>
+              يمكن تفعيل ميسر وSAB معاً في صفحة الدفع. حقل «الافتراضي» يحدّد أي خيار يُختار أولاً عند عرض القناتين.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>بوابة البطاقات المفضّلة</Label>
+              <Label>البوابة الافتراضية في صفحة الدفع</Label>
               <Select
                 value={settings.preferred_gateway}
                 onValueChange={(v) => patch({ preferred_gateway: v === 'SAB' ? 'SAB' : 'MOYASAR' })}
@@ -163,7 +165,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="MOYASAR">ميسر (Moyasar)</SelectItem>
-                  <SelectItem value="SAB">بنك الأول (SAB) — عند التفعيل</SelectItem>
+                  <SelectItem value="SAB">بنك الأول (SAB)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -186,7 +188,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
             <div className="flex items-center justify-between gap-4 rounded-lg border border-border/80 p-3">
               <div>
                 <p className="text-sm font-medium">دفع بالبطاقة عبر ميسر</p>
-                <p className="text-xs text-muted-foreground">إظهار خيار ميسر في صفحة الدفع</p>
+                <p className="text-xs text-muted-foreground">إظهار خيار ميسر في صفحة الدفع (يمكن تفعيله مع SAB)</p>
               </div>
               <Switch
                 checked={settings.enable_moyasar_card}
@@ -197,7 +199,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
             <div className="flex items-center justify-between gap-4 rounded-lg border border-border/80 p-3">
               <div>
                 <p className="text-sm font-medium">مسار بنك الأول (SAB)</p>
-                <p className="text-xs text-muted-foreground">تفعيل العرض عند اكتمال ربط البنك</p>
+                <p className="text-xs text-muted-foreground">إظهار مسار SAB في صفحة الدفع (يمكن تفعيله مع ميسر)</p>
               </div>
               <Switch
                 checked={settings.enable_sab_gateway}

@@ -91,20 +91,39 @@ export default function Payment() {
     void fetchPublicPaymentPageConfig().then(setPubPayConfig);
   }, []);
 
-  const selectedGateway = useMemo(() => {
-    if (pubPayConfig === null) return resolvePaymentGateway();
-    if (pubPayConfig.ok) return pubPayConfig.preferredGateway;
-    return resolvePaymentGateway();
-  }, [pubPayConfig]);
-
   const enableMoyasarCard = pubPayConfig === null || !pubPayConfig.ok || pubPayConfig.enableMoyasarCard !== false;
   const enableSabGateway = Boolean(pubPayConfig?.ok && pubPayConfig.enableSabGateway);
 
-  const paymentProvider = useMemo(() => getUnifiedPaymentProvider(selectedGateway), [selectedGateway]);
-  const isMoyasarGateway = selectedGateway === 'MOYASAR';
-  const showMoyasarCheckout = enableMoyasarCard && isMoyasarGateway;
+  const availablePaymentChannels = useMemo(() => {
+    const channels: Array<'moyasar' | 'sab'> = [];
+    if (enableMoyasarCard) channels.push('moyasar');
+    if (enableSabGateway) channels.push('sab');
+    return channels;
+  }, [enableMoyasarCard, enableSabGateway]);
 
-  const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'card'>('moyasar');
+  const preferredPaymentChannel = useMemo((): 'moyasar' | 'sab' => {
+    const pref = pubPayConfig?.ok && pubPayConfig.preferredGateway === 'SAB' ? 'sab' : 'moyasar';
+    if (pref === 'sab' && enableSabGateway) return 'sab';
+    if (pref === 'moyasar' && enableMoyasarCard) return 'moyasar';
+    return availablePaymentChannels[0] ?? 'moyasar';
+  }, [pubPayConfig, enableMoyasarCard, enableSabGateway, availablePaymentChannels]);
+
+  const [paymentMethod, setPaymentMethod] = useState<'moyasar' | 'sab'>(() =>
+    resolvePaymentGateway() === 'SAB' ? 'sab' : 'moyasar',
+  );
+
+  useEffect(() => {
+    if (pubPayConfig === null) return;
+    setPaymentMethod((current) =>
+      availablePaymentChannels.includes(current) ? current : preferredPaymentChannel,
+    );
+  }, [pubPayConfig, availablePaymentChannels, preferredPaymentChannel]);
+
+  const activeGateway = paymentMethod === 'sab' ? 'SAB' : 'MOYASAR';
+  const paymentProvider = useMemo(() => getUnifiedPaymentProvider(activeGateway), [activeGateway]);
+  const showMoyasarCheckout = enableMoyasarCard && paymentMethod === 'moyasar';
+  const showSabCheckout = enableSabGateway && paymentMethod === 'sab';
+  const preferredGatewayCode = pubPayConfig?.ok ? pubPayConfig.preferredGateway : resolvePaymentGateway();
   /** إقرار بقراءة شروط ميسر كبوابة دفع — مطلوب قبل متابعة الدفع عبر ميسر (المادة الخامسة من الشروط). */
   const [moyasarTermsAccepted, setMoyasarTermsAccepted] = useState(false);
   const [softwareProductAcknowledged, setSoftwareProductAcknowledged] = useState(false);
@@ -202,16 +221,6 @@ export default function Payment() {
   const moyasarPaymentIdFromUrl = searchParams.get('id')?.trim() || '';
 
   useEffect(() => {
-    if (pubPayConfig === null) return;
-    if (!enableMoyasarCard && !isMoyasarGateway && enableSabGateway) {
-      setPaymentMethod('card');
-    } else if (enableMoyasarCard && isMoyasarGateway) {
-      setPaymentMethod('moyasar');
-    }
-  }, [pubPayConfig, enableMoyasarCard, enableSabGateway, isMoyasarGateway]);
-
-  useEffect(() => {
-    if (selectedGateway !== 'MOYASAR') return;
     if (!moyasarPaymentIdFromUrl) return;
     let cancelled = false;
     setMoyasarReturnVerify('loading');
@@ -281,11 +290,11 @@ export default function Payment() {
     return () => {
       cancelled = true;
     };
-  }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, paymentProvider, selectedGateway, setSearchParams]);
+  }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, paymentProvider, setSearchParams]);
 
   /** تهيئة نموذج ميسر داخل الصفحة بعد الإقرار بالشروط. */
   useEffect(() => {
-    if (selectedGateway !== 'MOYASAR' || !showMoyasarCheckout) return;
+    if (!showMoyasarCheckout) return;
     if (paymentMethod !== 'moyasar' || !moyasarTermsAccepted || !softwareProductAcknowledged || !moyasarKeyOk) {
       setMoyasarFormError(null);
       if (moyasarHostRef.current) moyasarHostRef.current.innerHTML = '';
@@ -379,7 +388,6 @@ export default function Payment() {
     digitalShiftAddonSelected,
     requestId,
     linkedBarberId,
-    selectedGateway,
     showMoyasarCheckout,
     moyasarPublishableKey,
     unifiedPaymentInit.description,
@@ -539,55 +547,78 @@ export default function Payment() {
                 <CardContent className="space-y-4">
                   <RadioGroup
                     value={paymentMethod}
-                    onValueChange={(value: 'moyasar' | 'card') => {
+                    onValueChange={(value: 'moyasar' | 'sab') => {
                       setPaymentMethod(value);
                       if (value !== 'moyasar') setMoyasarTermsAccepted(false);
                     }}
                   >
-                    {/* بطاقة — ميسر أو مسار البنك حسب إعدادات المنصة */}
-                    {(isMoyasarGateway ? enableMoyasarCard : true) && (
-                    <label
-                      className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === 'moyasar'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      } ${!isMoyasarGateway && !enableSabGateway ? 'opacity-60' : ''}`}
-                    >
-                      <RadioGroupItem
-                        value="moyasar"
-                        id="moyasar"
-                        disabled={!isMoyasarGateway && !enableSabGateway}
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <CreditCard className="w-5 h-5 text-primary" />
-                          <h3 className="font-semibold">
-                            {isMoyasarGateway ? 'ميسر (Moyasar)' : 'بنك الأول — دفع بالبطاقة'}
-                          </h3>
-                          {isMoyasarGateway ? (
-                            <Badge variant="secondary" className="text-xs">موصى به</Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-xs">SAB</Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {isMoyasarGateway
-                            ? 'بوابة دفع سعودية آمنة - دعم جميع البطاقات (مدى، فيزا، ماستركارد)'
-                            : enableSabGateway
-                              ? 'مسار البطاقة عبر بنك الأول — يُكمل بعد ربط البوابة والتحقق من الـ webhook.'
-                              : 'مسار البنك غير مفعّل حالياً من لوحة الإدارة.'}
-                        </p>
-                        {isMoyasarGateway && (
+                    {enableMoyasarCard ? (
+                      <label
+                        className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                          paymentMethod === 'moyasar'
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <RadioGroupItem value="moyasar" id="moyasar" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CreditCard className="w-5 h-5 text-primary" />
+                            <h3 className="font-semibold">ميسر (Moyasar)</h3>
+                            {preferredGatewayCode === 'MOYASAR' && availablePaymentChannels.length > 1 ? (
+                              <Badge variant="secondary" className="text-xs">افتراضي</Badge>
+                            ) : availablePaymentChannels.length === 1 ? (
+                              <Badge variant="secondary" className="text-xs">موصى به</Badge>
+                            ) : null}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            بوابة دفع سعودية آمنة — دعم جميع البطاقات (مدى، فيزا، ماستركارد)
+                          </p>
                           <div className="flex gap-2 mt-2">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/200px-Mastercard_2019_logo.svg.png" alt="Mastercard" className="h-6" />
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6" />
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Mada_Logo.svg/200px-Mada_Logo.svg.png" alt="Mada" className="h-6" />
                           </div>
-                        )}
-                      </div>
-                    </label>
-                    )}
+                        </div>
+                      </label>
+                    ) : null}
+
+                    {enableSabGateway ? (
+                      <label
+                        className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                          paymentMethod === 'sab'
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <RadioGroupItem value="sab" id="sab" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CreditCard className="w-5 h-5 text-primary" />
+                            <h3 className="font-semibold">بنك الأول — دفع بالبطاقة (SAB)</h3>
+                            {preferredGatewayCode === 'SAB' && availablePaymentChannels.length > 1 ? (
+                              <Badge variant="secondary" className="text-xs">افتراضي</Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs">SAB</Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            مسار البطاقة عبر بنك الأول — يُكمل بعد ربط البوابة والتحقق من الـ webhook.
+                          </p>
+                        </div>
+                      </label>
+                    ) : null}
                   </RadioGroup>
+
+                  {availablePaymentChannels.length === 0 && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription className="text-sm leading-relaxed">
+                        لا توجد قناة دفع مفعّلة حالياً. فعّل ميسر أو مسار SAB من{' '}
+                        <strong>لوحة إدارة المنصة → بوابات الدفع</strong>.
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
                   {pubPayConfig?.ok && (
                     <p className="text-xs text-muted-foreground">
@@ -706,21 +737,13 @@ export default function Payment() {
                     </div>
                   )}
 
-                  {paymentMethod === 'moyasar' && !showMoyasarCheckout && isMoyasarGateway && (
-                    <Alert>
-                      <Shield className="h-4 w-4" />
-                      <AlertDescription className="text-sm leading-relaxed">
-                        تم إيقاف أو إخفاء دفع ميسر من <strong>لوحة إدارة المنصة</strong>. فعّل القناة من قسم بوابات الدفع في الإدارة.
-                      </AlertDescription>
-                    </Alert>
-                  )}
 
-                  {paymentMethod === 'moyasar' && !isMoyasarGateway && (
+                  {showSabCheckout && (
                     <Alert>
                       <Shield className="h-4 w-4" />
                       <AlertDescription className="text-sm leading-relaxed">
                         البوابة المختارة هي <strong>بنك الأول (SAB)</strong>. نفس نظام الأتمتة (تفعيل الحساب والإشعارات)
-                        يعمل عند وصول حالة نجاح موثوقة من webhook البنك. {enableSabGateway ? 'أكمل إعداد مفاتيح SAB والربط الفني.' : 'فعّل مسار SAB من لوحة الإدارة عند الجاهزية.'}
+                        يعمل عند وصول حالة نجاح موثوقة من webhook البنك. أكمل إعداد مفاتيح SAB والربط الفني لإظهار نموذج الدفع.
                       </AlertDescription>
                     </Alert>
                   )}
