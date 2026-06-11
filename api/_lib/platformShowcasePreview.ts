@@ -95,7 +95,8 @@ export async function ensureShowcaseBarber(
       longitude: SHOWCASE_DEFAULT_LNG,
       address: SHOWCASE_DEFAULT_ADDRESS,
       city: 'الرياض',
-      tier: 'diamond',
+      /** ذهبي أولاً — trigger الماسي يُطلَب بعد زرع صفوف المناوب الرقمي */
+      tier: 'gold',
       rating: 4.9,
       total_reviews: 0,
       is_active: true,
@@ -110,6 +111,19 @@ export async function ensureShowcaseBarber(
   }
 
   const barberId = provision.barberId;
+
+  const { error: shiftSeedErr } = await supabase.from('barber_digital_shift_config').upsert(
+    { barber_id: barberId, enabled: true },
+    { onConflict: 'barber_id' },
+  );
+  if (shiftSeedErr) return { ok: false, error: shiftSeedErr.message };
+
+  const { error: walletSeedErr } = await supabase.from('barber_ai_wallet').upsert(
+    { barber_id: barberId },
+    { onConflict: 'barber_id', ignoreDuplicates: true },
+  );
+  if (walletSeedErr) return { ok: false, error: walletSeedErr.message };
+
   const { error: flagErr } = await supabase
     .from('barbers')
     .update({

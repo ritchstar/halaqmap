@@ -282,6 +282,19 @@ export default function BarberDashboard({
 
   /** ذهبي: تبويبات الرسائل + QR فقط — ماسي: لوحة كاملة */
   const tierTabs = useMemo(() => {
+    if (founderPreview) {
+      return {
+        showOverview: true,
+        showAppointments: true,
+        showMessages: true,
+        showPosts: true,
+        showSettings: true,
+        showQrRatings: true,
+        showDigitalShift: false,
+        isGoldLite: false,
+        showGoldLiteBanner: false,
+      };
+    }
     if (!barberData) {
       return {
         showOverview: true,
@@ -345,7 +358,7 @@ export default function BarberDashboard({
       isGoldLite: false,
       showGoldLiteBanner: false,
     };
-  }, [barberData, effectiveListingTier, listingBalance]);
+  }, [founderPreview, barberData, effectiveListingTier, listingBalance]);
 
   useEffect(() => {
     if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;
