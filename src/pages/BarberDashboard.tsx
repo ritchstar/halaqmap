@@ -1738,7 +1738,7 @@ async function syncPublicGalleryFromPosts(
     email: barberEmail.trim(),
     galleryUrls: collectGalleryUrlsFromPosts(postList),
   });
-  if (!res.ok) return res;
+  if (res.ok === false) return { ok: false, error: res.error };
   return { ok: true, galleryCount: res.data.galleryCount };
 }
 

@@ -286,6 +286,13 @@ export interface SubscriptionRequest {
     lat: number;
     lng: number;
     address: string;
+    /** من بيانات العنوان الوطني (ملفات lite) */
+    saudi?: {
+      regionId: string;
+      cityId: string;
+      districtId: string;
+      districtOther?: string;
+    };
   };
   tier: SubscriptionTier;
   documents: string[];

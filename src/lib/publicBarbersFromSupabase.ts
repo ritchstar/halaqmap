@@ -197,7 +197,8 @@ function normalizedNearbyInput(input: NearbySearchInput): Required<Omit<NearbySe
 export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
   const client = getSupabaseClient();
   if (!client) {
-    return fetchPublicBarbersViaServer();
+    const viaServer = await fetchPublicBarbersViaServer();
+    return viaServer.barbers;
   }
 
   const { data, error } = await client
@@ -239,7 +240,8 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
     if (import.meta.env.DEV) {
       console.warn('[fetchPublicBarbersFromSupabase] direct failed, trying /api/public-barbers', error.message);
     }
-    return fetchPublicBarbersViaServer();
+    const viaServer = await fetchPublicBarbersViaServer();
+    return viaServer.barbers;
   }
 
   const rows = (data ?? []) as BarberRow[];

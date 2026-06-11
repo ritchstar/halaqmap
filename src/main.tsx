@@ -241,7 +241,7 @@ function schedulePlatformBuildSync(): void {
       window.requestIdleCallback(run, { timeout: 6000 })
       return
     }
-    window.setTimeout(run, 3500)
+    globalThis.setTimeout(run, 3500)
   }
 
   if (document.readyState === 'complete') {

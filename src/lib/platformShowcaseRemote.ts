@@ -29,7 +29,8 @@ type FallbackRow = {
 };
 
 type RpcPayload = {
-  available?: boolean;
+  /** PostgREST قد يُرجع boolean أو نص "true"/"false" */
+  available?: boolean | string;
   reason?: string;
   education_intro_ar?: string;
   row?: FallbackRow;
