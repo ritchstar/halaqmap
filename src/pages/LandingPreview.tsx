@@ -546,6 +546,7 @@ export default function LandingPreview() {
   useShowcaseWhenSearchEmpty({
     remoteStatus,
     filteredCount: filteredBarbers.length,
+    showcaseAlreadyLoaded: showcaseFallback != null,
     setShowcaseFallback,
   });
 
@@ -567,7 +568,7 @@ export default function LandingPreview() {
     setRemoteStatus('loading');
     void (async () => {
       try {
-        const list = await fetchNearbyPublicBarbersFromSupabase({
+        const result = await fetchNearbyPublicBarbersFromSupabase({
           userLocation,
           radiusKm: Math.max(1, filters.maxDistance),
           limit: 120,
@@ -575,8 +576,12 @@ export default function LandingPreview() {
           tiers: filters.tiers,
         });
         if (cancelled) return;
-        const realOnly = list.filter((b) => !b.showcasePreview);
-        setRemoteBarbers(realOnly);
+        setRemoteBarbers(result.barbers);
+        if (result.barbers.length > 0) {
+          setShowcaseFallback(null);
+        } else {
+          setShowcaseFallback(result.showcaseFallback);
+        }
         setRemoteStatus('ready');
       } catch {
         if (!cancelled) {

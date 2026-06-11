@@ -99,7 +99,7 @@ export default function Home() {
 
     (async () => {
       try {
-        const list = await fetchNearbyPublicBarbersFromSupabase({
+        const result = await fetchNearbyPublicBarbersFromSupabase({
           userLocation,
           radiusKm: Math.max(1, filters.maxDistance),
           limit: 120,
@@ -107,7 +107,12 @@ export default function Home() {
           tiers: filters.tiers,
         });
         if (cancelled) return;
-        setRemoteBarbers(list.filter((b) => !b.showcasePreview));
+        setRemoteBarbers(result.barbers);
+        if (result.barbers.length > 0) {
+          setShowcaseFallback(null);
+        } else {
+          setShowcaseFallback(result.showcaseFallback);
+        }
         setRemoteStatus('ready');
       } catch {
         if (cancelled) return;
@@ -134,6 +139,7 @@ export default function Home() {
   useShowcaseWhenSearchEmpty({
     remoteStatus,
     filteredCount: filteredBarbers.length,
+    showcaseAlreadyLoaded: showcaseFallback != null,
     setShowcaseFallback,
   });
 

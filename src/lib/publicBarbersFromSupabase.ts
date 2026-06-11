@@ -1,4 +1,5 @@
 import { IMAGES } from '@/assets/images';
+import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import type { Barber, InclusiveAccessibleCareOffer } from '@/lib/index';
 import { SubscriptionTier } from '@/lib/index';
@@ -91,6 +92,16 @@ export type NearbySearchInput = {
   minRating?: number;
   tiers?: SubscriptionTier[];
   offset?: number;
+};
+
+export type ShowcaseFallbackPayload = {
+  barber: Barber;
+  intro: string;
+};
+
+export type NearbyPublicBarbersResult = {
+  barbers: Barber[];
+  showcaseFallback: ShowcaseFallbackPayload | null;
 };
 
 function getPublicBarbersEndpoint(): string {
@@ -235,14 +246,49 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
   return rows.map(mapRow);
 }
 
+function splitShowcaseFromBarbers(list: Barber[]): NearbyPublicBarbersResult {
+  const showcaseBarber = list.find((b) => b.showcasePreview) ?? null;
+  return {
+    barbers: list.filter((b) => !b.showcasePreview),
+    showcaseFallback: showcaseBarber
+      ? { barber: showcaseBarber, intro: PLATFORM_SHOWCASE_EDUCATION_INTRO }
+      : null,
+  };
+}
+
+function mergeShowcaseFallback(
+  barbers: Barber[],
+  showcase: ShowcaseFallbackPayload | null,
+  intro?: string,
+): NearbyPublicBarbersResult {
+  if (!showcase) {
+    return { barbers, showcaseFallback: null };
+  }
+  return {
+    barbers,
+    showcaseFallback: {
+      barber: showcase.barber,
+      intro: intro?.trim() || showcase.intro || PLATFORM_SHOWCASE_EDUCATION_INTRO,
+    },
+  };
+}
+
+async function fetchShowcaseFallbackOnly(): Promise<ShowcaseFallbackPayload | null> {
+  const { fetchPublicShowcaseFallbackRemote } = await import('@/lib/platformShowcaseRemote');
+  const fallback = await fetchPublicShowcaseFallbackRemote();
+  if (!fallback) return null;
+  return { barber: fallback.barber, intro: fallback.educationIntro };
+}
+
 /**
  * بحث قريب قابل للتوسع:
  * - يفضّل RPC داخل Supabase (PostGIS + ترتيب هجين)
  * - fallback إلى API السيرفر إذا فشلت صلاحيات/RLS في المتصفح
+ * - عند غياب نتائج حقيقية: يُرجع showcaseFallback منفصلاً (لا يُدمَج مع القائمة)
  */
 export async function fetchNearbyPublicBarbersFromSupabase(
   input: NearbySearchInput
-): Promise<Barber[]> {
+): Promise<NearbyPublicBarbersResult> {
   const args = normalizedNearbyInput(input);
   const client = getSupabaseClient();
 
@@ -259,14 +305,26 @@ export async function fetchNearbyPublicBarbersFromSupabase(
 
     if (!error) {
       const rows = (data ?? []) as BarberRow[];
-      if (rows.length > 0) return rows.map(mapRow);
+      if (rows.length > 0) {
+        return { barbers: rows.map(mapRow), showcaseFallback: null };
+      }
 
       const viaServer = await fetchPublicBarbersViaServer(args);
-      if (viaServer.length > 0) return viaServer;
+      if (viaServer.barbers.length > 0 || viaServer.showcaseBarber) {
+        return mergeShowcaseFallback(
+          viaServer.barbers,
+          viaServer.showcaseBarber
+            ? {
+                barber: viaServer.showcaseBarber,
+                intro: viaServer.showcaseIntroAr || PLATFORM_SHOWCASE_EDUCATION_INTRO,
+              }
+            : null,
+          viaServer.showcaseIntroAr,
+        );
+      }
 
-      const { fetchPublicShowcaseFallbackRemote } = await import('@/lib/platformShowcaseRemote');
-      const fallback = await fetchPublicShowcaseFallbackRemote();
-      return fallback ? [fallback.barber] : [];
+      const fallback = await fetchShowcaseFallbackOnly();
+      return { barbers: [], showcaseFallback: fallback };
     }
 
     if (import.meta.env.DEV) {
@@ -275,16 +333,34 @@ export async function fetchNearbyPublicBarbersFromSupabase(
   }
 
   const viaServer = await fetchPublicBarbersViaServer(args);
-  if (viaServer.length > 0) return viaServer;
+  if (viaServer.barbers.length > 0 || viaServer.showcaseBarber) {
+    return mergeShowcaseFallback(
+      viaServer.barbers,
+      viaServer.showcaseBarber
+        ? {
+            barber: viaServer.showcaseBarber,
+            intro: viaServer.showcaseIntroAr || PLATFORM_SHOWCASE_EDUCATION_INTRO,
+          }
+        : null,
+      viaServer.showcaseIntroAr,
+    );
+  }
 
-  const { fetchPublicShowcaseFallbackRemote } = await import('@/lib/platformShowcaseRemote');
-  const fallback = await fetchPublicShowcaseFallbackRemote();
-  return fallback ? [fallback.barber] : [];
+  const fallback = await fetchShowcaseFallbackOnly();
+  return { barbers: [], showcaseFallback: fallback };
 }
 
-async function fetchPublicBarbersViaServer(input?: NearbySearchInput): Promise<Barber[]> {
+type PublicBarbersServerFetch = {
+  barbers: Barber[];
+  showcaseBarber: Barber | null;
+  showcaseIntroAr?: string;
+};
+
+async function fetchPublicBarbersViaServer(input?: NearbySearchInput): Promise<PublicBarbersServerFetch> {
   const endpoint = getPublicBarbersEndpoint();
-  if (!endpoint) return [];
+  if (!endpoint) {
+    return { barbers: [], showcaseBarber: null };
+  }
 
   const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
   const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
@@ -308,6 +384,8 @@ async function fetchPublicBarbersViaServer(input?: NearbySearchInput): Promise<B
   const response = await fetch(url.toString(), { headers });
   const payload = (await response.json().catch(() => ({}))) as {
     rows?: unknown;
+    education_intro_ar?: string;
+    showcase_fallback?: boolean;
     error?: string;
   };
   if (!response.ok) {
@@ -315,5 +393,16 @@ async function fetchPublicBarbersViaServer(input?: NearbySearchInput): Promise<B
   }
 
   const rows = Array.isArray(payload.rows) ? (payload.rows as BarberRow[]) : [];
-  return rows.map(mapRow);
+  const mapped = rows.map(mapRow);
+  const split = splitShowcaseFromBarbers(mapped);
+  const intro =
+    payload.showcase_fallback === true && typeof payload.education_intro_ar === 'string'
+      ? payload.education_intro_ar
+      : split.showcaseFallback?.intro;
+
+  return {
+    barbers: split.barbers,
+    showcaseBarber: split.showcaseFallback?.barber ?? null,
+    showcaseIntroAr: intro,
+  };
 }

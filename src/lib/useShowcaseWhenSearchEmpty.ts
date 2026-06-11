@@ -11,9 +11,10 @@ type RemoteStatus = 'unused' | 'loading' | 'ready' | 'error';
 export function useShowcaseWhenSearchEmpty(input: {
   remoteStatus: RemoteStatus;
   filteredCount: number;
+  showcaseAlreadyLoaded: boolean;
   setShowcaseFallback: (value: { barber: Barber; intro: string } | null) => void;
 }) {
-  const { remoteStatus, filteredCount, setShowcaseFallback } = input;
+  const { remoteStatus, filteredCount, showcaseAlreadyLoaded, setShowcaseFallback } = input;
 
   useEffect(() => {
     if (remoteStatus !== 'ready') return;
@@ -23,13 +24,17 @@ export function useShowcaseWhenSearchEmpty(input: {
       return;
     }
 
+    if (showcaseAlreadyLoaded) return;
+
     let cancelled = false;
     void fetchPublicShowcaseFallbackRemote().then((fb) => {
-      if (!cancelled) setShowcaseFallback(fb);
+      if (!cancelled) {
+        setShowcaseFallback(fb ? { barber: fb.barber, intro: fb.educationIntro } : null);
+      }
     });
 
     return () => {
       cancelled = true;
     };
-  }, [remoteStatus, filteredCount, setShowcaseFallback]);
+  }, [remoteStatus, filteredCount, showcaseAlreadyLoaded, setShowcaseFallback]);
 }
