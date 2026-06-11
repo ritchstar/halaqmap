@@ -7,9 +7,18 @@ type State = { error: Error | null };
 
 const RECOVER_FLAG = 'hm-dom-recover-v2';
 const AMBIENT_RECOVER_FLAG = 'hm-ambient-recover-v1';
+const REACT_HOOK_RECOVER_FLAG = 'hm-react-hook-recover-v1';
 
 function isDomRemoveChildError(error: Error): boolean {
   return /removeChild/i.test(error.message) || /not a child of this node/i.test(error.message);
+}
+
+function isReactHookDispatcherError(error: Error): boolean {
+  return (
+    /reading 'useState'/i.test(error.message) ||
+    /Invalid hook call/i.test(error.message) ||
+    /hooks can only be called inside/i.test(error.message)
+  );
 }
 
 function isAmbientProviderError(error: Error): boolean {
@@ -53,6 +62,20 @@ export class RootErrorBoundary extends Component<Props, State> {
       }
     }
 
+    // Stale HMR / duplicate React bundles — one hard refresh per route.
+    if (typeof window !== 'undefined' && isReactHookDispatcherError(error)) {
+      try {
+        const pathKey = `${REACT_HOOK_RECOVER_FLAG}:${currentRecoverPathKey()}`;
+        const alreadyRecovered = sessionStorage.getItem(pathKey) === '1';
+        if (!alreadyRecovered) {
+          sessionStorage.setItem(pathKey, '1');
+          void forceHardRefresh();
+        }
+      } catch {
+        window.location.reload();
+      }
+    }
+
     // If stale bundles still throw old ambient-provider error, force one hard refresh.
     if (typeof window !== 'undefined' && isAmbientProviderError(error)) {
       try {
@@ -74,6 +97,8 @@ export class RootErrorBoundary extends Component<Props, State> {
       sessionStorage.removeItem(`${RECOVER_FLAG}:${currentRecoverPathKey()}`);
       sessionStorage.removeItem(AMBIENT_RECOVER_FLAG);
       sessionStorage.removeItem(`${AMBIENT_RECOVER_FLAG}:${currentRecoverPathKey()}`);
+      sessionStorage.removeItem(REACT_HOOK_RECOVER_FLAG);
+      sessionStorage.removeItem(`${REACT_HOOK_RECOVER_FLAG}:${currentRecoverPathKey()}`);
       localStorage.removeItem('hm-sw-reset-v5');
       localStorage.removeItem('hm-sw-reset-v3');
       if ('serviceWorker' in navigator) {

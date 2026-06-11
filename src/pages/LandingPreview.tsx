@@ -28,6 +28,8 @@ import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
 import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
+import { readStoredUserCoords, clearStoredUserCoords, storeUserCoords } from '@/lib/userRegionWeather';
+import { resolveStrictUserLocation } from '@/lib/strictGeolocation';
 import { toast } from '@/components/ui/sonner';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
@@ -291,16 +293,13 @@ function MobileHeroLite() {
   );
 }
 
-function MobileQuickSearchButton({
-  onLocationDetected,
-  onLocationReset,
-}: {
-  onLocationDetected: (loc: { lat: number; lng: number }) => void;
-  onLocationReset: () => void;
-}) {
+function useLandingGeoSearch(
+  onLocationDetected: (loc: { lat: number; lng: number }) => void,
+  onLocationReset: () => void,
+) {
   const [busy, setBusy] = useState(false);
 
-  const handleDetect = useCallback(async () => {
+  const runGeoSearch = useCallback(async () => {
     if (busy) return;
     if (!navigator.geolocation) {
       toast.error('الخدمة غير مدعومة في هذا المتصفح');
@@ -311,12 +310,6 @@ function MobileQuickSearchButton({
     onLocationReset();
 
     try {
-      const [{ resolveStrictUserLocation }, { readStoredUserCoords, clearStoredUserCoords, storeUserCoords }] =
-        await Promise.all([
-          import('@/lib/strictGeolocation'),
-          import('@/lib/userRegionWeather'),
-        ]);
-
       const previousCoords = readStoredUserCoords();
       clearStoredUserCoords();
 
@@ -346,11 +339,21 @@ function MobileQuickSearchButton({
     }
   }, [busy, onLocationDetected, onLocationReset]);
 
+  return { runGeoSearch, geoBusy: busy };
+}
+
+function MobileQuickSearchButton({
+  onSearch,
+  busy,
+}: {
+  onSearch: () => void | Promise<void>;
+  busy: boolean;
+}) {
   return (
     <div className="flex w-full flex-col items-center gap-3" dir="rtl">
       <button
         type="button"
-        onClick={() => void handleDetect()}
+        onClick={() => void onSearch()}
         disabled={busy}
         className="flex w-full max-w-[19rem] items-center justify-center gap-3 rounded-3xl border border-teal-400/25 bg-gradient-to-b from-[#0a2431] to-[#071426] px-5 py-5 text-right shadow-[0_10px_40px_rgba(20,184,166,0.10)] transition-colors active:bg-[#0a1f2a] disabled:opacity-80"
         aria-label="ابدأ الاستعلام"
@@ -370,6 +373,77 @@ function MobileQuickSearchButton({
       <p className="text-center text-[0.72rem] leading-5 text-slate-400">
         هذه الخدمة تتطلب إذن الموقع لإكمال الاستعلام وعرض الخدمات المناسبة لك، وفق سياسة الخصوصية.
       </p>
+    </div>
+  );
+}
+
+function MobileSearchDock({
+  userLocation,
+  geoBusy,
+  storedCoords,
+  remoteStatus,
+  onGeoSearch,
+  onUseStored,
+  onViewResults,
+}: {
+  userLocation: { lat: number; lng: number } | null;
+  geoBusy: boolean;
+  storedCoords: { lat: number; lng: number } | null;
+  remoteStatus: 'unused' | 'loading' | 'ready' | 'error';
+  onGeoSearch: () => void | Promise<void>;
+  onUseStored: () => void;
+  onViewResults: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-x-0 bottom-0 z-[60] border-t border-teal-400/20 bg-[#020912]/96 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
+      dir="rtl"
+    >
+      {!userLocation ? (
+        <div className="mx-auto flex max-w-lg flex-col gap-2">
+          {storedCoords ? (
+            <button
+              type="button"
+              onClick={onUseStored}
+              disabled={geoBusy}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-teal-400/35 bg-teal-500/10 px-4 py-3 text-sm font-bold text-teal-100 transition active:bg-teal-500/20 disabled:opacity-70"
+            >
+              <MapPin className="h-4 w-4 shrink-0" />
+              اختبر البحث بموقعك المحفوظ
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => void onGeoSearch()}
+            disabled={geoBusy}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-3.5 text-base font-black text-white shadow-[0_0_24px_rgba(20,184,166,0.28)] transition active:scale-[0.98] disabled:opacity-80"
+          >
+            <Navigation2 className="h-5 w-5 shrink-0" />
+            {geoBusy ? 'يجري تحديد موقعك…' : 'حدّد موقعي وابحث الآن'}
+          </button>
+        </div>
+      ) : (
+        <div className="mx-auto flex max-w-lg gap-2">
+          <button
+            type="button"
+            onClick={onViewResults}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-teal-400/35 bg-teal-500/15 px-4 py-3.5 text-sm font-black text-teal-50 transition active:bg-teal-500/25"
+          >
+            <span className="h-2 w-2 animate-pulse rounded-full bg-teal-400" />
+            {remoteStatus === 'loading' ? 'يجري تصنيف الخدمات…' : 'عرض النتائج قرب موقعك'}
+          </button>
+          <button
+            type="button"
+            onClick={() => void onGeoSearch()}
+            disabled={geoBusy}
+            title="تحديث الموقع"
+            aria-label="تحديث الموقع"
+            className="flex h-[3.25rem] w-[3.25rem] shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-teal-200 transition active:bg-white/10 disabled:opacity-70"
+          >
+            <Navigation2 className={cn('h-5 w-5', geoBusy && 'animate-pulse')} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -601,8 +675,46 @@ export default function LandingPreview() {
   const handleLocationDetected = useCallback((loc: { lat: number; lng: number }) => {
     startTransition(() => {
       setUserLocation(loc);
+      setStoredCoords(loc);
     });
   }, []);
+
+  const handleLocationReset = useCallback(() => {
+    setUserLocation(null);
+  }, []);
+
+  const { runGeoSearch, geoBusy } = useLandingGeoSearch(handleLocationDetected, handleLocationReset);
+
+  const [storedCoords, setStoredCoords] = useState<{ lat: number; lng: number } | null>(
+    () => (typeof window !== 'undefined' ? readStoredUserCoords() : null),
+  );
+
+  useEffect(() => {
+    setStoredCoords(readStoredUserCoords());
+  }, []);
+
+  const scrollToResults = useCallback(() => {
+    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const handleUseStoredCoords = useCallback(() => {
+    const coords = readStoredUserCoords();
+    if (!coords) return;
+    handleLocationDetected(coords);
+    toast.success('تم تطبيق موقعك المحفوظ');
+  }, [handleLocationDetected]);
+
+  const handleMobileSearchClick = useCallback(() => {
+    if (userLocation) {
+      scrollToResults();
+      return;
+    }
+    if (storedCoords) {
+      handleUseStoredCoords();
+      return;
+    }
+    void runGeoSearch();
+  }, [userLocation, storedCoords, scrollToResults, handleUseStoredCoords, runGeoSearch]);
 
   useEffect(() => {
     if (!userLocation) return;
@@ -636,7 +748,10 @@ export default function LandingPreview() {
   return (
     <div
       dir="rtl"
-      className="platform-dark platform-ambient relative min-h-screen overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100"
+      className={cn(
+        'platform-dark platform-ambient relative min-h-screen overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100',
+        isMobile && 'pb-[calc(5.75rem+env(safe-area-inset-bottom))]',
+      )}
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
     >
@@ -706,13 +821,11 @@ export default function LandingPreview() {
 
               <button
                 type="button"
-                onClick={() => {
-                  const el = document.getElementById('search-anchor');
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                className="rounded-2xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.9rem] font-black text-white shadow-[0_0_18px_rgba(20,184,166,0.28)]"
+                onClick={handleMobileSearchClick}
+                disabled={geoBusy}
+                className="rounded-2xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.9rem] font-black text-white shadow-[0_0_18px_rgba(20,184,166,0.28)] disabled:opacity-80"
               >
-                ابحث الآن
+                {geoBusy ? 'يجري البحث…' : userLocation ? 'عرض النتائج' : 'ابحث الآن'}
               </button>
             </div>
           ) : (
@@ -879,10 +992,7 @@ export default function LandingPreview() {
             {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة */}
             <div className="mb-6 flex w-full flex-col items-center gap-4">
               {isMobile ? (
-                <MobileQuickSearchButton
-                  onLocationDetected={handleLocationDetected}
-                  onLocationReset={() => setUserLocation(null)}
-                />
+                <MobileQuickSearchButton onSearch={runGeoSearch} busy={geoBusy} />
               ) : (
                 <Suspense
                   fallback={
@@ -1378,6 +1488,18 @@ export default function LandingPreview() {
           </div>
         </div>
       </footer>
+
+      {isMobile ? (
+        <MobileSearchDock
+          userLocation={userLocation}
+          geoBusy={geoBusy}
+          storedCoords={storedCoords}
+          remoteStatus={remoteStatus}
+          onGeoSearch={runGeoSearch}
+          onUseStored={handleUseStoredCoords}
+          onViewResults={scrollToResults}
+        />
+      ) : null}
 
     </div>
   );

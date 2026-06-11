@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import type { ComponentType } from 'react'
 import './index.css'
 import { ensureDomainVerificationMeta } from '@/config/domainVerification'
 import { RootErrorBoundary } from '@/components/RootErrorBoundary'
@@ -15,6 +16,30 @@ const DOM_GUARD_LOG_KEY = 'hm-dom-guard-events-v1'
 const APP_BOOTSTRAP_FLAG = '__halaqmapAppBootstrapped'
 const APP_MOUNTED_FLAG = '__halaqmapAppMountedV1'
 const BUILD_SYNC_SCHEDULED_FLAG = '__halaqmapBuildSyncScheduledV1'
+function currentHashPath(): string {
+  const raw = window.location.hash.replace(/^#/, '').split('?')[0]?.trim() || '/';
+  return raw.startsWith('/') ? raw : `/${raw}`;
+}
+
+const LAB_STANDALONE_ROUTES: Record<string, () => Promise<{ default: ComponentType }>> = {
+  '/lab/silent-star-camp': () => import('./pages/SilentStarCampLanding.tsx'),
+  '/lab/desert-light-lock': () => import('./pages/DesertLightLockLanding.tsx'),
+};
+
+async function bootstrapLabStandalone(rootEl: HTMLElement): Promise<boolean> {
+  const path = currentHashPath();
+  const loader = LAB_STANDALONE_ROUTES[path];
+  if (!loader) return false;
+
+  const { default: Page } = await loader();
+  createRoot(rootEl).render(
+    <RootErrorBoundary>
+      <Page />
+    </RootErrorBoundary>,
+  );
+  markAppMounted();
+  return true;
+}
 const ENABLE_DOM_GUARD = import.meta.env.VITE_ENABLE_DOM_GUARD === 'true'
 
 function installDomMismatchGuard(): void {
@@ -263,6 +288,10 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
       ensureDomainVerificationMeta()
       assertRuntimeEnvSafety()
       installDomMismatchGuard()
+
+      if (await bootstrapLabStandalone(rootEl)) {
+        return
+      }
 
       const { default: App } = await import('./App.tsx')
       createRoot(rootEl).render(

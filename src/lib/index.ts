@@ -78,6 +78,10 @@ export const ROUTE_PATHS = {
   RADAR_SHOWCASE: '/radar',
   /** صفحة هبوط تجريبية — Roo Landing Lab Experiment */
   ROO_LANDING_LAB: '/lab/roo-landing',
+  /** مخيم النجوم الصامت — معمل تصميم مستقل (فلك صحراوي) */
+  SILENT_STAR_CAMP: '/lab/silent-star-camp',
+  /** قفل الإضاءة الصحراوي — ليل/نجوم + تحكم إضاءة */
+  DESERT_LIGHT_LOCK: '/lab/desert-light-lock',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */
