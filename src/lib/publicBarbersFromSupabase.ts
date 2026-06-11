@@ -306,7 +306,12 @@ export async function fetchNearbyPublicBarbersFromSupabase(
     if (!error) {
       const rows = (data ?? []) as BarberRow[];
       if (rows.length > 0) {
-        return { barbers: rows.map(mapRow), showcaseFallback: null };
+        const mapped = rows.map(mapRow);
+        const split = splitShowcaseFromBarbers(mapped);
+        return {
+          barbers: split.barbers,
+          showcaseFallback: split.showcaseFallback,
+        };
       }
 
       const viaServer = await fetchPublicBarbersViaServer(args);
