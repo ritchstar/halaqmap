@@ -116,6 +116,11 @@ export async function ensureShowcaseBarber(
     .update({
       is_showcase_preview: true,
       tier: 'diamond',
+      is_active: true,
+      is_verified: true,
+      open_for_customers: true,
+      latitude: SHOWCASE_DEFAULT_LAT,
+      longitude: SHOWCASE_DEFAULT_LNG,
       updated_at: new Date().toISOString(),
     })
     .eq('id', barberId);

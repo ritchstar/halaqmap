@@ -11,7 +11,7 @@ import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { BarberMap } from '@/components/BarberMap';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
-import { fetchPublicShowcaseFallbackRemote } from '@/lib/platformShowcaseRemote';
+import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
@@ -28,7 +28,6 @@ import {
   PLATFORM_SEARCH_EMPTY_HINT,
   PLATFORM_SEARCH_EMPTY_LOADING,
   PLATFORM_SEARCH_EMPTY_TITLE,
-  PLATFORM_SHOWCASE_EDUCATION_INTRO,
 } from '@/config/platformSmartTracking';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 
@@ -108,22 +107,7 @@ export default function Home() {
           tiers: filters.tiers,
         });
         if (cancelled) return;
-        const showcaseItem = list.find((b) => b.showcasePreview);
-        const realOnly = list.filter((b) => !b.showcasePreview);
-        setRemoteBarbers(realOnly);
-        if (realOnly.length === 0) {
-          const fbMeta = await fetchPublicShowcaseFallbackRemote();
-          if (showcaseItem || fbMeta) {
-            setShowcaseFallback({
-              barber: showcaseItem ?? fbMeta!.barber,
-              intro: fbMeta?.intro ?? PLATFORM_SHOWCASE_EDUCATION_INTRO,
-            });
-          } else {
-            setShowcaseFallback(null);
-          }
-        } else {
-          setShowcaseFallback(null);
-        }
+        setRemoteBarbers(list.filter((b) => !b.showcasePreview));
         setRemoteStatus('ready');
       } catch {
         if (cancelled) return;
@@ -146,6 +130,12 @@ export default function Home() {
 
   const showcaseActive =
     remoteStatus === 'ready' && filteredBarbers.length === 0 && showcaseFallback != null;
+
+  useShowcaseWhenSearchEmpty({
+    remoteStatus,
+    filteredCount: filteredBarbers.length,
+    setShowcaseFallback,
+  });
 
   const mapBarbers = useMemo(() => {
     if (showcaseActive && showcaseFallback && userLocation) {

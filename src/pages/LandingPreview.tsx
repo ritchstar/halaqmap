@@ -26,8 +26,7 @@ import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
-import { fetchPublicShowcaseFallbackRemote } from '@/lib/platformShowcaseRemote';
-import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
+import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { toast } from '@/components/ui/sonner';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
@@ -544,6 +543,12 @@ export default function LandingPreview() {
   const showcaseActive =
     remoteStatus === 'ready' && filteredBarbers.length === 0 && showcaseFallback != null;
 
+  useShowcaseWhenSearchEmpty({
+    remoteStatus,
+    filteredCount: filteredBarbers.length,
+    setShowcaseFallback,
+  });
+
   const mapBarbers = useMemo(() => {
     if (showcaseActive && showcaseFallback && userLocation) {
       return [{ ...showcaseFallback.barber, distance: 0 }];
@@ -570,22 +575,8 @@ export default function LandingPreview() {
           tiers: filters.tiers,
         });
         if (cancelled) return;
-        const showcaseItem = list.find((b) => b.showcasePreview);
         const realOnly = list.filter((b) => !b.showcasePreview);
         setRemoteBarbers(realOnly);
-        if (realOnly.length === 0) {
-          const fbMeta = await fetchPublicShowcaseFallbackRemote();
-          if (showcaseItem || fbMeta) {
-            setShowcaseFallback({
-              barber: showcaseItem ?? fbMeta!.barber,
-              intro: fbMeta?.intro ?? PLATFORM_SHOWCASE_EDUCATION_INTRO,
-            });
-          } else {
-            setShowcaseFallback(null);
-          }
-        } else {
-          setShowcaseFallback(null);
-        }
         setRemoteStatus('ready');
       } catch {
         if (!cancelled) {

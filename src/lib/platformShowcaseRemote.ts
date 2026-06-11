@@ -1,9 +1,10 @@
 import type { Barber } from '@/lib/index';
 import { SubscriptionTier } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
+import { getSupabaseClient } from '@/integrations/supabase/client';
 import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
 
-const API = '/api/public-showcase-fallback';
+const API_PATH = '/api/public-showcase-fallback';
 const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
 
 type FallbackRow = {
@@ -26,6 +27,24 @@ type FallbackRow = {
   featured_images?: unknown;
   is_showcase_preview?: boolean;
 };
+
+type RpcPayload = {
+  available?: boolean;
+  reason?: string;
+  education_intro_ar?: string;
+  row?: FallbackRow;
+};
+
+function publicApiOrigin(): string {
+  return String(
+    import.meta.env.VITE_API_BASE_URL ||
+      import.meta.env.VITE_API_URL ||
+      import.meta.env.VITE_REGISTRATION_API_ORIGIN ||
+      '',
+  )
+    .trim()
+    .replace(/\/$/, '');
+}
 
 function tierFromDb(t: string | null): SubscriptionTier {
   if (t === SubscriptionTier.GOLD) return SubscriptionTier.GOLD;
@@ -53,6 +72,8 @@ function mapRow(row: FallbackRow): Barber {
   const profile = row.profile_image?.trim() || null;
   const images = [cover, ...featured, profile].filter(Boolean) as string[];
   const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
+  const lat = Number(row.latitude);
+  const lng = Number(row.longitude);
 
   return {
     id: row.id,
@@ -60,8 +81,8 @@ function mapRow(row: FallbackRow): Barber {
     phone: row.phone?.trim() || '',
     whatsapp: row.phone?.trim() || '',
     location: {
-      lat: row.latitude ?? 0,
-      lng: row.longitude ?? 0,
+      lat: Number.isFinite(lat) ? lat : 0,
+      lng: Number.isFinite(lng) ? lng : 0,
       address: row.address?.trim() || '',
     },
     subscription: tierFromDb(row.tier),
@@ -80,7 +101,36 @@ function mapRow(row: FallbackRow): Barber {
   };
 }
 
-export async function fetchPublicShowcaseFallbackRemote(): Promise<
+function mapRpcPayload(payload: RpcPayload): { barber: Barber; educationIntro: string } | null {
+  if (payload.available !== true || !payload.row) return null;
+  return {
+    barber: mapRow(payload.row),
+    educationIntro: payload.education_intro_ar?.trim() || PLATFORM_SHOWCASE_EDUCATION_INTRO,
+  };
+}
+
+async function fetchPublicShowcaseFallbackViaRpc(): Promise<
+  { barber: Barber; educationIntro: string } | null
+> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  const { data, error } = await client.rpc('get_public_showcase_fallback');
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.warn('[showcase-fallback] rpc failed:', error.message);
+    }
+    return null;
+  }
+
+  const payload = (data ?? {}) as RpcPayload;
+  if (import.meta.env.DEV && payload.available !== true && payload.reason) {
+    console.info('[showcase-fallback] rpc unavailable:', payload.reason);
+  }
+  return mapRpcPayload(payload);
+}
+
+async function fetchPublicShowcaseFallbackViaApi(): Promise<
   { barber: Barber; educationIntro: string } | null
 > {
   const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
@@ -89,18 +139,31 @@ export async function fetchPublicShowcaseFallbackRemote(): Promise<
   if (anonKey) headers['x-supabase-anon'] = anonKey;
   if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
 
-  const response = await fetch(API, { headers });
-  const payload = (await response.json().catch(() => ({}))) as {
-    available?: boolean;
-    education_intro_ar?: string;
-    row?: FallbackRow;
-  };
-  if (!response.ok || payload.available !== true || !payload.row) return null;
+  const origin = publicApiOrigin();
+  const url = origin ? `${origin}${API_PATH}` : API_PATH;
+  const response = await fetch(url, { headers });
+  const payload = (await response.json().catch(() => ({}))) as RpcPayload & { error?: string };
 
-  return {
-    barber: mapRow(payload.row),
-    educationIntro: payload.education_intro_ar?.trim() || PLATFORM_SHOWCASE_EDUCATION_INTRO,
-  };
+  if (!response.ok) {
+    if (import.meta.env.DEV) {
+      console.warn('[showcase-fallback] api failed:', payload.error || response.status);
+    }
+    return null;
+  }
+
+  if (import.meta.env.DEV && payload.available !== true && payload.reason) {
+    console.info('[showcase-fallback] api unavailable:', payload.reason);
+  }
+  return mapRpcPayload(payload);
+}
+
+/** يُفضّل RPC مباشرة من Supabase ثم API كاحتياط. */
+export async function fetchPublicShowcaseFallbackRemote(): Promise<
+  { barber: Barber; educationIntro: string } | null
+> {
+  const viaRpc = await fetchPublicShowcaseFallbackViaRpc();
+  if (viaRpc) return viaRpc;
+  return fetchPublicShowcaseFallbackViaApi();
 }
 
 export function mapShowcasePreviewRowFromPublicApi(row: FallbackRow): Barber {
