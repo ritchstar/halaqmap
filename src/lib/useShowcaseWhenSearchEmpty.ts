@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { Barber } from '@/lib/index';
-import { fetchPublicShowcaseFallbackRemote } from '@/lib/platformShowcaseRemote';
+import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 
 type RemoteStatus = 'unused' | 'loading' | 'ready' | 'error';
 
@@ -27,10 +27,8 @@ export function useShowcaseWhenSearchEmpty(input: {
     if (showcaseAlreadyLoaded) return;
 
     let cancelled = false;
-    void fetchPublicShowcaseFallbackRemote().then((fb) => {
-      if (!cancelled) {
-        setShowcaseFallback(fb ? { barber: fb.barber, intro: fb.educationIntro } : null);
-      }
+    void resolveShowcaseForEmptyDisplay(null).then((fb) => {
+      if (!cancelled) setShowcaseFallback(fb);
     });
 
     return () => {

@@ -26,6 +26,7 @@ import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { toast } from '@/components/ui/sonner';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
@@ -577,12 +578,16 @@ export default function LandingPreview() {
         });
         if (cancelled) return;
         setRemoteBarbers(result.barbers);
-        if (result.barbers.length > 0) {
+
+        const locallyVisible = filterBarbersByDistance(result.barbers, userLocation, filters);
+        if (locallyVisible.length === 0) {
+          const showcase = await resolveShowcaseForEmptyDisplay(result.showcaseFallback);
+          if (!cancelled) setShowcaseFallback(showcase);
+        } else if (!cancelled) {
           setShowcaseFallback(null);
-        } else {
-          setShowcaseFallback(result.showcaseFallback);
         }
-        setRemoteStatus('ready');
+
+        if (!cancelled) setRemoteStatus('ready');
       } catch {
         if (!cancelled) {
           setRemoteStatus('error');
@@ -591,7 +596,7 @@ export default function LandingPreview() {
       }
     })();
     return () => { cancelled = true; };
-  }, [userLocation, filters.maxDistance, filters.minRating, filters.tiers]);
+  }, [userLocation, filters]);
 
   const handleLocationDetected = useCallback((loc: { lat: number; lng: number }) => {
     startTransition(() => {

@@ -101,10 +101,43 @@ function mapRow(row: FallbackRow): Barber {
   };
 }
 
+function normalizeRpcPayload(data: unknown): RpcPayload {
+  if (data == null) return {};
+  let raw: unknown = data;
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw) as unknown;
+    } catch {
+      return {};
+    }
+  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+
+  const payload = raw as RpcPayload;
+  if (payload.row && typeof payload.row === 'object') return payload;
+
+  // بعض إصدارات PostgREST تُرجع صف الحلاق مباشرة بدون غلاف available/row
+  const maybeRow = raw as FallbackRow;
+  if (typeof maybeRow.id === 'string' && typeof maybeRow.name === 'string') {
+    return { available: true, row: maybeRow };
+  }
+
+  return payload;
+}
+
+function isShowcaseAvailable(payload: RpcPayload): boolean {
+  if (payload.available === true) return true;
+  if (typeof payload.available === 'string') {
+    return payload.available.toLowerCase() === 'true';
+  }
+  return Boolean(payload.row && typeof payload.row === 'object' && typeof payload.row.id === 'string');
+}
+
 function mapRpcPayload(payload: RpcPayload): { barber: Barber; educationIntro: string } | null {
-  if (payload.available !== true || !payload.row) return null;
+  const row = payload.row && typeof payload.row === 'object' ? payload.row : null;
+  if (!isShowcaseAvailable(payload) || !row) return null;
   return {
-    barber: mapRow(payload.row),
+    barber: mapRow(row),
     educationIntro: payload.education_intro_ar?.trim() || PLATFORM_SHOWCASE_EDUCATION_INTRO,
   };
 }
@@ -123,8 +156,8 @@ async function fetchPublicShowcaseFallbackViaRpc(): Promise<
     return null;
   }
 
-  const payload = (data ?? {}) as RpcPayload;
-  if (import.meta.env.DEV && payload.available !== true && payload.reason) {
+  const payload = normalizeRpcPayload(data);
+  if (import.meta.env.DEV && !isShowcaseAvailable(payload) && payload.reason) {
     console.info('[showcase-fallback] rpc unavailable:', payload.reason);
   }
   return mapRpcPayload(payload);
@@ -142,16 +175,16 @@ async function fetchPublicShowcaseFallbackViaApi(): Promise<
   const origin = publicApiOrigin();
   const url = origin ? `${origin}${API_PATH}` : API_PATH;
   const response = await fetch(url, { headers });
-  const payload = (await response.json().catch(() => ({}))) as RpcPayload & { error?: string };
-
+  const payload = normalizeRpcPayload(await response.json().catch(() => ({})));
   if (!response.ok) {
     if (import.meta.env.DEV) {
-      console.warn('[showcase-fallback] api failed:', payload.error || response.status);
+      const errPayload = payload as RpcPayload & { error?: string };
+      console.warn('[showcase-fallback] api failed:', errPayload.error || response.status);
     }
     return null;
   }
 
-  if (import.meta.env.DEV && payload.available !== true && payload.reason) {
+  if (import.meta.env.DEV && !isShowcaseAvailable(payload) && payload.reason) {
     console.info('[showcase-fallback] api unavailable:', payload.reason);
   }
   return mapRpcPayload(payload);
@@ -164,6 +197,18 @@ export async function fetchPublicShowcaseFallbackRemote(): Promise<
   const viaRpc = await fetchPublicShowcaseFallbackViaRpc();
   if (viaRpc) return viaRpc;
   return fetchPublicShowcaseFallbackViaApi();
+}
+
+export type ShowcaseFallbackState = { barber: Barber; intro: string };
+
+/** يحمّل المعاينة عند غياب نتائج معروضة — يُستخدم من صفحة البحث. */
+export async function resolveShowcaseForEmptyDisplay(
+  existing: ShowcaseFallbackState | null,
+): Promise<ShowcaseFallbackState | null> {
+  if (existing) return existing;
+  const remote = await fetchPublicShowcaseFallbackRemote();
+  if (!remote) return null;
+  return { barber: remote.barber, intro: remote.educationIntro };
 }
 
 export function mapShowcasePreviewRowFromPublicApi(row: FallbackRow): Barber {

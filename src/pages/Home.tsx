@@ -11,6 +11,7 @@ import { IMAGES } from '@/assets/images';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { BarberMap } from '@/components/BarberMap';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
 import { toast } from '@/components/ui/sonner';
@@ -108,12 +109,16 @@ export default function Home() {
         });
         if (cancelled) return;
         setRemoteBarbers(result.barbers);
-        if (result.barbers.length > 0) {
+
+        const locallyVisible = filterBarbersByDistance(result.barbers, userLocation, filters);
+        if (locallyVisible.length === 0) {
+          const showcase = await resolveShowcaseForEmptyDisplay(result.showcaseFallback);
+          if (!cancelled) setShowcaseFallback(showcase);
+        } else if (!cancelled) {
           setShowcaseFallback(null);
-        } else {
-          setShowcaseFallback(result.showcaseFallback);
         }
-        setRemoteStatus('ready');
+
+        if (!cancelled) setRemoteStatus('ready');
       } catch {
         if (cancelled) return;
         setRemoteStatus('error');
@@ -124,7 +129,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [userLocation, filters.maxDistance, filters.minRating, filters.tiers]);
+  }, [userLocation, filters]);
 
   const catalogBarbers = useMemo(() => remoteBarbers, [remoteBarbers]);
 
