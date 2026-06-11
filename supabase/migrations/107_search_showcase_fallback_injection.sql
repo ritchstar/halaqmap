@@ -3,6 +3,16 @@
 -- يُصلح: RPC منفصل get_public_showcase_fallback قد لا يُستدعى من المتصفح
 -- =====================================================
 
+DROP FUNCTION IF EXISTS public.search_barbers_nearby(
+  double precision,
+  double precision,
+  double precision,
+  integer,
+  integer,
+  text[],
+  numeric
+);
+
 CREATE OR REPLACE FUNCTION public.search_barbers_nearby(
   p_lat double precision,
   p_lng double precision,
