@@ -26,6 +26,8 @@ import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSupabase';
+import { fetchPublicShowcaseFallbackRemote } from '@/lib/platformShowcaseRemote';
+import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
 import { toast } from '@/components/ui/sonner';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
@@ -500,6 +502,7 @@ export default function LandingPreview() {
   // ── Real barber search state ────────────────────────────────────────
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
+  const [showcaseFallback, setShowcaseFallback] = useState<{ barber: Barber; intro: string } | null>(null);
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
   const [filters, setFilters] = useState<FilterState>({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [] });
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
@@ -538,16 +541,57 @@ export default function LandingPreview() {
     return filterBarbersByDistance(remoteBarbers, userLocation, filters);
   }, [userLocation, filters, remoteBarbers]);
 
+  const showcaseActive =
+    remoteStatus === 'ready' && filteredBarbers.length === 0 && showcaseFallback != null;
+
+  const mapBarbers = useMemo(() => {
+    if (showcaseActive && showcaseFallback && userLocation) {
+      return [{ ...showcaseFallback.barber, distance: 0 }];
+    }
+    return filteredBarbers;
+  }, [showcaseActive, showcaseFallback, userLocation, filteredBarbers]);
+
   useEffect(() => {
-    if (!isSupabaseConfigured() || !userLocation) { setRemoteBarbers([]); setRemoteStatus('unused'); return; }
+    if (!isSupabaseConfigured() || !userLocation) {
+      setRemoteBarbers([]);
+      setShowcaseFallback(null);
+      setRemoteStatus('unused');
+      return;
+    }
     let cancelled = false;
     setRemoteStatus('loading');
     void (async () => {
       try {
-        const list = await fetchNearbyPublicBarbersFromSupabase({ userLocation, radiusKm: Math.max(1, filters.maxDistance), limit: 120, minRating: filters.minRating, tiers: filters.tiers });
-        if (!cancelled) { setRemoteBarbers(list); setRemoteStatus('ready'); }
+        const list = await fetchNearbyPublicBarbersFromSupabase({
+          userLocation,
+          radiusKm: Math.max(1, filters.maxDistance),
+          limit: 120,
+          minRating: filters.minRating,
+          tiers: filters.tiers,
+        });
+        if (cancelled) return;
+        const showcaseItem = list.find((b) => b.showcasePreview);
+        const realOnly = list.filter((b) => !b.showcasePreview);
+        setRemoteBarbers(realOnly);
+        if (realOnly.length === 0) {
+          const fbMeta = await fetchPublicShowcaseFallbackRemote();
+          if (showcaseItem || fbMeta) {
+            setShowcaseFallback({
+              barber: showcaseItem ?? fbMeta!.barber,
+              intro: fbMeta?.intro ?? PLATFORM_SHOWCASE_EDUCATION_INTRO,
+            });
+          } else {
+            setShowcaseFallback(null);
+          }
+        } else {
+          setShowcaseFallback(null);
+        }
+        setRemoteStatus('ready');
       } catch {
-        if (!cancelled) { setRemoteStatus('error'); toast.error('تعذّر تحميل النتائج المتاحة — تحقق من الاتصال.'); }
+        if (!cancelled) {
+          setRemoteStatus('error');
+          toast.error('تعذّر تحميل النتائج المتاحة — تحقق من الاتصال.');
+        }
       }
     })();
     return () => { cancelled = true; };
@@ -950,6 +994,9 @@ export default function LandingPreview() {
             filters={filters}
             onFilterChange={setFilters}
             filteredBarbers={filteredBarbers}
+            mapBarbers={mapBarbers}
+            showcaseActive={showcaseActive}
+            showcaseFallback={showcaseFallback}
             remoteStatus={remoteStatus}
             onBarberPatch={onBarberPatch}
             onSelectBarber={setSelectedBarber}
