@@ -100,7 +100,6 @@ export async function ensureShowcaseBarber(
       total_reviews: 0,
       is_active: true,
       is_verified: true,
-      open_for_customers: true,
       specialties: ['رجالي', 'تقليدي', 'أطفال'],
     },
     sendCredentialsEmail: false,
