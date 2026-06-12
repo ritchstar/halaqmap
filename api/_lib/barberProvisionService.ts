@@ -225,6 +225,9 @@ export function buildBarberUpsertRowFromRegistrationPayload(
     inclusive_care_restrict_days: false,
     inclusive_care_days: {},
     inclusive_care_customer_note: null,
+    children_specialist:
+      payload.childrenSpecialist === true &&
+      categories.some((c) => c === 'حلاقة أطفال' || c === 'أطفال'),
   };
 }
 

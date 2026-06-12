@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
+import { buildChildrenServicesSnapshotFromBarberRow } from './_lib/childrenServicesBarberSnapshot.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import {
   assertBarberPortalSessionFromRequest,
@@ -109,7 +110,7 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   const selectCols =
-    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
+    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, specialties, children_specialist, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
 
   const { data: row, error } = await supabase.from('barbers').select(selectCols).eq('id', barberId).maybeSingle();
 
@@ -132,6 +133,8 @@ export async function POST(request: Request): Promise<Response> {
     is_active: boolean | null;
     open_for_customers?: boolean | null;
     open_status_token?: string | null;
+    specialties?: unknown;
+    children_specialist?: boolean | null;
     inclusive_care_offered?: boolean | null;
     inclusive_care_price_sar?: unknown;
     inclusive_care_public_visible?: boolean | null;
@@ -186,6 +189,7 @@ export async function POST(request: Request): Promise<Response> {
             ? String(b.open_status_token).trim()
             : '',
         inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(b),
+        childrenServices: buildChildrenServicesSnapshotFromBarberRow(b),
       },
     },
     { headers },

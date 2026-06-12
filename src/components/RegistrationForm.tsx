@@ -54,6 +54,7 @@ import { SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR } from '@/config/legalActivitySc
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
+import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
 import {
   SaudiRegionCityDistrictFields,
   composeSaudiLocationLine,
@@ -132,6 +133,8 @@ interface FormData {
   whatsapp: string;
   taxNumber: string;
   categories: string[];
+  /** متخصص أطفال — عند اختيار حلاقة أطفال */
+  childrenSpecialist: boolean;
   /** تعهد قانوني إلزامي قبل إتمام التسجيل */
   legalDisclaimerAccepted: boolean;
   /** التزام مهني إلزامي قبل إتمام التسجيل */
@@ -288,6 +291,7 @@ export function RegistrationForm() {
     whatsapp: '',
     taxNumber: '',
     categories: [],
+    childrenSpecialist: false,
     legalDisclaimerAccepted: false,
     professionalCommitmentAccepted: false,
     softwareProductAcknowledged: false,
@@ -715,6 +719,9 @@ export function RegistrationForm() {
           ? { inclusiveAccessibleCare: inclusiveAccessibleCarePayload }
           : {}),
         categories: [...formData.categories],
+        ...(formData.childrenSpecialist && formData.categories.includes(CHILDREN_BARBER_CATEGORY)
+          ? { childrenSpecialist: true }
+          : {}),
         registrationTermsAccepted: true,
         registrationTermsAcceptedAtIso: submittedAtIso,
         professionalCommitmentAccepted: true,
@@ -1156,6 +1163,9 @@ export function RegistrationForm() {
                 </div>
                 <div className="space-y-2">
                   <Label className={regLabelClass}>نوع الخدمات *</Label>
+                  <p className="text-xs leading-relaxed text-slate-400">
+                    جميع الباقات (بما فيها البرونزي) يمكنها اختيار «حلاقة أطفال» لاستقبال العائلات.
+                  </p>
                   <div className="grid grid-cols-2 gap-3">
                     {CATEGORIES.map((category) => (
                       <div key={category} className="flex items-center space-x-2 space-x-reverse">
@@ -1168,6 +1178,10 @@ export function RegistrationForm() {
                               categories: checked
                                 ? [...prev.categories, category]
                                 : prev.categories.filter((c) => c !== category),
+                              childrenSpecialist:
+                                category === CHILDREN_BARBER_CATEGORY && checked !== true
+                                  ? false
+                                  : prev.childrenSpecialist,
                             }));
                           }}
                           className="border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
@@ -1178,6 +1192,24 @@ export function RegistrationForm() {
                       </div>
                     ))}
                   </div>
+                  {formData.categories.includes(CHILDREN_BARBER_CATEGORY) ? (
+                    <div className="mt-3 flex items-start gap-3 rounded-lg border border-sky-400/25 bg-sky-500/5 p-3">
+                      <Checkbox
+                        id="children-specialist-reg"
+                        checked={formData.childrenSpecialist}
+                        onCheckedChange={(checked) =>
+                          setFormData((prev) => ({ ...prev, childrenSpecialist: checked === true }))
+                        }
+                        className="mt-0.5 border-slate-500 data-[state=checked]:bg-sky-200 data-[state=checked]:text-slate-900"
+                      />
+                      <Label htmlFor="children-specialist-reg" className={`cursor-pointer leading-relaxed ${regLabelClass}`}>
+                        <span className="font-semibold">متخصص أطفال</span>
+                        <span className="mt-1 block text-xs font-normal text-slate-400">
+                          للصالونات التي تركّز على الأطفال أو تعمل أطفالاً فقط — بطاقة مميزة في البحث.
+                        </span>
+                      </Label>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </RegStepShell>

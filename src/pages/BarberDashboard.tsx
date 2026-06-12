@@ -27,6 +27,7 @@ import {
   UserX,
   Loader2,
   Shield,
+  Baby,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -88,6 +89,8 @@ import {
   mergeInclusiveCareDaysFromSnapshot,
   type BarberPortalInclusiveCareSnapshot,
 } from '@/lib/barberInclusiveCareRemote';
+import { updateBarberChildrenServicesRemote } from '@/lib/barberChildrenServicesRemote';
+import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
@@ -388,7 +391,8 @@ export default function BarberDashboard({
         prev.memberNumber === merged.memberNumber &&
         prev.openForCustomers === merged.openForCustomers &&
         prev.openStatusToken === merged.openStatusToken &&
-        JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null);
+        JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null) &&
+        JSON.stringify(prev.childrenServices ?? null) === JSON.stringify(merged.childrenServices ?? null);
       if (same) return prev;
       persistBarberAuthSession(merged);
       return merged;
@@ -2252,6 +2256,92 @@ function PostsSection({
   );
 }
 
+function ChildrenServicesPartnerSettingsCard({
+  barberId,
+  barberData,
+  onRefreshPortalSession,
+}: {
+  barberId: string;
+  barberData: BarberPortalSession;
+  onRefreshPortalSession: () => Promise<void>;
+}) {
+  const [acceptsChildren, setAcceptsChildren] = useState(false);
+  const [childrenSpecialist, setChildrenSpecialist] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const s = barberData.childrenServices;
+    setAcceptsChildren(s?.acceptsChildren === true);
+    setChildrenSpecialist(s?.childrenSpecialist === true);
+  }, [barberData.childrenServices, barberData.id]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    const res = await updateBarberChildrenServicesRemote({
+      barberId,
+      email: barberData.email,
+      acceptsChildren,
+      childrenSpecialist: acceptsChildren && childrenSpecialist,
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success('تم حفظ إعدادات حلاقة الأطفال.');
+    await onRefreshPortalSession();
+  };
+
+  return (
+    <Card className="mb-6 border-sky-400/25 bg-gradient-to-br from-sky-500/[0.06] to-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Baby className="h-5 w-5 text-sky-500" />
+          حلاقة الأطفال
+        </CardTitle>
+        <CardDescription className="leading-relaxed">
+          متاح لجميع الباقات (برونزي وما فوق). فعّل «أستقبل الأطفال» ليظهر صالونك عند بحث العائلات. إن كنت
+          متخصصاً بالأطفال فقط، حوِّل بطاقتك إلى «متخصص أطفال» لتمييز أقوى في النتائج.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">أستقبل حلاقة الأطفال</p>
+            <p className="text-xs text-muted-foreground">
+              يُضاف تصنيف «{CHILDREN_BARBER_CATEGORY}» لملفك ويظهر في فلتر «أطفال» على الخريطة.
+            </p>
+          </div>
+          <Switch
+            checked={acceptsChildren}
+            onCheckedChange={(c) => {
+              const next = c === true;
+              setAcceptsChildren(next);
+              if (!next) setChildrenSpecialist(false);
+            }}
+          />
+        </div>
+
+        {acceptsChildren ? (
+          <div className="flex flex-col gap-3 rounded-lg border border-sky-400/30 bg-sky-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium">متخصص أطفال — بطاقة مميزة</p>
+              <p className="text-xs text-muted-foreground">
+                للصالونات التي تركّز على الأطفال أو تعمل أطفالاً فقط. تظهر شارة «متخصص أطفال» على بطاقتك.
+              </p>
+            </div>
+            <Switch checked={childrenSpecialist} onCheckedChange={(c) => setChildrenSpecialist(c === true)} />
+          </div>
+        ) : null}
+
+        <Button type="button" className="w-full" disabled={saving} onClick={() => void handleSave()}>
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'حفظ إعدادات الأطفال'}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 function InclusiveCarePartnerSettingsCard({
   barberId,
   barberData,
@@ -2566,6 +2656,14 @@ function SettingsSection({
           )}
         </CardContent>
       </Card>
+
+      {showWeeklyEditor && (
+        <ChildrenServicesPartnerSettingsCard
+          barberId={barberId}
+          barberData={barberData}
+          onRefreshPortalSession={onRefreshPortalSession}
+        />
+      )}
 
       {showWeeklyEditor && (
         <InclusiveCarePartnerSettingsCard

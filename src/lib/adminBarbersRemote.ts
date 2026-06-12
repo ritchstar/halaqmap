@@ -266,6 +266,9 @@ export async function upsertBarberFromApprovedRequest(
     inclusive_care_restrict_days: false,
     inclusive_care_days: {},
     inclusive_care_customer_note: null,
+    children_specialist:
+      request.childrenSpecialist === true &&
+      (request.categories?.some((c) => c === 'حلاقة أطفال' || c === 'أطفال') ?? false),
   };
 
   const endpoint = String(import.meta.env.VITE_APPROVE_BARBER_URL || APPROVE_BARBER_API).trim();

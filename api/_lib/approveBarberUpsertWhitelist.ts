@@ -28,6 +28,7 @@ const APPROVE_BARBER_UPSERT_KEYS = new Set([
   'inclusive_care_restrict_days',
   'inclusive_care_days',
   'inclusive_care_customer_note',
+  'children_specialist',
   'is_active',
   'is_verified',
 ]);

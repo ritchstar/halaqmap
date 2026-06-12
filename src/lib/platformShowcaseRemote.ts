@@ -1,5 +1,6 @@
 import type { Barber } from '@/lib/index';
 import { SubscriptionTier } from '@/lib/index';
+import { barberAcceptsChildren } from '@/lib/barberCategoryLexicon';
 import { IMAGES } from '@/assets/images';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
@@ -23,6 +24,7 @@ type FallbackRow = {
   is_verified: boolean | null;
   open_for_customers: boolean | null;
   specialties: string[] | null;
+  children_specialist?: boolean | null;
   gallery_count?: number | null;
   featured_images?: unknown;
   is_showcase_preview?: boolean;
@@ -97,6 +99,10 @@ function mapRow(row: FallbackRow): Barber {
     categories: Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [],
     hasActiveSubscription: true,
     showcasePreview: true,
+    ...(barberAcceptsChildren(row.specialties) ? { acceptsChildren: true } : {}),
+    ...(row.children_specialist === true && barberAcceptsChildren(row.specialties)
+      ? { childrenSpecialist: true }
+      : {}),
     ...(featured.length > 0 ? { featuredImages: featured } : {}),
     ...(galleryCount > 0 ? { galleryCount } : {}),
   };

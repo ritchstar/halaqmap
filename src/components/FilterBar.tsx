@@ -60,7 +60,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
   const [expanded, setExpanded] = useState(false);
 
   const handleReset = () => {
-    onFilterChange({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [] });
+    onFilterChange({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [], childrenSpecialistOnly: false });
   };
 
   const activeCount = [
@@ -68,6 +68,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
     filters.tiers.length,
     filters.minRating > 0 ? 1 : 0,
     filters.categories.length,
+    filters.childrenSpecialistOnly ? 1 : 0,
     filters.maxDistance !== 1 ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
@@ -246,6 +247,17 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
                     {cat.emoji} {cat.label}
                   </Pill>
                 ))}
+                <Pill
+                  active={Boolean(filters.childrenSpecialistOnly)}
+                  onClick={() =>
+                    onFilterChange({
+                      ...filters,
+                      childrenSpecialistOnly: !filters.childrenSpecialistOnly,
+                    })
+                  }
+                >
+                  👶 متخصص أطفال فقط
+                </Pill>
               </div>
 
               {/* Location */}

@@ -1,5 +1,6 @@
 import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
 import { compareBarbersByListingScore } from '@/lib/barberListingRank';
+import { barberMatchesCategoryFilter } from '@/lib/barberCategoryLexicon';
 
 export const ROUTE_PATHS = {
   HOME: '/',
@@ -159,6 +160,10 @@ export interface Barber {
   isOpen: boolean;
   verified: boolean;
   categories: string[];
+  /** متخصص حلاقة أطفال — بطاقة مميزة عند children_specialist=true */
+  childrenSpecialist?: boolean;
+  /** يقبل حلاقة أطفال (من specialties) */
+  acceptsChildren?: boolean;
   /**
    * إدراج معاينة عبر نظام الرصد الذكي (مثلاً قبل اكتمال ربط حساب الصالون).
    * يُعرض للفريق علامة سرّية `*` في الواجهة — لا تُستخدم كمصدر حقيقي للاشتراك.
@@ -331,6 +336,8 @@ export interface SubscriptionRequest {
   /** تسهيلات بالمحل و/أو زيارة منزلية للفئات الحسّاسة — اختياري؛ عند التفعيل يلزم سعر معروض */
   inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
   categories?: string[];
+  /** متخصص أطفال — يُفعَّل عند التسجيل أو من لوحة الحلاق */
+  childrenSpecialist?: boolean;
   /** موافقة صريحة على شروط التسجيل وسياسة الشركاء (إلزامية عند الإرسال) */
   registrationTermsAccepted?: boolean;
   /** وقت الموافقة ISO 8601 (UTC) */
@@ -401,6 +408,8 @@ export interface FilterState {
   openNow: boolean;
   minRating: number;
   categories: string[];
+  /** عند true: إظهار متخصصي الأطفال فقط (childrenSpecialist) */
+  childrenSpecialistOnly?: boolean;
 }
 
 export function filterBarbersByDistance(
@@ -427,10 +436,11 @@ export function filterBarbersByDistance(
       if (barber.rating < filters.minRating) return false;
       if (filters.categories.length > 0) {
         const hasCategory = filters.categories.some((cat) =>
-          barber.categories.includes(cat)
+          barberMatchesCategoryFilter(barber.categories, cat),
         );
         if (!hasCategory) return false;
       }
+      if (filters.childrenSpecialistOnly && !barber.childrenSpecialist) return false;
       return true;
     })
     .sort((a, b) =>

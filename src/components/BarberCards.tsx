@@ -32,6 +32,24 @@ function PublicGalleryCountBadge({ barber }: { barber: Barber }) {
   );
 }
 
+function ChildrenServicesInline({ barber }: { barber: Barber }) {
+  if (barber.childrenSpecialist) {
+    return (
+      <Badge className="mt-2 border-sky-400/40 bg-sky-500/15 text-sky-100 text-[10px] font-bold">
+        👶 متخصص أطفال
+      </Badge>
+    );
+  }
+  if (barber.acceptsChildren) {
+    return (
+      <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
+        يستقبل حلاقة الأطفال
+      </p>
+    );
+  }
+  return null;
+}
+
 function InclusiveCareInline({ barber }: { barber: Barber }) {
   const c = barber.inclusiveAccessibleCare;
   if (!c?.offered) return null;
@@ -136,6 +154,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                     {barber.isOpen ? "مفتوح الآن" : "مغلق"}
                   </Badge>
                   <InclusiveCareInline barber={barber} />
+                  <ChildrenServicesInline barber={barber} />
                 </div>
               </div>
 
@@ -205,6 +224,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                   {barber.isOpen ? "مفتوح الآن" : "مغلق"}
                 </Badge>
                 <InclusiveCareInline barber={barber} />
+                <ChildrenServicesInline barber={barber} />
               </div>
               <Badge className="bg-muted text-muted-foreground border-border">
                 برونزي
@@ -304,6 +324,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                   {barber.isOpen ? "مفتوح الآن" : "مغلق"}
                 </Badge>
                 <InclusiveCareInline barber={barber} />
+                <ChildrenServicesInline barber={barber} />
               </div>
             </div>
 
@@ -398,6 +419,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 {barber.isOpen ? "مفتوح الآن" : "مغلق"}
               </Badge>
               <InclusiveCareInline barber={barber} />
+              <ChildrenServicesInline barber={barber} />
             </div>
           </div>
 

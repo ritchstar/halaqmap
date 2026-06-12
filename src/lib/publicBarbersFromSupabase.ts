@@ -4,6 +4,7 @@ import { getSupabaseClient } from '@/integrations/supabase/client';
 import type { Barber, InclusiveAccessibleCareOffer } from '@/lib/index';
 import { SubscriptionTier } from '@/lib/index';
 import { sanitizeInclusiveCareDays } from '@/lib/barberInclusiveCareRemote';
+import { barberAcceptsChildren } from '@/lib/barberCategoryLexicon';
 
 const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
 const PUBLIC_BARBERS_API = '/api/public-barbers';
@@ -62,6 +63,7 @@ type BarberRow = {
   gallery_count?: number | null;
   featured_images?: unknown;
   is_showcase_preview?: boolean | null;
+  children_specialist?: boolean | null;
 };
 
 function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer | undefined {
@@ -144,6 +146,8 @@ function mapRow(row: BarberRow): Barber {
   const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
   const phone = row.phone?.trim() || '';
   const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];
+  const acceptsChildren = barberAcceptsChildren(categories);
+  const childrenSpecialist = row.children_specialist === true && acceptsChildren;
   const uid = row.user_id?.trim() || '';
   const previewListing =
     row.account_linked === false || (row.account_linked == null && (!uid || !UUID_RE.test(uid)));
@@ -168,6 +172,8 @@ function mapRow(row: BarberRow): Barber {
     isOpen: row.is_active !== false && row.open_for_customers !== false,
     verified: row.is_verified === true,
     categories,
+    ...(acceptsChildren ? { acceptsChildren: true } : {}),
+    ...(childrenSpecialist ? { childrenSpecialist: true } : {}),
     ...(previewListing ? { previewListing: true } : {}),
     hasActiveSubscription: row.has_active_subscription === true,
     ...(row.profile_updated_at ? { profileUpdatedAt: row.profile_updated_at } : {}),

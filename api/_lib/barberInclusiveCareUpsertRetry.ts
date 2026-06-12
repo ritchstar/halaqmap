@@ -17,11 +17,20 @@ export function stripInclusiveCareKeysFromBarberUpsertRow(row: Record<string, un
   for (const k of INCLUSIVE_CARE_UPSERT_KEYS) {
     delete out[k];
   }
+  delete out.children_specialist;
   return out;
 }
 
 export function isBarberUpsertMissingInclusiveCareColumnError(message: string): boolean {
   const m = message.toLowerCase();
+  if (m.includes('children_specialist')) {
+    return (
+      m.includes('schema cache') ||
+      m.includes('could not find') ||
+      m.includes('does not exist') ||
+      (m.includes('column') && m.includes('barbers'))
+    );
+  }
   if (!m.includes('inclusive_care')) return false;
   return (
     m.includes('schema cache') ||
