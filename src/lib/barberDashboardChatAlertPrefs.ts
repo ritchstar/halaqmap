@@ -7,12 +7,14 @@ export type BarberChatAlertPrefs = {
   volume: BarberChatAlertVolume;
   messageTone: BarberChatAlertMessageTone;
   homeVisitTone: BarberChatAlertHomeTone;
+  pushEnabled: boolean;
   /** لا صوت للمحادثة المفتوحة حالياً في اللوحة */
   muteWhenChatOpen: boolean;
 };
 
 export const DEFAULT_BARBER_CHAT_ALERT_PREFS: BarberChatAlertPrefs = {
   enabled: true,
+  pushEnabled: false,
   volume: 'medium',
   messageTone: 'soft',
   homeVisitTone: 'doorbell',
@@ -39,6 +41,7 @@ export function readBarberChatAlertPrefs(barberId: string): BarberChatAlertPrefs
     const parsed = JSON.parse(raw) as Partial<BarberChatAlertPrefs>;
     return {
       enabled: parsed.enabled !== false,
+      pushEnabled: parsed.pushEnabled === true,
       volume:
         parsed.volume === 'low' || parsed.volume === 'high' || parsed.volume === 'medium'
           ? parsed.volume
@@ -62,6 +65,11 @@ export function writeBarberChatAlertPrefs(barberId: string, prefs: BarberChatAle
   if (!barberId.trim()) return;
   try {
     localStorage.setItem(prefsStorageKey(barberId), JSON.stringify(prefs));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('halaqmap:barber-alert-prefs-changed', { detail: { barberId } }),
+      );
+    }
   } catch {
     /* quota / private mode */
   }

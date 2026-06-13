@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { verifyVercelCronRequest } from './_lib/vercelCronAuth.js';
+import { emitOpsEventFireAndForget } from './_lib/opsEventRouter.js';
 
 export const config = {
   maxDuration: 30,
@@ -40,6 +41,15 @@ export async function GET(request: Request): Promise<Response> {
   });
   const { data, error } = await supabase.rpc('run_private_chat_maintenance');
   if (error) {
+    emitOpsEventFireAndForget({
+      type: 'chat.maintenance_failed',
+      title: 'فشل صيانة الشات الخاص',
+      summary: String(error.message || 'Maintenance RPC failed').slice(0, 400),
+      clientId: 'PRIVATE_CHAT',
+      detail: { source: 'cron-private-chat-maintenance' },
+      dedupeKey: 'chat.maintenance_failed:cron',
+      dedupeHours: 1,
+    });
     return Response.json({ error: error.message || 'Maintenance RPC failed' }, { status: 500, headers });
   }
 

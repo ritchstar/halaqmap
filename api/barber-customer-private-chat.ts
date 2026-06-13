@@ -113,6 +113,18 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: true, conversations: rows ?? [] }, { headers });
   }
 
+  if (action === 'realtime_context') {
+    return Response.json(
+      {
+        ok: true,
+        barberUserId,
+        supabaseSessionMatches: false,
+        note: 'تحقق من تطابق auth.uid() مع barberUserId في المتصفح لتفعيل Realtime.',
+      },
+      { headers },
+    );
+  }
+
   const conversationId = String((body as { conversationId?: unknown }).conversationId ?? '').trim();
   if (!conversationId) {
     return Response.json({ error: 'Missing conversationId' }, { status: 400, headers });

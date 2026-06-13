@@ -10,6 +10,7 @@ function cronSecretCandidates(): string[] {
     process.env.CRON_SECRET,
     process.env.OPS_BILLING_CRON_SECRET,
     process.env.OPS_INTELLIGENCE_CRON_SECRET,
+    process.env.OPS_EVENT_ROUTER_CRON_SECRET,
   ]
     .map((s) => (typeof s === 'string' ? s.trim() : ''))
     .filter((s) => s.length > 0);

@@ -300,6 +300,7 @@ export default defineConfig(({ mode }) => {
           'icons/**/*.png',
         ],
         workbox: {
+          importScripts: ['push-handler.js'],
           // Activate new worker immediately and claim tabs to keep asset generations aligned.
           skipWaiting: true,
           clientsClaim: true,

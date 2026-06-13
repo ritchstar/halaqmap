@@ -5,6 +5,7 @@ import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib
 import { runSecurityGuard } from './_lib/securityGuard.js';
 import { validateRegistrationCompliancePayload } from './_lib/registrationCompliance.js';
 import { validateRegistrationBusinessPayload } from './_lib/registrationBusinessValidation.js';
+import { emitOpsEventFireAndForget } from './_lib/opsEventRouter.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
@@ -155,6 +156,25 @@ export async function POST(request: Request): Promise<Response> {
       { status: duplicate ? 409 : 500, headers }
     );
   }
+
+  const payloadRecord = normalizedPayload as Record<string, unknown>;
+  const label = String(
+    payloadRecord.shopName || payloadRecord.barberName || payloadRecord.email || rowId,
+  ).slice(0, 120);
+  emitOpsEventFireAndForget({
+    type: 'registration.new',
+    title: `طلب تسجيل جديد — ${rowId}`,
+    summary: `وصل طلب اشتراك جديد من ${label}.`,
+    clientId: rowId,
+    clientLabel: label,
+    detail: {
+      source: 'register-submission',
+      tier: business.tier,
+      listing_license_quantity: business.listingLicenseQuantity,
+    },
+    dedupeKey: `registration.new:${rowId}`,
+    dedupeHours: 12,
+  });
 
   return Response.json({ ok: true }, { status: 200, headers });
 }

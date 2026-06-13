@@ -299,7 +299,8 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
           <App />
         </RootErrorBoundary>,
       )
-      schedulePlatformBuildSync()
+      schedulePlatformBuildSync();
+      void import('@/lib/registerAppServiceWorker').then((m) => m.registerAppServiceWorker());
 
       const markIfMounted = () => {
         if (rootEl.childElementCount > 0 || rootEl.textContent?.trim()) {

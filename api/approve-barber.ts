@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 import { whitelistBarberUpsertRow } from './_lib/approveBarberUpsertWhitelist.js';
 import { provisionBarberAccount, siteBaseUrlFromEnv } from './_lib/barberProvisionService.js';
+import { emitOpsEventFireAndForget } from './_lib/opsEventRouter.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
@@ -113,6 +114,19 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   if (!provision.ok) {
+    emitOpsEventFireAndForget({
+      type: 'barber.provision_failed',
+      severity: 'urgent',
+      title: 'فشل تجهيز حساب حلاق بعد الاعتماد',
+      summary: String(provision.error || 'provision_failed').slice(0, 400),
+      clientId: provision.barberId || String(wl.row.id || 'UNKNOWN'),
+      detail: {
+        source: 'approve-barber',
+        error: provision.error,
+      },
+      dedupeKey: `barber.provision_failed:${provision.barberId || wl.row.id || 'unknown'}`,
+      dedupeHours: 2,
+    });
     return Response.json(
       {
         error: provision.error,
@@ -120,6 +134,34 @@ export async function POST(request: Request): Promise<Response> {
       },
       { status: provision.barberId ? 502 : 500, headers }
     );
+  }
+
+  if (!provision.authUserId) {
+    emitOpsEventFireAndForget({
+      type: 'barber.missing_user_id',
+      severity: 'urgent',
+      title: 'حلاق معتمد بدون user_id',
+      summary: `بعد الاعتماد، barberId=${provision.barberId} بدون ربط auth.`,
+      clientId: provision.barberId,
+      detail: { source: 'approve-barber', member_number: provision.memberNumber },
+      dedupeKey: `barber.missing_user_id:${provision.barberId}`,
+      dedupeHours: 6,
+    });
+  }
+
+  if (provision.credentialEmailError) {
+    emitOpsEventFireAndForget({
+      type: 'barber.credentials_email_failed',
+      title: 'فشل إرسال بريد بيانات الدخول',
+      summary: String(provision.credentialEmailError).slice(0, 400),
+      clientId: provision.barberId,
+      detail: {
+        source: 'approve-barber',
+        member_number: provision.memberNumber,
+      },
+      dedupeKey: `barber.credentials_email_failed:${provision.barberId}`,
+      dedupeHours: 4,
+    });
   }
 
   return Response.json(

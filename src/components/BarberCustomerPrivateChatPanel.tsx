@@ -17,7 +17,7 @@ import {
 import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
 import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
-import { useBarberCustomerChatAlerts } from '@/hooks/useBarberCustomerChatAlerts';
+import { useBarberCommunicationAlerts } from '@/hooks/useBarberCommunicationAlerts';
 import { BarberChatAlertSettingsCard } from '@/components/barber/BarberChatAlertSettingsCard';
 
 function remainingMs(expiresAtIso: string): number {
@@ -59,8 +59,6 @@ export function BarberCustomerPrivateChatPanel({
     [conversations, selectedId]
   );
 
-  useBarberCustomerChatAlerts(barberId, barberEmail, conversations, selectedId);
-
   const pollConversations = useCallback(async (force = false) => {
     if (!force && !isPollingTabActive()) return;
     const res = await barberListPrivateConversationsRemote({ barberId, email: barberEmail });
@@ -71,6 +69,36 @@ export function BarberCustomerPrivateChatPanel({
       return res.conversations[0]?.id ?? null;
     });
   }, [barberId, barberEmail]);
+
+  const handleRealtimeInbound = useCallback(
+    (message: BarberPrivateMessageRow, conversationId: string) => {
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === conversationId ? { ...c, last_message_at: message.created_at } : c,
+        ),
+      );
+      if (selectedId === conversationId) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === message.id)) return prev;
+          return [...prev, message].sort(
+            (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+          );
+        });
+      }
+    },
+    [selectedId],
+  );
+
+  const alertState = useBarberCommunicationAlerts(
+    barberId,
+    barberEmail,
+    conversations,
+    selectedId,
+    handleRealtimeInbound,
+    () => void pollConversations(true),
+  );
+
+  const realtimeConnected = alertState.realtimeStatus === 'connected';
 
   const loadMessages = useCallback(
     async (conversationId: string, opts?: { force?: boolean }) => {
@@ -120,11 +148,12 @@ export function BarberCustomerPrivateChatPanel({
   }, []);
 
   useEffect(() => {
+    const intervalMs = realtimeConnected ? POLL_MS.PRIVATE_CHAT_LIST * 4 : POLL_MS.PRIVATE_CHAT_LIST;
     const iv = window.setInterval(() => {
       void pollConversations();
-    }, POLL_MS.PRIVATE_CHAT_LIST);
+    }, intervalMs);
     return () => window.clearInterval(iv);
-  }, [pollConversations]);
+  }, [pollConversations, realtimeConnected]);
 
   useEffect(() => {
     if (!selectedId) {
@@ -132,11 +161,12 @@ export function BarberCustomerPrivateChatPanel({
       return;
     }
     void loadMessages(selectedId, { force: true });
+    const intervalMs = realtimeConnected ? POLL_MS.PRIVATE_CHAT_MESSAGES * 4 : POLL_MS.PRIVATE_CHAT_MESSAGES;
     const iv = window.setInterval(() => {
       void loadMessages(selectedId);
-    }, POLL_MS.PRIVATE_CHAT_MESSAGES);
+    }, intervalMs);
     return () => window.clearInterval(iv);
-  }, [selectedId, loadMessages]);
+  }, [selectedId, loadMessages, realtimeConnected]);
 
   const msLeft = useMemo(() => (selected ? remainingMs(selected.expires_at) : 0), [selected, tick]);
 
@@ -204,7 +234,11 @@ export function BarberCustomerPrivateChatPanel({
 
   return (
     <>
-      <BarberChatAlertSettingsCard barberId={barberId} />
+      <BarberChatAlertSettingsCard
+        barberId={barberId}
+        barberEmail={barberEmail}
+        alertState={alertState}
+      />
       <Card className="border-primary/20">
       <CardHeader className="pb-2">
         <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
@@ -217,8 +251,10 @@ export function BarberCustomerPrivateChatPanel({
           )}
         </CardTitle>
         <CardDescription className="text-sm leading-relaxed">
-          تظهر هنا الجلسات النشطة فقط (ساعة واحدة لكل جلسة). يبدأ العميل المحادثة من التطبيق؛ تُحدَّث الرسائل
-          تلقائياً كل نحو 30 ثانية.
+          تظهر هنا الجلسات النشطة فقط (ساعة واحدة لكل جلسة). يبدأ العميل المحادثة من التطبيق؛
+          {realtimeConnected
+            ? ' تُحدَّث الرسائل فوراً عبر `Supabase Realtime`.'
+            : ' تُحدَّث الرسائل تلقائياً كل نحو 30 ثانية (أو فوراً عند تسجيل الدخول بحساب المنصة).'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

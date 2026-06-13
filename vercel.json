@@ -116,6 +116,10 @@
     {
       "path": "/api/ops-intelligence-report?cron=1",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron-ops-health-scan",
+      "schedule": "35 * * * *"
     }
   ]
 }
