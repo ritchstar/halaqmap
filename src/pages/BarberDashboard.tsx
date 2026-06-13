@@ -23,6 +23,7 @@ import {
   Mic,
   Paperclip,
   QrCode,
+  Share2,
   Copy,
   UserX,
   Loader2,
@@ -138,6 +139,7 @@ import {
   syncBarberGalleryRemote,
 } from '@/lib/barberGalleryRemote';
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
+import { BarberSocialShareKit } from '@/components/barber/BarberSocialShareKit';
 import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
@@ -369,7 +371,7 @@ export default function BarberDashboard({
 
   useEffect(() => {
     if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;
-    const allowed = new Set(['messages', 'qr-ratings', 'posts', 'digital-shift']);
+    const allowed = new Set(['messages', 'qr-ratings', 'social-share', 'posts', 'digital-shift']);
     if (!allowed.has(activeTab)) {
       setActiveTab('messages');
     }
@@ -710,12 +712,18 @@ export default function BarberDashboard({
                 <span className="hidden sm:inline">QR والتقييمات</span>
               </TabsTrigger>
             ) : null}
+            {tierTabs.showQrRatings ? (
+              <TabsTrigger value="social-share" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <Share2 className="h-4 w-4" />
+                <span className="hidden sm:inline">شارك ظهورك</span>
+              </TabsTrigger>
+            ) : null}
           </TabsList>
 
           {tierTabs.showGoldLiteBanner ? (
             <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
               باقتك <strong>الذهبية</strong> تشمل من لوحة التحكم: <strong>رسائل العملاء</strong>، و<strong>معرض أعمال</strong> (حتى
-              20 صورة محسّنة)، و<strong>QR والتقييمات</strong>. جدولة المواعيد المتقدّمة والبنرات والإعدادات الكاملة متاحة في
+              20 صورة محسّنة)، و<strong>QR والتقييمات</strong>، و<strong>مشاركة السوشيال</strong>. جدولة المواعيد المتقدّمة والبنرات والإعدادات الكاملة متاحة في
               الباقة <strong>الماسية</strong> (معرض حتى 40 صورة).
             </p>
           ) : null}
@@ -978,6 +986,20 @@ export default function BarberDashboard({
           {tierTabs.showQrRatings ? (
           <TabsContent value="qr-ratings" className="space-y-6">
             <QrRatingsSection barberId={barberData.id} ratingInviteToken={barberData.ratingInviteToken} />
+          </TabsContent>
+          ) : null}
+
+          {tierTabs.showQrRatings ? (
+          <TabsContent value="social-share" className="space-y-6">
+            <BarberSocialShareKit
+              barberId={barberData.id}
+              name={barberData.name}
+              email={barberData.email}
+              subscription={barberData.subscription}
+              ratingInviteToken={barberData.ratingInviteToken}
+              memberNumber={barberData.memberNumber}
+              homeService={barberData.homeService}
+            />
           </TabsContent>
           ) : null}
         </Tabs>
