@@ -56,6 +56,14 @@ export const PLATFORM_IDENTITY_BOILERPLATE_AR =
 /** دور المنصة تجاه الشريك B2B — «شريك تقني» لا «منصة تُدار من فوق». */
 export const PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR =
   'تجاه الحلاق والصالون: شريك تقني يوفّر رخصة نفاذ ونظام استجابة ذكية — أنت تدير صالونك، والمنصة توفّر البنية البرمجية.';
+
+/** Mantra B2B — بطاقة الشركاء: استقلال + رؤية رقمية (لا ادعاء اعتماد). */
+export const PLATFORM_B2B_INDEPENDENCE_HEADLINE_AR =
+  'الحلاق المحترف يريد شريكاً رقمياً — لا أن يُدار مشروعه من منصة أخرى.';
+
+export const PLATFORM_B2B_INDEPENDENCE_BODY_AR =
+  'حلاق ماب تُبقيك صاحب مشروعك المستقل، وتمنحك الرؤية الرقمية التي تحتاجها — شريك تقني، لا وسيط حجز ولا عمولة على القص.';
+
 export const PLATFORM_TRUST_HEADLINE_AR =
   'منصة تقنية محمية — مشفّرة، مباشرة، وشفافة';
 

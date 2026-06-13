@@ -5,6 +5,10 @@
 
 import { CheckCircle2, XCircle, Shield, Zap } from 'lucide-react';
 import { ISIC_ACTIVITY_CODE, ISIC_ACTIVITY_CODE_LABEL_AR } from '@/config/legalActivityScope';
+import {
+  PLATFORM_B2B_INDEPENDENCE_BODY_AR,
+  PLATFORM_B2B_INDEPENDENCE_HEADLINE_AR,
+} from '@/config/platformIdentity';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -60,6 +64,17 @@ export function PlatformIdentityCard({ compact, className }: Props) {
         <h2 className="text-xl font-black leading-snug text-white md:text-2xl">
           حلاق ماب — ما هي وما ليست
         </h2>
+
+        <div className="mt-4 rounded-xl border border-teal-400/30 bg-teal-500/10 px-4 py-3">
+          <p className="text-sm font-bold leading-relaxed text-teal-50 md:text-[0.95rem]">
+            {PLATFORM_B2B_INDEPENDENCE_HEADLINE_AR}
+          </p>
+          {!compact ? (
+            <p className="mt-2 text-[0.8rem] leading-relaxed text-slate-300 md:text-sm">
+              {PLATFORM_B2B_INDEPENDENCE_BODY_AR}
+            </p>
+          ) : null}
+        </div>
 
         {/* Brief summary */}
         <p className="mt-2 text-sm leading-relaxed text-slate-400 md:text-[0.9rem]">
