@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
 import { buildChildrenServicesSnapshotFromBarberRow } from './_lib/childrenServicesBarberSnapshot.js';
+import { buildHomeServiceSnapshotFromBarberRow } from './_lib/homeServiceBarberSnapshot.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { getBarberPortalSessionSecret, mintBarberPortalSessionToken } from './_lib/barberPortalAuth.js';
 
@@ -147,7 +148,7 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   const selectCols =
-    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, specialties, children_specialist, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
+    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, specialties, children_specialist, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note, home_service_offered, home_service_price_sar, home_service_radius_km, home_service_public_visible, home_service_customer_note';
 
   type BarberPortalRow = {
     id: string;
@@ -168,6 +169,11 @@ export async function POST(request: Request): Promise<Response> {
     inclusive_care_restrict_days?: boolean | null;
     inclusive_care_days?: unknown;
     inclusive_care_customer_note?: string | null;
+    home_service_offered?: boolean | null;
+    home_service_price_sar?: unknown;
+    home_service_radius_km?: unknown;
+    home_service_public_visible?: boolean | null;
+    home_service_customer_note?: string | null;
   };
 
   let barber: BarberPortalRow | null = null;
@@ -244,6 +250,7 @@ export async function POST(request: Request): Promise<Response> {
             : '',
         inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(barber),
         childrenServices: buildChildrenServicesSnapshotFromBarberRow(barber),
+        homeService: buildHomeServiceSnapshotFromBarberRow(barber),
       },
       ...(authSession ? { authSession } : {}),
     },

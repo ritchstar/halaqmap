@@ -40,6 +40,7 @@ import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
+import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { paymentActivateNowCtaAr, TERM_ACTIVATE_NOW_AR } from '@/config/softwareLicenseTerminology';
@@ -85,6 +86,12 @@ export default function Payment() {
     const p = searchParams.get('purpose')?.trim().toLowerCase();
     return p === 'recharge' ? 'recharge' : 'new';
   }, [searchParams]);
+
+  /** شراء أول يتطلب requestId صالحاً من مسار التسجيل — يمنع الدفع المباشر بلا طلب */
+  const registrationRequestReady = useMemo(() => {
+    if (purchasePurpose !== 'new') return true;
+    return REGISTRATION_STORAGE_ORDER_ID_RE.test(requestId);
+  }, [purchasePurpose, requestId]);
   const [pubPayConfig, setPubPayConfig] = useState<PublicPaymentPageConfig | null>(null);
 
   useEffect(() => {
@@ -295,7 +302,13 @@ export default function Payment() {
   /** تهيئة نموذج ميسر داخل الصفحة بعد الإقرار بالشروط. */
   useEffect(() => {
     if (!showMoyasarCheckout) return;
-    if (paymentMethod !== 'moyasar' || !moyasarTermsAccepted || !softwareProductAcknowledged || !moyasarKeyOk) {
+    if (
+      paymentMethod !== 'moyasar' ||
+      !moyasarTermsAccepted ||
+      !softwareProductAcknowledged ||
+      !moyasarKeyOk ||
+      !registrationRequestReady
+    ) {
       setMoyasarFormError(null);
       if (moyasarHostRef.current) moyasarHostRef.current.innerHTML = '';
       return;
@@ -388,6 +401,7 @@ export default function Payment() {
     digitalShiftAddonSelected,
     requestId,
     linkedBarberId,
+    registrationRequestReady,
     showMoyasarCheckout,
     moyasarPublishableKey,
     unifiedPaymentInit.description,
@@ -454,6 +468,26 @@ export default function Payment() {
               <AlertDescription>جاري التحقق من عملية الدفع مع ميسر…</AlertDescription>
             </Alert>
           )}
+
+          {purchasePurpose === 'new' && !registrationRequestReady && (
+            <Alert className="mb-6 border-amber-500/40 bg-amber-500/10">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-sm leading-relaxed space-y-2">
+                <p>
+                  لا يمكن إتمام <strong>الشراء الأول</strong> من هذه الصفحة مباشرة دون رقم طلب تسجيل صالح (
+                  <span dir="ltr">HM-…</span>).
+                </p>
+                <p>
+                  أكمل{' '}
+                  <Link to={ROUTE_PATHS.REGISTER} className="font-semibold text-primary underline-offset-2 hover:underline">
+                    نموذج التسجيل
+                  </Link>{' '}
+                  أولاً — ثم انتقل للدفع من صفحة نجاح التسجيل.
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {moyasarReturnVerify === 'paid' && (
             <div className="mb-6 space-y-4">
               <PaymentSuccessPanel
@@ -702,7 +736,7 @@ export default function Payment() {
                         <p className="text-sm text-muted-foreground">فعّل الإقرارات أعلاه لعرض نموذج ميسر.</p>
                       )}
 
-                      {moyasarKeyOk && softwareProductAcknowledged && moyasarTermsAccepted && (
+                      {moyasarKeyOk && softwareProductAcknowledged && moyasarTermsAccepted && registrationRequestReady && (
                         <Card className="border-primary/20">
                           <CardHeader className="pb-2">
                             <CardTitle className="text-lg">{paymentActivateNowCtaAr(price)}</CardTitle>
@@ -738,7 +772,7 @@ export default function Payment() {
                   )}
 
 
-                  {showSabCheckout && (
+                  {showSabCheckout && registrationRequestReady && (
                     <Alert>
                       <Shield className="h-4 w-4" />
                       <AlertDescription className="text-sm leading-relaxed">

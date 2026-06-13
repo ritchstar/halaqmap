@@ -126,6 +126,18 @@ export interface InclusiveAccessibleCareOffer {
   customerNote?: string;
 }
 
+/**
+ * زيارة منزلية عامة (ذهبي/ماسي) — منفصلة عن الرعاية المُيسَّرة.
+ * التنسيق والتنفيذ مباشرة بين العميل والحلاق.
+ */
+export interface HomeVisitOffer {
+  offered: boolean;
+  displayedPriceSar?: number;
+  radiusKm?: number;
+  publicVisible?: boolean;
+  customerNote?: string;
+}
+
 export interface Barber {
   id: string;
   name: string;
@@ -148,6 +160,8 @@ export interface Barber {
   images: string[];
   /** إن وُجدت: يعلن الحلاق عن خدمة موحّدة للفئات الحسّاسة بسعر معروض */
   inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
+  /** زيارة منزلية (ذهبي/ماسي) — إعلان + تواصل مباشر */
+  homeVisitOffer?: HomeVisitOffer;
   services: {
     name: string;
     price: number;
@@ -435,9 +449,16 @@ export function filterBarbersByDistance(
       if (filters.openNow && !barber.isOpen) return false;
       if (barber.rating < filters.minRating) return false;
       if (filters.categories.length > 0) {
-        const hasCategory = filters.categories.some((cat) =>
-          barberMatchesCategoryFilter(barber.categories, cat),
-        );
+        const hasCategory = filters.categories.some((cat) => {
+          if (
+            cat === 'زيارة منزلية' &&
+            barber.homeVisitOffer?.offered &&
+            barber.homeVisitOffer.publicVisible !== false
+          ) {
+            return true;
+          }
+          return barberMatchesCategoryFilter(barber.categories, cat);
+        });
         if (!hasCategory) return false;
       }
       if (filters.childrenSpecialistOnly && !barber.childrenSpecialist) return false;

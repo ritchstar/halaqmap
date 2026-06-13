@@ -1,7 +1,7 @@
 import { IMAGES } from '@/assets/images';
 import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
 import { getSupabaseClient } from '@/integrations/supabase/client';
-import type { Barber, InclusiveAccessibleCareOffer } from '@/lib/index';
+import type { Barber, HomeVisitOffer, InclusiveAccessibleCareOffer } from '@/lib/index';
 import { SubscriptionTier } from '@/lib/index';
 import { sanitizeInclusiveCareDays } from '@/lib/barberInclusiveCareRemote';
 import { barberAcceptsChildren } from '@/lib/barberCategoryLexicon';
@@ -64,6 +64,11 @@ type BarberRow = {
   featured_images?: unknown;
   is_showcase_preview?: boolean | null;
   children_specialist?: boolean | null;
+  home_service_offered?: boolean | null;
+  home_service_price_sar?: number | string | null;
+  home_service_radius_km?: number | null;
+  home_service_public_visible?: boolean | null;
+  home_service_customer_note?: string | null;
 };
 
 function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer | undefined {
@@ -84,6 +89,27 @@ function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer |
   if (base.restrictToDays && row.inclusive_care_days && typeof row.inclusive_care_days === 'object') {
     base.activeDayFlags = sanitizeInclusiveCareDays(row.inclusive_care_days as Record<string, boolean>);
   }
+  return base;
+}
+
+function mapHomeVisitFromRow(row: BarberRow): HomeVisitOffer | undefined {
+  if (row.home_service_offered !== true) return undefined;
+  if (row.home_service_public_visible === false) return undefined;
+  const raw = row.home_service_price_sar;
+  const p = raw != null && raw !== '' ? Number(raw) : NaN;
+  const base: HomeVisitOffer = {
+    offered: true,
+    publicVisible: true,
+  };
+  if (Number.isFinite(p) && p > 0) {
+    base.displayedPriceSar = Math.round(p * 100) / 100;
+  }
+  const r = row.home_service_radius_km;
+  if (r != null && Number.isFinite(Number(r)) && Number(r) > 0) {
+    base.radiusKm = Math.floor(Number(r));
+  }
+  const note = row.home_service_customer_note?.trim();
+  if (note) base.customerNote = note;
   return base;
 }
 
@@ -167,6 +193,7 @@ function mapRow(row: BarberRow): Barber {
     reviewCount: Math.max(0, Math.floor(Number(row.total_reviews) || 0)),
     images,
     inclusiveAccessibleCare: mapInclusiveCareFromRow(row),
+    homeVisitOffer: mapHomeVisitFromRow(row),
     services: [{ name: 'للاستفسار والأسعار — تواصل مباشرة', price: 0 }],
     workingHours: DEFAULT_WORKING_HOURS,
     isOpen: row.is_active !== false && row.open_for_customers !== false,
@@ -232,6 +259,11 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
       inclusive_care_days,
       inclusive_care_customer_note,
       open_for_customers,
+      home_service_offered,
+      home_service_price_sar,
+      home_service_radius_km,
+      home_service_public_visible,
+      home_service_customer_note,
       user_id,
       has_active_subscription,
       gallery_count,

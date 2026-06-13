@@ -10,16 +10,10 @@ import {
   PLATFORM_VISION_BODY,
   PLATFORM_WHY_FEATURES_INTRO,
 } from "@/config/platformGrowthNarrative";
-import { ISIC_ACTIVITY_CODE, ISIC_MOC_ACTIVITY_NAME_AR } from '@/config/geospatialLicenseDoctrine';
+import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
 
 export default function About() {
-  const licensedActivities = [
-    { code: ISIC_ACTIVITY_CODE, label: ISIC_MOC_ACTIVITY_NAME_AR, primary: true },
-    { code: '620101', label: 'تكامل الأنظمة', primary: false },
-    { code: '620102', label: 'تصميم وبرمجة البرمجيات الخاصة', primary: false },
-    { code: '620111', label: 'تطوير التطبيقات', primary: false },
-    { code: '631121', label: 'خدمات الاستضافة للمواقع والتطبيقات', primary: false },
-  ] as const;
+  const licensedActivities = LICENSED_COMMERCIAL_ACTIVITIES;
 
   const features = [
     {

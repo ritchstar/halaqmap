@@ -50,6 +50,28 @@ function ChildrenServicesInline({ barber }: { barber: Barber }) {
   return null;
 }
 
+function HomeVisitInline({ barber }: { barber: Barber }) {
+  const h = barber.homeVisitOffer;
+  if (!h?.offered || h.publicVisible === false) return null;
+  if (barber.subscription !== SubscriptionTier.GOLD && barber.subscription !== SubscriptionTier.DIAMOND) {
+    return null;
+  }
+  const price =
+    h.displayedPriceSar != null && h.displayedPriceSar > 0 ? `${h.displayedPriceSar} ر.س` : null;
+  const radius = h.radiusKm != null && h.radiusKm > 0 ? `~${h.radiusKm} كم` : null;
+  return (
+    <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5 leading-relaxed border-t border-border/60 pt-1.5">
+      🏠 زيارة منزلية
+      {price || radius ? (
+        <span className="font-semibold text-foreground">
+          {' '}
+          {[price, radius].filter(Boolean).join(' · ')}
+        </span>
+      ) : null}
+    </p>
+  );
+}
+
 function InclusiveCareInline({ barber }: { barber: Barber }) {
   const c = barber.inclusiveAccessibleCare;
   if (!c?.offered) return null;
@@ -155,6 +177,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                   </Badge>
                   <InclusiveCareInline barber={barber} />
                   <ChildrenServicesInline barber={barber} />
+                  <HomeVisitInline barber={barber} />
                 </div>
               </div>
 
@@ -225,6 +248,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 </Badge>
                 <InclusiveCareInline barber={barber} />
                 <ChildrenServicesInline barber={barber} />
+                <HomeVisitInline barber={barber} />
               </div>
               <Badge className="bg-muted text-muted-foreground border-border">
                 برونزي
@@ -325,6 +349,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 </Badge>
                 <InclusiveCareInline barber={barber} />
                 <ChildrenServicesInline barber={barber} />
+                <HomeVisitInline barber={barber} />
               </div>
             </div>
 
@@ -420,6 +445,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
               </Badge>
               <InclusiveCareInline barber={barber} />
               <ChildrenServicesInline barber={barber} />
+              <HomeVisitInline barber={barber} />
             </div>
           </div>
 

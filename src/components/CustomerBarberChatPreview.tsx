@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { MessageCircle, Languages, Sparkles, User, Store, Hourglass, RotateCcw, Send, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -109,6 +109,8 @@ export function CustomerBarberChatPreview({
   previewListing,
   compact,
   className,
+  injectMessage,
+  onInjectMessageSent,
 }: {
   tier: Tier;
   barberId: string;
@@ -117,6 +119,9 @@ export function CustomerBarberChatPreview({
   previewListing?: boolean;
   compact?: boolean;
   className?: string;
+  /** رسالة تُرسل تلقائياً عند جاهزية الشات (مثلاً من نموذج الزيارة المنزلية) */
+  injectMessage?: string | null;
+  onInjectMessageSent?: () => void;
 }) {
   const isDiamond = tier === SubscriptionTier.DIAMOND;
   const perks = isDiamond ? DIAMOND_PERKS : GOLD_PERKS;
@@ -210,6 +215,45 @@ export function CustomerBarberChatPreview({
   }, [liveMode, live.remainingMs, remainingMsLocal]);
 
   const expired = liveMode ? live.expiredUi : localExpired;
+
+  const injectRef = useRef<string | null>(null);
+  useEffect(() => {
+    const text = injectMessage?.trim();
+    if (!text || injectRef.current === text) return;
+    if (expired) return;
+
+    const run = async () => {
+      if (liveMode && live.status === 'ready') {
+        const res = await live.send(text);
+        if (res.ok) {
+          injectRef.current = text;
+          onInjectMessageSent?.();
+          toast.success('تم إرسال طلب التواصل عبر الشات.');
+        } else if (res.error) {
+          toast.error(res.error);
+        }
+        return;
+      }
+      if (!liveMode && !localExpired) {
+        const afterCustomer = appendPrivateMessage(barberId, session, 'customer', text);
+        setLocalMessages(afterCustomer);
+        injectRef.current = text;
+        onInjectMessageSent?.();
+        toast.success('تم إرسال طلب التواصل (معاينة محلية).');
+      }
+    };
+
+    void run();
+  }, [
+    barberId,
+    expired,
+    injectMessage,
+    live,
+    liveMode,
+    localExpired,
+    onInjectMessageSent,
+    session,
+  ]);
 
   const liveErrorBanner =
     useLive && (live.status === 'auth_failed' || live.status === 'start_failed') ? (

@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Phone, MapPin, MessageCircle, Star, Shield, Clock, QrCode, Images, Loader2 } from 'lucide-react';
+import { Phone, MapPin, MessageCircle, Star, Shield, Clock, QrCode, Images, Loader2, Home } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
@@ -19,6 +19,8 @@ import { getOrderedWeekHoursForDisplay, SAUDI_WEEK_DAY_LABELS } from '@/lib/saud
 import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
 import { CustomerBarberChatPreview } from '@/components/CustomerBarberChatPreview';
+import { HomeServiceContactRequestForm } from '@/components/HomeServiceContactRequestForm';
+import { formatHomeServiceContactMessage } from '@/lib/homeServiceContactTemplate';
 
 interface BarberDetailModalProps {
   barber: Barber;
@@ -35,6 +37,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
     </span>
   ) : null;
   const chatPreviewRef = useRef<HTMLDivElement>(null);
+  const [pendingChatMessage, setPendingChatMessage] = useState<string | null>(null);
+  const [showHomeContactForm, setShowHomeContactForm] = useState(false);
   const [barberReviews, setBarberReviews] = useState(() => getMergedReviewsForBarber(barber.id));
   const [fullGalleryUrls, setFullGalleryUrls] = useState<string[] | null>(null);
   const [galleryLoading, setGalleryLoading] = useState(false);
@@ -68,6 +72,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
     setFullGalleryUrls(null);
     setGalleryView('featured');
     setGalleryLoading(false);
+    setPendingChatMessage(null);
+    setShowHomeContactForm(false);
   }, [barber.id, isOpen]);
 
   useEffect(() => {
@@ -75,6 +81,21 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
     window.addEventListener('halaqmap-qr-reviews', onRefresh);
     return () => window.removeEventListener('halaqmap-qr-reviews', onRefresh);
   }, [barber.id]);
+
+  const homeVisit = barber.homeVisitOffer;
+  const showHomeVisit =
+    homeVisit?.offered &&
+    homeVisit.publicVisible !== false &&
+    (barber.subscription === SubscriptionTier.GOLD || barber.subscription === SubscriptionTier.DIAMOND);
+
+  const handleHomeContactSubmit = async (
+    values: Parameters<typeof formatHomeServiceContactMessage>[1],
+  ) => {
+    const message = formatHomeServiceContactMessage(barber.name, values);
+    setPendingChatMessage(message);
+    setShowHomeContactForm(false);
+    chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const handleLocationClick = () => {
     const url = `https://www.google.com/maps/search/?api=1&query=${barber.location.lat},${barber.location.lng}`;
@@ -266,6 +287,64 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
             </div>
           )}
 
+          {showHomeVisit && homeVisit && (
+            <>
+              <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.05] to-card">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Home className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="font-semibold">زيارة منزلية</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {homeVisit.displayedPriceSar != null && homeVisit.displayedPriceSar > 0
+                          ? `من ${homeVisit.displayedPriceSar} ر.س (إرشادي)`
+                          : 'سعر حسب التنسيق المباشر'}
+                        {homeVisit.radiusKm != null && homeVisit.radiusKm > 0
+                          ? ` · نطاق ~${homeVisit.radiusKm} كم`
+                          : ''}
+                      </p>
+                      {homeVisit.customerNote?.trim() ? (
+                        <p className="text-xs text-muted-foreground">{homeVisit.customerNote.trim()}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full border-green-600/40 text-green-700 hover:bg-green-50 dark:hover:bg-green-950/20"
+                      onClick={handleWhatsAppClick}
+                    >
+                      <SiWhatsapp className="w-4 h-4 ml-2" />
+                      تواصل واتساب
+                    </Button>
+                    <Button
+                      type="button"
+                      className="w-full"
+                      onClick={() => {
+                        setShowHomeContactForm((v) => !v);
+                        if (!showHomeContactForm) {
+                          window.setTimeout(() => {
+                            chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 100);
+                        }
+                      }}
+                    >
+                      <Home className="w-4 h-4 ml-2" />
+                      {showHomeContactForm ? 'إخفاء النموذج' : 'طلب تواصل منزلية'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              {showHomeContactForm ? (
+                <HomeServiceContactRequestForm
+                  barberName={barber.name}
+                  onSubmit={handleHomeContactSubmit}
+                />
+              ) : null}
+            </>
+          )}
+
           {(barber.subscription === SubscriptionTier.GOLD ||
             barber.subscription === SubscriptionTier.DIAMOND) && (
             <div ref={chatPreviewRef} className="scroll-mt-4">
@@ -278,6 +357,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                 barberId={barber.id}
                 barberName={barber.name}
                 previewListing={barber.previewListing}
+                injectMessage={pendingChatMessage}
+                onInjectMessageSent={() => setPendingChatMessage(null)}
               />
             </div>
           )}
@@ -318,6 +399,18 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                           {barber.inclusiveAccessibleCare.displayedPriceSar != null &&
                           barber.inclusiveAccessibleCare.displayedPriceSar > 0
                             ? `${barber.inclusiveAccessibleCare.displayedPriceSar} ريال (معروض)`
+                            : '—'}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {showHomeVisit && homeVisit && (
+                      <TableRow>
+                        <TableCell className="font-medium leading-snug">
+                          زيارة منزلية — طلب تواصل (ليس حجزاً عبر المنصة)
+                        </TableCell>
+                        <TableCell className="text-left font-semibold text-primary">
+                          {homeVisit.displayedPriceSar != null && homeVisit.displayedPriceSar > 0
+                            ? `${homeVisit.displayedPriceSar} ريال (إرشادي)`
                             : '—'}
                         </TableCell>
                       </TableRow>

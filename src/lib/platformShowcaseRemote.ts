@@ -25,6 +25,11 @@ type FallbackRow = {
   open_for_customers: boolean | null;
   specialties: string[] | null;
   children_specialist?: boolean | null;
+  home_service_offered?: boolean | null;
+  home_service_price_sar?: number | string | null;
+  home_service_radius_km?: number | null;
+  home_service_public_visible?: boolean | null;
+  home_service_customer_note?: string | null;
   gallery_count?: number | null;
   featured_images?: unknown;
   is_showcase_preview?: boolean;
@@ -69,6 +74,27 @@ function parseFeaturedImages(raw: unknown): string[] {
   return out;
 }
 
+function mapHomeVisitFromFallbackRow(row: FallbackRow) {
+  if (row.home_service_offered !== true) return undefined;
+  if (row.home_service_public_visible === false) return undefined;
+  const tier = tierFromDb(row.tier);
+  if (tier !== SubscriptionTier.GOLD && tier !== SubscriptionTier.DIAMOND) return undefined;
+  const raw = row.home_service_price_sar;
+  const p = raw != null && raw !== '' ? Number(raw) : NaN;
+  const offer: {
+    offered: boolean;
+    displayedPriceSar?: number;
+    radiusKm?: number;
+    customerNote?: string;
+  } = { offered: true };
+  if (Number.isFinite(p) && p > 0) offer.displayedPriceSar = Math.round(p * 100) / 100;
+  const r = row.home_service_radius_km;
+  if (r != null && Number.isFinite(Number(r)) && Number(r) > 0) offer.radiusKm = Math.floor(Number(r));
+  const note = row.home_service_customer_note?.trim();
+  if (note) offer.customerNote = note;
+  return offer;
+}
+
 function mapRow(row: FallbackRow): Barber {
   const featured = parseFeaturedImages(row.featured_images);
   const cover = row.cover_image?.trim() || null;
@@ -77,6 +103,7 @@ function mapRow(row: FallbackRow): Barber {
   const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
   const lat = Number(row.latitude);
   const lng = Number(row.longitude);
+  const homeVisitOffer = mapHomeVisitFromFallbackRow(row);
 
   return {
     id: row.id,
@@ -103,6 +130,7 @@ function mapRow(row: FallbackRow): Barber {
     ...(row.children_specialist === true && barberAcceptsChildren(row.specialties)
       ? { childrenSpecialist: true }
       : {}),
+    ...(homeVisitOffer ? { homeVisitOffer } : {}),
     ...(featured.length > 0 ? { featuredImages: featured } : {}),
     ...(galleryCount > 0 ? { galleryCount } : {}),
   };

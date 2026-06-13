@@ -28,6 +28,7 @@ import {
   Loader2,
   Shield,
   Baby,
+  Home,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -90,6 +91,7 @@ import {
   type BarberPortalInclusiveCareSnapshot,
 } from '@/lib/barberInclusiveCareRemote';
 import { updateBarberChildrenServicesRemote } from '@/lib/barberChildrenServicesRemote';
+import { updateBarberHomeServiceRemote } from '@/lib/barberHomeServiceRemote';
 import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
@@ -254,6 +256,8 @@ export default function BarberDashboard({
         openForCustomers: parsed.openForCustomers !== false,
         openStatusToken: String(parsed.openStatusToken ?? '').trim(),
         inclusiveCare: parsed.inclusiveCare,
+        childrenServices: parsed.childrenServices,
+        homeService: parsed.homeService,
       });
     } catch {
       void clearBarberLinkedSession();
@@ -392,7 +396,8 @@ export default function BarberDashboard({
         prev.openForCustomers === merged.openForCustomers &&
         prev.openStatusToken === merged.openStatusToken &&
         JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null) &&
-        JSON.stringify(prev.childrenServices ?? null) === JSON.stringify(merged.childrenServices ?? null);
+        JSON.stringify(prev.childrenServices ?? null) === JSON.stringify(merged.childrenServices ?? null) &&
+        JSON.stringify(prev.homeService ?? null) === JSON.stringify(merged.homeService ?? null);
       if (same) return prev;
       persistBarberAuthSession(merged);
       return merged;
@@ -2522,6 +2527,174 @@ function InclusiveCarePartnerSettingsCard({
   );
 }
 
+function HomeServicePartnerSettingsCard({
+  barberId,
+  barberData,
+  onRefreshPortalSession,
+}: {
+  barberId: string;
+  barberData: BarberPortalSession;
+  onRefreshPortalSession: () => Promise<void>;
+}) {
+  const [offered, setOffered] = useState(false);
+  const [priceStr, setPriceStr] = useState('');
+  const [radiusStr, setRadiusStr] = useState('');
+  const [publicVisible, setPublicVisible] = useState(true);
+  const [customerNote, setCustomerNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const s = barberData.homeService;
+    if (!s) {
+      setOffered(false);
+      setPriceStr('');
+      setRadiusStr('');
+      setPublicVisible(true);
+      setCustomerNote('');
+      return;
+    }
+    setOffered(s.offered);
+    setPriceStr(s.priceSar != null && s.priceSar > 0 ? String(s.priceSar) : '');
+    setRadiusStr(s.radiusKm != null && s.radiusKm > 0 ? String(s.radiusKm) : '');
+    setPublicVisible(s.publicVisible !== false);
+    setCustomerNote(s.customerNote ?? '');
+  }, [barberData.homeService, barberData.id]);
+
+  const handleSave = async () => {
+    if (offered) {
+      const p = parseFloat(String(priceStr).replace(/,/g, '.'));
+      if (!Number.isFinite(p) || p <= 0) {
+        toast.error('عند تفعيل الزيارة المنزلية: أدخل سعراً معروضاً بالريال أكبر من صفر.');
+        return;
+      }
+    }
+    setSaving(true);
+    const priceSar =
+      offered && priceStr.trim()
+        ? Math.round(parseFloat(String(priceStr).replace(/,/g, '.')) * 100) / 100
+        : null;
+    let radiusKm: number | null = null;
+    if (offered && radiusStr.trim()) {
+      const r = parseFloat(String(radiusStr).replace(/,/g, '.'));
+      if (Number.isFinite(r) && r > 0) {
+        radiusKm = Math.min(100, Math.max(1, Math.floor(r)));
+      }
+    }
+    const res = await updateBarberHomeServiceRemote({
+      barberId,
+      email: barberData.email,
+      payload: {
+        offered,
+        priceSar,
+        radiusKm,
+        publicVisible: offered ? publicVisible : true,
+        customerNote,
+      },
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success('تم حفظ إعدادات الزيارة المنزلية.');
+    await onRefreshPortalSession();
+  };
+
+  return (
+    <Card className="mb-6 border-emerald-500/25 bg-gradient-to-br from-emerald-500/[0.06] to-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Home className="h-5 w-5 text-emerald-600" />
+          زيارة منزلية
+        </CardTitle>
+        <CardDescription className="leading-relaxed">
+          للباقتين الذهبية والماسية. أعلن أنك تقدّم زيارة منزلية — العميل يتواصل معك مباشرة (واتساب أو شات).
+          المنصة ناقل تواصل فقط وليست وسيط حجز.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">أقدّم زيارة منزلية</p>
+            <p className="text-xs text-muted-foreground">
+              يظهر في فلتر «خدمة منزلية» وبطاقة صالونك — التنسيق مباشرة مع العميل.
+            </p>
+          </div>
+          <Switch checked={offered} onCheckedChange={(c) => setOffered(c === true)} />
+        </div>
+
+        {offered && (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="home-price-dash">السعر الإرشادي (ر.س)</Label>
+                <Input
+                  id="home-price-dash"
+                  type="number"
+                  min={1}
+                  step="1"
+                  inputMode="decimal"
+                  dir="ltr"
+                  className="text-left"
+                  value={priceStr}
+                  onChange={(e) => setPriceStr(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="home-radius-dash">نطاق التغطية (كم) — اختياري</Label>
+                <Input
+                  id="home-radius-dash"
+                  type="number"
+                  min={1}
+                  max={100}
+                  step="1"
+                  inputMode="numeric"
+                  dir="ltr"
+                  className="text-left"
+                  placeholder="مثال: 10"
+                  value={radiusStr}
+                  onChange={(e) => setRadiusStr(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium">إظهار الخدمة للعملاء</p>
+                <p className="text-xs text-muted-foreground">أوقفها مؤقتاً دون حذف الإعدادات.</p>
+              </div>
+              <Switch checked={publicVisible} onCheckedChange={(c) => setPublicVisible(c === true)} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="home-note-dash">ملاحظة للعميل (اختياري)</Label>
+              <Textarea
+                id="home-note-dash"
+                rows={3}
+                maxLength={800}
+                placeholder="مثال: الزيارة حسب التوفر — يرجى التنسيق مسبقاً عبر الشات أو واتساب."
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+              />
+            </div>
+          </>
+        )}
+
+        <Button type="button" className="w-full sm:w-auto" disabled={saving} onClick={() => void handleSave()}>
+          {saving ? (
+            <>
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              جاري الحفظ…
+            </>
+          ) : (
+            'حفظ إعدادات الزيارة المنزلية'
+          )}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 function SettingsSection({
   barberId,
   barberData,
@@ -2659,6 +2832,14 @@ function SettingsSection({
 
       {showWeeklyEditor && (
         <ChildrenServicesPartnerSettingsCard
+          barberId={barberId}
+          barberData={barberData}
+          onRefreshPortalSession={onRefreshPortalSession}
+        />
+      )}
+
+      {showWeeklyEditor && (
+        <HomeServicePartnerSettingsCard
           barberId={barberId}
           barberData={barberData}
           onRefreshPortalSession={onRefreshPortalSession}

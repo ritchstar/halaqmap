@@ -1,6 +1,7 @@
 import { SubscriptionTier } from '@/lib';
 import type { BarberPortalInclusiveCareSnapshot } from '@/lib/barberInclusiveCareRemote';
 import type { BarberPortalChildrenServicesSnapshot } from '@/lib/barberChildrenServicesRemote';
+import type { BarberPortalHomeServiceSnapshot } from '@/lib/barberHomeServiceRemote';
 
 const DEFAULT_ENDPOINT = '/api/barber-portal-login';
 const DEFAULT_REFRESH_ENDPOINT = '/api/barber-portal-session-refresh';
@@ -68,6 +69,8 @@ export type BarberPortalSession = {
   inclusiveCare?: BarberPortalInclusiveCareSnapshot;
   /** قبول حلاقة الأطفال + وضع متخصص (من قاعدة البيانات) */
   childrenServices?: BarberPortalChildrenServicesSnapshot;
+  /** زيارة منزلية (ذهبي/ماسي) */
+  homeService?: BarberPortalHomeServiceSnapshot;
   /** توكن جلسة موقّع يستخدمه API لحماية مسارات البوابة الحساسة */
   barberSessionToken?: string;
 };
@@ -108,6 +111,7 @@ export async function barberPortalLoginRemote(input: {
         open_status_token?: string;
         inclusiveCare?: BarberPortalInclusiveCareSnapshot;
         childrenServices?: BarberPortalChildrenServicesSnapshot;
+        homeService?: BarberPortalHomeServiceSnapshot;
       };
     };
     if (!response.ok) {
@@ -144,6 +148,7 @@ export async function barberPortalLoginRemote(input: {
         openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
         childrenServices: b.childrenServices,
+        homeService: b.homeService,
         barberSessionToken,
       },
       authSession,
@@ -189,6 +194,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         open_status_token?: string;
         inclusiveCare?: BarberPortalInclusiveCareSnapshot;
         childrenServices?: BarberPortalChildrenServicesSnapshot;
+        homeService?: BarberPortalHomeServiceSnapshot;
       };
     };
     if (!response.ok) {
@@ -221,6 +227,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
         childrenServices: b.childrenServices,
+        homeService: b.homeService,
         barberSessionToken,
       },
     };
