@@ -55,8 +55,16 @@ export const PLATFORM_MISSION_BODY =
   'توفير تجربة رقمية سريعة تساعد المستخدم على الوصول إلى مقدم الخدمة المناسب والتواصل معه مباشرة، مع تمكين الشركاء من إدارة ظهورهم والتفاعل مع الزبائن باحترافية.';
 
 /** مقدمة قسم «لماذا حلاق ماب؟» */
-export const PLATFORM_WHY_FEATURES_INTRO =
-  'نظام الاستجابة الذكية يجمع بين السرعة ووضوح الوصول — مميزات عملية للباحث وللشريك.';
+export const PLATFORM_SPECIALIZATION_THESIS_AR =
+  'في أسواق الخدمات المحلية، التخصص يسبق الحجم. لا أحد يبحث عن «أي حلاق» — الجميع يبحث عن «الحلاق الصح».';
+
+export const PLATFORM_SPECIALIZATION_FILTER_LEDE_AR =
+  'في منصة حلاق ماب، فلاتر الخدمة تساعد الباحث على إيجاد الحلاق المناسب قدر الإمكان — وفق بيانات الشركاء المتاحة واستعلامه.';
+
+/** عقيدة التخصص — فقرة موحّدة (B2B · B2C · من نحن) */
+export const PLATFORM_SPECIALIZATION_POSITIONING_AR = `${PLATFORM_SPECIALIZATION_THESIS_AR} ${PLATFORM_SPECIALIZATION_FILTER_LEDE_AR}`;
+
+export const PLATFORM_WHY_FEATURES_INTRO = PLATFORM_SPECIALIZATION_POSITIONING_AR;
 
 export { PLATFORM_HOME_WELCOME_FEATURES };
 
