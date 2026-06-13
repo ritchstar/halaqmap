@@ -5,6 +5,11 @@ import {
   PLATFORM_OFFICIAL_FOOTER_LEGAL_LINE,
   PLATFORM_MEDIA_LICENSE_FOOTER_LINE,
 } from '@/config/platformGrowthNarrative';
+import {
+  PLATFORM_OPERATIONAL_TRUST_FOOTER_LINK_AR,
+  PLATFORM_OPERATIONAL_TRUST_FOOTER_SHORT_AR,
+  PLATFORM_OPERATIONAL_TRUST_SECTION_ID,
+} from '@/config/platformOperationalTrust';
 
 type Variant = 'light' | 'dark';
 
@@ -42,6 +47,19 @@ export function PlatformOfficialFooterStrip({ variant = 'light' }: { variant?: V
           {PLATFORM_OFFICIAL_ENTITY_ABOUT_LINK_LABEL}
         </NavLink>
       </div>
+      <p
+        className={`mt-3 text-center text-xs leading-relaxed sm:text-sm ${
+          variant === 'dark' ? 'text-slate-400' : 'text-muted-foreground'
+        }`}
+      >
+        {PLATFORM_OPERATIONAL_TRUST_FOOTER_SHORT_AR}{' '}
+        <NavLink
+          to={`${ROUTE_PATHS.ABOUT}#${PLATFORM_OPERATIONAL_TRUST_SECTION_ID}`}
+          className={linkClass}
+        >
+          {PLATFORM_OPERATIONAL_TRUST_FOOTER_LINK_AR}
+        </NavLink>
+      </p>
     </div>
   );
 }
