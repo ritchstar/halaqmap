@@ -23,6 +23,12 @@ export const HOME_SERVICE_TYPES = [
 export const HOME_SERVICE_CONTACT_DISCLAIMER_AR =
   'أفهم أن هذا طلب تواصل وليس حجزاً. التنسيق والسعر النهائي والتنفيذ مباشرة بيني وبين الحلاق — المنصة ناقل تواصل تقني فقط.';
 
+/** يُستخدم لتمييز طلبات الزيارة المنزلية في تنبيهات الشات. */
+export function isHomeServiceContactChatBody(body: string): boolean {
+  const t = body.trim();
+  return t.startsWith('🏠') || t.includes('طلب تواصل — خدمة زيارة منزلية');
+}
+
 export function formatHomeServiceContactMessage(
   barberName: string,
   values: HomeServiceContactFormValues,

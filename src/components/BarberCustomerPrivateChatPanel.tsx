@@ -17,6 +17,8 @@ import {
 import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
 import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
+import { useBarberCustomerChatAlerts } from '@/hooks/useBarberCustomerChatAlerts';
+import { BarberChatAlertSettingsCard } from '@/components/barber/BarberChatAlertSettingsCard';
 
 function remainingMs(expiresAtIso: string): number {
   const t = new Date(expiresAtIso).getTime();
@@ -56,6 +58,8 @@ export function BarberCustomerPrivateChatPanel({
     () => conversations.find((c) => c.id === selectedId) ?? null,
     [conversations, selectedId]
   );
+
+  useBarberCustomerChatAlerts(barberId, barberEmail, conversations, selectedId);
 
   const pollConversations = useCallback(async (force = false) => {
     if (!force && !isPollingTabActive()) return;
@@ -199,7 +203,9 @@ export function BarberCustomerPrivateChatPanel({
   };
 
   return (
-    <Card className="border-primary/20">
+    <>
+      <BarberChatAlertSettingsCard barberId={barberId} />
+      <Card className="border-primary/20">
       <CardHeader className="pb-2">
         <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
           <MessageCircle className="h-5 w-5 text-primary" />
@@ -319,5 +325,6 @@ export function BarberCustomerPrivateChatPanel({
         )}
       </CardContent>
     </Card>
+    </>
   );
 }
