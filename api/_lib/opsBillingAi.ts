@@ -744,7 +744,7 @@ const VISION_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gi
 export function assertVisionMime(mime: string): string | null {
   const m = mime.trim().toLowerCase();
   if (!VISION_MIMES.has(m)) {
-    return 'يُقبل JPEG وPNG وWebP وGIF فقط. حوّل PDF إلى صورة للتحليل.';
+    return 'يُقبل JPEG وPNG وWebP وGIF فقط. ارفع PDF من واجهة خازن ليُحوَّل تلقائياً.';
   }
   return null;
 }

@@ -8,6 +8,7 @@ import type {
 const ANALYZE_API = '/api/admin-resources-ai-analyze';
 const APPLY_API = '/api/admin/resources/update-from-ai';
 export const OPS_BILLING_AI_ANALYZE_TIMEOUT_MS = 30_000;
+export const OPS_BILLING_AI_PDF_ANALYZE_TIMEOUT_MS = 45_000;
 export const OPS_BILLING_AI_TIMEOUT_MESSAGE = 'انتهت مهلة الاتصال، يرجى إعادة المحاولة';
 
 function getClientSupabaseUrl(): string {

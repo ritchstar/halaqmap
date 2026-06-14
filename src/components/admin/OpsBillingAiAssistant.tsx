@@ -3,6 +3,7 @@ import {
   Bot,
   Check,
   FileImage,
+  FileText,
   Loader2,
   Send,
   Sparkles,
@@ -26,18 +27,27 @@ import {
   analyzeOpsBillingWithAi,
   applyOpsBillingAiUpdate,
   fetchOpsBillingAiDiagnostics,
+  OPS_BILLING_AI_PDF_ANALYZE_TIMEOUT_MS,
 } from '@/lib/opsBillingAiRemote';
+import {
+  buildKhazenPdfUserMessage,
+  isPdfFile,
+  MAX_PDF_BYTES,
+  preparePdfInvoiceForKhazen,
+} from '@/lib/opsBillingPdfClient';
 import type { OpsBillingAiProposal } from '@/types/opsBillingAi';
 
 type ChatMsg = { role: 'user' | 'assistant'; content: string };
 
-const ACCEPT = 'image/jpeg,image/png,image/webp,image/gif';
+const ACCEPT = 'image/jpeg,image/png,image/webp,image/gif,application/pdf';
 
 const ANALYSIS_LOADING_STEPS = [
   'يتم الآن قراءة الفاتورة…',
   'يتم مطابقة البيانات مع جدول الالتزامات…',
   'جاري إعداد المعاينة…',
 ] as const;
+
+const PDF_PREP_MESSAGE = 'جارٍ قراءة ملف PDF واستخراج بيانات الفوترة…';
 
 function AnalysisLoadingIndicator({ stepIndex }: { stepIndex: number }) {
   const label = ANALYSIS_LOADING_STEPS[stepIndex] ?? ANALYSIS_LOADING_STEPS[0];
@@ -61,7 +71,7 @@ function AnalysisLoadingIndicator({ stepIndex }: { stepIndex: number }) {
               />
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">قد يستغرق التحليل حتى 30 ثانية للصور المعقدة</p>
+          <p className="text-xs text-muted-foreground">قد يستغرق التحليل حتى 45 ثانية لملفات PDF والصور المعقدة</p>
         </div>
       </div>
     </div>
@@ -173,7 +183,7 @@ export function OpsBillingAiAssistant({
       content:
         'مرحباً — أنا **خازن 🪙**، خزّان العمليات المالي.\n\n' +
         '**كل خدمة = صف مستقل** في جدول الالتزامات (مثال: نطاق `GoDaddy` ≠ `Notion`).\n' +
-        'ارفع لقطة فاتورة (JPEG/PNG) أو اكتب سؤالاً — سأقترح **تحديث** صف موجود أو **إضافة** صف جديد للمراجعة قبل الحفظ.\n' +
+        'ارفع فاتورة (PDF أو JPEG/PNG) أو اكتب سؤالاً — سأقترح **تحديث** صف موجود أو **إضافة** صف جديد للمراجعة قبل الحفظ.\n' +
         'لا أدمج فاتورة خدمة جديدة في صف خدمة سابقة.',
     },
   ]);
@@ -184,6 +194,7 @@ export function OpsBillingAiAssistant({
   const [applying, setApplying] = useState(false);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [attachedIsPdf, setAttachedIsPdf] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const analyzeAbortRef = useRef<AbortController | null>(null);
   const analyzeRequestGenRef = useRef(0);
@@ -222,6 +233,7 @@ export function OpsBillingAiAssistant({
 
   const clearAttachment = () => {
     setAttachedFile(null);
+    setAttachedIsPdf(false);
     if (filePreview) URL.revokeObjectURL(filePreview);
     setFilePreview(null);
     if (fileRef.current) fileRef.current.value = '';
@@ -230,20 +242,20 @@ export function OpsBillingAiAssistant({
   const onPickFile = (file: File | null) => {
     clearAttachment();
     if (!file) return;
-    if (file.type === 'application/pdf') {
-      toast({ title: 'حوّل PDF إلى صورة PNG أو JPEG للتحليل حالياً', variant: 'destructive' });
+    const pdf = isPdfFile(file);
+    const allowed = ACCEPT.split(',').includes(file.type) || pdf;
+    if (!allowed) {
+      toast({ title: 'صيغة غير مدعومة — استخدم PDF أو JPEG أو PNG أو WebP', variant: 'destructive' });
       return;
     }
-    if (!ACCEPT.split(',').includes(file.type)) {
-      toast({ title: 'صيغة غير مدعومة — استخدم JPEG أو PNG أو WebP', variant: 'destructive' });
-      return;
-    }
-    if (file.size > 4 * 1024 * 1024) {
-      toast({ title: 'الحد الأقصى 4 ميجابايت', variant: 'destructive' });
+    const maxBytes = pdf ? MAX_PDF_BYTES : 4 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      toast({ title: pdf ? 'حجم PDF كبير — الحد 8 ميجابايت' : 'الحد الأقصى 4 ميجابايت', variant: 'destructive' });
       return;
     }
     setAttachedFile(file);
-    setFilePreview(URL.createObjectURL(file));
+    setAttachedIsPdf(pdf);
+    if (!pdf) setFilePreview(URL.createObjectURL(file));
   };
 
   const onDrop = (e: React.DragEvent) => {
@@ -254,7 +266,7 @@ export function OpsBillingAiAssistant({
   const send = async () => {
     const text = input.trim();
     if (!text && !attachedFile) {
-      toast({ title: 'أدخل رسالة أو ارفع صورة', variant: 'destructive' });
+      toast({ title: 'أدخل رسالة أو ارفع فاتورة', variant: 'destructive' });
       return;
     }
 
@@ -266,28 +278,50 @@ export function OpsBillingAiAssistant({
     setBusy(true);
     setLoadingStep(0);
     setPending(null);
-    const userLine = text || '(مرفق فاتورة)';
     const historyForApi = messages.slice(-8);
+    const attachedPdf = attachedFile && isPdfFile(attachedFile);
+    const userLine =
+      text.trim() ||
+      (attachedPdf ? `(فاتورة PDF${attachedFile?.name ? `: ${attachedFile.name}` : ''})` : '(مرفق فاتورة)');
     setMessages((m) => [...m, { role: 'user', content: userLine }]);
     setInput('');
 
     try {
       let imageBase64: string | undefined;
       let imageMime: string | undefined;
+      let apiUserMessage = text;
+
       if (attachedFile) {
-        const enc = await fileToBase64(attachedFile);
-        imageBase64 = enc.base64;
-        imageMime = enc.mime;
+        if (attachedPdf) {
+          setMessages((m) => [...m, { role: 'assistant', content: PDF_PREP_MESSAGE }]);
+          const pdf = await preparePdfInvoiceForKhazen(attachedFile);
+          setMessages((m) => m.filter((msg) => msg.content !== PDF_PREP_MESSAGE));
+          imageBase64 = pdf.imageBase64;
+          imageMime = pdf.imageMime;
+          apiUserMessage = buildKhazenPdfUserMessage({
+            userText: text,
+            extractedText: pdf.extractedText,
+            pageCount: pdf.pageCount,
+            renderedPages: pdf.renderedPages,
+          });
+        } else {
+          const enc = await fileToBase64(attachedFile);
+          imageBase64 = enc.base64;
+          imageMime = enc.mime;
+        }
       }
 
       const r = await analyzeOpsBillingWithAi(
         {
-          userMessage: text,
+          userMessage: apiUserMessage,
           imageBase64,
           imageMime,
           conversationHistory: historyForApi,
         },
-        { signal: abortController.signal },
+        {
+          signal: abortController.signal,
+          timeoutMs: attachedPdf ? OPS_BILLING_AI_PDF_ANALYZE_TIMEOUT_MS : undefined,
+        },
       );
 
       if (r.ok === false) {
@@ -312,6 +346,12 @@ export function OpsBillingAiAssistant({
         proposals.find((p) => p.match_confidence === 'medium') ||
         proposals[0];
       if (best) setPending(best);
+    } catch (e) {
+      if (analyzeRequestGenRef.current !== requestGen) return;
+      setMessages((m) => m.filter((msg) => msg.content !== PDF_PREP_MESSAGE));
+      const err = e instanceof Error ? e.message : 'تعذّر معالجة المرفق';
+      toast({ title: err, variant: 'destructive' });
+      setMessages((m) => [...m, { role: 'assistant', content: `⚠️ ${err}` }]);
     } finally {
       if (analyzeRequestGenRef.current === requestGen) {
         if (analyzeAbortRef.current === abortController) {
@@ -498,9 +538,19 @@ export function OpsBillingAiAssistant({
               className="hidden"
               onChange={(e) => onPickFile(e.target.files?.[0] ?? null)}
             />
-            {filePreview ? (
+            {attachedFile ? (
               <div className="space-y-2">
-                <img src={filePreview} alt="معاينة" className="mx-auto max-h-28 rounded object-contain" />
+                {attachedIsPdf ? (
+                  <div className="flex flex-col items-center gap-2 py-2">
+                    <FileText className="h-10 w-10 text-primary" />
+                    <p className="text-sm font-medium truncate max-w-full">{attachedFile.name}</p>
+                    <p className="text-xs text-muted-foreground">PDF — سيتم استخراج النص وتحليل الفوترة</p>
+                  </div>
+                ) : (
+                  filePreview && (
+                    <img src={filePreview} alt="معاينة" className="mx-auto max-h-28 rounded object-contain" />
+                  )
+                )}
                 <Button type="button" variant="ghost" size="sm" onClick={clearAttachment}>
                   إزالة المرفق
                 </Button>
@@ -508,7 +558,7 @@ export function OpsBillingAiAssistant({
             ) : (
               <div className="space-y-2">
                 <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">اسحب فاتورة أو لقطة شاشة (JPEG/PNG)</p>
+                <p className="text-sm text-muted-foreground">اسحب فاتورة PDF أو لقطة شاشة (JPEG/PNG)</p>
                 <Button type="button" variant="secondary" size="sm" onClick={() => fileRef.current?.click()}>
                   <FileImage className="h-4 w-4 ml-1" />
                   اختيار ملف
@@ -520,7 +570,7 @@ export function OpsBillingAiAssistant({
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="مثال: تجديد GoDaddy حتى مايو 2027 — أو ارفع صورة الفاتورة"
+            placeholder="مثال: تجديد GoDaddy حتى مايو 2027 — أو ارفع PDF/صورة الفاتورة"
             rows={3}
             className="resize-none"
             disabled={busy}
