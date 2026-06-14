@@ -36,6 +36,10 @@ export const PLATFORM_GROWTH_PULSE_STATIONS_PHASE1 = {
     'الموجة الأولى: فنادق · شقق مفروشة · عروض `Acrylic` — حيث يحتاج الزائر للحلاقة قبل أن يفتح التطبيق بنفسه.',
 } as const;
 
+/** شعار رسمي — برنامج محيط المدار (ما بعد التفعيل) */
+export const PLATFORM_GROWTH_PERIMETER_TAGLINE_AR =
+  'لن نتركك وحيداً في حيّك — حلاق ماب تُسوّق معك، وتبني قنوات الوصول — لا اشتراكاً مفتوحاً ولا وعوداً فارغة.';
+
 export const PLATFORM_GROWTH_PROGRAM_PHASES: readonly PlatformGrowthProgramPhase[] = [
   {
     id: 'orbit_readiness',
@@ -62,9 +66,9 @@ export const PLATFORM_GROWTH_PROGRAM_PHASES: readonly PlatformGrowthProgramPhase
     order: 3,
     titleAr: 'برنامج محيط المدار',
     shortTitleAr: 'محيط المدار',
-    simpleExplainAr: 'بعد التفعيل — نرفع الوعي حولك حتى لو كنت الوحيد في منطقتك.',
-    detailAr:
-      'لا نتركك تنتظر الصدفة: حتى حلاق واحد في حيه له مسار دعم. المنصة تعمل محيطاً حول صالونك — تغطية محلية وتشغيل منطقي — فائدة لا حسرة.',
+    simpleExplainAr:
+      'لن نتركك وحيداً في حيّك — تُسوّق معك وتبني قنوات الوصول.',
+    detailAr: PLATFORM_GROWTH_PERIMETER_TAGLINE_AR,
     internalCode: 'orbit_perimeter_program',
   },
 ] as const;
@@ -73,7 +77,9 @@ export const PLATFORM_GROWTH_PROGRAM_PHASES: readonly PlatformGrowthProgramPhase
 export const PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR =
   '**الانضمام بداية — لا نهاية.**\n\n' +
   '**تحضير المدار** يضعك في الشبكة قبل موجة الطلب. **محطات النبض** تجلب الباحثين من قنوات مدروسة — فنادق وشقق مفروشة أولاً. ' +
-  'وبعد تفعيلك يبدأ **محيط المدار**: حتى لو كنت **حلاقاً واحداً** في منطقتك — **نصل إليك** ونرفع وعي السوق **حولك**، منطقياً ومرحلةً مرحلة.\n\n' +
+  'وبعد تفعيلك يبدأ **محيط المدار** — ' +
+  PLATFORM_GROWTH_PERIMETER_TAGLINE_AR +
+  '\n\n' +
   '**لا نتركك تنتظر الحظ.** استثمار تريد **فائدته** — لا **حسرته**: من يفعّل مبكراً يبني محيطاً قبل المنافس؛ من يتأخر يدفع ثمن الانتظار.';
 
 /** سطر الهيرو القصير */
@@ -86,11 +92,11 @@ export const PLATFORM_GROWTH_REGISTER_INTRO_AR =
 
 /** ما بعد تسجيل الطلب — قبل الدفع */
 export const PLATFORM_GROWTH_REGISTER_SUCCESS_NOTE_AR =
-  'بعد اكتمال الدفع والتفعيل يبدأ **محيط المدار** حول صالونك — حتى لو كنت الشريك الوحيد في منطقتك، المنصة لا تتركك تنتظر الصدفة.';
+  'بعد اكتمال الدفع والتفعيل — ' + PLATFORM_GROWTH_PERIMETER_TAGLINE_AR;
 
 /** لوحة الحلاق — تركيز ما بعد التفعيل */
 export const PLATFORM_GROWTH_DASHBOARD_PERIMETER_NOTE_AR =
-  'أنت في المدار — **محيط المدار** يعمل حولك: تغطية محلية وقنوات وصول متوازية. لا انتظار حظ — فائدة منطقية.';
+  PLATFORM_GROWTH_PERIMETER_TAGLINE_AR;
 
 /** سطر امتثال — يُعرض بخط صغير */
 export const PLATFORM_GROWTH_COMPLIANCE_NOTE_AR =

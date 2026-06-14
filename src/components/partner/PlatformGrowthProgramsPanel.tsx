@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   PLATFORM_GROWTH_COMPLIANCE_NOTE_AR,
+  PLATFORM_GROWTH_DASHBOARD_PERIMETER_NOTE_AR,
   PLATFORM_GROWTH_LANDING_SECTION,
   PLATFORM_GROWTH_PROGRAM_PHASES,
   PLATFORM_GROWTH_PULSE_STATIONS_PHASE1,
@@ -201,6 +202,17 @@ export function PlatformGrowthProgramsPanel({
           );
         })}
       </div>
+
+      {isDashboard && activationState === 'post_activation' && (
+        <p
+          className={cn(
+            'text-sm font-semibold leading-relaxed text-right rounded-lg border px-4 py-3',
+            'border-primary/30 bg-primary/10 text-foreground',
+          )}
+        >
+          {PLATFORM_GROWTH_DASHBOARD_PERIMETER_NOTE_AR}
+        </p>
+      )}
 
       {showCompliance && !isCompact && (
         <p
