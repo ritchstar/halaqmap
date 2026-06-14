@@ -187,7 +187,7 @@ export interface Barber {
   isOpen: boolean;
   verified: boolean;
   categories: string[];
-  /** متخصص حلاقة أطفال — بطاقة مميزة عند children_specialist=true */
+  /** متخصص حلاقة أطفال — بطاقة مميزة؛ ماسي فقط */
   childrenSpecialist?: boolean;
   /** يقبل حلاقة أطفال (من specialties) */
   acceptsChildren?: boolean;
@@ -363,7 +363,9 @@ export interface SubscriptionRequest {
   /** تسهيلات بالمحل و/أو زيارة منزلية للفئات الحسّاسة — اختياري؛ عند التفعيل يلزم سعر معروض */
   inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
   categories?: string[];
-  /** متخصص أطفال — يُفعَّل عند التسجيل أو من لوحة الحلاق */
+  /** مسار التخصص عند التسجيل */
+  specialtyTrack?: 'general' | 'children';
+  /** متخصص أطفال — ماسي فقط */
   childrenSpecialist?: boolean;
   /** موافقة صريحة على شروط التسجيل وسياسة الشركاء (إلزامية عند الإرسال) */
   registrationTermsAccepted?: boolean;
@@ -482,7 +484,7 @@ export function filterBarbersByDistance(
         });
         if (!hasCategory) return false;
       }
-      if (filters.childrenSpecialistOnly && !barber.childrenSpecialist) return false;
+      if (filters.childrenSpecialistOnly && (!barber.childrenSpecialist || barber.subscription !== SubscriptionTier.DIAMOND)) return false;
       return true;
     })
     .sort((a, b) =>

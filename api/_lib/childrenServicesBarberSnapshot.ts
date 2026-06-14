@@ -1,3 +1,5 @@
+import { resolveChildrenSpecialistFlag } from './childrenSpecialistPolicy.js';
+
 const CHILDREN_LABELS = new Set(['حلاقة أطفال', 'أطفال', 'حلاق أطفال', 'صالون أطفال']);
 
 function acceptsChildrenFromSpecialties(raw: unknown): boolean {
@@ -13,9 +15,14 @@ export type ChildrenServicesBarberSnapshot = {
 export function buildChildrenServicesSnapshotFromBarberRow(row: {
   specialties?: unknown;
   children_specialist?: boolean | null;
+  tier?: string | null;
 }): ChildrenServicesBarberSnapshot {
   const acceptsChildren = acceptsChildrenFromSpecialties(row.specialties);
-  const childrenSpecialist = row.children_specialist === true && acceptsChildren;
+  const childrenSpecialist = resolveChildrenSpecialistFlag({
+    requested: row.children_specialist === true,
+    acceptsChildren,
+    tier: row.tier,
+  });
   return {
     acceptsChildren,
     childrenSpecialist,

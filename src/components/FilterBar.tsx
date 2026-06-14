@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCcw, Star, SlidersHorizontal, ChevronDown, MapPin, Clock, Crown } from 'lucide-react';
 import { FilterState, SubscriptionTier } from '@/lib/index';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
+import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
+import { CHILDREN_SPECIALIST_FILTER_LABEL_AR } from '@/lib/childrenSpecialistDisplay';
 
 interface FilterBarProps {
   filters: FilterState;
@@ -262,7 +264,8 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
                     })
                   }
                 >
-                  👶 متخصص أطفال فقط
+                  <ChildrenSpecialistIcon className="h-3 w-3 shrink-0" title={CHILDREN_SPECIALIST_FILTER_LABEL_AR} />{' '}
+                  {CHILDREN_SPECIALIST_FILTER_LABEL_AR} (ماسي)
                 </Pill>
               </div>
 

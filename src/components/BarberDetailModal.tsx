@@ -24,6 +24,8 @@ import { GroomPrepContactRequestForm } from '@/components/GroomPrepContactReques
 import { formatHomeServiceContactMessage } from '@/lib/homeServiceContactTemplate';
 import { formatGroomPrepContactMessage } from '@/lib/groomPrepContactTemplate';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
+import { ChildrenSpecialistDetailBanner } from '@/components/barber/ChildrenSpecialistCardChrome';
+import { isChildrenSpecialistBarber } from '@/lib/childrenSpecialistDisplay';
 
 interface BarberDetailModalProps {
   barber: Barber;
@@ -98,6 +100,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
     groomPrep?.offered &&
     groomPrep.publicVisible !== false &&
     barber.subscription === SubscriptionTier.DIAMOND;
+
+  const showChildrenSpecialist = isChildrenSpecialistBarber(barber);
 
   const handleHomeContactSubmit = async (
     values: Parameters<typeof formatHomeServiceContactMessage>[1],
@@ -207,6 +211,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
           transition={{ duration: 0.3 }}
           className="space-y-6 mt-4"
         >
+          {showChildrenSpecialist ? <ChildrenSpecialistDetailBanner /> : null}
+
           {featuredPreview.length > 1 && galleryView === 'featured' ? (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {featuredPreview.map((src) => (

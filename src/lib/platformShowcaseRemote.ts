@@ -149,7 +149,9 @@ function mapRow(row: FallbackRow): Barber {
     hasActiveSubscription: true,
     showcasePreview: true,
     ...(barberAcceptsChildren(row.specialties) ? { acceptsChildren: true } : {}),
-    ...(row.children_specialist === true && barberAcceptsChildren(row.specialties)
+    ...(row.children_specialist === true &&
+    barberAcceptsChildren(row.specialties) &&
+    tierFromDb(row.tier) === SubscriptionTier.DIAMOND
       ? { childrenSpecialist: true }
       : {}),
     ...(homeVisitOffer ? { homeVisitOffer } : {}),

@@ -4,6 +4,7 @@ import {
   isBarberUpsertMissingInclusiveCareColumnError,
   stripInclusiveCareKeysFromBarberUpsertRow,
 } from './barberInclusiveCareUpsertRetry.js';
+import { resolveChildrenSpecialistFlag } from './childrenSpecialistPolicy.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -225,9 +226,11 @@ export function buildBarberUpsertRowFromRegistrationPayload(
     inclusive_care_restrict_days: false,
     inclusive_care_days: {},
     inclusive_care_customer_note: null,
-    children_specialist:
-      payload.childrenSpecialist === true &&
-      categories.some((c) => c === 'حلاقة أطفال' || c === 'أطفال'),
+    children_specialist: resolveChildrenSpecialistFlag({
+      requested: payload.childrenSpecialist === true,
+      acceptsChildren: categories.some((c) => c === 'حلاقة أطفال' || c === 'أطفال'),
+      tier,
+    }),
   };
 }
 

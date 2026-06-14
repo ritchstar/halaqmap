@@ -4,6 +4,7 @@ import {
   stripInclusiveCareKeysFromBarberUpsertRow,
 } from '@/lib/barberInclusiveCareUpsertGuard';
 import { SubscriptionRequest, SubscriptionTier } from '@/lib/index';
+import { resolveChildrenSpecialistFlag } from '@/config/childrenSpecialistPolicy';
 
 const APPROVE_BARBER_API = '/api/approve-barber';
 
@@ -266,9 +267,12 @@ export async function upsertBarberFromApprovedRequest(
     inclusive_care_restrict_days: false,
     inclusive_care_days: {},
     inclusive_care_customer_note: null,
-    children_specialist:
-      request.childrenSpecialist === true &&
-      (request.categories?.some((c) => c === 'حلاقة أطفال' || c === 'أطفال') ?? false),
+    children_specialist: resolveChildrenSpecialistFlag({
+      requested: request.childrenSpecialist === true,
+      acceptsChildren:
+        request.categories?.some((c) => c === 'حلاقة أطفال' || c === 'أطفال') ?? false,
+      tier: request.tier,
+    }),
   };
 
   const endpoint = String(import.meta.env.VITE_APPROVE_BARBER_URL || APPROVE_BARBER_API).trim();

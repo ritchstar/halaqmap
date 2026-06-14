@@ -56,6 +56,12 @@ import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
 import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
 import {
+  CHILDREN_HAIRCUT_ALL_TIERS_AR,
+  CHILDREN_SPECIALIST_DIAMOND_ONLY_AR,
+  type BarberSpecialtyTrack,
+  resolveRegistrationChildrenFields,
+} from '@/config/childrenSpecialistPolicy';
+import {
   SaudiRegionCityDistrictFields,
   composeSaudiLocationLine,
   type SaudiLocationSelection,
@@ -133,8 +139,8 @@ interface FormData {
   whatsapp: string;
   taxNumber: string;
   categories: string[];
-  /** متخصص أطفال — عند اختيار حلاقة أطفال */
-  childrenSpecialist: boolean;
+  /** مسار التخصص: عام أو متخصص أطفال (ماسي) */
+  specialtyTrack: BarberSpecialtyTrack;
   /** تعهد قانوني إلزامي قبل إتمام التسجيل */
   legalDisclaimerAccepted: boolean;
   /** التزام مهني إلزامي قبل إتمام التسجيل */
@@ -291,7 +297,7 @@ export function RegistrationForm() {
     whatsapp: '',
     taxNumber: '',
     categories: [],
-    childrenSpecialist: false,
+    specialtyTrack: 'general',
     legalDisclaimerAccepted: false,
     professionalCommitmentAccepted: false,
     softwareProductAcknowledged: false,
@@ -337,8 +343,16 @@ export function RegistrationForm() {
       return;
     }
     if (currentStep === 2) {
-      if (!formData.shopName || !formData.email || !formData.phone || !formData.whatsapp || formData.categories.length === 0) {
+      if (!formData.shopName || !formData.email || !formData.phone || !formData.whatsapp) {
         alert('يرجى تعبئة جميع الحقول المطلوبة');
+        return;
+      }
+      if (formData.specialtyTrack === 'children' && formData.tier !== SubscriptionTier.DIAMOND) {
+        alert('مسار «متخصص أطفال» متاح للباقة الماسية فقط. اختر الماسي أو حدّد «تخصص عام».');
+        return;
+      }
+      if (formData.specialtyTrack === 'general' && formData.categories.length === 0) {
+        alert('يرجى اختيار نوع خدمة واحد على الأقل.');
         return;
       }
       // Email validation
@@ -718,10 +732,18 @@ export function RegistrationForm() {
         ...(inclusiveAccessibleCarePayload
           ? { inclusiveAccessibleCare: inclusiveAccessibleCarePayload }
           : {}),
-        categories: [...formData.categories],
-        ...(formData.childrenSpecialist && formData.categories.includes(CHILDREN_BARBER_CATEGORY)
-          ? { childrenSpecialist: true }
-          : {}),
+        ...(() => {
+          const resolved = resolveRegistrationChildrenFields({
+            specialtyTrack: formData.specialtyTrack,
+            tier: formData.tier as SubscriptionTier,
+            categories: formData.categories,
+          });
+          return {
+            categories: resolved.categories,
+            ...(resolved.childrenSpecialist ? { childrenSpecialist: true } : {}),
+          };
+        })(),
+        specialtyTrack: formData.specialtyTrack,
         registrationTermsAccepted: true,
         registrationTermsAcceptedAtIso: submittedAtIso,
         professionalCommitmentAccepted: true,
@@ -969,6 +991,10 @@ export function RegistrationForm() {
                         tier: value as SubscriptionTier,
                         digitalShiftAddon:
                           value === SubscriptionTier.DIAMOND ? prev.digitalShiftAddon : false,
+                        specialtyTrack:
+                          value !== SubscriptionTier.DIAMOND && prev.specialtyTrack === 'children'
+                            ? 'general'
+                            : prev.specialtyTrack,
                       }))
                     }
                     className="grid gap-4 md:grid-cols-3 md:items-stretch"
@@ -1161,10 +1187,60 @@ export function RegistrationForm() {
                     </AlertDescription>
                   </Alert>
                 </div>
+                <div className="space-y-3">
+                  <Label className={regLabelClass}>مسار التخصص *</Label>
+                  <RadioGroup
+                    value={formData.specialtyTrack}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        specialtyTrack: value as BarberSpecialtyTrack,
+                        categories:
+                          value === 'children' ? [CHILDREN_BARBER_CATEGORY] : prev.categories,
+                      }))
+                    }
+                    className="grid gap-3"
+                  >
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-600 bg-slate-800/60 p-3">
+                      <RadioGroupItem value="general" id="specialty-general" className="mt-1" />
+                      <div>
+                        <span className={`font-semibold ${regLabelClass}`}>تخصص عام</span>
+                        <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                          صالون متعدد الخدمات — اختر التصنيفات المناسبة أدناه. {CHILDREN_HAIRCUT_ALL_TIERS_AR}
+                        </p>
+                      </div>
+                    </label>
+                    <label
+                      className={`flex items-start gap-3 rounded-lg border p-3 ${
+                        formData.tier === SubscriptionTier.DIAMOND
+                          ? 'cursor-pointer border-sky-400/40 bg-sky-500/5'
+                          : 'cursor-not-allowed border-slate-700 bg-slate-900/40 opacity-70'
+                      }`}
+                    >
+                      <RadioGroupItem
+                        value="children"
+                        id="specialty-children"
+                        className="mt-1"
+                        disabled={formData.tier !== SubscriptionTier.DIAMOND}
+                      />
+                      <div>
+                        <span className={`font-semibold ${regLabelClass}`}>متخصص أطفال</span>
+                        <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                          {CHILDREN_SPECIALIST_DIAMOND_ONLY_AR}
+                        </p>
+                        {formData.tier !== SubscriptionTier.DIAMOND ? (
+                          <p className="mt-1 text-xs text-amber-300/90">اختر الباقة الماسية في الخطوة الأولى لتفعيل هذا المسار.</p>
+                        ) : null}
+                      </div>
+                    </label>
+                  </RadioGroup>
+                </div>
+
+                {formData.specialtyTrack === 'general' ? (
                 <div className="space-y-2">
                   <Label className={regLabelClass}>نوع الخدمات *</Label>
                   <p className="text-xs leading-relaxed text-slate-400">
-                    جميع الباقات (بما فيها البرونزي) يمكنها اختيار «حلاقة أطفال» لاستقبال العائلات.
+                    {CHILDREN_HAIRCUT_ALL_TIERS_AR}
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     {CATEGORIES.map((category) => (
@@ -1178,10 +1254,6 @@ export function RegistrationForm() {
                               categories: checked
                                 ? [...prev.categories, category]
                                 : prev.categories.filter((c) => c !== category),
-                              childrenSpecialist:
-                                category === CHILDREN_BARBER_CATEGORY && checked !== true
-                                  ? false
-                                  : prev.childrenSpecialist,
                             }));
                           }}
                           className="border-slate-500 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-900"
@@ -1192,25 +1264,16 @@ export function RegistrationForm() {
                       </div>
                     ))}
                   </div>
-                  {formData.categories.includes(CHILDREN_BARBER_CATEGORY) ? (
-                    <div className="mt-3 flex items-start gap-3 rounded-lg border border-sky-400/25 bg-sky-500/5 p-3">
-                      <Checkbox
-                        id="children-specialist-reg"
-                        checked={formData.childrenSpecialist}
-                        onCheckedChange={(checked) =>
-                          setFormData((prev) => ({ ...prev, childrenSpecialist: checked === true }))
-                        }
-                        className="mt-0.5 border-slate-500 data-[state=checked]:bg-sky-200 data-[state=checked]:text-slate-900"
-                      />
-                      <Label htmlFor="children-specialist-reg" className={`cursor-pointer leading-relaxed ${regLabelClass}`}>
-                        <span className="font-semibold">متخصص أطفال</span>
-                        <span className="mt-1 block text-xs font-normal text-slate-400">
-                          للصالونات التي تركّز على الأطفال أو تعمل أطفالاً فقط — بطاقة مميزة في البحث.
-                        </span>
-                      </Label>
-                    </div>
-                  ) : null}
                 </div>
+                ) : (
+                  <Alert className={regAlertClass}>
+                    <AlertCircle className="h-4 w-4 text-sky-300" />
+                    <AlertDescription className="text-slate-300 leading-relaxed">
+                      مسار متخصص أطفال: يُسجَّل صالونك كـ«{CHILDREN_BARBER_CATEGORY}» مع بطاقة «متخصص أطفال» ولوحة
+                      تحكم مخصصة بعد التفعيل.
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
             </RegStepShell>
           )}

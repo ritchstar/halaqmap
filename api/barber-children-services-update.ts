@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+import { assertBarberPortalSessionFromRequest } from './_lib/barberPortalAuth.js';
+import { resolveChildrenSpecialistFlag } from './_lib/childrenSpecialistPolicy.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
@@ -11,7 +13,7 @@ const CHILDREN_ALIASES = new Set(['حلاقة أطفال', 'أطفال', 'حلا
 
 const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
-  allowHeaders: 'Content-Type, x-supabase-anon, x-client-supabase-url',
+  allowHeaders: 'Content-Type, Authorization, x-barber-portal-session, x-supabase-anon, x-client-supabase-url',
 } as const;
 
 function corsHeaders(request: Request): Record<string, string> {
@@ -76,10 +78,16 @@ export async function POST(request: Request): Promise<Response> {
   const barberId = String((body as { barberId?: unknown }).barberId ?? '').trim();
   const rawEmail = String((body as { email?: unknown }).email ?? '').trim();
   const acceptsChildren = Boolean((body as { acceptsChildren?: unknown }).acceptsChildren);
-  const childrenSpecialist = acceptsChildren && Boolean((body as { childrenSpecialist?: unknown }).childrenSpecialist);
+  const requestedSpecialist =
+    acceptsChildren && Boolean((body as { childrenSpecialist?: unknown }).childrenSpecialist);
 
   if (!barberId || !rawEmail) {
     return Response.json({ error: 'Missing barberId or email' }, { status: 400, headers });
+  }
+
+  const authGate = assertBarberPortalSessionFromRequest(request, barberId, rawEmail);
+  if (!authGate.ok) {
+    return Response.json({ error: authGate.message }, { status: authGate.status, headers });
   }
 
   const supabase = createClient(url, serviceRole, {
@@ -99,7 +107,7 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Barber not found' }, { status: 404, headers });
   }
 
-  const b = row as { id: string; email: string; is_active: boolean | null; specialties: unknown };
+  const b = row as { id: string; email: string; tier: string; is_active: boolean | null; specialties: unknown };
   const emailNorm = rawEmail.trim().toLowerCase();
   const rowEmail = String(b.email ?? '').trim().toLowerCase();
   if (!rowEmail || rowEmail !== emailNorm) {
@@ -109,7 +117,23 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Account is not active' }, { status: 403, headers });
   }
 
+  const tier = String(b.tier ?? '').toLowerCase();
+  if (requestedSpecialist && tier !== 'diamond') {
+    return Response.json(
+      {
+        error: 'Children specialist mode is available for diamond partners only.',
+      },
+      { status: 403, headers },
+    );
+  }
+
   const nextSpecialties = withChildrenInSpecialties(b.specialties, acceptsChildren);
+  const childrenSpecialist = resolveChildrenSpecialistFlag({
+    requested: requestedSpecialist,
+    acceptsChildren,
+    tier: b.tier,
+  });
+
   const updatePayload: Record<string, unknown> = {
     specialties: nextSpecialties.length ? nextSpecialties : null,
     children_specialist: childrenSpecialist,

@@ -28,10 +28,10 @@ import {
   UserX,
   Loader2,
   Shield,
-  Baby,
   Home,
 } from 'lucide-react';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
+import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -92,10 +92,12 @@ import {
   mergeInclusiveCareDaysFromSnapshot,
   type BarberPortalInclusiveCareSnapshot,
 } from '@/lib/barberInclusiveCareRemote';
-import { updateBarberChildrenServicesRemote } from '@/lib/barberChildrenServicesRemote';
 import { updateBarberHomeServiceRemote } from '@/lib/barberHomeServiceRemote';
 import { updateBarberGroomPrepRemote } from '@/lib/barberGroomPrepRemote';
-import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
+import { isActiveChildrenSpecialistSession } from '@/lib/childrenSpecialistDashboardMode';
+import { CHILDREN_SPECIALIST_DASHBOARD_TAB_AR } from '@/config/childrenSpecialistDashboardCopy';
+import { ChildrenServicesPartnerSettingsCard } from '@/components/barber/ChildrenServicesPartnerSettingsCard';
+import { ChildrenSpecialistDashboardPanel } from '@/components/barber/ChildrenSpecialistDashboardPanel';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
@@ -306,6 +308,7 @@ export default function BarberDashboard({
         showDigitalShift: false,
         isGoldLite: false,
         showGoldLiteBanner: false,
+        showChildrenSpecialistTab: true,
       };
     }
     if (!barberData) {
@@ -319,6 +322,7 @@ export default function BarberDashboard({
         showDigitalShift: false,
         isGoldLite: false,
         showGoldLiteBanner: false,
+        showChildrenSpecialistTab: false,
       };
     }
     if (listingBalance && !listingBalance.hasActiveListing) {
@@ -332,6 +336,7 @@ export default function BarberDashboard({
         showDigitalShift: false,
         isGoldLite: false,
         showGoldLiteBanner: false,
+        showChildrenSpecialistTab: false,
       };
     }
     if (effectiveListingTier === SubscriptionTier.DIAMOND) {
@@ -345,6 +350,7 @@ export default function BarberDashboard({
         showDigitalShift: true,
         isGoldLite: false,
         showGoldLiteBanner: false,
+        showChildrenSpecialistTab: true,
       };
     }
     if (effectiveListingTier === SubscriptionTier.GOLD) {
@@ -358,6 +364,7 @@ export default function BarberDashboard({
         showDigitalShift: true,
         isGoldLite: true,
         showGoldLiteBanner: true,
+        showChildrenSpecialistTab: false,
       };
     }
     return {
@@ -370,8 +377,18 @@ export default function BarberDashboard({
       showDigitalShift: false,
       isGoldLite: false,
       showGoldLiteBanner: false,
+      showChildrenSpecialistTab: false,
     };
   }, [founderPreview, barberData, effectiveListingTier, listingBalance]);
+
+  const childrenSpecialistActive = useMemo(
+    () =>
+      isActiveChildrenSpecialistSession({
+        tier: effectiveListingTier ?? barberData?.subscription ?? null,
+        childrenServices: barberData?.childrenServices,
+      }),
+    [barberData?.childrenServices, barberData?.subscription, effectiveListingTier],
+  );
 
   useEffect(() => {
     if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;
@@ -581,7 +598,13 @@ export default function BarberDashboard({
       {previewChrome ? (
         <div className="border-b border-border/40 bg-muted/30 px-3 py-3 sm:px-4">{previewChrome}</div>
       ) : null}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header
+        className={`sticky top-0 z-50 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
+          childrenSpecialistActive
+            ? 'border-sky-400/35 bg-gradient-to-l from-sky-500/10 via-background/95 to-background/95'
+            : 'border-border/40 bg-background/95'
+        }`}
+      >
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex min-h-16 flex-col gap-2 py-2 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-0">
             <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
@@ -616,6 +639,12 @@ export default function BarberDashboard({
                         ? `${listingBalance.listingDaysRemaining} يوم إدراج`
                         : 'لا يوجد إدراج نشط'}
                   </Badge>
+                  {childrenSpecialistActive ? (
+                    <Badge className="text-[10px] sm:text-xs border-sky-400/40 bg-sky-500/15 text-sky-900 dark:text-sky-100 gap-1">
+                      <ChildrenSpecialistIcon className="h-3 w-3" title={CHILDREN_SPECIALIST_DASHBOARD_TAB_AR} />
+                      {CHILDREN_SPECIALIST_DASHBOARD_TAB_AR}
+                    </Badge>
+                  ) : null}
                   {formatBarberMemberNumber(barberData.memberNumber) ? (
                     <span className="truncate text-[11px] text-muted-foreground sm:text-xs" dir="ltr">
                       عضوية: {formatBarberMemberNumber(barberData.memberNumber)}
@@ -693,6 +722,18 @@ export default function BarberDashboard({
                     {unreadCustomerMessages}
                   </Badge>
                 )}
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showChildrenSpecialistTab ? (
+              <TabsTrigger
+                value="children-specialist"
+                className="gap-1.5 text-xs sm:gap-2 sm:text-sm data-[state=active]:bg-sky-500/15 data-[state=active]:text-sky-900 dark:data-[state=active]:text-sky-100"
+              >
+                <ChildrenSpecialistIcon className="h-4 w-4 shrink-0" title={CHILDREN_SPECIALIST_DASHBOARD_TAB_AR} />
+                <span className="hidden sm:inline">{CHILDREN_SPECIALIST_DASHBOARD_TAB_AR}</span>
+                {childrenSpecialistActive ? (
+                  <span className="h-2 w-2 rounded-full bg-sky-400 shrink-0" aria-hidden />
+                ) : null}
               </TabsTrigger>
             ) : null}
             {tierTabs.showPosts ? (
@@ -936,6 +977,14 @@ export default function BarberDashboard({
 
           {tierTabs.showMessages ? (
           <TabsContent value="messages" className="space-y-6">
+            {tierTabs.isGoldLite && (
+              <ChildrenServicesPartnerSettingsCard
+                barberId={barberData.id}
+                barberData={barberData}
+                subscriptionTier={effectiveListingTier ?? barberData.subscription}
+                onRefreshPortalSession={syncPortalSessionFromServer}
+              />
+            )}
             <MessagesSection
               barberId={barberData.id}
               barberEmail={barberData.email}
@@ -949,6 +998,18 @@ export default function BarberDashboard({
                     ? `عرض المنصة: خصم ${bannerState.discountPercent}% (يُدار من الإعدادات → البنر والعروض)`
                     : null
               }
+            />
+          </TabsContent>
+          ) : null}
+
+          {tierTabs.showChildrenSpecialistTab ? (
+          <TabsContent value="children-specialist" className="space-y-6">
+            <ChildrenSpecialistDashboardPanel
+              barberId={barberData.id}
+              barberData={barberData}
+              salonDisplayName={salonDisplayName}
+              subscriptionTier={effectiveListingTier ?? barberData.subscription}
+              onRefreshPortalSession={syncPortalSessionFromServer}
             />
           </TabsContent>
           ) : null}
@@ -986,6 +1047,7 @@ export default function BarberDashboard({
               bannerState={bannerState}
               onBannerChange={persistBanner}
               onRefreshPortalSession={syncPortalSessionFromServer}
+              hideGroomPrep={childrenSpecialistActive}
             />
           </TabsContent>
           ) : null}
@@ -2290,92 +2352,6 @@ function PostsSection({
   );
 }
 
-function ChildrenServicesPartnerSettingsCard({
-  barberId,
-  barberData,
-  onRefreshPortalSession,
-}: {
-  barberId: string;
-  barberData: BarberPortalSession;
-  onRefreshPortalSession: () => Promise<void>;
-}) {
-  const [acceptsChildren, setAcceptsChildren] = useState(false);
-  const [childrenSpecialist, setChildrenSpecialist] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    const s = barberData.childrenServices;
-    setAcceptsChildren(s?.acceptsChildren === true);
-    setChildrenSpecialist(s?.childrenSpecialist === true);
-  }, [barberData.childrenServices, barberData.id]);
-
-  const handleSave = async () => {
-    setSaving(true);
-    const res = await updateBarberChildrenServicesRemote({
-      barberId,
-      email: barberData.email,
-      acceptsChildren,
-      childrenSpecialist: acceptsChildren && childrenSpecialist,
-    });
-    setSaving(false);
-    if (!res.ok) {
-      toast.error(res.error);
-      return;
-    }
-    toast.success('تم حفظ إعدادات حلاقة الأطفال.');
-    await onRefreshPortalSession();
-  };
-
-  return (
-    <Card className="mb-6 border-sky-400/25 bg-gradient-to-br from-sky-500/[0.06] to-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-          <Baby className="h-5 w-5 text-sky-500" />
-          حلاقة الأطفال
-        </CardTitle>
-        <CardDescription className="leading-relaxed">
-          متاح لجميع الباقات (برونزي وما فوق). فعّل «أستقبل الأطفال» ليظهر صالونك عند بحث العائلات. إن كنت
-          متخصصاً بالأطفال فقط، حوِّل بطاقتك إلى «متخصص أطفال» لتمييز أقوى في النتائج.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium">أستقبل حلاقة الأطفال</p>
-            <p className="text-xs text-muted-foreground">
-              يُضاف تصنيف «{CHILDREN_BARBER_CATEGORY}» لملفك ويظهر في فلتر «أطفال» على الخريطة.
-            </p>
-          </div>
-          <Switch
-            checked={acceptsChildren}
-            onCheckedChange={(c) => {
-              const next = c === true;
-              setAcceptsChildren(next);
-              if (!next) setChildrenSpecialist(false);
-            }}
-          />
-        </div>
-
-        {acceptsChildren ? (
-          <div className="flex flex-col gap-3 rounded-lg border border-sky-400/30 bg-sky-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-medium">متخصص أطفال — بطاقة مميزة</p>
-              <p className="text-xs text-muted-foreground">
-                للصالونات التي تركّز على الأطفال أو تعمل أطفالاً فقط. تظهر شارة «متخصص أطفال» على بطاقتك.
-              </p>
-            </div>
-            <Switch checked={childrenSpecialist} onCheckedChange={(c) => setChildrenSpecialist(c === true)} />
-          </div>
-        ) : null}
-
-        <Button type="button" className="w-full" disabled={saving} onClick={() => void handleSave()}>
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'حفظ إعدادات الأطفال'}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
 function InclusiveCarePartnerSettingsCard({
   barberId,
   barberData,
@@ -2870,6 +2846,7 @@ function SettingsSection({
   bannerState,
   onBannerChange,
   onRefreshPortalSession,
+  hideGroomPrep = false,
 }: {
   barberId: string;
   barberData: BarberPortalSession;
@@ -2877,6 +2854,7 @@ function SettingsSection({
   bannerState: BarberPlatformBannerState;
   onBannerChange: (s: BarberPlatformBannerState) => void;
   onRefreshPortalSession: () => Promise<void>;
+  hideGroomPrep?: boolean;
 }) {
   const storageKey = `halaqmap_barber_dashboard_hours_${barberId}`;
 
@@ -2999,14 +2977,6 @@ function SettingsSection({
       </Card>
 
       {showWeeklyEditor && (
-        <ChildrenServicesPartnerSettingsCard
-          barberId={barberId}
-          barberData={barberData}
-          onRefreshPortalSession={onRefreshPortalSession}
-        />
-      )}
-
-      {showWeeklyEditor && (
         <HomeServicePartnerSettingsCard
           barberId={barberId}
           barberData={barberData}
@@ -3014,7 +2984,7 @@ function SettingsSection({
         />
       )}
 
-      {subscriptionTier === SubscriptionTier.DIAMOND && (
+      {subscriptionTier === SubscriptionTier.DIAMOND && !hideGroomPrep && (
         <GroomPrepPartnerSettingsCard
           barberId={barberId}
           barberData={barberData}

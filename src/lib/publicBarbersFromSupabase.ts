@@ -195,7 +195,8 @@ function mapRow(row: BarberRow): Barber {
   const phone = row.phone?.trim() || '';
   const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];
   const acceptsChildren = barberAcceptsChildren(categories);
-  const childrenSpecialist = row.children_specialist === true && acceptsChildren;
+  const childrenSpecialist =
+    row.children_specialist === true && acceptsChildren && tierFromDb(row.tier) === SubscriptionTier.DIAMOND;
   const uid = row.user_id?.trim() || '';
   const previewListing =
     row.account_linked === false || (row.account_linked == null && (!uid || !UUID_RE.test(uid)));
