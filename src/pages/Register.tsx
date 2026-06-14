@@ -9,6 +9,8 @@ import { RegistrationForm } from '@/components/RegistrationForm';
 import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundary';
 import { ROUTE_PATHS } from '@/lib/index';
 import { Scissors, Shield, ChevronRight } from 'lucide-react';
+import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
+import { PLATFORM_GROWTH_PARTNER_HERO_LINE_AR } from '@/config/platformGrowthPrograms';
 
 export default function Register() {
   const location = useLocation();
@@ -53,6 +55,9 @@ export default function Register() {
             سجّل صالونك في منصة حلاق ماب
           </h1>
           <p className="mx-auto max-w-xl text-sm leading-7 text-slate-400">
+            {PLATFORM_GROWTH_PARTNER_HERO_LINE_AR}
+          </p>
+          <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-slate-500">
             {`حزمة ${tierParam === 'bronze' ? 'برونزي' : tierParam === 'gold' ? 'ذهبي' : tierParam === 'diamond' ? 'ماسي' : 'مناسبة'} — رخصة نفاذ رقمية مسبقة الدفع تُفعَّل وفق الحزمة التي تختارها.`}
           </p>
 
@@ -77,6 +82,15 @@ export default function Register() {
             ))}
           </div>
         </motion.header>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.08 }}
+          className="mx-auto mb-8 max-w-4xl"
+        >
+          <PlatformGrowthProgramsPanel variant="register" activationState="pre_activation" />
+        </motion.div>
 
         {/* ── نموذج التسجيل ── */}
         <motion.section

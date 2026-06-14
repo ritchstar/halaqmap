@@ -103,6 +103,7 @@ import {
   partnerDashboardDocumentTitleFromSession,
   partnerSalonDisplayName,
 } from '@/config/partnerDashboardBrand';
+import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
 import { TERM_ACTIVATE_NOW_AR, TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
 import {
   readSchedule,
@@ -663,6 +664,8 @@ export default function BarberDashboard({
       </header>
 
       <div className="container mx-auto space-y-4 px-3 py-6 sm:space-y-6 sm:px-4 sm:py-8">
+        <PlatformGrowthProgramsPanel variant="dashboard" activationState="post_activation" />
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-lg border border-border/50 bg-muted/40 p-1 sm:gap-1.5">
             {tierTabs.showOverview ? (

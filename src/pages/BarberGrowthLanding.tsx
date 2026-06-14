@@ -45,6 +45,7 @@ import {
   PARTNER_LANDING_TESTIMONIALS_SECTION,
   PARTNER_LANDING_WHY_SECTION,
 } from '@/lib/partnerMarketingCopy';
+import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
 import { generatePartnerSupportThreadToken } from '@/lib/partnerSupportChat';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 
@@ -187,6 +188,13 @@ export default function BarberGrowthLanding() {
               ))}
             </motion.div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* مدار · نبض · محيط */}
+      <section id="growth-programs" className="border-b border-border bg-muted/20 py-14 md:py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <PlatformGrowthProgramsPanel variant="landing" activationState="pre_activation" />
         </div>
       </section>
 

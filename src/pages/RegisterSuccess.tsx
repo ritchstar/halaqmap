@@ -15,6 +15,8 @@ import {
   type RegisterOrderConfirmation,
 } from '@/lib/subscriptionRequestStorage';
 import { sendRegistrationPaymentSummaryRemote } from '@/lib/sendRegistrationPaymentSummaryRemote';
+import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
+import { PLATFORM_GROWTH_REGISTER_SUCCESS_NOTE_AR } from '@/config/platformGrowthPrograms';
 
 const tierLabel: Record<SubscriptionTier, string> = {
   [SubscriptionTier.BRONZE]: 'برونزي',
@@ -223,7 +225,16 @@ export default function RegisterSuccess() {
                 بعد اكتمال الدفع يُستكمل تفعيل حزمة الرخصة وفق حالة الطلب المرتبطة بها داخل النظام. يبدأ ظهور صالونك عند
                 اكتمال التفعيل الفعلي، وتُتاح لك أدوات التحكم المناسبة بحسب حالة الحزمة والباقة.
               </p>
+              <p className="mt-3 text-muted-foreground">{PLATFORM_GROWTH_REGISTER_SUCCESS_NOTE_AR}</p>
             </div>
+
+            <PlatformGrowthProgramsPanel
+              variant="compact"
+              activationState="pre_activation"
+              showCompliance={false}
+              showPulsePhase1={false}
+              className="rounded-lg border border-border bg-muted/20 p-3"
+            />
 
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground leading-relaxed">

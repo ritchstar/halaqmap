@@ -1,0 +1,105 @@
+/**
+ * برامج النمو الموحّدة — مدار · نبض · محيط
+ * مصدر الحقيقة لأسماء وشرح خطط التسويق B2B/B2C للشركاء.
+ */
+
+export type PlatformGrowthProgramPhaseId =
+  | 'orbit_readiness'
+  | 'pulse_stations'
+  | 'orbit_perimeter';
+
+export type PlatformGrowthProgramPhase = {
+  id: PlatformGrowthProgramPhaseId;
+  order: 1 | 2 | 3;
+  titleAr: string;
+  shortTitleAr: string;
+  /** فهم سريع — سطر أو سطران */
+  simpleExplainAr: string;
+  /** تفصيل أطول للعرض التسويقي */
+  detailAr: string;
+  internalCode: string;
+};
+
+/** الشعار الموحّد للمنظومة الثلاثية */
+export const PLATFORM_GROWTH_UNIFIED_TAGLINE_AR =
+  'مدار · نبض · محيط — ثلاث مراحل، خطة واحدة، استثمار لا يُترك.';
+
+export const PLATFORM_GROWTH_SUITE_TITLE_AR = 'منظومة نمو حلاق ماب';
+
+export const PLATFORM_GROWTH_SUITE_LEAD_AR =
+  'ثلاث برامج متزامنة — لا نبيعك رخصة ونختفي؛ نبني حضورك ونصل بالطلب وندعمك محلياً.';
+
+/** الموجة الأولى تحت برنامج محطات النبض (B2C) */
+export const PLATFORM_GROWTH_PULSE_STATIONS_PHASE1 = {
+  titleAr: 'محطات الإقامة',
+  bodyAr:
+    'الموجة الأولى: فنادق · شقق مفروشة · عروض `Acrylic` — حيث يحتاج الزائر للحلاقة قبل أن يفتح التطبيق بنفسه.',
+} as const;
+
+export const PLATFORM_GROWTH_PROGRAM_PHASES: readonly PlatformGrowthProgramPhase[] = [
+  {
+    id: 'orbit_readiness',
+    order: 1,
+    titleAr: 'برنامج تحضير المدار',
+    shortTitleAr: 'تحضير المدار',
+    simpleExplainAr: 'تحجز مكانك في شبكة الشركاء قبل موجة الطلب.',
+    detailAr:
+      'انضمامك ليس «إعلاناً» — مقعد في خطة تشغيل: المنصة تُجهّز شبكة الصالونات قبل أن يصل الطلب. السؤال: «هل صالونك جاهز حين يبحث عنك الزبون؟»',
+    internalCode: 'orbit_readiness_program',
+  },
+  {
+    id: 'pulse_stations',
+    order: 2,
+    titleAr: 'برنامج محطات النبض',
+    shortTitleAr: 'محطات النبض',
+    simpleExplainAr: 'الطلب يُبنى من قنوات مدروسة — لا من موقع واحد فقط.',
+    detailAr:
+      'بالتوازي مع انضمامك، المنصة تفتح قنوات وصول للمستخدم: محطات الإقامة أولاً (فنادق وشقق مفروشة)، ثم قنوات تالية — منطق، لا حظ.',
+    internalCode: 'pulse_stations_program',
+  },
+  {
+    id: 'orbit_perimeter',
+    order: 3,
+    titleAr: 'برنامج محيط المدار',
+    shortTitleAr: 'محيط المدار',
+    simpleExplainAr: 'بعد التفعيل — نرفع الوعي حولك حتى لو كنت الوحيد في منطقتك.',
+    detailAr:
+      'لا نتركك تنتظر الصدفة: حتى حلاق واحد في حيه له مسار دعم. المنصة تعمل محيطاً حول صالونك — تغطية محلية وتشغيل منطقي — فائدة لا حسرة.',
+    internalCode: 'orbit_perimeter_program',
+  },
+] as const;
+
+/** فقرة كاملة — تسجيل / لماذا تنضم */
+export const PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR =
+  '**الانضمام بداية — لا نهاية.**\n\n' +
+  '**تحضير المدار** يضعك في الشبكة قبل موجة الطلب. **محطات النبض** تجلب الباحثين من قنوات مدروسة — فنادق وشقق مفروشة أولاً. ' +
+  'وبعد تفعيلك يبدأ **محيط المدار**: حتى لو كنت **حلاقاً واحداً** في منطقتك — **نصل إليك** ونرفع وعي السوق **حولك**، منطقياً ومرحلةً مرحلة.\n\n' +
+  '**لا نتركك تنتظر الحظ.** استثمار تريد **فائدته** — لا **حسرته**: من يفعّل مبكراً يبني محيطاً قبل المنافس؛ من يتأخر يدفع ثمن الانتظار.';
+
+/** سطر الهيرو القصير */
+export const PLATFORM_GROWTH_PARTNER_HERO_LINE_AR =
+  'تحضير المدار + محطات النبض + محيط المدار — استثمار حضورك قبل أن يصل الطلب، لا بعده.';
+
+/** تسجيل الحلاق — مقدمة مختصرة (تُستورد في platformGrowthNarrative) */
+export const PLATFORM_GROWTH_REGISTER_INTRO_AR =
+  'سجّل طلبك ضمن **برنامج تحضير المدار** — بينما **محطات النبض** تبني الطلب بالتوازي، و**محيط المدار** يرفع الدعم حولك بعد التفعيل. حضورك يُفعَّل عند الطلب؛ مكانك في الشبكة يُحجز الآن.';
+
+/** ما بعد تسجيل الطلب — قبل الدفع */
+export const PLATFORM_GROWTH_REGISTER_SUCCESS_NOTE_AR =
+  'بعد اكتمال الدفع والتفعيل يبدأ **محيط المدار** حول صالونك — حتى لو كنت الشريك الوحيد في منطقتك، المنصة لا تتركك تنتظر الصدفة.';
+
+/** لوحة الحلاق — تركيز ما بعد التفعيل */
+export const PLATFORM_GROWTH_DASHBOARD_PERIMETER_NOTE_AR =
+  'أنت في المدار — **محيط المدار** يعمل حولك: تغطية محلية وقنوات وصول متوازية. لا انتظار حظ — فائدة منطقية.';
+
+/** سطر امتثال — يُعرض بخط صغير */
+export const PLATFORM_GROWTH_COMPLIANCE_NOTE_AR =
+  'الظهور يُفعَّل برمجياً عند وجود طلب نشط مناسب — البرامج أعلاه تعني التجهيز والتغطية التسويقية والتشغيلية، لا التزاماً بعدد زيارات.';
+
+/** زر CTA للشريك */
+export const PLATFORM_GROWTH_PARTNER_CTA_AR = 'سجّل طلبك — احجز مكانك في المدار';
+
+export const PLATFORM_GROWTH_LANDING_SECTION = {
+  titleAr: 'مدار · نبض · محيط',
+  leadAr: PLATFORM_GROWTH_SUITE_LEAD_AR,
+} as const;

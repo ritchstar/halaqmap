@@ -8,6 +8,7 @@ import {
   PLATFORM_SMART_TRACKING_SUBTEXT,
 } from '@/config/platformSmartTracking';
 import { LEGAL_TRADE_NAME_AR } from '@/config/partnerLegal';
+import { PLATFORM_GROWTH_REGISTER_INTRO_AR } from '@/config/platformGrowthPrograms';
 
 export const PLATFORM_META_DESCRIPTION =
   'حلاق ماب — منصة رقمية ذكية تساعد المستخدم على الوصول إلى مقدم الخدمة المناسب والتواصل معه مباشرة، عبر استجابة سريعة وعرض عملي واضح — المملكة العربية السعودية.';
@@ -41,8 +42,7 @@ export const PLATFORM_MEDIA_LICENSE_FOOTER_LINE =
 export const PLATFORM_OFFICIAL_ENTITY_ABOUT_LINK_LABEL = 'عن المؤسسة';
 
 /** تسجيل الحلاق — تحت العنوان — عقيدة المؤسس: سجّل طلبك */
-export const PLATFORM_REGISTER_INTRO =
-  'سجّل طلبك وانضم إلى شبكة الاستجابة الذكية: بعد تفعيل حزمة الرخصة تبدأ المنصة في عرض صالونك للعملاء الباحثين عن الخدمة المناسبة — اختر الباقة المناسبة وابدأ الظهور عند الطلب.';
+export const PLATFORM_REGISTER_INTRO = PLATFORM_GROWTH_REGISTER_INTRO_AR.replace(/\*\*/g, '');
 
 /** من نحن — تحت عنوان الصفحة */
 export const PLATFORM_ABOUT_HERO_SUBTITLE = PLATFORM_SMART_TRACKING_SUBTEXT;

@@ -12,6 +12,10 @@ import {
   ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
 } from '@/config/onDemandVisibilityDoctrine';
 import {
+  PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR,
+  PLATFORM_GROWTH_REGISTER_INTRO_AR,
+} from '@/config/platformGrowthPrograms';
+import {
   PARTNER_TECHNICAL_PARTNER_ASSISTANT_WELCOME,
   PARTNER_TECHNICAL_PARTNER_BEFORE_AFTER_SUBTITLE,
   PARTNER_TECHNICAL_PARTNER_COMMITMENT,
@@ -25,11 +29,17 @@ import {
 
 /** فقرات متعددة لصفحة التسجيل — تُعرض ككتل منفصلة لسهولة القراءة على الجوال */
 export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
+  PLATFORM_GROWTH_REGISTER_INTRO_AR.replace(/\*\*/g, ''),
   `${PLATFORM_PARTNER_SMART_TRACKING_HEADLINE}. ${PLATFORM_PARTNER_SMART_TRACKING_LEAD} رخصة نفاذ حلاق ماب الرقمية تعتمد على «الظهور عند الطلب» (On-Demand Visibility): يُفعَّل ظهور صالونك برمجياً حصراً عند وجود طلب فعلي تنطبق عليه بياناته المتاحة وفلترته — كفاءة استجابة، لا قائمة دائمة.`,
   PARTNER_TECHNICAL_PARTNER_REGISTER_LINE,
-  'كل أسبوع تأخّر قد يعني أن طلباً فعلياً يستجيب له صالون آخر قبلك. نافس على مكان القرار: استجابة فورية، وضوح عرض، وثقة الشبكة.',
+  PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR.replace(/\*\*/g, ''),
   ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
 ] as const;
+
+export const PARTNER_LANDING_GROWTH_PROGRAMS_SECTION = {
+  id: 'growth-programs',
+  titleAr: 'مدار · نبض · محيط',
+} as const;
 
 /** نسخة سطر واحد للأماكن التي تتطلب نصاً قصيراً */
 export const PARTNER_REGISTER_INTRO = PARTNER_REGISTER_INTRO_PARAGRAPHS.join(' ');
