@@ -71,6 +71,8 @@ export async function loadDigitalShiftFleetSnapshot(
       'barber_ai_wallet_transactions',
       'barber_ai_recommendations',
       'private_messages.is_digital_shift_reply',
+      'fleet_demand_counters',
+      'fleet_salon_stagnation_pulse',
     ],
   };
 }
@@ -78,6 +80,7 @@ export async function loadDigitalShiftFleetSnapshot(
 const DEMO_SALON_CTX: DigitalShiftContext = {
   barberId: 'lab-demo-salon',
   barberName: 'صالون العرض — مختبر المناوب',
+  cityAr: 'جدة',
   assistantName: 'المناوب الرقمي',
   shopOpen: true,
   listingDaysRemaining: 18,

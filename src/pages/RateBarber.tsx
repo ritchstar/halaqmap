@@ -1,7 +1,7 @@
 import { Component, useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Star, CheckCircle2, AlertTriangle, Home, Loader2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Star, CheckCircle2, AlertTriangle, Home, Loader2, Share2 } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,8 @@ import { mockBarbers } from '@/data/index';
 import { validateRatingInviteToken } from '@/lib/ratingInvite';
 import { appendQrReview, type StoredQrReview } from '@/lib/qrReviewsStorage';
 import { RATING_QR_CUSTOMER_HINT } from '@/config/ratingQrInvite';
+import { PLATFORM_VOLUNTARY_ENGAGEMENT } from '@/config/platformVoluntaryEngagement';
+import { ShareEngagementModal } from '@/components/platformEngagement/PlatformEngagementModals';
 import { toast } from 'sonner';
 import { fetchPublicRateBarberContext } from '@/lib/publicRateBarberRemote';
 
@@ -178,6 +180,7 @@ function RateBarberInner() {
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -372,6 +375,9 @@ function RateBarberInner() {
 
   return (
     <Layout>
+      <AnimatePresence>
+        {shareOpen && <ShareEngagementModal onClose={() => setShareOpen(false)} />}
+      </AnimatePresence>
       <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
         <motion.div
           className="container mx-auto max-w-lg"
@@ -389,10 +395,24 @@ function RateBarberInner() {
                   شكراً لك! يمكن للصالون إدارة ظهور التقييمات وإبرازها من لوحة التحكم.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-center">
-                <Button asChild>
-                  <Link to={ROUTE_PATHS.HOME}>العودة لحلاق ماب</Link>
-                </Button>
+              <CardContent className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                  <Button asChild>
+                    <Link to={ROUTE_PATHS.HOME}>العودة لحلاق ماب</Link>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => setShareOpen(true)}
+                  >
+                    <Share2 className="w-4 h-4" aria-hidden />
+                    {PLATFORM_VOLUNTARY_ENGAGEMENT.actions.share.label}
+                  </Button>
+                </div>
+                <p className="text-center text-[10px] text-muted-foreground leading-relaxed">
+                  {PLATFORM_VOLUNTARY_ENGAGEMENT.actions.share.hint} — لا يؤثر على تقييمك.
+                </p>
               </CardContent>
             </Card>
           ) : (

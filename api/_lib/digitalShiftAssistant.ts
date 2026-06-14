@@ -14,6 +14,7 @@ export const DIGITAL_SHIFT_REPLY_COST_HALALAS = 150;
 export type DigitalShiftContext = {
   barberId: string;
   barberName: string;
+  cityAr: string;
   assistantName: string;
   shopOpen: boolean;
   listingDaysRemaining: number;
@@ -84,6 +85,7 @@ export function buildDigitalShiftSystemPrompt(
     '',
     '═══ سياق الحساب ═══',
     `الصالون: ${ctx.barberName}`,
+    ctx.cityAr ? `المدينة: ${ctx.cityAr}` : '',
     `حالة المحل: ${ctx.shopOpen ? 'مفتوح' : 'مغلق حالياً'}`,
     `أيام حزمة رخصة النفاذ المتبقية: ${ctx.listingDaysRemaining} يوم`,
     `رصيد محفظة المناوب (هللات): ${ctx.walletBalanceHalalas}`,
@@ -166,6 +168,14 @@ export function buildDigitalShiftSystemPrompt(
     base.push('- إذا سأل عن "المواعيد" → ذكّره بالمواعيد المسجلة في لوحة التحكم');
     base.push('- إذا سأل عن "الدعم" → أعطه رابط الدعم الفني مباشرة');
     base.push('- لا تجمع بيانات العملاء ولا تحجز مواعيد عن طريق هذه المحادثة');
+    base.push('');
+    base.push('◆ كساد السوق المحلي — لا تصمت ◆');
+    base.push(
+      'إذا لاحظت هدوءاً في الشات أو ضعف حركة الزبائن في حيّ الصالون، أبلغ الحلاق بوضوح — ' +
+        'وارفع إشارة تشغيلية لقيادة الأسطول (بدون ذكر مصدرها). ' +
+        'اقترح: بنر، معرض، عرض موسمي، التأكد من «مفتوح للزبائن». ' +
+        'لا تعد بعدد زبائن — الظهور عند الطلب.',
+    );
 
     // توجيهات الأسطول — إن وُجدت
     if (extra?.fleetDirectives && extra.fleetDirectives.length > 0) {
@@ -181,7 +191,7 @@ export function buildDigitalShiftSystemPrompt(
     base.push('أنت تعمل تحت إشراف صامت من المدير العام للمناوبين (قيادة الأسطول).');
     base.push('القيادة لا تتدخل في محادثاتك اليومية مع الحلاق — لكنها تستلم نبضات دورية من المكتب الخاص.');
     base.push('إذا وجدت توجيهات أسطول (fleet directives) أدناه، فهي أوامر من القيادة وتُطبَّق بأولوية قصوى.');
-    base.push('التقارير التي تُرفعها تشمل: حالة الحزمة، نشاط المهام، والاحتكاك التشغيلي — كلها مُرمَّزة ومُشفَّرة.');
+    base.push('التقارير التي تُرفعها تشمل: حالة الحزمة، نشاط المهام، الاحتكاك التشغيلي، وإشارات كساد محلي — بدون بيانات زبون.');
   }
 
   return base.join('\n');
@@ -193,7 +203,7 @@ export async function loadDigitalShiftContext(
 ): Promise<DigitalShiftContext | null> {
   const { data: barber, error } = await supabase
     .from('barbers')
-    .select('id, name, tier, open_for_customers')
+    .select('id, name, tier, open_for_customers, city')
     .eq('id', barberId)
     .maybeSingle();
   if (error || !barber || barber.tier !== 'diamond') return null;
@@ -218,6 +228,7 @@ export async function loadDigitalShiftContext(
   return {
     barberId,
     barberName: String(barber.name ?? 'الصالون'),
+    cityAr: String(barber.city ?? '').trim(),
     assistantName: String(cfg?.assistant_display_name ?? 'المناوب الرقمي'),
     shopOpen: barber.open_for_customers !== false,
     listingDaysRemaining: listing.listingDaysRemaining ?? 0,

@@ -8,6 +8,7 @@ import {
   loadDigitalShiftContext,
   upsertRecommendation,
 } from './_lib/digitalShiftAssistant.js';
+import { recordFleetDemandSignal } from './_lib/fleetDemandSignals.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 45 };
@@ -241,6 +242,13 @@ export async function POST(request: Request): Promise<Response> {
       },
     });
   } catch { /* صامت — التقرير لا يوقف الرد */ }
+
+  if (ctx.cityAr) {
+    void recordFleetDemandSignal(supabase, {
+      cityAr: ctx.cityAr,
+      signalType: decision.trigger === 'shop_closed' ? 'intercept_shop_closed' : 'intercept_barber_delay',
+    });
+  }
 
   await upsertRecommendation(supabase, {
     barberId,

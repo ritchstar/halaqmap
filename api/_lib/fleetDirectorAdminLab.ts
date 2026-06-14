@@ -16,6 +16,10 @@ import {
   loadDigitalShiftFleetSnapshot,
   type DigitalShiftFleetSnapshot,
 } from './digitalShiftAdminLab.js';
+import {
+  loadFleetDemandSnapshot,
+  type FleetDemandSnapshot,
+} from './fleetDemandSignals.js';
 
 export type FleetDirectorLabChatTurn = { role: 'user' | 'assistant'; content: string };
 
@@ -28,6 +32,7 @@ export type FleetDirectorRecommendationMix = {
 
 export type FleetDirectorLabContext = {
   fleetSnapshot: DigitalShiftFleetSnapshot;
+  demandSnapshot: FleetDemandSnapshot;
   recommendationMix: FleetDirectorRecommendationMix;
   interceptSamples: {
     closedShop: { shouldReply: boolean; reason: string };
@@ -39,6 +44,7 @@ export type FleetDirectorLabContext = {
 const DEMO_SALON_CTX: DigitalShiftContext = {
   barberId: 'fleet-command-demo',
   barberName: 'عقدة أسطول — مقصورة القيادة',
+  cityAr: 'الرياض',
   assistantName: 'المناوب الرقمي',
   shopOpen: true,
   listingDaysRemaining: 22,
@@ -50,7 +56,10 @@ const DEMO_SALON_CTX: DigitalShiftContext = {
 export async function loadFleetDirectorLabContext(
   supabase: SupabaseClient,
 ): Promise<FleetDirectorLabContext> {
-  const fleetSnapshot = await loadDigitalShiftFleetSnapshot(supabase);
+  const [fleetSnapshot, demandSnapshot] = await Promise.all([
+    loadDigitalShiftFleetSnapshot(supabase),
+    loadFleetDemandSnapshot(supabase, 24),
+  ]);
 
   const recommendationMix: FleetDirectorRecommendationMix = {
     balance: 0,
@@ -96,6 +105,7 @@ export async function loadFleetDirectorLabContext(
 
   return {
     fleetSnapshot,
+    demandSnapshot,
     recommendationMix,
     interceptSamples: {
       closedShop: { shouldReply: closedShop.shouldReply, reason: closedShop.reason },
@@ -123,6 +133,7 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
     '## دورك — قائد أسطول المناوبين',
     'أنت **العقل المركزي** لكل «المناوب الرقمي 🌙» المنشور في صالونات الماسي:',
     '- **تراقب** الأسطول: تفعيل، محافظ، اعتراضات، توصيات، احتكاك.',
+    '- **تراقب الطلب المجمّع** عبر `fleet_demand_counters` — بدون هوية زبون أو GPS خام.',
     '- **تُعدّ الخطط**: ما ستفعله الأسطول خلال 24 ساعة / أسبوع / عند حدث.',
     '- **تكشف** للقيادة: تقارير، مخاطر، نبضات، وقراراتك المقترحة.',
     '- **تستلم التوجيهات** من القيادة و**تُحوّلها** إلى: (1) أمر أسطول (2) نشرة تدريب (3) خطة نشر صامتة.',
@@ -139,6 +150,8 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
     '',
     '**2. قناة التقارير الصاعدة (Intelligence Reports ↑)**',
     '- نبضات الحالة: أيام الحزمة المتبقية، نشاط المهام، الاحتكاك التشغيلي — تُضمَّن في لقطة الأسطول.',
+    '- **نبض الطلب المجمّع**: اعتراضات ليلية/تأخر، محادثات جديدة، إشارات كساد محلي — حسب المدينة فقط.',
+    '- **كساد محلي**: المناوب لا يصمت — يرفع `market_stagnation` للحلاق وللأسطول عند هدوء الشات 7+ أيام.',
     '- توصيات المناوبين النشطة تظهر في `recommendationMix` — راقبها للكشف عن احتكاك الأسطول.',
     '',
     '**3. قناة التدريب الضمني (Doctrine Updates)**',
@@ -183,6 +196,7 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
     JSON.stringify(
       {
         fleet: snap,
+        demand: ctx.demandSnapshot,
         recommendationMix: ctx.recommendationMix,
         interceptSamples: ctx.interceptSamples,
         languages: formatSupportedLanguagesForPrompt(),
@@ -192,6 +206,11 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
       null,
       2,
     ),
+    '',
+    '## قراءة نبض الطلب — قواعد امتثال',
+    '- `demand.totalsBySignal`: مجمّع فقط — لا أسماء زبائن ولا إحداثيات.',
+    '- `demand.stagnationByCity`: كساد محلي B2B — لدعم **تحضير المدار** و**محيط المدار**.',
+    '- عند «إحاطة» أو «تقرير طلب»: اربط الإشارات بالمدن والفجوات — لا تختلق أرقاماً.',
     '',
     '## الاستمرارية والذكاء',
     '- **لا تكرّر** الترحيب بعد الرسالة الأولى.',

@@ -9,6 +9,7 @@ import {
   refreshHeuristicRecommendations,
   type RecommendationInput,
 } from './_lib/digitalShiftAssistant.js';
+import { assessMarketStagnation } from './_lib/fleetDemandSignals.js';
 import { DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR } from './_lib/subscriptionPricingCopy.js';
 
 export const config = { maxDuration: 45 };
@@ -136,6 +137,8 @@ export async function POST(request: Request): Promise<Response> {
         .limit(40),
     ]);
 
+    void assessMarketStagnation(supabase, barberId, ctx);
+
     return Response.json(
       {
         ok: true,
@@ -187,6 +190,7 @@ export async function POST(request: Request): Promise<Response> {
     };
 
     await refreshHeuristicRecommendations(supabase, barberId, ctx, input);
+    await assessMarketStagnation(supabase, barberId, ctx);
 
     const { data: recs } = await supabase
       .from('barber_ai_recommendations')

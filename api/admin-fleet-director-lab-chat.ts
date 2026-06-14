@@ -112,6 +112,11 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: true });
   }
 
+  if (body.action === 'demand_snapshot_read') {
+    const labContext = await loadFleetDirectorLabContext(auth.supabase);
+    return json({ ok: true, demandSnapshot: labContext.demandSnapshot, fleetSnapshot: labContext.fleetSnapshot });
+  }
+
   if (!userMessage && !imageBase64Raw) {
     return json({ error: 'أدخل رسالة أو ارفع مرفقاً للاجتماع السري' }, 400);
   }
