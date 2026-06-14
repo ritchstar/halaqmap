@@ -20,7 +20,10 @@ import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVis
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
 import { CustomerBarberChatPreview } from '@/components/CustomerBarberChatPreview';
 import { HomeServiceContactRequestForm } from '@/components/HomeServiceContactRequestForm';
+import { GroomPrepContactRequestForm } from '@/components/GroomPrepContactRequestForm';
 import { formatHomeServiceContactMessage } from '@/lib/homeServiceContactTemplate';
+import { formatGroomPrepContactMessage } from '@/lib/groomPrepContactTemplate';
+import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 
 interface BarberDetailModalProps {
   barber: Barber;
@@ -39,6 +42,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
   const chatPreviewRef = useRef<HTMLDivElement>(null);
   const [pendingChatMessage, setPendingChatMessage] = useState<string | null>(null);
   const [showHomeContactForm, setShowHomeContactForm] = useState(false);
+  const [showGroomContactForm, setShowGroomContactForm] = useState(false);
   const [barberReviews, setBarberReviews] = useState(() => getMergedReviewsForBarber(barber.id));
   const [fullGalleryUrls, setFullGalleryUrls] = useState<string[] | null>(null);
   const [galleryLoading, setGalleryLoading] = useState(false);
@@ -74,6 +78,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
     setGalleryLoading(false);
     setPendingChatMessage(null);
     setShowHomeContactForm(false);
+    setShowGroomContactForm(false);
   }, [barber.id, isOpen]);
 
   useEffect(() => {
@@ -88,12 +93,27 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
     homeVisit.publicVisible !== false &&
     (barber.subscription === SubscriptionTier.GOLD || barber.subscription === SubscriptionTier.DIAMOND);
 
+  const groomPrep = barber.groomPrepOffer;
+  const showGroomPrep =
+    groomPrep?.offered &&
+    groomPrep.publicVisible !== false &&
+    barber.subscription === SubscriptionTier.DIAMOND;
+
   const handleHomeContactSubmit = async (
     values: Parameters<typeof formatHomeServiceContactMessage>[1],
   ) => {
     const message = formatHomeServiceContactMessage(barber.name, values);
     setPendingChatMessage(message);
     setShowHomeContactForm(false);
+    chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleGroomContactSubmit = async (
+    values: Parameters<typeof formatGroomPrepContactMessage>[1],
+  ) => {
+    const message = formatGroomPrepContactMessage(barber.name, values);
+    setPendingChatMessage(message);
+    setShowGroomContactForm(false);
     chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -345,6 +365,61 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
             </>
           )}
 
+          {showGroomPrep && groomPrep && (
+            <>
+              <Card className="border-amber-500/35 bg-gradient-to-br from-amber-500/[0.06] to-card">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <SaudiBishtIcon className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" title="تجهيز عريس" />
+                    <div className="space-y-1">
+                      <p className="font-semibold">تجهيز عريس</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {groomPrep.displayedPriceSar != null && groomPrep.displayedPriceSar > 0
+                          ? `من ${groomPrep.displayedPriceSar} ر.س (إرشادي)`
+                          : 'سعر حسب التنسيق المباشر'}
+                      </p>
+                      {groomPrep.customerNote?.trim() ? (
+                        <p className="text-xs text-muted-foreground">{groomPrep.customerNote.trim()}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full border-green-600/40 text-green-700 hover:bg-green-50 dark:hover:bg-green-950/20"
+                      onClick={handleWhatsAppClick}
+                    >
+                      <SiWhatsapp className="w-4 h-4 ml-2" />
+                      تواصل واتساب
+                    </Button>
+                    <Button
+                      type="button"
+                      className="w-full"
+                      onClick={() => {
+                        setShowGroomContactForm((v) => !v);
+                        if (!showGroomContactForm) {
+                          window.setTimeout(() => {
+                            chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 100);
+                        }
+                      }}
+                    >
+                      <SaudiBishtIcon className="w-4 h-4 ml-2" title="تجهيز عريس" />
+                      {showGroomContactForm ? 'إخفاء النموذج' : 'طلب تواصل تجهيز عريس'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              {showGroomContactForm ? (
+                <GroomPrepContactRequestForm
+                  barberName={barber.name}
+                  onSubmit={handleGroomContactSubmit}
+                />
+              ) : null}
+            </>
+          )}
+
           {(barber.subscription === SubscriptionTier.GOLD ||
             barber.subscription === SubscriptionTier.DIAMOND) && (
             <div ref={chatPreviewRef} className="scroll-mt-4">
@@ -411,6 +486,18 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                         <TableCell className="text-left font-semibold text-primary">
                           {homeVisit.displayedPriceSar != null && homeVisit.displayedPriceSar > 0
                             ? `${homeVisit.displayedPriceSar} ريال (إرشادي)`
+                            : '—'}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {showGroomPrep && groomPrep && (
+                      <TableRow>
+                        <TableCell className="font-medium leading-snug">
+                          تجهيز عريس — طلب تواصل (ليس حجزاً عبر المنصة)
+                        </TableCell>
+                        <TableCell className="text-left font-semibold text-primary">
+                          {groomPrep.displayedPriceSar != null && groomPrep.displayedPriceSar > 0
+                            ? `${groomPrep.displayedPriceSar} ريال (إرشادي)`
                             : '—'}
                         </TableCell>
                       </TableRow>

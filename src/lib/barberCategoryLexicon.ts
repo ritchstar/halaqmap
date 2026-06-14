@@ -18,6 +18,7 @@ export const CATEGORY_FILTER_ALIASES: Record<string, readonly string[]> = {
   تقليدي: ['حلاقة تقليدية', 'تقليدي'],
   'احتياجات خاصة': ['احتياجات خاصة', 'كبار السن', 'ذوي الاحتياجات'],
   'زيارة منزلية': ['زيارة منزلية', 'خدمة منزلية'],
+  'تجهيز عريس': ['تجهيز عريس'],
 };
 
 export function barberAcceptsChildren(categories: string[] | null | undefined): boolean {

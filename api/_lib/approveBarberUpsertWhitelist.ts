@@ -34,6 +34,10 @@ const APPROVE_BARBER_UPSERT_KEYS = new Set([
   'home_service_radius_km',
   'home_service_public_visible',
   'home_service_customer_note',
+  'groom_prep_offered',
+  'groom_prep_price_sar',
+  'groom_prep_public_visible',
+  'groom_prep_customer_note',
   'is_active',
   'is_verified',
 ]);

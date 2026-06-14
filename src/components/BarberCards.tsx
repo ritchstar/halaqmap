@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Star, MapPin, Phone, MessageCircle, Shield, Sparkles, Images } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { Barber, SubscriptionTier, calculateDistance } from "@/lib/index";
+import { SaudiBishtIcon } from "@/components/icons/SaudiBishtIcon";
 import { useDiamondAppointmentSchedulingShown } from "@/lib/diamondSchedulingVisibility";
 import { DiamondAppointmentBooking } from "@/components/DiamondAppointmentBooking";
 import { CustomerBarberChatPreview } from "@/components/CustomerBarberChatPreview";
@@ -68,6 +69,25 @@ function HomeVisitInline({ barber }: { barber: Barber }) {
           {[price, radius].filter(Boolean).join(' · ')}
         </span>
       ) : null}
+    </p>
+  );
+}
+
+function GroomPrepInline({ barber }: { barber: Barber }) {
+  const g = barber.groomPrepOffer;
+  if (!g?.offered || g.publicVisible === false) return null;
+  if (barber.subscription !== SubscriptionTier.DIAMOND) return null;
+  const price =
+    g.displayedPriceSar != null && g.displayedPriceSar > 0 ? `${g.displayedPriceSar} ر.س` : null;
+  return (
+    <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5 leading-relaxed border-t border-border/60 pt-1.5 flex items-center gap-1">
+      <SaudiBishtIcon className="h-3 w-3 shrink-0 text-amber-600" title="تجهيز عريس" />
+      <span>
+        تجهيز عريس
+        {price ? (
+          <span className="font-semibold text-foreground"> {price}</span>
+        ) : null}
+      </span>
     </p>
   );
 }
@@ -178,6 +198,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                   <InclusiveCareInline barber={barber} />
                   <ChildrenServicesInline barber={barber} />
                   <HomeVisitInline barber={barber} />
+                  <GroomPrepInline barber={barber} />
                 </div>
               </div>
 
@@ -249,6 +270,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 <InclusiveCareInline barber={barber} />
                 <ChildrenServicesInline barber={barber} />
                 <HomeVisitInline barber={barber} />
+                <GroomPrepInline barber={barber} />
               </div>
               <Badge className="bg-muted text-muted-foreground border-border">
                 برونزي
@@ -350,6 +372,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 <InclusiveCareInline barber={barber} />
                 <ChildrenServicesInline barber={barber} />
                 <HomeVisitInline barber={barber} />
+                <GroomPrepInline barber={barber} />
               </div>
             </div>
 
@@ -446,6 +469,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
               <InclusiveCareInline barber={barber} />
               <ChildrenServicesInline barber={barber} />
               <HomeVisitInline barber={barber} />
+              <GroomPrepInline barber={barber} />
             </div>
           </div>
 

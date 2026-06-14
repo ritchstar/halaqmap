@@ -98,6 +98,11 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
           'التنبيه على معالجة الترجمة: تُعرض بين المستخدم والصالون كمزوّد خدمة وفق سياسة الخصوصية — ليست ترجمة رسمية أو استشارة',
       },
       { kind: 'text', value: DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR },
+      {
+        kind: 'text',
+        value:
+          'تجهيز عريس (ماسي): إعلان + طلب تواصل عبر الشات أو واتساب — التنسيق والتنفيذ مباشرة مع العميل دون وساطة المنصة',
+      },
       { kind: 'text', value: 'دعم فني مخصص 24/7 للصالونات التي تعتمد على المنصة كقناة تشغيل' },
     ],
   },

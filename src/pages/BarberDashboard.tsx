@@ -31,6 +31,7 @@ import {
   Baby,
   Home,
 } from 'lucide-react';
+import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -93,6 +94,7 @@ import {
 } from '@/lib/barberInclusiveCareRemote';
 import { updateBarberChildrenServicesRemote } from '@/lib/barberChildrenServicesRemote';
 import { updateBarberHomeServiceRemote } from '@/lib/barberHomeServiceRemote';
+import { updateBarberGroomPrepRemote } from '@/lib/barberGroomPrepRemote';
 import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
@@ -261,6 +263,7 @@ export default function BarberDashboard({
         inclusiveCare: parsed.inclusiveCare,
         childrenServices: parsed.childrenServices,
         homeService: parsed.homeService,
+        groomPrep: parsed.groomPrep,
       });
     } catch {
       void clearBarberLinkedSession();
@@ -400,7 +403,8 @@ export default function BarberDashboard({
         prev.openStatusToken === merged.openStatusToken &&
         JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null) &&
         JSON.stringify(prev.childrenServices ?? null) === JSON.stringify(merged.childrenServices ?? null) &&
-        JSON.stringify(prev.homeService ?? null) === JSON.stringify(merged.homeService ?? null);
+        JSON.stringify(prev.homeService ?? null) === JSON.stringify(merged.homeService ?? null) &&
+        JSON.stringify(prev.groomPrep ?? null) === JSON.stringify(merged.groomPrep ?? null);
       if (same) return prev;
       persistBarberAuthSession(merged);
       return merged;
@@ -2720,6 +2724,145 @@ function HomeServicePartnerSettingsCard({
   );
 }
 
+function GroomPrepPartnerSettingsCard({
+  barberId,
+  barberData,
+  onRefreshPortalSession,
+}: {
+  barberId: string;
+  barberData: BarberPortalSession;
+  onRefreshPortalSession: () => Promise<void>;
+}) {
+  const [offered, setOffered] = useState(false);
+  const [priceStr, setPriceStr] = useState('');
+  const [publicVisible, setPublicVisible] = useState(true);
+  const [customerNote, setCustomerNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const s = barberData.groomPrep;
+    if (!s) {
+      setOffered(false);
+      setPriceStr('');
+      setPublicVisible(true);
+      setCustomerNote('');
+      return;
+    }
+    setOffered(s.offered);
+    setPriceStr(s.priceSar != null && s.priceSar > 0 ? String(s.priceSar) : '');
+    setPublicVisible(s.publicVisible !== false);
+    setCustomerNote(s.customerNote ?? '');
+  }, [barberData.groomPrep, barberData.id]);
+
+  const handleSave = async () => {
+    if (offered) {
+      const p = parseFloat(String(priceStr).replace(/,/g, '.'));
+      if (!Number.isFinite(p) || p <= 0) {
+        toast.error('عند تفعيل تجهيز العريس: أدخل سعراً معروضاً بالريال أكبر من صفر.');
+        return;
+      }
+    }
+    setSaving(true);
+    const priceSar =
+      offered && priceStr.trim()
+        ? Math.round(parseFloat(String(priceStr).replace(/,/g, '.')) * 100) / 100
+        : null;
+    const res = await updateBarberGroomPrepRemote({
+      barberId,
+      email: barberData.email,
+      payload: {
+        offered,
+        priceSar,
+        publicVisible: offered ? publicVisible : true,
+        customerNote,
+      },
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success('تم حفظ إعدادات تجهيز العريس.');
+    await onRefreshPortalSession();
+  };
+
+  return (
+    <Card className="mb-6 border-amber-500/30 bg-gradient-to-br from-amber-500/[0.06] to-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <SaudiBishtIcon className="h-5 w-5 text-amber-600" title="تجهيز عريس" />
+          تجهيز عريس
+        </CardTitle>
+        <CardDescription className="leading-relaxed">
+          للباقة الماسية فقط. أعلن أنك تقدّم تجهيز عريس — العميل يتواصل معك مباشرة (واتساب أو شات).
+          المنصة ناقل تواصل فقط وليست وسيط حجز.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">أقدّم تجهيز عريس</p>
+            <p className="text-xs text-muted-foreground">
+              يظهر في فلتر «تجهيز عريس» وبطاقة صالونك — التنسيق مباشرة مع العميل.
+            </p>
+          </div>
+          <Switch checked={offered} onCheckedChange={(c) => setOffered(c === true)} />
+        </div>
+
+        {offered && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="groom-price-dash">السعر الإرشادي (ر.س)</Label>
+              <Input
+                id="groom-price-dash"
+                type="number"
+                min={1}
+                step="1"
+                inputMode="decimal"
+                dir="ltr"
+                className="text-left max-w-xs"
+                value={priceStr}
+                onChange={(e) => setPriceStr(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium">إظهار الخدمة للعملاء</p>
+                <p className="text-xs text-muted-foreground">أوقفها مؤقتاً دون حذف الإعدادات.</p>
+              </div>
+              <Switch checked={publicVisible} onCheckedChange={(c) => setPublicVisible(c === true)} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="groom-note-dash">ملاحظة للعميل (اختياري)</Label>
+              <Textarea
+                id="groom-note-dash"
+                rows={3}
+                maxLength={800}
+                placeholder="مثال: التجهيز حسب التوفر — يرجى التنسيق مسبقاً عبر الشات أو واتساب."
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+              />
+            </div>
+          </>
+        )}
+
+        <Button type="button" className="w-full sm:w-auto" disabled={saving} onClick={() => void handleSave()}>
+          {saving ? (
+            <>
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              جاري الحفظ…
+            </>
+          ) : (
+            'حفظ إعدادات تجهيز العريس'
+          )}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 function SettingsSection({
   barberId,
   barberData,
@@ -2865,6 +3008,14 @@ function SettingsSection({
 
       {showWeeklyEditor && (
         <HomeServicePartnerSettingsCard
+          barberId={barberId}
+          barberData={barberData}
+          onRefreshPortalSession={onRefreshPortalSession}
+        />
+      )}
+
+      {subscriptionTier === SubscriptionTier.DIAMOND && (
+        <GroomPrepPartnerSettingsCard
           barberId={barberId}
           barberData={barberData}
           onRefreshPortalSession={onRefreshPortalSession}

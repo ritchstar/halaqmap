@@ -30,6 +30,10 @@ type FallbackRow = {
   home_service_radius_km?: number | null;
   home_service_public_visible?: boolean | null;
   home_service_customer_note?: string | null;
+  groom_prep_offered?: boolean | null;
+  groom_prep_price_sar?: number | string | null;
+  groom_prep_public_visible?: boolean | null;
+  groom_prep_customer_note?: string | null;
   gallery_count?: number | null;
   featured_images?: unknown;
   is_showcase_preview?: boolean;
@@ -95,6 +99,23 @@ function mapHomeVisitFromFallbackRow(row: FallbackRow) {
   return offer;
 }
 
+function mapGroomPrepFromFallbackRow(row: FallbackRow) {
+  if (row.groom_prep_offered !== true) return undefined;
+  if (row.groom_prep_public_visible === false) return undefined;
+  if (tierFromDb(row.tier) !== SubscriptionTier.DIAMOND) return undefined;
+  const raw = row.groom_prep_price_sar;
+  const p = raw != null && raw !== '' ? Number(raw) : NaN;
+  const offer: {
+    offered: boolean;
+    displayedPriceSar?: number;
+    customerNote?: string;
+  } = { offered: true };
+  if (Number.isFinite(p) && p > 0) offer.displayedPriceSar = Math.round(p * 100) / 100;
+  const note = row.groom_prep_customer_note?.trim();
+  if (note) offer.customerNote = note;
+  return offer;
+}
+
 function mapRow(row: FallbackRow): Barber {
   const featured = parseFeaturedImages(row.featured_images);
   const cover = row.cover_image?.trim() || null;
@@ -104,6 +125,7 @@ function mapRow(row: FallbackRow): Barber {
   const lat = Number(row.latitude);
   const lng = Number(row.longitude);
   const homeVisitOffer = mapHomeVisitFromFallbackRow(row);
+  const groomPrepOffer = mapGroomPrepFromFallbackRow(row);
 
   return {
     id: row.id,
@@ -131,6 +153,7 @@ function mapRow(row: FallbackRow): Barber {
       ? { childrenSpecialist: true }
       : {}),
     ...(homeVisitOffer ? { homeVisitOffer } : {}),
+    ...(groomPrepOffer ? { groomPrepOffer } : {}),
     ...(featured.length > 0 ? { featuredImages: featured } : {}),
     ...(galleryCount > 0 ? { galleryCount } : {}),
   };

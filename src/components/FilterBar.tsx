@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCcw, Star, SlidersHorizontal, ChevronDown, MapPin, Clock, Crown } from 'lucide-react';
 import { FilterState, SubscriptionTier } from '@/lib/index';
+import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 
 interface FilterBarProps {
   filters: FilterState;
@@ -20,12 +21,16 @@ const TIERS = [
   { id: SubscriptionTier.DIAMOND,label: 'ماسي',   emoji: '💎', color: 'border-cyan-400/40 text-cyan-400 data-active:border-cyan-400/70 data-active:bg-cyan-500/15 data-active:text-cyan-300' },
 ] as const;
 
-const CATEGORIES = [
+const CATEGORIES: Array<
+  | { id: string; label: string; emoji: string; Icon?: undefined }
+  | { id: string; label: string; emoji?: undefined; Icon: typeof SaudiBishtIcon }
+> = [
   { id: 'رجالي',           label: 'رجالي',           emoji: '✂️' },
   { id: 'أطفال',           label: 'أطفال',           emoji: '👦' },
   { id: 'تقليدي',          label: 'تقليدي',          emoji: '🪒' },
   { id: 'احتياجات خاصة',  label: 'كبار سن واحتياجات',  emoji: '♿' },
   { id: 'زيارة منزلية',   label: 'خدمة منزلية',   emoji: '🏠' },
+  { id: 'تجهيز عريس',     label: 'تجهيز عريس',     Icon: SaudiBishtIcon },
 ];
 
 const RATINGS = [
@@ -244,7 +249,8 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
                       onFilterChange({ ...filters, categories: next });
                     }}
                   >
-                    {cat.emoji} {cat.label}
+                    {cat.Icon ? <cat.Icon className="h-3 w-3 shrink-0" title={cat.label} /> : cat.emoji}{' '}
+                    {cat.label}
                   </Pill>
                 ))}
                 <Pill

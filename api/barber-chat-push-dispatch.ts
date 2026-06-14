@@ -28,6 +28,10 @@ function isHomeServiceBody(body: string): boolean {
   return t.startsWith('🏠') || t.includes('طلب تواصل — خدمة زيارة منزلية');
 }
 
+function isGroomPrepBody(body: string): boolean {
+  return body.trim().includes('طلب تواصل — تجهيز عريس');
+}
+
 type PrivateMessageRecord = {
   id?: string;
   conversation_id?: string;
@@ -112,7 +116,7 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: true, skipped: 'missing_barber_id' }, { headers });
   }
 
-  const kind = isHomeServiceBody(text) ? 'home_visit' : 'message';
+  const kind = isGroomPrepBody(text) ? 'groom_prep' : isHomeServiceBody(text) ? 'home_visit' : 'message';
   const payload = buildBarberChatPushPayload({ body: text, conversationId, kind });
 
   const { data: subs, error: subsErr } = await supabase

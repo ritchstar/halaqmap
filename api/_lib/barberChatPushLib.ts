@@ -5,7 +5,7 @@ export type BarberChatPushPayload = {
   body: string;
   tag: string;
   url: string;
-  kind: 'message' | 'home_visit';
+  kind: 'message' | 'home_visit' | 'groom_prep';
 };
 
 function readVapidPublicKey(): string {
@@ -80,15 +80,20 @@ export async function sendBarberChatPushToSubscription(
 export function buildBarberChatPushPayload(input: {
   body: string;
   conversationId: string;
-  kind: 'message' | 'home_visit';
+  kind: 'message' | 'home_visit' | 'groom_prep';
 }): BarberChatPushPayload {
   const site = (process.env.VITE_SITE_ORIGIN || process.env.APP_PUBLIC_ORIGIN || 'https://halaqmap.com').replace(/\/$/, '');
   const isHome = input.kind === 'home_visit';
+  const isGroom = input.kind === 'groom_prep';
   const preview = input.body.replace(/\s+/g, ' ').trim().slice(0, 120);
   return {
     kind: input.kind,
-    title: isHome ? 'طلب زيارة منزلية — حلاق ماب' : 'رسالة عميل جديدة — حلاق ماب',
-    body: preview || (isHome ? 'طلب تواصل جديد من عميل' : 'رسالة جديدة في المحادثة الخاصة'),
+    title: isGroom
+      ? 'طلب تجهيز عريس — حلاق ماب'
+      : isHome
+        ? 'طلب زيارة منزلية — حلاق ماب'
+        : 'رسالة عميل جديدة — حلاق ماب',
+    body: preview || (isGroom ? 'طلب تواصل جديد لتجهيز عريس' : isHome ? 'طلب تواصل جديد من عميل' : 'رسالة جديدة في المحادثة الخاصة'),
     tag: `barber-chat-${input.conversationId}`,
     url: `${site}/#/barber/dashboard?tab=messages&conv=${encodeURIComponent(input.conversationId)}`,
   };

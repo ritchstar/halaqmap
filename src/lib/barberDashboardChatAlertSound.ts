@@ -124,13 +124,37 @@ function playHomeTone(tone: BarberChatAlertHomeTone, volume: number): void {
   ]);
 }
 
+function playGroomPrepTone(tone: BarberChatAlertHomeTone, volume: number): void {
+  if (tone === 'chime') {
+    playToneBurst(volume, [
+      { freq: 330, at: 0, dur: 0.24, type: 'triangle' },
+      { freq: 440, at: 0.2, dur: 0.3, type: 'sine' },
+      { freq: 554, at: 0.38, dur: 0.28, type: 'sine', gain: 0.35 },
+    ]);
+    return;
+  }
+  if (tone === 'pulse') {
+    playToneBurst(volume, [
+      { freq: 110, at: 0, dur: 0.36, type: 'sine', gain: 0.65 },
+      { freq: 165, at: 0.06, dur: 0.28, type: 'triangle', gain: 0.3 },
+    ]);
+    return;
+  }
+  playToneBurst(volume, [
+    { freq: 392, at: 0, dur: 0.16, type: 'sine', gain: 0.45 },
+    { freq: 523, at: 0.14, dur: 0.22, type: 'triangle', gain: 0.35 },
+  ]);
+}
+
 export function playBarberChatAlert(
-  kind: 'message' | 'home_visit',
+  kind: 'message' | 'home_visit' | 'groom_prep',
   prefs: Pick<BarberChatAlertPrefs, 'volume' | 'messageTone' | 'homeVisitTone'>,
 ): void {
   const gain = barberChatAlertVolumeGain(prefs.volume);
   if (kind === 'home_visit') {
     playHomeTone(prefs.homeVisitTone, gain * 1.05);
+  } else if (kind === 'groom_prep') {
+    playGroomPrepTone(prefs.homeVisitTone, gain * 1.08);
   } else {
     playMessageTone(prefs.messageTone, gain);
   }

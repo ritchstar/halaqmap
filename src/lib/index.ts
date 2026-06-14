@@ -138,6 +138,17 @@ export interface HomeVisitOffer {
   customerNote?: string;
 }
 
+/**
+ * تجهيز عريس (ماسي) — منفصل عن الزيارة المنزلية.
+ * التنسيق والتنفيذ مباشرة بين العميل والحلاق.
+ */
+export interface GroomPrepOffer {
+  offered: boolean;
+  displayedPriceSar?: number;
+  publicVisible?: boolean;
+  customerNote?: string;
+}
+
 export interface Barber {
   id: string;
   name: string;
@@ -162,6 +173,8 @@ export interface Barber {
   inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
   /** زيارة منزلية (ذهبي/ماسي) — إعلان + تواصل مباشر */
   homeVisitOffer?: HomeVisitOffer;
+  /** تجهيز عريس (ماسي) — إعلان + تواصل مباشر */
+  groomPrepOffer?: GroomPrepOffer;
   services: {
     name: string;
     price: number;
@@ -454,6 +467,14 @@ export function filterBarbersByDistance(
             cat === 'زيارة منزلية' &&
             barber.homeVisitOffer?.offered &&
             barber.homeVisitOffer.publicVisible !== false
+          ) {
+            return true;
+          }
+          if (
+            cat === 'تجهيز عريس' &&
+            barber.groomPrepOffer?.offered &&
+            barber.groomPrepOffer.publicVisible !== false &&
+            barber.subscription === SubscriptionTier.DIAMOND
           ) {
             return true;
           }

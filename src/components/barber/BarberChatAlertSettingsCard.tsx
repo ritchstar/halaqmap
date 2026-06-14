@@ -220,7 +220,7 @@ export function BarberChatAlertSettingsCard({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">صوت طلب زيارة منزلية</Label>
+            <Label className="text-xs text-muted-foreground">صوت طلب زيارة منزلية / تجهيز عريس</Label>
             <Select
               value={prefs.homeVisitTone}
               disabled={!prefs.enabled}
@@ -269,6 +269,17 @@ export function BarberChatAlertSettingsCard({
           >
             <Volume2 className="h-4 w-4" />
             تجربة زيارة منزلية
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={!prefs.enabled}
+            onClick={() => playBarberChatAlert('groom_prep', prefs)}
+          >
+            <Volume2 className="h-4 w-4" />
+            تجربة تجهيز عريس
           </Button>
         </div>
       </CardContent>

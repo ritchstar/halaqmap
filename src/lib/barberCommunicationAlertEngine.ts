@@ -8,6 +8,7 @@ import {
 } from '@/lib/barberDashboardChatAlertPrefs';
 import { playBarberChatAlert } from '@/lib/barberDashboardChatAlertSound';
 import { isHomeServiceContactChatBody } from '@/lib/homeServiceContactTemplate';
+import { isGroomPrepContactChatBody } from '@/lib/groomPrepContactTemplate';
 import { isPollingTabActive } from '@/lib/pollingPolicy';
 
 export type BarberInboundChatAlertEvent = {
@@ -40,7 +41,11 @@ export type BarberCommunicationAlertEngine = {
 export function createBarberCommunicationAlertEngine(barberId: string): BarberCommunicationAlertEngine {
   let initialized = false;
   const seenIds = new Set(readBarberChatAlertSeenIds(barberId));
-  const lastPlayed: { message: number; home_visit: number } = { message: 0, home_visit: 0 };
+  const lastPlayed: { message: number; home_visit: number; groom_prep: number } = {
+    message: 0,
+    home_visit: 0,
+    groom_prep: 0,
+  };
 
   return {
     isInitialized: () => initialized,
@@ -67,7 +72,11 @@ export function createBarberCommunicationAlertEngine(barberId: string): BarberCo
       if (!isPollingTabActive()) return;
       if (prefs.muteWhenChatOpen && context.selectedConversationId === event.conversationId) return;
 
-      const kind = isHomeServiceContactChatBody(event.body) ? 'home_visit' : 'message';
+      const kind = isGroomPrepContactChatBody(event.body)
+        ? 'groom_prep'
+        : isHomeServiceContactChatBody(event.body)
+          ? 'home_visit'
+          : 'message';
       const now = Date.now();
       if (now - lastPlayed[kind] < ALERT_COOLDOWN_MS) return;
       lastPlayed[kind] = now;
