@@ -1,9 +1,6 @@
 ﻿import { motion } from "framer-motion";
 import { Shield, Lock, FileCheck, Database, Bell, Mail, Scale, CreditCard, Server } from "lucide-react";
 import {
-  LEGAL_TRADE_NAME_AR,
-  LEGAL_NATIONAL_UNIFIED_NUMBER,
-  LEGAL_UNIFIED_NUMBER_LABEL_AR,
   PARTNER_SUPPORT_EMAIL,
   PARTNER_SUPPORT_PHONE_E164,
   PARTNER_SUPPORT_WHATSAPP_URL,
@@ -123,15 +120,7 @@ export default function PartnerPrivacy() {
           ))}
 
           <div className="partner-legal-section rounded-2xl border border-white/12 bg-[#0b1628]/95 p-6 text-right text-slate-100">
-            <h2 className="mb-3 text-lg font-bold text-slate-50">البيانات التجارية للمنشأة</h2>
-            <p className="mb-2 text-sm font-medium text-slate-100">{LEGAL_TRADE_NAME_AR}</p>
-            <p className="mb-6 text-sm text-slate-300">
-              {LEGAL_UNIFIED_NUMBER_LABEL_AR}:{' '}
-              <span dir="ltr" className="font-mono text-slate-100">
-                {LEGAL_NATIONAL_UNIFIED_NUMBER}
-              </span>
-            </p>
-            <h3 className="mb-2 text-base font-semibold text-slate-50">الدعم الفني والشكاوى</h3>
+            <h2 className="mb-3 text-lg font-bold text-slate-50">الدعم الفني والشكاوى</h2>
             <ul className="m-0 list-none space-y-1 p-0 text-sm text-slate-300">
               <li>
                 بريد:{' '}

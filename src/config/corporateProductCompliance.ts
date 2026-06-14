@@ -1,5 +1,3 @@
-import { LEGAL_TRADE_NAME_AR } from '@/config/partnerLegal';
-
 export const CORPORATE_PRODUCT_COMPLIANCE_TITLE = 'وثيقة التعريف بالمنتج والامتثال الرقمي 🇸🇦';
 
 export const CORPORATE_PRODUCT_COMPLIANCE_BADGE = 'منتج وطني معتمد / ممتثل للأنظمة التجارية';
@@ -8,12 +6,12 @@ export const CORPORATE_PRODUCT_COMPLIANCE_SECTIONS = [
   {
     id: 'owner',
     label: 'الجهة المالكة والمطورة',
-    body: LEGAL_TRADE_NAME_AR,
+    body: 'منصة حلاق ماب — الجهة المرخّصة لتشغيل المنصة وفق ISIC4 474151',
   },
   {
     id: 'product',
     label: 'طبيعة المنتج',
-    body: 'برمجيات حاسوبية جاهزة (Software) — رخصة نفاذ رقمية وإضافات برمجية، وفق ISIC4 474151 (GaStat: البيع بالتجزئة للبرمجيات). الملكية الفكرية للمنصة مملوكة للمؤسسة.',
+    body: 'برمجيات حاسوبية جاهزة (Software) — رخصة نفاذ رقمية وإضافات برمجية، وفق ISIC4 474151 (GaStat: البيع بالتجزئة للبرمجيات). الملكية الفكرية للمنصة مملوكة لمالك المنصة المرخّص.',
   },
   {
     id: 'b2c',

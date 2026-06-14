@@ -15,9 +15,6 @@ import {
   SUBSCRIPTION_POLICY_TIERS_INTRO,
 } from "@/config/subscriptionPolicyTiers";
 import {
-  LEGAL_TRADE_NAME_AR,
-  LEGAL_NATIONAL_UNIFIED_NUMBER,
-  LEGAL_UNIFIED_NUMBER_LABEL_AR,
   PARTNER_SUPPORT_EMAIL,
   PARTNER_SUPPORT_PHONE_E164,
   PARTNER_SUPPORT_WHATSAPP_URL,
@@ -678,21 +675,7 @@ export default function SubscriptionPolicy() {
           <HonorBoard context="legal" variant="legal" />
         </motion.div>
 
-        <motion.div variants={fadeInUp} className="mt-16 text-center space-y-6">
-          <Card className="max-w-2xl mx-auto border-border/80">
-            <CardHeader>
-              <CardTitle className="text-base">البيانات التجارية للمنشأة</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">{LEGAL_TRADE_NAME_AR}</p>
-              <p>
-                {LEGAL_UNIFIED_NUMBER_LABEL_AR}:{' '}
-                <span dir="ltr" className="font-mono">
-                  {LEGAL_NATIONAL_UNIFIED_NUMBER}
-                </span>
-              </p>
-            </CardContent>
-          </Card>
+        <motion.div variants={fadeInUp} className="mt-16 text-center">
           <Card className="max-w-2xl mx-auto bg-muted/30">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">

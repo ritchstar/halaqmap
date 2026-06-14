@@ -4,6 +4,10 @@ export const LEGAL_TRADE_NAME_AR = 'مؤسسة أحمد بن عبدالله بن
 /** الرقم الوطني الموحد — معرّف السجل التجاري المعتمد وفق وزارة التجارة */
 export const LEGAL_NATIONAL_UNIFIED_NUMBER = '7054117093';
 
+/** يُعرض في تذييل صفحة «من نحن» فقط — خط صغير */
+export const LEGAL_ENTITY_ABOUT_FOOTER_LINE_AR =
+  `${LEGAL_TRADE_NAME_AR} · الرقم الوطني الموحد: ${LEGAL_NATIONAL_UNIFIED_NUMBER}`;
+
 /** تسمية العرض الرسمية — الرقم الموحد هو السجل المعتمد حالياً */
 export const LEGAL_UNIFIED_NUMBER_LABEL_AR =
   'الرقم الوطني الموحد (معرّف السجل التجاري المعتمد)' as const;

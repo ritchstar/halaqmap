@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
-import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PLATFORM_FOOTER_TAGLINE } from '@/config/platformGrowthNarrative';
 import { PLATFORM_IDENTITY_BOILERPLATE_AR } from '@/config/platformIdentity';
@@ -320,9 +319,6 @@ export function Layout({ children }: LayoutProps) {
           </div>
 
           <div className="mt-6">
-            <LegalEntityPublicStrip variant="light" />
-          </div>
-          <div className="mt-4">
             <PlatformOfficialFooterStrip variant="light" />
           </div>
 

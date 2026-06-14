@@ -11,6 +11,7 @@ import {
   PLATFORM_WHY_FEATURES_INTRO,
 } from "@/config/platformGrowthNarrative";
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
+import { LEGAL_ENTITY_ABOUT_FOOTER_LINE_AR } from '@/config/partnerLegal';
 
 export default function About() {
   const licensedActivities = LICENSED_COMMERCIAL_ACTIVITIES;
@@ -397,6 +398,12 @@ export default function About() {
           </motion.div>
         </div>
       </section>
+
+      <footer className="border-t border-border/40 py-6">
+        <p className="container mx-auto px-4 text-center text-[10px] leading-relaxed text-muted-foreground">
+          {LEGAL_ENTITY_ABOUT_FOOTER_LINE_AR}
+        </p>
+      </footer>
     </div>
   );
 }

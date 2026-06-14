@@ -3,41 +3,23 @@ import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 
 import {
-
   DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR,
-
   LEGAL_COMMERCIAL_REGISTRATION_ISSUED_AT_AR,
-
   LEGAL_ENTITY_TYPE_AR,
-
   LEGAL_NATIONAL_UNIFIED_NUMBER,
-
   LEGAL_REGISTRATION_ISSUING_AUTHORITY_AR,
-
   LEGAL_REGISTRATION_STATUS_AR,
-
-  LEGAL_TRADE_NAME_AR,
-
   LEGAL_UNIFIED_NUMBER_LABEL_AR,
-
 } from '@/config/partnerLegal';
 
 import {
-
   ISIC_ACTIVITY_CODE,
-
   ISIC_ACTIVITY_CODE_LABEL_AR,
-
   ISIC_ACTIVITY_GASTAT_DEFINITION_AR,
-
   ISIC_ACTIVITY_LABEL_AR,
-
   ISIC_MOC_ACTIVITY_NAME_AR,
-
   ISIC_MOC_MAIN_SECTOR_AR,
-
   ISIC_MOC_SUB_SECTOR_AR,
-
 } from '@/config/legalActivityScope';
 
 
@@ -64,7 +46,6 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
       : 'border-border/50 bg-background/70';
 
   const detailRows = [
-    { label: 'الاسم التجاري', value: LEGAL_TRADE_NAME_AR, mono: false },
     { label: LEGAL_UNIFIED_NUMBER_LABEL_AR, value: LEGAL_NATIONAL_UNIFIED_NUMBER, mono: true },
     { label: 'نوع الكيان', value: LEGAL_ENTITY_TYPE_AR, mono: false },
     { label: 'حالة السجل', value: `${LEGAL_REGISTRATION_STATUS_AR} — ${LEGAL_REGISTRATION_ISSUING_AUTHORITY_AR}`, mono: false },

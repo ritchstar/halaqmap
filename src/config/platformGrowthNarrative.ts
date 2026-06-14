@@ -7,7 +7,6 @@ import {
   PLATFORM_SMART_TRACKING_SLOGAN,
   PLATFORM_SMART_TRACKING_SUBTEXT,
 } from '@/config/platformSmartTracking';
-import { LEGAL_TRADE_NAME_AR } from '@/config/partnerLegal';
 import { PLATFORM_GROWTH_REGISTER_INTRO_AR } from '@/config/platformGrowthPrograms';
 
 export const PLATFORM_META_DESCRIPTION =
@@ -32,7 +31,7 @@ export const PLATFORM_FOOTER_TAGLINE = PLATFORM_SMART_TRACKING_SUBTEXT;
 
 /** السطر القانوني الرسمي للمؤسسة — يُعرض في تذييل الواجهات العامة */
 export const PLATFORM_OFFICIAL_FOOTER_LEGAL_LINE =
-  'جميع الحقوق محفوظة © ٢٠٢٦ | حلاق ماب هي إحدى مشاريع مؤسسة أحمد بن عبدالله بن سراء التجارية';
+  'جميع الحقوق محفوظة © ٢٠٢٦ | حلاق ماب — منصة رقمية سعودية';
 
 /** سطر الترخيص الإعلامي الرسمي في التذييل */
 export const PLATFORM_MEDIA_LICENSE_FOOTER_LINE =
@@ -112,7 +111,7 @@ export const PLATFORM_DIGITAL_PRODUCT_INTRO_BADGE =
   'مزوّد حلول تقنية · ملكية فكرية حصرية · منتجات B2B';
 
 export const PLATFORM_DIGITAL_PRODUCT_INTRO_PARAGRAPHS = [
-  `إن كود البرمجة المصدري والملكية الفكرية لمنصة حلاق ماب (Halaq Map) مملوكة بالكامل وحصرياً لـ (${LEGAL_TRADE_NAME_AR}) كأصل تقني للمؤسسة.`,
+  'إن كود البرمجة المصدري والملكية الفكرية لمنصة حلاق ماب (`Halaq Map`) مملوكة بالكامل وحصرياً لمالك المنصة المرخّص كأصل تقني.',
   'تعمل المنصة بصفتها **مزوّد حلول تقنية (Technical Solutions Provider)** متخصّصاً في تطوير وبيع منتجات رقمية للإدراج والعرض الذكي عند الطلب — **وليست وسيطاً تجارياً** بين الصالون والعميل، ولا تتقاضى عمولة على خدمة الحلاقة، ولا تتعاقد ولا تحجز نيابة عن أي طرف.',
   'وتقدم المنصة من خلال بنيتها الذكية حلولاً ومنتجات رقمية مخصصة لقطاع الأعمال ومزودي الخدمة (B2B) بمميزات متطورة وأسعار محددة وواضحة، وهو المبرر القانوني والتجاري لعمليات بيع وشراء المنتجات الرقمية والحلول الحصرية للمنشآت عبر المنصة، في حين تظل خدمة الاكتشاف والوصول المباشر مجانية بالكامل لقطاع الأفراد (B2C) لتسهيل العثور على مقدم الخدمة المناسب، تماشياً وتدعيماً للرؤية المباركة للمملكة العربية السعودية (2030).',
 ] as const;

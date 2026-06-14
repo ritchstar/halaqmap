@@ -31,7 +31,6 @@ import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 // PartnerDigitalBarberAssistant مُحال للتقاعد — موجود في مركز الوكلاء فقط
 // LegalObserverChat مُضمَّن مباشرةً في PartnerPrivacy و SubscriptionPolicy
 import { AppBuildStamp } from '@/components/AppBuildStamp';
-import { LegalEntityPublicStrip } from '@/components/LegalEntityPublicStrip';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { PartnerPromoVideoBand } from '@/components/partner/PartnerPromoVideoBand';
 import { B2BAmbientGlowField } from '@/components/b2b/B2BAmbientGlowField';
@@ -562,7 +561,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               <LicenseRechargeWidget mode="auto" showHeader={false} />
             </div>
           ) : null}
-          <LegalEntityPublicStrip variant="dark" />
           <p className="mt-3 rounded-md border border-amber-400/25 bg-amber-500/[0.06] px-3 py-2 text-center text-[10.5px] leading-relaxed text-amber-100/90">
             {PLATFORM_IDENTITY_BOILERPLATE_AR}
           </p>
@@ -604,9 +602,6 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
               <LicenseRechargeWidget mode="auto" />
             </div>
           ) : null}
-          <div className="mb-6">
-            <LegalEntityPublicStrip variant="dark" />
-          </div>
           <div className="mb-4 rounded-lg border border-amber-400/25 bg-amber-500/[0.06] px-4 py-3 text-sm leading-relaxed text-amber-100/90">
             {PLATFORM_IDENTITY_BOILERPLATE_AR}
           </div>
