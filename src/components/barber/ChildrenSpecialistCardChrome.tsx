@@ -79,17 +79,17 @@ export function ChildrenSpecialistHeroBanner({ compact }: { compact?: boolean })
 /** بنر تفصيلي في نافذة الصالون. */
 export function ChildrenSpecialistDetailBanner() {
   return (
-    <div className="rounded-xl border border-sky-400/35 bg-gradient-to-br from-sky-500/15 via-cyan-500/10 to-card p-4 overflow-hidden relative">
+    <div className="barber-contact-inner relative overflow-hidden rounded-xl border border-sky-400/35 bg-gradient-to-br from-sky-500/15 via-cyan-500/10 to-card p-4">
       <ChildrenSpecialistHeroChrome />
       <div className="relative z-[1] flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-sky-400/40 bg-sky-500/20 text-sky-100">
           <ChildrenSpecialistIcon className="h-7 w-7" title="متخصص أطفال" />
         </div>
-        <div className="space-y-1">
-          <p className="font-bold text-base text-sky-900 dark:text-sky-50">
+        <div className="min-w-0 space-y-1">
+          <p className="text-base font-bold leading-snug break-words text-sky-900 dark:text-sky-50">
             {CHILDREN_SPECIALIST_FILTER_LABEL_AR}
           </p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm leading-relaxed break-words text-muted-foreground">
             {CHILDREN_SPECIALIST_BANNER_TAGLINE_AR} — صالون يركّز على حلاقة الأطفال ببيئة مناسبة للعائلات.
           </p>
         </div>

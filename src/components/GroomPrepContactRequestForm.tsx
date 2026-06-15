@@ -69,12 +69,12 @@ export function GroomPrepContactRequestForm({ barberName, onSubmit, disabled }: 
   };
 
   return (
-    <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.06] to-card p-4 space-y-4">
+    <div className="barber-contact-inner min-w-0 max-w-full overflow-x-clip rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.06] to-card p-4 space-y-4">
       <div className="flex items-start gap-2">
         <SaudiBishtIcon className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" title="تجهيز عريس" />
-        <div>
-          <p className="text-sm font-semibold">طلب تواصل — تجهيز عريس</p>
-          <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold break-words">طلب تواصل — تجهيز عريس</p>
+          <p className="text-xs text-muted-foreground leading-relaxed mt-1 break-words">
             يُرسل طلبك كرسالة خاصة إلى {barberName} — ليس حجزاً. التنسيق والتنفيذ مباشرة بينكما.
           </p>
         </div>
@@ -108,7 +108,7 @@ export function GroomPrepContactRequestForm({ barberName, onSubmit, disabled }: 
         <div className="space-y-2">
           <Label>مكان التجهيز</Label>
           <Select value={venueType} onValueChange={setVenueType}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -123,7 +123,7 @@ export function GroomPrepContactRequestForm({ barberName, onSubmit, disabled }: 
         <div className="space-y-2">
           <Label>باقة الخدمة</Label>
           <Select value={servicePackage} onValueChange={setServicePackage}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -154,7 +154,7 @@ export function GroomPrepContactRequestForm({ barberName, onSubmit, disabled }: 
         <div className="space-y-2">
           <Label>وقت الوصول</Label>
           <Select value={arrivalTime} onValueChange={setArrivalTime}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -186,7 +186,7 @@ export function GroomPrepContactRequestForm({ barberName, onSubmit, disabled }: 
           checked={accepted}
           onCheckedChange={(c) => setAccepted(c === true)}
         />
-        <Label htmlFor="groom-disclaimer" className="text-xs leading-relaxed cursor-pointer font-normal">
+        <Label htmlFor="groom-disclaimer" className="min-w-0 text-xs leading-relaxed cursor-pointer font-normal break-words">
           {GROOM_PREP_CONTACT_DISCLAIMER_AR}
         </Label>
       </div>

@@ -50,17 +50,17 @@ function Bubble({
   return (
     <div
       className={cn(
-        'flex flex-col gap-1 max-w-[92%]',
+        'flex min-w-0 w-full max-w-[92%] flex-col gap-1',
         isCustomer ? 'items-end mr-0 ml-auto' : 'items-start mr-auto ml-0'
       )}
     >
-      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-        {isCustomer ? <User className="w-3 h-3" /> : <Store className="w-3 h-3" />}
-        <span>{label}</span>
+      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
+        {isCustomer ? <User className="w-3 h-3 shrink-0" /> : <Store className="w-3 h-3 shrink-0" />}
+        <span className="break-words">{label}</span>
       </div>
       <div
         className={cn(
-          'rounded-2xl px-3 py-2 text-sm leading-relaxed text-right',
+          'min-w-0 max-w-full break-words rounded-2xl px-3 py-2 text-sm leading-relaxed text-right',
           isCustomer ? 'bg-primary text-primary-foreground rounded-br-md' : 'bg-muted text-foreground rounded-bl-md',
           compact && 'text-xs py-1.5 px-2.5'
         )}
@@ -85,7 +85,7 @@ function TranslationHint({
   return (
     <div
       className={cn(
-        'w-full max-w-[92%] rounded-lg border border-accent/40 bg-accent/5 px-2.5 py-2 space-y-1',
+        'barber-contact-inner min-w-0 w-full max-w-[92%] rounded-lg border border-accent/40 bg-accent/5 px-2.5 py-2 space-y-1',
         compact ? 'text-[10px]' : 'text-xs'
       )}
     >
@@ -95,7 +95,7 @@ function TranslationHint({
           {detectedLabel}
         </Badge>
       </div>
-      <p className="text-muted-foreground">
+      <p className="break-words text-muted-foreground">
         <span className="font-semibold text-foreground/80">{translationLabel}</span> {translationText}
       </p>
     </div>
@@ -257,40 +257,40 @@ export function CustomerBarberChatPreview({
 
   const liveErrorBanner =
     useLive && (live.status === 'auth_failed' || live.status === 'start_failed') ? (
-      <Alert className="text-right border-amber-300/60 bg-amber-50/70 dark:bg-amber-950/20">
+      <Alert className="barber-contact-inner text-right border-amber-300/60 bg-amber-50/70 dark:bg-amber-950/20">
         <AlertTitle>الشات الحي غير متاح مؤقتاً</AlertTitle>
-        <AlertDescription className="text-xs leading-relaxed">
+        <AlertDescription className="text-xs leading-relaxed break-words">
           {live.errorHint || 'تم التحويل تلقائياً إلى المعاينة المحلية. يمكن متابعة المحادثة محلياً إلى أن تعود خدمة الشات الحي.'}
         </AlertDescription>
       </Alert>
     ) : null;
 
   const chatBody = (
-    <div className={cn('rounded-xl border bg-background/80 overflow-hidden', compact ? 'mt-2' : 'mt-4')}>
-      <div className="flex items-center justify-between gap-2 border-b bg-muted/40 px-3 py-2">
-        <div className="flex items-center gap-2 min-w-0">
+    <div className={cn('barber-contact-inner min-w-0 max-w-full overflow-hidden rounded-xl border bg-background/80', compact ? 'mt-2' : 'mt-4')}>
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b bg-muted/40 px-3 py-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
           <MessageCircle className="w-4 h-4 text-primary shrink-0" />
-          <span className={cn('font-semibold truncate', compact ? 'text-xs' : 'text-sm')}>
+          <span className={cn('min-w-0 font-semibold break-words', compact ? 'text-xs' : 'text-sm')}>
             محادثة مع {barberName}
             {previewSecretMarker}
           </span>
         </div>
-        <Badge variant="secondary" className={cn('shrink-0', compact && 'text-[10px] px-1.5 py-0')}>
+        <Badge variant="secondary" className={cn('max-w-full shrink-0 whitespace-normal text-center leading-tight', compact && 'text-[10px] px-1.5 py-0')}>
           {liveMode ? 'شات مباشر' : 'معاينة محلية'}
           {isDiamond ? ' · ماسي' : ' · ذهبي'}
         </Badge>
       </div>
-      <div className="border-b bg-background px-3 py-2 flex items-center justify-between text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <Hourglass className="w-3.5 h-3.5" />
-          <span>جلسة خاصة (تنتهي بعد 60 دقيقة)</span>
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b bg-background px-3 py-2 text-[11px] text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <Hourglass className="w-3.5 h-3.5 shrink-0" />
+          <span className="break-words">جلسة خاصة (تنتهي بعد 60 دقيقة)</span>
         </div>
-        <span className={cn('font-semibold', expired ? 'text-destructive' : 'text-primary')} dir="ltr">
+        <span className={cn('shrink-0 font-semibold', expired ? 'text-destructive' : 'text-primary')} dir="ltr">
           {remainingLabel}
         </span>
       </div>
-      <ScrollArea className={cn(compact ? 'h-[168px]' : 'h-[220px]')}>
-        <div className={cn('space-y-3 p-3', compact && 'space-y-2 p-2')}>
+      <ScrollArea className={cn('min-w-0 max-w-full', compact ? 'h-[168px]' : 'h-[220px]')}>
+        <div className={cn('min-w-0 max-w-full space-y-3 p-3', compact && 'space-y-2 p-2')}>
           {liveMode && live.status === 'loading' ? (
             <div className="flex items-center justify-center gap-2 py-8 text-xs text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -393,13 +393,13 @@ export function CustomerBarberChatPreview({
       </ScrollArea>
       <div className="border-t bg-muted/10 px-3 py-2">
         {expired ? (
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-xs text-destructive">انتهت الجلسة. يمكنك بدء جلسة جديدة.</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="min-w-0 flex-1 break-words text-xs text-destructive">انتهت الجلسة. يمكنك بدء جلسة جديدة.</p>
             <Button
               size="sm"
               variant="outline"
               onClick={liveMode ? startNewLiveSession : startNewLocalSession}
-              className="gap-1.5"
+              className="shrink-0 gap-1.5"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               جلسة جديدة
@@ -408,12 +408,12 @@ export function CustomerBarberChatPreview({
         ) : liveMode && live.status === 'loading' ? (
           <p className="text-center text-xs text-muted-foreground">جاري الربط…</p>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <Input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               placeholder="اكتب رسالتك…"
-              className="h-9 text-sm"
+              className="min-w-0 flex-1 h-9 text-sm"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -424,7 +424,7 @@ export function CustomerBarberChatPreview({
             />
             <Button
               size="icon"
-              className="h-9 w-9"
+              className="h-9 w-9 shrink-0"
               onClick={() => (liveMode ? void sendLiveMessage() : sendLocalMessage())}
               disabled={!draft.trim() || (liveMode && live.status === 'loading')}
             >
@@ -433,7 +433,7 @@ export function CustomerBarberChatPreview({
           </div>
         )}
       </div>
-      <div className="border-t bg-muted/20 px-3 py-2 text-center text-[10px] text-muted-foreground">
+      <div className="border-t bg-muted/20 px-3 py-2 text-center text-[10px] leading-relaxed break-words text-muted-foreground">
         {liveMode
           ? 'الشات المباشر: جلسة ساعة واحدة ثم تُقفل تلقائياً وفق إعدادات المنصة.'
           : 'معاينة محلية — الرسائل تبقى على جهازك ولا تُرسل إلى الصالون.'}
@@ -448,14 +448,14 @@ export function CustomerBarberChatPreview({
         {perks.map((line) => (
           <li key={line} className="flex items-start gap-2">
             <Sparkles className={cn('mt-0.5 h-3.5 w-3.5 shrink-0', isDiamond ? 'text-accent' : 'text-amber-600')} />
-            <span>{line}</span>
+            <span className="min-w-0 break-words">{line}</span>
           </li>
         ))}
       </ul>
 
       <p
         className={cn(
-          'rounded-lg border border-border/70 bg-muted/25 p-2.5 leading-relaxed text-muted-foreground',
+          'break-words rounded-lg border border-border/70 bg-muted/25 p-2.5 leading-relaxed text-muted-foreground',
           compact ? 'text-[10px]' : 'text-[11px]'
         )}
       >
@@ -481,11 +481,11 @@ export function CustomerBarberChatPreview({
 
   if (compact) {
     return (
-      <div className={cn('rounded-lg border border-primary/25 bg-gradient-to-br from-primary/5 to-muted/30', className)}>
+      <div className={cn('barber-contact-inner min-w-0 max-w-full overflow-hidden rounded-lg border border-primary/25 bg-gradient-to-br from-primary/5 to-muted/30', className)}>
         <div className="space-y-2 p-2.5">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <MessageCircle className="h-4 w-4 shrink-0 text-primary" />
-            <span className="text-xs font-bold">معاينة الشات المباشر</span>
+            <span className="min-w-0 text-xs font-bold break-words">معاينة الشات المباشر</span>
             {isDiamond ? (
               <Badge className="mr-auto h-5 bg-accent text-[10px] text-accent-foreground">ماسي + ترجمة</Badge>
             ) : (
@@ -504,13 +504,13 @@ export function CustomerBarberChatPreview({
     <Card
       id="customer-barber-chat-preview"
       className={cn(
-        'overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 via-card to-muted/20',
+        'barber-contact-inner min-w-0 max-w-full overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 via-card to-muted/20',
         isDiamond && 'border-accent/30 from-accent/10',
-        className
+        className,
       )}
     >
-      <CardHeader className="pb-2">
-        <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
+      <CardHeader className="min-w-0 pb-2">
+        <CardTitle className="flex flex-wrap items-center gap-2 text-base leading-snug break-words sm:text-lg">
           <MessageCircle className="h-5 w-5 text-primary" />
           معاينة الشات المباشر مع الصالون
           {isDiamond ? (
@@ -522,12 +522,12 @@ export function CustomerBarberChatPreview({
             <Badge variant="secondary">باقة ذهبية</Badge>
           )}
         </CardTitle>
-        <CardDescription className="text-sm leading-relaxed">
+        <CardDescription className="text-sm leading-relaxed break-words">
           منظور العميل داخل حلاق ماب: محادثة كتابية مع الصالون. عند توفر الشات المباشر تُحدَّث الرسائل لحظياً؛ وفي
           الباقة الماسية تُضاف ترجمة آلية تسهّل التواصل بين الطرفين.
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-0">{body}</CardContent>
+      <CardContent className="min-w-0 overflow-hidden pt-0">{body}</CardContent>
     </Card>
   );
 }

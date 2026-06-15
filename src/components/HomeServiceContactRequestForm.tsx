@@ -57,12 +57,12 @@ export function HomeServiceContactRequestForm({ barberName, onSubmit, disabled }
   };
 
   return (
-    <div className="rounded-xl border border-primary/25 bg-gradient-to-br from-primary/[0.04] to-card p-4 space-y-4">
+    <div className="barber-contact-inner min-w-0 max-w-full overflow-x-clip rounded-xl border border-primary/25 bg-gradient-to-br from-primary/[0.04] to-card p-4 space-y-4">
       <div className="flex items-start gap-2">
         <Home className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-semibold">طلب تواصل لخدمة منزلية</p>
-          <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold break-words">طلب تواصل لخدمة منزلية</p>
+          <p className="text-xs text-muted-foreground leading-relaxed mt-1 break-words">
             يُرسل طلبك كرسالة خاصة إلى {barberName} — ليس حجزاً. التنسيق والتنفيذ مباشرة بينكما.
           </p>
         </div>
@@ -83,7 +83,7 @@ export function HomeServiceContactRequestForm({ barberName, onSubmit, disabled }
         <div className="space-y-2">
           <Label>الوقت المفضل</Label>
           <Select value={timeWindow} onValueChange={setTimeWindow}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -98,7 +98,7 @@ export function HomeServiceContactRequestForm({ barberName, onSubmit, disabled }
         <div className="space-y-2">
           <Label>نوع الخدمة</Label>
           <Select value={serviceType} onValueChange={setServiceType}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -130,7 +130,7 @@ export function HomeServiceContactRequestForm({ barberName, onSubmit, disabled }
           checked={accepted}
           onCheckedChange={(c) => setAccepted(c === true)}
         />
-        <Label htmlFor="home-disclaimer" className="text-xs leading-relaxed cursor-pointer font-normal">
+        <Label htmlFor="home-disclaimer" className="min-w-0 text-xs leading-relaxed cursor-pointer font-normal break-words">
           {HOME_SERVICE_CONTACT_DISCLAIMER_AR}
         </Label>
       </div>

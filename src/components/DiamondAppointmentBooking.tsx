@@ -72,7 +72,7 @@ export function DiamondAppointmentBooking({ barberId, barberName, compact }: Dia
 
   if (compact) {
     return (
-      <Card className="border-accent/40 bg-gradient-to-br from-accent/8 via-card to-primary/5 shadow-inner">
+      <Card className="barber-contact-inner min-w-0 max-w-full overflow-hidden border-accent/40 bg-gradient-to-br from-accent/8 via-card to-primary/5 shadow-inner">
         <CardContent className="p-3 space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-accent">
             <Calendar className="w-3.5 h-3.5 shrink-0" />
@@ -132,15 +132,15 @@ export function DiamondAppointmentBooking({ barberId, barberName, compact }: Dia
   }
 
   return (
-    <Card className="border-accent/50 bg-gradient-to-br from-accent/10 via-card to-primary/5">
-      <CardContent className="p-4 space-y-4">
+    <Card className="barber-contact-inner min-w-0 max-w-full overflow-hidden border-accent/50 bg-gradient-to-br from-accent/10 via-card to-primary/5">
+      <CardContent className="min-w-0 p-4 space-y-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-accent">
             <Calendar className="w-5 h-5" />
           </div>
-          <div>
-            <h4 className="font-bold text-foreground">جدولة مواعيد دقيقة — باقة ماسية</h4>
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+          <div className="min-w-0">
+            <h4 className="font-bold break-words text-foreground">جدولة مواعيد دقيقة — باقة ماسية</h4>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed break-words">
               يتحكم صاحب الصالون في <strong>إظهار أو إخفاء</strong> هذه الكتلة للعملاء. اختر تاريخاً ووقتاً محدداً
               وأدخل رقم جوالك؛ يُستخدم الرقم لاعتماد الحجز والتواصل.
             </p>
