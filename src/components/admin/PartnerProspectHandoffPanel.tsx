@@ -172,6 +172,7 @@ export function PartnerProspectHandoffPanel({
           <Select value={form.tierFit} onValueChange={(v) => patchField('tierFit', v as PartnerProspectTierFit)} disabled={!canSubmit || busy}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
+              <SelectItem value="bronze">برونزي</SelectItem>
               <SelectItem value="gold">ذهبي</SelectItem>
               <SelectItem value="diamond">ماسي</SelectItem>
               <SelectItem value="mixed">ذهبي/ماسي</SelectItem>

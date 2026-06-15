@@ -88,6 +88,7 @@ function normalizeTierFit(raw: string): PartnerProspectTierFit | undefined {
   const v = raw.toLowerCase();
   if (v.includes('ماس') || v.includes('diamond')) return 'diamond';
   if (v.includes('ذهب') || v.includes('gold')) return 'gold';
+  if (v.includes('برون') || v.includes('bronze')) return 'bronze';
   if (v.includes('mixed') || v.includes('/')) return 'mixed';
   return undefined;
 }

@@ -11,12 +11,22 @@ import {
   Copy,
   Download,
   RefreshCw,
+  Eye,
+  MessageSquare,
   type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
@@ -28,9 +38,16 @@ import { Switch } from '@/components/ui/switch';
 import { ROUTE_PATHS, SubscriptionRequest, Payment, AdminStats } from '@/lib';
 import { toast } from '@/hooks/use-toast';
 import {
+  COMMAND_CENTER_OUTREACH_INTERNAL_NOTE_AR,
+  commandCenterOutreachPreviewLabel,
+  type CommandCenterOutreachLength,
+  type CommandCenterOutreachVariant,
+} from '@/config/commandCenterOutreachCopy';
+import {
   type PartnerProspect,
   type CommandLeadChannel,
   type CommandLeadStatus,
+  type ProspectOutreachOptions,
   buildWaDeepLink,
   prospectOutreachMessage,
   PARTNER_PROSPECT_SOURCE_LABELS,
@@ -152,6 +169,11 @@ export function CommandCenterSection({
   const [onlyDue, setOnlyDue] = useState(false);
   const [onlyHospitality, setOnlyHospitality] = useState(false);
   const [sopChecks, setSopChecks] = useState<Record<string, boolean>>({});
+  const [outreachPreview, setOutreachPreview] = useState<{
+    prospect: PartnerProspect;
+    variant: CommandCenterOutreachVariant;
+    length: CommandCenterOutreachLength;
+  } | null>(null);
 
   const todayIso = new Date().toISOString().slice(0, 10);
   const jsDay = new Date().getDay();
@@ -301,6 +323,21 @@ export function CommandCenterSection({
     return counts;
   }, [hospitalityProspects]);
 
+  const outreachPreviewText = useMemo(() => {
+    if (!outreachPreview) return '';
+    return prospectOutreachMessage(outreachPreview.prospect, {
+      variant: outreachPreview.variant,
+      length: outreachPreview.length,
+    });
+  }, [outreachPreview]);
+
+  const outreachPreviewUsesSuggested = Boolean(
+    outreachPreview &&
+      outreachPreview.length === 'full' &&
+      outreachPreview.variant === 'initial' &&
+      outreachPreview.prospect.suggestedPitch?.trim(),
+  );
+
   const setLeadPatch = (id: string, patch: PartnerProspectPatch) => {
     setProspects((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
 
@@ -317,18 +354,28 @@ export function CommandCenterSection({
     })();
   };
 
-  const copyLeadPitch = async (prospect: PartnerProspect) => {
-    const text = prospectOutreachMessage(prospect);
+  const copyLeadPitch = async (prospect: PartnerProspect, options: ProspectOutreachOptions = {}) => {
+    const text = prospectOutreachMessage(prospect, options);
+    const variant = options.variant ?? 'initial';
+    const length = options.length ?? 'full';
     try {
       await navigator.clipboard.writeText(text);
-      toast({ title: 'تم نسخ الرسالة', description: `جاهزة للإرسال إلى ${prospect.name}` });
+      toast({
+        title:
+          variant === 'followup'
+            ? 'تم نسخ رسالة المتابعة'
+            : length === 'short'
+              ? 'تم نسخ النسخة المختصرة'
+              : 'تم نسخ الرسالة',
+        description: `جاهزة للإرسال إلى ${prospect.name}`,
+      });
     } catch {
       toast({ title: 'تعذر النسخ', description: 'انسخ الرسالة يدوياً.', variant: 'destructive' });
     }
   };
 
-  const openLeadChannel = (prospect: PartnerProspect) => {
-    const message = prospectOutreachMessage(prospect);
+  const openLeadChannel = (prospect: PartnerProspect, options: ProspectOutreachOptions = {}) => {
+    const message = prospectOutreachMessage(prospect, options);
     if (prospect.phone) {
       window.open(buildWaDeepLink(prospect.phone, message), '_blank');
       return;
@@ -444,6 +491,9 @@ export function CommandCenterSection({
           <h2 className="text-2xl font-bold">غرفة القيادة</h2>
           <p className="text-sm text-muted-foreground mt-1">
             متابعة حملة التواصل، التحويل، والقرارات التشغيلية اليومية من مكان واحد.
+          </p>
+          <p className="text-xs text-muted-foreground/80 mt-2 max-w-2xl">
+            {COMMAND_CENTER_OUTREACH_INTERNAL_NOTE_AR}
           </p>
         </div>
         <Button variant="outline" onClick={() => void loadProspects()} disabled={refreshing}>
@@ -801,6 +851,7 @@ export function CommandCenterSection({
               <SelectTrigger><SelectValue placeholder="ملاءمة الباقة" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">كل الباقات</SelectItem>
+                <SelectItem value="bronze">برونزي</SelectItem>
                 <SelectItem value="gold">ذهبي</SelectItem>
                 <SelectItem value="diamond">ماسي</SelectItem>
                 <SelectItem value="mixed">ذهبي/ماسي</SelectItem>
@@ -866,7 +917,21 @@ export function CommandCenterSection({
                       </Badge>
                       <Badge className={statusMeta[status].className}>{statusMeta[status].label}</Badge>
                       <Badge variant="secondary">
-                        {prospect.tierFit === 'diamond' ? 'ملائم للماسي' : prospect.tierFit === 'gold' ? 'ملائم للذهبي' : 'ذهبي/ماسي'}
+                        {prospect.tierFit === 'diamond'
+                          ? 'ملائم للماسي'
+                          : prospect.tierFit === 'gold'
+                            ? 'ملائم للذهبي'
+                            : prospect.tierFit === 'bronze'
+                              ? 'ملائم للبرونزي'
+                              : 'ذهبي/ماسي'}
+                      </Badge>
+                      <Badge variant="outline" className="text-[10px] font-normal">
+                        {commandCenterOutreachPreviewLabel({
+                          tierFit: prospect.tierFit,
+                          variant: 'initial',
+                          length: 'full',
+                          usesSuggestedPitch: Boolean(prospect.suggestedPitch?.trim()),
+                        })}
                       </Badge>
                       {isOverdue ? <Badge variant="destructive">متابعة متأخرة</Badge> : null}
                       {!isOverdue && isDueToday ? <Badge className="bg-amber-500 text-white">متابعة اليوم</Badge> : null}
@@ -887,14 +952,36 @@ export function CommandCenterSection({
                     </div>
                   </div>
 
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:w-56">
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:w-60">
                     <Button onClick={() => openLeadChannel(prospect)} disabled={!canManage}>
                       <ExternalLink className="w-4 h-4 ml-2" />
                       فتح قناة التواصل
                     </Button>
-                    <Button variant="outline" onClick={() => void copyLeadPitch(prospect)} disabled={!canManage}>
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        setOutreachPreview({ prospect, variant: 'initial', length: 'full' })
+                      }
+                      disabled={!canManage}
+                    >
+                      <Eye className="w-4 h-4 ml-2" />
+                      معاينة الرسالة
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => void copyLeadPitch(prospect, { length: 'short' })}
+                      disabled={!canManage}
+                    >
                       <Copy className="w-4 h-4 ml-2" />
-                      نسخ رسالة جاهزة
+                      نسخ مختصرة (واتساب)
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => openLeadChannel(prospect, { variant: 'followup', length: 'short' })}
+                      disabled={!canManage || !prospect.phone}
+                    >
+                      <MessageSquare className="w-4 h-4 ml-2" />
+                      واتساب متابعة
                     </Button>
                   </div>
                 </div>
@@ -943,6 +1030,100 @@ export function CommandCenterSection({
           );
         })}
       </div>
+
+      <Dialog open={outreachPreview !== null} onOpenChange={(open) => !open && setOutreachPreview(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>معاينة رسالة التواصل</DialogTitle>
+            <DialogDescription>
+              {outreachPreview
+                ? `${outreachPreview.prospect.name} · ${commandCenterOutreachPreviewLabel({
+                    tierFit: outreachPreview.prospect.tierFit,
+                    variant: outreachPreview.variant,
+                    length: outreachPreview.length,
+                    usesSuggestedPitch: outreachPreviewUsesSuggested,
+                  })}`
+                : ''}
+            </DialogDescription>
+          </DialogHeader>
+
+          {outreachPreview ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">نوع الرسالة</p>
+                <Select
+                  value={outreachPreview.variant}
+                  onValueChange={(value) =>
+                    setOutreachPreview((prev) =>
+                      prev ? { ...prev, variant: value as CommandCenterOutreachVariant } : prev,
+                    )
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="initial">أول تواصل</SelectItem>
+                    <SelectItem value="followup">متابعة</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">الطول</p>
+                <Select
+                  value={outreachPreview.length}
+                  onValueChange={(value) =>
+                    setOutreachPreview((prev) =>
+                      prev ? { ...prev, length: value as CommandCenterOutreachLength } : prev,
+                    )
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full">كاملة</SelectItem>
+                    <SelectItem value="short">مختصرة (واتساب)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : null}
+
+          <div
+            dir="rtl"
+            className="chat-arabic-text min-h-[220px] max-h-[min(24rem,50vh)] overflow-y-auto rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap"
+          >
+            {outreachPreviewText}
+          </div>
+
+          <DialogFooter className="flex flex-wrap gap-2 sm:justify-start">
+            <Button
+              variant="outline"
+              disabled={!outreachPreview || !canManage}
+              onClick={() => {
+                if (!outreachPreview) return;
+                void copyLeadPitch(outreachPreview.prospect, {
+                  variant: outreachPreview.variant,
+                  length: outreachPreview.length,
+                });
+              }}
+            >
+              <Copy className="w-4 h-4 ml-2" />
+              نسخ
+            </Button>
+            <Button
+              disabled={!outreachPreview?.prospect.phone || !canManage}
+              onClick={() => {
+                if (!outreachPreview) return;
+                openLeadChannel(outreachPreview.prospect, {
+                  variant: outreachPreview.variant,
+                  length: outreachPreview.length,
+                });
+              }}
+            >
+              <ExternalLink className="w-4 h-4 ml-2" />
+              فتح واتساب
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }

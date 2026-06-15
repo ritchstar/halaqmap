@@ -1,6 +1,14 @@
+import {
+  buildCommandCenterOutreachMessage,
+  DEFAULT_OUTREACH_MESSAGE,
+  type CommandCenterOutreachLength,
+  type CommandCenterOutreachTierFit,
+  type CommandCenterOutreachVariant,
+} from '@/config/commandCenterOutreachCopy';
+
 export type CommandLeadChannel = 'whatsapp' | 'instagram' | 'email' | 'website' | 'phone';
 export type CommandLeadStatus = 'new' | 'contacted' | 'waiting' | 'won' | 'lost';
-export type PartnerProspectTierFit = 'gold' | 'diamond' | 'mixed';
+export type PartnerProspectTierFit = 'bronze' | 'gold' | 'diamond' | 'mixed';
 export type PartnerProspectSource = 'manual' | 'seed' | 'b2b_strategist' | 'import';
 
 /** Partner acquisition lead — persisted in `partner_prospects` (Command Center pipeline). */
@@ -33,14 +41,29 @@ export interface PartnerProspect {
 /** @deprecated Use PartnerProspect — kept for existing imports */
 export type CommandCenterLead = PartnerProspect;
 
-export const DEFAULT_OUTREACH_MESSAGE =
-  'السلام عليكم، معكم فريق منصة حلاق ماب. نرغب بدعوتكم للانضمام للمنصة وزيادة فرص الظهور المناسب عند تنشّط الاستعلامات. هل يمكن إرسال التفاصيل؟';
+export { DEFAULT_OUTREACH_MESSAGE };
 
-export function prospectOutreachMessage(prospect: Pick<PartnerProspect, 'name' | 'suggestedPitch'>): string {
-  if (prospect.suggestedPitch?.trim()) {
+export type ProspectOutreachOptions = {
+  variant?: CommandCenterOutreachVariant;
+  length?: CommandCenterOutreachLength;
+};
+
+export function prospectOutreachMessage(
+  prospect: Pick<PartnerProspect, 'name' | 'city' | 'region' | 'suggestedPitch' | 'tierFit'>,
+  options: ProspectOutreachOptions = {},
+): string {
+  const { variant = 'initial', length = 'full' } = options;
+  if (length === 'full' && variant === 'initial' && prospect.suggestedPitch?.trim()) {
     return prospect.suggestedPitch.trim();
   }
-  return `مرحباً ${prospect.name}،\n${DEFAULT_OUTREACH_MESSAGE}`;
+  return buildCommandCenterOutreachMessage({
+    salonName: prospect.name,
+    tierFit: prospect.tierFit as CommandCenterOutreachTierFit,
+    variant,
+    length,
+    city: prospect.city,
+    region: prospect.region,
+  });
 }
 
 export const PARTNER_PROSPECT_UNKNOWN_LABEL = 'غير محدد';

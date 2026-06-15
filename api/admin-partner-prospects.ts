@@ -9,12 +9,12 @@ const CORS_OPTS = {
   allowHeaders: 'Content-Type, Authorization, x-client-supabase-url',
 } as const;
 
-const TIER_FIT = new Set(['gold', 'diamond', 'mixed']);
+const TIER_FIT = new Set(['bronze', 'gold', 'diamond', 'mixed']);
 const CHANNELS = new Set(['whatsapp', 'instagram', 'email', 'website', 'phone']);
 const STATUSES = new Set(['new', 'contacted', 'waiting', 'won', 'lost']);
 const SOURCES = new Set(['manual', 'seed', 'b2b_strategist', 'import']);
 
-type TierFit = 'gold' | 'diamond' | 'mixed';
+type TierFit = 'bronze' | 'gold' | 'diamond' | 'mixed';
 type Channel = 'whatsapp' | 'instagram' | 'email' | 'website' | 'phone';
 type Status = 'new' | 'contacted' | 'waiting' | 'won' | 'lost';
 type Source = 'manual' | 'seed' | 'b2b_strategist' | 'import';
