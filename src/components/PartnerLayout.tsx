@@ -64,7 +64,7 @@ const partnerNavItems: PartnerNavItem[] = [
 ];
 
 const partnerBottomNav: ReadonlyArray<Required<PartnerNavItem>> = [
-  { path: ROUTE_PATHS.BARBERS_LANDING, label: 'الرئيسية', Icon: Home },
+  { path: ROUTE_PATHS.HOME, label: 'الرئيسية', Icon: Home },
   { path: ROUTE_PATHS.REGISTER, label: 'تسجيل', Icon: UserPlus },
   { path: ROUTE_PATHS.PARTNER_SUPPORT, label: 'دعم', Icon: Headphones },
 ];
@@ -544,7 +544,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           aria-label={`تنقّل سريع — ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
         >
           {partnerBottomNav.map(({ path, label, Icon }) => (
-            <NavLink key={path} to={path} className={({ isActive }) => bottomNavClass(isActive)} end={path === ROUTE_PATHS.BARBERS_LANDING}>
+            <NavLink key={path} to={path} className={({ isActive }) => bottomNavClass(isActive)} end={path === ROUTE_PATHS.HOME}>
               <Icon className="h-5 w-5 shrink-0 opacity-90" aria-hidden />
               <span>{label}</span>
             </NavLink>
