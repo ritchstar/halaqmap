@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { MessageCircle, Languages, Sparkles, User, Store, Hourglass, RotateCcw, Send, Loader2 } from 'lucide-react';
+import { MessageCircle, Languages, User, Store, Hourglass, RotateCcw, Send, Loader2, CircleHelp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -22,18 +22,27 @@ import {
 } from '@/lib/customerPrivateChat';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useCustomerBarberPrivateRealtimeChat } from '@/hooks/useCustomerBarberPrivateRealtimeChat';
+import {
+  CUSTOMER_CHAT_PREVIEW_TITLE,
+  CUSTOMER_CHAT_PREVIEW_COMPACT_TITLE,
+  CUSTOMER_CHAT_PREVIEW_INTRO,
+  CUSTOMER_CHAT_GOLD_STEPS,
+  CUSTOMER_CHAT_DIAMOND_STEPS,
+  CUSTOMER_CHAT_PRIVACY_GOLD,
+  CUSTOMER_CHAT_PRIVACY_DIAMOND,
+  CUSTOMER_CHAT_LIVE_UNAVAILABLE_TITLE,
+  CUSTOMER_CHAT_LIVE_UNAVAILABLE_HINT,
+  CUSTOMER_CHAT_EMPTY_LIVE,
+  CUSTOMER_CHAT_EMPTY_LOCAL,
+  CUSTOMER_CHAT_FOOTER_LIVE,
+  CUSTOMER_CHAT_FOOTER_LOCAL,
+  CUSTOMER_CHAT_DIAMOND_BADGE,
+  CUSTOMER_CHAT_GOLD_BADGE,
+  CUSTOMER_CHAT_TRANSLATION_DEMO_CUSTOMER,
+  CUSTOMER_CHAT_TRANSLATION_DEMO_BARBER,
+} from '@/config/customerBarberChatPreviewCopy';
 
 type Tier = SubscriptionTier.GOLD | SubscriptionTier.DIAMOND;
-
-const GOLD_PERKS = [
-  'شات كتابي مباشر مع الصالون من داخل حلاق ماب',
-  'الاستفسار عن المواعيد والخدمات دون مغادرة التطبيق',
-];
-
-const DIAMOND_PERKS = [
-  'كل مزايا الشات في الباقة الذهبية',
-  'ترجمة تلقائية للرسائل بحسب لغة الكتابة (يُكتشف من أحرف النص) للعميل والحلاق معاً',
-];
 
 function Bubble({
   side,
@@ -124,7 +133,7 @@ export function CustomerBarberChatPreview({
   onInjectMessageSent?: () => void;
 }) {
   const isDiamond = tier === SubscriptionTier.DIAMOND;
-  const perks = isDiamond ? DIAMOND_PERKS : GOLD_PERKS;
+  const usageSteps = isDiamond ? CUSTOMER_CHAT_DIAMOND_STEPS : CUSTOMER_CHAT_GOLD_STEPS;
   const useLive = isSupabaseConfigured();
   const previewSecretMarker = previewListing ? (
     <span className="text-muted-foreground font-normal" title="إدراج معاينة">
@@ -258,15 +267,15 @@ export function CustomerBarberChatPreview({
   const liveErrorBanner =
     useLive && (live.status === 'auth_failed' || live.status === 'start_failed') ? (
       <Alert className="barber-contact-inner text-right border-amber-300/60 bg-amber-50/70 dark:bg-amber-950/20">
-        <AlertTitle>الشات الحي غير متاح مؤقتاً</AlertTitle>
+        <AlertTitle>{CUSTOMER_CHAT_LIVE_UNAVAILABLE_TITLE}</AlertTitle>
         <AlertDescription className="text-xs leading-relaxed break-words">
-          {live.errorHint || 'تم التحويل تلقائياً إلى المعاينة المحلية. يمكن متابعة المحادثة محلياً إلى أن تعود خدمة الشات الحي.'}
+          {live.errorHint || CUSTOMER_CHAT_LIVE_UNAVAILABLE_HINT}
         </AlertDescription>
       </Alert>
     ) : null;
 
   const chatBody = (
-    <div className={cn('barber-contact-inner min-w-0 max-w-full overflow-hidden rounded-xl border bg-background/80', compact ? 'mt-2' : 'mt-4')}>
+    <div className={cn('barber-contact-inner min-w-0 max-w-full overflow-hidden rounded-xl border bg-background/80', compact && 'mt-1')}>
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b bg-muted/40 px-3 py-2">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <MessageCircle className="w-4 h-4 text-primary shrink-0" />
@@ -297,8 +306,8 @@ export function CustomerBarberChatPreview({
               جاري تهيئة الشات الحي…
             </div>
           ) : liveMode && live.messages.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center">
-              اكتب أول رسالة — تُحدَّث لحظياً بينك وبين الصالون ضمن الجلسة.
+            <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center break-words">
+              {CUSTOMER_CHAT_EMPTY_LIVE}
             </div>
           ) : liveMode ? (
             live.messages.map((m) => (
@@ -338,8 +347,8 @@ export function CustomerBarberChatPreview({
               </div>
             ))
           ) : localMessages.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center">
-              ابدأ محادثة خاصة — عند تعذّر الشات المباشر تُعرض معاينة محلية داخل جهازك فقط.
+            <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center break-words">
+              {CUSTOMER_CHAT_EMPTY_LOCAL}
             </div>
           ) : (
             localMessages.map((m) => (
@@ -375,16 +384,16 @@ export function CustomerBarberChatPreview({
                 <TranslationHint
                   compact={compact}
                   detectedLabel="مثال: الإنجليزية"
-                  translationLabel="يظهر للصالون:"
-                  translationText="في الوضع الفعلي تُضاف ترجمة آلية تساعد الطرفين على الفهم بسرعة."
+                  translationLabel="تعلّم:"
+                  translationText={CUSTOMER_CHAT_TRANSLATION_DEMO_CUSTOMER}
                 />
               </div>
               <div className="flex w-full flex-col items-start gap-1">
                 <TranslationHint
                   compact={compact}
                   detectedLabel="مثال: العربية"
-                  translationLabel="يظهر للعميل:"
-                  translationText="نفس فكرة الترجمة المعروضة للعميل ضمن الباقة الماسية."
+                  translationLabel="تعلّم:"
+                  translationText={CUSTOMER_CHAT_TRANSLATION_DEMO_BARBER}
                 />
               </div>
             </>
@@ -434,9 +443,7 @@ export function CustomerBarberChatPreview({
         )}
       </div>
       <div className="border-t bg-muted/20 px-3 py-2 text-center text-[10px] leading-relaxed break-words text-muted-foreground">
-        {liveMode
-          ? 'الشات المباشر: جلسة ساعة واحدة ثم تُقفل تلقائياً وفق إعدادات المنصة.'
-          : 'معاينة محلية — الرسائل تبقى على جهازك ولا تُرسل إلى الصالون.'}
+        {liveMode ? CUSTOMER_CHAT_FOOTER_LIVE : CUSTOMER_CHAT_FOOTER_LOCAL}
       </div>
     </div>
   );
@@ -444,38 +451,36 @@ export function CustomerBarberChatPreview({
   const body = (
     <>
       {liveErrorBanner}
-      <ul className={cn('space-y-1.5 text-muted-foreground', compact ? 'text-[10px]' : 'text-xs')}>
-        {perks.map((line) => (
-          <li key={line} className="flex items-start gap-2">
-            <Sparkles className={cn('mt-0.5 h-3.5 w-3.5 shrink-0', isDiamond ? 'text-accent' : 'text-amber-600')} />
-            <span className="min-w-0 break-words">{line}</span>
-          </li>
-        ))}
-      </ul>
-
+      {chatBody}
+      <div className="space-y-2">
+        <p className={cn('font-semibold text-foreground', compact ? 'text-[10px]' : 'text-xs')}>
+          خطوات سريعة
+        </p>
+        <ol className={cn('space-y-1.5 text-muted-foreground list-none', compact ? 'text-[10px]' : 'text-xs')}>
+          {usageSteps.map((line, index) => (
+            <li key={line} className="flex items-start gap-2">
+              <span
+                className={cn(
+                  'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
+                  isDiamond ? 'bg-accent/15 text-accent' : 'bg-primary/10 text-primary',
+                )}
+                aria-hidden
+              >
+                {index + 1}
+              </span>
+              <span className="min-w-0 break-words">{line}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
       <p
         className={cn(
           'break-words rounded-lg border border-border/70 bg-muted/25 p-2.5 leading-relaxed text-muted-foreground',
-          compact ? 'text-[10px]' : 'text-[11px]'
+          compact ? 'text-[10px]' : 'text-[11px]',
         )}
       >
-        {isDiamond ? (
-          <>
-            <strong className="text-foreground">الترجمة والخصوصية:</strong> طبقة الترجمة الآلية في الباقة الماسية
-            تعمل بينك كمستخدم وبين الصالون ك<strong className="text-foreground">مزوّد خدمة</strong> ضمن المنصة؛ الهدف
-            تسهيل الفهم فقط. تُعالَج محتويات المحادثة وفق سياسة الخصوصية وبحد أدنى للاحتفاظ اللازم للتشغيل
-            والأمان. لا تُعدّ الترجمة وثيقة رسمية أو استشارة.
-          </>
-        ) : (
-          <>
-            <strong className="text-foreground">الشات والخصوصية:</strong> المحادثة الكتابية تربطك بالصالون كمزوّد
-            خدمة؛ تُعالَج الرسائل وفق سياسة الخصوصية وقد يُحتفَظ بالحد الأدنى اللازم منها للتشغيل والأمان. في
-            الباقة الماسية تُضاف ترجمة آلية بين الطرفين.
-          </>
-        )}
+        {isDiamond ? CUSTOMER_CHAT_PRIVACY_DIAMOND : CUSTOMER_CHAT_PRIVACY_GOLD}
       </p>
-
-      {chatBody}
     </>
   );
 
@@ -485,12 +490,14 @@ export function CustomerBarberChatPreview({
         <div className="space-y-2 p-2.5">
           <div className="flex flex-wrap items-center gap-2">
             <MessageCircle className="h-4 w-4 shrink-0 text-primary" />
-            <span className="min-w-0 text-xs font-bold break-words">معاينة الشات المباشر</span>
+            <span className="min-w-0 text-xs font-bold break-words">{CUSTOMER_CHAT_PREVIEW_COMPACT_TITLE}</span>
             {isDiamond ? (
-              <Badge className="mr-auto h-5 bg-accent text-[10px] text-accent-foreground">ماسي + ترجمة</Badge>
+              <Badge className="mr-auto h-5 bg-accent text-[10px] text-accent-foreground">
+                {CUSTOMER_CHAT_DIAMOND_BADGE}
+              </Badge>
             ) : (
               <Badge variant="secondary" className="mr-auto h-5 text-[10px]">
-                ذهبي
+                {CUSTOMER_CHAT_GOLD_BADGE}
               </Badge>
             )}
           </div>
@@ -511,20 +518,19 @@ export function CustomerBarberChatPreview({
     >
       <CardHeader className="min-w-0 pb-2">
         <CardTitle className="flex flex-wrap items-center gap-2 text-base leading-snug break-words sm:text-lg">
-          <MessageCircle className="h-5 w-5 text-primary" />
-          معاينة الشات المباشر مع الصالون
+          <CircleHelp className="h-5 w-5 text-primary shrink-0" />
+          {CUSTOMER_CHAT_PREVIEW_TITLE}
           {isDiamond ? (
             <Badge className="gap-1 bg-accent text-accent-foreground">
               <Languages className="h-3 w-3" />
-              باقة ماسية — ترجمة ذكية
+              {CUSTOMER_CHAT_DIAMOND_BADGE}
             </Badge>
           ) : (
-            <Badge variant="secondary">باقة ذهبية</Badge>
+            <Badge variant="secondary">{CUSTOMER_CHAT_GOLD_BADGE}</Badge>
           )}
         </CardTitle>
         <CardDescription className="text-sm leading-relaxed break-words">
-          منظور العميل داخل حلاق ماب: محادثة كتابية مع الصالون. عند توفر الشات المباشر تُحدَّث الرسائل لحظياً؛ وفي
-          الباقة الماسية تُضاف ترجمة آلية تسهّل التواصل بين الطرفين.
+          {CUSTOMER_CHAT_PREVIEW_INTRO}
         </CardDescription>
       </CardHeader>
       <CardContent className="min-w-0 overflow-hidden pt-0">{body}</CardContent>
