@@ -26,6 +26,12 @@ import {
   CUSTOMER_CHAT_PREVIEW_TITLE,
   CUSTOMER_CHAT_PREVIEW_COMPACT_TITLE,
   CUSTOMER_CHAT_PREVIEW_INTRO,
+  CUSTOMER_CHAT_THREAD_PREFIX,
+  CUSTOMER_CHAT_SESSION_LABEL,
+  CUSTOMER_CHAT_STATUS_LIVE,
+  CUSTOMER_CHAT_STATUS_LOCAL,
+  CUSTOMER_CHAT_TIER_DIAMOND,
+  CUSTOMER_CHAT_TIER_GOLD,
   CUSTOMER_CHAT_GOLD_STEPS,
   CUSTOMER_CHAT_DIAMOND_STEPS,
   CUSTOMER_CHAT_PRIVACY_GOLD,
@@ -38,6 +44,7 @@ import {
   CUSTOMER_CHAT_FOOTER_LOCAL,
   CUSTOMER_CHAT_DIAMOND_BADGE,
   CUSTOMER_CHAT_GOLD_BADGE,
+  CUSTOMER_CHAT_STEPS_HEADING,
   CUSTOMER_CHAT_TRANSLATION_DEMO_CUSTOMER,
   CUSTOMER_CHAT_TRANSLATION_DEMO_BARBER,
 } from '@/config/customerBarberChatPreviewCopy';
@@ -268,7 +275,7 @@ export function CustomerBarberChatPreview({
     useLive && (live.status === 'auth_failed' || live.status === 'start_failed') ? (
       <Alert className="barber-contact-inner text-right border-amber-300/60 bg-amber-50/70 dark:bg-amber-950/20">
         <AlertTitle>{CUSTOMER_CHAT_LIVE_UNAVAILABLE_TITLE}</AlertTitle>
-        <AlertDescription className="text-xs leading-relaxed break-words">
+        <AlertDescription className="barber-contact-prose text-xs leading-relaxed">
           {live.errorHint || CUSTOMER_CHAT_LIVE_UNAVAILABLE_HINT}
         </AlertDescription>
       </Alert>
@@ -276,25 +283,43 @@ export function CustomerBarberChatPreview({
 
   const chatBody = (
     <div className={cn('barber-contact-inner min-w-0 max-w-full overflow-hidden rounded-xl border bg-background/80', compact && 'mt-1')}>
-      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b bg-muted/40 px-3 py-2">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <MessageCircle className="w-4 h-4 text-primary shrink-0" />
-          <span className={cn('min-w-0 font-semibold break-words', compact ? 'text-xs' : 'text-sm')}>
-            محادثة مع {barberName}
-            {previewSecretMarker}
-          </span>
+      <div className="flex flex-col gap-1.5 border-b bg-muted/40 px-3 py-2">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <div className="flex min-w-0 flex-1 items-start gap-2">
+            <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] leading-none text-muted-foreground">{CUSTOMER_CHAT_THREAD_PREFIX}</p>
+              <p
+                className={cn('truncate font-semibold leading-snug', compact ? 'text-xs' : 'text-sm')}
+                title={typeof barberName === 'string' ? barberName : undefined}
+              >
+                {barberName}
+                {previewSecretMarker}
+              </p>
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <Badge
+              variant="secondary"
+              className={cn('whitespace-nowrap text-[10px] leading-none', compact && 'px-1.5 py-0.5')}
+            >
+              {liveMode ? CUSTOMER_CHAT_STATUS_LIVE : CUSTOMER_CHAT_STATUS_LOCAL}
+            </Badge>
+            <Badge
+              variant="outline"
+              className={cn('whitespace-nowrap text-[10px] leading-none', compact && 'px-1.5 py-0.5')}
+            >
+              {isDiamond ? CUSTOMER_CHAT_TIER_DIAMOND : CUSTOMER_CHAT_TIER_GOLD}
+            </Badge>
+          </div>
         </div>
-        <Badge variant="secondary" className={cn('max-w-full shrink-0 whitespace-normal text-center leading-tight', compact && 'text-[10px] px-1.5 py-0')}>
-          {liveMode ? 'شات مباشر' : 'معاينة محلية'}
-          {isDiamond ? ' · ماسي' : ' · ذهبي'}
-        </Badge>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b bg-background px-3 py-2 text-[11px] text-muted-foreground">
+      <div className="flex items-center justify-between gap-2 border-b bg-background px-3 py-2 text-[11px] text-muted-foreground">
         <div className="flex min-w-0 items-center gap-1.5">
-          <Hourglass className="w-3.5 h-3.5 shrink-0" />
-          <span className="break-words">جلسة خاصة (تنتهي بعد 60 دقيقة)</span>
+          <Hourglass className="h-3.5 w-3.5 shrink-0" />
+          <span className="whitespace-nowrap">{CUSTOMER_CHAT_SESSION_LABEL}</span>
         </div>
-        <span className={cn('shrink-0 font-semibold', expired ? 'text-destructive' : 'text-primary')} dir="ltr">
+        <span className={cn('shrink-0 font-semibold tabular-nums', expired ? 'text-destructive' : 'text-primary')} dir="ltr">
           {remainingLabel}
         </span>
       </div>
@@ -306,7 +331,7 @@ export function CustomerBarberChatPreview({
               جاري تهيئة الشات الحي…
             </div>
           ) : liveMode && live.messages.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center break-words">
+            <div className="barber-contact-prose rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
               {CUSTOMER_CHAT_EMPTY_LIVE}
             </div>
           ) : liveMode ? (
@@ -347,7 +372,7 @@ export function CustomerBarberChatPreview({
               </div>
             ))
           ) : localMessages.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground text-center break-words">
+            <div className="barber-contact-prose rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
               {CUSTOMER_CHAT_EMPTY_LOCAL}
             </div>
           ) : (
@@ -442,8 +467,8 @@ export function CustomerBarberChatPreview({
           </div>
         )}
       </div>
-      <div className="border-t bg-muted/20 px-3 py-2 text-center text-[10px] leading-relaxed break-words text-muted-foreground">
-        {liveMode ? CUSTOMER_CHAT_FOOTER_LIVE : CUSTOMER_CHAT_FOOTER_LOCAL}
+      <div className="border-t bg-muted/20 px-3 py-2 text-center text-[10px] leading-snug text-muted-foreground">
+        <p className="barber-contact-prose">{liveMode ? CUSTOMER_CHAT_FOOTER_LIVE : CUSTOMER_CHAT_FOOTER_LOCAL}</p>
       </div>
     </div>
   );
@@ -454,9 +479,9 @@ export function CustomerBarberChatPreview({
       {chatBody}
       <div className="space-y-2">
         <p className={cn('font-semibold text-foreground', compact ? 'text-[10px]' : 'text-xs')}>
-          خطوات سريعة
+          {CUSTOMER_CHAT_STEPS_HEADING}
         </p>
-        <ol className={cn('space-y-1.5 text-muted-foreground list-none', compact ? 'text-[10px]' : 'text-xs')}>
+        <ol className={cn('barber-contact-prose list-none space-y-1.5 text-muted-foreground', compact ? 'text-[10px]' : 'text-xs')}>
           {usageSteps.map((line, index) => (
             <li key={line} className="flex items-start gap-2">
               <span
@@ -475,7 +500,7 @@ export function CustomerBarberChatPreview({
       </div>
       <p
         className={cn(
-          'break-words rounded-lg border border-border/70 bg-muted/25 p-2.5 leading-relaxed text-muted-foreground',
+          'barber-contact-prose break-words rounded-lg border border-border/70 bg-muted/25 p-2.5 leading-relaxed text-muted-foreground',
           compact ? 'text-[10px]' : 'text-[11px]',
         )}
       >
@@ -529,7 +554,7 @@ export function CustomerBarberChatPreview({
             <Badge variant="secondary">{CUSTOMER_CHAT_GOLD_BADGE}</Badge>
           )}
         </CardTitle>
-        <CardDescription className="text-sm leading-relaxed break-words">
+        <CardDescription className="barber-contact-prose text-sm leading-relaxed">
           {CUSTOMER_CHAT_PREVIEW_INTRO}
         </CardDescription>
       </CardHeader>

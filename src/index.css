@@ -1420,8 +1420,14 @@
   max-width: 100%;
 }
 
-.barber-contact-inner :where(p, li, span, label, h1, h2, h3, h4, td, th) {
-  overflow-wrap: anywhere;
+.barber-contact-inner :where(p, li, label, h1, h2, h3, h4, td, th) {
+  overflow-wrap: break-word;
+}
+
+/** فقرات طويلة داخل البنر — لفّ طبيعي دون كسر الحروف. */
+.barber-contact-prose {
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .rtl-force {
