@@ -63,7 +63,7 @@ type GallerySnapshotItem = { id?: string; createdAt?: string; imageUrl?: string 
 export async function loadGalleryItemsFromDb(
   supabase: SupabaseClient,
   barberId: string,
-): Promise<RecommendationInput['galleryItems']> {
+): Promise<NonNullable<RecommendationInput['galleryItems']>> {
   const { data } = await supabase
     .from('barber_gallery_items')
     .select('id, public_url, created_at')
@@ -143,7 +143,7 @@ export function formatCustomerSalonContextForPrompt(
 
   const gallery = input.galleryItems ?? [];
   if (gallery.length > 0) {
-    lines.push(`- معرض أعمال: ${gallery.length} صورة — يمكن الإشارة لجودة الأعمال دون وعود');
+    lines.push(`- معرض أعمال: ${gallery.length} صورة — يمكن الإشارة لجودة الأعمال دون وعود`);
   }
 
   lines.push('- لا تذكر للعميل: رصيد المحفظة، أيام الحزمة، روابط معطّلة، أو تفاصيل فنية داخلية');
