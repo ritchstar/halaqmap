@@ -37,6 +37,11 @@ import { B2BAmbientGlowField } from '@/components/b2b/B2BAmbientGlowField';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import {
+  MOBILE_FIXED_NAV_SAFE,
+  MOBILE_PARTNER_NAV_CLEARANCE,
+  MOBILE_SHELL_OVERFLOW,
+} from '@/lib/mobilePageShell';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -217,9 +222,8 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
     <div
       className={cn(
         'platform-dark platform-ambient relative flex min-h-dvh flex-col bg-gradient-to-b from-[#061223] via-background to-background md:pb-0',
-        isMapCommunityPage
-          ? 'pb-0'
-          : 'pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))]',
+        MOBILE_SHELL_OVERFLOW,
+        isMapCommunityPage ? 'pb-0' : MOBILE_PARTNER_NAV_CLEARANCE,
       )}
       dir="rtl"
       data-ambient-phase={effectivePhase}
@@ -532,6 +536,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
         className={cn(
           'b2b-nebula-scope relative z-10 min-h-0 w-full flex-1',
           isMapCommunityPage && 'flex flex-col overflow-hidden',
+          !isMapCommunityPage && `${MOBILE_PARTNER_NAV_CLEARANCE} md:pb-0`,
         )}
       >
         {children}
@@ -540,7 +545,10 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       {/* شريط تنقّل سفلي للجوال — يُخفى داخل مجتمع ماب (له شريط خاص) */}
       {!isMapCommunityPage ? (
         <nav
-          className="fixed inset-x-0 bottom-0 z-40 flex border-t border-white/10 bg-[#071426]/95 pb-[max(0.35rem,env(safe-area-inset-bottom,0px))] pt-1 shadow-[0_-8px_24px_rgba(0,0,0,0.35)] backdrop-blur-md md:hidden"
+          className={cn(
+            'fixed inset-x-0 bottom-0 z-40 flex border-t border-white/10 bg-[#071426]/95 pt-1 shadow-[0_-8px_24px_rgba(0,0,0,0.35)] backdrop-blur-md md:hidden',
+            MOBILE_FIXED_NAV_SAFE,
+          )}
           aria-label={`تنقّل سريع — ${SOFTWARE_SERVICES_PORTAL_LABEL}`}
         >
           {partnerBottomNav.map(({ path, label, Icon }) => (

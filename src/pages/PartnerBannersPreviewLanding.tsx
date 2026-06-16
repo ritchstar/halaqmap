@@ -101,7 +101,7 @@ export default function PartnerBannersPreviewLanding() {
 
   return (
     <div
-      className="relative min-h-screen bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_34%,#f7fbf8_100%)] text-slate-900"
+      className="relative min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_34%,#f7fbf8_100%)] pb-[max(1rem,env(safe-area-inset-bottom,0px))] text-slate-900"
       dir="rtl"
     >
       <div className={cn(

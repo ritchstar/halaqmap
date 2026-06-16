@@ -69,7 +69,7 @@ export default function ShopOpenStatus() {
 
   if (!token) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center px-4 py-12" dir="rtl">
+      <div className="min-h-[70vh] flex items-center justify-center overflow-x-hidden px-4 py-12" dir="rtl">
         <Card className="max-w-md w-full border-destructive/30">
           <CardHeader>
             <CardTitle>الرابط غير مكتمل</CardTitle>
@@ -88,7 +88,7 @@ export default function ShopOpenStatus() {
   }
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-12 bg-gradient-to-b from-background to-muted/20" dir="rtl">
+    <div className="min-h-[70vh] flex items-center justify-center overflow-x-hidden bg-gradient-to-b from-background to-muted/20 px-4 py-12" dir="rtl">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <Card className="border-primary/20 shadow-lg overflow-hidden">
           <CardHeader className="text-center space-y-2">

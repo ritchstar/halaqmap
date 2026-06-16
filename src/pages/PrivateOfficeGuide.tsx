@@ -79,12 +79,12 @@ export default function PrivateOfficeGuide() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_36%,#f7fbf8_100%)] text-slate-900"
+      className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_36%,#f7fbf8_100%)] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] text-slate-900"
     >
       <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.08),transparent_24%),radial-gradient(circle_at_18%_18%,rgba(251,191,36,0.10),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.06),transparent_20%)]" />
 
       {/* شريط العودة */}
-      <div className="sticky top-0 z-40 border-b border-slate-200/85 bg-white/88 backdrop-blur-xl">
+      <div className="sticky top-0 z-40 border-b border-slate-200/85 bg-white/88 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3">
           <button onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-violet-800">

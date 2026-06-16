@@ -82,7 +82,7 @@ export default function PartnerPrivacy() {
   ];
 
   return (
-    <div className="min-h-screen bg-background partner-legal-page">
+    <div className="min-h-screen overflow-x-hidden bg-background partner-legal-page">
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(13,148,136,0.15),transparent_50%)]" />
         <motion.div

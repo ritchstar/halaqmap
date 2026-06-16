@@ -152,7 +152,7 @@ export default function PartnerSalesOfficePage() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_42%,#f6faf8_100%)] text-slate-900"
+      className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_42%,#f6faf8_100%)] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] text-slate-900"
     >
       <div ref={topAnchorRef} className="absolute top-0 h-px w-px" aria-hidden />
       <div className="pointer-events-none fixed inset-0">
@@ -170,7 +170,7 @@ export default function PartnerSalesOfficePage() {
       </div>
 
       <section className="relative min-h-screen overflow-hidden">
-        <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-5 md:px-5 md:pb-14 md:pt-7">
+        <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-[max(1.25rem,env(safe-area-inset-top))] md:px-5 md:pb-14 md:pt-7">
           <Link
             to={ROUTE_PATHS.BARBERS_LANDING}
             className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-sm font-bold text-slate-700 shadow-sm backdrop-blur transition-colors hover:border-amber-200 hover:text-amber-800"

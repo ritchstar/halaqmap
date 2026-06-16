@@ -38,7 +38,7 @@ export default function PartnerSubscriptionTutorials() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-10 space-y-6">
+    <div className="container mx-auto overflow-x-hidden px-4 py-10 space-y-6">
       <div className="text-center space-y-3">
         <Badge variant="secondary" className="text-sm">
           شرح حزم رخصة النفاذ الرقمية

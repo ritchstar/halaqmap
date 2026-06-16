@@ -19,6 +19,7 @@ import {
 import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { cn } from '@/lib/utils';
+import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -345,9 +346,11 @@ function useLandingGeoSearch(
 function MobileQuickSearchButton({
   onSearch,
   busy,
+  userLocation,
 }: {
   onSearch: () => void | Promise<void>;
   busy: boolean;
+  userLocation?: { lat: number; lng: number } | null;
 }) {
   return (
     <div className="flex w-full flex-col items-center gap-3" dir="rtl">
@@ -370,6 +373,20 @@ function MobileQuickSearchButton({
           </div>
         </div>
       </button>
+      {userLocation ? (
+        <motion.a
+          href={`https://www.google.com/maps/search/?api=1&query=${userLocation.lat},${userLocation.lng}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          initial={{ opacity: 0, scale: 0.88 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, type: 'spring', stiffness: 320, damping: 22 }}
+          aria-label="عرض موقعك على الخريطة"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-400/45 bg-emerald-500/14 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.24)] transition-transform active:scale-95"
+        >
+          <MapPin className="h-[18px] w-[18px]" strokeWidth={2.25} aria-hidden />
+        </motion.a>
+      ) : null}
       <p className="text-center text-[0.72rem] leading-5 text-slate-400">
         هذه الخدمة تتطلب إذن الموقع لإكمال الاستعلام وعرض الخدمات المناسبة لك، وفق سياسة الخصوصية.
       </p>
@@ -750,7 +767,7 @@ export default function LandingPreview() {
       dir="rtl"
       className={cn(
         'platform-dark platform-ambient relative min-h-screen overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100',
-        isMobile && 'pb-[calc(5.75rem+env(safe-area-inset-bottom))]',
+        isMobile && MOBILE_DOCK_CLEARANCE,
       )}
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
@@ -992,7 +1009,7 @@ export default function LandingPreview() {
             {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة */}
             <div className="mb-6 flex w-full flex-col items-center gap-4">
               {isMobile ? (
-                <MobileQuickSearchButton onSearch={runGeoSearch} busy={geoBusy} />
+                <MobileQuickSearchButton onSearch={runGeoSearch} busy={geoBusy} userLocation={userLocation} />
               ) : (
                 <Suspense
                   fallback={

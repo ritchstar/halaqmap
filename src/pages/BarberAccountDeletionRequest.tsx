@@ -155,7 +155,7 @@ export default function BarberAccountDeletionRequest() {
 
   return (
     <div
-      className="relative flex min-h-[100dvh] min-h-screen items-start justify-center bg-background p-4 pb-[env(safe-area-inset-bottom)] pt-[max(1.5rem,env(safe-area-inset-top))]"
+      className="relative flex min-h-[100dvh] min-h-screen items-start justify-center overflow-x-hidden bg-background p-4 pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] pt-[max(1.5rem,env(safe-area-inset-top))] md:pb-4"
       dir="rtl"
     >
       <div className="absolute inset-0 z-0">

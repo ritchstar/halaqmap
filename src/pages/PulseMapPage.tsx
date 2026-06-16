@@ -105,10 +105,13 @@ export default function PulseMapPage() {
   return (
     <div
       dir="rtl"
-      className={cn('pulse-map-page min-h-screen', isLabClone && 'pulse-map-page--lab')}
+      className={cn(
+        'pulse-map-page min-h-screen overflow-x-hidden pb-[max(1rem,env(safe-area-inset-bottom,0px))]',
+        isLabClone && 'pulse-map-page--lab',
+      )}
       style={{ background: 'linear-gradient(165deg, #020617 0%, #041018 45%, #030712 100%)' }}
     >
-      <div className="pulse-map-topbar sticky top-0 z-40 border-b border-sky-500/15 bg-[#020617]/90 backdrop-blur-md">
+      <div className="pulse-map-topbar sticky top-0 z-40 border-b border-sky-500/15 bg-[#020617]/90 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
           <button
             type="button"

@@ -9,7 +9,7 @@ import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
 
 export default function PartnerStoryPage() {
   return (
-    <div className="min-h-screen bg-background pb-20" dir="rtl">
+    <div className="min-h-screen overflow-x-hidden bg-background md:pb-20" dir="rtl">
       <section className="border-b border-border bg-gradient-to-b from-accent/10 via-background to-background py-14 md:py-18">
         <div className="container mx-auto px-4">
           <motion.div

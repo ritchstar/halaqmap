@@ -24,7 +24,7 @@ export default function Register() {
       style={{ background: 'linear-gradient(160deg, #020912 0%, #040d1a 50%, #020912 100%)', fontFamily: 'Tajawal, system-ui' }}
     >
       {/* ── شريط التنقل العلوي ── */}
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-[#020912]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-white/5 bg-[#020912]/90 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link to={ROUTE_PATHS.BARBERS_LANDING}
             className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
@@ -45,7 +45,7 @@ export default function Register() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-5xl px-4 pb-16 pt-8">
+      <div className="mx-auto max-w-5xl px-4 pb-8 pt-8 md:pb-16">
         {/* ── رأس الصفحة ── */}
         <motion.header
           initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5 }}

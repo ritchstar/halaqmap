@@ -263,7 +263,7 @@ export default function SaudiAgentLanding() {
       {/* ── زر العودة للرئيسية ── */}
       <Link
         to={ROUTE_PATHS.HOME}
-        className="fixed top-5 right-5 z-50 flex items-center gap-2 rounded-2xl border border-yellow-500/30 bg-[#0a1f0f]/90 px-4 py-2.5 text-[0.75rem] font-bold text-yellow-300/80 backdrop-blur-md transition-all hover:border-yellow-400/55 hover:text-yellow-200 no-underline"
+        className="fixed right-5 top-[calc(1.25rem+env(safe-area-inset-top))] z-50 flex items-center gap-2 rounded-2xl border border-yellow-500/30 bg-[#0a1f0f]/90 px-4 py-2.5 text-[0.75rem] font-bold text-yellow-300/80 backdrop-blur-md transition-all hover:border-yellow-400/55 hover:text-yellow-200 no-underline"
         style={{ boxShadow: '0 0 16px rgba(26,110,59,0.25)' }}
       >
         <ArrowRight className="h-4 w-4" />

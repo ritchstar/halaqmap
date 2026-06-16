@@ -252,7 +252,7 @@ export function GeoRadarButton({ onLocationDetected, onLocationReset }: Props) {
 
       {/* ── After found: coordinates + verify button ─────── */}
       <AnimatePresence>
-        {isFound && coords && !isMobile && (
+        {isFound && coords && (
           <motion.div key="result"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}

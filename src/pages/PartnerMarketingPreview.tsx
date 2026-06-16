@@ -572,7 +572,7 @@ export default function PartnerMarketingPreview() {
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
           ══════════════════════════════════════════════════════════════════ */}
-      <header className="fixed inset-x-0 top-0 z-50 transition-all duration-500">
+      <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
 
         {/* خلفية زجاجية */}
         <div className={cn(
@@ -1332,7 +1332,7 @@ export default function PartnerMarketingPreview() {
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer className="relative z-10 border-t border-slate-100 bg-white/80 py-12 backdrop-blur-sm">
+      <footer className="relative z-10 border-t border-slate-100 bg-white/80 pt-12 pb-[max(3rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))] backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-5">
           <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr]">
             <div dir="rtl">

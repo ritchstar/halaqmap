@@ -35,7 +35,6 @@ import {
   TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
 import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
-import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
@@ -409,7 +408,7 @@ export default function Payment() {
   ]);
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen overflow-x-hidden bg-background" dir="rtl">
       {/* Header */}
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-16">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(13,148,136,0.15),transparent_50%)]" />
@@ -844,7 +843,6 @@ export default function Payment() {
         </div>
       </div>
 
-      <MobileBottomNav />
     </div>
   );
 }

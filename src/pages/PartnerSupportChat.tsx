@@ -168,7 +168,7 @@ export default function PartnerSupportChat() {
   }
 
   return (
-    <div className="min-h-[70vh] bg-background py-10" dir="rtl">
+    <div className="min-h-[70vh] overflow-x-hidden bg-background py-10" dir="rtl">
       <div className="container mx-auto max-w-2xl px-4">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="ghost" size="sm" className="gap-2 text-muted-foreground">

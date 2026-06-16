@@ -94,7 +94,7 @@ export default function SubscriptionPolicy() {
   ];
 
   return (
-    <div className="min-h-screen bg-background partner-legal-page">
+    <div className="min-h-screen overflow-x-hidden bg-background partner-legal-page">
       {/* هيرو تكتيكي */}
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-24">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,rgba(20,184,166,0.12),transparent_70%)]" />

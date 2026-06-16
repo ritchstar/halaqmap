@@ -80,11 +80,11 @@ export default function DigitalShiftFeaturePage() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen"
+      className="min-h-screen overflow-x-hidden pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
       style={{ background: 'linear-gradient(160deg, #03000a 0%, #080018 40%, #060010 100%)' }}
     >
       {/* ── شريط العودة ── */}
-      <div className="sticky top-0 z-40 border-b border-violet-500/15 bg-[#03000a]/90 backdrop-blur-md">
+      <div className="sticky top-0 z-40 border-b border-violet-500/15 bg-[#03000a]/90 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3">
           <button onClick={() => navigate(ROUTE_PATHS.BARBERS_LANDING)}
             className="flex items-center gap-2 text-sm text-violet-400/70 hover:text-violet-300 transition-colors">

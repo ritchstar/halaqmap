@@ -257,7 +257,7 @@ export default function PlatformReviews() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-[#020912]"
+      className="min-h-screen overflow-x-hidden bg-[#020912] pb-[calc(5rem+env(safe-area-inset-bottom,0px))]"
       style={{ fontFamily: 'Tajawal, system-ui' }}
     >
       {/* Grid texture */}
@@ -271,7 +271,7 @@ export default function PlatformReviews() {
       <div className="pointer-events-none fixed -left-60 bottom-20 h-80 w-80 rounded-full bg-violet-500/5 blur-[110px]" />
 
       {/* Nav */}
-      <header className="sticky top-0 z-30 border-b border-white/5 bg-[#020912]/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-white/5 bg-[#020912]/90 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-teal-700">

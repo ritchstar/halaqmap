@@ -108,7 +108,7 @@ export default function BarberPortalEnter() {
   }, [navigate, params]);
 
   return (
-    <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-background p-6" dir="rtl">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 overflow-x-hidden bg-background p-6" dir="rtl">
       <Loader2 className="h-10 w-10 animate-spin text-primary" aria-hidden />
       <p className="text-sm text-muted-foreground">جاري تسجيل الدخول عبر الرابط الآمن…</p>
       {!busy ? (

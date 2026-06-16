@@ -606,12 +606,12 @@ export default function BarberDashboard({
 
   return (
     <>
-    <div className="flex min-h-screen flex-col bg-background" dir="rtl">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-background" dir="rtl">
       {previewChrome ? (
         <div className="border-b border-border/40 bg-muted/30 px-3 py-3 sm:px-4">{previewChrome}</div>
       ) : null}
       <header
-        className={`sticky top-0 z-50 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
+        className={`sticky top-0 z-50 w-full border-b pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
           childrenSpecialistActive
             ? 'border-sky-400/35 bg-gradient-to-l from-sky-500/10 via-background/95 to-background/95'
             : 'border-border/40 bg-background/95'
@@ -1086,7 +1086,7 @@ export default function BarberDashboard({
         </Tabs>
       </div>
 
-      <footer className="mt-auto border-t border-border/40 bg-muted/20 pb-[env(safe-area-inset-bottom)]">
+      <footer className="mt-auto border-t border-border/40 bg-muted/20 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
         <div className="container mx-auto px-3 py-6 sm:px-4">
           <PlatformOfficialFooterStrip variant="light" />
         </div>
