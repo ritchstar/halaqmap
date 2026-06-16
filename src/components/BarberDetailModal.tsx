@@ -589,7 +589,10 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
             </div>
           </BarberContactSheetSection>
 
-          <BarberContactSheetSection className="rounded-lg bg-muted/50 p-4">
+          <BarberContactSheetSection
+            id="barber-contact-address"
+            className="scroll-mt-4 rounded-lg bg-muted/50 p-4 max-sm:mb-1"
+          >
             <div className="flex items-start gap-2">
               <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div className="min-w-0">

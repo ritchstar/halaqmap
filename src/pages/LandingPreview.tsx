@@ -1489,7 +1489,7 @@ export default function LandingPreview() {
         </div>
       </footer>
 
-      {isMobile ? (
+      {isMobile && !selectedBarber ? (
         <MobileSearchDock
           userLocation={userLocation}
           geoBusy={geoBusy}
