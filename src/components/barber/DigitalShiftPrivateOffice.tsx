@@ -20,6 +20,8 @@ import {
   BookOpen, ListTodo, Sparkles, X, FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import type { BarberPlatformBannerState } from '@/lib/barberDashboardLocalState';
+import type { Post } from '@/lib';
 import {
   readShiftInstructions, writeShiftInstructions,
   readShiftTasks, writeShiftTasks,
@@ -107,6 +109,19 @@ function PackageStatusBar({ daysRemaining }: { daysRemaining: number }) {
   );
 }
 
+function salonSnapshotPayload(bannerState: BarberPlatformBannerState, posts: Post[]) {
+  return {
+    bannerImageUrls: bannerState.bannerImageUrls,
+    showDiscountBadge: bannerState.showDiscountBadge,
+    discountPercent: bannerState.discountPercent,
+    galleryItems: posts.map((p) => ({
+      id: p.id,
+      createdAt: p.createdAt,
+      imageUrl: p.images?.[0],
+    })),
+  };
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export function DigitalShiftPrivateOffice({
   barberId,
@@ -114,12 +129,16 @@ export function DigitalShiftPrivateOffice({
   barberName,
   assistantName,
   listingDaysRemaining,
+  bannerState,
+  posts,
 }: {
   barberId: string;
   barberEmail: string;
   barberName: string;
   assistantName: string;
   listingDaysRemaining: number;
+  bannerState: BarberPlatformBannerState;
+  posts: Post[];
 }) {
   // ── Persistent state ──
   const [instructions, setInstructions] = useState<ShiftInstruction[]>(() => readShiftInstructions(barberId));
@@ -252,6 +271,7 @@ export function DigitalShiftPrivateOffice({
       history: nextTurns.slice(-10).map(t => ({ role: t.role, content: t.content })),
       instructions: instructions.filter(i => i.active).map(i => i.text),
       tasks: tasks.map(t => ({ text: t.text, done: t.done })),
+      ...salonSnapshotPayload(bannerState, posts),
     });
 
     setLoading(false);
@@ -260,7 +280,7 @@ export function DigitalShiftPrivateOffice({
     } else {
       toast.error('تعذّر الرد — حاول مجدداً');
     }
-  }, [draft, loading, turns, instructions, tasks, barberId, barberEmail]);
+  }, [draft, loading, turns, instructions, tasks, barberId, barberEmail, bannerState, posts]);
 
   const handleKey = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(); }

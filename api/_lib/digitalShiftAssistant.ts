@@ -66,6 +66,7 @@ export function buildDigitalShiftSystemPrompt(
     instructions?: string[];
     tasks?: { text: string; done: boolean }[];
     fleetDirectives?: string[];
+    operationalInsights?: string;
   },
 ): string {
   const supported = formatSupportedLanguagesForPrompt();
@@ -167,7 +168,17 @@ export function buildDigitalShiftSystemPrompt(
     base.push('- إذا سأل عن "الرصيد" أو "الحزمة" → أعطه الأيام المتبقية + رابط التجديد');
     base.push('- إذا سأل عن "المواعيد" → ذكّره بالمواعيد المسجلة في لوحة التحكم');
     base.push('- إذا سأل عن "الدعم" → أعطه رابط الدعم الفني مباشرة');
+    base.push('- إذا سأل عن "البنر" أو "الظهور" أو "لماذا لا يصل زبون" → ابدأ بملخص **الفحص التشغيلي الحقيقي** أدناه ثم اقترح خطوات عملية');
+    base.push('- لا تقل «سأحلّل لاحقاً» أو «سأفحص البيانات» إذا وُجد فحص تشغيلي في هذه الجلسة — الفحص تم بالفعل');
+    base.push('- لا تختلق أرقاماً أو مشاكل تقنية خارج الفحص والتوصيات المرفقة');
     base.push('- لا تجمع بيانات العملاء ولا تحجز مواعيد عن طريق هذه المحادثة');
+
+    if (extra?.operationalInsights?.trim()) {
+      base.push('');
+      base.push('═══ فحص تشغيلي حقيقي (تم الآن — اعتمد عليه حصراً) ═══');
+      base.push(extra.operationalInsights.trim());
+    }
+
     base.push('');
     base.push('◆ كساد السوق المحلي — لا تصمت ◆');
     base.push(
@@ -502,6 +513,7 @@ export async function generateDigitalShiftReply(
     instructions?: string[];
     tasks?: { text: string; done: boolean }[];
     fleetDirectives?: string[];
+    operationalInsights?: string;
   },
 ): Promise<string> {
   const provider = resolveProvider();

@@ -33,6 +33,19 @@ import {
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string };
 
+function salonSnapshotPayload(bannerState: BarberPlatformBannerState, posts: Post[]) {
+  return {
+    bannerImageUrls: bannerState.bannerImageUrls,
+    showDiscountBadge: bannerState.showDiscountBadge,
+    discountPercent: bannerState.discountPercent,
+    galleryItems: posts.map((p) => ({
+      id: p.id,
+      createdAt: p.createdAt,
+      imageUrl: p.images?.[0],
+    })),
+  };
+}
+
 export function DigitalShiftAssistantHub({
   barberId,
   barberEmail,
@@ -80,18 +93,10 @@ export function DigitalShiftAssistantHub({
 
   const refreshInsights = async () => {
     setRefreshing(true);
-    const galleryItems = posts.map((p) => ({
-      id: p.id,
-      createdAt: p.createdAt,
-      imageUrl: p.images?.[0],
-    }));
     const r = await refreshDigitalShiftRecommendationsRemote({
       barberId,
       email: barberEmail,
-      bannerImageUrls: bannerState.bannerImageUrls,
-      showDiscountBadge: bannerState.showDiscountBadge,
-      discountPercent: bannerState.discountPercent,
-      galleryItems,
+      ...salonSnapshotPayload(bannerState, posts),
     });
     setRefreshing(false);
     if (!r.ok) {
@@ -144,6 +149,7 @@ export function DigitalShiftAssistantHub({
       email: barberEmail,
       message: text,
       history: nextHistory.slice(0, -1),
+      ...salonSnapshotPayload(bannerState, posts),
     });
     setChatSending(false);
     if (!r.ok) {
@@ -285,6 +291,8 @@ export function DigitalShiftAssistantHub({
         barberName={summary?.context.barberName ?? 'الصالون'}
         assistantName={assistantName}
         listingDaysRemaining={summary?.context.listingDaysRemaining ?? 0}
+        bannerState={bannerState}
+        posts={posts}
       />
     </div>
   );

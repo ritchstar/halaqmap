@@ -119,6 +119,10 @@ export async function digitalShiftBarberChatRemote(params: {
   history?: { role: 'user' | 'assistant'; content: string }[];
   instructions?: string[];
   tasks?: { text: string; done: boolean }[];
+  bannerImageUrls?: string[];
+  showDiscountBadge?: boolean;
+  discountPercent?: number | null;
+  galleryItems?: { id: string; createdAt?: string; imageUrl?: string }[];
 }): Promise<{ ok: true; reply: string } | { ok: false; error: string }> {
   const r = await post<{ ok: true; reply: string }>({ action: 'barber_chat', ...params });
   if ('error' in r && !('reply' in r)) return { ok: false, error: r.error || 'Failed' };

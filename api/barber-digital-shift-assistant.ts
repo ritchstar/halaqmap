@@ -6,9 +6,12 @@ import {
   ensureConfigRow,
   generateDigitalShiftReply,
   loadDigitalShiftContext,
-  refreshHeuristicRecommendations,
-  type RecommendationInput,
 } from './_lib/digitalShiftAssistant.js';
+import {
+  formatOperationalInsightsForPrompt,
+  resolveRecommendationInput,
+  runSalonOperationalInsights,
+} from './_lib/digitalShiftSalonInsights.js';
 import { assessMarketStagnation } from './_lib/fleetDemandSignals.js';
 import { DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR } from './_lib/subscriptionPricingCopy.js';
 
@@ -171,37 +174,10 @@ export async function POST(request: Request): Promise<Response> {
     const ctx = await loadDigitalShiftContext(supabase, barberId);
     if (!ctx) return Response.json({ error: 'Context unavailable' }, { status: 404, headers });
 
-    const input: RecommendationInput = {
-      bannerImageUrls: Array.isArray(body.bannerImageUrls)
-        ? (body.bannerImageUrls as unknown[]).map(String)
-        : undefined,
-      showDiscountBadge: body.showDiscountBadge === true,
-      discountPercent:
-        body.discountPercent == null || body.discountPercent === ''
-          ? null
-          : Number(body.discountPercent),
-      galleryItems: Array.isArray(body.galleryItems)
-        ? (body.galleryItems as { id?: string; createdAt?: string; imageUrl?: string }[]).map((g) => ({
-            id: String(g.id ?? ''),
-            createdAt: g.createdAt ? String(g.createdAt) : undefined,
-            imageUrl: g.imageUrl ? String(g.imageUrl) : undefined,
-          }))
-        : undefined,
-    };
+    const input = await resolveRecommendationInput(supabase, barberId, body);
+    const { recommendations } = await runSalonOperationalInsights(supabase, barberId, ctx, input);
 
-    await refreshHeuristicRecommendations(supabase, barberId, ctx, input);
-    await assessMarketStagnation(supabase, barberId, ctx);
-
-    const { data: recs } = await supabase
-      .from('barber_ai_recommendations')
-      .select('*')
-      .eq('barber_id', barberId)
-      .eq('status', 'active')
-      .order('priority', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(40);
-
-    return Response.json({ ok: true, recommendations: recs ?? [] }, { headers });
+    return Response.json({ ok: true, recommendations }, { headers });
   }
 
   if (action === 'dismiss_recommendation') {
@@ -263,8 +239,27 @@ export async function POST(request: Request): Promise<Response> {
       }
     } catch { /* صامت — القناة الخلفية لا تُوقف المحادثة */ }
 
+    let operationalInsights = '';
     try {
-      const reply = await generateDigitalShiftReply(ctx, 'barber', message, history, { instructions, tasks, fleetDirectives });
+      const input = await resolveRecommendationInput(supabase, barberId, body);
+      const { audit, recommendations } = await runSalonOperationalInsights(
+        supabase,
+        barberId,
+        ctx,
+        input,
+      );
+      operationalInsights = formatOperationalInsightsForPrompt(audit, recommendations);
+    } catch {
+      operationalInsights = '';
+    }
+
+    try {
+      const reply = await generateDigitalShiftReply(ctx, 'barber', message, history, {
+        instructions,
+        tasks,
+        fleetDirectives,
+        operationalInsights,
+      });
       return Response.json({ ok: true, reply }, { headers });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'AI failed';
