@@ -7,6 +7,7 @@ import {
   runBannerVisionAudit,
   type BannerVisionAudit,
 } from './digitalShiftBannerVision.js';
+import { emitFleetOperationalPulse } from './fleetOperationalPulse.js';
 import {
   refreshHeuristicRecommendations,
   type AiRecommendationRow,
@@ -18,6 +19,8 @@ export type SalonInsightsOptions = {
   /** تشغيل Vision (مع cache 24h) — مكلف؛ يُستخدم عند refresh أو سؤال عن البنر */
   runBannerVision?: boolean;
   forceBannerVision?: boolean;
+  /** مصدر النبض الصاعد لقيادة الأسطول */
+  pulseSource?: 'refresh' | 'barber_chat' | 'banner_chat';
 };
 
 export { isBannerRelatedChatMessage } from './digitalShiftBannerVision.js';
@@ -484,6 +487,18 @@ export async function runSalonOperationalInsights(
     bannerVision,
     findingsAr: buildFindingsAr(ctx, input, bannerProbes, stagnationSummary, bannerVision),
   };
+
+  try {
+    await emitFleetOperationalPulse(
+      supabase,
+      barberId,
+      ctx,
+      audit,
+      options.pulseSource ?? 'salon_insights',
+    );
+  } catch {
+    /* صامت — النبض الصاعد لا يوقف الفحص */
+  }
 
   return {
     audit,

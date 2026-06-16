@@ -73,6 +73,7 @@ export async function loadDigitalShiftFleetSnapshot(
       'private_messages.is_digital_shift_reply',
       'fleet_demand_counters',
       'fleet_salon_stagnation_pulse',
+      'fleet_operational_pulse',
     ],
   };
 }

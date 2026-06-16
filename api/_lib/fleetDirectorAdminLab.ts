@@ -20,6 +20,10 @@ import {
   loadFleetDemandSnapshot,
   type FleetDemandSnapshot,
 } from './fleetDemandSignals.js';
+import {
+  loadFleetOperationalPulseSnapshot,
+  type FleetOperationalPulseSnapshot,
+} from './fleetOperationalPulse.js';
 
 export type FleetDirectorLabChatTurn = { role: 'user' | 'assistant'; content: string };
 
@@ -33,6 +37,7 @@ export type FleetDirectorRecommendationMix = {
 export type FleetDirectorLabContext = {
   fleetSnapshot: DigitalShiftFleetSnapshot;
   demandSnapshot: FleetDemandSnapshot;
+  operationalPulse: FleetOperationalPulseSnapshot;
   recommendationMix: FleetDirectorRecommendationMix;
   interceptSamples: {
     closedShop: { shouldReply: boolean; reason: string };
@@ -56,9 +61,10 @@ const DEMO_SALON_CTX: DigitalShiftContext = {
 export async function loadFleetDirectorLabContext(
   supabase: SupabaseClient,
 ): Promise<FleetDirectorLabContext> {
-  const [fleetSnapshot, demandSnapshot] = await Promise.all([
+  const [fleetSnapshot, demandSnapshot, operationalPulse] = await Promise.all([
     loadDigitalShiftFleetSnapshot(supabase),
     loadFleetDemandSnapshot(supabase, 24),
+    loadFleetOperationalPulseSnapshot(supabase),
   ]);
 
   const recommendationMix: FleetDirectorRecommendationMix = {
@@ -106,6 +112,7 @@ export async function loadFleetDirectorLabContext(
   return {
     fleetSnapshot,
     demandSnapshot,
+    operationalPulse,
     recommendationMix,
     interceptSamples: {
       closedShop: { shouldReply: closedShop.shouldReply, reason: closedShop.reason },
@@ -149,6 +156,7 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
     '- مثال: `fleet_directive_push` → title: "أمر أسطول #7" → directive: "أخبر الحلاق بأهمية تجديد الحزمة خلال 48 ساعة بأسلوب لطيف"',
     '',
     '**2. قناة التقارير الصاعدة (Intelligence Reports ↑)**',
+    '- **نبض تشغيلي صاعد** (`operationalPulse`): بعد كل فحص بنر/محفظة/معرض من المناوب — severity + friction_score + ملخص B2B.',
     '- نبضات الحالة: أيام الحزمة المتبقية، نشاط المهام، الاحتكاك التشغيلي — تُضمَّن في لقطة الأسطول.',
     '- **نبض الطلب المجمّع**: اعتراضات ليلية/تأخر، محادثات جديدة، إشارات كساد محلي — حسب المدينة فقط.',
     '- **كساد محلي**: المناوب لا يصمت — يرفع `market_stagnation` للحلاق وللأسطول عند هدوء الشات 7+ أيام.',
@@ -197,6 +205,7 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
       {
         fleet: snap,
         demand: ctx.demandSnapshot,
+        operationalPulse: ctx.operationalPulse,
         recommendationMix: ctx.recommendationMix,
         interceptSamples: ctx.interceptSamples,
         languages: formatSupportedLanguagesForPrompt(),
@@ -206,6 +215,12 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
       null,
       2,
     ),
+    '',
+    '## قراءة النبض التشغيلي الصاعد — قواعد امتثال',
+    '- `operationalPulse.salonsPulsedToday`: عدد الصالونات التي أجرت فحصاً تشغيلياً اليوم.',
+    '- `operationalPulse.urgentCount` / `watchCount`: أولوية التدخل — بنر معطّل، حزمة منتهية، محفظة منخفضة، كساد.',
+    '- `operationalPulse.topFrictionByCity`: احتكاك مجمّع بالمدينة — لا أسماء صالونات.',
+    '- `operationalPulse.recentUrgentSamples`: عينات ملخصة فقط — بدون بيانات زبون.',
     '',
     '## قراءة نبض الطلب — قواعد امتثال',
     '- `demand.totalsBySignal`: مجمّع فقط — لا أسماء زبائن ولا إحداثيات.',

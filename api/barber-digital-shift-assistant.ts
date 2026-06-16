@@ -187,6 +187,7 @@ export async function POST(request: Request): Promise<Response> {
     const { recommendations } = await runSalonOperationalInsights(supabase, barberId, ctx, input, {
       runBannerVision: true,
       forceBannerVision: body.forceBannerVision === true,
+      pulseSource: 'refresh',
     });
 
     return Response.json({ ok: true, recommendations }, { headers });
@@ -260,7 +261,10 @@ export async function POST(request: Request): Promise<Response> {
         barberId,
         ctx,
         input,
-        { runBannerVision: bannerRelated },
+        {
+          runBannerVision: bannerRelated,
+          pulseSource: bannerRelated ? 'banner_chat' : 'barber_chat',
+        },
       );
       operationalInsights = formatOperationalInsightsForPrompt(audit, recommendations);
     } catch {
