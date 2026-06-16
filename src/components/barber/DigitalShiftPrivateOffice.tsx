@@ -22,6 +22,7 @@ import {
 import { toast } from 'sonner';
 import type { BarberPlatformBannerState } from '@/lib/barberDashboardLocalState';
 import type { Post } from '@/lib';
+import { buildSalonSnapshotPayload } from '@/lib/digitalShiftSalonSnapshot';
 import {
   readShiftInstructions, writeShiftInstructions,
   readShiftTasks, writeShiftTasks,
@@ -107,19 +108,6 @@ function PackageStatusBar({ daysRemaining }: { daysRemaining: number }) {
       </div>
     </div>
   );
-}
-
-function salonSnapshotPayload(bannerState: BarberPlatformBannerState, posts: Post[]) {
-  return {
-    bannerImageUrls: bannerState.bannerImageUrls,
-    showDiscountBadge: bannerState.showDiscountBadge,
-    discountPercent: bannerState.discountPercent,
-    galleryItems: posts.map((p) => ({
-      id: p.id,
-      createdAt: p.createdAt,
-      imageUrl: p.images?.[0],
-    })),
-  };
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -271,7 +259,7 @@ export function DigitalShiftPrivateOffice({
       history: nextTurns.slice(-10).map(t => ({ role: t.role, content: t.content })),
       instructions: instructions.filter(i => i.active).map(i => i.text),
       tasks: tasks.map(t => ({ text: t.text, done: t.done })),
-      ...salonSnapshotPayload(bannerState, posts),
+      ...buildSalonSnapshotPayload(bannerState, posts),
     });
 
     setLoading(false);

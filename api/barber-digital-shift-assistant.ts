@@ -9,13 +9,16 @@ import {
 } from './_lib/digitalShiftAssistant.js';
 import {
   formatOperationalInsightsForPrompt,
+  isBannerRelatedChatMessage,
+  parseRecommendationInputFromBody,
+  persistSalonSnapshot,
   resolveRecommendationInput,
   runSalonOperationalInsights,
 } from './_lib/digitalShiftSalonInsights.js';
 import { assessMarketStagnation } from './_lib/fleetDemandSignals.js';
 import { DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR } from './_lib/subscriptionPricingCopy.js';
 
-export const config = { maxDuration: 45 };
+export const config = { maxDuration: 60 };
 
 const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
@@ -112,7 +115,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const addonActive = accessRow?.enabled === true;
 
-  if (action !== 'summary' && !addonActive) {
+  if (action !== 'summary' && action !== 'sync_salon_snapshot' && !addonActive) {
     return Response.json(
       { error: DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR },
       { status: 403, headers },
@@ -170,12 +173,21 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: true }, { headers });
   }
 
+  if (action === 'sync_salon_snapshot') {
+    const input = parseRecommendationInputFromBody(body);
+    const { syncedAt } = await persistSalonSnapshot(supabase, barberId, input);
+    return Response.json({ ok: true, syncedAt }, { headers });
+  }
+
   if (action === 'refresh_recommendations') {
     const ctx = await loadDigitalShiftContext(supabase, barberId);
     if (!ctx) return Response.json({ error: 'Context unavailable' }, { status: 404, headers });
 
     const input = await resolveRecommendationInput(supabase, barberId, body);
-    const { recommendations } = await runSalonOperationalInsights(supabase, barberId, ctx, input);
+    const { recommendations } = await runSalonOperationalInsights(supabase, barberId, ctx, input, {
+      runBannerVision: true,
+      forceBannerVision: body.forceBannerVision === true,
+    });
 
     return Response.json({ ok: true, recommendations }, { headers });
   }
@@ -242,11 +254,13 @@ export async function POST(request: Request): Promise<Response> {
     let operationalInsights = '';
     try {
       const input = await resolveRecommendationInput(supabase, barberId, body);
+      const bannerRelated = isBannerRelatedChatMessage(message);
       const { audit, recommendations } = await runSalonOperationalInsights(
         supabase,
         barberId,
         ctx,
         input,
+        { runBannerVision: bannerRelated },
       );
       operationalInsights = formatOperationalInsightsForPrompt(audit, recommendations);
     } catch {

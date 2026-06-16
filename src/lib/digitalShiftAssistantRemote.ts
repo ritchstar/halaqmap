@@ -70,6 +70,22 @@ export async function fetchDigitalShiftSummaryRemote(params: {
   return { ok: true, data: r as DigitalShiftSummary };
 }
 
+export async function syncDigitalShiftSalonSnapshotRemote(params: {
+  barberId: string;
+  email: string;
+  bannerImageUrls?: string[];
+  showDiscountBadge?: boolean;
+  discountPercent?: number | null;
+  galleryItems?: { id: string; createdAt?: string; imageUrl?: string }[];
+}): Promise<{ ok: true; syncedAt: string } | { ok: false; error: string }> {
+  const r = await post<{ ok: true; syncedAt: string }>({
+    action: 'sync_salon_snapshot',
+    ...params,
+  });
+  if ('error' in r && !('syncedAt' in r)) return { ok: false, error: r.error || 'Failed' };
+  return { ok: true, syncedAt: String((r as { syncedAt: string }).syncedAt ?? '') };
+}
+
 export async function refreshDigitalShiftRecommendationsRemote(params: {
   barberId: string;
   email: string;
@@ -77,6 +93,7 @@ export async function refreshDigitalShiftRecommendationsRemote(params: {
   showDiscountBadge?: boolean;
   discountPercent?: number | null;
   galleryItems?: { id: string; createdAt?: string; imageUrl?: string }[];
+  forceBannerVision?: boolean;
 }): Promise<{ ok: true; recommendations: DigitalShiftRecommendation[] } | { ok: false; error: string }> {
   const r = await post<{ ok: true; recommendations: DigitalShiftRecommendation[] }>({
     action: 'refresh_recommendations',

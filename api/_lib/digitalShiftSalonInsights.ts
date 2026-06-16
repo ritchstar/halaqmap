@@ -1,11 +1,26 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { assessMarketStagnation } from './fleetDemandSignals.js';
 import {
+  bannerVisionFindingsForAudit,
+  bannerVisionFingerprint,
+  formatBannerVisionForPrompt,
+  runBannerVisionAudit,
+  type BannerVisionAudit,
+} from './digitalShiftBannerVision.js';
+import {
   refreshHeuristicRecommendations,
   type AiRecommendationRow,
   type DigitalShiftContext,
   type RecommendationInput,
 } from './digitalShiftAssistant.js';
+
+export type SalonInsightsOptions = {
+  /** تشغيل Vision (مع cache 24h) — مكلف؛ يُستخدم عند refresh أو سؤال عن البنر */
+  runBannerVision?: boolean;
+  forceBannerVision?: boolean;
+};
+
+export { isBannerRelatedChatMessage } from './digitalShiftBannerVision.js';
 
 export type BannerUrlProbeStatus = 'ok' | 'broken' | 'local_only' | 'invalid' | 'timeout';
 
@@ -31,6 +46,7 @@ export type SalonOperationalAudit = {
     conversations7d: number;
     daysSinceLastContact: number | null;
   };
+  bannerVision: BannerVisionAudit | null;
   findingsAr: string[];
 };
 
@@ -38,9 +54,102 @@ type BannerSnapshot = {
   bannerImageUrls?: string[];
   showDiscountBadge?: boolean;
   discountPercent?: number | null;
+  syncedAt?: string;
+  visionAudit?: BannerVisionAudit;
 };
 
 type GallerySnapshotItem = { id?: string; createdAt?: string; imageUrl?: string };
+
+export async function loadGalleryItemsFromDb(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<RecommendationInput['galleryItems']> {
+  const { data } = await supabase
+    .from('barber_gallery_items')
+    .select('id, public_url, created_at')
+    .eq('barber_id', barberId)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true })
+    .limit(50);
+
+  return (data ?? []).map((row) => {
+    const r = row as { id?: string; public_url?: string; created_at?: string };
+    return {
+      id: String(r.id ?? ''),
+      createdAt: r.created_at ? String(r.created_at) : undefined,
+      imageUrl: r.public_url ? String(r.public_url) : undefined,
+    };
+  });
+}
+
+export async function persistSalonSnapshot(
+  supabase: SupabaseClient,
+  barberId: string,
+  input: RecommendationInput,
+): Promise<{ syncedAt: string }> {
+  const syncedAt = new Date().toISOString();
+  const bannerUrls = (input.bannerImageUrls ?? []).map((u) => u.trim()).filter(Boolean).slice(0, 12);
+  const gallery = (input.galleryItems ?? []).slice(0, 50);
+  const fp = bannerVisionFingerprint(input);
+
+  const { data: existing } = await supabase
+    .from('barber_digital_shift_config')
+    .select('banner_snapshot')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+
+  const prevSnap = (existing?.banner_snapshot ?? null) as BannerSnapshot | null;
+  const keepVision =
+    prevSnap?.visionAudit && prevSnap.visionAudit.fingerprint === fp
+      ? prevSnap.visionAudit
+      : undefined;
+
+  const { error } = await supabase
+    .from('barber_digital_shift_config')
+    .update({
+      banner_snapshot: {
+        bannerImageUrls: bannerUrls,
+        showDiscountBadge: input.showDiscountBadge ?? false,
+        discountPercent: input.discountPercent ?? null,
+        syncedAt,
+        ...(keepVision ? { visionAudit: keepVision } : {}),
+      },
+      gallery_snapshot: gallery,
+    })
+    .eq('barber_id', barberId);
+
+  if (error) throw new Error(error.message);
+  return { syncedAt };
+}
+
+export function formatCustomerSalonContextForPrompt(
+  ctx: DigitalShiftContext,
+  input: RecommendationInput,
+): string {
+  const lines: string[] = ['【سياق الصالون الموثّق — للمناوب فقط】'];
+
+  lines.push(`- حالة المحل: ${ctx.shopOpen ? 'مفتوح للزبائن' : 'مغلق حالياً'}`);
+
+  const banners = input.bannerImageUrls ?? [];
+  if (banners.length > 0) {
+    lines.push(`- بنر نشط: ${banners.length} صورة`);
+  }
+
+  if (input.showDiscountBadge && input.discountPercent != null && input.discountPercent > 0) {
+    lines.push(`- عرض بنر مفعّل: خصم ${input.discountPercent}% — يمكن ذكره للعميل إن سأل عن العروض`);
+  } else if (banners.length > 0) {
+    lines.push('- لا يوجد خصم مفعّل على البنر حالياً — لا تعد بخصم');
+  }
+
+  const gallery = input.galleryItems ?? [];
+  if (gallery.length > 0) {
+    lines.push(`- معرض أعمال: ${gallery.length} صورة — يمكن الإشارة لجودة الأعمال دون وعود');
+  }
+
+  lines.push('- لا تذكر للعميل: رصيد المحفظة، أيام الحزمة، روابط معطّلة، أو تفاصيل فنية داخلية');
+
+  return lines.join('\n');
+}
 
 export function parseRecommendationInputFromBody(body: Record<string, unknown>): RecommendationInput {
   const input: RecommendationInput = {};
@@ -93,6 +202,24 @@ export async function resolveRecommendationInput(
     ? (cfg.gallery_snapshot as GallerySnapshotItem[])
     : null;
 
+  const galleryFromSnap =
+    gallerySnap && gallerySnap.length > 0
+      ? gallerySnap.map((g) => ({
+          id: String(g.id ?? ''),
+          createdAt: g.createdAt ? String(g.createdAt) : undefined,
+          imageUrl: g.imageUrl ? String(g.imageUrl) : undefined,
+        }))
+      : null;
+
+  let galleryItems =
+    fromBody.galleryItems ??
+    galleryFromSnap ??
+    [];
+
+  if (galleryItems.length === 0) {
+    galleryItems = await loadGalleryItemsFromDb(supabase, barberId);
+  }
+
   return {
     bannerImageUrls:
       fromBody.bannerImageUrls ??
@@ -105,15 +232,7 @@ export async function resolveRecommendationInput(
       fromBody.discountPercent !== undefined
         ? fromBody.discountPercent
         : (bannerSnap?.discountPercent ?? null),
-    galleryItems:
-      fromBody.galleryItems ??
-      (gallerySnap
-        ? gallerySnap.map((g) => ({
-            id: String(g.id ?? ''),
-            createdAt: g.createdAt ? String(g.createdAt) : undefined,
-            imageUrl: g.imageUrl ? String(g.imageUrl) : undefined,
-          }))
-        : []),
+    galleryItems,
   };
 }
 
@@ -176,6 +295,7 @@ function buildFindingsAr(
   input: RecommendationInput,
   probes: BannerUrlProbe[],
   stagnation: SalonOperationalAudit['stagnation'],
+  bannerVision: BannerVisionAudit | null,
 ): string[] {
   const findings: string[] = [];
   const banners = input.bannerImageUrls ?? [];
@@ -244,6 +364,8 @@ function buildFindingsAr(
     findings.push(`✓ نشاط الشات: ${stagnation.conversations7d} محادثة خلال 7 أيام.`);
   }
 
+  findings.push(...bannerVisionFindingsForAudit(bannerVision));
+
   return findings;
 }
 
@@ -276,6 +398,8 @@ export function formatOperationalInsightsForPrompt(
     }
   }
 
+  lines.push(...formatBannerVisionForPrompt(audit.bannerVision));
+
   const top = [...recommendations]
     .sort((a, b) => b.priority - a.priority)
     .slice(0, 10);
@@ -291,15 +415,44 @@ export function formatOperationalInsightsForPrompt(
   return lines.join('\n');
 }
 
+async function loadCachedBannerVision(
+  supabase: SupabaseClient,
+  barberId: string,
+  fingerprint: string,
+): Promise<BannerVisionAudit | null> {
+  const { data } = await supabase
+    .from('barber_digital_shift_config')
+    .select('banner_snapshot')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+  const snap = (data?.banner_snapshot ?? null) as BannerSnapshot | null;
+  const cached = snap?.visionAudit;
+  if (!cached || cached.fingerprint !== fingerprint) return null;
+  return cached;
+}
+
 export async function runSalonOperationalInsights(
   supabase: SupabaseClient,
   barberId: string,
   ctx: DigitalShiftContext,
   input: RecommendationInput,
+  options: SalonInsightsOptions = {},
 ): Promise<{ audit: SalonOperationalAudit; recommendations: AiRecommendationRow[] }> {
   await refreshHeuristicRecommendations(supabase, barberId, ctx, input);
   const stagnation = await assessMarketStagnation(supabase, barberId, ctx);
   const bannerProbes = await probeBannerImageUrls(input.bannerImageUrls ?? []);
+
+  const okPublicUrls = bannerProbes.filter((p) => p.status === 'ok').map((p) => p.url);
+  const fp = bannerVisionFingerprint(input);
+
+  let bannerVision: BannerVisionAudit | null = null;
+  if (options.runBannerVision) {
+    bannerVision = await runBannerVisionAudit(supabase, barberId, input, okPublicUrls, {
+      forceRefresh: options.forceBannerVision,
+    });
+  } else {
+    bannerVision = await loadCachedBannerVision(supabase, barberId, fp);
+  }
 
   const { data: recs } = await supabase
     .from('barber_ai_recommendations')
@@ -328,7 +481,8 @@ export async function runSalonOperationalInsights(
     walletLow: ctx.walletBalanceHalalas <= ctx.walletLowThresholdHalalas,
     galleryCount: input.galleryItems?.length ?? 0,
     stagnation: stagnationSummary,
-    findingsAr: buildFindingsAr(ctx, input, bannerProbes, stagnationSummary),
+    bannerVision,
+    findingsAr: buildFindingsAr(ctx, input, bannerProbes, stagnationSummary, bannerVision),
   };
 
   return {

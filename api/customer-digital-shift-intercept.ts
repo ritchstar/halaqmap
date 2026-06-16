@@ -8,6 +8,10 @@ import {
   loadDigitalShiftContext,
   upsertRecommendation,
 } from './_lib/digitalShiftAssistant.js';
+import {
+  formatCustomerSalonContextForPrompt,
+  resolveRecommendationInput,
+} from './_lib/digitalShiftSalonInsights.js';
 import { recordFleetDemandSignal } from './_lib/fleetDemandSignals.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
@@ -181,11 +185,22 @@ export async function POST(request: Request): Promise<Response> {
     }
   } catch { /* صامت — لا نوقف الرد */ }
 
+  let customerSalonContext = '';
+  try {
+    const input = await resolveRecommendationInput(supabase, barberId, {});
+    customerSalonContext = formatCustomerSalonContextForPrompt(ctx, input);
+  } catch {
+    customerSalonContext = '';
+  }
+
   let replyText: string;
   try {
     replyText = await generateDigitalShiftReply(
       ctx, 'customer', lastCustomerBody, history,
-      privateOfficeInstructions.length > 0 ? { instructions: privateOfficeInstructions } : undefined,
+      {
+        ...(privateOfficeInstructions.length > 0 ? { instructions: privateOfficeInstructions } : {}),
+        ...(customerSalonContext ? { operationalInsights: customerSalonContext } : {}),
+      },
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'AI failed';

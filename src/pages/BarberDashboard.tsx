@@ -146,6 +146,7 @@ import {
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
 import { BarberSocialShareKit } from '@/components/barber/BarberSocialShareKit';
 import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
+import { useDigitalShiftSalonSnapshotSync } from '@/hooks/useDigitalShiftSalonSnapshotSync';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
 import {
@@ -587,6 +588,17 @@ export default function BarberDashboard({
   const canOpenMapCommunity =
     barberData?.subscription === SubscriptionTier.GOLD ||
     barberData?.subscription === SubscriptionTier.DIAMOND;
+
+  useDigitalShiftSalonSnapshotSync({
+    barberId: barberData?.id ?? '',
+    barberEmail: barberData?.email ?? '',
+    enabled:
+      Boolean(barberData?.id && barberData.email) &&
+      barberData.subscription === SubscriptionTier.DIAMOND &&
+      !founderPreview,
+    bannerState,
+    posts,
+  });
 
   if (!barberData) {
     return null;

@@ -21,6 +21,7 @@ import { DigitalShiftRecommendationsTable } from '@/components/barber/DigitalShi
 import { DigitalShiftPrivateOffice } from '@/components/barber/DigitalShiftPrivateOffice';
 import type { BarberPlatformBannerState } from '@/lib/barberDashboardLocalState';
 import type { Post } from '@/lib';
+import { buildSalonSnapshotPayload } from '@/lib/digitalShiftSalonSnapshot';
 import {
   digitalShiftBarberChatRemote,
   dismissDigitalShiftRecommendationRemote,
@@ -32,19 +33,6 @@ import {
 } from '@/lib/digitalShiftAssistantRemote';
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string };
-
-function salonSnapshotPayload(bannerState: BarberPlatformBannerState, posts: Post[]) {
-  return {
-    bannerImageUrls: bannerState.bannerImageUrls,
-    showDiscountBadge: bannerState.showDiscountBadge,
-    discountPercent: bannerState.discountPercent,
-    galleryItems: posts.map((p) => ({
-      id: p.id,
-      createdAt: p.createdAt,
-      imageUrl: p.images?.[0],
-    })),
-  };
-}
 
 export function DigitalShiftAssistantHub({
   barberId,
@@ -96,7 +84,8 @@ export function DigitalShiftAssistantHub({
     const r = await refreshDigitalShiftRecommendationsRemote({
       barberId,
       email: barberEmail,
-      ...salonSnapshotPayload(bannerState, posts),
+      ...buildSalonSnapshotPayload(bannerState, posts),
+      forceBannerVision: true,
     });
     setRefreshing(false);
     if (!r.ok) {
@@ -149,7 +138,7 @@ export function DigitalShiftAssistantHub({
       email: barberEmail,
       message: text,
       history: nextHistory.slice(0, -1),
-      ...salonSnapshotPayload(bannerState, posts),
+      ...buildSalonSnapshotPayload(bannerState, posts),
     });
     setChatSending(false);
     if (!r.ok) {
