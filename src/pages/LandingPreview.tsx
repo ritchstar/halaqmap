@@ -20,6 +20,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { cn } from '@/lib/utils';
 import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
+import { PartnerPathNavLink } from '@/components/PartnerPathNavLink';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -836,14 +837,17 @@ export default function LandingPreview() {
                 </div>
               </Link>
 
-              <button
-                type="button"
-                onClick={handleMobileSearchClick}
-                disabled={geoBusy}
-                className="rounded-2xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.9rem] font-black text-white shadow-[0_0_18px_rgba(20,184,166,0.28)] disabled:opacity-80"
-              >
-                {geoBusy ? 'يجري البحث…' : userLocation ? 'عرض النتائج' : 'ابحث الآن'}
-              </button>
+              <div className="flex items-center gap-2">
+                <PartnerPathNavLink variant="headerCompact" />
+                <button
+                  type="button"
+                  onClick={handleMobileSearchClick}
+                  disabled={geoBusy}
+                  className="rounded-2xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.9rem] font-black text-white shadow-[0_0_18px_rgba(20,184,166,0.28)] disabled:opacity-80"
+                >
+                  {geoBusy ? 'يجري البحث…' : userLocation ? 'عرض النتائج' : 'ابحث الآن'}
+                </button>
+              </div>
             </div>
           ) : (
             <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
@@ -942,17 +946,7 @@ export default function LandingPreview() {
 
                 <div className="hidden h-6 w-px bg-white/12 md:block" />
 
-                <Link
-                  to={ROUTE_PATHS.BARBERS_LANDING}
-                  title="مسار الخدمات التسويقية للمنشآت — B2B"
-                  className="group relative hidden h-9 w-9 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-500/8 text-amber-400/70 transition-all hover:border-amber-400/50 hover:bg-amber-500/15 hover:text-amber-300 md:flex"
-                  aria-label="مسار الشركاء B2B"
-                >
-                  <Building2 className="h-4 w-4" />
-                  <span className="absolute -bottom-1.5 -left-1 rounded-full bg-amber-500 px-1 py-0 text-[0.53rem] font-black leading-tight tracking-wider text-black">
-                    B2B
-                  </span>
-                </Link>
+                <PartnerPathNavLink variant="header" />
               </div>
             </div>
           )}
@@ -1447,13 +1441,8 @@ export default function LandingPreview() {
               <p className="mb-4 text-xs leading-relaxed text-white/78 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
                 منصة رقمية ذكية تتيح الوصول إلى مقدم الخدمة المناسب وتسهّل التواصل المباشر — مجانية للمستخدمين.
               </p>
-              <div className="flex items-center gap-2">
-                <Link
-                  to={ROUTE_PATHS.BARBERS_LANDING}
-                  className="rounded-full border border-amber-400/25 bg-amber-500/8 px-3 py-1 text-[0.6rem] font-semibold text-amber-400/60 hover:text-amber-300"
-                >
-                  للمنشآت · B2B ↗
-                </Link>
+              <div className="flex flex-wrap items-center gap-2">
+                <PartnerPathNavLink variant="footer" />
                 <Link
                   to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}
                   className="rounded-full border border-sky-400/25 bg-sky-500/8 px-3 py-1 text-[0.6rem] font-semibold text-sky-300/80 hover:text-sky-200"
