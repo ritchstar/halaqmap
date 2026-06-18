@@ -10,6 +10,7 @@ import {
   getBarberPortalSessionSecret,
   mintBarberPortalSessionToken,
 } from './_lib/barberPortalAuth.js';
+import { resolveSalonMemberRole } from './_lib/salonMemberAuth.js';
 
 export const config = {
   maxDuration: 15,
@@ -179,10 +180,13 @@ export async function POST(request: Request): Promise<Response> {
   const sessionSecret = getBarberPortalSessionSecret();
   const barberSessionToken = sessionSecret ? mintBarberPortalSessionToken(String(b.id), String(b.email ?? ''), sessionSecret) : null;
 
+  const salonRole = await resolveSalonMemberRole(supabase, String(b.id), String(b.email ?? ''));
+
   return Response.json(
     {
       ok: true,
       barber_session_token: barberSessionToken,
+      salon_role: salonRole,
       barber: {
         id: String(b.id),
         name: String(b.name ?? ''),

@@ -6,6 +6,7 @@ import { buildHomeServiceSnapshotFromBarberRow } from './_lib/homeServiceBarberS
 import { buildGroomPrepSnapshotFromBarberRow } from './_lib/groomPrepBarberSnapshot.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { getBarberPortalSessionSecret, mintBarberPortalSessionToken } from './_lib/barberPortalAuth.js';
+import { resolveSalonMemberRole } from './_lib/salonMemberAuth.js';
 
 export const config = {
   maxDuration: 30,
@@ -233,10 +234,13 @@ export async function POST(request: Request): Promise<Response> {
     ? mintBarberPortalSessionToken(String(barber.id), String(barber.email ?? ''), sessionSecret)
     : null;
 
+  const salonRole = await resolveSalonMemberRole(supabase, String(barber.id), String(barber.email ?? ''));
+
   return Response.json(
     {
       ok: true,
       barber_session_token: barberSessionToken,
+      salon_role: salonRole,
       barber: {
         id: String(barber.id),
         name: String(barber.name ?? ''),

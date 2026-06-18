@@ -53,6 +53,8 @@ export type SupabaseAuthSessionPayload = {
   refresh_token: string;
 };
 
+export type SalonMemberRole = 'owner' | 'operator';
+
 export type BarberPortalSession = {
   id: string;
   name: string;
@@ -76,7 +78,14 @@ export type BarberPortalSession = {
   groomPrep?: BarberPortalGroomPrepSnapshot;
   /** توكن جلسة موقّع يستخدمه API لحماية مسارات البوابة الحساسة */
   barberSessionToken?: string;
+  /** دور العضو في الصالون — مالك أو مشغّل (لغرفة المراقبة) */
+  salonRole?: SalonMemberRole | null;
 };
+
+function salonRoleFromPayload(raw: unknown): SalonMemberRole | null {
+  if (raw === 'owner' || raw === 'operator') return raw;
+  return null;
+}
 
 export async function barberPortalLoginRemote(input: {
   email: string;
@@ -102,6 +111,7 @@ export async function barberPortalLoginRemote(input: {
       code?: string;
       authSession?: SupabaseAuthSessionPayload;
       barber_session_token?: string | null;
+      salon_role?: SalonMemberRole | null;
       barber?: {
         id: string;
         name: string;
@@ -155,6 +165,7 @@ export async function barberPortalLoginRemote(input: {
         homeService: b.homeService,
         groomPrep: b.groomPrep,
         barberSessionToken,
+        salonRole: salonRoleFromPayload(payload.salon_role),
       },
       authSession,
     };
@@ -187,6 +198,7 @@ export async function refreshBarberPortalSessionRemote(input: {
       error?: string;
       code?: string;
       barber_session_token?: string | null;
+      salon_role?: SalonMemberRole | null;
       barber?: {
         id: string;
         name: string;
@@ -236,6 +248,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         homeService: b.homeService,
         groomPrep: b.groomPrep,
         barberSessionToken,
+        salonRole: salonRoleFromPayload(payload.salon_role),
       },
     };
   } catch {

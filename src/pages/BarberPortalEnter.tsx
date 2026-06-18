@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
 import type { BarberPortalInclusiveCareSnapshot } from '@/lib/barberInclusiveCareRemote';
+import type { SalonMemberRole } from '@/lib/barberPortalLoginRemote';
 import { persistBarberAuthSession } from '@/lib/barberPortalSession';
 import { toast } from 'sonner';
 
@@ -54,6 +55,7 @@ export default function BarberPortalEnter() {
           error?: string;
           code?: string;
           barber_session_token?: string | null;
+          salon_role?: SalonMemberRole | null;
           barber?: {
             id: string;
             name: string;
@@ -96,6 +98,10 @@ export default function BarberPortalEnter() {
           memberNumber,
           inclusiveCare: b.inclusiveCare,
           barberSessionToken,
+          salonRole:
+            payload.salon_role === 'owner' || payload.salon_role === 'operator'
+              ? payload.salon_role
+              : null,
         });
         toast.success(`مرحباً ${partnerSalonDisplayName({ name: b.name, email: b.email })}`);
         navigate(ROUTE_PATHS.BARBER_DASHBOARD, { replace: true });

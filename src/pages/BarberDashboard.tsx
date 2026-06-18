@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent, type ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -149,6 +149,7 @@ import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
 import { useDigitalShiftSalonSnapshotSync } from '@/hooks/useDigitalShiftSalonSnapshotSync';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
+import { BarberOwnerWatchPanel } from '@/components/barber/BarberOwnerWatchPanel';
 import {
   fetchListingLicenseBalanceRemote,
   redeemListingLicenseRemote,
@@ -209,6 +210,8 @@ export default function BarberDashboard({
   previewChrome = null,
 }: BarberDashboardProps = {}) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const ownerWatchMode = searchParams.get('view') === 'watch';
   const [activeTab, setActiveTab] = useState('overview');
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
   const [barberData, setBarberData] = useState<BarberPortalSession | null>(null);
@@ -422,7 +425,8 @@ export default function BarberDashboard({
         JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null) &&
         JSON.stringify(prev.childrenServices ?? null) === JSON.stringify(merged.childrenServices ?? null) &&
         JSON.stringify(prev.homeService ?? null) === JSON.stringify(merged.homeService ?? null) &&
-        JSON.stringify(prev.groomPrep ?? null) === JSON.stringify(merged.groomPrep ?? null);
+        JSON.stringify(prev.groomPrep ?? null) === JSON.stringify(merged.groomPrep ?? null) &&
+        prev.salonRole === merged.salonRole;
       if (same) return prev;
       persistBarberAuthSession(merged);
       return merged;
@@ -589,6 +593,19 @@ export default function BarberDashboard({
     barberData?.subscription === SubscriptionTier.GOLD ||
     barberData?.subscription === SubscriptionTier.DIAMOND;
 
+  const ownerCanWatch =
+    barberData?.salonRole === 'owner' &&
+    (barberData.subscription === SubscriptionTier.GOLD ||
+      barberData.subscription === SubscriptionTier.DIAMOND);
+
+  useEffect(() => {
+    if (!ownerWatchMode || founderPreview) return;
+    if (!barberData) return;
+    if (!ownerCanWatch) {
+      setSearchParams({}, { replace: true });
+    }
+  }, [barberData, founderPreview, ownerCanWatch, ownerWatchMode, setSearchParams]);
+
   useDigitalShiftSalonSnapshotSync({
     barberId: barberData?.id ?? '',
     barberEmail: barberData?.email ?? '',
@@ -657,6 +674,12 @@ export default function BarberDashboard({
                       {CHILDREN_SPECIALIST_DASHBOARD_TAB_AR}
                     </Badge>
                   ) : null}
+                  {ownerWatchMode ? (
+                    <Badge className="text-[10px] sm:text-xs border-amber-500/40 bg-amber-500/15 text-amber-950 dark:text-amber-100 gap-1">
+                      <Eye className="h-3 w-3" />
+                      غرفة المراقبة
+                    </Badge>
+                  ) : null}
                   {formatBarberMemberNumber(barberData.memberNumber) ? (
                     <span className="truncate text-[11px] text-muted-foreground sm:text-xs" dir="ltr">
                       عضوية: {formatBarberMemberNumber(barberData.memberNumber)}
@@ -666,6 +689,30 @@ export default function BarberDashboard({
               </div>
             </div>
             <div className="flex shrink-0 items-center justify-end gap-1 sm:justify-start">
+              {ownerCanWatch && !ownerWatchMode ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 gap-1.5 border-amber-500/35 bg-amber-500/10 text-amber-950 hover:bg-amber-500/15 dark:text-amber-100"
+                  onClick={() => setSearchParams({ view: 'watch' })}
+                >
+                  <Eye className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline">مراقبة من بعيد</span>
+                </Button>
+              ) : null}
+              {ownerWatchMode ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 gap-1.5"
+                  onClick={() => setSearchParams({}, { replace: true })}
+                >
+                  <Settings className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline">لوحة التشغيل</span>
+                </Button>
+              ) : null}
               {canOpenMapCommunity ? (
                 <Button
                   asChild
@@ -709,6 +756,10 @@ export default function BarberDashboard({
       </header>
 
       <div className="container mx-auto space-y-4 px-3 py-6 sm:space-y-6 sm:px-4 sm:py-8">
+        {ownerWatchMode && ownerCanWatch ? (
+          <BarberOwnerWatchPanel barberData={barberData} />
+        ) : (
+          <>
         <PlatformGrowthProgramsPanel variant="dashboard" activationState="post_activation" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
@@ -1084,6 +1135,8 @@ export default function BarberDashboard({
           </TabsContent>
           ) : null}
         </Tabs>
+          </>
+        )}
       </div>
 
       <footer className="mt-auto border-t border-border/40 bg-muted/20 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">

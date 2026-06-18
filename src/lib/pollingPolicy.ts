@@ -7,6 +7,7 @@ export const POLL_MS = {
   PRIVATE_CHAT_INTERCEPT: 30_000,
   MAP_COMMUNITY_FEED: 30_000,
   MAP_COMMUNITY_BADGE: 60_000,
+  OWNER_SALON_WATCH: 30_000,
 } as const;
 
 /** Skip background-tab polling (mirrors React Query refetchIntervalInBackground: false). */
