@@ -5,7 +5,8 @@ import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
 import type { BarberPortalInclusiveCareSnapshot } from '@/lib/barberInclusiveCareRemote';
 import type { SalonMemberRole } from '@/lib/barberPortalLoginRemote';
-import { persistBarberAuthSession } from '@/lib/barberPortalSession';
+import { persistBarberAuthSession, resolveSafePartnerRedirect } from '@/lib/barberPortalSession';
+import { barberOwnerWatchHashPath } from '@/lib/ownerSalonWatchLinks';
 import { toast } from 'sonner';
 
 const MAGIC_ENDPOINT = String(import.meta.env.VITE_BARBER_PORTAL_MAGIC_CONSUME_URL || '/api/barber-portal-magic-consume').trim();
@@ -104,7 +105,12 @@ export default function BarberPortalEnter() {
               : null,
         });
         toast.success(`مرحباً ${partnerSalonDisplayName({ name: b.name, email: b.email })}`);
-        navigate(ROUTE_PATHS.BARBER_DASHBOARD, { replace: true });
+        const nextRaw = params.get('next')?.trim();
+        const destination =
+          nextRaw === 'watch'
+            ? barberOwnerWatchHashPath()
+            : resolveSafePartnerRedirect(nextRaw);
+        navigate(destination, { replace: true });
       } catch {
         setBusy(false);
         toast.error('تعذر الاتصال بالخادم.');

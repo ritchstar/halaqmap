@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Activity,
   AlertTriangle,
+  Copy,
   Eye,
   Loader2,
   MessageSquare,
@@ -9,6 +10,7 @@ import {
   Store,
   Wifi,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +22,7 @@ import {
   type OwnerSalonWatchSnapshot,
 } from '@/lib/ownerSalonWatchRemote';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
+import { buildBarberOwnerWatchPageUrl } from '@/lib/ownerSalonWatchLinks';
 
 type Props = {
   barberData: BarberPortalSession;
@@ -142,17 +145,41 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
               </span>
             ) : null}
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="gap-2 shrink-0"
-            disabled={refreshing}
-            onClick={() => void loadSnapshot({ silent: true })}
-          >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            تحديث الآن
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2 shrink-0 border-amber-500/35"
+              onClick={async () => {
+                const link = buildBarberOwnerWatchPageUrl();
+                if (!link) {
+                  toast.error('تعذر توليد الرابط من المتصفح.');
+                  return;
+                }
+                try {
+                  await navigator.clipboard.writeText(link);
+                  toast.success('تم نسخ رابط غرفة المراقبة — احفظه في مفضلة جوالك.');
+                } catch {
+                  toast.error('تعذر النسخ من المتصفح.');
+                }
+              }}
+            >
+              <Copy className="h-4 w-4" />
+              نسخ رابط المراقبة
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2 shrink-0"
+              disabled={refreshing}
+              onClick={() => void loadSnapshot({ silent: true })}
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              تحديث الآن
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

@@ -43,6 +43,12 @@ type MailLinks = {
   privacyUrl: string;
   loginUrl: string;
   dashboardUrl: string;
+  /** دخول سريع لمرة واحدة → غرفة المراقبة (ذهبي/ماسي + magic secret) */
+  ownerWatchMagicUrl: string | null;
+  /** رابط دائم بعد تسجيل الدخول — للمفضلة */
+  ownerWatchBookmarkUrl: string;
+  /** تسجيل دخول يوجّه إلى غرفة المراقبة */
+  ownerWatchLoginUrl: string;
   policyUrl: string;
   /** ملاحظات / شكاوى للإدارة — من BARBER_ADMIN_FEEDBACK_URL أو بريد */
   adminFeedbackUrl: string;
@@ -128,6 +134,8 @@ function getAdminFeedbackUrl(siteBase: string): string {
 
 function buildLinks(baseUrl: string): MailLinks {
   const b = sanitizeBaseUrl(baseUrl);
+  const ownerWatchBookmarkUrl = `${b}/#/barber/dashboard?view=watch`;
+  const ownerWatchLoginUrl = `${b}/#/partners/login?next=${encodeURIComponent('/barber/dashboard?view=watch')}`;
   return {
     siteBase: b,
     homeUrl: `${b}/#/`,
@@ -136,6 +144,9 @@ function buildLinks(baseUrl: string): MailLinks {
     privacyUrl: `${b}/#/privacy`,
     loginUrl: `${b}/#/partners/login`,
     dashboardUrl: `${b}/#/barber/dashboard`,
+    ownerWatchMagicUrl: null,
+    ownerWatchBookmarkUrl,
+    ownerWatchLoginUrl,
     policyUrl: `${b}/#/partners/subscription-policy`,
     adminFeedbackUrl: getAdminFeedbackUrl(b),
   };
@@ -156,11 +167,13 @@ function linksWithMagicDashboardIfEligible(
     return links;
   }
   try {
-    const token = mintBarberPortalMagicToken(id, email, secret);
+    const dashboardToken = mintBarberPortalMagicToken(id, email, secret);
+    const watchToken = mintBarberPortalMagicToken(id, email, secret);
     const b = links.siteBase.replace(/\/+$/, '');
     return {
       ...links,
-      dashboardUrl: `${b}/#/barber/enter?m=${encodeURIComponent(token)}`,
+      dashboardUrl: `${b}/#/barber/enter?m=${encodeURIComponent(dashboardToken)}`,
+      ownerWatchMagicUrl: `${b}/#/barber/enter?m=${encodeURIComponent(watchToken)}&next=watch`,
     };
   } catch {
     return links;
@@ -417,6 +430,34 @@ function emailOpeningLines(name: string, tierLabel: string): string[] {
   ];
 }
 
+function ownerWatchPlainLines(links: MailLinks, tier: Tier | null | undefined): string[] {
+  if (tierKey(tier) === 'bronze') return [];
+  const lines = [
+    '',
+    'غرفة المراقبة — لصاحب الرخصة (قراءة فقط، بدون نصوص زبائن):',
+  ];
+  if (links.ownerWatchMagicUrl) {
+    lines.push(`- رابط دخول سريع لمرة واحدة (يفتح غرفة المراقبة مباشرة): ${links.ownerWatchMagicUrl}`);
+  }
+  lines.push(`- رابط دائم (بعد تسجيل الدخول — احفظه في مفضلة جوالك): ${links.ownerWatchBookmarkUrl}`);
+  lines.push(`- أو سجّل الدخول ثم افتح المراقبة: ${links.ownerWatchLoginUrl}`);
+  lines.push('- ترى: حالة المحل، عدد المحادثات، النبض التشغيلي، والتنبيهات — دون التدخل في شات الزبائن.');
+  lines.push('- للتشغيل الكامل (رسائل، بنرات، إعدادات) استخدم «لوحة التحكم» أعلاه.');
+  return lines;
+}
+
+function ownerWatchSectionHtml(links: MailLinks, tier: Tier | null | undefined): string {
+  if (tierKey(tier) === 'bronze') return '';
+  const h = (u: string) => escapeHtml(u);
+  const magicBlock = links.ownerWatchMagicUrl
+    ? `<p style="margin:0 0 12px"><a href="${h(links.ownerWatchMagicUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#fff;font-weight:800;text-decoration:none;font-size:14px">دخول سريع — غرفة المراقبة</a></p><p style="margin:0 0 12px;font-size:12px;color:#92400e">يُستخدم مرة واحدة — للمراقبة من بعيد فوراً.</p>`
+    : '';
+  return emailCard(
+    'غرفة المراقبة — للمالك',
+    `${magicBlock}<p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">تابع تشغيل صالونك <strong>قراءة فقط</strong>: حالة «مفتوح/مغلق»، محادثات نشطة، نبض تشغيلي، وتنبيهات — <strong>بدون</strong> نصوص زبائن.</p><ul style="margin:0 0 12px;padding:0 20px 0 0;font-size:14px;color:#475569;line-height:1.85"><li style="margin:0 0 6px">احفظ الرابط الدائم في مفضلة جوالك بعد أول دخول.</li><li style="margin:0">لتشغيل المحل كاملاً استخدم زر «لوحة التحكم».</li></ul><p style="margin:0 0 8px;font-size:13px;color:#64748b"><strong>رابط دائم (مفضلة):</strong><br/><a href="${h(links.ownerWatchBookmarkUrl)}" style="color:#d97706;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchBookmarkUrl)}</a></p><p style="margin:0;font-size:13px;color:#64748b"><strong>دخول ثم مراقبة:</strong><br/><a href="${h(links.ownerWatchLoginUrl)}" style="color:#0d9488;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchLoginUrl)}</a></p>`,
+  );
+}
+
 function emailText(
   name: string,
   tierLabel: string,
@@ -439,6 +480,7 @@ function emailText(
     `- من نحن: ${links.aboutUrl}`,
     `- تسجيل دخول الحلاق: ${links.loginUrl}`,
     `- لوحة التحكم: ${links.dashboardUrl}`,
+    ...(tierKey(tier) !== 'bronze' ? [`- غرفة المراقبة (مفضلة): ${links.ownerWatchBookmarkUrl}`] : []),
     `- سياسة الاشتراكات: ${links.policyUrl}`,
     `- الخصوصية: ${links.privacyUrl}`,
     `- طلب تفعيل الحزمة البرمجية (للمرجعية): ${links.registerUrl}`,
@@ -453,6 +495,7 @@ function emailText(
     '- الإحصائيات تبدأ من الصفر؛ ونوضح بصدق: المنصة لا تعرض إيرادات محلك — خصوصيتك التجارية محفوظة.',
     '',
     ...tierLines,
+    ...ownerWatchPlainLines(links, tier),
     '',
     'ماذا تفعل داخل اللوحة؟',
     '- الإعدادات ← «البنر والعروض»: روابط صور البنر، وتفعيل شارة الخصم والنسبة عند الحاجة.',
@@ -512,6 +555,16 @@ function emailHtml(
 
   const u = (href: string) => escapeHtml(href);
 
+  const btnAmber = (href: string, label: string) =>
+    `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:6px 6px 6px 0;padding:12px 22px;border-radius:12px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#ffffff;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 4px 14px rgba(217,119,6,0.35)">${label}</a>`;
+
+  const ownerWatchBtn =
+    k !== 'bronze' && links.ownerWatchMagicUrl
+      ? btnAmber(links.ownerWatchMagicUrl, 'غرفة المراقبة — للمالك')
+      : k !== 'bronze'
+        ? btnAmber(links.ownerWatchLoginUrl, 'دخول → غرفة المراقبة')
+        : '';
+
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -549,6 +602,7 @@ function emailHtml(
 <tr><td style="padding:0 22px 10px;text-align:center;font-family:Tajawal,'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;">
   ${btn(links.loginUrl, 'تسجيل دخول الحلاق')}
   ${btn(links.dashboardUrl, 'فتح لوحة التحكم')}
+  ${ownerWatchBtn}
   <div style="margin-top:14px;line-height:2;font-size:13px">
     <a href="${u(links.homeUrl)}" target="_blank" rel="noopener noreferrer" style="color:#0d9488;font-weight:600;text-decoration:underline;">الصفحة الرئيسية</a>
     <span style="color:#cbd5e1;margin:0 6px">|</span>
@@ -574,6 +628,7 @@ function emailHtml(
     '<p style="margin:0;font-size:14px;color:#475569;line-height:1.85">اسم صالونك يظهر في الأعلى من بياناتنا المعتمدة. الإحصائيات تبدأ من الصفر؛ ونوضح بصدق: <strong>لا نعرض إيرادات محلك</strong> على المنصة.</p>',
   )}
   ${goldDiamondBox}
+  ${ownerWatchSectionHtml(links, tier)}
   ${digitalShiftAddon && k === 'diamond' ? digitalShiftOnboardingSectionHtml(links.dashboardUrl) : ''}
   ${ratingAndQrSectionHtml(rating)}
   ${adminFeedbackSectionHtml(links)}
