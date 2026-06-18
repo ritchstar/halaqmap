@@ -150,11 +150,14 @@ import { useDigitalShiftSalonSnapshotSync } from '@/hooks/useDigitalShiftSalonSn
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
 import { BarberOwnerWatchPanel } from '@/components/barber/BarberOwnerWatchPanel';
+import { OWNER_WATCH_FEATURE_TAGLINE_AR } from '@/config/ownerWatchFeatureCopy';
 import {
   fetchListingLicenseBalanceRemote,
   redeemListingLicenseRemote,
   type ListingLicenseBalance,
 } from '@/lib/listingLicenseRemote';
+
+const OWNER_WATCH_HINT_DISMISS_KEY = 'halaqmap_owner_watch_hint_dismissed_v1';
 
 function newId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -226,6 +229,13 @@ export default function BarberDashboard({
   });
   const [listingBalance, setListingBalance] = useState<ListingLicenseBalance | null>(null);
   const [listingBalanceLoading, setListingBalanceLoading] = useState(false);
+  const [ownerWatchHintDismissed, setOwnerWatchHintDismissed] = useState(() => {
+    try {
+      return localStorage.getItem(OWNER_WATCH_HINT_DISMISS_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
   const [redeemCode, setRedeemCode] = useState('');
   const [redeemLoading, setRedeemLoading] = useState(false);
@@ -756,6 +766,43 @@ export default function BarberDashboard({
       </header>
 
       <div className="container mx-auto space-y-4 px-3 py-6 sm:space-y-6 sm:px-4 sm:py-8">
+        {ownerCanWatch && !ownerWatchMode && !ownerWatchHintDismissed ? (
+          <Alert className="border-amber-500/35 bg-amber-500/10">
+            <Eye className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+            <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <span>
+                <strong className="font-semibold">غرفة المراقبة للمالك:</strong>{' '}
+                {OWNER_WATCH_FEATURE_TAGLINE_AR} تحقّق من بريد التفعيل لرابط المفضلة، أو افتح المراقبة الآن.
+              </span>
+              <span className="flex shrink-0 flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="gap-1.5 bg-amber-600 hover:bg-amber-700"
+                  onClick={() => setSearchParams({ view: 'watch' })}
+                >
+                  <Eye className="h-4 w-4" />
+                  فتح غرفة المراقبة
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setOwnerWatchHintDismissed(true);
+                    try {
+                      localStorage.setItem(OWNER_WATCH_HINT_DISMISS_KEY, '1');
+                    } catch {
+                      /* ignore quota / private mode */
+                    }
+                  }}
+                >
+                  إخفاء
+                </Button>
+              </span>
+            </AlertDescription>
+          </Alert>
+        ) : null}
         {ownerWatchMode && ownerCanWatch ? (
           <BarberOwnerWatchPanel barberData={barberData} />
         ) : (

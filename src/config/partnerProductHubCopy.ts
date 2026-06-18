@@ -14,8 +14,10 @@ import {
 import {
   PARTNER_FEATURE_PREVIEW_DASHBOARD,
   PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT,
+  PARTNER_FEATURE_PREVIEW_OWNER_WATCH,
   PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE,
 } from '@/config/partnerFeaturePreviewsCopy';
+import { OWNER_WATCH_UPGRADE_NUDGE_AR } from '@/config/ownerWatchFeatureCopy';
 
 /** معرّفات أقسام مركز المعاينة — للفهرس والتمرير */
 export const PARTNER_PRODUCT_HUB_SECTION_IDS = {
@@ -75,6 +77,7 @@ export const PARTNER_TIER_COMPARISON_COLUMNS: readonly PartnerTierComparisonColu
       '❌ المكتب الخاص غير متاح',
       '✅ ظهور جغرافي عند الطلب',
       '✅ بطاقة صالون كاملة على الرادار',
+      '✅ غرفة مراقبة أساسية للمالك (ذهبي)',
     ],
     note: 'يمكن الترقية للماسي في أي وقت',
   },
@@ -90,6 +93,7 @@ export const PARTNER_TIER_COMPARISON_COLUMNS: readonly PartnerTierComparisonColu
       '✅ صدارة في الاستجابة المناسبة',
       '✅ معرض حتى 40 صورة',
       '✅ جدولة مواعيد (ماسي)',
+      '✅ غرفة مراقبة متقدمة للمالك',
     ],
     note: `يمكن إضافة المكتب لاحقاً (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة)`,
   },
@@ -143,5 +147,8 @@ export {
   PARTNER_BANNERS_PREVIEW_TIERS,
   PARTNER_FEATURE_PREVIEW_DASHBOARD,
   PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT,
+  PARTNER_FEATURE_PREVIEW_OWNER_WATCH,
   PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE,
 };
+
+export const PARTNER_PRODUCT_HUB_OWNER_WATCH_NUDGE_AR = OWNER_WATCH_UPGRADE_NUDGE_AR;

@@ -8,6 +8,10 @@ import {
   TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
 import {
+  OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
+  OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
+} from '@/config/ownerWatchFeatureCopy';
+import {
   ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR,
 } from '@/config/onDemandVisibilityDoctrine';
 
@@ -92,6 +96,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
       'تجهيز عريس (ماسي): إعلان + طلب تواصل عبر الشات — التنسيق مباشرة مع العميل',
       'متخصص أطفال (ماسي): بطاقة وبنر طفولي + فلتر «متخصص أطفال» + لوحة تحكم مخصصة — للصالونات المتخصصة بالأطفال',
       'لوحة كاملة للصور والمنيو والأسعار وأوقات العمل وحالة التوفر',
+      OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
       DIAMOND_ADDON_OPTION_LINE_AR,
     ],
     digitalShiftAddonAvailable: true,
@@ -118,6 +123,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
       'زيارة منزلية: إعلان + طلب تواصل (واتساب/شات) — التنسيق مباشرة مع العميل',
       'حلاقة أطفال (ذهبي): إعلان «يستقبل أطفالاً» من لوحة الرسائل',
       'خدمات كبار السن وذوي الاحتياجات مع تحكم في السعر والظهور والملاحظات',
+      OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
     ],
   },
 ] as const;

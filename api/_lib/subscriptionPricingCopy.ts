@@ -61,3 +61,13 @@ export const ZATCA_PLATFORM_PACKAGES_NOTE_AR =
 
 export const DIGITAL_SHIFT_ADMIN_LAB_PRODUCT_NOTE_AR =
   'متاح كإضافة برمجية متقدمة (Software Add-on) +25 ر.س/حزمة نفاذ — للرخصة الماسية فقط (Diamond + addon).';
+
+/** Mirror of `src/config/ownerWatchFeatureCopy.ts` — API/partner assistant (no frontend imports). */
+export const OWNER_WATCH_FEATURE_GOLD_LINE_AR =
+  'غرفة المراقبة للمالك (ذهبي): تابع حالة «مفتوح/مغلق»، عدد المحادثات النشطة، والتنبيهات — قراءة فقط من جوالك، مع رابط خاص في بريد التفعيل.';
+
+export const OWNER_WATCH_FEATURE_DIAMOND_LINE_AR =
+  'غرفة مراقبة متقدمة (ماسي): كل ما في الذهبي + نبض تشغيلي، تنبيهات المناوب، وسجل أحداث — لتكتشف الضغط قبل أن يتحول لمشكلة.';
+
+export const OWNER_WATCH_FEATURE_INTRO_AR =
+  'غرفة المراقبة للمالك (Owner Watch): طبقة إشراف منفصلة — لوحة التشغيل للفريق، ومراقبة قراءة فقط لصاحب الرخصة من أي مكان، بدون نصوص زبائن.';

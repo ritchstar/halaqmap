@@ -6,6 +6,10 @@ import {
   SHOP_OPEN_STATUS_FEATURE_BRONZE,
   SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
 } from '@/config/subscriptionPlanHero';
+import {
+  OWNER_WATCH_FEATURE_DIAMOND_LINE,
+  OWNER_WATCH_FEATURE_GOLD_LINE,
+} from '@/config/ownerWatchFeatureCopy';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
 import {
   DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR,
@@ -63,6 +67,7 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
       { kind: 'text', value: 'إحصائيات تساعدك تفهم تفاعل العملاء وتعرف ما الذي يجذبهم' },
       { kind: 'text', value: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
       { kind: 'text', value: BARBER_DASHBOARD_GOLD_LINE },
+      { kind: 'text', value: OWNER_WATCH_FEATURE_GOLD_LINE },
       {
         kind: 'text',
         value:
@@ -94,6 +99,7 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
       { kind: 'text', value: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)' },
       { kind: 'text', value: 'أولوية قصوى للصالونات التي تستهدف صدارة المنطقة لا مجرد حضور عادي' },
       { kind: 'text', value: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
+      { kind: 'text', value: OWNER_WATCH_FEATURE_DIAMOND_LINE },
       { kind: 'text', value: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
       { kind: 'text', value: 'شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة' },
       { kind: 'text', value: 'تجربة تواصل مناسبة للسياح والمقيمين والعملاء متعددي اللغات' },

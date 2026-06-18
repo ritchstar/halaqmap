@@ -1,3 +1,5 @@
+import { OWNER_WATCH_PARTNER_PREVIEW } from '@/config/ownerWatchFeatureCopy';
+
 export const PARTNER_FEATURE_PREVIEW_DASHBOARD = {
   eyebrow: 'مركز إدارة الصالون',
   title: 'لوحة التحكم — مسار تشغيلي بلا أي سجلات مالية',
@@ -6,6 +8,8 @@ export const PARTNER_FEATURE_PREVIEW_DASHBOARD = {
     'الإضاءة النيونية تُوجّه نظرك فقط إلى الأدوات التي تقلّل وقت الكرسي الفارغ وتسرّع استقبال الضيوف.',
   ],
 } as const;
+
+export const PARTNER_FEATURE_PREVIEW_OWNER_WATCH = OWNER_WATCH_PARTNER_PREVIEW;
 
 export const PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT = {
   eyebrow: '🏛️ إضافة المكتب الخاص · مساعد داخلي + مناوب شات',

@@ -19,6 +19,9 @@ import {
   DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR,
   DIGITAL_SHIFT_PRODUCT_NAME_AR,
   DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR,
+  OWNER_WATCH_FEATURE_DIAMOND_LINE_AR,
+  OWNER_WATCH_FEATURE_GOLD_LINE_AR,
+  OWNER_WATCH_FEATURE_INTRO_AR,
 } from './subscriptionPricingCopy.js';
 import {
   INVOICE_PRODUCT_DESCRIPTION_AR,
@@ -37,7 +40,7 @@ import {
 } from './onDemandVisibilityDoctrine.js';
 
 /** زِد هذا الرقم/التاريخ عند إضافة release note جديد — يظهر في GET /api/partner-assistant-chat */
-export const PARTNER_ASSISTANT_KNOWLEDGE_VERSION = '2026-05-23.3' as const;
+export const PARTNER_ASSISTANT_KNOWLEDGE_VERSION = '2026-06-10.1' as const;
 
 export type PartnerReleaseNote = {
   id: string;
@@ -53,6 +56,31 @@ export type PartnerReleaseNote = {
  * المساعد **ملزم** بالإجابة من هذا القسم عند السؤال عن التحديثات أو الميزات المذكورة.
  */
 export const PARTNER_PLATFORM_RELEASE_NOTES: readonly PartnerReleaseNote[] = [
+  {
+    id: 'owner-watch-salon-monitoring-2026-06-10',
+    date: '2026-06-10',
+    titleAr: 'غرفة المراقبة للمالك — Owner Watch (ذهبي/ماسي)',
+    summaryAr:
+      'طبقة إشراف منفصلة لصاحب الرخصة: يراقب تشغيل الصالون قراءة فقط من جواله — حالة المحل، نشاط الشات (عدّ فقط)، تنبيهات، ونبض تشغيلي في الماسي — دون قراءة نصوص الزبائن.',
+    topics: [
+      'غرفة المراقبة',
+      'Owner Watch',
+      'مالك',
+      'ذهبي',
+      'ماسي',
+      'مراقبة',
+      'إشراف',
+      'بريد التفعيل',
+    ],
+    bulletsAr: [
+      OWNER_WATCH_FEATURE_INTRO_AR,
+      OWNER_WATCH_FEATURE_GOLD_LINE_AR,
+      OWNER_WATCH_FEATURE_DIAMOND_LINE_AR,
+      'البرونزي: لا تتضمّن غرفة مراقبة — للتشغيل اليومي استخدم لوحة التحكم فقط.',
+      'المالك = نفس بريد تفعيل الرخصة؛ يصله رابط magic لمرة واحدة + رابط دائم للمفضلة في بريد التفعيل (ذهبي/ماسي).',
+      'قراءة فقط: لا تعديل للمنيو، لا رد على الشات، ولا عرض لنصوص محادثات العملاء — خصوصية محفوظة.',
+    ],
+  },
   {
     id: 'package-benefits-marketing-refresh-2026-05-23',
     date: '2026-05-23',
@@ -190,7 +218,9 @@ function composePartnerProductFactsPack(): string {
     '### مزايا الباقات — صياغة مقنعة للحلاق',
     '- **البرونزي:** بداية رسمية بأقل تعقيد: ظهور عند الطلب للمستخدمين المناسبين، بطاقة صالون فيها موقع/اتصال/واتساب/صور أساسية، أوقات عمل وحالة مفتوح/مغلق، وشهادة تفعيل بعد الدفع.',
     '- **الذهبي:** مناسب لتحويل الظهور إلى ثقة: كل مزايا البرونزي + معرض حتى 20 صورة، QR تقييم رسمي، واتساب وشات مباشر بجلسة خاصة 60 دقيقة، لوحة تحديث للصور والبنر والمنيو والأسعار، وخدمات كبار السن وذوي الاحتياجات عند توفرها.',
+    `- **الذهبي — غرفة المراقبة:** ${OWNER_WATCH_FEATURE_GOLD_LINE_AR}`,
     '- **الماسي:** مناسب للصالون الطموح للصدارة: كل مزايا الذهبي + أعلى أولوية ماسية، معرض حتى 40 صورة، بنر فاخر وشارة نخبة، شات مترجم فورياً، إدارة مواعيد وحجوزات، ودعم فني مخصص 24/7.',
+    `- **الماسي — غرفة المراقبة:** ${OWNER_WATCH_FEATURE_DIAMOND_LINE_AR}`,
     '- **المناوب الرقمي Add-on:** للماسية فقط؛ يرد في الشات عند الإغلاق أو تأخر الرد، يرحّب بالعميل، ويخفف ضغط التشغيل دون تغيير أسعار الخدمات أو تحصيل أموال.',
     '',
     '### رد جاهز على «لماذا لا يظهر اسمي دائماً على الخريطة؟»',
