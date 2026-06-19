@@ -1,39 +1,46 @@
 /**
- * Growth Pitch Deck — شرائح العرض التقديمي (مصدر واحد من عقيدة المنصة).
+ * Growth Pitch Deck — عرض تسويقي لأصحاب الصالونات (B2B).
  *
  * ═══ TEXT LOCK ═══
  * النصوص هنا معتمدة — لا يُعدّلها مصمم العرض.
  * الترتيب البصري والتجميل: `growthPitchTheme.ts` + `GrowthPitchSlideDeck.tsx`.
+ *
+ * الجمهور: مالك/مدير صالون — لغة فائدة وثقة، لا مصطلحات تقنية.
  */
 import { LISTING_LICENSE_PRICING_CARDS } from '@/config/listingLicenseCards';
-import { END_USER_TRANSPARENCY_CONTENT } from '@/config/endUserExperiencePolicy';
 import {
   DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
-  SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
   TIER_MONTHLY_SAR,
 } from '@/config/subscriptionPricing';
-import {
-  FOUNDER_END_USER_ACTION_AR,
-  FOUNDER_PARTNER_ACTION_AR,
-  FOUNDER_PLATFORM_ACTION_DOCTRINE_AR,
-  HALAQMAP_GROWTH_INEVITABILITY_AR,
-  ON_DEMAND_VISIBILITY_LABEL_EN,
-  ON_DEMAND_VISIBILITY_TAGLINE_SHORT_AR,
-  SMART_RESPONSE_SYSTEM_LABEL_AR,
-} from '@/config/onDemandVisibilityDoctrine';
-import {
-  PLATFORM_HERO_TRUST_LINE,
-  PLATFORM_HOW_IT_WORKS_STEPS,
-  PLATFORM_HOME_WELCOME_FEATURES,
-  PLATFORM_SMART_TRACKING_SLOGAN,
-  PLATFORM_SMART_TRACKING_SUBTEXT,
-} from '@/config/platformSmartTracking';
-import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentity';
 import { SubscriptionTier, ROUTE_PATHS } from '@/lib';
 
-export const GROWTH_PITCH_DECK_TITLE_AR = 'عرض النمو — حلاق ماب';
+export const GROWTH_PITCH_DECK_TITLE_AR = 'عرض حلاق ماب — لأصحاب الصالونات';
 export const GROWTH_PITCH_DECK_SUBTITLE_AR =
-  'مقارنة تسويقية نهائية · جذب الزبائن · نظام الاستجابة الذكية';
+  'زبائن أقرب · ظهور عند الطلب · باقات واضحة · بدون عمولة على الحلاقة';
+
+export const GROWTH_PITCH_TIER_COMPARE_SUBTITLE_AR =
+  'قارن ما يناسب حجم صالونك اليوم — من حضور أساسي إلى أولوية أعلى وخدمات أوضح للتواصل مع الزبون.';
+
+const GROWTH_PITCH_CUSTOMER_JOURNEY_STEPS = [
+  {
+    step: '١',
+    title: 'الزبون يبدأ الاستعلام',
+    description:
+      'يفتح المنصة ويسمح بموقعه — مجاناً وبدون حساب — ليرى من قريب يمكنه زيارته الآن.',
+  },
+  {
+    step: '٢',
+    title: 'يظهر صالونك بين الخيارات',
+    description:
+      'إذا كنت مشتركاً ومناسباً للطلب (قرب، مفتوح، نوع الخدمة…)، تُعرض بطاقة صالونك بصورك ووسائل تواصلك.',
+  },
+  {
+    step: '٣',
+    title: 'يتصل أو يراسلك مباشرة',
+    description:
+      'الزبون يكمل معك أنت — اتصال، واتساب، أو شات حسب باقاتك. لا وساطة ولا عمولة على قصّة الزبون.',
+  },
+] as const;
 
 export type GrowthPitchSlideAccent = 'teal' | 'amber' | 'violet' | 'slate';
 
@@ -68,7 +75,7 @@ export type GrowthPitchSlide =
       kind: 'steps';
       eyebrow: string;
       title: string;
-      steps: typeof PLATFORM_HOW_IT_WORKS_STEPS;
+      steps: typeof GROWTH_PITCH_CUSTOMER_JOURNEY_STEPS;
       accent: GrowthPitchSlideAccent;
     }
   | {
@@ -112,98 +119,101 @@ function buildTierColumns(): GrowthPitchTierColumn[] {
   });
 }
 
-function transparencyBullets(): string[] {
-  return END_USER_TRANSPARENCY_CONTENT.replace(/\*\*/g, '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-}
-
-/** شرائح العرض — ترتيب السرد التقديمي */
+/** شرائح العرض — سرد موجّه لصاحب الصالون */
 export const GROWTH_PITCH_SLIDES: readonly GrowthPitchSlide[] = [
   {
     id: 'opening',
     kind: 'hero',
-    eyebrow: SOFTWARE_PACKAGE_FOUNDATION_LABEL_AR,
-    title: PLATFORM_SMART_TRACKING_SLOGAN,
-    subtitle: `${PLATFORM_SMART_TRACKING_SUBTEXT}\n\n${PLATFORM_HERO_TRUST_LINE}`,
+    eyebrow: 'عرض لأصحاب الصالونات',
+    title: 'حلاق ماب — زبائن قريبون يصلون إليك عندما يحتاجون حلاقة',
+    subtitle:
+      'منصة تربطك بزبون قريب في اللحظة المناسبة — حضور رسمي لصالونك، تواصل مباشر، ولا عمولة على خدمة الحلاقة.\n\nتدفع مقابل حزمة ظهور رقمية — لا وساطة ولا حجز نيابة عنك.',
     accent: 'teal',
   },
   {
     id: 'problem',
     kind: 'bullets',
-    eyebrow: 'المشكلة · Problem',
-    title: 'الزبون يبحث في اللحظة — والصالون يريد طلباً حقيقياً لا «وجوداً شكلياً»',
+    eyebrow: 'لماذا يهمك هذا؟',
+    title: 'الكرسي الفارغ والمكالمة الضائعة — مشكلة يومية لكل صالون',
     bullets: [
-      'الحلاقة حاجة متكررة — التوقيت والقرب يحددان القرار.',
-      'قوائم دائمة تُشبع المساحة الرقمية دون ربط فعلي بالطلب.',
-      ON_DEMAND_VISIBILITY_TAGLINE_SHORT_AR,
-      PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR,
+      'الزبون يقرر في اللحظة: قريب، مفتوح، ويظهر جدّي — وليس «اسم في قائمة طويلة».',
+      'الإعلان العشوائي يكلف ولا يضمن طلباً حقيقياً في وقت فراغك.',
+      'اتصالات أثناء الإغلاق أو بعيدة عن موقعك تستهلك وقت فريقك بلا فائدة.',
+      'حلاق ماب يوجّه الطلب المناسب إلى صالونك — لا يعدك بزحمة دائمة.',
     ],
     accent: 'slate',
   },
   {
     id: 'attract-b2c',
     kind: 'bullets',
-    eyebrow: 'جذب الزبائن · B2C',
-    title: `كيف تجذب المنصة الزبون — «${FOUNDER_END_USER_ACTION_AR}»`,
-    subtitle: 'خدمة مجانية · بدون تسجيل · تواصل مباشر مع الصالون',
+    eyebrow: 'كيف يصل الزبون إليك؟',
+    title: 'مسار بسيط — من الاستعلام إلى اتصالك أنت',
+    subtitle: 'افهم رحلة الزبون حتى تعرف ماذا يحدث لصالونك بعد الاشتراك',
     bullets: [
-      `الفعل الوحيد للزائر: «${FOUNDER_END_USER_ACTION_AR}» ثم إذن الموقع — لا «بحث بالمدينة».`,
-      'معالجة لحظية + فلاتر (مفتوح الآن، نوع الخدمة…) → بطاقة صالون كاملة.',
-      'اتصال · واتساب · شات (ذهبي/ماسي) — بدون وساطة ولا عمولة على الحلاقة.',
-      ...PLATFORM_HOME_WELCOME_FEATURES.map((f) => `${f.title}: ${f.description}`),
+      'الزبون يبدأ الاستعلام ويسمح بموقعه — الخدمة مجانية له ولا يحتاج حساباً.',
+      'المنصة تعرض الصالونات القريبة والمناسبة: مفتوح الآن، نوع الخدمة، ومسافة معقولة.',
+      'يرى بطاقة صالونك: صور، بنر، اتصال، واتساب، وحالة مفتوح/مغلق.',
+      'يتواصل معك مباشرة — أنت من يحدد الموعد والسعر والخدمة، دون وسيط.',
+      'لا عمولة على الحلاقة — دور المنصة ربط وظهور، لا فرض حجز.',
     ],
     accent: 'teal',
   },
   {
     id: 'transparency',
     kind: 'bullets',
-    eyebrow: 'الشفافية · لا وعود فارغة',
-    title: 'ما لا تفعله المنصة — عمداً',
-    bullets: transparencyBullets(),
+    eyebrow: 'وضوح قبل الاشتراك',
+    title: 'ما الذي تتوقعه — وما الذي لا نعد به',
+    bullets: [
+      'لا «قائمة دائمة» تملأ الشاشة — صالونك يظهر عندما يوجد طلب مناسب لبياناتك.',
+      'لا بحث بالمدينة بدل الموقع — الزبون يبدأ بالاستعلام وموقعه.',
+      'بدون موافقة الزبون على الموقع لا تُعرض نتائج — شفافية مع الجميع.',
+      'إذا لم يكن هناك طلب مناسب، لا نعدّ بزبائن وهميين.',
+      'لا نحجز عنك ولا نأخذ نسبة من قصّة الزبون — التنسيق مباشرة معك.',
+    ],
     accent: 'amber',
   },
   {
     id: 'how-it-works',
     kind: 'steps',
-    eyebrow: `رحلة الزبون · ${ON_DEMAND_VISIBILITY_LABEL_EN}`,
-    title: 'ثلاث خطوات — من الاستعلام إلى التواصل',
-    steps: PLATFORM_HOW_IT_WORKS_STEPS,
+    eyebrow: 'ثلاث خطوات للزبون',
+    title: 'من الاستعلام إلى تواصلك — باختصار',
+    steps: GROWTH_PITCH_CUSTOMER_JOURNEY_STEPS,
     accent: 'violet',
   },
   {
     id: 'trust',
     kind: 'bullets',
-    eyebrow: 'لماذا يثق الزبون',
-    title: 'إشارات ثقة ترفع التحويل — لا مجرد «اسم على خريطة»',
+    eyebrow: 'ما الذي يرفع ثقة الزبون؟',
+    title: 'كلما بدا صالونك جاداً — زادت احتمالية الاتصال',
     bullets: [
-      'QR تقييم موثّق · معرض صور · بنر وبطاقة صالون واضحة.',
-      'حالة «مفتوح/مغلق» لحظية — أقل اتصالات في وقت الإغلاق.',
-      'شهادة تفعيل ورقم رخصة نفاذ — حضور رسمي للشريك.',
-      'غرفة مراقبة للمالك (ذهبي/ماسي) — إشراف دون التدخل في خصوصية الزبون.',
+      'معرض صور حقيقي وبنر واضح — انطباع قبل أول زيارة.',
+      'تقييمات `QR` موثّقة — خصوصاً في الباقة الذهبية.',
+      'حالة «مفتوح/مغلق» — أقل مكالمات أثناء الإغلاق.',
+      'شهادة تفعيل ورقم رخصة نفاذ — حضورك رسمي على المنصة.',
+      'غرفة مراقبة للمالك (ذهبي/ماسي) — متابعة فريقك دون إزعاج خصوصية الزبون.',
     ],
     accent: 'violet',
   },
   {
     id: 'tier-compare',
     kind: 'comparison',
-    eyebrow: 'المقارنة النهائية · B2B',
-    title: 'حزم رخصة النفاذ — صياغة تسويقية موحّدة',
-    subtitle: FOUNDER_PLATFORM_ACTION_DOCTRINE_AR,
+    eyebrow: 'الباقات — اختر ما يناسب صالونك',
+    title: 'حزم رخصة النفاذ — ماذا تحصل في كل باقة؟',
+    subtitle: GROWTH_PITCH_TIER_COMPARE_SUBTITLE_AR,
     tiers: buildTierColumns(),
-    footnote: `الماسي + Add-on المناوب: +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة · ${cardForTier(SubscriptionTier.DIAMOND).premiumRibbonAr ?? ''}`.trim(),
+    footnote: `الماسي + إضافة المناوب: +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة · ${cardForTier(SubscriptionTier.DIAMOND).premiumRibbonAr ?? ''}`.trim(),
     accent: 'teal',
   },
   {
     id: 'partner-growth',
     kind: 'bullets',
-    eyebrow: 'قيمة الشريك',
-    title: 'وصول المنصة للمستخدمين — مسألة وقت',
+    eyebrow: 'لماذا الانضمام الآن؟',
+    title: 'الطلب على الحلاقة لا يتوقف — مكانك في المنصة يُحجز مبكراً',
     bullets: [
-      HALAQMAP_GROWTH_INEVITABILITY_AR,
-      `للشريك: «${FOUNDER_PARTNER_ACTION_AR}» — رخصة برمجية 30 يوم/حزمة، لا عمولة على القصة.`,
-      `${SMART_RESPONSE_SYSTEM_LABEL_AR}: كفاءة استهداف — كل طلب مناسب فرصة ظهور.`,
+      'كلما اكتملت شبكة الصالونات في منطقتك، صار الوصول للزبون أسهل — والمنافسة على الظهور أعلى.',
+      'من يسجّل الآن يبني حضوراً رسمياً قبل موجة التوسع القادمة.',
+      'حزمة رقمية 30 يوماً — تفعيل واضح، بدون عمولة على خدمة الحلاقة.',
+      'فريق المنصة يتابع معك التسجيل والتفعيل — لا تحتاج خبرة تقنية.',
     ],
     accent: 'amber',
   },
@@ -211,10 +221,10 @@ export const GROWTH_PITCH_SLIDES: readonly GrowthPitchSlide[] = [
     id: 'cta',
     kind: 'cta',
     eyebrow: 'الخطوة التالية',
-    title: 'جاهز للعرض — مساران واضحان',
-    subtitle: 'B2C: جرّب الاستعلام · B2B: سجّل طلبك أو افتح مركز الباقات',
-    consumerCta: { label: `${FOUNDER_END_USER_ACTION_AR} — الرئيسية`, href: ROUTE_PATHS.HOME },
-    partnerCta: { label: `${FOUNDER_PARTNER_ACTION_AR} — مسار المنشآت`, href: ROUTE_PATHS.BARBERS_LANDING },
+    title: 'جاهز لتسجيل صالونك؟',
+    subtitle: 'سجّل طلبك — نراجع بياناتك ونرتّب الباقة والتفعيل معك. يمكنك أيضاً مشاهدة تجربة الزبون من الرئيسية.',
+    consumerCta: { label: 'شاهد تجربة الزبون — الرئيسية', href: ROUTE_PATHS.HOME },
+    partnerCta: { label: 'سجّل طلبك — مسار المنشآت', href: ROUTE_PATHS.BARBERS_LANDING },
     accent: 'teal',
   },
 ];

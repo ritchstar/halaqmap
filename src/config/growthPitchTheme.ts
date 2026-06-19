@@ -39,20 +39,20 @@ export const GROWTH_PITCH_SLIDE_LAYOUT: Record<string, GrowthPitchSlideLayout> =
 export type GrowthPitchLane = 'b2c' | 'b2b' | 'neutral';
 
 export const GROWTH_PITCH_SLIDE_LANE: Record<string, GrowthPitchLane> = {
-  opening: 'neutral',
-  problem: 'neutral',
+  opening: 'b2b',
+  problem: 'b2b',
   'attract-b2c': 'b2c',
-  transparency: 'b2c',
+  transparency: 'b2b',
   'how-it-works': 'b2c',
-  trust: 'b2c',
+  trust: 'b2b',
   'tier-compare': 'b2b',
   'partner-growth': 'b2b',
-  cta: 'neutral',
+  cta: 'b2b',
 };
 
 export const GROWTH_PITCH_LANE_LABEL: Record<GrowthPitchLane, string> = {
-  b2c: 'مسار الزبون · B2C',
-  b2b: 'مسار الشريك · B2B',
+  b2c: 'رحلة الزبون',
+  b2b: 'صالونك ونموّك',
   neutral: 'حلاق ماب',
 };
 

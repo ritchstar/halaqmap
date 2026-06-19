@@ -320,9 +320,9 @@ export function GrowthPitchSlideDeck() {
           <HalaqmapBrandMark className="h-9 w-9 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/15" />
           <div className="min-w-0">
             <p className="text-[0.7rem] font-bold uppercase tracking-widest text-teal-400/80">
-              Growth Pitch Deck
+              عرض الشركاء
             </p>
-            <p className="truncate text-[0.68rem] text-slate-500">← → · F ملء الشاشة · نص مقفل</p>
+            <p className="truncate text-[0.68rem] text-slate-500">← → · F ملء الشاشة · لأصحاب الصالونات</p>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">

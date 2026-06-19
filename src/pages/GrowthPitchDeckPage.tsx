@@ -7,7 +7,7 @@ import {
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 /**
- * عرض تقديمي داخلي — شرائح مقارنة تسويقية + جذب الزبائن.
+ * عرض تسويقي لأصحاب الصالونات — يُشارك عبر واتساب والاجتماعات.
  * المسار: ROUTE_PATHS.GROWTH_PITCH_DECK — لا يُربط من القوائم العامة.
  */
 export default function GrowthPitchDeckPage() {
@@ -25,7 +25,7 @@ export default function GrowthPitchDeckPage() {
 
   return (
     <>
-      <p className="sr-only">عرض تقديمي داخلي لحلاق ماب — للاستخدام في الاجتماعات والعروض</p>
+      <p className="sr-only">عرض تسويقي لحلاق ماب — موجّه لأصحاب الصالونات</p>
       <GrowthPitchSlideDeck />
     </>
   );
