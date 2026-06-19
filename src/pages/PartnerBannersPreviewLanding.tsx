@@ -226,11 +226,20 @@ export default function PartnerBannersPreviewLanding() {
             <h2 className="text-xl font-extrabold leading-snug text-slate-950 md:text-2xl">
               {PARTNER_FEATURE_PREVIEW_DASHBOARD.title}
             </h2>
-            <motion.div className="space-y-4 text-sm leading-8 text-slate-600">
-              {PARTNER_FEATURE_PREVIEW_DASHBOARD.paragraphs.map((p) => (
-                <p key={p}>{p}</p>
+            <p className="text-sm leading-7 text-slate-600">{PARTNER_FEATURE_PREVIEW_DASHBOARD.lead}</p>
+            <ul className="space-y-2.5 text-sm leading-relaxed text-slate-700">
+              {PARTNER_FEATURE_PREVIEW_DASHBOARD.bullets.map((bullet) => (
+                <li key={bullet} className="flex gap-2.5">
+                  <span className="mt-1 shrink-0 text-teal-600" aria-hidden>
+                    •
+                  </span>
+                  <span>{bullet}</span>
+                </li>
               ))}
-            </motion.div>
+            </ul>
+            <p className="rounded-xl border border-cyan-100 bg-cyan-50/90 px-3.5 py-2.5 text-[0.72rem] font-semibold leading-relaxed text-cyan-950">
+              {PARTNER_FEATURE_PREVIEW_DASHBOARD.tierNote}
+            </p>
           </motion.div>
         </motion.section>
 
