@@ -41,6 +41,7 @@ const ShopOpenStatus = lazy(() => import("@/pages/ShopOpenStatus"));
 const BarberGrowthLanding = lazy(() => import("@/pages/BarberGrowthLanding"));
 const InternalPartnerPathPrintCard = lazy(() => import("@/pages/InternalPartnerPathPrintCard"));
 const InvoicePreviewSamples = lazy(() => import("@/pages/InvoicePreviewSamples"));
+const GrowthPitchDeckPage = lazy(() => import("@/pages/GrowthPitchDeckPage"));
 const PartnerInterestLanding = lazy(() => import("@/pages/PartnerInterestLanding"));
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
@@ -191,6 +192,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.LANDING_PARTNERS_PREVIEW} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD} element={<LazyRoute><InternalPartnerPathPrintCard /></LazyRoute>} />
           <Route path={ROUTE_PATHS.INVOICE_PREVIEW_SAMPLES} element={<LazyRoute><InvoicePreviewSamples /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.GROWTH_PITCH_DECK} element={<LazyRoute><GrowthPitchDeckPage /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW}
             element={
