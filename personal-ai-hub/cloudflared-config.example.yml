@@ -1,0 +1,31 @@
+# Cloudflare Tunnel — ritchperfume.com
+#
+# 1) cloudflared tunnel login
+# 2) cloudflared tunnel create ritch-ai-hub
+# 3) cloudflared tunnel route dns ritch-ai-hub ai.ritchperfume.com
+#    cloudflared tunnel route dns ritch-ai-hub n8n.ritchperfume.com
+#    cloudflared tunnel route dns ritch-ai-hub home.ritchperfume.com
+# 4) انسخ إلى: C:\Users\hp\.cloudflared\config.yml
+#    واستبدل YOUR-TUNNEL-UUID ومسار credentials
+
+tunnel: YOUR-TUNNEL-UUID
+credentials-file: C:\Users\hp\.cloudflared\YOUR-TUNNEL-UUID.json
+
+ingress:
+  - hostname: ai.ritchperfume.com
+    service: http://localhost:8080
+
+  - hostname: n8n.ritchperfume.com
+    service: http://localhost:5678
+
+  - hostname: home.ritchperfume.com
+    service: http://localhost:8090
+
+  # اختياري: الجذر → البوابة
+  - hostname: ritchperfume.com
+    service: http://localhost:8090
+
+  - hostname: www.ritchperfume.com
+    service: http://localhost:8090
+
+  - service: http_status:404

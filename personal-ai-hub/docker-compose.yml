@@ -1,0 +1,71 @@
+# Personal AI Hub — Ollama (اختياري داخل Docker) + Open WebUI + n8n
+# Windows: يُفضّل Ollama مثبتاً على الجهاز + USE_HOST_OLLAMA=true في .env
+
+services:
+  # ── Ollama (عطّله إذا ثبّت Ollama على Windows مباشرة) ──
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pai-ollama
+    profiles: ["docker-ollama"]
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # NVIDIA GPU (Linux/WSL2 + toolkit) — أزل التعليق إن وُجد:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: pai-open-webui
+    restart: unless-stopped
+    ports:
+      - "${OPEN_WEBUI_PORT:-8080}:8080"
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:-change-me-in-env}
+      ENABLE_RAG_WEB_SEARCH: "false"
+      RAG_EMBEDDING_MODEL: ${RAG_EMBEDDING_MODEL:-nomic-embed-text}
+    volumes:
+      - open_webui_data:/app/backend/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: pai-n8n
+    restart: unless-stopped
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      GENERIC_TIMEZONE: ${TZ:-Asia/Riyadh}
+      TZ: ${TZ:-Asia/Riyadh}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-change-me-32-chars-minimum!!}
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+  # صفحة بوابة شخصية خفيفة (اختياري)
+  portal:
+    image: nginx:alpine
+    container_name: pai-portal
+    profiles: ["portal"]
+    restart: unless-stopped
+    ports:
+      - "${PORTAL_PORT:-8090}:80"
+    volumes:
+      - ./portal/index.html:/usr/share/nginx/html/index.html:ro
+
+volumes:
+  ollama_data:
+  open_webui_data:
+  n8n_data:
