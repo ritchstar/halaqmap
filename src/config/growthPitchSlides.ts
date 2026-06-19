@@ -1,5 +1,9 @@
 /**
  * Growth Pitch Deck — شرائح العرض التقديمي (مصدر واحد من عقيدة المنصة).
+ *
+ * ═══ TEXT LOCK ═══
+ * النصوص هنا معتمدة — لا يُعدّلها مصمم العرض.
+ * الترتيب البصري والتجميل: `growthPitchTheme.ts` + `GrowthPitchSlideDeck.tsx`.
  */
 import { LISTING_LICENSE_PRICING_CARDS } from '@/config/listingLicenseCards';
 import { END_USER_TRANSPARENCY_CONTENT } from '@/config/endUserExperiencePolicy';
