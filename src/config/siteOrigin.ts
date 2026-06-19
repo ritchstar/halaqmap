@@ -1,5 +1,7 @@
 /** مطابق لـ ROUTE_PATHS.PAYMENT — يُعرَّف هنا لتفادي استيراد حلاق ماب/index من طبقة الإعدادات. */
 const PARTNER_PAYMENT_PATH = '/partners/payment';
+/** مطابق لـ ROUTE_PATHS.GROWTH_PITCH_DECK */
+const GROWTH_PITCH_DECK_PATH = '/m/growth-pitch-deck';
 
 /** أصل الموقع العام (روابط canonical و JSON-LD و OG). يُفضّل ضبط VITE_SITE_ORIGIN في الإنتاج. */
 export function getSiteOrigin(): string {
@@ -34,4 +36,20 @@ export function buildAbsolutePartnerPaymentUrl(opts: {
     q.set('aiAddon', '1');
   }
   return `${base}/#${PARTNER_PAYMENT_PATH}?${q.toString()}`;
+}
+
+/**
+ * رابط مطلق لعرض النمو (HashRouter) — للإحالة من غرفة القيادة وواتساب.
+ * مثال: `https://www.halaqmap.com/#/m/growth-pitch-deck?src=cc`
+ */
+export function buildAbsoluteGrowthPitchDeckUrl(opts?: {
+  src?: string;
+  ref?: string;
+}): string {
+  const base = getSiteOrigin().replace(/\/+$/, '');
+  const q = new URLSearchParams();
+  if (opts?.src?.trim()) q.set('src', opts.src.trim());
+  if (opts?.ref?.trim()) q.set('ref', opts.ref.trim());
+  const qs = q.toString();
+  return `${base}/#${GROWTH_PITCH_DECK_PATH}${qs ? `?${qs}` : ''}`;
 }

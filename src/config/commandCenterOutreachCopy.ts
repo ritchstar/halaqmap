@@ -2,16 +2,37 @@ import {
   ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
   SMART_RESPONSE_SYSTEM_LABEL_AR,
 } from '@/config/onDemandVisibilityDoctrine';
+import { buildAbsoluteGrowthPitchDeckUrl } from '@/config/siteOrigin';
 
 export type CommandCenterOutreachTierFit = 'bronze' | 'gold' | 'diamond' | 'mixed';
 export type CommandCenterOutreachVariant = 'initial' | 'followup';
-export type CommandCenterOutreachLength = 'full' | 'short';
+/** deck = مقدمة + رابط عرض النمو (الافتراضي في غرفة القيادة) */
+export type CommandCenterOutreachLength = 'deck' | 'full' | 'short';
+
+export const COMMAND_CENTER_OUTREACH_DEFAULT_LENGTH: CommandCenterOutreachLength = 'deck';
 
 const UNKNOWN_LOCATION = 'غير محدد';
 
-/** مقدمة موحّدة — مرحلة ما قبل التشغيل الكامل للاستعلامات. */
-export const COMMAND_CENTER_OUTREACH_SALUTATION_AR = (salonName: string) =>
-  `مرحباً ${salonName}،`;
+export const COMMAND_CENTER_OUTREACH_DECK_LINK_INTRO_AR =
+  'عرض مختصر يشرح المنصة والباقات و`نظام الاستجابة الذكية`:';
+
+/** رابط الإحالة المعتمد — مصدر واحد لغرفة القيادة وواتساب. */
+export function commandCenterGrowthPitchDeckUrl(variant: CommandCenterOutreachVariant = 'initial'): string {
+  return buildAbsoluteGrowthPitchDeckUrl({
+    src: 'cc',
+    ref: variant === 'followup' ? 'whatsapp-followup' : 'whatsapp-initial',
+  });
+}
+
+/** ترحيب — عنوان الصالون بجانب الاسم، لا بجانب «فريق حلاق ماب». */
+export const COMMAND_CENTER_OUTREACH_SALUTATION_AR = (
+  salonName: string,
+  cityLabel?: string | null,
+) => {
+  const loc = cityLabel?.trim();
+  if (loc) return `مرحباً ${salonName} — ${loc}،`;
+  return `مرحباً ${salonName}،`;
+};
 
 export const COMMAND_CENTER_OUTREACH_TIER_LABELS: Record<CommandCenterOutreachTierFit, string> = {
   bronze: 'برونزي',
@@ -110,43 +131,90 @@ export function buildCommandCenterOutreachBody(tierFit: CommandCenterOutreachTie
   }
 }
 
-function buildShortInitialBody(tierFit: CommandCenterOutreachTierFit, cityLabel: string | null): string {
-  const loc = cityLabel ? ` في ${cityLabel}` : '';
+function buildShortInitialBody(tierFit: CommandCenterOutreachTierFit): string {
   switch (tierFit) {
     case 'bronze':
       return [
         'السلام عليكم ورحمة الله وبركاته.',
-        `معكم فريق حلاق ماب${loc}. نُجهّز شركاء «برونزي» للظهور عند الطلب عبر \`نظام الاستجابة الذكية\` — دون وساطة حجز.`,
+        'معكم فريق حلاق ماب. نُجهّز شركاء «برونزي» للظهور عند الطلب عبر `نظام الاستجابة الذكية` — دون وساطة حجز.',
         'هل نرسل ملخص نقطة الدخول وخطوات التسجيل؟',
       ].join('\n');
     case 'gold':
       return [
         'السلام عليكم ورحمة الله وبركاته.',
-        `معكم فريق حلاق ماب${loc}. باقة «ذهبي»: معرض أعمال + تقييمات \`QR\` + ظهور عند الطلب.`,
+        `معكم فريق حلاق ماب. باقة «ذهبي»: معرض أعمال + تقييمات \`QR\` + ظهور عند الطلب.`,
         'نُتابع من غرفة القيادة عند التشغيل. نرسل التفاصيل؟',
       ].join('\n');
     case 'diamond':
       return [
         'السلام عليكم ورحمة الله وبركاته.',
-        `معكم فريق حلاق ماب${loc}. باقة «ماسي»: أولوية أعلى + لوحة كاملة + ظهور عند الطلب.`,
+        `معكم فريق حلاق ماب. باقة «ماسي»: أولوية أعلى + لوحة كاملة + ظهور عند الطلب.`,
         'نُتابع من غرفة القيادة عند التشغيل. نرسل ملخص الماسي؟',
       ].join('\n');
     default:
       return [
         'السلام عليكم ورحمة الله وبركاته.',
-        `معكم فريق حلاق ماب${loc} — \`نظام الاستجابة الذكية\`: ظهور عند الطلب، دون وساطة حجز.`,
+        `معكم فريق حلاق ماب — \`نظام الاستجابة الذكية\`: ظهور عند الطلب، دون وساطة حجز.`,
         'نُكمل قائمة الشركاء قبل التشغيل. نرسل ملخص الباقات (برونزي · ذهبي · ماسي)؟',
       ].join('\n');
   }
 }
 
-function buildShortFollowupBody(cityLabel: string | null): string {
-  const loc = cityLabel ? ` في ${cityLabel}` : '';
+function buildShortFollowupBody(): string {
   return [
     'السلام عليكم مجدداً.',
-    `تذكير لطيف من حلاق ماب${loc} — ما زلنا نُكمل قائمة \`نظام الاستجابة الذكية\`.`,
+    'تذكير لطيف من فريق حلاق ماب — ما زلنا نُكمل قائمة `نظام الاستجابة الذكية`.',
     'نرسل ملخص الباقات أو نوضّح الظهور عند الطلب؟',
   ].join('\n');
+}
+
+function buildDeckTierLine(tierFit: CommandCenterOutreachTierFit): string {
+  switch (tierFit) {
+    case 'bronze':
+      return 'نُجهّز شركاء «برونزي» — ظهور عند الطلب ضمن `نظام الاستجابة الذكية`، دون وساطة حجز.';
+    case 'gold':
+      return 'رصدنا صالونكم كخيار مناسب لباقة «ذهبي» — معرض أعمال وتقييمات `QR` وظهور عند الطلب.';
+    case 'diamond':
+      return 'رصدنا صالونكم كخيار قوي لباقة «ماسي» — أولوية أعلى ولوحة تحكم كاملة وظهور عند الطلب.';
+    default:
+      return 'نُجهّز قائمة شركاء `نظام الاستجابة الذكية` — ظهور عند الطلب، دون وساطة حجز ولا عمولة على الخدمة.';
+  }
+}
+
+function buildDeckInitialBody(
+  tierFit: CommandCenterOutreachTierFit,
+  variant: CommandCenterOutreachVariant,
+): string {
+  const url = commandCenterGrowthPitchDeckUrl(variant);
+  return [
+    'السلام عليكم ورحمة الله وبركاته.',
+    `معكم فريق حلاق ماب.`,
+    buildDeckTierLine(tierFit),
+    '',
+    COMMAND_CENTER_OUTREACH_DECK_LINK_INTRO_AR,
+    url,
+    '',
+    'ننتظر رأيكم — ونسعد بالرد على أي سؤال.',
+  ].join('\n');
+}
+
+function buildDeckFollowupBody(variant: CommandCenterOutreachVariant): string {
+  const url = commandCenterGrowthPitchDeckUrl(variant);
+  return [
+    'السلام عليكم مجدداً.',
+    `تذكير لطيف من فريق حلاق ماب — ما زلنا نُكمل قائمة الشركاء.`,
+    '',
+    COMMAND_CENTER_OUTREACH_DECK_LINK_INTRO_AR,
+    url,
+    '',
+    'شكراً لوقتكم.',
+  ].join('\n');
+}
+
+export function appendGrowthPitchDeckLinkToOutreachBody(body: string, variant: CommandCenterOutreachVariant): string {
+  const trimmed = body.trim();
+  const url = commandCenterGrowthPitchDeckUrl(variant);
+  return `${trimmed}\n\n${COMMAND_CENTER_OUTREACH_DECK_LINK_INTRO_AR}\n${url}`;
 }
 
 export function buildCommandCenterOutreachMessage(input: {
@@ -159,15 +227,20 @@ export function buildCommandCenterOutreachMessage(input: {
 }): string {
   const tierFit = input.tierFit ?? 'mixed';
   const variant = input.variant ?? 'initial';
-  const length = input.length ?? 'full';
+  const length = input.length ?? COMMAND_CENTER_OUTREACH_DEFAULT_LENGTH;
   const cityLabel = formatOutreachCityLabel(input.city, input.region);
 
   let body: string;
-  if (length === 'short') {
+  if (length === 'deck') {
     body =
       variant === 'followup'
-        ? buildShortFollowupBody(cityLabel)
-        : buildShortInitialBody(tierFit, cityLabel);
+        ? buildDeckFollowupBody(variant)
+        : buildDeckInitialBody(tierFit, variant);
+  } else if (length === 'short') {
+    body =
+      variant === 'followup'
+        ? buildShortFollowupBody()
+        : buildShortInitialBody(tierFit);
   } else {
     body =
       variant === 'followup'
@@ -175,7 +248,7 @@ export function buildCommandCenterOutreachMessage(input: {
         : applyCityToOutreachBody(buildCommandCenterOutreachBody(tierFit), cityLabel);
   }
 
-  return `${COMMAND_CENTER_OUTREACH_SALUTATION_AR(input.salonName)}\n\n${body}`;
+  return `${COMMAND_CENTER_OUTREACH_SALUTATION_AR(input.salonName, cityLabel)}\n\n${body}`;
 }
 
 export function commandCenterOutreachPreviewLabel(input: {
@@ -184,13 +257,20 @@ export function commandCenterOutreachPreviewLabel(input: {
   length?: CommandCenterOutreachLength;
   usesSuggestedPitch?: boolean;
 }): string {
-  if (input.usesSuggestedPitch) return 'رسالة مخصّصة (B2B)';
+  if (input.usesSuggestedPitch) {
+    return input.length === 'deck' ? 'رسالة مخصّصة (B2B) + رابط' : 'رسالة مخصّصة (B2B)';
+  }
   const tier = COMMAND_CENTER_OUTREACH_TIER_LABELS[input.tierFit ?? 'mixed'];
   const variant = input.variant === 'followup' ? 'متابعة' : 'أولى';
-  const length = input.length === 'short' ? 'مختصرة' : 'كاملة';
+  const length =
+    input.length === 'deck'
+      ? 'عرض + رابط'
+      : input.length === 'short'
+        ? 'مختصرة'
+        : 'كاملة';
   return `${tier} · ${variant} · ${length}`;
 }
 
 /** تذكير داخلي للفريق — لا يُنسخ للعميل. */
 export const COMMAND_CENTER_OUTREACH_INTERNAL_NOTE_AR =
-  `الرسائل الجاهزة تتماشى مع ${SMART_RESPONSE_SYSTEM_LABEL_AR} — لا تعد بظهور دائم ولا وساطة حجز. التواصل المباشر يُدار من غرفة القيادة عند التشغيل.`;
+  `الرسائل الجاهزة تتماشى مع ${SMART_RESPONSE_SYSTEM_LABEL_AR} — لا تعد بظهور دائم ولا وساطة حجز. التواصل المباشر يُدار من غرفة القيادة عند التشغيل. الإحالة الافتراضية: عرض النمو (Growth Pitch Deck) عبر رابط واحد — لا تكرار الشرح الطويل في واتساب.`;

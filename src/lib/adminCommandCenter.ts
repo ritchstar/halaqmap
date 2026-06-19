@@ -1,6 +1,10 @@
 import {
+  appendGrowthPitchDeckLinkToOutreachBody,
   buildCommandCenterOutreachMessage,
+  COMMAND_CENTER_OUTREACH_DEFAULT_LENGTH,
+  COMMAND_CENTER_OUTREACH_SALUTATION_AR,
   DEFAULT_OUTREACH_MESSAGE,
+  formatOutreachCityLabel,
   type CommandCenterOutreachLength,
   type CommandCenterOutreachTierFit,
   type CommandCenterOutreachVariant,
@@ -52,10 +56,18 @@ export function prospectOutreachMessage(
   prospect: Pick<PartnerProspect, 'name' | 'city' | 'region' | 'suggestedPitch' | 'tierFit'>,
   options: ProspectOutreachOptions = {},
 ): string {
-  const { variant = 'initial', length = 'full' } = options;
-  if (length === 'full' && variant === 'initial' && prospect.suggestedPitch?.trim()) {
-    return prospect.suggestedPitch.trim();
+  const { variant = 'initial', length = COMMAND_CENTER_OUTREACH_DEFAULT_LENGTH } = options;
+  const suggestedPitch = prospect.suggestedPitch?.trim();
+  const cityLabel = formatOutreachCityLabel(prospect.city, prospect.region);
+
+  if (length === 'deck' && variant === 'initial' && suggestedPitch) {
+    return `${COMMAND_CENTER_OUTREACH_SALUTATION_AR(prospect.name, cityLabel)}\n\n${appendGrowthPitchDeckLinkToOutreachBody(suggestedPitch, variant)}`;
   }
+
+  if (length === 'full' && variant === 'initial' && suggestedPitch) {
+    return suggestedPitch;
+  }
+
   return buildCommandCenterOutreachMessage({
     salonName: prospect.name,
     tierFit: prospect.tierFit as CommandCenterOutreachTierFit,

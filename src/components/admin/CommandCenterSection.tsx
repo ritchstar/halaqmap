@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Eye,
   MessageSquare,
+  Presentation,
   type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,9 @@ import { Switch } from '@/components/ui/switch';
 import { ROUTE_PATHS, SubscriptionRequest, Payment, AdminStats } from '@/lib';
 import { toast } from '@/hooks/use-toast';
 import {
+  COMMAND_CENTER_OUTREACH_DEFAULT_LENGTH,
   COMMAND_CENTER_OUTREACH_INTERNAL_NOTE_AR,
+  commandCenterGrowthPitchDeckUrl,
   commandCenterOutreachPreviewLabel,
   type CommandCenterOutreachLength,
   type CommandCenterOutreachVariant,
@@ -134,6 +137,7 @@ export function CommandCenterSection({
   const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://www.halaqmap.com';
   const partnersLandingUrl = `${siteOrigin}/#/partners`;
   const partnersRegisterUrl = `${siteOrigin}/#/partners/register`;
+  const growthPitchDeckUrl = commandCenterGrowthPitchDeckUrl('initial');
   const hospitalityB2BRequestUrl = `${siteOrigin}/#${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}`;
   const partnerPathPrintCardUrl = `${siteOrigin}/#${ROUTE_PATHS.INTERNAL_PARTNER_PATH_PRINT_CARD}`;
   const privatePartnerFaq = [
@@ -338,6 +342,13 @@ export function CommandCenterSection({
       outreachPreview.prospect.suggestedPitch?.trim(),
   );
 
+  const outreachPreviewUsesSuggestedWithDeck = Boolean(
+    outreachPreview &&
+      outreachPreview.length === 'deck' &&
+      outreachPreview.variant === 'initial' &&
+      outreachPreview.prospect.suggestedPitch?.trim(),
+  );
+
   const setLeadPatch = (id: string, patch: PartnerProspectPatch) => {
     setProspects((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
 
@@ -357,21 +368,36 @@ export function CommandCenterSection({
   const copyLeadPitch = async (prospect: PartnerProspect, options: ProspectOutreachOptions = {}) => {
     const text = prospectOutreachMessage(prospect, options);
     const variant = options.variant ?? 'initial';
-    const length = options.length ?? 'full';
+    const length = options.length ?? COMMAND_CENTER_OUTREACH_DEFAULT_LENGTH;
     try {
       await navigator.clipboard.writeText(text);
       toast({
         title:
           variant === 'followup'
             ? 'تم نسخ رسالة المتابعة'
-            : length === 'short'
-              ? 'تم نسخ النسخة المختصرة'
-              : 'تم نسخ الرسالة',
+            : length === 'deck'
+              ? 'تم نسخ رسالة العرض + الرابط'
+              : length === 'short'
+                ? 'تم نسخ النسخة المختصرة'
+                : 'تم نسخ الرسالة',
         description: `جاهزة للإرسال إلى ${prospect.name}`,
       });
     } catch {
       toast({ title: 'تعذر النسخ', description: 'انسخ الرسالة يدوياً.', variant: 'destructive' });
     }
+  };
+
+  const copyGrowthPitchDeckLink = async (variant: CommandCenterOutreachVariant = 'initial') => {
+    try {
+      await navigator.clipboard.writeText(commandCenterGrowthPitchDeckUrl(variant));
+      toast({ title: 'تم نسخ رابط العرض', description: 'Growth Pitch Deck — جاهز للمشاركة' });
+    } catch {
+      toast({ title: 'تعذر النسخ', description: 'انسخ الرابط يدوياً.', variant: 'destructive' });
+    }
+  };
+
+  const openGrowthPitchDeckPreview = () => {
+    window.open(growthPitchDeckUrl, '_blank', 'noopener,noreferrer');
   };
 
   const openLeadChannel = (prospect: PartnerProspect, options: ProspectOutreachOptions = {}) => {
@@ -635,13 +661,19 @@ export function CommandCenterSection({
                     {partnerPathPrintCardUrl}
                   </a>
                 </p>
+                <p>
+                  عرض النمو (Growth Pitch Deck — إحالة واتساب):{' '}
+                  <a className="underline" href={growthPitchDeckUrl} target="_blank" rel="noopener noreferrer">
+                    {growthPitchDeckUrl}
+                  </a>
+                </p>
               </div>
               <div className="rounded-lg border border-border bg-background p-3">
                 <p className="text-sm font-semibold mb-1">نص واتساب داخلي مقترح</p>
                 <p className="text-xs text-muted-foreground leading-6">
-                  انضم الآن إلى منصة حلاق ماب واحجز بنرك التسويقي قبل موجة التوسع القادمة. تفاصيل الانضمام:
+                  مقدمة تعريفية قصيرة + رابط عرض النمو — الشرح الكامل داخل الشرائح، لا تكرار في واتساب:
                   {' '}
-                  {partnersLandingUrl}
+                  {growthPitchDeckUrl}
                 </p>
               </div>
             </div>
@@ -929,7 +961,7 @@ export function CommandCenterSection({
                         {commandCenterOutreachPreviewLabel({
                           tierFit: prospect.tierFit,
                           variant: 'initial',
-                          length: 'full',
+                          length: 'deck',
                           usesSuggestedPitch: Boolean(prospect.suggestedPitch?.trim()),
                         })}
                       </Badge>
@@ -953,31 +985,44 @@ export function CommandCenterSection({
                   </div>
 
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:w-60">
-                    <Button onClick={() => openLeadChannel(prospect)} disabled={!canManage}>
+                    <Button
+                      onClick={() => openLeadChannel(prospect, { length: 'deck' })}
+                      disabled={!canManage}
+                    >
                       <ExternalLink className="w-4 h-4 ml-2" />
-                      فتح قناة التواصل
+                      واتساب + عرض
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() =>
-                        setOutreachPreview({ prospect, variant: 'initial', length: 'full' })
+                        setOutreachPreview({
+                          prospect,
+                          variant: 'initial',
+                          length: COMMAND_CENTER_OUTREACH_DEFAULT_LENGTH,
+                        })
                       }
                       disabled={!canManage}
                     >
                       <Eye className="w-4 h-4 ml-2" />
                       معاينة الرسالة
                     </Button>
+                    <Button variant="outline" onClick={openGrowthPitchDeckPreview} disabled={!canManage}>
+                      <Presentation className="w-4 h-4 ml-2" />
+                      معاينة العرض
+                    </Button>
                     <Button
                       variant="outline"
-                      onClick={() => void copyLeadPitch(prospect, { length: 'short' })}
+                      onClick={() => void copyGrowthPitchDeckLink('initial')}
                       disabled={!canManage}
                     >
                       <Copy className="w-4 h-4 ml-2" />
-                      نسخ مختصرة (واتساب)
+                      نسخ رابط العرض
                     </Button>
                     <Button
                       variant="secondary"
-                      onClick={() => openLeadChannel(prospect, { variant: 'followup', length: 'short' })}
+                      onClick={() =>
+                        openLeadChannel(prospect, { variant: 'followup', length: 'deck' })
+                      }
                       disabled={!canManage || !prospect.phone}
                     >
                       <MessageSquare className="w-4 h-4 ml-2" />
@@ -1041,7 +1086,8 @@ export function CommandCenterSection({
                     tierFit: outreachPreview.prospect.tierFit,
                     variant: outreachPreview.variant,
                     length: outreachPreview.length,
-                    usesSuggestedPitch: outreachPreviewUsesSuggested,
+                    usesSuggestedPitch:
+                      outreachPreviewUsesSuggested || outreachPreviewUsesSuggestedWithDeck,
                   })}`
                 : ''}
             </DialogDescription>
@@ -1078,8 +1124,9 @@ export function CommandCenterSection({
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="full">كاملة</SelectItem>
-                    <SelectItem value="short">مختصرة (واتساب)</SelectItem>
+                    <SelectItem value="deck">عرض + رابط (افتراضي)</SelectItem>
+                    <SelectItem value="short">مختصرة بدون رابط</SelectItem>
+                    <SelectItem value="full">كاملة (قديم)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1094,6 +1141,21 @@ export function CommandCenterSection({
           </div>
 
           <DialogFooter className="flex flex-wrap gap-2 sm:justify-start">
+            <Button variant="outline" onClick={openGrowthPitchDeckPreview}>
+              <Presentation className="w-4 h-4 ml-2" />
+              معاينة العرض
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!outreachPreview || !canManage}
+              onClick={() => {
+                if (!outreachPreview) return;
+                void copyGrowthPitchDeckLink(outreachPreview.variant);
+              }}
+            >
+              <Copy className="w-4 h-4 ml-2" />
+              نسخ الرابط
+            </Button>
             <Button
               variant="outline"
               disabled={!outreachPreview || !canManage}
@@ -1106,7 +1168,7 @@ export function CommandCenterSection({
               }}
             >
               <Copy className="w-4 h-4 ml-2" />
-              نسخ
+              نسخ الرسالة
             </Button>
             <Button
               disabled={!outreachPreview?.prospect.phone || !canManage}
