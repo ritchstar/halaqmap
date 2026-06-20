@@ -5,6 +5,8 @@ import { barberMatchesCategoryFilter } from '@/lib/barberCategoryLexicon';
 export const ROUTE_PATHS = {
   HOME: '/',
   BARBERS_LANDING: '/partners',
+  /** صفحة هبوط B2B (Skywork) — partners.halaqmap.com */
+  PARTNERS_B2B_LANDING: '/partners/b2b',
   /** إقناع عميق: لماذا حلاق ماب وليس مجرد «حجز» */
   PARTNER_WHY: '/partners/why',
   /** قصة المنصة ومنطق المسار */

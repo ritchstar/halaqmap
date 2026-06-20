@@ -17,6 +17,7 @@ import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
 
 const LandingPreview = lazy(() => import("@/pages/LandingPreview"));
 const PartnerMarketingPreview = lazy(() => import("@/pages/PartnerMarketingPreview"));
+const PartnersB2BLanding = lazy(() => import("@/pages/PartnersB2BLanding"));
 const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
 const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-screen/page"));
 const AdminCyberOperationsPage = lazy(() => import("@/app/admin/cyber/page"));
@@ -130,6 +131,23 @@ function NotaCouncilRedirect() {
   return null;
 }
 
+/** partners.halaqmap.com — صفحة هبوط B2B الافتراضية */
+function PartnersDomainRedirect() {
+  if (typeof window === 'undefined') return null;
+
+  const host = window.location.hostname.toLowerCase();
+  if (host !== 'partners.halaqmap.com') return null;
+
+  const hash = window.location.hash.replace(/^#/, '');
+  const pathOnly = (hash.split('?')[0] || '/').trim();
+
+  if (!window.location.hash || pathOnly === '/' || pathOnly === '') {
+    window.location.replace(`/#${ROUTE_PATHS.PARTNERS_B2B_LANDING}`);
+  }
+
+  return null;
+}
+
 const PUBLIC_PULSE_EXPERIENCE_ENABLED = false;
 
 const App = () => (
@@ -141,6 +159,7 @@ const App = () => (
       <HashRouter>
         <RouteScopedErrorBoundary>
         <NotaCouncilRedirect />
+        <PartnersDomainRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
         <Routes>
@@ -209,6 +228,7 @@ const App = () => (
           <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
 
           {/* ????? ????????? ??? ??????? ????????? */}
+          <Route path={ROUTE_PATHS.PARTNERS_B2B_LANDING} element={<LazyRoute><PartnersB2BLanding /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBERS_LANDING} element={<LazyRoute><PartnerMarketingPreview /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.PARTNER_INTEREST}

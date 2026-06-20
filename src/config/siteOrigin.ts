@@ -14,6 +14,13 @@ export function getSiteOrigin(): string {
   return 'https://www.halaqmap.com';
 }
 
+/** رابط HashRouter مطلق — للمشاركة والروابط بين النطاقات. */
+export function buildAbsoluteHashRoute(path: string): string {
+  const base = getSiteOrigin().replace(/\/+$/, '');
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return `${base}/#${normalized}`;
+}
+
 /**
  * رابط مطلق لصفحة الدفع (HashRouter) — للبريد والمشاركة خارج التطبيق.
  * مثال: `https://halaqmap.com/#/partners/payment?tier=gold&requestId=HM-...`

@@ -1,0 +1,209 @@
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+==========================================================================
+【AI HANDOVER NOTE】
+1. DESIGN PHILOSOPHY:
+   - Cyber-Dark Technical Aesthetic: A B2B landing page for HalaqMap targeting Saudi salon owners with a sophisticated, tech-forward visual language
+   - Visual Style: Dark grid backgrounds with teal glow effects, glassmorphism cards, and badge system for credibility
+   - Rationale: Creates professional authority while maintaining approachability for small business owners; the cyber-dark theme positions HalaqMap as a cutting-edge technology platform
+
+2. TYPOGRAPHY:
+   - Sans: Tajawal chosen for its excellent Arabic readability, modern geometric structure, and professional appearance suitable for B2B communication
+   - Mono: IBM Plex Mono for pricing, metrics, and technical data display (package prices, statistics)
+   - RTL Support: Full right-to-left layout with proper Arabic text flow and hierarchy
+
+3. COLOR SYSTEM:
+   - Brand Primary: Teal (#0D9488) - represents trust, technology, and growth; maps to --primary for CTAs and key interactive elements
+   - Secondary Glow: Cyan (#06B6D4) - creates the signature glow effect, maps to --accent for highlights and hover states
+   - Gold Accent: (#D4AF37) - premium tier indicator, maps to --ring for focus states and badge highlights
+   - Background: Deep navy (#0A1628) provides strong contrast and technical sophistication
+   - Semantic colors follow standard conventions with adjusted saturation for dark mode
+
+4. USAGE GUIDE:
+   - Layout: Full-width sections with centered content containers (max-width: 1280px)
+   - Special Effects: Use backdrop-blur for glassmorphism cards, subtle teal glow on hover states, grid pattern overlay on dark backgrounds
+   - Section Structure: 5 distinct sections (Hero, Problem, How It Works, Packages, CTA) with clear visual separation
+   - Card Design: Rounded borders with subtle teal/cyan outlines, semi-transparent backgrounds for depth
+   - Badge System: Use gold accents for premium indicators and trust badges
+   - CTAs: Primary actions use teal background with white text; secondary actions use outlined style with teal border
+==========================================================================
+*/
+
+:root {
+  /* Typography */
+  --font-sans: Tajawal, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: IBM Plex Mono, 'Courier New', monospace;
+  
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Core UI Tokens */
+  --background: oklch(0.98 0.005 200);
+  --foreground: oklch(0.15 0.02 240);
+  --card: oklch(0.99 0.003 200);
+  --card-foreground: oklch(0.18 0.02 240);
+  --popover: oklch(0.99 0.003 200);
+  --popover-foreground: oklch(0.15 0.02 240);
+  --primary: oklch(0.55 0.14 180);
+  --primary-foreground: oklch(0.99 0.005 180);
+  --secondary: oklch(0.95 0.01 200);
+  --secondary-foreground: oklch(0.20 0.02 240);
+  --muted: oklch(0.96 0.005 200);
+  --muted-foreground: oklch(0.48 0.02 240);
+  --accent: oklch(0.68 0.16 195);
+  --accent-foreground: oklch(0.99 0.005 195);
+  --destructive: oklch(0.58 0.20 25);
+  --destructive-foreground: oklch(0.99 0.005 25);
+  --border: oklch(0.88 0.01 200);
+  --input: oklch(0.88 0.01 200);
+  --ring: oklch(0.68 0.18 50);
+  
+  /* Chart Tokens */
+  --chart-1: oklch(0.55 0.14 180);
+  --chart-2: oklch(0.68 0.16 195);
+  --chart-3: oklch(0.68 0.18 50);
+  --chart-4: oklch(0.45 0.12 240);
+  --chart-5: oklch(0.58 0.20 25);
+  
+  /* Sidebar Tokens */
+  --sidebar: oklch(0.98 0.005 200);
+  --sidebar-foreground: oklch(0.20 0.02 240);
+  --sidebar-primary: oklch(0.55 0.14 180);
+  --sidebar-primary-foreground: oklch(0.99 0.005 180);
+  --sidebar-accent: oklch(0.95 0.01 200);
+  --sidebar-accent-foreground: oklch(0.20 0.02 240);
+  --sidebar-border: oklch(0.88 0.01 200);
+  --sidebar-ring: oklch(0.68 0.18 50);
+}
+
+.dark {
+  --background: oklch(0.12 0.03 240);
+  --foreground: oklch(0.97 0.005 200);
+  --card: oklch(0.15 0.03 240);
+  --card-foreground: oklch(0.95 0.005 200);
+  --popover: oklch(0.14 0.03 240);
+  --popover-foreground: oklch(0.97 0.005 200);
+  --primary: oklch(0.58 0.16 180);
+  --primary-foreground: oklch(0.12 0.03 180);
+  --secondary: oklch(0.22 0.03 240);
+  --secondary-foreground: oklch(0.95 0.005 200);
+  --muted: oklch(0.20 0.03 240);
+  --muted-foreground: oklch(0.62 0.02 240);
+  --accent: oklch(0.72 0.18 195);
+  --accent-foreground: oklch(0.12 0.03 195);
+  --destructive: oklch(0.62 0.24 25);
+  --destructive-foreground: oklch(0.97 0.005 25);
+  --border: oklch(0.28 0.03 240);
+  --input: oklch(0.28 0.03 240);
+  --ring: oklch(0.72 0.20 50);
+  
+  /* Chart Tokens */
+  --chart-1: oklch(0.58 0.16 180);
+  --chart-2: oklch(0.72 0.18 195);
+  --chart-3: oklch(0.72 0.20 50);
+  --chart-4: oklch(0.52 0.14 240);
+  --chart-5: oklch(0.62 0.24 25);
+  
+  /* Sidebar Tokens */
+  --sidebar: oklch(0.12 0.03 240);
+  --sidebar-foreground: oklch(0.95 0.005 200);
+  --sidebar-primary: oklch(0.58 0.16 180);
+  --sidebar-primary-foreground: oklch(0.12 0.03 180);
+  --sidebar-accent: oklch(0.22 0.03 240);
+  --sidebar-accent-foreground: oklch(0.95 0.005 200);
+  --sidebar-border: oklch(0.28 0.03 240);
+  --sidebar-ring: oklch(0.72 0.20 50);
+}
+
+@theme inline {
+  /* Shadcn Core Mapping */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Charts Mapping */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar Mapping */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Typography */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  /* Radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans min-h-screen;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  code, pre {
+    @apply font-mono;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
+  }
+}
