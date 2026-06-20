@@ -14,7 +14,7 @@
 
 ## طبقات المنتج الرئيسية
 1. **خريطة عامة:** بحث جغرافي، فلاتر (باقة، أطفال، متخصص أطفال، inclusive care).
-2. **تسجيل شريك:** RegistrationForm → `/api/register-*` → دفع (Moyasar) → provision/تفعيل (تحقق تقني آلي؛ قد يمر بعض الطلبات بـ `pending_review` إداري).
+2. **تسجيل شريك:** RegistrationForm → تأشيرات التعهد الإلزامية → `/api/register-*` → دفع (Moyasar) → provision/تفعيل (تحقق تقني آلي؛ لا وثائق حكومية ولا مراجعة يدوية افتراضية). حالات `pending_review` استثنائية فقط.
 3. **دفع:** Moyasar + webhooks + listing entitlements.
 4. **لوحة حلاق:** ذهبي/ماسي — برونزي بدون dashboard.
 5. **Admin:** Super Intelligence، Engineering Council، Public Prosecutor، Ops.

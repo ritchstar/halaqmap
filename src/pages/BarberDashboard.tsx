@@ -952,9 +952,8 @@ export default function BarberDashboard({
           <Alert className="border-primary/30 bg-primary/5">
             <Shield className="h-4 w-4 text-primary" />
             <AlertDescription className="text-sm leading-relaxed">
-              <strong>حالة الطلب والخصوصية:</strong> إذا قدّمت مؤخراً طلب تسجيل، فهو يمرّ بـ <strong>مراجعة نظامية</strong>{' '}
-              حتى تصلك رسالة الإدارة. <strong>لم تُحفظ مستنداتك الحكومية على خوادمنا</strong> ولن نطلب منك إعادة رفعها
-              لاحقاً عبر هذه اللوحة.
+              <strong>حالة الطلب والخصوصية:</strong> إذا قدّمت مؤخراً طلب تسجيل، يُفعَّل حضورك بعد إتمام الدفع والتحقق التقني الآلي —{' '}
+              <strong>دون رفع وثائق حكومية</strong> على خوادمنا. الامتثال يُثبت بتأشيرك على التعهد القانوني في النموذج.
             </AlertDescription>
           </Alert>
 

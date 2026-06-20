@@ -18,6 +18,7 @@ import {
   appendUniversalAgentDoctrines,
   resolveRegulatoryReferral,
 } from './_lib/platformManagementReferral.js';
+import { REGISTRATION_COMPLIANCE_DOCTRINE_AR } from './_lib/registrationComplianceDoctrine.js';
 
 // أسعار الباقات (مصدر الحقيقة: src/config/subscriptionPricing.ts)
 const PRICE_BRONZE = 100;
@@ -120,6 +121,13 @@ function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): stri
 - الصالون يضبط أسعاره باستقلالية تامة
 - لا وسيط بين الصالون والزبون — علاقة مباشرة 100%
 - الإيرادات من رخصة الإدراج الرقمية (B2B) فقط
+
+${REGISTRATION_COMPLIANCE_DOCTRINE_AR}
+
+【أسئلة شائعة — أجب بهذه الصياغة أو ما يعادلها حرفياً】
+- «هل أحتاج سجل تجاري أو رخصة بلدية؟» → لا — التعهد القانوني الإلزامي + الدفع + التحقق التقني الآلي.
+- «كيف تتحققون من صاحب الصالون؟» → التعهد القانوني + التحقق التقني — لا تدقيق وثائق حكومية مرفوعة.
+- «متى يُفعَّل حسابي؟» → بعد الدفع ومعالجة النظام — لا انتظار «مراجعة وثائق» افتراضياً.
 
 【مجتمع ماب — ميزة ولاء الشركاء】
 - مجتمع ماب مساحة مهنية داخل مسار الشركاء للحلاقين المفعّلين ومنسوبي المنصة فقط.
