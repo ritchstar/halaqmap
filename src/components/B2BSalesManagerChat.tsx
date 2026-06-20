@@ -19,13 +19,14 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { cn } from '@/lib/utils';
+import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 
 // ─── Rotating pitch lines ─────────────────────────────────────────────────────
 const PITCH_LINES = [
-  '💼 باقات واضحة ومسبقة الدفع — اختر الحزمة المناسبة وفق السياسة المعتمدة.',
+  `🌊 ${PARTNER_EARLY_WAVE_TAGLINE_AR}`,
   '✂️ الظهور عند الطلب يبدأ من رخصة النفاذ البرمجية — بلا عمولات على الخدمة.',
   '🏛️ الماسية + إضافة المكتب الخاص — مساعد داخلي + مناوب شات مترابطان',
   '📋 أعطِ تعليماتك بـ«تعليمة:» والمناوب ينفّذها — والتقارير تصلك تلقائياً',

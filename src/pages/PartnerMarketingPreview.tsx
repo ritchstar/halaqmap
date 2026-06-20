@@ -43,6 +43,7 @@ import {
   PARTNER_TECHNICAL_PARTNER_TAGLINE,
 } from '@/config/partnerTechnicalPartnerDoctrine';
 import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentity';
+import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
@@ -772,6 +773,10 @@ export default function PartnerMarketingPreview() {
               </span>
             </h1>
 
+            <p className="mb-5 text-lg font-bold leading-relaxed text-teal-800 md:text-xl">
+              {PARTNER_EARLY_WAVE_TAGLINE_AR}
+            </p>
+
             {/* ── بوابة مكتب مدير المبيعات — مباشرة تحت العنوان الرئيسي ── */}
             {isStrictPartnerPath && !isMobile ? (
               <motion.div
@@ -822,7 +827,7 @@ export default function PartnerMarketingPreview() {
             {isMobile ? (
               <>
                 <p className="mb-5 max-w-lg text-[0.98rem] leading-8 text-slate-600">
-                  منصة تساعد صالونك على الظهور عند الطلب أمام المستعلم المناسب. ابدأ الآن بخطوة واضحة وسريعة.
+                  {PARTNER_EARLY_WAVE_TAGLINE_AR}
                 </p>
                 <div className="mb-5 rounded-[1.35rem] border border-emerald-200 bg-white/92 p-4 shadow-sm">
                   <p className="text-[0.78rem] font-black text-emerald-700">قرار سريع</p>
@@ -1297,8 +1302,8 @@ export default function PartnerMarketingPreview() {
         <div className="relative mx-auto max-w-3xl px-5 text-center">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div className="mb-6 text-6xl">✂️</div>
-            <h2 className="mb-5 text-3xl font-black text-slate-900 md:text-4xl">
-              صالونك جاهز — هل أنت كذلك؟
+            <h2 className="mb-5 text-3xl font-black leading-snug text-slate-900 md:text-4xl">
+              {PARTNER_EARLY_WAVE_TAGLINE_AR}
             </h2>
             <p className="mx-auto mb-10 max-w-xl text-base leading-relaxed text-slate-600">
               ابدأ بحزمة برونزية بـ١٠٠ ر.س وجرّب بنفسك —

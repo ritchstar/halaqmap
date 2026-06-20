@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Phone, MessageCircle, Check, X, Star, Scissors, Shield, Zap, Users, ChevronLeft, ArrowLeft } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { PARTNER_EARLY_WAVE_SUBLINE_AR, PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 
 const ctaClass =
   'inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90';
@@ -80,8 +81,8 @@ export default function PartnersB2BLanding() {
           </motion.h1>
 
           {/* Subtitle */}
-          <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="text-xl md:text-2xl font-bold mb-4" style={{ color: "#D4AF37" }}>
-            زبائن قريبون يصلون إليك عندما يحتاجون حلاقة
+          <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="text-xl md:text-2xl font-bold mb-4 leading-relaxed" style={{ color: "#D4AF37" }}>
+            {PARTNER_EARLY_WAVE_TAGLINE_AR}
           </motion.p>
 
           {/* Description */}
@@ -389,7 +390,7 @@ export default function PartnersB2BLanding() {
             <motion.div variants={stagger} className="space-y-4 text-right">
               {[
                 "كلما اكتملت شبكة الصالونات في منطقتك، صارت المنافسة على الظهور أعلى",
-                "من يسجّل الآن يبني حضوراً رسمياً قبل موجة التوسع القادمة",
+                'من يسجّل الآن يجهّز حضوره لأول موجات الاستخدام في منطقته',
                 "حزمة رقمية 30 يوماً — تفعيل واضح بدون عمولة على خدمة الحلاقة",
                 "مسار ذاتي على المنصة: تسجيل → اختيار الباقة → الدفع → التفعيل",
               ].map((item, i) => (
@@ -414,14 +415,11 @@ export default function PartnersB2BLanding() {
               <span>الخطوة التالية</span>
             </motion.div>
 
-            <motion.h2 variants={fadeUp} className="text-4xl md:text-5xl font-black mb-4" style={{ color: "#F8FAFC" }}>
-              جاهز لتسجيل صالونك؟
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-4xl font-black mb-4 leading-snug" style={{ color: "#F8FAFC" }}>
+              {PARTNER_EARLY_WAVE_TAGLINE_AR}
             </motion.h2>
-            <motion.p variants={fadeUp} className="mb-2" style={{ color: "#D4AF37", fontWeight: 700 }}>
-              ابدأ الآن — مكانك في المنصة يُحجز مبكراً
-            </motion.p>
             <motion.p variants={fadeUp} className="text-sm mb-10" style={{ color: "#94A3B8" }}>
-              سجّل من المنصة — اختر الباقة، أكمل الدفع، ويُستكمل التفعيل بعد السداد
+              {PARTNER_EARLY_WAVE_SUBLINE_AR}
             </motion.p>
 
             {/* Register button */}

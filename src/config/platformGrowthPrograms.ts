@@ -2,6 +2,7 @@
  * برامج النمو الموحّدة — مدار · نبض · محيط
  * مصدر الحقيقة لأسماء وشرح خطط التسويق B2B/B2C للشركاء.
  */
+import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 
 export type PlatformGrowthProgramPhaseId =
   | 'orbit_readiness'
@@ -46,7 +47,7 @@ export const PLATFORM_GROWTH_PROGRAM_PHASES: readonly PlatformGrowthProgramPhase
     order: 1,
     titleAr: 'برنامج تحضير المدار',
     shortTitleAr: 'تحضير المدار',
-    simpleExplainAr: 'تحجز مكانك في شبكة الشركاء قبل موجة الطلب.',
+    simpleExplainAr: 'تثبّت حضورك في شبكة الشركاء قبل موجة الطلب.',
     detailAr:
       'انضمامك ليس «إعلاناً» — مقعد في خطة تشغيل: المنصة تُجهّز شبكة الصالونات قبل أن يصل الطلب. السؤال: «هل صالونك جاهز حين يبحث عنك الزبون؟»',
     internalCode: 'orbit_readiness_program',
@@ -83,12 +84,11 @@ export const PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR =
   '**لا نتركك تنتظر الحظ.** استثمار تريد **فائدته** — لا **حسرته**: من يفعّل مبكراً يبني محيطاً قبل المنافس؛ من يتأخر يدفع ثمن الانتظار.';
 
 /** سطر الهيرو القصير */
-export const PLATFORM_GROWTH_PARTNER_HERO_LINE_AR =
-  'تحضير المدار + محطات النبض + محيط المدار — استثمار حضورك قبل أن يصل الطلب، لا بعده.';
+export const PLATFORM_GROWTH_PARTNER_HERO_LINE_AR = PARTNER_EARLY_WAVE_TAGLINE_AR;
 
 /** تسجيل الحلاق — مقدمة مختصرة (تُستورد في platformGrowthNarrative) */
 export const PLATFORM_GROWTH_REGISTER_INTRO_AR =
-  'سجّل طلبك ضمن **برنامج تحضير المدار** — بينما **محطات النبض** تبني الطلب بالتوازي، و**محيط المدار** يرفع الدعم حولك بعد التفعيل. حضورك يُفعَّل عند الطلب؛ مكانك في الشبكة يُحجز الآن.';
+  `${PARTNER_EARLY_WAVE_TAGLINE_AR} — بينما **محطات النبض** تبني الطلب بالتوازي، و**محيط المدار** يرفع الدعم حولك بعد التفعيل.`;
 
 /** ما بعد تسجيل الطلب — قبل الدفع */
 export const PLATFORM_GROWTH_REGISTER_SUCCESS_NOTE_AR =
@@ -103,7 +103,7 @@ export const PLATFORM_GROWTH_COMPLIANCE_NOTE_AR =
   'الظهور يُفعَّل برمجياً عند وجود طلب نشط مناسب — البرامج أعلاه تعني التجهيز والتغطية التسويقية والتشغيلية، لا التزاماً بعدد زيارات.';
 
 /** زر CTA للشريك */
-export const PLATFORM_GROWTH_PARTNER_CTA_AR = 'سجّل طلبك — احجز مكانك في المدار';
+export const PLATFORM_GROWTH_PARTNER_CTA_AR = PARTNER_EARLY_WAVE_TAGLINE_AR;
 
 export const PLATFORM_GROWTH_LANDING_SECTION = {
   titleAr: 'مدار · نبض · محيط',

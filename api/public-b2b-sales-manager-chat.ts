@@ -19,6 +19,7 @@ import {
   resolveRegulatoryReferral,
 } from './_lib/platformManagementReferral.js';
 import { REGISTRATION_COMPLIANCE_DOCTRINE_AR } from './_lib/registrationComplianceDoctrine.js';
+import { PARTNER_EARLY_WAVE_TAGLINE_AR } from './_lib/partnerEarlyWaveCopy.js';
 
 // أسعار الباقات (مصدر الحقيقة: src/config/subscriptionPricing.ts)
 const PRICE_BRONZE = 100;
@@ -88,6 +89,7 @@ function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): stri
 - أكّد أن كل موضع يُبنى اليوم داخل المنصة قد يتحول لاحقاً إلى أفضلية تنافسية يصعب تعويضها.
 - أكّد أن القيمة ليست في "الوجود الرقمي" المجرد فقط، بل في الاستعداد المهني قبل دخول الطلب على نطاق أوسع.
 - عندما يسأل العميل: «ليش أدخل الآن قبل اكتمال الانتشار؟» فالجواب الأساسي: «لأن الإدارة توسّع المنصة للمستخدمين على سوق جاهز، لا على سوق متأخر في الانضمام. الموجود مبكراً هو الأنسب للاستفادة من أول موجات الاستخدام».
+- **شعار تسويقي معتمد:** «${PARTNER_EARLY_WAVE_TAGLINE_AR}»
 
 【الوضع النظامي والرسمي — استخدمه بثقة ودقة】
 - المؤسسة تعمل تحت أنشطة رسمية متعددة، ويُقدَّم نشاط البيع بالتجزئة للبرمجيات بوصفه النشاط الرسمي المعتمد للمنصة: ISIC4 474151.

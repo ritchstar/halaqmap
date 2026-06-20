@@ -26,6 +26,9 @@ import {
   PARTNER_TECHNICAL_PARTNER_STORY_LEAD,
   PARTNER_TECHNICAL_PARTNER_WHY_CLOSING,
 } from '@/config/partnerTechnicalPartnerDoctrine';
+import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+
+export { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 
 /** فقرات متعددة لصفحة التسجيل — تُعرض ككتل منفصلة لسهولة القراءة على الجوال */
 export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
@@ -263,9 +266,9 @@ export const PARTNER_LANDING_PLAN_CARDS = [
 ] as const;
 
 export const PARTNER_LANDING_CTA_SECTION = {
-  title: 'ابدأ الآن',
+  title: PARTNER_EARLY_WAVE_TAGLINE_AR,
   lead:
-    'تسجيل الطلب ما يحتاج تعقيد. اضغط الزر، فعّل استجابة صالونك ضمن نظام الاستجابة الذكية، وخَلّ المستخدمين المناسبين يصلون إلى صالونك قبل المنافس.',
+    'تسجيل الطلب ما يحتاج تعقيد. اضغط الزر، أكمل الدفع، وتُفعَّل حضورك ضمن نظام الاستجابة الذكية — جاهزاً لأول موجات الاستخدام في منطقتك.',
   chips: ['بدون لف تقني', 'مسار واضح', 'دعم فريق المنصة'],
   primaryCta: 'شراء رخصة نفاذ',
   secondaryCta: 'تفعيل الآن',
