@@ -3,6 +3,7 @@
  *
  * ═══ TEXT LOCK ═══
  * النصوص هنا معتمدة — لا يُعدّلها مصمم العرض.
+ * نسخة PowerPoint (8 شرائح): `docs/pitch/partner-deck-slides-ar.md`
  * الترتيب البصري والتجميل: `growthPitchTheme.ts` + `GrowthPitchSlideDeck.tsx`.
  *
  * الجمهور: مالك/مدير صالون — لغة فائدة وثقة، لا مصطلحات تقنية.
