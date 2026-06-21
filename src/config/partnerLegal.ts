@@ -17,6 +17,20 @@ export const LEGAL_ECOMMERCE_AUTH_EXPIRES_AT_AR = '18/04/2027' as const;
 
 export const LEGAL_ECOMMERCE_AUTH_ISSUER_AR = 'المركز السعودي للتنافسية والأعمال' as const;
 
+/** بوابة الاستعلام عن متجر إلكتروني موثّق — المركز السعودي للأعمال */
+export const LEGAL_ECOMMERCE_INQUIRY_URL =
+  'https://eauthenticate.saudibusiness.gov.sa/inquiry' as const;
+
+/** شعار المركز السعودي للأعمال — PNG شفاف */
+export const LEGAL_SBC_LOGO_SRC = '/images/saudi-business-center-logo.png' as const;
+
+/** شارة التوثيق في التذييل */
+export const LEGAL_ECOMMERCE_VERIFIED_BADGE_AR = 'موثق' as const;
+
+/** تلميح النسخ — الرقم الوطني الموحد لصفحة الاستعلام */
+export const LEGAL_ECOMMERCE_INQUIRY_COPY_HINT_AR =
+  'انسخ الرقم الوطني الموحد والصقه في بوابة الاستعلام للتحقق الفوري';
+
 /** سطر التذييل — يُعرض في الواجهات العامة ومسار الشركاء وصفحات الخصوصية */
 export const LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR =
   `شهادة توثيق التجارة الإلكترونية — رقم التوثيق: ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR})`;

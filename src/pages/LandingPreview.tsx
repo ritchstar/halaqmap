@@ -25,6 +25,7 @@ import { PartnerPathNavLink } from '@/components/PartnerPathNavLink';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
+import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
@@ -1495,6 +1496,9 @@ export default function LandingPreview() {
           </div>
           <div className="mt-2 text-center text-sm font-bold text-white/85 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] sm:text-base">
             {PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE}
+          </div>
+          <div className="mt-5">
+            <EcommerceVerifiedFooterBadge variant="landing" />
           </div>
         </div>
       </footer>

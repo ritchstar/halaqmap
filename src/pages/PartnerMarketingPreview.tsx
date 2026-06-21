@@ -45,6 +45,7 @@ import {
 import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentity';
 import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
+import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
@@ -1399,6 +1400,9 @@ export default function PartnerMarketingPreview() {
           </div>
           <div className="mt-2 text-center text-sm font-bold text-slate-700 sm:text-base">
             {LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}
+          </div>
+          <div className="mt-5">
+            <EcommerceVerifiedFooterBadge variant="light" />
           </div>
         </div>
       </footer>

@@ -8,6 +8,9 @@ export const LEGAL_ECOMMERCE_AUTH_STATUS_AR = 'ساري' as const;
 export const LEGAL_ECOMMERCE_AUTH_ISSUED_AT_AR = '18/05/2026' as const;
 export const LEGAL_ECOMMERCE_AUTH_EXPIRES_AT_AR = '18/04/2027' as const;
 export const LEGAL_ECOMMERCE_AUTH_ISSUER_AR = 'المركز السعودي للتنافسية والأعمال' as const;
+export const LEGAL_ECOMMERCE_INQUIRY_URL =
+  'https://eauthenticate.saudibusiness.gov.sa/inquiry' as const;
+
 export const LEGAL_NATIONAL_UNIFIED_NUMBER = '7054117093';
 
 export const LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR =
@@ -21,7 +24,8 @@ export const ECOMMERCE_AUTH_CANONICAL_REPLY_AR =
   `• الجهة: ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR}\n` +
   `• الرقم الوطني الموحد (السجل التجاري): ${LEGAL_NATIONAL_UNIFIED_NUMBER}\n` +
   `• صلاحية الشهادة: ${LEGAL_ECOMMERCE_AUTH_ISSUED_AT_AR} — ${LEGAL_ECOMMERCE_AUTH_EXPIRES_AT_AR}\n` +
-  `• للتحقق الذاتي: ${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR} — يظهر في تذييل الرئيسية ومسار الشركاء وصفحات الخصوصية.`;
+  `• للتحقق الذاتي: ${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR} — يظهر في تذييل الرئيسية ومسار الشركاء وصفحات الخصوصية.\n` +
+  `• بوابة الاستعلام: ${LEGAL_ECOMMERCE_INQUIRY_URL} — الرقم الوطني الموحد للنسخ: ${LEGAL_NATIONAL_UNIFIED_NUMBER}.`;
 
 export const ECOMMERCE_AUTH_DOCTRINE_AR = `
 ═══════════════════════════════════════════════════

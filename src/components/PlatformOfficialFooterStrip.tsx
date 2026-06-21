@@ -11,6 +11,7 @@ import {
   PLATFORM_OPERATIONAL_TRUST_FOOTER_SHORT_AR,
   PLATFORM_OPERATIONAL_TRUST_SECTION_ID,
 } from '@/config/platformOperationalTrust';
+import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 
 type Variant = 'light' | 'dark';
 
@@ -43,6 +44,9 @@ export function PlatformOfficialFooterStrip({ variant = 'light' }: { variant?: V
       <p className={`mt-2 text-center text-sm font-bold leading-relaxed sm:text-base ${titleColor}`}>
         {PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE}
       </p>
+      <div className="mt-4">
+        <EcommerceVerifiedFooterBadge variant={variant} />
+      </div>
       <div className="mt-3 flex justify-center">
         <NavLink
           to={ROUTE_PATHS.ABOUT}

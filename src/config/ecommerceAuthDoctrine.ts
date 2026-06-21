@@ -9,6 +9,7 @@ import {
   LEGAL_ECOMMERCE_AUTH_ISSUER_AR,
   LEGAL_ECOMMERCE_AUTH_NUMBER,
   LEGAL_ECOMMERCE_AUTH_STATUS_AR,
+  LEGAL_ECOMMERCE_INQUIRY_URL,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
 } from '@/config/partnerLegal';
 
@@ -31,7 +32,8 @@ export const ECOMMERCE_AUTH_CANONICAL_REPLY_AR =
   `• الجهة: ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR}\n` +
   `• الرقم الوطني الموحد (السجل التجاري): ${LEGAL_NATIONAL_UNIFIED_NUMBER}\n` +
   `• صلاحية الشهادة: ${LEGAL_ECOMMERCE_AUTH_ISSUED_AT_AR} — ${LEGAL_ECOMMERCE_AUTH_EXPIRES_AT_AR}\n` +
-  `• للتحقق الذاتي: ${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR} — يظهر في تذييل الرئيسية ومسار الشركاء وصفحات الخصوصية.`;
+  `• للتحقق الذاتي: ${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR} — يظهر في تذييل الرئيسية ومسار الشركاء وصفحات الخصوصية.\n` +
+  `• بوابة الاستعلام: ${LEGAL_ECOMMERCE_INQUIRY_URL} — الرقم الوطني الموحد للنسخ: ${LEGAL_NATIONAL_UNIFIED_NUMBER}.`;
 
 /** عقيدة إلزامية — تُحقَن في prompts الوكلاء */
 export const ECOMMERCE_AUTH_DOCTRINE_AR = `

@@ -10,6 +10,7 @@ import { ROUTE_PATHS } from '@/lib/index';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PARTNER_EARLY_WAVE_SUBLINE_AR, PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
+import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 
 const ctaClass =
   'inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90';
@@ -464,6 +465,9 @@ export default function PartnersB2BLanding() {
         <p className="text-xs mt-2 font-semibold" style={{ color: "#64748B" }}>
           {LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}
         </p>
+        <div className="mt-4 flex justify-center">
+          <EcommerceVerifiedFooterBadge variant="landing" className="max-w-sm" />
+        </div>
       </footer>
     </div>
   );
