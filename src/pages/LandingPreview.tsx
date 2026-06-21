@@ -20,6 +20,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
 import { cn } from '@/lib/utils';
 import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
+import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
 import { PartnerPathNavLink } from '@/components/PartnerPathNavLink';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
@@ -1491,6 +1492,9 @@ export default function LandingPreview() {
           </div>
           <div className="mt-2 text-center text-sm font-bold text-white/85 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] sm:text-base">
             تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222
+          </div>
+          <div className="mt-2 text-center text-sm font-bold text-white/85 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] sm:text-base">
+            {PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE}
           </div>
         </div>
       </footer>

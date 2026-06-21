@@ -8,6 +8,7 @@ import {
 import { HonorBoard } from "@/components/b2b/HonorBoard";
 import { PlatformIdentityCard } from "@/components/PlatformIdentityCard";
 import { PlatformTlsTrustBadge } from "@/components/PlatformTlsTrustBadge";
+import { PlatformOfficialFooterStrip } from "@/components/PlatformOfficialFooterStrip";
 import { LegalPolicySection } from "@/components/legal/LegalPolicySection";
 import {
   PLATFORM_IDENTITY_LEGAL_DISCLAIMER_AR,
@@ -155,6 +156,10 @@ export default function PartnerPrivacy() {
 
           <div className="rounded-xl border border-teal-400/20 bg-teal-500/8 p-4 text-sm text-slate-400">
             آخر تحديث: 4 مايو 2026
+          </div>
+
+          <div className="mt-8">
+            <PlatformOfficialFooterStrip variant="light" />
           </div>
         </div>
       </div>

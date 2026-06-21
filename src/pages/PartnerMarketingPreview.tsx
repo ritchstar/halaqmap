@@ -44,6 +44,7 @@ import {
 } from '@/config/partnerTechnicalPartnerDoctrine';
 import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentity';
 import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
@@ -1395,6 +1396,9 @@ export default function PartnerMarketingPreview() {
           </div>
           <div className="mt-2 text-center text-sm font-bold text-slate-700 sm:text-base">
             تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222
+          </div>
+          <div className="mt-2 text-center text-sm font-bold text-slate-700 sm:text-base">
+            {LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR}
           </div>
         </div>
       </footer>

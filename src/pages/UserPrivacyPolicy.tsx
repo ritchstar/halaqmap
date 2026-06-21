@@ -10,6 +10,7 @@ import {
 } from '@/config/endUserExperiencePolicy';
 import { PLATFORM_TLS_POLICY_LINE_AR } from '@/config/platformTlsTrust';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
+import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 
 /**
  * سياسة خصوصية المستخدمين — بيانات موقع لحظية دون حفظ تاريخي في قاعدة بيانات المنصة،
@@ -255,6 +256,10 @@ export default function UserPrivacyPolicy() {
             </div>
           </div>
         </motion.div>
+
+        <div className="max-w-4xl mx-auto mt-10">
+          <PlatformOfficialFooterStrip variant="light" />
+        </div>
       </div>
     </div>
   );

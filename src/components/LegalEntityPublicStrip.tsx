@@ -5,6 +5,11 @@ import { ROUTE_PATHS } from '@/lib';
 import {
   DIGITAL_SOFTWARE_PACKAGES_POLICY_TITLE_AR,
   LEGAL_COMMERCIAL_REGISTRATION_ISSUED_AT_AR,
+  LEGAL_ECOMMERCE_AUTH_EXPIRES_AT_AR,
+  LEGAL_ECOMMERCE_AUTH_ISSUED_AT_AR,
+  LEGAL_ECOMMERCE_AUTH_ISSUER_AR,
+  LEGAL_ECOMMERCE_AUTH_NUMBER,
+  LEGAL_ECOMMERCE_AUTH_STATUS_AR,
   LEGAL_ENTITY_TYPE_AR,
   LEGAL_NATIONAL_UNIFIED_NUMBER,
   LEGAL_REGISTRATION_ISSUING_AUTHORITY_AR,
@@ -47,6 +52,9 @@ export function LegalEntityPublicStrip({ variant = 'light' }: { variant?: Varian
 
   const detailRows = [
     { label: LEGAL_UNIFIED_NUMBER_LABEL_AR, value: LEGAL_NATIONAL_UNIFIED_NUMBER, mono: true },
+    { label: 'رقم توثيق التجارة الإلكترونية', value: `${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR})`, mono: true },
+    { label: 'جهة توثيق التجارة الإلكترونية', value: LEGAL_ECOMMERCE_AUTH_ISSUER_AR, mono: false },
+    { label: 'صلاحية توثيق التجارة الإلكترونية', value: `${LEGAL_ECOMMERCE_AUTH_ISSUED_AT_AR} — ${LEGAL_ECOMMERCE_AUTH_EXPIRES_AT_AR}`, mono: false },
     { label: 'نوع الكيان', value: LEGAL_ENTITY_TYPE_AR, mono: false },
     { label: 'حالة السجل', value: `${LEGAL_REGISTRATION_STATUS_AR} — ${LEGAL_REGISTRATION_ISSUING_AUTHORITY_AR}`, mono: false },
     { label: 'تاريخ إصدار السجل', value: LEGAL_COMMERCIAL_REGISTRATION_ISSUED_AT_AR, mono: false },
