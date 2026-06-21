@@ -40,7 +40,7 @@ import {
 } from './onDemandVisibilityDoctrine.js';
 
 /** زِد هذا الرقم/التاريخ عند إضافة release note جديد — يظهر في GET /api/partner-assistant-chat */
-export const PARTNER_ASSISTANT_KNOWLEDGE_VERSION = '2026-06-10.1' as const;
+export const PARTNER_ASSISTANT_KNOWLEDGE_VERSION = '2026-06-10.2' as const;
 
 export type PartnerReleaseNote = {
   id: string;
@@ -56,6 +56,20 @@ export type PartnerReleaseNote = {
  * المساعد **ملزم** بالإجابة من هذا القسم عند السؤال عن التحديثات أو الميزات المذكورة.
  */
 export const PARTNER_PLATFORM_RELEASE_NOTES: readonly PartnerReleaseNote[] = [
+  {
+    id: 'ecommerce-auth-verified-2026-06-10',
+    date: '2026-06-10',
+    titleAr: 'توثيق التجارة الإلكترونية — مكتمل وساري',
+    summaryAr:
+      'المنصة موثّقة رسمياً للعمل بالتجارة الإلكترونية لدى المركز السعودي للتنافسية والأعمال — رقم التوثيق 0000291761 — معروض في تذييل الموقع وصفحات الخصوصية ومسار الشركاء.',
+    topics: ['توثيق', 'التجارة الإلكترونية', 'امتثال', '0000291761', 'المركز السعودي للتنافسية والأعمال'],
+    bulletsAr: [
+      'شهادة توثيق التجارة الإلكترونية سارية — رقم 0000291761.',
+      'الجهة: المركز السعودي للتنافسية والأعمال.',
+      'رقم التوثيق يظهر في تذييل الرئيسية ومسار الشركاء وصفحات الخصوصية.',
+      'مدير المبيعات والمتحدث الإعلامي والناظر القانوني ملزمون بذكر التوثيق بدقة — لا «تحت المعالجة».',
+    ],
+  },
   {
     id: 'owner-watch-salon-monitoring-2026-06-10',
     date: '2026-06-10',

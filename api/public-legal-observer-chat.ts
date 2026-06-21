@@ -17,6 +17,10 @@ import {
   isPlatformRegulatoryInquiry,
   resolveRegulatoryReferral,
 } from './_lib/platformManagementReferral.js';
+import {
+  ECOMMERCE_AUTH_DOCTRINE_AR,
+  resolveEcommerceAuthCanonicalReply,
+} from './_lib/ecommerceAuthDoctrine.js';
 
 export const config = { maxDuration: 45 };
 type Turn = { role: 'user' | 'assistant'; content: string };
@@ -47,6 +51,11 @@ function buildGeneralThenReferralReply(general: string, referral: string): strin
 function resolveLegalObserverSpecialistReferral(message: string): string | null {
   const m = message.trim();
   if (!m) return null;
+
+  const ecommerceAuth = resolveEcommerceAuthCanonicalReply(m);
+  if (ecommerceAuth) {
+    return ecommerceAuth;
+  }
 
   if (isPlatformRegulatoryInquiry(m)) {
     return buildGeneralThenReferralReply(
@@ -132,6 +141,9 @@ ${LICENSED_ACTIVITY_AI_DOCTRINE_AR}
 - لا وثائق حكومية مطلوبة في التسجيل الرقمي — المسؤولية على الشريك
 - بيانات الشريك محمية بصلاحيات تشغيلية مُقيَّدة
 
+【٨ — توثيق التجارة الإلكترونية للمنصة】
+${ECOMMERCE_AUTH_DOCTRINE_AR}
+
 【٤ — شروط الاستخدام】
 - الباقات: مسبقة الدفع، صالحة 30 يوم، لا تجديد تلقائي، لا استرداد بعد التفعيل
 - استثناء الاسترداد: إذا فشل التفعيل تقنياً يُرد المبلغ كاملاً خلال 7-14 يوم عمل
@@ -181,7 +193,7 @@ ZATCA 🧾:
 ١. أجب عن أي سؤال يخص الخصوصية أو الشروط أو هوية المنصة بدقة ووضوح
 ٢. وجِّه لقراءة الوثيقة الكاملة عند الحاجة للتفصيل
 ٣. عند السؤال عن شكوى أو نزاع: «تواصل مع فريق الدعم عبر admin@halaqmap.com»
-٤. عند سؤال تنظيمي/ترخيصي/تفتيش/هيئة إعلام: أحِل فوراً إلى **إدارة المنصة** — لا تُجيب عن حالة ترخيص حكومي
+٤. عند سؤال تنظيمي/ترخيصي/تفتيش/هيئة إعلام **غير** توثيق التجارة الإلكترونية الموثّق أعلاه: أحِل فوراً إلى **إدارة المنصة** — لا تُجيب عن حالة ترخيص حكومي غير موثّق
 ٥. عند سؤال خارج اختصاصك: قدّم **إجابة عامة مختصرة أولاً** من سياسات المنصة، ثم أحِل بوضوح إلى المختص المناسب (وكيل مختص داخل المنصة أو جهة بشرية).
 ٦. لا تُعطي آراء قانونية شخصية أو تفسيرات ملزمة
 

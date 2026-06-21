@@ -9,6 +9,7 @@ import {
   PARTNER_ASSISTANT_KNOWLEDGE_VERSION,
 } from './partnerPlatformKnowledge.js';
 import { REGISTRATION_COMPLIANCE_DOCTRINE_AR } from './registrationComplianceDoctrine.js';
+import { ECOMMERCE_AUTH_DOCTRINE_AR } from './ecommerceAuthDoctrine.js';
 
 export { PARTNER_ASSISTANT_KNOWLEDGE_VERSION, getPartnerAssistantKnowledgeMeta };
 const PARTNER_PATH_KNOWLEDGE = `
@@ -85,5 +86,5 @@ const PARTNER_PATH_KNOWLEDGE = `
 `.trim();
 
 export function composePartnerPathKnowledgePack(): string {
-  return [PARTNER_PATH_KNOWLEDGE, '', REGISTRATION_COMPLIANCE_DOCTRINE_AR, '', composePartnerPlatformKnowledgePack()].join('\n');
+  return [PARTNER_PATH_KNOWLEDGE, '', REGISTRATION_COMPLIANCE_DOCTRINE_AR, '', ECOMMERCE_AUTH_DOCTRINE_AR, '', composePartnerPlatformKnowledgePack()].join('\n');
 }

@@ -18,6 +18,9 @@
  * هذه الثوابت لضمان رسالة موحّدة عبر المنصة.
  */
 
+import { LICENSED_ACTIVITY_SCOPE_OPENING_AR } from '@/config/legalActivityScope';
+import { ECOMMERCE_AUTH_VERIFIED_SUMMARY_AR } from '@/config/ecommerceAuthDoctrine';
+
 /** الشارة القصيرة المعروضة على البطاقات والبادجات. */
 export const PLATFORM_IDENTITY_BADGE_AR = 'مزوّد حلول تقنية، لا وسيط تجاري';
 
@@ -28,8 +31,6 @@ export const PLATFORM_IDENTITY_HEADLINE_AR =
 /** عنوان فرعي قصير لشرح الفئة المهنية. */
 export const PLATFORM_IDENTITY_SUBHEADLINE_AR =
   'مزوّد خدمة رقمية للربط والعرض اللحظي. لا عمولة على القص، لا حجز نيابة، لا تسعير نيابة.';
-
-import { LICENSED_ACTIVITY_SCOPE_OPENING_AR } from '@/config/legalActivityScope';
 
 /** الفقرة الرسمية الموحّدة — تُستخدم حرفياً في السياسات والشروط. */
 export const PLATFORM_IDENTITY_PARAGRAPH_AR =
@@ -47,6 +48,7 @@ export const PLATFORM_IDENTITY_PROOF_POINTS_AR: readonly string[] = [
   'العلاقة التعاقدية على خدمة الحلاقة **مباشرة بين الصالون والعميل**؛ المنصة طرف تقني فقط.',
   'بيانات المستخدم تُعالَج تقنياً لأغراض الإدراج والعرض الرقمي فقط، وفق نظام حماية البيانات الشخصية السعودي.',
   'الإيرادات من **بيع منتجات رقمية للمنشآت (B2B)** — وخدمة البحث للأفراد (B2C) مجانية بالكامل.',
+  ECOMMERCE_AUTH_VERIFIED_SUMMARY_AR,
 ];
 
 /** سطر تذييل مختصر يُحقن في كل Layout (Footer) لتأكيد الهوية القانونية. */

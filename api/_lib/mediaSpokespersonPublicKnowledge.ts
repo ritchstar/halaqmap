@@ -22,6 +22,10 @@ import {
   isPlatformRegulatoryInquiry,
   resolveRegulatoryReferral,
 } from './platformManagementReferral.js';
+import {
+  ECOMMERCE_AUTH_DOCTRINE_AR,
+  resolveEcommerceAuthCanonicalReply,
+} from './ecommerceAuthDoctrine.js';
 
 export type MediaSpokespersonAudience = 'consumer' | 'partner';
 
@@ -50,7 +54,8 @@ export const MEDIA_SPOKESPERSON_FORBIDDEN_AR: readonly string[] = [
   'ممنوع قول «سجّل طلبك» للمستخدم النهائي B2C — الفعل الصحيح «ابدأ الاستعلام».',
   'ممنوع قول «ابدأ الاستعلام» لصاحب الصالون B2B — الفعل الصحيح «سجّل طلبك» أو «مسار المنشآت».',
   'ممنوع ادّعاء أن المنصة وسيط حجز أو تجمع عمولة على الحلاقة.',
-  'ممنوع تأكيد/نفي ترخيص حكومي للمنصة — يُحال لإدارة المنصة.',
+  'ممنوع نفي أو تأجيل توثيق التجارة الإلكترونية للمنصة — التوثيق مكتمل وساري لدى المركز السعودي للتنافسية والأعمال (رقم 0000291761).',
+  'ممنوع تأكيد/نفي ترخيص حكومي آخر غير الموثّق في عقيدة التجارة الإلكترونية — يُحال لإدارة المنصة.',
   'ممنوع استشارة قانونية أو ضريبية ملزمة — أحِل للناظر القانوني أو الإدارة.',
 ] as const;
 
@@ -217,6 +222,11 @@ export function resolveMediaSpokespersonCanonicalReply(
     return CANONICAL_WHAT_IS_HALAQMAP_AR;
   }
 
+  const ecommerceAuth = resolveEcommerceAuthCanonicalReply(m);
+  if (ecommerceAuth) {
+    return ecommerceAuth;
+  }
+
   if (/(?:لم\s*يظهر|ما\s*ظهر|لا\s*(?:توجد|يوجد)\s*نتائج|فارغ|بدون\s*نتائج|ليش\s*ما\s*طلع)/iu.test(m)) {
     return CANONICAL_NO_RESULTS_AR;
   }
@@ -235,6 +245,11 @@ export function resolvePublicMediaSpokespersonReply(
   message: string,
   audience: MediaSpokespersonAudience,
 ): { reply: string | null; referredToManagement: boolean; source: MediaSpokespersonResolvedReply['source'] } {
+  const ecommerceAuth = resolveEcommerceAuthCanonicalReply(message);
+  if (ecommerceAuth) {
+    return { reply: ecommerceAuth, referredToManagement: false, source: 'canonical' };
+  }
+
   const regulatory = resolveRegulatoryReferral(message);
   if (regulatory) {
     return { reply: regulatory, referredToManagement: true, source: 'regulatory' };
@@ -296,6 +311,8 @@ export function buildPublicMediaSpokespersonSystemPrompt(
 - لا وساطة تجارية · لا عمولة على الحلاقة · لا حجز نيابي
 - ${statsLine}
 
+${ECOMMERCE_AUTH_DOCTRINE_AR}
+
 ${audienceBlock}
 
 ═══════════════════════════════════════
@@ -306,7 +323,7 @@ ${MEDIA_SPOKESPERSON_FORBIDDEN_AR.map((line) => `- ${line}`).join('\n')}
 ═══════════════════════════════════════
 【إحالات — متى تحيل】
 ═══════════════════════════════════════
-- ترخيص/امتثال حكومي للمنصة → \`${PLATFORM_MANAGEMENT_EMAIL}\` «استفسار تنظيمي»
+- ترخيص/امتثال حكومي **آخر** (غير توثيق التجارة الإلكترونية الموثّق أعلاه) → \`${PLATFORM_MANAGEMENT_EMAIL}\` «استفسار تنظيمي»
 - ضريبة/ZATCA → خبير ZATCA + الإدارة
 - خصوصية/قانون تفصيلي → الناظر القانوني
 - مدفوعات/استرداد → سياسة ميسر + \`${PLATFORM_MANAGEMENT_EMAIL}\` برقم الطلب

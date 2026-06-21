@@ -4,7 +4,7 @@ export const LEGAL_TRADE_NAME_AR = 'مؤسسة أحمد بن عبدالله بن
 /** الرقم الوطني الموحد — معرّف السجل التجاري المعتمد وفق وزارة التجارة */
 export const LEGAL_NATIONAL_UNIFIED_NUMBER = '7054117093';
 
-/** شهادة توثيق التجارة الإلكترونية — مركز أعمال السعودية */
+/** شهادة توثيق التجارة الإلكترونية — المركز السعودي للتنافسية والأعمال */
 export const LEGAL_ECOMMERCE_AUTH_NUMBER = '0000291761';
 
 export const LEGAL_ECOMMERCE_AUTH_STATUS_AR = 'ساري' as const;
@@ -15,7 +15,7 @@ export const LEGAL_ECOMMERCE_AUTH_ISSUED_AT_AR = '18/05/2026' as const;
 /** تاريخ انتهاء شهادة توثيق التجارة الإلكترونية (Gregorian) */
 export const LEGAL_ECOMMERCE_AUTH_EXPIRES_AT_AR = '18/04/2027' as const;
 
-export const LEGAL_ECOMMERCE_AUTH_ISSUER_AR = 'مركز أعمال السعودية' as const;
+export const LEGAL_ECOMMERCE_AUTH_ISSUER_AR = 'المركز السعودي للتنافسية والأعمال' as const;
 
 /** سطر التذييل — يُعرض في الواجهات العامة ومسار الشركاء وصفحات الخصوصية */
 export const LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR =
