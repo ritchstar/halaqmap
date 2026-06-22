@@ -9,6 +9,7 @@ import {
   BriefcaseBusiness,
 } from 'lucide-react';
 import { useAgentChatScroll } from '@/hooks/useAgentChatSurface';
+import { PARTNER_EARLY_PRESENCE_DOCTRINE_SIMPLE_AR } from '@/config/partnerEarlyWaveCopy';
 
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 
@@ -34,7 +35,7 @@ const PITCH_LINES = [
 function getGreeting(): string {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'صباح المبيعات' : hour < 17 ? 'مساء الإنجاز' : 'مساء الإقفال الذكي';
-  return `${greeting}.\n\nأنا مدير المبيعات التجاري لمنصة حلاق ماب.\nمهمتي هنا أن أوضح لك الباقات الفعلية الحالية، منطق التواجد المبكر، وخطة المنصة في تجهيز الحلاقين قبل توسيع الوصول للمستخدمين داخل مناطق المملكة.\n\nببساطة: ليس من المنطقي أن تبني الإدارة سوقاً للمستخدمين قبل أن تملأه بصلونات جاهزة. لهذا السبب، الوجود المبكر داخل المنصة يعطي الحلاق موضعاً أقوى عندما يبدأ اتساع الطلب.\n\nاذكر لي ما الذي تريد حسمه أولاً: السعر، الباقة، أم ميزة الدخول المبكر؟`;
+  return `${greeting}.\n\nأنا مدير المبيعات التجاري لمنصة حلاق ماب.\nمهمتي هنا أن أوضح لك الباقات الفعلية الحالية، منطق التواجد المبكر، وخطة المنصة في تجهيز الحلاقين قبل توسيع الوصول للمستخدمين داخل مناطق المملكة.\n\n${PARTNER_EARLY_PRESENCE_DOCTRINE_SIMPLE_AR}\n\nاذكر لي ما الذي تريد حسمه أولاً: السعر، الباقة، أم ميزة الدخول المبكر؟`;
 }
 
 async function sendMsg(msg: string, history: Turn[]): Promise<string> {
