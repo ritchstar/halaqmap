@@ -9,11 +9,9 @@ export const LEGAL_ECOMMERCE_AUTH_NUMBER = '0000291761';
 
 export const LEGAL_ECOMMERCE_AUTH_STATUS_AR = 'ساري' as const;
 
-/** تاريخ إصدار شهادة توثيق التجارة الإلكترونية (Gregorian) */
-export const LEGAL_ECOMMERCE_AUTH_ISSUED_AT_AR = '18/05/2026' as const;
-
-/** تاريخ انتهاء شهادة توثيق التجارة الإلكترونية (Gregorian) */
-export const LEGAL_ECOMMERCE_AUTH_EXPIRES_AT_AR = '18/04/2027' as const;
+/** توثيق التجارة الإلكترونية — لا يُعرَض ولا يُذكَر تاريخ انتهاء في الواجهات أو ردود الوكلاء */
+export const LEGAL_ECOMMERCE_AUTH_NO_EXPIRY_AR =
+  'توثيق التجارة الإلكترونية ساري — دون تاريخ انتهاء' as const;
 
 export const LEGAL_ECOMMERCE_AUTH_ISSUER_AR = 'المركز السعودي للتنافسية والأعمال' as const;
 
