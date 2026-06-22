@@ -10,11 +10,10 @@ import { useState, useEffect, useRef, useCallback, useMemo, startTransition, laz
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
-  CheckCircle2, Clock, ArrowLeft, Sparkles,
-  Navigation2, ChevronDown, Globe2, Lock,
-  Users, Award, Wifi, TrendingUp, Play, X,
-  Phone, MessageCircle, Heart, BarChart3, Crown,
-  Building2
+  CheckCircle2, Clock, Sparkles,
+  Navigation2, ChevronDown,
+  Wifi, X,
+  Phone, MessageCircle, Heart,
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
@@ -23,7 +22,6 @@ import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
 import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
-import { PartnerPathNavLink } from '@/components/PartnerPathNavLink';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -47,11 +45,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 const LazyLandingAgentPanelBody = lazy(async () => {
   const mod = await import('@/pages/landing/LandingAgentPanelBody');
   return { default: mod.LandingAgentPanelBody };
-});
-
-const LazyDesktopLandingRadarHero = lazy(async () => {
-  const mod = await import('@/pages/landing/DesktopLandingRadarHero');
-  return { default: mod.DesktopLandingRadarHero };
 });
 
 const LazyGeoRadarButton = lazy(async () => {
@@ -842,7 +835,6 @@ export default function LandingPreview() {
               </Link>
 
               <div className="flex items-center gap-2">
-                <PartnerPathNavLink variant="headerCompact" />
                 <button
                   type="button"
                   onClick={handleMobileSearchClick}
@@ -907,7 +899,6 @@ export default function LandingPreview() {
                 {[
                   { label: 'كيف يعمل', icon: Navigation2, id: 'كيف يعمل' },
                   { label: 'المميزات',  icon: Sparkles,   id: 'المميزات' },
-                  { label: 'الأسعار',  icon: Crown,      id: 'الأسعار' },
                 ].map((item) => (
                   <button
                     key={item.label}
@@ -921,9 +912,9 @@ export default function LandingPreview() {
                 ))}
               </nav>
 
-              {/* ── زر البحث + أيقونة B2B مُدمَجة ── */}
+              {/* ── زر البحث + تبديل الإضاءة ── */}
               <div className="flex items-center gap-2">
-                <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
+                <PlatformAmbientToggle className="hidden md:inline-flex" />
 
                 <motion.button
                   onClick={() => {
@@ -947,10 +938,6 @@ export default function LandingPreview() {
                     <span className="sm:hidden">استعلم</span>
                   </span>
                 </motion.button>
-
-                <div className="hidden h-6 w-px bg-white/12 md:block" />
-
-                <PartnerPathNavLink variant="header" />
               </div>
             </div>
           )}
@@ -1330,9 +1317,9 @@ export default function LandingPreview() {
               delay={0.16}
             />
             <FeatureCard
-              icon={BarChart3}
-              title="إدارة أهدأ للصالون"
-              desc="أدوات داخلية تساعد الشريك على متابعة حضوره الرقمي وإدارة صفحته بسهولة."
+              icon={MessageCircle}
+              title="تواصل مباشر"
+              desc="اتّصل أو راسل الصالون على واتساب دون وسيط — المنصة وسيلة اكتشاف فقط."
               color="from-rose-500 to-pink-500"
               delay={0.24}
               size="wide"
@@ -1341,40 +1328,6 @@ export default function LandingPreview() {
         </div>
       </section>
       ) : null}
-
-      {/* ── بانر الحتمية — وصول المنصة مسألة وقت ────────────────────────── */}
-      {!isMobile ? (
-      <section dir="rtl" className="relative z-10 overflow-hidden border-y border-white/5 bg-gradient-to-l from-cyan-950/40 via-[#020c18] to-amber-950/30 py-5">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-cyan-400/5 to-transparent" />
-          <div className="absolute left-0 top-0 h-full w-1/3 bg-gradient-to-r from-amber-400/5 to-transparent" />
-        </div>
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative mx-auto flex max-w-4xl flex-col items-center gap-3 px-5 text-center sm:flex-row sm:justify-between sm:text-right"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan-400/25 bg-cyan-500/10">
-              <TrendingUp className="h-4 w-4 text-cyan-400" />
-            </div>
-            <p className="text-sm font-bold text-white/90 leading-snug">
-              وصول حلاق ماب للمستخدمين{' '}
-              <span className="bg-gradient-to-l from-amber-300 to-cyan-300 bg-clip-text font-black text-transparent">
-                مسألة وقت
-              </span>
-            </p>
-          </div>
-          <p className="max-w-sm text-[0.72rem] leading-relaxed text-white/84 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]">
-            الحلاقة حاجة متكررة غير قابلة للإلغاء — السؤال الوحيد: هل سيكون صالونك في القائمة حين يبحث عنك الزبون؟
-          </p>
-        </motion.div>
-      </section>
-      ) : null}
-
-      {/* ── عروض التأسيس السنوية ─────────────────────────────────────────── */}
-      {!isMobile ? <FoundingOffersSection navigate={navigate} /> : null}
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       {!isMobile ? (
@@ -1443,7 +1396,7 @@ export default function LandingPreview() {
       {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="relative z-10 border-t border-white/8 bg-black/40 py-12">
         <div className="mx-auto max-w-6xl px-5">
-          <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr]">
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div>
               <div className="mb-3 flex items-center gap-2">
@@ -1452,18 +1405,9 @@ export default function LandingPreview() {
                 </div>
                 <span className="text-base font-black text-white">حلاق ماب</span>
               </div>
-              <p className="mb-4 text-xs leading-relaxed text-white/78 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
+              <p className="text-xs leading-relaxed text-white/78 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
                 منصة رقمية ذكية تتيح الوصول إلى مقدم الخدمة المناسب وتسهّل التواصل المباشر — مجانية للمستخدمين.
               </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <PartnerPathNavLink variant="footer" />
-                <Link
-                  to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}
-                  className="rounded-full border border-sky-400/25 bg-sky-500/8 px-3 py-1 text-[0.6rem] font-semibold text-sky-300/80 hover:text-sky-200"
-                >
-                  ضيافة فنادق · طلب بنرات QR ↗
-                </Link>
-              </div>
             </div>
 
             {/* For users */}
@@ -1478,7 +1422,6 @@ export default function LandingPreview() {
                   ابحث عن حلاق الآن
                 </button>
                 {[
-                  { label: 'طلب ضيافة B2B (فنادق/شقق)', to: ROUTE_PATHS.HOSPITALITY_B2B_REQUEST },
                   { label: 'آراء المستخدمين ⭐', to: ROUTE_PATHS.PLATFORM_REVIEWS },
                   { label: 'من نحن', to: ROUTE_PATHS.ABOUT },
                   { label: 'سياسة الخصوصية', to: ROUTE_PATHS.USER_PRIVACY_POLICY },
@@ -1489,7 +1432,20 @@ export default function LandingPreview() {
               </div>
             </div>
 
-            {/* Social/Contact placeholder */}
+            {/* Platform sections — مسار الشركاء في الفوتر فقط */}
+            <div>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">أقسام المنصة</h4>
+              <div className="flex flex-col gap-2.5">
+                <Link
+                  to={ROUTE_PATHS.BARBERS_LANDING}
+                  className="text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] hover:text-teal-300 transition-colors"
+                >
+                  مسار الشركاء — تسجيل الصالونات
+                </Link>
+              </div>
+            </div>
+
+            {/* Contact */}
             <div>
               <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">تواصل</h4>
               <div className="flex flex-col gap-2.5 text-sm text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]">
@@ -1528,332 +1484,5 @@ export default function LandingPreview() {
       ) : null}
 
     </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// عروض التأسيس السنوية — قسم مستقل فاخر
-// ─────────────────────────────────────────────────────────────────────────────
-function FoundingOffersSection({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
-  type PlanId = 'bronze' | 'gold' | 'diamond' | 'diamond_office';
-  const plans: {
-    id: PlanId;
-    emoji: string;
-    name: string;
-    nameEn: string;
-    price: number;
-    addOn: number;
-    total: number;
-    accentFrom: string;
-    accentTo: string;
-    borderColor: string;
-    glowColor: string;
-    badge?: string;
-    featured?: boolean;
-    features: string[];
-    cta: string;
-  }[] = [
-    {
-      id: 'bronze',
-      emoji: '🥉',
-      name: 'برونزي',
-      nameEn: 'Bronze',
-      price: 100,
-      addOn: 0,
-      total: 100,
-      accentFrom: '#92400e',
-      accentTo: '#b45309',
-      borderColor: 'rgba(180,83,9,0.35)',
-      glowColor: 'rgba(180,83,9,0.18)',
-      features: [
-        'ظهور ذكي عند الطلب',
-        'بطاقة صالون أساسية',
-        'مدة 30 يوم',
-        'دون تجديد تلقائي',
-      ],
-      cta: 'ابدأ بالبرونزي',
-    },
-    {
-      id: 'gold',
-      emoji: '🥇',
-      name: 'ذهبي',
-      nameEn: 'Gold',
-      price: 150,
-      addOn: 0,
-      total: 150,
-      accentFrom: '#b45309',
-      accentTo: '#d97706',
-      borderColor: 'rgba(217,119,6,0.4)',
-      glowColor: 'rgba(217,119,6,0.22)',
-      features: [
-        'ظهور مُميَّز وأولوية أعلى',
-        'معرض أعمال 20 صورة',
-        'QR تقييم حقيقي',
-        'شات مباشر مع العملاء',
-      ],
-      cta: 'ابدأ بالذهبي',
-    },
-    {
-      id: 'diamond',
-      emoji: '💎',
-      name: 'ماسي',
-      nameEn: 'Diamond',
-      price: 200,
-      addOn: 0,
-      total: 200,
-      accentFrom: '#0891b2',
-      accentTo: '#06b6d4',
-      borderColor: 'rgba(6,182,212,0.45)',
-      glowColor: 'rgba(6,182,212,0.25)',
-      badge: 'الأكثر اختياراً',
-      featured: true,
-      features: [
-        'أعلى ظهور عند الطلب',
-        'معرض أعمال 40 صورة',
-        'شات مترجم بـ 7 لغات',
-        'إدارة مواعيد متكاملة',
-      ],
-      cta: 'ابدأ بالماسي',
-    },
-    {
-      id: 'diamond_office',
-      emoji: '🏛️',
-      name: 'ماسي + المكتب الخاص',
-      nameEn: 'Diamond + Private Office',
-      price: 200,
-      addOn: 25,
-      total: 225,
-      accentFrom: '#4f46e5',
-      accentTo: '#7c3aed',
-      borderColor: 'rgba(124,58,237,0.45)',
-      glowColor: 'rgba(124,58,237,0.28)',
-      badge: '✦ الأكمل',
-      features: [
-        'كل مزايا الماسي',
-        'مساعد داخلي يستقبل تعليماتك',
-        'مناوب شات ينفّذها أمام الزبائن',
-        'تقارير كل محادثة تصلك فوراً',
-      ],
-      cta: 'ابدأ بالماسي + المكتب',
-    },
-  ];
-
-  function goRegister(planId: PlanId) {
-    const tierMap: Record<PlanId, string> = {
-      bronze: 'bronze',
-      gold: 'gold',
-      diamond: 'diamond',
-      diamond_office: 'diamond',
-    };
-    navigate(`${ROUTE_PATHS.REGISTER}?tier=${tierMap[planId]}${planId === 'diamond_office' ? '&addon=office' : ''}`);
-  }
-
-  return (
-    <section
-      id="الأسعار"
-      dir="rtl"
-      className="relative z-10 overflow-hidden py-28"
-      style={{ background: 'linear-gradient(180deg,#020a14 0%,#010810 55%,#020a14 100%)' }}
-    >
-      {/* خلفية سديمية */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-0 h-96 w-96 rounded-full bg-cyan-500/8 blur-[160px]" />
-        <div className="absolute right-1/4 bottom-0 h-96 w-96 rounded-full bg-violet-500/10 blur-[160px]" />
-        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/5 blur-[200px]" />
-      </div>
-
-      {/* خط علوي */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/20 to-transparent" />
-
-      <div className="relative mx-auto max-w-6xl px-5">
-
-        {/* الرأسية */}
-        <div className="mb-16 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-gradient-to-l from-amber-500/15 to-transparent px-5 py-2 text-[0.7rem] font-black tracking-[0.15em] text-amber-300/90"
-          >
-            <Sparkles className="h-3 w-3" />
-            عروض التأسيس · رخصة نفاذ رقمية للصالونات
-            <Sparkles className="h-3 w-3" />
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.08 }}
-            className="mb-4 text-3xl font-black leading-tight text-white md:text-4xl lg:text-5xl"
-          >
-            اختر باقتك — انطلق
-            <span className="block bg-gradient-to-l from-amber-300 via-cyan-300 to-violet-300 bg-clip-text text-transparent">
-              بدون مفاجآت
-            </span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.16 }}
-            className="mx-auto max-w-xl text-sm leading-relaxed text-white/86 [text-shadow:0_0_12px_rgba(255,255,255,0.12)]"
-          >
-            مسبقة الدفع · لا تجديد تلقائي · لا عمولة على الحلاقة · كل حزمة 30 يوم صلاحية
-          </motion.p>
-        </div>
-
-        {/* الكروت */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {plans.map((plan, i) => (
-            <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.55, ease: 'easeOut' }}
-              className="group relative flex flex-col overflow-hidden rounded-3xl"
-              style={{
-                border: `1px solid ${plan.borderColor}`,
-                background: `linear-gradient(160deg,${plan.accentFrom}18 0%,#040d1a 55%,${plan.accentTo}0e 100%)`,
-                boxShadow: (plan.featured || plan.id === 'bronze' || plan.id === 'gold')
-                  ? `0 0 60px ${plan.glowColor},0 0 120px ${plan.glowColor},inset 0 1px 0 ${plan.borderColor}`
-                  : `0 0 30px ${plan.glowColor},inset 0 1px 0 ${plan.borderColor}`,
-              }}
-            >
-              {/* شارة مميز */}
-              {plan.badge && (
-                <div
-                  className="absolute left-4 top-4 rounded-full px-3 py-0.5 text-[0.6rem] font-black tracking-wide"
-                  style={{
-                    background: `linear-gradient(135deg,${plan.accentFrom},${plan.accentTo})`,
-                    color: '#fff',
-                    boxShadow: `0 0 14px ${plan.glowColor}`,
-                  }}
-                >
-                  {plan.badge}
-                </div>
-              )}
-
-              {/* توهج علوي داخلي */}
-              <div
-                className="pointer-events-none absolute inset-x-0 top-0 h-32 opacity-60"
-                style={{
-                  background: `radial-gradient(ellipse 100% 100% at 50% 0%,${plan.accentTo}22,transparent)`,
-                }}
-              />
-
-              {/* نبض على hover */}
-              <motion.div
-                className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-                style={{ background: `radial-gradient(ellipse 80% 80% at 50% 50%,${plan.accentTo}12,transparent)` }}
-              />
-
-              <div className="relative flex flex-col gap-5 p-6 flex-1">
-                {/* الرأسية */}
-                <div>
-                  <div className="mb-3 flex items-center gap-3">
-                    <div
-                      className="flex h-12 w-12 items-center justify-center rounded-2xl text-2xl"
-                      style={{
-                        background: `linear-gradient(135deg,${plan.accentFrom}30,${plan.accentTo}20)`,
-                        border: `1px solid ${plan.borderColor}`,
-                        boxShadow: `0 0 20px ${plan.glowColor}`,
-                      }}
-                    >
-                      {plan.emoji}
-                    </div>
-                    <div>
-                      <p className="text-base font-black text-white leading-tight">{plan.name}</p>
-                      <p className="text-[0.6rem] font-semibold tracking-wider uppercase" style={{ color: plan.accentTo }}>
-                        {plan.nameEn}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* السعر */}
-                  <div className="flex items-end gap-2">
-                    <span
-                      className="font-mono text-4xl font-black leading-none tabular-nums"
-                      style={{ color: plan.accentTo, textShadow: `0 0 30px ${plan.glowColor}` }}
-                    >
-                      {plan.total}
-                    </span>
-                    <div className="mb-1 flex flex-col leading-none">
-                      <span className="text-xs font-bold text-slate-300">ر.س</span>
-                      <span className="text-[0.55rem] text-white/76 [text-shadow:0_0_8px_rgba(255,255,255,0.10)]">/30 يوم</span>
-                    </div>
-                  </div>
-                  {plan.addOn > 0 && (
-                    <p className="mt-1 text-[0.58rem] text-white/76 [text-shadow:0_0_8px_rgba(255,255,255,0.10)]">
-                      ({plan.price} ماسي + {plan.addOn} المكتب الخاص)
-                    </p>
-                  )}
-                </div>
-
-                {/* الفاصل */}
-                <div className="h-px w-full" style={{ background: `linear-gradient(90deg,transparent,${plan.borderColor},transparent)` }} />
-
-                {/* المزايا */}
-                <ul className="flex flex-1 flex-col gap-2.5">
-                  {plan.features.map((feat) => (
-                    <li key={feat} className="flex items-start gap-2.5 text-sm text-slate-300">
-                      <CheckCircle2
-                        className="mt-0.5 h-4 w-4 shrink-0"
-                        style={{ color: plan.accentTo }}
-                      />
-                      <span className="leading-snug">{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* زر التسجيل */}
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => goRegister(plan.id)}
-                  className="relative mt-2 w-full overflow-hidden rounded-2xl py-3.5 text-sm font-black text-white transition-all"
-                  style={{
-                    background: `linear-gradient(135deg,${plan.accentFrom},${plan.accentTo})`,
-                    boxShadow: `0 0 28px ${plan.glowColor},0 4px 16px ${plan.glowColor}`,
-                  }}
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {plan.cta}
-                    <ArrowLeft className="h-4 w-4" />
-                  </span>
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </motion.button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* ضمانات أسفل */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center text-[0.7rem] text-white/78 [text-shadow:0_0_10px_rgba(255,255,255,0.08)]"
-        >
-          {[
-            { icon: Shield, text: 'بوابة دفع ميسر المعتمدة' },
-            { icon: Lock, text: 'لا تجديد تلقائي' },
-            { icon: Zap, text: 'تفعيل فوري بعد الدفع' },
-            { icon: Award, text: 'شهادة رخصة نفاذ' },
-            { icon: Building2, text: 'ISIC4 474151' },
-          ].map(({ icon: Icon, text }) => (
-            <span key={text} className="flex items-center gap-1.5">
-              <Icon className="h-3.5 w-3.5 text-white/60" />
-              {text}
-            </span>
-          ))}
-        </motion.div>
-      </div>
-    </section>
   );
 }
