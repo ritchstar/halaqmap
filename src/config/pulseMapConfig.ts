@@ -50,3 +50,27 @@ export const PULSE_MAP_COLORS = {
     ring: 'rgba(204,251,241,0.3)',
   },
 } as const;
+
+/** ألوان المدن — متوافقة مع teal/gold/slate في المنصة */
+export const PULSE_MAP_CITY_COLORS = {
+  capital: {
+    dot: '#fbbf24',
+    dotStroke: 'rgba(253,230,138,0.75)',
+    label: 'rgba(254,243,199,0.95)',
+  },
+  major: {
+    dot: '#0d9488',
+    dotStroke: 'rgba(45,212,191,0.55)',
+    label: 'rgba(204,251,241,0.92)',
+  },
+  hub: {
+    dot: '#115e59',
+    dotStroke: 'rgba(20,184,166,0.45)',
+    label: 'rgba(148,163,184,0.9)',
+  },
+  city: {
+    dot: 'rgba(100,116,139,0.75)',
+    dotStroke: 'rgba(148,163,184,0.35)',
+    label: 'rgba(148,163,184,0.82)',
+  },
+} as const;

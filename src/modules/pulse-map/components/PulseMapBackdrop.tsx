@@ -12,14 +12,15 @@ type LayerProps = {
 export function PulseMapBackdropLayer({ tone = 'tactical' }: LayerProps) {
   const isComfort = tone === 'comfort';
   const skyStops = isComfort
-    ? ['#eefaff', '#e8f7ff', '#f4fbff']
+    ? ['#030712', '#041018', '#061525']
     : ['#020617', '#041018', '#030712'];
   const landStops = isComfort
-    ? ['rgba(20,184,166,0.2)', 'rgba(56,189,248,0.14)']
+    ? ['rgba(13,148,136,0.18)', 'rgba(6,78,59,0.1)']
     : ['rgba(14,116,144,0.28)', 'rgba(6,78,59,0.16)'];
-  const gridStroke = isComfort ? 'rgba(14,165,233,0.065)' : 'rgba(56,189,248,0.035)';
-  const outlineStroke = isComfort ? 'rgba(14,165,233,0.42)' : 'rgba(56,189,248,0.55)';
-  const haloStroke = isComfort ? 'rgba(45,212,191,0.22)' : 'rgba(125,211,252,0.22)';
+  const gridStroke = isComfort ? 'rgba(13,148,136,0.055)' : 'rgba(56,189,248,0.035)';
+  const outlineStroke = isComfort ? 'rgba(13,148,136,0.38)' : 'rgba(56,189,248,0.55)';
+  const haloStroke = isComfort ? 'rgba(13,148,136,0.12)' : 'rgba(125,211,252,0.22)';
+  const landGlow = isComfort ? undefined : 'url(#pm-glow)';
 
   return (
     <>
@@ -80,17 +81,17 @@ export function PulseMapBackdropLayer({ tone = 'tactical' }: LayerProps) {
               d={d}
               fill="url(#pm-land)"
               stroke={outlineStroke}
-              strokeWidth={2}
+              strokeWidth={isComfort ? 1.5 : 2}
               strokeLinejoin="round"
-              filter="url(#pm-glow)"
+              filter={landGlow}
             />
             <path
               d={d}
               fill="none"
               stroke={haloStroke}
-              strokeWidth={4.5}
+              strokeWidth={isComfort ? 3 : 4.5}
               strokeLinejoin="round"
-              opacity={0.55}
+              opacity={isComfort ? 0.35 : 0.55}
             />
           </g>
         ))}

@@ -68,7 +68,11 @@ export function PulseMapShell({
       <div
         className={cn(
           'pulse-map-canvas-frame order-1 overflow-hidden rounded-2xl bg-[#020617] lg:order-none',
-          ornamentVariant === 'admin' ? 'border border-violet-400/20' : 'border border-sky-400/15',
+          ornamentVariant === 'admin'
+            ? 'border border-violet-400/20'
+            : tone === 'comfort'
+              ? 'border border-teal-500/20'
+              : 'border border-sky-400/15',
         )}
       >
         <div
