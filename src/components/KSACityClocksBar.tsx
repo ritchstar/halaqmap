@@ -6,8 +6,15 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { MapPin, Thermometer } from 'lucide-react';
-import { KSA_CITIES_GEO } from '@/config/ksaCitiesGeo';
+import {
+  KSA_CITIES_GEO,
+  KSA_CLOCK_BAR_OVERFLOW_COUNT,
+  KSA_CLOCK_BAR_CITY_COUNT,
+} from '@/config/ksaCitiesGeo';
+import { PLATFORM_CITY_COUNT } from '@/config/platformCoveredCities';
+import { ROUTE_PATHS } from '@/lib/index';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   fetchTemperatureCelsius,
@@ -45,7 +52,9 @@ export function KSACityClocksBar() {
   const riyadhMonth = formatRiyadhMonthAr();
 
   const userRegion = resolveUserRegion(userCoords, coordsFromDevice);
-  const userCityIndex = KSA_CITIES_GEO.findIndex((c) => c.id === userRegion.city.id);
+  const userCityIndex = userRegion.city.inClockBar
+    ? KSA_CITIES_GEO.findIndex((c) => c.id === userRegion.city.id)
+    : -1;
 
   const refreshWeather = useCallback(async () => {
     setWeatherLoading(true);
@@ -275,6 +284,24 @@ export function KSACityClocksBar() {
               </div>
             );
           })}
+
+          {KSA_CLOCK_BAR_OVERFLOW_COUNT > 0 ? (
+            <div className="flex shrink-0 items-center">
+              <div className="mx-2 h-5 w-px bg-white/6 sm:mx-2.5" />
+              <Link
+                to={ROUTE_PATHS.RADAR_SHOWCASE}
+                className="group flex shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-teal-400/15 bg-teal-500/5 px-2.5 py-1.5 transition-colors hover:border-teal-400/30 hover:bg-teal-500/10 sm:px-3"
+                title={`${PLATFORM_CITY_COUNT.toLocaleString('ar-SA')} مدينة ضمن تغطية المنصة — الشريط يُبرز ${KSA_CLOCK_BAR_CITY_COUNT.toLocaleString('ar-SA')} مدن رئيسية`}
+              >
+                <span className="text-[0.58rem] font-black leading-none text-teal-300/90 group-hover:text-teal-200">
+                  +{KSA_CLOCK_BAR_OVERFLOW_COUNT.toLocaleString('ar-SA')}
+                </span>
+                <span className="hidden text-[0.52rem] font-semibold leading-none text-slate-500 group-hover:text-slate-400 sm:block">
+                  مدينة
+                </span>
+              </Link>
+            </div>
+          ) : null}
         </div>
 
         {/* يسار: بطاقة الطقس الزجاجية */}
@@ -288,7 +315,9 @@ export function KSACityClocksBar() {
           }}
           title={
             coordsFromDevice
-              ? `درجة الحرارة قرب ${userRegion.city.nameAr} — مدينة مرجعية للاستعلام`
+              ? userRegion.city.inClockBar
+                ? `درجة الحرارة قرب ${userRegion.city.nameAr}`
+                : `مدينتك ${userRegion.city.nameAr} ضمن تغطية المنصة (${PLATFORM_CITY_COUNT.toLocaleString('ar-SA')} مدينة) — الشريط يعرض ${KSA_CLOCK_BAR_CITY_COUNT.toLocaleString('ar-SA')} مدن رئيسية`
               : `درجة الحرارة في ${userRegion.city.nameAr} — مرجع افتراضي حتى بدء الاستعلام`
           }
         >

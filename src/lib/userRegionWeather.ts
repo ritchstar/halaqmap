@@ -2,13 +2,24 @@ import {
   DEFAULT_KSA_CITY_ID,
   KSA_CITIES_GEO,
   USER_COORDS_SESSION_KEY,
-  type KsaCityGeo,
+  findNearestKsaClockBarCity,
 } from '@/config/ksaCitiesGeo';
+import { nearestPlatformCity } from '@/config/platformCoveredCities';
 
 export type UserCoords = { lat: number; lng: number };
 
+export type UserRegionCity = {
+  id: string;
+  nameAr: string;
+  lat: number;
+  lng: number;
+  baseTemp: number;
+  /** هل المدينة ضمن الـ 10 في الشريط العلوي */
+  inClockBar: boolean;
+};
+
 export type UserRegion = {
-  city: KsaCityGeo;
+  city: UserRegionCity;
   coords: UserCoords;
   fromDevice: boolean;
 };
@@ -16,33 +27,33 @@ export type UserRegion = {
 const weatherCache = new Map<string, { temp: number; at: number }>();
 const CACHE_MS = 15 * 60_000;
 
-function haversineKm(a: UserCoords, b: UserCoords): number {
-  const toRad = (d: number) => (d * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLng = toRad(b.lng - a.lng);
-  const lat1 = toRad(a.lat);
-  const lat2 = toRad(b.lat);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(h)));
+type ClockBarCity = (typeof KSA_CITIES_GEO)[number];
+
+/** أقرب مدينة من الـ 10 في الشريط — للتوافق مع الاستدعاءات القديمة */
+export function findNearestKsaCity(lat: number, lng: number): ClockBarCity {
+  return findNearestKsaClockBarCity(lat, lng);
 }
 
-export function findNearestKsaCity(lat: number, lng: number): KsaCityGeo {
-  let best = KSA_CITIES_GEO[0];
-  let bestDist = Infinity;
-  for (const city of KSA_CITIES_GEO) {
-    const dist = haversineKm({ lat, lng }, { lat: city.lat, lng: city.lng });
-    if (dist < bestDist) {
-      bestDist = dist;
-      best = city;
-    }
-  }
-  return best;
+function toUserRegionCity(
+  id: string,
+  nameAr: string,
+  lat: number,
+  lng: number,
+  barAnchor: ClockBarCity,
+): UserRegionCity {
+  return {
+    id,
+    nameAr,
+    lat,
+    lng,
+    baseTemp: barAnchor.baseTemp,
+    inClockBar: KSA_CITIES_GEO.some((city) => city.id === id),
+  };
 }
 
-export function getDefaultKsaCity(): KsaCityGeo {
-  return KSA_CITIES_GEO.find((c) => c.id === DEFAULT_KSA_CITY_ID) ?? KSA_CITIES_GEO[0];
+export function getDefaultKsaCity(): UserRegionCity {
+  const fallback = KSA_CITIES_GEO.find((c) => c.id === DEFAULT_KSA_CITY_ID) ?? KSA_CITIES_GEO[0];
+  return toUserRegionCity(fallback.id, fallback.nameAr, fallback.lat, fallback.lng, fallback);
 }
 
 export function readStoredUserCoords(): UserCoords | null {
@@ -79,8 +90,15 @@ export function clearStoredUserCoords(): void {
 
 export function resolveUserRegion(coords: UserCoords | null, fromDevice: boolean): UserRegion {
   if (coords) {
-    return { city: findNearestKsaCity(coords.lat, coords.lng), coords, fromDevice };
+    const barAnchor = findNearestKsaClockBarCity(coords.lat, coords.lng);
+    const platformCity = nearestPlatformCity(coords.lat, coords.lng);
+    const city = platformCity
+      ? toUserRegionCity(platformCity.id, platformCity.nameAr, platformCity.lat, platformCity.lng, barAnchor)
+      : toUserRegionCity(barAnchor.id, barAnchor.nameAr, barAnchor.lat, barAnchor.lng, barAnchor);
+
+    return { city, coords, fromDevice };
   }
+
   const fallback = getDefaultKsaCity();
   return {
     city: fallback,
