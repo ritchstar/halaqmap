@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
+import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
+import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
 import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
@@ -1242,6 +1244,16 @@ export default function LandingPreview() {
               <Navigation2 className="h-4 w-4" />
               ابحث عن حلاق الآن
             </button>
+            {PUBLIC_PULSE_EXPERIENCE_ENABLED ? (
+              <p className="mt-4">
+                <Link
+                  to={ROUTE_PATHS.RADAR_SHOWCASE}
+                  className="text-sm font-medium text-cyan-300/80 transition-colors hover:text-cyan-200"
+                >
+                  {PULSE_MAP_LINK_LABEL_AR}
+                </Link>
+              </p>
+            ) : null}
           </motion.div>
         </div>
       </section>

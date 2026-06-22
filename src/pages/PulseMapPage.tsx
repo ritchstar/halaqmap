@@ -1,15 +1,16 @@
 /**
- * PulseMapPage — خريطة النبض (خطوة 1: رسم المملكة)
+ * PulseMapPage — خريطة النبض التشغيلية
  * Route: /radar
  */
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Radar } from 'lucide-react';
+import { Activity, ArrowLeft } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
 import { PULSE_MAP_CONFIG, PULSE_MAP_ROUTE } from '@/config/pulseMapConfig';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PulseMapShell, usePulseMapData } from '@/modules/pulse-map';
+import { PulseMapPublicDisclaimer } from '@/modules/pulse-map/components/PulseMapPublicDisclaimer';
 import { isLabClonePath } from '@/lab/labCloneRouting';
 import { cn } from '@/lib/utils';
 import type { CyberEvent } from '@/modules/cyber-radar/types';
@@ -32,7 +33,7 @@ function LabMiniCyberPanel({
       <PulseMapHudStart payload={payload} loading={loading} />
       <section className="pulse-map-mini-cyber rounded-2xl border border-cyan-300/25 bg-black/45 p-2.5 backdrop-blur-md">
         <p className="mb-2 text-center text-[0.62rem] font-bold tracking-wide text-cyan-200">
-          رادار الحلاقة المصغّر
+          معاينة النبض المصغّرة
         </p>
         <div className="overflow-hidden rounded-xl border border-cyan-300/30">
           <CyberRadarCanvas
@@ -64,7 +65,6 @@ export default function PulseMapPage() {
 
     const slotById = new Map(payload.slots.map((s) => [s.id, s]));
 
-    // Fixed city glow baseline so the miniature radar always feels alive.
     const ambientCityGlow: CyberEvent[] = payload.slots.slice(0, 18).map((slot, index) => ({
       id: `mini-city-${slot.id}-${index}`,
       kind: 'visit_internal',
@@ -88,8 +88,8 @@ export default function PulseMapPage() {
         target: pulse.kind === 'link' ? RIYADH_VIEW : undefined,
         description:
           pulse.kind === 'link'
-            ? `ربط نشط من ${slot.nameAr}`
-            : `بحث نشط من ${slot.nameAr}`,
+            ? `تفاعل شريك من ${slot.nameAr}`
+            : `استعلام من ${slot.nameAr}`,
         originLabelAr: slot.nameAr,
         timestamp: pulse.createdAt,
         lifetimeMs: 5200,
@@ -123,11 +123,11 @@ export default function PulseMapPage() {
           </button>
           <div className="pulse-map-topbar-title flex flex-col items-center gap-0.5">
             <div className="flex items-center gap-2">
-              <Radar className="h-4 w-4 text-sky-400" />
+              <Activity className="h-4 w-4 text-sky-400" />
               <span className="text-sm font-black text-sky-100">{PULSE_MAP_CONFIG.titleAr}</span>
             </div>
-            <span className="text-[0.62rem] font-medium text-sky-300/75" dir="ltr">
-              {PULSE_MAP_CONFIG.subtitleEn}
+            <span className="text-[0.62rem] font-medium text-sky-300/75">
+              {PULSE_MAP_CONFIG.subtitleAr}
             </span>
           </div>
           <div className="hidden w-[4.5rem] sm:block" aria-hidden />
@@ -138,16 +138,25 @@ export default function PulseMapPage() {
         <motion.header
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pulse-map-hero mb-8 text-center"
+          className="pulse-map-hero mb-6 text-center"
         >
           <div className="pulse-map-hero-icon mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-400/30 bg-sky-500/10 shadow-[0_0_40px_rgba(56,189,248,0.15)]">
-            <Radar className="h-7 w-7 text-sky-300" />
+            <Activity className="h-7 w-7 text-sky-300" />
           </div>
           <h1 className="text-2xl font-black text-white sm:text-3xl">{PULSE_MAP_CONFIG.heroTitleAr}</h1>
-          <p className="mt-1 text-sm font-medium text-sky-300/80" dir="ltr">
-            {PULSE_MAP_CONFIG.subtitleEn}
-          </p>
+          <p className="mt-2 text-sm font-medium text-sky-300/80">{PULSE_MAP_CONFIG.subtitleAr}</p>
         </motion.header>
+
+        {!isLabClone ? (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="mb-6"
+          >
+            <PulseMapPublicDisclaimer />
+          </motion.div>
+        ) : null}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -158,7 +167,8 @@ export default function PulseMapPage() {
             payload={payload}
             loading={loading}
             error={error}
-            tone={isLabClone ? 'comfort' : 'tactical'}
+            tone={isLabClone ? 'tactical' : 'comfort'}
+            showOrnaments={isLabClone}
             startPanel={
               isLabClone ? (
                 <LabMiniCyberPanel

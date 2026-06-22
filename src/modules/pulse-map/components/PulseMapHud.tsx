@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Activity, Radar } from 'lucide-react';
-import { PULSE_MAP_CONFIG, PULSE_MAP_COLORS } from '@/config/pulseMapConfig';
+import { Activity } from 'lucide-react';
+import { PULSE_MAP_CONFIG, PULSE_MAP_COLORS, PULSE_MAP_DOCTRINE_LINE_AR } from '@/config/pulseMapConfig';
 import { PULSE_MAP_CITY_MARKERS } from '@/modules/pulse-map/lib/pulseMapCities';
 import type { PulseMapPayload } from '@/modules/pulse-map/types';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
@@ -35,12 +35,10 @@ export function PulseMapHudStart({ payload, loading }: Props) {
 
       <div className="space-y-2">
         <div className="flex flex-wrap items-start gap-2">
-          <Radar className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+          <Activity className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
           <div className="min-w-0">
             <p className="text-sm font-black text-sky-100">{PULSE_MAP_CONFIG.titleAr}</p>
-            <p className="text-[0.62rem] font-medium text-sky-300/75" dir="ltr">
-              {PULSE_MAP_CONFIG.subtitleEn}
-            </p>
+            <p className="text-[0.62rem] font-medium text-sky-300/75">{PULSE_MAP_CONFIG.subtitleAr}</p>
           </div>
         </div>
         <span className="inline-flex rounded-full border border-sky-400/30 bg-sky-500/15 px-2 py-0.5 text-[0.58rem] font-bold text-sky-200">
@@ -53,6 +51,7 @@ export function PulseMapHudStart({ payload, loading }: Props) {
       <p className="mt-2 text-[0.6rem] leading-relaxed text-amber-200/75">
         {PULSE_MAP_CONFIG.phaseHintAr}
       </p>
+      <p className="mt-2 text-[0.58rem] leading-relaxed text-slate-500">{PULSE_MAP_DOCTRINE_LINE_AR}</p>
 
       {showPulses ? (
         <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
@@ -129,7 +128,7 @@ export function PulseMapHudEnd({ payload, loading }: Props) {
           </>
         ) : null}
         <StatRow
-          icon={<Radar className="h-4 w-4 text-sky-300" />}
+          icon={<Activity className="h-4 w-4 text-sky-300" />}
           label="مدن"
           value={payload?.stats.slotsActive ?? PULSE_MAP_CITY_MARKERS.length}
         />

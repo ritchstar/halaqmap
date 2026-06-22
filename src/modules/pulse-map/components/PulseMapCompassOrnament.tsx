@@ -38,8 +38,8 @@ const BADGE_CLASS: Record<PulseMapOrnamentVariant, string> = {
 };
 
 const BADGE_LABEL: Record<PulseMapOrnamentVariant, string> = {
-  public: 'الرصد الذكي',
-  admin: 'قيادة · الرصد',
+  public: 'نبض المنصة',
+  admin: 'قيادة · النبض',
   cyber: 'عمليات · سيبر',
 };
 

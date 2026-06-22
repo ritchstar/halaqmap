@@ -12,6 +12,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
+import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
 
@@ -147,8 +148,6 @@ function PartnersDomainRedirect() {
 
   return null;
 }
-
-const PUBLIC_PULSE_EXPERIENCE_ENABLED = false;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

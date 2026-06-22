@@ -79,7 +79,7 @@ export function PulseMapShell({
             viewBox={`0 0 ${PULSE_MAP_VIEWBOX.width} ${PULSE_MAP_VIEWBOX.height}`}
             className="pulse-map-svg h-full w-full"
             preserveAspectRatio="xMidYMid meet"
-            aria-label="رادار الرصد — Halaq Map Platform — المملكة العربية السعودية"
+            aria-label={PULSE_MAP_CONFIG.mapAriaLabelAr}
           >
             <PulseMapBackdrop tone={tone} />
             {showOrnaments && riyadh ? (

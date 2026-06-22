@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
+import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
+import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -1388,6 +1390,11 @@ export default function PartnerMarketingPreview() {
                 </Link>
                 <Link to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-sm text-slate-600 hover:text-teal-700">سياسة الخصوصية</Link>
                 <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-sm text-slate-600 hover:text-teal-700">شروط الاستخدام</Link>
+                {PUBLIC_PULSE_EXPERIENCE_ENABLED ? (
+                  <Link to={ROUTE_PATHS.RADAR_SHOWCASE} className="text-sm text-slate-600 hover:text-teal-700 transition-colors">
+                    {PULSE_MAP_LINK_LABEL_AR}
+                  </Link>
+                ) : null}
               </div>
             </div>
           </div>

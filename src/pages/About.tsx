@@ -10,8 +10,12 @@ import {
   PLATFORM_VISION_BODY,
   PLATFORM_WHY_FEATURES_INTRO,
 } from "@/config/platformGrowthNarrative";
+import { Link } from "react-router-dom";
+import { ROUTE_PATHS } from '@/lib/index';
 import { LICENSED_COMMERCIAL_ACTIVITIES } from '@/config/licensedCommercialActivities';
 import { LEGAL_ENTITY_ABOUT_FOOTER_LINE_AR } from '@/config/partnerLegal';
+import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
+import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 
 export default function About() {
   const licensedActivities = LICENSED_COMMERCIAL_ACTIVITIES;
@@ -362,6 +366,22 @@ export default function About() {
               ))}
             </div>
           </div>
+
+          {PUBLIC_PULSE_EXPERIENCE_ENABLED ? (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mt-10 text-center"
+            >
+              <Link
+                to={ROUTE_PATHS.RADAR_SHOWCASE}
+                className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+              >
+                {PULSE_MAP_LINK_LABEL_AR}
+              </Link>
+            </motion.div>
+          ) : null}
         </div>
       </section>
 
