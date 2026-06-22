@@ -26,6 +26,10 @@ import {
   ECOMMERCE_AUTH_DOCTRINE_AR,
   resolveEcommerceAuthCanonicalReply,
 } from './ecommerceAuthDoctrine.js';
+import {
+  REGULATORY_FRAMEWORK_DOCTRINE_AR,
+  resolveRegulatoryFrameworkCanonicalReply,
+} from './regulatoryFrameworkDoctrine.js';
 
 export type MediaSpokespersonAudience = 'consumer' | 'partner';
 
@@ -56,7 +60,7 @@ export const MEDIA_SPOKESPERSON_FORBIDDEN_AR: readonly string[] = [
   'ممنوع ادّعاء أن المنصة وسيط حجز أو تجمع عمولة على الحلاقة.',
   'ممنوع نفي أو تأجيل توثيق التجارة الإلكترونية للمنصة — التوثيق مكتمل وساري لدى المركز السعودي للتنافسية والأعمال (رقم 0000291761).',
   'ممنوع ذكر تاريخ انتهاء أو «ساري حتى» أو «صلاحية الشهادة» لتوثيق التجارة الإلكترونية — لا يوجد تاريخ انتهاء.',
-  'ممنوع تأكيد/نفي ترخيص حكومي آخر غير الموثّق في عقيدة التجارة الإلكترونية — يُحال لإدارة المنصة.',
+  'ممنوع تأكيد/نفي ترخيص حكومي آخر غير الموثّق في الإطار النظامي المعتمد (أنشطة ISIC · توثيق التجارة · تراخيص الإعلام) — يُحال لإدارة المنصة.',
   'ممنوع استشارة قانونية أو ضريبية ملزمة — أحِل للناظر القانوني أو الإدارة.',
 ] as const;
 
@@ -251,6 +255,11 @@ export function resolvePublicMediaSpokespersonReply(
     return { reply: ecommerceAuth, referredToManagement: false, source: 'canonical' };
   }
 
+  const regulatoryFramework = resolveRegulatoryFrameworkCanonicalReply(message);
+  if (regulatoryFramework) {
+    return { reply: regulatoryFramework, referredToManagement: false, source: 'canonical' };
+  }
+
   const regulatory = resolveRegulatoryReferral(message);
   if (regulatory) {
     return { reply: regulatory, referredToManagement: true, source: 'regulatory' };
@@ -314,6 +323,8 @@ export function buildPublicMediaSpokespersonSystemPrompt(
 
 ${ECOMMERCE_AUTH_DOCTRINE_AR}
 
+${REGULATORY_FRAMEWORK_DOCTRINE_AR}
+
 ${audienceBlock}
 
 ═══════════════════════════════════════
@@ -324,7 +335,8 @@ ${MEDIA_SPOKESPERSON_FORBIDDEN_AR.map((line) => `- ${line}`).join('\n')}
 ═══════════════════════════════════════
 【إحالات — متى تحيل】
 ═══════════════════════════════════════
-- ترخيص/امتثال حكومي **آخر** (غير توثيق التجارة الإلكترونية الموثّق أعلاه) → \`${PLATFORM_MANAGEMENT_EMAIL}\` «استفسار تنظيمي»
+- ترخيص/امتثال حكومي **حساس** (تفتيش · مقيم · معلّق · CITC) → \`${PLATFORM_MANAGEMENT_EMAIL}\` «استفسار تنظيمي»
+- للإطار النظامي **الموثّق** (ISIC · توثيق التجارة · تراخيص الإعلام) → استخدم العقيدة أعلاه — **لا تُحِل**
 - ضريبة/ZATCA → خبير ZATCA + الإدارة
 - خصوصية/قانون تفصيلي → الناظر القانوني
 - مدفوعات/استرداد → سياسة ميسر + \`${PLATFORM_MANAGEMENT_EMAIL}\` برقم الطلب

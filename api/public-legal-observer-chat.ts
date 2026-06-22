@@ -21,6 +21,10 @@ import {
   ECOMMERCE_AUTH_DOCTRINE_AR,
   resolveEcommerceAuthCanonicalReply,
 } from './_lib/ecommerceAuthDoctrine.js';
+import {
+  REGULATORY_FRAMEWORK_DOCTRINE_AR,
+  resolveRegulatoryFrameworkCanonicalReply,
+} from './_lib/regulatoryFrameworkDoctrine.js';
 
 export const config = { maxDuration: 45 };
 type Turn = { role: 'user' | 'assistant'; content: string };
@@ -55,6 +59,11 @@ function resolveLegalObserverSpecialistReferral(message: string): string | null 
   const ecommerceAuth = resolveEcommerceAuthCanonicalReply(m);
   if (ecommerceAuth) {
     return ecommerceAuth;
+  }
+
+  const regulatoryFramework = resolveRegulatoryFrameworkCanonicalReply(m);
+  if (regulatoryFramework) {
+    return regulatoryFramework;
   }
 
   if (isPlatformRegulatoryInquiry(m)) {
@@ -143,6 +152,9 @@ ${LICENSED_ACTIVITY_AI_DOCTRINE_AR}
 
 【٨ — توثيق التجارة الإلكترونية للمنصة】
 ${ECOMMERCE_AUTH_DOCTRINE_AR}
+
+【٩ — الإطار النظامي الكامل (أنشطة · إعلام · توثيق)】
+${REGULATORY_FRAMEWORK_DOCTRINE_AR}
 
 【٤ — شروط الاستخدام】
 - الباقات: مسبقة الدفع، صالحة 30 يوم، لا تجديد تلقائي، لا استرداد بعد التفعيل

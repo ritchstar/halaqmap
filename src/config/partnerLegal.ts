@@ -33,6 +33,12 @@ export const LEGAL_ECOMMERCE_INQUIRY_COPY_HINT_AR =
 export const LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR =
   `شهادة توثيق التجارة الإلكترونية — رقم التوثيق: ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR})`;
 
+/** تراخيص الهيئة العامة لتنظيم الإعلام — كما في التذييل العام */
+export const LEGAL_MEDIA_LICENSE_NUMBERS = ['167220', '167221', '167222'] as const;
+
+export const LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR =
+  `تراخيص الهيئة العامة لتنظيم الإعلام ${LEGAL_MEDIA_LICENSE_NUMBERS.join(' · ')}`;
+
 /** يُعرض في تذييل صفحة «من نحن» فقط — خط صغير */
 export const LEGAL_ENTITY_ABOUT_FOOTER_LINE_AR =
   `${LEGAL_TRADE_NAME_AR} · الرقم الوطني الموحد: ${LEGAL_NATIONAL_UNIFIED_NUMBER}`;

@@ -18,10 +18,16 @@ import {
   appendUniversalAgentDoctrines,
   resolveRegulatoryReferral,
 } from './_lib/platformManagementReferral.js';
-import { resolveEcommerceAuthCanonicalReply } from './_lib/ecommerceAuthDoctrine.js';
+import {
+  ECOMMERCE_AUTH_DOCTRINE_AR,
+  resolveEcommerceAuthCanonicalReply,
+} from './_lib/ecommerceAuthDoctrine.js';
+import {
+  REGULATORY_FRAMEWORK_DOCTRINE_AR,
+  resolveRegulatoryFrameworkCanonicalReply,
+} from './_lib/regulatoryFrameworkDoctrine.js';
 import { REGISTRATION_COMPLIANCE_DOCTRINE_AR } from './_lib/registrationComplianceDoctrine.js';
 import { PARTNER_EARLY_WAVE_TAGLINE_AR, PARTNER_EARLY_PRESENCE_DOCTRINE_SIMPLE_AR } from './_lib/partnerEarlyWaveCopy.js';
-import { ECOMMERCE_AUTH_DOCTRINE_AR } from './_lib/ecommerceAuthDoctrine.js';
 
 // أسعار الباقات (مصدر الحقيقة: src/config/subscriptionPricing.ts)
 const PRICE_BRONZE = 100;
@@ -94,12 +100,9 @@ function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): stri
 - **شعار تسويقي معتمد:** «${PARTNER_EARLY_WAVE_TAGLINE_AR}»
 
 【الوضع النظامي والرسمي — استخدمه بثقة ودقة】
-- المؤسسة تعمل تحت أنشطة رسمية متعددة، ويُقدَّم نشاط البيع بالتجزئة للبرمجيات بوصفه النشاط الرسمي المعتمد للمنصة: ISIC4 474151.
-- الأنشطة الأخرى المرتبطة بالمؤسسة: 620101 تكامل الأنظمة، 620102 تصميم وبرمجة البرمجيات الخاصة، 620111 تطوير التطبيقات، 731013 تقديم خدمات تسويقية نيابة عن الغير، 731011 مؤسسات ووكالات الدعاية والاعلان، 631121 خدمات الاستضافة للمواقع والتطبيقات.
-- المنصة تعرض في واجهتها العامة المرجع الرسمي للنشاط المعتمد، كما تعرض ترخيص الهيئة العامة لتنظيم الإعلام رقم 167220.
+${REGULATORY_FRAMEWORK_DOCTRINE_AR}
 - ${ECOMMERCE_AUTH_DOCTRINE_AR}
 - عند الأسئلة التنظيمية، ابدأ بالإطار الرسمي ثم انتقل إلى الميزة التجارية. لا تدخل في جدل قانوني مطوّل إذا كان السؤال يتطلب مستشارًا نظاميًا.
-- إذا سأل العميل كيف يتحقق بنفسه، فاذكر أن رقم توثيق التجارة الإلكترونية ظاهر في تذييل الموقع (الرئيسية، مسار الشركاء، صفحات الخصوصية) وأن التحقق الذاتي متاح له مباشرة.
 
 【رسائل جاهزة عن خطة الإدارة والنشر للمستخدمين】
 - «الإدارة لا تنشر المنصة عشوائياً؛ التوسع للمستخدمين داخل مناطق المملكة يتم بخطة مدروسة بعناية فائقة».
@@ -337,6 +340,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const referral =
     resolveEcommerceAuthCanonicalReply(msg) ??
+    resolveRegulatoryFrameworkCanonicalReply(msg) ??
     resolveRegulatoryReferral(msg);
   const systemPrompt = buildSystemPrompt(ctx);
   const reply = referral ?? await callModel(systemPrompt, history, msg);
@@ -346,7 +350,7 @@ export async function POST(request: Request): Promise<Response> {
     channel: 'مسار الشركاء',
     userMessage: msg,
     assistantReply: reply,
-    referredToManagement: Boolean(referral),
+    referredToManagement: Boolean(resolveRegulatoryReferral(msg)),
   });
 
   return json({ reply });

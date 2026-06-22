@@ -8,7 +8,7 @@ import {
   PLATFORM_SMART_TRACKING_SUBTEXT,
 } from '@/config/platformSmartTracking';
 import { PLATFORM_GROWTH_REGISTER_INTRO_AR } from '@/config/platformGrowthPrograms';
-import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
+import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR, LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR } from '@/config/partnerLegal';
 
 export const PLATFORM_META_DESCRIPTION =
   'حلاق ماب — منصة رقمية ذكية تساعد المستخدم على الوصول إلى مقدم الخدمة المناسب والتواصل معه مباشرة، عبر استجابة سريعة وعرض عملي واضح — المملكة العربية السعودية.';
@@ -35,8 +35,7 @@ export const PLATFORM_OFFICIAL_FOOTER_LEGAL_LINE =
   'جميع الحقوق محفوظة © ٢٠٢٦ | حلاق ماب — منصة رقمية سعودية';
 
 /** سطر الترخيص الإعلامي الرسمي في التذييل */
-export const PLATFORM_MEDIA_LICENSE_FOOTER_LINE =
-  'تراخيص الهيئة العامة لتنظيم الإعلام 167220 - 167221 - 167222';
+export const PLATFORM_MEDIA_LICENSE_FOOTER_LINE = LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR;
 
 /** سطر توثيق التجارة الإلكترونية في التذييل */
 export const PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE = LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR;

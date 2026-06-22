@@ -16,6 +16,11 @@ export const LEGAL_NATIONAL_UNIFIED_NUMBER = '7054117093';
 export const LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR =
   `شهادة توثيق التجارة الإلكترونية — رقم التوثيق: ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR})`;
 
+export const LEGAL_MEDIA_LICENSE_NUMBERS = ['167220', '167221', '167222'] as const;
+
+export const LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR =
+  `تراخيص الهيئة العامة لتنظيم الإعلام ${LEGAL_MEDIA_LICENSE_NUMBERS.join(' · ')}`;
+
 export const ECOMMERCE_AUTH_VERIFIED_SUMMARY_AR =
   `المنصة موثّقة للعمل بالتجارة الإلكترونية لدى ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم التوثيق ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR}).`;
 

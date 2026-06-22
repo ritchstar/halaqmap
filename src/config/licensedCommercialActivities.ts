@@ -23,3 +23,11 @@ export const LICENSED_COMMERCIAL_ACTIVITIES_SECONDARY_AR =
   LICENSED_COMMERCIAL_ACTIVITIES.filter((a) => !a.primary)
     .map((a) => `${a.code} ${a.label}`)
     .join('، ');
+
+/** الأنشطة البارزة في الرد النظامي — النشاط الأساسي + داعمان */
+export const REGULATORY_FRAMEWORK_HIGHLIGHT_ACTIVITIES_AR =
+  LICENSED_COMMERCIAL_ACTIVITIES.filter(
+    (a) => a.primary || a.code === '620102' || a.code === '731011',
+  )
+    .map((a) => `${a.code} ${a.label}${a.primary ? ' (النشاط المعتمد للمنصة)' : ''}`)
+    .join(' · ');
