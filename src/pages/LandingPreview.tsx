@@ -10,7 +10,7 @@ import { useState, useEffect, useRef, useCallback, useMemo, startTransition, laz
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   MapPin, Scissors, Star, Shield, Search, Zap,
-  CheckCircle2, Clock, Sparkles,
+  Clock, Sparkles,
   Navigation2, ChevronDown,
   Wifi, X,
   Phone, MessageCircle, Heart,
@@ -38,6 +38,7 @@ import { toast } from '@/components/ui/sonner';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
+import { LandingPulseRadarHero } from '@/pages/landing/LandingPulseRadarHero';
 import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -1044,7 +1045,7 @@ export default function LandingPreview() {
             ) : null}
           </motion.div>
 
-          {/* Right — Public value card */}
+          {/* Right — live pulse radar (desktop) */}
           {!isMobile ? (
           <motion.div
             initial={skipHeroMotion ? false : { opacity: 0, scale: 0.92 }}
@@ -1053,32 +1054,7 @@ export default function LandingPreview() {
             className="relative"
           >
             <div className="relative mx-auto max-w-[440px]">
-              <div className="relative overflow-hidden rounded-3xl border border-teal-400/20 bg-[#030d1a] p-6 shadow-2xl shadow-teal-500/10">
-                <div className="rounded-2xl border border-white/8 bg-[#060d1a] p-6">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[0.72rem] font-bold text-emerald-200">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    بيانات متاحة وموثقة
-                  </div>
-                  <h3 className="mt-4 text-2xl font-black text-white">
-                    كل ما يحتاجه المستخدم في مكان واحد
-                  </h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-300">
-                    تعرض المنصة بيانات الصالونات المفعّلة، مثل صور المنشأة، حالة العمل الحالية، ووسائل التواصل، بما يسهّل على المستخدم اختيار مقدم الخدمة المناسب دون تعقيد.
-                  </p>
-                  <div className="mt-5 grid gap-3">
-                    {[
-                      'بنر وصور تعريفية محدثة',
-                      'وسائل تواصل مباشرة',
-                      'حالة العمل الحالية: مفتوح / مغلق',
-                      'بيانات مناسبة لطلب المستخدم',
-                    ].map((item) => (
-                      <div key={item} className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-slate-200">
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <LandingPulseRadarHero />
             </div>
           </motion.div>
           ) : null}
