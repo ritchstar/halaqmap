@@ -14,6 +14,7 @@ import {
 import {
   ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR,
 } from '@/config/onDemandVisibilityDoctrine';
+import { PARTNER_TIER_MARKETING_HOOKS_AR } from '@/config/partnerFieldSalesCopy';
 
 export const LISTING_LICENSE_LEGAL_FOOTNOTE =
   `تنبيه نظامي: جميع الباقات المذكورة هي حزم رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية) — نشاط برمجي رقم 474151. ${ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR} المنتجات مسبقة الدفع وغير قابلة للإلغاء بعد التفعيل، ولا تشمل أي عمولات أو وساطة حجز.`;
@@ -60,8 +61,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     nameAr: 'برونزي',
     badge: '🥉',
     productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
-    subtitleAr:
-      'ابدأ بحضور رسمي: عند تنشّط الاستعلام يظهر صالونك ببيانات واضحة للمستخدم المناسب',
+    subtitleAr: PARTNER_TIER_MARKETING_HOOKS_AR.bronze,
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.BRONZE],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
@@ -83,7 +83,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     badge: '💎',
     premiumRibbonAr: 'أقوى رخصة نفاذ + Add-on اختياري',
     productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
-    subtitleAr: DIAMOND_LICENSE_TECHNICAL_VALUE_AR,
+    subtitleAr: PARTNER_TIER_MARKETING_HOOKS_AR.diamond,
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.DIAMOND],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,
@@ -109,8 +109,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
     nameAr: 'ذهبي',
     badge: '🥇',
     productTitleAr: SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR,
-    subtitleAr:
-      'ارفع الثقة والتحويل: صور أكثر، تقييمات، شات، وخدمات إضافية',
+    subtitleAr: PARTNER_TIER_MARKETING_HOOKS_AR.gold,
     priceSar: TIER_MONTHLY_SAR[SubscriptionTier.GOLD],
     packageUnitLabelAr: SOFTWARE_PACKAGE_UNIT_LABEL_AR,
     validityLabel: SOFTWARE_PACKAGE_VALIDITY_LABEL_AR,

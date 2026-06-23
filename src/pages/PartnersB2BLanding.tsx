@@ -8,7 +8,14 @@ import { motion } from 'framer-motion';
 import { MapPin, Phone, MessageCircle, Check, X, Star, Scissors, Shield, Zap, Users, ChevronLeft, ArrowLeft } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { PARTNER_EARLY_WAVE_SUBLINE_AR, PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+import { PARTNER_EARLY_WAVE_SUBLINE_AR } from '@/config/partnerEarlyWaveCopy';
+import {
+  PARTNER_HERO_CLOSING_TAGLINE_AR,
+  PARTNER_HERO_TAGLINE_REPUTATION_AR,
+  PARTNER_LANDING_FAQ_AR,
+  PARTNER_SECTION_INTROS,
+} from '@/config/partnerFieldSalesCopy';
+import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 
@@ -84,7 +91,7 @@ export default function PartnersB2BLanding() {
 
           {/* Subtitle */}
           <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="text-xl md:text-2xl font-bold mb-4 leading-relaxed" style={{ color: "#D4AF37" }}>
-            {PARTNER_EARLY_WAVE_TAGLINE_AR}
+            {PARTNER_HERO_TAGLINE_REPUTATION_AR}
           </motion.p>
 
           {/* Description */}
@@ -406,6 +413,19 @@ export default function PartnersB2BLanding() {
         </div>
       </section>
 
+      {/* ───── FAQ ───── */}
+      <section className="relative z-10 py-16 px-6" style={{ borderTop: '1px solid rgba(13,148,136,0.12)' }}>
+        <div className="max-w-3xl mx-auto">
+          <PartnerLandingFaqAccordion
+            kicker={PARTNER_SECTION_INTROS.faq.kicker}
+            lead={PARTNER_SECTION_INTROS.faq.lead}
+            items={PARTNER_LANDING_FAQ_AR}
+            variant="dark"
+            headingClassName="text-center"
+          />
+        </div>
+      </section>
+
       {/* ───── CTA FINAL ───── */}
       {/* @section: cta-final */}
       <section className="relative z-10 py-24 px-6 overflow-hidden">
@@ -418,7 +438,7 @@ export default function PartnersB2BLanding() {
             </motion.div>
 
             <motion.h2 variants={fadeUp} className="text-3xl md:text-4xl font-black mb-4 leading-snug" style={{ color: "#F8FAFC" }}>
-              {PARTNER_EARLY_WAVE_TAGLINE_AR}
+              {PARTNER_HERO_CLOSING_TAGLINE_AR}
             </motion.h2>
             <motion.p variants={fadeUp} className="text-sm mb-10" style={{ color: "#94A3B8" }}>
               {PARTNER_EARLY_WAVE_SUBLINE_AR}

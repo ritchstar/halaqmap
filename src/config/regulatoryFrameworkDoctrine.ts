@@ -7,7 +7,6 @@ import { REGULATORY_FRAMEWORK_HIGHLIGHT_ACTIVITIES_AR } from '@/config/licensedC
 import {
   LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR,
   LEGAL_ECOMMERCE_AUTH_ISSUER_AR,
-  LEGAL_ECOMMERCE_AUTH_NO_EXPIRY_AR,
   LEGAL_ECOMMERCE_AUTH_NUMBER,
   LEGAL_ECOMMERCE_AUTH_STATUS_AR,
   LEGAL_ECOMMERCE_INQUIRY_URL,
@@ -25,7 +24,7 @@ export const REGULATORY_FRAMEWORK_CANONICAL_REPLY_AR =
   `**الإطار النظامي باختصار:**\n\n` +
   `• **النشاط المعتمد للمنصة:** \`ISIC4 ${ISIC_ACTIVITY_CODE}\` — ${ISIC_MOC_ACTIVITY_NAME_AR} (رخصة النفاذ الرقمية B2B).\n` +
   `• **أنشطة مسجّلة بارزة:** ${REGULATORY_FRAMEWORK_HIGHLIGHT_ACTIVITIES_AR}.\n` +
-  `• **توثيق التجارة الإلكترونية:** رقم ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR}) — ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR}. ${LEGAL_ECOMMERCE_AUTH_NO_EXPIRY_AR}.\n` +
+  `• **توثيق التجارة الإلكترونية:** رقم ${LEGAL_ECOMMERCE_AUTH_NUMBER} (${LEGAL_ECOMMERCE_AUTH_STATUS_AR}) — ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR}.\n` +
   `• **${LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR}**.\n` +
   `• **الرقم الوطني الموحد (السجل التجاري):** ${LEGAL_NATIONAL_UNIFIED_NUMBER}.\n\n` +
   `**للتحقق الذاتي:** ${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR} — يظهر في تذييل الرئيسية ومسار الشركاء وصفحات الخصوصية.\n` +
@@ -39,7 +38,7 @@ export const REGULATORY_FRAMEWORK_DOCTRINE_AR = `
 - **لا تخلط** بين: (١) نشاط السجل التجاري \`ISIC4\`، (٢) توثيق التجارة الإلكترونية، (٣) تراخيص الهيئة العامة لتنظيم الإعلام — ثلاث مسارات مستقلة.
 - **النشاط المعتمد للمنصة:** \`ISIC4 ${ISIC_ACTIVITY_CODE}\` — ${ISIC_MOC_ACTIVITY_NAME_AR} — هذا ما تُباع تحته رخصة النفاذ الرقمية B2B.
 - **أنشطة داعمة بارزة في السجل:** ${REGULATORY_FRAMEWORK_HIGHLIGHT_ACTIVITIES_AR} — تدعم التطوير والتسويق؛ ليست منتجاً منفصلاً تُباع للحلاق.
-- **توثيق التجارة الإلكترونية:** ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم **${LEGAL_ECOMMERCE_AUTH_NUMBER}** (${LEGAL_ECOMMERCE_AUTH_STATUS_AR}). ${LEGAL_ECOMMERCE_AUTH_NO_EXPIRY_AR}.
+- **توثيق التجارة الإلكترونية:** ${LEGAL_ECOMMERCE_AUTH_ISSUER_AR} — رقم **${LEGAL_ECOMMERCE_AUTH_NUMBER}** (${LEGAL_ECOMMERCE_AUTH_STATUS_AR}).
 - **تراخيص الإعلام:** ${LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR} — **اذكر الثلاثة معاً**؛ لا تكتفِ برقم واحد.
 - **الرقم الوطني الموحد:** **${LEGAL_NATIONAL_UNIFIED_NUMBER}**.
 

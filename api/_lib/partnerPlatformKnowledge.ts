@@ -38,9 +38,10 @@ import {
   ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR,
   SMART_RESPONSE_SYSTEM_LABEL_AR,
 } from './onDemandVisibilityDoctrine.js';
+import { composePartnerFieldSalesKnowledgePack } from './partnerFieldSalesCopy.js';
 
 /** زِد هذا الرقم/التاريخ عند إضافة release note جديد — يظهر في GET /api/partner-assistant-chat */
-export const PARTNER_ASSISTANT_KNOWLEDGE_VERSION = '2026-06-10.2' as const;
+export const PARTNER_ASSISTANT_KNOWLEDGE_VERSION = '2026-06-10.3' as const;
 
 export type PartnerReleaseNote = {
   id: string;
@@ -56,6 +57,20 @@ export type PartnerReleaseNote = {
  * المساعد **ملزم** بالإجابة من هذا القسم عند السؤال عن التحديثات أو الميزات المذكورة.
  */
 export const PARTNER_PLATFORM_RELEASE_NOTES: readonly PartnerReleaseNote[] = [
+  {
+    id: 'partner-field-sales-copy-2026-06-10',
+    date: '2026-06-10',
+    titleAr: 'نصوص التفاوض B2B — تنويع العبارات',
+    summaryAr:
+      'مصدر موحّد لشعارات الهيرو، FAQ الشركاء، خطافات الباقات، مقارنة السوشيال vs الاستعلام، ومعالجة الاعتراضات — مُنقّح بعقيدة الظهور عند الطلب.',
+    topics: ['تسويق', 'B2B', 'مدير المبيعات', 'FAQ', 'اعتراض السعر', 'أقرب حلاق', 'سمعة'],
+    bulletsAr: [
+      'شعارات متنوعة: سمعة · قرب · ثقة · ROI · إغلاق CTA.',
+      'FAQ موسّع (11 سؤال) — بدون وعود بعدد زبائن.',
+      'معالجات جاهزة: غالي · منطقة ضعيفة · منافس · أبي أجرّب.',
+      'يجوز «أقرب حلاق / بالقرب مني / في منطقتك» بعد توثيق التجارة.',
+    ],
+  },
   {
     id: 'regulatory-framework-canonical-2026-06-10',
     date: '2026-06-10',
@@ -286,7 +301,11 @@ function composePartnerReleaseNotesPack(): string {
 }
 
 export function composePartnerPlatformKnowledgePack(): string {
-  return [composePartnerProductFactsPack(), composePartnerReleaseNotesPack()].join('\n\n');
+  return [
+    composePartnerProductFactsPack(),
+    composePartnerFieldSalesKnowledgePack(),
+    composePartnerReleaseNotesPack(),
+  ].join('\n\n');
 }
 
 export function getPartnerAssistantKnowledgeMeta() {

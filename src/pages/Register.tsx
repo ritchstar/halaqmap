@@ -10,7 +10,8 @@ import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundar
 import { ROUTE_PATHS } from '@/lib/index';
 import { Scissors, Shield, ChevronRight } from 'lucide-react';
 import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
-import { PLATFORM_GROWTH_PARTNER_HERO_LINE_AR } from '@/config/platformGrowthPrograms';
+import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
+import { PARTNER_REGISTER_PAGE } from '@/lib/partnerMarketingCopy';
 
 export default function Register() {
   const location = useLocation();
@@ -52,18 +53,20 @@ export default function Register() {
           className="mb-10 text-center"
         >
           <h1 className="mb-3 text-3xl font-black leading-tight text-white sm:text-4xl">
-            سجّل صالونك في منصة حلاق ماب
+            {PARTNER_REGISTER_PAGE.title}
           </h1>
-          <p className="mx-auto max-w-xl text-sm leading-7 text-slate-400">
-            {PLATFORM_GROWTH_PARTNER_HERO_LINE_AR}
-          </p>
+          <div className="mx-auto mt-4 max-w-2xl space-y-3 text-sm leading-7 text-slate-400">
+            {PARTNER_REGISTER_PAGE.introParagraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+            ))}
+          </div>
           <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-slate-500">
             {`حزمة ${tierParam === 'bronze' ? 'برونزي' : tierParam === 'gold' ? 'ذهبي' : tierParam === 'diamond' ? 'ماسي' : 'مناسبة'} — رخصة نفاذ رقمية مسبقة الدفع تُفعَّل وفق الحزمة التي تختارها.`}
           </p>
 
           {/* مراحل الشراء */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-1">
-            {['اختر الحزمة', 'أكمل البيانات', 'ادفع الآن', 'إتمام التفعيل'].map((s, i, arr) => (
+            {PARTNER_REGISTER_PAGE.steps.map((s, i, arr) => (
               <div key={s} className="flex items-center">
                 <span className={`rounded-full px-2.5 py-1 text-[0.6rem] font-bold ${
                   i === 0 ? 'bg-amber-500/15 text-amber-300 border border-amber-400/30' :
@@ -77,8 +80,8 @@ export default function Register() {
 
           {/* تأكيدات */}
           <div className="mt-4 flex flex-wrap justify-center gap-3 text-[0.6rem] text-slate-600">
-            {['✅ لا عمولات', '✅ لا تجديد تلقائي', '✅ حزمة رقمية مسبقة الدفع', '✅ وفق سياسة رخصة النفاذ'].map(t => (
-              <span key={t}>{t}</span>
+            {PARTNER_REGISTER_PAGE.assuranceChips.map((t) => (
+              <span key={t}>✅ {t}</span>
             ))}
           </div>
         </motion.header>
@@ -101,6 +104,21 @@ export default function Register() {
             <RegistrationForm />
           </RegistrationErrorBoundary>
         </motion.section>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.12 }}
+          className="mx-auto mb-8 max-w-3xl"
+        >
+          <PartnerLandingFaqAccordion
+            kicker={PARTNER_REGISTER_PAGE.faq.kicker}
+            lead={PARTNER_REGISTER_PAGE.faq.lead}
+            items={PARTNER_REGISTER_PAGE.faq.items}
+            variant="dark"
+            headingClassName="text-center"
+          />
+        </motion.div>
 
         {/* ── تذييل ── */}
         <footer className="mx-auto mt-10 max-w-3xl text-center">

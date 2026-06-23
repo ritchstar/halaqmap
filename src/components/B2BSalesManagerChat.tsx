@@ -19,33 +19,15 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { cn } from '@/lib/utils';
-import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-type Turn = { role: 'user' | 'assistant'; content: string; id: string };
+import { PARTNER_FIELD_SALES_PITCH_LINES_AR, PARTNER_FIELD_SALES_QUICK_TOPICS } from '@/config/partnerFieldSalesCopy';
 
 // ─── Rotating pitch lines ─────────────────────────────────────────────────────
-const PITCH_LINES = [
-  `🌊 ${PARTNER_EARLY_WAVE_TAGLINE_AR}`,
-  '✂️ الظهور عند الطلب يبدأ من رخصة النفاذ البرمجية — بلا عمولات على الخدمة.',
-  '🏛️ الماسية + إضافة المكتب الخاص — مساعد داخلي + مناوب شات مترابطان',
-  '📋 أعطِ تعليماتك بـ«تعليمة:» والمناوب ينفّذها — والتقارير تصلك تلقائياً',
-  '📈 اختر الباقة بحسب جاهزية صالونك واحتياجك التشغيلي الفعلي.',
-  '🔒 الأسعار والمدة والتفعيل تخضع دائمًا لما هو ظاهر في مسار الشراء المعتمد.',
-  '🌙 إضافة المكتب الخاص توسّع قدرة الرد والتشغيل خارج أوقات الانشغال.',
-];
+const PITCH_LINES = [...PARTNER_FIELD_SALES_PITCH_LINES_AR];
+
+type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 
 // ─── Quick prompts ─────────────────────────────────────────────────────────────
-const QUICK = [
-  'ما الفرق بين الباقات؟ 💎',
-  'ما هي إضافة المكتب الخاص؟ 🏛️',
-  'اشرح لي الوضع النظامي والتوثيق الرسمي 🧾',
-  'هل في عمولة على القصة؟',
-  'كيف يعمل نظام الظهور عند الطلب؟',
-  'ما مدة صلاحية الحزمة؟',
-  'هل أحتاج وثائق حكومية؟',
-  'كيف أبدأ الانضمام؟ 🚀',
-];
+const QUICK = PARTNER_FIELD_SALES_QUICK_TOPICS.map((topic) => topic.prompt);
 
 // ─── Greeting ─────────────────────────────────────────────────────────────────
 function getGreeting(): string {

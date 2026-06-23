@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/lib';
+import { PARTNER_TUTORIALS_PAGE } from '@/lib/partnerMarketingCopy';
+import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 import {
   fetchPartnerTutorialVideosPublic,
   isPartnerTutorialSectionVisible,
@@ -41,19 +43,34 @@ export default function PartnerSubscriptionTutorials() {
     <div className="container mx-auto overflow-x-hidden px-4 py-10 space-y-6">
       <div className="text-center space-y-3">
         <Badge variant="secondary" className="text-sm">
-          شرح حزم رخصة النفاذ الرقمية
+          {PARTNER_TUTORIALS_PAGE.badge}
         </Badge>
-        <h1 className="text-3xl font-bold">فيديوهات تعليم حزم رخصة النفاذ الرقمية في حلاق ماب</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          تابع الخطوات من التسجيل حتى التفعيل والدفع بشكل واضح. جميع الفيديوهات هنا مخصصة لمسار الخدمات البرمجية للمنصة.
-        </p>
+        <h1 className="text-3xl font-bold">{PARTNER_TUTORIALS_PAGE.title}</h1>
+        <p className="text-muted-foreground max-w-2xl mx-auto">{PARTNER_TUTORIALS_PAGE.lead}</p>
+      </div>
+
+      <div className="mx-auto grid max-w-4xl gap-3 md:grid-cols-3">
+        {([
+          ['bronze', 'برونزي'],
+          ['gold', 'ذهبي'],
+          ['diamond', 'ماسي'],
+        ] as const).map(([tier, label]) => (
+          <Card key={tier} className="border-primary/15 text-right">
+            <CardContent className="pt-5">
+              <p className="text-xs font-semibold text-primary">{label}</p>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                {PARTNER_TUTORIALS_PAGE.tierHooks[tier]}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <Card className="border-primary/25">
         <CardContent className="pt-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <BookOpenCheck className="h-4 w-4 text-primary" />
-            <span>ابدأ بالفيديو الأول ثم انتقل لبقية الخطوات.</span>
+            <span>{PARTNER_TUTORIALS_PAGE.cardNote}</span>
           </div>
           <Button asChild>
             <Link to={ROUTE_PATHS.REGISTER}>الانتقال للتسجيل</Link>
@@ -81,6 +98,14 @@ export default function PartnerSubscriptionTutorials() {
           </Card>
         ))}
       </div>
+
+      <PartnerLandingFaqAccordion
+        kicker={PARTNER_TUTORIALS_PAGE.faq.kicker}
+        lead={PARTNER_TUTORIALS_PAGE.faq.lead}
+        items={PARTNER_TUTORIALS_PAGE.faq.items}
+        className="mx-auto max-w-3xl pt-4"
+        headingClassName="text-center"
+      />
     </div>
   );
 }

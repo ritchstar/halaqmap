@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
-import { ArrowLeft, Layers, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpen, Layers, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/lib';
 import { PARTNER_STORY_PAGE } from '@/lib/partnerMarketingCopy';
 import { PlatformIdentityCard } from '@/components/PlatformIdentityCard';
+import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 
 export default function PartnerStoryPage() {
   return (
@@ -75,9 +76,50 @@ export default function PartnerStoryPage() {
           </motion.div>
         ))}
 
-        <p className="text-center text-sm font-semibold uppercase tracking-wide text-primary">
-          {PARTNER_STORY_PAGE.signature}
-        </p>
+        <div className="space-y-4 pt-2">
+          <h2 className="text-center text-2xl font-bold text-foreground md:text-3xl">
+            {PARTNER_STORY_PAGE.comparison.title}
+          </h2>
+          <p className="text-center text-muted-foreground">{PARTNER_STORY_PAGE.comparison.lead}</p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {PARTNER_STORY_PAGE.comparison.rows.map((row) => (
+              <Card key={row.channel} className="border-primary/15">
+                <CardContent className="pt-6">
+                  <p className="font-bold text-foreground">{row.channel}</p>
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">{row.intent}</p>
+                  <p className="mt-2 text-xs font-semibold text-primary">{row.cost}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <PartnerLandingFaqAccordion
+          kicker={PARTNER_STORY_PAGE.faq.kicker}
+          lead={PARTNER_STORY_PAGE.faq.lead}
+          items={PARTNER_STORY_PAGE.faq.items}
+          className="pt-4"
+        />
+
+        <Card className="border-primary/25 bg-gradient-to-br from-primary/5 to-accent/5">
+          <CardContent className="pt-8 pb-8 text-center">
+            <p className="text-lg font-semibold leading-relaxed text-foreground md:text-xl">
+              {PARTNER_STORY_PAGE.signature}
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <NavLink to={ROUTE_PATHS.REGISTER}>
+                <Button size="lg" className="font-bold">
+                  {PARTNER_STORY_PAGE.ctaPrimary}
+                </Button>
+              </NavLink>
+              <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY}>
+                <Button size="lg" variant="outline">
+                  {PARTNER_STORY_PAGE.ctaSecondary}
+                </Button>
+              </NavLink>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

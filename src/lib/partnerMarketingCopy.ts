@@ -27,8 +27,29 @@ import {
   PARTNER_TECHNICAL_PARTNER_WHY_CLOSING,
 } from '@/config/partnerTechnicalPartnerDoctrine';
 import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+import {
+  PARTNER_FINAL_CTA_BODY_AR,
+  PARTNER_HERO_CLOSING_TAGLINE_AR,
+  PARTNER_HERO_LEAD_PRIMARY_AR,
+  PARTNER_HERO_TAGLINE_REPUTATION_AR,
+  PARTNER_HERO_TAGLINE_TRUST_AR,
+  PARTNER_LANDING_CTA_LEAD_AR,
+  PARTNER_LANDING_FAQ_AR,
+  PARTNER_REGISTER_FAQ_AR,
+  PARTNER_SECTION_INTROS,
+  PARTNER_SOCIAL_VS_PLATFORM_ROWS_AR,
+  PARTNER_TIER_MARKETING_HOOKS_AR,
+} from '@/config/partnerFieldSalesCopy';
 
 export { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+export {
+  PARTNER_HERO_CLOSING_TAGLINE_AR,
+  PARTNER_HERO_TAGLINE_REPUTATION_AR,
+  PARTNER_LANDING_FAQ_AR,
+  PARTNER_REGISTER_FAQ_AR,
+  PARTNER_SECTION_INTROS,
+  PARTNER_TIER_MARKETING_HOOKS_AR,
+} from '@/config/partnerFieldSalesCopy';
 
 /** فقرات متعددة لصفحة التسجيل — تُعرض ككتل منفصلة لسهولة القراءة على الجوال */
 export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
@@ -37,6 +58,7 @@ export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
   PARTNER_TECHNICAL_PARTNER_REGISTER_LINE,
   PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR.replace(/\*\*/g, ''),
   ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
+  `${PARTNER_HERO_TAGLINE_REPUTATION_AR}. ${PARTNER_FINAL_CTA_BODY_AR}`,
 ] as const;
 
 export const PARTNER_LANDING_GROWTH_PROGRAMS_SECTION = {
@@ -55,7 +77,8 @@ export const PARTNER_LANDING_SOCIAL_COUNT_LABEL = '+300 صالون شريك';
 export const PARTNER_LANDING_HERO = {
   badge: `${PARTNER_TECHNICAL_PARTNER_LABEL_AR} · نظام الاستجابة الذكية`,
   title: PLATFORM_PARTNER_SMART_TRACKING_HEADLINE,
-  lead: PLATFORM_SMART_TRACKING_SUBTEXT,
+  lead: PARTNER_HERO_LEAD_PRIMARY_AR,
+  tagline: PARTNER_HERO_TAGLINE_REPUTATION_AR,
 } as const;
 
 export const PARTNER_LANDING_HERO_HIGHLIGHTS = [
@@ -75,14 +98,13 @@ export const PARTNER_LANDING_HERO_HIGHLIGHTS = [
 
 export const PARTNER_LANDING_WHY_SECTION = {
   title: 'لماذا نظام الاستجابة الذكية؟',
-  lead:
-    'لأن قرار الزبون اليوم يبدأ بطلب فوري: «من هو مقدم الخدمة المناسب الذي يستجيب الآن؟» إذا لم يُفعَّل ظهور صالونك برمجياً عند الطلب، فأنت خارج اللحظة — حتى لو خدمتك ممتازة. الرخصة هنا حضور غير ثابت يضمن كفاءة الربط ودقة الاستهداف، لا إشغالاً دائماً للمساحة الرقمية.',
+  lead: PARTNER_SECTION_INTROS.why.lead,
 } as const;
 
 /** قسم «ماذا تستفيد؟» — فوائد صريحة للحلاق */
 export const PARTNER_LANDING_BENEFITS_SECTION = {
   title: 'ماذا تستفيد؟',
-  lead: 'خمس فوائد واضحة — كل وحدة تجاوب سؤال الزبون أو صاحب الصالون:',
+  lead: PARTNER_SECTION_INTROS.benefits.lead,
   items: [
     {
       title: 'استجابة برمجية عند الطلب',
@@ -216,7 +238,7 @@ export const PARTNER_LANDING_PROCESS_STEPS = [
 
 export const PARTNER_LANDING_PLANS_SECTION = {
   title: 'حزم رخصة النفاذ — اختر ما يخدم مرحلة صالونك',
-  lead: PARTNER_TECHNICAL_PARTNER_PLANS_LEAD,
+  lead: PARTNER_SECTION_INTROS.plans.lead,
 } as const;
 
 export const PARTNER_LANDING_PLAN_CARDS = [
@@ -224,7 +246,7 @@ export const PARTNER_LANDING_PLAN_CARDS = [
     /** يُمرَّر كـ `?tier=` في `/partners/payment` */
     tier: 'bronze',
     title: 'برونزية',
-    subtitle: 'بداية رسمية: كن موجوداً عندما يبحث المستخدم عن مقدم خدمة مناسب',
+    subtitle: PARTNER_TIER_MARKETING_HOOKS_AR.bronze,
     points: [
       'ظهور عند الطلب حتى لا تخسر زبوناً يبحث الآن عن مقدم خدمة مناسب.',
       'بطاقة صالون مختصرة تجمع الموقع، الاتصال، الواتساب، والصور الأساسية في مكان واحد.',
@@ -237,7 +259,7 @@ export const PARTNER_LANDING_PLAN_CARDS = [
   {
     tier: 'gold',
     title: 'ذهبية',
-    subtitle: 'للصالون الجاهز للتحويل: صور أكثر، تقييمات، وتواصل أسرع',
+    subtitle: PARTNER_TIER_MARKETING_HOOKS_AR.gold,
     points: [
       'كل مزايا البرونزي مع أولوية ذهبية تزيد فرصة اختيارك عند تنشّط الطلب المناسب.',
       'معرض حتى 20 صورة يعرض القصات، الديكور، النظافة، والتفاصيل التي تقنع قبل الاتصال.',
@@ -251,7 +273,7 @@ export const PARTNER_LANDING_PLAN_CARDS = [
   {
     tier: 'diamond',
     title: 'ماسية',
-    subtitle: 'للصالون الطموح: صدارة، تنظيم مواعيد، وتجربة عملاء أقوى',
+    subtitle: PARTNER_TIER_MARKETING_HOOKS_AR.diamond,
     points: [
       'كل مزايا الذهبي مع أعلى أولوية ماسية للطلبات المناسبة في منطقتك.',
       'معرض حتى 40 صورة وبنر فاخر وشارة ماسية تعطي انطباع صالون نخبة.',
@@ -266,20 +288,44 @@ export const PARTNER_LANDING_PLAN_CARDS = [
 ] as const;
 
 export const PARTNER_LANDING_CTA_SECTION = {
-  title: PARTNER_EARLY_WAVE_TAGLINE_AR,
-  lead:
-    'تسجيل الطلب ما يحتاج تعقيد. اضغط الزر، أكمل الدفع، وتُفعَّل حضورك ضمن نظام الاستجابة الذكية — جاهزاً لأول موجات الاستخدام في منطقتك.',
+  title: PARTNER_HERO_CLOSING_TAGLINE_AR,
+  lead: PARTNER_LANDING_CTA_LEAD_AR,
   chips: ['بدون لف تقني', 'مسار واضح', 'دعم فريق المنصة'],
   primaryCta: 'شراء رخصة نفاذ',
   secondaryCta: 'تفعيل الآن',
+} as const;
+
+export const PARTNER_LANDING_COMPARISON_SECTION = {
+  title: PARTNER_SECTION_INTROS.comparison.title,
+  lead: PARTNER_SECTION_INTROS.comparison.lead,
+  rows: PARTNER_SOCIAL_VS_PLATFORM_ROWS_AR,
+} as const;
+
+export const PARTNER_LANDING_FAQ_SECTION = {
+  kicker: PARTNER_SECTION_INTROS.faq.kicker,
+  lead: PARTNER_SECTION_INTROS.faq.lead,
+  items: PARTNER_LANDING_FAQ_AR,
+} as const;
+
+export const PARTNER_REGISTER_FAQ_SECTION = {
+  kicker: 'أسئلة قبل إرسال الطلب',
+  lead: 'إجابات سريعة — لتكمل التسجيل بثقة وبدون مفاجآت.',
+  items: PARTNER_REGISTER_FAQ_AR,
+} as const;
+
+export const PARTNER_REGISTER_PAGE = {
+  title: 'سجّل صالونك في منصة حلاق ماب',
+  introParagraphs: PARTNER_REGISTER_INTRO_PARAGRAPHS,
+  faq: PARTNER_REGISTER_FAQ_SECTION,
+  assuranceChips: ['لا عمولات', 'لا تجديد تلقائي', 'حزمة رقمية مسبقة الدفع', 'وفق سياسة رخصة النفاذ'],
+  steps: ['اختر الحزمة', 'أكمل البيانات', 'ادفع الآن', 'إتمام التفعيل'],
 } as const;
 
 /** صفحة «لماذا تنضم» — أقسام طويلة */
 export const PARTNER_WHY_PAGE = {
   heroBadge: 'اقرأ قبل أن تقرر',
   heroTitle: 'لماذا حلاق ماب مسار مختلف عن «تطبيق حجز» عام؟',
-  heroLead:
-    'لأن سؤال العميل عندنا يبدأ من الحاجة والنية: من يستجيب الآن؟ من يبدو جاداً في بياناته؟ هذه ليست نفس لعبة الإعلانات الدائمة — إنها لعبة استجابة عند الطلب: طلب، وثقة، وزمن.',
+  heroLead: `${PARTNER_HERO_TAGLINE_REPUTATION_AR}. ${PARTNER_SECTION_INTROS.why.lead}`,
 
   sections: [
     {
@@ -302,7 +348,15 @@ export const PARTNER_WHY_PAGE = {
       body:
         'كل شريك جديد يضيف منافسة على نفس الطلبات المتاحة. التوقيت ليس زينة — هو جزء من العائد: من تُفعَّل استجابته مبكراً يزرع في ذاكرة المستخدم أنه «من الخيارات الطبيعية» عند طلب الخدمة.',
     },
+    {
+      title: PARTNER_LANDING_COMPARISON_SECTION.title,
+      body:
+        'الفرق ليس في «الظهور» — الفرق في نية الشراء لحظة الوصول. إعلان سناب أو إنستغرام يقطع متصفّحاً بنية ضعيفة وتكلفة مرتفعة؛ حلاق ماب يصلك لمستعلم بعد إذن الموقع — زبون واحد إضافي شهرياً يغطي الذهبي في أغلب الحالات، بدون وعد بعدد زبائن.',
+    },
   ],
+
+  faq: PARTNER_LANDING_FAQ_SECTION,
+  comparison: PARTNER_LANDING_COMPARISON_SECTION,
 
   closingQuote: PARTNER_TECHNICAL_PARTNER_WHY_CLOSING,
   ctaPrimary: 'ابدأ طلب الشراكة',
@@ -313,13 +367,18 @@ export const PARTNER_WHY_PAGE = {
 export const PARTNER_STORY_PAGE = {
   heroBadge: 'منطق السوق',
   heroTitle: 'قصة مسار الخدمات البرمجية — من الفكرة إلى الاستجابة الذكية عند الطلب',
-  heroLead: PARTNER_TECHNICAL_PARTNER_STORY_LEAD,
+  heroLead: `${PARTNER_HERO_TAGLINE_REPUTATION_AR}. ${PARTNER_TECHNICAL_PARTNER_STORY_LEAD}`,
 
   chapters: [
     {
       title: 'لماذا نظام الاستجابة الذكية؟',
       body:
         'لأنه يجعل المنافسة صادقة: النية قابلة للتحويل، والاستجابة تتم في نفس لحظة الطلب. عندما يفهم العميل أنك متاح الآن وتظهر له ضمن البيانات المناسبة، يقلّ حاجز التجربة. وهذا ما لا يمنحه إعلان صورة ثابتة دائمة بنفس القوة.',
+    },
+    {
+      title: 'الرفض يؤلم — الغياب أخطر',
+      body:
+        'الصالون غير المفعّل لم يُرفض — لم يُرَ في الاستجابة أصلاً. من يستعلم عن حلاق قريب في منطقتك يرى المفعّلين؛ الغائب يفقد فرصاً لا تظهر في أي سجل. السؤال: هل ستبقى غائباً عن اللحظة التي يبحث فيها الزبون؟',
     },
     {
       title: 'لماذا «الظهور عند الطلب»؟',
@@ -329,7 +388,7 @@ export const PARTNER_STORY_PAGE = {
     {
       title: 'لماذا الباقات؟',
       body:
-        'لأن الحلاق يستحق أن يعرف ماذا يشتري: أولوية استجابة، أدوات تقييم، قنوات تواصل. حزم رخصة النفاذ تمنع الغموض وتجعل التوسع لاحقاً قراراً مبنياً على أداء لا على تخمين.',
+        `لأن الحلاق يستحق أن يعرف ماذا يشتري: ${PARTNER_TIER_MARKETING_HOOKS_AR.bronze} · ${PARTNER_TIER_MARKETING_HOOKS_AR.gold} · ${PARTNER_TIER_MARKETING_HOOKS_AR.diamond}`,
     },
     {
       title: 'لماذا التحقق ثم الدفع؟',
@@ -343,9 +402,20 @@ export const PARTNER_STORY_PAGE = {
     },
   ],
 
-  signature: 'استجابة عند الطلب — وضوح — شراكة موثوقة.',
+  comparison: PARTNER_LANDING_COMPARISON_SECTION,
+  faq: PARTNER_LANDING_FAQ_SECTION,
+  signature: `${PARTNER_HERO_CLOSING_TAGLINE_AR} — استجابة عند الطلب، وضوح، شراكة موثوقة.`,
   ctaPrimary: 'انتقل إلى التسجيل',
   ctaSecondary: 'اقرأ سياسة رخصة النفاذ الرقمية',
+} as const;
+
+export const PARTNER_TUTORIALS_PAGE = {
+  badge: 'شرح حزم رخصة النفاذ الرقمية',
+  title: 'فيديوهات تعليم حزم رخصة النفاذ الرقمية في حلاق ماب',
+  lead: `${PARTNER_HERO_TAGLINE_TRUST_AR} — تابع الخطوات من التسجيل حتى التفعيل والدفع بشكل واضح.`,
+  cardNote: 'ابدأ بالفيديو الأول ثم انتقل لبقية الخطوات — الأسئلة الشائعة قبل الإرسال في الأسفل.',
+  faq: PARTNER_REGISTER_FAQ_SECTION,
+  tierHooks: PARTNER_TIER_MARKETING_HOOKS_AR,
 } as const;
 
 /** عنوان صفحة/أزرار الدعم عبر واتساب في مسار الخدمات البرمجية */

@@ -1,11 +1,12 @@
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity,
   ArrowLeft,
   Building2,
   CalendarDays,
   Check,
+  ChevronDown,
   ClipboardList,
   Clock3,
   Headphones,
@@ -33,6 +34,8 @@ import {
   PARTNER_LANDING_BEFORE_AFTER,
   PARTNER_LANDING_BENEFITS_SECTION,
   PARTNER_LANDING_CTA_SECTION,
+  PARTNER_LANDING_COMPARISON_SECTION,
+  PARTNER_LANDING_FAQ_SECTION,
   PARTNER_LANDING_HERO,
   PARTNER_LANDING_HERO_HIGHLIGHTS,
   PARTNER_LANDING_HOW_SECTION,
@@ -99,6 +102,7 @@ const heroCardItem = {
 };
 
 export default function BarberGrowthLanding() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const siteOrigin = getSiteOrigin();
   const landingUrl = `${siteOrigin}/#${ROUTE_PATHS.BARBERS_LANDING}`;
   const partnerHeroImage = '/images/halaqmap-barber-onboarding.png';
@@ -546,6 +550,27 @@ export default function BarberGrowthLanding() {
         </div>
       </motion.section>
 
+      {/* مقارنة سريعة */}
+      <section className="border-y border-border/60 bg-muted/20 py-12">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 text-center md:text-right">
+            <h2 className="text-2xl font-bold text-foreground md:text-3xl">{PARTNER_LANDING_COMPARISON_SECTION.title}</h2>
+            <p className="mt-3 text-muted-foreground">{PARTNER_LANDING_COMPARISON_SECTION.lead}</p>
+          </div>
+          <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-2">
+            {PARTNER_LANDING_COMPARISON_SECTION.rows.map((row) => (
+              <Card key={row.channel} className="border-primary/10">
+                <CardContent className="p-5 text-right">
+                  <p className="font-bold text-foreground">{row.channel}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{row.intent}</p>
+                  <p className="mt-2 text-xs font-semibold text-primary">{row.cost}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* الباقات */}
       <section className="py-14 md:py-18">
         <div className="container mx-auto px-4">
@@ -596,6 +621,49 @@ export default function BarberGrowthLanding() {
       <section className="border-t border-border/60 bg-[#061223] py-14 md:py-18">
         <div className="container mx-auto px-4">
           <LicenseRechargeWidget mode="register" />
+        </div>
+      </section>
+
+      {/* أسئلة الشركاء */}
+      <section className="border-t border-border/60 py-14 md:py-18">
+        <div className="container mx-auto max-w-3xl px-4">
+          <div className="mb-10 text-center md:text-right">
+            <h2 className="text-3xl font-bold text-foreground md:text-4xl">{PARTNER_LANDING_FAQ_SECTION.kicker}</h2>
+            <p className="mt-3 text-lg text-muted-foreground">{PARTNER_LANDING_FAQ_SECTION.lead}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            {PARTNER_LANDING_FAQ_SECTION.items.map((item, i) => (
+              <motion.div
+                key={item.q}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.03 }}
+                className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm"
+              >
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-3 px-5 py-4 text-right text-sm font-semibold text-foreground hover:text-primary"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  {item.q}
+                  <ChevronDown className={`h-4 w-4 shrink-0 text-primary transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <p className="border-t border-border/60 px-5 py-4 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

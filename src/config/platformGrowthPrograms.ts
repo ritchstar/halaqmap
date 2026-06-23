@@ -3,6 +3,7 @@
  * مصدر الحقيقة لأسماء وشرح خطط التسويق B2B/B2C للشركاء.
  */
 import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+import { PARTNER_HERO_TAGLINE_REPUTATION_AR } from '@/config/partnerFieldSalesCopy';
 
 export type PlatformGrowthProgramPhaseId =
   | 'orbit_readiness'
@@ -84,7 +85,7 @@ export const PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR =
   '**لا نتركك تنتظر الحظ.** استثمار تريد **فائدته** — لا **حسرته**: من يفعّل مبكراً يبني محيطاً قبل المنافس؛ من يتأخر يدفع ثمن الانتظار.';
 
 /** سطر الهيرو القصير */
-export const PLATFORM_GROWTH_PARTNER_HERO_LINE_AR = PARTNER_EARLY_WAVE_TAGLINE_AR;
+export const PLATFORM_GROWTH_PARTNER_HERO_LINE_AR = PARTNER_HERO_TAGLINE_REPUTATION_AR;
 
 /** تسجيل الحلاق — مقدمة مختصرة (تُستورد في platformGrowthNarrative) */
 export const PLATFORM_GROWTH_REGISTER_INTRO_AR =

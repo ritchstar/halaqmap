@@ -9,28 +9,14 @@ import {
   BriefcaseBusiness,
 } from 'lucide-react';
 import { useAgentChatScroll } from '@/hooks/useAgentChatSurface';
+import { PARTNER_FIELD_SALES_PITCH_LINES_AR, PARTNER_FIELD_SALES_QUICK_TOPICS } from '@/config/partnerFieldSalesCopy';
 import { PARTNER_EARLY_PRESENCE_DOCTRINE_SIMPLE_AR } from '@/config/partnerEarlyWaveCopy';
 
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 
-const QUICK_TOPICS = [
-  { label: 'الفرق بين الباقات', prompt: 'ما الفرق بين البرونزية والذهبية والماسية؟' },
-  { label: 'الوضع النظامي والتوثيق', prompt: 'اشرح لي الوضع النظامي الحالي للمنصة والأنشطة الرسمية والترخيص والتوثيق.' },
-  { label: 'اعتراض السعر', prompt: 'كيف ترد على اعتراض السعر لصالون متردد؟' },
-  { label: 'ليش التواجد المبكر مهم؟', prompt: 'أقنعني لماذا التواجد المبكر داخل المنصة مهم للحلاق المستثمر.' },
-  { label: 'خطة الانتشار للمستخدمين', prompt: 'اشرح لي منطق الإدارة في نشر المنصة على المستخدمين داخل مناطق المملكة.' },
-  { label: 'الظهور عند الطلب', prompt: 'كيف يعمل الظهور عند الطلب فعلياً للصالون؟' },
-  { label: 'إضافة المكتب الخاص', prompt: 'ما فائدة إضافة المكتب الخاص ولماذا تستحق؟' },
-  { label: 'خطة الإغلاق', prompt: 'أعطني أسلوب إغلاق بيع مختصر لعميل ساخن.' },
-] as const;
+const QUICK_TOPICS = [...PARTNER_FIELD_SALES_QUICK_TOPICS];
 
-const PITCH_LINES = [
-  'الباقات الحالية واضحة ومسبقة الدفع وفق السياسة المعتمدة داخل المنصة.',
-  'التواجد المبكر داخل المنصة ليس شكلياً؛ هو تموضع يسبق اتساع الطلب في المنطقة.',
-  'الإدارة تجهز الحلاقين أولاً ثم توسع وصول المستخدمين عليهم — هكذا يُبنى السوق الصحيح.',
-  'إضافة المكتب الخاص ترفع جودة التشغيل وتحوّل الصفحة إلى قناة متابعة أدق.',
-  'كل موضع يُبنى اليوم داخل المنصة قد يتحول لاحقاً إلى أفضلية تنافسية يصعب تعويضها.',
-] as const;
+const PITCH_LINES = [...PARTNER_FIELD_SALES_PITCH_LINES_AR];
 
 function getGreeting(): string {
   const hour = new Date().getHours();

@@ -45,7 +45,15 @@ import {
   PARTNER_TECHNICAL_PARTNER_TAGLINE,
 } from '@/config/partnerTechnicalPartnerDoctrine';
 import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentity';
-import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+import {
+  PARTNER_FINAL_CTA_BODY_AR,
+  PARTNER_HERO_CLOSING_TAGLINE_AR,
+  PARTNER_HERO_LEAD_MOBILE_AR,
+  PARTNER_HERO_LEAD_PRIMARY_AR,
+  PARTNER_LANDING_FAQ_AR,
+  PARTNER_SECTION_INTROS,
+  PARTNER_SOCIAL_VS_PLATFORM_ROWS_AR,
+} from '@/config/partnerFieldSalesCopy';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
@@ -778,7 +786,7 @@ export default function PartnerMarketingPreview() {
             </h1>
 
             <p className="mb-5 text-lg font-bold leading-relaxed text-teal-800 md:text-xl">
-              {PARTNER_EARLY_WAVE_TAGLINE_AR}
+              {PARTNER_HERO_LEAD_PRIMARY_AR}
             </p>
 
             {/* ── بوابة مكتب مدير المبيعات — مباشرة تحت العنوان الرئيسي ── */}
@@ -831,7 +839,7 @@ export default function PartnerMarketingPreview() {
             {isMobile ? (
               <>
                 <p className="mb-5 max-w-lg text-[0.98rem] leading-8 text-slate-600">
-                  {PARTNER_EARLY_WAVE_TAGLINE_AR}
+                  {PARTNER_HERO_LEAD_MOBILE_AR}
                 </p>
                 <div className="mb-5 rounded-[1.35rem] border border-emerald-200 bg-white/92 p-4 shadow-sm">
                   <p className="text-[0.78rem] font-black text-emerald-700">قرار سريع</p>
@@ -1088,7 +1096,7 @@ export default function PartnerMarketingPreview() {
               className="mb-3 text-3xl font-black text-slate-900 md:text-4xl">
               سعر واضح · لا مفاجآت
             </motion.h2>
-            <p className="text-slate-600">مسبقة الدفع · لا تجديد تلقائي · ISIC4 474151</p>
+            <p className="text-slate-600">{PARTNER_SECTION_INTROS.plans.lead}</p>
           </div>
 
           <div className="banner-radiation-stage">
@@ -1252,23 +1260,36 @@ export default function PartnerMarketingPreview() {
         </div>
       </section>
 
+      {/* ── مقارنة سريعة ─────────────────────────────────────────────────── */}
+      <section className="relative z-10 border-t border-slate-100 bg-white py-16">
+        <div className="mx-auto max-w-4xl px-5">
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="mb-2 text-center text-2xl font-black text-slate-900">
+            {PARTNER_SECTION_INTROS.comparison.title}
+          </motion.h2>
+          <p className="mb-8 text-center text-sm leading-relaxed text-slate-600">{PARTNER_SECTION_INTROS.comparison.lead}</p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {PARTNER_SOCIAL_VS_PLATFORM_ROWS_AR.map((row) => (
+              <div key={row.channel} className="rounded-xl border border-slate-200 bg-slate-50/80 px-5 py-4">
+                <p className="font-bold text-slate-900">{row.channel}</p>
+                <p className="mt-2 text-sm text-slate-600">{row.intent}</p>
+                <p className="mt-2 text-xs font-semibold text-teal-800">{row.cost}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section className="relative z-10 border-t border-slate-100 py-20">
         <div className="mx-auto max-w-3xl px-5">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="mb-10 text-center text-2xl font-black text-slate-900">
-            أسئلة الشركاء الشائعة
+            className="mb-3 text-center text-2xl font-black text-slate-900">
+            {PARTNER_SECTION_INTROS.faq.kicker}
           </motion.h2>
+          <p className="mb-10 text-center text-sm text-slate-600">{PARTNER_SECTION_INTROS.faq.lead}</p>
           <div className="flex flex-col gap-3">
-            {[
-              { q: 'هل حلاق ماب تأخذ عمولة على كل قصة شعر؟', a: 'لا — حلاق ماب شريكك التقني فقط. تدفع رخصة نفاذ شهرية ثابتة، والعلاقة بين صالونك والزبون مباشرة بدون وسيط أو عمولة.' },
-              { q: 'ما معنى "الظهور عند الطلب"؟', a: 'يظهر صالونك في نتائج الاستعلام عندما تتوافق البيانات المتاحة معه مع طلب المستخدم وفلترته المختارة. وهذا يعني أن كل ظهور يمثل فرصة وصول فعلية إلى مستعلم يبحث عن الخدمة المناسبة.' },
-              { q: 'كيف أشترك إذا لم تكن المنطقة مغطاة؟', a: 'يمكنك مراسلة الدعم لشرح حالة منطقتك والاطلاع على المسار الأنسب قبل التسجيل.' },
-              { q: 'هل يمكنني تغيير باقتي لاحقاً؟', a: 'نعم — عند انتهاء الحزمة الحالية تشتري الباقة الجديدة التي تناسبك. لا عقد ملزم ولا رسوم ترقية.' },
-              { q: 'ماذا يحدث عند انتهاء صلاحية الحزمة؟', a: 'يتوقف ظهورك حتى تُجدِّد — بياناتك محفوظة، وتفعيل حزمة جديدة يعيدك بعد اكتمال التفعيل الجديد داخل النظام.' },
-              { q: 'هل أحتاج وثائق حكومية للتسجيل؟', a: 'لا — لا يُطلب رفع السجل التجاري ولا رخصة البلدية. تُؤشّر على التعهد القانوني والالتزامات المرافقة قبل الإرسال، وتتحمل مسؤولية امتثال منشأتك.' },
-              { q: 'كيف تضمنون أن المسجّل صاحب الصالون؟', a: 'آلية الامتثال: تأشير إلزامي على التعهد القانوني + التحقق التقني الآلي للمدخلات — دون تدقيق وثائق حكومية. يجوز رفض الطلب أو إيقاف الرخصة عند رصد مخالفة.' },
-            ].map((item, i) => (
+            {PARTNER_LANDING_FAQ_AR.map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
@@ -1307,11 +1328,10 @@ export default function PartnerMarketingPreview() {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div className="mb-6 text-6xl">✂️</div>
             <h2 className="mb-5 text-3xl font-black leading-snug text-slate-900 md:text-4xl">
-              {PARTNER_EARLY_WAVE_TAGLINE_AR}
+              {PARTNER_HERO_CLOSING_TAGLINE_AR}
             </h2>
             <p className="mx-auto mb-10 max-w-xl text-base leading-relaxed text-slate-600">
-              ابدأ بحزمة برونزية بـ١٠٠ ر.س وجرّب بنفسك —
-              إذا لم تُعجبك النتائج خلال ٣٠ يوماً لا يوجد تجديد تلقائي يُربطك.
+              {PARTNER_FINAL_CTA_BODY_AR}
             </p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <button
