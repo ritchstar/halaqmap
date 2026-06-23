@@ -22,6 +22,11 @@ import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
 import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
+import {
+  PLATFORM_HERO_FREE_NO_ACCOUNT_BADGE_AR,
+  PLATFORM_HERO_LEAD_DESKTOP_AR,
+  PLATFORM_HERO_LEAD_MOBILE_AR,
+} from '@/config/platformSmartTracking';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -972,10 +977,15 @@ export default function LandingPreview() {
               initial={skipHeroMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: skipHeroMotion ? 0 : 0.2 }}
-              className="mb-5 inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold text-teal-300"
+              className="mb-5 flex flex-wrap items-center gap-2"
             >
-              <Sparkles className="h-3 w-3" />
-              نظام الاستجابة الذكية · On-Demand Visibility
+              <span className="inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold text-teal-300">
+                <Sparkles className="h-3 w-3" />
+                نظام الاستجابة الذكية · On-Demand Visibility
+              </span>
+              <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
+                {PLATFORM_HERO_FREE_NO_ACCOUNT_BADGE_AR}
+              </span>
             </motion.div>
             ) : null}
 
@@ -987,9 +997,7 @@ export default function LandingPreview() {
             </h1>
 
             <p className="mb-5 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
-              {isMobile
-                ? 'اضغط زر الاستعلام لنُظهر لك النتائج المناسبة فورًا.'
-                : 'منصة ذكية تساعدك على إتاحة الوصول إلى مقدم الخدمة المناسب فور بحثك — بيانات حقيقية، تقييمات موثوقة، وتواصل مباشر بدون وسيط.'}
+              {isMobile ? PLATFORM_HERO_LEAD_MOBILE_AR : PLATFORM_HERO_LEAD_DESKTOP_AR}
             </p>
 
             {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة */}

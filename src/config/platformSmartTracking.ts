@@ -26,6 +26,17 @@ export const PLATFORM_END_USER_VISIBILITY_NOTE = ON_DEMAND_VISIBILITY_END_USER_N
 /** سطر هيرو قصير — للهيرو على الجوال */
 export const PLATFORM_HERO_SHORT_TAGLINE = ON_DEMAND_VISIBILITY_TAGLINE_SHORT_AR;
 
+/** هيرو الرئيسية — ديسكتوب (مختصر: مجاني · بلا تسجيل · CTA) */
+export const PLATFORM_HERO_LEAD_DESKTOP_AR =
+  'مجاناً وبلا تسجيل حساب — حدّد موقعك وتواصل مع الصالون المناسب مباشرة.';
+
+/** هيرو الرئيسية — جوال */
+export const PLATFORM_HERO_LEAD_MOBILE_AR =
+  'مجاناً وبلا تسجيل — اضغط زر الاستعلام للنتائج فوراً.';
+
+/** شارة ثقة سريعة — مجاني وبلا حساب */
+export const PLATFORM_HERO_FREE_NO_ACCOUNT_BADGE_AR = 'مجاني · بلا تسجيل';
+
 /** سطر ثقة قصير تحت الهيرو */
 export const PLATFORM_HERO_TRUST_LINE =
   'مستخدم يستعلم · حلاق متوفر · تواصل مباشر';
