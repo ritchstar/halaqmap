@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
+import { MensGroomingCenterIcon } from '@/components/icons/MensGroomingCenterIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -95,9 +96,12 @@ import {
 import { updateBarberHomeServiceRemote } from '@/lib/barberHomeServiceRemote';
 import { updateBarberGroomPrepRemote } from '@/lib/barberGroomPrepRemote';
 import { isActiveChildrenSpecialistSession } from '@/lib/childrenSpecialistDashboardMode';
+import { isActiveMensGroomingCenterSession } from '@/lib/mensGroomingCenterDashboardMode';
 import { CHILDREN_SPECIALIST_DASHBOARD_TAB_AR } from '@/config/childrenSpecialistDashboardCopy';
+import { MENS_GROOMING_CENTER_DASHBOARD_TAB_AR } from '@/config/mensGroomingCenterDashboardCopy';
 import { ChildrenServicesPartnerSettingsCard } from '@/components/barber/ChildrenServicesPartnerSettingsCard';
 import { ChildrenSpecialistDashboardPanel } from '@/components/barber/ChildrenSpecialistDashboardPanel';
+import { MensGroomingCenterDashboardPanel } from '@/components/barber/MensGroomingCenterDashboardPanel';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
@@ -278,6 +282,7 @@ export default function BarberDashboard({
         openStatusToken: String(parsed.openStatusToken ?? '').trim(),
         inclusiveCare: parsed.inclusiveCare,
         childrenServices: parsed.childrenServices,
+        mensGroomingCenter: parsed.mensGroomingCenter,
         homeService: parsed.homeService,
         groomPrep: parsed.groomPrep,
       });
@@ -323,6 +328,7 @@ export default function BarberDashboard({
         isGoldLite: false,
         showGoldLiteBanner: false,
         showChildrenSpecialistTab: true,
+        showMensGroomingCenterTab: true,
       };
     }
     if (!barberData) {
@@ -337,6 +343,7 @@ export default function BarberDashboard({
         isGoldLite: false,
         showGoldLiteBanner: false,
         showChildrenSpecialistTab: false,
+        showMensGroomingCenterTab: false,
       };
     }
     if (listingBalance && !listingBalance.hasActiveListing) {
@@ -351,6 +358,7 @@ export default function BarberDashboard({
         isGoldLite: false,
         showGoldLiteBanner: false,
         showChildrenSpecialistTab: false,
+        showMensGroomingCenterTab: false,
       };
     }
     if (effectiveListingTier === SubscriptionTier.DIAMOND) {
@@ -365,6 +373,7 @@ export default function BarberDashboard({
         isGoldLite: false,
         showGoldLiteBanner: false,
         showChildrenSpecialistTab: true,
+        showMensGroomingCenterTab: true,
       };
     }
     if (effectiveListingTier === SubscriptionTier.GOLD) {
@@ -379,6 +388,7 @@ export default function BarberDashboard({
         isGoldLite: true,
         showGoldLiteBanner: true,
         showChildrenSpecialistTab: false,
+        showMensGroomingCenterTab: false,
       };
     }
     return {
@@ -392,6 +402,7 @@ export default function BarberDashboard({
       isGoldLite: false,
       showGoldLiteBanner: false,
       showChildrenSpecialistTab: false,
+      showMensGroomingCenterTab: false,
     };
   }, [founderPreview, barberData, effectiveListingTier, listingBalance]);
 
@@ -402,6 +413,15 @@ export default function BarberDashboard({
         childrenServices: barberData?.childrenServices,
       }),
     [barberData?.childrenServices, barberData?.subscription, effectiveListingTier],
+  );
+
+  const mensGroomingCenterActive = useMemo(
+    () =>
+      isActiveMensGroomingCenterSession({
+        tier: effectiveListingTier ?? barberData?.subscription ?? null,
+        mensGroomingCenter: barberData?.mensGroomingCenter,
+      }),
+    [barberData?.mensGroomingCenter, barberData?.subscription, effectiveListingTier],
   );
 
   useEffect(() => {
@@ -434,6 +454,7 @@ export default function BarberDashboard({
         prev.openStatusToken === merged.openStatusToken &&
         JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null) &&
         JSON.stringify(prev.childrenServices ?? null) === JSON.stringify(merged.childrenServices ?? null) &&
+        JSON.stringify(prev.mensGroomingCenter ?? null) === JSON.stringify(merged.mensGroomingCenter ?? null) &&
         JSON.stringify(prev.homeService ?? null) === JSON.stringify(merged.homeService ?? null) &&
         JSON.stringify(prev.groomPrep ?? null) === JSON.stringify(merged.groomPrep ?? null) &&
         prev.salonRole === merged.salonRole;
@@ -641,7 +662,9 @@ export default function BarberDashboard({
         className={`sticky top-0 z-50 w-full border-b pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
           childrenSpecialistActive
             ? 'border-sky-400/35 bg-gradient-to-l from-sky-500/10 via-background/95 to-background/95'
-            : 'border-border/40 bg-background/95'
+            : mensGroomingCenterActive
+              ? 'border-amber-400/35 bg-gradient-to-l from-amber-500/10 via-background/95 to-background/95'
+              : 'border-border/40 bg-background/95'
         }`}
       >
         <div className="container mx-auto px-3 sm:px-4">
@@ -682,6 +705,12 @@ export default function BarberDashboard({
                     <Badge className="text-[10px] sm:text-xs border-sky-400/40 bg-sky-500/15 text-sky-900 dark:text-sky-100 gap-1">
                       <ChildrenSpecialistIcon className="h-3 w-3" title={CHILDREN_SPECIALIST_DASHBOARD_TAB_AR} />
                       {CHILDREN_SPECIALIST_DASHBOARD_TAB_AR}
+                    </Badge>
+                  ) : null}
+                  {mensGroomingCenterActive ? (
+                    <Badge className="text-[10px] sm:text-xs border-amber-400/40 bg-amber-500/15 text-amber-950 dark:text-amber-100 gap-1">
+                      <MensGroomingCenterIcon className="h-3 w-3" title={MENS_GROOMING_CENTER_DASHBOARD_TAB_AR} />
+                      {MENS_GROOMING_CENTER_DASHBOARD_TAB_AR}
                     </Badge>
                   ) : null}
                   {ownerWatchMode ? (
@@ -843,6 +872,18 @@ export default function BarberDashboard({
                 <span className="hidden sm:inline">{CHILDREN_SPECIALIST_DASHBOARD_TAB_AR}</span>
                 {childrenSpecialistActive ? (
                   <span className="h-2 w-2 rounded-full bg-sky-400 shrink-0" aria-hidden />
+                ) : null}
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showMensGroomingCenterTab ? (
+              <TabsTrigger
+                value="mens-grooming-center"
+                className="gap-1.5 text-xs sm:gap-2 sm:text-sm data-[state=active]:bg-amber-500/15 data-[state=active]:text-amber-950 dark:data-[state=active]:text-amber-100"
+              >
+                <MensGroomingCenterIcon className="h-4 w-4 shrink-0" title={MENS_GROOMING_CENTER_DASHBOARD_TAB_AR} />
+                <span className="hidden sm:inline">{MENS_GROOMING_CENTER_DASHBOARD_TAB_AR}</span>
+                {mensGroomingCenterActive ? (
+                  <span className="h-2 w-2 rounded-full bg-amber-400 shrink-0" aria-hidden />
                 ) : null}
               </TabsTrigger>
             ) : null}
@@ -1114,6 +1155,18 @@ export default function BarberDashboard({
           {tierTabs.showChildrenSpecialistTab ? (
           <TabsContent value="children-specialist" className="space-y-6">
             <ChildrenSpecialistDashboardPanel
+              barberId={barberData.id}
+              barberData={barberData}
+              salonDisplayName={salonDisplayName}
+              subscriptionTier={effectiveListingTier ?? barberData.subscription}
+              onRefreshPortalSession={syncPortalSessionFromServer}
+            />
+          </TabsContent>
+          ) : null}
+
+          {tierTabs.showMensGroomingCenterTab ? (
+          <TabsContent value="mens-grooming-center" className="space-y-6">
+            <MensGroomingCenterDashboardPanel
               barberId={barberData.id}
               barberData={barberData}
               salonDisplayName={salonDisplayName}

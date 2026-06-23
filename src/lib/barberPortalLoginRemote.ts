@@ -3,6 +3,7 @@ import type { BarberPortalInclusiveCareSnapshot } from '@/lib/barberInclusiveCar
 import type { BarberPortalChildrenServicesSnapshot } from '@/lib/barberChildrenServicesRemote';
 import type { BarberPortalHomeServiceSnapshot } from '@/lib/barberHomeServiceRemote';
 import type { BarberPortalGroomPrepSnapshot } from '@/lib/barberGroomPrepRemote';
+import type { BarberPortalMensGroomingCenterSnapshot } from '@/lib/barberMensGroomingCenterRemote';
 
 const DEFAULT_ENDPOINT = '/api/barber-portal-login';
 const DEFAULT_REFRESH_ENDPOINT = '/api/barber-portal-session-refresh';
@@ -72,6 +73,8 @@ export type BarberPortalSession = {
   inclusiveCare?: BarberPortalInclusiveCareSnapshot;
   /** قبول حلاقة الأطفال + وضع متخصص (من قاعدة البيانات) */
   childrenServices?: BarberPortalChildrenServicesSnapshot;
+  /** مركز العناية بالرجل — ماسي + مكتب خاص */
+  mensGroomingCenter?: BarberPortalMensGroomingCenterSnapshot;
   /** زيارة منزلية (ذهبي/ماسي) */
   homeService?: BarberPortalHomeServiceSnapshot;
   /** تجهيز عريس (ماسي) */
@@ -124,6 +127,7 @@ export async function barberPortalLoginRemote(input: {
         open_status_token?: string;
         inclusiveCare?: BarberPortalInclusiveCareSnapshot;
         childrenServices?: BarberPortalChildrenServicesSnapshot;
+        mensGroomingCenter?: BarberPortalMensGroomingCenterSnapshot;
         homeService?: BarberPortalHomeServiceSnapshot;
         groomPrep?: BarberPortalGroomPrepSnapshot;
       };
@@ -162,6 +166,7 @@ export async function barberPortalLoginRemote(input: {
         openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
         childrenServices: b.childrenServices,
+        mensGroomingCenter: b.mensGroomingCenter,
         homeService: b.homeService,
         groomPrep: b.groomPrep,
         barberSessionToken,
@@ -211,6 +216,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         open_status_token?: string;
         inclusiveCare?: BarberPortalInclusiveCareSnapshot;
         childrenServices?: BarberPortalChildrenServicesSnapshot;
+        mensGroomingCenter?: BarberPortalMensGroomingCenterSnapshot;
         homeService?: BarberPortalHomeServiceSnapshot;
         groomPrep?: BarberPortalGroomPrepSnapshot;
       };
@@ -245,6 +251,7 @@ export async function refreshBarberPortalSessionRemote(input: {
         openStatusToken: String(b.open_status_token ?? '').trim(),
         inclusiveCare: b.inclusiveCare,
         childrenServices: b.childrenServices,
+        mensGroomingCenter: b.mensGroomingCenter,
         homeService: b.homeService,
         groomPrep: b.groomPrep,
         barberSessionToken,

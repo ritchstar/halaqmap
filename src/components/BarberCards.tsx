@@ -9,10 +9,20 @@ import {
   ChildrenSpecialistHeroChrome,
 } from "@/components/barber/ChildrenSpecialistCardChrome";
 import {
+  MensGroomingCenterBadge,
+  MensGroomingCenterHeroBanner,
+  MensGroomingCenterHeroChrome,
+} from "@/components/barber/MensGroomingCenterCardChrome";
+import {
   CHILDREN_SPECIALIST_CARD_RING_CLASS,
   CHILDREN_SPECIALIST_CARD_SURFACE_CLASS,
   isChildrenSpecialistBarber,
 } from "@/lib/childrenSpecialistDisplay";
+import {
+  MENS_GROOMING_CENTER_CARD_RING_CLASS,
+  MENS_GROOMING_CENTER_CARD_SURFACE_CLASS,
+  isMensGroomingCenterBarber,
+} from "@/lib/mensGroomingCenterDisplay";
 import { cn } from "@/lib/utils";
 import { useDiamondAppointmentSchedulingShown } from "@/lib/diamondSchedulingVisibility";
 import { DiamondAppointmentBooking } from "@/components/DiamondAppointmentBooking";
@@ -44,7 +54,15 @@ function PublicGalleryCountBadge({ barber }: { barber: Barber }) {
   );
 }
 
-function ChildrenSpecialistHeroOverlay({ barber }: { barber: Barber }) {
+function SpecialistHeroOverlay({ barber }: { barber: Barber }) {
+  if (isMensGroomingCenterBarber(barber)) {
+    return (
+      <>
+        <MensGroomingCenterHeroChrome />
+        <MensGroomingCenterHeroBanner lines={barber.groomingCenterBannerLines ?? []} />
+      </>
+    );
+  }
   if (!isChildrenSpecialistBarber(barber)) return null;
   return (
     <>
@@ -55,6 +73,9 @@ function ChildrenSpecialistHeroOverlay({ barber }: { barber: Barber }) {
 }
 
 function ChildrenServicesInline({ barber }: { barber: Barber }) {
+  if (isMensGroomingCenterBarber(barber)) {
+    return <MensGroomingCenterBadge className="mt-2" />;
+  }
   if (isChildrenSpecialistBarber(barber)) {
     return <ChildrenSpecialistBadge className="mt-2" />;
   }
@@ -147,9 +168,18 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
     ? 'ring-2 ring-teal-400/50 shadow-[0_0_40px_rgba(20,184,166,0.15)]'
     : '';
   const isChildrenSpec = isChildrenSpecialistBarber(barber);
-  const childrenSpecRing = isChildrenSpec ? CHILDREN_SPECIALIST_CARD_RING_CLASS : '';
-  const childrenSpecSurface = isChildrenSpec ? CHILDREN_SPECIALIST_CARD_SURFACE_CLASS : '';
-  const tierBadgeTop = isChildrenSpec ? 'top-11' : 'top-3';
+  const isMensGrooming = isMensGroomingCenterBarber(barber);
+  const specialistRing = isMensGrooming
+    ? MENS_GROOMING_CENTER_CARD_RING_CLASS
+    : isChildrenSpec
+      ? CHILDREN_SPECIALIST_CARD_RING_CLASS
+      : '';
+  const specialistSurface = isMensGrooming
+    ? MENS_GROOMING_CENTER_CARD_SURFACE_CLASS
+    : isChildrenSpec
+      ? CHILDREN_SPECIALIST_CARD_SURFACE_CLASS
+      : '';
+  const tierBadgeTop = isMensGrooming || isChildrenSpec ? 'top-11' : 'top-3';
 
   const openGoogleMaps = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${barber.location.lat},${barber.location.lng}`;
@@ -174,7 +204,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
           transition={{ type: "spring", stiffness: 300, damping: 35 }}
           className="overflow-visible"
         >
-          <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-muted/25 border-border hover:shadow-lg transition-all duration-200', childrenSpecRing, childrenSpecSurface)}>
+          <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-muted/25 border-border hover:shadow-lg transition-all duration-200', specialistRing, specialistSurface)}>
             <div className="relative h-40 sm:h-44 overflow-hidden">
               <img
                 src={barber.images[0]}
@@ -182,7 +212,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
-              <ChildrenSpecialistHeroOverlay barber={barber} />
+              <SpecialistHeroOverlay barber={barber} />
               <Badge className={cn('absolute left-3 bg-muted text-muted-foreground border-border', tierBadgeTop)}>
                 برونزي
               </Badge>
@@ -341,7 +371,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 35 }}
       >
-        <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-accent/5 border-accent/25 shadow-md hover:shadow-xl hover:shadow-accent/10 transition-all duration-200 ring-1 ring-accent/20', childrenSpecRing, childrenSpecSurface)}>
+        <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-accent/5 border-accent/25 shadow-md hover:shadow-xl hover:shadow-accent/10 transition-all duration-200 ring-1 ring-accent/20', specialistRing, specialistSurface)}>
           <div className="relative h-48 sm:h-52 overflow-hidden">
             <img
               src={barber.images[0]}
@@ -349,7 +379,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
-            <ChildrenSpecialistHeroOverlay barber={barber} />
+            <SpecialistHeroOverlay barber={barber} />
             <Badge className={cn('absolute left-3 bg-accent text-accent-foreground border-accent/50 shadow-sm', tierBadgeTop)}>
               <Sparkles className="w-3 h-3 ml-1" />
               ذهبي
@@ -434,7 +464,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 35 }}
     >
-      <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-accent/5 to-accent/10 border-accent/30 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-200 ring-2 ring-accent/20', showcaseCardRing, childrenSpecRing, childrenSpecSurface)}>
+      <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-accent/5 to-accent/10 border-accent/30 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-200 ring-2 ring-accent/20', showcaseCardRing, specialistRing, specialistSurface)}>
         <div className="relative h-56 sm:h-64 overflow-hidden">
           <img
             src={barber.images[0]}
@@ -442,7 +472,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent" />
-          <ChildrenSpecialistHeroOverlay barber={barber} />
+          <SpecialistHeroOverlay barber={barber} />
           <Badge className={cn('absolute left-3 bg-gradient-to-r from-accent via-accent to-accent/80 text-accent-foreground border-accent/50 shadow-lg shadow-accent/30', tierBadgeTop)}>
             <Sparkles className="w-4 h-4 ml-1 animate-pulse" />
             ماسي

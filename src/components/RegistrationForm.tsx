@@ -66,6 +66,13 @@ import {
   resolveRegistrationChildrenFields,
 } from '@/config/childrenSpecialistPolicy';
 import {
+  MENS_GROOMING_CENTER_DIAMOND_OFFICE_AR,
+  MENS_GROOMING_MANDATORY_HAIRCUT_AR,
+  MENS_GROOMING_CENTER_MAX_BANNER_LINES,
+  resolveRegistrationMensGroomingFields,
+} from '@/config/mensGroomingCenterPolicy';
+import { MENS_GROOMING_CENTER_FILTER_LABEL_AR } from '@/lib/mensGroomingCenterDisplay';
+import {
   SaudiRegionCityDistrictFields,
   composeSaudiLocationLine,
   type SaudiLocationSelection,
@@ -143,8 +150,10 @@ interface FormData {
   whatsapp: string;
   taxNumber: string;
   categories: string[];
-  /** مسار التخصص: عام أو متخصص أطفال (ماسي) */
+  /** مسار التخصص: عام أو متخصص أطفال (ماسي) أو مركز عناية بالرجل */
   specialtyTrack: BarberSpecialtyTrack;
+  /** أسماء خدمات بنر مسار مراكز العناية بالرجل */
+  groomingCenterBannerLines: string[];
   /** تعهد قانوني إلزامي قبل إتمام التسجيل */
   legalDisclaimerAccepted: boolean;
   /** التزام مهني إلزامي قبل إتمام التسجيل */
@@ -304,6 +313,7 @@ export function RegistrationForm() {
     taxNumber: '',
     categories: [],
     specialtyTrack: 'general',
+    groomingCenterBannerLines: [MENS_GROOMING_MANDATORY_HAIRCUT_AR, ''],
     legalDisclaimerAccepted: false,
     professionalCommitmentAccepted: false,
     softwareProductAcknowledged: false,
@@ -356,6 +366,24 @@ export function RegistrationForm() {
       if (formData.specialtyTrack === 'children' && formData.tier !== SubscriptionTier.DIAMOND) {
         alert('مسار «متخصص أطفال» متاح للباقة الماسية فقط. اختر الماسي أو حدّد «تخصص عام».');
         return;
+      }
+      if (formData.specialtyTrack === 'mens_grooming_center') {
+        if (formData.tier !== SubscriptionTier.DIAMOND || !formData.digitalShiftAddon) {
+          alert('مسار «مراكز العناية بالرجل» يتطلب الباقة الماسية مع إضافة المكتب الخاص.');
+          return;
+        }
+        const bannerLines = formData.groomingCenterBannerLines.map((line) => line.trim()).filter(Boolean);
+        if (bannerLines.length < 2) {
+          alert('أضف خدمتين على الأقل في بنر مركز العناية بالرجل — حلاقة رجالية وخدمة أخرى.');
+          return;
+        }
+        const hasHaircut = bannerLines.some(
+          (line) => line === MENS_GROOMING_MANDATORY_HAIRCUT_AR || line.includes('حلاقة رجال'),
+        );
+        if (!hasHaircut) {
+          alert('يجب تضمين «حلاقة رجالي» ضمن خدمات البنر.');
+          return;
+        }
       }
       if (formData.specialtyTrack === 'general' && formData.categories.length === 0) {
         alert('يرجى اختيار نوع خدمة واحد على الأقل.');
@@ -739,14 +767,29 @@ export function RegistrationForm() {
           ? { inclusiveAccessibleCare: inclusiveAccessibleCarePayload }
           : {}),
         ...(() => {
-          const resolved = resolveRegistrationChildrenFields({
+          const childrenResolved = resolveRegistrationChildrenFields({
             specialtyTrack: formData.specialtyTrack,
             tier: formData.tier as SubscriptionTier,
             categories: formData.categories,
           });
+          const mensResolved = resolveRegistrationMensGroomingFields({
+            specialtyTrack: formData.specialtyTrack,
+            tier: formData.tier as SubscriptionTier,
+            digitalShiftAddon: formData.digitalShiftAddon,
+            groomingCenterBannerLines: formData.groomingCenterBannerLines,
+          });
+          const categories = mensResolved.mensGroomingCenter
+            ? mensResolved.categories
+            : childrenResolved.categories;
           return {
-            categories: resolved.categories,
-            ...(resolved.childrenSpecialist ? { childrenSpecialist: true } : {}),
+            categories,
+            ...(childrenResolved.childrenSpecialist ? { childrenSpecialist: true } : {}),
+            ...(mensResolved.mensGroomingCenter
+              ? {
+                  mensGroomingCenter: true,
+                  groomingCenterBannerLines: mensResolved.groomingCenterBannerLines,
+                }
+              : {}),
           };
         })(),
         specialtyTrack: formData.specialtyTrack,
@@ -998,7 +1041,8 @@ export function RegistrationForm() {
                         digitalShiftAddon:
                           value === SubscriptionTier.DIAMOND ? prev.digitalShiftAddon : false,
                         specialtyTrack:
-                          value !== SubscriptionTier.DIAMOND && prev.specialtyTrack === 'children'
+                          value !== SubscriptionTier.DIAMOND &&
+                          (prev.specialtyTrack === 'children' || prev.specialtyTrack === 'mens_grooming_center')
                             ? 'general'
                             : prev.specialtyTrack,
                       }))
@@ -1061,7 +1105,14 @@ export function RegistrationForm() {
                           <DigitalShiftAddonToggle
                             checked={formData.digitalShiftAddon}
                             onCheckedChange={(checked) =>
-                              setFormData((prev) => ({ ...prev, digitalShiftAddon: checked }))
+                              setFormData((prev) => ({
+                                ...prev,
+                                digitalShiftAddon: checked,
+                                specialtyTrack:
+                                  !checked && prev.specialtyTrack === 'mens_grooming_center'
+                                    ? 'general'
+                                    : prev.specialtyTrack,
+                              }))
                             }
                             id="registration-digital-shift"
                             className="mb-3 mt-0"
@@ -1197,14 +1248,26 @@ export function RegistrationForm() {
                   <Label className={regLabelClass}>مسار التخصص *</Label>
                   <RadioGroup
                     value={formData.specialtyTrack}
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
+                      const track = value as BarberSpecialtyTrack;
                       setFormData((prev) => ({
                         ...prev,
-                        specialtyTrack: value as BarberSpecialtyTrack,
+                        specialtyTrack: track,
                         categories:
-                          value === 'children' ? [CHILDREN_BARBER_CATEGORY] : prev.categories,
-                      }))
-                    }
+                          track === 'children'
+                            ? [CHILDREN_BARBER_CATEGORY]
+                            : track === 'mens_grooming_center'
+                              ? []
+                              : prev.categories,
+                        digitalShiftAddon: track === 'mens_grooming_center' ? true : prev.digitalShiftAddon,
+                        groomingCenterBannerLines:
+                          track === 'mens_grooming_center'
+                            ? prev.groomingCenterBannerLines.filter(Boolean).length >= 2
+                              ? prev.groomingCenterBannerLines
+                              : [MENS_GROOMING_MANDATORY_HAIRCUT_AR, '']
+                            : prev.groomingCenterBannerLines,
+                      }));
+                    }}
                     className="grid gap-3"
                   >
                     <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-600 bg-slate-800/60 p-3">
@@ -1236,6 +1299,31 @@ export function RegistrationForm() {
                         </p>
                         {formData.tier !== SubscriptionTier.DIAMOND ? (
                           <p className="mt-1 text-xs text-amber-300/90">اختر الباقة الماسية في الخطوة الأولى لتفعيل هذا المسار.</p>
+                        ) : null}
+                      </div>
+                    </label>
+                    <label
+                      className={`flex items-start gap-3 rounded-lg border p-3 ${
+                        formData.tier === SubscriptionTier.DIAMOND && formData.digitalShiftAddon
+                          ? 'cursor-pointer border-amber-400/40 bg-amber-500/5'
+                          : 'cursor-not-allowed border-slate-700 bg-slate-900/40 opacity-70'
+                      }`}
+                    >
+                      <RadioGroupItem
+                        value="mens_grooming_center"
+                        id="specialty-mens-grooming"
+                        className="mt-1"
+                        disabled={formData.tier !== SubscriptionTier.DIAMOND || !formData.digitalShiftAddon}
+                      />
+                      <div>
+                        <span className={`font-semibold ${regLabelClass}`}>{MENS_GROOMING_CENTER_FILTER_LABEL_AR}</span>
+                        <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                          {MENS_GROOMING_CENTER_DIAMOND_OFFICE_AR}
+                        </p>
+                        {formData.tier !== SubscriptionTier.DIAMOND || !formData.digitalShiftAddon ? (
+                          <p className="mt-1 text-xs text-amber-300/90">
+                            اختر الباقة الماسية مع إضافة المكتب الخاص في الخطوة الأولى لتفعيل هذا المسار.
+                          </p>
                         ) : null}
                       </div>
                     </label>
@@ -1271,7 +1359,7 @@ export function RegistrationForm() {
                     ))}
                   </div>
                 </div>
-                ) : (
+                ) : formData.specialtyTrack === 'children' ? (
                   <Alert className={regAlertClass}>
                     <AlertCircle className="h-4 w-4 text-sky-300" />
                     <AlertDescription className="text-slate-300 leading-relaxed">
@@ -1279,6 +1367,65 @@ export function RegistrationForm() {
                       تحكم مخصصة بعد التفعيل.
                     </AlertDescription>
                   </Alert>
+                ) : (
+                  <div className="space-y-4">
+                    <Alert className={regAlertClass}>
+                      <AlertCircle className="h-4 w-4 text-amber-300" />
+                      <AlertDescription className="text-slate-300 leading-relaxed">
+                        سمِّ خدماتك كما تعرضها في صالونك — تظهر على بنر بطاقتك تحت تصنيف «{MENS_GROOMING_CENTER_FILTER_LABEL_AR}». الحلاقة الرجالية إلزامية.
+                      </AlertDescription>
+                    </Alert>
+                    <div className="space-y-3">
+                      <Label className={regLabelClass}>خدمات البنر *</Label>
+                      {formData.groomingCenterBannerLines.map((line, index) => (
+                        <div key={`grooming-line-${index}`} className="flex gap-2">
+                          <Input
+                            value={line}
+                            disabled={index === 0}
+                            onChange={(e) =>
+                              setFormData((prev) => {
+                                const next = [...prev.groomingCenterBannerLines];
+                                next[index] = e.target.value;
+                                return { ...prev, groomingCenterBannerLines: next };
+                              })
+                            }
+                            placeholder={index === 0 ? MENS_GROOMING_MANDATORY_HAIRCUT_AR : 'مثال: مساج رأس ورقبة'}
+                            className={regFieldClass}
+                          />
+                          {index > 1 ? (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="shrink-0 border-slate-600"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  groomingCenterBannerLines: prev.groomingCenterBannerLines.filter((_, i) => i !== index),
+                                }))
+                              }
+                            >
+                              حذف
+                            </Button>
+                          ) : null}
+                        </div>
+                      ))}
+                      {formData.groomingCenterBannerLines.length < MENS_GROOMING_CENTER_MAX_BANNER_LINES ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="border-slate-600"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              groomingCenterBannerLines: [...prev.groomingCenterBannerLines, ''],
+                            }))
+                          }
+                        >
+                          إضافة خدمة
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
                 )}
               </div>
             </RegStepShell>

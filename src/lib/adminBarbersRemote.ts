@@ -5,6 +5,10 @@ import {
 } from '@/lib/barberInclusiveCareUpsertGuard';
 import { SubscriptionRequest, SubscriptionTier } from '@/lib/index';
 import { resolveChildrenSpecialistFlag } from '@/config/childrenSpecialistPolicy';
+import {
+  normalizeGroomingCenterBannerLines,
+  resolveMensGroomingCenterFlag,
+} from '@/config/mensGroomingCenterPolicy';
 
 const APPROVE_BARBER_API = '/api/approve-barber';
 
@@ -273,6 +277,24 @@ export async function upsertBarberFromApprovedRequest(
         request.categories?.some((c) => c === 'حلاقة أطفال' || c === 'أطفال') ?? false,
       tier: request.tier,
     }),
+    ...(() => {
+      const categories = request.categories ?? [];
+      const bannerLines = normalizeGroomingCenterBannerLines(request.groomingCenterBannerLines);
+      const mensGroomingRequested =
+        request.mensGroomingCenter === true && request.digitalShiftAddonSelected === true;
+      const hasMensHaircut =
+        categories.some((c) => c === 'حلاقة رجالي' || c.includes('حلاقة رجال')) ||
+        bannerLines.some((line) => line === 'حلاقة رجالي' || line.includes('حلاقة رجال'));
+      const mensGroomingCenter = resolveMensGroomingCenterFlag({
+        requested: mensGroomingRequested,
+        tier: request.tier,
+        hasMensHaircutInSpecialties: hasMensHaircut,
+      });
+      return {
+        mens_grooming_center: mensGroomingCenter,
+        grooming_center_banner_lines: mensGroomingCenter ? bannerLines : [],
+      };
+    })(),
   };
 
   const endpoint = String(import.meta.env.VITE_APPROVE_BARBER_URL || APPROVE_BARBER_API).trim();

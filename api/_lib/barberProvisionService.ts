@@ -5,6 +5,10 @@ import {
   stripInclusiveCareKeysFromBarberUpsertRow,
 } from './barberInclusiveCareUpsertRetry.js';
 import { resolveChildrenSpecialistFlag } from './childrenSpecialistPolicy.js';
+import {
+  normalizeGroomingCenterBannerLines,
+  resolveMensGroomingCenterFlag,
+} from './mensGroomingCenterPolicy.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -231,6 +235,23 @@ export function buildBarberUpsertRowFromRegistrationPayload(
       acceptsChildren: categories.some((c) => c === 'حلاقة أطفال' || c === 'أطفال'),
       tier,
     }),
+    ...(() => {
+      const bannerLines = normalizeGroomingCenterBannerLines(payload.groomingCenterBannerLines);
+      const mensGroomingRequested =
+        payload.mensGroomingCenter === true && payload.digitalShiftAddonSelected === true;
+      const hasMensHaircut =
+        categories.some((c) => c === 'حلاقة رجالي' || c.includes('حلاقة رجال')) ||
+        bannerLines.some((line) => line === 'حلاقة رجالي' || line.includes('حلاقة رجال'));
+      const mensGroomingCenter = resolveMensGroomingCenterFlag({
+        requested: mensGroomingRequested,
+        tier,
+        hasMensHaircutInSpecialties: hasMensHaircut,
+      });
+      return {
+        mens_grooming_center: mensGroomingCenter,
+        grooming_center_banner_lines: mensGroomingCenter ? bannerLines : [],
+      };
+    })(),
   };
 }
 

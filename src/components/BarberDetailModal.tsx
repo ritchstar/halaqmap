@@ -24,7 +24,9 @@ import { formatHomeServiceContactMessage } from '@/lib/homeServiceContactTemplat
 import { formatGroomPrepContactMessage } from '@/lib/groomPrepContactTemplate';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { ChildrenSpecialistDetailBanner } from '@/components/barber/ChildrenSpecialistCardChrome';
+import { MensGroomingCenterDetailBanner } from '@/components/barber/MensGroomingCenterCardChrome';
 import { isChildrenSpecialistBarber } from '@/lib/childrenSpecialistDisplay';
+import { isMensGroomingCenterBarber } from '@/lib/mensGroomingCenterDisplay';
 import {
   BarberContactCtaButton,
   BarberContactRatingStars,
@@ -110,6 +112,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
     barber.subscription === SubscriptionTier.DIAMOND;
 
   const showChildrenSpecialist = isChildrenSpecialistBarber(barber);
+  const showMensGroomingCenter = isMensGroomingCenterBarber(barber);
 
   const menuRows = useMemo((): MenuPriceRow[] => {
     const rows: MenuPriceRow[] = barber.services.map((service, index) => ({
@@ -226,6 +229,9 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
         transition={{ duration: 0.3 }}
         className="barber-contact-inner mt-4 min-w-0 max-w-full overflow-x-clip space-y-5 sm:space-y-6"
       >
+          {showMensGroomingCenter ? (
+            <MensGroomingCenterDetailBanner lines={barber.groomingCenterBannerLines ?? []} />
+          ) : null}
           {showChildrenSpecialist ? <ChildrenSpecialistDetailBanner /> : null}
 
           {featuredPreview.length > 1 && galleryView === 'featured' ? (

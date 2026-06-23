@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
 import { buildChildrenServicesSnapshotFromBarberRow } from './_lib/childrenServicesBarberSnapshot.js';
+import { buildMensGroomingCenterSnapshotFromBarberRow } from './_lib/mensGroomingCenterBarberSnapshot.js';
 import { buildHomeServiceSnapshotFromBarberRow } from './_lib/homeServiceBarberSnapshot.js';
 import { buildGroomPrepSnapshotFromBarberRow } from './_lib/groomPrepBarberSnapshot.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
@@ -113,7 +114,7 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   const selectCols =
-    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, specialties, children_specialist, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note, home_service_offered, home_service_price_sar, home_service_radius_km, home_service_public_visible, home_service_customer_note, groom_prep_offered, groom_prep_price_sar, groom_prep_public_visible, groom_prep_customer_note';
+    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, specialties, children_specialist, mens_grooming_center, grooming_center_banner_lines, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note, home_service_offered, home_service_price_sar, home_service_radius_km, home_service_public_visible, home_service_customer_note, groom_prep_offered, groom_prep_price_sar, groom_prep_public_visible, groom_prep_customer_note';
 
   const { data: row, error } = await supabase.from('barbers').select(selectCols).eq('id', barberId).maybeSingle();
 
@@ -138,6 +139,8 @@ export async function POST(request: Request): Promise<Response> {
     open_status_token?: string | null;
     specialties?: unknown;
     children_specialist?: boolean | null;
+    mens_grooming_center?: boolean | null;
+    grooming_center_banner_lines?: unknown;
     inclusive_care_offered?: boolean | null;
     inclusive_care_price_sar?: unknown;
     inclusive_care_public_visible?: boolean | null;
@@ -205,6 +208,7 @@ export async function POST(request: Request): Promise<Response> {
             : '',
         inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(b),
         childrenServices: buildChildrenServicesSnapshotFromBarberRow(b),
+        mensGroomingCenter: buildMensGroomingCenterSnapshotFromBarberRow(b),
         homeService: buildHomeServiceSnapshotFromBarberRow(b),
         groomPrep: buildGroomPrepSnapshotFromBarberRow(b),
       },

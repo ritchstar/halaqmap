@@ -198,6 +198,10 @@ export interface Barber {
   childrenSpecialist?: boolean;
   /** يقبل حلاقة أطفال (من specialties) */
   acceptsChildren?: boolean;
+  /** مركز العناية بالرجل — ماسي + مكتب خاص */
+  mensGroomingCenter?: boolean;
+  /** خدمات يعرضها الشريك على بنر البطاقة */
+  groomingCenterBannerLines?: string[];
   /**
    * إدراج معاينة عبر نظام الرصد الذكي (مثلاً قبل اكتمال ربط حساب الصالون).
    * يُعرض للفريق علامة سرّية `*` في الواجهة — لا تُستخدم كمصدر حقيقي للاشتراك.
@@ -371,7 +375,9 @@ export interface SubscriptionRequest {
   inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
   categories?: string[];
   /** مسار التخصص عند التسجيل */
-  specialtyTrack?: 'general' | 'children';
+  specialtyTrack?: 'general' | 'children' | 'mens_grooming_center';
+  mensGroomingCenter?: boolean;
+  groomingCenterBannerLines?: string[];
   /** متخصص أطفال — ماسي فقط */
   childrenSpecialist?: boolean;
   /** موافقة صريحة على شروط التسجيل وسياسة الشركاء (إلزامية عند الإرسال) */
@@ -446,6 +452,8 @@ export interface FilterState {
   categories: string[];
   /** عند true: إظهار متخصصي الأطفال فقط (childrenSpecialist) */
   childrenSpecialistOnly?: boolean;
+  /** عند true: إظهار مراكز العناية بالرجل فقط */
+  mensGroomingCenterOnly?: boolean;
 }
 
 export function filterBarbersByDistance(
@@ -492,6 +500,12 @@ export function filterBarbersByDistance(
         if (!hasCategory) return false;
       }
       if (filters.childrenSpecialistOnly && (!barber.childrenSpecialist || barber.subscription !== SubscriptionTier.DIAMOND)) return false;
+      if (
+        filters.mensGroomingCenterOnly &&
+        (!barber.mensGroomingCenter || barber.subscription !== SubscriptionTier.DIAMOND)
+      ) {
+        return false;
+      }
       return true;
     })
     .sort((a, b) =>

@@ -10,6 +10,7 @@ import { FilterState, SubscriptionTier } from '@/lib/index';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
 import { CHILDREN_SPECIALIST_FILTER_LABEL_AR } from '@/lib/childrenSpecialistDisplay';
+import { MENS_GROOMING_CENTER_FILTER_LABEL_AR } from '@/lib/mensGroomingCenterDisplay';
 
 interface FilterBarProps {
   filters: FilterState;
@@ -67,7 +68,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
   const [expanded, setExpanded] = useState(false);
 
   const handleReset = () => {
-    onFilterChange({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [], childrenSpecialistOnly: false });
+    onFilterChange({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [], childrenSpecialistOnly: false, mensGroomingCenterOnly: false });
   };
 
   const activeCount = [
@@ -76,6 +77,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
     filters.minRating > 0 ? 1 : 0,
     filters.categories.length,
     filters.childrenSpecialistOnly ? 1 : 0,
+    filters.mensGroomingCenterOnly ? 1 : 0,
     filters.maxDistance !== 1 ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
@@ -266,6 +268,17 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
                 >
                   <ChildrenSpecialistIcon className="h-3 w-3 shrink-0" title={CHILDREN_SPECIALIST_FILTER_LABEL_AR} />{' '}
                   {CHILDREN_SPECIALIST_FILTER_LABEL_AR} (ماسي)
+                </Pill>
+                <Pill
+                  active={Boolean(filters.mensGroomingCenterOnly)}
+                  onClick={() =>
+                    onFilterChange({
+                      ...filters,
+                      mensGroomingCenterOnly: !filters.mensGroomingCenterOnly,
+                    })
+                  }
+                >
+                  <span className="text-amber-300">✦</span> {MENS_GROOMING_CENTER_FILTER_LABEL_AR}
                 </Pill>
               </div>
 

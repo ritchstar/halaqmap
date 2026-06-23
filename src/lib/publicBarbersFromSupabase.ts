@@ -5,6 +5,7 @@ import type { Barber, GroomPrepOffer, HomeVisitOffer, InclusiveAccessibleCareOff
 import { SubscriptionTier } from '@/lib/index';
 import { sanitizeInclusiveCareDays } from '@/lib/barberInclusiveCareRemote';
 import { barberAcceptsChildren } from '@/lib/barberCategoryLexicon';
+import { normalizeGroomingCenterBannerLines } from '@/config/mensGroomingCenterPolicy';
 
 const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
 const PUBLIC_BARBERS_API = '/api/public-barbers';
@@ -73,6 +74,8 @@ type BarberRow = {
   groom_prep_price_sar?: number | string | null;
   groom_prep_public_visible?: boolean | null;
   groom_prep_customer_note?: string | null;
+  mens_grooming_center?: boolean | null;
+  grooming_center_banner_lines?: unknown;
 };
 
 function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer | undefined {
@@ -197,6 +200,9 @@ function mapRow(row: BarberRow): Barber {
   const acceptsChildren = barberAcceptsChildren(categories);
   const childrenSpecialist =
     row.children_specialist === true && acceptsChildren && tierFromDb(row.tier) === SubscriptionTier.DIAMOND;
+  const groomingBannerLines = normalizeGroomingCenterBannerLines(row.grooming_center_banner_lines);
+  const mensGroomingCenter =
+    row.mens_grooming_center === true && tierFromDb(row.tier) === SubscriptionTier.DIAMOND;
   const uid = row.user_id?.trim() || '';
   const previewListing =
     row.account_linked === false || (row.account_linked == null && (!uid || !UUID_RE.test(uid)));
@@ -225,6 +231,12 @@ function mapRow(row: BarberRow): Barber {
     categories,
     ...(acceptsChildren ? { acceptsChildren: true } : {}),
     ...(childrenSpecialist ? { childrenSpecialist: true } : {}),
+    ...(mensGroomingCenter
+      ? {
+          mensGroomingCenter: true,
+          groomingCenterBannerLines: groomingBannerLines,
+        }
+      : {}),
     ...(previewListing ? { previewListing: true } : {}),
     hasActiveSubscription: row.has_active_subscription === true,
     ...(row.profile_updated_at ? { profileUpdatedAt: row.profile_updated_at } : {}),
@@ -295,7 +307,10 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
       user_id,
       has_active_subscription,
       gallery_count,
-      featured_images
+      featured_images,
+      children_specialist,
+      mens_grooming_center,
+      grooming_center_banner_lines
     `
     )
     .eq('is_active', true)

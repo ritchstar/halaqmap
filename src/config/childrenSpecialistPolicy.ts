@@ -1,8 +1,8 @@
 import { SubscriptionTier } from '@/lib';
 import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
 
-/** مسار التخصص عند التسجيل — عام أو متخصص أطفال (ماسي). */
-export type BarberSpecialtyTrack = 'general' | 'children';
+/** مسار التخصص عند التسجيل — عام أو متخصص أطفال أو مركز عناية بالرجل. */
+export type BarberSpecialtyTrack = 'general' | 'children' | 'mens_grooming_center';
 
 export const CHILDREN_SPECIALIST_DIAMOND_ONLY_AR =
   'مسار «متخصص أطفال» متاح للباقة الماسية فقط — بطاقة وبنر مميزان على الخريطة وفلتر «متخصص أطفال» ولوحة تحكم مخصصة في تبويب «متخصص أطفال».';
