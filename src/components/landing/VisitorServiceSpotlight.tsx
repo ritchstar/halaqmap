@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import {
+  VISITOR_SERVICE_SPOTLIGHT_ACTIVE_CTA_AR,
   VISITOR_SERVICE_SPOTLIGHT_CARDS,
+  VISITOR_SERVICE_SPOTLIGHT_CTA_AR,
   VISITOR_SERVICE_SPOTLIGHT_SUBTITLE_AR,
   VISITOR_SERVICE_SPOTLIGHT_TITLE_AR,
 } from '@/config/visitorLandingCopy';
@@ -69,7 +71,7 @@ export function VisitorServiceSpotlight({
                 <h3 className="mt-3 text-base font-bold text-white">{card.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">{card.benefit}</p>
                 <span className="mt-4 inline-flex text-xs font-semibold text-teal-300 group-hover:text-teal-200">
-                  {active ? 'مُفعَّل — ابدأ الاستعلام' : 'فعّل الفلتر وابحث ←'}
+                  {active ? VISITOR_SERVICE_SPOTLIGHT_ACTIVE_CTA_AR : VISITOR_SERVICE_SPOTLIGHT_CTA_AR}
                 </span>
               </motion.button>
             );
