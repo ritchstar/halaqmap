@@ -927,8 +927,10 @@ export default function LandingPreview() {
 
         <div
           className={cn(
-            'relative z-10 mx-auto grid max-w-7xl items-center px-5 lg:grid-cols-2',
-            isMobile ? 'gap-6 py-6' : 'gap-10 py-12 lg:gap-16 lg:py-24',
+            'relative z-10 mx-auto grid max-w-7xl items-center px-5',
+            isMobile
+              ? 'gap-6 py-6'
+              : 'gap-6 py-12 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-5 lg:py-20 xl:gap-8',
           )}
         >
           {/* Left — text */}
@@ -971,19 +973,9 @@ export default function LandingPreview() {
               {isMobile ? VISITOR_HERO_LEAD_MOBILE_AR : VISITOR_HERO_LEAD_DESKTOP_AR}
             </p>
 
-            <div className="mb-6">
-              <VisitorServiceIntentRail
-                filters={filters}
-                hasLocation={Boolean(userLocation)}
-                compact={isMobile}
-                onIntentChange={handleVisitorIntentChange}
-                onNeedLocation={handleNeedLocation}
-              />
-            </div>
-
-            {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة (الجوال: الشريط السفلي الثابت) */}
+            {/* زر الاستعلام — موضعه الأساسي قبل الفلاتر (سطح المكتب) */}
             {!isMobile ? (
-            <div className="mb-6 flex w-full flex-col items-center gap-4">
+            <div className="mb-5 flex w-full flex-col items-center gap-4">
               <Suspense
                 fallback={
                   <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full border border-teal-400/20 bg-[#071426] text-sm text-slate-300">
@@ -1014,6 +1006,18 @@ export default function LandingPreview() {
             </div>
             ) : null}
 
+            {isMobile ? (
+            <div className="mb-6">
+              <VisitorServiceIntentRail
+                filters={filters}
+                hasLocation={Boolean(userLocation)}
+                compact
+                onIntentChange={handleVisitorIntentChange}
+                onNeedLocation={handleNeedLocation}
+              />
+            </div>
+            ) : null}
+
             {/* Trust triad — زائر: ثقة لا سردية حرية */}
             {deferMobileExtras ? (
             <div className={cn('mb-6', !isMobile && 'mb-2')}>
@@ -1028,7 +1032,25 @@ export default function LandingPreview() {
             ) : null}
           </motion.div>
 
-          {/* Right — live pulse radar (desktop) */}
+          {/* عمود الفلاتر الرأسي — بين الاستعلام والرادار */}
+          {!isMobile ? (
+          <motion.div
+            initial={skipHeroMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: skipHeroMotion ? 0 : 0.25, duration: 0.55 }}
+            className="hidden self-center lg:flex"
+          >
+            <VisitorServiceIntentRail
+              filters={filters}
+              hasLocation={Boolean(userLocation)}
+              layout="vertical"
+              onIntentChange={handleVisitorIntentChange}
+              onNeedLocation={handleNeedLocation}
+            />
+          </motion.div>
+          ) : null}
+
+          {/* الرادار — يسار الهيرو في RTL */}
           {!isMobile ? (
           <motion.div
             initial={skipHeroMotion ? false : { opacity: 0, scale: 0.92 }}
