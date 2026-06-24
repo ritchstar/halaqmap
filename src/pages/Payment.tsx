@@ -37,7 +37,13 @@ import {
 import { fetchPublicPaymentPageConfig, type PublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { getUnifiedPaymentProvider } from '@/lib/payment/providers';
 import { verifyMoyasarPaymentRemote } from '@/lib/moyasarPaymentVerifyRemote';
+import {
+  buildSabShopperResultUrl,
+  createSabCheckoutRemote,
+  verifySabPaymentRemote,
+} from '@/lib/sabPaymentRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
+import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -145,6 +151,13 @@ export default function Payment() {
   const [activationCertificateError, setActivationCertificateError] = useState<string | null>(null);
   const moyasarHostRef = useRef<HTMLDivElement>(null);
   const [moyasarFormError, setMoyasarFormError] = useState<string | null>(null);
+  const [sabTermsAccepted, setSabTermsAccepted] = useState(false);
+  const [sabReturnVerify, setSabReturnVerify] = useState<'idle' | 'loading' | 'paid' | 'unpaid' | 'error'>('idle');
+  const [sabVerifyMessage, setSabVerifyMessage] = useState<string | null>(null);
+  const [sabPaidAmountFormat, setSabPaidAmountFormat] = useState<string | null>(null);
+  const sabHostRef = useRef<HTMLDivElement>(null);
+  const [sabFormError, setSabFormError] = useState<string | null>(null);
+  const [sabCheckoutLoading, setSabCheckoutLoading] = useState(false);
 
   const moyasarPublishableKey = useMemo(() => {
     // Production key source (frontend env):
@@ -224,7 +237,13 @@ export default function Payment() {
     ],
   );
 
-  const moyasarPaymentIdFromUrl = searchParams.get('id')?.trim() || '';
+  const paymentGatewayFromUrl = (searchParams.get('gateway') ?? '').trim().toLowerCase();
+  const paymentIdFromUrl = searchParams.get('id')?.trim() || '';
+  const sabResourcePathFromUrl = searchParams.get('resourcePath')?.trim() || '';
+  const moyasarPaymentIdFromUrl =
+    paymentIdFromUrl && paymentGatewayFromUrl !== 'sab' ? paymentIdFromUrl : '';
+  const sabPaymentIdFromUrl =
+    paymentIdFromUrl && paymentGatewayFromUrl === 'sab' ? paymentIdFromUrl : '';
 
   useEffect(() => {
     if (!moyasarPaymentIdFromUrl) return;
@@ -297,6 +316,87 @@ export default function Payment() {
       cancelled = true;
     };
   }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, paymentProvider, setSearchParams]);
+
+  useEffect(() => {
+    if (!sabPaymentIdFromUrl) return;
+    let cancelled = false;
+    setSabReturnVerify('loading');
+    setSabVerifyMessage(null);
+    setSabPaidAmountFormat(null);
+
+    void verifySabPaymentRemote(sabPaymentIdFromUrl, {
+      resourcePath: sabResourcePathFromUrl || undefined,
+      expectedAmountHalalas: monthlyAmountHalalas,
+      expectedCurrency: 'SAR',
+    }).then(async (result) => {
+      if (cancelled) return;
+      const verifiedPaymentId = sabPaymentIdFromUrl;
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('id');
+          next.delete('resourcePath');
+          next.delete('gateway');
+          return next;
+        },
+        { replace: true },
+      );
+
+      if (!result.ok) {
+        setSabReturnVerify('error');
+        if (result.error === 'sab_disabled') {
+          setSabVerifyMessage(
+            'التحقق من دفع SAB غير مفعّل على الخادم. أضف مفاتيح OPPWA على Vercel ثم أعد المحاولة.',
+          );
+          toast.message('تنبيه', { description: 'خادم التحقق من بنك الأول غير مهيأ بعد.' });
+        } else if (result.error === 'amount_mismatch') {
+          setSabVerifyMessage('المبلغ لا يطابق قيمة حزمة الرخصة الرقمية للباقة المعروضة.');
+          toast.error('تباين في المبلغ');
+        } else {
+          setSabVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
+          toast.error('فشل التحقق من الدفع');
+        }
+        return;
+      }
+
+      if (result.paid && paymentProvider.isSuccessStatus(result.status || 'paid')) {
+        setSabReturnVerify('paid');
+        setSabVerifyMessage(null);
+        setSabPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
+        setActivationCertificate(null);
+        setActivationCertificateError(null);
+        setActivationCertificateLoading(true);
+        const certResult = await fetchActivationCertificateByMoyasarPaymentId(verifiedPaymentId);
+        if (cancelled) return;
+        setActivationCertificateLoading(false);
+        if (certResult.ok) {
+          setActivationCertificate(certResult.certificate);
+        } else {
+          setActivationCertificateError(
+            certResult.pending
+              ? 'جاري إصدار شهادة التفعيل الرقمية — قد تستغرق ثوانٍ بعد تأكيد الدفع.'
+              : 'تعذر جلب شهادة التفعيل الرقمية حالياً.',
+          );
+        }
+      } else {
+        setSabReturnVerify('unpaid');
+        setSabVerifyMessage(
+          `حالة الدفع من بنك الأول: ${result.status || 'غير مكتمل'}${result.resultDescription ? ` — ${result.resultDescription}` : ''}.`,
+        );
+        toast.message('الدفع غير مكتمل', { description: 'أكمل خطوات 3DS إن وُجدت ثم أعد المحاولة.' });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    sabPaymentIdFromUrl,
+    sabResourcePathFromUrl,
+    monthlyAmountHalalas,
+    paymentProvider,
+    setSearchParams,
+  ]);
 
   /** تهيئة نموذج ميسر داخل الصفحة بعد الإقرار بالشروط. */
   useEffect(() => {
@@ -407,6 +507,109 @@ export default function Payment() {
     unifiedPaymentInit.metadata,
   ]);
 
+  /** تهيئة ودجت OPPWA لبنك الأول (SAB) بعد الإقرارات. */
+  useEffect(() => {
+    if (!showSabCheckout) return;
+    if (
+      paymentMethod !== 'sab' ||
+      !sabTermsAccepted ||
+      !softwareProductAcknowledged ||
+      !registrationRequestReady
+    ) {
+      setSabFormError(null);
+      if (sabHostRef.current) sabHostRef.current.innerHTML = '';
+      return;
+    }
+
+    const host = sabHostRef.current;
+    if (!host) return;
+
+    let cancelled = false;
+    setSabFormError(null);
+    setSabCheckoutLoading(true);
+
+    const shopperResultUrl = buildSabShopperResultUrl(ROUTE_PATHS.PAYMENT, {
+      tier,
+      qty: String(licenseQuantity),
+      ...(digitalShiftAddonSelected ? { aiAddon: '1' } : {}),
+      requestId,
+      ...(linkedBarberId ? { linkedBarberId } : {}),
+      ...(barberName ? { barberName } : {}),
+      purpose: purchasePurpose,
+    });
+
+    void createSabCheckoutRemote({
+      tier,
+      amountHalalas: monthlyAmountHalalas,
+      licenseQuantity,
+      digitalShiftAddonSelected,
+      barberName: barberName || 'عميل حلاق ماب',
+      requestId,
+      linkedBarberId,
+      shopperResultUrl,
+    })
+      .then(async (checkout) => {
+        if (cancelled) return;
+        setSabCheckoutLoading(false);
+        if (!checkout.ok) {
+          if (checkout.error === 'sab_disabled') {
+            setSabFormError('بوابة SAB غير مهيأة على الخادم. أضف مفاتيح OPPWA في Vercel.');
+          } else {
+            setSabFormError(checkout.hint || checkout.detail || checkout.error || 'تعذر إنشاء جلسة الدفع.');
+          }
+          return;
+        }
+
+        setSabWidgetLocaleAr();
+        try {
+          await loadSabPaymentWidgetScript(checkout.widgetScriptUrl);
+        } catch {
+          if (!cancelled) setSabFormError('تعذر تحميل ودجت الدفع من بوابة بنك الأول.');
+          return;
+        }
+
+        if (cancelled || !sabHostRef.current) return;
+        mountSabPaymentForm(sabHostRef.current, checkout.shopperResultUrl);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSabCheckoutLoading(false);
+          setSabFormError('تعذر الاتصال بخادم إنشاء جلسة الدفع.');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (sabHostRef.current) sabHostRef.current.innerHTML = '';
+    };
+  }, [
+    paymentMethod,
+    sabTermsAccepted,
+    softwareProductAcknowledged,
+    registrationRequestReady,
+    showSabCheckout,
+    tier,
+    monthlyAmountHalalas,
+    licenseQuantity,
+    digitalShiftAddonSelected,
+    barberName,
+    requestId,
+    linkedBarberId,
+    purchasePurpose,
+  ]);
+
+  const paymentReturnLoading = moyasarReturnVerify === 'loading' || sabReturnVerify === 'loading';
+  const paymentReturnPaid = moyasarReturnVerify === 'paid' || sabReturnVerify === 'paid';
+  const paymentReturnUnpaid =
+    moyasarReturnVerify === 'unpaid' || sabReturnVerify === 'unpaid';
+  const paymentReturnError = moyasarReturnVerify === 'error' || sabReturnVerify === 'error';
+  const paymentReturnMessage = sabVerifyMessage || moyasarVerifyMessage;
+  const paymentPaidAmountFormat = sabPaidAmountFormat || moyasarPaidAmountFormat;
+  const paymentReturnGatewayLabel =
+    sabReturnVerify === 'paid' || sabReturnVerify === 'loading' || sabReturnVerify === 'unpaid' || sabReturnVerify === 'error'
+      ? 'بنك الأول'
+      : 'ميسر';
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-background" dir="rtl">
       {/* Header */}
@@ -461,10 +664,10 @@ export default function Payment() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto">
-          {moyasarReturnVerify === 'loading' && (
+          {paymentReturnLoading && (
             <Alert className="mb-6 border-primary/30 bg-primary/5">
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <AlertDescription>جاري التحقق من عملية الدفع مع ميسر…</AlertDescription>
+              <AlertDescription>جاري التحقق من عملية الدفع مع {paymentReturnGatewayLabel}…</AlertDescription>
             </Alert>
           )}
 
@@ -487,7 +690,7 @@ export default function Payment() {
             </Alert>
           )}
 
-          {moyasarReturnVerify === 'paid' && (
+          {paymentReturnPaid && (
             <div className="mb-6 space-y-4">
               <PaymentSuccessPanel
                 barberName={barberName}
@@ -500,24 +703,24 @@ export default function Payment() {
                   <AlertDescription className="text-sm">{activationCertificateError}</AlertDescription>
                 </Alert>
               ) : null}
-              {moyasarPaidAmountFormat ? (
+              {paymentPaidAmountFormat ? (
                 <p className="text-xs font-medium text-muted-foreground" dir="ltr">
-                  المبلغ المؤكد من ميسر: {moyasarPaidAmountFormat}
+                  المبلغ المؤكد من {paymentReturnGatewayLabel}: {paymentPaidAmountFormat}
                 </p>
               ) : null}
             </div>
           )}
 
-          {(moyasarReturnVerify === 'unpaid' || moyasarReturnVerify === 'error') && moyasarVerifyMessage && (
+          {(paymentReturnUnpaid || paymentReturnError) && paymentReturnMessage && (
             <Alert
               className={`mb-6 ${
-                moyasarReturnVerify === 'unpaid'
+                paymentReturnUnpaid
                   ? 'border-amber-600/40 bg-amber-500/10'
                   : 'border-destructive/40 bg-destructive/10'
               }`}
             >
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm leading-relaxed">{moyasarVerifyMessage}</AlertDescription>
+              <AlertDescription className="text-sm leading-relaxed">{paymentReturnMessage}</AlertDescription>
             </Alert>
           )}
 
@@ -583,6 +786,7 @@ export default function Payment() {
                     onValueChange={(value: 'moyasar' | 'sab') => {
                       setPaymentMethod(value);
                       if (value !== 'moyasar') setMoyasarTermsAccepted(false);
+                      if (value !== 'sab') setSabTermsAccepted(false);
                     }}
                   >
                     {enableMoyasarCard ? (
@@ -772,13 +976,81 @@ export default function Payment() {
 
 
                   {showSabCheckout && registrationRequestReady && (
-                    <Alert>
-                      <Shield className="h-4 w-4" />
-                      <AlertDescription className="text-sm leading-relaxed">
-                        البوابة المختارة هي <strong>بنك الأول (SAB)</strong>. نفس نظام الأتمتة (تفعيل الحساب والإشعارات)
-                        يعمل عند وصول حالة نجاح موثوقة من webhook البنك. أكمل إعداد مفاتيح SAB والربط الفني لإظهار نموذج الدفع.
-                      </AlertDescription>
-                    </Alert>
+                    <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
+                      <Alert>
+                        <Shield className="h-4 w-4" />
+                        <AlertDescription className="space-y-2 text-sm leading-relaxed">
+                          <p>
+                            الدفع عبر <strong>بنك الأول (SAB)</strong> يتم عبر بوابة OPPWA المعتمدة. تُعالَج بيانات
+                            البطاقة داخل ودجت البنك ولا يحتفظ موقع حلاق ماب ببيانات البطاقة الكاملة.
+                          </p>
+                        </AlertDescription>
+                      </Alert>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="sab-software-product-ack"
+                          checked={softwareProductAcknowledged}
+                          onCheckedChange={(c) => setSoftwareProductAcknowledged(c === true)}
+                          className="mt-1"
+                        />
+                        <Label htmlFor="sab-software-product-ack" className="cursor-pointer text-sm font-normal leading-relaxed">
+                          <span className="font-semibold text-foreground">{SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR}</span>
+                          {' — '}
+                          {SOFTWARE_PRODUCT_PURCHASE_ACK_AR.replace(/\*\*/g, '')}
+                        </Label>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="sab-merchant-terms"
+                          checked={sabTermsAccepted}
+                          onCheckedChange={(c) => setSabTermsAccepted(c === true)}
+                          className="mt-1"
+                        />
+                        <Label htmlFor="sab-merchant-terms" className="cursor-pointer text-sm font-normal leading-relaxed">
+                          <span className="font-semibold text-foreground">أقر</span> بأنني أوافق على متابعة الدفع عبر
+                          بوابة بنك الأول وفق شروط التاجر والبنك المعتمدة.
+                        </Label>
+                      </div>
+
+                      {(!softwareProductAcknowledged || !sabTermsAccepted) && (
+                        <p className="text-sm text-muted-foreground">فعّل الإقرارات أعلاه لعرض نموذج بنك الأول.</p>
+                      )}
+
+                      {softwareProductAcknowledged && sabTermsAccepted && (
+                        <Card className="border-primary/20">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-lg">{paymentActivateNowCtaAr(price)}</CardTitle>
+                            <CardDescription>
+                              {TERM_ACTIVATE_NOW_AR} — بعد إتمام العملية يعيد البنك التوجيه مع{' '}
+                              <span dir="ltr">?gateway=sab&amp;id=</span> ثم يُتحقق من الخادم تلقائياً.
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            {sabCheckoutLoading && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                جاري تجهيز جلسة الدفع…
+                              </div>
+                            )}
+                            {sabFormError && (
+                              <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertDescription>{sabFormError}</AlertDescription>
+                              </Alert>
+                            )}
+                            <div
+                              ref={sabHostRef}
+                              className="min-h-[280px] w-full max-w-full overflow-x-auto rounded-md border border-border bg-background p-2"
+                              dir="ltr"
+                            />
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              يتطلب الإنتاج <strong>HTTPS</strong> وتسجيل النطاق لدى البنك. webhook الخادم:{' '}
+                              <span dir="ltr">/api/sab-webhook</span>
+                            </p>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
                   )}
                 </CardContent>
               </Card>
