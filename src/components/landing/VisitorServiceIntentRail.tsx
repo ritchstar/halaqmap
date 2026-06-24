@@ -63,8 +63,10 @@ export function VisitorServiceIntentRail({
 
       <div
         className={cn(
-          'flex gap-2 overflow-x-auto pb-1 scrollbar-thin',
-          compact ? 'flex-nowrap' : 'flex-wrap sm:flex-nowrap',
+          'flex gap-2 pb-1 scrollbar-thin',
+          compact
+            ? 'flex-nowrap overflow-x-auto'
+            : 'flex-wrap',
         )}
       >
         {VISITOR_SERVICE_INTENTS.map((intent, i) => {

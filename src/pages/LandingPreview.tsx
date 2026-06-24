@@ -23,10 +23,20 @@ import { cn } from '@/lib/utils';
 import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
 import {
-  PLATFORM_HERO_FREE_NO_ACCOUNT_BADGE_AR,
-  PLATFORM_HERO_LEAD_DESKTOP_AR,
-  PLATFORM_HERO_LEAD_MOBILE_AR,
-} from '@/config/platformSmartTracking';
+  VISITOR_HERO_BADGE_AR,
+  VISITOR_HERO_LEAD_DESKTOP_AR,
+  VISITOR_HERO_LEAD_MOBILE_AR,
+  VISITOR_HERO_TITLE_ACCENT_AR,
+  VISITOR_HERO_TITLE_AR,
+} from '@/config/visitorLandingCopy';
+import { VisitorServiceIntentRail } from '@/components/landing/VisitorServiceIntentRail';
+import { VisitorTrustTriad } from '@/components/landing/VisitorTrustTriad';
+import { VisitorServiceSpotlight } from '@/components/landing/VisitorServiceSpotlight';
+import {
+  defaultVisitorFilters,
+  detectVisitorServiceIntent,
+  type VisitorServiceIntentId,
+} from '@/lib/visitorServiceIntents';
 import { LocationStatusBar } from '@/components/LocationStatusBar';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -646,14 +656,10 @@ export default function LandingPreview() {
 
   const handleNeedLocation = useCallback(() => {
     toast.message('حدّد موقعك لعرض المطابقة', {
-      description: 'اخترت نوع الخدمة — اضغط زر الاستعلام لتفعيل النتائج.',
+      description: 'اخترت نوع الخدمة — اضغط «ابحث الآن» أو «حدّد موقعي» لتفعيل النتائج.',
     });
-    if (isMobile) {
-      void runGeoSearch();
-      return;
-    }
     scrollToSearch();
-  }, [isMobile, runGeoSearch, scrollToSearch]);
+  }, [scrollToSearch]);
 
   const handleVisitorIntentChange = useCallback((next: FilterState, _intentId: VisitorServiceIntentId) => {
     setFilters(next);
@@ -902,7 +908,7 @@ export default function LandingPreview() {
       {/* ── Hero section ─────────────────────────────────────────────────── */}
       <section
         className={cn(
-          'relative overflow-hidden',
+          'relative overflow-x-clip',
           isMobile
             ? 'pt-[calc(4.75rem+env(safe-area-inset-top))] pb-2'
             : 'min-h-[100svh] pt-24',
@@ -1009,9 +1015,11 @@ export default function LandingPreview() {
             ) : null}
 
             {/* Trust triad — زائر: ثقة لا سردية حرية */}
+            {deferMobileExtras ? (
             <div className={cn('mb-6', !isMobile && 'mb-2')}>
               <VisitorTrustTriad compact={isMobile} />
             </div>
+            ) : null}
 
             {!isMobile ? (
             <div className="mb-4 flex flex-wrap items-center gap-4">
@@ -1197,13 +1205,15 @@ export default function LandingPreview() {
       </section>
       ) : null}
 
-      {/* ── بطاقات خدمات الزائر — فلاتر + ثقة ─────────────────────────── */}
+      {/* ── بطاقات خدمات الزائر — فلاتر + ثقة (سطح المكتب؛ الجوال يكتفي بشريط النوايا) ── */}
+      {!isMobile ? (
       <VisitorServiceSpotlight
         filters={filters}
         activeIntentId={activeIntentId}
         onSelectIntent={handleSpotlightSelect}
         onScrollToSearch={scrollToSearch}
       />
+      ) : null}
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       {!isMobile ? (
