@@ -274,7 +274,7 @@ export default function DigitalShiftFeaturePage() {
                 badge: '💎',
                 color: 'border-cyan-500/25 bg-cyan-950/15',
                 badge_color: 'text-cyan-300',
-                features: ['❌ المناوب غير مفعّل', '✅ صدارة النتائج', '✅ بورتفوليو غير محدود', '✅ تحليلات متقدمة'],
+                features: ['❌ المناوب غير مفعّل', '✅ صدارة النتائج', '✅ معرض حتى 40 صورة', '✅ تحليلات متقدمة'],
                 note: 'يمكن إضافة المناوب متى شئت (+25 ر.س)',
               },
               {

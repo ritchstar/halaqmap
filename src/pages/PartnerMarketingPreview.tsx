@@ -1148,7 +1148,7 @@ export default function PartnerMarketingPreview() {
                 'كل مزايا الذهبي +',
                 'صدارة نتائج المنطقة والمدينة',
                 'شات مع الزبائن عبر واتساب ذكي',
-                'بورتفوليو صور غير محدود',
+                'معرض حتى 40 صورة',
                 'تحليلات مفصّلة + تقارير أداء متقدمة',
                 `${DIAMOND_PRODUCT_STANDARD_LABEL_AR} | +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س إضافة المكتب الخاص 🏛️`,
               ]}
