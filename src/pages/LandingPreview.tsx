@@ -347,57 +347,6 @@ function useLandingGeoSearch(
   return { runGeoSearch, geoBusy: busy };
 }
 
-function MobileQuickSearchButton({
-  onSearch,
-  busy,
-  userLocation,
-}: {
-  onSearch: () => void | Promise<void>;
-  busy: boolean;
-  userLocation?: { lat: number; lng: number } | null;
-}) {
-  return (
-    <div className="flex w-full flex-col items-center gap-3" dir="rtl">
-      <button
-        type="button"
-        onClick={() => void onSearch()}
-        disabled={busy}
-        className="flex w-full max-w-[19rem] items-center justify-center gap-3 rounded-3xl border border-teal-400/25 bg-gradient-to-b from-[#0a2431] to-[#071426] px-5 py-5 text-right shadow-[0_10px_40px_rgba(20,184,166,0.10)] transition-colors active:bg-[#0a1f2a] disabled:opacity-80"
-        aria-label="ابدأ الاستعلام"
-      >
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-500/10">
-          <Navigation2 className="h-6 w-6 text-teal-300" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-base font-black text-white">
-            {busy ? 'يجري الاستعلام…' : 'ابدأ الآن'}
-          </div>
-          <div className="mt-1 text-[0.78rem] leading-5 text-teal-200/72">
-            {busy ? 'لحظات وسيتم تصنيف الخدمات المناسبة لك' : 'ابدأ الاستعلام لعرض الخدمات المناسبة فورًا'}
-          </div>
-        </div>
-      </button>
-      {userLocation ? (
-        <motion.a
-          href={`https://www.google.com/maps/search/?api=1&query=${userLocation.lat},${userLocation.lng}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          initial={{ opacity: 0, scale: 0.88 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.35, type: 'spring', stiffness: 320, damping: 22 }}
-          aria-label="عرض موقعك على الخريطة"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-400/45 bg-emerald-500/14 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.24)] transition-transform active:scale-95"
-        >
-          <MapPin className="h-[18px] w-[18px]" strokeWidth={2.25} aria-hidden />
-        </motion.a>
-      ) : null}
-      <p className="text-center text-[0.72rem] leading-5 text-slate-400">
-        هذه الخدمة تتطلب إذن الموقع لإكمال الاستعلام وعرض الخدمات المناسبة لك، وفق سياسة الخصوصية.
-      </p>
-    </div>
-  );
-}
-
 function MobileSearchDock({
   userLocation,
   geoBusy,
@@ -769,10 +718,7 @@ export default function LandingPreview() {
   return (
     <div
       dir="rtl"
-      className={cn(
-        'platform-dark platform-ambient relative min-h-screen overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100',
-        isMobile && MOBILE_DOCK_CLEARANCE,
-      )}
+      className="platform-dark platform-ambient relative overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100 md:min-h-screen"
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
     >
@@ -953,7 +899,14 @@ export default function LandingPreview() {
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[100svh] overflow-hidden pt-24">
+      <section
+        className={cn(
+          'relative overflow-hidden',
+          isMobile
+            ? 'pt-[calc(4.75rem+env(safe-area-inset-top))] pb-2'
+            : 'min-h-[100svh] pt-24',
+        )}
+      >
         {/* Anchor للبحث */}
         <div id="search-anchor" className="absolute top-32" />
 
@@ -965,14 +918,25 @@ export default function LandingPreview() {
           </>
         ) : null}
 
-        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 lg:grid-cols-2 lg:gap-16 lg:py-24">
+        <div
+          className={cn(
+            'relative z-10 mx-auto grid max-w-7xl items-center px-5 lg:grid-cols-2',
+            isMobile ? 'gap-6 py-6' : 'gap-10 py-12 lg:gap-16 lg:py-24',
+          )}
+        >
           {/* Left — text */}
           <motion.div
             initial={skipHeroMotion ? false : { opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: skipHeroMotion ? 0 : 0.7, ease: 'easeOut' }}
           >
-            {!isMobile ? (
+            {isMobile ? (
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
+                  {PLATFORM_HERO_FREE_NO_ACCOUNT_BADGE_AR}
+                </span>
+              </div>
+            ) : (
             <motion.div
               initial={skipHeroMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -987,7 +951,7 @@ export default function LandingPreview() {
                 {PLATFORM_HERO_FREE_NO_ACCOUNT_BADGE_AR}
               </span>
             </motion.div>
-            ) : null}
+            )}
 
             <h1 className="mb-4 text-[clamp(2rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
               حلاقك المثالي
@@ -1000,24 +964,21 @@ export default function LandingPreview() {
               {isMobile ? PLATFORM_HERO_LEAD_MOBILE_AR : PLATFORM_HERO_LEAD_DESKTOP_AR}
             </p>
 
-            {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة */}
+            {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة (الجوال: الشريط السفلي الثابت) */}
+            {!isMobile ? (
             <div className="mb-6 flex w-full flex-col items-center gap-4">
-              {isMobile ? (
-                <MobileQuickSearchButton onSearch={runGeoSearch} busy={geoBusy} userLocation={userLocation} />
-              ) : (
-                <Suspense
-                  fallback={
-                    <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full border border-teal-400/20 bg-[#071426] text-sm text-slate-300">
-                      جاري تحميل زر البحث…
-                    </div>
-                  }
-                >
-                  <LazyGeoRadarButton
-                    onLocationDetected={handleLocationDetected}
-                    onLocationReset={() => setUserLocation(null)}
-                  />
-                </Suspense>
-              )}
+              <Suspense
+                fallback={
+                  <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full border border-teal-400/20 bg-[#071426] text-sm text-slate-300">
+                    جاري تحميل زر البحث…
+                  </div>
+                }
+              >
+                <LazyGeoRadarButton
+                  onLocationDetected={handleLocationDetected}
+                  onLocationReset={() => setUserLocation(null)}
+                />
+              </Suspense>
               {userLocation && (
                 <div className="flex flex-col items-center gap-2.5">
                   <motion.button
@@ -1034,6 +995,7 @@ export default function LandingPreview() {
                 </div>
               )}
             </div>
+            ) : null}
 
             {/* Trust badges */}
             {!isMobile ? (
@@ -1378,7 +1340,12 @@ export default function LandingPreview() {
       ) : null}
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer className="relative z-10 border-t border-white/8 bg-black/40 py-12">
+      <footer
+        className={cn(
+          'relative z-10 border-t border-white/8 bg-black/40 py-8 md:py-12',
+          isMobile && MOBILE_DOCK_CLEARANCE,
+        )}
+      >
         <div className="mx-auto max-w-6xl px-5">
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
