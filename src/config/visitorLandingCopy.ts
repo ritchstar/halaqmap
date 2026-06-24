@@ -2,25 +2,22 @@
  * نسخ الرئيسية للزائر — فلاتر خدمة + ثقة (لا سردية «حرية الحلاق» هنا).
  */
 
-export const VISITOR_HERO_BADGE_AR = 'مجاني · بلا تسجيل · تواصل مباشر';
+export const VISITOR_HERO_BADGE_AR = 'مجاني · بلا تسجيل';
 
-export const VISITOR_HERO_TITLE_AR = 'ما تحتاجه من حلاق';
+export const VISITOR_HERO_TITLE_AR = 'حلاق قريب';
 
-export const VISITOR_HERO_TITLE_ACCENT_AR = 'قريب منك — بفلترة تخدمك';
+export const VISITOR_HERO_TITLE_ACCENT_AR = 'يناسب حاجتك';
 
-export const VISITOR_HERO_LEAD_DESKTOP_AR =
-  'اختر نوع الخدمة أولاً، حدّد موقعك، وشاهد من يطابق حاجتك الآن — تقييمات حقيقية وتواصل مباشر بلا وسيط حجز.';
+/** سطح المكتب — الواجهة تشرح نفسها؛ لا فقرة إضافية */
+export const VISITOR_HERO_LEAD_DESKTOP_AR = '';
 
-export const VISITOR_HERO_LEAD_MOBILE_AR =
-  'اختر حاجتك، حدّد موقعك، واعرض النتائج فوراً — مجاناً وبلا حساب.';
+export const VISITOR_HERO_LEAD_MOBILE_AR = 'فلتر · موقع · نتائج — مجاناً.';
 
 export const VISITOR_INTENT_RAIL_TITLE_AR = 'ماذا تبحث عنه؟';
 
-export const VISITOR_INTENT_RAIL_HINT_NO_LOCATION_AR =
-  'اختر نوع الخدمة ثم حدّد موقعك لعرض المطابقة الفورية.';
+export const VISITOR_INTENT_RAIL_HINT_NO_LOCATION_AR = 'ثم حدّد موقعك.';
 
-export const VISITOR_INTENT_RAIL_HINT_WITH_LOCATION_AR =
-  'يُطبَّق الفلتر فوراً على النتائج أدناه — غيّر الحاجة في أي وقت.';
+export const VISITOR_INTENT_RAIL_HINT_WITH_LOCATION_AR = 'تُطبَّق فوراً على النتائج.';
 
 export const VISITOR_TRUST_TRIAD = [
   {

@@ -950,12 +950,8 @@ export default function LandingPreview() {
               initial={skipHeroMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: skipHeroMotion ? 0 : 0.2 }}
-              className="mb-5 flex flex-wrap items-center gap-2"
+              className="mb-5"
             >
-              <span className="inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold text-teal-300">
-                <Sparkles className="h-3 w-3" />
-                فلترة خدمة · ثقة موثّقة
-              </span>
               <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
                 {VISITOR_HERO_BADGE_AR}
               </span>
@@ -969,9 +965,11 @@ export default function LandingPreview() {
               </span>
             </h1>
 
+            {(isMobile ? VISITOR_HERO_LEAD_MOBILE_AR : VISITOR_HERO_LEAD_DESKTOP_AR) ? (
             <p className="mb-5 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
               {isMobile ? VISITOR_HERO_LEAD_MOBILE_AR : VISITOR_HERO_LEAD_DESKTOP_AR}
             </p>
+            ) : null}
 
             {/* زر الاستعلام — موضعه الأساسي قبل الفلاتر (سطح المكتب) */}
             {!isMobile ? (
