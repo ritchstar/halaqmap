@@ -48,7 +48,7 @@ export async function emailPartnerUnifiedContractPdf(input: {
       subject: 'حلاق ماب | نسخة PDF — العقد الرقمي الموحّد (مسار الخدمات البرمجية للمنصة)',
       html: `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;padding:22px;line-height:1.85;background:#f8fafc">
 <p>مرحباً،</p>
-<p>بناءً على <strong>إتمام اشتراكك واعتماد مسار الخدمات البرمجية للمنصة</strong>، نرفق نسخة PDF من <strong>العقد الرقمي الموحّد</strong> لمسار الخدمات البرمجية للمنصة في حلاق ماب.</p>
+<p>بناءً على <strong>إتمام تفعيل رخصتك واعتماد مسار الخدمات البرمجية للمنصة</strong>، نرفق نسخة PDF من <strong>العقد الرقمي الموحّد</strong> لمسار الخدمات البرمجية للمنصة في حلاق ماب.</p>
 <p style="font-size:13px;color:#64748b">إن لم يظهر المرفق، راجع مجلد الرسائل غير المرغوب فيها أو تواصل معنا عبر القنوات الرسمية.</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`,
@@ -78,7 +78,7 @@ export async function emailPartnerUnifiedContractPdf(input: {
 }
 
 /**
- * يُستدعى بعد اعتماد الاشتراك من لوحة الإدارة أو من Webhook آمن — لا يرمي أخطاء للمتصل؛ يُسجّل فقط عند الفشل.
+ * يُستدعى بعد اعتماد تفعيل الرخصة من لوحة الإدارة أو من Webhook آمن — لا يرمي أخطاء للمتصل؛ يُسجّل فقط عند الفشل.
  * عند تمرير `barberId`: يمنع إرسال مزدوج عبر `barber_subscriptions.partner_unified_contract_email_sent_at` (claim قبل الإرسال).
  * @returns true إذا أُرسِل البريد بنجاح أو تُجاهل الإرسال لأنه مُرسَل مسبقاً
  */

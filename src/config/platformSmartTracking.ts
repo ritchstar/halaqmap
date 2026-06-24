@@ -111,6 +111,6 @@ export const PLATFORM_PARTNER_SMART_TRACKING_LEAD = PLATFORM_SMART_TRACKING_SUBT
 export const PLATFORM_PARTNER_DASHBOARD_TAGLINE =
   'صالونك ضمن نظام الاستجابة الذكية — يُفعَّل ظهوره برمجياً للعملاء الذين يصدر منهم طلب نشط تنطبق عليه بياناته وفلترته فور تفعيل حزمة الرخصة.';
 
-/** ميزة الباقات في التسجيل وسياسة الاشتراك */
+/** ميزة الباقات في التسجيل وسياسة رخصة النفاذ الرقمية */
 export const MAP_FEATURE_PARTNER_SUBTITLE =
   'بعد التفعيل تعرض المنصة صالونك عند وجود طلب فعلي مناسب، بما يضمن كفاءة الربط وسرعة الوصول دون حضور ثابت أو عرض دائم.';

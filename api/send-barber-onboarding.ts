@@ -481,7 +481,7 @@ function emailText(
     `- تسجيل دخول الحلاق: ${links.loginUrl}`,
     `- لوحة التحكم: ${links.dashboardUrl}`,
     ...(tierKey(tier) !== 'bronze' ? [`- غرفة المراقبة (مفضلة): ${links.ownerWatchBookmarkUrl}`] : []),
-    `- سياسة الاشتراكات: ${links.policyUrl}`,
+    `- سياسة رخصة النفاذ الرقمية: ${links.policyUrl}`,
     `- الخصوصية: ${links.privacyUrl}`,
     `- طلب تفعيل الحزمة البرمجية (للمرجعية): ${links.registerUrl}`,
     '',
@@ -608,7 +608,7 @@ function emailHtml(
     <span style="color:#cbd5e1;margin:0 6px">|</span>
     <a href="${u(links.aboutUrl)}" target="_blank" rel="noopener noreferrer" style="color:#0d9488;font-weight:600;text-decoration:underline;">من نحن</a>
     <span style="color:#cbd5e1;margin:0 6px">|</span>
-    <a href="${u(links.policyUrl)}" target="_blank" rel="noopener noreferrer" style="color:#0d9488;font-weight:600;text-decoration:underline;">سياسة الاشتراكات</a>
+    <a href="${u(links.policyUrl)}" target="_blank" rel="noopener noreferrer" style="color:#0d9488;font-weight:600;text-decoration:underline;">سياسة رخصة النفاذ الرقمية</a>
     <span style="color:#cbd5e1;margin:0 6px">|</span>
     <a href="${u(links.privacyUrl)}" target="_blank" rel="noopener noreferrer" style="color:#0d9488;font-weight:600;text-decoration:underline;">الخصوصية</a>
   </div>

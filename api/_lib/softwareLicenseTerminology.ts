@@ -5,8 +5,13 @@ import {
   INVOICE_DIAMOND_WITH_ADDON_LABEL_AR,
 } from './subscriptionPricingCopy.js';
 
-/** UI/UX — بديل «اشتراك» في واجهة الشركاء */
+/** تسمية المنتج الرسمية في واجهة الشركاء */
 export const TERM_PACKAGE_ACTIVATION_AR = 'تفعيل حزمة رخصة النفاذ' as const;
+export const TERM_LICENSE_ACTIVATION_AR = 'تفعيل الرخصة' as const;
+export const TERM_DIGITAL_RIGHT_RENEWAL_AR = 'تجديد الحق الرقمي' as const;
+export const TERM_LICENSE_POLICY_AR = 'سياسة رخصة النفاذ الرقمية' as const;
+export const TERM_LICENSE_REQUEST_AR = 'طلب تفعيل الرخصة' as const;
+export const TERM_ACTIVE_LICENSE_AR = 'رخصة نشطة' as const;
 
 /** أزرار الشراء — بيع فوري للمنتج الرقمي */
 export const TERM_BUY_LICENSE_AR = 'شراء رخصة نفاذ' as const;

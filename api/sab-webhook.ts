@@ -1,6 +1,6 @@
 /**
  * POST /api/sab-webhook
- * Webhook دفع بنك الأول (SAB / OPPWA) — يتحقق من الحالة ثم يفعّل الاشتراك.
+ * Webhook دفع بنك الأول (SAB / OPPWA) — يتحقق من الحالة ثم يفعّل الرخصة.
  *
  * أسرار: SAB_WEBHOOK_*_SECRET، SUPABASE_SERVICE_ROLE_KEY، LISTING_LICENSE_INTERNAL_SECRET
  */

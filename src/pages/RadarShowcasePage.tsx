@@ -107,7 +107,7 @@ export default function RadarShowcasePage() {
           <ValueCard
             accent="amber"
             title="للحلاق"
-            body="حزمة الرخصة = تفعيل للظهور اللحظي. بدون اشتراك لا ظهور — ومع الاشتراك تظهر عند الطلب المناسب."
+            body="حزمة الرخصة = تفعيل للظهور اللحظي. بدون رخصة نشطة لا ظهور — ومع تفعيل الرخصة تظهر عند الطلب المناسب."
           />
           <ValueCard
             accent="sky"

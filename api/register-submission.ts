@@ -164,7 +164,7 @@ export async function POST(request: Request): Promise<Response> {
   emitOpsEventFireAndForget({
     type: 'registration.new',
     title: `طلب تسجيل جديد — ${rowId}`,
-    summary: `وصل طلب اشتراك جديد من ${label}.`,
+    summary: `وصل طلب تفعيل رخصة جديد من ${label}.`,
     clientId: rowId,
     clientLabel: label,
     detail: {

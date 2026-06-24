@@ -75,24 +75,24 @@ export const PARTNER_LAYOUT_FOOTER_LINE = PARTNER_TECHNICAL_PARTNER_FOOTER_LINE;
 export const PARTNER_LANDING_SOCIAL_COUNT_LABEL = '+300 صالون شريك';
 
 export const PARTNER_LANDING_HERO = {
-  badge: `${PARTNER_TECHNICAL_PARTNER_LABEL_AR} · نظام الاستجابة الذكية`,
-  title: PLATFORM_PARTNER_SMART_TRACKING_HEADLINE,
+  badge: `${PARTNER_TECHNICAL_PARTNER_LABEL_AR} · حرية لا خدمة`,
+  title: 'لا نبيع خدمة — نبيع لك حرية التشغيل',
   lead: PARTNER_HERO_LEAD_PRIMARY_AR,
   tagline: PARTNER_HERO_TAGLINE_REPUTATION_AR,
 } as const;
 
 export const PARTNER_LANDING_HERO_HIGHLIGHTS = [
   {
-    title: 'الاستجابة = نية شراء',
-    body: 'من يصدر طلباً فعلياً غالباً جاهز للزيارة. ظهورك البرمجي عند الطلب يدفع نحو قرار فوري أكثر من أي إعلان عشوائي دائم.',
+    title: 'ظهور بشروطك',
+    body: 'تظهر عند استعلام يناسبك — لا إشغالاً دائماً لملفك ولا حجزاً بالعمولة.',
   },
   {
-    title: 'استجابة فائقة السرعة',
-    body: 'خوارزمية «الظهور عند الطلب» تُفعِّل صالونك حصراً للطلبات النشطة التي تنطبق عليها البيانات المتاحة والفلترة — تسجيل، دفع، ثم استجابة تلقائية بعد نجاح المعاملة.',
+    title: 'تواصل بلا وسيط',
+    body: 'اتصال أو واتساب مع زبونك مباشرة — المنصة شريك تقني للاكتشاف والاستجابة البرمجية.',
   },
   {
-    title: 'شريك تقني — لا تبعية',
-    body: PARTNER_TECHNICAL_PARTNER_COMMITMENT,
+    title: 'خروج بلا قيد',
+    body: 'حزمة ٣٠ يوم مسبقة الدفع — لا تجديد تلقائي؛ التجديد قرارك بعد انتهاء الرخصة.',
   },
 ] as const;
 
@@ -324,14 +324,14 @@ export const PARTNER_REGISTER_PAGE = {
 /** صفحة «لماذا تنضم» — أقسام طويلة */
 export const PARTNER_WHY_PAGE = {
   heroBadge: 'اقرأ قبل أن تقرر',
-  heroTitle: 'لماذا حلاق ماب مسار مختلف عن «تطبيق حجز» عام؟',
+  heroTitle: 'لماذا حلاق ماب يبيع حرية — لا خدمة تُقيّدك؟',
   heroLead: `${PARTNER_HERO_TAGLINE_REPUTATION_AR}. ${PARTNER_SECTION_INTROS.why.lead}`,
 
   sections: [
     {
-      title: 'العميل لا يبحث فقط عن «صالون» — يبحث عن استجابة فورية',
+      title: 'حرية الظهور — لا إعلان دائم',
       body:
-        'عندما يكون العميل في وضع «الآن»، يكون سؤاله: ما هو الخيار المناسب الذي يستجيب لي فوراً؟ نظام الاستجابة الذكية يجيب على هذا السؤال مباشرة — بينما الإعلان التقليدي يقاطع تفكيره في وضع آخر غالباً أضعف تحويلاً. حلاق ماب تستثمر في نفس لحظة القرار.',
+        'تظهر عند استعلام يناسب موقعك وفلترك — لا إشغالاً دائماً لملفك. كل ظهور = مستعلم بنية أعلى من إعلان الترفيه؛ والقرار متى تكون «مفتوحاً» بيدك لحظياً.',
     },
     {
       title: 'الشراكة الموثوقة تحمي اسمك قبل أن تُبنى الشهرة',

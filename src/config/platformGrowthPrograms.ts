@@ -40,7 +40,7 @@ export const PLATFORM_GROWTH_PULSE_STATIONS_PHASE1 = {
 
 /** شعار رسمي — برنامج محيط المدار (ما بعد التفعيل) */
 export const PLATFORM_GROWTH_PERIMETER_TAGLINE_AR =
-  'لن نتركك وحيداً في حيّك — حلاق ماب تُسوّق معك، وتبني قنوات الوصول — لا اشتراكاً مفتوحاً ولا وعوداً فارغة.';
+  'لن نتركك وحيداً في حيّك — حلاق ماب تُسوّق معك، وتبني قنوات الوصول — لا رخصة مفتوحة بلا حدود ولا وعوداً فارغة.';
 
 export const PLATFORM_GROWTH_PROGRAM_PHASES: readonly PlatformGrowthProgramPhase[] = [
   {

@@ -44,7 +44,7 @@ export const PARTNER_TECHNICAL_PARTNER_COMPARE = {
       title: 'المنصة في المركز',
       bullets: [
         'الحلاق يغذّي المنصة ببيانات وحضور ووقت',
-        'العمولة أو الاشتراك يخدم نمو المنصة أولاً',
+        'العمولة أو تفعيل الرخصة يخدم نمو المنصة أولاً',
         'أنت «حساب» داخل نظام — لا شريك في القرار',
       ],
       tone: 'slate',
@@ -57,7 +57,7 @@ export const PARTNER_TECHNICAL_PARTNER_COMPARE = {
       bullets: [
         'رخصة نفاذ + استجابة ذكية مع صالونك — لا فوقه',
         'لا عمولة على القص — العلاقة مع الزبون مباشرة',
-        'أنت تدير الصالون؛ نحن نوفّر الأدوات البرمجية',
+        'ظهور عند الطلب وتحكم لحظي — خروج بلا تجديد تلقائي',
       ],
       tone: 'emerald',
     },
@@ -69,9 +69,9 @@ export const PARTNER_TECHNICAL_PARTNER_COMPARE = {
 };
 
 export const PARTNER_TECHNICAL_PARTNER_HERO_CHIPS = [
-  'شريك تقني — لا وسيط',
+  'حرية تشغيل — لا خدمة تُفرض',
   'لا عمولة على الخدمة',
-  'أنت تقود الصالون',
+  'لا تجديد تلقائي',
 ] as const;
 
 export const PARTNER_TECHNICAL_PARTNER_REGISTER_LINE =

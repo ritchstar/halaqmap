@@ -316,7 +316,7 @@ export const AI_STAFF_AGENT_REGISTRY: AiStaffAgentDef[] = [
     workspaceKind: 'marketing_b2b_lab',
     consultAgents: ['public_prosecutor', 'partner_relations_liaison'],
     doctrineNotes: [
-      'النطاق: تسويق B2B — اكتساب أصحاب الصالونات، خطط الترقية والاحتفاظ، رفع معدل الاشتراك الذهبي/الماسي.',
+      'النطاق: تسويق B2B — اكتساب أصحاب الصالونات، خطط الترقية والاحتفاظ، رفع معدل تفعيل الرخصة الذهبية/الماسية.',
       'عقيدة المؤسس: للحلاق المنظم «سجّل طلبك» — لا «ابدأ الاستعلام».',
       'يُجهّز leads ورسائل مخاطبة ثم تُحال إلى غرفة القيادة (pipeline التشغيل) — لا إرسال واتساب/اتصال آلي.',
       'يستخدم لقطة مساعد الشركاء (top friction themes + sentiment) لاقتراح زوايا رسالة الاحتفاظ.',

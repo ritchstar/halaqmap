@@ -282,7 +282,7 @@ export function mapSupabaseWebhookToOpsEvent(body: Record<string, unknown>): Ops
     return {
       type: 'registration.new',
       title: `طلب تسجيل جديد — ${orderId}`,
-      summary: `وصل طلب اشتراك جديد من ${label}.`,
+      summary: `وصل طلب تفعيل رخصة جديد من ${label}.`,
       clientId: orderId,
       clientLabel: label,
       detail: {

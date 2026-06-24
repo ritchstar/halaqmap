@@ -273,7 +273,7 @@ export default function RegisterSuccess() {
                   <p className="font-black text-violet-200 text-sm">دليل إضافة المكتب الخاص</p>
                 </div>
                 <p className="mb-3 text-xs leading-relaxed text-slate-400">
-                  مرفق مع اشتراكك الماسي — تعلّم كيف تكتب <strong className="text-violet-300">«تعليمة:»</strong> كرمز توجيه يُباشر مناوبك تلقائياً مع كل زبون.
+                  مرفق مع حزمة رخصتك الماسية — تعلّم كيف تكتب <strong className="text-violet-300">«تعليمة:»</strong> كرمز توجيه يُباشر مناوبك تلقائياً مع كل زبون.
                 </p>
                 <Button className="w-full gap-2 bg-violet-700 hover:bg-violet-600 text-white font-bold" asChild>
                   <Link to={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} target="_blank">

@@ -10,6 +10,11 @@ import { ROUTE_PATHS } from '@/lib/index';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PARTNER_EARLY_WAVE_SUBLINE_AR } from '@/config/partnerEarlyWaveCopy';
 import {
+  PARTNER_FREEDOM_HERO_BADGE_AR,
+  PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR,
+  PARTNER_FREEDOM_HERO_TITLE_AR,
+} from '@/config/partnerFreedomNarrativeCopy';
+import {
   PARTNER_HERO_CLOSING_TAGLINE_AR,
   PARTNER_HERO_TAGLINE_REPUTATION_AR,
   PARTNER_LANDING_FAQ_AR,
@@ -79,14 +84,14 @@ export default function PartnersB2BLanding() {
           {/* Badge */}
           <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8" style={{ background: "rgba(13,148,136,0.12)", border: "1px solid rgba(13,148,136,0.35)", color: "#0D9488" }}>
             <Scissors size={14} />
-            <span>مسار الخدمات التسويقية للشركاء</span>
+            <span>{PARTNER_FREEDOM_HERO_BADGE_AR}</span>
           </motion.div>
 
           {/* Main title */}
           <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }} className="text-4xl md:text-6xl font-black leading-tight mb-6">
-            <span style={{ color: "#F8FAFC" }}>اجعل صالونك</span>
+            <span style={{ color: "#F8FAFC" }}>{PARTNER_FREEDOM_HERO_TITLE_AR}</span>
             <br />
-            <span style={{ color: "#0D9488" }}>يُكتشف بذكاء</span>
+            <span style={{ color: "#0D9488" }}>{PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR}</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -97,10 +102,10 @@ export default function PartnersB2BLanding() {
           {/* Description */}
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }} className="max-w-2xl mx-auto mb-6">
             <p className="text-base leading-relaxed mb-2" style={{ color: "#CBD5E1" }}>
-              منصة تربطك بزبون قريب في اللحظة المناسبة — حضور رسمي لصالونك، تواصل مباشر، ولا عمولة على خدمة الحلاقة.
+              ظهور عند الطلب · تواصل مباشر بلا عمولة · تحكم لحظي بمفتوح/مغلق — والخروج بلا تجديد تلقائي.
             </p>
             <p className="text-base" style={{ color: "#94A3B8" }}>
-              تدفع مقابل حزمة ظهور رقمية — لا وساطة ولا حجز نيابة عنك.
+              تدفع مقابل رخصة نفاذ رقمية — لا وساطة حجز ولا عقد يربطك.
             </p>
           </motion.div>
 
@@ -112,7 +117,7 @@ export default function PartnersB2BLanding() {
 
           {/* Feature strip */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.45 }} className="flex flex-wrap justify-center gap-6 mb-12 text-sm font-semibold" style={{ color: "#94A3B8" }}>
-            {["لا عمولة", "لا وسيط", "حضور رسمي"].map((f, i) => (
+            {["لا عمولة", "لا تجديد تلقائي", "حرية تشغيل"].map((f, i) => (
               <span key={i} className="flex items-center gap-2">
                 <Check size={14} style={{ color: "#0D9488" }} />
                 {f}

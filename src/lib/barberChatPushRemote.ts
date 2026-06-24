@@ -76,7 +76,7 @@ export async function barberChatPushSubscribeRemote(input: {
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
     return { ok: true };
   } catch {
-    return { ok: false, error: 'تعذر حفظ اشتراك الإشعار.' };
+    return { ok: false, error: 'تعذر حفظ تفعيل الإشعار.' };
   }
 }
 
@@ -102,7 +102,7 @@ export async function barberChatPushUnsubscribeRemote(input: {
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
     return { ok: true };
   } catch {
-    return { ok: false, error: 'تعذر إلغاء اشتراك الإشعار.' };
+    return { ok: false, error: 'تعذر إلغاء تفعيل الإشعار.' };
   }
 }
 
@@ -172,7 +172,7 @@ export async function ensureBarberPushSubscription(input: {
   }
   const json = sub.toJSON();
   if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
-    return { ok: false, error: 'اشتراك الدفع غير صالح.' };
+    return { ok: false, error: 'تفعيل الإشعار غير صالح.' };
   }
   const saved = await barberChatPushSubscribeRemote({
     barberId: input.barberId,
@@ -196,6 +196,6 @@ export async function removeBarberPushSubscription(input: {
     await sub.unsubscribe();
     return barberChatPushUnsubscribeRemote({ ...input, endpoint });
   } catch {
-    return { ok: false, error: 'تعذر إلغاء اشتراك الإشعار.' };
+    return { ok: false, error: 'تعذر إلغاء تفعيل الإشعار.' };
   }
 }

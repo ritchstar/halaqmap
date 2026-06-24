@@ -11,7 +11,7 @@ export const ROUTE_PATHS = {
   PARTNER_WHY: '/partners/why',
   /** قصة المنصة ومنطق المسار */
   PARTNER_STORY: '/partners/story',
-  /** فيديوهات تعليم الاشتراك للشركاء */
+  /** فيديوهات تعليم تفعيل الرخصة للشركاء */
   PARTNER_TUTORIALS: '/partners/tutorials',
   /** مجتمع ماب — مساحة تواصل مهنية للشركاء */
   MAP_COMMUNITY: '/partners/community',
@@ -50,7 +50,7 @@ export const ROUTE_PATHS = {
    * لا تُضاف روابط لها في الرئيسية أو مسار الخدمات البرمجية للمنصة أو القوائم.
    */
   INTERNAL_PARTNER_PATH_PRINT_CARD: '/m/hm-partner-path-card-q7',
-  /** معاينة فواتير اشتراك (PDF) — داخلي، بدون ربط من القوائم */
+  /** معاينة فواتير رخصة النفاذ (PDF) — داخلي، بدون ربط من القوائم */
   INVOICE_PREVIEW_SAMPLES: '/m/invoice-preview-samples',
   /**
    * عرض النمو التقديمي — شرائح مقارنة تسويقية + جذب الزبائن (Pitch Deck).
@@ -204,7 +204,7 @@ export interface Barber {
   groomingCenterBannerLines?: string[];
   /**
    * إدراج معاينة عبر نظام الرصد الذكي (مثلاً قبل اكتمال ربط حساب الصالون).
-   * يُعرض للفريق علامة سرّية `*` في الواجهة — لا تُستخدم كمصدر حقيقي للاشتراك.
+   * يُعرض للفريق علامة سرّية `*` في الواجهة — لا تُستخدم كمصدر حقيقي لحالة الرخصة.
    */
   previewListing?: boolean;
   /** سرّي لبناء رابط دعوة التقييم عبر QR — لا يُجلب في قوائم الخريطة العامة */
@@ -216,7 +216,7 @@ export interface Barber {
    * إذا وُضعت `false` تُخفى من البيانات؛ يمكن أيضاً الإخفاء من لوحة الحلاق (محلي في المتصفح للمعاينة).
    */
   diamondAppointmentSchedulingEnabled?: boolean;
-  /** من بحث RPC: اشتراك شهري نشط في subscriptions */
+  /** من بحث RPC: رخصة نشطة في subscriptions */
   hasActiveSubscription?: boolean;
   /** ISO — آخر تحديث لملف الصالون (لعامل النشاط في الترتيب) */
   profileUpdatedAt?: string;

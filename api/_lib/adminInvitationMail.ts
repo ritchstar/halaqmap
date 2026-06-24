@@ -137,7 +137,7 @@ function buildPermissionsList(permissions: Record<string, boolean | null | undef
     view_command_center: 'فتح غرفة القيادة والرادار',
     manage_financials: 'إدارة المالية والفواتير',
     manage_listings: 'إدارة الإدراجات الجغرافية',
-    manage_subscriptions: 'إدارة الاشتراكات',
+    manage_subscriptions: 'إدارة تفعيلات الرخصة',
     manage_marketing: 'إدارة التسويق والحملات',
     manage_payouts: 'إدارة المدفوعات للشركاء',
     manage_support_chat: 'إدارة محادثات الدعم',

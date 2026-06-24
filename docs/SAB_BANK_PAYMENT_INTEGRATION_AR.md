@@ -56,7 +56,7 @@ https://www.halaqmap.com/api/sab-webhook
 }
 ```
 
-الخادم يعيد جلب الحالة من OPPWA ثم يفعّل الاشتراك (provision + listing license + بريد ترحيب) مثل ميسر.
+الخادم يعيد جلب الحالة من OPPWA ثم يفعّل الرخصة (provision + listing license + بريد ترحيب) مثل ميسر.
 
 بديل Edge (بروكسي): `supabase functions deploy sab-webhook` مع `APP_PUBLIC_ORIGIN`.
 

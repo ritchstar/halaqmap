@@ -9,11 +9,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo, startTransition, lazy, Suspense } from 'react';
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  MapPin, Scissors, Star, Shield, Search, Zap,
-  Clock, Sparkles,
+  MapPin, Scissors, Star, Search, Zap,
+  Sparkles,
   Navigation2, ChevronDown,
-  Wifi, X,
-  Phone, MessageCircle, Heart,
+  X,
+  Phone, Heart,
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
@@ -502,36 +502,6 @@ function StatsStrip() {
   );
 }
 
-// ─── Feature card ────────────────────────────────────────────────────────────
-function FeatureCard({ icon: Icon, title, desc, color, delay = 0, size = 'normal' }: {
-  icon: typeof MapPin; title: string; desc: string;
-  color: string; delay?: number; size?: 'normal' | 'wide' | 'tall';
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay, duration: 0.55, ease: 'easeOut' }}
-      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0d1b2e] to-[#060d1a] p-5 transition-all duration-300 hover:border-white/20 hover:shadow-xl
-        ${size === 'wide' ? 'md:col-span-2' : ''}
-        ${size === 'tall' ? 'md:row-span-2' : ''}
-      `}
-    >
-      <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${color} p-0.5`}>
-        <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#060d1a]">
-          <Icon className="h-5 w-5 text-white" />
-        </div>
-      </div>
-      <h3 className="mb-1.5 text-base font-bold text-white [text-shadow:0_0_12px_rgba(255,255,255,0.10)]">{title}</h3>
-      <p className="text-sm leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">{desc}</p>
-      <div className={`absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-gradient-to-br ${color} opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-20`} />
-    </motion.div>
-  );
-}
-
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function LandingPreview() {
   const navigate = useNavigate();
@@ -548,7 +518,7 @@ export default function LandingPreview() {
   const [remoteBarbers, setRemoteBarbers] = useState<Barber[]>([]);
   const [showcaseFallback, setShowcaseFallback] = useState<{ barber: Barber; intro: string } | null>(null);
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
-  const [filters, setFilters] = useState<FilterState>({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [] });
+  const [filters, setFilters] = useState<FilterState>(() => defaultVisitorFilters());
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [activeAgentPanel, setActiveAgentPanel] = useState<LandingAgentPanel>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -666,6 +636,37 @@ export default function LandingPreview() {
   const scrollToResults = useCallback(() => {
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
+
+  const scrollToSearch = useCallback(() => {
+    document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (userLocation) scrollToResults();
+  }, [userLocation, scrollToResults]);
+
+  const activeIntentId = useMemo(() => detectVisitorServiceIntent(filters), [filters]);
+
+  const handleNeedLocation = useCallback(() => {
+    toast.message('حدّد موقعك لعرض المطابقة', {
+      description: 'اخترت نوع الخدمة — اضغط زر الاستعلام لتفعيل النتائج.',
+    });
+    if (isMobile) {
+      void runGeoSearch();
+      return;
+    }
+    scrollToSearch();
+  }, [isMobile, runGeoSearch, scrollToSearch]);
+
+  const handleVisitorIntentChange = useCallback((next: FilterState, _intentId: VisitorServiceIntentId) => {
+    setFilters(next);
+  }, []);
+
+  const handleSpotlightSelect = useCallback((next: FilterState, _intentId: VisitorServiceIntentId) => {
+    setFilters(next);
+    if (userLocation) {
+      scrollToResults();
+    } else {
+      handleNeedLocation();
+    }
+  }, [userLocation, scrollToResults, handleNeedLocation]);
 
   const handleUseStoredCoords = useCallback(() => {
     const coords = readStoredUserCoords();
@@ -850,7 +851,7 @@ export default function LandingPreview() {
               <nav className="hidden items-center gap-1 md:flex" dir="rtl">
                 {[
                   { label: 'كيف يعمل', icon: Navigation2, id: 'كيف يعمل' },
-                  { label: 'المميزات',  icon: Sparkles,   id: 'المميزات' },
+                  { label: 'الخدمات', icon: Sparkles, id: 'خدمات-الزائر' },
                 ].map((item) => (
                   <button
                     key={item.label}
@@ -933,7 +934,7 @@ export default function LandingPreview() {
             {isMobile ? (
               <div className="mb-4 flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
-                  {PLATFORM_HERO_FREE_NO_ACCOUNT_BADGE_AR}
+                  {VISITOR_HERO_BADGE_AR}
                 </span>
               </div>
             ) : (
@@ -945,24 +946,34 @@ export default function LandingPreview() {
             >
               <span className="inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold text-teal-300">
                 <Sparkles className="h-3 w-3" />
-                نظام الاستجابة الذكية · On-Demand Visibility
+                فلترة خدمة · ثقة موثّقة
               </span>
               <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
-                {PLATFORM_HERO_FREE_NO_ACCOUNT_BADGE_AR}
+                {VISITOR_HERO_BADGE_AR}
               </span>
             </motion.div>
             )}
 
             <h1 className="mb-4 text-[clamp(2rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
-              حلاقك المثالي
+              {VISITOR_HERO_TITLE_AR}
               <span className="block bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
-                عند طلبك الآن
+                {VISITOR_HERO_TITLE_ACCENT_AR}
               </span>
             </h1>
 
             <p className="mb-5 max-w-lg text-base leading-relaxed text-white/88 [text-shadow:0_0_14px_rgba(255,255,255,0.14)]">
-              {isMobile ? PLATFORM_HERO_LEAD_MOBILE_AR : PLATFORM_HERO_LEAD_DESKTOP_AR}
+              {isMobile ? VISITOR_HERO_LEAD_MOBILE_AR : VISITOR_HERO_LEAD_DESKTOP_AR}
             </p>
+
+            <div className="mb-6">
+              <VisitorServiceIntentRail
+                filters={filters}
+                hasLocation={Boolean(userLocation)}
+                compact={isMobile}
+                onIntentChange={handleVisitorIntentChange}
+                onNeedLocation={handleNeedLocation}
+              />
+            </div>
 
             {/* زر تحديد الموقع — المدخل العملي الرئيسي للخدمة (الجوال: الشريط السفلي الثابت) */}
             {!isMobile ? (
@@ -997,19 +1008,13 @@ export default function LandingPreview() {
             </div>
             ) : null}
 
-            {/* Trust badges */}
+            {/* Trust triad — زائر: ثقة لا سردية حرية */}
+            <div className={cn('mb-6', !isMobile && 'mb-2')}>
+              <VisitorTrustTriad compact={isMobile} />
+            </div>
+
             {!isMobile ? (
-            <div className="flex flex-wrap items-center gap-4 text-[0.75rem] text-white/84 [text-shadow:0_0_10px_rgba(255,255,255,0.10)]">
-              {[
-                { icon: Shield, text: 'صالونات موثّقة رسمياً' },
-                { icon: MapPin, text: '47+ مدينة سعودية' },
-                { icon: Star, text: 'تقييمات حقيقية' },
-              ].map((b, i) => (
-                <div key={i} className="flex items-center gap-1.5">
-                  <b.icon className="h-3.5 w-3.5 text-teal-400" />
-                  <span>{b.text}</span>
-                </div>
-              ))}
+            <div className="mb-4 flex flex-wrap items-center gap-4">
               <PlatformTlsTrustBadge variant="compact" tone="dark" />
             </div>
             ) : null}
@@ -1121,18 +1126,18 @@ export default function LandingPreview() {
             {[
               {
                 step: '١',
-                icon: Navigation2,
-                title: 'ابدأ الاستعلام',
-                desc: 'اضغط زر البحث لتبدأ المنصة معالجة الطلب وعرض البيانات المتاحة فوراً — لا تسجيل مسبق مطلوب.',
-                color: 'from-teal-500 to-cyan-500',
+                icon: Sparkles,
+                title: 'اختر نوع الخدمة',
+                desc: 'حدّد حاجتك من الشريط: منزلي، عريس، أطفال، أو مفتوح الآن — الفلتر يجهّز النتائج قبل التصفح.',
+                color: 'from-violet-500 to-purple-500',
                 delay: 0,
               },
               {
                 step: '٢',
-                icon: Search,
-                title: 'استكشف النتائج',
-                desc: 'اطّلع على تفاصيل كل صالون: موقعه، أوقات عمله، صوره، تقييماته، وحالته الآن.',
-                color: 'from-amber-500 to-orange-500',
+                icon: Navigation2,
+                title: 'حدّد موقعك',
+                desc: 'اضغط زر الاستعلام لمعرفة من يطابق فلترك قريباً — لا تسجيل ولا حساب مطلوب.',
+                color: 'from-teal-500 to-cyan-500',
                 delay: 0.12,
               },
               {
@@ -1140,7 +1145,7 @@ export default function LandingPreview() {
                 icon: Phone,
                 title: 'تواصل مباشرة',
                 desc: 'اتّصل أو واتساب مباشرة بالصالون — العلاقة بينك وبينه، المنصة مجرد وسيلة اكتشاف.',
-                color: 'from-violet-500 to-purple-500',
+                color: 'from-amber-500 to-orange-500',
                 delay: 0.24,
               },
             ].map((step) => (
@@ -1192,88 +1197,13 @@ export default function LandingPreview() {
       </section>
       ) : null}
 
-      {/* ── Features bento ───────────────────────────────────────────────── */}
-      {!isMobile ? (
-      <section id="المميزات" className="relative z-10 py-20">
-        <div className="pointer-events-none absolute right-0 top-20 h-96 w-96 rounded-full bg-amber-500/5 blur-[120px]" />
-        <div className="mx-auto max-w-6xl px-5">
-          <div className="mb-12 text-center">
-            <motion.h2
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-3xl font-black text-white md:text-4xl"
-            >
-              تقنية لا مثيل لها
-              <span className="mt-2 block text-lg font-normal text-white/90 [text-shadow:0_0_14px_rgba(255,255,255,0.16)]">
-                مُصمَّمة خصيصاً لسوق الحلاقة السعودي
-              </span>
-            </motion.h2>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-10 rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-5 text-center sm:text-right"
-          >
-            <p className="text-xs font-black tracking-[0.18em] text-teal-300/80">
-              استجابة فورية
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-white/85 [text-shadow:0_0_12px_rgba(255,255,255,0.14)]">
-              عند بدء الاستعلام تعرض المنصة البيانات المتاحة مباشرة وفق طلب المستخدم والفلترة المختارة، دون أي صفحة معاينة عامة إضافية.
-            </p>
-          </motion.div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <FeatureCard
-              icon={Wifi}
-              title="نبض لحظي"
-              desc="كل استخدام للمنصة ينعكس فورًا في العرض اللحظي — سواء كان بحثًا عن صالون أو تصفحًا للموقع."
-              color="from-teal-500 to-cyan-500"
-              delay={0}
-              size="wide"
-            />
-            <FeatureCard
-              icon={MapPin}
-              title="دقة الوصول للخدمة"
-              desc="منطق ذكي يعرض البيانات المتاحة وفق موقع المستخدم وفلترته للوصول إلى مقدم الخدمة المناسب بسرعة ووضوح."
-              color="from-cyan-500 to-blue-500"
-              delay={0.08}
-            />
-            <FeatureCard
-              icon={Star}
-              title="تقييمات موثّقة"
-              desc="لا تقييم دون زيارة مؤكدة — نظام منع التقييم الوهمي مُدمج."
-              color="from-amber-500 to-yellow-500"
-              delay={0.16}
-            />
-            <FeatureCard
-              icon={Clock}
-              title="حالة مفتوح / مغلق"
-              desc="الصالون يضبط أوقاته لحظياً — الزبون يعرف قبل ما يتنقل."
-              color="from-emerald-500 to-green-500"
-              delay={0.08}
-            />
-            <FeatureCard
-              icon={Shield}
-              title="الأمان والخصوصية"
-              desc="بياناتك محمية بأعلى معايير PDPL السعودية — اتصال HTTPS/TLS بتقييم SSL Labs A+. لا مشاركة دون إذن."
-              color="from-violet-500 to-purple-500"
-              delay={0.16}
-            />
-            <FeatureCard
-              icon={MessageCircle}
-              title="تواصل مباشر"
-              desc="اتّصل أو راسل الصالون على واتساب دون وسيط — المنصة وسيلة اكتشاف فقط."
-              color="from-rose-500 to-pink-500"
-              delay={0.24}
-              size="wide"
-            />
-          </div>
-        </div>
-      </section>
-      ) : null}
+      {/* ── بطاقات خدمات الزائر — فلاتر + ثقة ─────────────────────────── */}
+      <VisitorServiceSpotlight
+        filters={filters}
+        activeIntentId={activeIntentId}
+        onSelectIntent={handleSpotlightSelect}
+        onScrollToSearch={scrollToSearch}
+      />
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       {!isMobile ? (

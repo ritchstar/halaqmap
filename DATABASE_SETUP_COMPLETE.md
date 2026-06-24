@@ -9,14 +9,14 @@
 2. ✅ barbers - بيانات الحلاقين
 3. ✅ bookings - الحجوزات
 4. ✅ payments - المدفوعات
-5. ✅ subscriptions - الاشتراكات
+5. ✅ subscriptions - رخص النفاذ (جدول تقني)
 6. ✅ reviews - التقييمات
 7. ✅ notifications - الإشعارات
 8. ✅ messages - الرسائل
 9. ✅ barber_services - خدمات الحلاق
 10. ✅ working_hours - أوقات العمل
 11. ✅ categories - التصنيفات
-12. ✅ subscription_requests - طلبات الاشتراك
+12. ✅ subscription_requests - طلبات تفعيل الرخصة
 
 ### 🔒 الأمان:
 - ✅ 30+ سياسة أمنية (RLS Policies)

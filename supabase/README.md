@@ -26,14 +26,14 @@
 02_create_barbers_table.sql           - بيانات الحلاقين
 03_create_bookings_table.sql          - الحجوزات
 04_create_payments_table.sql          - المدفوعات
-05_create_subscriptions_table.sql     - الاشتراكات
+05_create_subscriptions_table.sql     - رخص النفاذ (جدول subscriptions)
 06_create_reviews_table.sql           - التقييمات
 07_create_notifications_table.sql     - الإشعارات
 08_create_messages_table.sql          - الرسائل
 09_create_barber_services_table.sql   - خدمات الحلاق
 10_create_working_hours_table.sql     - أوقات العمل
 11_create_categories_table.sql        - التصنيفات
-12_create_subscription_requests_table.sql - طلبات الاشتراك
+12_create_subscription_requests_table.sql - طلبات تفعيل الرخصة
 13_create_storage.sql                 - تخزين الصور
 14_registration_submissions_public.sql - قراءة عامة لطلبات التسجيل (حسب الحاجة)
 15_admin_jwt_platform_rls.sql         - صلاحيات أدمن JWT للمنصّة
@@ -77,11 +77,11 @@ QUICK_START.txt    - خطوات سريعة
 - ✅ عند حجز جديد
 - ✅ عند رسالة جديدة
 - ✅ عند تقييم جديد
-- ✅ عند الموافقة على اشتراك
+- ✅ عند الموافقة على تفعيل الرخصة
 
 ### التحديثات التلقائية:
 - ✅ تحديث rating الحلاق عند تقييم
-- ✅ تحديث tier الحلاق عند اشتراك
+- ✅ تحديث tier الحلاق عند تفعيل الرخصة
 - ✅ تحديث updated_at تلقائياً
 
 ---

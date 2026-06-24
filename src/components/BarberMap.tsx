@@ -8,7 +8,7 @@ type Props = {
   barbers: Barber[];
   userLocation: { lat: number; lng: number };
   onBarberPatch: (patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => void;
-  /** اشتراك Realtime حتى مع قائمة فارغة مؤقتاً (مثلاً فلاتر) ليبقى تحديث القائمة لحظياً */
+  /** ربط Realtime حتى مع قائمة فارغة مؤقتاً (مثلاً فلاتر) ليبقى تحديث القائمة لحظياً */
   realtimeEnabled: boolean;
 };
 
@@ -19,7 +19,7 @@ function clamp(n: number, lo: number, hi: number): number {
 type PinPos = { id: string; name: string; isOpen: boolean; left: number; top: number };
 
 /**
- * معاينة «خريطة» الدبابيس مع اشتراك Realtime على تحديثات `barbers` (مفتوح/مغلق).
+ * معاينة «خريطة» الدبابيس مع ربط Realtime على تحديثات `barbers` (مفتوح/مغلق).
  * يُكمّل قائمة البطاقات على الصفحة الرئيسية — يعتمد ترحيل `70_barbers_realtime_for_map.sql`.
  */
 export function BarberMap({ barbers, userLocation, onBarberPatch, realtimeEnabled }: Props) {

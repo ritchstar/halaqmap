@@ -144,7 +144,7 @@ const subscription = supabase
   })
   .subscribe();
 
-// إلغاء الاشتراك
+// إلغاء تفعيل الإشعار
 subscription.unsubscribe();
 ```
 

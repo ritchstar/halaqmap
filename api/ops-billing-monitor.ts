@@ -183,7 +183,7 @@ export async function GET(request: Request): Promise<Response> {
       env: [
         'VERCEL_OPS_API_TOKEN',
         'SUPABASE_MANAGEMENT_API_TOKEN',
-        'GODADDY_SUBSCRIPTIONS_PORTAL_URL (اختياري — افتراضي: رابط اشتراكات GoDaddy)',
+        'GODADDY_SUBSCRIPTIONS_PORTAL_URL (اختياري — افتراضي: بوابة GoDaddy)',
         'OPENAI_BILLING_PORTAL_URL (اختياري — افتراضي: نظرة عامة على فوترة المنظّمة في OpenAI)',
         'REVENUE_BILLING_MONITOR_TOKEN — Organization Admin API key من /settings/organization/admin-keys (ليس مفتاح المشروع الافتراضي)',
         'OPENAI_ADMIN_KEY (بديل لـ REVENUE_BILLING_MONITOR_TOKEN؛ نفس نوع المفتاح)',

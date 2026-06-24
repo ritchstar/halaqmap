@@ -1,5 +1,5 @@
 /**
- * معالجة webhook دفع SAB — تسجيل الاشتراك، التفعيل، وإشعارات البريد.
+ * معالجة webhook دفع SAB — تسجيل تفعيل الرخصة، التفعيل، وإشعارات البريد.
  */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { timingSafeEqual } from 'node:crypto';

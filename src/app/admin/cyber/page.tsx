@@ -232,7 +232,7 @@ function AdminCyberOperationsPageInner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pulses]);
 
-  // ◆ Supabase Realtime — اشتراك في أحداث الأمان الحية
+  // ◆ Supabase Realtime — الاستماع إلى أحداث الأمان الحية
   useEffect(() => {
     if (phase !== 'ok' || !isSupabaseConfigured()) return;
     const client = getSupabaseClient();

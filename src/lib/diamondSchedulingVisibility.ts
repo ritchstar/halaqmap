@@ -38,7 +38,7 @@ export function readDiamondSchedulingPublicLocal(barberId: string): boolean | nu
   return null;
 }
 
-/** يعيد الاشتراك عند تغيير الإظهار من لوحة الحلاق (نفس المتصفح) */
+/** يعيد الربط عند تغيير الإظهار من لوحة الحلاق (نفس المتصفح) */
 export function useDiamondAppointmentSchedulingShown(barber: Barber): boolean {
   return useSyncExternalStore(
     (onStoreChange) => {

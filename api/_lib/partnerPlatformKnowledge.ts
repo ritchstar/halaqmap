@@ -28,6 +28,7 @@ import {
   TERM_ACTIVATE_NOW_AR,
   TERM_BUY_LICENSE_AR,
   TERM_GEOSPATIAL_DIGITAL_ASSET_AR,
+  TERM_LICENSE_ACTIVATION_AR,
   TERM_PACKAGE_ACTIVATION_AR,
 } from './softwareLicenseTerminology.js';
 import {
@@ -230,9 +231,9 @@ export const PARTNER_PLATFORM_RELEASE_NOTES: readonly PartnerReleaseNote[] = [
     titleAr: `${ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR} — Digital Access Licence`,
     summaryAr:
       'المنتج B2B هو رخصة نفاذ رقمية ضمن نظام الاستجابة الذكية (ISIC 474151) — حضور غير ثابت يُفعَّل عند الطلب، وليس وساطة حجز أو عمولة حلاقة.',
-    topics: ['رخصة', '474151', 'ISIC', 'Geospatial', 'اشتراك', 'نفاذ', 'استجابة', 'On-Demand'],
+    topics: ['رخصة', '474151', 'ISIC', 'Geospatial', 'نفاذ', 'استجابة', 'On-Demand'],
     bulletsAr: [
-      `التسمية: ${TERM_PACKAGE_ACTIVATION_AR} بدلاً من «اشتراك».`,
+      `التسمية الرسمية: ${TERM_PACKAGE_ACTIVATION_AR} و${TERM_LICENSE_ACTIVATION_AR}.`,
       `الأصل على الخريطة: ${TERM_GEOSPATIAL_DIGITAL_ASSET_AR} بدلاً من «إعلان».`,
       `أزرار الشراء: «${TERM_BUY_LICENSE_AR}» و«${TERM_ACTIVATE_NOW_AR}».`,
       `الفئة التقنية: ${GEOSPATIAL_LICENSE_ASSET_CLASS} · ${MAP_INTEGRATION_PROTOCOL}.`,

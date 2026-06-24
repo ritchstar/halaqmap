@@ -40,7 +40,6 @@ import {
 } from '@/config/partnerProductHubCopy';
 import {
   PARTNER_TECHNICAL_PARTNER_HEADLINE,
-  PARTNER_TECHNICAL_PARTNER_HERO_CHIPS,
   PARTNER_TECHNICAL_PARTNER_LABEL_AR,
   PARTNER_TECHNICAL_PARTNER_TAGLINE,
 } from '@/config/partnerTechnicalPartnerDoctrine';
@@ -57,6 +56,15 @@ import {
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
+import { PartnerFreedomPillars } from '@/components/partner/PartnerFreedomPillars';
+import {
+  PARTNER_FREEDOM_CLOSING_LINE_AR,
+  PARTNER_FREEDOM_FEATURES_LEAD_AR,
+  PARTNER_FREEDOM_HERO_BADGE_AR,
+  PARTNER_FREEDOM_HERO_CHIPS_AR,
+  PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR,
+  PARTNER_FREEDOM_HERO_TITLE_AR,
+} from '@/config/partnerFreedomNarrativeCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -647,6 +655,7 @@ export default function PartnerMarketingPreview() {
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
               {[
                 { label: 'كيف تنضم',      id: 'كيف تنضم',      icon: Navigation2 },
+                { label: 'حرية التشغيل', id: 'حرية-التشغيل', icon: Lock },
                 { label: 'مزايا الباقات', id: 'مزايا الباقات', icon: Sparkles },
                 { label: 'الأسعار',       id: 'الأسعار',       icon: Crown },
                 { label: 'منطق الشراكة', id: 'منطق-الشراكة', icon: Users },
@@ -726,6 +735,7 @@ export default function PartnerMarketingPreview() {
               >
                 <div className="flex flex-col gap-1">
                   {[
+                    { label: 'حرية التشغيل', id: 'حرية-التشغيل' },
                     { label: 'كيف تنضم', id: 'كيف تنضم' },
                     { label: 'مزايا الباقات', id: 'مزايا الباقات' },
                     { label: 'الأسعار', id: 'الأسعار' },
@@ -775,13 +785,13 @@ export default function PartnerMarketingPreview() {
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
-              <Sparkles className="h-3 w-3" /> مسار الخدمات التسويقية للشركاء
+              <Sparkles className="h-3 w-3" /> {PARTNER_FREEDOM_HERO_BADGE_AR}
             </motion.div>
 
             <h1 className="mb-6 text-[clamp(2.4rem,5.5vw,3.8rem)] font-black leading-[1.1] text-slate-950">
-              اجعل صالونك
+              {PARTNER_FREEDOM_HERO_TITLE_AR}
               <span className="block bg-gradient-to-l from-teal-600 via-cyan-600 to-emerald-500 bg-clip-text text-transparent">
-                يُكتشف بذكاء
+                {PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR}
               </span>
             </h1>
 
@@ -856,14 +866,14 @@ export default function PartnerMarketingPreview() {
                     {PARTNER_TECHNICAL_PARTNER_TAGLINE}
                   </span>
                   <span className="mt-2 block text-[0.85rem] text-amber-700/80">
-                    لا عمولة · لا وسيط · لا عقد مُلزِم
+                    لا عمولة · لا وسيط · لا تجديد تلقائي
                   </span>
                 </p>
 
                 <PlatformTrustStrip variant="strip" tone="light" className="mb-8 max-w-xl" />
 
                 <div className="mb-8 flex flex-wrap gap-3">
-                  {PARTNER_TECHNICAL_PARTNER_HERO_CHIPS.map((text) => (
+                  {PARTNER_FREEDOM_HERO_CHIPS_AR.map((text) => (
                     <div key={text} className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[0.75rem] text-emerald-800">
                       <Shield className="h-3.5 w-3.5 text-emerald-600" />
                       {text}
@@ -1004,6 +1014,8 @@ export default function PartnerMarketingPreview() {
         </div>
       </section>
 
+      <PartnerFreedomPillars compact={isMobile} />
+
       {/* ── Technical partner doctrine ───────────────────────────────────── */}
       <section id="منطق-الشراكة" className="relative z-10 border-y border-slate-100 bg-slate-50/80 py-20">
         <div className="mx-auto max-w-5xl px-5">
@@ -1065,9 +1077,9 @@ export default function PartnerMarketingPreview() {
           <div className="mb-14 text-center">
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="text-3xl font-black text-slate-900 md:text-4xl">
-              أدوات الصالون الاحترافي
+              أدوات تخدم حريتك
             </motion.h2>
-            <p className="mt-3 text-slate-600">كل ما تحتاجه لإدارة حضورك الرقمي باستقلالية تامة</p>
+            <p className="mt-3 text-slate-600">{PARTNER_FREEDOM_FEATURES_LEAD_AR}</p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <FeatureCard icon={Navigation2} title="ظهور عند الطلب" desc="تُفعَّل برمجياً فقط عند وجود طلب نشط تنطبق عليه البيانات المتاحة والفلترة — لا إشغال دائم للمساحة الرقمية." color="from-amber-500 to-yellow-500" delay={0} />
@@ -1236,7 +1248,7 @@ export default function PartnerMarketingPreview() {
               </div>
               <h2 className="mb-5 text-3xl font-black text-slate-900">شهادة تفعيل تليق بشراكتك</h2>
               <p className="mb-6 text-base leading-relaxed text-slate-600">
-                حلاق ماب لا تبيع «اشتراكاً» فقط — تُسلّمك وثيقة رقمية صادرة من المنصة تُثبت ملكيتك لرخصة النفاذ:
+                حلاق ماب تُسلّمك وثيقة رقمية صادرة من المنصة تُثبت ملكيتك لرخصة النفاذ:
                 اسم منشأتك، باقتك، تواريخ الصلاحية، و**كود تفعيل فريد** يُبرز كمفتاح رخصتك الرسمي.
               </p>
               <div className="flex flex-col gap-2.5">
@@ -1330,8 +1342,11 @@ export default function PartnerMarketingPreview() {
             <h2 className="mb-5 text-3xl font-black leading-snug text-slate-900 md:text-4xl">
               {PARTNER_HERO_CLOSING_TAGLINE_AR}
             </h2>
-            <p className="mx-auto mb-10 max-w-xl text-base leading-relaxed text-slate-600">
+            <p className="mx-auto mb-4 max-w-xl text-base leading-relaxed text-slate-600">
               {PARTNER_FINAL_CTA_BODY_AR}
+            </p>
+            <p className="mx-auto mb-10 max-w-xl text-sm font-semibold text-emerald-700">
+              {PARTNER_FREEDOM_CLOSING_LINE_AR}
             </p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <button
