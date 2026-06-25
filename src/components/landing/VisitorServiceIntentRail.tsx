@@ -53,10 +53,12 @@ export function VisitorServiceIntentRail({
       className={cn(
         isVertical
           ? 'w-[7.25rem] shrink-0 rounded-xl border border-white/10 bg-white/[0.03] px-2 py-3'
-          : cn(
-              'rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent',
-              compact ? 'p-3' : 'p-4 sm:p-5',
-            ),
+          : compact
+            ? 'rounded-xl border border-white/8 bg-white/[0.03] p-2'
+            : cn(
+                'rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent',
+                'p-4 sm:p-5',
+              ),
       )}
       dir="rtl"
     >
@@ -65,7 +67,9 @@ export function VisitorServiceIntentRail({
           'mb-2',
           isVertical
             ? 'text-center'
-            : 'flex flex-wrap items-center justify-between gap-2',
+            : compact
+              ? 'hidden'
+              : 'flex flex-wrap items-center justify-between gap-2',
         )}
       >
         <p
@@ -140,15 +144,15 @@ export function VisitorServiceIntentRail({
         })}
       </div>
 
-      {!isVertical ? (
+      {!isVertical && !compact ? (
         <p className="mt-3 text-[0.68rem] leading-relaxed text-slate-400">
           {hasLocation ? VISITOR_INTENT_RAIL_HINT_WITH_LOCATION_AR : VISITOR_INTENT_RAIL_HINT_NO_LOCATION_AR}
         </p>
-      ) : (
+      ) : isVertical ? (
         <p className="mt-2 text-center text-[0.52rem] leading-snug text-slate-500">
           {hasLocation ? 'نشطة' : 'ثم الموقع'}
         </p>
-      )}
+      ) : null}
     </div>
   );
 }

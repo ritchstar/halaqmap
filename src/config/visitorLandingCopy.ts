@@ -11,7 +11,7 @@ export const VISITOR_HERO_TITLE_ACCENT_AR = 'يناسب حاجتك';
 /** سطح المكتب — الواجهة تشرح نفسها؛ لا فقرة إضافية */
 export const VISITOR_HERO_LEAD_DESKTOP_AR = '';
 
-export const VISITOR_HERO_LEAD_MOBILE_AR = 'فلتر · موقع · نتائج — مجاناً.';
+export const VISITOR_HERO_LEAD_MOBILE_AR = '';
 
 export const VISITOR_INTENT_RAIL_TITLE_AR = 'ماذا تبحث عنه؟';
 
@@ -23,17 +23,20 @@ export const VISITOR_TRUST_TRIAD = [
   {
     id: 'direct',
     title: 'تواصل مباشر',
-    description: 'اتصال أو واتساب مع الصالون — المنصة للاكتشاف لا للحجز بالعمولة.',
+    chipLabel: 'اتصال مباشر',
+    description: 'اتصال أو واتساب مع الصالون.',
   },
   {
     id: 'ratings',
     title: 'تقييمات موثّقة',
-    description: 'تقييمات مرتبطة بزيارات حقيقية — لا نجوم وهمية.',
+    chipLabel: 'تقييمات حقيقية',
+    description: 'مرتبطة بزيارات حقيقية.',
   },
   {
     id: 'match',
-    title: 'مطابقة عند الطلب',
-    description: 'يظهر من يناسب فلترك وموقعك الآن — لا قائمة عشوائية ثابتة.',
+    title: 'مطابقة فورية',
+    chipLabel: 'مطابقة فورية',
+    description: 'حسب فلترك وموقعك الآن.',
   },
 ] as const;
 

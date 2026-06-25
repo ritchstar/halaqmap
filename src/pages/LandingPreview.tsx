@@ -399,7 +399,7 @@ function MobileSearchDock({
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-3.5 text-base font-black text-white shadow-[0_0_24px_rgba(20,184,166,0.28)] transition active:scale-[0.98] disabled:opacity-80"
           >
             <Navigation2 className="h-5 w-5 shrink-0" />
-            {geoBusy ? 'يجري تحديد موقعك…' : 'حدّد موقعي وابحث الآن'}
+            {geoBusy ? 'يجري التحديد…' : 'ابحث الآن'}
           </button>
         </div>
       ) : (
@@ -910,7 +910,7 @@ export default function LandingPreview() {
         className={cn(
           'relative overflow-x-clip',
           isMobile
-            ? 'pt-[calc(4.75rem+env(safe-area-inset-top))] pb-2'
+            ? 'pt-[calc(4.75rem+env(safe-area-inset-top))] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]'
             : 'min-h-[100svh] pt-24',
         )}
       >
@@ -958,7 +958,10 @@ export default function LandingPreview() {
             </motion.div>
             )}
 
-            <h1 className="mb-4 text-[clamp(2rem,5.5vw,4rem)] font-black leading-[1.1] text-white">
+            <h1 className={cn(
+              'mb-4 font-black leading-[1.1] text-white',
+              isMobile ? 'text-[clamp(1.75rem,8vw,2.25rem)]' : 'text-[clamp(2rem,5.5vw,4rem)]',
+            )}>
               {VISITOR_HERO_TITLE_AR}
               <span className="block bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
                 {VISITOR_HERO_TITLE_ACCENT_AR}
@@ -1005,7 +1008,7 @@ export default function LandingPreview() {
             ) : null}
 
             {isMobile ? (
-            <div className="mb-6">
+            <div className="mb-3">
               <VisitorServiceIntentRail
                 filters={filters}
                 hasLocation={Boolean(userLocation)}
@@ -1016,10 +1019,16 @@ export default function LandingPreview() {
             </div>
             ) : null}
 
-            {/* Trust triad — زائر: ثقة لا سردية حرية */}
-            {deferMobileExtras ? (
-            <div className={cn('mb-6', !isMobile && 'mb-2')}>
-              <VisitorTrustTriad compact={isMobile} />
+            {isMobile ? (
+            <div className="mb-3">
+              <VisitorTrustTriad variant="chips" />
+            </div>
+            ) : null}
+
+            {/* ثلاثية الثقة — بطاقات كاملة على سطح المكتب */}
+            {!isMobile && deferMobileExtras ? (
+            <div className="mb-2">
+              <VisitorTrustTriad />
             </div>
             ) : null}
 
