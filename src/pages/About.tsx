@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { MapPin, Target, Eye, Zap, Shield, Award } from "lucide-react";
 import { IMAGES } from "@/assets/images";
 import { LegalObserverChat } from '@/components/LegalObserverChat';
+import { PlatformStoryHighlights } from '@/components/about/PlatformStoryHighlights';
 import { PlatformOperationalTrustPanel } from '@/components/PlatformOperationalTrustPanel';
 import {
   PLATFORM_ABOUT_FEATURE_QUALITY,
@@ -122,6 +123,14 @@ export default function About() {
           </motion.div>
         </div>
       </motion.section>
+
+      <section className="border-b border-border/60 bg-muted/20 py-16">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-6xl">
+            <PlatformStoryHighlights />
+          </div>
+        </div>
+      </section>
 
       {/* الناظر القانوني — في أعلى محتوى الصفحة */}
       <div className="container mx-auto px-4 pt-6 pb-2" dir="rtl">

@@ -52,8 +52,10 @@ export const ROUTE_PATHS = {
   INTERNAL_PARTNER_PATH_PRINT_CARD: '/m/hm-partner-path-card-q7',
   /** معاينة فواتير رخصة النفاذ (PDF) — داخلي، بدون ربط من القوائم */
   INVOICE_PREVIEW_SAMPLES: '/m/invoice-preview-samples',
+  /** صفحة هبوط تسويقية — عرض شرائح قصة المنصة (B2C · حملات · مشاركة) */
+  PLATFORM_DISCOVER: '/discover',
   /**
-   * عرض النمو التقديمي — شرائح مقارنة تسويقية + جذب الزبائن (Pitch Deck).
+   * عرض النمو التقديمي — شرائح مقارنة تسويقية + جذب الشركاء (Pitch Deck).
    * للعروض والاجتماعات — noindex، بدون رابط من القوائم العامة.
    */
   GROWTH_PITCH_DECK: '/m/growth-pitch-deck',

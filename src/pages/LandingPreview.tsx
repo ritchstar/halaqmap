@@ -1342,6 +1342,7 @@ export default function LandingPreview() {
                   ابحث عن حلاق الآن
                 </button>
                 {[
+                  { label: 'اكتشف المنصة ✦', to: ROUTE_PATHS.PLATFORM_DISCOVER },
                   { label: 'آراء المستخدمين ⭐', to: ROUTE_PATHS.PLATFORM_REVIEWS },
                   { label: 'من نحن', to: ROUTE_PATHS.ABOUT },
                   { label: 'سياسة الخصوصية', to: ROUTE_PATHS.USER_PRIVACY_POLICY },
