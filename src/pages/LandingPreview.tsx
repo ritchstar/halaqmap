@@ -792,17 +792,6 @@ export default function LandingPreview() {
                   <div className="text-[0.58rem] font-bold text-teal-400/70">ابحث عن حلاق قريب</div>
                 </div>
               </Link>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleMobileSearchClick}
-                  disabled={geoBusy}
-                  className="rounded-2xl bg-gradient-to-l from-teal-500 to-teal-700 px-4 py-2.5 text-[0.9rem] font-black text-white shadow-[0_0_18px_rgba(20,184,166,0.28)] disabled:opacity-80"
-                >
-                  {geoBusy ? 'يجري البحث…' : userLocation ? 'عرض النتائج' : 'ابحث الآن'}
-                </button>
-              </div>
             </div>
           ) : (
             <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
@@ -1316,6 +1305,43 @@ export default function LandingPreview() {
         )}
       >
         <div className="mx-auto max-w-6xl px-5">
+          {isMobile ? (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-teal-700">
+                  <Scissors className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-base font-black text-white">حلاق ماب</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'ابحث الآن', action: () => document.getElementById('search-anchor')?.scrollIntoView({ behavior: 'smooth' }) },
+                  { label: 'من نحن', to: ROUTE_PATHS.ABOUT },
+                  { label: 'اكتشف المنصة', to: ROUTE_PATHS.PLATFORM_DISCOVER },
+                  { label: 'مسار الشركاء', to: ROUTE_PATHS.BARBERS_LANDING },
+                ].map((item) =>
+                  'to' in item && item.to ? (
+                    <Link
+                      key={item.label}
+                      to={item.to}
+                      className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-center text-sm font-semibold text-white/85 transition active:bg-white/10"
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={'action' in item ? item.action : undefined}
+                      className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-center text-sm font-semibold text-white/85 transition active:bg-white/10"
+                    >
+                      {item.label}
+                    </button>
+                  ),
+                )}
+              </div>
+            </div>
+          ) : (
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div>
@@ -1375,6 +1401,7 @@ export default function LandingPreview() {
               </div>
             </div>
           </div>
+          )}
 
           <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/8 pt-8 text-center text-[0.7rem] text-white/76 [text-shadow:0_0_10px_rgba(255,255,255,0.08)] md:flex-row md:justify-between md:text-right">
             <span>© ٢٠٢٦ حلاق ماب — جميع الحقوق محفوظة</span>

@@ -47,7 +47,6 @@ import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentit
 import {
   PARTNER_FINAL_CTA_BODY_AR,
   PARTNER_HERO_CLOSING_TAGLINE_AR,
-  PARTNER_HERO_LEAD_MOBILE_AR,
   PARTNER_HERO_LEAD_PRIMARY_AR,
   PARTNER_LANDING_FAQ_AR,
   PARTNER_SECTION_INTROS,
@@ -59,6 +58,7 @@ import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTech
 import { PartnerFreedomPillars } from '@/components/partner/PartnerFreedomPillars';
 import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
 import { PartnerOwnerWatchSpotlight } from '@/components/partner/PartnerOwnerWatchSpotlight';
+import { MobilePartnerActionDock } from '@/components/partner/MobilePartnerActionDock';
 import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
   OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
@@ -85,6 +85,7 @@ import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { SOFTWARE_SERVICES_PORTAL_HEADING } from '@/config/partnerPortal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { cn } from '@/lib/utils';
+import { MOBILE_PARTNER_ACTION_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 
 // ─── Animated counter ──────────────────────────────────────────────────────
 function useCounter(end: number, duration = 1800, enabled = true) {
@@ -588,7 +589,7 @@ export default function PartnerMarketingPreview() {
     >
 
       {/* أزرار عائمة */}
-      {deferMobilePartnerContent ? <FloatingPlatformActions /> : null}
+      {deferMobilePartnerContent && !isMobile ? <FloatingPlatformActions /> : null}
       {/* مكتب مدير المبيعات أصبح صفحة مستقلة — بطاقة الدخول موجودة داخل الهيرو */}
 
       {/* ── شبكة التكتير الخلفية ──────────────────────────────────────────── */}
@@ -614,7 +615,7 @@ export default function PartnerMarketingPreview() {
         )} />
 
         {/* ── شريط مدن المملكة ────────────────────────────────────────── */}
-        {!isMobile || deferMobilePartnerContent ? (
+        {!isMobile ? (
           <div className="relative border-b border-sky-100/90">
             <KSACityClocksBar />
           </div>
@@ -700,8 +701,8 @@ export default function PartnerMarketingPreview() {
             </nav>
 
             <div className="flex items-center gap-2">
-              <PlatformAmbientToggle variant="partner" className="hidden md:inline-flex" />
-              <PlatformAmbientToggle variant="partner" className="inline-flex md:hidden" />
+              <PlatformAmbientToggle variant="partner" className="inline-flex" />
+              {!isMobile ? (
               <motion.button
                 onMouseEnter={warmRegisterRoute}
                 onFocus={warmRegisterRoute}
@@ -723,6 +724,7 @@ export default function PartnerMarketingPreview() {
                   <span className="sm:hidden">انضم</span>
                 </span>
               </motion.button>
+              ) : null}
 
               {/* موبايل — أيقونة القائمة */}
               <button
@@ -747,6 +749,7 @@ export default function PartnerMarketingPreview() {
               >
                 <div className="flex flex-col gap-1">
                   {[
+                    { label: 'غرفة المراقبة', id: 'غرفة-المراقبة' },
                     { label: 'حرية التشغيل', id: 'حرية-التشغيل' },
                     { label: 'كيف تنضم', id: 'كيف تنضم' },
                     { label: 'مزايا الباقات', id: 'مزايا الباقات' },
@@ -795,6 +798,14 @@ export default function PartnerMarketingPreview() {
           {/* Text */}
           <motion.div initial={{ opacity: 0, x: isMobile ? 0 : 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
 
+            {isMobile ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+                className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-[0.68rem] font-semibold text-amber-800">
+                <Sparkles className="h-3 w-3 shrink-0" />
+                {PARTNER_MALL_HERO_BADGE_AR} · حرية التشغيل
+              </motion.div>
+            ) : (
+              <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
               <Sparkles className="h-3 w-3" /> {PARTNER_MALL_HERO_BADGE_AR}
@@ -803,14 +814,21 @@ export default function PartnerMarketingPreview() {
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-[0.68rem] font-semibold text-emerald-700">
               <Shield className="h-3 w-3" /> {PARTNER_FREEDOM_HERO_BADGE_AR}
             </motion.div>
+              </>
+            )}
 
-            <h1 className="mb-6 text-[clamp(2.4rem,5.5vw,3.8rem)] font-black leading-[1.1] text-slate-950">
+            <h1 className={cn(
+              'mb-4 font-black leading-[1.1] text-slate-950',
+              isMobile ? 'text-[clamp(1.85rem,7.5vw,2.35rem)]' : 'mb-6 text-[clamp(2.4rem,5.5vw,3.8rem)]',
+            )}>
               {PARTNER_FREEDOM_HERO_TITLE_AR}
               <span className="block bg-gradient-to-l from-teal-600 via-cyan-600 to-emerald-500 bg-clip-text text-transparent">
                 {PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR}
               </span>
             </h1>
 
+            {!isMobile ? (
+              <>
             <p className="mb-4 text-lg font-bold leading-relaxed text-amber-800 md:text-xl">
               {PARTNER_MALL_TAGLINE_AR}
             </p>
@@ -818,6 +836,8 @@ export default function PartnerMarketingPreview() {
             <p className="mb-5 text-lg font-bold leading-relaxed text-teal-800 md:text-xl">
               {PARTNER_HERO_LEAD_PRIMARY_AR}
             </p>
+              </>
+            ) : null}
 
             {/* ── بوابة مكتب مدير المبيعات — مباشرة تحت العنوان الرئيسي ── */}
             {isStrictPartnerPath && !isMobile ? (
@@ -867,20 +887,9 @@ export default function PartnerMarketingPreview() {
             ) : null}
 
             {isMobile ? (
-              <>
-                <p className="mb-5 max-w-lg text-[0.98rem] leading-8 text-slate-600">
-                  {PARTNER_MALL_HERO_LEAD_MOBILE_AR}
-                </p>
-                <p className="mb-5 max-w-lg text-[0.9rem] leading-8 text-slate-500">
-                  {PARTNER_HERO_LEAD_MOBILE_AR}
-                </p>
-                <div className="mb-5 rounded-[1.35rem] border border-emerald-200 bg-white/92 p-4 shadow-sm">
-                  <p className="text-[0.78rem] font-black text-emerald-700">قرار سريع</p>
-                  <p className="mt-1 text-[0.9rem] leading-7 text-slate-600">
-                    اختر التسجيل مباشرة، أو افتح مكتب المبيعات إذا أردت شرح الباقات وآلية التفعيل قبل البدء.
-                  </p>
-                </div>
-              </>
+              <p className="mb-2 max-w-lg text-[0.95rem] leading-8 text-slate-600">
+                {PARTNER_MALL_HERO_LEAD_MOBILE_AR}
+              </p>
             ) : (
               <>
                 <p className="mb-6 max-w-xl text-base leading-relaxed text-slate-600">
@@ -925,7 +934,8 @@ export default function PartnerMarketingPreview() {
               </>
             )}
 
-            <div className={cn('flex flex-col gap-3 sm:flex-row', isMobile && 'sm:flex-col')}>
+            {!isMobile ? (
+            <div className={cn('flex flex-col gap-3 sm:flex-row')}>
               <button
                 onMouseEnter={warmRegisterRoute}
                 onFocus={warmRegisterRoute}
@@ -937,12 +947,13 @@ export default function PartnerMarketingPreview() {
                 <Scissors className="h-4 w-4" /> ابدأ رحلة الانضمام
               </button>
               <button
-                onClick={() => navigate(isMobile ? ROUTE_PATHS.PARTNER_SALES_OFFICE : ROUTE_PATHS.PARTNER_WHY)}
+                onClick={() => navigate(ROUTE_PATHS.PARTNER_WHY)}
                 className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-4 font-semibold text-slate-800 shadow-sm hover:border-slate-300"
               >
-                {isMobile ? 'مكتب مدير المبيعات' : 'لماذا نحن؟'} <ArrowLeft className="h-4 w-4" />
+                لماذا نحن؟ <ArrowLeft className="h-4 w-4" />
               </button>
             </div>
+            ) : null}
 
           </motion.div>
 
@@ -1415,7 +1426,12 @@ export default function PartnerMarketingPreview() {
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer className="relative z-10 border-t border-slate-100 bg-white/80 pt-12 pb-[max(3rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))] backdrop-blur-sm">
+      <footer className={cn(
+        'relative z-10 border-t border-slate-100 bg-white/80 pt-12 backdrop-blur-sm',
+        isMobile
+          ? MOBILE_PARTNER_ACTION_DOCK_CLEARANCE
+          : 'pb-[max(3rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))]',
+      )}>
         <div className="mx-auto max-w-6xl px-5">
           <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr]">
             <div dir="rtl">
@@ -1488,6 +1504,12 @@ export default function PartnerMarketingPreview() {
       </footer>
       </>
       )}
+      {isMobile ? (
+        <MobilePartnerActionDock
+          onRegister={handleRegisterNavigate}
+          onSalesOffice={() => navigate(ROUTE_PATHS.PARTNER_SALES_OFFICE)}
+        />
+      ) : null}
     </div>
   );
 }

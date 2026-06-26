@@ -2558,3 +2558,23 @@ html.platform-radar-fullscreen #root {
     animation: none;
   }
 }
+
+/* ── Mobile browser ergonomics (Safari / Chrome Android) ─────────────── */
+@media (max-width: 767px) {
+  button,
+  a,
+  [role='button'],
+  summary {
+    touch-action: manipulation;
+  }
+
+  .mobile-scroll-snap-x {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .mobile-scroll-snap-x > * {
+    scroll-snap-align: start;
+  }
+}

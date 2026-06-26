@@ -64,27 +64,27 @@ export function VisitorServiceIntentRail({
     >
       <div
         className={cn(
-          'mb-2',
-          isVertical
-            ? 'text-center'
-            : compact
-              ? 'hidden'
-              : 'flex flex-wrap items-center justify-between gap-2',
+          'mb-2 flex items-center justify-between gap-2',
+          compact ? 'px-0.5' : 'flex-wrap',
         )}
       >
         <p
           className={cn(
             'font-black text-white',
-            isVertical ? 'text-[0.62rem] leading-snug' : compact ? 'text-sm' : 'text-base',
+            compact ? 'text-[0.72rem]' : 'text-base',
           )}
         >
-          {isVertical ? 'فلاتر' : VISITOR_INTENT_RAIL_TITLE_AR}
+          {VISITOR_INTENT_RAIL_TITLE_AR}
         </p>
-        {!isVertical ? (
+        {compact ? (
+          <span className="shrink-0 text-[0.58rem] font-semibold text-slate-400">
+            اسحب ←
+          </span>
+        ) : (
           <span className="rounded-full border border-teal-400/20 bg-teal-500/10 px-2.5 py-0.5 text-[0.62rem] font-semibold text-teal-200">
             {hasLocation ? 'فلترة نشطة' : 'اختر ثم حدّد الموقع'}
           </span>
-        ) : null}
+        )}
       </div>
 
       <div
@@ -92,7 +92,7 @@ export function VisitorServiceIntentRail({
           isVertical
             ? 'flex flex-col gap-1'
             : cn(
-                'flex gap-2 pb-1 scrollbar-thin',
+                'mobile-scroll-snap-x flex gap-2 pb-1 scrollbar-thin',
                 compact ? 'flex-nowrap overflow-x-auto' : 'flex-wrap',
               ),
         )}
@@ -109,7 +109,7 @@ export function VisitorServiceIntentRail({
               whileTap={{ scale: 0.96 }}
               onClick={() => handleSelect(intent.id)}
               className={cn(
-                'transition-all',
+                'transition-all touch-manipulation',
                 isVertical
                   ? cn(
                       'flex w-full items-center gap-1.5 rounded-lg border px-2 py-1.5 text-right',
@@ -151,6 +151,10 @@ export function VisitorServiceIntentRail({
       ) : isVertical ? (
         <p className="mt-2 text-center text-[0.52rem] leading-snug text-slate-500">
           {hasLocation ? 'نشطة' : 'ثم الموقع'}
+        </p>
+      ) : compact ? (
+        <p className="mt-2 text-[0.62rem] leading-relaxed text-slate-500">
+          {hasLocation ? VISITOR_INTENT_RAIL_HINT_WITH_LOCATION_AR : VISITOR_INTENT_RAIL_HINT_NO_LOCATION_AR}
         </p>
       ) : null}
     </div>

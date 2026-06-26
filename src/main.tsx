@@ -6,7 +6,7 @@ import { RootErrorBoundary } from '@/components/RootErrorBoundary'
 import { initPlatformBuildSync } from '@/lib/platformBuildSync'
 import { assertRuntimeEnvSafety } from '@/config/runtimeEnvGuard'
 
-// build-sync التلقائي مُعطّل — كان يسبب حلقة reload (_b=…) وremoveChild أثناء تشغيل React
+// build-sync يُجدول بعد mount — يكتشف حزمة JS قديمة بعد النشر ويُحدّث PWA بأمان
 import { PARTNER_ASSISTANT_UI_VERSION } from './lib/partnerAssistantUiVersion'
 import { PARTNER_ASSISTANT_CHAT_API_PATH } from './lib/partnerAssistantRemote'
 

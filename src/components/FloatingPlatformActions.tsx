@@ -11,9 +11,11 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
 import { PLATFORM_VOLUNTARY_ENGAGEMENT } from '@/config/platformVoluntaryEngagement';
 import { RateEngagementModal, ShareEngagementModal } from '@/components/platformEngagement/PlatformEngagementModals';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function FloatingPlatformActions() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [modal, setModal] = useState<'share' | 'rate' | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -58,6 +60,8 @@ export function FloatingPlatformActions() {
       },
     },
   ] as const;
+
+  if (isMobile) return null;
 
   return (
     <>

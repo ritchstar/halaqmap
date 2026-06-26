@@ -24,7 +24,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/75 shadow-[0_-4px_24px_-8px_rgba(0,0,0,0.12)] pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/75 shadow-[0_-4px_24px_-8px_rgba(0,0,0,0.12)] pb-[env(safe-area-inset-bottom)] touch-manipulation"
       aria-label="التنقل السفلي"
     >
       <div className="flex items-stretch justify-between max-w-lg mx-auto px-0.5 pt-1">
