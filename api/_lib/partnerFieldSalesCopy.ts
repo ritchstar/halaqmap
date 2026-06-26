@@ -3,6 +3,7 @@
  * يُحدَّث بالتزامن مع src/config/partnerFieldSalesCopy.ts
  */
 import { PARTNER_EARLY_WAVE_TAGLINE_AR } from './partnerEarlyWaveCopy.js';
+import { PARTNER_MALL_FAQ_AR, PARTNER_MALL_TAGLINE_AR } from './partnerMallNarrativeCopy.js';
 
 export const PARTNER_HERO_TAGLINE_REPUTATION_AR =
   'أنت بنيت السمعة — نحن نفعّل الظهور عند الطلب' as const;
@@ -21,6 +22,7 @@ export const PARTNER_HERO_TAGLINE_ROI_AR =
 export const PARTNER_HERO_TAGLINES_AR = [
   PARTNER_HERO_TAGLINE_REPUTATION_AR,
   PARTNER_EARLY_WAVE_TAGLINE_AR,
+  PARTNER_MALL_TAGLINE_AR,
   PARTNER_HERO_TAGLINE_NEARBY_AR,
   PARTNER_HERO_TAGLINE_TRUST_AR,
   PARTNER_HERO_CLOSING_TAGLINE_AR,
@@ -63,6 +65,7 @@ export const PARTNER_LANDING_FAQ_AR: readonly PartnerFaqItem[] = [
     q: 'لماذا أدخل الآن قبل اكتمال انتشار المنصة؟',
     a: 'الإدارة توسّع وصول المستخدمين على سوق جاهز من الصالونات — لا العكس. من يسبق في منطقته يبني موضعاً قبل اتساع الطلب، لا ينتظر ازدحاماً ثم يتأخر.',
   },
+  PARTNER_MALL_FAQ_AR,
   {
     q: 'هل الذهبي 150 ر.س يستحق مقارنة بإعلانات السوشيال؟',
     a: 'اسأل نفسك: كم دفعت على إعلان؟ كم تواصل حقيقي رجع؟ حلاق ماب يصلك لمستعلم في لحظة الاستعلام — زبون واحد إضافي شهرياً يغطي الذهبي في أغلب الحالات. لا نعد بعدد زبائن مضمون.',
@@ -97,10 +100,11 @@ export const PARTNER_LANDING_FAQ_AR: readonly PartnerFaqItem[] = [
 export const PARTNER_REGISTER_FAQ_AR = [
   PARTNER_LANDING_FAQ_AR[0],
   PARTNER_LANDING_FAQ_AR[2],
-  PARTNER_LANDING_FAQ_AR[6],
+  PARTNER_MALL_FAQ_AR,
   PARTNER_LANDING_FAQ_AR[7],
   PARTNER_LANDING_FAQ_AR[8],
   PARTNER_LANDING_FAQ_AR[9],
+  PARTNER_LANDING_FAQ_AR[10],
 ] as const;
 
 /** موضوعات سريعة — مدير المبيعات (واجهة + مكتب المبيعات) */
@@ -109,6 +113,7 @@ export const PARTNER_FIELD_SALES_QUICK_TOPICS = [
   { label: 'الوضع النظامي والتوثيق', prompt: 'اشرح لي الوضع النظامي الحالي للمنصة والأنشطة الرسمية والترخيص والتوثيق.' },
   { label: 'اعتراض السعر', prompt: 'كيف ترد على اعتراض «السعر غالي» لصالون متردد؟' },
   { label: 'ليش التواجد المبكر؟', prompt: 'أقنعني لماذا التواجد المبكر داخل المنصة مهم للحلاق المستثمر.' },
+  { label: 'المول الرقمي', prompt: 'ما معنى «المول الرقمي» ولماذا أحجز محلي الآن؟' },
   { label: 'الظهور عند الطلب', prompt: 'كيف يعمل الظهور عند الطلب فعلياً للصالون؟' },
   { label: 'أقرب حلاق في منطقتي', prompt: 'هل يظهر صالوني لمن يبحث عن «أقرب حلاق» أو «حلاق قريب» في منطقتي؟' },
   { label: 'حرية التشغيل', prompt: 'ماذا تعني حرية التشغيل في حلاق ماب — وهل في تجديد تلقائي؟' },
@@ -184,12 +189,14 @@ export const PARTNER_OBJECTION_HANDLERS_AR = [
 export const PARTNER_FIELD_SALES_PITCH_LINES_AR = [
   `✂️ ${PARTNER_HERO_TAGLINE_REPUTATION_AR}`,
   `🌊 ${PARTNER_EARLY_WAVE_TAGLINE_AR}`,
+  `🏢 ${PARTNER_MALL_TAGLINE_AR}`,
   `📍 ${PARTNER_HERO_TAGLINE_NEARBY_AR}`,
   '💼 الرفض يؤلم — الغياب أخطر: من لا يظهر لا يُختار أصلاً.',
   '🥇 الذهبي 150 ر.س — زبون واحد إضافي شهرياً يغطي التكلفة في أغلب الحالات.',
   '🏛️ الماسية + إضافة المكتب الخاص — مساعد داخلي + مناوب شات مترابطان.',
   '⭐ تقييم QR مرتبط بدعوة رسمية — سمعتك محمية من التقييمات الوهمية.',
   '🔒 لا عمولة على الحلاقة — العلاقة مع الزبون مباشرة 100%.',
+  '🚪 لا تجديد تلقائي — الخروج والتجديد بقرارك بعد انتهاء الحزمة.',
 ] as const;
 
 export const PARTNER_FIELD_SALES_DOCTRINE_AR = `
@@ -241,8 +248,14 @@ export const PARTNER_FIELD_SALES_DOCTRINE_AR = `
 【شعارات جاهزة — نوّع ولا تكرر واحداً】
 - «${PARTNER_HERO_TAGLINE_REPUTATION_AR}»
 - «${PARTNER_EARLY_WAVE_TAGLINE_AR}»
+- «${PARTNER_MALL_TAGLINE_AR}»
 - «${PARTNER_HERO_TAGLINE_NEARBY_AR}»
 - «${PARTNER_HERO_CLOSING_TAGLINE_AR}»
+
+【سردية المول الرقمي — طبقة إلحاح شركاء】
+- استعارة تجارية مألوفة: التجار يُسكَّنون ويجهّزون محلاتهم قبل اتساع دعوة المستعلمين.
+- الصياغة الآمنة: «مول رقمي لحيّك» — **ممنوع** «أكبر مول» أو وعد صدارة مضمونة أو عدد زبائن.
+- الظهور يبقى **عند الطلب** — المحل يُجهَّز؛ لا قائمة دائمة لكل زائر.
 `.trim();
 
 export function composePartnerFieldSalesKnowledgePack(): string {

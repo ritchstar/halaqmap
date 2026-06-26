@@ -57,6 +57,14 @@ import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { PartnerFreedomPillars } from '@/components/partner/PartnerFreedomPillars';
+import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
+import {
+  PARTNER_MALL_HERO_BADGE_AR,
+  PARTNER_MALL_HERO_CHIPS_AR,
+  PARTNER_MALL_HERO_LEAD_DESKTOP_AR,
+  PARTNER_MALL_HERO_LEAD_MOBILE_AR,
+  PARTNER_MALL_TAGLINE_AR,
+} from '@/config/partnerMallNarrativeCopy';
 import {
   PARTNER_FREEDOM_CLOSING_LINE_AR,
   PARTNER_FREEDOM_FEATURES_LEAD_AR,
@@ -784,8 +792,12 @@ export default function PartnerMarketingPreview() {
           <motion.div initial={{ opacity: 0, x: isMobile ? 0 : 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-              className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
-              <Sparkles className="h-3 w-3" /> {PARTNER_FREEDOM_HERO_BADGE_AR}
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
+              <Sparkles className="h-3 w-3" /> {PARTNER_MALL_HERO_BADGE_AR}
+            </motion.div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-[0.68rem] font-semibold text-emerald-700">
+              <Shield className="h-3 w-3" /> {PARTNER_FREEDOM_HERO_BADGE_AR}
             </motion.div>
 
             <h1 className="mb-6 text-[clamp(2.4rem,5.5vw,3.8rem)] font-black leading-[1.1] text-slate-950">
@@ -794,6 +806,10 @@ export default function PartnerMarketingPreview() {
                 {PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR}
               </span>
             </h1>
+
+            <p className="mb-4 text-lg font-bold leading-relaxed text-amber-800 md:text-xl">
+              {PARTNER_MALL_TAGLINE_AR}
+            </p>
 
             <p className="mb-5 text-lg font-bold leading-relaxed text-teal-800 md:text-xl">
               {PARTNER_HERO_LEAD_PRIMARY_AR}
@@ -849,6 +865,9 @@ export default function PartnerMarketingPreview() {
             {isMobile ? (
               <>
                 <p className="mb-5 max-w-lg text-[0.98rem] leading-8 text-slate-600">
+                  {PARTNER_MALL_HERO_LEAD_MOBILE_AR}
+                </p>
+                <p className="mb-5 max-w-lg text-[0.9rem] leading-8 text-slate-500">
                   {PARTNER_HERO_LEAD_MOBILE_AR}
                 </p>
                 <div className="mb-5 rounded-[1.35rem] border border-emerald-200 bg-white/92 p-4 shadow-sm">
@@ -860,6 +879,9 @@ export default function PartnerMarketingPreview() {
               </>
             ) : (
               <>
+                <p className="mb-6 max-w-xl text-base leading-relaxed text-slate-600">
+                  {PARTNER_MALL_HERO_LEAD_DESKTOP_AR}
+                </p>
                 <p className="mb-8 max-w-xl text-base leading-relaxed text-slate-600">
                   {PARTNER_TECHNICAL_PARTNER_HEADLINE}
                   <span className="mt-2 block text-[0.9rem] leading-relaxed text-slate-500">
@@ -873,6 +895,12 @@ export default function PartnerMarketingPreview() {
                 <PlatformTrustStrip variant="strip" tone="light" className="mb-8 max-w-xl" />
 
                 <div className="mb-8 flex flex-wrap gap-3">
+                  {PARTNER_MALL_HERO_CHIPS_AR.map((text) => (
+                    <div key={text} className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[0.75rem] text-amber-900">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                      {text}
+                    </div>
+                  ))}
                   {PARTNER_FREEDOM_HERO_CHIPS_AR.map((text) => (
                     <div key={text} className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[0.75rem] text-emerald-800">
                       <Shield className="h-3.5 w-3.5 text-emerald-600" />
@@ -1013,6 +1041,8 @@ export default function PartnerMarketingPreview() {
           </div>
         </div>
       </section>
+
+      <PartnerMallNarrativeSection compact={isMobile} />
 
       <PartnerFreedomPillars compact={isMobile} />
 

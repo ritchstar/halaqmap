@@ -5,14 +5,21 @@
  */
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, MessageCircle, Check, X, Star, Scissors, Shield, Zap, Users, ChevronLeft, ArrowLeft } from 'lucide-react';
+import { MapPin, Phone, MessageCircle, Check, X, Star, Scissors, Shield, Zap, Users, ChevronLeft, ArrowLeft, Building2 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PARTNER_EARLY_WAVE_SUBLINE_AR } from '@/config/partnerEarlyWaveCopy';
 import {
+  PARTNER_MALL_HERO_BADGE_AR,
+  PARTNER_MALL_HERO_CHIPS_AR,
+  PARTNER_MALL_HERO_LEAD_DESKTOP_AR,
+  PARTNER_MALL_HERO_TITLE_ACCENT_AR,
+  PARTNER_MALL_HERO_TITLE_AR,
+  PARTNER_MALL_TAGLINE_AR,
+} from '@/config/partnerMallNarrativeCopy';
+import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
+import {
   PARTNER_FREEDOM_HERO_BADGE_AR,
-  PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR,
-  PARTNER_FREEDOM_HERO_TITLE_AR,
 } from '@/config/partnerFreedomNarrativeCopy';
 import {
   PARTNER_HERO_CLOSING_TAGLINE_AR,
@@ -82,27 +89,36 @@ export default function PartnersB2BLanding() {
 
         <div className="max-w-5xl mx-auto text-center">
           {/* Badge */}
-          <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8" style={{ background: "rgba(13,148,136,0.12)", border: "1px solid rgba(13,148,136,0.35)", color: "#0D9488" }}>
+          <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4" style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.35)", color: "#D4AF37" }}>
+            <Building2 size={14} />
+            <span>{PARTNER_MALL_HERO_BADGE_AR}</span>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.05 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8" style={{ background: "rgba(13,148,136,0.12)", border: "1px solid rgba(13,148,136,0.35)", color: "#0D9488" }}>
             <Scissors size={14} />
             <span>{PARTNER_FREEDOM_HERO_BADGE_AR}</span>
           </motion.div>
 
           {/* Main title */}
           <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }} className="text-4xl md:text-6xl font-black leading-tight mb-6">
-            <span style={{ color: "#F8FAFC" }}>{PARTNER_FREEDOM_HERO_TITLE_AR}</span>
+            <span style={{ color: "#F8FAFC" }}>{PARTNER_MALL_HERO_TITLE_AR}</span>
             <br />
-            <span style={{ color: "#0D9488" }}>{PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR}</span>
+            <span style={{ color: "#D4AF37" }}>{PARTNER_MALL_HERO_TITLE_ACCENT_AR}</span>
           </motion.h1>
 
           {/* Subtitle */}
-          <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="text-xl md:text-2xl font-bold mb-4 leading-relaxed" style={{ color: "#D4AF37" }}>
+          <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="text-xl md:text-2xl font-bold mb-4 leading-relaxed" style={{ color: "#0D9488" }}>
+            {PARTNER_MALL_TAGLINE_AR}
+          </motion.p>
+
+          <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.22 }} className="text-lg md:text-xl font-bold mb-4 leading-relaxed" style={{ color: "#D4AF37" }}>
             {PARTNER_HERO_TAGLINE_REPUTATION_AR}
           </motion.p>
 
           {/* Description */}
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }} className="max-w-2xl mx-auto mb-6">
             <p className="text-base leading-relaxed mb-2" style={{ color: "#CBD5E1" }}>
-              ظهور عند الطلب · تواصل مباشر بلا عمولة · تحكم لحظي بمفتوح/مغلق — والخروج بلا تجديد تلقائي.
+              {PARTNER_MALL_HERO_LEAD_DESKTOP_AR}
             </p>
             <p className="text-base" style={{ color: "#94A3B8" }}>
               تدفع مقابل رخصة نفاذ رقمية — لا وساطة حجز ولا عقد يربطك.
@@ -116,7 +132,16 @@ export default function PartnersB2BLanding() {
           </motion.div>
 
           {/* Feature strip */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.45 }} className="flex flex-wrap justify-center gap-6 mb-12 text-sm font-semibold" style={{ color: "#94A3B8" }}>
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.45 }} className="flex flex-wrap justify-center gap-3 mb-8 text-sm font-semibold" style={{ color: "#94A3B8" }}>
+            {PARTNER_MALL_HERO_CHIPS_AR.map((f) => (
+              <span key={f} className="flex items-center gap-2 rounded-full px-3 py-1.5" style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.25)", color: "#D4AF37" }}>
+                <Check size={14} />
+                {f}
+              </span>
+            ))}
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.48 }} className="flex flex-wrap justify-center gap-6 mb-12 text-sm font-semibold" style={{ color: "#94A3B8" }}>
             {["لا عمولة", "لا تجديد تلقائي", "حرية تشغيل"].map((f, i) => (
               <span key={i} className="flex items-center gap-2">
                 <Check size={14} style={{ color: "#0D9488" }} />
@@ -150,6 +175,8 @@ export default function PartnersB2BLanding() {
           </motion.div>
         </div>
       </section>
+
+      <PartnerMallNarrativeSection variant="dark" />
 
       {/* ───── PROBLEM ───── */}
       {/* @section: problem */}

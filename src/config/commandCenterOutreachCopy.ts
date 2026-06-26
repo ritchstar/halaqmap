@@ -4,6 +4,7 @@ import {
 } from '@/config/onDemandVisibilityDoctrine';
 import { buildAbsoluteGrowthPitchDeckUrl } from '@/config/siteOrigin';
 import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+import { PARTNER_MALL_TAGLINE_AR } from '@/config/partnerMallNarrativeCopy';
 
 export type CommandCenterOutreachTierFit = 'bronze' | 'gold' | 'diamond' | 'mixed';
 export type CommandCenterOutreachVariant = 'initial' | 'followup';
@@ -48,6 +49,7 @@ export const COMMAND_CENTER_OUTREACH_PRELAUNCH_BODY_AR = [
   'معكم فريق حلاق ماب — منصة ربط ذكية بين طالب الخدمة ومقدّمها عبر `نظام الاستجابة الذكية`.',
   '',
   PARTNER_EARLY_WAVE_TAGLINE_AR,
+  PARTNER_MALL_TAGLINE_AR,
   '',
   'يمكنكم التسجيل على المنصة مباشرة: سجّل طلبك، أَشِر على التعهد القانوني والالتزامات المرافقة، اختر الباقة (برونزي · ذهبي · ماسي)، وأكمل الدفع — يُستكمل التفعيل بعد السداد دون رفع وثائق حكومية. «رخصة النفاذ» حزمة برمجية `B2B` للظهور عند الطلب، دون وساطة حجز أو عمولة على خدمة الحلاقة.',
   '',

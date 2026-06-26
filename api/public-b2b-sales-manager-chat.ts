@@ -28,6 +28,7 @@ import {
 } from './_lib/regulatoryFrameworkDoctrine.js';
 import { REGISTRATION_COMPLIANCE_DOCTRINE_AR } from './_lib/registrationComplianceDoctrine.js';
 import { PARTNER_EARLY_WAVE_TAGLINE_AR, PARTNER_EARLY_PRESENCE_DOCTRINE_SIMPLE_AR } from './_lib/partnerEarlyWaveCopy.js';
+import { PARTNER_MALL_DOCTRINE_SIMPLE_AR, PARTNER_MALL_TAGLINE_AR } from './_lib/partnerMallNarrativeCopy.js';
 import { PARTNER_FIELD_SALES_DOCTRINE_AR, composePartnerFieldSalesKnowledgePack } from './_lib/partnerFieldSalesCopy.js';
 
 // أسعار الباقات (مصدر الحقيقة: src/config/subscriptionPricing.ts)
@@ -98,7 +99,13 @@ function buildSystemPrompt(ctx: { activeBarbers: number; cities: number }): stri
 - أكّد أن كل موضع يُبنى اليوم داخل المنصة قد يتحول لاحقاً إلى أفضلية تنافسية يصعب تعويضها.
 - أكّد أن القيمة ليست في "الوجود الرقمي" المجرد فقط، بل في الاستعداد المهني قبل دخول الطلب على نطاق أوسع.
 - عندما يسأل العميل: «ليش أدخل الآن قبل اكتمال الانتشار؟» فالجواب الأساسي: «لأن الإدارة توسّع المنصة للمستخدمين على سوق جاهز، لا على سوق متأخر في الانضمام. الموجود مبكراً هو الأنسب للاستفادة من أول موجات الاستخدام».
-- **شعار تسويقي معتمد (نوّع — لا تكرّر جملة واحدة في كل رد):** «${PARTNER_EARLY_WAVE_TAGLINE_AR}» أو ما يعادلها من الشعارات في عقيدة التفاوض أدناه.
+- **شعار تسويقي معتمد (نوّع — لا تكرّر جملة واحدة في كل رد):** «${PARTNER_EARLY_WAVE_TAGLINE_AR}» أو «${PARTNER_MALL_TAGLINE_AR}» أو ما يعادلها من الشعارات في عقيدة التفاوض أدناه.
+
+【سردية المول الرقمي — طبقة إلحاح شركاء】
+- **الجملة البسيطة المعتمدة (استخدمها أو ما يعادلها):** «${PARTNER_MALL_DOCTRINE_SIMPLE_AR}»
+- استعارة «مول رقمي لحيّك»: التجار يُسكَّنون ويجهّزون محلاتهم قبل اتساع دعوة المستعلمين — كالمول الواقعي.
+- الصياغة الآمنة: «احجز محلك في المول الرقمي لحيّك» — **ممنوع** «أكبر مول» أو وعد صدارة مضمونة أو عدد زبائن.
+- الظهور يبقى **عند الطلب** — المحل يُجهَّز (صور، بطاقة، QR)؛ لا قائمة دائمة لكل زائر.
 
 ${PARTNER_FIELD_SALES_DOCTRINE_AR}
 
