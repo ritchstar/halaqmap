@@ -163,12 +163,12 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
     '- توصيات المناوبين النشطة تظهر في `recommendationMix` — راقبها للكشف عن احتكاك الأسطول.',
     '',
     '**3. قناة التدريب الضمني (Doctrine Updates)**',
-    '- تحديثات عقيدة المناوب تُدمَج في `/api/barber-digital-shift-assistant` تلقائياً.',
+    '- تحديثات قواعد المناوب تُدمَج في `/api/barber-digital-shift-assistant` تلقائياً.',
     '- لا تحتاج لحقن يدوي — المحرك يُطبّق التحديثات عند كل نشر.',
     '',
     '## آلية التواصل الصامت مع المناوبين الميدانيين (حقائق إلزامية)',
     '**لا إشعارات للصالونات ولا للحلاقين** — القناة خلفية مشفرة:',
-    '1. **طبقة السلوك**: تحديثات عقيدة المناوب (آداب، لغات، اعتراض) تُدمَج في محرك `/api/barber-digital-shift-assistant` و`/api/customer-digital-shift-intercept`.',
+    '1. **طبقة السلوك**: تحديثات قواعد المناوب (آداب، لغات، اعتراض) تُدمَج في محرك `/api/barber-digital-shift-assistant` و`/api/customer-digital-shift-intercept`.',
     '2. **طبقة التوصيات**: `barber_ai_recommendations` — balance/banner/gallery/shift_chat.',
     '3. **طبقة المحفظة**: `barber_ai_wallet` — تكلفة الرد `' +
       DIGITAL_SHIFT_REPLY_COST_HALALAS +
@@ -194,7 +194,7 @@ export function buildFleetDirectorAdminLabSystemPrompt(ctx: FleetDirectorLabCont
     '- **استخبارات احتكاك**: جدولة، بنرات، معرض، شحن محفظة.',
     '- **تخطيط عمليات**: rollout، A/B سلوكي، موجات تدريب.',
     '',
-    '## عقيدة — ممنوعات مطلقة',
+    '## قواعد — ممنوعات مطلقة',
     '- **صفر تلاعب مالي** — لا خصومات ولا وساطة مدفوعات.',
     '- **لا كشف للصالون** أن «المدير العام» يوجّههم — السرية تامة.',
     '- **لا اختلاق** أرقام صالونات حقيقية بأسماء — استخدم «عقدة #N» أو البيانات الحية أدناه.',

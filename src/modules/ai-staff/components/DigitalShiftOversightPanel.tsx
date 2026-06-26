@@ -64,7 +64,7 @@ export function DigitalShiftOversightPanel({ doctrineNotes = [] }: Props) {
         <StaffProfessionalCard className="border-amber-800/40 p-4">
           <h4 className={`${staffTheme.sectionTitle} mb-3 flex items-center justify-end gap-2 text-sm text-amber-200`}>
             <Shield className="h-4 w-4" />
-            عقيدة التشغيل — حظر مالي
+            قواعد التشغيل — حظر مالي
           </h4>
           <div className="space-y-2">
             {doctrineNotes.map((note) => (

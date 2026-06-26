@@ -25,7 +25,7 @@ export function PlatformStoryHighlights({ className, variant = 'default' }: Prop
             من الاستعلام إلى التواصل المباشر
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
-            ملخص سريع لعقيدة حلاق ماب — فلاتر خدمة وثقة للزائر، وحرية تشغيل للشريك.
+            ملخص سريع لنهج حلاق ماب — فلاتر خدمة وثقة للزائر، وحرية تشغيل للشريك.
           </p>
         </div>
         <Link

@@ -4,7 +4,7 @@ import {
   ZATCA_VOLUNTARY_LIMIT_SAR,
 } from './agents/zatcaTaxTypes.js';
 
-/** عقيدة التنسيق بين خازن 🪙 وخبير ZATCA 🛡️ — تُحقَن في محادثاتهما ومجلس الشركاء. */
+/** مبدأ التنسيق بين خازن 🪙 وخبير ZATCA 🛡️ — تُحقَن في محادثاتهما ومجلس الشركاء. */
 export const FINANCIAL_OFFICE_COORDINATION_DOCTRINE_AR = [
   '## المكتب المالي الموحّد — خازن 🪙 + خبير ZATCA 🛡️',
   '- **خازن**: التزامات التشغيل (Vercel/Supabase/OpenAI/…)، فواتير البنية التحتية، تواريخ التجديد، لقطات الفواتير → `platform_ops_billing_commitments`.',

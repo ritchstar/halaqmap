@@ -13,7 +13,7 @@ export const PULSE_MAP_ROUTE = '/radar';
 export const PULSE_MAP_PUBLIC_DISCLAIMER_AR =
   'النبض يعرض نشاطاً تشغيلياً مجهّلاً على مستوى المدينة — لا يتتبع أشخاصاً ولا يُظهر مواقعاً دقيقة للمستخدمين.';
 
-/** ربط النبض بعقيدة المنتج */
+/** ربط النبض بمنهجية المنتج */
 export const PULSE_MAP_DOCTRINE_LINE_AR =
   `مرتبط بـ${SMART_RESPONSE_SYSTEM_LABEL_AR} (\`On-Demand Visibility\`) — الظهور عند الطلب، لا إشغالاً دائماً للخريطة.`;
 

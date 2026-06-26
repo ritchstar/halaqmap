@@ -9,7 +9,7 @@ type Props = {
   compact?: boolean;
 };
 
-/** إخلاء مسؤولية + عقيدة الظهور عند الطلب — فوق الخريطة العامة */
+/** إخلاء مسؤولية + مبدأ الظهور عند الطلب — فوق الخريطة العامة */
 export function PulseMapPublicDisclaimer({ className, compact = false }: Props) {
   return (
     <div

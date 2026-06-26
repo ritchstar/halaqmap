@@ -43,7 +43,7 @@ export const PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE = LEGAL_ECOMMERCE_AUTH_FOOTER_L
 /** رابط التذييل إلى صفحة «من نحن» (محتوى تعريفي بالمؤسسة) */
 export const PLATFORM_OFFICIAL_ENTITY_ABOUT_LINK_LABEL = 'عن المؤسسة';
 
-/** تسجيل الحلاق — تحت العنوان — عقيدة المؤسس: سجّل طلبك */
+/** تسجيل الحلاق — تحت العنوان — مبدأ المؤسس: سجّل طلبك */
 export const PLATFORM_REGISTER_INTRO = PLATFORM_GROWTH_REGISTER_INTRO_AR.replace(/\*\*/g, '');
 
 /** من نحن — تحت عنوان الصفحة */
@@ -63,7 +63,7 @@ export const PLATFORM_SPECIALIZATION_THESIS_AR =
 export const PLATFORM_SPECIALIZATION_FILTER_LEDE_AR =
   'في منصة حلاق ماب، فلاتر الخدمة تساعد الباحث على إيجاد الحلاق المناسب قدر الإمكان — وفق بيانات الشركاء المتاحة واستعلامه.';
 
-/** عقيدة التخصص — فقرة موحّدة (B2B · B2C · من نحن) */
+/** مبدأ التخصص — فقرة موحّدة (B2B · B2C · من نحن) */
 export const PLATFORM_SPECIALIZATION_POSITIONING_AR = `${PLATFORM_SPECIALIZATION_THESIS_AR} ${PLATFORM_SPECIALIZATION_FILTER_LEDE_AR}`;
 
 export const PLATFORM_WHY_FEATURES_INTRO = PLATFORM_SPECIALIZATION_POSITIONING_AR;

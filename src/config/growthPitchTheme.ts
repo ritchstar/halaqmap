@@ -11,7 +11,7 @@ import type { GrowthPitchSlideAccent } from '@/config/growthPitchSlides';
 
 export const GROWTH_PITCH_DESIGN_CONTRACT_AR = [
   'النصوص مقفلة في growthPitchSlides.ts — المختص يجمّل ويرتّب فقط.',
-  'لا تغيير في عقيدة On-Demand أو صياغة B2C/B2B.',
+  'لا تغيير في منهجية On-Demand أو صياغة B2C/B2B.',
   'مسموح: typography، grid، أيقونات، خلفيات، تقسيم أعمدة، spacing، motion.',
   'ممنوع: تعديل strings، حذف bullets، إضافة claims تسويقية جديدة.',
 ] as const;

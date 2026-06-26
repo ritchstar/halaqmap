@@ -1,5 +1,5 @@
 /**
- * نصوص مسار الشركاء + عقيدة التفاوض — نسخة API
+ * نصوص مسار الشركاء + منهجية التفاوض — نسخة API
  * يُحدَّث بالتزامن مع src/config/partnerFieldSalesCopy.ts
  */
 import { PARTNER_EARLY_WAVE_TAGLINE_AR } from './partnerEarlyWaveCopy.js';
@@ -202,7 +202,7 @@ export const PARTNER_FIELD_SALES_PITCH_LINES_AR = [
 
 export const PARTNER_FIELD_SALES_DOCTRINE_AR = `
 ═══════════════════════════════════════════════════
-【عقيدة التفاوض الميداني — B2B · مُنقّحة】
+【منهجية التفاوض الميداني — B2B · مُنقّحة】
 ═══════════════════════════════════════════════════
 
 【الموقف التفاوضي】

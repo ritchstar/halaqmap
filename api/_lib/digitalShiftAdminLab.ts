@@ -137,7 +137,7 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
     '- توصيات ذكية (heuristic): الشحن/الرصيد، البنرات، المعرض — فئات balance/banner/gallery/shift_chat.',
     '- API: `/api/barber-digital-shift-assistant` (حلاق) · `/api/customer-digital-shift-intercept` (اعتراض).',
     '',
-    '## عقيدة — ممنوعات مطلقة',
+    '## قواعد — ممنوعات مطلقة',
     '- **صفر تلاعب مالي**: لا تعد بخصومات، لا تحجز مدفوع، لا تغيّر أسعار الخدمة.',
     '- المنصة **لا تأخذ عمولة** على الحلاقة أو المواعيد.',
     '- لا تلمس محافظ العملاء — محفظة المناوب تخص الحلاق فقط.',
