@@ -6,6 +6,11 @@ import { BarberMap } from '@/components/BarberMap';
 import { BarberCard } from '@/components/BarberCards';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  detectVisitorServiceIntent,
+  VISITOR_SERVICE_INTENTS,
+} from '@/lib/visitorServiceIntents';
 
 type Props = {
   userLocation: { lat: number; lng: number };
@@ -32,13 +37,25 @@ export function LandingSearchResults({
   onBarberPatch,
   onSelectBarber,
 }: Props) {
+  const isMobile = useIsMobile();
+  const activeIntentId = detectVisitorServiceIntent(filters);
+  const activeIntentLabel = VISITOR_SERVICE_INTENTS.find((i) => i.id === activeIntentId)?.shortLabel;
+
   return (
     <>
+      {!isMobile ? (
       <div className="mx-auto max-w-7xl px-5 py-4">
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
           <FilterBar filters={filters} onFilterChange={onFilterChange} />
         </div>
       </div>
+      ) : activeIntentLabel ? (
+        <div className="mx-auto max-w-7xl px-5 pt-3">
+          <p className="text-center text-[0.68rem] font-semibold text-teal-300/90">
+            استعلامك: {activeIntentLabel}
+          </p>
+        </div>
+      ) : null}
 
       <div className="mx-auto max-w-7xl px-5 pb-4">
         <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-teal-500/5">

@@ -20,7 +20,7 @@ import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
-import { MOBILE_QUERY_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
+import { MOBILE_QUERY_DOCK_CLEARANCE, MOBILE_SAFE_BOTTOM_MIN } from '@/lib/mobilePageShell';
 import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
 import {
   VISITOR_HERO_BADGE_AR,
@@ -360,24 +360,18 @@ function useLandingGeoSearch(
 
 function MobileSearchDock({
   filters,
-  userLocation,
   geoBusy,
   storedCoords,
-  remoteStatus,
   onIntentChange,
   onGeoSearch,
   onUseStored,
-  onViewResults,
 }: {
   filters: FilterState;
-  userLocation: { lat: number; lng: number } | null;
   geoBusy: boolean;
   storedCoords: { lat: number; lng: number } | null;
-  remoteStatus: 'unused' | 'loading' | 'ready' | 'error';
   onIntentChange: (next: FilterState, intentId: VisitorServiceIntentId) => void;
   onGeoSearch: () => void | Promise<void>;
   onUseStored: () => void;
-  onViewResults: () => void;
 }) {
   return (
     <div
@@ -387,11 +381,10 @@ function MobileSearchDock({
       <div className="mx-auto max-w-lg">
         <VisitorMobileQueryLens
           filters={filters}
-          hasLocation={Boolean(userLocation)}
+          hasLocation={false}
           onIntentChange={onIntentChange}
         />
 
-      {!userLocation ? (
         <div className="flex flex-col gap-2">
           {storedCoords ? (
             <button
@@ -414,28 +407,6 @@ function MobileSearchDock({
             {geoBusy ? 'يجري التحديد…' : 'ابحث الآن'}
           </button>
         </div>
-      ) : (
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onViewResults}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-teal-400/35 bg-teal-500/15 px-4 py-3.5 text-sm font-black text-teal-50 transition active:bg-teal-500/25"
-          >
-            <span className="h-2 w-2 animate-pulse rounded-full bg-teal-400" />
-            {remoteStatus === 'loading' ? 'يجري تصنيف الخدمات…' : 'عرض النتائج قرب موقعك'}
-          </button>
-          <button
-            type="button"
-            onClick={() => void onGeoSearch()}
-            disabled={geoBusy}
-            title="تحديث الموقع"
-            aria-label="تحديث الموقع"
-            className="flex h-[3.25rem] w-[3.25rem] shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-teal-200 transition active:bg-white/10 disabled:opacity-70"
-          >
-            <Navigation2 className={cn('h-5 w-5', geoBusy && 'animate-pulse')} />
-          </button>
-        </div>
-      )}
       </div>
     </div>
   );
@@ -912,7 +883,7 @@ export default function LandingPreview() {
         className={cn(
           'relative overflow-x-clip',
           isMobile
-            ? `pt-[calc(4.75rem+env(safe-area-inset-top))] ${MOBILE_QUERY_DOCK_CLEARANCE}`
+            ? `pt-[calc(4.75rem+env(safe-area-inset-top))] ${userLocation ? MOBILE_SAFE_BOTTOM_MIN : MOBILE_QUERY_DOCK_CLEARANCE}`
             : 'min-h-[100svh] pt-24',
         )}
       >
@@ -1302,7 +1273,7 @@ export default function LandingPreview() {
       <footer
         className={cn(
           'relative z-10 border-t border-white/8 bg-black/40 py-8 md:py-12',
-          isMobile && MOBILE_QUERY_DOCK_CLEARANCE,
+          isMobile && (userLocation ? MOBILE_SAFE_BOTTOM_MIN : MOBILE_QUERY_DOCK_CLEARANCE),
         )}
       >
         <div className="mx-auto max-w-6xl px-5">
@@ -1420,17 +1391,14 @@ export default function LandingPreview() {
         </div>
       </footer>
 
-      {isMobile && !selectedBarber ? (
+      {isMobile && !selectedBarber && !userLocation ? (
         <MobileSearchDock
           filters={filters}
-          userLocation={userLocation}
           geoBusy={geoBusy}
           storedCoords={storedCoords}
-          remoteStatus={remoteStatus}
           onIntentChange={handleVisitorIntentChange}
           onGeoSearch={runGeoSearch}
           onUseStored={handleUseStoredCoords}
-          onViewResults={scrollToResults}
         />
       ) : null}
 
