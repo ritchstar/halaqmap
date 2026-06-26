@@ -1,18 +1,20 @@
 /**
  * Build-sync watchdog — detects when the user's browser is rendering a stale
- * build (different `<meta name="halaqmap-build-commit">` from the live one)
- * and force-refreshes the service worker so the new Tactical UI can load.
+ * build (JS bundle commit ≠ live `index.html` meta) and force-refreshes the
+ * service worker so the new UI can load.
  *
  * Triggered on:
  *  - App boot
  *  - `visibilitychange` (returning to tab after a deploy)
  *  - 10-minute polling interval
  */
+import { APP_BUILD } from '@/lib/appBuild';
 
 const META_COMMIT = 'halaqmap-build-commit';
 const META_BUILD_TIME = 'halaqmap-build-time';
 const BUILD_STAMP_ENDPOINT = '/index.html';
 const POLL_MS = 10 * 60 * 1000;
+const AUTO_RELOAD_GUARD_PREFIX = 'hm-build-sync-auto-reloaded:';
 
 function readMetaContent(name: string): string | null {
   if (typeof document === 'undefined') return null;
@@ -79,31 +81,48 @@ const AUTO_RELOAD_GUARD = 'hm-build-sync-auto-reloaded';
 let lastChecked = 0;
 let inFlight: Promise<void> | null = null;
 
+function reloadGuardKey(liveCommit: string | null): string {
+  return `${AUTO_RELOAD_GUARD_PREFIX}${liveCommit || 'unknown'}`;
+}
+
 async function checkOnce(): Promise<void> {
   if (typeof window === 'undefined') return;
   if (Date.now() - lastChecked < 30_000) return;
   lastChecked = Date.now();
 
-  // لا حلقة reload — مرة واحدة كحد أقصى لكل جلسة
-  if (sessionStorage.getItem(AUTO_RELOAD_GUARD)) return;
-
+  const runningCommit = APP_BUILD.commit?.trim() || null;
   const bakedCommit = readMetaContent(META_COMMIT);
   const bakedBuildTime = readMetaContent(META_BUILD_TIME);
-  if (!bakedCommit && !bakedBuildTime) return;
 
   const live = await fetchLiveBuildStamp();
   if (!live.commit && !live.buildTime) return;
 
-  const commitMismatch = bakedCommit && live.commit && bakedCommit !== live.commit;
-  const buildTimeMismatch =
-    bakedBuildTime && live.buildTime && bakedBuildTime !== live.buildTime;
+  const guardKey = reloadGuardKey(live.commit);
+  if (sessionStorage.getItem(guardKey)) return;
 
-  if (commitMismatch || buildTimeMismatch) {
+  // Stale JS bundle with fresh HTML is the common PWA failure mode after deploy.
+  const staleJsBundle =
+    Boolean(runningCommit && live.commit && runningCommit !== live.commit);
+  const staleHtmlShell =
+    Boolean(bakedCommit && live.commit && bakedCommit !== live.commit);
+  const buildTimeMismatch =
+    Boolean(bakedBuildTime && live.buildTime && bakedBuildTime !== live.buildTime);
+
+  if (staleJsBundle || staleHtmlShell || buildTimeMismatch) {
     console.info(
       '[halaqmap] Build mismatch detected — reloading to pick up latest UI',
-      { baked: { bakedCommit, bakedBuildTime }, live },
+      {
+        runningCommit,
+        bakedCommit,
+        bakedBuildTime,
+        live,
+        staleJsBundle,
+        staleHtmlShell,
+      },
     );
-    sessionStorage.setItem(AUTO_RELOAD_GUARD, '1');
+    sessionStorage.setItem(guardKey, '1');
+    // Legacy guard from older builds — avoid blocking a fresh reload.
+    sessionStorage.removeItem(AUTO_RELOAD_GUARD);
     await performHardReload();
   }
 }

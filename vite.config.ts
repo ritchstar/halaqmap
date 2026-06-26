@@ -51,7 +51,7 @@ function indexHtmlAssetCacheBustPlugin(): Plugin {
     apply: 'build',
     enforce: 'post',
     transformIndexHtml(html) {
-      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '4').trim();
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '5').trim();
       const q = raw.length > 0 ? raw : '2';
       const suffix = `?v=${encodeURIComponent(q)}`;
       let out = html

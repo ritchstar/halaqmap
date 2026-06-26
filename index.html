@@ -32,25 +32,38 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v7';
+          var flag = 'hm-sw-reset-v8';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v7');
           localStorage.removeItem('hm-sw-reset-v6');
           localStorage.removeItem('hm-sw-reset-v5');
           localStorage.removeItem('hm-sw-reset-v3');
           localStorage.removeItem('hm-sw-reset-v2');
           sessionStorage.removeItem('hm-chunk-recover');
           sessionStorage.removeItem('hm-build-sync-auto-reloaded');
+          var reloadFlag = 'hm-sw-reset-v8-reload';
+          var tasks = [];
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function (regs) {
-              return Promise.all(regs.map(function (r) { return r.unregister(); }));
-            });
+            tasks.push(
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+              })
+            );
           }
           if ('caches' in window) {
-            caches.keys().then(function (keys) {
-              return Promise.all(keys.map(function (k) { return caches.delete(k); }));
-            });
+            tasks.push(
+              caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              })
+            );
           }
+          Promise.all(tasks).then(function () {
+            if (!sessionStorage.getItem(reloadFlag)) {
+              sessionStorage.setItem(reloadFlag, '1');
+              window.location.reload();
+            }
+          });
         } catch (e) {}
       })();
     </script>
