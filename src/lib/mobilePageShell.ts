@@ -6,9 +6,9 @@ export const MOBILE_SAFE_TOP = 'pt-[env(safe-area-inset-top)]';
 
 export const MOBILE_SAFE_BOTTOM_MIN = 'pb-[max(1rem,env(safe-area-inset-bottom,0px))]';
 
-/** Fixed bottom dock with query lens — LandingPreview mobile */
+/** Fixed bottom dock with query lens — LandingPreview mobile (filters + CTA) */
 export const MOBILE_QUERY_DOCK_CLEARANCE =
-  'pb-[calc(13.5rem+env(safe-area-inset-bottom,0px))]';
+  'pb-[calc(18rem+env(safe-area-inset-bottom,0px))]';
 
 /** Legacy dock clearance (simple search bar) */
 export const MOBILE_DOCK_CLEARANCE = MOBILE_QUERY_DOCK_CLEARANCE;

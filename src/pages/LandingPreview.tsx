@@ -627,6 +627,25 @@ export default function LandingPreview() {
     setStoredCoords(readStoredUserCoords());
   }, []);
 
+  const mobilePreSearch = isMobile && !userLocation;
+
+  useEffect(() => {
+    if (!mobilePreSearch) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyBg = body.style.backgroundColor;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    body.style.backgroundColor = 'oklch(0.10 0.03 254)';
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      body.style.backgroundColor = prevBodyBg;
+    };
+  }, [mobilePreSearch]);
+
   const scrollToResults = useCallback(() => {
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
@@ -709,7 +728,12 @@ export default function LandingPreview() {
   return (
     <div
       dir="rtl"
-      className="platform-dark platform-ambient relative overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100 md:min-h-screen"
+      className={cn(
+        'platform-dark platform-ambient relative overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100',
+        mobilePreSearch
+          ? 'fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden'
+          : 'md:min-h-screen',
+      )}
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
     >
@@ -883,7 +907,13 @@ export default function LandingPreview() {
         className={cn(
           'relative overflow-x-clip',
           isMobile
-            ? `pt-[calc(4.75rem+env(safe-area-inset-top))] ${userLocation ? MOBILE_SAFE_BOTTOM_MIN : MOBILE_QUERY_DOCK_CLEARANCE}`
+            ? cn(
+                'pt-[calc(4.75rem+env(safe-area-inset-top))]',
+                userLocation
+                  ? MOBILE_SAFE_BOTTOM_MIN
+                  : 'min-h-0 flex-1 overflow-y-auto overscroll-none',
+                !userLocation && MOBILE_QUERY_DOCK_CLEARANCE,
+              )
             : 'min-h-[100svh] pt-24',
         )}
       >
@@ -1269,11 +1299,12 @@ export default function LandingPreview() {
       </section>
       ) : null}
 
-      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      {/* ── Footer — مخفي على الجوال قبل الاستعلام (يمنع التمدد اللانهائي) ── */}
+      {!mobilePreSearch ? (
       <footer
         className={cn(
           'relative z-10 border-t border-white/8 bg-black/40 py-8 md:py-12',
-          isMobile && (userLocation ? MOBILE_SAFE_BOTTOM_MIN : MOBILE_QUERY_DOCK_CLEARANCE),
+          isMobile && MOBILE_SAFE_BOTTOM_MIN,
         )}
       >
         <div className="mx-auto max-w-6xl px-5">
@@ -1390,6 +1421,7 @@ export default function LandingPreview() {
           </div>
         </div>
       </footer>
+      ) : null}
 
       {isMobile && !selectedBarber && !userLocation ? (
         <MobileSearchDock
