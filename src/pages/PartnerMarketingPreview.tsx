@@ -1073,7 +1073,7 @@ export default function PartnerMarketingPreview() {
             {[
               { step: '١', icon: Scissors, title: 'أكمل نموذج التسجيل', desc: 'بيانات صالونك الأساسية: الاسم، الموقع، الخدمات، صور الواجهة — في دقائق.', color: 'from-amber-500 to-yellow-500' },
               { step: '٢', icon: Crown, title: 'اختر حزمتك', desc: 'برونزي (١٠٠ ر.س) · ذهبي (١٥٠ ر.س) · ماسي (٢٠٠ ر.س) — حزم شهرية مسبقة الدفع وفق السياسة الحالية.', color: 'from-violet-500 to-purple-500' },
-              { step: '٣', icon: Shield, title: 'ادفع بأمان', desc: 'عبر بوابة ميسر الآمنة (مدى · فيزا · ماستركارد) — اتصال HTTPS/TLS، مسبقة الدفع، لا تجديد تلقائي.', color: 'from-teal-500 to-cyan-500' },
+              { step: '٣', icon: Shield, title: 'ادفع بأمان', desc: 'عبر بوابتي دفع آمنتين ومعتمدتين: بنك الأول (SAB) ثم ميسر (مدى · فيزا · ماستركارد) — اتصال HTTPS/TLS، مسبقة الدفع، لا تجديد تلقائي.', color: 'from-teal-500 to-cyan-500' },
               { step: '٤', icon: Wifi, title: 'يبدأ التفعيل', desc: 'بعد نجاح السداد يبدأ تفعيل صالونك وفق حالة الطلب داخل النظام.', color: 'from-emerald-500 to-green-500' },
             ].map((step, i) => (
               <motion.div
