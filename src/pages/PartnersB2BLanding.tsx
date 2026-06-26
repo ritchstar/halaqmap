@@ -18,6 +18,7 @@ import {
   PARTNER_MALL_TAGLINE_AR,
 } from '@/config/partnerMallNarrativeCopy';
 import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
+import { PartnerOwnerWatchSpotlight } from '@/components/partner/PartnerOwnerWatchSpotlight';
 import {
   PARTNER_FREEDOM_HERO_BADGE_AR,
 } from '@/config/partnerFreedomNarrativeCopy';
@@ -177,6 +178,8 @@ export default function PartnersB2BLanding() {
       </section>
 
       <PartnerMallNarrativeSection variant="dark" />
+
+      <PartnerOwnerWatchSpotlight variant="dark" />
 
       {/* ───── PROBLEM ───── */}
       {/* @section: problem */}
@@ -343,6 +346,7 @@ export default function PartnersB2BLanding() {
                     { ok: true, text: "تقييمات موثقة عبر QR" },
                     { ok: true, text: "واتساب + شات مباشر (60 دقيقة)" },
                     { ok: true, text: "لوحة تحكم: صور، أسعار، أوقات العمل" },
+                    { ok: true, text: "غرفة المراقبة للمالك — تابع المحل من جوالك" },
                     { ok: false, text: "جدولة المواعيد" },
                   ].map((f, i) => (
                     <li key={i} className={`flex items-start gap-2 ${!f.ok ? "opacity-40" : ""}`}>
@@ -375,6 +379,7 @@ export default function PartnersB2BLanding() {
                     { ok: true, text: "معرض حتى 40 صورة + فيديو مباشر" },
                     { ok: true, text: "دعم متعدد اللغات" },
                     { ok: true, text: "لوحة تحكم كاملة" },
+                    { ok: true, special: true, text: "غرفة مراقبة متقدمة — نبض + تنبيهات المناوب ✦" },
                     { ok: true, special: true, text: "جدولة المواعيد من اللوحة ✦" },
                     { ok: true, text: "خدمة منزلية + شات بوت (اختياري)" },
                   ].map((f, i) => (

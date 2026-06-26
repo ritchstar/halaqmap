@@ -58,8 +58,12 @@ import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFoot
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { PartnerFreedomPillars } from '@/components/partner/PartnerFreedomPillars';
 import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
+import { PartnerOwnerWatchSpotlight } from '@/components/partner/PartnerOwnerWatchSpotlight';
 import {
-  PARTNER_MALL_HERO_BADGE_AR,
+  OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
+  OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
+} from '@/config/ownerWatchFeatureCopy';
+import {
   PARTNER_MALL_HERO_CHIPS_AR,
   PARTNER_MALL_HERO_LEAD_DESKTOP_AR,
   PARTNER_MALL_HERO_LEAD_MOBILE_AR,
@@ -1044,6 +1048,8 @@ export default function PartnerMarketingPreview() {
 
       <PartnerMallNarrativeSection compact={isMobile} />
 
+      <PartnerOwnerWatchSpotlight compact={isMobile} />
+
       <PartnerFreedomPillars compact={isMobile} />
 
       {/* ── Technical partner doctrine ───────────────────────────────────── */}
@@ -1175,6 +1181,7 @@ export default function PartnerMarketingPreview() {
                 'متابعة داخلية منظّمة داخل الحساب',
                 'خدمة كبار السن وذوي الاحتياجات الخاصة',
                 'QR تقييم موثّق + رابط الصالون',
+                OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
               ]}
             />
 
@@ -1192,6 +1199,7 @@ export default function PartnerMarketingPreview() {
                 'شات مع الزبائن عبر واتساب ذكي',
                 'معرض حتى 40 صورة',
                 'تحليلات مفصّلة + تقارير أداء متقدمة',
+                OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
                 `${DIAMOND_PRODUCT_STANDARD_LABEL_AR} | +${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س إضافة المكتب الخاص 🏛️`,
               ]}
             />
@@ -1219,7 +1227,7 @@ export default function PartnerMarketingPreview() {
               className="text-3xl font-black text-slate-900 md:text-4xl">
               هكذا يظهر صالونك
             </motion.h2>
-            <p className="mt-3 text-slate-600">معاينة سريعة للبنرات الثلاث — التفاصيل الكاملة للمناوب والمكتب في صفحة المعاينة</p>
+            <p className="mt-3 text-slate-600">معاينة سريعة للبنرات — وغرفة المراقبة للمالك والمناوب والمكتب في صفحة المعاينة</p>
             <p className="mx-auto mt-2 max-w-2xl text-xs leading-relaxed text-violet-700/80">{PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE}</p>
           </div>
 
@@ -1235,7 +1243,7 @@ export default function PartnerMarketingPreview() {
             ))}
           </div>
 
-          <div className="mt-12 grid gap-4 md:grid-cols-2">
+          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {PARTNER_PRODUCT_HUB_SUMMARY_CARDS.map((card) => (
               <button
                 key={card.id}

@@ -14,9 +14,11 @@ import {
   PARTNER_BANNERS_PREVIEW_TIERS,
   PARTNER_FEATURE_PREVIEW_DASHBOARD,
   PARTNER_FEATURE_PREVIEW_DIGITAL_SHIFT,
+  PARTNER_FEATURE_PREVIEW_OWNER_WATCH,
   PARTNER_FEATURE_PREVIEW_PRIVATE_OFFICE,
   PARTNER_PRODUCT_HUB_CTA,
   PARTNER_PRODUCT_HUB_INTRO,
+  PARTNER_PRODUCT_HUB_OWNER_WATCH_NUDGE_AR,
   PARTNER_PRODUCT_HUB_SECTION_IDS,
   PARTNER_PRODUCT_HUB_SECTIONS,
   PARTNER_PRODUCT_HUB_TAGLINE,
@@ -239,6 +241,51 @@ export default function PartnerBannersPreviewLanding() {
             </ul>
             <p className="rounded-xl border border-cyan-100 bg-cyan-50/90 px-3.5 py-2.5 text-[0.72rem] font-semibold leading-relaxed text-cyan-950">
               {PARTNER_FEATURE_PREVIEW_DASHBOARD.tierNote}
+            </p>
+          </motion.div>
+        </motion.section>
+
+        <motion.section
+          id={PARTNER_PRODUCT_HUB_SECTION_IDS.ownerWatch}
+          initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.55 }}
+          className="scroll-mt-36 grid items-center gap-8 rounded-[1.75rem] border border-amber-200 bg-gradient-to-br from-amber-50/90 to-white p-6 shadow-[0_20px_48px_rgba(245,158,11,0.10)] lg:grid-cols-2 lg:gap-12 lg:p-8"
+        >
+          <div className="order-2 rounded-2xl border border-amber-100 bg-white p-5 shadow-inner lg:order-1">
+            <p className="text-[0.65rem] font-black tracking-[0.14em] text-amber-700">محاكاة — قراءة فقط</p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {[
+                { label: 'حالة المحل', value: 'مفتوح الآن', tone: 'text-emerald-700' },
+                { label: 'محادثات نشطة', value: '٣', tone: 'text-cyan-700' },
+                { label: 'تنبيهات', value: '١', tone: 'text-amber-700' },
+                { label: 'نبض تشغيلي', value: 'ماسي', tone: 'text-violet-700' },
+              ].map((item) => (
+                <div key={item.label} className="rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+                  <p className="text-[0.62rem] text-slate-500">{item.label}</p>
+                  <p className={cn('mt-1 text-sm font-black', item.tone)}>{item.value}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-[0.68rem] leading-relaxed text-slate-500">
+              لا تُعرض نصوص رسائل الزبائن — إشراف تشغيلي للمالك فقط.
+            </p>
+          </div>
+          <motion.div className="order-1 space-y-5 lg:order-2">
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900">
+              {PARTNER_FEATURE_PREVIEW_OWNER_WATCH.eyebrow}
+            </span>
+            <h2 className="text-xl font-extrabold leading-snug text-slate-950 md:text-2xl">
+              {PARTNER_FEATURE_PREVIEW_OWNER_WATCH.title}
+            </h2>
+            {PARTNER_FEATURE_PREVIEW_OWNER_WATCH.paragraphs.map((p) => (
+              <p key={p} className="text-sm leading-7 text-slate-600">
+                {p}
+              </p>
+            ))}
+            <p className="rounded-xl border border-amber-100 bg-amber-50/90 px-3.5 py-2.5 text-[0.72rem] font-semibold leading-relaxed text-amber-950">
+              {PARTNER_PRODUCT_HUB_OWNER_WATCH_NUDGE_AR}
             </p>
           </motion.div>
         </motion.section>

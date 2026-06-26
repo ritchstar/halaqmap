@@ -23,6 +23,7 @@ import { OWNER_WATCH_UPGRADE_NUDGE_AR } from '@/config/ownerWatchFeatureCopy';
 export const PARTNER_PRODUCT_HUB_SECTION_IDS = {
   banners: 'hub-banners',
   dashboard: 'hub-dashboard',
+  ownerWatch: 'hub-owner-watch',
   diamondCompare: 'hub-diamond-compare',
   digitalShift: 'hub-digital-shift',
   privateOffice: 'hub-private-office',
@@ -38,6 +39,7 @@ export type PartnerProductHubSection = {
 export const PARTNER_PRODUCT_HUB_SECTIONS: readonly PartnerProductHubSection[] = [
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.banners, label: 'البنرات', shortLabel: 'بنرات' },
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.dashboard, label: 'لوحة التحكم', shortLabel: 'لوحة' },
+  { id: PARTNER_PRODUCT_HUB_SECTION_IDS.ownerWatch, label: 'غرفة المراقبة', shortLabel: 'مراقبة' },
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.diamondCompare, label: 'مقارنة الماسي', shortLabel: 'مقارنة' },
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.digitalShift, label: 'المناوب الذكي', shortLabel: 'مناوب' },
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.privateOffice, label: 'المكتب الخاص', shortLabel: 'مكتب' },
@@ -52,7 +54,7 @@ export const PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE =
   `إضافة المكتب الخاص = مساعد داخلي 🏛️ + مناوب شات 🌙 — للماسي فقط (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة)`;
 
 export const PARTNER_PRODUCT_HUB_INTRO =
-  `${PARTNER_TECHNICAL_PARTNER_COMMITMENT} محاكاة البنرات، لوحة التحكم، والمكتب الخاص — في صفحة واحدة مفهرسة.`;
+  `${PARTNER_TECHNICAL_PARTNER_COMMITMENT} محاكاة البنرات، لوحة التشغيل، غرفة المراقبة للمالك، والمكتب الخاص — في صفحة واحدة مفهرسة.`;
 
 export type PartnerTierComparisonColumn = {
   id: string;
@@ -116,6 +118,13 @@ export const PARTNER_TIER_COMPARISON_COLUMNS: readonly PartnerTierComparisonColu
 ];
 
 export const PARTNER_PRODUCT_HUB_SUMMARY_CARDS = [
+  {
+    id: 'owner-watch',
+    emoji: '👁️',
+    title: 'غرفة المراقبة للمالك',
+    desc: 'تابع المحل من جوالك — حالة، نشاط، تنبيهات — قراءة فقط بلا نصوص زبائن. رابط في بريد التفعيل.',
+    sectionId: PARTNER_PRODUCT_HUB_SECTION_IDS.ownerWatch,
+  },
   {
     id: 'shift',
     emoji: '🌙',
