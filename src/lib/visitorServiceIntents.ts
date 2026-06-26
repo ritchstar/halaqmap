@@ -26,6 +26,20 @@ export const VISITOR_SERVICE_INTENTS: VisitorServiceIntentDef[] = [
   { id: 'top_rated', label: 'تقييم 4.5+', shortLabel: 'الأعلى تقييماً', emoji: '⭐' },
 ];
 
+/** ترتيب عدسة الجوال — أساس (3) ثم تخصّص (4) بلا تمرير */
+export const VISITOR_MOBILE_QUERY_PRIMARY_IDS = [
+  'near_open',
+  'home_visit',
+  'top_rated',
+] as const satisfies readonly VisitorServiceIntentId[];
+
+export const VISITOR_MOBILE_QUERY_REFINE_IDS = [
+  'elderly_care',
+  'groom_prep',
+  'children_specialist',
+  'mens_grooming',
+] as const satisfies readonly VisitorServiceIntentId[];
+
 const DEFAULT_MAX_KM = 1;
 
 function baseFilters(maxDistance = DEFAULT_MAX_KM): FilterState {

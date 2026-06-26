@@ -20,7 +20,7 @@ import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
-import { MOBILE_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
+import { MOBILE_QUERY_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
 import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
 import {
   VISITOR_HERO_BADGE_AR,
@@ -30,6 +30,7 @@ import {
   VISITOR_HERO_TITLE_AR,
 } from '@/config/visitorLandingCopy';
 import { VisitorServiceIntentRail } from '@/components/landing/VisitorServiceIntentRail';
+import { VisitorMobileQueryLens } from '@/components/landing/VisitorMobileQueryLens';
 import { VisitorTrustTriad } from '@/components/landing/VisitorTrustTriad';
 import { VisitorServiceSpotlight } from '@/components/landing/VisitorServiceSpotlight';
 import {
@@ -358,29 +359,40 @@ function useLandingGeoSearch(
 }
 
 function MobileSearchDock({
+  filters,
   userLocation,
   geoBusy,
   storedCoords,
   remoteStatus,
+  onIntentChange,
   onGeoSearch,
   onUseStored,
   onViewResults,
 }: {
+  filters: FilterState;
   userLocation: { lat: number; lng: number } | null;
   geoBusy: boolean;
   storedCoords: { lat: number; lng: number } | null;
   remoteStatus: 'unused' | 'loading' | 'ready' | 'error';
+  onIntentChange: (next: FilterState, intentId: VisitorServiceIntentId) => void;
   onGeoSearch: () => void | Promise<void>;
   onUseStored: () => void;
   onViewResults: () => void;
 }) {
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-[60] border-t border-teal-400/20 bg-[#020912]/96 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-[60] border-t border-teal-400/20 bg-[#020912]/97 px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
       dir="rtl"
     >
+      <div className="mx-auto max-w-lg">
+        <VisitorMobileQueryLens
+          filters={filters}
+          hasLocation={Boolean(userLocation)}
+          onIntentChange={onIntentChange}
+        />
+
       {!userLocation ? (
-        <div className="mx-auto flex max-w-lg flex-col gap-2">
+        <div className="flex flex-col gap-2">
           {storedCoords ? (
             <button
               type="button"
@@ -403,7 +415,7 @@ function MobileSearchDock({
           </button>
         </div>
       ) : (
-        <div className="mx-auto flex max-w-lg gap-2">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={onViewResults}
@@ -424,6 +436,7 @@ function MobileSearchDock({
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -899,7 +912,7 @@ export default function LandingPreview() {
         className={cn(
           'relative overflow-x-clip',
           isMobile
-            ? 'pt-[calc(4.75rem+env(safe-area-inset-top))] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]'
+            ? `pt-[calc(4.75rem+env(safe-area-inset-top))] ${MOBILE_QUERY_DOCK_CLEARANCE}`
             : 'min-h-[100svh] pt-24',
         )}
       >
@@ -993,18 +1006,6 @@ export default function LandingPreview() {
                   </motion.button>
                 </div>
               )}
-            </div>
-            ) : null}
-
-            {isMobile ? (
-            <div className="mb-3">
-              <VisitorServiceIntentRail
-                filters={filters}
-                hasLocation={Boolean(userLocation)}
-                compact
-                onIntentChange={handleVisitorIntentChange}
-                onNeedLocation={handleNeedLocation}
-              />
             </div>
             ) : null}
 
@@ -1301,7 +1302,7 @@ export default function LandingPreview() {
       <footer
         className={cn(
           'relative z-10 border-t border-white/8 bg-black/40 py-8 md:py-12',
-          isMobile && MOBILE_DOCK_CLEARANCE,
+          isMobile && MOBILE_QUERY_DOCK_CLEARANCE,
         )}
       >
         <div className="mx-auto max-w-6xl px-5">
@@ -1421,10 +1422,12 @@ export default function LandingPreview() {
 
       {isMobile && !selectedBarber ? (
         <MobileSearchDock
+          filters={filters}
           userLocation={userLocation}
           geoBusy={geoBusy}
           storedCoords={storedCoords}
           remoteStatus={remoteStatus}
+          onIntentChange={handleVisitorIntentChange}
           onGeoSearch={runGeoSearch}
           onUseStored={handleUseStoredCoords}
           onViewResults={scrollToResults}

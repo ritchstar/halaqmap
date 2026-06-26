@@ -19,6 +19,13 @@ export const VISITOR_INTENT_RAIL_HINT_NO_LOCATION_AR = 'ثم حدّد موقعك
 
 export const VISITOR_INTENT_RAIL_HINT_WITH_LOCATION_AR = 'تُطبَّق فوراً على النتائج.';
 
+/** عدسة الاستعلام — الشريط السفلي على الجوال */
+export const VISITOR_MOBILE_QUERY_KICKER_AR = 'استعلامك';
+
+export const VISITOR_MOBILE_QUERY_PRIMARY_AR = 'الأساس';
+
+export const VISITOR_MOBILE_QUERY_REFINE_AR = 'تخصّص';
+
 export const VISITOR_TRUST_TRIAD = [
   {
     id: 'direct',
