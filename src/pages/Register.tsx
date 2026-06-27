@@ -9,7 +9,6 @@ import { RegistrationForm } from '@/components/RegistrationForm';
 import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundary';
 import { ROUTE_PATHS } from '@/lib/index';
 import { Scissors, Shield, ChevronRight } from 'lucide-react';
-import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
 import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 import { PARTNER_REGISTER_PAGE } from '@/lib/partnerMarketingCopy';
 
@@ -130,15 +129,6 @@ export default function Register() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.15 }}
-          className="mx-auto mt-8 max-w-4xl"
-        >
-          <PlatformGrowthProgramsPanel variant="register" activationState="pre_activation" />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.12 }}
           className="mx-auto mt-8 max-w-3xl"
         >
           <PartnerLandingFaqAccordion

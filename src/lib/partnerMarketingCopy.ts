@@ -50,7 +50,7 @@ export {
   PARTNER_TIER_MARKETING_HOOKS_AR,
 } from '@/config/partnerFieldSalesCopy';
 
-/** فقرات مختصرة لصفحة التسجيل — التفاصيل في FAQ ولوحة مدار·نبض·محيط */
+/** فقرات مختصرة لصفحة التسجيل — التفاصيل في FAQ */
 export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
   PLATFORM_GROWTH_REGISTER_INTRO_AR.replace(/\*\*/g, ''),
   PARTNER_HERO_LEAD_PRIMARY_AR,
