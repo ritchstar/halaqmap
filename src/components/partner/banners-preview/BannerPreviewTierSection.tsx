@@ -9,13 +9,14 @@ import {
 } from '@/config/partnerBannersPreviewCopy';
 import { ROUTE_PATHS } from '@/lib';
 import { cn } from '@/lib/utils';
-import { EndUserBarberBannerSim } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
+import { EndUserBarberBannerSim, type BannerPreviewMode } from '@/components/partner/banners-preview/EndUserBarberBannerSim';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRef } from 'react';
 
 type Props = {
   tier: BannerPreviewTierConfig;
   index: number;
+  bannerMode?: BannerPreviewMode;
   showCta?: boolean;
   className?: string;
 };
@@ -24,16 +25,18 @@ type Props = {
 export function BannerPreviewTierSection({
   tier,
   index,
+  bannerMode = 'sim',
   showCta = true,
   className,
 }: Props) {
   const reduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
+  const isStatic = bannerMode === 'static';
   const sectionRef = useRef<HTMLElement | null>(null);
   const inView = useInView(sectionRef, { once: false, margin: '240px 0px 240px 0px' });
   const isDiamond = tier.id === 'diamond';
-  const simulationActive = !isMobile || inView || index === 0;
-  const perfMode = isMobile ? 'lite' : 'full';
+  const simulationActive = !isStatic && (!isMobile || inView || index === 0);
+  const perfMode = isStatic ? 'full' : isMobile ? 'lite' : 'full';
 
   return (
     <motion.section
@@ -52,6 +55,7 @@ export function BannerPreviewTierSection({
       >
         <EndUserBarberBannerSim
           tier={tier}
+          mode={bannerMode}
           startDelayMs={index * 1400}
           active={simulationActive}
           performanceMode={perfMode}

@@ -996,12 +996,12 @@ export default function PartnerMarketingPreview() {
                   transition={{ duration: 0.3 }}
                   className="overflow-visible"
                 >
-                  <EndUserBarberBannerSim tier={activeBannerTier} startDelayMs={600} />
+                  <EndUserBarberBannerSim tier={activeBannerTier} mode="static" />
                 </motion.div>
               );
             })()}
             <p className="mt-3 text-center text-[0.65rem] text-slate-500">
-              محاكاة حقيقية لرحلة الزبون — اضغط التبويب لتغيير الباقة
+              معاينة ثابتة — اضغط التبويب لتغيير الباقة · للمحاكاة الحية انتقل لصفحة المعاينة
             </p>
 
             {/* Floating indicators */}
@@ -1245,7 +1245,9 @@ export default function PartnerMarketingPreview() {
               className="text-3xl font-black text-slate-900 md:text-4xl">
               هكذا يظهر صالونك
             </motion.h2>
-            <p className="mt-3 text-slate-600">معاينة سريعة للبنرات — وغرفة المراقبة للمالك والمناوب والمكتب في صفحة المعاينة</p>
+            <p className="mt-3 text-slate-600">
+              معاينة ثابتة للبنرات — للمحاكاة الحية وغرفة المراقبة انتقل لصفحة المعاينة الكاملة
+            </p>
             <p className="mx-auto mt-2 max-w-2xl text-xs leading-relaxed text-violet-700/80">{PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE}</p>
           </div>
 
@@ -1255,6 +1257,7 @@ export default function PartnerMarketingPreview() {
                 key={tier.id}
                 tier={tier}
                 index={index}
+                bannerMode="static"
                 showCta={false}
                 className="border-b border-white/5 pb-16 last:border-b-0 last:pb-0"
               />
