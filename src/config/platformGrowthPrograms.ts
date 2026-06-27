@@ -2,7 +2,10 @@
  * برامج النمو الموحّدة — مدار · نبض · محيط
  * مصدر الحقيقة لأسماء وشرح خطط التسويق B2B/B2C للشركاء.
  */
-import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
+import {
+  PARTNER_EARLY_WAVE_SUBLINE_AR,
+  PARTNER_EARLY_WAVE_TAGLINE_AR,
+} from '@/config/partnerEarlyWaveCopy';
 import { PARTNER_HERO_TAGLINE_REPUTATION_AR } from '@/config/partnerFieldSalesCopy';
 
 export type PlatformGrowthProgramPhaseId =
@@ -35,7 +38,7 @@ export const PLATFORM_GROWTH_SUITE_LEAD_AR =
 export const PLATFORM_GROWTH_PULSE_STATIONS_PHASE1 = {
   titleAr: 'محطات الإقامة',
   bodyAr:
-    'الموجة الأولى: فنادق · شقق مفروشة · عروض `Acrylic` — حيث يحتاج الزائر للحلاقة قبل أن يفتح التطبيق بنفسه.',
+    'الموجة الأولى: فنادق · شقق مفروشة · بنرات QR — حيث يحتاج الزائر للحلاقة قبل أن يبدأ الاستعلام بنفسه.',
 } as const;
 
 /** شعار رسمي — برنامج محيط المدار (ما بعد التفعيل) */
@@ -82,14 +85,14 @@ export const PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR =
   'وبعد تفعيلك يبدأ **محيط المدار** — ' +
   PLATFORM_GROWTH_PERIMETER_TAGLINE_AR +
   '\n\n' +
-  '**لا نتركك تنتظر الحظ.** استثمار تريد **فائدته** — لا **حسرته**: من يفعّل مبكراً يبني محيطاً قبل المنافس؛ من يتأخر يدفع ثمن الانتظار.';
+  '**لا نتركك تنتظر الحظ.** من يفعّل مبكراً يبني موضعاً قبل اتساع الطلب في منطقته — لا وعود بعدد زبائن مضمون.';
 
 /** سطر الهيرو القصير */
 export const PLATFORM_GROWTH_PARTNER_HERO_LINE_AR = PARTNER_HERO_TAGLINE_REPUTATION_AR;
 
 /** تسجيل الحلاق — مقدمة مختصرة (تُستورد في platformGrowthNarrative) */
 export const PLATFORM_GROWTH_REGISTER_INTRO_AR =
-  `${PARTNER_EARLY_WAVE_TAGLINE_AR} — بينما **محطات النبض** تبني الطلب بالتوازي، و**محيط المدار** يرفع الدعم حولك بعد التفعيل.`;
+  `${PARTNER_EARLY_WAVE_TAGLINE_AR} — ${PARTNER_EARLY_WAVE_SUBLINE_AR}`;
 
 /** ما بعد تسجيل الطلب — قبل الدفع */
 export const PLATFORM_GROWTH_REGISTER_SUCCESS_NOTE_AR =

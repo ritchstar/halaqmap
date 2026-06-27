@@ -50,7 +50,7 @@ export default function Register() {
         {/* ── رأس الصفحة ── */}
         <motion.header
           initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5 }}
-          className="mb-10 text-center"
+          className="mb-8 text-center"
         >
           <h1 className="mb-3 text-3xl font-black leading-tight text-white sm:text-4xl">
             {PARTNER_REGISTER_PAGE.title}
@@ -79,26 +79,47 @@ export default function Register() {
           </div>
 
           {/* تأكيدات */}
-          <div className="mt-4 flex flex-wrap justify-center gap-3 text-[0.6rem] text-slate-600">
+          <div className="mt-4 flex flex-wrap justify-center gap-x-3 gap-y-1 text-[0.6rem] text-slate-600">
             {PARTNER_REGISTER_PAGE.assuranceChips.map((t) => (
               <span key={t}>✅ {t}</span>
             ))}
           </div>
         </motion.header>
 
-        <motion.div
+        {/* ── رحلة الزبون (Pitch Deck · شريحة 3) ── */}
+        <motion.section
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.08 }}
+          transition={{ duration: 0.45, delay: 0.05 }}
           className="mx-auto mb-8 max-w-4xl"
         >
-          <PlatformGrowthProgramsPanel variant="register" activationState="pre_activation" />
-        </motion.div>
+          <div className="rounded-2xl border border-teal-500/20 bg-teal-500/[0.04] p-4 sm:p-5">
+            <h2 className="text-center text-sm font-bold text-teal-100 sm:text-right">
+              {PARTNER_REGISTER_PAGE.customerJourneyTitle}
+            </h2>
+            <p className="mt-1 text-center text-xs text-slate-500 sm:text-right">
+              {PARTNER_REGISTER_PAGE.customerJourneyLead}
+            </p>
+            <ol className="mt-4 grid gap-3 sm:grid-cols-3">
+              {PARTNER_REGISTER_PAGE.customerJourney.map((item) => (
+                <li
+                  key={item.step}
+                  className="rounded-xl border border-white/8 bg-black/20 p-3 text-right"
+                >
+                  <span className="text-[0.65rem] font-bold text-teal-400/90">{item.step}</span>
+                  <p className="mt-1 text-xs font-bold text-white">{item.title}</p>
+                  <p className="mt-1 text-[0.7rem] leading-relaxed text-slate-400">{item.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </motion.section>
 
-        {/* ── نموذج التسجيل ── */}
+        {/* ── نموذج التسجيل (أولاً — قبل لوحة النمو على الجوال) ── */}
         <motion.section
-          initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5, delay:.15 }}
+          initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5, delay:.1 }}
           className="mx-auto max-w-4xl"
+          id="register-form"
         >
           <RegistrationErrorBoundary>
             <RegistrationForm />
@@ -108,8 +129,17 @@ export default function Register() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.15 }}
+          className="mx-auto mt-8 max-w-4xl"
+        >
+          <PlatformGrowthProgramsPanel variant="register" activationState="pre_activation" />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.12 }}
-          className="mx-auto mb-8 max-w-3xl"
+          className="mx-auto mt-8 max-w-3xl"
         >
           <PartnerLandingFaqAccordion
             kicker={PARTNER_REGISTER_PAGE.faq.kicker}

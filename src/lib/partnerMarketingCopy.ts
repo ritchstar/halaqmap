@@ -8,13 +8,7 @@ import {
   PLATFORM_PARTNER_SMART_TRACKING_LEAD,
   PLATFORM_SMART_TRACKING_SUBTEXT,
 } from '@/config/platformSmartTracking';
-import {
-  ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
-} from '@/config/onDemandVisibilityDoctrine';
-import {
-  PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR,
-  PLATFORM_GROWTH_REGISTER_INTRO_AR,
-} from '@/config/platformGrowthPrograms';
+import { PLATFORM_GROWTH_REGISTER_INTRO_AR } from '@/config/platformGrowthPrograms';
 import {
   PARTNER_TECHNICAL_PARTNER_ASSISTANT_WELCOME,
   PARTNER_TECHNICAL_PARTNER_BEFORE_AFTER_SUBTITLE,
@@ -25,7 +19,6 @@ import {
   PARTNER_TECHNICAL_PARTNER_STORY_LEAD,
   PARTNER_TECHNICAL_PARTNER_WHY_CLOSING,
 } from '@/config/partnerTechnicalPartnerDoctrine';
-import { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 import {
   PARTNER_MALL_HERO_BADGE_AR,
   PARTNER_MALL_HERO_LEAD_DESKTOP_AR,
@@ -57,14 +50,30 @@ export {
   PARTNER_TIER_MARKETING_HOOKS_AR,
 } from '@/config/partnerFieldSalesCopy';
 
-/** فقرات متعددة لصفحة التسجيل — تُعرض ككتل منفصلة لسهولة القراءة على الجوال */
+/** فقرات مختصرة لصفحة التسجيل — التفاصيل في FAQ ولوحة مدار·نبض·محيط */
 export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
   PLATFORM_GROWTH_REGISTER_INTRO_AR.replace(/\*\*/g, ''),
-  `${PLATFORM_PARTNER_SMART_TRACKING_HEADLINE}. ${PLATFORM_PARTNER_SMART_TRACKING_LEAD} رخصة نفاذ حلاق ماب الرقمية تعتمد على «الظهور عند الطلب» (On-Demand Visibility): يُفعَّل ظهور صالونك برمجياً حصراً عند وجود طلب فعلي تنطبق عليه بياناته المتاحة وفلترته — كفاءة استجابة، لا قائمة دائمة.`,
-  PARTNER_TECHNICAL_PARTNER_REGISTER_LINE,
-  PLATFORM_GROWTH_PARTNER_FULL_PITCH_AR.replace(/\*\*/g, ''),
-  ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
-  `${PARTNER_HERO_TAGLINE_REPUTATION_AR}. ${PARTNER_FINAL_CTA_BODY_AR}`,
+  PARTNER_HERO_LEAD_PRIMARY_AR,
+  PARTNER_FINAL_CTA_BODY_AR,
+] as const;
+
+/** رحلة الزبون — مواءمة Pitch Deck (شريحة 3) */
+export const PARTNER_REGISTER_CUSTOMER_JOURNEY_AR = [
+  {
+    step: '١',
+    title: 'الزبون يبدأ الاستعلام',
+    body: 'يفتح المنصة ويسمح بموقعه — مجاناً وبدون حساب.',
+  },
+  {
+    step: '٢',
+    title: 'يظهر صالونك بين الخيارات',
+    body: 'إن كنت مفعّلاً ومناسباً للطلب (قرب، مفتوح، نوع الخدمة…).',
+  },
+  {
+    step: '٣',
+    title: 'يتصل أو يراسلك مباشرة',
+    body: 'لا وساطة ولا عمولة على خدمة الحلاقة — التنسيق معك أنت.',
+  },
 ] as const;
 
 export const PARTNER_LANDING_GROWTH_PROGRAMS_SECTION = {
@@ -327,8 +336,17 @@ export const PARTNER_REGISTER_FAQ_SECTION = {
 export const PARTNER_REGISTER_PAGE = {
   title: 'سجّل صالونك في منصة حلاق ماب',
   introParagraphs: PARTNER_REGISTER_INTRO_PARAGRAPHS,
+  customerJourneyTitle: 'ماذا يحدث لصالونك بعد التفعيل؟',
+  customerJourneyLead: 'مسار بسيط — من الاستعلام إلى اتصالك أنت.',
+  customerJourney: PARTNER_REGISTER_CUSTOMER_JOURNEY_AR,
   faq: PARTNER_REGISTER_FAQ_SECTION,
-  assuranceChips: ['لا عمولات', 'لا تجديد تلقائي', 'حزمة رقمية مسبقة الدفع', 'وفق سياسة رخصة النفاذ'],
+  assuranceChips: [
+    'لا عمولات',
+    'لا وساطة حجز',
+    'لا تجديد تلقائي',
+    'حزمة رقمية مسبقة الدفع',
+    'وفق سياسة رخصة النفاذ',
+  ],
   steps: ['اختر الحزمة', 'أكمل البيانات', 'ادفع الآن', 'إتمام التفعيل'],
 } as const;
 
