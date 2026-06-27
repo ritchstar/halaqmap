@@ -20,7 +20,7 @@ import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
-import { MOBILE_QUERY_DOCK_CLEARANCE, MOBILE_SAFE_BOTTOM_MIN } from '@/lib/mobilePageShell';
+import { MOBILE_SAFE_BOTTOM_MIN } from '@/lib/mobilePageShell';
 import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
 import {
   VISITOR_HERO_BADGE_AR,
@@ -362,6 +362,7 @@ function MobileSearchDock({
   filters,
   geoBusy,
   storedCoords,
+  embedded = false,
   onIntentChange,
   onGeoSearch,
   onUseStored,
@@ -369,13 +370,18 @@ function MobileSearchDock({
   filters: FilterState;
   geoBusy: boolean;
   storedCoords: { lat: number; lng: number } | null;
+  /** في تدفّق الصفحة (لا fixed) — يمنع التمدد اللانهائي على iOS */
+  embedded?: boolean;
   onIntentChange: (next: FilterState, intentId: VisitorServiceIntentId) => void;
   onGeoSearch: () => void | Promise<void>;
   onUseStored: () => void;
 }) {
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-[60] border-t border-teal-400/20 bg-[#020912]/97 px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
+      className={cn(
+        'z-[60] border-t border-teal-400/20 bg-[#020912] px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden',
+        embedded ? 'shrink-0' : 'fixed inset-x-0 bottom-0 bg-[#020912]/97',
+      )}
       dir="rtl"
     >
       <div className="mx-auto max-w-lg">
@@ -632,17 +638,9 @@ export default function LandingPreview() {
   useEffect(() => {
     if (!mobilePreSearch) return;
     const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    const prevBodyBg = body.style.backgroundColor;
-    html.style.overflow = 'hidden';
-    body.style.overflow = 'hidden';
-    body.style.backgroundColor = 'oklch(0.10 0.03 254)';
+    html.classList.add('hm-landing-mobile-lock');
     return () => {
-      html.style.overflow = prevHtmlOverflow;
-      body.style.overflow = prevBodyOverflow;
-      body.style.backgroundColor = prevBodyBg;
+      html.classList.remove('hm-landing-mobile-lock');
     };
   }, [mobilePreSearch]);
 
@@ -731,7 +729,7 @@ export default function LandingPreview() {
       className={cn(
         'platform-dark platform-ambient relative overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100',
         mobilePreSearch
-          ? 'fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden'
+          ? 'flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden overscroll-none'
           : 'md:min-h-screen',
       )}
       data-ambient-phase={effectivePhase}
@@ -911,8 +909,7 @@ export default function LandingPreview() {
                 'pt-[calc(4.75rem+env(safe-area-inset-top))]',
                 userLocation
                   ? MOBILE_SAFE_BOTTOM_MIN
-                  : 'min-h-0 flex-1 overflow-y-auto overscroll-none',
-                !userLocation && MOBILE_QUERY_DOCK_CLEARANCE,
+                  : 'min-h-0 flex-1 overflow-y-auto overscroll-contain',
               )
             : 'min-h-[100svh] pt-24',
         )}
@@ -1425,6 +1422,7 @@ export default function LandingPreview() {
 
       {isMobile && !selectedBarber && !userLocation ? (
         <MobileSearchDock
+          embedded
           filters={filters}
           geoBusy={geoBusy}
           storedCoords={storedCoords}
