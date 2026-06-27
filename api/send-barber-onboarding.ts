@@ -61,6 +61,21 @@ type RatingEmailContext = {
   qrPngBase64: string | null;
 };
 
+/** روابط مفتوح/مغلق + تجديد الرابط (برونزي) */
+type ShopOpenMailContext = {
+  shopOpenToggleUrl: string | null;
+  shopOpenRotateUrl: string;
+};
+
+function buildShopOpenMailContext(siteBase: string, openStatusToken: string | null | undefined): ShopOpenMailContext {
+  const b = sanitizeBaseUrl(siteBase);
+  const token = String(openStatusToken ?? '').trim();
+  return {
+    shopOpenToggleUrl: token ? `${b}/#/partners/shop-open?t=${encodeURIComponent(token)}` : null,
+    shopOpenRotateUrl: `${b}/#/partners/shop-open/rotate`,
+  };
+}
+
 const RATING_QR_CONTENT_ID = 'halaqmap-rating-qr';
 
 function buildRatingInviteUrlStatic(siteOrigin: string, barberId: string, token: string): string {
@@ -240,12 +255,19 @@ function padBarberMember(n: number | null | undefined): string | null {
 async function loadBarberOnboardingRow(
   supabase: SupabaseClient,
   email: string,
-): Promise<{ id: string; rating_invite_token: string | null; member_number: number | null; tier: string | null } | null> {
+): Promise<{
+  id: string;
+  rating_invite_token: string | null;
+  member_number: number | null;
+  tier: string | null;
+  open_status_token: string | null;
+} | null> {
+  const selectCols = 'id, rating_invite_token, member_number, tier, open_status_token';
   const raw = email.trim();
   for (const addr of [raw, raw.toLowerCase()]) {
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, rating_invite_token, member_number, tier')
+      .select(selectCols)
       .eq('email', addr)
       .eq('is_active', true)
       .maybeSingle();
@@ -257,12 +279,16 @@ async function loadBarberOnboardingRow(
       member_number:
         mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
       tier: (data as { tier?: string | null }).tier != null ? String((data as { tier?: string | null }).tier) : null,
+      open_status_token:
+        (data as { open_status_token?: string | null }).open_status_token != null
+          ? String((data as { open_status_token?: string | null }).open_status_token).trim() || null
+          : null,
     };
   }
   {
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, rating_invite_token, member_number, tier')
+      .select(selectCols)
       .ilike('email', raw)
       .eq('is_active', true)
       .maybeSingle();
@@ -274,6 +300,10 @@ async function loadBarberOnboardingRow(
         member_number:
           mn != null && Number.isFinite(Number(mn)) ? Math.floor(Number(mn)) : null,
         tier: (data as { tier?: string | null }).tier != null ? String((data as { tier?: string | null }).tier) : null,
+        open_status_token:
+          (data as { open_status_token?: string | null }).open_status_token != null
+            ? String((data as { open_status_token?: string | null }).open_status_token).trim() || null
+            : null,
       };
     }
   }
@@ -458,11 +488,45 @@ function ownerWatchSectionHtml(links: MailLinks, tier: Tier | null | undefined):
   );
 }
 
+function shopOpenStatusPlainLines(shopOpen: ShopOpenMailContext, tier: Tier | null | undefined): string[] {
+  if (tierKey(tier) !== 'bronze') return [];
+  const lines = [
+    '',
+    'مفتوح/مغلق + تجديد الرابط (باقة برونزية):',
+    '- صفحة التبديل السريع: تضبط أيقونة «مفتوح الآن / مغلق» التي يراها العملاء على الخريطة — من أي جهاز دون لوحة تحكم كاملة.',
+  ];
+  if (shopOpen.shopOpenToggleUrl) {
+    lines.push(`  ${shopOpen.shopOpenToggleUrl}`);
+  } else {
+    lines.push('  (يُكمَّل الرابط تلقائياً بعد التفعيل — أو تواصل مع الدعم.)');
+  }
+  lines.push(
+    '- صفحة تجديد الرابط: إذا غادر مناوب أو تسرّب الرابط، أدخل رقم رخصة التفعيل + البريد المسجّل → رسالة تأكيد → رابط جديد.',
+    `  ${shopOpen.shopOpenRotateUrl}`,
+    '- احفظ هاتين الصفحتين للمالك أو المسؤول المفوّض من قبل المالك فقط — لا تشاركهما مع عامل سابق أو غير مخوّل.',
+    '- إخلاء مسؤولية: تعتبر المنصة أن البريد الإلكتروني المسجّل لديها هو المرجع المعتمد لطلبات التجديد والتحقق؛ مسؤولية الحفاظ على الروابط وتوزيعها تقع على صاحب الحساب.',
+  );
+  return lines;
+}
+
+function shopOpenStatusSectionHtml(shopOpen: ShopOpenMailContext, tier: Tier | null | undefined): string {
+  if (tierKey(tier) !== 'bronze') return '';
+  const h = (u: string) => escapeHtml(u);
+  const toggleBlock = shopOpen.shopOpenToggleUrl
+    ? `<p style="margin:0 0 10px"><a href="${h(shopOpen.shopOpenToggleUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;background:linear-gradient(180deg,#14b8a6,#0d9488);color:#fff;font-weight:800;text-decoration:none;font-size:14px">فتح صفحة مفتوح/مغلق</a></p><p style="margin:0 0 12px;font-size:12px;color:#64748b;word-break:break-all" dir="ltr">${h(shopOpen.shopOpenToggleUrl)}</p>`
+    : `<p style="margin:0 0 12px;font-size:13px;color:#64748b">يُكمَّل رابط التبديل تلقائياً بعد التفعيل — أو تواصل مع الدعم.</p>`;
+  return emailCard(
+    'مفتوح/مغلق + تجديد الرابط',
+    `<p style="margin:0 0 12px;font-size:14px;color:#475569;line-height:1.9">للباقة <strong>البرونزية</strong>: صفحتان خفيفتان دون لوحة تحكم كاملة — للمالك أو المفوّض من قبله.</p><p style="margin:0 0 8px;font-size:14px;color:#334155;font-weight:700">١ — التبديل اليومي (مفتوح/مغلق)</p>${toggleBlock}<p style="margin:0 0 8px;font-size:14px;color:#334155;font-weight:700">٢ — تجديد الرابط عند الحاجة</p><p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">إذا غادر مناوب أو تسرّب الرابط: أدخل <strong>رقم رخصة التفعيل</strong> + <strong>البريد المسجّل</strong> → رسالة تأكيد → رابط جديد (القديم يُبطَل).</p><p style="margin:0 0 10px"><a href="${h(shopOpen.shopOpenRotateUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;border:2px solid #0d9488;background:#ecfdf5;color:#0f766e;font-weight:800;text-decoration:none;font-size:14px">صفحة تجديد الرابط</a></p><p style="margin:0 0 14px;font-size:12px;color:#64748b;word-break:break-all" dir="ltr">${h(shopOpen.shopOpenRotateUrl)}</p><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;border-radius:12px;border:1px solid #fde68a;background:#fffbeb"><tr><td style="padding:12px 14px;font-size:12px;color:#92400e;line-height:1.85"><p style="margin:0 0 6px;font-weight:800">تنبيه حفظ واستخدام</p><p style="margin:0 0 6px">احفظ هاتين الصفحتين للمالك أو المسؤول المفوّض فقط — <strong>لا</strong> تشاركهما مع عامل سابق أو غير مخوّل.</p><p style="margin:0;font-size:11px;color:#78350f"><strong>إخلاء مسؤولية:</strong> تعتبر المنصة أن البريد الإلكتروني المسجّل لديها هو المرجع المعتمد لطلبات التجديد؛ مسؤولية الحفاظ على الروابط وتوزيعها على عاتق صاحب الحساب.</p></td></tr></table>`,
+  );
+}
+
 function emailText(
   name: string,
   tierLabel: string,
   tier: Tier | null | undefined,
   links: MailLinks,
+  shopOpen: ShopOpenMailContext,
   rating: RatingEmailContext,
   registrationOrderId?: string | null,
   memberPadded?: string | null,
@@ -495,6 +559,7 @@ function emailText(
     '- الإحصائيات تبدأ من الصفر؛ ونوضح بصدق: المنصة لا تعرض إيرادات محلك — خصوصيتك التجارية محفوظة.',
     '',
     ...tierLines,
+    ...shopOpenStatusPlainLines(shopOpen, tier),
     ...ownerWatchPlainLines(links, tier),
     '',
     'ماذا تفعل داخل اللوحة؟',
@@ -529,6 +594,7 @@ function emailHtml(
   tierLabel: string,
   tier: Tier | null | undefined,
   links: MailLinks,
+  shopOpen: ShopOpenMailContext,
   rating: RatingEmailContext,
   registrationOrderId?: string | null,
   memberPadded?: string | null,
@@ -628,6 +694,7 @@ function emailHtml(
     '<p style="margin:0;font-size:14px;color:#475569;line-height:1.85">اسم صالونك يظهر في الأعلى من بياناتنا المعتمدة. الإحصائيات تبدأ من الصفر؛ ونوضح بصدق: <strong>لا نعرض إيرادات محلك</strong> على المنصة.</p>',
   )}
   ${goldDiamondBox}
+  ${shopOpenStatusSectionHtml(shopOpen, tier)}
   ${ownerWatchSectionHtml(links, tier)}
   ${digitalShiftAddon && k === 'diamond' ? digitalShiftOnboardingSectionHtml(links.dashboardUrl) : ''}
   ${ratingAndQrSectionHtml(rating)}
@@ -863,6 +930,7 @@ export async function POST(request: Request): Promise<Response> {
     let barberId: string | null = String((payload as SinglePayload).barberId ?? '').trim() || null;
     let ratingTok: string | null = String((payload as SinglePayload).ratingInviteToken ?? '').trim() || null;
     let memberPadded: string | null = null;
+    let openStatusToken: string | null = null;
     const onboardingRow = await loadBarberOnboardingRow(supabase, barberEmail);
     let tierForMagic: string | null = null;
     if (onboardingRow) {
@@ -870,7 +938,9 @@ export async function POST(request: Request): Promise<Response> {
       if (!ratingTok?.trim()) ratingTok = onboardingRow.rating_invite_token;
       memberPadded = padBarberMember(onboardingRow.member_number);
       tierForMagic = onboardingRow.tier;
+      openStatusToken = onboardingRow.open_status_token;
     }
+    const shopOpenMail = buildShopOpenMailContext(baseUrl, openStatusToken);
     const linksForEmail = linksWithMagicDashboardIfEligible(
       links,
       barberId,
@@ -899,6 +969,7 @@ export async function POST(request: Request): Promise<Response> {
       tier,
       tierRaw,
       linksForEmail,
+      shopOpenMail,
       ratingCtx,
       registrationOrderId,
       memberPadded,
@@ -909,6 +980,7 @@ export async function POST(request: Request): Promise<Response> {
       tier,
       tierRaw,
       linksForEmail,
+      shopOpenMail,
       ratingCtx,
       registrationOrderId,
       memberPadded,
@@ -933,7 +1005,7 @@ export async function POST(request: Request): Promise<Response> {
     const limit = parseLimit((payload as BulkPayload).limit, 200);
     const { data, error } = await supabase
       .from('barbers')
-      .select('id, name, email, tier, is_active, rating_invite_token, member_number')
+      .select('id, name, email, tier, is_active, rating_invite_token, member_number, open_status_token')
       .eq('is_active', true)
       .not('email', 'is', null)
       .limit(limit);
@@ -947,6 +1019,7 @@ export async function POST(request: Request): Promise<Response> {
       tier: string | null;
       rating_invite_token: string | null;
       member_number: number | null;
+      open_status_token: string | null;
     }>;
     let sentCount = 0;
     const apiFailed: Array<{ email: string; error: string }> = [];
@@ -984,8 +1057,9 @@ export async function POST(request: Request): Promise<Response> {
       const subject = '🎉 حلاق ماب | أنت عبر نظام الاستجابة الذكية — روابط لوحة التحكم ودليلك';
       const bulkMember = padBarberMember(row.member_number);
       const linksForRow = linksWithMagicDashboardIfEligible(links, String(row.id), email, row.tier);
-      const text = emailText(name, tier, row.tier, linksForRow, ratingCtx, null, bulkMember);
-      const html = emailHtml(name, tier, row.tier, linksForRow, ratingCtx, null, bulkMember);
+      const shopOpenMail = buildShopOpenMailContext(baseUrl, row.open_status_token);
+      const text = emailText(name, tier, row.tier, linksForRow, shopOpenMail, ratingCtx, null, bulkMember);
+      const html = emailHtml(name, tier, row.tier, linksForRow, shopOpenMail, ratingCtx, null, bulkMember);
       const sent = await sendViaResend({
         to: email,
         subject,
