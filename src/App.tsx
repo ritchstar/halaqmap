@@ -40,6 +40,8 @@ const PartnerSalesOfficePage = lazy(() => import("@/pages/PartnerSalesOfficePage
 const ArchiveHome = lazy(() => import("@/pages/Home"));
 const RegisterSuccess = lazy(() => import("@/pages/RegisterSuccess"));
 const ShopOpenStatus = lazy(() => import("@/pages/ShopOpenStatus"));
+const ShopOpenStatusRotateRequest = lazy(() => import("@/pages/ShopOpenStatusRotateRequest"));
+const ShopOpenStatusRotateConfirm = lazy(() => import("@/pages/ShopOpenStatusRotateConfirm"));
 const BarberGrowthLanding = lazy(() => import("@/pages/BarberGrowthLanding"));
 const InternalPartnerPathPrintCard = lazy(() => import("@/pages/InternalPartnerPathPrintCard"));
 const InvoicePreviewSamples = lazy(() => import("@/pages/InvoicePreviewSamples"));
@@ -244,6 +246,8 @@ const App = () => (
           <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><LazyRoute><Register /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<PartnerLayout><LazyRoute><RegisterSuccess /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><LazyRoute><ShopOpenStatus /></LazyRoute></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.SHOP_OPEN_ROTATE} element={<PartnerLayout><LazyRoute><ShopOpenStatusRotateRequest /></LazyRoute></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.SHOP_OPEN_ROTATE_CONFIRM} element={<PartnerLayout><LazyRoute><ShopOpenStatusRotateConfirm /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><LazyRoute><PartnerPrivacy /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><LazyRoute><SubscriptionPolicy /></LazyRoute></PartnerLayout>} />
           <Route path="/partners/hospitality-b2b-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />

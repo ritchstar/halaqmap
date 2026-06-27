@@ -45,6 +45,10 @@ export const ROUTE_PATHS = {
   PARTNER_SALES_OFFICE: '/partners/sales-office',
   /** تبديل «مفتوح/مغلق» للعملاء عبر نظام الرصد الذكي برابط سري (?t=رمز) — مفيد للبرونزي */
   SHOP_OPEN_STATUS: '/partners/shop-open',
+  /** تجديد رابط مفتوح/مغلق — برونزي: رخصة + بريد + تأكيد */
+  SHOP_OPEN_ROTATE: '/partners/shop-open/rotate',
+  /** تأكيد تجديد الرابط من البريد (?c=رمز) */
+  SHOP_OPEN_ROTATE_CONFIRM: '/partners/shop-open/rotate-confirm',
   /**
    * بطاقة QR لمسار الخدمات البرمجية للمنصة (طباعة/حملات) — للإدارة والتسويق فقط.
    * لا تُضاف روابط لها في الرئيسية أو مسار الخدمات البرمجية للمنصة أو القوائم.

@@ -102,6 +102,15 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'barber-portfolio') {
     return envInt('BARBER_PORTFOLIO_RATE_LIMIT_MAX', 80);
   }
+  if (routeId === 'barber-open-status-rotate-request') {
+    return envInt('BARBER_OPEN_STATUS_ROTATE_REQUEST_RATE_LIMIT_MAX', 6);
+  }
+  if (routeId === 'barber-open-status-rotate-confirm') {
+    return envInt('BARBER_OPEN_STATUS_ROTATE_CONFIRM_RATE_LIMIT_MAX', 12);
+  }
+  if (routeId === 'barber-open-status-rotate') {
+    return envInt('BARBER_OPEN_STATUS_ROTATE_RATE_LIMIT_MAX', 8);
+  }
   if (routeId === 'barber-gallery-sync') {
     return envInt('BARBER_GALLERY_SYNC_RATE_LIMIT_MAX', 60);
   }

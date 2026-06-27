@@ -57,6 +57,119 @@ export async function fetchBarberShopOpenStatusRemote(
   }
 }
 
+function portalSessionHeaders(): Record<string, string> {
+  const headers = baseHeaders();
+  try {
+    const raw = localStorage.getItem('barberAuth');
+    if (raw) {
+      const parsed = JSON.parse(raw) as { barberSessionToken?: unknown };
+      const token = String(parsed.barberSessionToken ?? '').trim();
+      if (token) headers['x-barber-portal-session'] = token;
+    }
+  } catch {
+    /* ignore */
+  }
+  return headers;
+}
+
+export function normalizeLicenseCodeInput(raw: string): string {
+  return raw.trim().toUpperCase().replace(/\s+/g, '');
+}
+
+export async function requestBronzeShopOpenRotateRemote(input: {
+  licenseCode: string;
+  email: string;
+}): Promise<{ ok: true; message: string } | { ok: false; error: string }> {
+  const ep = String(import.meta.env.VITE_BARBER_OPEN_STATUS_ROTATE_REQUEST_URL || '/api/barber-open-status-rotate-request').trim();
+  try {
+    const response = await fetch(new URL(ep, window.location.origin).toString(), {
+      method: 'POST',
+      headers: baseHeaders(),
+      body: JSON.stringify({
+        licenseCode: normalizeLicenseCodeInput(input.licenseCode),
+        email: input.email.trim(),
+      }),
+    });
+    const payload = (await response.json().catch(() => ({}))) as { error?: string; message?: string };
+    if (!response.ok) {
+      return { ok: false, error: payload.error || `HTTP ${response.status}` };
+    }
+    return {
+      ok: true,
+      message:
+        payload.message ||
+        'إذا تطابقت رقم الرخصة والبريد المسجّل، ستصلك رسالة تأكيد خلال دقائق.',
+    };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال بالخادم.' };
+  }
+}
+
+export async function confirmBronzeShopOpenRotateRemote(
+  confirmToken: string,
+): Promise<
+  | { ok: true; barberName: string; openStatusToken: string; shopOpenUrl: string }
+  | { ok: false; error: string }
+> {
+  const ep = String(import.meta.env.VITE_BARBER_OPEN_STATUS_ROTATE_CONFIRM_URL || '/api/barber-open-status-rotate-confirm').trim();
+  try {
+    const response = await fetch(new URL(ep, window.location.origin).toString(), {
+      method: 'POST',
+      headers: baseHeaders(),
+      body: JSON.stringify({ confirmToken: confirmToken.trim() }),
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      barberName?: string;
+      openStatusToken?: string;
+      shopOpenUrl?: string;
+    };
+    if (!response.ok) {
+      return { ok: false, error: payload.error || `HTTP ${response.status}` };
+    }
+    return {
+      ok: true,
+      barberName: String(payload.barberName ?? ''),
+      openStatusToken: String(payload.openStatusToken ?? ''),
+      shopOpenUrl: String(payload.shopOpenUrl ?? ''),
+    };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال بالخادم.' };
+  }
+}
+
+export async function rotateShopOpenStatusFromDashboardRemote(): Promise<
+  | { ok: true; barberName: string; openStatusToken: string; shopOpenUrl: string }
+  | { ok: false; error: string; code?: string }
+> {
+  const ep = String(import.meta.env.VITE_BARBER_OPEN_STATUS_ROTATE_URL || '/api/barber-open-status-rotate').trim();
+  try {
+    const response = await fetch(new URL(ep, window.location.origin).toString(), {
+      method: 'POST',
+      headers: portalSessionHeaders(),
+      body: JSON.stringify({}),
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      code?: string;
+      barberName?: string;
+      openStatusToken?: string;
+      shopOpenUrl?: string;
+    };
+    if (!response.ok) {
+      return { ok: false, error: payload.error || `HTTP ${response.status}`, code: payload.code };
+    }
+    return {
+      ok: true,
+      barberName: String(payload.barberName ?? ''),
+      openStatusToken: String(payload.openStatusToken ?? ''),
+      shopOpenUrl: String(payload.shopOpenUrl ?? ''),
+    };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال بالخادم.' };
+  }
+}
+
 export async function setBarberShopOpenStatusRemote(
   token: string,
   openForCustomers: boolean

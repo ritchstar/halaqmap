@@ -172,7 +172,10 @@ export default function ShopOpenStatus() {
 
                 <p className="text-[11px] text-center text-muted-foreground leading-relaxed">
                   احفظ هذا الرابط في متصفحك أو على شاشة المحل. من يملك الرابط يستطيع تغيير الحالة — تعامل معه كرمز
-                  خاص.
+                  خاص.{' '}
+                  <Link to={ROUTE_PATHS.SHOP_OPEN_ROTATE} className="font-semibold text-primary underline-offset-2 hover:underline">
+                    تجديد الرابط (برونزي)
+                  </Link>
                 </p>
               </>
             )}
