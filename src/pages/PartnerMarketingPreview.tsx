@@ -57,6 +57,8 @@ import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFoot
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { PartnerFreedomPillars } from '@/components/partner/PartnerFreedomPillars';
 import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
+import { PartnerB2BVisualFeatureCards } from '@/components/partner/PartnerB2BVisualFeatureCards';
+import { PartnerB2BUrgencyBand } from '@/components/partner/PartnerB2BUrgencyBand';
 import { PartnerOwnerWatchSpotlight } from '@/components/partner/PartnerOwnerWatchSpotlight';
 import { MobilePartnerActionDock } from '@/components/partner/MobilePartnerActionDock';
 import {
@@ -1059,6 +1061,10 @@ export default function PartnerMarketingPreview() {
       </section>
 
       <PartnerMallNarrativeSection compact={isMobile} />
+
+      <PartnerB2BVisualFeatureCards variant="light" />
+
+      <PartnerB2BUrgencyBand variant="light" />
 
       <PartnerOwnerWatchSpotlight compact={isMobile} />
 

@@ -5,7 +5,7 @@
  */
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, MessageCircle, Check, X, Star, Scissors, Shield, Zap, Users, ChevronLeft, ArrowLeft, Building2 } from 'lucide-react';
+import { MapPin, Phone, MessageCircle, Check, X, Star, Scissors, Shield, Zap, Users, ArrowLeft, Building2 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PARTNER_EARLY_WAVE_SUBLINE_AR } from '@/config/partnerEarlyWaveCopy';
@@ -16,8 +16,11 @@ import {
   PARTNER_MALL_HERO_TITLE_ACCENT_AR,
   PARTNER_MALL_HERO_TITLE_AR,
   PARTNER_MALL_TAGLINE_AR,
+  PARTNER_B2B_VISUAL_ASSETS,
 } from '@/config/partnerMallNarrativeCopy';
 import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
+import { PartnerB2BVisualFeatureCards } from '@/components/partner/PartnerB2BVisualFeatureCards';
+import { PartnerB2BUrgencyBand } from '@/components/partner/PartnerB2BUrgencyBand';
 import { PartnerOwnerWatchSpotlight } from '@/components/partner/PartnerOwnerWatchSpotlight';
 import {
   PARTNER_FREEDOM_HERO_BADGE_AR,
@@ -84,11 +87,16 @@ export default function PartnersB2BLanding() {
 
       {/* ───── HERO ───── */}
       {/* @section: hero */}
-      <section className="relative z-10 py-24 px-6">
-        {/* Glow background */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(13,148,136,0.12) 0%, transparent 70%)" }} />
+      <section className="relative z-10 flex min-h-[88vh] flex-col items-center justify-center overflow-hidden px-6 py-24">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${PARTNER_B2B_VISUAL_ASSETS.hero})` }}
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A1628]/94 via-[#0A1628]/78 to-[#0A1628]" aria-hidden />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 45% at 50% 42%, rgba(13,148,136,0.14) 0%, transparent 70%)" }} />
 
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="relative z-10 max-w-5xl mx-auto text-center w-full">
           {/* Badge */}
           <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4" style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.35)", color: "#D4AF37" }}>
             <Building2 size={14} />
@@ -176,6 +184,8 @@ export default function PartnersB2BLanding() {
           </motion.div>
         </div>
       </section>
+
+      <PartnerB2BVisualFeatureCards variant="dark" />
 
       <PartnerMallNarrativeSection variant="dark" />
 
@@ -425,30 +435,7 @@ export default function PartnersB2BLanding() {
         </div>
       </section>
 
-      {/* ───── WHY NOW ───── */}
-      {/* @section: why-now */}
-      <section className="relative z-10 py-16 px-6" style={{ background: "rgba(13,148,136,0.04)", borderTop: "1px solid rgba(13,148,136,0.12)", borderBottom: "1px solid rgba(13,148,136,0.12)" }}>
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={stagger}>
-            <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-black mb-8" style={{ color: "#F8FAFC" }}>
-              لماذا الانضمام <span style={{ color: "#D4AF37" }}>الآن؟</span>
-            </motion.h2>
-            <motion.div variants={stagger} className="space-y-4 text-right">
-              {[
-                "كلما اكتملت شبكة الصالونات في منطقتك، صارت المنافسة على الظهور أعلى",
-                'من يسجّل الآن يجهّز حضوره لأول موجات الاستخدام في منطقته',
-                "حزمة رقمية 30 يوماً — تفعيل واضح بدون عمولة على خدمة الحلاقة",
-                "مسار ذاتي على المنصة: تسجيل → اختيار الباقة → الدفع → التفعيل",
-              ].map((item, i) => (
-                <motion.div key={i} variants={fadeUp} className="flex gap-3 p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(13,148,136,0.2)" }}>
-                  <ChevronLeft size={18} className="mt-0.5 flex-shrink-0" style={{ color: "#0D9488" }} />
-                  <p className="text-sm leading-relaxed" style={{ color: "#CBD5E1" }}>{item}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      <PartnerB2BUrgencyBand variant="dark" />
 
       {/* ───── FAQ ───── */}
       <section className="relative z-10 py-16 px-6" style={{ borderTop: '1px solid rgba(13,148,136,0.12)' }}>

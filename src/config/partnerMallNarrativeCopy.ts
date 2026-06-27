@@ -16,7 +16,67 @@ export const PARTNER_MALL_HERO_LEAD_DESKTOP_AR =
   'كالمول الحقيقي: التجار يدخلون أولاً ويجهّزون محلاتهم — ثم تُوسَّع دعوة المتسوقين. نحن الآن في مرحلة تجهيز المول وتسكين الصالونات الجاهزة.';
 
 export const PARTNER_MALL_HERO_LEAD_MOBILE_AR =
-  'مرحلة تسكين التجار: ثبّت موقعك، ارفع صورك، جهّز `QR` التقييمات — ظهور عند الطلب · لا عمولة.';
+  'مرحلة تسكين التجار: ثبّت موقعك، ارفع صورك، وتعرّف على أدوات محلك — ظهور عند الطلب · لا عمولة.';
+
+/** صور مسار الشركاء — من تصميم الهبوط B2B */
+export const PARTNER_B2B_VISUAL_ASSETS = {
+  hero: '/images/partners/hero_mall_2.webp',
+  commission: '/images/partners/feature_commission_2.webp',
+  autonomy: '/images/partners/feature_autonomy_2.webp',
+  radar: '/images/partners/feature_radar_2.webp',
+} as const;
+
+export const PARTNER_B2B_FEATURES_SECTION_AR = {
+  kicker: 'قيمنا الأساسية',
+  title: 'لماذا يختار الشركاء',
+  titleAccent: 'حلاق ماب؟',
+} as const;
+
+export const PARTNER_B2B_FEATURE_CARDS = [
+  {
+    id: 'commission',
+    asset: 'commission' as const,
+    badge: '0% عمولات',
+    icon: '💰',
+    title: 'اربح بالكامل من عملك',
+    description:
+      'مثل تاجر المول — لا نقتطع عمولة على حجوزاتك. كل ريال من عملك يبقى لك، دون وسيط على خدمة الحلاقة.',
+    highlight: 'أرباحك لك — بلا عمولة',
+  },
+  {
+    id: 'autonomy',
+    asset: 'autonomy' as const,
+    badge: 'سيادة كاملة',
+    icon: '🔑',
+    title: 'رخصة تشغيل حرة — لا وصاية',
+    description:
+      'نمنحك رخصة تشغيل حرة: حدّد أسعارك وأوقاتك وخدماتك، وتواصل مع العميل مباشرة بلا وسيط ولا تجديد تلقائي يربطك.',
+    highlight: 'أنت القائد دائماً',
+  },
+  {
+    id: 'radar',
+    asset: 'radar' as const,
+    badge: 'رادار حي',
+    icon: '📡',
+    title: 'الظهور عند الاستعلام المناسب',
+    description:
+      'نوفر البنية والموقع الحيوي. المستهلك يستعلم بلا تسجيل — ويرى من يطابق فلتره قريباً عند توافر الظهور.',
+    highlight: 'ظهور عند الطلب — بلا وسيط',
+  },
+] as const;
+
+export const PARTNER_B2B_FEATURE_EXTRAS = [
+  {
+    icon: '🔒',
+    title: 'اتصال مشفّر — `SSL` موثّق',
+    description: 'بيانات صالونك وبيانات عملائك عبر اتصال آمن وفق معايير المنصة.',
+  },
+  {
+    icon: '⚡',
+    title: 'تفعيل واضح — دون تعقيد',
+    description: 'مسار ذاتي: تسجيل → باقة → دفع → تفعيل. لا عقود ملزمة ولا انتظار غامض.',
+  },
+] as const;
 
 export const PARTNER_MALL_HERO_CHIPS_AR = [
   'تسكين مبكر في حيّك',
@@ -61,7 +121,7 @@ export const PARTNER_MALL_WHY_NOW = [
   {
     id: 'ready',
     title: 'جاهزية المحل',
-    body: 'ارفع صورك، اضبط خدماتك، وفعّل `QR` التقييمات — حتى أول مستعلم يرى صالوناً مكتملاً لا ملفاً فارغاً.',
+    body: 'ارفع صورك، اضبط خدماتك، وتعرّف على أدوات محلك — حتى أول مستعلم يرى صالوناً مكتملاً لا ملفاً فارغاً.',
   },
   {
     id: 'on-demand',
@@ -80,6 +140,17 @@ export const PARTNER_MALL_WHATSAPP_PITCH_AR =
 /** ملخص مرجعي — للشات والمبيعات */
 export const PARTNER_MALL_DOCTRINE_SIMPLE_AR =
   'المول الرقمي للحلاقين يُبنى كالمول الواقعي: التجار يجهّزون محلاتهم أولاً، ثم تتسع دعوة المستعلمين. الوجود المبكر يمنح موضعاً وسبقاً — الظهور يبقى عند الطلب فقط، بلا وعد بعدد زبائن مضمون.' as const;
+
+export const PARTNER_B2B_URGENCY_AR = {
+  kicker: 'المرحلة الحالية',
+  title: 'البناء أولاً — ثم اتساع الاستعلام',
+  lead: PARTNER_MALL_DOCTRINE_SIMPLE_AR,
+  points: [
+    'من يُسكَّن مبكراً يجهّز محلّه قبل أول موجات الاستعلام في منطقته',
+    'الظهور يحدث عند الطلب المناسب — لا وعد بعدد زبائن مضمون',
+    'لا تترك ملفك فارغاً حين يبدأ الباحث الاستعلام في حيّك',
+  ],
+} as const;
 
 export const PARTNER_MALL_FAQ_AR = {
   q: 'ما معنى «المول الرقمي» في حلاق ماب؟',
