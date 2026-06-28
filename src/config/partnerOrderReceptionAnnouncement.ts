@@ -3,7 +3,7 @@ import { ROUTE_PATHS } from '@/lib/index';
 /** توقيت فتح استقبال الطلبات (Asia/Riyadh) — يُضبط في Vercel: `VITE_PARTNER_ORDER_RECEPTION_OPENS_AT` */
 export const PARTNER_ORDER_RECEPTION_OPENS_AT_ISO =
   (import.meta.env.VITE_PARTNER_ORDER_RECEPTION_OPENS_AT as string | undefined)?.trim() ||
-  '2026-06-12T09:00:00+03:00';
+  '2026-06-30T09:00:00+03:00';
 
 export const PARTNER_ORDER_RECEPTION_BANNER_ENABLED =
   import.meta.env.VITE_PARTNER_ORDER_RECEPTION_BANNER_ENABLED !== 'false';
