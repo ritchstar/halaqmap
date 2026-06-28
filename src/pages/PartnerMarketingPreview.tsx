@@ -60,6 +60,7 @@ import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNar
 import { PartnerB2BVisualFeatureCards } from '@/components/partner/PartnerB2BVisualFeatureCards';
 import { PartnerB2BUrgencyBand } from '@/components/partner/PartnerB2BUrgencyBand';
 import { PartnerOwnerWatchSpotlight } from '@/components/partner/PartnerOwnerWatchSpotlight';
+import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { MobilePartnerActionDock } from '@/components/partner/MobilePartnerActionDock';
 import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
@@ -610,6 +611,8 @@ export default function PartnerMarketingPreview() {
           الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
           ══════════════════════════════════════════════════════════════════ */}
       <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
+
+        <PartnerOrderReceptionTicker surface="partner-light" />
 
         {/* خلفية زجاجية */}
         <div className={cn(

@@ -42,6 +42,7 @@ import {
   MOBILE_PARTNER_NAV_CLEARANCE,
   MOBILE_SHELL_OVERFLOW,
 } from '@/lib/mobilePageShell';
+import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -250,6 +251,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             isMapCommunityPage && 'border-emerald-500/15',
           )}
         >
+          <PartnerOrderReceptionTicker />
           <div className="container mx-auto px-3 sm:px-4">
             {isMapCommunityPage ? (
               <div className="flex h-12 items-center gap-2">

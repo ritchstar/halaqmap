@@ -1451,6 +1451,19 @@
   word-break: normal;
 }
 
+@keyframes partner-order-reception-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.partner-order-reception-marquee-track {
+  animation: partner-order-reception-marquee 32s linear infinite;
+}
+
 .rtl-force {
   direction: rtl;
   unicode-bidi: plaintext;

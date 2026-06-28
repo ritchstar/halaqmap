@@ -6,6 +6,7 @@ import { ROUTE_PATHS } from '@/lib';
 import { SalesOfficeSaudiStyleChat } from '@/components/SalesOfficeSaudiStyleChat';
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
+import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 
 const MOMENTUM_STRIPS = [
@@ -154,6 +155,9 @@ export default function PartnerSalesOfficePage() {
       dir="rtl"
       className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_42%,#f6faf8_100%)] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] text-slate-900"
     >
+      <div className="sticky top-0 z-[60]">
+        <PartnerOrderReceptionTicker surface="partner-light" />
+      </div>
       <div ref={topAnchorRef} className="absolute top-0 h-px w-px" aria-hidden />
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_42%,#f6faf8_100%)]" />
