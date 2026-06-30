@@ -298,6 +298,22 @@ export default function Payment() {
     const failure = readMoyasarFailureReturn(searchParams);
     if (!failure) return;
 
+    const storedId = readMoyasarLastPaymentId();
+    if (storedId) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('status');
+          next.delete('message');
+          if (!next.get('id')?.trim()) next.set('id', storedId);
+          return next;
+        },
+        { replace: true },
+      );
+      setMoyasarVerifyNonce((n) => n + 1);
+      return;
+    }
+
     const userMessage = formatMoyasarFailureReturnMessage(failure.message);
     setMoyasarReturnVerify('error');
     setMoyasarVerifyMessage(userMessage);
@@ -847,6 +863,15 @@ export default function Payment() {
                   >
                     إعادة التحقق من ميسر
                   </Button>
+                ) : null}
+                {paymentReturnUnpaid || paymentReturnError ? (
+                  <p className="text-xs text-muted-foreground">
+                    إن ظهرت العملية <strong className="text-foreground">مدفوعة</strong> في لوحة ميسر، انسخ
+                    معرّف الدفع (UUID) من تفاصيل العملية وأضفه للرابط:{' '}
+                    <span dir="ltr" className="font-mono">
+                      &amp;id=...
+                    </span>
+                  </p>
                 ) : null}
               </AlertDescription>
             </Alert>
