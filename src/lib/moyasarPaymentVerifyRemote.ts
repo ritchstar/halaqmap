@@ -8,7 +8,13 @@ function registrationApiOrigin(): string {
     .replace(/\/$/, '');
 }
 
-function verifyEndpoint(): string {
+function supabaseVerifyEndpoint(): string | null {
+  const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim().replace(/\/$/, '');
+  if (!supabaseUrl) return null;
+  return `${supabaseUrl}/functions/v1/verify-moyasar-payment`;
+}
+
+function vercelVerifyEndpoint(): string {
   const explicit = String(import.meta.env.VITE_VERIFY_MOYSAR_PAYMENT_URL || '').trim();
   if (explicit) return explicit;
 
@@ -31,6 +37,14 @@ function verifyEndpoint(): string {
   const origin = registrationApiOrigin();
   if (origin) return `${origin}/api/verify-moyasar-payment`;
   return '/api/verify-moyasar-payment';
+}
+
+function verifyEndpoints(): string[] {
+  const endpoints: string[] = [];
+  const supabase = supabaseVerifyEndpoint();
+  if (supabase) endpoints.push(supabase);
+  endpoints.push(vercelVerifyEndpoint());
+  return [...new Set(endpoints)];
 }
 
 export type VerifyMoyasarPaymentResult =
@@ -66,7 +80,6 @@ export async function verifyMoyasarPaymentRemote(
   paymentId: string,
   opts?: { expectedAmountHalalas?: number; expectedCurrency?: string },
 ): Promise<VerifyMoyasarPaymentResult> {
-  const base = verifyEndpoint();
   const q = new URLSearchParams({ id: paymentId.trim() });
   if (opts?.expectedAmountHalalas != null && Number.isFinite(opts.expectedAmountHalalas)) {
     q.set('expectedAmount', String(Math.floor(opts.expectedAmountHalalas)));
@@ -74,52 +87,75 @@ export async function verifyMoyasarPaymentRemote(
   if (opts?.expectedCurrency) {
     q.set('expectedCurrency', opts.expectedCurrency.trim().toUpperCase());
   }
-  const url = `${base}?${q.toString()}`;
+  const query = q.toString();
 
-  try {
-    const res = await fetch(url, { method: 'GET', credentials: 'omit' });
-    let data: Record<string, unknown>;
+  const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+  let lastFailure: VerifyMoyasarPaymentResult = {
+    ok: false,
+    error: 'network',
+    hint: 'تعذر الاتصال بخادم التحقق من الدفع.',
+  };
+
+  for (const base of verifyEndpoints()) {
+    const url = `${base}?${query}`;
+    const headers: Record<string, string> = {};
+    if (base.includes('/functions/v1/verify-moyasar-payment') && anonKey) {
+      headers.apikey = anonKey;
+      headers.Authorization = `Bearer ${anonKey}`;
+    }
+
     try {
-      data = await readJsonResponse(res);
-    } catch (parseError) {
+      const res = await fetch(url, { method: 'GET', credentials: 'omit', headers });
+      let data: Record<string, unknown>;
+      try {
+        data = await readJsonResponse(res);
+      } catch (parseError) {
+        lastFailure = {
+          ok: false,
+          error: 'invalid_response',
+          hint: parseError instanceof Error ? parseError.message : 'تعذر قراءة استجابة خادم التحقق.',
+          status: res.status,
+        };
+        continue;
+      }
+
+      if (!res.ok) {
+        const err = String(data.error || 'request_failed');
+        const hint = data.hint != null ? String(data.hint) : undefined;
+        const message = data.message != null ? String(data.message) : undefined;
+        lastFailure = { ok: false, error: err, hint, message, status: res.status };
+        if (res.status === 502 || err === 'upstream_network' || err === 'invalid_response') {
+          continue;
+        }
+        return lastFailure;
+      }
+
+      if (data.ok !== true) {
+        return { ok: false, error: String(data.error || 'unknown') };
+      }
+
       return {
+        ok: true,
+        paid: data.paid === true,
+        status: String(data.status || ''),
+        id: String(data.id || paymentId),
+        amount: typeof data.amount === 'number' ? data.amount : null,
+        currency: data.currency != null ? String(data.currency) : null,
+        fee: typeof data.fee === 'number' ? data.fee : null,
+        description: data.description != null ? String(data.description) : null,
+        amount_format: data.amount_format != null ? String(data.amount_format) : null,
+      };
+    } catch (error) {
+      lastFailure = {
         ok: false,
-        error: 'invalid_response',
-        hint: parseError instanceof Error ? parseError.message : 'تعذر قراءة استجابة خادم التحقق.',
-        status: res.status,
+        error: 'network',
+        hint:
+          error instanceof Error
+            ? `تعذر الاتصال بخادم التحقق (${error.message}).`
+            : 'تعذر الاتصال بخادم التحقق من الدفع.',
       };
     }
-
-    if (!res.ok) {
-      const err = String(data.error || 'request_failed');
-      const hint = data.hint != null ? String(data.hint) : undefined;
-      const message = data.message != null ? String(data.message) : undefined;
-      return { ok: false, error: err, hint, message, status: res.status };
-    }
-
-    if (data.ok !== true) {
-      return { ok: false, error: String(data.error || 'unknown') };
-    }
-
-    return {
-      ok: true,
-      paid: data.paid === true,
-      status: String(data.status || ''),
-      id: String(data.id || paymentId),
-      amount: typeof data.amount === 'number' ? data.amount : null,
-      currency: data.currency != null ? String(data.currency) : null,
-      fee: typeof data.fee === 'number' ? data.fee : null,
-      description: data.description != null ? String(data.description) : null,
-      amount_format: data.amount_format != null ? String(data.amount_format) : null,
-    };
-  } catch (error) {
-    return {
-      ok: false,
-      error: 'network',
-      hint:
-        error instanceof Error
-          ? `تعذر الاتصال بخادم التحقق (${error.message}). تحقق من النطاق وPUBLIC_API_ALLOWED_ORIGINS وMOYSAR_SECRET_TEST_API_KEY على Vercel.`
-          : 'تعذر الاتصال بخادم التحقق من الدفع.',
-    };
   }
+
+  return lastFailure;
 }
