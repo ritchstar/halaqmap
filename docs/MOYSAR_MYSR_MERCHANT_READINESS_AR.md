@@ -70,7 +70,7 @@ https://docs.mysr.dev/
 
 ### 3.1 ما يُنفَّذ في الواجهة (حلاق ماب)
 
-- تحميل السكربت الرسمي من CDN: `https://cdn.moyasar.com/mpf/0.3.0/moyasar.min.js` (يُرجى مراجعة أحدث مسار في وثائق ميسر عند التحديث).
+- تحميل السكربت الرسمي من CDN: `https://cdn.moyasar.com/mpf/1.15.0/moyasar.js` مع `moyasar.css` (إصدار `0.3.0/min.js` لم يعد متاحاً — 403).
 - استدعاء `Moyasar.init` داخل صفحة الدفع بعد **الإقرار بشروط التاجر**، مع `language: 'ar'` و`metadata` (tier، request_id، product).
 - الملفات: `src/lib/moyasarFormLoader.ts`، `src/pages/Payment.tsx`.
 
