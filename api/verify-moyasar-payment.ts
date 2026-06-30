@@ -11,12 +11,13 @@
  * - MOYSAR_SECRET_TEST_API_KEY=sk_test_...
  */
 
+import https from 'node:https';
+import { URL } from 'node:url';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 20,
-  runtime: 'nodejs',
 };
 
 const DEFAULT_MOYSAR_API_BASE = 'https://api.moyasar.com/v1';
@@ -51,8 +52,15 @@ function resolveMoyasarSecretKey(): string {
   const liveKey = (process.env.MOYSAR_SECRET_LIVE_API_KEY || '').trim();
   const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim();
   const candidates = mode === 'live' ? [liveKey, legacy, testKey] : [testKey, legacy, liveKey];
-  const picked = candidates.find((k) => k.startsWith('sk_')) || candidates.find(Boolean) || '';
+  const picked = candidates.find((k) => k.startsWith('sk_')) || '';
   return picked.replace(/\s+/g, '');
+}
+
+function secretKeyLooksValid(secret: string): boolean {
+  const mode = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase();
+  if (!secret.startsWith('sk_')) return false;
+  if (mode === 'live') return secret.startsWith('sk_live_');
+  return secret.startsWith('sk_test_') || secret.startsWith('sk_live_');
 }
 
 function moyasarBasicAuthHeader(secret: string): string {
@@ -65,22 +73,45 @@ function moyasarBasicAuthHeader(secret: string): string {
   return `Basic ${btoa(binary)}`;
 }
 
-async function fetchMoyasarPayment(id: string, secret: string): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 12_000);
-  try {
-    return await fetch(`${MOYSAR_API_BASE}/payments/${encodeURIComponent(id)}`, {
-      method: 'GET',
-      headers: {
-        Authorization: moyasarBasicAuthHeader(secret),
-        Accept: 'application/json',
-        'User-Agent': 'halaqmap-verify/1.0',
+type MoyasarUpstreamResult = { status: number; text: string };
+
+function fetchMoyasarPayment(id: string, secret: string): Promise<MoyasarUpstreamResult> {
+  const paymentUrl = new URL(`${MOYSAR_API_BASE}/payments/${encodeURIComponent(id)}`);
+  const auth = moyasarBasicAuthHeader(secret);
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname: paymentUrl.hostname,
+        port: paymentUrl.port || 443,
+        path: `${paymentUrl.pathname}${paymentUrl.search}`,
+        method: 'GET',
+        headers: {
+          Authorization: auth,
+          Accept: 'application/json',
+          'User-Agent': 'halaqmap-verify/1.0',
+        },
+        timeout: 12_000,
       },
-      signal: controller.signal,
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on('data', (chunk) => {
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        });
+        res.on('end', () => {
+          resolve({
+            status: res.statusCode ?? 502,
+            text: Buffer.concat(chunks).toString('utf8'),
+          });
+        });
+      },
+    );
+    req.on('timeout', () => {
+      req.destroy(new Error('upstream_timeout'));
     });
-  } finally {
-    clearTimeout(timer);
-  }
+    req.on('error', reject);
+    req.end();
+  });
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -127,6 +158,21 @@ async function handleVerifyMoyasarPayment(
     return Response.json(guard.json, { status: guard.status, headers });
   }
 
+  const url = new URL(request.url);
+  if (url.searchParams.get('health') === '1') {
+    const secret = resolveMoyasarSecretKey();
+    return Response.json(
+      {
+        ok: true,
+        moyasarConfigured: Boolean(secret),
+        secretLooksValid: secret ? secretKeyLooksValid(secret) : false,
+        apiBase: MOYSAR_API_BASE,
+        paymentEnv: (process.env.PAYMENT_ENV || 'test').trim().toLowerCase(),
+      },
+      { headers },
+    );
+  }
+
   const secret = resolveMoyasarSecretKey();
   if (!secret) {
     return Response.json(
@@ -139,7 +185,18 @@ async function handleVerifyMoyasarPayment(
     );
   }
 
-  const url = new URL(request.url);
+  if (!secretKeyLooksValid(secret)) {
+    return Response.json(
+      {
+        ok: false,
+        error: 'moyasar_secret_invalid',
+        hint:
+          'يجب أن يبدأ MOYSAR_SECRET_TEST_API_KEY بـ sk_test_ كاملاً من لوحة ميسر (وليس pk_test_ ولا sk_test_... حرفياً).',
+      },
+      { status: 503, headers },
+    );
+  }
+
   const id = (url.searchParams.get('id') || '').trim();
   if (!id || !UUID_RE.test(id)) {
     return Response.json({ ok: false, error: 'invalid_id', hint: 'Provide a valid Moyasar payment UUID as ?id=' }, { status: 400, headers });
@@ -156,21 +213,21 @@ async function handleVerifyMoyasarPayment(
     expectedAmount = n;
   }
 
-  let upstream: Response;
+  let upstream: MoyasarUpstreamResult;
   try {
     upstream = await fetchMoyasarPayment(id, secret);
   } catch (error) {
-    const aborted = error instanceof Error && error.name === 'AbortError';
+    const timedOut = error instanceof Error && error.message === 'upstream_timeout';
     console.error('[verify-moyasar] upstream fetch failed', {
-      aborted,
+      timedOut,
       message: error instanceof Error ? error.message : String(error),
       apiBase: MOYSAR_API_BASE,
     });
     return Response.json(
       {
         ok: false,
-        error: aborted ? 'upstream_timeout' : 'upstream_network',
-        hint: aborted
+        error: timedOut ? 'upstream_timeout' : 'upstream_network',
+        hint: timedOut
           ? 'انتهت مهلة الاتصال ببوابة ميسر. أعد المحاولة خلال ثوانٍ.'
           : 'تعذر الاتصال ببوابة ميسر من الخادم. تحقق من MOYSAR_SECRET_TEST_API_KEY وMOYSAR_API_BASE على Vercel.',
       },
@@ -178,20 +235,7 @@ async function handleVerifyMoyasarPayment(
     );
   }
 
-  let text = '';
-  try {
-    text = await upstream.text();
-  } catch (error) {
-    console.error('[verify-moyasar] upstream body read failed', error);
-    return Response.json(
-      {
-        ok: false,
-        error: 'invalid_upstream',
-        hint: 'تعذر قراءة رد بوابة ميسر.',
-      },
-      { status: 502, headers },
-    );
-  }
+  const text = upstream.text;
 
   if (text.trimStart().startsWith('<')) {
     console.error('[verify-moyasar] upstream returned HTML', {
@@ -226,7 +270,7 @@ async function handleVerifyMoyasarPayment(
     );
   }
 
-  if (!upstream.ok) {
+  if (upstream.status < 200 || upstream.status >= 300) {
     const err = body as { message?: string; type?: string };
     return Response.json(
       {
