@@ -48,6 +48,6 @@ export const MoyasarProvider: UnifiedPaymentProvider = {
   },
   isSuccessStatus(status: string) {
     const s = String(status || '').trim().toLowerCase();
-    return s === 'paid' || s === 'success' || s === 'succeeded';
+    return s === 'paid' || s === 'success' || s === 'succeeded' || s === 'captured';
   },
 };

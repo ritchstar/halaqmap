@@ -183,7 +183,7 @@ export default function Payment() {
   const [moyasarReturnVerify, setMoyasarReturnVerify] = useState<
     'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
   >('idle');
-  const [moyasarVerifyMessage, setMoyasarVerifyMessage] = useState<string | null>(null);
+  const [moyasarVerifyNonce, setMoyasarVerifyNonce] = useState(0);
   /** يُعرض مع تنبيه النجاح بعد التحقق من ميسر عند paid */
   const [moyasarPaidAmountFormat, setMoyasarPaidAmountFormat] = useState<string | null>(null);
   const [activationCertificate, setActivationCertificate] = useState<DigitalActivationCertificateView | null>(null);
@@ -348,16 +348,15 @@ export default function Payment() {
         return;
       }
 
-      setSearchParams(
-        (prev) => {
-          const next = new URLSearchParams(prev);
-          next.delete('id');
-          return next;
-        },
-        { replace: true },
-      );
-
-      if (result.paid && paymentProvider.isSuccessStatus(result.status || 'paid')) {
+      if (result.paid) {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete('id');
+            return next;
+          },
+          { replace: true },
+        );
         clearMoyasarPaymentContext();
         setMoyasarReturnVerify('paid');
         setMoyasarVerifyMessage(null);
@@ -394,7 +393,7 @@ export default function Payment() {
     return () => {
       cancelled = true;
     };
-  }, [moyasarPaymentIdFromUrl, moyasarReturnHydrated, searchParams, vatSettings, paymentProvider, setSearchParams]);
+  }, [moyasarPaymentIdFromUrl, moyasarReturnHydrated, searchParams, vatSettings, setSearchParams, moyasarVerifyNonce]);
 
   useEffect(() => {
     if (!sabPaymentIdFromUrl) return;
@@ -793,7 +792,23 @@ export default function Payment() {
               }`}
             >
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm leading-relaxed">{paymentReturnMessage}</AlertDescription>
+              <AlertDescription className="space-y-3 text-sm leading-relaxed">
+                <p>{paymentReturnMessage}</p>
+                {moyasarPaymentIdFromUrl && paymentReturnUnpaid ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setMoyasarReturnVerify('loading');
+                      setMoyasarVerifyMessage(null);
+                      setMoyasarVerifyNonce((n) => n + 1);
+                    }}
+                  >
+                    إعادة التحقق من ميسر
+                  </Button>
+                ) : null}
+              </AlertDescription>
             </Alert>
           )}
 
