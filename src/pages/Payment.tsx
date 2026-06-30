@@ -183,6 +183,7 @@ export default function Payment() {
   const [moyasarReturnVerify, setMoyasarReturnVerify] = useState<
     'idle' | 'loading' | 'paid' | 'unpaid' | 'error'
   >('idle');
+  const [moyasarVerifyMessage, setMoyasarVerifyMessage] = useState<string | null>(null);
   const [moyasarVerifyNonce, setMoyasarVerifyNonce] = useState(0);
   /** يُعرض مع تنبيه النجاح بعد التحقق من ميسر عند paid */
   const [moyasarPaidAmountFormat, setMoyasarPaidAmountFormat] = useState<string | null>(null);
