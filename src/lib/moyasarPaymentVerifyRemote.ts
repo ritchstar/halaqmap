@@ -80,6 +80,32 @@ export async function verifyMoyasarPaymentRemote(
   paymentId: string,
   opts?: { expectedAmountHalalas?: number; expectedCurrency?: string },
 ): Promise<VerifyMoyasarPaymentResult> {
+  const retryDelaysMs = [0, 2000, 4000, 6000, 10000];
+  let lastResult: VerifyMoyasarPaymentResult = {
+    ok: false,
+    error: 'network',
+    hint: 'تعذر الاتصال بخادم التحقق من الدفع.',
+  };
+
+  for (let attempt = 0; attempt < retryDelaysMs.length; attempt += 1) {
+    if (retryDelaysMs[attempt]! > 0) {
+      await new Promise((resolve) => setTimeout(resolve, retryDelaysMs[attempt]!));
+    }
+    lastResult = await verifyMoyasarPaymentRemoteOnce(paymentId, opts);
+    if (!lastResult.ok) return lastResult;
+    if (lastResult.paid) return lastResult;
+    const status = String(lastResult.status || '').toLowerCase();
+    if (status === 'failed' || status === 'voided' || status === 'refunded') return lastResult;
+    if (!['', 'initiated', 'pending', 'authorized', 'processing'].includes(status)) return lastResult;
+  }
+
+  return lastResult;
+}
+
+async function verifyMoyasarPaymentRemoteOnce(
+  paymentId: string,
+  opts?: { expectedAmountHalalas?: number; expectedCurrency?: string },
+): Promise<VerifyMoyasarPaymentResult> {
   const q = new URLSearchParams({ paymentId: paymentId.trim() });
   if (opts?.expectedAmountHalalas != null && Number.isFinite(opts.expectedAmountHalalas)) {
     q.set('expectedAmount', String(Math.floor(opts.expectedAmountHalalas)));

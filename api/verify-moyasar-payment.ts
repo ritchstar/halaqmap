@@ -6,6 +6,7 @@
 
 import {
   fetchMoyasarPayment,
+  moyasarPaymentIsPaid,
   resolveMoyasarApiBase,
   resolveMoyasarSecretKey,
   secretKeyLooksValid,
@@ -245,7 +246,7 @@ async function handleVerifyMoyasarPayment(
   return Response.json(
     {
       ok: true,
-      paid: status === 'paid',
+      paid: moyasarPaymentIsPaid(status),
       status,
       id: p.id,
       amount: Number.isFinite(amount) ? amount : null,

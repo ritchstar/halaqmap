@@ -45,6 +45,16 @@ function secretKeyLooksValid(secret: string): boolean {
   return secret.startsWith("sk_test_") || secret.startsWith("sk_live_");
 }
 
+function moyasarPaymentIsPaid(status: string): boolean {
+  const s = String(status || "").trim().toLowerCase();
+  return s === "paid" || s === "success" || s === "succeeded" || s === "captured";
+}
+
+function moyasarPaymentStatusRetryable(status: string): boolean {
+  const s = String(status || "").trim().toLowerCase();
+  return s === "" || s === "initiated" || s === "pending" || s === "authorized" || s === "processing";
+}
+
 function moyasarBasicAuthHeader(secret: string): string {
   const token = `${secret}:`;
   let binary = "";
@@ -246,7 +256,7 @@ Deno.serve(async (req) => {
   return jsonResponse(
     {
       ok: true,
-      paid: status === "paid",
+      paid: moyasarPaymentIsPaid(status),
       status,
       id: body.id,
       amount: Number.isFinite(amount) ? amount : null,

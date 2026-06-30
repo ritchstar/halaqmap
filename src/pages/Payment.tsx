@@ -379,9 +379,14 @@ export default function Payment() {
         }
       } else {
         setMoyasarReturnVerify('unpaid');
-        setMoyasarVerifyMessage(
-          `حالة الدفع من ميسر: ${result.status || 'غير مكتمل'}. إن كانت العملية قيد 3DS أكمل الخطوات ثم أعد فتح الرابط.`,
-        );
+        const statusLabel = String(result.status || 'غير مكتمل');
+        const statusHint =
+          statusLabel === 'failed'
+            ? 'فشلت العملية في ميسر. تأكد من إدخال بطاقة الاختبار 4111… وأكمل شاشة 3DS بزر Submit.'
+            : statusLabel === 'initiated' || statusLabel === 'authorized'
+              ? 'العملية ما زالت قيد المعالجة في ميسر. انتظر دقيقة ثم أعد فتح رابط العودة أو راجع لوحة ميسر.'
+              : 'إن كانت العملية قيد 3DS أكمل الخطوات ثم أعد فتح الرابط.';
+        setMoyasarVerifyMessage(`حالة الدفع من ميسر: ${statusLabel}. ${statusHint}`);
         toast.message('الدفع غير مكتمل', { description: 'راجع حالة العملية في لوحة ميسر.' });
       }
     });

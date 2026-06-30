@@ -45,6 +45,16 @@ export function moyasarBasicAuthHeader(secret: string): string {
 
 export type MoyasarUpstreamResult = { status: number; text: string };
 
+export function moyasarPaymentIsPaid(status: string): boolean {
+  const s = String(status || '').trim().toLowerCase();
+  return s === 'paid' || s === 'success' || s === 'succeeded' || s === 'captured';
+}
+
+export function moyasarPaymentStatusRetryable(status: string): boolean {
+  const s = String(status || '').trim().toLowerCase();
+  return s === '' || s === 'initiated' || s === 'pending' || s === 'authorized' || s === 'processing';
+}
+
 export async function fetchMoyasarPayment(
   paymentId: string,
   secret: string,
