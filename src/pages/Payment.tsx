@@ -65,9 +65,11 @@ import {
   formatMoyasarFailureReturnMessage,
   mergeMoyasarReturnSearchParams,
   moyasarReturnNeedsHydration,
+  persistMoyasarLastPaymentId,
   persistMoyasarPaymentContext,
   readHashOrTopLevelSearchParams,
   readMoyasarFailureReturn,
+  readMoyasarLastPaymentId,
 } from '@/lib/moyasarPaymentReturn';
 import { toast } from 'sonner';
 
@@ -283,8 +285,11 @@ export default function Payment() {
   const paymentGatewayFromUrl = (searchParams.get('gateway') ?? '').trim().toLowerCase();
   const paymentIdFromUrl = searchParams.get('id')?.trim() || '';
   const sabResourcePathFromUrl = searchParams.get('resourcePath')?.trim() || '';
-  const moyasarPaymentIdFromUrl =
-    paymentIdFromUrl && paymentGatewayFromUrl !== 'sab' ? paymentIdFromUrl : '';
+  const moyasarPaymentIdFromUrl = useMemo(() => {
+    if (paymentIdFromUrl && paymentGatewayFromUrl !== 'sab') return paymentIdFromUrl;
+    const stored = readMoyasarLastPaymentId();
+    return stored && paymentGatewayFromUrl !== 'sab' ? stored : '';
+  }, [paymentIdFromUrl, paymentGatewayFromUrl]);
   const sabPaymentIdFromUrl =
     paymentIdFromUrl && paymentGatewayFromUrl === 'sab' ? paymentIdFromUrl : '';
 
@@ -562,13 +567,24 @@ export default function Payment() {
             description: unifiedPaymentInit.description,
             publishable_api_key: moyasarPublishableKey,
             callback_url: callbackUrl,
-            supported_networks: ['mada', 'visa', 'mastercard'],
+            supported_networks: ['visa', 'mastercard'],
             methods: ['creditcard'],
             language: 'ar',
             fixed_width: false,
             metadata: unifiedPaymentInit.metadata,
+            on_completed: async (payment: unknown) => {
+              const id =
+                typeof payment === 'object' && payment != null && 'id' in payment
+                  ? String((payment as { id?: unknown }).id ?? '').trim()
+                  : '';
+              if (id) persistMoyasarLastPaymentId(id);
+            },
             on_failure: (msg: unknown) => {
-              toast.error(typeof msg === 'string' ? msg : 'فشل الدفع');
+              const raw = typeof msg === 'string' ? msg : 'فشل الدفع عبر ميسر.';
+              const userMessage = formatMoyasarFailureReturnMessage(raw);
+              setMoyasarReturnVerify('error');
+              setMoyasarVerifyMessage(userMessage);
+              toast.error('فشل الدفع عبر ميسر', { description: userMessage });
             },
           });
         } catch (e) {

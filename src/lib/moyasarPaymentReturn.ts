@@ -3,6 +3,7 @@ import { clampListingLicenseQuantity, computeListingLicenseTotalSar, isDigitalSh
 import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSettings';
 
 export const MOYASAR_PAYMENT_CONTEXT_STORAGE_KEY = 'hm-moyasar-payment-context-v1';
+export const MOYASAR_LAST_PAYMENT_ID_STORAGE_KEY = 'hm-moyasar-last-payment-id-v1';
 
 export type MoyasarPaymentContext = {
   tier: string;
@@ -40,8 +41,29 @@ export function clearMoyasarPaymentContext(): void {
   if (typeof window === 'undefined') return;
   try {
     sessionStorage.removeItem(MOYASAR_PAYMENT_CONTEXT_STORAGE_KEY);
+    sessionStorage.removeItem(MOYASAR_LAST_PAYMENT_ID_STORAGE_KEY);
   } catch {
     // ignore
+  }
+}
+
+export function persistMoyasarLastPaymentId(paymentId: string): void {
+  if (typeof window === 'undefined') return;
+  const id = paymentId.trim();
+  if (!id) return;
+  try {
+    sessionStorage.setItem(MOYASAR_LAST_PAYMENT_ID_STORAGE_KEY, id);
+  } catch {
+    // ignore
+  }
+}
+
+export function readMoyasarLastPaymentId(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    return (sessionStorage.getItem(MOYASAR_LAST_PAYMENT_ID_STORAGE_KEY) || '').trim();
+  } catch {
+    return '';
   }
 }
 
@@ -90,7 +112,7 @@ export function buildMoyasarCallbackUrl(
     }
   }
 
-  return `${origin}/?${q.toString()}`;
+  return `${origin}/`;
 }
 
 function parseTierFromParam(raw: string | null): SubscriptionTier {
@@ -200,17 +222,17 @@ export function captureMoyasarReturnInHashRoute(): boolean {
   }
 
   if (!params?.get('id')) {
-    if (
-      params &&
-      (params.get('status') === 'failed' || params.get('message')) &&
-      (params.get('tier') || params.get('requestId'))
-    ) {
-      const hash = window.location.hash || '';
-      const hashPath = hash.replace(/^#/, '').split('?')[0] || '';
-      if (hashPath === ROUTE_PATHS.PAYMENT || hashPath === `${ROUTE_PATHS.PAYMENT}/`) return false;
-      const target = `${window.location.origin}/#${ROUTE_PATHS.PAYMENT}${search}`;
-      window.location.replace(target);
-      return true;
+    if (params && (params.get('status') === 'failed' || params.get('message'))) {
+      const hasReturnContext =
+        Boolean(params.get('tier') || params.get('requestId') || readMoyasarPaymentContext());
+      if (hasReturnContext) {
+        const hash = window.location.hash || '';
+        const hashPath = hash.replace(/^#/, '').split('?')[0] || '';
+        if (hashPath === ROUTE_PATHS.PAYMENT || hashPath === `${ROUTE_PATHS.PAYMENT}/`) return false;
+        const target = `${window.location.origin}/#${ROUTE_PATHS.PAYMENT}${search}`;
+        window.location.replace(target);
+        return true;
+      }
     }
     return false;
   }
