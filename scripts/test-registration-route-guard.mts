@@ -46,6 +46,17 @@ async function main() {
   assert.strictEqual(fn.ok, false);
   assert.strictEqual(fn.status, 403);
 
+  const getSameSite = new Request('https://www.halaqmap.com/api/verify-moyasar-payment', {
+    method: 'GET',
+    headers: {
+      host: 'www.halaqmap.com',
+      'x-forwarded-proto': 'https',
+      'x-forwarded-for': '198.51.100.4',
+    },
+  });
+  process.env.PUBLIC_API_ALLOWED_ORIGINS = 'https://www.halaqmap.com,https://halaqmap.com';
+  assert.strictEqual(mod.runRegistrationRouteGuards(getSameSite, 'verify-get').ok, true, 'GET same host without Origin');
+
   delete process.env.REGISTRATION_ALLOWED_ORIGINS;
   delete process.env.PUBLIC_API_ALLOWED_ORIGINS;
   const list = mod.parseRegistrationAllowedOrigins();

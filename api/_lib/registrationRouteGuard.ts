@@ -152,6 +152,45 @@ function requestOriginNormalized(request: Request): string | null {
   }
 }
 
+function requestRefererOrigin(request: Request): string | null {
+  const raw = request.headers.get('referer')?.trim();
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
+function requestHostOrigin(request: Request): string | null {
+  const host = request.headers.get('host')?.trim().toLowerCase();
+  if (!host) return null;
+  const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim().toLowerCase();
+  const proto = forwardedProto === 'http' || forwardedProto === 'https' ? forwardedProto : 'https';
+  try {
+    return new URL(`${proto}://${host}`).origin;
+  } catch {
+    return null;
+  }
+}
+
+/** المتصفح قد لا يُرسل Origin في GET من نفس النطاق — نستنتج من Referer أو Host. */
+function resolveAllowedBrowserOrigin(request: Request, allowed: string[]): string | null {
+  const direct = requestOriginNormalized(request);
+  if (direct && allowed.includes(direct)) return direct;
+
+  const method = request.method.toUpperCase();
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+    const refererOrigin = requestRefererOrigin(request);
+    if (refererOrigin && allowed.includes(refererOrigin)) return refererOrigin;
+
+    const hostOrigin = requestHostOrigin(request);
+    if (hostOrigin && allowed.includes(hostOrigin)) return hostOrigin;
+  }
+
+  return direct;
+}
+
 /**
  * يُستدعى في بداية POST لمسارات التسجيل وبوابة الحلاق وغيرها من الـ APIs العامة.
  * @param routeId مفتاح فريد لكل مسار (للعداد المنفصل)
@@ -177,14 +216,14 @@ export function runRegistrationRouteGuards(request: Request, routeId: string): R
     return { ok: true };
   }
 
-  const origin = requestOriginNormalized(request);
+  const origin = resolveAllowedBrowserOrigin(request, allowed);
   if (!origin) {
     return {
       ok: false,
       status: 403,
       json: {
         error: 'Forbidden',
-        hint: 'Missing Origin header. Browsers send Origin on cross-origin POST. For API tests, send Origin matching PUBLIC_API_ALLOWED_ORIGINS or REGISTRATION_ALLOWED_ORIGINS.',
+        hint: 'Missing or disallowed Origin. Add your site to PUBLIC_API_ALLOWED_ORIGINS (e.g. https://www.halaqmap.com,https://halaqmap.com). Same-origin GET may omit Origin; Referer/Host must match the allowlist.',
       },
     };
   }
