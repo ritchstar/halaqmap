@@ -265,6 +265,30 @@
   </head>
 
   <body>
+    <!-- HashRouter: إعادة توجيه عودة ميسر/SAB (?id= على أصل الموقع) قبل تحميل React -->
+    <script>
+      (function () {
+        try {
+          var paymentPath = '/partners/payment';
+          var path = (window.location.pathname || '').replace(/\/+$/, '') || '/';
+          var search = window.location.search || '';
+          if (path === paymentPath && search) {
+            var paymentTarget = window.location.origin + '/#' + paymentPath + search;
+            if (window.location.href !== paymentTarget) {
+              window.location.replace(paymentTarget);
+              return;
+            }
+          }
+          if (!search || search.indexOf('id=') === -1) return;
+          var params = new URLSearchParams(search);
+          if (!params.get('id') || params.get('gateway') === 'sab') return;
+          var hash = window.location.hash || '';
+          var hashPath = hash.replace(/^#/, '').split('?')[0] || '';
+          if (hashPath === paymentPath) return;
+          window.location.replace(window.location.origin + '/#' + paymentPath + search);
+        } catch (e) {}
+      })();
+    </script>
     <!-- HashRouter: الروابط الصحيحة للتقييم هي /#/rate/…?t=… — إن فُتحت /rate/… بدون # نُعيد التوجيه قبل تحميل React -->
     <script>
       (function () {

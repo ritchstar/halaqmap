@@ -58,6 +58,12 @@ import {
 } from '@/config/legalActivityScope';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
+import {
+  buildMoyasarCallbackUrl,
+  clearMoyasarPaymentContext,
+  persistMoyasarPaymentContext,
+  readMoyasarPaymentContext,
+} from '@/lib/moyasarPaymentReturn';
 import { toast } from 'sonner';
 
 export default function Payment() {
@@ -94,6 +100,36 @@ export default function Payment() {
     const p = searchParams.get('purpose')?.trim().toLowerCase();
     return p === 'recharge' ? 'recharge' : 'new';
   }, [searchParams]);
+
+  /** بعد عودة ميسر قد يُفقد tier/requestId من الرابط — نستعيدها من sessionStorage. */
+  useEffect(() => {
+    const paymentId = searchParams.get('id')?.trim();
+    if (!paymentId) return;
+    if ((searchParams.get('gateway') ?? '').trim().toLowerCase() === 'sab') return;
+
+    const needsTier = !searchParams.get('tier');
+    const needsRequestId = purchasePurpose === 'new' && !searchParams.get('requestId');
+    const needsQty = !searchParams.get('qty');
+    if (!needsTier && !needsRequestId && !needsQty) return;
+
+    const ctx = readMoyasarPaymentContext();
+    if (!ctx) return;
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (needsTier && ctx.tier) next.set('tier', ctx.tier);
+        if (needsQty && ctx.qty) next.set('qty', String(ctx.qty));
+        if (needsRequestId && ctx.requestId) next.set('requestId', ctx.requestId);
+        if (!next.get('linkedBarberId') && ctx.linkedBarberId) next.set('linkedBarberId', ctx.linkedBarberId);
+        if (!next.get('aiAddon') && ctx.aiAddon) next.set('aiAddon', '1');
+        if (!next.get('barberName') && ctx.barberName) next.set('barberName', ctx.barberName);
+        if (!next.get('purpose') && ctx.purpose) next.set('purpose', ctx.purpose);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [purchasePurpose, searchParams, setSearchParams]);
 
   /** شراء أول يتطلب requestId صالحاً من مسار التسجيل — يمنع الدفع المباشر بلا طلب */
   const registrationRequestReady = useMemo(() => {
@@ -288,6 +324,7 @@ export default function Payment() {
       }
 
       if (result.paid && paymentProvider.isSuccessStatus(result.status || 'paid')) {
+        clearMoyasarPaymentContext();
         setMoyasarReturnVerify('paid');
         setMoyasarVerifyMessage(null);
         setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
@@ -423,34 +460,26 @@ export default function Payment() {
     setMoyasarFormError(null);
 
     const explicit = String(import.meta.env.VITE_MOYSAR_CALLBACK_URL || '').trim();
-    let callbackUrl: string;
-    const paymentQuery = [
-      `tier=${encodeURIComponent(tier)}`,
-      `qty=${encodeURIComponent(String(licenseQuantity))}`,
-      ...(digitalShiftAddonSelected ? ['aiAddon=1'] : []),
-      `requestId=${encodeURIComponent(requestId)}`,
-      ...(linkedBarberId ? [`linkedBarberId=${encodeURIComponent(linkedBarberId)}`] : []),
-    ].join('&');
-    if (explicit) {
-      try {
-        const u = new URL(explicit);
-        u.searchParams.set('tier', tier);
-        u.searchParams.set('qty', String(licenseQuantity));
-        if (digitalShiftAddonSelected) u.searchParams.set('aiAddon', '1');
-        else u.searchParams.delete('aiAddon');
-        u.searchParams.set('requestId', requestId);
-        if (linkedBarberId) u.searchParams.set('linkedBarberId', linkedBarberId);
-        callbackUrl = u.toString();
-      } catch {
-        const origin = window.location.origin;
-        const path = window.location.pathname.replace(/\/$/, '');
-        callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?${paymentQuery}`;
-      }
-    } else {
-      const origin = window.location.origin;
-      const path = window.location.pathname.replace(/\/$/, '');
-      callbackUrl = `${origin}${path}/#${ROUTE_PATHS.PAYMENT}?${paymentQuery}`;
-    }
+    const callbackUrl = buildMoyasarCallbackUrl(
+      {
+        tier,
+        licenseQuantity,
+        digitalShiftAddonSelected,
+        requestId,
+        linkedBarberId,
+      },
+      explicit || undefined,
+    );
+
+    persistMoyasarPaymentContext({
+      tier,
+      qty: licenseQuantity,
+      requestId,
+      linkedBarberId: linkedBarberId || undefined,
+      aiAddon: digitalShiftAddonSelected,
+      barberName: barberName || undefined,
+      purpose: purchasePurpose,
+    });
 
     void loadMoyasarFormScript()
       .then(() => {
@@ -503,6 +532,8 @@ export default function Payment() {
     digitalShiftAddonSelected,
     requestId,
     linkedBarberId,
+    barberName,
+    purchasePurpose,
     registrationRequestReady,
     showMoyasarCheckout,
     moyasarPublishableKey,
