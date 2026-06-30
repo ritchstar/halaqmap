@@ -1,5 +1,9 @@
 import { safeHost, verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import {
+  resolveSabPaymentMode,
+  sabOppwaConfigured,
+} from './_lib/payment-gateway/sabOppwaConfig.js';
 import { isLikelyHttpUrl, normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 
 export const config = {
@@ -129,6 +133,13 @@ export async function GET(request: Request): Promise<Response> {
     {
       ok: true,
       settings,
+      serverReadiness: {
+        paymentEnv: resolveSabPaymentMode(),
+        sabOppwaConfigured: sabOppwaConfigured(),
+        moyasarPublishableKeySet: Boolean(
+          (process.env.MOYASAR_PUBLISHABLE_KEY || process.env.VITE_MOYASAR_PUBLISHABLE_KEY || '').trim(),
+        ),
+      },
       monitoring: {
         securityEventsLast7d: (secRows || []).length,
         securityBySeverity,

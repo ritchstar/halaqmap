@@ -30,6 +30,12 @@ export type PlatformPaymentMonitoring = {
   subscriptionsByStatus: Record<string, number>;
 };
 
+export type PlatformPaymentServerReadiness = {
+  paymentEnv: 'test' | 'live';
+  sabOppwaConfigured: boolean;
+  moyasarPublishableKeySet: boolean;
+};
+
 async function authHeaders(): Promise<Record<string, string> | null> {
   const client = getSupabaseClient();
   const token = (await client?.auth.getSession())?.data.session?.access_token?.trim();
@@ -42,7 +48,12 @@ async function authHeaders(): Promise<Record<string, string> | null> {
 }
 
 export async function fetchPlatformPaymentSettingsAdmin(): Promise<
-  | { ok: true; settings: PlatformPaymentSettingsPayload; monitoring: PlatformPaymentMonitoring }
+  | {
+      ok: true;
+      settings: PlatformPaymentSettingsPayload;
+      monitoring: PlatformPaymentMonitoring;
+      serverReadiness: PlatformPaymentServerReadiness | null;
+    }
   | { ok: false; error: string }
 > {
   const h = await authHeaders();
@@ -54,8 +65,9 @@ export async function fetchPlatformPaymentSettingsAdmin(): Promise<
   }
   const settings = json.settings as PlatformPaymentSettingsPayload;
   const monitoring = json.monitoring as PlatformPaymentMonitoring;
+  const serverReadiness = (json.serverReadiness as PlatformPaymentServerReadiness | undefined) ?? null;
   if (!settings || !monitoring) return { ok: false, error: 'استجابة غير صالحة' };
-  return { ok: true, settings, monitoring };
+  return { ok: true, settings, monitoring, serverReadiness };
 }
 
 export async function savePlatformPaymentSettingsAdmin(

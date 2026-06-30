@@ -14,6 +14,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
+import { REFUND_POLICY_PATH } from '@/config/moyasarMerchantCompliance';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { capturePartnerAttributionFromLocation } from '@/lib/partnerAttribution';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
@@ -590,6 +591,12 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             <NavLink to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
               شروط الاستخدام
             </NavLink>
+            <NavLink to={REFUND_POLICY_PATH} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
+              الاسترجاع والاسترداد
+            </NavLink>
+            <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
+              الأسعار والباقات
+            </NavLink>
             <NavLink to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-slate-500 hover:text-emerald-300 touch-manipulation">
               سياسة الخصوصية
             </NavLink>
@@ -632,6 +639,12 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/5 pt-4 text-sm">
             <NavLink to={ROUTE_PATHS.TERMS_OF_SERVICE} className="text-slate-400 transition-colors hover:text-emerald-200">
               شروط الاستخدام
+            </NavLink>
+            <NavLink to={REFUND_POLICY_PATH} className="text-slate-400 transition-colors hover:text-emerald-200">
+              الاسترجاع والاسترداد
+            </NavLink>
+            <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="text-slate-400 transition-colors hover:text-emerald-200">
+              الأسعار والباقات
             </NavLink>
             <NavLink to={ROUTE_PATHS.USER_PRIVACY_POLICY} className="text-slate-400 transition-colors hover:text-emerald-200">
               سياسة الخصوصية

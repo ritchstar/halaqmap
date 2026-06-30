@@ -1,6 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import {
+  PRICING_POLICY_PATH,
+  REFUND_POLICY_PATH,
+} from '@/config/moyasarMerchantCompliance';
+import {
   PLATFORM_OFFICIAL_ENTITY_ABOUT_LINK_LABEL,
   PLATFORM_OFFICIAL_FOOTER_LEGAL_LINE,
   PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE,
@@ -46,6 +50,20 @@ export function PlatformOfficialFooterStrip({ variant = 'light' }: { variant?: V
       </p>
       <div className="mt-4">
         <EcommerceVerifiedFooterBadge variant={variant} />
+      </div>
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm">
+        <NavLink to={ROUTE_PATHS.TERMS_OF_SERVICE} className={linkClass}>
+          شروط الاستخدام
+        </NavLink>
+        <NavLink to={REFUND_POLICY_PATH} className={linkClass}>
+          سياسة الاسترجاع والاسترداد
+        </NavLink>
+        <NavLink to={PRICING_POLICY_PATH} className={linkClass}>
+          الأسعار والخدمات
+        </NavLink>
+        <NavLink to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className={linkClass}>
+          سياسة رخصة النفاذ
+        </NavLink>
       </div>
       <div className="mt-3 flex justify-center">
         <NavLink

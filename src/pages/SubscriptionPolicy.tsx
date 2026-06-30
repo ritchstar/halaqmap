@@ -167,7 +167,7 @@ export default function SubscriptionPolicy() {
           </Card>
         </motion.section>
 
-        <motion.section variants={staggerItem} className="mb-16">
+        <motion.section variants={staggerItem} className="mb-16" id="pricing">
           <h2 className="text-3xl font-black mb-4 text-center text-white">أنواع باقات حزم رخصة النفاذ والأسعار</h2>
           <p className="text-sm text-muted-foreground text-center max-w-3xl mx-auto mb-8 leading-relaxed">
             {SUBSCRIPTION_POLICY_TIERS_INTRO}
@@ -331,8 +331,8 @@ export default function SubscriptionPolicy() {
 
         <Separator className="my-16" />
 
-        <motion.section variants={staggerItem} className="mb-16">
-          <h2 className="text-3xl font-black mb-8 text-center text-white">سياسة استرداد الأموال</h2>
+        <motion.section variants={staggerItem} className="mb-16" id="refund-policy">
+          <h2 className="text-3xl font-black mb-8 text-center text-white">سياسة الاسترجاع والاسترداد</h2>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {refundPolicy.map((policy, index) => (
               <motion.div

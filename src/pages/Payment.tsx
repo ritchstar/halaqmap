@@ -45,6 +45,8 @@ import {
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
 import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
+import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
+import { REFUND_POLICY_PATH } from '@/config/moyasarMerchantCompliance';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
@@ -774,6 +776,8 @@ export default function Payment() {
                 </CardContent>
               </Card>
 
+              <PaymentMerchantCompliancePanel />
+
               {/* Payment Methods */}
               <Card>
                 <CardHeader>
@@ -847,6 +851,16 @@ export default function Payment() {
                     ) : null}
                   </RadioGroup>
 
+                  {pubPayConfig?.ok === false && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription className="text-sm leading-relaxed">
+                        تعذّر تحميل إعدادات الدفع من الخادم ({pubPayConfig.error || 'خطأ'}). تُعرض ميسر
+                        افتراضياً. تحقق من متغيرات Supabase على Vercel ثم أعد تحميل الصفحة.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   {availablePaymentChannels.length === 0 && (
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
@@ -889,7 +903,15 @@ export default function Payment() {
                               وثائق التكامل (mysr.dev)
                             </a>
                             . يلتزم التاجر بـ SSL، والتحقق من الدفع في الخادم، وعدم تخزين بيانات البطاقة،
-                            وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع أيضاً{' '}
+                            وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع{' '}
+                            <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="font-medium text-primary underline-offset-2 hover:underline">
+                              شروط الاستخدام
+                            </Link>
+                            ،{' '}
+                            <Link to={REFUND_POLICY_PATH} className="font-medium text-primary underline-offset-2 hover:underline">
+                              سياسة الاسترجاع والاسترداد
+                            </Link>
+                            ، و{' '}
                             <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
                               سياسة رخصة النفاذ الرقمية
                             </Link>
@@ -919,8 +941,14 @@ export default function Payment() {
                         />
                         <Label htmlFor="moyasar-merchant-terms" className="cursor-pointer text-sm font-normal leading-relaxed">
                           <span className="font-semibold text-foreground">أقر</span> بأنني اطلعت على{' '}
-                          <strong>شروط وأحكام بوابة الدفع الإلكتروني لشركة مُيسر المالية</strong> بصفتنا تاجراً أمام
-                          بوابة الدفع، وأوافق على المتابعة ضمن هذا الإطار.
+                          <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="font-medium text-primary underline-offset-2 hover:underline">
+                            شروط وأحكام الاستخدام
+                          </Link>
+                          ، و{' '}
+                          <Link to={REFUND_POLICY_PATH} className="font-medium text-primary underline-offset-2 hover:underline">
+                            سياسة الاسترجاع والاسترداد
+                          </Link>
+                          ، وشروط بوابة الدفع لشركة مُيسر المالية، وأوافق على المتابعة.
                         </Label>
                       </div>
 

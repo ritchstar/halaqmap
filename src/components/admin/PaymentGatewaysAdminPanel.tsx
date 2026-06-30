@@ -3,6 +3,7 @@ import {
   fetchPlatformPaymentSettingsAdmin,
   savePlatformPaymentSettingsAdmin,
   type PlatformPaymentMonitoring,
+  type PlatformPaymentServerReadiness,
   type PlatformPaymentSettingsPayload,
 } from '@/lib/platformPaymentSettingsRemote';
 import { Button } from '@/components/ui/button';
@@ -45,10 +46,16 @@ const emptySettings: PlatformPaymentSettingsPayload = {
 
 export function PaymentGatewaysAdminPanel({ canSave }: Props) {
   const mounted = useRef(true);
+  const settingsRef = useRef(emptySettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<PlatformPaymentSettingsPayload>(emptySettings);
   const [monitoring, setMonitoring] = useState<PlatformPaymentMonitoring | null>(null);
+  const [serverReadiness, setServerReadiness] = useState<PlatformPaymentServerReadiness | null>(null);
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   useEffect(() => {
     mounted.current = true;
@@ -69,6 +76,7 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
       }
       setSettings(r.settings);
       setMonitoring(r.monitoring);
+      setServerReadiness(r.serverReadiness);
     } finally {
       if (mounted.current) setLoading(false);
     }
@@ -82,24 +90,40 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
     setSettings((prev) => ({ ...prev, ...partial }));
   };
 
-  const handleSave = async () => {
+  const persistSettings = async (
+    partial: Partial<PlatformPaymentSettingsPayload>,
+    { silent = false }: { silent?: boolean } = {},
+  ): Promise<boolean> => {
     if (!canSave) {
-      toast({ title: 'لا تملك صلاحية الحفظ', description: 'يلزم صلاحية إعدادات المنصة.', variant: 'destructive' });
-      return;
+      toast({
+        title: 'لا تملك صلاحية الحفظ',
+        description: 'يلزم صلاحية إعدادات بوابات الدفع.',
+        variant: 'destructive',
+      });
+      return false;
     }
+    const next = { ...settingsRef.current, ...partial };
+    setSettings(next);
     setSaving(true);
     try {
-      const r = await savePlatformPaymentSettingsAdmin(settings);
+      const r = await savePlatformPaymentSettingsAdmin(next);
       if (r.ok === false) {
         toast({ title: 'فشل الحفظ', description: r.error, variant: 'destructive' });
-        return;
+        await refresh();
+        return false;
       }
       setSettings(r.settings);
-      toast({ title: 'تم حفظ إعدادات بوابات الدفع' });
-      void refresh();
+      if (!silent) {
+        toast({ title: 'تم حفظ إعدادات بوابات الدفع' });
+      }
+      return true;
     } finally {
-      setSaving(false);
+      if (mounted.current) setSaving(false);
     }
+  };
+
+  const handleSave = async () => {
+    await persistSettings({});
   };
 
   const subTotal = monitoring
@@ -153,6 +177,25 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {serverReadiness && (
+              <Alert variant={serverReadiness.sabOppwaConfigured ? 'default' : 'destructive'}>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="space-y-1 text-sm leading-relaxed">
+                  <p>
+                    وضع مفاتيح الخادم (PAYMENT_ENV):{' '}
+                    <strong>{serverReadiness.paymentEnv === 'live' ? 'إنتاج' : 'اختبار'}</strong>
+                  </p>
+                  <p>
+                    مفاتيح SAB على Vercel:{' '}
+                    <strong>{serverReadiness.sabOppwaConfigured ? 'مضبوطة ✓' : 'غير مضبوطة — أضف SAB_ENTITY_ID_* و SAB_ACCESS_TOKEN_*'}</strong>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    تفعيل المفتاح هنا يحفظ في قاعدة البيانات ويُظهر خيار SAB في صفحة الدفع. بدون مفاتيح Vercel يظهر الخيار
+                    لكن جلسة الدفع ستفشل.
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label>البوابة الافتراضية في صفحة الدفع</Label>
               <Select
@@ -192,8 +235,14 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
               </div>
               <Switch
                 checked={settings.enable_moyasar_card}
-                onCheckedChange={(c) => patch({ enable_moyasar_card: c })}
-                disabled={!canSave || loading}
+                onCheckedChange={(c) => {
+                  void persistSettings({ enable_moyasar_card: c === true }, { silent: true }).then((ok) => {
+                    if (ok) {
+                      toast({ title: c ? 'تم تفعيل ميسر' : 'تم إيقاف ميسر' });
+                    }
+                  });
+                }}
+                disabled={!canSave || loading || saving}
               />
             </div>
             <div className="flex items-center justify-between gap-4 rounded-lg border border-border/80 p-3">
@@ -203,8 +252,14 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
               </div>
               <Switch
                 checked={settings.enable_sab_gateway}
-                onCheckedChange={(c) => patch({ enable_sab_gateway: c })}
-                disabled={!canSave || loading}
+                onCheckedChange={(c) => {
+                  void persistSettings({ enable_sab_gateway: c === true }, { silent: true }).then((ok) => {
+                    if (ok) {
+                      toast({ title: c ? 'تم تفعيل مسار SAB' : 'تم إيقاف مسار SAB' });
+                    }
+                  });
+                }}
+                disabled={!canSave || loading || saving}
               />
             </div>
           </CardContent>
