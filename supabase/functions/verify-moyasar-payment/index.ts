@@ -137,10 +137,10 @@ Deno.serve(async (req) => {
     );
   }
 
-  const id = (url.searchParams.get("id") || "").trim();
+  const id = (url.searchParams.get("paymentId") || url.searchParams.get("id") || "").trim();
   if (!id || !UUID_RE.test(id)) {
     return jsonResponse(
-      { ok: false, error: "invalid_id", hint: "Provide a valid Moyasar payment UUID as ?id=" },
+      { ok: false, error: "invalid_id", hint: "Provide a valid Moyasar payment UUID as ?paymentId=" },
       400,
       origin,
     );

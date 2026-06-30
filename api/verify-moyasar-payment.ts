@@ -127,9 +127,12 @@ async function handleVerifyMoyasarPayment(
     );
   }
 
-  const id = (url.searchParams.get('id') || '').trim();
+  const id = (url.searchParams.get('paymentId') || url.searchParams.get('id') || '').trim();
   if (!id || !UUID_RE.test(id)) {
-    return Response.json({ ok: false, error: 'invalid_id', hint: 'Provide a valid Moyasar payment UUID as ?id=' }, { status: 400, headers });
+    return Response.json(
+      { ok: false, error: 'invalid_id', hint: 'Provide a valid Moyasar payment UUID as ?paymentId=' },
+      { status: 400, headers },
+    );
   }
 
   const expectedAmountRaw = url.searchParams.get('expectedAmount');

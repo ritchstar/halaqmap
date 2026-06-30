@@ -80,7 +80,7 @@ export async function verifyMoyasarPaymentRemote(
   paymentId: string,
   opts?: { expectedAmountHalalas?: number; expectedCurrency?: string },
 ): Promise<VerifyMoyasarPaymentResult> {
-  const q = new URLSearchParams({ id: paymentId.trim() });
+  const q = new URLSearchParams({ paymentId: paymentId.trim() });
   if (opts?.expectedAmountHalalas != null && Number.isFinite(opts.expectedAmountHalalas)) {
     q.set('expectedAmount', String(Math.floor(opts.expectedAmountHalalas)));
   }
