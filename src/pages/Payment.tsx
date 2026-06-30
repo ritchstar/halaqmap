@@ -43,6 +43,7 @@ import {
   verifySabPaymentRemote,
 } from '@/lib/sabPaymentRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
+import { syncMoyasarPaymentFulfillmentRemote } from '@/lib/moyasarPaymentFulfillmentSyncRemote';
 import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
@@ -409,6 +410,7 @@ export default function Payment() {
         setActivationCertificate(null);
         setActivationCertificateError(null);
         setActivationCertificateLoading(true);
+        await syncMoyasarPaymentFulfillmentRemote(verifiedPaymentId);
         const certResult = await fetchActivationCertificateByMoyasarPaymentId(verifiedPaymentId);
         if (cancelled) return;
         setActivationCertificateLoading(false);

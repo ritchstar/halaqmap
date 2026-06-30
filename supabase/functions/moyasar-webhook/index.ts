@@ -641,7 +641,14 @@ Deno.serve(async (req) => {
       .eq("moyasar_webhook_event_id", eventId)
       .maybeSingle();
     if (dup) {
-      return jsonResponse({ ok: true, idempotent: true, eventId }, 200);
+      const { data: existingOrder } = await supabase
+        .from("listing_license_orders")
+        .select("id")
+        .eq("moyasar_payment_id", paymentId)
+        .maybeSingle();
+      if (existingOrder?.id) {
+        return jsonResponse({ ok: true, idempotent: true, eventId, orderId: existingOrder.id }, 200);
+      }
     }
   }
 
