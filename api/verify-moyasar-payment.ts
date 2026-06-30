@@ -14,9 +14,25 @@
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
-export const config = { maxDuration: 20 };
+export const config = {
+  maxDuration: 20,
+  runtime: 'nodejs',
+};
 
-const MOYSAR_API_BASE = (process.env.MOYSAR_API_BASE || 'https://api.moyasar.com/v1').trim().replace(/\/$/, '');
+const DEFAULT_MOYSAR_API_BASE = 'https://api.moyasar.com/v1';
+
+function resolveMoyasarApiBase(): string {
+  const raw = (process.env.MOYSAR_API_BASE || DEFAULT_MOYSAR_API_BASE).trim().replace(/\/$/, '');
+  try {
+    const host = new URL(raw).hostname.toLowerCase();
+    if (host === 'api.moyasar.com') return raw;
+  } catch {
+    // ignore invalid MOYSAR_API_BASE
+  }
+  return DEFAULT_MOYSAR_API_BASE;
+}
+
+const MOYSAR_API_BASE = resolveMoyasarApiBase();
 /** UUID كما تعيده ميسر في باراميتر ?id= */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -34,8 +50,37 @@ function resolveMoyasarSecretKey(): string {
   const testKey = (process.env.MOYSAR_SECRET_TEST_API_KEY || '').trim();
   const liveKey = (process.env.MOYSAR_SECRET_LIVE_API_KEY || '').trim();
   const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim();
-  if (mode === 'live') return liveKey || legacy;
-  return testKey || legacy;
+  const candidates = mode === 'live' ? [liveKey, legacy, testKey] : [testKey, legacy, liveKey];
+  const picked = candidates.find((k) => k.startsWith('sk_')) || candidates.find(Boolean) || '';
+  return picked.replace(/\s+/g, '');
+}
+
+function moyasarBasicAuthHeader(secret: string): string {
+  const token = `${secret}:`;
+  if (typeof Buffer !== 'undefined') {
+    return `Basic ${Buffer.from(token, 'utf8').toString('base64')}`;
+  }
+  let binary = '';
+  for (const byte of new TextEncoder().encode(token)) binary += String.fromCharCode(byte);
+  return `Basic ${btoa(binary)}`;
+}
+
+async function fetchMoyasarPayment(id: string, secret: string): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12_000);
+  try {
+    return await fetch(`${MOYSAR_API_BASE}/payments/${encodeURIComponent(id)}`, {
+      method: 'GET',
+      headers: {
+        Authorization: moyasarBasicAuthHeader(secret),
+        Accept: 'application/json',
+        'User-Agent': 'halaqmap-verify/1.0',
+      },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -111,38 +156,72 @@ async function handleVerifyMoyasarPayment(
     expectedAmount = n;
   }
 
-  const basic = Buffer.from(`${secret}:`, 'utf8').toString('base64');
   let upstream: Response;
   try {
-    upstream = await fetch(`${MOYSAR_API_BASE}/payments/${encodeURIComponent(id)}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Basic ${basic}`,
-        Accept: 'application/json',
-      },
-      signal: AbortSignal.timeout(12_000),
-    });
+    upstream = await fetchMoyasarPayment(id, secret);
   } catch (error) {
-    const timedOut = error instanceof Error && error.name === 'TimeoutError';
+    const aborted = error instanceof Error && error.name === 'AbortError';
+    console.error('[verify-moyasar] upstream fetch failed', {
+      aborted,
+      message: error instanceof Error ? error.message : String(error),
+      apiBase: MOYSAR_API_BASE,
+    });
     return Response.json(
       {
         ok: false,
-        error: timedOut ? 'upstream_timeout' : 'upstream_network',
-        hint: timedOut
+        error: aborted ? 'upstream_timeout' : 'upstream_network',
+        hint: aborted
           ? 'انتهت مهلة الاتصال ببوابة ميسر. أعد المحاولة خلال ثوانٍ.'
-          : 'تعذر الاتصال ببوابة ميسر من الخادم.',
+          : 'تعذر الاتصال ببوابة ميسر من الخادم. تحقق من MOYSAR_SECRET_TEST_API_KEY وMOYSAR_API_BASE على Vercel.',
       },
       { status: 502, headers },
     );
   }
 
-  const text = await upstream.text();
+  let text = '';
+  try {
+    text = await upstream.text();
+  } catch (error) {
+    console.error('[verify-moyasar] upstream body read failed', error);
+    return Response.json(
+      {
+        ok: false,
+        error: 'invalid_upstream',
+        hint: 'تعذر قراءة رد بوابة ميسر.',
+      },
+      { status: 502, headers },
+    );
+  }
+
+  if (text.trimStart().startsWith('<')) {
+    console.error('[verify-moyasar] upstream returned HTML', {
+      status: upstream.status,
+      apiBase: MOYSAR_API_BASE,
+      snippet: text.replace(/\s+/g, ' ').trim().slice(0, 120),
+    });
+    return Response.json(
+      {
+        ok: false,
+        error: 'invalid_upstream',
+        status: upstream.status,
+        hint:
+          'رد غير متوقع من مسار ميسر (HTML). احذف MOYSAR_API_BASE من Vercel أو اضبطه على https://api.moyasar.com/v1 فقط.',
+      },
+      { status: 502, headers },
+    );
+  }
+
   let body: unknown;
   try {
     body = text ? JSON.parse(text) : {};
   } catch {
     return Response.json(
-      { ok: false, error: 'invalid_upstream', status: upstream.status },
+      {
+        ok: false,
+        error: 'invalid_upstream',
+        status: upstream.status,
+        hint: 'تعذر تحليل رد بوابة ميسر.',
+      },
       { status: 502, headers },
     );
   }
