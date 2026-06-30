@@ -7,11 +7,23 @@ import {
 } from '@/config/partnerLegal';
 import { SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR } from '@/config/subscriptionPricing';
 
-/** مسار سياسة الاسترداد — قسم داخل سياسة رخصة النفاذ */
-export const REFUND_POLICY_PATH = `${ROUTE_PATHS.SUBSCRIPTION_POLICY}#refund-policy` as const;
+/** معرّفات الأقسام داخل صفحة سياسة الرخصة */
+export const REFUND_POLICY_SECTION_ID = 'refund-policy' as const;
+export const PRICING_POLICY_SECTION_ID = 'pricing' as const;
 
-/** مسار جدول الأسعار والخدمات */
-export const PRICING_POLICY_PATH = `${ROUTE_PATHS.SUBSCRIPTION_POLICY}#pricing` as const;
+/**
+ * روابط قصيرة متوافقة مع HashRouter — لا تستخدم `#` داخل المسار (يُرمَّز إلى %23 ويسبب 404).
+ * المسارات القصيرة تُعاد توجيهها في App.tsx إلى `?section=`.
+ */
+export const REFUND_POLICY_PATH = '/partners/refund-policy' as const;
+export const PRICING_POLICY_PATH = '/partners/pricing' as const;
+
+export const REFUND_POLICY_CANONICAL_SEARCH = `?section=${REFUND_POLICY_SECTION_ID}` as const;
+export const PRICING_POLICY_CANONICAL_SEARCH = `?section=${PRICING_POLICY_SECTION_ID}` as const;
+
+export function subscriptionPolicySectionPath(sectionId: string): string {
+  return `${ROUTE_PATHS.SUBSCRIPTION_POLICY}?section=${encodeURIComponent(sectionId)}`;
+}
 
 export const MOYASAR_COMPLAINT_RESPONSE_DAYS_AR = '3 أيام عمل' as const;
 

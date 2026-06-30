@@ -1,4 +1,6 @@
-﻿import { motion } from "framer-motion";
+﻿import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import { springPresets, fadeInUp, staggerContainer, staggerItem } from "@/lib/motion";
 import { CheckCircle2, XCircle, AlertCircle, Phone, Mail, MessageSquare, MapPin } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,11 +30,29 @@ import {
 import { LicensedActivityScopeCard } from '@/components/legal/LicensedActivityScopeCard';
 import { formatLicensedActivityScopeLegalSection } from '@/config/legalActivityScope';
 import { getPlatformVatSettings, getSubscriptionPricingVatClauseAr } from '@/lib/platformVatSettings';
+import {
+  PRICING_POLICY_SECTION_ID,
+  REFUND_POLICY_SECTION_ID,
+} from '@/config/moyasarMerchantCompliance';
 
 
 export default function SubscriptionPolicy() {
+  const [searchParams] = useSearchParams();
   const subscriptionTiers = SUBSCRIPTION_POLICY_TIERS;
   const vatClause = getSubscriptionPricingVatClauseAr(getPlatformVatSettings());
+
+  useEffect(() => {
+    const section = searchParams.get('section')?.trim();
+    if (!section) return;
+    const id =
+      section === REFUND_POLICY_SECTION_ID || section === PRICING_POLICY_SECTION_ID
+        ? section
+        : section;
+    const timer = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [searchParams]);
 
   const paymentMethods = [
     {

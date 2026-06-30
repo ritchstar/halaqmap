@@ -9,6 +9,7 @@ import { Layout } from "@/components/Layout";
 /** ???????? PartnerLayout ?????? ????????? ?????????? ??? PartnerDigitalBarberAssistant ??? ???????? ????????? ?????????? ??? ????? ????????? ??????????? ??????????. */
 import { PartnerLayout } from "@/components/PartnerLayout";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { PolicySectionHashRedirect } from "@/components/PolicySectionHashRedirect";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
@@ -164,6 +165,7 @@ const App = () => (
         <PartnersDomainRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
+        <PolicySectionHashRedirect />
         <Routes>
           {/* ?????? ?????????? ?????????????? ???????????? ????????????????????????????????????????????????????????????????????????????????? */}
           <Route path={ROUTE_PATHS.HOME} element={<LazyRoute><LandingPreview /></LazyRoute>} />
@@ -250,6 +252,30 @@ const App = () => (
           <Route path={ROUTE_PATHS.SHOP_OPEN_ROTATE_CONFIRM} element={<PartnerLayout><LazyRoute><ShopOpenStatusRotateConfirm /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><LazyRoute><PartnerPrivacy /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><LazyRoute><SubscriptionPolicy /></LazyRoute></PartnerLayout>} />
+          <Route
+            path="/partners/refund-policy"
+            element={
+              <Navigate to={`${ROUTE_PATHS.SUBSCRIPTION_POLICY}?section=refund-policy`} replace />
+            }
+          />
+          <Route
+            path="/partners/pricing"
+            element={
+              <Navigate to={`${ROUTE_PATHS.SUBSCRIPTION_POLICY}?section=pricing`} replace />
+            }
+          />
+          <Route
+            path="/partners/subscription-policy%23refund-policy"
+            element={
+              <Navigate to={`${ROUTE_PATHS.SUBSCRIPTION_POLICY}?section=refund-policy`} replace />
+            }
+          />
+          <Route
+            path="/partners/subscription-policy%23pricing"
+            element={
+              <Navigate to={`${ROUTE_PATHS.SUBSCRIPTION_POLICY}?section=pricing`} replace />
+            }
+          />
           <Route path="/partners/hospitality-b2b-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/partners/hospitality-qr-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/hospitality-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
