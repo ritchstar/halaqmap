@@ -335,6 +335,12 @@ export default function Payment() {
               'الخادم رفض الطلب (CORS). أضف نطاقك إلى PUBLIC_API_ALLOWED_ORIGINS على Vercel.',
           );
           toast.error('فشل التحقق من الدفع');
+        } else if (result.error === 'invalid_response' || result.error === 'upstream_timeout' || result.error === 'upstream_network') {
+          setMoyasarVerifyMessage(
+            result.hint ||
+              'خادم التحقق لم يُرجع استجابة صالحة. قد يكون الاتصال بميسر بطيئاً — أعد المحاولة بعد دقيقة.',
+          );
+          toast.error('فشل التحقق من الدفع');
         } else {
           setMoyasarVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
           toast.error('فشل التحقق من الدفع');

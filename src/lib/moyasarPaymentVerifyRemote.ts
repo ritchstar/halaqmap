@@ -11,6 +11,23 @@ function registrationApiOrigin(): string {
 function verifyEndpoint(): string {
   const explicit = String(import.meta.env.VITE_VERIFY_MOYSAR_PAYMENT_URL || '').trim();
   if (explicit) return explicit;
+
+  if (typeof window !== 'undefined') {
+    const pageOrigin = window.location.origin.replace(/\/$/, '');
+    const splitOrigin = registrationApiOrigin();
+    if (splitOrigin) {
+      try {
+        const configured = new URL(splitOrigin).origin;
+        if (configured !== pageOrigin) {
+          return `${splitOrigin.replace(/\/$/, '')}/api/verify-moyasar-payment`;
+        }
+      } catch {
+        // ignore invalid split origin
+      }
+    }
+    return `${pageOrigin}/api/verify-moyasar-payment`;
+  }
+
   const origin = registrationApiOrigin();
   if (origin) return `${origin}/api/verify-moyasar-payment`;
   return '/api/verify-moyasar-payment';
@@ -30,6 +47,21 @@ export type VerifyMoyasarPaymentResult =
     }
   | { ok: false; error: string; hint?: string; message?: string; status?: number };
 
+async function readJsonResponse(res: Response): Promise<Record<string, unknown>> {
+  const text = await res.text();
+  if (!text.trim()) return {};
+  try {
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    const snippet = text.replace(/\s+/g, ' ').trim().slice(0, 160);
+    throw new Error(
+      snippet
+        ? `استجابة غير متوقعة من الخادم (${res.status}): ${snippet}`
+        : `استجابة غير متوقعة من الخادم (${res.status}).`,
+    );
+  }
+}
+
 export async function verifyMoyasarPaymentRemote(
   paymentId: string,
   opts?: { expectedAmountHalalas?: number; expectedCurrency?: string },
@@ -46,7 +78,17 @@ export async function verifyMoyasarPaymentRemote(
 
   try {
     const res = await fetch(url, { method: 'GET', credentials: 'omit' });
-    const data = (await res.json()) as Record<string, unknown>;
+    let data: Record<string, unknown>;
+    try {
+      data = await readJsonResponse(res);
+    } catch (parseError) {
+      return {
+        ok: false,
+        error: 'invalid_response',
+        hint: parseError instanceof Error ? parseError.message : 'تعذر قراءة استجابة خادم التحقق.',
+        status: res.status,
+      };
+    }
 
     if (!res.ok) {
       const err = String(data.error || 'request_failed');
@@ -70,7 +112,14 @@ export async function verifyMoyasarPaymentRemote(
       description: data.description != null ? String(data.description) : null,
       amount_format: data.amount_format != null ? String(data.amount_format) : null,
     };
-  } catch {
-    return { ok: false, error: 'network', hint: 'تعذر الاتصال بخادم التحقق من الدفع.' };
+  } catch (error) {
+    return {
+      ok: false,
+      error: 'network',
+      hint:
+        error instanceof Error
+          ? `تعذر الاتصال بخادم التحقق (${error.message}). تحقق من النطاق وPUBLIC_API_ALLOWED_ORIGINS وMOYSAR_SECRET_TEST_API_KEY على Vercel.`
+          : 'تعذر الاتصال بخادم التحقق من الدفع.',
+    };
   }
 }

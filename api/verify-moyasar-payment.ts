@@ -56,6 +56,27 @@ export async function GET(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
   const headers = corsHeaders(request);
+
+  try {
+    return await handleVerifyMoyasarPayment(request, headers);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unexpected_error';
+    return Response.json(
+      {
+        ok: false,
+        error: 'server_error',
+        message,
+        hint: 'تعذر إكمال التحقق من الدفع على الخادم. راجع سجلات Vercel أو أعد المحاولة.',
+      },
+      { status: 500, headers },
+    );
+  }
+}
+
+async function handleVerifyMoyasarPayment(
+  request: Request,
+  headers: Record<string, string>,
+): Promise<Response> {
   const guard = runRegistrationRouteGuards(request, 'verify-moyasar-payment');
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
@@ -99,9 +120,20 @@ export async function GET(request: Request): Promise<Response> {
         Authorization: `Basic ${basic}`,
         Accept: 'application/json',
       },
+      signal: AbortSignal.timeout(12_000),
     });
-  } catch {
-    return Response.json({ ok: false, error: 'upstream_network' }, { status: 502, headers });
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === 'TimeoutError';
+    return Response.json(
+      {
+        ok: false,
+        error: timedOut ? 'upstream_timeout' : 'upstream_network',
+        hint: timedOut
+          ? 'انتهت مهلة الاتصال ببوابة ميسر. أعد المحاولة خلال ثوانٍ.'
+          : 'تعذر الاتصال ببوابة ميسر من الخادم.',
+      },
+      { status: 502, headers },
+    );
   }
 
   const text = await upstream.text();
