@@ -1,4 +1,6 @@
-import { ROUTE_PATHS } from '@/lib';
+import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
+import { clampListingLicenseQuantity, computeListingLicenseTotalSar, isDigitalShiftAddonAllowed, parseDigitalShiftAddonParam } from '@/config/listingLicenseQuantity';
+import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSettings';
 
 export const MOYASAR_PAYMENT_CONTEXT_STORAGE_KEY = 'hm-moyasar-payment-context-v1';
 
@@ -89,6 +91,65 @@ export function buildMoyasarCallbackUrl(
   }
 
   return `${origin}/?${q.toString()}`;
+}
+
+function parseTierFromParam(raw: string | null): SubscriptionTier {
+  const tierRaw = (raw ?? '').trim().toLowerCase();
+  if (tierRaw === SubscriptionTier.GOLD) return SubscriptionTier.GOLD;
+  if (tierRaw === SubscriptionTier.DIAMOND) return SubscriptionTier.DIAMOND;
+  return SubscriptionTier.BRONZE;
+}
+
+/** دمج معاملات العودة من الرابط + sessionStorage قبل التحقق من الدفع. */
+export function mergeMoyasarReturnSearchParams(searchParams: URLSearchParams): URLSearchParams {
+  const next = new URLSearchParams(searchParams);
+  const paymentId = next.get('id')?.trim();
+  if (!paymentId) return next;
+  if ((next.get('gateway') ?? '').trim().toLowerCase() === 'sab') return next;
+
+  const ctx = readMoyasarPaymentContext();
+  if (!ctx) return next;
+
+  if (!next.get('tier') && ctx.tier) next.set('tier', ctx.tier);
+  if (!next.get('qty') && ctx.qty) next.set('qty', String(ctx.qty));
+  if (!next.get('requestId') && ctx.requestId) next.set('requestId', ctx.requestId);
+  if (!next.get('linkedBarberId') && ctx.linkedBarberId) next.set('linkedBarberId', ctx.linkedBarberId);
+  if (!next.get('aiAddon') && ctx.aiAddon) next.set('aiAddon', '1');
+  if (!next.get('barberName') && ctx.barberName) next.set('barberName', ctx.barberName);
+  if (!next.get('purpose') && ctx.purpose) next.set('purpose', ctx.purpose);
+  return next;
+}
+
+export function readHashOrTopLevelSearchParams(): URLSearchParams {
+  if (typeof window === 'undefined') return new URLSearchParams();
+  const hash = window.location.hash.replace(/^#/, '');
+  const hashQuery = hash.includes('?') ? hash.split('?').slice(1).join('?') : '';
+  const topLevel = window.location.search.replace(/^\?/, '');
+  return new URLSearchParams(hashQuery || topLevel);
+}
+
+export function moyasarReturnNeedsHydration(searchParams: URLSearchParams): boolean {
+  const paymentId = searchParams.get('id')?.trim();
+  if (!paymentId) return false;
+  if ((searchParams.get('gateway') ?? '').trim().toLowerCase() === 'sab') return false;
+  if (searchParams.get('tier')) return false;
+  return readMoyasarPaymentContext() != null;
+}
+
+export function expectedHalalasFromReturnSearchParams(
+  searchParams: URLSearchParams,
+  vatSettings: PlatformVatSettings,
+): number {
+  const tier = parseTierFromParam(searchParams.get('tier'));
+  const licenseQuantity = clampListingLicenseQuantity(searchParams.get('qty'));
+  const digitalShiftAddonSelected = isDigitalShiftAddonAllowed(
+    tier,
+    parseDigitalShiftAddonParam(searchParams.get('aiAddon')),
+  );
+  const listingPricingOptions = digitalShiftAddonSelected ? { digitalShiftAddon: true as const } : undefined;
+  const price = computeListingLicenseTotalSar(tier, licenseQuantity, listingPricingOptions);
+  const licenseBreakdown = calcVatBreakdown(price, vatSettings);
+  return Math.max(100, Math.round(licenseBreakdown.total * 100));
 }
 
 /** يُستدعى قبل React — إن عاد ميسر بـ `/?id=` نُحوّل لمسار HashRouter. */

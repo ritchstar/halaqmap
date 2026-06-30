@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -61,8 +61,11 @@ import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader
 import {
   buildMoyasarCallbackUrl,
   clearMoyasarPaymentContext,
+  expectedHalalasFromReturnSearchParams,
+  mergeMoyasarReturnSearchParams,
+  moyasarReturnNeedsHydration,
   persistMoyasarPaymentContext,
-  readMoyasarPaymentContext,
+  readHashOrTopLevelSearchParams,
 } from '@/lib/moyasarPaymentReturn';
 import { toast } from 'sonner';
 
@@ -101,35 +104,33 @@ export default function Payment() {
     return p === 'recharge' ? 'recharge' : 'new';
   }, [searchParams]);
 
-  /** بعد عودة ميسر قد يُفقد tier/requestId من الرابط — نستعيدها من sessionStorage. */
-  useEffect(() => {
+  /** بعد عودة ميسر: ادمج tier/requestId من sessionStorage قبل التحقق من الخادم. */
+  const [moyasarReturnHydrated, setMoyasarReturnHydrated] = useState(
+    () => typeof window === 'undefined' || !moyasarReturnNeedsHydration(readHashOrTopLevelSearchParams()),
+  );
+  const moyasarReturnHydratingRef = useRef(false);
+
+  useLayoutEffect(() => {
     const paymentId = searchParams.get('id')?.trim();
-    if (!paymentId) return;
-    if ((searchParams.get('gateway') ?? '').trim().toLowerCase() === 'sab') return;
+    if (!paymentId) {
+      setMoyasarReturnHydrated(true);
+      return;
+    }
+    if ((searchParams.get('gateway') ?? '').trim().toLowerCase() === 'sab') {
+      setMoyasarReturnHydrated(true);
+      return;
+    }
+    if (!moyasarReturnNeedsHydration(searchParams)) {
+      setMoyasarReturnHydrated(true);
+      return;
+    }
+    if (moyasarReturnHydratingRef.current) return;
+    moyasarReturnHydratingRef.current = true;
 
-    const needsTier = !searchParams.get('tier');
-    const needsRequestId = purchasePurpose === 'new' && !searchParams.get('requestId');
-    const needsQty = !searchParams.get('qty');
-    if (!needsTier && !needsRequestId && !needsQty) return;
-
-    const ctx = readMoyasarPaymentContext();
-    if (!ctx) return;
-
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (needsTier && ctx.tier) next.set('tier', ctx.tier);
-        if (needsQty && ctx.qty) next.set('qty', String(ctx.qty));
-        if (needsRequestId && ctx.requestId) next.set('requestId', ctx.requestId);
-        if (!next.get('linkedBarberId') && ctx.linkedBarberId) next.set('linkedBarberId', ctx.linkedBarberId);
-        if (!next.get('aiAddon') && ctx.aiAddon) next.set('aiAddon', '1');
-        if (!next.get('barberName') && ctx.barberName) next.set('barberName', ctx.barberName);
-        if (!next.get('purpose') && ctx.purpose) next.set('purpose', ctx.purpose);
-        return next;
-      },
-      { replace: true },
-    );
-  }, [purchasePurpose, searchParams, setSearchParams]);
+    const merged = mergeMoyasarReturnSearchParams(searchParams);
+    setSearchParams(merged, { replace: true });
+    setMoyasarReturnHydrated(true);
+  }, [searchParams, setSearchParams]);
 
   /** شراء أول يتطلب requestId صالحاً من مسار التسجيل — يمنع الدفع المباشر بلا طلب */
   const registrationRequestReady = useMemo(() => {
@@ -285,18 +286,62 @@ export default function Payment() {
     paymentIdFromUrl && paymentGatewayFromUrl === 'sab' ? paymentIdFromUrl : '';
 
   useEffect(() => {
-    if (!moyasarPaymentIdFromUrl) return;
+    if (!moyasarPaymentIdFromUrl || !moyasarReturnHydrated) return;
     let cancelled = false;
     setMoyasarReturnVerify('loading');
     setMoyasarVerifyMessage(null);
     setMoyasarPaidAmountFormat(null);
 
-    void verifyMoyasarPaymentRemote(moyasarPaymentIdFromUrl, {
-      expectedAmountHalalas: monthlyAmountHalalas,
-      expectedCurrency: 'SAR',
-    }).then(async (result) => {
+    const returnParams = mergeMoyasarReturnSearchParams(searchParams);
+    const expectedAmountHalalas = expectedHalalasFromReturnSearchParams(returnParams, vatSettings);
+
+    const runVerify = (expected?: number) =>
+      verifyMoyasarPaymentRemote(moyasarPaymentIdFromUrl, {
+        ...(expected != null ? { expectedAmountHalalas: expected } : {}),
+        expectedCurrency: 'SAR',
+      });
+
+    void runVerify(expectedAmountHalalas).then(async (initialResult) => {
       if (cancelled) return;
       const verifiedPaymentId = moyasarPaymentIdFromUrl;
+      let result = initialResult;
+
+      if (!result.ok && result.error === 'amount_mismatch') {
+        const relaxed = await runVerify();
+        if (!cancelled && relaxed.ok) result = relaxed;
+      }
+
+      if (!result.ok) {
+        setMoyasarReturnVerify('error');
+        if (result.error === 'moyasar_disabled') {
+          setMoyasarVerifyMessage(
+            'التحقق من الدفع غير مفعّل على الخادم. أضف MOYSAR_SECRET_TEST_API_KEY على Vercel ثم أعد المحاولة.',
+          );
+          toast.message('تنبيه', { description: 'خادم التحقق من ميسر غير مهيأ بعد.' });
+        } else if (result.error === 'amount_mismatch') {
+          setMoyasarVerifyMessage(
+            'المبلغ المدفوع لا يطابق قيمة الحزمة المعروضة. إن كان الدفع ناجحاً في لوحة ميسر، انتظر دقائق أو تواصل مع الدعم.',
+          );
+          toast.error('تباين في المبلغ');
+        } else if (result.error === 'moyasar_error') {
+          setMoyasarVerifyMessage(
+            result.message ||
+              'تعذر جلب حالة الدفع من ميسر. تحقق من تطابق مفتاح السر (sk_test_) مع المفتاح العام (pk_test_) على Vercel.',
+          );
+          toast.error('فشل التحقق من الدفع');
+        } else if (result.error === 'Forbidden') {
+          setMoyasarVerifyMessage(
+            result.hint ||
+              'الخادم رفض الطلب (CORS). أضف نطاقك إلى PUBLIC_API_ALLOWED_ORIGINS على Vercel.',
+          );
+          toast.error('فشل التحقق من الدفع');
+        } else {
+          setMoyasarVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
+          toast.error('فشل التحقق من الدفع');
+        }
+        return;
+      }
+
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
@@ -305,23 +350,6 @@ export default function Payment() {
         },
         { replace: true },
       );
-
-      if (!result.ok) {
-        setMoyasarReturnVerify('error');
-        if (result.error === 'moyasar_disabled') {
-          setMoyasarVerifyMessage(
-            'التحقق من الدفع غير مفعّل على الخادم. أضف MOYSAR_SECRET_API_KEY على Vercel ثم أعد المحاولة.',
-          );
-          toast.message('تنبيه', { description: 'خادم التحقق من ميسر غير مهيأ بعد.' });
-        } else if (result.error === 'amount_mismatch') {
-          setMoyasarVerifyMessage('المبلغ لا يطابق قيمة حزمة الرخصة الرقمية للباقة المعروضة. راجع الإدارة قبل اعتماد الدفع.');
-          toast.error('تباين في المبلغ');
-        } else {
-          setMoyasarVerifyMessage(result.hint || result.message || result.error || 'تعذر التحقق من الدفع');
-          toast.error('فشل التحقق من الدفع');
-        }
-        return;
-      }
 
       if (result.paid && paymentProvider.isSuccessStatus(result.status || 'paid')) {
         clearMoyasarPaymentContext();
@@ -355,7 +383,7 @@ export default function Payment() {
     return () => {
       cancelled = true;
     };
-  }, [moyasarPaymentIdFromUrl, monthlyAmountHalalas, paymentProvider, setSearchParams]);
+  }, [moyasarPaymentIdFromUrl, moyasarReturnHydrated, searchParams, vatSettings, paymentProvider, setSearchParams]);
 
   useEffect(() => {
     if (!sabPaymentIdFromUrl) return;
