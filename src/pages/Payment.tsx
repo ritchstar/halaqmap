@@ -46,6 +46,7 @@ import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActiv
 import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
+import { MadaBadgeIcon, VisaMastercardBadgeIcon } from '@/components/billing/PaymentMethodBadgeIcons';
 import { REFUND_POLICY_PATH } from '@/config/moyasarMerchantCompliance';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
 import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
@@ -815,10 +816,12 @@ export default function Payment() {
                           <p className="text-sm text-muted-foreground">
                             بوابة دفع سعودية آمنة — دعم جميع البطاقات (مدى، فيزا، ماستركارد)
                           </p>
-                          <div className="flex gap-2 mt-2">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/200px-Mastercard_2019_logo.svg.png" alt="Mastercard" className="h-6" />
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6" />
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Mada_Logo.svg/200px-Mada_Logo.svg.png" alt="Mada" className="h-6" />
+                          <div
+                            className="mt-2 flex flex-wrap items-center gap-3 text-muted-foreground"
+                            aria-label="وسائل الدفع: مدى، فيزا، ماستركارد"
+                          >
+                            <MadaBadgeIcon className="h-6 opacity-80" />
+                            <VisaMastercardBadgeIcon className="h-6 opacity-80" />
                           </div>
                         </div>
                       </label>
@@ -879,7 +882,10 @@ export default function Payment() {
                   )}
 
                   {paymentMethod === 'moyasar' && showMoyasarCheckout && (
-                    <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
+                    <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4">
+                      <p className="text-sm font-medium text-primary">
+                        الخطوة التالية: فعّل الإقرارات أدناه لعرض نموذج الدفع الآمن من ميسر.
+                      </p>
                       <Alert>
                         <Shield className="h-4 w-4" />
                         <AlertDescription className="space-y-2 text-sm leading-relaxed">
@@ -956,9 +962,11 @@ export default function Payment() {
                         <Alert>
                           <AlertCircle className="h-4 w-4" />
                           <AlertDescription className="text-sm">
-                            لإظهار نموذج الدفع أضف <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_API_KEY</code>{' '}
-                            في البيئة (مفتاح يبدأ بـ <span dir="ltr">pk_test_</span> أو <span dir="ltr">pk_live_</span>) ثم
-                            أعد بناء الواجهة.
+                            لإظهار نموذج الدفع أضف{' '}
+                            <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_TEST_API_KEY</code> (أو{' '}
+                            <code className="rounded bg-muted px-1">VITE_MOYSAR_PUBLISHABLE_LIVE_API_KEY</code> في الإنتاج)
+                            في Vercel — مفتاح يبدأ بـ <span dir="ltr">pk_test_</span> أو <span dir="ltr">pk_live_</span> — ثم
+                            أعد نشر الواجهة.
                           </AlertDescription>
                         </Alert>
                       )}
