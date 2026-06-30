@@ -2,36 +2,20 @@
  * التحقق من حالة دفع ميسر (Moyasar) على الخادم — لا يُعرَض مفتاح السرّ في الواجهة.
  * GET https://api.moyasar.com/v1/payments/:id — Basic Auth: اسم المستخدم = المفتاح السري، كلمة المرور فارغة.
  * @see https://docs.mysr.dev/api/payments/02-fetch-payment
- *
- * Production keys location (Vercel Environment Variables):
- * - PAYMENT_ENV=live
- * - MOYSAR_SECRET_LIVE_API_KEY=sk_live_...
- * Optional sandbox:
- * - PAYMENT_ENV=test
- * - MOYSAR_SECRET_TEST_API_KEY=sk_test_...
  */
 
-import https from 'node:https';
-import { URL } from 'node:url';
+import {
+  fetchMoyasarPayment,
+  resolveMoyasarApiBase,
+  resolveMoyasarSecretKey,
+  secretKeyLooksValid,
+} from './_lib/moyasarApiClient.js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
   maxDuration: 20,
 };
-
-const DEFAULT_MOYSAR_API_BASE = 'https://api.moyasar.com/v1';
-
-function resolveMoyasarApiBase(): string {
-  const raw = (process.env.MOYSAR_API_BASE || DEFAULT_MOYSAR_API_BASE).trim().replace(/\/$/, '');
-  try {
-    const host = new URL(raw).hostname.toLowerCase();
-    if (host === 'api.moyasar.com') return raw;
-  } catch {
-    // ignore invalid MOYSAR_API_BASE
-  }
-  return DEFAULT_MOYSAR_API_BASE;
-}
 
 const MOYSAR_API_BASE = resolveMoyasarApiBase();
 /** UUID كما تعيده ميسر في باراميتر ?id= */
@@ -44,74 +28,6 @@ const CORS_OPTS = {
 
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
-}
-
-function resolveMoyasarSecretKey(): string {
-  const mode = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase();
-  const testKey = (process.env.MOYSAR_SECRET_TEST_API_KEY || '').trim();
-  const liveKey = (process.env.MOYSAR_SECRET_LIVE_API_KEY || '').trim();
-  const legacy = (process.env.MOYSAR_SECRET_API_KEY || '').trim();
-  const candidates = mode === 'live' ? [liveKey, legacy, testKey] : [testKey, legacy, liveKey];
-  const picked = candidates.find((k) => k.startsWith('sk_')) || '';
-  return picked.replace(/\s+/g, '');
-}
-
-function secretKeyLooksValid(secret: string): boolean {
-  const mode = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase();
-  if (!secret.startsWith('sk_')) return false;
-  if (mode === 'live') return secret.startsWith('sk_live_');
-  return secret.startsWith('sk_test_') || secret.startsWith('sk_live_');
-}
-
-function moyasarBasicAuthHeader(secret: string): string {
-  const token = `${secret}:`;
-  if (typeof Buffer !== 'undefined') {
-    return `Basic ${Buffer.from(token, 'utf8').toString('base64')}`;
-  }
-  let binary = '';
-  for (const byte of new TextEncoder().encode(token)) binary += String.fromCharCode(byte);
-  return `Basic ${btoa(binary)}`;
-}
-
-type MoyasarUpstreamResult = { status: number; text: string };
-
-function fetchMoyasarPayment(id: string, secret: string): Promise<MoyasarUpstreamResult> {
-  const paymentUrl = new URL(`${MOYSAR_API_BASE}/payments/${encodeURIComponent(id)}`);
-  const auth = moyasarBasicAuthHeader(secret);
-
-  return new Promise((resolve, reject) => {
-    const req = https.request(
-      {
-        hostname: paymentUrl.hostname,
-        port: paymentUrl.port || 443,
-        path: `${paymentUrl.pathname}${paymentUrl.search}`,
-        method: 'GET',
-        headers: {
-          Authorization: auth,
-          Accept: 'application/json',
-          'User-Agent': 'halaqmap-verify/1.0',
-        },
-        timeout: 12_000,
-      },
-      (res) => {
-        const chunks: Buffer[] = [];
-        res.on('data', (chunk) => {
-          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-        });
-        res.on('end', () => {
-          resolve({
-            status: res.statusCode ?? 502,
-            text: Buffer.concat(chunks).toString('utf8'),
-          });
-        });
-      },
-    );
-    req.on('timeout', () => {
-      req.destroy(new Error('upstream_timeout'));
-    });
-    req.on('error', reject);
-    req.end();
-  });
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -161,6 +77,19 @@ async function handleVerifyMoyasarPayment(
   const url = new URL(request.url);
   if (url.searchParams.get('health') === '1') {
     const secret = resolveMoyasarSecretKey();
+    const probeId = '00000000-0000-4000-8000-000000000001';
+    let upstreamProbe: { ok: boolean; status?: number; error?: string } = { ok: false };
+    if (secret && secretKeyLooksValid(secret)) {
+      try {
+        const probe = await fetchMoyasarPayment(probeId, secret, MOYSAR_API_BASE);
+        upstreamProbe = { ok: true, status: probe.status };
+      } catch (error) {
+        upstreamProbe = {
+          ok: false,
+          error: error instanceof Error ? error.message : 'upstream_probe_failed',
+        };
+      }
+    }
     return Response.json(
       {
         ok: true,
@@ -168,6 +97,7 @@ async function handleVerifyMoyasarPayment(
         secretLooksValid: secret ? secretKeyLooksValid(secret) : false,
         apiBase: MOYSAR_API_BASE,
         paymentEnv: (process.env.PAYMENT_ENV || 'test').trim().toLowerCase(),
+        upstreamProbe,
       },
       { headers },
     );
@@ -213,11 +143,11 @@ async function handleVerifyMoyasarPayment(
     expectedAmount = n;
   }
 
-  let upstream: MoyasarUpstreamResult;
+  let upstream: Awaited<ReturnType<typeof fetchMoyasarPayment>>;
   try {
-    upstream = await fetchMoyasarPayment(id, secret);
+    upstream = await fetchMoyasarPayment(id, secret, MOYSAR_API_BASE);
   } catch (error) {
-    const timedOut = error instanceof Error && error.message === 'upstream_timeout';
+    const timedOut = error instanceof Error && error.name === 'AbortError';
     console.error('[verify-moyasar] upstream fetch failed', {
       timedOut,
       message: error instanceof Error ? error.message : String(error),
