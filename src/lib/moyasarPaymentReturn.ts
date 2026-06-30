@@ -136,6 +136,36 @@ export function moyasarReturnNeedsHydration(searchParams: URLSearchParams): bool
   return readMoyasarPaymentContext() != null;
 }
 
+/** عودة فاشلة من ميسر عبر callback_url: ?status=failed&message=… */
+export function readMoyasarFailureReturn(searchParams: URLSearchParams): { status: string; message: string } | null {
+  if ((searchParams.get('gateway') ?? '').trim().toLowerCase() === 'sab') return null;
+  if (searchParams.get('id')?.trim()) return null;
+  const status = (searchParams.get('status') ?? '').trim().toLowerCase();
+  const message = (searchParams.get('message') ?? '').trim();
+  if (status === 'failed' || message) return { status: status || 'failed', message };
+  return null;
+}
+
+export function formatMoyasarFailureReturnMessage(rawMessage: string): string {
+  const msg = rawMessage.trim();
+  const upper = msg.toUpperCase();
+  if (
+    upper.includes('INVALID CARD') ||
+    upper.includes('CARD_INVALID') ||
+    upper.includes('NOT FOUND') ||
+    upper.includes('CARD NOT ENROLLED')
+  ) {
+    return 'رفضت البطاقة: الرقم غير صالح للاختبار. استخدم بطاقة ميسر التجريبية `4111 1111 1111 1111` مع تاريخ مستقبلي وأي CVV، ثم أكمل شاشة 3DS بزر Submit.';
+  }
+  if (upper.includes('DECLINED')) {
+    return `رفض البنك العملية (${msg}). جرّب البطاقة التجريبية 4111… أو راجع لوحة ميسر.`;
+  }
+  if (upper.includes('INSUFFICIENT')) {
+    return 'الرصيد غير كافٍ. في الاختبار استخدم البطاقة `4111 1111 1111 1111`.';
+  }
+  return msg || 'تعذر إتمام الدفع عبر ميسر. أعد المحاولة أو راجع لوحة ميسر.';
+}
+
 export function expectedHalalasFromReturnSearchParams(
   searchParams: URLSearchParams,
   vatSettings: PlatformVatSettings,
@@ -169,7 +199,21 @@ export function captureMoyasarReturnInHashRoute(): boolean {
     return false;
   }
 
-  if (!params?.get('id')) return false;
+  if (!params?.get('id')) {
+    if (
+      params &&
+      (params.get('status') === 'failed' || params.get('message')) &&
+      (params.get('tier') || params.get('requestId'))
+    ) {
+      const hash = window.location.hash || '';
+      const hashPath = hash.replace(/^#/, '').split('?')[0] || '';
+      if (hashPath === ROUTE_PATHS.PAYMENT || hashPath === `${ROUTE_PATHS.PAYMENT}/`) return false;
+      const target = `${window.location.origin}/#${ROUTE_PATHS.PAYMENT}${search}`;
+      window.location.replace(target);
+      return true;
+    }
+    return false;
+  }
   if (params.get('gateway') === 'sab') return false;
 
   const hash = window.location.hash || '';

@@ -279,9 +279,11 @@
               return;
             }
           }
-          if (!search || search.indexOf('id=') === -1) return;
+          if (!search) return;
+          if (search.indexOf('id=') === -1 && search.indexOf('status=') === -1) return;
           var params = new URLSearchParams(search);
-          if (!params.get('id') || params.get('gateway') === 'sab') return;
+          if (params.get('gateway') === 'sab') return;
+          if (!params.get('id') && params.get('status') !== 'failed' && !params.get('message')) return;
           var hash = window.location.hash || '';
           var hashPath = hash.replace(/^#/, '').split('?')[0] || '';
           if (hashPath === paymentPath) return;

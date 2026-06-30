@@ -62,10 +62,12 @@ import {
   buildMoyasarCallbackUrl,
   clearMoyasarPaymentContext,
   expectedHalalasFromReturnSearchParams,
+  formatMoyasarFailureReturnMessage,
   mergeMoyasarReturnSearchParams,
   moyasarReturnNeedsHydration,
   persistMoyasarPaymentContext,
   readHashOrTopLevelSearchParams,
+  readMoyasarFailureReturn,
 } from '@/lib/moyasarPaymentReturn';
 import { toast } from 'sonner';
 
@@ -285,6 +287,27 @@ export default function Payment() {
     paymentIdFromUrl && paymentGatewayFromUrl !== 'sab' ? paymentIdFromUrl : '';
   const sabPaymentIdFromUrl =
     paymentIdFromUrl && paymentGatewayFromUrl === 'sab' ? paymentIdFromUrl : '';
+
+  useEffect(() => {
+    if (!moyasarReturnHydrated) return;
+    const failure = readMoyasarFailureReturn(searchParams);
+    if (!failure) return;
+
+    const userMessage = formatMoyasarFailureReturnMessage(failure.message);
+    setMoyasarReturnVerify('error');
+    setMoyasarVerifyMessage(userMessage);
+    toast.error('فشل الدفع عبر ميسر', { description: userMessage });
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('status');
+        next.delete('message');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [moyasarReturnHydrated, searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!moyasarPaymentIdFromUrl || !moyasarReturnHydrated) return;
