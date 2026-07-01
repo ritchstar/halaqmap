@@ -71,8 +71,6 @@ export function buildBronzePartnerActivationEmailBodies(input: {
     orderId ? `رقم طلب التسجيل (مرجع الدعم): ${orderId}` : '',
     `سياسة رخصة النفاذ الرقمية: ${input.policyUrl}`,
     '',
-    'سيصلك بريد منفصل بعقد الخدمات البرمجية الموحّد (PDF) إن لم يكن وصل بعد.',
-    '',
     '— فريق حلاق ماب',
   ]
     .filter(Boolean)
@@ -105,7 +103,6 @@ ${toggleBlock}
 <p style="margin:0 0 10px"><a href="${h(input.shopOpenRotateUrl)}" style="display:inline-block;padding:10px 18px;border-radius:10px;border:2px solid #0d9488;background:#ecfdf5;color:#0f766e;font-weight:800;text-decoration:none">تجديد رابط مفتوح/مغلق</a></p>
 ${orderId ? `<p style="font-size:13px;color:#64748b">مرجع الطلب: <span dir="ltr">${h(orderId)}</span></p>` : ''}
 <p style="font-size:13px"><a href="${h(input.policyUrl)}">سياسة رخصة النفاذ الرقمية</a></p>
-<p style="font-size:13px;color:#64748b">سيصلك بريد منفصل بالعقد الرقمي الموحّد (PDF).</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`;
 

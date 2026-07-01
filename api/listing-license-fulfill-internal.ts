@@ -211,6 +211,7 @@ export async function POST(request: Request): Promise<Response> {
     tier: result.tier,
     quantity: result.quantity,
     voucherEmailed,
+    unifiedActivationEmailed: mailDispatch.unifiedActivationEmailed,
     activationCertificateEmailed: mailDispatch.activationCertificateEmailed,
     bronzeActivationEmailed: mailDispatch.bronzeActivationEmailed,
     contractEmailed: mailDispatch.contractEmailed,

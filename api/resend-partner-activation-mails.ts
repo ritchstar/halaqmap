@@ -289,10 +289,7 @@ async function handleResend(request: Request, body?: Record<string, unknown>): P
     forceContract: input.forceContract,
   });
 
-  const sentOk =
-    mail.activationCertificateEmailed &&
-    (mail.skippedBronzeOps || mail.bronzeActivationEmailed) &&
-    mail.contractEmailed;
+  const sentOk = mail.unifiedActivationEmailed;
 
   return Response.json(
     {

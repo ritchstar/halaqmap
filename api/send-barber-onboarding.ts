@@ -1001,7 +1001,7 @@ export async function POST(request: Request): Promise<Response> {
         activationCertificate: certificate,
         forceContract: false,
       });
-      if (!dispatch.bronzeActivationEmailed && dispatch.errors.length > 0) {
+      if (!dispatch.unifiedActivationEmailed && dispatch.errors.length > 0) {
         return Response.json(
           { error: 'bronze_activation_mail_failed', details: dispatch },
           { status: 502, headers },
@@ -1012,6 +1012,7 @@ export async function POST(request: Request): Promise<Response> {
           ok: true,
           mode: 'single',
           bronzeActivation: true,
+          unifiedActivation: true,
           to: barberEmail,
           dispatch,
         },

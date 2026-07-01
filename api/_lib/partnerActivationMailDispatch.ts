@@ -1,13 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { siteBaseUrlFromEnv } from './barberProvisionService.js';
-import {
-  buildBronzePartnerActivationEmailBodies,
-  buildShopOpenMailUrls,
-} from './bronzePartnerActivationMail.js';
-import { buildActivationCertificateEmailBodies } from './geospatialLicenseAssetService.js';
+import { buildShopOpenMailUrls } from './bronzePartnerActivationMail.js';
 import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';
 import type { PartnerUnifiedContractFields } from './partnerUnifiedContractAr.js';
-import { emailPartnerUnifiedContractPdf } from './partnerContractNotify.js';
+import { loadStaticUnifiedContractPdf } from './partnerUnifiedContractStatic.js';
+import { buildUnifiedPartnerActivationEmailBodies } from './partnerUnifiedActivationMail.js';
 import { isBronzeTier, tierLabelAr } from './partnerTierMail.js';
 
 async function sleep(ms: number): Promise<void> {
@@ -21,6 +17,7 @@ async function sendResendEmail(input: {
   subject: string;
   html: string;
   text: string;
+  attachments?: Array<{ filename: string; content: string }>;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -34,6 +31,7 @@ async function sendResendEmail(input: {
       subject: input.subject,
       html: input.html,
       text: input.text,
+      ...(input.attachments?.length ? { attachments: input.attachments } : {}),
     }),
   });
   const raw = await resp.text();
@@ -73,6 +71,8 @@ export type PartnerActivationMailDispatchInput = {
 
 export type PartnerActivationMailDispatchResult = {
   resendConfigured: boolean;
+  /** بريد واحد موحّد (شهادة + برونزي إن وُجد + عقد PDF) */
+  unifiedActivationEmailed: boolean;
   activationCertificateEmailed: boolean;
   bronzeActivationEmailed: boolean;
   contractEmailed: boolean;
@@ -80,30 +80,16 @@ export type PartnerActivationMailDispatchResult = {
   errors: string[];
 };
 
-async function sendContractEmail(
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function resolvePartnerContractFields(
   supabase: SupabaseClient,
   input: {
-    resendApiKey: string;
-    resendFrom: string;
-    barberEmail: string;
     barberName: string;
     tier: string;
     registrationRequestId: string | null;
-    barberId: string | null;
-    forceContract: boolean;
   },
-): Promise<{ ok: boolean; error?: string }> {
-  const barberId = String(input.barberId ?? '').trim();
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-  if (input.forceContract && barberId && UUID_RE.test(barberId)) {
-    const ts = new Date().toISOString();
-    await supabase
-      .from('barber_subscriptions')
-      .update({ partner_unified_contract_email_sent_at: null, updated_at: ts })
-      .eq('barber_id', barberId);
-  }
-
+): Promise<PartnerUnifiedContractFields> {
   const orderId = input.registrationRequestId?.trim() || null;
   let commercialRegistration: string | null =
     (process.env.LEGAL_COMMERCIAL_REGISTRATION || '').trim() || '7054117093';
@@ -125,41 +111,13 @@ async function sendContractEmail(
     if (bn) establishmentName = bn;
   }
 
-  const fields: PartnerUnifiedContractFields = {
+  return {
     establishmentName,
     commercialRegistration,
     packageTypeAr: `باقة ${tierLabelAr(input.tier)}`,
     contractDateDisplay: new Date().toLocaleString('ar-SA', { dateStyle: 'full', timeStyle: 'short' }),
     registrationOrderId: orderId,
   };
-
-  const sent = await emailPartnerUnifiedContractPdf({
-    apiKey: input.resendApiKey,
-    from: input.resendFrom,
-    to: input.barberEmail,
-    fields,
-    tier: input.tier,
-  });
-  if (!sent.ok) {
-    await sleep(900);
-    const retry = await emailPartnerUnifiedContractPdf({
-      apiKey: input.resendApiKey,
-      from: input.resendFrom,
-      to: input.barberEmail,
-      fields,
-      tier: input.tier,
-    });
-    if (!retry.ok) return { ok: false, error: retry.error };
-  }
-
-  if (barberId && UUID_RE.test(barberId)) {
-    const ts = new Date().toISOString();
-    await supabase
-      .from('barber_subscriptions')
-      .update({ partner_unified_contract_email_sent_at: ts, updated_at: ts })
-      .eq('barber_id', barberId);
-  }
-  return { ok: true };
 }
 
 export async function dispatchPartnerActivationMails(
@@ -171,13 +129,15 @@ export async function dispatchPartnerActivationMails(
   const resendKey = (process.env.RESEND_API_KEY ?? '').trim();
   const resendFrom = (process.env.RESEND_FROM_EMAIL ?? '').trim();
   const resendReady = Boolean(resendKey && resendFrom);
+  const bronze = isBronzeTier(input.tier);
 
   const result: PartnerActivationMailDispatchResult = {
     resendConfigured: resendReady,
+    unifiedActivationEmailed: false,
     activationCertificateEmailed: false,
     bronzeActivationEmailed: false,
     contractEmailed: false,
-    skippedBronzeOps: !isBronzeTier(input.tier),
+    skippedBronzeOps: !bronze,
     errors,
   };
 
@@ -189,77 +149,98 @@ export async function dispatchPartnerActivationMails(
     errors.push('resend_not_configured');
     return result;
   }
-
-  if (input.activationCertificate) {
-    const mail = buildActivationCertificateEmailBodies({
-      barberName: input.buyerName,
-      certificate: input.activationCertificate,
-    });
-    const sent = await sendResendEmailWithRetry({
-      apiKey: resendKey,
-      from: resendFrom,
-      to: buyerEmail,
-      subject: mail.subject,
-      html: mail.html,
-      text: mail.text,
-    });
-    result.activationCertificateEmailed = sent.ok;
-    if (!sent.ok) errors.push(`certificate_email:${sent.error}`);
-  } else {
+  if (!input.activationCertificate) {
     errors.push('certificate_missing');
+    return result;
   }
-
-  await sleep(650);
-
-  if (isBronzeTier(input.tier)) {
-    let openStatusToken: string | null = null;
-    if (input.barberId) {
-      const { data: barberRow } = await supabase
-        .from('barbers')
-        .select('open_status_token')
-        .eq('id', input.barberId)
-        .maybeSingle();
-      openStatusToken = barberRow?.open_status_token ? String(barberRow.open_status_token) : null;
-    }
-    const shopUrls = buildShopOpenMailUrls(openStatusToken);
-    const siteBase = siteBaseUrlFromEnv().replace(/\/+$/, '');
-    const bronzeMail = buildBronzePartnerActivationEmailBodies({
-      barberName: input.buyerName,
-      certificate: input.activationCertificate,
-      shopOpenToggleUrl: shopUrls.shopOpenToggleUrl,
-      shopOpenRotateUrl: shopUrls.shopOpenRotateUrl,
-      registrationOrderId: input.registrationRequestId,
-      policyUrl: `${siteBase}/#/partners/subscription-policy`,
-    });
-    const sent = await sendResendEmailWithRetry({
-      apiKey: resendKey,
-      from: resendFrom,
-      to: buyerEmail,
-      subject: bronzeMail.subject,
-      html: bronzeMail.html,
-      text: bronzeMail.text,
-    });
-    result.bronzeActivationEmailed = sent.ok;
-    if (!sent.ok) errors.push(`bronze_activation_email:${sent.error}`);
-  }
-
-  await sleep(650);
-
-  if (input.barberId) {
-    const contract = await sendContractEmail(supabase, {
-      resendApiKey: resendKey,
-      resendFrom,
-      barberEmail: buyerEmail,
-      barberName: input.buyerName,
-      tier: input.tier,
-      registrationRequestId: input.registrationRequestId,
-      barberId: input.barberId,
-      forceContract: input.forceContract === true,
-    });
-    result.contractEmailed = contract.ok;
-    if (!contract.ok) errors.push(`contract_email:${contract.error ?? 'failed'}`);
-  } else {
+  if (!input.barberId) {
     errors.push('missing_barber_id_for_contract');
+    return result;
+  }
+
+  const barberId = String(input.barberId).trim();
+  if (input.forceContract && UUID_RE.test(barberId)) {
+    const ts = new Date().toISOString();
+    await supabase
+      .from('barber_subscriptions')
+      .update({ partner_unified_contract_email_sent_at: null, updated_at: ts })
+      .eq('barber_id', barberId);
+  }
+
+  let pdf: Buffer;
+  try {
+    pdf = loadStaticUnifiedContractPdf();
+  } catch {
+    errors.push('static_contract_pdf_missing');
+    return result;
+  }
+
+  const contractFields = await resolvePartnerContractFields(supabase, {
+    barberName: input.buyerName,
+    tier: input.tier,
+    registrationRequestId: input.registrationRequestId,
+  });
+
+  let shopOpenToggleUrl: string | null = null;
+  let shopOpenRotateUrl: string | null = null;
+  if (bronze) {
+    let openStatusToken: string | null = null;
+    const { data: barberRow } = await supabase
+      .from('barbers')
+      .select('open_status_token')
+      .eq('id', barberId)
+      .maybeSingle();
+    openStatusToken = barberRow?.open_status_token ? String(barberRow.open_status_token) : null;
+    const shopUrls = buildShopOpenMailUrls(openStatusToken);
+    shopOpenToggleUrl = shopUrls.shopOpenToggleUrl;
+    shopOpenRotateUrl = shopUrls.shopOpenRotateUrl;
+  }
+
+  const mail = buildUnifiedPartnerActivationEmailBodies({
+    barberName: input.buyerName,
+    buyerEmail,
+    tier: input.tier,
+    certificate: input.activationCertificate,
+    establishmentName: contractFields.establishmentName,
+    commercialRegistration: contractFields.commercialRegistration,
+    packageTypeAr: contractFields.packageTypeAr,
+    contractDateDisplay: contractFields.contractDateDisplay,
+    registrationOrderId: input.registrationRequestId,
+    shopOpenToggleUrl,
+    shopOpenRotateUrl,
+  });
+
+  const safeId = String(input.registrationRequestId || input.activationCertificate.certificateNumber || 'contract')
+    .replace(/[^\w.-]+/g, '_')
+    .slice(0, 80);
+  const filename = `Halaqmap-Partner-Unified-Contract-${safeId}.pdf`;
+
+  const sent = await sendResendEmailWithRetry({
+    apiKey: resendKey,
+    from: resendFrom,
+    to: buyerEmail,
+    subject: mail.subject,
+    html: mail.html,
+    text: mail.text,
+    attachments: [{ filename, content: pdf.toString('base64') }],
+  });
+
+  if (!sent.ok) {
+    errors.push(`unified_activation_email:${sent.error}`);
+    return result;
+  }
+
+  result.unifiedActivationEmailed = true;
+  result.activationCertificateEmailed = true;
+  result.bronzeActivationEmailed = bronze;
+  result.contractEmailed = true;
+
+  if (UUID_RE.test(barberId)) {
+    const ts = new Date().toISOString();
+    await supabase
+      .from('barber_subscriptions')
+      .update({ partner_unified_contract_email_sent_at: ts, updated_at: ts })
+      .eq('barber_id', barberId);
   }
 
   return result;

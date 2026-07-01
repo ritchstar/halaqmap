@@ -15,7 +15,7 @@ function escapeHtml(s: string): string {
     .replace(/'/g, '&#039;');
 }
 
-function buildContractAnnexText(input: {
+export function buildContractAnnexText(input: {
   establishmentName: string;
   buyerEmail: string;
   commercialRegistration: string | null;
@@ -39,7 +39,7 @@ function buildContractAnnexText(input: {
   ];
 }
 
-function buildContractAnnexHtml(input: {
+export function buildContractAnnexHtml(input: {
   establishmentName: string;
   buyerEmail: string;
   commercialRegistration: string | null;
