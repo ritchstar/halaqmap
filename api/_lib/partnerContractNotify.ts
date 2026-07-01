@@ -1,9 +1,7 @@
 ﻿import type { SupabaseClient } from '@supabase/supabase-js';
 import { siteBaseUrlFromEnv } from './barberProvisionService.js';
-import {
-  buildPartnerUnifiedContractPdf,
-  type PartnerUnifiedContractFields,
-} from './partnerUnifiedContractAr.js';
+import type { PartnerUnifiedContractFields } from './partnerUnifiedContractAr.js';
+import { loadStaticUnifiedContractPdf } from './partnerUnifiedContractStatic.js';
 import { isBronzeTier, tierLabelAr } from './partnerTierMail.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -17,8 +15,62 @@ function escapeHtml(s: string): string {
     .replace(/'/g, '&#039;');
 }
 
+function buildContractAnnexText(input: {
+  establishmentName: string;
+  buyerEmail: string;
+  commercialRegistration: string | null;
+  packageTypeAr: string;
+  contractDateDisplay: string;
+  registrationOrderId?: string | null;
+}): string[] {
+  const cr = input.commercialRegistration?.trim() || '—';
+  const orderId = input.registrationOrderId?.trim() || '—';
+  return [
+    'ملحق بيانات التعاقد — الطرف الثاني',
+    `• اسم المنشأة: ${input.establishmentName.trim() || 'شريك حلاق ماب'}`,
+    `• البريد المعتمد: ${input.buyerEmail.trim()}`,
+    `• رقم السجل التجاري (إن وُجد): ${cr}`,
+    `• الباقة المشتركة: ${input.packageTypeAr}`,
+    `• تاريخ الموافقة والتفعيل: ${input.contractDateDisplay}`,
+    `• مرجع طلب التسجيل: ${orderId}`,
+    '',
+    'يُرفق مع هذه الرسالة العقد الرقمي الموحّد (PDF) — وثيقة واحدة لجميع مستويات الباقات.',
+    'يُعد إتمام التسجيل والتعهد الإلكتروني موافقةً على العقد باسم المنشأة أعلاه وفق المادة (8).',
+  ];
+}
+
+function buildContractAnnexHtml(input: {
+  establishmentName: string;
+  buyerEmail: string;
+  commercialRegistration: string | null;
+  packageTypeAr: string;
+  contractDateDisplay: string;
+  registrationOrderId?: string | null;
+}): string {
+  const h = escapeHtml;
+  const name = input.establishmentName.trim() || 'شريك حلاق ماب';
+  const cr = input.commercialRegistration?.trim() || '—';
+  const orderId = input.registrationOrderId?.trim() || '—';
+  return `<div style="margin:18px 0;padding:16px 18px;border-radius:12px;background:#fff;border:1px solid #e2e8f0">
+<p style="margin:0 0 12px;font-weight:800;color:#0d9488">ملحق بيانات التعاقد — الطرف الثاني</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#334155;line-height:1.9">
+<tr><td style="padding:4px 0;width:38%;vertical-align:top"><strong>اسم المنشأة</strong></td><td>${h(name)}</td></tr>
+<tr><td style="padding:4px 0;vertical-align:top"><strong>البريد المعتمد</strong></td><td dir="ltr" style="text-align:right">${h(input.buyerEmail.trim())}</td></tr>
+<tr><td style="padding:4px 0;vertical-align:top"><strong>السجل التجاري</strong></td><td dir="ltr" style="text-align:right">${h(cr)}</td></tr>
+<tr><td style="padding:4px 0;vertical-align:top"><strong>الباقة</strong></td><td>${h(input.packageTypeAr)}</td></tr>
+<tr><td style="padding:4px 0;vertical-align:top"><strong>تاريخ التفعيل</strong></td><td>${h(input.contractDateDisplay)}</td></tr>
+<tr><td style="padding:4px 0;vertical-align:top"><strong>مرجع الطلب</strong></td><td dir="ltr" style="text-align:right">${h(orderId)}</td></tr>
+</table>
+<p style="margin:14px 0 0;font-size:13px;color:#64748b">يُرفق العقد الرقمي الموحّد (PDF) — وثيقة واحدة لجميع مستويات الباقات. إتمام التسجيل والتعهد الإلكتروني يُعد موافقةً على العقد باسم المنشأة أعلاه وفق المادة (8).</p>
+</div>`;
+}
+
 function buildPartnerContractEmailBodies(input: {
   establishmentName: string;
+  buyerEmail: string;
+  commercialRegistration: string | null;
+  packageTypeAr: string;
+  contractDateDisplay: string;
   tier: string;
   registrationOrderId?: string | null;
 }): { subject: string; html: string; text: string } {
@@ -29,24 +81,27 @@ function buildPartnerContractEmailBodies(input: {
   const siteBase = siteBaseUrlFromEnv().replace(/\/+$/, '');
   const policyUrl = `${siteBase}/#/partners/subscription-policy`;
   const partnersUrl = `${siteBase}/#/partners`;
+  const annexLines = buildContractAnnexText(input);
+  const annexHtml = buildContractAnnexHtml(input);
 
   const subject = bronze
     ? `حلاق ماب | عقدك الرقمي جاهز — بداية قوية مع باقتك ${tierAr}`
-    : 'حلاق ماب | نسخة PDF — العقد الرقمي الموحّد (مسار الخدمات البرمجية للمنصة)';
+    : `حلاق ماب | العقد الرقمي الموحّد — باقة ${tierAr}`;
 
   const bronzeIntro = [
     `أهلًا ${name}،`,
     '',
     `مبروك تفعيل **باقتك ${tierAr}** على حلاق ماب!`,
     '',
-    'نرفق في هذه الرسالة **نسخة PDF من العقد الرقمي الموحّد** لمسار الخدمات البرمجية للمنصة — وثيقة مرجعية تحفظ حقوقك وتلخّص التزاماتك مع المنصة.',
+    'نرفق في هذه الرسالة **نسخة PDF من العقد الرقمي الموحّد** لمسار الخدمات البرمجية للمنصة — وثيقة مرجعية واحدة لجميع الشركاء بكافة المستويات.',
+    '',
+    ...annexLines,
     '',
     '**خطوتك التالية (باقة برونزية):**',
     '• راجع بريد **شهادة التفعيل** و**روابط التشغيل** (مفتوح/مغلق + تجديد الرابط) — هما أداتك اليومية.',
     '• الباقة البرونزية **بدون لوحة تحكم كاملة** — وهذا مقصود: تشغيل خفيف وسريع عبر الروابط المخصّصة لك.',
     '• احفظ هذا العقد PDF في أرشيف منشأتك؛ يمكنك الرجوع إليه وقت الحاجة.',
     '',
-    orderId ? `مرجع طلبك: ${orderId}` : '',
     `سياسة رخصة النفاذ الرقمية: ${policyUrl}`,
     '',
     'نحن بجانبك في بداية رحلتك — صالونك يستحق حضوراً رقمياً واضحاً عبر نظام الاستجابة الذكية.',
@@ -55,7 +110,7 @@ function buildPartnerContractEmailBodies(input: {
     '',
     '— فريق حلاق ماب',
   ]
-    .filter(Boolean)
+    .filter((line, i, arr) => !(line === '' && arr[i - 1] === ''))
     .join('\n');
 
   const standardIntro = [
@@ -63,15 +118,16 @@ function buildPartnerContractEmailBodies(input: {
     '',
     `بناءً على **إتمام تفعيل رخصتك (${tierAr})** واعتماد مسار الخدمات البرمجية للمنصة، نرفق نسخة PDF من **العقد الرقمي الموحّد**.`,
     '',
+    ...annexLines,
+    '',
     'احفظ المرفق في أرشيف منشأتك — يوضّح إطار الخدمة والالتزامات بين الطرفين.',
-    orderId ? `مرجع طلبك: ${orderId}` : '',
     `مسار الشركاء: ${partnersUrl}`,
     '',
     'إن لم يظهر المرفق، راجع مجلد الرسائل غير المرغوب فيها أو تواصل معنا عبر القنوات الرسمية.',
     '',
     '— فريق حلاق ماب',
   ]
-    .filter(Boolean)
+    .filter((line, i, arr) => !(line === '' && arr[i - 1] === ''))
     .join('\n');
 
   const text = bronze ? bronzeIntro : standardIntro;
@@ -80,7 +136,8 @@ function buildPartnerContractEmailBodies(input: {
   const bronzeHtmlBlocks = `
 <p>أهلًا <strong>${h(name)}</strong>،</p>
 <p style="font-size:16px;color:#0f766e;font-weight:800">مبروك تفعيل <strong>باقتك ${h(tierAr)}</strong> على حلاق ماب!</p>
-<p>نرفق في هذه الرسالة <strong>نسخة PDF من العقد الرقمي الموحّد</strong> لمسار الخدمات البرمجية للمنصة — وثيقة مرجعية تحفظ حقوقك وتلخّص التزاماتك مع المنصة.</p>
+<p>نرفق في هذه الرسالة <strong>نسخة PDF من العقد الرقمي الموحّد</strong> — وثيقة واحدة لجميع الشركاء بكافة المستويات.</p>
+${annexHtml}
 <div style="margin:18px 0;padding:14px 16px;border-radius:12px;background:#ecfdf5;border:1px solid #99f6e4">
 <p style="margin:0 0 10px;font-weight:800;color:#0f766e">خطوتك التالية — باقة برونزية</p>
 <ul style="margin:0;padding-right:20px;line-height:1.9;color:#334155">
@@ -89,15 +146,14 @@ function buildPartnerContractEmailBodies(input: {
 <li>احفظ هذا العقد PDF في أرشيف منشأتك.</li>
 </ul>
 </div>
-${orderId ? `<p style="font-size:13px;color:#64748b">مرجع الطلب: <span dir="ltr">${h(orderId)}</span></p>` : ''}
 <p style="font-size:13px"><a href="${h(policyUrl)}">سياسة رخصة النفاذ الرقمية</a></p>
 <p>نحن بجانبك في بداية رحلتك — صالونك يستحق حضوراً رقمياً واضحاً عبر نظام الاستجابة الذكية.</p>`;
 
   const standardHtmlBlocks = `
 <p>أهلًا <strong>${h(name)}</strong>،</p>
 <p>بناءً على <strong>إتمام تفعيل رخصتك (${h(tierAr)})</strong> واعتماد مسار الخدمات البرمجية للمنصة، نرفق نسخة PDF من <strong>العقد الرقمي الموحّد</strong>.</p>
+${annexHtml}
 <p>احفظ المرفق في أرشيف منشأتك — يوضّح إطار الخدمة والالتزامات بين الطرفين.</p>
-${orderId ? `<p style="font-size:13px;color:#64748b">مرجع الطلب: <span dir="ltr">${h(orderId)}</span></p>` : ''}
 <p style="font-size:13px"><a href="${h(partnersUrl)}">مسار الشركاء</a></p>`;
 
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head>
@@ -119,14 +175,9 @@ export async function emailPartnerUnifiedContractPdf(input: {
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   let pdf: Buffer;
   try {
-    pdf = await buildPartnerUnifiedContractPdf({
-      name: input.fields.establishmentName,
-      cr: String(input.fields.commercialRegistration ?? ''),
-      package: input.fields.packageTypeAr,
-      date: input.fields.contractDateDisplay,
-    });
+    pdf = loadStaticUnifiedContractPdf();
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : 'pdf_failed' };
+    return { ok: false, error: e instanceof Error ? e.message : 'static_contract_pdf_missing' };
   }
 
   const safeId = String(input.fields.registrationOrderId || 'contract')
@@ -137,6 +188,10 @@ export async function emailPartnerUnifiedContractPdf(input: {
   const tierRaw = input.tier ?? input.fields.packageTypeAr;
   const mail = buildPartnerContractEmailBodies({
     establishmentName: input.fields.establishmentName,
+    buyerEmail: input.to,
+    commercialRegistration: input.fields.commercialRegistration,
+    packageTypeAr: input.fields.packageTypeAr,
+    contractDateDisplay: input.fields.contractDateDisplay,
     tier: tierRaw,
     registrationOrderId: input.fields.registrationOrderId,
   });

@@ -98,7 +98,7 @@
   "functions": {
     "api/**/*.ts": {
       "maxDuration": 60,
-      "includeFiles": "api/_lib/assets/fonts/**"
+      "includeFiles": "api/_lib/assets/{fonts,contracts}/**"
     }
   },
   "crons": [
