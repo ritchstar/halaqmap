@@ -1,6 +1,4 @@
-/**
- * استعادة تفعيل الرخصة بعد دفع ميسر ناجح — fallback عند فشل webhook.
- */
+import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 
 function registrationApiOrigin(): string {
   return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
@@ -17,7 +15,12 @@ function syncEndpoint(): string {
 }
 
 export type SyncMoyasarPaymentFulfillmentResult =
-  | { ok: true; alreadyFulfilled: boolean; orderId?: string }
+  | {
+      ok: true;
+      alreadyFulfilled: boolean;
+      orderId?: string;
+      certificate?: DigitalActivationCertificateView;
+    }
   | { ok: false; error: string };
 
 export async function syncMoyasarPaymentFulfillmentRemote(
@@ -31,10 +34,15 @@ export async function syncMoyasarPaymentFulfillmentRemote(
     if (!res.ok || data.ok !== true) {
       return { ok: false, error: String(data.error || 'sync_failed') };
     }
+    const certificate =
+      data.certificate && typeof data.certificate === 'object'
+        ? (data.certificate as DigitalActivationCertificateView)
+        : undefined;
     return {
       ok: true,
       alreadyFulfilled: data.alreadyFulfilled === true,
       orderId: data.orderId != null ? String(data.orderId) : undefined,
+      certificate,
     };
   } catch {
     return { ok: false, error: 'network' };

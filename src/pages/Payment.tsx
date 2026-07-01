@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -61,16 +61,19 @@ import type { DigitalActivationCertificateView } from '@/config/geospatialLicens
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
 import {
   buildMoyasarCallbackUrl,
-  clearMoyasarPaymentContext,
+  clearMoyasarCheckoutContext,
+  clearMoyasarPaidReceipt,
   expectedHalalasFromReturnSearchParams,
   formatMoyasarFailureReturnMessage,
   mergeMoyasarReturnSearchParams,
   moyasarReturnNeedsHydration,
   persistMoyasarLastPaymentId,
+  persistMoyasarPaidReceipt,
   persistMoyasarPaymentContext,
   readHashOrTopLevelSearchParams,
   readMoyasarFailureReturn,
   readMoyasarLastPaymentId,
+  readMoyasarPaidReceipt,
 } from '@/lib/moyasarPaymentReturn';
 import { toast } from 'sonner';
 
@@ -286,13 +289,36 @@ export default function Payment() {
   const paymentGatewayFromUrl = (searchParams.get('gateway') ?? '').trim().toLowerCase();
   const paymentIdFromUrl = searchParams.get('id')?.trim() || '';
   const sabResourcePathFromUrl = searchParams.get('resourcePath')?.trim() || '';
-  const moyasarPaymentIdFromUrl = useMemo(() => {
-    if (paymentIdFromUrl && paymentGatewayFromUrl !== 'sab') return paymentIdFromUrl;
-    const stored = readMoyasarLastPaymentId();
-    return stored && paymentGatewayFromUrl !== 'sab' ? stored : '';
-  }, [paymentIdFromUrl, paymentGatewayFromUrl]);
+  /** معرّف العودة من ميسر — من الرابط فقط لتجنب إعادة التحقق بعد إزالة id */
+  const moyasarPaymentIdFromUrl =
+    paymentIdFromUrl && paymentGatewayFromUrl !== 'sab' ? paymentIdFromUrl : '';
   const sabPaymentIdFromUrl =
     paymentIdFromUrl && paymentGatewayFromUrl === 'sab' ? paymentIdFromUrl : '';
+
+  const loadPaidActivationCertificate = useCallback(async (paymentId: string) => {
+    const normalized = paymentId.trim();
+    if (!normalized) return;
+    setActivationCertificateLoading(true);
+    setActivationCertificateError(null);
+    setActivationCertificate(null);
+    const syncResult = await syncMoyasarPaymentFulfillmentRemote(normalized);
+    if (syncResult.ok && syncResult.certificate) {
+      setActivationCertificate(syncResult.certificate);
+      setActivationCertificateLoading(false);
+      return;
+    }
+    const certResult = await fetchActivationCertificateByMoyasarPaymentId(normalized);
+    setActivationCertificateLoading(false);
+    if (certResult.ok) {
+      setActivationCertificate(certResult.certificate);
+      return;
+    }
+    setActivationCertificateError(
+      certResult.pending
+        ? 'جاري إصدار شهادة التفعيل الرقمية — قد تستغرق ثوانٍ بعد تأكيد الدفع.'
+        : 'تعذر جلب شهادة التفعيل الرقمية حالياً.',
+    );
+  }, []);
 
   useEffect(() => {
     if (!moyasarReturnHydrated) return;
@@ -332,7 +358,20 @@ export default function Payment() {
   }, [moyasarReturnHydrated, searchParams, setSearchParams]);
 
   useEffect(() => {
+    if (!moyasarReturnHydrated) return;
+    if (moyasarPaymentIdFromUrl) return;
+    if (moyasarReturnVerify !== 'idle') return;
+    const receiptId = readMoyasarPaidReceipt(requestId);
+    if (!receiptId) return;
+    setMoyasarReturnVerify('paid');
+    void loadPaidActivationCertificate(receiptId);
+  }, [moyasarReturnHydrated, moyasarPaymentIdFromUrl, moyasarReturnVerify, requestId, loadPaidActivationCertificate]);
+
+  useEffect(() => {
     if (!moyasarPaymentIdFromUrl || !moyasarReturnHydrated) return;
+    if (moyasarReturnVerify === 'paid' && readMoyasarPaidReceipt(requestId) === moyasarPaymentIdFromUrl) {
+      return;
+    }
     let cancelled = false;
     setMoyasarReturnVerify('loading');
     setMoyasarVerifyMessage(null);
@@ -395,6 +434,14 @@ export default function Payment() {
       }
 
       if (result.paid) {
+        persistMoyasarPaidReceipt(verifiedPaymentId, requestId);
+        persistMoyasarLastPaymentId(verifiedPaymentId);
+        clearMoyasarCheckoutContext();
+        setMoyasarReturnVerify('paid');
+        setMoyasarVerifyMessage(null);
+        setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
+        await loadPaidActivationCertificate(verifiedPaymentId);
+        if (cancelled) return;
         setSearchParams(
           (prev) => {
             const next = new URLSearchParams(prev);
@@ -403,26 +450,6 @@ export default function Payment() {
           },
           { replace: true },
         );
-        clearMoyasarPaymentContext();
-        setMoyasarReturnVerify('paid');
-        setMoyasarVerifyMessage(null);
-        setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
-        setActivationCertificate(null);
-        setActivationCertificateError(null);
-        setActivationCertificateLoading(true);
-        await syncMoyasarPaymentFulfillmentRemote(verifiedPaymentId);
-        const certResult = await fetchActivationCertificateByMoyasarPaymentId(verifiedPaymentId);
-        if (cancelled) return;
-        setActivationCertificateLoading(false);
-        if (certResult.ok) {
-          setActivationCertificate(certResult.certificate);
-        } else {
-          setActivationCertificateError(
-            certResult.pending
-              ? 'جاري إصدار شهادة التفعيل الرقمية — قد تستغرق ثوانٍ بعد تأكيد الدفع.'
-              : 'تعذر جلب شهادة التفعيل الرقمية حالياً.',
-          );
-        }
       } else {
         setMoyasarReturnVerify('unpaid');
         const statusLabel = String(result.status || 'غير مكتمل');
@@ -440,7 +467,17 @@ export default function Payment() {
     return () => {
       cancelled = true;
     };
-  }, [moyasarPaymentIdFromUrl, moyasarReturnHydrated, searchParams, vatSettings, setSearchParams, moyasarVerifyNonce]);
+  }, [
+    moyasarPaymentIdFromUrl,
+    moyasarReturnHydrated,
+    moyasarReturnVerify,
+    searchParams,
+    vatSettings,
+    setSearchParams,
+    moyasarVerifyNonce,
+    requestId,
+    loadPaidActivationCertificate,
+  ]);
 
   useEffect(() => {
     if (!sabPaymentIdFromUrl) return;
@@ -556,6 +593,7 @@ export default function Payment() {
       explicit || undefined,
     );
 
+    clearMoyasarPaidReceipt();
     persistMoyasarPaymentContext({
       tier,
       qty: licenseQuantity,

@@ -4,6 +4,7 @@ import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSet
 
 export const MOYASAR_PAYMENT_CONTEXT_STORAGE_KEY = 'hm-moyasar-payment-context-v1';
 export const MOYASAR_LAST_PAYMENT_ID_STORAGE_KEY = 'hm-moyasar-last-payment-id-v1';
+export const MOYASAR_PAID_RECEIPT_STORAGE_KEY = 'hm-moyasar-paid-receipt-v1';
 
 export type MoyasarPaymentContext = {
   tier: string;
@@ -38,10 +39,76 @@ export function readMoyasarPaymentContext(): MoyasarPaymentContext | null {
 }
 
 export function clearMoyasarPaymentContext(): void {
+  clearMoyasarCheckoutContext();
+  clearMoyasarLastPaymentId();
+  clearMoyasarPaidReceipt();
+}
+
+/** يُمسح سياق الدفع قبل الإتمام دون مسح إيصال الدفع الناجح. */
+export function clearMoyasarCheckoutContext(): void {
   if (typeof window === 'undefined') return;
   try {
     sessionStorage.removeItem(MOYASAR_PAYMENT_CONTEXT_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+export function clearMoyasarLastPaymentId(): void {
+  if (typeof window === 'undefined') return;
+  try {
     sessionStorage.removeItem(MOYASAR_LAST_PAYMENT_ID_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+export type MoyasarPaidReceipt = {
+  paymentId: string;
+  paidAt: string;
+  requestId?: string;
+};
+
+export function persistMoyasarPaidReceipt(paymentId: string, requestId?: string): void {
+  if (typeof window === 'undefined') return;
+  const id = paymentId.trim();
+  if (!id) return;
+  const rid = requestId?.trim();
+  try {
+    sessionStorage.setItem(
+      MOYASAR_PAID_RECEIPT_STORAGE_KEY,
+      JSON.stringify({
+        paymentId: id,
+        paidAt: new Date().toISOString(),
+        ...(rid ? { requestId: rid } : {}),
+      } satisfies MoyasarPaidReceipt),
+    );
+  } catch {
+    // ignore
+  }
+}
+
+export function readMoyasarPaidReceipt(expectedRequestId?: string): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    const raw = sessionStorage.getItem(MOYASAR_PAID_RECEIPT_STORAGE_KEY);
+    if (!raw) return '';
+    const parsed = JSON.parse(raw) as MoyasarPaidReceipt;
+    const paymentId = typeof parsed?.paymentId === 'string' ? parsed.paymentId.trim() : '';
+    if (!paymentId) return '';
+    const expected = expectedRequestId?.trim();
+    const storedRequestId = typeof parsed.requestId === 'string' ? parsed.requestId.trim() : '';
+    if (expected && storedRequestId && storedRequestId !== expected) return '';
+    return paymentId;
+  } catch {
+    return '';
+  }
+}
+
+export function clearMoyasarPaidReceipt(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(MOYASAR_PAID_RECEIPT_STORAGE_KEY);
   } catch {
     // ignore
   }
