@@ -1464,6 +1464,19 @@
   animation: partner-order-reception-marquee 32s linear infinite;
 }
 
+@keyframes partner-platform-inspection-marquee {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.partner-platform-inspection-marquee-track {
+  animation: partner-platform-inspection-marquee 38s linear infinite;
+}
+
 .rtl-force {
   direction: rtl;
   unicode-bidi: plaintext;

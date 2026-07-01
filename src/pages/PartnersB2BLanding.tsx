@@ -35,6 +35,7 @@ import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingF
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
+import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
 
 const ctaClass =
   'inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90';
@@ -69,6 +70,7 @@ export default function PartnersB2BLanding() {
       {/* @section: navbar */}
       <div className="sticky top-0 z-[60]">
         <PartnerOrderReceptionTicker surface="b2b" />
+        <PartnerPlatformInspectionTicker surface="b2b" />
       <nav className="relative z-50 w-full border-b" style={{ borderColor: "rgba(13,148,136,0.2)", background: "rgba(10,22,40,0.92)", backdropFilter: "blur(12px)" }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
