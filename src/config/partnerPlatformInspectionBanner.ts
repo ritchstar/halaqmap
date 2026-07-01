@@ -1,11 +1,14 @@
-import {
-  isPartnerOrderReceptionBannerRoute,
-  PARTNER_ORDER_RECEPTION_BANNER_ENABLED,
-} from '@/config/partnerOrderReceptionAnnouncement';
+import { isPartnerBannerRoute } from '@/config/partnerBannerRoutes';
 
-/** شريط «فحص شامل قبل الإطلاق» — يُعطّل عبر `VITE_PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED=false` */
-export const PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED =
-  import.meta.env.VITE_PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED !== 'false';
+/**
+ * يُخفى الشريط فقط عند `VITE_PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED=true`
+ * (لا تستخدم ENABLED=false — كان يسبب لبساً ويُدمَج في البناء).
+ */
+export const PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED =
+  import.meta.env.VITE_PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED === 'true' ||
+  import.meta.env.VITE_PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED === 'false';
+
+export const PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED = !PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED;
 
 export const PARTNER_PLATFORM_INSPECTION_MARQUEE_SEGMENTS = [
   'نعمل على فحص شامل لخدمات المنصة قبل الإطلاق — لضمان سلامة كل ما وعدناكم به. انتظرونا قريباً',
@@ -14,11 +17,6 @@ export const PARTNER_PLATFORM_INSPECTION_MARQUEE_SEGMENTS = [
 ] as const;
 
 export function shouldShowPartnerPlatformInspectionBanner(pathname: string): boolean {
-  if (!PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED) return false;
-  return isPartnerOrderReceptionBannerRoute(pathname);
-}
-
-/** يُخفى شريط العدّ التنازلي القديم عند تفعيل شريط الفحص */
-export function partnerOrderReceptionBannerSupersededByInspection(): boolean {
-  return PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED && PARTNER_ORDER_RECEPTION_BANNER_ENABLED;
+  if (PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED) return false;
+  return isPartnerBannerRoute(pathname);
 }

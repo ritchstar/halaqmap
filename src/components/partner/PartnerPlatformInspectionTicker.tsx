@@ -9,15 +9,18 @@ import { cn } from '@/lib/utils';
 type PartnerPlatformInspectionTickerProps = {
   className?: string;
   surface?: 'partner-dark' | 'partner-light' | 'b2b';
+  /** صفحة الهبوط الرئيسية — يُجبر الإظهار دون انتظار مسار أو env */
+  forceShow?: boolean;
 };
 
 export function PartnerPlatformInspectionTicker({
   className,
   surface = 'partner-dark',
+  forceShow = false,
 }: PartnerPlatformInspectionTickerProps) {
   const { pathname } = useLocation();
 
-  if (!shouldShowPartnerPlatformInspectionBanner(pathname)) {
+  if (!forceShow && !shouldShowPartnerPlatformInspectionBanner(pathname)) {
     return null;
   }
 

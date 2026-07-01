@@ -1,5 +1,5 @@
-import { ROUTE_PATHS } from '@/lib/index';
-import { partnerOrderReceptionBannerSupersededByInspection } from '@/config/partnerPlatformInspectionBanner';
+import { isPartnerBannerRoute } from '@/config/partnerBannerRoutes';
+import { PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED } from '@/config/partnerPlatformInspectionBanner';
 
 /** توقيت فتح استقبال الطلبات (Asia/Riyadh) — يُضبط في Vercel: `VITE_PARTNER_ORDER_RECEPTION_OPENS_AT` */
 export const PARTNER_ORDER_RECEPTION_OPENS_AT_ISO =
@@ -11,47 +11,7 @@ export const PARTNER_ORDER_RECEPTION_BANNER_ENABLED =
 
 const RIYADH_TZ = 'Asia/Riyadh';
 
-/** مسارات تُعرض عليها الحملة — مسار الشركاء التسويقي فقط */
-const BANNER_ROUTE_PREFIXES = [
-  ROUTE_PATHS.BARBERS_LANDING,
-  ROUTE_PATHS.PARTNERS_B2B_LANDING,
-  ROUTE_PATHS.PARTNER_INTEREST,
-  ROUTE_PATHS.REGISTER,
-  ROUTE_PATHS.REGISTER_SUCCESS,
-  ROUTE_PATHS.PAYMENT,
-  ROUTE_PATHS.PARTNER_WHY,
-  ROUTE_PATHS.PARTNER_STORY,
-  ROUTE_PATHS.PARTNER_TUTORIALS,
-  ROUTE_PATHS.PARTNER_SALES_OFFICE,
-  ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW,
-  ROUTE_PATHS.LANDING_PARTNERS_PREVIEW,
-  '/for-barbers',
-  '/register',
-  '/payment',
-] as const;
-
-const BANNER_ROUTE_EXCLUDES = [
-  ROUTE_PATHS.SHOP_OPEN_STATUS,
-  ROUTE_PATHS.SHOP_OPEN_ROTATE,
-  ROUTE_PATHS.SHOP_OPEN_ROTATE_CONFIRM,
-  ROUTE_PATHS.BARBER_PORTAL_ENTER,
-  ROUTE_PATHS.BARBER_DASHBOARD,
-] as const;
-
-function normalizePath(pathname: string): string {
-  const raw = pathname.replace(/\/+$/, '') || '/';
-  return raw.startsWith('/') ? raw : `/${raw}`;
-}
-
-export function isPartnerOrderReceptionBannerRoute(pathname: string): boolean {
-  const path = normalizePath(pathname);
-  if (BANNER_ROUTE_EXCLUDES.some((p) => path === p || path.startsWith(`${p}/`))) {
-    return false;
-  }
-  return BANNER_ROUTE_PREFIXES.some(
-    (p) => path === p || path.startsWith(`${p}/`),
-  );
-}
+export { isPartnerBannerRoute as isPartnerOrderReceptionBannerRoute };
 
 function parseOpensAtMs(iso: string): number | null {
   const ms = Date.parse(iso);
@@ -90,9 +50,9 @@ export function shouldShowPartnerOrderReceptionBanner(
   pathname: string,
   now = new Date(),
 ): boolean {
-  if (partnerOrderReceptionBannerSupersededByInspection()) return false;
+  if (PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED && PARTNER_ORDER_RECEPTION_BANNER_ENABLED) return false;
   if (!PARTNER_ORDER_RECEPTION_BANNER_ENABLED) return false;
-  if (!isPartnerOrderReceptionBannerRoute(pathname)) return false;
+  if (!isPartnerBannerRoute(pathname)) return false;
   const opensMs = parseOpensAtMs(PARTNER_ORDER_RECEPTION_OPENS_AT_ISO);
   if (opensMs == null) return false;
   return now.getTime() < opensMs;

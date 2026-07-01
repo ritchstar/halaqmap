@@ -612,9 +612,9 @@ export default function PartnerMarketingPreview() {
           الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
           ══════════════════════════════════════════════════════════════════ */}
       <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
+        <PartnerPlatformInspectionTicker surface="partner-light" forceShow />
         <div className="relative z-20">
           <PartnerOrderReceptionTicker surface="partner-light" />
-          <PartnerPlatformInspectionTicker surface="partner-light" />
         </div>
 
         <div className="relative isolate">
