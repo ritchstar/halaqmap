@@ -9,7 +9,11 @@ import {
   inspectGeospatialBindForMoyasarPayment,
   type GeospatialBindInspection,
 } from './geospatialLicenseAssetService.js';
-import { fulfillListingLicenseOrder, autoRedeemIssuedVouchersForRegistration } from './listingLicenseService.js';
+import {
+  fulfillListingLicenseOrder,
+  autoRedeemIssuedVouchersForRegistration,
+  redeemIssuedVouchersForMoyasarPayment,
+} from './listingLicenseService.js';
 import {
   fetchMoyasarPayment,
   moyasarPaymentIsPaid,
@@ -264,11 +268,17 @@ async function ensureBarberAndEntitlementForPayment(
     }
   }
 
-  if (barberId && registrationRequestId) {
-    await autoRedeemIssuedVouchersForRegistration(supabase, {
-      registrationRequestId,
+  if (barberId) {
+    await redeemIssuedVouchersForMoyasarPayment(supabase, {
+      moyasarPaymentId: moyasarPaymentId.trim(),
       barberId,
     });
+    if (registrationRequestId) {
+      await autoRedeemIssuedVouchersForRegistration(supabase, {
+        registrationRequestId,
+        barberId,
+      });
+    }
   }
 }
 

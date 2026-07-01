@@ -691,6 +691,54 @@ export async function autoRedeemIssuedVouchersForRegistration(
   return { ok: true, redeemedCount, validUntil: lastValidUntil, skippedAlreadyRedeemed };
 }
 
+/** استرداد قسائم طلب دفع ميسر مباشرة — يعمل حتى لو registration_request_id ناقص على الطلب. */
+export async function redeemIssuedVouchersForMoyasarPayment(
+  supabase: SupabaseClient,
+  input: { moyasarPaymentId: string; barberId: string },
+): Promise<{ ok: true; redeemedCount: number } | { ok: false; error: string }> {
+  const barberId = input.barberId.trim();
+  const moyasarPaymentId = input.moyasarPaymentId.trim();
+  if (!barberId || !moyasarPaymentId) return { ok: false, error: 'missing_ids' };
+
+  const { data: order, error: orderErr } = await supabase
+    .from('listing_license_orders')
+    .select('id, metadata')
+    .eq('moyasar_payment_id', moyasarPaymentId)
+    .eq('status', 'paid')
+    .maybeSingle();
+  if (orderErr) return { ok: false, error: orderErr.message };
+  if (!order?.id) return { ok: false, error: 'order_not_found' };
+
+  const orderMeta =
+    order.metadata && typeof order.metadata === 'object' && !Array.isArray(order.metadata)
+      ? (order.metadata as Record<string, unknown>)
+      : undefined;
+
+  const { data: vouchers, error: vErr } = await supabase
+    .from('listing_license_vouchers')
+    .select('id, status')
+    .eq('order_id', order.id)
+    .eq('status', 'issued');
+
+  if (vErr) return { ok: false, error: vErr.message };
+
+  let redeemedCount = 0;
+  for (const voucher of vouchers ?? []) {
+    const redeemed = await redeemIssuedVoucherForBarber(supabase, {
+      voucherId: voucher.id,
+      barberId,
+      orderMetadata: orderMeta,
+    });
+    if (!redeemed.ok) {
+      if (redeemed.error === 'already_redeemed') continue;
+      return { ok: false, error: redeemed.error };
+    }
+    redeemedCount += 1;
+  }
+
+  return { ok: true, redeemedCount };
+}
+
 export async function getBarberListingBalance(
   supabase: SupabaseClient,
   barberId: string,
