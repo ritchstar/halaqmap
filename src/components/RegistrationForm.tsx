@@ -525,8 +525,8 @@ export function RegistrationForm() {
             ...prev,
             location: {
               ...prev.location,
-              lat: position.coords.latitude.toFixed(6),
-              lng: position.coords.longitude.toFixed(6),
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
             },
           }));
           setLocationLoading(false);

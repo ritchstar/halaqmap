@@ -159,8 +159,16 @@ function readNestedLocation(payload: Record<string, unknown>): {
   const l = loc as Record<string, unknown>;
   const latRaw = l.lat;
   const lngRaw = l.lng;
-  const lat = typeof latRaw === 'number' && Number.isFinite(latRaw) ? latRaw : null;
-  const lng = typeof lngRaw === 'number' && Number.isFinite(lngRaw) ? lngRaw : null;
+  const parseCoord = (raw: unknown): number | null => {
+    if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+    if (typeof raw === 'string') {
+      const n = Number.parseFloat(raw.trim());
+      return Number.isFinite(n) ? n : null;
+    }
+    return null;
+  };
+  const lat = parseCoord(latRaw);
+  const lng = parseCoord(lngRaw);
   const address = typeof l.address === 'string' && l.address.trim() ? l.address.trim() : 'غير محدد';
   return { lat, lng, address };
 }

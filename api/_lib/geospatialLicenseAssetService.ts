@@ -54,6 +54,52 @@ function generatePublicToken(): string {
   return randomBytes(24).toString('hex');
 }
 
+function parseCoord(raw: unknown): number | null {
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+  if (typeof raw === 'string') {
+    const n = Number.parseFloat(raw.trim());
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+async function loadRegistrationGeoSnapshot(
+  supabase: SupabaseClient,
+  registrationRequestId: string,
+): Promise<{
+  latitude: number | null;
+  longitude: number | null;
+  snapshot: Record<string, unknown>;
+}> {
+  const { data } = await supabase
+    .from('registration_submissions')
+    .select('payload')
+    .eq('id', registrationRequestId.trim())
+    .maybeSingle();
+  const payload =
+    data?.payload && typeof data.payload === 'object' && !Array.isArray(data.payload)
+      ? (data.payload as Record<string, unknown>)
+      : null;
+  const location =
+    payload?.location && typeof payload.location === 'object' && !Array.isArray(payload.location)
+      ? (payload.location as Record<string, unknown>)
+      : null;
+  const lat = parseCoord(location?.lat);
+  const lng = parseCoord(location?.lng);
+  return {
+    latitude: lat,
+    longitude: lng,
+    snapshot: {
+      businessName: payload?.businessName ?? payload?.barberName ?? null,
+      regionId: payload?.regionId ?? null,
+      cityId: payload?.cityId ?? null,
+      districtId: payload?.districtId ?? null,
+      registrationRequestId: registrationRequestId.trim(),
+      source: 'registration_submission',
+    },
+  };
+}
+
 async function loadGeoSnapshot(
   supabase: SupabaseClient,
   barberId: string | null,
@@ -63,6 +109,12 @@ async function loadGeoSnapshot(
   longitude: number | null;
   snapshot: Record<string, unknown>;
 }> {
+  let barberGeo: {
+    latitude: number | null;
+    longitude: number | null;
+    snapshot: Record<string, unknown>;
+  } | null = null;
+
   if (barberId) {
     const { data } = await supabase
       .from('barbers')
@@ -70,9 +122,9 @@ async function loadGeoSnapshot(
       .eq('id', barberId)
       .maybeSingle();
     if (data) {
-      const lat = typeof data.latitude === 'number' ? data.latitude : null;
-      const lng = typeof data.longitude === 'number' ? data.longitude : null;
-      return {
+      const lat = parseCoord(data.latitude);
+      const lng = parseCoord(data.longitude);
+      barberGeo = {
         latitude: lat,
         longitude: lng,
         snapshot: {
@@ -86,38 +138,26 @@ async function loadGeoSnapshot(
     }
   }
 
-  const reqId = registrationRequestId?.trim();
-  if (reqId) {
-    const { data } = await supabase
-      .from('registration_submissions')
-      .select('payload')
-      .eq('id', reqId)
-      .maybeSingle();
-    const payload =
-      data?.payload && typeof data.payload === 'object' && !Array.isArray(data.payload)
-        ? (data.payload as Record<string, unknown>)
-        : null;
-    const location =
-      payload?.location && typeof payload.location === 'object' && !Array.isArray(payload.location)
-        ? (payload.location as Record<string, unknown>)
-        : null;
-    const lat = typeof location?.lat === 'number' ? location.lat : null;
-    const lng = typeof location?.lng === 'number' ? location.lng : null;
-    return {
-      latitude: lat,
-      longitude: lng,
-      snapshot: {
-        businessName: payload?.businessName ?? payload?.barberName ?? null,
-        regionId: payload?.regionId ?? null,
-        cityId: payload?.cityId ?? null,
-        districtId: payload?.districtId ?? null,
-        registrationRequestId: reqId,
-        source: 'registration_submission',
-      },
-    };
+  if (barberGeo?.latitude != null && barberGeo.longitude != null) {
+    return barberGeo;
   }
 
-  return { latitude: null, longitude: null, snapshot: { source: 'unbound' } };
+  const reqId = registrationRequestId?.trim();
+  if (reqId) {
+    const regGeo = await loadRegistrationGeoSnapshot(supabase, reqId);
+    if (regGeo.latitude != null && regGeo.longitude != null) {
+      return regGeo;
+    }
+    if (!barberGeo) return regGeo;
+  }
+
+  return (
+    barberGeo ?? {
+      latitude: null,
+      longitude: null,
+      snapshot: { source: 'unbound' },
+    }
+  );
 }
 
 function resolveMapStatuses(input: {
@@ -328,9 +368,10 @@ export async function refreshGeospatialLicenseAssetBinding(
     entitlementId: string;
     validUntil: string;
     tier: ListingLicenseTier;
+    registrationRequestId?: string | null;
   },
 ): Promise<void> {
-  const geo = await loadGeoSnapshot(supabase, input.barberId, null);
+  const geo = await loadGeoSnapshot(supabase, input.barberId, input.registrationRequestId ?? null);
   const map = resolveMapStatuses({
     barberId: input.barberId,
     entitlementId: input.entitlementId,
@@ -371,7 +412,7 @@ export async function refreshGeospatialLicenseAssetBinding(
 
   if (cert) {
     const payload = (cert.certificate_payload || {}) as DigitalActivationCertificatePayload;
-    const nextPayload: DigitalActivationCertificatePayload = {
+    const nextPayload = {
       ...payload,
       certificateNumber: cert.certificate_number,
       publicToken: cert.public_token,
@@ -382,7 +423,9 @@ export async function refreshGeospatialLicenseAssetBinding(
       mapIntegrationStatus: map.mapStatus,
       assetStatus: map.assetStatus,
       geoSnapshot: geo.snapshot,
-    };
+      activationStatus:
+        map.mapStatus === 'map_live' ? ACTIVATION_STATUS_TECHNICAL_LINK : 'Pending Geospatial Bind',
+    } as DigitalActivationCertificatePayload;
     await supabase
       .from('digital_activation_certificates')
       .update({
@@ -395,6 +438,97 @@ export async function refreshGeospatialLicenseAssetBinding(
       })
       .eq('asset_id', asset.id);
   }
+}
+
+const ORDER_BARBER_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** يُرقّي الشهادة إلى map_live عند توفر إحداثيات التسجيل (حتى لو حُفظت كنص). */
+export async function promoteGeospatialBindForMoyasarPayment(
+  supabase: SupabaseClient,
+  moyasarPaymentId: string,
+): Promise<void> {
+  const { data: order } = await supabase
+    .from('listing_license_orders')
+    .select(
+      'id, barber_id, registration_request_id, paid_at, listing_license_products(tier, listing_days_granted)',
+    )
+    .eq('moyasar_payment_id', moyasarPaymentId.trim())
+    .maybeSingle();
+  if (!order?.id) return;
+
+  const registrationRequestId = order.registration_request_id
+    ? String(order.registration_request_id).trim()
+    : null;
+  let barberId =
+    order.barber_id && ORDER_BARBER_UUID_RE.test(String(order.barber_id))
+      ? String(order.barber_id)
+      : null;
+
+  const productJoin = order.listing_license_products as
+    | { tier?: ListingLicenseTier; listing_days_granted?: number }
+    | { tier?: ListingLicenseTier; listing_days_granted?: number }[]
+    | null;
+  const product = Array.isArray(productJoin) ? productJoin[0] : productJoin;
+  const tier: ListingLicenseTier =
+    product?.tier === 'gold' || product?.tier === 'diamond' ? product.tier : 'bronze';
+
+  let entitlementId: string | null = null;
+  let validUntil = '';
+
+  if (barberId) {
+    const { data: ent } = await supabase
+      .from('barber_listing_entitlements')
+      .select('id, valid_until')
+      .eq('barber_id', barberId)
+      .is('revoked_at', null)
+      .order('valid_until', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (ent?.id) {
+      entitlementId = String(ent.id);
+      validUntil = String(ent.valid_until ?? '');
+    }
+  }
+
+  if (!validUntil) {
+    const days = Number(product?.listing_days_granted) > 0 ? Number(product?.listing_days_granted) : 30;
+    const base = order.paid_at ? new Date(String(order.paid_at)) : new Date();
+    const until = new Date(base.getTime());
+    until.setUTCDate(until.getUTCDate() + days);
+    validUntil = until.toISOString();
+  }
+
+  const geo = await loadGeoSnapshot(supabase, barberId, registrationRequestId);
+  if (barberId && geo.latitude != null && geo.longitude != null) {
+    await supabase
+      .from('barbers')
+      .update({
+        latitude: geo.latitude,
+        longitude: geo.longitude,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', barberId);
+  }
+
+  if (!barberId || !entitlementId) return;
+
+  const map = resolveMapStatuses({
+    barberId,
+    entitlementId,
+    latitude: geo.latitude,
+    longitude: geo.longitude,
+  });
+  if (map.mapStatus !== 'map_live') return;
+
+  await refreshGeospatialLicenseAssetBinding(supabase, {
+    orderId: order.id,
+    barberId,
+    entitlementId,
+    validUntil,
+    tier,
+    registrationRequestId,
+  });
 }
 
 export async function fetchCertificateByOrderId(

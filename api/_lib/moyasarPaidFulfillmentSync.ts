@@ -5,6 +5,7 @@ import {
   activateGeospatialLicense,
   fetchCertificateByMoyasarPaymentId,
   fetchCertificateByOrderId,
+  promoteGeospatialBindForMoyasarPayment,
 } from './geospatialLicenseAssetService.js';
 import { fulfillListingLicenseOrder } from './listingLicenseService.js';
 import {
@@ -225,6 +226,16 @@ export async function syncMoyasarPaidFulfillment(
 
   const existingCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
   if (existingCert.ok) {
+    await promoteGeospatialBindForMoyasarPayment(supabase, normalizedPaymentId);
+    const refreshed = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
+    if (refreshed.ok) {
+      return {
+        ok: true,
+        alreadyFulfilled: true,
+        orderId: refreshed.orderId,
+        certificate: refreshed.certificate,
+      };
+    }
     return {
       ok: true,
       alreadyFulfilled: true,
@@ -329,20 +340,25 @@ export async function syncMoyasarPaidFulfillment(
       if (!retryCert.ok) {
         return { ok: false, error: retryCert.error, status: 404 };
       }
+      await promoteGeospatialBindForMoyasarPayment(supabase, normalizedPaymentId);
+      const reboundCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
       return {
         ok: true,
         alreadyFulfilled,
-        orderId: retryCert.orderId,
-        certificate: retryCert.certificate,
+        orderId: (reboundCert.ok ? reboundCert : retryCert).orderId,
+        certificate: (reboundCert.ok ? reboundCert : retryCert).certificate,
       };
     }
     return { ok: false, error: cert.error, status: 404 };
   }
 
+  await promoteGeospatialBindForMoyasarPayment(supabase, normalizedPaymentId);
+  const reboundCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
+
   return {
     ok: true,
     alreadyFulfilled,
-    orderId: cert.orderId,
-    certificate: cert.certificate,
+    orderId: reboundCert.ok ? reboundCert.orderId : cert.orderId,
+    certificate: reboundCert.ok ? reboundCert.certificate : cert.certificate,
   };
 }
