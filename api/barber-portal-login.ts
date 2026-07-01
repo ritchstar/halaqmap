@@ -143,7 +143,7 @@ export async function POST(request: Request): Promise<Response> {
     }
   }
   if (!passwordAccepted) {
-    return Response.json({ error: 'Invalid credentials' }, { status: 401, headers });
+    return Response.json({ error: 'بيانات الدخول غير صحيحة. استخدم كلمة المرور من أحدث بريد تفعيل.' }, { status: 401, headers });
   }
 
   const supabase = createClient(url, serviceRole, {

@@ -9,6 +9,7 @@ import {
 } from './partnerOnboardingMailBuild.js';
 import { buildUnifiedPartnerActivationEmailBodies } from './partnerUnifiedActivationMail.js';
 import { isBronzeTier, tierLabelAr } from './partnerTierMail.js';
+import { rotateBarberPortalLoginPassword } from './barberProvisionService.js';
 
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
@@ -205,12 +206,22 @@ export async function dispatchPartnerActivationMails(
     shopOpenToggleUrl = shopUrls.shopOpenToggleUrl;
     shopOpenRotateUrl = shopUrls.shopOpenRotateUrl;
   } else if (UUID_RE.test(barberId)) {
+    let portalPassword: string | null = null;
+    const rotated = await rotateBarberPortalLoginPassword(supabase, buyerEmail, input.buyerName);
+    if (rotated.ok) {
+      portalPassword = rotated.password;
+      await supabase.from('barbers').update({ user_id: rotated.userId }).eq('id', barberId);
+    } else {
+      errors.push(`portal_password_rotate:${rotated.error}`);
+    }
+
     const dashboardCtx = await resolveDashboardSupplementForBarber(supabase, {
       barberId,
       buyerEmail,
       tier: input.tier,
       registrationOrderId: input.registrationRequestId,
       paymentMetadata: input.paymentMetadata,
+      portalPassword,
     });
     if (dashboardCtx) {
       dashboardSectionHtml = dashboardCtx.supplement.html;

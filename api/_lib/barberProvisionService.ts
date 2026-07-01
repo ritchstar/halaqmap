@@ -13,6 +13,21 @@ import { buildBarberMagicEnterUrl } from './barberPortalMagicUrl.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** يفرض www.halaqmap.com في روابط البريد والـ magic حتى لا يضيع #/barber/enter عند تحويل النطاق. */
+export function canonicalSiteOrigin(raw: string): string {
+  const trimmed = String(raw || '').trim().replace(/\/+$/, '');
+  if (!trimmed) return 'https://www.halaqmap.com';
+  try {
+    const u = new URL(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`);
+    if (u.hostname === 'halaqmap.com') u.hostname = 'www.halaqmap.com';
+    return u.origin;
+  } catch {
+    return trimmed.includes('halaqmap.com') && !trimmed.includes('www.')
+      ? trimmed.replace('halaqmap.com', 'www.halaqmap.com')
+      : trimmed;
+  }
+}
+
 export function siteBaseUrlFromEnv(): string {
   const fromEnv = (
     process.env.VITE_SITE_ORIGIN ||
@@ -20,8 +35,7 @@ export function siteBaseUrlFromEnv(): string {
     process.env.PUBLIC_SITE_ORIGIN ||
     ''
   ).trim();
-  if (fromEnv) return fromEnv.replace(/\/+$/, '');
-  return 'https://www.halaqmap.com';
+  return canonicalSiteOrigin(fromEnv || 'https://www.halaqmap.com');
 }
 
 export function generateBarberTempPassword(): string {
@@ -160,6 +174,18 @@ export async function ensureAuthUserWithPassword(
   });
   if (upErr) return { ok: false, error: upErr.message };
   return { ok: true, userId: foundId };
+}
+
+/** يُحدّث كلمة مرور حساب Supabase للدخول اليدوي من /partners/login (يُرفق في بريد التفعيل). */
+export async function rotateBarberPortalLoginPassword(
+  supabase: SupabaseClient,
+  emailRaw: string,
+  displayName: string,
+): Promise<{ ok: true; password: string; userId: string } | { ok: false; error: string }> {
+  const password = generateBarberTempPassword();
+  const authResult = await ensureAuthUserWithPassword(supabase, emailRaw, password, displayName);
+  if (authResult.ok === false) return authResult;
+  return { ok: true, password, userId: authResult.userId };
 }
 
 function readNestedLocation(payload: Record<string, unknown>): {

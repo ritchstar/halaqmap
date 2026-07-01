@@ -101,12 +101,14 @@ export function linksWithMagicDashboard(
   if (!dashboardUrl) return links;
   const watchUrl = buildBarberMagicEnterUrl(links.siteBase, barberId, barberEmail, tier, 'watch');
   const loginFallback = `${links.siteBase}/#/partners/login?next=${encodeURIComponent('/barber/dashboard')}`;
+  const watchLoginFallback = `${links.siteBase}/#/partners/login?next=${encodeURIComponent('/barber/dashboard?view=watch')}`;
   return {
     ...links,
     dashboardUrl,
     loginUrl: dashboardUrl,
     ownerWatchMagicUrl: watchUrl,
-    ownerWatchLoginUrl: watchUrl ?? loginFallback,
+    ownerWatchLoginUrl: watchUrl ?? watchLoginFallback,
+    ownerWatchBookmarkUrl: watchUrl ?? watchLoginFallback,
   };
 }
 
@@ -160,7 +162,7 @@ function ownerWatchSectionHtml(links: OnboardingMailLinks): string {
     : '';
   return emailCard(
     'غرفة المراقبة — للمالك',
-    `${magicBlock}<p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">تابع تشغيل صالونك <strong>قراءة فقط</strong>: حالة «مفتوح/مغلق»، محادثات نشطة، وتنبيهات — <strong>بدون</strong> نصوص زبائن.</p><p style="margin:0;font-size:13px;color:#64748b"><strong>رابط دائم:</strong> <a href="${h(links.ownerWatchBookmarkUrl)}" style="color:#d97706;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchBookmarkUrl)}</a></p>`,
+    `${magicBlock}<p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">تابع تشغيل صالونك <strong>قراءة فقط</strong>: حالة «مفتوح/مغلق»، محادثات نشطة، وتنبيهات — <strong>بدون</strong> نصوص زبائن.</p><p style="margin:0;font-size:13px;color:#64748b"><strong>رابط الدخول:</strong> <a href="${h(links.ownerWatchLoginUrl)}" style="color:#d97706;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchLoginUrl)}</a></p>`,
   );
 }
 
@@ -188,7 +190,19 @@ export type DashboardSupplementInput = {
   registrationOrderId: string | null;
   memberPadded: string | null;
   digitalShiftAddon: boolean;
+  buyerEmail?: string;
+  /** كلمة مرور احتياطية للدخول اليدوي من /partners/login */
+  portalPassword?: string | null;
 };
+
+function portalPasswordBlockHtml(email: string, password: string, loginUrl: string): string {
+  const h = escapeHtml;
+  return `<div style="margin:14px 0 0;padding:12px 14px;border-radius:10px;background:#f8fafc;border:1px dashed #cbd5e1">
+<p style="margin:0 0 8px;font-size:13px;font-weight:800;color:#334155">دخول يدوي احتياطي (إن تعذّر الرابط السريع)</p>
+<p style="margin:0 0 6px;font-size:13px;color:#475569">من <a href="${h(loginUrl)}" style="color:#0d9488;font-weight:700">صفحة تسجيل الدخول</a> — البريد + كلمة المرور:</p>
+<p style="margin:0;font-size:13px;color:#475569" dir="ltr">email: ${h(email)} · password: <code style="background:#e2e8f0;padding:2px 6px;border-radius:4px">${h(password)}</code></p>
+</div>`;
+}
 
 export function buildDashboardSupplementForUnifiedMail(input: DashboardSupplementInput): {
   html: string;
@@ -217,6 +231,12 @@ export function buildDashboardSupplementForUnifiedMail(input: DashboardSupplemen
       ? digitalShiftOnboardingSectionHtml(input.links.dashboardUrl)
       : '';
 
+  const manualLoginUrl = `${input.links.siteBase}/#/partners/login?next=${encodeURIComponent('/barber/dashboard')}`;
+  const passwordHtml =
+    input.portalPassword?.trim() && input.buyerEmail?.trim()
+      ? portalPasswordBlockHtml(input.buyerEmail.trim(), input.portalPassword.trim(), manualLoginUrl)
+      : '';
+
   const html = `<div style="margin:18px 0;padding:14px 16px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0">
 <p style="margin:0 0 10px;font-weight:800;color:#0f766e">لوحة التحكم وروابط التشغيل — باقة ${h(tierLabelAr(tier))}</p>
 <p style="margin:0 0 12px;font-size:13px;color:#475569">استخدم الرابط السريع أدناه للدخول دون انتظار بريد منفصل لبيانات الدخول.</p>
@@ -226,6 +246,7 @@ ${tierBoxHtml(tier)}
 ${ownerWatchSectionHtml(input.links)}
 ${dsHtml}
 ${ratingSectionHtml(input.rating)}
+${passwordHtml}
 </div>`;
 
   const textParts = [
@@ -246,6 +267,15 @@ ${ratingSectionHtml(input.rating)}
   if (input.rating.hasToken) {
     textParts.push('رابط التقييم:', input.rating.ratingPageUrl, 'يُرفق PNG لرمز QR مع هذه الرسالة.');
   }
+  if (input.portalPassword?.trim() && input.buyerEmail?.trim()) {
+    textParts.push(
+      '',
+      '══ دخول يدوي احتياطي ══',
+      `صفحة الدخول: ${manualLoginUrl}`,
+      `البريد: ${input.buyerEmail.trim()}`,
+      `كلمة المرور: ${input.portalPassword.trim()}`,
+    );
+  }
   textParts.push('');
 
   return { html, text: textParts.join('\n') };
@@ -259,6 +289,7 @@ export async function resolveDashboardSupplementForBarber(
     tier: string;
     registrationOrderId: string | null;
     paymentMetadata?: Record<string, unknown>;
+    portalPassword?: string | null;
   },
 ): Promise<{
   supplement: { html: string; text: string };
@@ -290,6 +321,8 @@ export async function resolveDashboardSupplementForBarber(
     registrationOrderId: input.registrationOrderId,
     memberPadded: padBarberMember(row?.member_number ?? null),
     digitalShiftAddon,
+    buyerEmail: barberEmail,
+    portalPassword: input.portalPassword ?? null,
   });
 
   return { supplement, rating };

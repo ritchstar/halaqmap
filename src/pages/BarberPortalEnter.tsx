@@ -37,6 +37,22 @@ function loginFallbackPath(params: URLSearchParams): string {
     : ROUTE_PATHS.BARBER_DASHBOARD;
 }
 
+function readMagicToken(params: URLSearchParams): string {
+  const direct = params.get('m')?.trim();
+  if (direct) return direct;
+  if (typeof window === 'undefined') return '';
+  try {
+    const hash = window.location.hash.replace(/^#\/?/, '');
+    const q = hash.indexOf('?');
+    if (q >= 0) {
+      return new URLSearchParams(hash.slice(q + 1)).get('m')?.trim() || '';
+    }
+  } catch {
+    /* ignore */
+  }
+  return '';
+}
+
 export default function BarberPortalEnter() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -47,7 +63,7 @@ export default function BarberPortalEnter() {
     if (ran.current) return;
     ran.current = true;
 
-    const token = params.get('m')?.trim();
+    const token = readMagicToken(params);
     const loginFallback = buildBarberLoginUrl(loginFallbackPath(params));
     if (!token) {
       setBusy(false);

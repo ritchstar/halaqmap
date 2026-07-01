@@ -16,6 +16,21 @@
     <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#061223" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
+    <!-- توحيد النطاق: halaqmap.com → www.halaqmap.com مع الحفاظ على #/barber/enter?m=... -->
+    <script>
+      (function () {
+        try {
+          if (window.location.hostname === 'halaqmap.com') {
+            window.location.replace(
+              'https://www.halaqmap.com' +
+                window.location.pathname +
+                window.location.search +
+                window.location.hash,
+            );
+          }
+        } catch (e) {}
+      })();
+    </script>
     <!-- تنظيف URL من معاملات _b= المتراكمة + كاش SW لمرة واحدة -->
     <script>
       (function () {
