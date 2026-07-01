@@ -3,6 +3,10 @@ import { buildShopOpenMailUrls } from './bronzePartnerActivationMail.js';
 import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';
 import type { PartnerUnifiedContractFields } from './partnerUnifiedContractAr.js';
 import { loadStaticUnifiedContractPdf } from './partnerUnifiedContractStatic.js';
+import {
+  RATING_QR_CONTENT_ID,
+  resolveDashboardSupplementForBarber,
+} from './partnerOnboardingMailBuild.js';
 import { buildUnifiedPartnerActivationEmailBodies } from './partnerUnifiedActivationMail.js';
 import { isBronzeTier, tierLabelAr } from './partnerTierMail.js';
 
@@ -17,7 +21,7 @@ async function sendResendEmail(input: {
   subject: string;
   html: string;
   text: string;
-  attachments?: Array<{ filename: string; content: string }>;
+  attachments?: Array<{ filename: string; content: string; content_id?: string }>;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -67,6 +71,8 @@ export type PartnerActivationMailDispatchInput = {
   activationCertificate: DigitalActivationCertificatePayload | null;
   /** إعادة إرسال العقد حتى لو أُرسل مسبقاً */
   forceContract?: boolean;
+  /** بيانات الدفع (مثلاً digital_shift_addon) */
+  paymentMetadata?: Record<string, unknown>;
 };
 
 export type PartnerActivationMailDispatchResult = {
@@ -183,6 +189,10 @@ export async function dispatchPartnerActivationMails(
 
   let shopOpenToggleUrl: string | null = null;
   let shopOpenRotateUrl: string | null = null;
+  let dashboardSectionHtml = '';
+  let dashboardSectionText = '';
+  let ratingQrBase64: string | null = null;
+
   if (bronze) {
     let openStatusToken: string | null = null;
     const { data: barberRow } = await supabase
@@ -194,6 +204,19 @@ export async function dispatchPartnerActivationMails(
     const shopUrls = buildShopOpenMailUrls(openStatusToken);
     shopOpenToggleUrl = shopUrls.shopOpenToggleUrl;
     shopOpenRotateUrl = shopUrls.shopOpenRotateUrl;
+  } else if (UUID_RE.test(barberId)) {
+    const dashboardCtx = await resolveDashboardSupplementForBarber(supabase, {
+      barberId,
+      buyerEmail,
+      tier: input.tier,
+      registrationRequestId: input.registrationRequestId,
+      paymentMetadata: input.paymentMetadata,
+    });
+    if (dashboardCtx) {
+      dashboardSectionHtml = dashboardCtx.supplement.html;
+      dashboardSectionText = dashboardCtx.supplement.text;
+      ratingQrBase64 = dashboardCtx.rating.qrPngBase64;
+    }
   }
 
   const mail = buildUnifiedPartnerActivationEmailBodies({
@@ -208,12 +231,25 @@ export async function dispatchPartnerActivationMails(
     registrationOrderId: input.registrationRequestId,
     shopOpenToggleUrl,
     shopOpenRotateUrl,
+    dashboardSectionHtml,
+    dashboardSectionText,
   });
 
   const safeId = String(input.registrationRequestId || input.activationCertificate.certificateNumber || 'contract')
     .replace(/[^\w.-]+/g, '_')
     .slice(0, 80);
   const filename = `Halaqmap-Partner-Unified-Contract-${safeId}.pdf`;
+
+  const attachments: Array<{ filename: string; content: string }> = [
+    { filename, content: pdf.toString('base64') },
+  ];
+  if (ratingQrBase64) {
+    attachments.push({
+      filename: 'halaqmap-rating-qr.png',
+      content: ratingQrBase64,
+      content_id: RATING_QR_CONTENT_ID,
+    });
+  }
 
   const sent = await sendResendEmailWithRetry({
     apiKey: resendKey,
@@ -222,7 +258,7 @@ export async function dispatchPartnerActivationMails(
     subject: mail.subject,
     html: mail.html,
     text: mail.text,
-    attachments: [{ filename, content: pdf.toString('base64') }],
+    attachments,
   });
 
   if (!sent.ok) {
@@ -244,4 +280,87 @@ export async function dispatchPartnerActivationMails(
   }
 
   return result;
+}
+
+/** بعد sync من صفحة الدفع — بريد موحّد إن لم يُرسل بعد (تجنّب تكرار webhook). */
+export async function dispatchPartnerActivationMailAfterFulfill(
+  supabase: SupabaseClient,
+  input: {
+    moyasarPaymentId: string;
+    barberId: string | null;
+    certificate: DigitalActivationCertificatePayload;
+  },
+): Promise<PartnerActivationMailDispatchResult | null> {
+  const barberId = String(input.barberId ?? '').trim();
+  if (!UUID_RE.test(barberId)) return null;
+
+  const { data: sub } = await supabase
+    .from('barber_subscriptions')
+    .select('partner_unified_contract_email_sent_at')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+  if (sub?.partner_unified_contract_email_sent_at) return null;
+
+  const paymentId = input.moyasarPaymentId.trim();
+  const { data: order } = await supabase
+    .from('listing_license_orders')
+    .select('buyer_email, registration_request_id, metadata')
+    .eq('moyasar_payment_id', paymentId)
+    .maybeSingle();
+
+  const { data: barber } = await supabase
+    .from('barbers')
+    .select('email, name, tier')
+    .eq('id', barberId)
+    .maybeSingle();
+
+  const snap = input.certificate.geoSnapshot;
+  const registrationRequestId =
+    (typeof snap?.registrationRequestId === 'string' ? snap.registrationRequestId.trim() : '') ||
+    (order?.registration_request_id ? String(order.registration_request_id).trim() : '') ||
+    null;
+
+  let buyerEmail = String(order?.buyer_email ?? barber?.email ?? '').trim();
+  let buyerName =
+    (typeof snap?.businessName === 'string' ? snap.businessName.trim() : '') ||
+    String(barber?.name ?? '').trim() ||
+    'شريك حلاق ماب';
+
+  if (registrationRequestId && !buyerEmail.includes('@')) {
+    const { data: reg } = await supabase
+      .from('registration_submissions')
+      .select('payload')
+      .eq('id', registrationRequestId)
+      .maybeSingle();
+    const p =
+      reg?.payload && typeof reg.payload === 'object' && !Array.isArray(reg.payload)
+        ? (reg.payload as Record<string, unknown>)
+        : null;
+    const em = typeof p?.email === 'string' ? p.email.trim() : '';
+    if (em.includes('@')) buyerEmail = em;
+    const bn = typeof p?.barberName === 'string' ? p.barberName.trim() : '';
+    if (bn) buyerName = bn;
+  }
+
+  if (!buyerEmail.includes('@')) return null;
+
+  const orderMeta =
+    order?.metadata && typeof order.metadata === 'object' && !Array.isArray(order.metadata)
+      ? (order.metadata as Record<string, unknown>)
+      : undefined;
+
+  const tier =
+    input.certificate.tier === 'gold' || input.certificate.tier === 'diamond'
+      ? input.certificate.tier
+      : String(barber?.tier ?? input.certificate.tier ?? 'bronze');
+
+  return dispatchPartnerActivationMails(supabase, {
+    buyerEmail,
+    buyerName,
+    tier,
+    barberId,
+    registrationRequestId,
+    activationCertificate: input.certificate,
+    paymentMetadata: orderMeta,
+  });
 }

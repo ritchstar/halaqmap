@@ -957,7 +957,6 @@ export async function POST(request: Request): Promise<Response> {
     const barberEmail = normalizeRecipientEmail(String(payload.barberEmail || ''));
     const barberName = String(payload.barberName || '').trim() || 'شريك حلاق ماب';
     const tierRaw = (payload as SinglePayload).tier;
-    const tier = tierLabelAr(tierRaw);
     if (!barberEmail) {
       return Response.json({ error: 'Missing barberEmail' }, { status: 400, headers });
     }
@@ -965,17 +964,11 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: 'Invalid barberEmail' }, { status: 400, headers });
     }
     let barberId: string | null = String((payload as SinglePayload).barberId ?? '').trim() || null;
-    let ratingTok: string | null = String((payload as SinglePayload).ratingInviteToken ?? '').trim() || null;
-    let memberPadded: string | null = null;
-    let openStatusToken: string | null = null;
     const onboardingRow = await loadBarberOnboardingRow(supabase, barberEmail);
     let tierForMagic: string | null = null;
     if (onboardingRow) {
       if (!barberId) barberId = onboardingRow.id;
-      if (!ratingTok?.trim()) ratingTok = onboardingRow.rating_invite_token;
-      memberPadded = padBarberMember(onboardingRow.member_number);
       tierForMagic = onboardingRow.tier;
-      openStatusToken = onboardingRow.open_status_token;
     }
     const effectiveTierKey = tierKey(tierForMagic ?? tierRaw);
     const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
@@ -1020,64 +1013,47 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const shopOpenMail = buildShopOpenMailContext(baseUrl, openStatusToken);
-    const linksForEmail = linksWithMagicDashboardIfEligible(
-      links,
-      barberId,
-      barberEmail,
-      tierForMagic ?? tierRaw,
-    );
-    const ratingCtx = await buildRatingEmailContext(baseUrl, barberId, ratingTok);
+    if (internalOk) {
+      return Response.json(
+        {
+          ok: true,
+          skipped: true,
+          reason: 'gold_diamond_use_activation_mail_from_fulfill',
+        },
+        { headers },
+      );
+    }
+
+    const certificate = await loadLatestCertificateForBarber(supabase, barberId, registrationOrderId);
     const dsRaw = (payload as SinglePayload).digitalShiftAddon as unknown;
     const digitalShiftAddon =
       dsRaw === true || dsRaw === 'true' || dsRaw === 1 || dsRaw === '1';
-    const attachments =
-      ratingCtx.hasToken && ratingCtx.qrPngBase64
-        ? [
-            {
-              filename: 'halaqmap-rating-qr.png',
-              content: ratingCtx.qrPngBase64,
-              content_type: 'image/png',
-              content_id: RATING_QR_CONTENT_ID,
-            },
-          ]
-        : undefined;
-    const subject = '🎉 حلاق ماب | حسابك معتمد — أهلًا بك عبر نظام الاستجابة الذكية + روابط لوحة التحكم';
-    const text = emailText(
-      barberName,
-      tier,
-      tierRaw,
-      linksForEmail,
-      shopOpenMail,
-      ratingCtx,
-      registrationOrderId,
-      memberPadded,
-      digitalShiftAddon,
-    );
-    const html = emailHtml(
-      barberName,
-      tier,
-      tierRaw,
-      linksForEmail,
-      shopOpenMail,
-      ratingCtx,
-      registrationOrderId,
-      memberPadded,
-      digitalShiftAddon,
-    );
-    const sent = await sendViaResend({
-      to: barberEmail,
-      subject,
-      text,
-      html,
-      resendApiKey,
-      fromEmail,
-      attachments,
+    const dispatch = await dispatchPartnerActivationMails(supabase, {
+      buyerEmail: barberEmail,
+      buyerName: barberName,
+      tier: effectiveTierKey,
+      barberId,
+      registrationRequestId: registrationOrderId,
+      activationCertificate: certificate,
+      forceContract: false,
+      paymentMetadata: digitalShiftAddon ? { digital_shift_addon: true } : undefined,
     });
-    if (isResendFailure(sent)) {
-      return Response.json({ error: sent.error }, { status: 502, headers });
+    if (!dispatch.unifiedActivationEmailed && dispatch.errors.length > 0) {
+      return Response.json(
+        { error: 'partner_activation_mail_failed', details: dispatch },
+        { status: 502, headers },
+      );
     }
-    return Response.json({ ok: true, mode: 'single', messageId: sent.id, to: barberEmail }, { headers });
+    return Response.json(
+      {
+        ok: true,
+        mode: 'single',
+        unifiedActivation: true,
+        to: barberEmail,
+        dispatch,
+      },
+      { headers },
+    );
   }
 
   if (mode === 'bulk_active') {

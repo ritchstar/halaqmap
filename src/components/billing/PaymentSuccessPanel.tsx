@@ -17,6 +17,8 @@ type Props = {
   barberName?: string;
   certificate: DigitalActivationCertificateView | null;
   loading?: boolean;
+  /** فشل الإصدار بعد انتهاء المحاولات */
+  failed?: boolean;
   className?: string;
 };
 
@@ -65,10 +67,11 @@ function IdentityField({
   );
 }
 
-export function PaymentSuccessPanel({ barberName, certificate, loading, className }: Props) {
+export function PaymentSuccessPanel({ barberName, certificate, loading, failed, className }: Props) {
   const displayBarber = resolveBarberDisplayName(barberName, certificate);
   const licenseNumber = certificate?.certificateNumber ?? null;
   const isicCode = certificate?.isicCode ?? ISIC_ACTIVITY_CODE;
+  const licensePending = Boolean(loading) && !licenseNumber;
 
   return (
     <div className={cn('space-y-4', className)} dir="rtl">
@@ -92,9 +95,9 @@ export function PaymentSuccessPanel({ barberName, certificate, loading, classNam
           <div className="grid gap-3 sm:grid-cols-2">
             <IdentityField
               label={UNIFIED_DIGITAL_LICENSE_LABEL_AR}
-              value={licenseNumber ?? '—'}
+              value={licenseNumber ?? (failed ? 'تعذّر الإصدار — أعد المحاولة' : '—')}
               mono
-              pending={loading || !licenseNumber}
+              pending={licensePending}
             />
             <IdentityField
               label={ISIC_ACTIVITY_CODE_LABEL_AR}

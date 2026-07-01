@@ -32,6 +32,9 @@ export type UnifiedPartnerActivationMailInput = {
   registrationOrderId: string | null;
   shopOpenToggleUrl: string | null;
   shopOpenRotateUrl: string | null;
+  /** ذهبي/ماسي: لوحة التحكم + QR + مناوب */
+  dashboardSectionHtml?: string;
+  dashboardSectionText?: string;
 };
 
 function buildCertificateSectionHtml(
@@ -98,7 +101,7 @@ export function buildUnifiedPartnerActivationEmailBodies(
 
   const subject = bronze
     ? `حلاق ماب | تفعيلك مكتمل — شهادة ${cert.certificateNumber} + روابط التشغيل + العقد`
-    : `حلاق ماب | تفعيلك مكتمل — شهادة ${cert.certificateNumber} + العقد — باقة ${tierAr}`;
+    : `حلاق ماب | تفعيلك مكتمل — شهادة ${cert.certificateNumber} + لوحة التحكم + العقد — باقة ${tierAr}`;
 
   const textParts = [
     `أهلًا ${name}،`,
@@ -123,6 +126,8 @@ export function buildUnifiedPartnerActivationEmailBodies(
       `سياسة النفاذ: ${policyUrl}`,
       '',
     );
+  } else if (!bronze && input.dashboardSectionText?.trim()) {
+    textParts.push(input.dashboardSectionText.trim(), '');
   } else if (!bronze) {
     textParts.push(`مسار الشركاء: ${partnersUrl}`, '');
   }
@@ -149,18 +154,21 @@ export function buildUnifiedPartnerActivationEmailBodies(
         })
       : '';
 
-  const goldDiamondExtra = !bronze
-    ? `<p style="font-size:13px"><a href="${h(partnersUrl)}">فتح مسار الشركاء</a></p>`
-    : '';
+  const dashboardHtml = !bronze && input.dashboardSectionHtml?.trim() ? input.dashboardSectionHtml : '';
+  const goldDiamondExtra =
+    !bronze && !dashboardHtml
+      ? `<p style="font-size:13px"><a href="${h(partnersUrl)}">فتح مسار الشركاء</a></p>`
+      : '';
 
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head>
 <body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:22px;background:#f0f9ff;color:#1e293b">
 <p>أهلًا <strong>${h(name)}</strong>،</p>
 <p style="font-size:16px;color:#0f766e;font-weight:800">${bronze ? `مبروك تفعيل باقتك ${h(tierAr)}!` : `تم تفعيل باقتك ${h(tierAr)} بنجاح.`}</p>
-<p style="font-size:14px;color:#475569">هذه الرسالة تجمع <strong>شهادة التفعيل</strong>${bronze ? ' و<strong>روابط التشغيل</strong>' : ''} و<strong>ملحق العقد</strong> — مع مرفق <strong>PDF</strong> للعقد الموحّد.</p>
+<p style="font-size:14px;color:#475569">هذه الرسالة تجمع <strong>شهادة التفعيل</strong>${bronze ? ' و<strong>روابط التشغيل</strong>' : ' و<strong>لوحة التحكم</strong>'} و<strong>ملحق العقد</strong> — مع مرفق <strong>PDF</strong> للعقد الموحّد.</p>
 <p style="margin:12px 0 6px;font-weight:800;color:#0369a1">${h(SOFTWARE_LICENSE_MANAGER_LABEL_AR)}</p>
 ${buildCertificateSectionHtml(cert, mapLine)}
 ${bronzeOpsHtml}
+${dashboardHtml}
 ${buildContractAnnexHtml(annexInput)}
 <p style="margin:16px 0 8px;padding:12px 14px;border-radius:10px;background:#f8fafc;border:1px dashed #cbd5e1;font-size:13px;color:#475569">
 📎 <strong>المرفق:</strong> ملف PDF «العقد الرقمي الموحّد» — احفظه في أرشيف منشأتك.

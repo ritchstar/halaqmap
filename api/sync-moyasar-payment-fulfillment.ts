@@ -4,6 +4,7 @@
  */
 import { createClient } from '@supabase/supabase-js';
 import { syncMoyasarPaidFulfillment } from './_lib/moyasarPaidFulfillmentSync.js';
+import { dispatchPartnerActivationMailAfterFulfill } from './_lib/partnerActivationMailDispatch.js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import {
   buildPublicApiCorsHeaders,
@@ -62,6 +63,19 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ ok: false, error: result.error }, { status: result.status, headers });
   }
 
+  let activationMail: Awaited<ReturnType<typeof dispatchPartnerActivationMailAfterFulfill>> = null;
+  if (result.certificate) {
+    try {
+      activationMail = await dispatchPartnerActivationMailAfterFulfill(supabase, {
+        moyasarPaymentId: paymentId,
+        barberId: result.mapBind?.barberId ?? null,
+        certificate: result.certificate,
+      });
+    } catch {
+      /* البريد ثانوي — الشهادة أولوية للواجهة */
+    }
+  }
+
   return Response.json(
     {
       ok: true,
@@ -69,6 +83,7 @@ export async function GET(request: Request): Promise<Response> {
       orderId: result.orderId,
       certificate: result.certificate ?? null,
       mapBind: result.mapBind ?? null,
+      unifiedActivationEmailed: activationMail?.unifiedActivationEmailed === true,
     },
     { headers },
   );

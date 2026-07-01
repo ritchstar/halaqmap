@@ -88,6 +88,7 @@ type PaidOrderRow = {
   registration_request_id: string | null;
   buyer_email: string | null;
   product_id: string;
+  metadata?: Record<string, unknown> | null;
 };
 
 async function resolveActivationContext(
@@ -103,6 +104,7 @@ async function resolveActivationContext(
       registrationRequestId: string | null;
       certificate: DigitalActivationCertificatePayload;
       orderId: string;
+      paymentMetadata?: Record<string, unknown>;
     }
   | { ok: false; error: string; status: number }
 > {
@@ -111,7 +113,7 @@ async function resolveActivationContext(
   if (input.paymentId && UUID_RE.test(input.paymentId)) {
     const { data, error } = await supabase
       .from('listing_license_orders')
-      .select('id, barber_id, registration_request_id, buyer_email, product_id')
+      .select('id, barber_id, registration_request_id, buyer_email, product_id, metadata')
       .eq('moyasar_payment_id', input.paymentId)
       .maybeSingle();
     if (error) return { ok: false, error: error.message, status: 500 };
@@ -119,7 +121,7 @@ async function resolveActivationContext(
   } else if (input.registrationRequestId && ORDER_ID_RE.test(input.registrationRequestId)) {
     const { data, error } = await supabase
       .from('listing_license_orders')
-      .select('id, barber_id, registration_request_id, buyer_email, product_id')
+      .select('id, barber_id, registration_request_id, buyer_email, product_id, metadata')
       .eq('registration_request_id', input.registrationRequestId)
       .eq('status', 'paid')
       .order('paid_at', { ascending: false })
@@ -158,6 +160,7 @@ async function buildContextFromOrder(
       registrationRequestId: string | null;
       certificate: DigitalActivationCertificatePayload;
       orderId: string;
+      paymentMetadata?: Record<string, unknown>;
     }
   | { ok: false; error: string; status: number }
 > {
@@ -216,6 +219,10 @@ async function buildContextFromOrder(
     registrationRequestId,
     certificate,
     orderId,
+    paymentMetadata:
+      orderRow.metadata && typeof orderRow.metadata === 'object' && !Array.isArray(orderRow.metadata)
+        ? (orderRow.metadata as Record<string, unknown>)
+        : undefined,
   };
 }
 
@@ -287,6 +294,7 @@ async function handleResend(request: Request, body?: Record<string, unknown>): P
     registrationRequestId: ctx.registrationRequestId,
     activationCertificate: ctx.certificate,
     forceContract: input.forceContract,
+    paymentMetadata: ctx.paymentMetadata,
   });
 
   const sentOk = mail.unifiedActivationEmailed;

@@ -998,51 +998,8 @@ Deno.serve(async (req) => {
       bRow?.email && String(bRow.email).includes("@") ? String(bRow.email).trim() : resolvedEmail;
     const nameOnboarding = (bRow?.name && String(bRow.name).trim()) || barberName;
     if (appOrigin && obSecret && toOnboarding && effectiveBarberId) {
-      const tierStr = tier === "diamond" ? "diamond" : tier === "gold" ? "gold" : "bronze";
-      if (platformPay.enable_internal_onboarding_email && tierStr !== "bronze") {
-        try {
-          const obResp = await fetch(`${appOrigin}/api/send-barber-onboarding`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-onboarding-internal-secret": obSecret,
-            },
-            body: JSON.stringify({
-              mode: "single",
-              barberEmail: toOnboarding,
-              barberName: nameOnboarding,
-              tier: tierStr,
-              barberId: effectiveBarberId,
-              registrationOrderId: requestId || undefined,
-              digitalShiftAddon: digitalShiftAddonFromMeta(meta),
-            }),
-          });
-          if (obResp.ok) onboardingApiOk = true;
-          else console.warn("[moyasar-webhook] send-barber-onboarding:", await obResp.text());
-        } catch (e) {
-          console.warn("[moyasar-webhook] send-barber-onboarding fetch:", e);
-        }
-      } else if (digitalShiftAddonFromMeta(meta)) {
-        try {
-          const dsResp = await fetch(`${appOrigin}/api/send-digital-shift-onboarding`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-onboarding-internal-secret": obSecret,
-            },
-            body: JSON.stringify({
-              barberId: effectiveBarberId,
-              barberEmail: toOnboarding,
-              barberName: nameOnboarding,
-            }),
-          });
-          if (!dsResp.ok) {
-            console.warn("[moyasar-webhook] send-digital-shift-onboarding:", await dsResp.text());
-          }
-        } catch (e) {
-          console.warn("[moyasar-webhook] send-digital-shift-onboarding fetch:", e);
-        }
-      }
+      const nameOnboarding = (bRow?.name && String(bRow.name).trim()) || barberName;
+      // بريد التفعيل الموحّد (شهادة + عقد + لوحة/مناوب/برونزي) يُرسل من listing-license-fulfill-internal
 
       if (platformPay.enable_whatsapp_payment_notify && resolvedPhone) {
         const tierAr =

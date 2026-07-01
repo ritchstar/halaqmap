@@ -43,7 +43,7 @@ import {
   verifySabPaymentRemote,
 } from '@/lib/sabPaymentRemote';
 import { fetchActivationCertificateByMoyasarPaymentId } from '@/lib/digitalActivationCertificateRemote';
-import { syncMoyasarPaymentFulfillmentRemote } from '@/lib/moyasarPaymentFulfillmentSyncRemote';
+import { pollMoyasarPaymentFulfillmentRemote } from '@/lib/moyasarPaymentFulfillmentSyncRemote';
 import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
@@ -301,22 +301,35 @@ export default function Payment() {
     setActivationCertificateLoading(true);
     setActivationCertificateError(null);
     setActivationCertificate(null);
-    const syncResult = await syncMoyasarPaymentFulfillmentRemote(normalized);
-    if (syncResult.ok && syncResult.certificate) {
-      setActivationCertificate(syncResult.certificate);
+
+    const pollResult = await pollMoyasarPaymentFulfillmentRemote(normalized, {
+      maxAttempts: 22,
+    });
+    if (pollResult.ok && pollResult.certificate) {
+      setActivationCertificate(pollResult.certificate);
       setActivationCertificateLoading(false);
       return;
     }
-    const certResult = await fetchActivationCertificateByMoyasarPaymentId(normalized);
+
+    const certResult = await fetchActivationCertificateByMoyasarPaymentId(normalized, {
+      retries: 4,
+      retryDelayMs: 1500,
+    });
     setActivationCertificateLoading(false);
     if (certResult.ok) {
       setActivationCertificate(certResult.certificate);
       return;
     }
+
+    const errCode = pollResult.ok === false ? pollResult.error : certResult.error;
     setActivationCertificateError(
-      certResult.pending
-        ? 'جاري إصدار شهادة التفعيل الرقمية — قد تستغرق ثوانٍ بعد تأكيد الدفع.'
-        : 'تعذر جلب شهادة التفعيل الرقمية حالياً.',
+      errCode === 'sync_timeout' || errCode === 'network'
+        ? 'تأخر الاتصال بخادم التفعيل. اضغط «إعادة محاولة إصدار الشهادة» أو انتظر دقيقة ثم أعد التحميل.'
+        : errCode === 'payment_not_paid'
+          ? 'الدفع ما زال قيد التأكيد لدى ميسر. انتظر ثوانٍ ثم أعد المحاولة.'
+          : errCode === 'moyasar_disabled'
+            ? 'خادم التفعيل غير مهيأ (مفاتيح ميسر). تواصل مع الدعم.'
+            : 'جاري إصدار شهادة التفعيل أو تعذّر إتمامها. أعد المحاولة — إن استمرت المشكلة راجع بريدك أو تواصل مع الدعم.',
     );
   }, []);
 
@@ -528,17 +541,26 @@ export default function Payment() {
         setActivationCertificate(null);
         setActivationCertificateError(null);
         setActivationCertificateLoading(true);
-        const certResult = await fetchActivationCertificateByMoyasarPaymentId(verifiedPaymentId);
+        const pollResult = await pollMoyasarPaymentFulfillmentRemote(verifiedPaymentId, {
+          maxAttempts: 22,
+        });
         if (cancelled) return;
         setActivationCertificateLoading(false);
-        if (certResult.ok) {
-          setActivationCertificate(certResult.certificate);
+        if (pollResult.ok && pollResult.certificate) {
+          setActivationCertificate(pollResult.certificate);
         } else {
-          setActivationCertificateError(
-            certResult.pending
-              ? 'جاري إصدار شهادة التفعيل الرقمية — قد تستغرق ثوانٍ بعد تأكيد الدفع.'
-              : 'تعذر جلب شهادة التفعيل الرقمية حالياً.',
-          );
+          const certResult = await fetchActivationCertificateByMoyasarPaymentId(verifiedPaymentId, {
+            retries: 4,
+            retryDelayMs: 1500,
+          });
+          if (cancelled) return;
+          if (certResult.ok) {
+            setActivationCertificate(certResult.certificate);
+          } else {
+            setActivationCertificateError(
+              'تعذّر إصدار شهادة التفعيل تلقائياً. أعد المحاولة أو راجع بريدك بعد دقائق.',
+            );
+          }
         }
       } else {
         setSabReturnVerify('unpaid');
@@ -864,11 +886,28 @@ export default function Payment() {
                 barberName={barberName}
                 certificate={activationCertificate}
                 loading={activationCertificateLoading}
+                failed={Boolean(activationCertificateError) && !activationCertificateLoading && !activationCertificate}
               />
               {activationCertificateError && !activationCertificateLoading && !activationCertificate ? (
                 <Alert className="border-amber-600/40 bg-amber-500/10">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-sm">{activationCertificateError}</AlertDescription>
+                  <AlertDescription className="space-y-3 text-sm">
+                    <p>{activationCertificateError}</p>
+                    {(readMoyasarPaidReceipt(requestId) || readMoyasarLastPaymentId()) ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const pid =
+                            readMoyasarPaidReceipt(requestId) || readMoyasarLastPaymentId() || '';
+                          if (pid) void loadPaidActivationCertificate(pid);
+                        }}
+                      >
+                        إعادة محاولة إصدار الشهادة
+                      </Button>
+                    ) : null}
+                  </AlertDescription>
                 </Alert>
               ) : null}
               {paymentPaidAmountFormat ? (

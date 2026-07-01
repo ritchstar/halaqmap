@@ -459,34 +459,6 @@ export async function processSabPaymentWebhook(
     })
     .eq('moyasar_payment_id', paymentId);
 
-  const origin = appOrigin();
-  const obSecret = onboardingSecret();
-  if (origin && obSecret && effectiveBarberId && resolvedEmail) {
-    const tierStr = tier === 'diamond' ? 'diamond' : tier === 'gold' ? 'gold' : 'bronze';
-    if (tierStr !== 'bronze') {
-      try {
-        await fetch(`${origin}/api/send-barber-onboarding`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-onboarding-internal-secret': obSecret,
-          },
-          body: JSON.stringify({
-            mode: 'single',
-            barberEmail: resolvedEmail,
-            barberName,
-            tier: tierStr,
-            barberId: effectiveBarberId,
-            registrationOrderId: requestId || undefined,
-            digitalShiftAddon: digitalShiftAddonFromMeta(meta),
-          }),
-        });
-      } catch {
-        /* non-fatal */
-      }
-    }
-  }
-
   return {
     ok: true,
     paymentId,

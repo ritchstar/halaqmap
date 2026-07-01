@@ -9,6 +9,7 @@ import {
   normalizeGroomingCenterBannerLines,
   resolveMensGroomingCenterFlag,
 } from './mensGroomingCenterPolicy.js';
+import { buildBarberMagicEnterUrl } from './barberPortalMagicUrl.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -49,23 +50,37 @@ async function sendBarberCredentialsViaResend(input: {
   barberName: string;
   apiKey: string;
   fromEmail: string;
+  magicDashboardUrl?: string | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
+  const primaryUrl = input.magicDashboardUrl?.trim() || input.dashboardUrl;
+  const usesMagic = Boolean(input.magicDashboardUrl?.trim());
   const subject = 'حلاق ماب | بيانات الدخول — لوحة تحكم الحلاق';
   const text = [
     `أهلًا ${input.barberName}،`,
     '',
-    'تم إنشاء حسابك على حلاق ماب. يمكنك تسجيل الدخول بالبيانات التالية:',
+    usesMagic
+      ? 'تم إنشاء حسابك على حلاق ماب. افتح الرابط السريع أدناه للدخول المباشر إلى لوحة التحكم:'
+      : 'تم إنشاء حسابك على حلاق ماب. يمكنك تسجيل الدخول بالبيانات التالية:',
+    '',
+    usesMagic ? `رابط الدخول السريع: ${primaryUrl}` : `رابط لوحة التحكم: ${primaryUrl}`,
     '',
     `البريد: ${input.email}`,
-    `كلمة المرور: ${input.password}`,
+    `كلمة المرور (احتياطي): ${input.password}`,
     '',
-    `رابط لوحة التحكم: ${input.dashboardUrl}`,
-    '',
-    'نوصي بتغيير كلمة المرور بعد أول دخول.',
+    usesMagic
+      ? 'يمكنك أيضاً تسجيل الدخول يدوياً من /#/partners/login بالبيانات أعلاه.'
+      : 'نوصي بتغيير كلمة المرور بعد أول دخول.',
     '',
     '— فريق حلاق ماب',
   ].join('\n');
-  const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc"><p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p><p>تم إنشاء حسابك. استخدم البيانات التالية لتسجيل الدخول إلى لوحة التحكم:</p><table style="margin:16px 0;border-collapse:collapse;font-size:15px"><tr><td style="padding:8px 14px;border:1px solid #e2e8f0;background:#fff">البريد</td><td style="padding:8px 14px;border:1px solid #e2e8f0;background:#fff" dir="ltr">${escapeHtml(input.email)}</td></tr><tr><td style="padding:8px 14px;border:1px solid #e2e8f0;background:#fff">كلمة المرور</td><td style="padding:8px 14px;border:1px solid #e2e8f0;background:#fff;font-family:ui-monospace,monospace" dir="ltr">${escapeHtml(input.password)}</td></tr></table><p><a href="${escapeHtml(input.dashboardUrl)}" style="display:inline-block;padding:12px 22px;background:#0d9488;color:#fff;text-decoration:none;border-radius:10px;font-weight:700">فتح لوحة التحكم</a></p><p style="font-size:13px;color:#64748b">يُفضّل تغيير كلمة المرور بعد أول دخول.</p></body></html>`;
+  const intro = usesMagic
+    ? 'تم إنشاء حسابك. افتح الرابط السريع للدخول المباشر إلى لوحة التحكم (بدون انتظار):'
+    : 'تم إنشاء حسابك. استخدم البيانات التالية لتسجيل الدخول إلى لوحة التحكم:';
+  const ctaLabel = usesMagic ? 'فتح لوحة التحكم (دخول سريع)' : 'فتح لوحة التحكم';
+  const footer = usesMagic
+    ? '<p style="font-size:13px;color:#64748b">يمكنك أيضاً الدخول يدوياً من صفحة تسجيل الدخول بالبريد وكلمة المرور أعلاه.</p>'
+    : '<p style="font-size:13px;color:#64748b">يُفضّل تغيير كلمة المرور بعد أول دخول.</p>';
+  const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc"><p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p><p>${intro}</p><p><a href="${escapeHtml(primaryUrl)}" style="display:inline-block;padding:12px 22px;background:#0d9488;color:#fff;text-decoration:none;border-radius:10px;font-weight:700">${ctaLabel}</a></p><table style="margin:16px 0;border-collapse:collapse;font-size:15px"><tr><td style="padding:8px 14px;border:1px solid #e2e8f0;background:#fff">البريد</td><td style="padding:8px 14px;border:1px solid #e2e8f0;background:#fff" dir="ltr">${escapeHtml(input.email)}</td></tr><tr><td style="padding:8px 14px;border:1px solid #e2e8f0;background:#fff">كلمة المرور</td><td style="padding:8px 14px;border:1px solid #e2e8f0;background:#fff;font-family:ui-monospace,monospace" dir="ltr">${escapeHtml(input.password)}</td></tr></table>${footer}</body></html>`;
 
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -411,7 +426,7 @@ export async function provisionBarberAccount(
 
   const shouldAuth =
     input.forceAuthProvision === true ||
-    input.sendCredentialsEmail !== false ||
+    input.sendCredentialsEmail === true ||
     !existingUserId;
 
   let authUserId: string | null = existingUserId;
@@ -445,14 +460,18 @@ export async function provisionBarberAccount(
       console.warn('[barberProvision] profile update:', profilePatchErr.message);
     }
 
-    const sendMail = input.sendCredentialsEmail !== false;
+    const sendMail = input.sendCredentialsEmail === true;
     if (sendMail) {
       const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
       const resendFromEmail = (process.env.RESEND_FROM_EMAIL || '').trim();
       if (resendApiKey && resendFromEmail) {
+        const siteBase = siteBaseUrlFromEnv();
+        const tier = String((wl.row as { tier?: unknown }).tier ?? 'bronze').trim().toLowerCase();
+        const magicDashboardUrl = buildBarberMagicEnterUrl(siteBase, barberId, email, tier);
         const mail = await sendBarberCredentialsViaResend({
           to: email,
-          dashboardUrl: `${siteBaseUrlFromEnv()}/#/barber/dashboard`,
+          dashboardUrl: `${siteBase}/#/partners/login?next=${encodeURIComponent('/barber/dashboard')}`,
+          magicDashboardUrl,
           email,
           password: tempPassword,
           barberName: barberDisplayName,
@@ -493,6 +512,8 @@ export type ProvisionBarberForPaymentInput = {
   buyerPhone?: string | null;
   tier?: string | null;
   moyasarPaymentId?: string | null;
+  /** عند false (افتراضي لمسار الدفع): بيانات الدخول عبر رابط magic في بريد التفعيل الموحّد */
+  sendCredentialsEmail?: boolean;
 };
 
 export type ProvisionBarberForPaymentResult =
@@ -594,7 +615,7 @@ export async function provisionBarberForPaidOrder(
     upsertRow,
     legalDisclaimerAccepted,
     legalDisclaimerAcceptedAtIso,
-    sendCredentialsEmail: String(tier).trim().toLowerCase() !== 'bronze',
+    sendCredentialsEmail: input.sendCredentialsEmail === true,
     forceAuthProvision: true,
   });
   if (!provision.ok) return { ok: false, error: provision.error };

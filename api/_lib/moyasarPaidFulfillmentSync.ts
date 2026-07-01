@@ -25,6 +25,10 @@ import {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ORDER_ID_RE = /^HM-\d{8}-[A-Z0-9]{6}$/;
 
+async function sleepMs(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 type ListingTier = 'bronze' | 'gold' | 'diamond';
 
 type MoyasarPaymentJson = {
@@ -371,26 +375,35 @@ export async function syncMoyasarPaidFulfillment(
     return { ok: false, error: 'moyasar_disabled', status: 503 };
   }
 
-  let upstream: Awaited<ReturnType<typeof fetchMoyasarPayment>>;
-  try {
-    upstream = await fetchMoyasarPayment(normalizedPaymentId, secret, resolveMoyasarApiBase());
-  } catch {
-    return { ok: false, error: 'upstream_network', status: 502 };
+  let payment: MoyasarPaymentJson | null = null;
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    let upstream: Awaited<ReturnType<typeof fetchMoyasarPayment>>;
+    try {
+      upstream = await fetchMoyasarPayment(normalizedPaymentId, secret, resolveMoyasarApiBase());
+    } catch {
+      if (attempt < 5) {
+        await sleepMs(1200);
+        continue;
+      }
+      return { ok: false, error: 'upstream_network', status: 502 };
+    }
+
+    if (upstream.status < 200 || upstream.status >= 300) {
+      return { ok: false, error: 'moyasar_error', status: upstream.status === 404 ? 404 : 502 };
+    }
+
+    try {
+      payment = JSON.parse(upstream.text) as MoyasarPaymentJson;
+    } catch {
+      return { ok: false, error: 'invalid_upstream', status: 502 };
+    }
+
+    const status = String(payment.status ?? '');
+    if (moyasarPaymentIsPaid(status)) break;
+    if (attempt < 5) await sleepMs(1500);
   }
 
-  if (upstream.status < 200 || upstream.status >= 300) {
-    return { ok: false, error: 'moyasar_error', status: upstream.status === 404 ? 404 : 502 };
-  }
-
-  let payment: MoyasarPaymentJson;
-  try {
-    payment = JSON.parse(upstream.text) as MoyasarPaymentJson;
-  } catch {
-    return { ok: false, error: 'invalid_upstream', status: 502 };
-  }
-
-  const status = String(payment.status ?? '');
-  if (!moyasarPaymentIsPaid(status)) {
+  if (!payment || !moyasarPaymentIsPaid(String(payment.status ?? ''))) {
     return { ok: false, error: 'payment_not_paid', status: 409 };
   }
 

@@ -53,6 +53,7 @@ const PartnerInterestLanding = lazy(() => import("@/pages/PartnerInterestLanding
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
+const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
 const BarberDashboard = lazy(() => import("@/pages/BarberDashboard"));
 const BarberAccountDeletionRequest = lazy(() => import("@/pages/BarberAccountDeletionRequest"));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
@@ -281,7 +282,7 @@ const App = () => (
           <Route path="/partners/hospitality-b2b-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/partners/hospitality-qr-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/hospitality-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
-          <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<Navigate to={ROUTE_PATHS.BARBERS_LANDING} replace />} />
+          <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<LazyRoute><BarberLogin /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<PartnerLayout><LazyRoute><BarberPortalEnter /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><LazyRoute><Payment /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<PartnerLayout><LazyRoute><PartnerSubscriptionTutorials /></LazyRoute></PartnerLayout>} />
@@ -292,7 +293,7 @@ const App = () => (
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER_SUCCESS} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER_SUCCESS} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<LegacyPartnerRedirect to={ROUTE_PATHS.SUBSCRIPTION_POLICY} />} />
-          <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBER_LOGIN} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
+          <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBER_LOGIN} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBER_LOGIN} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.PAYMENT} element={<LegacyPartnerRedirect to={ROUTE_PATHS.PAYMENT} />} />
 
           <Route path={ROUTE_PATHS.BARBER_DASHBOARD} element={<LazyRoute><BarberDashboard /></LazyRoute>} />

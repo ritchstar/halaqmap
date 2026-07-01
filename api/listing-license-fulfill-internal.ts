@@ -195,6 +195,10 @@ export async function POST(request: Request): Promise<Response> {
     barberId,
     registrationRequestId: String(body.registrationRequestId ?? '').trim() || null,
     activationCertificate: result.activationCertificate ?? null,
+    paymentMetadata:
+      body.metadata && typeof body.metadata === 'object' && !Array.isArray(body.metadata)
+        ? (body.metadata as Record<string, unknown>)
+        : undefined,
   });
   if (mailDispatch.errors.length > 0) {
     console.error('[listing-license-fulfill-internal] activation_mail_errors', mailDispatch.errors);
