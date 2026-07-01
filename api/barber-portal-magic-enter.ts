@@ -38,7 +38,7 @@ function loginHash(next: string | null): string {
 
 function htmlPage(title: string, body: string): Response {
   return new Response(
-    `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title></head><body style="font-family:Tahoma,Arial,sans-serif;padding:24px;line-height:1.8;color:#1e293b">${body}</body></html>`,
+    `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title></head><body style="font-family:Tahoma,Arial,sans-serif;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#f8fafc;color:#1e293b"><div style="max-width:420px;width:100%;padding:24px;border-radius:16px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 8px 30px rgba(15,23,42,0.08)">${body}</div></body></html>`,
     { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
   );
 }

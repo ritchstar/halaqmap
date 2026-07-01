@@ -13,4 +13,4 @@ COMMENT ON TABLE public.barber_portal_magic_redemptions IS
 
 ALTER TABLE public.barber_portal_magic_redemptions ENABLE ROW LEVEL SECURITY;
 
-NOTIFY pgrst, 'reload schema';
+GRANT SELECT, INSERT ON TABLE public.barber_portal_magic_redemptions TO service_role;

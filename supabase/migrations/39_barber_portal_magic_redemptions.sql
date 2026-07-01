@@ -12,3 +12,5 @@ COMMENT ON TABLE public.barber_portal_magic_redemptions IS
   'سجلات استهلاك رموز الدخول السريع من البريد (مرة واحدة لكل jti). الوصول فقط عبر API بمفتاح service_role.';
 
 ALTER TABLE public.barber_portal_magic_redemptions ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT, INSERT ON TABLE public.barber_portal_magic_redemptions TO service_role;
