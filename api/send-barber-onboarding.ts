@@ -190,8 +190,8 @@ function linksWithMagicDashboardIfEligible(
     const b = links.siteBase.replace(/\/+$/, '');
     return {
       ...links,
-      dashboardUrl: `${b}/#/barber/enter?m=${encodeURIComponent(dashboardToken)}`,
-      ownerWatchMagicUrl: `${b}/#/barber/enter?m=${encodeURIComponent(watchToken)}&next=watch`,
+      dashboardUrl: `${b}/api/barber-portal-magic-enter?m=${encodeURIComponent(dashboardToken)}`,
+      ownerWatchMagicUrl: `${b}/api/barber-portal-magic-enter?m=${encodeURIComponent(watchToken)}&next=watch`,
     };
   } catch {
     return links;

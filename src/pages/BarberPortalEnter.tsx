@@ -99,8 +99,16 @@ export default function BarberPortalEnter() {
 
         if (!response.ok) {
           setBusy(false);
-          toast.error(payload.error || 'تعذر تسجيل الدخول عبر الرابط.');
-          navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
+          const code = String(payload.code ?? '').trim();
+          if (code === 'magic_already_used' || code === 'expired') {
+            toast.error(
+              payload.error ||
+                'انتهت صلاحية الرابط أو استُخدم مسبقاً. افتح أحدث بريد تفعيل أو سجّل الدخول يدوياً.',
+            );
+          } else {
+            toast.error(payload.error || 'تعذر تسجيل الدخول عبر الرابط.');
+          }
+          navigate(loginFallback, { replace: true });
           return;
         }
 

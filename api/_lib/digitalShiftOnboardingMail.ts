@@ -34,7 +34,7 @@ function dashboardUrlForBarber(barberId: string, email: string, tier: string): s
   if (secret && (t === 'gold' || t === 'diamond')) {
     try {
       const token = mintBarberPortalMagicToken(barberId, email, secret);
-      return `${base}/#/barber/enter?m=${encodeURIComponent(token)}`;
+      return `${base}/api/barber-portal-magic-enter?m=${encodeURIComponent(token)}`;
     } catch {
       /* fall through */
     }

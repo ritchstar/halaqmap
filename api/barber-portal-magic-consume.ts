@@ -1,10 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
-import { buildInclusiveCareSnapshotFromBarberRow } from './_lib/inclusiveCareBarberSnapshot.js';
 import { verifyBarberPortalMagicToken, getBarberPortalMagicSecret } from './_lib/barberPortalMagicToken.js';
+import { consumeBarberPortalMagicToken } from './_lib/barberPortalMagicConsumeCore.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
-import { getBarberPortalSessionSecret, mintBarberPortalSessionToken } from './_lib/barberPortalAuth.js';
-import { resolveSalonMemberRole } from './_lib/salonMemberAuth.js';
 
 export const config = { maxDuration: 15 };
 
@@ -24,11 +22,6 @@ function safeHost(rawUrl: string): string | null {
   } catch {
     return rawUrl;
   }
-}
-
-function tierAllowsDashboard(tierRaw: string): boolean {
-  const t = String(tierRaw || '').toLowerCase();
-  return t === 'gold' || t === 'diamond';
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -53,8 +46,9 @@ export async function GET(request: Request): Promise<Response> {
       ready: Boolean(url) && sr && magic,
       publicApiGuard: registrationGuardDiagnostics(),
       postBody: '{ "token": "<from #/barber/enter?m=...>" }',
+      browserEnterUrl: '/api/barber-portal-magic-enter?m=<token>',
     },
-    { headers }
+    { headers },
   );
 }
 
@@ -72,7 +66,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!secret) {
     return Response.json(
       { error: 'Magic links disabled (set BARBER_PORTAL_MAGIC_SECRET or REGISTRATION_INTENT_SECRET)' },
-      { status: 503, headers }
+      { status: 503, headers },
     );
   }
 
@@ -90,7 +84,7 @@ export async function POST(request: Request): Promise<Response> {
         serverUrlHost: safeHost(url),
         clientUrlHost: safeHost(clientSupabaseUrl),
       },
-      { status: 409, headers }
+      { status: 409, headers },
     );
   }
 
@@ -102,119 +96,34 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const token = String((body as { token?: unknown }).token ?? '').trim();
-  const verified = verifyBarberPortalMagicToken(token, secret);
-  if (verified.ok === false) {
-    const ar: Record<string, string> = {
-      missing_token: 'الرابط ناقص أو غير صالح.',
-      malformed: 'الرابط غير صالح.',
-      bad_signature: 'الرابط غير موثوق أو مُلاعَب.',
-      bad_payload: 'الرابط غير صالح.',
-      expired: 'انتهت صلاحية الرابط. اطلب بريداً جديداً من الإدارة أو سجّل الدخول يدوياً.',
-    };
-    return Response.json(
-      { error: ar[verified.reason] || 'الرابط غير صالح.', code: verified.reason },
-      { status: 401, headers }
-    );
-  }
-
   const supabase = createClient(url, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const selectCols =
-    'id, name, email, phone, tier, rating_invite_token, member_number, is_active, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note';
-
-  const { data: row, error: loadErr } = await supabase
-    .from('barbers')
-    .select(selectCols)
-    .eq('id', verified.barberId)
-    .maybeSingle();
-
-  if (loadErr) {
-    return Response.json({ error: loadErr.message || 'Lookup failed' }, { status: 500, headers });
-  }
-  if (!row) {
-    return Response.json({ error: 'الحساب غير موجود.' }, { status: 404, headers });
-  }
-
-  const b = row as {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    tier: string;
-    rating_invite_token: string | null;
-    member_number: number | null;
-    is_active: boolean | null;
-    inclusive_care_offered?: boolean | null;
-    inclusive_care_price_sar?: unknown;
-    inclusive_care_public_visible?: boolean | null;
-    inclusive_care_restrict_days?: boolean | null;
-    inclusive_care_days?: unknown;
-    inclusive_care_customer_note?: string | null;
-  };
-
-  const emailNorm = verified.email;
-  const rowEmail = String(b.email ?? '').trim().toLowerCase();
-  if (!rowEmail || rowEmail !== emailNorm) {
-    return Response.json({ error: 'البريد لا يطابق هذا الرابط.' }, { status: 403, headers });
-  }
-
-  if (b.is_active === false) {
-    return Response.json({ error: 'الحساب غير مفعّل.' }, { status: 403, headers });
-  }
-
-  if (!tierAllowsDashboard(String(b.tier ?? ''))) {
+  const result = await consumeBarberPortalMagicToken(supabase, token, secret);
+  if (result.ok === false) {
     return Response.json(
-      {
-        error: 'باقتك البرونزية لا تتضمن لوحة التحكم الإلكترونية. رقِ للذهبي أو الماسي للوصول.',
-        code: 'TIER_BRONZE_NO_DASHBOARD',
-      },
-      { status: 403, headers }
+      { error: result.error, ...(result.code ? { code: result.code } : {}) },
+      { status: result.status, headers },
     );
-  }
-
-  const sessionSecret = getBarberPortalSessionSecret();
-  const barberSessionToken = sessionSecret ? mintBarberPortalSessionToken(String(b.id), String(b.email ?? ''), sessionSecret) : null;
-
-  const salonRole = await resolveSalonMemberRole(supabase, String(b.id), String(b.email ?? ''));
-
-  const jti = verified.jti;
-  const { error: insErr } = await supabase.from('barber_portal_magic_redemptions').insert({
-    jti,
-    barber_id: verified.barberId,
-  });
-
-  if (insErr) {
-    const msg = insErr.message || '';
-    if (msg.includes('duplicate') || msg.includes('unique') || insErr.code === '23505') {
-      return Response.json(
-        { error: 'تم استخدام هذا الرابط مسبقاً. استخدم رابطاً جديداً من أحدث بريد أو سجّل الدخول يدوياً.', code: 'magic_already_used' },
-        { status: 410, headers }
-      );
-    }
-    return Response.json({ error: insErr.message || 'تعذر تسجيل الدخول السريع.' }, { status: 500, headers });
   }
 
   return Response.json(
     {
       ok: true,
-      barber_session_token: barberSessionToken,
-      salon_role: salonRole,
+      barber_session_token: result.barber_session_token,
+      salon_role: result.salon_role,
       barber: {
-        id: String(b.id),
-        name: String(b.name ?? ''),
-        email: String(b.email ?? ''),
-        phone: String(b.phone ?? ''),
-        tier: String(b.tier ?? 'bronze'),
-        rating_invite_token: b.rating_invite_token != null ? String(b.rating_invite_token) : '',
-        member_number:
-          b.member_number != null && Number.isFinite(Number(b.member_number))
-            ? Math.floor(Number(b.member_number))
-            : null,
-        inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(b),
+        id: result.barber.id,
+        name: result.barber.name,
+        email: result.barber.email,
+        phone: result.barber.phone,
+        tier: result.barber.tier,
+        rating_invite_token: result.barber.rating_invite_token,
+        member_number: result.barber.member_number,
+        inclusiveCare: result.barber.inclusiveCare,
       },
     },
-    { headers }
+    { headers },
   );
 }

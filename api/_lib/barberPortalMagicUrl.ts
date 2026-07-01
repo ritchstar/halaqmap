@@ -15,7 +15,7 @@ export function buildBarberMagicEnterUrl(
     const token = mintBarberPortalMagicToken(barberId, barberEmail, secret);
     const b = siteBase.replace(/\/+$/, '');
     const nextQ = next === 'watch' ? '&next=watch' : '';
-    return `${b}/#/barber/enter?m=${encodeURIComponent(token)}${nextQ}`;
+    return `${b}/api/barber-portal-magic-enter?m=${encodeURIComponent(token)}${nextQ}`;
   } catch {
     return null;
   }
