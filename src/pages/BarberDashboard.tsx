@@ -84,6 +84,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { refreshBarberPortalSessionRemote, type BarberPortalSession } from '@/lib/barberPortalLoginRemote';
 import {
+  buildBarberLoginUrl,
   clearBarberLinkedSession,
   persistBarberAuthSession,
   readBarberAuthSession,
@@ -155,6 +156,7 @@ import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooter
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
 import { BarberOwnerWatchPanel } from '@/components/barber/BarberOwnerWatchPanel';
 import { OWNER_WATCH_FEATURE_TAGLINE_AR } from '@/config/ownerWatchFeatureCopy';
+import { barberOwnerWatchHashPath } from '@/lib/ownerSalonWatchLinks';
 import {
   fetchListingLicenseBalanceRemote,
   redeemListingLicenseRemote,
@@ -219,6 +221,10 @@ export default function BarberDashboard({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const ownerWatchMode = searchParams.get('view') === 'watch';
+  const dashboardLoginPath = useMemo(
+    () => buildBarberLoginUrl(ownerWatchMode ? barberOwnerWatchHashPath() : ROUTE_PATHS.BARBER_DASHBOARD),
+    [ownerWatchMode],
+  );
   const [activeTab, setActiveTab] = useState('overview');
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
   const [barberData, setBarberData] = useState<BarberPortalSession | null>(null);
@@ -252,7 +258,7 @@ export default function BarberDashboard({
     }
     const parsed = readBarberAuthSession();
     if (!parsed) {
-      navigate(ROUTE_PATHS.BARBERS_LANDING);
+      navigate(dashboardLoginPath, { replace: true });
       return;
     }
     try {
@@ -290,7 +296,7 @@ export default function BarberDashboard({
       void clearBarberLinkedSession();
       navigate(ROUTE_PATHS.BARBERS_LANDING);
     }
-  }, [navigate, founderPreview, previewSession, previewListingBalance]);
+  }, [navigate, founderPreview, previewSession, previewListingBalance, dashboardLoginPath]);
 
   const refreshListingBalance = useCallback(async () => {
     if (founderPreview) return;

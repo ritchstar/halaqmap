@@ -174,19 +174,16 @@ function requestHostOrigin(request: Request): string | null {
   }
 }
 
-/** المتصفح قد لا يُرسل Origin في GET من نفس النطاق — نستنتج من Referer أو Host. */
+/** المتصفح قد لا يُرسل Origin — نستنتج من Referer أو Host (شائع في WebView البريد). */
 function resolveAllowedBrowserOrigin(request: Request, allowed: string[]): string | null {
   const direct = requestOriginNormalized(request);
   if (direct && allowed.includes(direct)) return direct;
 
-  const method = request.method.toUpperCase();
-  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
-    const refererOrigin = requestRefererOrigin(request);
-    if (refererOrigin && allowed.includes(refererOrigin)) return refererOrigin;
+  const refererOrigin = requestRefererOrigin(request);
+  if (refererOrigin && allowed.includes(refererOrigin)) return refererOrigin;
 
-    const hostOrigin = requestHostOrigin(request);
-    if (hostOrigin && allowed.includes(hostOrigin)) return hostOrigin;
-  }
+  const hostOrigin = requestHostOrigin(request);
+  if (hostOrigin && allowed.includes(hostOrigin)) return hostOrigin;
 
   return direct;
 }

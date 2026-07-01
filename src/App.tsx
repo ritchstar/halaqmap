@@ -283,7 +283,7 @@ const App = () => (
           <Route path="/partners/hospitality-qr-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path="/hospitality-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<LazyRoute><BarberLogin /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<PartnerLayout><LazyRoute><BarberPortalEnter /></LazyRoute></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<LazyRoute><BarberPortalEnter /></LazyRoute>} />
           <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><LazyRoute><Payment /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<PartnerLayout><LazyRoute><PartnerSubscriptionTutorials /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.MAP_COMMUNITY} element={<PartnerLayout><LazyRoute><MapCommunity /></LazyRoute></PartnerLayout>} />

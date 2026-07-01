@@ -5,7 +5,11 @@ import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
 import type { BarberPortalInclusiveCareSnapshot } from '@/lib/barberInclusiveCareRemote';
 import type { SalonMemberRole } from '@/lib/barberPortalLoginRemote';
-import { persistBarberAuthSession, resolveSafePartnerRedirect } from '@/lib/barberPortalSession';
+import {
+  buildBarberLoginUrl,
+  persistBarberAuthSession,
+  resolveSafePartnerRedirect,
+} from '@/lib/barberPortalSession';
 import { barberOwnerWatchHashPath } from '@/lib/ownerSalonWatchLinks';
 import { toast } from 'sonner';
 
@@ -27,6 +31,12 @@ function tierFromDb(t: string | null | undefined): SubscriptionTier {
   return SubscriptionTier.BRONZE;
 }
 
+function loginFallbackPath(params: URLSearchParams): string {
+  return params.get('next')?.trim() === 'watch'
+    ? barberOwnerWatchHashPath()
+    : ROUTE_PATHS.BARBER_DASHBOARD;
+}
+
 export default function BarberPortalEnter() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -38,10 +48,11 @@ export default function BarberPortalEnter() {
     ran.current = true;
 
     const token = params.get('m')?.trim();
+    const loginFallback = buildBarberLoginUrl(loginFallbackPath(params));
     if (!token) {
       setBusy(false);
       toast.error('رابط الدخول غير صالح (ناقص الرمز).');
-      navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
+      navigate(loginFallback, { replace: true });
       return;
     }
 
@@ -49,6 +60,7 @@ export default function BarberPortalEnter() {
       try {
         const response = await fetch(MAGIC_ENDPOINT, {
           method: 'POST',
+          credentials: 'same-origin',
           headers: baseHeaders(),
           body: JSON.stringify({ token }),
         });
@@ -80,7 +92,7 @@ export default function BarberPortalEnter() {
         if (!b?.id) {
           setBusy(false);
           toast.error('استجابة غير صالحة من الخادم.');
-          navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
+          navigate(loginFallback, { replace: true });
           return;
         }
 
@@ -113,8 +125,8 @@ export default function BarberPortalEnter() {
         navigate(destination, { replace: true });
       } catch {
         setBusy(false);
-        toast.error('تعذر الاتصال بالخادم.');
-        navigate(ROUTE_PATHS.BARBERS_LANDING, { replace: true });
+        toast.error('تعذر الاتصال بالخادم. جرّب فتح الرابط في متصفح خارج تطبيق البريد.');
+        navigate(loginFallback, { replace: true });
       }
     })();
   }, [navigate, params]);
@@ -124,8 +136,8 @@ export default function BarberPortalEnter() {
       <Loader2 className="h-10 w-10 animate-spin text-primary" aria-hidden />
       <p className="text-sm text-muted-foreground">جاري تسجيل الدخول عبر الرابط الآمن…</p>
       {!busy ? (
-        <Link to={ROUTE_PATHS.BARBERS_LANDING} className="text-sm text-primary underline">
-          العودة للمسار التسويقي
+        <Link to={ROUTE_PATHS.BARBER_LOGIN} className="text-sm text-primary underline">
+          تسجيل الدخول اليدوي للوحة التحكم
         </Link>
       ) : null}
     </div>
