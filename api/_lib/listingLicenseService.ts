@@ -743,17 +743,21 @@ export async function redeemIssuedVouchersForMoyasarPayment(
 
     if (voucher.status !== 'redeemed') continue;
 
-    const redeemedBarberId = voucher.redeemed_barber_id
-      ? String(voucher.redeemed_barber_id)
-      : barberId;
-    if (redeemedBarberId !== barberId) continue;
-
     const { data: entByVoucher } = await supabase
       .from('barber_listing_entitlements')
       .select('id')
       .eq('voucher_id', voucher.id)
       .maybeSingle();
     if (entByVoucher?.id) continue;
+
+    const { data: entForBarber } = await supabase
+      .from('barber_listing_entitlements')
+      .select('id')
+      .eq('barber_id', barberId)
+      .eq('order_id', order.id)
+      .is('revoked_at', null)
+      .maybeSingle();
+    if (entForBarber?.id) continue;
 
     const { data: product, error: pErr } = await supabase
       .from('listing_license_products')
@@ -772,7 +776,7 @@ export async function redeemIssuedVouchersForMoyasarPayment(
     });
     if (!credit.ok) return { ok: false, error: credit.error };
 
-    if (!voucher.redeemed_barber_id) {
+    if (!voucher.redeemed_barber_id || String(voucher.redeemed_barber_id) !== barberId) {
       await supabase
         .from('listing_license_vouchers')
         .update({

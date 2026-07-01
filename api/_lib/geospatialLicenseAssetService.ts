@@ -600,6 +600,21 @@ export async function inspectGeospatialBindForMoyasarPayment(
   if (!barberId) blockers.push('missing_barber_id');
   if (!entitlementId) blockers.push('missing_listing_entitlement');
 
+  const { data: voucherRows } = await supabase
+    .from('listing_license_vouchers')
+    .select('id, status, redeemed_barber_id')
+    .eq('order_id', order.id);
+  if (!entitlementId) {
+    if (!voucherRows?.length) {
+      blockers.push('no_vouchers_on_order');
+    } else {
+      const summary = voucherRows
+        .map((v) => `${v.status}${v.redeemed_barber_id ? `:${String(v.redeemed_barber_id).slice(0, 8)}` : ''}`)
+        .join('|');
+      blockers.push(`voucher_states:${summary}`);
+    }
+  }
+
   const geo = await loadGeoSnapshot(supabase, barberId, registrationRequestId);
   const usable = coordsUsable(geo.latitude, geo.longitude);
   if (!usable) {
