@@ -10,6 +10,13 @@ import {
   tierLabelAr,
 } from './_lib/listingLicenseService.js';
 import { buildActivationCertificateEmailBodies } from './_lib/geospatialLicenseAssetService.js';
+import {
+  buildBronzePartnerActivationEmailBodies,
+  buildShopOpenMailUrls,
+} from './_lib/bronzePartnerActivationMail.js';
+import { siteBaseUrlFromEnv } from './_lib/barberProvisionService.js';
+import { tryEmailPartnerUnifiedContractAfterApprove } from './_lib/partnerContractNotify.js';
+import { isBronzeTier } from './_lib/partnerTierMail.js';
 
 export const config = { maxDuration: 60 };
 
@@ -162,43 +169,101 @@ export async function POST(request: Request): Promise<Response> {
         ? [result.plaintextCode]
         : [];
 
-  if (!result.autoRedeemed && codesToEmail.length > 0 && buyerEmail.includes('@')) {
-    const resendKey = (process.env.RESEND_API_KEY ?? '').trim();
-    const resendFrom = (process.env.RESEND_FROM_EMAIL ?? '').trim();
-    if (resendKey && resendFrom) {
-      const mail = buildVoucherEmailBodies({
-        barberName: buyerName,
-        plaintextCode: codesToEmail.join('\n'),
-        tierLabelAr: tierLabelAr(result.tier),
-        listingDaysGranted: result.listingDaysGranted,
-      });
-      await sendResend({
-        apiKey: resendKey,
-        from: resendFrom,
-        to: buyerEmail,
-        subject: mail.subject,
-        html: mail.html,
-        text: mail.text,
-      });
+  const resendKey = (process.env.RESEND_API_KEY ?? '').trim();
+  const resendFrom = (process.env.RESEND_FROM_EMAIL ?? '').trim();
+  const resendReady = Boolean(resendKey && resendFrom);
+  let voucherEmailed = false;
+  let activationCertificateEmailed = false;
+  let bronzeActivationEmailed = false;
+  let contractEmailed = false;
+
+  if (!result.autoRedeemed && codesToEmail.length > 0 && buyerEmail.includes('@') && resendReady) {
+    const mail = buildVoucherEmailBodies({
+      barberName: buyerName,
+      plaintextCode: codesToEmail.join('\n'),
+      tierLabelAr: tierLabelAr(result.tier),
+      listingDaysGranted: result.listingDaysGranted,
+    });
+    const sent = await sendResend({
+      apiKey: resendKey,
+      from: resendFrom,
+      to: buyerEmail,
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text,
+    });
+    voucherEmailed = sent.ok;
+    if (!sent.ok) {
+      console.error('[listing-license-fulfill-internal] voucher_email_failed', sent.error);
     }
   }
 
-  if (result.activationCertificate && buyerEmail.includes('@')) {
-    const resendKey = (process.env.RESEND_API_KEY ?? '').trim();
-    const resendFrom = (process.env.RESEND_FROM_EMAIL ?? '').trim();
-    if (resendKey && resendFrom) {
-      const mail = buildActivationCertificateEmailBodies({
-        barberName: buyerName,
-        certificate: result.activationCertificate,
-      });
-      await sendResend({
-        apiKey: resendKey,
-        from: resendFrom,
-        to: buyerEmail,
-        subject: mail.subject,
-        html: mail.html,
-        text: mail.text,
-      });
+  if (result.activationCertificate && buyerEmail.includes('@') && resendReady) {
+    const mail = buildActivationCertificateEmailBodies({
+      barberName: buyerName,
+      certificate: result.activationCertificate,
+    });
+    const sent = await sendResend({
+      apiKey: resendKey,
+      from: resendFrom,
+      to: buyerEmail,
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text,
+    });
+    activationCertificateEmailed = sent.ok;
+    if (!sent.ok) {
+      console.error('[listing-license-fulfill-internal] certificate_email_failed', sent.error);
+    }
+  }
+
+  if (isBronzeTier(result.tier) && buyerEmail.includes('@') && resendReady) {
+    let openStatusToken: string | null = null;
+    if (barberId) {
+      const { data: barberRow } = await supabase
+        .from('barbers')
+        .select('open_status_token')
+        .eq('id', barberId)
+        .maybeSingle();
+      openStatusToken = barberRow?.open_status_token ? String(barberRow.open_status_token) : null;
+    }
+    const shopUrls = buildShopOpenMailUrls(openStatusToken);
+    const siteBase = siteBaseUrlFromEnv().replace(/\/+$/, '');
+    const bronzeMail = buildBronzePartnerActivationEmailBodies({
+      barberName: buyerName,
+      certificate: result.activationCertificate ?? null,
+      shopOpenToggleUrl: shopUrls.shopOpenToggleUrl,
+      shopOpenRotateUrl: shopUrls.shopOpenRotateUrl,
+      registrationOrderId: String(body.registrationRequestId ?? '').trim() || null,
+      policyUrl: `${siteBase}/#/partners/subscription-policy`,
+    });
+    const sent = await sendResend({
+      apiKey: resendKey,
+      from: resendFrom,
+      to: buyerEmail,
+      subject: bronzeMail.subject,
+      html: bronzeMail.html,
+      text: bronzeMail.text,
+    });
+    bronzeActivationEmailed = sent.ok;
+    if (!sent.ok) {
+      console.error('[listing-license-fulfill-internal] bronze_activation_email_failed', sent.error);
+    }
+  }
+
+  if (barberId && buyerEmail.includes('@') && resendReady) {
+    contractEmailed = await tryEmailPartnerUnifiedContractAfterApprove({
+      supabase,
+      resendApiKey: resendKey,
+      resendFrom,
+      barberEmail: buyerEmail,
+      barberName: buyerName,
+      tier: result.tier,
+      registrationRequestId: String(body.registrationRequestId ?? '').trim() || null,
+      barberId,
+    });
+    if (!contractEmailed) {
+      console.error('[listing-license-fulfill-internal] contract_email_failed', { barberId });
     }
   }
 
@@ -212,7 +277,10 @@ export async function POST(request: Request): Promise<Response> {
     listingDaysGranted: result.listingDaysGranted,
     tier: result.tier,
     quantity: result.quantity,
-    voucherEmailed: Boolean(!result.autoRedeemed && codesToEmail.length > 0 && buyerEmail),
+    voucherEmailed,
+    activationCertificateEmailed,
+    bronzeActivationEmailed,
+    contractEmailed,
     geospatialAssetId: result.geospatialAssetId ?? null,
     activationCertificate: result.activationCertificate ?? null,
   });

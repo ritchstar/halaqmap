@@ -463,25 +463,27 @@ export async function processSabPaymentWebhook(
   const obSecret = onboardingSecret();
   if (origin && obSecret && effectiveBarberId && resolvedEmail) {
     const tierStr = tier === 'diamond' ? 'diamond' : tier === 'gold' ? 'gold' : 'bronze';
-    try {
-      await fetch(`${origin}/api/send-barber-onboarding`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-onboarding-internal-secret': obSecret,
-        },
-        body: JSON.stringify({
-          mode: 'single',
-          barberEmail: resolvedEmail,
-          barberName,
-          tier: tierStr,
-          barberId: effectiveBarberId,
-          registrationOrderId: requestId || undefined,
-          digitalShiftAddon: digitalShiftAddonFromMeta(meta),
-        }),
-      });
-    } catch {
-      /* non-fatal */
+    if (tierStr !== 'bronze') {
+      try {
+        await fetch(`${origin}/api/send-barber-onboarding`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-onboarding-internal-secret': obSecret,
+          },
+          body: JSON.stringify({
+            mode: 'single',
+            barberEmail: resolvedEmail,
+            barberName,
+            tier: tierStr,
+            barberId: effectiveBarberId,
+            registrationOrderId: requestId || undefined,
+            digitalShiftAddon: digitalShiftAddonFromMeta(meta),
+          }),
+        });
+      } catch {
+        /* non-fatal */
+      }
     }
   }
 

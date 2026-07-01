@@ -109,7 +109,7 @@ export async function POST(request: Request): Promise<Response> {
     upsertRow: wl.row,
     legalDisclaimerAccepted,
     legalDisclaimerAcceptedAtIso,
-    sendCredentialsEmail: true,
+    sendCredentialsEmail: String((wl.row as { tier?: unknown }).tier ?? '').trim().toLowerCase() !== 'bronze',
     forceAuthProvision: true,
   });
 

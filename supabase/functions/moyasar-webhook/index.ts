@@ -381,13 +381,19 @@ async function sendResendConfirmation(input: {
   invoiceHref: string;
   /** عند ربط حساب حلاق وتفعيله تلقائياً من الـ Webhook */
   accountActivated: boolean;
+  tier?: "bronze" | "gold" | "diamond" | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const amountSar = (input.amountHalalas / 100).toFixed(2);
+  const isBronze = input.tier === "bronze";
   const subject = input.accountActivated
-    ? "حلاق ماب | تم الدفع وتفعيل حسابك"
+    ? isBronze
+      ? "حلاق ماب | تم الدفع وتفعيل رخصة النفاذ"
+      : "حلاق ماب | تم الدفع وتفعيل حسابك"
     : "حلاق ماب | تم استلام الدفع";
   const activationBlock = input.accountActivated
-    ? `<p>تم <strong>تفعيل حسابك عبر نظام الرصد الذكي</strong> ويمكنك البدء باستقبال الطلبات من لوحة التحكم.</p>`
+    ? isBronze
+      ? `<p>تم <strong>تفعيل رخصة النفاذ الرقمية</strong> وبروتوكول الربط الآلي. راجع بريدك لشهادة التفعيل وروابط تشغيل الصالون (مفتوح/مغلق) والعقد الموحّد.</p>`
+      : `<p>تم <strong>تفعيل حسابك عبر نظام الرصد الذكي</strong> ويمكنك البدء باستقبال الطلبات من لوحة التحكم.</p>`
     : `<p>تم استلام المبلغ بنجاح. إذا لم يظهر صالونك عبر نظام الرصد الذكي بعد، تأكد من إكمال التسجيل وربط معرّف الحلاق في عملية الدفع أو تواصل مع الدعم.</p>`;
   const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Tahoma,Arial,sans-serif;line-height:1.85;padding:24px;background:#f8fafc">
 <p>أهلًا <strong>${escapeHtml(input.barberName)}</strong>،</p>
@@ -993,7 +999,7 @@ Deno.serve(async (req) => {
     const nameOnboarding = (bRow?.name && String(bRow.name).trim()) || barberName;
     if (appOrigin && obSecret && toOnboarding && effectiveBarberId) {
       const tierStr = tier === "diamond" ? "diamond" : tier === "gold" ? "gold" : "bronze";
-      if (platformPay.enable_internal_onboarding_email) {
+      if (platformPay.enable_internal_onboarding_email && tierStr !== "bronze") {
         try {
           const obResp = await fetch(`${appOrigin}/api/send-barber-onboarding`, {
             method: "POST",
@@ -1090,6 +1096,7 @@ Deno.serve(async (req) => {
         currency,
         invoiceHref,
         accountActivated: accountActivated && Boolean(effectiveBarberId),
+        tier: tier === "diamond" ? "diamond" : tier === "gold" ? "gold" : tier === "bronze" ? "bronze" : null,
       });
       if (mail.ok) {
         emailSent = true;

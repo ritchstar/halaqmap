@@ -594,7 +594,7 @@ export async function provisionBarberForPaidOrder(
     upsertRow,
     legalDisclaimerAccepted,
     legalDisclaimerAcceptedAtIso,
-    sendCredentialsEmail: true,
+    sendCredentialsEmail: String(tier).trim().toLowerCase() !== 'bronze',
     forceAuthProvision: true,
   });
   if (!provision.ok) return { ok: false, error: provision.error };

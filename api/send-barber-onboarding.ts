@@ -920,6 +920,16 @@ export async function POST(request: Request): Promise<Response> {
     const barberEmail = normalizeRecipientEmail(String(payload.barberEmail || ''));
     const barberName = String(payload.barberName || '').trim() || 'شريك حلاق ماب';
     const tierRaw = (payload as SinglePayload).tier;
+    if (internalOk && tierKey(tierRaw) === 'bronze') {
+      return Response.json(
+        {
+          ok: true,
+          skipped: true,
+          reason: 'bronze_uses_activation_mail_from_fulfill',
+        },
+        { headers },
+      );
+    }
     const tier = tierLabelAr(tierRaw);
     if (!barberEmail) {
       return Response.json({ error: 'Missing barberEmail' }, { status: 400, headers });
