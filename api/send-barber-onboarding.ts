@@ -6,6 +6,9 @@ import {
   digitalShiftOnboardingSectionHtml,
   digitalShiftOnboardingSectionPlain,
 } from './_lib/digitalShiftOnboardingMail.js';
+import { fetchCertificateByOrderId } from './_lib/geospatialLicenseAssetService.js';
+import type { DigitalActivationCertificatePayload } from './_lib/geospatialLicenseDoctrine.js';
+import { dispatchPartnerActivationMails } from './_lib/partnerActivationMailDispatch.js';
 
 export const config = {
   maxDuration: 60,
@@ -308,6 +311,40 @@ async function loadBarberOnboardingRow(
     }
   }
   return null;
+}
+
+async function loadLatestCertificateForBarber(
+  supabase: SupabaseClient,
+  barberId: string | null,
+  registrationOrderId: string | null,
+): Promise<DigitalActivationCertificatePayload | null> {
+  let orderId: string | null = null;
+  const regId = registrationOrderId?.trim() || null;
+  if (regId) {
+    const { data } = await supabase
+      .from('listing_license_orders')
+      .select('id')
+      .eq('registration_request_id', regId)
+      .eq('status', 'paid')
+      .order('paid_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    orderId = data?.id ? String(data.id) : null;
+  }
+  if (!orderId && barberId) {
+    const { data } = await supabase
+      .from('listing_license_orders')
+      .select('id')
+      .eq('barber_id', barberId)
+      .eq('status', 'paid')
+      .order('paid_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    orderId = data?.id ? String(data.id) : null;
+  }
+  if (!orderId) return null;
+  const cert = await fetchCertificateByOrderId(supabase, orderId);
+  return cert.ok ? cert.certificate : null;
 }
 
 async function buildRatingEmailContext(
@@ -920,16 +957,6 @@ export async function POST(request: Request): Promise<Response> {
     const barberEmail = normalizeRecipientEmail(String(payload.barberEmail || ''));
     const barberName = String(payload.barberName || '').trim() || 'شريك حلاق ماب';
     const tierRaw = (payload as SinglePayload).tier;
-    if (internalOk && tierKey(tierRaw) === 'bronze') {
-      return Response.json(
-        {
-          ok: true,
-          skipped: true,
-          reason: 'bronze_uses_activation_mail_from_fulfill',
-        },
-        { headers },
-      );
-    }
     const tier = tierLabelAr(tierRaw);
     if (!barberEmail) {
       return Response.json({ error: 'Missing barberEmail' }, { status: 400, headers });
@@ -950,6 +977,48 @@ export async function POST(request: Request): Promise<Response> {
       tierForMagic = onboardingRow.tier;
       openStatusToken = onboardingRow.open_status_token;
     }
+    const effectiveTierKey = tierKey(tierForMagic ?? tierRaw);
+    const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
+
+    if (effectiveTierKey === 'bronze') {
+      if (internalOk) {
+        return Response.json(
+          {
+            ok: true,
+            skipped: true,
+            reason: 'bronze_uses_activation_mail_from_fulfill',
+          },
+          { headers },
+        );
+      }
+      const certificate = await loadLatestCertificateForBarber(supabase, barberId, registrationOrderId);
+      const dispatch = await dispatchPartnerActivationMails(supabase, {
+        buyerEmail: barberEmail,
+        buyerName: barberName,
+        tier: 'bronze',
+        barberId,
+        registrationRequestId: registrationOrderId,
+        activationCertificate: certificate,
+        forceContract: false,
+      });
+      if (!dispatch.bronzeActivationEmailed && dispatch.errors.length > 0) {
+        return Response.json(
+          { error: 'bronze_activation_mail_failed', details: dispatch },
+          { status: 502, headers },
+        );
+      }
+      return Response.json(
+        {
+          ok: true,
+          mode: 'single',
+          bronzeActivation: true,
+          to: barberEmail,
+          dispatch,
+        },
+        { headers },
+      );
+    }
+
     const shopOpenMail = buildShopOpenMailContext(baseUrl, openStatusToken);
     const linksForEmail = linksWithMagicDashboardIfEligible(
       links,
@@ -958,7 +1027,6 @@ export async function POST(request: Request): Promise<Response> {
       tierForMagic ?? tierRaw,
     );
     const ratingCtx = await buildRatingEmailContext(baseUrl, barberId, ratingTok);
-    const registrationOrderId = String((payload as SinglePayload).registrationOrderId ?? '').trim() || null;
     const dsRaw = (payload as SinglePayload).digitalShiftAddon as unknown;
     const digitalShiftAddon =
       dsRaw === true || dsRaw === 'true' || dsRaw === 1 || dsRaw === '1';
@@ -1036,10 +1104,15 @@ export async function POST(request: Request): Promise<Response> {
     const invalidSamples: string[] = [];
     let skippedInvalid = 0;
     let skippedDuplicate = 0;
+    let skippedBronze = 0;
     const seen = new Set<string>();
     for (const row of rows) {
       const email = normalizeRecipientEmail(String(row.email || ''));
       if (!email) continue;
+      if (tierKey(row.tier) === 'bronze') {
+        skippedBronze += 1;
+        continue;
+      }
       if (!isValidEmail(email)) {
         skippedInvalid += 1;
         if (invalidSamples.length < 15) invalidSamples.push(email || '(فارغ)');
@@ -1097,6 +1170,7 @@ export async function POST(request: Request): Promise<Response> {
         failed: apiFailed.length,
         skippedInvalid,
         skippedDuplicate,
+        skippedBronze,
         failedDetails: apiFailed.slice(0, 30),
         invalidSamples,
       },

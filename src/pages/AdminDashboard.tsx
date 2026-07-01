@@ -2445,7 +2445,9 @@ function RequestReviewDialog({
     toast({
       title: 'تم قبول الطلب',
       description: mail.ok
-        ? 'تمت مزامنة الحلاق وإرسال بريد التعليمات وروابط لوحة التحكم.'
+        ? request.tier === SubscriptionTier.BRONZE
+          ? 'تمت مزامنة الحلاق وإرسال بريد تفعيل الباقة البرونزية (شهادة النفاذ + روابط مفتوح/مغلق — بدون لوحة تحكم).'
+          : 'تمت مزامنة الحلاق وإرسال بريد التعليمات وروابط لوحة التحكم.'
         : 'تمت مزامنة الحلاق وسيظهر في تبويب الحلاقين.',
     });
     onClose();
@@ -2584,7 +2586,10 @@ function RequestReviewDialog({
       : '';
     toast({
       title: 'تم تسليم الرسالة إلى Resend',
-      description: `المستلم: ${recipient}\nResend قبلت الطلب؛ الوصول لصندوق Gmail قد يتأخر أو يذهب للمزعج/العروض. للتأكيد الفعلي استخدم لوحة Resend وليس واجهتنا فقط.${resendRef}`,
+      description:
+        request.tier === SubscriptionTier.BRONZE
+          ? `المستلم: ${recipient}\nأُرسلت رسائل التفعيل البرونزية (شهادة + روابط التشغيل) — بدون لوحة تحكم.${resendRef}`
+          : `المستلم: ${recipient}\nResend قبلت الطلب؛ الوصول لصندوق Gmail قد يتأخر أو يذهب للمزعج/العروض. للتأكيد الفعلي استخدم لوحة Resend وليس واجهتنا فقط.${resendRef}`,
     });
   };
 
