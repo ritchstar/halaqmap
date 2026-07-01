@@ -612,13 +612,15 @@ export default function PartnerMarketingPreview() {
           الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
           ══════════════════════════════════════════════════════════════════ */}
       <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
+        <div className="relative z-20">
+          <PartnerOrderReceptionTicker surface="partner-light" />
+          <PartnerPlatformInspectionTicker surface="partner-light" />
+        </div>
 
-        <PartnerOrderReceptionTicker surface="partner-light" />
-        <PartnerPlatformInspectionTicker surface="partner-light" />
-
-        {/* خلفية زجاجية */}
+        <div className="relative isolate">
+        {/* خلفية زجاجية — خلف التنقل فقط، لا تغطي شريط الفحص */}
         <div className={cn(
-          'absolute inset-0 border-b border-sky-200/80 bg-white/85 shadow-[0_12px_40px_rgba(148,163,184,0.16)]',
+          'pointer-events-none absolute inset-0 -z-10 border-b border-sky-200/80 bg-white/85 shadow-[0_12px_40px_rgba(148,163,184,0.16)]',
           isMobile ? 'backdrop-blur-0' : 'backdrop-blur-2xl',
         )} />
 
@@ -782,6 +784,7 @@ export default function PartnerMarketingPreview() {
                 </div>
               </motion.div>
             )}
+        </div>
         </div>
       </header>
 

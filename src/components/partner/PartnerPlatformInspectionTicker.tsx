@@ -26,7 +26,7 @@ export function PartnerPlatformInspectionTicker({
 
   const surfaceClass =
     surface === 'partner-light'
-      ? 'border-sky-300/50 bg-gradient-to-r from-sky-50 via-white to-teal-50'
+      ? 'border-b-2 border-amber-400/70 bg-gradient-to-r from-amber-50 via-amber-100/80 to-teal-50 shadow-[0_4px_14px_rgba(245,158,11,0.12)]'
       : surface === 'b2b'
         ? 'border-cyan-400/30 bg-gradient-to-r from-cyan-500/20 via-[#0A1628] to-teal-500/15'
         : 'border-cyan-400/25 bg-gradient-to-r from-cyan-500/15 via-[#071426] to-teal-500/20';
@@ -49,7 +49,7 @@ export function PartnerPlatformInspectionTicker({
 
   return (
     <div
-      className={cn('relative shrink-0 overflow-hidden', surfaceClass, className)}
+      className={cn('relative z-20 shrink-0 overflow-hidden', surfaceClass, className)}
       role="region"
       aria-label="إعلان الفحص الشامل قبل إطلاق المنصة"
     >
