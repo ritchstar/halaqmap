@@ -168,7 +168,66 @@ export async function provisionGeospatialLicenseAsset(
         certificate: cert.certificate,
       };
     }
-    return { ok: false, error: 'asset_exists_without_certificate' };
+    const geo = await loadGeoSnapshot(supabase, input.barberId, input.registrationRequestId);
+    const map = resolveMapStatuses({
+      barberId: input.barberId,
+      entitlementId: input.entitlementId,
+      latitude: geo.latitude,
+      longitude: geo.longitude,
+    });
+    const now = new Date().toISOString();
+    const certificateNumber = generateCertificateNumber();
+    const publicToken = generatePublicToken();
+    const certificatePayload: DigitalActivationCertificatePayload & {
+      invoiceProductEn: string;
+      invoiceProductAr: string;
+      activationStatus: string;
+    } = {
+      certificateNumber,
+      publicToken,
+      isicCode: ISIC_ACTIVITY_CODE,
+      productClass: GEOSPATIAL_LICENSE_ASSET_CLASS,
+      tier: input.tier,
+      tierLabelAr: tierLabelAr(input.tier),
+      issuedAt: now,
+      validUntil: input.validUntil,
+      mapIntegrationStatus: map.mapStatus,
+      mapIntegrationProtocol: MAP_INTEGRATION_PROTOCOL,
+      assetStatus: map.assetStatus,
+      geoSnapshot: geo.snapshot,
+      verifyPath: `/api/digital-activation-certificate?token=${publicToken}`,
+      invoiceProductEn: invoiceLineDescriptionEn('Tier ' + input.tier),
+      invoiceProductAr: invoiceLineDescriptionAr(tierLabelAr(input.tier)),
+      activationStatus:
+        map.mapStatus === 'map_live' ? ACTIVATION_STATUS_TECHNICAL_LINK : 'Pending Geospatial Bind',
+    };
+    const { data: certRow, error: certErr } = await supabase
+      .from('digital_activation_certificates')
+      .insert({
+        asset_id: existingAsset.id,
+        order_id: input.orderId,
+        barber_id: input.barberId,
+        entitlement_id: input.entitlementId,
+        certificate_number: certificateNumber,
+        public_token: publicToken,
+        isic_code: ISIC_ACTIVITY_CODE,
+        tier: input.tier,
+        issued_at: now,
+        valid_until: input.validUntil,
+        map_integration_status: map.mapStatus,
+        certificate_payload: certificatePayload,
+      })
+      .select('id')
+      .single();
+    if (certErr || !certRow?.id) {
+      return { ok: false, error: certErr?.message || 'certificate_insert_failed' };
+    }
+    return {
+      ok: true,
+      assetId: existingAsset.id,
+      certificateId: certRow.id,
+      certificate: certificatePayload,
+    };
   }
 
   const geo = await loadGeoSnapshot(supabase, input.barberId, input.registrationRequestId);

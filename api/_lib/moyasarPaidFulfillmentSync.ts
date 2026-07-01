@@ -1,7 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';
 import { provisionBarberForPaidOrder } from './barberProvisionService.js';
-import { fetchCertificateByMoyasarPaymentId } from './geospatialLicenseAssetService.js';
+import {
+  activateGeospatialLicense,
+  fetchCertificateByMoyasarPaymentId,
+  fetchCertificateByOrderId,
+} from './geospatialLicenseAssetService.js';
 import { fulfillListingLicenseOrder } from './listingLicenseService.js';
 import {
   fetchMoyasarPayment,
@@ -113,6 +117,92 @@ async function resolveRegistrationContext(
     barberName: barberName || sourceName || 'عميلنا الكريم',
     phone: phone || sourcePhone || null,
   };
+}
+
+async function repairMissingCertificateForPayment(
+  supabase: SupabaseClient,
+  moyasarPaymentId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { data: order, error: orderErr } = await supabase
+    .from('listing_license_orders')
+    .select(
+      'id, barber_id, registration_request_id, paid_at, product_id, listing_license_products(tier, listing_days_granted)',
+    )
+    .eq('moyasar_payment_id', moyasarPaymentId.trim())
+    .maybeSingle();
+
+  if (orderErr || !order?.id) {
+    return { ok: false, error: orderErr?.message || 'order_not_found' };
+  }
+
+  const existingCert = await fetchCertificateByOrderId(supabase, order.id);
+  if (existingCert.ok) return { ok: true };
+
+  const productJoin = order.listing_license_products as
+    | { tier?: ListingTier; listing_days_granted?: number }
+    | { tier?: ListingTier; listing_days_granted?: number }[]
+    | null;
+  const product = Array.isArray(productJoin) ? productJoin[0] : productJoin;
+  const tier: ListingTier =
+    product?.tier === 'gold' || product?.tier === 'diamond' ? product.tier : 'bronze';
+
+  let barberId =
+    order.barber_id && UUID_RE.test(String(order.barber_id)) ? String(order.barber_id) : null;
+  let entitlementId: string | null = null;
+  let validUntil = '';
+
+  const { data: voucher } = await supabase
+    .from('listing_license_vouchers')
+    .select('redeemed_barber_id')
+    .eq('order_id', order.id)
+    .not('redeemed_barber_id', 'is', null)
+    .order('redeemed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!barberId && voucher?.redeemed_barber_id && UUID_RE.test(String(voucher.redeemed_barber_id))) {
+    barberId = String(voucher.redeemed_barber_id);
+  }
+
+  if (barberId) {
+    const { data: ent } = await supabase
+      .from('barber_listing_entitlements')
+      .select('id, valid_until')
+      .eq('barber_id', barberId)
+      .is('revoked_at', null)
+      .order('valid_until', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (ent?.id) {
+      entitlementId = String(ent.id);
+      validUntil = String(ent.valid_until ?? '');
+    }
+  }
+
+  if (!validUntil) {
+    const days = Number(product?.listing_days_granted) > 0 ? Number(product?.listing_days_granted) : 30;
+    const base = order.paid_at ? new Date(String(order.paid_at)) : new Date();
+    const until = new Date(base.getTime());
+    until.setUTCDate(until.getUTCDate() + days);
+    validUntil = until.toISOString();
+  }
+
+  const provision = await activateGeospatialLicense(supabase, {
+    orderId: order.id,
+    barberId,
+    entitlementId,
+    tier,
+    validUntil,
+    registrationRequestId: order.registration_request_id
+      ? String(order.registration_request_id)
+      : null,
+  });
+
+  if (provision.status === 'Failed') {
+    return { ok: false, error: provision.error };
+  }
+
+  return { ok: true };
 }
 
 export type SyncMoyasarPaidFulfillmentResult =
@@ -230,6 +320,22 @@ export async function syncMoyasarPaidFulfillment(
 
   const cert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
   if (!cert.ok) {
+    if (cert.error === 'certificate_not_found' || cert.error === 'order_not_found') {
+      const repaired = await repairMissingCertificateForPayment(supabase, normalizedPaymentId);
+      if (!repaired.ok) {
+        return { ok: false, error: repaired.error, status: 404 };
+      }
+      const retryCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
+      if (!retryCert.ok) {
+        return { ok: false, error: retryCert.error, status: 404 };
+      }
+      return {
+        ok: true,
+        alreadyFulfilled,
+        orderId: retryCert.orderId,
+        certificate: retryCert.certificate,
+      };
+    }
     return { ok: false, error: cert.error, status: 404 };
   }
 
