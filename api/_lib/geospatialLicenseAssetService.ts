@@ -63,6 +63,13 @@ function parseCoord(raw: unknown): number | null {
   return null;
 }
 
+function coordsUsable(latitude: number | null, longitude: number | null): boolean {
+  if (latitude == null || longitude == null) return false;
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return false;
+  if (latitude === 0 && longitude === 0) return false;
+  return true;
+}
+
 async function loadRegistrationGeoSnapshot(
   supabase: SupabaseClient,
   registrationRequestId: string,
@@ -169,10 +176,7 @@ function resolveMapStatuses(input: {
   const geoReady =
     Boolean(input.barberId) &&
     Boolean(input.entitlementId) &&
-    input.latitude != null &&
-    input.longitude != null &&
-    Number.isFinite(input.latitude) &&
-    Number.isFinite(input.longitude);
+    coordsUsable(input.latitude, input.longitude);
 
   if (geoReady) {
     return {

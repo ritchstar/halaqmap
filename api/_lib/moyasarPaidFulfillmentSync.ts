@@ -7,7 +7,7 @@ import {
   fetchCertificateByOrderId,
   promoteGeospatialBindForMoyasarPayment,
 } from './geospatialLicenseAssetService.js';
-import { fulfillListingLicenseOrder } from './listingLicenseService.js';
+import { fulfillListingLicenseOrder, autoRedeemIssuedVouchersForRegistration } from './listingLicenseService.js';
 import {
   fetchMoyasarPayment,
   moyasarPaymentIsPaid,
@@ -206,6 +206,79 @@ async function repairMissingCertificateForPayment(
   return { ok: true };
 }
 
+async function ensureBarberAndEntitlementForPayment(
+  supabase: SupabaseClient,
+  moyasarPaymentId: string,
+  tier: ListingTier,
+): Promise<void> {
+  const { data: order } = await supabase
+    .from('listing_license_orders')
+    .select('id, barber_id, registration_request_id')
+    .eq('moyasar_payment_id', moyasarPaymentId.trim())
+    .maybeSingle();
+  if (!order?.id) return;
+
+  const registrationRequestId = order.registration_request_id
+    ? String(order.registration_request_id).trim()
+    : '';
+  let barberId =
+    order.barber_id && UUID_RE.test(String(order.barber_id)) ? String(order.barber_id) : null;
+
+  if (!barberId && registrationRequestId) {
+    const { data: reg } = await supabase
+      .from('registration_submissions')
+      .select('payload')
+      .eq('id', registrationRequestId)
+      .maybeSingle();
+    const payload =
+      reg?.payload && typeof reg.payload === 'object' && !Array.isArray(reg.payload)
+        ? (reg.payload as Record<string, unknown>)
+        : null;
+    const email = typeof payload?.email === 'string' ? payload.email.trim() : '';
+    const barberName =
+      typeof payload?.barberName === 'string'
+        ? payload.barberName.trim()
+        : typeof payload?.shopName === 'string'
+          ? payload.shopName.trim()
+          : '';
+    const phone = typeof payload?.phone === 'string' ? payload.phone.trim() : null;
+
+    if (email.includes('@')) {
+      const provision = await provisionBarberForPaidOrder(supabase, {
+        registrationRequestId,
+        buyerEmail: email,
+        buyerName: barberName || 'شريك حلاق ماب',
+        buyerPhone: phone,
+        tier,
+        moyasarPaymentId: moyasarPaymentId.trim(),
+      });
+      if (provision.ok && UUID_RE.test(provision.barberId)) {
+        barberId = provision.barberId;
+        await supabase
+          .from('listing_license_orders')
+          .update({ barber_id: barberId, updated_at: new Date().toISOString() })
+          .eq('id', order.id);
+      }
+    }
+  }
+
+  if (barberId && registrationRequestId) {
+    await autoRedeemIssuedVouchersForRegistration(supabase, {
+      registrationRequestId,
+      barberId,
+    });
+  }
+}
+
+async function promotePaymentGeospatialBind(
+  supabase: SupabaseClient,
+  moyasarPaymentId: string,
+  tier: ListingTier,
+): Promise<void> {
+  await ensureBarberAndEntitlementForPayment(supabase, moyasarPaymentId, tier);
+  await promoteGeospatialBindForMoyasarPayment(supabase, moyasarPaymentId);
+}
+
 export type SyncMoyasarPaidFulfillmentResult =
   | {
       ok: true;
@@ -226,7 +299,11 @@ export async function syncMoyasarPaidFulfillment(
 
   const existingCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
   if (existingCert.ok) {
-    await promoteGeospatialBindForMoyasarPayment(supabase, normalizedPaymentId);
+    const certTier: ListingTier =
+      existingCert.certificate.tier === 'gold' || existingCert.certificate.tier === 'diamond'
+        ? existingCert.certificate.tier
+        : 'bronze';
+    await promotePaymentGeospatialBind(supabase, normalizedPaymentId, certTier);
     const refreshed = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
     if (refreshed.ok) {
       return {
@@ -340,7 +417,7 @@ export async function syncMoyasarPaidFulfillment(
       if (!retryCert.ok) {
         return { ok: false, error: retryCert.error, status: 404 };
       }
-      await promoteGeospatialBindForMoyasarPayment(supabase, normalizedPaymentId);
+      await promotePaymentGeospatialBind(supabase, normalizedPaymentId, tier ?? 'bronze');
       const reboundCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
       return {
         ok: true,
@@ -352,7 +429,7 @@ export async function syncMoyasarPaidFulfillment(
     return { ok: false, error: cert.error, status: 404 };
   }
 
-  await promoteGeospatialBindForMoyasarPayment(supabase, normalizedPaymentId);
+  await promotePaymentGeospatialBind(supabase, normalizedPaymentId, tier ?? 'bronze');
   const reboundCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
 
   return {
