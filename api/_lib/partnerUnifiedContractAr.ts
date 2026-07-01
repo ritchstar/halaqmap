@@ -6,23 +6,9 @@ import { Buffer } from 'node:buffer';
 import PDFDocument from 'pdfkit';
 import bidiFactory from 'bidi-js';
 import reshaper from 'arabic-persian-reshaper';
-
-const DEFAULT_AR_FONT_URL =
-  'https://raw.githubusercontent.com/googlefonts/noto-naskh-arabic/main/fonts/ttf/NotoNaskhArabic-Regular.ttf';
+import { loadPartnerContractArabicFont } from './partnerContractArabicFont.js';
 
 const bidi = bidiFactory();
-
-async function tryLoadArabicFont(): Promise<Buffer | null> {
-  const url = (process.env.PARTNER_CONTRACT_ARABIC_FONT_URL || DEFAULT_AR_FONT_URL).trim();
-  if (!url) return null;
-  try {
-    const r = await fetch(url, { redirect: 'follow' });
-    if (!r.ok) return null;
-    return Buffer.from(await r.arrayBuffer());
-  } catch {
-    return null;
-  }
-}
 
 /** نصوص معروضة في PDF — اتجاه RTL بعد reshape + خوارزمية يونيكود ثنائية الاتجاه */
 function processAr(text: string): string {
@@ -105,7 +91,7 @@ export type PartnerUnifiedContractFields = {
 export async function buildPartnerUnifiedContractPdf(
   partnerData: PartnerUnifiedContractPdfPartnerData
 ): Promise<Buffer> {
-  const fontBuf = await tryLoadArabicFont();
+  const fontBuf = await loadPartnerContractArabicFont();
 
   return await new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50, autoFirstPage: true });
@@ -116,19 +102,13 @@ export async function buildPartnerUnifiedContractPdf(
 
     const textWidth = doc.page.width - 100;
 
-    if (fontBuf) {
-      doc.registerFont('PartnerContractAr', fontBuf);
-      doc.font('PartnerContractAr');
-    } else {
-      doc.font('Helvetica').fontSize(9);
-      doc.text(
-        processAr(
-          '(تنبيه تقني: تعذّر تحميل خط عربي؛ قد تظهر الحروف بشكل غير مثالي. عيّن PARTNER_CONTRACT_ARABIC_FONT_URL إلى ملف TTF عربي موثوق.)'
-        ),
-        { align: 'right', width: textWidth }
-      );
-      doc.moveDown(0.5);
+    if (!fontBuf) {
+      reject(new Error('arabic_font_unavailable'));
+      return;
     }
+
+    doc.registerFont('PartnerContractAr', fontBuf);
+    doc.font('PartnerContractAr');
 
     const writeAr = (size: number, line: string, opts?: { moveDown?: number }) => {
       doc.fontSize(size).text(processAr(line), { align: 'right', width: textWidth });

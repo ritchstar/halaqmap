@@ -117,6 +117,7 @@ async function sendContractEmail(
     from: input.resendFrom,
     to: input.barberEmail,
     fields,
+    tier: input.tier,
   });
   if (!sent.ok) return { ok: false, error: sent.error };
 

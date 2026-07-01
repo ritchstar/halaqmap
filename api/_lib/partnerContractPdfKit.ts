@@ -4,9 +4,7 @@
  */
 import { Buffer } from 'node:buffer';
 import PDFDocument from 'pdfkit';
-
-const DEFAULT_AR_FONT_URL =
-  'https://raw.githubusercontent.com/googlefonts/noto-naskh-arabic/main/fonts/ttf/NotoNaskhArabic-Regular.ttf';
+import { loadPartnerContractArabicFont } from './partnerContractArabicFont.js';
 
 function wrapLine(line: string, maxChars: number): string[] {
   const s = line.trimEnd();
@@ -21,15 +19,7 @@ function wrapLine(line: string, maxChars: number): string[] {
 }
 
 async function tryLoadArabicFont(): Promise<Buffer | null> {
-  const url = (process.env.PARTNER_CONTRACT_ARABIC_FONT_URL || DEFAULT_AR_FONT_URL).trim();
-  if (!url) return null;
-  try {
-    const r = await fetch(url, { redirect: 'follow' });
-    if (!r.ok) return null;
-    return Buffer.from(await r.arrayBuffer());
-  } catch {
-    return null;
-  }
+  return loadPartnerContractArabicFont();
 }
 
 /** يُنشئ PDF من نص عربي (أسطر) مع محاذاة يمين وعرض ثابت */
@@ -47,21 +37,17 @@ export async function generatePartnerUnifiedContractPdfBuffer(plainText: string)
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    if (fontBuf) {
-      doc.registerFont('NotoNaskhArabic', fontBuf);
-      doc.font('NotoNaskhArabic').fontSize(10);
-    } else {
-      doc.font('Helvetica').fontSize(9);
-      doc.text(
-        '(تنبيه تقني: تعذّر تحميل خط عربي؛ قد تظهر بعض الحروف بشكل غير مثالي. عيّن PARTNER_CONTRACT_ARABIC_FONT_URL إلى ملف TTF عربي موثوق.)',
-        { align: 'right', width: doc.page.width - 96 },
-      );
-      doc.moveDown(0.5);
+    if (!fontBuf) {
+      reject(new Error('arabic_font_unavailable'));
+      return;
     }
+
+    doc.registerFont('NotoNaskhArabic', fontBuf);
+    doc.font('NotoNaskhArabic').fontSize(10);
 
     const textWidth = doc.page.width - 96;
     const lines = plainText.replace(/\r\n/g, '\n').split('\n');
-    const maxCharsPerLine = fontBuf ? 72 : 85;
+    const maxCharsPerLine = 72;
 
     for (const raw of lines) {
       const wrapped = wrapLine(raw, maxCharsPerLine);
