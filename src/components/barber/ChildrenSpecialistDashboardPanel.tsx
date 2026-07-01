@@ -10,7 +10,6 @@ import type { BarberPortalSession } from '@/lib/barberPortalLoginRemote';
 import { isActiveChildrenSpecialistSession } from '@/lib/childrenSpecialistDashboardMode';
 import { CHILDREN_SPECIALIST_FILTER_LABEL_AR } from '@/lib/childrenSpecialistDisplay';
 import {
-  CHILDREN_SPECIALIST_DASHBOARD_LEDE_AR,
   CHILDREN_SPECIALIST_DASHBOARD_ONBOARDING_AR,
   CHILDREN_SPECIALIST_DASHBOARD_STATUS_ITEMS,
   CHILDREN_SPECIALIST_DASHBOARD_TIPS_AR,
@@ -51,7 +50,7 @@ function CopySnippetButton({ label, text }: { label: string; text: string }) {
   return (
     <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-medium">{label}</p>
+        <p className="text-sm font-medium text-foreground">{label}</p>
         <Button type="button" size="sm" variant="secondary" className="gap-1.5 shrink-0" onClick={() => void handleCopy()}>
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
           {copied ? 'تم' : 'نسخ'}
@@ -84,50 +83,16 @@ export function ChildrenSpecialistDashboardPanel({
   );
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-sky-400/30 bg-gradient-to-l from-sky-500/10 via-cyan-500/5 to-transparent p-4 sm:p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <ChildrenSpecialistIcon className="h-6 w-6 text-sky-500" title={CHILDREN_SPECIALIST_FILTER_LABEL_AR} />
-              <h2 className="text-xl font-bold">{CHILDREN_SPECIALIST_FILTER_LABEL_AR}</h2>
-              {isActive ? (
-                <Badge className="bg-sky-500/20 text-sky-900 dark:text-sky-100 border-sky-400/40">نشط</Badge>
-              ) : (
-                <Badge variant="outline">غير مفعّل</Badge>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">{CHILDREN_SPECIALIST_DASHBOARD_LEDE_AR}</p>
-          </div>
-        </div>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center gap-2 border-b border-sky-400/25 pb-3">
+        <ChildrenSpecialistIcon className="h-6 w-6 text-sky-500" title={CHILDREN_SPECIALIST_FILTER_LABEL_AR} />
+        <h2 className="text-lg font-bold text-foreground">{CHILDREN_SPECIALIST_FILTER_LABEL_AR}</h2>
+        {isActive ? (
+          <Badge className="bg-sky-500/20 text-sky-900 dark:text-sky-100 border-sky-400/40">نشط</Badge>
+        ) : (
+          <Badge variant="outline">غير مفعّل</Badge>
+        )}
       </div>
-
-      {!isActive ? (
-        <Alert className="border-sky-400/30 bg-sky-500/5">
-          <Sparkles className="h-4 w-4 text-sky-500" />
-          <AlertDescription className="leading-relaxed">{CHILDREN_SPECIALIST_DASHBOARD_ONBOARDING_AR}</AlertDescription>
-        </Alert>
-      ) : (
-        <ChildrenSpecialistDetailBanner />
-      )}
-
-      {isActive ? (
-        <div className="grid gap-4 md:grid-cols-3">
-          {CHILDREN_SPECIALIST_DASHBOARD_STATUS_ITEMS.map((item) => (
-            <Card key={item.id} className="border-sky-400/20 bg-card/80">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Check className="h-4 w-4 text-sky-500 shrink-0" />
-                  {item.titleAr}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground leading-relaxed">{item.bodyAr}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : null}
 
       <ChildrenServicesPartnerSettingsCard
         barberId={barberId}
@@ -137,12 +102,41 @@ export function ChildrenSpecialistDashboardPanel({
         embeddedInSpecialistPanel
       />
 
-      {isActive ? (
+      {!isActive ? (
+        <Alert className="border-sky-400/30 bg-sky-500/5">
+          <Sparkles className="h-4 w-4 text-sky-500" />
+          <AlertDescription className="text-sm font-medium leading-relaxed text-foreground">
+            {CHILDREN_SPECIALIST_DASHBOARD_ONBOARDING_AR}
+          </AlertDescription>
+        </Alert>
+      ) : (
         <>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {CHILDREN_SPECIALIST_DASHBOARD_STATUS_ITEMS.map((item) => (
+              <Card key={item.id} className="border-sky-400/20 bg-card/80">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                    <Check className="h-4 w-4 text-sky-500 shrink-0" />
+                    {item.titleAr}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm font-medium text-muted-foreground leading-relaxed">{item.bodyAr}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <ChildrenSpecialistDetailBanner />
+        </>
+      )}
+
+      {isActive ? (
+        <div className="space-y-4 border-t border-border/50 pt-5">
+          <p className="text-xs font-medium text-muted-foreground">معاينة ونشر (اختياري)</p>
           <Card className="overflow-hidden border-sky-400/25">
-            <CardHeader>
+            <CardHeader className="pb-2">
               <CardTitle className="text-base">معاينة البطاقة على الخريطة</CardTitle>
-              <CardDescription>هكذا يرى العائلات بطاقة صالونك عند تفعيل «متخصص أطفال».</CardDescription>
+              <CardDescription>شكل ظهور صالونك للعائلات عند تفعيل «متخصص أطفال».</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="relative mx-auto max-w-sm overflow-hidden rounded-xl border border-sky-400/35 shadow-lg">
@@ -163,9 +157,8 @@ export function ChildrenSpecialistDashboardPanel({
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">نسخ تسويقي للعائلات</CardTitle>
-              <CardDescription>اختياري — للمشاركة على واتساب أو انستقرام.</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">نسخ للمشاركة</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CopySnippetButton label="واتساب / رسائل" text={whatsAppCopy} />
@@ -173,19 +166,12 @@ export function ChildrenSpecialistDashboardPanel({
             </CardContent>
           </Card>
 
-          <Card className="border-border/80">
-            <CardHeader>
-              <CardTitle className="text-base">نصائح تشغيلية</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed list-disc pr-5">
-                {CHILDREN_SPECIALIST_DASHBOARD_TIPS_AR.map((tip) => (
-                  <li key={tip}>{tip}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </>
+          <ul className="space-y-2 text-sm font-medium text-muted-foreground leading-relaxed list-disc pr-5">
+            {CHILDREN_SPECIALIST_DASHBOARD_TIPS_AR.map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </div>
   );

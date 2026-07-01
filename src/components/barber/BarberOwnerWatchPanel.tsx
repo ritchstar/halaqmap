@@ -122,6 +122,11 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      <div className="rounded-xl border-2 border-amber-500/50 bg-amber-500/10 px-4 py-3 text-center">
+        <p className="text-sm font-bold text-amber-950 dark:text-amber-100">
+          أنت في غرفة المراقبة — قراءة فقط · لا تعديل ولا شات زبائن
+        </p>
+      </div>
       <Card className="border-amber-500/35 bg-gradient-to-l from-amber-500/10 via-violet-500/5 to-transparent">
         <CardHeader className="pb-2">
           <CardTitle className="flex flex-wrap items-center gap-2 text-lg">

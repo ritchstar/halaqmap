@@ -114,6 +114,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'barber-gallery-sync') {
     return envInt('BARBER_GALLERY_SYNC_RATE_LIMIT_MAX', 60);
   }
+  if (routeId === 'barber-portal-customer-private-chat') {
+    return envInt('BARBER_PRIVATE_CHAT_RATE_LIMIT_MAX', 24);
+  }
   if (routeId === 'public-barber-gallery') {
     return envInt('PUBLIC_BARBER_GALLERY_RATE_LIMIT_MAX', 120);
   }

@@ -37,12 +37,18 @@ export function BarberCustomerPrivateChatPanel({
   barberId,
   barberEmail,
   subscriptionTier,
+  layout = 'default',
+  pollingEnabled = true,
 }: {
   barberId: string;
   barberEmail: string;
   subscriptionTier: SubscriptionTier;
+  layout?: 'default' | 'workbench';
+  /** يُوقف كل polling عندما يكون تبويب الشات غير نشط — يقلّل حمل Edge */
+  pollingEnabled?: boolean;
 }) {
   const isDiamond = subscriptionTier === SubscriptionTier.DIAMOND;
+  const isWorkbench = layout === 'workbench';
   const [conversations, setConversations] = useState<BarberPrivateConversationRow[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<BarberPrivateMessageRow[]>([]);
@@ -60,6 +66,7 @@ export function BarberCustomerPrivateChatPanel({
   );
 
   const pollConversations = useCallback(async (force = false) => {
+    if (!pollingEnabled) return;
     if (!force && !isPollingTabActive()) return;
     const res = await barberListPrivateConversationsRemote({ barberId, email: barberEmail });
     if (!res.ok) return;
@@ -68,7 +75,7 @@ export function BarberCustomerPrivateChatPanel({
       if (prev && res.conversations.some((c) => c.id === prev)) return prev;
       return res.conversations[0]?.id ?? null;
     });
-  }, [barberId, barberEmail]);
+  }, [barberId, barberEmail, pollingEnabled]);
 
   const handleRealtimeInbound = useCallback(
     (message: BarberPrivateMessageRow, conversationId: string) => {
@@ -96,12 +103,20 @@ export function BarberCustomerPrivateChatPanel({
     selectedId,
     handleRealtimeInbound,
     () => void pollConversations(true),
+    pollingEnabled,
   );
 
   const realtimeConnected = alertState.realtimeStatus === 'connected';
+  const pollListMs = realtimeConnected
+    ? POLL_MS.PRIVATE_CHAT_LIST * POLL_MS.REALTIME_CONNECTED_MULTIPLIER
+    : POLL_MS.PRIVATE_CHAT_LIST;
+  const pollMessagesMs = realtimeConnected
+    ? POLL_MS.PRIVATE_CHAT_MESSAGES * POLL_MS.REALTIME_CONNECTED_MULTIPLIER
+    : POLL_MS.PRIVATE_CHAT_MESSAGES;
 
   const loadMessages = useCallback(
     async (conversationId: string, opts?: { force?: boolean }) => {
+      if (!pollingEnabled && !opts?.force) return;
       if (!opts?.force && !isPollingTabActive()) return;
       setLoadingMsgs(true);
       try {
@@ -125,10 +140,11 @@ export function BarberCustomerPrivateChatPanel({
         setLoadingMsgs(false);
       }
     },
-    [barberId, barberEmail, pollConversations]
+    [barberId, barberEmail, pollConversations, pollingEnabled],
   );
 
   useEffect(() => {
+    if (!pollingEnabled) return;
     let cancelled = false;
     (async () => {
       setLoadingList(true);
@@ -138,7 +154,7 @@ export function BarberCustomerPrivateChatPanel({
     return () => {
       cancelled = true;
     };
-  }, [pollConversations]);
+  }, [pollConversations, pollingEnabled]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -148,25 +164,25 @@ export function BarberCustomerPrivateChatPanel({
   }, []);
 
   useEffect(() => {
-    const intervalMs = realtimeConnected ? POLL_MS.PRIVATE_CHAT_LIST * 4 : POLL_MS.PRIVATE_CHAT_LIST;
+    if (!pollingEnabled) return;
     const iv = window.setInterval(() => {
       void pollConversations();
-    }, intervalMs);
+    }, pollListMs);
     return () => window.clearInterval(iv);
-  }, [pollConversations, realtimeConnected]);
+  }, [pollConversations, pollListMs, pollingEnabled]);
 
   useEffect(() => {
+    if (!pollingEnabled) return;
     if (!selectedId) {
       setMessages([]);
       return;
     }
     void loadMessages(selectedId, { force: true });
-    const intervalMs = realtimeConnected ? POLL_MS.PRIVATE_CHAT_MESSAGES * 4 : POLL_MS.PRIVATE_CHAT_MESSAGES;
     const iv = window.setInterval(() => {
       void loadMessages(selectedId);
-    }, intervalMs);
+    }, pollMessagesMs);
     return () => window.clearInterval(iv);
-  }, [selectedId, loadMessages, realtimeConnected]);
+  }, [selectedId, loadMessages, pollMessagesMs, pollingEnabled]);
 
   const msLeft = useMemo(() => (selected ? remainingMs(selected.expires_at) : 0), [selected, tick]);
 
@@ -175,7 +191,7 @@ export function BarberCustomerPrivateChatPanel({
   }, [selectedId]);
 
   useEffect(() => {
-    if (!isDiamond || !selectedId) return;
+    if (!pollingEnabled || !isDiamond || !selectedId) return;
     const tick = async () => {
       if (!isPollingTabActive()) return;
       const r = await customerDigitalShiftInterceptRemote(selectedId);
@@ -186,7 +202,7 @@ export function BarberCustomerPrivateChatPanel({
     void tick();
     const id = window.setInterval(() => void tick(), POLL_MS.PRIVATE_CHAT_INTERCEPT);
     return () => window.clearInterval(id);
-  }, [isDiamond, selectedId, loadMessages]);
+  }, [isDiamond, selectedId, loadMessages, pollingEnabled]);
 
   useEffect(() => {
     if (!isDiamond || messages.length === 0) return;
@@ -234,45 +250,78 @@ export function BarberCustomerPrivateChatPanel({
 
   return (
     <>
-      <BarberChatAlertSettingsCard
-        barberId={barberId}
-        barberEmail={barberEmail}
-        alertState={alertState}
-      />
-      <Card className="border-primary/20">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
-          <MessageCircle className="h-5 w-5 text-primary" />
-          شات العملاء (حي عبر Supabase)
+      {!isWorkbench ? (
+        <BarberChatAlertSettingsCard
+          barberId={barberId}
+          barberEmail={barberEmail}
+          alertState={alertState}
+        />
+      ) : null}
+      <Card
+        className={
+          isWorkbench
+            ? 'overflow-hidden border-slate-300/70 shadow-md dark:border-slate-600/50'
+            : 'border-primary/20'
+        }
+      >
+      <CardHeader
+        className={
+          isWorkbench
+            ? 'border-b border-slate-800/20 bg-slate-900 px-4 py-3 text-white dark:bg-slate-950'
+            : 'pb-2'
+        }
+      >
+        <CardTitle
+          className={`flex flex-wrap items-center gap-2 ${isWorkbench ? 'text-lg font-bold text-white' : 'text-lg'}`}
+        >
+          <MessageCircle className={`h-5 w-5 ${isWorkbench ? 'text-emerald-300' : 'text-primary'}`} />
+          شات العملاء المباشر
           {isDiamond ? (
-            <Badge className="bg-accent text-accent-foreground">ماسي — ترجمة تلقائية</Badge>
+            <Badge className={isWorkbench ? 'bg-violet-500/90 text-white' : 'bg-accent text-accent-foreground'}>
+              ماسي — ترجمة تلقائية
+            </Badge>
           ) : (
-            <Badge variant="secondary">ذهبي</Badge>
+            <Badge variant={isWorkbench ? 'secondary' : 'secondary'} className={isWorkbench ? 'bg-white/15 text-white' : ''}>
+              ذهبي
+            </Badge>
           )}
         </CardTitle>
-        <CardDescription className="text-sm leading-relaxed">
-          تظهر هنا الجلسات النشطة فقط (ساعة واحدة لكل جلسة). يبدأ العميل المحادثة من التطبيق؛
-          {realtimeConnected
-            ? ' تُحدَّث الرسائل فوراً عبر `Supabase Realtime`.'
-            : ' تُحدَّث الرسائل تلقائياً كل نحو 30 ثانية (أو فوراً عند تسجيل الدخول بحساب المنصة).'}
+        <CardDescription
+          className={
+            isWorkbench
+              ? 'text-sm leading-relaxed text-slate-300'
+              : 'text-sm leading-relaxed'
+          }
+        >
+          {isWorkbench
+            ? 'إدارة المحادثات النشطة — ردّ سريع وواضح. الجلسة ساعة واحدة لكل عميل.'
+            : 'تظهر هنا الجلسات النشطة فقط (ساعة واحدة لكل جلسة). يبدأ العميل المحادثة من التطبيق؛'}
+          {!isWorkbench &&
+            (realtimeConnected
+              ? ' تُحدَّث الرسائل فوراً عبر `Supabase Realtime`.'
+              : ' تُحدَّث الرسائل تلقائياً كل نحو 30 ثانية (أو فوراً عند تسجيل الدخول بحساب المنصة).')}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className={`space-y-4 ${isWorkbench ? 'bg-slate-50/80 p-4 dark:bg-slate-950/40' : ''}`}>
         {loadingList ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className={`flex items-center gap-2 ${isWorkbench ? 'text-base font-medium text-slate-700 dark:text-slate-200' : 'text-sm text-muted-foreground'}`}>
             <Loader2 className="h-4 w-4 animate-spin" />
             جاري تحميل المحادثات…
           </div>
         ) : conversations.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            لا توجد جلسات شات نشطة حالياً. عندما يفتح عميل محادثة من نظام الرصد الذكي لحلاق ماب ستظهر الجلسة هنا.
+          <p className={isWorkbench ? 'text-base font-medium text-slate-700 dark:text-slate-200' : 'text-sm text-muted-foreground'}>
+            لا توجد جلسات شات نشطة حالياً. عندما يفتح عميل محادثة من التطبيق ستظهر هنا.
           </p>
         ) : (
           <>
             <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">المحادثة</Label>
+              <Label className={isWorkbench ? 'text-sm font-semibold text-slate-800 dark:text-slate-100' : 'text-xs text-muted-foreground'}>
+                المحادثة
+              </Label>
               <select
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className={`flex w-full rounded-md border border-input bg-background px-3 ${
+                  isWorkbench ? 'h-11 text-base font-medium text-foreground' : 'h-10 text-sm'
+                }`}
                 value={selectedId ?? ''}
                 onChange={(e) => setSelectedId(e.target.value || null)}
               >
@@ -286,7 +335,13 @@ export function BarberCustomerPrivateChatPanel({
             </div>
 
             {selected ? (
-              <div className="flex items-center justify-between rounded-md border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+              <div
+                className={`flex items-center justify-between rounded-md border px-3 py-2 ${
+                  isWorkbench
+                    ? 'border-slate-300/80 bg-white text-sm font-medium text-slate-800 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100'
+                    : 'border-border/70 bg-muted/30 text-xs text-muted-foreground'
+                }`}
+              >
                 <div className="flex items-center gap-1.5">
                   <Hourglass className="h-3.5 w-3.5" />
                   <span>الوقت المتبقي للجلسة</span>
@@ -300,22 +355,34 @@ export function BarberCustomerPrivateChatPanel({
               </div>
             ) : null}
 
-            <div className="max-h-72 space-y-2 overflow-y-auto rounded-md border border-border/60 p-3">
+            <div
+              className={`space-y-2 overflow-y-auto rounded-md border p-3 ${
+                isWorkbench
+                  ? 'max-h-96 border-slate-300/80 bg-white dark:border-slate-600 dark:bg-slate-900/60'
+                  : 'max-h-72 border-border/60'
+              }`}
+            >
               {loadingMsgs ? (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className={`flex items-center gap-2 ${isWorkbench ? 'text-sm font-medium text-slate-600' : 'text-xs text-muted-foreground'}`}>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   جاري تحميل الرسائل…
                 </div>
               ) : messages.length === 0 ? (
-                <p className="text-center text-xs text-muted-foreground">لا رسائل بعد في هذه الجلسة.</p>
+                <p className={`text-center ${isWorkbench ? 'text-sm font-medium text-slate-600' : 'text-xs text-muted-foreground'}`}>
+                  لا رسائل بعد في هذه الجلسة.
+                </p>
               ) : !selected ? null : (
                 messages.map((m) => {
                   const isBarber = m.sender_id !== selected.customer_id;
                   return (
                     <div key={m.id} className={`flex ${isBarber ? 'justify-end' : 'justify-start'}`}>
                       <div
-                        className={`max-w-[88%] rounded-lg p-2.5 text-sm ${
-                          isBarber ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                        className={`max-w-[88%] rounded-lg p-3 ${
+                          isBarber
+                            ? 'bg-primary text-base text-primary-foreground'
+                            : isWorkbench
+                              ? 'bg-slate-200 text-base font-medium text-slate-900 dark:bg-slate-800 dark:text-slate-50'
+                              : 'bg-muted text-sm'
                         }`}
                       >
                         <p className="whitespace-pre-wrap break-words">{m.body}</p>
@@ -341,11 +408,11 @@ export function BarberCustomerPrivateChatPanel({
 
             <div className="flex gap-2">
               <Input
-                placeholder={msLeft > 0 ? 'ردك للعميل…' : 'انتهت الجلسة'}
+                placeholder={msLeft > 0 ? 'اكتب ردك للعميل…' : 'انتهت الجلسة'}
                 value={draft}
                 disabled={msLeft <= 0}
                 onChange={(e) => setDraft(e.target.value)}
-                className="flex-1"
+                className={`flex-1 ${isWorkbench ? 'h-11 text-base font-medium' : ''}`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -353,14 +420,28 @@ export function BarberCustomerPrivateChatPanel({
                   }
                 }}
               />
-              <Button type="button" size="icon" disabled={!draft.trim() || msLeft <= 0 || sending} onClick={() => void send()}>
+              <Button
+                type="button"
+                size={isWorkbench ? 'default' : 'icon'}
+                className={isWorkbench ? 'h-11 px-4' : ''}
+                disabled={!draft.trim() || msLeft <= 0 || sending}
+                onClick={() => void send()}
+              >
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {isWorkbench ? <span className="mr-1">إرسال</span> : null}
               </Button>
             </div>
           </>
         )}
       </CardContent>
     </Card>
+      {isWorkbench ? (
+        <BarberChatAlertSettingsCard
+          barberId={barberId}
+          barberEmail={barberEmail}
+          alertState={alertState}
+        />
+      ) : null}
     </>
   );
 }

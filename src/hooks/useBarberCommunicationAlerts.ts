@@ -25,6 +25,7 @@ export function useBarberCommunicationAlerts(
   selectedConversationId: string | null,
   onRealtimeInbound?: (message: BarberPrivateMessageRow, conversationId: string) => void,
   onRefreshConversations?: () => void,
+  enabled = true,
 ): BarberCommunicationAlertsState {
   const engineRef = useRef<BarberCommunicationAlertEngine | null>(null);
   const lastMessageAtRef = useRef<Map<string, string | null>>(new Map());
@@ -73,6 +74,7 @@ export function useBarberCommunicationAlerts(
     barberId,
     barberEmail,
     conversations,
+    enabled,
     onInboundMessage: handleInbound,
     onConversationTouched,
     onNewConversation,
@@ -81,6 +83,7 @@ export function useBarberCommunicationAlerts(
   const deliveryMode = realtimeStatus === 'connected' ? 'realtime' : 'polling';
 
   useEffect(() => {
+    if (!enabled) return;
     const engine = engineRef.current;
     if (!engine || engine.isInitialized()) return;
     void engine.bootstrapFromMessages(conversations, async (conversationId) => {
@@ -91,9 +94,10 @@ export function useBarberCommunicationAlerts(
       });
       return res.ok ? res.messages : [];
     });
-  }, [barberEmail, barberId, conversations]);
+  }, [barberEmail, barberId, conversations, enabled]);
 
   const pollForAlerts = useCallback(async () => {
+    if (!enabled) return;
     if (realtimeStatus === 'connected') return;
     if (!barberId.trim() || !barberEmail.trim()) return;
     if (!isPollingTabActive()) return;
@@ -133,18 +137,18 @@ export function useBarberCommunicationAlerts(
     } finally {
       pollBusyRef.current = false;
     }
-  }, [barberEmail, barberId, conversations, realtimeStatus, selectedConversationId]);
+  }, [barberEmail, barberId, conversations, enabled, realtimeStatus, selectedConversationId]);
 
   useEffect(() => {
-    if (realtimeStatus === 'connected') return;
+    if (!enabled || realtimeStatus === 'connected') return;
     void pollForAlerts();
-  }, [conversations, pollForAlerts, realtimeStatus]);
+  }, [conversations, enabled, pollForAlerts, realtimeStatus]);
 
   useEffect(() => {
-    if (realtimeStatus === 'connected') return;
+    if (!enabled || realtimeStatus === 'connected') return;
     const id = window.setInterval(() => void pollForAlerts(), POLL_FALLBACK_MS);
     return () => window.clearInterval(id);
-  }, [pollForAlerts, realtimeStatus]);
+  }, [enabled, pollForAlerts, realtimeStatus]);
 
   return useMemo(
     () => ({

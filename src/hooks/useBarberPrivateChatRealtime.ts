@@ -18,6 +18,7 @@ export function useBarberPrivateChatRealtime(input: {
   barberId: string;
   barberEmail: string;
   conversations: BarberPrivateConversationRow[];
+  enabled?: boolean;
   onInboundMessage: (message: BarberPrivateMessageRow, customerId: string) => void;
   onConversationTouched: (conversationId: string, lastMessageAt: string | null) => void;
   onNewConversation: () => void;
@@ -27,6 +28,14 @@ export function useBarberPrivateChatRealtime(input: {
   const channelRef = useRef<RealtimeChannel | null>(null);
   const customerByConvRef = useRef<Map<string, string>>(new Map());
   const barberUserIdRef = useRef<string | null>(null);
+  const enabled = input.enabled !== false;
+
+  const onInboundRef = useRef(input.onInboundMessage);
+  const onTouchedRef = useRef(input.onConversationTouched);
+  const onNewConvRef = useRef(input.onNewConversation);
+  onInboundRef.current = input.onInboundMessage;
+  onTouchedRef.current = input.onConversationTouched;
+  onNewConvRef.current = input.onNewConversation;
 
   useEffect(() => {
     for (const c of input.conversations) {
@@ -35,6 +44,10 @@ export function useBarberPrivateChatRealtime(input: {
   }, [input.conversations]);
 
   useEffect(() => {
+    if (!enabled) {
+      setStatus('idle');
+      return;
+    }
     if (!input.barberId.trim() || !input.barberEmail.trim()) {
       setStatus('unavailable');
       return;
@@ -85,8 +98,8 @@ export function useBarberPrivateChatRealtime(input: {
 
             const customerId =
               customerByConvRef.current.get(row.conversation_id) ?? row.sender_id;
-            input.onInboundMessage(row, customerId);
-            input.onConversationTouched(row.conversation_id, row.created_at);
+            onInboundRef.current(row, customerId);
+            onTouchedRef.current(row.conversation_id, row.created_at);
           },
         )
         .on(
@@ -105,8 +118,8 @@ export function useBarberPrivateChatRealtime(input: {
             } | null;
             if (!row?.id) return;
             if (row.customer_id) customerByConvRef.current.set(row.id, row.customer_id);
-            if (payload.eventType === 'INSERT') input.onNewConversation();
-            input.onConversationTouched(row.id, row.last_message_at ?? null);
+            if (payload.eventType === 'INSERT') onNewConvRef.current();
+            onTouchedRef.current(row.id, row.last_message_at ?? null);
           },
         )
         .subscribe((state) => {
@@ -124,13 +137,7 @@ export function useBarberPrivateChatRealtime(input: {
       channelRef.current = null;
       if (ch) void getSupabaseClient()?.removeChannel(ch);
     };
-  }, [
-    input.barberId,
-    input.barberEmail,
-    input.onConversationTouched,
-    input.onInboundMessage,
-    input.onNewConversation,
-  ]);
+  }, [enabled, input.barberId, input.barberEmail]);
 
   return { status, barberUserId };
 }

@@ -27,7 +27,6 @@ import {
   Copy,
   UserX,
   Loader2,
-  Shield,
   Home,
 } from 'lucide-react';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
@@ -51,13 +50,6 @@ import {
 } from '@/components/ui/dialog';
 import QRCode from 'react-qr-code';
 import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib';
-import {
-  MAP_COMMUNITY_DASHBOARD_CTA_BODY,
-  MAP_COMMUNITY_DASHBOARD_CTA_BROWSE_ONLY,
-  MAP_COMMUNITY_DASHBOARD_CTA_POST_READY,
-  MAP_COMMUNITY_DASHBOARD_CTA_TITLE,
-  MAP_COMMUNITY_DOCTRINE_AR,
-} from '@/config/mapCommunityCopy';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
@@ -107,12 +99,10 @@ import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
   PARTNER_DASHBOARD_BRAND_LABEL,
-  PARTNER_DASHBOARD_SMART_TRACKING_LINE,
   isLegacyDemoSalonRegisteredName,
   partnerDashboardDocumentTitleFromSession,
   partnerSalonDisplayName,
 } from '@/config/partnerDashboardBrand';
-import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
 import { TERM_ACTIVATE_NOW_AR, TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
 import {
   readSchedule,
@@ -155,6 +145,7 @@ import { useDigitalShiftSalonSnapshotSync } from '@/hooks/useDigitalShiftSalonSn
 import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
 import { BarberOwnerWatchPanel } from '@/components/barber/BarberOwnerWatchPanel';
+import { BarberPortfolioQuickStrip } from '@/components/barber/BarberPortfolioQuickStrip';
 import { OWNER_WATCH_FEATURE_TAGLINE_AR } from '@/config/ownerWatchFeatureCopy';
 import { barberOwnerWatchHashPath } from '@/lib/ownerSalonWatchLinks';
 import {
@@ -221,11 +212,7 @@ export default function BarberDashboard({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const ownerWatchMode = searchParams.get('view') === 'watch';
-  const dashboardLoginPath = useMemo(
-    () => buildBarberLoginUrl(ownerWatchMode ? barberOwnerWatchHashPath() : ROUTE_PATHS.BARBER_DASHBOARD),
-    [ownerWatchMode],
-  );
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('messages');
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
   const [barberData, setBarberData] = useState<BarberPortalSession | null>(null);
   const [shopOpenSaving, setShopOpenSaving] = useState(false);
@@ -258,7 +245,12 @@ export default function BarberDashboard({
     }
     const parsed = readBarberAuthSession();
     if (!parsed) {
-      navigate(dashboardLoginPath, { replace: true });
+      const hashQuery = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '';
+      const watchLogin = new URLSearchParams(hashQuery).get('view') === 'watch';
+      navigate(
+        buildBarberLoginUrl(watchLogin ? barberOwnerWatchHashPath() : ROUTE_PATHS.BARBER_DASHBOARD),
+        { replace: true },
+      );
       return;
     }
     try {
@@ -291,12 +283,15 @@ export default function BarberDashboard({
         mensGroomingCenter: parsed.mensGroomingCenter,
         homeService: parsed.homeService,
         groomPrep: parsed.groomPrep,
+        barberSessionToken: String(parsed.barberSessionToken ?? '').trim(),
+        salonRole:
+          parsed.salonRole === 'owner' || parsed.salonRole === 'operator' ? parsed.salonRole : null,
       });
     } catch {
       void clearBarberLinkedSession();
       navigate(ROUTE_PATHS.BARBERS_LANDING);
     }
-  }, [navigate, founderPreview, previewSession, previewListingBalance, dashboardLoginPath]);
+  }, [navigate, founderPreview, previewSession, previewListingBalance]);
 
   const refreshListingBalance = useCallback(async () => {
     if (founderPreview) return;
@@ -332,7 +327,6 @@ export default function BarberDashboard({
         showQrRatings: true,
         showDigitalShift: false,
         isGoldLite: false,
-        showGoldLiteBanner: false,
         showChildrenSpecialistTab: true,
         showMensGroomingCenterTab: true,
       };
@@ -347,7 +341,6 @@ export default function BarberDashboard({
         showQrRatings: true,
         showDigitalShift: false,
         isGoldLite: false,
-        showGoldLiteBanner: false,
         showChildrenSpecialistTab: false,
         showMensGroomingCenterTab: false,
       };
@@ -362,7 +355,6 @@ export default function BarberDashboard({
         showQrRatings: false,
         showDigitalShift: false,
         isGoldLite: false,
-        showGoldLiteBanner: false,
         showChildrenSpecialistTab: false,
         showMensGroomingCenterTab: false,
       };
@@ -377,7 +369,6 @@ export default function BarberDashboard({
         showQrRatings: true,
         showDigitalShift: true,
         isGoldLite: false,
-        showGoldLiteBanner: false,
         showChildrenSpecialistTab: true,
         showMensGroomingCenterTab: true,
       };
@@ -392,7 +383,6 @@ export default function BarberDashboard({
         showQrRatings: true,
         showDigitalShift: true,
         isGoldLite: true,
-        showGoldLiteBanner: true,
         showChildrenSpecialistTab: false,
         showMensGroomingCenterTab: false,
       };
@@ -406,7 +396,6 @@ export default function BarberDashboard({
       showQrRatings: false,
       showDigitalShift: false,
       isGoldLite: false,
-      showGoldLiteBanner: false,
       showChildrenSpecialistTab: false,
       showMensGroomingCenterTab: false,
     };
@@ -612,26 +601,13 @@ export default function BarberDashboard({
   }, [barberData]);
 
   const { hasNewPosts: hasNewMapCommunityPosts } = useMapCommunityBadge();
-  const [communityPostReady, setCommunityPostReady] = useState(false);
-
-  useEffect(() => {
-    if (!barberData || !isSupabaseConfigured()) {
-      setCommunityPostReady(false);
-      return;
-    }
-    const client = getSupabaseClient();
-    if (!client) return;
-    void client.auth.getSession().then(({ data }) => {
-      setCommunityPostReady(Boolean(data.session?.access_token));
-    });
-  }, [barberData?.id, barberData?.email]);
 
   const canOpenMapCommunity =
     barberData?.subscription === SubscriptionTier.GOLD ||
     barberData?.subscription === SubscriptionTier.DIAMOND;
 
   const ownerCanWatch =
-    barberData?.salonRole === 'owner' &&
+    (barberData?.salonRole === 'owner' || barberData?.salonRole == null) &&
     (barberData.subscription === SubscriptionTier.GOLD ||
       barberData.subscription === SubscriptionTier.DIAMOND);
 
@@ -666,11 +642,13 @@ export default function BarberDashboard({
       ) : null}
       <header
         className={`sticky top-0 z-50 w-full border-b pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
-          childrenSpecialistActive
-            ? 'border-sky-400/35 bg-gradient-to-l from-sky-500/10 via-background/95 to-background/95'
-            : mensGroomingCenterActive
-              ? 'border-amber-400/35 bg-gradient-to-l from-amber-500/10 via-background/95 to-background/95'
-              : 'border-border/40 bg-background/95'
+          ownerWatchMode && ownerCanWatch
+            ? 'border-amber-500/45 bg-gradient-to-l from-amber-500/15 via-orange-500/5 to-background/95'
+            : childrenSpecialistActive
+              ? 'border-sky-400/35 bg-gradient-to-l from-sky-500/10 via-background/95 to-background/95'
+              : mensGroomingCenterActive
+                ? 'border-amber-400/35 bg-gradient-to-l from-amber-500/10 via-background/95 to-background/95'
+                : 'border-border/40 bg-background/95'
         }`}
       >
         <div className="container mx-auto px-3 sm:px-4">
@@ -688,9 +666,6 @@ export default function BarberDashboard({
                     {salonDisplayName}
                   </span>
                 </h1>
-                <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed sm:text-xs max-w-xl">
-                  {PARTNER_DASHBOARD_SMART_TRACKING_LINE}
-                </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge variant="secondary" className="text-[10px] sm:text-xs">
                     {listingBalance?.hasActiveListing && effectiveListingTier
@@ -724,6 +699,10 @@ export default function BarberDashboard({
                       <Eye className="h-3 w-3" />
                       غرفة المراقبة
                     </Badge>
+                  ) : ownerCanWatch ? (
+                    <Badge className="text-[10px] sm:text-xs border-emerald-500/40 bg-emerald-500/15 text-emerald-950 dark:text-emerald-100 gap-1">
+                      لوحة التشغيل
+                    </Badge>
                   ) : null}
                   {formatBarberMemberNumber(barberData.memberNumber) ? (
                     <span className="truncate text-[11px] text-muted-foreground sm:text-xs" dir="ltr">
@@ -756,25 +735,6 @@ export default function BarberDashboard({
                 >
                   <Settings className="h-4 w-4 shrink-0" />
                   <span className="hidden sm:inline">لوحة التشغيل</span>
-                </Button>
-              ) : null}
-              {canOpenMapCommunity ? (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="relative shrink-0 gap-1.5 border-cyan-500/35 bg-cyan-500/10 text-cyan-900 hover:bg-cyan-500/15 dark:text-cyan-100"
-                >
-                  <Link to={ROUTE_PATHS.MAP_COMMUNITY} title={MAP_COMMUNITY_DASHBOARD_CTA_BODY}>
-                    <MessageCircle className="h-4 w-4 shrink-0" />
-                    <span className="hidden sm:inline">{MAP_COMMUNITY_DASHBOARD_CTA_TITLE}</span>
-                    {hasNewMapCommunityPosts ? (
-                      <span className="absolute -left-0.5 -top-0.5 flex h-2.5 w-2.5">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-fuchsia-400 opacity-75" />
-                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-fuchsia-300" />
-                      </span>
-                    ) : null}
-                  </Link>
                 </Button>
               ) : null}
               {(barberData.subscription === SubscriptionTier.GOLD ||
@@ -842,14 +802,37 @@ export default function BarberDashboard({
           <BarberOwnerWatchPanel barberData={barberData} />
         ) : (
           <>
-        <PlatformGrowthProgramsPanel variant="dashboard" activationState="post_activation" />
+        {listingBalance?.hasActiveListing && barberData ? (
+          <BarberShopOpenStatusCard
+            barberData={barberData}
+            shopOpenSaving={shopOpenSaving}
+            setShopOpenSaving={setShopOpenSaving}
+            onBarberDataChange={setBarberData}
+            persistSession={persistBarberAuthSession}
+          />
+        ) : null}
+
+        {tierTabs.showPosts && barberData ? (
+          <BarberPortfolioQuickStrip
+            barberId={barberData.id}
+            barberEmail={barberData.email}
+            subscriptionTier={effectiveListingTier ?? barberData.subscription}
+            posts={posts}
+            onPostsChange={persistPosts}
+          />
+        ) : null}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-lg border border-border/50 bg-muted/40 p-1 sm:gap-1.5">
-            {tierTabs.showOverview ? (
-              <TabsTrigger value="overview" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">نظرة عامة</span>
+            {tierTabs.showMessages ? (
+              <TabsTrigger value="messages" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">شات العملاء</span>
+                {unreadCustomerMessages > 0 && (
+                  <Badge variant="destructive" className="flex h-5 w-5 items-center justify-center p-0 text-xs">
+                    {unreadCustomerMessages}
+                  </Badge>
+                )}
               </TabsTrigger>
             ) : null}
             {tierTabs.showAppointments ? (
@@ -858,15 +841,22 @@ export default function BarberDashboard({
                 <span className="hidden sm:inline">المواعيد</span>
               </TabsTrigger>
             ) : null}
-            {tierTabs.showMessages ? (
-              <TabsTrigger value="messages" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">الرسائل</span>
-                {unreadCustomerMessages > 0 && (
-                  <Badge variant="destructive" className="flex h-5 w-5 items-center justify-center p-0 text-xs">
-                    {unreadCustomerMessages}
-                  </Badge>
-                )}
+            {tierTabs.showDigitalShift ? (
+              <TabsTrigger value="digital-shift" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <Moon className="h-4 w-4" />
+                <span className="hidden sm:inline">المناوب الذكي</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showQrRatings ? (
+              <TabsTrigger value="qr-ratings" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <QrCode className="h-4 w-4" />
+                <span className="hidden sm:inline">QR والتقييمات</span>
+              </TabsTrigger>
+            ) : null}
+            {tierTabs.showOverview ? (
+              <TabsTrigger value="overview" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+                <TrendingUp className="h-4 w-4" />
+                <span className="hidden sm:inline">نظرة عامة</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showChildrenSpecialistTab ? (
@@ -893,116 +883,25 @@ export default function BarberDashboard({
                 ) : null}
               </TabsTrigger>
             ) : null}
-            {tierTabs.showPosts ? (
-              <TabsTrigger value="posts" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <ImageIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">البوستات</span>
-              </TabsTrigger>
-            ) : null}
-            {tierTabs.showDigitalShift ? (
-              <TabsTrigger value="digital-shift" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <Moon className="h-4 w-4" />
-                <span className="hidden sm:inline">المناوب الذكي</span>
-              </TabsTrigger>
-            ) : null}
             {tierTabs.showSettings ? (
               <TabsTrigger value="settings" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:inline">الإعدادات</span>
               </TabsTrigger>
             ) : null}
-            {tierTabs.showQrRatings ? (
-              <TabsTrigger value="qr-ratings" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <QrCode className="h-4 w-4" />
-                <span className="hidden sm:inline">QR والتقييمات</span>
+            {tierTabs.showPosts ? (
+              <TabsTrigger value="posts" className="gap-1.5 text-xs sm:gap-2 sm:text-sm opacity-90">
+                <ImageIcon className="h-4 w-4" />
+                <span className="hidden sm:inline">معرض الأعمال</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showQrRatings ? (
-              <TabsTrigger value="social-share" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+              <TabsTrigger value="social-share" className="gap-1.5 text-xs sm:gap-2 sm:text-sm opacity-90">
                 <Share2 className="h-4 w-4" />
-                <span className="hidden sm:inline">شارك ظهورك</span>
+                <span className="hidden sm:inline">مشاركة السوشيال</span>
               </TabsTrigger>
             ) : null}
           </TabsList>
-
-          {tierTabs.showGoldLiteBanner ? (
-            <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
-              باقتك <strong>الذهبية</strong> تشمل من لوحة التحكم: <strong>رسائل العملاء</strong>، و<strong>معرض أعمال</strong> (حتى
-              20 صورة محسّنة)، و<strong>QR والتقييمات</strong>، و<strong>مشاركة السوشيال</strong>. جدولة المواعيد المتقدّمة والبنرات والإعدادات الكاملة متاحة في
-              الباقة <strong>الماسية</strong> (معرض حتى 40 صورة).
-            </p>
-          ) : null}
-
-          {canOpenMapCommunity ? (
-            <Card className="border-cyan-500/30 bg-gradient-to-l from-cyan-500/10 via-emerald-500/5 to-transparent">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <MessageCircle className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
-                  {MAP_COMMUNITY_DASHBOARD_CTA_TITLE}
-                </CardTitle>
-                <CardDescription className="text-sm leading-relaxed">{MAP_COMMUNITY_DOCTRINE_AR}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {MAP_COMMUNITY_DASHBOARD_CTA_BODY}{' '}
-                  {communityPostReady
-                    ? MAP_COMMUNITY_DASHBOARD_CTA_POST_READY
-                    : MAP_COMMUNITY_DASHBOARD_CTA_BROWSE_ONLY}
-                </p>
-                <Button asChild className="shrink-0 bg-emerald-600 hover:bg-emerald-500">
-                  <Link to={ROUTE_PATHS.MAP_COMMUNITY}>افتح مجتمع ماب</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ) : null}
-
-          <Card className="border-emerald-500/30 bg-emerald-500/5">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">صلاحية رخصة النفاذ الرقمية (نظام الاستجابة الذكية)</CardTitle>
-              <CardDescription className="text-sm leading-relaxed">
-                صلاحية الاستجابة البرمجية ضمن نظام الاستجابة الذكية مبنية على <strong>حزمة رخصة نفاذ مسبقة الدفع</strong> — يُفعَّل ظهور صالونك عند وجود طلب نشط في محيطه.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <motion.div className="space-y-1 text-sm">
-                <p>
-                  <strong>أيام الإدراج المتبقية:</strong>{' '}
-                  {listingBalanceLoading
-                    ? '…'
-                    : listingBalance?.hasActiveListing
-                      ? listingBalance.listingDaysRemaining
-                      : '0'}
-                </p>
-                {listingBalance?.validUntil ? (
-                  <p className="text-xs text-muted-foreground">
-                    <strong>تاريخ انتهاء صلاحية حزمة رخصة النفاذ:</strong>{' '}
-                    <span dir="ltr">{new Date(listingBalance.validUntil).toLocaleString('ar-SA')}</span>
-                  </p>
-                ) : null}
-              </motion.div>
-              <Button type="button" variant="outline" size="sm" onClick={() => setRedeemDialogOpen(true)}>
-                استرداد رمز حزمة رخصة النفاذ
-              </Button>
-            </CardContent>
-          </Card>
-
-          {listingBalance?.hasActiveListing && barberData ? (
-            <BarberShopOpenStatusCard
-              barberData={barberData}
-              shopOpenSaving={shopOpenSaving}
-              setShopOpenSaving={setShopOpenSaving}
-              onBarberDataChange={setBarberData}
-              persistSession={persistBarberAuthSession}
-            />
-          ) : null}
-
-          <Alert className="border-primary/30 bg-primary/5">
-            <Shield className="h-4 w-4 text-primary" />
-            <AlertDescription className="text-sm leading-relaxed">
-              <strong>حالة الطلب والخصوصية:</strong> إذا قدّمت مؤخراً طلب تسجيل، يُفعَّل حضورك بعد إتمام الدفع والتحقق التقني الآلي —{' '}
-              <strong>دون رفع وثائق حكومية</strong> على خوادمنا. الامتثال يُثبت بتأشيرك على التعهد القانوني في النموذج.
-            </AlertDescription>
-          </Alert>
 
           <Dialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen}>
             <DialogContent dir="rtl" className="sm:max-w-md">
@@ -1133,6 +1032,8 @@ export default function BarberDashboard({
 
           {tierTabs.showMessages ? (
           <TabsContent value="messages" className="space-y-6">
+            {activeTab === 'messages' ? (
+            <>
             {tierTabs.isGoldLite && (
               <ChildrenServicesPartnerSettingsCard
                 barberId={barberData.id}
@@ -1147,14 +1048,10 @@ export default function BarberDashboard({
               subscriptionTier={barberData.subscription}
               threads={chatThreads}
               onThreadsChange={persistThreads}
-              promoHint={
-                tierTabs.isGoldLite
-                  ? null
-                  : bannerState.showDiscountBadge && bannerState.discountPercent != null
-                    ? `عرض المنصة: خصم ${bannerState.discountPercent}% (يُدار من الإعدادات → البنر والعروض)`
-                    : null
-              }
+              pollingEnabled={activeTab === 'messages' && !ownerWatchMode}
             />
+            </>
+            ) : null}
           </TabsContent>
           ) : null}
 
@@ -1240,6 +1137,57 @@ export default function BarberDashboard({
           </TabsContent>
           ) : null}
         </Tabs>
+
+        <div className="mt-6 space-y-3 border-t border-border/40 pt-6">
+          <p className="text-xs font-medium text-muted-foreground">روابط إضافية</p>
+          {listingBalance?.hasActiveListing || listingBalanceLoading ? (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+              <span>
+                أيام الإدراج المتبقية:{' '}
+                <strong className="text-foreground">
+                  {listingBalanceLoading ? '…' : listingBalance?.listingDaysRemaining ?? 0}
+                </strong>
+              </span>
+              {listingBalance?.validUntil ? (
+                <span dir="ltr" className="text-xs">
+                  حتى {new Date(listingBalance.validUntil).toLocaleDateString('ar-SA')}
+                </span>
+              ) : null}
+              <Button type="button" variant="link" size="sm" className="h-auto p-0" onClick={() => setRedeemDialogOpen(true)}>
+                استرداد رمز الإدراج
+              </Button>
+            </div>
+          ) : (
+            <Button type="button" variant="link" size="sm" className="h-auto p-0 text-sm" onClick={() => setRedeemDialogOpen(true)}>
+              استرداد رمز حزمة الإدراج
+            </Button>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {canOpenMapCommunity ? (
+              <Button asChild variant="outline" size="sm" className="relative gap-1.5">
+                <Link to={ROUTE_PATHS.MAP_COMMUNITY}>
+                  <MessageCircle className="h-4 w-4" />
+                  مجتمع ماب
+                  {hasNewMapCommunityPosts ? (
+                    <span className="absolute -left-0.5 -top-0.5 h-2 w-2 rounded-full bg-fuchsia-400" aria-hidden />
+                  ) : null}
+                </Link>
+              </Button>
+            ) : null}
+            {tierTabs.showPosts ? (
+              <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => setActiveTab('posts')}>
+                <ImageIcon className="h-4 w-4" />
+                معرض الأعمال
+              </Button>
+            ) : null}
+            {tierTabs.showQrRatings ? (
+              <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => setActiveTab('social-share')}>
+                <Share2 className="h-4 w-4" />
+                مشاركة السوشيال
+              </Button>
+            ) : null}
+          </div>
+        </div>
           </>
         )}
       </div>
@@ -1809,14 +1757,14 @@ function MessagesSection({
   subscriptionTier,
   threads,
   onThreadsChange,
-  promoHint,
+  pollingEnabled = true,
 }: {
   barberId: string;
   barberEmail: string;
   subscriptionTier: SubscriptionTier;
   threads: BarberChatThread[];
   onThreadsChange: (next: BarberChatThread[]) => void;
-  promoHint: string | null;
+  pollingEnabled?: boolean;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
@@ -1875,45 +1823,36 @@ function MessagesSection({
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-8">
-      <h2 className="mb-2 text-xl font-bold sm:text-2xl">المحادثات</h2>
-      <p className="mb-4 max-w-2xl text-sm text-muted-foreground">
-        يبدأ الحوار من العميل عبر حلاق ماب؛ تصلك رسالته كتنبيه، وبعدها يمكنك الرد من هنا. عند ضبط Supabase تظهر
-        جلسات الشات الحية أدناه؛ وإلا تُعرض المحادثات التجريبية من هذا الجهاز فقط.
-      </p>
-      {promoHint ? (
-        <p className="mb-4 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{promoHint}</p>
-      ) : null}
-
+    <div className="space-y-6">
       {isSupabaseConfigured() ? (
         <BarberCustomerPrivateChatPanel
           barberId={barberId}
           barberEmail={barberEmail}
           subscriptionTier={subscriptionTier}
+          layout="workbench"
+          pollingEnabled={pollingEnabled}
         />
       ) : (
-        <p className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-900 dark:text-amber-100">
-          شات العملاء الحي يتطلب ضبط <code className="rounded bg-background/60 px-1">VITE_SUPABASE_URL</code> و
-          <code className="rounded bg-background/60 px-1">VITE_SUPABASE_ANON_KEY</code> وتطبيق migration 42 على قاعدة
-          البيانات.
+        <p className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-900 dark:text-amber-100">
+          شات العملاء الحي يتطلب ضبط قاعدة البيانات على المنصة.
         </p>
       )}
 
       <PlatformSupportChatPanel barberId={barberId} barberEmail={barberEmail} />
 
+      {!isSupabaseConfigured() ? (
       <Card>
         <CardContent className="space-y-4 p-6">
           {threads.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              لا توجد محادثات بعد. عندما يرسل عميل أول رسالة من التطبيق ستظهر هنا — المنصة تُشعِرك ثم يمكنك
-              الرد.
+            <p className="text-sm font-medium text-foreground">
+              لا توجد محادثات تجريبية بعد.
             </p>
           ) : (
             <>
               <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">اختر المحادثة</Label>
+                <Label className="text-sm font-semibold text-foreground">محادثة تجريبية</Label>
                 <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-base font-medium"
                   value={selectedId ?? ''}
                   onChange={(e) => selectThread(e.target.value)}
                 >
@@ -1924,15 +1863,17 @@ function MessagesSection({
                   ))}
                 </select>
               </div>
-              <div className="max-h-80 space-y-3 overflow-y-auto rounded-md border border-border/60 p-3">
+              <div className="max-h-80 space-y-3 overflow-y-auto rounded-md border border-border/60 bg-muted/20 p-3">
                 {active?.messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${message.sender === 'barber' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-lg p-3 text-sm ${
-                        message.sender === 'barber' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                      className={`max-w-[85%] rounded-lg p-3 text-base ${
+                        message.sender === 'barber'
+                          ? 'bg-primary font-medium text-primary-foreground'
+                          : 'bg-slate-200 font-medium text-slate-900 dark:bg-slate-800 dark:text-slate-50'
                       }`}
                     >
                       <p>{message.message}</p>
@@ -1942,8 +1883,8 @@ function MessagesSection({
                 ))}
               </div>
               {!customerStarted ? (
-                <p className="text-xs text-amber-700 dark:text-amber-400">
-                  بانتظار أول رسالة من العميل — خانة الإرسال معطّلة حتى يبدأ هو الحوار.
+                <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                  بانتظار أول رسالة من العميل.
                 </p>
               ) : null}
               <div className="flex gap-2">
@@ -1952,15 +1893,9 @@ function MessagesSection({
                   value={draft}
                   disabled={!customerStarted}
                   onChange={(e) => setDraft(e.target.value)}
-                  className="flex-1"
+                  className="h-11 flex-1 text-base font-medium"
                 />
-                <Button type="button" size="icon" variant="outline" disabled title="قريباً">
-                  <Paperclip className="h-4 w-4" />
-                </Button>
-                <Button type="button" size="icon" variant="outline" disabled title="قريباً">
-                  <Mic className="h-4 w-4" />
-                </Button>
-                <Button type="button" size="icon" onClick={send} disabled={!customerStarted}>
+                <Button type="button" size="icon" className="h-11 w-11" onClick={send} disabled={!customerStarted}>
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
@@ -1968,7 +1903,8 @@ function MessagesSection({
           )}
         </CardContent>
       </Card>
-    </motion.div>
+      ) : null}
+    </div>
   );
 }
 
