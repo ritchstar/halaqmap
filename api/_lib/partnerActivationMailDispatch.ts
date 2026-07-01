@@ -10,6 +10,10 @@ import type { PartnerUnifiedContractFields } from './partnerUnifiedContractAr.js
 import { emailPartnerUnifiedContractPdf } from './partnerContractNotify.js';
 import { isBronzeTier, tierLabelAr } from './partnerTierMail.js';
 
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function sendResendEmail(input: {
   apiKey: string;
   from: string;
@@ -37,6 +41,23 @@ async function sendResendEmail(input: {
     return { ok: false, error: raw.slice(0, 400) };
   }
   return { ok: true };
+}
+
+async function sendResendEmailWithRetry(
+  input: Parameters<typeof sendResendEmail>[0],
+  opts?: { attempts?: number; delayMs?: number },
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const attempts = opts?.attempts ?? 3;
+  const delayMs = opts?.delayMs ?? 700;
+  let lastError = 'send_failed';
+  for (let i = 0; i < attempts; i++) {
+    if (i > 0) await sleep(delayMs * i);
+    const sent = await sendResendEmail(input);
+    if (sent.ok) return sent;
+    lastError = sent.error;
+    if (!/too many requests|rate limit/i.test(sent.error)) return sent;
+  }
+  return { ok: false, error: lastError };
 }
 
 export type PartnerActivationMailDispatchInput = {
@@ -119,7 +140,17 @@ async function sendContractEmail(
     fields,
     tier: input.tier,
   });
-  if (!sent.ok) return { ok: false, error: sent.error };
+  if (!sent.ok) {
+    await sleep(900);
+    const retry = await emailPartnerUnifiedContractPdf({
+      apiKey: input.resendApiKey,
+      from: input.resendFrom,
+      to: input.barberEmail,
+      fields,
+      tier: input.tier,
+    });
+    if (!retry.ok) return { ok: false, error: retry.error };
+  }
 
   if (barberId && UUID_RE.test(barberId)) {
     const ts = new Date().toISOString();
@@ -164,7 +195,7 @@ export async function dispatchPartnerActivationMails(
       barberName: input.buyerName,
       certificate: input.activationCertificate,
     });
-    const sent = await sendResendEmail({
+    const sent = await sendResendEmailWithRetry({
       apiKey: resendKey,
       from: resendFrom,
       to: buyerEmail,
@@ -177,6 +208,8 @@ export async function dispatchPartnerActivationMails(
   } else {
     errors.push('certificate_missing');
   }
+
+  await sleep(650);
 
   if (isBronzeTier(input.tier)) {
     let openStatusToken: string | null = null;
@@ -198,7 +231,7 @@ export async function dispatchPartnerActivationMails(
       registrationOrderId: input.registrationRequestId,
       policyUrl: `${siteBase}/#/partners/subscription-policy`,
     });
-    const sent = await sendResendEmail({
+    const sent = await sendResendEmailWithRetry({
       apiKey: resendKey,
       from: resendFrom,
       to: buyerEmail,
@@ -209,6 +242,8 @@ export async function dispatchPartnerActivationMails(
     result.bronzeActivationEmailed = sent.ok;
     if (!sent.ok) errors.push(`bronze_activation_email:${sent.error}`);
   }
+
+  await sleep(650);
 
   if (input.barberId) {
     const contract = await sendContractEmail(supabase, {

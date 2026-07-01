@@ -727,6 +727,8 @@ export function buildActivationCertificateEmailBodies(input: {
     '',
     `التحقق: ${c.verifyPath}`,
     '',
+    'سيصلك بريد منفصل بعنوان يتضمن «العقد الرقمي الموحّد» ومرفق PDF للعقد.',
+    '',
     '— فريق حلاق ماب',
   ].join('\n');
 
@@ -742,6 +744,7 @@ export function buildActivationCertificateEmailBodies(input: {
 <p style="margin:8px 0 0">الباقة: <strong>${c.tierLabelAr}</strong> — حتى <strong>${c.validUntil.slice(0, 10)}</strong></p>
 <p style="margin:12px 0 0;font-size:13px;color:#0369a1">${mapLine}</p>
 </div>
+<p style="font-size:13px;color:#475569">سيصلك <strong>بريد منفصل</strong> بعنوان يتضمن «العقد الرقمي الموحّد» ومرفق <strong>PDF</strong> للعقد — راجع صندوق الوارد والمزعج.</p>
 <p style="font-size:13px;color:#64748b">— فريق حلاق ماب</p>
 </body></html>`;
 
