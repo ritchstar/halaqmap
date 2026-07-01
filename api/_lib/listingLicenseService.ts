@@ -691,20 +691,22 @@ export async function autoRedeemIssuedVouchersForRegistration(
   return { ok: true, redeemedCount, validUntil: lastValidUntil, skippedAlreadyRedeemed };
 }
 
-/** استرداد قسائم طلب دفع ميسر مباشرة — يعمل حتى لو registration_request_id ناقص على الطلب. */
+/** استرداد/إصلاح قسائم طلب دفع ميسر — يشمل القسائم issued والـ redeemed بلا entitlement. */
 export async function redeemIssuedVouchersForMoyasarPayment(
   supabase: SupabaseClient,
   input: { moyasarPaymentId: string; barberId: string },
-): Promise<{ ok: true; redeemedCount: number } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; redeemedCount: number; repairedCount: number }
+  | { ok: false; error: string }
+> {
   const barberId = input.barberId.trim();
   const moyasarPaymentId = input.moyasarPaymentId.trim();
   if (!barberId || !moyasarPaymentId) return { ok: false, error: 'missing_ids' };
 
   const { data: order, error: orderErr } = await supabase
     .from('listing_license_orders')
-    .select('id, metadata')
+    .select('id, metadata, product_id')
     .eq('moyasar_payment_id', moyasarPaymentId)
-    .eq('status', 'paid')
     .maybeSingle();
   if (orderErr) return { ok: false, error: orderErr.message };
   if (!order?.id) return { ok: false, error: 'order_not_found' };
@@ -716,27 +718,125 @@ export async function redeemIssuedVouchersForMoyasarPayment(
 
   const { data: vouchers, error: vErr } = await supabase
     .from('listing_license_vouchers')
-    .select('id, status')
-    .eq('order_id', order.id)
-    .eq('status', 'issued');
+    .select('id, status, product_id, redeemed_barber_id')
+    .eq('order_id', order.id);
 
   if (vErr) return { ok: false, error: vErr.message };
 
   let redeemedCount = 0;
+  let repairedCount = 0;
+
   for (const voucher of vouchers ?? []) {
-    const redeemed = await redeemIssuedVoucherForBarber(supabase, {
-      voucherId: voucher.id,
-      barberId,
-      orderMetadata: orderMeta,
-    });
-    if (!redeemed.ok) {
-      if (redeemed.error === 'already_redeemed') continue;
-      return { ok: false, error: redeemed.error };
+    if (voucher.status === 'issued') {
+      const redeemed = await redeemIssuedVoucherForBarber(supabase, {
+        voucherId: voucher.id,
+        barberId,
+        orderMetadata: orderMeta,
+      });
+      if (!redeemed.ok) {
+        if (redeemed.error === 'already_redeemed') continue;
+        return { ok: false, error: redeemed.error };
+      }
+      redeemedCount += 1;
+      continue;
     }
-    redeemedCount += 1;
+
+    if (voucher.status !== 'redeemed') continue;
+
+    const redeemedBarberId = voucher.redeemed_barber_id
+      ? String(voucher.redeemed_barber_id)
+      : barberId;
+    if (redeemedBarberId !== barberId) continue;
+
+    const { data: entByVoucher } = await supabase
+      .from('barber_listing_entitlements')
+      .select('id')
+      .eq('voucher_id', voucher.id)
+      .maybeSingle();
+    if (entByVoucher?.id) continue;
+
+    const { data: product, error: pErr } = await supabase
+      .from('listing_license_products')
+      .select('*')
+      .eq('id', voucher.product_id)
+      .maybeSingle();
+    if (pErr || !product) return { ok: false, error: 'product_not_found' };
+
+    const productRow = product as ListingLicenseProductRow;
+    const credit = await creditBarberListingEntitlement(supabase, {
+      barberId,
+      product: productRow,
+      source: 'moyasar_auto_redeem',
+      voucherId: voucher.id,
+      orderId: order.id,
+    });
+    if (!credit.ok) return { ok: false, error: credit.error };
+
+    if (!voucher.redeemed_barber_id) {
+      await supabase
+        .from('listing_license_vouchers')
+        .update({
+          redeemed_barber_id: barberId,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', voucher.id);
+    }
+
+    await supabase.from('listing_license_redemption_events').insert({
+      voucher_id: voucher.id,
+      barber_id: barberId,
+      entitlement_id: credit.entitlementId,
+      event_type: 'auto_redeem',
+    });
+
+    await refreshGeospatialLicenseAssetBinding(supabase, {
+      orderId: order.id,
+      barberId,
+      entitlementId: credit.entitlementId,
+      validUntil: credit.validUntil,
+      tier: productRow.tier,
+    });
+
+    repairedCount += 1;
   }
 
-  return { ok: true, redeemedCount };
+  if (!vouchers?.length && order.product_id) {
+    const { data: existingEnt } = await supabase
+      .from('barber_listing_entitlements')
+      .select('id')
+      .eq('barber_id', barberId)
+      .eq('order_id', order.id)
+      .is('revoked_at', null)
+      .maybeSingle();
+    if (!existingEnt?.id) {
+      const { data: product, error: pErr } = await supabase
+        .from('listing_license_products')
+        .select('*')
+        .eq('id', order.product_id)
+        .maybeSingle();
+      if (pErr || !product) return { ok: false, error: 'product_not_found' };
+
+      const productRow = product as ListingLicenseProductRow;
+      const credit = await creditBarberListingEntitlement(supabase, {
+        barberId,
+        product: productRow,
+        source: 'moyasar_auto_redeem',
+        orderId: order.id,
+      });
+      if (!credit.ok) return { ok: false, error: credit.error };
+
+      await refreshGeospatialLicenseAssetBinding(supabase, {
+        orderId: order.id,
+        barberId,
+        entitlementId: credit.entitlementId,
+        validUntil: credit.validUntil,
+        tier: productRow.tier,
+      });
+      repairedCount += 1;
+    }
+  }
+
+  return { ok: true, redeemedCount, repairedCount };
 }
 
 export async function getBarberListingBalance(

@@ -549,6 +549,7 @@ export type GeospatialBindInspection = {
   coordsUsable: boolean;
   mapStatus: MapIntegrationStatus;
   blockers: string[];
+  entitlementRepairError?: string | null;
 };
 
 /** تشخيص سبب بقاء الشهادة pending_geospatial_bind */

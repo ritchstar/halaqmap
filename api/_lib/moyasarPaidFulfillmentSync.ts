@@ -216,13 +216,13 @@ async function ensureBarberAndEntitlementForPayment(
   supabase: SupabaseClient,
   moyasarPaymentId: string,
   tier: ListingTier,
-): Promise<void> {
+): Promise<{ entitlementRepairError: string | null }> {
   const { data: order } = await supabase
     .from('listing_license_orders')
     .select('id, barber_id, registration_request_id')
     .eq('moyasar_payment_id', moyasarPaymentId.trim())
     .maybeSingle();
-  if (!order?.id) return;
+  if (!order?.id) return { entitlementRepairError: null };
 
   const registrationRequestId = order.registration_request_id
     ? String(order.registration_request_id).trim()
@@ -268,27 +268,34 @@ async function ensureBarberAndEntitlementForPayment(
     }
   }
 
-  if (barberId) {
-    await redeemIssuedVouchersForMoyasarPayment(supabase, {
-      moyasarPaymentId: moyasarPaymentId.trim(),
+  if (!barberId) return { entitlementRepairError: null };
+
+  const redeem = await redeemIssuedVouchersForMoyasarPayment(supabase, {
+    moyasarPaymentId: moyasarPaymentId.trim(),
+    barberId,
+  });
+  if (!redeem.ok) {
+    return { entitlementRepairError: redeem.error };
+  }
+
+  if (registrationRequestId) {
+    await autoRedeemIssuedVouchersForRegistration(supabase, {
+      registrationRequestId,
       barberId,
     });
-    if (registrationRequestId) {
-      await autoRedeemIssuedVouchersForRegistration(supabase, {
-        registrationRequestId,
-        barberId,
-      });
-    }
   }
+
+  return { entitlementRepairError: null };
 }
 
 async function promotePaymentGeospatialBind(
   supabase: SupabaseClient,
   moyasarPaymentId: string,
   tier: ListingTier,
-): Promise<void> {
-  await ensureBarberAndEntitlementForPayment(supabase, moyasarPaymentId, tier);
+): Promise<{ entitlementRepairError: string | null }> {
+  const repair = await ensureBarberAndEntitlementForPayment(supabase, moyasarPaymentId, tier);
   await promoteGeospatialBindForMoyasarPayment(supabase, moyasarPaymentId);
+  return repair;
 }
 
 export type SyncMoyasarPaidFulfillmentResult =
@@ -305,9 +312,15 @@ async function attachMapBind(
   supabase: SupabaseClient,
   paymentId: string,
   result: Extract<SyncMoyasarPaidFulfillmentResult, { ok: true }>,
+  entitlementRepairError?: string | null,
 ): Promise<Extract<SyncMoyasarPaidFulfillmentResult, { ok: true }>> {
   const mapBind = await inspectGeospatialBindForMoyasarPayment(supabase, paymentId);
-  return { ...result, mapBind };
+  return {
+    ...result,
+    mapBind: entitlementRepairError
+      ? { ...mapBind, entitlementRepairError }
+      : mapBind,
+  };
 }
 
 export async function syncMoyasarPaidFulfillment(
@@ -325,22 +338,32 @@ export async function syncMoyasarPaidFulfillment(
       existingCert.certificate.tier === 'gold' || existingCert.certificate.tier === 'diamond'
         ? existingCert.certificate.tier
         : 'bronze';
-    await promotePaymentGeospatialBind(supabase, normalizedPaymentId, certTier);
+    const repair = await promotePaymentGeospatialBind(supabase, normalizedPaymentId, certTier);
     const refreshed = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
     if (refreshed.ok) {
-      return attachMapBind(supabase, normalizedPaymentId, {
+      return attachMapBind(
+        supabase,
+        normalizedPaymentId,
+        {
+          ok: true,
+          alreadyFulfilled: true,
+          orderId: refreshed.orderId,
+          certificate: refreshed.certificate,
+        },
+        repair.entitlementRepairError,
+      );
+    }
+    return attachMapBind(
+      supabase,
+      normalizedPaymentId,
+      {
         ok: true,
         alreadyFulfilled: true,
-        orderId: refreshed.orderId,
-        certificate: refreshed.certificate,
-      });
-    }
-    return attachMapBind(supabase, normalizedPaymentId, {
-      ok: true,
-      alreadyFulfilled: true,
-      orderId: existingCert.orderId,
-      certificate: existingCert.certificate,
-    });
+        orderId: existingCert.orderId,
+        certificate: existingCert.certificate,
+      },
+      repair.entitlementRepairError,
+    );
   }
 
   const secret = resolveMoyasarSecretKey();
@@ -439,25 +462,35 @@ export async function syncMoyasarPaidFulfillment(
       if (!retryCert.ok) {
         return { ok: false, error: retryCert.error, status: 404 };
       }
-      await promotePaymentGeospatialBind(supabase, normalizedPaymentId, tier ?? 'bronze');
+      const repair = await promotePaymentGeospatialBind(supabase, normalizedPaymentId, tier ?? 'bronze');
       const reboundCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
-      return attachMapBind(supabase, normalizedPaymentId, {
-        ok: true,
-        alreadyFulfilled,
-        orderId: (reboundCert.ok ? reboundCert : retryCert).orderId,
-        certificate: (reboundCert.ok ? reboundCert : retryCert).certificate,
-      });
+      return attachMapBind(
+        supabase,
+        normalizedPaymentId,
+        {
+          ok: true,
+          alreadyFulfilled,
+          orderId: (reboundCert.ok ? reboundCert : retryCert).orderId,
+          certificate: (reboundCert.ok ? reboundCert : retryCert).certificate,
+        },
+        repair.entitlementRepairError,
+      );
     }
     return { ok: false, error: cert.error, status: 404 };
   }
 
-  await promotePaymentGeospatialBind(supabase, normalizedPaymentId, tier ?? 'bronze');
+  const repair = await promotePaymentGeospatialBind(supabase, normalizedPaymentId, tier ?? 'bronze');
   const reboundCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
 
-  return attachMapBind(supabase, normalizedPaymentId, {
-    ok: true,
-    alreadyFulfilled,
-    orderId: reboundCert.ok ? reboundCert.orderId : cert.orderId,
-    certificate: reboundCert.ok ? reboundCert.certificate : cert.certificate,
-  });
+  return attachMapBind(
+    supabase,
+    normalizedPaymentId,
+    {
+      ok: true,
+      alreadyFulfilled,
+      orderId: reboundCert.ok ? reboundCert.orderId : cert.orderId,
+      certificate: reboundCert.ok ? reboundCert.certificate : cert.certificate,
+    },
+    repair.entitlementRepairError,
+  );
 }
