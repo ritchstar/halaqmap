@@ -93,14 +93,20 @@ async function loadRegistrationGeoSnapshot(
       : null;
   const lat = parseCoord(location?.lat);
   const lng = parseCoord(location?.lng);
+  const saudi =
+    location?.saudi && typeof location.saudi === 'object' && !Array.isArray(location.saudi)
+      ? (location.saudi as Record<string, unknown>)
+      : null;
   return {
     latitude: lat,
     longitude: lng,
     snapshot: {
-      businessName: payload?.businessName ?? payload?.barberName ?? null,
-      regionId: payload?.regionId ?? null,
-      cityId: payload?.cityId ?? null,
-      districtId: payload?.districtId ?? null,
+      businessName: payload?.barberName ?? payload?.shopName ?? null,
+      regionId: saudi?.regionId ?? payload?.regionId ?? null,
+      cityId: saudi?.cityId ?? payload?.cityId ?? null,
+      districtId: saudi?.districtId ?? payload?.districtId ?? null,
+      lat,
+      lng,
       registrationRequestId: registrationRequestId.trim(),
       source: 'registration_submission',
     },
@@ -533,6 +539,94 @@ export async function promoteGeospatialBindForMoyasarPayment(
     tier,
     registrationRequestId,
   });
+}
+
+export type GeospatialBindInspection = {
+  barberId: string | null;
+  entitlementId: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  coordsUsable: boolean;
+  mapStatus: MapIntegrationStatus;
+  blockers: string[];
+};
+
+/** تشخيص سبب بقاء الشهادة pending_geospatial_bind */
+export async function inspectGeospatialBindForMoyasarPayment(
+  supabase: SupabaseClient,
+  moyasarPaymentId: string,
+): Promise<GeospatialBindInspection> {
+  const blockers: string[] = [];
+  const { data: order } = await supabase
+    .from('listing_license_orders')
+    .select('id, barber_id, registration_request_id')
+    .eq('moyasar_payment_id', moyasarPaymentId.trim())
+    .maybeSingle();
+
+  if (!order?.id) {
+    return {
+      barberId: null,
+      entitlementId: null,
+      latitude: null,
+      longitude: null,
+      coordsUsable: false,
+      mapStatus: 'pending_geospatial_bind',
+      blockers: ['order_not_found'],
+    };
+  }
+
+  const registrationRequestId = order.registration_request_id
+    ? String(order.registration_request_id).trim()
+    : null;
+  let barberId =
+    order.barber_id && ORDER_BARBER_UUID_RE.test(String(order.barber_id))
+      ? String(order.barber_id)
+      : null;
+
+  let entitlementId: string | null = null;
+  if (barberId) {
+    const { data: ent } = await supabase
+      .from('barber_listing_entitlements')
+      .select('id')
+      .eq('barber_id', barberId)
+      .is('revoked_at', null)
+      .order('valid_until', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (ent?.id) entitlementId = String(ent.id);
+  }
+
+  if (!barberId) blockers.push('missing_barber_id');
+  if (!entitlementId) blockers.push('missing_listing_entitlement');
+
+  const geo = await loadGeoSnapshot(supabase, barberId, registrationRequestId);
+  const usable = coordsUsable(geo.latitude, geo.longitude);
+  if (!usable) {
+    if (geo.latitude === 0 && geo.longitude === 0) {
+      blockers.push('coordinates_zero_in_registration');
+    } else if (geo.latitude == null || geo.longitude == null) {
+      blockers.push('missing_coordinates_in_registration');
+    } else {
+      blockers.push('coordinates_invalid');
+    }
+  }
+
+  const map = resolveMapStatuses({
+    barberId,
+    entitlementId,
+    latitude: geo.latitude,
+    longitude: geo.longitude,
+  });
+
+  return {
+    barberId,
+    entitlementId,
+    latitude: geo.latitude,
+    longitude: geo.longitude,
+    coordsUsable: usable,
+    mapStatus: map.mapStatus,
+    blockers,
+  };
 }
 
 export async function fetchCertificateByOrderId(

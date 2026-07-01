@@ -6,6 +6,8 @@ import {
   fetchCertificateByMoyasarPaymentId,
   fetchCertificateByOrderId,
   promoteGeospatialBindForMoyasarPayment,
+  inspectGeospatialBindForMoyasarPayment,
+  type GeospatialBindInspection,
 } from './geospatialLicenseAssetService.js';
 import { fulfillListingLicenseOrder, autoRedeemIssuedVouchersForRegistration } from './listingLicenseService.js';
 import {
@@ -285,8 +287,18 @@ export type SyncMoyasarPaidFulfillmentResult =
       alreadyFulfilled: boolean;
       orderId: string;
       certificate?: DigitalActivationCertificatePayload;
+      mapBind?: GeospatialBindInspection;
     }
   | { ok: false; error: string; status: number };
+
+async function attachMapBind(
+  supabase: SupabaseClient,
+  paymentId: string,
+  result: Extract<SyncMoyasarPaidFulfillmentResult, { ok: true }>,
+): Promise<Extract<SyncMoyasarPaidFulfillmentResult, { ok: true }>> {
+  const mapBind = await inspectGeospatialBindForMoyasarPayment(supabase, paymentId);
+  return { ...result, mapBind };
+}
 
 export async function syncMoyasarPaidFulfillment(
   supabase: SupabaseClient,
@@ -306,19 +318,19 @@ export async function syncMoyasarPaidFulfillment(
     await promotePaymentGeospatialBind(supabase, normalizedPaymentId, certTier);
     const refreshed = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
     if (refreshed.ok) {
-      return {
+      return attachMapBind(supabase, normalizedPaymentId, {
         ok: true,
         alreadyFulfilled: true,
         orderId: refreshed.orderId,
         certificate: refreshed.certificate,
-      };
+      });
     }
-    return {
+    return attachMapBind(supabase, normalizedPaymentId, {
       ok: true,
       alreadyFulfilled: true,
       orderId: existingCert.orderId,
       certificate: existingCert.certificate,
-    };
+    });
   }
 
   const secret = resolveMoyasarSecretKey();
@@ -419,12 +431,12 @@ export async function syncMoyasarPaidFulfillment(
       }
       await promotePaymentGeospatialBind(supabase, normalizedPaymentId, tier ?? 'bronze');
       const reboundCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
-      return {
+      return attachMapBind(supabase, normalizedPaymentId, {
         ok: true,
         alreadyFulfilled,
         orderId: (reboundCert.ok ? reboundCert : retryCert).orderId,
         certificate: (reboundCert.ok ? reboundCert : retryCert).certificate,
-      };
+      });
     }
     return { ok: false, error: cert.error, status: 404 };
   }
@@ -432,10 +444,10 @@ export async function syncMoyasarPaidFulfillment(
   await promotePaymentGeospatialBind(supabase, normalizedPaymentId, tier ?? 'bronze');
   const reboundCert = await fetchCertificateByMoyasarPaymentId(supabase, normalizedPaymentId);
 
-  return {
+  return attachMapBind(supabase, normalizedPaymentId, {
     ok: true,
     alreadyFulfilled,
     orderId: reboundCert.ok ? reboundCert.orderId : cert.orderId,
     certificate: reboundCert.ok ? reboundCert.certificate : cert.certificate,
-  };
+  });
 }

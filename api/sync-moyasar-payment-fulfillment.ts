@@ -68,6 +68,7 @@ export async function GET(request: Request): Promise<Response> {
       alreadyFulfilled: result.alreadyFulfilled,
       orderId: result.orderId,
       certificate: result.certificate ?? null,
+      mapBind: result.mapBind ?? null,
     },
     { headers },
   );
