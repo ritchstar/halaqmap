@@ -209,7 +209,7 @@ export async function dispatchPartnerActivationMails(
       barberId,
       buyerEmail,
       tier: input.tier,
-      registrationRequestId: input.registrationRequestId,
+      registrationOrderId: input.registrationRequestId,
       paymentMetadata: input.paymentMetadata,
     });
     if (dashboardCtx) {
@@ -240,7 +240,7 @@ export async function dispatchPartnerActivationMails(
     .slice(0, 80);
   const filename = `Halaqmap-Partner-Unified-Contract-${safeId}.pdf`;
 
-  const attachments: Array<{ filename: string; content: string }> = [
+  const attachments: Array<{ filename: string; content: string; content_id?: string }> = [
     { filename, content: pdf.toString('base64') },
   ];
   if (ratingQrBase64) {
