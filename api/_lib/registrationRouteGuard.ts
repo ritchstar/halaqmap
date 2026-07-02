@@ -117,6 +117,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'barber-portal-customer-private-chat') {
     return envInt('BARBER_PRIVATE_CHAT_RATE_LIMIT_MAX', 24);
   }
+  if (routeId === 'customer-private-chat') {
+    return envInt('CUSTOMER_PRIVATE_CHAT_RATE_LIMIT_MAX', 30);
+  }
   if (routeId === 'public-barber-gallery') {
     return envInt('PUBLIC_BARBER_GALLERY_RATE_LIMIT_MAX', 120);
   }

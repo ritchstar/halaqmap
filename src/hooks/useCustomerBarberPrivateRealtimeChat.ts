@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { RealtimeChannel } from '@supabase/supabase-js';
-import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import type { PrivateConversationRow, PrivateMessageRow } from '@/lib/privateChatRemote';
 import {
-  getPrivateConversation,
-  listPrivateMessages,
-  sendPrivateMessage,
-  startPrivateConversationByBarberId,
-  type PrivateConversationRow,
-  type PrivateMessageRow,
-} from '@/lib/privateChatRemote';
+  getCustomerPrivateChatServer,
+  listCustomerPrivateMessagesServer,
+  sendCustomerPrivateMessageServer,
+  startCustomerPrivateChatServer,
+} from '@/lib/customerPrivateChatServerRemote';
 import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
 import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
 
@@ -17,7 +15,6 @@ export type CustomerBarberUiMessage = {
   role: 'customer' | 'barber';
   body: string;
   created_at: string;
-  /** ترجمة عرضية للباقة الماسية (نص الطرف الآخر) */
   translated?: string | null;
 };
 
@@ -31,7 +28,7 @@ function remainingMsFromExpiresAt(expiresAtIso: string | null): number {
 function mapRowsToUi(
   rows: PrivateMessageRow[],
   conversation: PrivateConversationRow | null,
-  translations: Record<string, string>
+  translations: Record<string, string>,
 ): CustomerBarberUiMessage[] {
   if (!conversation) return [];
   return rows.map((m) => {
@@ -47,39 +44,24 @@ function mapRowsToUi(
   });
 }
 
-function normalizeSupabaseAuthError(message: string | null | undefined): string {
-  const m = String(message || '').toLowerCase();
-  if (m.includes('anonymous sign-ins are disabled') || m.includes('anonymous')) {
-    return 'الشات الحي غير متاح حالياً بسبب إعدادات الدخول السريع للزوار. يمكنك المتابعة عبر المعاينة المحلية.';
-  }
-  if (m.includes('invalid login credentials') || m.includes('not authenticated')) {
-    return 'تعذرت مصادقة جلسة الشات الحي حالياً. تم التحويل للمعاينة المحلية.';
-  }
-  return (
-    message ||
-    'تعذّرت تهيئة الشات الحي حالياً. تم التحويل للمعاينة المحلية مؤقتاً.'
-  );
-}
-
 export function useCustomerBarberPrivateRealtimeChat(
   barberId: string | undefined,
-  options: { enableDiamondTranslation: boolean; restartSignal?: number }
+  options: { enableDiamondTranslation: boolean; restartSignal?: number },
 ) {
   const restartSignal = options.restartSignal ?? 0;
   const [status, setStatus] = useState<
-    'idle' | 'loading' | 'ready' | 'no_supabase' | 'auth_failed' | 'start_failed' | 'expired_ui'
+    'idle' | 'loading' | 'ready' | 'no_supabase' | 'start_failed' | 'expired_ui'
   >('idle');
   const [errorHint, setErrorHint] = useState<string | null>(null);
   const [conversation, setConversation] = useState<PrivateConversationRow | null>(null);
   const [rawMessages, setRawMessages] = useState<PrivateMessageRow[]>([]);
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [remainingMs, setRemainingMs] = useState(0);
-  const channelRef = useRef<RealtimeChannel | null>(null);
   const convIdRef = useRef<string | null>(null);
   const translationAttemptedRef = useRef(new Set<string>());
 
   const refreshConversationAndMessages = useCallback(async (conversationId: string) => {
-    const convRes = await getPrivateConversation(conversationId);
+    const convRes = await getCustomerPrivateChatServer(conversationId);
     if (!convRes.ok) {
       setStatus('expired_ui');
       setRawMessages([]);
@@ -96,7 +78,7 @@ export function useCustomerBarberPrivateRealtimeChat(
       setRawMessages([]);
       return;
     }
-    const msgRes = await listPrivateMessages(conversationId);
+    const msgRes = await listCustomerPrivateMessagesServer(conversationId);
     if (!msgRes.ok) {
       setRawMessages([]);
       setStatus('expired_ui');
@@ -113,35 +95,12 @@ export function useCustomerBarberPrivateRealtimeChat(
     }
 
     let cancelled = false;
-    const client = getSupabaseClient();
-    if (!client) {
-      setStatus('no_supabase');
-      return;
-    }
 
     (async () => {
       setStatus('loading');
       setErrorHint(null);
 
-      const { data: sessionData } = await client.auth.getSession();
-      let session = sessionData.session;
-      if (!session) {
-        const { error: anonErr } = await client.auth.signInAnonymously();
-        if (anonErr || cancelled) {
-          setStatus('auth_failed');
-          setErrorHint(normalizeSupabaseAuthError(anonErr?.message));
-          return;
-        }
-        session = (await client.auth.getSession()).data.session;
-      }
-
-      if (!session || cancelled) {
-        setStatus('auth_failed');
-        setErrorHint('تعذّر تجهيز جلسة الشات الحي حالياً. يمكنك المتابعة عبر المعاينة المحلية.');
-        return;
-      }
-
-      const started = await startPrivateConversationByBarberId(barberId);
+      const started = await startCustomerPrivateChatServer(barberId);
       if (!started.ok || cancelled) {
         setStatus('start_failed');
         setErrorHint(started.ok ? null : started.error);
@@ -150,69 +109,37 @@ export function useCustomerBarberPrivateRealtimeChat(
 
       const conversationId = started.conversationId;
       convIdRef.current = conversationId;
+      setConversation(started.conversation);
 
       await refreshConversationAndMessages(conversationId);
-      if (cancelled) return;
-
-      const ch = client
-        .channel(`private_chat:${conversationId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'private_messages',
-            filter: `conversation_id=eq.${conversationId}`,
-          },
-          (payload) => {
-            const row = payload.new as PrivateMessageRow | null;
-            if (!row?.id) return;
-            setRawMessages((prev) => {
-              if (prev.some((m) => m.id === row.id)) return prev;
-              return [...prev, row].sort(
-                (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-              );
-            });
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'private_conversations',
-            filter: `id=eq.${conversationId}`,
-          },
-          (payload) => {
-            const row = payload.new as Partial<PrivateConversationRow> | null;
-            if (!row) return;
-            if (row.status && row.status !== 'active') {
-              setStatus('expired_ui');
-              setRawMessages([]);
-              setRemainingMs(0);
-            }
-            if (row.expires_at) {
-              setConversation((c) => {
-                if (!c) return c;
-                return { ...c, ...row } as PrivateConversationRow;
-              });
-            }
-          }
-        )
-        .subscribe();
-
-      channelRef.current = ch;
     })();
 
     return () => {
       cancelled = true;
       translationAttemptedRef.current.clear();
-      const ch = channelRef.current;
-      channelRef.current = null;
       convIdRef.current = null;
-      if (ch) void getSupabaseClient()?.removeChannel(ch);
     };
   }, [barberId, restartSignal, refreshConversationAndMessages]);
+
+  useEffect(() => {
+    const cid = convIdRef.current;
+    if (!cid || status !== 'ready') return;
+
+    const poll = window.setInterval(() => {
+      void listCustomerPrivateMessagesServer(cid).then((msgRes) => {
+        if (!msgRes.ok) return;
+        if (msgRes.expired) {
+          setStatus('expired_ui');
+          setRawMessages([]);
+          setRemainingMs(0);
+          return;
+        }
+        setRawMessages(msgRes.messages);
+      });
+    }, 3000);
+
+    return () => window.clearInterval(poll);
+  }, [status, conversation?.id]);
 
   useEffect(() => {
     if (!conversation?.expires_at) return;
@@ -229,21 +156,14 @@ export function useCustomerBarberPrivateRealtimeChat(
     return () => window.clearInterval(id);
   }, [conversation?.expires_at]);
 
-  /** ترجمة الباقة الماسية: جلب ترجمات للرسائل من الطرف الآخر */
   useEffect(() => {
     if (!options.enableDiamondTranslation || !conversation) return;
-    const client = getSupabaseClient();
-    if (!client) return;
 
     let cancelled = false;
     (async () => {
-      const { data: s } = await client.auth.getSession();
-      const uid = s.session?.user?.id;
-      if (!uid) return;
-
       const updates: Record<string, string> = {};
       for (const m of rawMessages) {
-        if (m.sender_id === uid) continue;
+        if (m.sender_id === conversation.customer_id) continue;
         if (translationAttemptedRef.current.has(m.id)) continue;
         translationAttemptedRef.current.add(m.id);
         const target = guessTranslateTarget(m.body);
@@ -269,7 +189,7 @@ export function useCustomerBarberPrivateRealtimeChat(
 
   const uiMessages = useMemo(
     () => mapRowsToUi(rawMessages, conversation, translations),
-    [rawMessages, conversation, translations]
+    [rawMessages, conversation, translations],
   );
 
   useEffect(() => {
@@ -290,17 +210,19 @@ export function useCustomerBarberPrivateRealtimeChat(
 
   const send = useCallback(
     async (body: string) => {
-      const client = getSupabaseClient();
       const cid = convIdRef.current;
-      if (!client || !cid) return { ok: false as const, error: 'لا توجد محادثة.' };
-      const { data: s } = await client.auth.getSession();
-      const uid = s.session?.user?.id;
-      if (!uid) return { ok: false as const, error: 'انتهت جلسة المصادقة.' };
+      if (!cid) return { ok: false as const, error: 'لا توجد محادثة.' };
       if (remainingMsFromExpiresAt(conversation?.expires_at ?? '') <= 0) {
         return { ok: false as const, error: 'انتهت الجلسة.' };
       }
-      const result = await sendPrivateMessage(cid, uid, body);
+      const result = await sendCustomerPrivateMessageServer(cid, body);
       if (result.ok) {
+        setRawMessages((prev) => {
+          if (prev.some((m) => m.id === result.message.id)) return prev;
+          return [...prev, result.message].sort(
+            (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+          );
+        });
         window.setTimeout(() => {
           void customerDigitalShiftInterceptRemote(cid).then((r) => {
             if (r.ok && r.replied) void refreshConversationAndMessages(cid);

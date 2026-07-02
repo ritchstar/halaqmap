@@ -180,6 +180,7 @@ export function CustomerBarberChatPreview({
   const liveMode =
     useLive &&
     (live.status === 'ready' || live.status === 'loading' || live.status === 'expired_ui');
+  const localPreviewOnly = !useLive;
 
   const sendLocalMessage = useCallback(() => {
     const text = draft.trim();
@@ -250,7 +251,7 @@ export function CustomerBarberChatPreview({
         }
         return;
       }
-      if (!liveMode && !localExpired) {
+      if (localPreviewOnly && !localExpired) {
         const afterCustomer = appendPrivateMessage(barberId, session, 'customer', text);
         setLocalMessages(afterCustomer);
         injectRef.current = text;
@@ -266,13 +267,14 @@ export function CustomerBarberChatPreview({
     injectMessage,
     live,
     liveMode,
+    localPreviewOnly,
     localExpired,
     onInjectMessageSent,
     session,
   ]);
 
   const liveErrorBanner =
-    useLive && (live.status === 'auth_failed' || live.status === 'start_failed') ? (
+    useLive && live.status === 'start_failed' ? (
       <Alert className="barber-contact-inner text-right border-amber-300/60 bg-amber-50/70 dark:bg-amber-950/20">
         <AlertTitle>{CUSTOMER_CHAT_LIVE_UNAVAILABLE_TITLE}</AlertTitle>
         <AlertDescription className="barber-contact-prose text-xs leading-relaxed">
@@ -371,11 +373,11 @@ export function CustomerBarberChatPreview({
                 </Bubble>
               </div>
             ))
-          ) : localMessages.length === 0 ? (
+          ) : localPreviewOnly && localMessages.length === 0 ? (
             <div className="barber-contact-prose rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
               {CUSTOMER_CHAT_EMPTY_LOCAL}
             </div>
-          ) : (
+          ) : localPreviewOnly ? (
             localMessages.map((m) => (
               <Bubble
                 key={m.id}
@@ -401,9 +403,13 @@ export function CustomerBarberChatPreview({
                 )}
               </Bubble>
             ))
+          ) : (
+            <div className="barber-contact-prose rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
+              {CUSTOMER_CHAT_EMPTY_LIVE}
+            </div>
           )}
 
-          {!liveMode && isDiamond && localMessages.length > 0 && (
+          {localPreviewOnly && isDiamond && localMessages.length > 0 && (
             <>
               <div className="flex w-full flex-col items-end gap-1">
                 <TranslationHint
@@ -441,6 +447,10 @@ export function CustomerBarberChatPreview({
           </div>
         ) : liveMode && live.status === 'loading' ? (
           <p className="text-center text-xs text-muted-foreground">جاري الربط…</p>
+        ) : useLive && live.status === 'start_failed' ? (
+          <p className="text-center text-xs text-destructive">
+            تعذّر بدء الشات الحي. جرّب واتساب أو الهاتف من بطاقة الصالون.
+          </p>
         ) : (
           <div className="flex min-w-0 items-center gap-2">
             <Input
@@ -452,14 +462,17 @@ export function CustomerBarberChatPreview({
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   if (liveMode) void sendLiveMessage();
-                  else sendLocalMessage();
+                  else if (localPreviewOnly) sendLocalMessage();
                 }
               }}
             />
             <Button
               size="icon"
               className="h-9 w-9 shrink-0"
-              onClick={() => (liveMode ? void sendLiveMessage() : sendLocalMessage())}
+              onClick={() => {
+                if (liveMode) void sendLiveMessage();
+                else if (localPreviewOnly) sendLocalMessage();
+              }}
               disabled={!draft.trim() || (liveMode && live.status === 'loading')}
             >
               <Send className="w-4 h-4" />
