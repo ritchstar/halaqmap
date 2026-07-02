@@ -55,7 +55,6 @@ import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib'
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
-import { PlatformSecurityIncidentStrip } from '@/components/PlatformSecurityIncidentStrip';
 import { IMAGES } from '@/assets/images';
 import {
   createInitialWorkingWeekForm,
@@ -720,7 +719,6 @@ export default function BarberDashboard({
       {previewChrome ? (
         <div className="border-b border-border/40 bg-muted/30 px-3 py-3 sm:px-4">{previewChrome}</div>
       ) : null}
-      <PlatformSecurityIncidentStrip />
       <header
         className={`sticky top-0 z-50 w-full border-b pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
           ownerWatchMode && ownerCanWatch
