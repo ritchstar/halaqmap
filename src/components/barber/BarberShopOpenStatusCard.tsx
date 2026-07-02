@@ -22,6 +22,7 @@ import {
   setBarberShopOpenStatusRemote,
 } from '@/lib/barberShopOpenStatusRemote';
 import type { BarberPortalSession } from '@/lib/barberPortalLoginRemote';
+import { BarberDashboardOutboundAnchor } from '@/components/barber/BarberDashboardOutboundLink';
 
 type Props = {
   barberData: BarberPortalSession;
@@ -146,9 +147,9 @@ export function BarberShopOpenStatusCard({
               نسخ رابط التبديل السريع
             </Button>
             <Button type="button" variant="ghost" size="sm" asChild className="text-xs">
-              <a href={buildShopOpenManageHashLink(barberData.openStatusToken || '') || '#'} target="_blank" rel="noreferrer">
+              <BarberDashboardOutboundAnchor href={buildShopOpenManageHashLink(barberData.openStatusToken || '') || '#'}>
                 فتح صفحة التبديل
-              </a>
+              </BarberDashboardOutboundAnchor>
             </Button>
             {canRotateLink ? (
               <AlertDialog>

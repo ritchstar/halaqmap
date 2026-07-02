@@ -36,6 +36,7 @@ import {
   type FleetDirective,
   type ShiftReport,
 } from '@/lib/digitalShiftAssistantRemote';
+import { BarberDashboardOutboundAnchor } from '@/components/barber/BarberDashboardOutboundLink';
 import { ROUTE_PATHS } from '@/lib/index';
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string; ts: string };
@@ -93,18 +94,18 @@ function PackageStatusBar({ daysRemaining }: { daysRemaining: number }) {
         </div>
       </div>
       <div className="flex gap-2">
-        <a
+        <BarberDashboardOutboundAnchor
           href={`/#${ROUTE_PATHS.PAYMENT}`}
           className="flex items-center gap-1 rounded-lg border border-amber-400/35 bg-amber-500/12 px-2.5 py-1 text-[0.62rem] font-bold text-amber-300 hover:bg-amber-500/20 transition-all"
         >
           <CreditCard className="h-3 w-3" /> تجديد
-        </a>
-        <a
+        </BarberDashboardOutboundAnchor>
+        <BarberDashboardOutboundAnchor
           href={`/#${ROUTE_PATHS.PARTNER_SUPPORT}`}
           className="flex items-center gap-1 rounded-lg border border-violet-400/25 bg-violet-500/10 px-2.5 py-1 text-[0.62rem] font-bold text-violet-300 hover:bg-violet-500/18 transition-all"
         >
           <HeadphonesIcon className="h-3 w-3" /> دعم
-        </a>
+        </BarberDashboardOutboundAnchor>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent, type ReactNode } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { BarberDashboardOutboundLink } from '@/components/barber/BarberDashboardOutboundLink';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -1146,13 +1147,13 @@ export default function BarberDashboard({
           <div className="flex flex-wrap gap-2">
             {canOpenMapCommunity ? (
               <Button asChild variant="outline" size="sm" className="relative gap-1.5">
-                <Link to={ROUTE_PATHS.MAP_COMMUNITY}>
+                <BarberDashboardOutboundLink to={ROUTE_PATHS.MAP_COMMUNITY}>
                   <MessageCircle className="h-4 w-4" />
                   مجتمع ماب
                   {hasNewMapCommunityPosts ? (
                     <span className="absolute -left-0.5 -top-0.5 h-2 w-2 rounded-full bg-fuchsia-400" aria-hidden />
                   ) : null}
-                </Link>
+                </BarberDashboardOutboundLink>
               </Button>
             ) : null}
             {tierTabs.showPosts ? (
@@ -3202,7 +3203,9 @@ function SettingsSection({
           </CardHeader>
           <CardContent>
             <Button asChild variant="outline" className="w-full sm:w-auto">
-              <Link to={ROUTE_PATHS.BARBER_ACCOUNT_DELETE_REQUEST}>فتح نموذج طلب حذف الحساب</Link>
+              <BarberDashboardOutboundLink to={ROUTE_PATHS.BARBER_ACCOUNT_DELETE_REQUEST}>
+                فتح نموذج طلب حذف الحساب
+              </BarberDashboardOutboundLink>
             </Button>
           </CardContent>
         </Card>

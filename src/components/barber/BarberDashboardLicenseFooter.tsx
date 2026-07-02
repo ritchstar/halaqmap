@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { BarberDashboardOutboundLink } from '@/components/barber/BarberDashboardOutboundLink';
 import { CalendarClock, Package, RefreshCw, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -119,13 +119,13 @@ export function BarberDashboardLicenseFooter({
 
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm" className="gap-1.5">
-              <Link to={rechargeUrl}>
+              <BarberDashboardOutboundLink to={rechargeUrl}>
                 <RefreshCw className="h-4 w-4" />
                 {hasActiveListing ? 'تجديد / شحن الحزمة' : 'شراء حزمة نفاذ'}
-              </Link>
+              </BarberDashboardOutboundLink>
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link to={pricingUrl}>استعراض الباقات والأسعار</Link>
+              <BarberDashboardOutboundLink to={pricingUrl}>استعراض الباقات والأسعار</BarberDashboardOutboundLink>
             </Button>
             {onRedeem ? (
               <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={onRedeem}>

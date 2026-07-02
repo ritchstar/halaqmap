@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { BarberDashboardOutboundLink } from '@/components/barber/BarberDashboardOutboundLink';
 import { Bot, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
@@ -110,18 +110,18 @@ export function DigitalShiftUpgradeLocked({
             size="lg"
             className="w-full gap-2 border border-cyan-300/40 bg-gradient-to-l from-cyan-500 to-sky-400 px-6 text-base font-bold text-slate-950 shadow-[0_0_28px_rgba(34,211,238,0.55)] hover:from-cyan-400 hover:to-sky-300 sm:w-auto"
           >
-            <Link to={checkoutHref}>
+            <BarberDashboardOutboundLink to={checkoutHref}>
               {TERM_BUY_LICENSE_AR} — {TERM_ACTIVATE_NOW_AR} (+{DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س)
-            </Link>
+            </BarberDashboardOutboundLink>
           </Button>
         </div>
 
-        <Link
+        <BarberDashboardOutboundLink
           to={pricingHref}
           className="mt-4 text-sm text-cyan-200/80 underline-offset-4 transition hover:text-cyan-100 hover:underline"
         >
           عرض جدول الباقات والأسعار
-        </Link>
+        </BarberDashboardOutboundLink>
       </div>
     </div>
   );
