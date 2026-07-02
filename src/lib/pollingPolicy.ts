@@ -9,6 +9,8 @@ export const POLL_MS = {
   MAP_COMMUNITY_FEED: 30_000,
   MAP_COMMUNITY_BADGE: 60_000,
   OWNER_SALON_WATCH: 45_000,
+  /** طلبات حجز المواعيد (ماسي) في لوحة الحلاق */
+  DIAMOND_APPOINTMENT_BOOKINGS: 30_000,
   /** مضاعف التباطؤ عند نجاح Supabase Realtime */
   REALTIME_CONNECTED_MULTIPLIER: 6,
 } as const;

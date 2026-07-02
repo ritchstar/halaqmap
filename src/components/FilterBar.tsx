@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCcw, Star, SlidersHorizontal, ChevronDown, MapPin, Clock, Crown } from 'lucide-react';
 import { FilterState, SubscriptionTier } from '@/lib/index';
+import { DEFAULT_VISITOR_SEARCH_RADIUS_KM } from '@/lib/visitorServiceIntents';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
 import { CHILDREN_SPECIALIST_FILTER_LABEL_AR } from '@/lib/childrenSpecialistDisplay';
@@ -74,7 +75,15 @@ export function FilterBar({ filters, onFilterChange, defaultExpanded = false }: 
   }, [defaultExpanded]);
 
   const handleReset = () => {
-    onFilterChange({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [], childrenSpecialistOnly: false, mensGroomingCenterOnly: false });
+    onFilterChange({
+      maxDistance: DEFAULT_VISITOR_SEARCH_RADIUS_KM,
+      tiers: [],
+      openNow: true,
+      minRating: 0,
+      categories: [],
+      childrenSpecialistOnly: false,
+      mensGroomingCenterOnly: false,
+    });
   };
 
   const activeCount = [
@@ -84,7 +93,7 @@ export function FilterBar({ filters, onFilterChange, defaultExpanded = false }: 
     filters.categories.length,
     filters.childrenSpecialistOnly ? 1 : 0,
     filters.mensGroomingCenterOnly ? 1 : 0,
-    filters.maxDistance !== 1 ? 1 : 0,
+    filters.maxDistance !== DEFAULT_VISITOR_SEARCH_RADIUS_KM ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
   return (

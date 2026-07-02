@@ -63,6 +63,12 @@ function normalizeErrorMessage(message: string): string {
   if (m.includes('invalid booking date') || m.includes('invalid booking time')) {
     return 'التاريخ أو الوقت غير صالح.';
   }
+  if (m.includes('جلسة غير صالحة') || m.includes('invalid session') || m.includes('missing_token')) {
+    return 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول ثم حدّث الحجوزات.';
+  }
+  if (m.includes('جدولة المواعيد متاحة') || m.includes('diamond appointment scheduling')) {
+    return 'جدولة المواعيد متاحة لباقة ماسي فقط.';
+  }
   return message;
 }
 

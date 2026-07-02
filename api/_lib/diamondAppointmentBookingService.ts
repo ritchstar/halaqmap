@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { getBarberListingBalance } from './listingLicenseService.js';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -67,6 +68,15 @@ function isValidBookingDate(raw: string): boolean {
   return candidate >= today && candidate <= max;
 }
 
+async function barberHasDiamondSchedulingAccess(
+  supabase: SupabaseClient,
+  barber: { id: string; tier: string | null },
+): Promise<boolean> {
+  if (String(barber.tier ?? '').toLowerCase() === 'diamond') return true;
+  const balance = await getBarberListingBalance(supabase, String(barber.id));
+  return balance.hasActiveListing && String(balance.activeTier ?? '').toLowerCase() === 'diamond';
+}
+
 export async function resolveDiamondBarberForBooking(
   supabase: SupabaseClient,
   barberId: string,
@@ -90,12 +100,24 @@ export async function resolveDiamondBarberForBooking(
     return { ok: false, error: 'Barber inactive', status: 409 };
   }
 
-  const tier = String(barber.tier ?? '').toLowerCase();
-  if (tier !== 'diamond') {
+  const hasDiamond = await barberHasDiamondSchedulingAccess(supabase, {
+    id: String(barber.id),
+    tier: barber.tier ?? null,
+  });
+  if (!hasDiamond) {
     return { ok: false, error: 'Diamond appointment scheduling is available for diamond salons only', status: 403 };
   }
 
   return { ok: true, barberRowId: String(barber.id) };
+}
+
+export async function assertBarberPortalDiamondScheduling(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  const resolved = await resolveDiamondBarberForBooking(supabase, barberId);
+  if (!resolved.ok) return resolved;
+  return { ok: true };
 }
 
 export async function createDiamondAppointmentRequest(input: {

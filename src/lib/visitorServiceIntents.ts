@@ -40,7 +40,9 @@ export const VISITOR_MOBILE_QUERY_REFINE_IDS = [
   'mens_grooming',
 ] as const satisfies readonly VisitorServiceIntentId[];
 
-const DEFAULT_MAX_KM = 1;
+export const DEFAULT_VISITOR_SEARCH_RADIUS_KM = 3;
+
+const DEFAULT_MAX_KM = DEFAULT_VISITOR_SEARCH_RADIUS_KM;
 
 function baseFilters(maxDistance = DEFAULT_MAX_KM): FilterState {
   return {

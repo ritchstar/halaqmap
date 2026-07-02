@@ -29,6 +29,7 @@ import {
   UserX,
   Loader2,
   Home,
+  RefreshCw,
 } from 'lucide-react';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
@@ -124,7 +125,7 @@ import {
   sendBarberSupportMessageRemote,
   type BarberSupportMessageRow,
 } from '@/lib/barberSupportChatRemote';
-import { POLL_MS } from '@/lib/pollingPolicy';
+import { POLL_MS, isPollingTabActive } from '@/lib/pollingPolicy';
 import { portfolioMaxImagesForSubscriptionTier } from '@/lib/barberPortfolioPolicy';
 import {
   optimizeImageFileForBarberPortfolio,
@@ -225,6 +226,7 @@ export default function BarberDashboard({
   const [scheduleItems, setScheduleItems] = useState<BarberDashboardScheduleItem[]>([]);
   const [remoteBookings, setRemoteBookings] = useState<BarberDashboardScheduleItem[]>([]);
   const [remoteBookingsLoading, setRemoteBookingsLoading] = useState(false);
+  const [remoteBookingsError, setRemoteBookingsError] = useState<string | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [chatThreads, setChatThreads] = useState<BarberChatThread[]>([]);
   const [bannerState, setBannerState] = useState<BarberPlatformBannerState>({
@@ -517,17 +519,31 @@ export default function BarberDashboard({
 
   const barberId = barberData?.id;
 
-  const refreshRemoteBookings = useCallback(async () => {
-    if (founderPreview || !barberId || !isSupabaseConfigured()) return;
-    if (effectiveListingTier !== SubscriptionTier.DIAMOND) {
-      setRemoteBookings([]);
-      return;
-    }
-    setRemoteBookingsLoading(true);
-    const res = await listBarberBookingsRemote();
-    setRemoteBookingsLoading(false);
-    if (res.ok) setRemoteBookings(res.items);
-  }, [barberId, founderPreview, effectiveListingTier]);
+  const appointmentsDiamondTier = useMemo(() => {
+    const tier = effectiveListingTier ?? barberData?.subscription ?? null;
+    return tier === SubscriptionTier.DIAMOND;
+  }, [effectiveListingTier, barberData?.subscription]);
+
+  const refreshRemoteBookings = useCallback(
+    async (options?: { silent?: boolean }) => {
+      if (founderPreview || !barberId || !isSupabaseConfigured()) return;
+      if (!appointmentsDiamondTier) {
+        setRemoteBookings([]);
+        setRemoteBookingsError(null);
+        return;
+      }
+      if (!options?.silent) setRemoteBookingsLoading(true);
+      const res = await listBarberBookingsRemote();
+      if (!options?.silent) setRemoteBookingsLoading(false);
+      if (res.ok) {
+        setRemoteBookings(res.items);
+        setRemoteBookingsError(null);
+      } else {
+        setRemoteBookingsError(res.error);
+      }
+    },
+    [barberId, founderPreview, appointmentsDiamondTier],
+  );
 
   useEffect(() => {
     if (!barberId) return;
@@ -538,17 +554,21 @@ export default function BarberDashboard({
   }, [barberId]);
 
   useEffect(() => {
-    void refreshRemoteBookings();
-  }, [refreshRemoteBookings]);
-
-  useEffect(() => {
-    if (activeTab !== 'appointments') return;
-    void refreshRemoteBookings();
+    if (activeTab !== 'appointments' || !appointmentsDiamondTier || founderPreview) return;
+    let cancelled = false;
+    void (async () => {
+      await syncPortalSessionFromServer();
+      if (!cancelled) await refreshRemoteBookings();
+    })();
     const timer = window.setInterval(() => {
-      void refreshRemoteBookings();
-    }, POLL_MS);
-    return () => window.clearInterval(timer);
-  }, [activeTab, refreshRemoteBookings]);
+      if (!isPollingTabActive()) return;
+      void refreshRemoteBookings({ silent: true });
+    }, POLL_MS.DIAMOND_APPOINTMENT_BOOKINGS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [activeTab, appointmentsDiamondTier, founderPreview, syncPortalSessionFromServer, refreshRemoteBookings]);
 
   const mergedScheduleItems = useMemo(() => {
     const merged = [...remoteBookings, ...scheduleItems];
@@ -1085,8 +1105,10 @@ export default function BarberDashboard({
               barberId={barberData.id}
               items={mergedScheduleItems}
               loading={remoteBookingsLoading}
+              loadError={remoteBookingsError}
               onChange={persistSchedule}
               onBookingStatusChange={handleBookingStatusChange}
+              onRefresh={() => void refreshRemoteBookings()}
             />
           </TabsContent>
           ) : null}
@@ -1536,14 +1558,18 @@ function AppointmentsSection({
   barberId,
   items,
   loading,
+  loadError,
   onChange,
   onBookingStatusChange,
+  onRefresh,
 }: {
   barberId: string;
   items: BarberDashboardScheduleItem[];
   loading?: boolean;
+  loadError?: string | null;
   onChange: (next: BarberDashboardScheduleItem[]) => void;
   onBookingStatusChange?: (bookingId: string, status: 'confirmed' | 'cancelled' | 'completed') => Promise<void>;
+  onRefresh?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [formDate, setFormDate] = useState('');
@@ -1614,18 +1640,28 @@ function AppointmentsSection({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 self-start">
-          {loading ? (
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              تحديث الحجوزات…
-            </span>
-          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            className="gap-2"
+            onClick={() => onRefresh?.()}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            تحديث الحجوزات
+          </Button>
           <Button type="button" className="gap-2" onClick={() => setOpen(true)}>
             <Plus className="h-4 w-4" />
             إضافة أوقات متاحة
           </Button>
         </div>
       </div>
+
+      {loadError ? (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{loadError}</AlertDescription>
+        </Alert>
+      ) : null}
 
       <Card>
         <CardContent className="space-y-4 p-6">

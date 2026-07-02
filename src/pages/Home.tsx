@@ -31,6 +31,7 @@ import {
   PLATFORM_SEARCH_EMPTY_TITLE,
 } from '@/config/platformSmartTracking';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
+import { DEFAULT_VISITOR_SEARCH_RADIUS_KM } from '@/lib/visitorServiceIntents';
 
 const JSON_LD_SCRIPT_ID = 'halaqmap-home-jsonld';
 export default function Home() {
@@ -40,7 +41,7 @@ export default function Home() {
   const [showcaseFallback, setShowcaseFallback] = useState<{ barber: Barber; intro: string } | null>(null);
   const [remoteStatus, setRemoteStatus] = useState<'unused' | 'loading' | 'ready' | 'error'>('unused');
   const [filters, setFilters] = useState<FilterState>({
-    maxDistance: 1,
+    maxDistance: DEFAULT_VISITOR_SEARCH_RADIUS_KM,
     tiers: [],
     openNow: true,
     minRating: 0,

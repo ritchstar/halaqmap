@@ -7,6 +7,7 @@ import {
   verifyBarberPortalSessionToken,
 } from './_lib/barberPortalAuth.js';
 import {
+  assertBarberPortalDiamondScheduling,
   createDiamondAppointmentRequest,
   listBarberBookings,
   updateBarberBookingStatus,
@@ -23,10 +24,6 @@ const CORS_OPTS = {
 
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
-}
-
-function tierAllowsAppointments(tierRaw: string): boolean {
-  return String(tierRaw || '').toLowerCase() === 'diamond';
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -130,8 +127,9 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'الحساب غير مفعّل.' }, { status: 409, headers });
   }
 
-  if (!tierAllowsAppointments(String(barber.tier ?? ''))) {
-    return Response.json({ error: 'جدولة المواعيد متاحة لباقة ماسي فقط.' }, { status: 403, headers });
+  const diamondAccess = await assertBarberPortalDiamondScheduling(supabase, verified.barberId);
+  if (!diamondAccess.ok) {
+    return Response.json({ error: diamondAccess.error }, { status: diamondAccess.status, headers });
   }
 
   if (action === 'list') {

@@ -567,7 +567,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
           </div>
           <div className="mt-4">
             <CustomerBarberChatPreview
-              tier={SubscriptionTier.DIAMOND}
+              tier={barber.subscription === SubscriptionTier.DIAMOND ? SubscriptionTier.DIAMOND : SubscriptionTier.GOLD}
               barberId={barber.id}
               barberName={barber.name}
               previewListing={barber.previewListing}
