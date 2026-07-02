@@ -8,6 +8,7 @@ import { buildGroomPrepSnapshotFromBarberRow } from './_lib/groomPrepBarberSnaps
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { getBarberPortalSessionSecret, mintBarberPortalSessionToken } from './_lib/barberPortalAuth.js';
 import { resolveSalonMemberRole } from './_lib/salonMemberAuth.js';
+import { isBarberDigitalShiftEnabled } from './_lib/digitalShiftAssistant.js';
 
 export const config = {
   maxDuration: 30,
@@ -238,6 +239,7 @@ export async function POST(request: Request): Promise<Response> {
     : null;
 
   const salonRole = await resolveSalonMemberRole(supabase, String(barber.id), String(barber.email ?? ''));
+  const digitalShiftEnabled = await isBarberDigitalShiftEnabled(supabase, String(barber.id));
 
   return Response.json(
     {
@@ -262,7 +264,10 @@ export async function POST(request: Request): Promise<Response> {
             : '',
         inclusiveCare: buildInclusiveCareSnapshotFromBarberRow(barber),
         childrenServices: buildChildrenServicesSnapshotFromBarberRow(barber),
-        mensGroomingCenter: buildMensGroomingCenterSnapshotFromBarberRow(barber),
+        mensGroomingCenter: buildMensGroomingCenterSnapshotFromBarberRow({
+          ...barber,
+          digital_shift_enabled: digitalShiftEnabled,
+        }),
         homeService: buildHomeServiceSnapshotFromBarberRow(barber),
         groomPrep: buildGroomPrepSnapshotFromBarberRow(barber),
       },

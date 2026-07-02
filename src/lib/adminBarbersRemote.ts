@@ -289,6 +289,7 @@ export async function upsertBarberFromApprovedRequest(
         requested: mensGroomingRequested,
         tier: request.tier,
         hasMensHaircutInSpecialties: hasMensHaircut,
+        digitalShiftAddon: request.digitalShiftAddonSelected === true,
       });
       return {
         mens_grooming_center: mensGroomingCenter,

@@ -20,7 +20,9 @@ export function resolveMensGroomingCenterFlag(input: {
   requested: boolean;
   tier: string | null | undefined;
   hasMensHaircutInSpecialties: boolean;
+  digitalShiftEnabled?: boolean;
 }): boolean {
   if (!input.requested || !input.hasMensHaircutInSpecialties) return false;
+  if (input.digitalShiftEnabled !== true) return false;
   return canEnableMensGroomingCenterTier(input.tier);
 }

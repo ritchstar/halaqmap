@@ -269,6 +269,18 @@ export async function ensureConfigRow(supabase: SupabaseClient, barberId: string
     .upsert({ barber_id: barberId }, { onConflict: 'barber_id', ignoreDuplicates: true });
 }
 
+export async function isBarberDigitalShiftEnabled(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from('barber_digital_shift_config')
+    .select('enabled')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+  return data?.enabled === true;
+}
+
 export async function debitWalletForAiReply(
   supabase: SupabaseClient,
   barberId: string,

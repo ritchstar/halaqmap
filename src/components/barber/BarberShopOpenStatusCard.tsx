@@ -90,7 +90,7 @@ export function BarberShopOpenStatusCard({
           <div className="space-y-1 text-right">
             <p className="text-sm font-semibold">قبول العملاء الآن</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              عند الإيقاف يظهر المحل كـ «مغلق» في فلتر «مفتوح الآن» دون إلغاء صلاحية حزمة رخصة النفاذ.
+              عند الإيقاف يظهر المحل كـ «مغلق» في فلتر «مفتوح الآن».
             </p>
           </div>
           <Switch

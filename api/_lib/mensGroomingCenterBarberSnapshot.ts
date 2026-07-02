@@ -23,11 +23,13 @@ export function buildMensGroomingCenterSnapshotFromBarberRow(row: {
   mens_grooming_center?: boolean | null;
   grooming_center_banner_lines?: unknown;
   tier?: string | null;
+  digital_shift_enabled?: boolean | null;
 }): MensGroomingCenterBarberSnapshot {
   const groomingCenterBannerLines = normalizeGroomingCenterBannerLines(row.grooming_center_banner_lines);
   const mensGroomingCenter = resolveMensGroomingCenterFlag({
     requested: row.mens_grooming_center === true,
     tier: row.tier,
+    digitalShiftEnabled: row.digital_shift_enabled === true,
     hasMensHaircutInSpecialties:
       hasMensHaircutInSpecialties(row.specialties) ||
       groomingCenterBannerLines.some(

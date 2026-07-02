@@ -7,6 +7,7 @@ import {
   normalizeGroomingCenterBannerLines,
   resolveMensGroomingCenterFlag,
 } from './_lib/mensGroomingCenterPolicy.js';
+import { isBarberDigitalShiftEnabled } from './_lib/digitalShiftAssistant.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = {
@@ -137,9 +138,10 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const tier = String(b.tier ?? '').toLowerCase();
-  if (tier !== 'diamond' || b.mens_grooming_center !== true) {
+  const digitalShiftEnabled = await isBarberDigitalShiftEnabled(supabase, barberId);
+  if (tier !== 'diamond' || !digitalShiftEnabled || b.mens_grooming_center !== true) {
     return Response.json(
-      { error: 'مسار مراكز العناية بالرجل متاح للشركاء الماسيين المفعّلين فقط.' },
+      { error: 'مسار مراكز العناية بالرجل متاح للماسي مع إضافة المناوب الذكي فقط.' },
       { status: 403, headers },
     );
   }
@@ -158,6 +160,7 @@ export async function POST(request: Request): Promise<Response> {
     requested: true,
     tier: b.tier,
     hasMensHaircutInSpecialties: true,
+    digitalShiftEnabled,
   });
 
   const updatePayload: Record<string, unknown> = {

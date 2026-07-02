@@ -159,6 +159,7 @@ import {
   listBarberBookingsRemote,
   updateBarberBookingStatusRemote,
 } from '@/lib/diamondAppointmentBookingRemote';
+import { fetchDigitalShiftSummaryRemote } from '@/lib/digitalShiftAssistantRemote';
 
 const OWNER_WATCH_HINT_DISMISS_KEY = 'halaqmap_owner_watch_hint_dismissed_v1';
 
@@ -245,6 +246,7 @@ export default function BarberDashboard({
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
   const [redeemCode, setRedeemCode] = useState('');
   const [redeemLoading, setRedeemLoading] = useState(false);
+  const [digitalShiftUnlocked, setDigitalShiftUnlocked] = useState(founderPreview);
 
   useEffect(() => {
     if (founderPreview && previewSession) {
@@ -324,6 +326,27 @@ export default function BarberDashboard({
     return subscriptionTierFromString(listingBalance.activeTier) ?? barberData?.subscription ?? null;
   }, [listingBalance?.hasActiveListing, listingBalance?.activeTier, barberData?.subscription]);
 
+  useEffect(() => {
+    if (founderPreview) {
+      setDigitalShiftUnlocked(true);
+      return;
+    }
+    const id = barberData?.id?.trim();
+    const email = barberData?.email?.trim();
+    if (!id || !email || effectiveListingTier !== SubscriptionTier.DIAMOND) {
+      setDigitalShiftUnlocked(false);
+      return;
+    }
+    let cancelled = false;
+    void fetchDigitalShiftSummaryRemote({ barberId: id, email }).then((result) => {
+      if (cancelled) return;
+      setDigitalShiftUnlocked(result.ok && result.data.config?.enabled === true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [barberData?.id, barberData?.email, effectiveListingTier, founderPreview]);
+
   /** ذهبي: تبويبات الرسائل + QR فقط — ماسي: لوحة كاملة */
   const tierTabs = useMemo(() => {
     if (founderPreview) {
@@ -379,7 +402,7 @@ export default function BarberDashboard({
         showDigitalShift: true,
         isGoldLite: false,
         showChildrenSpecialistTab: true,
-        showMensGroomingCenterTab: true,
+        showMensGroomingCenterTab: digitalShiftUnlocked,
       };
     }
     if (effectiveListingTier === SubscriptionTier.GOLD) {
@@ -408,7 +431,7 @@ export default function BarberDashboard({
       showChildrenSpecialistTab: false,
       showMensGroomingCenterTab: false,
     };
-  }, [founderPreview, barberData, effectiveListingTier, listingBalance]);
+  }, [founderPreview, barberData, effectiveListingTier, listingBalance, digitalShiftUnlocked]);
 
   const childrenSpecialistActive = useMemo(
     () =>
@@ -423,10 +446,18 @@ export default function BarberDashboard({
     () =>
       isActiveMensGroomingCenterSession({
         tier: effectiveListingTier ?? barberData?.subscription ?? null,
+        digitalShiftUnlocked,
         mensGroomingCenter: barberData?.mensGroomingCenter,
       }),
-    [barberData?.mensGroomingCenter, barberData?.subscription, effectiveListingTier],
+    [barberData?.mensGroomingCenter, barberData?.subscription, effectiveListingTier, digitalShiftUnlocked],
   );
+
+  useEffect(() => {
+    if (founderPreview || tierTabs.showMensGroomingCenterTab) return;
+    if (activeTab === 'mens-grooming-center') {
+      setActiveTab('messages');
+    }
+  }, [activeTab, founderPreview, tierTabs.showMensGroomingCenterTab]);
 
   useEffect(() => {
     if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;

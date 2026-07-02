@@ -295,6 +295,7 @@ export function buildBarberUpsertRowFromRegistrationPayload(
         requested: mensGroomingRequested,
         tier,
         hasMensHaircutInSpecialties: hasMensHaircut,
+        digitalShiftEnabled: mensGroomingRequested,
       });
       return {
         mens_grooming_center: mensGroomingCenter,
