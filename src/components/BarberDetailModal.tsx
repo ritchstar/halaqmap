@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Barber, SubscriptionTier } from '@/lib/index';
-import { getMergedReviewsForBarber } from '@/lib/qrReviewsStorage';
+import { Barber, Review, SubscriptionTier } from '@/lib/index';
+import { getMergedReviewsForBarber, isReviewPublished } from '@/lib/qrReviewsStorage';
+import { fetchPublicBarberQrReviewsRemote } from '@/lib/barberQrReviewsRemote';
+import { mockReviews } from '@/data/index';
 import { fetchPublicBarberGalleryRemote } from '@/lib/barberGalleryRemote';
 import { PORTFOLIO_FEATURED_BANNER_MAX } from '@/lib/barberPortfolioPolicy';
 import { Button } from '@/components/ui/button';
@@ -80,7 +82,31 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
         : barber.images;
 
   useEffect(() => {
-    setBarberReviews(getMergedReviewsForBarber(barber.id));
+    let cancelled = false;
+    const load = async () => {
+      const remote = await fetchPublicBarberQrReviewsRemote(barber.id);
+      if (cancelled) return;
+      if (remote.ok) {
+        const staticPart = mockReviews.filter((r) => r.barberId === barber.id && isReviewPublished(r));
+        const byId = new Map<string, Review>();
+        for (const r of staticPart) byId.set(r.id, r);
+        for (const r of remote.reviews) byId.set(r.id, r);
+        const combined = Array.from(byId.values());
+        combined.sort((a, b) => {
+          const ah = a.isHighlighted ? 1 : 0;
+          const bh = b.isHighlighted ? 1 : 0;
+          if (bh !== ah) return bh - ah;
+          return (b.date || '').localeCompare(a.date || '');
+        });
+        setBarberReviews(combined);
+        return;
+      }
+      setBarberReviews(getMergedReviewsForBarber(barber.id));
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, [barber.id, isOpen]);
 
   useEffect(() => {
@@ -94,7 +120,19 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
   }, [barber.id, isOpen]);
 
   useEffect(() => {
-    const onRefresh = () => setBarberReviews(getMergedReviewsForBarber(barber.id));
+    const onRefresh = () => {
+      void fetchPublicBarberQrReviewsRemote(barber.id).then((remote) => {
+        if (!remote.ok) {
+          setBarberReviews(getMergedReviewsForBarber(barber.id));
+          return;
+        }
+        const staticPart = mockReviews.filter((r) => r.barberId === barber.id && isReviewPublished(r));
+        const byId = new Map<string, Review>();
+        for (const r of staticPart) byId.set(r.id, r);
+        for (const r of remote.reviews) byId.set(r.id, r);
+        setBarberReviews(Array.from(byId.values()));
+      });
+    };
     window.addEventListener('halaqmap-qr-reviews', onRefresh);
     return () => window.removeEventListener('halaqmap-qr-reviews', onRefresh);
   }, [barber.id]);

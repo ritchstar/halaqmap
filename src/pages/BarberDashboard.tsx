@@ -61,7 +61,11 @@ import {
   type WorkingWeekFormRow,
 } from '@/lib/saudiWorkingWeek';
 import { buildRatingInviteUrl } from '@/lib/ratingInvite';
-import { getAllMergedReviewsForBarberManage, updateStoredQrReview } from '@/lib/qrReviewsStorage';
+import { getAllMergedReviewsForBarberManage } from '@/lib/qrReviewsStorage';
+import {
+  fetchBarberPortalQrReviewsRemote,
+  patchBarberPortalQrReviewRemote,
+} from '@/lib/barberQrReviewsRemote';
 import {
   readDiamondSchedulingPublicLocal,
   setDiamondSchedulingPublicLocal,
@@ -1329,16 +1333,31 @@ function QrRatingsSection({
     [barberId, ratingInviteToken],
   );
 
-  const [reviews, setReviews] = useState<Review[]>(() => getAllMergedReviewsForBarberManage(barberId));
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
-  const refresh = useCallback(() => {
+  const refresh = useCallback(async () => {
+    setReviewsLoading(true);
+    const remote = await fetchBarberPortalQrReviewsRemote();
+    if (remote.ok) {
+      setReviews(remote.reviews);
+      setReviewsLoading(false);
+      return;
+    }
     setReviews(getAllMergedReviewsForBarberManage(barberId));
+    setReviewsLoading(false);
   }, [barberId]);
 
   useEffect(() => {
-    refresh();
-    window.addEventListener('halaqmap-qr-reviews', refresh);
-    return () => window.removeEventListener('halaqmap-qr-reviews', refresh);
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    const onRefresh = () => {
+      void refresh();
+    };
+    window.addEventListener('halaqmap-qr-reviews', onRefresh);
+    return () => window.removeEventListener('halaqmap-qr-reviews', onRefresh);
   }, [refresh]);
 
   const copyLink = () => {
@@ -1346,7 +1365,7 @@ function QrRatingsSection({
     void navigator.clipboard.writeText(ratingUrl).then(() => toast.success('تم نسخ رابط التقييم'));
   };
 
-  const isStoredQr = (r: Review) => r.id.startsWith('qr-');
+  const isManageableQr = (r: Review) => r.viaQrInvite === true;
 
   return (
     <motion.div
@@ -1420,7 +1439,9 @@ function QrRatingsSection({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {reviews.length === 0 ? (
+          {reviewsLoading ? (
+            <p className="text-sm text-muted-foreground">جاري تحميل التقييمات…</p>
+          ) : reviews.length === 0 ? (
             <p className="text-sm text-muted-foreground">لا توجد تقييمات بعد.</p>
           ) : (
             reviews.map((review) => (
@@ -1448,7 +1469,7 @@ function QrRatingsSection({
                   </div>
                   {review.comment ? <p className="line-clamp-2 text-sm text-muted-foreground">{review.comment}</p> : null}
                 </div>
-                {isStoredQr(review) ? (
+                {isManageableQr(review) ? (
                   <div className="flex shrink-0 flex-col gap-3 sm:items-end">
                     <div className="flex items-center gap-2">
                       <Label htmlFor={`pub-${review.id}`} className="cursor-pointer whitespace-nowrap text-sm">
@@ -1458,8 +1479,16 @@ function QrRatingsSection({
                         id={`pub-${review.id}`}
                         checked={review.isPublished !== false}
                         onCheckedChange={(checked) => {
-                          updateStoredQrReview(review.id, { isPublished: checked });
-                          refresh();
+                          void patchBarberPortalQrReviewRemote({
+                            reviewId: review.id,
+                            isPublished: checked,
+                          }).then((res) => {
+                            if (!res.ok) {
+                              toast.error('تعذّر تحديث ظهور التقييم.');
+                              return;
+                            }
+                            void refresh();
+                          });
                         }}
                       />
                     </div>
@@ -1471,8 +1500,16 @@ function QrRatingsSection({
                         id={`hi-${review.id}`}
                         checked={!!review.isHighlighted}
                         onCheckedChange={(checked) => {
-                          updateStoredQrReview(review.id, { isHighlighted: checked });
-                          refresh();
+                          void patchBarberPortalQrReviewRemote({
+                            reviewId: review.id,
+                            isHighlighted: checked,
+                          }).then((res) => {
+                            if (!res.ok) {
+                              toast.error('تعذّر تحديث إبراز التقييم.');
+                              return;
+                            }
+                            void refresh();
+                          });
                         }}
                       />
                     </div>

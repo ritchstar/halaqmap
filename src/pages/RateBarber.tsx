@@ -12,7 +12,7 @@ import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import type { Barber } from '@/lib/index';
 import { mockBarbers } from '@/data/index';
 import { validateRatingInviteToken } from '@/lib/ratingInvite';
-import { appendQrReview, type StoredQrReview } from '@/lib/qrReviewsStorage';
+import { submitBarberQrReviewRemote } from '@/lib/barberQrReviewsRemote';
 import { RATING_QR_CUSTOMER_HINT } from '@/config/ratingQrInvite';
 import { PLATFORM_VOLUNTARY_ENGAGEMENT } from '@/config/platformVoluntaryEngagement';
 import { ShareEngagementModal } from '@/components/platformEngagement/PlatformEngagementModals';
@@ -184,30 +184,36 @@ function RateBarberInner() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!barber || !valid) return;
+    if (!barber || !valid || !token) return;
     const name = customerName.trim();
     if (name.length < 2) {
       toast.error('يرجى إدخال الاسم (حرفان على الأقل).');
       return;
     }
     setBusy(true);
-    const id = `qr-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    const row: StoredQrReview = {
-      id,
-      barberId: barber.id,
-      customerName: name,
-      rating,
-      comment: comment.trim(),
-      date: new Date().toISOString().slice(0, 10),
-      verified: true,
-      viaQrInvite: true,
-      isPublished: true,
-      isHighlighted: false,
-    };
-    appendQrReview(row);
-    setSubmitted(true);
-    setBusy(false);
-    toast.success('شكراً لتقييمك!');
+    void (async () => {
+      const result = await submitBarberQrReviewRemote({
+        barberId: barber.id,
+        token: String(token).trim(),
+        customerName: name,
+        rating,
+        comment: comment.trim(),
+      });
+      setBusy(false);
+      if (!result.ok) {
+        toast.error(
+          result.error === 'invalid_token'
+            ? 'رمز الدعوة غير صالح — اطلب رابطاً محدّثاً من الصالون.'
+            : result.error === 'tier_not_eligible'
+              ? 'هذه الباقة لا تتضمن تقييمات QR حالياً.'
+              : 'تعذّر حفظ التقييم. تحقق من الاتصال وحاول مرة أخرى.',
+        );
+        return;
+      }
+      setSubmitted(true);
+      toast.success('شكراً لتقييمك!');
+      window.dispatchEvent(new CustomEvent('halaqmap-qr-reviews'));
+    })();
   };
 
   if (phase === 'loading') {
