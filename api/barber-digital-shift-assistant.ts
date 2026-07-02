@@ -16,10 +16,21 @@ import {
   runSalonOperationalInsights,
 } from './_lib/digitalShiftSalonInsights.js';
 import { assessMarketStagnation } from './_lib/fleetDemandSignals.js';
+import { sanitizeBarberFacingCopyAr } from './_lib/barberFacingCopySanitize.js';
 import { DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR } from './_lib/subscriptionPricingCopy.js';
 import { ensureDigitalShiftAddonFromPaidOrders } from './_lib/listingLicenseService.js';
 
 export const config = { maxDuration: 60 };
+
+function sanitizeRecommendationRows<T extends { title?: string | null; body?: string | null }>(
+  rows: T[] | null | undefined,
+): T[] {
+  return (rows ?? []).map((row) => ({
+    ...row,
+    title: sanitizeBarberFacingCopyAr(String(row.title ?? '')),
+    body: sanitizeBarberFacingCopyAr(String(row.body ?? '')),
+  }));
+}
 
 const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
@@ -131,24 +142,25 @@ export async function POST(request: Request): Promise<Response> {
     const ctx = await loadDigitalShiftContext(supabase, barberId);
     if (!ctx) return Response.json({ error: 'Context unavailable' }, { status: 404, headers });
 
-    const [{ data: cfg }, { data: wallet }, { data: recs }] = await Promise.all([
+    const [{ data: cfg }, { data: wallet }] = await Promise.all([
       supabase
         .from('barber_digital_shift_config')
         .select('*')
         .eq('barber_id', barberId)
         .maybeSingle(),
       supabase.from('barber_ai_wallet').select('*').eq('barber_id', barberId).maybeSingle(),
-      supabase
-        .from('barber_ai_recommendations')
-        .select('*')
-        .eq('barber_id', barberId)
-        .eq('status', 'active')
-        .order('priority', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(40),
     ]);
 
-    void assessMarketStagnation(supabase, barberId, ctx);
+    await assessMarketStagnation(supabase, barberId, ctx);
+
+    const { data: recs } = await supabase
+      .from('barber_ai_recommendations')
+      .select('*')
+      .eq('barber_id', barberId)
+      .eq('status', 'active')
+      .order('priority', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(40);
 
     return Response.json(
       {
@@ -156,7 +168,7 @@ export async function POST(request: Request): Promise<Response> {
         context: ctx,
         config: cfg,
         wallet,
-        recommendations: recs ?? [],
+        recommendations: sanitizeRecommendationRows(recs),
       },
       { headers },
     );
@@ -195,7 +207,7 @@ export async function POST(request: Request): Promise<Response> {
       pulseSource: 'refresh',
     });
 
-    return Response.json({ ok: true, recommendations }, { headers });
+    return Response.json({ ok: true, recommendations: sanitizeRecommendationRows(recommendations) }, { headers });
   }
 
   if (action === 'dismiss_recommendation') {
@@ -333,7 +345,7 @@ export async function POST(request: Request): Promise<Response> {
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(20);
-    return Response.json({ ok: true, reports: reports ?? [] }, { headers });
+    return Response.json({ ok: true, reports: sanitizeRecommendationRows(reports) }, { headers });
   }
 
   // ◆ قراءة توجيهات الأسطول للمكتب الخاص
@@ -347,7 +359,7 @@ export async function POST(request: Request): Promise<Response> {
       .order('priority', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(15);
-    return Response.json({ ok: true, directives: fdRows ?? [] }, { headers });
+    return Response.json({ ok: true, directives: sanitizeRecommendationRows(fdRows) }, { headers });
   }
 
   return Response.json({ error: 'Unknown action' }, { status: 400, headers });

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DIGITAL_SHIFT_CATEGORY_LABELS, DIGITAL_SHIFT_RECOMMENDATIONS_TITLE } from '@/config/digitalShiftAssistant';
 import type { DigitalShiftRecommendation } from '@/lib/digitalShiftAssistantRemote';
+import { sanitizeBarberFacingCopyAr } from '@/lib/barberFacingCopySanitize';
 import { cn } from '@/lib/utils';
 import { Moon, Sparkles, Wallet, ImageIcon, Megaphone, MessageCircle, X } from 'lucide-react';
 
@@ -89,8 +90,12 @@ export function DigitalShiftRecommendationsTable({
                           <X className="h-3.5 w-3.5" />
                         </Button>
                       ) : null}
-                      <p className="pr-0 pl-8 text-sm font-semibold leading-snug">{rec.title}</p>
-                      <p className="mt-2 text-xs sm:text-sm leading-relaxed text-foreground/85">{rec.body}</p>
+                      <p className="pr-0 pl-8 text-sm font-semibold leading-snug">
+                        {sanitizeBarberFacingCopyAr(rec.title)}
+                      </p>
+                      <p className="mt-2 text-xs sm:text-sm leading-relaxed text-foreground/85">
+                        {sanitizeBarberFacingCopyAr(rec.body)}
+                      </p>
                     </motion.div>
                   ))}
                 </div>

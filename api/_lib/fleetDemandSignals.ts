@@ -4,6 +4,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DigitalShiftContext } from './digitalShiftAssistant.js';
 import { upsertRecommendation } from './digitalShiftAssistant.js';
+import {
+  MARKET_STAGNATION_RECOMMENDATION_BODY_AR,
+  MARKET_STAGNATION_RECOMMENDATION_TITLE_AR,
+} from './barberFacingCopySanitize.js';
 
 export type FleetDemandSignalType =
   | 'intercept_shop_closed'
@@ -193,12 +197,8 @@ export async function assessMarketStagnation(
       category: 'shift_chat',
       priority: 88,
       dedupeKey: 'market_stagnation_local',
-      title: '📉 حركة هادئة في حيّك — توصية تشغيلية من المناوب',
-      body:
-        'يا عمنا، الشات هادئ في الأيام الأخيرة — وهذا لا يعني انعدام الطلب في منطقتك. المنصة تواصل دعم ظهورك على الخريطة والبحث.\n\n' +
-        '• راجع البنر والمعرض وفعّل عرضاً موسمياً\n' +
-        '• تأكد أن المحل «مفتوح للزبائن» في لوحة التحكم\n' +
-        '• سجّلنا ملاحظة تشغيلية لدعم ظهورك في حيّك — دون وعود بعدد زبائن',
+      title: MARKET_STAGNATION_RECOMMENDATION_TITLE_AR,
+      body: MARKET_STAGNATION_RECOMMENDATION_BODY_AR,
       metadata: {
         conversations7d: convCount,
         daysSinceLastContact,

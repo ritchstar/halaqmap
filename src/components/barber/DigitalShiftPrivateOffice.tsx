@@ -36,7 +36,7 @@ import {
   type FleetDirective,
   type ShiftReport,
 } from '@/lib/digitalShiftAssistantRemote';
-import { BarberDashboardOutboundAnchor } from '@/components/barber/BarberDashboardOutboundLink';
+import { sanitizeBarberFacingCopyAr } from '@/lib/barberFacingCopySanitize';
 import { ROUTE_PATHS } from '@/lib/index';
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string; ts: string };
@@ -171,7 +171,7 @@ export function DigitalShiftPrivateOffice({
     return () => clearTimeout(timer);
   }, [barberId, barberEmail, instructions]);
 
-  // ◆ القناة السرية — تحميل توجيهات الأسطول
+  // تحميل توجيهات تشغيلية من المنصة
   useEffect(() => {
     void fleetDirectivesReadRemote({ barberId, email: barberEmail }).then(r => {
       if (r.ok && r.directives.length > 0) setFleetDirectives(r.directives);
@@ -484,10 +484,14 @@ export function DigitalShiftPrivateOffice({
                 {fleetDirectives.map(d => (
                   <div key={d.id} className="rounded-xl border border-purple-500/25 bg-purple-950/40 px-4 py-3">
                     <div className="mb-1 flex items-center justify-between">
-                      <p className="text-[0.6rem] font-black uppercase tracking-widest text-purple-400/70">{d.title}</p>
+                      <p className="text-[0.6rem] font-black uppercase tracking-widest text-purple-400/70">
+                        {sanitizeBarberFacingCopyAr(d.title)}
+                      </p>
                       <p className="text-[0.5rem] text-purple-500/40">{new Date(d.created_at).toLocaleDateString('ar-SA')}</p>
                     </div>
-                    <p className="text-[0.72rem] leading-relaxed text-purple-100/90" style={{ unicodeBidi: 'plaintext' }}>{d.body}</p>
+                    <p className="text-[0.72rem] leading-relaxed text-purple-100/90" style={{ unicodeBidi: 'plaintext' }}>
+                      {sanitizeBarberFacingCopyAr(d.body)}
+                    </p>
                   </div>
                 ))}
               </div>

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getBarberListingBalance } from './listingLicenseService.js';
+import { sanitizeBarberFacingCopyAr } from './barberFacingCopySanitize.js';
 import {
   detectClientLanguage,
   formatSupportedLanguagesForPrompt,
@@ -322,6 +323,8 @@ export async function upsertRecommendation(
     dedupeKey?: string;
   },
 ): Promise<void> {
+  const title = sanitizeBarberFacingCopyAr(row.title);
+  const body = sanitizeBarberFacingCopyAr(row.body);
   if (row.dedupeKey) {
     const { data: existing } = await supabase
       .from('barber_ai_recommendations')
@@ -334,8 +337,8 @@ export async function upsertRecommendation(
       await supabase
         .from('barber_ai_recommendations')
         .update({
-          title: row.title,
-          body: row.body,
+          title,
+          body,
           priority: row.priority,
           metadata: { ...(row.metadata ?? {}), dedupeKey: row.dedupeKey },
         })
@@ -347,8 +350,8 @@ export async function upsertRecommendation(
   await supabase.from('barber_ai_recommendations').insert({
     barber_id: row.barberId,
     category: row.category,
-    title: row.title,
-    body: row.body,
+    title,
+    body,
     priority: row.priority,
     metadata: row.dedupeKey ? { ...(row.metadata ?? {}), dedupeKey: row.dedupeKey } : (row.metadata ?? {}),
   });
