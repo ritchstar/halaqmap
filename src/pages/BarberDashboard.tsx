@@ -52,6 +52,7 @@ import {
 } from '@/components/ui/dialog';
 import QRCode from 'react-qr-code';
 import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib';
+import { cn } from '@/lib/utils';
 import { mockReviews } from '@/data/index';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
@@ -185,6 +186,20 @@ function subscriptionTierFromString(raw: string | null | undefined): Subscriptio
   if (v === SubscriptionTier.BRONZE) return SubscriptionTier.BRONZE;
   return null;
 }
+
+/** تبويبات لوحة الحلاق — إطارات واضحة لأنها أقسام حيوية وليست مجرد نصوص صغيرة */
+const DASHBOARD_VITAL_TAB_LIST = cn(
+  'grid h-auto w-full gap-2 rounded-2xl border-2 border-border/80 bg-muted/30 p-2',
+  'grid-cols-2 sm:grid-cols-3 sm:gap-2.5 sm:p-3 lg:flex lg:flex-wrap lg:justify-start',
+);
+
+const DASHBOARD_VITAL_TAB_TRIGGER = cn(
+  'inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-xl border-2 border-border/80 bg-card px-2.5 py-2.5',
+  'text-sm font-bold leading-tight text-foreground shadow-sm transition-all',
+  'hover:border-primary/45 hover:bg-accent/25 hover:shadow-md',
+  'data-[state=active]:border-primary data-[state=active]:bg-primary/12 data-[state=active]:text-foreground data-[state=active]:shadow-md',
+  'sm:min-h-[3rem] sm:px-3 sm:text-base lg:min-w-[9.5rem] lg:flex-1',
+);
 
 function buildTierAccountDeletionMailto(session: BarberPortalSession): string {
   const subject = encodeURIComponent(`طلب حذف حساب شريك — ${subscriptionTierLabelAr(session.subscription)}`);
@@ -938,11 +953,14 @@ export default function BarberDashboard({
         ) : null}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-lg border border-border/50 bg-muted/40 p-1 sm:gap-1.5">
+          <p className="text-sm font-medium text-muted-foreground sm:text-base">
+            اختر قسماً من التبويبات أدناه — كل إطار يفتح أدوات ومحتوى خاص به.
+          </p>
+          <TabsList className={DASHBOARD_VITAL_TAB_LIST}>
             {tierTabs.showMessages ? (
-              <TabsTrigger value="messages" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">شات العملاء</span>
+              <TabsTrigger value="messages" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <MessageSquare className="h-5 w-5 shrink-0" />
+                <span>شات العملاء</span>
                 {unreadCustomerMessages > 0 && (
                   <Badge variant="destructive" className="flex h-5 w-5 items-center justify-center p-0 text-xs">
                     {unreadCustomerMessages}
@@ -951,69 +969,75 @@ export default function BarberDashboard({
               </TabsTrigger>
             ) : null}
             {tierTabs.showAppointments ? (
-              <TabsTrigger value="appointments" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">المواعيد</span>
+              <TabsTrigger value="appointments" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <Calendar className="h-5 w-5 shrink-0" />
+                <span>المواعيد</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showDigitalShift ? (
-              <TabsTrigger value="digital-shift" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <Moon className="h-4 w-4" />
-                <span className="hidden sm:inline">المناوب الذكي</span>
+              <TabsTrigger value="digital-shift" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <Moon className="h-5 w-5 shrink-0" />
+                <span>المناوب الذكي</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showQrRatings ? (
-              <TabsTrigger value="qr-ratings" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <QrCode className="h-4 w-4" />
-                <span className="hidden sm:inline">QR والتقييمات</span>
+              <TabsTrigger value="qr-ratings" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <QrCode className="h-5 w-5 shrink-0" />
+                <span>QR والتقييمات</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showOverview ? (
-              <TabsTrigger value="overview" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">نظرة عامة</span>
+              <TabsTrigger value="overview" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <TrendingUp className="h-5 w-5 shrink-0" />
+                <span>نظرة عامة</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showChildrenSpecialistTab ? (
               <TabsTrigger
                 value="children-specialist"
-                className="gap-1.5 text-xs sm:gap-2 sm:text-sm data-[state=active]:bg-sky-500/15 data-[state=active]:text-sky-900 dark:data-[state=active]:text-sky-100"
+                className={cn(
+                  DASHBOARD_VITAL_TAB_TRIGGER,
+                  'data-[state=active]:border-sky-500 data-[state=active]:bg-sky-500/12 data-[state=active]:text-sky-950 dark:data-[state=active]:text-sky-100',
+                )}
               >
-                <ChildrenSpecialistIcon className="h-4 w-4 shrink-0" title={CHILDREN_SPECIALIST_DASHBOARD_TAB_AR} />
-                <span className="hidden sm:inline">{CHILDREN_SPECIALIST_DASHBOARD_TAB_AR}</span>
+                <ChildrenSpecialistIcon className="h-5 w-5 shrink-0" title={CHILDREN_SPECIALIST_DASHBOARD_TAB_AR} />
+                <span>{CHILDREN_SPECIALIST_DASHBOARD_TAB_AR}</span>
                 {childrenSpecialistActive ? (
-                  <span className="h-2 w-2 rounded-full bg-sky-400 shrink-0" aria-hidden />
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-sky-400" aria-hidden />
                 ) : null}
               </TabsTrigger>
             ) : null}
             {tierTabs.showMensGroomingCenterTab ? (
               <TabsTrigger
                 value="mens-grooming-center"
-                className="gap-1.5 text-xs sm:gap-2 sm:text-sm data-[state=active]:bg-amber-500/15 data-[state=active]:text-amber-950 dark:data-[state=active]:text-amber-100"
+                className={cn(
+                  DASHBOARD_VITAL_TAB_TRIGGER,
+                  'data-[state=active]:border-amber-500 data-[state=active]:bg-amber-500/12 data-[state=active]:text-amber-950 dark:data-[state=active]:text-amber-100',
+                )}
               >
-                <MensGroomingCenterIcon className="h-4 w-4 shrink-0" title={MENS_GROOMING_CENTER_DASHBOARD_TAB_AR} />
-                <span className="hidden sm:inline">{MENS_GROOMING_CENTER_DASHBOARD_TAB_AR}</span>
+                <MensGroomingCenterIcon className="h-5 w-5 shrink-0" title={MENS_GROOMING_CENTER_DASHBOARD_TAB_AR} />
+                <span>{MENS_GROOMING_CENTER_DASHBOARD_TAB_AR}</span>
                 {mensGroomingCenterActive ? (
-                  <span className="h-2 w-2 rounded-full bg-amber-400 shrink-0" aria-hidden />
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" aria-hidden />
                 ) : null}
               </TabsTrigger>
             ) : null}
             {tierTabs.showSettings ? (
-              <TabsTrigger value="settings" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">الإعدادات</span>
+              <TabsTrigger value="settings" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <Settings className="h-5 w-5 shrink-0" />
+                <span>الإعدادات</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showPosts ? (
-              <TabsTrigger value="posts" className="gap-1.5 text-xs sm:gap-2 sm:text-sm opacity-90">
-                <ImageIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">معرض الأعمال</span>
+              <TabsTrigger value="posts" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <ImageIcon className="h-5 w-5 shrink-0" />
+                <span>معرض الأعمال</span>
               </TabsTrigger>
             ) : null}
             {tierTabs.showQrRatings ? (
-              <TabsTrigger value="social-share" className="gap-1.5 text-xs sm:gap-2 sm:text-sm opacity-90">
-                <Share2 className="h-4 w-4" />
-                <span className="hidden sm:inline">مشاركة السوشيال</span>
+              <TabsTrigger value="social-share" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <Share2 className="h-5 w-5 shrink-0" />
+                <span>مشاركة السوشيال</span>
               </TabsTrigger>
             ) : null}
           </TabsList>
