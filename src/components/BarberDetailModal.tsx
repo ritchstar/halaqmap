@@ -29,6 +29,7 @@ import { ChildrenSpecialistDetailBanner } from '@/components/barber/ChildrenSpec
 import { MensGroomingCenterDetailBanner } from '@/components/barber/MensGroomingCenterCardChrome';
 import { isChildrenSpecialistBarber } from '@/lib/childrenSpecialistDisplay';
 import { isMensGroomingCenterBarber } from '@/lib/mensGroomingCenterDisplay';
+import { PlatformDisplayImage } from '@/components/platform/PlatformDisplayImage';
 import {
   BarberContactCtaButton,
   BarberContactRatingStars,
@@ -276,7 +277,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
             <div className="grid min-w-0 max-w-full grid-cols-2 gap-2 sm:grid-cols-4">
               {featuredPreview.map((src) => (
                 <div key={src} className="aspect-square overflow-hidden rounded-lg border border-border bg-muted">
-                  <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  <PlatformDisplayImage src={src} alt="" variant="gallery_tile" />
                 </div>
               ))}
             </div>
@@ -287,11 +288,11 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
               {carouselImages.map((image, index) => (
                 <CarouselItem key={`${image}-${index}`} className="basis-full pl-0">
                   <div className="relative aspect-video overflow-hidden rounded-lg">
-                    <img
+                    <PlatformDisplayImage
                       src={image}
                       alt={`${barber.name} - صورة ${index + 1}`}
-                      className="h-full w-full max-w-full object-cover"
-                      loading={index === 0 ? 'eager' : 'lazy'}
+                      variant="gallery_carousel"
+                      priority={index === 0}
                     />
                   </div>
                 </CarouselItem>

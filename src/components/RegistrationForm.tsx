@@ -89,6 +89,10 @@ import { toast } from '@/components/ui/sonner';
 import { useBarberBannerImagePicker } from '@/hooks/useBarberBannerImagePicker';
 import { BARBER_BANNER_MAX_FILE_BYTES } from '@/config/barberBannerImagePolicy';
 import {
+  optimizeImageFileForShopProfile,
+  shopProfileRawFileTooLargeMessage,
+} from '@/lib/barberBannerImageOptimization';
+import {
   createInitialWorkingWeekForm,
   workingWeekFormToPayload,
   type WorkingWeekFormRow,
@@ -295,6 +299,7 @@ export function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const bannerPicker = useBarberBannerImagePicker();
+  const [shopImageProcessing, setShopImageProcessing] = useState(false);
 
   // قراءة المعاملات من URL لضبط الحزمة المُختارة مسبقاً
   const urlParams = new URLSearchParams(location.search);
@@ -508,7 +513,14 @@ export function RegistrationForm() {
     setter: (file: File | null) => void,
     label: string,
   ) => {
-    const r = await bannerPicker.processBannerFile(raw);
+    const rawMsg = shopProfileRawFileTooLargeMessage(raw);
+    if (rawMsg) {
+      toast.error(rawMsg);
+      return;
+    }
+    setShopImageProcessing(true);
+    const r = await optimizeImageFileForShopProfile(raw);
+    setShopImageProcessing(false);
     if (!r.ok) {
       toast.error(r.error);
       return;
@@ -1570,7 +1582,7 @@ export function RegistrationForm() {
                       id="shop-exterior"
                       type="file"
                       accept="image/*"
-                      disabled={bannerPicker.processing}
+                      disabled={shopImageProcessing || bannerPicker.processing}
                       onChange={(e) => {
                         const raw = e.target.files?.[0] ?? null;
                         e.target.value = '';
@@ -1600,7 +1612,7 @@ export function RegistrationForm() {
                       id="shop-interior"
                       type="file"
                       accept="image/*"
-                      disabled={bannerPicker.processing}
+                      disabled={shopImageProcessing || bannerPicker.processing}
                       onChange={(e) => {
                         const raw = e.target.files?.[0] ?? null;
                         e.target.value = '';
@@ -1643,7 +1655,7 @@ export function RegistrationForm() {
                           id={`banner-slot-${slot}`}
                           type="file"
                           accept="image/*"
-                          disabled={bannerPicker.processing}
+                          disabled={shopImageProcessing || bannerPicker.processing}
                           onChange={(e) => {
                             const raw = e.target.files?.[0] ?? null;
                             e.target.value = '';

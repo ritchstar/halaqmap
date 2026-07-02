@@ -1,4 +1,4 @@
-/** حد رفع صور بنر الحلاق بعد المعالجة (JPEG محسّن) — يمنع تجاوز الاستخدام العادل للتخزين */
+/** حد رفع صور بنر الحلاق بعد المعالجة — WebP عند الدعم، وإلا JPEG */
 export const BARBER_BANNER_MAX_FILE_BYTES = 500 * 1024;
 
 /** أبعاد عرض البطاقة/البنر على المنصة — تصغير ذكي مع الحفاظ على النسبة */
@@ -18,7 +18,7 @@ export const BARBER_CARD_HERO_FRAME_BRONZE_CLASS =
 export const BARBER_CARD_HERO_IMAGE_CLASS =
   'block h-full w-full max-w-full object-cover object-center';
 
-/** صيغة الإخراج المفضّة للويب */
+/** صيغة الإخراج الاحتياطية عند عدم دعم WebP */
 export const BARBER_BANNER_OUTPUT_MIME = 'image/jpeg' as const;
 export const BARBER_BANNER_OUTPUT_EXT = '.jpg';
 

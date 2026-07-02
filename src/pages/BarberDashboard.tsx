@@ -2197,7 +2197,12 @@ function PostsSection({
     }
 
     setUploadingGallery(true);
-    const opt = await optimizeImageFileForBarberPortfolio(file);
+    const isFirstGalleryImage =
+      countGalleryImagesAcrossPosts(posts) === 0 && gallerySlots.length === 0;
+    const opt = await optimizeImageFileForBarberPortfolio(
+      file,
+      isFirstGalleryImage ? 'featured_banner' : 'gallery',
+    );
     setUploadingGallery(false);
     if (!opt.ok) {
       toast.error(opt.error);

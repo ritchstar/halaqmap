@@ -37,6 +37,7 @@ import { ShowcasePreviewCardBadge } from "@/components/ShowcaseEducationBanner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PlatformDisplayImage } from '@/components/platform/PlatformDisplayImage';
 
 interface BarberCardProps {
   barber: Barber;
@@ -212,9 +213,10 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
         >
           <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-muted/25 border-border hover:shadow-lg transition-all duration-200', specialistRing, specialistSurface)}>
             <div className={BARBER_CARD_HERO_FRAME_BRONZE_CLASS}>
-              <img
+              <PlatformDisplayImage
                 src={barber.images[0]}
                 alt={barber.name}
+                variant="banner_card"
                 className={BARBER_CARD_HERO_IMAGE_CLASS}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
@@ -338,10 +340,10 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             <div className="grid grid-cols-4 gap-2 mb-4">
               {barber.images.slice(0, 4).map((img, idx) => (
                 <div key={idx} className="aspect-square rounded-lg overflow-hidden">
-                  <img
+                  <PlatformDisplayImage
                     src={img}
                     alt={`${barber.name} ${idx + 1}`}
-                    className="w-full h-full object-cover"
+                    variant="gallery_tile"
                   />
                 </div>
               ))}
@@ -379,9 +381,10 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
       >
         <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-accent/5 border-accent/25 shadow-md hover:shadow-xl hover:shadow-accent/10 transition-all duration-200 ring-1 ring-accent/20', specialistRing, specialistSurface)}>
           <div className={BARBER_CARD_HERO_FRAME_GOLD_CLASS}>
-            <img
+            <PlatformDisplayImage
               src={barber.images[0]}
               alt={barber.name}
+              variant="banner_card"
               className={BARBER_CARD_HERO_IMAGE_CLASS}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
@@ -481,9 +484,10 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
     >
       <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-accent/5 to-accent/10 border-accent/30 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-200 ring-2 ring-accent/20', showcaseCardRing, specialistRing, specialistSurface)}>
         <div className={BARBER_CARD_HERO_FRAME_DIAMOND_CLASS}>
-          <img
+          <PlatformDisplayImage
             src={barber.images[0]}
             alt={barber.name}
+            variant="banner_card"
             className={BARBER_CARD_HERO_IMAGE_CLASS}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent" />

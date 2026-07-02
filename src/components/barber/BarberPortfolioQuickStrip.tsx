@@ -128,7 +128,11 @@ export function BarberPortfolioQuickStrip({
     }
 
     setUploading(true);
-    const opt = await optimizeImageFileForBarberPortfolio(file);
+    const isFirstGalleryImage = urls.length === 0;
+    const opt = await optimizeImageFileForBarberPortfolio(
+      file,
+      isFirstGalleryImage ? 'featured_banner' : 'gallery',
+    );
     if (!opt.ok) {
       setUploading(false);
       toast.error(opt.error);

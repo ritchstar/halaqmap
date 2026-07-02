@@ -1,29 +1,14 @@
 import { IMAGES } from '@/assets/images';
+import { browserSupportsWebpExport } from '@/lib/imageCanvasCore';
+import {
+  optimizeImageToBase64ForPlatformVariant,
+  platformRawFileTooLargeMessage,
+} from '@/lib/platformImageTransform';
 
 /** هدف تقريبي لحجم كل صورة في معرض الأعمال بعد الضغط (WebP). */
 export const PORTFOLIO_TARGET_MAX_BYTES = 100 * 1024;
 
-/** شفافية الختم الذكي (معرض الأعمال فقط) — بين 30% و50% */
 const PORTFOLIO_WATERMARK_OPACITY = 0.4;
-
-const MAX_EDGE_FIRST = 1600;
-const MIN_EDGE = 480;
-
-function loadImageFromFile(file: File): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve(img);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('تعذر قراءة ملف الصورة'));
-    };
-    img.src = url;
-  });
-}
 
 function loadImageFromUrl(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -37,7 +22,6 @@ function loadImageFromUrl(src: string): Promise<HTMLImageElement> {
 
 let watermarkLogoPromise: Promise<HTMLImageElement | null> | null = null;
 
-/** شعار المنصة من الأصول المحلية — يُحمّل مرة واحدة لكل جلسة المتصفح. */
 function getPortfolioWatermarkLogo(): Promise<HTMLImageElement | null> {
   if (typeof window === 'undefined') return Promise.resolve(null);
   if (!watermarkLogoPromise) {
@@ -54,7 +38,7 @@ function drawPortfolioWatermark(
   ctx: CanvasRenderingContext2D,
   dw: number,
   dh: number,
-  logo: HTMLImageElement | null
+  logo: HTMLImageElement | null,
 ): void {
   const pad = Math.max(10, Math.round(Math.min(dw, dh) * 0.022));
   const minDim = Math.min(dw, dh);
@@ -96,117 +80,39 @@ function drawPortfolioWatermark(
   ctx.restore();
 }
 
-function canvasToWebpBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob | null> {
-  return new Promise((resolve) => {
-    canvas.toBlob((b) => resolve(b), 'image/webp', quality);
-  });
-}
-
-function computeDrawSize(
-  naturalWidth: number,
-  naturalHeight: number,
-  maxW: number,
-  maxH: number
-): { dw: number; dh: number } {
-  const r = Math.min(maxW / naturalWidth, maxH / naturalHeight, 1);
-  return {
-    dw: Math.max(1, Math.round(naturalWidth * r)),
-    dh: Math.max(1, Math.round(naturalHeight * r)),
-  };
-}
-
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => {
-      const s = String(r.result ?? '');
-      const i = s.indexOf(',');
-      resolve(i >= 0 ? s.slice(i + 1) : s);
-    };
-    r.onerror = () => reject(new Error('read'));
-    r.readAsDataURL(blob);
-  });
-}
+export type BarberPortfolioOptimizeMode = 'gallery' | 'featured_banner';
 
 /**
- * ضغط وتصغير صورة لمعرض الأعمال — ختم «حلاق ماب» محلي في الزاوية السفلية ثم WebP ~100KB.
- * لا يُستخدم لبنر الخريطة (مسار آخر).
+ * ضغط صورة معرض الأعمال — WebP مع ختم المنصة.
+ * `featured_banner`: قص 5:2 ليتوافق مع بنر البطاقة العامة.
  */
 export async function optimizeImageFileForBarberPortfolio(
-  file: File
+  file: File,
+  mode: BarberPortfolioOptimizeMode = 'gallery',
 ): Promise<{ ok: true; imageBase64: string; mimeType: 'image/webp' } | { ok: false; error: string }> {
-  if (!file.type.startsWith('image/')) {
-    return { ok: false, error: 'الملف ليس صورةً (PNG أو JPEG أو WebP).' };
-  }
-
-  let img: HTMLImageElement;
-  try {
-    img = await loadImageFromFile(file);
-  } catch {
-    return { ok: false, error: 'تعذر تحميل الصورة. جرّب ملفاً آخر.' };
+  if (!browserSupportsWebpExport()) {
+    return {
+      ok: false,
+      error: 'المتصفح لا يدعم تصدير WebP. حدّث المتصفح أو جرّب جهازاً آخر.',
+    };
   }
 
   const logo = await getPortfolioWatermarkLogo();
+  const variant = mode === 'featured_banner' ? 'gallery_banner' : 'gallery_watermarked';
+  const result = await optimizeImageToBase64ForPlatformVariant(file, variant, {
+    fileNameFallback: mode === 'featured_banner' ? 'banner' : 'gallery',
+    afterDraw: (ctx, dw, dh) => {
+      drawPortfolioWatermark(ctx, dw, dh, logo);
+    },
+  });
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    return { ok: false, error: 'المتصفح لا يدعم معالجة الصور في هذه البيئة.' };
+  if (!result.ok) return result;
+  if (result.mimeType !== 'image/webp') {
+    return { ok: false, error: 'تعذر تصدير WebP لمعرض الأعمال.' };
   }
-
-  let maxW = MAX_EDGE_FIRST;
-  let maxH = MAX_EDGE_FIRST;
-  let { dw, dh } = computeDrawSize(img.naturalWidth, img.naturalHeight, maxW, maxH);
-
-  for (let attempt = 0; attempt < 10; attempt++) {
-    canvas.width = dw;
-    canvas.height = dh;
-    ctx.clearRect(0, 0, dw, dh);
-    ctx.drawImage(img, 0, 0, dw, dh);
-    drawPortfolioWatermark(ctx, dw, dh, logo);
-
-    let quality = 0.82;
-    let best: Blob | null = null;
-    for (let qStep = 0; qStep < 16; qStep++) {
-      const blob = await canvasToWebpBlob(canvas, quality);
-      if (!blob) {
-        return {
-          ok: false,
-          error: 'تعذر تصدير WebP. جرّب متصفحاً أحدث أو صورة بصيغة مختلفة.',
-        };
-      }
-      if (blob.size <= PORTFOLIO_TARGET_MAX_BYTES) {
-        best = blob;
-        break;
-      }
-      best = blob;
-      quality -= 0.055;
-      if (quality < 0.38) break;
-    }
-
-    if (best && best.size <= PORTFOLIO_TARGET_MAX_BYTES) {
-      const b64 = await blobToBase64(best);
-      return { ok: true, imageBase64: b64, mimeType: 'image/webp' };
-    }
-
-    maxW = Math.max(MIN_EDGE, Math.round(maxW * 0.88));
-    maxH = Math.max(MIN_EDGE, Math.round(maxH * 0.88));
-    const next = computeDrawSize(img.naturalWidth, img.naturalHeight, maxW, maxH);
-    dw = next.dw;
-    dh = next.dh;
-  }
-
-  return {
-    ok: false,
-    error:
-      'تعذر ضغط الصورة لتقترب من 100 كيلوبايت مع الحفاظ على وضوح معقول. جرّب صورةً أبسط أو أصغر.',
-  };
+  return { ok: true, imageBase64: result.imageBase64, mimeType: 'image/webp' };
 }
 
 export function portfolioRawFileTooLargeMessage(file: File): string | null {
-  const rawCap = 15 * 1024 * 1024;
-  if (file.size > rawCap) {
-    return `حجم الملف كبير جداً (${(file.size / (1024 * 1024)).toFixed(1)} ميجابايت). اختر صورة أصغر من 15 ميجابايت.`;
-  }
-  return null;
+  return platformRawFileTooLargeMessage(file, 15);
 }
