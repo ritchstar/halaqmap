@@ -8,6 +8,7 @@ import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooter
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
+import { PlatformSecurityIncidentStrip } from '@/components/PlatformSecurityIncidentStrip';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 
 const MOMENTUM_STRIPS = [
@@ -157,6 +158,7 @@ export default function PartnerSalesOfficePage() {
       className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#fffdf8_0%,#f7fbff_42%,#f6faf8_100%)] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] text-slate-900"
     >
       <div className="sticky top-0 z-[60]">
+        <PlatformSecurityIncidentStrip />
         <PartnerOrderReceptionTicker surface="partner-light" />
         <PartnerPlatformInspectionTicker surface="partner-light" />
       </div>
