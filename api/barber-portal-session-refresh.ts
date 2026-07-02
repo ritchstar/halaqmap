@@ -7,7 +7,6 @@ import { buildHomeServiceSnapshotFromBarberRow } from './_lib/homeServiceBarberS
 import { buildGroomPrepSnapshotFromBarberRow } from './_lib/groomPrepBarberSnapshot.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import {
-  assertBarberPortalSessionFromRequest,
   getBarberPortalSessionSecret,
   mintBarberPortalSessionToken,
 } from './_lib/barberPortalAuth.js';
@@ -104,14 +103,30 @@ export async function POST(request: Request): Promise<Response> {
   if (!barberId || !rawEmail) {
     return Response.json({ error: 'Missing barberId or email' }, { status: 400, headers });
   }
-  const authGate = assertBarberPortalSessionFromRequest(request, barberId, rawEmail);
-  if (!authGate.ok) {
-    return Response.json({ error: authGate.message }, { status: authGate.status, headers });
-  }
 
   const supabase = createClient(url, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  const { data: authRow, error: authErr } = await supabase
+    .from('barbers')
+    .select('id, email, is_active')
+    .eq('id', barberId)
+    .maybeSingle();
+
+  if (authErr || !authRow) {
+    return Response.json({ error: 'Barber not found' }, { status: 404, headers });
+  }
+
+  const emailNorm = rawEmail.trim().toLowerCase();
+  const rowEmail = String(authRow.email ?? '').trim().toLowerCase();
+  if (!rowEmail || rowEmail !== emailNorm) {
+    return Response.json({ error: 'Email does not match this barber account' }, { status: 403, headers });
+  }
+
+  if (authRow.is_active === false) {
+    return Response.json({ error: 'Account is not active' }, { status: 403, headers });
+  }
 
   const selectCols =
     'id, name, email, phone, tier, rating_invite_token, member_number, is_active, open_for_customers, open_status_token, specialties, children_specialist, mens_grooming_center, grooming_center_banner_lines, inclusive_care_offered, inclusive_care_price_sar, inclusive_care_public_visible, inclusive_care_restrict_days, inclusive_care_days, inclusive_care_customer_note, home_service_offered, home_service_price_sar, home_service_radius_km, home_service_public_visible, home_service_customer_note, groom_prep_offered, groom_prep_price_sar, groom_prep_public_visible, groom_prep_customer_note';

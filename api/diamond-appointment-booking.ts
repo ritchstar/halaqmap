@@ -1,11 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
-import {
-  extractBarberPortalSessionToken,
-  getBarberPortalSessionSecret,
-  verifyBarberPortalSessionToken,
-} from './_lib/barberPortalAuth.js';
+import { resolveBarberPortalBookingActor } from './_lib/barberPortalBookingAuth.js';
 import {
   assertBarberPortalDiamondScheduling,
   createDiamondAppointmentRequest,
@@ -102,38 +98,22 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  const sessionSecret = getBarberPortalSessionSecret();
-  if (!sessionSecret) {
-    return Response.json({ error: 'الخدمة غير مهيّأة.' }, { status: 503, headers });
+  const actor = await resolveBarberPortalBookingActor(request, body as { barberId?: unknown; email?: unknown }, supabase);
+  if (!actor.ok) {
+    const message =
+      actor.status === 401 || actor.status === 403
+        ? 'جلسة غير صالحة. أعد تسجيل الدخول من لوحة التحكم.'
+        : actor.error;
+    return Response.json({ error: message }, { status: actor.status, headers });
   }
 
-  const sessionToken = extractBarberPortalSessionToken(request);
-  const verified = verifyBarberPortalSessionToken(sessionToken, sessionSecret);
-  if (!verified.ok) {
-    return Response.json({ error: 'جلسة غير صالحة. سجّل الدخول من لوحة التحكم.' }, { status: 401, headers });
-  }
-
-  const { data: barber, error: barberErr } = await supabase
-    .from('barbers')
-    .select('id, tier, is_active')
-    .eq('id', verified.barberId)
-    .maybeSingle();
-
-  if (barberErr || !barber) {
-    return Response.json({ error: 'الحساب غير موجود.' }, { status: 404, headers });
-  }
-
-  if (barber.is_active === false) {
-    return Response.json({ error: 'الحساب غير مفعّل.' }, { status: 409, headers });
-  }
-
-  const diamondAccess = await assertBarberPortalDiamondScheduling(supabase, verified.barberId);
+  const diamondAccess = await assertBarberPortalDiamondScheduling(supabase, actor.barberId);
   if (!diamondAccess.ok) {
     return Response.json({ error: diamondAccess.error }, { status: diamondAccess.status, headers });
   }
 
   if (action === 'list') {
-    const result = await listBarberBookings(supabase, verified.barberId);
+    const result = await listBarberBookings(supabase, actor.barberId);
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
@@ -147,7 +127,7 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: 'Invalid status' }, { status: 400, headers });
     }
     const result = await updateBarberBookingStatus(supabase, {
-      barberId: verified.barberId,
+      barberId: actor.barberId,
       bookingId,
       status,
     });

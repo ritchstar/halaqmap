@@ -1,4 +1,5 @@
 import type { BarberDashboardScheduleItem } from '@/lib/barberDashboardLocalState';
+import { readBarberAuthSession } from '@/lib/barberPortalSession';
 
 const DEFAULT_ENDPOINT = '/api/diamond-appointment-booking';
 
@@ -26,6 +27,14 @@ function publicHeaders(): Record<string, string> {
   if (anonKey) headers['x-supabase-anon'] = anonKey;
   if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
   return headers;
+}
+
+function barberPortalCredentials(): { barberId: string; email: string } | null {
+  const session = readBarberAuthSession();
+  const barberId = String(session?.id ?? '').trim();
+  const email = String(session?.email ?? '').trim();
+  if (!barberId || !email.includes('@')) return null;
+  return { barberId, email };
 }
 
 function barberHeaders(): Record<string, string> {
@@ -150,7 +159,14 @@ export async function createDiamondAppointmentBookingRemote(input: {
 export async function listBarberBookingsRemote(): Promise<
   { ok: true; items: BarberDashboardScheduleItem[] } | { ok: false; error: string }
 > {
-  const res = await postJson<{ bookings?: RemoteBookingRow[] }>({ action: 'list' }, 'barber');
+  const creds = barberPortalCredentials();
+  if (!creds) {
+    return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول ثم حدّث الحجوزات.' };
+  }
+  const res = await postJson<{ bookings?: RemoteBookingRow[] }>(
+    { action: 'list', barberId: creds.barberId, email: creds.email },
+    'barber',
+  );
   if (!res.ok) return res;
   const rows = Array.isArray(res.json.bookings) ? res.json.bookings : [];
   return { ok: true, items: rows.map(mapRemoteBookingToScheduleItem) };
@@ -160,9 +176,15 @@ export async function updateBarberBookingStatusRemote(
   bookingId: string,
   status: 'confirmed' | 'cancelled' | 'completed',
 ): Promise<{ ok: true; item: BarberDashboardScheduleItem } | { ok: false; error: string }> {
+  const creds = barberPortalCredentials();
+  if (!creds) {
+    return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول ثم حدّث الحجوزات.' };
+  }
   const res = await postJson<{ booking?: RemoteBookingRow }>(
     {
       action: 'update_status',
+      barberId: creds.barberId,
+      email: creds.email,
       bookingId: bookingId.trim(),
       status,
     },

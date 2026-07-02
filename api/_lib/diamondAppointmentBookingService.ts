@@ -27,26 +27,92 @@ export type BookingRow = {
 
 export type BookingStatus = BookingRow['status'];
 
-function resolveAnonKey(): string {
-  return (
-    process.env.SUPABASE_ANON_KEY ||
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    ''
-  ).trim();
-}
-
 function resolveSupabaseUrl(): string {
   return (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
 }
 
-function createAnonClient(): SupabaseClient | null {
-  const url = resolveSupabaseUrl();
-  const anonKey = resolveAnonKey();
-  if (!url || !anonKey) return null;
-  return createClient(url, anonKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+function parseBookingTimestamp(dateIso: string, timeRaw: string): number | null {
+  const m = /^(\d{2}):(\d{2})/.exec(String(timeRaw).trim());
+  if (!m) return null;
+  const t = new Date(`${dateIso}T${m[1]}:${m[2]}:00`);
+  return Number.isFinite(t.getTime()) ? t.getTime() : null;
+}
+
+async function bookingSlotOverlaps(
+  service: SupabaseClient,
+  barberId: string,
+  bookingDate: string,
+  bookingTime: string,
+  durationMinutes: number,
+): Promise<boolean> {
+  const newStart = parseBookingTimestamp(bookingDate, bookingTime);
+  if (newStart == null) return true;
+  const newEnd = newStart + durationMinutes * 60_000;
+
+  const { data: rows, error } = await service
+    .from('bookings')
+    .select('booking_time, duration_minutes')
+    .eq('barber_id', barberId)
+    .eq('booking_date', bookingDate)
+    .in('status', ['pending', 'confirmed']);
+
+  if (error || !rows?.length) return false;
+
+  for (const row of rows) {
+    const existingStart = parseBookingTimestamp(bookingDate, String(row.booking_time ?? ''));
+    if (existingStart == null) continue;
+    const existingDur = Number(row.duration_minutes ?? 30);
+    const existingEnd = existingStart + (Number.isFinite(existingDur) ? existingDur : 30) * 60_000;
+    if (newStart < existingEnd && existingStart < newEnd) return true;
+  }
+  return false;
+}
+
+async function insertDiamondBookingViaService(
+  service: SupabaseClient,
+  input: {
+    barberRowId: string;
+    bookingDate: string;
+    bookingTime: string;
+    customerPhone: string;
+    durationMinutes: number;
+  },
+): Promise<{ ok: true; booking: BookingRow } | { ok: false; error: string; status: number }> {
+  const overlaps = await bookingSlotOverlaps(
+    service,
+    input.barberRowId,
+    input.bookingDate,
+    input.bookingTime,
+    input.durationMinutes,
+  );
+  if (overlaps) {
+    return { ok: false, error: 'slot overlaps existing booking', status: 409 };
+  }
+
+  const { data: row, error } = await service
+    .from('bookings')
+    .insert({
+      barber_id: input.barberRowId,
+      customer_id: null,
+      customer_name: 'عميل حلاق ماب',
+      customer_phone: input.customerPhone,
+      customer_email: null,
+      service_name: 'طلب موعد — باقة ماسية',
+      service_price: null,
+      booking_date: input.bookingDate,
+      booking_time: input.bookingTime,
+      duration_minutes: input.durationMinutes,
+      status: 'pending',
+      notes: 'طلب موعد من واجهة الزائر (ماسي)',
+    })
+    .select('*')
+    .maybeSingle();
+
+  if (error || !row) {
+    return { ok: false, error: error?.message || 'Booking create failed', status: 500 };
+  }
+
+  return { ok: true, booking: row as BookingRow };
 }
 
 function normalizeBookingTime(raw: string): string | null {
@@ -162,65 +228,16 @@ export async function createDiamondAppointmentRequest(input: {
   const barber = await resolveDiamondBarberForBooking(service, barberId);
   if (!barber.ok) return barber;
 
-  const anon = createAnonClient();
-  if (!anon) {
-    return { ok: false, error: 'Booking client not configured', status: 503 };
-  }
-
-  const { data: bookingId, error: rpcErr } = await anon.rpc('create_booking_safe', {
-    p_barber_id: barber.barberRowId,
-    p_customer_name: 'عميل حلاق ماب',
-    p_customer_phone: phone,
-    p_service_name: 'طلب موعد — باقة ماسية',
-    p_booking_date: bookingDate,
-    p_booking_time: bookingTime,
-    p_customer_email: null,
-    p_service_price: null,
-    p_duration_minutes: durationMinutes,
-    p_notes: 'طلب موعد من واجهة الزائر (ماسي)',
+  const inserted = await insertDiamondBookingViaService(service, {
+    barberRowId: barber.barberRowId,
+    bookingDate,
+    bookingTime,
+    customerPhone: phone,
+    durationMinutes,
   });
+  if (!inserted.ok) return inserted;
 
-  if (rpcErr) {
-    const msg = String(rpcErr.message || rpcErr.code || 'booking_failed');
-    if (msg.includes('slot overlaps')) {
-      return { ok: false, error: 'slot overlaps existing booking', status: 409 };
-    }
-    return { ok: false, error: msg, status: 400 };
-  }
-
-  const id = String(bookingId ?? '').trim();
-  if (!UUID_RE.test(id)) {
-    return { ok: false, error: 'Booking create failed', status: 500 };
-  }
-
-  const { data: row, error: readErr } = await service
-    .from('bookings')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
-
-  if (readErr || !row) {
-    return { ok: true, bookingId: id, booking: {
-      id,
-      barber_id: barber.barberRowId,
-      customer_id: null,
-      customer_name: 'عميل حلاق ماب',
-      customer_phone: phone,
-      customer_email: null,
-      service_name: 'طلب موعد — باقة ماسية',
-      service_price: null,
-      booking_date: bookingDate,
-      booking_time: bookingTime,
-      duration_minutes: durationMinutes,
-      status: 'pending',
-      notes: 'طلب موعد من واجهة الزائر (ماسي)',
-      cancellation_reason: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    } };
-  }
-
-  return { ok: true, bookingId: id, booking: row as BookingRow };
+  return { ok: true, bookingId: inserted.booking.id, booking: inserted.booking };
 }
 
 export async function listBarberBookings(

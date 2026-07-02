@@ -457,6 +457,8 @@ export default function BarberDashboard({
         prev.memberNumber === merged.memberNumber &&
         prev.openForCustomers === merged.openForCustomers &&
         prev.openStatusToken === merged.openStatusToken &&
+        prev.barberSessionToken === merged.barberSessionToken &&
+        prev.salonRole === merged.salonRole &&
         JSON.stringify(prev.inclusiveCare ?? null) === JSON.stringify(merged.inclusiveCare ?? null) &&
         JSON.stringify(prev.childrenServices ?? null) === JSON.stringify(merged.childrenServices ?? null) &&
         JSON.stringify(prev.mensGroomingCenter ?? null) === JSON.stringify(merged.mensGroomingCenter ?? null) &&
