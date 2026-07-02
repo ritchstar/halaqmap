@@ -5,12 +5,10 @@ import { FilterBar } from '@/components/FilterBar';
 import { BarberMap } from '@/components/BarberMap';
 import { BarberCard } from '@/components/BarberCards';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
+import { VisitorMobileQueryLens } from '@/components/landing/VisitorMobileQueryLens';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  detectVisitorServiceIntent,
-  VISITOR_SERVICE_INTENTS,
-} from '@/lib/visitorServiceIntents';
+import { cn } from '@/lib/utils';
 
 type Props = {
   userLocation: { lat: number; lng: number };
@@ -38,24 +36,21 @@ export function LandingSearchResults({
   onSelectBarber,
 }: Props) {
   const isMobile = useIsMobile();
-  const activeIntentId = detectVisitorServiceIntent(filters);
-  const activeIntentLabel = VISITOR_SERVICE_INTENTS.find((i) => i.id === activeIntentId)?.shortLabel;
 
   return (
     <>
-      {!isMobile ? (
-      <div className="mx-auto max-w-7xl px-5 py-4">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <FilterBar filters={filters} onFilterChange={onFilterChange} />
+      <div className={cn('mx-auto max-w-7xl px-4 py-3 md:px-5 md:py-4', isMobile ? 'space-y-3' : undefined)}>
+        {isMobile ? (
+          <VisitorMobileQueryLens
+            filters={filters}
+            hasLocation
+            onIntentChange={(next) => onFilterChange(next)}
+          />
+        ) : null}
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-3 md:p-4">
+          <FilterBar filters={filters} onFilterChange={onFilterChange} defaultExpanded={isMobile} />
         </div>
       </div>
-      ) : activeIntentLabel ? (
-        <div className="mx-auto max-w-7xl px-5 pt-3">
-          <p className="text-center text-[0.68rem] font-semibold text-teal-300/90">
-            استعلامك: {activeIntentLabel}
-          </p>
-        </div>
-      ) : null}
 
       <div className="mx-auto max-w-7xl px-5 pb-4">
         <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-teal-500/5">

@@ -3,7 +3,7 @@
  * تصميم تكتيكي داكن يتناسق مع نظام الاستجابة الذكية
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCcw, Star, SlidersHorizontal, ChevronDown, MapPin, Clock, Crown } from 'lucide-react';
 import { FilterState, SubscriptionTier } from '@/lib/index';
@@ -15,6 +15,8 @@ import { MENS_GROOMING_CENTER_FILTER_LABEL_AR } from '@/lib/mensGroomingCenterDi
 interface FilterBarProps {
   filters: FilterState;
   onFilterChange: (filters: FilterState) => void;
+  /** على الجوال: افتح الفلاتر الفرعية (المسافة والباقات) مباشرة */
+  defaultExpanded?: boolean;
 }
 
 // ── Tier config ────────────────────────────────────────────────────────────────
@@ -64,8 +66,12 @@ function Pill({
 }
 
 // ── Main FilterBar ─────────────────────────────────────────────────────────────
-export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
-  const [expanded, setExpanded] = useState(false);
+export function FilterBar({ filters, onFilterChange, defaultExpanded = false }: FilterBarProps) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  useEffect(() => {
+    if (defaultExpanded) setExpanded(true);
+  }, [defaultExpanded]);
 
   const handleReset = () => {
     onFilterChange({ maxDistance: 1, tiers: [], openNow: true, minRating: 0, categories: [], childrenSpecialistOnly: false, mensGroomingCenterOnly: false });
@@ -171,6 +177,26 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
             {c} ×
           </button>
         ))}
+
+        {/* مسافة سريعة — ظاهرة دائماً على الجوال */}
+        {defaultExpanded ? (
+          <label className="flex items-center gap-1.5 rounded-full border border-teal-400/35 bg-teal-500/10 px-2.5 py-1.5 text-[0.7rem] font-semibold text-teal-100">
+            <MapPin className="h-3 w-3 shrink-0" />
+            <span className="text-slate-400">حتى</span>
+            <select
+              value={filters.maxDistance}
+              onChange={(e) => onFilterChange({ ...filters, maxDistance: Number(e.target.value) })}
+              className="max-w-[4.5rem] rounded-full bg-transparent text-teal-200 outline-none"
+              aria-label="نطاق البحث بالكيلومتر"
+            >
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((km) => (
+                <option key={km} value={km} className="bg-[#0a1628] text-white">
+                  {km} كم
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
       </div>
 
       {/* ── Expanded filters ────────────────────────────── */}
