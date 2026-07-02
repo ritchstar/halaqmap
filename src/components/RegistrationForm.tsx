@@ -503,6 +503,22 @@ export function RegistrationForm() {
     }));
   };
 
+  const processShopImageFile = async (
+    raw: File,
+    setter: (file: File | null) => void,
+    label: string,
+  ) => {
+    const r = await bannerPicker.processBannerFile(raw);
+    if (!r.ok) {
+      toast.error(r.error);
+      return;
+    }
+    setter(r.file);
+    toast.success(
+      `تم تحسين ${label} — الحجم النهائي ${(r.file.size / 1024).toFixed(0)} كيلوبايت`,
+    );
+  };
+
   const setBannerImage = (index: 0 | 1 | 2 | 3, file: File | null) => {
     setFormData((prev) => {
       const next: [File | null, File | null, File | null, File | null] = [...prev.images.bannerImages] as [
@@ -1554,9 +1570,15 @@ export function RegistrationForm() {
                       id="shop-exterior"
                       type="file"
                       accept="image/*"
+                      disabled={bannerPicker.processing}
                       onChange={(e) => {
-                        setShopExterior(e.target.files?.[0] || null);
+                        const raw = e.target.files?.[0] ?? null;
                         e.target.value = '';
+                        if (!raw) {
+                          setShopExterior(null);
+                          return;
+                        }
+                        void processShopImageFile(raw, setShopExterior, 'صورة الواجهة');
                       }}
                     />
                     {formData.images.shopExterior && (
@@ -1578,9 +1600,15 @@ export function RegistrationForm() {
                       id="shop-interior"
                       type="file"
                       accept="image/*"
+                      disabled={bannerPicker.processing}
                       onChange={(e) => {
-                        setShopInterior(e.target.files?.[0] || null);
+                        const raw = e.target.files?.[0] ?? null;
                         e.target.value = '';
+                        if (!raw) {
+                          setShopInterior(null);
+                          return;
+                        }
+                        void processShopImageFile(raw, setShopInterior, 'صورة الداخل');
                       }}
                     />
                     {formData.images.shopInterior && (

@@ -19,6 +19,8 @@ const APPROVE_BARBER_UPSERT_KEYS = new Set([
   'total_reviews',
   'profile_image',
   'cover_image',
+  'featured_images',
+  'gallery_count',
   'bio',
   'experience_years',
   'specialties',

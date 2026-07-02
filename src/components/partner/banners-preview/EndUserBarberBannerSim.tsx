@@ -14,6 +14,11 @@ import { useBannerPreviewSim, type BannerSimPhase } from '@/hooks/useBannerPrevi
 import { BannerRadiationField } from '@/components/BannerRadiationField';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  BARBER_CARD_HERO_FRAME_DIAMOND_CLASS,
+  BARBER_CARD_HERO_FRAME_GOLD_CLASS,
+  BARBER_CARD_HERO_IMAGE_CLASS,
+} from '@/config/barberBannerImagePolicy';
 
 // ── Phase labels ──────────────────────────────────────────────────────────────
 const PHASE_LABEL: Record<BannerSimPhase, { text: string; color: string }> = {
@@ -158,12 +163,16 @@ export function EndUserBarberBannerSim({
 
         {/* ── Hero image (Gold & Diamond) ──────────────── */}
         {(isGold || isDiamond) && (
-          <div className={cn('relative overflow-hidden', isDiamond ? 'h-48' : 'h-40')}>
+          <div
+            className={cn(
+              isDiamond ? BARBER_CARD_HERO_FRAME_DIAMOND_CLASS : BARBER_CARD_HERO_FRAME_GOLD_CLASS,
+            )}
+          >
             {isStatic ? (
               <img
                 src={heroSrc}
                 alt=""
-                className="h-full w-full object-cover"
+                className={BARBER_CARD_HERO_IMAGE_CLASS}
                 loading={isMobile ? 'lazy' : 'eager'}
                 decoding="async"
               />
@@ -172,7 +181,7 @@ export function EndUserBarberBannerSim({
                 key={heroSrc}
                 src={heroSrc}
                 alt=""
-                className="h-full w-full object-cover"
+                className={BARBER_CARD_HERO_IMAGE_CLASS}
                 loading={isMobile ? 'lazy' : 'eager'}
                 decoding="async"
                 initial={isLite ? false : { opacity: 0.7, scale: 1.04 }}

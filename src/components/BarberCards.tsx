@@ -24,6 +24,12 @@ import {
   isMensGroomingCenterBarber,
 } from "@/lib/mensGroomingCenterDisplay";
 import { cn } from "@/lib/utils";
+import {
+  BARBER_CARD_HERO_FRAME_BRONZE_CLASS,
+  BARBER_CARD_HERO_FRAME_DIAMOND_CLASS,
+  BARBER_CARD_HERO_FRAME_GOLD_CLASS,
+  BARBER_CARD_HERO_IMAGE_CLASS,
+} from "@/config/barberBannerImagePolicy";
 import { useDiamondAppointmentSchedulingShown } from "@/lib/diamondSchedulingVisibility";
 import { DiamondAppointmentBooking } from "@/components/DiamondAppointmentBooking";
 import { CustomerBarberChatPreview } from "@/components/CustomerBarberChatPreview";
@@ -205,11 +211,11 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
           className="overflow-visible"
         >
           <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-muted/25 border-border hover:shadow-lg transition-all duration-200', specialistRing, specialistSurface)}>
-            <div className="relative h-40 sm:h-44 overflow-hidden">
+            <div className={BARBER_CARD_HERO_FRAME_BRONZE_CLASS}>
               <img
                 src={barber.images[0]}
                 alt={barber.name}
-                className="w-full h-full object-cover"
+                className={BARBER_CARD_HERO_IMAGE_CLASS}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
               <SpecialistHeroOverlay barber={barber} />
@@ -372,11 +378,11 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
         transition={{ type: "spring", stiffness: 300, damping: 35 }}
       >
         <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-card to-accent/5 border-accent/25 shadow-md hover:shadow-xl hover:shadow-accent/10 transition-all duration-200 ring-1 ring-accent/20', specialistRing, specialistSurface)}>
-          <div className="relative h-48 sm:h-52 overflow-hidden">
+          <div className={BARBER_CARD_HERO_FRAME_GOLD_CLASS}>
             <img
               src={barber.images[0]}
               alt={barber.name}
-              className="w-full h-full object-cover"
+              className={BARBER_CARD_HERO_IMAGE_CLASS}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
             <SpecialistHeroOverlay barber={barber} />
@@ -474,11 +480,11 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
       transition={{ type: "spring", stiffness: 300, damping: 35 }}
     >
       <Card className={cn('overflow-hidden bg-gradient-to-br from-card via-accent/5 to-accent/10 border-accent/30 hover:shadow-2xl hover:shadow-accent/20 transition-all duration-200 ring-2 ring-accent/20', showcaseCardRing, specialistRing, specialistSurface)}>
-        <div className="relative h-56 sm:h-64 overflow-hidden">
+        <div className={BARBER_CARD_HERO_FRAME_DIAMOND_CLASS}>
           <img
             src={barber.images[0]}
             alt={barber.name}
-            className="w-full h-full object-cover"
+            className={BARBER_CARD_HERO_IMAGE_CLASS}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent" />
           <SpecialistHeroOverlay barber={barber} />

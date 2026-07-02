@@ -9,6 +9,10 @@ import {
   normalizeGroomingCenterBannerLines,
   resolveMensGroomingCenterFlag,
 } from './mensGroomingCenterPolicy.js';
+import {
+  readRegistrationBannerUrls,
+  resolveBarberPublicCoverAndFeatured,
+} from './barberPublicBannerImages.js';
 import { buildBarberMagicEnterUrl } from './barberPortalMagicUrl.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -217,13 +221,20 @@ function readNestedLocation(payload: Record<string, unknown>): {
 function readAttachmentUrls(payload: Record<string, unknown>): {
   shopExterior?: string;
   shopInterior?: string;
+  banners?: string[];
 } {
   const raw = payload.registrationAttachmentUrls;
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
   const o = raw as Record<string, unknown>;
+  const banners = Array.isArray(o.banners)
+    ? o.banners
+        .map((x) => String(x ?? '').trim())
+        .filter((url) => url.length > 0)
+    : [];
   return {
     shopExterior: typeof o.shopExterior === 'string' ? o.shopExterior : undefined,
     shopInterior: typeof o.shopInterior === 'string' ? o.shopInterior : undefined,
+    ...(banners.length ? { banners } : {}),
   };
 }
 
@@ -258,6 +269,15 @@ export function buildBarberUpsertRowFromRegistrationPayload(
     : [];
   const tierRaw = String(tierOverride ?? payload.tier ?? 'bronze').trim().toLowerCase();
   const tier = tierRaw === 'gold' || tierRaw === 'diamond' ? tierRaw : 'bronze';
+  const bannerUrls = attachments.banners?.length
+    ? attachments.banners
+    : readRegistrationBannerUrls(payload);
+  const publicImages = resolveBarberPublicCoverAndFeatured({
+    bannerUrls,
+    shopExterior: attachments.shopExterior,
+    shopInterior: attachments.shopInterior,
+    shopImages,
+  });
 
   return {
     name: String(payload.barberName ?? '').trim() || 'صالون بدون اسم',
@@ -270,8 +290,11 @@ export function buildBarberUpsertRowFromRegistrationPayload(
     tier,
     is_active: true,
     is_verified: true,
-    cover_image: attachments.shopExterior || shopImages[0] || null,
-    profile_image: attachments.shopInterior || shopImages[1] || shopImages[0] || null,
+    cover_image: publicImages.cover_image,
+    profile_image: publicImages.profile_image,
+    ...(publicImages.featured_images.length
+      ? { featured_images: publicImages.featured_images }
+      : {}),
     specialties: categories.length ? categories : null,
     inclusive_care_offered: care.offered,
     inclusive_care_price_sar: care.offered && care.price ? care.price : null,

@@ -4,6 +4,7 @@ import {
   BARBER_BANNER_MAX_WIDTH,
   BARBER_BANNER_OUTPUT_EXT,
   BARBER_BANNER_OUTPUT_MIME,
+  BARBER_BANNER_DISPLAY_ASPECT_RATIO,
 } from '@/config/barberBannerImagePolicy';
 
 function loadImageFromFile(file: File): Promise<HTMLImageElement> {
@@ -35,16 +36,32 @@ function canvasToJpegBlob(canvas: HTMLCanvasElement, quality: number): Promise<B
   });
 }
 
-function computeDrawSize(
+function computeCropSourceRect(
   naturalWidth: number,
   naturalHeight: number,
+  targetAspect: number,
+): { sx: number; sy: number; sw: number; sh: number } {
+  const srcAspect = naturalWidth / naturalHeight;
+  if (srcAspect > targetAspect) {
+    const sh = naturalHeight;
+    const sw = naturalHeight * targetAspect;
+    return { sx: (naturalWidth - sw) / 2, sy: 0, sw, sh };
+  }
+  const sw = naturalWidth;
+  const sh = naturalWidth / targetAspect;
+  return { sx: 0, sy: (naturalHeight - sh) / 2, sw, sh };
+}
+
+function computeDrawSize(
+  sourceWidth: number,
+  sourceHeight: number,
   maxW: number,
-  maxH: number
+  maxH: number,
 ): { dw: number; dh: number } {
-  const r = Math.min(maxW / naturalWidth, maxH / naturalHeight, 1);
+  const r = Math.min(maxW / sourceWidth, maxH / sourceHeight, 1);
   return {
-    dw: Math.max(1, Math.round(naturalWidth * r)),
-    dh: Math.max(1, Math.round(naturalHeight * r)),
+    dw: Math.max(1, Math.round(sourceWidth * r)),
+    dh: Math.max(1, Math.round(sourceHeight * r)),
   };
 }
 
@@ -73,7 +90,12 @@ export async function optimizeImageFileForBarberBanner(
 
   let maxW = BARBER_BANNER_MAX_WIDTH;
   let maxH = BARBER_BANNER_MAX_HEIGHT;
-  let { dw, dh } = computeDrawSize(img.naturalWidth, img.naturalHeight, maxW, maxH);
+  const crop = computeCropSourceRect(
+    img.naturalWidth,
+    img.naturalHeight,
+    BARBER_BANNER_DISPLAY_ASPECT_RATIO,
+  );
+  let { dw, dh } = computeDrawSize(crop.sw, crop.sh, maxW, maxH);
 
   const baseName = file.name.replace(/\.[^.]+$/, '') || 'banner';
 
@@ -85,7 +107,7 @@ export async function optimizeImageFileForBarberBanner(
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, dw, dh);
     }
-    ctx.drawImage(img, 0, 0, dw, dh);
+    ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, dw, dh);
 
     let quality = 0.88;
     let blob: Blob | null = null;
@@ -108,7 +130,7 @@ export async function optimizeImageFileForBarberBanner(
 
     maxW = Math.round(maxW * 0.88);
     maxH = Math.round(maxH * 0.88);
-    const next = computeDrawSize(img.naturalWidth, img.naturalHeight, maxW, maxH);
+    const next = computeDrawSize(crop.sw, crop.sh, maxW, maxH);
     dw = next.dw;
     dh = next.dh;
   }

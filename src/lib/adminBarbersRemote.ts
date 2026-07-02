@@ -9,6 +9,7 @@ import {
   normalizeGroomingCenterBannerLines,
   resolveMensGroomingCenterFlag,
 } from '@/config/mensGroomingCenterPolicy';
+import { resolveBarberPublicCoverAndFeatured } from '@/lib/barberPublicBannerImages';
 
 const APPROVE_BARBER_API = '/api/approve-barber';
 
@@ -238,6 +239,13 @@ export async function upsertBarberFromApprovedRequest(
   | { ok: true; barberId: string; memberNumber: number | null; warning?: string; shopOpenQuickHashLink?: string }
   | { ok: false; error: string }
 > {
+  const publicImages = resolveBarberPublicCoverAndFeatured({
+    bannerUrls: request.registrationAttachmentUrls?.banners ?? [],
+    shopExterior: request.registrationAttachmentUrls?.shopExterior,
+    shopInterior: request.registrationAttachmentUrls?.shopInterior,
+    shopImages: request.shopImages ?? [],
+  });
+
   const row = {
     name: request.barberName.trim() || 'صالون بدون اسم',
     email: request.email.trim(),
@@ -249,15 +257,11 @@ export async function upsertBarberFromApprovedRequest(
     tier: request.tier,
     is_active: true,
     is_verified: true,
-    cover_image:
-      request.registrationAttachmentUrls?.shopExterior ||
-      request.shopImages?.[0] ||
-      null,
-    profile_image:
-      request.registrationAttachmentUrls?.shopInterior ||
-      request.shopImages?.[1] ||
-      request.shopImages?.[0] ||
-      null,
+    cover_image: publicImages.cover_image,
+    profile_image: publicImages.profile_image,
+    ...(publicImages.featured_images.length
+      ? { featured_images: publicImages.featured_images }
+      : {}),
     specialties: request.categories?.length ? request.categories : null,
     inclusive_care_offered: request.inclusiveAccessibleCare?.offered === true,
     inclusive_care_price_sar:

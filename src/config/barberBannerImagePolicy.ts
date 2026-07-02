@@ -5,6 +5,19 @@ export const BARBER_BANNER_MAX_FILE_BYTES = 500 * 1024;
 export const BARBER_BANNER_MAX_WIDTH = 1600;
 export const BARBER_BANNER_MAX_HEIGHT = 640;
 
+/** نسبة عرض البطاقة العامة (5:2) — تُطبَّق عند الضغط وفي إطار البطاقة */
+export const BARBER_BANNER_DISPLAY_ASPECT_RATIO = BARBER_BANNER_MAX_WIDTH / BARBER_BANNER_MAX_HEIGHT;
+
+/** إطار صورة البطاقة — ذهبي/ماسي على الجوال */
+export const BARBER_CARD_HERO_FRAME_GOLD_CLASS =
+  'relative w-full min-w-0 overflow-hidden aspect-[5/2] max-h-36 sm:max-h-44';
+export const BARBER_CARD_HERO_FRAME_DIAMOND_CLASS =
+  'relative w-full min-w-0 overflow-hidden aspect-[5/2] max-h-40 sm:max-h-48';
+export const BARBER_CARD_HERO_FRAME_BRONZE_CLASS =
+  'relative w-full min-w-0 overflow-hidden aspect-[5/2] max-h-32 sm:max-h-40';
+export const BARBER_CARD_HERO_IMAGE_CLASS =
+  'block h-full w-full max-w-full object-cover object-center';
+
 /** صيغة الإخراج المفضّة للويب */
 export const BARBER_BANNER_OUTPUT_MIME = 'image/jpeg' as const;
 export const BARBER_BANNER_OUTPUT_EXT = '.jpg';
