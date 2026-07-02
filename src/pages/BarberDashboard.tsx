@@ -125,11 +125,6 @@ import {
   type BarberChatThread,
   type BarberPlatformBannerState,
 } from '@/lib/barberDashboardLocalState';
-import {
-  fetchBarberSupportMessagesRemote,
-  sendBarberSupportMessageRemote,
-  type BarberSupportMessageRow,
-} from '@/lib/barberSupportChatRemote';
 import { POLL_MS, isPollingTabActive } from '@/lib/pollingPolicy';
 import { portfolioMaxImagesForSubscriptionTier } from '@/lib/barberPortfolioPolicy';
 import {
@@ -1900,126 +1895,6 @@ function AppointmentsSection({
   );
 }
 
-function PlatformSupportChatPanel({ barberId, barberEmail }: { barberId: string; barberEmail: string }) {
-  const [draft, setDraft] = useState('');
-  const [sending, setSending] = useState(false);
-  const [messages, setMessages] = useState<BarberSupportMessageRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<Error | null>(null);
-
-  const loadMessages = useCallback(async () => {
-    if (!barberId || !barberEmail.trim()) {
-      setMessages([]);
-      setLoadError(null);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const r = await fetchBarberSupportMessagesRemote({ barberId, email: barberEmail });
-      if (!r.ok) throw new Error(r.error);
-      setMessages(r.messages);
-      setLoadError(null);
-    } catch (e) {
-      setLoadError(e instanceof Error ? e : new Error('تعذّر تحميل الرسائل'));
-    } finally {
-      setLoading(false);
-    }
-  }, [barberEmail, barberId]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const wrapped = async () => {
-      if (cancelled) return;
-      await loadMessages();
-    };
-    void wrapped();
-    const id = window.setInterval(() => {
-      void wrapped();
-    }, POLL_MS.BARBER_SUPPORT_CHAT);
-    return () => {
-      cancelled = true;
-      window.clearInterval(id);
-    };
-  }, [loadMessages]);
-
-  useEffect(() => {
-    if (loadError instanceof Error) toast.error(loadError.message);
-  }, [loadError]);
-
-  const send = async () => {
-    if (!draft.trim()) return;
-    setSending(true);
-    const r = await sendBarberSupportMessageRemote({
-      barberId,
-      email: barberEmail,
-      body: draft.trim(),
-    });
-    setSending(false);
-    if (!r.ok) {
-      toast.error(r.error);
-      return;
-    }
-    setDraft('');
-    await loadMessages();
-    toast.success('تم إرسال الرسالة إلى إدارة المنصة');
-  };
-
-  return (
-    <Card className="border-primary/20">
-      <CardHeader>
-        <CardTitle className="text-lg">محادثة مع إدارة المنصة</CardTitle>
-        <CardDescription>
-          قناة دعم مباشرة مع فريق حلاق ماب عبر اتصال مشفّر (HTTPS). لا تشارك كلمات مرور أو بيانات بطاقات هنا.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {loading && messages.length === 0 ? (
-          <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            جاري التحميل…
-          </div>
-        ) : (
-          <div className="max-h-72 space-y-3 overflow-y-auto rounded-md border border-border/60 bg-muted/20 p-3">
-            {messages.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">لا رسائل بعد — راسِل الإدارة لأي استفسار أو دعم.</p>
-            ) : (
-              messages.map((m) => (
-                <div key={m.id} className={`flex ${m.from_admin ? 'justify-start' : 'justify-end'}`}>
-                  <div
-                    className={`max-w-[90%] rounded-lg p-3 text-sm ${
-                      m.from_admin ? 'bg-muted border border-border' : 'bg-primary text-primary-foreground'
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap break-words">{m.body}</p>
-                    <p className="mt-1 text-[11px] opacity-80">
-                      {m.from_admin ? 'إدارة المنصة' : 'أنت'} · {new Date(m.created_at).toLocaleString('ar-SA')}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Textarea
-            placeholder="رسالتك لإدارة المنصة…"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={3}
-            disabled={sending}
-            className="min-h-[72px] sm:flex-1"
-          />
-          <Button type="button" className="sm:self-end shrink-0 gap-2" disabled={!draft.trim() || sending} onClick={() => void send()}>
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            إرسال
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function MessagesSection({
   barberId,
   barberEmail,
@@ -2106,8 +1981,6 @@ function MessagesSection({
           شات العملاء الحي يتطلب ضبط قاعدة البيانات على المنصة.
         </p>
       )}
-
-      <PlatformSupportChatPanel barberId={barberId} barberEmail={barberEmail} />
 
       {!isSupabaseConfigured() ? (
       <Card>
