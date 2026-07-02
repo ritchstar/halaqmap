@@ -176,6 +176,7 @@ export async function submitBarberQrReview(
   }
 
   if (error || !data) {
+    console.error('[submitBarberQrReview] insert failed', error?.message ?? 'unknown');
     return { ok: false, error: 'insert_failed' };
   }
 
@@ -185,34 +186,45 @@ export async function submitBarberQrReview(
 export async function listBarberQrReviewsForManage(
   supabase: SupabaseClient,
   barberId: string,
-): Promise<QrReviewDto[]> {
-  if (!UUID_RE.test(barberId)) return [];
+): Promise<{ reviews: QrReviewDto[]; queryError: string | null }> {
+  if (!UUID_RE.test(barberId)) return { reviews: [], queryError: 'invalid_barber_id' };
 
-  let data: ReviewRow[] | null = null;
-  let error: { message?: string } | null = null;
-
-  const withQr = await supabase
+  const primary = await supabase
     .from('reviews')
     .select(QR_REVIEW_SELECT)
     .eq('barber_id', barberId)
-    .order('is_highlighted', { ascending: false })
     .order('created_at', { ascending: false });
 
-  data = (withQr.data as ReviewRow[] | null) ?? null;
-  error = withQr.error;
-
-  if (error && isMissingQrReviewColumnError(String(error.message ?? ''))) {
-    const basic = await supabase
-      .from('reviews')
-      .select(BASIC_REVIEW_SELECT)
-      .eq('barber_id', barberId)
-      .order('created_at', { ascending: false });
-    data = (basic.data as ReviewRow[] | null) ?? null;
-    error = basic.error;
+  if (!primary.error && primary.data) {
+    const rows = (primary.data as ReviewRow[]).slice();
+    rows.sort((a, b) => {
+      const ah = a.is_highlighted ? 1 : 0;
+      const bh = b.is_highlighted ? 1 : 0;
+      if (bh !== ah) return bh - ah;
+      return String(b.created_at).localeCompare(String(a.created_at));
+    });
+    return { reviews: rows.map((row) => mapRow(row, true)), queryError: null };
   }
 
-  if (error || !data) return [];
-  return data.map((row) => mapRow(row, true));
+  const primaryMsg = String(primary.error?.message ?? '');
+  if (!isMissingQrReviewColumnError(primaryMsg)) {
+    return { reviews: [], queryError: primaryMsg || 'reviews_query_failed' };
+  }
+
+  const basic = await supabase
+    .from('reviews')
+    .select(BASIC_REVIEW_SELECT)
+    .eq('barber_id', barberId)
+    .order('created_at', { ascending: false });
+
+  if (basic.error || !basic.data) {
+    return { reviews: [], queryError: String(basic.error?.message ?? 'reviews_query_failed') };
+  }
+
+  return {
+    reviews: (basic.data as ReviewRow[]).map((row) => mapRow(row, true)),
+    queryError: null,
+  };
 }
 
 export async function listPublicBarberQrReviews(

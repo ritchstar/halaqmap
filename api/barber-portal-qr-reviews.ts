@@ -57,7 +57,7 @@ export async function GET(request: Request): Promise<Response> {
 
   const { data: barberRow } = await supabase
     .from('barbers')
-    .select('tier')
+    .select('tier, total_reviews')
     .eq('id', actor.barberId)
     .maybeSingle();
 
@@ -69,8 +69,17 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ ok: false, error: 'tier_not_eligible' }, { status: 403, headers });
   }
 
-  const reviews = await listBarberQrReviewsForManage(supabase, actor.barberId);
-  return Response.json({ ok: true, reviews }, { headers });
+  const listed = await listBarberQrReviewsForManage(supabase, actor.barberId);
+  const barberTotalReviews = Math.max(0, Math.floor(Number(barberRow?.total_reviews ?? 0)));
+  return Response.json(
+    {
+      ok: true,
+      reviews: listed.reviews,
+      barberTotalReviews,
+      ...(listed.queryError ? { queryWarning: listed.queryError } : {}),
+    },
+    { headers },
+  );
 }
 
 export async function PATCH(request: Request): Promise<Response> {

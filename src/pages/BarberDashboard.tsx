@@ -1238,7 +1238,11 @@ export default function BarberDashboard({
 
           {tierTabs.showQrRatings ? (
           <TabsContent value="qr-ratings" className="space-y-6">
-            <QrRatingsSection barberId={barberData.id} ratingInviteToken={barberData.ratingInviteToken} />
+            <QrRatingsSection
+              barberId={barberData.id}
+              ratingInviteToken={barberData.ratingInviteToken}
+              barberEmail={barberData.email}
+            />
           </TabsContent>
           ) : null}
 
@@ -1341,9 +1345,11 @@ function qrReviewsFetchErrorAr(code: string): string {
 function QrRatingsSection({
   barberId,
   ratingInviteToken,
+  barberEmail,
 }: {
   barberId: string;
   ratingInviteToken: string;
+  barberEmail: string;
 }) {
   const ratingUrl = useMemo(
     () => (ratingInviteToken ? buildRatingInviteUrl(barberId, ratingInviteToken) : ''),
@@ -1353,23 +1359,36 @@ function QrRatingsSection({
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
+  const [reviewsSyncHint, setReviewsSyncHint] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setReviewsLoading(true);
     setReviewsError(null);
-    const remote = await fetchBarberPortalQrReviewsRemote();
+    setReviewsSyncHint(null);
+    const remote = await fetchBarberPortalQrReviewsRemote({
+      barberId,
+      email: barberEmail,
+    });
     if (remote.ok) {
       const localOnly = getAllMergedReviewsForBarberManage(barberId).filter(
         (r) => !remote.reviews.some((x) => x.id === r.id),
       );
-      setReviews([...remote.reviews, ...localOnly]);
+      const merged = [...remote.reviews, ...localOnly];
+      setReviews(merged);
+      if (merged.length === 0 && remote.barberTotalReviews > 0) {
+        setReviewsSyncHint(
+          `يوجد ${remote.barberTotalReviews} تقييم مسجّل على بطاقتك العامة لكن تعذّر عرض التفاصيل هنا. جرّب تحديث الصفحة أو تواصل مع الإدارة.`,
+        );
+      } else if (remote.queryWarning) {
+        setReviewsSyncHint('تعذّر قراءة بعض حقول التقييم من قاعدة البيانات — قد تحتاج الإدارة لتطبيق migration 128.');
+      }
       setReviewsLoading(false);
       return;
     }
     setReviews(getAllMergedReviewsForBarberManage(barberId));
     setReviewsError(remote.error);
     setReviewsLoading(false);
-  }, [barberId]);
+  }, [barberId, barberEmail]);
 
   useEffect(() => {
     void refresh();
@@ -1473,6 +1492,11 @@ function QrRatingsSection({
           {reviewsError ? (
             <Alert variant="destructive">
               <AlertDescription>{qrReviewsFetchErrorAr(reviewsError)}</AlertDescription>
+            </Alert>
+          ) : null}
+          {reviewsSyncHint ? (
+            <Alert>
+              <AlertDescription>{reviewsSyncHint}</AlertDescription>
             </Alert>
           ) : null}
           {reviewsLoading ? (
