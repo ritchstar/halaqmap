@@ -52,6 +52,7 @@ import {
 } from '@/components/ui/dialog';
 import QRCode from 'react-qr-code';
 import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib';
+import { mockReviews } from '@/data/index';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
@@ -1321,6 +1322,22 @@ export default function BarberDashboard({
   );
 }
 
+function qrReviewsFetchErrorAr(code: string): string {
+  if (code === 'tier_not_eligible') {
+    return 'باقة الإدراج الحالية لا تتضمن إدارة تقييمات QR. تحقق من تفعيل باقة ذهبي أو ماسي.';
+  }
+  if (code === 'missing_session') {
+    return 'انتهت جلسة الدخول. سجّل الخروج ثم ادخل من جديد عبر رابط البريد.';
+  }
+  if (code === 'Email does not match this barber account') {
+    return 'البريد في الجلسة لا يطابق حساب الصالون. أعد الدخول من الرابط المرسل لبريد التسجيل.';
+  }
+  if (code === 'network') {
+    return 'تعذّر الاتصال بالخادم. تحقق من الشبكة وحاول مرة أخرى.';
+  }
+  return 'تعذّر تحميل التقييمات من الخادم. جرّب تحديث الصفحة أو إعادة الدخول.';
+}
+
 function QrRatingsSection({
   barberId,
   ratingInviteToken,
@@ -1335,16 +1352,22 @@ function QrRatingsSection({
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setReviewsLoading(true);
+    setReviewsError(null);
     const remote = await fetchBarberPortalQrReviewsRemote();
     if (remote.ok) {
-      setReviews(remote.reviews);
+      const localOnly = getAllMergedReviewsForBarberManage(barberId).filter(
+        (r) => !remote.reviews.some((x) => x.id === r.id),
+      );
+      setReviews([...remote.reviews, ...localOnly]);
       setReviewsLoading(false);
       return;
     }
     setReviews(getAllMergedReviewsForBarberManage(barberId));
+    setReviewsError(remote.error);
     setReviewsLoading(false);
   }, [barberId]);
 
@@ -1365,7 +1388,7 @@ function QrRatingsSection({
     void navigator.clipboard.writeText(ratingUrl).then(() => toast.success('تم نسخ رابط التقييم'));
   };
 
-  const isManageableQr = (r: Review) => r.viaQrInvite === true;
+  const isManageableQr = (r: Review) => !mockReviews.some((m) => m.id === r.id);
 
   return (
     <motion.div
@@ -1432,13 +1455,26 @@ function QrRatingsSection({
 
       <Card>
         <CardHeader>
-          <CardTitle>إدارة ظهور التقييمات</CardTitle>
-          <CardDescription>
-            التقييمات القادمة عبر QR تظهر هنا. يمكنك إخفاء تقييم عن الملف العام أو إبرازه في الأعلى. التقييمات
-            التجريبية الثابتة في العرض التجريبي لا تُعدّل من هنا.
-          </CardDescription>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <CardTitle>إدارة ظهور التقييمات</CardTitle>
+              <CardDescription>
+                التقييمات القادمة عبر QR تظهر هنا. يمكنك إخفاء تقييم عن الملف العام أو إبرازه في الأعلى. التقييمات
+                التجريبية الثابتة في العرض التجريبي لا تُعدّل من هنا.
+              </CardDescription>
+            </div>
+            <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => void refresh()}>
+              <RefreshCw className={`h-4 w-4 ${reviewsLoading ? 'animate-spin' : ''}`} />
+              تحديث
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {reviewsError ? (
+            <Alert variant="destructive">
+              <AlertDescription>{qrReviewsFetchErrorAr(reviewsError)}</AlertDescription>
+            </Alert>
+          ) : null}
           {reviewsLoading ? (
             <p className="text-sm text-muted-foreground">جاري تحميل التقييمات…</p>
           ) : reviews.length === 0 ? (

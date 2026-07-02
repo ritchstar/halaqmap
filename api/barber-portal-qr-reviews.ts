@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { resolveBarberPortalBookingActor } from './_lib/barberPortalBookingAuth.js';
 import {
-  isQrReviewsTier,
+  barberHasQrReviewsAccess,
   listBarberQrReviewsForManage,
   updateBarberQrReviewVisibility,
 } from './_lib/barberQrReviewService.js';
@@ -61,7 +61,11 @@ export async function GET(request: Request): Promise<Response> {
     .eq('id', actor.barberId)
     .maybeSingle();
 
-  if (!isQrReviewsTier(barberRow?.tier != null ? String(barberRow.tier) : null)) {
+  const hasAccess = await barberHasQrReviewsAccess(supabase, {
+    id: actor.barberId,
+    tier: barberRow?.tier != null ? String(barberRow.tier) : null,
+  });
+  if (!hasAccess) {
     return Response.json({ ok: false, error: 'tier_not_eligible' }, { status: 403, headers });
   }
 
@@ -109,7 +113,11 @@ export async function PATCH(request: Request): Promise<Response> {
     .eq('id', actor.barberId)
     .maybeSingle();
 
-  if (!isQrReviewsTier(barberRow?.tier != null ? String(barberRow.tier) : null)) {
+  const hasAccess = await barberHasQrReviewsAccess(supabase, {
+    id: actor.barberId,
+    tier: barberRow?.tier != null ? String(barberRow.tier) : null,
+  });
+  if (!hasAccess) {
     return Response.json({ ok: false, error: 'tier_not_eligible' }, { status: 403, headers });
   }
 

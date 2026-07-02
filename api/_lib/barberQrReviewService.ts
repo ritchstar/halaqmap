@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { getBarberListingBalance } from './listingLicenseService.js';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -24,9 +25,9 @@ type ReviewRow = {
   rating: number;
   comment: string | null;
   is_verified: boolean | null;
-  via_qr_invite: boolean | null;
-  is_public: boolean | null;
-  is_highlighted: boolean | null;
+  via_qr_invite?: boolean | null;
+  is_public?: boolean | null;
+  is_highlighted?: boolean | null;
   created_at: string;
 };
 
@@ -41,7 +42,7 @@ function safeEqualToken(a: string, b: string): boolean {
   }
 }
 
-function mapRow(row: ReviewRow): QrReviewDto {
+function mapRow(row: ReviewRow, assumeQrInvite = false): QrReviewDto {
   return {
     id: row.id,
     barberId: row.barber_id,
@@ -50,7 +51,7 @@ function mapRow(row: ReviewRow): QrReviewDto {
     comment: row.comment?.trim() || '',
     date: row.created_at.slice(0, 10),
     verified: row.is_verified === true,
-    viaQrInvite: row.via_qr_invite === true,
+    viaQrInvite: row.via_qr_invite === true || (row.via_qr_invite == null && assumeQrInvite),
     isPublished: row.is_public !== false,
     isHighlighted: row.is_highlighted === true,
   };
@@ -59,6 +60,26 @@ function mapRow(row: ReviewRow): QrReviewDto {
 export function isQrReviewsTier(tier: string | null | undefined): boolean {
   const t = String(tier ?? '').trim().toLowerCase();
   return t === 'gold' || t === 'diamond';
+}
+
+const QR_REVIEW_SELECT =
+  'id, barber_id, customer_name, rating, comment, is_verified, via_qr_invite, is_public, is_highlighted, created_at';
+const BASIC_REVIEW_SELECT =
+  'id, barber_id, customer_name, rating, comment, is_verified, created_at';
+
+function isMissingQrReviewColumnError(message: string): boolean {
+  return /via_qr_invite|is_public|is_highlighted/i.test(message);
+}
+
+/** ذهبي/ماسي من صف الحلاق أو من نفاذ إدراج نشط — نفس منطق لوحة التحكم. */
+export async function barberHasQrReviewsAccess(
+  supabase: SupabaseClient,
+  barber: { id: string; tier: string | null | undefined },
+): Promise<boolean> {
+  if (isQrReviewsTier(barber.tier != null ? String(barber.tier) : null)) return true;
+  const balance = await getBarberListingBalance(supabase, String(barber.id));
+  if (!balance.hasActiveListing) return false;
+  return isQrReviewsTier(balance.activeTier);
 }
 
 export async function validateBarberRatingInviteToken(
@@ -84,7 +105,11 @@ export async function validateBarberRatingInviteToken(
     return { ok: false, error: 'invalid_token' };
   }
 
-  if (!isQrReviewsTier(data.tier != null ? String(data.tier) : null)) {
+  const hasAccess = await barberHasQrReviewsAccess(supabase, {
+    id: barberId,
+    tier: data.tier != null ? String(data.tier) : null,
+  });
+  if (!hasAccess) {
     return { ok: false, error: 'tier_not_eligible' };
   }
 
@@ -118,29 +143,43 @@ export async function submitBarberQrReview(
 
   const comment = String(input.comment ?? '').trim().slice(0, 2000);
 
-  const { data, error } = await supabase
+  const baseInsert = {
+    barber_id: input.barberId,
+    customer_id: null,
+    customer_name: name,
+    rating,
+    comment: comment || null,
+    is_verified: true,
+  };
+
+  let data: ReviewRow | null = null;
+  let error: { message?: string } | null = null;
+
+  const withQr = await supabase
     .from('reviews')
     .insert({
-      barber_id: input.barberId,
-      customer_id: null,
-      customer_name: name,
-      rating,
-      comment: comment || null,
-      is_verified: true,
+      ...baseInsert,
       via_qr_invite: true,
       is_public: true,
       is_highlighted: false,
     })
-    .select(
-      'id, barber_id, customer_name, rating, comment, is_verified, via_qr_invite, is_public, is_highlighted, created_at',
-    )
+    .select(QR_REVIEW_SELECT)
     .single();
+
+  data = (withQr.data as ReviewRow | null) ?? null;
+  error = withQr.error;
+
+  if (error && isMissingQrReviewColumnError(String(error.message ?? ''))) {
+    const basic = await supabase.from('reviews').insert(baseInsert).select(BASIC_REVIEW_SELECT).single();
+    data = (basic.data as ReviewRow | null) ?? null;
+    error = basic.error;
+  }
 
   if (error || !data) {
     return { ok: false, error: 'insert_failed' };
   }
 
-  return { ok: true, review: mapRow(data as ReviewRow) };
+  return { ok: true, review: mapRow(data, true) };
 }
 
 export async function listBarberQrReviewsForManage(
@@ -149,18 +188,31 @@ export async function listBarberQrReviewsForManage(
 ): Promise<QrReviewDto[]> {
   if (!UUID_RE.test(barberId)) return [];
 
-  const { data, error } = await supabase
+  let data: ReviewRow[] | null = null;
+  let error: { message?: string } | null = null;
+
+  const withQr = await supabase
     .from('reviews')
-    .select(
-      'id, barber_id, customer_name, rating, comment, is_verified, via_qr_invite, is_public, is_highlighted, created_at',
-    )
+    .select(QR_REVIEW_SELECT)
     .eq('barber_id', barberId)
-    .eq('via_qr_invite', true)
     .order('is_highlighted', { ascending: false })
     .order('created_at', { ascending: false });
 
+  data = (withQr.data as ReviewRow[] | null) ?? null;
+  error = withQr.error;
+
+  if (error && isMissingQrReviewColumnError(String(error.message ?? ''))) {
+    const basic = await supabase
+      .from('reviews')
+      .select(BASIC_REVIEW_SELECT)
+      .eq('barber_id', barberId)
+      .order('created_at', { ascending: false });
+    data = (basic.data as ReviewRow[] | null) ?? null;
+    error = basic.error;
+  }
+
   if (error || !data) return [];
-  return (data as ReviewRow[]).map(mapRow);
+  return data.map((row) => mapRow(row, true));
 }
 
 export async function listPublicBarberQrReviews(
@@ -169,19 +221,35 @@ export async function listPublicBarberQrReviews(
 ): Promise<QrReviewDto[]> {
   if (!UUID_RE.test(barberId)) return [];
 
-  const { data, error } = await supabase
+  let data: ReviewRow[] | null = null;
+  let error: { message?: string } | null = null;
+
+  const withQr = await supabase
     .from('reviews')
-    .select(
-      'id, barber_id, customer_name, rating, comment, is_verified, via_qr_invite, is_public, is_highlighted, created_at',
-    )
+    .select(QR_REVIEW_SELECT)
     .eq('barber_id', barberId)
     .eq('via_qr_invite', true)
     .eq('is_public', true)
     .order('is_highlighted', { ascending: false })
     .order('created_at', { ascending: false });
 
+  data = (withQr.data as ReviewRow[] | null) ?? null;
+  error = withQr.error;
+
+  if (error && isMissingQrReviewColumnError(String(error.message ?? ''))) {
+    const basic = await supabase
+      .from('reviews')
+      .select(BASIC_REVIEW_SELECT)
+      .eq('barber_id', barberId)
+      .order('created_at', { ascending: false });
+    data = (basic.data as ReviewRow[] | null) ?? null;
+    error = basic.error;
+  }
+
   if (error || !data) return [];
-  return (data as ReviewRow[]).map(mapRow);
+  return data
+    .filter((row) => row.is_public !== false)
+    .map((row) => mapRow(row, true));
 }
 
 export async function updateBarberQrReviewVisibility(
@@ -199,17 +267,24 @@ export async function updateBarberQrReviewVisibility(
   if (patch.isHighlighted !== undefined) updates.is_highlighted = patch.isHighlighted;
   if (Object.keys(updates).length === 0) return { ok: false, error: 'empty_patch' };
 
-  const { data, error } = await supabase
+  let data: ReviewRow | null = null;
+  let error: { message?: string } | null = null;
+
+  const withQr = await supabase
     .from('reviews')
     .update(updates)
     .eq('id', reviewId)
     .eq('barber_id', barberId)
-    .eq('via_qr_invite', true)
-    .select(
-      'id, barber_id, customer_name, rating, comment, is_verified, via_qr_invite, is_public, is_highlighted, created_at',
-    )
+    .select(QR_REVIEW_SELECT)
     .maybeSingle();
 
+  data = (withQr.data as ReviewRow | null) ?? null;
+  error = withQr.error;
+
+  if ((error || !data) && isMissingQrReviewColumnError(String(error?.message ?? ''))) {
+    return { ok: false, error: 'qr_columns_missing' };
+  }
+
   if (error || !data) return { ok: false, error: 'not_found' };
-  return { ok: true, review: mapRow(data as ReviewRow) };
+  return { ok: true, review: mapRow(data, true) };
 }
