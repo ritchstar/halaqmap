@@ -16,6 +16,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { BarberPortalSession } from '@/lib/barberPortalLoginRemote';
+import { SubscriptionTier } from '@/lib';
+import {
+  OWNER_WATCH_FEATURE_GOLD_LINE,
+  OWNER_WATCH_UPGRADE_NUDGE_AR,
+} from '@/config/ownerWatchFeatureCopy';
 import {
   fetchOwnerSalonWatchRemote,
   type OwnerSalonWatchAlert,
@@ -120,6 +125,10 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
     );
   }
 
+  const isDiamondTier =
+    barberData.subscription === SubscriptionTier.DIAMOND ||
+    snapshot?.tier?.toLowerCase() === 'diamond';
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="rounded-xl border-2 border-amber-500/50 bg-amber-500/10 px-4 py-3 text-center">
@@ -134,8 +143,9 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
             غرفة المراقبة — قراءة فقط
           </CardTitle>
           <CardDescription className="text-sm leading-relaxed">
-            تابع حالة صالونك من بعيد دون التدخل في محادثات الزبائن. لا تُعرض نصوص الرسائل هنا — فقط
-            مؤشرات التشغيل والتنبيهات.
+            {isDiamondTier
+              ? 'تابع حالة صالونك من بعيد دون التدخل في محادثات الزبائن. لا تُعرض نصوص الرسائل هنا — فقط مؤشرات التشغيل والتنبيهات.'
+              : OWNER_WATCH_FEATURE_GOLD_LINE}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -197,7 +207,7 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
 
       {snapshot ? (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className={`grid gap-3 sm:grid-cols-2 ${isDiamondTier ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription className="flex items-center gap-2 text-xs">
@@ -224,22 +234,33 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
                 <CardTitle className="text-xl">{snapshot.conversationsStartedToday}</CardTitle>
               </CardHeader>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2 text-xs">
-                  <Activity className="h-4 w-4" />
-                  نبض تشغيلي
-                </CardDescription>
-                <CardTitle className="text-xl">
-                  {snapshot.operationalPulse
-                    ? severityLabelAr(snapshot.operationalPulse.severity)
-                    : 'لا بيانات بعد'}
-                </CardTitle>
-              </CardHeader>
-            </Card>
+            {isDiamondTier ? (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription className="flex items-center gap-2 text-xs">
+                    <Activity className="h-4 w-4" />
+                    نبض تشغيلي
+                  </CardDescription>
+                  <CardTitle className="text-xl">
+                    {snapshot.operationalPulse
+                      ? severityLabelAr(snapshot.operationalPulse.severity)
+                      : 'لا بيانات بعد'}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            ) : null}
           </div>
 
-          {snapshot.operationalPulse ? (
+          {!isDiamondTier ? (
+            <Alert className="border-amber-500/35 bg-amber-500/10">
+              <AlertDescription className="text-sm leading-relaxed text-amber-950 dark:text-amber-100">
+                {OWNER_WATCH_UPGRADE_NUDGE_AR} نبض تشغيلي، تنبيهات المناوب، وسجل الأحداث — للباقة
+                الماسية مع إضافة المناوب الرقمي.
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          {isDiamondTier && snapshot.operationalPulse ? (
             <Card className="border-violet-500/30">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">ملخص النبض التشغيلي</CardTitle>
@@ -267,25 +288,31 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
             </Card>
           ) : null}
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">تنبيهات المناوب</CardTitle>
-              <CardDescription className="text-sm">توصيات نشطة من المناوب الذكي — بدون تفاصيل زبون.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AlertList items={snapshot.alerts} emptyText="لا تنبيهات نشطة حالياً." />
-            </CardContent>
-          </Card>
+          {isDiamondTier ? (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">تنبيهات المناوب</CardTitle>
+                <CardDescription className="text-sm">
+                  توصيات نشطة من المناوب الذكي — بدون تفاصيل زبون.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AlertList items={snapshot.alerts} emptyText="لا تنبيهات نشطة حالياً." />
+              </CardContent>
+            </Card>
+          ) : null}
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">سجل الأحداث</CardTitle>
-              <CardDescription className="text-sm">آخر الأحداث التشغيلية المسجّلة للصالون.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AlertList items={snapshot.recentEvents} emptyText="لا أحداث مسجّلة بعد." />
-            </CardContent>
-          </Card>
+          {isDiamondTier ? (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">سجل الأحداث</CardTitle>
+                <CardDescription className="text-sm">آخر الأحداث التشغيلية المسجّلة للصالون.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AlertList items={snapshot.recentEvents} emptyText="لا أحداث مسجّلة بعد." />
+              </CardContent>
+            </Card>
+          ) : null}
         </>
       ) : null}
     </div>

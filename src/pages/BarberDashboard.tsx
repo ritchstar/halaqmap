@@ -143,7 +143,7 @@ import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPriva
 import { BarberSocialShareKit } from '@/components/barber/BarberSocialShareKit';
 import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
 import { useDigitalShiftSalonSnapshotSync } from '@/hooks/useDigitalShiftSalonSnapshotSync';
-import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooterStrip';
+import { BarberDashboardLicenseFooter } from '@/components/barber/BarberDashboardLicenseFooter';
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
 import { BarberOwnerWatchPanel } from '@/components/barber/BarberOwnerWatchPanel';
 import { BarberPortfolioQuickStrip } from '@/components/barber/BarberPortfolioQuickStrip';
@@ -1143,28 +1143,6 @@ export default function BarberDashboard({
 
         <div className="mt-6 space-y-3 border-t border-border/40 pt-6">
           <p className="text-xs font-medium text-muted-foreground">روابط إضافية</p>
-          {listingBalance?.hasActiveListing || listingBalanceLoading ? (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-              <span>
-                أيام الإدراج المتبقية:{' '}
-                <strong className="text-foreground">
-                  {listingBalanceLoading ? '…' : listingBalance?.listingDaysRemaining ?? 0}
-                </strong>
-              </span>
-              {listingBalance?.validUntil ? (
-                <span dir="ltr" className="text-xs">
-                  حتى {new Date(listingBalance.validUntil).toLocaleDateString('ar-SA')}
-                </span>
-              ) : null}
-              <Button type="button" variant="link" size="sm" className="h-auto p-0" onClick={() => setRedeemDialogOpen(true)}>
-                استرداد رمز الإدراج
-              </Button>
-            </div>
-          ) : (
-            <Button type="button" variant="link" size="sm" className="h-auto p-0 text-sm" onClick={() => setRedeemDialogOpen(true)}>
-              استرداد رمز حزمة الإدراج
-            </Button>
-          )}
           <div className="flex flex-wrap gap-2">
             {canOpenMapCommunity ? (
               <Button asChild variant="outline" size="sm" className="relative gap-1.5">
@@ -1195,11 +1173,12 @@ export default function BarberDashboard({
         )}
       </div>
 
-      <footer className="mt-auto border-t border-border/40 bg-muted/20 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
-        <div className="container mx-auto px-3 py-6 sm:px-4">
-          <PlatformOfficialFooterStrip variant="light" />
-        </div>
-      </footer>
+      <BarberDashboardLicenseFooter
+        subscriptionTier={effectiveListingTier ?? barberData.subscription}
+        listingBalance={listingBalance}
+        loading={listingBalanceLoading}
+        onRedeem={() => setRedeemDialogOpen(true)}
+      />
     </div>
 
     <Dialog open={deleteAccountDialogOpen} onOpenChange={setDeleteAccountDialogOpen}>

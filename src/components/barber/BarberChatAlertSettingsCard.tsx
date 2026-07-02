@@ -102,6 +102,22 @@ export function BarberChatAlertSettingsCard({
     }
   }, [barberEmail, barberId, prefs]);
 
+  const previewAlert = useCallback(
+    async (kind: 'message' | 'home_visit' | 'groom_prep', label: string) => {
+      if (!prefs.enabled) {
+        toast.message('فعّل التنبيه الصوتي أولاً من المفتاح أعلاه.');
+        return;
+      }
+      const ok = await playBarberChatAlert(kind, prefs);
+      if (!ok) {
+        toast.error('تعذّر تشغيل الصوت — تحقق من إذن الصوت في المتصفح.');
+        return;
+      }
+      toast.message(label);
+    },
+    [prefs],
+  );
+
   return (
     <Card className="border-amber-500/25 bg-gradient-to-br from-amber-500/[0.06] to-card">
       <CardHeader className="pb-2">
@@ -254,7 +270,7 @@ export function BarberChatAlertSettingsCard({
             size="sm"
             className="gap-2"
             disabled={!prefs.enabled}
-            onClick={() => playBarberChatAlert('message', prefs)}
+            onClick={() => void previewAlert('message', 'تشغيل تجربة رسالة')}
           >
             <Volume2 className="h-4 w-4" />
             تجربة رسالة
@@ -265,7 +281,7 @@ export function BarberChatAlertSettingsCard({
             size="sm"
             className="gap-2"
             disabled={!prefs.enabled}
-            onClick={() => playBarberChatAlert('home_visit', prefs)}
+            onClick={() => void previewAlert('home_visit', 'تشغيل تجربة زيارة منزلية')}
           >
             <Volume2 className="h-4 w-4" />
             تجربة زيارة منزلية
@@ -276,7 +292,7 @@ export function BarberChatAlertSettingsCard({
             size="sm"
             className="gap-2"
             disabled={!prefs.enabled}
-            onClick={() => playBarberChatAlert('groom_prep', prefs)}
+            onClick={() => void previewAlert('groom_prep', 'تشغيل تجربة تجهيز عريس')}
           >
             <Volume2 className="h-4 w-4" />
             تجربة تجهيز عريس

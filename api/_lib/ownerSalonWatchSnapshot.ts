@@ -58,6 +58,8 @@ export async function buildOwnerSalonWatchSnapshot(
 
   const nowIso = new Date().toISOString();
   const todayStart = startOfTodayIso();
+  const tierNorm = String(barber.tier ?? 'bronze').toLowerCase();
+  const isDiamondTier = tierNorm === 'diamond';
 
   const [activeConvRes, todayConvRes, pulseRes, recsRes, eventsRes] = await Promise.all([
     supabase
@@ -71,30 +73,36 @@ export async function buildOwnerSalonWatchSnapshot(
       .select('id', { count: 'exact', head: true })
       .eq('barber_id', id)
       .gte('started_at', todayStart),
-    supabase
-      .from('fleet_operational_pulse')
-      .select(
-        'severity, friction_score, summary_ar, reported_at, listing_days_remaining, shop_open, wallet_low, stagnant, bucket_day',
-      )
-      .eq('barber_id', id)
-      .order('bucket_day', { ascending: false })
-      .order('reported_at', { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from('barber_ai_recommendations')
-      .select('category, title, body, priority, status, created_at')
-      .eq('barber_id', id)
-      .eq('status', 'active')
-      .order('priority', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(6),
-    supabase
-      .from('salon_ops_events')
-      .select('event_type, severity, title_ar, body_ar, created_at')
-      .eq('barber_id', id)
-      .order('created_at', { ascending: false })
-      .limit(12),
+    isDiamondTier
+      ? supabase
+          .from('fleet_operational_pulse')
+          .select(
+            'severity, friction_score, summary_ar, reported_at, listing_days_remaining, shop_open, wallet_low, stagnant, bucket_day',
+          )
+          .eq('barber_id', id)
+          .order('bucket_day', { ascending: false })
+          .order('reported_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+    isDiamondTier
+      ? supabase
+          .from('barber_ai_recommendations')
+          .select('category, title, body, priority, status, created_at')
+          .eq('barber_id', id)
+          .eq('status', 'active')
+          .order('priority', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(6)
+      : Promise.resolve({ data: [], error: null }),
+    isDiamondTier
+      ? supabase
+          .from('salon_ops_events')
+          .select('event_type, severity, title_ar, body_ar, created_at')
+          .eq('barber_id', id)
+          .order('created_at', { ascending: false })
+          .limit(12)
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
   const pulseRow = pulseRes.data as {

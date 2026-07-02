@@ -80,7 +80,7 @@ export function createBarberCommunicationAlertEngine(barberId: string): BarberCo
       const now = Date.now();
       if (now - lastPlayed[kind] < ALERT_COOLDOWN_MS) return;
       lastPlayed[kind] = now;
-      playBarberChatAlert(kind, prefs);
+      void playBarberChatAlert(kind, prefs);
     },
   };
 }
