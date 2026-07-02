@@ -761,7 +761,7 @@ export async function autoRedeemIssuedVouchersForRegistration(
 
   const { data: orders, error: orderErr } = await supabase
     .from('listing_license_orders')
-    .select('id, metadata')
+    .select('id, metadata, barber_id')
     .eq('registration_request_id', requestId)
     .eq('status', 'paid');
 

@@ -222,7 +222,7 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'No active barber account for this email' }, { status: 404, headers });
   }
 
-  const tierNorm = String(barber.tier ?? '').toLowerCase();
+  const tierNorm = String(barber.tier ?? '').trim().toLowerCase();
   if (tierNorm !== 'gold' && tierNorm !== 'diamond') {
     return Response.json(
       {
@@ -240,7 +240,6 @@ export async function POST(request: Request): Promise<Response> {
     : null;
 
   const salonRole = await resolveSalonMemberRole(supabase, String(barber.id), String(barber.email ?? ''));
-  const tierNorm = String(barber.tier ?? '').trim().toLowerCase();
   if (tierNorm === 'diamond') {
     await ensureDigitalShiftAddonFromPaidOrders(supabase, String(barber.id));
   }

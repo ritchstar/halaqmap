@@ -280,6 +280,7 @@ export function DigitalShiftPrivateOffice({
 
   return (
     <div
+      id="digital-shift-private-office"
       dir="rtl"
       className="relative overflow-hidden rounded-3xl"
       style={{
@@ -458,7 +459,7 @@ export function DigitalShiftPrivateOffice({
         )}
       </AnimatePresence>
 
-      {/* ══ لوحة القناة السرية — توجيهات الأسطول ══ */}
+      {/* ══ توجيهات تشغيلية من المنصة ══ */}
       <AnimatePresence>
         {showFleet && fleetDirectives.length > 0 && (
           <motion.div
@@ -470,9 +471,9 @@ export function DigitalShiftPrivateOffice({
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-purple-400 font-black">◆</span>
-                  <p className="text-xs font-black text-purple-300">قناة سرية — توجيهات قيادة الأسطول</p>
+                  <p className="text-xs font-black text-purple-300">توجيهات تشغيلية من المنصة</p>
                   <span className="rounded-full border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 text-[0.5rem] font-black text-purple-300 uppercase tracking-widest">
-                    مُشفَّرة
+                    للمناوب
                   </span>
                 </div>
                 <button onClick={() => setShowFleet(false)} className="text-slate-600 hover:text-slate-400">
@@ -491,7 +492,7 @@ export function DigitalShiftPrivateOffice({
                 ))}
               </div>
               <p className="mt-3 text-[0.55rem] text-purple-500/35">
-                ◆ صادرة من المدير العام للمناوبين · قيادة الأسطول السرية · مُطبَّقة تلقائياً
+                ◆ صادرة من فريق تشغيل المناوب في المنصة · تُطبَّق تلقائياً على أسلوب الرد
               </p>
             </div>
           </motion.div>

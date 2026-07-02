@@ -165,7 +165,7 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Account is not active' }, { status: 403, headers });
   }
 
-  const tierNorm = String(b.tier ?? '').toLowerCase();
+  const tierNorm = String(b.tier ?? '').trim().toLowerCase();
   if (tierNorm !== 'gold' && tierNorm !== 'diamond') {
     return Response.json(
       {
@@ -181,7 +181,6 @@ export async function POST(request: Request): Promise<Response> {
   const barberSessionToken = sessionSecret ? mintBarberPortalSessionToken(String(b.id), String(b.email ?? ''), sessionSecret) : null;
 
   const salonRole = await resolveSalonMemberRole(supabase, String(b.id), String(b.email ?? ''));
-  const tierNorm = String(b.tier ?? '').trim().toLowerCase();
   if (tierNorm === 'diamond') {
     await ensureDigitalShiftAddonFromPaidOrders(supabase, String(b.id));
   }

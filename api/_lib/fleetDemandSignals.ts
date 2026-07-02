@@ -184,7 +184,7 @@ export async function assessMarketStagnation(
   }
 
   const noteAr =
-    `كساد محلي مُبلّغ — ${cityAr}: لا محادثات خلال ${STAGNATION_CONVERSATION_WINDOW_DAYS} أيام` +
+    `هدوء محلي — ${cityAr}: لا محادثات خلال ${STAGNATION_CONVERSATION_WINDOW_DAYS} أيام` +
     (daysSinceLastContact != null ? ` · آخر تواصل منذ ${daysSinceLastContact} يوم` : ' · لا سجل تواصل سابق');
 
   await Promise.all([
@@ -193,12 +193,12 @@ export async function assessMarketStagnation(
       category: 'shift_chat',
       priority: 88,
       dedupeKey: 'market_stagnation_local',
-      title: '📉 حركة هادئة في حيّك — المناوب يرفع إشارة للأسطول',
+      title: '📉 حركة هادئة في حيّك — توصية تشغيلية من المناوب',
       body:
-        'يا عمنا، الشات هادئ في الأيام الأخيرة — وهذا لا يعني انعدام الطلب في منطقتك. المنصة تبني الطلب بالتوازي عبر محطات النبض.\n\n' +
+        'يا عمنا، الشات هادئ في الأيام الأخيرة — وهذا لا يعني انعدام الطلب في منطقتك. المنصة تواصل دعم ظهورك على الخريطة والبحث.\n\n' +
         '• راجع البنر والمعرض وفعّل عرضاً موسمياً\n' +
         '• تأكد أن المحل «مفتوح للزبائن» في لوحة التحكم\n' +
-        '• أبلغنا قيادة الأسطول بإشارة كساد محلي — لدعم محيط المدار في حيّك دون وعود كمية',
+        '• سجّلنا ملاحظة تشغيلية لدعم ظهورك في حيّك — دون وعود بعدد زبائن',
       metadata: {
         conversations7d: convCount,
         daysSinceLastContact,

@@ -20,6 +20,7 @@ import {
   Edit,
   Trash2,
   Moon,
+  Building2,
   Send,
   Mic,
   Paperclip,
@@ -144,6 +145,18 @@ import {
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
 import { BarberSocialShareKit } from '@/components/barber/BarberSocialShareKit';
 import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
+import {
+  DigitalShiftQuickAccessStrip,
+  stashDigitalShiftScrollTarget,
+  type DigitalShiftQuickTarget,
+} from '@/components/barber/DigitalShiftQuickAccessStrip';
+import {
+  DIGITAL_SHIFT_BADGE_OFFICE_AR,
+  DIGITAL_SHIFT_BADGE_SHIFT_AR,
+  DIGITAL_SHIFT_DASHBOARD_TAB_AR,
+  DIGITAL_SHIFT_PENDING_ACTIVATION_AR,
+} from '@/config/digitalShiftDashboardCopy';
+import { DIAMOND_PRODUCT_SMART_LABEL_AR } from '@/config/subscriptionPricing';
 import { useDigitalShiftSalonSnapshotSync } from '@/hooks/useDigitalShiftSalonSnapshotSync';
 import { BarberDashboardLicenseFooter } from '@/components/barber/BarberDashboardLicenseFooter';
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
@@ -262,6 +275,8 @@ export default function BarberDashboard({
   const [redeemCode, setRedeemCode] = useState('');
   const [redeemLoading, setRedeemLoading] = useState(false);
   const [digitalShiftUnlocked, setDigitalShiftUnlocked] = useState(founderPreview);
+  const [digitalShiftStatusLoading, setDigitalShiftStatusLoading] = useState(false);
+  const [digitalShiftRefreshBusy, setDigitalShiftRefreshBusy] = useState(false);
 
   useEffect(() => {
     if (founderPreview && previewSession) {
@@ -350,17 +365,25 @@ export default function BarberDashboard({
     const email = barberData?.email?.trim();
     if (!id || !email || effectiveListingTier !== SubscriptionTier.DIAMOND) {
       setDigitalShiftUnlocked(false);
+      setDigitalShiftStatusLoading(false);
       return;
     }
     let cancelled = false;
+    setDigitalShiftStatusLoading(true);
     void fetchDigitalShiftSummaryRemote({ barberId: id, email }).then((result) => {
       if (cancelled) return;
       setDigitalShiftUnlocked(result.ok && result.data.config?.enabled === true);
+      setDigitalShiftStatusLoading(false);
     });
     return () => {
       cancelled = true;
     };
   }, [barberData?.id, barberData?.email, effectiveListingTier, founderPreview]);
+
+  const openDigitalShiftTab = useCallback((target?: DigitalShiftQuickTarget) => {
+    if (target) stashDigitalShiftScrollTarget(target);
+    setActiveTab('digital-shift');
+  }, []);
 
   /** ذهبي: تبويبات الرسائل + QR فقط — ماسي: لوحة كاملة */
   const tierTabs = useMemo(() => {
@@ -527,6 +550,30 @@ export default function BarberDashboard({
       return merged;
     });
   }, []);
+
+  const refreshDigitalShiftActivation = useCallback(async () => {
+    if (!barberData?.id || !barberData.email) return;
+    setDigitalShiftRefreshBusy(true);
+    const refresh = await refreshBarberPortalSessionRemote({
+      barberId: barberData.id,
+      email: barberData.email,
+    });
+    if (refresh.ok) {
+      applyPortalSession(refresh.session);
+    }
+    const summary = await fetchDigitalShiftSummaryRemote({
+      barberId: barberData.id,
+      email: barberData.email,
+    });
+    setDigitalShiftRefreshBusy(false);
+    if (summary.ok && summary.data.config?.enabled === true) {
+      setDigitalShiftUnlocked(true);
+      toast.success('تم تفعيل المناوب والمكتب الخاص — افتح التبويب المخصّص.');
+      openDigitalShiftTab('private-office');
+      return;
+    }
+    toast.message('لم تُفعَّل الإضافة بعد — تأكد من إتمام الدفع أو تواصل مع الدعم.');
+  }, [barberData?.id, barberData?.email, applyPortalSession, openDigitalShiftTab]);
 
   const syncPortalSessionFromServer = useCallback(async () => {
     const id = portalIdRef.current?.trim();
@@ -781,6 +828,8 @@ export default function BarberDashboard({
         className={`sticky top-0 z-50 w-full border-b pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
           ownerWatchMode && ownerCanWatch
             ? 'border-amber-500/45 bg-gradient-to-l from-amber-500/15 via-orange-500/5 to-background/95'
+            : digitalShiftUnlocked
+              ? 'border-indigo-400/35 bg-gradient-to-l from-indigo-500/10 via-violet-500/5 to-background/95'
             : childrenSpecialistActive
               ? 'border-sky-400/35 bg-gradient-to-l from-sky-500/10 via-background/95 to-background/95'
               : mensGroomingCenterActive
@@ -806,7 +855,9 @@ export default function BarberDashboard({
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge variant="secondary" className="text-[10px] sm:text-xs">
                     {listingBalance?.hasActiveListing && effectiveListingTier
-                      ? `${subscriptionTierLabelAr(effectiveListingTier)} · نفاذ ساري`
+                      ? digitalShiftUnlocked && effectiveListingTier === SubscriptionTier.DIAMOND
+                        ? `${DIAMOND_PRODUCT_SMART_LABEL_AR} · نفاذ ساري`
+                        : `${subscriptionTierLabelAr(effectiveListingTier)} · نفاذ ساري`
                       : `${subscriptionTierLabelAr(barberData.subscription)} · آخر باقة`}
                   </Badge>
                   <Badge
@@ -824,6 +875,18 @@ export default function BarberDashboard({
                       <ChildrenSpecialistIcon className="h-3 w-3" title={CHILDREN_SPECIALIST_DASHBOARD_TAB_AR} />
                       {CHILDREN_SPECIALIST_DASHBOARD_TAB_AR}
                     </Badge>
+                  ) : null}
+                  {digitalShiftUnlocked ? (
+                    <>
+                      <Badge className="text-[10px] sm:text-xs border-indigo-400/40 bg-indigo-500/15 text-indigo-950 dark:text-indigo-100 gap-1">
+                        <Moon className="h-3 w-3" aria-hidden />
+                        {DIGITAL_SHIFT_BADGE_SHIFT_AR}
+                      </Badge>
+                      <Badge className="text-[10px] sm:text-xs border-violet-400/40 bg-violet-500/15 text-violet-950 dark:text-violet-100 gap-1">
+                        <Building2 className="h-3 w-3" aria-hidden />
+                        {DIGITAL_SHIFT_BADGE_OFFICE_AR}
+                      </Badge>
+                    </>
                   ) : null}
                   {mensGroomingCenterActive ? (
                     <Badge className="text-[10px] sm:text-xs border-amber-400/40 bg-amber-500/15 text-amber-950 dark:text-amber-100 gap-1">
@@ -960,18 +1023,32 @@ export default function BarberDashboard({
         ) : null}
 
         {tierTabs.showDigitalShift && digitalShiftUnlocked ? (
-          <Alert className="border-indigo-500/30 bg-indigo-500/5">
-            <Moon className="h-4 w-4 text-indigo-600" />
-            <AlertDescription className="text-sm leading-relaxed">
-              حزمة <strong>الماسي + المناوب</strong> مفعّلة — افتح تبويب{' '}
-              <button
+          <DigitalShiftQuickAccessStrip onOpenShift={openDigitalShiftTab} />
+        ) : null}
+
+        {tierTabs.showDigitalShift &&
+        effectiveListingTier === SubscriptionTier.DIAMOND &&
+        !digitalShiftUnlocked &&
+        !digitalShiftStatusLoading ? (
+          <Alert className="border-amber-500/35 bg-amber-500/10">
+            <Building2 className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+            <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-sm leading-relaxed">{DIGITAL_SHIFT_PENDING_ACTIVATION_AR}</span>
+              <Button
                 type="button"
-                className="font-semibold text-indigo-700 underline underline-offset-2"
-                onClick={() => setActiveTab('digital-shift')}
+                size="sm"
+                variant="outline"
+                className="shrink-0 gap-1.5 border-amber-500/40"
+                disabled={digitalShiftRefreshBusy}
+                onClick={() => void refreshDigitalShiftActivation()}
               >
-                «المناوب الذكي»
-              </button>{' '}
-              للمكتب الخاص، إعدادات المناوبة، وطاولة التوصيات. شات العملاء يبقى لتدخّلك اليدوي المباشر.
+                {digitalShiftRefreshBusy ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                تحديث الحالة
+              </Button>
             </AlertDescription>
           </Alert>
         ) : null}
@@ -999,9 +1076,24 @@ export default function BarberDashboard({
               </TabsTrigger>
             ) : null}
             {tierTabs.showDigitalShift ? (
-              <TabsTrigger value="digital-shift" className={DASHBOARD_VITAL_TAB_TRIGGER}>
-                <Moon className="h-5 w-5 shrink-0" />
-                <span>المناوب الذكي</span>
+              <TabsTrigger
+                value="digital-shift"
+                className={cn(
+                  DASHBOARD_VITAL_TAB_TRIGGER,
+                  digitalShiftUnlocked &&
+                    'data-[state=active]:border-indigo-500 data-[state=active]:bg-indigo-500/12 data-[state=active]:text-indigo-950 dark:data-[state=active]:text-indigo-100',
+                )}
+              >
+                <span className="flex items-center gap-1">
+                  <Moon className="h-5 w-5 shrink-0" />
+                  <Building2 className="h-4 w-4 shrink-0 opacity-80" />
+                </span>
+                <span className="text-right leading-tight">
+                  <span className="block">{DIGITAL_SHIFT_DASHBOARD_TAB_AR}</span>
+                </span>
+                {digitalShiftUnlocked ? (
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-indigo-400" aria-hidden />
+                ) : null}
               </TabsTrigger>
             ) : null}
             {tierTabs.showQrRatings ? (
@@ -1345,6 +1437,7 @@ export default function BarberDashboard({
         subscriptionTier={effectiveListingTier ?? barberData.subscription}
         listingBalance={listingBalance}
         loading={listingBalanceLoading}
+        digitalShiftUnlocked={digitalShiftUnlocked}
         onRedeem={() => setRedeemDialogOpen(true)}
       />
     </div>

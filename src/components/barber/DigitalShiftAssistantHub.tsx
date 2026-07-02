@@ -16,6 +16,7 @@ import {
   DIGITAL_SHIFT_REPLY_DELAY_MINUTES,
   DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR,
 } from '@/config/digitalShiftAssistant';
+import { consumeDigitalShiftScrollTarget } from '@/components/barber/DigitalShiftQuickAccessStrip';
 import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
 import { DigitalShiftRecommendationsTable } from '@/components/barber/DigitalShiftRecommendationsTable';
 import { DigitalShiftPrivateOffice } from '@/components/barber/DigitalShiftPrivateOffice';
@@ -78,6 +79,17 @@ export function DigitalShiftAssistantHub({
   useEffect(() => {
     void loadSummary();
   }, [loadSummary]);
+
+  useEffect(() => {
+    if (loading) return;
+    const target = consumeDigitalShiftScrollTarget();
+    if (!target) return;
+    const elementId =
+      target === 'private-office' ? 'digital-shift-private-office' : 'digital-shift-settings';
+    window.requestAnimationFrame(() => {
+      document.getElementById(elementId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [loading]);
 
   const refreshInsights = async () => {
     setRefreshing(true);
@@ -224,7 +236,7 @@ export function DigitalShiftAssistantHub({
         </Card>
       </div>
 
-      <Card>
+      <Card id="digital-shift-settings">
         <CardHeader>
           <CardTitle className="text-base">إعدادات المناوب</CardTitle>
           <CardDescription>خصّص الاسم وفعّل/أوقف المناوبة الذكية.</CardDescription>

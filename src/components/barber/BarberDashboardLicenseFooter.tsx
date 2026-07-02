@@ -7,8 +7,12 @@ import { buildBuyPackageUrl } from '@/lib/buyPackageRouter';
 import type { ListingLicenseBalance } from '@/lib/listingLicenseRemote';
 import { cn } from '@/lib/utils';
 
-function tierLabelAr(tier: SubscriptionTier | null): string {
-  if (tier === SubscriptionTier.DIAMOND) return 'ماسي';
+import { DIAMOND_PRODUCT_SMART_LABEL_AR } from '@/config/subscriptionPricing';
+
+function tierLabelAr(tier: SubscriptionTier | null, digitalShiftUnlocked?: boolean): string {
+  if (tier === SubscriptionTier.DIAMOND) {
+    return digitalShiftUnlocked ? DIAMOND_PRODUCT_SMART_LABEL_AR : 'ماسي';
+  }
   if (tier === SubscriptionTier.GOLD) return 'ذهبي';
   if (tier === SubscriptionTier.BRONZE) return 'برونزي';
   return '—';
@@ -24,6 +28,7 @@ type BarberDashboardLicenseFooterProps = {
   subscriptionTier: SubscriptionTier | null;
   listingBalance: ListingLicenseBalance | null;
   loading?: boolean;
+  digitalShiftUnlocked?: boolean;
   onRedeem?: () => void;
   className?: string;
 };
@@ -32,6 +37,7 @@ export function BarberDashboardLicenseFooter({
   subscriptionTier,
   listingBalance,
   loading = false,
+  digitalShiftUnlocked = false,
   onRedeem,
   className,
 }: BarberDashboardLicenseFooterProps) {
@@ -71,7 +77,7 @@ export function BarberDashboardLicenseFooter({
               <p className="text-sm font-bold">رخصة النفاذ الرقمية</p>
               {activeTier ? (
                 <Badge variant="secondary" className="text-[11px]">
-                  {tierLabelAr(activeTier)}
+                  {tierLabelAr(activeTier, digitalShiftUnlocked)}
                 </Badge>
               ) : null}
               {hasActiveListing ? (
