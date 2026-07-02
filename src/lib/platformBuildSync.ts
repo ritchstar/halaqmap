@@ -138,7 +138,7 @@ export function initPlatformBuildSync(): void {
   };
 
   // Initial check after the page settles
-  window.setTimeout(safeRun, 4_000);
+  window.setTimeout(safeRun, 1_200);
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') safeRun();

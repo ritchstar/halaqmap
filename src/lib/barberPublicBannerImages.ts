@@ -22,3 +22,14 @@ export function resolveBarberPublicCoverAndFeatured(input: {
     featured_images: banners.slice(0, FEATURED_GALLERY_IMAGES_MAX),
   };
 }
+
+/** غلاف البطاقة العامة — يفضّل أول بنر مميز على صورة الواجهة القديمة */
+export function resolvePublicBarberCardCoverImage(
+  cover: string | null | undefined,
+  featured: string[],
+): string | null {
+  const banner = featured[0]?.trim();
+  if (banner) return banner;
+  const legacy = cover?.trim();
+  return legacy || null;
+}

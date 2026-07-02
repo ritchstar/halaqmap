@@ -4,6 +4,7 @@ import { barberAcceptsChildren } from '@/lib/barberCategoryLexicon';
 import { IMAGES } from '@/assets/images';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
+import { resolvePublicBarberCardCoverImage } from '@/lib/barberPublicBannerImages';
 
 const API_PATH = '/api/public-showcase-fallback';
 const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
@@ -120,7 +121,8 @@ function mapRow(row: FallbackRow): Barber {
   const featured = parseFeaturedImages(row.featured_images);
   const cover = row.cover_image?.trim() || null;
   const profile = row.profile_image?.trim() || null;
-  const images = [cover, ...featured, profile].filter(Boolean) as string[];
+  const cardCover = resolvePublicBarberCardCoverImage(cover, featured);
+  const images = [cardCover, ...featured, profile].filter(Boolean) as string[];
   const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
   const lat = Number(row.latitude);
   const lng = Number(row.longitude);

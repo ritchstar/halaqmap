@@ -99,6 +99,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 .platform-dark {
   color-scheme: dark;
+  --app-canvas: #020912;
 
   /* الخلفية الرئيسية — محسّنة للتباين */
   --background: oklch(0.10 0.03 254);
@@ -1200,20 +1201,28 @@
     @apply scroll-smooth antialiased;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    background: var(--app-canvas, oklch(0.98 0.005 174));
+    overscroll-behavior-y: none;
   }
 
   body {
-    @apply bg-background text-foreground font-sans min-h-[100dvh] overflow-x-hidden;
+    @apply text-foreground font-sans min-h-[100dvh] overflow-x-hidden;
+    background: var(--app-canvas, oklch(0.98 0.005 174));
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-tap-highlight-color: color-mix(in srgb, var(--primary) 18%, transparent);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
     /* Keep top inset at header level only to avoid double top spacing on mobile pages. */
     padding-top: 0;
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: 0;
+    overscroll-behavior-y: none;
   }
 
   /* الرئيسية على الجوال قبل الاستعلام — قفل تمرير iOS/Safari */
+  html.hm-app-dark-canvas {
+    --app-canvas: #020912;
+  }
+
   html.hm-landing-mobile-lock,
   html.hm-landing-mobile-lock body {
     height: 100%;

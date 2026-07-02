@@ -5,6 +5,7 @@ import type { Barber, GroomPrepOffer, HomeVisitOffer, InclusiveAccessibleCareOff
 import { SubscriptionTier } from '@/lib/index';
 import { sanitizeInclusiveCareDays } from '@/lib/barberInclusiveCareRemote';
 import { barberAcceptsChildren } from '@/lib/barberCategoryLexicon';
+import { resolvePublicBarberCardCoverImage } from '@/lib/barberPublicBannerImages';
 import { normalizeGroomingCenterBannerLines } from '@/config/mensGroomingCenterPolicy';
 
 const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
@@ -193,7 +194,8 @@ function mapRow(row: BarberRow): Barber {
   const featured = parseFeaturedImages(row.featured_images);
   const cover = row.cover_image?.trim() || null;
   const profile = row.profile_image?.trim() || null;
-  const images = mergePublicBarberImages(cover, profile, featured);
+  const cardCover = resolvePublicBarberCardCoverImage(cover, featured);
+  const images = mergePublicBarberImages(cardCover, profile, featured);
   const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
   const phone = row.phone?.trim() || '';
   const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];

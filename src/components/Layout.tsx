@@ -64,6 +64,11 @@ export function Layout({ children }: LayoutProps) {
     };
   }, [isMobile]);
 
+  useEffect(() => {
+    document.documentElement.classList.add('hm-app-dark-canvas');
+    return () => document.documentElement.classList.remove('hm-app-dark-canvas');
+  }, []);
+
   return (
     <div
       className="platform-dark platform-ambient min-h-[100dvh] min-h-screen flex flex-col bg-background overflow-x-hidden"
@@ -191,13 +196,13 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <main className="relative z-10 flex-1 md:pb-0">{children}</main>
 
       {/* أزرار عائمة: مشاركة + تقييم + آراء */}
       {deferMobileExtras ? <FloatingPlatformActions /> : null}
 
       {/* ── الفوتر — داكن احترافي ──────────────────────────────────────── */}
-      <footer className="border-t border-teal-400/10 bg-[#020912] mt-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+      <footer className="border-t border-teal-400/10 bg-[#020912] mt-auto pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
         {/* شريط هوية المنصة */}
         <div className="border-b border-white/5 bg-white/[0.02]">
           <div className="container mx-auto px-4 py-4">

@@ -57,6 +57,7 @@ import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagemen
 import { LandingPulseRadarHero } from '@/pages/landing/LandingPulseRadarHero';
 import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
+import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const LazyLandingAgentPanelBody = lazy(async () => {
@@ -636,6 +637,11 @@ export default function LandingPreview() {
   const mobilePreSearch = isMobile && !userLocation;
 
   useEffect(() => {
+    document.documentElement.classList.add('hm-app-dark-canvas');
+    return () => document.documentElement.classList.remove('hm-app-dark-canvas');
+  }, []);
+
+  useEffect(() => {
     if (!mobilePreSearch) return;
     const html = document.documentElement;
     html.classList.add('hm-landing-mobile-lock');
@@ -727,10 +733,10 @@ export default function LandingPreview() {
     <div
       dir="rtl"
       className={cn(
-        'platform-dark platform-ambient relative overflow-x-hidden bg-background font-[Tajawal,system-ui] text-slate-100',
+        'platform-dark platform-ambient relative overflow-x-hidden bg-[#020912] font-[Tajawal,system-ui] text-slate-100',
         mobilePreSearch
           ? 'flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden overscroll-none'
-          : 'md:min-h-screen',
+          : 'min-h-[100dvh] overscroll-y-none md:min-h-screen',
       )}
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
@@ -1300,7 +1306,7 @@ export default function LandingPreview() {
       {!mobilePreSearch ? (
       <footer
         className={cn(
-          'relative z-10 border-t border-white/8 bg-black/40 py-8 md:py-12',
+          'relative z-10 border-t border-white/8 bg-[#020912] py-8 md:py-12',
           isMobile && MOBILE_SAFE_BOTTOM_MIN,
         )}
       >
@@ -1416,6 +1422,7 @@ export default function LandingPreview() {
           <div className="mt-5">
             <EcommerceVerifiedFooterBadge variant="landing" />
           </div>
+          <AppBuildStamp variant="dark" className="mt-4 opacity-60" />
         </div>
       </footer>
       ) : null}
