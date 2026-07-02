@@ -70,6 +70,24 @@ function coordsUsable(latitude: number | null, longitude: number | null): boolea
   return true;
 }
 
+/** يربط إحداثيات التسجيل/الشهادة بجدول barbers — مصدر بحث الخريطة. */
+async function syncBarberCoordinatesFromGeo(
+  supabase: SupabaseClient,
+  barberId: string | null,
+  latitude: number | null,
+  longitude: number | null,
+): Promise<void> {
+  if (!barberId || !coordsUsable(latitude, longitude)) return;
+  await supabase
+    .from('barbers')
+    .update({
+      latitude,
+      longitude,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', barberId);
+}
+
 async function loadRegistrationGeoSnapshot(
   supabase: SupabaseClient,
   registrationRequestId: string,
@@ -219,6 +237,7 @@ export async function provisionGeospatialLicenseAsset(
       };
     }
     const geo = await loadGeoSnapshot(supabase, input.barberId, input.registrationRequestId);
+    await syncBarberCoordinatesFromGeo(supabase, input.barberId, geo.latitude, geo.longitude);
     const map = resolveMapStatuses({
       barberId: input.barberId,
       entitlementId: input.entitlementId,
@@ -281,6 +300,7 @@ export async function provisionGeospatialLicenseAsset(
   }
 
   const geo = await loadGeoSnapshot(supabase, input.barberId, input.registrationRequestId);
+  await syncBarberCoordinatesFromGeo(supabase, input.barberId, geo.latitude, geo.longitude);
   const map = resolveMapStatuses({
     barberId: input.barberId,
     entitlementId: input.entitlementId,
@@ -382,6 +402,7 @@ export async function refreshGeospatialLicenseAssetBinding(
   },
 ): Promise<void> {
   const geo = await loadGeoSnapshot(supabase, input.barberId, input.registrationRequestId ?? null);
+  await syncBarberCoordinatesFromGeo(supabase, input.barberId, geo.latitude, geo.longitude);
   const map = resolveMapStatuses({
     barberId: input.barberId,
     entitlementId: input.entitlementId,
@@ -510,16 +531,7 @@ export async function promoteGeospatialBindForMoyasarPayment(
   }
 
   const geo = await loadGeoSnapshot(supabase, barberId, registrationRequestId);
-  if (barberId && geo.latitude != null && geo.longitude != null) {
-    await supabase
-      .from('barbers')
-      .update({
-        latitude: geo.latitude,
-        longitude: geo.longitude,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', barberId);
-  }
+  await syncBarberCoordinatesFromGeo(supabase, barberId, geo.latitude, geo.longitude);
 
   if (!barberId || !entitlementId) return;
 
