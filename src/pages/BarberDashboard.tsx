@@ -53,6 +53,7 @@ import { ROUTE_PATHS, Post, ChatMessage, Review, SubscriptionTier } from '@/lib'
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
+import { PlatformSecurityIncidentStrip } from '@/components/PlatformSecurityIncidentStrip';
 import { IMAGES } from '@/assets/images';
 import {
   createInitialWorkingWeekForm,
@@ -607,7 +608,8 @@ export default function BarberDashboard({
     barberData?.subscription === SubscriptionTier.DIAMOND;
 
   const ownerCanWatch =
-    (barberData?.salonRole === 'owner' || barberData?.salonRole == null) &&
+    Boolean(barberData) &&
+    (barberData.salonRole === 'owner' || barberData.salonRole == null) &&
     (barberData.subscription === SubscriptionTier.GOLD ||
       barberData.subscription === SubscriptionTier.DIAMOND);
 
@@ -623,8 +625,8 @@ export default function BarberDashboard({
     barberId: barberData?.id ?? '',
     barberEmail: barberData?.email ?? '',
     enabled:
-      Boolean(barberData?.id && barberData.email) &&
-      barberData.subscription === SubscriptionTier.DIAMOND &&
+      Boolean(barberData?.id && barberData?.email) &&
+      barberData?.subscription === SubscriptionTier.DIAMOND &&
       !founderPreview,
     bannerState,
     posts,
@@ -640,6 +642,7 @@ export default function BarberDashboard({
       {previewChrome ? (
         <div className="border-b border-border/40 bg-muted/30 px-3 py-3 sm:px-4">{previewChrome}</div>
       ) : null}
+      <PlatformSecurityIncidentStrip />
       <header
         className={`sticky top-0 z-50 w-full border-b pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
           ownerWatchMode && ownerCanWatch

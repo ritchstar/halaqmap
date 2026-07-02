@@ -14,6 +14,7 @@ import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { SOFTWARE_SERVICES_PORTAL_LABEL } from '@/config/partnerPortal';
 import { LicenseRechargeWidget } from '@/components/billing/LicenseRechargeWidget';
 import { KSACityClocksBar } from '@/components/KSACityClocksBar';
+import { PlatformSecurityIncidentStrip } from '@/components/PlatformSecurityIncidentStrip';
 import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
 import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
@@ -80,6 +81,8 @@ export function Layout({ children }: LayoutProps) {
       />
 
       {deferMobileExtras ? <PlatformAmbientBackground variant="default" /> : null}
+
+      <PlatformSecurityIncidentStrip />
 
       {/* شريط توقيت مدن المملكة */}
       {!isMobile || deferMobileExtras ? <KSACityClocksBar /> : null}

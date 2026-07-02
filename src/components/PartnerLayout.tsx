@@ -45,6 +45,7 @@ import {
 } from '@/lib/mobilePageShell';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
+import { PlatformSecurityIncidentStrip } from '@/components/PlatformSecurityIncidentStrip';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -253,6 +254,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
             isMapCommunityPage && 'border-emerald-500/15',
           )}
         >
+          <PlatformSecurityIncidentStrip />
           <PartnerOrderReceptionTicker />
           <PartnerPlatformInspectionTicker />
           <div className="container mx-auto px-3 sm:px-4">
