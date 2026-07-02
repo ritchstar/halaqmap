@@ -1,10 +1,12 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { Calendar, Clock, Smartphone, Send } from 'lucide-react';
+import { Calendar, Clock, Smartphone, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/components/ui/sonner';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { createDiamondAppointmentBookingRemote } from '@/lib/diamondAppointmentBookingRemote';
 
 function todayIso(): string {
   const d = new Date();
@@ -45,6 +47,7 @@ export function DiamondAppointmentBooking({ barberId, barberName, compact }: Dia
   const [date, setDate] = useState(minDate);
   const [time, setTime] = useState('10:00');
   const [phone, setPhone] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const slots = useMemo(() => buildSlotsForDate(date), [date]);
 
@@ -54,21 +57,32 @@ export function DiamondAppointmentBooking({ barberId, barberName, compact }: Dia
     }
   }, [slots, time]);
 
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     const phoneRegex = /^05\d{8}$/;
     if (!phoneRegex.test(phone.trim())) {
       toast.error('أدخل رقم جوال سعودي صحيح يبدأ بـ 05 (10 أرقام) لاعتماد طلب الحجز.');
       return;
     }
-    toast.success(
-      'تم إرسال طلب الحجز. سيُراجعه الصالون ويتم التأكيد على رقمك — هذه معاينة للباقة الماسية.',
-      { duration: 5000 }
-    );
-    // معاينة: يمكن لاحقاً الإرسال إلى API
-    if (import.meta.env.DEV) {
-      console.info('[halaqmap] diamond booking preview', { barberId, barberName, date, time, phone });
+    if (!isSupabaseConfigured()) {
+      toast.error('حجز المواعيد الحي يتطلب ضبط قاعدة البيانات على المنصة.');
+      return;
     }
-  }, [barberId, barberName, date, time, phone]);
+    setSubmitting(true);
+    const result = await createDiamondAppointmentBookingRemote({
+      barberId,
+      bookingDate: date,
+      bookingTime: time,
+      customerPhone: phone.trim(),
+      durationMinutes: SLOT_STEP_MIN,
+    });
+    setSubmitting(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success('تم إرسال طلب الحجز. سيُراجعه الصالون ويتم التأكيد على رقمك.', { duration: 5000 });
+    setPhone('');
+  }, [barberId, date, time, phone]);
 
   if (compact) {
     return (
@@ -122,8 +136,14 @@ export function DiamondAppointmentBooking({ barberId, barberName, compact }: Dia
               className="h-8 text-xs"
             />
           </div>
-          <Button type="button" size="sm" className="w-full h-8 text-xs gap-1 bg-accent hover:bg-accent/90" onClick={submit}>
-            <Send className="w-3.5 h-3.5" />
+          <Button
+            type="button"
+            size="sm"
+            className="w-full h-8 text-xs gap-1 bg-accent hover:bg-accent/90"
+            onClick={() => void submit()}
+            disabled={submitting}
+          >
+            {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
             إرسال طلب الحجز
           </Button>
         </CardContent>
@@ -185,8 +205,13 @@ export function DiamondAppointmentBooking({ barberId, barberName, compact }: Dia
             onChange={(e) => setPhone(e.target.value)}
           />
         </div>
-        <Button type="button" className="w-full gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold" onClick={submit}>
-          <Send className="w-4 h-4" />
+        <Button
+          type="button"
+          className="w-full gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
+          onClick={() => void submit()}
+          disabled={submitting}
+        >
+          {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           إرسال طلب الحجز
         </Button>
       </CardContent>

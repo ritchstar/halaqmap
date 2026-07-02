@@ -452,6 +452,15 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 <MessageCircle className="w-4 h-4" />
               </Button>
             </div>
+            <div className="mt-4">
+              <CustomerBarberChatPreview
+                tier={SubscriptionTier.GOLD}
+                barberId={barber.id}
+                barberName={barber.name}
+                previewListing={barber.previewListing}
+                compact
+              />
+            </div>
           </div>
         </Card>
       </motion.div>

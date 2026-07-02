@@ -120,6 +120,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'customer-private-chat') {
     return envInt('CUSTOMER_PRIVATE_CHAT_RATE_LIMIT_MAX', 30);
   }
+  if (routeId === 'diamond-appointment-booking') {
+    return envInt('DIAMOND_APPOINTMENT_BOOKING_RATE_LIMIT_MAX', 20);
+  }
   if (routeId === 'public-barber-gallery') {
     return envInt('PUBLIC_BARBER_GALLERY_RATE_LIMIT_MAX', 120);
   }

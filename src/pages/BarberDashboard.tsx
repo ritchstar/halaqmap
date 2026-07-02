@@ -155,6 +155,10 @@ import {
   redeemListingLicenseRemote,
   type ListingLicenseBalance,
 } from '@/lib/listingLicenseRemote';
+import {
+  listBarberBookingsRemote,
+  updateBarberBookingStatusRemote,
+} from '@/lib/diamondAppointmentBookingRemote';
 
 const OWNER_WATCH_HINT_DISMISS_KEY = 'halaqmap_owner_watch_hint_dismissed_v1';
 
@@ -219,6 +223,8 @@ export default function BarberDashboard({
   const [barberData, setBarberData] = useState<BarberPortalSession | null>(null);
   const [shopOpenSaving, setShopOpenSaving] = useState(false);
   const [scheduleItems, setScheduleItems] = useState<BarberDashboardScheduleItem[]>([]);
+  const [remoteBookings, setRemoteBookings] = useState<BarberDashboardScheduleItem[]>([]);
+  const [remoteBookingsLoading, setRemoteBookingsLoading] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [chatThreads, setChatThreads] = useState<BarberChatThread[]>([]);
   const [bannerState, setBannerState] = useState<BarberPlatformBannerState>({
@@ -511,21 +517,70 @@ export default function BarberDashboard({
 
   const barberId = barberData?.id;
 
+  const refreshRemoteBookings = useCallback(async () => {
+    if (founderPreview || !barberId || !isSupabaseConfigured()) return;
+    if (effectiveListingTier !== SubscriptionTier.DIAMOND) {
+      setRemoteBookings([]);
+      return;
+    }
+    setRemoteBookingsLoading(true);
+    const res = await listBarberBookingsRemote();
+    setRemoteBookingsLoading(false);
+    if (res.ok) setRemoteBookings(res.items);
+  }, [barberId, founderPreview, effectiveListingTier]);
+
   useEffect(() => {
     if (!barberId) return;
-    setScheduleItems(readSchedule(barberId));
+    setScheduleItems(readSchedule(barberId).filter((row) => row.kind !== 'customer_booking'));
     setPosts(readPosts(barberId));
     setChatThreads(readThreads(barberId));
     setBannerState(readBannerState(barberId));
   }, [barberId]);
 
+  useEffect(() => {
+    void refreshRemoteBookings();
+  }, [refreshRemoteBookings]);
+
+  useEffect(() => {
+    if (activeTab !== 'appointments') return;
+    void refreshRemoteBookings();
+    const timer = window.setInterval(() => {
+      void refreshRemoteBookings();
+    }, POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [activeTab, refreshRemoteBookings]);
+
+  const mergedScheduleItems = useMemo(() => {
+    const merged = [...remoteBookings, ...scheduleItems];
+    return merged.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  }, [remoteBookings, scheduleItems]);
+
   const persistSchedule = useCallback(
     (next: BarberDashboardScheduleItem[]) => {
       if (!barberId) return;
-      writeSchedule(barberId, next);
-      setScheduleItems(next);
+      const localOnly = next.filter((row) => row.kind === 'availability_slot');
+      writeSchedule(barberId, localOnly);
+      setScheduleItems(localOnly);
     },
     [barberId],
+  );
+
+  const handleBookingStatusChange = useCallback(
+    async (bookingId: string, status: 'confirmed' | 'cancelled' | 'completed') => {
+      const res = await updateBarberBookingStatusRemote(bookingId, status);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      setRemoteBookings((prev) =>
+        prev.map((row) => (row.id === bookingId ? res.item : row)).filter((row) => row.status !== 'cancelled'),
+      );
+      if (status === 'confirmed') toast.success('تم تأكيد الحجز');
+      else if (status === 'cancelled') toast.message('تم إلغاء الحجز');
+      else toast.success('تم إكمال الحجز');
+      void refreshRemoteBookings();
+    },
+    [refreshRemoteBookings],
   );
 
   const persistPosts = useCallback(
@@ -584,9 +639,9 @@ export default function BarberDashboard({
   );
 
   const upcomingPreview = useMemo(() => {
-    const sorted = [...scheduleItems].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    const sorted = [...mergedScheduleItems].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
     return sorted.slice(0, 5);
-  }, [scheduleItems]);
+  }, [mergedScheduleItems]);
 
   const salonDisplayName = useMemo(
     () => (barberData ? partnerSalonDisplayName(barberData) : ''),
@@ -1028,8 +1083,10 @@ export default function BarberDashboard({
           <TabsContent value="appointments" className="space-y-6">
             <AppointmentsSection
               barberId={barberData.id}
-              items={scheduleItems}
+              items={mergedScheduleItems}
+              loading={remoteBookingsLoading}
               onChange={persistSchedule}
+              onBookingStatusChange={handleBookingStatusChange}
             />
           </TabsContent>
           ) : null}
@@ -1478,11 +1535,15 @@ function ScheduleRow({ item, compact }: { item: BarberDashboardScheduleItem; com
 function AppointmentsSection({
   barberId,
   items,
+  loading,
   onChange,
+  onBookingStatusChange,
 }: {
   barberId: string;
   items: BarberDashboardScheduleItem[];
+  loading?: boolean;
   onChange: (next: BarberDashboardScheduleItem[]) => void;
+  onBookingStatusChange?: (bookingId: string, status: 'confirmed' | 'cancelled' | 'completed') => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [formDate, setFormDate] = useState('');
@@ -1521,8 +1582,25 @@ function AppointmentsSection({
   };
 
   const remove = (id: string) => {
+    const row = items.find((r) => r.id === id);
+    if (!row) return;
+    if (row.kind === 'customer_booking') {
+      if (!onBookingStatusChange) return;
+      void onBookingStatusChange(id, 'cancelled');
+      return;
+    }
     onChange(items.filter((r) => r.id !== id));
     toast.message('تم الحذف');
+  };
+
+  const confirmBooking = (id: string) => {
+    if (!onBookingStatusChange) return;
+    void onBookingStatusChange(id, 'confirmed');
+  };
+
+  const completeBooking = (id: string) => {
+    if (!onBookingStatusChange) return;
+    void onBookingStatusChange(id, 'completed');
   };
 
   return (
@@ -1531,14 +1609,22 @@ function AppointmentsSection({
         <div>
           <h2 className="text-xl font-bold sm:text-2xl">المواعيد والحجز</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            أنشئ «أوقات متاحة للحجز» ليظهر للعميل أن لديك نافذة زمنية مفتوحة؛ حجوزات العملاء الفعلية ستصل لاحقاً من
-            التطبيق. استخدم التبديل لإظهار نافذة الحجز أو إخفائها عن بطاقتك في هذا الجهاز (معاينة محلية).
+            طلبات العملاء من جدولة المواعيد (ماسي) تصل هنا مباشرة. يمكنك أيضاً إنشاء «أوقات متاحة للحجز» كمعاينة
+            محلية على هذا الجهاز.
           </p>
         </div>
-        <Button type="button" className="gap-2 self-start" onClick={() => setOpen(true)}>
-          <Plus className="h-4 w-4" />
-          إضافة أوقات متاحة
-        </Button>
+        <div className="flex flex-wrap items-center gap-2 self-start">
+          {loading ? (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              تحديث الحجوزات…
+            </span>
+          ) : null}
+          <Button type="button" className="gap-2" onClick={() => setOpen(true)}>
+            <Plus className="h-4 w-4" />
+            إضافة أوقات متاحة
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -1562,7 +1648,19 @@ function AppointmentsSection({
                       </Label>
                     </div>
                   ) : (
-                    <span className="text-xs text-muted-foreground">حجز عميل — التعديل من التطبيق لاحقاً</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {row.status === 'pending' ? (
+                        <Button type="button" size="sm" variant="default" onClick={() => confirmBooking(row.id)}>
+                          تأكيد الحجز
+                        </Button>
+                      ) : null}
+                      {row.status === 'confirmed' ? (
+                        <Button type="button" size="sm" variant="outline" onClick={() => completeBooking(row.id)}>
+                          تمّت الزيارة
+                        </Button>
+                      ) : null}
+                      <span className="text-xs text-muted-foreground">حجز عميل من المنصة</span>
+                    </div>
                   )}
                   <Button type="button" size="sm" variant="outline" className="gap-1 text-destructive" onClick={() => remove(row.id)}>
                     <Trash2 className="h-4 w-4" />
