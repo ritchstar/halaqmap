@@ -37,6 +37,7 @@ import {
   type ShiftReport,
 } from '@/lib/digitalShiftAssistantRemote';
 import { sanitizeBarberFacingCopyAr } from '@/lib/barberFacingCopySanitize';
+import { BarberDashboardOutboundAnchor } from '@/components/barber/BarberDashboardOutboundLink';
 import { ROUTE_PATHS } from '@/lib/index';
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string; ts: string };
