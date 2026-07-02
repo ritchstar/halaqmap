@@ -14,7 +14,15 @@ import {
 export function isDigitalShiftAddonInMetadata(metadata?: Record<string, unknown>): boolean {
   if (!metadata) return false;
   const raw = metadata.digital_shift_addon ?? metadata.digitalShiftAddon;
-  return raw === true || raw === 'true' || raw === 1 || raw === '1';
+  if (raw === true || raw === 'true' || raw === 1 || raw === '1') return true;
+  const halalasRaw = metadata.digital_shift_addon_halalas ?? metadata.digitalShiftAddonHalalas;
+  const halalas =
+    typeof halalasRaw === 'number'
+      ? halalasRaw
+      : typeof halalasRaw === 'string'
+        ? Number.parseInt(halalasRaw, 10)
+        : 0;
+  return Number.isFinite(halalas) && halalas > 0;
 }
 
 function siteBaseUrl(): string {

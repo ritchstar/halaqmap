@@ -17,6 +17,7 @@ import {
 } from './_lib/digitalShiftSalonInsights.js';
 import { assessMarketStagnation } from './_lib/fleetDemandSignals.js';
 import { DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR } from './_lib/subscriptionPricingCopy.js';
+import { ensureDigitalShiftAddonFromPaidOrders } from './_lib/listingLicenseService.js';
 
 export const config = { maxDuration: 60 };
 
@@ -106,6 +107,10 @@ export async function POST(request: Request): Promise<Response> {
   if (!gate.ok) return Response.json({ error: gate.message }, { status: gate.status, headers });
 
   await ensureConfigRow(supabase, barberId);
+
+  if (action === 'summary') {
+    await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
+  }
 
   const { data: accessRow } = await supabase
     .from('barber_digital_shift_config')

@@ -72,6 +72,129 @@ async function activateDigitalShiftAddonForBarber(
   );
 }
 
+function registrationPayloadHasDigitalShiftAddon(payload: Record<string, unknown>): boolean {
+  const tier = String(payload.tier ?? '').trim().toLowerCase();
+  if (tier !== 'diamond') return false;
+  const raw = payload.digitalShiftAddonSelected ?? payload.digital_shift_addon;
+  return raw === true || raw === 'true' || raw === 1 || raw === '1';
+}
+
+function orderAmountIncludesDigitalShiftAddon(
+  amountHalalas: number | null | undefined,
+  product: ListingLicenseProductRow | null,
+  metadata?: Record<string, unknown>,
+): boolean {
+  if (!product || product.tier !== 'diamond') return false;
+  if (amountHalalas == null || !Number.isFinite(amountHalalas)) return false;
+  const qty = clampLicenseQuantity(metadata?.license_quantity);
+  const expectedWithAddon =
+    product.amount_halalas * qty + DIGITAL_SHIFT_ADDON_HALALAS_PER_CARD * qty;
+  return amountHalalas >= expectedWithAddon;
+}
+
+async function paidOrderGrantsDigitalShiftAddon(
+  supabase: SupabaseClient,
+  order: {
+    metadata?: unknown;
+    amount_halalas?: number | null;
+    product_id?: string | null;
+  },
+): Promise<boolean> {
+  const meta =
+    order.metadata && typeof order.metadata === 'object' && !Array.isArray(order.metadata)
+      ? (order.metadata as Record<string, unknown>)
+      : undefined;
+  if (isDigitalShiftAddonInMetadata(meta)) return true;
+
+  if (!order.product_id) return false;
+  const { data: product } = await supabase
+    .from('listing_license_products')
+    .select('*')
+    .eq('id', order.product_id)
+    .maybeSingle();
+  if (!product) return false;
+  return orderAmountIncludesDigitalShiftAddon(
+    order.amount_halalas ?? null,
+    product as ListingLicenseProductRow,
+    meta,
+  );
+}
+
+/**
+ * يُصلح حالات الدفع/الاعتماد التي لم تُفعِّل Add-on المناوب — يعتمد على metadata أو مبلغ 225 ر.س للماسي.
+ */
+export async function ensureDigitalShiftAddonFromPaidOrders(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<boolean> {
+  const id = barberId.trim();
+  if (!id) return false;
+
+  const { data: existingCfg } = await supabase
+    .from('barber_digital_shift_config')
+    .select('enabled')
+    .eq('barber_id', id)
+    .maybeSingle();
+  if (existingCfg?.enabled === true) return true;
+
+  const { data: directOrders } = await supabase
+    .from('listing_license_orders')
+    .select('id, metadata, amount_halalas, product_id, registration_request_id, barber_id')
+    .eq('status', 'paid')
+    .eq('barber_id', id);
+
+  for (const order of directOrders ?? []) {
+    if (await paidOrderGrantsDigitalShiftAddon(supabase, order)) {
+      await activateDigitalShiftAddonForBarber(supabase, id);
+      return true;
+    }
+  }
+
+  const { data: registrations } = await supabase
+    .from('registration_submissions')
+    .select('id, payload')
+    .eq('status', 'approved');
+
+  const linkedRegIds: string[] = [];
+  for (const row of registrations ?? []) {
+    const payload =
+      row.payload && typeof row.payload === 'object' && !Array.isArray(row.payload)
+        ? (row.payload as Record<string, unknown>)
+        : null;
+    if (!payload) continue;
+    const linked = String(payload.linkedBarberId ?? '').trim();
+    if (linked !== id) continue;
+    linkedRegIds.push(String(row.id));
+    if (registrationPayloadHasDigitalShiftAddon(payload)) {
+      await activateDigitalShiftAddonForBarber(supabase, id);
+      return true;
+    }
+  }
+
+  if (linkedRegIds.length > 0) {
+    const { data: regOrders } = await supabase
+      .from('listing_license_orders')
+      .select('id, metadata, amount_halalas, product_id, barber_id')
+      .eq('status', 'paid')
+      .in('registration_request_id', linkedRegIds);
+
+    for (const order of regOrders ?? []) {
+      if (!order.barber_id) {
+        await supabase
+          .from('listing_license_orders')
+          .update({ barber_id: id, updated_at: new Date().toISOString() })
+          .eq('id', order.id);
+      }
+      if (await paidOrderGrantsDigitalShiftAddon(supabase, order)) {
+        await activateDigitalShiftAddonForBarber(supabase, id);
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 function clampLicenseQuantity(raw: unknown): number {
   const n =
     typeof raw === 'number' && Number.isFinite(raw)
@@ -657,6 +780,13 @@ export async function autoRedeemIssuedVouchersForRegistration(
         ? (order.metadata as Record<string, unknown>)
         : undefined;
 
+    if (!order.barber_id) {
+      await supabase
+        .from('listing_license_orders')
+        .update({ barber_id: barberId, updated_at: new Date().toISOString() })
+        .eq('id', order.id);
+    }
+
     const { data: vouchers, error: vErr } = await supabase
       .from('listing_license_vouchers')
       .select('id, status')
@@ -688,6 +818,8 @@ export async function autoRedeemIssuedVouchersForRegistration(
     }
   }
 
+  await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
+
   return { ok: true, redeemedCount, validUntil: lastValidUntil, skippedAlreadyRedeemed };
 }
 
@@ -705,11 +837,18 @@ export async function redeemIssuedVouchersForMoyasarPayment(
 
   const { data: order, error: orderErr } = await supabase
     .from('listing_license_orders')
-    .select('id, metadata, product_id')
+    .select('id, metadata, product_id, amount_halalas, barber_id')
     .eq('moyasar_payment_id', moyasarPaymentId)
     .maybeSingle();
   if (orderErr) return { ok: false, error: orderErr.message };
   if (!order?.id) return { ok: false, error: 'order_not_found' };
+
+  if (!order.barber_id) {
+    await supabase
+      .from('listing_license_orders')
+      .update({ barber_id: barberId, updated_at: new Date().toISOString() })
+      .eq('id', order.id);
+  }
 
   const orderMeta =
     order.metadata && typeof order.metadata === 'object' && !Array.isArray(order.metadata)
@@ -839,6 +978,8 @@ export async function redeemIssuedVouchersForMoyasarPayment(
       repairedCount += 1;
     }
   }
+
+  await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
 
   return { ok: true, redeemedCount, repairedCount };
 }

@@ -482,6 +482,18 @@ export default function BarberDashboard({
     }
   }, [barberData, activeTab]);
 
+  useEffect(() => {
+    if (founderPreview || !tierTabs.showDigitalShift || !digitalShiftUnlocked) return;
+    try {
+      const key = `halaqmap-dash-shift-hint:${barberData?.id ?? 'anon'}`;
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+      setActiveTab('digital-shift');
+    } catch {
+      setActiveTab('digital-shift');
+    }
+  }, [founderPreview, tierTabs.showDigitalShift, digitalShiftUnlocked, barberData?.id]);
+
   const portalIdRef = useRef<string | undefined>(undefined);
   const portalEmailRef = useRef<string | undefined>(undefined);
   useEffect(() => {
@@ -947,6 +959,23 @@ export default function BarberDashboard({
           />
         ) : null}
 
+        {tierTabs.showDigitalShift && digitalShiftUnlocked ? (
+          <Alert className="border-indigo-500/30 bg-indigo-500/5">
+            <Moon className="h-4 w-4 text-indigo-600" />
+            <AlertDescription className="text-sm leading-relaxed">
+              حزمة <strong>الماسي + المناوب</strong> مفعّلة — افتح تبويب{' '}
+              <button
+                type="button"
+                className="font-semibold text-indigo-700 underline underline-offset-2"
+                onClick={() => setActiveTab('digital-shift')}
+              >
+                «المناوب الذكي»
+              </button>{' '}
+              للمكتب الخاص، إعدادات المناوبة، وطاولة التوصيات. شات العملاء يبقى لتدخّلك اليدوي المباشر.
+            </AlertDescription>
+          </Alert>
+        ) : null}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           <p className="text-sm font-medium text-muted-foreground sm:text-base">
             اختر قسماً من التبويبات أدناه — كل إطار يفتح أدوات ومحتوى خاص به.
@@ -1234,7 +1263,7 @@ export default function BarberDashboard({
             <DigitalShiftTabGate
               barberId={barberData.id}
               barberEmail={barberData.email}
-              subscriptionTier={barberData.subscription}
+              subscriptionTier={effectiveListingTier ?? barberData.subscription}
               bannerState={bannerState}
               posts={posts}
             />

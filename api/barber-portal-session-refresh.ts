@@ -12,6 +12,7 @@ import {
 } from './_lib/barberPortalAuth.js';
 import { resolveSalonMemberRole } from './_lib/salonMemberAuth.js';
 import { isBarberDigitalShiftEnabled } from './_lib/digitalShiftAssistant.js';
+import { ensureDigitalShiftAddonFromPaidOrders } from './_lib/listingLicenseService.js';
 
 export const config = {
   maxDuration: 15,
@@ -180,6 +181,10 @@ export async function POST(request: Request): Promise<Response> {
   const barberSessionToken = sessionSecret ? mintBarberPortalSessionToken(String(b.id), String(b.email ?? ''), sessionSecret) : null;
 
   const salonRole = await resolveSalonMemberRole(supabase, String(b.id), String(b.email ?? ''));
+  const tierNorm = String(b.tier ?? '').trim().toLowerCase();
+  if (tierNorm === 'diamond') {
+    await ensureDigitalShiftAddonFromPaidOrders(supabase, String(b.id));
+  }
   const digitalShiftEnabled = await isBarberDigitalShiftEnabled(supabase, String(b.id));
 
   return Response.json(

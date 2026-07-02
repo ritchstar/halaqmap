@@ -4,7 +4,10 @@
  */
 import { createClient } from '@supabase/supabase-js';
 import { verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
-import { autoRedeemIssuedVouchersForRegistration } from './_lib/listingLicenseService.js';
+import {
+  autoRedeemIssuedVouchersForRegistration,
+  ensureDigitalShiftAddonFromPaidOrders,
+} from './_lib/listingLicenseService.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
 export const config = { maxDuration: 45 };
@@ -76,6 +79,8 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: result.error }, { status: 500, headers });
   }
 
+  const digitalShiftActivated = await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
+
   return Response.json(
     {
       ok: true,
@@ -83,6 +88,7 @@ export async function POST(request: Request): Promise<Response> {
       skippedAlreadyRedeemed: result.skippedAlreadyRedeemed,
       validUntil: result.validUntil,
       listingActivated: result.redeemedCount > 0,
+      digitalShiftActivated,
     },
     { headers },
   );

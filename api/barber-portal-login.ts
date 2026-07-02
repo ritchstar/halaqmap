@@ -9,6 +9,7 @@ import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiC
 import { getBarberPortalSessionSecret, mintBarberPortalSessionToken } from './_lib/barberPortalAuth.js';
 import { resolveSalonMemberRole } from './_lib/salonMemberAuth.js';
 import { isBarberDigitalShiftEnabled } from './_lib/digitalShiftAssistant.js';
+import { ensureDigitalShiftAddonFromPaidOrders } from './_lib/listingLicenseService.js';
 
 export const config = {
   maxDuration: 30,
@@ -239,6 +240,10 @@ export async function POST(request: Request): Promise<Response> {
     : null;
 
   const salonRole = await resolveSalonMemberRole(supabase, String(barber.id), String(barber.email ?? ''));
+  const tierNorm = String(barber.tier ?? '').trim().toLowerCase();
+  if (tierNorm === 'diamond') {
+    await ensureDigitalShiftAddonFromPaidOrders(supabase, String(barber.id));
+  }
   const digitalShiftEnabled = await isBarberDigitalShiftEnabled(supabase, String(barber.id));
 
   return Response.json(
