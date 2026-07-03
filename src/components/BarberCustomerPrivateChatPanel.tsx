@@ -18,6 +18,7 @@ import {
 } from '@/lib/barberCustomerPrivateChatRemote';
 import { barberDashboardTranslateTarget } from '@/lib/chatTranslationPolicy';
 import { translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
+import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 import { useBarberCommunicationAlerts } from '@/hooks/useBarberCommunicationAlerts';
 import { BarberChatAlertSettingsCard } from '@/components/barber/BarberChatAlertSettingsCard';
@@ -66,6 +67,7 @@ export function BarberCustomerPrivateChatPanel({
   const [translationStatus, setTranslationStatus] = useState<Record<string, TranslationUiStatus>>({});
   const translationStatusRef = useRef<Record<string, TranslationUiStatus>>({});
   const translationInFlightRef = useRef(new Set<string>());
+  const shiftInterceptInFlightRef = useRef(false);
 
   const setMessageTranslationStatus = useCallback((messageId: string, status: TranslationUiStatus) => {
     translationStatusRef.current[messageId] = status;
@@ -206,6 +208,31 @@ export function BarberCustomerPrivateChatPanel({
   }, [selectedId, loadMessages, pollMessagesMs, pollingEnabled]);
 
   const msLeft = useMemo(() => (selected ? remainingMs(selected.expires_at) : 0), [selected, tick]);
+
+  useEffect(() => {
+    if (!isDiamond || !selectedId || !pollingEnabled || msLeft <= 0) return;
+
+    const runShiftIntercept = async () => {
+      if (shiftInterceptInFlightRef.current || !isPollingTabActive()) return;
+      shiftInterceptInFlightRef.current = true;
+      try {
+        const r = await customerDigitalShiftInterceptRemote(selectedId);
+        if (r.ok && r.replied) {
+          setConversations((prev) =>
+            prev.map((c) => (c.id === selectedId ? { ...c, shift_manual_takeover: false } : c)),
+          );
+          await loadMessages(selectedId);
+          await pollConversations(true);
+        }
+      } finally {
+        shiftInterceptInFlightRef.current = false;
+      }
+    };
+
+    void runShiftIntercept();
+    const iv = window.setInterval(() => void runShiftIntercept(), POLL_MS.BARBER_SHIFT_INTERCEPT);
+    return () => window.clearInterval(iv);
+  }, [isDiamond, selectedId, pollingEnabled, msLeft, loadMessages, pollConversations]);
 
   useEffect(() => {
     translationInFlightRef.current.clear();

@@ -7,6 +7,7 @@ import {
   sendCustomerPrivateMessage,
   startCustomerPrivateConversation,
 } from './_lib/customerPrivateChatService.js';
+import { scheduleDigitalShiftInterceptBurst } from './_lib/digitalShiftInterceptService.js';
 
 export const config = {
   maxDuration: 25,
@@ -129,6 +130,7 @@ export async function POST(request: Request): Promise<Response> {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
+    scheduleDigitalShiftInterceptBurst(supabase, conversationId);
     return Response.json({ ok: true, message: result.message }, { headers });
   }
 

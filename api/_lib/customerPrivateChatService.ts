@@ -284,5 +284,10 @@ export async function sendCustomerPrivateMessage(
     return { ok: false, error: error?.message || 'Insert failed', status: 500 };
   }
 
+  await supabase
+    .from('private_conversations')
+    .update({ shift_manual_takeover: false })
+    .eq('id', input.conversationId.trim());
+
   return { ok: true, message: inserted as CustomerPrivateMessageRow };
 }

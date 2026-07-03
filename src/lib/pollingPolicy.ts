@@ -10,6 +10,8 @@ export const POLL_MS = {
   CUSTOMER_CHAT_MESSAGES: 2_000,
   /** شات العميل — طلب رد المناوب */
   CUSTOMER_CHAT_INTERCEPT: 2_000,
+  /** لوحة الحلاق — طلب رد المناوب (عند فتح الشات) */
+  BARBER_SHIFT_INTERCEPT: 6_000,
   /** بعد إرسال العميل — أول محاولة اعتراض */
   CUSTOMER_CHAT_INTERCEPT_AFTER_SEND: 500,
   MAP_COMMUNITY_FEED: 30_000,
