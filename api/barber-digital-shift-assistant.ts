@@ -182,7 +182,21 @@ export async function POST(request: Request): Promise<Response> {
         : body.enabled === true;
     const replyDelayMinutes = Math.min(30, Math.max(1, Number(body.replyDelayMinutes ?? 3) || 3));
 
-    const patch: Record<string, unknown> = { enabled, reply_delay_minutes: replyDelayMinutes };
+    const { data: cfgRow } = await supabase
+      .from('barber_digital_shift_config')
+      .select('banner_snapshot')
+      .eq('barber_id', barberId)
+      .maybeSingle();
+    const snap =
+      cfgRow?.banner_snapshot && typeof cfgRow.banner_snapshot === 'object' && !Array.isArray(cfgRow.banner_snapshot)
+        ? (cfgRow.banner_snapshot as Record<string, unknown>)
+        : {};
+
+    const patch: Record<string, unknown> = {
+      enabled,
+      reply_delay_minutes: replyDelayMinutes,
+      banner_snapshot: { ...snap, shift_addon_purchase_synced: true },
+    };
     if (assistantName) patch.assistant_display_name = assistantName;
 
     const { error } = await supabase.from('barber_digital_shift_config').update(patch).eq('barber_id', barberId);

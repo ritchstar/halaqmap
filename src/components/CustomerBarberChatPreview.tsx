@@ -160,6 +160,7 @@ export function CustomerBarberChatPreview({
   );
   const [draft, setDraft] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [sendingLive, setSendingLive] = useState(false);
   const [remainingMsLocal, setRemainingMsLocal] = useState(() => getPrivateChatRemainingMs(session));
 
   useEffect(() => {
@@ -202,13 +203,21 @@ export function CustomerBarberChatPreview({
 
   async function sendLiveMessage() {
     const text = draft.trim();
-    if (!text || live.expiredUi || live.remainingMs <= 0) return;
-    const res = await live.send(text);
-    if (!res.ok) {
-      toast.error(res.error);
-      return;
+    if (!text || live.expiredUi || live.remainingMs <= 0 || sendingLive) return;
+    setSendingLive(true);
+    try {
+      const res = await live.send(text);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      setDraft('');
+      if (isDiamond) {
+        toast.success('تم الإرسال — المناوب قد يستغرق بضع ثوانٍ للرد إن كان مفعّلاً.');
+      }
+    } finally {
+      setSendingLive(false);
     }
-    setDraft('');
   }
 
   function startNewLocalSession() {
@@ -508,7 +517,7 @@ export function CustomerBarberChatPreview({
                 if (liveMode) void sendLiveMessage();
                 else if (localPreviewOnly) sendLocalMessage();
               }}
-              disabled={!draft.trim() || (liveMode && live.status === 'loading')}
+              disabled={!draft.trim() || (liveMode && (live.status === 'loading' || sendingLive))}
             >
               <Send className="w-4 h-4" />
             </Button>

@@ -138,8 +138,14 @@ export async function listCustomerPrivateMessagesServer(
 export async function sendCustomerPrivateMessageServer(
   conversationId: string,
   body: string,
-): Promise<{ ok: true; message: PrivateMessageRow } | { ok: false; error: string }> {
-  const res = await postJson<{ message?: PrivateMessageRow }>({
+): Promise<
+  | { ok: true; message: PrivateMessageRow; shiftReplied: boolean }
+  | { ok: false; error: string }
+> {
+  const res = await postJson<{
+    message?: PrivateMessageRow;
+    shiftIntercept?: { replied?: boolean; reason?: string };
+  }>({
     action: 'send',
     guestClientId: getOrCreateGuestClientId(),
     conversationId: conversationId.trim(),
@@ -147,5 +153,9 @@ export async function sendCustomerPrivateMessageServer(
   });
   if (!res.ok) return res;
   if (!res.json.message) return { ok: false, error: 'تعذّر إرسال الرسالة.' };
-  return { ok: true, message: res.json.message };
+  return {
+    ok: true,
+    message: res.json.message,
+    shiftReplied: res.json.shiftIntercept?.replied === true,
+  };
 }

@@ -249,11 +249,15 @@ export function useCustomerBarberPrivateRealtimeChat(
             (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
           );
         });
-        scheduleInterceptBurst(cid);
+        if (result.shiftReplied) {
+          await refreshConversationAndMessages(cid);
+        } else {
+          scheduleInterceptBurst(cid);
+        }
       }
       return result;
     },
-    [conversation?.expires_at, scheduleInterceptBurst],
+    [conversation?.expires_at, scheduleInterceptBurst, refreshConversationAndMessages],
   );
 
   const expiredUi = status === 'expired_ui';

@@ -11,7 +11,6 @@ import {
   extractSalonGreetingHint,
   finalizeCustomerShiftReply,
 } from './digitalShiftLanguages.js';
-import { ensureDigitalShiftAddonFromPaidOrders } from './listingLicenseService.js';
 import {
   formatCustomerSalonContextForPrompt,
   resolveRecommendationInput,
@@ -42,6 +41,27 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function clearStaleInterceptClaim(
+  supabase: SupabaseClient,
+  conversationId: string,
+  customerMessageAt: string,
+): Promise<void> {
+  const { count, error } = await supabase
+    .from('private_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('conversation_id', conversationId)
+    .eq('is_digital_shift_reply', true)
+    .gt('created_at', customerMessageAt);
+
+  if (error || (count ?? 0) > 0) return;
+
+  await supabase
+    .from('digital_shift_intercept_claims')
+    .delete()
+    .eq('conversation_id', conversationId)
+    .eq('customer_message_at', customerMessageAt);
+}
+
 /** محاولة اعتراض المناوب لمحادثة واحدة — يُستدعى من API العميل أو جدولة الخادم. */
 export async function runDigitalShiftIntercept(
   supabase: SupabaseClient,
@@ -65,8 +85,6 @@ export async function runDigitalShiftIntercept(
   if (!barberId) {
     return { ok: true, replied: false, reason: 'no_barber_id' };
   }
-
-  await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
 
   const { data: cfg } = await supabase
     .from('barber_digital_shift_config')
@@ -124,23 +142,25 @@ export async function runDigitalShiftIntercept(
     shiftManualTakeover: Boolean(conv.shift_manual_takeover),
   });
 
-  if (!decision.shouldReply || !lastCustomerBody) {
+  if (!decision.shouldReply || !lastCustomerBody || !lastCustomerMessageAt) {
     return { ok: true, replied: false, reason: decision.reason, trigger: decision.trigger };
   }
 
-  const { error: claimErr } = await supabase.from('digital_shift_intercept_claims').insert({
-    conversation_id: conversationId,
-    customer_message_at: lastCustomerMessageAt,
-  });
-  if (claimErr) {
-    const code = String(claimErr.code ?? '');
-    if (code === '23505') {
-      return { ok: true, replied: false, reason: 'shift_claim_race' };
-    }
-    if (code !== '42P01') {
-      return { ok: false, error: claimErr.message, status: 500 };
-    }
+  const { count: existingShiftReplies, error: raceErr } = await supabase
+    .from('private_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('conversation_id', conversationId)
+    .eq('is_digital_shift_reply', true)
+    .gt('created_at', lastCustomerMessageAt);
+
+  if (raceErr) {
+    return { ok: false, error: raceErr.message, status: 500 };
   }
+  if ((existingShiftReplies ?? 0) > 0) {
+    return { ok: true, replied: false, reason: 'shift_already_replied_race' };
+  }
+
+  await clearStaleInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
 
   const debit = await debitWalletForAiReply(supabase, barberId, `shift_reply:${decision.trigger}`);
   if (!debit.ok) {
@@ -204,18 +224,27 @@ export async function runDigitalShiftIntercept(
   const greetingHint = extractSalonGreetingHint(privateOfficeInstructions);
   replyText = finalizeCustomerShiftReply(replyText, customerLang, ctx, lastCustomerBody, greetingHint);
 
-  const { count: existingShiftReplies, error: raceErr } = await supabase
-    .from('private_messages')
-    .select('id', { count: 'exact', head: true })
-    .eq('conversation_id', conversationId)
-    .eq('is_digital_shift_reply', true)
-    .gt('created_at', lastCustomerMessageAt!);
-
-  if (raceErr) {
-    return { ok: false, error: raceErr.message, status: 500 };
-  }
-  if ((existingShiftReplies ?? 0) > 0) {
-    return { ok: true, replied: false, reason: 'shift_already_replied_race' };
+  const { error: claimErr } = await supabase.from('digital_shift_intercept_claims').insert({
+    conversation_id: conversationId,
+    customer_message_at: lastCustomerMessageAt,
+  });
+  if (claimErr) {
+    const code = String(claimErr.code ?? '');
+    if (code === '23505') {
+      const { count: racedReplies } = await supabase
+        .from('private_messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('conversation_id', conversationId)
+        .eq('is_digital_shift_reply', true)
+        .gt('created_at', lastCustomerMessageAt);
+      if ((racedReplies ?? 0) > 0) {
+        return { ok: true, replied: false, reason: 'shift_already_replied_race' };
+      }
+      return { ok: true, replied: false, reason: 'shift_claim_race' };
+    }
+    if (code !== '42P01') {
+      return { ok: false, error: claimErr.message, status: 500 };
+    }
   }
 
   const { data: inserted, error: insErr } = await supabase
@@ -230,6 +259,11 @@ export async function runDigitalShiftIntercept(
     .maybeSingle();
 
   if (insErr) {
+    await supabase
+      .from('digital_shift_intercept_claims')
+      .delete()
+      .eq('conversation_id', conversationId)
+      .eq('customer_message_at', lastCustomerMessageAt);
     return { ok: false, error: insErr.message, status: 500 };
   }
   if (!inserted) {
@@ -298,21 +332,61 @@ export async function runDigitalShiftIntercept(
   };
 }
 
-/** جدولة محاولات اعتراض بعد إرسال العميل — best-effort على الخادم. */
+/** انتظار مهلة الاعتراض ثم تنفيذ الرد — يُستدعى مباشرة بعد إرسال العميل (موثوق على Vercel). */
+export async function awaitDigitalShiftInterceptAfterCustomerSend(
+  supabase: SupabaseClient,
+  conversationId: string,
+): Promise<DigitalShiftInterceptResult | null> {
+  const { data: conv } = await supabase
+    .from('private_conversations')
+    .select('barber_id')
+    .eq('id', conversationId)
+    .maybeSingle();
+
+  const barberId = String(conv?.barber_id ?? '').trim();
+  if (!barberId) return null;
+
+  const [{ data: cfg }, ctx] = await Promise.all([
+    supabase
+      .from('barber_digital_shift_config')
+      .select('enabled, reply_delay_seconds')
+      .eq('barber_id', barberId)
+      .maybeSingle(),
+    loadDigitalShiftContext(supabase, barberId),
+  ]);
+
+  if (!cfg?.enabled || !ctx) return null;
+
+  const delaySec = Math.min(120, Math.max(3, Number(cfg.reply_delay_seconds ?? 5) || 5));
+  const waitMs = ctx.shopOpen ? delaySec * 1000 + 250 : 350;
+  await sleep(waitMs);
+
+  let result = await runDigitalShiftIntercept(supabase, conversationId);
+  if (result.ok && result.replied) return result;
+
+  const retryReasons = new Set(['within_delay_window', 'shift_claim_race', 'shift_already_replied_race']);
+  if (result.ok && !result.replied && retryReasons.has(result.reason)) {
+    await sleep(ctx.shopOpen ? 2200 : 800);
+    result = await runDigitalShiftIntercept(supabase, conversationId);
+  }
+
+  return result;
+}
+
+/** جدولة محاولات اعتراض بعد إرسال العميل — احتياطي إذا أُغلق الطلب مبكراً. */
 export function scheduleDigitalShiftInterceptBurst(
   supabase: SupabaseClient,
   conversationId: string,
   delaySeconds = 5,
 ): void {
   const safeDelay = Math.min(120, Math.max(3, delaySeconds));
-  const delays = [400, safeDelay * 1000 + 400, safeDelay * 1000 + 2800];
+  const delays = [safeDelay * 1000 + 400, safeDelay * 1000 + 2800];
 
   for (const waitMs of delays) {
     void (async () => {
       await sleep(waitMs);
       try {
-        const result = await runDigitalShiftIntercept(supabase, conversationId);
-        if (result.ok && result.replied) return;
+        await runDigitalShiftIntercept(supabase, conversationId);
       } catch {
         /* صامت */
       }

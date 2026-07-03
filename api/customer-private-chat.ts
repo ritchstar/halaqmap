@@ -7,10 +7,10 @@ import {
   sendCustomerPrivateMessage,
   startCustomerPrivateConversation,
 } from './_lib/customerPrivateChatService.js';
-import { scheduleDigitalShiftInterceptBurst } from './_lib/digitalShiftInterceptService.js';
+import { awaitDigitalShiftInterceptAfterCustomerSend } from './_lib/digitalShiftInterceptService.js';
 
 export const config = {
-  maxDuration: 25,
+  maxDuration: 45,
 };
 
 const CORS_OPTS = {
@@ -130,8 +130,23 @@ export async function POST(request: Request): Promise<Response> {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
-    scheduleDigitalShiftInterceptBurst(supabase, conversationId);
-    return Response.json({ ok: true, message: result.message }, { headers });
+    const shiftIntercept = await awaitDigitalShiftInterceptAfterCustomerSend(supabase, conversationId);
+    return Response.json(
+      {
+        ok: true,
+        message: result.message,
+        shiftIntercept: shiftIntercept
+          ? {
+              replied: shiftIntercept.ok && shiftIntercept.replied === true,
+              reason:
+                shiftIntercept.ok && !shiftIntercept.replied && 'reason' in shiftIntercept
+                  ? shiftIntercept.reason
+                  : undefined,
+            }
+          : null,
+      },
+      { headers },
+    );
   }
 
   return Response.json({ error: 'Unknown action' }, { status: 400, headers });

@@ -57,15 +57,46 @@ export type ListingFulfillResult =
   | { ok: false; error: string; status?: number };
 
 const DIGITAL_SHIFT_ADDON_HALALAS_PER_CARD = 2500;
+const SHIFT_ADDON_PURCHASE_SYNCED_KEY = 'shift_addon_purchase_synced';
+
+function readConfigSnapshot(snapshot: unknown): Record<string, unknown> {
+  return snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
+    ? (snapshot as Record<string, unknown>)
+    : {};
+}
 
 async function activateDigitalShiftAddonForBarber(
   supabase: SupabaseClient,
   barberId: string,
+  opts: { enableOnPurchase?: boolean } = {},
 ): Promise<void> {
-  await supabase.from('barber_digital_shift_config').upsert(
-    { barber_id: barberId, enabled: true },
-    { onConflict: 'barber_id' },
-  );
+  const { data: existing } = await supabase
+    .from('barber_digital_shift_config')
+    .select('banner_snapshot')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+
+  const snap = readConfigSnapshot(existing?.banner_snapshot);
+
+  if (!existing) {
+    await supabase.from('barber_digital_shift_config').upsert(
+      {
+        barber_id: barberId,
+        enabled: true,
+        banner_snapshot: { ...snap, [SHIFT_ADDON_PURCHASE_SYNCED_KEY]: true },
+      },
+      { onConflict: 'barber_id' },
+    );
+  } else if (opts.enableOnPurchase && snap[SHIFT_ADDON_PURCHASE_SYNCED_KEY] !== true) {
+    await supabase
+      .from('barber_digital_shift_config')
+      .update({
+        enabled: true,
+        banner_snapshot: { ...snap, [SHIFT_ADDON_PURCHASE_SYNCED_KEY]: true },
+      })
+      .eq('barber_id', barberId);
+  }
+
   await supabase.from('barber_ai_wallet').upsert(
     { barber_id: barberId },
     { onConflict: 'barber_id', ignoreDuplicates: true },
@@ -132,10 +163,28 @@ export async function ensureDigitalShiftAddonFromPaidOrders(
 
   const { data: existingCfg } = await supabase
     .from('barber_digital_shift_config')
-    .select('enabled')
+    .select('enabled, banner_snapshot')
     .eq('barber_id', id)
     .maybeSingle();
-  if (existingCfg?.enabled === true) return true;
+
+  const snap = readConfigSnapshot(existingCfg?.banner_snapshot);
+  if (snap[SHIFT_ADDON_PURCHASE_SYNCED_KEY] === true) {
+    await supabase.from('barber_ai_wallet').upsert(
+      { barber_id: id },
+      { onConflict: 'barber_id', ignoreDuplicates: true },
+    );
+    return existingCfg?.enabled === true;
+  }
+
+  if (existingCfg?.enabled === true) {
+    await supabase
+      .from('barber_digital_shift_config')
+      .update({
+        banner_snapshot: { ...snap, [SHIFT_ADDON_PURCHASE_SYNCED_KEY]: true },
+      })
+      .eq('barber_id', id);
+    return true;
+  }
 
   const { data: directOrders } = await supabase
     .from('listing_license_orders')
@@ -145,7 +194,7 @@ export async function ensureDigitalShiftAddonFromPaidOrders(
 
   for (const order of directOrders ?? []) {
     if (await paidOrderGrantsDigitalShiftAddon(supabase, order)) {
-      await activateDigitalShiftAddonForBarber(supabase, id);
+      await activateDigitalShiftAddonForBarber(supabase, id, { enableOnPurchase: true });
       return true;
     }
   }
@@ -166,7 +215,7 @@ export async function ensureDigitalShiftAddonFromPaidOrders(
     if (linked !== id) continue;
     linkedRegIds.push(String(row.id));
     if (registrationPayloadHasDigitalShiftAddon(payload)) {
-      await activateDigitalShiftAddonForBarber(supabase, id);
+      await activateDigitalShiftAddonForBarber(supabase, id, { enableOnPurchase: true });
       return true;
     }
   }
@@ -186,7 +235,7 @@ export async function ensureDigitalShiftAddonFromPaidOrders(
           .eq('id', order.id);
       }
       if (await paidOrderGrantsDigitalShiftAddon(supabase, order)) {
-        await activateDigitalShiftAddonForBarber(supabase, id);
+        await activateDigitalShiftAddonForBarber(supabase, id, { enableOnPurchase: true });
         return true;
       }
     }
@@ -490,7 +539,7 @@ export async function fulfillListingLicenseOrder(
     product.tier === 'diamond' &&
     isDigitalShiftAddonInMetadata(input.metadata)
   ) {
-    await activateDigitalShiftAddonForBarber(supabase, barberId);
+    await activateDigitalShiftAddonForBarber(supabase, barberId, { enableOnPurchase: true });
     void dispatchDigitalShiftOnboardingEmail(supabase, {
       barberId,
       buyerEmail: input.buyerEmail,
@@ -634,7 +683,7 @@ export async function redeemListingLicenseVoucher(
         ? (orderRow.metadata as Record<string, unknown>)
         : undefined;
     if (isDigitalShiftAddonInMetadata(orderMeta)) {
-      await activateDigitalShiftAddonForBarber(supabase, input.barberId);
+      await activateDigitalShiftAddonForBarber(supabase, input.barberId, { enableOnPurchase: true });
       void dispatchDigitalShiftOnboardingEmail(supabase, {
         barberId: input.barberId,
         metadata: orderMeta,
@@ -729,7 +778,7 @@ async function redeemIssuedVoucherForBarber(
 
   const orderMeta = input.orderMetadata;
   if (productRow.tier === 'diamond' && voucher.order_id && isDigitalShiftAddonInMetadata(orderMeta)) {
-    await activateDigitalShiftAddonForBarber(supabase, input.barberId);
+    await activateDigitalShiftAddonForBarber(supabase, input.barberId, { enableOnPurchase: true });
     void dispatchDigitalShiftOnboardingEmail(supabase, {
       barberId: input.barberId,
       metadata: orderMeta,
