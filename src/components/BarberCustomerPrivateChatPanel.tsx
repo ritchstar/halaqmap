@@ -18,7 +18,6 @@ import {
 } from '@/lib/barberCustomerPrivateChatRemote';
 import { barberDashboardTranslateTarget } from '@/lib/chatTranslationPolicy';
 import { translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
-import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 import { useBarberCommunicationAlerts } from '@/hooks/useBarberCommunicationAlerts';
 import { BarberChatAlertSettingsCard } from '@/components/barber/BarberChatAlertSettingsCard';
@@ -58,6 +57,7 @@ export function BarberCustomerPrivateChatPanel({
   const [draft, setDraft] = useState('');
   const [loadingList, setLoadingList] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [refreshingMsgs, setRefreshingMsgs] = useState(false);
   const [sending, setSending] = useState(false);
   const [resumingShift, setResumingShift] = useState(false);
   const [tick, setTick] = useState(0);
@@ -119,10 +119,14 @@ export function BarberCustomerPrivateChatPanel({
     : POLL_MS.PRIVATE_CHAT_MESSAGES;
 
   const loadMessages = useCallback(
-    async (conversationId: string, opts?: { force?: boolean }) => {
-      if (!pollingEnabled && !opts?.force) return;
-      if (!opts?.force && !isPollingTabActive()) return;
-      setLoadingMsgs(true);
+    async (conversationId: string, opts?: { bootstrap?: boolean }) => {
+      if (!pollingEnabled && !opts?.bootstrap) return;
+      if (!opts?.bootstrap && !isPollingTabActive()) return;
+      if (opts?.bootstrap) {
+        setLoadingMsgs(true);
+      } else {
+        setRefreshingMsgs(true);
+      }
       try {
         const res = await barberListPrivateMessagesRemote({
           barberId,
@@ -130,8 +134,10 @@ export function BarberCustomerPrivateChatPanel({
           conversationId,
         });
         if (!res.ok) {
-          toast.error(res.error);
-          setMessages([]);
+          if (opts?.bootstrap) {
+            toast.error(res.error);
+            setMessages([]);
+          }
           return;
         }
         if (res.expired) {
@@ -141,7 +147,8 @@ export function BarberCustomerPrivateChatPanel({
         }
         setMessages(res.messages);
       } finally {
-        setLoadingMsgs(false);
+        if (opts?.bootstrap) setLoadingMsgs(false);
+        else setRefreshingMsgs(false);
       }
     },
     [barberId, barberEmail, pollConversations, pollingEnabled],
@@ -179,9 +186,11 @@ export function BarberCustomerPrivateChatPanel({
     if (!pollingEnabled) return;
     if (!selectedId) {
       setMessages([]);
+      setLoadingMsgs(false);
+      setRefreshingMsgs(false);
       return;
     }
-    void loadMessages(selectedId, { force: true });
+    void loadMessages(selectedId, { bootstrap: true });
     const iv = window.setInterval(() => {
       void loadMessages(selectedId);
     }, pollMessagesMs);
@@ -192,21 +201,8 @@ export function BarberCustomerPrivateChatPanel({
 
   useEffect(() => {
     translationAttemptedRef.current.clear();
+    setTranslations({});
   }, [selectedId]);
-
-  useEffect(() => {
-    if (!pollingEnabled || !isDiamond || !selectedId) return;
-    const tick = async () => {
-      if (!isPollingTabActive()) return;
-      const r = await customerDigitalShiftInterceptRemote(selectedId);
-      if (r.ok && r.replied) {
-        await loadMessages(selectedId, { force: true });
-      }
-    };
-    void tick();
-    const id = window.setInterval(() => void tick(), POLL_MS.PRIVATE_CHAT_INTERCEPT);
-    return () => window.clearInterval(id);
-  }, [isDiamond, selectedId, loadMessages, pollingEnabled]);
 
   useEffect(() => {
     if (!isDiamond || messages.length === 0 || !selected) return;
@@ -252,7 +248,7 @@ export function BarberCustomerPrivateChatPanel({
       setConversations((prev) =>
         prev.map((c) => (c.id === selectedId ? { ...c, shift_manual_takeover: true } : c)),
       );
-      await loadMessages(selectedId, { force: true });
+      await loadMessages(selectedId);
       await pollConversations(true);
     } finally {
       setSending(false);
@@ -276,10 +272,7 @@ export function BarberCustomerPrivateChatPanel({
         prev.map((c) => (c.id === selectedId ? { ...c, shift_manual_takeover: false } : c)),
       );
       toast.success('عاد المناوب للرد على هذا العميل.');
-      const r = await customerDigitalShiftInterceptRemote(selectedId);
-      if (r.ok && r.replied) {
-        await loadMessages(selectedId, { force: true });
-      }
+      await loadMessages(selectedId);
     } finally {
       setResumingShift(false);
     }
@@ -335,7 +328,11 @@ export function BarberCustomerPrivateChatPanel({
             : 'تظهر هنا الجلسات النشطة فقط (ساعة واحدة لكل جلسة). يبدأ العميل المحادثة من التطبيق؛'}
           {isDiamond && !isWorkbench ? (
             <span className="mt-1 block text-amber-700 dark:text-amber-300">
-              المناوب يردّ بلغة العميل (إنجليزي، إسباني، …) — وتظهر لك ترجمة عربية تحت رسائل العميل وردود المناوب.
+              المناوب يردّ بلغة العميل — تظهر ترجمة عربية تحت رسائل العميل والمناوب الأجنبية.
+            </span>
+          ) : isDiamond && isWorkbench ? (
+            <span className="mt-1 block text-amber-200/90">
+              ترجمة عربية تلقائية تحت رسائل العميل وردود المناوب الأجنبية.
             </span>
           ) : null}
           {!isWorkbench &&
@@ -421,13 +418,18 @@ export function BarberCustomerPrivateChatPanel({
             ) : null}
 
             <div
-              className={`space-y-2 overflow-y-auto rounded-md border p-3 ${
+              className={`relative space-y-2 overflow-y-auto rounded-md border p-3 ${
                 isWorkbench
                   ? 'max-h-96 border-slate-300/80 bg-white dark:border-slate-600 dark:bg-slate-900/60'
                   : 'max-h-72 border-border/60'
               }`}
             >
-              {loadingMsgs ? (
+              {refreshingMsgs ? (
+                <p className="pointer-events-none absolute left-2 top-2 z-10 rounded-full bg-background/90 px-2 py-0.5 text-[10px] text-muted-foreground shadow-sm">
+                  يُحدَّث…
+                </p>
+              ) : null}
+              {loadingMsgs && messages.length === 0 ? (
                 <div className={`flex items-center gap-2 ${isWorkbench ? 'text-sm font-medium text-slate-600' : 'text-xs text-muted-foreground'}`}>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   جاري تحميل الرسائل…
@@ -471,6 +473,11 @@ export function BarberCustomerPrivateChatPanel({
                             </div>
                             <p className="whitespace-pre-wrap break-words">{translations[m.id]}</p>
                           </div>
+                        ) : isDiamond && barberDashboardTranslateTarget(m.body) ? (
+                          <p className="mt-1.5 flex items-center gap-1 text-[10px] opacity-80">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            جاري الترجمة…
+                          </p>
                         ) : null}
                         <p className="mt-1 text-[10px] opacity-75">
                           {new Date(m.created_at).toLocaleString('ar-SA')}

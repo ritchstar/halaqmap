@@ -4,10 +4,8 @@ export const POLL_MS = {
   BARBER_SUPPORT_CHAT: 60_000,
   /** قائمة محادثات الشات — لا تُخفَّض دون مراجعة حمل Edge */
   PRIVATE_CHAT_LIST: 90_000,
-  /** رسائل شات العملاء في لوحة الحلاق */
-  PRIVATE_CHAT_MESSAGES: 5_000,
-  /** اعتراض المناوب من لوحة الحلاق */
-  PRIVATE_CHAT_INTERCEPT: 3_000,
+  /** رسائل شات العملاء في لوحة الحلاق — تحديث خلفي صامت */
+  PRIVATE_CHAT_MESSAGES: 12_000,
   /** شات العميل — رسائل جديدة */
   CUSTOMER_CHAT_MESSAGES: 2_000,
   /** شات العميل — طلب رد المناوب */
