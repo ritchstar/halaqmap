@@ -225,6 +225,14 @@ export function runRegistrationRouteGuards(request: Request, routeId: string): R
     return { ok: true };
   }
 
+  // طلب نفس-الأصل (الموقع والـ API على نفس النطاق — مثل نشر Preview على Vercel)
+  // آمن بطبيعته ولا يجب أن يُحجب؛ القائمة البيضاء تخص الطلبات عابرة-الأصل فقط.
+  const directOrigin = requestOriginNormalized(request);
+  const selfOrigin = requestHostOrigin(request);
+  if (directOrigin && selfOrigin && directOrigin === selfOrigin) {
+    return { ok: true };
+  }
+
   const origin = resolveAllowedBrowserOrigin(request, allowed);
   if (!origin) {
     return {

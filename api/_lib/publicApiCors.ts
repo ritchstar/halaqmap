@@ -29,6 +29,19 @@ function normalizeRequestOrigin(originHeader: string | null): string | null {
   }
 }
 
+/** أصل الخادم نفسه من رأس Host — لكشف طلبات نفس-الأصل (site + API على نفس النطاق). */
+function requestSelfOrigin(request: Request): string | null {
+  const host = request.headers.get('host')?.trim().toLowerCase();
+  if (!host) return null;
+  const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim().toLowerCase();
+  const proto = forwardedProto === 'http' || forwardedProto === 'https' ? forwardedProto : 'https';
+  try {
+    return new URL(`${proto}://${host}`).origin;
+  } catch {
+    return null;
+  }
+}
+
 /** يحدد أصل الطلب المسموح به ليعاد في Access-Control-Allow-Origin، أو undefined إن لم يُسمح. */
 export function resolvePublicApiCorsOrigin(request: Request): string | undefined {
   const normalized = normalizeRequestOrigin(request.headers.get('origin'));
@@ -36,7 +49,10 @@ export function resolvePublicApiCorsOrigin(request: Request): string | undefined
 
   const allowed = parsePublicApiAllowedOrigins();
   if (allowed.length > 0) {
-    return allowed.includes(normalized) ? normalized : undefined;
+    if (allowed.includes(normalized)) return normalized;
+    // نفس-الأصل دائماً مسموح (نشر Preview على Vercel يخدم الموقع والـ API من نفس النطاق).
+    if (normalized === requestSelfOrigin(request)) return normalized;
+    return undefined;
   }
 
   if (isProductionRuntime()) {
