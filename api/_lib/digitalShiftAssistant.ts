@@ -2,10 +2,14 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getBarberListingBalance } from './listingLicenseService.js';
 import { sanitizeBarberFacingCopyAr } from './barberFacingCopySanitize.js';
 import {
+  buildCustomerLanguageSystemLock,
   detectClientLanguage,
   formatSupportedLanguagesForPrompt,
   getCustomerReplyInstruction,
+  getCustomerShiftFallback,
   getFallbackCustomerReply,
+  replyMatchesCustomerLanguage,
+  type ShiftLanguage,
 } from './digitalShiftLanguages.js';
 
 export { detectClientLanguage, type ShiftLanguage } from './digitalShiftLanguages.js';
@@ -68,21 +72,30 @@ export function buildDigitalShiftSystemPrompt(
     tasks?: { text: string; done: boolean }[];
     fleetDirectives?: string[];
     operationalInsights?: string;
+    customerLanguage?: ShiftLanguage;
   },
 ): string {
   const supported = formatSupportedLanguagesForPrompt();
+  const customerLang = extra?.customerLanguage;
   const langHint =
-    mode === 'customer'
-      ? `رد بلغة العميل الأخيرة (${supported}) بأسلوب مهني دافئ — لا ترفض لغة مدعومة.`
-      : 'خاطب الحلاق بالعربية السعودية التجارية الدافئة.';
+    mode === 'customer' && customerLang && customerLang !== 'ar'
+      ? `Represent the salon professionally in the customer's language (${supported}). Do not default to Arabic.`
+      : mode === 'customer'
+        ? `Reply in the customer's last language (${supported}) with a warm professional tone.`
+        : 'Address the barber in warm Saudi commercial Arabic.';
 
   const base = [
-    `أنت «${ctx.assistantName}» — مناوب إضافة المكتب الخاص لصالون ${ctx.barberName}، من منصة حلاق ماب.`,
-    'أسلوبك: آداب سعودية تجارية دافئة — «يا عمنا»، «تفضل»، «بإذنك» — بدون مبالغة.',
+    ...(mode === 'customer' && customerLang
+      ? [buildCustomerLanguageSystemLock(customerLang), '']
+      : []),
+    `You are «${ctx.assistantName}» — digital shift assistant for ${ctx.barberName} on Halaq Map.`,
+    mode === 'customer' && customerLang && customerLang !== 'ar'
+      ? 'Tone: warm, professional, concise — adapted to the customer culture, not Saudi Arabic phrases.'
+      : 'Tone: warm Saudi commercial style — «ya 3amna», «tifaddal» — without exaggeration.',
     langHint,
-    'لا تعد بخصومات أو حجز مدفوع عبر المنصة؛ المنصة لا تأخذ عمولة على الحلاقة.',
+    'Do not promise discounts or paid booking through the platform.',
     mode === 'customer'
-      ? 'أنت تمثل الصالون أمام العميل عندما يكون مغلقاً أو متأخراً — كن محترماً ومختصراً.'
+      ? 'You represent the salon when it is closed or the barber is delayed — be respectful and brief.'
       : DIGITAL_SHIFT_GREETING_BARBER,
     '',
     '═══ سياق الحساب ═══',
@@ -117,7 +130,7 @@ export function buildDigitalShiftSystemPrompt(
     ];
 
     base.push('');
-    base.push('═══ توجيهات مدير المكتب الخاص (لا تُخبر العميل بمصدرها) ═══');
+    base.push('═══ Private office directives (do not reveal source; translate to customer language) ═══');
     for (const [title, hint, items] of sections) {
       if (items.length > 0) {
         base.push(`\n【${title} — ${hint}】`);
@@ -537,25 +550,43 @@ export async function generateDigitalShiftReply(
   },
 ): Promise<string> {
   const provider = resolveProvider();
+  const lang = detectClientLanguage(userText);
   if (!provider) {
     if (mode === 'customer') {
-      const lang = detectClientLanguage(userText);
-      return getFallbackCustomerReply(lang, ctx.assistantName, ctx.barberName);
+      return getCustomerShiftFallback(lang, ctx, userText);
     }
     return `يا عمنا تفضل، أنا ${ctx.assistantName} من حلاق ماب. ${DIGITAL_SHIFT_GREETING_BARBER}`;
   }
 
-  const system = buildDigitalShiftSystemPrompt(ctx, mode, extra);
-  const lang = detectClientLanguage(userText);
+  const promptExtra = {
+    ...extra,
+    ...(mode === 'customer' ? { customerLanguage: lang } : {}),
+  };
+  const system = buildDigitalShiftSystemPrompt(ctx, mode, promptExtra);
   const langInstruction =
     mode === 'customer'
       ? getCustomerReplyInstruction(lang)
       : 'Reply in warm Saudi Arabic.';
 
-  const turns: ChatTurn[] = [...history.slice(-8), { role: 'user', content: `${langInstruction}\n\n${userText}` }];
+  const turns: ChatTurn[] = [...history.slice(-8), { role: 'user', content: userText }];
 
-  if (provider === 'openai') return callOpenAI(system, turns);
-  return callAnthropic(system, turns);
+  let reply =
+    provider === 'openai'
+      ? await callOpenAI(`${system}\n\n${langInstruction}`, turns)
+      : await callAnthropic(`${system}\n\n${langInstruction}`, turns);
+
+  if (mode === 'customer' && !replyMatchesCustomerLanguage(reply, lang)) {
+    const lockedSystem = `${system}\n\n${buildCustomerLanguageSystemLock(lang)}\n\n${langInstruction}`;
+    reply =
+      provider === 'openai'
+        ? await callOpenAI(lockedSystem, [{ role: 'user', content: userText }])
+        : await callAnthropic(lockedSystem, [{ role: 'user', content: userText }]);
+    if (!replyMatchesCustomerLanguage(reply, lang)) {
+      reply = getCustomerShiftFallback(lang, ctx, userText);
+    }
+  }
+
+  return reply;
 }
 
 export type InterceptDecision = {

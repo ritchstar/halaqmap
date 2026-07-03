@@ -26,7 +26,7 @@ export const DIGITAL_SHIFT_SUPPORTED_LANGUAGES: DigitalShiftLanguageDef[] = [
 const TURKISH_MARKERS =
   /[çğıöşüÇĞİÖŞÜ]|(\b(merhaba|teşekkür|tesekkür|nasılsın|nasilsin|evet|hayır|hayir|lütfen|lutfen|günaydın|gunaydin)\b)/iu;
 const SPANISH_MARKERS =
-  /[ñ¿¡]|(\b(hola|gracias|buenos|qué|que|cómo|como|por favor|señor|senor|disculpe|habla)\b)/iu;
+  /[ñ¿¡]|(\b(hola|gracias|buenos|qué|que|cómo|como|por favor|señor|senor|disculpe|habla|gustaría|gustaria|barba|pelo|cabello|ahora|puedo|venir|ir|cortar|barbero|barbería|barberia)\b)/iu;
 const FRENCH_MARKERS =
   /[àâäæçéèêëïîôùûü]|(\b(bonjour|merci|oui|non|comment|s'il|je|vous|salut|excusez)\b)/iu;
 const TAGALOG_MARKERS =
@@ -65,6 +65,64 @@ export function detectClientLanguage(text: string): ShiftLanguage {
 export function getCustomerReplyInstruction(lang: ShiftLanguage): string {
   const def = DIGITAL_SHIFT_SUPPORTED_LANGUAGES.find((l) => l.code === lang);
   return def?.customerReplyInstruction ?? 'Reply in Arabic.';
+}
+
+/** يتحقق أن ردّ المناوب بلسان العميل وليس عربياً بالخطأ */
+export function replyMatchesCustomerLanguage(reply: string, expected: ShiftLanguage): boolean {
+  const trimmed = reply.trim();
+  if (!trimmed) return false;
+  return detectClientLanguage(trimmed) === expected;
+}
+
+/** قفل لغة صارم — بالإنجليزية لأن النماذج تلتزم به أفضل من العربية */
+export function buildCustomerLanguageSystemLock(lang: ShiftLanguage): string {
+  const def = DIGITAL_SHIFT_SUPPORTED_LANGUAGES.find((l) => l.code === lang);
+  const label = def?.labelNative ?? lang;
+  return [
+    '═══ LANGUAGE LOCK (HIGHEST PRIORITY — OVERRIDES ALL ARABIC INSTRUCTIONS) ═══',
+    `Customer language: ${label} (${lang}).`,
+    `Write your ENTIRE reply in ${label} only.`,
+    'Do NOT reply in Arabic unless the customer wrote in Arabic.',
+    'Private office notes may be in Arabic — translate their meaning into the customer language.',
+    'Never mix languages in one reply.',
+  ].join('\n');
+}
+
+export function getCustomerShiftFallback(
+  lang: ShiftLanguage,
+  ctx: { assistantName: string; barberName: string; shopOpen: boolean },
+  userText: string,
+): string {
+  const wantsVisit = /\b(ahora|now|venir|come|visit|ir|puedo|today|hoy)\b/iu.test(userText);
+  if (wantsVisit && ctx.shopOpen) {
+    switch (lang) {
+      case 'es':
+        return `¡Hola! Sí, puedes venir ahora. Estamos abiertos y listos para atenderte con tu corte de pelo y barba. ¡Te esperamos en ${ctx.barberName}!`;
+      case 'en':
+        return `Hello! Yes, you can come now. We're open and ready for your haircut and beard trim. We look forward to seeing you at ${ctx.barberName}!`;
+      case 'fr':
+        return `Bonjour ! Oui, vous pouvez venir maintenant. Nous sommes ouverts et prêts à vous accueillir. À bientôt chez ${ctx.barberName} !`;
+      case 'tr':
+        return `Merhaba! Evet, şimdi gelebilirsiniz. Açığız ve sizi ağırlamaya hazırız. ${ctx.barberName} sizi bekliyor!`;
+      case 'ur':
+        return `السلام علیکم! جی ہاں، آپ ابھی آ سکتے ہیں۔ ہم کھلے ہیں اور آپ کی خدمت کے لیے تیار ہیں — ${ctx.barberName}۔`;
+      case 'tl':
+        return `Kumusta! Oo, puwede kang pumunta ngayon. Bukas kami at handang tumanggap sa iyo sa ${ctx.barberName}!`;
+      default:
+        break;
+    }
+  }
+  if (wantsVisit && !ctx.shopOpen) {
+    switch (lang) {
+      case 'es':
+        return `¡Hola! Ahora mismo estamos cerrados, pero en cuanto abramos te atenderemos con gusto. ¿Te gustaría saber nuestro horario?`;
+      case 'en':
+        return `Hello! We're currently closed, but we'll be happy to serve you when we open. Would you like our opening hours?`;
+      default:
+        break;
+    }
+  }
+  return getFallbackCustomerReply(lang, ctx.assistantName, ctx.barberName);
 }
 
 export function getFallbackCustomerReply(
