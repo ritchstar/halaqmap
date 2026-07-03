@@ -67,11 +67,56 @@ export function getCustomerReplyInstruction(lang: ShiftLanguage): string {
   return def?.customerReplyInstruction ?? 'Reply in Arabic.';
 }
 
-/** يتحقق أن ردّ المناوب بلسان العميل وليس عربياً بالخطأ */
+/** يتحقق أن ردّ المناوب بلسان العميل — ويرفض الخلط مع العربية */
 export function replyMatchesCustomerLanguage(reply: string, expected: ShiftLanguage): boolean {
   const trimmed = reply.trim();
   if (!trimmed) return false;
+  if (expected !== 'ar' && /[\u0600-\u06FF\u0750-\u077F]/.test(trimmed)) return false;
   return detectClientLanguage(trimmed) === expected;
+}
+
+/** يزيل الحروف العربية من ردّ أجنبي (مثل «¡أرحب بك Sí…») */
+export function stripArabicFromReply(reply: string): string {
+  return reply
+    .replace(/[\u0600-\u06FF\u0750-\u077F]+/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([!?.،])/g, '$1')
+    .trim();
+}
+
+/** يستخرج تعليمة ترحيب من المكتب الخاص (مثل «ارحبو») */
+export function extractSalonGreetingHint(instructions: string[]): string | null {
+  for (const inst of instructions) {
+    const t = inst.trim();
+    if (!t) continue;
+    if (/ارحب|أرحب|ترحيب|أهلا|اهلا|welcome|bienvenid/i.test(t)) return t;
+  }
+  return null;
+}
+
+/** ترحيب محلي — يحوّل «ارحبو» للإسبانية/الإنجليزية ولا ينسخ العربية */
+export function resolveCustomerSalonGreeting(lang: ShiftLanguage, greetingHint?: string | null): string {
+  if (lang === 'ar') {
+    if (greetingHint && /ارحبو/i.test(greetingHint)) return 'أهلاً وسهلاً — ارحبو!';
+    if (greetingHint && /أرحب|ارحب/i.test(greetingHint)) return 'أرحب بك!';
+    return 'أرحب بك!';
+  }
+  switch (lang) {
+    case 'es':
+      return '¡Bienvenido!';
+    case 'en':
+      return 'Welcome!';
+    case 'fr':
+      return 'Bienvenue !';
+    case 'tr':
+      return 'Hoş geldiniz!';
+    case 'ur':
+      return 'خوش آمدید!';
+    case 'tl':
+      return 'Maligayang pagdating!';
+    default:
+      return 'Welcome!';
+  }
 }
 
 /** قفل لغة صارم — بالإنجليزية لأن النماذج تلتزم به أفضل من العربية */
@@ -84,6 +129,7 @@ export function buildCustomerLanguageSystemLock(lang: ShiftLanguage): string {
     `Write your ENTIRE reply in ${label} only.`,
     'Do NOT reply in Arabic unless the customer wrote in Arabic.',
     'Private office notes may be in Arabic — translate their meaning into the customer language.',
+    'If a greeting says «ارحبو» or «أرحب بك», use a natural welcome in the customer language only (e.g. Spanish: «¡Bienvenido!») — never paste Arabic letters.',
     'Never mix languages in one reply.',
   ].join('\n');
 }
@@ -92,22 +138,26 @@ export function getCustomerShiftFallback(
   lang: ShiftLanguage,
   ctx: { assistantName: string; barberName: string; shopOpen: boolean },
   userText: string,
+  greetingHint?: string | null,
 ): string {
+  const greet = resolveCustomerSalonGreeting(lang, greetingHint);
   const wantsVisit = /\b(ahora|now|venir|come|visit|ir|puedo|today|hoy)\b/iu.test(userText);
   if (wantsVisit && ctx.shopOpen) {
     switch (lang) {
       case 'es':
-        return `¡Hola! Sí, puedes venir ahora. Estamos abiertos y listos para atenderte con tu corte de pelo y barba. ¡Te esperamos en ${ctx.barberName}!`;
+        return `${greet} Sí, puedes venir ahora. Estamos abiertos y listos para atenderte con tu corte de pelo y barba. ¡Te esperamos en ${ctx.barberName}!`;
       case 'en':
-        return `Hello! Yes, you can come now. We're open and ready for your haircut and beard trim. We look forward to seeing you at ${ctx.barberName}!`;
+        return `${greet} Yes, you can come now. We're open and ready for your haircut and beard trim. We look forward to seeing you at ${ctx.barberName}!`;
       case 'fr':
-        return `Bonjour ! Oui, vous pouvez venir maintenant. Nous sommes ouverts et prêts à vous accueillir. À bientôt chez ${ctx.barberName} !`;
+        return `${greet} Oui, vous pouvez venir maintenant. Nous sommes ouverts et prêts à vous accueillir. À bientôt chez ${ctx.barberName} !`;
       case 'tr':
-        return `Merhaba! Evet, şimdi gelebilirsiniz. Açığız ve sizi ağırlamaya hazırız. ${ctx.barberName} sizi bekliyor!`;
+        return `${greet} Evet, şimdi gelebilirsiniz. Açığız ve sizi ağırlamaya hazırız. ${ctx.barberName} sizi bekliyor!`;
       case 'ur':
-        return `السلام علیکم! جی ہاں، آپ ابھی آ سکتے ہیں۔ ہم کھلے ہیں اور آپ کی خدمت کے لیے تیار ہیں — ${ctx.barberName}۔`;
+        return `${greet} جی ہاں، آپ ابھی آ سکتے ہیں۔ ہم کھلے ہیں اور آپ کی خدمت کے لیے تیار ہیں — ${ctx.barberName}۔`;
       case 'tl':
-        return `Kumusta! Oo, puwede kang pumunta ngayon. Bukas kami at handang tumanggap sa iyo sa ${ctx.barberName}!`;
+        return `${greet} Oo, puwede kang pumunta ngayon. Bukas kami at handang tumanggap sa iyo sa ${ctx.barberName}!`;
+      case 'ar':
+        return `${greet} نعم، يمكنك الحضور الآن. نحن مفتوحون لاستقبال الزبائن. تفضل!`;
       default:
         break;
     }
@@ -123,6 +173,22 @@ export function getCustomerShiftFallback(
     }
   }
   return getFallbackCustomerReply(lang, ctx.assistantName, ctx.barberName);
+}
+
+/** تطهير نهائي لردّ المناوب قبل الإرسال للعميل */
+export function finalizeCustomerShiftReply(
+  raw: string,
+  lang: ShiftLanguage,
+  ctx: { assistantName: string; barberName: string; shopOpen: boolean },
+  userText: string,
+  greetingHint?: string | null,
+): string {
+  let reply = raw.trim();
+  if (lang !== 'ar') reply = stripArabicFromReply(reply);
+  if (!replyMatchesCustomerLanguage(reply, lang)) {
+    reply = getCustomerShiftFallback(lang, ctx, userText, greetingHint);
+  }
+  return reply.slice(0, 2000);
 }
 
 export function getFallbackCustomerReply(

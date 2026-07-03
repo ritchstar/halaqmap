@@ -4,6 +4,8 @@ import { sanitizeBarberFacingCopyAr } from './barberFacingCopySanitize.js';
 import {
   buildCustomerLanguageSystemLock,
   detectClientLanguage,
+  extractSalonGreetingHint,
+  finalizeCustomerShiftReply,
   formatSupportedLanguagesForPrompt,
   getCustomerReplyInstruction,
   getCustomerShiftFallback,
@@ -551,9 +553,10 @@ export async function generateDigitalShiftReply(
 ): Promise<string> {
   const provider = resolveProvider();
   const lang = detectClientLanguage(userText);
+  const greetingHint = extractSalonGreetingHint(extra?.instructions ?? []);
   if (!provider) {
     if (mode === 'customer') {
-      return getCustomerShiftFallback(lang, ctx, userText);
+      return getCustomerShiftFallback(lang, ctx, userText, greetingHint);
     }
     return `يا عمنا تفضل، أنا ${ctx.assistantName} من حلاق ماب. ${DIGITAL_SHIFT_GREETING_BARBER}`;
   }
@@ -582,8 +585,12 @@ export async function generateDigitalShiftReply(
         ? await callOpenAI(lockedSystem, [{ role: 'user', content: userText }])
         : await callAnthropic(lockedSystem, [{ role: 'user', content: userText }]);
     if (!replyMatchesCustomerLanguage(reply, lang)) {
-      reply = getCustomerShiftFallback(lang, ctx, userText);
+      reply = getCustomerShiftFallback(lang, ctx, userText, greetingHint);
     }
+  }
+
+  if (mode === 'customer') {
+    return finalizeCustomerShiftReply(reply, lang, ctx, userText, greetingHint);
   }
 
   return reply;

@@ -9,6 +9,11 @@ import {
   upsertRecommendation,
 } from './_lib/digitalShiftAssistant.js';
 import {
+  detectClientLanguage,
+  extractSalonGreetingHint,
+  finalizeCustomerShiftReply,
+} from './_lib/digitalShiftLanguages.js';
+import {
   formatCustomerSalonContextForPrompt,
   resolveRecommendationInput,
 } from './_lib/digitalShiftSalonInsights.js';
@@ -209,6 +214,30 @@ export async function POST(request: Request): Promise<Response> {
 
   if (!replyText.trim()) {
     return Response.json({ ok: true, replied: false, reason: 'empty_ai_reply' }, { headers });
+  }
+
+  const customerLang = detectClientLanguage(lastCustomerBody);
+  const greetingHint = extractSalonGreetingHint(privateOfficeInstructions);
+  replyText = finalizeCustomerShiftReply(
+    replyText,
+    customerLang,
+    ctx,
+    lastCustomerBody,
+    greetingHint,
+  );
+
+  const { count: existingShiftReplies, error: raceErr } = await supabase
+    .from('private_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('conversation_id', conversationId)
+    .eq('is_digital_shift_reply', true)
+    .gt('created_at', lastCustomerMessageAt!);
+
+  if (raceErr) {
+    return Response.json({ error: raceErr.message }, { status: 500, headers });
+  }
+  if ((existingShiftReplies ?? 0) > 0) {
+    return Response.json({ ok: true, replied: false, reason: 'shift_already_replied_race' }, { headers });
   }
 
   const { data: inserted, error: insErr } = await supabase
