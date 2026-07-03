@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Hourglass, Loader2, MessageCircle, Send } from 'lucide-react';
+import { MessageCircle, Hourglass, Loader2, Send, Languages } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { SubscriptionTier } from '@/lib/index';
+import { cn } from '@/lib/utils';
 import {
   barberListPrivateConversationsRemote,
   barberListPrivateMessagesRemote,
@@ -14,7 +15,8 @@ import {
   type BarberPrivateConversationRow,
   type BarberPrivateMessageRow,
 } from '@/lib/barberCustomerPrivateChatRemote';
-import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
+import { barberDashboardTranslateTarget } from '@/lib/chatTranslationPolicy';
+import { translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
 import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 import { useBarberCommunicationAlerts } from '@/hooks/useBarberCommunicationAlerts';
@@ -205,14 +207,18 @@ export function BarberCustomerPrivateChatPanel({
   }, [isDiamond, selectedId, loadMessages, pollingEnabled]);
 
   useEffect(() => {
-    if (!isDiamond || messages.length === 0) return;
+    if (!isDiamond || messages.length === 0 || !selected) return;
     let cancelled = false;
     (async () => {
       const updates: Record<string, string> = {};
       for (const m of messages) {
         if (translationAttemptedRef.current.has(m.id)) continue;
+        const isInbound =
+          m.sender_id === selected.customer_id || Boolean(m.is_digital_shift_reply);
+        if (!isInbound) continue;
+        const target = barberDashboardTranslateTarget(m.body);
+        if (!target) continue;
         translationAttemptedRef.current.add(m.id);
-        const target = guessTranslateTarget(m.body);
         const tr = await translateChatLineRemote({ text: m.body, target });
         if (cancelled) return;
         if (tr.ok && tr.text && tr.text !== m.body) updates[m.id] = tr.text;
@@ -224,7 +230,7 @@ export function BarberCustomerPrivateChatPanel({
     return () => {
       cancelled = true;
     };
-  }, [messages, isDiamond]);
+  }, [messages, isDiamond, selected]);
 
   const send = async () => {
     if (!selectedId || !draft.trim() || msLeft <= 0) return;
@@ -296,6 +302,11 @@ export function BarberCustomerPrivateChatPanel({
           {isWorkbench
             ? 'إدارة المحادثات النشطة — ردّ سريع وواضح. الجلسة ساعة واحدة لكل عميل.'
             : 'تظهر هنا الجلسات النشطة فقط (ساعة واحدة لكل جلسة). يبدأ العميل المحادثة من التطبيق؛'}
+          {isDiamond && !isWorkbench ? (
+            <span className="mt-1 block text-amber-700 dark:text-amber-300">
+              المناوب يردّ بلغة العميل (إنجليزي، إسباني، …) — وتظهر لك ترجمة عربية تحت رسائل العميل وردود المناوب.
+            </span>
+          ) : null}
           {!isWorkbench &&
             (realtimeConnected
               ? ' تُحدَّث الرسائل فوراً عبر `Supabase Realtime`.'
@@ -392,9 +403,20 @@ export function BarberCustomerPrivateChatPanel({
                           </Badge>
                         ) : null}
                         {isDiamond && translations[m.id] ? (
-                          <p className="mt-1 border-t border-white/20 pt-1 text-[11px] opacity-90">
-                            ترجمة: {translations[m.id]}
-                          </p>
+                          <div
+                            className={cn(
+                              'mt-2 rounded-md border px-2 py-1.5 text-[11px] leading-relaxed',
+                              isBarber
+                                ? 'border-white/25 bg-black/10'
+                                : 'border-amber-400/35 bg-amber-500/10 text-foreground',
+                            )}
+                          >
+                            <div className="mb-0.5 flex items-center gap-1 font-semibold opacity-95">
+                              <Languages className="h-3 w-3 shrink-0" />
+                              <span>بالعربية للمتابعة</span>
+                            </div>
+                            <p className="whitespace-pre-wrap break-words">{translations[m.id]}</p>
+                          </div>
                         ) : null}
                         <p className="mt-1 text-[10px] opacity-75">
                           {new Date(m.created_at).toLocaleString('ar-SA')}

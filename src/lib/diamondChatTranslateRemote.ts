@@ -1,4 +1,8 @@
+import { guessTranslateTarget } from '@/lib/chatTranslationPolicy';
+
 const DEFAULT_ENDPOINT = '/api/diamond-chat-translate';
+
+export { guessTranslateTarget };
 
 function endpoint(): string {
   return String(import.meta.env.VITE_DIAMOND_CHAT_TRANSLATE_URL || DEFAULT_ENDPOINT).trim();
@@ -13,14 +17,6 @@ function baseHeaders(): Record<string, string> {
   if (anonKey) headers['x-supabase-anon'] = anonKey;
   if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
   return headers;
-}
-
-/** يختار لغة الهدف بحيث يُترجم النص «للطرف الآخر» في واجهة عربية أساساً. */
-export function guessTranslateTarget(text: string): 'ar' | 'en' {
-  const latin = (text.match(/[A-Za-z]/g) || []).length;
-  const arabic = (text.match(/[\u0600-\u06FF]/g) || []).length;
-  if (arabic >= latin) return 'en';
-  return 'ar';
 }
 
 export async function translateChatLineRemote(input: {
