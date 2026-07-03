@@ -153,6 +153,16 @@ export function buildMoyasarCallbackSearchParams(input: {
 }
 
 /**
+ * على نشر Preview (نطاق `*.vercel.app`) نتجاهل callback_url الثابت للإنتاج
+ * ونعود لنفس الأصل الحالي — وإلا يعود الدفع للإنتاج (كود مختلف + sessionStorage
+ * لأصل آخر) فتُعامَل شحنة المحفظة كـ«شراء أول». الإنتاج لا يتأثر.
+ */
+function isVercelPreviewHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.location.hostname.toLowerCase().endsWith('.vercel.app');
+}
+
+/**
  * Moyasar يُلحق `id` كـ query على أصل الموقع (قبل `#`) — لا نمرّر HashRouter في callback_url.
  * index.html يعيد التوجيه إلى `/#/partners/payment?...&id=...` قبل تحميل React.
  */
@@ -170,7 +180,7 @@ export function buildMoyasarCallbackUrl(
   if (explicit) {
     try {
       const u = new URL(explicit);
-      const baseOrigin = u.origin.replace(/\/+$/, '');
+      const baseOrigin = isVercelPreviewHost() ? origin : u.origin.replace(/\/+$/, '');
       const hashBody = u.hash.replace(/^#\/?/, '');
       const hashQuery = hashBody.includes('?') ? hashBody.split('?').slice(1).join('?') : '';
       const merged = new URLSearchParams(hashQuery || u.search);
@@ -204,7 +214,7 @@ export function buildWalletTopupCallbackUrl(
   if (explicit) {
     try {
       const u = new URL(explicit);
-      const baseOrigin = u.origin.replace(/\/+$/, '');
+      const baseOrigin = isVercelPreviewHost() ? origin : u.origin.replace(/\/+$/, '');
       const hashBody = u.hash.replace(/^#\/?/, '');
       const hashQuery = hashBody.includes('?') ? hashBody.split('?').slice(1).join('?') : '';
       const merged = new URLSearchParams(hashQuery || u.search);
