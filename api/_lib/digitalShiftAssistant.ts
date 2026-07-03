@@ -400,8 +400,9 @@ export async function refreshHeuristicRecommendations(
       category: 'banner',
       priority: 80,
       dedupeKey: 'banner_missing',
-      title: 'البنر غير مفعّل كأصل رقمي جغرافي',
-      body: 'يا عمنا، لا يوجد أصل رقمي جغرافي نشط على البنر. أضف بنراً واضحاً مع عرض محدد إن أمكن — هذا يرفع ثقة العميل في نتائج الرصد الذكي.',
+      title: 'أضف بنراً لصالونك',
+      body:
+        'لم يُرفع بنر بعد على بطاقة صالونك. ارفع صورة بنر واضحة (اسم الصالون + عرض أو سعر إن وُجد) — العميل يقرر من أول نظرة على الخريطة والبحث.',
       metadata: { bannerCount: 0 },
     });
   } else {
@@ -411,10 +412,10 @@ export async function refreshHeuristicRecommendations(
       category: 'banner',
       priority: 55,
       dedupeKey: 'banner_audit',
-      title: 'تدقيق الأصول الرقمية الجغرافية',
+      title: 'راجع بنرك على الجوال',
       body: hasDiscount
-        ? `تفضل، لديك ${bannerUrls.length} بنر(ات) مع شارة خصم ${input.discountPercent}%. راجع وضوح النص على الجوال وتجنب ازدحام الصورة.`
-        : `تفضل، لديك ${bannerUrls.length} بنر(ات). فكّر بإضافة شارة خصم أو عرض موسمي لرفع النقرات من خريطة الرصد.`,
+        ? `لديك ${bannerUrls.length} بنر(ات) مع شارة خصم ${input.discountPercent}%. تأكد أن النص مقروء على شاشة الجوال وتجنّب ازدحام الصورة.`
+        : `لديك ${bannerUrls.length} بنر(ات). جرّب إضافة شارة خصم أو عرض موسمي لجذب انتباه الباحثين على الخريطة.`,
       metadata: { bannerCount: bannerUrls.length, hasDiscount },
     });
   }

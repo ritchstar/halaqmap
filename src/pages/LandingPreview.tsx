@@ -641,14 +641,14 @@ export default function LandingPreview() {
     return () => document.documentElement.classList.remove('hm-app-dark-canvas');
   }, []);
 
+  /** بعد تحديد الموقع — تأكد من إزالة أي قفل تمرير قديم (iOS/Safari) */
   useEffect(() => {
-    if (!mobilePreSearch) return;
-    const html = document.documentElement;
-    html.classList.add('hm-landing-mobile-lock');
-    return () => {
-      html.classList.remove('hm-landing-mobile-lock');
-    };
-  }, [mobilePreSearch]);
+    if (!userLocation) return;
+    document.documentElement.classList.remove('hm-landing-mobile-lock');
+    requestAnimationFrame(() => {
+      window.scrollTo(0, window.scrollY || 0);
+    });
+  }, [userLocation]);
 
   const scrollToResults = useCallback(() => {
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });

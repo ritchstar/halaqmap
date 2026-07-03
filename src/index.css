@@ -1218,29 +1218,9 @@
     overscroll-behavior-y: none;
   }
 
-  /* الرئيسية على الجوال قبل الاستعلام — قفل تمرير iOS/Safari */
+  /* الرئيسية — خلفية الصفحة الداكنة */
   html.hm-app-dark-canvas {
     --app-canvas: #020912;
-  }
-
-  html.hm-landing-mobile-lock,
-  html.hm-landing-mobile-lock body {
-    height: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
-  }
-
-  html.hm-landing-mobile-lock body {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    padding-bottom: 0;
-    background: oklch(0.10 0.03 254);
-  }
-
-  html.hm-landing-mobile-lock #root {
-    height: 100%;
-    overflow: hidden;
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
