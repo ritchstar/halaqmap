@@ -157,6 +157,20 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: true, replied: false, reason: decision.reason, trigger: decision.trigger }, { headers });
   }
 
+  const { error: claimErr } = await supabase.from('digital_shift_intercept_claims').insert({
+    conversation_id: conversationId,
+    customer_message_at: lastCustomerMessageAt,
+  });
+  if (claimErr) {
+    const code = String(claimErr.code ?? '');
+    if (code === '23505') {
+      return Response.json({ ok: true, replied: false, reason: 'shift_claim_race' }, { headers });
+    }
+    if (code !== '42P01') {
+      return Response.json({ error: claimErr.message }, { status: 500, headers });
+    }
+  }
+
   const debit = await debitWalletForAiReply(supabase, barberId, `shift_reply:${decision.trigger}`);
   if (!debit.ok) {
     await upsertRecommendation(supabase, {

@@ -63,6 +63,7 @@ export function useCustomerBarberPrivateRealtimeChat(
   const convIdRef = useRef<string | null>(null);
   const translationAttemptedRef = useRef(new Set<string>());
   const interceptTimersRef = useRef<number[]>([]);
+  const interceptInFlightRef = useRef(false);
 
   const refreshConversationAndMessages = useCallback(async (conversationId: string) => {
     const convRes = await getCustomerPrivateChatServer(conversationId);
@@ -93,9 +94,15 @@ export function useCustomerBarberPrivateRealtimeChat(
   }, []);
 
   const runIntercept = useCallback(async (conversationId: string) => {
-    const r = await customerDigitalShiftInterceptRemote(conversationId);
-    if (r.ok && r.replied) {
-      await refreshConversationAndMessages(conversationId);
+    if (interceptInFlightRef.current) return;
+    interceptInFlightRef.current = true;
+    try {
+      const r = await customerDigitalShiftInterceptRemote(conversationId);
+      if (r.ok && r.replied) {
+        await refreshConversationAndMessages(conversationId);
+      }
+    } finally {
+      interceptInFlightRef.current = false;
     }
   }, [refreshConversationAndMessages]);
 
@@ -103,12 +110,7 @@ export function useCustomerBarberPrivateRealtimeChat(
     (conversationId: string) => {
       for (const id of interceptTimersRef.current) window.clearTimeout(id);
       interceptTimersRef.current = [];
-      const delays = [
-        POLL_MS.CUSTOMER_CHAT_INTERCEPT_AFTER_SEND,
-        2_500,
-        5_500,
-        8_000,
-      ];
+      const delays = [POLL_MS.CUSTOMER_CHAT_INTERCEPT_AFTER_SEND, 5_500];
       for (const delay of delays) {
         const timerId = window.setTimeout(() => {
           void runIntercept(conversationId);
