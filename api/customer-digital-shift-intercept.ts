@@ -80,7 +80,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const { data: conv, error: convErr } = await supabase
     .from('private_conversations')
-    .select('id, barber_id, barber_user_id, customer_id, status, expires_at, closed_at')
+    .select('id, barber_id, barber_user_id, customer_id, status, expires_at, closed_at, shift_manual_takeover')
     .eq('id', conversationId)
     .maybeSingle();
 
@@ -150,6 +150,7 @@ export async function POST(request: Request): Promise<Response> {
     lastBarberHumanReplyAt,
     lastShiftReplyAt,
     enabled: cfg.enabled,
+    shiftManualTakeover: Boolean(conv.shift_manual_takeover),
   });
 
   if (!decision.shouldReply || !lastCustomerBody) {
@@ -303,7 +304,7 @@ export async function POST(request: Request): Promise<Response> {
     body:
       decision.trigger === 'shop_closed'
         ? 'تفضل يا عمنا، المناوب رد على عميل أثناء إغلاق المحل. راجع المحادثة عند فتح الصالون.'
-        : 'تفضل، المناوب تدخل بعد مهلة 3 دقائق لرد العميل. يمكنك متابعة المحادثة بنفسك في أي وقت.',
+        : 'تفضل، المناوب تدخل بعد مهلة قصيرة لرد العميل. يمكنك متابعة المحادثة بنفسك في أي وقت — وعند الانتهاء أعد المناوب من شات العملاء.',
     metadata: { trigger: decision.trigger, conversationId },
   });
 

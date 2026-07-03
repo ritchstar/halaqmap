@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { MessageCircle, Languages, User, Store, Hourglass, RotateCcw, Send, Loader2, CircleHelp } from 'lucide-react';
+import { MessageCircle, Languages, User, Store, Hourglass, RotateCcw, Send, Loader2, CircleHelp, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -159,6 +159,7 @@ export function CustomerBarberChatPreview({
     loadPrivateConversation(barberId, session.sessionId)
   );
   const [draft, setDraft] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const [remainingMsLocal, setRemainingMsLocal] = useState(() => getPrivateChatRemainingMs(session));
 
   useEffect(() => {
@@ -221,6 +222,16 @@ export function CustomerBarberChatPreview({
   function startNewLiveSession() {
     setDraft('');
     setLiveRestart((n) => n + 1);
+  }
+
+  async function refreshLiveChat() {
+    if (!liveMode || refreshing) return;
+    setRefreshing(true);
+    try {
+      await live.refresh();
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   const remainingLabel = useMemo(() => {
@@ -321,9 +332,28 @@ export function CustomerBarberChatPreview({
           <Hourglass className="h-3.5 w-3.5 shrink-0" />
           <span className="whitespace-nowrap">{CUSTOMER_CHAT_SESSION_LABEL}</span>
         </div>
-        <span className={cn('shrink-0 font-semibold tabular-nums', expired ? 'text-destructive' : 'text-primary')} dir="ltr">
-          {remainingLabel}
-        </span>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {liveMode ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              title="تحديث المحادثة"
+              disabled={refreshing || live.status === 'loading'}
+              onClick={() => void refreshLiveChat()}
+            >
+              {refreshing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          ) : null}
+          <span className={cn('font-semibold tabular-nums', expired ? 'text-destructive' : 'text-primary')} dir="ltr">
+            {remainingLabel}
+          </span>
+        </div>
       </div>
       <ScrollArea className={cn('min-w-0 max-w-full', compact ? 'h-[168px]' : 'h-[220px]')}>
         <div className={cn('min-w-0 max-w-full space-y-3 p-3', compact && 'space-y-2 p-2')}>
@@ -347,6 +377,11 @@ export function CustomerBarberChatPreview({
                     ) : (
                       <>
                         {barberName}
+                        {m.isDigitalShiftReply ? (
+                          <Badge variant="secondary" className="mr-1 text-[9px] font-normal">
+                            🌙 المناوب الرقمي
+                          </Badge>
+                        ) : null}
                         {previewSecretMarker}
                       </>
                     )

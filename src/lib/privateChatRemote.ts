@@ -19,6 +19,7 @@ export interface PrivateMessageRow {
   body: string;
   created_at: string;
   read_at: string | null;
+  is_digital_shift_reply?: boolean;
 }
 
 const UUID_RE =

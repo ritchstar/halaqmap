@@ -28,6 +28,8 @@ export type DigitalShiftContext = {
   walletBalanceHalalas: number;
   walletLowThresholdHalalas: number;
   replyDelayMinutes: number;
+  /** مهلة انتظار رد الحلاق قبل تدخل المناوب أثناء الدوام (ثوانٍ) */
+  replyDelaySeconds: number;
 };
 
 export type RecommendationInput = {
@@ -106,7 +108,7 @@ export function buildDigitalShiftSystemPrompt(
     `حالة المحل: ${ctx.shopOpen ? 'مفتوح' : 'مغلق حالياً'}`,
     `أيام حزمة رخصة النفاذ المتبقية: ${ctx.listingDaysRemaining} يوم`,
     `رصيد محفظة المناوب (هللات): ${ctx.walletBalanceHalalas}`,
-    `مهلة المناوبة (دقائق): ${ctx.replyDelayMinutes}`,
+    `مهلة المناوبة قبل التدخل (ثوانٍ): ${ctx.replyDelaySeconds}`,
   ];
 
   // تعليمات المكتب الخاص — مُنظَّمة بالرموز، تُطبَّق في وضع العميل
@@ -242,7 +244,7 @@ export async function loadDigitalShiftContext(
   const [{ data: cfg }, listing] = await Promise.all([
     supabase
       .from('barber_digital_shift_config')
-      .select('assistant_display_name, reply_delay_minutes, enabled')
+      .select('assistant_display_name, reply_delay_minutes, reply_delay_seconds, enabled')
       .eq('barber_id', barberId)
       .maybeSingle(),
     getBarberListingBalance(supabase, barberId),
@@ -266,6 +268,7 @@ export async function loadDigitalShiftContext(
     walletBalanceHalalas: wallet?.balance_halalas ?? 0,
     walletLowThresholdHalalas: wallet?.low_balance_threshold_halalas ?? 3000,
     replyDelayMinutes: cfg?.reply_delay_minutes ?? 3,
+    replyDelaySeconds: Math.min(120, Math.max(3, Number(cfg?.reply_delay_seconds ?? 5) || 5)),
   };
 }
 
@@ -609,8 +612,12 @@ export function evaluateIntercept(params: {
   lastBarberHumanReplyAt: string | null;
   lastShiftReplyAt: string | null;
   enabled: boolean;
+  shiftManualTakeover?: boolean;
 }): InterceptDecision {
   if (!params.enabled) return { shouldReply: false, reason: 'disabled', trigger: 'none' };
+  if (params.shiftManualTakeover) {
+    return { shouldReply: false, reason: 'barber_manual_takeover', trigger: 'none' };
+  }
   if (!params.lastCustomerMessageAt) return { shouldReply: false, reason: 'no_customer_message', trigger: 'none' };
 
   const customerAt = new Date(params.lastCustomerMessageAt).getTime();
@@ -624,7 +631,7 @@ export function evaluateIntercept(params: {
     return { shouldReply: true, reason: 'shop_closed', trigger: 'shop_closed' };
   }
 
-  const delayMs = params.ctx.replyDelayMinutes * 60_000;
+  const delayMs = params.ctx.replyDelaySeconds * 1000;
   if (Date.now() - customerAt >= delayMs) {
     return { shouldReply: true, reason: 'barber_delay', trigger: 'barber_delay' };
   }

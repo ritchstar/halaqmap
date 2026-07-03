@@ -33,6 +33,7 @@ export type BarberPrivateConversationRow = {
   expires_at: string;
   closed_at: string | null;
   last_message_at: string | null;
+  shift_manual_takeover?: boolean;
 };
 
 export type BarberPrivateMessageRow = {
@@ -106,6 +107,32 @@ export async function barberListPrivateMessagesRemote(input: {
       messages: Array.isArray(json.messages) ? json.messages : [],
       expired: Boolean(json.expired),
     };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال بالخادم.' };
+  }
+}
+
+export async function barberResumeDigitalShiftRemote(input: {
+  barberId: string;
+  email: string;
+  conversationId: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const ep = endpoint();
+  if (!ep) return { ok: false, error: 'مسار شات العملاء غير مضبوط.' };
+  try {
+    const res = await fetch(ep, {
+      method: 'POST',
+      headers: baseHeaders(),
+      body: JSON.stringify({
+        action: 'resume_shift',
+        barberId: input.barberId.trim(),
+        email: input.email.trim(),
+        conversationId: input.conversationId.trim(),
+      }),
+    });
+    const json = (await res.json().catch(() => ({}))) as { error?: string };
+    if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
+    return { ok: true };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بالخادم.' };
   }

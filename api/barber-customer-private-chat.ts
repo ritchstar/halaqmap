@@ -100,7 +100,7 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'list_conversations') {
     const { data: rows, error } = await supabase
       .from('private_conversations')
-      .select('id, customer_id, status, started_at, expires_at, closed_at, last_message_at')
+      .select('id, customer_id, status, started_at, expires_at, closed_at, last_message_at, shift_manual_takeover')
       .eq('barber_user_id', barberUserId)
       .eq('status', 'active')
       .gt('expires_at', new Date().toISOString())
@@ -132,7 +132,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const { data: conv, error: convErr } = await supabase
     .from('private_conversations')
-    .select('id, barber_user_id, customer_id, status, expires_at, closed_at')
+    .select('id, barber_user_id, customer_id, status, expires_at, closed_at, shift_manual_takeover')
     .eq('id', conversationId)
     .maybeSingle();
 
@@ -147,6 +147,7 @@ export async function POST(request: Request): Promise<Response> {
     status: string;
     expires_at: string;
     closed_at: string | null;
+    shift_manual_takeover?: boolean;
   };
 
   if (c.barber_user_id !== barberUserId) {
@@ -194,7 +195,29 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: insErr.message || 'Insert failed' }, { status: 500, headers });
     }
 
-    return Response.json({ ok: true, message: inserted }, { headers });
+    await supabase
+      .from('private_conversations')
+      .update({ shift_manual_takeover: true })
+      .eq('id', conversationId);
+
+    return Response.json({ ok: true, message: inserted, shiftManualTakeover: true }, { headers });
+  }
+
+  if (action === 'resume_shift') {
+    if (!conversationOpen(c)) {
+      return Response.json({ error: 'Conversation expired or closed' }, { status: 409, headers });
+    }
+
+    const { error: resumeErr } = await supabase
+      .from('private_conversations')
+      .update({ shift_manual_takeover: false })
+      .eq('id', conversationId);
+
+    if (resumeErr) {
+      return Response.json({ error: resumeErr.message || 'Resume failed' }, { status: 500, headers });
+    }
+
+    return Response.json({ ok: true, shiftManualTakeover: false }, { headers });
   }
 
   return Response.json({ error: 'Unknown action' }, { status: 400, headers });

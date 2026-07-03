@@ -9,6 +9,7 @@ import {
 } from '@/lib/customerPrivateChatServerRemote';
 import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
 import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
+import { POLL_MS } from '@/lib/pollingPolicy';
 
 export type CustomerBarberUiMessage = {
   id: string;
@@ -16,6 +17,7 @@ export type CustomerBarberUiMessage = {
   body: string;
   created_at: string;
   translated?: string | null;
+  isDigitalShiftReply?: boolean;
 };
 
 function remainingMsFromExpiresAt(expiresAtIso: string | null): number {
@@ -40,6 +42,7 @@ function mapRowsToUi(
       body: m.body,
       created_at: m.created_at,
       translated: translations[m.id] ?? null,
+      isDigitalShiftReply: Boolean(m.is_digital_shift_reply),
     };
   });
 }
@@ -59,6 +62,7 @@ export function useCustomerBarberPrivateRealtimeChat(
   const [remainingMs, setRemainingMs] = useState(0);
   const convIdRef = useRef<string | null>(null);
   const translationAttemptedRef = useRef(new Set<string>());
+  const interceptTimersRef = useRef<number[]>([]);
 
   const refreshConversationAndMessages = useCallback(async (conversationId: string) => {
     const convRes = await getCustomerPrivateChatServer(conversationId);
@@ -87,6 +91,33 @@ export function useCustomerBarberPrivateRealtimeChat(
     setRawMessages(msgRes.messages);
     setStatus('ready');
   }, []);
+
+  const runIntercept = useCallback(async (conversationId: string) => {
+    const r = await customerDigitalShiftInterceptRemote(conversationId);
+    if (r.ok && r.replied) {
+      await refreshConversationAndMessages(conversationId);
+    }
+  }, [refreshConversationAndMessages]);
+
+  const scheduleInterceptBurst = useCallback(
+    (conversationId: string) => {
+      for (const id of interceptTimersRef.current) window.clearTimeout(id);
+      interceptTimersRef.current = [];
+      const delays = [
+        POLL_MS.CUSTOMER_CHAT_INTERCEPT_AFTER_SEND,
+        2_500,
+        5_500,
+        8_000,
+      ];
+      for (const delay of delays) {
+        const timerId = window.setTimeout(() => {
+          void runIntercept(conversationId);
+        }, delay);
+        interceptTimersRef.current.push(timerId);
+      }
+    },
+    [runIntercept],
+  );
 
   useEffect(() => {
     if (!barberId || !isSupabaseConfigured()) {
@@ -136,10 +167,17 @@ export function useCustomerBarberPrivateRealtimeChat(
         }
         setRawMessages(msgRes.messages);
       });
-    }, 3000);
+    }, POLL_MS.CUSTOMER_CHAT_MESSAGES);
 
     return () => window.clearInterval(poll);
   }, [status, conversation?.id]);
+
+  useEffect(() => {
+    return () => {
+      for (const id of interceptTimersRef.current) window.clearTimeout(id);
+      interceptTimersRef.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     if (!conversation?.expires_at) return;
@@ -196,17 +234,14 @@ export function useCustomerBarberPrivateRealtimeChat(
     const cid = convIdRef.current;
     if (!cid || status !== 'ready') return;
 
-    const runIntercept = async () => {
-      const r = await customerDigitalShiftInterceptRemote(cid);
-      if (r.ok && r.replied) {
-        await refreshConversationAndMessages(cid);
-      }
+    const runInterceptPoll = async () => {
+      await runIntercept(cid);
     };
 
-    void runIntercept();
-    const iv = window.setInterval(() => void runIntercept(), 25_000);
+    void runInterceptPoll();
+    const iv = window.setInterval(() => void runInterceptPoll(), POLL_MS.CUSTOMER_CHAT_INTERCEPT);
     return () => window.clearInterval(iv);
-  }, [status, conversation?.id, refreshConversationAndMessages]);
+  }, [status, conversation?.id, runIntercept]);
 
   const send = useCallback(
     async (body: string) => {
@@ -223,15 +258,11 @@ export function useCustomerBarberPrivateRealtimeChat(
             (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
           );
         });
-        window.setTimeout(() => {
-          void customerDigitalShiftInterceptRemote(cid).then((r) => {
-            if (r.ok && r.replied) void refreshConversationAndMessages(cid);
-          });
-        }, 500);
+        scheduleInterceptBurst(cid);
       }
       return result;
     },
-    [conversation?.expires_at, refreshConversationAndMessages],
+    [conversation?.expires_at, scheduleInterceptBurst],
   );
 
   const expiredUi = status === 'expired_ui';
@@ -246,7 +277,9 @@ export function useCustomerBarberPrivateRealtimeChat(
     send,
     refresh: async () => {
       const id = convIdRef.current;
-      if (id) await refreshConversationAndMessages(id);
+      if (!id) return;
+      await refreshConversationAndMessages(id);
+      await runIntercept(id);
     },
   };
 }

@@ -56,6 +56,7 @@ const DEMO_SALON_CTX: DigitalShiftContext = {
   walletBalanceHalalas: 9200,
   walletLowThresholdHalalas: 3000,
   replyDelayMinutes: 3,
+  replyDelaySeconds: 5,
 };
 
 export async function loadFleetDirectorLabContext(
@@ -103,7 +104,7 @@ export async function loadFleetDirectorLabContext(
   const delayDuringOpen = evaluateIntercept({
     ctx: DEMO_SALON_CTX,
     shopOpen: true,
-    lastCustomerMessageAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+    lastCustomerMessageAt: new Date(Date.now() - 6_000).toISOString(),
     lastBarberHumanReplyAt: null,
     lastShiftReplyAt: null,
     enabled: true,

@@ -88,6 +88,7 @@ const DEMO_SALON_CTX: DigitalShiftContext = {
   walletBalanceHalalas: 8500,
   walletLowThresholdHalalas: 3000,
   replyDelayMinutes: 3,
+  replyDelaySeconds: 5,
 };
 
 export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFleetSnapshot): string {
@@ -102,7 +103,7 @@ export function buildDigitalShiftAdminLabSystemPrompt(snapshot: DigitalShiftFlee
   const interceptDelay = evaluateIntercept({
     ctx: DEMO_SALON_CTX,
     shopOpen: true,
-    lastCustomerMessageAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+    lastCustomerMessageAt: new Date(Date.now() - 6_000).toISOString(),
     lastBarberHumanReplyAt: null,
     lastShiftReplyAt: null,
     enabled: true,

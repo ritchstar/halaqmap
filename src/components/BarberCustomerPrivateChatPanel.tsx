@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MessageCircle, Hourglass, Loader2, Send, Languages } from 'lucide-react';
+import { MessageCircle, Hourglass, Loader2, Send, Languages, Bot } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import {
   barberListPrivateConversationsRemote,
   barberListPrivateMessagesRemote,
+  barberResumeDigitalShiftRemote,
   barberSendPrivateMessageRemote,
   type BarberPrivateConversationRow,
   type BarberPrivateMessageRow,
@@ -58,6 +59,7 @@ export function BarberCustomerPrivateChatPanel({
   const [loadingList, setLoadingList] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [sending, setSending] = useState(false);
+  const [resumingShift, setResumingShift] = useState(false);
   const [tick, setTick] = useState(0);
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const translationAttemptedRef = useRef(new Set<string>());
@@ -247,10 +249,39 @@ export function BarberCustomerPrivateChatPanel({
         return;
       }
       setDraft('');
+      setConversations((prev) =>
+        prev.map((c) => (c.id === selectedId ? { ...c, shift_manual_takeover: true } : c)),
+      );
       await loadMessages(selectedId, { force: true });
       await pollConversations(true);
     } finally {
       setSending(false);
+    }
+  };
+
+  const resumeShift = async () => {
+    if (!selectedId || !isDiamond) return;
+    setResumingShift(true);
+    try {
+      const res = await barberResumeDigitalShiftRemote({
+        barberId,
+        email: barberEmail,
+        conversationId: selectedId,
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      setConversations((prev) =>
+        prev.map((c) => (c.id === selectedId ? { ...c, shift_manual_takeover: false } : c)),
+      );
+      toast.success('عاد المناوب للرد على هذا العميل.');
+      const r = await customerDigitalShiftInterceptRemote(selectedId);
+      if (r.ok && r.replied) {
+        await loadMessages(selectedId, { force: true });
+      }
+    } finally {
+      setResumingShift(false);
     }
   };
 
@@ -310,7 +341,7 @@ export function BarberCustomerPrivateChatPanel({
           {!isWorkbench &&
             (realtimeConnected
               ? ' تُحدَّث الرسائل فوراً عبر `Supabase Realtime`.'
-              : ' تُحدَّث الرسائل تلقائياً كل نحو 30 ثانية (أو فوراً عند تسجيل الدخول بحساب المنصة).')}
+              : ' تُحدَّث الرسائل تلقائياً كل بضع ثوانٍ.')}
         </CardDescription>
       </CardHeader>
       <CardContent className={`space-y-4 ${isWorkbench ? 'bg-slate-50/80 p-4 dark:bg-slate-950/40' : ''}`}>
@@ -363,6 +394,29 @@ export function BarberCustomerPrivateChatPanel({
                 >
                   {formatMmSs(msLeft)}
                 </span>
+              </div>
+            ) : null}
+
+            {selected && isDiamond && selected.shift_manual_takeover ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300/70 bg-amber-50/80 px-3 py-2 dark:border-amber-700/50 dark:bg-amber-950/30">
+                <p className="text-xs leading-relaxed text-amber-900 dark:text-amber-100">
+                  أنت تتابع هذه المحادثة يدوياً — المناوب متوقف مؤقتاً.
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0 border-amber-400/60"
+                  disabled={resumingShift}
+                  onClick={() => void resumeShift()}
+                >
+                  {resumingShift ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Bot className="h-3.5 w-3.5" />
+                  )}
+                  <span className="mr-1">أعِد المناوب للرد</span>
+                </Button>
               </div>
             ) : null}
 

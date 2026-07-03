@@ -29,8 +29,8 @@ export const CUSTOMER_CHAT_GOLD_STEPS = [
 
 export const CUSTOMER_CHAT_DIAMOND_STEPS = [
   'اكتب سؤالك — العربية أو أي لغة.',
-  'اضغط إرسال؛ تُترجم رسالتك تلقائياً إن لزم.',
-  'تابع الرد حتى انتهاء العداد.',
+  'اضغط إرسال؛ يرد المناوب خلال ثوانٍ قليلة إن كان الصالون مفعّلاً.',
+  'استخدم زر التحديث بجانب المؤقت لمتابعة الردود لحظة بلحظة.',
 ] as const;
 
 export const CUSTOMER_CHAT_PRIVACY_GOLD =
