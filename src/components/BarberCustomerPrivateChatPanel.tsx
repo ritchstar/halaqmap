@@ -62,7 +62,15 @@ export function BarberCustomerPrivateChatPanel({
   const [resumingShift, setResumingShift] = useState(false);
   const [tick, setTick] = useState(0);
   const [translations, setTranslations] = useState<Record<string, string>>({});
-  const translationAttemptedRef = useRef(new Set<string>());
+  type TranslationUiStatus = 'loading' | 'ready' | 'failed' | 'unavailable' | 'noop';
+  const [translationStatus, setTranslationStatus] = useState<Record<string, TranslationUiStatus>>({});
+  const translationStatusRef = useRef<Record<string, TranslationUiStatus>>({});
+  const translationInFlightRef = useRef(new Set<string>());
+
+  const setMessageTranslationStatus = useCallback((messageId: string, status: TranslationUiStatus) => {
+    translationStatusRef.current[messageId] = status;
+    setTranslationStatus((prev) => ({ ...prev, [messageId]: status }));
+  }, []);
 
   const selected = useMemo(
     () => conversations.find((c) => c.id === selectedId) ?? null,
@@ -200,35 +208,51 @@ export function BarberCustomerPrivateChatPanel({
   const msLeft = useMemo(() => (selected ? remainingMs(selected.expires_at) : 0), [selected, tick]);
 
   useEffect(() => {
-    translationAttemptedRef.current.clear();
+    translationInFlightRef.current.clear();
+    translationStatusRef.current = {};
     setTranslations({});
+    setTranslationStatus({});
   }, [selectedId]);
 
   useEffect(() => {
     if (!isDiamond || messages.length === 0 || !selected) return;
-    let cancelled = false;
-    (async () => {
-      const updates: Record<string, string> = {};
-      for (const m of messages) {
-        if (translationAttemptedRef.current.has(m.id)) continue;
-        const isInbound =
-          m.sender_id === selected.customer_id || Boolean(m.is_digital_shift_reply);
-        if (!isInbound) continue;
-        const target = barberDashboardTranslateTarget(m.body);
-        if (!target) continue;
-        translationAttemptedRef.current.add(m.id);
-        const tr = await translateChatLineRemote({ text: m.body, target });
-        if (cancelled) return;
-        if (tr.ok && tr.text && tr.text !== m.body) updates[m.id] = tr.text;
-      }
-      if (Object.keys(updates).length > 0) {
-        setTranslations((prev) => ({ ...prev, ...updates }));
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [messages, isDiamond, selected]);
+
+    for (const m of messages) {
+      const isInbound =
+        m.sender_id === selected.customer_id || Boolean(m.is_digital_shift_reply);
+      if (!isInbound) continue;
+      if (!barberDashboardTranslateTarget(m.body)) continue;
+
+      const status = translationStatusRef.current[m.id];
+      if (status && status !== 'loading') continue;
+      if (status === 'loading' || translationInFlightRef.current.has(m.id)) continue;
+
+      translationInFlightRef.current.add(m.id);
+      setMessageTranslationStatus(m.id, 'loading');
+
+      void (async (messageId: string, body: string) => {
+        try {
+          const tr = await translateChatLineRemote({ text: body, target: 'ar' });
+          if (!tr.ok) {
+            setMessageTranslationStatus(messageId, 'failed');
+            return;
+          }
+          if (!tr.configured) {
+            setMessageTranslationStatus(messageId, 'unavailable');
+            return;
+          }
+          if (tr.text && tr.text !== body) {
+            setTranslations((prev) => ({ ...prev, [messageId]: tr.text }));
+            setMessageTranslationStatus(messageId, 'ready');
+          } else {
+            setMessageTranslationStatus(messageId, 'noop');
+          }
+        } finally {
+          translationInFlightRef.current.delete(messageId);
+        }
+      })(m.id, m.body);
+    }
+  }, [messages, isDiamond, selected, setMessageTranslationStatus]);
 
   const send = async () => {
     if (!selectedId || !draft.trim() || msLeft <= 0) return;
@@ -473,11 +497,17 @@ export function BarberCustomerPrivateChatPanel({
                             </div>
                             <p className="whitespace-pre-wrap break-words">{translations[m.id]}</p>
                           </div>
-                        ) : isDiamond && barberDashboardTranslateTarget(m.body) ? (
+                        ) : isDiamond && translationStatus[m.id] === 'loading' ? (
                           <p className="mt-1.5 flex items-center gap-1 text-[10px] opacity-80">
                             <Loader2 className="h-3 w-3 animate-spin" />
                             جاري الترجمة…
                           </p>
+                        ) : isDiamond && translationStatus[m.id] === 'unavailable' ? (
+                          <p className="mt-1.5 text-[10px] opacity-75">
+                            الترجمة غير متاحة حالياً من المنصة — تواصل مع الدعم إن استمرّ الأمر.
+                          </p>
+                        ) : isDiamond && translationStatus[m.id] === 'failed' ? (
+                          <p className="mt-1.5 text-[10px] opacity-75">تعذّرت الترجمة — أعد تحميل الصفحة.</p>
                         ) : null}
                         <p className="mt-1 text-[10px] opacity-75">
                           {new Date(m.created_at).toLocaleString('ar-SA')}
