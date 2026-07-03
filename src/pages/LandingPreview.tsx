@@ -20,7 +20,7 @@ import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';
-import { MOBILE_SAFE_BOTTOM_MIN } from '@/lib/mobilePageShell';
+import { MOBILE_QUERY_DOCK_CLEARANCE, MOBILE_SAFE_BOTTOM_MIN } from '@/lib/mobilePageShell';
 import { PLATFORM_ECOMMERCE_AUTH_FOOTER_LINE } from '@/config/platformGrowthNarrative';
 import {
   VISITOR_HERO_BADGE_AR,
@@ -359,11 +359,27 @@ function useLandingGeoSearch(
   return { runGeoSearch, geoBusy: busy };
 }
 
+/** يفك أي قفل تمرير قديم على html/body/#root (iOS/Safari بعد البحث) */
+function releaseLandingScrollLock() {
+  const html = document.documentElement;
+  const body = document.body;
+  const root = document.getElementById('root');
+  html.classList.remove('hm-landing-mobile-lock');
+  body.style.position = '';
+  body.style.top = '';
+  body.style.width = '';
+  body.style.overflow = '';
+  body.style.inset = '';
+  if (root) {
+    root.style.height = '';
+    root.style.overflow = '';
+  }
+}
+
 function MobileSearchDock({
   filters,
   geoBusy,
   storedCoords,
-  embedded = false,
   onIntentChange,
   onGeoSearch,
   onUseStored,
@@ -371,18 +387,13 @@ function MobileSearchDock({
   filters: FilterState;
   geoBusy: boolean;
   storedCoords: { lat: number; lng: number } | null;
-  /** في تدفّق الصفحة (لا fixed) — يمنع التمدد اللانهائي على iOS */
-  embedded?: boolean;
   onIntentChange: (next: FilterState, intentId: VisitorServiceIntentId) => void;
   onGeoSearch: () => void | Promise<void>;
   onUseStored: () => void;
 }) {
   return (
     <div
-      className={cn(
-        'z-[60] border-t border-teal-400/20 bg-[#020912] px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden',
-        embedded ? 'shrink-0' : 'fixed inset-x-0 bottom-0 bg-[#020912]/97',
-      )}
+      className="fixed inset-x-0 bottom-0 z-[60] border-t border-teal-400/20 bg-[#020912]/97 px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
       dir="rtl"
     >
       <div className="mx-auto max-w-lg">
@@ -638,16 +649,22 @@ export default function LandingPreview() {
 
   useEffect(() => {
     document.documentElement.classList.add('hm-app-dark-canvas');
-    return () => document.documentElement.classList.remove('hm-app-dark-canvas');
+    return () => {
+      document.documentElement.classList.remove('hm-app-dark-canvas');
+      releaseLandingScrollLock();
+    };
   }, []);
 
-  /** بعد تحديد الموقع — تأكد من إزالة أي قفل تمرير قديم (iOS/Safari) */
+  /** بعد تحديد الموقع — فك قفل التمرير ثم الانتقال للنتائج */
   useEffect(() => {
     if (!userLocation) return;
-    document.documentElement.classList.remove('hm-landing-mobile-lock');
-    requestAnimationFrame(() => {
-      window.scrollTo(0, window.scrollY || 0);
-    });
+    releaseLandingScrollLock();
+    const scrollTimer = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }, 120);
+    return () => window.clearTimeout(scrollTimer);
   }, [userLocation]);
 
   const scrollToResults = useCallback(() => {
@@ -699,16 +716,6 @@ export default function LandingPreview() {
     }
     void runGeoSearch();
   }, [userLocation, storedCoords, scrollToResults, handleUseStoredCoords, runGeoSearch]);
-
-  useEffect(() => {
-    if (!userLocation) return;
-    const scrollTimer = window.setTimeout(() => {
-      requestAnimationFrame(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }, 500);
-    return () => window.clearTimeout(scrollTimer);
-  }, [userLocation]);
 
   const onBarberPatch = useCallback((patch: { id: string; isOpen: boolean; lat?: number; lng?: number }) => {
     setRemoteBarbers((prev) => {
@@ -913,9 +920,7 @@ export default function LandingPreview() {
           isMobile
             ? cn(
                 'pt-[calc(4.75rem+env(safe-area-inset-top))]',
-                userLocation
-                  ? MOBILE_SAFE_BOTTOM_MIN
-                  : 'min-h-0 flex-1 overflow-y-auto overscroll-contain',
+                userLocation ? MOBILE_SAFE_BOTTOM_MIN : MOBILE_QUERY_DOCK_CLEARANCE,
               )
             : 'min-h-[100svh] pt-24',
         )}
@@ -1429,7 +1434,6 @@ export default function LandingPreview() {
 
       {isMobile && !selectedBarber && !userLocation ? (
         <MobileSearchDock
-          embedded
           filters={filters}
           geoBusy={geoBusy}
           storedCoords={storedCoords}

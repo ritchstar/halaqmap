@@ -1218,9 +1218,26 @@
     overscroll-behavior-y: none;
   }
 
-  /* الرئيسية — خلفية الصفحة الداكنة */
+  /* الرئيسية — خلفية الصفحة الداكنة + تمرير طبيعي على الجوال */
   html.hm-app-dark-canvas {
     --app-canvas: #020912;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html.hm-app-dark-canvas body {
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  html.hm-app-dark-canvas #root {
+    min-height: 100dvh;
+    height: auto;
+    overflow: visible;
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
