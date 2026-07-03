@@ -49,7 +49,10 @@ export type BarberPrivateMessageRow = {
 export async function barberListPrivateConversationsRemote(input: {
   barberId: string;
   email: string;
-}): Promise<{ ok: true; conversations: BarberPrivateConversationRow[] } | { ok: false; error: string }> {
+}): Promise<
+  | { ok: true; conversations: BarberPrivateConversationRow[]; digitalShiftEnabled: boolean }
+  | { ok: false; error: string }
+> {
   const ep = endpoint();
   if (!ep) return { ok: false, error: 'مسار شات العملاء غير مضبوط.' };
   try {
@@ -65,10 +68,15 @@ export async function barberListPrivateConversationsRemote(input: {
     const json = (await res.json().catch(() => ({}))) as {
       ok?: boolean;
       conversations?: BarberPrivateConversationRow[];
+      digitalShiftEnabled?: boolean;
       error?: string;
     };
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
-    return { ok: true, conversations: Array.isArray(json.conversations) ? json.conversations : [] };
+    return {
+      ok: true,
+      conversations: Array.isArray(json.conversations) ? json.conversations : [],
+      digitalShiftEnabled: json.digitalShiftEnabled === true,
+    };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بالخادم.' };
   }

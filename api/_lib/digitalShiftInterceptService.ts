@@ -11,6 +11,7 @@ import {
   extractSalonGreetingHint,
   finalizeCustomerShiftReply,
 } from './digitalShiftLanguages.js';
+import { ensureDigitalShiftAddonFromPaidOrders } from './listingLicenseService.js';
 import {
   formatCustomerSalonContextForPrompt,
   resolveRecommendationInput,
@@ -64,6 +65,8 @@ export async function runDigitalShiftIntercept(
   if (!barberId) {
     return { ok: true, replied: false, reason: 'no_barber_id' };
   }
+
+  await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
 
   const { data: cfg } = await supabase
     .from('barber_digital_shift_config')

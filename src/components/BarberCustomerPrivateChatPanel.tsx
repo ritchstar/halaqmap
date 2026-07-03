@@ -53,6 +53,8 @@ export function BarberCustomerPrivateChatPanel({
   const isDiamond = subscriptionTier === SubscriptionTier.DIAMOND;
   const isWorkbench = layout === 'workbench';
   const [conversations, setConversations] = useState<BarberPrivateConversationRow[]>([]);
+  const [digitalShiftEnabled, setDigitalShiftEnabled] = useState<boolean | null>(null);
+  const [shiftInterceptHint, setShiftInterceptHint] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<BarberPrivateMessageRow[]>([]);
   const [draft, setDraft] = useState('');
@@ -85,6 +87,7 @@ export function BarberCustomerPrivateChatPanel({
     const res = await barberListPrivateConversationsRemote({ barberId, email: barberEmail });
     if (!res.ok) return;
     setConversations(res.conversations);
+    setDigitalShiftEnabled(res.digitalShiftEnabled);
     setSelectedId((prev) => {
       if (prev && res.conversations.some((c) => c.id === prev)) return prev;
       return res.conversations[0]?.id ?? null;
@@ -218,11 +221,20 @@ export function BarberCustomerPrivateChatPanel({
       try {
         const r = await customerDigitalShiftInterceptRemote(selectedId);
         if (r.ok && r.replied) {
+          setShiftInterceptHint(null);
           setConversations((prev) =>
             prev.map((c) => (c.id === selectedId ? { ...c, shift_manual_takeover: false } : c)),
           );
           await loadMessages(selectedId);
           await pollConversations(true);
+        } else if (r.ok && r.reason === 'shift_disabled') {
+          setShiftInterceptHint(
+            'المناوب متوقف — من تبويب «المناوب الرقمي» فعّل «تفعيل المناوب الرقمي» ثم اضغط «حفظ الإعدادات».',
+          );
+        } else if (r.ok && r.reason === 'insufficient_balance') {
+          setShiftInterceptHint('رصيد محفظة المناوب غير كافٍ — اشحن المحفظة ليعود الرد التلقائي.');
+        } else if (r.ok && r.reason === 'barber_manual_takeover') {
+          setShiftInterceptHint(null);
         }
       } finally {
         shiftInterceptInFlightRef.current = false;
@@ -442,6 +454,21 @@ export function BarberCustomerPrivateChatPanel({
                 >
                   {formatMmSs(msLeft)}
                 </span>
+              </div>
+            ) : null}
+
+            {selected && isDiamond && digitalShiftEnabled === false ? (
+              <div className="rounded-md border border-indigo-300/70 bg-indigo-50/80 px-3 py-2 dark:border-indigo-700/50 dark:bg-indigo-950/30">
+                <p className="text-xs leading-relaxed text-indigo-950 dark:text-indigo-100">
+                  المناوب الرقمي <strong>موقوف</strong> — لن يرد على رسائل العملاء حتى تفعّله من تبويب المناوب ثم
+                  «حفظ الإعدادات».
+                </p>
+              </div>
+            ) : null}
+
+            {selected && isDiamond && shiftInterceptHint ? (
+              <div className="rounded-md border border-amber-300/70 bg-amber-50/80 px-3 py-2 dark:border-amber-700/50 dark:bg-amber-950/30">
+                <p className="text-xs leading-relaxed text-amber-900 dark:text-amber-100">{shiftInterceptHint}</p>
               </div>
             ) : null}
 

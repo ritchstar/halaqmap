@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { ensureDigitalShiftAddonFromPaidOrders } from './_lib/listingLicenseService.js';
 import { assertBarberEmailOwnsRow, assertBarberPortalSessionFromRequest } from './_lib/barberPortalAuth.js';
 
 export const config = {
@@ -98,19 +99,35 @@ export async function POST(request: Request): Promise<Response> {
   const barberUserId = gate.row.user_id as string;
 
   if (action === 'list_conversations') {
-    const { data: rows, error } = await supabase
-      .from('private_conversations')
-      .select('id, customer_id, status, started_at, expires_at, closed_at, last_message_at, shift_manual_takeover')
-      .eq('barber_user_id', barberUserId)
-      .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
-      .order('last_message_at', { ascending: false, nullsFirst: false })
-      .limit(80);
+    await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
+
+    const [{ data: rows, error }, { data: shiftCfg }] = await Promise.all([
+      supabase
+        .from('private_conversations')
+        .select('id, customer_id, status, started_at, expires_at, closed_at, last_message_at, shift_manual_takeover')
+        .eq('barber_user_id', barberUserId)
+        .eq('status', 'active')
+        .gt('expires_at', new Date().toISOString())
+        .order('last_message_at', { ascending: false, nullsFirst: false })
+        .limit(80),
+      supabase
+        .from('barber_digital_shift_config')
+        .select('enabled')
+        .eq('barber_id', barberId)
+        .maybeSingle(),
+    ]);
 
     if (error) {
       return Response.json({ error: error.message || 'Failed to list conversations' }, { status: 500, headers });
     }
-    return Response.json({ ok: true, conversations: rows ?? [] }, { headers });
+    return Response.json(
+      {
+        ok: true,
+        conversations: rows ?? [],
+        digitalShiftEnabled: shiftCfg?.enabled === true,
+      },
+      { headers },
+    );
   }
 
   if (action === 'realtime_context') {
