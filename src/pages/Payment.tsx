@@ -133,6 +133,8 @@ export default function Payment() {
     () => typeof window === 'undefined' || !moyasarReturnNeedsHydration(readHashOrTopLevelSearchParams()),
   );
   const moyasarReturnHydratingRef = useRef(false);
+  /** يمنع إعادة تشغيل تأثير التحقق على كل تبدّل حالة (loading↔error): مرة واحدة لكل (دفعة + محاولة). */
+  const moyasarVerifyRunKeyRef = useRef<string>('');
 
   useLayoutEffect(() => {
     const paymentId = searchParams.get('id')?.trim();
@@ -471,6 +473,11 @@ export default function Payment() {
     if (moyasarReturnVerify === 'paid' && readMoyasarPaidReceipt(requestId) === moyasarPaymentIdFromUrl) {
       return;
     }
+    // تحقق مرة واحدة لكل (دفعة + محاولة): يمنع دوران loading↔error اللانهائي.
+    const verifyRunKey = `${moyasarPaymentIdFromUrl}#${moyasarVerifyNonce}`;
+    if (moyasarVerifyRunKeyRef.current === verifyRunKey) return;
+    moyasarVerifyRunKeyRef.current = verifyRunKey;
+
     let cancelled = false;
     setMoyasarReturnVerify('loading');
     setMoyasarVerifyMessage(null);
