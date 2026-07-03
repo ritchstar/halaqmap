@@ -60,7 +60,15 @@ import {
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
 import {
+  WALLET_TOPUP_VAT_PERCENT,
+  netCreditHalalasFromCharged,
+  repliesFromHalalas,
+  walletTopupPackageBySku,
+} from '@/config/digitalShiftWalletTopup';
+import { pollWalletTopupFulfillRemote, type WalletTopupFulfillResult } from '@/lib/walletTopupFulfillRemote';
+import {
   buildMoyasarCallbackUrl,
+  buildWalletTopupCallbackUrl,
   clearMoyasarCheckoutContext,
   clearMoyasarPaidReceipt,
   expectedHalalasFromReturnSearchParams,
@@ -106,11 +114,19 @@ export default function Payment() {
   /** يُمرَّر في metadata.linked_barber_id بعد اعتماد الإدارة أو عبر الرابط ?linkedBarberId= */
   const linkedBarberId = useMemo(() => searchParams.get('linkedBarberId')?.trim() ?? '', [searchParams]);
   const barberName = useMemo(() => searchParams.get('barberName')?.trim() ?? '', [searchParams]);
-  /** purpose: 'new' (شراء أول لعميل جديد) | 'recharge' (شحن لحلاق مسجَّل) */
+  /** purpose: 'new' (شراء أول لعميل جديد) | 'recharge' (شحن رخصة) | 'wallet_topup' (شحن محفظة المناوب) */
   const purchasePurpose = useMemo(() => {
     const p = searchParams.get('purpose')?.trim().toLowerCase();
+    if (p === 'wallet_topup') return 'wallet_topup';
     return p === 'recharge' ? 'recharge' : 'new';
   }, [searchParams]);
+  const isWalletTopup = purchasePurpose === 'wallet_topup';
+  const walletSku = useMemo(
+    () => (searchParams.get('walletSku') ?? '').trim().toLowerCase(),
+    [searchParams],
+  );
+  const walletPkg = useMemo(() => walletTopupPackageBySku(walletSku), [walletSku]);
+  const buyerEmail = useMemo(() => searchParams.get('buyerEmail')?.trim() ?? '', [searchParams]);
 
   /** بعد عودة ميسر: ادمج tier/requestId من sessionStorage قبل التحقق من الخادم. */
   const [moyasarReturnHydrated, setMoyasarReturnHydrated] = useState(
@@ -198,6 +214,12 @@ export default function Payment() {
   const [activationCertificate, setActivationCertificate] = useState<DigitalActivationCertificateView | null>(null);
   const [activationCertificateLoading, setActivationCertificateLoading] = useState(false);
   const [activationCertificateError, setActivationCertificateError] = useState<string | null>(null);
+  /** نتيجة شحن المحفظة بعد الدفع (purpose === 'wallet_topup') */
+  const [walletTopupResult, setWalletTopupResult] = useState<
+    Extract<WalletTopupFulfillResult, { ok: true }> | null
+  >(null);
+  const [walletTopupLoading, setWalletTopupLoading] = useState(false);
+  const [walletTopupError, setWalletTopupError] = useState<string | null>(null);
   const moyasarHostRef = useRef<HTMLDivElement>(null);
   const [moyasarFormError, setMoyasarFormError] = useState<string | null>(null);
   const [sabTermsAccepted, setSabTermsAccepted] = useState(false);
@@ -286,6 +308,34 @@ export default function Payment() {
     ],
   );
 
+  /** مبلغ شحن المحفظة (هللات) — المدفوع فعلياً = الأساسي + ضريبة 15% فوقه. */
+  const walletChargedHalalas = walletPkg?.chargedHalalas ?? 0;
+  const walletCreditedHalalas = useMemo(
+    () => (walletPkg ? netCreditHalalasFromCharged(walletPkg.chargedHalalas) : 0),
+    [walletPkg],
+  );
+  const walletVatHalalas = walletChargedHalalas - walletCreditedHalalas;
+
+  /** المبلغ/الوصف/الميتاداتا الفعّالة — تتبدّل بين رخصة الإدراج وشحن المحفظة. */
+  const effectiveAmountHalalas = isWalletTopup ? walletChargedHalalas : monthlyAmountHalalas;
+  const effectiveDescription = isWalletTopup
+    ? `Halaqmap Digital Shift Wallet Top-up (${walletPkg?.sku ?? 'wallet_topup'})`
+    : unifiedPaymentInit.description;
+  const effectiveMetadata = useMemo<Record<string, unknown>>(() => {
+    if (!isWalletTopup) return unifiedPaymentInit.metadata;
+    return {
+      payment_gateway: 'MOYASAR',
+      product: 'wallet_topup',
+      product_type: 'wallet_topup',
+      product_type_ar: 'شحن محفظة المناوب الرقمي',
+      wallet_sku: walletPkg?.sku ?? '',
+      expected_amount_halalas: walletChargedHalalas,
+      expected_currency: 'SAR',
+      linked_barber_id: linkedBarberId || '',
+      buyer_email: buyerEmail || '',
+    };
+  }, [isWalletTopup, unifiedPaymentInit.metadata, walletPkg, walletChargedHalalas, linkedBarberId, buyerEmail]);
+
   const paymentGatewayFromUrl = (searchParams.get('gateway') ?? '').trim().toLowerCase();
   const paymentIdFromUrl = searchParams.get('id')?.trim() || '';
   const sabResourcePathFromUrl = searchParams.get('resourcePath')?.trim() || '';
@@ -333,6 +383,30 @@ export default function Payment() {
     );
   }, []);
 
+  const loadWalletTopupFulfillment = useCallback(async (paymentId: string) => {
+    const normalized = paymentId.trim();
+    if (!normalized) return;
+    setWalletTopupLoading(true);
+    setWalletTopupError(null);
+    setWalletTopupResult(null);
+
+    const result = await pollWalletTopupFulfillRemote(normalized, { maxAttempts: 14 });
+    setWalletTopupLoading(false);
+    if (result.ok) {
+      setWalletTopupResult(result);
+      return;
+    }
+    setWalletTopupError(
+      result.error === 'payment_not_paid'
+        ? 'الدفع ما زال قيد التأكيد لدى ميسر. انتظر ثوانٍ ثم أعد المحاولة.'
+        : result.error === 'wallet_topup_barber_unresolved'
+          ? 'تعذّر ربط الدفعة بحساب الحلاق. تواصل مع الدعم مع رقم العملية.'
+          : result.error === 'wallet_topup_amount_mismatch'
+            ? 'قيمة الدفعة لا تطابق باقة شحن معتمدة.'
+            : 'تعذّر شحن الرصيد تلقائياً. أعد المحاولة — إن استمرت المشكلة تواصل مع الدعم.',
+    );
+  }, []);
+
   useEffect(() => {
     if (!moyasarReturnHydrated) return;
     const failure = readMoyasarFailureReturn(searchParams);
@@ -377,8 +451,20 @@ export default function Payment() {
     const receiptId = readMoyasarPaidReceipt(requestId);
     if (!receiptId) return;
     setMoyasarReturnVerify('paid');
-    void loadPaidActivationCertificate(receiptId);
-  }, [moyasarReturnHydrated, moyasarPaymentIdFromUrl, moyasarReturnVerify, requestId, loadPaidActivationCertificate]);
+    if (isWalletTopup) {
+      void loadWalletTopupFulfillment(receiptId);
+    } else {
+      void loadPaidActivationCertificate(receiptId);
+    }
+  }, [
+    moyasarReturnHydrated,
+    moyasarPaymentIdFromUrl,
+    moyasarReturnVerify,
+    requestId,
+    loadPaidActivationCertificate,
+    isWalletTopup,
+    loadWalletTopupFulfillment,
+  ]);
 
   useEffect(() => {
     if (!moyasarPaymentIdFromUrl || !moyasarReturnHydrated) return;
@@ -391,7 +477,9 @@ export default function Payment() {
     setMoyasarPaidAmountFormat(null);
 
     const returnParams = mergeMoyasarReturnSearchParams(searchParams);
-    const expectedAmountHalalas = expectedHalalasFromReturnSearchParams(returnParams, vatSettings);
+    const expectedAmountHalalas = isWalletTopup
+      ? walletChargedHalalas
+      : expectedHalalasFromReturnSearchParams(returnParams, vatSettings);
 
     const runVerify = (expected?: number) =>
       verifyMoyasarPaymentRemote(moyasarPaymentIdFromUrl, {
@@ -453,7 +541,11 @@ export default function Payment() {
         setMoyasarReturnVerify('paid');
         setMoyasarVerifyMessage(null);
         setMoyasarPaidAmountFormat(result.amount_format != null ? String(result.amount_format) : null);
-        await loadPaidActivationCertificate(verifiedPaymentId);
+        if (isWalletTopup) {
+          await loadWalletTopupFulfillment(verifiedPaymentId);
+        } else {
+          await loadPaidActivationCertificate(verifiedPaymentId);
+        }
         if (cancelled) return;
         setSearchParams(
           (prev) => {
@@ -490,6 +582,9 @@ export default function Payment() {
     moyasarVerifyNonce,
     requestId,
     loadPaidActivationCertificate,
+    isWalletTopup,
+    walletChargedHalalas,
+    loadWalletTopupFulfillment,
   ]);
 
   useEffect(() => {
@@ -590,7 +685,8 @@ export default function Payment() {
       !moyasarTermsAccepted ||
       !softwareProductAcknowledged ||
       !moyasarKeyOk ||
-      !registrationRequestReady
+      !registrationRequestReady ||
+      (isWalletTopup && (!walletPkg || effectiveAmountHalalas < 100))
     ) {
       setMoyasarFormError(null);
       if (moyasarHostRef.current) moyasarHostRef.current.innerHTML = '';
@@ -604,22 +700,32 @@ export default function Payment() {
     setMoyasarFormError(null);
 
     const explicit = String(import.meta.env.VITE_MOYSAR_CALLBACK_URL || '').trim();
-    const callbackUrl = buildMoyasarCallbackUrl(
-      {
-        tier,
-        licenseQuantity,
-        digitalShiftAddonSelected,
-        requestId,
-        linkedBarberId,
-      },
-      explicit || undefined,
-    );
+    const callbackUrl = isWalletTopup
+      ? buildWalletTopupCallbackUrl(
+          {
+            walletSku: walletPkg?.sku ?? '',
+            linkedBarberId: linkedBarberId || undefined,
+            barberName: barberName || undefined,
+          },
+          explicit || undefined,
+        )
+      : buildMoyasarCallbackUrl(
+          {
+            tier,
+            licenseQuantity,
+            digitalShiftAddonSelected,
+            requestId,
+            linkedBarberId,
+          },
+          explicit || undefined,
+        );
 
     clearMoyasarPaidReceipt();
     persistMoyasarPaymentContext({
-      tier,
-      qty: licenseQuantity,
+      tier: isWalletTopup ? '' : tier,
+      qty: isWalletTopup ? 0 : licenseQuantity,
       requestId,
+      ...(isWalletTopup ? { walletSku: walletPkg?.sku ?? '' } : {}),
       linkedBarberId: linkedBarberId || undefined,
       aiAddon: digitalShiftAddonSelected,
       barberName: barberName || undefined,
@@ -640,16 +746,16 @@ export default function Payment() {
         try {
           Moyasar.init({
             element: host,
-            amount: monthlyAmountHalalas,
+            amount: effectiveAmountHalalas,
             currency: 'SAR',
-            description: unifiedPaymentInit.description,
+            description: effectiveDescription,
             publishable_api_key: moyasarPublishableKey,
             callback_url: callbackUrl,
             supported_networks: ['visa', 'mastercard'],
             methods: ['creditcard'],
             language: 'ar',
             fixed_width: false,
-            metadata: unifiedPaymentInit.metadata,
+            metadata: effectiveMetadata,
             on_completed: async (payment: unknown) => {
               const id =
                 typeof payment === 'object' && payment != null && 'id' in payment
@@ -695,6 +801,11 @@ export default function Payment() {
     moyasarPublishableKey,
     unifiedPaymentInit.description,
     unifiedPaymentInit.metadata,
+    isWalletTopup,
+    walletPkg,
+    effectiveAmountHalalas,
+    effectiveDescription,
+    effectiveMetadata,
   ]);
 
   /** تهيئة ودجت OPPWA لبنك الأول (SAB) بعد الإقرارات. */
@@ -825,26 +936,34 @@ export default function Payment() {
 
             {/* شارة تمييز الغرض */}
             <div className={`mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold ${
-              purchasePurpose === 'recharge'
-                ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300'
-                : 'border-amber-400/40 bg-amber-500/10 text-amber-300'
+              isWalletTopup
+                ? 'border-primary/40 bg-primary/10 text-primary'
+                : purchasePurpose === 'recharge'
+                  ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300'
+                  : 'border-amber-400/40 bg-amber-500/10 text-amber-300'
             }`}>
-              {purchasePurpose === 'recharge'
-                ? '🔄 شحن حزمة جديدة لحسابك المسجَّل'
-                : '🆕 شراؤك الأول — تأكيد البيانات والدفع'
+              {isWalletTopup
+                ? '🌙 شحن رصيد المناوب الرقمي'
+                : purchasePurpose === 'recharge'
+                  ? '🔄 شحن حزمة جديدة لحسابك المسجَّل'
+                  : '🆕 شراؤك الأول — تأكيد البيانات والدفع'
               }
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-snug">
-              {purchasePurpose === 'recharge'
-                ? 'شحن حزمة رخصة نفاذ جديدة'
-                : 'شراء حزمة رخصة نفاذ — نظام الاستجابة الذكية'
+              {isWalletTopup
+                ? 'شحن محفظة المناوب الرقمي'
+                : purchasePurpose === 'recharge'
+                  ? 'شحن حزمة رخصة نفاذ جديدة'
+                  : 'شراء حزمة رخصة نفاذ — نظام الاستجابة الذكية'
               }
             </h1>
             <p className="text-lg text-muted-foreground">
-              {purchasePurpose === 'recharge'
-                ? 'إضافة حزمة جديدة لحسابك — بياناتك محفوظة، لن نطلبها مجدداً'
-                : 'منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة رخصة النفاذ'
+              {isWalletTopup
+                ? 'أضِف رصيد ردود للمناوب الآلي — يعمل فوراً بعد تأكيد الدفع، دون تجديد تلقائي'
+                : purchasePurpose === 'recharge'
+                  ? 'إضافة حزمة جديدة لحسابك — بياناتك محفوظة، لن نطلبها مجدداً'
+                  : 'منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة رخصة النفاذ'
               }
             </p>
           </div>
@@ -880,7 +999,81 @@ export default function Payment() {
             </Alert>
           )}
 
-          {paymentReturnPaid && (
+          {paymentReturnPaid && isWalletTopup && (
+            <div className="mb-6">
+              <Card className="border-emerald-500/40 bg-emerald-500/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-emerald-600">
+                    <CheckCircle2 className="h-5 w-5" />
+                    تم استلام الدفع — شحن محفظة المناوب
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  {walletTopupLoading ? (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      جاري شحن الرصيد وتأكيده…
+                    </div>
+                  ) : walletTopupResult ? (
+                    <div className="space-y-2">
+                      <p className="text-base font-bold text-foreground">
+                        {walletTopupResult.alreadyCredited ? 'الرصيد محدَّث بالفعل ✅' : 'تم شحن الرصيد بنجاح ✅'}
+                      </p>
+                      <div className="grid gap-1 text-muted-foreground">
+                        {walletTopupResult.creditedHalalas > 0 ? (
+                          <p>
+                            المُضاف الآن:{' '}
+                            <strong className="text-foreground">
+                              {(walletTopupResult.creditedHalalas / 100).toFixed(2)} ر.س
+                            </strong>{' '}
+                            (صافي بعد ضريبة {WALLET_TOPUP_VAT_PERCENT}%)
+                          </p>
+                        ) : null}
+                        <p>
+                          الرصيد الحالي:{' '}
+                          <strong className="text-foreground">
+                            {(walletTopupResult.balanceHalalas / 100).toFixed(2)} ر.س
+                          </strong>{' '}
+                          ≈ <strong className="text-foreground">{walletTopupResult.repliesRemaining}</strong> رد آلي
+                        </p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        عاد الرصيد للوحة تحكمك — يمكنك متابعة تشغيل المناوب فوراً.
+                      </p>
+                    </div>
+                  ) : walletTopupError ? (
+                    <Alert className="border-amber-600/40 bg-amber-500/10">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription className="space-y-3">
+                        <p>{walletTopupError}</p>
+                        {(readMoyasarPaidReceipt(requestId) || readMoyasarLastPaymentId()) ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const pid =
+                                readMoyasarPaidReceipt(requestId) || readMoyasarLastPaymentId() || '';
+                              if (pid) void loadWalletTopupFulfillment(pid);
+                            }}
+                          >
+                            إعادة محاولة شحن الرصيد
+                          </Button>
+                        ) : null}
+                      </AlertDescription>
+                    </Alert>
+                  ) : null}
+                  {paymentPaidAmountFormat ? (
+                    <p className="text-xs font-medium text-muted-foreground" dir="ltr">
+                      المبلغ المؤكد من {paymentReturnGatewayLabel}: {paymentPaidAmountFormat}
+                    </p>
+                  ) : null}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {paymentReturnPaid && !isWalletTopup && (
             <div className="mb-6 space-y-4">
               <PaymentSuccessPanel
                 barberName={barberName}
@@ -959,50 +1152,85 @@ export default function Payment() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Payment Methods */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Subscription Summary */}
+              {/* Subscription / Wallet Summary */}
               <Card>
                 <CardHeader>
-                  <CardTitle>ملخص حزمة رخصة النفاذ الرقمية</CardTitle>
+                  <CardTitle>
+                    {isWalletTopup ? 'ملخص شحن محفظة المناوب الرقمي' : 'ملخص حزمة رخصة النفاذ الرقمية'}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${tierColor} flex items-center justify-center text-white font-bold`}>
-                        {tierName === 'برونزي' && '🥉'}
-                        {tierName === 'ذهبي' && '🥇'}
-                        {tierName === 'ماسي' && '💎'}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold">{tierDisplayLabel}</h3>
-                        <p className="text-sm text-muted-foreground">حزمة إدراج برمجية (30 يوماً)</p>
-                        {digitalShiftAddonSelected ? (
+                  {isWalletTopup ? (
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-cyan-600 flex items-center justify-center text-white text-2xl">
+                          🌙
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold">{walletPkg?.labelAr ?? 'باقة شحن المحفظة'}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            شحن رصيد ردود المناوب الآلي (كل رد ≈ 1.50 ر.س)
+                          </p>
                           <p className="mt-1 text-xs font-medium text-primary">
-                            {DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR} · {DIGITAL_SHIFT_PRODUCT_NAME_AR} (
-                            {DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س × {licenseQuantity} بطاقة)
+                            يُضاف الأساسي كاملاً للرصيد · ضريبة {WALLET_TOPUP_VAT_PERCENT}% فوق السعر
                           </p>
-                        ) : null}
+                        </div>
+                      </div>
+                      <div className="text-left space-y-1">
+                        <p className="text-xs text-muted-foreground">
+                          يُضاف للرصيد: {(walletCreditedHalalas / 100).toFixed(2)} ر.س
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          ضريبة القيمة المضافة ({WALLET_TOPUP_VAT_PERCENT}%): {(walletVatHalalas / 100).toFixed(2)} ر.س
+                        </p>
+                        <p className="text-2xl font-bold text-primary">
+                          {(walletChargedHalalas / 100).toFixed(2)} ر.س
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          ≈ {repliesFromHalalas(walletCreditedHalalas)} رد آلي
+                        </p>
                       </div>
                     </div>
-                    <div className="text-left space-y-1">
-                      {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
-                        <>
-                          <p className="text-xs text-muted-foreground">
-                            قيمة حزمة الرخصة الرقمية الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
-                          </p>
-                          <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
-                          <p className="text-xs text-muted-foreground">إجمالي قيمة حزمة الرخصة</p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-2xl font-bold text-primary">{price} ر.س</p>
-                          <p className="text-xs text-muted-foreground">لحزمة الرخصة (دون ضريبة قيمة مضافة)</p>
-                        </>
-                      )}
+                  ) : (
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${tierColor} flex items-center justify-center text-white font-bold`}>
+                          {tierName === 'برونزي' && '🥉'}
+                          {tierName === 'ذهبي' && '🥇'}
+                          {tierName === 'ماسي' && '💎'}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold">{tierDisplayLabel}</h3>
+                          <p className="text-sm text-muted-foreground">حزمة إدراج برمجية (30 يوماً)</p>
+                          {digitalShiftAddonSelected ? (
+                            <p className="mt-1 text-xs font-medium text-primary">
+                              {DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR} · {DIGITAL_SHIFT_PRODUCT_NAME_AR} (
+                              {DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س × {licenseQuantity} بطاقة)
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className="text-left space-y-1">
+                        {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
+                          <>
+                            <p className="text-xs text-muted-foreground">
+                              قيمة حزمة الرخصة الرقمية الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
+                            </p>
+                            <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
+                            <p className="text-xs text-muted-foreground">إجمالي قيمة حزمة الرخصة</p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-2xl font-bold text-primary">{price} ر.س</p>
+                            <p className="text-xs text-muted-foreground">لحزمة الرخصة (دون ضريبة قيمة مضافة)</p>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
 

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Loader2, Moon, RefreshCw, Send, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Loader2, Moon, RefreshCw, Send, Sparkles, Wallet } from 'lucide-react';
+import { ROUTE_PATHS } from '@/lib';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +18,7 @@ import {
   DIGITAL_SHIFT_REPLY_DELAY_MINUTES,
   DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR,
 } from '@/config/digitalShiftAssistant';
+import { WALLET_TOPUP_PACKAGES, repliesFromHalalas } from '@/config/digitalShiftWalletTopup';
 import { consumeDigitalShiftScrollTarget } from '@/components/barber/DigitalShiftQuickAccessStrip';
 import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
 import { DigitalShiftRecommendationsTable } from '@/components/barber/DigitalShiftRecommendationsTable';
@@ -58,6 +61,21 @@ export function DigitalShiftAssistantHub({
   const [chatHistory, setChatHistory] = useState<ChatTurn[]>([]);
   const [chatSending, setChatSending] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
+  const navigate = useNavigate();
+
+  const goWalletTopup = useCallback(
+    (walletSku: string) => {
+      const q = new URLSearchParams();
+      q.set('purpose', 'wallet_topup');
+      q.set('walletSku', walletSku);
+      if (barberId) q.set('linkedBarberId', barberId);
+      if (barberEmail) q.set('buyerEmail', barberEmail);
+      const name = summary?.context.barberName?.trim();
+      if (name) q.set('barberName', name);
+      navigate(`${ROUTE_PATHS.PAYMENT}?${q.toString()}`);
+    },
+    [barberId, barberEmail, summary, navigate],
+  );
 
   const loadSummary = useCallback(async () => {
     setLoading(true);
@@ -162,6 +180,10 @@ export function DigitalShiftAssistantHub({
 
   const walletSar = summary?.wallet ? (summary.wallet.balance_halalas / 100).toFixed(2) : '—';
   const spentSar = summary?.wallet ? (summary.wallet.total_spent_halalas / 100).toFixed(2) : '—';
+  const walletReplies = summary?.wallet ? repliesFromHalalas(summary.wallet.balance_halalas) : null;
+  const walletLowBalance =
+    summary?.wallet != null &&
+    summary.wallet.balance_halalas < (summary.wallet.low_balance_threshold_halalas || 0);
 
   if (loading && !summary) {
     return (
@@ -205,13 +227,40 @@ export function DigitalShiftAssistantHub({
       </Card>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-indigo-500/20">
+        <Card className={walletLowBalance ? 'border-amber-500/40' : 'border-indigo-500/20'}>
           <CardHeader className="pb-2">
             <CardDescription>رصيد محفظة المناوب</CardDescription>
-            <CardTitle className="text-2xl">{walletSar} ر.س</CardTitle>
+            <CardTitle className="text-2xl">
+              {walletReplies != null ? `${walletReplies} رد` : '—'}
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              الرصيد: {walletSar} ر.س · المصروف: {spentSar} ر.س
+            </p>
           </CardHeader>
-          <CardContent className="text-xs text-muted-foreground">
-            إجمالي المصروف: {spentSar} ر.س · أيام الإدراج: {summary?.context.listingDaysRemaining ?? '—'}
+          <CardContent className="space-y-2">
+            {walletLowBalance ? (
+              <p className="text-xs font-medium text-amber-600">
+                الرصيد منخفض — اشحن لتفادي توقّف المناوب.
+              </p>
+            ) : null}
+            <div className="flex flex-wrap gap-2">
+              {WALLET_TOPUP_PACKAGES.map((pkg) => (
+                <Button
+                  key={pkg.sku}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1 px-2 text-xs"
+                  onClick={() => goWalletTopup(pkg.sku)}
+                >
+                  <Wallet className="h-3.5 w-3.5" />
+                  {pkg.baseSar} ر.س
+                </Button>
+              ))}
+            </div>
+            <p className="text-[0.65rem] text-muted-foreground">
+              الأسعار قبل الضريبة · تُضاف ضريبة القيمة المضافة 15% عند الدفع · كل رد ≈ 1.50 ر.س
+            </p>
           </CardContent>
         </Card>
         <Card className="border-indigo-500/20">

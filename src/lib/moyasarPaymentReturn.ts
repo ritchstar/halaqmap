@@ -14,6 +14,8 @@ export type MoyasarPaymentContext = {
   aiAddon?: boolean;
   barberName?: string;
   purpose?: string;
+  /** رمز باقة شحن المحفظة عندما purpose === 'wallet_topup' */
+  walletSku?: string;
 };
 
 export function persistMoyasarPaymentContext(ctx: MoyasarPaymentContext): void {
@@ -182,6 +184,44 @@ export function buildMoyasarCallbackUrl(
   return `${origin}/`;
 }
 
+/** callback شحن المحفظة — يحمل purpose=wallet_topup و walletSku دون tier/qty الرخصة. */
+export function buildWalletTopupCallbackUrl(
+  input: { walletSku: string; linkedBarberId?: string; barberName?: string },
+  explicitCallback?: string,
+): string {
+  const q = new URLSearchParams();
+  q.set('purpose', 'wallet_topup');
+  q.set('walletSku', input.walletSku);
+  if (input.linkedBarberId?.trim()) q.set('linkedBarberId', input.linkedBarberId.trim());
+  if (input.barberName?.trim()) q.set('barberName', input.barberName.trim());
+
+  const origin =
+    typeof window !== 'undefined'
+      ? window.location.origin.replace(/\/+$/, '')
+      : 'https://www.halaqmap.com';
+
+  const explicit = explicitCallback?.trim();
+  if (explicit) {
+    try {
+      const u = new URL(explicit);
+      const baseOrigin = u.origin.replace(/\/+$/, '');
+      const hashBody = u.hash.replace(/^#\/?/, '');
+      const hashQuery = hashBody.includes('?') ? hashBody.split('?').slice(1).join('?') : '';
+      const merged = new URLSearchParams(hashQuery || u.search);
+      // إزالة معاملات الرخصة كي لا تُفسَّر شحنة المحفظة كباقة إدراج.
+      merged.delete('tier');
+      merged.delete('qty');
+      merged.delete('aiAddon');
+      q.forEach((value, key) => merged.set(key, value));
+      return `${baseOrigin}/?${merged.toString()}`;
+    } catch {
+      // fall through
+    }
+  }
+
+  return `${origin}/?${q.toString()}`;
+}
+
 function parseTierFromParam(raw: string | null): SubscriptionTier {
   const tierRaw = (raw ?? '').trim().toLowerCase();
   if (tierRaw === SubscriptionTier.GOLD) return SubscriptionTier.GOLD;
@@ -206,6 +246,7 @@ export function mergeMoyasarReturnSearchParams(searchParams: URLSearchParams): U
   if (!next.get('aiAddon') && ctx.aiAddon) next.set('aiAddon', '1');
   if (!next.get('barberName') && ctx.barberName) next.set('barberName', ctx.barberName);
   if (!next.get('purpose') && ctx.purpose) next.set('purpose', ctx.purpose);
+  if (!next.get('walletSku') && ctx.walletSku) next.set('walletSku', ctx.walletSku);
   return next;
 }
 
