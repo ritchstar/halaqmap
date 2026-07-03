@@ -232,7 +232,7 @@ export function BarberCustomerPrivateChatPanel({
 
       void (async (messageId: string, body: string) => {
         try {
-          const tr = await translateChatLineRemote({ text: body, target: 'ar' });
+          const tr = await translateChatLineRemote({ text: body, target: 'ar', messageId });
           if (!tr.ok) {
             setMessageTranslationStatus(messageId, 'failed');
             return;

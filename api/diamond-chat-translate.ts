@@ -1,3 +1,9 @@
+import { createClient } from '@supabase/supabase-js';
+import {
+  getCachedChatTranslation,
+  storeCachedChatTranslation,
+  type ChatTranslationTarget,
+} from './_lib/chatTranslationCache.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
@@ -9,6 +15,8 @@ const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
   allowHeaders: 'Content-Type, x-supabase-anon, x-client-supabase-url',
 } as const;
+
+const ALLOWED_TARGETS = new Set<ChatTranslationTarget>(['ar', 'en']);
 
 function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
@@ -32,11 +40,17 @@ export async function GET(request: Request): Promise<Response> {
   );
 }
 
-const ALLOWED_TARGETS = new Set(['ar', 'en']);
+function createServiceSupabase() {
+  const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
+  const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+  if (!url || !serviceRole) return null;
+  return createClient(url, serviceRole, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 
 /**
- * ترجمة نصية اختيارية عبر Google Cloud Translation v2 (مفتاح سيرفر فقط).
- * بدون مفتاح: يُعاد النص الأصلي و translated=null.
+ * ترجمة شات الماسي — كاش دائم في chat_line_translations ثم Google Cloud Translation v2.
  */
 export async function POST(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
@@ -57,18 +71,46 @@ export async function POST(request: Request): Promise<Response> {
 
   const text = String((body as { text?: unknown }).text ?? '').trim();
   const target = String((body as { target?: unknown }).target ?? 'ar').trim().toLowerCase();
+  const messageId = String((body as { messageId?: unknown }).messageId ?? '').trim();
 
   if (!text || text.length > 4000) {
     return Response.json({ error: 'text must be 1–4000 characters' }, { status: 400, headers });
   }
-  if (!ALLOWED_TARGETS.has(target)) {
+  if (!ALLOWED_TARGETS.has(target as ChatTranslationTarget)) {
     return Response.json({ error: 'target must be ar or en' }, { status: 400, headers });
+  }
+
+  const targetLang = target as ChatTranslationTarget;
+  const supabase = createServiceSupabase();
+
+  if (supabase) {
+    try {
+      const cached = await getCachedChatTranslation(supabase, {
+        messageId: messageId || undefined,
+        text,
+        target: targetLang,
+      });
+      if (cached) {
+        return Response.json(
+          {
+            ok: true,
+            translated: cached.translatedText,
+            source: cached.sourceLang,
+            configured: true,
+            cached: true,
+          },
+          { headers },
+        );
+      }
+    } catch {
+      /* صامت — نتابع لجوجل */
+    }
   }
 
   const apiKey = (process.env.GOOGLE_TRANSLATE_API_KEY || '').trim();
   if (!apiKey) {
     return Response.json(
-      { ok: true, translated: null, source: null, configured: false },
+      { ok: true, translated: null, source: null, configured: false, cached: false },
       { headers },
     );
   }
@@ -89,14 +131,31 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: msg }, { status: 502, headers });
     }
     const t = json.data?.translations?.[0];
-    const translated = t?.translatedText?.trim();
+    const translatedRaw = t?.translatedText?.trim();
     const source = t?.detectedSourceLanguage?.trim() || null;
+    const translated = translatedRaw && translatedRaw !== text ? translatedRaw : text;
+
+    if (supabase && translatedRaw) {
+      try {
+        await storeCachedChatTranslation(supabase, {
+          messageId: messageId || undefined,
+          text,
+          target: targetLang,
+          translatedText: translated,
+          sourceLang: source,
+        });
+      } catch {
+        /* لا نوقف الرد */
+      }
+    }
+
     return Response.json(
       {
         ok: true,
-        translated: translated && translated !== text ? translated : text,
+        translated,
         source,
         configured: true,
+        cached: false,
       },
       { headers },
     );

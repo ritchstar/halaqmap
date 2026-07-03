@@ -22,27 +22,42 @@ function baseHeaders(): Record<string, string> {
 export async function translateChatLineRemote(input: {
   text: string;
   target: 'ar' | 'en';
-}): Promise<{ ok: true; text: string; configured: boolean } | { ok: false; error: string }> {
+  messageId?: string;
+}): Promise<
+  | { ok: true; text: string; configured: boolean; cached?: boolean }
+  | { ok: false; error: string }
+> {
   const ep = endpoint();
   if (!ep) return { ok: false, error: 'مسار الترجمة غير مضبوط.' };
   const t = input.text.trim();
   if (!t) return { ok: true, text: '', configured: false };
 
+  const messageId = input.messageId?.trim();
   try {
     const res = await fetch(ep, {
       method: 'POST',
       headers: baseHeaders(),
-      body: JSON.stringify({ text: t, target: input.target }),
+      body: JSON.stringify({
+        text: t,
+        target: input.target,
+        ...(messageId ? { messageId } : {}),
+      }),
     });
     const json = (await res.json().catch(() => ({}))) as {
       ok?: boolean;
       translated?: string | null;
       configured?: boolean;
+      cached?: boolean;
       error?: string;
     };
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
     const out = json.translated?.trim() || t;
-    return { ok: true, text: out, configured: Boolean(json.configured) };
+    return {
+      ok: true,
+      text: out,
+      configured: Boolean(json.configured),
+      cached: Boolean(json.cached),
+    };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بخدمة الترجمة.' };
   }

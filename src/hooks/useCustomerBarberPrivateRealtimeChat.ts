@@ -199,32 +199,21 @@ export function useCustomerBarberPrivateRealtimeChat(
   useEffect(() => {
     if (!options.enableDiamondTranslation || !conversation) return;
 
-    let cancelled = false;
-    (async () => {
-      const updates: Record<string, string> = {};
-      for (const m of rawMessages) {
-        if (m.sender_id === conversation.customer_id) continue;
-        if (translationAttemptedRef.current.has(m.id)) continue;
-        translationAttemptedRef.current.add(m.id);
-        const target = guessTranslateTarget(m.body);
-        const tr = await translateChatLineRemote({ text: m.body, target });
-        if (cancelled) return;
-        if (tr.ok && tr.text && tr.text !== m.body) updates[m.id] = tr.text;
-      }
-      if (Object.keys(updates).length > 0) {
-        setTranslations((prev) => {
-          const next = { ...prev };
-          for (const [k, v] of Object.entries(updates)) {
-            if (!next[k]) next[k] = v;
-          }
-          return next;
-        });
-      }
-    })();
+    for (const m of rawMessages) {
+      if (m.sender_id === conversation.customer_id) continue;
+      if (translationAttemptedRef.current.has(m.id)) continue;
+      if (!guessTranslateTarget(m.body)) continue;
 
-    return () => {
-      cancelled = true;
-    };
+      translationAttemptedRef.current.add(m.id);
+      void (async (messageId: string, body: string) => {
+        const target = guessTranslateTarget(body);
+        if (!target) return;
+        const tr = await translateChatLineRemote({ text: body, target, messageId });
+        if (tr.ok && tr.text && tr.text !== body) {
+          setTranslations((prev) => (prev[messageId] ? prev : { ...prev, [messageId]: tr.text }));
+        }
+      })(m.id, m.body);
+    }
   }, [rawMessages, conversation, options.enableDiamondTranslation]);
 
   const uiMessages = useMemo(
