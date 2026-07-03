@@ -649,6 +649,7 @@ export default function LandingPreview() {
 
   useEffect(() => {
     document.documentElement.classList.add('hm-app-dark-canvas');
+    releaseLandingScrollLock();
     return () => {
       document.documentElement.classList.remove('hm-app-dark-canvas');
       releaseLandingScrollLock();
@@ -739,12 +740,7 @@ export default function LandingPreview() {
   return (
     <div
       dir="rtl"
-      className={cn(
-        'platform-dark platform-ambient relative overflow-x-hidden bg-[#020912] font-[Tajawal,system-ui] text-slate-100',
-        mobilePreSearch
-          ? 'flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden overscroll-none'
-          : 'min-h-[100dvh] overscroll-y-none md:min-h-screen',
-      )}
+      className="platform-dark platform-ambient relative min-h-[100dvh] overflow-x-hidden bg-[#020912] font-[Tajawal,system-ui] text-slate-100 md:min-h-screen"
       data-ambient-phase={effectivePhase}
       data-ambient-control={control}
     >
