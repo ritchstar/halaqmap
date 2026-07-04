@@ -9,6 +9,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { repliesFromHalalas, walletTopupPackageBySku } from './digitalShiftWalletTopup.js';
 import { resolveResendFromAddress, readResendFromEmailEnv } from './resendFrom.js';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+
 /** تنسيق مبلغ بالهللات إلى ريال سعودي بخانتين عشريتين. */
 function formatSar(halalas: number): string {
   const h = Math.trunc(Number(halalas) || 0);

@@ -10,6 +10,7 @@ import {
 import { buildUnifiedPartnerActivationEmailBodies } from './partnerUnifiedActivationMail.js';
 import { isBronzeTier, tierLabelAr } from './partnerTierMail.js';
 import { resolveResendFromAddress } from './resendFrom.js';
+import { rotateBarberPortalLoginPassword } from './barberProvisionService.js';
 
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
