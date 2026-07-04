@@ -312,6 +312,14 @@ export default defineConfig(({ mode }) => {
           navigateFallbackDenylist: [/^\/api\//],
           runtimeCaching: [
             {
+              // مسارات الخادم نفس-الأصل (/api/*) دائماً من الشبكة مباشرة — لا يخزّنها
+              // الـ SW ولا يقدّم استجابة قديمة (تحقّق الدفع/الشحن حسّاس للحظة). صريح
+              // كي لا تلتقطها قاعدة عامة مستقبلاً.
+              urlPattern: ({ url }) =>
+                url.origin === self.location.origin && url.pathname.startsWith('/api/'),
+              handler: 'NetworkOnly',
+            },
+            {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',
               options: {
