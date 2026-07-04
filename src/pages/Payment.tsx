@@ -788,7 +788,7 @@ export default function Payment() {
             publishable_api_key: moyasarPublishableKey,
             callback_url: callbackUrl,
             supported_networks: ['visa', 'mastercard'],
-            methods: ['creditcard'],
+            methods: ['creditcard', 'applepay'],
             language: 'ar',
             fixed_width: false,
             metadata: effectiveMetadata,
@@ -950,7 +950,7 @@ export default function Payment() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background" dir="rtl">
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-16">
+      <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-10 sm:py-16">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(13,148,136,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(212,175,55,0.1),transparent_50%)]" />
 
@@ -965,9 +965,9 @@ export default function Payment() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-6"
+              className="inline-flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-primary/20 mb-4 sm:mb-6"
             >
-              <CreditCard className="w-10 h-10 text-primary" />
+              <CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-primary" />
             </motion.div>
 
             {/* شارة تمييز الغرض */}
@@ -986,7 +986,7 @@ export default function Payment() {
               }
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-snug">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 leading-snug">
               {isWalletTopup
                 ? 'شحن محفظة المناوب الرقمي'
                 : purchasePurpose === 'recharge'
@@ -994,7 +994,7 @@ export default function Payment() {
                   : 'شراء حزمة رخصة نفاذ — نظام الاستجابة الذكية'
               }
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-sm sm:text-lg text-muted-foreground">
               {isWalletTopup
                 ? 'أضِف رصيد ردود للمناوب الآلي — يعمل فوراً بعد تأكيد الدفع، دون تجديد تلقائي'
                 : purchasePurpose === 'recharge'
@@ -1007,7 +1007,7 @@ export default function Payment() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
         <div className="max-w-5xl mx-auto">
           {paymentReturnLoading && (
             <Alert className="mb-6 border-primary/30 bg-primary/5">
@@ -1185,9 +1185,7 @@ export default function Payment() {
             </Alert>
           )}
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Payment Methods */}
-            <div className="lg:col-span-2 space-y-6">
+          <div className="mx-auto max-w-3xl space-y-6">
               {/* Subscription / Wallet Summary */}
               <Card>
                 <CardHeader>
@@ -1197,7 +1195,7 @@ export default function Payment() {
                 </CardHeader>
                 <CardContent>
                   {isWalletTopup ? (
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
+                    <div className="flex flex-col gap-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-cyan-600 flex items-center justify-center text-white text-2xl">
                           🌙
@@ -1214,7 +1212,7 @@ export default function Payment() {
                           </p>
                         </div>
                       </div>
-                      <div className="text-left space-y-1">
+                      <div className="space-y-1 text-right sm:text-left">
                         {walletVatHalalas > 0 ? (
                           <>
                             <p className="text-xs text-muted-foreground">
@@ -1234,7 +1232,7 @@ export default function Payment() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg">
+                    <div className="flex flex-col gap-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${tierColor} flex items-center justify-center text-white font-bold`}>
                           {tierName === 'برونزي' && '🥉'}
@@ -1252,7 +1250,7 @@ export default function Payment() {
                           ) : null}
                         </div>
                       </div>
-                      <div className="text-left space-y-1">
+                      <div className="space-y-1 text-right sm:text-left">
                         {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
                           <>
                             <p className="text-xs text-muted-foreground">
@@ -1275,8 +1273,6 @@ export default function Payment() {
                   )}
                 </CardContent>
               </Card>
-
-              <PaymentMerchantCompliancePanel />
 
               {/* Payment Methods */}
               <Card>
@@ -1389,36 +1385,26 @@ export default function Payment() {
                         <Shield className="h-4 w-4" />
                         <AlertDescription className="space-y-2 text-sm leading-relaxed">
                           <p>
-                            الدفع عبر <strong>ميسر (شركة مُيسر المالية)</strong> يخضع لـ{' '}
+                            الدفع عبر <strong>ميسر</strong> يخضع لـ{' '}
                             <a
                               href="https://moyasar.com/ar/resources/terms/"
                               target="_blank"
                               rel="noopener noreferrer"
                               className="font-medium text-primary underline-offset-2 hover:underline"
                             >
-                              الشروط والأحكام الرسمية للتاجر
-                            </a>{' '}
-                            وللوائح التقنية في{' '}
-                            <a
-                              href="https://docs.mysr.dev/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-medium text-primary underline-offset-2 hover:underline"
-                            >
-                              وثائق التكامل (mysr.dev)
+                              شروط التاجر الرسمية
                             </a>
-                            . يلتزم التاجر بـ SSL، والتحقق من الدفع في الخادم، وعدم تخزين بيانات البطاقة،
-                            وإظهار هوية التاجر وسياسة الاسترداد للعميل — راجع{' '}
+                            . بالمتابعة تُقرّ بالاطلاع على{' '}
                             <Link to={ROUTE_PATHS.TERMS_OF_SERVICE} className="font-medium text-primary underline-offset-2 hover:underline">
                               شروط الاستخدام
                             </Link>
-                            ،{' '}
+                            {' '}و{' '}
                             <Link to={REFUND_POLICY_PATH} className="font-medium text-primary underline-offset-2 hover:underline">
-                              سياسة الاسترجاع والاسترداد
+                              سياسة الاسترجاع
                             </Link>
-                            ، و{' '}
+                            {' '}و{' '}
                             <Link to={ROUTE_PATHS.SUBSCRIPTION_POLICY} className="font-medium text-primary underline-offset-2 hover:underline">
-                              سياسة رخصة النفاذ الرقمية
+                              رخصة النفاذ الرقمية
                             </Link>
                             .
                           </p>
@@ -1496,12 +1482,8 @@ export default function Payment() {
                               dir="ltr"
                             />
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                              إن لم يظهر النموذج، تأكد من أن الموقع يعمل على <strong>HTTPS</strong> في الإنتاج (مطلوب
-                              للمفاتيح الحية)، وأن النطاق مسجّل في لوحة ميسر.
-                            </p>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              تُدخَل بيانات البطاقة داخل نموذج ميسر نفسه وتُعالَج عبر مزوّد الدفع وفق شروطه
-                              وسياساته؛ لا يحتفظ موقع حلاق ماب ببيانات البطاقة الكاملة.
+                              تُدخَل بيانات البطاقة داخل نموذج ميسر نفسه وتُعالَج عبر مزوّد الدفع؛ لا يحتفظ
+                              حلاق ماب ببيانات البطاقة الكاملة.
                             </p>
                           </CardContent>
                         </Card>
@@ -1589,10 +1571,11 @@ export default function Payment() {
                   )}
                 </CardContent>
               </Card>
-            </div>
+          </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
+          {/* مربّعات ثانوية مختصرة — أسفل المنتج وصندوق الدفع مباشرةً */}
+          <div className="mx-auto mt-10 max-w-5xl space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {/* Security Badge */}
               <Card>
                 <CardContent className="space-y-4 p-4">
@@ -1646,6 +1629,9 @@ export default function Payment() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* هوية التاجر · الأسعار · السياسات — تفاصيل مرجعية أسفل الصفحة */}
+            <PaymentMerchantCompliancePanel />
           </div>
         </div>
       </div>
