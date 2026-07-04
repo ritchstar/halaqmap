@@ -83,6 +83,7 @@ import {
   readMoyasarLastPaymentId,
   readMoyasarPaidReceipt,
 } from '@/lib/moyasarPaymentReturn';
+import { healIfStaleBuild } from '@/lib/platformBuildSync';
 import { toast } from 'sonner';
 
 export default function Payment() {
@@ -505,6 +506,13 @@ export default function Payment() {
       }
 
       if (!result.ok) {
+        // فشل شبكي («Failed to fetch») قد يكون سببه حزمة قديمة يخدمها الـ SW —
+        // نحاول شفاءً ذاتياً مرّة واحدة (محمي بحارس ضد الحلقات). إن اكتُشف تعارض
+        // إصدار ستُعاد الصفحة على الأحدث ثم يُعاد التحقق تلقائياً.
+        if (result.error === 'network') {
+          const healed = await healIfStaleBuild();
+          if (healed || cancelled) return;
+        }
         setMoyasarReturnVerify('error');
         if (result.error === 'moyasar_disabled') {
           setMoyasarVerifyMessage(
