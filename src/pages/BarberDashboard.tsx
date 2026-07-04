@@ -154,6 +154,7 @@ import {
   DIGITAL_SHIFT_BADGE_OFFICE_AR,
   DIGITAL_SHIFT_BADGE_SHIFT_AR,
   DIGITAL_SHIFT_DASHBOARD_TAB_AR,
+  DIGITAL_SHIFT_DASHBOARD_TAB_SHORT_AR,
   DIGITAL_SHIFT_PENDING_ACTIVATION_AR,
 } from '@/config/digitalShiftDashboardCopy';
 import { DIAMOND_PRODUCT_SMART_LABEL_AR } from '@/config/subscriptionPricing';
@@ -1080,19 +1081,21 @@ export default function BarberDashboard({
                 value="digital-shift"
                 className={cn(
                   DASHBOARD_VITAL_TAB_TRIGGER,
+                  'relative min-h-[3.75rem] flex-col gap-1 px-2 py-2 text-[0.7rem] leading-snug sm:min-h-[3rem] sm:flex-row sm:gap-2 sm:px-3 sm:text-sm lg:text-base',
                   digitalShiftUnlocked &&
                     'data-[state=active]:border-indigo-500 data-[state=active]:bg-indigo-500/12 data-[state=active]:text-indigo-950 dark:data-[state=active]:text-indigo-100',
                 )}
               >
-                <span className="flex items-center gap-1">
-                  <Moon className="h-5 w-5 shrink-0" />
-                  <Building2 className="h-4 w-4 shrink-0 opacity-80" />
+                <span className="flex shrink-0 items-center gap-1" aria-hidden>
+                  <Moon className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Building2 className="hidden h-4 w-4 opacity-80 sm:block" />
                 </span>
-                <span className="text-right leading-tight">
-                  <span className="block">{DIGITAL_SHIFT_DASHBOARD_TAB_AR}</span>
+                <span className="min-w-0 whitespace-normal text-center">
+                  <span className="sm:hidden">{DIGITAL_SHIFT_DASHBOARD_TAB_SHORT_AR}</span>
+                  <span className="hidden sm:inline">{DIGITAL_SHIFT_DASHBOARD_TAB_AR}</span>
                 </span>
                 {digitalShiftUnlocked ? (
-                  <span className="h-2 w-2 shrink-0 rounded-full bg-indigo-400" aria-hidden />
+                  <span className="absolute start-2 top-2 h-2 w-2 shrink-0 rounded-full bg-indigo-400 sm:static" aria-hidden />
                 ) : null}
               </TabsTrigger>
             ) : null}
