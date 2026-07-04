@@ -165,7 +165,10 @@ async function verifyMoyasarPaymentRemoteOnce(
     }
 
     try {
-      const res = await fetch(url, { method: 'GET', credentials: 'omit', headers });
+      // same-origin: يُرسل كوكي الحماية (_vercel_jwt على معاينات Vercel المحميّة)
+      // لنداءات نفس-الأصل فقط، ويحذفه للطلبات عبر-الأصل (Supabase تستخدم apikey).
+      // بدونه كان طلب /api يُعاد توجيهه لصفحة دخول Vercel فيفشل بـ Failed to fetch.
+      const res = await fetch(url, { method: 'GET', credentials: 'same-origin', headers });
       let data: Record<string, unknown>;
       try {
         data = await readJsonResponse(res);

@@ -48,7 +48,9 @@ export async function walletTopupFulfillRemoteOnce(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { method: 'GET', credentials: 'omit', signal: controller.signal });
+    // same-origin: يُرسل كوكي حماية نشر Vercel (_vercel_jwt) لنداء نفس-الأصل،
+    // وإلا يُعاد توجيه الطلب لصفحة دخول Vercel فيفشل الشحن على المعاينة المحميّة.
+    const res = await fetch(url, { method: 'GET', credentials: 'same-origin', signal: controller.signal });
     const data = (await res.json()) as Record<string, unknown>;
     if (!res.ok || data.ok !== true) {
       return { ok: false, error: String(data.error || 'fulfill_failed') };
