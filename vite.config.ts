@@ -311,6 +311,11 @@ export default defineConfig(({ mode }) => {
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//],
           runtimeCaching: [
+            // ملاحظة مقصودة: لا نُسجّل أي قاعدة لمسارات /api/* نفس-الأصل. مع generateSW
+            // فإن الطلبات التي لا تطابق أي قاعدة ولا هي مسبقة-التخزين لا يعترضها الـ SW
+            // (لا respondWith)، فتمرّ عبر شبكة المتصفح الأصلية. هذا أمتن بكثير لنداءات
+            // الدفع الحسّاسة لمرّة واحدة: اعتراضها بـ NetworkOnly كان يُنتج «no-response»
+            // على الجوال حين يُنهي المتصفح عامل الخدمة ويعيد تشغيله أثناء نداء جارٍ.
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',
@@ -330,7 +335,10 @@ export default defineConfig(({ mode }) => {
               },
             },
             {
-              urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+              // نستثني /functions/ (دوال Edge مثل verify-moyasar-payment) كي لا يعترضها
+              // الـ SW ويحوّل فشل الشبكة/الأصول إلى «no-response». تمرّ عبر الشبكة الأصلية.
+              urlPattern: ({ url }) =>
+                /\.supabase\.co$/i.test(url.hostname) && !url.pathname.startsWith('/functions/'),
               handler: 'NetworkFirst',
               options: {
                 cacheName: 'supabase-api',

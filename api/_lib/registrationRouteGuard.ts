@@ -225,6 +225,20 @@ export function runRegistrationRouteGuards(request: Request, routeId: string): R
     return { ok: true };
   }
 
+  // طلب نفس-الأصل أو غير-متصفح آمن بطبيعته (القائمة البيضاء تخص العابر للأصل فقط):
+  //  - رأس Origin موجود ويطابق أصل الخادم، أو
+  //  - لا Origin إطلاقاً (تنقّل مباشر أو جلب GET نفس-الأصل — المتصفح يُرسل Origin
+  //    دائماً للطلبات العابرة للأصل عبر fetch/XHR وPOST) وReferer إمّا غائب أو
+  //    يطابق أصل الخادم. هذا يغطّي نشر Preview على Vercel دون فتح ثغرة للعابر.
+  const directOrigin = requestOriginNormalized(request);
+  const selfOrigin = requestHostOrigin(request);
+  const refererOrigin = requestRefererOrigin(request);
+  if (directOrigin) {
+    if (selfOrigin && directOrigin === selfOrigin) return { ok: true };
+  } else if (!refererOrigin || refererOrigin === selfOrigin) {
+    return { ok: true };
+  }
+
   const origin = resolveAllowedBrowserOrigin(request, allowed);
   if (!origin) {
     return {

@@ -411,6 +411,16 @@ export async function syncMoyasarPaidFulfillment(
     payment.metadata && typeof payment.metadata === 'object' && !Array.isArray(payment.metadata)
       ? payment.metadata
       : {};
+
+  // حارس: دفعة شحن محفظة المناوب ليست رخصة إدراج — لا نُنشئ طلباً/صلاحية/شهادة
+  // (وإلا تُنشأ صلاحية برونزي افتراضية فتُخفَّض باقة الحلاق عبر التريغر).
+  const productType = String(meta.product_type ?? meta.product ?? '')
+    .trim()
+    .toLowerCase();
+  if (productType === 'wallet_topup') {
+    return { ok: false, error: 'wallet_topup_not_a_license', status: 409 };
+  }
+
   const requestId = requestIdFromMeta(meta, payment.description ?? null);
   const tier = tierFromMeta(meta);
   const licenseQty = licenseQuantityFromMeta(meta);

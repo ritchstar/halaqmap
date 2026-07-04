@@ -85,20 +85,19 @@ function reloadGuardKey(liveCommit: string | null): string {
   return `${AUTO_RELOAD_GUARD_PREFIX}${liveCommit || 'unknown'}`;
 }
 
-async function checkOnce(): Promise<void> {
-  if (typeof window === 'undefined') return;
-  if (Date.now() - lastChecked < 30_000) return;
-  lastChecked = Date.now();
-
+async function evaluateBuildMismatch(): Promise<{
+  stale: boolean;
+  live: { commit: string | null; buildTime: string | null };
+  detail: Record<string, unknown>;
+}> {
   const runningCommit = APP_BUILD.commit?.trim() || null;
   const bakedCommit = readMetaContent(META_COMMIT);
   const bakedBuildTime = readMetaContent(META_BUILD_TIME);
 
   const live = await fetchLiveBuildStamp();
-  if (!live.commit && !live.buildTime) return;
-
-  const guardKey = reloadGuardKey(live.commit);
-  if (sessionStorage.getItem(guardKey)) return;
+  if (!live.commit && !live.buildTime) {
+    return { stale: false, live, detail: { reason: 'no-live-stamp' } };
+  }
 
   // Stale JS bundle with fresh HTML is the common PWA failure mode after deploy.
   const staleJsBundle =
@@ -108,22 +107,51 @@ async function checkOnce(): Promise<void> {
   const buildTimeMismatch =
     Boolean(bakedBuildTime && live.buildTime && bakedBuildTime !== live.buildTime);
 
-  if (staleJsBundle || staleHtmlShell || buildTimeMismatch) {
-    console.info(
-      '[halaqmap] Build mismatch detected — reloading to pick up latest UI',
-      {
-        runningCommit,
-        bakedCommit,
-        bakedBuildTime,
-        live,
-        staleJsBundle,
-        staleHtmlShell,
-      },
-    );
+  return {
+    stale: staleJsBundle || staleHtmlShell || buildTimeMismatch,
+    live,
+    detail: { runningCommit, bakedCommit, bakedBuildTime, live, staleJsBundle, staleHtmlShell, buildTimeMismatch },
+  };
+}
+
+async function checkOnce(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  if (Date.now() - lastChecked < 30_000) return;
+  lastChecked = Date.now();
+
+  const { stale, live, detail } = await evaluateBuildMismatch();
+  if (!stale) return;
+
+  const guardKey = reloadGuardKey(live.commit);
+  if (sessionStorage.getItem(guardKey)) return;
+
+  console.info('[halaqmap] Build mismatch detected — reloading to pick up latest UI', detail);
+  sessionStorage.setItem(guardKey, '1');
+  // Legacy guard from older builds — avoid blocking a fresh reload.
+  sessionStorage.removeItem(AUTO_RELOAD_GUARD);
+  await performHardReload();
+}
+
+/**
+ * فحص فوري لمرّة واحدة (يتجاوز خانق الـ30 ثانية) — يُستدعى عند فشل شبكي في مسار
+ * حسّاس (كتحقّق الدفع) قد يكون سببه حزمة قديمة يخدمها الـ SW. يُعيد `true` إذا
+ * اكتُشف تعارض إصدار وبُدئت إعادة التحميل (فالصفحة على وشك التحديث). محميّ بحارس
+ * الـ sessionStorage لكل `live-commit` كي لا يقع في حلقة إعادة تحميل.
+ */
+export async function healIfStaleBuild(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  try {
+    const { stale, live, detail } = await evaluateBuildMismatch();
+    if (!stale) return false;
+    const guardKey = reloadGuardKey(live.commit);
+    if (sessionStorage.getItem(guardKey)) return false;
+    console.info('[halaqmap] Stale build on network failure — self-healing reload', detail);
     sessionStorage.setItem(guardKey, '1');
-    // Legacy guard from older builds — avoid blocking a fresh reload.
     sessionStorage.removeItem(AUTO_RELOAD_GUARD);
     await performHardReload();
+    return true;
+  } catch {
+    return false;
   }
 }
 

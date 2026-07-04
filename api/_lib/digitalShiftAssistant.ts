@@ -329,6 +329,111 @@ export async function debitWalletForAiReply(
   return { ok: true };
 }
 
+export type CreditWalletFromTopupResult =
+  | { ok: true; alreadyCredited: boolean; creditedHalalas: number; balanceHalalas: number }
+  | { ok: false; error: string };
+
+/**
+ * شحن المحفظة من دفعة ميسر — idempotent عبر UNIQUE(moyasar_payment_id) في barber_ai_wallet_topups.
+ * الرصيد المُضاف = الصافي بعد خصم الضريبة (netCreditHalalasFromCharged).
+ */
+export async function creditWalletFromTopup(
+  supabase: SupabaseClient,
+  input: {
+    barberId: string;
+    moyasarPaymentId: string;
+    walletSku: string;
+    chargedHalalas: number;
+    creditedHalalas: number;
+    currency?: string;
+    buyerEmail?: string | null;
+    source?: string;
+    metadata?: Record<string, unknown>;
+  },
+): Promise<CreditWalletFromTopupResult> {
+  const barberId = String(input.barberId ?? '').trim();
+  const paymentId = String(input.moyasarPaymentId ?? '').trim();
+  const chargedHalalas = Math.trunc(input.chargedHalalas);
+  const creditedHalalas = Math.trunc(input.creditedHalalas);
+  if (!barberId || !paymentId) return { ok: false, error: 'invalid_topup_input' };
+  if (!Number.isFinite(chargedHalalas) || chargedHalalas <= 0) return { ok: false, error: 'invalid_charged_amount' };
+  if (!Number.isFinite(creditedHalalas) || creditedHalalas <= 0) return { ok: false, error: 'invalid_credit_amount' };
+
+  await ensureWalletRow(supabase, barberId);
+
+  const vatHalalas = Math.max(0, chargedHalalas - creditedHalalas);
+
+  // (1) قفل الشحن: إدراج سجل الشحنة أولاً. تعارض المفتاح = مشحونة سابقاً.
+  const { error: lockErr } = await supabase.from('barber_ai_wallet_topups').insert({
+    barber_id: barberId,
+    moyasar_payment_id: paymentId,
+    wallet_sku: input.walletSku,
+    charged_halalas: chargedHalalas,
+    credited_halalas: creditedHalalas,
+    vat_halalas: vatHalalas,
+    currency: (input.currency ?? 'SAR').toUpperCase(),
+    buyer_email: input.buyerEmail ?? null,
+    source: input.source ?? 'moyasar',
+    metadata: input.metadata ?? {},
+  });
+
+  if (lockErr) {
+    const code = String((lockErr as { code?: string }).code ?? '');
+    if (code === '23505') {
+      const { data: w } = await supabase
+        .from('barber_ai_wallet')
+        .select('balance_halalas')
+        .eq('barber_id', barberId)
+        .maybeSingle();
+      return {
+        ok: true,
+        alreadyCredited: true,
+        creditedHalalas: 0,
+        balanceHalalas: w?.balance_halalas ?? 0,
+      };
+    }
+    return { ok: false, error: lockErr.message };
+  }
+
+  // (2) شحن الرصيد بعد نجاح القفل.
+  const { data: wallet, error: readErr } = await supabase
+    .from('barber_ai_wallet')
+    .select('balance_halalas')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+
+  if (readErr || !wallet) {
+    await supabase.from('barber_ai_wallet_topups').delete().eq('moyasar_payment_id', paymentId);
+    return { ok: false, error: readErr?.message ?? 'wallet_not_found' };
+  }
+
+  const nextBalance = wallet.balance_halalas + creditedHalalas;
+  const { error: updErr } = await supabase
+    .from('barber_ai_wallet')
+    .update({ balance_halalas: nextBalance, updated_at: new Date().toISOString() })
+    .eq('barber_id', barberId);
+
+  if (updErr) {
+    await supabase.from('barber_ai_wallet_topups').delete().eq('moyasar_payment_id', paymentId);
+    return { ok: false, error: updErr.message };
+  }
+
+  await supabase.from('barber_ai_wallet_transactions').insert({
+    barber_id: barberId,
+    amount_halalas: creditedHalalas,
+    direction: 'credit',
+    reason: `wallet_topup:${input.walletSku}`,
+    metadata: {
+      moyasar_payment_id: paymentId,
+      charged_halalas: chargedHalalas,
+      vat_halalas: vatHalalas,
+      source: input.source ?? 'moyasar',
+    },
+  });
+
+  return { ok: true, alreadyCredited: false, creditedHalalas, balanceHalalas: nextBalance };
+}
+
 export async function upsertRecommendation(
   supabase: SupabaseClient,
   row: {

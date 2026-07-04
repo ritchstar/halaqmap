@@ -161,6 +161,14 @@ function digitalShiftAddonFromMeta(meta: Record<string, unknown>): boolean {
   return raw === true || raw === "true" || raw === 1 || raw === "1";
 }
 
+/** شحن محفظة المناوب منتج مستقل عن رخصة الإدراج — لا يُنشئ اشتراكاً ولا شهادة. */
+function isWalletTopupMeta(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || typeof meta !== "object") return false;
+  const pt = String(meta.product_type ?? meta.productType ?? "").trim().toLowerCase();
+  const product = String(meta.product ?? "").trim().toLowerCase();
+  return pt === "wallet_topup" || product === "wallet_topup";
+}
+
 function clampRegistrationQty(raw: unknown): number {
   const n =
     typeof raw === "number" && Number.isFinite(raw)
@@ -697,6 +705,77 @@ Deno.serve(async (req) => {
   const failureReasonRaw = extractFailureReason(data);
   const invoiceUrlStored = typeof meta.invoice_url === "string" ? meta.invoice_url.trim() : "";
 
+  // ── شحن محفظة المناوب: منتج مستقل — لا اشتراك رخصة ولا شهادة تفعيل. ──
+  if (isWalletTopupMeta(meta)) {
+    let credited = false;
+    let creditResult: Record<string, unknown> | null = null;
+    const trustedPaidSource = Boolean(eventType && /^payment/i.test(eventType));
+
+    if (successStatus && trustedPaidSource) {
+      const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "")
+        .trim()
+        .replace(/\/+$/, "");
+      const internalSecret = (
+        Deno.env.get("WALLET_TOPUP_INTERNAL_SECRET") ??
+        Deno.env.get("LISTING_LICENSE_INTERNAL_SECRET") ??
+        ""
+      ).trim();
+
+      if (appOrigin && internalSecret) {
+        try {
+          const resp = await fetch(`${appOrigin}/api/wallet-topup-fulfill`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-wallet-topup-internal-secret": internalSecret,
+            },
+            body: JSON.stringify({ paymentId }),
+          });
+          const txt = await resp.text();
+          if (resp.ok) {
+            credited = true;
+            try {
+              creditResult = JSON.parse(txt) as Record<string, unknown>;
+            } catch {
+              creditResult = null;
+            }
+          } else {
+            console.warn("[moyasar-webhook] wallet-topup-fulfill:", txt.slice(0, 300));
+            await logPaymentSecurityEvent(supabase, {
+              severity: "warning",
+              eventType: "wallet_topup_fulfill_failed",
+              paymentId,
+              reason: txt.slice(0, 300),
+              detail: { httpStatus: resp.status },
+            });
+          }
+        } catch (e) {
+          console.warn("[moyasar-webhook] wallet-topup-fulfill fetch:", e);
+        }
+      } else {
+        await logPaymentSecurityEvent(supabase, {
+          severity: "warning",
+          eventType: "wallet_topup_not_configured",
+          paymentId,
+          reason: "APP_PUBLIC_ORIGIN or WALLET_TOPUP_INTERNAL_SECRET missing.",
+        });
+      }
+    }
+
+    return jsonResponse(
+      {
+        ok: true,
+        product: "wallet_topup",
+        paymentId,
+        eventId: eventId || null,
+        status: rowStatus,
+        credited,
+        credit: creditResult,
+      },
+      200,
+    );
+  }
+
   const { email: resolvedEmail, barberName, linkedBarberId, phone: resolvedPhone } = await resolveRecipientContext(
     supabase,
     requestId || null,
@@ -884,6 +963,30 @@ Deno.serve(async (req) => {
           409,
         );
       }
+    }
+
+    // ── دفاع في العمق: دفعة مدفوعة بلا أي إشارة رخصة (لا tier ولا license_sku
+    //    ولا طلب تسجيل) يجب ألّا تتحوّل تلقائياً إلى رخصة برونزية افتراضية.
+    //    يحمي من أي منتج غير-رخصة (كشحن المحفظة) إن غاب product_type أو لم يكفِ
+    //    الحارس الأعلى. مسارات الرخصة الشرعية تُمرّر tier أو requestId دائماً. ──
+    const hasExplicitLicenseSku =
+      String(meta.license_sku ?? meta.licenseSku ?? "").trim().length > 0;
+    if (!tier && !hasExplicitLicenseSku && !requestId) {
+      await logPaymentSecurityEvent(supabase, {
+        severity: "warning",
+        eventType: "paid_without_license_signal",
+        paymentId,
+        reason:
+          "Paid payment lacks tier/license_sku/request_id — refusing to fulfill a default bronze license.",
+        detail: {
+          product_type: String(meta.product_type ?? meta.product ?? ""),
+          metadata: metaPayload,
+        },
+      });
+      return jsonResponse(
+        { ok: true, paymentId, eventId: eventId || null, status: rowStatus, skipped: "no_license_signal" },
+        200,
+      );
     }
 
     const skuCode = licenseSkuFromMeta(meta, tier);
