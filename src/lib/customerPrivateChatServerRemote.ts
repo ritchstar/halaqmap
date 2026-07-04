@@ -92,7 +92,7 @@ export async function startCustomerPrivateChatServer(
     guestClientId,
     barberId: barberId.trim(),
   });
-  if (!res.ok) return res;
+  if (!res.ok) return { ok: false, error: res.error };
   const conversationId = String(res.json.conversationId ?? '').trim();
   const customerUserId = String(res.json.customerUserId ?? '').trim();
   if (!conversationId || !customerUserId || !res.json.conversation) {
@@ -114,7 +114,7 @@ export async function getCustomerPrivateChatServer(
     guestClientId: getOrCreateGuestClientId(),
     conversationId: conversationId.trim(),
   });
-  if (!res.ok) return res;
+  if (!res.ok) return { ok: false, error: res.error };
   if (!res.json.conversation) return { ok: false, error: 'تعذّر قراءة بيانات المحادثة.' };
   return { ok: true, conversation: res.json.conversation };
 }
@@ -127,7 +127,7 @@ export async function listCustomerPrivateMessagesServer(
     guestClientId: getOrCreateGuestClientId(),
     conversationId: conversationId.trim(),
   });
-  if (!res.ok) return res;
+  if (!res.ok) return { ok: false, error: res.error };
   return {
     ok: true,
     messages: Array.isArray(res.json.messages) ? res.json.messages : [],
@@ -151,7 +151,7 @@ export async function sendCustomerPrivateMessageServer(
     conversationId: conversationId.trim(),
     body: body.trim(),
   });
-  if (!res.ok) return res;
+  if (!res.ok) return { ok: false, error: res.error };
   if (!res.json.message) return { ok: false, error: 'تعذّر إرسال الرسالة.' };
   return {
     ok: true,

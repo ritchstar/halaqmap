@@ -36,7 +36,7 @@ import {
 } from '@/config/barberSocialShareCopy';
 import { partnerSalonDisplayName } from '@/config/partnerDashboardBrand';
 import type { SubscriptionTier } from '@/lib/index';
-import type { BarberPortalHomeServiceSnapshot } from '@/lib/barberPortalLoginRemote';
+import type { BarberPortalHomeServiceSnapshot } from '@/lib/barberHomeServiceRemote';
 import {
   BARBER_SHARE_CARD_DIMENSIONS,
   barberShareDownloadFilename,
@@ -74,9 +74,9 @@ export function BarberSocialShareKit({
   const salonName = useMemo(() => partnerSalonDisplayName({ name, email }), [name, email]);
 
   const availableTemplates = useMemo(() => {
-    const homeOn = homeService?.enabled === true;
+    const homeOn = homeService?.offered === true && homeService?.publicVisible !== false;
     return BARBER_SHARE_TEMPLATES.filter((t) => !t.requiresHomeService || homeOn);
-  }, [homeService?.enabled]);
+  }, [homeService?.offered, homeService?.publicVisible]);
 
   const [templateId, setTemplateId] = useState<BarberShareTemplateId>('map_presence');
   const [cardFormat, setCardFormat] = useState<BarberShareCardFormatId>('square');
