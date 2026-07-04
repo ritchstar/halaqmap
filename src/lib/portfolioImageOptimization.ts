@@ -106,7 +106,7 @@ export async function optimizeImageFileForBarberPortfolio(
     },
   });
 
-  if (!result.ok) return result;
+  if (!result.ok) return { ok: false, error: result.error };
   if (result.mimeType !== 'image/webp') {
     return { ok: false, error: 'تعذر تصدير WebP لمعرض الأعمال.' };
   }

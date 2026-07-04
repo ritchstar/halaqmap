@@ -45,6 +45,12 @@ const GROWTH_PITCH_CUSTOMER_JOURNEY_STEPS = [
 
 export type GrowthPitchSlideAccent = 'teal' | 'amber' | 'violet' | 'slate';
 
+export type GrowthPitchStep = {
+  step: string;
+  title: string;
+  description: string;
+};
+
 export type GrowthPitchTierColumn = {
   tier: SubscriptionTier;
   badge: string;
@@ -76,7 +82,7 @@ export type GrowthPitchSlide =
       kind: 'steps';
       eyebrow: string;
       title: string;
-      steps: typeof GROWTH_PITCH_CUSTOMER_JOURNEY_STEPS;
+      steps: readonly GrowthPitchStep[];
       accent: GrowthPitchSlideAccent;
     }
   | {

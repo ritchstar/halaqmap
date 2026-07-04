@@ -553,8 +553,8 @@ export function RegistrationForm() {
             ...prev,
             location: {
               ...prev.location,
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
+              lat: String(position.coords.latitude),
+              lng: String(position.coords.longitude),
             },
           }));
           setLocationLoading(false);

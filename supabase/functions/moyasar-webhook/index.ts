@@ -846,7 +846,7 @@ Deno.serve(async (req) => {
   }
 
   let accountActivated = false;
-  let onboardingApiOk = false;
+  const onboardingApiOk = false;
   let whatsappDraftOk = false;
 
   if (rowStatus === "paid") {

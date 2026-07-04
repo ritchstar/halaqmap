@@ -194,7 +194,7 @@ export async function optimizeImageToBase64ForPlatformVariant(
   options?: OptimizePlatformImageOptions,
 ): Promise<{ ok: true; imageBase64: string; mimeType: CanvasOutputMime } | { ok: false; error: string }> {
   const fileResult = await optimizeImageFileForPlatformVariant(file, variant, options);
-  if (!fileResult.ok) return fileResult;
+  if (!fileResult.ok) return { ok: false, error: fileResult.error };
   const b64 = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {

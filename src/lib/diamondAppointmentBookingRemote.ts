@@ -150,7 +150,7 @@ export async function createDiamondAppointmentBookingRemote(input: {
     },
     'public',
   );
-  if (!res.ok) return res;
+  if (!res.ok) return { ok: false, error: res.error };
   const bookingId = String(res.json.bookingId ?? '').trim();
   if (!bookingId) return { ok: false, error: 'تعذّر إنشاء طلب الحجز.' };
   return { ok: true, bookingId };
@@ -167,7 +167,7 @@ export async function listBarberBookingsRemote(): Promise<
     { action: 'list', barberId: creds.barberId, email: creds.email },
     'barber',
   );
-  if (!res.ok) return res;
+  if (!res.ok) return { ok: false, error: res.error };
   const rows = Array.isArray(res.json.bookings) ? res.json.bookings : [];
   return { ok: true, items: rows.map(mapRemoteBookingToScheduleItem) };
 }
@@ -190,7 +190,7 @@ export async function updateBarberBookingStatusRemote(
     },
     'barber',
   );
-  if (!res.ok) return res;
+  if (!res.ok) return { ok: false, error: res.error };
   if (!res.json.booking) return { ok: false, error: 'تعذّر تحديث حالة الحجز.' };
   return { ok: true, item: mapRemoteBookingToScheduleItem(res.json.booking) };
 }
