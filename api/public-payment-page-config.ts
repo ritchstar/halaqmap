@@ -15,6 +15,12 @@ function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
+function resolveBuildCommit(): string | null {
+  const full = (process.env.VERCEL_GIT_COMMIT_SHA || process.env.VITE_BUILD_COMMIT || '').trim();
+  if (!full) return null;
+  return full.length > 7 ? full.slice(0, 7) : full;
+}
+
 type Row = {
   preferred_gateway?: string;
   display_payment_mode?: string;
@@ -74,6 +80,7 @@ export async function GET(request: Request): Promise<Response> {
       enableSabGateway: row.enable_sab_gateway === true,
       vatEnabled: vat.enabled,
       vatPercent: vat.percent,
+      buildCommit: resolveBuildCommit(),
     },
     { headers },
   );
