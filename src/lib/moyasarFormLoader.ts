@@ -15,6 +15,9 @@ const MOYASAR_SCRIPT_FALLBACKS = [
   'https://cdn.moyasar.com/mpf/1.0.0/moyasar.js',
 ] as const;
 
+/** نقطة تحقّق التاجر لـ Apple Pay — مُدارَة من ميسر (لا حاجة لخادمنا). */
+export const MOYASAR_APPLE_PAY_VALIDATE_URL = 'https://api.moyasar.com/v1/applepay/initiate';
+
 let assetsLoadPromise: Promise<void> | null = null;
 
 function appendStylesheet(href: string): Promise<void> {

@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { resolvePaymentGateway } from '@/config/paymentGateway';
+import { LEGAL_TRADE_NAME_AR } from '@/config/partnerLegal';
 import {
   clampListingLicenseQuantity,
   computeListingLicenseTotalSar,
@@ -57,7 +58,7 @@ import {
   SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR,
 } from '@/config/legalActivityScope';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
-import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
+import { getMoyasarGlobal, loadMoyasarFormScript, MOYASAR_APPLE_PAY_VALIDATE_URL } from '@/lib/moyasarFormLoader';
 import {
   WALLET_TOPUP_VAT_PERCENT,
   chargedHalalasForVat,
@@ -803,6 +804,15 @@ export default function Payment() {
             callback_url: callbackUrl,
             supported_networks: ['visa', 'mastercard'],
             methods: applePaySupported ? ['creditcard', 'applepay'] : ['creditcard'],
+            ...(applePaySupported
+              ? {
+                  apple_pay: {
+                    country: 'SA',
+                    label: LEGAL_TRADE_NAME_AR,
+                    validate_merchant_url: MOYASAR_APPLE_PAY_VALIDATE_URL,
+                  },
+                }
+              : {}),
             language: 'ar',
             fixed_width: false,
             metadata: effectiveMetadata,
