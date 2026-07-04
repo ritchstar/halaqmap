@@ -6,8 +6,22 @@ export type PublicPaymentPageConfig = {
   displayPaymentMode: 'test' | 'live';
   enableMoyasarCard: boolean;
   enableSabGateway: boolean;
+  /** علم ض.ق.م الحيّ (مصدر الحقيقة: حالة ZATCA) — مطفأ افتراضياً. */
+  vatEnabled: boolean;
+  /** النسبة المئوية المعتمدة للضريبة (مثال 15). */
+  vatPercent: number;
   error?: string;
 };
+
+/** النسبة المُجهَّزة الافتراضية عند تعذّر القراءة (canonical). */
+const DEFAULT_VAT_PERCENT = 15;
+
+function parseVatPercent(raw: unknown): number {
+  const n = typeof raw === 'number' ? raw : Number.parseFloat(String(raw ?? ''));
+  if (!Number.isFinite(n) || n < 0) return DEFAULT_VAT_PERCENT;
+  if (n > 50) return 50;
+  return Math.round(n * 100) / 100;
+}
 
 /** إعدادات الدفع الظاهرة للعامة — بدون مصادقة؛ تعود للقيم الافتراضية عند فشل الشبكة. */
 export async function fetchPublicPaymentPageConfig(): Promise<PublicPaymentPageConfig> {
@@ -25,6 +39,8 @@ export async function fetchPublicPaymentPageConfig(): Promise<PublicPaymentPageC
       displayPaymentMode: mode,
       enableMoyasarCard: json.enableMoyasarCard !== false,
       enableSabGateway: json.enableSabGateway === true,
+      vatEnabled: json.vatEnabled === true,
+      vatPercent: parseVatPercent(json.vatPercent),
     };
   } catch (e) {
     return fallbackConfig(e instanceof Error ? e.message : 'network_error');
@@ -38,6 +54,8 @@ function fallbackConfig(error: string): PublicPaymentPageConfig {
     displayPaymentMode: 'test',
     enableMoyasarCard: true,
     enableSabGateway: false,
+    vatEnabled: false,
+    vatPercent: DEFAULT_VAT_PERCENT,
     error,
   };
 }

@@ -6,6 +6,7 @@ import {
   type PlatformPaymentServerReadiness,
   type PlatformPaymentSettingsPayload,
 } from '@/lib/platformPaymentSettingsRemote';
+import { fetchPublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -52,6 +53,19 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
   const [settings, setSettings] = useState<PlatformPaymentSettingsPayload>(emptySettings);
   const [monitoring, setMonitoring] = useState<PlatformPaymentMonitoring | null>(null);
   const [serverReadiness, setServerReadiness] = useState<PlatformPaymentServerReadiness | null>(null);
+  /** حالة ض.ق.م — للعرض فقط. مصدر الحقيقة: علم ZATCA على الخادم (لا يُفعَّل من هنا). */
+  const [vatStatus, setVatStatus] = useState<{ enabled: boolean; percent: number } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void fetchPublicPaymentPageConfig().then((cfg) => {
+      if (!active) return;
+      setVatStatus(cfg.ok ? { enabled: cfg.vatEnabled, percent: cfg.vatPercent } : { enabled: false, percent: 15 });
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     settingsRef.current = settings;
@@ -196,6 +210,21 @@ export function PaymentGatewaysAdminPanel({ canSave }: Props) {
                 </AlertDescription>
               </Alert>
             )}
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-border/80 bg-muted/30 p-3">
+              <div>
+                <p className="text-sm font-medium">ضريبة القيمة المضافة (ض.ق.م)</p>
+                <p className="text-xs text-muted-foreground">
+                  للعرض فقط — التفعيل الحيّ يتم من «المكتب المالي / مستشار ZATCA» بعد بلوغ الحد الإلزامي، لا مفتاح ثانٍ هنا.
+                </p>
+              </div>
+              <Badge variant={vatStatus?.enabled ? 'default' : 'secondary'} className="font-normal">
+                {vatStatus === null
+                  ? '…'
+                  : vatStatus.enabled
+                    ? `مفعّلة @ ${vatStatus.percent}%`
+                    : 'مطفأة'}
+              </Badge>
+            </div>
             <div className="space-y-2">
               <Label>البوابة الافتراضية في صفحة الدفع</Label>
               <Select

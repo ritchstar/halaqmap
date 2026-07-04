@@ -19,6 +19,7 @@ import {
   DIGITAL_SHIFT_TRANSLATED_CHAT_FEATURE_AR,
 } from '@/config/digitalShiftAssistant';
 import { WALLET_TOPUP_PACKAGES, repliesFromHalalas } from '@/config/digitalShiftWalletTopup';
+import { usePlatformVatConfigRemote } from '@/hooks/usePlatformVatConfigRemote';
 import { consumeDigitalShiftScrollTarget } from '@/components/barber/DigitalShiftQuickAccessStrip';
 import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
 import { DigitalShiftRecommendationsTable } from '@/components/barber/DigitalShiftRecommendationsTable';
@@ -62,6 +63,7 @@ export function DigitalShiftAssistantHub({
   const [chatSending, setChatSending] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   const navigate = useNavigate();
+  const vatSettings = usePlatformVatConfigRemote();
 
   const goWalletTopup = useCallback(
     (walletSku: string) => {
@@ -269,7 +271,9 @@ export function DigitalShiftAssistantHub({
               ))}
             </div>
             <p className="text-[0.65rem] text-muted-foreground">
-              الأسعار قبل الضريبة · تُضاف ضريبة القيمة المضافة 15% عند الدفع · كل رد ≈ 1.50 ر.س
+              {vatSettings.enabled
+                ? `الأسعار قبل الضريبة · تُضاف ضريبة القيمة المضافة ${vatSettings.ratePercent}% عند الدفع · كل رد ≈ 1.50 ر.س`
+                : 'الأسعار نهائية بلا ضريبة حالياً · كل رد ≈ 1.50 ر.س'}
             </p>
           </CardContent>
         </Card>

@@ -56,7 +56,7 @@ import {
 import { REGISTRATION_LEGAL_DISCLAIMER_AR, HONOR_BOARD_PROFESSIONAL_COMMITMENT_LEAD } from '@/config/honorBoardManifesto';
 import { SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR } from '@/config/legalActivityScope';
 import { RATING_QR_PLAN_LINE } from '@/config/ratingQrInvite';
-import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
+import { usePlatformVatConfigRemote } from '@/hooks/usePlatformVatConfigRemote';
 import { calcVatBreakdown } from '@/lib/platformVatSettings';
 import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
 import {
@@ -293,7 +293,7 @@ const MAX_RECEIPT_STORAGE_BYTES = 600 * 1024;
 export function RegistrationForm() {
   const navigate = useNavigate();
   const location = useLocation();
-  const vatSettings = usePlatformVatSettings();
+  const vatSettings = usePlatformVatConfigRemote();
   const formTopRef = useRef<HTMLDivElement>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);

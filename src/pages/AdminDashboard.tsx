@@ -112,11 +112,7 @@ import {
 } from '@/lib/barberOnboardingEmailRemote';
 import { getOrderedWeekHoursForDisplay } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
-import {
-  calcVatBreakdown,
-  getPlatformVatSettings,
-  savePlatformVatSettings,
-} from '@/lib/platformVatSettings';
+import { fetchPublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';
 import { ZatcaTaxActivationAlert } from '@/components/admin/ZatcaTaxActivationAlert';
 import { toast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
@@ -4645,8 +4641,8 @@ function SettingsSection({
   ];
   const findTemplate = (key: string) => ADMIN_ROLE_TEMPLATES.find((t) => t.key === key);
 
-  const [vatEnabled, setVatEnabled] = useState(() => getPlatformVatSettings().enabled);
-  const [vatRateInput, setVatRateInput] = useState(() => String(getPlatformVatSettings().ratePercent));
+  // حالة ض.ق.م للقراءة فقط — مصدر الحقيقة: علم ZATCA على الخادم (لا تُفعَّل من هنا).
+  const [vatStatus, setVatStatus] = useState<{ enabled: boolean; percent: number } | null>(null);
   const [adminRows, setAdminRows] = useState<AdminRoleRow[]>([]);
   const [adminLoading, setAdminLoading] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState('');
@@ -4696,18 +4692,15 @@ function SettingsSection({
   };
 
   useEffect(() => {
-    const sync = () => {
-      const s = getPlatformVatSettings();
-      setVatEnabled(s.enabled);
-      setVatRateInput(String(s.ratePercent));
+    let active = true;
+    void fetchPublicPaymentPageConfig().then((cfg) => {
+      if (!active) return;
+      setVatStatus(cfg.ok ? { enabled: cfg.vatEnabled, percent: cfg.vatPercent } : { enabled: false, percent: 15 });
+    });
+    return () => {
+      active = false;
     };
-    window.addEventListener('halaqmap-vat-settings', sync);
-    return () => window.removeEventListener('halaqmap-vat-settings', sync);
   }, []);
-
-  const parsedRate = parseFloat(String(vatRateInput).replace(',', '.'));
-  const rateForPreview = Number.isFinite(parsedRate) ? parsedRate : 15;
-  const preview = calcVatBreakdown(100, { enabled: vatEnabled, ratePercent: rateForPreview });
 
   const refreshAdmins = useCallback(async () => {
     if (!canManageAdmins && !bootstrapAdmin) return;
@@ -4723,23 +4716,6 @@ function SettingsSection({
   useEffect(() => {
     void refreshAdmins();
   }, [refreshAdmins]);
-
-  const handleSaveVat = () => {
-    if (!canSavePlatformVat) {
-      toast({ title: 'لا تملك صلاحية تعديل الإعدادات', variant: 'destructive' });
-      return;
-    }
-    savePlatformVatSettings({
-      enabled: vatEnabled,
-      ratePercent: rateForPreview,
-    });
-    toast({
-      title: 'تم حفظ إعدادات الضريبة',
-      description: vatEnabled
-        ? `مفعّلة — النسبة المعروضة ${rateForPreview}% (تُحسب تلقائياً في صفحات الدفع).`
-        : 'معطّلة — تُعرض قيمة حزمة الرخصة الرقمية فقط دون ضريبة في الواجهة.',
-    });
-  };
 
   const createOrUpdateAdmin = async () => {
     if (!canManageAdmins) return;
@@ -5351,52 +5327,29 @@ function SettingsSection({
         <CardHeader>
           <CardTitle>ضريبة القيمة المضافة (عرض الدفع)</CardTitle>
           <CardDescription>
-            في وضع العمل الحر أو عدم الخضوع للضريبة تُبقى المعطّلة؛ تُعرض الأسعار كقيمة حزمة رخصة فقط (مناسب
-            لتقديم بوابات مثل ميسر). عند التوسع بسجل تجاري ورقم ضريبي فعّل الاحتسب هنا وحدّث النسبة عند تغيير
-            الأنظمة.
+            الحالة للعرض فقط — مصدر الحقيقة الوحيد هو علم هيئة الزكاة والضريبة والجمارك، ويسري تلقائياً على شحن
+            المحفظة والاشتراكات معاً. لا يوجد مفتاح تفعيل ثانٍ في هذه اللوحة.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
           <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
             <div>
-              <p className="font-medium">تفعيل احتساب الضريبة في الواجهة</p>
+              <p className="font-medium">حالة احتساب الضريبة في الواجهة</p>
               <p className="text-sm text-muted-foreground mt-1">
-                عند التفعيل تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة رخصة النفاذ الرقمية.
+                {vatStatus?.enabled
+                  ? 'مفعّلة — تظهر أسطر الضريبة والإجمالي في التسجيل وصفحة الدفع وسياسة الرخصة وشحن المحفظة.'
+                  : 'مطفأة — تُعرض الأسعار كقيمة حزمة الرخصة الرقمية فقط دون ضريبة.'}
               </p>
             </div>
-            <Switch checked={vatEnabled} onCheckedChange={setVatEnabled} disabled={!canSavePlatformVat} />
+            <Badge variant={vatStatus?.enabled ? 'default' : 'secondary'} className="font-normal">
+              {vatStatus === null ? '…' : vatStatus.enabled ? `مفعّلة @ ${vatStatus.percent}%` : 'مطفأة'}
+            </Badge>
           </div>
-          <div className="space-y-2 max-w-xs">
-            <Label htmlFor="vat-rate">نسبة ضريبة القيمة المضافة (%)</Label>
-            <Input
-              id="vat-rate"
-              type="number"
-              min={0}
-              max={50}
-              step={0.5}
-              dir="ltr"
-              value={vatRateInput}
-              onChange={(e) => setVatRateInput(e.target.value)}
-              disabled={!canSavePlatformVat || !vatEnabled}
-            />
-            <p className="text-xs text-muted-foreground">مثال شائع: 15 — يُقرب المبلغ إلى أقرب ريال صحيح.</p>
+          <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground leading-relaxed">
+            لتفعيل أو إيقاف الضريبة انتقل إلى «المكتب المالي / مستشار الضريبة» ونفّذ «التفعيل الفوري الحي»
+            بالصلاحية المخصّصة، بعد بلوغ الحد الإلزامي أو إصدار الرقم الضريبي. يسري التغيير فوراً على كل صفحات
+            الدفع والعرض دون أي خطوة إضافية هنا.
           </div>
-          <div className="rounded-lg bg-muted/50 p-4 text-sm">
-            <p className="font-medium mb-2">معاينة على 100 ر.س (قيمة حزمة رخصة)</p>
-            <p className="text-muted-foreground">
-              {!vatEnabled || preview.vat === 0 ? (
-                <>الإجمالي المعروض: <strong>{preview.total} ر.س</strong> (بدون ضريبة)</>
-              ) : (
-                <>
-                  الرسوم: {preview.subtotal} ر.س + الضريبة ({rateForPreview}%): {preview.vat} ر.س ={' '}
-                  <strong>{preview.total} ر.س</strong>
-                </>
-              )}
-            </p>
-          </div>
-          <Button type="button" className="w-full" onClick={handleSaveVat} disabled={!canSavePlatformVat}>
-            حفظ إعدادات الضريبة
-          </Button>
         </CardContent>
       </Card>
     </div>

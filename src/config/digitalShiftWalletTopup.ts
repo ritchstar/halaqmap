@@ -1,14 +1,19 @@
 /**
  * كتالوج شحن محفظة المناوب الرقمي — واجهة العميل (لوحة الحلاق وصفحة الدفع).
  *
- * يطابق api/_lib/digitalShiftWalletTopup.ts (الضريبة فوق السعر — VAT exclusive):
- *  · القيمة الأساسية (baseSar) هي ما يُضاف للرصيد كاملاً.
- *  · تُضاف ضريبة القيمة المضافة 15% فوق الأساسي، فيدفع الحلاق baseSar × 1.15.
+ * يطابق api/_lib/digitalShiftWalletTopup.ts (الضريبة فوق السعر ومحكومة بعلم ZATCA):
+ *  · القيمة الأساسية (baseSar) هي ما يُضاف للرصيد كاملاً — ثابتة.
+ *  · عند تفعيل ض.ق.م يدفع الحلاق الأساسي + النسبة فوقه؛ وإلا يدفع الأساسي فقط.
+ *  · مصدر حالة الضريبة على الواجهة = `/api/public-payment-page-config` (vatEnabled/vatPercent).
  */
 
 import { DIGITAL_SHIFT_REPLY_COST_HALALAS } from '@/config/digitalShiftAssistant';
 
+/** النسبة المُجهَّزة المرجعية (canonical) — تطابق ZATCA_PREPARED_VAT_RATE_PERCENT. */
 export const WALLET_TOPUP_VAT_PERCENT = 15;
+
+/** إعداد الضريبة المشتق من القاعدة على الواجهة. */
+export type WalletVatConfig = { enabled: boolean; percent: number };
 
 /** الرصيد الترحيبي (هللات) لأي محفظة جديدة — 15 ر.س ≈ 10 ردود. */
 export const DIGITAL_SHIFT_WALLET_SEED_HALALAS = 1500;
@@ -39,6 +44,17 @@ export function netCreditHalalasFromCharged(chargedHalalas: number): number {
   const gross = Math.trunc(chargedHalalas);
   if (!Number.isFinite(gross) || gross <= 0) return 0;
   return Math.round(gross / (1 + WALLET_TOPUP_VAT_PERCENT / 100));
+}
+
+/**
+ * المبلغ المدفوع فعلياً (هللات) وفق إعداد الضريبة الحيّ:
+ * مُفعّلة ← الأساسي + النسبة فوقه؛ مطفأة ← الأساسي كما هو.
+ */
+export function chargedHalalasForVat(baseHalalas: number, cfg: WalletVatConfig | null | undefined): number {
+  const base = Math.trunc(baseHalalas);
+  if (!Number.isFinite(base) || base <= 0) return 0;
+  if (!cfg || !cfg.enabled || cfg.percent <= 0) return base;
+  return Math.round(base * (1 + cfg.percent / 100));
 }
 
 /** عدد الردود التقريبي من رصيد بالهللات. */

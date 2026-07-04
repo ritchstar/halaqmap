@@ -1,18 +1,21 @@
 /**
  * كتالوج شحن محفظة المناوب الرقمي (Digital Shift Wallet Top-up) — مصدر الحقيقة على الخادم.
  *
- * القاعدة المعتمدة (الضريبة فوق السعر — VAT exclusive):
- *  · القيمة الأساسية (baseHalalas) هي ما يُضاف للرصيد كاملاً.
- *  · تُضاف ضريبة القيمة المضافة 15% فوق الأساسي، فيدفع الحلاق chargedHalalas = الأساسي × 1.15.
- *  · العميل يتحمّل الضريبة؛ إيراد المنصّة الصافي = الأساسي، وتُورَّد الضريبة لهيئة الزكاة والضريبة.
+ * القاعدة المعتمدة (الضريبة فوق السعر — VAT exclusive، ومحكومة بعلم ZATCA `tax_enabled`):
+ *  · القيمة الأساسية (baseHalalas) هي ما يُضاف للرصيد كاملاً — ثابتة وموثوقة.
+ *  · عند تفعيل ض.ق.م: يدفع الحلاق الأساسي + 15% فوقه؛ وإلا يدفع الأساسي فقط.
+ *  · العميل يتحمّل الضريبة عند التفعيل؛ إيراد المنصّة الصافي = الأساسي، وتُورَّد الضريبة لهيئة الزكاة والضريبة.
  *  · كل رد آلي يخصم DIGITAL_SHIFT_REPLY_COST_HALALAS (150 هللة).
  *  · الرصيد الترحيبي للتفعيلات الجديدة = DIGITAL_SHIFT_WALLET_SEED_HALALAS (هدية بلا ضريبة).
+ *
+ * ملاحظة تحقّق: قبول المبلغ المدفوع يشمل «الأساسي» و«الأساسي + 15%» معاً (canonical)
+ * بغضّ النظر عن حالة العلم لحظة الشحن — لتحمّل تبدّل المفتاح أثناء دفعة جارية.
  */
 
 /** تكلفة الرد الآلي الواحد (هللات) — يجب أن تطابق DIGITAL_SHIFT_REPLY_COST_HALALAS. */
 export const WALLET_TOPUP_REPLY_COST_HALALAS = 150;
 
-/** نسبة ضريبة القيمة المضافة المعتمدة (%). */
+/** نسبة ضريبة القيمة المضافة المرجعية المُجهَّزة (canonical) — تطابق ZATCA_PREPARED_VAT_RATE_PERCENT. */
 export const WALLET_TOPUP_VAT_PERCENT = 15;
 
 /** الرصيد الترحيبي (هللات) لأي محفظة جديدة — 15 ر.س ≈ 10 ردود (هدية بلا ضريبة). */
@@ -57,8 +60,26 @@ export function walletTopupPackageBySku(sku: string): WalletTopupPackage | null 
   return WALLET_TOPUP_PACKAGES.find((p) => p.sku === s) ?? null;
 }
 
-/** إيجاد الباقة عبر المبلغ المدفوع (هللات) — للتحقق من الـ webhook. */
+/** المبلغ المدفوع القانوني عند تفعيل الضريبة (الأساسي + 15% canonical). */
+export function chargedWithCanonicalVat(baseHalalas: number): number {
+  return Math.round(Math.trunc(baseHalalas) * (1 + WALLET_TOPUP_VAT_PERCENT / 100));
+}
+
+/** إيجاد الباقة عبر المبلغ المدفوع (هللات) — يطابق القيمة الأساسية القانونية (canonical + ضريبة). */
 export function walletTopupPackageByChargedHalalas(chargedHalalas: number): WalletTopupPackage | null {
   const amount = Math.trunc(chargedHalalas);
   return WALLET_TOPUP_PACKAGES.find((p) => p.chargedHalalas === amount) ?? null;
+}
+
+/**
+ * إيجاد الباقة من المبلغ المدفوع بقبول الحالتين: «الأساسي» (بلا ضريبة) أو «الأساسي + 15%» (بضريبة).
+ * يُستخدم للتحقّق من الشحن الذاتي بمنأى عن حالة علم ض.ق.م لحظة إنشاء الدفعة.
+ */
+export function walletTopupPackageAcceptingCharged(chargedHalalas: number): WalletTopupPackage | null {
+  const amount = Math.trunc(chargedHalalas);
+  return (
+    WALLET_TOPUP_PACKAGES.find(
+      (p) => p.baseHalalas === amount || chargedWithCanonicalVat(p.baseHalalas) === amount,
+    ) ?? null
+  );
 }

@@ -2,11 +2,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { creditWalletFromTopup } from './digitalShiftAssistant.js';
 import { dispatchWalletTopupReceiptEmail } from './walletTopupReceiptMail.js';
 import {
-  netCreditHalalasFromCharged,
+  chargedWithCanonicalVat,
   repliesFromHalalas,
-  walletTopupPackageByChargedHalalas,
+  walletTopupPackageAcceptingCharged,
   walletTopupPackageBySku,
 } from './digitalShiftWalletTopup.js';
+import { baseFromChargedWithVat, getPlatformVatConfig } from './platformVatConfig.js';
 import {
   fetchMoyasarPayment,
   moyasarPaymentIsPaid,
@@ -147,20 +148,32 @@ export async function syncWalletTopupFulfillment(
   const fromInvoice = String(payment.invoice_id ?? '').trim().length > 0;
   const skuFromMeta = String(meta.wallet_sku ?? meta.walletSku ?? '').trim().toLowerCase();
 
+  // إعداد الضريبة الحيّ (مصدر الحقيقة: علم ZATCA). مطفأ افتراضياً.
+  const vatCfg = await getPlatformVatConfig(supabase);
+
   let resolvedSku: string;
+  let creditedHalalas: number;
   if (fromInvoice) {
-    // فاتورة يدوية: تُقبل أي قيمة (قد تكون تفاوضية). الرصيد = الصافي بعد الضريبة.
+    // فاتورة يدوية: تُقبل أي قيمة (قد تكون تفاوضية). الرصيد الصافي = واعٍ بحالة الضريبة.
     const bySku = walletTopupPackageBySku(skuFromMeta);
     resolvedSku = bySku ? bySku.sku : skuFromMeta || 'wallet_topup_custom';
+    creditedHalalas = baseFromChargedWithVat(chargedHalalas, vatCfg);
   } else {
-    // شحن ذاتي من النموذج العام: يجب مطابقة باقة معتمدة (منع مبالغ اعتباطية).
-    const pkgBySku = walletTopupPackageBySku(skuFromMeta);
-    const pkgByAmount = walletTopupPackageByChargedHalalas(chargedHalalas);
-    const pkg = pkgByAmount ?? pkgBySku;
-    if (!pkg || (pkgBySku && pkgBySku.chargedHalalas !== chargedHalalas)) {
+    // شحن ذاتي: يجب مطابقة باقة معتمدة، ويُقبل المبلغ = الأساسي أو الأساسي + 15% (canonical)
+    // بمنأى عن حالة العلم لحظة إنشاء الدفعة. الرصيد المُضاف = الأساسي الثابت.
+    const pkg = walletTopupPackageBySku(skuFromMeta) ?? walletTopupPackageAcceptingCharged(chargedHalalas);
+    const amountAccepted =
+      pkg != null &&
+      (chargedHalalas === pkg.baseHalalas || chargedHalalas === chargedWithCanonicalVat(pkg.baseHalalas));
+    if (!pkg || !amountAccepted) {
       return { ok: false, error: 'wallet_topup_amount_mismatch', status: 409 };
     }
     resolvedSku = pkg.sku;
+    creditedHalalas = pkg.baseHalalas;
+  }
+
+  if (!Number.isFinite(creditedHalalas) || creditedHalalas <= 0) {
+    return { ok: false, error: 'wallet_topup_amount_mismatch', status: 409 };
   }
 
   const currency = String(payment.currency ?? 'SAR').toUpperCase() || 'SAR';
@@ -173,7 +186,6 @@ export async function syncWalletTopupFulfillment(
     return { ok: false, error: 'wallet_topup_barber_unresolved', status: 409 };
   }
 
-  const creditedHalalas = netCreditHalalasFromCharged(chargedHalalas);
   const buyerEmail =
     String(meta.buyer_email ?? meta.buyerEmail ?? '').trim() ||
     (payment.source && typeof payment.source === 'object'
