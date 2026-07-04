@@ -337,8 +337,14 @@ export default defineConfig(({ mode }) => {
             {
               // نستثني /functions/ (دوال Edge مثل verify-moyasar-payment) كي لا يعترضها
               // الـ SW ويحوّل فشل الشبكة/الأصول إلى «no-response». تمرّ عبر الشبكة الأصلية.
+              //
+              // نستثني أيضاً قراءات الحالة الحسّاسة زمنياً (الدليل العام والبحث القريب):
+              // حالة «مفتوح/مغلق» يجب أن تُقرأ حيّة دائماً، فلا نسمح للـ SW بإرجاع
+              // لقطة مخزّنة قد تُظهر محلاً مغلقاً كأنه مفتوح. هذه تمرّ عبر الشبكة الأصلية.
               urlPattern: ({ url }) =>
-                /\.supabase\.co$/i.test(url.hostname) && !url.pathname.startsWith('/functions/'),
+                /\.supabase\.co$/i.test(url.hostname) &&
+                !url.pathname.startsWith('/functions/') &&
+                !/(barbers_public_directory|search_barbers_nearby)/i.test(url.pathname),
               handler: 'NetworkFirst',
               options: {
                 cacheName: 'supabase-api',
