@@ -578,11 +578,19 @@ export default function Payment() {
 
     return () => {
       cancelled = true;
+      // اسمح بإعادة التشغيل عند تغيّر اعتماديّة فعلية (كاستقرار إعدادات الضريبة)
+      // بدل البقاء عالقاً على تشغيل أُلغي.
+      if (moyasarVerifyRunKeyRef.current === verifyRunKey) {
+        moyasarVerifyRunKeyRef.current = '';
+      }
     };
+    // ملاحظة: moyasarReturnVerify مقصود استبعاده من الاعتماديّات — ضبطه على
+    // 'loading' في بداية التأثير كان يُلغي التشغيل الجاري ثم يمنع إعادته (حارس
+    // الـ ref) فيبقى معلّقاً. حارس الـ ref + الـ nonce يضمنان تشغيلاً واحداً/إعادة.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     moyasarPaymentIdFromUrl,
     moyasarReturnHydrated,
-    moyasarReturnVerify,
     searchParams,
     vatSettings,
     setSearchParams,
