@@ -14,7 +14,21 @@ function supabaseVerifyEndpoint(): string | null {
   return `${supabaseUrl}/functions/v1/verify-moyasar-payment`;
 }
 
+/**
+ * على نشر Preview (نطاق `*.vercel.app`) نبقى على نفس الأصل الحالي، ونتجاهل
+ * أصل الإنتاج المُهيّأ (VITE_REGISTRATION_API_ORIGIN / VITE_VERIFY_MOYSAR_PAYMENT_URL)
+ * لأن الطلب عبر الأصول (cross-origin) نحو الإنتاج يُرفض بـ CORS («Failed to fetch»).
+ */
+function isVercelPreviewHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.location.hostname.toLowerCase().endsWith('.vercel.app');
+}
+
 function vercelVerifyEndpoint(): string {
+  if (typeof window !== 'undefined' && isVercelPreviewHost()) {
+    return `${window.location.origin.replace(/\/$/, '')}/api/verify-moyasar-payment`;
+  }
+
   const explicit = String(import.meta.env.VITE_VERIFY_MOYSAR_PAYMENT_URL || '').trim();
   if (explicit) return explicit;
 
