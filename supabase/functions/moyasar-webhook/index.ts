@@ -965,6 +965,30 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── دفاع في العمق: دفعة مدفوعة بلا أي إشارة رخصة (لا tier ولا license_sku
+    //    ولا طلب تسجيل) يجب ألّا تتحوّل تلقائياً إلى رخصة برونزية افتراضية.
+    //    يحمي من أي منتج غير-رخصة (كشحن المحفظة) إن غاب product_type أو لم يكفِ
+    //    الحارس الأعلى. مسارات الرخصة الشرعية تُمرّر tier أو requestId دائماً. ──
+    const hasExplicitLicenseSku =
+      String(meta.license_sku ?? meta.licenseSku ?? "").trim().length > 0;
+    if (!tier && !hasExplicitLicenseSku && !requestId) {
+      await logPaymentSecurityEvent(supabase, {
+        severity: "warning",
+        eventType: "paid_without_license_signal",
+        paymentId,
+        reason:
+          "Paid payment lacks tier/license_sku/request_id — refusing to fulfill a default bronze license.",
+        detail: {
+          product_type: String(meta.product_type ?? meta.product ?? ""),
+          metadata: metaPayload,
+        },
+      });
+      return jsonResponse(
+        { ok: true, paymentId, eventId: eventId || null, status: rowStatus, skipped: "no_license_signal" },
+        200,
+      );
+    }
+
     const skuCode = licenseSkuFromMeta(meta, tier);
 
     let effectiveBarberId = barberId;
