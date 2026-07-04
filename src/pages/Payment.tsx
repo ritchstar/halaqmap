@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { IMAGES } from '@/assets/images';
 import { resolvePaymentGateway } from '@/config/paymentGateway';
+import { LEGAL_TRADE_NAME_AR } from '@/config/partnerLegal';
 import {
   clampListingLicenseQuantity,
   computeListingLicenseTotalSar,
@@ -57,7 +58,7 @@ import {
   SOFTWARE_PRODUCT_PURCHASE_ACK_SHORT_AR,
 } from '@/config/legalActivityScope';
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
-import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
+import { getMoyasarGlobal, loadMoyasarFormScript, MOYASAR_APPLE_PAY_VALIDATE_URL } from '@/lib/moyasarFormLoader';
 import {
   WALLET_TOPUP_VAT_PERCENT,
   chargedHalalasForVat,
@@ -780,6 +781,20 @@ export default function Payment() {
           return;
         }
         try {
+          // نُدرِج Apple Pay فقط على الأجهزة الداعمة له (Safari على iOS/macOS).
+          // على المتصفحات غير الداعمة (Chrome/Android) قد تفشل مكتبة mpf في تهيئة
+          // النموذج بالكامل عند وجود applepay في القائمة فلا تظهر أي وسيلة دفع؛
+          // لذا نكتشف الدعم لحظياً ونُبقي البطاقة متاحة دائماً.
+          const applePaySupported = (() => {
+            try {
+              const AP = (
+                window as unknown as { ApplePaySession?: { canMakePayments?: () => boolean } }
+              ).ApplePaySession;
+              return !!AP && typeof AP.canMakePayments === 'function' && AP.canMakePayments();
+            } catch {
+              return false;
+            }
+          })();
           Moyasar.init({
             element: host,
             amount: effectiveAmountHalalas,
@@ -788,7 +803,16 @@ export default function Payment() {
             publishable_api_key: moyasarPublishableKey,
             callback_url: callbackUrl,
             supported_networks: ['visa', 'mastercard'],
-            methods: ['creditcard', 'applepay'],
+            methods: applePaySupported ? ['creditcard', 'applepay'] : ['creditcard'],
+            ...(applePaySupported
+              ? {
+                  apple_pay: {
+                    country: 'SA',
+                    label: LEGAL_TRADE_NAME_AR,
+                    validate_merchant_url: MOYASAR_APPLE_PAY_VALIDATE_URL,
+                  },
+                }
+              : {}),
             language: 'ar',
             fixed_width: false,
             metadata: effectiveMetadata,
