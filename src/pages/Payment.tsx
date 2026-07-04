@@ -83,7 +83,7 @@ import {
   readMoyasarLastPaymentId,
   readMoyasarPaidReceipt,
 } from '@/lib/moyasarPaymentReturn';
-import { healIfStaleBuild } from '@/lib/platformBuildSync';
+import { healIfStaleBuild, healIfStaleBuildFromServer } from '@/lib/platformBuildSync';
 import { toast } from 'sonner';
 
 export default function Payment() {
@@ -166,7 +166,11 @@ export default function Payment() {
   const [pubPayConfig, setPubPayConfig] = useState<PublicPaymentPageConfig | null>(null);
 
   useEffect(() => {
-    void fetchPublicPaymentPageConfig().then(setPubPayConfig);
+    void fetchPublicPaymentPageConfig().then(async (cfg) => {
+      setPubPayConfig(cfg);
+      // مقارنة commit الخادم (لا يُخزَّن في SW) مع الحزمة الجارية — يشفى كاش صفحة دفع قديمة.
+      await healIfStaleBuildFromServer(cfg.buildCommit);
+    });
   }, []);
 
   /**

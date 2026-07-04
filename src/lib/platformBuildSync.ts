@@ -138,6 +138,21 @@ async function checkOnce(): Promise<void> {
  * اكتُشف تعارض إصدار وبُدئت إعادة التحميل (فالصفحة على وشك التحديث). محميّ بحارس
  * الـ sessionStorage لكل `live-commit` كي لا يقع في حلقة إعادة تحميل.
  */
+export async function healIfStaleBuildFromServer(liveCommit: string | null | undefined): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  const live = String(liveCommit || '').trim();
+  const running = APP_BUILD.commit?.trim() || '';
+  if (!live || !running || live === 'dev' || running === 'dev') return false;
+  if (live === running) return false;
+  const guardKey = reloadGuardKey(live);
+  if (sessionStorage.getItem(guardKey)) return false;
+  console.info('[halaqmap] Server build mismatch on payment page — reloading', { running, live });
+  sessionStorage.setItem(guardKey, '1');
+  sessionStorage.removeItem(AUTO_RELOAD_GUARD);
+  await performHardReload();
+  return true;
+}
+
 export async function healIfStaleBuild(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   try {

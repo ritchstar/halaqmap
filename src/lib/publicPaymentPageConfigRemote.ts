@@ -10,6 +10,8 @@ export type PublicPaymentPageConfig = {
   vatEnabled: boolean;
   /** النسبة المئوية المعتمدة للضريبة (مثال 15). */
   vatPercent: number;
+  /** commit النشر الحيّ على الخادم — لمقارنة كاش PWA على صفحة الدفع. */
+  buildCommit?: string | null;
   error?: string;
 };
 
@@ -26,7 +28,7 @@ function parseVatPercent(raw: unknown): number {
 /** إعدادات الدفع الظاهرة للعامة — بدون مصادقة؛ تعود للقيم الافتراضية عند فشل الشبكة. */
 export async function fetchPublicPaymentPageConfig(): Promise<PublicPaymentPageConfig> {
   try {
-    const res = await fetch(API, { method: 'GET' });
+    const res = await fetch(API, { method: 'GET', cache: 'no-store' });
     const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (!res.ok || json.ok !== true) {
       return fallbackConfig(typeof json.error === 'string' ? json.error : `HTTP ${res.status}`);
@@ -41,6 +43,7 @@ export async function fetchPublicPaymentPageConfig(): Promise<PublicPaymentPageC
       enableSabGateway: json.enableSabGateway === true,
       vatEnabled: json.vatEnabled === true,
       vatPercent: parseVatPercent(json.vatPercent),
+      buildCommit: typeof json.buildCommit === 'string' ? json.buildCommit.trim() || null : null,
     };
   } catch (e) {
     return fallbackConfig(e instanceof Error ? e.message : 'network_error');
