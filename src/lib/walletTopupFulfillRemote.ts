@@ -8,18 +8,11 @@ function registrationApiOrigin(): string {
     .replace(/\/$/, '');
 }
 
-/**
- * على نشر Preview (نطاق `*.vercel.app`) نبقى على نفس الأصل الحالي بدل أصل الإنتاج
- * المُهيّأ، وإلا يُرفض طلب الشحن بـ CORS («Failed to fetch»).
- */
-function isVercelPreviewHost(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.location.hostname.toLowerCase().endsWith('.vercel.app');
-}
-
 function walletTopupEndpoint(): string {
-  if (typeof window !== 'undefined' && isVercelPreviewHost()) {
-    return `${window.location.origin.replace(/\/$/, '')}/api/wallet-topup-fulfill`;
+  // في المتصفح نستخدم مساراً نسبياً نفس-الأصل دائماً — مناعة تامة ضد CORS
+  // واختلاف النطاق (معاينة/إنتاج)، وبلا اعتماد على أصل مُهيّأ قد يشير للإنتاج.
+  if (typeof window !== 'undefined') {
+    return '/api/wallet-topup-fulfill';
   }
   const explicit = String(import.meta.env.VITE_WALLET_TOPUP_FULFILL_URL || '').trim();
   if (explicit) return explicit;

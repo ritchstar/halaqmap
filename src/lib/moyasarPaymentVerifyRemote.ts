@@ -55,9 +55,16 @@ function vercelVerifyEndpoint(): string {
 
 function verifyEndpoints(): string[] {
   const endpoints: string[] = [];
+  // (1) مسار نسبي نفس-الأصل أولاً — مناعة تامة ضد CORS واختلاف النطاق مهما كان
+  //     أصل الصفحة (معاينة/إنتاج). fetch يحلّه على أصل الصفحة الحالي دائماً.
+  if (typeof window !== 'undefined') {
+    endpoints.push('/api/verify-moyasar-payment');
+  }
+  // (2) عنوان Vercel المطلق (للـ SSR أو الأصل المُهيّأ صراحةً).
+  endpoints.push(vercelVerifyEndpoint());
+  // (3) دالة Supabase Edge كملاذ أخير (عبر الأصول — قد تتطلب CORS).
   const supabase = supabaseVerifyEndpoint();
   if (supabase) endpoints.push(supabase);
-  endpoints.push(vercelVerifyEndpoint());
   return [...new Set(endpoints)];
 }
 
