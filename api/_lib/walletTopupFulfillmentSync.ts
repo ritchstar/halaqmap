@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { creditWalletFromTopup } from './digitalShiftAssistant.js';
+import { dispatchWalletTopupReceiptEmail } from './walletTopupReceiptMail.js';
 import {
   netCreditHalalasFromCharged,
   repliesFromHalalas,
@@ -193,6 +194,21 @@ export async function syncWalletTopupFulfillment(
 
   if (!credit.ok) {
     return { ok: false, error: credit.error, status: 500 };
+  }
+
+  // إيصال شحن للمشتري — فقط عند شحن جديد (ليس idempotent-hit) وبشكل غير معطِّل:
+  // أي فشل في البريد لا يؤثر على نتيجة الشحن.
+  if (!credit.alreadyCredited) {
+    await dispatchWalletTopupReceiptEmail(supabase, {
+      barberId,
+      buyerEmail: buyerEmail || null,
+      walletSku: resolvedSku,
+      chargedHalalas,
+      creditedHalalas,
+      balanceHalalas: credit.balanceHalalas,
+      paymentId: normalizedPaymentId,
+      source: fromInvoice ? 'moyasar_invoice' : 'moyasar',
+    }).catch(() => undefined);
   }
 
   return {
