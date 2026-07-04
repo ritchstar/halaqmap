@@ -72,7 +72,17 @@ export function DigitalShiftAssistantHub({
       if (barberEmail) q.set('buyerEmail', barberEmail);
       const name = summary?.context.barberName?.trim();
       if (name) q.set('barberName', name);
-      navigate(`${ROUTE_PATHS.PAYMENT}?${q.toString()}`);
+      const relative = `${ROUTE_PATHS.PAYMENT}?${q.toString()}`;
+      // نفتح صفحة الدفع في تبويب جديد على نفس الأصل الحالي (نفس نطاق المعاينة/الإنتاج)
+      // حتى تبقى لوحة التحكم مفتوحة ولا تتأثر بإعادة تحميل النشر. لا نستخدم أصلاً
+      // مُهيّأً قد يشير للإنتاج أثناء المعاينة.
+      if (typeof window !== 'undefined') {
+        const absolute = `${window.location.origin}/#${relative}`;
+        const opened = window.open(absolute, '_blank', 'noopener,noreferrer');
+        if (opened) return;
+      }
+      // احتياط: إن مُنع فتح التبويب (Popup blocker) ننتقل داخل نفس الصفحة.
+      navigate(relative);
     },
     [barberId, barberEmail, summary, navigate],
   );
