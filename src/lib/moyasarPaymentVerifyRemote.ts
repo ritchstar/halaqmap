@@ -14,6 +14,17 @@ function supabaseVerifyEndpoint(): string | null {
   return `${supabaseUrl}/functions/v1/verify-moyasar-payment`;
 }
 
+/** بصمة تشخيصية تُدرَج في رسالة الفشل: تكشف النسخة المُشغَّلة فعلاً (لا المنشورة). */
+function buildDiagnosticTag(): string {
+  if (typeof document === 'undefined') return 'ssr';
+  const commit =
+    document.querySelector('meta[name="halaqmap-build-commit"]')?.getAttribute('content')?.trim() ||
+    'غير معروف';
+  const controlled =
+    typeof navigator !== 'undefined' && navigator.serviceWorker?.controller ? 'SW' : 'no-SW';
+  return `${commit}/${controlled}`;
+}
+
 /**
  * على نشر Preview (نطاق `*.vercel.app`) نبقى على نفس الأصل الحالي، ونتجاهل
  * أصل الإنتاج المُهيّأ (VITE_REGISTRATION_API_ORIGIN / VITE_VERIFY_MOYSAR_PAYMENT_URL)
@@ -142,8 +153,10 @@ async function verifyMoyasarPaymentRemoteOnce(
     error: 'network',
     hint: 'تعذر الاتصال بخادم التحقق من الدفع.',
   };
+  const tried: string[] = [];
 
   for (const base of verifyEndpoints()) {
+    tried.push(base);
     const url = `${base}?${query}`;
     const headers: Record<string, string> = {};
     if (base.includes('/functions/v1/verify-moyasar-payment') && anonKey) {
@@ -193,13 +206,11 @@ async function verifyMoyasarPaymentRemoteOnce(
         amount_format: data.amount_format != null ? String(data.amount_format) : null,
       };
     } catch (error) {
+      const reason = error instanceof Error ? error.message : 'خطأ غير معروف';
       lastFailure = {
         ok: false,
         error: 'network',
-        hint:
-          error instanceof Error
-            ? `تعذر الاتصال بخادم التحقق (${error.message}).`
-            : 'تعذر الاتصال بخادم التحقق من الدفع.',
+        hint: `تعذر الاتصال بخادم التحقق (${reason}). الوجهات: ${tried.join(' | ')}. نسخة: ${buildDiagnosticTag()}.`,
       };
     }
   }
