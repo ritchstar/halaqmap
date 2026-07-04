@@ -10,6 +10,7 @@ import {
   tierLabelAr,
 } from './_lib/listingLicenseService.js';
 import { dispatchPartnerActivationMails } from './_lib/partnerActivationMailDispatch.js';
+import { resolveResendFromAddress } from './_lib/resendFrom.js';
 
 export const config = { maxDuration: 60 };
 
@@ -45,7 +46,7 @@ async function sendResend(input: {
       Authorization: `Bearer ${input.apiKey}`,
     },
     body: JSON.stringify({
-      from: input.from,
+      from: resolveResendFromAddress(input.from),
       to: [input.to],
       subject: input.subject,
       html: input.html,

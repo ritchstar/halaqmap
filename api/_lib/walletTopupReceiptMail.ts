@@ -7,6 +7,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { repliesFromHalalas, walletTopupPackageBySku } from './digitalShiftWalletTopup.js';
+import { resolveResendFromAddress, readResendFromEmailEnv } from './resendFrom.js';
 
 /** تنسيق مبلغ بالهللات إلى ريال سعودي بخانتين عشريتين. */
 function formatSar(halalas: number): string {
@@ -173,8 +174,8 @@ async function sendResendEmail(input: {
   html: string;
 }): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
-  const from = (process.env.RESEND_FROM_EMAIL || '').trim();
-  if (!apiKey || !from) return { ok: false, error: 'resend_not_configured' };
+  if (!apiKey || !readResendFromEmailEnv()) return { ok: false, error: 'resend_not_configured' };
+  const from = resolveResendFromAddress();
 
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -199,8 +200,6 @@ async function sendResendEmail(input: {
     return { ok: true, id: '' };
   }
 }
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
 
 /**
  * يُرسل إيصال الشحن للمشتري — غير معطِّل: أي فشل يُرجَع كـ { ok:false } دون رمي استثناء،

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getOpsBillingTemporalAnchor } from './opsBillingAi.js';
+import { readResendFromEmailEnv, resolveResendFromAddress } from './resendFrom.js';
 
 export const OPS_INTELLIGENCE_DIGEST_SOURCE = 'ops_intelligence_digest' as const;
 export const OPS_INTELLIGENCE_SYSTEM_ROLE = 'SYSTEM' as const;
@@ -285,10 +286,11 @@ export async function sendOpsIntelligenceDigestEmail(
   }
 
   const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
-  const fromEmail = (process.env.RESEND_FROM_EMAIL || '').trim();
-  if (!resendApiKey || !fromEmail) {
+  const fromEmailRaw = readResendFromEmailEnv();
+  if (!resendApiKey || !fromEmailRaw) {
     return { ok: false, error: 'email_service_unavailable', skipped: true };
   }
+  const fromEmail = resolveResendFromAddress(fromEmailRaw);
 
   const subject = `حلاق ماب · ملخص تشغيلي داخلي — ${briefing.digestYmd}`;
   const text = briefing.briefingText;

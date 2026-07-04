@@ -5,6 +5,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { readResendFromEmailEnv, resolveResendFromAddress } from './_lib/resendFrom.js';
 
 export const config = { maxDuration: 30 };
 
@@ -116,8 +117,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
-  const fromEmail = (process.env.RESEND_FROM_EMAIL || '').trim();
-  if (!resendApiKey || !fromEmail) {
+  const fromEmailRaw = readResendFromEmailEnv();
+  const fromEmail = resolveResendFromAddress(fromEmailRaw);
+  if (!resendApiKey || !fromEmailRaw) {
     return Response.json(
       { error: 'email_service_unavailable', hint: 'Configure RESEND_API_KEY and RESEND_FROM_EMAIL on the server.' },
       { status: 503, headers },

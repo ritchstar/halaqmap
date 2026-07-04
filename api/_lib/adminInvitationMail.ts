@@ -7,6 +7,8 @@
  * and exposes the generated temporary password in a copy-friendly block.
  */
 
+import { resolveResendFromAddress } from './resendFrom.js';
+
 type ResendOk = { ok: true; id: string };
 type ResendErr = { ok: false; error: string };
 type ResendResult = ResendOk | ResendErr;
@@ -385,7 +387,7 @@ export async function sendAdminTransactionalEmail(input: {
   replyTo?: string;
 }): Promise<ResendResult> {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
-  const from = (process.env.RESEND_FROM_EMAIL || '').trim();
+  const from = resolveResendFromAddress();
   if (!apiKey || !from) return { ok: false, error: 'resend_not_configured' };
 
   const resp = await fetch('https://api.resend.com/emails', {

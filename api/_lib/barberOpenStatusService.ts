@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { resolveResendFromAddress } from './resendFrom.js';
 import {
   fingerprintListingLicenseCode,
   getListingLicenseVoucherPepper,
@@ -169,7 +170,7 @@ export async function sendOpenStatusRotateEmail(input: {
       Authorization: `Bearer ${input.resendApiKey}`,
     },
     body: JSON.stringify({
-      from: input.fromEmail,
+      from: resolveResendFromAddress(input.fromEmail),
       to: [input.to.trim()],
       subject: input.subject,
       text,

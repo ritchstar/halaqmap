@@ -14,6 +14,7 @@ import {
   buildDigitalShiftUsageGuidePlain,
   DIGITAL_SHIFT_USAGE_GUIDE_INTRO_AR,
 } from './digitalShiftUsageGuideAr.js';
+import { resolveResendFromAddress, readResendFromEmailEnv } from './resendFrom.js';
 
 export function isDigitalShiftAddonInMetadata(metadata?: Record<string, unknown>): boolean {
   if (!metadata) return false;
@@ -142,8 +143,9 @@ async function sendResendEmail(input: {
   html: string;
 }): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
-  const from = (process.env.RESEND_FROM_EMAIL || '').trim();
-  if (!apiKey || !from) return { ok: false, error: 'resend_not_configured' };
+  const fromRaw = readResendFromEmailEnv();
+  const from = resolveResendFromAddress(fromRaw);
+  if (!apiKey || !fromRaw) return { ok: false, error: 'resend_not_configured' };
 
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',

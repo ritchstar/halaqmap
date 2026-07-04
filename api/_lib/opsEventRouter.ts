@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { getFounderDigestRecipients } from './opsIntelligenceReport.js';
 import { isCronAuthorized } from './cronAuth.js';
 import { isLikelyHttpUrl, normalizeSupabaseUrl } from './supabaseUrl.js';
+import { resolveResendFromAddress } from './resendFrom.js';
 
 export const OPS_EVENT_ROUTER_SOURCE = 'ops_event_router' as const;
 export const OPS_EVENT_SYSTEM_ROLE = 'SYSTEM' as const;
@@ -198,7 +199,7 @@ async function sendOpsAlertEmail(input: {
   severity: OpsEventSeverity;
 }): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
-  const fromEmail = (process.env.RESEND_FROM_EMAIL || 'noreply@halaqmap.com').trim();
+  const fromEmail = resolveResendFromAddress(process.env.RESEND_FROM_EMAIL || 'noreply@halaqmap.com');
   if (!apiKey) return { ok: false, skipped: true };
 
   const recipients = getFounderDigestRecipients();

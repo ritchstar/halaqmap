@@ -9,6 +9,7 @@ import { tryEmailPartnerUnifiedContractAfterApprove } from './_lib/partnerContra
 import { defaultMoyasarSkuForTier } from './_lib/listingLicenseCatalog.js';
 import { creditBarberListingEntitlement, loadProductBySku } from './_lib/listingLicenseService.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { resolveResendFromAddress } from './_lib/resendFrom.js';
 
 export const config = { maxDuration: 60 };
 
@@ -49,7 +50,7 @@ async function sendResendEmail(input: {
       Authorization: `Bearer ${input.apiKey}`,
     },
     body: JSON.stringify({
-      from: input.from,
+      from: resolveResendFromAddress(input.from),
       to: [input.to],
       subject: input.subject,
       html: input.html,

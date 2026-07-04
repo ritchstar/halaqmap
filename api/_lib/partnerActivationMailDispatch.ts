@@ -9,7 +9,7 @@ import {
 } from './partnerOnboardingMailBuild.js';
 import { buildUnifiedPartnerActivationEmailBodies } from './partnerUnifiedActivationMail.js';
 import { isBronzeTier, tierLabelAr } from './partnerTierMail.js';
-import { rotateBarberPortalLoginPassword } from './barberProvisionService.js';
+import { resolveResendFromAddress } from './resendFrom.js';
 
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,7 +31,7 @@ async function sendResendEmail(input: {
       Authorization: `Bearer ${input.apiKey}`,
     },
     body: JSON.stringify({
-      from: input.from,
+      from: resolveResendFromAddress(input.from),
       to: [input.to],
       subject: input.subject,
       html: input.html,

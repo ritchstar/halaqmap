@@ -3,6 +3,7 @@ import { siteBaseUrlFromEnv } from './barberProvisionService.js';
 import type { PartnerUnifiedContractFields } from './partnerUnifiedContractAr.js';
 import { loadStaticUnifiedContractPdf } from './partnerUnifiedContractStatic.js';
 import { isBronzeTier, tierLabelAr } from './partnerTierMail.js';
+import { resolveResendFromAddress } from './resendFrom.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -203,7 +204,7 @@ export async function emailPartnerUnifiedContractPdf(input: {
       Authorization: `Bearer ${input.apiKey}`,
     },
     body: JSON.stringify({
-      from: input.from,
+      from: resolveResendFromAddress(input.from),
       to: [input.to],
       subject: mail.subject,
       html: mail.html,

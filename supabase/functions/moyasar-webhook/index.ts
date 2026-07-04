@@ -50,6 +50,26 @@ function timingSafeEq(a: string, b: string): boolean {
   return diff === 0;
 }
 
+const RESEND_SENDER_DISPLAY_NAME_AR = "حلاق ماب";
+
+function extractResendEmailAddress(raw: string): string {
+  const trimmed = raw.trim();
+  const m = trimmed.match(/^[^<]*<([^>]+)>$/);
+  return (m?.[1] ?? trimmed).trim();
+}
+
+/** حقل `from` بصيغة Resend — يمنع ظهور ADMIN من local-part مثل admin@… */
+function resolveResendFromAddress(rawFrom?: string): string {
+  const raw = (rawFrom ?? Deno.env.get("RESEND_FROM_EMAIL") ?? "").trim();
+  if (!raw) return "";
+  const email = extractResendEmailAddress(raw);
+  if (!email.includes("@")) return raw;
+  const name =
+    (Deno.env.get("RESEND_FROM_NAME") ?? Deno.env.get("RESEND_SENDER_NAME") ?? RESEND_SENDER_DISPLAY_NAME_AR).trim() ||
+    RESEND_SENDER_DISPLAY_NAME_AR;
+  return `${name} <${email}>`;
+}
+
 function resolveWebhookSecret(): string {
   const mode = (Deno.env.get("PAYMENT_ENV") ?? "test").trim().toLowerCase();
   const testSecret = (Deno.env.get("MOYASAR_WEBHOOK_TEST_SECRET") ?? "").trim();
@@ -424,7 +444,7 @@ ${activationBlock}
       Authorization: `Bearer ${input.apiKey}`,
     },
     body: JSON.stringify({
-      from: input.from,
+      from: resolveResendFromAddress(input.from),
       to: [input.to],
       subject,
       html,
@@ -469,7 +489,7 @@ async function sendResendPaymentFailure(input: {
       Authorization: `Bearer ${input.apiKey}`,
     },
     body: JSON.stringify({
-      from: input.from,
+      from: resolveResendFromAddress(input.from),
       to: [input.to],
       subject,
       html,

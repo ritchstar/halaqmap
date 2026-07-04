@@ -9,6 +9,7 @@ import {
 import { fetchCertificateByOrderId } from './_lib/geospatialLicenseAssetService.js';
 import type { DigitalActivationCertificatePayload } from './_lib/geospatialLicenseDoctrine.js';
 import { dispatchPartnerActivationMails } from './_lib/partnerActivationMailDispatch.js';
+import { readResendFromEmailEnv, resolveResendFromAddress } from './_lib/resendFrom.js';
 
 export const config = {
   maxDuration: 60,
@@ -774,7 +775,7 @@ async function sendViaResend(input: {
   attachments?: Array<{ filename: string; content: string; content_type?: string; content_id?: string }>;
 }): Promise<ResendSendOutcome> {
   const body: Record<string, unknown> = {
-    from: input.fromEmail,
+    from: resolveResendFromAddress(input.fromEmail),
     to: [input.to],
     subject: input.subject,
     text: input.text,
@@ -894,9 +895,9 @@ export async function POST(request: Request): Promise<Response> {
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
-  const fromEmail = (process.env.RESEND_FROM_EMAIL || '').trim();
+  const fromEmailRaw = readResendFromEmailEnv();
 
-  if (!resendApiKey || !fromEmail) {
+  if (!resendApiKey || !fromEmailRaw) {
     return Response.json(
       { error: 'Server not configured (RESEND_API_KEY / RESEND_FROM_EMAIL)' },
       { status: 503, headers }
@@ -1126,7 +1127,7 @@ export async function POST(request: Request): Promise<Response> {
         text,
         html,
         resendApiKey,
-        fromEmail,
+        fromEmail: fromEmailRaw,
         attachments,
       });
       if (isResendFailure(sent)) {

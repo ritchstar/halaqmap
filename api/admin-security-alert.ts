@@ -5,6 +5,8 @@
  * يُرسَل بريد للمؤسس عبر Resend.
  */
 
+import { resolveResendFromAddress, readResendFromEmailEnv } from './_lib/resendFrom.js';
+
 export const config = { maxDuration: 20 };
 
 function siteUrl(): string {
@@ -20,7 +22,8 @@ function json(data: unknown, status = 200): Response {
 
 export async function POST(request: Request): Promise<Response> {
   const resendKey = (process.env.RESEND_API_KEY || '').trim();
-  const fromEmail = (process.env.RESEND_FROM_EMAIL || 'noreply@halaqmap.com').trim();
+  const fromEmailRaw = readResendFromEmailEnv() || 'noreply@halaqmap.com';
+  const fromEmail = resolveResendFromAddress(fromEmailRaw);
   const adminEmail = (process.env.FOUNDER_ALERT_EMAIL || process.env.ADMIN_EMAIL || 'admin@halaqmap.com').trim();
 
   if (!resendKey) return json({ ok: false, reason: 'RESEND_API_KEY not configured' });

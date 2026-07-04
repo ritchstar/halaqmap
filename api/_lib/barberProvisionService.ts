@@ -14,6 +14,7 @@ import {
   resolveBarberPublicCoverAndFeatured,
 } from './barberPublicBannerImages.js';
 import { buildBarberMagicEnterUrl } from './barberPortalMagicUrl.js';
+import { resolveResendFromAddress, readResendFromEmailEnv } from './resendFrom.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -107,7 +108,7 @@ async function sendBarberCredentialsViaResend(input: {
       Authorization: `Bearer ${input.apiKey}`,
     },
     body: JSON.stringify({
-      from: input.fromEmail,
+      from: resolveResendFromAddress(input.fromEmail),
       to: [input.to],
       subject,
       text,
@@ -513,8 +514,8 @@ export async function provisionBarberAccount(
     const sendMail = input.sendCredentialsEmail === true;
     if (sendMail) {
       const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
-      const resendFromEmail = (process.env.RESEND_FROM_EMAIL || '').trim();
-      if (resendApiKey && resendFromEmail) {
+      const resendFromRaw = readResendFromEmailEnv();
+      if (resendApiKey && resendFromRaw) {
         const siteBase = siteBaseUrlFromEnv();
         const tier = String((wl.row as { tier?: unknown }).tier ?? 'bronze').trim().toLowerCase();
         const magicDashboardUrl = buildBarberMagicEnterUrl(siteBase, barberId, email, tier);
@@ -526,7 +527,7 @@ export async function provisionBarberAccount(
           password: tempPassword,
           barberName: barberDisplayName,
           apiKey: resendApiKey,
-          fromEmail: resendFromEmail,
+          fromEmail: resendFromRaw,
         });
         if (mail.ok) credentialEmailSent = true;
         else credentialEmailError = mail.error;
