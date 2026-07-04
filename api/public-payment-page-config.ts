@@ -1,5 +1,6 @@
 import { normalizeSupabaseUrl, isLikelyHttpUrl } from './_lib/supabaseUrl.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { getPlatformVatConfig } from './_lib/platformVatConfig.js';
 
 export const config = {
   maxDuration: 15,
@@ -61,6 +62,9 @@ export async function GET(request: Request): Promise<Response> {
   const row = (data || {}) as Row;
   const preferredGateway = String(row.preferred_gateway || 'MOYASAR').toUpperCase() === 'SAB' ? 'SAB' : 'MOYASAR';
 
+  // علم ض.ق.م الحيّ (مصدر الحقيقة: حالة ZATCA) — للعرض/حساب المبلغ على الواجهة.
+  const vat = await getPlatformVatConfig(supabase);
+
   return Response.json(
     {
       ok: true,
@@ -68,6 +72,8 @@ export async function GET(request: Request): Promise<Response> {
       displayPaymentMode: String(row.display_payment_mode || 'test').toLowerCase() === 'live' ? 'live' : 'test',
       enableMoyasarCard: row.enable_moyasar_card !== false,
       enableSabGateway: row.enable_sab_gateway === true,
+      vatEnabled: vat.enabled,
+      vatPercent: vat.percent,
     },
     { headers },
   );

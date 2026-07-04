@@ -29,7 +29,8 @@ import {
 } from "@/config/platformIdentity";
 import { LicensedActivityScopeCard } from '@/components/legal/LicensedActivityScopeCard';
 import { formatLicensedActivityScopeLegalSection } from '@/config/legalActivityScope';
-import { getPlatformVatSettings, getSubscriptionPricingVatClauseAr } from '@/lib/platformVatSettings';
+import { getSubscriptionPricingVatClauseAr } from '@/lib/platformVatSettings';
+import { usePlatformVatConfigRemote } from '@/hooks/usePlatformVatConfigRemote';
 import {
   PRICING_POLICY_SECTION_ID,
   REFUND_POLICY_SECTION_ID,
@@ -39,7 +40,8 @@ import {
 export default function SubscriptionPolicy() {
   const [searchParams] = useSearchParams();
   const subscriptionTiers = SUBSCRIPTION_POLICY_TIERS;
-  const vatClause = getSubscriptionPricingVatClauseAr(getPlatformVatSettings());
+  const vatSettings = usePlatformVatConfigRemote();
+  const vatClause = getSubscriptionPricingVatClauseAr(vatSettings);
 
   useEffect(() => {
     const section = searchParams.get('section')?.trim();

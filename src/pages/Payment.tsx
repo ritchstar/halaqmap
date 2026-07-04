@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { usePlatformVatSettings } from '@/hooks/usePlatformVatSettings';
-import { calcVatBreakdown } from '@/lib/platformVatSettings';
+import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSettings';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -61,7 +60,7 @@ import type { DigitalActivationCertificateView } from '@/config/geospatialLicens
 import { getMoyasarGlobal, loadMoyasarFormScript } from '@/lib/moyasarFormLoader';
 import {
   WALLET_TOPUP_VAT_PERCENT,
-  netCreditHalalasFromCharged,
+  chargedHalalasForVat,
   repliesFromHalalas,
   walletTopupPackageBySku,
 } from '@/config/digitalShiftWalletTopup';
@@ -88,7 +87,6 @@ import { toast } from 'sonner';
 
 export default function Payment() {
   const navigate = useNavigate();
-  const vatSettings = usePlatformVatSettings();
   const [searchParams, setSearchParams] = useSearchParams();
   const tierRaw = (searchParams.get('tier') ?? '').trim().toLowerCase();
   const tier: SubscriptionTier =
@@ -169,6 +167,18 @@ export default function Payment() {
   useEffect(() => {
     void fetchPublicPaymentPageConfig().then(setPubPayConfig);
   }, []);
+
+  /**
+   * مصدر الحقيقة لضريبة القيمة المضافة على الواجهة = علم ZATCA من الخادم عبر
+   * `/api/public-payment-page-config` (بدل localStorage). مطفأ افتراضياً حتى تُقرأ القيمة.
+   */
+  const vatSettings = useMemo<PlatformVatSettings>(
+    () => ({
+      enabled: Boolean(pubPayConfig?.ok && pubPayConfig.vatEnabled),
+      ratePercent: pubPayConfig?.ok ? pubPayConfig.vatPercent : WALLET_TOPUP_VAT_PERCENT,
+    }),
+    [pubPayConfig],
+  );
 
   const enableMoyasarCard = pubPayConfig === null || !pubPayConfig.ok || pubPayConfig.enableMoyasarCard !== false;
   const enableSabGateway = Boolean(pubPayConfig?.ok && pubPayConfig.enableSabGateway);
@@ -311,11 +321,14 @@ export default function Payment() {
     ],
   );
 
-  /** مبلغ شحن المحفظة (هللات) — المدفوع فعلياً = الأساسي + ضريبة 15% فوقه. */
-  const walletChargedHalalas = walletPkg?.chargedHalalas ?? 0;
-  const walletCreditedHalalas = useMemo(
-    () => (walletPkg ? netCreditHalalasFromCharged(walletPkg.chargedHalalas) : 0),
-    [walletPkg],
+  /**
+   * مبلغ شحن المحفظة (هللات) وفق علم ض.ق.م من القاعدة:
+   * الرصيد المُضاف = الأساسي دائماً؛ المدفوع = الأساسي (مطفأ) أو الأساسي + النسبة (مفعّل).
+   */
+  const walletCreditedHalalas = walletPkg?.baseHalalas ?? 0;
+  const walletChargedHalalas = useMemo(
+    () => chargedHalalasForVat(walletPkg?.baseHalalas ?? 0, { enabled: vatSettings.enabled, percent: vatSettings.ratePercent }),
+    [walletPkg, vatSettings],
   );
   const walletVatHalalas = walletChargedHalalas - walletCreditedHalalas;
 
@@ -1049,7 +1062,7 @@ export default function Payment() {
                             <strong className="text-foreground">
                               {(walletTopupResult.creditedHalalas / 100).toFixed(2)} ر.س
                             </strong>{' '}
-                            (صافي بعد ضريبة {WALLET_TOPUP_VAT_PERCENT}%)
+                            {vatSettings.enabled ? `(صافي بعد ضريبة ${vatSettings.ratePercent}%)` : '(يُضاف كاملاً للرصيد)'}
                           </p>
                         ) : null}
                         <p>
@@ -1195,17 +1208,23 @@ export default function Payment() {
                             شحن رصيد ردود المناوب الآلي (كل رد ≈ 1.50 ر.س)
                           </p>
                           <p className="mt-1 text-xs font-medium text-primary">
-                            يُضاف الأساسي كاملاً للرصيد · ضريبة {WALLET_TOPUP_VAT_PERCENT}% فوق السعر
+                            {vatSettings.enabled
+                              ? `يُضاف الأساسي كاملاً للرصيد · ضريبة ${vatSettings.ratePercent}% فوق السعر`
+                              : 'يُضاف المبلغ كاملاً للرصيد · بلا ضريبة حالياً'}
                           </p>
                         </div>
                       </div>
                       <div className="text-left space-y-1">
-                        <p className="text-xs text-muted-foreground">
-                          يُضاف للرصيد: {(walletCreditedHalalas / 100).toFixed(2)} ر.س
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          ضريبة القيمة المضافة ({WALLET_TOPUP_VAT_PERCENT}%): {(walletVatHalalas / 100).toFixed(2)} ر.س
-                        </p>
+                        {walletVatHalalas > 0 ? (
+                          <>
+                            <p className="text-xs text-muted-foreground">
+                              يُضاف للرصيد: {(walletCreditedHalalas / 100).toFixed(2)} ر.س
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {(walletVatHalalas / 100).toFixed(2)} ر.س
+                            </p>
+                          </>
+                        ) : null}
                         <p className="text-2xl font-bold text-primary">
                           {(walletChargedHalalas / 100).toFixed(2)} ر.س
                         </p>

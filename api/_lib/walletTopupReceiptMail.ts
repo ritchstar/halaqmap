@@ -76,7 +76,10 @@ export function buildWalletTopupReceiptEmail(input: WalletTopupReceiptInput): {
 } {
   const name = input.barberName.trim() || 'شريك حلاق ماب';
   const label = walletLabelAr(input.walletSku);
-  const vatHalalas = Math.max(0, Math.trunc(input.chargedHalalas) - Math.trunc(input.creditedHalalas));
+  const creditedHalalas = Math.trunc(input.creditedHalalas);
+  const vatHalalas = Math.max(0, Math.trunc(input.chargedHalalas) - creditedHalalas);
+  const hasVat = vatHalalas > 0;
+  const effectiveVatPercent = hasVat && creditedHalalas > 0 ? Math.round((vatHalalas / creditedHalalas) * 100) : 0;
   const repliesCredited = repliesFromHalalas(input.creditedHalalas);
   const repliesRemaining = repliesFromHalalas(input.balanceHalalas);
   const dateAr = formatDateAr(input.dateIso);
@@ -87,6 +90,14 @@ export function buildWalletTopupReceiptEmail(input: WalletTopupReceiptInput): {
   const totalSar = formatSar(input.chargedHalalas);
   const balanceSar = formatSar(input.balanceHalalas);
 
+  const amountLinesText = hasVat
+    ? [
+        `- القيمة الأساسية: ${baseSar} ر.س`,
+        `- ضريبة القيمة المضافة (${effectiveVatPercent}%): ${vatSar} ر.س`,
+        `- الإجمالي المدفوع: ${totalSar} ر.س`,
+      ]
+    : [`- المبلغ المدفوع: ${totalSar} ر.س`];
+
   const text = [
     `أهلًا ${name}،`,
     '',
@@ -94,9 +105,7 @@ export function buildWalletTopupReceiptEmail(input: WalletTopupReceiptInput): {
     '',
     `- الباقة: ${label}`,
     `- طريقة الشحن: ${srcAr}`,
-    `- القيمة الأساسية: ${baseSar} ر.س`,
-    `- ضريبة القيمة المضافة (15%): ${vatSar} ر.س`,
-    `- الإجمالي المدفوع: ${totalSar} ر.س`,
+    ...amountLinesText,
     `- الردود المُضافة: ${repliesCredited}`,
     `- رصيد المحفظة الحالي: ${balanceSar} ر.س (${repliesRemaining} رداً متبقياً)`,
     '- معرّف الدفعة:',
@@ -115,6 +124,12 @@ export function buildWalletTopupReceiptEmail(input: WalletTopupReceiptInput): {
       <td style="padding:8px 0;text-align:left;color:${strong ? '#0f172a' : '#334155'};font-size:14px;font-weight:${strong ? '700' : '500'}" dir="ltr">${escapeHtml(v)}</td>
     </tr>`;
 
+  const amountRowsHtml = hasVat
+    ? row('القيمة الأساسية', `${baseSar} SAR`) +
+      row(`ضريبة القيمة المضافة (${effectiveVatPercent}%)`, `${vatSar} SAR`) +
+      row('الإجمالي المدفوع', `${totalSar} SAR`, true)
+    : row('المبلغ المدفوع', `${totalSar} SAR`, true);
+
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -130,9 +145,7 @@ export function buildWalletTopupReceiptEmail(input: WalletTopupReceiptInput): {
   <table role="presentation" width="100%" style="border-collapse:collapse;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0">
     ${row('الباقة', label)}
     ${row('طريقة الشحن', srcAr)}
-    ${row('القيمة الأساسية', `${baseSar} SAR`)}
-    ${row('ضريبة القيمة المضافة (15%)', `${vatSar} SAR`)}
-    ${row('الإجمالي المدفوع', `${totalSar} SAR`, true)}
+    ${amountRowsHtml}
     ${row('الردود المُضافة', String(repliesCredited))}
     ${row('رصيد المحفظة الحالي', `${balanceSar} SAR · ${repliesRemaining} ردّ`, true)}
   </table>

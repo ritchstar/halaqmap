@@ -1,7 +1,18 @@
 /**
- * إعدادات ضريبة القيمة المضافة للمنصة.
+ * حاسبة ض.ق.م + إعداد محلّي قديم (localStorage).
+ *
+ * تنبيه مهم — مصدر الحقيقة تغيّر:
+ * لم يَعُد مفتاح localStorage `halaqmap_platform_vat_v1` مرجعاً رسمياً لعرض/فرض
+ * ض.ق.م على العملاء. المصدر الوحيد الآن = علم ZATCA على الخادم
+ * (`platform_zatca_tax_advisor_state.tax_enabled` + `cached_vat_config.ratePercent`)
+ * المُعرَّض عبر `/api/public-payment-page-config` (`vatEnabled`/`vatPercent`)،
+ * ويُقرأ على الواجهة عبر `usePlatformVatConfigRemote`.
+ *
+ * تبقى `getPlatformVatSettings`/`savePlatformVatSettings` للتوافق الرجعي فقط
+ * (معاينة إدارية محلية ومرآة تفعيل ZATCA) ولا تحكم ما يراه/يدفعه العميل.
+ * دالّتا الحساب `calcVatBreakdown`/`calcVatAmountSar` نقيّتان وتُغذّى بالعلم من القاعدة.
+ *
  * الافتراضي: معطّلة (عمل حر / غير خاضع) — المبالغ المعروضة = قيمة حزمة الرخصة الرقمية فقط.
- * عند التفعيل من لوحة الإدارة تُحسب الضريبة على المبلغ الأساسي وتُعرض في صفحات الدفع.
  */
 
 const STORAGE_KEY = 'halaqmap_platform_vat_v1';
@@ -34,6 +45,7 @@ function parseStored(raw: string | null): PlatformVatSettings | null {
   }
 }
 
+/** @deprecated معاينة محلية فقط — ليست مصدر حقيقة ض.ق.م. استخدم `usePlatformVatConfigRemote`. */
 export function getPlatformVatSettings(): PlatformVatSettings {
   if (typeof window === 'undefined') return { ...DEFAULT_SETTINGS };
   const fromStore = parseStored(localStorage.getItem(STORAGE_KEY));
@@ -50,6 +62,7 @@ export function getPlatformVatSettings(): PlatformVatSettings {
   return { ...DEFAULT_SETTINGS };
 }
 
+/** @deprecated مرآة محلية للتفعيل الإداري فقط — لا تُحدِّث ما يراه/يدفعه العميل (المصدر: علم ZATCA). */
 export function savePlatformVatSettings(next: PlatformVatSettings): void {
   const normalized: PlatformVatSettings = {
     enabled: next.enabled,

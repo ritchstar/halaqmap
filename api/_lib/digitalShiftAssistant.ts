@@ -335,7 +335,8 @@ export type CreditWalletFromTopupResult =
 
 /**
  * شحن المحفظة من دفعة ميسر — idempotent عبر UNIQUE(moyasar_payment_id) في barber_ai_wallet_topups.
- * الرصيد المُضاف = الصافي بعد خصم الضريبة (netCreditHalalasFromCharged).
+ * الرصيد المُضاف = `creditedHalalas` كما يمرّره المتصل (الأساسي في الشحن الذاتي، أو الصافي الواعي
+ * بالضريبة في الفاتورة). الضريبة المسجّلة = `chargedHalalas − creditedHalalas` (تصبح 0 عند إطفاء ض.ق.م).
  */
 export async function creditWalletFromTopup(
   supabase: SupabaseClient,
