@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Loader2, Moon, RefreshCw, Send, Sparkles, Wallet } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +19,7 @@ import {
 } from '@/config/digitalShiftAssistant';
 import { WALLET_TOPUP_PACKAGES, repliesFromHalalas } from '@/config/digitalShiftWalletTopup';
 import { usePlatformVatConfigRemote } from '@/hooks/usePlatformVatConfigRemote';
+import { openHashRouteInNewTab } from '@/components/barber/BarberDashboardOutboundLink';
 import { consumeDigitalShiftScrollTarget } from '@/components/barber/DigitalShiftQuickAccessStrip';
 import { DigitalShiftFeatureBullets } from '@/components/billing/DigitalShiftFeatureBullets';
 import { DigitalShiftRecommendationsTable } from '@/components/barber/DigitalShiftRecommendationsTable';
@@ -62,7 +62,6 @@ export function DigitalShiftAssistantHub({
   const [chatHistory, setChatHistory] = useState<ChatTurn[]>([]);
   const [chatSending, setChatSending] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
-  const navigate = useNavigate();
   const vatSettings = usePlatformVatConfigRemote();
 
   const goWalletTopup = useCallback(
@@ -75,18 +74,11 @@ export function DigitalShiftAssistantHub({
       const name = summary?.context.barberName?.trim();
       if (name) q.set('barberName', name);
       const relative = `${ROUTE_PATHS.PAYMENT}?${q.toString()}`;
-      // نفتح صفحة الدفع في تبويب جديد على نفس الأصل الحالي (نفس نطاق المعاينة/الإنتاج)
-      // حتى تبقى لوحة التحكم مفتوحة ولا تتأثر بإعادة تحميل النشر. لا نستخدم أصلاً
-      // مُهيّأً قد يشير للإنتاج أثناء المعاينة.
-      if (typeof window !== 'undefined') {
-        const absolute = `${window.location.origin}/#${relative}`;
-        const opened = window.open(absolute, '_blank', 'noopener,noreferrer');
-        if (opened) return;
+      if (!openHashRouteInNewTab(relative)) {
+        toast.info('لم يُفتح تبويب الدفع — اسمح بالنوافذ المنبثقة للموقع ثم أعد المحاولة.');
       }
-      // احتياط: إن مُنع فتح التبويب (Popup blocker) ننتقل داخل نفس الصفحة.
-      navigate(relative);
     },
-    [barberId, barberEmail, summary, navigate],
+    [barberId, barberEmail, summary],
   );
 
   const loadSummary = useCallback(async () => {
