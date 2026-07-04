@@ -780,6 +780,20 @@ export default function Payment() {
           return;
         }
         try {
+          // نُدرِج Apple Pay فقط على الأجهزة الداعمة له (Safari على iOS/macOS).
+          // على المتصفحات غير الداعمة (Chrome/Android) قد تفشل مكتبة mpf في تهيئة
+          // النموذج بالكامل عند وجود applepay في القائمة فلا تظهر أي وسيلة دفع؛
+          // لذا نكتشف الدعم لحظياً ونُبقي البطاقة متاحة دائماً.
+          const applePaySupported = (() => {
+            try {
+              const AP = (
+                window as unknown as { ApplePaySession?: { canMakePayments?: () => boolean } }
+              ).ApplePaySession;
+              return !!AP && typeof AP.canMakePayments === 'function' && AP.canMakePayments();
+            } catch {
+              return false;
+            }
+          })();
           Moyasar.init({
             element: host,
             amount: effectiveAmountHalalas,
@@ -788,7 +802,7 @@ export default function Payment() {
             publishable_api_key: moyasarPublishableKey,
             callback_url: callbackUrl,
             supported_networks: ['visa', 'mastercard'],
-            methods: ['creditcard', 'applepay'],
+            methods: applePaySupported ? ['creditcard', 'applepay'] : ['creditcard'],
             language: 'ar',
             fixed_width: false,
             metadata: effectiveMetadata,
