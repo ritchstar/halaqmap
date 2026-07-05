@@ -543,9 +543,14 @@ export default function Payment() {
           );
           toast.error('تباين في المبلغ');
         } else if (result.error === 'moyasar_error') {
+          const notFound =
+            /not found/i.test(result.message || '') || result.status === 404;
           setMoyasarVerifyMessage(
-            result.message ||
-              'تعذر جلب حالة الدفع من ميسر. تحقق من تطابق مفتاح السر (sk_test_) مع المفتاح العام (pk_test_) على Vercel.',
+            result.hint ||
+              (notFound
+                ? 'الدفع ناجح في ميسر لكن الخادم لا يجده — غالباً لأن مفتاح السر على Vercel ما زال sk_test_ بينما الدفع كان Live (pk_live_). اضبط PAYMENT_ENV=live وMOYSAR_SECRET_LIVE_API_KEY=sk_live_… ثم أعد النشر، وأضف معرف الدفع (UUID) من لوحة ميسr إلى الرابط: &id=…'
+                : result.message ||
+                    'تعذر جلب حالة الدفع من ميسر. تحقق من تطابق مفتاح السر (sk_live_/sk_test_) مع المفتاح العام (pk_live_/pk_test_) على Vercel.'),
           );
           toast.error('فشل التحقق من الدفع');
         } else if (result.error === 'Forbidden') {

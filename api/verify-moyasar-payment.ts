@@ -206,12 +206,20 @@ async function handleVerifyMoyasarPayment(
 
   if (upstream.status < 200 || upstream.status >= 300) {
     const err = body as { message?: string; type?: string };
+    const paymentEnv = (process.env.PAYMENT_ENV || 'test').trim().toLowerCase();
+    const notFoundHint =
+      upstream.status === 404
+        ? paymentEnv === 'live'
+          ? 'الدفعة غير موجودة لدى ميسر بهذا المفتاح — تأكد أن MOYSAR_SECRET_LIVE_API_KEY يطابق pk_live_ المستخدم في الواجهة.'
+          : 'الدفعة غير موجودة — إن دفعت في Live (pk_live_) اضبط PAYMENT_ENV=live وMOYSAR_SECRET_LIVE_API_KEY=sk_live_… على Vercel ثم أعد النشر.'
+        : undefined;
     return Response.json(
       {
         ok: false,
         error: 'moyasar_error',
         status: upstream.status,
         message: err?.message || err?.type || 'fetch_failed',
+        hint: notFoundHint,
       },
       { status: upstream.status === 404 ? 404 : 502, headers },
     );
