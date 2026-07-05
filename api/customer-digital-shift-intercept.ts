@@ -62,7 +62,14 @@ export async function POST(request: Request): Promise<Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const result = await runDigitalShiftIntercept(supabase, conversationId);
+  let result;
+  try {
+    result = await runDigitalShiftIntercept(supabase, conversationId);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'intercept_failed';
+    console.error('[customer-digital-shift-intercept]', conversationId, msg);
+    return Response.json({ error: msg }, { status: 500, headers });
+  }
   if (!result.ok) {
     return Response.json({ error: result.error }, { status: result.status, headers });
   }

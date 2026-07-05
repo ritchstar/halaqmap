@@ -48,6 +48,17 @@ function shiftReplyDebitReason(conversationId: string, customerMessageAt: string
   return `shift_reply:${conversationId}:${customerMessageAt}:${trigger}`;
 }
 
+/** جدول claims غير مُطبَّق بعد — PostgREST يُرجع PGRST205 وليس 42P01. */
+function isMissingInterceptClaimsTableError(code: string, message: string): boolean {
+  const c = code.trim();
+  if (c === '42P01' || c === 'PGRST205') return true;
+  const m = message.toLowerCase();
+  return (
+    m.includes('digital_shift_intercept_claims') &&
+    (m.includes('schema cache') || m.includes('could not find the table') || m.includes('does not exist'))
+  );
+}
+
 async function releaseInterceptClaim(
   supabase: SupabaseClient,
   conversationId: string,
@@ -124,7 +135,21 @@ export async function runDigitalShiftIntercept(
 
   const rows = msgs ?? [];
   const customerId = conv.customer_id;
-  const barberUserId = conv.barber_user_id;
+  let barberUserId = String(conv.barber_user_id ?? '').trim() || null;
+  if (!barberUserId && barberId) {
+    const { data: barberUserRow } = await supabase
+      .from('barbers')
+      .select('user_id')
+      .eq('id', barberId)
+      .maybeSingle();
+    barberUserId = String(barberUserRow?.user_id ?? '').trim() || null;
+    if (barberUserId) {
+      await supabase.from('private_conversations').update({ barber_user_id: barberUserId }).eq('id', conversationId);
+    }
+  }
+  if (!barberUserId) {
+    return { ok: true, replied: false, reason: 'no_barber_user_id' };
+  }
 
   let lastCustomerMessageAt: string | null = null;
   let lastCustomerBody = '';
@@ -190,7 +215,7 @@ export async function runDigitalShiftIntercept(
       }
       return { ok: true, replied: false, reason: 'shift_claim_race' };
     }
-    if (code !== '42P01') {
+    if (!isMissingInterceptClaimsTableError(code, String(claimErr.message ?? ''))) {
       return { ok: false, error: claimErr.message, status: 500 };
     }
   }
