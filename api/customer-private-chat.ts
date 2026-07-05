@@ -7,11 +7,11 @@ import {
   sendCustomerPrivateMessage,
   startCustomerPrivateConversation,
 } from './_lib/customerPrivateChatService.js';
-import { dispatchDigitalShiftInterceptWorker } from './_lib/digitalShiftInterceptService.js';
+import { scheduleDigitalShiftInterceptAfterSend } from './_lib/digitalShiftInterceptService.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = {
-  maxDuration: 45,
+  maxDuration: 120,
 };
 
 const CORS_OPTS = {
@@ -134,12 +134,12 @@ export async function POST(request: Request): Promise<Response> {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
-    dispatchDigitalShiftInterceptWorker(conversationId);
+    const shiftSchedule = await scheduleDigitalShiftInterceptAfterSend(supabase, conversationId);
     return Response.json(
       {
         ok: true,
         message: result.message,
-        shiftIntercept: { dispatched: true },
+        shiftIntercept: shiftSchedule,
       },
       { headers },
     );

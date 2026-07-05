@@ -83,6 +83,19 @@ export function BarberCustomerPrivateChatPanel({
     [conversations, selectedId]
   );
 
+  const selectedBarberUserId = useMemo(() => {
+    if (!selected) return '';
+    const fromRow = String(selected.barber_user_id ?? '').trim();
+    if (fromRow) return fromRow;
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      const m = messages[i];
+      if (m.sender_id === selected.customer_id) continue;
+      if (m.is_digital_shift_reply) continue;
+      return m.sender_id;
+    }
+    return '';
+  }, [selected, messages]);
+
   const pollConversations = useCallback(async (force = false) => {
     if (!pollingEnabled) return;
     if (!force && !isPollingTabActive()) return;
@@ -234,7 +247,7 @@ export function BarberCustomerPrivateChatPanel({
       const needsIntercept = customerMessageNeedsShiftIntercept({
         messages,
         customerId: selected.customer_id,
-        barberUserId: selected.barber_user_id ?? '',
+        barberUserId: selectedBarberUserId,
       });
       if (!needsIntercept) {
         setShiftInterceptHint(null);
@@ -287,6 +300,7 @@ export function BarberCustomerPrivateChatPanel({
     digitalShiftEnabled,
     barberId,
     barberEmail,
+    selectedBarberUserId,
     loadMessages,
     pollConversations,
   ]);

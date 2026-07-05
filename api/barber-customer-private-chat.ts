@@ -100,7 +100,9 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'list_conversations') {
     const { data: rows, error } = await supabase
       .from('private_conversations')
-      .select('id, customer_id, status, started_at, expires_at, closed_at, last_message_at, shift_manual_takeover')
+      .select(
+        'id, customer_id, barber_user_id, status, started_at, expires_at, closed_at, last_message_at, shift_manual_takeover',
+      )
       .eq('barber_user_id', barberUserId)
       .eq('status', 'active')
       .gt('expires_at', new Date().toISOString())
@@ -137,6 +139,7 @@ export async function POST(request: Request): Promise<Response> {
 
     const conversations = convRows.map((row) => ({
       ...row,
+      barber_user_id: String(row.barber_user_id ?? barberUserId),
       unread_customer_count: unreadByConv.get(String(row.id)) ?? 0,
     }));
     const unreadCustomerTotal = conversations.reduce(

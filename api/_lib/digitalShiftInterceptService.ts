@@ -223,18 +223,34 @@ async function revalidateInterceptInFlight(
 }
 
 /** يُطلق اعتراضاً كاملاً في invocation منفصل — لا يُعطّل إرسال رسالة العميل. */
-export function dispatchDigitalShiftInterceptWorker(conversationId: string): void {
-  const id = conversationId.trim();
-  if (!id) return;
+function resolveShiftWorkerBaseUrl(): string {
+  const candidates = [
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL || '').trim(),
+    (process.env.VITE_SITE_ORIGIN || '').trim(),
+    (process.env.SITE_ORIGIN || '').trim(),
+    (process.env.VERCEL_URL || '').trim(),
+  ];
+  for (const raw of candidates) {
+    if (!raw) continue;
+    const host = raw.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    if (host) return `https://${host}`;
+  }
+  return '';
+}
 
-  const vercelHost = (process.env.VERCEL_URL || '').trim().replace(/^https?:\/\//, '');
-  const siteOrigin = (process.env.VITE_SITE_ORIGIN || process.env.SITE_ORIGIN || '').trim().replace(/\/$/, '');
-  const base = vercelHost ? `https://${vercelHost}` : siteOrigin;
+export function dispatchDigitalShiftInterceptWorker(conversationId: string): boolean {
+  const id = conversationId.trim();
+  if (!id) return false;
+
+  const base = resolveShiftWorkerBaseUrl();
   const secret = (process.env.CRON_SECRET || '').trim();
 
   if (!base || !secret) {
-    console.warn('[shift] intercept worker dispatch skipped — missing base URL or CRON_SECRET');
-    return;
+    console.warn('[shift] intercept worker dispatch skipped — missing base URL or CRON_SECRET', {
+      hasBase: Boolean(base),
+      hasSecret: Boolean(secret),
+    });
+    return false;
   }
 
   void fetch(`${base}/api/customer-digital-shift-intercept`, {
@@ -244,9 +260,17 @@ export function dispatchDigitalShiftInterceptWorker(conversationId: string): voi
       Authorization: `Bearer ${secret}`,
     },
     body: JSON.stringify({ conversationId: id, worker: true }),
-  }).catch((err) => {
-    console.error('[shift] intercept worker dispatch failed', err);
-  });
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        console.error('[shift] intercept worker HTTP error', res.status, body.slice(0, 200));
+      }
+    })
+    .catch((err) => {
+      console.error('[shift] intercept worker dispatch failed', err);
+    });
+  return true;
 }
 
 async function markShiftWalletEmpty(
@@ -661,6 +685,59 @@ export async function awaitDigitalShiftInterceptAfterCustomerSend(
   }
 
   return result;
+}
+
+/** بعد إرسال العميل: worker + انتظار مباشر للمهلات ≤90ث (احتياط إذا فشل worker). */
+export async function scheduleDigitalShiftInterceptAfterSend(
+  supabase: SupabaseClient,
+  conversationId: string,
+): Promise<{ mode: 'inline' | 'worker' | 'skipped'; workerDispatched: boolean }> {
+  const id = conversationId.trim();
+  if (!id) return { mode: 'skipped', workerDispatched: false };
+
+  const workerDispatched = dispatchDigitalShiftInterceptWorker(id);
+
+  const { data: conv } = await supabase
+    .from('private_conversations')
+    .select('barber_id, barber_user_id')
+    .eq('id', id)
+    .maybeSingle();
+
+  let barberId = String(conv?.barber_id ?? '').trim();
+  if (!barberId && conv?.barber_user_id) {
+    const { data: barberRow } = await supabase
+      .from('barbers')
+      .select('id')
+      .eq('user_id', conv.barber_user_id)
+      .maybeSingle();
+    barberId = String(barberRow?.id ?? '').trim();
+  }
+  if (!barberId) return { mode: 'skipped', workerDispatched };
+
+  const [{ data: cfg }, ctx] = await Promise.all([
+    supabase
+      .from('barber_digital_shift_config')
+      .select('enabled, reply_delay_minutes, reply_delay_seconds')
+      .eq('barber_id', barberId)
+      .maybeSingle(),
+    loadDigitalShiftContext(supabase, barberId),
+  ]);
+
+  if (!cfg?.enabled || !ctx) return { mode: 'skipped', workerDispatched };
+
+  const delaySec = resolveReplyDelaySeconds(cfg);
+  if (delaySec > 90) {
+    return { mode: 'worker', workerDispatched };
+  }
+
+  try {
+    await awaitDigitalShiftInterceptAfterCustomerSend(supabase, id);
+    return { mode: 'inline', workerDispatched };
+  } catch (err) {
+    console.error('[shift] inline intercept after send failed', err);
+    if (!workerDispatched) dispatchDigitalShiftInterceptWorker(id);
+    return { mode: 'worker', workerDispatched: workerDispatched || true };
+  }
 }
 
 /** جدولة محاولات اعتراض بعد إرسال العميل — احتياطي إذا أُغلق الطلب مبكراً. */

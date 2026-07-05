@@ -28,6 +28,7 @@ function baseHeaders(): Record<string, string> {
 export type BarberPrivateConversationRow = {
   id: string;
   customer_id: string;
+  barber_user_id?: string;
   status: string;
   started_at: string;
   expires_at: string;
