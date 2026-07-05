@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
+  creditWalletForAiReplyRefund,
   debitWalletForAiReply,
+  dismissRecommendationsByDedupeKeys,
   evaluateIntercept,
   generateDigitalShiftReply,
   loadDigitalShiftContext,
@@ -42,20 +44,15 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function clearStaleInterceptClaim(
+function shiftReplyDebitReason(conversationId: string, customerMessageAt: string, trigger: string): string {
+  return `shift_reply:${conversationId}:${customerMessageAt}:${trigger}`;
+}
+
+async function releaseInterceptClaim(
   supabase: SupabaseClient,
   conversationId: string,
   customerMessageAt: string,
 ): Promise<void> {
-  const { count, error } = await supabase
-    .from('private_messages')
-    .select('id', { count: 'exact', head: true })
-    .eq('conversation_id', conversationId)
-    .eq('is_digital_shift_reply', true)
-    .gt('created_at', customerMessageAt);
-
-  if (error || (count ?? 0) > 0) return;
-
   await supabase
     .from('digital_shift_intercept_claims')
     .delete()
@@ -175,19 +172,27 @@ export async function runDigitalShiftIntercept(
     return { ok: true, replied: false, reason: 'shift_already_replied_race' };
   }
 
-  await clearStaleInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
-
-  const debit = await debitWalletForAiReply(supabase, barberId, `shift_reply:${decision.trigger}`);
-  if (!debit.ok) {
-    await upsertRecommendation(supabase, {
-      barberId,
-      category: 'shift_chat',
-      priority: 90,
-      dedupeKey: 'shift_wallet_empty',
-      title: 'توقف المناوبة — الرصيد منتهٍ',
-      body: 'يا عمنا، توقفت الردود الآلية لأن رصيد محفظة المناوب منتهٍ. شحن الرصيد يعيد تفعيل المناوبة فوراً.',
-    });
-    return { ok: true, replied: false, reason: debit.error };
+  const { error: claimErr } = await supabase.from('digital_shift_intercept_claims').insert({
+    conversation_id: conversationId,
+    customer_message_at: lastCustomerMessageAt,
+  });
+  if (claimErr) {
+    const code = String(claimErr.code ?? '');
+    if (code === '23505') {
+      const { count: racedReplies } = await supabase
+        .from('private_messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('conversation_id', conversationId)
+        .eq('is_digital_shift_reply', true)
+        .gt('created_at', lastCustomerMessageAt);
+      if ((racedReplies ?? 0) > 0) {
+        return { ok: true, replied: false, reason: 'shift_already_replied_race' };
+      }
+      return { ok: true, replied: false, reason: 'shift_claim_race' };
+    }
+    if (code !== '42P01') {
+      return { ok: false, error: claimErr.message, status: 500 };
+    }
   }
 
   const history = rows.slice(-10).map((m) => ({
@@ -227,11 +232,13 @@ export async function runDigitalShiftIntercept(
       ...(customerSalonContext ? { operationalInsights: customerSalonContext } : {}),
     });
   } catch (e) {
+    await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
     const msg = e instanceof Error ? e.message : 'AI failed';
     return { ok: false, error: msg, status: 502 };
   }
 
   if (!replyText.trim()) {
+    await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
     return { ok: true, replied: false, reason: 'empty_ai_reply' };
   }
 
@@ -239,27 +246,20 @@ export async function runDigitalShiftIntercept(
   const greetingHint = extractSalonGreetingHint(privateOfficeInstructions);
   replyText = finalizeCustomerShiftReply(replyText, customerLang, ctx, lastCustomerBody, greetingHint);
 
-  const { error: claimErr } = await supabase.from('digital_shift_intercept_claims').insert({
-    conversation_id: conversationId,
-    customer_message_at: lastCustomerMessageAt,
-  });
-  if (claimErr) {
-    const code = String(claimErr.code ?? '');
-    if (code === '23505') {
-      const { count: racedReplies } = await supabase
-        .from('private_messages')
-        .select('id', { count: 'exact', head: true })
-        .eq('conversation_id', conversationId)
-        .eq('is_digital_shift_reply', true)
-        .gt('created_at', lastCustomerMessageAt);
-      if ((racedReplies ?? 0) > 0) {
-        return { ok: true, replied: false, reason: 'shift_already_replied_race' };
-      }
-      return { ok: true, replied: false, reason: 'shift_claim_race' };
-    }
-    if (code !== '42P01') {
-      return { ok: false, error: claimErr.message, status: 500 };
-    }
+  const debitReason = shiftReplyDebitReason(conversationId, lastCustomerMessageAt, decision.trigger);
+  const debit = await debitWalletForAiReply(supabase, barberId, debitReason);
+  if (!debit.ok) {
+    await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['shift_last_action']);
+    await upsertRecommendation(supabase, {
+      barberId,
+      category: 'shift_chat',
+      priority: 90,
+      dedupeKey: 'shift_wallet_empty',
+      title: 'توقف المناوبة — الرصيد منتهٍ',
+      body: 'يا عمنا، توقفت الردود الآلية لأن رصيد محفظة المناوب منتهٍ. شحن الرصيد يعيد تفعيل المناوبة فوراً.',
+    });
+    return { ok: true, replied: false, reason: debit.error };
   }
 
   const { data: inserted, error: insErr } = await supabase
@@ -274,14 +274,13 @@ export async function runDigitalShiftIntercept(
     .maybeSingle();
 
   if (insErr) {
-    await supabase
-      .from('digital_shift_intercept_claims')
-      .delete()
-      .eq('conversation_id', conversationId)
-      .eq('customer_message_at', lastCustomerMessageAt);
+    await creditWalletForAiReplyRefund(supabase, barberId, debitReason);
+    await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
     return { ok: false, error: insErr.message, status: 500 };
   }
   if (!inserted) {
+    await creditWalletForAiReplyRefund(supabase, barberId, debitReason);
+    await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
     return { ok: true, replied: false, reason: 'insert_empty' };
   }
 
@@ -338,6 +337,11 @@ export async function runDigitalShiftIntercept(
         : 'تفضل، المناوب تدخل بعد مهلة قصيرة لرد العميل. يمكنك متابعة المحادثة بنفسك في أي وقت — وعند الانتهاء أعد المناوب من شات العملاء.',
     metadata: { trigger: decision.trigger, conversationId },
   });
+
+  await dismissRecommendationsByDedupeKeys(supabase, barberId, [
+    'shift_wallet_empty',
+    'market_stagnation_local',
+  ]);
 
   return {
     ok: true,

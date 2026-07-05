@@ -6,6 +6,7 @@ import {
   ensureConfigRow,
   generateDigitalShiftReply,
   loadDigitalShiftContext,
+  syncShiftWalletRecommendations,
 } from './_lib/digitalShiftAssistant.js';
 import {
   formatOperationalInsightsForPrompt,
@@ -152,6 +153,7 @@ export async function POST(request: Request): Promise<Response> {
     ]);
 
     await assessMarketStagnation(supabase, barberId, ctx);
+    await syncShiftWalletRecommendations(supabase, barberId, ctx.walletBalanceHalalas);
 
     const { data: recs } = await supabase
       .from('barber_ai_recommendations')

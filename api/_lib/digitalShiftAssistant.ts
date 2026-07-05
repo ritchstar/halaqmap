@@ -298,7 +298,19 @@ export async function debitWalletForAiReply(
   supabase: SupabaseClient,
   barberId: string,
   reason: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; alreadyDebited?: boolean } | { ok: false; error: string }> {
+  const debitReason = reason.trim();
+  if (!debitReason) return { ok: false, error: 'invalid_debit_reason' };
+
+  const { data: priorDebit } = await supabase
+    .from('barber_ai_wallet_transactions')
+    .select('id')
+    .eq('barber_id', barberId)
+    .eq('direction', 'debit')
+    .eq('reason', debitReason)
+    .maybeSingle();
+  if (priorDebit?.id) return { ok: true, alreadyDebited: true };
+
   const { data: wallet, error } = await supabase
     .from('barber_ai_wallet')
     .select('balance_halalas, total_spent_halalas')
@@ -312,18 +324,78 @@ export async function debitWalletForAiReply(
   const nextBalance = wallet.balance_halalas - DIGITAL_SHIFT_REPLY_COST_HALALAS;
   const nextSpent = wallet.total_spent_halalas + DIGITAL_SHIFT_REPLY_COST_HALALAS;
 
-  const { error: updErr } = await supabase
+  const { data: updated, error: updErr } = await supabase
     .from('barber_ai_wallet')
     .update({ balance_halalas: nextBalance, total_spent_halalas: nextSpent, updated_at: new Date().toISOString() })
-    .eq('barber_id', barberId);
+    .eq('barber_id', barberId)
+    .gte('balance_halalas', DIGITAL_SHIFT_REPLY_COST_HALALAS)
+    .select('balance_halalas')
+    .maybeSingle();
 
-  if (updErr) return { ok: false, error: updErr.message };
+  if (updErr || !updated) return { ok: false, error: 'insufficient_balance_or_race' };
 
   await supabase.from('barber_ai_wallet_transactions').insert({
     barber_id: barberId,
     amount_halalas: DIGITAL_SHIFT_REPLY_COST_HALALAS,
     direction: 'debit',
-    reason,
+    reason: debitReason,
+  });
+
+  return { ok: true };
+}
+
+/** استرداد خصم رد مناوب فاشل — idempotent عبر reason:refund */
+export async function creditWalletForAiReplyRefund(
+  supabase: SupabaseClient,
+  barberId: string,
+  debitReason: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const reason = debitReason.trim();
+  if (!reason) return { ok: false, error: 'invalid_debit_reason' };
+  const refundReason = `${reason}:refund`;
+
+  const { data: priorRefund } = await supabase
+    .from('barber_ai_wallet_transactions')
+    .select('id')
+    .eq('barber_id', barberId)
+    .eq('direction', 'credit')
+    .eq('reason', refundReason)
+    .maybeSingle();
+  if (priorRefund?.id) return { ok: true };
+
+  const { data: priorDebit } = await supabase
+    .from('barber_ai_wallet_transactions')
+    .select('id, amount_halalas')
+    .eq('barber_id', barberId)
+    .eq('direction', 'debit')
+    .eq('reason', reason)
+    .maybeSingle();
+  if (!priorDebit?.id) return { ok: false, error: 'debit_not_found' };
+
+  const amount = Number(priorDebit.amount_halalas ?? DIGITAL_SHIFT_REPLY_COST_HALALAS);
+  const { data: wallet, error } = await supabase
+    .from('barber_ai_wallet')
+    .select('balance_halalas, total_spent_halalas')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+  if (error || !wallet) return { ok: false, error: 'wallet_not_found' };
+
+  const { error: updErr } = await supabase
+    .from('barber_ai_wallet')
+    .update({
+      balance_halalas: wallet.balance_halalas + amount,
+      total_spent_halalas: Math.max(0, wallet.total_spent_halalas - amount),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('barber_id', barberId);
+  if (updErr) return { ok: false, error: updErr.message };
+
+  await supabase.from('barber_ai_wallet_transactions').insert({
+    barber_id: barberId,
+    amount_halalas: amount,
+    direction: 'credit',
+    reason: refundReason,
+    metadata: { originalDebitReason: reason },
   });
 
   return { ok: true };
@@ -432,7 +504,50 @@ export async function creditWalletFromTopup(
     },
   });
 
+  if (nextBalance >= DIGITAL_SHIFT_REPLY_COST_HALALAS) {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['shift_wallet_empty']);
+  }
+
   return { ok: true, alreadyCredited: false, creditedHalalas, balanceHalalas: nextBalance };
+}
+
+/** يُزيل توصيات نشطة بنفس مفتاح dedupe — لمنع التناقض بين حالات متعاقبة. */
+export async function dismissRecommendationsByDedupeKeys(
+  supabase: SupabaseClient,
+  barberId: string,
+  dedupeKeys: string[],
+  status: 'resolved' | 'dismissed' = 'resolved',
+): Promise<void> {
+  const id = barberId.trim();
+  if (!id || dedupeKeys.length === 0) return;
+  for (const dedupeKey of dedupeKeys) {
+    const key = dedupeKey.trim();
+    if (!key) continue;
+    const { data: existing } = await supabase
+      .from('barber_ai_recommendations')
+      .select('id')
+      .eq('barber_id', id)
+      .eq('status', 'active')
+      .contains('metadata', { dedupeKey: key })
+      .maybeSingle();
+    if (existing?.id) {
+      await supabase.from('barber_ai_recommendations').update({ status }).eq('id', existing.id);
+    }
+  }
+}
+
+/** يُزامن توصيات المناوب مع رصيد المحفظة الحالي — لا «توقف» و«رد ناجح» معاً. */
+export async function syncShiftWalletRecommendations(
+  supabase: SupabaseClient,
+  barberId: string,
+  walletBalanceHalalas: number,
+): Promise<void> {
+  const canReply = walletBalanceHalalas >= DIGITAL_SHIFT_REPLY_COST_HALALAS;
+  if (canReply) {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['shift_wallet_empty']);
+  } else {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['shift_last_action']);
+  }
 }
 
 export async function upsertRecommendation(
@@ -491,6 +606,7 @@ export async function refreshHeuristicRecommendations(
   const lowListing = ctx.listingDaysRemaining <= 7;
 
   if (lowWallet || lowListing) {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['balance_ok']);
     await upsertRecommendation(supabase, {
       barberId,
       category: 'balance',
@@ -506,6 +622,7 @@ export async function refreshHeuristicRecommendations(
       },
     });
   } else {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['balance_low']);
     await upsertRecommendation(supabase, {
       barberId,
       category: 'balance',
@@ -519,6 +636,7 @@ export async function refreshHeuristicRecommendations(
 
   const bannerUrls = input.bannerImageUrls ?? [];
   if (bannerUrls.length === 0) {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['banner_audit']);
     await upsertRecommendation(supabase, {
       barberId,
       category: 'banner',
@@ -530,6 +648,7 @@ export async function refreshHeuristicRecommendations(
       metadata: { bannerCount: 0 },
     });
   } else {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['banner_missing']);
     const hasDiscount = input.showDiscountBadge && input.discountPercent != null;
     await upsertRecommendation(supabase, {
       barberId,
@@ -554,6 +673,7 @@ export async function refreshHeuristicRecommendations(
   });
 
   if (gallery.length === 0) {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['gallery_stale', 'gallery_fresh']);
     await upsertRecommendation(supabase, {
       barberId,
       category: 'gallery',
@@ -564,6 +684,7 @@ export async function refreshHeuristicRecommendations(
       metadata: { galleryCount: 0 },
     });
   } else if (stale.length > 0) {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['gallery_empty', 'gallery_fresh']);
     await upsertRecommendation(supabase, {
       barberId,
       category: 'gallery',
@@ -574,6 +695,7 @@ export async function refreshHeuristicRecommendations(
       metadata: { staleCount: stale.length, galleryCount: gallery.length },
     });
   } else {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['gallery_empty', 'gallery_stale']);
     await upsertRecommendation(supabase, {
       barberId,
       category: 'gallery',
@@ -584,6 +706,8 @@ export async function refreshHeuristicRecommendations(
       metadata: { galleryCount: gallery.length },
     });
   }
+
+  await syncShiftWalletRecommendations(supabase, barberId, ctx.walletBalanceHalalas);
 
   await supabase
     .from('barber_digital_shift_config')

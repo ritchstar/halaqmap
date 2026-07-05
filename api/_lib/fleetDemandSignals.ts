@@ -3,7 +3,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DigitalShiftContext } from './digitalShiftAssistant.js';
-import { upsertRecommendation } from './digitalShiftAssistant.js';
+import { dismissRecommendationsByDedupeKeys, upsertRecommendation } from './digitalShiftAssistant.js';
 import {
   MARKET_STAGNATION_RECOMMENDATION_BODY_AR,
   MARKET_STAGNATION_RECOMMENDATION_TITLE_AR,
@@ -159,16 +159,27 @@ export async function assessMarketStagnation(
 
   const since7d = new Date(Date.now() - STAGNATION_CONVERSATION_WINDOW_DAYS * 86400000).toISOString();
 
+  const { data: barberRow } = await supabase
+    .from('barbers')
+    .select('user_id')
+    .eq('id', barberId)
+    .maybeSingle();
+  const barberUserId = String(barberRow?.user_id ?? '').trim();
+  if (!barberUserId) {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['market_stagnation_local']);
+    return { stagnant: false, conversations7d: 0, daysSinceLastContact: null };
+  }
+
   const [{ count: conversations7d }, { data: lastConv }] = await Promise.all([
     supabase
       .from('private_conversations')
       .select('id', { count: 'exact', head: true })
-      .eq('barber_id', barberId)
+      .eq('barber_user_id', barberUserId)
       .gte('started_at', since7d),
     supabase
       .from('private_conversations')
       .select('started_at')
-      .eq('barber_id', barberId)
+      .eq('barber_user_id', barberUserId)
       .order('started_at', { ascending: false })
       .limit(1)
       .maybeSingle(),
@@ -184,6 +195,7 @@ export async function assessMarketStagnation(
     (daysSinceLastContact == null || daysSinceLastContact >= STAGNATION_QUIET_DAYS);
 
   if (!stagnant) {
+    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['market_stagnation_local']);
     return { stagnant: false, conversations7d: convCount, daysSinceLastContact };
   }
 
