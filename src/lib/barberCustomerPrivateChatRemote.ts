@@ -34,6 +34,7 @@ export type BarberPrivateConversationRow = {
   closed_at: string | null;
   last_message_at: string | null;
   shift_manual_takeover?: boolean;
+  unread_customer_count?: number;
 };
 
 export type BarberPrivateMessageRow = {
@@ -141,6 +142,32 @@ export async function barberResumeDigitalShiftRemote(input: {
     const json = (await res.json().catch(() => ({}))) as { error?: string };
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
     return { ok: true };
+  } catch {
+    return { ok: false, error: 'تعذر الاتصال بالخادم.' };
+  }
+}
+
+export async function barberMarkPrivateConversationReadRemote(input: {
+  barberId: string;
+  email: string;
+  conversationId: string;
+}): Promise<{ ok: true; marked: number } | { ok: false; error: string }> {
+  const ep = endpoint();
+  if (!ep) return { ok: false, error: 'مسار شات العملاء غير مضبوط.' };
+  try {
+    const res = await fetch(ep, {
+      method: 'POST',
+      headers: baseHeaders(),
+      body: JSON.stringify({
+        action: 'mark_read',
+        barberId: input.barberId.trim(),
+        email: input.email.trim(),
+        conversationId: input.conversationId.trim(),
+      }),
+    });
+    const json = (await res.json().catch(() => ({}))) as { error?: string; marked?: number };
+    if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
+    return { ok: true, marked: Number(json.marked ?? 0) };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بالخادم.' };
   }

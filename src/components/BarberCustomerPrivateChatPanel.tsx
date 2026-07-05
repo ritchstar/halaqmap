@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import {
   barberListPrivateConversationsRemote,
   barberListPrivateMessagesRemote,
+  barberMarkPrivateConversationReadRemote,
   barberResumeDigitalShiftRemote,
   barberSendPrivateMessageRemote,
   type BarberPrivateConversationRow,
@@ -159,6 +160,15 @@ export function BarberCustomerPrivateChatPanel({
           return;
         }
         setMessages(res.messages);
+        void barberMarkPrivateConversationReadRemote({
+          barberId,
+          email: barberEmail,
+          conversationId,
+        }).then(() => {
+          setConversations((prev) =>
+            prev.map((c) => (c.id === conversationId ? { ...c, unread_customer_count: 0 } : c)),
+          );
+        });
       } finally {
         if (opts?.bootstrap) setLoadingMsgs(false);
         else setRefreshingMsgs(false);

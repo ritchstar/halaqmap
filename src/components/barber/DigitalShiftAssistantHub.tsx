@@ -54,7 +54,7 @@ export function DigitalShiftAssistantHub({
   const [refreshing, setRefreshing] = useState(false);
   const [summary, setSummary] = useState<DigitalShiftSummary | null>(null);
   const [assistantName, setAssistantName] = useState(DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME);
-  const [enabled, setEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(false);
   const [replyDelayMinutes, setReplyDelayMinutes] = useState(DIGITAL_SHIFT_REPLY_DELAY_MINUTES);
   const [recommendations, setRecommendations] = useState<DigitalShiftRecommendation[]>([]);
   const [dismissingId, setDismissingId] = useState<string | null>(null);
@@ -93,7 +93,7 @@ export function DigitalShiftAssistantHub({
     setRecommendations(r.data.recommendations ?? []);
     if (r.data.config) {
       setAssistantName(r.data.config.assistant_display_name || DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME);
-      setEnabled(r.data.config.enabled !== false);
+      setEnabled(r.data.config.enabled === true);
       setReplyDelayMinutes(r.data.config.reply_delay_minutes ?? DIGITAL_SHIFT_REPLY_DELAY_MINUTES);
     }
   }, [barberId, barberEmail]);

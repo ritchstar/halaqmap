@@ -154,11 +154,19 @@ export async function startCustomerPrivateConversation(
     .maybeSingle();
 
   if (existing?.id) {
+    const existingRow = existing as CustomerPrivateConversationRow;
+    if (!existingRow.barber_id) {
+      await supabase
+        .from('private_conversations')
+        .update({ barber_id: barber.barberRowId })
+        .eq('id', existingRow.id);
+      existingRow.barber_id = barber.barberRowId;
+    }
     return {
       ok: true,
-      conversationId: String(existing.id),
+      conversationId: String(existingRow.id),
       customerUserId: guest.customerUserId,
-      conversation: existing as CustomerPrivateConversationRow,
+      conversation: existingRow,
     };
   }
 

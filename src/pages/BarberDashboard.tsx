@@ -57,6 +57,7 @@ import { cn } from '@/lib/utils';
 import { mockReviews } from '@/data/index';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
+import { useBarberPrivateChatInboxBadge } from '@/hooks/useBarberPrivateChatInboxBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { IMAGES } from '@/assets/images';
 import {
@@ -143,6 +144,7 @@ import {
   syncBarberGalleryRemote,
 } from '@/lib/barberGalleryRemote';
 import { BarberCustomerPrivateChatPanel } from '@/components/BarberCustomerPrivateChatPanel';
+import { BarberPrivateChatInboxWatcher } from '@/components/barber/BarberPrivateChatInboxWatcher';
 import { BarberSocialShareKit } from '@/components/barber/BarberSocialShareKit';
 import { DigitalShiftTabGate } from '@/components/barber/DigitalShiftTabGate';
 import {
@@ -756,13 +758,10 @@ export default function BarberDashboard({
     [],
   );
 
-  const unreadCustomerMessages = useMemo(
-    () =>
-      chatThreads.reduce(
-        (acc, t) => acc + t.messages.filter((m) => m.sender === 'customer' && !m.read).length,
-        0,
-      ),
-    [chatThreads],
+  const unreadCustomerMessages = useBarberPrivateChatInboxBadge(
+    barberData?.id,
+    barberData?.email,
+    Boolean(barberData && tierTabs.showMessages && !ownerWatchMode),
   );
 
   const upcomingPreview = useMemo(() => {
@@ -1054,20 +1053,50 @@ export default function BarberDashboard({
           </Alert>
         ) : null}
 
+        {tierTabs.showMessages && barberData && !ownerWatchMode ? (
+          <BarberPrivateChatInboxWatcher
+            barberId={barberData.id}
+            barberEmail={barberData.email}
+            activeTab={activeTab}
+            onUnreadChange={(count) => {
+              if (count !== unreadCustomerMessages.unreadCount) {
+                void unreadCustomerMessages.refresh();
+              }
+            }}
+          />
+        ) : null}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           <p className="text-sm font-medium text-muted-foreground sm:text-base">
             اختر قسماً من التبويبات أدناه — كل إطار يفتح أدوات ومحتوى خاص به.
           </p>
           <TabsList className={DASHBOARD_VITAL_TAB_LIST}>
             {tierTabs.showMessages ? (
-              <TabsTrigger value="messages" className={DASHBOARD_VITAL_TAB_TRIGGER}>
-                <MessageSquare className="h-5 w-5 shrink-0" />
-                <span>شات العملاء</span>
-                {unreadCustomerMessages > 0 && (
-                  <Badge variant="destructive" className="flex h-5 w-5 items-center justify-center p-0 text-xs">
-                    {unreadCustomerMessages}
-                  </Badge>
+              <TabsTrigger
+                value="messages"
+                className={cn(
+                  DASHBOARD_VITAL_TAB_TRIGGER,
+                  'relative',
+                  unreadCustomerMessages.hasUnread && activeTab !== 'messages'
+                    ? 'barber-chat-tab-unread-glow'
+                    : null,
                 )}
+              >
+                <span className="relative inline-flex shrink-0">
+                  <MessageSquare className="h-5 w-5 shrink-0" />
+                  {unreadCustomerMessages.hasUnread ? (
+                    <span
+                      className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-background animate-pulse"
+                      aria-hidden
+                    />
+                  ) : null}
+                </span>
+                <span>شات العملاء</span>
+                {unreadCustomerMessages.unreadCount > 0 ? (
+                  <Badge variant="destructive" className="flex h-5 min-w-5 items-center justify-center px-1 text-xs">
+                    {unreadCustomerMessages.unreadCount > 99 ? '99+' : unreadCustomerMessages.unreadCount}
+                  </Badge>
+                ) : null}
               </TabsTrigger>
             ) : null}
             {tierTabs.showAppointments ? (

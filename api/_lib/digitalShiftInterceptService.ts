@@ -16,6 +16,7 @@ import {
   resolveRecommendationInput,
 } from './digitalShiftSalonInsights.js';
 import { recordFleetDemandSignal } from './fleetDemandSignals.js';
+import { ensureDigitalShiftAddonFromPaidOrders } from './listingLicenseService.js';
 
 export type DigitalShiftInterceptResult =
   | {
@@ -81,10 +82,24 @@ export async function runDigitalShiftIntercept(
     return { ok: true, replied: false, reason: 'conversation_closed' };
   }
 
-  const barberId = String(conv.barber_id ?? '').trim();
+  const barberIdRaw = String(conv.barber_id ?? '').trim();
+  let barberId = barberIdRaw;
+  if (!barberId) {
+    const { data: barberRow } = await supabase
+      .from('barbers')
+      .select('id')
+      .eq('user_id', conv.barber_user_id)
+      .maybeSingle();
+    barberId = String(barberRow?.id ?? '').trim();
+    if (barberId) {
+      await supabase.from('private_conversations').update({ barber_id: barberId }).eq('id', conversationId);
+    }
+  }
   if (!barberId) {
     return { ok: true, replied: false, reason: 'no_barber_id' };
   }
+
+  await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
 
   const { data: cfg } = await supabase
     .from('barber_digital_shift_config')
@@ -343,8 +358,29 @@ export async function awaitDigitalShiftInterceptAfterCustomerSend(
     .eq('id', conversationId)
     .maybeSingle();
 
-  const barberId = String(conv?.barber_id ?? '').trim();
+  const barberIdRaw = String(conv?.barber_id ?? '').trim();
+  let barberId = barberIdRaw;
+  if (!barberId) {
+    const { data: fullConv } = await supabase
+      .from('private_conversations')
+      .select('barber_user_id')
+      .eq('id', conversationId)
+      .maybeSingle();
+    if (fullConv?.barber_user_id) {
+      const { data: barberRow } = await supabase
+        .from('barbers')
+        .select('id')
+        .eq('user_id', fullConv.barber_user_id)
+        .maybeSingle();
+      barberId = String(barberRow?.id ?? '').trim();
+      if (barberId) {
+        await supabase.from('private_conversations').update({ barber_id: barberId }).eq('id', conversationId);
+      }
+    }
+  }
   if (!barberId) return null;
+
+  await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
 
   const [{ data: cfg }, ctx] = await Promise.all([
     supabase

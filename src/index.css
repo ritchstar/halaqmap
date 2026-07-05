@@ -1479,6 +1479,10 @@
   animation: partner-platform-launch-marquee 36s linear infinite;
 }
 
+.barber-chat-tab-unread-glow {
+  box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.35), 0 0 14px rgba(244, 63, 94, 0.22);
+}
+
 @keyframes platform-security-incident-marquee {
   from {
     transform: translateX(-50%);

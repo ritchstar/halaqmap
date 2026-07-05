@@ -116,11 +116,40 @@ export async function POST(request: Request): Promise<Response> {
     if (error) {
       return Response.json({ error: error.message || 'Failed to list conversations' }, { status: 500, headers });
     }
+
+    const convRows = rows ?? [];
+    const convIds = convRows.map((row) => String(row.id));
+    const unreadByConv = new Map<string, number>();
+    if (convIds.length > 0) {
+      const customerByConv = new Map(convRows.map((row) => [String(row.id), String(row.customer_id)]));
+      const { data: unreadMsgs } = await supabase
+        .from('private_messages')
+        .select('conversation_id, sender_id')
+        .in('conversation_id', convIds)
+        .is('read_at', null);
+      for (const msg of unreadMsgs ?? []) {
+        const convId = String(msg.conversation_id);
+        const customerId = customerByConv.get(convId);
+        if (!customerId || String(msg.sender_id) !== customerId) continue;
+        unreadByConv.set(convId, (unreadByConv.get(convId) ?? 0) + 1);
+      }
+    }
+
+    const conversations = convRows.map((row) => ({
+      ...row,
+      unread_customer_count: unreadByConv.get(String(row.id)) ?? 0,
+    }));
+    const unreadCustomerTotal = conversations.reduce(
+      (acc, row) => acc + Number(row.unread_customer_count ?? 0),
+      0,
+    );
+
     return Response.json(
       {
         ok: true,
-        conversations: rows ?? [],
+        conversations,
         digitalShiftEnabled: shiftCfg?.enabled === true,
+        unreadCustomerTotal,
       },
       { headers },
     );
@@ -182,6 +211,24 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: error.message || 'Failed to load messages' }, { status: 500, headers });
     }
     return Response.json({ ok: true, messages: msgs ?? [], expired: false }, { headers });
+  }
+
+  if (action === 'mark_read') {
+    if (!conversationOpen(c)) {
+      return Response.json({ ok: true, marked: 0 }, { headers });
+    }
+    const nowIso = new Date().toISOString();
+    const { data: markedRows, error: markErr } = await supabase
+      .from('private_messages')
+      .update({ read_at: nowIso })
+      .eq('conversation_id', conversationId)
+      .eq('sender_id', c.customer_id)
+      .is('read_at', null)
+      .select('id');
+    if (markErr) {
+      return Response.json({ error: markErr.message || 'Failed to mark read' }, { status: 500, headers });
+    }
+    return Response.json({ ok: true, marked: markedRows?.length ?? 0 }, { headers });
   }
 
   if (action === 'send') {
