@@ -37,6 +37,21 @@ import {
   type DigitalShiftSummary,
 } from '@/lib/digitalShiftAssistantRemote';
 
+function formatWalletTxLabel(reason: string): string {
+  const r = reason.trim();
+  if (r.startsWith('wallet_topup:')) return 'شحن محفظة';
+  if (r.startsWith('wallet_drain_recovery:')) return 'استرداد خصم يتيم';
+  if (r.endsWith(':refund')) return 'استرداد رد فاشل';
+  if (r.startsWith('shift_reply:')) return 'رد مناوب على عميل';
+  return 'حركة محفظة';
+}
+
+function formatWalletTxWhen(iso: string): string {
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return iso;
+  return d.toLocaleString('ar-SA', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+}
+
 type ChatTurn = { role: 'user' | 'assistant'; content: string };
 
 export function DigitalShiftAssistantHub({
@@ -267,6 +282,29 @@ export function DigitalShiftAssistantHub({
                 ? `الأسعار قبل الضريبة · تُضاف ضريبة القيمة المضافة ${vatSettings.ratePercent}% عند الدفع · كل رد ≈ 1.50 ر.س`
                 : 'الأسعار نهائية بلا ضريبة حالياً · كل رد ≈ 1.50 ر.س'}
             </p>
+            {(summary?.walletTransactions?.length ?? 0) > 0 ? (
+              <div className="mt-2 space-y-1 border-t border-border/50 pt-2">
+                <p className="text-[0.65rem] font-semibold text-muted-foreground">آخر الحركات</p>
+                <ul className="max-h-36 space-y-1 overflow-y-auto text-[0.65rem]">
+                  {summary!.walletTransactions!.slice(0, 12).map((tx) => {
+                    const sar = (tx.amount_halalas / 100).toFixed(2);
+                    const sign = tx.direction === 'debit' ? '−' : '+';
+                    return (
+                      <li key={tx.id} className="flex items-start justify-between gap-2">
+                        <span className="text-muted-foreground">{formatWalletTxWhen(tx.created_at)}</span>
+                        <span className="text-start">
+                          <span className={tx.direction === 'debit' ? 'text-rose-600' : 'text-emerald-600'}>
+                            {sign}
+                            {sar} ر.س
+                          </span>
+                          <span className="block text-muted-foreground">{formatWalletTxLabel(tx.reason)}</span>
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
         <Card className="border-indigo-500/20">

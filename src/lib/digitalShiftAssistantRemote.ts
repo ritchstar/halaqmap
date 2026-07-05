@@ -39,6 +39,13 @@ export type DigitalShiftSummary = {
     total_spent_halalas: number;
     low_balance_threshold_halalas: number;
   } | null;
+  walletTransactions?: {
+    id: string;
+    direction: 'credit' | 'debit';
+    amount_halalas: number;
+    reason: string;
+    created_at: string;
+  }[];
   recommendations: DigitalShiftRecommendation[];
 };
 

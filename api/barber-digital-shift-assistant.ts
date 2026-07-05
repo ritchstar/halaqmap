@@ -144,13 +144,19 @@ export async function POST(request: Request): Promise<Response> {
     const ctx = await loadDigitalShiftContext(supabase, barberId);
     if (!ctx) return Response.json({ error: 'Context unavailable' }, { status: 404, headers });
 
-    const [{ data: cfg }, { data: wallet }] = await Promise.all([
+    const [{ data: cfg }, { data: wallet }, { data: walletTxRows }] = await Promise.all([
       supabase
         .from('barber_digital_shift_config')
         .select('*')
         .eq('barber_id', barberId)
         .maybeSingle(),
       supabase.from('barber_ai_wallet').select('*').eq('barber_id', barberId).maybeSingle(),
+      supabase
+        .from('barber_ai_wallet_transactions')
+        .select('id, direction, amount_halalas, reason, created_at')
+        .eq('barber_id', barberId)
+        .order('created_at', { ascending: false })
+        .limit(20),
     ]);
 
     await assessMarketStagnation(supabase, barberId, ctx);
@@ -171,6 +177,7 @@ export async function POST(request: Request): Promise<Response> {
         context: ctx,
         config: cfg,
         wallet,
+        walletTransactions: walletTxRows ?? [],
         recommendations: sanitizeRecommendationRows(recs),
       },
       { headers },
