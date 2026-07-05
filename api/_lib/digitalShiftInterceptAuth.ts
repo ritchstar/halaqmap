@@ -29,13 +29,6 @@ export async function assertShiftInterceptCaller(
     return { ok: false, status: 400, error: 'Invalid conversationId' };
   }
 
-  const guestClientId = String(input.guestClientId ?? '').trim();
-  if (guestClientId && isValidGuestClientId(guestClientId)) {
-    const conv = await getCustomerPrivateConversation(supabase, { guestClientId, conversationId });
-    if (!conv.ok) return { ok: false, status: conv.status, error: conv.error };
-    return { ok: true };
-  }
-
   const barberId = String(input.barberId ?? '').trim();
   const email = String(input.email ?? '').trim().toLowerCase();
   if (UUID_RE.test(barberId) && email.includes('@')) {
@@ -69,6 +62,13 @@ export async function assertShiftInterceptCaller(
     if (!convBarberId && convBarberUserId && barberUserId && convBarberUserId !== barberUserId) {
       return { ok: false, status: 403, error: 'Forbidden' };
     }
+    return { ok: true };
+  }
+
+  const guestClientId = String(input.guestClientId ?? '').trim();
+  if (guestClientId && isValidGuestClientId(guestClientId)) {
+    const conv = await getCustomerPrivateConversation(supabase, { guestClientId, conversationId });
+    if (!conv.ok) return { ok: false, status: conv.status, error: conv.error };
     return { ok: true };
   }
 

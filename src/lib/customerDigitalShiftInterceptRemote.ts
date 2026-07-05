@@ -28,13 +28,16 @@ export async function customerDigitalShiftInterceptRemote(
   if (!conversationId) return { ok: false, error: 'Missing conversationId' };
 
   const payload: Record<string, string> = { conversationId };
-  const guestClientId = (input.guestClientId || getOrCreateGuestClientId()).trim();
-  if (guestClientId) payload.guestClientId = guestClientId;
   const barberId = String(input.barberId ?? '').trim();
   const email = String(input.email ?? '').trim();
-  if (barberId && email) {
+  const useBarberAuth = Boolean(barberId && email.includes('@'));
+
+  if (useBarberAuth) {
     payload.barberId = barberId;
     payload.email = email;
+  } else {
+    const guestClientId = (input.guestClientId || getOrCreateGuestClientId()).trim();
+    if (guestClientId) payload.guestClientId = guestClientId;
   }
 
   try {

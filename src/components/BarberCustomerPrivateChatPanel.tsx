@@ -278,7 +278,11 @@ export function BarberCustomerPrivateChatPanel({
         } else if (r.ok && r.reason === 'shift_claim_race') {
           setShiftInterceptHint('المناوب يعالج رسالة سابقة — انتظر لحظات أو أعد فتح المحادثة.');
         } else if (!r.ok) {
-          setShiftInterceptHint('تعذر طلب رد المناوب — سيتم إعادة المحاولة تلقائياً.');
+          setShiftInterceptHint(
+            r.error.includes('Forbidden') || r.error.includes('Unauthorized')
+              ? 'تعذر التحقق من صلاحية طلب المناوب — أعد تحميل لوحة الحلاق.'
+              : `تعذر طلب رد المناوب — ${r.error}`,
+          );
         } else if (r.ok && r.reason === 'barber_manual_takeover') {
           setShiftInterceptHint(null);
         }
