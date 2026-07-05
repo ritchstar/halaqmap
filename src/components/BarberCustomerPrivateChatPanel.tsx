@@ -241,8 +241,17 @@ export function BarberCustomerPrivateChatPanel({
           setShiftInterceptHint(
             'المناوب متوقف — من تبويب «المناوب الرقمي» فعّل «تفعيل المناوب الرقمي» ثم اضغط «حفظ الإعدادات».',
           );
-        } else if (r.ok && r.reason === 'insufficient_balance') {
+        } else if (
+          r.ok &&
+          (r.reason === 'insufficient_balance' ||
+            r.reason === 'insufficient_balance_or_race' ||
+            r.reason === 'wallet_not_found')
+        ) {
           setShiftInterceptHint('رصيد محفظة المناوب غير كافٍ — اشحن المحفظة ليعود الرد التلقائي.');
+        } else if (r.ok && r.reason === 'shift_claim_race') {
+          setShiftInterceptHint('المناوب يعالج رسالة سابقة — انتظر لحظات أو أعد فتح المحادثة.');
+        } else if (!r.ok) {
+          setShiftInterceptHint('تعذر طلب رد المناوب — سيتم إعادة المحاولة تلقائياً.');
         } else if (r.ok && r.reason === 'barber_manual_takeover') {
           setShiftInterceptHint(null);
         }

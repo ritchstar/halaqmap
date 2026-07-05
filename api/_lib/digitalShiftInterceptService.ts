@@ -7,6 +7,7 @@ import {
   generateDigitalShiftReply,
   loadDigitalShiftContext,
   upsertRecommendation,
+  DIGITAL_SHIFT_REPLY_COST_HALALAS,
 } from './digitalShiftAssistant.js';
 import {
   detectClientLanguage,
@@ -59,6 +60,9 @@ function isMissingInterceptClaimsTableError(code: string, message: string): bool
   );
 }
 
+/** أطول من maxDuration (45ث) — claim بلا رد يُحرَّر بعد انقطاع الدالة. */
+const INTERCEPT_CLAIM_STALE_MS = 48_000;
+
 async function releaseInterceptClaim(
   supabase: SupabaseClient,
   conversationId: string,
@@ -69,6 +73,114 @@ async function releaseInterceptClaim(
     .delete()
     .eq('conversation_id', conversationId)
     .eq('customer_message_at', customerMessageAt);
+}
+
+async function shiftReplyExistsAfterCustomerMessage(
+  supabase: SupabaseClient,
+  conversationId: string,
+  customerMessageAt: string,
+): Promise<boolean> {
+  const { count, error } = await supabase
+    .from('private_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('conversation_id', conversationId)
+    .eq('is_digital_shift_reply', true)
+    .gte('created_at', customerMessageAt);
+  if (error) return false;
+  return (count ?? 0) > 0;
+}
+
+/** يحرّر claim عالقاً (انقطاع Vercel/خطأ) بلا رد فعلي للعميل. */
+async function clearStaleOrphanInterceptClaim(
+  supabase: SupabaseClient,
+  conversationId: string,
+  customerMessageAt: string,
+  staleMs = INTERCEPT_CLAIM_STALE_MS,
+): Promise<boolean> {
+  try {
+    const { data: claim, error } = await supabase
+      .from('digital_shift_intercept_claims')
+      .select('created_at')
+      .eq('conversation_id', conversationId)
+      .eq('customer_message_at', customerMessageAt)
+      .maybeSingle();
+    if (error) {
+      if (isMissingInterceptClaimsTableError(String(error.code ?? ''), String(error.message ?? ''))) {
+        return false;
+      }
+      return false;
+    }
+    if (!claim?.created_at) return false;
+    if (await shiftReplyExistsAfterCustomerMessage(supabase, conversationId, customerMessageAt)) {
+      return false;
+    }
+    const ageMs = Date.now() - new Date(claim.created_at).getTime();
+    if (!Number.isFinite(ageMs) || ageMs < staleMs) return false;
+    await releaseInterceptClaim(supabase, conversationId, customerMessageAt);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function acquireInterceptClaim(
+  supabase: SupabaseClient,
+  conversationId: string,
+  customerMessageAt: string,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  await clearStaleOrphanInterceptClaim(supabase, conversationId, customerMessageAt);
+
+  const tryInsert = async (): Promise<{ ok: true } | { ok: false; reason: string }> => {
+    const { error: claimErr } = await supabase.from('digital_shift_intercept_claims').insert({
+      conversation_id: conversationId,
+      customer_message_at: customerMessageAt,
+    });
+    if (!claimErr) return { ok: true };
+
+    const code = String(claimErr.code ?? '');
+    if (code === '23505') {
+      if (await shiftReplyExistsAfterCustomerMessage(supabase, conversationId, customerMessageAt)) {
+        return { ok: false, reason: 'shift_already_replied_race' };
+      }
+      const cleared = await clearStaleOrphanInterceptClaim(supabase, conversationId, customerMessageAt);
+      if (cleared) {
+        const { error: retryErr } = await supabase.from('digital_shift_intercept_claims').insert({
+          conversation_id: conversationId,
+          customer_message_at: customerMessageAt,
+        });
+        if (!retryErr) return { ok: true };
+        if (String(retryErr.code ?? '') === '23505') {
+          return { ok: false, reason: 'shift_claim_race' };
+        }
+        if (!isMissingInterceptClaimsTableError(String(retryErr.code ?? ''), String(retryErr.message ?? ''))) {
+          return { ok: false, reason: retryErr.message || 'claim_insert_failed' };
+        }
+        return { ok: true };
+      }
+      return { ok: false, reason: 'shift_claim_race' };
+    }
+    if (isMissingInterceptClaimsTableError(code, String(claimErr.message ?? ''))) {
+      return { ok: true };
+    }
+    return { ok: false, reason: claimErr.message || 'claim_insert_failed' };
+  };
+
+  return tryInsert();
+}
+
+async function markShiftWalletEmpty(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<void> {
+  await dismissRecommendationsByDedupeKeys(supabase, barberId, ['shift_last_action']);
+  await upsertRecommendation(supabase, {
+    barberId,
+    category: 'shift_chat',
+    priority: 90,
+    dedupeKey: 'shift_wallet_empty',
+    title: 'توقف المناوبة — الرصيد منتهٍ',
+    body: 'يا عمنا، توقفت الردود الآلية لأن رصيد محفظة المناوب منتهٍ. شحن الرصيد يعيد تفعيل المناوبة فوراً.',
+  });
 }
 
 /** محاولة اعتراض المناوب لمحادثة واحدة — يُستدعى من API العميل أو جدولة الخادم. */
@@ -197,27 +309,17 @@ export async function runDigitalShiftIntercept(
     return { ok: true, replied: false, reason: 'shift_already_replied_race' };
   }
 
-  const { error: claimErr } = await supabase.from('digital_shift_intercept_claims').insert({
-    conversation_id: conversationId,
-    customer_message_at: lastCustomerMessageAt,
-  });
-  if (claimErr) {
-    const code = String(claimErr.code ?? '');
-    if (code === '23505') {
-      const { count: racedReplies } = await supabase
-        .from('private_messages')
-        .select('id', { count: 'exact', head: true })
-        .eq('conversation_id', conversationId)
-        .eq('is_digital_shift_reply', true)
-        .gt('created_at', lastCustomerMessageAt);
-      if ((racedReplies ?? 0) > 0) {
-        return { ok: true, replied: false, reason: 'shift_already_replied_race' };
-      }
-      return { ok: true, replied: false, reason: 'shift_claim_race' };
+  if (ctx.walletBalanceHalalas < DIGITAL_SHIFT_REPLY_COST_HALALAS) {
+    await markShiftWalletEmpty(supabase, barberId);
+    return { ok: true, replied: false, reason: 'insufficient_balance' };
+  }
+
+  const claim = await acquireInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
+  if (!claim.ok) {
+    if (claim.reason === 'shift_already_replied_race' || claim.reason === 'shift_claim_race') {
+      return { ok: true, replied: false, reason: claim.reason };
     }
-    if (!isMissingInterceptClaimsTableError(code, String(claimErr.message ?? ''))) {
-      return { ok: false, error: claimErr.message, status: 500 };
-    }
+    return { ok: false, error: claim.reason, status: 500 };
   }
 
   const history = rows.slice(-10).map((m) => ({
@@ -275,15 +377,7 @@ export async function runDigitalShiftIntercept(
   const debit = await debitWalletForAiReply(supabase, barberId, debitReason);
   if (!debit.ok) {
     await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
-    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['shift_last_action']);
-    await upsertRecommendation(supabase, {
-      barberId,
-      category: 'shift_chat',
-      priority: 90,
-      dedupeKey: 'shift_wallet_empty',
-      title: 'توقف المناوبة — الرصيد منتهٍ',
-      body: 'يا عمنا، توقفت الردود الآلية لأن رصيد محفظة المناوب منتهٍ. شحن الرصيد يعيد تفعيل المناوبة فوراً.',
-    });
+    await markShiftWalletEmpty(supabase, barberId);
     return { ok: true, replied: false, reason: debit.error };
   }
 
@@ -432,6 +526,10 @@ export async function awaitDigitalShiftInterceptAfterCustomerSend(
   const retryReasons = new Set(['within_delay_window', 'shift_claim_race', 'shift_already_replied_race']);
   if (result.ok && !result.replied && retryReasons.has(result.reason)) {
     await sleep(ctx.shopOpen ? 2200 : 800);
+    result = await runDigitalShiftIntercept(supabase, conversationId);
+  }
+  if (result.ok && !result.replied && result.reason === 'shift_claim_race') {
+    await sleep(ctx.shopOpen ? 5000 : 2000);
     result = await runDigitalShiftIntercept(supabase, conversationId);
   }
 
