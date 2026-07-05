@@ -45,6 +45,7 @@ import {
 } from '@/lib/mobilePageShell';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
+import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -254,6 +255,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
           )}
         >
           <PartnerOrderReceptionTicker />
+          <PartnerPlatformLaunchTicker />
           <PartnerPlatformInspectionTicker />
           <div className="container mx-auto px-3 sm:px-4">
             {isMapCommunityPage ? (

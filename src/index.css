@@ -1466,6 +1466,19 @@
   animation: partner-platform-inspection-marquee 38s linear infinite;
 }
 
+@keyframes partner-platform-launch-marquee {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.partner-platform-launch-marquee-track {
+  animation: partner-platform-launch-marquee 36s linear infinite;
+}
+
 @keyframes platform-security-incident-marquee {
   from {
     transform: translateX(-50%);

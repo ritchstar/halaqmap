@@ -1,5 +1,6 @@
 import { isPartnerBannerRoute } from '@/config/partnerBannerRoutes';
 import { PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED } from '@/config/partnerPlatformInspectionBanner';
+import { PARTNER_PLATFORM_LAUNCH_BANNER_ENABLED } from '@/config/partnerPlatformLaunchBanner';
 
 /** توقيت فتح استقبال الطلبات (Asia/Riyadh) — يُضبط في Vercel: `VITE_PARTNER_ORDER_RECEPTION_OPENS_AT` */
 export const PARTNER_ORDER_RECEPTION_OPENS_AT_ISO =
@@ -50,7 +51,12 @@ export function shouldShowPartnerOrderReceptionBanner(
   pathname: string,
   now = new Date(),
 ): boolean {
-  if (PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED && PARTNER_ORDER_RECEPTION_BANNER_ENABLED) return false;
+  if (
+    (PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED || PARTNER_PLATFORM_LAUNCH_BANNER_ENABLED) &&
+    PARTNER_ORDER_RECEPTION_BANNER_ENABLED
+  ) {
+    return false;
+  }
   if (!PARTNER_ORDER_RECEPTION_BANNER_ENABLED) return false;
   if (!isPartnerBannerRoute(pathname)) return false;
   const opensMs = parseOpensAtMs(PARTNER_ORDER_RECEPTION_OPENS_AT_ISO);

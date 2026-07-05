@@ -1,12 +1,15 @@
 import { isPartnerBannerRoute } from '@/config/partnerBannerRoutes';
+import { PARTNER_PLATFORM_LAUNCH_BANNER_ENABLED } from '@/config/partnerPlatformLaunchBanner';
 
 /**
- * يُخفى الشريط فقط عند `VITE_PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED=true`
- * (لا تستخدم ENABLED=false — كان يسبب لبساً ويُدمَج في البناء).
+ * يُخفى الشريط عند:
+ * - `VITE_PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED=true`
+ * - تفعيل شريط الإطلاق (Live)
  */
 export const PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED =
   import.meta.env.VITE_PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED === 'true' ||
-  import.meta.env.VITE_PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED === 'false';
+  import.meta.env.VITE_PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED === 'false' ||
+  PARTNER_PLATFORM_LAUNCH_BANNER_ENABLED;
 
 export const PARTNER_PLATFORM_INSPECTION_BANNER_ENABLED = !PARTNER_PLATFORM_INSPECTION_BANNER_DISABLED;
 

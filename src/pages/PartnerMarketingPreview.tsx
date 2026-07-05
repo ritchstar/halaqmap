@@ -62,6 +62,7 @@ import { PartnerB2BUrgencyBand } from '@/components/partner/PartnerB2BUrgencyBan
 import { PartnerOwnerWatchSpotlight } from '@/components/partner/PartnerOwnerWatchSpotlight';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
+import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { MobilePartnerActionDock } from '@/components/partner/MobilePartnerActionDock';
 import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
@@ -612,7 +613,8 @@ export default function PartnerMarketingPreview() {
           الهيدر الموحّد — شريط المدن + التنقل (مسار الشركاء)
           ══════════════════════════════════════════════════════════════════ */}
       <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-500">
-        <PartnerPlatformInspectionTicker surface="partner-light" forceShow />
+        <PartnerPlatformLaunchTicker surface="partner-light" forceShow />
+        <PartnerPlatformInspectionTicker surface="partner-light" />
         <div className="relative z-20">
           <PartnerOrderReceptionTicker surface="partner-light" />
         </div>

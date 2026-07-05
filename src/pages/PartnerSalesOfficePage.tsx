@@ -8,6 +8,7 @@ import { PlatformOfficialFooterStrip } from '@/components/PlatformOfficialFooter
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { PartnerOrderReceptionTicker } from '@/components/partner/PartnerOrderReceptionTicker';
 import { PartnerPlatformInspectionTicker } from '@/components/partner/PartnerPlatformInspectionTicker';
+import { PartnerPlatformLaunchTicker } from '@/components/partner/PartnerPlatformLaunchTicker';
 import { PARTNER_LAYOUT_FOOTER_LINE } from '@/lib/partnerMarketingCopy';
 
 const MOMENTUM_STRIPS = [
@@ -158,6 +159,7 @@ export default function PartnerSalesOfficePage() {
     >
       <div className="sticky top-0 z-[60]">
         <PartnerOrderReceptionTicker surface="partner-light" />
+        <PartnerPlatformLaunchTicker surface="partner-light" />
         <PartnerPlatformInspectionTicker surface="partner-light" />
       </div>
       <div ref={topAnchorRef} className="absolute top-0 h-px w-px" aria-hidden />
