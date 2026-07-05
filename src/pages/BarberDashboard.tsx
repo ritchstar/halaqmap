@@ -58,6 +58,7 @@ import { mockReviews } from '@/data/index';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { useBarberPrivateChatInboxBadge } from '@/hooks/useBarberPrivateChatInboxBadge';
+import { useBarberAppointmentInboxBadge } from '@/hooks/useBarberAppointmentInboxBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { IMAGES } from '@/assets/images';
 import {
@@ -633,6 +634,10 @@ export default function BarberDashboard({
     return tier === SubscriptionTier.DIAMOND;
   }, [effectiveListingTier, barberData?.subscription]);
 
+  const pendingAppointments = useBarberAppointmentInboxBadge(
+    Boolean(barberData && appointmentsDiamondTier && !founderPreview),
+  );
+
   const refreshRemoteBookings = useCallback(
     async (options?: { silent?: boolean }) => {
       if (founderPreview || !barberId || !isSupabaseConfigured()) return;
@@ -708,8 +713,9 @@ export default function BarberDashboard({
       else if (status === 'cancelled') toast.message('تم إلغاء الحجز');
       else toast.success('تم إكمال الحجز');
       void refreshRemoteBookings();
+      void pendingAppointments.refresh();
     },
-    [refreshRemoteBookings],
+    [refreshRemoteBookings, pendingAppointments.refresh],
   );
 
   const persistPosts = useCallback(
@@ -1100,9 +1106,31 @@ export default function BarberDashboard({
               </TabsTrigger>
             ) : null}
             {tierTabs.showAppointments ? (
-              <TabsTrigger value="appointments" className={DASHBOARD_VITAL_TAB_TRIGGER}>
-                <Calendar className="h-5 w-5 shrink-0" />
+              <TabsTrigger
+                value="appointments"
+                className={cn(
+                  DASHBOARD_VITAL_TAB_TRIGGER,
+                  'relative',
+                  pendingAppointments.hasPending && activeTab !== 'appointments'
+                    ? 'barber-chat-tab-unread-glow'
+                    : null,
+                )}
+              >
+                <span className="relative inline-flex shrink-0">
+                  <Calendar className="h-5 w-5 shrink-0" />
+                  {pendingAppointments.hasPending ? (
+                    <span
+                      className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-background animate-pulse"
+                      aria-hidden
+                    />
+                  ) : null}
+                </span>
                 <span>المواعيد</span>
+                {pendingAppointments.pendingCount > 0 ? (
+                  <Badge variant="destructive" className="flex h-5 min-w-5 items-center justify-center px-1 text-xs">
+                    {pendingAppointments.pendingCount > 99 ? '99+' : pendingAppointments.pendingCount}
+                  </Badge>
+                ) : null}
               </TabsTrigger>
             ) : null}
             {tierTabs.showDigitalShift ? (

@@ -1,10 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
-import { runDigitalShiftIntercept } from './_lib/digitalShiftInterceptService.js';
+import {
+  awaitDigitalShiftInterceptAfterCustomerSend,
+  runDigitalShiftIntercept,
+} from './_lib/digitalShiftInterceptService.js';
+import {
+  assertShiftInterceptCaller,
+  isShiftInterceptWorkerRequest,
+} from './_lib/digitalShiftInterceptAuth.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
-export const config = { maxDuration: 45 };
+export const config = { maxDuration: 60 };
 
 const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
@@ -62,9 +69,28 @@ export async function POST(request: Request): Promise<Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  const isWorker = isShiftInterceptWorkerRequest(body, request);
+  if (!isWorker) {
+    const caller = await assertShiftInterceptCaller(supabase, {
+      conversationId,
+      guestClientId: String(body.guestClientId ?? ''),
+      barberId: String(body.barberId ?? ''),
+      email: String(body.email ?? ''),
+    });
+    if (!caller.ok) {
+      return Response.json({ error: caller.error }, { status: caller.status, headers });
+    }
+  }
+
   let result;
   try {
-    result = await runDigitalShiftIntercept(supabase, conversationId);
+    result = isWorker
+      ? (await awaitDigitalShiftInterceptAfterCustomerSend(supabase, conversationId)) ?? {
+          ok: true as const,
+          replied: false,
+          reason: 'shift_skipped',
+        }
+      : await runDigitalShiftIntercept(supabase, conversationId);
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'intercept_failed';
     console.error('[customer-digital-shift-intercept]', conversationId, msg);

@@ -9,6 +9,10 @@ import {
 } from '@/lib/customerPrivateChatServerRemote';
 import { guessTranslateTarget, translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
 import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
+import {
+  customerMessageNeedsShiftIntercept,
+  SHIFT_INTERCEPT_BURST_DELAYS_MS,
+} from '@/lib/digitalShiftInterceptPolicy';
 import { POLL_MS } from '@/lib/pollingPolicy';
 
 export type CustomerBarberUiMessage = {
@@ -64,6 +68,16 @@ export function useCustomerBarberPrivateRealtimeChat(
   const translationAttemptedRef = useRef(new Set<string>());
   const interceptTimersRef = useRef<number[]>([]);
   const interceptInFlightRef = useRef(false);
+  const rawMessagesRef = useRef<PrivateMessageRow[]>([]);
+  const conversationRef = useRef<PrivateConversationRow | null>(null);
+
+  useEffect(() => {
+    rawMessagesRef.current = rawMessages;
+  }, [rawMessages]);
+
+  useEffect(() => {
+    conversationRef.current = conversation;
+  }, [conversation]);
 
   const refreshConversationAndMessages = useCallback(async (conversationId: string) => {
     const convRes = await getCustomerPrivateChatServer(conversationId);
@@ -93,25 +107,34 @@ export function useCustomerBarberPrivateRealtimeChat(
     setStatus('ready');
   }, []);
 
+  const needsShiftIntercept = useCallback((): boolean => {
+    const conv = conversationRef.current;
+    if (!conv) return false;
+    return customerMessageNeedsShiftIntercept({
+      messages: rawMessagesRef.current,
+      customerId: conv.customer_id,
+      barberUserId: conv.barber_user_id,
+    });
+  }, []);
+
   const runIntercept = useCallback(async (conversationId: string) => {
-    if (interceptInFlightRef.current) return;
+    if (interceptInFlightRef.current || !needsShiftIntercept()) return;
     interceptInFlightRef.current = true;
     try {
-      const r = await customerDigitalShiftInterceptRemote(conversationId);
+      const r = await customerDigitalShiftInterceptRemote({ conversationId });
       if (r.ok && r.replied) {
         await refreshConversationAndMessages(conversationId);
       }
     } finally {
       interceptInFlightRef.current = false;
     }
-  }, [refreshConversationAndMessages]);
+  }, [needsShiftIntercept, refreshConversationAndMessages]);
 
   const scheduleInterceptBurst = useCallback(
     (conversationId: string) => {
       for (const id of interceptTimersRef.current) window.clearTimeout(id);
       interceptTimersRef.current = [];
-      const delays = [POLL_MS.CUSTOMER_CHAT_INTERCEPT_AFTER_SEND, 5_500];
-      for (const delay of delays) {
+      for (const delay of SHIFT_INTERCEPT_BURST_DELAYS_MS) {
         const timerId = window.setTimeout(() => {
           void runIntercept(conversationId);
         }, delay);
@@ -226,13 +249,14 @@ export function useCustomerBarberPrivateRealtimeChat(
     if (!cid || status !== 'ready') return;
 
     const runInterceptPoll = async () => {
+      if (!needsShiftIntercept()) return;
       await runIntercept(cid);
     };
 
     void runInterceptPoll();
     const iv = window.setInterval(() => void runInterceptPoll(), POLL_MS.CUSTOMER_CHAT_INTERCEPT);
     return () => window.clearInterval(iv);
-  }, [status, conversation?.id, runIntercept]);
+  }, [status, conversation?.id, runIntercept, needsShiftIntercept]);
 
   const send = useCallback(
     async (body: string) => {
@@ -274,7 +298,7 @@ export function useCustomerBarberPrivateRealtimeChat(
       const id = convIdRef.current;
       if (!id) return;
       await refreshConversationAndMessages(id);
-      await runIntercept(id);
+      if (needsShiftIntercept()) await runIntercept(id);
     },
   };
 }

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getBarberListingBalance } from './listingLicenseService.js';
+import { resolveReplyDelaySeconds } from './digitalShiftReplyDelay.js';
 import { sanitizeBarberFacingCopyAr } from './barberFacingCopySanitize.js';
 import {
   buildCustomerLanguageSystemLock,
@@ -268,7 +269,7 @@ export async function loadDigitalShiftContext(
     walletBalanceHalalas: wallet?.balance_halalas ?? 0,
     walletLowThresholdHalalas: wallet?.low_balance_threshold_halalas ?? 3000,
     replyDelayMinutes: cfg?.reply_delay_minutes ?? 3,
-    replyDelaySeconds: Math.min(120, Math.max(3, Number(cfg?.reply_delay_seconds ?? 5) || 5)),
+    replyDelaySeconds: resolveReplyDelaySeconds(cfg),
   };
 }
 

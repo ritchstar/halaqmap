@@ -7,7 +7,8 @@ import {
   sendCustomerPrivateMessage,
   startCustomerPrivateConversation,
 } from './_lib/customerPrivateChatService.js';
-import { awaitDigitalShiftInterceptAfterCustomerSend } from './_lib/digitalShiftInterceptService.js';
+import { dispatchDigitalShiftInterceptWorker } from './_lib/digitalShiftInterceptService.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = {
   maxDuration: 45,
@@ -49,6 +50,9 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 30 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
@@ -130,20 +134,12 @@ export async function POST(request: Request): Promise<Response> {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
-    const shiftIntercept = await awaitDigitalShiftInterceptAfterCustomerSend(supabase, conversationId);
+    dispatchDigitalShiftInterceptWorker(conversationId);
     return Response.json(
       {
         ok: true,
         message: result.message,
-        shiftIntercept: shiftIntercept
-          ? {
-              replied: shiftIntercept.ok && shiftIntercept.replied === true,
-              reason:
-                shiftIntercept.ok && !shiftIntercept.replied && 'reason' in shiftIntercept
-                  ? shiftIntercept.reason
-                  : undefined,
-            }
-          : null,
+        shiftIntercept: { dispatched: true },
       },
       { headers },
     );

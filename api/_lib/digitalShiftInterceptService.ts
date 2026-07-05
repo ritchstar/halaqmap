@@ -20,6 +20,7 @@ import {
 } from './digitalShiftSalonInsights.js';
 import { recordFleetDemandSignal } from './fleetDemandSignals.js';
 import { ensureDigitalShiftAddonFromPaidOrders } from './listingLicenseService.js';
+import { resolveReplyDelaySeconds } from './digitalShiftReplyDelay.js';
 
 export type DigitalShiftInterceptResult =
   | {
@@ -168,6 +169,86 @@ async function acquireInterceptClaim(
   return tryInsert();
 }
 
+async function readWalletBalanceHalalas(supabase: SupabaseClient, barberId: string): Promise<number> {
+  const { data } = await supabase
+    .from('barber_ai_wallet')
+    .select('balance_halalas')
+    .eq('barber_id', barberId)
+    .maybeSingle();
+  return Math.max(0, Number(data?.balance_halalas ?? 0));
+}
+
+async function revalidateInterceptInFlight(
+  supabase: SupabaseClient,
+  conversationId: string,
+  customerMessageAt: string,
+  barberUserId: string,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const { data: conv } = await supabase
+    .from('private_conversations')
+    .select('status, closed_at, expires_at, shift_manual_takeover')
+    .eq('id', conversationId)
+    .maybeSingle();
+
+  if (!conv || conv.status !== 'active' || conv.closed_at) {
+    return { ok: false, reason: 'conversation_closed' };
+  }
+  if (new Date(conv.expires_at).getTime() <= Date.now()) {
+    return { ok: false, reason: 'conversation_closed' };
+  }
+  if (Boolean(conv.shift_manual_takeover)) {
+    return { ok: false, reason: 'barber_manual_takeover' };
+  }
+
+  const [{ count: barberHuman }, { count: shiftReplies }] = await Promise.all([
+    supabase
+      .from('private_messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('conversation_id', conversationId)
+      .eq('sender_id', barberUserId)
+      .eq('is_digital_shift_reply', false)
+      .gt('created_at', customerMessageAt),
+    supabase
+      .from('private_messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('conversation_id', conversationId)
+      .eq('is_digital_shift_reply', true)
+      .gt('created_at', customerMessageAt),
+  ]);
+
+  if ((barberHuman ?? 0) > 0) return { ok: false, reason: 'barber_already_replied' };
+  if ((shiftReplies ?? 0) > 0) return { ok: false, reason: 'shift_already_replied_race' };
+
+  return { ok: true };
+}
+
+/** يُطلق اعتراضاً كاملاً في invocation منفصل — لا يُعطّل إرسال رسالة العميل. */
+export function dispatchDigitalShiftInterceptWorker(conversationId: string): void {
+  const id = conversationId.trim();
+  if (!id) return;
+
+  const vercelHost = (process.env.VERCEL_URL || '').trim().replace(/^https?:\/\//, '');
+  const siteOrigin = (process.env.VITE_SITE_ORIGIN || process.env.SITE_ORIGIN || '').trim().replace(/\/$/, '');
+  const base = vercelHost ? `https://${vercelHost}` : siteOrigin;
+  const secret = (process.env.CRON_SECRET || '').trim();
+
+  if (!base || !secret) {
+    console.warn('[shift] intercept worker dispatch skipped — missing base URL or CRON_SECRET');
+    return;
+  }
+
+  void fetch(`${base}/api/customer-digital-shift-intercept`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${secret}`,
+    },
+    body: JSON.stringify({ conversationId: id, worker: true }),
+  }).catch((err) => {
+    console.error('[shift] intercept worker dispatch failed', err);
+  });
+}
+
 async function markShiftWalletEmpty(
   supabase: SupabaseClient,
   barberId: string,
@@ -309,7 +390,8 @@ export async function runDigitalShiftIntercept(
     return { ok: true, replied: false, reason: 'shift_already_replied_race' };
   }
 
-  if (ctx.walletBalanceHalalas < DIGITAL_SHIFT_REPLY_COST_HALALAS) {
+  const walletBalanceHalalas = await readWalletBalanceHalalas(supabase, barberId);
+  if (walletBalanceHalalas < DIGITAL_SHIFT_REPLY_COST_HALALAS) {
     await markShiftWalletEmpty(supabase, barberId);
     return { ok: true, replied: false, reason: 'insufficient_balance' };
   }
@@ -352,6 +434,17 @@ export async function runDigitalShiftIntercept(
     customerSalonContext = '';
   }
 
+  const preAiCheck = await revalidateInterceptInFlight(
+    supabase,
+    conversationId,
+    lastCustomerMessageAt,
+    barberUserId,
+  );
+  if (!preAiCheck.ok) {
+    await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
+    return { ok: true, replied: false, reason: preAiCheck.reason };
+  }
+
   let replyText: string;
   try {
     replyText = await generateDigitalShiftReply(ctx, 'customer', lastCustomerBody, history, {
@@ -373,12 +466,44 @@ export async function runDigitalShiftIntercept(
   const greetingHint = extractSalonGreetingHint(privateOfficeInstructions);
   replyText = finalizeCustomerShiftReply(replyText, customerLang, ctx, lastCustomerBody, greetingHint);
 
+  const preDebitCheck = await revalidateInterceptInFlight(
+    supabase,
+    conversationId,
+    lastCustomerMessageAt,
+    barberUserId,
+  );
+  if (!preDebitCheck.ok) {
+    await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
+    return { ok: true, replied: false, reason: preDebitCheck.reason };
+  }
+
   const debitReason = shiftReplyDebitReason(conversationId, lastCustomerMessageAt, decision.trigger);
   const debit = await debitWalletForAiReply(supabase, barberId, debitReason);
   if (!debit.ok) {
     await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
     await markShiftWalletEmpty(supabase, barberId);
     return { ok: true, replied: false, reason: debit.error };
+  }
+
+  if (debit.alreadyDebited) {
+    if (await shiftReplyExistsAfterCustomerMessage(supabase, conversationId, lastCustomerMessageAt)) {
+      await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
+      return { ok: true, replied: false, reason: 'shift_already_replied_race' };
+    }
+  }
+
+  const preInsertCheck = await revalidateInterceptInFlight(
+    supabase,
+    conversationId,
+    lastCustomerMessageAt,
+    barberUserId,
+  );
+  if (!preInsertCheck.ok) {
+    if (!debit.alreadyDebited) {
+      await creditWalletForAiReplyRefund(supabase, barberId, debitReason);
+    }
+    await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
+    return { ok: true, replied: false, reason: preInsertCheck.reason };
   }
 
   const { data: inserted, error: insErr } = await supabase
@@ -462,6 +587,8 @@ export async function runDigitalShiftIntercept(
     'market_stagnation_local',
   ]);
 
+  await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);
+
   return {
     ok: true,
     replied: true,
@@ -508,7 +635,7 @@ export async function awaitDigitalShiftInterceptAfterCustomerSend(
   const [{ data: cfg }, ctx] = await Promise.all([
     supabase
       .from('barber_digital_shift_config')
-      .select('enabled, reply_delay_seconds')
+      .select('enabled, reply_delay_minutes, reply_delay_seconds')
       .eq('barber_id', barberId)
       .maybeSingle(),
     loadDigitalShiftContext(supabase, barberId),
@@ -516,7 +643,7 @@ export async function awaitDigitalShiftInterceptAfterCustomerSend(
 
   if (!cfg?.enabled || !ctx) return null;
 
-  const delaySec = Math.min(120, Math.max(3, Number(cfg.reply_delay_seconds ?? 5) || 5));
+  const delaySec = resolveReplyDelaySeconds(cfg);
   const waitMs = ctx.shopOpen ? delaySec * 1000 + 250 : 350;
   await sleep(waitMs);
 

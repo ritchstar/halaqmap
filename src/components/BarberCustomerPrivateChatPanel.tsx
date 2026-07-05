@@ -20,6 +20,7 @@ import {
 import { barberDashboardTranslateTarget } from '@/lib/chatTranslationPolicy';
 import { translateChatLineRemote } from '@/lib/diamondChatTranslateRemote';
 import { customerDigitalShiftInterceptRemote } from '@/lib/customerDigitalShiftInterceptRemote';
+import { customerMessageNeedsShiftIntercept } from '@/lib/digitalShiftInterceptPolicy';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 import { useBarberCommunicationAlerts } from '@/hooks/useBarberCommunicationAlerts';
 import { BarberChatAlertSettingsCard } from '@/components/barber/BarberChatAlertSettingsCard';
@@ -224,17 +225,30 @@ export function BarberCustomerPrivateChatPanel({
 
   useEffect(() => {
     if (!isDiamond || !selectedId || !pollingEnabled || msLeft <= 0) return;
+    if (digitalShiftEnabled === false) return;
+    if (selected?.shift_manual_takeover) return;
 
     const runShiftIntercept = async () => {
       if (shiftInterceptInFlightRef.current || !isPollingTabActive()) return;
+      if (!selected) return;
+      const needsIntercept = customerMessageNeedsShiftIntercept({
+        messages,
+        customerId: selected.customer_id,
+        barberUserId: selected.barber_user_id ?? '',
+      });
+      if (!needsIntercept) {
+        setShiftInterceptHint(null);
+        return;
+      }
       shiftInterceptInFlightRef.current = true;
       try {
-        const r = await customerDigitalShiftInterceptRemote(selectedId);
+        const r = await customerDigitalShiftInterceptRemote({
+          conversationId: selectedId,
+          barberId,
+          email: barberEmail,
+        });
         if (r.ok && r.replied) {
           setShiftInterceptHint(null);
-          setConversations((prev) =>
-            prev.map((c) => (c.id === selectedId ? { ...c, shift_manual_takeover: false } : c)),
-          );
           await loadMessages(selectedId);
           await pollConversations(true);
         } else if (r.ok && r.reason === 'shift_disabled') {
@@ -263,7 +277,19 @@ export function BarberCustomerPrivateChatPanel({
     void runShiftIntercept();
     const iv = window.setInterval(() => void runShiftIntercept(), POLL_MS.BARBER_SHIFT_INTERCEPT);
     return () => window.clearInterval(iv);
-  }, [isDiamond, selectedId, pollingEnabled, msLeft, loadMessages, pollConversations]);
+  }, [
+    isDiamond,
+    selectedId,
+    selected,
+    messages,
+    pollingEnabled,
+    msLeft,
+    digitalShiftEnabled,
+    barberId,
+    barberEmail,
+    loadMessages,
+    pollConversations,
+  ]);
 
   useEffect(() => {
     translationInFlightRef.current.clear();

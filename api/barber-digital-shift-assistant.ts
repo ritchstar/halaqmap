@@ -20,6 +20,7 @@ import { assessMarketStagnation } from './_lib/fleetDemandSignals.js';
 import { sanitizeBarberFacingCopyAr } from './_lib/barberFacingCopySanitize.js';
 import { DIGITAL_SHIFT_NOT_ENABLED_ERROR_AR } from './_lib/subscriptionPricingCopy.js';
 import { ensureDigitalShiftAddonFromPaidOrders } from './_lib/listingLicenseService.js';
+import { resolveReplyDelaySeconds } from './_lib/digitalShiftReplyDelay.js';
 
 export const config = { maxDuration: 60 };
 
@@ -183,6 +184,7 @@ export async function POST(request: Request): Promise<Response> {
         ? addonActive
         : body.enabled === true;
     const replyDelayMinutes = Math.min(30, Math.max(1, Number(body.replyDelayMinutes ?? 3) || 3));
+    const replyDelaySeconds = resolveReplyDelaySeconds({ reply_delay_minutes: replyDelayMinutes });
 
     const { data: cfgRow } = await supabase
       .from('barber_digital_shift_config')
@@ -197,6 +199,7 @@ export async function POST(request: Request): Promise<Response> {
     const patch: Record<string, unknown> = {
       enabled,
       reply_delay_minutes: replyDelayMinutes,
+      reply_delay_seconds: replyDelaySeconds,
       banner_snapshot: { ...snap, shift_addon_purchase_synced: true },
     };
     if (assistantName) patch.assistant_display_name = assistantName;
