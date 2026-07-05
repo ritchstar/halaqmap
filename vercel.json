@@ -134,6 +134,10 @@
     {
       "path": "/api/cron-ops-health-scan",
       "schedule": "35 * * * *"
+    },
+    {
+      "path": "/api/cron-wallet-drain-recovery",
+      "schedule": "15 */6 * * *"
     }
   ]
 }
