@@ -50,14 +50,17 @@ function shiftReplyDebitReason(conversationId: string, customerMessageAt: string
   return `shift_reply:${conversationId}:${customerMessageAt}:${trigger}`;
 }
 
-/** جدول claims غير مُطبَّق بعد — PostgREST يُرجع PGRST205 وليس 42P01. */
+/** جدول claims غير مُطبَّق بعد أو بلا صلاحيات — PostgREST يُرجع PGRST205/42501. */
 function isMissingInterceptClaimsTableError(code: string, message: string): boolean {
   const c = code.trim();
-  if (c === '42P01' || c === 'PGRST205') return true;
+  if (c === '42P01' || c === 'PGRST205' || c === '42501') return true;
   const m = message.toLowerCase();
   return (
     m.includes('digital_shift_intercept_claims') &&
-    (m.includes('schema cache') || m.includes('could not find the table') || m.includes('does not exist'))
+    (m.includes('schema cache') ||
+      m.includes('could not find the table') ||
+      m.includes('does not exist') ||
+      m.includes('permission denied'))
   );
 }
 
