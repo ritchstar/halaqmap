@@ -18,7 +18,18 @@ const APP_MOUNTED_FLAG = '__halaqmapAppMountedV1'
 const BUILD_SYNC_SCHEDULED_FLAG = '__halaqmapBuildSyncScheduledV1'
 function currentHashPath(): string {
   const raw = window.location.hash.replace(/^#/, '').split('?')[0]?.trim() || '/';
-  return raw.startsWith('/') ? raw : `/${raw}`;
+  const normalized = raw.replace(/\\/g, '/');
+  return normalized.startsWith('/') ? normalized : `/${normalized}`;
+}
+
+/** Windows/paste غالباً يحوّل المسار إلى #\ambassadors\enter — HashRouter يحتاج /. */
+function normalizeLocationHashSlashes(): void {
+  if (typeof window === 'undefined') return;
+  const { hash, pathname, search } = window.location;
+  if (!hash || !hash.includes('\\')) return;
+  const fixed = hash.replace(/\\/g, '/');
+  if (fixed === hash) return;
+  window.history.replaceState(null, '', `${pathname}${search}${fixed}`);
 }
 
 const LAB_STANDALONE_ROUTES: Record<string, () => Promise<{ default: ComponentType }>> = {
@@ -285,6 +296,7 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
   if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
     bootMarker[APP_BOOTSTRAP_FLAG] = true
     try {
+      normalizeLocationHashSlashes()
       ensureDomainVerificationMeta()
       assertRuntimeEnvSafety()
       installDomMismatchGuard()

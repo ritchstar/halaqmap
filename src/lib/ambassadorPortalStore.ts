@@ -1,0 +1,409 @@
+import {
+  AMBASSADOR_PAYOUT_MIN_SAR,
+  AMBASSADOR_RULES_VERSION,
+  AMBASSADOR_TARGET_EXPIRY_DAYS,
+  AMBASSADOR_TARGET_REMINDER_DAYS,
+  type AmbassadorDurationMonths,
+  type AmbassadorPackageKey,
+  AMBASSADOR_COMMISSION_TABLE,
+} from '@/config/ambassadorFieldRulesPolicy';
+
+const STORAGE_KEY = 'halaqmap-ambassador-portal-v1';
+
+export type AmbassadorTargetKind = 'barber' | 'hospitality';
+
+export type AmbassadorTargetStatus =
+  | 'open'
+  | 'rewarded'
+  | 'expired'
+  | 'rejected'
+  | 'cancelled';
+
+export type AmbassadorTargetRequest = {
+  id: string;
+  kind: AmbassadorTargetKind;
+  status: AmbassadorTargetStatus;
+  shopName: string;
+  shopPhone: string;
+  city: string;
+  district: string;
+  notes: string;
+  latitude: number;
+  longitude: number;
+  accuracyMeters: number | null;
+  /** أسماء ملفات / تسميات الصور — الرفع للتخزين السحابي لاحقاً */
+  streetSignLabel: string;
+  interiorLabels: string[];
+  openedAt: string;
+  expiresAt: string;
+  rewardSar: number | null;
+  rejectReason: string | null;
+};
+
+export type AmbassadorLedgerEntry = {
+  id: string;
+  entryType: 'commission' | 'hospitality' | 'payout' | 'clawback' | 'adjustment';
+  amountSar: number;
+  balanceAfterSar: number;
+  note: string;
+  createdAt: string;
+  targetRequestId: string | null;
+};
+
+export type AmbassadorPayoutRequest = {
+  id: string;
+  amountSar: number;
+  iban: string;
+  status: 'pending' | 'processing' | 'paid' | 'rejected' | 'awaiting_receipt_ack';
+  transferDocumentLabel: string | null;
+  receiptAcknowledgedAt: string | null;
+  createdAt: string;
+};
+
+export type AmbassadorProfile = {
+  id: string;
+  code: string;
+  displayName: string;
+  phone: string;
+  iban: string;
+  marketingLocked: boolean;
+  rulesVersionAccepted: string;
+  rulesAcceptedAt: string;
+  createdAt: string;
+};
+
+export type AmbassadorPortalState = {
+  profile: AmbassadorProfile;
+  targets: AmbassadorTargetRequest[];
+  ledger: AmbassadorLedgerEntry[];
+  payouts: AmbassadorPayoutRequest[];
+  balanceSar: number;
+};
+
+function isBrowser(): boolean {
+  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+function uid(prefix: string): string {
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  let hex = '';
+  for (const b of bytes) hex += b.toString(16).padStart(2, '0');
+  return `${prefix}_${hex}`;
+}
+
+export function createAmbassadorCode(): string {
+  const n = Math.floor(1000 + Math.random() * 9000);
+  return `AMB-${n}`;
+}
+
+export function lookupCommissionSar(
+  packageKey: AmbassadorPackageKey,
+  months: AmbassadorDurationMonths,
+): number {
+  const row = AMBASSADOR_COMMISSION_TABLE.find((r) => r.packageKey === packageKey);
+  return row?.commissionByMonths[months] ?? 0;
+}
+
+export function readAmbassadorPortal(): AmbassadorPortalState | null {
+  if (!isBrowser()) return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as AmbassadorPortalState;
+    if (!parsed?.profile?.code || !parsed.profile.rulesVersionAccepted) return null;
+    if (parsed.profile.rulesVersionAccepted !== AMBASSADOR_RULES_VERSION) return null;
+    return {
+      ...parsed,
+      targets: Array.isArray(parsed.targets) ? parsed.targets : [],
+      ledger: Array.isArray(parsed.ledger) ? parsed.ledger : [],
+      payouts: Array.isArray(parsed.payouts) ? parsed.payouts : [],
+      balanceSar: Number(parsed.balanceSar) || 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function writeAmbassadorPortal(state: AmbassadorPortalState): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+export function clearAmbassadorPortal(): void {
+  if (!isBrowser()) return;
+  window.localStorage.removeItem(STORAGE_KEY);
+}
+
+export function registerAmbassador(input: {
+  displayName: string;
+  phone: string;
+}): AmbassadorPortalState {
+  const now = new Date().toISOString();
+  const state: AmbassadorPortalState = {
+    profile: {
+      id: uid('amb'),
+      code: createAmbassadorCode(),
+      displayName: input.displayName.trim(),
+      phone: input.phone.trim(),
+      iban: '',
+      marketingLocked: false,
+      rulesVersionAccepted: AMBASSADOR_RULES_VERSION,
+      rulesAcceptedAt: now,
+      createdAt: now,
+    },
+    targets: [],
+    ledger: [],
+    payouts: [],
+    balanceSar: 0,
+  };
+  writeAmbassadorPortal(state);
+  return state;
+}
+
+export function refreshTargetStatuses(state: AmbassadorPortalState): AmbassadorPortalState {
+  const now = Date.now();
+  let changed = false;
+  const targets = state.targets.map((t) => {
+    if (t.status !== 'open') return t;
+    if (new Date(t.expiresAt).getTime() <= now) {
+      changed = true;
+      return { ...t, status: 'expired' as const };
+    }
+    return t;
+  });
+  if (!changed) return state;
+  const next = { ...state, targets };
+  writeAmbassadorPortal(next);
+  return next;
+}
+
+export function daysSinceOpen(openedAt: string): number {
+  return Math.floor((Date.now() - new Date(openedAt).getTime()) / (24 * 60 * 60 * 1000));
+}
+
+export function targetWindowLabel(target: AmbassadorTargetRequest): string {
+  if (target.status === 'expired') return 'منتهٍ — بلا عمولة';
+  if (target.status === 'rewarded') return 'مستحق ومغلق';
+  if (target.status === 'rejected') return 'مرفوض';
+  if (target.status === 'cancelled') return 'ملغى';
+  const days = daysSinceOpen(target.openedAt);
+  if (days >= AMBASSADOR_TARGET_REMINDER_DAYS) {
+    return `تنبيه متابعة · متبقي حتى اليوم ${AMBASSADOR_TARGET_EXPIRY_DAYS}`;
+  }
+  return `نشط · يوم ${days} من ${AMBASSADOR_TARGET_EXPIRY_DAYS}`;
+}
+
+export function createTargetRequest(
+  state: AmbassadorPortalState,
+  input: {
+    kind: AmbassadorTargetKind;
+    shopName: string;
+    shopPhone: string;
+    city: string;
+    district: string;
+    notes: string;
+    latitude: number;
+    longitude: number;
+    accuracyMeters: number | null;
+    streetSignLabel: string;
+    interiorLabels: string[];
+  },
+): { ok: true; state: AmbassadorPortalState } | { ok: false; error: string } {
+  if (state.profile.marketingLocked) {
+    return { ok: false, error: 'التسويق مقفل حتى تقرّ باستلام آخر تحويل.' };
+  }
+  if (!input.streetSignLabel.trim()) {
+    return { ok: false, error: 'صورة لوحة المحل من الشارع إلزامية.' };
+  }
+  if (input.kind === 'barber' && input.interiorLabels.length < 4) {
+    return { ok: false, error: 'يلزم أربع صور داخلية لطلب استهداف الحلاق.' };
+  }
+  if (input.kind === 'hospitality' && input.interiorLabels.length < 2) {
+    return { ok: false, error: 'يلزم صورتان على الأقل لطلب المفروشات.' };
+  }
+  if (!Number.isFinite(input.latitude) || !Number.isFinite(input.longitude)) {
+    return { ok: false, error: 'الإحداثيات إلزامية — حدّد موقعك من الجهاز.' };
+  }
+
+  const opened = new Date();
+  const expires = new Date(opened);
+  expires.setDate(expires.getDate() + AMBASSADOR_TARGET_EXPIRY_DAYS);
+
+  const target: AmbassadorTargetRequest = {
+    id: uid('tgt'),
+    kind: input.kind,
+    status: 'open',
+    shopName: input.shopName.trim(),
+    shopPhone: input.shopPhone.trim(),
+    city: input.city.trim(),
+    district: input.district.trim(),
+    notes: input.notes.trim(),
+    latitude: input.latitude,
+    longitude: input.longitude,
+    accuracyMeters: input.accuracyMeters,
+    streetSignLabel: input.streetSignLabel.trim(),
+    interiorLabels: input.interiorLabels.map((s) => s.trim()).filter(Boolean),
+    openedAt: opened.toISOString(),
+    expiresAt: expires.toISOString(),
+    rewardSar: null,
+    rejectReason: null,
+  };
+
+  const next: AmbassadorPortalState = {
+    ...state,
+    targets: [target, ...state.targets],
+  };
+  writeAmbassadorPortal(next);
+  return { ok: true, state: next };
+}
+
+export function updateAmbassadorIban(
+  state: AmbassadorPortalState,
+  iban: string,
+): AmbassadorPortalState {
+  const next = {
+    ...state,
+    profile: { ...state.profile, iban: iban.trim() },
+  };
+  writeAmbassadorPortal(next);
+  return next;
+}
+
+export function requestPayout(
+  state: AmbassadorPortalState,
+): { ok: true; state: AmbassadorPortalState } | { ok: false; error: string } {
+  if (state.profile.marketingLocked) {
+    return { ok: false, error: 'يوجد تحويل بانتظار إقرار الاستلام.' };
+  }
+  if (state.balanceSar < AMBASSADOR_PAYOUT_MIN_SAR) {
+    return {
+      ok: false,
+      error: `الرصيد يجب أن يصل إلى ${AMBASSADOR_PAYOUT_MIN_SAR} ر.س لفتح طلب التحويل.`,
+    };
+  }
+  if (!state.profile.iban.trim()) {
+    return { ok: false, error: 'أدخل الآيبان أولاً.' };
+  }
+
+  const amount = state.balanceSar;
+  const payout: AmbassadorPayoutRequest = {
+    id: uid('pay'),
+    amountSar: amount,
+    iban: state.profile.iban.trim(),
+    status: 'awaiting_receipt_ack',
+    transferDocumentLabel: null,
+    receiptAcknowledgedAt: null,
+    createdAt: new Date().toISOString(),
+  };
+
+  const balanceAfter = 0;
+  const ledger: AmbassadorLedgerEntry = {
+    id: uid('led'),
+    entryType: 'payout',
+    amountSar: -amount,
+    balanceAfterSar: balanceAfter,
+    note: `طلب تحويل أرباح — ${amount} ر.س`,
+    createdAt: new Date().toISOString(),
+    targetRequestId: null,
+  };
+
+  const next: AmbassadorPortalState = {
+    ...state,
+    balanceSar: balanceAfter,
+    ledger: [ledger, ...state.ledger],
+    payouts: [payout, ...state.payouts],
+    profile: { ...state.profile, marketingLocked: true },
+  };
+  writeAmbassadorPortal(next);
+  return { ok: true, state: next };
+}
+
+export function attachTransferDocument(
+  state: AmbassadorPortalState,
+  payoutId: string,
+  label: string,
+): AmbassadorPortalState {
+  const payouts = state.payouts.map((p) =>
+    p.id === payoutId ? { ...p, transferDocumentLabel: label, status: 'awaiting_receipt_ack' as const } : p,
+  );
+  const next = { ...state, payouts };
+  writeAmbassadorPortal(next);
+  return next;
+}
+
+export function acknowledgePayoutReceipt(
+  state: AmbassadorPortalState,
+  payoutId: string,
+): { ok: true; state: AmbassadorPortalState } | { ok: false; error: string } {
+  const payout = state.payouts.find((p) => p.id === payoutId);
+  if (!payout) return { ok: false, error: 'طلب التحويل غير موجود.' };
+  if (!payout.transferDocumentLabel) {
+    return { ok: false, error: 'ارفع مستند التحويل أولاً قبل إقرار الاستلام.' };
+  }
+
+  const payouts = state.payouts.map((p) =>
+    p.id === payoutId
+      ? {
+          ...p,
+          status: 'paid' as const,
+          receiptAcknowledgedAt: new Date().toISOString(),
+        }
+      : p,
+  );
+
+  const next: AmbassadorPortalState = {
+    ...state,
+    payouts,
+    profile: { ...state.profile, marketingLocked: false },
+  };
+  writeAmbassadorPortal(next);
+  return { ok: true, state: next };
+}
+
+/**
+ * محاكاة استحقاق عمولة (حتى ربط webhook التفعيل) — للاختبار الداخلي من اللوحة.
+ */
+export function simulateRewardForTarget(
+  state: AmbassadorPortalState,
+  targetId: string,
+  amountSar: number,
+  note: string,
+): { ok: true; state: AmbassadorPortalState } | { ok: false; error: string } {
+  const target = state.targets.find((t) => t.id === targetId);
+  if (!target) return { ok: false, error: 'الطلب غير موجود.' };
+  if (target.status !== 'open') return { ok: false, error: 'الطلب ليس مفتوحاً.' };
+  if (new Date(target.expiresAt).getTime() <= Date.now()) {
+    return { ok: false, error: 'انتهت نافذة الطلب.' };
+  }
+
+  const balanceAfter = state.balanceSar + amountSar;
+  const ledger: AmbassadorLedgerEntry = {
+    id: uid('led'),
+    entryType: target.kind === 'hospitality' ? 'hospitality' : 'commission',
+    amountSar,
+    balanceAfterSar: balanceAfter,
+    note,
+    createdAt: new Date().toISOString(),
+    targetRequestId: targetId,
+  };
+
+  const targets = state.targets.map((t) =>
+    t.id === targetId
+      ? { ...t, status: 'rewarded' as const, rewardSar: amountSar }
+      : t,
+  );
+
+  const next: AmbassadorPortalState = {
+    ...state,
+    balanceSar: balanceAfter,
+    ledger: [ledger, ...state.ledger],
+    targets,
+  };
+  writeAmbassadorPortal(next);
+  return { ok: true, state: next };
+}
+
+export function buildAmbassadorReferralPath(code: string): string {
+  return `/partners/register?ref=${encodeURIComponent(code)}`;
+}

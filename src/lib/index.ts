@@ -96,6 +96,21 @@ export const ROUTE_PATHS = {
   SILENT_STAR_CAMP: '/lab/silent-star-camp',
   /** قفل الإضاءة الصحراوي — ليل/نجوم + تحكم إضاءة */
   DESERT_LIGHT_LOCK: '/lab/desert-light-lock',
+  /** بطاقة سمات — السياسات والتعهدات (المدخل الإلزامي) */
+  SEMAT_LEGAL: '/semat',
+  /** بطاقة سمات — إعداد البطاقة (بعد الموافقة على السياسات) */
+  SEMAT_SETUP: '/semat/setup',
+  /** بطاقة سمات — صفحة المسح للحلاق (عرض فقط) */
+  SEMAT_SCAN: '/s/:publicId',
+  /**
+   * وثيقة قواعد سفراء التسويق الميداني — مرجع قبل بناء لوحة السفير.
+   * لا تُربط من القوائم العامة في المرحلة الحالية.
+   */
+  AMBASSADOR_RULES: '/ambassadors/rules',
+  /** دخول / تسجيل سفير ميداني */
+  AMBASSADOR_ENTER: '/ambassadors/enter',
+  /** لوحة السفير */
+  AMBASSADOR_DASHBOARD: '/ambassadors/dashboard',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

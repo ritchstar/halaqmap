@@ -66,6 +66,12 @@ const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
 const PrivateOfficeGuide = lazy(() => import("@/pages/PrivateOfficeGuide"));
+const SematLegalHub = lazy(() => import("@/pages/semat/SematLegalHub"));
+const SematCardSetup = lazy(() => import("@/pages/semat/SematCardSetup"));
+const SematScanPage = lazy(() => import("@/pages/semat/SematScanPage"));
+const AmbassadorRulesHub = lazy(() => import("@/pages/ambassador/AmbassadorRulesHub"));
+const AmbassadorEnter = lazy(() => import("@/pages/ambassador/AmbassadorEnter"));
+const AmbassadorDashboard = lazy(() => import("@/pages/ambassador/AmbassadorDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -84,8 +90,8 @@ const NotFound = () => (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-6 px-4">
         <h1 className="text-6xl font-bold text-primary">404</h1>
-        <h2 className="text-2xl font-semibold text-foreground">??????? ???? ?????????</h2>
-        <p className="text-muted-foreground">???????? ??????? ?????? ???? ?????? ???? ????????</p>
+        <h2 className="text-2xl font-semibold text-foreground">الصفحة غير موجودة</h2>
+        <p className="text-muted-foreground">الرابط الذي فتحته غير متاح أو لم يُنشر بعد على المنصة.</p>
         <Link
           to={ROUTE_PATHS.HOME}
           className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
@@ -331,6 +337,12 @@ const App = () => (
           <Route path="/admin/staff-hub" element={<LegacyAdminRedirect suffix="/staff-hub" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.SEMAT_LEGAL} element={<LazyRoute><SematLegalHub /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.SEMAT_SETUP} element={<LazyRoute><SematCardSetup /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.SEMAT_SCAN} element={<LazyRoute><SematScanPage /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.AMBASSADOR_RULES} element={<LazyRoute><AmbassadorRulesHub /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.AMBASSADOR_ENTER} element={<LazyRoute><AmbassadorEnter /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.AMBASSADOR_DASHBOARD} element={<LazyRoute><AmbassadorDashboard /></LazyRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </AdminAuthHashGate>
