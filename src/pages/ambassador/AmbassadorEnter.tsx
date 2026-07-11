@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   AMBASSADOR_PROGRAM_NAME_AR,
   AMBASSADOR_RULES_VERSION,
@@ -15,17 +16,21 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib';
 import {
   readAmbassadorPortal,
-  registerAmbassador,
+  submitAmbassadorApplication,
 } from '@/lib/ambassadorPortalStore';
 import { toast } from '@/components/ui/sonner';
 
 export default function AmbassadorEnter() {
-  useDocumentTitle('دخول السفير · حلاق ماب');
+  useDocumentTitle('طلب انضمام سفير · حلاق ماب');
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
   const [existing, setExisting] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
+  const [coverageArea, setCoverageArea] = useState('');
+  const [salesExperience, setSalesExperience] = useState('');
+  const [socialProofUrl, setSocialProofUrl] = useState('');
+  const [socialProofLabel, setSocialProofLabel] = useState('');
   const [acceptedRules, setAcceptedRules] = useState(false);
 
   useEffect(() => {
@@ -64,12 +69,27 @@ export default function AmbassadorEnter() {
       toast.error('أدخل رقم جوال صالحاً.');
       return;
     }
+    if (coverageArea.trim().length < 8) {
+      toast.error('اكتب الحي أو النطاق الجغرافي الذي تستطيع تغطيته (بجدية).');
+      return;
+    }
+    if (salesExperience.trim().length < 20) {
+      toast.error('اشرح خبرتك أو استعدادك للمبيعات الميدانية بجملة واضحة (20 حرفاً على الأقل).');
+      return;
+    }
     if (!acceptedRules) {
       toast.error('يجب الموافقة على وثيقة قواعد السفراء.');
       return;
     }
-    registerAmbassador({ displayName, phone });
-    toast.success('تم إنشاء ملف السفير — مرحباً بك.');
+    submitAmbassadorApplication({
+      displayName,
+      phone,
+      coverageArea,
+      salesExperience,
+      socialProofUrl,
+      socialProofLabel,
+    });
+    toast.success('تم إرسال طلب الانضمام — حالتك الآن: قيد المراجعة.');
     navigate(ROUTE_PATHS.AMBASSADOR_DASHBOARD);
   };
 
@@ -98,8 +118,12 @@ export default function AmbassadorEnter() {
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-500/10">
               <Handshake className="h-7 w-7 text-teal-300" aria-hidden />
             </div>
-            <h1 className="mb-2 text-3xl font-black text-white">رئيسية سفراء التسويق</h1>
+            <h1 className="mb-2 text-3xl font-black text-white">طلب الانضمام والمقابلة الرقمية</h1>
             <p className="text-sm leading-relaxed text-slate-400">{AMBASSADOR_PROGRAM_NAME_AR}</p>
+            <p className="mt-3 text-xs leading-relaxed text-amber-200/90">
+              لا تفعيل فوري. بعد الإرسال تكون حالتك <strong>قيد المراجعة</strong>. التفعيل المؤقت ثم الاعتماد الرسمي
+              يأتيان بعد قبول الطلب ثم أول إغلاق صالون ناجح.
+            </p>
             <p className="mt-2 text-xs text-slate-500">نسخة القواعد: {AMBASSADOR_RULES_VERSION}</p>
           </div>
 
@@ -136,6 +160,65 @@ export default function AmbassadorEnter() {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="amb-coverage" className="text-slate-200">
+                الحي أو النطاق الجغرافي الذي تستطيع تغطيته ميدانياً؟
+              </Label>
+              <Textarea
+                id="amb-coverage"
+                value={coverageArea}
+                onChange={(e) => setCoverageArea(e.target.value)}
+                rows={2}
+                maxLength={300}
+                placeholder="مثال: جدة — أبحر، الشاطئ، الحمراء · زيارات ميدانية أسبوعية"
+                className="border-white/15 bg-black/30 text-white placeholder:text-slate-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="amb-exp" className="text-slate-200">
+                هل لديك خبرة سابقة في المبيعات أو التسويق الميداني؟
+              </Label>
+              <Textarea
+                id="amb-exp"
+                value={salesExperience}
+                onChange={(e) => setSalesExperience(e.target.value)}
+                rows={3}
+                maxLength={600}
+                placeholder="اكتب بجدية: خبرتك، أو لماذا أنت مناسب للعمل الميداني مع الصالونات حتى لو كانت أول تجربة."
+                className="border-white/15 bg-black/30 text-white placeholder:text-slate-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="amb-social-url" className="text-slate-200">
+                رابط حسابك على X أو LinkedIn (اختياري)
+              </Label>
+              <Input
+                id="amb-social-url"
+                value={socialProofUrl}
+                onChange={(e) => setSocialProofUrl(e.target.value)}
+                placeholder="https://x.com/… أو LinkedIn"
+                className="border-white/15 bg-black/30 text-white"
+                dir="ltr"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="amb-social-file" className="text-slate-200">
+                لقطة شاشة للحساب (اختياري)
+              </Label>
+              <Input
+                id="amb-social-file"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setSocialProofLabel(e.target.files?.[0]?.name ?? '')}
+                className="border-white/15 bg-black/30 text-slate-300 file:bg-teal-500/20 file:text-teal-100"
+              />
+              {socialProofLabel ? (
+                <p className="text-xs text-slate-500">تم اختيار: {socialProofLabel}</p>
+              ) : null}
+            </div>
+
             <div className="flex items-start gap-3 rounded-xl border border-teal-400/25 bg-teal-500/5 p-4">
               <Checkbox
                 id="amb-rules"
@@ -148,7 +231,7 @@ export default function AmbassadorEnter() {
                 <Link to={ROUTE_PATHS.AMBASSADOR_RULES} className="font-semibold text-teal-300 underline">
                   وثيقة قواعد السفراء
                 </Link>
-                ، بما فيها أول تفعيل فقط، 50م، نافذة 14→30 يوماً، وحد الصرف 300 ر.س.
+                ، وأفهم أن الطلب يمر بمراجعة، وأن الاعتماد الرسمي والمفروشات وصرف المحفظة بعد أول إغلاق صالون ناجح.
               </Label>
             </div>
 
@@ -157,11 +240,10 @@ export default function AmbassadorEnter() {
               size="lg"
               className="w-full rounded-xl bg-teal-500 font-bold text-black hover:bg-teal-400"
             >
-              ابدأ كسفير
+              إرسال طلب الانضمام للمراجعة
             </Button>
             <p className="text-center text-[11px] leading-relaxed text-slate-500">
-              المرحلة الحالية تحفظ ملفك على هذا الجهاز. مزامنة الخادم تُفعَّل بعد تطبيق migration{' '}
-              <code className="text-slate-400">138</code>.
+              المستعجل عن الأزرار السريعة سينسحب هنا — الجاد يكتب ويجيب. لا لوحة استهداف قبل قبول المراجعة.
             </p>
           </form>
         </motion.div>

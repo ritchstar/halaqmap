@@ -8,7 +8,8 @@ import {
   AMBASSADOR_COMMISSION_TABLE,
 } from '@/config/ambassadorFieldRulesPolicy';
 
-const STORAGE_KEY = 'halaqmap-ambassador-portal-v1';
+/** v2: استمارة مراجعة + تفعيل مؤقت حتى أول إغلاق صالون */
+const STORAGE_KEY = 'halaqmap-ambassador-portal-v2';
 
 export type AmbassadorTargetKind = 'barber' | 'hospitality';
 
@@ -18,6 +19,21 @@ export type AmbassadorTargetStatus =
   | 'expired'
   | 'rejected'
   | 'cancelled';
+
+/** دورة حياة حساب السفير — مكافحة التفعيل الفوري العشوائي */
+export type AmbassadorAccountStatus =
+  | 'pending_review'
+  | 'provisional'
+  | 'active'
+  | 'rejected';
+
+export type AmbassadorApplication = {
+  coverageArea: string;
+  salesExperience: string;
+  socialProofUrl: string;
+  socialProofLabel: string;
+  submittedAt: string;
+};
 
 export type AmbassadorTargetRequest = {
   id: string;
@@ -31,7 +47,6 @@ export type AmbassadorTargetRequest = {
   latitude: number;
   longitude: number;
   accuracyMeters: number | null;
-  /** أسماء ملفات / تسميات الصور — الرفع للتخزين السحابي لاحقاً */
   streetSignLabel: string;
   interiorLabels: string[];
   openedAt: string;
@@ -67,6 +82,12 @@ export type AmbassadorProfile = {
   phone: string;
   iban: string;
   marketingLocked: boolean;
+  accountStatus: AmbassadorAccountStatus;
+  application: AmbassadorApplication;
+  /** أول إغلاق صالون بمطابقة رخصة — يفتح الاعتماد الرسمي والمفروشات */
+  firstBarberCloseAt: string | null;
+  reviewedAt: string | null;
+  rejectReason: string | null;
   rulesVersionAccepted: string;
   rulesAcceptedAt: string;
   createdAt: string;
@@ -105,6 +126,33 @@ export function lookupCommissionSar(
   return row?.commissionByMonths[months] ?? 0;
 }
 
+export function isAmbassadorFieldActive(profile: AmbassadorProfile): boolean {
+  return profile.accountStatus === 'provisional' || profile.accountStatus === 'active';
+}
+
+export function isHospitalityUnlocked(profile: AmbassadorProfile): boolean {
+  return profile.accountStatus === 'active' && !!profile.firstBarberCloseAt;
+}
+
+export function isWalletPayoutAllowed(profile: AmbassadorProfile): boolean {
+  return profile.accountStatus === 'active' && !!profile.firstBarberCloseAt;
+}
+
+export function accountStatusLabelAr(status: AmbassadorAccountStatus): string {
+  switch (status) {
+    case 'pending_review':
+      return 'قيد المراجعة';
+    case 'provisional':
+      return 'تفعيل مؤقت';
+    case 'active':
+      return 'معتمد رسمياً';
+    case 'rejected':
+      return 'مرفوض';
+    default:
+      return status;
+  }
+}
+
 export function readAmbassadorPortal(): AmbassadorPortalState | null {
   if (!isBrowser()) return null;
   try {
@@ -113,12 +161,19 @@ export function readAmbassadorPortal(): AmbassadorPortalState | null {
     const parsed = JSON.parse(raw) as AmbassadorPortalState;
     if (!parsed?.profile?.code || !parsed.profile.rulesVersionAccepted) return null;
     if (parsed.profile.rulesVersionAccepted !== AMBASSADOR_RULES_VERSION) return null;
+    if (!parsed.profile.accountStatus || !parsed.profile.application?.coverageArea) return null;
     return {
       ...parsed,
       targets: Array.isArray(parsed.targets) ? parsed.targets : [],
       ledger: Array.isArray(parsed.ledger) ? parsed.ledger : [],
       payouts: Array.isArray(parsed.payouts) ? parsed.payouts : [],
       balanceSar: Number(parsed.balanceSar) || 0,
+      profile: {
+        ...parsed.profile,
+        firstBarberCloseAt: parsed.profile.firstBarberCloseAt ?? null,
+        reviewedAt: parsed.profile.reviewedAt ?? null,
+        rejectReason: parsed.profile.rejectReason ?? null,
+      },
     };
   } catch {
     return null;
@@ -133,12 +188,20 @@ export function writeAmbassadorPortal(state: AmbassadorPortalState): void {
 export function clearAmbassadorPortal(): void {
   if (!isBrowser()) return;
   window.localStorage.removeItem(STORAGE_KEY);
+  window.localStorage.removeItem('halaqmap-ambassador-portal-v1');
 }
 
-export function registerAmbassador(input: {
+export type AmbassadorApplicationInput = {
   displayName: string;
   phone: string;
-}): AmbassadorPortalState {
+  coverageArea: string;
+  salesExperience: string;
+  socialProofUrl?: string;
+  socialProofLabel?: string;
+};
+
+/** تقديم طلب انضمام — الحالة: قيد المراجعة (لا تفعيل فوري) */
+export function submitAmbassadorApplication(input: AmbassadorApplicationInput): AmbassadorPortalState {
   const now = new Date().toISOString();
   const state: AmbassadorPortalState = {
     profile: {
@@ -148,6 +211,17 @@ export function registerAmbassador(input: {
       phone: input.phone.trim(),
       iban: '',
       marketingLocked: false,
+      accountStatus: 'pending_review',
+      application: {
+        coverageArea: input.coverageArea.trim(),
+        salesExperience: input.salesExperience.trim(),
+        socialProofUrl: (input.socialProofUrl ?? '').trim(),
+        socialProofLabel: (input.socialProofLabel ?? '').trim(),
+        submittedAt: now,
+      },
+      firstBarberCloseAt: null,
+      reviewedAt: null,
+      rejectReason: null,
       rulesVersionAccepted: AMBASSADOR_RULES_VERSION,
       rulesAcceptedAt: now,
       createdAt: now,
@@ -159,6 +233,45 @@ export function registerAmbassador(input: {
   };
   writeAmbassadorPortal(state);
   return state;
+}
+
+/**
+ * اعتماد الطلب → تفعيل مؤقت (محاكاة مراجعة الإدارة حتى ربط لوحة الأدمن).
+ */
+export function approveAmbassadorToProvisional(
+  state: AmbassadorPortalState,
+): { ok: true; state: AmbassadorPortalState } | { ok: false; error: string } {
+  if (state.profile.accountStatus !== 'pending_review') {
+    return { ok: false, error: 'الطلب ليس قيد المراجعة.' };
+  }
+  const next: AmbassadorPortalState = {
+    ...state,
+    profile: {
+      ...state.profile,
+      accountStatus: 'provisional',
+      reviewedAt: new Date().toISOString(),
+      rejectReason: null,
+    },
+  };
+  writeAmbassadorPortal(next);
+  return { ok: true, state: next };
+}
+
+export function rejectAmbassadorApplication(
+  state: AmbassadorPortalState,
+  reason: string,
+): AmbassadorPortalState {
+  const next: AmbassadorPortalState = {
+    ...state,
+    profile: {
+      ...state.profile,
+      accountStatus: 'rejected',
+      reviewedAt: new Date().toISOString(),
+      rejectReason: reason.trim() || 'لم تُستوفَ معايير الجدية الميدانية.',
+    },
+  };
+  writeAmbassadorPortal(next);
+  return next;
 }
 
 export function refreshTargetStatuses(state: AmbassadorPortalState): AmbassadorPortalState {
@@ -210,8 +323,23 @@ export function createTargetRequest(
     interiorLabels: string[];
   },
 ): { ok: true; state: AmbassadorPortalState } | { ok: false; error: string } {
+  if (state.profile.accountStatus === 'pending_review') {
+    return { ok: false, error: 'حسابك قيد المراجعة — لا يمكن فتح استهداف قبل الاعتماد.' };
+  }
+  if (state.profile.accountStatus === 'rejected') {
+    return { ok: false, error: 'طلب الانضمام مرفوض — تواصل مع الإدارة.' };
+  }
+  if (!isAmbassadorFieldActive(state.profile)) {
+    return { ok: false, error: 'الحساب غير مفعّل للعمل الميداني.' };
+  }
   if (state.profile.marketingLocked) {
     return { ok: false, error: 'التسويق مقفل حتى تقرّ باستلام آخر تحويل.' };
+  }
+  if (input.kind === 'hospitality' && !isHospitalityUnlocked(state.profile)) {
+    return {
+      ok: false,
+      error: 'مسار المفروشات يُفتح بعد أول إغلاق صالون ناجح بمطابقة رخصة النفاذ.',
+    };
   }
   if (!input.streetSignLabel.trim()) {
     return { ok: false, error: 'صورة لوحة المحل من الشارع إلزامية.' };
@@ -273,6 +401,12 @@ export function updateAmbassadorIban(
 export function requestPayout(
   state: AmbassadorPortalState,
 ): { ok: true; state: AmbassadorPortalState } | { ok: false; error: string } {
+  if (!isWalletPayoutAllowed(state.profile)) {
+    return {
+      ok: false,
+      error: 'صرف المحفظة متاح بعد الاعتماد الرسمي (أول إغلاق صالون ناجح).',
+    };
+  }
   if (state.profile.marketingLocked) {
     return { ok: false, error: 'يوجد تحويل بانتظار إقرار الاستلام.' };
   }
@@ -362,7 +496,7 @@ export function acknowledgePayoutReceipt(
 }
 
 /**
- * محاكاة استحقاق عمولة (حتى ربط webhook التفعيل) — للاختبار الداخلي من اللوحة.
+ * محاكاة استحقاق عمولة — أول إغلاق صالون يرقّي الحساب إلى معتمد ويفتح المفروشات.
  */
 export function simulateRewardForTarget(
   state: AmbassadorPortalState,
@@ -370,12 +504,22 @@ export function simulateRewardForTarget(
   amountSar: number,
   note: string,
 ): { ok: true; state: AmbassadorPortalState } | { ok: false; error: string } {
+  if (!isAmbassadorFieldActive(state.profile)) {
+    return { ok: false, error: 'الحساب غير مفعّل للعمل الميداني.' };
+  }
   const target = state.targets.find((t) => t.id === targetId);
   if (!target) return { ok: false, error: 'الطلب غير موجود.' };
   if (target.status !== 'open') return { ok: false, error: 'الطلب ليس مفتوحاً.' };
   if (new Date(target.expiresAt).getTime() <= Date.now()) {
     return { ok: false, error: 'انتهت نافذة الطلب.' };
   }
+  if (target.kind === 'hospitality' && !isHospitalityUnlocked(state.profile)) {
+    return { ok: false, error: 'المفروشات مقفلة حتى أول إغلاق صالون.' };
+  }
+
+  const now = new Date().toISOString();
+  const isFirstBarberClose =
+    target.kind === 'barber' && !state.profile.firstBarberCloseAt;
 
   const balanceAfter = state.balanceSar + amountSar;
   const ledger: AmbassadorLedgerEntry = {
@@ -383,8 +527,10 @@ export function simulateRewardForTarget(
     entryType: target.kind === 'hospitality' ? 'hospitality' : 'commission',
     amountSar,
     balanceAfterSar: balanceAfter,
-    note,
-    createdAt: new Date().toISOString(),
+    note: isFirstBarberClose
+      ? `${note} · أول إغلاق صالون — اعتماد رسمي`
+      : note,
+    createdAt: now,
     targetRequestId: targetId,
   };
 
@@ -399,6 +545,13 @@ export function simulateRewardForTarget(
     balanceSar: balanceAfter,
     ledger: [ledger, ...state.ledger],
     targets,
+    profile: isFirstBarberClose
+      ? {
+          ...state.profile,
+          accountStatus: 'active',
+          firstBarberCloseAt: now,
+        }
+      : state.profile,
   };
   writeAmbassadorPortal(next);
   return { ok: true, state: next };

@@ -40,10 +40,15 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTE_PATHS } from '@/lib';
 import {
   acknowledgePayoutReceipt,
+  accountStatusLabelAr,
+  approveAmbassadorToProvisional,
   attachTransferDocument,
   buildAmbassadorReferralPath,
   clearAmbassadorPortal,
   createTargetRequest,
+  isAmbassadorFieldActive,
+  isHospitalityUnlocked,
+  isWalletPayoutAllowed,
   lookupCommissionSar,
   readAmbassadorPortal,
   refreshTargetStatuses,
@@ -122,6 +127,9 @@ export default function AmbassadorDashboard() {
           <div>
             <p className="text-xs text-slate-500">سفير ميداني</p>
             <p className="font-bold text-white">{state.profile.displayName}</p>
+            <p className="mt-0.5 text-[11px] text-teal-200/80">
+              {accountStatusLabelAr(state.profile.accountStatus)}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <span className="rounded-lg border border-teal-400/30 bg-teal-500/10 px-2.5 py-1 font-mono text-xs text-teal-200">
@@ -139,6 +147,21 @@ export default function AmbassadorDashboard() {
             </Button>
           </div>
         </div>
+        {state.profile.accountStatus === 'pending_review' ? (
+          <div className="border-t border-amber-400/25 bg-amber-500/10 px-4 py-2 text-center text-xs text-amber-100">
+            طلبك قيد المراجعة — لا استهداف ولا محفظة حتى الاعتماد. أثبت الجدية في الاستمارة؛ المستعجل ينسحب هنا.
+          </div>
+        ) : null}
+        {state.profile.accountStatus === 'provisional' ? (
+          <div className="border-t border-sky-400/25 bg-sky-500/10 px-4 py-2 text-center text-xs text-sky-100">
+            تفعيل مؤقت: أغلق أول صالون بمطابقة رخصة النفاذ لتُعتمد رسمياً وتُفتح المفروشات وصرف المحفظة.
+          </div>
+        ) : null}
+        {state.profile.accountStatus === 'rejected' ? (
+          <div className="border-t border-red-400/25 bg-red-500/10 px-4 py-2 text-center text-xs text-red-100">
+            طلب مرفوض{state.profile.rejectReason ? ` — ${state.profile.rejectReason}` : ''}. تواصل مع الإدارة.
+          </div>
+        ) : null}
         {state.profile.marketingLocked ? (
           <div className="border-t border-amber-400/20 bg-amber-500/10 px-4 py-2 text-center text-xs text-amber-100">
             التسويق مقفل — أقرّ باستلام التحويل في تبويب المحفظة لإعادة الفتح.
@@ -150,6 +173,7 @@ export default function AmbassadorDashboard() {
         {tab === 'home' ? (
           <HomeTab
             state={state}
+            onState={setState}
             referralUrl={referralUrl}
             openCount={openCount}
             onCopy={copyReferral}
@@ -199,6 +223,7 @@ export default function AmbassadorDashboard() {
 
 function HomeTab({
   state,
+  onState,
   referralUrl,
   openCount,
   onCopy,
@@ -206,17 +231,61 @@ function HomeTab({
   onGoWallet,
 }: {
   state: AmbassadorPortalState;
+  onState: (s: AmbassadorPortalState) => void;
   referralUrl: string;
   openCount: number;
   onCopy: () => void;
   onGoTarget: () => void;
   onGoWallet: () => void;
 }) {
+  const fieldOk = isAmbassadorFieldActive(state.profile);
+  const hospitalityOk = isHospitalityUnlocked(state.profile);
+  const walletOk = isWalletPayoutAllowed(state.profile);
+
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+      {state.profile.accountStatus === 'pending_review' ? (
+        <section className="space-y-3 rounded-2xl border border-amber-400/30 bg-amber-500/5 p-5">
+          <h2 className="font-bold text-amber-100">قيد المراجعة — مقابلة رقمية</h2>
+          <p className="text-sm leading-relaxed text-slate-300">
+            استلمنا طلبك. النطاق: {state.profile.application.coverageArea}
+          </p>
+          <p className="text-xs leading-relaxed text-slate-400">
+            بعد قبول الإدارة تنتقل إلى «تفعيل مؤقت» وتفتح طلبات استهداف الصالونات فقط. المفروشات والمحفظة بعد أول
+            إغلاق ناجح.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-amber-400/40 text-amber-100"
+            onClick={() => {
+              const result = approveAmbassadorToProvisional(state);
+              if (!result.ok) {
+                toast.error(result.error);
+                return;
+              }
+              onState(result.state);
+              toast.success('تم الاعتماد → تفعيل مؤقت (محاكاة مراجعة حتى لوحة الإدارة).');
+            }}
+          >
+            محاكاة قبول المراجعة → تفعيل مؤقت
+          </Button>
+        </section>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-3">
         <StatCard label="رصيد المحفظة" value={`${state.balanceSar} ر.س`} />
         <StatCard label="طلبات مفتوحة" value={String(openCount)} />
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-[#0f0f14] p-4 text-xs leading-relaxed text-slate-400">
+        <p>
+          الحالة: <span className="text-teal-200">{accountStatusLabelAr(state.profile.accountStatus)}</span>
+        </p>
+        <p className="mt-1">
+          المفروشات: {hospitalityOk ? 'مفتوحة' : 'مقفلة حتى أول إغلاق صالون'} · صرف المحفظة:{' '}
+          {walletOk ? 'متاح عند ≥ 300' : 'بعد الاعتماد الرسمي'}
+        </p>
       </div>
 
       <section className="rounded-2xl border border-white/10 bg-[#0f0f14] p-5">
@@ -224,7 +293,14 @@ function HomeTab({
         <p className="mb-3 break-all text-xs text-slate-400" dir="ltr">
           {referralUrl}
         </p>
-        <Button type="button" variant="outline" size="sm" onClick={onCopy} className="border-white/15">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onCopy}
+          disabled={!fieldOk}
+          className="border-white/15"
+        >
           <Copy className="ml-2 h-4 w-4" aria-hidden />
           نسخ الرابط
         </Button>
@@ -236,6 +312,7 @@ function HomeTab({
       <section className="rounded-2xl border border-white/10 bg-[#0f0f14] p-5">
         <h2 className="mb-3 text-sm font-bold text-white">قواعد سريعة</h2>
         <ul className="space-y-2 text-xs leading-relaxed text-slate-400">
+          <li>• استمارة انضمام → قيد مراجعة → تفعيل مؤقت → أول صالون → اعتماد رسمي</li>
           <li>• أول تفعيل فقط — لا عمولة على التجديد</li>
           <li>• تطابق جغرافي ≤ {AMBASSADOR_GEO_MATCH_MAX_METERS}م</li>
           <li>
@@ -246,7 +323,7 @@ function HomeTab({
             • صرف من {AMBASSADOR_PAYOUT_MIN_SAR} ر.س · تحويل{' '}
             {AMBASSADOR_PAYOUT_BUSINESS_DAYS_MIN}–{AMBASSADOR_PAYOUT_BUSINESS_DAYS_MAX} أيام عمل
           </li>
-          <li>• مفروشات: {AMBASSADOR_HOSPITALITY_REWARD_SAR} ر.س بعد الاستلام بلا شكوى</li>
+          <li>• مفروشات: {AMBASSADOR_HOSPITALITY_REWARD_SAR} ر.س — بعد أول إغلاق صالون فقط</li>
         </ul>
         <Link
           to={ROUTE_PATHS.AMBASSADOR_RULES}
@@ -287,7 +364,7 @@ function HomeTab({
         <Button
           type="button"
           onClick={onGoTarget}
-          disabled={state.profile.marketingLocked}
+          disabled={!fieldOk || state.profile.marketingLocked}
           className="rounded-xl bg-teal-500 font-bold text-black hover:bg-teal-400"
         >
           فتح طلب استهداف
@@ -325,6 +402,8 @@ function TargetTab({
   onState: (s: AmbassadorPortalState) => void;
   onDone: () => void;
 }) {
+  const fieldOk = isAmbassadorFieldActive(state.profile);
+  const hospitalityOk = isHospitalityUnlocked(state.profile);
   const [kind, setKind] = useState<AmbassadorTargetKind>('barber');
   const [shopName, setShopName] = useState('');
   const [shopPhone, setShopPhone] = useState('');
@@ -337,6 +416,19 @@ function TargetTab({
   const [locating, setLocating] = useState(false);
   const [streetLabel, setStreetLabel] = useState('');
   const [interiorLabels, setInteriorLabels] = useState<string[]>([]);
+
+  if (!fieldOk) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+        <h1 className="text-2xl font-black text-white">طلب استهداف</h1>
+        <p className="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-5 text-sm leading-relaxed text-amber-100">
+          {state.profile.accountStatus === 'pending_review'
+            ? 'حسابك قيد المراجعة — لا يمكن فتح استهداف قبل قبول طلب الانضمام.'
+            : 'الحساب غير مفعّل للعمل الميداني.'}
+        </p>
+      </motion.div>
+    );
+  }
 
   const captureLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -414,15 +506,31 @@ function TargetTab({
       <form onSubmit={onSubmit} className="space-y-5 rounded-2xl border border-white/10 bg-[#0f0f14] p-5">
         <div className="space-y-2">
           <Label className="text-slate-200">نوع الطلب</Label>
-          <Select value={kind} onValueChange={(v) => setKind(v as AmbassadorTargetKind)}>
+          <Select
+            value={kind}
+            onValueChange={(v) => {
+              if (v === 'hospitality' && !hospitalityOk) {
+                toast.error('المفروشات تُفتح بعد أول إغلاق صالون ناجح.');
+                return;
+              }
+              setKind(v as AmbassadorTargetKind);
+            }}
+          >
             <SelectTrigger className="border-white/15 bg-black/30 text-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="barber">حلاق / صالون</SelectItem>
-              <SelectItem value="hospitality">شقق مفروشة / ضيافة</SelectItem>
+              <SelectItem value="hospitality" disabled={!hospitalityOk}>
+                شقق مفروشة / ضيافة{!hospitalityOk ? ' (بعد أول صالون)' : ''}
+              </SelectItem>
             </SelectContent>
           </Select>
+          {!hospitalityOk ? (
+            <p className="text-[11px] text-slate-500">
+              مسار المفروشات مقفل حتى أول إغلاق صالون ناجح بمطابقة رخصة النفاذ.
+            </p>
+          ) : null}
         </div>
 
         <div className="space-y-2">
@@ -536,7 +644,7 @@ function TargetTab({
         <Button
           type="submit"
           size="lg"
-          disabled={state.profile.marketingLocked}
+          disabled={state.profile.marketingLocked || !fieldOk}
           className="w-full rounded-xl bg-teal-500 font-bold text-black hover:bg-teal-400"
         >
           حفظ طلب الاستهداف
@@ -731,10 +839,20 @@ function WalletTab({
           type="button"
           className="w-full rounded-xl bg-teal-500 font-bold text-black hover:bg-teal-400"
           onClick={onPayout}
-          disabled={state.profile.marketingLocked || state.balanceSar < AMBASSADOR_PAYOUT_MIN_SAR}
+          disabled={
+            !isWalletPayoutAllowed(state.profile) ||
+            state.profile.marketingLocked ||
+            state.balanceSar < AMBASSADOR_PAYOUT_MIN_SAR
+          }
         >
           طلب تحويل الأرباح
         </Button>
+        {!isWalletPayoutAllowed(state.profile) ? (
+          <p className="text-[11px] leading-relaxed text-amber-200/90">
+            صرف المحفظة يُفتح بعد الاعتماد الرسمي (أول إغلاق صالون بمطابقة رخصة النفاذ). حتى ذلك الحين تبقى
+            العمولات مسجّلة عند الاستحقاق لكن التحويل مقفل.
+          </p>
+        ) : null}
       </section>
 
       {pendingAck ? (
