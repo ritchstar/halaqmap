@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { AmbassadorMarketingKitPanel } from '@/components/ambassador/AmbassadorMarketingKitPanel';
 import {
   AMBASSADOR_COMMISSION_TABLE,
   AMBASSADOR_GEO_MATCH_MAX_METERS,
@@ -300,6 +301,8 @@ function HomeTab({
           المحفظة والتحويل
         </Button>
       </div>
+
+      <AmbassadorMarketingKitPanel compact />
     </motion.div>
   );
 }

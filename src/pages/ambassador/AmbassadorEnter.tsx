@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Handshake } from 'lucide-react';
+import { AmbassadorMarketingKitPanel } from '@/components/ambassador/AmbassadorMarketingKitPanel';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -77,7 +78,7 @@ export default function AmbassadorEnter() {
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_70%_45%_at_50%_0%,rgba(20,184,166,0.14),transparent_55%)]" />
 
       <header className="relative z-10 border-b border-white/8 bg-black/40 backdrop-blur-md">
-        <div className="container mx-auto flex max-w-lg items-center justify-between px-4 py-4">
+        <div className="container mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <Link
             to={ROUTE_PATHS.HOME}
             className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-teal-200"
@@ -91,13 +92,13 @@ export default function AmbassadorEnter() {
         </div>
       </header>
 
-      <main className="relative z-10 container mx-auto max-w-lg px-4 py-10">
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+      <main className="relative z-10 container mx-auto max-w-3xl space-y-10 px-4 py-10 pb-16">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-lg">
           <div className="mb-8 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-500/10">
               <Handshake className="h-7 w-7 text-teal-300" aria-hidden />
             </div>
-            <h1 className="mb-2 text-3xl font-black text-white">لوحة السفير</h1>
+            <h1 className="mb-2 text-3xl font-black text-white">رئيسية سفراء التسويق</h1>
             <p className="text-sm leading-relaxed text-slate-400">{AMBASSADOR_PROGRAM_NAME_AR}</p>
             <p className="mt-2 text-xs text-slate-500">نسخة القواعد: {AMBASSADOR_RULES_VERSION}</p>
           </div>
@@ -164,6 +165,8 @@ export default function AmbassadorEnter() {
             </p>
           </form>
         </motion.div>
+
+        <AmbassadorMarketingKitPanel />
       </main>
     </div>
   );
