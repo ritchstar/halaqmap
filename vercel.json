@@ -1,5 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "halaqmap.com" }],
+      "destination": "https://www.halaqmap.com/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/rate/:path*",

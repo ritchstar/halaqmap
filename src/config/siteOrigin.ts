@@ -9,9 +9,27 @@ export function getSiteOrigin(): string {
     (import.meta.env.VITE_SITE_ORIGIN as string | undefined) ||
     (import.meta.env.VITE_PUBLIC_APP_ORIGIN as string | undefined)
   )?.trim();
-  if (raw) return raw.replace(/\/+$/, '');
-  if (typeof window !== 'undefined' && window.location?.origin) return window.location.origin;
-  return 'https://www.halaqmap.com';
+  let origin = raw
+    ? raw.replace(/\/+$/, '')
+    : typeof window !== 'undefined' && window.location?.origin
+      ? window.location.origin
+      : 'https://www.halaqmap.com';
+
+  // وحّد apex → www حتى لا تنقطع جلسة PostHog/الكوكيز بين النطاقين في الروابط المطلقة
+  try {
+    const u = new URL(origin);
+    if (u.hostname === 'halaqmap.com') {
+      u.hostname = 'www.halaqmap.com';
+      if (u.protocol === 'http:') u.protocol = 'https:';
+      origin = u.origin;
+    } else if (u.hostname === 'www.halaqmap.com' && u.protocol === 'http:') {
+      u.protocol = 'https:';
+      origin = u.origin;
+    }
+  } catch {
+    /* keep origin */
+  }
+  return origin.replace(/\/+$/, '');
 }
 
 /** رابط HashRouter مطلق — للمشاركة والروابط بين النطاقات. */

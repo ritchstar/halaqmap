@@ -16,18 +16,30 @@
     <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#061223" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
-    <!-- توحيد النطاق: halaqmap.com → www.halaqmap.com مع الحفاظ على #/barber/enter?m=... -->
+    <!-- توحيد النطاق: حفظ الإحالة الخارجية ثم halaqmap.com → www (مع #/...) -->
     <script>
       (function () {
         try {
-          if (window.location.hostname === 'halaqmap.com') {
-            window.location.replace(
-              'https://www.halaqmap.com' +
-                window.location.pathname +
-                window.location.search +
-                window.location.hash,
-            );
+          var host = window.location.hostname;
+          if (host !== 'halaqmap.com') return;
+          var ref = String(document.referrer || '');
+          // احفظ فقط الإحالات من خارج المنصة — وإلا سيُسجَّل الموقع كـ Initial Referrer بعد التحويل
+          if (ref && ref.indexOf('halaqmap.com') === -1) {
+            try {
+              sessionStorage.setItem('hm_ph_ext_referrer', ref);
+            } catch (e) {}
           }
+          if (window.location.search) {
+            try {
+              sessionStorage.setItem('hm_ph_landing_search', window.location.search);
+            } catch (e2) {}
+          }
+          window.location.replace(
+            'https://www.halaqmap.com' +
+              window.location.pathname +
+              window.location.search +
+              window.location.hash,
+          );
         } catch (e) {}
       })();
     </script>
