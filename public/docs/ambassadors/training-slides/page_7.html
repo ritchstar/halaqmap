@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>نظام سفراء حلاق ماب - إثبات الموقع والصور</title>
+<script src="https://picture-search.skywork.ai/aippt/static/tailwindcss.com"></script><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet"/><style>@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
+:root {
+    --ppt-bg: #0A0C10;
+    --ppt-bg-soft: #111827;
+    --ppt-surface: #161B22;
+    --ppt-surface-2: #1F2937;
+    --ppt-border: #30363D;
+    --ppt-text-1: #FFF;
+    --ppt-text-2: #94A3B8;
+    --ppt-text-3: #64748B;
+    --ppt-accent: #0D9488;
+    --ppt-accent-2: #14B8A6;
+    --ppt-chart-1: #0D9488;
+    --ppt-chart-2: #06B6D4;
+    --ppt-chart-3: #2DD4BF;
+    --ppt-chart-4: #5EEAD4;
+    --ppt-good: #10B981;
+    --ppt-warn: #F59E0B;
+    --ppt-bad: #EF4444;
+    --ppt-radius-sm: 2px;
+    --ppt-radius-md: 4px;
+    --ppt-radius-lg: 8px;
+    --ppt-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --ppt-shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.7);
+    --ppt-font-display: "IBM Plex Sans Arabic", sans-serif;
+    --ppt-font-body: "IBM Plex Sans Arabic", sans-serif
+    }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+    }
+body {width: 1280px; height: 720px; overflow: hidden; background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center}
+.salon-proof-slide-root {
+    width: 1280px;
+    height: 720px;
+    background-color: var(--ppt-bg);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    font-family: var(--ppt-font-body);
+    color: var(--ppt-text-1)
+    }
+/* Title Region */
+.title-region-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 40px 60px 20px 60px;
+    border-right: 6px solid var(--ppt-accent);
+    margin-right: 40px;
+    margin-top: 40px
+    }
+.title-region-heading {
+    font-family: var(--ppt-font-display);
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--ppt-text-1);
+    margin: 0;
+    line-height: 1.2
+    }
+.title-region-subtitle {
+    font-family: var(--ppt-font-body);
+    font-size: 16px;
+    color: var(--ppt-accent);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase
+    }
+/* Content Area */
+.salon-proof-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 60px 40px 60px;
+    gap: 30px
+    }
+.salon-proof-instruction-banner {
+    background-color: var(--ppt-surface);
+    border-right: 4px solid var(--ppt-accent-2);
+    padding: 16px 24px;
+    border-radius: var(--ppt-radius-md)
+    }
+.salon-proof-instruction-text {
+    font-size: 18px;
+    color: var(--ppt-text-2);
+    line-height: 1.6;
+    margin: 0
+    }
+.salon-proof-steps-grid {
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+    flex: 1
+    }
+.salon-proof-step-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center
+    }
+.salon-proof-step-card {
+    background-color: var(--ppt-surface);
+    border: 1px solid var(--ppt-border);
+    padding: 24px;
+    border-radius: var(--ppt-radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    transition: border-color 0.3s ease
+    }
+.salon-proof-step-card:hover {
+    border-color: var(--ppt-accent)
+    }
+.salon-proof-icon-container {
+    width: 56px;
+    height: 56px;
+    background-color: var(--ppt-bg-soft);
+    border-radius: var(--ppt-radius-md);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--ppt-border)
+    }
+.salon-proof-icon-container i {
+    font-size: 28px;
+    color: var(--ppt-accent)
+    }
+.salon-proof-card-header {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ppt-text-1)
+    }
+.salon-proof-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px
+    }
+.salon-proof-list-item {
+    display: block;
+    color: var(--ppt-text-2);
+    font-size: 16px;
+    line-height: 1.5;
+    position: relative;
+    padding-right: 24px
+    }
+.salon-proof-list-item::before {
+    content: "";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    right: 0;
+    color: var(--ppt-accent);
+    font-size: 14px
+    }
+.salon-proof-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: rgba(13, 148, 136, 0.15);
+    color: var(--ppt-accent-2);
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--ppt-radius-sm);
+    margin-top: 8px
+    }
+html { overflow: hidden; }
+</style>
+<meta content="16:9" name="PageAspectRatio"/><meta content="1280_720" name="PageSize"/></head>
+<body>
+<div class="salon-proof-slide-root" style="overflow: hidden;">
+<!-- Title Region -->
+<div class="title-region-wrapper">
+<h1 class="title-region-heading">
+        عند الصالون: إثبات الموقع والصور
+      </h1>
+<div class="title-region-subtitle">
+        دليل سفراء حلاق ماب الميداني
+      </div>
+</div>
+<!-- Main Content -->
+<div class="salon-proof-main-content">
+<!-- Intro Banner -->
+<div class="salon-proof-instruction-banner">
+<p class="salon-proof-instruction-text">
+          يجب تسجيل إحداثيات الموقع بدقة، رفع صورة اللوحة الخارجية، وأربع صور داخلية تشمل الحلاقين لضمان قبول طلب الاستهداف الميداني.
+        </p>
+</div>
+<!-- Steps Grid -->
+<div class="salon-proof-steps-grid">
+<!-- Column 1: GPS -->
+<div class="salon-proof-step-column">
+<div class="salon-proof-step-card">
+<div class="salon-proof-icon-container">
+<i class="fas fa-location-crosshairs"></i>
+</div>
+<h2 class="salon-proof-card-header">توثيق الموقع (GPS)</h2>
+<div class="salon-proof-list">
+<div class="salon-proof-list-item">الوقوف مباشرة أمام مدخل الصالون الصحيح.</div>
+<div class="salon-proof-list-item">الضغط على زر تسجيل الموقع في "طلب استهداف".</div>
+<div class="salon-proof-list-item">التأكد من استقرار الإشارة لضمان دقة الإحداثيات.</div>
+</div>
+<div class="salon-proof-badge">دقة إجبارية ≤ 50 متر</div>
+</div>
+</div>
+<!-- Column 2: Photography -->
+<div class="salon-proof-step-column">
+<div class="salon-proof-step-card">
+<div class="salon-proof-icon-container">
+<i class="fas fa-camera-retro"></i>
+</div>
+<h2 class="salon-proof-card-header">التوثيق البصري الميداني</h2>
+<div class="salon-proof-list">
+<div class="salon-proof-list-item">صورة واضحة للوحة المحل الخارجية من الشارع.</div>
+<div class="salon-proof-list-item">أربع صور داخلية شاملة لمرفقات الصالون.</div>
+<div class="salon-proof-list-item">يجب أن تظهر صور الحلاقين أثناء العمل.</div>
+</div>
+<div class="salon-proof-badge">صور حقيقية وغير منقولة</div>
+</div>
+</div>
+<!-- Column 3: Data Entry -->
+<div class="salon-proof-step-column">
+<div class="salon-proof-step-card">
+<div class="salon-proof-icon-container">
+<i class="fas fa-file-signature"></i>
+</div>
+<h2 class="salon-proof-card-header">البيانات والاعتماد</h2>
+<div class="salon-proof-list">
+<div class="salon-proof-list-item">إدخال اسم المحل، الحي، والمدينة بدقة.</div>
+<div class="salon-proof-list-item">إضافة رقم جوال الصالون إن توفر للتواصل.</div>
+<div class="salon-proof-list-item">حفظ الطلب فوراً لإرساله للمراجعة والتدقيق.</div>
+</div>
+<div class="salon-proof-badge">مراجعة تقنية فورية</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

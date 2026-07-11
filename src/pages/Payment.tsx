@@ -980,6 +980,13 @@ export default function Payment() {
       ? 'بنك الأول'
       : 'ميسر';
 
+  useEffect(() => {
+    if (!paymentReturnPaid) return;
+    void import('@/lib/analytics/productAnalytics').then(({ ProductEvents }) => {
+      ProductEvents.paymentCompleted({ tier: String(tier) });
+    });
+  }, [paymentReturnPaid, tier]);
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-background" dir="rtl">
       {/* Header */}

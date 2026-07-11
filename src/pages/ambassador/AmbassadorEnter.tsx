@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Handshake } from 'lucide-react';
+import { ArrowLeft, Handshake, Presentation } from 'lucide-react';
 import { AmbassadorMarketingKitPanel } from '@/components/ambassador/AmbassadorMarketingKitPanel';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -81,13 +81,19 @@ export default function AmbassadorEnter() {
       toast.error('يجب الموافقة على وثيقة قواعد السفراء.');
       return;
     }
-    submitAmbassadorApplication({
+    const portal = submitAmbassadorApplication({
       displayName,
       phone,
       coverageArea,
       salesExperience,
       socialProofUrl,
       socialProofLabel,
+    });
+    void import('@/lib/analytics/productAnalytics').then(({ ProductEvents, identifyAnalyticsUser }) => {
+      if (portal.profile?.code) {
+        identifyAnalyticsUser(`amb:${portal.profile.code}`, { persona: 'ambassador' });
+      }
+      ProductEvents.ambassadorApplicationSubmitted();
     });
     toast.success('تم إرسال طلب الانضمام — حالتك الآن: قيد المراجعة.');
     navigate(ROUTE_PATHS.AMBASSADOR_DASHBOARD);
@@ -106,9 +112,17 @@ export default function AmbassadorEnter() {
             <ArrowLeft className="h-4 w-4" aria-hidden />
             حلاق ماب
           </Link>
-          <Link to={ROUTE_PATHS.AMBASSADOR_RULES} className="text-xs text-teal-300/80 hover:underline">
-            وثيقة القواعد
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              to={ROUTE_PATHS.AMBASSADOR_TRAINING}
+              className="text-xs font-semibold text-teal-300 hover:underline"
+            >
+              التدريب
+            </Link>
+            <Link to={ROUTE_PATHS.AMBASSADOR_RULES} className="text-xs text-teal-300/80 hover:underline">
+              وثيقة القواعد
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -125,6 +139,16 @@ export default function AmbassadorEnter() {
               يأتيان بعد قبول الطلب ثم أول إغلاق صالون ناجح.
             </p>
             <p className="mt-2 text-xs text-slate-500">نسخة القواعد: {AMBASSADOR_RULES_VERSION}</p>
+            <Button
+              asChild
+              variant="outline"
+              className="mt-5 border-teal-400/35 bg-teal-500/10 text-teal-100 hover:bg-teal-500/20"
+            >
+              <Link to={ROUTE_PATHS.AMBASSADOR_TRAINING}>
+                <Presentation className="ml-2 h-4 w-4" aria-hidden />
+                ابدأ التدريب الميداني
+              </Link>
+            </Button>
           </div>
 
           <form
@@ -231,7 +255,7 @@ export default function AmbassadorEnter() {
                 <Link to={ROUTE_PATHS.AMBASSADOR_RULES} className="font-semibold text-teal-300 underline">
                   وثيقة قواعد السفراء
                 </Link>
-                ، وأفهم أن الطلب يمر بمراجعة، وأن الاعتماد الرسمي والمفروشات وصرف المحفظة بعد أول إغلاق صالون ناجح.
+                ، وأفهم أن الطلب يمر بمراجعة، وأن الاعتماد الرسمي ومسار فنادق وشقق مخدومة وصرف المحفظة بعد أول إغلاق صالون ناجح.
               </Label>
             </div>
 

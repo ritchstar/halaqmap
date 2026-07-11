@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>قاعدة 50 متر ونافذة 30 يوم - حلاق ماب</title>
+<script src="https://picture-search.skywork.ai/aippt/static/tailwindcss.com"></script><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet"/><style>@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
+:root {
+    --ppt-bg: #0A0C10;
+    --ppt-bg-soft: #111827;
+    --ppt-surface: #161B22;
+    --ppt-surface-2: #1F2937;
+    --ppt-border: #30363D;
+    --ppt-text-1: #FFF;
+    --ppt-text-2: #94A3B8;
+    --ppt-text-3: #64748B;
+    --ppt-accent: #0D9488;
+    --ppt-accent-2: #14B8A6;
+    --ppt-good: #10B981;
+    --ppt-warn: #F59E0B;
+    --ppt-bad: #EF4444;
+    --ppt-radius-sm: 2px;
+    --ppt-radius-md: 4px;
+    --ppt-radius-lg: 8px;
+    --ppt-font-display: "IBM Plex Sans Arabic", sans-serif;
+    --ppt-font-body: "IBM Plex Sans Arabic", sans-serif
+    }
+* {
+    box-sizing: border-box;
+    margin: 0 0;
+    padding: 0 0
+    }
+body {width: 1280px; height: 720px; overflow: hidden; background-color: var(--ppt-bg);
+    font-family: var(--ppt-font-body);
+    color: var(--ppt-text-1);
+    display: flex;
+    justify-content: center;
+    align-items: center}
+.ambassador-slide-root {
+    width: 1280px;
+    height: 720px;
+    background-color: var(--ppt-bg);
+    position: relative;
+    display: flex;
+    flex-direction: column
+    }
+.ambassador-title-region-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 40px 60px 20px 60px;
+    border-right: 6px solid var(--ppt-accent);
+    margin-right: 40px;
+    margin-top: 32px
+    }
+.ambassador-title-main-text {
+    font-family: var(--ppt-font-display);
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--ppt-text-1);
+    margin: 0;
+    line-height: 1.2
+    }
+.ambassador-title-sub-text {
+    font-family: var(--ppt-font-body);
+    font-size: 16px;
+    color: var(--ppt-accent);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase
+    }
+.ambassador-content-main-layout {
+    flex: 1;
+    display: flex;
+    gap: 24px 30px;
+    padding: 32px 60px;
+    align-items: stretch
+    }
+.ambassador-left-column-precision {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center
+    }
+.ambassador-right-column-timeline {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center
+    }
+.ambassador-rule-card-container {
+    flex: 1;
+    background-color: var(--ppt-surface);
+    border: 1px solid var(--ppt-border);
+    border-radius: var(--ppt-radius-lg);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px
+    }
+.ambassador-card-header-group {
+    display: flex;
+    align-items: center;
+    gap: 16px
+    }
+.ambassador-icon-circle-box {
+    width: 64px;
+    height: 64px;
+    background-color: var(--ppt-bg-soft);
+    border: 2px solid var(--ppt-accent);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    color: var(--ppt-accent)
+    }
+.ambassador-card-title-text {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ppt-text-1)
+    }
+.ambassador-precision-metric-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--ppt-bg-soft);
+    border-radius: var(--ppt-radius-md);
+    margin-top: 10px
+    }
+.ambassador-metric-value-large {
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--ppt-accent-2);
+    line-height: 1
+    }
+.ambassador-metric-label-text {
+    font-size: 18px;
+    color: var(--ppt-text-2);
+    margin-top: 8px
+    }
+.ambassador-rule-explanation-paragraph {
+    font-size: 18px;
+    color: var(--ppt-text-2);
+    line-height: 1.6;
+    margin-top: 10px
+    }
+.ambassador-timeline-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 13px 16px;
+    margin-top: 8px
+    }
+.ambassador-timeline-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px 16px;
+    padding: 10px 12px;
+    background-color: var(--ppt-bg-soft);
+    border-right: 4px solid var(--ppt-border);
+    border-radius: var(--ppt-radius-sm)
+    }
+.ambassador-timeline-step-item.active-step {
+    border-right-color: var(--ppt-accent)
+    }
+.ambassador-timeline-step-item.warning-step {
+    border-right-color: var(--ppt-warn)
+    }
+.ambassador-timeline-step-item.danger-step {
+    border-right-color: var(--ppt-bad)
+    }
+.ambassador-step-day-badge {
+    font-weight: 700;
+    color: var(--ppt-accent);
+    min-width: 60px;
+    font-size: 18px
+    }
+.ambassador-step-content-box {
+    flex: 1
+    }
+.ambassador-step-title-small {
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ppt-text-1)
+    }
+.ambassador-step-desc-small {
+    font-size: 15px;
+    color: var(--ppt-text-3);
+    margin-top: 3px
+    }
+.ambassador-footer-notice-bar {
+    margin-top: auto;
+    padding: 10px 24px;
+    background-color: rgba(239, 68, 68, 0.1);
+    border-right: 4px solid var(--ppt-bad);
+    color: var(--ppt-bad);
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: var(--ppt-radius-sm)
+    }
+html { overflow: hidden; }
+</style>
+<meta content="16:9" name="PageAspectRatio"/><meta content="1280_720" name="PageSize"/></head>
+<body>
+<div class="ambassador-slide-root" style="overflow: hidden;">
+<!-- Title Region -->
+<div class="ambassador-title-region-wrapper">
+<h1 class="ambassador-title-main-text">
+        قاعدة 50 متر ونافذة 30 يوم
+      </h1>
+<div class="ambassador-title-sub-text">
+        دليل سفراء حلاق ماب الميداني
+      </div>
+</div>
+<!-- Main Content -->
+<div class="ambassador-content-main-layout">
+<!-- Left Column: GPS Precision -->
+<div class="ambassador-left-column-precision">
+<div class="ambassador-rule-card-container">
+<div class="ambassador-card-header-group">
+<div class="ambassador-icon-circle-box">
+<i class="fas fa-location-crosshairs"></i>
+</div>
+<h2 class="ambassador-card-title-text">الدقة الميدانية (GPS)</h2>
+</div>
+<div class="ambassador-precision-metric-display">
+<div class="ambassador-metric-value-large">≤ 50m</div>
+<div class="ambassador-metric-label-text">أقصى تفاوت مسموح به</div>
+</div>
+<p class="ambassador-rule-explanation-paragraph">
+            الدقة الميدانية تحمي حق السفير وتمنع الالتباس بين الصالونات المتجاورة. يجب أن تتطابق إحداثيات السفير عند طلب الاستهداف مع موقع الصالون الفعلي.
+          </p>
+</div>
+</div>
+<!-- Right Column: Timeline Window -->
+<div class="ambassador-right-column-timeline">
+<div class="ambassador-rule-card-container">
+<div class="ambassador-card-header-group">
+<div class="ambassador-icon-circle-box">
+<i class="fas fa-calendar-check"></i>
+</div>
+<h2 class="ambassador-card-title-text">نافذة التفعيل الزمنية</h2>
+</div>
+<div class="ambassador-timeline-list-wrapper">
+<div class="ambassador-timeline-step-item active-step">
+<div class="ambassador-step-day-badge">يوم 0</div>
+<div class="ambassador-step-content-box">
+<div class="ambassador-step-title-small">فتح طلب الاستهداف</div>
+<div class="ambassador-step-desc-small">بداية رحلة السفير الميدانية مع الصالون.</div>
+</div>
+</div>
+<div class="ambassador-timeline-step-item warning-step">
+<div class="ambassador-step-day-badge">يوم 14</div>
+<div class="ambassador-step-content-box">
+<div class="ambassador-step-title-small">تنبيه المتابعة</div>
+<div class="ambassador-step-desc-small">إجراء اتصال أو زيارة تذكيرية للصالون.</div>
+</div>
+</div>
+<div class="ambassador-timeline-step-item danger-step">
+<div class="ambassador-step-day-badge">يوم 30</div>
+<div class="ambassador-step-content-box">
+<div class="ambassador-step-title-small">انتهاء النافذة</div>
+<div class="ambassador-step-desc-small">إغلاق الطلب تلقائياً في حال عدم التفعيل.</div>
+</div>
+</div>
+</div>
+<div class="ambassador-footer-notice-bar">
+<i class="fas fa-circle-exclamation" style="margin-left: 8px;"></i>
+            تنبيه: لا تُصرف أي عمولة في حال تجاوز التفعيل مدة الـ 30 يوماً.
+          </div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

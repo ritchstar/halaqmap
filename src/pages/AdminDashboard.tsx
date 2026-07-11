@@ -118,6 +118,7 @@ import { toast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CommandCenterSection } from '@/components/admin/CommandCenterSection';
+import { AdminLiveActivitySection } from '@/components/admin/AdminLiveActivitySection';
 import {
   ADMIN_PERMISSION_LABELS,
   ADMIN_PERMISSION_UI_SECTIONS,
@@ -384,6 +385,9 @@ export default function AdminDashboard() {
           permissions: access.permissions,
           bootstrap: access.bootstrap,
         });
+        void import('@/lib/analytics/productAnalytics').then(({ identifyAnalyticsUser }) => {
+          identifyAnalyticsUser(session.user.id, { persona: 'admin', bootstrap: access.bootstrap });
+        });
       });
     };
 
@@ -494,6 +498,8 @@ export default function AdminDashboard() {
   }, [adminData?.bootstrap, founderLightingEnabled]);
 
   const handleLogout = async () => {
+    const { resetAnalyticsUser } = await import('@/lib/analytics/productAnalytics');
+    resetAnalyticsUser();
     const client = getSupabaseClient();
     await client?.auth.signOut();
     navigate(ROUTE_PATHS.HOME);
@@ -579,6 +585,7 @@ export default function AdminDashboard() {
   const allowedTabs = useMemo(() => {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
+    if (can('view_overview') || can('view_command_center')) out.push('live-activity');
     if (can('view_requests')) out.push('requests');
     if (can('view_barbers')) out.push('barbers');
     if (can('view_payments')) out.push('payments');
@@ -802,6 +809,12 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">نظرة عامة</span>
             </TabsTrigger>
             )}
+            {(can('view_overview') || can('view_command_center')) && (
+            <TabsTrigger value="live-activity" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
+              <Activity className="w-4 h-4" />
+              <span className="hidden sm:inline">نشاط حي</span>
+            </TabsTrigger>
+            )}
             {can('view_requests') && (
             <TabsTrigger value="requests" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <FileText className="w-4 h-4" />
@@ -916,6 +929,12 @@ export default function AdminDashboard() {
               opsControllerEnabled={engineeringWingOpsEnabled}
             />
           </TabsContent>}
+
+          {(can('view_overview') || can('view_command_center')) && (
+            <TabsContent value="live-activity" className="space-y-6">
+              <AdminLiveActivitySection isActive={activeTab === 'live-activity'} />
+            </TabsContent>
+          )}
 
           {canViewSecurityOpsLog && (
             <TabsContent value="security-ops" className="space-y-6">

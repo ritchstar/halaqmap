@@ -154,7 +154,7 @@ export default function AmbassadorDashboard() {
         ) : null}
         {state.profile.accountStatus === 'provisional' ? (
           <div className="border-t border-sky-400/25 bg-sky-500/10 px-4 py-2 text-center text-xs text-sky-100">
-            تفعيل مؤقت: أغلق أول صالون بمطابقة رخصة النفاذ لتُعتمد رسمياً وتُفتح المفروشات وصرف المحفظة.
+            تفعيل مؤقت: أغلق أول صالون بمطابقة رخصة النفاذ لتُعتمد رسمياً وتُفتح فنادق وشقق مخدومة وصرف المحفظة.
           </div>
         ) : null}
         {state.profile.accountStatus === 'rejected' ? (
@@ -251,7 +251,7 @@ function HomeTab({
             استلمنا طلبك. النطاق: {state.profile.application.coverageArea}
           </p>
           <p className="text-xs leading-relaxed text-slate-400">
-            بعد قبول الإدارة تنتقل إلى «تفعيل مؤقت» وتفتح طلبات استهداف الصالونات فقط. المفروشات والمحفظة بعد أول
+            بعد قبول الإدارة تنتقل إلى «تفعيل مؤقت» وتفتح طلبات استهداف الصالونات فقط. فنادق وشقق مخدومة والمحفظة بعد أول
             إغلاق ناجح.
           </p>
           <Button
@@ -283,7 +283,7 @@ function HomeTab({
           الحالة: <span className="text-teal-200">{accountStatusLabelAr(state.profile.accountStatus)}</span>
         </p>
         <p className="mt-1">
-          المفروشات: {hospitalityOk ? 'مفتوحة' : 'مقفلة حتى أول إغلاق صالون'} · صرف المحفظة:{' '}
+          فنادق وشقق مخدومة: {hospitalityOk ? 'مفتوحة' : 'مقفلة حتى أول إغلاق صالون'} · صرف المحفظة:{' '}
           {walletOk ? 'متاح عند ≥ 300' : 'بعد الاعتماد الرسمي'}
         </p>
       </div>
@@ -323,15 +323,23 @@ function HomeTab({
             • صرف من {AMBASSADOR_PAYOUT_MIN_SAR} ر.س · تحويل{' '}
             {AMBASSADOR_PAYOUT_BUSINESS_DAYS_MIN}–{AMBASSADOR_PAYOUT_BUSINESS_DAYS_MAX} أيام عمل
           </li>
-          <li>• مفروشات: {AMBASSADOR_HOSPITALITY_REWARD_SAR} ر.س — بعد أول إغلاق صالون فقط</li>
+          <li>• فنادق وشقق مخدومة: {AMBASSADOR_HOSPITALITY_REWARD_SAR} ر.س — بعد أول إغلاق صالون فقط</li>
         </ul>
-        <Link
-          to={ROUTE_PATHS.AMBASSADOR_RULES}
-          className="mt-4 inline-flex items-center gap-2 text-xs font-medium text-teal-300 hover:underline"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-          وثيقة القواعد كاملة
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-4">
+          <Link
+            to={ROUTE_PATHS.AMBASSADOR_TRAINING}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-teal-300 hover:underline"
+          >
+            ابدأ التدريب الميداني
+          </Link>
+          <Link
+            to={ROUTE_PATHS.AMBASSADOR_RULES}
+            className="inline-flex items-center gap-2 text-xs font-medium text-teal-300/80 hover:underline"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+            وثيقة القواعد كاملة
+          </Link>
+        </div>
       </section>
 
       <section className="rounded-2xl border border-white/10 bg-[#0f0f14] p-5">
@@ -510,7 +518,7 @@ function TargetTab({
             value={kind}
             onValueChange={(v) => {
               if (v === 'hospitality' && !hospitalityOk) {
-                toast.error('المفروشات تُفتح بعد أول إغلاق صالون ناجح.');
+                toast.error('مسار الفنادق والشقق المخدومة يُفتح بعد أول إغلاق صالون ناجح.');
                 return;
               }
               setKind(v as AmbassadorTargetKind);
@@ -522,13 +530,13 @@ function TargetTab({
             <SelectContent>
               <SelectItem value="barber">حلاق / صالون</SelectItem>
               <SelectItem value="hospitality" disabled={!hospitalityOk}>
-                شقق مفروشة / ضيافة{!hospitalityOk ? ' (بعد أول صالون)' : ''}
+                فنادق وشقق مخدومة{!hospitalityOk ? ' (بعد أول صالون)' : ''}
               </SelectItem>
             </SelectContent>
           </Select>
           {!hospitalityOk ? (
             <p className="text-[11px] text-slate-500">
-              مسار المفروشات مقفل حتى أول إغلاق صالون ناجح بمطابقة رخصة النفاذ.
+              مسار الفنادق والشقق المخدومة مقفل حتى أول إغلاق صالون ناجح بمطابقة رخصة النفاذ.
             </p>
           ) : null}
         </div>
@@ -674,7 +682,7 @@ function ListTab({
       targetId,
       amount,
       kind === 'hospitality'
-        ? `مكافأة مفروشات ${amount} ر.س (محاكاة حتى ربط الاستلام)`
+        ? `مكافأة فنادق وشقق مخدومة ${amount} ر.س (محاكاة حتى ربط الاستلام)`
         : `عمولة ${simPackage} × ${simMonths} شهر = ${amount} ر.س (محاكاة حتى ربط التفعيل)`,
     );
     if (!result.ok) {
@@ -703,7 +711,7 @@ function ListTab({
               <div>
                 <p className="font-bold text-white">{t.shopName}</p>
                 <p className="text-xs text-slate-500">
-                  {t.kind === 'barber' ? 'حلاق' : 'مفروشات'}
+                  {t.kind === 'barber' ? 'حلاق' : 'فنادق وشقق مخدومة'}
                   {t.city ? ` · ${t.city}` : ''}
                   {t.district ? ` · ${t.district}` : ''}
                 </p>

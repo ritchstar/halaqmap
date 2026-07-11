@@ -84,7 +84,7 @@ export type AmbassadorProfile = {
   marketingLocked: boolean;
   accountStatus: AmbassadorAccountStatus;
   application: AmbassadorApplication;
-  /** أول إغلاق صالون بمطابقة رخصة — يفتح الاعتماد الرسمي والمفروشات */
+  /** أول إغلاق صالون بمطابقة رخصة — يفتح الاعتماد الرسمي ومسار الفنادق والشقق المخدومة */
   firstBarberCloseAt: string | null;
   reviewedAt: string | null;
   rejectReason: string | null;
@@ -338,7 +338,7 @@ export function createTargetRequest(
   if (input.kind === 'hospitality' && !isHospitalityUnlocked(state.profile)) {
     return {
       ok: false,
-      error: 'مسار المفروشات يُفتح بعد أول إغلاق صالون ناجح بمطابقة رخصة النفاذ.',
+      error: 'مسار الفنادق والشقق المخدومة يُفتح بعد أول إغلاق صالون ناجح بمطابقة رخصة النفاذ.',
     };
   }
   if (!input.streetSignLabel.trim()) {
@@ -348,7 +348,7 @@ export function createTargetRequest(
     return { ok: false, error: 'يلزم أربع صور داخلية لطلب استهداف الحلاق.' };
   }
   if (input.kind === 'hospitality' && input.interiorLabels.length < 2) {
-    return { ok: false, error: 'يلزم صورتان على الأقل لطلب المفروشات.' };
+    return { ok: false, error: 'يلزم صورتان على الأقل لطلب فنادق وشقق مخدومة.' };
   }
   if (!Number.isFinite(input.latitude) || !Number.isFinite(input.longitude)) {
     return { ok: false, error: 'الإحداثيات إلزامية — حدّد موقعك من الجهاز.' };
@@ -496,7 +496,7 @@ export function acknowledgePayoutReceipt(
 }
 
 /**
- * محاكاة استحقاق عمولة — أول إغلاق صالون يرقّي الحساب إلى معتمد ويفتح المفروشات.
+ * محاكاة استحقاق عمولة — أول إغلاق صالون يرقّي الحساب إلى معتمد ويفتح مسار الفنادق والشقق المخدومة.
  */
 export function simulateRewardForTarget(
   state: AmbassadorPortalState,
@@ -514,7 +514,7 @@ export function simulateRewardForTarget(
     return { ok: false, error: 'انتهت نافذة الطلب.' };
   }
   if (target.kind === 'hospitality' && !isHospitalityUnlocked(state.profile)) {
-    return { ok: false, error: 'المفروشات مقفلة حتى أول إغلاق صالون.' };
+    return { ok: false, error: 'مسار الفنادق والشقق المخدومة مقفل حتى أول إغلاق صالون.' };
   }
 
   const now = new Date().toISOString();

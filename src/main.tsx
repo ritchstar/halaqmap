@@ -299,6 +299,7 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
       normalizeLocationHashSlashes()
       ensureDomainVerificationMeta()
       assertRuntimeEnvSafety()
+      void import('@/lib/analytics/productAnalytics').then((m) => m.initProductAnalytics())
       installDomMismatchGuard()
 
       if (await bootstrapLabStandalone(rootEl)) {

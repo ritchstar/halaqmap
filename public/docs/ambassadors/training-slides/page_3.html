@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>هوية حلاق ماب - دليل السفراء</title>
+<script src="https://picture-search.skywork.ai/aippt/static/tailwindcss.com"></script><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet"/><style>@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
+:root {
+    --ppt-bg: #0A0C10;
+    --ppt-bg-soft: #111827;
+    --ppt-surface: #161B22;
+    --ppt-surface-2: #1F2937;
+    --ppt-border: #30363D;
+    --ppt-text-1: #FFF;
+    --ppt-text-2: #94A3B8;
+    --ppt-text-3: #64748B;
+    --ppt-accent: #0D9488;
+    --ppt-accent-2: #14B8A6;
+    --ppt-chart-1: #0D9488;
+    --ppt-chart-2: #06B6D4;
+    --ppt-chart-3: #2DD4BF;
+    --ppt-chart-4: #5EEAD4;
+    --ppt-good: #10B981;
+    --ppt-warn: #F59E0B;
+    --ppt-bad: #EF4444;
+    --ppt-radius-sm: 2px;
+    --ppt-radius-md: 4px;
+    --ppt-radius-lg: 8px;
+    --ppt-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --ppt-shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.7);
+    --ppt-font-display: "IBM Plex Sans Arabic", sans-serif;
+    --ppt-font-body: "IBM Plex Sans Arabic", sans-serif
+    }
+* {
+    box-sizing: border-box;
+    margin: 0 0;
+    padding: 0 0
+    }
+body {width: 1280px; height: 720px; overflow: hidden; background-color: var(--ppt-bg);
+    font-family: var(--ppt-font-body);
+    color: var(--ppt-text-1);
+    display: flex;
+    justify-content: center;
+    align-items: center}
+.halaq-identity-slide-root {
+    width: 1280px;
+    height: 720px;
+    background-color: var(--ppt-bg);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--ppt-border)
+    }
+/* Non-Cover-Page Title Region */
+.halaq-identity-title-region {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 40px 60px 20px 60px;
+    border-right: 6px solid var(--ppt-accent);
+    margin-right: 40px;
+    margin-top: 26px
+    }
+.halaq-identity-title-text {
+    font-family: var(--ppt-font-display);
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--ppt-text-1);
+    margin: 0;
+    line-height: 1.2
+    }
+.halaq-identity-subtitle-text {
+    font-family: var(--ppt-font-body);
+    font-size: 16px;
+    color: var(--ppt-accent);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase
+    }
+/* Main Content Layout */
+.halaq-identity-main-content {
+    flex: 1;
+    padding: 26px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px 40px
+    }
+.halaq-identity-header-statement {
+    background-color: var(--ppt-surface);
+    border-right: 4px solid var(--ppt-accent-2);
+    padding: 15px 24px;
+    border-radius: var(--ppt-radius-md)
+    }
+.halaq-identity-statement-text {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ppt-text-1);
+    line-height: 1.4
+    }
+.halaq-identity-pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px 24px;
+    align-items: stretch
+    }
+.halaq-identity-pillar-card {
+    background-color: var(--ppt-surface);
+    border: 1px solid var(--ppt-border);
+    padding: 21px 24px;
+    border-radius: var(--ppt-radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 13px 20px;
+    transition: border-color 0.3s ease
+    }
+.halaq-identity-pillar-card:hover {
+    border-color: var(--ppt-accent)
+    }
+.halaq-identity-pillar-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background-color: var(--ppt-bg-soft);
+    border-radius: var(--ppt-radius-md);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--ppt-accent);
+    font-size: 28px
+    }
+.halaq-identity-pillar-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ppt-accent-2);
+    margin: 0 0
+    }
+.halaq-identity-pillar-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px 12px
+    }
+.halaq-identity-pillar-list-item {
+    font-size: 18px;
+    color: var(--ppt-text-2);
+    line-height: 1.5;
+    display: block;
+    padding-right: 28px;
+    position: relative
+    }
+.halaq-identity-pillar-list-item::before {
+    content: "";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    right: 0;
+    color: var(--ppt-accent);
+    font-size: 16px
+    }
+.halaq-identity-pillar-list-item.halaq-identity-negative::before {
+    content: "";
+    color: var(--ppt-bad)
+    }
+.halaq-identity-footer-note {
+    margin-top: auto;
+    padding: 13px 0;
+    border-top: 1px solid var(--ppt-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center
+    }
+.halaq-identity-note-text {
+    font-size: 15px;
+    color: var(--ppt-text-3);
+    font-weight: 400
+    }
+.halaq-identity-badge {
+    background-color: var(--ppt-accent);
+    color: var(--ppt-text-1);
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600
+    }
+html { overflow: hidden; }
+</style>
+<meta content="16:9" name="PageAspectRatio"/><meta content="1280_720" name="PageSize"/></head>
+<body>
+<div class="halaq-identity-slide-root" style="overflow: hidden;">
+<!-- Title Region -->
+<div class="halaq-identity-title-region">
+<h1 class="halaq-identity-title-text">هوية حلاق ماب</h1>
+<div class="halaq-identity-subtitle-text">دليل سفراء حلاق ماب الميداني</div>
+</div>
+<!-- Main Content -->
+<div class="halaq-identity-main-content">
+<!-- Key Statement -->
+<div class="halaq-identity-header-statement">
+<p class="halaq-identity-statement-text">
+          حلاق ماب مزود حلول تقنية وليس وسيطاً تجارياً؛ التواصل مباشر بين الصالون والعميل، ولا توجد عمولات على الحلاقة أو تدخل في التسعير.
+        </p>
+</div>
+<!-- Identity Pillars -->
+<div class="halaq-identity-pillars-grid">
+<!-- Pillar 1: Technical Role -->
+<div class="halaq-identity-pillar-card">
+<div class="halaq-identity-pillar-icon-wrapper">
+<i class="fas fa-microchip"></i>
+</div>
+<h2 class="halaq-identity-pillar-title">الكيان التقني</h2>
+<div class="halaq-identity-pillar-list">
+<div class="halaq-identity-pillar-list-item">مزود حلول برمجية متطورة</div>
+<div class="halaq-identity-pillar-list-item">توفير رخصة نفاذ رقمية</div>
+<div class="halaq-identity-pillar-list-item halaq-identity-negative">لسنا وسيطاً تجارياً أو سمساراً</div>
+</div>
+</div>
+<!-- Pillar 2: Direct Relationship -->
+<div class="halaq-identity-pillar-card">
+<div class="halaq-identity-pillar-icon-wrapper">
+<i class="fas fa-tower-broadcast"></i>
+</div>
+<h2 class="halaq-identity-pillar-title">نموذج التشغيل</h2>
+<div class="halaq-identity-pillar-list">
+<div class="halaq-identity-pillar-list-item">نظام الظهور عند الطلب</div>
+<div class="halaq-identity-pillar-list-item">تواصل مباشر: صالون ↔ عميل</div>
+<div class="halaq-identity-pillar-list-item halaq-identity-negative">لا حجز نيابة عن العميل</div>
+</div>
+</div>
+<!-- Pillar 3: Financial Independence -->
+<div class="halaq-identity-pillar-card">
+<div class="halaq-identity-pillar-icon-wrapper">
+<i class="fas fa-shield-halved"></i>
+</div>
+<h2 class="halaq-identity-pillar-title">الاستقلالية المالية</h2>
+<div class="halaq-identity-pillar-list">
+<div class="halaq-identity-pillar-list-item">لا عمولة على عمليات الحلاقة</div>
+<div class="halaq-identity-pillar-list-item">لا تدخل في تسعير الخدمات</div>
+<div class="halaq-identity-pillar-list-item halaq-identity-negative">لا رسوم مخفية على العميل</div>
+</div>
+</div>
+</div>
+<!-- Footer Info -->
+<div class="halaq-identity-footer-note">
+<span class="halaq-identity-note-text">مبدأ العمل: تمكين الصالون تقنياً للوصول المباشر لعملائه في النطاق الجغرافي.</span>
+<span class="halaq-identity-badge">حلول تقنية 100%</span>
+</div>
+</div>
+</div>
+</body>
+</html>

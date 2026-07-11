@@ -41,6 +41,13 @@ export default function BarberLogin() {
         return;
       }
       persistBarberAuthSession(result.session);
+      void import('@/lib/analytics/productAnalytics').then(({ ProductEvents, identifyAnalyticsUser }) => {
+        identifyAnalyticsUser(result.session.id, {
+          persona: 'barber',
+          tier: String(result.session.subscription || ''),
+        });
+        ProductEvents.partnerLogin({ tier: String(result.session.subscription || '') });
+      });
       const supabaseLinked = await establishSupabaseSessionForPartner({
         email,
         password,

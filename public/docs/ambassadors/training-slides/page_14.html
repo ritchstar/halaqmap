@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=1280, height=720, initial-scale=1.0" name="viewport"/>
+<title>المحظورات والخاتمة العملية - حلاق ماب</title>
+<script src="https://picture-search.skywork.ai/aippt/static/tailwindcss.com"></script><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet"/><style>@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
+:root {
+    --ppt-bg: #0A0C10;
+    --ppt-bg-soft: #111827;
+    --ppt-surface: #161B22;
+    --ppt-surface-2: #1F2937;
+    --ppt-border: #30363D;
+    --ppt-text-1: #FFF;
+    --ppt-text-2: #94A3B8;
+    --ppt-text-3: #64748B;
+    --ppt-accent: #0D9488;
+    --ppt-accent-2: #14B8A6;
+    --ppt-chart-1: #0D9488;
+    --ppt-chart-2: #06B6D4;
+    --ppt-chart-3: #2DD4BF;
+    --ppt-chart-4: #5EEAD4;
+    --ppt-good: #10B981;
+    --ppt-warn: #F59E0B;
+    --ppt-bad: #EF4444;
+    --ppt-radius-sm: 2px;
+    --ppt-radius-md: 4px;
+    --ppt-radius-lg: 8px;
+    --ppt-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --ppt-shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.7);
+    --ppt-font-display: "IBM Plex Sans Arabic", sans-serif;
+    --ppt-font-body: "IBM Plex Sans Arabic", sans-serif;
+    direction: rtl
+    }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+    }
+body {width: 1280px; height: 720px; overflow: hidden; background-color: var(--ppt-bg);
+    font-family: var(--ppt-font-body);
+    color: var(--ppt-text-1)}
+.ambassador-final-slide-root {
+    width: 1280px;
+    height: 720px;
+    display: flex;
+    flex-direction: column;
+    position: relative
+    }
+/* Title Region Style from Design Principles */
+.title-region-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 40px 60px 20px 60px;
+    border-right: 6px solid var(--ppt-accent);
+    margin-right: 40px;
+    margin-top: 40px
+    }
+.title-main-text-label {
+    font-family: var(--ppt-font-display);
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--ppt-text-1);
+    margin: 0;
+    line-height: 1.2
+    }
+.title-secondary-text-label {
+    font-family: var(--ppt-font-body);
+    font-size: 16px;
+    color: var(--ppt-accent);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase
+    }
+/* Main Content Layout */
+.ambassador-content-horizontal-grid {
+    display: flex;
+    align-items: stretch;
+    gap: 32px;
+    padding: 20px 60px;
+    flex: 1
+    }
+.right-prohibition-list-column {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center
+    }
+.left-contact-channels-column {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center
+    }
+.prohibition-warning-container {
+    background-color: var(--ppt-surface);
+    border: 1px solid var(--ppt-border);
+    border-right: 4px solid var(--ppt-bad);
+    padding: 24px;
+    border-radius: var(--ppt-radius-md);
+    flex: 1
+    }
+.official-links-info-container {
+    background-color: var(--ppt-surface-2);
+    border: 1px solid var(--ppt-border);
+    padding: 24px;
+    border-radius: var(--ppt-radius-md);
+    flex: 1
+    }
+.section-heading-with-icon {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ppt-text-1)
+    }
+.prohibition-list-items-group {
+    list-style: none
+    }
+.prohibition-item-row {
+    display: block;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: rgba(239, 68, 68, 0.05);
+    border-radius: var(--ppt-radius-sm);
+    font-size: 18px;
+    color: var(--ppt-text-2)
+    }
+.prohibition-item-row i {
+    color: var(--ppt-bad);
+    margin-left: 10px
+    }
+.link-item-detail-row {
+    display: block;
+    margin-bottom: 16px;
+    font-size: 16px
+    }
+.link-label-title {
+    color: var(--ppt-accent);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px
+    }
+.link-value-address {
+    color: var(--ppt-text-1);
+    font-family: monospace;
+    font-size: 15px;
+    word-break: break-all
+    }
+/* Bottom Conclusion Section */
+.bottom-conclusion-banner-wrapper {
+    margin: 0 60px 40px 60px;
+    padding: 20px 30px;
+    background: linear-gradient(90deg, var(--ppt-accent) 0%, var(--ppt-surface-2) 100%);
+    border-radius: var(--ppt-radius-md);
+    display: flex;
+    align-items: center;
+    gap: 20px
+    }
+.conclusion-icon-box {
+    font-size: 32px;
+    color: var(--ppt-text-1)
+    }
+.conclusion-summary-text-block {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ppt-text-1)
+    }
+.contact-icons-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px
+    }
+.contact-icon-unit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--ppt-text-2)
+    }
+.contact-icon-unit i {
+    color: var(--ppt-accent)
+    }
+html { overflow: hidden; }
+</style>
+<meta content="16:9" name="PageAspectRatio"/><meta content="1280_720" name="PageSize"/></head>
+<body>
+<div class="ambassador-final-slide-root" style="overflow: hidden;">
+<!-- Title Region -->
+<div class="title-region-header-wrapper">
+<h1 class="title-main-text-label">المحظورات والخاتمة العملية</h1>
+<div class="title-secondary-text-label">دليل سفراء حلاق ماب الميداني</div>
+</div>
+<!-- Main Columns -->
+<div class="ambassador-content-horizontal-grid">
+<!-- Prohibitions Column -->
+<div class="right-prohibition-list-column">
+<div class="prohibition-warning-container">
+<div class="section-heading-with-icon">
+<i class="fas fa-triangle-exclamation"></i>
+<span>محظورات العمل الميداني</span>
+</div>
+<div class="prohibition-list-items-group">
+<div class="prohibition-item-row">
+<i class="fas fa-ban"></i> تسجيل صالون وهمي أو غير موجود فعلياً.
+            </div>
+<div class="prohibition-item-row">
+<i class="fas fa-ban"></i> تزوير إحداثيات GPS أو صور اللوحة الخارجية.
+            </div>
+<div class="prohibition-item-row">
+<i class="fas fa-ban"></i> الوعد بعمولات على الحلاقة أو خدمات الحجز.
+            </div>
+<div class="prohibition-item-row">
+<i class="fas fa-ban"></i> ادعاء الوساطة التجارية أو التدخل في التسعير.
+            </div>
+<div class="prohibition-item-row">
+<i class="fas fa-ban"></i> سرقة إسناد سفير آخر أو تضليل الصالون.
+            </div>
+</div>
+</div>
+</div>
+<!-- Links & Support Column -->
+<div class="left-contact-channels-column">
+<div class="official-links-info-container">
+<div class="section-heading-with-icon">
+<i class="fas fa-link"></i>
+<span>الروابط والقنوات الرسمية</span>
+</div>
+<div class="link-item-detail-row">
+<span class="link-label-title">دخول السفير</span>
+<span class="link-value-address">halaqmap.com/#/ambassadors/enter</span>
+</div>
+<div class="link-item-detail-row">
+<span class="link-label-title">لوحة التحكم والقواعد</span>
+<span class="link-value-address">halaqmap.com/#/ambassadors/dashboard</span>
+</div>
+<div class="contact-icons-row">
+<div class="contact-icon-unit">
+<i class="fas fa-envelope"></i>
+<span>admin@halaqmap.com</span>
+</div>
+<div class="contact-icon-unit">
+<i class="fas fa-phone"></i>
+<span>0559602685</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Conclusion Banner -->
+<div class="bottom-conclusion-banner-wrapper">
+<div class="conclusion-icon-box">
+<i class="fas fa-award"></i>
+</div>
+<div class="conclusion-summary-text-block">
+        السفير الناجح دقيق في تحديد الموقع، واضح في وعوده المهنية، ملتزم بالقواعد التشغيلية، ويتابع صالوناته حتى التفعيل النهائي للرخصة الرقمية.
+      </div>
+</div>
+</div>
+</body>
+</html>

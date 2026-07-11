@@ -94,6 +94,9 @@ export default function HospitalityB2BRequestLanding() {
     }
 
     toast.success('تم إرسال الطلب بنجاح. سيتم مراجعته ثم تحويله للتنفيذ.');
+    void import('@/lib/analytics/productAnalytics').then(({ ProductEvents }) => {
+      ProductEvents.hospitalityRequestStarted();
+    });
     setForm(INITIAL_FORM);
   };
 

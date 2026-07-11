@@ -140,6 +140,10 @@ export default function BarberPortalEnter() {
               ? payload.salon_role
               : null,
         });
+        void import('@/lib/analytics/productAnalytics').then(({ ProductEvents, identifyAnalyticsUser }) => {
+          identifyAnalyticsUser(b.id, { persona: 'barber', tier: String(b.tier || '') });
+          ProductEvents.partnerLogin({ tier: String(b.tier || '') });
+        });
         toast.success(`مرحباً ${partnerSalonDisplayName({ name: b.name, email: b.email })}`);
         const nextRaw = params.get('next')?.trim();
         const destination =

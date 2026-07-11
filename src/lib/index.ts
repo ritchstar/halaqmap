@@ -111,6 +111,8 @@ export const ROUTE_PATHS = {
   AMBASSADOR_ENTER: '/ambassadors/enter',
   /** لوحة السفير */
   AMBASSADOR_DASHBOARD: '/ambassadors/dashboard',
+  /** تدريب ميداني — عارض شرائح داخل المنصة */
+  AMBASSADOR_TRAINING: '/ambassadors/training',
 } as const;
 
 /** إبقاء توافق مع روابط قديمة تم تداولها سابقاً */

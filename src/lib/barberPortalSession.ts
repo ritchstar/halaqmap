@@ -73,6 +73,7 @@ export async function clearBarberLinkedSession(): Promise<void> {
   if (typeof window !== 'undefined') {
     window.localStorage.removeItem(BARBER_AUTH_KEY);
   }
+  void import('@/lib/analytics/productAnalytics').then((m) => m.resetAnalyticsUser());
   const client = getSupabaseClient();
   if (client) {
     await client.auth.signOut().catch(() => undefined);

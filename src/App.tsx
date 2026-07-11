@@ -9,9 +9,12 @@ import { Layout } from "@/components/Layout";
 /** ???????? PartnerLayout ?????? ????????? ?????????? ??? PartnerDigitalBarberAssistant ??? ???????? ????????? ?????????? ??? ????? ????????? ??????????? ??????????. */
 import { PartnerLayout } from "@/components/PartnerLayout";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { PolicySectionHashRedirect } from "@/components/PolicySectionHashRedirect";
 import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
@@ -72,6 +75,7 @@ const SematScanPage = lazy(() => import("@/pages/semat/SematScanPage"));
 const AmbassadorRulesHub = lazy(() => import("@/pages/ambassador/AmbassadorRulesHub"));
 const AmbassadorEnter = lazy(() => import("@/pages/ambassador/AmbassadorEnter"));
 const AmbassadorDashboard = lazy(() => import("@/pages/ambassador/AmbassadorDashboard"));
+const AmbassadorTrainingDeck = lazy(() => import("@/pages/ambassador/AmbassadorTrainingDeck"));
 
 const queryClient = new QueryClient();
 
@@ -173,6 +177,7 @@ const App = () => (
         <PartnersDomainRedirect />
         <AdminAuthHashGate>
         <ScrollToTop />
+        <AnalyticsRouteTracker />
         <PolicySectionHashRedirect />
         <MoyasarPaymentReturnGate />
         <Routes>
@@ -343,11 +348,14 @@ const App = () => (
           <Route path={ROUTE_PATHS.AMBASSADOR_RULES} element={<LazyRoute><AmbassadorRulesHub /></LazyRoute>} />
           <Route path={ROUTE_PATHS.AMBASSADOR_ENTER} element={<LazyRoute><AmbassadorEnter /></LazyRoute>} />
           <Route path={ROUTE_PATHS.AMBASSADOR_DASHBOARD} element={<LazyRoute><AmbassadorDashboard /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.AMBASSADOR_TRAINING} element={<LazyRoute><AmbassadorTrainingDeck /></LazyRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </AdminAuthHashGate>
         </RouteScopedErrorBoundary>
       </HashRouter>
+      <Analytics />
+      <SpeedInsights />
     </TooltipProvider>
     </PlatformAmbientProvider>
   </QueryClientProvider>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<title>نظام سفراء حلاق ماب - قبل الخروج للميدان</title>
+<script src="https://picture-search.skywork.ai/aippt/static/tailwindcss.com"></script><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet"/><style>@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
+:root {
+    --ppt-bg: #0A0C10;
+    --ppt-bg-soft: #111827;
+    --ppt-surface: #161B22;
+    --ppt-surface-2: #1F2937;
+    --ppt-border: #30363D;
+    --ppt-text-1: #FFF;
+    --ppt-text-2: #94A3B8;
+    --ppt-text-3: #64748B;
+    --ppt-accent: #0D9488;
+    --ppt-accent-2: #14B8A6;
+    --ppt-chart-1: #0D9488;
+    --ppt-chart-2: #06B6D4;
+    --ppt-chart-3: #2DD4BF;
+    --ppt-chart-4: #5EEAD4;
+    --ppt-good: #10B981;
+    --ppt-warn: #F59E0B;
+    --ppt-bad: #EF4444;
+    --ppt-radius-sm: 2px;
+    --ppt-radius-md: 4px;
+    --ppt-radius-lg: 8px;
+    --ppt-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --ppt-shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.7);
+    --ppt-font-display: "IBM Plex Sans Arabic", sans-serif;
+    --ppt-font-body: "IBM Plex Sans Arabic", sans-serif
+    }
+* {
+    box-sizing: border-box;
+    margin: 0 0;
+    padding: 0 0
+    }
+body {width: 1280px; height: 720px; overflow: hidden; background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--ppt-font-body)}
+.ambassador-prep-slide-root {
+    width: 1280px;
+    height: 720px;
+    background-color: var(--ppt-bg);
+    color: var(--ppt-text-1);
+    position: relative;
+    display: flex;
+    flex-direction: column
+    }
+.ambassador-prep-title-region {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 40px 60px 20px 60px;
+    border-right: 6px solid var(--ppt-accent);
+    margin-right: 40px;
+    margin-top: 24px
+    }
+.ambassador-prep-page-title {
+    font-family: var(--ppt-font-display);
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--ppt-text-1);
+    margin: 0;
+    line-height: 1.2
+    }
+.ambassador-prep-page-subtitle {
+    font-family: var(--ppt-font-body);
+    font-size: 16px;
+    color: var(--ppt-accent);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase
+    }
+.ambassador-prep-main-content {
+    padding: 18px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px 30px;
+    flex: 1
+    }
+.ambassador-prep-intro-box {
+    background-color: var(--ppt-surface);
+    border: 1px solid var(--ppt-border);
+    padding: 7px 12px;
+    border-radius: var(--ppt-radius-md)
+    }
+.ambassador-prep-intro-text {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--ppt-text-2);
+    margin: 0 0
+    }
+.ambassador-prep-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px 20px;
+    flex: 1
+    }
+.ambassador-prep-step-card {
+    background-color: var(--ppt-surface);
+    border: 1px solid var(--ppt-border);
+    padding: 12px 20px;
+    border-radius: var(--ppt-radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 9px 15px;
+    transition: border-color 0.3s ease
+    }
+.ambassador-prep-step-card:hover {
+    border-color: var(--ppt-accent)
+    }
+.ambassador-prep-icon-circle {
+    width: 50px;
+    height: 50px;
+    background-color: var(--ppt-bg-soft);
+    border: 2px solid var(--ppt-accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ppt-accent-2);
+    font-size: 20px
+    }
+.ambassador-prep-card-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ppt-text-1);
+    margin: 0 0
+    }
+.ambassador-prep-card-desc {
+    font-size: 15px;
+    color: var(--ppt-text-2);
+    line-height: 1.5;
+    margin: 0 0
+    }
+.ambassador-prep-link-footer {
+    margin-top: auto;
+    background-color: var(--ppt-surface-2);
+    padding: 10px 24px;
+    border-radius: var(--ppt-radius-md);
+    display: flex;
+    align-items: center;
+    gap: 9px 15px;
+    border-right: 4px solid var(--ppt-accent-2)
+    }
+.ambassador-prep-link-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ppt-accent-2)
+    }
+.ambassador-prep-link-value {
+    font-family: monospace;
+    font-size: 16px;
+    color: var(--ppt-text-1);
+    direction: ltr
+    }
+.ambassador-prep-important-badge {
+    display: inline-block;
+    padding: 2px 12px;
+    background-color: rgba(13, 148, 136, 0.1);
+    border: 1px solid var(--ppt-accent);
+    color: var(--ppt-accent-2);
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 20px;
+    margin-bottom: 3px
+    }
+html { overflow: hidden; }
+</style>
+<meta content="16:9" name="PageAspectRatio"/><meta content="1280_720" name="PageSize"/></head>
+<body>
+<div class="ambassador-prep-slide-root" style="overflow: hidden;">
+<!-- Title Region -->
+<div class="ambassador-prep-title-region">
+<h1 class="ambassador-prep-page-title">
+        قبل الخروج للميدان
+      </h1>
+<div class="ambassador-prep-page-subtitle">
+        دليل سفراء حلاق ماب الميداني
+      </div>
+</div>
+<!-- Main Content Wrapper -->
+<div class="ambassador-prep-main-content">
+<div class="ambassador-prep-intro-box">
+<p class="ambassador-prep-intro-text">
+          الجاهزية التقنية والمعرفية هي مفتاح قبول زيارتك وضمان استحقاق العمولة. تأكد من استكمال قائمة الفحص التالية قبل التوجه لأي صالون.
+        </p>
+</div>
+<!-- Checklist Grid -->
+<div class="ambassador-prep-grid-container">
+<!-- Step 1 -->
+<div class="ambassador-prep-step-card">
+<div class="ambassador-prep-icon-circle">
+<i class="fas fa-right-to-bracket"></i>
+</div>
+<div class="ambassador-prep-card-content">
+<span class="ambassador-prep-important-badge">خطوة 01</span>
+<h3 class="ambassador-prep-card-title">تسجيل الدخول</h3>
+<p class="ambassador-prep-card-desc">الدخول إلى لوحة تحكم السفير الرسمية والتأكد من نشاط الحساب.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="ambassador-prep-step-card">
+<div class="ambassador-prep-icon-circle">
+<i class="fas fa-link"></i>
+</div>
+<div class="ambassador-prep-card-content">
+<span class="ambassador-prep-important-badge">خطوة 02</span>
+<h3 class="ambassador-prep-card-title">كود الإسناد</h3>
+<p class="ambassador-prep-card-desc">حفظ كود السفير ونسخ رابط الإسناد الخاص بك لمشاركته مع أصحاب الصالونات.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="ambassador-prep-step-card">
+<div class="ambassador-prep-icon-circle">
+<i class="fas fa-book-open"></i>
+</div>
+<div class="ambassador-prep-card-content">
+<span class="ambassador-prep-important-badge">خطوة 03</span>
+<h3 class="ambassador-prep-card-title">مراجعة القواعد</h3>
+<p class="ambassador-prep-card-desc">الاطلاع السريع على وثيقة "قواعد السفير" لتجنب الأخطاء الشائعة في التوثيق.</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="ambassador-prep-step-card">
+<div class="ambassador-prep-icon-circle">
+<i class="fas fa-camera"></i>
+</div>
+<div class="ambassador-prep-card-content">
+<span class="ambassador-prep-important-badge">خطوة 04</span>
+<h3 class="ambassador-prep-card-title">تجهيز الجوال</h3>
+<p class="ambassador-prep-card-desc">تأكد من شحن البطارية وتوفر كاميرا جيدة لالتقاط صور اللوحة والداخل بوضوح.</p>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="ambassador-prep-step-card">
+<div class="ambassador-prep-icon-circle">
+<i class="fas fa-location-crosshairs"></i>
+</div>
+<div class="ambassador-prep-card-content">
+<span class="ambassador-prep-important-badge">خطوة 05</span>
+<h3 class="ambassador-prep-card-title">إذن الموقع</h3>
+<p class="ambassador-prep-card-desc">تفعيل إذن الوصول للموقع (GPS) في المتصفح لضمان دقة إحداثيات الطلب.</p>
+</div>
+</div>
+<!-- Step 6 (Balanced Grid) -->
+<div class="ambassador-prep-step-card">
+<div class="ambassador-prep-icon-circle">
+<i class="fas fa-signal"></i>
+</div>
+<div class="ambassador-prep-card-content">
+<span class="ambassador-prep-important-badge">خطوة 06</span>
+<h3 class="ambassador-prep-card-title">اتصال البيانات</h3>
+<p class="ambassador-prep-card-desc">تأكد من توفر اتصال إنترنت مستقر لرفع الصور وتسجيل الإحداثيات فوراً.</p>
+</div>
+</div>
+</div>
+<!-- Footer Link -->
+<div class="ambassador-prep-link-footer">
+<i class="fas fa-globe" style="color: var(--ppt-accent-2);"></i>
+<span class="ambassador-prep-link-label">رابط دخول السفير:</span>
+<span class="ambassador-prep-link-value">https://www.halaqmap.com/#/ambassadors/enter</span>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ماذا تبيع كسفير؟ - حلاق ماب</title>
+<script src="https://picture-search.skywork.ai/aippt/static/tailwindcss.com"></script><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet"/><style>@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
+:root {
+    --ppt-bg: #0A0C10;
+    --ppt-bg-soft: #111827;
+    --ppt-surface: #161B22;
+    --ppt-surface-2: #1F2937;
+    --ppt-border: #30363D;
+    --ppt-text-1: #FFF;
+    --ppt-text-2: #94A3B8;
+    --ppt-text-3: #64748B;
+    --ppt-accent: #0D9488;
+    --ppt-accent-2: #14B8A6;
+    --ppt-good: #10B981;
+    --ppt-warn: #F59E0B;
+    --ppt-bad: #EF4444;
+    --ppt-radius-sm: 2px;
+    --ppt-radius-md: 4px;
+    --ppt-radius-lg: 8px;
+    --ppt-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --ppt-shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.7);
+    --ppt-font-display: "IBM Plex Sans Arabic", sans-serif;
+    --ppt-font-body: "IBM Plex Sans Arabic", sans-serif
+    }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+    }
+body {width: 1280px; height: 720px; overflow: hidden; background-color: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--ppt-font-body)}
+.halaq-sales-slide-root {
+    width: 1280px;
+    height: 720px;
+    background-color: var(--ppt-bg);
+    color: var(--ppt-text-1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--ppt-border)
+    }
+/* Title Region */
+.halaq-sales-title-region {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 40px 60px 20px 60px;
+    border-right: 6px solid var(--ppt-accent);
+    margin-right: 40px;
+    margin-top: 40px
+    }
+.halaq-sales-title-text {
+    font-family: var(--ppt-font-display);
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--ppt-text-1);
+    margin: 0;
+    line-height: 1.2
+    }
+.halaq-sales-subtitle-text {
+    font-family: var(--ppt-font-body);
+    font-size: 16px;
+    color: var(--ppt-accent);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase
+    }
+/* Content Layout */
+.halaq-sales-main-content {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 60px 40px 60px;
+    gap: 24px;
+    flex: 1
+    }
+/* Hero License Card */
+.halaq-sales-product-hero-card {
+    background-color: var(--ppt-surface);
+    border: 1px solid var(--ppt-border);
+    border-radius: var(--ppt-radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-right: 4px solid var(--ppt-accent)
+    }
+.halaq-sales-hero-icon-box {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(13, 148, 136, 0.1);
+    border-radius: var(--ppt-radius-sm);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: var(--ppt-accent)
+    }
+.halaq-sales-hero-text-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px
+    }
+.halaq-sales-hero-main-label {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ppt-text-1)
+    }
+.halaq-sales-hero-sub-label {
+    font-size: 18px;
+    color: var(--ppt-text-2)
+    }
+/* Packages Grid */
+.halaq-sales-packages-grid {
+    display: flex;
+    gap: 20px;
+    align-items: stretch
+    }
+.halaq-sales-package-item-container {
+    flex: 1;
+    background-color: var(--ppt-surface);
+    border: 1px solid var(--ppt-border);
+    border-radius: var(--ppt-radius-md);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.3s ease
+    }
+.halaq-sales-package-item-container:hover {
+    border-color: var(--ppt-accent)
+    }
+.halaq-sales-package-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ppt-border)
+    }
+.halaq-sales-package-icon {
+    font-size: 20px;
+    color: var(--ppt-accent-2)
+    }
+.halaq-sales-package-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ppt-text-1)
+    }
+.halaq-sales-package-description {
+    font-size: 15px;
+    color: var(--ppt-text-2);
+    line-height: 1.5
+    }
+.halaq-sales-package-features-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px
+    }
+.halaq-sales-feature-bullet {
+    font-size: 14px;
+    color: var(--ppt-text-2);
+    display: block;
+    padding-right: 20px;
+    position: relative
+    }
+.halaq-sales-feature-bullet::before {
+    content: "";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    right: 0;
+    color: var(--ppt-accent);
+    font-size: 12px
+    }
+/* Apartments Track Bar */
+.halaq-sales-apartments-track-panel {
+    background-color: var(--ppt-bg-soft);
+    border: 1px dashed var(--ppt-accent);
+    border-radius: var(--ppt-radius-md);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px
+    }
+.halaq-sales-apartments-label-group {
+    display: flex;
+    align-items: center;
+    gap: 16px
+    }
+.halaq-sales-apartments-icon {
+    font-size: 24px;
+    color: var(--ppt-accent)
+    }
+.halaq-sales-apartments-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ppt-text-1)
+    }
+.halaq-sales-apartments-badge {
+    background-color: var(--ppt-surface-2);
+    color: var(--ppt-accent-2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--ppt-accent)
+    }
+.halaq-sales-apartments-description {
+    font-size: 15px;
+    color: var(--ppt-text-2)
+    }
+html { overflow: hidden; }
+</style>
+<meta content="16:9" name="PageAspectRatio"/><meta content="1280_720" name="PageSize"/></head>
+<body>
+<div class="halaq-sales-slide-root" style="overflow: hidden;">
+<!-- Title Section -->
+<div class="halaq-sales-title-region">
+<h1 class="halaq-sales-title-text">
+        ماذا تبيع كسفير؟
+      </h1>
+<div class="halaq-sales-subtitle-text">
+        دليل سفراء حلاق ماب الميداني
+      </div>
+</div>
+<!-- Main Content -->
+<div class="halaq-sales-main-content">
+<!-- Product Hero -->
+<div class="halaq-sales-product-hero-card">
+<div class="halaq-sales-hero-icon-box">
+<i class="fas fa-certificate"></i>
+</div>
+<div class="halaq-sales-hero-text-group">
+<span class="halaq-sales-hero-main-label">رخصة نفاذ رقمية</span>
+<span class="halaq-sales-hero-sub-label">نظام الظهور عند الطلب للمنشآت والخدمات</span>
+</div>
+</div>
+<!-- Packages Grid -->
+<div class="halaq-sales-packages-grid">
+<!-- Bronze -->
+<div class="halaq-sales-package-item-container">
+<div class="halaq-sales-package-header">
+<i class="fas fa-medal halaq-sales-package-icon"></i>
+<span class="halaq-sales-package-name">الحزمة البرونزية</span>
+</div>
+<p class="halaq-sales-package-description">الخيار الأساسي للصالونات الراغبة في التواجد الرقمي الأولي.</p>
+<div class="halaq-sales-package-features-list">
+<span class="halaq-sales-feature-bullet">ظهور في نتائج البحث المباشرة</span>
+<span class="halaq-sales-feature-bullet">تحديد الموقع بدقة GPS</span>
+<span class="halaq-sales-feature-bullet">عرض بيانات التواصل المباشرة</span>
+</div>
+</div>
+<!-- Gold -->
+<div class="halaq-sales-package-item-container">
+<div class="halaq-sales-package-header">
+<i class="fas fa-award halaq-sales-package-icon"></i>
+<span class="halaq-sales-package-name">الحزمة الذهبية</span>
+</div>
+<p class="halaq-sales-package-description">توازن مثالي بين الظهور والانتشار للصالونات المتوسطة.</p>
+<div class="halaq-sales-package-features-list">
+<span class="halaq-sales-feature-bullet">أولوية متوسطة في ترتيب الظهور</span>
+<span class="halaq-sales-feature-bullet">معرض صور موسع للمرفق</span>
+<span class="halaq-sales-feature-bullet">إحصائيات وصول العملاء الأساسية</span>
+</div>
+</div>
+<!-- Diamond -->
+<div class="halaq-sales-package-item-container">
+<div class="halaq-sales-package-header">
+<i class="fas fa-gem halaq-sales-package-icon"></i>
+<span class="halaq-sales-package-name">الحزمة الماسية</span>
+</div>
+<p class="halaq-sales-package-description">الحل الشامل لأقصى درجات الظهور الرقمي والاستهداف.</p>
+<div class="halaq-sales-package-features-list">
+<span class="halaq-sales-feature-bullet">أولوية قصوى في نتائج البحث</span>
+<span class="halaq-sales-feature-bullet">دعم فني مخصص للمنشأة</span>
+<span class="halaq-sales-feature-bullet">خيار إضافة "مكتب خاص" للإدارة</span>
+</div>
+</div>
+</div>
+<!-- Apartments Track -->
+<div class="halaq-sales-apartments-track-panel">
+<div class="halaq-sales-apartments-label-group">
+<i class="fas fa-hotel halaq-sales-apartments-icon"></i>
+<span class="halaq-sales-apartments-title">مسار الفنادق والشقق المخدومة</span>
+<span class="halaq-sales-apartments-badge">مسار معتمد</span>
+</div>
+<div class="halaq-sales-apartments-description">
+          توفير حلول النفاذ الرقمي لقطاع الفنادق والشقق المخدومة وفق المسار المخصص.
+        </div>
+</div>
+</div>
+</div>
+</body>
+</html>
