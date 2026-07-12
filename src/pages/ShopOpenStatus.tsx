@@ -20,7 +20,20 @@ function tierLabelAr(tier: string): string {
 
 export default function ShopOpenStatus() {
   const [params] = useSearchParams();
-  const token = useMemo(() => (params.get('t') || '').trim(), [params]);
+  const token = useMemo(() => {
+    const fromParams = (params.get('t') || '').trim();
+    if (fromParams) return fromParams;
+    // احتياط: قراءة t من الـ hash مباشرة إن فشل useSearchParams (روابط قديمة/معطوبة)
+    if (typeof window === 'undefined') return '';
+    try {
+      const hash = window.location.hash || '';
+      const q = hash.indexOf('?');
+      if (q < 0) return '';
+      return new URLSearchParams(hash.slice(q + 1)).get('t')?.trim() || '';
+    } catch {
+      return '';
+    }
+  }, [params]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

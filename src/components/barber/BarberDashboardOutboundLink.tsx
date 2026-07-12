@@ -14,6 +14,41 @@ function hashRoutePathFromTo(to: To): string {
   return `${pathname}${search}${hash}` || '/';
 }
 
+/**
+ * يستخرج مسار HashRouter من رابط نسبي أو مطلق.
+ * مهم: `buildShopOpenManageHashLink` يعيد `https://…/#/partners/shop-open?t=…`
+ * ولفّه مرة ثانية كان يُنتج `#/https://…` فيختفي معامل t وتفشل صفحة التبديل.
+ */
+export function extractHashAppPath(href: string): string | null {
+  const trimmed = href.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith('/#')) {
+    const rest = trimmed.slice(2);
+    return rest.startsWith('/') ? rest : `/${rest}`;
+  }
+  if (trimmed.startsWith('#/')) return trimmed.slice(1);
+  if (trimmed.startsWith('#')) {
+    const rest = trimmed.slice(1);
+    return rest.startsWith('/') ? rest : `/${rest}`;
+  }
+  try {
+    if (/^https?:\/\//i.test(trimmed)) {
+      const u = new URL(trimmed);
+      const h = u.hash || '';
+      if (h.startsWith('#/')) return h.slice(1);
+      if (h.length > 1) {
+        const rest = h.slice(1);
+        return rest.startsWith('/') ? rest : `/${rest}`;
+      }
+      return null;
+    }
+  } catch {
+    /* ignore */
+  }
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) return trimmed;
+  return null;
+}
+
 function absoluteHashRouteUrl(relativePath: string): string {
   const path = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
   const origin =
@@ -69,24 +104,22 @@ export function BarberDashboardOutboundAnchor({
   ...props
 }: ComponentProps<'a'>) {
   if (target === '_blank' && href && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
-    const hashPath = href.startsWith('/#')
-      ? href.slice(2)
-      : href.startsWith('#')
-        ? href.slice(1)
-        : href;
-    return (
-      <a
-        href={absoluteHashRouteUrl(hashPath.startsWith('/') ? hashPath : `/${hashPath}`)}
-        target={target}
-        rel={rel}
-        onClick={(e) => {
-          e.preventDefault();
-          openHashRouteInNewTab(hashPath.startsWith('/') ? hashPath : `/${hashPath}`);
-          onClick?.(e);
-        }}
-        {...props}
-      />
-    );
+    const routePath = extractHashAppPath(href);
+    if (routePath) {
+      return (
+        <a
+          href={absoluteHashRouteUrl(routePath)}
+          target={target}
+          rel={rel}
+          onClick={(e) => {
+            e.preventDefault();
+            openHashRouteInNewTab(routePath);
+            onClick?.(e);
+          }}
+          {...props}
+        />
+      );
+    }
   }
   return <a href={href} target={target} rel={rel} onClick={onClick} {...props} />;
 }

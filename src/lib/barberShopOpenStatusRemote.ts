@@ -4,8 +4,16 @@ const DEFAULT_ENDPOINT = '/api/barber-shop-status';
 export function buildShopOpenManageHashLink(token: string): string {
   const t = token.trim();
   if (!t || typeof window === 'undefined') return '';
-  const base = window.location.href.split('#')[0];
-  return `${base}#/partners/shop-open?t=${encodeURIComponent(t)}`;
+  // origin فقط — لا نمرّر href كاملاً قبل # حتى لا يُلف الرابط مرتين في OutboundAnchor
+  const origin = String(window.location.origin || '').replace(/\/+$/, '') || 'https://www.halaqmap.com';
+  return `${origin}/#/partners/shop-open?t=${encodeURIComponent(t)}`;
+}
+
+/** مسار HashRouter النسبي (مع query) — للاستخدام مع openHashRouteInNewTab */
+export function buildShopOpenManageRoutePath(token: string): string {
+  const t = token.trim();
+  if (!t) return '';
+  return `/partners/shop-open?t=${encodeURIComponent(t)}`;
 }
 
 function endpoint(): string {
