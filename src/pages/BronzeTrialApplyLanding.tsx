@@ -126,12 +126,12 @@ export default function BronzeTrialApplyLanding() {
     setLoading(true);
     try {
       const bundle = await loadSaudiGeoLite();
-      const city = bundle.cities.find((c) => c.id === geo.cityId);
+      const city = bundle.cities.find((c) => c.city_id === Number(geo.cityId));
       const district =
         geo.districtId === OTHER_DISTRICT_VALUE
           ? geo.districtOther.trim()
-          : bundle.districts.find((d) => d.id === geo.districtId)?.name_ar || '';
-      const region = bundle.regions.find((r) => r.id === geo.regionId)?.name_ar || '';
+          : bundle.districts.find((d) => d.district_id === Number(geo.districtId))?.name_ar || '';
+      const region = bundle.regions.find((r) => r.region_id === Number(geo.regionId))?.name_ar || '';
       const cityAr = city?.name_ar || '';
       const districtAr = district || '';
       if (!cityAr || !districtAr) {
@@ -148,8 +148,13 @@ export default function BronzeTrialApplyLanding() {
       }
 
       const orderId = generateRegistrationOrderId();
-      const intent = await mintRegistrationIntentTokenRemote();
-      const intentToken = intent.ok ? intent.token : null;
+      const intent = await mintRegistrationIntentTokenRemote(orderId);
+      if (!intent.ok) {
+        toast.error(intent.error);
+        setLoading(false);
+        return;
+      }
+      const intentToken = intent.intentToken;
 
       const uploads: Record<PhotoKey, string> = {
         exteriorSign: '',

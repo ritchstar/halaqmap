@@ -56,9 +56,9 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: false, error: 'server_misconfigured' }, { status: 503, headers });
   }
 
-  let body: { code?: unknown; requestId?: unknown; linkedBarberId?: unknown };
+  let body: { code?: unknown; requestId?: unknown; linkedBarberId?: unknown; email?: unknown };
   try {
-    body = (await request.json()) as { code?: unknown; requestId?: unknown; linkedBarberId?: unknown };
+    body = (await request.json()) as { code?: unknown; requestId?: unknown; linkedBarberId?: unknown; email?: unknown };
   } catch {
     return Response.json({ ok: false, error: 'invalid_json' }, { status: 400, headers });
   }
