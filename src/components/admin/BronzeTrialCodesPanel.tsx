@@ -4,10 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import {
   adminIssueBronzeTrialCodesRemote,
   adminListBronzeTrialCodesRemote,
+  bronzeTrialAdminErrorAr,
   type BronzeTrialCodeRow,
 } from '@/lib/bronzeTrialRemote';
 
@@ -16,18 +18,23 @@ type Props = {
 };
 
 export function BronzeTrialCodesPanel({ accessToken }: Props) {
-  const [count, setCount] = useState(5);
+  const [count, setCount] = useState(1);
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
   const [lastCodes, setLastCodes] = useState<string[]>([]);
   const [rows, setRows] = useState<BronzeTrialCodeRow[]>([]);
   const [listLoading, setListLoading] = useState(false);
+  const [panelError, setPanelError] = useState<string | null>(null);
 
   const refreshList = useCallback(async () => {
     setListLoading(true);
     const res = await adminListBronzeTrialCodesRemote({ accessToken });
     setListLoading(false);
-    if (res.ok) setRows(res.rows);
+    if (!res.ok) {
+      setPanelError(bronzeTrialAdminErrorAr(res.error));
+      return;
+    }
+    setRows(res.rows);
   }, [accessToken]);
 
   useEffect(() => {
@@ -35,6 +42,7 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
   }, [refreshList]);
 
   const onGenerate = async () => {
+    setPanelError(null);
     setLoading(true);
     const res = await adminIssueBronzeTrialCodesRemote({
       accessToken,
@@ -43,11 +51,13 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
     });
     setLoading(false);
     if (!res.ok) {
-      toast.error(res.error);
+      const msg = bronzeTrialAdminErrorAr(res.error);
+      setPanelError(msg);
+      toast.error(msg);
       return;
     }
     setLastCodes(res.codes);
-    toast.success(`تم توليد ${res.count} كود تجربة — انسخها الآن`);
+    toast.success(`تم توليد ${res.count} كود — انسخها من الصندوق الأصفر أدناه فوراً`);
     void refreshList();
   };
 
@@ -57,7 +67,7 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
       await navigator.clipboard.writeText(lastCodes.join('\n'));
       toast.success('نُسخت الأكواد');
     } catch {
-      toast.error('تعذّر النسخ');
+      toast.error('تعذّر النسخ — انسخ يدوياً من الصندوق');
     }
   };
 
@@ -67,10 +77,17 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
         <CardTitle>مولّد أكواد تجربة برونزي (30 يوماً)</CardTitle>
         <CardDescription>
           كل كود لمرة واحدة فقط (`HM-TRY-…`). يُدخل في صفحة الدفع بعد اختيار البرونزي — لا يمس مسار ميسر.
-          انسخ الأكواد فور توليدها؛ القاعدة تخزّن بصمة فقط.
+          الملاحظة الداخلية للتوثيق فقط (مثل اسم الصالون) ولا تربط الكود تلقائياً بحلاق.
+          انسخ الأكواد فور ظهورها؛ القاعدة تخزّن بصمة فقط ولا تعيد النص لاحقاً.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {panelError ? (
+          <Alert variant="destructive">
+            <AlertDescription className="text-sm leading-relaxed">{panelError}</AlertDescription>
+          </Alert>
+        ) : null}
+
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="trial-count">عدد الأكواد (1–50)</Label>
@@ -85,12 +102,12 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="trial-note">ملاحظة داخلية (اختياري)</Label>
+            <Label htmlFor="trial-note">ملاحظة داخلية (اختياري — للتوثيق فقط)</Label>
             <Input
               id="trial-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="حملة إكس — دفعة أبريل"
+              placeholder="مثال: صالون سعود — حملة إكس"
             />
           </div>
         </div>
@@ -99,20 +116,28 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
         </Button>
 
         {lastCodes.length > 0 ? (
-          <div className="space-y-2 rounded-lg border border-border bg-muted/40 p-3">
+          <div className="space-y-2 rounded-lg border-2 border-amber-500/50 bg-amber-500/10 p-3">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-semibold">آخر دفعة مولَّدة</p>
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                أكواد هذه الدفعة — انسخها الآن (لن تظهر مرة أخرى)
+              </p>
               <Button type="button" size="sm" variant="outline" onClick={() => void copyAll()}>
                 نسخ الكل
               </Button>
             </div>
-            <Textarea value={lastCodes.join('\n')} readOnly rows={Math.min(12, lastCodes.length + 1)} dir="ltr" className="font-mono text-xs" />
+            <Textarea
+              value={lastCodes.join('\n')}
+              readOnly
+              rows={Math.min(12, lastCodes.length + 1)}
+              dir="ltr"
+              className="font-mono text-xs bg-background"
+            />
           </div>
         ) : null}
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold">آخر 40 سجلاً</p>
+            <p className="text-sm font-semibold">آخر 40 سجلاً (حالة فقط — بلا نص الكود)</p>
             <Button type="button" size="sm" variant="ghost" onClick={() => void refreshList()} disabled={listLoading}>
               تحديث
             </Button>
@@ -122,6 +147,7 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
               <thead className="bg-muted/50 sticky top-0">
                 <tr>
                   <th className="p-2">الحالة</th>
+                  <th className="p-2">ملاحظة</th>
                   <th className="p-2">أُنشئ</th>
                   <th className="p-2">استُهلك</th>
                   <th className="p-2">طلب</th>
@@ -131,6 +157,9 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
                 {rows.map((r) => (
                   <tr key={r.id} className="border-t border-border/60">
                     <td className="p-2">{r.status}</td>
+                    <td className="p-2 max-w-[8rem] truncate" title={r.note ?? ''}>
+                      {r.note || '—'}
+                    </td>
                     <td className="p-2" dir="ltr">
                       {r.created_at?.slice(0, 16) ?? '—'}
                     </td>
@@ -144,8 +173,8 @@ export function BronzeTrialCodesPanel({ accessToken }: Props) {
                 ))}
                 {!rows.length ? (
                   <tr>
-                    <td colSpan={4} className="p-3 text-muted-foreground">
-                      لا سجلات بعد.
+                    <td colSpan={5} className="p-3 text-muted-foreground">
+                      لا سجلات بعد — إن فشل التوليد ستظهر رسالة حمراء أعلاه.
                     </td>
                   </tr>
                 ) : null}

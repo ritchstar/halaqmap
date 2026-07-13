@@ -91,7 +91,13 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   if (!result.ok) {
-    return Response.json({ ok: false, error: result.error }, { status: 500, headers });
+    const status =
+      result.error === 'voucher_pepper_not_configured'
+        ? 503
+        : result.error === 'code_insert_failed'
+          ? 500
+          : 500;
+    return Response.json({ ok: false, error: result.error }, { status, headers });
   }
 
   return Response.json(
