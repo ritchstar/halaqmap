@@ -16,7 +16,7 @@ export type WalletShiftDebitRow = {
 };
 
 export type ParsedShiftDebitReason =
-  | { kind: 'scoped'; conversationId: string; customerMessageAt: string; trigger: string }
+  | { kind: 'scoped'; conversationId: string; customerMessageAt: string; trigger: string | null }
   | { kind: 'legacy'; trigger: string }
   | { kind: 'unknown' };
 
@@ -42,8 +42,12 @@ export type WalletDrainRecoveryResult = WalletDrainBarberAudit & {
   skippedAlreadyRecovered: number;
 };
 
-const SCOPED_SHIFT_DEBIT_RE =
+const SCOPED_SHIFT_DEBIT_WITH_TRIGGER_RE =
   /^shift_reply:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):(.+):(shop_closed|barber_delay)$/i;
+
+/** الصيغة الحالية: shift_reply:{conversationId}:{customerMessageAt} */
+const SCOPED_SHIFT_DEBIT_RE =
+  /^shift_reply:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):(.+)$/i;
 
 const LEGACY_SHIFT_DEBIT_RE = /^shift_reply:(shop_closed|barber_delay)$/i;
 
@@ -59,13 +63,22 @@ export function walletDrainAutoRecoverEnabled(): boolean {
 
 export function parseShiftDebitReason(reason: string): ParsedShiftDebitReason {
   const r = reason.trim();
+  const withTrigger = SCOPED_SHIFT_DEBIT_WITH_TRIGGER_RE.exec(r);
+  if (withTrigger) {
+    return {
+      kind: 'scoped',
+      conversationId: withTrigger[1],
+      customerMessageAt: withTrigger[2],
+      trigger: withTrigger[3],
+    };
+  }
   const scoped = SCOPED_SHIFT_DEBIT_RE.exec(r);
   if (scoped) {
     return {
       kind: 'scoped',
       conversationId: scoped[1],
       customerMessageAt: scoped[2],
-      trigger: scoped[3],
+      trigger: null,
     };
   }
   const legacy = LEGACY_SHIFT_DEBIT_RE.exec(r);

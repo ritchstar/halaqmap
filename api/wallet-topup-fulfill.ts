@@ -1,17 +1,16 @@
 /**
- * شحن محفظة المناوب الرقمي بعد دفع ميسر ناجح.
+ * شحن محفظة المناوب الرقمي بعد دفع ميسر ناجح، وسحب الرصيد عند الاسترجاع.
  *
  *  GET  /api/wallet-topup-fulfill?paymentId=<uuid>
  *       عام (CORS + حارس أصول) — تستدعيه الواجهة (poll) بعد العودة من ميسر.
  *
  *  POST /api/wallet-topup-fulfill  { paymentId }
  *       داخلي من moyasar-webhook (Edge) — يتطلب x-wallet-topup-internal-secret.
- *
- * الطرفان يتحققان من الدفع لدى ميسر ثم يشحنان الرصيد الصافي بشكل idempotent.
+ *       اختياري: { paymentId, action: "clawback" } لسحب الشحن بعد refunded/voided.
  */
 import { createClient } from '@supabase/supabase-js';
 import { timingSafeEqual } from 'node:crypto';
-import { syncWalletTopupFulfillment } from './_lib/walletTopupFulfillmentSync.js';
+import { syncWalletTopupClawback, syncWalletTopupFulfillment } from './_lib/walletTopupFulfillmentSync.js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import {
   buildPublicApiCorsHeaders,
@@ -73,9 +72,9 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   }
 
-  let body: { paymentId?: unknown };
+  let body: { paymentId?: unknown; action?: unknown };
   try {
-    body = (await request.json()) as { paymentId?: unknown };
+    body = (await request.json()) as { paymentId?: unknown; action?: unknown };
   } catch {
     return Response.json({ ok: false, error: 'invalid_json' }, { status: 400 });
   }
@@ -88,6 +87,19 @@ export async function POST(request: Request): Promise<Response> {
   const supabase = serviceClient();
   if (!supabase) {
     return Response.json({ ok: false, error: 'server_misconfigured' }, { status: 503 });
+  }
+
+  const action = String(body.action ?? 'fulfill').trim().toLowerCase();
+  if (action === 'clawback') {
+    const result = await syncWalletTopupClawback(supabase, paymentId);
+    if (!result.ok) {
+      return Response.json({ ok: false, error: result.error }, { status: result.status });
+    }
+    return Response.json(result, { status: 200 });
+  }
+
+  if (action !== 'fulfill' && action !== '') {
+    return Response.json({ ok: false, error: 'invalid_action' }, { status: 400 });
   }
 
   const result = await syncWalletTopupFulfillment(supabase, paymentId);

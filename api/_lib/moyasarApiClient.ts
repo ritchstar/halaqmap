@@ -50,6 +50,12 @@ export function moyasarPaymentIsPaid(status: string): boolean {
   return s === 'paid' || s === 'success' || s === 'succeeded' || s === 'captured';
 }
 
+/** حالات تستوجب سحب رصيد شحن المحفظة إن وُجد قيد credit. */
+export function moyasarPaymentRequiresWalletClawback(status: string): boolean {
+  const s = String(status || '').trim().toLowerCase();
+  return s === 'refunded' || s === 'voided';
+}
+
 export function moyasarPaymentStatusRetryable(status: string): boolean {
   const s = String(status || '').trim().toLowerCase();
   return s === '' || s === 'initiated' || s === 'pending' || s === 'authorized' || s === 'processing';

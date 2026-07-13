@@ -39,6 +39,7 @@ import {
 
 function formatWalletTxLabel(reason: string): string {
   const r = reason.trim();
+  if (r.startsWith('wallet_topup_clawback:')) return 'سحب شحن بعد استرجاع ميسر';
   if (r.startsWith('wallet_topup:')) return 'شحن محفظة';
   if (r.startsWith('wallet_drain_recovery:')) return 'استرداد خصم يتيم';
   if (r.endsWith(':refund')) return 'استرداد رد فاشل';

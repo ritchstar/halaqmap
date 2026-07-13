@@ -728,19 +728,22 @@ Deno.serve(async (req) => {
   // ── شحن محفظة المناوب: منتج مستقل — لا اشتراك رخصة ولا شهادة تفعيل. ──
   if (isWalletTopupMeta(meta)) {
     let credited = false;
+    let clawedBack = false;
     let creditResult: Record<string, unknown> | null = null;
+    let clawbackResult: Record<string, unknown> | null = null;
     const trustedPaidSource = Boolean(eventType && /^payment/i.test(eventType));
+    const needsClawback = rowStatus === "refunded" || rowStatus === "voided";
+
+    const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "")
+      .trim()
+      .replace(/\/+$/, "");
+    const internalSecret = (
+      Deno.env.get("WALLET_TOPUP_INTERNAL_SECRET") ??
+      Deno.env.get("LISTING_LICENSE_INTERNAL_SECRET") ??
+      ""
+    ).trim();
 
     if (successStatus && trustedPaidSource) {
-      const appOrigin = (Deno.env.get("APP_PUBLIC_ORIGIN") ?? Deno.env.get("PUBLIC_SITE_ORIGIN") ?? "")
-        .trim()
-        .replace(/\/+$/, "");
-      const internalSecret = (
-        Deno.env.get("WALLET_TOPUP_INTERNAL_SECRET") ??
-        Deno.env.get("LISTING_LICENSE_INTERNAL_SECRET") ??
-        ""
-      ).trim();
-
       if (appOrigin && internalSecret) {
         try {
           const resp = await fetch(`${appOrigin}/api/wallet-topup-fulfill`, {
@@ -780,6 +783,58 @@ Deno.serve(async (req) => {
           reason: "APP_PUBLIC_ORIGIN or WALLET_TOPUP_INTERNAL_SECRET missing.",
         });
       }
+    } else if (needsClawback) {
+      // SEV-1: استرجاع/إلغاء دفعة شحن → سحب الرصيد المُضاف (idempotent).
+      if (appOrigin && internalSecret) {
+        try {
+          const resp = await fetch(`${appOrigin}/api/wallet-topup-fulfill`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-wallet-topup-internal-secret": internalSecret,
+            },
+            body: JSON.stringify({ paymentId, action: "clawback" }),
+          });
+          const txt = await resp.text();
+          if (resp.ok) {
+            clawedBack = true;
+            try {
+              clawbackResult = JSON.parse(txt) as Record<string, unknown>;
+            } catch {
+              clawbackResult = null;
+            }
+          } else if (resp.status === 404) {
+            // لا يوجد شحن محلي لهذه الدفعة — لا حادثة أمنية.
+            clawedBack = true;
+            clawbackResult = { skipped: "topup_not_found" };
+          } else {
+            console.warn("[moyasar-webhook] wallet-topup-clawback:", txt.slice(0, 300));
+            await logPaymentSecurityEvent(supabase, {
+              severity: "warning",
+              eventType: "wallet_topup_clawback_failed",
+              paymentId,
+              reason: txt.slice(0, 300),
+              detail: { httpStatus: resp.status, rowStatus },
+            });
+          }
+        } catch (e) {
+          console.warn("[moyasar-webhook] wallet-topup-clawback fetch:", e);
+          await logPaymentSecurityEvent(supabase, {
+            severity: "warning",
+            eventType: "wallet_topup_clawback_failed",
+            paymentId,
+            reason: String(e).slice(0, 300),
+            detail: { rowStatus },
+          });
+        }
+      } else {
+        await logPaymentSecurityEvent(supabase, {
+          severity: "warning",
+          eventType: "wallet_topup_clawback_not_configured",
+          paymentId,
+          reason: "APP_PUBLIC_ORIGIN or WALLET_TOPUP_INTERNAL_SECRET missing.",
+        });
+      }
     }
 
     return jsonResponse(
@@ -791,6 +846,8 @@ Deno.serve(async (req) => {
         status: rowStatus,
         credited,
         credit: creditResult,
+        clawedBack,
+        clawback: clawbackResult,
       },
       200,
     );

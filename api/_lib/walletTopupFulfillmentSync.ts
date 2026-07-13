@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { creditWalletFromTopup } from './digitalShiftAssistant.js';
+import { clawbackWalletTopupOnRefund, creditWalletFromTopup } from './digitalShiftAssistant.js';
 import { dispatchWalletTopupReceiptEmail } from './walletTopupReceiptMail.js';
 import {
   chargedWithCanonicalVat,
@@ -11,6 +11,7 @@ import { baseFromChargedWithVat, getPlatformVatConfig } from './platformVatConfi
 import {
   fetchMoyasarPayment,
   moyasarPaymentIsPaid,
+  moyasarPaymentRequiresWalletClawback,
   resolveMoyasarApiBase,
   resolveMoyasarSecretKey,
   secretKeyLooksValid,
@@ -232,5 +233,86 @@ export async function syncWalletTopupFulfillment(
     creditedHalalas: credit.alreadyCredited ? 0 : credit.creditedHalalas,
     balanceHalalas: credit.balanceHalalas,
     repliesRemaining: repliesFromHalalas(credit.balanceHalalas),
+  };
+}
+
+export type WalletTopupClawbackResult =
+  | {
+      ok: true;
+      alreadyClawedBack: boolean;
+      clawedHalalas: number;
+      balanceHalalas: number;
+      barberId: string;
+      moyasarStatus: string;
+    }
+  | { ok: false; error: string; status: number };
+
+/**
+ * سحب رصيد شحن محفظة بعد استرجاع/إلغاء دفعة ميسر.
+ * يتحقق من حالة الدفع لدى ميسر قبل الخصم (لا يُسمح بسحب عشوائي من الواجهة العامة).
+ */
+export async function syncWalletTopupClawback(
+  supabase: SupabaseClient,
+  moyasarPaymentId: string,
+): Promise<WalletTopupClawbackResult> {
+  const normalizedPaymentId = String(moyasarPaymentId ?? '').trim();
+  if (!UUID_RE.test(normalizedPaymentId)) {
+    return { ok: false, error: 'invalid_payment_id', status: 400 };
+  }
+
+  const secret = resolveMoyasarSecretKey();
+  if (!secretKeyLooksValid(secret)) {
+    return { ok: false, error: 'moyasar_secret_missing', status: 503 };
+  }
+
+  const apiBase = resolveMoyasarApiBase();
+  let payment: MoyasarPaymentJson | null = null;
+  try {
+    const upstream = await fetchMoyasarPayment(normalizedPaymentId, secret, apiBase);
+    if (upstream.status === 404) {
+      return { ok: false, error: 'payment_not_found', status: 404 };
+    }
+    if (upstream.status < 200 || upstream.status >= 300) {
+      return { ok: false, error: 'moyasar_upstream_error', status: 502 };
+    }
+    payment = JSON.parse(upstream.text) as MoyasarPaymentJson;
+  } catch {
+    return { ok: false, error: 'invalid_upstream', status: 502 };
+  }
+
+  const moyasarStatus = String(payment?.status ?? '').trim().toLowerCase();
+  if (!moyasarPaymentRequiresWalletClawback(moyasarStatus)) {
+    return { ok: false, error: 'payment_not_refunded', status: 409 };
+  }
+
+  const meta =
+    payment?.metadata && typeof payment.metadata === 'object' && !Array.isArray(payment.metadata)
+      ? (payment.metadata as Record<string, unknown>)
+      : {};
+
+  // اسمح بالسحب إن كانت metadata شحن محفظة، أو إن وُجد سجل topup محلياً (حماية من metadata ناقصة).
+  if (!isWalletTopupMeta(meta)) {
+    const { data: localTopup } = await supabase
+      .from('barber_ai_wallet_topups')
+      .select('moyasar_payment_id')
+      .eq('moyasar_payment_id', normalizedPaymentId)
+      .maybeSingle();
+    if (!localTopup) {
+      return { ok: false, error: 'not_wallet_topup', status: 409 };
+    }
+  }
+
+  const claw = await clawbackWalletTopupOnRefund(supabase, normalizedPaymentId);
+  if (!claw.ok) {
+    return { ok: false, error: claw.error, status: claw.status ?? 500 };
+  }
+
+  return {
+    ok: true,
+    alreadyClawedBack: claw.alreadyClawedBack,
+    clawedHalalas: claw.clawedHalalas,
+    balanceHalalas: claw.balanceHalalas,
+    barberId: claw.barberId,
+    moyasarStatus,
   };
 }

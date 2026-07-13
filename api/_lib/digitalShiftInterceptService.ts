@@ -46,8 +46,9 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function shiftReplyDebitReason(conversationId: string, customerMessageAt: string, trigger: string): string {
-  return `shift_reply:${conversationId}:${customerMessageAt}:${trigger}`;
+function shiftReplyDebitReason(conversationId: string, customerMessageAt: string): string {
+  // بدون trigger — نفس الرسالة = نفس سبب الخصم (يمنع خصماً مزدوجاً عند تغيّر حالة المحل)
+  return `shift_reply:${conversationId}:${customerMessageAt}`;
 }
 
 /** جدول claims غير مُطبَّق بعد أو بلا صلاحيات — PostgREST يُرجع PGRST205/42501. */
@@ -64,8 +65,8 @@ function isMissingInterceptClaimsTableError(code: string, message: string): bool
   );
 }
 
-/** أطول من maxDuration (45ث) — claim بلا رد يُحرَّر بعد انقطاع الدالة. */
-const INTERCEPT_CLAIM_STALE_MS = 48_000;
+/** أطول من maxDuration (60ث) بهامش — claim بلا رد يُحرَّر بعد انقطاع الدالة. */
+const INTERCEPT_CLAIM_STALE_MS = 90_000;
 
 async function releaseInterceptClaim(
   supabase: SupabaseClient,
@@ -504,7 +505,7 @@ export async function runDigitalShiftIntercept(
     return { ok: true, replied: false, reason: preDebitCheck.reason };
   }
 
-  const debitReason = shiftReplyDebitReason(conversationId, lastCustomerMessageAt, decision.trigger);
+  const debitReason = shiftReplyDebitReason(conversationId, lastCustomerMessageAt);
   const debit = await debitWalletForAiReply(supabase, barberId, debitReason);
   if (!debit.ok) {
     await releaseInterceptClaim(supabase, conversationId, lastCustomerMessageAt);

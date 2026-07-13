@@ -1,3 +1,5 @@
+import { replyClaimsWomenSalonServices } from './digitalShiftMensOnlyPolicy.js';
+
 export type ShiftLanguage = 'ar' | 'en' | 'ur' | 'tr' | 'fr' | 'es' | 'tl';
 
 export type DigitalShiftLanguageDef = {
@@ -131,6 +133,7 @@ export function buildCustomerLanguageSystemLock(lang: ShiftLanguage): string {
     'Private office notes may be in Arabic — translate their meaning into the customer language.',
     'If a greeting says «ارحبو» or «أرحب بك», use a natural welcome in the customer language only (e.g. Spanish: «¡Bienvenido!») — never paste Arabic letters.',
     'Never mix languages in one reply.',
+    'This is a MEN\'S barbershop only — never mention women\'s / ladies / unisex services.',
   ].join('\n');
 }
 
@@ -145,9 +148,9 @@ export function getCustomerShiftFallback(
   if (wantsVisit && ctx.shopOpen) {
     switch (lang) {
       case 'es':
-        return `${greet} Sí, puedes venir ahora. Estamos abiertos y listos para atenderte con tu corte de pelo y barba. ¡Te esperamos en ${ctx.barberName}!`;
+        return `${greet} Sí, puedes venir ahora. Somos una barbería de caballeros (solo hombres). Estamos abiertos y listos para tu corte de pelo y barba. ¡Te esperamos en ${ctx.barberName}!`;
       case 'en':
-        return `${greet} Yes, you can come now. We're open and ready for your haircut and beard trim. We look forward to seeing you at ${ctx.barberName}!`;
+        return `${greet} Yes, you can come now. We're a men's barbershop — open and ready for your haircut and beard trim. We look forward to seeing you at ${ctx.barberName}!`;
       case 'fr':
         return `${greet} Oui, vous pouvez venir maintenant. Nous sommes ouverts et prêts à vous accueillir. À bientôt chez ${ctx.barberName} !`;
       case 'tr':
@@ -188,6 +191,10 @@ export function finalizeCustomerShiftReply(
   if (!replyMatchesCustomerLanguage(reply, lang)) {
     reply = getCustomerShiftFallback(lang, ctx, userText, greetingHint);
   }
+  // SEV-1: لا يمر أي ادّعاء نسائي/unisex للعميل — استبدل برد آمن.
+  if (replyClaimsWomenSalonServices(reply)) {
+    reply = getCustomerShiftFallback(lang, ctx, userText, greetingHint);
+  }
   return reply.slice(0, 2000);
 }
 
@@ -198,19 +205,19 @@ export function getFallbackCustomerReply(
 ): string {
   switch (lang) {
     case 'en':
-      return `Hello! I'm ${assistantName}, the digital shift assistant for ${barberName} on Halaq Map. The barber will reply soon — how can I help you in the meantime?`;
+      return `Hello! I'm ${assistantName}, the digital shift assistant for ${barberName} on Halaq Map — a men's barbershop. The barber will reply soon — how can I help you in the meantime?`;
     case 'ur':
-      return `السلام علیکم! میں ${assistantName}، ${barberName} کا ڈیجیٹل اسسٹنٹ (Halaq Map)۔ باربر جلد جواب دیں گے — میں ابھی آپ کی کیسے مدد کر سکتا ہوں؟`;
+      return `السلام علیکم! میں ${assistantName}، ${barberName} کا ڈیجیٹل اسسٹنٹ (Halaq Map) — صرف مردانہ حجامت۔ باربر جلد جواب دیں گے — میں ابھی آپ کی کیسے مدد کر سکتا ہوں؟`;
     case 'tr':
-      return `Merhaba! Ben ${assistantName}, Halaq Map üzerinde ${barberName} için dijital nöbetçi asistanıyım. Berber yakında yanıt verecek — bu arada size nasıl yardımcı olabilirim?`;
+      return `Merhaba! Ben ${assistantName}, Halaq Map üzerinde ${barberName} için dijital nöbetçi asistanıyım (erkek berberi). Berber yakında yanıt verecek — bu arada size nasıl yardımcı olabilirim?`;
     case 'fr':
-      return `Bonjour ! Je suis ${assistantName}, l'assistant de permanence numérique pour ${barberName} sur Halaq Map. Le barbier vous répondra bientôt — comment puis-je vous aider en attendant ?`;
+      return `Bonjour ! Je suis ${assistantName}, l'assistant de permanence numérique pour ${barberName} sur Halaq Map — salon pour hommes uniquement. Le barbier vous répondra bientôt — comment puis-je vous aider en attendant ?`;
     case 'es':
-      return `¡Hola! Soy ${assistantName}, el asistente digital de turno de ${barberName} en Halaq Map. El barbero responderá pronto — ¿en qué puedo ayudarte mientras tanto?`;
+      return `¡Hola! Soy ${assistantName}, el asistente digital de turno de ${barberName} en Halaq Map — barbería de caballeros. El barbero responderá pronto — ¿en qué puedo ayudarte mientras tanto?`;
     case 'tl':
-      return `Kumusta! Ako si ${assistantName}, ang digital shift assistant para kay ${barberName} sa Halaq Map. Sasagot ang barbero sa lalong madaling panahon — paano kita matutulungan ngayon?`;
+      return `Kumusta! Ako si ${assistantName}, ang digital shift assistant para kay ${barberName} sa Halaq Map (panglalaking barbershop). Sasagot ang barbero sa lalong madaling panahon — paano kita matutulungan ngayon?`;
     default:
-      return `يا هلا! أنا ${assistantName} — المناوب الرقمي لـ${barberName} على حلاق ماب. الحلاق يرد عليك قريباً يا عمنا، تفضل — كيف أقدر أساعدك الآن؟`;
+      return `يا هلا! أنا ${assistantName} — المناوب الرقمي لـ${barberName} على حلاق ماب (صالون حلاقة رجالي). الحلاق يرد عليك قريباً يا عمنا، تفضل — كيف أقدر أساعدك الآن؟`;
   }
 }
 

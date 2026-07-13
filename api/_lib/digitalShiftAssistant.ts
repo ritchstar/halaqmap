@@ -14,6 +14,10 @@ import {
   replyMatchesCustomerLanguage,
   type ShiftLanguage,
 } from './digitalShiftLanguages.js';
+import {
+  DIGITAL_SHIFT_MENS_ONLY_SYSTEM_LOCK,
+  filterMensOnlySafeInstructions,
+} from './digitalShiftMensOnlyPolicy.js';
 
 export { detectClientLanguage, type ShiftLanguage } from './digitalShiftLanguages.js';
 
@@ -93,18 +97,20 @@ export function buildDigitalShiftSystemPrompt(
     ...(mode === 'customer' && customerLang
       ? [buildCustomerLanguageSystemLock(customerLang), '']
       : []),
-    `You are «${ctx.assistantName}» — digital shift assistant for ${ctx.barberName} on Halaq Map.`,
+    DIGITAL_SHIFT_MENS_ONLY_SYSTEM_LOCK,
+    '',
+    `You are «${ctx.assistantName}» — digital shift assistant for ${ctx.barberName} on Halaq Map (men's barbershop only).`,
     mode === 'customer' && customerLang && customerLang !== 'ar'
       ? 'Tone: warm, professional, concise — adapted to the customer culture, not Saudi Arabic phrases.'
       : 'Tone: warm Saudi commercial style — «ya 3amna», «tifaddal» — without exaggeration.',
     langHint,
     'Do not promise discounts or paid booking through the platform.',
     mode === 'customer'
-      ? 'You represent the salon when it is closed or the barber is delayed — be respectful and brief.'
+      ? 'You represent the men\'s barbershop when it is closed or the barber is delayed — be respectful and brief.'
       : DIGITAL_SHIFT_GREETING_BARBER,
     '',
     '═══ سياق الحساب ═══',
-    `الصالون: ${ctx.barberName}`,
+    `الصالون (رجالي فقط): ${ctx.barberName}`,
     ctx.cityAr ? `المدينة: ${ctx.cityAr}` : '',
     `حالة المحل: ${ctx.shopOpen ? 'مفتوح' : 'مغلق حالياً'}`,
     `أيام حزمة رخصة النفاذ المتبقية: ${ctx.listingDaysRemaining} يوم`,
@@ -113,12 +119,14 @@ export function buildDigitalShiftSystemPrompt(
   ];
 
   // تعليمات المكتب الخاص — مُنظَّمة بالرموز، تُطبَّق في وضع العميل
-  if (extra?.instructions && extra.instructions.length > 0 && mode === 'customer') {
+  const customerInstructions =
+    mode === 'customer' ? filterMensOnlySafeInstructions(extra?.instructions) : extra?.instructions ?? [];
+  if (customerInstructions.length > 0 && mode === 'customer') {
     // فرز التعليمات حسب الرمز
     const byCode: Record<string, string[]> = {
       تعليمة: [], عرض: [], جدول: [], خدمة: [], موقع: [], رد: [], تنبيه: [],
     };
-    for (const inst of extra.instructions) {
+    for (const inst of customerInstructions) {
       const tagMatch = inst.match(/^\[(عرض|جدول|خدمة|موقع|رد|تنبيه)\]\s*/);
       if (tagMatch) byCode[tagMatch[1]].push(inst.replace(tagMatch[0], '').trim());
       else byCode['تعليمة'].push(inst);
@@ -145,11 +153,15 @@ export function buildDigitalShiftSystemPrompt(
   }
 
   if (mode === 'customer' && extra?.operationalInsights?.trim()) {
-    base.push('');
-    base.push('═══ سياق الصالون الموثّق (من السيرفر — لا تذكر تقنيات داخلية) ═══');
-    base.push(extra.operationalInsights.trim());
-    base.push('- استخدم العروض/الخصم فقط إن كانت مفعّلة في السياق أعلاه');
-    base.push('- لا تذكر للعميل: رصيد المحفظة، أيام الحزمة، أو أعطال روابط البنر');
+    const insights = extra.operationalInsights.trim();
+    // لا نمرّر سياقاً يدّعي خدمات نسائية للعميل
+    if (!insights.match(/نسائي|نسائية|unisex|women'?s|ladies|hombres\s+y\s+mujeres/iu)) {
+      base.push('');
+      base.push('═══ سياق الصالون الموثّق (من السيرفر — لا تذكر تقنيات داخلية) ═══');
+      base.push(insights);
+      base.push('- استخدم العروض/الخصم فقط إن كانت مفعّلة في السياق أعلاه');
+      base.push('- لا تذكر للعميل: رصيد المحفظة، أيام الحزمة، أو أعطال روابط البنر');
+    }
   }
 
   if (mode === 'barber') {
@@ -406,10 +418,62 @@ export type CreditWalletFromTopupResult =
   | { ok: true; alreadyCredited: boolean; creditedHalalas: number; balanceHalalas: number }
   | { ok: false; error: string };
 
+export type ClawbackWalletTopupResult =
+  | {
+      ok: true;
+      alreadyClawedBack: boolean;
+      clawedHalalas: number;
+      balanceHalalas: number;
+      barberId: string;
+    }
+  | { ok: false; error: string; status?: number };
+
+async function findTopupCreditTransaction(
+  supabase: SupabaseClient,
+  barberId: string,
+  moyasarPaymentId: string,
+  walletSku: string,
+): Promise<{ id: string; amount_halalas: number } | null> {
+  const { data: byMeta } = await supabase
+    .from('barber_ai_wallet_transactions')
+    .select('id, amount_halalas, metadata')
+    .eq('barber_id', barberId)
+    .eq('direction', 'credit')
+    .like('reason', 'wallet_topup:%')
+    .order('created_at', { ascending: false })
+    .limit(40);
+
+  for (const row of byMeta ?? []) {
+    const meta = (row.metadata ?? {}) as Record<string, unknown>;
+    const pid = String(meta.moyasar_payment_id ?? '').trim();
+    if (pid === moyasarPaymentId) {
+      return { id: String(row.id), amount_halalas: Number(row.amount_halalas ?? 0) };
+    }
+  }
+
+  // احتياط: قيد بنفس السبب والكمية دون metadata (صفوف قديمة)
+  const { data: byReason } = await supabase
+    .from('barber_ai_wallet_transactions')
+    .select('id, amount_halalas, metadata')
+    .eq('barber_id', barberId)
+    .eq('direction', 'credit')
+    .eq('reason', `wallet_topup:${walletSku}`)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  for (const row of byReason ?? []) {
+    const meta = (row.metadata ?? {}) as Record<string, unknown>;
+    const pid = String(meta.moyasar_payment_id ?? '').trim();
+    if (!pid || pid === moyasarPaymentId) {
+      return { id: String(row.id), amount_halalas: Number(row.amount_halalas ?? 0) };
+    }
+  }
+  return null;
+}
+
 /**
  * شحن المحفظة من دفعة ميسر — idempotent عبر UNIQUE(moyasar_payment_id) في barber_ai_wallet_topups.
- * الرصيد المُضاف = `creditedHalalas` كما يمرّره المتصل (الأساسي في الشحن الذاتي، أو الصافي الواعي
- * بالضريبة في الفاتورة). الضريبة المسجّلة = `chargedHalalas − creditedHalalas` (تصبح 0 عند إطفاء ض.ق.م).
+ * عند تعارض المفتاح: يتحقق من وجود قيد credit مطابق؛ إن غاب يُكمل الشحن (إصلاح القفل الجزئي).
  */
 export async function creditWalletFromTopup(
   supabase: SupabaseClient,
@@ -437,7 +501,49 @@ export async function creditWalletFromTopup(
 
   const vatHalalas = Math.max(0, chargedHalalas - creditedHalalas);
 
-  // (1) قفل الشحن: إدراج سجل الشحنة أولاً. تعارض المفتاح = مشحونة سابقاً.
+  const completeBalanceCredit = async (
+    amount: number,
+    sku: string,
+    opts?: { afterPartialLock?: boolean },
+  ): Promise<CreditWalletFromTopupResult> => {
+    const { data: wallet, error: readErr } = await supabase
+      .from('barber_ai_wallet')
+      .select('balance_halalas')
+      .eq('barber_id', barberId)
+      .maybeSingle();
+    if (readErr || !wallet) return { ok: false, error: readErr?.message ?? 'wallet_not_found' };
+
+    const nextBalance = wallet.balance_halalas + amount;
+    const { error: updErr } = await supabase
+      .from('barber_ai_wallet')
+      .update({ balance_halalas: nextBalance, updated_at: new Date().toISOString() })
+      .eq('barber_id', barberId);
+    if (updErr) return { ok: false, error: updErr.message };
+
+    const txMeta: Record<string, unknown> = {
+      moyasar_payment_id: paymentId,
+      charged_halalas: chargedHalalas,
+      vat_halalas: vatHalalas,
+      source: input.source ?? 'moyasar',
+    };
+    if (opts?.afterPartialLock) txMeta.completed_after_partial_lock = true;
+
+    await supabase.from('barber_ai_wallet_transactions').insert({
+      barber_id: barberId,
+      amount_halalas: amount,
+      direction: 'credit',
+      reason: `wallet_topup:${sku}`,
+      metadata: txMeta,
+    });
+
+    if (nextBalance >= DIGITAL_SHIFT_REPLY_COST_HALALAS) {
+      await dismissRecommendationsByDedupeKeys(supabase, barberId, ['shift_wallet_empty']);
+    }
+
+    return { ok: true, alreadyCredited: false, creditedHalalas: amount, balanceHalalas: nextBalance };
+  };
+
+  // (1) قفل الشحن: إدراج سجل الشحنة أولاً. تعارض المفتاح = مشحونة سابقاً أو قفل جزئي.
   const { error: lockErr } = await supabase.from('barber_ai_wallet_topups').insert({
     barber_id: barberId,
     moyasar_payment_id: paymentId,
@@ -454,6 +560,154 @@ export async function creditWalletFromTopup(
   if (lockErr) {
     const code = String((lockErr as { code?: string }).code ?? '');
     if (code === '23505') {
+      const { data: existingTopup } = await supabase
+        .from('barber_ai_wallet_topups')
+        .select('barber_id, wallet_sku, credited_halalas, charged_halalas')
+        .eq('moyasar_payment_id', paymentId)
+        .maybeSingle();
+
+      const topupBarberId = String(existingTopup?.barber_id ?? barberId).trim() || barberId;
+      const sku = String(existingTopup?.wallet_sku ?? input.walletSku).trim() || input.walletSku;
+      const expectedCredit = Math.trunc(Number(existingTopup?.credited_halalas ?? creditedHalalas));
+
+      const priorCredit = await findTopupCreditTransaction(supabase, topupBarberId, paymentId, sku);
+      if (priorCredit) {
+        const { data: w } = await supabase
+          .from('barber_ai_wallet')
+          .select('balance_halalas')
+          .eq('barber_id', topupBarberId)
+          .maybeSingle();
+        return {
+          ok: true,
+          alreadyCredited: true,
+          creditedHalalas: priorCredit.amount_halalas || expectedCredit,
+          balanceHalalas: w?.balance_halalas ?? 0,
+        };
+      }
+
+      // قفل موجود بلا قيد credit — أكمل الشحن (SEV-1 F2)
+      return completeBalanceCredit(expectedCredit > 0 ? expectedCredit : creditedHalalas, sku, {
+        afterPartialLock: true,
+      });
+    }
+    return { ok: false, error: lockErr.message };
+  }
+
+  // (2) شحن الرصيد بعد نجاح القفل.
+  const completed = await completeBalanceCredit(creditedHalalas, input.walletSku);
+  if (!completed.ok) {
+    await supabase.from('barber_ai_wallet_topups').delete().eq('moyasar_payment_id', paymentId);
+    return completed;
+  }
+  return completed;
+}
+
+/**
+ * سحب رصيد شحن محفظة بعد استرجاع/إلغاء دفعة ميسر — idempotent عبر reason clawback.
+ */
+export async function clawbackWalletTopupOnRefund(
+  supabase: SupabaseClient,
+  moyasarPaymentId: string,
+): Promise<ClawbackWalletTopupResult> {
+  const paymentId = String(moyasarPaymentId ?? '').trim();
+  if (!paymentId) return { ok: false, error: 'invalid_payment_id', status: 400 };
+
+  const clawbackReason = `wallet_topup_clawback:${paymentId}`;
+
+  const { data: priorClawback } = await supabase
+    .from('barber_ai_wallet_transactions')
+    .select('id, amount_halalas, barber_id')
+    .eq('direction', 'debit')
+    .eq('reason', clawbackReason)
+    .maybeSingle();
+
+  if (priorClawback?.id) {
+    const bid = String(priorClawback.barber_id ?? '').trim();
+    const { data: w } = await supabase
+      .from('barber_ai_wallet')
+      .select('balance_halalas')
+      .eq('barber_id', bid)
+      .maybeSingle();
+    return {
+      ok: true,
+      alreadyClawedBack: true,
+      clawedHalalas: Number(priorClawback.amount_halalas ?? 0),
+      balanceHalalas: w?.balance_halalas ?? 0,
+      barberId: bid,
+    };
+  }
+
+  const { data: topup, error: topupErr } = await supabase
+    .from('barber_ai_wallet_topups')
+    .select('barber_id, credited_halalas, wallet_sku, metadata')
+    .eq('moyasar_payment_id', paymentId)
+    .maybeSingle();
+
+  if (topupErr) return { ok: false, error: topupErr.message, status: 500 };
+  if (!topup) return { ok: false, error: 'topup_not_found', status: 404 };
+
+  const barberId = String(topup.barber_id ?? '').trim();
+  const creditedHalalas = Math.trunc(Number(topup.credited_halalas ?? 0));
+  if (!barberId || creditedHalalas <= 0) {
+    return { ok: false, error: 'invalid_topup_row', status: 409 };
+  }
+
+  // إن لم يُكتمل الشحن أصلاً (قفل بلا credit) — لا خصم؛ علّم المسترجع فقط
+  const priorCredit = await findTopupCreditTransaction(
+    supabase,
+    barberId,
+    paymentId,
+    String(topup.wallet_sku ?? ''),
+  );
+  if (!priorCredit) {
+    const meta = {
+      ...((topup.metadata ?? {}) as Record<string, unknown>),
+      clawback_skipped: 'no_credit_posted',
+      clawback_at: new Date().toISOString(),
+    };
+    await supabase.from('barber_ai_wallet_topups').update({ metadata: meta }).eq('moyasar_payment_id', paymentId);
+    const { data: w } = await supabase
+      .from('barber_ai_wallet')
+      .select('balance_halalas')
+      .eq('barber_id', barberId)
+      .maybeSingle();
+    return {
+      ok: true,
+      alreadyClawedBack: true,
+      clawedHalalas: 0,
+      balanceHalalas: w?.balance_halalas ?? 0,
+      barberId,
+    };
+  }
+
+  const clawAmount = Math.min(creditedHalalas, priorCredit.amount_halalas || creditedHalalas);
+
+  // قفل تفاؤلي على صف الشحن قبل الخصم — يمنع سحباً مزدوجاً عند webhook متزامن.
+  const claimMeta = {
+    ...((topup.metadata ?? {}) as Record<string, unknown>),
+    clawback_claimed_at: new Date().toISOString(),
+    clawback_claim_halalas: clawAmount,
+  };
+  const { data: claimed, error: claimErr } = await supabase
+    .from('barber_ai_wallet_topups')
+    .update({ metadata: claimMeta })
+    .eq('moyasar_payment_id', paymentId)
+    .is('metadata->>clawed_back_at', null)
+    .is('metadata->>clawback_claimed_at', null)
+    .select('moyasar_payment_id')
+    .maybeSingle();
+
+  if (claimErr) return { ok: false, error: claimErr.message, status: 500 };
+
+  if (!claimed) {
+    // سباق أو سحب سابق اكتمل بين القراءة والقفل — أعد فحص قيد clawback
+    const { data: raced } = await supabase
+      .from('barber_ai_wallet_transactions')
+      .select('id, amount_halalas, barber_id')
+      .eq('direction', 'debit')
+      .eq('reason', clawbackReason)
+      .maybeSingle();
+    if (raced?.id) {
       const { data: w } = await supabase
         .from('barber_ai_wallet')
         .select('balance_halalas')
@@ -461,55 +715,81 @@ export async function creditWalletFromTopup(
         .maybeSingle();
       return {
         ok: true,
-        alreadyCredited: true,
-        creditedHalalas: 0,
+        alreadyClawedBack: true,
+        clawedHalalas: Number(raced.amount_halalas ?? 0),
         balanceHalalas: w?.balance_halalas ?? 0,
+        barberId,
       };
     }
-    return { ok: false, error: lockErr.message };
+    const { data: topupAgain } = await supabase
+      .from('barber_ai_wallet_topups')
+      .select('metadata')
+      .eq('moyasar_payment_id', paymentId)
+      .maybeSingle();
+    const m = (topupAgain?.metadata ?? {}) as Record<string, unknown>;
+    if (m.clawed_back_at || m.clawback_claimed_at) {
+      const { data: w } = await supabase
+        .from('barber_ai_wallet')
+        .select('balance_halalas')
+        .eq('barber_id', barberId)
+        .maybeSingle();
+      return {
+        ok: true,
+        alreadyClawedBack: true,
+        clawedHalalas: Number(m.clawed_halalas ?? 0),
+        balanceHalalas: w?.balance_halalas ?? 0,
+        barberId,
+      };
+    }
+    return { ok: false, error: 'clawback_claim_failed', status: 409 };
   }
 
-  // (2) شحن الرصيد بعد نجاح القفل.
-  const { data: wallet, error: readErr } = await supabase
+  const { data: wallet, error: wErr } = await supabase
     .from('barber_ai_wallet')
-    .select('balance_halalas')
+    .select('balance_halalas, total_spent_halalas')
     .eq('barber_id', barberId)
     .maybeSingle();
+  if (wErr || !wallet) return { ok: false, error: wErr?.message ?? 'wallet_not_found', status: 500 };
 
-  if (readErr || !wallet) {
-    await supabase.from('barber_ai_wallet_topups').delete().eq('moyasar_payment_id', paymentId);
-    return { ok: false, error: readErr?.message ?? 'wallet_not_found' };
-  }
+  const nextBalance = Math.max(0, wallet.balance_halalas - clawAmount);
+  const actuallyClawed = wallet.balance_halalas - nextBalance;
 
-  const nextBalance = wallet.balance_halalas + creditedHalalas;
   const { error: updErr } = await supabase
     .from('barber_ai_wallet')
-    .update({ balance_halalas: nextBalance, updated_at: new Date().toISOString() })
+    .update({
+      balance_halalas: nextBalance,
+      updated_at: new Date().toISOString(),
+    })
     .eq('barber_id', barberId);
-
-  if (updErr) {
-    await supabase.from('barber_ai_wallet_topups').delete().eq('moyasar_payment_id', paymentId);
-    return { ok: false, error: updErr.message };
-  }
+  if (updErr) return { ok: false, error: updErr.message, status: 500 };
 
   await supabase.from('barber_ai_wallet_transactions').insert({
     barber_id: barberId,
-    amount_halalas: creditedHalalas,
-    direction: 'credit',
-    reason: `wallet_topup:${input.walletSku}`,
+    amount_halalas: actuallyClawed,
+    direction: 'debit',
+    reason: clawbackReason,
     metadata: {
       moyasar_payment_id: paymentId,
-      charged_halalas: chargedHalalas,
-      vat_halalas: vatHalalas,
-      source: input.source ?? 'moyasar',
+      requested_clawback_halalas: clawAmount,
+      wallet_sku: topup.wallet_sku,
+      source: 'moyasar_refund',
     },
   });
 
-  if (nextBalance >= DIGITAL_SHIFT_REPLY_COST_HALALAS) {
-    await dismissRecommendationsByDedupeKeys(supabase, barberId, ['shift_wallet_empty']);
-  }
+  const meta = {
+    ...claimMeta,
+    clawed_back_at: new Date().toISOString(),
+    clawed_halalas: actuallyClawed,
+  };
+  await supabase.from('barber_ai_wallet_topups').update({ metadata: meta }).eq('moyasar_payment_id', paymentId);
 
-  return { ok: true, alreadyCredited: false, creditedHalalas, balanceHalalas: nextBalance };
+  return {
+    ok: true,
+    alreadyClawedBack: false,
+    clawedHalalas: actuallyClawed,
+    balanceHalalas: nextBalance,
+    barberId,
+  };
 }
 
 /** يُزيل توصيات نشطة بنفس مفتاح dedupe — لمنع التناقض بين حالات متعاقبة. */
