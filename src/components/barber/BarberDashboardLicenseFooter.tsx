@@ -80,6 +80,11 @@ export function BarberDashboardLicenseFooter({
                   {tierLabelAr(activeTier, digitalShiftUnlocked)}
                 </Badge>
               ) : null}
+              {listingBalance?.isTrial ? (
+                <Badge variant="outline" className="border-amber-500/50 text-[11px] text-amber-700 dark:text-amber-300">
+                  مشترك تجريبي — 30 يوماً
+                </Badge>
+              ) : null}
               {hasActiveListing ? (
                 <Badge
                   variant={lowBalance ? 'destructive' : 'default'}

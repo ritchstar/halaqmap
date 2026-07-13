@@ -85,6 +85,8 @@ import {
 } from '@/lib/moyasarPaymentReturn';
 import { healIfStaleBuild, healIfStaleBuildFromServer } from '@/lib/platformBuildSync';
 import { toast } from 'sonner';
+import { redeemBronzeTrialRemote, bronzeTrialErrorMessageAr } from '@/lib/bronzeTrialRedeemRemote';
+import { Input } from '@/components/ui/input';
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -247,6 +249,19 @@ export default function Payment() {
   const sabHostRef = useRef<HTMLDivElement>(null);
   const [sabFormError, setSabFormError] = useState<string | null>(null);
   const [sabCheckoutLoading, setSabCheckoutLoading] = useState(false);
+  const [bronzeTrialCode, setBronzeTrialCode] = useState('');
+  const [bronzeTrialLoading, setBronzeTrialLoading] = useState(false);
+  const [bronzeTrialSuccess, setBronzeTrialSuccess] = useState<{
+    barberId: string;
+    validUntil: string;
+    messageAr: string;
+  } | null>(null);
+
+  const showBronzeTrialField =
+    !isWalletTopup &&
+    tier === SubscriptionTier.BRONZE &&
+    !bronzeTrialSuccess &&
+    (purchasePurpose === 'new' ? registrationRequestReady : Boolean(linkedBarberId || registrationRequestReady));
 
   const moyasarPublishableKey = useMemo(() => {
     // Production key source (frontend env):
@@ -263,6 +278,35 @@ export default function Payment() {
     return testKey || legacy;
   }, []);
   const moyasarKeyOk = moyasarPublishableKey.startsWith('pk_');
+
+  const redeemBronzeTrial = useCallback(async () => {
+    const code = bronzeTrialCode.trim();
+    if (!code) {
+      toast.error('أدخل رمز التجربة');
+      return;
+    }
+    if (purchasePurpose === 'new' && !registrationRequestReady) {
+      toast.error('أكمل طلب التسجيل أولاً');
+      return;
+    }
+    setBronzeTrialLoading(true);
+    const res = await redeemBronzeTrialRemote({
+      code,
+      requestId: requestId || undefined,
+      linkedBarberId: linkedBarberId || undefined,
+    });
+    setBronzeTrialLoading(false);
+    if (!res.ok) {
+      toast.error(bronzeTrialErrorMessageAr(res.error));
+      return;
+    }
+    setBronzeTrialSuccess({
+      barberId: res.barberId,
+      validUntil: res.validUntil,
+      messageAr: res.messageAr,
+    });
+    toast.success(res.messageAr);
+  }, [bronzeTrialCode, purchasePurpose, registrationRequestReady, requestId, linkedBarberId]);
 
   // Subscription prices
   const prices = {
@@ -1226,6 +1270,27 @@ export default function Payment() {
           )}
 
           <div className="mx-auto max-w-3xl space-y-6">
+              {bronzeTrialSuccess ? (
+                <Alert className="border-emerald-600/40 bg-emerald-500/10">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <AlertDescription className="space-y-2 text-sm leading-relaxed">
+                    <p className="font-semibold text-foreground">{bronzeTrialSuccess.messageAr}</p>
+                    <p>
+                      أنت الآن <strong>مشترك تجريبي</strong> — باقة برونزي لمدة 30 يوماً. الظهور على البحث
+                      والخريطة فعّال حتى انتهاء الفترة.
+                    </p>
+                    {bronzeTrialSuccess.validUntil ? (
+                      <p className="text-xs text-muted-foreground" dir="ltr">
+                        ينتهي: {bronzeTrialSuccess.validUntil.slice(0, 10)}
+                      </p>
+                    ) : null}
+                    <Button type="button" asChild className="mt-2">
+                      <Link to={ROUTE_PATHS.BARBER_LOGIN}>الدخول للوحة الشريك</Link>
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
               {/* Subscription / Wallet Summary */}
               <Card>
                 <CardHeader>
@@ -1314,7 +1379,49 @@ export default function Payment() {
                 </CardContent>
               </Card>
 
+              {showBronzeTrialField ? (
+                <Card className="border-amber-500/35 bg-amber-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">رمز تجربة برونزي (30 يوماً)</CardTitle>
+                    <CardDescription>
+                      إن وصلك رمز مجاني، أدخله هنا لتفعيل الحساب دون دفع. مسار ميسر أدناه يبقى كما هو إن
+                      لم يكن لديك رمز.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="bronze-trial-code">رمز التجربة</Label>
+                      <Input
+                        id="bronze-trial-code"
+                        value={bronzeTrialCode}
+                        onChange={(e) => setBronzeTrialCode(e.target.value)}
+                        placeholder="HM-TRY-XXXX-XXXX-XXXX"
+                        dir="ltr"
+                        className="font-mono"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={bronzeTrialLoading || !bronzeTrialCode.trim()}
+                      onClick={() => void redeemBronzeTrial()}
+                    >
+                      {bronzeTrialLoading ? (
+                        <>
+                          <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                          جاري التفعيل…
+                        </>
+                      ) : (
+                        'تفعيل التجربة المجانية'
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : null}
+
               {/* Payment Methods */}
+              {!bronzeTrialSuccess ? (
               <Card>
                 <CardHeader>
                   <CardTitle>اختر طريقة الدفع</CardTitle>
@@ -1611,6 +1718,7 @@ export default function Payment() {
                   )}
                 </CardContent>
               </Card>
+              ) : null}
           </div>
 
           {/* مربّعات ثانوية مختصرة — أسفل المنتج وصندوق الدفع مباشرةً */}

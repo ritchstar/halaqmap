@@ -19,6 +19,7 @@ export type ListingLicenseBalance = {
   listingDaysRemaining: number;
   validUntil: string | null;
   activeTier: string | null;
+  isTrial?: boolean;
 };
 
 export async function fetchListingLicenseBalanceRemote(input: {
@@ -45,6 +46,7 @@ export async function fetchListingLicenseBalanceRemote(input: {
         listingDaysRemaining: Number(json.listingDaysRemaining ?? 0),
         validUntil: json.validUntil ?? null,
         activeTier: json.activeTier ?? null,
+        isTrial: json.isTrial === true,
       },
     };
   } catch {

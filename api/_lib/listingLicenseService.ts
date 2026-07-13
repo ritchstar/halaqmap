@@ -307,7 +307,8 @@ export async function creditBarberListingEntitlement(
       | 'moyasar_auto_redeem'
       | 'admin_voucher_issue'
       | 'admin_payment_approve'
-      | 'registration_approval_auto_redeem';
+      | 'registration_approval_auto_redeem'
+      | 'bronze_trial_code';
     voucherId?: string | null;
     orderId?: string | null;
     stackFromExisting?: boolean;
@@ -1041,6 +1042,7 @@ export async function getBarberListingBalance(
   listingDaysRemaining: number;
   validUntil: string | null;
   activeTier: string | null;
+  isTrial: boolean;
 }> {
   const { data, error } = await supabase.rpc('barber_listing_summary', {
     p_barber_id: barberId,
@@ -1051,6 +1053,7 @@ export async function getBarberListingBalance(
       listingDaysRemaining: 0,
       validUntil: null,
       activeTier: null,
+      isTrial: false,
     };
   }
   const row = Array.isArray(data) ? data[0] : data;
@@ -1060,11 +1063,28 @@ export async function getBarberListingBalance(
     valid_until?: string;
     active_tier?: string;
   };
+
+  let isTrial = false;
+  if (r.has_active_listing === true) {
+    const now = new Date().toISOString();
+    const { data: trialEnt } = await supabase
+      .from('barber_listing_entitlements')
+      .select('id')
+      .eq('barber_id', barberId)
+      .eq('source', 'bronze_trial_code')
+      .is('revoked_at', null)
+      .gt('valid_until', now)
+      .limit(1)
+      .maybeSingle();
+    isTrial = Boolean(trialEnt?.id);
+  }
+
   return {
     hasActiveListing: r.has_active_listing === true,
     listingDaysRemaining: Number(r.listing_days_remaining ?? 0),
     validUntil: r.valid_until ?? null,
     activeTier: r.active_tier ?? null,
+    isTrial,
   };
 }
 
