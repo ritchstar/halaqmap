@@ -254,11 +254,17 @@ export function DigitalShiftPrivateOffice({
     setTurns(nextTurns);
     setLoading(true);
 
+    // لا تُرسل الرسالة الحالية داخل history — السيرفر يضيفها بعد تطبيع الأدوار
+    const historyPayload = nextTurns
+      .slice(0, -1)
+      .slice(-10)
+      .map((t) => ({ role: t.role, content: t.content }));
+
     const r = await digitalShiftBarberChatRemote({
       barberId,
       email: barberEmail,
       message: msg,
-      history: nextTurns.slice(-10).map(t => ({ role: t.role, content: t.content })),
+      history: historyPayload,
       instructions: instructions.filter(i => i.active).map(i => i.text),
       tasks: tasks.map(t => ({ text: t.text, done: t.done })),
       ...buildSalonSnapshotPayload(bannerState, posts),
@@ -267,9 +273,24 @@ export function DigitalShiftPrivateOffice({
     setLoading(false);
     if (r.ok) {
       setTurns(p => [...p, { role: 'assistant', content: r.reply, ts: nowTs() }]);
-    } else {
-      toast.error('تعذّر الرد — حاول مجدداً');
+      return;
     }
+
+    // رمز توجيه حُفظ محلياً — أكّد للحلاق حتى لو فشل مزوّد الذكاء
+    if (codeMatch) {
+      const code = codeMatch[1];
+      setTurns((p) => [
+        ...p,
+        {
+          role: 'assistant',
+          content: `تم يا عمنا ✅ حفظت «${code}» وسأطبّقها مع الزبائن. تبي تضيف شيء ثاني؟`,
+          ts: nowTs(),
+        },
+      ]);
+      return;
+    }
+
+    toast.error(r.error?.trim() || 'تعذّر الرد — حاول مجدداً');
   }, [draft, loading, turns, instructions, tasks, barberId, barberEmail, bannerState, posts]);
 
   const handleKey = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -1006,6 +1006,60 @@ export async function refreshHeuristicRecommendations(
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string };
 
+/**
+ * Anthropic يرفض: رسالة أولى من assistant، أو دورين متتاليين بنفس الدور.
+ * المكتب الخاص يرسل تحية assistant ثم يكرّر رسالة user في history — كان يسبب 400 → «تعذّر الرد».
+ */
+export function normalizeDigitalShiftChatTurns(
+  history: ChatTurn[],
+  userText: string,
+): ChatTurn[] {
+  const merged: ChatTurn[] = [];
+  const push = (role: 'user' | 'assistant', content: string) => {
+    const text = String(content ?? '').trim();
+    if (!text) return;
+    const last = merged[merged.length - 1];
+    if (last && last.role === role) {
+      last.content = `${last.content}\n\n${text}`;
+      return;
+    }
+    merged.push({ role, content: text });
+  };
+
+  for (const turn of history.slice(-8)) {
+    if (turn.role !== 'user' && turn.role !== 'assistant') continue;
+    push(turn.role, turn.content);
+  }
+
+  const trimmedUser = String(userText ?? '').trim();
+  if (trimmedUser) {
+    const last = merged[merged.length - 1];
+    if (!(last?.role === 'user' && last.content === trimmedUser)) {
+      push('user', trimmedUser);
+    }
+  }
+
+  // Anthropic: أول رسالة يجب أن تكون user
+  while (merged.length > 0 && merged[0].role !== 'user') {
+    merged.shift();
+  }
+
+  if (merged.length === 0 && trimmedUser) {
+    return [{ role: 'user', content: trimmedUser }];
+  }
+
+  return merged;
+}
+
+function getBarberShiftFallback(ctx: DigitalShiftContext, userText: string): string {
+  const t = userText.trim();
+  const codeMatch = t.match(/^(تعليمة|عرض|جدول|خدمة|موقع|رد|تنبيه|مهمة|تذكير)[:：]\s*(.+)$/s);
+  if (codeMatch) {
+    return `تم يا عمنا ✅ حفظت «${codeMatch[1]}» وسأطبّقها مع الزبائن. تبي تضيف شيء ثاني؟`;
+  }
+  return `يا عمنا تفضل، أنا ${ctx.assistantName} من حلاق ماب. ${DIGITAL_SHIFT_GREETING_BARBER}`;
+}
+
 async function callOpenAI(system: string, turns: ChatTurn[]): Promise<string> {
   const key = (process.env.OPENAI_API_KEY || '').trim();
   const model = (process.env.DIGITAL_SHIFT_OPENAI_MODEL || process.env.PARTNER_ASSISTANT_OPENAI_MODEL || 'gpt-4o-mini').trim();
@@ -1072,7 +1126,7 @@ export async function generateDigitalShiftReply(
     if (mode === 'customer') {
       return getCustomerShiftFallback(lang, ctx, userText, greetingHint);
     }
-    return `يا عمنا تفضل، أنا ${ctx.assistantName} من حلاق ماب. ${DIGITAL_SHIFT_GREETING_BARBER}`;
+    return getBarberShiftFallback(ctx, userText);
   }
 
   const promptExtra = {
@@ -1085,29 +1139,43 @@ export async function generateDigitalShiftReply(
       ? getCustomerReplyInstruction(lang)
       : 'Reply in warm Saudi Arabic.';
 
-  const turns: ChatTurn[] = [...history.slice(-8), { role: 'user', content: userText }];
+  const turns = normalizeDigitalShiftChatTurns(history, userText);
+  if (turns.length === 0) {
+    return mode === 'customer'
+      ? getCustomerShiftFallback(lang, ctx, userText, greetingHint)
+      : getBarberShiftFallback(ctx, userText);
+  }
 
-  let reply =
-    provider === 'openai'
-      ? await callOpenAI(`${system}\n\n${langInstruction}`, turns)
-      : await callAnthropic(`${system}\n\n${langInstruction}`, turns);
-
-  if (mode === 'customer' && !replyMatchesCustomerLanguage(reply, lang)) {
-    const lockedSystem = `${system}\n\n${buildCustomerLanguageSystemLock(lang)}\n\n${langInstruction}`;
+  let reply = '';
+  try {
     reply =
       provider === 'openai'
-        ? await callOpenAI(lockedSystem, [{ role: 'user', content: userText }])
-        : await callAnthropic(lockedSystem, [{ role: 'user', content: userText }]);
-    if (!replyMatchesCustomerLanguage(reply, lang)) {
-      reply = getCustomerShiftFallback(lang, ctx, userText, greetingHint);
+        ? await callOpenAI(`${system}\n\n${langInstruction}`, turns)
+        : await callAnthropic(`${system}\n\n${langInstruction}`, turns);
+
+    if (mode === 'customer' && !replyMatchesCustomerLanguage(reply, lang)) {
+      const lockedSystem = `${system}\n\n${buildCustomerLanguageSystemLock(lang)}\n\n${langInstruction}`;
+      reply =
+        provider === 'openai'
+          ? await callOpenAI(lockedSystem, [{ role: 'user', content: userText }])
+          : await callAnthropic(lockedSystem, [{ role: 'user', content: userText }]);
+      if (!replyMatchesCustomerLanguage(reply, lang)) {
+        reply = getCustomerShiftFallback(lang, ctx, userText, greetingHint);
+      }
     }
+  } catch (err) {
+    console.warn('[digital-shift] reply provider failed; using fallback', err instanceof Error ? err.message : err);
+    if (mode === 'customer') {
+      return getCustomerShiftFallback(lang, ctx, userText, greetingHint);
+    }
+    return getBarberShiftFallback(ctx, userText);
   }
 
   if (mode === 'customer') {
     return finalizeCustomerShiftReply(reply, lang, ctx, userText, greetingHint);
   }
 
-  return reply;
+  return reply.trim() || getBarberShiftFallback(ctx, userText);
 }
 
 export type InterceptDecision = {
