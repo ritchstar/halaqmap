@@ -53,6 +53,8 @@ const InvoicePreviewSamples = lazy(() => import("@/pages/InvoicePreviewSamples")
 const GrowthPitchDeckPage = lazy(() => import("@/pages/GrowthPitchDeckPage"));
 const PlatformDiscoverLandingPage = lazy(() => import("@/pages/PlatformDiscoverLandingPage"));
 const PartnerInterestLanding = lazy(() => import("@/pages/PartnerInterestLanding"));
+const BronzeTrialApplyLanding = lazy(() => import("@/pages/BronzeTrialApplyLanding"));
+const BronzeTrialConfirmLanding = lazy(() => import("@/pages/BronzeTrialConfirmLanding"));
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
@@ -254,6 +256,22 @@ const App = () => (
             element={
               <PartnerLayout>
                 <LazyRoute><PartnerInterestLanding /></LazyRoute>
+              </PartnerLayout>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
+            element={
+              <PartnerLayout>
+                <LazyRoute><BronzeTrialApplyLanding /></LazyRoute>
+              </PartnerLayout>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.BRONZE_TRIAL_CONFIRM}
+            element={
+              <PartnerLayout>
+                <LazyRoute><BronzeTrialConfirmLanding /></LazyRoute>
               </PartnerLayout>
             }
           />

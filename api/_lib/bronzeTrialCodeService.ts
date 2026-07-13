@@ -51,6 +51,8 @@ export async function issueBronzeTrialCodes(
     count: number;
     adminEmail?: string | null;
     note?: string | null;
+    boundEmail?: string | null;
+    applicationId?: string | null;
   },
 ): Promise<IssueBronzeTrialCodesResult> {
   const pepper = getListingLicenseVoucherPepper();
@@ -60,6 +62,11 @@ export async function issueBronzeTrialCodes(
   const codes: string[] = [];
   const note = String(input.note ?? '').trim().slice(0, 500) || null;
   const adminEmail = String(input.adminEmail ?? '').trim().slice(0, 200) || null;
+  const boundEmail = String(input.boundEmail ?? '').trim().toLowerCase() || null;
+  const applicationId = String(input.applicationId ?? '').trim() || null;
+  if (boundEmail && count !== 1) {
+    return { ok: false, error: 'bound_email_requires_single_code' };
+  }
 
   for (let i = 0; i < count; i += 1) {
     let inserted = false;
@@ -71,6 +78,8 @@ export async function issueBronzeTrialCodes(
         status: 'issued',
         created_by_admin_email: adminEmail,
         note,
+        bound_email: boundEmail,
+        application_id: applicationId && UUID_RE.test(applicationId) ? applicationId : null,
       });
       if (!error) {
         codes.push(plaintext);
@@ -106,6 +115,8 @@ export async function redeemBronzeTrialCode(
     code: string;
     registrationRequestId?: string | null;
     linkedBarberId?: string | null;
+    /** مطلوب إن كان للكود bound_email — يجب المطابقة */
+    email?: string | null;
   },
 ): Promise<RedeemBronzeTrialResult> {
   const pepper = getListingLicenseVoucherPepper();
@@ -127,7 +138,7 @@ export async function redeemBronzeTrialCode(
   const fingerprint = fingerprintBronzeTrialCode(normalized, pepper);
   const { data: row, error: findErr } = await supabase
     .from('bronze_trial_codes')
-    .select('id, status, code_fingerprint')
+    .select('id, status, code_fingerprint, bound_email')
     .eq('code_fingerprint', fingerprint)
     .maybeSingle();
 
@@ -139,6 +150,7 @@ export async function redeemBronzeTrialCode(
   if (String(row.status) === 'revoked') return { ok: false, error: 'trial_code_revoked', status: 409 };
   if (String(row.status) !== 'issued') return { ok: false, error: 'trial_code_already_used', status: 409 };
 
+  const boundEmail = String(row.bound_email ?? '').trim().toLowerCase();
   const claimedAt = new Date().toISOString();
   const { data: claimed, error: claimErr } = await supabase
     .from('bronze_trial_codes')
@@ -172,7 +184,7 @@ export async function redeemBronzeTrialCode(
       .eq('status', 'redeemed');
   };
 
-  let buyerEmail: string | null = null;
+  let buyerEmail: string | null = String(input.email ?? '').trim().toLowerCase() || null;
   let buyerName: string | null = null;
 
   if (hasRequest) {
@@ -194,8 +206,20 @@ export async function redeemBronzeTrialCode(
       await rollbackCode();
       return { ok: false, error: 'trial_bronze_only', status: 409 };
     }
-    buyerEmail = String(payload.email ?? payload.barberEmail ?? '').trim() || null;
+    const regEmail = String(payload.email ?? payload.barberEmail ?? '').trim().toLowerCase() || null;
+    buyerEmail = buyerEmail || regEmail;
     buyerName = String(payload.barberName ?? payload.name ?? '').trim() || null;
+  }
+
+  if (boundEmail) {
+    if (!buyerEmail) {
+      await rollbackCode();
+      return { ok: false, error: 'email_required_for_bound_code', status: 400 };
+    }
+    if (buyerEmail !== boundEmail) {
+      await rollbackCode();
+      return { ok: false, error: 'email_mismatch_bound_code', status: 403 };
+    }
   }
 
   let barberId: string;
@@ -207,7 +231,12 @@ export async function redeemBronzeTrialCode(
       return { ok: false, error: 'barber_not_found', status: 404 };
     }
     barberId = String(b.id);
-    buyerEmail = String(b.email ?? '').trim() || buyerEmail;
+    const barberEmail = String(b.email ?? '').trim().toLowerCase() || null;
+    buyerEmail = buyerEmail || barberEmail;
+    if (boundEmail && buyerEmail !== boundEmail) {
+      await rollbackCode();
+      return { ok: false, error: 'email_mismatch_bound_code', status: 403 };
+    }
   } else {
     const provision = await provisionBarberForPaidOrder(supabase, {
       registrationRequestId: requestId,

@@ -18,6 +18,10 @@ export const ROUTE_PATHS = {
   REGISTER: '/partners/register',
   /** تسجيل اهتمام مسبق (بريد + موافقة) — ما قبل الإطلاق الرسمي */
   PARTNER_INTEREST: '/partners/interest',
+  /** طلب تجربة برونزي — طابور تقييم (ليس تسجيلاً رسمياً) */
+  BRONZE_TRIAL_APPLY: '/partners/bronze-trial',
+  /** تأكيد بريد طلب التجربة (?c=token) */
+  BRONZE_TRIAL_CONFIRM: '/partners/bronze-trial/confirm',
   REGISTER_SUCCESS: '/partners/register/success',
   ABOUT: '/about',
   /** سياسة خصوصية المستخدم (موجزة — الموقع الجغرافي وعدم المشاركة الخارجية) */

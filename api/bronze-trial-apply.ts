@@ -1,9 +1,8 @@
 /**
- * استرداد كود تجربة برونزي من صفحة الدفع — بدون ميسر.
- * POST { code, requestId?, linkedBarberId? }
+ * تقديم طلب تجربة برونزي (عام) — لا ينشئ حساباً.
  */
 import { createClient } from '@supabase/supabase-js';
-import { redeemBronzeTrialCode } from './_lib/bronzeTrialCodeService.js';
+import { submitBronzeTrialApplication } from './_lib/bronzeTrialApplicationService.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import {
   buildPublicApiCorsHeaders,
@@ -11,7 +10,7 @@ import {
   rejectIfPublicApiCorsBlocked,
 } from './_lib/publicApiCors.js';
 
-export const config = { maxDuration: 45 };
+export const config = { maxDuration: 30 };
 
 const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
@@ -29,14 +28,9 @@ export async function OPTIONS(request: Request): Promise<Response> {
 export async function GET(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
-  const headers = corsHeaders(request);
   return Response.json(
-    {
-      ok: true,
-      route: 'bronze-trial-redeem',
-      publicApiGuard: registrationGuardDiagnostics(),
-    },
-    { headers },
+    { ok: true, route: 'bronze-trial-apply', publicApiGuard: registrationGuardDiagnostics() },
+    { headers: corsHeaders(request) },
   );
 }
 
@@ -45,7 +39,7 @@ export async function POST(request: Request): Promise<Response> {
   if (blocked) return blocked;
   const headers = corsHeaders(request);
 
-  const guard = runRegistrationRouteGuards(request, 'bronze-trial-redeem');
+  const guard = runRegistrationRouteGuards(request, 'bronze-trial-apply');
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
@@ -56,38 +50,43 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: false, error: 'server_misconfigured' }, { status: 503, headers });
   }
 
-  let body: { code?: unknown; requestId?: unknown; linkedBarberId?: unknown };
+  let body: Record<string, unknown>;
   try {
-    body = (await request.json()) as { code?: unknown; requestId?: unknown; linkedBarberId?: unknown };
+    body = (await request.json()) as Record<string, unknown>;
   } catch {
     return Response.json({ ok: false, error: 'invalid_json' }, { status: 400, headers });
+  }
+
+  // honeypot
+  if (String(body.website ?? '').trim()) {
+    return Response.json({ ok: true, applicationId: 'ignored', confirmEmailSent: true }, { headers });
   }
 
   const supabase = createClient(url, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const result = await redeemBronzeTrialCode(supabase, {
-    code: String(body.code ?? ''),
-    registrationRequestId: String(body.requestId ?? '').trim() || null,
-    linkedBarberId: String(body.linkedBarberId ?? '').trim() || null,
-    email: String(body.email ?? '').trim() || null,
+  const result = await submitBronzeTrialApplication(supabase, {
+    salonName: String(body.salonName ?? ''),
+    establishmentName: String(body.establishmentName ?? ''),
+    email: String(body.email ?? ''),
+    phone: String(body.phone ?? ''),
+    whatsapp: String(body.whatsapp ?? ''),
+    cityAr: String(body.cityAr ?? ''),
+    districtAr: String(body.districtAr ?? ''),
+    regionAr: String(body.regionAr ?? '') || null,
+    latitude: Number(body.latitude),
+    longitude: Number(body.longitude),
+    notes: String(body.notes ?? '') || null,
+    photoExteriorSignUrl: String(body.photoExteriorSignUrl ?? ''),
+    photoExterior2Url: String(body.photoExterior2Url ?? ''),
+    photoInterior1Url: String(body.photoInterior1Url ?? ''),
+    photoInterior2Url: String(body.photoInterior2Url ?? ''),
+    uploadOrderId: String(body.uploadOrderId ?? '') || null,
   });
 
   if (!result.ok) {
     return Response.json({ ok: false, error: result.error }, { status: result.status, headers });
   }
-
-  return Response.json(
-    {
-      ok: true,
-      barberId: result.barberId,
-      validUntil: result.validUntil,
-      listingDaysGranted: result.listingDaysGranted,
-      isTrial: true,
-      tier: 'bronze',
-      messageAr: 'تم تفعيل تجربة برونزي لمدة 30 يوماً — مشترك تجريبي.',
-    },
-    { status: 200, headers },
-  );
+  return Response.json(result, { status: 200, headers });
 }

@@ -478,6 +478,17 @@ async function uploadOne(
   return { ok: true, url: data.publicUrl };
 }
 
+/** رفع ملف واحد تحت shop/banners/receipt — لطلبات التجربة وغيرها. */
+export async function uploadRegistrationPathFile(
+  client: SupabaseClient,
+  orderId: string,
+  subfolder: 'shop' | 'banners' | 'receipt',
+  file: File,
+  intentToken: string | null,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  return uploadOne(client, orderId, subfolder, file, intentToken);
+}
+
 export async function uploadRegistrationAttachments(
   client: SupabaseClient,
   orderId: string,

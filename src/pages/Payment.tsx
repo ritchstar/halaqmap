@@ -250,6 +250,7 @@ export default function Payment() {
   const [sabFormError, setSabFormError] = useState<string | null>(null);
   const [sabCheckoutLoading, setSabCheckoutLoading] = useState(false);
   const [bronzeTrialCode, setBronzeTrialCode] = useState('');
+  const [bronzeTrialEmail, setBronzeTrialEmail] = useState('');
   const [bronzeTrialLoading, setBronzeTrialLoading] = useState(false);
   const [bronzeTrialSuccess, setBronzeTrialSuccess] = useState<{
     barberId: string;
@@ -294,6 +295,7 @@ export default function Payment() {
       code,
       requestId: requestId || undefined,
       linkedBarberId: linkedBarberId || undefined,
+      email: bronzeTrialEmail.trim() || undefined,
     });
     setBronzeTrialLoading(false);
     if (!res.ok) {
@@ -306,7 +308,7 @@ export default function Payment() {
       messageAr: res.messageAr,
     });
     toast.success(res.messageAr);
-  }, [bronzeTrialCode, purchasePurpose, registrationRequestReady, requestId, linkedBarberId]);
+  }, [bronzeTrialCode, bronzeTrialEmail, purchasePurpose, registrationRequestReady, requestId, linkedBarberId]);
 
   // Subscription prices
   const prices = {
@@ -1399,6 +1401,18 @@ export default function Payment() {
                         dir="ltr"
                         className="font-mono"
                         autoComplete="off"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="bronze-trial-email">البريد المسجّل عليه الكود</Label>
+                      <Input
+                        id="bronze-trial-email"
+                        type="email"
+                        value={bronzeTrialEmail}
+                        onChange={(e) => setBronzeTrialEmail(e.target.value)}
+                        placeholder="نفس بريد طلب التجربة والتسجيل"
+                        dir="ltr"
+                        autoComplete="email"
                       />
                     </div>
                     <Button

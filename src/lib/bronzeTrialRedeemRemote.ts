@@ -15,6 +15,7 @@ export async function redeemBronzeTrialRemote(input: {
   code: string;
   requestId?: string;
   linkedBarberId?: string;
+  email?: string;
 }): Promise<
   | {
       ok: true;
@@ -33,6 +34,7 @@ export async function redeemBronzeTrialRemote(input: {
         code: input.code,
         requestId: input.requestId || undefined,
         linkedBarberId: input.linkedBarberId || undefined,
+        email: input.email || undefined,
       }),
     });
     const json = (await resp.json().catch(() => ({}))) as {
@@ -76,6 +78,10 @@ export function bronzeTrialErrorMessageAr(code: string): string {
       return 'أكمل طلب التسجيل أولاً ثم أدخل الرمز.';
     case 'registration_not_found':
       return 'طلب التسجيل غير موجود.';
+    case 'email_required_for_bound_code':
+      return 'أدخل البريد المسجّل عليه كود التجربة.';
+    case 'email_mismatch_bound_code':
+      return 'البريد لا يطابق بريد مستلم كود التجربة — استخدم نفس الإيميل.';
     case 'voucher_pepper_not_configured':
       return 'إعداد الخادم غير مكتمل — تواصل مع الدعم.';
     default:
