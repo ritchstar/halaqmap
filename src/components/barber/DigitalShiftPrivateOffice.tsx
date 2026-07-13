@@ -44,15 +44,15 @@ type ChatTurn = { role: 'user' | 'assistant'; content: string; ts: string };
 
 // ─── رموز التوجيه — كل رمز يُدرج في الشات ويُعالَج تلقائياً ──────────────────
 const CODE_BUTTONS = [
-  { code: 'تعليمة', label: 'تعليمة:', color: 'border-violet-400/40 bg-violet-500/15 text-violet-200', hint: 'توجيه دائم للمناوب يُطبَّق مع الزبائن', affects: 'shift' },
-  { code: 'عرض',    label: 'عرض:',    color: 'border-amber-400/40 bg-amber-500/15 text-amber-200',   hint: 'عرض أو تخفيض يذكره المناوب للزبائن',   affects: 'shift' },
-  { code: 'جدول',   label: 'جدول:',   color: 'border-sky-400/40 bg-sky-500/15 text-sky-200',         hint: 'أوقات العمل والإجازات',                  affects: 'shift' },
-  { code: 'خدمة',   label: 'خدمة:',   color: 'border-teal-400/40 bg-teal-500/15 text-teal-200',      hint: 'خدمات وأسعار يردّ بها المناوب',          affects: 'shift' },
-  { code: 'موقع',   label: 'موقع:',   color: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200', hint: 'وصف الموقع والوصول للصالون',         affects: 'shift' },
-  { code: 'رد',     label: 'رد:',     color: 'border-rose-400/40 bg-rose-500/15 text-rose-200',       hint: 'قالب رد لموقف محدد',                     affects: 'shift' },
-  { code: 'تنبيه',  label: 'تنبيه:',  color: 'border-orange-400/40 bg-orange-500/15 text-orange-200', hint: 'تنبيه مؤقت — إغلاق أو حدث',            affects: 'shift' },
-  { code: 'مهمة',   label: 'مهمة:',   color: 'border-lime-400/40 bg-lime-500/15 text-lime-200',       hint: 'مهمة تُضاف لقائمة المهام',               affects: 'tasks' },
-  { code: 'تذكير',  label: 'تذكير:',  color: 'border-pink-400/40 bg-pink-500/15 text-pink-200',       hint: 'تذكير شخصي بموعد أو مهمة قادمة',        affects: 'tasks' },
+  { code: 'تعليمة', label: 'تعليمة:', color: 'border-violet-300/55 bg-violet-500/25 text-violet-50', hint: 'توجيه دائم للمناوب يُطبَّق مع الزبائن', affects: 'shift' },
+  { code: 'عرض',    label: 'عرض:',    color: 'border-amber-300/55 bg-amber-500/25 text-amber-50',   hint: 'عرض أو تخفيض يذكره المناوب للزبائن',   affects: 'shift' },
+  { code: 'جدول',   label: 'جدول:',   color: 'border-sky-300/55 bg-sky-500/25 text-sky-50',         hint: 'أوقات العمل والإجازات',                  affects: 'shift' },
+  { code: 'خدمة',   label: 'خدمة:',   color: 'border-teal-300/55 bg-teal-500/25 text-teal-50',      hint: 'خدمات وأسعار يردّ بها المناوب',          affects: 'shift' },
+  { code: 'موقع',   label: 'موقع:',   color: 'border-emerald-300/55 bg-emerald-500/25 text-emerald-50', hint: 'وصف الموقع والوصول للصالون',         affects: 'shift' },
+  { code: 'رد',     label: 'رد:',     color: 'border-rose-300/55 bg-rose-500/25 text-rose-50',       hint: 'قالب رد لموقف محدد',                     affects: 'shift' },
+  { code: 'تنبيه',  label: 'تنبيه:',  color: 'border-orange-300/55 bg-orange-500/25 text-orange-50', hint: 'تنبيه مؤقت — إغلاق أو حدث',            affects: 'shift' },
+  { code: 'مهمة',   label: 'مهمة:',   color: 'border-lime-300/55 bg-lime-500/25 text-lime-50',       hint: 'مهمة تُضاف لقائمة المهام',               affects: 'tasks' },
+  { code: 'تذكير',  label: 'تذكير:',  color: 'border-pink-300/55 bg-pink-500/25 text-pink-50',       hint: 'تذكير شخصي بموعد أو مهمة قادمة',        affects: 'tasks' },
 ] as const;
 
 function nowTs() {
@@ -84,28 +84,28 @@ function PackageStatusBar({ daysRemaining }: { daysRemaining: number }) {
   const icon = urgent ? '🚨' : warning ? '⚠️' : '💎';
 
   return (
-    <div className={`flex items-center justify-between rounded-xl border px-4 py-2.5 ${color}`}>
-      <div className="flex items-center gap-2">
-        <span className="text-base">{icon}</span>
+    <div className={`flex items-center justify-between rounded-xl border px-4 py-3 ${color}`}>
+      <div className="flex items-center gap-2.5">
+        <span className="text-lg">{icon}</span>
         <div>
-          <p className={`text-xs font-black ${textColor}`}>
+          <p className={`text-base font-black tracking-tight ${textColor} [text-shadow:0_0_18px_rgba(255,255,255,0.12)]`}>
             {daysRemaining === 0 ? 'الحزمة منتهية!' : `${daysRemaining} يوم متبقٍ`}
           </p>
-          <p className="text-[0.58rem] text-slate-500">حزمة رخصة النفاذ الماسية</p>
+          <p className="text-sm font-medium text-slate-300">حزمة رخصة النفاذ الماسية</p>
         </div>
       </div>
       <div className="flex gap-2">
         <BarberDashboardOutboundAnchor
           href={`/#${ROUTE_PATHS.PAYMENT}`}
-          className="flex items-center gap-1 rounded-lg border border-amber-400/35 bg-amber-500/12 px-2.5 py-1 text-[0.62rem] font-bold text-amber-300 hover:bg-amber-500/20 transition-all"
+          className="flex items-center gap-1.5 rounded-lg border border-amber-300/50 bg-amber-500/20 px-3 py-1.5 text-sm font-bold text-amber-100 hover:bg-amber-500/30 transition-all"
         >
-          <CreditCard className="h-3 w-3" /> تجديد
+          <CreditCard className="h-3.5 w-3.5" /> تجديد
         </BarberDashboardOutboundAnchor>
         <BarberDashboardOutboundAnchor
           href={`/#${ROUTE_PATHS.PARTNER_SUPPORT}`}
-          className="flex items-center gap-1 rounded-lg border border-violet-400/25 bg-violet-500/10 px-2.5 py-1 text-[0.62rem] font-bold text-violet-300 hover:bg-violet-500/18 transition-all"
+          className="flex items-center gap-1.5 rounded-lg border border-violet-300/45 bg-violet-500/20 px-3 py-1.5 text-sm font-bold text-violet-100 hover:bg-violet-500/30 transition-all"
         >
-          <HeadphonesIcon className="h-3 w-3" /> دعم
+          <HeadphonesIcon className="h-3.5 w-3.5" /> دعم
         </BarberDashboardOutboundAnchor>
       </div>
     </div>
@@ -336,45 +336,45 @@ export function DigitalShiftPrivateOffice({
               </motion.div>
             </div>
             <div>
-              <p className="text-[0.6rem] font-bold uppercase tracking-widest text-violet-400/60">مكتب خاص · Diamond</p>
-              <p className="text-sm font-black text-violet-100">{assistantName}</p>
-              <p className="text-[0.55rem] text-violet-400/45">مناوبك الرقمي الخاص — محادثة داخلية</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-violet-200/80">مكتب خاص · Diamond</p>
+              <p className="text-lg font-black text-white [text-shadow:0_0_20px_rgba(196,181,253,0.35)]">{assistantName}</p>
+              <p className="text-sm font-medium text-violet-100/85">مناوبك الرقمي الخاص — محادثة داخلية</p>
             </div>
           </div>
           {/* شارات سريعة */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             {/* زر تقارير المناوب */}
             <button onClick={() => { setShowReports(s => !s); setShowFleet(false); setShowTasks(false); setShowInstructions(false); }}
-              className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[0.6rem] font-bold transition-all ${
-                showReports ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300' : 'border-white/8 bg-white/[0.03] text-slate-400 hover:border-emerald-500/30'
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-bold transition-all ${
+                showReports ? 'border-emerald-400/60 bg-emerald-500/25 text-emerald-100' : 'border-white/15 bg-white/[0.06] text-slate-200 hover:border-emerald-400/40'
               }`}>
-              <FileText className="h-3 w-3" />
-              {shiftReports.length > 0 && <span className="rounded-full bg-emerald-500 px-1 text-[0.5rem] font-black text-white">{shiftReports.length}</span>}
+              <FileText className="h-3.5 w-3.5" />
+              {shiftReports.length > 0 && <span className="rounded-full bg-emerald-500 px-1.5 text-[0.65rem] font-black text-white">{shiftReports.length}</span>}
               تقارير
             </button>
             {/* ◆ زر القناة السرية */}
             {fleetDirectives.length > 0 && (
               <button onClick={() => { setShowFleet(s => !s); setShowTasks(false); setShowInstructions(false); }}
-                className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[0.6rem] font-black transition-all ${
-                  showFleet ? 'border-purple-500/60 bg-purple-500/20 text-purple-200' : 'border-purple-500/30 bg-purple-500/8 text-purple-400 hover:border-purple-500/50 animate-pulse'
+                className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-black transition-all ${
+                  showFleet ? 'border-purple-400/70 bg-purple-500/30 text-purple-50' : 'border-purple-400/40 bg-purple-500/15 text-purple-100 hover:border-purple-400/60 animate-pulse'
                 }`}>
-                ◆ <span className="rounded-full bg-purple-500 px-1 text-[0.5rem] font-black text-white">{fleetDirectives.length}</span>
+                ◆ <span className="rounded-full bg-purple-500 px-1.5 text-[0.65rem] font-black text-white">{fleetDirectives.length}</span>
               </button>
             )}
             <button onClick={() => { setShowTasks(s => !s); setShowInstructions(false); }}
-              className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[0.6rem] font-bold transition-all ${
-                showTasks ? 'border-amber-400/50 bg-amber-500/15 text-amber-300' : 'border-white/8 bg-white/[0.03] text-slate-400 hover:border-amber-400/30'
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-bold transition-all ${
+                showTasks ? 'border-amber-300/60 bg-amber-500/25 text-amber-50' : 'border-white/15 bg-white/[0.06] text-slate-200 hover:border-amber-300/40'
               }`}>
-              <ListTodo className="h-3 w-3" />
-              {pendingTasks > 0 && <span className="rounded-full bg-amber-400 px-1 text-[0.5rem] font-black text-black">{pendingTasks}</span>}
+              <ListTodo className="h-3.5 w-3.5" />
+              {pendingTasks > 0 && <span className="rounded-full bg-amber-400 px-1.5 text-[0.65rem] font-black text-black">{pendingTasks}</span>}
               مهام
             </button>
             <button onClick={() => { setShowInstructions(s => !s); setShowTasks(false); }}
-              className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[0.6rem] font-bold transition-all ${
-                showInstructions ? 'border-violet-400/50 bg-violet-500/15 text-violet-300' : 'border-white/8 bg-white/[0.03] text-slate-400 hover:border-violet-400/30'
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-bold transition-all ${
+                showInstructions ? 'border-violet-300/60 bg-violet-500/25 text-violet-50' : 'border-white/15 bg-white/[0.06] text-slate-200 hover:border-violet-300/40'
               }`}>
-              <BookOpen className="h-3 w-3" />
-              {activeInstructions > 0 && <span className="rounded-full bg-violet-400 px-1 text-[0.5rem] font-black text-black">{activeInstructions}</span>}
+              <BookOpen className="h-3.5 w-3.5" />
+              {activeInstructions > 0 && <span className="rounded-full bg-violet-300 px-1.5 text-[0.65rem] font-black text-black">{activeInstructions}</span>}
               تعليمات
             </button>
           </div>
@@ -394,11 +394,11 @@ export function DigitalShiftPrivateOffice({
             transition={{ duration: 0.3 }}
             className="relative border-b border-violet-500/12 overflow-hidden"
           >
-            <div className="bg-violet-950/30 px-5 py-4">
+            <div className="bg-violet-950/40 px-5 py-4">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs font-black text-violet-300">📋 تعليماتك المحفوظة للمناوب</p>
-                <button onClick={() => setShowInstructions(false)} className="text-slate-600 hover:text-slate-400">
-                  <X className="h-3.5 w-3.5" />
+                <p className="text-base font-black text-violet-100">📋 تعليماتك المحفوظة للمناوب</p>
+                <button onClick={() => setShowInstructions(false)} className="text-slate-300 hover:text-white">
+                  <X className="h-4 w-4" />
                 </button>
               </div>
               {/* إضافة تعليمة */}
@@ -408,30 +408,30 @@ export function DigitalShiftPrivateOffice({
                   onChange={e => setNewInstText(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') addInstruction(); }}
                   placeholder='مثال: لا تقبل مواعيد بعد الساعة 10 مساءً'
-                  className="flex-1 rounded-xl border border-violet-400/20 bg-violet-950/40 px-3 py-2 text-xs text-white placeholder:text-violet-400/30 outline-none focus:border-violet-400/50"
+                  className="flex-1 rounded-xl border border-violet-300/35 bg-violet-950/60 px-3 py-2.5 text-sm text-white placeholder:text-violet-200/45 outline-none focus:border-violet-300/70"
                   dir="rtl"
                 />
                 <button onClick={addInstruction}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 border border-violet-400/30 text-violet-300 hover:bg-violet-500/35 transition-all">
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-500/30 border border-violet-300/40 text-violet-100 hover:bg-violet-500/45 transition-all">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
               {/* قائمة التعليمات */}
-              <div className="max-h-40 space-y-1.5 overflow-y-auto">
+              <div className="max-h-44 space-y-2 overflow-y-auto">
                 {instructions.length === 0 ? (
-                  <p className="py-4 text-center text-[0.65rem] text-violet-400/30">لا توجد تعليمات محفوظة بعد</p>
+                  <p className="py-4 text-center text-sm text-violet-100/55">لا توجد تعليمات محفوظة بعد</p>
                 ) : instructions.map(inst => (
-                  <div key={inst.id} className="flex items-start gap-2 rounded-lg border border-violet-400/12 bg-violet-900/20 px-3 py-2">
-                    <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-violet-400/60" />
-                    <p className="flex-1 text-[0.72rem] text-slate-300 leading-relaxed">{inst.text}</p>
+                  <div key={inst.id} className="flex items-start gap-2 rounded-lg border border-violet-300/25 bg-violet-900/35 px-3 py-2.5">
+                    <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-200" />
+                    <p className="flex-1 text-sm font-medium leading-relaxed text-slate-100">{inst.text}</p>
                     <button onClick={() => removeInstruction(inst.id)}
-                      className="shrink-0 text-slate-700 hover:text-red-400 transition-colors">
-                      <Trash2 className="h-3 w-3" />
+                      className="shrink-0 text-slate-400 hover:text-red-300 transition-colors">
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ))}
               </div>
-              <p className="mt-2 text-[0.55rem] text-violet-400/30">💡 يمكنك أيضاً إرسال «تعليمة: نصّ التعليمة» في المحادثة</p>
+              <p className="mt-2 text-sm text-violet-100/65">💡 يمكنك أيضاً إرسال «تعليمة: نصّ التعليمة» في المحادثة</p>
             </div>
           </motion.div>
         )}
@@ -445,35 +445,35 @@ export function DigitalShiftPrivateOffice({
             transition={{ duration: 0.3 }}
             className="relative border-b border-emerald-500/15 overflow-hidden"
           >
-            <div className="bg-emerald-950/25 px-5 py-4">
+            <div className="bg-emerald-950/35 px-5 py-4">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-3.5 w-3.5 text-emerald-400" />
-                  <p className="text-xs font-black text-emerald-300">تقارير المناوب — ما استقبله من الزبائن</p>
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[0.5rem] text-emerald-400">مباشر</span>
+                  <FileText className="h-4 w-4 text-emerald-300" />
+                  <p className="text-base font-black text-emerald-100">تقارير المناوب — ما استقبله من الزبائن</p>
+                  <span className="rounded-full border border-emerald-400/40 bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-100">مباشر</span>
                 </div>
-                <button onClick={() => setShowReports(false)} className="text-slate-600 hover:text-slate-400">
-                  <X className="h-3.5 w-3.5" />
+                <button onClick={() => setShowReports(false)} className="text-slate-300 hover:text-white">
+                  <X className="h-4 w-4" />
                 </button>
               </div>
               {shiftReports.length === 0 ? (
-                <p className="py-6 text-center text-[0.65rem] text-emerald-400/30">
+                <p className="py-6 text-center text-sm text-emerald-100/55">
                   لا تقارير بعد — المناوب لم يرد على أي زبون حتى الآن
                 </p>
               ) : (
                 <div className="max-h-56 space-y-2 overflow-y-auto">
                   {shiftReports.map(r => (
-                    <div key={r.id} className="rounded-xl border border-emerald-500/20 bg-emerald-950/30 px-4 py-3">
-                      <div className="mb-1 flex items-center justify-between">
-                        <p className="text-[0.65rem] font-black text-emerald-300">{r.title}</p>
-                        <p className="text-[0.5rem] text-emerald-500/40">{new Date(r.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</p>
+                    <div key={r.id} className="rounded-xl border border-emerald-400/30 bg-emerald-950/40 px-4 py-3">
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <p className="text-sm font-black text-emerald-100">{r.title}</p>
+                        <p className="shrink-0 text-xs text-emerald-200/70">{new Date(r.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
-                      <p className="whitespace-pre-wrap text-[0.65rem] leading-relaxed text-slate-300" style={{ unicodeBidi: 'plaintext' }}>{r.body}</p>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100" style={{ unicodeBidi: 'plaintext' }}>{r.body}</p>
                     </div>
                   ))}
                 </div>
               )}
-              <p className="mt-2 text-[0.52rem] text-emerald-400/25">
+              <p className="mt-2 text-sm text-emerald-100/60">
                 📡 يصلك تلقائياً كل مرة يتدخّل فيها المناوب مع زبون · التعليمات التي أعطيتها مُطبَّقة
               </p>
             </div>
@@ -492,32 +492,32 @@ export function DigitalShiftPrivateOffice({
             <div className="px-5 py-4" style={{ background: 'linear-gradient(135deg, #0d0020 0%, #130030 100%)' }}>
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-purple-400 font-black">◆</span>
-                  <p className="text-xs font-black text-purple-300">توجيهات تشغيلية من المنصة</p>
-                  <span className="rounded-full border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 text-[0.5rem] font-black text-purple-300 uppercase tracking-widest">
+                  <span className="text-purple-200 font-black">◆</span>
+                  <p className="text-base font-black text-purple-50">توجيهات تشغيلية من المنصة</p>
+                  <span className="rounded-full border border-purple-300/50 bg-purple-500/25 px-2 py-0.5 text-xs font-black text-purple-100 uppercase tracking-widest">
                     للمناوب
                   </span>
                 </div>
-                <button onClick={() => setShowFleet(false)} className="text-slate-600 hover:text-slate-400">
-                  <X className="h-3.5 w-3.5" />
+                <button onClick={() => setShowFleet(false)} className="text-slate-300 hover:text-white">
+                  <X className="h-4 w-4" />
                 </button>
               </div>
               <div className="space-y-2">
                 {fleetDirectives.map(d => (
-                  <div key={d.id} className="rounded-xl border border-purple-500/25 bg-purple-950/40 px-4 py-3">
-                    <div className="mb-1 flex items-center justify-between">
-                      <p className="text-[0.6rem] font-black uppercase tracking-widest text-purple-400/70">
+                  <div key={d.id} className="rounded-xl border border-purple-300/35 bg-purple-950/50 px-4 py-3">
+                    <div className="mb-1 flex items-center justify-between gap-2">
+                      <p className="text-sm font-black uppercase tracking-widest text-purple-100">
                         {sanitizeBarberFacingCopyAr(d.title)}
                       </p>
-                      <p className="text-[0.5rem] text-purple-500/40">{new Date(d.created_at).toLocaleDateString('ar-SA')}</p>
+                      <p className="shrink-0 text-xs text-purple-200/70">{new Date(d.created_at).toLocaleDateString('ar-SA')}</p>
                     </div>
-                    <p className="text-[0.72rem] leading-relaxed text-purple-100/90" style={{ unicodeBidi: 'plaintext' }}>
+                    <p className="text-sm leading-relaxed text-purple-50" style={{ unicodeBidi: 'plaintext' }}>
                       {sanitizeBarberFacingCopyAr(d.body)}
                     </p>
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-[0.55rem] text-purple-500/35">
+              <p className="mt-3 text-sm text-purple-100/65">
                 ◆ صادرة من فريق تشغيل المناوب في المنصة · تُطبَّق تلقائياً على أسلوب الرد
               </p>
             </div>
@@ -533,11 +533,11 @@ export function DigitalShiftPrivateOffice({
             transition={{ duration: 0.3 }}
             className="relative border-b border-amber-500/12 overflow-hidden"
           >
-            <div className="bg-amber-950/20 px-5 py-4">
+            <div className="bg-amber-950/30 px-5 py-4">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs font-black text-amber-300">✅ قائمة المهام</p>
-                <button onClick={() => setShowTasks(false)} className="text-slate-600 hover:text-slate-400">
-                  <X className="h-3.5 w-3.5" />
+                <p className="text-base font-black text-amber-100">✅ قائمة المهام</p>
+                <button onClick={() => setShowTasks(false)} className="text-slate-300 hover:text-white">
+                  <X className="h-4 w-4" />
                 </button>
               </div>
               {/* إضافة مهمة */}
@@ -547,40 +547,40 @@ export function DigitalShiftPrivateOffice({
                   onChange={e => setNewTaskText(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') addTask(); }}
                   placeholder='مثال: تجديد الحزمة قبل نهاية الشهر'
-                  className="flex-1 rounded-xl border border-amber-400/20 bg-amber-950/30 px-3 py-2 text-xs text-white placeholder:text-amber-400/30 outline-none focus:border-amber-400/45"
+                  className="flex-1 rounded-xl border border-amber-300/35 bg-amber-950/40 px-3 py-2.5 text-sm text-white placeholder:text-amber-100/45 outline-none focus:border-amber-300/65"
                   dir="rtl"
                 />
                 <button onClick={addTask}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-400/25 text-amber-300 hover:bg-amber-500/28 transition-all">
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/25 border border-amber-300/40 text-amber-100 hover:bg-amber-500/40 transition-all">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
               {/* قائمة المهام */}
-              <div className="max-h-44 space-y-1.5 overflow-y-auto">
+              <div className="max-h-48 space-y-2 overflow-y-auto">
                 {tasks.length === 0 ? (
-                  <p className="py-4 text-center text-[0.65rem] text-amber-400/30">لا توجد مهام مسجّلة</p>
+                  <p className="py-4 text-center text-sm text-amber-100/55">لا توجد مهام مسجّلة</p>
                 ) : tasks.map(t => (
-                  <div key={t.id} className={`flex items-start gap-2 rounded-lg border px-3 py-2 transition-all ${
-                    t.done ? 'border-white/5 bg-white/[0.02] opacity-50' : 'border-amber-400/15 bg-amber-950/25'
+                  <div key={t.id} className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 transition-all ${
+                    t.done ? 'border-white/10 bg-white/[0.04] opacity-60' : 'border-amber-300/25 bg-amber-950/35'
                   }`}>
-                    <button onClick={() => toggleTask(t.id)} className="mt-0.5 shrink-0 text-amber-400 hover:text-emerald-400 transition-colors">
-                      {t.done ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> : <Circle className="h-3.5 w-3.5" />}
+                    <button onClick={() => toggleTask(t.id)} className="mt-0.5 shrink-0 text-amber-300 hover:text-emerald-300 transition-colors">
+                      {t.done ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <Circle className="h-4 w-4" />}
                     </button>
-                    <p className={`flex-1 text-[0.72rem] leading-relaxed ${t.done ? 'line-through text-slate-600' : 'text-slate-300'}`}>{t.text}</p>
-                    <button onClick={() => removeTask(t.id)} className="shrink-0 text-slate-700 hover:text-red-400 transition-colors">
-                      <Trash2 className="h-3 w-3" />
+                    <p className={`flex-1 text-sm leading-relaxed ${t.done ? 'line-through text-slate-400' : 'font-medium text-slate-100'}`}>{t.text}</p>
+                    <button onClick={() => removeTask(t.id)} className="shrink-0 text-slate-400 hover:text-red-300 transition-colors">
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ))}
               </div>
-              <p className="mt-2 text-[0.55rem] text-amber-400/30">💡 يمكنك إرسال «مهمة: نصّ المهمة» في المحادثة لإضافتها تلقائياً</p>
+              <p className="mt-2 text-sm text-amber-100/65">💡 يمكنك إرسال «مهمة: نصّ المهمة» في المحادثة لإضافتها تلقائياً</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* ══ منطقة المحادثة ══ */}
-      <div ref={messagesRef} className="relative" style={{ height: '380px', overflowY: 'auto', overscrollBehavior: 'contain' }}>
+      <div ref={messagesRef} className="relative" style={{ height: '420px', overflowY: 'auto', overscrollBehavior: 'contain' }}>
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_30%_at_50%_0%,rgba(139,92,246,0.04),transparent)]" />
         <div className="relative flex flex-col gap-3 px-5 py-4">
           {turns.map((t, i) => (
@@ -597,15 +597,18 @@ export function DigitalShiftPrivateOffice({
                 {t.role === 'assistant' ? '🌙' : '✂️'}
               </div>
               {/* الفقاعة */}
-              <div className={`max-w-[82%] rounded-2xl px-4 py-3 ${
+              <div className={`max-w-[85%] rounded-2xl px-4 py-3.5 ${
                 t.role === 'assistant'
-                  ? 'rounded-tr-sm border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-violet-900/8 text-violet-50 shadow-[0_2px_16px_rgba(139,92,246,0.08)]'
-                  : 'rounded-tl-sm border border-amber-500/18 bg-gradient-to-br from-amber-500/10 to-amber-900/8 text-amber-50'
+                  ? 'rounded-tr-sm border border-violet-300/35 bg-gradient-to-br from-violet-500/25 to-violet-950/50 text-white shadow-[0_2px_20px_rgba(139,92,246,0.18)]'
+                  : 'rounded-tl-sm border border-amber-300/35 bg-gradient-to-br from-amber-500/25 to-amber-950/45 text-amber-50 shadow-[0_2px_16px_rgba(245,158,11,0.12)]'
               }`}>
-                <p className="whitespace-pre-wrap break-words text-[0.82rem] leading-6" style={{ unicodeBidi: 'plaintext' }}>
+                <p
+                  className="whitespace-pre-wrap break-words text-base font-medium leading-7 [text-shadow:0_0_12px_rgba(255,255,255,0.08)]"
+                  style={{ unicodeBidi: 'plaintext' }}
+                >
                   {t.content}
                 </p>
-                <p className="mt-1 text-[0.5rem] opacity-35">{t.ts}</p>
+                <p className="mt-1.5 text-xs font-medium opacity-70">{t.ts}</p>
               </div>
             </motion.div>
           ))}
@@ -624,9 +627,9 @@ export function DigitalShiftPrivateOffice({
 
       {/* ══ اقتراحات سريعة — تبقى ظاهرة بعد كل رد ══ */}
       {!loading && (
-        <div className="border-t border-violet-500/10 px-5 py-3">
-          <p className="mb-2 text-[0.58rem] text-violet-400/40">اختر سؤالاً أو اكتب رسالتك:</p>
-          <div className="flex flex-wrap gap-1.5">
+        <div className="border-t border-violet-400/20 px-5 py-3">
+          <p className="mb-2 text-sm font-semibold text-violet-100/80">اختر سؤالاً أو اكتب رسالتك:</p>
+          <div className="flex flex-wrap gap-2">
             {[
               'كم يوم باقي في حزمتي؟',
               'أرسل لي رابط التجديد',
@@ -636,7 +639,7 @@ export function DigitalShiftPrivateOffice({
               'ما الفرق بين الباقات؟',
             ].map(q => (
               <button key={q} onClick={() => void send(q)}
-                className="rounded-full border border-violet-400/20 bg-violet-500/8 px-3 py-1 text-[0.62rem] font-semibold text-violet-300/80 hover:border-violet-400/40 hover:bg-violet-500/15 transition-all">
+                className="rounded-full border border-violet-300/35 bg-violet-500/20 px-3.5 py-1.5 text-sm font-semibold text-violet-50 hover:border-violet-200/55 hover:bg-violet-500/30 transition-all">
                 {q}
               </button>
             ))}
@@ -645,10 +648,10 @@ export function DigitalShiftPrivateOffice({
       )}
 
       {/* ══ حقل الإدخال ══ */}
-      <div className="relative border-t border-violet-500/15 px-4 pt-2.5 pb-3">
+      <div className="relative border-t border-violet-400/20 px-4 pt-3 pb-3">
         {/* ── أزرار رموز التوجيه ── */}
-        <div className="mb-2 flex flex-wrap gap-1.5">
-          <p className="w-full text-[0.5rem] text-violet-400/30 mb-0.5">رموز التوجيه — اضغط لإدراج الرمز ثم اكتب:</p>
+        <div className="mb-2.5 flex flex-wrap gap-2">
+          <p className="mb-1 w-full text-sm font-semibold text-violet-100/75">رموز التوجيه — اضغط لإدراج الرمز ثم اكتب:</p>
           {CODE_BUTTONS.map(cb => (
             <button
               key={cb.code}
@@ -664,7 +667,7 @@ export function DigitalShiftPrivateOffice({
                   }
                 }, 30);
               }}
-              className={`rounded-lg border px-2.5 py-1 text-[0.6rem] font-black transition-all hover:opacity-90 active:scale-95 ${cb.color}`}
+              className={`rounded-lg border px-3 py-1.5 text-sm font-black transition-all hover:opacity-95 active:scale-95 ${cb.color}`}
             >
               {cb.label}
             </button>
@@ -686,21 +689,21 @@ export function DigitalShiftPrivateOffice({
             placeholder='اختر رمزاً أعلاه أو اكتب مباشرةً — مثال: تعليمة: لا مواعيد بعد 10'
             rows={1}
             dir="rtl"
-            style={{ minHeight: '44px', maxHeight: '120px', resize: 'none', overflowY: 'auto' }}
-            className="flex-1 rounded-2xl border border-violet-400/18 bg-violet-950/50 px-4 py-2.5 text-sm text-white placeholder:text-violet-400/22 outline-none focus:border-violet-400/45 focus:ring-1 focus:ring-violet-400/20 transition-all disabled:opacity-50"
+            style={{ minHeight: '48px', maxHeight: '120px', resize: 'none', overflowY: 'auto' }}
+            className="flex-1 rounded-2xl border border-violet-300/35 bg-violet-950/70 px-4 py-3 text-base font-medium text-white placeholder:text-violet-100/45 outline-none focus:border-violet-200/60 focus:ring-2 focus:ring-violet-400/25 transition-all disabled:opacity-50"
           />
           <motion.button
             type="button"
             onClick={() => void send()}
             disabled={!draft.trim() || loading}
             whileTap={draft.trim() && !loading ? { scale: 0.88 } : undefined}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-all disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all disabled:cursor-not-allowed disabled:opacity-35"
             style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)', boxShadow: '0 4px 16px rgba(139,92,246,0.35)' }}
           >
-            <Send className="h-4 w-4 text-white" />
+            <Send className="h-5 w-5 text-white" />
           </motion.button>
         </div>
-        <p className="mt-1.5 text-center text-[0.5rem] text-violet-400/15">
+        <p className="mt-2 text-center text-xs font-medium text-violet-100/55">
           {assistantName} · مكتبك الخاص · حلاق ماب Diamond
         </p>
       </div>
