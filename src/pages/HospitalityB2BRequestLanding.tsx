@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { NavLink, useSearchParams } from 'react-router-dom';
 import { Building2, Hotel, MapPin, PackageCheck, QrCode, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,7 @@ type FormState = {
   shippingRecipientName: string;
   shippingPhone: string;
   shippingGoogleMapsUrl: string;
+  ambassadorCode: string;
   website: string;
 };
 
@@ -36,12 +37,25 @@ const INITIAL_FORM: FormState = {
   shippingRecipientName: '',
   shippingPhone: '',
   shippingGoogleMapsUrl: '',
+  ambassadorCode: '',
   website: '',
 };
 
 export default function HospitalityB2BRequestLanding() {
+  const [searchParams] = useSearchParams();
+  const ambFromUrl = useMemo(() => {
+    const raw =
+      searchParams.get('amb') || searchParams.get('ref') || searchParams.get('ambassadorCode') || '';
+    return raw.trim().toUpperCase().slice(0, 40);
+  }, [searchParams]);
+
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!ambFromUrl) return;
+    setForm((prev) => (prev.ambassadorCode ? prev : { ...prev, ambassadorCode: ambFromUrl }));
+  }, [ambFromUrl]);
 
   const patch = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -74,6 +88,7 @@ export default function HospitalityB2BRequestLanding() {
     }
 
     setLoading(true);
+    const ambCode = (form.ambassadorCode || ambFromUrl).trim().toUpperCase();
     const result = await submitHospitalityB2BRequest({
       facilityName: form.facilityName.trim(),
       facilityType: form.facilityType,
@@ -84,6 +99,7 @@ export default function HospitalityB2BRequestLanding() {
       shippingRecipientName: form.shippingRecipientName.trim(),
       shippingPhone: form.shippingPhone.trim(),
       shippingGoogleMapsUrl: form.shippingGoogleMapsUrl.trim(),
+      ambassadorCode: ambCode || undefined,
       website: form.website,
     });
     setLoading(false);
@@ -97,7 +113,7 @@ export default function HospitalityB2BRequestLanding() {
     void import('@/lib/analytics/productAnalytics').then(({ ProductEvents }) => {
       ProductEvents.hospitalityRequestStarted();
     });
-    setForm(INITIAL_FORM);
+    setForm({ ...INITIAL_FORM, ambassadorCode: ambFromUrl });
   };
 
   return (
@@ -112,8 +128,8 @@ export default function HospitalityB2BRequestLanding() {
             طلب بنرات QR للغرف والاستقبال
           </h1>
           <p className="mx-auto mt-4 max-w-3xl text-lg leading-relaxed text-muted-foreground">
-            نوفر بنرات أكريليك أنيقة مجانًا مع الشحن للمنشآت الفندقية والشقق المفروشة ودور الضيافة، لمساعدة النزيل في
-            الوصول إلى حلاق مناسب عبر مسح رمز الاستجابة.
+            يُملأ هذا النموذج من المنشأة نفسها (أعداد البنرات وعنوان الشحن). إن زاركم مسوّق ميداني، أدخلوا كوده لربط
+            الطلب به.
           </p>
         </div>
       </section>
@@ -147,7 +163,7 @@ export default function HospitalityB2BRequestLanding() {
               نموذج الطلب المباشر
             </CardTitle>
             <CardDescription>
-              الرجاء تعبئة البيانات بدقة. يتم التوثيق برابط خرائط Google لضمان دقة الشحن.
+              الرجاء تعبئة البيانات بدقة من جهة المنشأة. يتم التوثيق برابط خرائط Google لضمان دقة الشحن.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -166,7 +182,10 @@ export default function HospitalityB2BRequestLanding() {
 
                 <div className="space-y-2">
                   <Label>تصنيف المنشأة</Label>
-                  <Select value={form.facilityType} onValueChange={(v) => patch('facilityType', v as HospitalityFacilityType)}>
+                  <Select
+                    value={form.facilityType}
+                    onValueChange={(v) => patch('facilityType', v as HospitalityFacilityType)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -176,6 +195,21 @@ export default function HospitalityB2BRequestLanding() {
                       <SelectItem value="guest_house">دور ضيافة</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ambassador-code">كود المسوّق الميداني (إن وُجد)</Label>
+                  <Input
+                    id="ambassador-code"
+                    dir="ltr"
+                    value={form.ambassadorCode}
+                    onChange={(e) => patch('ambassadorCode', e.target.value.toUpperCase())}
+                    placeholder="HM-AMB-…"
+                    className="font-mono"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    يُملأ تلقائياً إن فُتح الرابط من المسوّق. لا يُطلب من المسوّق تعبئة أعداد البنرات أو الشحن.
+                  </p>
                 </div>
 
                 <div className="space-y-2">

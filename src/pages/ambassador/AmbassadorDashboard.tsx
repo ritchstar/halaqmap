@@ -41,7 +41,6 @@ import { ROUTE_PATHS } from '@/lib';
 import {
   acknowledgePayoutReceipt,
   accountStatusLabelAr,
-  approveAmbassadorToProvisional,
   attachTransferDocument,
   buildAmbassadorReferralPath,
   clearAmbassadorPortal,
@@ -248,28 +247,16 @@ function HomeTab({
         <section className="space-y-3 rounded-2xl border border-amber-400/30 bg-amber-500/5 p-5">
           <h2 className="font-bold text-amber-100">قيد المراجعة — مقابلة رقمية</h2>
           <p className="text-sm leading-relaxed text-slate-300">
-            استلمنا طلبك. النطاق: {state.profile.application.coverageArea}
+            استلمنا طلبك في طابور الإدارة. النطاق: {state.profile.application.coverageArea}
           </p>
           <p className="text-xs leading-relaxed text-slate-400">
-            بعد قبول الإدارة تنتقل إلى «تفعيل مؤقت» وتفتح طلبات استهداف الصالونات فقط. فنادق وشقق مخدومة والمحفظة بعد أول
-            إغلاق ناجح.
+            بعد قبول الإدارة من لوحة التحكم تنتقل إلى «تفعيل مؤقت» وتفتح طلبات استهداف الصالونات فقط. فنادق وشقق
+            مخدومة وطلب البنرات الأكريليك للمحفظة بعد أول إغلاق ناجح — وطلب الأكريليك تملؤه المنشأة بنفسها عبر نموذج
+            الضيافة مع كود السفير.
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            className="border-amber-400/40 text-amber-100"
-            onClick={() => {
-              const result = approveAmbassadorToProvisional(state);
-              if (!result.ok) {
-                toast.error(result.error);
-                return;
-              }
-              onState(result.state);
-              toast.success('تم الاعتماد → تفعيل مؤقت (محاكاة مراجعة حتى لوحة الإدارة).');
-            }}
-          >
-            محاكاة قبول المراجعة → تفعيل مؤقت
-          </Button>
+          <p className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-400">
+            لا يوجد زر قبول ذاتي هنا. راقب بريد/واتساب الإدارة أو أعد فتح اللوحة لاحقاً بعد قرار المراجعة.
+          </p>
         </section>
       ) : null}
 
@@ -508,7 +495,10 @@ function TargetTab({
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
       <h1 className="mb-2 text-2xl font-black text-white">طلب استهداف جديد</h1>
       <p className="mb-6 text-sm text-slate-400">
-        إثبات أولي: كن عند الموقع، سجّل GPS، ارفع اللوحة والصور الداخلية.
+        إثبات أولي: كن عند الموقع، سجّل GPS، ارفع صورة الواجهة/اللوحة من الخارج.
+        {kind === 'hospitality'
+          ? ' لفنادق وشقق مخدومة: لا تملأ طلب الأكريليك هنا — شارك رابط نموذج المنشأة مع كودك.'
+          : ' للصالون: أرفق أيضاً أربع صور داخلية.'}
       </p>
 
       <form onSubmit={onSubmit} className="space-y-5 rounded-2xl border border-white/10 bg-[#0f0f14] p-5">
@@ -609,7 +599,7 @@ function TargetTab({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-slate-200">صورة لوحة المحل من الشارع</Label>
+          <Label className="text-slate-200">صورة لوحة / واجهة المنشأة من الخارج</Label>
           <Input
             type="file"
             accept="image/*"
@@ -620,23 +610,44 @@ function TargetTab({
           {streetLabel ? <p className="text-xs text-slate-500">{streetLabel}</p> : null}
         </div>
 
-        <div className="space-y-2">
-          <Label className="text-slate-200">
-            {kind === 'barber'
-              ? 'صور داخلية (4 على الأقل — منها مع الحلاقين)'
-              : 'صور المنشأة (صورتان على الأقل)'}
-          </Label>
-          <Input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => onInteriorFiles(e.target.files)}
-            className="border-white/15 bg-black/30 text-slate-300 file:bg-teal-500/20 file:text-teal-100"
-          />
-          {interiorLabels.length > 0 ? (
-            <p className="text-xs text-slate-500">{interiorLabels.length} ملف: {interiorLabels.join(' · ')}</p>
-          ) : null}
-        </div>
+        {kind === 'barber' ? (
+          <div className="space-y-2">
+            <Label className="text-slate-200">صور داخلية (4 على الأقل — منها مع الحلاقين)</Label>
+            <Input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => onInteriorFiles(e.target.files)}
+              className="border-white/15 bg-black/30 text-slate-300 file:bg-teal-500/20 file:text-teal-100"
+            />
+            {interiorLabels.length > 0 ? (
+              <p className="text-xs text-slate-500">{interiorLabels.length} ملف: {interiorLabels.join(' · ')}</p>
+            ) : null}
+          </div>
+        ) : (
+          <div className="space-y-2 rounded-xl border border-teal-500/20 bg-teal-500/5 p-3">
+            <p className="text-sm font-semibold text-teal-100">طلب الأكريليك = المنشأة فقط</p>
+            <p className="text-xs leading-relaxed text-slate-400">
+              بعد فتح الاستهداف، شارك مع المنشأة رابط نموذج البنرات الأكريليك مع كودك. لا تملأ أعداد البنرات أو عنوان
+              الشحن بنفسك.
+            </p>
+            <p className="break-all font-mono text-[11px] text-teal-200/90" dir="ltr">
+              {typeof window !== 'undefined'
+                ? `${window.location.origin}/#${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}?amb=${encodeURIComponent(state.profile.code)}`
+                : `#${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}?amb=…`}
+            </p>
+            <div className="space-y-2">
+              <Label className="text-slate-300">صور إضافية اختيارية (حتى 4)</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => onInteriorFiles(e.target.files)}
+                className="border-white/15 bg-black/30 text-slate-300 file:bg-teal-500/20 file:text-teal-100"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label className="text-slate-200">ملاحظات (اختياري)</Label>

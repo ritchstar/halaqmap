@@ -103,6 +103,11 @@ export async function POST(request: Request): Promise<Response> {
   const shippingRecipientName = trimStr(body.shippingRecipientName, 160);
   const shippingPhone = trimStr(body.shippingPhone, 40);
   const shippingGoogleMapsUrl = trimStr(body.shippingGoogleMapsUrl, 500);
+  const ambassadorCodeRaw = trimStr(body.ambassadorCode ?? body.amb ?? body.ref, 40).toUpperCase();
+  const ambassadorCode =
+    ambassadorCodeRaw && /^HM-AMB-[A-Z0-9]{6,16}$/i.test(ambassadorCodeRaw)
+      ? ambassadorCodeRaw
+      : ambassadorCodeRaw.slice(0, 40) || null;
 
   if (!facilityName || !FACILITY_TYPES.has(facilityType)) {
     return Response.json({ error: 'بيانات المنشأة غير مكتملة' }, { status: 400, headers });
@@ -132,6 +137,7 @@ export async function POST(request: Request): Promise<Response> {
     `مستلم الشحنة: ${shippingRecipientName}`,
     `جوال المستلم: ${shippingPhone}`,
     `رابط التوثيق (خرائط): ${shippingGoogleMapsUrl}`,
+    ...(ambassadorCode ? [`كود السفير: ${ambassadorCode}`] : []),
   ].join('\n');
 
   const supabase = createClient(url, serviceRole, {
@@ -156,6 +162,8 @@ export async function POST(request: Request): Promise<Response> {
       shippingRecipientName,
       shippingGoogleMapsUrl,
       freeShippingIncluded: true,
+      filledBy: 'establishment',
+      ...(ambassadorCode ? { ambassadorCode } : {}),
       lifecycle: {
         stage: 'submitted',
         submittedAtIso: new Date().toISOString(),

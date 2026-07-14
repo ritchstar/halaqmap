@@ -18,6 +18,10 @@ import {
   readAmbassadorPortal,
   submitAmbassadorApplication,
 } from '@/lib/ambassadorPortalStore';
+import {
+  ambassadorApplyErrorAr,
+  submitAmbassadorApplicationRemoteApi,
+} from '@/lib/ambassadorApplicationsRemote';
 import { toast } from '@/components/ui/sonner';
 
 export default function AmbassadorEnter() {
@@ -32,6 +36,7 @@ export default function AmbassadorEnter() {
   const [socialProofUrl, setSocialProofUrl] = useState('');
   const [socialProofLabel, setSocialProofLabel] = useState('');
   const [acceptedRules, setAcceptedRules] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const meta = document.createElement('meta');
@@ -59,7 +64,7 @@ export default function AmbassadorEnter() {
     return <Navigate to={ROUTE_PATHS.AMBASSADOR_DASHBOARD} replace />;
   }
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!displayName.trim() || displayName.trim().length < 2) {
       toast.error('أدخل الاسم الظاهر (حرفان على الأقل).');
@@ -81,7 +86,9 @@ export default function AmbassadorEnter() {
       toast.error('يجب الموافقة على وثيقة قواعد السفراء.');
       return;
     }
-    const portal = submitAmbassadorApplication({
+
+    setSubmitting(true);
+    const remote = await submitAmbassadorApplicationRemoteApi({
       displayName,
       phone,
       coverageArea,
@@ -89,13 +96,30 @@ export default function AmbassadorEnter() {
       socialProofUrl,
       socialProofLabel,
     });
+    setSubmitting(false);
+
+    if (!remote.ok) {
+      toast.error(ambassadorApplyErrorAr(remote.error));
+      return;
+    }
+
+    const portal = submitAmbassadorApplication({
+      displayName,
+      phone,
+      coverageArea,
+      salesExperience,
+      socialProofUrl,
+      socialProofLabel,
+      serverId: remote.id,
+      serverCode: remote.code,
+    });
     void import('@/lib/analytics/productAnalytics').then(({ ProductEvents, identifyAnalyticsUser }) => {
       if (portal.profile?.code) {
         identifyAnalyticsUser(`amb:${portal.profile.code}`, { persona: 'ambassador' });
       }
       ProductEvents.ambassadorApplicationSubmitted();
     });
-    toast.success('تم إرسال طلب الانضمام — حالتك الآن: قيد المراجعة.');
+    toast.success('تم إرسال طلب الانضمام — حالتك الآن: قيد المراجعة من الإدارة.');
     navigate(ROUTE_PATHS.AMBASSADOR_DASHBOARD);
   };
 
@@ -152,7 +176,7 @@ export default function AmbassadorEnter() {
           </div>
 
           <form
-            onSubmit={onSubmit}
+            onSubmit={(e) => void onSubmit(e)}
             className="space-y-5 rounded-2xl border border-white/10 bg-[#0f0f14]/95 p-6"
           >
             <div className="space-y-2">
@@ -262,9 +286,10 @@ export default function AmbassadorEnter() {
             <Button
               type="submit"
               size="lg"
+              disabled={submitting}
               className="w-full rounded-xl bg-teal-500 font-bold text-black hover:bg-teal-400"
             >
-              إرسال طلب الانضمام للمراجعة
+              {submitting ? 'جاري الإرسال…' : 'إرسال طلب الانضمام للمراجعة'}
             </Button>
             <p className="text-center text-[11px] leading-relaxed text-slate-500">
               المستعجل عن الأزرار السريعة سينسحب هنا — الجاد يكتب ويجيب. لا لوحة استهداف قبل قبول المراجعة.

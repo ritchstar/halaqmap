@@ -95,6 +95,7 @@ import { ListingLicenseIssuePanel } from '@/components/admin/ListingLicenseIssue
 import { BronzeTrialCodesPanel } from '@/components/admin/BronzeTrialCodesPanel';
 import { BronzeTrialApplicationsPanel } from '@/components/admin/BronzeTrialApplicationsPanel';
 import { EnterpriseAnchorCohortPanel } from '@/components/admin/EnterpriseAnchorCohortPanel';
+import { AmbassadorApplicationsPanel } from '@/components/admin/AmbassadorApplicationsPanel';
 import {
   listBarbersForAdmin,
   setBarberActiveRemote,
@@ -972,6 +973,7 @@ export default function AdminDashboard() {
           {can('view_payments') && <TabsContent value="payments" className="space-y-6">
             {canReviewPartnerBilling && adminAccessToken ? (
               <>
+                <AmbassadorApplicationsPanel accessToken={adminAccessToken} />
                 <EnterpriseAnchorCohortPanel accessToken={adminAccessToken} />
                 <BronzeTrialApplicationsPanel accessToken={adminAccessToken} />
                 <BronzeTrialCodesPanel accessToken={adminAccessToken} />

@@ -22,6 +22,8 @@ export type HospitalityB2BRequestInput = {
   shippingRecipientName: string;
   shippingPhone: string;
   shippingGoogleMapsUrl: string;
+  /** كود السفير الميداني للربط (اختياري) */
+  ambassadorCode?: string;
   website?: string;
 };
 

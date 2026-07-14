@@ -198,6 +198,9 @@ export type AmbassadorApplicationInput = {
   salesExperience: string;
   socialProofUrl?: string;
   socialProofLabel?: string;
+  /** من الخادم بعد الحفظ في طابور الأدمن */
+  serverId?: string;
+  serverCode?: string;
 };
 
 /** تقديم طلب انضمام — الحالة: قيد المراجعة (لا تفعيل فوري) */
@@ -205,8 +208,8 @@ export function submitAmbassadorApplication(input: AmbassadorApplicationInput): 
   const now = new Date().toISOString();
   const state: AmbassadorPortalState = {
     profile: {
-      id: uid('amb'),
-      code: createAmbassadorCode(),
+      id: (input.serverId && input.serverId.trim()) || uid('amb'),
+      code: (input.serverCode && input.serverCode.trim()) || createAmbassadorCode(),
       displayName: input.displayName.trim(),
       phone: input.phone.trim(),
       iban: '',
@@ -236,7 +239,30 @@ export function submitAmbassadorApplication(input: AmbassadorApplicationInput): 
 }
 
 /**
- * اعتماد الطلب → تفعيل مؤقت (محاكاة مراجعة الإدارة حتى ربط لوحة الأدمن).
+ * مزامنة حالة الحساب من قرار الأدمن (قبول/رفض) — تُستدعى يدوياً أو لاحقاً عبر API حالة.
+ */
+export function applyAdminReviewToLocalPortal(
+  state: AmbassadorPortalState,
+  decision: { accountStatus: 'provisional' | 'rejected'; rejectReason?: string | null },
+): AmbassadorPortalState {
+  const next: AmbassadorPortalState = {
+    ...state,
+    profile: {
+      ...state.profile,
+      accountStatus: decision.accountStatus,
+      reviewedAt: new Date().toISOString(),
+      rejectReason:
+        decision.accountStatus === 'rejected'
+          ? (decision.rejectReason ?? 'لم تُستوفَ معايير الجدية الميدانية.')
+          : null,
+    },
+  };
+  writeAmbassadorPortal(next);
+  return next;
+}
+
+/**
+ * @deprecated المحاكاة المحلية — استُبدلت بطابور الأدمن. تبقى للتوافق مع الاختبارات فقط.
  */
 export function approveAmbassadorToProvisional(
   state: AmbassadorPortalState,
@@ -244,17 +270,7 @@ export function approveAmbassadorToProvisional(
   if (state.profile.accountStatus !== 'pending_review') {
     return { ok: false, error: 'الطلب ليس قيد المراجعة.' };
   }
-  const next: AmbassadorPortalState = {
-    ...state,
-    profile: {
-      ...state.profile,
-      accountStatus: 'provisional',
-      reviewedAt: new Date().toISOString(),
-      rejectReason: null,
-    },
-  };
-  writeAmbassadorPortal(next);
-  return { ok: true, state: next };
+  return { ok: true, state: applyAdminReviewToLocalPortal(state, { accountStatus: 'provisional' }) };
 }
 
 export function rejectAmbassadorApplication(
@@ -342,13 +358,14 @@ export function createTargetRequest(
     };
   }
   if (!input.streetSignLabel.trim()) {
-    return { ok: false, error: 'صورة لوحة المحل من الشارع إلزامية.' };
+    return { ok: false, error: 'صورة لوحة المحل / واجهة المنشأة من الخارج إلزامية.' };
   }
   if (input.kind === 'barber' && input.interiorLabels.length < 4) {
     return { ok: false, error: 'يلزم أربع صور داخلية لطلب استهداف الحلاق.' };
   }
-  if (input.kind === 'hospitality' && input.interiorLabels.length < 2) {
-    return { ok: false, error: 'يلزم صورتان على الأقل لطلب فنادق وشقق مخدومة.' };
+  // فنادق/ضيافة: إثبات استهداف خفيف (GPS + واجهة). طلب الأكريليك تملؤه المنشأة — لا صور داخلية إلزامية هنا.
+  if (input.kind === 'hospitality' && input.interiorLabels.length > 4) {
+    return { ok: false, error: 'للاستهداف الضيافة يكفي إثبات الواجهة؛ لا ترفع أكثر من 4 صور اختيارية.' };
   }
   if (!Number.isFinite(input.latitude) || !Number.isFinite(input.longitude)) {
     return { ok: false, error: 'الإحداثيات إلزامية — حدّد موقعك من الجهاز.' };
