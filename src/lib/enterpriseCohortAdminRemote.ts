@@ -1,0 +1,273 @@
+import { getSupabaseClient } from '@/integrations/supabase/client';
+import {
+  ANCHOR_COMMERCIAL,
+  ANCHOR_LISTING_DAYS,
+  ANCHOR_PARTNER_AL_ENWAN_SLUG,
+  ANCHOR_PERKS_TIER_A,
+  ANCHOR_PERKS_TIER_B,
+  ANCHOR_PERKS_TIER_C_DEFERRED,
+  ANCHOR_SEAT_QUOTA,
+  ANCHOR_WALLET_SEED_HALALAS,
+  AL_ENWAN_COHORT_NAME_AR,
+} from '@/config/enterpriseAnchorPartner';
+
+function cohortEndpoint(): string {
+  const base = String(import.meta.env.VITE_VERCEL_API_ORIGIN || '').trim().replace(/\/$/, '');
+  if (base) return `${base}/api/admin-enterprise-cohort`;
+  return '/api/admin-enterprise-cohort';
+}
+
+async function adminBearer(accessToken: string): Promise<string | null> {
+  const trimmed = String(accessToken ?? '').trim();
+  if (trimmed) return trimmed;
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const { data: sessionData } = await client.auth.getSession();
+  return sessionData.session?.access_token || null;
+}
+
+export function enterpriseCohortAdminErrorAr(code: string): string {
+  switch (code) {
+    case 'not_authenticated':
+      return 'انتهت جلسة الأدمن — أعد تسجيل الدخول.';
+    case 'unauthorized':
+    case 'forbidden':
+      return 'لا صلاحية لإدارة الشريك المرجعي (مطلوب review_payments أو manage_partner_billing).';
+    case 'network_error':
+      return 'تعذّر الاتصال بالخادم.';
+    case 'cohort_not_found':
+      return 'لم يُعثر على مجموعة الشريك المرجعي — طبّق الهجرة 143.';
+    case 'seat_not_found':
+      return 'المقعد غير موجود.';
+    case 'seat_already_activated':
+      return 'هذا المقعد مفعّل مسبقاً.';
+    case 'seat_revoked':
+    case 'seat_already_revoked':
+      return 'المقعد ملغى.';
+    case 'barber_not_found':
+      return 'الحلاق غير موجود.';
+    case 'invalid_barber_id':
+      return 'معرّف الحلاق غير صالح.';
+    case 'email_mismatch':
+      return 'بريد الحلاق لا يطابق البريد المربوط بالمقعد.';
+    case 'barber_already_has_active_seat':
+      return 'هذا الحلاق لديه مقعد مفعّل مسبقاً في نفس المجموعة.';
+    case 'cohort_not_active':
+      return 'مجموعة الشريك المرجعي غير نشطة.';
+    case 'product_not_found':
+      return 'منتج diamond_180 غير موجود في كتالوج الرخص.';
+    case 'unknown_action':
+      return 'إجراء غير معروف.';
+    default:
+      if (code.startsWith('http_')) return `خطأ من الخادم (${code.replace('http_', '')}).`;
+      return code || 'تعذّر تنفيذ الطلب.';
+  }
+}
+
+export type EnterpriseCohortSummary = {
+  id: string;
+  slug: string;
+  name_ar: string;
+  seat_quota: number;
+  listing_days_granted: number;
+  wallet_seed_halalas: number;
+  status: string;
+  marketing_case_study_allowed: boolean;
+  perks_tier_a?: unknown;
+  perks_tier_b?: unknown;
+  perks_tier_c_deferred?: unknown;
+  conversion_policy?: string;
+  wallet_funding_policy?: string;
+  notes?: string | null;
+};
+
+export type EnterpriseSeatSummary = {
+  id: string;
+  seat_index: number;
+  branch_label: string | null;
+  bound_email: string | null;
+  status: string;
+  barber_id: string | null;
+  activated_at: string | null;
+  expires_at: string | null;
+  activated_by_admin_email: string | null;
+};
+
+export type HqSeatReport = {
+  seatId: string;
+  seatIndex: number;
+  branchLabel: string | null;
+  status: string;
+  barberId: string | null;
+  barberName: string | null;
+  barberEmail: string | null;
+  boundEmail: string | null;
+  activatedAt: string | null;
+  expiresAt: string | null;
+  daysRemaining: number | null;
+  expiryWarning: boolean;
+  shiftEnabled: boolean | null;
+  walletBalanceHalalas: number | null;
+  activeInstructions: number | null;
+  anchorBadge: boolean;
+};
+
+export const ENTERPRISE_ANCHOR_UI = {
+  slug: ANCHOR_PARTNER_AL_ENWAN_SLUG,
+  nameAr: AL_ENWAN_COHORT_NAME_AR,
+  seats: ANCHOR_SEAT_QUOTA,
+  days: ANCHOR_LISTING_DAYS,
+  walletSeedHalalas: ANCHOR_WALLET_SEED_HALALAS,
+  walletSeedSar: ANCHOR_WALLET_SEED_HALALAS / 100,
+  commercial: ANCHOR_COMMERCIAL,
+  perksA: ANCHOR_PERKS_TIER_A,
+  perksB: ANCHOR_PERKS_TIER_B,
+  perksC: ANCHOR_PERKS_TIER_C_DEFERRED,
+} as const;
+
+export async function adminLoadEnterpriseCohortRemote(input: {
+  accessToken: string;
+  slug?: string;
+  view?: 'overview' | 'hq';
+}): Promise<
+  | {
+      ok: true;
+      cohorts: EnterpriseCohortSummary[];
+      cohort: EnterpriseCohortSummary;
+      seats?: EnterpriseSeatSummary[];
+      hqSeats?: HqSeatReport[];
+      summary?: {
+        reserved: number;
+        assigned: number;
+        activated: number;
+        expired: number;
+        revoked: number;
+        expiringSoon: number;
+      };
+    }
+  | { ok: false; error: string }
+> {
+  const token = await adminBearer(input.accessToken);
+  if (!token) return { ok: false, error: 'not_authenticated' };
+
+  const qs = new URLSearchParams();
+  qs.set('slug', input.slug || ANCHOR_PARTNER_AL_ENWAN_SLUG);
+  if (input.view === 'hq') qs.set('view', 'hq');
+
+  try {
+    const resp = await fetch(`${cohortEndpoint()}?${qs.toString()}`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const json = (await resp.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      cohorts?: EnterpriseCohortSummary[];
+      cohort?: EnterpriseCohortSummary;
+      seats?: EnterpriseSeatSummary[];
+      summary?: {
+        reserved: number;
+        assigned: number;
+        activated: number;
+        expired: number;
+        revoked: number;
+        expiringSoon: number;
+      };
+    };
+    if (!resp.ok || json.ok === false || !json.cohort) {
+      return { ok: false, error: json.error || `http_${resp.status}` };
+    }
+    return {
+      ok: true,
+      cohorts: json.cohorts ?? [json.cohort],
+      cohort: json.cohort,
+      seats: input.view === 'hq' ? undefined : (json.seats as EnterpriseSeatSummary[] | undefined),
+      hqSeats: input.view === 'hq' ? ((json.seats as HqSeatReport[] | undefined) ?? []) : undefined,
+      summary: json.summary,
+    };
+  } catch {
+    return { ok: false, error: 'network_error' };
+  }
+}
+
+async function postAction(
+  accessToken: string,
+  body: Record<string, unknown>,
+): Promise<{ ok: true; data: Record<string, unknown> } | { ok: false; error: string }> {
+  const token = await adminBearer(accessToken);
+  if (!token) return { ok: false, error: 'not_authenticated' };
+  try {
+    const resp = await fetch(cohortEndpoint(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+    const json = (await resp.json().catch(() => ({}))) as Record<string, unknown> & {
+      ok?: boolean;
+      error?: string;
+    };
+    if (!resp.ok || json.ok === false) {
+      return { ok: false, error: String(json.error || `http_${resp.status}`) };
+    }
+    return { ok: true, data: json };
+  } catch {
+    return { ok: false, error: 'network_error' };
+  }
+}
+
+export async function adminAssignEnterpriseSeatRemote(input: {
+  accessToken: string;
+  seatId: string;
+  boundEmail?: string;
+  branchLabel?: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const r = await postAction(input.accessToken, {
+    action: 'assign_seat',
+    seatId: input.seatId,
+    boundEmail: input.boundEmail,
+    branchLabel: input.branchLabel,
+  });
+  if (!r.ok) return r;
+  return { ok: true };
+}
+
+export async function adminActivateEnterpriseSeatRemote(input: {
+  accessToken: string;
+  seatId: string;
+  barberId: string;
+  requireEmailMatch?: boolean;
+}): Promise<
+  | { ok: true; validUntil?: string; listingDaysGranted?: number }
+  | { ok: false; error: string }
+> {
+  const r = await postAction(input.accessToken, {
+    action: 'activate_seat',
+    seatId: input.seatId,
+    barberId: input.barberId,
+    requireEmailMatch: input.requireEmailMatch !== false,
+  });
+  if (!r.ok) return r;
+  return {
+    ok: true,
+    validUntil: r.data.validUntil ? String(r.data.validUntil) : undefined,
+    listingDaysGranted:
+      r.data.listingDaysGranted != null ? Number(r.data.listingDaysGranted) : undefined,
+  };
+}
+
+export async function adminRevokeEnterpriseSeatRemote(input: {
+  accessToken: string;
+  seatId: string;
+  reason?: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const r = await postAction(input.accessToken, {
+    action: 'revoke_seat',
+    seatId: input.seatId,
+    reason: input.reason,
+  });
+  if (!r.ok) return r;
+  return { ok: true };
+}

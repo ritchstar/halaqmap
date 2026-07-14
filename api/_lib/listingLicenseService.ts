@@ -68,7 +68,7 @@ function readConfigSnapshot(snapshot: unknown): Record<string, unknown> {
 async function activateDigitalShiftAddonForBarber(
   supabase: SupabaseClient,
   barberId: string,
-  opts: { enableOnPurchase?: boolean } = {},
+  opts: { enableOnPurchase?: boolean; force?: boolean } = {},
 ): Promise<void> {
   const { data: existing } = await supabase
     .from('barber_digital_shift_config')
@@ -77,6 +77,7 @@ async function activateDigitalShiftAddonForBarber(
     .maybeSingle();
 
   const snap = readConfigSnapshot(existing?.banner_snapshot);
+  const shouldEnable = Boolean(opts.force || opts.enableOnPurchase);
 
   if (!existing) {
     await supabase.from('barber_digital_shift_config').upsert(
@@ -87,7 +88,7 @@ async function activateDigitalShiftAddonForBarber(
       },
       { onConflict: 'barber_id' },
     );
-  } else if (opts.enableOnPurchase && snap[SHIFT_ADDON_PURCHASE_SYNCED_KEY] !== true) {
+  } else if (shouldEnable) {
     await supabase
       .from('barber_digital_shift_config')
       .update({
@@ -101,6 +102,18 @@ async function activateDigitalShiftAddonForBarber(
     { barber_id: barberId },
     { onConflict: 'barber_id', ignoreDuplicates: true },
   );
+}
+
+/** تفعيل إضافة المناوب (مكتب خاص) — للاستخدام من منح الشريك المرجعي والمسارات الإدارية. */
+export async function enableDigitalShiftAddonForBarber(
+  supabase: SupabaseClient,
+  barberId: string,
+  opts: { force?: boolean } = {},
+): Promise<void> {
+  await activateDigitalShiftAddonForBarber(supabase, barberId, {
+    enableOnPurchase: true,
+    force: opts.force ?? true,
+  });
 }
 
 function registrationPayloadHasDigitalShiftAddon(payload: Record<string, unknown>): boolean {
@@ -308,7 +321,8 @@ export async function creditBarberListingEntitlement(
       | 'admin_voucher_issue'
       | 'admin_payment_approve'
       | 'registration_approval_auto_redeem'
-      | 'bronze_trial_code';
+      | 'bronze_trial_code'
+      | 'enterprise_cohort_grant';
     voucherId?: string | null;
     orderId?: string | null;
     stackFromExisting?: boolean;
