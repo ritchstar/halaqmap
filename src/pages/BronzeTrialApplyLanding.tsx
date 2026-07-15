@@ -237,8 +237,34 @@ export default function BronzeTrialApplyLanding() {
 
   return (
     <div className="relative">
+      <style>{`
+        @keyframes bronze-trial-assurance-pulse {
+          0%, 100% {
+            opacity: 0.92;
+            text-shadow:
+              0 0 8px rgba(251, 191, 36, 0.55),
+              0 0 22px rgba(245, 158, 11, 0.45),
+              0 0 42px rgba(217, 119, 6, 0.28);
+            filter: brightness(1);
+          }
+          50% {
+            opacity: 1;
+            text-shadow:
+              0 0 14px rgba(253, 224, 71, 0.95),
+              0 0 36px rgba(251, 191, 36, 0.75),
+              0 0 64px rgba(245, 158, 11, 0.45);
+            filter: brightness(1.12);
+          }
+        }
+        .bronze-trial-assurance-glow {
+          animation: bronze-trial-assurance-pulse 2.4s ease-in-out infinite;
+        }
+      `}</style>
       <section className="border-b border-white/10 bg-gradient-to-b from-amber-400/15 via-transparent to-transparent py-10 md:py-14">
         <div className="container mx-auto max-w-3xl px-4 text-center">
+          <p className="bronze-trial-assurance-glow mx-auto mb-6 max-w-2xl text-balance text-lg font-extrabold leading-relaxed tracking-wide text-amber-100 md:text-xl lg:text-2xl">
+            هذه الإجراءات تضمن جدية الطلب، وتحمي صالونك، وتسهل على العميل الوصول إليك والدفع لك بأمان.
+          </p>
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300/50 bg-amber-400/20 px-4 py-2 text-base font-bold text-amber-100">
             <Sparkles className="h-4 w-4" />
             تجربة برونزي 30 يوماً — خاضعة للتقييم
