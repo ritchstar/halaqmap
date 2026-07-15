@@ -46,7 +46,9 @@ export async function GET(request: Request): Promise<Response> {
     ...ADMIN_PERMS,
   ]);
   if (auth.ok === false) {
-    return Response.json(auth.json, { status: auth.status, headers });
+    const raw = String(auth.json.error || 'unauthorized');
+    const code = raw.toLowerCase() === 'unauthorized' ? 'unauthorized' : raw;
+    return Response.json({ ...auth.json, error: code }, { status: auth.status, headers });
   }
 
   const url = new URL(request.url);
@@ -116,7 +118,9 @@ export async function POST(request: Request): Promise<Response> {
     ...ADMIN_PERMS,
   ]);
   if (auth.ok === false) {
-    return Response.json(auth.json, { status: auth.status, headers });
+    const raw = String(auth.json.error || 'unauthorized');
+    const code = raw.toLowerCase() === 'unauthorized' ? 'unauthorized' : raw;
+    return Response.json({ ...auth.json, error: code }, { status: auth.status, headers });
   }
 
   let body: Record<string, unknown>;

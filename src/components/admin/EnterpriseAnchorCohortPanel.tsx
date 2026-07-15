@@ -289,7 +289,7 @@ export function EnterpriseAnchorCohortPanel({ accessToken }: Props) {
                   </tr>
                 );
               })}
-              {!seats.length && !loading ? (
+              {!seats.length && !loading && !panelError ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-6 text-center text-muted-foreground">
                     لا مقاعد — تأكد من تطبيق الهجرة{' '}

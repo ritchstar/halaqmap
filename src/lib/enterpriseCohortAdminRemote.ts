@@ -12,25 +12,61 @@ import {
 } from '@/config/enterpriseAnchorPartner';
 
 function cohortEndpoint(): string {
+  const path = '/api/admin-enterprise-cohort';
   const base = String(import.meta.env.VITE_VERCEL_API_ORIGIN || '').trim().replace(/\/$/, '');
-  if (base) return `${base}/api/admin-enterprise-cohort`;
-  return '/api/admin-enterprise-cohort';
+  if (!base) return path;
+  try {
+    if (typeof window !== 'undefined') {
+      const baseOrigin = new URL(base).origin;
+      // نفس الأصل → مسار نسبي (يتجنب إعادة توجيه apex→www التي تسقط Authorization)
+      if (baseOrigin === window.location.origin) return path;
+      if (
+        baseOrigin === 'https://halaqmap.com' &&
+        window.location.origin === 'https://www.halaqmap.com'
+      ) {
+        return path;
+      }
+    }
+  } catch {
+    /* ignore bad env URL */
+  }
+  return `${base}${path}`;
+}
+
+function clientSupabaseUrl(): string {
+  return String(import.meta.env.VITE_SUPABASE_URL || '').trim();
 }
 
 async function adminBearer(accessToken: string): Promise<string | null> {
-  const trimmed = String(accessToken ?? '').trim();
-  if (trimmed) return trimmed;
   const client = getSupabaseClient();
-  if (!client) return null;
-  const { data: sessionData } = await client.auth.getSession();
-  return sessionData.session?.access_token || null;
+  // فضّل جلسة حيّة من العميل — التوكن المخزّن في state قد ينتهي أثناء بقاء اللوحة مفتوحة
+  if (client) {
+    const { data: sessionData } = await client.auth.getSession();
+    const fresh = sessionData.session?.access_token?.trim();
+    if (fresh) return fresh;
+  }
+  const trimmed = String(accessToken ?? '').trim();
+  return trimmed || null;
+}
+
+function adminHeaders(token: string, jsonBody = false): Record<string, string> {
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+  if (jsonBody) headers['Content-Type'] = 'application/json';
+  const url = clientSupabaseUrl();
+  if (url) headers['x-client-supabase-url'] = url;
+  return headers;
 }
 
 export function enterpriseCohortAdminErrorAr(code: string): string {
-  switch (code) {
+  const normalized = String(code || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+  switch (normalized) {
     case 'not_authenticated':
       return 'انتهت جلسة الأدمن — أعد تسجيل الدخول.';
     case 'unauthorized':
+      return 'انتهت صلاحية الجلسة أو لم يُرسل التوكن — حدّث الصفحة وأعد الدخول إلى لوحة التحكم.';
     case 'forbidden':
       return 'لا صلاحية لإدارة الشريك المرجعي (مطلوب review_payments أو manage_partner_billing).';
     case 'network_error':
@@ -59,7 +95,7 @@ export function enterpriseCohortAdminErrorAr(code: string): string {
     case 'unknown_action':
       return 'إجراء غير معروف.';
     default:
-      if (code.startsWith('http_')) return `خطأ من الخادم (${code.replace('http_', '')}).`;
+      if (normalized.startsWith('http_')) return `خطأ من الخادم (${normalized.replace('http_', '')}).`;
       return code || 'تعذّر تنفيذ الطلب.';
   }
 }
@@ -157,14 +193,14 @@ export async function adminLoadEnterpriseCohortRemote(input: {
   try {
     const resp = await fetch(`${cohortEndpoint()}?${qs.toString()}`, {
       method: 'GET',
-      headers: { Authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     const json = (await resp.json().catch(() => ({}))) as {
       ok?: boolean;
       error?: string;
       cohorts?: EnterpriseCohortSummary[];
       cohort?: EnterpriseCohortSummary;
-      seats?: EnterpriseSeatSummary[];
+      seats?: EnterpriseSeatSummary[] | HqSeatReport[];
       summary?: {
         reserved: number;
         assigned: number;
@@ -182,7 +218,10 @@ export async function adminLoadEnterpriseCohortRemote(input: {
       cohorts: json.cohorts ?? [json.cohort],
       cohort: json.cohort,
       seats: input.view === 'hq' ? undefined : (json.seats as EnterpriseSeatSummary[] | undefined),
-      hqSeats: input.view === 'hq' ? ((json.seats as HqSeatReport[] | undefined) ?? []) : undefined,
+      hqSeats:
+        input.view === 'hq'
+          ? ((json.seats as unknown as HqSeatReport[] | undefined) ?? [])
+          : undefined,
       summary: json.summary,
     };
   } catch {
@@ -199,10 +238,7 @@ async function postAction(
   try {
     const resp = await fetch(cohortEndpoint(), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      headers: adminHeaders(token, true),
       body: JSON.stringify(body),
     });
     const json = (await resp.json().catch(() => ({}))) as Record<string, unknown> & {
