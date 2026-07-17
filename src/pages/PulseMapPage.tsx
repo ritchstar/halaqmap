@@ -32,7 +32,7 @@ function LabMiniCyberPanel({
     <div className="flex flex-col gap-3">
       <PulseMapHudStart payload={payload} loading={loading} />
       <section className="pulse-map-mini-cyber rounded-2xl border border-cyan-300/25 bg-black/45 p-2.5 backdrop-blur-md">
-        <p className="mb-2 text-center text-[0.62rem] font-bold tracking-wide text-cyan-200">
+        <p className="mb-2 text-center text-sm font-bold tracking-wide text-cyan-200">
           معاينة النبض المصغّرة
         </p>
         <div className="overflow-hidden rounded-xl border border-cyan-300/30">
@@ -112,25 +112,25 @@ export default function PulseMapPage() {
       style={{ background: 'linear-gradient(165deg, #020617 0%, #041018 45%, #030712 100%)' }}
     >
       <div className="pulse-map-topbar sticky top-0 z-40 border-b border-sky-500/15 bg-[#020617]/90 pt-[env(safe-area-inset-top)] backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3.5">
           <button
             type="button"
             onClick={() => navigate(ROUTE_PATHS.HOME)}
-            className="pulse-map-home-btn flex items-center gap-2 text-sm text-sky-400/75 transition-colors hover:text-sky-300"
+            className="pulse-map-home-btn flex items-center gap-2 text-base font-semibold text-sky-300/90 transition-colors hover:text-sky-200"
           >
-            <ArrowLeft className="h-4 w-4 rotate-180" />
+            <ArrowLeft className="h-5 w-5 rotate-180" />
             الرئيسية
           </button>
-          <div className="pulse-map-topbar-title flex flex-col items-center gap-0.5">
+          <div className="pulse-map-topbar-title flex flex-col items-center gap-1">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-sky-400" />
-              <span className="text-sm font-black text-sky-100">{PULSE_MAP_CONFIG.titleAr}</span>
+              <Activity className="h-5 w-5 text-sky-400" />
+              <span className="text-base font-black text-sky-50 sm:text-lg">{PULSE_MAP_CONFIG.titleAr}</span>
             </div>
-            <span className="text-[0.62rem] font-medium text-sky-300/75">
+            <span className="max-w-[16rem] text-center text-xs font-medium leading-snug text-sky-300/85 sm:max-w-none sm:text-sm">
               {PULSE_MAP_CONFIG.subtitleAr}
             </span>
           </div>
-          <div className="hidden w-[4.5rem] sm:block" aria-hidden />
+          <div className="hidden w-[5.5rem] sm:block" aria-hidden />
         </div>
       </div>
 
@@ -138,13 +138,17 @@ export default function PulseMapPage() {
         <motion.header
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pulse-map-hero mb-6 text-center"
+          className="pulse-map-hero mb-7 text-center"
         >
-          <div className="pulse-map-hero-icon mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-400/30 bg-sky-500/10 shadow-[0_0_40px_rgba(56,189,248,0.15)]">
-            <Activity className="h-7 w-7 text-sky-300" />
+          <div className="pulse-map-hero-icon mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-sky-400/30 bg-sky-500/10 shadow-[0_0_40px_rgba(56,189,248,0.15)]">
+            <Activity className="h-8 w-8 text-sky-300" />
           </div>
-          <h1 className="text-2xl font-black text-white sm:text-3xl">{PULSE_MAP_CONFIG.heroTitleAr}</h1>
-          <p className="mt-2 text-sm font-medium text-sky-300/80">{PULSE_MAP_CONFIG.subtitleAr}</p>
+          <h1 className="text-balance text-3xl font-black tracking-tight text-white sm:text-4xl">
+            {PULSE_MAP_CONFIG.heroTitleAr}
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-base font-medium leading-relaxed text-sky-200/90 sm:text-lg">
+            {PULSE_MAP_CONFIG.subtitleAr}
+          </p>
         </motion.header>
 
         {!isLabClone ? (

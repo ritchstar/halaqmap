@@ -66,7 +66,8 @@ function buildCityMarker(city: PlatformCity): PulseMapCityMarker | null {
     : snapPulseMapCityLngLat(city.lng, city.lat);
 
   const tier = BEACON_TIER_BY_ID[city.id] ?? 'city';
-  const showLabel = tier !== 'city' || !nativeInside;
+  // تسميات واضحة للعواصم والكبرى والمراكز؛ المدن الصغيرة بدون تسمية لتفادي الازدحام
+  const showLabel = tier !== 'city';
   const { x, y } = projectPulseMapLngLat(snapped.lng, snapped.lat);
 
   return {

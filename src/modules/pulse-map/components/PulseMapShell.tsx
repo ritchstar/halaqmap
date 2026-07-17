@@ -62,7 +62,13 @@ export function PulseMapShell({
   const end = endPanel ?? <PulseMapHudEnd payload={payload} loading={loading} />;
 
   return (
-    <div className={cn('pulse-map-shell grid gap-3 lg:grid-cols-[minmax(11rem,13.5rem)_1fr_minmax(11rem,13.5rem)]', className)} dir="rtl">
+    <div
+      className={cn(
+        'pulse-map-shell grid gap-4 lg:grid-cols-[minmax(14rem,17rem)_minmax(0,1fr)_minmax(14rem,17rem)]',
+        className,
+      )}
+      dir="rtl"
+    >
       <div className="order-2 lg:order-none">{start}</div>
 
       <div
@@ -76,7 +82,7 @@ export function PulseMapShell({
         )}
       >
         <div
-          className={cn('pulse-map-canvas relative mx-auto w-full max-h-[min(44rem,72vh)]', mapClassName)}
+          className={cn('pulse-map-canvas relative mx-auto w-full max-h-[min(52rem,82vh)]', mapClassName)}
           style={{ aspectRatio: aspect }}
         >
           <svg

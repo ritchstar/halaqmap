@@ -20,42 +20,44 @@ export function PulseMapHudStart({ payload, loading }: Props) {
 
   return (
     <aside
-      className="pulse-map-hud pulse-map-hud-start flex flex-col rounded-2xl border border-sky-400/20 bg-black/55 p-4 backdrop-blur-md lg:min-h-[min(44rem,72vh)]"
+      className="pulse-map-hud pulse-map-hud-start flex flex-col rounded-2xl border border-sky-400/20 bg-black/55 p-5 backdrop-blur-md lg:min-h-[min(48rem,78vh)]"
       dir="rtl"
     >
       {showLabBrand ? (
         <div className="pulse-map-brand-wrap mb-3 flex items-center justify-end">
           <HalaqmapBrandMark
             alt="شعار حلاق ماب"
-            className="pulse-map-barber-brand h-12 w-12 rounded-2xl"
+            className="pulse-map-barber-brand h-14 w-14 rounded-2xl"
             imgClassName="rounded-2xl"
           />
         </div>
       ) : null}
 
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-start gap-2">
-          <Activity className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+      <div className="space-y-2.5">
+        <div className="flex flex-wrap items-start gap-2.5">
+          <Activity className="mt-0.5 h-5 w-5 shrink-0 text-sky-300" />
           <div className="min-w-0">
-            <p className="text-sm font-black text-sky-100">{PULSE_MAP_CONFIG.titleAr}</p>
-            <p className="text-[0.62rem] font-medium text-sky-300/75">{PULSE_MAP_CONFIG.subtitleAr}</p>
+            <p className="text-base font-black leading-snug text-sky-100 sm:text-lg">
+              {PULSE_MAP_CONFIG.titleAr}
+            </p>
+            <p className="mt-1 text-sm font-medium leading-relaxed text-sky-300/85">
+              {PULSE_MAP_CONFIG.subtitleAr}
+            </p>
           </div>
         </div>
-        <span className="inline-flex rounded-full border border-sky-400/30 bg-sky-500/15 px-2 py-0.5 text-[0.58rem] font-bold text-sky-200">
+        <span className="inline-flex rounded-full border border-sky-400/30 bg-sky-500/15 px-3 py-1 text-xs font-bold text-sky-100">
           {PULSE_MAP_CONFIG.phaseBadgeAr}
         </span>
       </div>
-      <p className="mt-2 text-[0.68rem] leading-relaxed text-slate-400">
-        {PULSE_MAP_CONFIG.pilotLabelAr}
+      <p className="mt-3 text-sm leading-relaxed text-slate-300">{PULSE_MAP_CONFIG.pilotLabelAr}</p>
+      <p className="mt-2 text-sm leading-relaxed text-amber-100/85">{PULSE_MAP_CONFIG.phaseHintAr}</p>
+      <p className="mt-2 text-xs leading-relaxed text-slate-400 sm:text-sm">
+        {PULSE_MAP_DOCTRINE_LINE_AR}
       </p>
-      <p className="mt-2 text-[0.6rem] leading-relaxed text-amber-200/75">
-        {PULSE_MAP_CONFIG.phaseHintAr}
-      </p>
-      <p className="mt-2 text-[0.58rem] leading-relaxed text-slate-500">{PULSE_MAP_DOCTRINE_LINE_AR}</p>
 
       {showPulses ? (
-        <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
-          <p className="text-[0.62rem] font-semibold text-slate-500">مفتاح الألوان</p>
+        <div className="mt-5 space-y-3.5 border-t border-white/10 pt-5">
+          <p className="text-sm font-bold text-slate-300">مفتاح الألوان</p>
           <LegendRow
             color={PULSE_MAP_COLORS.demand.fill}
             glow={PULSE_MAP_COLORS.demand.glow}
@@ -70,7 +72,7 @@ export function PulseMapHudStart({ payload, loading }: Props) {
       ) : null}
 
       {loading ? (
-        <p className="mt-auto pt-4 text-[0.62rem] text-slate-500">جاري التحميل…</p>
+        <p className="mt-auto pt-4 text-sm text-slate-400">جاري التحميل…</p>
       ) : null}
     </aside>
   );
@@ -91,44 +93,44 @@ export function PulseMapHudEnd({ payload, loading }: Props) {
 
   return (
     <aside
-      className="pulse-map-hud pulse-map-hud-end flex flex-col rounded-2xl border border-emerald-500/20 bg-black/55 p-4 backdrop-blur-md lg:min-h-[min(44rem,72vh)]"
+      className="pulse-map-hud pulse-map-hud-end flex flex-col rounded-2xl border border-emerald-500/20 bg-black/55 p-5 backdrop-blur-md lg:min-h-[min(48rem,78vh)]"
       dir="rtl"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         {!isDemo && isLive ? (
-          <span className="relative flex h-2 w-2">
+          <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
           </span>
         ) : isDemo ? (
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-400" />
         ) : (
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
         )}
-        <span className="text-xs font-semibold text-emerald-100">
+        <span className="text-base font-bold text-emerald-50">
           {loading ? 'جاري التحميل…' : isLive ? 'نبض حي' : isDemo ? 'تجريبي' : PULSE_MAP_CONFIG.phaseBadgeAr}
         </span>
       </div>
-      <p className="mt-1 text-[0.62rem] tabular-nums text-slate-400">آخر مزامنة · {syncLabel}</p>
+      <p className="mt-2 text-sm tabular-nums text-slate-300">آخر مزامنة · {syncLabel}</p>
 
-      <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
-        <p className="text-[0.62rem] font-semibold text-slate-500">الإحصائيات</p>
+      <div className="mt-5 space-y-3.5 border-t border-white/10 pt-5">
+        <p className="text-sm font-bold text-slate-300">الإحصائيات</p>
         {showPulses ? (
           <>
             <StatRow
-              icon={<Activity className="h-4 w-4 text-amber-300" />}
+              icon={<Activity className="h-5 w-5 text-amber-300" />}
               label={PULSE_MAP_CONFIG.legendDemandAr}
               value={payload?.stats.demandCount ?? 0}
             />
             <StatRow
-              icon={<Activity className="h-4 w-4 text-teal-300" />}
+              icon={<Activity className="h-5 w-5 text-teal-300" />}
               label={PULSE_MAP_CONFIG.legendLinkAr}
               value={payload?.stats.linkCount ?? 0}
             />
           </>
         ) : null}
         <StatRow
-          icon={<Activity className="h-4 w-4 text-sky-300" />}
+          icon={<Activity className="h-5 w-5 text-sky-300" />}
           label="مدن"
           value={payload?.stats.slotsActive ?? PULSE_MAP_CITY_MARKERS.length}
         />
@@ -147,12 +149,12 @@ function LegendRow({
   label: string;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
       <span
-        className="inline-flex h-3 w-3 rounded-full"
-        style={{ background: color, boxShadow: `0 0 10px ${glow}` }}
+        className="inline-flex h-4 w-4 shrink-0 rounded-full"
+        style={{ background: color, boxShadow: `0 0 12px ${glow}` }}
       />
-      <span className="text-[0.65rem] text-slate-300">{label}</span>
+      <span className="text-sm font-medium leading-snug text-slate-100">{label}</span>
     </div>
   );
 }
@@ -167,12 +169,12 @@ function StatRow({
   value: number;
 }) {
   return (
-    <div className="pulse-map-stat-row flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5">
-      <div className="flex items-center gap-2">
+    <div className="pulse-map-stat-row flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-3">
+      <div className="flex min-w-0 items-center gap-2.5">
         {icon}
-        <span className="text-[0.65rem] text-slate-400">{label}</span>
+        <span className="text-sm font-medium leading-snug text-slate-200">{label}</span>
       </div>
-      <span className="text-base font-bold tabular-nums text-white">{value}</span>
+      <span className="text-xl font-black tabular-nums text-white">{value}</span>
     </div>
   );
 }
