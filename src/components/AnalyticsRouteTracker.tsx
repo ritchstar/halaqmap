@@ -8,6 +8,7 @@ import {
   isProductAnalyticsEnabled,
   trackPageView,
 } from '@/lib/analytics/productAnalytics';
+import { trackGoogleAdsPageView } from '@/lib/googleAdsTag';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
 import { readAmbassadorPortal } from '@/lib/ambassadorPortalStore';
@@ -43,6 +44,8 @@ export function AnalyticsRouteTracker(): null {
     if (isProductAnalyticsEnabled()) {
       trackPageView(pathname, bucket);
     }
+    // Google Ads gtag — مشاهدات صفحات الـ SPA
+    trackGoogleAdsPageView(pathname);
   }, [pathname]);
 
   useEffect(() => {

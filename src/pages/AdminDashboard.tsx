@@ -44,6 +44,7 @@ import {
   UserCog,
   ChevronDown,
   ChevronUp,
+  Megaphone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -96,6 +97,7 @@ import { BronzeTrialCodesPanel } from '@/components/admin/BronzeTrialCodesPanel'
 import { BronzeTrialApplicationsPanel } from '@/components/admin/BronzeTrialApplicationsPanel';
 import { EnterpriseAnchorCohortPanel } from '@/components/admin/EnterpriseAnchorCohortPanel';
 import { AmbassadorApplicationsPanel } from '@/components/admin/AmbassadorApplicationsPanel';
+import { GoogleAdsCampaignPanel } from '@/components/admin/GoogleAdsCampaignPanel';
 import {
   listBarbersForAdmin,
   setBarberActiveRemote,
@@ -590,6 +592,7 @@ export default function AdminDashboard() {
     const out: string[] = [];
     if (can('view_overview')) out.push('overview');
     if (can('view_overview') || can('view_command_center')) out.push('live-activity');
+    if (can('view_overview') || can('view_command_center')) out.push('google-ads');
     if (can('view_requests')) out.push('requests');
     if (can('view_barbers')) out.push('barbers');
     if (can('view_payments')) out.push('payments');
@@ -819,6 +822,12 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">نشاط حي</span>
             </TabsTrigger>
             )}
+            {(can('view_overview') || can('view_command_center')) && (
+            <TabsTrigger value="google-ads" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
+              <Megaphone className="w-4 h-4" />
+              <span className="hidden sm:inline">حملة Google</span>
+            </TabsTrigger>
+            )}
             {can('view_requests') && (
             <TabsTrigger value="requests" className={`${shellTheme.navItem} ${shellTheme.navItemActive} gap-2`}>
               <FileText className="w-4 h-4" />
@@ -905,6 +914,27 @@ export default function AdminDashboard() {
 
           {/* Overview Tab */}
           {can('view_overview') && <TabsContent value="overview" className="space-y-6">
+            <button
+              type="button"
+              onClick={() => setActiveTab('google-ads')}
+              className="flex w-full items-center justify-between rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-right transition hover:bg-amber-500/15"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-400/30 bg-amber-500/15">
+                  <Megaphone className="h-4 w-4 text-amber-300" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">حملة Google Ads</p>
+                  <p className="text-[0.62rem] text-amber-200/70" dir="ltr">
+                    AW-18240041811 · حالة الوسم ونتائج التتبع
+                  </p>
+                </div>
+              </div>
+              <Badge variant="secondary" className="gap-1">
+                فتح الشاشة
+              </Badge>
+            </button>
+
             {/* رابط مركز الوكلاء */}
             <div className="flex items-center justify-between rounded-xl border border-teal-400/20 bg-teal-500/8 px-4 py-3">
               <div className="flex items-center gap-2.5">
@@ -937,6 +967,12 @@ export default function AdminDashboard() {
           {(can('view_overview') || can('view_command_center')) && (
             <TabsContent value="live-activity" className="space-y-6">
               <AdminLiveActivitySection isActive={activeTab === 'live-activity'} />
+            </TabsContent>
+          )}
+
+          {(can('view_overview') || can('view_command_center')) && (
+            <TabsContent value="google-ads" className="space-y-6">
+              <GoogleAdsCampaignPanel />
             </TabsContent>
           )}
 
