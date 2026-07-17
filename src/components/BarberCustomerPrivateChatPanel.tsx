@@ -24,6 +24,7 @@ import { customerMessageNeedsShiftIntercept } from '@/lib/digitalShiftInterceptP
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 import { useBarberCommunicationAlerts } from '@/hooks/useBarberCommunicationAlerts';
 import { BarberChatAlertSettingsCard } from '@/components/barber/BarberChatAlertSettingsCard';
+import { emitBarberChatInboxSync } from '@/lib/barberInboxEvents';
 
 function remainingMs(expiresAtIso: string): number {
   const t = new Date(expiresAtIso).getTime();
@@ -182,6 +183,7 @@ export function BarberCustomerPrivateChatPanel({
           setConversations((prev) =>
             prev.map((c) => (c.id === conversationId ? { ...c, unread_customer_count: 0 } : c)),
           );
+          emitBarberChatInboxSync(barberId);
         });
       } finally {
         if (opts?.bootstrap) setLoadingMsgs(false);
@@ -432,6 +434,12 @@ export function BarberCustomerPrivateChatPanel({
         >
           <MessageCircle className={`h-5 w-5 ${isWorkbench ? 'text-emerald-300' : 'text-primary'}`} />
           شات العملاء المباشر
+          {conversations.some((c) => Number(c.unread_customer_count ?? 0) > 0) ? (
+            <span
+              className="ms-2 inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-rose-500"
+              aria-label="رسائل غير مقروءة"
+            />
+          ) : null}
           {isDiamond ? (
             <Badge className={isWorkbench ? 'bg-violet-500/90 text-white' : 'bg-accent text-accent-foreground'}>
               ماسي — ترجمة تلقائية

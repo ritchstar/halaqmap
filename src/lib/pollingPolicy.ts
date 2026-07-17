@@ -2,8 +2,8 @@
 export const POLL_MS = {
   RADAR_PULSES: 30_000,
   BARBER_SUPPORT_CHAT: 60_000,
-  /** قائمة محادثات الشات — لا تُخفَّض دون مراجعة حمل Edge */
-  PRIVATE_CHAT_LIST: 90_000,
+  /** قائمة محادثات الشات — سريع كفاية لشارة حمراء عند غياب Realtime */
+  PRIVATE_CHAT_LIST: 12_000,
   /** شات العميل — رسائل جديدة */
   CUSTOMER_CHAT_MESSAGES: 1_000,
   /** شات العميل — طلب رد المناوب عند الحاجة فقط */
@@ -17,8 +17,8 @@ export const POLL_MS = {
   MAP_COMMUNITY_FEED: 30_000,
   MAP_COMMUNITY_BADGE: 60_000,
   OWNER_SALON_WATCH: 45_000,
-  /** طلبات حجز المواعيد (ماسي) في لوحة الحلاق */
-  DIAMOND_APPOINTMENT_BOOKINGS: 30_000,
+  /** طلبات حجز المواعيد (ماسي) في لوحة الحلاق — تنبيه سريع */
+  DIAMOND_APPOINTMENT_BOOKINGS: 10_000,
   /** مضاعف التباطؤ عند نجاح Supabase Realtime */
   REALTIME_CONNECTED_MULTIPLIER: 6,
 } as const;

@@ -112,19 +112,35 @@ function playMessageToneOnContext(
 ): void {
   if (tone === 'bright') {
     playToneBurstOnContext(ctx, volume, [
-      { freq: 660, at: 0, dur: 0.12, type: 'sine' },
-      { freq: 880, at: 0.1, dur: 0.16, type: 'sine' },
+      { freq: 880, at: 0, dur: 0.1, type: 'sine', gain: 0.55 },
+      { freq: 1175, at: 0.09, dur: 0.14, type: 'sine', gain: 0.5 },
+      { freq: 1319, at: 0.2, dur: 0.16, type: 'triangle', gain: 0.4 },
     ]);
     return;
   }
   if (tone === 'bell') {
     playToneBurstOnContext(ctx, volume, [
-      { freq: 523, at: 0, dur: 0.2, type: 'triangle', gain: 0.45 },
-      { freq: 784, at: 0.08, dur: 0.22, type: 'sine', gain: 0.35 },
+      { freq: 784, at: 0, dur: 0.18, type: 'triangle', gain: 0.5 },
+      { freq: 1047, at: 0.1, dur: 0.22, type: 'sine', gain: 0.42 },
+      { freq: 1319, at: 0.22, dur: 0.28, type: 'sine', gain: 0.32 },
     ]);
     return;
   }
-  playToneBurstOnContext(ctx, volume, [{ freq: 520, at: 0, dur: 0.18, type: 'sine' }]);
+  // soft — أوضح من السابق قليلاً ليُسمع في الصالون
+  playToneBurstOnContext(ctx, volume, [
+    { freq: 587, at: 0, dur: 0.14, type: 'sine', gain: 0.5 },
+    { freq: 740, at: 0.12, dur: 0.18, type: 'sine', gain: 0.45 },
+  ]);
+}
+
+function playAppointmentToneOnContext(ctx: AudioContext, volume: number): void {
+  // نغمة مواعيد مميزة: ثلاث نبضات صاعدة
+  playToneBurstOnContext(ctx, volume, [
+    { freq: 494, at: 0, dur: 0.12, type: 'square', gain: 0.22 },
+    { freq: 622, at: 0.14, dur: 0.12, type: 'square', gain: 0.22 },
+    { freq: 784, at: 0.28, dur: 0.2, type: 'sine', gain: 0.48 },
+    { freq: 988, at: 0.42, dur: 0.26, type: 'triangle', gain: 0.4 },
+  ]);
 }
 
 function playHomeToneOnContext(ctx: AudioContext, tone: BarberChatAlertHomeTone, volume: number): void {
@@ -178,15 +194,19 @@ function playGroomPrepToneOnContext(
   ]);
 }
 
+export type BarberAlertSoundKind = 'message' | 'home_visit' | 'groom_prep' | 'appointment';
+
 export async function playBarberChatAlert(
-  kind: 'message' | 'home_visit' | 'groom_prep',
+  kind: BarberAlertSoundKind,
   prefs: Pick<BarberChatAlertPrefs, 'volume' | 'messageTone' | 'homeVisitTone'>,
 ): Promise<boolean> {
   const ctx = await ensureBarberChatAudioReady();
   if (!ctx) return false;
 
   const gain = barberChatAlertVolumeGain(prefs.volume);
-  if (kind === 'home_visit') {
+  if (kind === 'appointment') {
+    playAppointmentToneOnContext(ctx, gain * 1.2);
+  } else if (kind === 'home_visit') {
     playHomeToneOnContext(ctx, prefs.homeVisitTone, gain * 1.05);
   } else if (kind === 'groom_prep') {
     playGroomPrepToneOnContext(ctx, prefs.homeVisitTone, gain * 1.15);

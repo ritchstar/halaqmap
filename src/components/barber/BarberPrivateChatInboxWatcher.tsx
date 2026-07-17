@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   barberListPrivateConversationsRemote,
   type BarberPrivateConversationRow,
+  type BarberPrivateMessageRow,
 } from '@/lib/barberCustomerPrivateChatRemote';
 import { useBarberCommunicationAlerts } from '@/hooks/useBarberCommunicationAlerts';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 
 /**
- * يعمل في خلفية لوحة الحلاق — تنبيه صوتي لرسائل العملاء حتى خارج تبويب «شات العملاء».
+ * خلفية لوحة الحلاق — تنبيه صوتي + شارة فورية حتى خارج تبويب «شات العملاء».
  */
 export function BarberPrivateChatInboxWatcher({
   barberId,
@@ -47,12 +48,20 @@ export function BarberPrivateChatInboxWatcher({
     return () => window.clearInterval(iv);
   }, [enabled, pollConversations]);
 
+  const onRealtimeInbound = useCallback(
+    (_message: BarberPrivateMessageRow, _conversationId: string) => {
+      // المحرك يطلق حدث الشارة؛ هنا نزامن القائمة فوراً
+      void pollConversations(true);
+    },
+    [pollConversations],
+  );
+
   useBarberCommunicationAlerts(
     barberId,
     barberEmail,
     conversations,
     null,
-    undefined,
+    onRealtimeInbound,
     () => void pollConversations(true),
     enabled && activeTab !== 'messages',
   );

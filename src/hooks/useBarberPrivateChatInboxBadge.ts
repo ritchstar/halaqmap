@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { barberListPrivateConversationsRemote } from '@/lib/barberCustomerPrivateChatRemote';
+import {
+  BARBER_CHAT_INBOUND_EVENT,
+  BARBER_CHAT_INBOX_SYNC_EVENT,
+  type BarberChatInboundDetail,
+} from '@/lib/barberInboxEvents';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 
 export type BarberPrivateChatInboxBadgeState = {
@@ -10,7 +15,7 @@ export type BarberPrivateChatInboxBadgeState = {
 };
 
 /**
- * يجمع عدد رسائل العملاء غير المقروءة من شات Supabase الحي — للشارة على تبويب «شات العملاء».
+ * شارة «شات العملاء» — استطلاع + زيادة فورية عند حدث وصول رسالة.
  */
 export function useBarberPrivateChatInboxBadge(
   barberId: string | undefined,
@@ -60,6 +65,40 @@ export function useBarberPrivateChatInboxBadge(
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
   }, [refresh]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const id = barberId?.trim();
+    if (!id) return;
+
+    const onInbound = (ev: Event) => {
+      const detail = (ev as CustomEvent<BarberChatInboundDetail>).detail;
+      if (!detail || detail.barberId !== id) return;
+      // لا تزد الشارة إن كان الحلاق يقرأ نفس المحادثة
+      if (
+        detail.selectedConversationId &&
+        detail.selectedConversationId === detail.conversationId
+      ) {
+        return;
+      }
+      setUnreadCount((n) => Math.min(99, n + 1));
+      // مزامنة دقيقة بعد لحظة قصيرة
+      window.setTimeout(() => void refresh(), 900);
+    };
+
+    const onSync = (ev: Event) => {
+      const detail = (ev as CustomEvent<{ barberId?: string }>).detail;
+      if (detail?.barberId && detail.barberId !== id) return;
+      void refresh();
+    };
+
+    window.addEventListener(BARBER_CHAT_INBOUND_EVENT, onInbound);
+    window.addEventListener(BARBER_CHAT_INBOX_SYNC_EVENT, onSync);
+    return () => {
+      window.removeEventListener(BARBER_CHAT_INBOUND_EVENT, onInbound);
+      window.removeEventListener(BARBER_CHAT_INBOX_SYNC_EVENT, onSync);
+    };
+  }, [barberId, enabled, refresh]);
 
   return {
     unreadCount,

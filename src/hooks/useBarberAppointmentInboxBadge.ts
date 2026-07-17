@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listBarberBookingsRemote } from '@/lib/diamondAppointmentBookingRemote';
+import {
+  BARBER_APPOINTMENT_PENDING_EVENT,
+  type BarberAppointmentPendingDetail,
+} from '@/lib/barberInboxEvents';
 import { isPollingTabActive, POLL_MS } from '@/lib/pollingPolicy';
 
 export type BarberAppointmentInboxBadgeState = {
@@ -10,7 +14,10 @@ export type BarberAppointmentInboxBadgeState = {
 };
 
 /** يجمع حجوزات العملاء بانتظار تأكيد الحلاق — للشارة على تبويب «المواعيد». */
-export function useBarberAppointmentInboxBadge(enabled = true): BarberAppointmentInboxBadgeState {
+export function useBarberAppointmentInboxBadge(
+  enabled = true,
+  barberId?: string,
+): BarberAppointmentInboxBadgeState {
   const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -51,6 +58,22 @@ export function useBarberAppointmentInboxBadge(enabled = true): BarberAppointmen
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
   }, [refresh]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const onPending = (ev: Event) => {
+      const detail = (ev as CustomEvent<BarberAppointmentPendingDetail>).detail;
+      if (barberId && detail?.barberId && detail.barberId !== barberId) return;
+      if (typeof detail?.pendingCount === 'number') {
+        setPendingCount(detail.pendingCount);
+      } else {
+        setPendingCount((n) => Math.min(99, n + 1));
+      }
+      window.setTimeout(() => void refresh(), 800);
+    };
+    window.addEventListener(BARBER_APPOINTMENT_PENDING_EVENT, onPending);
+    return () => window.removeEventListener(BARBER_APPOINTMENT_PENDING_EVENT, onPending);
+  }, [barberId, enabled, refresh]);
 
   return {
     pendingCount,

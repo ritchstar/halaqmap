@@ -15,8 +15,8 @@ export type BarberChatAlertPrefs = {
 export const DEFAULT_BARBER_CHAT_ALERT_PREFS: BarberChatAlertPrefs = {
   enabled: true,
   pushEnabled: false,
-  volume: 'medium',
-  messageTone: 'soft',
+  volume: 'high',
+  messageTone: 'bright',
   homeVisitTone: 'doorbell',
   muteWhenChatOpen: true,
 };

@@ -59,6 +59,7 @@ import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase
 import { useMapCommunityBadge } from '@/hooks/useMapCommunityBadge';
 import { useBarberPrivateChatInboxBadge } from '@/hooks/useBarberPrivateChatInboxBadge';
 import { useBarberAppointmentInboxBadge } from '@/hooks/useBarberAppointmentInboxBadge';
+import { useBarberAppointmentAlerts } from '@/hooks/useBarberAppointmentAlerts';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { IMAGES } from '@/assets/images';
 import {
@@ -636,6 +637,12 @@ export default function BarberDashboard({
 
   const pendingAppointments = useBarberAppointmentInboxBadge(
     Boolean(barberData && appointmentsDiamondTier && !founderPreview),
+    barberData?.id,
+  );
+
+  useBarberAppointmentAlerts(
+    barberData?.id,
+    Boolean(barberData && appointmentsDiamondTier && !founderPreview && !ownerWatchMode),
   );
 
   const refreshRemoteBookings = useCallback(
@@ -1092,14 +1099,20 @@ export default function BarberDashboard({
                   <MessageSquare className="h-5 w-5 shrink-0" />
                   {unreadCustomerMessages.hasUnread ? (
                     <span
-                      className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-background animate-pulse"
+                      className="absolute -end-1 -top-1 h-3 w-3 rounded-full bg-rose-500 ring-2 ring-background animate-ping"
+                      aria-hidden
+                    />
+                  ) : null}
+                  {unreadCustomerMessages.hasUnread ? (
+                    <span
+                      className="absolute -end-1 -top-1 h-3 w-3 rounded-full bg-rose-600 ring-2 ring-background"
                       aria-hidden
                     />
                   ) : null}
                 </span>
                 <span>شات العملاء</span>
                 {unreadCustomerMessages.unreadCount > 0 ? (
-                  <Badge variant="destructive" className="flex h-5 min-w-5 items-center justify-center px-1 text-xs">
+                  <Badge variant="destructive" className="flex h-5 min-w-5 items-center justify-center px-1.5 text-xs font-bold">
                     {unreadCustomerMessages.unreadCount > 99 ? '99+' : unreadCustomerMessages.unreadCount}
                   </Badge>
                 ) : null}
@@ -1120,14 +1133,20 @@ export default function BarberDashboard({
                   <Calendar className="h-5 w-5 shrink-0" />
                   {pendingAppointments.hasPending ? (
                     <span
-                      className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-background animate-pulse"
+                      className="absolute -end-1 -top-1 h-3 w-3 rounded-full bg-rose-500 ring-2 ring-background animate-ping"
+                      aria-hidden
+                    />
+                  ) : null}
+                  {pendingAppointments.hasPending ? (
+                    <span
+                      className="absolute -end-1 -top-1 h-3 w-3 rounded-full bg-rose-600 ring-2 ring-background"
                       aria-hidden
                     />
                   ) : null}
                 </span>
                 <span>المواعيد</span>
                 {pendingAppointments.pendingCount > 0 ? (
-                  <Badge variant="destructive" className="flex h-5 min-w-5 items-center justify-center px-1 text-xs">
+                  <Badge variant="destructive" className="flex h-5 min-w-5 items-center justify-center px-1.5 text-xs font-bold">
                     {pendingAppointments.pendingCount > 99 ? '99+' : pendingAppointments.pendingCount}
                   </Badge>
                 ) : null}

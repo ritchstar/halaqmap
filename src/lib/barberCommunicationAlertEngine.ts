@@ -7,6 +7,7 @@ import {
   writeBarberChatAlertSeenIds,
 } from '@/lib/barberDashboardChatAlertPrefs';
 import { playBarberChatAlert } from '@/lib/barberDashboardChatAlertSound';
+import { emitBarberChatInbound } from '@/lib/barberInboxEvents';
 import { isHomeServiceContactChatBody } from '@/lib/homeServiceContactTemplate';
 import { isGroomPrepContactChatBody } from '@/lib/groomPrepContactTemplate';
 import { isPollingTabActive } from '@/lib/pollingPolicy';
@@ -21,7 +22,13 @@ export type BarberInboundChatAlertEvent = {
 
 export type BarberAlertDeliveryMode = 'realtime' | 'polling';
 
-const ALERT_COOLDOWN_MS = 20_000;
+/** تبريد قصير — الأولوية لسرعة التنبيه دون إزعاج متواصل */
+const ALERT_COOLDOWN_MS: Record<'message' | 'home_visit' | 'groom_prep' | 'appointment', number> = {
+  message: 4_000,
+  home_visit: 8_000,
+  groom_prep: 8_000,
+  appointment: 6_000,
+};
 
 export type BarberCommunicationAlertEngine = {
   bootstrapFromMessages: (
@@ -41,10 +48,16 @@ export type BarberCommunicationAlertEngine = {
 export function createBarberCommunicationAlertEngine(barberId: string): BarberCommunicationAlertEngine {
   let initialized = false;
   const seenIds = new Set(readBarberChatAlertSeenIds(barberId));
-  const lastPlayed: { message: number; home_visit: number; groom_prep: number } = {
+  const lastPlayed: {
+    message: number;
+    home_visit: number;
+    groom_prep: number;
+    appointment: number;
+  } = {
     message: 0,
     home_visit: 0,
     groom_prep: 0,
+    appointment: 0,
   };
 
   return {
@@ -62,10 +75,19 @@ export function createBarberCommunicationAlertEngine(barberId: string): BarberCo
     },
 
     handleInbound(event, context) {
-      if (!initialized) return;
       if (seenIds.has(event.messageId)) return;
       seenIds.add(event.messageId);
       writeBarberChatAlertSeenIds(barberId, seenIds);
+
+      // شارة حمراء فوراً — حتى قبل اكتمال التهيئة الصوتية
+      emitBarberChatInbound({
+        barberId,
+        conversationId: event.conversationId,
+        messageId: event.messageId,
+        selectedConversationId: context.selectedConversationId,
+      });
+
+      if (!initialized) return;
 
       const prefs = readBarberChatAlertPrefs(barberId);
       if (!prefs.enabled) return;
@@ -78,7 +100,7 @@ export function createBarberCommunicationAlertEngine(barberId: string): BarberCo
           ? 'home_visit'
           : 'message';
       const now = Date.now();
-      if (now - lastPlayed[kind] < ALERT_COOLDOWN_MS) return;
+      if (now - lastPlayed[kind] < ALERT_COOLDOWN_MS[kind]) return;
       lastPlayed[kind] = now;
       void playBarberChatAlert(kind, prefs);
     },

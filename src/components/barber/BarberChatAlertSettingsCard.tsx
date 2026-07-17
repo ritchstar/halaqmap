@@ -103,7 +103,7 @@ export function BarberChatAlertSettingsCard({
   }, [barberEmail, barberId, prefs]);
 
   const previewAlert = useCallback(
-    async (kind: 'message' | 'home_visit' | 'groom_prep', label: string) => {
+    async (kind: 'message' | 'home_visit' | 'groom_prep' | 'appointment', label: string) => {
       if (!prefs.enabled) {
         toast.message('فعّل التنبيه الصوتي أولاً من المفتاح أعلاه.');
         return;
@@ -130,9 +130,9 @@ export function BarberChatAlertSettingsCard({
           </Badge>
         </CardTitle>
         <CardDescription className="leading-relaxed">
-          صوت فوري داخل اللوحة عند رسالة عميل أو طلب زيارة منزلية — مع إشعار للجهاز عند إغلاق
-          التبويب. يتطلب الشات الحي جلسة حسابك على المنصة (وليس الرمز الموحّد فقط) لتفعيل
-          `Realtime` الفوري؛ وإلا يُستخدم الاستطلاع الاحتياطي.
+          إشارة حمراء فورية وصوت عند رسالة عميل أو طلب موعد — مع إشعار للجهاز عند إغلاق التبويب.
+          الوضع الأسرع يتطلب جلسة حسابك على المنصة (`Realtime`)؛ وإلا يعمل الاستطلاع السريع
+          الاحتياطي.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -296,6 +296,17 @@ export function BarberChatAlertSettingsCard({
           >
             <Volume2 className="h-4 w-4" />
             تجربة تجهيز عريس
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={!prefs.enabled}
+            onClick={() => void previewAlert('appointment', 'تشغيل تجربة طلب موعد')}
+          >
+            <Volume2 className="h-4 w-4" />
+            تجربة موعد
           </Button>
         </div>
       </CardContent>
