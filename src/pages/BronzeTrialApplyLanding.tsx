@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PartnerFormWhatsAppSupport } from '@/components/partner/PartnerFormWhatsAppSupport';
 import { ROUTE_PATHS } from '@/lib';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { generateRegistrationOrderId } from '@/lib/subscriptionRequestStorage';
@@ -280,7 +281,7 @@ export default function BronzeTrialApplyLanding() {
         </div>
       </section>
 
-      <div className="container mx-auto max-w-3xl space-y-6 px-4 py-10">
+      <div className="container mx-auto max-w-5xl space-y-6 px-4 py-10">
         <Alert className="border-amber-300/60 bg-amber-50 text-amber-950 shadow-md">
           <ShieldAlert className="h-5 w-5 text-amber-800" />
           <AlertDescription className="text-base leading-relaxed text-amber-950">
@@ -292,6 +293,7 @@ export default function BronzeTrialApplyLanding() {
           </AlertDescription>
         </Alert>
 
+        <PartnerFormWhatsAppSupport context="bronze-trial" variant="light">
         <Card
           className="border-slate-200 bg-white text-slate-900 shadow-xl shadow-black/25"
           style={{ colorScheme: 'light' }}
@@ -472,6 +474,7 @@ export default function BronzeTrialApplyLanding() {
             </form>
           </CardContent>
         </Card>
+        </PartnerFormWhatsAppSupport>
       </div>
     </div>
   );

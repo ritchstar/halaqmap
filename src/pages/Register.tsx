@@ -10,6 +10,7 @@ import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundar
 import { ROUTE_PATHS } from '@/lib/index';
 import { Scissors, Shield, ChevronRight } from 'lucide-react';
 import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
+import { PartnerFormWhatsAppSupport } from '@/components/partner/PartnerFormWhatsAppSupport';
 import { PARTNER_REGISTER_PAGE } from '@/lib/partnerMarketingCopy';
 
 export default function Register() {
@@ -114,15 +115,17 @@ export default function Register() {
           </div>
         </motion.section>
 
-        {/* ── نموذج التسجيل (أولاً — قبل لوحة النمو على الجوال) ── */}
+        {/* ── نموذج التسجيل + دعم واتساب بجانب مربع التعبئة ── */}
         <motion.section
           initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5, delay:.1 }}
-          className="mx-auto max-w-4xl"
+          className="mx-auto max-w-5xl"
           id="register-form"
         >
-          <RegistrationErrorBoundary>
-            <RegistrationForm />
-          </RegistrationErrorBoundary>
+          <PartnerFormWhatsAppSupport context="register" variant="dark">
+            <RegistrationErrorBoundary>
+              <RegistrationForm />
+            </RegistrationErrorBoundary>
+          </PartnerFormWhatsAppSupport>
         </motion.section>
 
         <motion.div
