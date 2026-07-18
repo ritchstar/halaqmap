@@ -90,8 +90,43 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'partner-assistant-chat') {
     return envInt('PARTNER_ASSISTANT_RATE_LIMIT_MAX', 20);
   }
+  // ── حملة إعلانية / تسجيل عام: حدود أضيق من الافتراضي 45 ──
   if (routeId === 'interest-signup') {
-    return envInt('INTEREST_SIGNUP_RATE_LIMIT_MAX', 10);
+    return envInt('INTEREST_SIGNUP_RATE_LIMIT_MAX', 8);
+  }
+  if (routeId === 'register-submission') {
+    return envInt('REGISTER_SUBMISSION_RATE_LIMIT_MAX', 8);
+  }
+  if (routeId === 'register-mint-intent') {
+    return envInt('REGISTER_MINT_INTENT_RATE_LIMIT_MAX', 12);
+  }
+  if (routeId === 'register-upload-file' || routeId === 'register-signed-upload') {
+    return envInt('REGISTER_UPLOAD_RATE_LIMIT_MAX', 10);
+  }
+  if (routeId === 'bronze-trial-apply' || routeId === 'ambassador-apply') {
+    return envInt('PUBLIC_APPLY_RATE_LIMIT_MAX', 6);
+  }
+  if (
+    routeId === 'bronze-trial-redeem' ||
+    routeId === 'listing-license-redeem' ||
+    routeId === 'bronze-trial-confirm-email'
+  ) {
+    return envInt('PUBLIC_REDEEM_RATE_LIMIT_MAX', 5);
+  }
+  if (routeId === 'public-hospitality-b2b-request') {
+    return envInt('HOSPITALITY_B2B_RATE_LIMIT_MAX', 6);
+  }
+  if (routeId === 'send-registration-payment-summary') {
+    return envInt('REGISTRATION_PAYMENT_SUMMARY_RATE_LIMIT_MAX', 3);
+  }
+  if (routeId === 'public-barbers-get') {
+    return envInt('PUBLIC_BARBERS_RATE_LIMIT_MAX', 90);
+  }
+  if (routeId === 'public-pulse-map') {
+    return envInt('PUBLIC_PULSE_MAP_RATE_LIMIT_MAX', 60);
+  }
+  if (routeId === 'presence-heartbeat') {
+    return envInt('PRESENCE_HEARTBEAT_RATE_LIMIT_MAX', 36);
   }
   if (routeId === 'public-rate-barber-context') {
     return envInt('PUBLIC_RATE_BARBER_CONTEXT_RATE_LIMIT_MAX', 80);
@@ -100,7 +135,7 @@ function rateLimitMaxForRoute(routeId: string): number {
     return envInt('SUBMIT_BARBER_QR_REVIEW_RATE_LIMIT_MAX', 15);
   }
   if (routeId === 'barber-portal-magic-consume' || routeId === 'barber-portal-magic-enter') {
-    return envInt('BARBER_PORTAL_MAGIC_RATE_LIMIT_MAX', 20);
+    return envInt('BARBER_PORTAL_MAGIC_RATE_LIMIT_MAX', 12);
   }
   if (routeId === 'barber-portfolio') {
     return envInt('BARBER_PORTFOLIO_RATE_LIMIT_MAX', 80);
@@ -132,7 +167,8 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId.startsWith('barber-portal')) {
     const barberOnly = envInt('BARBER_PORTAL_RATE_LIMIT_MAX', -1);
     if (barberOnly >= 0) return barberOnly;
-    return Math.min(30, envInt('REGISTRATION_RATE_LIMIT_MAX', 45));
+    // أثناء ضغط الحملات: سقف أوضح لتسجيل الدخول/بوابة الحلاق
+    return Math.min(20, envInt('REGISTRATION_RATE_LIMIT_MAX', 45));
   }
   return envInt('REGISTRATION_RATE_LIMIT_MAX', 45);
 }

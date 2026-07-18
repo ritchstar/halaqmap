@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto.js';
 import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
-import { runSecurityGuard } from './_lib/securityGuard.js';
+import { recordHoneypotTrip, runSecurityGuard } from './_lib/securityGuard.js';
 import { validateRegistrationCompliancePayload } from './_lib/registrationCompliance.js';
 import { validateRegistrationBusinessPayload } from './_lib/registrationBusinessValidation.js';
 import { emitOpsEventFireAndForget } from './_lib/opsEventRouter.js';
@@ -90,8 +90,15 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400, headers });
   }
 
-  const rowId = String((body as { id?: unknown })?.id ?? '').trim();
-  const payload = (body as { payload?: unknown })?.payload;
+  const bodyRec = body as { id?: unknown; payload?: unknown; website?: unknown };
+  // honeypot على مستوى الجسم — بوتات تملأ كل الحقول
+  if (String(bodyRec.website ?? '').trim()) {
+    await recordHoneypotTrip(request, 'register-submission');
+    return Response.json({ ok: true, id: 'ignored' }, { headers });
+  }
+
+  const rowId = String(bodyRec.id ?? '').trim();
+  const payload = bodyRec.payload;
   if (!rowId || !ORDER_ID_RE.test(rowId)) {
     return Response.json({ error: 'Invalid order id' }, { status: 400, headers });
   }

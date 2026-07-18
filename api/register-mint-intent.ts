@@ -6,6 +6,7 @@ import {
   REGISTRATION_ORDER_ID_RE,
 } from './_lib/registrationIntentCrypto.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 15 };
 
@@ -48,6 +49,8 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 12 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const secret = getRegistrationIntentSecret();
   if (!secret) {

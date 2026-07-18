@@ -9,6 +9,7 @@ import {
   publicApiOptionsResponse,
   rejectIfPublicApiCorsBlocked,
 } from './_lib/publicApiCors.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 20 };
 
@@ -29,6 +30,12 @@ export async function GET(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
   const headers = corsHeaders(request);
+  const guard = runRegistrationRouteGuards(request, 'bronze-trial-confirm-email');
+  if (guard.ok === false) {
+    return Response.json(guard.json, { status: guard.status, headers });
+  }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 5 });
+  if (!secGuard.allowed) return secGuard.response;
   const urlObj = new URL(request.url);
   const token = (urlObj.searchParams.get('c') || urlObj.searchParams.get('token') || '').trim();
   return handleConfirm(token, headers);
@@ -42,6 +49,8 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 5 });
+  if (!secGuard.allowed) return secGuard.response;
   let body: { token?: unknown; c?: unknown } = {};
   try {
     body = (await request.json()) as typeof body;

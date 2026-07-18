@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { recordHoneypotTrip, runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 20 };
 
@@ -72,6 +73,8 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 6 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
@@ -91,6 +94,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const honeypot = trimStr(body.website, 200);
   if (honeypot) {
+    await recordHoneypotTrip(request, 'public-hospitality-b2b-request');
     return Response.json({ ok: true }, { headers });
   }
 

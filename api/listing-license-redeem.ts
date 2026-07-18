@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { redeemListingLicenseVoucher } from './_lib/listingLicenseService.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 30 };
 
@@ -64,6 +65,8 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 5 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();

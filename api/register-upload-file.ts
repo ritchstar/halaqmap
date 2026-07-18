@@ -3,6 +3,7 @@ import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto.js';
 import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 import {
   probeRegistrationUploadsBucket,
   registrationUploadsBucketFailureHint,
@@ -101,6 +102,8 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 10 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const url = normalizeSupabaseUrl(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL);
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();

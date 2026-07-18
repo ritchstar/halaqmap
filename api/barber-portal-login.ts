@@ -10,6 +10,7 @@ import { getBarberPortalSessionSecret, mintBarberPortalSessionToken } from './_l
 import { resolveSalonMemberRole } from './_lib/salonMemberAuth.js';
 import { isBarberDigitalShiftEnabled } from './_lib/digitalShiftAssistant.js';
 import { ensureDigitalShiftAddonFromPaidOrders } from './_lib/listingLicenseService.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = {
   maxDuration: 30,
@@ -74,6 +75,8 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 8 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();

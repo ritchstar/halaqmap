@@ -9,6 +9,7 @@ import {
   publicApiOptionsResponse,
   rejectIfPublicApiCorsBlocked,
 } from './_lib/publicApiCors.js';
+import { recordHoneypotTrip, runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 30 };
 
@@ -43,6 +44,8 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 6 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
   const serviceRole = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
@@ -59,6 +62,7 @@ export async function POST(request: Request): Promise<Response> {
 
   // honeypot
   if (String(body.website ?? '').trim()) {
+    await recordHoneypotTrip(request, 'bronze-trial-apply');
     return Response.json({ ok: true, applicationId: 'ignored', confirmEmailSent: true }, { headers });
   }
 

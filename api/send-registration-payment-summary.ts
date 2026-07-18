@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { readResendFromEmailEnv, resolveResendFromAddress } from './_lib/resendFrom.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = { maxDuration: 30 };
 
@@ -115,6 +116,8 @@ export async function POST(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 3 });
+  if (!secGuard.allowed) return secGuard.response;
 
   const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
   const fromEmailRaw = readResendFromEmailEnv();

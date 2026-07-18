@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { mapShowcaseRowToApiPayload, resolveShowcaseFallbackForPublic } from './_lib/platformShowcasePreview.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
+import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = {
   maxDuration: 30,
@@ -115,6 +116,8 @@ export async function GET(request: Request): Promise<Response> {
   if (guard.ok === false) {
     return Response.json(guard.json, { status: guard.status, headers });
   }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 90 });
+  if (!secGuard.allowed) return secGuard.response;
 
   if (!url || !serviceRole) {
     return Response.json(

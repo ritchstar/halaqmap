@@ -23,6 +23,7 @@ import {
   publicApiOptionsResponse,
   rejectIfPublicApiCorsBlocked,
 } from './_lib/publicApiCors.js';
+import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 import { isLikelyHttpUrl, normalizeSupabaseUrl } from './_lib/supabaseUrl.js';
 
@@ -65,9 +66,13 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: false, error: 'Server not configured' }, { status: 503, headers });
   }
 
+  const routeGuard = runRegistrationRouteGuards(request, 'presence-heartbeat');
+  if (routeGuard.ok === false) {
+    return Response.json(routeGuard.json, { status: routeGuard.status, headers });
+  }
   const secGuard = await runSecurityGuard(request, {
     sensitiveRoute: true,
-    rateLimit: 40,
+    rateLimit: 36,
     supabaseUrl: serverUrl,
     supabaseServiceKey: serviceRole,
   });

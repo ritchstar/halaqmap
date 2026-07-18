@@ -4,6 +4,7 @@
  */
 import { createClient } from '@supabase/supabase-js';
 import { buildPulseMapPayload } from './_lib/pulseMapLib.js';
+import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 import {
   buildPublicApiCorsHeaders,
@@ -44,10 +45,13 @@ export async function GET(request: Request): Promise<Response> {
   const blocked = rejectIfPublicApiCorsBlocked(request, CORS_OPTS);
   if (blocked) return blocked;
 
-  const secGuard = await runSecurityGuard(request, { sensitiveRoute: false });
-  if (!secGuard.allowed) return secGuard.response;
-
   const headers = corsHeaders(request);
+  const routeGuard = runRegistrationRouteGuards(request, 'public-pulse-map');
+  if (routeGuard.ok === false) {
+    return Response.json(routeGuard.json, { status: routeGuard.status, headers });
+  }
+  const secGuard = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 60 });
+  if (!secGuard.allowed) return secGuard.response;
   const url = normalizeSupabaseUrl(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL);
   const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
