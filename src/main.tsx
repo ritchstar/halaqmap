@@ -42,7 +42,15 @@ async function bootstrapLabStandalone(rootEl: HTMLElement): Promise<boolean> {
   const loader = LAB_STANDALONE_ROUTES[path];
   if (!loader) return false;
 
-  const { default: Page } = await loader();
+  const pageMod = await loader();
+  const Page =
+    (typeof pageMod.default === 'function' ? pageMod.default : undefined) ??
+    (typeof (pageMod as unknown) === 'function'
+      ? (pageMod as unknown as ComponentType)
+      : undefined);
+  if (!Page) {
+    throw new Error('تعذّر تحميل صفحة المختبر');
+  }
   createRoot(rootEl).render(
     <RootErrorBoundary>
       <Page />
@@ -306,10 +314,21 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
         return
       }
 
-      const { default: App } = await import('./App.tsx')
+      // بعض بنى Vite تحوّل default إلى named داخل chunk مشترك — لا تعتمد على .default فقط.
+      const appMod = (await import('./App.tsx')) as {
+        default?: ComponentType
+        App?: ComponentType
+      } & Record<string, unknown>
+      const AppComponent =
+        (typeof appMod.default === 'function' ? appMod.default : undefined) ??
+        (typeof appMod.App === 'function' ? appMod.App : undefined) ??
+        (typeof appMod === 'function' ? (appMod as unknown as ComponentType) : undefined)
+      if (!AppComponent) {
+        throw new Error('تعذّر تحميل مكوّن التطبيق (App module has no component export)')
+      }
       createRoot(rootEl).render(
         <RootErrorBoundary>
-          <App />
+          <AppComponent />
         </RootErrorBoundary>,
       )
       schedulePlatformBuildSync();

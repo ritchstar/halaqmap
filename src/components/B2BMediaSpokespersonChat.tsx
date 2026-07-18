@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/lib/index';
+import { ROUTE_PATHS } from '@/lib/routePaths';
 
 type Turn = { role: 'user' | 'assistant'; content: string; id: string };
 type Audience = 'partner' | 'consumer';

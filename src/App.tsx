@@ -21,7 +21,14 @@ import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience'
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
 import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
 
-const LandingPreview = lazy(() => import("@/pages/LandingPreview"));
+const LandingPreview = lazy(async () => {
+  const mod = await import("@/pages/LandingPreview");
+  const C = mod.default;
+  if (typeof C !== "function") {
+    throw new Error("LandingPreview failed to load");
+  }
+  return { default: C };
+});
 const PartnerMarketingPreview = lazy(() => import("@/pages/PartnerMarketingPreview"));
 const PartnersB2BLanding = lazy(() => import("@/pages/PartnersB2BLanding"));
 const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
@@ -167,8 +174,9 @@ function PartnersDomainRedirect() {
   return null;
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
     <PlatformAmbientProvider>
     <TooltipProvider>
       <Toaster />
@@ -376,7 +384,8 @@ const App = () => (
       <SpeedInsights />
     </TooltipProvider>
     </PlatformAmbientProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
 export default App;

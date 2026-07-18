@@ -51,7 +51,7 @@ function indexHtmlAssetCacheBustPlugin(): Plugin {
     apply: 'build',
     enforce: 'post',
     transformIndexHtml(html) {
-      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '5').trim();
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '6').trim();
       const q = raw.length > 0 ? raw : '2';
       const suffix = `?v=${encodeURIComponent(q)}`;
       let out = html
@@ -395,10 +395,15 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (!id.includes('node_modules')) return;
-            if (id.includes('framer-motion')) return 'vendor-motion';
-            if (id.includes('@supabase')) return 'vendor-supabase';
-            if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
+            const norm = id.replace(/\\/g, '/');
+            // افصل المسارات وبروكسي الراوتر عن حزمة App — يمنع حلقة lazy الرئيسية
+            // (LandingPreview → AgentPanel → App chunk قبل اكتمال تقييم App).
+            if (norm.includes('/src/lib/routePaths.ts')) return 'route-paths';
+            if (norm.includes('/src/lib/react-router-dom-proxy')) return 'rr-proxy';
+            if (!norm.includes('/node_modules/')) return;
+            if (norm.includes('framer-motion')) return 'vendor-motion';
+            if (norm.includes('@supabase')) return 'vendor-supabase';
+            if (norm.includes('recharts') || norm.includes('/d3-')) return 'vendor-charts';
             return 'vendor-core';
           },
         },

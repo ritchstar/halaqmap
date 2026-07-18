@@ -59,15 +59,15 @@ import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
 import { BarberDetailModal } from '@/components/BarberDetailModal';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { GeoRadarButton } from '@/components/GeoRadarButton';
 
 const LazyLandingAgentPanelBody = lazy(async () => {
   const mod = await import('@/pages/landing/LandingAgentPanelBody');
-  return { default: mod.LandingAgentPanelBody };
-});
-
-const LazyGeoRadarButton = lazy(async () => {
-  const mod = await import('@/components/GeoRadarButton');
-  return { default: mod.GeoRadarButton };
+  const C = mod.LandingAgentPanelBody;
+  if (typeof C !== 'function') {
+    throw new Error('LandingAgentPanelBody failed to load');
+  }
+  return { default: C };
 });
 
 type LandingAgentPanel = 'media' | 'legal' | null;
@@ -984,18 +984,10 @@ export default function LandingPreview() {
             {/* زر الاستعلام — موضعه الأساسي قبل الفلاتر (سطح المكتب) */}
             {!isMobile ? (
             <div className="mb-5 flex w-full flex-col items-center gap-4">
-              <Suspense
-                fallback={
-                  <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full border border-teal-400/20 bg-[#071426] text-sm text-slate-300">
-                    جاري تحميل زر البحث…
-                  </div>
-                }
-              >
-                <LazyGeoRadarButton
-                  onLocationDetected={handleLocationDetected}
-                  onLocationReset={() => setUserLocation(null)}
-                />
-              </Suspense>
+              <GeoRadarButton
+                onLocationDetected={handleLocationDetected}
+                onLocationReset={() => setUserLocation(null)}
+              />
               {userLocation && (
                 <div className="flex flex-col items-center gap-2.5">
                   <motion.button
