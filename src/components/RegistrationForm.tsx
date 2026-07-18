@@ -24,7 +24,9 @@ import {
 } from '@/lib/subscriptionRequestStorage';
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
 import {
+  BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR,
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
+  BARBER_DASHBOARD_GOLD_LINE,
   MAP_FEATURE_HERO,
   SHOP_OPEN_STATUS_FEATURE_BRONZE,
   SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND,
@@ -245,6 +247,8 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: 'واتساب وشات مباشر بجلسة خاصة لتقليل تردد العميل وتحويل الظهور إلى تواصل' },
       { kind: 'line', text: 'خدمات كبار السن وذوي الاحتياجات مع تحكم في السعر والظهور والملاحظات' },
       { kind: 'line', text: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
+      { kind: 'line', text: BARBER_DASHBOARD_GOLD_LINE },
+      { kind: 'line', text: BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR },
       { kind: 'line', text: OWNER_WATCH_FEATURE_GOLD_LINE },
     ],
   },
@@ -263,6 +267,7 @@ const SUBSCRIPTION_PLANS: {
       { kind: 'line', text: '📋 المساعد الداخلي: يستقبل تعليماتك ويمرّرها للمناوب — يتلقى تقارير ما يستقبله من الزبائن — يعرض رصيد حزمتك وروابط الدعم' },
       { kind: 'line', text: '🌙 المناوب على الشات: يرد بذكاء بـ7 لغات، يطبّق تعليماتك، ويرسل لك ملخص كل محادثة' },
       { kind: 'line', text: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
+      { kind: 'line', text: BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR },
       { kind: 'line', text: OWNER_WATCH_FEATURE_DIAMOND_LINE },
     ],
   },

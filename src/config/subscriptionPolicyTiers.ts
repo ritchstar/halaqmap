@@ -1,5 +1,6 @@
 import { SubscriptionTier } from '@/lib';
 import {
+  BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR,
   BARBER_DASHBOARD_DIAMOND_PORTAL_LINE,
   BARBER_DASHBOARD_GOLD_LINE,
   BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE,
@@ -67,6 +68,7 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
       { kind: 'text', value: 'إحصائيات تساعدك تفهم تفاعل العملاء وتعرف ما الذي يجذبهم' },
       { kind: 'text', value: SHOP_OPEN_STATUS_FEATURE_GOLD_DIAMOND },
       { kind: 'text', value: BARBER_DASHBOARD_GOLD_LINE },
+      { kind: 'text', value: BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR },
       { kind: 'text', value: OWNER_WATCH_FEATURE_GOLD_LINE },
       {
         kind: 'text',
@@ -99,6 +101,7 @@ export const SUBSCRIPTION_POLICY_TIERS: readonly SubscriptionPolicyTier[] = [
       { kind: 'text', value: 'جدول أسبوعي لأوقات العمل من لوحة التحكم (كل يوم على حدة)' },
       { kind: 'text', value: 'أولوية قصوى للصالونات التي تستهدف صدارة المنطقة لا مجرد حضور عادي' },
       { kind: 'text', value: BARBER_DASHBOARD_DIAMOND_PORTAL_LINE },
+      { kind: 'text', value: BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR },
       { kind: 'text', value: OWNER_WATCH_FEATURE_DIAMOND_LINE },
       { kind: 'text', value: BARBER_DIAMOND_APPOINTMENTS_FROM_DASHBOARD_LINE },
       { kind: 'text', value: 'شات خاص لكل عميل مع ترجمة ذكية فورية للطرفين وانتهاء تلقائي بعد 60 دقيقة' },

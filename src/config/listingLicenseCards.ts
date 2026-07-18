@@ -15,6 +15,7 @@ import {
   ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR,
 } from '@/config/onDemandVisibilityDoctrine';
 import { PARTNER_TIER_MARKETING_HOOKS_AR } from '@/config/partnerFieldSalesCopy';
+import { BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR } from '@/config/subscriptionPlanHero';
 
 export const LISTING_LICENSE_LEGAL_FOOTNOTE =
   `تنبيه نظامي: جميع الباقات المذكورة هي حزم رخصة نفاذ حلاق ماب الرقمية (نظام الاستجابة الذكية) — نشاط برمجي رقم 474151. ${ON_DEMAND_VISIBILITY_LEGAL_DEFINITION_AR} المنتجات مسبقة الدفع وغير قابلة للإلغاء بعد التفعيل، ولا تشمل أي عمولات أو وساطة حجز.`;
@@ -96,6 +97,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
       'تجهيز عريس (ماسي): إعلان + طلب تواصل عبر الشات — التنسيق مباشرة مع العميل',
       'متخصص أطفال (ماسي): بطاقة وبنر طفولي + فلتر «متخصص أطفال» + لوحة تحكم مخصصة — للصالونات المتخصصة بالأطفال',
       'لوحة كاملة للصور والمنيو والأسعار وأوقات العمل وحالة التوفر',
+      BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR,
       OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
       DIAMOND_ADDON_OPTION_LINE_AR,
     ],
@@ -119,6 +121,7 @@ export const LISTING_LICENSE_PRICING_CARDS: readonly ListingLicenseCardConfig[] 
       'QR تقييم رسمي: اجمع آراء الزبائن وابرز الأفضل لرفع الثقة',
       'واتساب وشات مباشر بجلسة خاصة 60 دقيقة لتسريع قرار العميل',
       'لوحة تحكم للصور والبنر والمنيو والأسعار وأوقات العمل دون انتظار أحد',
+      BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR,
       'زيارة منزلية: إعلان + طلب تواصل (واتساب/شات) — التنسيق مباشرة مع العميل',
       'حلاقة أطفال (ذهبي): إعلان «يستقبل أطفالاً» من لوحة الرسائل',
       'خدمات كبار السن وذوي الاحتياجات مع تحكم في السعر والظهور والملاحظات',
