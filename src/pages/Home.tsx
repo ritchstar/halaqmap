@@ -479,7 +479,11 @@ export default function Home() {
                       onClick={() => setSelectedBarber(showcaseFallback.barber)}
                       className="cursor-pointer rounded-2xl"
                     >
-                      <BarberCard barber={showcaseFallback.barber} userLocation={userLocation} />
+                      <BarberCard
+                        barber={showcaseFallback.barber}
+                        userLocation={userLocation}
+                        imagePriority
+                      />
                     </motion.div>
                   </div>
                 </div>
@@ -531,7 +535,11 @@ export default function Home() {
                       onClick={() => setSelectedBarber(barber)}
                       className="cursor-pointer"
                     >
-                      <BarberCard barber={barber} userLocation={userLocation} />
+                      <BarberCard
+                        barber={barber}
+                        userLocation={userLocation}
+                        imagePriority={index === 0}
+                      />
                     </motion.div>
                   ))}
                 </div>

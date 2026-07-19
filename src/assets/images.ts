@@ -3,7 +3,8 @@
 export const IMAGES = {
   BARBER_CHAIR_1: "https://images.unsplash.com/photo-1512690459411-b9245aed614b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHwxMHx8bW9kZXJuJTIwYmFyYmVyc2hvcCUyMGNoYWlyfGVufDB8MHx8fDE3NzU1ODM4MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
   BARBER_CHAIR_10: "https://images.unsplash.com/photo-1759134155377-4207d89b39ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjBiYXJiZXJzaG9wJTIwY2hhaXJ8ZW58MHwwfHx8MTc3NTU4MzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
-  BARBER_CHAIR_2: "https://images.unsplash.com/photo-1591036723467-4b9f9913de56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHw4fHxtb2Rlcm4lMjBiYXJiZXJzaG9wJTIwY2hhaXJ8ZW58MHwwfHx8MTc3NTU4MzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+  /** نفس أصل المنصة — تجنّب Unsplash في مسار LCP للبطاقة */
+  BARBER_CHAIR_2: "/images/platform-card-fallback.webp",
   BARBER_CHAIR_3: "https://images.unsplash.com/photo-1626653395376-1f6bae92125e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHw2fHxtb2Rlcm4lMjBiYXJiZXJzaG9wJTIwY2hhaXJ8ZW58MHwwfHx8MTc3NTU4MzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
   BARBER_CHAIR_4: "https://images.unsplash.com/photo-1635531955929-91958b3b33ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHw5fHxtb2Rlcm4lMjBiYXJiZXJzaG9wJTIwY2hhaXJ8ZW58MHwwfHx8MTc3NTU4MzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
   BARBER_CHAIR_5: "https://images.unsplash.com/photo-1611103740957-a4fbefdeb0f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHw3fHxtb2Rlcm4lMjBiYXJiZXJzaG9wJTIwY2hhaXJ8ZW58MHwwfHx8MTc3NTU4MzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
@@ -21,7 +22,8 @@ export const IMAGES = {
   BARBER_INTERIOR_7: "https://images.unsplash.com/photo-1759134248487-e8baaf31e33e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHwxfHxiYXJiZXIlMjBzaG9wJTIwaW50ZXJpb3IlMjBwcm9mZXNzaW9uYWx8ZW58MHwwfHx8MTc3NTYxNTc5NHww&ixlib=rb-4.1.0&q=80&w=1080",
   BARBER_INTERIOR_8: "https://images.unsplash.com/photo-1628852527238-dbfa36c9d6b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHwxMHx8YmFyYmVyJTIwc2hvcCUyMGludGVyaW9yJTIwcHJvZmVzc2lvbmFsfGVufDB8MHx8fDE3NzU2MTU3OTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
   BARBER_INTERIOR_9: "https://images.unsplash.com/photo-1771865600306-d4ef4c06ae16?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTk0NTh8MHwxfHNlYXJjaHwzfHxiYXJiZXIlMjBzaG9wJTIwaW50ZXJpb3IlMjBwcm9mZXNzaW9uYWx8ZW58MHwwfHx8MTc3NTYxNTc5NHww&ixlib=rb-4.1.0&q=80&w=1080",
-  BARBER_SHOP_1: "https://images.unsplash.com/photo-1591036723467-4b9f9913de56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDU2OTd8MHwxfHNlYXJjaHw5fHxwcm9mZXNzaW9uYWwlMjBiYXJiZXIlMjBzaG9wJTIwaW50ZXJpb3IlMjBtb2Rlcm58ZW58MHwwfHx8MTc3NTU4MzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+  /** احتياطي بطاقة الحلاق — WebP محلي (~38KB) بدل Unsplash البطيء */
+  BARBER_SHOP_1: "/images/platform-card-fallback.webp",
   BARBER_SHOP_10: "https://images.unsplash.com/photo-1628852527219-9a49ad752808?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDU2OTd8MHwxfHNlYXJjaHw4fHxwcm9mZXNzaW9uYWwlMjBiYXJiZXIlMjBzaG9wJTIwaW50ZXJpb3IlMjBtb2Rlcm58ZW58MHwwfHx8MTc3NTU4MzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
   BARBER_SHOP_2: "https://images.unsplash.com/photo-1635531955929-91958b3b33ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDU2OTd8MHwxfHNlYXJjaHwxMHx8cHJvZmVzc2lvbmFsJTIwYmFyYmVyJTIwc2hvcCUyMGludGVyaW9yJTIwbW9kZXJufGVufDB8MHx8fDE3NzU1ODM4MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
   BARBER_SHOP_3: "https://images.unsplash.com/photo-1600091106707-2b3315b6b90d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDU2OTd8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjBiYXJiZXIlMjBzaG9wJTIwaW50ZXJpb3IlMjBtb2Rlcm58ZW58MHwwfHx8MTc3NTU4MzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",

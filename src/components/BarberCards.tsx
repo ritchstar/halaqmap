@@ -42,6 +42,8 @@ import { PlatformDisplayImage } from '@/components/platform/PlatformDisplayImage
 interface BarberCardProps {
   barber: Barber;
   userLocation: { lat: number; lng: number };
+  /** أول بطاقة ظاهرة — رفع أولوية صورة البنر لـ LCP */
+  imagePriority?: boolean;
 }
 
 function PublicGalleryCountBadge({ barber }: { barber: Barber }) {
@@ -157,7 +159,7 @@ function InclusiveCareInline({ barber }: { barber: Barber }) {
   );
 }
 
-export function BarberCard({ barber, userLocation }: BarberCardProps) {
+export function BarberCard({ barber, userLocation, imagePriority = false }: BarberCardProps) {
   const distance = calculateDistance(
     userLocation.lat,
     userLocation.lng,
@@ -217,6 +219,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
                 src={barber.images[0]}
                 alt={barber.name}
                 variant="banner_card"
+                priority={imagePriority}
                 className={BARBER_CARD_HERO_IMAGE_CLASS}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
@@ -385,6 +388,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
               src={barber.images[0]}
               alt={barber.name}
               variant="banner_card"
+              priority={imagePriority}
               className={BARBER_CARD_HERO_IMAGE_CLASS}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
@@ -488,6 +492,7 @@ export function BarberCard({ barber, userLocation }: BarberCardProps) {
             src={barber.images[0]}
             alt={barber.name}
             variant="banner_card"
+            priority={imagePriority}
             className={BARBER_CARD_HERO_IMAGE_CLASS}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent" />

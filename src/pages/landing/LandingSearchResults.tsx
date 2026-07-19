@@ -74,7 +74,11 @@ export function LandingSearchResults({
               onClick={() => onSelectBarber(showcaseFallback.barber)}
               className="cursor-pointer"
             >
-              <BarberCard barber={showcaseFallback.barber} userLocation={userLocation} />
+              <BarberCard
+                barber={showcaseFallback.barber}
+                userLocation={userLocation}
+                imagePriority
+              />
             </motion.div>
           </div>
         </>
@@ -115,7 +119,11 @@ export function LandingSearchResults({
                     onClick={() => onSelectBarber(barber)}
                     className="cursor-pointer"
                   >
-                    <BarberCard barber={barber} userLocation={userLocation} />
+                    <BarberCard
+                      barber={barber}
+                      userLocation={userLocation}
+                      imagePriority={i === 0}
+                    />
                   </motion.div>
                 ))}
               </div>
