@@ -51,6 +51,24 @@ function mapRowsToUi(
   });
 }
 
+function isOptimisticMessageId(id: string): boolean {
+  return id.startsWith('temp-');
+}
+
+/** دمج نتائج السيرفر مع الرسائل المتفائلة التي لم تُؤكَّد بعد */
+function mergeServerMessagesWithOptimistic(
+  server: PrivateMessageRow[],
+  previous: PrivateMessageRow[],
+): PrivateMessageRow[] {
+  const optimistic = previous.filter((m) => isOptimisticMessageId(m.id));
+  const stillPending = optimistic.filter(
+    (o) => !server.some((s) => s.sender_id === o.sender_id && s.body === o.body),
+  );
+  return [...server, ...stillPending].sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  );
+}
+
 export function useCustomerBarberPrivateRealtimeChat(
   barberId: string | undefined,
   options: { enableDiamondTranslation: boolean; restartSignal?: number },
@@ -103,7 +121,7 @@ export function useCustomerBarberPrivateRealtimeChat(
       setStatus('expired_ui');
       return;
     }
-    setRawMessages(msgRes.messages);
+    setRawMessages((prev) => mergeServerMessagesWithOptimistic(msgRes.messages, prev));
     setStatus('ready');
   }, []);
 
@@ -190,7 +208,7 @@ export function useCustomerBarberPrivateRealtimeChat(
           setRemainingMs(0);
           return;
         }
-        setRawMessages(msgRes.messages);
+        setRawMessages((prev) => mergeServerMessagesWithOptimistic(msgRes.messages, prev));
       });
     }, POLL_MS.CUSTOMER_CHAT_MESSAGES);
 
@@ -261,27 +279,45 @@ export function useCustomerBarberPrivateRealtimeChat(
   const send = useCallback(
     async (body: string) => {
       const cid = convIdRef.current;
-      if (!cid) return { ok: false as const, error: 'لا توجد محادثة.' };
-      if (remainingMsFromExpiresAt(conversation?.expires_at ?? '') <= 0) {
+      const conv = conversationRef.current;
+      if (!cid || !conv) return { ok: false as const, error: 'لا توجد محادثة.' };
+      if (remainingMsFromExpiresAt(conv.expires_at ?? '') <= 0) {
         return { ok: false as const, error: 'انتهت الجلسة.' };
       }
-      const result = await sendCustomerPrivateMessageServer(cid, body);
+      const text = body.trim();
+      if (!text) return { ok: false as const, error: 'الرسالة فارغة.' };
+
+      const tempId = `temp-${crypto.randomUUID()}`;
+      const optimistic: PrivateMessageRow = {
+        id: tempId,
+        conversation_id: cid,
+        sender_id: conv.customer_id,
+        body: text,
+        created_at: new Date().toISOString(),
+        read_at: null,
+      };
+      setRawMessages((prev) =>
+        [...prev, optimistic].sort(
+          (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+        ),
+      );
+
+      const result = await sendCustomerPrivateMessageServer(cid, text);
       if (result.ok) {
         setRawMessages((prev) => {
-          if (prev.some((m) => m.id === result.message.id)) return prev;
-          return [...prev, result.message].sort(
+          const withoutTemp = prev.filter((m) => m.id !== tempId);
+          if (withoutTemp.some((m) => m.id === result.message.id)) return withoutTemp;
+          return [...withoutTemp, result.message].sort(
             (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
           );
         });
-        if (result.shiftReplied) {
-          await refreshConversationAndMessages(cid);
-        } else {
-          scheduleInterceptBurst(cid);
-        }
+        scheduleInterceptBurst(cid);
+      } else {
+        setRawMessages((prev) => prev.filter((m) => m.id !== tempId));
       }
       return result;
     },
-    [conversation?.expires_at, scheduleInterceptBurst, refreshConversationAndMessages],
+    [scheduleInterceptBurst],
   );
 
   const expiredUi = status === 'expired_ui';

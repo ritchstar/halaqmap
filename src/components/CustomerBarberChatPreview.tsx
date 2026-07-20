@@ -204,14 +204,16 @@ export function CustomerBarberChatPreview({
   async function sendLiveMessage() {
     const text = draft.trim();
     if (!text || live.expiredUi || live.remainingMs <= 0 || sendingLive) return;
+    /** تفريغ فوري — لا تبقى الكلمة في خانة الكتابة بعد الإرسال */
+    setDraft('');
     setSendingLive(true);
     try {
       const res = await live.send(text);
       if (!res.ok) {
         toast.error(res.error);
+        setDraft((prev) => (prev.trim() ? prev : text));
         return;
       }
-      setDraft('');
       if (isDiamond) {
         toast.success('تم الإرسال — المناوب قد يستغرق بضع ثوانٍ للرد إن كان مفعّلاً.');
       }
@@ -502,6 +504,8 @@ export function CustomerBarberChatPreview({
               onChange={(e) => setDraft(e.target.value)}
               placeholder="اكتب رسالتك…"
               className="min-w-0 flex-1 h-9 text-sm"
+              autoComplete="off"
+              enterKeyHint="send"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -517,7 +521,8 @@ export function CustomerBarberChatPreview({
                 if (liveMode) void sendLiveMessage();
                 else if (localPreviewOnly) sendLocalMessage();
               }}
-              disabled={!draft.trim() || (liveMode && (live.status === 'loading' || sendingLive))}
+              disabled={!draft.trim() || (liveMode && live.status === 'loading')}
+              aria-busy={sendingLive}
             >
               <Send className="w-4 h-4" />
             </Button>

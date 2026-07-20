@@ -144,7 +144,7 @@ export async function sendCustomerPrivateMessageServer(
 > {
   const res = await postJson<{
     message?: PrivateMessageRow;
-    shiftIntercept?: { replied?: boolean; reason?: string };
+    shiftIntercept?: { replied?: boolean; reason?: string; mode?: string };
   }>({
     action: 'send',
     guestClientId: getOrCreateGuestClientId(),

@@ -174,7 +174,13 @@ export function BarberCustomerPrivateChatPanel({
           void pollConversations(true);
           return;
         }
-        setMessages(res.messages);
+        setMessages((prev) => {
+          const optimistic = prev.filter((m) => m.id.startsWith('temp-'));
+          const stillPending = optimistic.filter(
+            (o) => !res.messages.some((s) => s.sender_id === o.sender_id && s.body === o.body),
+          );
+          return [...res.messages, ...stillPending];
+        });
         void barberMarkPrivateConversationReadRemote({
           barberId,
           email: barberEmail,
@@ -359,25 +365,50 @@ export function BarberCustomerPrivateChatPanel({
   }, [messages, isDiamond, selected, setMessageTranslationStatus]);
 
   const send = async () => {
-    if (!selectedId || !draft.trim() || msLeft <= 0) return;
+    if (!selectedId || !draft.trim() || msLeft <= 0 || sending) return;
+    const text = draft.trim();
+    const conversationId = selectedId;
+    const barberUid = selectedBarberUserId || selected?.barber_user_id?.trim() || 'self';
+    /** تفريغ فوري + ظهور الرسالة مباشرة دون انتظار إعادة التحميل */
+    setDraft('');
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const optimistic: BarberPrivateMessageRow = {
+      id: tempId,
+      conversation_id: conversationId,
+      sender_id: barberUid,
+      body: text,
+      created_at: new Date().toISOString(),
+      read_at: null,
+    };
+    setMessages((prev) => [...prev, optimistic]);
     setSending(true);
     try {
       const res = await barberSendPrivateMessageRemote({
         barberId,
         email: barberEmail,
-        conversationId: selectedId,
-        body: draft,
+        conversationId,
+        body: text,
       });
       if (!res.ok) {
         toast.error(res.error);
+        setDraft((prev) => (prev.trim() ? prev : text));
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
         return;
       }
-      setDraft('');
       setConversations((prev) =>
-        prev.map((c) => (c.id === selectedId ? { ...c, shift_manual_takeover: true } : c)),
+        prev.map((c) => (c.id === conversationId ? { ...c, shift_manual_takeover: true } : c)),
       );
-      await loadMessages(selectedId);
-      await pollConversations(true);
+      if (res.message) {
+        setMessages((prev) => {
+          const withoutTemp = prev.filter((m) => m.id !== tempId);
+          if (withoutTemp.some((m) => m.id === res.message!.id)) return withoutTemp;
+          return [...withoutTemp, res.message!];
+        });
+      } else {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        void loadMessages(conversationId);
+      }
+      void pollConversations(true);
     } finally {
       setSending(false);
     }
@@ -649,6 +680,8 @@ export function BarberCustomerPrivateChatPanel({
                 placeholder={msLeft > 0 ? 'اكتب ردك للعميل…' : 'انتهت الجلسة'}
                 value={draft}
                 disabled={msLeft <= 0}
+                autoComplete="off"
+                enterKeyHint="send"
                 onChange={(e) => setDraft(e.target.value)}
                 className={`flex-1 ${isWorkbench ? 'h-11 text-base font-medium' : ''}`}
                 onKeyDown={(e) => {
@@ -662,7 +695,8 @@ export function BarberCustomerPrivateChatPanel({
                 type="button"
                 size={isWorkbench ? 'default' : 'icon'}
                 className={isWorkbench ? 'h-11 px-4' : ''}
-                disabled={!draft.trim() || msLeft <= 0 || sending}
+                disabled={!draft.trim() || msLeft <= 0}
+                aria-busy={sending}
                 onClick={() => void send()}
               >
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

@@ -179,7 +179,10 @@ export async function barberSendPrivateMessageRemote(input: {
   email: string;
   conversationId: string;
   body: string;
-}): Promise<{ ok: true } | { ok: false; error: string }> {
+}): Promise<
+  | { ok: true; message: BarberPrivateMessageRow | null }
+  | { ok: false; error: string }
+> {
   const ep = endpoint();
   if (!ep) return { ok: false, error: 'مسار شات العملاء غير مضبوط.' };
   try {
@@ -194,9 +197,12 @@ export async function barberSendPrivateMessageRemote(input: {
         body: input.body.trim(),
       }),
     });
-    const json = (await res.json().catch(() => ({}))) as { error?: string };
+    const json = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      message?: BarberPrivateMessageRow;
+    };
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
-    return { ok: true };
+    return { ok: true, message: json.message ?? null };
   } catch {
     return { ok: false, error: 'تعذر الاتصال بالخادم.' };
   }

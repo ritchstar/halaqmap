@@ -11,7 +11,8 @@ import { scheduleDigitalShiftInterceptAfterSend } from './_lib/digitalShiftInter
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = {
-  maxDuration: 120,
+  /** الإرسال لا ينتظر المناوب الرقمي — يكفي مهلة الإدراج فقط */
+  maxDuration: 30,
 };
 
 const CORS_OPTS = {
@@ -134,12 +135,15 @@ export async function POST(request: Request): Promise<Response> {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
-    const shiftSchedule = await scheduleDigitalShiftInterceptAfterSend(supabase, conversationId);
+    /** لا نُعلّق ردّ الإرسال على المناوب/الذكاء — يُجدول في الخلفية لسرعة وصول الرسالة */
+    void scheduleDigitalShiftInterceptAfterSend(supabase, conversationId).catch((err) => {
+      console.error('[customer-private-chat] shift schedule after send failed', err);
+    });
     return Response.json(
       {
         ok: true,
         message: result.message,
-        shiftIntercept: shiftSchedule,
+        shiftIntercept: { mode: 'async', workerDispatched: true },
       },
       { headers },
     );
