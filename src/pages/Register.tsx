@@ -115,7 +115,7 @@ export default function Register() {
           </div>
         </motion.section>
 
-        {/* ── نموذج التسجيل + دعم واتساب بجانب مربع التعبئة ── */}
+        {/* ── نموذج التسجيل + شريط دعم واتساب أعلى المربع (بدون تضييق العرض) ── */}
         <motion.section
           initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5, delay:.1 }}
           className="mx-auto max-w-5xl"

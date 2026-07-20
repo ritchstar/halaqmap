@@ -31,8 +31,8 @@ function buildWhatsAppHref(context: PartnerFormWhatsAppContext): string {
 }
 
 /**
- * يغلّف مربع تعبئة الطلب/التجربة بدعم واتساب:
- * شريط أعلى النموذج على الجوال، بطاقة لاصقة بجانبه على الشاشات العريضة، وزر عائم أثناء التمرير.
+ * يغلّف مربع التعبئة بدعم واتساب دون تقليص عرض النموذج:
+ * شريط أفقي مضغوط أعلى النموذج + زر عائم على الجوال أثناء التمرير.
  */
 export function PartnerFormWhatsAppSupport({
   context,
@@ -44,89 +44,48 @@ export function PartnerFormWhatsAppSupport({
   const isDark = variant === 'dark';
 
   return (
-    <div className={cn('relative', className)}>
-      {/* شريط مختصر فوق النموذج — جوال/تابلت صغير */}
+    <div className={cn('relative w-full', className)}>
       <div
         className={cn(
-          'mb-3 flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5 lg:hidden',
+          'mb-3 flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5 sm:px-4',
           isDark
             ? 'border-emerald-400/20 bg-emerald-500/[0.07]'
             : 'border-emerald-300/60 bg-emerald-50',
         )}
+        aria-label="الدعم الفني عبر واتساب"
       >
         <div className="min-w-0 text-right">
           <p
             className={cn(
-              'text-xs font-bold',
+              'text-xs font-bold sm:text-sm',
               isDark ? 'text-emerald-200' : 'text-emerald-900',
             )}
           >
-            دعم فني واتساب
+            {TITLE[context]}
           </p>
-          <p className={cn('text-[0.65rem]', isDark ? 'text-slate-400' : 'text-slate-600')}>
-            لمساندتك إن لزم أثناء التعبئة
+          <p
+            className={cn(
+              'mt-0.5 text-[0.65rem] leading-snug sm:text-xs',
+              isDark ? 'text-slate-400' : 'text-slate-600',
+            )}
+          >
+            تحتاج مساعدة لإكمال الخطوات؟ راسل الدعم عبر واتساب.
           </p>
         </div>
         <a
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-2 text-[0.7rem] font-bold text-white"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-2 text-[0.7rem] font-bold text-white shadow-[0_6px_16px_rgba(37,211,102,0.28)] transition hover:bg-[#1ebe57] active:scale-[0.98] sm:px-3.5 sm:text-xs"
         >
-          <SiWhatsapp className="h-3.5 w-3.5" aria-hidden />
-          تواصل
+          <SiWhatsapp className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
+          دعم واتساب
         </a>
       </div>
 
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_13.5rem] lg:items-start lg:gap-4">
-        <div className="min-w-0">{children}</div>
+      <div className="min-w-0 w-full">{children}</div>
 
-        {/* بطاقة بجانب مربع التعبئة — سطح المكتب */}
-        <aside
-          className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
-          aria-label="الدعم الفني عبر واتساب"
-        >
-          <div
-            className={cn(
-              'rounded-2xl border p-4 shadow-lg',
-              isDark
-                ? 'border-emerald-400/25 bg-emerald-500/[0.08] text-slate-100'
-                : 'border-emerald-300/70 bg-emerald-50 text-slate-900 shadow-emerald-900/5',
-            )}
-          >
-            <div
-              className={cn(
-                'mb-3 flex h-10 w-10 items-center justify-center rounded-xl',
-                isDark ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-700',
-              )}
-            >
-              <SiWhatsapp className="h-5 w-5" aria-hidden />
-            </div>
-            <p className={cn('text-sm font-black', isDark ? 'text-white' : 'text-slate-900')}>
-              {TITLE[context]}
-            </p>
-            <p
-              className={cn(
-                'mt-1.5 text-[0.7rem] leading-relaxed',
-                isDark ? 'text-slate-400' : 'text-slate-600',
-              )}
-            >
-              هل احتجت مساعدة لإكمال الخطوات؟ راسل الدعم الفني عبر واتساب وسنساندك خطوة بخطوة.
-            </p>
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-3 py-2.5 text-xs font-bold text-white shadow-[0_8px_20px_rgba(37,211,102,0.28)] transition hover:bg-[#1ebe57] active:scale-[0.98]"
-            >
-              <SiWhatsapp className="h-4 w-4 shrink-0" aria-hidden />
-              دعم واتساب
-            </a>
-          </div>
-        </aside>
-      </div>
-
-      {/* زر عائم أثناء التمرير في النموذج الطويل */}
+      {/* زر عائم أثناء التمرير في النموذج الطويل — جوال/تابلت */}
       <a
         href={href}
         target="_blank"
