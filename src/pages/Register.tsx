@@ -3,20 +3,33 @@
  * تتبع هوية المنصة الداكنة لمسار تسجيل الشركاء
  */
 
+import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { RegistrationForm } from '@/components/RegistrationForm';
 import { RegistrationErrorBoundary } from '@/components/RegistrationErrorBoundary';
 import { ROUTE_PATHS } from '@/lib/index';
-import { Scissors, Shield, ChevronRight } from 'lucide-react';
+import { Scissors, Shield, ChevronRight, BookOpenCheck } from 'lucide-react';
 import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 import { PartnerFormWhatsAppSupport } from '@/components/partner/PartnerFormWhatsAppSupport';
 import { PARTNER_REGISTER_PAGE } from '@/lib/partnerMarketingCopy';
+import { PARTNER_REGISTRATION_GUIDE } from '@/config/partnerRegistrationGuideCopy';
 
 export default function Register() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const tierParam = params.get('tier'); // 'bronze' | 'gold' | 'diamond'
+  const scrollToForm = Boolean(
+    (location.state as { scrollToForm?: boolean } | null)?.scrollToForm,
+  );
+
+  useEffect(() => {
+    if (!scrollToForm) return;
+    const id = window.requestAnimationFrame(() => {
+      document.getElementById('register-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [scrollToForm]);
 
   return (
     <div
@@ -115,12 +128,31 @@ export default function Register() {
           </div>
         </motion.section>
 
-        {/* ── نموذج التسجيل + شريط دعم واتساب أعلى المربع (بدون تضييق العرض) ── */}
+        {/* ── نموذج التسجيل + شريط دعم واتساب + أيقونة تعليمات الاشتراك ── */}
         <motion.section
           initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:.5, delay:.1 }}
-          className="mx-auto max-w-5xl"
+          className="mx-auto max-w-5xl scroll-mt-24"
           id="register-form"
         >
+          <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-sky-400/20 bg-sky-500/[0.07] px-3 py-2.5 sm:px-4">
+            <div className="min-w-0 text-right">
+              <p className="text-xs font-bold text-sky-200 sm:text-sm">
+                {PARTNER_REGISTRATION_GUIDE.openGuideCta}
+              </p>
+              <p className="mt-0.5 text-[0.65rem] leading-snug text-slate-400 sm:text-xs">
+                {PARTNER_REGISTRATION_GUIDE.openGuideHint}
+              </p>
+            </div>
+            <Link
+              to={ROUTE_PATHS.REGISTER_GUIDE}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-sky-400/35 bg-sky-500/20 px-3 py-2 text-[0.7rem] font-bold text-sky-100 transition hover:bg-sky-500/30 active:scale-[0.98] sm:px-3.5 sm:text-xs"
+              title={PARTNER_REGISTRATION_GUIDE.openGuideCta}
+              aria-label={PARTNER_REGISTRATION_GUIDE.openGuideCta}
+            >
+              <BookOpenCheck className="h-4 w-4 shrink-0" aria-hidden />
+              الدليل
+            </Link>
+          </div>
           <PartnerFormWhatsAppSupport context="register" variant="dark">
             <RegistrationErrorBoundary>
               <RegistrationForm />

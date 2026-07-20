@@ -44,6 +44,7 @@ const UserPrivacyPolicy = lazy(() => import("@/pages/UserPrivacyPolicy"));
 const EphemeralProcessingGovernance = lazy(() => import("@/pages/EphemeralProcessingGovernance"));
 const PlatformReviews = lazy(() => import("@/pages/PlatformReviews"));
 const Register = lazy(() => import("@/pages/Register"));
+const PartnerRegistrationGuide = lazy(() => import("@/pages/PartnerRegistrationGuide"));
 const PartnerPrivacy = lazy(() => import("@/pages/PartnerPrivacy"));
 const SubscriptionPolicy = lazy(() => import("@/pages/SubscriptionPolicy"));
 const PartnerSupportChat = lazy(() => import("@/pages/PartnerSupportChat"));
@@ -286,6 +287,7 @@ export function App() {
           <Route path={ROUTE_PATHS.PARTNER_WHY} element={<PartnerLayout><LazyRoute><PartnerWhyPage /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_STORY} element={<PartnerLayout><LazyRoute><PartnerStoryPage /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><LazyRoute><Register /></LazyRoute></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER_GUIDE} element={<PartnerLayout><LazyRoute><PartnerRegistrationGuide /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<PartnerLayout><LazyRoute><RegisterSuccess /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><LazyRoute><ShopOpenStatus /></LazyRoute></PartnerLayout>} />
           <Route path={ROUTE_PATHS.SHOP_OPEN_ROTATE} element={<PartnerLayout><LazyRoute><ShopOpenStatusRotateRequest /></LazyRoute></PartnerLayout>} />

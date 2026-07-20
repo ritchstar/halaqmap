@@ -22,6 +22,11 @@ import {
   saPhoneToInternational,
   saveLastOrderConfirmation,
 } from '@/lib/subscriptionRequestStorage';
+import {
+  clearRegistrationFormDraft,
+  loadRegistrationFormDraft,
+  saveRegistrationFormDraft,
+} from '@/lib/registrationFormDraft';
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
 import {
   BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR,
@@ -295,27 +300,15 @@ function readFileAsDataURL(file: File): Promise<string> {
 
 const MAX_RECEIPT_STORAGE_BYTES = 600 * 1024;
 
-export function RegistrationForm() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const vatSettings = usePlatformVatConfigRemote();
-  const formTopRef = useRef<HTMLDivElement>(null);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [locationLoading, setLocationLoading] = useState(false);
-  const bannerPicker = useBarberBannerImagePicker();
-  const [shopImageProcessing, setShopImageProcessing] = useState(false);
-
-  // قراءة المعاملات من URL لضبط الحزمة المُختارة مسبقاً
-  const urlParams = new URLSearchParams(location.search);
-  const urlTier = urlParams.get('tier') as SubscriptionTier | null;
-  const urlQty = clampListingLicenseQuantity(urlParams.get('qty'));
-  const urlAddonSelected =
-    parseDigitalShiftAddonParam(urlParams.get('aiAddon')) || urlParams.get('addon')?.trim().toLowerCase() === 'office';
-  const [formData, setFormData] = useState<FormData>({
-    tier: (urlTier && Object.values(SubscriptionTier).includes(urlTier)) ? urlTier : '',
+function buildDefaultFormData(opts: {
+  urlTier: SubscriptionTier | null;
+  urlAddonSelected: boolean;
+}): FormData {
+  const { urlTier, urlAddonSelected } = opts;
+  return {
+    tier: urlTier && Object.values(SubscriptionTier).includes(urlTier) ? urlTier : '',
     plan: 'monthly',
-    digitalShiftAddon: (urlTier === SubscriptionTier.DIAMOND) && urlAddonSelected,
+    digitalShiftAddon: urlTier === SubscriptionTier.DIAMOND && urlAddonSelected,
     shopName: '',
     email: '',
     phone: '',
@@ -350,10 +343,128 @@ export function RegistrationForm() {
       method: 'monthly',
     },
     registrationTermsAccepted: false,
+  };
+}
+
+export function RegistrationForm() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const vatSettings = usePlatformVatConfigRemote();
+  const formTopRef = useRef<HTMLDivElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const bannerPicker = useBarberBannerImagePicker();
+  const [shopImageProcessing, setShopImageProcessing] = useState(false);
+  const skipStepScrollRef = useRef(true);
+
+  // قراءة المعاملات من URL لضبط الحزمة المُختارة مسبقاً
+  const urlParams = new URLSearchParams(location.search);
+  const urlTier = urlParams.get('tier') as SubscriptionTier | null;
+  const urlQty = clampListingLicenseQuantity(urlParams.get('qty'));
+  const urlAddonSelected =
+    parseDigitalShiftAddonParam(urlParams.get('aiAddon')) || urlParams.get('addon')?.trim().toLowerCase() === 'office';
+
+  const [currentStep, setCurrentStep] = useState(() => {
+    const draft = loadRegistrationFormDraft();
+    return draft?.data.currentStep ?? 1;
   });
+
+  const [formData, setFormData] = useState<FormData>(() => {
+    const draft = loadRegistrationFormDraft();
+    const defaults = buildDefaultFormData({ urlTier, urlAddonSelected });
+    if (!draft) return defaults;
+    const { data, images } = draft;
+    return {
+      ...defaults,
+      tier: data.tier || defaults.tier,
+      plan: 'monthly',
+      digitalShiftAddon: data.digitalShiftAddon,
+      shopName: data.shopName,
+      email: data.email,
+      phone: data.phone,
+      whatsapp: data.whatsapp,
+      taxNumber: data.taxNumber,
+      categories: data.categories,
+      specialtyTrack: data.specialtyTrack || 'general',
+      groomingCenterBannerLines:
+        data.groomingCenterBannerLines?.length
+          ? data.groomingCenterBannerLines
+          : defaults.groomingCenterBannerLines,
+      legalDisclaimerAccepted: data.legalDisclaimerAccepted,
+      professionalCommitmentAccepted: data.professionalCommitmentAccepted,
+      softwareProductAcknowledged: data.softwareProductAcknowledged,
+      location: {
+        lat: data.location?.lat ?? '',
+        lng: data.location?.lng ?? '',
+        address: data.location?.address ?? '',
+        saudi: {
+          regionId: data.location?.saudi?.regionId ?? '',
+          cityId: data.location?.saudi?.cityId ?? '',
+          districtId: data.location?.saudi?.districtId ?? '',
+          districtOther: data.location?.saudi?.districtOther ?? '',
+        },
+      },
+      images: {
+        shopExterior: images.shopExterior,
+        shopInterior: images.shopInterior,
+        bannerImages: images.bannerImages,
+      },
+      services: data.services?.length ? data.services : defaults.services,
+      inclusiveAccessibleCare: data.inclusiveAccessibleCare ?? defaults.inclusiveAccessibleCare,
+      workingWeek: data.workingWeek?.length ? data.workingWeek : defaults.workingWeek,
+      payment: { method: data.payment?.method || 'monthly' },
+      registrationTermsAccepted: data.registrationTermsAccepted,
+    };
+  });
+
+  /** حفظ المسودة عند التنقّل لصفحة التعليمات أو تحديث الصفحة */
+  const draftSnapshotRef = useRef({ formData, currentStep });
+  draftSnapshotRef.current = { formData, currentStep };
+
+  useEffect(() => {
+    const persist = () => {
+      const { formData: snap, currentStep: step } = draftSnapshotRef.current;
+      const { images, ...rest } = snap;
+      saveRegistrationFormDraft(
+        {
+          currentStep: step,
+          tier: rest.tier,
+          plan: rest.plan,
+          digitalShiftAddon: rest.digitalShiftAddon,
+          shopName: rest.shopName,
+          email: rest.email,
+          phone: rest.phone,
+          whatsapp: rest.whatsapp,
+          taxNumber: rest.taxNumber,
+          categories: rest.categories,
+          specialtyTrack: rest.specialtyTrack,
+          groomingCenterBannerLines: rest.groomingCenterBannerLines,
+          legalDisclaimerAccepted: rest.legalDisclaimerAccepted,
+          professionalCommitmentAccepted: rest.professionalCommitmentAccepted,
+          softwareProductAcknowledged: rest.softwareProductAcknowledged,
+          location: rest.location,
+          services: rest.services,
+          inclusiveAccessibleCare: rest.inclusiveAccessibleCare,
+          workingWeek: rest.workingWeek,
+          payment: rest.payment,
+          registrationTermsAccepted: rest.registrationTermsAccepted,
+        },
+        images,
+      );
+    };
+    const timer = window.setTimeout(persist, 250);
+    return () => {
+      window.clearTimeout(timer);
+      persist();
+    };
+  }, [formData, currentStep]);
 
   /** عند الانتقال بين خطوات التسجيل يُمرَّر العرض لأعلى النموذج (وليس للفوتر). */
   useEffect(() => {
+    if (skipStepScrollRef.current) {
+      skipStepScrollRef.current = false;
+      return;
+    }
     const id = window.requestAnimationFrame(() => {
       formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -963,6 +1074,7 @@ export function RegistrationForm() {
       });
 
       toast.success('✅ تم تقديم الطلب — يمكنك الآن الانتقال إلى الدفع لبدء مسار التفعيل.');
+      clearRegistrationFormDraft();
       await new Promise((r) => setTimeout(r, 600));
       navigate(ROUTE_PATHS.REGISTER_SUCCESS);
     } finally {

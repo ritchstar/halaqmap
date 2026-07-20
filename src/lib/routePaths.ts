@@ -17,6 +17,8 @@ export const ROUTE_PATHS = {
   /** مجتمع ماب — مساحة تواصل مهنية للشركاء */
   MAP_COMMUNITY: '/partners/community',
   REGISTER: '/partners/register',
+  /** تعليمات طريقة الاشتراك — دليل المتطلبات والإجراءات بجانب نموذج التسجيل */
+  REGISTER_GUIDE: '/partners/register/guide',
   /** تسجيل اهتمام مسبق (بريد + موافقة) — ما قبل الإطلاق الرسمي */
   PARTNER_INTEREST: '/partners/interest',
   /** طلب تجربة برونزي — طابور تقييم (ليس تسجيلاً رسمياً) */
