@@ -412,19 +412,6 @@ function TargetTab({
   const [streetLabel, setStreetLabel] = useState('');
   const [interiorLabels, setInteriorLabels] = useState<string[]>([]);
 
-  if (!fieldOk) {
-    return (
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-        <h1 className="text-2xl font-black text-white">طلب استهداف</h1>
-        <p className="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-5 text-sm leading-relaxed text-amber-100">
-          {state.profile.accountStatus === 'pending_review'
-            ? 'حسابك قيد المراجعة — لا يمكن فتح استهداف قبل قبول طلب الانضمام.'
-            : 'الحساب غير مفعّل للعمل الميداني.'}
-        </p>
-      </motion.div>
-    );
-  }
-
   const captureLocation = useCallback(() => {
     if (!navigator.geolocation) {
       toast.error('المتصفح لا يدعم تحديد الموقع.');
@@ -446,6 +433,19 @@ function TargetTab({
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
     );
   }, []);
+
+  if (!fieldOk) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+        <h1 className="text-2xl font-black text-white">طلب استهداف</h1>
+        <p className="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-5 text-sm leading-relaxed text-amber-100">
+          {state.profile.accountStatus === 'pending_review'
+            ? 'حسابك قيد المراجعة — لا يمكن فتح استهداف قبل قبول طلب الانضمام.'
+            : 'الحساب غير مفعّل للعمل الميداني.'}
+        </p>
+      </motion.div>
+    );
+  }
 
   const onStreetFile = (file: File | null) => {
     setStreetLabel(file?.name ?? '');

@@ -11,8 +11,8 @@ import { scheduleDigitalShiftInterceptAfterSend } from './_lib/digitalShiftInter
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = {
-  /** الإرسال لا ينتظر المناوب الرقمي — يكفي مهلة الإدراج فقط */
-  maxDuration: 30,
+  /** متوافق مع vercel.json (60) — الإرسال نفسه لا ينتظر المناوب */
+  maxDuration: 60,
 };
 
 const CORS_OPTS = {

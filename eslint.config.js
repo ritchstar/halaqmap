@@ -5,7 +5,17 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "api/**"] },
+  {
+    ignores: [
+      "dist",
+      "api/**",
+      "halaqmap_partners/**",
+      "halaqmap7/**",
+      "nazamsafir/**",
+      "moyasar/**",
+      "docs/export/**",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

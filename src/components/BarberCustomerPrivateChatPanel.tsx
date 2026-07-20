@@ -398,11 +398,12 @@ export function BarberCustomerPrivateChatPanel({
       setConversations((prev) =>
         prev.map((c) => (c.id === conversationId ? { ...c, shift_manual_takeover: true } : c)),
       );
-      if (res.message) {
+      const confirmed = res.message;
+      if (confirmed) {
         setMessages((prev) => {
           const withoutTemp = prev.filter((m) => m.id !== tempId);
-          if (withoutTemp.some((m) => m.id === res.message!.id)) return withoutTemp;
-          return [...withoutTemp, res.message!];
+          if (withoutTemp.some((m) => m.id === confirmed.id)) return withoutTemp;
+          return [...withoutTemp, confirmed];
         });
       } else {
         setMessages((prev) => prev.filter((m) => m.id !== tempId));
