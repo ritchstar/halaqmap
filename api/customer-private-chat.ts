@@ -7,12 +7,11 @@ import {
   sendCustomerPrivateMessage,
   startCustomerPrivateConversation,
 } from './_lib/customerPrivateChatService.js';
-import { dispatchDigitalShiftInterceptWorker } from './_lib/digitalShiftInterceptDispatch.js';
+import { scheduleDigitalShiftInterceptAfterSend } from './_lib/digitalShiftInterceptService.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = {
-  /** مسار الإرسال فقط — اعتراض المناوب على customer-digital-shift-intercept */
-  maxDuration: 25,
+  maxDuration: 120,
 };
 
 const CORS_OPTS = {
@@ -135,13 +134,12 @@ export async function POST(request: Request): Promise<Response> {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
-    /** Worker فقط — بدون سحب حزمة المناوب الثقيلة في مسار الإرسال */
-    const workerDispatched = dispatchDigitalShiftInterceptWorker(conversationId);
+    const shiftSchedule = await scheduleDigitalShiftInterceptAfterSend(supabase, conversationId);
     return Response.json(
       {
         ok: true,
         message: result.message,
-        shiftIntercept: { mode: 'async', workerDispatched },
+        shiftIntercept: shiftSchedule,
       },
       { headers },
     );

@@ -21,9 +21,6 @@ import {
 import { recordFleetDemandSignal } from './fleetDemandSignals.js';
 import { ensureDigitalShiftAddonFromPaidOrders } from './listingLicenseService.js';
 import { resolveReplyDelaySeconds } from './digitalShiftReplyDelay.js';
-import { dispatchDigitalShiftInterceptWorker } from './digitalShiftInterceptDispatch.js';
-
-export { dispatchDigitalShiftInterceptWorker };
 
 export type DigitalShiftInterceptResult =
   | {
@@ -227,6 +224,57 @@ async function revalidateInterceptInFlight(
   if ((shiftReplies ?? 0) > 0) return { ok: false, reason: 'shift_already_replied_race' };
 
   return { ok: true };
+}
+
+/** يُطلق اعتراضاً كاملاً في invocation منفصل — لا يُعطّل إرسال رسالة العميل. */
+function resolveShiftWorkerBaseUrl(): string {
+  const candidates = [
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL || '').trim(),
+    (process.env.VITE_SITE_ORIGIN || '').trim(),
+    (process.env.SITE_ORIGIN || '').trim(),
+    (process.env.VERCEL_URL || '').trim(),
+  ];
+  for (const raw of candidates) {
+    if (!raw) continue;
+    const host = raw.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    if (host) return `https://${host}`;
+  }
+  return '';
+}
+
+export function dispatchDigitalShiftInterceptWorker(conversationId: string): boolean {
+  const id = conversationId.trim();
+  if (!id) return false;
+
+  const base = resolveShiftWorkerBaseUrl();
+  const secret = (process.env.CRON_SECRET || '').trim();
+
+  if (!base || !secret) {
+    console.warn('[shift] intercept worker dispatch skipped — missing base URL or CRON_SECRET', {
+      hasBase: Boolean(base),
+      hasSecret: Boolean(secret),
+    });
+    return false;
+  }
+
+  void fetch(`${base}/api/customer-digital-shift-intercept`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${secret}`,
+    },
+    body: JSON.stringify({ conversationId: id, worker: true }),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        console.error('[shift] intercept worker HTTP error', res.status, body.slice(0, 200));
+      }
+    })
+    .catch((err) => {
+      console.error('[shift] intercept worker dispatch failed', err);
+    });
+  return true;
 }
 
 async function markShiftWalletEmpty(
