@@ -7,12 +7,12 @@ import {
   sendCustomerPrivateMessage,
   startCustomerPrivateConversation,
 } from './_lib/customerPrivateChatService.js';
-import { scheduleDigitalShiftInterceptAfterSend } from './_lib/digitalShiftInterceptService.js';
+import { dispatchDigitalShiftInterceptWorker } from './_lib/digitalShiftInterceptDispatch.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
 export const config = {
-  /** متوافق مع vercel.json (60) — الإرسال نفسه لا ينتظر المناوب */
-  maxDuration: 60,
+  /** مسار الإرسال فقط — اعتراض المناوب على customer-digital-shift-intercept */
+  maxDuration: 25,
 };
 
 const CORS_OPTS = {
@@ -135,15 +135,13 @@ export async function POST(request: Request): Promise<Response> {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
-    /** لا نُعلّق ردّ الإرسال على المناوب/الذكاء — يُجدول في الخلفية لسرعة وصول الرسالة */
-    void scheduleDigitalShiftInterceptAfterSend(supabase, conversationId).catch((err) => {
-      console.error('[customer-private-chat] shift schedule after send failed', err);
-    });
+    /** Worker فقط — بدون سحب حزمة المناوب الثقيلة في مسار الإرسال */
+    const workerDispatched = dispatchDigitalShiftInterceptWorker(conversationId);
     return Response.json(
       {
         ok: true,
         message: result.message,
-        shiftIntercept: { mode: 'async', workerDispatched: true },
+        shiftIntercept: { mode: 'async', workerDispatched },
       },
       { headers },
     );
