@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib/index';
 import { buildAbsolutePartnerPaymentUrl } from '@/config/siteOrigin';
 import { paymentActivateNowCtaAr } from '@/config/softwareLicenseTerminology';
@@ -17,6 +19,7 @@ import {
 import { sendRegistrationPaymentSummaryRemote } from '@/lib/sendRegistrationPaymentSummaryRemote';
 import { PlatformGrowthProgramsPanel } from '@/components/partner/PlatformGrowthProgramsPanel';
 import { PLATFORM_GROWTH_REGISTER_SUCCESS_NOTE_AR } from '@/config/platformGrowthPrograms';
+import { redeemBronzeTrialRemote, bronzeTrialErrorMessageAr } from '@/lib/bronzeTrialRedeemRemote';
 
 const tierLabel: Record<SubscriptionTier, string> = {
   [SubscriptionTier.BRONZE]: 'برونزي',
@@ -28,6 +31,14 @@ export default function RegisterSuccess() {
   const navigate = useNavigate();
   const [data, setData] = useState<RegisterOrderConfirmation | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [trialCode, setTrialCode] = useState('');
+  const [trialEmail, setTrialEmail] = useState('');
+  const [trialLoading, setTrialLoading] = useState(false);
+  const [trialSuccess, setTrialSuccess] = useState<{
+    barberId: string;
+    validUntil: string;
+    messageAr: string;
+  } | null>(null);
 
   useEffect(() => {
     const o = loadLastOrderConfirmation();
@@ -36,7 +47,34 @@ export default function RegisterSuccess() {
       return;
     }
     setData(o);
+    setTrialEmail(String(o.email ?? '').trim());
   }, [navigate]);
+
+  const redeemTrialOnSuccessPage = useCallback(async () => {
+    if (!data) return;
+    const code = trialCode.trim();
+    if (!code) {
+      toast.error('أدخل رمز التجربة الذي وصلك بالبريد');
+      return;
+    }
+    setTrialLoading(true);
+    const res = await redeemBronzeTrialRemote({
+      code,
+      requestId: data.orderId,
+      email: trialEmail.trim() || data.email,
+    });
+    setTrialLoading(false);
+    if (!res.ok) {
+      toast.error(bronzeTrialErrorMessageAr(res.error));
+      return;
+    }
+    setTrialSuccess({
+      barberId: res.barberId,
+      validUntil: res.validUntil,
+      messageAr: res.messageAr,
+    });
+    toast.success(res.messageAr);
+  }, [data, trialCode, trialEmail]);
 
   const paymentTo = useMemo(() => {
     if (!data) return ROUTE_PATHS.PAYMENT;
@@ -201,19 +239,89 @@ export default function RegisterSuccess() {
               )}
             </div>
 
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
-              <p className="font-semibold text-foreground mb-1">إتمام الدفع وتفعيل حزمة رخصة النفاذ الرقمية</p>
-              <p className="text-muted-foreground mb-3">
-                إن لم تُكمل الدفع بعد، انتقل إلى صفحة الدفع برقم طلبك والباقة التي اخترتها — لن تحتاج لإعادة إدخال
-                بياناتك. يُمرَّر رقم الطلب تلقائياً إلى ميسر مع الدفع لربط العملية بطلبك في النظام.
-              </p>
-              <Button className="w-full gap-2 font-semibold" asChild>
-                <Link to={paymentTo}>
-                  <CreditCard className="w-4 h-4" />
-                  {paymentActivateNowCtaAr()}
-                </Link>
-              </Button>
-            </div>
+            {data.tier === SubscriptionTier.BRONZE && !trialSuccess ? (
+              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm leading-relaxed text-right space-y-3">
+                <div>
+                  <p className="font-semibold text-foreground mb-1">لديك كود تجربة برونزي؟</p>
+                  <p className="text-muted-foreground">
+                    إن وصلك بالبريد رمز يبدأ بـ <span dir="ltr" className="font-mono">HM-TRY-</span> أدخله هنا
+                    للتفعيل دون دفع. مسار ميسر أدناه يبقى متاحاً إن لم يكن لديك رمز.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-success-trial-code">رمز التجربة</Label>
+                  <Input
+                    id="register-success-trial-code"
+                    value={trialCode}
+                    onChange={(e) => setTrialCode(e.target.value)}
+                    placeholder="HM-TRY-XXXX-XXXX-XXXX"
+                    dir="ltr"
+                    className="font-mono"
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-success-trial-email">البريد المسجّل عليه الكود</Label>
+                  <Input
+                    id="register-success-trial-email"
+                    type="email"
+                    value={trialEmail}
+                    onChange={(e) => setTrialEmail(e.target.value)}
+                    placeholder="نفس بريد طلب التجربة والتسجيل"
+                    dir="ltr"
+                    autoComplete="email"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full gap-2 font-semibold"
+                  disabled={trialLoading || !trialCode.trim()}
+                  onClick={() => void redeemTrialOnSuccessPage()}
+                >
+                  {trialLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      جاري التفعيل…
+                    </>
+                  ) : (
+                    'تفعيل التجربة المجانية'
+                  )}
+                </Button>
+              </div>
+            ) : null}
+
+            {trialSuccess ? (
+              <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm leading-relaxed text-right space-y-3">
+                <p className="font-semibold text-emerald-700 dark:text-emerald-300">{trialSuccess.messageAr}</p>
+                <p className="text-muted-foreground">
+                  صالح حتى:{' '}
+                  <span dir="ltr" className="font-mono">
+                    {trialSuccess.validUntil}
+                  </span>
+                </p>
+                <Button className="w-full gap-2 font-semibold" asChild>
+                  <Link to={ROUTE_PATHS.BARBER_LOGIN} onClick={() => clearLastOrderConfirmation()}>
+                    الدخول للوحة الشريك
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-right">
+                <p className="font-semibold text-foreground mb-1">إتمام الدفع وتفعيل حزمة رخصة النفاذ الرقمية</p>
+                <p className="text-muted-foreground mb-3">
+                  {data.tier === SubscriptionTier.BRONZE
+                    ? 'إن لم يكن لديك كود تجربة، انتقل إلى صفحة الدفع برقم طلبك — لن تحتاج لإعادة إدخال بياناتك. يُمرَّر رقم الطلب تلقائياً إلى ميسر لربط العملية بطلبك.'
+                    : 'إن لم تُكمل الدفع بعد، انتقل إلى صفحة الدفع برقم طلبك والباقة التي اخترتها — لن تحتاج لإعادة إدخال بياناتك. يُمرَّر رقم الطلب تلقائياً إلى ميسر مع الدفع لربط العملية بطلبك في النظام.'}
+                </p>
+                <Button className="w-full gap-2 font-semibold" asChild>
+                  <Link to={paymentTo}>
+                    <CreditCard className="w-4 h-4" />
+                    {paymentActivateNowCtaAr()}
+                  </Link>
+                </Button>
+              </div>
+            )}
 
             <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground break-all" dir="ltr">
               {absolutePaymentUrl}

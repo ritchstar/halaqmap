@@ -402,7 +402,6 @@ async function sendTrialCodeEmail(input: {
   code: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const registerUrl = `${siteBase()}/#/partners/register`;
-  const paymentHint = `${siteBase()}/#/partners/payment?tier=bronze`;
   const subject = 'حلاق ماب | كود تفعيل تجربة برونزي 30 يوماً';
   const text = [
     `مرحباً،`,
@@ -412,9 +411,8 @@ async function sendTrialCodeEmail(input: {
     ``,
     `الخطوات:`,
     `1) أكمل التسجيل الرسمي بنفس هذا البريد من: ${registerUrl}`,
-    `2) اختر الباقة البرونزية وأكمل الطلب حتى صفحة الدفع.`,
-    `3) أدخل كود التجربة في الخانة المخصصة (بدون دفع ميسر).`,
-    `صفحة الدفع: ${paymentHint}`,
+    `2) بعد تسجيل الطلب ستظهر صفحة «خطوة الدفع والتفعيل».`,
+    `3) أدخل كود التجربة في خانة «رمز تجربة برونزي» على تلك الصفحة (أو في صفحة الدفع التالية) — بدون دفع ميسر.`,
     ``,
     `مهم: يجب أن يكون بريد التسجيل مطابقاً لهذا البريد وإلا يُرفض الكود.`,
     `— حلاق ماب`,
@@ -425,8 +423,8 @@ async function sendTrialCodeEmail(input: {
 <p style="font-size:18px"><strong>كود التفعيل (لمرة واحدة):</strong> <code dir="ltr">${input.code}</code></p>
 <ol>
 <li>أكمل <a href="${registerUrl}">التسجيل الرسمي</a> بنفس هذا البريد.</li>
-<li>اختر الباقة البرونزية حتى صفحة الدفع.</li>
-<li>أدخل كود التجربة في الخانة المخصصة (بدون دفع ميسر).</li>
+<li>بعد تسجيل الطلب ستظهر صفحة <strong>خطوة الدفع والتفعيل</strong>.</li>
+<li>أدخل كود التجربة في خانة <strong>رمز تجربة برونزي</strong> على تلك الصفحة (أو في صفحة الدفع التالية) — بدون دفع ميسر.</li>
 </ol>
 <p>مهم: بريد التسجيل يجب أن يطابق هذا البريد وإلا يُرفض الكود.</p>
 <p>— حلاق ماب</p>

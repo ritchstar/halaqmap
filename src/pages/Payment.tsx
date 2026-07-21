@@ -258,11 +258,9 @@ export default function Payment() {
     messageAr: string;
   } | null>(null);
 
+  // إظهار الخانة دائماً للبرونزي؛ الاسترداد نفسه يبقى مشروطاً برقم طلب صالح.
   const showBronzeTrialField =
-    !isWalletTopup &&
-    tier === SubscriptionTier.BRONZE &&
-    !bronzeTrialSuccess &&
-    (purchasePurpose === 'new' ? registrationRequestReady : Boolean(linkedBarberId || registrationRequestReady));
+    !isWalletTopup && tier === SubscriptionTier.BRONZE && !bronzeTrialSuccess;
 
   const moyasarPublishableKey = useMemo(() => {
     // Production key source (frontend env):
@@ -1391,6 +1389,22 @@ export default function Payment() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
+                    {purchasePurpose === 'new' && !registrationRequestReady ? (
+                      <Alert className="border-amber-500/40 bg-amber-500/10">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription className="text-sm leading-relaxed">
+                          لتفعيل الكود يلزم رقم طلب تسجيل صالح. ارجع إلى صفحة نجاح التسجيل واضغط «تفعيل الآن»
+                          حتى يُمرَّر رقم الطلب تلقائياً، أو أكمل{' '}
+                          <Link
+                            to={ROUTE_PATHS.REGISTER}
+                            className="font-semibold text-primary underline-offset-2 hover:underline"
+                          >
+                            نموذج التسجيل
+                          </Link>
+                          .
+                        </AlertDescription>
+                      </Alert>
+                    ) : null}
                     <div className="space-y-2">
                       <Label htmlFor="bronze-trial-code">رمز التجربة</Label>
                       <Input
@@ -1418,7 +1432,11 @@ export default function Payment() {
                     <Button
                       type="button"
                       variant="secondary"
-                      disabled={bronzeTrialLoading || !bronzeTrialCode.trim()}
+                      disabled={
+                        bronzeTrialLoading ||
+                        !bronzeTrialCode.trim() ||
+                        (purchasePurpose === 'new' && !registrationRequestReady)
+                      }
                       onClick={() => void redeemBronzeTrial()}
                     >
                       {bronzeTrialLoading ? (
