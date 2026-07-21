@@ -5,6 +5,7 @@ import { resolveBarberPortalBookingActor } from './_lib/barberPortalBookingAuth.
 import {
   assertBarberPortalDiamondScheduling,
   createDiamondAppointmentRequest,
+  deleteClosedBarberBooking,
   listBarberBookings,
   updateBarberBookingStatus,
 } from './_lib/diamondAppointmentBookingService.js';
@@ -135,6 +136,18 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: result.error }, { status: result.status, headers });
     }
     return Response.json({ ok: true, booking: result.booking }, { headers });
+  }
+
+  if (action === 'delete_closed') {
+    const bookingId = String((body as { bookingId?: unknown }).bookingId ?? '').trim();
+    const result = await deleteClosedBarberBooking(supabase, {
+      barberId: actor.barberId,
+      bookingId,
+    });
+    if (!result.ok) {
+      return Response.json({ error: result.error }, { status: result.status, headers });
+    }
+    return Response.json({ ok: true }, { headers });
   }
 
   return Response.json({ error: 'Unknown action' }, { status: 400, headers });

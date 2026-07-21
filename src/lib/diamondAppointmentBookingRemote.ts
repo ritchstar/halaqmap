@@ -78,6 +78,15 @@ function normalizeErrorMessage(message: string): string {
   if (m.includes('جدولة المواعيد متاحة') || m.includes('diamond appointment scheduling')) {
     return 'جدولة المواعيد متاحة لباقة ماسي فقط.';
   }
+  if (m.includes('booking is closed')) {
+    return 'هذا الموعد مغلق مسبقاً. استخدم «إزالة من القائمة» لمسحه.';
+  }
+  if (m.includes('only closed bookings can be deleted')) {
+    return 'لا يمكن حذف موعد نشط. ألغِ الحجز أولاً ثم أزِله من القائمة.';
+  }
+  if (m.includes('booking not found')) {
+    return 'لم يُعثر على هذا الموعد. حدّث الحجوزات ثم أعد المحاولة.';
+  }
   return message;
 }
 
@@ -193,4 +202,31 @@ export async function updateBarberBookingStatusRemote(
   if (!res.ok) return { ok: false, error: res.error };
   if (!res.json.booking) return { ok: false, error: 'تعذّر تحديث حالة الحجز.' };
   return { ok: true, item: mapRemoteBookingToScheduleItem(res.json.booking) };
+}
+
+export async function deleteClosedBarberBookingRemote(
+  bookingId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const creds = barberPortalCredentials();
+  if (!creds) {
+    return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول ثم حدّث الحجوزات.' };
+  }
+  const res = await postJson<{ ok?: boolean }>(
+    {
+      action: 'delete_closed',
+      barberId: creds.barberId,
+      email: creds.email,
+      bookingId: bookingId.trim(),
+    },
+    'barber',
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true };
+}
+
+/** مواعيد تحتاج إجراء الحلاق في صندوق الوارد. */
+export function isActiveInboxBookingStatus(
+  status: BarberDashboardScheduleItem['status'],
+): boolean {
+  return status === 'pending' || status === 'confirmed';
 }

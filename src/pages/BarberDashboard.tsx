@@ -175,6 +175,8 @@ import {
   type ListingLicenseBalance,
 } from '@/lib/listingLicenseRemote';
 import {
+  deleteClosedBarberBookingRemote,
+  isActiveInboxBookingStatus,
   listBarberBookingsRemote,
   updateBarberBookingStatusRemote,
 } from '@/lib/diamondAppointmentBookingRemote';
@@ -647,7 +649,8 @@ export default function BarberDashboard({
 
   const refreshRemoteBookings = useCallback(
     async (options?: { silent?: boolean }) => {
-      if (founderPreview || !barberId || !isSupabaseConfigured()) return;
+      // مسار الحجوزات عبر HTTP API — لا يعتمد على عميل Supabase في المتصفح.
+      if (founderPreview || !barberId) return;
       if (!appointmentsDiamondTier) {
         setRemoteBookings([]);
         setRemoteBookingsError(null);
@@ -659,11 +662,12 @@ export default function BarberDashboard({
       if (res.ok) {
         setRemoteBookings(res.items);
         setRemoteBookingsError(null);
+        void pendingAppointments.refresh();
       } else {
         setRemoteBookingsError(res.error);
       }
     },
-    [barberId, founderPreview, appointmentsDiamondTier],
+    [barberId, founderPreview, appointmentsDiamondTier, pendingAppointments.refresh],
   );
 
   useEffect(() => {
@@ -696,6 +700,28 @@ export default function BarberDashboard({
     return merged.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   }, [remoteBookings, scheduleItems]);
 
+  const activeInboxItems = useMemo(() => {
+    const active = mergedScheduleItems.filter(
+      (row) => row.kind === 'availability_slot' || isActiveInboxBookingStatus(row.status),
+    );
+    // الطلبات بانتظار التأكيد أولاً حتى لا تُدفَن تحت الحجوزات القديمة.
+    return active.sort((a, b) => {
+      const rank = (row: BarberDashboardScheduleItem) =>
+        row.kind === 'customer_booking' && row.status === 'pending' ? 0 : 1;
+      const byStatus = rank(a) - rank(b);
+      if (byStatus !== 0) return byStatus;
+      return (b.date + b.time).localeCompare(a.date + a.time);
+    });
+  }, [mergedScheduleItems]);
+
+  const closedInboxItems = useMemo(
+    () =>
+      mergedScheduleItems.filter(
+        (row) => row.kind === 'customer_booking' && !isActiveInboxBookingStatus(row.status),
+      ),
+    [mergedScheduleItems],
+  );
+
   const persistSchedule = useCallback(
     (next: BarberDashboardScheduleItem[]) => {
       if (!barberId) return;
@@ -714,15 +740,28 @@ export default function BarberDashboard({
         return;
       }
       setRemoteBookings((prev) =>
-        prev.map((row) => (row.id === bookingId ? res.item : row)).filter((row) => row.status !== 'cancelled'),
+        prev.map((row) => (row.id === bookingId ? res.item : row)),
       );
       if (status === 'confirmed') toast.success('تم تأكيد الحجز');
       else if (status === 'cancelled') toast.message('تم إلغاء الحجز');
       else toast.success('تم إكمال الحجز');
-      void refreshRemoteBookings();
-      void pendingAppointments.refresh();
+      void refreshRemoteBookings({ silent: true });
     },
-    [refreshRemoteBookings, pendingAppointments.refresh],
+    [refreshRemoteBookings],
+  );
+
+  const handleDeleteClosedBooking = useCallback(
+    async (bookingId: string) => {
+      const res = await deleteClosedBarberBookingRemote(bookingId);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      setRemoteBookings((prev) => prev.filter((row) => row.id !== bookingId));
+      toast.message('تمت إزالة الموعد من القائمة');
+      void refreshRemoteBookings({ silent: true });
+    },
+    [refreshRemoteBookings],
   );
 
   const persistPosts = useCallback(
@@ -778,9 +817,9 @@ export default function BarberDashboard({
   );
 
   const upcomingPreview = useMemo(() => {
-    const sorted = [...mergedScheduleItems].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    const sorted = [...activeInboxItems].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
     return sorted.slice(0, 5);
-  }, [mergedScheduleItems]);
+  }, [activeInboxItems]);
 
   const salonDisplayName = useMemo(
     () => (barberData ? partnerSalonDisplayName(barberData) : ''),
@@ -1358,11 +1397,13 @@ export default function BarberDashboard({
           <TabsContent value="appointments" className="space-y-6">
             <AppointmentsSection
               barberId={barberData.id}
-              items={mergedScheduleItems}
+              items={activeInboxItems}
+              closedItems={closedInboxItems}
               loading={remoteBookingsLoading}
               loadError={remoteBookingsError}
               onChange={persistSchedule}
               onBookingStatusChange={handleBookingStatusChange}
+              onDeleteClosedBooking={handleDeleteClosedBooking}
               onRefresh={() => void refreshRemoteBookings()}
             />
           </TabsContent>
@@ -1905,18 +1946,22 @@ function ScheduleRow({ item, compact }: { item: BarberDashboardScheduleItem; com
 function AppointmentsSection({
   barberId,
   items,
+  closedItems = [],
   loading,
   loadError,
   onChange,
   onBookingStatusChange,
+  onDeleteClosedBooking,
   onRefresh,
 }: {
   barberId: string;
   items: BarberDashboardScheduleItem[];
+  closedItems?: BarberDashboardScheduleItem[];
   loading?: boolean;
   loadError?: string | null;
   onChange: (next: BarberDashboardScheduleItem[]) => void;
   onBookingStatusChange?: (bookingId: string, status: 'confirmed' | 'cancelled' | 'completed') => Promise<void>;
+  onDeleteClosedBooking?: (bookingId: string) => Promise<void>;
   onRefresh?: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -1955,7 +2000,7 @@ function AppointmentsSection({
     onChange(items.map((r) => (r.id === id ? { ...r, visibleOnProfile: checked } : r)));
   };
 
-  const remove = (id: string) => {
+  const removeActive = (id: string) => {
     const row = items.find((r) => r.id === id);
     if (!row) return;
     if (row.kind === 'customer_booking') {
@@ -1965,6 +2010,11 @@ function AppointmentsSection({
     }
     onChange(items.filter((r) => r.id !== id));
     toast.message('تم الحذف');
+  };
+
+  const removeClosed = (id: string) => {
+    if (!onDeleteClosedBooking) return;
+    void onDeleteClosedBooking(id);
   };
 
   const confirmBooking = (id: string) => {
@@ -2014,7 +2064,7 @@ function AppointmentsSection({
       <Card>
         <CardContent className="space-y-4 p-6">
           {items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لا توجد مواعيد أو أوقات بعد.</p>
+            <p className="text-sm text-muted-foreground">لا توجد مواعيد نشطة أو أوقات بعد.</p>
           ) : (
             items.map((row) => (
               <div key={row.id} className="space-y-3 rounded-lg border border-border p-4">
@@ -2046,9 +2096,15 @@ function AppointmentsSection({
                       <span className="text-xs text-muted-foreground">حجز عميل من المنصة</span>
                     </div>
                   )}
-                  <Button type="button" size="sm" variant="outline" className="gap-1 text-destructive" onClick={() => remove(row.id)}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 text-destructive"
+                    onClick={() => removeActive(row.id)}
+                  >
                     <Trash2 className="h-4 w-4" />
-                    حذف
+                    {row.kind === 'customer_booking' ? 'إلغاء الحجز' : 'حذف'}
                   </Button>
                 </div>
               </div>
@@ -2056,6 +2112,37 @@ function AppointmentsSection({
           )}
         </CardContent>
       </Card>
+
+      {closedItems.length > 0 ? (
+        <Card className="mt-4 border-dashed">
+          <CardContent className="space-y-4 p-6">
+            <div>
+              <h3 className="text-sm font-semibold">مواعيد ملغاة أو مكتملة</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                لا تظهر في صندوق الوارد النشط. يمكنك إزالتها نهائياً من القائمة.
+              </p>
+            </div>
+            {closedItems.map((row) => (
+              <div key={row.id} className="space-y-3 rounded-lg border border-border/70 bg-muted/20 p-4">
+                <ScheduleRow item={row} />
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
+                  <span className="text-xs text-muted-foreground">حجز عميل من المنصة</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 text-destructive"
+                    onClick={() => removeClosed(row.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    إزالة من القائمة
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md" dir="rtl">

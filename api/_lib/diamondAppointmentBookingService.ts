@@ -248,12 +248,12 @@ export async function listBarberBookings(
     return { ok: false, error: 'Invalid barber id', status: 400 };
   }
 
+  // الأحدث أولاً حتى تظهر طلبات pending الجديدة فوق المواعيد القديمة.
   const { data, error } = await supabase
     .from('bookings')
     .select('*')
     .eq('barber_id', barberId)
-    .order('booking_date', { ascending: true })
-    .order('booking_time', { ascending: true })
+    .order('created_at', { ascending: false })
     .limit(200);
 
   if (error) {
@@ -305,4 +305,48 @@ export async function updateBarberBookingStatus(
   }
 
   return { ok: true, booking: updated as BookingRow };
+}
+
+/** حذف نهائي لحجز مغلق (ملغى / مكتمل / لم يحضر) من صندوق مواعيد الحلاق. */
+export async function deleteClosedBarberBooking(
+  supabase: SupabaseClient,
+  input: { barberId: string; bookingId: string },
+): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  const barberId = input.barberId.trim();
+  const bookingId = input.bookingId.trim();
+  if (!UUID_RE.test(barberId) || !UUID_RE.test(bookingId)) {
+    return { ok: false, error: 'Invalid id', status: 400 };
+  }
+
+  const { data: existing, error: readErr } = await supabase
+    .from('bookings')
+    .select('id, status')
+    .eq('id', bookingId)
+    .eq('barber_id', barberId)
+    .maybeSingle();
+
+  if (readErr || !existing) {
+    return { ok: false, error: 'Booking not found', status: 404 };
+  }
+
+  const status = String((existing as { status?: unknown }).status ?? '');
+  if (status !== 'cancelled' && status !== 'completed' && status !== 'no_show') {
+    return {
+      ok: false,
+      error: 'Only closed bookings can be deleted; cancel the booking first',
+      status: 409,
+    };
+  }
+
+  const { error: deleteErr } = await supabase
+    .from('bookings')
+    .delete()
+    .eq('id', bookingId)
+    .eq('barber_id', barberId);
+
+  if (deleteErr) {
+    return { ok: false, error: deleteErr.message || 'delete_failed', status: 500 };
+  }
+
+  return { ok: true };
 }

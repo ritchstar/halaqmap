@@ -29,7 +29,17 @@ export function useBarberAppointmentInboxBadge(
     setLoading(true);
     try {
       const res = await listBarberBookingsRemote();
-      if (!res.ok) return;
+      if (!res.ok) {
+        // لا تُبقِ شارة قديمة عند فشل الجلسة/القائمة — وإلا تظهر «1» بلا موعد.
+        if (
+          res.error.includes('جلسة') ||
+          res.error.includes('تسجيل الدخول') ||
+          res.error.includes('ماسي')
+        ) {
+          setPendingCount(0);
+        }
+        return;
+      }
       const pending = res.items.filter(
         (row) => row.kind === 'customer_booking' && row.status === 'pending',
       ).length;
