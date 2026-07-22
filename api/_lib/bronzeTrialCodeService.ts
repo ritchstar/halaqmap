@@ -254,6 +254,7 @@ export async function redeemBronzeTrialCode(
       tier: 'bronze',
       moyasarPaymentId: null,
       sendCredentialsEmail: false,
+      skipBronzeTrialEnsure: true,
     });
     if (!provision.ok) {
       await rollbackCode();
@@ -264,14 +265,35 @@ export async function redeemBronzeTrialCode(
 
   const { data: priorTrial } = await supabase
     .from('barber_listing_entitlements')
-    .select('id')
+    .select('id, valid_until')
     .eq('barber_id', barberId)
     .eq('source', 'bronze_trial_code')
+    .is('revoked_at', null)
+    .gt('valid_until', new Date().toISOString())
     .limit(1)
     .maybeSingle();
   if (priorTrial?.id) {
-    await rollbackCode();
-    return { ok: false, error: 'trial_already_used_for_barber', status: 409 };
+    // الإدراج مُنح مسبقاً (ensure أثناء التسجيل) — نربط الكود ونُكمِل بنجاح.
+    await supabase
+      .from('bronze_trial_codes')
+      .update({
+        redeemed_barber_id: barberId,
+        redeemed_entitlement_id: String(priorTrial.id),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', row.id);
+    const tokenEnsured = await ensureBarberOpenStatusToken(supabase, barberId);
+    const shopUrls = buildShopOpenMailUrls(tokenEnsured.ok ? tokenEnsured.token : null);
+    return {
+      ok: true,
+      barberId,
+      validUntil: String(priorTrial.valid_until ?? ''),
+      listingDaysGranted: 30,
+      isTrial: true,
+      tier: 'bronze',
+      activationMailEmailed: false,
+      shopOpenToggleUrl: shopUrls.shopOpenToggleUrl,
+    };
   }
 
   const productLoaded = await loadProductBySku(supabase, 'bronze_30');

@@ -565,6 +565,8 @@ export type ProvisionBarberForPaymentInput = {
   moyasarPaymentId?: string | null;
   /** عند false (افتراضي لمسار الدفع): بيانات الدخول عبر رابط magic في بريد التفعيل الموحّد */
   sendCredentialsEmail?: boolean;
+  /** تخطّي منح تجربة برونزي أثناء provision (مسار استرداد HM-TRY يمنح الإدراج بنفسه). */
+  skipBronzeTrialEnsure?: boolean;
 };
 
 export type ProvisionBarberForPaymentResult =
@@ -578,6 +580,28 @@ export type ProvisionBarberForPaymentResult =
     }
   | { ok: false; error: string };
 
+/** إن كان للحلاق كود تجربة برونزي مؤهل بلا إدراج — يمنح الإدراج تلقائياً. */
+async function maybeEnsureBronzeTrialListing(
+  supabase: SupabaseClient,
+  barberId: string,
+  email?: string | null,
+  skip?: boolean,
+): Promise<void> {
+  if (skip) return;
+  try {
+    const { ensureBronzeTrialListingForBarber } = await import('./bronzeTrialListingEnsure.js');
+    const ensured = await ensureBronzeTrialListingForBarber(supabase, {
+      barberId,
+      email: email ?? null,
+    });
+    if (!ensured.ok) {
+      console.error('[provision] bronze_trial_listing_ensure_failed', ensured.error);
+    }
+  } catch (err) {
+    console.error('[provision] bronze_trial_listing_ensure_threw', err);
+  }
+}
+
 export async function provisionBarberForPaidOrder(
   supabase: SupabaseClient,
   input: ProvisionBarberForPaymentInput,
@@ -585,6 +609,7 @@ export async function provisionBarberForPaidOrder(
   const requestId = String(input.registrationRequestId ?? '').trim();
   const buyerEmail = String(input.buyerEmail ?? '').trim();
   const tier = input.tier ?? 'bronze';
+  const skipTrialEnsure = input.skipBronzeTrialEnsure === true;
 
   if (buyerEmail && buyerEmail.includes('@')) {
     const { data: existing } = await supabase
@@ -602,6 +627,7 @@ export async function provisionBarberForPaidOrder(
           moyasarPaymentId: input.moyasarPaymentId ?? null,
         });
       }
+      await maybeEnsureBronzeTrialListing(supabase, barberId, buyerEmail, skipTrialEnsure);
       return {
         ok: true,
         barberId,
@@ -636,6 +662,7 @@ export async function provisionBarberForPaidOrder(
           barberId: String(linkedRow.id),
           moyasarPaymentId: input.moyasarPaymentId ?? null,
         });
+        await maybeEnsureBronzeTrialListing(supabase, String(linkedRow.id), buyerEmail, skipTrialEnsure);
         return {
           ok: true,
           barberId: String(linkedRow.id),
@@ -678,6 +705,8 @@ export async function provisionBarberForPaidOrder(
       moyasarPaymentId: input.moyasarPaymentId ?? null,
     });
   }
+
+  await maybeEnsureBronzeTrialListing(supabase, provision.barberId, buyerEmail, skipTrialEnsure);
 
   return {
     ok: true,
