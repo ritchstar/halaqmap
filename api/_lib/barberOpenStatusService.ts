@@ -129,6 +129,28 @@ export async function rotateBarberOpenStatusToken(
   return { ok: true, token };
 }
 
+/** يُبقي الرمز الحالي إن وُجد، وإلا يولّد رمزاً جديداً لرابط مفتوح/مغلق. */
+export async function ensureBarberOpenStatusToken(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<{ ok: true; token: string } | { ok: false; error: string }> {
+  const id = String(barberId || '').trim();
+  if (!id) return { ok: false, error: 'missing_barber_id' };
+
+  const { data, error } = await supabase
+    .from('barbers')
+    .select('open_status_token')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) return { ok: false, error: error.message || 'read_failed' };
+  const existing = String(
+    (data as { open_status_token?: string | null } | null)?.open_status_token ?? '',
+  ).trim();
+  if (existing) return { ok: true, token: existing };
+  return rotateBarberOpenStatusToken(supabase, id);
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')

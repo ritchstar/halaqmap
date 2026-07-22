@@ -12,7 +12,7 @@ import {
 } from './_lib/publicApiCors.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
 
-export const config = { maxDuration: 45 };
+export const config = { maxDuration: 60 };
 
 const CORS_OPTS = {
   allowMethods: 'GET, POST, OPTIONS',
@@ -89,7 +89,11 @@ export async function POST(request: Request): Promise<Response> {
       listingDaysGranted: result.listingDaysGranted,
       isTrial: true,
       tier: 'bronze',
-      messageAr: 'تم تفعيل تجربة برونزي لمدة 30 يوماً — مشترك تجريبي.',
+      activationMailEmailed: result.activationMailEmailed,
+      shopOpenToggleUrl: result.shopOpenToggleUrl,
+      messageAr: result.activationMailEmailed
+        ? 'تم تفعيل تجربة برونزي لمدة 30 يوماً — وصلك بريد بتعليمات التشغيل ورابط مفتوح/مغلق.'
+        : 'تم تفعيل تجربة برونزي لمدة 30 يوماً — مشترك تجريبي.',
     },
     { status: 200, headers },
   );

@@ -1,6 +1,7 @@
 import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';
 import { UNIFIED_DIGITAL_LICENSE_LABEL_AR } from './geospatialLicenseDoctrine.js';
 import { siteBaseUrlFromEnv } from './barberProvisionService.js';
+import { resolveResendFromAddress } from './resendFrom.js';
 
 function escapeHtml(s: string): string {
   return s
@@ -107,4 +108,53 @@ ${orderId ? `<p style="font-size:13px;color:#64748b">مرجع الطلب: <span 
 </body></html>`;
 
   return { subject, html, text };
+}
+
+/** بريد تشغيل برونزي (تعليمات + مفتوح/مغلق) — احتياطي إن تعذّر البريد الموحّد. */
+export async function sendBronzeOpsActivationEmail(input: {
+  to: string;
+  barberName: string;
+  shopOpenToggleUrl: string | null;
+  shopOpenRotateUrl: string;
+  registrationOrderId: string | null;
+  certificate?: DigitalActivationCertificatePayload | null;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const apiKey = (process.env.RESEND_API_KEY ?? '').trim();
+  const fromRaw = (process.env.RESEND_FROM_EMAIL ?? '').trim();
+  if (!apiKey || !fromRaw) {
+    return { ok: false, error: 'resend_not_configured' };
+  }
+  const to = String(input.to ?? '').trim().toLowerCase();
+  if (!to.includes('@')) return { ok: false, error: 'invalid_buyer_email' };
+
+  const siteBase = siteBaseUrlFromEnv().replace(/\/+$/, '');
+  const policyUrl = `${siteBase}/#/partners/subscription-policy`;
+  const mail = buildBronzePartnerActivationEmailBodies({
+    barberName: input.barberName,
+    certificate: input.certificate ?? null,
+    shopOpenToggleUrl: input.shopOpenToggleUrl,
+    shopOpenRotateUrl: input.shopOpenRotateUrl,
+    registrationOrderId: input.registrationOrderId,
+    policyUrl,
+  });
+
+  const resp = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      from: resolveResendFromAddress(fromRaw),
+      to: [to],
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text,
+    }),
+  });
+  if (!resp.ok) {
+    const raw = await resp.text().catch(() => '');
+    return { ok: false, error: raw.slice(0, 400) || `http_${resp.status}` };
+  }
+  return { ok: true };
 }

@@ -12,6 +12,13 @@ import {
 import { loadProductBySku, creditBarberListingEntitlement } from './listingLicenseService.js';
 import { provisionBarberForPaidOrder } from './barberProvisionService.js';
 import { activateGeospatialLicense } from './geospatialLicenseAssetService.js';
+import { ensureBarberOpenStatusToken } from './barberOpenStatusService.js';
+import {
+  buildShopOpenMailUrls,
+  sendBronzeOpsActivationEmail,
+} from './bronzePartnerActivationMail.js';
+import { dispatchPartnerActivationMails } from './partnerActivationMailDispatch.js';
+import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';
 
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const HM_REQUEST_RE = /^HM-[A-Z0-9-]{6,64}$/i;
@@ -103,6 +110,8 @@ export type RedeemBronzeTrialResult =
       listingDaysGranted: number;
       isTrial: true;
       tier: 'bronze';
+      activationMailEmailed: boolean;
+      shopOpenToggleUrl: string | null;
     }
   | { ok: false; error: string; status: number };
 
@@ -320,8 +329,9 @@ export async function redeemBronzeTrialCode(
     event_type: 'bronze_trial',
   });
 
+  let activationCertificate: DigitalActivationCertificatePayload | null = null;
   try {
-    await activateGeospatialLicense(supabase, {
+    const geo = await activateGeospatialLicense(supabase, {
       orderId: order.id,
       barberId,
       entitlementId: credit.entitlementId,
@@ -329,8 +339,11 @@ export async function redeemBronzeTrialCode(
       validUntil: credit.validUntil,
       registrationRequestId: hasRequest ? requestId : null,
     });
+    if (geo.status !== 'Failed') {
+      activationCertificate = geo.certificate;
+    }
   } catch {
-    // الشهادة اختيارية — الصلاحية كافية للظهور
+    // الشهادة اختيارية — الصلاحية كافية للظهور؛ البريد الاحتياطي يغطي روابط التشغيل
   }
 
   await supabase
@@ -358,6 +371,64 @@ export async function redeemBronzeTrialCode(
     }
   }
 
+  // بريد بعد التفعيل: تعليمات + رابط مفتوح/مغلق (مثل المسار المدفوع).
+  let activationMailEmailed = false;
+  const tokenEnsured = await ensureBarberOpenStatusToken(supabase, barberId);
+  const shopUrls = buildShopOpenMailUrls(tokenEnsured.ok ? tokenEnsured.token : null);
+
+  const { data: barberMailRow } = await supabase
+    .from('barbers')
+    .select('email, name')
+    .eq('id', barberId)
+    .maybeSingle();
+  const mailEmail =
+    (buyerEmail && buyerEmail.includes('@') ? buyerEmail : '') ||
+    String((barberMailRow as { email?: string | null } | null)?.email ?? '')
+      .trim()
+      .toLowerCase();
+  const mailName =
+    (buyerName && buyerName.trim()) ||
+    String((barberMailRow as { name?: string | null } | null)?.name ?? '').trim() ||
+    'شريك حلاق ماب';
+
+  if (mailEmail.includes('@')) {
+    if (activationCertificate) {
+      const mail = await dispatchPartnerActivationMails(supabase, {
+        buyerEmail: mailEmail,
+        buyerName: mailName,
+        tier: 'bronze',
+        barberId,
+        registrationRequestId: hasRequest ? requestId : null,
+        activationCertificate,
+        paymentMetadata: {
+          product: 'bronze_trial',
+          trial_code_id: row.id,
+        },
+      });
+      activationMailEmailed = mail.unifiedActivationEmailed;
+      if (mail.errors.length > 0) {
+        console.error('[bronze-trial-redeem] activation_mail_errors', mail.errors);
+      }
+    }
+
+    if (!activationMailEmailed) {
+      const fallback = await sendBronzeOpsActivationEmail({
+        to: mailEmail,
+        barberName: mailName,
+        shopOpenToggleUrl: shopUrls.shopOpenToggleUrl,
+        shopOpenRotateUrl: shopUrls.shopOpenRotateUrl,
+        registrationOrderId: hasRequest ? requestId : null,
+        certificate: activationCertificate,
+      });
+      activationMailEmailed = fallback.ok;
+      if (!fallback.ok) {
+        console.error('[bronze-trial-redeem] bronze_ops_mail_failed', fallback.error);
+      }
+    }
+  } else {
+    console.error('[bronze-trial-redeem] activation_mail_skipped_no_email', { barberId });
+  }
+
   return {
     ok: true,
     barberId,
@@ -365,6 +436,8 @@ export async function redeemBronzeTrialCode(
     listingDaysGranted: credit.listingDaysGranted,
     isTrial: true,
     tier: 'bronze',
+    activationMailEmailed,
+    shopOpenToggleUrl: shopUrls.shopOpenToggleUrl,
   };
 }
 
