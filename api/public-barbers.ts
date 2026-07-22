@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { mapShowcaseRowToApiPayload, resolveShowcaseFallbackForPublic } from './_lib/platformShowcasePreview.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
@@ -52,6 +52,35 @@ function sanitizePublicBarberRows(rows: unknown): unknown[] {
       return row;
     })
     .filter(Boolean);
+}
+
+async function attachWorkingHoursToRows(
+  supabase: SupabaseClient,
+  rows: unknown[],
+): Promise<unknown[]> {
+  const ids = rows
+    .map((r) =>
+      r && typeof r === 'object' ? String((r as { id?: unknown }).id ?? '').trim() : '',
+    )
+    .filter(Boolean);
+  if (ids.length === 0) return rows;
+  try {
+    const { loadWorkingHoursSlotsForBarbers } = await import('./_lib/barberWorkingHoursSync.js');
+    const map = await loadWorkingHoursSlotsForBarbers(supabase, ids);
+    return rows.map((raw) => {
+      if (!raw || typeof raw !== 'object') return raw;
+      const row = { ...(raw as Record<string, unknown>) };
+      const id = String(row.id ?? '');
+      const slots = map.get(id);
+      if (slots && slots.length) {
+        row.weekly_working_hours = slots;
+      }
+      return row;
+    });
+  } catch (err) {
+    console.error('[public-barbers] attach_working_hours_failed', err);
+    return rows;
+  }
 }
 
 export async function OPTIONS(request: Request): Promise<Response> {
@@ -166,7 +195,10 @@ export async function GET(request: Request): Promise<Response> {
     if (error) {
       return Response.json({ error: error.message }, { status: 500, headers });
     }
-    const sanitized = sanitizePublicBarberRows(data ?? []);
+    const sanitized = await attachWorkingHoursToRows(
+      supabase,
+      sanitizePublicBarberRows(data ?? []),
+    );
     if (sanitized.length === 0) {
       const fallback = await resolveShowcaseFallbackForPublic(supabase);
       if (fallback.ok) {
@@ -228,7 +260,11 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   return Response.json(
-    { ok: true, mode: 'fallback_recent', rows: sanitizePublicBarberRows(data ?? []) },
-    { headers }
+    {
+      ok: true,
+      mode: 'fallback_recent',
+      rows: await attachWorkingHoursToRows(supabase, sanitizePublicBarberRows(data ?? [])),
+    },
+    { headers },
   );
 }

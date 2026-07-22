@@ -77,6 +77,8 @@ type BarberRow = {
   groom_prep_customer_note?: string | null;
   mens_grooming_center?: boolean | null;
   grooming_center_banner_lines?: unknown;
+  /** من الطلب المسجّل — إن وُجد يُعرض بدل الافتراضي */
+  weekly_working_hours?: unknown;
 };
 
 function mapInclusiveCareFromRow(row: BarberRow): InclusiveAccessibleCareOffer | undefined {
@@ -188,6 +190,86 @@ function mergePublicBarberImages(cover: string | null, profile: string | null, f
   return out.length > 0 ? out : [FALLBACK_IMAGE];
 }
 
+function mapWorkingHoursFromRow(row: BarberRow): Barber['workingHours'] {
+  const raw = row.weekly_working_hours;
+  if (!Array.isArray(raw) || raw.length === 0) return DEFAULT_WORKING_HOURS;
+  const slots: Barber['workingHours'] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const o = item as Record<string, unknown>;
+    const day = String(o.day ?? '').trim();
+    const open = String(o.open ?? '').trim();
+    const close = String(o.close ?? '').trim();
+    if (!day || !open || !close) continue;
+    slots.push({ day, open, close });
+  }
+  return slots.length >= 7 ? slots : slots.length > 0 ? slots : DEFAULT_WORKING_HOURS;
+}
+
+const DOW_TO_DAY: Record<number, string> = {
+  0: 'الأحد',
+  1: 'الاثنين',
+  2: 'الثلاثاء',
+  3: 'الأربعاء',
+  4: 'الخميس',
+  5: 'الجمعة',
+  6: 'السبت',
+};
+
+async function attachWeeklyHoursToBarberRows(
+  client: NonNullable<ReturnType<typeof getSupabaseClient>>,
+  rows: BarberRow[],
+): Promise<BarberRow[]> {
+  if (rows.length === 0) return rows;
+  const needIds = rows
+    .filter((r) => !Array.isArray(r.weekly_working_hours) || r.weekly_working_hours.length === 0)
+    .map((r) => r.id)
+    .filter(Boolean);
+  if (needIds.length === 0) return rows;
+
+  const { data: fromBarbers } = await client
+    .from('barbers')
+    .select('id, weekly_working_hours')
+    .in('id', needIds);
+  const byId = new Map<string, unknown>();
+  for (const r of fromBarbers ?? []) {
+    const id = String((r as { id?: string }).id ?? '');
+    const wh = (r as { weekly_working_hours?: unknown }).weekly_working_hours;
+    if (id && Array.isArray(wh) && wh.length > 0) byId.set(id, wh);
+  }
+
+  const stillMissing = needIds.filter((id) => !byId.has(id));
+  if (stillMissing.length > 0) {
+    const { data: whRows } = await client
+      .from('working_hours')
+      .select('barber_id, day_of_week, is_open, open_time, close_time')
+      .in('barber_id', stillMissing);
+    const grouped = new Map<string, Barber['workingHours']>();
+    for (const r of whRows ?? []) {
+      const bid = String((r as { barber_id?: string }).barber_id ?? '');
+      const day = DOW_TO_DAY[Number((r as { day_of_week?: number }).day_of_week)];
+      if (!bid || !day) continue;
+      const list = grouped.get(bid) ?? [];
+      const openFlag = (r as { is_open?: boolean | null }).is_open !== false;
+      const open = String((r as { open_time?: string | null }).open_time ?? '').slice(0, 5);
+      const close = String((r as { close_time?: string | null }).close_time ?? '').slice(0, 5);
+      if (!openFlag || !open || !close) {
+        list.push({ day, open: 'مغلق', close: 'مغلق' });
+      } else {
+        list.push({ day, open, close });
+      }
+      grouped.set(bid, list);
+    }
+    for (const [bid, slots] of grouped) byId.set(bid, slots);
+  }
+
+  return rows.map((row) => {
+    if (Array.isArray(row.weekly_working_hours) && row.weekly_working_hours.length > 0) return row;
+    const attached = byId.get(row.id);
+    return attached ? { ...row, weekly_working_hours: attached } : row;
+  });
+}
+
 function mapRow(row: BarberRow): Barber {
   const lat = row.latitude ?? 0;
   const lng = row.longitude ?? 0;
@@ -227,7 +309,7 @@ function mapRow(row: BarberRow): Barber {
     homeVisitOffer: mapHomeVisitFromRow(row),
     groomPrepOffer: mapGroomPrepFromRow(row),
     services: [{ name: 'للاستفسار والأسعار — تواصل مباشرة', price: 0 }],
-    workingHours: DEFAULT_WORKING_HOURS,
+    workingHours: mapWorkingHoursFromRow(row),
     isOpen: row.is_active !== false && row.open_for_customers !== false,
     verified: row.is_verified === true,
     categories,
@@ -327,7 +409,7 @@ export async function fetchPublicBarbersFromSupabase(): Promise<Barber[]> {
     return viaServer.barbers;
   }
 
-  const rows = (data ?? []) as BarberRow[];
+  const rows = await attachWeeklyHoursToBarberRows(client, (data ?? []) as BarberRow[]);
   return rows.map(mapRow);
 }
 
@@ -389,7 +471,7 @@ export async function fetchNearbyPublicBarbersFromSupabase(
     });
 
     if (!error) {
-      const rows = (data ?? []) as BarberRow[];
+      const rows = await attachWeeklyHoursToBarberRows(client, (data ?? []) as BarberRow[]);
       if (rows.length > 0) {
         const mapped = rows.map(mapRow);
         const split = splitShowcaseFromBarbers(mapped);

@@ -151,6 +151,39 @@ export async function POST(request: Request): Promise<Response> {
     console.error('[approve-barber] bronze_trial_geo_sync_threw', err);
   }
 
+  // أوقات العمل من طلب التسجيل → البنر/التفاصيل العامة
+  try {
+    const email = String((wl.row as { email?: unknown }).email ?? '').trim().toLowerCase();
+    let payload: Record<string, unknown> | null = null;
+    if (email.includes('@')) {
+      const { data: sub } = await supabase
+        .from('registration_submissions')
+        .select('payload')
+        .or(`payload->>email.eq.${email},payload->>linkedBarberId.eq.${provision.barberId}`)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (sub?.payload && typeof sub.payload === 'object' && !Array.isArray(sub.payload)) {
+        payload = sub.payload as Record<string, unknown>;
+      }
+    }
+    if (payload) {
+      const { syncBarberWorkingHoursFromRegistrationPayload } = await import(
+        './_lib/barberWorkingHoursSync.js'
+      );
+      const wh = await syncBarberWorkingHoursFromRegistrationPayload(
+        supabase,
+        provision.barberId,
+        payload,
+      );
+      if (!wh.ok) {
+        console.error('[approve-barber] working_hours_sync_failed', wh.error);
+      }
+    }
+  } catch (err) {
+    console.error('[approve-barber] working_hours_sync_threw', err);
+  }
+
   if (!provision.authUserId) {
     emitOpsEventFireAndForget({
       type: 'barber.missing_user_id',

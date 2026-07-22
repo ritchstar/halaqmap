@@ -620,6 +620,53 @@ async function maybeApplyBronzeTrialGeo(
   }
 }
 
+async function maybeSyncWorkingHoursFromRegistration(
+  supabase: SupabaseClient,
+  barberId: string,
+  registrationRequestId?: string | null,
+  email?: string | null,
+): Promise<void> {
+  try {
+    let payload: Record<string, unknown> | null = null;
+    const requestId = String(registrationRequestId ?? '').trim();
+    if (requestId) {
+      const { data } = await supabase
+        .from('registration_submissions')
+        .select('payload')
+        .eq('id', requestId)
+        .maybeSingle();
+      if (data?.payload && typeof data.payload === 'object' && !Array.isArray(data.payload)) {
+        payload = data.payload as Record<string, unknown>;
+      }
+    }
+    if (!payload) {
+      const e = String(email ?? '').trim().toLowerCase();
+      if (e.includes('@')) {
+        const { data } = await supabase
+          .from('registration_submissions')
+          .select('payload')
+          .filter('payload->>email', 'ilike', e)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (data?.payload && typeof data.payload === 'object' && !Array.isArray(data.payload)) {
+          payload = data.payload as Record<string, unknown>;
+        }
+      }
+    }
+    if (!payload) return;
+    const { syncBarberWorkingHoursFromRegistrationPayload } = await import(
+      './barberWorkingHoursSync.js'
+    );
+    const wh = await syncBarberWorkingHoursFromRegistrationPayload(supabase, barberId, payload);
+    if (!wh.ok) {
+      console.error('[provision] working_hours_sync_failed', wh.error);
+    }
+  } catch (err) {
+    console.error('[provision] working_hours_sync_threw', err);
+  }
+}
+
 export async function provisionBarberForPaidOrder(
   supabase: SupabaseClient,
   input: ProvisionBarberForPaymentInput,
@@ -647,6 +694,7 @@ export async function provisionBarberForPaidOrder(
       }
       await maybeEnsureBronzeTrialListing(supabase, barberId, buyerEmail, skipTrialEnsure);
       await maybeApplyBronzeTrialGeo(supabase, barberId, buyerEmail);
+      await maybeSyncWorkingHoursFromRegistration(supabase, barberId, requestId || null, buyerEmail);
       return {
         ok: true,
         barberId,
@@ -683,6 +731,12 @@ export async function provisionBarberForPaidOrder(
         });
         await maybeEnsureBronzeTrialListing(supabase, String(linkedRow.id), buyerEmail, skipTrialEnsure);
         await maybeApplyBronzeTrialGeo(supabase, String(linkedRow.id), buyerEmail);
+        await maybeSyncWorkingHoursFromRegistration(
+          supabase,
+          String(linkedRow.id),
+          requestId,
+          buyerEmail,
+        );
         return {
           ok: true,
           barberId: String(linkedRow.id),
@@ -728,6 +782,12 @@ export async function provisionBarberForPaidOrder(
 
   await maybeEnsureBronzeTrialListing(supabase, provision.barberId, buyerEmail, skipTrialEnsure);
   await maybeApplyBronzeTrialGeo(supabase, provision.barberId, buyerEmail);
+  await maybeSyncWorkingHoursFromRegistration(
+    supabase,
+    provision.barberId,
+    requestId || null,
+    buyerEmail,
+  );
 
   return {
     ok: true,
