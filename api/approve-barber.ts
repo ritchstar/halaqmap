@@ -136,6 +136,21 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  // مصدر الحقيقة الجغرافي لشركاء التجربة: إحداثيات طلب التجربة المعتمد.
+  try {
+    const { applyApprovedBronzeTrialGeoToBarber } = await import('./_lib/bronzeTrialGeoSync.js');
+    const email = String((wl.row as { email?: unknown }).email ?? '').trim();
+    const geo = await applyApprovedBronzeTrialGeoToBarber(supabase, {
+      barberId: provision.barberId,
+      email,
+    });
+    if (!geo.ok) {
+      console.error('[approve-barber] bronze_trial_geo_sync_failed', geo.error);
+    }
+  } catch (err) {
+    console.error('[approve-barber] bronze_trial_geo_sync_threw', err);
+  }
+
   if (!provision.authUserId) {
     emitOpsEventFireAndForget({
       type: 'barber.missing_user_id',

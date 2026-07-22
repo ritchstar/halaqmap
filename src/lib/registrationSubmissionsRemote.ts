@@ -294,6 +294,7 @@ export async function patchRegistrationSubmissionPayloadRemote(
       /** مزامنة من تعديل الإدارة لجدول الحلاقين — يظهر في تبويب الطلبات */
       | 'email'
       | 'phone'
+      | 'location'
     >
   >
 ): Promise<{ ok: true } | { ok: false; error: string }> {

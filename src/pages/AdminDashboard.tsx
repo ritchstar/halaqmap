@@ -104,6 +104,7 @@ import {
   deleteBarberRemote,
   purgeAllBarbersRemote,
   updateBarberRecordRemote,
+  restoreBarberTrialGeoRemote,
   upsertBarberFromApprovedRequest,
   type AdminBarberRow,
 } from '@/lib/adminBarbersRemote';
@@ -3076,6 +3077,8 @@ function BarberHardEditDialog({
   const [tier, setTier] = useState<SubscriptionTier>(SubscriptionTier.BRONZE);
   const [isVerified, setIsVerified] = useState(false);
   const [isActive, setIsActive] = useState(false);
+  const [openForCustomers, setOpenForCustomers] = useState(true);
+  const [specialtiesText, setSpecialtiesText] = useState('');
   const [profileImage, setProfileImage] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [saving, setSaving] = useState(false);
@@ -3092,10 +3095,44 @@ function BarberHardEditDialog({
     setTier(barber.tier);
     setIsVerified(barber.is_verified);
     setIsActive(barber.is_active);
+    setOpenForCustomers(barber.open_for_customers !== false);
+    setSpecialtiesText((barber.specialties ?? []).join('، '));
     setProfileImage(barber.profile_image ?? '');
     setCoverImage(barber.cover_image ?? '');
     setSaving(false);
   }, [barber?.id]);
+
+  const handleRestoreTrialGeo = async () => {
+    if (!barber) return;
+    setSaving(true);
+    const res = await restoreBarberTrialGeoRemote(barber.id);
+    setSaving(false);
+    if (!res.ok) {
+      toast({
+        title: 'تعذر استعادة إحداثيات التجربة',
+        description: errorText(res, 'لا يوجد طلب تجربة موافق عليه لهذا البريد.'),
+        variant: 'destructive',
+      });
+      return;
+    }
+    setLatText(
+      res.barber.latitude != null && Number.isFinite(res.barber.latitude)
+        ? String(res.barber.latitude)
+        : '',
+    );
+    setLngText(
+      res.barber.longitude != null && Number.isFinite(res.barber.longitude)
+        ? String(res.barber.longitude)
+        : '',
+    );
+    setCity(res.barber.city ?? '');
+    setAddress(res.barber.address ?? '');
+    toast({
+      title: 'تمت استعادة موقع طلب التجربة',
+      description: `${res.barber.latitude}, ${res.barber.longitude}`,
+    });
+    onSaved(res.barber);
+  };
 
   const handleSave = async () => {
     if (!barber) return;
@@ -3104,6 +3141,10 @@ function BarberHardEditDialog({
     const phoneTrim = phone.trim();
     const cityTrim = city.trim() || null;
     const addressTrim = address.trim() || 'غير محدد';
+    const specialties = specialtiesText
+      .split(/[,،]/)
+      .map((x) => x.trim())
+      .filter(Boolean);
 
     if (!nameTrim) {
       toast({ title: 'الاسم مطلوب', variant: 'destructive' });
@@ -3156,6 +3197,8 @@ function BarberHardEditDialog({
       tier,
       is_verified: isVerified,
       is_active: isActive,
+      open_for_customers: openForCustomers,
+      specialties: specialties.length ? specialties : null,
       profile_image: profileTrim ? profileTrim : null,
       cover_image: coverTrim ? coverTrim : null,
     });
@@ -3171,41 +3214,44 @@ function BarberHardEditDialog({
 
     const emailChanged = emailTrim !== barber.email.trim().toLowerCase();
     const phoneChanged = phoneTrim !== barber.phone.trim();
+    const coordsChanged =
+      latitude !== barber.latitude || longitude !== barber.longitude || addressTrim !== (barber.address ?? '');
     let submissionSyncHint = '';
-    if (emailChanged || phoneChanged) {
-      const linked = registrationRequests.filter(
-        (r) => r.linkedBarberId === barber.id && !isMockSubscriptionRequestRow(r.id)
-      );
-      if (linked.length) {
-        const payloadPatch: { email?: string; phone?: string } = {};
+    const linked = registrationRequests.filter(
+      (r) => r.linkedBarberId === barber.id && !isMockSubscriptionRequestRow(r.id),
+    );
+    if (linked.length && (emailChanged || phoneChanged || coordsChanged)) {
+      const failures: string[] = [];
+      for (const r of linked) {
+        const payloadPatch: Record<string, unknown> = {};
         if (emailChanged) payloadPatch.email = emailTrim;
         if (phoneChanged) payloadPatch.phone = phoneTrim;
-        const failures: string[] = [];
-        for (const r of linked) {
-          const pr = await patchRegistrationSubmissionPayloadRemote(r.id, payloadPatch);
-          if (!pr.ok) failures.push(pr.error);
+        if (coordsChanged) {
+          payloadPatch.location = {
+            lat: latitude,
+            lng: longitude,
+            address: addressTrim,
+          };
         }
-        onRegistrationPayloadSynced();
-        if (failures.length) {
-          toast({
-            title: 'حُفظ الحلاق لكن تعذر تحديث الطلب المرتبط',
-            description: failures[0] ?? 'خطأ غير معروف',
-            variant: 'destructive',
-          });
-        } else if (emailChanged && phoneChanged) {
-          submissionSyncHint = ` — وتم تحديث البريد والجوال في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
-        } else if (emailChanged) {
-          submissionSyncHint = ` — وتم تحديث البريد في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
-        } else if (phoneChanged) {
-          submissionSyncHint = ` — وتم تحديث الجوال في ${linked.length} طلب مرتبط (تبويب الطلبات).`;
-        }
-      } else if (emailChanged || phoneChanged) {
-        submissionSyncHint =
-          ' — لم يُعثر على طلب تسجيل مربوط (linkedBarberId)؛ بريد الطلب في «الطلبات» لم يتغير تلقائياً.';
+        const pr = await patchRegistrationSubmissionPayloadRemote(r.id, payloadPatch);
+        if (!pr.ok) failures.push(pr.error);
       }
+      onRegistrationPayloadSynced();
+      if (failures.length) {
+        toast({
+          title: 'حُفظ الحلاق لكن تعذر تحديث الطلب المرتبط',
+          description: failures[0] ?? 'خطأ غير معروف',
+          variant: 'destructive',
+        });
+      } else {
+        submissionSyncHint = ` — وتم مزامنة ${linked.length} طلب تسجيل مرتبط.`;
+      }
+    } else if ((emailChanged || phoneChanged) && !linked.length) {
+      submissionSyncHint =
+        ' — لم يُعثر على طلب تسجيل مربوط (linkedBarberId)؛ بريد الطلب في «الطلبات» لم يتغير تلقائياً.';
     }
 
-    const next: AdminBarberRow = {
+    const next: AdminBarberRow = res.barber ?? {
       ...barber,
       name: nameTrim,
       email: emailTrim,
@@ -3217,6 +3263,8 @@ function BarberHardEditDialog({
       tier,
       is_verified: isVerified,
       is_active: isActive,
+      open_for_customers: openForCustomers,
+      specialties: specialties.length ? specialties : null,
       profile_image: profileTrim ? profileTrim : null,
       cover_image: coverTrim ? coverTrim : null,
     };
@@ -3229,11 +3277,10 @@ function BarberHardEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle>تعديل بيانات الحلاق (صلاحية رئيسية)</DialogTitle>
+          <DialogTitle>تعديل بيانات الصالون (صلاحية المؤسس)</DialogTitle>
           <DialogDescription>
-            يُستخدم للدعم الفني عند تعذّر الحلاق على تعديل بياناته أو صوره. اترك حقول الصور فارغة لإزالة الرابط. عند
-            تغيير البريد أو الجوال يُحدَّث تلقائياً طلب التسجيل المرتبط بنفس الحساب في تبويب الطلبات إن وُجد
-            ربط.
+            تعديل كامل عبر مسار آمن (`service_role`). يمكن استعادة إحداثيات طلب التجربة البرونزي كمصدر حقيقة
+            جغرافي. عند تغيير البريد/الجوال/الموقع تُزامَن طلبات التسجيل المرتبطة.
           </DialogDescription>
           {barber ? (
             <p className="text-sm text-muted-foreground pt-1">
@@ -3275,6 +3322,26 @@ function BarberHardEditDialog({
               <Label htmlFor="hard-edit-lng">خط الطول</Label>
               <Input id="hard-edit-lng" dir="ltr" value={lngText} onChange={(e) => setLngText(e.target.value)} placeholder="مثال: 46.6753" />
             </div>
+            <div className="sm:col-span-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={saving || !barber}
+                onClick={() => void handleRestoreTrialGeo()}
+              >
+                استعادة إحداثيات طلب التجربة البرونزي
+              </Button>
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="hard-edit-specialties">التخصصات (افصل بفاصلة)</Label>
+              <Input
+                id="hard-edit-specialties"
+                value={specialtiesText}
+                onChange={(e) => setSpecialtiesText(e.target.value)}
+                placeholder="حلاقة رجالي، لحية، …"
+              />
+            </div>
             <div className="space-y-2 sm:col-span-2">
               <Label>الباقة</Label>
               <Select value={tier} onValueChange={(v) => setTier(v as SubscriptionTier)}>
@@ -3297,10 +3364,17 @@ function BarberHardEditDialog({
             </div>
             <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">ظهور للعامة</p>
-                <p className="text-xs text-muted-foreground">يتحكم في ظهور الصالون في نظام الرصد الذكي/القوائم حسب منطق التطبيق.</p>
+                <p className="text-sm font-medium">ظهور للعامة (`is_active`)</p>
+                <p className="text-xs text-muted-foreground">يتحكم في ظهور الصالون في البحث/الخريطة.</p>
               </div>
               <Switch checked={isActive} onCheckedChange={setIsActive} />
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">مفتوح للعملاء الآن</p>
+                <p className="text-xs text-muted-foreground">حالة المفتوح/المغلق التي يتحكم بها الشريك من رابط الحالة.</p>
+              </div>
+              <Switch checked={openForCustomers} onCheckedChange={setOpenForCustomers} />
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="hard-edit-profile">رابط صورة الملف الشخصي</Label>

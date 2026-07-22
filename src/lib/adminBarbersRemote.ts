@@ -27,6 +27,9 @@ export type AdminBarberRow = {
   tier: SubscriptionTier;
   is_active: boolean;
   is_verified: boolean;
+  /** مفتوح لاستقبال العملاء على الخريطة */
+  open_for_customers: boolean;
+  specialties: string[] | null;
   profile_image: string | null;
   cover_image: string | null;
   /** ISO من قاعدة البيانات — للعرض في لوحة الإدارة */
@@ -50,7 +53,7 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
   const { data, error } = await client
     .from('barbers')
     .select(
-      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image, created_at'
+      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, open_for_customers, specialties, profile_image, cover_image, created_at'
     )
     .order('created_at', { ascending: false });
 
@@ -78,6 +81,10 @@ export async function listBarbersForAdmin(): Promise<AdminBarberRow[]> {
       row.longitude === null || row.longitude === undefined || row.longitude === ''
         ? null
         : Number(row.longitude),
+    open_for_customers: row.open_for_customers !== false,
+    specialties: Array.isArray(row.specialties)
+      ? row.specialties.map((x) => String(x)).filter(Boolean)
+      : null,
     tier: tierFromDb(row.tier != null ? String(row.tier) : null),
     is_active: Boolean(row.is_active),
     is_verified: Boolean(row.is_verified),
@@ -135,77 +142,8 @@ export async function deleteBarberRemote(
   return { ok: true };
 }
 
-export async function updateBarberRecordRemote(
-  barberId: string,
-  patch: Partial<
-    Pick<
-      AdminBarberRow,
-      | 'name'
-      | 'email'
-      | 'phone'
-      | 'city'
-      | 'address'
-      | 'latitude'
-      | 'longitude'
-      | 'tier'
-      | 'is_active'
-      | 'is_verified'
-      | 'profile_image'
-      | 'cover_image'
-    >
-  >
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
-
-  const payload: Record<string, unknown> = {};
-  if (patch.name !== undefined) payload.name = patch.name;
-  if (patch.email !== undefined) payload.email = patch.email;
-  if (patch.phone !== undefined) payload.phone = patch.phone;
-  if (patch.city !== undefined) payload.city = patch.city;
-  if (patch.address !== undefined) payload.address = patch.address;
-  if (patch.latitude !== undefined) payload.latitude = patch.latitude;
-  if (patch.longitude !== undefined) payload.longitude = patch.longitude;
-  if (patch.tier !== undefined) payload.tier = patch.tier;
-  if (patch.is_active !== undefined) payload.is_active = patch.is_active;
-  if (patch.is_verified !== undefined) payload.is_verified = patch.is_verified;
-  if (patch.profile_image !== undefined) payload.profile_image = patch.profile_image;
-  if (patch.cover_image !== undefined) payload.cover_image = patch.cover_image;
-
-  if (Object.keys(payload).length === 0) {
-    return { ok: false, error: 'لا توجد حقول للتحديث' };
-  }
-
-  const { error } = await client.from('barbers').update(payload).eq('id', barberId);
-  if (error) return { ok: false, error: error.message };
-  return { ok: true };
-}
-
-export async function findDuplicateBarbersByContact(
-  email: string,
-  phone: string
-): Promise<AdminBarberRow[]> {
-  const client = getSupabaseClient();
-  if (!client) return [];
-  const emailTrim = email.trim();
-  const phoneTrim = phone.trim();
-  if (!emailTrim && !phoneTrim) return [];
-
-  let query = client
-    .from('barbers')
-    .select(
-      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, profile_image, cover_image, created_at'
-    );
-  if (emailTrim && phoneTrim) {
-    query = query.or(`email.eq.${emailTrim},phone.eq.${phoneTrim}`);
-  } else if (emailTrim) {
-    query = query.eq('email', emailTrim);
-  } else {
-    query = query.eq('phone', phoneTrim);
-  }
-  const { data, error } = await query.limit(20);
-  if (error || !data) return [];
-  return (data as Record<string, unknown>[]).map((row) => ({
+function mapAdminBarberApiRow(row: Record<string, unknown>): AdminBarberRow {
+  return {
     id: String(row.id),
     memberNumber:
       row.member_number === null || row.member_number === undefined || row.member_number === ''
@@ -227,10 +165,136 @@ export async function findDuplicateBarbersByContact(
     tier: tierFromDb(row.tier != null ? String(row.tier) : null),
     is_active: Boolean(row.is_active),
     is_verified: Boolean(row.is_verified),
+    open_for_customers: row.open_for_customers !== false,
+    specialties: Array.isArray(row.specialties)
+      ? row.specialties.map((x) => String(x)).filter(Boolean)
+      : null,
     profile_image: row.profile_image != null ? String(row.profile_image) : null,
     cover_image: row.cover_image != null ? String(row.cover_image) : null,
     createdAt: row.created_at != null ? String(row.created_at) : null,
-  }));
+  };
+}
+
+async function postAdminBarberHardUpdate(body: Record<string, unknown>): Promise<
+  | { ok: true; barber: AdminBarberRow }
+  | { ok: false; error: string }
+> {
+  const client = getSupabaseClient();
+  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
+  const { data: sessionData } = await client.auth.getSession();
+  const accessToken = sessionData.session?.access_token?.trim() || '';
+  if (!accessToken) return { ok: false, error: 'يلزم تسجيل دخول الأدمن' };
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${accessToken}`,
+  };
+  const supabaseUrl = getClientSupabaseUrl();
+  if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+  const anon = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+  if (anon) headers['x-supabase-anon'] = anon;
+
+  try {
+    const resp = await fetch('/api/admin-barber-hard-update', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+    const json = (await resp.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      hint?: string;
+      barber?: Record<string, unknown>;
+    };
+    if (!resp.ok || json.ok !== true || !json.barber) {
+      return {
+        ok: false,
+        error: json.hint ? `${json.error ?? 'تعذر التحديث'} — ${json.hint}` : json.error || `HTTP ${resp.status}`,
+      };
+    }
+    return { ok: true, barber: mapAdminBarberApiRow(json.barber) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'network_error' };
+  }
+}
+
+export async function updateBarberRecordRemote(
+  barberId: string,
+  patch: Partial<
+    Pick<
+      AdminBarberRow,
+      | 'name'
+      | 'email'
+      | 'phone'
+      | 'city'
+      | 'address'
+      | 'latitude'
+      | 'longitude'
+      | 'tier'
+      | 'is_active'
+      | 'is_verified'
+      | 'open_for_customers'
+      | 'specialties'
+      | 'profile_image'
+      | 'cover_image'
+    >
+  >
+): Promise<{ ok: true; barber?: AdminBarberRow } | { ok: false; error: string }> {
+  const payload: Record<string, unknown> = {};
+  if (patch.name !== undefined) payload.name = patch.name;
+  if (patch.email !== undefined) payload.email = patch.email;
+  if (patch.phone !== undefined) payload.phone = patch.phone;
+  if (patch.city !== undefined) payload.city = patch.city;
+  if (patch.address !== undefined) payload.address = patch.address;
+  if (patch.latitude !== undefined) payload.latitude = patch.latitude;
+  if (patch.longitude !== undefined) payload.longitude = patch.longitude;
+  if (patch.tier !== undefined) payload.tier = patch.tier;
+  if (patch.is_active !== undefined) payload.is_active = patch.is_active;
+  if (patch.is_verified !== undefined) payload.is_verified = patch.is_verified;
+  if (patch.open_for_customers !== undefined) payload.open_for_customers = patch.open_for_customers;
+  if (patch.specialties !== undefined) payload.specialties = patch.specialties;
+  if (patch.profile_image !== undefined) payload.profile_image = patch.profile_image;
+  if (patch.cover_image !== undefined) payload.cover_image = patch.cover_image;
+
+  if (Object.keys(payload).length === 0) {
+    return { ok: false, error: 'لا توجد حقول للتحديث' };
+  }
+
+  return postAdminBarberHardUpdate({ barberId, patch: payload });
+}
+
+/** استعادة إحداثيات طلب التجربة البرونزي المعتمد (مصدر الحقيقة الجغرافي). */
+export async function restoreBarberTrialGeoRemote(
+  barberId: string,
+): Promise<{ ok: true; barber: AdminBarberRow } | { ok: false; error: string }> {
+  return postAdminBarberHardUpdate({ barberId, restoreTrialGeo: true });
+}
+
+export async function findDuplicateBarbersByContact(
+  email: string,
+  phone: string
+): Promise<AdminBarberRow[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+  const emailTrim = email.trim();
+  const phoneTrim = phone.trim();
+  if (!emailTrim && !phoneTrim) return [];
+
+  let query = client
+    .from('barbers')
+    .select(
+      'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, open_for_customers, specialties, profile_image, cover_image, created_at'
+    );
+  if (emailTrim && phoneTrim) {
+    query = query.or(`email.eq.${emailTrim},phone.eq.${phoneTrim}`);
+  } else if (emailTrim) {
+    query = query.eq('email', emailTrim);
+  } else {
+    query = query.eq('phone', phoneTrim);
+  }
+  const { data, error } = await query.limit(20);
+  if (error || !data) return [];
+  return (data as Record<string, unknown>[]).map((row) => mapAdminBarberApiRow(row));
 }
 
 export async function upsertBarberFromApprovedRequest(

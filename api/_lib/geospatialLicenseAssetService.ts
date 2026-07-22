@@ -170,7 +170,54 @@ async function loadGeoSnapshot(
   }
 
   if (barberGeo?.latitude != null && barberGeo.longitude != null) {
+    // شركاء التجربة: إحداثيات طلب التجربة المعتمد تتقدّم على التسجيل إن وُجدت.
+    if (barberId) {
+      const { data: bEmail } = await supabase.from('barbers').select('email').eq('id', barberId).maybeSingle();
+      const email = String((bEmail as { email?: string | null } | null)?.email ?? '').trim();
+      if (email.includes('@')) {
+        const { loadApprovedBronzeTrialGeoByEmail } = await import('./bronzeTrialGeoSync.js');
+        const trialGeo = await loadApprovedBronzeTrialGeoByEmail(supabase, email);
+        if (trialGeo) {
+          await syncBarberCoordinatesFromGeo(supabase, barberId, trialGeo.latitude, trialGeo.longitude);
+          return {
+            latitude: trialGeo.latitude,
+            longitude: trialGeo.longitude,
+            snapshot: {
+              ...barberGeo.snapshot,
+              businessName: trialGeo.salonName,
+              source: 'bronze_trial_application',
+              applicationId: trialGeo.applicationId,
+              lat: trialGeo.latitude,
+              lng: trialGeo.longitude,
+            },
+          };
+        }
+      }
+    }
     return barberGeo;
+  }
+
+  if (barberId) {
+    const { data: bEmail } = await supabase.from('barbers').select('email').eq('id', barberId).maybeSingle();
+    const email = String((bEmail as { email?: string | null } | null)?.email ?? '').trim();
+    if (email.includes('@')) {
+      const { loadApprovedBronzeTrialGeoByEmail } = await import('./bronzeTrialGeoSync.js');
+      const trialGeo = await loadApprovedBronzeTrialGeoByEmail(supabase, email);
+      if (trialGeo) {
+        await syncBarberCoordinatesFromGeo(supabase, barberId, trialGeo.latitude, trialGeo.longitude);
+        return {
+          latitude: trialGeo.latitude,
+          longitude: trialGeo.longitude,
+          snapshot: {
+            businessName: trialGeo.salonName,
+            source: 'bronze_trial_application',
+            applicationId: trialGeo.applicationId,
+            lat: trialGeo.latitude,
+            lng: trialGeo.longitude,
+          },
+        };
+      }
+    }
   }
 
   const reqId = registrationRequestId?.trim();

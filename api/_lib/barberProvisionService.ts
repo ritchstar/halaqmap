@@ -341,8 +341,6 @@ export function buildMinimalBarberUpsertRowFromPayment(input: {
     name: input.name.trim() || 'شريك حلاق ماب',
     email: input.email.trim(),
     phone: (input.phone ?? '').trim() || '0500000000',
-    latitude: null,
-    longitude: null,
     address: 'يُستكمل من لوحة التحكم',
     city: null,
     tier,
@@ -602,6 +600,26 @@ async function maybeEnsureBronzeTrialListing(
   }
 }
 
+/** يفرض إحداثيات طلب التجربة الموافق عليه (مصدر الحقيقة) على سجل الحلاق. */
+async function maybeApplyBronzeTrialGeo(
+  supabase: SupabaseClient,
+  barberId: string,
+  email?: string | null,
+): Promise<void> {
+  try {
+    const { applyApprovedBronzeTrialGeoToBarber } = await import('./bronzeTrialGeoSync.js');
+    const geo = await applyApprovedBronzeTrialGeoToBarber(supabase, {
+      barberId,
+      email: email ?? null,
+    });
+    if (!geo.ok) {
+      console.error('[provision] bronze_trial_geo_sync_failed', geo.error);
+    }
+  } catch (err) {
+    console.error('[provision] bronze_trial_geo_sync_threw', err);
+  }
+}
+
 export async function provisionBarberForPaidOrder(
   supabase: SupabaseClient,
   input: ProvisionBarberForPaymentInput,
@@ -628,6 +646,7 @@ export async function provisionBarberForPaidOrder(
         });
       }
       await maybeEnsureBronzeTrialListing(supabase, barberId, buyerEmail, skipTrialEnsure);
+      await maybeApplyBronzeTrialGeo(supabase, barberId, buyerEmail);
       return {
         ok: true,
         barberId,
@@ -663,6 +682,7 @@ export async function provisionBarberForPaidOrder(
           moyasarPaymentId: input.moyasarPaymentId ?? null,
         });
         await maybeEnsureBronzeTrialListing(supabase, String(linkedRow.id), buyerEmail, skipTrialEnsure);
+        await maybeApplyBronzeTrialGeo(supabase, String(linkedRow.id), buyerEmail);
         return {
           ok: true,
           barberId: String(linkedRow.id),
@@ -707,6 +727,7 @@ export async function provisionBarberForPaidOrder(
   }
 
   await maybeEnsureBronzeTrialListing(supabase, provision.barberId, buyerEmail, skipTrialEnsure);
+  await maybeApplyBronzeTrialGeo(supabase, provision.barberId, buyerEmail);
 
   return {
     ok: true,

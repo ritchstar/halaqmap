@@ -171,6 +171,16 @@ export async function ensureBronzeTrialListingForBarber(
     })
     .eq('id', code.id);
 
+  try {
+    const { applyApprovedBronzeTrialGeoToBarber } = await import('./bronzeTrialGeoSync.js');
+    const geo = await applyApprovedBronzeTrialGeoToBarber(supabase, { barberId, email });
+    if (!geo.ok) {
+      console.error('[bronze-trial-ensure] geo_sync_failed', geo.error);
+    }
+  } catch (err) {
+    console.error('[bronze-trial-ensure] geo_sync_threw', err);
+  }
+
   return {
     ok: true,
     granted: true,
