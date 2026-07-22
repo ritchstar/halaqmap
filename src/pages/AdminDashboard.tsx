@@ -2373,6 +2373,16 @@ function RequestReviewDialog({
 }) {
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editName, setEditName] = useState(request.barberName);
+  const [editEmail, setEditEmail] = useState(request.email);
+  const [editPhone, setEditPhone] = useState(request.phone);
+  const [editLat, setEditLat] = useState(
+    request.location?.lat != null ? String(request.location.lat) : '',
+  );
+  const [editLng, setEditLng] = useState(
+    request.location?.lng != null ? String(request.location.lng) : '',
+  );
+  const [editAddress, setEditAddress] = useState(request.location?.address ?? '');
 
   const isMockRow =
     shouldShowAdminMocks() && MOCK_SUBSCRIPTION_REQUESTS.some((m) => m.id === request.id);
@@ -2380,7 +2390,68 @@ function RequestReviewDialog({
   useEffect(() => {
     setShowRejectForm(false);
     setSaving(false);
+    setEditName(request.barberName);
+    setEditEmail(request.email);
+    setEditPhone(request.phone);
+    setEditLat(request.location?.lat != null ? String(request.location.lat) : '');
+    setEditLng(request.location?.lng != null ? String(request.location.lng) : '');
+    setEditAddress(request.location?.address ?? '');
   }, [request.id]);
+
+  const handleSaveIdentity = async () => {
+    if (!canReviewRequests) {
+      toast({ title: 'لا تملك صلاحية تعديل الطلبات', variant: 'destructive' });
+      return;
+    }
+    if (isMockRow) {
+      toast({ title: 'تعديل غير متاح للصف التجريبي', variant: 'destructive' });
+      return;
+    }
+    const nameTrim = editName.trim();
+    const emailTrim = editEmail.trim().toLowerCase();
+    const phoneTrim = editPhone.trim();
+    const addressTrim = editAddress.trim() || 'غير محدد';
+    const latN = Number(editLat.trim());
+    const lngN = Number(editLng.trim());
+    if (!nameTrim) {
+      toast({ title: 'اسم الصالون مطلوب', variant: 'destructive' });
+      return;
+    }
+    if (!emailTrim.includes('@')) {
+      toast({ title: 'بريد غير صالح', variant: 'destructive' });
+      return;
+    }
+    if (phoneTrim.replace(/[^0-9]/g, '').length < 8) {
+      toast({ title: 'رقم الجوال غير مكتمل', variant: 'destructive' });
+      return;
+    }
+    if (!Number.isFinite(latN) || !Number.isFinite(lngN)) {
+      toast({ title: 'إحداثيات غير صالحة', variant: 'destructive' });
+      return;
+    }
+
+    setSaving(true);
+    const res = await patchRegistrationSubmissionPayloadRemote(request.id, {
+      barberName: nameTrim,
+      email: emailTrim,
+      phone: phoneTrim,
+      location: { lat: latN, lng: lngN, address: addressTrim },
+    });
+    setSaving(false);
+    if (!res.ok) {
+      toast({
+        title: 'تعذر حفظ تعديلات الطلب',
+        description: errorText(res, 'تحقق من صلاحية مراجعة الطلبات أو جرّب بعد النشر.'),
+        variant: 'destructive',
+      });
+      return;
+    }
+    toast({
+      title: 'تم حفظ تصحيح بيانات الطلب',
+      description: `${nameTrim} · ${emailTrim}`,
+    });
+    onAfterDecision();
+  };
 
   const handleApprove = async () => {
     if (!canReviewRequests) {
@@ -2697,10 +2768,15 @@ function RequestReviewDialog({
                 </p>
               </div>
             ) : null}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>اسم الصالون</Label>
-                <p className="text-sm font-medium mt-1">{request.barberName}</p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="req-edit-name">اسم الصالون</Label>
+                <Input
+                  id="req-edit-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  disabled={!canReviewRequests || saving}
+                />
               </div>
               <div>
                 <Label>الباقة المطلوبة</Label>
@@ -2710,14 +2786,40 @@ function RequestReviewDialog({
                   {request.tier === SubscriptionTier.BRONZE && '🥉 برونزي'}
                 </Badge>
               </div>
-              <div>
-                <Label>البريد الإلكتروني</Label>
-                <p className="text-sm font-medium mt-1">{request.email}</p>
+              <div className="space-y-2">
+                <Label htmlFor="req-edit-email">البريد الإلكتروني</Label>
+                <Input
+                  id="req-edit-email"
+                  dir="ltr"
+                  className="font-mono"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  disabled={!canReviewRequests || saving}
+                />
               </div>
-              <div>
-                <Label>رقم الهاتف</Label>
-                <p className="text-sm font-medium mt-1" dir="ltr">
-                  {request.phone}
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="req-edit-phone">رقم الهاتف</Label>
+                <Input
+                  id="req-edit-phone"
+                  dir="ltr"
+                  className="font-mono"
+                  style={{ unicodeBidi: 'isolate' }}
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  disabled={!canReviewRequests || saving}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={!canReviewRequests || saving}
+                  onClick={() => void handleSaveIdentity()}
+                >
+                  حفظ تصحيح الاسم / البريد / الجوال / الموقع
+                </Button>
+                <p className="mt-1 text-xs text-amber-800 dark:text-amber-200/90">
+                  صحّح البيانات قبل الموافقة. مثال شائع: إكمال `.com` في البريد.
                 </p>
               </div>
             </div>
@@ -2768,24 +2870,52 @@ function RequestReviewDialog({
           {/* Location */}
           <div>
             <h3 className="text-lg font-semibold mb-3">الموقع</h3>
-            <div className="space-y-2">
-              <p className="text-sm">{request.location.address}</p>
-              <p className="text-xs text-muted-foreground">
-                الإحداثيات: {request.location.lat}, {request.location.lng}
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  window.open(
-                    `https://www.google.com/maps?q=${request.location.lat},${request.location.lng}`,
-                    '_blank'
-                  )
-                }
-              >
-                <MapPin className="w-4 h-4 ml-2" />
-                الظهور عبر نظام الرصد الذكي
-              </Button>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="req-edit-address">العنوان</Label>
+                <Textarea
+                  id="req-edit-address"
+                  value={editAddress}
+                  onChange={(e) => setEditAddress(e.target.value)}
+                  rows={2}
+                  disabled={!canReviewRequests || saving}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="req-edit-lat">خط العرض</Label>
+                <Input
+                  id="req-edit-lat"
+                  dir="ltr"
+                  value={editLat}
+                  onChange={(e) => setEditLat(e.target.value)}
+                  disabled={!canReviewRequests || saving}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="req-edit-lng">خط الطول</Label>
+                <Input
+                  id="req-edit-lng"
+                  dir="ltr"
+                  value={editLng}
+                  onChange={(e) => setEditLng(e.target.value)}
+                  disabled={!canReviewRequests || saving}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    window.open(
+                      `https://www.google.com/maps?q=${editLat || request.location.lat},${editLng || request.location.lng}`,
+                      '_blank',
+                    )
+                  }
+                >
+                  <MapPin className="w-4 h-4 ml-2" />
+                  الظهور عبر نظام الرصد الذكي
+                </Button>
+              </div>
             </div>
           </div>
 

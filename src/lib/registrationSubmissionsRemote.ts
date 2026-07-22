@@ -295,11 +295,62 @@ export async function patchRegistrationSubmissionPayloadRemote(
       | 'email'
       | 'phone'
       | 'location'
+      | 'barberName'
     >
   >
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const client = getSupabaseClient();
   if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
+
+  const identityKeys = ['email', 'phone', 'location', 'barberName'] as const;
+  const hasIdentityPatch = identityKeys.some((k) => patch[k] !== undefined);
+  if (hasIdentityPatch) {
+    const { data: sessionData } = await client.auth.getSession();
+    const accessToken = sessionData.session?.access_token?.trim() || '';
+    if (accessToken) {
+      try {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        };
+        const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim();
+        if (supabaseUrl) headers['x-client-supabase-url'] = supabaseUrl;
+        const anon = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+        if (anon) headers['x-supabase-anon'] = anon;
+
+        const identityPatch: Record<string, unknown> = {};
+        if (patch.email !== undefined) identityPatch.email = patch.email;
+        if (patch.phone !== undefined) identityPatch.phone = patch.phone;
+        if (patch.barberName !== undefined) identityPatch.barberName = patch.barberName;
+        if (patch.location !== undefined) identityPatch.location = patch.location;
+
+        const resp = await fetch('/api/admin-registration-submission-patch', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ requestId: rowId, patch: identityPatch }),
+        });
+        const json = (await resp.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+        if (resp.ok && json.ok === true) {
+          // أكمل بقية الحقول الإدارية عبر المسار المباشر إن وُجدت
+          const rest: Record<string, unknown> = { ...patch };
+          delete rest.email;
+          delete rest.phone;
+          delete rest.barberName;
+          delete rest.location;
+          if (Object.keys(rest).length === 0) return { ok: true };
+          // fall through with rest only
+          patch = rest as typeof patch;
+        } else if (resp.status !== 404 && resp.status !== 405 && resp.status !== 503) {
+          return { ok: false, error: json.error || `HTTP ${resp.status}` };
+        }
+        // 404/503 → fallback مباشر أدناه
+      } catch {
+        /* fallback */
+      }
+    }
+  }
+
+  if (Object.keys(patch).length === 0) return { ok: true };
 
   const { data: row, error: fetchErr } = await client.from(TABLE).select('payload').eq('id', rowId).maybeSingle();
 
