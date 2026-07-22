@@ -16,6 +16,7 @@ import {
   GOOGLE_ADS_CAMPAIGN_LINKS,
   GOOGLE_ADS_CONVERSION_ID,
   GOOGLE_ADS_TAG_LABEL_AR,
+  GOOGLE_ANALYTICS_MEASUREMENT_ID,
 } from '@/config/googleAdsTag';
 import {
   clearGoogleAdsEventLog,
@@ -91,13 +92,14 @@ export function GoogleAdsCampaignPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <StatusTile
               label="حالة الوسم"
               value={snapshot.loaded ? 'نشط' : 'غير محمّل'}
               ok={snapshot.loaded}
             />
-            <StatusTile label="معرّف التحويل" value={GOOGLE_ADS_CONVERSION_ID} mono />
+            <StatusTile label="Google Analytics" value={GOOGLE_ANALYTICS_MEASUREMENT_ID} mono />
+            <StatusTile label="معرّف التحويل Ads" value={GOOGLE_ADS_CONVERSION_ID} mono />
             <StatusTile label="حجم dataLayer" value={String(snapshot.dataLayerSize)} />
             <StatusTile
               label="آخر حدث محلي"

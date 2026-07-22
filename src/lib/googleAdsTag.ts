@@ -1,4 +1,4 @@
-import { GOOGLE_ADS_CONVERSION_ID } from '@/config/googleAdsTag';
+import { GOOGLE_ADS_CONVERSION_ID, GOOGLE_ANALYTICS_MEASUREMENT_ID } from '@/config/googleAdsTag';
 
 export type GoogleAdsTrackedEvent = {
   id: string;
@@ -74,7 +74,7 @@ export function clearGoogleAdsEventLog(): void {
   }
 }
 
-/** إرسال مشاهدة صفحة لـ SPA (HashRouter). */
+/** إرسال مشاهدة صفحة لـ SPA (HashRouter) — Analytics + Ads. */
 export function trackGoogleAdsPageView(path: string): void {
   if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
   const pagePath = path.startsWith('/') ? path : `/${path}`;
@@ -82,7 +82,8 @@ export function trackGoogleAdsPageView(path: string): void {
     window.gtag('event', 'page_view', {
       page_path: pagePath,
       page_location: window.location.href,
-      send_to: GOOGLE_ADS_CONVERSION_ID,
+      page_title: typeof document !== 'undefined' ? document.title : undefined,
+      send_to: [GOOGLE_ANALYTICS_MEASUREMENT_ID, GOOGLE_ADS_CONVERSION_ID],
     });
     appendEvent({ name: 'page_view', path: pagePath });
   } catch {
@@ -119,6 +120,7 @@ export function trackGoogleAdsEvent(
 export function getGoogleAdsTagSnapshot(): {
   loaded: boolean;
   conversionId: string;
+  analyticsId: string;
   dataLayerSize: number;
   eventCount: number;
   lastEventAt: string | null;
@@ -127,6 +129,7 @@ export function getGoogleAdsTagSnapshot(): {
   return {
     loaded: isGoogleAdsTagLoaded(),
     conversionId: GOOGLE_ADS_CONVERSION_ID,
+    analyticsId: GOOGLE_ANALYTICS_MEASUREMENT_ID,
     dataLayerSize: Array.isArray(window.dataLayer) ? window.dataLayer.length : 0,
     eventCount: events.length,
     lastEventAt: events[0]?.at ?? null,
