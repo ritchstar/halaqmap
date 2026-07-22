@@ -76,7 +76,7 @@ export function BronzeTrialApplicationsPanel({ accessToken }: Props) {
   };
 
   const act = async (
-    action: 'approve' | 'reject' | 'resend_code' | 'resend_confirm',
+    action: 'approve' | 'reject' | 'resend_code' | 'resend_confirm' | 'mark_email_confirmed',
     row: BronzeTrialApplicationRow,
   ) => {
     if (action === 'reject' && !rejectReason.trim()) {
@@ -360,13 +360,21 @@ export function BronzeTrialApplicationsPanel({ accessToken }: Props) {
                     </>
                   ) : null}
                   {selected.status === 'pending_email' ? (
-                    <Button
-                      variant="outline"
-                      disabled={busyId === selected.id}
-                      onClick={() => void act('resend_confirm', selected)}
-                    >
-                      إعادة تأكيد البريد
-                    </Button>
+                    <>
+                      <Button
+                        disabled={busyId === selected.id}
+                        onClick={() => void act('mark_email_confirmed', selected)}
+                      >
+                        تأكيد البريد يدوياً
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={busyId === selected.id}
+                        onClick={() => void act('resend_confirm', selected)}
+                      >
+                        إعادة إرسال رابط التأكيد
+                      </Button>
+                    </>
                   ) : null}
                   {selected.status === 'approved' ? (
                     <Button

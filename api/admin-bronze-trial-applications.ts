@@ -4,6 +4,7 @@
  */
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import {
+  adminConfirmBronzeTrialApplicationEmail,
   approveBronzeTrialApplication,
   rejectBronzeTrialApplication,
   resendBronzeTrialCodeEmail,
@@ -134,6 +135,14 @@ export async function POST(request: Request): Promise<Response> {
 
   if (action === 'resend_confirm') {
     const result = await resendBronzeTrialConfirmEmail(auth.supabase, applicationId);
+    if (!result.ok) {
+      return Response.json({ ok: false, error: result.error }, { status: result.status, headers });
+    }
+    return Response.json({ ok: true }, { headers });
+  }
+
+  if (action === 'mark_email_confirmed') {
+    const result = await adminConfirmBronzeTrialApplicationEmail(auth.supabase, applicationId);
     if (!result.ok) {
       return Response.json({ ok: false, error: result.error }, { status: result.status, headers });
     }

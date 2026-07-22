@@ -70,7 +70,8 @@ export async function confirmBronzeTrialEmailRemote(
       error?: string;
       messageAr?: string;
     };
-    if (!resp.ok || json.ok === false) {
+    // يجب أن يكون ok === true صراحةً — وإلا يظهر نجاح وهمي دون تحديث القاعدة.
+    if (!resp.ok || json.ok !== true) {
       return { ok: false, error: json.error || `http_${resp.status}` };
     }
     return {

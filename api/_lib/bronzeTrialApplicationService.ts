@@ -198,7 +198,7 @@ export async function confirmBronzeTrialApplicationEmail(
 
   const { data: row, error } = await supabase
     .from('bronze_trial_applications')
-    .select('id, email, status')
+    .select('id, email, status, email_confirmed_at')
     .eq('id', verified.applicationId)
     .maybeSingle();
   if (error) return { ok: false, error: error.message, status: 500 };
@@ -207,6 +207,15 @@ export async function confirmBronzeTrialApplicationEmail(
     return { ok: false, error: 'email_mismatch', status: 403 };
   }
   if (row.status === 'pending_review' || row.status === 'approved') {
+    // إن وُجدت الحالة دون طابع زمني (طلبات قديمة/عالقة) أكمل التسجيل.
+    if (!row.email_confirmed_at && row.status === 'pending_review') {
+      const nowFix = new Date().toISOString();
+      await supabase
+        .from('bronze_trial_applications')
+        .update({ email_confirmed_at: nowFix, updated_at: nowFix })
+        .eq('id', row.id)
+        .is('email_confirmed_at', null);
+    }
     return { ok: true, applicationId: String(row.id) };
   }
   if (row.status !== 'pending_email') {
@@ -214,7 +223,7 @@ export async function confirmBronzeTrialApplicationEmail(
   }
 
   const now = new Date().toISOString();
-  const { error: updErr } = await supabase
+  const { data: updated, error: updErr } = await supabase
     .from('bronze_trial_applications')
     .update({
       status: 'pending_review',
@@ -222,9 +231,82 @@ export async function confirmBronzeTrialApplicationEmail(
       updated_at: now,
     })
     .eq('id', row.id)
-    .eq('status', 'pending_email');
+    .eq('status', 'pending_email')
+    .select('id, status, email_confirmed_at')
+    .maybeSingle();
+
   if (updErr) return { ok: false, error: updErr.message, status: 500 };
-  return { ok: true, applicationId: String(row.id) };
+
+  if (!updated?.id || String(updated.status) !== 'pending_review') {
+    const { data: again } = await supabase
+      .from('bronze_trial_applications')
+      .select('id, status, email_confirmed_at')
+      .eq('id', row.id)
+      .maybeSingle();
+    if (
+      again?.id &&
+      (again.status === 'pending_review' || again.status === 'approved') &&
+      again.email_confirmed_at
+    ) {
+      return { ok: true, applicationId: String(again.id) };
+    }
+    console.error('[bronze-trial-confirm] update_no_row', {
+      applicationId: row.id,
+      updated,
+      again,
+    });
+    return { ok: false, error: 'confirm_update_failed', status: 500 };
+  }
+
+  return { ok: true, applicationId: String(updated.id) };
+}
+
+/** تأكيد بريد يدوياً من لوحة الأدمن (طلبات عالقة بعد ضغط العميل للرابط). */
+export async function adminConfirmBronzeTrialApplicationEmail(
+  supabase: SupabaseClient,
+  applicationId: string,
+): Promise<{ ok: true; applicationId: string } | { ok: false; error: string; status: number }> {
+  const id = String(applicationId ?? '').trim();
+  if (!UUID_RE.test(id)) return { ok: false, error: 'invalid_id', status: 400 };
+
+  const { data: row, error } = await supabase
+    .from('bronze_trial_applications')
+    .select('id, status, email_confirmed_at')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message, status: 500 };
+  if (!row?.id) return { ok: false, error: 'application_not_found', status: 404 };
+
+  if (row.status === 'pending_review' || row.status === 'approved') {
+    if (!row.email_confirmed_at) {
+      const now = new Date().toISOString();
+      await supabase
+        .from('bronze_trial_applications')
+        .update({ email_confirmed_at: now, updated_at: now })
+        .eq('id', id);
+    }
+    return { ok: true, applicationId: id };
+  }
+  if (row.status !== 'pending_email') {
+    return { ok: false, error: 'invalid_status', status: 409 };
+  }
+
+  const now = new Date().toISOString();
+  const { data: updated, error: updErr } = await supabase
+    .from('bronze_trial_applications')
+    .update({
+      status: 'pending_review',
+      email_confirmed_at: now,
+      updated_at: now,
+    })
+    .eq('id', id)
+    .eq('status', 'pending_email')
+    .select('id, status')
+    .maybeSingle();
+
+  if (updErr) return { ok: false, error: updErr.message, status: 500 };
+  if (!updated?.id) return { ok: false, error: 'confirm_update_failed', status: 500 };
+  return { ok: true, applicationId: id };
 }
 
 export async function approveBronzeTrialApplication(

@@ -6,9 +6,49 @@ import { Loader2 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';
 import { confirmBronzeTrialEmailRemote } from '@/lib/bronzeTrialApplyRemote';
 
+/** يقرأ رمز التأكيد من HashRouter أو من ?c= قبل # (بعض عملاء البريد ينقلون الاستعلام). */
+function readConfirmToken(searchParams: URLSearchParams): string {
+  const fromRr = (searchParams.get('c') || searchParams.get('token') || '').trim();
+  if (fromRr) return decodeTokenOnce(fromRr);
+
+  if (typeof window === 'undefined') return '';
+
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const fromSearch = (q.get('c') || q.get('token') || '').trim();
+    if (fromSearch) return decodeTokenOnce(fromSearch);
+  } catch {
+    /* ignore */
+  }
+
+  try {
+    const hash = String(window.location.hash || '');
+    const qi = hash.indexOf('?');
+    if (qi >= 0) {
+      const hp = new URLSearchParams(hash.slice(qi + 1));
+      const fromHash = (hp.get('c') || hp.get('token') || '').trim();
+      if (fromHash) return decodeTokenOnce(fromHash);
+    }
+  } catch {
+    /* ignore */
+  }
+
+  return '';
+}
+
+function decodeTokenOnce(raw: string): string {
+  const t = raw.trim();
+  if (!t.includes('%')) return t;
+  try {
+    return decodeURIComponent(t).trim();
+  } catch {
+    return t;
+  }
+}
+
 export default function BronzeTrialConfirmLanding() {
   const [params] = useSearchParams();
-  const token = (params.get('c') || params.get('token') || '').trim();
+  const token = readConfirmToken(params);
   const [state, setState] = useState<'loading' | 'ok' | 'error'>('loading');
   const [message, setMessage] = useState('');
 
@@ -27,7 +67,9 @@ export default function BronzeTrialConfirmLanding() {
         setMessage(
           res.error === 'token_expired'
             ? 'انتهت صلاحية رابط التأكيد — اطلب إعادة الإرسال من الدعم.'
-            : 'تعذّر تأكيد البريد. قد يكون الرابط مستخدماً أو غير صالح.',
+            : res.error === 'confirm_update_failed'
+              ? 'تعذّر حفظ التأكيد في النظام. تواصل مع الدعم أو أعد فتح الرابط.'
+              : 'تعذّر تأكيد البريد. قد يكون الرابط مستخدماً أو غير صالح.',
         );
         return;
       }

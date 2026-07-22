@@ -65,7 +65,7 @@ export async function adminListBronzeTrialApplicationsRemote(input: {
 
 export async function adminBronzeTrialApplicationActionRemote(input: {
   accessToken: string;
-  action: 'approve' | 'reject' | 'resend_code' | 'resend_confirm';
+  action: 'approve' | 'reject' | 'resend_code' | 'resend_confirm' | 'mark_email_confirmed';
   applicationId: string;
   reason?: string;
 }): Promise<{ ok: true; plaintextCode?: string; emailSent?: boolean } | { ok: false; error: string }> {
