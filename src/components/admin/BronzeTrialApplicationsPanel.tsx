@@ -44,6 +44,7 @@ export function BronzeTrialApplicationsPanel({ accessToken }: Props) {
   const [filter, setFilter] = useState('pending_review');
   const [selected, setSelected] = useState<BronzeTrialApplicationRow | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [emailEdit, setEmailEdit] = useState('');
   const [lastCode, setLastCode] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [previewPhoto, setPreviewPhoto] = useState<{ url: string; label: string } | null>(null);
@@ -62,7 +63,9 @@ export function BronzeTrialApplicationsPanel({ accessToken }: Props) {
     setRows(res.rows);
     setSelected((prev) => {
       if (!prev) return null;
-      return res.rows.find((r) => r.id === prev.id) ?? null;
+      const next = res.rows.find((r) => r.id === prev.id) ?? null;
+      if (next) setEmailEdit(next.email);
+      return next;
     });
   }, [accessToken, filter]);
 
@@ -72,16 +75,30 @@ export function BronzeTrialApplicationsPanel({ accessToken }: Props) {
 
   const openRow = (row: BronzeTrialApplicationRow) => {
     setRejectReason(row.reject_reason || '');
+    setEmailEdit(row.email);
     setSelected(row);
   };
 
   const act = async (
-    action: 'approve' | 'reject' | 'resend_code' | 'resend_confirm' | 'mark_email_confirmed',
+    action:
+      | 'approve'
+      | 'reject'
+      | 'resend_code'
+      | 'resend_confirm'
+      | 'mark_email_confirmed'
+      | 'update_email',
     row: BronzeTrialApplicationRow,
   ) => {
     if (action === 'reject' && !rejectReason.trim()) {
       toast.error('اكتب سبب الرفض قبل التنفيذ');
       return;
+    }
+    if (action === 'update_email') {
+      const next = emailEdit.trim().toLowerCase();
+      if (!next.includes('@')) {
+        toast.error('أدخل بريداً صحيحاً قبل الحفظ');
+        return;
+      }
     }
     setBusyId(row.id);
     const res = await adminBronzeTrialApplicationActionRemote({
@@ -89,6 +106,7 @@ export function BronzeTrialApplicationsPanel({ accessToken }: Props) {
       action,
       applicationId: row.id,
       reason: rejectReason,
+      email: action === 'update_email' ? emailEdit : undefined,
     });
     setBusyId(null);
     if (!res.ok) {
@@ -98,6 +116,12 @@ export function BronzeTrialApplicationsPanel({ accessToken }: Props) {
     if (res.plaintextCode) {
       setLastCode(res.plaintextCode);
       toast.success('تم — انسخ الكود إن ظهر أدناه');
+    } else if (action === 'update_email') {
+      toast.success(
+        res.confirmResent
+          ? `تم تصحيح البريد إلى ${res.email} وإعادة إرسال رابط التأكيد`
+          : `تم تصحيح البريد إلى ${res.email}`,
+      );
     } else {
       toast.success('تم تنفيذ الإجراء');
     }
@@ -236,10 +260,31 @@ export function BronzeTrialApplicationsPanel({ accessToken }: Props) {
 
                 <div className="space-y-5 px-6 py-5">
                   <div className="grid gap-3 rounded-xl border border-border bg-muted/20 p-4 text-sm sm:grid-cols-2">
-                    <div>
-                      <p className="mb-1 text-xs font-semibold text-muted-foreground">البريد</p>
-                      <p className="font-mono text-base" dir="ltr">
-                        {selected.email}
+                    <div className="sm:col-span-2 space-y-2">
+                      <p className="text-xs font-semibold text-muted-foreground">البريد (قابل للتصحيح قبل الموافقة)</p>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <Input
+                          dir="ltr"
+                          className="font-mono"
+                          value={emailEdit}
+                          onChange={(e) => setEmailEdit(e.target.value)}
+                          placeholder="email@example.com"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          disabled={
+                            busyId === selected.id ||
+                            emailEdit.trim().toLowerCase() === selected.email.trim().toLowerCase()
+                          }
+                          onClick={() => void act('update_email', selected)}
+                        >
+                          حفظ تصحيح البريد
+                        </Button>
+                      </div>
+                      <p className="text-xs text-amber-800 dark:text-amber-200/90">
+                        مهم: صحّح البريد أولاً ثم وافق — الكود يُربط بهذا الإيميل. لا تعتمد على تعديل الحساب بعد
+                        الموافقة إن أمكن.
                       </p>
                     </div>
                     <div>

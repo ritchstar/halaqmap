@@ -65,10 +65,20 @@ export async function adminListBronzeTrialApplicationsRemote(input: {
 
 export async function adminBronzeTrialApplicationActionRemote(input: {
   accessToken: string;
-  action: 'approve' | 'reject' | 'resend_code' | 'resend_confirm' | 'mark_email_confirmed';
+  action:
+    | 'approve'
+    | 'reject'
+    | 'resend_code'
+    | 'resend_confirm'
+    | 'mark_email_confirmed'
+    | 'update_email';
   applicationId: string;
   reason?: string;
-}): Promise<{ ok: true; plaintextCode?: string; emailSent?: boolean } | { ok: false; error: string }> {
+  email?: string;
+}): Promise<
+  | { ok: true; plaintextCode?: string; emailSent?: boolean; email?: string; confirmResent?: boolean }
+  | { ok: false; error: string }
+> {
   const token = await bearer(input.accessToken);
   if (!token) return { ok: false, error: 'not_authenticated' };
   try {
@@ -79,6 +89,7 @@ export async function adminBronzeTrialApplicationActionRemote(input: {
         action: input.action,
         applicationId: input.applicationId,
         reason: input.reason,
+        email: input.email,
       }),
     });
     const json = (await resp.json().catch(() => ({}))) as {
@@ -86,9 +97,17 @@ export async function adminBronzeTrialApplicationActionRemote(input: {
       error?: string;
       plaintextCode?: string;
       emailSent?: boolean;
+      email?: string;
+      confirmResent?: boolean;
     };
     if (!resp.ok || json.ok === false) return { ok: false, error: json.error || `http_${resp.status}` };
-    return { ok: true, plaintextCode: json.plaintextCode, emailSent: json.emailSent };
+    return {
+      ok: true,
+      plaintextCode: json.plaintextCode,
+      emailSent: json.emailSent,
+      email: json.email,
+      confirmResent: json.confirmResent,
+    };
   } catch {
     return { ok: false, error: 'network_error' };
   }

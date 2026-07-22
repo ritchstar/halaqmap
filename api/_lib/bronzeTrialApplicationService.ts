@@ -514,6 +514,104 @@ async function sendTrialCodeEmail(input: {
   return sendResend({ to: input.to, subject, html, text });
 }
 
+/**
+ * تصحيح بريد طلب التجربة من لوحة الأدمن — قبل الموافقة أو بعدها (مع تحديث bound_email للكود).
+ * لا توافق على الطلب قبل تصحيح البريد.
+ */
+export async function adminUpdateBronzeTrialApplicationEmail(
+  supabase: SupabaseClient,
+  input: { applicationId: string; newEmail: string; adminEmail: string; resendConfirm?: boolean },
+): Promise<
+  | { ok: true; email: string; confirmResent: boolean }
+  | { ok: false; error: string; status: number }
+> {
+  const id = String(input.applicationId ?? '').trim();
+  if (!UUID_RE.test(id)) return { ok: false, error: 'invalid_id', status: 400 };
+  const newEmail = normalizeEmail(String(input.newEmail ?? ''));
+  if (!EMAIL_RE.test(newEmail)) return { ok: false, error: 'invalid_email', status: 400 };
+
+  const { data: app, error } = await supabase
+    .from('bronze_trial_applications')
+    .select('id, email, status, salon_name, trial_code_id')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message, status: 500 };
+  if (!app?.id) return { ok: false, error: 'application_not_found', status: 404 };
+
+  const oldEmail = normalizeEmail(String(app.email));
+  if (oldEmail === newEmail) {
+    return { ok: true, email: newEmail, confirmResent: false };
+  }
+
+  // منع التكرار إن وُجد طلب آخر بنفس البريد الجديد (غير مرفوض/ملغى)
+  const { data: dup } = await supabase
+    .from('bronze_trial_applications')
+    .select('id')
+    .ilike('email', newEmail)
+    .neq('id', id)
+    .not('status', 'in', '(rejected,cancelled)')
+    .limit(1)
+    .maybeSingle();
+  if (dup?.id) return { ok: false, error: 'email_already_used_on_another_application', status: 409 };
+
+  const now = new Date().toISOString();
+  const wasPendingEmail = String(app.status) === 'pending_email';
+  const patch: Record<string, unknown> = {
+    email: newEmail,
+    updated_at: now,
+  };
+  // إن لم يُؤكَّد بعد — أعد طلب التأكيد للبريد الجديد
+  if (wasPendingEmail) {
+    patch.email_confirmed_at = null;
+  }
+
+  const { error: updErr } = await supabase.from('bronze_trial_applications').update(patch).eq('id', id);
+  if (updErr) return { ok: false, error: updErr.message, status: 500 };
+
+  // حدّث ربط الكود إن وُجد
+  const codeId = String(app.trial_code_id ?? '').trim();
+  if (UUID_RE.test(codeId)) {
+    await supabase
+      .from('bronze_trial_codes')
+      .update({ bound_email: newEmail, updated_at: now })
+      .eq('id', codeId);
+  } else {
+    await supabase
+      .from('bronze_trial_codes')
+      .update({ bound_email: newEmail, updated_at: now })
+      .eq('application_id', id)
+      .in('status', ['issued', 'redeemed']);
+  }
+
+  // إن وُجد حساب حلاق بنفس البريد القديم — صحّح بريده أيضاً (بعد التسجيل بالخطأ)
+  await supabase.from('barbers').update({ email: newEmail, updated_at: now }).ilike('email', oldEmail);
+
+  let confirmResent = false;
+  const shouldResend =
+    input.resendConfirm !== false && (wasPendingEmail || String(app.status) === 'pending_review');
+  if (shouldResend && wasPendingEmail) {
+    const mail = await sendConfirmEmail(
+      supabase,
+      id,
+      newEmail,
+      String(app.salon_name ?? 'الصالون'),
+    );
+    confirmResent = mail.ok;
+    if (!mail.ok) {
+      console.error('[bronze-trial] email_corrected_but_confirm_resend_failed', mail.error);
+    }
+  }
+
+  console.info('[bronze-trial] email_corrected', {
+    applicationId: id,
+    from: oldEmail,
+    to: newEmail,
+    by: input.adminEmail,
+  });
+
+  return { ok: true, email: newEmail, confirmResent };
+}
+
 export async function resendBronzeTrialConfirmEmail(
   supabase: SupabaseClient,
   applicationId: string,

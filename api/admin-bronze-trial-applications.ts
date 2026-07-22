@@ -5,6 +5,7 @@
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
 import {
   adminConfirmBronzeTrialApplicationEmail,
+  adminUpdateBronzeTrialApplicationEmail,
   approveBronzeTrialApplication,
   rejectBronzeTrialApplication,
   resendBronzeTrialCodeEmail,
@@ -81,7 +82,7 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json(auth.json, { status: auth.status, headers });
   }
 
-  let body: { action?: unknown; applicationId?: unknown; reason?: unknown };
+  let body: { action?: unknown; applicationId?: unknown; reason?: unknown; email?: unknown; resendConfirm?: unknown };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -90,6 +91,22 @@ export async function POST(request: Request): Promise<Response> {
 
   const action = String(body.action ?? '').trim().toLowerCase();
   const applicationId = String(body.applicationId ?? '').trim();
+
+  if (action === 'update_email') {
+    const result = await adminUpdateBronzeTrialApplicationEmail(auth.supabase, {
+      applicationId,
+      newEmail: String(body.email ?? ''),
+      adminEmail: auth.actorEmail,
+      resendConfirm: body.resendConfirm !== false,
+    });
+    if (!result.ok) {
+      return Response.json({ ok: false, error: result.error }, { status: result.status, headers });
+    }
+    return Response.json(
+      { ok: true, email: result.email, confirmResent: result.confirmResent },
+      { headers },
+    );
+  }
 
   if (action === 'approve') {
     const result = await approveBronzeTrialApplication(auth.supabase, {
