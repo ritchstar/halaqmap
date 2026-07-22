@@ -14,7 +14,7 @@ import {
   Sparkles, ChevronDown, Globe2, Users, Award, BarChart3,
   Crown, Zap, Navigation2, Phone, MessageCircle, Lock,
   TrendingUp, QrCode, ImageIcon, Brain, Moon, FileCheck,
-  ChevronLeft, ArrowRight, Wifi, Menu, BriefcaseBusiness
+  ChevronLeft, ArrowRight, Wifi, Menu, BriefcaseBusiness, Gift
 } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
@@ -900,9 +900,19 @@ export default function PartnerMarketingPreview() {
             ) : null}
 
             {isMobile ? (
-              <p className="mb-2 max-w-lg text-[0.95rem] leading-8 text-slate-600">
-                {PARTNER_MALL_HERO_LEAD_MOBILE_AR}
-              </p>
+              <>
+                <p className="mb-2 max-w-lg text-[0.95rem] leading-8 text-slate-600">
+                  {PARTNER_MALL_HERO_LEAD_MOBILE_AR}
+                </p>
+                <Link
+                  to={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
+                  className="mb-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/70 bg-gradient-to-l from-amber-100 to-orange-50 px-4 py-3 text-[0.9rem] font-black text-amber-950 shadow-sm"
+                  aria-label="اطلب فترة تجريبية 30 يوم برونزي"
+                >
+                  <Gift className="h-4 w-4 text-amber-700" aria-hidden />
+                  اطلب فترة تجريبية 30 يوم برونزي
+                </Link>
+              </>
             ) : (
               <>
                 <p className="mb-6 max-w-xl text-base leading-relaxed text-slate-600">
@@ -978,6 +988,19 @@ export default function PartnerMarketingPreview() {
             transition={{ delay: 0.35, duration: 0.7 }}
             className="relative flex flex-col gap-4 overflow-visible"
           >
+            <div className="mb-1 flex justify-center">
+              <Link
+                to={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
+                className="group inline-flex items-center gap-2 rounded-full border border-amber-400/70 bg-gradient-to-l from-amber-100 via-orange-50 to-amber-50 px-4 py-2.5 text-[0.82rem] font-black text-amber-950 shadow-[0_10px_28px_rgba(245,158,11,0.18)] transition-all hover:border-amber-500 hover:shadow-[0_14px_32px_rgba(245,158,11,0.26)]"
+                aria-label="اطلب فترة تجريبية 30 يوم برونزي"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-amber-300/80 bg-white text-amber-700 shadow-sm transition group-hover:scale-105">
+                  <Gift className="h-4 w-4" aria-hidden />
+                </span>
+                <span>اطلب فترة تجريبية 30 يوم برونزي</span>
+                <ArrowLeft className="h-3.5 w-3.5 text-amber-700/80 transition group-hover:-translate-x-0.5" aria-hidden />
+              </Link>
+            </div>
             <div className="mb-4 flex items-center justify-center gap-2">
               {PARTNER_BANNERS_PREVIEW_TIERS.map((tier) => (
                 <button
