@@ -12,6 +12,7 @@ import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
 import { CHILDREN_SPECIALIST_FILTER_LABEL_AR } from '@/lib/childrenSpecialistDisplay';
 import { MENS_GROOMING_CENTER_FILTER_LABEL_AR } from '@/lib/mensGroomingCenterDisplay';
+import { OPEN_24H_FILTER_ID } from '@/lib/barberCategoryLexicon';
 
 interface FilterBarProps {
   filters: FilterState;
@@ -37,6 +38,8 @@ const CATEGORIES: Array<
   { id: 'احتياجات خاصة',  label: 'كبار سن واحتياجات',  emoji: '♿' },
   { id: 'زيارة منزلية',   label: 'خدمة منزلية',   emoji: '🏠' },
   { id: 'تجهيز عريس',     label: 'تجهيز عريس',     Icon: SaudiBishtIcon },
+  /** خدمة حلاقة 24 ساعة — يظهر في الفلاتر الموسّعة فقط (ليس في شريط المقدمة) */
+  { id: OPEN_24H_FILTER_ID, label: '24', emoji: '🕒' },
 ];
 
 const RATINGS = [

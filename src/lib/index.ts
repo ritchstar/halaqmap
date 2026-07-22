@@ -1,6 +1,10 @@
 import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
 import { compareBarbersByListingScore } from '@/lib/barberListingRank';
-import { barberMatchesCategoryFilter } from '@/lib/barberCategoryLexicon';
+import {
+  barberMatchesCategoryFilter,
+  barberOffers24HourService,
+  OPEN_24H_FILTER_ID,
+} from '@/lib/barberCategoryLexicon';
 
 export { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from '@/lib/routePaths';
 
@@ -396,6 +400,12 @@ export function filterBarbersByDistance(
             barber.subscription === SubscriptionTier.DIAMOND
           ) {
             return true;
+          }
+          if (cat === OPEN_24H_FILTER_ID) {
+            return barberOffers24HourService({
+              categories: barber.categories,
+              workingHours: barber.workingHours,
+            });
           }
           return barberMatchesCategoryFilter(barber.categories, cat);
         });
