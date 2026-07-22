@@ -196,7 +196,9 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
   };
 
   const openWhatsApp = () => {
-    const url = `https://wa.me/${barber.whatsapp.replace(/[^0-9]/g, "")}`;
+    const raw = String(barber.whatsapp || barber.phone || "").replace(/[^0-9]/g, "");
+    if (raw.length < 8) return;
+    const url = `https://wa.me/${raw}`;
     window.open(url, "_blank");
   };
 
@@ -368,6 +370,16 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               >
                 <Phone className="w-4 h-4" />
               </Button>
+              {String(barber.whatsapp || barber.phone || '').replace(/[^0-9]/g, '').length >= 8 ? (
+                <Button
+                  onClick={openWhatsApp}
+                  className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                  size="icon"
+                  title="واتساب"
+                >
+                  <SiWhatsapp className="w-4 h-4" />
+                </Button>
+              ) : null}
             </div>
           </div>
         </Card>

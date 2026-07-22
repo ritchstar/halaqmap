@@ -637,8 +637,8 @@ export default function AdminDashboard() {
     );
   }
 
-  /** تعديل بيانات الحلاق «العميق» — للمالك (bootstrap) فقط؛ من يملك manage_admins يدير الجدول وليس نسخ المالك هنا. */
-  const canRootHardEdit = Boolean(adminData.bootstrap);
+  /** تعديل بيانات الحلاق «العميق» — للمؤسس أو من يملك manage_barbers. */
+  const canRootHardEdit = Boolean(adminData.bootstrap) || can('manage_barbers');
   const isFounderView = Boolean(adminData.bootstrap);
   const shellTheme = isFounderView ? founderTheme : staffTheme;
 

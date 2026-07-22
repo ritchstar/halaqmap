@@ -607,16 +607,16 @@ async function maybeApplyBronzeTrialGeo(
   email?: string | null,
 ): Promise<void> {
   try {
-    const { applyApprovedBronzeTrialGeoToBarber } = await import('./bronzeTrialGeoSync.js');
-    const geo = await applyApprovedBronzeTrialGeoToBarber(supabase, {
+    const { applyRegistrationIdentityToBarber } = await import('./bronzeTrialGeoSync.js');
+    const geo = await applyRegistrationIdentityToBarber(supabase, {
       barberId,
       email: email ?? null,
     });
     if (!geo.ok) {
-      console.error('[provision] bronze_trial_geo_sync_failed', geo.error);
+      console.error('[provision] identity_source_sync_failed', geo.error);
     }
   } catch (err) {
-    console.error('[provision] bronze_trial_geo_sync_threw', err);
+    console.error('[provision] identity_source_sync_threw', err);
   }
 }
 

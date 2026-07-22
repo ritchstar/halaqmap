@@ -136,19 +136,19 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  // مصدر الحقيقة الجغرافي لشركاء التجربة: إحداثيات طلب التجربة المعتمد.
+  // مصدر الحقيقة: طلب التجربة المعتمد (أو أقدم تسجيل) — اسم/جوال/صور/إحداثيات
   try {
-    const { applyApprovedBronzeTrialGeoToBarber } = await import('./_lib/bronzeTrialGeoSync.js');
+    const { applyRegistrationIdentityToBarber } = await import('./_lib/bronzeTrialGeoSync.js');
     const email = String((wl.row as { email?: unknown }).email ?? '').trim();
-    const geo = await applyApprovedBronzeTrialGeoToBarber(supabase, {
+    const identity = await applyRegistrationIdentityToBarber(supabase, {
       barberId: provision.barberId,
       email,
     });
-    if (!geo.ok) {
-      console.error('[approve-barber] bronze_trial_geo_sync_failed', geo.error);
+    if (!identity.ok) {
+      console.error('[approve-barber] identity_source_sync_failed', identity.error);
     }
   } catch (err) {
-    console.error('[approve-barber] bronze_trial_geo_sync_threw', err);
+    console.error('[approve-barber] identity_source_sync_threw', err);
   }
 
   // أوقات العمل من طلب التسجيل → البنر/التفاصيل العامة

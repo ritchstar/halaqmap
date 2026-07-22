@@ -217,7 +217,9 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
   };
 
   const handleWhatsAppClick = () => {
-    const url = `https://wa.me/${barber.whatsapp.replace(/[^0-9]/g, '')}`;
+    const raw = String(barber.whatsapp || barber.phone || '').replace(/[^0-9]/g, '');
+    if (raw.length < 8) return;
+    const url = `https://wa.me/${raw}`;
     window.open(url, '_blank');
   };
 
@@ -346,7 +348,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
             </BarberContactCtaButton>
           </div>
 
-          {(barber.subscription === SubscriptionTier.GOLD || barber.subscription === SubscriptionTier.DIAMOND) && (
+          {/* واتساب لكل الباقات — للبرونزي بنفس رقم الجوال إن لم يُعرَّف رقم واتساب مستقل */}
+          {String(barber.whatsapp || barber.phone || '').replace(/[^0-9]/g, '').length >= 8 ? (
             <div className="grid min-w-0 max-w-full grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
               <BarberContactCtaButton
                 onClick={handleWhatsAppClick}
@@ -355,19 +358,22 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                 <SiWhatsapp className="w-5 h-5 ml-2 shrink-0" />
                 واتساب
               </BarberContactCtaButton>
-              <BarberContactCtaButton
-                type="button"
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary/10"
-                onClick={() =>
-                  chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
-              >
-                <MessageCircle className="w-5 h-5 ml-2 shrink-0" />
-                شات مباشر — انتقل للمعاينة
-              </BarberContactCtaButton>
+              {(barber.subscription === SubscriptionTier.GOLD ||
+                barber.subscription === SubscriptionTier.DIAMOND) && (
+                <BarberContactCtaButton
+                  type="button"
+                  variant="outline"
+                  className="border-primary text-primary hover:bg-primary/10"
+                  onClick={() =>
+                    chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                >
+                  <MessageCircle className="w-5 h-5 ml-2 shrink-0" />
+                  شات مباشر — انتقل للمعاينة
+                </BarberContactCtaButton>
+              )}
             </div>
-          )}
+          ) : null}
 
           {showHomeVisit && homeVisit && (
             <>

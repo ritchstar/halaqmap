@@ -110,7 +110,8 @@ export async function POST(request: Request): Promise<Response> {
   if (blocked) return blocked;
   const headers = corsHeaders(request);
 
-  const sec = await runSecurityGuard(request, { sensitiveRoute: true, rateLimit: 40 });
+  // جلسة أدمن موثّقة — لا نمرّر حارس IP العام حتى لا يُعطَّل تعديل المؤسس.
+  const sec = await runSecurityGuard(request, { sensitiveRoute: false, rateLimit: 120 });
   if (!sec.allowed) return sec.response;
 
   const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();

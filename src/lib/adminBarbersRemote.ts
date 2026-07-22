@@ -122,12 +122,15 @@ export async function setBarberActiveRemote(
   barberId: string,
   isActive: boolean
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  const viaApi = await postAdminBarberHardUpdate({
+    barberId,
+    patch: { is_active: isActive },
+  });
+  if (viaApi.ok) return { ok: true };
   const client = getSupabaseClient();
-  if (!client) return { ok: false, error: 'Supabase غير مهيأ' };
-
+  if (!client) return { ok: false, error: viaApi.error || 'Supabase غير مهيأ' };
   const { error } = await client.from('barbers').update({ is_active: isActive }).eq('id', barberId);
-
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: error.message || viaApi.error };
   return { ok: true };
 }
 
@@ -206,14 +209,75 @@ async function postAdminBarberHardUpdate(body: Record<string, unknown>): Promise
       hint?: string;
       barber?: Record<string, unknown>;
     };
-    if (!resp.ok || json.ok !== true || !json.barber) {
-      return {
-        ok: false,
-        error: json.hint ? `${json.error ?? 'تعذر التحديث'} — ${json.hint}` : json.error || `HTTP ${resp.status}`,
-      };
+    if (resp.ok && json.ok === true && json.barber) {
+      return { ok: true, barber: mapAdminBarberApiRow(json.barber) };
     }
-    return { ok: true, barber: mapAdminBarberApiRow(json.barber) };
+
+    // مسار احتياطي: تحديث مباشر عبر جلسة الأدمن إن فشل الـ API (Vite بلا proxy / 404)
+    if (resp.status === 404 || resp.status === 405 || resp.status === 502 || resp.status === 503) {
+      const barberId = String(body.barberId ?? '').trim();
+      if (body.restoreTrialGeo === true) {
+        return {
+          ok: false,
+          error: 'استعادة إحداثيات التجربة تتطلب API السيرفر — شغّل النشر أو vercel dev.',
+        };
+      }
+      const patch =
+        body.patch && typeof body.patch === 'object' && !Array.isArray(body.patch)
+          ? (body.patch as Record<string, unknown>)
+          : null;
+      if (!barberId || !patch || Object.keys(patch).length === 0) {
+        return {
+          ok: false,
+          error: json.hint
+            ? `${json.error ?? 'تعذر التحديث'} — ${json.hint}`
+            : json.error || `HTTP ${resp.status}`,
+        };
+      }
+      const { data: updated, error } = await client
+        .from('barbers')
+        .update({ ...patch, updated_at: new Date().toISOString() })
+        .eq('id', barberId)
+        .select(
+          'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, open_for_customers, specialties, profile_image, cover_image, created_at',
+        )
+        .maybeSingle();
+      if (error || !updated) {
+        return {
+          ok: false,
+          error:
+            error?.message ||
+            json.error ||
+            'تعذر الحفظ عبر API والمسار المباشر (تحقق من صلاحية manage_barbers / bootstrap في RLS).',
+        };
+      }
+      return { ok: true, barber: mapAdminBarberApiRow(updated as Record<string, unknown>) };
+    }
+
+    return {
+      ok: false,
+      error: json.hint ? `${json.error ?? 'تعذر التحديث'} — ${json.hint}` : json.error || `HTTP ${resp.status}`,
+    };
   } catch (e) {
+    // شبكة/CORS — جرّب التحديث المباشر
+    const barberId = String(body.barberId ?? '').trim();
+    const patch =
+      body.patch && typeof body.patch === 'object' && !Array.isArray(body.patch)
+        ? (body.patch as Record<string, unknown>)
+        : null;
+    if (barberId && patch && body.restoreTrialGeo !== true) {
+      const { data: updated, error } = await client
+        .from('barbers')
+        .update({ ...patch, updated_at: new Date().toISOString() })
+        .eq('id', barberId)
+        .select(
+          'id, member_number, name, email, phone, city, address, latitude, longitude, tier, is_active, is_verified, open_for_customers, specialties, profile_image, cover_image, created_at',
+        )
+        .maybeSingle();
+      if (!error && updated) {
+        return { ok: true, barber: mapAdminBarberApiRow(updated as Record<string, unknown>) };
+      }
+    }
     return { ok: false, error: e instanceof Error ? e.message : 'network_error' };
   }
 }
