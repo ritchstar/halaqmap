@@ -2526,23 +2526,25 @@ function RequestReviewDialog({
       return;
     }
 
-    if (!existingLinkedId) {
-      const fulfill = await registrationPostApproveFulfillRemote({
-        registrationRequestId: request.id,
-        barberId: upsert.barberId,
+    // دائماً: استرداد قسائم مدفوعة + ضمان إدراج برونزي إن لم يوجد
+    const fulfill = await registrationPostApproveFulfillRemote({
+      registrationRequestId: request.id,
+      barberId: upsert.barberId,
+    });
+    if (!fulfill.ok) {
+      toast({
+        title: 'تنبيه: تفعيل الإدراج',
+        description: `تم اعتماد الطلب لكن تعذّر تفعيل الإدراج تلقائياً: ${errorText(fulfill, fulfill.error)}`,
+        variant: 'destructive',
       });
-      if (!fulfill.ok) {
-        toast({
-          title: 'تنبيه: استرداد القسائم',
-          description: `تم اعتماد الطلب لكن تعذّر الاسترداد التلقائي للقسائم المدفوعة: ${errorText(fulfill, fulfill.error)}`,
-          variant: 'destructive',
-        });
-      } else if (fulfill.listingActivated) {
-        toast({
-          title: 'تفعيل الإدراج تلقائياً',
-          description: `تم استرداد ${fulfill.redeemedCount} قسيمة مدفوعة وربطها بالحساب — يمكن للحلاق الظهور فوراً عند صلاحية النفاذ.`,
-        });
-      }
+    } else if (fulfill.listingActivated) {
+      toast({
+        title: 'تفعيل الإدراج تلقائياً',
+        description:
+          fulfill.redeemedCount > 0
+            ? `تم استرداد ${fulfill.redeemedCount} قسيمة وربطها بالحساب — يظهر في البحث فوراً.`
+            : 'تم منح إدراج نشط للحساب — يظهر في البحث فوراً.',
+      });
     }
 
     // تحقق صارم: تأكد أن الحلاق موجود فعلياً في نفس مشروع Supabase الحالي.

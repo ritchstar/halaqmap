@@ -184,6 +184,34 @@ export async function POST(request: Request): Promise<Response> {
     console.error('[approve-barber] working_hours_sync_threw', err);
   }
 
+  // ضمان إدراج نشط (قسائم مدفوعة / تجربة / برونزي افتراضي) حتى يظهر في البحث
+  try {
+    const { ensureBronzeListingAfterRegistrationApprove } = await import(
+      './_lib/listingLicenseService.js'
+    );
+    const email = String((wl.row as { email?: unknown }).email ?? '').trim().toLowerCase();
+    let registrationRequestId: string | null = null;
+    if (email.includes('@')) {
+      const { data: sub } = await supabase
+        .from('registration_submissions')
+        .select('id')
+        .or(`payload->>email.eq.${email},payload->>linkedBarberId.eq.${provision.barberId}`)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      registrationRequestId = String((sub as { id?: string } | null)?.id ?? '').trim() || null;
+    }
+    const listing = await ensureBronzeListingAfterRegistrationApprove(supabase, {
+      barberId: provision.barberId,
+      registrationRequestId,
+    });
+    if (!listing.ok) {
+      console.error('[approve-barber] listing_ensure_failed', listing.error);
+    }
+  } catch (err) {
+    console.error('[approve-barber] listing_ensure_threw', err);
+  }
+
   if (!provision.authUserId) {
     emitOpsEventFireAndForget({
       type: 'barber.missing_user_id',

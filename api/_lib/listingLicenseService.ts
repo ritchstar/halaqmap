@@ -20,6 +20,9 @@ import {
 } from './geospatialLicenseAssetService.js';
 import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export type ListingFulfillInput = {
   skuCode?: string;
   tier?: string;
@@ -885,6 +888,120 @@ export async function autoRedeemIssuedVouchersForRegistration(
   await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
 
   return { ok: true, redeemedCount, validUntil: lastValidUntil, skippedAlreadyRedeemed };
+}
+
+/**
+ * بعد اعتماد طلب تسجيل: إن لم يوجد إدراج نشط (لا قسيمة مدفوعة / لا تجربة)
+ * يُمنح برونزي 30 يوماً للباقة البرونزية حتى يظهر في البحث فوراً.
+ */
+export async function ensureBronzeListingAfterRegistrationApprove(
+  supabase: SupabaseClient,
+  input: { barberId: string; registrationRequestId?: string | null },
+): Promise<
+  | { ok: true; granted: boolean; entitlementId?: string; validUntil?: string; via?: string }
+  | { ok: false; error: string }
+> {
+  const barberId = String(input.barberId ?? '').trim();
+  if (!UUID_RE.test(barberId)) return { ok: false, error: 'invalid_barber_id' };
+
+  const balance = await getBarberListingBalance(supabase, barberId);
+  if (balance.hasActiveListing) {
+    return { ok: true, granted: false, validUntil: balance.validUntil ?? undefined };
+  }
+
+  try {
+    const { ensureBronzeTrialListingForBarber } = await import('./bronzeTrialListingEnsure.js');
+    const trial = await ensureBronzeTrialListingForBarber(supabase, { barberId });
+    if (trial.ok && trial.granted) {
+      return {
+        ok: true,
+        granted: true,
+        entitlementId: trial.entitlementId,
+        validUntil: trial.validUntil,
+        via: 'bronze_trial',
+      };
+    }
+  } catch (err) {
+    console.error('[ensureBronzeListingAfterRegistrationApprove] trial_ensure_threw', err);
+  }
+
+  const { data: barber } = await supabase
+    .from('barbers')
+    .select('email, tier')
+    .eq('id', barberId)
+    .maybeSingle();
+  const tier = String((barber as { tier?: string | null } | null)?.tier ?? '')
+    .trim()
+    .toLowerCase();
+  if (tier && tier !== 'bronze') {
+    // ذهب/ماسي بدون قسيمة مدفوعة — لا نمنح إدراج مجاني تلقائياً
+    return { ok: true, granted: false };
+  }
+
+  const productLoaded = await loadProductBySku(supabase, 'bronze_30');
+  if (!productLoaded.ok) return { ok: false, error: productLoaded.error };
+
+  const email =
+    String((barber as { email?: string | null } | null)?.email ?? '')
+      .trim()
+      .toLowerCase() || null;
+  const nowIso = new Date().toISOString();
+  const regId = String(input.registrationRequestId ?? '').trim() || null;
+
+  const { data: order, error: orderErr } = await supabase
+    .from('listing_license_orders')
+    .insert({
+      product_id: productLoaded.product.id,
+      buyer_email: email,
+      barber_id: barberId,
+      payment_channel: 'admin_manual',
+      payment_reference: regId ? `reg:${regId}:bronze_listing` : `barber:${barberId}:bronze_listing`,
+      moyasar_payment_id: null,
+      registration_request_id: regId && /^HM-/i.test(regId) ? regId : null,
+      amount_halalas: 0,
+      currency: 'SAR',
+      status: 'paid',
+      paid_at: nowIso,
+      metadata: {
+        product: 'bronze_registration_listing',
+        auto_ensure: true,
+        registration_request_id: regId,
+      },
+    })
+    .select('id')
+    .single();
+
+  if (orderErr || !order?.id) {
+    return { ok: false, error: orderErr?.message ?? 'order_insert_failed' };
+  }
+
+  const credit = await creditBarberListingEntitlement(supabase, {
+    barberId,
+    product: productLoaded.product,
+    source: 'registration_approval_auto_redeem',
+    orderId: order.id,
+    stackFromExisting: true,
+  });
+
+  if (!credit.ok) {
+    await supabase.from('listing_license_orders').update({ status: 'cancelled' }).eq('id', order.id);
+    return { ok: false, error: credit.error };
+  }
+
+  await supabase.from('listing_license_redemption_events').insert({
+    voucher_id: null,
+    barber_id: barberId,
+    entitlement_id: credit.entitlementId,
+    event_type: 'auto_redeem',
+  });
+
+  return {
+    ok: true,
+    granted: true,
+    entitlementId: credit.entitlementId,
+    validUntil: credit.validUntil,
+    via: 'bronze_registration',
+  };
 }
 
 /** استرداد/إصلاح قسائم طلب دفع ميسر — يشمل القسائم issued والـ redeemed بلا entitlement. */

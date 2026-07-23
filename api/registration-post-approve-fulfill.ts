@@ -6,7 +6,9 @@ import { createClient } from '@supabase/supabase-js';
 import { verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 import {
   autoRedeemIssuedVouchersForRegistration,
+  ensureBronzeListingAfterRegistrationApprove,
   ensureDigitalShiftAddonFromPaidOrders,
+  getBarberListingBalance,
 } from './_lib/listingLicenseService.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
@@ -81,13 +83,43 @@ export async function POST(request: Request): Promise<Response> {
 
   const digitalShiftActivated = await ensureDigitalShiftAddonFromPaidOrders(supabase, barberId);
 
+  let bronzeGranted = false;
+  let validUntil = result.validUntil;
+  const balanceAfterRedeem = await getBarberListingBalance(supabase, barberId);
+  if (!balanceAfterRedeem.hasActiveListing) {
+    const ensure = await ensureBronzeListingAfterRegistrationApprove(supabase, {
+      barberId,
+      registrationRequestId,
+    });
+    if (!ensure.ok) {
+      return Response.json(
+        {
+          ok: true,
+          redeemedCount: result.redeemedCount,
+          skippedAlreadyRedeemed: result.skippedAlreadyRedeemed,
+          validUntil: result.validUntil,
+          listingActivated: result.redeemedCount > 0,
+          digitalShiftActivated,
+          bronzeListingEnsureError: ensure.error,
+        },
+        { headers },
+      );
+    }
+    bronzeGranted = ensure.granted === true;
+    if (ensure.validUntil) validUntil = ensure.validUntil;
+  }
+
+  const listingActivated =
+    result.redeemedCount > 0 || bronzeGranted || balanceAfterRedeem.hasActiveListing;
+
   return Response.json(
     {
       ok: true,
       redeemedCount: result.redeemedCount,
       skippedAlreadyRedeemed: result.skippedAlreadyRedeemed,
-      validUntil: result.validUntil,
-      listingActivated: result.redeemedCount > 0,
+      validUntil,
+      listingActivated,
+      bronzeListingGranted: bronzeGranted,
       digitalShiftActivated,
     },
     { headers },
