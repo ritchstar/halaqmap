@@ -19,17 +19,17 @@ function addDaysIso(base: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-/** فتحات كل 30 دقيقة — معاينة دقة الجدولة (ماسي) */
+/** فتحات كل 30 دقيقة — من 10:00 حتى 23:00 (ماسي) */
 const SLOT_STEP_MIN = 30;
-const DAY_START_H = 10;
-const DAY_END_H = 20;
+const DAY_START_MIN = 10 * 60; // 10:00
+const DAY_END_MIN = 23 * 60; // 23:00 inclusive
 
 function buildSlotsForDate(_dateIso: string): string[] {
   const slots: string[] = [];
-  for (let h = DAY_START_H; h < DAY_END_H; h++) {
-    for (let m = 0; m < 60; m += SLOT_STEP_MIN) {
-      slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
-    }
+  for (let mins = DAY_START_MIN; mins <= DAY_END_MIN; mins += SLOT_STEP_MIN) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
   }
   return slots;
 }
