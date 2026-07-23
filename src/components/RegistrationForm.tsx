@@ -221,6 +221,18 @@ const STEPS = [
 
 type FormPlanFeature = { kind: 'map_hero' } | { kind: 'line'; text: string };
 
+function planTierLevelClass(tier: SubscriptionTier): string {
+  const base =
+    'text-xl font-black tracking-wide sm:text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]';
+  if (tier === SubscriptionTier.BRONZE) {
+    return `${base} text-amber-400 drop-shadow-[0_0_14px_rgba(251,191,36,0.85)]`;
+  }
+  if (tier === SubscriptionTier.GOLD) {
+    return `${base} text-yellow-300 drop-shadow-[0_0_16px_rgba(250,204,21,0.95)]`;
+  }
+  return `${base} text-cyan-200 drop-shadow-[0_0_16px_rgba(165,243,252,0.9)]`;
+}
+
 const SUBSCRIPTION_PLANS: {
   tier: SubscriptionTier;
   tierLevel: string;
@@ -1239,7 +1251,7 @@ export function RegistrationForm() {
                             className="mt-1 border-slate-500 text-slate-100"
                           />
                           <div className="min-w-0 flex-1 space-y-1">
-                            <p className="text-xs text-slate-400">{plan.tierLevel}</p>
+                            <p className={planTierLevelClass(plan.tier)}>{plan.tierLevel}</p>
                             <h3 className="text-base font-bold leading-snug text-white">
                               {SOFTWARE_PACKAGE_GEO_PRESENCE_TITLE_AR}
                             </h3>
