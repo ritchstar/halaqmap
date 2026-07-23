@@ -107,10 +107,22 @@ export function trackGoogleAdsConversion(opts: {
   }
 }
 
-/** مرة واحدة لكل مسار في الجلسة — يكفي لتحقق Ads دون إغراق الأحداث. */
+/** صفحات حملة استقطاب الصالونات — حيث يُحتسب تحويل «مشاهدة صفحة». */
+function isPartnerAcquisitionPath(path: string): boolean {
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return (
+    p === '/partners' ||
+    p.startsWith('/partners/') ||
+    p === '/register' ||
+    p.startsWith('/register/')
+  );
+}
+
+/** مرة واحدة لكل مسار مؤهل في الجلسة — مقتطف event من Google Ads. */
 function firePageViewConversionOnce(path: string): void {
   const sendTo = GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO;
   if (!sendTo || !sendTo.includes('/')) return;
+  if (!isPartnerAcquisitionPath(path)) return;
   if (typeof sessionStorage === 'undefined') return;
   try {
     const key = `${PAGE_CONV_SESSION_KEY}:${path}`;

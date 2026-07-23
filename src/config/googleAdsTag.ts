@@ -5,13 +5,12 @@ export const GOOGLE_ADS_CONVERSION_ID = 'AW-18240041811';
 export const GOOGLE_ANALYTICS_MEASUREMENT_ID = 'G-NVQ8BJDN30';
 
 /**
- * تسمية تحويل «مشاهدة صفحة» من Google Ads — الشكل الكامل:
- * `AW-18240041811/XXXXXXXX`
- * تُؤخذ من: الإحالات الناجحة → مشاهدة صفحة → تثبيت العلامة بنفسك → send_to
- * أو من متغير البيئة `VITE_GOOGLE_ADS_PAGE_VIEW_SEND_TO`.
+ * تسمية تحويل «مشاهدة صفحة» من Google Ads.
+ * الافتراضي من مقتطف الحدث الرسمي؛ يمكن تجاوزه بـ `VITE_GOOGLE_ADS_PAGE_VIEW_SEND_TO`.
  */
 export const GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO = String(
-  import.meta.env.VITE_GOOGLE_ADS_PAGE_VIEW_SEND_TO || '',
+  import.meta.env.VITE_GOOGLE_ADS_PAGE_VIEW_SEND_TO ||
+    'AW-18240041811/0ftrCIGbkL8cENPmw_lD',
 ).trim();
 
 /** صفحة تحقق ثابتة (بدون HashRouter) لتمرير فحص العلامة في Ads */
