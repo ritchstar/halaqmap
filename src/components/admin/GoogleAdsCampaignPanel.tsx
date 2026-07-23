@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import {
   GOOGLE_ADS_CAMPAIGN_LINKS,
   GOOGLE_ADS_CONVERSION_ID,
+  GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO,
+  GOOGLE_ADS_TAG_CHECK_URL,
   GOOGLE_ADS_TAG_LABEL_AR,
   GOOGLE_ANALYTICS_MEASUREMENT_ID,
 } from '@/config/googleAdsTag';
@@ -22,6 +24,7 @@ import {
   clearGoogleAdsEventLog,
   getGoogleAdsTagSnapshot,
   readGoogleAdsEventLog,
+  trackGoogleAdsConversion,
   trackGoogleAdsEvent,
   type GoogleAdsTrackedEvent,
 } from '@/lib/googleAdsTag';
@@ -77,6 +80,23 @@ export function GoogleAdsCampaignPanel() {
     toast.success('أُرسل حدث اختبار إلى Google Tag');
   };
 
+  const sendPageViewConversionTest = () => {
+    if (!GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO.includes('/')) {
+      toast.error(
+        'أضف VITE_GOOGLE_ADS_PAGE_VIEW_SEND_TO في Vercel بالقيمة الكاملة من Google Ads (AW-…/LABEL) ثم أعد النشر.',
+      );
+      return;
+    }
+    trackGoogleAdsConversion({
+      sendTo: GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO,
+      value: 1,
+      currency: 'SAR',
+      detail: 'اختبار تحويل مشاهدة صفحة من الأدمن',
+    });
+    refresh();
+    toast.success('أُرسل حدث conversion لاختبار «مشاهدة صفحة»');
+  };
+
   return (
     <div className="space-y-6" dir="rtl">
       <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-card to-card">
@@ -92,6 +112,50 @@ export function GoogleAdsCampaignPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-3 text-sm leading-relaxed">
+            <p className="font-semibold text-emerald-800 dark:text-emerald-200">
+              إكمال تحقق «مشاهدة صفحة» مع Google Ads
+            </p>
+            <ol className="mt-2 list-decimal space-y-1 pe-5 text-muted-foreground">
+              <li>
+                افتح صفحة التحقق الثابتة:{' '}
+                <a
+                  className="font-mono text-xs text-primary underline underline-offset-2"
+                  href={GOOGLE_ADS_TAG_CHECK_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  dir="ltr"
+                >
+                  {GOOGLE_ADS_TAG_CHECK_URL}
+                </a>
+              </li>
+              <li>
+                في التوصية: «تثبيت العلامة بنفسك» → انسخ قيمة{' '}
+                <code className="rounded bg-muted px-1 font-mono text-[0.7rem]" dir="ltr">
+                  send_to
+                </code>{' '}
+                الكاملة مثل{' '}
+                <code className="rounded bg-muted px-1 font-mono text-[0.7rem]" dir="ltr">
+                  AW-18240041811/xxxxx
+                </code>
+              </li>
+              <li>
+                أضف في Vercel المتغير{' '}
+                <code className="rounded bg-muted px-1 font-mono text-[0.7rem]" dir="ltr">
+                  VITE_GOOGLE_ADS_PAGE_VIEW_SEND_TO
+                </code>{' '}
+                ثم Redeploy.
+              </li>
+              <li>ارجع لـ Ads واضغط «تم» بعد ظهور التحقق (قد يستغرق دقائق إلى 24 ساعة).</li>
+            </ol>
+            <p className="mt-2 text-xs text-muted-foreground">
+              تسمية التحويل الحالية:{' '}
+              <code className="font-mono" dir="ltr">
+                {GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO || 'غير مضبوطة بعد'}
+              </code>
+            </p>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <StatusTile
               label="حالة الوسم"
@@ -122,6 +186,16 @@ export function GoogleAdsCampaignPanel() {
               <Activity className="h-4 w-4" />
               إرسال حدث اختبار
             </Button>
+            <Button type="button" size="sm" variant="secondary" className="gap-2" onClick={sendPageViewConversionTest}>
+              <CheckCircle2 className="h-4 w-4" />
+              اختبار تحويل مشاهدة صفحة
+            </Button>
+            <a href={GOOGLE_ADS_CAMPAIGN_LINKS.tagAssistant} target="_blank" rel="noreferrer">
+              <Button type="button" variant="outline" size="sm" className="gap-2">
+                Tag Assistant
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </a>
             <Button
               type="button"
               variant="ghost"

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>حلاق ماب — التحقق من وسم Google Ads</title>
+    <!-- صفحة ثابتة (بدون HashRouter) لتسهيل تحقق Google Ads من العلامة -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18240041811"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-NVQ8BJDN30', { send_page_view: true });
+      gtag('config', 'AW-18240041811', {
+        send_page_view: true,
+        conversion_linker: true,
+      });
+      gtag('event', 'page_view', {
+        send_to: ['G-NVQ8BJDN30', 'AW-18240041811'],
+        page_title: 'ads-tag-check',
+        page_location: window.location.href,
+        page_path: '/ads-tag-check.html',
+      });
+    </script>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #020912;
+        color: #e2e8f0;
+        font-family: Tajawal, system-ui, sans-serif;
+        padding: 24px;
+      }
+      .box {
+        max-width: 36rem;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.08);
+        border-radius: 16px;
+        padding: 20px;
+        line-height: 1.7;
+      }
+      code {
+        direction: ltr;
+        unicode-bidi: isolate;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h1 style="margin: 0 0 8px; font-size: 1.25rem">وسم Google Ads نشط</h1>
+      <p style="margin: 0 0 8px; color: #94a3b8">
+        هذه صفحة تحقق ثابتة لوسم الحملة. إن طُلب منك رابط للتحقق في Google Ads فاستخدم:
+      </p>
+      <p style="margin: 0">
+        <code>https://www.halaqmap.com/ads-tag-check.html</code>
+      </p>
+      <p style="margin: 12px 0 0; color: #94a3b8; font-size: 0.85rem">
+        معرّف التحويل: <code>AW-18240041811</code>
+      </p>
+    </div>
+  </body>
+</html>

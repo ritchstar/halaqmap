@@ -298,16 +298,19 @@
         "description": "منصة رقمية ذكية تساعدك على الوصول إلى الحلاق الأنسب عبر المعالجة والفلترة اللحظية بين استعلام المستخدم وبيانات الحلاقين المتاحة داخل المنصة."
       }
     </script>
-    <!-- Google tag (gtag.js) — Google Analytics + Google Ads — جميع صفحات الـ SPA -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVQ8BJDN30"></script>
+    <!-- Google tag (gtag.js) — Ads أولاً لتسهيل تحقق الإحالات الناجحة + Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18240041811"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
       gtag('js', new Date());
-      gtag('config', 'G-NVQ8BJDN30');
-      gtag('config', 'AW-18240041811');
+      gtag('config', 'G-NVQ8BJDN30', { send_page_view: true });
+      gtag('config', 'AW-18240041811', {
+        send_page_view: true,
+        conversion_linker: true,
+      });
     </script>
   </head>
 
