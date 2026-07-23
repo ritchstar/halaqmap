@@ -12,6 +12,7 @@ import { ROUTE_PATHS } from '@/lib/index';
 import { Scissors, Shield, ChevronRight, BookOpenCheck } from 'lucide-react';
 import { PartnerLandingFaqAccordion } from '@/components/partner/PartnerLandingFaqAccordion';
 import { PartnerFormWhatsAppSupport } from '@/components/partner/PartnerFormWhatsAppSupport';
+import { PartnerRegistrationYoutubeGuideCta } from '@/components/partner/PartnerRegistrationYoutubeGuideCta';
 import { PARTNER_REGISTER_PAGE } from '@/lib/partnerMarketingCopy';
 import { PARTNER_REGISTRATION_GUIDE } from '@/config/partnerRegistrationGuideCopy';
 
@@ -39,22 +40,28 @@ export default function Register() {
     >
       {/* ── شريط التنقل العلوي ── */}
       <header className="sticky top-0 z-40 border-b border-white/5 bg-[#020912]/90 pt-[env(safe-area-inset-top)] backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link to={ROUTE_PATHS.BARBERS_LANDING}
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-            <ChevronRight className="h-4 w-4" />
-            العودة للشركاء
-          </Link>
-          <div className="flex items-center gap-2">
+        <div className="relative mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 py-3 sm:px-4">
+          {/* يمين بصري (RTL start) */}
+          <div className="flex min-w-0 justify-start">
+            <Link
+              to={ROUTE_PATHS.BARBERS_LANDING}
+              className="flex min-w-0 items-center gap-1.5 text-sm text-slate-400 transition-colors hover:text-white sm:gap-2"
+            >
+              <ChevronRight className="h-4 w-4 shrink-0" />
+              <span className="truncate">العودة للشركاء</span>
+            </Link>
+          </div>
+          {/* الوسط */}
+          <div className="flex shrink-0 items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-400/25 bg-amber-500/10">
               <Scissors className="h-4 w-4 text-amber-300" />
             </div>
             <span className="text-sm font-black text-white">حلاق ماب</span>
-            <span className="hidden sm:inline text-[0.6rem] text-slate-500">· مسار الشركاء</span>
+            <span className="hidden md:inline text-[0.6rem] text-slate-500">· مسار الشركاء</span>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-500/8 px-2.5 py-1">
-            <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[0.58rem] font-bold text-emerald-300">تفعيل وفق الحالة</span>
+          {/* يسار بصري — مساحة لزر يوتيوب دون تداخل مع النموذج */}
+          <div className="relative flex min-h-10 min-w-0 items-center justify-end pe-0 ps-1">
+            <PartnerRegistrationYoutubeGuideCta variant="header" className="max-w-full" />
           </div>
         </div>
       </header>
@@ -134,6 +141,10 @@ export default function Register() {
           className="mx-auto max-w-5xl scroll-mt-24"
           id="register-form"
         >
+          {/* شرح يوتيوب فوق النموذج — لا يدخل داخل حقول الطلب */}
+          <div className="mb-3">
+            <PartnerRegistrationYoutubeGuideCta variant="form" />
+          </div>
           <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-sky-400/20 bg-sky-500/[0.07] px-3 py-2.5 sm:px-4">
             <div className="min-w-0 text-right">
               <p className="text-xs font-bold text-sky-200 sm:text-sm">
