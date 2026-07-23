@@ -113,6 +113,8 @@ import {
   CreditCard,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Star,
   Sparkles,
   AlertCircle,
@@ -353,6 +355,10 @@ export function RegistrationForm() {
   const vatSettings = usePlatformVatConfigRemote();
   const formTopRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  /** تفاصيل مزايا الباقة مطوية افتراضياً لتبسيط اختيار الباقة */
+  const [planFeaturesOpen, setPlanFeaturesOpen] = useState<Partial<Record<SubscriptionTier, boolean>>>(
+    {},
+  );
   const [locationLoading, setLocationLoading] = useState(false);
   const bannerPicker = useBarberBannerImagePicker();
   const [shopImageProcessing, setShopImageProcessing] = useState(false);
@@ -1205,6 +1211,8 @@ export function RegistrationForm() {
                     plan.tier,
                     shiftActive ? { digitalShiftAddon: true } : undefined,
                   );
+                  const featuresExpanded = planFeaturesOpen[plan.tier] === true;
+                  const featureCount = plan.features.length;
                   return (
                     <label
                       key={plan.tier}
@@ -1217,14 +1225,14 @@ export function RegistrationForm() {
                       ) : null}
                       <div
                         className={[
-                          'flex h-full min-h-[520px] flex-col rounded-lg bg-slate-800 p-5 text-right',
+                          'flex h-full flex-col rounded-lg bg-slate-800 p-5 text-right',
                           isStrategic
                             ? 'border-2 border-slate-500'
                             : 'border border-slate-700',
                           isSelected ? 'ring-1 ring-slate-400' : '',
                         ].join(' ')}
                       >
-                        <div className="mb-4 flex items-start gap-3">
+                        <div className="mb-3 flex items-start gap-3">
                           <RadioGroupItem
                             value={plan.tier}
                             id={plan.tier}
@@ -1264,35 +1272,62 @@ export function RegistrationForm() {
                             className="mb-3 mt-0"
                           />
                         ) : null}
-                        <ul className="m-0 flex flex-1 list-none flex-col gap-2 p-0">
-                          {plan.features.map((feature, index) =>
-                            feature.kind === 'map_hero' ? (
-                              <li key={index} className="mb-1 list-none">
-                                <div className="rounded-lg border border-slate-600 bg-slate-900 p-3">
-                                  <div className="flex items-start gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-600 bg-slate-800 text-slate-200">
-                                      <MapPin className="h-5 w-5" strokeWidth={2} aria-hidden />
-                                    </div>
-                                    <div className="min-w-0 flex-1 space-y-0.5">
-                                      <p className="text-sm font-semibold leading-snug text-slate-100">
-                                        {MAP_FEATURE_HERO.title}
-                                      </p>
-                                      <p className="text-[11px] leading-relaxed text-slate-400 sm:text-xs">
-                                        {MAP_FEATURE_HERO.subtitle}
-                                      </p>
-                                    </div>
-                                    <Check className="h-4 w-4 shrink-0 text-slate-300" aria-label="مشمول" />
-                                  </div>
-                                </div>
-                              </li>
-                            ) : (
-                              <li key={index} className="flex items-start gap-2 text-sm leading-relaxed text-slate-300">
-                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                                <span>{feature.text}</span>
-                              </li>
-                            ),
+                        <button
+                          type="button"
+                          className="mb-2 flex w-full items-center justify-between gap-2 rounded-lg border border-slate-600/80 bg-slate-900/70 px-3 py-2.5 text-right transition hover:border-slate-500 hover:bg-slate-900"
+                          aria-expanded={featuresExpanded}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setPlanFeaturesOpen((prev) => ({
+                              ...prev,
+                              [plan.tier]: !prev[plan.tier],
+                            }));
+                          }}
+                        >
+                          <span className="min-w-0 text-xs font-bold text-slate-200 sm:text-sm">
+                            {featuresExpanded ? 'إخفاء تفاصيل الباقة' : 'عرض تفاصيل الباقة'}
+                            <span className="mt-0.5 block text-[0.65rem] font-normal text-slate-500">
+                              {featureCount} نقطة وصف — اضغط لل{featuresExpanded ? 'طي' : 'فتح'}
+                            </span>
+                          </span>
+                          {featuresExpanded ? (
+                            <ChevronUp className="h-5 w-5 shrink-0 text-amber-300" aria-hidden />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 shrink-0 text-amber-300" aria-hidden />
                           )}
-                        </ul>
+                        </button>
+                        {featuresExpanded ? (
+                          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                            {plan.features.map((feature, index) =>
+                              feature.kind === 'map_hero' ? (
+                                <li key={index} className="mb-1 list-none">
+                                  <div className="rounded-lg border border-slate-600 bg-slate-900 p-3">
+                                    <div className="flex items-start gap-3">
+                                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-600 bg-slate-800 text-slate-200">
+                                        <MapPin className="h-5 w-5" strokeWidth={2} aria-hidden />
+                                      </div>
+                                      <div className="min-w-0 flex-1 space-y-0.5">
+                                        <p className="text-sm font-semibold leading-snug text-slate-100">
+                                          {MAP_FEATURE_HERO.title}
+                                        </p>
+                                        <p className="text-[11px] leading-relaxed text-slate-400 sm:text-xs">
+                                          {MAP_FEATURE_HERO.subtitle}
+                                        </p>
+                                      </div>
+                                      <Check className="h-4 w-4 shrink-0 text-slate-300" aria-label="مشمول" />
+                                    </div>
+                                  </div>
+                                </li>
+                              ) : (
+                                <li key={index} className="flex items-start gap-2 text-sm leading-relaxed text-slate-300">
+                                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                  <span>{feature.text}</span>
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        ) : null}
                       </div>
                     </label>
                   );
