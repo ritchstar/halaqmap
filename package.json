@@ -97,7 +97,7 @@
     "@babel/parser": "^7.28.0",
     "@babel/traverse": "^7.28.0",
     "@babel/types": "^7.28.0",
-    "@eslint/js": "^9.9.0",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.0.0",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^22.5.5",
