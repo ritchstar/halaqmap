@@ -3,6 +3,7 @@ import { mapShowcaseRowToApiPayload, resolveShowcaseFallbackForPublic } from './
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { runSecurityGuard } from './_lib/securityGuard.js';
+import { normalizeSaudiMobileForWa } from './_lib/saudiWhatsAppPhone.js';
 
 export const config = {
   maxDuration: 30,
@@ -49,6 +50,10 @@ function sanitizePublicBarberRows(rows: unknown): unknown[] {
         row.account_linked = Boolean(uidStr);
       }
       delete row.user_id;
+      if (typeof row.phone === 'string') {
+        const n = normalizeSaudiMobileForWa(row.phone);
+        if (n) row.phone = `+${n}`;
+      }
       return row;
     })
     .filter(Boolean);

@@ -1,4 +1,5 @@
 import { assertVisionMime, callOpenAIOpsBillingVision } from './opsBillingAi.js';
+import { normalizeSaudiMobileForWa } from './saudiWhatsAppPhone.js';
 
 export type ScannedPartnerLead = {
   name: string;
@@ -31,13 +32,7 @@ const SCAN_SYSTEM = `أنت مستخرج leads B2B لمنصة حلاق ماب ا
 - لا حقول إضافية.`;
 
 export function normalizeScannedPhone(raw: string): string | null {
-  const digits = raw.replace(/\D/g, '');
-  if (!digits) return null;
-  if (digits.startsWith('966') && digits.length >= 12) return digits.slice(0, 12);
-  if (digits.startsWith('05') && digits.length >= 10) return `966${digits.slice(1, 10)}`;
-  if (digits.startsWith('5') && digits.length >= 9) return `966${digits.slice(0, 9)}`;
-  if (digits.length >= 10) return digits;
-  return null;
+  return normalizeSaudiMobileForWa(raw);
 }
 
 function cleanLabel(raw: unknown, max = 120): string | undefined {

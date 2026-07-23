@@ -30,6 +30,7 @@ import { MensGroomingCenterDetailBanner } from '@/components/barber/MensGrooming
 import { isChildrenSpecialistBarber } from '@/lib/childrenSpecialistDisplay';
 import { isMensGroomingCenterBarber } from '@/lib/mensGroomingCenterDisplay';
 import { PlatformDisplayImage } from '@/components/platform/PlatformDisplayImage';
+import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
 import {
   BarberContactCtaButton,
   BarberContactRatingStars,
@@ -216,11 +217,12 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
     window.open(url, '_blank');
   };
 
+  const whatsappHref = buildWhatsAppChatHref(barber.whatsapp || barber.phone || '');
+  const canWhatsApp = Boolean(whatsappHref);
+
   const handleWhatsAppClick = () => {
-    const raw = String(barber.whatsapp || barber.phone || '').replace(/[^0-9]/g, '');
-    if (raw.length < 8) return;
-    const url = `https://wa.me/${raw}`;
-    window.open(url, '_blank');
+    if (!whatsappHref) return;
+    window.open(whatsappHref, '_blank', 'noopener,noreferrer');
   };
 
   const handlePhoneClick = () => {
@@ -348,8 +350,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
             </BarberContactCtaButton>
           </div>
 
-          {/* واتساب لكل الباقات — للبرونزي بنفس رقم الجوال إن لم يُعرَّف رقم واتساب مستقل */}
-          {String(barber.whatsapp || barber.phone || '').replace(/[^0-9]/g, '').length >= 8 ? (
+          {/* واتساب لكل الباقات — رقم مطبّع دولياً (966…) لتجنب رفض wa.me للصيغة 05 */}
+          {canWhatsApp ? (
             <div className="grid min-w-0 max-w-full grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
               <BarberContactCtaButton
                 onClick={handleWhatsAppClick}

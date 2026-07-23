@@ -38,6 +38,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlatformDisplayImage } from '@/components/platform/PlatformDisplayImage';
+import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
 
 interface BarberCardProps {
   barber: Barber;
@@ -195,11 +196,12 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
     window.open(url, "_blank");
   };
 
+  const whatsappHref = buildWhatsAppChatHref(barber.whatsapp || barber.phone || '');
+  const canWhatsApp = Boolean(whatsappHref);
+
   const openWhatsApp = () => {
-    const raw = String(barber.whatsapp || barber.phone || "").replace(/[^0-9]/g, "");
-    if (raw.length < 8) return;
-    const url = `https://wa.me/${raw}`;
-    window.open(url, "_blank");
+    if (!whatsappHref) return;
+    window.open(whatsappHref, '_blank', 'noopener,noreferrer');
   };
 
   const callPhone = () => {
@@ -275,13 +277,16 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
                   <MapPin className="w-4 h-4 ml-2" />
                   الموقع
                 </Button>
-                <Button
-                  onClick={openWhatsApp}
-                  className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
-                  size="icon"
-                >
-                  <SiWhatsapp className="w-4 h-4" />
-                </Button>
+                {canWhatsApp ? (
+                  <Button
+                    onClick={openWhatsApp}
+                    className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                    size="icon"
+                    title="واتساب"
+                  >
+                    <SiWhatsapp className="w-4 h-4" />
+                  </Button>
+                ) : null}
                 <Button
                   variant="outline"
                   size="icon"
@@ -370,7 +375,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               >
                 <Phone className="w-4 h-4" />
               </Button>
-              {String(barber.whatsapp || barber.phone || '').replace(/[^0-9]/g, '').length >= 8 ? (
+              {canWhatsApp ? (
                 <Button
                   onClick={openWhatsApp}
                   className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
@@ -462,13 +467,16 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
                 <MapPin className="w-4 h-4 ml-2" />
                 الموقع
               </Button>
-              <Button
-                onClick={openWhatsApp}
-                className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
-                size="icon"
-              >
-                <SiWhatsapp className="w-4 h-4" />
-              </Button>
+              {canWhatsApp ? (
+                <Button
+                  onClick={openWhatsApp}
+                  className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                  size="icon"
+                  title="واتساب"
+                >
+                  <SiWhatsapp className="w-4 h-4" />
+                </Button>
+              ) : null}
               <Button
                 variant="outline"
                 size="icon"
@@ -577,13 +585,16 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               <MapPin className="w-4 h-4 ml-2" />
               الموقع
             </Button>
-            <Button
-              onClick={openWhatsApp}
-              className="bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg"
-              size="icon"
-            >
-              <SiWhatsapp className="w-5 h-5" />
-            </Button>
+            {canWhatsApp ? (
+              <Button
+                onClick={openWhatsApp}
+                className="bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg"
+                size="icon"
+                title="واتساب"
+              >
+                <SiWhatsapp className="w-5 h-5" />
+              </Button>
+            ) : null}
             <Button
               variant="outline"
               size="icon"

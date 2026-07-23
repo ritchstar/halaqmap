@@ -18,6 +18,7 @@
     "test:registration-guard": "npx --yes tsx scripts/test-registration-route-guard.mts",
     "test:registration-intent": "npx --yes tsx scripts/test-registration-intent.mts",
     "test:registration-security": "npm run test:registration-guard && npm run test:registration-intent",
+    "test:whatsapp-phone": "npx --yes tsx scripts/test-saudi-whatsapp-phone.mts",
     "check:email-dns": "node scripts/check-email-dns-security.mjs",
     "check:dns-mx-spf-dmarc": "node scripts/check-dns-mx-spf-dmarc.mjs"
   },

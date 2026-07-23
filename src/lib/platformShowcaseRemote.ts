@@ -5,6 +5,7 @@ import { IMAGES } from '@/assets/images';
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
 import { resolvePublicBarberCardCoverImage } from '@/lib/barberPublicBannerImages';
+import { toSaudiE164Plus } from '@/lib/saudiWhatsAppPhone';
 
 const API_PATH = '/api/public-showcase-fallback';
 const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
@@ -132,8 +133,8 @@ function mapRow(row: FallbackRow): Barber {
   return {
     id: row.id,
     name: row.name,
-    phone: row.phone?.trim() || '',
-    whatsapp: row.phone?.trim() || '',
+    phone: toSaudiE164Plus(row.phone?.trim() || '') ?? (row.phone?.trim() || ''),
+    whatsapp: toSaudiE164Plus(row.phone?.trim() || '') ?? (row.phone?.trim() || ''),
     location: {
       lat: Number.isFinite(lat) ? lat : 0,
       lng: Number.isFinite(lng) ? lng : 0,

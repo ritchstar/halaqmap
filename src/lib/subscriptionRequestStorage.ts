@@ -4,6 +4,7 @@ import {
   fetchRegistrationSubmissionsFromRemote,
   insertRegistrationSubmissionRemote,
 } from '@/lib/registrationSubmissionsRemote';
+import { toSaudiE164Plus } from '@/lib/saudiWhatsAppPhone';
 
 const STORAGE_KEY = 'halaqmap_subscription_requests_v1';
 
@@ -104,10 +105,7 @@ export function formatSubmissionDateTimeAr(): string {
 }
 
 export function saPhoneToInternational(local: string): string {
-  const s = local.trim().replace(/\s/g, '');
-  if (s.startsWith('+')) return s;
-  if (s.startsWith('05') && s.length === 10) return `+966${s.slice(1)}`;
-  return s;
+  return toSaudiE164Plus(local) ?? local.trim().replace(/\s/g, '');
 }
 
 const LAST_ORDER_SESSION_KEY = 'halaqmap_register_last_order';

@@ -7,6 +7,7 @@ import { sanitizeInclusiveCareDays } from '@/lib/barberInclusiveCareRemote';
 import { barberAcceptsChildren } from '@/lib/barberCategoryLexicon';
 import { resolvePublicBarberCardCoverImage } from '@/lib/barberPublicBannerImages';
 import { normalizeGroomingCenterBannerLines } from '@/config/mensGroomingCenterPolicy';
+import { toSaudiE164Plus } from '@/lib/saudiWhatsAppPhone';
 
 const FALLBACK_IMAGE = IMAGES.BARBER_SHOP_1;
 const PUBLIC_BARBERS_API = '/api/public-barbers';
@@ -279,7 +280,8 @@ function mapRow(row: BarberRow): Barber {
   const cardCover = resolvePublicBarberCardCoverImage(cover, featured);
   const images = mergePublicBarberImages(cardCover, profile, featured);
   const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
-  const phone = row.phone?.trim() || '';
+  const phoneRaw = row.phone?.trim() || '';
+  const phone = toSaudiE164Plus(phoneRaw) ?? phoneRaw;
   const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];
   const acceptsChildren = barberAcceptsChildren(categories);
   const childrenSpecialist =

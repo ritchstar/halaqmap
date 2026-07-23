@@ -9,6 +9,7 @@ import {
   type CommandCenterOutreachTierFit,
   type CommandCenterOutreachVariant,
 } from '@/config/commandCenterOutreachCopy';
+import { buildWhatsAppChatHref, normalizeSaudiMobileForWa } from '@/lib/saudiWhatsAppPhone';
 
 export type CommandLeadChannel = 'whatsapp' | 'instagram' | 'email' | 'website' | 'phone';
 export type CommandLeadStatus = 'new' | 'contacted' | 'waiting' | 'won' | 'lost';
@@ -80,15 +81,13 @@ export function prospectOutreachMessage(
 
 export const PARTNER_PROSPECT_UNKNOWN_LABEL = 'غير محدد';
 
+/** @deprecated تفضيل normalizeSaudiMobileForWa — يُبقي التوافق مع الاستيرادات الحالية. */
 export function normalizePhoneForWa(raw: string): string {
-  const digits = raw.replace(/\D/g, '');
-  if (digits.startsWith('966')) return digits;
-  if (digits.startsWith('05') && digits.length === 10) return `966${digits.slice(1)}`;
-  return digits;
+  return normalizeSaudiMobileForWa(raw) ?? '';
 }
 
 export function buildWaDeepLink(phone: string, message: string): string {
-  return `https://wa.me/${normalizePhoneForWa(phone)}?text=${encodeURIComponent(message)}`;
+  return buildWhatsAppChatHref(phone, message) ?? `https://wa.me/?text=${encodeURIComponent(message)}`;
 }
 
 export const PARTNER_PROSPECT_SOURCE_LABELS: Record<PartnerProspectSource, string> = {
