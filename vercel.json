@@ -12,6 +12,58 @@
     {
       "source": "/rate/:path*",
       "destination": "/index.html"
+    },
+    {
+      "source": "/partners",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/partners/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ambassadors",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ambassadors/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/barber/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/m/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/discover",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/privacy/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/register/:path*",
+      "destination": "/index.html"
     }
   ],
   "framework": "vite",

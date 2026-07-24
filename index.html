@@ -315,6 +315,21 @@
   </head>
 
   <body>
+    <!-- Google Ads / SEO: روابط نظيفة بدون # → جسر إلى HashRouter (لا يغيّر بنية التطبيق) -->
+    <script>
+      (function () {
+        try {
+          var path = (window.location.pathname || '').replace(/\/+$/, '') || '/';
+          var hash = window.location.hash || '';
+          var search = window.location.search || '';
+          if (hash.length > 1) return;
+          if (path === '/' || path === '') return;
+          if (path.indexOf('/api/') === 0) return;
+          if (/\.[a-zA-Z0-9]{1,12}$/.test(path)) return;
+          window.location.replace(window.location.origin + '/#' + path + search);
+        } catch (e) {}
+      })();
+    </script>
     <!-- HashRouter: إعادة توجيه عودة ميسر/SAB (?id= على أصل الموقع) قبل تحميل React -->
     <script>
       (function () {

@@ -16,6 +16,17 @@ export const GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO = String(
 /** صفحة تحقق ثابتة (بدون HashRouter) لتمرير فحص العلامة في Ads */
 export const GOOGLE_ADS_TAG_CHECK_URL = 'https://www.halaqmap.com/ads-tag-check.html';
 
+/**
+ * روابط هبوط للحملات — بدون `#` (Google Ads يرفض الروابط ذات الهاش).
+ * تُحوَّل داخلياً إلى HashRouter عبر جسر خفيف في index.html.
+ */
+export const GOOGLE_ADS_CLEAN_LANDING_URLS = {
+  partners: 'https://www.halaqmap.com/partners',
+  register: 'https://www.halaqmap.com/partners/register',
+  bronzeTrial: 'https://www.halaqmap.com/partners/bronze-trial',
+  why: 'https://www.halaqmap.com/partners/why',
+} as const;
+
 export const GOOGLE_ADS_TAG_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_CONVERSION_ID}`;
 
 export const GOOGLE_ADS_CAMPAIGN_LINKS = {

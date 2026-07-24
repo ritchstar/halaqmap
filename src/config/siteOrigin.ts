@@ -40,6 +40,17 @@ export function buildAbsoluteHashRoute(path: string): string {
 }
 
 /**
+ * رابط هبوط نظيف بدون `#` — لـ Google Ads وMeta وأي شبكة ترفض hash.
+ * يُخدم عبر rewrite + جسر path→hash في `index.html` دون تغيير HashRouter.
+ * مثال: `https://www.halaqmap.com/partners/register`
+ */
+export function buildAdsLandingUrl(path: string): string {
+  const base = getSiteOrigin().replace(/\/+$/, '');
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${normalized}`;
+}
+
+/**
  * رابط مطلق لصفحة الدفع (HashRouter) — للبريد والمشاركة خارج التطبيق.
  * مثال: `https://halaqmap.com/#/partners/payment?tier=gold&requestId=HM-...`
  */

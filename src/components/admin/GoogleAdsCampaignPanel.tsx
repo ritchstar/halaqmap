@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import {
   GOOGLE_ADS_CAMPAIGN_LINKS,
+  GOOGLE_ADS_CLEAN_LANDING_URLS,
   GOOGLE_ADS_CONVERSION_ID,
   GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO,
   GOOGLE_ADS_TAG_CHECK_URL,
@@ -154,6 +155,26 @@ export function GoogleAdsCampaignPanel() {
                 {GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO || 'غير مضبوطة بعد'}
               </code>
             </p>
+            <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 p-2.5 text-xs leading-relaxed">
+              <p className="font-semibold text-amber-900 dark:text-amber-100">
+                روابط نهائية لـ Google Ads (بدون #)
+              </p>
+              <ul className="mt-1 space-y-1 font-mono text-[0.7rem]" dir="ltr">
+                <li>
+                  <a className="text-primary underline" href={GOOGLE_ADS_CLEAN_LANDING_URLS.register} target="_blank" rel="noreferrer">
+                    {GOOGLE_ADS_CLEAN_LANDING_URLS.register}
+                  </a>
+                </li>
+                <li>
+                  <a className="text-primary underline" href={GOOGLE_ADS_CLEAN_LANDING_URLS.partners} target="_blank" rel="noreferrer">
+                    {GOOGLE_ADS_CLEAN_LANDING_URLS.partners}
+                  </a>
+                </li>
+              </ul>
+              <p className="mt-1 text-muted-foreground">
+                لا تستخدم الروابط التي تحتوي <code className="font-mono">#/</code> — تُرفض من Ads.
+              </p>
+            </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
