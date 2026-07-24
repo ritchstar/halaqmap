@@ -82,6 +82,8 @@ import {
   RATING_QR_DASHBOARD_LEDE,
   RATING_QR_FEATURE_SHORT,
   RATING_QR_FEATURE_TITLE,
+  RATING_QR_GUIDE_CARD_LEDE,
+  RATING_QR_GUIDE_CARD_TITLE,
 } from '@/config/ratingQrInvite';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -1683,6 +1685,20 @@ function QrRatingsSection({
         <p className="mt-2 max-w-2xl text-xs text-muted-foreground/90">{RATING_QR_FEATURE_SHORT}</p>
       </div>
 
+      <Card className="border-amber-500/30 bg-amber-500/[0.04]">
+        <CardHeader>
+          <CardTitle className="text-base sm:text-lg">{RATING_QR_GUIDE_CARD_TITLE}</CardTitle>
+          <CardDescription>{RATING_QR_GUIDE_CARD_LEDE}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ol className="list-decimal space-y-2.5 pr-5 text-sm leading-relaxed text-foreground/90">
+            {RATING_QR_BARBER_GUIDE.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ol>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -1691,9 +1707,9 @@ function QrRatingsSection({
           </CardTitle>
           <CardDescription>{RATING_QR_CARD_DESCRIPTION}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
           {ratingUrl ? (
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-8">
               <div className="rounded-2xl bg-white p-3 shadow-inner ring-1 ring-border sm:p-5">
                 <div className="hidden sm:block">
                   <QRCode value={ratingUrl} size={280} />
@@ -1701,16 +1717,13 @@ function QrRatingsSection({
                 <div className="sm:hidden">
                   <QRCode value={ratingUrl} size={220} />
                 </div>
-                <p className="mt-2 text-center text-xs text-muted-foreground">حجم أكبر على الشاشات العريضة — مناسب لعرض آيباد</p>
+                <p className="mt-2 text-center text-xs text-muted-foreground">
+                  حجم أكبر على الشاشات العريضة — مناسب لعرض آيباد
+                </p>
               </div>
               <div className="max-w-xl flex-1 space-y-3 text-sm text-muted-foreground">
-                <p className="font-semibold text-foreground">كيف تستخدمه؟</p>
-                <ul className="list-disc space-y-2 pr-5">
-                  {RATING_QR_BARBER_GUIDE.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-                <div className="flex flex-wrap gap-2 pt-2">
+                <p>اعرض الرمز أمام الزبون بعد الخدمة، أو انسخ الرابط وأرسله برسالة خاصة.</p>
+                <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="outline" className="gap-2" onClick={copyLink}>
                     <Copy className="h-4 w-4" />
                     نسخ الرابط
