@@ -1,6 +1,13 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getBarberListingBalance } from './listingLicenseService.js';
+import {
+  checkQrReviewIpRateLimits,
+  hasExistingQrReviewForClient,
+  hashQrClientKey,
+  hashQrSubmitterIp,
+  isValidQrClientInstanceId,
+} from './qrReviewAntiAbuse.js';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -128,10 +135,28 @@ export async function submitBarberQrReview(
     customerName: string;
     rating: number;
     comment?: string;
+    clientInstanceId: string;
+    clientIp?: string;
   },
 ): Promise<{ ok: true; review: QrReviewDto } | { ok: false; error: string }> {
   const gate = await validateBarberRatingInviteToken(supabase, input.barberId, input.token);
   if (!gate.ok) return gate;
+
+  if (!isValidQrClientInstanceId(input.clientInstanceId)) {
+    return { ok: false, error: 'invalid_client_key' };
+  }
+
+  const clientKeyHash = hashQrClientKey(input.barberId, input.clientInstanceId);
+  if (await hasExistingQrReviewForClient(supabase, input.barberId, clientKeyHash)) {
+    return { ok: false, error: 'already_submitted' };
+  }
+
+  const ipHash = hashQrSubmitterIp(input.clientIp || 'unknown');
+  const ipGate = await checkQrReviewIpRateLimits(supabase, {
+    barberId: input.barberId,
+    ipHash,
+  });
+  if (!ipGate.ok) return { ok: false, error: ipGate.error };
 
   const name = input.customerName.trim();
   if (name.length < 2) return { ok: false, error: 'invalid_name' };
@@ -162,6 +187,8 @@ export async function submitBarberQrReview(
       via_qr_invite: true,
       is_public: true,
       is_highlighted: false,
+      qr_client_key_hash: clientKeyHash,
+      qr_submitter_ip_hash: ipHash,
     })
     .select(QR_REVIEW_SELECT)
     .single();
@@ -169,10 +196,20 @@ export async function submitBarberQrReview(
   data = (withQr.data as ReviewRow | null) ?? null;
   error = withQr.error;
 
+  if (error && /duplicate|unique|reviews_qr_one_per_client/i.test(String(error.message ?? ''))) {
+    return { ok: false, error: 'already_submitted' };
+  }
+
+  if (error && /qr_client_key_hash|qr_submitter_ip_hash/i.test(String(error.message ?? ''))) {
+    // أعمدة الترحيل 151 غير مطبّقة — لا نُدرج بدون حماية
+    console.error('[submitBarberQrReview] anti_abuse_columns_missing', error.message);
+    return { ok: false, error: 'anti_abuse_unavailable' };
+  }
+
+  // لا نُسقط عبر إدراج أساسي بدون بصمة الجهاز — الحماية إلزامية لتقييمات QR
   if (error && isMissingQrReviewColumnError(String(error.message ?? ''))) {
-    const basic = await supabase.from('reviews').insert(baseInsert).select(BASIC_REVIEW_SELECT).single();
-    data = (basic.data as ReviewRow | null) ?? null;
-    error = basic.error;
+    console.error('[submitBarberQrReview] qr_review_columns_missing', error.message);
+    return { ok: false, error: 'anti_abuse_unavailable' };
   }
 
   if (error || !data) {
@@ -181,6 +218,21 @@ export async function submitBarberQrReview(
   }
 
   return { ok: true, review: mapRow(data, true) };
+}
+
+/** هل سبق لهذا المتصفح تقييم الصالون عبر QR؟ */
+export async function checkBarberQrAlreadySubmitted(
+  supabase: SupabaseClient,
+  input: { barberId: string; token: string; clientInstanceId: string },
+): Promise<{ ok: true; alreadySubmitted: boolean } | { ok: false; error: string }> {
+  const gate = await validateBarberRatingInviteToken(supabase, input.barberId, input.token);
+  if (!gate.ok) return gate;
+  if (!isValidQrClientInstanceId(input.clientInstanceId)) {
+    return { ok: true, alreadySubmitted: false };
+  }
+  const clientKeyHash = hashQrClientKey(input.barberId, input.clientInstanceId);
+  const already = await hasExistingQrReviewForClient(supabase, input.barberId, clientKeyHash);
+  return { ok: true, alreadySubmitted: already };
 }
 
 export async function listBarberQrReviewsForManage(

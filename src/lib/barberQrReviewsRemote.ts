@@ -66,6 +66,7 @@ export async function submitBarberQrReviewRemote(input: {
   customerName: string;
   rating: number;
   comment?: string;
+  clientInstanceId: string;
 }): Promise<{ ok: true; review: Review } | { ok: false; error: string }> {
   try {
     const res = await fetch(SUBMIT_ENDPOINT, {

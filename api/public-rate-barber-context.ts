@@ -1,5 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
-import { timingSafeEqual } from 'node:crypto';
+import {
+  checkBarberQrAlreadySubmitted,
+  validateBarberRatingInviteToken,
+} from './_lib/barberQrReviewService.js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 
@@ -17,17 +20,6 @@ function corsHeaders(request: Request): Record<string, string> {
   return buildPublicApiCorsHeaders(request, CORS_OPTS).headers;
 }
 
-function safeEqualToken(a: string, b: string): boolean {
-  const x = Buffer.from(a, 'utf8');
-  const y = Buffer.from(b, 'utf8');
-  if (x.length !== y.length) return false;
-  try {
-    return timingSafeEqual(x, y);
-  } catch {
-    return false;
-  }
-}
-
 export async function OPTIONS(request: Request): Promise<Response> {
   return publicApiOptionsResponse(request, CORS_OPTS);
 }
@@ -43,7 +35,7 @@ export async function GET(request: Request): Promise<Response> {
       ok: true,
       route: 'public-rate-barber-context',
       ready: url && serviceRole,
-      note: 'POST { barberId, token } — يُرجع اسم الصالون فقط عند تطابق رمز الدعوة.',
+      note: 'POST { barberId, token, clientInstanceId? } — اسم الصالون + هل سبق التقييم من هذا المتصفح.',
     },
     { headers },
   );
@@ -75,9 +67,10 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400, headers });
   }
 
-  const b = body as { barberId?: unknown; token?: unknown };
+  const b = body as { barberId?: unknown; token?: unknown; clientInstanceId?: unknown };
   const barberId = String(b.barberId ?? '').trim();
   const token = String(b.token ?? '').trim();
+  const clientInstanceId = String(b.clientInstanceId ?? '').trim();
 
   if (!UUID_RE.test(barberId) || token.length < 8) {
     return Response.json({ error: 'bad_request' }, { status: 400, headers });
@@ -87,24 +80,29 @@ export async function POST(request: Request): Promise<Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: row, error } = await supabase
-    .from('barbers')
-    .select('id, name, rating_invite_token')
-    .eq('id', barberId)
-    .maybeSingle();
-
-  if (error) {
-    return Response.json({ error: 'lookup_failed' }, { status: 500, headers });
-  }
-  if (!row) {
-    return Response.json({ error: 'not_found' }, { status: 404, headers });
+  const gate = await validateBarberRatingInviteToken(supabase, barberId, token);
+  if (!gate.ok) {
+    const status =
+      gate.error === 'invalid_token' || gate.error === 'tier_not_eligible'
+        ? 403
+        : gate.error === 'not_found' || gate.error === 'inactive'
+          ? 404
+          : 400;
+    return Response.json({ error: gate.error }, { status, headers });
   }
 
-  const stored = String((row as { rating_invite_token?: string | null }).rating_invite_token ?? '').trim();
-  if (!stored || !safeEqualToken(stored, token)) {
-    return Response.json({ error: 'invalid_token' }, { status: 403, headers });
+  let alreadySubmitted = false;
+  if (clientInstanceId) {
+    const checked = await checkBarberQrAlreadySubmitted(supabase, {
+      barberId,
+      token,
+      clientInstanceId,
+    });
+    if (checked.ok) alreadySubmitted = checked.alreadySubmitted;
   }
 
-  const name = String((row as { name?: string }).name ?? '').trim() || 'صالون';
-  return Response.json({ ok: true, barberId, name }, { headers });
+  return Response.json(
+    { ok: true, barberId, name: gate.name, alreadySubmitted },
+    { headers },
+  );
 }

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { submitBarberQrReview } from './_lib/barberQrReviewService.js';
+import { clientIpFromRequest } from './_lib/qrReviewAntiAbuse.js';
 import { runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import {
   buildPublicApiCorsHeaders,
@@ -51,6 +52,7 @@ export async function POST(request: Request): Promise<Response> {
     customerName?: unknown;
     rating?: unknown;
     comment?: unknown;
+    clientInstanceId?: unknown;
   };
 
   const supabase = createClient(url, serviceRole, {
@@ -63,6 +65,8 @@ export async function POST(request: Request): Promise<Response> {
     customerName: String(b.customerName ?? '').trim(),
     rating: Number(b.rating),
     comment: typeof b.comment === 'string' ? b.comment : '',
+    clientInstanceId: String(b.clientInstanceId ?? '').trim(),
+    clientIp: clientIpFromRequest(request),
   });
 
   if (!result.ok) {
@@ -71,7 +75,11 @@ export async function POST(request: Request): Promise<Response> {
         ? 403
         : result.error === 'not_found'
           ? 404
-          : 400;
+          : result.error === 'already_submitted'
+            ? 409
+            : result.error === 'rate_limited_ip'
+              ? 429
+              : 400;
     return Response.json({ ok: false, error: result.error }, { status, headers });
   }
 

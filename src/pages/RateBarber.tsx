@@ -13,13 +13,30 @@ import type { Barber } from '@/lib/index';
 import { mockBarbers } from '@/data/index';
 import { validateRatingInviteToken } from '@/lib/ratingInvite';
 import { submitBarberQrReviewRemote } from '@/lib/barberQrReviewsRemote';
-import { RATING_QR_CUSTOMER_HINT } from '@/config/ratingQrInvite';
+import {
+  RATING_QR_ALREADY_SUBMITTED_BODY,
+  RATING_QR_ALREADY_SUBMITTED_TITLE,
+  RATING_QR_CUSTOMER_HINT,
+  RATING_QR_CUSTOMER_RULES,
+} from '@/config/ratingQrInvite';
 import { PLATFORM_VOLUNTARY_ENGAGEMENT } from '@/config/platformVoluntaryEngagement';
 import { ShareEngagementModal } from '@/components/platformEngagement/PlatformEngagementModals';
 import { toast } from 'sonner';
 import { fetchPublicRateBarberContext } from '@/lib/publicRateBarberRemote';
+import {
+  getOrCreateQrRaterInstanceId,
+  hasLocalQrRatedMark,
+  markLocalQrRated,
+} from '@/lib/qrRaterIdentity';
 
-type LoadPhase = 'loading' | 'ready' | 'invalid_id' | 'missing_token' | 'invite_failed' | 'load_error';
+type LoadPhase =
+  | 'loading'
+  | 'ready'
+  | 'already_submitted'
+  | 'invalid_id'
+  | 'missing_token'
+  | 'invite_failed'
+  | 'load_error';
 
 type RateBarberErrorBoundaryState = { hasError: boolean };
 
@@ -97,6 +114,11 @@ function RateBarberInner() {
       setPhase('loading');
       setLoadErrorDetail(null);
 
+      if (hasLocalQrRatedMark(barberId)) {
+        if (!cancelled) setPhase('already_submitted');
+        return;
+      }
+
       const mock = mockBarbers.find((b) => b.id === barberId);
       if (mock && validateRatingInviteToken(mock, token)) {
         if (!cancelled) {
@@ -111,6 +133,11 @@ function RateBarberInner() {
 
       if (res.ok) {
         setRemoteName(res.name);
+        if (res.alreadySubmitted) {
+          markLocalQrRated(barberId);
+          setPhase('already_submitted');
+          return;
+        }
         setPhase('ready');
         return;
       }
@@ -198,20 +225,34 @@ function RateBarberInner() {
         customerName: name,
         rating,
         comment: comment.trim(),
+        clientInstanceId: getOrCreateQrRaterInstanceId(),
       });
       setBusy(false);
       if (!result.ok) {
+        if (result.error === 'already_submitted') {
+          markLocalQrRated(barber.id);
+          setPhase('already_submitted');
+          toast.message(RATING_QR_ALREADY_SUBMITTED_TITLE);
+          return;
+        }
         toast.error(
           result.error === 'invalid_token'
             ? 'رمز الدعوة غير صالح — اطلب رابطاً محدّثاً من الصالون.'
             : result.error === 'tier_not_eligible'
               ? 'هذه الباقة لا تتضمن تقييمات QR حالياً.'
-              : result.error === 'insert_failed'
-                ? 'تعذّر حفظ التقييم في قاعدة البيانات. أبلغ الصالون أو الإدارة.'
-                : 'تعذّر حفظ التقييم. تحقق من الاتصال وحاول مرة أخرى.',
+              : result.error === 'rate_limited_ip'
+                ? 'تم تجاوز حد الإرسال من هذه الشبكة. حاول لاحقاً.'
+                : result.error === 'invalid_client_key'
+                  ? 'تعذّر التحقق من المتصفح. حدّث الصفحة وحاول مرة أخرى.'
+                  : result.error === 'anti_abuse_unavailable'
+                    ? 'نظام الحماية غير جاهز بعد. أبلغ الإدارة.'
+                    : result.error === 'insert_failed'
+                      ? 'تعذّر حفظ التقييم في قاعدة البيانات. أبلغ الصالون أو الإدارة.'
+                      : 'تعذّر حفظ التقييم. تحقق من الاتصال وحاول مرة أخرى.',
         );
         return;
       }
+      markLocalQrRated(barber.id);
       setSubmitted(true);
       toast.success('شكراً لتقييمك!');
       window.dispatchEvent(new CustomEvent('halaqmap-qr-reviews'));
@@ -226,6 +267,34 @@ function RateBarberInner() {
             <Loader2 className="h-10 w-10 animate-spin text-primary" aria-hidden />
             <p className="text-sm text-foreground/80">جاري تحميل صفحة التقييم…</p>
           </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (phase === 'already_submitted') {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] bg-background py-12 px-4" dir="rtl">
+          <motion.div className="container mx-auto max-w-lg" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 className="w-5 h-5" />
+                  {RATING_QR_ALREADY_SUBMITTED_TITLE}
+                </CardTitle>
+                <CardDescription>{RATING_QR_ALREADY_SUBMITTED_BODY}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" className="gap-2">
+                  <Link to={ROUTE_PATHS.HOME}>
+                    <Home className="w-4 h-4" />
+                    العودة للرئيسية
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </Layout>
     );
@@ -429,6 +498,7 @@ function RateBarberInner() {
                 <CardTitle>تقييم {barber.name}</CardTitle>
                 <CardDescription className="space-y-2 pt-1">
                   <span className="block">تقييم عبر رمز QR — يُسجَّل كزيارة مرتبطة بدعوتك الرسمية.</span>
+                  <span className="block text-sm text-foreground/80">{RATING_QR_CUSTOMER_RULES}</span>
                   <span className="block text-xs text-muted-foreground">{RATING_QR_CUSTOMER_HINT}</span>
                 </CardDescription>
               </CardHeader>
