@@ -59,9 +59,10 @@
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v9';
+          var flag = 'hm-sw-reset-v10';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v9');
           localStorage.removeItem('hm-sw-reset-v8');
           localStorage.removeItem('hm-sw-reset-v7');
           localStorage.removeItem('hm-sw-reset-v6');
@@ -70,7 +71,7 @@
           localStorage.removeItem('hm-sw-reset-v2');
           sessionStorage.removeItem('hm-chunk-recover');
           sessionStorage.removeItem('hm-build-sync-auto-reloaded');
-          var reloadFlag = 'hm-sw-reset-v9-reload';
+          var reloadFlag = 'hm-sw-reset-v10-reload';
           var tasks = [];
           if ('serviceWorker' in navigator) {
             tasks.push(

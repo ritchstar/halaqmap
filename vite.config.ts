@@ -396,10 +396,12 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             const norm = id.replace(/\\/g, '/');
-            // افصل المسارات وبروكسي الراوتر عن حزمة App — يمنع حلقة lazy الرئيسية
-            // (LandingPreview → AgentPanel → App chunk قبل اكتمال تقييم App).
+            // افصل المسارات وبروكسي الراوتر وUI المشترك عن حزمة App —
+            // يمنع AdminDashboard/LandingPreview من استيراد App قبل اكتمال تقييمه.
             if (norm.includes('/src/lib/routePaths.ts')) return 'route-paths';
             if (norm.includes('/src/lib/react-router-dom-proxy')) return 'rr-proxy';
+            if (norm.includes('/src/components/ui/')) return 'ui-kit';
+            if (norm.includes('/src/lib/utils.ts')) return 'shared-utils';
             if (!norm.includes('/node_modules/')) return;
             if (norm.includes('framer-motion')) return 'vendor-motion';
             if (norm.includes('@supabase')) return 'vendor-supabase';

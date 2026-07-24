@@ -16,7 +16,9 @@ import {
   Phone, Heart,
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ROUTE_PATHS, Barber, FilterState, filterBarbersByDistance } from '@/lib/index';
+import { ROUTE_PATHS } from '@/lib/routePaths';
+import type { Barber, FilterState } from '@/lib/index';
+import { filterBarbersByDistance } from '@/lib/index';
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { PULSE_MAP_LINK_LABEL_AR } from '@/config/pulseMapConfig';
 import { cn } from '@/lib/utils';

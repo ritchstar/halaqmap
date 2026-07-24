@@ -8,6 +8,7 @@ type State = { error: Error | null };
 const RECOVER_FLAG = 'hm-dom-recover-v2';
 const AMBIENT_RECOVER_FLAG = 'hm-ambient-recover-v1';
 const REACT_HOOK_RECOVER_FLAG = 'hm-react-hook-recover-v1';
+const LAZY_DEFAULT_RECOVER_FLAG = 'hm-lazy-default-recover-v1';
 
 function isDomRemoveChildError(error: Error): boolean {
   return /removeChild/i.test(error.message) || /not a child of this node/i.test(error.message);
@@ -23,6 +24,17 @@ function isReactHookDispatcherError(error: Error): boolean {
 
 function isAmbientProviderError(error: Error): boolean {
   return /usePlatformAmbient must be used within PlatformAmbientProvider/i.test(error.message);
+}
+
+/** حلقة lazy / كاش SW قديم بعد النشر — غالباً `reading 'default'` */
+function isLazyDefaultExportError(error: Error): boolean {
+  return (
+    /reading ['"]default['"]/i.test(error.message) ||
+    /failed to load$/i.test(error.message) ||
+    /AdminDashboard failed to load/i.test(error.message) ||
+    /BarberDashboard failed to load/i.test(error.message) ||
+    /LandingPreview failed to load/i.test(error.message)
+  );
 }
 
 function currentRecoverPathKey(): string {
@@ -89,6 +101,20 @@ export class RootErrorBoundary extends Component<Props, State> {
         window.location.reload();
       }
     }
+
+    // Chunks قديمة بعد نشر جديد / حلقة lazy — إنعاش قوي مرة واحدة لكل مسار.
+    if (typeof window !== 'undefined' && isLazyDefaultExportError(error)) {
+      try {
+        const pathKey = `${LAZY_DEFAULT_RECOVER_FLAG}:${currentRecoverPathKey()}`;
+        const alreadyRecovered = sessionStorage.getItem(pathKey) === '1';
+        if (!alreadyRecovered) {
+          sessionStorage.setItem(pathKey, '1');
+          void forceHardRefresh();
+        }
+      } catch {
+        window.location.reload();
+      }
+    }
   }
 
   private handleRecoverClick = (): void => {
@@ -99,6 +125,8 @@ export class RootErrorBoundary extends Component<Props, State> {
       sessionStorage.removeItem(`${AMBIENT_RECOVER_FLAG}:${currentRecoverPathKey()}`);
       sessionStorage.removeItem(REACT_HOOK_RECOVER_FLAG);
       sessionStorage.removeItem(`${REACT_HOOK_RECOVER_FLAG}:${currentRecoverPathKey()}`);
+      sessionStorage.removeItem(LAZY_DEFAULT_RECOVER_FLAG);
+      sessionStorage.removeItem(`${LAZY_DEFAULT_RECOVER_FLAG}:${currentRecoverPathKey()}`);
       localStorage.removeItem('hm-sw-reset-v5');
       localStorage.removeItem('hm-sw-reset-v3');
       if ('serviceWorker' in navigator) {
@@ -118,6 +146,7 @@ export class RootErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       const domMismatch = isDomRemoveChildError(this.state.error);
+      const lazyDefaultMismatch = isLazyDefaultExportError(this.state.error);
       const stack = typeof this.state.error.stack === 'string'
         ? this.state.error.stack.split('\n').slice(0, 8).join('\n')
         : null;
@@ -136,7 +165,7 @@ export class RootErrorBoundary extends Component<Props, State> {
               {stack}
             </pre>
           ) : null}
-          {domMismatch ? (
+          {domMismatch || lazyDefaultMismatch ? (
             <p className="max-w-md text-xs text-slate-500">
               اضغط إعادة التحميل لتنظيف الكاش يدوياً — إن استمر الخطأ جرّب نافذة خاصة أو تواصل مع الدعم.
             </p>
@@ -144,7 +173,7 @@ export class RootErrorBoundary extends Component<Props, State> {
           <button
             type="button"
             className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-2 text-sm font-semibold text-cyan-200"
-            onClick={domMismatch ? this.handleRecoverClick : () => window.location.reload()}
+            onClick={domMismatch || lazyDefaultMismatch ? this.handleRecoverClick : () => window.location.reload()}
           >
             إعادة التحميل
           </button>

@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { GraduationCap, Loader2, Sparkles, Wand2 } from 'lucide-react';
-import BarberDashboard from '@/pages/BarberDashboard';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +18,9 @@ import {
   type ShowcaseBarberSummary,
 } from '@/lib/platformShowcaseSettingsRemote';
 import { PLATFORM_SHOWCASE_EDUCATION_INTRO } from '@/config/platformSmartTracking';
+
+/** تحميل كسول — يمنع سحب BarberDashboard داخل حزمة AdminDashboard (حلقة lazy/default). */
+const BarberDashboard = lazy(() => import('@/pages/BarberDashboard'));
 
 const SHOWCASE_OFFICE_EMAIL = 'platform-showcase@halaqmap.com';
 
@@ -217,18 +219,27 @@ export function BarberShowcaseOfficePanel({ isActive }: BarberShowcaseOfficePane
           <CardContent className="p-0">
             {previewSession ? (
               <div className="max-h-[78vh] overflow-auto border-t border-border/40">
-                <BarberDashboard
-                  founderPreview
-                  previewSession={previewSession}
-                  previewListingBalance={PREVIEW_LISTING_BALANCE}
-                  previewChrome={
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <GraduationCap className="h-4 w-4 text-teal-500" />
-                      <span className="font-semibold text-foreground">وضع معاينة المؤسس</span>
-                      <span>— التغييرات تُحفظ على حساب المعاينة في قاعدة البيانات</span>
+                <Suspense
+                  fallback={
+                    <div className="flex min-h-[40vh] items-center justify-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      جاري تحميل معاينة لوحة الشريك…
                     </div>
                   }
-                />
+                >
+                  <BarberDashboard
+                    founderPreview
+                    previewSession={previewSession}
+                    previewListingBalance={PREVIEW_LISTING_BALANCE}
+                    previewChrome={
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <GraduationCap className="h-4 w-4 text-teal-500" />
+                        <span className="font-semibold text-foreground">وضع معاينة المؤسس</span>
+                        <span>— التغييرات تُحفظ على حساب المعاينة في قاعدة البيانات</span>
+                      </div>
+                    }
+                  />
+                </Suspense>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-center text-muted-foreground">

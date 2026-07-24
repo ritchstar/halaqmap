@@ -1,6 +1,5 @@
-﻿import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+﻿import { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import QRCode from 'react-qr-code';
 import {
   Shield,
   Users,
@@ -152,7 +151,6 @@ import {
 import { PartnerPromoVideoAdminPanel } from '@/components/admin/PartnerPromoVideoAdminPanel';
 import { PartnerTutorialVideosAdminPanel } from '@/components/admin/PartnerTutorialVideosAdminPanel';
 import { ResourceManagementSection } from '@/components/admin/ResourceManagementSection';
-import { BarberShowcaseOfficePanel } from '@/components/admin/BarberShowcaseOfficePanel';
 import { PaymentGatewaysAdminPanel } from '@/components/admin/PaymentGatewaysAdminPanel';
 import { OpsBillingMonitorPanel } from '@/components/admin/OpsBillingMonitorPanel';
 import { GeolocationDiagnosticsPanel } from '@/components/admin/GeolocationDiagnosticsPanel';
@@ -191,6 +189,14 @@ import { AdminFinancialArchivePanel } from '@/components/admin/AdminFinancialArc
 import { fetchAdminBookingSecurityLogRemote, type BookingSecurityLogRow } from '@/lib/adminBookingSecurityLogRemote';
 import { runSimulateBookingOverlapRemote } from '@/lib/simulateBookingOverlapRemote';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+/** كسول — لا تُسحب لوحة الشريك (BarberDashboard) مع تحميل لوحة الإدارة. */
+const BarberShowcaseOfficePanel = lazy(() =>
+  import('@/components/admin/BarberShowcaseOfficePanel').then((m) => ({
+    default: m.BarberShowcaseOfficePanel,
+  })),
+);
+
 const EMPTY_ADMIN_STATS: AdminStats = {
   totalBarbers: 0,
   bronzeBarbers: 0,
@@ -1146,7 +1152,16 @@ export default function AdminDashboard() {
 
           {adminData.bootstrap && (
             <TabsContent value="showcase-office" className="space-y-6">
-              <BarberShowcaseOfficePanel isActive={activeTab === 'showcase-office'} />
+              <Suspense
+                fallback={
+                  <div className="flex min-h-[30vh] items-center justify-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    جاري تحميل مكتب العرض…
+                  </div>
+                }
+              >
+                <BarberShowcaseOfficePanel isActive={activeTab === 'showcase-office'} />
+              </Suspense>
             </TabsContent>
           )}
 

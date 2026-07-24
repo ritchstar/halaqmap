@@ -35,7 +35,22 @@ const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
 const AdminRadarFullScreenPage = lazy(() => import("@/app/admin/radar/full-screen/page"));
 const AdminCyberOperationsPage = lazy(() => import("@/app/admin/cyber/page"));
 const StaffHubPage = lazy(() => import("@/app/admin/staff-hub/page"));
-const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const AdminDashboard = lazy(async () => {
+  const mod = await import("@/pages/AdminDashboard");
+  const C = mod.default;
+  if (typeof C !== "function") {
+    throw new Error("AdminDashboard failed to load");
+  }
+  return { default: C };
+});
+const BarberDashboard = lazy(async () => {
+  const mod = await import("@/pages/BarberDashboard");
+  const C = mod.default;
+  if (typeof C !== "function") {
+    throw new Error("BarberDashboard failed to load");
+  }
+  return { default: C };
+});
 const SaudiAgentLanding = lazy(() => import("@/pages/SaudiAgentLanding"));
 const About = lazy(() => import("@/pages/About"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
@@ -67,7 +82,6 @@ const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
 const PartnerStoryPage = lazy(() => import("@/pages/PartnerStoryPage"));
 const BarberPortalEnter = lazy(() => import("@/pages/BarberPortalEnter"));
 const BarberLogin = lazy(() => import("@/pages/BarberLogin"));
-const BarberDashboard = lazy(() => import("@/pages/BarberDashboard"));
 const BarberAccountDeletionRequest = lazy(() => import("@/pages/BarberAccountDeletionRequest"));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
 const Payment = lazy(() => import("@/pages/Payment"));
