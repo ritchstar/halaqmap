@@ -70,6 +70,22 @@
 
 ---
 
+## 5b. Cloudflare edge visibility (no Logpush)
+
+**Policy:** Logpush / Enterprise raw logs are deferred. Live ops use:
+
+| Signal | Source | Surface |
+|--------|--------|---------|
+| `edge_summary` | GraphQL `httpRequests1hGroups` via `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ZONE_ID` | Admin Cyber → Cloudflare panel + sparkline |
+| `app_event` | Supabase `security_events` Realtime | Admin Cyber live feed |
+| Threat spike alert | Cron `/api/cron-cf-threat-watch` hourly | `opsEventRouter` type `edge.threat_spike` → Slack/email |
+
+**Env:** `CF_THREAT_ALERT_HOUR_THRESHOLD` (default 80), optional `CF_ANALYTICS_CACHE_MS` (default 90000).
+
+**Limit:** Traffic blocked entirely at Cloudflare before origin will not appear in `security_events`; only aggregate GraphQL threat counts rise.
+
+---
+
 ## 6. Data integrity checklist
 
 - [ ] `barbers.is_active` matches paid subscriptions

@@ -196,6 +196,10 @@
       "schedule": "35 * * * *"
     },
     {
+      "path": "/api/cron-cf-threat-watch",
+      "schedule": "10 * * * *"
+    },
+    {
       "path": "/api/cron-wallet-drain-recovery",
       "schedule": "15 */6 * * *"
     }

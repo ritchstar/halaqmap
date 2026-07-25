@@ -373,6 +373,11 @@ export function SecurityLegend() {
               <span className="text-[0.67rem] text-slate-300">{row.labelAr}</span>
             </div>
           ))}
+          <div className="mt-1 border-t border-white/5 pt-1.5 space-y-1">
+            <p className="text-[0.55rem] text-sky-300/80">edge_summary — ملخص Cloudflare GraphQL (مجمّع)</p>
+            <p className="text-[0.55rem] text-teal-300/80">app_event — أحداث security_events لحظية (Realtime)</p>
+            <p className="text-[0.5rem] text-slate-600">Logpush مؤجّل — لا سجلات طلب خام من الحافة.</p>
+          </div>
         </div>
       )}
     </div>

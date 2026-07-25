@@ -76,12 +76,51 @@ type LiveSecurityEvent = {
   created_at: string;
 };
 
+type CfThreatHourPoint = {
+  datetime: string;
+  threats: number;
+  requests: number;
+  cachedRequests: number;
+};
+
 type CfStatus = {
   cfConfigured: boolean;
   security: { securityLevel: string; underAttack: boolean };
   firewallRules: { id: string; mode: string; ip: string; notes: string; created: string }[];
-  analytics24h: { threats: number; totalRequests: number; cachedRequests: number };
+  analytics24h: {
+    threats: number;
+    totalRequests: number;
+    cachedRequests: number;
+    series?: CfThreatHourPoint[];
+    lastHourThreats?: number;
+    lastHourRequests?: number;
+    fetchedAt?: string;
+    fromCache?: boolean;
+    error?: string;
+  };
 };
+
+/** شريط بسيط لسلسلة تهديدات GraphQL (edge_summary) */
+function CfThreatSparkline({ series }: { series: CfThreatHourPoint[] }) {
+  if (!series.length) return null;
+  const max = Math.max(1, ...series.map((p) => p.threats));
+  const w = 220;
+  const h = 36;
+  const step = series.length > 1 ? w / (series.length - 1) : w;
+  const points = series
+    .map((p, i) => {
+      const x = i * step;
+      const y = h - (p.threats / max) * (h - 4) - 2;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(' ');
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="mb-2 h-9 w-full" aria-label="سلسلة تهديدات Cloudflare ساعة بساعة" role="img">
+      <polyline fill="none" stroke="rgba(251,113,133,0.85)" strokeWidth="1.5" points={points} />
+      <line x1="0" y1={h - 1} x2={w} y2={h - 1} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+    </svg>
+  );
+}
 
 async function fetchCfStatus(): Promise<CfStatus | null> {
   try {
@@ -582,14 +621,17 @@ function AdminCyberOperationsPageInner() {
             )}
           </div>
 
-          {/* ◆ Cloudflare Shield — حماية Edge حقيقية */}
+          {/* ◆ Cloudflare Shield — ملخص GraphQL + تحكم Edge (بدون Logpush) */}
           {cfStatus && (
             <div className="mb-2 rounded-xl border border-orange-400/25 bg-black/40 p-3 backdrop-blur-md">
-              <div className="mb-2 flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <span className="text-base">🔥</span>
                   <span className="text-[0.62rem] font-bold uppercase tracking-wider text-orange-300/80">
                     Cloudflare Edge
+                  </span>
+                  <span className="rounded-full border border-sky-500/35 bg-sky-500/10 px-1.5 py-0.5 text-[0.42rem] font-bold text-sky-200">
+                    edge_summary
                   </span>
                   <span className={`rounded-full border px-1.5 py-0.5 text-[0.48rem] font-black ${
                     cfStatus.security.underAttack
@@ -600,14 +642,36 @@ function AdminCyberOperationsPageInner() {
                   </span>
                 </div>
               </div>
-              {/* Cloudflare Analytics */}
+              <p className="mb-2 text-[0.45rem] leading-relaxed text-slate-500">
+                ملخص GraphQL مجمّع (ساعة) — ليست سجلات طلب خام. النبضات اللحظية من{' '}
+                <span className="text-teal-400/80">app_event / security_events</span>.
+              </p>
+              {cfStatus.analytics24h?.series && cfStatus.analytics24h.series.length > 0 ? (
+                <CfThreatSparkline series={cfStatus.analytics24h.series} />
+              ) : null}
               {cfStatus.analytics24h && (
-                <div className="mb-2 grid grid-cols-3 gap-1">
+                <div className="mb-2 grid grid-cols-2 gap-1 sm:grid-cols-4">
                   {[
-                    { v: cfStatus.analytics24h.threats.toLocaleString('ar'), l: 'تهديد CF', c: 'text-rose-400' },
-                    { v: Math.round(cfStatus.analytics24h.totalRequests / 1000) + 'k', l: 'طلب كلي', c: 'text-slate-300' },
+                    {
+                      v: (cfStatus.analytics24h.lastHourThreats ?? 0).toLocaleString('ar'),
+                      l: 'تهديد/ساعة',
+                      c: 'text-rose-400',
+                    },
+                    {
+                      v: cfStatus.analytics24h.threats.toLocaleString('ar'),
+                      l: 'تهديد 24س',
+                      c: 'text-rose-300',
+                    },
+                    {
+                      v:
+                        cfStatus.analytics24h.totalRequests >= 1000
+                          ? Math.round(cfStatus.analytics24h.totalRequests / 1000) + 'k'
+                          : String(cfStatus.analytics24h.totalRequests),
+                      l: 'طلب 24س',
+                      c: 'text-slate-300',
+                    },
                     { v: cfStatus.firewallRules.length, l: 'قاعدة نشطة', c: 'text-amber-400' },
-                  ].map(s => (
+                  ].map((s) => (
                     <div key={s.l} className="rounded-lg border border-white/5 bg-black/30 p-1.5 text-center">
                       <p className={`text-[0.72rem] font-black ${s.c}`}>{s.v}</p>
                       <p className="text-[0.42rem] text-slate-600">{s.l}</p>
@@ -615,7 +679,9 @@ function AdminCyberOperationsPageInner() {
                   ))}
                 </div>
               )}
-              {/* زر Under Attack Mode */}
+              {cfStatus.analytics24h?.error ? (
+                <p className="mb-2 text-[0.48rem] text-amber-400/80">تعذّر GraphQL: {cfStatus.analytics24h.error}</p>
+              ) : null}
               <button
                 onClick={() => void handleToggleAttackMode()}
                 disabled={attackModeChanging}
@@ -629,11 +695,10 @@ function AdminCyberOperationsPageInner() {
                   ? '✅ إيقاف Under Attack Mode'
                   : '🚨 تفعيل Under Attack Mode'}
               </button>
-              {/* قواعد الجدار الناري */}
               {cfStatus.firewallRules.length > 0 && (
-                <div className="max-h-24 overflow-y-auto space-y-1">
-                  <p className="text-[0.48rem] font-bold uppercase text-orange-400/50 mb-1">IPs محجوبة على Cloudflare</p>
-                  {(cfStatus.firewallRules ?? []).slice(0, 8).map(r => (
+                <div className="max-h-24 space-y-1 overflow-y-auto">
+                  <p className="mb-1 text-[0.48rem] font-bold uppercase text-orange-400/50">IPs محجوبة على Cloudflare</p>
+                  {(cfStatus.firewallRules ?? []).slice(0, 8).map((r) => (
                     <div key={r.id} className="flex items-center justify-between text-[0.52rem]">
                       <span className="font-mono text-orange-300/70" dir="ltr">{r.ip}</span>
                       <span className="text-slate-600">{r.mode}</span>
@@ -734,15 +799,18 @@ function AdminCyberOperationsPageInner() {
             </div>
           )}
 
-          {/* ◆ أحداث أمنية حية — Supabase Realtime */}
+          {/* ◆ أحداث أمنية حية — Supabase Realtime (app_event) */}
           {liveSecEvents.length > 0 && (
             <div className="mt-2 border-t border-rose-500/10 pt-2">
-              <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="mb-1.5 flex items-center gap-1.5">
                 <motion.div className="h-2 w-2 rounded-full bg-rose-500"
                   animate={{ opacity:[0.4,1,0.4] }} transition={{ duration:1, repeat:Infinity }} />
                 <h2 className="text-[0.58rem] font-bold uppercase tracking-wider text-rose-400/70">
-                  أحداث حية · LIVE
+                  أحداث حية · app_event
                 </h2>
+                <span className="rounded-full border border-teal-500/30 bg-teal-500/10 px-1.5 py-0.5 text-[0.4rem] font-bold text-teal-200">
+                  security_events
+                </span>
               </div>
               <div className="max-h-36 overflow-y-auto space-y-1">
                 {liveSecEvents.map(e => (

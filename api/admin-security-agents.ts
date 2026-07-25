@@ -9,7 +9,12 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { verifyPlatformAdminFromRequestAny } from './_lib/adminManageBarbersAuth.js';
-import { blockIpCloudflare, cfConfigured } from './_lib/cloudflareGuard.js';
+import {
+  blockIpCloudflare,
+  cfConfigured,
+  cfThreatAlertHourThreshold,
+  getCfThreatAnalytics,
+} from './_lib/cloudflareGuard.js';
 
 export const config = { maxDuration: 30 };
 
@@ -77,19 +82,36 @@ export async function POST(request: Request): Promise<Response> {
       .lt('created_at', halfWindow);
 
     const acceleration = (olderHalf ?? 0) > 0 ? ((recentHalf ?? 0) / (olderHalf ?? 1)) : 1;
-    const threatLevel = acceleration > 3 ? 'critical' : acceleration > 1.5 ? 'elevated' : 'normal';
+    let threatLevel: 'critical' | 'elevated' | 'normal' =
+      acceleration > 3 ? 'critical' : acceleration > 1.5 ? 'elevated' : 'normal';
+
+    // ملخص حافة Cloudflare (GraphQL مجمّع — ليس Logpush)
+    const cfAnalytics = cfConfigured() ? await getCfThreatAnalytics(24) : null;
+    const cfThreshold = cfThreatAlertHourThreshold();
+    if (cfAnalytics?.ok && cfAnalytics.lastHourThreats >= cfThreshold) {
+      threatLevel = cfAnalytics.lastHourThreats >= cfThreshold * 2 ? 'critical' : 'elevated';
+    }
 
     // تقرير الوكيل
     const reportLines: string[] = [];
     reportLines.push(`عميل الاستطلاع الاستباقي — تقرير ${windowMin} دقيقة الأخيرة`);
     reportLines.push(`مستوى التهديد: ${threatLevel === 'critical' ? '🚨 حرج' : threatLevel === 'elevated' ? '⚠️ مرتفع' : '✅ طبيعي'}`);
-    reportLines.push(`معدل التسارع: ×${acceleration.toFixed(1)} (النصف الثاني vs الأول)`);
+    reportLines.push(`معدل التسارع (أحداث الأصل): ×${acceleration.toFixed(1)} (النصف الثاني vs الأول)`);
+    if (cfAnalytics?.ok) {
+      reportLines.push(
+        `حافة CF (GraphQL): آخر ساعة ${cfAnalytics.lastHourThreats} تهديد · 24س ${cfAnalytics.threats} · طلبات ${cfAnalytics.totalRequests}`,
+      );
+    } else if (cfConfigured()) {
+      reportLines.push(`حافة CF: تعذّر جلب الملخص (${cfAnalytics?.error || 'unknown'})`);
+    } else {
+      reportLines.push('حافة CF: غير مهيأة');
+    }
     if (suspicious.length > 0) {
-      reportLines.push(`IPs مشبوهة: ${suspicious.length}`);
+      reportLines.push(`IPs مشبوهة (security_events): ${suspicious.length}`);
       suspicious.slice(0, 3).forEach(s =>
         reportLines.push(`  · ${s.ip} — ${s.count} حدث (${s.critical} حرج)`));
     } else {
-      reportLines.push('لا مصادر مشبوهة بارزة في الفترة المراقَبة');
+      reportLines.push('لا مصادر مشبوهة بارزة في أحداث الأصل خلال الفترة');
     }
 
     return json({
@@ -98,6 +120,14 @@ export async function POST(request: Request): Promise<Response> {
       threatLevel,
       acceleration: Number(acceleration.toFixed(2)),
       suspiciousIps: suspicious,
+      edgeSummary: cfAnalytics?.ok
+        ? {
+            lastHourThreats: cfAnalytics.lastHourThreats,
+            threats24h: cfAnalytics.threats,
+            totalRequests24h: cfAnalytics.totalRequests,
+            source: 'cloudflare_graphql',
+          }
+        : null,
       report: reportLines.join('\n'),
       agentResponse: {
         agentId: 'proactive_scout',

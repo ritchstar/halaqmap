@@ -150,27 +150,73 @@ export async function getCfFirewallRules(): Promise<{
   }
 }
 
-// ─── بيانات التهديد من Cloudflare Analytics ──────────────────────────────────
-export async function getCfThreatAnalytics(hours = 24): Promise<{
+/** نقطة ساعة واحدة من Cloudflare GraphQL Analytics (مجمّع — ليس سجل طلب). */
+export type CfThreatHourPoint = {
+  datetime: string;
+  threats: number;
+  requests: number;
+  cachedRequests: number;
+};
+
+export type CfThreatAnalyticsResult = {
   ok: boolean;
   threats: number;
   cachedRequests: number;
   totalRequests: number;
+  /** سلسلة زمنية ساعة بساعة — للأوب بأوب في لوحة Cyber */
+  series: CfThreatHourPoint[];
+  /** آخر ساعة فقط — لعتبات التنبيه */
+  lastHourThreats: number;
+  lastHourRequests: number;
+  fetchedAt: string;
+  fromCache?: boolean;
   error?: string;
-}> {
-  if (!cfConfigured()) return { ok: false, threats: 0, cachedRequests: 0, totalRequests: 0, error: 'not configured' };
+};
 
-  const since = new Date(Date.now() - hours * 3_600_000).toISOString().split('.')[0] + 'Z';
+const emptyAnalytics = (error?: string): CfThreatAnalyticsResult => ({
+  ok: false,
+  threats: 0,
+  cachedRequests: 0,
+  totalRequests: 0,
+  series: [],
+  lastHourThreats: 0,
+  lastHourRequests: 0,
+  fetchedAt: new Date().toISOString(),
+  error,
+});
+
+/** كاش قصير لتقليل حصص GraphQL (افتراضي 90 ثانية). */
+const CF_ANALYTICS_CACHE_MS = Math.max(
+  30_000,
+  Number(process.env.CF_ANALYTICS_CACHE_MS || 90_000) || 90_000,
+);
+const analyticsCache = new Map<number, { at: number; value: CfThreatAnalyticsResult }>();
+
+/**
+ * بيانات التهديد من Cloudflare Analytics (GraphQL).
+ * مسار غير-Enterprise: مجمّعات ساعة — بدون Logpush / سجلات خام.
+ */
+export async function getCfThreatAnalytics(hours = 24): Promise<CfThreatAnalyticsResult> {
+  const h = Math.min(72, Math.max(1, Math.round(Number(hours) || 24)));
+  if (!cfConfigured()) return emptyAnalytics('not configured');
+
+  const cached = analyticsCache.get(h);
+  if (cached && Date.now() - cached.at < CF_ANALYTICS_CACHE_MS) {
+    return { ...cached.value, fromCache: true };
+  }
+
+  const since = new Date(Date.now() - h * 3_600_000).toISOString().split('.')[0] + 'Z';
   const until = new Date().toISOString().split('.')[0] + 'Z';
 
   const query = `{
     viewer {
       zones(filter: { zoneTag: "${zoneId()}" }) {
         httpRequests1hGroups(
-          limit: ${hours}
+          limit: ${h}
           filter: { datetime_geq: "${since}", datetime_leq: "${until}" }
           orderBy: [datetime_ASC]
         ) {
+          dimensions { datetime }
           sum {
             threats
             cachedRequests
@@ -188,27 +234,82 @@ export async function getCfThreatAnalytics(hours = 24): Promise<{
       body: JSON.stringify({ query }),
     });
     const data = (await res.json()) as {
+      errors?: { message?: string }[];
       data?: {
         viewer?: {
           zones?: {
-            httpRequests1hGroups?: { sum: { threats: number; cachedRequests: number; requests: number } }[];
+            httpRequests1hGroups?: {
+              dimensions?: { datetime?: string };
+              sum: { threats: number; cachedRequests: number; requests: number };
+            }[];
           }[];
         };
       };
     };
 
-    const groups = data.data?.viewer?.zones?.[0]?.httpRequests1hGroups ?? [];
-    const totals = groups.reduce(
+    let groups = data.data?.viewer?.zones?.[0]?.httpRequests1hGroups ?? [];
+
+    // إن رفض الـ API حقل dimensions — أعد المحاولة بالمجاميع فقط
+    if (data.errors?.length && groups.length === 0) {
+      const fallbackQuery = `{
+        viewer {
+          zones(filter: { zoneTag: "${zoneId()}" }) {
+            httpRequests1hGroups(
+              limit: ${h}
+              filter: { datetime_geq: "${since}", datetime_leq: "${until}" }
+              orderBy: [datetime_ASC]
+            ) {
+              sum { threats cachedRequests requests }
+            }
+          }
+        }
+      }`;
+      const res2 = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+        method: 'POST',
+        headers: { ...cfHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: fallbackQuery }),
+      });
+      const data2 = (await res2.json()) as typeof data;
+      groups = data2.data?.viewer?.zones?.[0]?.httpRequests1hGroups ?? [];
+      if (data2.errors?.length && groups.length === 0) {
+        return emptyAnalytics(data2.errors[0]?.message || data.errors[0]?.message || 'graphql_error');
+      }
+    }
+
+    const series: CfThreatHourPoint[] = groups.map((g, idx) => ({
+      datetime: String(g.dimensions?.datetime || `h${idx + 1}`),
+      threats: Number(g.sum?.threats ?? 0),
+      requests: Number(g.sum?.requests ?? 0),
+      cachedRequests: Number(g.sum?.cachedRequests ?? 0),
+    }));
+
+    const totals = series.reduce(
       (acc, g) => ({
-        threats: acc.threats + (g.sum.threats ?? 0),
-        cachedRequests: acc.cachedRequests + (g.sum.cachedRequests ?? 0),
-        totalRequests: acc.totalRequests + (g.sum.requests ?? 0),
+        threats: acc.threats + g.threats,
+        cachedRequests: acc.cachedRequests + g.cachedRequests,
+        totalRequests: acc.totalRequests + g.requests,
       }),
       { threats: 0, cachedRequests: 0, totalRequests: 0 },
     );
 
-    return { ok: true, ...totals };
+    const last = series.length > 0 ? series[series.length - 1] : null;
+    const result: CfThreatAnalyticsResult = {
+      ok: true,
+      ...totals,
+      series,
+      lastHourThreats: last?.threats ?? 0,
+      lastHourRequests: last?.requests ?? 0,
+      fetchedAt: new Date().toISOString(),
+    };
+    analyticsCache.set(h, { at: Date.now(), value: result });
+    return result;
   } catch (e) {
-    return { ok: false, threats: 0, cachedRequests: 0, totalRequests: 0, error: e instanceof Error ? e.message : 'network error' };
+    return emptyAnalytics(e instanceof Error ? e.message : 'network error');
   }
+}
+
+/** عتبة تنبيه تهديدات آخر ساعة — قابلة للضبط عبر env */
+export function cfThreatAlertHourThreshold(): number {
+  const n = Number(process.env.CF_THREAT_ALERT_HOUR_THRESHOLD || 80);
+  return Number.isFinite(n) && n > 0 ? n : 80;
 }

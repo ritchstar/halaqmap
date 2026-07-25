@@ -19,7 +19,8 @@ export type OpsEventType =
   | 'chat.maintenance_failed'
   | 'push.unauthorized'
   | 'api.error'
-  | 'health.scan';
+  | 'health.scan'
+  | 'edge.threat_spike';
 
 export type OpsEventSeverity = 'info' | 'watch' | 'urgent';
 
@@ -75,6 +76,7 @@ const DEFAULT_SEVERITY: Record<OpsEventType, OpsEventSeverity> = {
   'push.unauthorized': 'urgent',
   'api.error': 'watch',
   'health.scan': 'info',
+  'edge.threat_spike': 'urgent',
 };
 
 const RULE_ACTIONS: Record<OpsEventType, RuleActions> = {
@@ -89,6 +91,7 @@ const RULE_ACTIONS: Record<OpsEventType, RuleActions> = {
   'push.unauthorized': { slack: true, email: true, opsReport: true },
   'api.error': { slack: true, email: false, opsReport: true },
   'health.scan': { slack: false, email: false, opsReport: true },
+  'edge.threat_spike': { slack: true, email: true, opsReport: true },
 };
 
 const DEFAULT_CATEGORY: Record<OpsEventType, OpsEventCategory> = {
@@ -103,6 +106,7 @@ const DEFAULT_CATEGORY: Record<OpsEventType, OpsEventCategory> = {
   'push.unauthorized': 'billing_ops',
   'api.error': 'billing_ops',
   'health.scan': 'other',
+  'edge.threat_spike': 'other',
 };
 
 function opsSlackWebhook(): string {

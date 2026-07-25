@@ -18,6 +18,7 @@ import {
   getCfFirewallRules,
   getCfThreatAnalytics,
   cfConfigured,
+  type CfThreatAnalyticsResult,
 } from './_lib/cloudflareGuard.js';
 
 export const config = { maxDuration: 20 };
@@ -27,6 +28,21 @@ function json(data: unknown, status = 200): Response {
     status,
     headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'private, no-store' },
   });
+}
+
+function summarizeAnalyticsForClient(analytics: CfThreatAnalyticsResult) {
+  return {
+    ok: analytics.ok,
+    threats: analytics.threats,
+    totalRequests: analytics.totalRequests,
+    cachedRequests: analytics.cachedRequests,
+    series: analytics.series,
+    lastHourThreats: analytics.lastHourThreats,
+    lastHourRequests: analytics.lastHourRequests,
+    fetchedAt: analytics.fetchedAt,
+    fromCache: analytics.fromCache === true,
+    error: analytics.error,
+  };
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -235,7 +251,8 @@ export async function POST(request: Request): Promise<Response> {
       cfConfigured: cfConfigured(),
       security: status,
       firewallRules: rules.rules,
-      analytics24h: analytics,
+      analytics24h: summarizeAnalyticsForClient(analytics),
+      note: 'edge_summary=GraphQL_aggregates; live_pulses=security_events_realtime; logpush_deferred',
     });
   }
 
@@ -243,7 +260,11 @@ export async function POST(request: Request): Promise<Response> {
   if (action === 'cf_analytics') {
     const hours = Number(body.hours ?? 24);
     const analytics = await getCfThreatAnalytics(hours);
-    return json({ ok: true, cfConfigured: cfConfigured(), analytics });
+    return json({
+      ok: true,
+      cfConfigured: cfConfigured(),
+      analytics: summarizeAnalyticsForClient(analytics),
+    });
   }
 
   return json({ error: 'Unknown action' }, 400);
