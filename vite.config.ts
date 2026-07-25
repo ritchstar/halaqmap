@@ -396,12 +396,28 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             const norm = id.replace(/\\/g, '/');
-            // افصل المسارات وبروكسي الراوتر وUI المشترك عن حزمة App —
-            // يمنع AdminDashboard/LandingPreview من استيراد App قبل اكتمال تقييمه.
+            // افصل كل ما تشاركه الصفحات الكسولة عن حزمة App.tsx —
+            // وإلا LandingPreview/Admin يستوردان App قبل اكتمال export default → reading 'default'.
             if (norm.includes('/src/lib/routePaths.ts')) return 'route-paths';
             if (norm.includes('/src/lib/react-router-dom-proxy')) return 'rr-proxy';
             if (norm.includes('/src/components/ui/')) return 'ui-kit';
             if (norm.includes('/src/lib/utils.ts')) return 'shared-utils';
+            if (norm.includes('/src/lib/index.ts')) return 'lib-index';
+            if (
+              norm.includes('/src/components/Layout') ||
+              norm.includes('/src/components/PartnerLayout') ||
+              norm.includes('/src/context/PlatformAmbientContext') ||
+              norm.includes('/src/components/PlatformAmbient') ||
+              norm.includes('/src/components/FloatingPlatformActions') ||
+              norm.includes('/src/components/ScrollToTop') ||
+              norm.includes('/src/components/AnalyticsRouteTracker') ||
+              norm.includes('/src/components/PolicySectionHashRedirect') ||
+              norm.includes('/src/components/MoyasarPaymentReturnGate') ||
+              norm.includes('/src/components/RouteScopedErrorBoundary') ||
+              norm.includes('/src/components/AdminAuthHashGate')
+            ) {
+              return 'app-shell';
+            }
             if (!norm.includes('/node_modules/')) return;
             if (norm.includes('framer-motion')) return 'vendor-motion';
             if (norm.includes('@supabase')) return 'vendor-supabase';

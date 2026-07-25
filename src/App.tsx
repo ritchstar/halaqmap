@@ -15,11 +15,10 @@ import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate"
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/index";
+import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/routePaths";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
-import HospitalityB2BRequestLanding from "@/pages/HospitalityB2BRequestLanding";
 
 const LandingPreview = lazy(async () => {
   const mod = await import("@/pages/LandingPreview");
@@ -29,6 +28,7 @@ const LandingPreview = lazy(async () => {
   }
   return { default: C };
 });
+const HospitalityB2BRequestLanding = lazy(() => import("@/pages/HospitalityB2BRequestLanding"));
 const PartnerMarketingPreview = lazy(() => import("@/pages/PartnerMarketingPreview"));
 const PartnersB2BLanding = lazy(() => import("@/pages/PartnersB2BLanding"));
 const PulseMapPage = lazy(() => import("@/pages/PulseMapPage"));
@@ -223,11 +223,11 @@ export function App() {
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}
-            element={<Layout><HospitalityB2BRequestLanding /></Layout>}
+            element={<Layout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></Layout>}
           />
           <Route
             path={`${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}/`}
-            element={<Layout><HospitalityB2BRequestLanding /></Layout>}
+            element={<Layout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></Layout>}
           />
 
           {/* ?????? ?????? ???????? ??????????? ??? ?????? ?????????? ???????????????????????????????????????????????? */}
