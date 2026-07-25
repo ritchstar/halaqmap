@@ -387,6 +387,14 @@ export function App() {
           <Route path={ROUTE_PATHS.SEMAT_LEGAL} element={<LazyRoute><SematLegalHub /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SEMAT_SETUP} element={<LazyRoute><SematCardSetup /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SEMAT_SCAN} element={<LazyRoute><SematScanPage /></LazyRoute>} />
+          <Route
+            path={ROUTE_PATHS.AMBASSADOR_HOME}
+            element={<Navigate to={ROUTE_PATHS.AMBASSADOR_ENTER} replace />}
+          />
+          <Route
+            path={`${ROUTE_PATHS.AMBASSADOR_HOME}/`}
+            element={<Navigate to={ROUTE_PATHS.AMBASSADOR_ENTER} replace />}
+          />
           <Route path={ROUTE_PATHS.AMBASSADOR_RULES} element={<LazyRoute><AmbassadorRulesHub /></LazyRoute>} />
           <Route path={ROUTE_PATHS.AMBASSADOR_ENTER} element={<LazyRoute><AmbassadorEnter /></LazyRoute>} />
           <Route path={ROUTE_PATHS.AMBASSADOR_DASHBOARD} element={<LazyRoute><AmbassadorDashboard /></LazyRoute>} />
