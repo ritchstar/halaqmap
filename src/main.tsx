@@ -22,14 +22,30 @@ function currentHashPath(): string {
   return normalized.startsWith('/') ? normalized : `/${normalized}`;
 }
 
-/** Windows/paste غالباً يحوّل المسار إلى #\ambassadors\enter — HashRouter يحتاج /. */
-function normalizeLocationHashSlashes(): void {
+/**
+ * تنظيف هاش المسار قبل React Router:
+ * - Windows/paste: #\ambassadors\enter → #/ambassadors/enter
+ * - لصق شائع: #/ambassadors/dashboard= → #/ambassadors/dashboard
+ */
+function normalizeLocationHash(): void {
   if (typeof window === 'undefined') return;
   const { hash, pathname, search } = window.location;
-  if (!hash || !hash.includes('\\')) return;
-  const fixed = hash.replace(/\\/g, '/');
-  if (fixed === hash) return;
-  window.history.replaceState(null, '', `${pathname}${search}${fixed}`);
+  if (!hash || hash === '#') return;
+
+  let next = hash.includes('\\') ? hash.replace(/\\/g, '/') : hash;
+  const m = next.match(/^#([^?]*)(\?.*)?$/);
+  if (m) {
+    let pathPart = m[1] || '';
+    const queryPart = m[2] || '';
+    if (/=+$/.test(pathPart)) {
+      pathPart = pathPart.replace(/=+$/, '');
+    }
+    next = `#${pathPart}${queryPart}`;
+  }
+
+  if (next !== hash) {
+    window.history.replaceState(null, '', `${pathname}${search}${next}`);
+  }
 }
 
 const LAB_STANDALONE_ROUTES: Record<string, () => Promise<{ default: ComponentType }>> = {
