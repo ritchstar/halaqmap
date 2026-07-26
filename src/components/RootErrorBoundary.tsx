@@ -33,7 +33,8 @@ function isLazyDefaultExportError(error: Error): boolean {
     /failed to load$/i.test(error.message) ||
     /AdminDashboard failed to load/i.test(error.message) ||
     /BarberDashboard failed to load/i.test(error.message) ||
-    /LandingPreview failed to load/i.test(error.message)
+    /LandingPreview failed to load/i.test(error.message) ||
+    /normalizeLocationHash/i.test(error.message)
   );
 }
 

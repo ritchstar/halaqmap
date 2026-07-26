@@ -26,30 +26,37 @@ function currentHashPath(): string {
  * تنظيف هاش المسار قبل React Router:
  * - Windows/paste: #\ambassadors\enter → #/ambassadors/enter
  * - لصق شائع: #/ambassadors/dashboard= → #/ambassadors/dashboard
+ * function declaration (hoisted) — لا ReferenceError حتى لو تغيّر ترتيب الاستدعاء.
  */
 function normalizeLocationHash(): void {
   if (typeof window === 'undefined') return;
-  const { hash, pathname, search } = window.location;
-  if (!hash || hash === '#') return;
+  try {
+    const { hash, pathname, search } = window.location;
+    if (!hash || hash === '#') return;
 
-  let next = hash.includes('\\') ? hash.replace(/\\/g, '/') : hash;
-  const m = next.match(/^#([^?]*)(\?.*)?$/);
-  if (m) {
-    let pathPart = m[1] || '';
-    const queryPart = m[2] || '';
-    if (/=+$/.test(pathPart)) {
-      pathPart = pathPart.replace(/=+$/, '');
+    let next = hash.includes('\\') ? hash.replace(/\\/g, '/') : hash;
+    const m = next.match(/^#([^?]*)(\?.*)?$/);
+    if (m) {
+      let pathPart = m[1] || '';
+      const queryPart = m[2] || '';
+      if (/=+$/.test(pathPart)) {
+        pathPart = pathPart.replace(/=+$/, '');
+      }
+      next = `#${pathPart}${queryPart}`;
     }
-    next = `#${pathPart}${queryPart}`;
-  }
 
-  if (next !== hash) {
-    window.history.replaceState(null, '', `${pathname}${search}${next}`);
+    if (next !== hash) {
+      window.history.replaceState(null, '', `${pathname}${search}${next}`);
+    }
+  } catch {
+    /* لا تُسقط إقلاع المنصة بسبب تنظيف الهاش */
   }
 }
 
-/** اسم قديم — يبقي التوافق إن بقي استدعاء من كاش/بناء جزئي */
-const normalizeLocationHashSlashes = normalizeLocationHash;
+/** اسم قديم (hoisted) — توافق مع أي حزمة/كاش ما زال يستدعي الاسم السابق */
+function normalizeLocationHashSlashes(): void {
+  normalizeLocationHash();
+}
 
 const LAB_STANDALONE_ROUTES: Record<string, () => Promise<{ default: ComponentType }>> = {
   '/lab/silent-star-camp': () => import('./pages/SilentStarCampLanding.tsx'),
@@ -323,7 +330,9 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
   if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
     bootMarker[APP_BOOTSTRAP_FLAG] = true
     try {
+      // كلا الاسمين متوفران (hoisted) — لا تعتمد على اسم واحد فقط بعد إعادة التسمية
       normalizeLocationHash()
+      normalizeLocationHashSlashes()
       ensureDomainVerificationMeta()
       assertRuntimeEnvSafety()
       void import('@/lib/analytics/productAnalytics').then((m) => m.initProductAnalytics())
