@@ -44,20 +44,54 @@ const appBuildTimeIso = new Date().toISOString();
 const traverse: typeof _traverse.default = ( (_traverse as any).default ?? _traverse ) as any;
 const generate: typeof _generate.default = ( (_generate as any).default ?? _generate ) as any;
 
-/** يُلحق ?v=… بروابط /assets/*.js و*.css في index.html بعد البناء لتسهيل كسر كاش HTTP/CDN (مع بقاء أسماء الملفات المُشفّرة). */
+/** يُلحق ?v=… بروابط /assets/*.js و*.css، يقدّم CSS مبكراً، ويزيل crossorigin عن CSS لنفس الأصل. */
 function indexHtmlAssetCacheBustPlugin(): Plugin {
   return {
     name: 'index-html-asset-cache-bust',
     apply: 'build',
     enforce: 'post',
     transformIndexHtml(html) {
-      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '6').trim();
-      const q = raw.length > 0 ? raw : '2';
+      const raw = (process.env.VITE_INDEX_ASSET_CACHE_QUERY ?? '7').trim();
+      // لا نسمح بقيمة أقدم من 7 حتى لا يبقى عملاء عالقين على ?v=4 بعد إصلاح الإقلاع
+      const parsed = Number.parseInt(raw.length > 0 ? raw : '7', 10);
+      const q = String(Number.isFinite(parsed) ? Math.max(parsed, 7) : 7);
       const suffix = `?v=${encodeURIComponent(q)}`;
       let out = html
         .replace(/src="(\/assets\/[^"?]+\.js)"/g, `src="$1${suffix}"`)
         .replace(/href="(\/assets\/[^"?]+\.js)"/g, `href="$1${suffix}"`)
         .replace(/href="(\/assets\/[^"?]+\.css)"/g, `href="$1${suffix}"`);
+
+      // CSS لنفس الأصل: بدون crossorigin لتجنب فشل تطبيق الأنماط رغم HTTP 200
+      out = out.replace(
+        /<link\s+rel="stylesheet"\s+crossorigin(?:="anonymous")?\s+href="(\/assets\/[^"]+\.css(?:\?[^"]*)?)"\s*\/?>/gi,
+        '<link rel="stylesheet" href="$1">',
+      );
+      out = out.replace(
+        /<link\s+rel="stylesheet"\s+href="(\/assets\/[^"]+\.css(?:\?[^"]*)?)"\s+crossorigin(?:="anonymous")?\s*\/?>/gi,
+        '<link rel="stylesheet" href="$1">',
+      );
+
+      // انقل روابط CSS الخاصة بـ /assets/ مباشرة بعد charset/viewport لتقليل FOUC
+      const cssLinks: string[] = [];
+      out = out.replace(
+        /<link\s+rel="stylesheet"[^>]*href="\/assets\/[^"]+\.css(?:\?[^"]*)?"[^>]*\/?>/gi,
+        (m) => {
+          cssLinks.push(m);
+          return '';
+        },
+      );
+      if (cssLinks.length > 0) {
+        const inject = `${cssLinks.join('\n    ')}\n    `;
+        if (out.includes('name="viewport"')) {
+          out = out.replace(
+            /(<meta[^>]*name="viewport"[^>]*\/?>)/i,
+            `$1\n    ${inject}`,
+          );
+        } else {
+          out = out.replace(/<head([^>]*)>/i, `<head$1>\n    ${inject}`);
+        }
+      }
+
       const escAttr = (s: string) =>
         s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
       const commit = escAttr(resolveGitShortCommit());

@@ -43,25 +43,33 @@
         } catch (e) {}
       })();
     </script>
-    <!-- تنظيف URL من معاملات _b= المتراكمة + كاش SW لمرة واحدة -->
+    <!-- تنظيف URL من معاملات _b/_boot المتراكمة (لا تُستخدم كمفتاح watchdog) -->
     <script>
       (function () {
         try {
           var u = new URL(window.location.href);
-          while (u.searchParams.has('_b')) u.searchParams.delete('_b');
-          var clean = u.pathname + u.search + u.hash;
-          if (clean !== window.location.pathname + window.location.search + window.location.hash) {
-            window.history.replaceState(null, '', clean);
+          var dirty = false;
+          while (u.searchParams.has('_b')) {
+            u.searchParams.delete('_b');
+            dirty = true;
           }
+          while (u.searchParams.has('_boot')) {
+            u.searchParams.delete('_boot');
+            dirty = true;
+          }
+          if (!dirty) return;
+          var clean = u.pathname + u.search + u.hash;
+          window.history.replaceState(null, '', clean);
         } catch (e) {}
       })();
     </script>
     <script>
       (function () {
         try {
-          var flag = 'hm-sw-reset-v13';
+          var flag = 'hm-sw-reset-v14';
           if (localStorage.getItem(flag)) return;
           localStorage.setItem(flag, '1');
+          localStorage.removeItem('hm-sw-reset-v13');
           localStorage.removeItem('hm-sw-reset-v12');
           localStorage.removeItem('hm-sw-reset-v11');
           localStorage.removeItem('hm-sw-reset-v10');
@@ -74,9 +82,12 @@
           localStorage.removeItem('hm-sw-reset-v2');
           sessionStorage.removeItem('hm-chunk-recover');
           sessionStorage.removeItem('hm-build-sync-auto-reloaded');
+          sessionStorage.removeItem('hm-sw-reset-v13-reload');
           sessionStorage.removeItem('hm-sw-reset-v12-reload');
           sessionStorage.removeItem('hm-sw-reset-v11-reload');
-          var reloadFlag = 'hm-sw-reset-v13-reload';
+          /* بعد مسح الكاش: امنح الإقلاع البارد مهلة أطول ولا تمسح الكاش ثانيةً من الـ watchdog */
+          sessionStorage.setItem('hm-boot-grace-after-sw-reset', String(Date.now()));
+          var reloadFlag = 'hm-sw-reset-v14-reload';
           var tasks = [];
           if ('serviceWorker' in navigator) {
             tasks.push(
@@ -101,17 +112,19 @@
         } catch (e) {}
       })();
     </script>
-    <!-- خط دفاع أخير ضد الشاشة البيضاء: إذا لم يتم mount للتطبيق خلال المهلة، ننفّذ إنعاش إنقاذي مرة واحدة -->
+    <!-- خط دفاع أخير ضد الشاشة البيضاء: إنعاش واحد بدون حلقة مسح كاش مزدوجة -->
     <script>
       (function () {
         try {
           var mountedFlag = '__halaqmapAppMountedV1';
           var overlayId = 'hm-boot-emergency-overlay-v1';
+          var graceKey = 'hm-boot-grace-after-sw-reset';
+          var recoverKey = 'hm-boot-watchdog-recovered-v2';
+          /* مفتاح ثابت للمسار بدون search حتى لا يعيد ?_boot إطلاق الـ watchdog */
           var key =
-            'hm-boot-watchdog-v1:' +
+            'hm-boot-watchdog-v2:' +
             window.location.pathname +
-            window.location.search +
-            window.location.hash;
+            (window.location.hash || '');
 
           if (window[mountedFlag] !== true) {
             window[mountedFlag] = false;
@@ -132,7 +145,7 @@
             el.innerHTML =
               '<div style="max-width:640px;background:#ffffff;border:1px solid #cbd5e1;border-radius:16px;padding:18px 16px;box-shadow:0 24px 48px -32px rgba(15,23,42,.35)">' +
               '<h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#0f172a">نقوم باستعادة الصفحة تلقائياً…</h2>' +
-              '<p style="margin:0 0 12px;font-size:14px;line-height:1.8;color:#334155">تم رصد تعثّر في الإقلاع. يجري الآن تنظيف الكاش وإعادة التحميل الآمن.</p>' +
+              '<p style="margin:0 0 12px;font-size:14px;line-height:1.8;color:#334155">تم رصد تعثّر في الإقلاع. يجري الآن إعادة التحميل الآمن دون مسح كاش مزدوج.</p>' +
               '<button id="hm-boot-emergency-btn" style="border:0;border-radius:10px;padding:10px 14px;background:#0ea5e9;color:#fff;font-weight:700;cursor:pointer">إعادة تحميل فورية</button>' +
               '</div>';
             document.body.appendChild(el);
@@ -141,6 +154,7 @@
               btn.addEventListener('click', function () {
                 try {
                   sessionStorage.removeItem(key);
+                  sessionStorage.removeItem(recoverKey);
                 } catch (e) {}
                 window.location.reload();
               });
@@ -149,8 +163,18 @@
 
           window.addEventListener('halaqmap:mounted', function () {
             window[mountedFlag] = true;
+            try {
+              sessionStorage.removeItem(graceKey);
+            } catch (e) {}
             removeOverlay();
           });
+
+          var graceMs = 0;
+          try {
+            var graceAt = Number(sessionStorage.getItem(graceKey) || '0');
+            if (graceAt > 0) graceMs = Math.max(0, 25000 - (Date.now() - graceAt));
+          } catch (e) {}
+          var timeoutMs = graceMs > 0 ? 20000 : 12000;
 
           window.setTimeout(function () {
             try {
@@ -159,15 +183,24 @@
               sessionStorage.setItem(key, '1');
               showOverlay();
 
-              var reload = function () {
+              var softReload = function () {
                 try {
-                  var u = new URL(window.location.href);
-                  u.searchParams.set('_boot', String(Date.now()));
-                  window.location.replace(u.pathname + u.search + u.hash);
-                } catch (e) {
-                  window.location.reload();
-                }
+                  sessionStorage.setItem(recoverKey, String(Date.now()));
+                } catch (e) {}
+                window.location.reload();
               };
+
+              /* لا نمسح الكاش هنا إذا كان مسح SW قد حصل للتو — ذلك يسبب صفحة بلا CSS */
+              var recentlyReset = false;
+              try {
+                var g = Number(sessionStorage.getItem(graceKey) || '0');
+                recentlyReset = g > 0 && Date.now() - g < 60000;
+              } catch (e2) {}
+
+              if (recentlyReset) {
+                softReload();
+                return;
+              }
 
               var clearCaches = function () {
                 if (!('caches' in window)) return Promise.resolve();
@@ -187,15 +220,15 @@
                   })
                   .catch(function () {})
                   .then(clearCaches)
-                  .finally(reload);
+                  .finally(softReload);
               } else {
-                clearCaches().finally(reload);
+                clearCaches().finally(softReload);
               }
             } catch (e) {
               showOverlay();
               window.location.reload();
             }
-          }, 7000);
+          }, timeoutMs);
         } catch (e) {}
       })();
     </script>
@@ -376,7 +409,7 @@
       })();
     </script>
     <div id="root"></div>
-    <!-- استرداد تلقائي إذا فشل تحميل حزمة JS بعد نشر جديد (كاش SW/ CDN قديم) -->
+    <!-- استرداد تلقائي إذا فشل تحميل JS أو CSS بعد نشر جديد (كاش SW/CDN قديم) -->
     <script>
       (function () {
         var key = 'hm-chunk-recover';
@@ -385,9 +418,13 @@
           'error',
           function (ev) {
             var t = ev.target;
-            if (!t || t.tagName !== 'SCRIPT') return;
-            var src = t.src || '';
-            if (src.indexOf('/assets/') === -1) return;
+            if (!t) return;
+            var tag = t.tagName;
+            var href = '';
+            if (tag === 'SCRIPT') href = t.src || '';
+            else if (tag === 'LINK' && (t.rel || '').indexOf('stylesheet') !== -1) href = t.href || '';
+            else return;
+            if (href.indexOf('/assets/') === -1) return;
             sessionStorage.setItem(key, '1');
             var reload = function () {
               window.location.reload();
