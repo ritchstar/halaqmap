@@ -48,6 +48,9 @@ function normalizeLocationHash(): void {
   }
 }
 
+/** اسم قديم — يبقي التوافق إن بقي استدعاء من كاش/بناء جزئي */
+const normalizeLocationHashSlashes = normalizeLocationHash;
+
 const LAB_STANDALONE_ROUTES: Record<string, () => Promise<{ default: ComponentType }>> = {
   '/lab/silent-star-camp': () => import('./pages/SilentStarCampLanding.tsx'),
   '/lab/desert-light-lock': () => import('./pages/DesertLightLockLanding.tsx'),
@@ -320,7 +323,7 @@ async function bootstrapApp(rootEl: HTMLElement): Promise<void> {
   if (!bootMarker[APP_BOOTSTRAP_FLAG]) {
     bootMarker[APP_BOOTSTRAP_FLAG] = true
     try {
-      normalizeLocationHashSlashes()
+      normalizeLocationHash()
       ensureDomainVerificationMeta()
       assertRuntimeEnvSafety()
       void import('@/lib/analytics/productAnalytics').then((m) => m.initProductAnalytics())
