@@ -791,15 +791,15 @@ export default function LandingPreview() {
               : 'bg-[#020912]/85 backdrop-blur-xl'
         }`} />
 
-        {/* ── شريط مدن المملكة ───────────────────────────── */}
-        <div className="relative border-b border-teal-400/10">
+        {/* ── شريط مدن المملكة — ارتفاع محجوز على سطح المكتب لتفادي CLS ── */}
+        <div className="relative min-h-0 border-b border-teal-400/10 md:min-h-[72px]">
           {!isMobile ? <KSACityClocksBar /> : null}
         </div>
 
         {/* ── التنقل الرئيسي ─────────────────────────────── */}
-        <div className="relative">
+        <div className="relative min-h-[3.5rem] md:min-h-[4rem]">
           {isMobile ? (
-            <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+            <div className="mx-auto flex h-[3.5rem] max-w-7xl items-center justify-between gap-3 px-4">
               <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-2 no-underline">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-400/25 bg-[#071426]">
                   <Scissors className="h-4 w-4 text-teal-300" />
@@ -811,7 +811,7 @@ export default function LandingPreview() {
               </Link>
             </div>
           ) : (
-            <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3">
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-5">
 
               {/* ── الشعار (يمين في RTL) ────────── */}
               <Link to={ROUTE_PATHS.HOME} className="flex items-center gap-3 no-underline">
@@ -860,7 +860,7 @@ export default function LandingPreview() {
               </Link>
 
               {/* ── روابط التنقل (للمستخدمين فقط) ── */}
-              <nav className="hidden items-center gap-1 md:flex" dir="rtl">
+              <nav className="hidden h-10 shrink-0 items-center gap-1 md:flex" dir="rtl">
                 {[
                   { label: 'كيف يعمل', icon: Navigation2, id: 'كيف يعمل' },
                   { label: 'الخدمات', icon: Sparkles, id: 'خدمات-الزائر' },
@@ -869,16 +869,16 @@ export default function LandingPreview() {
                     key={item.label}
                     type="button"
                     onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                    className="group flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.98rem] font-semibold text-white/82 [text-shadow:0_0_10px_rgba(255,255,255,0.10)] transition-all duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
+                    className="group flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-[0.98rem] font-semibold text-white/82 [text-shadow:0_0_10px_rgba(255,255,255,0.10)] transition-colors duration-200 hover:bg-teal-500/8 hover:text-teal-200 cursor-pointer"
                   >
-                    <item.icon className="h-3.5 w-3.5 text-teal-500/50 transition-colors group-hover:text-teal-400" />
+                    <item.icon className="h-3.5 w-3.5 shrink-0 text-teal-500/50 transition-colors group-hover:text-teal-400" />
                     {item.label}
                   </button>
                 ))}
               </nav>
 
               {/* ── زر البحث + تبديل الإضاءة ── */}
-              <div className="flex items-center gap-2">
+              <div className="flex h-10 items-center gap-2">
                 <PlatformAmbientToggle className="hidden md:inline-flex" />
 
                 <motion.button

@@ -568,11 +568,11 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
       ) : null}
 
       {!isMapCommunityPage ? (
-      <footer className="shrink-0 border-t border-white/10 bg-[#071426]/70">
+      <footer className="shrink-0 border-t border-white/10 bg-[#071426]/70 [contain:layout]">
         {/* فوتر مضغوط للجوال */}
         <div className="container mx-auto px-3 py-4 md:hidden">
           {!isMapCommunityPage && !shouldTrimMobileChrome ? (
-            <div className="mb-4">
+            <div className="mb-4 min-h-[12.5rem]" aria-busy="false">
               <LicenseRechargeWidget mode="auto" showHeader={false} />
             </div>
           ) : null}
@@ -619,7 +619,7 @@ export function PartnerLayout({ children }: PartnerLayoutProps) {
 
         <div className="container mx-auto hidden px-4 py-6 md:block">
           {!isMapCommunityPage ? (
-            <div className="mb-8">
+            <div className="mb-8 min-h-[18rem]" aria-busy="false">
               <LicenseRechargeWidget mode="auto" />
             </div>
           ) : null}

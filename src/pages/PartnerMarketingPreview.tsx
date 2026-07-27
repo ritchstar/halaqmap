@@ -628,7 +628,7 @@ export default function PartnerMarketingPreview() {
 
         {/* ── شريط مدن المملكة ────────────────────────────────────────── */}
         {!isMobile ? (
-          <div className="relative border-b border-sky-100/90">
+          <div className="relative min-h-[72px] border-b border-sky-100/90">
             <KSACityClocksBar />
           </div>
         ) : null}
@@ -1068,7 +1068,7 @@ export default function PartnerMarketingPreview() {
       {isMobile && !deferMobilePartnerContent ? null : (
       <>
       {/* ── Stats ────────────────────────────────────────────────────────── */}
-      <section className="relative z-10 border-y border-sky-100 bg-white/65 py-12 backdrop-blur-sm">
+      <section className="relative z-10 min-h-[13.5rem] border-y border-sky-100 bg-white/65 py-12 backdrop-blur-sm [contain:layout]">
         <div ref={statsRef} className="mx-auto max-w-4xl px-5">
           <div className="grid grid-cols-3 gap-4 text-center">
             {[
@@ -1078,8 +1078,8 @@ export default function PartnerMarketingPreview() {
             ].map((s, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 16 }}
-                animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                initial={{ opacity: 0 }}
+                animate={statsInView ? { opacity: 1 } : {}}
                 transition={{ delay: i * 0.1 }}
                 className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(148,163,184,0.08)]"
               >
