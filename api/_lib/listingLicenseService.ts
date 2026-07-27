@@ -325,7 +325,8 @@ export async function creditBarberListingEntitlement(
       | 'admin_payment_approve'
       | 'registration_approval_auto_redeem'
       | 'bronze_trial_code'
-      | 'enterprise_cohort_grant';
+      | 'enterprise_cohort_grant'
+      | 'founder_comp_grant';
     voucherId?: string | null;
     orderId?: string | null;
     stackFromExisting?: boolean;

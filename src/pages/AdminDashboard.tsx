@@ -92,6 +92,7 @@ import {
   type BarberSubscriptionAdminRow,
 } from '@/lib/adminBarberSubscriptionsRemote';
 import { ListingLicenseIssuePanel } from '@/components/admin/ListingLicenseIssuePanel';
+import { FounderCompActivatePanel } from '@/components/admin/FounderCompActivatePanel';
 import { BronzeTrialCodesPanel } from '@/components/admin/BronzeTrialCodesPanel';
 import { BronzeTrialApplicationsPanel } from '@/components/admin/BronzeTrialApplicationsPanel';
 import { EnterpriseAnchorCohortPanel } from '@/components/admin/EnterpriseAnchorCohortPanel';
@@ -1014,6 +1015,9 @@ export default function AdminDashboard() {
 
           {/* Payments Tab */}
           {can('view_payments') && <TabsContent value="payments" className="space-y-6">
+            {Boolean(adminData.bootstrap) && adminAccessToken ? (
+              <FounderCompActivatePanel accessToken={adminAccessToken} />
+            ) : null}
             {canReviewPartnerBilling && adminAccessToken ? (
               <>
                 <AmbassadorApplicationsPanel accessToken={adminAccessToken} />
