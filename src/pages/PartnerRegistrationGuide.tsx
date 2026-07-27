@@ -15,10 +15,10 @@ import {
 import { ROUTE_PATHS } from '@/lib/index';
 import { PARTNER_REGISTRATION_GUIDE } from '@/config/partnerRegistrationGuideCopy';
 
-/** HashRouter لا يدعم #عنصر داخل المسار — نمرّر state للتمرير إلى النموذج */
+/** HashRouter لا يدعم #عنصر داخل المسار — نمرّر state للتمرير إلى النموذج واستئناف المسودة */
 const backToFormLink = {
   pathname: ROUTE_PATHS.REGISTER,
-  state: { scrollToForm: true },
+  state: { scrollToForm: true, resumeRegistrationDraft: true },
 } as const;
 
 export default function PartnerRegistrationGuide() {

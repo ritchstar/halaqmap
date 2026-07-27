@@ -26,6 +26,9 @@ import {
   clearRegistrationFormDraft,
   loadRegistrationFormDraft,
   saveRegistrationFormDraft,
+  buildRegistrationEntryFingerprint,
+  shouldResumeRegistrationStep,
+  isRegistrationPageReload,
 } from '@/lib/registrationFormDraft';
 import { mintRegistrationIntentTokenRemote } from '@/lib/registrationIntentRemote';
 import {
@@ -382,10 +385,26 @@ export function RegistrationForm() {
   const urlQty = clampListingLicenseQuantity(urlParams.get('qty'));
   const urlAddonSelected =
     parseDigitalShiftAddonParam(urlParams.get('aiAddon')) || urlParams.get('addon')?.trim().toLowerCase() === 'office';
+  const entryFingerprint = buildRegistrationEntryFingerprint(location.search);
+  const resumeRegistrationDraft = Boolean(
+    (location.state as { resumeRegistrationDraft?: boolean } | null)?.resumeRegistrationDraft,
+  );
 
   const [currentStep, setCurrentStep] = useState(() => {
     const draft = loadRegistrationFormDraft();
-    return draft?.data.currentStep ?? 1;
+    if (
+      draft &&
+      shouldResumeRegistrationStep({
+        resumeFlag: resumeRegistrationDraft,
+        currentFingerprint: entryFingerprint,
+        draftFingerprint: draft.data.entryFingerprint,
+        isPageReload: isRegistrationPageReload(),
+      })
+    ) {
+      return draft.data.currentStep;
+    }
+    // دخول حملة/شركاء أو تنقّل جديد بدون علم الاستئناف → دائماً من اختيار الباقة
+    return 1;
   });
 
   const [formData, setFormData] = useState<FormData>(() => {
@@ -393,11 +412,17 @@ export function RegistrationForm() {
     const defaults = buildDefaultFormData({ urlTier, urlAddonSelected });
     if (!draft) return defaults;
     const { data, images } = draft;
+    const fingerprintChanged =
+      Boolean(data.entryFingerprint) && data.entryFingerprint !== entryFingerprint;
+    // عند تغيّر رابط الحملة: فضّل باقة الرابط؛ أبقِ حقول التعبئة إن وُجدت
+    const preferUrlTier = fingerprintChanged || Boolean(urlTier);
     return {
       ...defaults,
-      tier: data.tier || defaults.tier,
+      tier: preferUrlTier && defaults.tier ? defaults.tier : data.tier || defaults.tier,
       plan: 'monthly',
-      digitalShiftAddon: data.digitalShiftAddon,
+      digitalShiftAddon: fingerprintChanged
+        ? defaults.digitalShiftAddon
+        : data.digitalShiftAddon,
       shopName: data.shopName,
       email: data.email,
       phone: data.phone,
@@ -437,16 +462,17 @@ export function RegistrationForm() {
   });
 
   /** حفظ المسودة عند التنقّل لصفحة التعليمات أو تحديث الصفحة */
-  const draftSnapshotRef = useRef({ formData, currentStep });
-  draftSnapshotRef.current = { formData, currentStep };
+  const draftSnapshotRef = useRef({ formData, currentStep, entryFingerprint });
+  draftSnapshotRef.current = { formData, currentStep, entryFingerprint };
 
   useEffect(() => {
     const persist = () => {
-      const { formData: snap, currentStep: step } = draftSnapshotRef.current;
+      const { formData: snap, currentStep: step, entryFingerprint: fp } = draftSnapshotRef.current;
       const { images, ...rest } = snap;
       saveRegistrationFormDraft(
         {
           currentStep: step,
+          entryFingerprint: fp,
           tier: rest.tier,
           plan: rest.plan,
           digitalShiftAddon: rest.digitalShiftAddon,
@@ -476,7 +502,7 @@ export function RegistrationForm() {
       window.clearTimeout(timer);
       persist();
     };
-  }, [formData, currentStep]);
+  }, [formData, currentStep, entryFingerprint]);
 
   /** عند الانتقال بين خطوات التسجيل يُمرَّر العرض لأعلى النموذج (وليس للفوتر). */
   useEffect(() => {
