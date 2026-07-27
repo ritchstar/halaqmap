@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- Payment Security Events (Sandbox/Production monitoring)
 -- يسجل محاولات الدفع الفاشلة أو حالات التلاعب قبل التفعيل.

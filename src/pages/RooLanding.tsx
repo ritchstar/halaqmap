@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * RooLanding — صفحة هبوط تجريبية
  * المسار: /lab/roo-landing
  * 

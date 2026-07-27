@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * الإطار النظامي المعتمد — أنشطة السجل، توثيق التجارة، تراخيص الإعلام.
  * يُحدَّث بالتزامن مع api/_lib/regulatoryFrameworkDoctrine.ts
  */

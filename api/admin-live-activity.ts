@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/admin-live-activity
  * Product-truth windows (15m / 1h / 24h) + presence online counts.
  * No geo search logging.

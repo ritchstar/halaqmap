@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** نصوص تفاعل المستخدم الاختياري — لا إلزام بالتقييم أو المشاركة */
 
 export const PLATFORM_VOLUNTARY_ENGAGEMENT = {

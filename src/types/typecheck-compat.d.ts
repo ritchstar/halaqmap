@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 declare module 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm';
 
 declare global {

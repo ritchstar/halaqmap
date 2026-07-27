@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { Barber } from '@/lib/index';
 import { SubscriptionTier } from '@/lib/index';
 import { canEnableMensGroomingCenter } from '@/config/mensGroomingCenterPolicy';

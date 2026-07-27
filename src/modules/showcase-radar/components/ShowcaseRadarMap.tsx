@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { TacticalKingdomBackdrop } from '@/modules/platform-radar/components/TacticalKingdomBackdrop';

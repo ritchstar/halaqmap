@@ -1,4 +1,7 @@
-﻿import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { routeQuestionToCouncilAgents } from './_lib/partnerAssistantAgentCouncil.js';
 import { getPartnerAssistantKnowledgeMeta } from './_lib/partnerAssistantKnowledge.js';

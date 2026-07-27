@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * DigitalShiftPrivateOffice — المكتب الخاص للمناوب الرقمي
  *
  * محادثة داخلية حصرية بين الحلاق والمناوب الذكي

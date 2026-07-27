@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ZatcaExternalIntelBrief, ZatcaIntelSourceHit } from './zatcaTaxTypes.js';
 
 const INTEL_CACHE_MS = 24 * 60 * 60 * 1000;

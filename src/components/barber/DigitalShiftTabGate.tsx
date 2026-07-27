@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { DigitalShiftAssistantHub } from '@/components/barber/DigitalShiftAssistantHub';

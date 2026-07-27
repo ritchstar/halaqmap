@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 import { whitelistBarberUpsertRow } from './_lib/approveBarberUpsertWhitelist.js';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** متخصص أطفال — ماسي فقط (مرآة لـ src/config/childrenSpecialistPolicy.ts). */
 
 export function canEnableChildrenSpecialistTier(tier: string | null | undefined): boolean {

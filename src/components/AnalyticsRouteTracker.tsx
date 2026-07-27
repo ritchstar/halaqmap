@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getAdminPortalBaseFromPathname } from '@/config/adminAuth';

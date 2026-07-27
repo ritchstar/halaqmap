@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * cloudflareGuard — تكامل Cloudflare API الحقيقي
  *
  * يتيح من غرفة العمليات السيبرانية:

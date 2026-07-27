@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { buildShopOpenMailUrls } from './bronzePartnerActivationMail.js';
 import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';

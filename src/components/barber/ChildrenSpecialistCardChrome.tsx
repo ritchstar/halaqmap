@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
 import {
   CHILDREN_SPECIALIST_BANNER_TAGLINE_AR,

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- Harden public views/tables flagged by Supabase advisors:
 -- 1) public.admin_dashboard_stats        -> view should respect invoker privileges
 -- 2) public.barbers_public_directory     -> view should respect invoker privileges

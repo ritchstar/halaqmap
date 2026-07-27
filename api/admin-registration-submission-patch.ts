@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تصحيح حقول طلب التسجيل من لوحة الأدمن عبر service_role.
  * POST /api/admin-registration-submission-patch
  * body: { requestId, patch: { email?, phone?, barberName?, location? } }

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pulse Map — city anchors from `PLATFORM_COVERED_CITIES` (WGS-84 centres).
  * Tier labels follow `CITY_BEACONS` in platform-radar (capital · major · hub).
  */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useReducedMotion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import { usePlatformAmbientOptional } from '@/context/PlatformAmbientContext';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useState } from 'react';
 import { BadgeCheck, Check, Copy, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';

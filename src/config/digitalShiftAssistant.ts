@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR } from '@/config/subscriptionPricing';
 
 export const DIGITAL_SHIFT_PRODUCT_TITLE = 'المناوب الرقمي الذكي 🌙';

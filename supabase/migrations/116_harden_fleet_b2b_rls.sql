@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 116 — Harden B2B fleet tables: enforce RLS + revoke client roles
 -- Resolves Supabase advisor: rls_disabled_in_public

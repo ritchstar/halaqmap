@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo } from 'react';
 import {
   CITY_BEACONS,

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/admin-password-reset  (PUBLIC endpoint)
  *
  * Self-service password reset for platform admins. Anyone can call it,

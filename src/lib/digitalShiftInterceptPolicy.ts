@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 type ShiftInterceptMessage = {
   sender_id: string;
   created_at: string;

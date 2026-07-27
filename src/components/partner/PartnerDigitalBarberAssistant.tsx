@@ -1,4 +1,7 @@
-﻿import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useAgentChatInputFocus, useAgentChatOpenFocus, useAgentChatScroll } from '@/hooks/useAgentChatSurface';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';

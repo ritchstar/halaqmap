@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/public-radar-showcase
  * Sanitized live/curated payload for the public Showcase Radar landing page.
  */

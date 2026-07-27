@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export { PulseMapAdmin } from '@/modules/pulse-map/components/PulseMapAdmin';
 export { PulseMapShell } from '@/modules/pulse-map/components/PulseMapShell';
 export { usePulseMapData } from '@/modules/pulse-map/hooks/usePulseMapData';

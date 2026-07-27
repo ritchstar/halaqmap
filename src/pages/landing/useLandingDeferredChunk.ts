@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 
 /** يحمّل chunk عند الطلب فقط — بلا Suspense لتجنّب تعارض removeChild على الرئيسية */

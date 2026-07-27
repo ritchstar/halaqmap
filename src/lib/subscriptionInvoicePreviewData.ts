@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { addMonths, format, subDays } from 'date-fns';
 import { arSA } from 'date-fns/locale/ar-SA';
 import { SubscriptionTier } from '@/lib/index';

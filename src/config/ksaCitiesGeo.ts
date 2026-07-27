@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** مدن الشريط العلوي — 10 مدن رئيسية (عرض + طقس). بقية التغطية في `platformCoveredCities`. */
 import { PLATFORM_CITY_COUNT } from '@/config/platformCoveredCities';
 

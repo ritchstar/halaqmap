@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 import { Radio, ShieldAlert } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';

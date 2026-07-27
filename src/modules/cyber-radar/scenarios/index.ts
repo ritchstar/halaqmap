@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pre-recorded cyber radar scenarios — each is a timeline of events and
  * scripted agent narrations that play out over a fixed duration. Used
  * for preview / demo only; live operation never spawns these.

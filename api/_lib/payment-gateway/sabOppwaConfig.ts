@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * إعدادات بوابة بنك الأول (SAB) عبر OPPWA / HyperPay.
  * المفاتيح تُضبط على Vercel وSupabase Edge حسب PAYMENT_ENV.
  */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   AMBASSADOR_PAYOUT_MIN_SAR,
   AMBASSADOR_RULES_VERSION,

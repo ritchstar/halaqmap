@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { PaymentGatewayCode } from '@/config/paymentGateway';
 import { MoyasarProvider } from './MoyasarProvider';
 import { SABProvider } from './SABProvider';

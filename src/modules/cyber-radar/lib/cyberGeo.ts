@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Cyber radar geography — KSA is the centre target; external attack
  * sources are projected onto a stylised peripheral ring (NOT to scale)
  * around the KSA viewBox so the user sees inbound vectors landing

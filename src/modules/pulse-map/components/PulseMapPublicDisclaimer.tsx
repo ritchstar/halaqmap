@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   PULSE_MAP_DOCTRINE_LINE_AR,
   PULSE_MAP_PUBLIC_DISCLAIMER_AR,

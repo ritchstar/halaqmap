@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { memo, useEffect, useState } from 'react';
 
 type Props = {

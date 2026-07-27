@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { fetchMapCommunityBadgeRemote } from '@/lib/mapCommunityRemote';

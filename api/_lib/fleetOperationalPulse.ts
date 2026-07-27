@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Fleet operational pulse — silent upward telemetry from salon insights (B2B, no customer PII).
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

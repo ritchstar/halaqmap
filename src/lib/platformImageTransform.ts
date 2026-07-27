@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   BARBER_BANNER_DISPLAY_ASPECT_RATIO,
   BARBER_BANNER_MAX_FILE_BYTES,

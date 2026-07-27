@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ROUTE_PATHS } from '@/lib/index';
 
 /** مسارات مسار الشركاء B2B التي تعرض شريط الإعلان */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Super-Intelligence Feed — Executive Strategic Mode doctrine & knowledge injection */
 
 export const SUPER_INTELLIGENCE_FEED_TITLE_AR = 'Super-Intelligence Feed';

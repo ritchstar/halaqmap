@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * أقسام لوحة التحكم والتقييم والمناوب — تُدمَج في بريد التفعيل الموحّد (ذهبي/ماسي).
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

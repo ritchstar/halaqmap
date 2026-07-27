@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { UnifiedPaymentInput, UnifiedPaymentProvider } from './types';
 
 function buildMetadata(input: UnifiedPaymentInput): Record<string, unknown> {

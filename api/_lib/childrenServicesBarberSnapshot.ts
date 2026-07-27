@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { resolveChildrenSpecialistFlag } from './childrenSpecialistPolicy.js';
 
 const CHILDREN_LABELS = new Set(['حلاقة أطفال', 'أطفال', 'حلاق أطفال', 'صالون أطفال']);

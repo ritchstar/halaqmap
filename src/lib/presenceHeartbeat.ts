@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { PresencePersona, RouteBucket } from '@/config/platformPresence';
 
 const STORAGE_KEY = 'hm-presence-key-v1';

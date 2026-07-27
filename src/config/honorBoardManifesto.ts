@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { CORPORATE_PRODUCT_COMPLIANCE_SECTIONS } from '@/config/corporateProductCompliance';
 import {
   PLATFORM_DIGITAL_PRODUCT_INTRO_BADGE,

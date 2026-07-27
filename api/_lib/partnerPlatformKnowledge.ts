@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * مصدر معرفة التحديثات لمساعد الشركاء — **حدّث هذا الملف عند كل إطلاق ميزة**.
  * الحقائق التسعيرية/المنتج تُستورد تلقائياً من subscriptionPricingCopy و geospatialLicenseDoctrine.
  */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 type Provider = 'twilio' | 'meta';
 
 export type WhatsAppDraftInput = {

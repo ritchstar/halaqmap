@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Generates PNG PWA icons from public/favicon.svg (run after logo changes).
  * Usage: node scripts/generate-pwa-icons.mjs
  */

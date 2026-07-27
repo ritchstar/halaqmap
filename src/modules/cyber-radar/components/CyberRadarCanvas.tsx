@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * CyberRadarCanvas — the visual heart of the cyber operations theater.
  *
  * Layers (back → front):

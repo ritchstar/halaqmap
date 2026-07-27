@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type ZatcaAdminActivationAlert = {
   priority: 'critical';
   agentId: 'zatca_tax_advisor';

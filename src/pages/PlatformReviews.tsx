@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * PlatformReviews — صفحة آراء وتعليقات المستخدمين الحرة
  * المسار: /reviews
  *

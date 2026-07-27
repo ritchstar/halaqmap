@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * SaudiAgentLanding — صفحة هبوط وكيل «سعودي» 🇸🇦
  *
  * تصميم فاخر بالهوية السعودية: أخضر وذهبي وأبيض

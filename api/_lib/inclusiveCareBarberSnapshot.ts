@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const SAUDI_WEEK_DAYS = [
   'السبت',
   'الأحد',

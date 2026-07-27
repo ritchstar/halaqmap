@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Growth Pitch Deck — عرض تسويقي لأصحاب الصالونات (B2B).
  *
  * ═══ TEXT LOCK ═══

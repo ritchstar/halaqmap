@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { OpsController, OpsReportCategory, OpsReportSeverity } from '@/modules/ops-controller/types';
 import { OPS_MANAGER_ROLE } from '@/modules/ops-controller/types';
 

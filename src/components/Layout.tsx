@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { NavLink } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';

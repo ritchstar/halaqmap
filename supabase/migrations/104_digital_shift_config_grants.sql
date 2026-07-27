@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- صلاحيات المناوب الرقمي — إصلاح permission denied على barber_digital_shift_config
 -- =====================================================

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** مراكز العناية بالرجل — ماسي + مكتب خاص (مرآة لـ src/config/mensGroomingCenterPolicy.ts). */
 
 export const MENS_GROOMING_CENTER_CATEGORY_AR = 'مركز العناية بالرجل';

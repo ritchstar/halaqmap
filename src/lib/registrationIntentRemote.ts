@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * توقيع نية التسجيل من السيرفر — يُفعَّل عند ضبط REGISTRATION_INTENT_SECRET على Vercel.
  * انظر: GET /api/register-mint-intent
  */

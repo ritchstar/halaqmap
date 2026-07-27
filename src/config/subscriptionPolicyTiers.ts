@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { SubscriptionTier } from '@/lib';
 import {
   BARBER_DASHBOARD_DEVICE_REQUIREMENT_NOTE_AR,

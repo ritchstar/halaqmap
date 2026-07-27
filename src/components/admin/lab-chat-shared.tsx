@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Shared primitives for all admin "lab chat" sheets so the conversation
  * surface stays the priority — header collapses to one line, attachment
  * input is a single inline icon, and every assistant reply has a one-tap

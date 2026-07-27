@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 1) تفويض إدارة platform_admin_roles لمن يملك manage_admins (مع حماية صفوف الـ bootstrap)
 -- 2) جدول رسائل دعم المنصة (مالك/إدارة ↔ حلاق) — وصول التطبيق عبر API + service_role

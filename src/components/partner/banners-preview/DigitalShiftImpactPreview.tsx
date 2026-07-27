@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MessageCircle, RotateCcw, Sparkles, User } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';

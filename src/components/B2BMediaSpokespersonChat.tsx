@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * B2BMediaSpokespersonChat — مكتب المتحدث الإعلامي
  *
  * تصميم موازٍ لـ B2BSalesManagerChat — لوحة ثابتة أسفل يمين الشاشة

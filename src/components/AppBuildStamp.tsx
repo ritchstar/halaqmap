@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { APP_BUILD } from '@/lib/appBuild';
 import { cn } from '@/lib/utils';
 

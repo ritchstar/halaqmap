@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** اسم المرسل الظاهر في صندوق الوارد — مصدر واحد لرسائل العملاء والمنصة. */
 export const RESEND_SENDER_DISPLAY_NAME_AR = 'حلاق ماب';
 

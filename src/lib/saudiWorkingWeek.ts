@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** ترتيب الأسبوع المعتاد في السعودية: يبدأ من السبت */
 export const SAUDI_WEEK_DAY_LABELS = [
   'السبت',

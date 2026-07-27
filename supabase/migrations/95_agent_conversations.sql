@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- Unified conversation log for all AI staff agents (public + admin lab + partner + barber).
 -- Service-role inserts only — for governance reports and regulatory inquiry tracking.
 

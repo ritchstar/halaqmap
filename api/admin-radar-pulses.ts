@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/admin-radar-pulses
  * Live tactical pulses for Platform Radar (security events only after removing search geo logging).
  */

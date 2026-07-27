@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const REDEEM_ENDPOINT = String(
   import.meta.env.VITE_BRONZE_TRIAL_REDEEM_URL || '/api/bronze-trial-redeem',
 ).trim();

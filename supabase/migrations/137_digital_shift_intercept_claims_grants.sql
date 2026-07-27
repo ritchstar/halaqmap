@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- صلاحيات service_role على digital_shift_intercept_claims
 --  · إصلاح: permission denied for table digital_shift_intercept_claims

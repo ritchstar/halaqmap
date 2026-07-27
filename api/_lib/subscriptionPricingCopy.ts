@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Mirror of `src/config/subscriptionPricing.ts` — API/email copy (no frontend imports). */
 
 import {

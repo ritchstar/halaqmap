@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * StaffHubPage — مركز الوكلاء
  *
  * صفحة مستقلة تضم كل الوكلاء غير الأساسيين (خارج لوحة التحكم الرئيسية):

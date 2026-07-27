@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Moon, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** غرفة المراقبة للمالك — Owner Watch — مصدر واحد للصياغة التسويقية */
 
 export const OWNER_WATCH_FEATURE_TITLE_AR = 'غرفة المراقبة للمالك';

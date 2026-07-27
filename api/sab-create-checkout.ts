@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/sab-create-checkout
  * إنشاء جلسة دفع OPPWA لبوابة بنك الأول (SAB) — المفاتيح على الخادم فقط.
  */

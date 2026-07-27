@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * PrivateOfficeGuide — دليل إضافة المكتب الخاص
  * Route: /partners/private-office-guide
  *

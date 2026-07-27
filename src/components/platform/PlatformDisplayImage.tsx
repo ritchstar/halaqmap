@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { PlatformDisplayVariant } from '@/lib/platformImageTransform';
 import { platformDisplayImageClass } from '@/lib/platformImageTransform';
 import { cn } from '@/lib/utils';

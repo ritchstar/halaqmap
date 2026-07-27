@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- صلاحية وحدة Centralized Billing & Ops Monitor — سوبر أدمن (أو من لديه manage_admins في النظام الحالي)
 
 UPDATE public.platform_admin_roles

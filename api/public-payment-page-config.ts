@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { normalizeSupabaseUrl, isLikelyHttpUrl } from './_lib/supabaseUrl.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';
 import { getPlatformVatConfig } from './_lib/platformVatConfig.js';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient } from '@supabase/supabase-js';
 import { isRegistrationIntentMode } from './_lib/registrationIntentCrypto.js';
 import { assertRegistrationServerAuth } from './_lib/registrationServerAuth.js';

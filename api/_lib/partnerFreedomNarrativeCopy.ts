@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * سردية الحرية — مسار الشركاء (نسخة API)
  * يُحدَّث بالتزامن مع src/config/partnerFreedomNarrativeCopy.ts
  */

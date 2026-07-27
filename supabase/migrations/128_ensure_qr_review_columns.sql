@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تأكيد أعمدة تقييم QR (آمن للتكرار — يُصلح بيئات لم تُطبَّق عليها migration 16)
 
 ALTER TABLE public.reviews

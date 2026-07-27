@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 84 — Platform Radar: broadcast trigger + resilient log_search_activity
 -- يتطلب 83. لا يُسقِط تسجيل search_activity_logs عند فشل البث.

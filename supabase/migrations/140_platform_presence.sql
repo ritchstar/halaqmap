@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- رصد وجود المنصة (Presence) بدون إحداثيات جغرافية
 -- الكتابة عبر service_role / API فقط — لا يُعاد سجل البحث الجغرافي (migration 91)
 

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pulse Map — city anchors (server copy).
  * Keep in sync with `src/modules/pulse-map/lib/pulseMapCities.ts`.
  */

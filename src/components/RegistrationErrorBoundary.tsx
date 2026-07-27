@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 
 const DEFAULT_ENDPOINT = '/api/barber-inclusive-care-update';

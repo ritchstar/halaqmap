@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** تبويب لوحة التحكم — المناوب + المكتب الخاص معاً */
 export const DIGITAL_SHIFT_DASHBOARD_TAB_AR = 'المناوب والمكتب الخاص';
 

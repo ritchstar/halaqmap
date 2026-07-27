@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const FEATURED_GALLERY_IMAGES_MAX = 4;
 
 export function resolveBarberPublicCoverAndFeatured(input: {

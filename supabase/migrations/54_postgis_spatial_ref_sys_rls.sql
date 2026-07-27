@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- PostGIS في المخطط public يُنشئ جدول spatial_ref_sys (بيانات مرجعية لأنظمة الإحداثيات).
 -- من دون RLS يظهر تنبيه Supabase: rls_disabled_in_public.
 -- الحل: تفعيل RLS مع سياسة قراءة فقط لأدوار واجهة الـ API.

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ShieldAlert } from 'lucide-react';
 import {
   PLATFORM_SECURITY_INCIDENT_MARQUEE_SEGMENTS,

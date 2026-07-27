@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Ops Event Router — محرك أحداث تشغيلي صامت (بدون محادثة مع المستخدمين).
  * POST: حدث مُ normaliz ed أو webhook Supabase Database
  * GET ?scan=1: فحص صحة دوري (cron أو مشرف)

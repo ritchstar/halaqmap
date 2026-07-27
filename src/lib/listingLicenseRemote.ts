@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const REDEEM_ENDPOINT = String(
   import.meta.env.VITE_LISTING_LICENSE_REDEEM_URL || '/api/listing-license-redeem',
 ).trim();

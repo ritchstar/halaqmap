@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pulse Map — demo pulses (step 3 preview before live Supabase wiring).
  */
 

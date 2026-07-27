@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { FEATURED_GALLERY_IMAGES_MAX } from './barberGallerySync.js';
 
 export function readRegistrationBannerUrls(payload: Record<string, unknown>): string[] {

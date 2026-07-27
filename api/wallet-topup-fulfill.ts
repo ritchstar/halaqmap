@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * شحن محفظة المناوب الرقمي بعد دفع ميسر ناجح، وسحب الرصيد عند الاسترجاع.
  *
  *  GET  /api/wallet-topup-fulfill?paymentId=<uuid>

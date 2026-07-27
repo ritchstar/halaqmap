@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * منحة المؤسس: تفعيل 90 يوماً بدون دفع.
  * POST/GET — Bootstrap admin only.
  */

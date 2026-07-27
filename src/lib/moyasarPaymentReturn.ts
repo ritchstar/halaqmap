@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ROUTE_PATHS, SubscriptionTier } from '@/lib';
 import { clampListingLicenseQuantity, computeListingLicenseTotalSar, isDigitalShiftAddonAllowed, parseDigitalShiftAddonParam } from '@/config/listingLicenseQuantity';
 import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSettings';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * يجب أن يطابق `PARTNER_ASSISTANT_KNOWLEDGE_VERSION` في
  * `api/_lib/partnerPlatformKnowledge.ts` — زِد الرقم عند كل تحديث للمساعد.
  */

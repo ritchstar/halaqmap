@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   SEMAT_CARD_POLICY_VERSION,
   type SematConsentCheckId,

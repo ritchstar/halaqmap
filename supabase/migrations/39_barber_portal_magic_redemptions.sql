@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- روابط دخول موقّعة من البريد: منع إعادة استخدام نفس الرمز (jti) بعد الاستهلاك الأول
 CREATE TABLE IF NOT EXISTS public.barber_portal_magic_redemptions (
   jti uuid PRIMARY KEY,

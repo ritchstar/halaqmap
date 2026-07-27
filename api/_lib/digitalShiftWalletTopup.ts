@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * كتالوج شحن محفظة المناوب الرقمي (Digital Shift Wallet Top-up) — مصدر الحقيقة على الخادم.
  *
  * القاعدة المعتمدة (الضريبة فوق السعر — VAT exclusive، ومحكومة بعلم ZATCA `tax_enabled`):

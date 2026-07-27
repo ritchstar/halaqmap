@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- مفاتيح صلاحيات إضافية: عرض لوحة التشغيل، تسويق الشركاء، قواعد العرض التجاري — وتحديث قوالب SQL.
 
 CREATE OR REPLACE FUNCTION public.platform_admin_permissions_template(p_template text)

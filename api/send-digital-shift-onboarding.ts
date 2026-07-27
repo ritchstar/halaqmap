@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/send-digital-shift-onboarding
  * استدعاء داخلي بعد تفعيل المناوب الرقمي (مثلاً من webhook عند تعطيل بريد الترحيب العام).
  */

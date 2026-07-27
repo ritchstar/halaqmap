@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تخزين دائم لترجمات شات الماسي — رسالة واحدة × لغة هدف = ترجمة واحدة (توفير حروف Google)
 
 CREATE TABLE IF NOT EXISTS public.chat_line_translations (

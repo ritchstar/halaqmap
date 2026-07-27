@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { BarberPlatformBannerState } from '@/lib/barberDashboardLocalState';
 import type { Post } from '@/lib';
 

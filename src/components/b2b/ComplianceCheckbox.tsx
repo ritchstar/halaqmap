@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useState, type ReactNode } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import {

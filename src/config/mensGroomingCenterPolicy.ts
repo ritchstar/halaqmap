@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { SubscriptionTier } from '@/lib';
 
 /** التصنيف المخزَّن في `specialties` لمسار مركز العناية بالرجل. */

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- فيديو ترويجي لمسار الشركاء: تخزين عام للقراءة + إعدادات في جدول (يُحدَّث عبر API بصلاحية الإدارة فقط)
 
 INSERT INTO storage.buckets (id, name, public)

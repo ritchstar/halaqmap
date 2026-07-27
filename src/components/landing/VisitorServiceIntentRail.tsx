@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * شريط نوايا الخدمة — الزائر يختار حاجته قبل/بعد تحديد الموقع.
  */
 import { motion } from 'framer-motion';

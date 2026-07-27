@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { guessTranslateTarget } from '@/lib/chatTranslationPolicy';
 
 const DEFAULT_ENDPOINT = '/api/diamond-chat-translate';

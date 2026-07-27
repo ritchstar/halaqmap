@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { randomUUID } from 'node:crypto';
 import type { OpsBillingSupabase } from './opsBillingSync.js';
 import { buildFinancialOfficePromptBlock } from './financialOfficeCoordination.js';

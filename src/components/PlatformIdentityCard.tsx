@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * PlatformIdentityCard — بطاقة هوية المنصة
  * تصميم مُحكَم: نص سلس · نقاط واضحة · جمالية متناسقة مع ستايل المنصة
  */

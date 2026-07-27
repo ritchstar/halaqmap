@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- أوقات العمل المسجّلة في الطلب → عمود سريع للعرض العام + ترحيل من registration_submissions
 
 ALTER TABLE public.barbers

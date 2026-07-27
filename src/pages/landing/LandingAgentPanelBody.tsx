@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { B2BMediaSpokespersonChat } from '@/components/B2BMediaSpokespersonChat';
 import { LegalObserverChat } from '@/components/LegalObserverChat';
 

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * حقول مسموح بها فقط في upsert الحلاق عبر /api/approve-barber (حماية من Mass Assignment).
  * يُستثنى rating_invite_token (يُدار من الخادم) وأي أعمدة غير مصرّحة.
  */

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Showcase Radar — ما نعرضه وما نحجبه في صفحة المعاينة العامة.
  * منفصل عن منصة المتابعة الإدارية الداخلية.
  */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** شعار التواجد المبكر — نسخة API */
 export const PARTNER_EARLY_WAVE_TAGLINE_AR =
   'سجّل صالونك — واستعد لأول موجات الاستخدام في منطقتك';

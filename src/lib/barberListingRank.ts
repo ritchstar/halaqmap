@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ListingRankInput } from '@/lib/barberListingRankTypes';
 
 export type { ListingRankInput } from '@/lib/barberListingRankTypes';

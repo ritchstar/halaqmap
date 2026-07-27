@@ -1,4 +1,7 @@
-﻿import { motion, useReducedMotion } from 'framer-motion';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { motion, useReducedMotion } from 'framer-motion';
 
 const PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   id: i,

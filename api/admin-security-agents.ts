@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * admin-security-agents — وكلاء الأمن السيبراني الحقيقيون
  *
  * Actions:

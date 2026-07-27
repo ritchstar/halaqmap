@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 import { getPlatformVatSettings, type PlatformVatSettings } from '@/lib/platformVatSettings';
 

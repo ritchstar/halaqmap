@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * معالجة webhook دفع SAB — تسجيل تفعيل الرخصة، التفعيل، وإشعارات البريد.
  */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/listing-license-fulfill-internal
  * استدعاء داخلي من moyasar-webhook (Edge) أو مسارات الخادم — ليس للعميل العام.
  */

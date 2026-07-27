@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Crosshair, ShieldAlert, Zap } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';

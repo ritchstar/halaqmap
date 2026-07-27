@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * admin-security-alert — تنبيه بريدي فوري عند تسجيل تهديد حقيقي
  *
  * يُستدعى من useCyberThreatRecorder عند إغلاق جلسة تهديد حقيقية.

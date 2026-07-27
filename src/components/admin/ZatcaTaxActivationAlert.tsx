@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, Loader2, Radar, Shield, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';

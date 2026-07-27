@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * عناوين IP للتحقق من القائمة البيضاء (قيمة بيئة ADMIN_SENTINEL_IP_ALLOWLIST مفصولة بفواصل).
  * يُستدعى من دوال Vercel فقط — لا تعتمد على المتصفح لأن المستخدم يمكن تزوير العنوان.
  */

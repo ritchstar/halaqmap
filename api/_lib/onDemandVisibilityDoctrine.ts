@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Mirror of `src/config/onDemandVisibilityDoctrine.ts` — للاستخدام في
  * api/_lib بدون اعتمادات frontend. **عند تعديل أي ثابت يجب تحديث الملفين معاً.**
  *

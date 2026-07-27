@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * إدارة برنامج الشريك المرجعي (مقاعد + تقرير HQ).
  * صلاحيات: review_payments أو manage_partner_billing
  */

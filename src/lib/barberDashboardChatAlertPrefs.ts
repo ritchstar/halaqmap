@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type BarberChatAlertVolume = 'low' | 'medium' | 'high';
 export type BarberChatAlertMessageTone = 'soft' | 'bright' | 'bell';
 export type BarberChatAlertHomeTone = 'doorbell' | 'chime' | 'pulse';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * قواعد توثيق التجارة الإلكترونية — نسخة API (لا تستورد من src/*).
  * يُحدَّث بالتزامن مع src/config/ecommerceAuthDoctrine.ts
  */

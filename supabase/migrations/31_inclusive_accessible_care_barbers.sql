@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تسهيلات لكبار السن والمرضى وذوي الاحتياجات الخاصة (داخل المحل و/أو زيارة منزلية) + سعر معروض
 
 ALTER TABLE public.barbers

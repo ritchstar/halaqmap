@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * قواعد امتثال التسجيل — نسخة API (لا تستورد من src/*).
  * يُحدَّث بالتزامن مع src/config/registrationComplianceDoctrine.ts
  */

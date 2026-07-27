@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Software License Manager doctrine — ISIC4 retail sale of software (474151). */
 import {
   ON_DEMAND_VISIBILITY_ALGO_CODE,

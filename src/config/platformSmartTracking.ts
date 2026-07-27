@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * صياغة المنصة الأساسية — نظام الاستجابة الذكية (Smart Response System).
  * المنطق: المزود يُفعَّل برمجياً عند وجود طلب نشط تنطبق عليه بياناته وفلترته — لا حضور دائم.
  * المصدر القانوني والتسويقي الموحّد في `onDemandVisibilityDoctrine.ts`.

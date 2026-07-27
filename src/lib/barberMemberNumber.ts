@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** رقم عضوية الحلاق على المنصة (عرض موحّد 6 أرقام، يدعم حتى 999999). */
 export function formatBarberMemberNumber(n: number | null | undefined): string | null {
   if (n == null || !Number.isFinite(Number(n))) return null;

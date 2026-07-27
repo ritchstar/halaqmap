@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getOpsBillingTemporalAnchor } from './opsBillingAi.js';
 import { readResendFromEmailEnv, resolveResendFromAddress } from './resendFrom.js';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Media Spokesperson Lab Chat — admin endpoint
  *
  * Powers "المتحدث الإعلامي" agent in the AI Staff control room.

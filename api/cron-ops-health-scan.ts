@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { verifyVercelCronRequest } from './_lib/vercelCronAuth.js';
 import { createOpsServiceSupabase, runOpsHealthScan } from './_lib/opsEventRouter.js';
 

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إزالة مصطلحات داخلية/عسكرية من توصيات المناوب المخزّنة للحلاقين
 UPDATE public.barber_ai_recommendations
 SET

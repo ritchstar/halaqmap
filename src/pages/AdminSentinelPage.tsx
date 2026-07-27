@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Activity, AlertTriangle, Bot, Loader2, Send, Shield, Sparkles, ArrowRight } from 'lucide-react';

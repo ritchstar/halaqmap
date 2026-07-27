@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * EndUserBarberBannerSim — بطاقة الحلاق بستايل منصة حلاق ماب
  *
  * إعادة تصميم كاملة: بطاقة صباحية مشرقة + حدود واضحة + أيقونات جذابة

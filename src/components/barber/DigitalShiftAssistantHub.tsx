@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { Loader2, Moon, RefreshCw, Send, Sparkles, Wallet } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';

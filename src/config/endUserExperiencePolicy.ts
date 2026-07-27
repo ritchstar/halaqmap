@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * سياسة استخدام المستخدم النهائي — نص موحّد للصفحات القانونية.
  */
 export const END_USER_EXPERIENCE_POLICY_TITLE = 'سياسة استخدام المستخدم النهائي';

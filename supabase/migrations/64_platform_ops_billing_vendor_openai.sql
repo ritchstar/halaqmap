@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إضافة مزوّد openai لجدول التزامات التشغيل (فوترة منظّمة OpenAI)
 
 ALTER TABLE public.platform_ops_billing_commitments

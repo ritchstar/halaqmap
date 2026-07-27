@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type DigitalShiftTrainingScenario = {
   id: string;
   category: 'operations' | 'multilingual' | 'hospitality';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { FilterState } from '@/lib/index';
 
 export type VisitorServiceIntentId =

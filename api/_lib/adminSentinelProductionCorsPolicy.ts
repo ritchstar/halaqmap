@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { parsePublicApiAllowedOrigins } from './registrationRouteGuard.js';
 
 /** أصل الإنتاج الرسمي — يجب أن يبقى ضمن `PUBLIC_API_ALLOWED_ORIGINS` على Vercel Production. */

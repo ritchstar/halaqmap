@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * B2BAmbientGlowField — إضاءة سديمية بصرية بحتة لصفحات الشركاء.
  *
  * بقع توهج radial متمددة على ارتفاعات متعددة من تدفق الصفحة

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- صلاحيات service_role على رخص الإدراج — إصلاح permission denied
 -- على barber_listing_entitlements عند إنشاء حساب المعاينة الماسي

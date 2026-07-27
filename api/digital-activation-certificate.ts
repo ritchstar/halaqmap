@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/digital-activation-certificate
  * استعلام عام عن شهادة التفعيل الرقمية بعد الدفع (بروتوكول ربط آلي).
  * ?moyasarPaymentId= | ?token=

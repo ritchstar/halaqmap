@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إصلاح بيئات نُفِّذ فيها 31 دون 32: أعمدة inclusive_care الإضافية (آمن مع IF NOT EXISTS)
 -- يزيل خطأ PostgREST «column … not found in schema cache» عند المزامنة/الـ upsert
 

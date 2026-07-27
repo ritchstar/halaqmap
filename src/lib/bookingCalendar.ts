@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** تنسيق تواريخ Google Calendar (محليّة حسب جهاز المستخدم) */
 function pad2(n: number): string {
   return String(n).padStart(2, '0');

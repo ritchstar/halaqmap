@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { motion } from 'framer-motion';
 import { MapPin } from 'lucide-react';
 import type { Barber, FilterState } from '@/lib/index';

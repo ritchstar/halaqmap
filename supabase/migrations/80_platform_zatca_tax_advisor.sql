@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- زميل لخازن — حالة رادار الزكاة/الضريبة (ZATCA) وإعداد التفعيل غير الحاجز
 
 CREATE TABLE IF NOT EXISTS public.platform_zatca_tax_advisor_state (

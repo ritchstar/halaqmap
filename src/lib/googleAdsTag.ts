@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   GOOGLE_ADS_CONVERSION_ID,
   GOOGLE_ADS_PAGE_VIEW_CONVERSION_SEND_TO,

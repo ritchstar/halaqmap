@@ -1,4 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { BookOpenCheck, PlayCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import LandingPreview from '@/pages/LandingPreview'
 import { useSearchParams } from 'react-router-dom'
 

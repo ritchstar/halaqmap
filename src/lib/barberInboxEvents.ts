@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** أحداث فورية لشارة الشات/المواعيد في لوحة الحلاق — بدون انتظار دورة الاستطلاع. */
 
 export const BARBER_CHAT_INBOUND_EVENT = 'halaqmap:barber-chat-inbound';

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تجديد رابط مفتوح/مغلق: منع إعادة استخدام رمز التأكيد (jti) بعد الاستهلاك الأول
 CREATE TABLE IF NOT EXISTS public.barber_open_status_rotate_redemptions (
   jti uuid PRIMARY KEY,

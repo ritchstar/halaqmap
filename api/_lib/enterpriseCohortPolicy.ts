@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * سياسة الشريك المرجعي على الخادم — تطابق src/config/enterpriseAnchorPartner.ts
  */
 export const ANCHOR_PARTNER_AL_ENWAN_SLUG = 'al_enwan' as const;

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Link } from 'react-router-dom';
 import { Radar } from 'lucide-react';
 import { SHOWCASE_RADAR_ROUTE } from '@/config/showcaseRadarConfig';

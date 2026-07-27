@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- Geospatial_License_Asset + Digital Activation Certificate
 -- Software License Manager doctrine · ISIC4 474151

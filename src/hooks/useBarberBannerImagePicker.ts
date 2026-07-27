@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useState } from 'react';
 import { BARBER_BANNER_IMAGE_ENHANCEMENT_TIPS_AR } from '@/config/barberBannerImagePolicy';
 import {

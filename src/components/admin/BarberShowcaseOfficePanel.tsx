@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { GraduationCap, Loader2, Sparkles, Wand2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useId } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { PULSE_MAP_KINGDOM_OUTLINE_PATHS } from '@/modules/pulse-map/lib/pulseMapGeo';

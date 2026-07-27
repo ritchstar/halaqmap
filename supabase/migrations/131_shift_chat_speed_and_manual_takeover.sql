@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تسريع رد المناوب (ثوانٍ) + تعليق المناوب عند تدخل الحلاق يدوياً
 
 ALTER TABLE public.barber_digital_shift_config

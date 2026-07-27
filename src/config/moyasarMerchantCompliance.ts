@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ROUTE_PATHS } from '@/lib/index';
 import {
   LEGAL_NATIONAL_UNIFIED_NUMBER,

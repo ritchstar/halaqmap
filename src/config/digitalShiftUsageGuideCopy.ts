@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * نسخة واجهة من دليل استخدام المناوب — تُحدَّث مع api/_lib/digitalShiftUsageGuideAr.ts
  * لصفحات المعاينة والشرح (تفصيل أوسع لاحقاً على /partners/digital-shift).
  */

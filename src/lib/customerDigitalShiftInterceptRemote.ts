@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { getOrCreateGuestClientId } from '@/lib/customerPrivateChatServerRemote';
 
 function resolveBaseUrl(): string {

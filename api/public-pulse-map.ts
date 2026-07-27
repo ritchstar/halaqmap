@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/public-pulse-map
  * Slot-based live map payload for the new Pulse Map (public).
  */

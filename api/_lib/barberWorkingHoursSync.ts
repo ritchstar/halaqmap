@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * مزامنة أوقات العمل من طلب التسجيل → جدول working_hours + حقل العرض العام.
  * day_of_week: 0=الأحد … 6=السبت (مطابق لتعريف الجدول).
  */

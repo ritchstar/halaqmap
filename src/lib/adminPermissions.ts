@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * صلاحيات لوحة الإدارة — مفاتيح JSON في `platform_admin_roles.permissions`.
  *
  * توزيع مقترح (يمكنك خلط المفاتيح كما تشاء من الواجهة):

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export * from '@/modules/ops-controller/types';
 export * from '@/modules/ops-controller/registry';
 export { OpsControllerWorkspace } from '@/modules/ops-controller/components/OpsControllerWorkspace';

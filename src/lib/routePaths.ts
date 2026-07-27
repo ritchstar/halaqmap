@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * مسارات المنصة فقط — ملف خفيف مستقل عن lib/index
  * حتى لا تُسحب حزمة App داخل chunks الصفحة الرئيسية (يكسر حلقة circular lazy).
  */

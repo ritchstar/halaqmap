@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pulse Map — public API aggregation (slot-based, no raw GPS on wire).
  */
 import type { UntypedSupabaseClient } from './untypedSupabase.js';

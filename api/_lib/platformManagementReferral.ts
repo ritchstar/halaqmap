@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Regulatory / licensing inquiries → mandatory referral to platform management.
  * Used across public agents and admin lab prompts.
  */

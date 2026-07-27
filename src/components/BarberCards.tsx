@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { motion } from "framer-motion";
 import { Star, MapPin, Phone, MessageCircle, Shield, Sparkles, Images } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";

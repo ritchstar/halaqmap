@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { PrivateConversationRow, PrivateMessageRow } from '@/lib/privateChatRemote';
 
 const DEFAULT_ENDPOINT = '/api/customer-private-chat';

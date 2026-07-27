@@ -1,4 +1,7 @@
-﻿import { useCallback, useState } from 'react';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Copy } from 'lucide-react';
 import QRCode from 'react-qr-code';

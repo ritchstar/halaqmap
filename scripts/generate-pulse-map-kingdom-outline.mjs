@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Build Pulse Map kingdom outline from Natural Earth 50m admin boundaries (ISO SAU).
  * Source: https://www.naturalearthdata.com/downloads/50m-cultural-vectors/50m-admin-0-countries/
  *

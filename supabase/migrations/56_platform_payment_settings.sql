@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إعدادات بوابات الدفع والقنوات — صف واحد (id=1)، يُحدَّث من لوحة الإدارة عبر API بصلاحية service role.
 
 CREATE TABLE IF NOT EXISTS public.platform_payment_settings (

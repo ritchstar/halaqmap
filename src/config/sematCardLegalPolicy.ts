@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { PLATFORM_IDENTITY_PARAGRAPH_AR } from '@/config/platformIdentity';
 
 /** نسخة السياسات — يُخزَّن مع موافقة المستخدم للمراجعة القانونية لاحقاً. */

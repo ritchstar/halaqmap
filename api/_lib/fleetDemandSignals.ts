@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Fleet demand signals — aggregated counters only (no end-user PII).
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

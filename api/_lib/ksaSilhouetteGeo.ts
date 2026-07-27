@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * KSA silhouette geometry for server-side pulse snapping.
  * Keep polygon vertices in sync with `src/modules/platform-radar/lib/saudiKingdomGeo.ts`.
  */

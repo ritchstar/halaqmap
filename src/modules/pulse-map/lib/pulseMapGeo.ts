@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pulse Map — kingdom geometry from Natural Earth 50m admin boundaries (ISO SAU).
  * Regenerate: `node scripts/generate-pulse-map-kingdom-outline.mjs`
  * Source: Natural Earth 50m ne_50m_admin_0_countries (ISO SAU)

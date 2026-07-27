@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RegistrationAttachmentUrls } from '@/lib/index';
 import { BARBER_BANNER_MAX_FILE_BYTES } from '@/config/barberBannerImagePolicy';

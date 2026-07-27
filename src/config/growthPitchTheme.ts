@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Growth Pitch Deck — طبقة التجميل والعرض (Presenter Theme).
  *
  * ═══ عقد التصميم — TEXT LOCK ═══

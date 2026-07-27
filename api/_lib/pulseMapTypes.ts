@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Shared Pulse Map wire types (client mirror in src/modules/pulse-map/types.ts). */
 export type PulseMapMode = 'live' | 'curated' | 'phase1' | 'demo';
 

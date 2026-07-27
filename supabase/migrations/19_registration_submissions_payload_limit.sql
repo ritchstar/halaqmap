@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- رفع حد حجم payload لطلبات التسجيل (روابط مرفقات + حقول نصية)
 -- نفّذ بعد 14_registration_submissions_public.sql

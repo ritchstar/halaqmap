@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SubscriptionInvoiceSlip } from '@/components/billing/SubscriptionInvoiceSlip';
 import { buildMonthlySubscriptionPreview } from '@/lib/subscriptionInvoicePreviewData';

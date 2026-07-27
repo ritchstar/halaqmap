@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/admin-sentinel-brief
  * - لا يستدعي OpenAI ولا يقرأ OPENAI_API_KEY (الملخص من قاعدة البيانات فقط).
  * - مفاتيح Supabase تُقرأ من بيئة تنفيذ الخادم فقط: process.env.SUPABASE_URL ثم VITE_SUPABASE_URL، و SUPABASE_SERVICE_ROLE_KEY.

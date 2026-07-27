@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/verify-sab-payment
  * التحقق من حالة دفع OPPWA (بنك الأول SAB) على الخادم.
  */

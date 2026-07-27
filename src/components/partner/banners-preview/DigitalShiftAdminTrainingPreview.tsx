@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useState } from 'react';
 import { GraduationCap, MessageCircle, User } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';

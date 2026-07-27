@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Link, useLocation } from 'react-router-dom';
 import { Rocket } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib/index';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useMemo, useState } from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';

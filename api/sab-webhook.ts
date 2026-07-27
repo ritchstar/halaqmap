@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/sab-webhook
  * Webhook دفع بنك الأول (SAB / OPPWA) — يتحقق من الحالة ثم يفعّل الرخصة.
  *

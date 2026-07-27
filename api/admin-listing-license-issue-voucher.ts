@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * إصدار رمز حزمة إدراج برمجية يدوياً (تحويل بنكي / إدارة).
  * POST + جلسة إدارية + review_payments أو manage_partner_billing
  */

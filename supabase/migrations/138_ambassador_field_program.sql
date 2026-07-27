@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- نظام سفراء التسويق الميداني — جداول أساسية (service_role / API لاحقاً)
 -- القواعد: src/config/ambassadorFieldRulesPolicy.ts
 

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 
 const DEFAULT_TTL_MS = 30 * 60 * 1000;

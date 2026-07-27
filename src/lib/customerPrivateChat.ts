@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const SESSION_TTL_MS = 60 * 60 * 1000;
 
 const SESSION_STORAGE_PREFIX = 'halaqmap-private-chat-session:';

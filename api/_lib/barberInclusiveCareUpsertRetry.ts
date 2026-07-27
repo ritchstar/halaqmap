@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * عند بيئات قديمة بلا أعمدة inclusive_care الكاملة: إعادة upsert دون هذه الحقول
  * لتفادي فشل المزامنة بالكامل (PostgREST schema cache).
  */

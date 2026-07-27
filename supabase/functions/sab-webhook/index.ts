@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * SAB Webhook — Supabase Edge (بروكسي إلى Vercel /api/sab-webhook)
  *
  * يُفضّل تسجيل عنوان Vercel مباشرة لدى البنك إن أمكن:

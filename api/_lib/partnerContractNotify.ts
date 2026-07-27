@@ -1,4 +1,7 @@
-﻿import type { SupabaseClient } from '@supabase/supabase-js';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { siteBaseUrlFromEnv } from './barberProvisionService.js';
 import type { PartnerUnifiedContractFields } from './partnerUnifiedContractAr.js';
 import { loadStaticUnifiedContractPdf } from './partnerUnifiedContractStatic.js';

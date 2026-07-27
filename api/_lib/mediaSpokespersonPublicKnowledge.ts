@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * معرفة المتحدث الإعلامي العام — مصدر الحقيقة للصفحة الرئيسية ومسار B2C/B2B.
  * يجب أن يعكس: onDemandVisibilityDoctrine · endUserExperiencePolicy · platformSmartTracking.
  */

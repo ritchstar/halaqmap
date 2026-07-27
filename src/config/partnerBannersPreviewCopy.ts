@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { IMAGES } from '@/assets/images';
 
 export const PARTNER_BANNERS_PREVIEW_GOLD_GALLERY_MAX = 20;

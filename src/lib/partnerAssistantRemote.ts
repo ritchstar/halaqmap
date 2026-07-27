@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 type PartnerAssistantRole = 'user' | 'assistant';
 
 export type PartnerAssistantMessage = {

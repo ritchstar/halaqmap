@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * RadarShowcasePage — معاينة الربط الحي والنبض اللحظي
  * Route: /radar
  */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { motion } from "framer-motion";
 import { MapPin, Target, Eye, Zap, Shield, Award } from "lucide-react";
 import { IMAGES } from "@/assets/images";

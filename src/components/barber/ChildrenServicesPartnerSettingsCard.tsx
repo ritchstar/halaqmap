@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 import { Baby, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';

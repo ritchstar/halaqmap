@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * PrivateOfficeSimPreview — محاكاة تفاعلية للمكتب الخاص
  *
  * تُظهر الدورة الكاملة:

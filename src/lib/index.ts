@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { isDemoShowcaseBarberId } from '@/config/demoCatalog';
 import { compareBarbersByListingScore } from '@/lib/barberListingRank';
 import {

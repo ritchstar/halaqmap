@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { staffMotion, staffTheme } from '@/components/admin/staff/staffTheme';

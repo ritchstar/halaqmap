@@ -1,4 +1,7 @@
-﻿/** ZATCA / Zakat revenue thresholds (Saudi B2B voluntary & mandatory registration bands). */
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/** ZATCA / Zakat revenue thresholds (Saudi B2B voluntary & mandatory registration bands). */
 
 export const ZATCA_VOLUNTARY_LIMIT_SAR = 187_500;
 export const ZATCA_MANDATORY_LIMIT_SAR = 375_000;

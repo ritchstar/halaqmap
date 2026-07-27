@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تقارير مراقب العمليات (OPS_MANAGER) — تظهر في تغذية المؤسس.
 -- الإدراج والقراءة عبر API (service_role) فقط.
 

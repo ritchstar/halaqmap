@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ShowcaseRadarMode } from '@/config/showcaseRadarConfig';
 
 export type ShowcaseRadarPulse = {

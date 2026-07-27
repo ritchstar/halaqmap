@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * securityGuard — الحارس الأمني الحقيقي
  *
  * يُطبَّق على المسارات الحساسة:

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * صفحة مسار الخدمات التسويقية للشركاء — حلاق ماب
  * المسار: /preview-partners
  *

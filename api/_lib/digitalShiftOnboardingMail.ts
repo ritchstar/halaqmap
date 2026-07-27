@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * بريد تفعيل «المناوب الرقمي الذكي» — إضافة برمجية متقدمة (Software Add-on) بعد شراء Add-on مع رخصة ماسية.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

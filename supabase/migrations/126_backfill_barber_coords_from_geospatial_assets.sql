@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- إصلاح: نسخ إحداثيات geospatial_license_assets إلى barbers
 -- الشهادة قد تُظهر map_live بينما barbers.latitude فارغ — البحث لا يرى الحلاق.

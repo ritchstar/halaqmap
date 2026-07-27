@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Showcase Radar — server-side aggregation (sanitized, no raw user coords).
  */
 import type { UntypedSupabaseClient } from './untypedSupabase.js';

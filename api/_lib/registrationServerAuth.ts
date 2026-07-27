@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { getRegistrationIntentSecret, verifyRegistrationIntentToken } from './registrationIntentCrypto.js';
 
 export type RegistrationServerAuthResult =

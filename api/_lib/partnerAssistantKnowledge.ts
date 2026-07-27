@@ -1,4 +1,7 @@
-﻿/**
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * قاعدة معرفة ذاتية للمساعد داخل دوال API.
  * ملاحظة: لا نعتمد على استيراد من `src/*` هنا حتى لا يحدث
  * ERR_MODULE_NOT_FOUND في بيئة Vercel serverless.

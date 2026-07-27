@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { SubscriptionTier } from '@/lib/index';
 import { canEnableChildrenSpecialist } from '@/config/childrenSpecialistPolicy';
 import type { BarberPortalChildrenServicesSnapshot } from '@/lib/barberChildrenServicesRemote';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** مطابق لـ ROUTE_PATHS.PAYMENT — يُعرَّف هنا لتفادي استيراد حلاق ماب/index من طبقة الإعدادات. */
 const PARTNER_PAYMENT_PATH = '/partners/payment';
 /** مطابق لـ ROUTE_PATHS.GROWTH_PITCH_DECK */

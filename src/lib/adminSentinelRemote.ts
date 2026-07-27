@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { getSupabaseClient } from '@/integrations/supabase/client';
 
 /** يطابق `api/_lib/adminSentinelClientHeader.ts` — يُسمح لمسارات Sentinel بهذا الرأس فقط (مع JWT). */

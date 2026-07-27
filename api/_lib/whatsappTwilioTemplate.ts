@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Twilio WhatsApp Template (Draft)
  * --------------------------------
  * هذا الملف جاهز للإرسال عبر Twilio WhatsApp Cloud:

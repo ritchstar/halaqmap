@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Autonomous Engineering Wing — council protocol & agent routing */
 
 export const ENGINEERING_COUNCIL_TITLE_AR = 'المجلس الهندسي الذاتي';

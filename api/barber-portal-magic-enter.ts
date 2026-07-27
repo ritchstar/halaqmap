@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/barber-portal-magic-enter?m=...&next=watch
  * دخول سريع من البريد — بدون اعتماد على #/barber/enter (يتجنب فقدان الرمز عند تحويل النطاق).
  */

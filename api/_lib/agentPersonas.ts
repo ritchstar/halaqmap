@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Agent persona registry — Saudi voice identity for conversation logging & prompts.
  * Maps stable agent_id → Arabic title + gender (سعودي / سعودية).
  */

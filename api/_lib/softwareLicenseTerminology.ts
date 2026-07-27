@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ISIC_ACTIVITY_CODE } from './geospatialLicenseDoctrine.js';
 import {
   INVOICE_DIGITAL_SHIFT_ADDON_LINE_AR,

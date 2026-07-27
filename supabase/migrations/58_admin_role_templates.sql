@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- قوالب أدوار إدارية جاهزة (RBAC Presets)
 -- يمكن تطبيقها مباشرة على أي مدير عبر:
 --   UPDATE public.platform_admin_roles

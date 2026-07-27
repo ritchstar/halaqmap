@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Licensed activity scope — ISIC4 474151 · GaStat (mirrors src/config/legalActivityScope.ts). */
 import {
   ISIC_ACTIVITY_CODE,

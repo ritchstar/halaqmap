@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const DEFAULT_MOYSAR_API_BASE = 'https://api.moyasar.com/v1';
 
 export function resolveMoyasarApiBase(): string {

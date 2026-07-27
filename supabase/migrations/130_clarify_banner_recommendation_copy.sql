@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- صياغة أوضح لتوصيات البنر — بدون مصطلحات «أصل رقمي جغرافي»
 UPDATE public.barber_ai_recommendations
 SET

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Injected at compile time via Vite `define` (see vite.config.ts). */
 export const APP_BUILD = {
   version: __APP_PKG_VERSION__,

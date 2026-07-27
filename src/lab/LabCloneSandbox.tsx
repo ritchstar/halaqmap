@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Link, Navigate, Outlet, useLocation, useRoutes, type RouteObject } from 'react-router-dom';
 import { getAdminPortalBasePaths } from '@/config/adminAuth';

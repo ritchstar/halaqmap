@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 function bearerFromHeader(h: string | null): string | null {
   const v = h?.trim() || '';
   if (!v.startsWith('Bearer ')) return null;

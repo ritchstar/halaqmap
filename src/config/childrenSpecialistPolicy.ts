@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { SubscriptionTier } from '@/lib';
 import { CHILDREN_BARBER_CATEGORY } from '@/lib/barberCategoryLexicon';
 

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect } from 'react';
 import type { Barber } from '@/lib/index';
 import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';

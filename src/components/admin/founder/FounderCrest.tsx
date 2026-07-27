@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ReactNode } from 'react';
 import { founderTheme } from '@/components/admin/founder/founderTheme';
 import { cn } from '@/lib/utils';

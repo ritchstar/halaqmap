@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * PublicMediaSpokesperson — المتحدث الإعلامي
  *
  * mode="hero"   → مدمج في الهيرو بطابع ضيافة فاخر

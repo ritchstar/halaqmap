@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** مصدر واحد لمهلة المناوب — الدقائق (واجهة الحلاق) تُترجم إلى ثوانٍ. */
 
 export const SHIFT_REPLY_DELAY_SECONDS_MIN = 3;

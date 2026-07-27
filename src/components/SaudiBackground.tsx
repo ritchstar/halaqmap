@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * SaudiBackground — خلفية صفحة وكيل «سعودي» التفاعلية
  *
  * الطبقات (من الخلف للأمام):

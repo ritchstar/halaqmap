@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Link } from 'react-router-dom';
 import { ArrowUpLeft, Building2 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/lib';

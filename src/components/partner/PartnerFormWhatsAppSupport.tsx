@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ReactNode } from 'react';
 import { SiWhatsapp } from 'react-icons/si';
 import { PARTNER_SUPPORT_PHONE_E164 } from '@/config/partnerLegal';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * useCyberThreatRecorder — DVR لجلسات التهديد السيبراني
  *
  * يراقب البث المباشر ويلتقط الأحداث التهديدية بإحداثياتها الحقيقية.

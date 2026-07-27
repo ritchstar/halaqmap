@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * CyberThreatRecordsPanel — لوحة تسجيلات التهديد السيبراني
  *
  * تظهر في اللوحة اليسرى من غرفة العمليات.

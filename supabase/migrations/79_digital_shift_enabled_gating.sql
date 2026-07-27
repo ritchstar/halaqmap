@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- المناوب الذكي: enabled=false افتراضياً — يُفعَّل فقط بعد شراء Add-on المناوب مع رخصة ماسية (+25 ر.س/حزمة)
 
 ALTER TABLE public.barber_digital_shift_config

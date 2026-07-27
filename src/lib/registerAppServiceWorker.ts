@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تسجيل service worker للـ PWA وإشعارات الدفع.
  */
 

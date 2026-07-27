@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- منع ردّين مكرّرين من المناوب على نفس رسالة العميل (سباق طلبات intercept متوازية)
 
 CREATE TABLE IF NOT EXISTS public.digital_shift_intercept_claims (

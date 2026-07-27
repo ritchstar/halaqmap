@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST/GET /api/resend-partner-activation-mails
  * إعادة إرسال بريد التفعيل (شهادة + برونزي + عقد) لعملية دفع مكتملة.
  *

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * DigitalShiftFeaturePage — صفحة شرح مفصّل للمناوب الرقمي الذكي
  * Route: /partners/digital-shift
  *

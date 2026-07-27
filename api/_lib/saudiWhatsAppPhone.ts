@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تطبيع رقم جوال سعودي لروابط واتساب — مطابق لـ src/lib/saudiWhatsAppPhone.ts
  */
 

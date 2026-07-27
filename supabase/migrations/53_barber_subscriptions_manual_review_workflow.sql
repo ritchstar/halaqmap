@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- سير عمل الموافقة اليدوية بعد دفع ميسر: pending_review → approved (أو refunded)
 -- =====================================================
 

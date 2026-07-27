@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 // vite.config.ts
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react-swc';

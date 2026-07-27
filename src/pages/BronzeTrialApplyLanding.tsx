@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo, useState, type FormEvent } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { MapPin, ShieldAlert, Sparkles } from 'lucide-react';

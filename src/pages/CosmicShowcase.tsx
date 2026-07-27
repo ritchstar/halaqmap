@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * CosmicShowcase — استعراض تقني كوني نقي
  * Route: /cosmic
  *

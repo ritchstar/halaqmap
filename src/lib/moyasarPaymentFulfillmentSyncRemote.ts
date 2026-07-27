@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { DigitalActivationCertificateView } from '@/config/geospatialLicenseDoctrine';
 
 function registrationApiOrigin(): string {

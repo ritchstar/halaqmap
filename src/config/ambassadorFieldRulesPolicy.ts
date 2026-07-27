@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { PLATFORM_IDENTITY_PARAGRAPH_AR } from '@/config/platformIdentity';
 import { TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 import { SubscriptionTier } from '@/lib/index';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchAdminRadarPulses } from '@/lib/adminRadarPulsesRemote';
 import { getSupabaseClient, isSupabaseConfigured } from '@/integrations/supabase/client';

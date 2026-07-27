@@ -1,4 +1,7 @@
-﻿import { useEffect } from 'react';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { useEffect } from 'react';
 import { PartnerPathQrPrintCard } from '@/components/partner/PartnerPathQrPrintCard';
 
 /**

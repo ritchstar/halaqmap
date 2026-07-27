@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { LucideIcon } from 'lucide-react';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
 import { cn } from '@/lib/utils';

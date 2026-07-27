@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type VerifyVercelCronResult =
   | { ok: true }
   | { ok: false; status: number; json: Record<string, unknown> };

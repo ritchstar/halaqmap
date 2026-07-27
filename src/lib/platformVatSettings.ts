@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * حاسبة ض.ق.م + إعداد محلّي قديم (localStorage).
  *
  * تنبيه مهم — مصدر الحقيقة تغيّر:

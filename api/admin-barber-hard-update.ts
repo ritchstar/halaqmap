@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تعديل جنائي لبيانات الصالون — للمؤسس/من يملك manage_barbers عبر service_role.
  * POST /api/admin-barber-hard-update
  * body: { barberId, patch?, restoreTrialGeo?: boolean }

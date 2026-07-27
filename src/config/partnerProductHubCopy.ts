@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ROUTE_PATHS } from '@/lib';
 import {
   DIGITAL_SHIFT_MONTHLY_ADDON_SAR,

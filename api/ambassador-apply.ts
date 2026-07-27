@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تقديم طلب انضمام سفير ميداني (عام).
  */
 import { createClient } from '@supabase/supabase-js';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   deleteAdminFinancialArchiveDocument,

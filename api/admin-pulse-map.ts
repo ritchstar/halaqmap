@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/admin-pulse-map
  * Admin Pulse Map — live slot pulses + query controls metadata.
  */

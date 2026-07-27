@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type CanvasOutputMime = 'image/webp' | 'image/jpeg';
 
 export function loadImageFromFile(file: File): Promise<HTMLImageElement> {

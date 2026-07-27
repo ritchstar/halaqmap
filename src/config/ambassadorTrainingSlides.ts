@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * شرائح تدريب سفراء التسويق الميداني — HTML ثابت في
  * public/docs/ambassadors/training-slides/page_N.html
  * العرض الأساسي داخل المنصة؛ PDF اختياري لاحقاً.

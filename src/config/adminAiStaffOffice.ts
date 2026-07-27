@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * @deprecated Import from `@/modules/ai-staff` — kept for backward-compatible imports.
  */
 export {

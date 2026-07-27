@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/registration-post-approve-fulfill
  * استرداد تلقائي لقسائم الدفع المعلّقة بعد اعتماد طلب التسجيل وربط barberId.
  */

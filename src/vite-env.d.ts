@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-pwa/client" />
 

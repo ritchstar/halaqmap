@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** تعريفات بيئية — تُكمّل @types/pdfkit عند الحاجة */
 declare module 'arabic-persian-reshaper' {
   const reshaper: {

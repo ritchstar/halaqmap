@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { verifyPlatformAdminFromRequest } from './_lib/adminManageBarbersAuth.js';
 import { clientIpFromRequest } from './_lib/adminSentinelRequest.js';
 import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiCorsBlocked } from './_lib/publicApiCors.js';

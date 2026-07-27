@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * طلبات انضمام السفراء — تقديم عام + مراجعة أدمن (قبول → تفعيل مؤقت / رفض).
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

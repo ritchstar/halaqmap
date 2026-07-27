@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * CORS لمسارات API العامة: لا يُستخدم `*` مع وجود رأس Origin.
  * اضبط PUBLIC_API_ALLOWED_ORIGINS (أو REGISTRATION_ALLOWED_ORIGINS) بقائمة مفصولة بفواصل لنطاقات الإنتاج.
  * في التطوير (غير production) يُسمح تلقائياً ببعض نطاقات localhost إن كانت القائمة فارغة.

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { SubscriptionRequest, SubscriptionTier } from '@/lib/index';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import {

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Frontend client for the admin invitation + password-reset endpoints.
  *
  * Both endpoints are POST. The invite endpoint requires the caller's

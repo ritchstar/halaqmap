@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** نصوص موحّدة لشرح تقييم العملاء عبر رمز QR (الباقة الذهبية والماسية) — متوافقة مع رسالة الترحيب البريدية */
 
 export const RATING_QR_FEATURE_TITLE = 'رمز QR لتقييم العملاء';

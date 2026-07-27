@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Badge } from '@/components/ui/badge';
 import type { ProsecutorWorkingPaper } from '@/modules/ai-staff/types';
 import { cn } from '@/lib/utils';

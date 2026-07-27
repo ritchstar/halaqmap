@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- حجز آمن: منع التداخل الزمني (pending + confirmed)
 -- قفل استشاري لكل (barber_id, booking_date) + SELECT FOR UPDATE

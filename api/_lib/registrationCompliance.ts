@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type RegistrationCompliancePayload = Record<string, unknown>;
 
 export type RegistrationComplianceAudit = {

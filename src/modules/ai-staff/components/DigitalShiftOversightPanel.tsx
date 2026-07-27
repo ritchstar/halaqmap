@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Globe, Moon, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { StaffMetricTile } from '@/components/admin/staff/StaffMetricTile';

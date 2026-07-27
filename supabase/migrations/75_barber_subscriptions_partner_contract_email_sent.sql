@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تتبع إرسال بريد PDF العقد الموحّد لمنع التكرار بين مسار الإدارة وـ Database Webhook (subscriptions.active).
 
 ALTER TABLE public.barber_subscriptions

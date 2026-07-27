@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * التحقق من دفع ميسر — Supabase Edge (احتياط عند فشل Vercel 502).
  * أسرار: PAYMENT_ENV، MOYSAR_SECRET_TEST_API_KEY، MOYSAR_SECRET_LIVE_API_KEY
  */

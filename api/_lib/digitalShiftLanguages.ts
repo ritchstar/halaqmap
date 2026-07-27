@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { replyClaimsWomenSalonServices } from './digitalShiftMensOnlyPolicy.js';
 
 export type ShiftLanguage = 'ar' | 'en' | 'ur' | 'tr' | 'fr' | 'es' | 'tl';

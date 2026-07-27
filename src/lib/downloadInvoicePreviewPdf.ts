@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 

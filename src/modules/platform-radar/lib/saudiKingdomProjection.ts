@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Tactical KSA projection — re-targeted to the kingdom's actual bounding box
  * so pulses, anchors and the SVG backdrop share one coordinate space.
  *

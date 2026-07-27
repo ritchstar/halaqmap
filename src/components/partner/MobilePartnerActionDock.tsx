@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { BriefcaseBusiness, Scissors } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MOBILE_FIXED_NAV_SAFE } from '@/lib/mobilePageShell';

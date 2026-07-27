@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * شحن محفظة المناوب بعد عودة الدفع من ميسر — يستدعي /api/wallet-topup-fulfill (يتحقق من الدفع ويشحن الرصيد الصافي).
  */
 

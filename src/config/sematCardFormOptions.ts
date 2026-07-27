@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** قيم مبدئية للنموذج — تُحدَّث لاحقاً حسب تغذية السوق. */
 export const SEMAT_HAIR_PRESET_OPTIONS = [
   { value: 'fade_2', label: 'مدرج ماكينة 2' },

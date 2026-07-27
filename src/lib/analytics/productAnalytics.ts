@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import posthog from 'posthog-js';
 import type { RouteBucket } from '@/config/platformPresence';
 

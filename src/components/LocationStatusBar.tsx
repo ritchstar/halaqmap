@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * LocationStatusBar — شريط تحديد موقع المستخدم الجغرافي
  *
  * يظهر في أعلى يسار الشاشة (fixed) بعد منح الإذن.

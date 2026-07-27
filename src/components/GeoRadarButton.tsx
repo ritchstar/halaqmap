@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GeoRadarButton — تصميم تطبيق سعودي راقٍ
  *
  * دائرة ضخمة نظيفة · مقص أيقوني · نص عربي · تحولات ناعمة

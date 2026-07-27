@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** بريد Bootstrap افتراضي للإدارة (يمكن تجاوزه بـ VITE_ADMIN_EMAIL). */
 export function getAdminAllowedEmail(): string {
   const fromEnv = import.meta.env.VITE_ADMIN_EMAIL as string | undefined;

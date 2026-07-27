@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Platform role identifier for operations report authors. */
 export const OPS_MANAGER_ROLE = 'OPS_MANAGER' as const;
 

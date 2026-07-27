@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- مواءمة reply_delay_seconds مع reply_delay_minutes (حتى 30 دقيقة)
 
 ALTER TABLE public.barber_digital_shift_config

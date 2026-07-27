@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Shared mobile shell tokens — aligned with LandingPreview + Layout.tsx */
 
 export const MOBILE_SHELL_OVERFLOW = 'overflow-x-hidden';

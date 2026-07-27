@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { getSupabaseClient } from '@/integrations/supabase/client';
 
 const POST_APPROVE_FULFILL_API = '/api/registration-post-approve-fulfill';

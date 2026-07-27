@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { PulseMapAdminControls } from '@/modules/pulse-map/components/PulseMapAdminControls';

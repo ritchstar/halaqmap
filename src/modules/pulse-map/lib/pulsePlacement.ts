@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { PulseMapKind, PulseMapLink, PulseMapPulse, PulseMapSlot, PlacedLink, PlacedPulse } from '@/modules/pulse-map/types';
 
 export function pulseJitter(id: string, kind: PulseMapKind): { dx: number; dy: number } {

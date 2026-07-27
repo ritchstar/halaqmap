@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * سردية «المول الرقمي» — نسخة API
  * يُحدَّث بالتزامن مع src/config/partnerMallNarrativeCopy.ts
  */

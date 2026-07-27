@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** معرّف Google Ads (Google Tag) لحملة حلاق ماب */
 export const GOOGLE_ADS_CONVERSION_ID = 'AW-18240041811';
 

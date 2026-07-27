@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * قفل الإضاءة الصحراوي — معمل تصميم مستقل
  * المسار: /lab/desert-light-lock
  *

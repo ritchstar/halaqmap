@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * طابور طلبات انضمام السفراء — أدمن.
  * GET قائمة | POST approve | reject
  */

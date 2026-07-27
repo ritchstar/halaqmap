@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * buyPackageRouter — منطق موحَّد لتوجيه شراء الحزم
  *
  * يفرّق بين:

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * صفحة هبوط B2B — Skywork مدمجة في المنصة.
  * المصدر الأصلي: `halaqmap_landing/src/pages/home/index.tsx`
  * TEXT LOCK: `docs/pitch/partner-deck-slides-ar.md`

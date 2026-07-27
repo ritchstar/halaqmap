@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Barber, SubscriptionTier, Review } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
 

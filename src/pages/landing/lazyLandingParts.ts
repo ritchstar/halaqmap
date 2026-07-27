@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { lazy } from 'react';
 
 export const LandingSearchResults = lazy(() =>

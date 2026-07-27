@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * توليد أكواد تجربة برونزي (إدارة).
  * POST + جلسة إدارية + review_payments أو manage_partner_billing
  */

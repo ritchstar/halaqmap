@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- صلاحيات service_role على جدول شحن المحفظة barber_ai_wallet_topups
 --  · إصلاح: permission denied for table barber_ai_wallet_topups

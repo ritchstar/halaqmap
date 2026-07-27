@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** حد رفع صور بنر الحلاق بعد المعالجة — WebP عند الدعم، وإلا JPEG */
 export const BARBER_BANNER_MAX_FILE_BYTES = 500 * 1024;
 

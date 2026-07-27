@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Activity } from 'lucide-react';

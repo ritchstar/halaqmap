@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- Pre-launch: barbers opt in with email + explicit consent (no full registration).
 -- Inserts only via server (Supabase service role); RLS blocks direct client access.
 

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { GraduationCap } from 'lucide-react';
 import { motion } from 'framer-motion';
 

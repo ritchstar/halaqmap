@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient } from '@supabase/supabase-js';
 import { isBarberPubliclyListed, listBarberGalleryPublicUrls } from './_lib/barberGallerySync.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';

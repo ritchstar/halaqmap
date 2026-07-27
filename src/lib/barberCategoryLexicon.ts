@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** التصنيف الموحّد المخزَّن في `specialties` عند قبول حلاقة الأطفال. */
 export const CHILDREN_BARBER_CATEGORY = 'حلاقة أطفال';
 

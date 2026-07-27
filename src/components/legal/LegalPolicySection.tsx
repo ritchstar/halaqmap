@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { renderLegalContentBlocks } from '@/lib/legalPageRender';

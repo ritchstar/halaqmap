@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** مدخلات ترتيب القائمة ونظام الرصد الذكي — مسافة + فقط حالة العمل */
 export type ListingRankInput = {
   id: string;

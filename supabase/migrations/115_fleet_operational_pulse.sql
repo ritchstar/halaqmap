@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 115 — Fleet operational pulse (نبض تشغيلي صاعد)
 -- B2B only — no end-user PII; one row per salon per day (upsert)

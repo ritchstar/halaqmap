@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * إنشاء جلسة دفع SAB (OPPWA) عبر الخادم.
  */
 

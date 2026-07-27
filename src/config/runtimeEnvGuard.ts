@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { z } from 'zod'
 
 const prohibitedClientKeys = new Set([

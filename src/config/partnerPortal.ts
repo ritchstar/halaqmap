@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** التسمية الرسمية للمسار في الواجهة والنصوص — بدون تغيير مسارات URL. */
 export const SOFTWARE_SERVICES_PORTAL_LABEL = 'مسار الخدمات البرمجية للمنصة';
 

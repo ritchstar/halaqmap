@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { getSiteOrigin } from '@/config/siteOrigin';
 import { ROUTE_PATHS, type SubscriptionTier } from '@/lib/index';
 import type { BarberShareTemplateId } from '@/config/barberSocialShareCopy';

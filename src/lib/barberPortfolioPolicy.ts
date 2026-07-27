@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export const PORTFOLIO_MAX_IMAGES_GOLD = 20;
 export const PORTFOLIO_MAX_IMAGES_DIAMOND = 40;
 /** عدد الصور المميزة على البنر العام للعميل */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { SubscriptionTier } from '@/lib';
 import type { BarberPortalInclusiveCareSnapshot } from '@/lib/barberInclusiveCareRemote';
 import type { BarberPortalChildrenServicesSnapshot } from '@/lib/barberChildrenServicesRemote';

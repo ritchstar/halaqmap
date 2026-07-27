@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * public-media-spokesperson-chat — المتحدث الإعلامي العام
  *
  * يستقبل المستخدمين (B2C) ومسار الشركاء (B2B) بمعرفة ملزمة بمبدأ المنصة

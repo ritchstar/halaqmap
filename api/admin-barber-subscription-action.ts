@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * إجراءات إدارة دفع ميسر بعد التفعيل: اعتماد / ملاحظات جودة / إعادة مبلغ (Refund).
  * POST + جلسة إدارية + صلاحية review_payments.
  */

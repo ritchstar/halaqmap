@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { readFile, writeFile } from 'node:fs/promises';
 
 function nowIso() {

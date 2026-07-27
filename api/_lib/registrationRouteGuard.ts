@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * حماية خفيفة لمسارات عامة (تسجيل، رفع، بوابة حلاق) — لا تعتمد على سرّ زائر:
  * - حد معدّل لكل عنوان IP (نافذة ثابتة، ذاكرة العملية — يقلل الضجيج على نفس مثيل Vercel).
  * - قائمة أصول مسموحة (اختياري): PUBLIC_API_ALLOWED_ORIGINS أو REGISTRATION_ALLOWED_ORIGINS.

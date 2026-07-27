@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إصلاح: permission denied for table digital_activation_certificates
 -- مسار تفعيل ميسر/webhook يُنشئ geospatial_license_assets + digital_activation_certificates عبر service_role.
 

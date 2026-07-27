@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Professional Workspace — Staff-tier design tokens.
  * Clean, solid, productivity-focused. No glass, blur, or neon glow.
  */

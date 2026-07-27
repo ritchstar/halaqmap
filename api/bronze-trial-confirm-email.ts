@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تأكيد بريد طلب تجربة برونزي عبر رابط الرسالة.
  */
 import { createClient } from '@supabase/supabase-js';

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تطبيع أرقام الجوال المحلية 05xxxxxxxx → +9665xxxxxxxx
 -- يمنع فشل روابط wa.me التي ترفض الصيغة المحلية.
 

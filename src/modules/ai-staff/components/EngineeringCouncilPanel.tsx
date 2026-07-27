@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { Cog, Loader2, MessageSquare, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';

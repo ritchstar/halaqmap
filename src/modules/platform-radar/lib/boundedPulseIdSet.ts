@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * BoundedPulseIdSet — memory-safe replacement for `Set<string>` used to dedupe
  * incoming radar pulses. Caps both by entry count and by age, so a 24/7 session
  * cannot leak the heap as pulse IDs accumulate.

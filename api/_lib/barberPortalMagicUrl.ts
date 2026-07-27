@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { getBarberPortalMagicSecret, mintBarberPortalMagicToken } from './barberPortalMagicToken.js';
 import { normalizePartnerTier } from './partnerTierMail.js';
 

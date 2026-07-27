@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/barber-provision-from-payment-internal
  * إنشاء/ربط حساب الحلاق فور نجاح الدفع — استدعاء داخلي من moyasar-webhook فقط.
  */

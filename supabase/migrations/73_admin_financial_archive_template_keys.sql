@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إضافة مفاتيح أرشيف الفواتير إلى قوالب SQL (مع بقية المفاتيح كما في 71)
 
 CREATE OR REPLACE FUNCTION public.platform_admin_permissions_template(p_template text)

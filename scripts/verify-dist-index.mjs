@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Post-build guard: Vercel (and CI) must ship dist/index.html with build markers
  * and asset query strings from vite.config.ts — catches mis-ordered plugins or stale configs.
  */

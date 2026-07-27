@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { PULSE_MAP_CITY_COLORS } from '@/config/pulseMapConfig';
 import { PULSE_MAP_CITY_MARKERS, type PulseMapCityMarker } from '@/modules/pulse-map/lib/pulseMapCities';
 

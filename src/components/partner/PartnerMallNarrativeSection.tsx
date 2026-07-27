@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { motion } from 'framer-motion';
 import { Building2, DoorOpen, MapPin, QrCode, Sparkles, Store } from 'lucide-react';
 import {

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * مجلس استشارة مساعد الشركاء — وكلاء داخليون بملخصات **آمنة للشركاء**.
  * لا تُكشف: مقاصد سرية، labs، migrations، مسارات API، أو بنية AI Staff.
  */

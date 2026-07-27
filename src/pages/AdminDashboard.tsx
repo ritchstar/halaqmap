@@ -1,4 +1,7 @@
-﻿import { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Shield,

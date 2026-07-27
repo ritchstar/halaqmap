@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * شريط استنفار أمني مؤقت — يُخفى عند `VITE_PLATFORM_SECURITY_INCIDENT_BANNER_DISABLED=true`.
  */
 export const PLATFORM_SECURITY_INCIDENT_BANNER_DISABLED =

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- Engineering Wing Handshake — founder activation gate for Operations Controller.
 
 CREATE TABLE IF NOT EXISTS public.platform_engineering_handshake (

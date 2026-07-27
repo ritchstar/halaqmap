@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Cyber Operations Theater — admin landing page.
  * Route: `{adminBase}/cyber`
  *

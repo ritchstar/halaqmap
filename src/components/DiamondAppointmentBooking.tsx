@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { Calendar, Clock, Smartphone, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

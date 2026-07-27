@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { PLATFORM_COVERED_CITIES } from '@/config/platformCoveredCities';
 
 const SLUG_TO_CITY_AR = new Map<string, string>();

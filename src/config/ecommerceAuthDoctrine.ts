@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * قواعد توثيق التجارة الإلكترونية — مصدر الحقيقة للنصوص والوكلاء.
  * يُحدَّث بالتزامن مع api/_lib/ecommerceAuthDoctrine.ts
  */

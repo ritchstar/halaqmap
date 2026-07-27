@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pulse Map — city slot registry (client).
  * Slots mirror projected city markers — keep in sync with `api/_lib/pulseMapSlots.ts`.
  */

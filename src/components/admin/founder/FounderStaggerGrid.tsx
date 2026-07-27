@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { founderMotion } from '@/components/admin/founder/founderTheme';

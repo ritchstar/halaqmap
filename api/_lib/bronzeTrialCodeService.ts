@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * أكواد تجربة باقة برونزي 30 يوماً — مسار موازٍ تماماً لميسر.
  * التنسيق: HM-TRY-XXXX-XXXX-XXXX (بصمة فقط في DB).
  */

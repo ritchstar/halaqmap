@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Tactical KSA geometry — hand-crafted simplified vector outline of the
  * Kingdom and its immediate neighbors, calibrated for the platform radar.
  *

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- Fix: infinite recursion in profiles RLS policy
 -- =====================================================

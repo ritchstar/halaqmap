@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- مزامنة RLS مع مفاتيح platform_admin_roles (الاثنا عشر)
 -- + سجل أمان للحجز (create_booking_safe) يظهر في لوحة الإدارة

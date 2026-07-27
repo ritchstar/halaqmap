@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =============================================================================
 -- 88_platform_admin_invitations.sql
 --

@@ -1,4 +1,7 @@
-﻿import { useEffect } from "react";
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { springPresets, fadeInUp, staggerContainer, staggerItem } from "@/lib/motion";

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { SubscriptionTier } from '@/lib';
 import { DIGITAL_SHIFT_MONTHLY_ADDON_SAR, TIER_MONTHLY_SAR } from '@/config/subscriptionPricing';
 import { listingLicensePurchaseCtaAr } from '@/config/softwareLicenseTerminology';

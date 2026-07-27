@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * cron-cf-threat-watch — عتبة تهديدات Cloudflare GraphQL (آخر ساعة)
  * بدون Logpush: يعتمد على المجمّعات فقط ثم opsEventRouter.
  *

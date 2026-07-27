@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo, useState } from 'react';
 import { Crosshair, Loader2, MapPin, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';

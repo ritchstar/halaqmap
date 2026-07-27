@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- سفراء: استمارة انضمام + حالات الحساب (قيد مراجعة / مؤقت / معتمد)
 -- يكمّل 138_ambassador_field_program.sql
 

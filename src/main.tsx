@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createRoot } from 'react-dom/client'
 import type { ComponentType } from 'react'
 import './index.css'

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- حقن حلاق المعاينة داخل search_barbers_nearby عند صفر نتائج حقيقية
 -- يُصلح: RPC منفصل get_public_showcase_fallback قد لا يُستدعى من المتصفح

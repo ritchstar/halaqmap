@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Radar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {

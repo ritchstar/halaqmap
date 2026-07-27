@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * كشف واسترداد «نزيف» محفظة المناوب — خصومات shift_reply بلا رد فعلي للعميل.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

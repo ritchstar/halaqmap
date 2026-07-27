@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * LegalObserverChat — مكتب الناظر القانوني ⚖️
  *
  * مدمج في أعلى صفحات:

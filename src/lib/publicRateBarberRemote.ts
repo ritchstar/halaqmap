@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** جلب سياق صفحة التقييم عبر QR — يتحقق من الرمز على الخادم ولا يكشف rating_invite_token للعميل. */
 
 import { getOrCreateQrRaterInstanceId } from '@/lib/qrRaterIdentity';

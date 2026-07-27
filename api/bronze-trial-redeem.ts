@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * استرداد كود تجربة برونزي من صفحة الدفع — بدون ميسر.
  * POST { code, requestId?, linkedBarberId? }
  */

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pulse Map — إعدادات الربط الحي (slot-based).
  * المسمى العام: «نبض» — لا «رصد» (امتثال وتجنّب سوء الفهم).
  */

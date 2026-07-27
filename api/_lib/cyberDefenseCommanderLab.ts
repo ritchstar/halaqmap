@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Cyber Defense Commander — القائد الأعلى للدفاع السيبراني
  *
  * Doctrine summary:

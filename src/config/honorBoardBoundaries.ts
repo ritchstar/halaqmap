@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Honor Board (Breathing Manifesto) — B2B-only boundary enforcement.
  * Must never render on consumer map/search surfaces (Home, public search).
  */

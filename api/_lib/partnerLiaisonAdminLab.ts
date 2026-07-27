@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { appendUniversalAgentDoctrines } from './platformManagementReferral.js';
 import { composePartnerPathKnowledgePack } from './partnerAssistantKnowledge.js';

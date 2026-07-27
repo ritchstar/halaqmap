@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- توحيد لغة الإشعارات: رخصة نفاذ بدل «اشتراك» في نقاط التواصل.
 
 CREATE OR REPLACE FUNCTION public.create_subscription_on_approval()

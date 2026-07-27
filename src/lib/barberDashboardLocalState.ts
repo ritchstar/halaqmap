@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { Post, ChatMessage } from '@/lib';
 
 /** عنصر في جدول المواعيد: حجز عميل أو نافذة أوقات متاحة للحجز */

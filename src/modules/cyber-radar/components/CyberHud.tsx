@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * CyberHud — the side panels for the Cyber Operations Theater.
  *
  * Exports three small components that the parent page composes:

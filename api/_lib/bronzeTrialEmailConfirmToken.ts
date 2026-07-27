@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * رمز تأكيد بريد طلب تجربة برونزي — HMAC قصير العمر.
  */
 import { createHmac, timingSafeEqual } from 'node:crypto';

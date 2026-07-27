@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient } from '@supabase/supabase-js';
 import { isBootstrapAdminEmail } from './adminManageBarbersAuth.js';
 import type { UntypedSupabaseClient } from './untypedSupabase.js';

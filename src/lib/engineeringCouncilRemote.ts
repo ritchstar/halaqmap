@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { getSupabaseClient } from '@/integrations/supabase/client';
 import type { AgentCouncilMessage, EngineeringExecution } from '@/modules/ai-staff/types';
 

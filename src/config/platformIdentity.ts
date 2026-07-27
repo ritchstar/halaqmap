@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Platform identity — single source of truth.
  *
  * حلاق ماب هي **مزوّد حلول تقنية (Technical Solutions Provider)** متخصّص

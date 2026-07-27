@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- رادار ZATCA: صلاحيات service_role على جداول الإيرادات
 -- يُصلح: "permission denied for table listing_license_orders"
 

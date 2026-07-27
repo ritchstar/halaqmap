@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * MapCommunity — مجتمع ماب للحلاقين المسجّلين والمفعّلون في حلاق ماب.
  *
  * Phase A: live feed from Supabase via Vercel API + YouTube embeds.

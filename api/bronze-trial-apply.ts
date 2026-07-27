@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تقديم طلب تجربة برونزي (عام) — لا ينشئ حساباً.
  */
 import { createClient } from '@supabase/supabase-js';

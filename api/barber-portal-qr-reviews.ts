@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient } from '@supabase/supabase-js';
 import { resolveBarberPortalBookingActor } from './_lib/barberPortalBookingAuth.js';
 import {

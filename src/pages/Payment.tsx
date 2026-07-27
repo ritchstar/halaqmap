@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { calcVatBreakdown, type PlatformVatSettings } from '@/lib/platformVatSettings';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';

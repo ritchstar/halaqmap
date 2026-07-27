@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import * as React from "react"
 import { useContext } from "react"
 import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"

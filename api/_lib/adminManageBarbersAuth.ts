@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const EXTRA_BOOTSTRAP_ADMIN_EMAILS = ['admin@halaqmap.com'];

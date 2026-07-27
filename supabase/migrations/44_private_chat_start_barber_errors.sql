@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تمييز أسباب فشل start_private_conversation_by_barber_id (كانت كلها «Barber not found»)
 -- حتى يُصلَح barbers.user_id أو is_active دون لبس.
 

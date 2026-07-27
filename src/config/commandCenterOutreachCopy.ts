@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   ON_DEMAND_VISIBILITY_PARTNER_NOTE_AR,
   SMART_RESPONSE_SYSTEM_LABEL_AR,

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type PartnerTier = 'bronze' | 'gold' | 'diamond';
 
 export function normalizePartnerTier(tier: unknown): PartnerTier {

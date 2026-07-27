@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { PULSE_MAP_COLORS } from '@/config/pulseMapConfig';
 import type { PlacedPulse } from '@/modules/pulse-map/types';
 

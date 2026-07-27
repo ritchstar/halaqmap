@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { ImagePlus, Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';

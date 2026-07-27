@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/sync-moyasar-payment-fulfillment?paymentId=
  * استعادة تفعيل الرخصة بعد دفع ميسر ناجح إذا فشل webhook أو أُعيد idempotent بلا طلب.
  */

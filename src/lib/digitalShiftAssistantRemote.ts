@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 function resolveBaseUrl(): string {
   const override = (import.meta.env.VITE_BARBER_DIGITAL_SHIFT_URL as string | undefined)?.trim();
   if (override) return override.replace(/\/$/, '');

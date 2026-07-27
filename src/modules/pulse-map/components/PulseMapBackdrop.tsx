@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   PULSE_MAP_KINGDOM_OUTLINE_PATHS,
   PULSE_MAP_VIEWBOX,

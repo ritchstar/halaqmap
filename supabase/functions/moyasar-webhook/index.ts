@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Moyasar Webhook — Supabase Edge Function
  *
  * التحقق: حقل `secret_token` في جسم JSON يجب أن يطابق MOYASAR_WEBHOOK_SECRET (مقارنة آمنة زمنياً).

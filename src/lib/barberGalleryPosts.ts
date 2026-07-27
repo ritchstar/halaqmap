@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { Post } from '@/lib';
 import { collectGalleryUrlsFromPosts } from '@/lib/barberGalleryRemote';
 

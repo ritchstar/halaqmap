@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- ترتيب مجمّع (Weighted Score) لـ search_barbers_nearby:
 -- 1) أولوية قصوى للمشتركين (اشتراك نشط في subscriptions)

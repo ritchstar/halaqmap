@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 import type { PlatformVatSettings } from '@/lib/platformVatSettings';
 import { fetchPublicPaymentPageConfig } from '@/lib/publicPaymentPageConfigRemote';

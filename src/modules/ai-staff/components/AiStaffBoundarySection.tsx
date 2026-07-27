@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ReactNode } from 'react';
 import { staffTheme } from '@/components/admin/staff/staffTheme';
 import type { AiStaffBoundaryDef } from '@/modules/ai-staff/types';

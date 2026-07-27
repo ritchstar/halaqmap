@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Pulse Map — live aggregation (one pulse per city per kind).
  */
 import type { UntypedSupabaseClient } from './untypedSupabase.js';

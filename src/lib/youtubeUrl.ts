@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Parse a YouTube watch/share URL into an 11-char video id. */
 export function parseYoutubeVideoId(raw: string): string | null {
   const input = raw.trim();

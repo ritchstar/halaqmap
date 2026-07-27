@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- Centralized Billing & Ops Monitor — التزامات تشغيلية (Vercel, Supabase, GitHub, GoDaddy, يدوي)
 -- القراءة/الكتابة عبر Vercel API بـ service role فقط؛ بدون سياسات لـ anon/authenticated.
 

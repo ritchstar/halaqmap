@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * مزامنة أولية: Vercel (v2/user) + Supabase Management (v1/projects).
  * أسرار القراءة من متغيرات بيئة Vercel فقط — لا تُخزَّن في الجدول.
  *

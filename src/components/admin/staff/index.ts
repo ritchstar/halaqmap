@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export { staffTheme, staffMotion } from '@/components/admin/staff/staffTheme';
 export { StaffWorkspaceShell } from '@/components/admin/staff/StaffWorkspaceShell';
 export { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';

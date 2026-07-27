@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 

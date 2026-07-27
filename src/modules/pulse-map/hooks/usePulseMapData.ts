@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { PULSE_MAP_CONFIG } from '@/config/pulseMapConfig';
 import type { PulseMapPayload } from '@/modules/pulse-map/types';

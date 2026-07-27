@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * public-b2b-sales-manager-chat — مدير مبيعات B2B
  *
  * يحلّ محل مساعد الشركاء على صفحات مسار الشركاء

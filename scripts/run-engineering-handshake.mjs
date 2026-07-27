@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 

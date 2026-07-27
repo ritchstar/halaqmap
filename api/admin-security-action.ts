@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * admin-security-action — قيادة الدفاع الحقيقية من غرفة العمليات
  *
  * Actions:

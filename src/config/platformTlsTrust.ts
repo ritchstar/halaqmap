@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * SSL/TLS trust — single source of truth for public-facing security badges.
  *
  * Grade verified via Qualys SSL Labs on the platform domain (Cloudflare edge).

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/presence-heartbeat
  * Client presence pulse — no lat/lng/city. Service-role upsert only.
  */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 function registrationApiOrigin(): string {
   return String(import.meta.env.VITE_REGISTRATION_API_ORIGIN || '')
     .trim()

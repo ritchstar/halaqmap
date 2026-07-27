@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { MarketingSlideDeck } from '@/components/pitch/MarketingSlideDeck';
 import {
   GROWTH_PITCH_LANE_LABEL,

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { timingSafeEqual } from 'node:crypto';
 import { sendPaymentSuccessWhatsAppDraft } from './_lib/whatsappPaymentDraft.js';
 

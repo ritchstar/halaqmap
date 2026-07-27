@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * admin-dvr-sessions — إدارة جلسات التسجيل الأمني الدائمة
  *
  * Actions:

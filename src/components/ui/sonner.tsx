@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, toast } from "sonner"
 

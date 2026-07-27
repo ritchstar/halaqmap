@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const DEFAULT_SYNC_ENDPOINT = '/api/barber-gallery-sync';
 const DEFAULT_PUBLIC_GALLERY_ENDPOINT = '/api/public-barber-gallery';
 

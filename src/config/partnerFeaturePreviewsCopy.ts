@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { OWNER_WATCH_PARTNER_PREVIEW } from '@/config/ownerWatchFeatureCopy';
 
 export const PARTNER_FEATURE_PREVIEW_DASHBOARD = {

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ComponentProps } from 'react';
 import { Link, type LinkProps, type To } from 'react-router-dom';
 

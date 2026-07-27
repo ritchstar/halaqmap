@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   DEFAULT_KSA_CITY_ID,
   KSA_CITIES_GEO,

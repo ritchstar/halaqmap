@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * useCyberLiveStream — taps the existing platform_radar realtime channel
  * and maps each broadcasted user_search into a CyberEvent. Suspicious
  * rows become `threat_probe` pulses so the security narrative stays

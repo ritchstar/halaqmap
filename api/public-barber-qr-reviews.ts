@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient } from '@supabase/supabase-js';
 import { listPublicBarberQrReviews } from './_lib/barberQrReviewService.js';
 import {

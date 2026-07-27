@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * فحص MX و SPF و DMARC عبر وحدة dns المدمجة في Node (بدون تبعيات).
  * يميّز بين: السجل غير موجود (NODATA/NXDOMAIN) وبين فشل الاتصال بالمحلل (timeout، SERVFAIL، …).
  *

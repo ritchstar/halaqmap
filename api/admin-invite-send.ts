@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/admin-invite-send
  *
  * Provisions a new platform admin end-to-end:

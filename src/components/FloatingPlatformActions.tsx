@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * FloatingPlatformActions — مجموعة أزرار عائمة (FAB)
  *
  * تفاعل اختياري: مشاركة · تقييم · تعليق · العودة للأعلى

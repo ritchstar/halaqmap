@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const DEFAULT_PUSH_ENDPOINT = '/api/barber-chat-push';
 const DEFAULT_CHAT_ENDPOINT = '/api/barber-customer-private-chat';
 

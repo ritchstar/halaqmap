@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Software License Manager doctrine — mirrored for frontend display. */
 import {
   ON_DEMAND_VISIBILITY_ALGO_CODE,

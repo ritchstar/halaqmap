@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { HardDrive, ImageIcon, RefreshCw, Trash2, AlertTriangle, Loader2 } from 'lucide-react';

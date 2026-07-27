@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * فحص/استرداد نزيف محفظة المناوب — للمشرف أو cron secret.
  *
  * POST { barberId?, dryRun?: boolean, lookbackDays?: number }

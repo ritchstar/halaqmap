@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * LicenseRechargeWidget — شاحن رصيد رخصة النفاذ الرقمية
  *
  * ثلاثة أوضاع:

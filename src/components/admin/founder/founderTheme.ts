@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Founder's Command Center — Obsidian Luxury & Glassmorphism
  * Scoped design tokens (Tailwind class fragments).
  */

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * المدن التي تغطيها المنصة (~47) — نسخة الخادم.
  * Keep in sync with `src/config/platformCoveredCities.ts`.
  */

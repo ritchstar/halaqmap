@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export const PRESENCE_PERSONAS = ['anon', 'barber', 'admin', 'ambassador'] as const;
 export type PresencePersona = (typeof PRESENCE_PERSONAS)[number];
 

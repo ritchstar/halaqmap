@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * كتالوج شحن محفظة المناوب الرقمي — واجهة العميل (لوحة الحلاق وصفحة الدفع).
  *
  * يطابق api/_lib/digitalShiftWalletTopup.ts (الضريبة فوق السعر ومحكومة بعلم ZATCA):

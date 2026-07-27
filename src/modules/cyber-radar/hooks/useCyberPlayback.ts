@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * useCyberPlayback — timeline-driven scenario player.
  *
  * Consumes a `CyberScenario` and emits the events / agent responses on

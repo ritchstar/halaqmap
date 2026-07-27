@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/admin-growth-architect
  * Growth Architect Agent — first tactical marketing recommendation.
  *

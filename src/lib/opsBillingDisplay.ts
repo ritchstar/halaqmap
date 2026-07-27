@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { OpsBillingCommitmentRow, OpsBillingSummary } from '@/lib/opsBillingMonitorRemote';
 
 export type OpsBillingDisplayRow = OpsBillingCommitmentRow & {

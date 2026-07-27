@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import type { PartnerProductHubSection } from '@/config/partnerProductHubCopy';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { Barber } from '@/lib/index';
 
 /** بناء رابط دعوة التقييم من أصل الموقع (بريد، سيرفر، اختبارات) — متوافق مع HashRouter */

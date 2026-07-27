@@ -1,4 +1,7 @@
-﻿/**
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * توليد PDF للعقد الموحّد (مسار الخدمات البرمجية للمنصة) باستخدام pdfkit.
  * يُحمَّل خط عربي من URL (افتراضي: Noto Naskh Arabic من مستودع الخطوط العام).
  */

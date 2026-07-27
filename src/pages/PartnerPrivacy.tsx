@@ -1,4 +1,7 @@
-﻿import { motion } from "framer-motion";
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { motion } from "framer-motion";
 import { Shield, Lock, FileCheck, Database, Bell, Mail, Scale, CreditCard, Server } from "lucide-react";
 import {
   PARTNER_SUPPORT_EMAIL,

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { motion } from 'framer-motion';
 import { Shield, Server, MapPin, Lock, Eye, FileText, Phone, Mail } from 'lucide-react';
 import { NavLink } from 'react-router-dom';

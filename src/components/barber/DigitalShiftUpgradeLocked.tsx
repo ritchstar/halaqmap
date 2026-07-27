@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { BarberDashboardOutboundLink } from '@/components/barber/BarberDashboardOutboundLink';
 import { Bot, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';

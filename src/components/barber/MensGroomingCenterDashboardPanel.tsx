@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo, useState } from 'react';
 import { Check, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * GET /api/map-community-feed
  * Combined Map Community messages + YouTube video metadata.
  * Optional Authorization for hasNewPosts + read cursor context.

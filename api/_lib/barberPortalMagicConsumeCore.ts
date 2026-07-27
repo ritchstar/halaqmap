@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { buildInclusiveCareSnapshotFromBarberRow } from './inclusiveCareBarberSnapshot.js';
 import { verifyBarberPortalMagicToken } from './barberPortalMagicToken.js';

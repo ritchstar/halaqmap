@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * PulseMapPage — خريطة النبض التشغيلية
  * Route: /radar
  */

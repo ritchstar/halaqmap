@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchAdminStats } from '@/lib/adminStatsRemote';
 import { fetchAdminSentinelBrief } from '@/lib/adminSentinelRemote';

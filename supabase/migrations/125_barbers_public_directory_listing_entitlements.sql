@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- إصلاح عرض البحث العام: barber_listing_entitlements بدل subscriptions
 -- migrations 109 / 113 / 119 / 20260611060100 أعادت العرض للمنطق القديم

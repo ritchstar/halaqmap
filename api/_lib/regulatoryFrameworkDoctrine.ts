@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * الإطار النظامي المعتمد — نسخة API
  * يُحدَّث بالتزامن مع src/config/regulatoryFrameworkDoctrine.ts
  */

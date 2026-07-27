@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * سردية «المول الرقمي» — مسار الشركاء فقط.
  * طبقة تسويقية فوق منهجية التواجد المبكر والحرية — لا تُستبدل بهما.
  * يُحدَّث بالتزامن مع api/_lib/partnerMallNarrativeCopy.ts

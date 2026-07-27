@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Build-sync watchdog — detects when the user's browser is rendering a stale
  * build (JS bundle commit ≠ live `index.html` meta) and force-refreshes the
  * service worker so the new UI can load.

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** أوضاع الإضاءة المحيطية — مرتبطة بوقت الرياض (Asia/Riyadh). */
 
 export type AmbientPhaseId = 'fajr' | 'dhuhr' | 'ghuroob' | 'layl';

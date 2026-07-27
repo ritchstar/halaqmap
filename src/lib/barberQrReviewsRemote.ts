@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { Review } from '@/lib/index';
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
 import { appendQrReview } from '@/lib/qrReviewsStorage';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * العقد الرقمي الموحّد — ملف PDF ثابت (عربي سليم) يُرفق لجميع الشركاء.
  * ضع الملف المصدَّر من Word في:
  *   api/_lib/assets/contracts/Halaqmap-Partner-Unified-Contract-AR.pdf

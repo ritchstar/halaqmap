@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إضافة account_linked لنتيجة search_barbers_nearby (بدون إرجاع user_id)
 -- يُستخدم في الواجهة لتمييز إدراجات المعاينة قبل اكتمال ربط حساب الصالون.
 

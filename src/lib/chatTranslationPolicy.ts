@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** سياسة ترجمة شات العميل — مصدر واحد للواجهة */
 
 export function countScriptChars(text: string): { latin: number; arabic: number } {

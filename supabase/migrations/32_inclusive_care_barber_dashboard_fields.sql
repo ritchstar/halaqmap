@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تحكم الذهبي/الماسي: إظهار/إخفاء للجمهور، أيام محددة، ملاحظة للعميل
 
 ALTER TABLE public.barbers

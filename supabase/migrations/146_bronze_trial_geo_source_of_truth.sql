@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- مزامنة إحداثيات طلبات التجربة المعتمدة إلى سجلات الحلاقين المطابقة بالبريد
 -- مصدر الحقيقة: bronze_trial_applications.latitude/longitude
 

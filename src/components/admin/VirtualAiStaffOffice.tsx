@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { AiStaffControlRoom } from '@/modules/ai-staff/components/AiStaffControlRoom';
 import type { AdminPermissionKey } from '@/lib/adminPermissions';
 

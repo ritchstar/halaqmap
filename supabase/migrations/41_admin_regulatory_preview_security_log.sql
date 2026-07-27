@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- تسجيل معاينات المسؤول لرمز التحقق النظامي (طلبات التسجيل) في سجل الأمان — دون تخزين محتوى الرمز.
 
 CREATE OR REPLACE FUNCTION public.log_admin_regulatory_preview_event(

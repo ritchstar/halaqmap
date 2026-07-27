@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** رمز إثبات ملكية النطاق (وسم meta name="domain-verification") — يجب أن يطابق لوحة التحقق. */
 export const DOMAIN_VERIFICATION_META_CONTENT =
   '05f735e4039c7d290a5f41d188fdc7995352fb2a7f8a211015099614270dd06f';

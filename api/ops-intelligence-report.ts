@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Operations Intelligence Report — daily founder briefing from OPS_MANAGER field reports.
  * Cron: GET ?cron=1 at 05:00 UTC (08:00 Asia/Riyadh) via vercel.json
  */

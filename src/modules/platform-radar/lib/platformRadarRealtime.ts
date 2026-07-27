@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { PlatformRadarMapPulse } from '@/modules/platform-radar/types';
 
 export type PlatformRadarForcePulse = {

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useLayoutEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Compass, Mail, MapPinned, Megaphone, Phone, Sparkles, Store, TrendingUp, Users } from 'lucide-react';

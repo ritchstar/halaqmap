@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Showcase radar city anchors — keep in sync with
  * `CITY_BEACONS_LNGLAT` in `src/modules/platform-radar/lib/saudiKingdomGeo.ts`.
  */

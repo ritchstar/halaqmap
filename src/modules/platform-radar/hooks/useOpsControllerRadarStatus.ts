@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 import { fetchEngineeringHandshakeStatus } from '@/lib/engineeringHandshakeRemote';
 import { fetchSuperIntelligenceFeed } from '@/lib/superIntelligenceFeedRemote';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { CHILDREN_SPECIALIST_BANNER_TAGLINE_AR } from '@/lib/childrenSpecialistDisplay';
 
 export const CHILDREN_SPECIALIST_DASHBOARD_TAB_AR = 'متخصص أطفال';

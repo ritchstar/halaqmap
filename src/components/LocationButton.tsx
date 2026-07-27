@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useState } from "react";
 import { MapPin, Loader2, AlertCircle, CheckCircle2, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * useCyberAudio — منظومة الصوت التفاعلية لغرفة العمليات السيبرانية
  *
  * أصوات مُولَّدة بالكامل عبر Web Audio API — لا ملفات خارجية.

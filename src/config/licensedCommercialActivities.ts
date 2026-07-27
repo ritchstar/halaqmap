@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ISIC_ACTIVITY_CODE, ISIC_MOC_ACTIVITY_NAME_AR } from '@/config/geospatialLicenseDoctrine';
 
 export type LicensedCommercialActivity = {

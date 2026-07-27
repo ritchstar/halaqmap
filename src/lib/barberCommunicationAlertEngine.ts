@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * محرك موحّد لتنبيهات تواصل الحلاق — صوت داخل اللوحة + تتبع الرسائل الم seen.
  */
 import {

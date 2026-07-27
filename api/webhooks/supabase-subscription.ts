@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/webhooks/supabase-subscription
  * استقبال Database Webhooks من Supabase (جدول subscriptions) عند انتقال status إلى active.
  * الحماية: رأس `x-halaqmap-subscription-webhook-secret` يجب أن يطابق SUPABASE_SUBSCRIPTION_WEBHOOK_SECRET على Vercel (لا JWT إداري).

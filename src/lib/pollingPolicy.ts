@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Shared polling intervals — keep DB/API load predictable across dashboards. */
 export const POLL_MS = {
   RADAR_PULSES: 30_000,

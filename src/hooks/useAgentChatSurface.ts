@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useRef, type RefObject } from 'react';
 
 /** Scroll a chat messages container (plain div or Radix ScrollArea root) to the bottom. */

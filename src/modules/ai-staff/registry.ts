@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   DIGITAL_SHIFT_DEFAULT_ASSISTANT_NAME,
   DIGITAL_SHIFT_PRODUCT_TITLE,

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Central Governance — Public Prosecutor Agent (المدعي العام الرقمي) */
 
 export const PUBLIC_PROSECUTOR_TITLE_AR = 'المدعي العام الرقمي';

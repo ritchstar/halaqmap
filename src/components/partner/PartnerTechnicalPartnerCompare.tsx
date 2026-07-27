@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { cn } from '@/lib/utils';
 import {
   PARTNER_TECHNICAL_PARTNER_COMPARE,

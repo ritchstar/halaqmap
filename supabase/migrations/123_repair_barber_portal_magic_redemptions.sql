@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إصلاح: migration 39 مُسجَّلة لكن الجدول غير موجود على الإنتاج (انحراف schema).
 CREATE TABLE IF NOT EXISTS public.barber_portal_magic_redemptions (
   jti uuid PRIMARY KEY,

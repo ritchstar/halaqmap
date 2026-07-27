@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type RegistrationTier = 'bronze' | 'gold' | 'diamond';
 
 const TIER_SET = new Set<RegistrationTier>(['bronze', 'gold', 'diamond']);

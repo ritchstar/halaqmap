@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useState } from 'react';
 import { ClipboardList } from 'lucide-react';
 import { StaffProfessionalCard } from '@/components/admin/staff/StaffProfessionalCard';

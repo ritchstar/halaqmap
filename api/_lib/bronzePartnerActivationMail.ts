@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';
 import { UNIFIED_DIGITAL_LICENSE_LABEL_AR } from './geospatialLicenseDoctrine.js';
 import { siteBaseUrlFromEnv } from './barberProvisionService.js';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect } from 'react';
 
 /** يضبط عنوان تبويب المتصفح ويستعيد السابق عند مغادرة الصفحة/المكوّن. */

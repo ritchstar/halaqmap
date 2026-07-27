@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Shared helpers for presence + live activity (no geo).
  */
 export const PRESENCE_PERSONAS = ['anon', 'barber', 'admin', 'ambassador'] as const;

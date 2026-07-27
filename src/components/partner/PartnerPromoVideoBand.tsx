@@ -1,4 +1,7 @@
-﻿import { useCallback, useEffect, useRef, useState } from 'react';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Clapperboard, Play, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchPartnerPromoVideoPublic } from '@/lib/partnerPromoVideoPublic';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Unified agent conversation logging — all deployed & fixed agents.
  * Persists user/assistant turns with Saudi persona metadata (سعودي / سعودية).
  */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   ZATCA_MANDATORY_LIMIT_SAR,
   ZATCA_PREPARED_VAT_RATE_PERCENT,

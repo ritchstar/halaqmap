@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إعدادات عرض صفحة فيديوهات شرح حزم الرخصة (تفعيل/إيقاف من لوحة الإدارة)
 
 CREATE TABLE IF NOT EXISTS public.partner_tutorial_videos_config (

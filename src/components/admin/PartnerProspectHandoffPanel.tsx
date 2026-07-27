@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo, useState } from 'react';
 import { ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';

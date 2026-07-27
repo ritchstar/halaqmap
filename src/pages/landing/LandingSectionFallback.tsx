@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** شاشة انتظار خفيفة لأقسام LandingPreview المُحمّلة عند الطلب */
 export function LandingSectionFallback({ label = 'جاري التحميل…' }: { label?: string }) {
   return (

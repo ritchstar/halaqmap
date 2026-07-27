@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * إدارة طابور طلبات تجربة برونزي.
  * GET قائمة | POST action: approve | reject | resend_code | resend_confirm
  */

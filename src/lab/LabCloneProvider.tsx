@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import {

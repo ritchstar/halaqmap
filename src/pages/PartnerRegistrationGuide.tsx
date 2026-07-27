@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * PartnerRegistrationGuide — تعليمات طريقة الاشتراك
  * Route: /partners/register/guide
  */

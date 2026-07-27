@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const API = '/api/public-payment-page-config';
 
 export type PublicPaymentPageConfig = {

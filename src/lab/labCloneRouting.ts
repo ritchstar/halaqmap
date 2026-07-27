@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { getAdminPortalBasePaths } from '@/config/adminAuth';
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from '@/lib';
 

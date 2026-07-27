@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** تنقية نصوص لوحة الحلاق — مرآة لـ `api/_lib/barberFacingCopySanitize.ts` */
 
 const BARBER_FACING_COPY_REPLACEMENTS: ReadonlyArray<readonly [string, string]> = [

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 let browserClient: SupabaseClient | null = null;

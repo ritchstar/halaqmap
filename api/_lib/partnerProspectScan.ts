@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { assertVisionMime, callOpenAIOpsBillingVision } from './opsBillingAi.js';
 import { normalizeSaudiMobileForWa } from './saudiWhatsAppPhone.js';
 

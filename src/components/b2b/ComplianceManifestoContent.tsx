@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   HONOR_BOARD_CORE_VALUES,
   HONOR_BOARD_MANIFESTO_PARAGRAPHS,

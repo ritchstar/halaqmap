@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { PublicProsecutorGovernanceAction } from '@/modules/ai-staff/types';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';

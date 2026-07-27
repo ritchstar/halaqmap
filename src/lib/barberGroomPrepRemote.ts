@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const DEFAULT_ENDPOINT = '/api/barber-groom-prep-update';
 
 function endpoint(): string {

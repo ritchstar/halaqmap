@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * فحص سجلات DNS للبريد — توافق أولي مع ممارسات الأمان الحديثة
  * (SPF / DKIM / DMARC / MX) كما تُنصح بها الهيئات والجهات لأتمتة المصداقية ومنع التزييف.
  *

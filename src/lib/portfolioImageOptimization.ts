@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { IMAGES } from '@/assets/images';
 import { browserSupportsWebpExport } from '@/lib/imageCanvasCore';
 import {

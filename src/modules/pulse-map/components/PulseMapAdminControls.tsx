@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Activity, Loader2, Radar, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {

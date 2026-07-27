@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * التحقق من دفع ميسر عبر السيرفر (يحمي مفتاح السرّ).
  */
 

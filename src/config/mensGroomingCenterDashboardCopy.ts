@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export const MENS_GROOMING_CENTER_DASHBOARD_TAB_AR = 'مركز العناية بالرجل';
 
 export const MENS_GROOMING_CENTER_DASHBOARD_LEDE_AR =

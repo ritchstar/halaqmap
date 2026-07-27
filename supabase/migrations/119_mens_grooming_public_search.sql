@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- مراكز العناية بالرجل: إعادة بناء العرض + RPC البحث
 -- (يستعيد حقول 113 ويضيف mens_grooming_center / grooming_center_banner_lines)

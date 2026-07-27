@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type PulseMapMode = 'live' | 'curated' | 'phase1' | 'demo';
 
 export type PulseMapKind = 'demand' | 'link';

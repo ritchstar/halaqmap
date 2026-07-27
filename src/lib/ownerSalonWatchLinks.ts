@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ROUTE_PATHS } from '@/lib';
 
 /** Query flag for read-only owner watch mode on the barber dashboard */

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تحميل خط عربي لـ PDF العقد — محلي أولاً (موثوق على Vercel) ثم URL اختياري.
  */
 import { readFileSync } from 'node:fs';

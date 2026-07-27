@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** فيديو شرح تعبئة نموذج تسجيل الصالونات — قناة المنصة على يوتيوب */
 
 export const PARTNER_REGISTRATION_FORM_YOUTUBE_GUIDE = {

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Barber, Review, SubscriptionTier } from '@/lib/index';
 import { getMergedReviewsForBarber, isReviewPublished } from '@/lib/qrReviewsStorage';

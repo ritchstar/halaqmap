@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * مصدر الحقيقة الوحيد لضريبة القيمة المضافة على المنصّة (خادم).
  *
  * القراءة من `platform_zatca_tax_advisor_state`:

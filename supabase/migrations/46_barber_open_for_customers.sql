@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- حالة «مفتوح للعملاء» على الخريطة (منفصلة عن is_active الإداري) + رمز لمسار ويب خفيف
 
 ALTER TABLE public.barbers

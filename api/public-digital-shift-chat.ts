@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * public-digital-shift-chat — المناوب الرقمي الذكي (نسخة عامة)
  *
  * نفس المناوب في لوحة التحكم، مُندَب لصفحة "معاينة البنرات والمناوب الذكي"

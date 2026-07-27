@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تلميح حي/مدينة من إحداثيات (اختياري) — OpenStreetMap Nominatim.
  * الاستخدام خفيف فقط مع debounce من الواجهة؛ راجع سياسة الاستخدام العادل لـ OSM.
  */

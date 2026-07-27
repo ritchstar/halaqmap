@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ServerPaymentProvider, UnifiedPaymentRequest } from './types';
 
 function licenseSkuFromTier(tier: string): string {

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * يطابق منطق `api/_lib/barberInclusiveCareUpsertRetry.ts` — إعادة محاولة upsert بدون حقول الرعاية الشاملة
  * إذا كانت أعمدة inclusive_care غير منشورة في Supabase بعد.
  */

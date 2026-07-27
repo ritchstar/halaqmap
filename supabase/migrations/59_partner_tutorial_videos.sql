@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- فيديوهات تعليم الاشتراك (Landing مستقلة) — تخزين الملفات في bucket: partner-promo
 
 CREATE TABLE IF NOT EXISTS public.partner_tutorial_videos (

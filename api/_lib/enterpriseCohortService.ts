@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * خدمة برنامج الشريك المرجعي — منح مقاعد ماسي+مناوب مستقلة لكل فرع.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

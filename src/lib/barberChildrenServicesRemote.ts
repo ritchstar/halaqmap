@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const DEFAULT_ENDPOINT = '/api/barber-children-services-update';
 
 function endpoint(): string {

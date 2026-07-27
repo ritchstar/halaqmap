@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { BadgeCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOpsControllerRadarStatus } from '@/modules/platform-radar/hooks/useOpsControllerRadarStatus';

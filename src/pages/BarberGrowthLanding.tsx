@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {

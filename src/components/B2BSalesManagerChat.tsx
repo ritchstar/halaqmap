@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * B2BSalesManagerChat — مكتب مدير مبيعات B2B الفاخر
  *
  * ليس زراً عائماً — بل مكتب تفاوض حقيقي مدمج في الصفحة

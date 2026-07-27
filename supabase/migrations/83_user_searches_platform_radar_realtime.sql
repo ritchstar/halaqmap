@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 83 — Platform Radar: user_searches schema + Realtime infra
 -- يُشغَّل قبل 84. لا يعدّل log_search_activity هنا.

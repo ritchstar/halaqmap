@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** Cursor SDK / CLI execution bridge — runs only after Founder approval. */
 
 export type CursorExecutionResult = {

@@ -1,4 +1,7 @@
-﻿import { motion } from 'framer-motion';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { motion } from 'framer-motion';
 import { LegalObserverChat } from '@/components/LegalObserverChat';
 import { Scale, Copyright, CreditCard, ShieldAlert, Phone, Mail, FileText, Server, Users, Building2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * يستدعي مسار الخادم لمحاكاة تعارض حجز (للتطوير أو الإنتاج مع ALLOW + سرّ).
  * يتطلب وصولاً إلى /api (مثلاً vercel dev، أو VITE_PROXY_API_TO أثناء vite).
  */

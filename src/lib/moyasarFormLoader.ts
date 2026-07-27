@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تحميل نموذج الدفع الرسمي من CDN ميسر ثم استدعاء Moyasar.init
  * @see https://docs.mysr.dev/guides/card-payments/basic-integration
  */

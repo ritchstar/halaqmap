@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { JSX } from 'react';
 
 /** تنسيق نصوص الصفحات القانونية: فقرات، عناوين **، وقوائم تبدأ بـ "- " */

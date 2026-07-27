@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
 export const REGISTRATION_ORDER_ID_RE = /^HM-\d{8}-[A-Z0-9]{6}$/;

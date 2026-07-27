@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * بريد تفعيل موحّد واحد: شهادة + (برونزي: روابط التشغيل) + ملحق العقد + مرفق PDF.
  */
 import type { DigitalActivationCertificatePayload } from './geospatialLicenseDoctrine.js';

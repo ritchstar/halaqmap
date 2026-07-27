@@ -1,4 +1,7 @@
-﻿import { useState, type FormEvent } from 'react';
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+import { useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import { Bell, Mail, MapPin, Shield, Sparkles } from 'lucide-react';

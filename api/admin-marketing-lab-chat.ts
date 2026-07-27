@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Unified Marketing Council Lab Chat — B2C + B2B
  *
  * Replaces the two previous near-identical endpoints:

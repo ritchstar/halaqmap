@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { authorizeOpsBillingWrite } from '../../_lib/opsBillingAuth.js';
 import {
   applyOpsBillingAiPatch,

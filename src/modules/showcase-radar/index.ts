@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export { ShowcaseRadarShell } from '@/modules/showcase-radar/components/ShowcaseRadarShell';
 export { ShowcaseRadarMap } from '@/modules/showcase-radar/components/ShowcaseRadarMap';
 export { useShowcaseRadarData } from '@/modules/showcase-radar/hooks/useShowcaseRadarData';

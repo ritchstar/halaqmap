@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { AdminPermissionKey } from '@/lib/adminPermissions';
 
 /** Administrative boundary — strict separation of internal vs field vs covert ops. */

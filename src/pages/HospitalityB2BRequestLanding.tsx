@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { NavLink, useSearchParams } from 'react-router-dom';
 import { Building2, Hotel, MapPin, PackageCheck, QrCode, Truck } from 'lucide-react';

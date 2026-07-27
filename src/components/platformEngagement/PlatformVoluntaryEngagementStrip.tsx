@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * PlatformVoluntaryEngagementStrip — عرض اختياري أمام المستخدم
  * تقييم · تعليق · مشاركة — دون إلزام
  */

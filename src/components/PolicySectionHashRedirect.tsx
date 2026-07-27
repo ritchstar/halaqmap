@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib';

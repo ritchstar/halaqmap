@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { FileSpreadsheet, ImagePlus, Loader2, Upload, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';

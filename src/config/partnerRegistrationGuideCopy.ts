@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** محتوى صفحة تعليمات طريقة الاشتراك — مسار الشركاء */
 
 export const PARTNER_REGISTRATION_GUIDE = {

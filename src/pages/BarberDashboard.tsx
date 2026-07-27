@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useState, useEffect, useMemo, useCallback, useRef, type ComponentType, type ChangeEvent, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarberDashboardOutboundLink } from '@/components/barber/BarberDashboardOutboundLink';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export type SaudiRegionLite = {
   region_id: number;
   capital_city_id: number;

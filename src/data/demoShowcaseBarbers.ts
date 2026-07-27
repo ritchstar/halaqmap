@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Barber, SubscriptionTier } from '@/lib/index';
 import { IMAGES } from '@/assets/images';
 import { STANDARD_MOCK_WORKING_HOURS } from '@/lib/saudiWorkingWeek';

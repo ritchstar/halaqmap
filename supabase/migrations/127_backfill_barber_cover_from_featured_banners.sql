@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- إعادة ربط cover_image بأول بنر مميز للحلاقين الحاليين (قبل إصلاح الاعتماد)
 UPDATE public.barbers b
 SET

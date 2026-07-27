@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Cyber Operations Theater — type contracts shared by canvas, hooks,
  * scenarios, and the live stream feed.
  *

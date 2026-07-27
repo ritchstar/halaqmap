@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { REGISTRATION_LEGAL_DISCLAIMER_AR } from '@/config/honorBoardManifesto';
 
 /** مسار التسجيل الذاتي — للنصوص التسويقية والوكلاء */

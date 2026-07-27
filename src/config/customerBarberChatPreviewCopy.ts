@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * نصوص تعليمية لشات العميل — مختصرة ومتسقة على الجوال.
  */
 

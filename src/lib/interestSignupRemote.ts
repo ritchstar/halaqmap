@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تسجيل اهتمام مسبق (بريد فقط) — يُنفَّذ عبر `/api/interest-signup` على الخادم.
  * عند فصل الواجهة عن Vercel استخدم `VITE_REGISTRATION_API_ORIGIN` كما في مسار التسجيل.
  */

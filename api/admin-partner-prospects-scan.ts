@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/admin-partner-prospects-scan
  * Vision OCR — extract barber shop name + WhatsApp/phone from screenshot(s).
  */

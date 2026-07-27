@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** حالة الخطة العامة — تظهر في لوحة الإدارة والتوجيه الداخلي */
 export const PLATFORM_SUBSCRIPTION_TIER_PUBLIC_LABEL = 'الخطة الحالية: قياسية (تجريبية)';
 

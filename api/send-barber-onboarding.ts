@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { timingSafeEqual } from 'node:crypto';
 import { safeHost, verifyManageBarbersAdminFromRequest } from './_lib/adminManageBarbersAuth.js';

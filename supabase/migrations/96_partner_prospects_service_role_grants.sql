@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- partner_prospects: منح service_role للوصول عبر /api/admin-partner-prospects
 -- (بعد ترحيل 74 أُلغيت المنح الافتراضية؛ جدول 94 لم يُمنَح service_role)
 

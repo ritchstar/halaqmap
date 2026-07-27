@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useMemo } from 'react';
 import { CyberRadarCanvas } from '@/modules/cyber-radar/components/CyberRadarCanvas';
 import type { CyberEvent } from '@/modules/cyber-radar/types';

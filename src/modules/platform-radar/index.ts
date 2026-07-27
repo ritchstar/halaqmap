@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export { PlatformRadar } from './components/PlatformRadar';
 export { TacticalRadarMap } from './components/TacticalRadarMap';
 export { usePlatformRadarData } from './hooks/usePlatformRadarData';

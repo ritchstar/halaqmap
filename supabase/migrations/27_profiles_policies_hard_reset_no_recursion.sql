@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- HARD RESET for profiles RLS policies (no recursion)
 -- =====================================================

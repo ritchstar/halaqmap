@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Media Spokesperson Lab — backend brain for "المتحدث الإعلامي"
  *
  * Design intent

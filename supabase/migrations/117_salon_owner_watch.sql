@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 117 — Salon owner watch (غرفة المراقبة) — Sprint 1
 -- salon_members: owner/operator roles per barber_id + email

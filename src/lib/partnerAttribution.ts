@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { PartnerAttribution } from '@/lib';
 
 const STORAGE_KEY = 'halaqmap.partnerAttribution.v1';

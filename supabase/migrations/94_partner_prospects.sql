@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- B2B partner acquisition pipeline — غرفة القيادة (Command Center)
 -- Server-side only via /api/admin-partner-prospects; RLS blocks direct client access.
 

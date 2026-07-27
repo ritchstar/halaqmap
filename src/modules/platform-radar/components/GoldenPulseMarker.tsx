@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { formatTacticalOverlay } from '@/modules/platform-radar/lib/saudiKingdomProjection';

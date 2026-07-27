@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AlertTriangle, Scissors } from 'lucide-react';

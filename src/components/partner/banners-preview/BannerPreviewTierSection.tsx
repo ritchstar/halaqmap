@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';

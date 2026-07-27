@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * إرسال بريد ملخص الطلب ورابط الدفع عبر API الخادم (Resend).
  */
 

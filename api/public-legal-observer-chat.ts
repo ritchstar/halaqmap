@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * public-legal-observer-chat — الناظر القانوني (نسخة عامة)
  *
  * يظهر في صفحات: سياسة الخصوصية · شروط الاستخدام · من نحن · سياسة رخصة النفاذ الرقمية

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * مخيم النجوم الصامت — صفحة هبوط تجريبية مستقلة
  * المسار: /lab/silent-star-camp
  *

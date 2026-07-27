@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 120 — Harden public tables flagged by Supabase advisor
 -- rls_disabled_in_public — idempotent, safe to re-run

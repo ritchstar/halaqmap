@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import * as React from "react"
 import { useCallback, useContext, useEffect, useState } from "react"
 import useEmblaCarousel, {

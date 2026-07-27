@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Loader2, Radio, RefreshCw } from 'lucide-react';

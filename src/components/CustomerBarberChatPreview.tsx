@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { MessageCircle, Languages, User, Store, Hourglass, RotateCcw, Send, Loader2, CircleHelp, RefreshCw } from 'lucide-react';

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useEffect, useState } from 'react';
 
 /** يؤجّل mount المكوّنات غير الحرجة حتى بعد أول paint أو idle */

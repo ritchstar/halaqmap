@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * نصوص مسار الشركاء + منهجية التفاوض — نسخة API
  * يُحدَّث بالتزامن مع src/config/partnerFieldSalesCopy.ts
  */

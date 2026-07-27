@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { Check, Loader2, Shield, X } from 'lucide-react';
 import { FounderGlassCard } from '@/components/admin/founder/FounderGlassCard';

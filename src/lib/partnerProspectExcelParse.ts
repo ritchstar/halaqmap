@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { ScannedPartnerLead } from '@/lib/partnerProspectScanTypes';
 import { inferDefaultCityFromProspectFilename } from '@/lib/partnerProspectFilenameRegion';
 import { normalizePartnerProspectPhone } from '@/lib/partnerProspectPhone';

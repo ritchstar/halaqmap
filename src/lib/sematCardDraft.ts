@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 const DRAFT_KEY = 'halaqmap-semat-card-draft';
 
 export type SematCardDraft = {

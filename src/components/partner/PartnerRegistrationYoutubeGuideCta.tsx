@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { SiYoutube } from 'react-icons/si';
 import { PARTNER_REGISTRATION_FORM_YOUTUBE_GUIDE } from '@/config/partnerRegistrationYoutubeGuide';
 import { cn } from '@/lib/utils';

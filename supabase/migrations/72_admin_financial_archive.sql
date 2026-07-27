@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- أرشيف فواتير ووثائق مالية للإدارة: حاوية خاصة + جدول بيانات وصفية + RLS حسب صلاحيات JWT
 -- التحميل/الرفع عبر Vercel API بـ service role؛ الاستعلام من المتصفح مسموح بـ RLS للمشرفين.
 

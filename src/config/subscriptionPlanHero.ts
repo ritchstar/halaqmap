@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import {
   MAP_FEATURE_PARTNER_SUBTITLE,
   PLATFORM_HERO_BADGE,

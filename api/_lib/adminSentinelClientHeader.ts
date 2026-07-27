@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 /** يُرسل من `src/lib/adminSentinelRemote.ts` فقط — يقلل استدعاء مسارات Sentinel من سكربتات عشوائية بنفس أصل الموقع. */
 export const ADMIN_SENTINEL_UI_HEADER = 'x-halaqmap-admin-sentinel';
 export const ADMIN_SENTINEL_UI_HEADER_VALUE = '1';

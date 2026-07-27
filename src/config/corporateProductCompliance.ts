@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 export const CORPORATE_PRODUCT_COMPLIANCE_TITLE = 'وثيقة التعريف بالمنتج والامتثال الرقمي 🇸🇦';
 
 export const CORPORATE_PRODUCT_COMPLIANCE_BADGE = 'منتج وطني معتمد / ممتثل للأنظمة التجارية';

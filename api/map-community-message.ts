@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/map-community-message
  * Insert a new Map Chat message (authenticated barbers/admins only).
  */

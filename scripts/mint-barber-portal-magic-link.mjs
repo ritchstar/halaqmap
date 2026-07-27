@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * يولّد رابط دخول آمن للوحة الحلاق (للاختبار الداخلي فقط).
  *
  * Usage:

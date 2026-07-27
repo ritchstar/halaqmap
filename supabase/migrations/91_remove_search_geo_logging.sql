@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 91 — Remove public geo search logging بالكامل
 -- الهدف: إيقاف تخزين/بث إحداثيات المستخدم نهائياً

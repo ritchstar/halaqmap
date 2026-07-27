@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import type { AmbientControlMode, AmbientPhaseId } from '@/config/platformAmbientPhases';
 import { cn } from '@/lib/utils';
 

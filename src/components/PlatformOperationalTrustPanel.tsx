@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { ExternalLink, ShieldCheck } from 'lucide-react';
 import {
   PLATFORM_EXTERNAL_SCANS_DISCLAIMER_AR,

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { MensGroomingCenterIcon } from '@/components/icons/MensGroomingCenterIcon';
 import {
   MENS_GROOMING_CENTER_BANNER_TAGLINE_AR,

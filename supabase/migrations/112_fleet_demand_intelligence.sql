@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- =====================================================
 -- 112 — Fleet demand intelligence (aggregated, no end-user PII)
 -- قيادة الأسطول: عدّادات طلب مجمّعة + نبض كساد محلي B2B

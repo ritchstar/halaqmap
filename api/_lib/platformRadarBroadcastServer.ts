@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Server-side fallback broadcast for Platform Radar (when DB trigger is unavailable).
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

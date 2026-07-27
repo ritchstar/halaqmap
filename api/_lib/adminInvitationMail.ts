@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Admin invitation + password-reset email templates.
  *
  * Tone: Arabic, administrative-professional. Each email is personalised

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { forwardRef } from 'react';
 import type { SubscriptionInvoicePreviewPayload } from '@/lib/subscriptionInvoicePreviewData';
 import { INVOICE_PRODUCT_DESCRIPTION_EN } from '@/config/softwareLicenseTerminology';

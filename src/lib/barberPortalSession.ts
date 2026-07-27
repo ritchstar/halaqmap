@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * barberPortalSession — ربط جلسة الحلاق (barberAuth) مع Supabase اختيارياً.
  *
  * ليس دمج بوابات: لا يغيّر مسارات الدخول ولا يوحّد واجهات الشريك.

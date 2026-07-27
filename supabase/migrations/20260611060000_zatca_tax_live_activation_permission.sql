@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- صلاحية تفعيل ض.ق.م حياً من مكتب ZATCA عند بلوغ الحد الإلزامي (375,000 ر.س)
 
 UPDATE public.platform_admin_roles

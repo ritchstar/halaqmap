@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * تحميل وتهيئة ودجت OPPWA / HyperPay لبوابة SAB.
  */
 

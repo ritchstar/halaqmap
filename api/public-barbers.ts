@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { mapShowcaseRowToApiPayload, resolveShowcaseFallbackForPublic } from './_lib/platformShowcasePreview.js';
 import { registrationGuardDiagnostics, runRegistrationRouteGuards } from './_lib/registrationRouteGuard.js';

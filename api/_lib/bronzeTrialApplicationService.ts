@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * طابور طلبات تجربة برونزي — مستقل عن التسجيل الرسمي.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';

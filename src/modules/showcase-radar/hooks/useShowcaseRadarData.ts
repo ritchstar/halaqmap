@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { SHOWCASE_RADAR_CONFIG } from '@/config/showcaseRadarConfig';
 import type { ShowcaseRadarPayload } from '@/modules/showcase-radar/types';

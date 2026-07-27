@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { DIGITAL_SHIFT_PRODUCT_FEATURES_AR } from '@/config/digitalShiftAssistant';
 import { cn } from '@/lib/utils';
 

@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * POST /api/map-community-read
  * Update the caller's read cursor for Map Community badge state.
  */

@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { Copy, RefreshCw, Store } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';

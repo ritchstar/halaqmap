@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- Engineering Council — agent-to-agent messaging + pending execution queue (Founder approval gate).
 
 CREATE TABLE IF NOT EXISTS public.platform_agent_council_messages (

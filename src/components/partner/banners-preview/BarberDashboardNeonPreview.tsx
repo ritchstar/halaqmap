@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * BarberDashboardNeonPreview — لوحة تحكم الحلاق بستايل المنصة الجديد
  * نسخة صباحية مشرقة · لمسات تيل وزمردية · أيقونات جذابة بتصميم متكامل
  */

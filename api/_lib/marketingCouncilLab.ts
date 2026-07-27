@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Marketing Council Lab — shared backend logic for both B2C and B2B
  * marketing strategist agents on the admin dashboard.
  *

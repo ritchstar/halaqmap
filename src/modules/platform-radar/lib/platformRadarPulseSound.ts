@@ -1,4 +1,7 @@
 /**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
+/**
  * Singleton AudioContext for radar pulse cues.
  * Avoids iOS Safari's ~6 active-context ceiling and reduces GC churn during
  * sustained 24/7 operation where pulses fire many times per minute.

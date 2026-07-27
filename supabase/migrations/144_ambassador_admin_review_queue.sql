@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- طابور طلبات السفراء + أعمدة مراجعة أدمن
 -- يكمّل 138/139
 

@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- ضمان إدراج نشط لأي صالون مرتبط بتجربة برونزي بلا entitlement
 -- يغطي: تسجيل رسمي أنشأ barber قبل استرداد HM-TRY
 

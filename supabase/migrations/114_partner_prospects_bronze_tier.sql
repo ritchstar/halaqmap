@@ -1,3 +1,4 @@
+-- Copyright © 2026 HalaqMap. All Rights Reserved.
 -- Allow bronze tier_fit for partner acquisition pipeline (غرفة القيادة).
 
 alter table public.partner_prospects

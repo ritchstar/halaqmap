@@ -1,3 +1,6 @@
+/**
+ * Copyright © 2026 HalaqMap. All Rights Reserved.
+ */
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Info, LayoutGrid } from 'lucide-react';
