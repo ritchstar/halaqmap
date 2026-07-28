@@ -72,9 +72,10 @@ export function PlatformConsumerConciergeChat({
     setMessages((prev) => [...prev, userMsg]);
     setSending(true);
 
-    const history: PlatformConciergeTurn[] = [...messages, userMsg]
-      .filter((m) => m.id !== 'welcome' || m.role === 'user')
-      .map((m) => ({ role: m.role, content: m.text }));
+    const history: PlatformConciergeTurn[] = messages
+      .concat(userMsg)
+      .map((m) => ({ role: m.role, content: m.text }))
+      .slice(-14);
 
     try {
       const res = await platformConsumerConciergeRemote({

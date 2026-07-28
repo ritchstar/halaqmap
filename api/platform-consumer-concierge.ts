@@ -71,7 +71,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!msg) return json(request, { ok: false, error: 'empty_message' }, 400);
   if (msg.length > 800) return json(request, { ok: false, error: 'message_too_long' }, 400);
 
-  const history = parseConciergeHistory(body.history);
+  const history = parseConciergeHistory(body.history, 14);
   if (history.filter((t) => t.role === 'user').length >= 12) {
     return json(request, {
       ok: true,
@@ -86,7 +86,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const systemPrompt = buildPlatformConsumerConciergeSystemPrompt({ cityAr, coverageHint });
   const llm = await callPlatformConciergeModel(systemPrompt, history, msg);
-  const reply = (llm || platformConciergeFallbackReply(msg)).slice(0, 1200);
+  const reply = (llm || platformConciergeFallbackReply(msg, history)).slice(0, 1200);
 
   if (url && isLikelyHttpUrl(url) && serviceRole && cityAr) {
     try {

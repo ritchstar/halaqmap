@@ -26,7 +26,7 @@ export async function platformConsumerConciergeRemote(input: {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: message.slice(0, 800),
-        history: (input.history ?? []).slice(-8),
+        history: (input.history ?? []).slice(-14),
         cityAr: input.cityAr ?? undefined,
         districtAr: input.districtAr ?? undefined,
         coverageHint: input.coverageHint ?? undefined,
