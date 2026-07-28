@@ -8,9 +8,11 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { activateGeospatialLicense } from './geospatialLicenseAssetService.js';
 import {
   creditBarberListingEntitlement,
+  getBarberListingBalance,
   loadProductBySku,
 } from './listingLicenseService.js';
 import type { ListingLicenseTier } from './listingLicenseCatalog.js';
+import { listingDaysRemainingFromValidUntil } from './listingDaysRemaining.js';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -25,6 +27,10 @@ export type FounderCompBarberHit = {
   member_number: number | null;
   is_active: boolean | null;
   current_valid_until: string | null;
+  /** أيام متبقية — نفس مصدر لوحة الحلاق */
+  listing_days_remaining: number;
+  active_tiers: string | null;
+  has_active_listing: boolean;
 };
 
 function digitsOnly(raw: string): string {
@@ -43,26 +49,27 @@ export function skuForFounderCompTier(tier: ListingLicenseTier): string {
 
 async function attachCurrentValidUntil(
   supabase: SupabaseClient,
-  row: Omit<FounderCompBarberHit, 'current_valid_until'>,
+  row: Omit<
+    FounderCompBarberHit,
+    'current_valid_until' | 'listing_days_remaining' | 'active_tiers' | 'has_active_listing'
+  >,
 ): Promise<FounderCompBarberHit> {
-  const nowIso = new Date().toISOString();
-  const { data } = await supabase
-    .from('barber_listing_entitlements')
-    .select('valid_until')
-    .eq('barber_id', row.id)
-    .is('revoked_at', null)
-    .gt('valid_until', nowIso)
-    .order('valid_until', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const balance = await getBarberListingBalance(supabase, row.id);
   return {
     ...row,
-    current_valid_until:
-      data?.valid_until && typeof data.valid_until === 'string' ? data.valid_until : null,
+    current_valid_until: balance.validUntil,
+    listing_days_remaining: balance.listingDaysRemaining,
+    active_tiers: balance.activeTier,
+    has_active_listing: balance.hasActiveListing,
   };
 }
 
-function mapBarberRow(b: Record<string, unknown>): Omit<FounderCompBarberHit, 'current_valid_until'> {
+function mapBarberRow(
+  b: Record<string, unknown>,
+): Omit<
+  FounderCompBarberHit,
+  'current_valid_until' | 'listing_days_remaining' | 'active_tiers' | 'has_active_listing'
+> {
   const mn = b.member_number;
   return {
     id: String(b.id),
@@ -253,7 +260,9 @@ export async function activateFounderComp90(
       orderId: string;
       validUntil: string;
       listingDaysGranted: number;
+      listingDaysRemaining: number;
       previousValidUntil: string | null;
+      previousListingDaysRemaining: number;
     }
   | { ok: false; error: string }
 > {
@@ -343,14 +352,30 @@ export async function activateFounderComp90(
     event_type: 'founder_comp',
   });
 
+  /* رقيب: التحقق من نفس مصدر لوحة الحلاق بعد المنحة */
+  const verified = await getBarberListingBalance(supabase, barberId);
+  const expectedMin = listingDaysRemainingFromValidUntil(credit.validUntil);
+  if (
+    !verified.hasActiveListing ||
+    verified.listingDaysRemaining < Math.max(1, expectedMin - 1) ||
+    !verified.validUntil
+  ) {
+    return {
+      ok: false,
+      error: `grant_verify_failed:remaining=${verified.listingDaysRemaining};expected≈${expectedMin}`,
+    };
+  }
+
   return {
     ok: true,
     barberId,
     tier,
     entitlementId: credit.entitlementId,
     orderId: order.id,
-    validUntil: credit.validUntil,
+    validUntil: verified.validUntil ?? credit.validUntil,
     listingDaysGranted: credit.listingDaysGranted,
+    listingDaysRemaining: verified.listingDaysRemaining,
     previousValidUntil: withUntil.current_valid_until,
+    previousListingDaysRemaining: withUntil.listing_days_remaining,
   };
 }

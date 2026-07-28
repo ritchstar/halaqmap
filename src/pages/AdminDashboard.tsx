@@ -112,6 +112,10 @@ import {
   type AdminBarberRow,
 } from '@/lib/adminBarbersRemote';
 import {
+  adminBarbersListingDaysRemote,
+  type AdminBarberListingDays,
+} from '@/lib/adminBarbersListingDaysRemote';
+import {
   deleteRegistrationSubmissionRemote,
   patchRegistrationSubmissionPayloadRemote,
 } from '@/lib/registrationSubmissionsRemote';
@@ -1013,6 +1017,7 @@ export default function AdminDashboard() {
               registrationRequests={subscriptionRequests}
               onRegistrationPayloadSynced={refreshStoredRequests}
               isFounderView={isFounderView}
+              accessToken={adminAccessToken}
             />
           </TabsContent>}
 
@@ -3578,6 +3583,7 @@ function BarbersSection({
   registrationRequests,
   onRegistrationPayloadSynced,
   isFounderView,
+  accessToken,
 }: {
   refreshNonce: number;
   onStatsNeedRefresh: () => void;
@@ -3586,9 +3592,12 @@ function BarbersSection({
   registrationRequests: SubscriptionRequest[];
   onRegistrationPayloadSynced: () => void;
   isFounderView: boolean;
+  accessToken: string;
 }) {
   const [rows, setRows] = useState<AdminBarberRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [listingDaysById, setListingDaysById] = useState<Record<string, AdminBarberListingDays>>({});
+  const [listingDaysLoading, setListingDaysLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [mergingId, setMergingId] = useState<string | null>(null);
@@ -3619,6 +3628,27 @@ function BarbersSection({
       cancelled = true;
     };
   }, [refreshNonce]);
+
+  useEffect(() => {
+    if (rows.length === 0 || !accessToken.trim()) {
+      setListingDaysById({});
+      return;
+    }
+    let cancelled = false;
+    setListingDaysLoading(true);
+    void adminBarbersListingDaysRemote({
+      accessToken,
+      barberIds: rows.map((r) => r.id),
+    }).then((res) => {
+      if (cancelled) return;
+      if (res.ok) setListingDaysById(res.daysByBarberId);
+      else setListingDaysById({});
+      setListingDaysLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [rows, accessToken, refreshNonce]);
 
   useEffect(() => {
     setSelectedIds(new Set());
@@ -4028,6 +4058,12 @@ function BarbersSection({
                   ) : null}
                   <FounderPremiumTableHead className="whitespace-nowrap">رقم العضوية</FounderPremiumTableHead>
                   <FounderPremiumTableHead>الاسم</FounderPremiumTableHead>
+                  <FounderPremiumTableHead className="whitespace-nowrap text-center">
+                    أيام الإدراج
+                    {listingDaysLoading ? (
+                      <Loader2 className="mr-1 inline h-3 w-3 animate-spin opacity-60" />
+                    ) : null}
+                  </FounderPremiumTableHead>
                   <FounderPremiumTableHead>البريد</FounderPremiumTableHead>
                   <FounderPremiumTableHead>المدينة</FounderPremiumTableHead>
                   <FounderPremiumTableHead>الباقة</FounderPremiumTableHead>
@@ -4053,6 +4089,45 @@ function BarbersSection({
                       {formatBarberMemberNumber(row.memberNumber) ?? '—'}
                     </FounderPremiumTableCell>
                     <FounderPremiumTableCell className="font-medium">{row.name}</FounderPremiumTableCell>
+                    <FounderPremiumTableCell className="text-center whitespace-nowrap">
+                      {(() => {
+                        const days = listingDaysById[row.id];
+                        if (listingDaysLoading && !days) {
+                          return <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin text-slate-400" />;
+                        }
+                        if (!days) return <span className="text-muted-foreground">—</span>;
+                        if (!days.hasActiveListing || days.listingDaysRemaining <= 0) {
+                          return (
+                            <span className="font-semibold text-red-400" title="لا صلاحية إدراج نشطة">
+                              0
+                            </span>
+                          );
+                        }
+                        return (
+                          <span
+                            className="font-semibold text-amber-200"
+                            title={
+                              days.validUntil
+                                ? `حتى ${new Date(days.validUntil).toLocaleString('ar-SA')} · ${days.activeTier ?? ''} · مصدر barber_listing_summary`
+                                : 'مصدر: barber_listing_summary'
+                            }
+                          >
+                            {days.listingDaysRemaining}
+                            {days.activeTier ? (
+                              <span className="mr-1 text-[10px] font-normal text-muted-foreground">
+                                {days.activeTier === 'diamond'
+                                  ? 'ماسي'
+                                  : days.activeTier === 'gold'
+                                    ? 'ذهبي'
+                                    : days.activeTier === 'bronze'
+                                      ? 'برونزي'
+                                      : days.activeTier}
+                              </span>
+                            ) : null}
+                          </span>
+                        );
+                      })()}
+                    </FounderPremiumTableCell>
                     <FounderPremiumTableCell className="max-w-[140px] truncate" title={row.email} muted>
                       {row.email}
                     </FounderPremiumTableCell>

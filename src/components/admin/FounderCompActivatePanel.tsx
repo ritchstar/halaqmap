@@ -52,6 +52,8 @@ export function FounderCompActivatePanel({ accessToken }: Props) {
     validUntil: string;
     previousValidUntil: string | null;
     listingDaysGranted: number;
+    listingDaysRemaining: number;
+    previousListingDaysRemaining: number;
     tier: string;
   } | null>(null);
 
@@ -158,6 +160,16 @@ export function FounderCompActivatePanel({ accessToken }: Props) {
             <p>
               صلاحية حالية حتى:{' '}
               <span className="font-medium">{formatUntil(barber.current_valid_until)}</span>
+              {' · '}
+              <span className="font-semibold text-amber-200">
+                {Number(barber.listing_days_remaining ?? 0)} يوم متبقٍ
+              </span>
+              {barber.active_tiers ? (
+                <span className="text-muted-foreground"> (باقة الإدراج: {barber.active_tiers})</span>
+              ) : null}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              المصدر: نفس ملخص لوحة الحلاق (`barber_listing_summary`)
             </p>
           </div>
         ) : null}
@@ -199,12 +211,18 @@ export function FounderCompActivatePanel({ accessToken }: Props) {
           <p className="rounded-lg border border-sky-500/40 bg-sky-500/10 p-3 text-sm">
             تم التفعيل: {lastResult.listingDaysGranted} يوماً ({lastResult.tier}) — ساري حتى{' '}
             <strong>{formatUntil(lastResult.validUntil)}</strong>
+            {' · '}
+            <strong>{lastResult.listingDaysRemaining} يوم متبقٍ</strong>
             {lastResult.previousValidUntil ? (
               <>
                 {' '}
-                (كان حتى {formatUntil(lastResult.previousValidUntil)})
+                (كان {lastResult.previousListingDaysRemaining} يوماً / حتى{' '}
+                {formatUntil(lastResult.previousValidUntil)})
               </>
             ) : null}
+            <span className="mt-1 block text-xs text-muted-foreground">
+              الأيام المتبقية من نفس مصدر لوحة الحلاق
+            </span>
           </p>
         ) : null}
 
@@ -231,15 +249,21 @@ export function FounderCompActivatePanel({ accessToken }: Props) {
                 validUntil: res.validUntil,
                 previousValidUntil: res.previousValidUntil,
                 listingDaysGranted: res.listingDaysGranted,
+                listingDaysRemaining: res.listingDaysRemaining,
+                previousListingDaysRemaining: res.previousListingDaysRemaining,
                 tier: res.tier,
               });
               setBarber({
                 ...barber,
                 tier: res.tier,
                 current_valid_until: res.validUntil,
+                listing_days_remaining: res.listingDaysRemaining,
+                active_tiers: res.tier,
                 is_active: true,
               });
-              toast.success('تم تفعيل 90 يوماً بنجاح');
+              toast.success(
+                `تم التفعيل — الحلاق يرى الآن ${res.listingDaysRemaining} يوماً متبقياً`
+              );
             } finally {
               setActivateLoading(false);
             }

@@ -12,6 +12,9 @@ export type FounderCompBarberHit = {
   member_number: number | null;
   is_active: boolean | null;
   current_valid_until: string | null;
+  listing_days_remaining?: number;
+  active_tiers?: string | null;
+  has_active_listing?: boolean;
 };
 
 function endpoint(): string {
@@ -79,7 +82,9 @@ export async function adminFounderCompActivateRemote(input: {
       orderId: string;
       validUntil: string;
       listingDaysGranted: number;
+      listingDaysRemaining: number;
       previousValidUntil: string | null;
+      previousListingDaysRemaining: number;
     }
   | { ok: false; error: string; candidates?: FounderCompBarberHit[] }
 > {
@@ -109,7 +114,9 @@ export async function adminFounderCompActivateRemote(input: {
       orderId?: string;
       validUntil?: string;
       listingDaysGranted?: number;
+      listingDaysRemaining?: number;
       previousValidUntil?: string | null;
+      previousListingDaysRemaining?: number;
       candidates?: FounderCompBarberHit[];
     };
     if (!resp.ok || json.ok === false) {
@@ -127,7 +134,9 @@ export async function adminFounderCompActivateRemote(input: {
       orderId: String(json.orderId ?? ''),
       validUntil: String(json.validUntil ?? ''),
       listingDaysGranted: Number(json.listingDaysGranted ?? 90),
+      listingDaysRemaining: Number(json.listingDaysRemaining ?? 0),
       previousValidUntil: json.previousValidUntil ?? null,
+      previousListingDaysRemaining: Number(json.previousListingDaysRemaining ?? 0),
     };
   } catch {
     return { ok: false, error: 'network_error' };
