@@ -200,7 +200,8 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
   };
 
   const whatsappHref = buildWhatsAppChatHref(barber.whatsapp || barber.phone || '');
-  const canWhatsApp = Boolean(whatsappHref);
+  const canWhatsApp = Boolean(whatsappHref) && !barber.showcasePreview;
+  const isShowcase = Boolean(barber.showcasePreview);
 
   const openWhatsApp = () => {
     if (!whatsappHref) return;
@@ -494,6 +495,8 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
                 barberId={barber.id}
                 barberName={barber.name}
                 previewListing={barber.previewListing}
+                platformConcierge={isShowcase}
+                cityAr={barber.location.address?.split(/[,،]/)[0]?.trim() || null}
                 compact
               />
             </div>
@@ -612,14 +615,16 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               barberId={barber.id}
               barberName={barber.name}
               previewListing={barber.previewListing}
+              platformConcierge={isShowcase}
+              cityAr={barber.location.address?.split(/[,،]/)[0]?.trim() || null}
               compact
             />
           </div>
-          {showDiamondScheduling && (
+          {showDiamondScheduling && !isShowcase ? (
             <div className="mt-4">
               <DiamondAppointmentBooking barberId={barber.id} barberName={barber.name} compact />
             </div>
-          )}
+          ) : null}
         </div>
       </Card>
     </motion.div>

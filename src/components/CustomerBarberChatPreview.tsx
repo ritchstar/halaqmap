@@ -51,6 +51,7 @@ import {
   CUSTOMER_CHAT_TRANSLATION_DEMO_CUSTOMER,
   CUSTOMER_CHAT_TRANSLATION_DEMO_BARBER,
 } from '@/config/customerBarberChatPreviewCopy';
+import { PlatformConsumerConciergeChat } from '@/components/PlatformConsumerConciergeChat';
 
 type Tier = SubscriptionTier.GOLD | SubscriptionTier.DIAMOND;
 
@@ -121,7 +122,38 @@ function TranslationHint({
   );
 }
 
-export function CustomerBarberChatPreview({
+type CustomerBarberChatPreviewProps = {
+  tier: Tier;
+  barberId: string;
+  barberName: string;
+  /** إدراج معاينة عبر نظام الرصد الذكي — تظهر علامة سرّية للفريق */
+  previewListing?: boolean;
+  /** بنر تعليمي — مرشد المنصة بدل شات صالون/مناوب */
+  platformConcierge?: boolean;
+  cityAr?: string | null;
+  coverageHint?: string | null;
+  compact?: boolean;
+  className?: string;
+  /** رسالة تُرسل تلقائياً عند جاهزية الشات (مثلاً من نموذج الزيارة المنزلية) */
+  injectMessage?: string | null;
+  onInjectMessageSent?: () => void;
+};
+
+export function CustomerBarberChatPreview(props: CustomerBarberChatPreviewProps) {
+  if (props.platformConcierge) {
+    return (
+      <PlatformConsumerConciergeChat
+        compact={props.compact}
+        className={props.className}
+        cityAr={props.cityAr}
+        coverageHint={props.coverageHint}
+      />
+    );
+  }
+  return <SalonCustomerBarberChatPreview {...props} />;
+}
+
+function SalonCustomerBarberChatPreview({
   tier,
   barberId,
   barberName,
@@ -130,18 +162,7 @@ export function CustomerBarberChatPreview({
   className,
   injectMessage,
   onInjectMessageSent,
-}: {
-  tier: Tier;
-  barberId: string;
-  barberName: string;
-  /** إدراج معاينة عبر نظام الرصد الذكي — تظهر علامة سرّية للفريق */
-  previewListing?: boolean;
-  compact?: boolean;
-  className?: string;
-  /** رسالة تُرسل تلقائياً عند جاهزية الشات (مثلاً من نموذج الزيارة المنزلية) */
-  injectMessage?: string | null;
-  onInjectMessageSent?: () => void;
-}) {
+}: CustomerBarberChatPreviewProps) {
   const isDiamond = tier === SubscriptionTier.DIAMOND;
   const usageSteps = isDiamond ? CUSTOMER_CHAT_DIAMOND_STEPS : CUSTOMER_CHAT_GOLD_STEPS;
   const useLive = isSupabaseConfigured();

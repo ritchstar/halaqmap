@@ -221,7 +221,8 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
   };
 
   const whatsappHref = buildWhatsAppChatHref(barber.whatsapp || barber.phone || '');
-  const canWhatsApp = Boolean(whatsappHref);
+  const canWhatsApp = Boolean(whatsappHref) && !barber.showcasePreview;
+  const isShowcase = Boolean(barber.showcasePreview);
 
   const handleWhatsAppClick = () => {
     if (!whatsappHref) return;
@@ -339,7 +340,7 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
             </div>
           ) : null}
 
-          <div className="grid min-w-0 max-w-full grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+            <div className="grid min-w-0 max-w-full grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
             <BarberContactCtaButton
               onClick={handleLocationClick}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -347,10 +348,24 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
               <MapPin className="w-5 h-5 ml-2 shrink-0" />
               {CUSTOMER_MAP_CTA}
             </BarberContactCtaButton>
-            <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
-              <Phone className="w-5 h-5 ml-2 shrink-0" />
-              <span dir="ltr">{barber.phone}</span>
-            </BarberContactCtaButton>
+            {!isShowcase ? (
+              <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
+                <Phone className="w-5 h-5 ml-2 shrink-0" />
+                <span dir="ltr">{barber.phone}</span>
+              </BarberContactCtaButton>
+            ) : (
+              <BarberContactCtaButton
+                type="button"
+                variant="outline"
+                className="border-teal-600/40 text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/20"
+                onClick={() =>
+                  chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+              >
+                <MessageCircle className="w-5 h-5 ml-2 shrink-0" />
+                اسأل مرشد المنصة
+              </BarberContactCtaButton>
+            )}
           </div>
 
           {/* واتساب لكل الباقات — رقم مطبّع دولياً (966…) لتجنب رفض wa.me للصيغة 05 */}
@@ -377,6 +392,10 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                   شات مباشر — انتقل للمعاينة
                 </BarberContactCtaButton>
               )}
+            </div>
+          ) : isShowcase ? (
+            <div className="rounded-lg border border-teal-500/25 bg-teal-500/5 px-3 py-2 text-xs text-muted-foreground">
+              هذا عرض تعليمي من المنصة — لا يوجد واتساب لصالون حقيقي هنا. اسأل المرشد أدناه عن كيف يعمل البحث.
             </div>
           ) : null}
 
@@ -505,13 +524,15 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                 barberId={barber.id}
                 barberName={barber.name}
                 previewListing={barber.previewListing}
-                injectMessage={pendingChatMessage}
+                platformConcierge={isShowcase}
+                cityAr={barber.location.address?.split(/[,،]/)[0]?.trim() || null}
+                injectMessage={isShowcase ? null : pendingChatMessage}
                 onInjectMessageSent={() => setPendingChatMessage(null)}
               />
             </div>
           )}
 
-          {barber.subscription === SubscriptionTier.DIAMOND && showDiamondScheduling && (
+          {barber.subscription === SubscriptionTier.DIAMOND && showDiamondScheduling && !isShowcase && (
             <DiamondAppointmentBooking barberId={barber.id} barberName={barber.name} />
           )}
 
