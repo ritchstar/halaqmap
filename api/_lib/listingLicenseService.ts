@@ -171,7 +171,8 @@ async function paidOrderGrantsDigitalShiftAddon(
 }
 
 /**
- * يُصلح حالات الدفع/الاعتماد التي لم تُفعِّل Add-on المناوب — يعتمد على metadata أو مبلغ 225 ر.س للماسي.
+ * يُصلح حالات الدفع/الاعتماد التي لم تُفعِّل Add-on المناوب — يعتمد على metadata أو مبلغ 225 ر.س للماسي
+ * أو طلب تسجيل مرتبط (digitalShiftAddonSelected داخل payload) أو منحة مؤسس ماسية.
  */
 export async function ensureDigitalShiftAddonFromPaidOrders(
   supabase: SupabaseClient,
@@ -187,27 +188,26 @@ export async function ensureDigitalShiftAddonFromPaidOrders(
     .maybeSingle();
 
   const snap = readConfigSnapshot(existingCfg?.banner_snapshot);
-  if (snap[SHIFT_ADDON_PURCHASE_SYNCED_KEY] === true) {
+
+  if (existingCfg?.enabled === true) {
+    if (snap[SHIFT_ADDON_PURCHASE_SYNCED_KEY] !== true) {
+      await supabase
+        .from('barber_digital_shift_config')
+        .update({
+          banner_snapshot: { ...snap, [SHIFT_ADDON_PURCHASE_SYNCED_KEY]: true },
+        })
+        .eq('barber_id', id);
+    }
     await supabase.from('barber_ai_wallet').upsert(
       { barber_id: id },
       { onConflict: 'barber_id', ignoreDuplicates: true },
     );
-    return existingCfg?.enabled === true;
-  }
-
-  if (existingCfg?.enabled === true) {
-    await supabase
-      .from('barber_digital_shift_config')
-      .update({
-        banner_snapshot: { ...snap, [SHIFT_ADDON_PURCHASE_SYNCED_KEY]: true },
-      })
-      .eq('barber_id', id);
     return true;
   }
 
   const { data: directOrders } = await supabase
     .from('listing_license_orders')
-    .select('id, metadata, amount_halalas, product_id, registration_request_id, barber_id')
+    .select('id, metadata, amount_halalas, product_id, registration_request_id, barber_id, payment_channel')
     .eq('status', 'paid')
     .eq('barber_id', id);
 
@@ -216,12 +216,22 @@ export async function ensureDigitalShiftAddonFromPaidOrders(
       await activateDigitalShiftAddonForBarber(supabase, id, { enableOnPurchase: true });
       return true;
     }
+    if (String(order.payment_channel ?? '') === 'founder_comp') {
+      const { data: product } = order.product_id
+        ? await supabase.from('listing_license_products').select('tier').eq('id', order.product_id).maybeSingle()
+        : { data: null };
+      if (String((product as { tier?: string } | null)?.tier ?? '').toLowerCase() === 'diamond') {
+        await activateDigitalShiftAddonForBarber(supabase, id, { enableOnPurchase: true });
+        return true;
+      }
+    }
   }
 
+  /* status داخل JSON فقط — لا عمود status على registration_submissions */
   const { data: registrations } = await supabase
     .from('registration_submissions')
     .select('id, payload')
-    .eq('status', 'approved');
+    .filter('payload->>linkedBarberId', 'eq', id);
 
   const linkedRegIds: string[] = [];
   for (const row of registrations ?? []) {
@@ -230,8 +240,8 @@ export async function ensureDigitalShiftAddonFromPaidOrders(
         ? (row.payload as Record<string, unknown>)
         : null;
     if (!payload) continue;
-    const linked = String(payload.linkedBarberId ?? '').trim();
-    if (linked !== id) continue;
+    const st = String(payload.status ?? '').trim().toLowerCase();
+    if (st && st !== 'approved' && st !== 'paid' && st !== 'fulfilled') continue;
     linkedRegIds.push(String(row.id));
     if (registrationPayloadHasDigitalShiftAddon(payload)) {
       await activateDigitalShiftAddonForBarber(supabase, id, { enableOnPurchase: true });

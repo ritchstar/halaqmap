@@ -8,6 +8,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { activateGeospatialLicense } from './geospatialLicenseAssetService.js';
 import {
   creditBarberListingEntitlement,
+  enableDigitalShiftAddonForBarber,
   getBarberListingBalance,
   loadProductBySku,
 } from './listingLicenseService.js';
@@ -314,6 +315,9 @@ export async function activateFounderComp90(
         lookup_query: input.lookupQuery ?? null,
         previous_valid_until: withUntil.current_valid_until,
         previous_tier: withUntil.tier,
+        ...(tier === 'diamond'
+          ? { digital_shift_addon: true, private_office: true, digital_shift_addon_halalas: 0 }
+          : {}),
       },
     })
     .select('id')
@@ -331,6 +335,14 @@ export async function activateFounderComp90(
     stackFromExisting: true,
   });
   if (!credit.ok) return { ok: false, error: credit.error };
+
+  if (tier === 'diamond') {
+    try {
+      await enableDigitalShiftAddonForBarber(supabase, barberId, { force: true });
+    } catch {
+      /* لا نُفشل المنحة إن تعذّر تفعيل المناوب — يمكن إصلاحه بـ ensure لاحقاً */
+    }
+  }
 
   try {
     await activateGeospatialLicense(supabase, {
