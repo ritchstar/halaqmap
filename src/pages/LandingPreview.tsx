@@ -1107,6 +1107,20 @@ export default function LandingPreview() {
           barber={selectedBarber}
           isOpen
           onClose={() => setSelectedBarber(null)}
+          onExpandSearchRadius={() => {
+            setFilters((prev) => ({
+              ...prev,
+              maxDistance: Math.min(10, Math.max(prev.maxDistance + 3, 6)),
+              openNow: false,
+            }));
+          }}
+          onRetrySearch={() => {
+            setFilters((prev) => ({
+              ...prev,
+              openNow: false,
+              maxDistance: Math.max(1, Math.min(10, prev.maxDistance || 3)),
+            }));
+          }}
         />
       ) : null}
 

@@ -53,3 +53,12 @@ export const PLATFORM_CONCIERGE_MAX_TURNS = 10;
 
 export const PLATFORM_CONCIERGE_EXPAND_RADIUS_HINT =
   'جرّب توسيع نطاق العرض أو إلغاء بعض الفلاتر ثم أعد الاستعلام.';
+
+export const PLATFORM_CONCIERGE_CTA_EXPAND_RADIUS_AR = 'وسّع نطاق البحث';
+
+export const PLATFORM_CONCIERGE_CTA_RETRY_SEARCH_AR = 'أعد الاستعلام';
+
+export const PLATFORM_CONCIERGE_CTA_ASK_GUIDE_AR = 'اسأل مرشد المنصة';
+
+export const PLATFORM_CONCIERGE_SHOWCASE_NOTE_AR =
+  'هذا عرض تعليمي من المنصة — لا واتساب ولا حجز هنا. وسّع النطاق أو أعد الاستعلام، أو اسأل المرشد أدناه.';

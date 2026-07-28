@@ -35,6 +35,12 @@ import { isMensGroomingCenterBarber } from '@/lib/mensGroomingCenterDisplay';
 import { PlatformDisplayImage } from '@/components/platform/PlatformDisplayImage';
 import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
 import {
+  PLATFORM_CONCIERGE_CTA_ASK_GUIDE_AR,
+  PLATFORM_CONCIERGE_CTA_EXPAND_RADIUS_AR,
+  PLATFORM_CONCIERGE_CTA_RETRY_SEARCH_AR,
+  PLATFORM_CONCIERGE_SHOWCASE_NOTE_AR,
+} from '@/config/platformConsumerConciergeCopy';
+import {
   BarberContactCtaButton,
   BarberContactRatingStars,
   BarberContactSheet,
@@ -48,9 +54,19 @@ interface BarberDetailModalProps {
   barber: Barber;
   isOpen: boolean;
   onClose: () => void;
+  /** بنر تعليمي — توسيع نطاق البحث على الصفحة الرئيسية */
+  onExpandSearchRadius?: () => void;
+  /** بنر تعليمي — إعادة الاستعلام */
+  onRetrySearch?: () => void;
 }
 
-export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModalProps) {
+export function BarberDetailModal({
+  barber,
+  isOpen,
+  onClose,
+  onExpandSearchRadius,
+  onRetrySearch,
+}: BarberDetailModalProps) {
   const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
   const previewSecretMarker = barber.previewListing ? (
     <span className="text-muted-foreground font-normal" title="إدراج معاينة">
@@ -144,12 +160,14 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
 
   const homeVisit = barber.homeVisitOffer;
   const showHomeVisit =
+    !barber.showcasePreview &&
     homeVisit?.offered &&
     homeVisit.publicVisible !== false &&
     (barber.subscription === SubscriptionTier.GOLD || barber.subscription === SubscriptionTier.DIAMOND);
 
   const groomPrep = barber.groomPrepOffer;
   const showGroomPrep =
+    !barber.showcasePreview &&
     groomPrep?.offered &&
     groomPrep.publicVisible !== false &&
     barber.subscription === SubscriptionTier.DIAMOND;
@@ -341,13 +359,27 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
           ) : null}
 
             <div className="grid min-w-0 max-w-full grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
-            <BarberContactCtaButton
-              onClick={handleLocationClick}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              <MapPin className="w-5 h-5 ml-2 shrink-0" />
-              {CUSTOMER_MAP_CTA}
-            </BarberContactCtaButton>
+            {!isShowcase ? (
+              <BarberContactCtaButton
+                onClick={handleLocationClick}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                <MapPin className="w-5 h-5 ml-2 shrink-0" />
+                {CUSTOMER_MAP_CTA}
+              </BarberContactCtaButton>
+            ) : (
+              <BarberContactCtaButton
+                type="button"
+                className="bg-teal-600 hover:bg-teal-700 text-white"
+                onClick={() => {
+                  onExpandSearchRadius?.();
+                  onClose();
+                }}
+              >
+                <MapPin className="w-5 h-5 ml-2 shrink-0" />
+                {PLATFORM_CONCIERGE_CTA_EXPAND_RADIUS_AR}
+              </BarberContactCtaButton>
+            )}
             {!isShowcase ? (
               <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
                 <Phone className="w-5 h-5 ml-2 shrink-0" />
@@ -358,12 +390,13 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
                 type="button"
                 variant="outline"
                 className="border-teal-600/40 text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/20"
-                onClick={() =>
-                  chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
+                onClick={() => {
+                  onRetrySearch?.();
+                  onClose();
+                }}
               >
                 <MessageCircle className="w-5 h-5 ml-2 shrink-0" />
-                اسأل مرشد المنصة
+                {PLATFORM_CONCIERGE_CTA_RETRY_SEARCH_AR}
               </BarberContactCtaButton>
             )}
           </div>
@@ -394,8 +427,21 @@ export function BarberDetailModal({ barber, isOpen, onClose }: BarberDetailModal
               )}
             </div>
           ) : isShowcase ? (
-            <div className="rounded-lg border border-teal-500/25 bg-teal-500/5 px-3 py-2 text-xs text-muted-foreground">
-              هذا عرض تعليمي من المنصة — لا يوجد واتساب لصالون حقيقي هنا. اسأل المرشد أدناه عن كيف يعمل البحث.
+            <div className="space-y-2">
+              <p className="rounded-lg border border-teal-500/25 bg-teal-500/5 px-3 py-2 text-xs text-muted-foreground">
+                {PLATFORM_CONCIERGE_SHOWCASE_NOTE_AR}
+              </p>
+              <BarberContactCtaButton
+                type="button"
+                variant="outline"
+                className="w-full border-teal-600/40 text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/20"
+                onClick={() =>
+                  chatPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+              >
+                <MessageCircle className="w-5 h-5 ml-2 shrink-0" />
+                {PLATFORM_CONCIERGE_CTA_ASK_GUIDE_AR}
+              </BarberContactCtaButton>
             </div>
           ) : null}
 

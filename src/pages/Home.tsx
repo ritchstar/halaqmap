@@ -563,6 +563,22 @@ export default function Home() {
           barber={selectedBarber}
           isOpen={!!selectedBarber}
           onClose={() => setSelectedBarber(null)}
+          onExpandSearchRadius={() => {
+            setFilters((prev) => ({
+              ...prev,
+              maxDistance: Math.min(10, Math.max(prev.maxDistance + 3, 6)),
+              openNow: false,
+            }));
+            toast.success('تم توسيع نطاق البحث — جارٍ تحديث النتائج.');
+          }}
+          onRetrySearch={() => {
+            setFilters((prev) => ({
+              ...prev,
+              openNow: false,
+              maxDistance: Math.max(1, Math.min(10, prev.maxDistance || 3)),
+            }));
+            toast.message('جارٍ إعادة الاستعلام…');
+          }}
         />
       )}
     </div>
