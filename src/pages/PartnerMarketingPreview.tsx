@@ -907,6 +907,15 @@ export default function PartnerMarketingPreview() {
                 <p className="mb-2 max-w-lg text-[0.95rem] leading-8 text-slate-600">
                   {PARTNER_MALL_HERO_LEAD_MOBILE_AR}
                 </p>
+                <p
+                  className="mb-2 text-center text-[0.8rem] font-extrabold tracking-wide text-amber-800"
+                  style={{
+                    textShadow:
+                      '0 0 10px rgba(251,191,36,0.85), 0 0 22px rgba(245,158,11,0.55), 0 0 36px rgba(251,191,36,0.35)',
+                  }}
+                >
+                  (يقتصر الاشتراك على المنشآت فقط)
+                </p>
                 <Link
                   to={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
                   className="mb-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/70 bg-gradient-to-l from-amber-100 to-orange-50 px-4 py-3 text-[0.9rem] font-black text-amber-950 shadow-sm"
@@ -991,6 +1000,15 @@ export default function PartnerMarketingPreview() {
             transition={{ delay: 0.35, duration: 0.7 }}
             className="relative flex flex-col gap-4 overflow-visible"
           >
+            <p
+              className="mb-2 text-center text-[0.82rem] font-extrabold tracking-wide text-amber-800 sm:text-[0.9rem]"
+              style={{
+                textShadow:
+                  '0 0 10px rgba(251,191,36,0.85), 0 0 22px rgba(245,158,11,0.55), 0 0 36px rgba(251,191,36,0.35)',
+              }}
+            >
+              (يقتصر الاشتراك على المنشآت فقط)
+            </p>
             <div className="mb-1 flex justify-center">
               <Link
                 to={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
