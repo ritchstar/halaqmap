@@ -440,12 +440,10 @@ export default defineConfig(({ mode }) => {
             if (norm.includes('/src/components/ui/')) return 'ui-kit';
             if (norm.includes('/src/lib/utils.ts')) return 'shared-utils';
             if (norm.includes('/src/lib/index.ts')) return 'lib-index';
+            // Layout/PartnerLayout/FloatingPlatformActions تُحمَّل كسولة من الرئيسية —
+            // لا تُجبر في app-shell حتى لا تنتفخ حزمة أول زيارة للـ HOME.
             if (
-              norm.includes('/src/components/Layout') ||
-              norm.includes('/src/components/PartnerLayout') ||
               norm.includes('/src/context/PlatformAmbientContext') ||
-              norm.includes('/src/components/PlatformAmbient') ||
-              norm.includes('/src/components/FloatingPlatformActions') ||
               norm.includes('/src/components/ScrollToTop') ||
               norm.includes('/src/components/AnalyticsRouteTracker') ||
               norm.includes('/src/components/PolicySectionHashRedirect') ||

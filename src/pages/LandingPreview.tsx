@@ -56,12 +56,14 @@ import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { readStoredUserCoords, clearStoredUserCoords, storeUserCoords } from '@/lib/userRegionWeather';
 import { resolveStrictUserLocation } from '@/lib/strictGeolocation';
 import { toast } from '@/components/ui/sonner';
-import { FloatingPlatformActions } from '@/components/FloatingPlatformActions';
-import { PlatformAmbientBackground } from '@/components/PlatformAmbientBackground';
 import { PlatformVoluntaryEngagementStrip } from '@/components/platformEngagement/PlatformVoluntaryEngagementStrip';
-import { LandingPulseRadarHero } from '@/pages/landing/LandingPulseRadarHero';
-import { LandingSearchResults } from '@/pages/landing/LandingSearchResults';
-import { BarberDetailModal } from '@/components/BarberDetailModal';
+import {
+  LandingBarberDetailModal,
+  LandingFloatingPlatformActions,
+  LandingPlatformAmbientBackground,
+  LandingPulseRadarHero,
+  LandingSearchResults,
+} from '@/pages/landing/lazyLandingParts';
 import { AppBuildStamp } from '@/components/AppBuildStamp';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { GeoRadarButton } from '@/components/GeoRadarButton';
@@ -753,7 +755,11 @@ export default function LandingPreview() {
       {/* شريط موقع المستخدم */}
       {userLocation && <LocationStatusBar lat={userLocation.lat} lng={userLocation.lng} />}
 
-      {!isMobile && deferMobileExtras ? <FloatingPlatformActions /> : null}
+      {!isMobile && deferMobileExtras ? (
+        <Suspense fallback={null}>
+          <LandingFloatingPlatformActions />
+        </Suspense>
+      ) : null}
 
       {!isMobile && deferMobileExtras ? (
         <>
@@ -776,7 +782,11 @@ export default function LandingPreview() {
         }}
       />
 
-      {!isMobile && deferMobileExtras ? <PlatformAmbientBackground variant="default" /> : null}
+      {!isMobile && deferMobileExtras ? (
+        <Suspense fallback={null}>
+          <LandingPlatformAmbientBackground variant="default" />
+        </Suspense>
+      ) : null}
 
       {/* ══════════════════════════════════════════════════════════════════
           الهيدر الموحّد — شريط المدن + التنقل الرئيسي
@@ -1058,7 +1068,16 @@ export default function LandingPreview() {
             className="relative"
           >
             <div className="relative mx-auto max-w-[440px]">
-              <LandingPulseRadarHero />
+              <Suspense
+                fallback={
+                  <div
+                    className="aspect-square w-full max-w-[440px] rounded-full bg-teal-500/[0.06] ring-1 ring-teal-400/15"
+                    aria-hidden
+                  />
+                }
+              >
+                <LandingPulseRadarHero />
+              </Suspense>
             </div>
           </motion.div>
           ) : null}
@@ -1082,18 +1101,26 @@ export default function LandingPreview() {
           ref={resultsRef}
           className="relative z-10 border-y border-teal-400/15 bg-[#020912]"
         >
-          <LandingSearchResults
-            userLocation={userLocation}
-            filters={filters}
-            onFilterChange={setFilters}
-            filteredBarbers={filteredBarbers}
-            mapBarbers={mapBarbers}
-            showcaseActive={showcaseActive}
-            showcaseFallback={showcaseFallback}
-            remoteStatus={remoteStatus}
-            onBarberPatch={onBarberPatch}
-            onSelectBarber={setSelectedBarber}
-          />
+          <Suspense
+            fallback={
+              <div className="flex min-h-[40vh] items-center justify-center px-4 py-16 text-sm text-teal-200/75">
+                جاري تجهيز النتائج…
+              </div>
+            }
+          >
+            <LandingSearchResults
+              userLocation={userLocation}
+              filters={filters}
+              onFilterChange={setFilters}
+              filteredBarbers={filteredBarbers}
+              mapBarbers={mapBarbers}
+              showcaseActive={showcaseActive}
+              showcaseFallback={showcaseFallback}
+              remoteStatus={remoteStatus}
+              onBarberPatch={onBarberPatch}
+              onSelectBarber={setSelectedBarber}
+            />
+          </Suspense>
           {!isMobile ? (
             <div className="mx-auto max-w-4xl px-5 pb-10">
               <PlatformVoluntaryEngagementStrip variant="compact" />
@@ -1103,25 +1130,27 @@ export default function LandingPreview() {
       ) : null}
 
       {selectedBarber ? (
-        <BarberDetailModal
-          barber={selectedBarber}
-          isOpen
-          onClose={() => setSelectedBarber(null)}
-          onExpandSearchRadius={() => {
-            setFilters((prev) => ({
-              ...prev,
-              maxDistance: Math.min(10, Math.max(prev.maxDistance + 3, 6)),
-              openNow: false,
-            }));
-          }}
-          onRetrySearch={() => {
-            setFilters((prev) => ({
-              ...prev,
-              openNow: false,
-              maxDistance: Math.max(1, Math.min(10, prev.maxDistance || 3)),
-            }));
-          }}
-        />
+        <Suspense fallback={null}>
+          <LandingBarberDetailModal
+            barber={selectedBarber}
+            isOpen
+            onClose={() => setSelectedBarber(null)}
+            onExpandSearchRadius={() => {
+              setFilters((prev) => ({
+                ...prev,
+                maxDistance: Math.min(10, Math.max(prev.maxDistance + 3, 6)),
+                openNow: false,
+              }));
+            }}
+            onRetrySearch={() => {
+              setFilters((prev) => ({
+                ...prev,
+                openNow: false,
+                maxDistance: Math.max(1, Math.min(10, prev.maxDistance || 3)),
+              }));
+            }}
+          />
+        </Suspense>
       ) : null}
 
       {/* ── Stats strip ──────────────────────────────────────────────────── */}

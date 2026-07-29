@@ -5,23 +5,26 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Fragment, lazy, Suspense, type ReactNode } from "react";
+import { Fragment, lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { HashRouter, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import { PlatformAmbientProvider } from "@/context/PlatformAmbientContext";
-import { Layout } from "@/components/Layout";
-/** ???????? PartnerLayout ?????? ????????? ?????????? ??? PartnerDigitalBarberAssistant ??? ???????? ????????? ?????????? ??? ????? ????????? ??????????? ??????????. */
-import { PartnerLayout } from "@/components/PartnerLayout";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { PolicySectionHashRedirect } from "@/components/PolicySectionHashRedirect";
 import { MoyasarPaymentReturnGate } from "@/components/MoyasarPaymentReturnGate";
 import { RouteScopedErrorBoundary } from "@/components/RouteScopedErrorBoundary";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import { LEGACY_PARTNER_ROUTE_PATHS, ROUTE_PATHS } from "@/lib/routePaths";
 import { getAdminPortalBasePath, getAdminPortalBasePaths } from "@/config/adminAuth";
 import { PUBLIC_PULSE_EXPERIENCE_ENABLED } from '@/config/publicPulseExperience';
 import { AdminAuthHashGate, AdminSentinelSecurityGate } from "@/components/AdminAuthHashGate";
+
+/** لا تُحمَّل مع الرئيسية — Layout/PartnerLayout لصفحات المحتوى/الشركاء فقط */
+const Layout = lazy(() =>
+  import("@/components/Layout").then((m) => ({ default: m.Layout })),
+);
+const PartnerLayout = lazy(() =>
+  import("@/components/PartnerLayout").then((m) => ({ default: m.PartnerLayout })),
+);
 
 const LandingPreview = lazy(async () => {
   const mod = await import("@/pages/LandingPreview");
@@ -116,8 +119,70 @@ function LazyRoute({ children, fallback = <RouteBusy /> }: { children: ReactNode
   return <Suspense fallback={fallback}>{children}</Suspense>;
 }
 
+function WithPublicLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<RouteBusy />}>
+      <Layout>{children}</Layout>
+    </Suspense>
+  );
+}
+
+function WithPartnerLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<RouteBusy />}>
+      <PartnerLayout>{children}</PartnerLayout>
+    </Suspense>
+  );
+}
+
+/** رؤى Vercel بعد idle حتى لا تتنافس مع أول رسم للرئيسية */
+function DeferredVercelInsights() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    const enable = () => {
+      if (!cancelled) setReady(true);
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(enable, { timeout: 5000 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(id);
+      };
+    }
+    const t = window.setTimeout(enable, 2800);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, []);
+  if (!ready) return null;
+  return (
+    <Suspense fallback={null}>
+      <LazyVercelInsights />
+    </Suspense>
+  );
+}
+
+const LazyVercelInsights = lazy(async () => {
+  const [{ Analytics }, { SpeedInsights }] = await Promise.all([
+    import('@vercel/analytics/react'),
+    import('@vercel/speed-insights/react'),
+  ]);
+  return {
+    default: function VercelInsightsMount() {
+      return (
+        <>
+          <Analytics />
+          <SpeedInsights />
+        </>
+      );
+    },
+  };
+});
+
 const NotFound = () => (
-  <Layout>
+  <WithPublicLayout>
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-6 px-4">
         <h1 className="text-6xl font-bold text-primary">404</h1>
@@ -131,7 +196,7 @@ const NotFound = () => (
         </Link>
       </div>
     </div>
-  </Layout>
+  </WithPublicLayout>
 );
 
 const LegacyPartnerRedirect = ({ to }: { to: string }) => {
@@ -226,18 +291,18 @@ export function App() {
           <Route path={ROUTE_PATHS.PRIVATE_OFFICE_GUIDE} element={<LazyRoute><PrivateOfficeGuide /></LazyRoute>} />
           <Route
             path={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}
-            element={<Layout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></Layout>}
+            element={<WithPublicLayout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></WithPublicLayout>}
           />
           <Route
             path={`${ROUTE_PATHS.HOSPITALITY_B2B_REQUEST}/`}
-            element={<Layout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></Layout>}
+            element={<WithPublicLayout><LazyRoute><HospitalityB2BRequestLanding /></LazyRoute></WithPublicLayout>}
           />
 
           {/* ?????? ?????? ???????? ??????????? ??? ?????? ?????????? ???????????????????????????????????????????????? */}
           <Route
             path="/archive/home"
             element={
-              <Layout>
+              <WithPublicLayout>
                 <Suspense
                   fallback={
                     <div dir="rtl" className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
@@ -247,10 +312,10 @@ export function App() {
                 >
                   <ArchiveHome />
                 </Suspense>
-              </Layout>
+              </WithPublicLayout>
             }
           />
-          <Route path="/archive/partners" element={<PartnerLayout><LazyRoute><BarberGrowthLanding /></LazyRoute></PartnerLayout>} />
+          <Route path="/archive/partners" element={<WithPartnerLayout><LazyRoute><BarberGrowthLanding /></LazyRoute></WithPartnerLayout>} />
 
           {/* ?????? ????? ???????????? ??? ?????? ???????? ???????????????????????????????????????????????????????????????????????? */}
           <Route path={ROUTE_PATHS.LANDING_PREVIEW} element={<LazyRoute><LandingPreview /></LazyRoute>} />
@@ -262,16 +327,16 @@ export function App() {
           <Route
             path={ROUTE_PATHS.PARTNERS_BANNERS_PREVIEW}
             element={
-              <PartnerLayout>
+              <WithPartnerLayout>
                 <LazyRoute><PartnerBannersPreviewLanding /></LazyRoute>
-              </PartnerLayout>
+              </WithPartnerLayout>
             }
           />
-          <Route path={ROUTE_PATHS.ABOUT} element={<Layout><LazyRoute><About /></LazyRoute></Layout>} />
-          <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<Layout><LazyRoute><TermsOfService /></LazyRoute></Layout>} />
-          <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<Layout><LazyRoute><UserPrivacyPolicy /></LazyRoute></Layout>} />
-          <Route path={ROUTE_PATHS.EPHEMERAL_PROCESSING_GOVERNANCE} element={<Layout><LazyRoute><EphemeralProcessingGovernance /></LazyRoute></Layout>} />
-          <Route path={ROUTE_PATHS.PRIVACY_DETAILED} element={<Layout><LazyRoute><Privacy /></LazyRoute></Layout>} />
+          <Route path={ROUTE_PATHS.ABOUT} element={<WithPublicLayout><LazyRoute><About /></LazyRoute></WithPublicLayout>} />
+          <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<WithPublicLayout><LazyRoute><TermsOfService /></LazyRoute></WithPublicLayout>} />
+          <Route path={ROUTE_PATHS.USER_PRIVACY_POLICY} element={<WithPublicLayout><LazyRoute><UserPrivacyPolicy /></LazyRoute></WithPublicLayout>} />
+          <Route path={ROUTE_PATHS.EPHEMERAL_PROCESSING_GOVERNANCE} element={<WithPublicLayout><LazyRoute><EphemeralProcessingGovernance /></LazyRoute></WithPublicLayout>} />
+          <Route path={ROUTE_PATHS.PRIVACY_DETAILED} element={<WithPublicLayout><LazyRoute><Privacy /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.PRIVACY} element={<Navigate to={ROUTE_PATHS.PRIVACY_DETAILED} replace />} />
 
           {/* ????? ????????? ??? ??????? ????????? */}
@@ -280,37 +345,37 @@ export function App() {
           <Route
             path={ROUTE_PATHS.PARTNER_INTEREST}
             element={
-              <PartnerLayout>
+              <WithPartnerLayout>
                 <LazyRoute><PartnerInterestLanding /></LazyRoute>
-              </PartnerLayout>
+              </WithPartnerLayout>
             }
           />
           <Route
             path={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
             element={
-              <PartnerLayout>
+              <WithPartnerLayout>
                 <LazyRoute><BronzeTrialApplyLanding /></LazyRoute>
-              </PartnerLayout>
+              </WithPartnerLayout>
             }
           />
           <Route
             path={ROUTE_PATHS.BRONZE_TRIAL_CONFIRM}
             element={
-              <PartnerLayout>
+              <WithPartnerLayout>
                 <LazyRoute><BronzeTrialConfirmLanding /></LazyRoute>
-              </PartnerLayout>
+              </WithPartnerLayout>
             }
           />
-          <Route path={ROUTE_PATHS.PARTNER_WHY} element={<PartnerLayout><LazyRoute><PartnerWhyPage /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.PARTNER_STORY} element={<PartnerLayout><LazyRoute><PartnerStoryPage /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.REGISTER} element={<PartnerLayout><LazyRoute><Register /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.REGISTER_GUIDE} element={<PartnerLayout><LazyRoute><PartnerRegistrationGuide /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<PartnerLayout><LazyRoute><RegisterSuccess /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<PartnerLayout><LazyRoute><ShopOpenStatus /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.SHOP_OPEN_ROTATE} element={<PartnerLayout><LazyRoute><ShopOpenStatusRotateRequest /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.SHOP_OPEN_ROTATE_CONFIRM} element={<PartnerLayout><LazyRoute><ShopOpenStatusRotateConfirm /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<PartnerLayout><LazyRoute><PartnerPrivacy /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<PartnerLayout><LazyRoute><SubscriptionPolicy /></LazyRoute></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_WHY} element={<WithPartnerLayout><LazyRoute><PartnerWhyPage /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_STORY} element={<WithPartnerLayout><LazyRoute><PartnerStoryPage /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER} element={<WithPartnerLayout><LazyRoute><Register /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER_GUIDE} element={<WithPartnerLayout><LazyRoute><PartnerRegistrationGuide /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.REGISTER_SUCCESS} element={<WithPartnerLayout><LazyRoute><RegisterSuccess /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.SHOP_OPEN_STATUS} element={<WithPartnerLayout><LazyRoute><ShopOpenStatus /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.SHOP_OPEN_ROTATE} element={<WithPartnerLayout><LazyRoute><ShopOpenStatusRotateRequest /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.SHOP_OPEN_ROTATE_CONFIRM} element={<WithPartnerLayout><LazyRoute><ShopOpenStatusRotateConfirm /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_PRIVACY} element={<WithPartnerLayout><LazyRoute><PartnerPrivacy /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.SUBSCRIPTION_POLICY} element={<WithPartnerLayout><LazyRoute><SubscriptionPolicy /></LazyRoute></WithPartnerLayout>} />
           <Route
             path="/partners/refund-policy"
             element={
@@ -340,10 +405,10 @@ export function App() {
           <Route path="/hospitality-request" element={<Navigate to={ROUTE_PATHS.HOSPITALITY_B2B_REQUEST} replace />} />
           <Route path={ROUTE_PATHS.BARBER_LOGIN} element={<LazyRoute><BarberLogin /></LazyRoute>} />
           <Route path={ROUTE_PATHS.BARBER_PORTAL_ENTER} element={<LazyRoute><BarberPortalEnter /></LazyRoute>} />
-          <Route path={ROUTE_PATHS.PAYMENT} element={<PartnerLayout><LazyRoute><Payment /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<PartnerLayout><LazyRoute><PartnerSubscriptionTutorials /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.MAP_COMMUNITY} element={<PartnerLayout><LazyRoute><MapCommunity /></LazyRoute></PartnerLayout>} />
-          <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<PartnerLayout><LazyRoute><PartnerSupportChat /></LazyRoute></PartnerLayout>} />
+          <Route path={ROUTE_PATHS.PAYMENT} element={<WithPartnerLayout><LazyRoute><Payment /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_TUTORIALS} element={<WithPartnerLayout><LazyRoute><PartnerSubscriptionTutorials /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.MAP_COMMUNITY} element={<WithPartnerLayout><LazyRoute><MapCommunity /></LazyRoute></WithPartnerLayout>} />
+          <Route path={ROUTE_PATHS.PARTNER_SUPPORT} element={<WithPartnerLayout><LazyRoute><PartnerSupportChat /></LazyRoute></WithPartnerLayout>} />
           <Route path={ROUTE_PATHS.PARTNER_SALES_OFFICE} element={<LazyRoute><PartnerSalesOfficePage /></LazyRoute>} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.BARBERS_LANDING} element={<LegacyPartnerRedirect to={ROUTE_PATHS.BARBERS_LANDING} />} />
           <Route path={LEGACY_PARTNER_ROUTE_PATHS.REGISTER} element={<LegacyPartnerRedirect to={ROUTE_PATHS.REGISTER} />} />
@@ -356,9 +421,9 @@ export function App() {
           <Route
             path={ROUTE_PATHS.BARBER_ACCOUNT_DELETE_REQUEST}
             element={
-              <PartnerLayout>
+              <WithPartnerLayout>
                 <LazyRoute><BarberAccountDeletionRequest /></LazyRoute>
-              </PartnerLayout>
+              </WithPartnerLayout>
             }
           />
           {getAdminPortalBasePaths().map((adminBase) => (
@@ -407,8 +472,7 @@ export function App() {
         </AdminAuthHashGate>
         </RouteScopedErrorBoundary>
       </HashRouter>
-      <Analytics />
-      <SpeedInsights />
+      <DeferredVercelInsights />
     </TooltipProvider>
     </PlatformAmbientProvider>
     </QueryClientProvider>

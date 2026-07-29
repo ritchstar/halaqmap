@@ -291,14 +291,7 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
     <link rel="apple-touch-icon" href="/icons/icon-152.png" sizes="152x152" />
     <link rel="canonical" href="https://www.halaqmap.com/" />
-    <!-- LCP: احتياطي بطاقة الحلاق من نفس الأصل (بدل Unsplash) -->
-    <link
-      rel="preload"
-      as="image"
-      href="/images/platform-card-fallback.webp"
-      type="image/webp"
-      fetchpriority="high"
-    />
+    <!-- لا preload لصور البطاقات هنا — الهيرو نص/CSS؛ تحميل الصورة المبكر ينافس JS الحرج ويؤخر FCP/LCP -->
 
     <!-- Open Graph (فيسبوك، واتساب، لينكدإن، …) — og:image يجب أن يكون رابط ملف صورة (PNG/JPG) وليس الصفحة الرئيسية -->
     <meta property="og:title" content="حلاق ماب | منصة ذكية للوصول إلى الحلاق الأنسب" />
@@ -338,19 +331,37 @@
         "description": "منصة رقمية ذكية تساعدك على الوصول إلى الحلاق الأنسب عبر المعالجة والفلترة اللحظية بين استعلام المستخدم وبيانات الحلاقين المتاحة داخل المنصة."
       }
     </script>
-    <!-- Google tag (gtag.js) — Ads أولاً لتسهيل تحقق الإحالات الناجحة + Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18240041811"></script>
+    <!-- Google tag — يُحمَّل بعد أول paint (idle) حتى لا ينافس FCP/LCP -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
-      gtag('js', new Date());
-      gtag('config', 'G-NVQ8BJDN30', { send_page_view: true });
-      gtag('config', 'AW-18240041811', {
-        send_page_view: true,
-        conversion_linker: true,
-      });
+      (function () {
+        function bootGtag() {
+          if (window.__hmGtagBooted) return;
+          window.__hmGtagBooted = true;
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18240041811';
+          document.head.appendChild(s);
+          gtag('js', new Date());
+          gtag('config', 'G-NVQ8BJDN30', { send_page_view: true });
+          gtag('config', 'AW-18240041811', {
+            send_page_view: true,
+            conversion_linker: true,
+          });
+        }
+        function schedule() {
+          if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(bootGtag, { timeout: 4500 });
+          } else {
+            window.setTimeout(bootGtag, 2200);
+          }
+        }
+        if (document.readyState === 'complete') schedule();
+        else window.addEventListener('load', schedule, { once: true });
+      })();
     </script>
   </head>
 

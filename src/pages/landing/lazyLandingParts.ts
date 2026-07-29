@@ -1,5 +1,7 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
+ *
+ * قطع الصفحة الرئيسية غير الحرجة لأول رسم — تُحمَّل بعد الـ hero أو عند الحاجة.
  */
 import { lazy } from 'react';
 
@@ -21,4 +23,8 @@ export const LandingFloatingPlatformActions = lazy(() =>
 
 export const LandingPlatformAmbientBackground = lazy(() =>
   import('@/components/PlatformAmbientBackground').then((m) => ({ default: m.PlatformAmbientBackground })),
+);
+
+export const LandingPulseRadarHero = lazy(() =>
+  import('@/pages/landing/LandingPulseRadarHero').then((m) => ({ default: m.LandingPulseRadarHero })),
 );
