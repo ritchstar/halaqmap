@@ -908,10 +908,10 @@ export default function PartnerMarketingPreview() {
                   {PARTNER_MALL_HERO_LEAD_MOBILE_AR}
                 </p>
                 <p
-                  className="mb-2 text-center text-[0.8rem] font-extrabold tracking-wide text-amber-800"
+                  className="mb-2 text-center text-[1.12rem] font-extrabold tracking-wide text-amber-800"
                   style={{
                     textShadow:
-                      '0 0 10px rgba(251,191,36,0.85), 0 0 22px rgba(245,158,11,0.55), 0 0 36px rgba(251,191,36,0.35)',
+                      '0 0 12px rgba(251,191,36,0.9), 0 0 26px rgba(245,158,11,0.6), 0 0 40px rgba(251,191,36,0.4)',
                   }}
                 >
                   (يقتصر الاشتراك على المنشآت فقط)
@@ -1001,10 +1001,10 @@ export default function PartnerMarketingPreview() {
             className="relative flex flex-col gap-4 overflow-visible"
           >
             <p
-              className="mb-2 text-center text-[0.82rem] font-extrabold tracking-wide text-amber-800 sm:text-[0.9rem]"
+              className="mb-2 text-center text-[1.15rem] font-extrabold tracking-wide text-amber-800 sm:text-[1.26rem]"
               style={{
                 textShadow:
-                  '0 0 10px rgba(251,191,36,0.85), 0 0 22px rgba(245,158,11,0.55), 0 0 36px rgba(251,191,36,0.35)',
+                  '0 0 12px rgba(251,191,36,0.9), 0 0 26px rgba(245,158,11,0.6), 0 0 40px rgba(251,191,36,0.4)',
               }}
             >
               (يقتصر الاشتراك على المنشآت فقط)
