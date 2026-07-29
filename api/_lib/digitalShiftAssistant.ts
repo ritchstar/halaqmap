@@ -45,6 +45,8 @@ export type RecommendationInput = {
   showDiscountBadge?: boolean;
   discountPercent?: number | null;
   galleryItems?: { id: string; createdAt?: string; imageUrl?: string }[];
+  /** قائمة خدمات معتمدة من barber_services — للمناوب فقط */
+  services?: Array<{ name: string; price: number; durationMinutes?: number }>;
 };
 
 export type AiRecommendationRow = {

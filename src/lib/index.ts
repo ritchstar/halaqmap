@@ -280,6 +280,8 @@ export interface SubscriptionRequest {
   /** أسبوع كامل (سبعة أيام) كما أُرسل مع طلب التسجيل */
   weeklyWorkingHours?: { day: string; open: string; close: string }[];
   servicesSummary?: string;
+  /** تفاصيل الخدمات كما أدخلها الشريك عند التسجيل (للمزامنة لاحقاً مع barber_services) */
+  services?: { name: string; price: string }[];
   /** تسهيلات بالمحل و/أو زيارة منزلية للفئات الحسّاسة — اختياري؛ عند التفعيل يلزم سعر معروض */
   inclusiveAccessibleCare?: InclusiveAccessibleCareOffer;
   categories?: string[];

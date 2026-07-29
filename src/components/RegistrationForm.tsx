@@ -955,6 +955,9 @@ export function RegistrationForm() {
         legalDisclaimerAcceptedAtIso: submittedAtIso,
         weeklyWorkingHours: weeklyWorkingHoursPayload,
         servicesSummary: servicesSummary || '—',
+        services: formData.services
+          .filter((s) => s.name.trim())
+          .map((s) => ({ name: s.name.trim(), price: String(s.price ?? '').trim() })),
         ...(inclusiveAccessibleCarePayload
           ? { inclusiveAccessibleCare: inclusiveAccessibleCarePayload }
           : {}),

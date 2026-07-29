@@ -140,7 +140,7 @@ async function repairMissingCertificateForPayment(
   const { data: order, error: orderErr } = await supabase
     .from('listing_license_orders')
     .select(
-      'id, barber_id, registration_request_id, paid_at, product_id, listing_license_products(tier, listing_days_granted)',
+      'id, barber_id, registration_request_id, paid_at, product_id, metadata, listing_license_products(tier, listing_days_granted)',
     )
     .eq('moyasar_payment_id', moyasarPaymentId.trim())
     .maybeSingle();
@@ -201,6 +201,15 @@ async function repairMissingCertificateForPayment(
     validUntil = until.toISOString();
   }
 
+  const orderMeta =
+    order.metadata && typeof order.metadata === 'object' && !Array.isArray(order.metadata)
+      ? (order.metadata as Record<string, unknown>)
+      : null;
+  const addonRaw =
+    orderMeta?.digital_shift_addon ?? orderMeta?.digitalShiftAddon ?? orderMeta?.ai_addon;
+  const digitalShiftAddon =
+    addonRaw === true || addonRaw === 'true' || addonRaw === 1 || addonRaw === '1';
+
   const provision = await activateGeospatialLicense(supabase, {
     orderId: order.id,
     barberId,
@@ -210,6 +219,7 @@ async function repairMissingCertificateForPayment(
     registrationRequestId: order.registration_request_id
       ? String(order.registration_request_id)
       : null,
+    digitalShiftAddon: tier === 'diamond' && digitalShiftAddon,
   });
 
   if (provision.status === 'Failed') {

@@ -6,8 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   BARBER_NAME_LABEL_AR,
-  ISIC_ACTIVITY_CODE,
-  ISIC_ACTIVITY_CODE_LABEL_AR,
   PLATFORM_NAME_AR,
   PLATFORM_NAME_EN,
   UNIFIED_DIGITAL_LICENSE_LABEL_AR,
@@ -18,6 +16,8 @@ import { cn } from '@/lib/utils';
 
 type Props = {
   barberName?: string;
+  /** وصف الباقة المعروضة (مثلاً الماسية + إضافة المكتب الخاص) */
+  packageLabelAr?: string;
   certificate: DigitalActivationCertificateView | null;
   loading?: boolean;
   /** فشل الإصدار بعد انتهاء المحاولات */
@@ -34,6 +34,14 @@ function resolveBarberDisplayName(
   const fromSnap = snap?.businessName;
   if (typeof fromSnap === 'string' && fromSnap.trim()) return fromSnap.trim();
   return '—';
+}
+
+function resolvePackageLabel(
+  explicit: string | undefined,
+  certificate: DigitalActivationCertificateView | null,
+): string {
+  if (explicit?.trim()) return explicit.trim();
+  return certificate?.tierLabelAr?.trim() || '—';
 }
 
 function IdentityField({
@@ -70,10 +78,17 @@ function IdentityField({
   );
 }
 
-export function PaymentSuccessPanel({ barberName, certificate, loading, failed, className }: Props) {
+export function PaymentSuccessPanel({
+  barberName,
+  packageLabelAr,
+  certificate,
+  loading,
+  failed,
+  className,
+}: Props) {
   const displayBarber = resolveBarberDisplayName(barberName, certificate);
+  const displayPackage = resolvePackageLabel(packageLabelAr, certificate);
   const licenseNumber = certificate?.certificateNumber ?? null;
-  const isicCode = certificate?.isicCode ?? ISIC_ACTIVITY_CODE;
   const licensePending = Boolean(loading) && !licenseNumber;
 
   return (
@@ -82,7 +97,7 @@ export function PaymentSuccessPanel({ barberName, certificate, loading, failed, 
         <CardHeader className="space-y-3 border-b border-white/10 pb-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold text-emerald-200/90">تم الدفع بنجاح</p>
+              <p className="text-xs font-semibold text-emerald-200/90">تم الدفع بنجاح — الحزمة أُضيفت لحسابك</p>
               <CardTitle className="mt-1 text-2xl font-extrabold text-white">{PLATFORM_NAME_AR}</CardTitle>
               <p className="text-sm text-slate-400 dir-ltr text-left" dir="ltr">
                 {PLATFORM_NAME_EN}
@@ -102,18 +117,22 @@ export function PaymentSuccessPanel({ barberName, certificate, loading, failed, 
               mono
               pending={licensePending}
             />
-            <IdentityField
-              label={ISIC_ACTIVITY_CODE_LABEL_AR}
-              value={isicCode}
-              mono
-            />
+            <IdentityField label="الباقة البرمجية" value={displayPackage} />
           </div>
           <IdentityField label={BARBER_NAME_LABEL_AR} value={displayBarber} />
+          <p className="text-[11px] leading-relaxed text-slate-400">
+            احفظ رقم الرخصة أعلاه. يمكنك فتح لوحة التحكم من بريد التفعيل أو من رابط الدخول المرسل لصالونك.
+          </p>
         </CardContent>
       </Card>
 
       {certificate ? (
-        <DigitalActivationCertificateCard certificate={certificate} compact barberName={displayBarber} />
+        <DigitalActivationCertificateCard
+          certificate={certificate}
+          compact
+          barberName={displayBarber}
+          packageLabelAr={displayPackage}
+        />
       ) : null}
     </div>
   );

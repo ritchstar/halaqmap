@@ -22,6 +22,7 @@ import {
   Plus,
   Edit,
   Trash2,
+  Scissors,
   Moon,
   Building2,
   Send,
@@ -112,6 +113,7 @@ import { MENS_GROOMING_CENTER_DASHBOARD_TAB_AR } from '@/config/mensGroomingCent
 import { ChildrenServicesPartnerSettingsCard } from '@/components/barber/ChildrenServicesPartnerSettingsCard';
 import { ChildrenSpecialistDashboardPanel } from '@/components/barber/ChildrenSpecialistDashboardPanel';
 import { MensGroomingCenterDashboardPanel } from '@/components/barber/MensGroomingCenterDashboardPanel';
+import { BarberServicesPartnerSettingsCard } from '@/components/barber/BarberServicesPartnerSettingsCard';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
@@ -406,6 +408,7 @@ export default function BarberDashboard({
         showMessages: true,
         showPosts: true,
         showSettings: true,
+        showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: false,
         isGoldLite: false,
@@ -420,6 +423,7 @@ export default function BarberDashboard({
         showMessages: true,
         showPosts: true,
         showSettings: true,
+        showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: false,
         isGoldLite: false,
@@ -434,6 +438,7 @@ export default function BarberDashboard({
         showMessages: false,
         showPosts: false,
         showSettings: false,
+        showServicesMenu: false,
         showQrRatings: false,
         showDigitalShift: false,
         isGoldLite: false,
@@ -448,6 +453,7 @@ export default function BarberDashboard({
         showMessages: true,
         showPosts: true,
         showSettings: true,
+        showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: true,
         isGoldLite: false,
@@ -462,6 +468,7 @@ export default function BarberDashboard({
         showMessages: true,
         showPosts: true,
         showSettings: false,
+        showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: true,
         isGoldLite: true,
@@ -475,6 +482,7 @@ export default function BarberDashboard({
       showMessages: false,
       showPosts: false,
       showSettings: false,
+      showServicesMenu: false,
       showQrRatings: false,
       showDigitalShift: false,
       isGoldLite: false,
@@ -511,7 +519,14 @@ export default function BarberDashboard({
 
   useEffect(() => {
     if (!barberData || barberData.subscription !== SubscriptionTier.GOLD) return;
-    const allowed = new Set(['messages', 'qr-ratings', 'social-share', 'posts', 'digital-shift']);
+    const allowed = new Set([
+      'messages',
+      'qr-ratings',
+      'social-share',
+      'posts',
+      'digital-shift',
+      'services-menu',
+    ]);
     if (!allowed.has(activeTab)) {
       setActiveTab('messages');
     }
@@ -1261,6 +1276,18 @@ export default function BarberDashboard({
                 ) : null}
               </TabsTrigger>
             ) : null}
+            {tierTabs.showServicesMenu ? (
+              <TabsTrigger
+                value="services-menu"
+                className={cn(
+                  DASHBOARD_VITAL_TAB_TRIGGER,
+                  'data-[state=active]:border-primary data-[state=active]:bg-primary/12',
+                )}
+              >
+                <Scissors className="h-5 w-5 shrink-0" />
+                <span>قائمة أسعاري</span>
+              </TabsTrigger>
+            ) : null}
             {tierTabs.showSettings ? (
               <TabsTrigger value="settings" className={DASHBOARD_VITAL_TAB_TRIGGER}>
                 <Settings className="h-5 w-5 shrink-0" />
@@ -1487,6 +1514,23 @@ export default function BarberDashboard({
           </TabsContent>
           ) : null}
 
+          {tierTabs.showServicesMenu && barberData ? (
+          <TabsContent value="services-menu" className="space-y-6">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <h2 className="mb-2 text-xl font-bold sm:text-2xl">قائمة أسعاري التفصيلية</h2>
+              <p className="mb-6 max-w-2xl text-sm text-muted-foreground leading-relaxed">
+                أضف أو عدّل أو احذف خدماتك الخاصة بأسمائها وأسعارها (قص شعر، صبغة، حلاقة بالخيط، قصة باسمك…). هذه
+                القائمة الفرعية ملكك — وليست مفاتيح الخدمات الأساسية في تبويب الإعدادات.
+              </p>
+              <BarberServicesPartnerSettingsCard
+                barberId={barberData.id}
+                barberData={barberData}
+                embeddedInTab
+              />
+            </motion.div>
+          </TabsContent>
+          ) : null}
+
           {tierTabs.showSettings ? (
           <TabsContent value="settings" className="space-y-6">
             <SettingsSection
@@ -1497,6 +1541,9 @@ export default function BarberDashboard({
               onBannerChange={persistBanner}
               onRefreshPortalSession={syncPortalSessionFromServer}
               hideGroomPrep={childrenSpecialistActive}
+              onOpenServicesMenu={
+                tierTabs.showServicesMenu ? () => setActiveTab('services-menu') : undefined
+              }
             />
           </TabsContent>
           ) : null}
@@ -1538,6 +1585,12 @@ export default function BarberDashboard({
                     <span className="absolute -left-0.5 -top-0.5 h-2 w-2 rounded-full bg-fuchsia-400" aria-hidden />
                   ) : null}
                 </BarberDashboardOutboundLink>
+              </Button>
+            ) : null}
+            {tierTabs.showServicesMenu ? (
+              <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => setActiveTab('services-menu')}>
+                <Scissors className="h-4 w-4" />
+                قائمة أسعاري
               </Button>
             ) : null}
             {tierTabs.showPosts ? (
@@ -3404,6 +3457,7 @@ function SettingsSection({
   onBannerChange,
   onRefreshPortalSession,
   hideGroomPrep = false,
+  onOpenServicesMenu,
 }: {
   barberId: string;
   barberData: BarberPortalSession;
@@ -3412,6 +3466,7 @@ function SettingsSection({
   onBannerChange: (s: BarberPlatformBannerState) => void;
   onRefreshPortalSession: () => Promise<void>;
   hideGroomPrep?: boolean;
+  onOpenServicesMenu?: () => void;
 }) {
   const storageKey = `halaqmap_barber_dashboard_hours_${barberId}`;
 
@@ -3461,6 +3516,30 @@ function SettingsSection({
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <h2 className="mb-4 text-xl font-bold sm:mb-6 sm:text-2xl">الإعدادات</h2>
+
+      {onOpenServicesMenu ? (
+        <Card className="mb-6 border-primary/40 bg-gradient-to-br from-primary/[0.07] to-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Scissors className="h-5 w-5 text-primary" />
+              قائمة أسعارك التفصيلية
+            </CardTitle>
+            <CardDescription className="leading-relaxed">
+              لإضافة أو تعديل بنودك الخاصة (قص شعر، حلاقة ذقن، صبغة، قصة باسمك، حلاقة بالخيط…) مع أسعارها — افتح تبويب
+              «قائمة أسعاري». ما يظهر أدناه (زيارة منزلية / تجهيز عريس / كبار السن) هي خدمات أساسية للمنصة فقط، وليست
+              قائمة أسعارك.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button type="button" onClick={onOpenServicesMenu} className="gap-1.5">
+              <Scissors className="h-4 w-4" />
+              فتح قائمة أسعاري
+            </Button>
+          </CardContent>
+        </Card>
+      ) : showWeeklyEditor ? (
+        <BarberServicesPartnerSettingsCard barberId={barberId} barberData={barberData} />
+      ) : null}
 
       <Card className="mb-6 border-primary/20">
         <CardHeader>

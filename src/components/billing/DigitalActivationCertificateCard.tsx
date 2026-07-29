@@ -6,19 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import {
   BARBER_NAME_LABEL_AR,
-  ISIC_ACTIVITY_CODE,
-  ISIC_ACTIVITY_CODE_LABEL_AR,
-  MAP_INTEGRATION_PROTOCOL,
   PLATFORM_NAME_AR,
   SOFTWARE_LICENSE_MANAGER_LABEL_AR,
   type DigitalActivationCertificateView,
 } from '@/config/geospatialLicenseDoctrine';
-import { INVOICE_PRODUCT_DESCRIPTION_EN } from '@/config/softwareLicenseTerminology';
 import { cn } from '@/lib/utils';
 
 type Props = {
   certificate: DigitalActivationCertificateView;
   barberName?: string;
+  packageLabelAr?: string;
   className?: string;
   compact?: boolean;
 };
@@ -41,9 +38,16 @@ function resolveBarberName(explicit: string | undefined, certificate: DigitalAct
   return '—';
 }
 
-export function DigitalActivationCertificateCard({ certificate, barberName, className, compact }: Props) {
+export function DigitalActivationCertificateCard({
+  certificate,
+  barberName,
+  packageLabelAr,
+  className,
+  compact,
+}: Props) {
   const mapLive = certificate.mapIntegrationStatus === 'map_live';
   const displayBarber = resolveBarberName(barberName, certificate);
+  const displayPackage = packageLabelAr?.trim() || certificate.tierLabelAr?.trim() || '—';
 
   return (
     <Card
@@ -57,48 +61,39 @@ export function DigitalActivationCertificateCard({ certificate, barberName, clas
         <div className="flex flex-wrap items-center gap-2">
           <Badge className="border-cyan-300/45 bg-cyan-500/18 text-cyan-50">
             <Shield className="ml-1 h-3 w-3" />
-            Digital Activation Certificate
-          </Badge>
-          <Badge variant="outline" className="border-emerald-300/45 text-emerald-100">
-            {ISIC_ACTIVITY_CODE_LABEL_AR}: {certificate.isicCode || ISIC_ACTIVITY_CODE}
+            شهادة تفعيل رقمية
           </Badge>
         </div>
         <CardTitle className={cn('text-xl font-extrabold text-white', compact && 'text-lg')}>
           شهادة تفعيل رقمية معتمدة — {PLATFORM_NAME_AR}
         </CardTitle>
         <CardDescription className="text-slate-200/85">
-          {SOFTWARE_LICENSE_MANAGER_LABEL_AR} — وثيقة رسمية تُثبت ملكيتك لمنتجنا الرقمي
+          {SOFTWARE_LICENSE_MANAGER_LABEL_AR} — وثيقة تُثبت شراء رخصة النفاذ الرقمية لهذا الصالون
         </CardDescription>
       </CardHeader>
       <CardContent className={cn('space-y-4', compact && 'pt-0')}>
         <div className="grid gap-3 sm:grid-cols-2">
-        <div className="relative overflow-hidden rounded-2xl border border-amber-300/65 bg-[linear-gradient(180deg,rgba(55,33,2,0.96)_0%,rgba(22,16,5,0.98)_50%,rgba(5,10,16,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(253,230,138,0.22),0_0_38px_rgba(245,158,11,0.18)] sm:col-span-2">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-amber-200/10 to-transparent" />
-          <div className="relative text-center sm:text-right">
-            <p className="text-[10px] font-bold tracking-wide text-amber-100">
-              كود التفعيل — مفتاح رخصة النفاذ الرقمي
-            </p>
-            <p
-              className="mt-2 font-mono text-xl font-black tracking-[0.1em] text-transparent sm:text-2xl"
-              dir="ltr"
-              style={{
-                backgroundImage: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-              }}
-            >
-              {certificate.certificateNumber}
-            </p>
-            <p className="mt-2 text-[11px] leading-relaxed text-amber-100/80">
-              احفظ هذا الرمز — مرجعك للتحقق، الدعم، وربط لوحة التحكم
-            </p>
-          </div>
-        </div>
-          <div className="rounded-lg border border-white/14 bg-white/[0.08] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <p className="text-[10px] text-slate-300">{ISIC_ACTIVITY_CODE_LABEL_AR}</p>
-            <p className="mt-1 font-mono text-sm font-bold text-emerald-200" dir="ltr">
-              {certificate.isicCode || ISIC_ACTIVITY_CODE}
-            </p>
+          <div className="relative overflow-hidden rounded-2xl border border-amber-300/65 bg-[linear-gradient(180deg,rgba(55,33,2,0.96)_0%,rgba(22,16,5,0.98)_50%,rgba(5,10,16,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(253,230,138,0.22),0_0_38px_rgba(245,158,11,0.18)] sm:col-span-2">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-amber-200/10 to-transparent" />
+            <div className="relative text-center sm:text-right">
+              <p className="text-[10px] font-bold tracking-wide text-amber-100">
+                كود التفعيل — مفتاح رخصة النفاذ الرقمي
+              </p>
+              <p
+                className="mt-2 font-mono text-xl font-black tracking-[0.1em] text-transparent sm:text-2xl"
+                dir="ltr"
+                style={{
+                  backgroundImage: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                }}
+              >
+                {certificate.certificateNumber}
+              </p>
+              <p className="mt-2 text-[11px] leading-relaxed text-amber-100/80">
+                احفظ هذا الرمز — مرجعك للدعم وربط لوحة التحكم
+              </p>
+            </div>
           </div>
           <div className="rounded-lg border border-white/14 bg-white/[0.08] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
             <p className="text-[10px] text-slate-300">{BARBER_NAME_LABEL_AR}</p>
@@ -107,17 +102,15 @@ export function DigitalActivationCertificateCard({ certificate, barberName, clas
               {displayBarber}
             </p>
           </div>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-lg border border-white/14 bg-white/[0.08] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
             <p className="text-[10px] text-slate-300">الباقة البرمجية</p>
-            <p className="mt-1 text-sm font-bold">{certificate.tierLabelAr}</p>
+            <p className="mt-1 text-sm font-bold">{displayPackage}</p>
           </div>
-          <div className="rounded-lg border border-white/14 bg-white/[0.08] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <p className="text-[10px] text-slate-300">صالحة حتى</p>
-            <p className="mt-1 text-sm font-bold">{formatDate(certificate.validUntil)}</p>
-          </div>
+        </div>
+
+        <div className="rounded-lg border border-white/14 bg-white/[0.08] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+          <p className="text-[10px] text-slate-300">صالحة حتى</p>
+          <p className="mt-1 text-sm font-bold">{formatDate(certificate.validUntil)}</p>
         </div>
 
         <div
@@ -137,11 +130,13 @@ export function DigitalActivationCertificateCard({ certificate, barberName, clas
             <div className="space-y-1">
               <p className="text-sm font-semibold">
                 {mapLive
-                  ? 'بروتوكول الربط الآلي — الإدراج الجغرافي نشط على الخريطة'
-                  : 'بروتوكول الربط الآلي — بانتظار ربط الإحداثيات الجغرافية'}
+                  ? 'الظهور على الخريطة نشط'
+                  : 'بانتظار اكتمال ربط موقع الصالون على الخريطة'}
               </p>
               <p className="text-[11px] text-slate-300">
-                {MAP_INTEGRATION_PROTOCOL} · API-Driven Integration
+                {mapLive
+                  ? 'صالونك ظاهر ضمن نظام الاستجابة الذكية حسب أيام الرخصة المتبقية.'
+                  : 'إن كان موقعك مسجّلاً مسبقاً سيكتمل الربط تلقائياً — وإلا راجع بيانات العنوان في لوحة التحكم أو مع الدعم.'}
               </p>
             </div>
           </div>
@@ -151,9 +146,6 @@ export function DigitalActivationCertificateCard({ certificate, barberName, clas
           <BadgeCheck className="h-3.5 w-3.5 text-cyan-300" />
           <span>صدرت: {formatDate(certificate.issuedAt)}</span>
         </div>
-        <p className="text-[10px] text-slate-400 dir-ltr text-left" dir="ltr">
-          {INVOICE_PRODUCT_DESCRIPTION_EN}
-        </p>
       </CardContent>
     </Card>
   );

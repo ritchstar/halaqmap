@@ -18,9 +18,11 @@ import {
   invoiceLineDescriptionAr,
   invoiceLineDescriptionEn,
 } from './softwareLicenseTerminology.js';
+import { DIAMOND_PRODUCT_SMART_LABEL_AR } from './subscriptionPricingCopy.js';
 
-function tierLabelAr(tier: ListingLicenseTier | string): string {
-  const t = tier.toLowerCase();
+function tierLabelAr(tier: ListingLicenseTier | string, digitalShiftAddon?: boolean): string {
+  const t = String(tier ?? '').toLowerCase();
+  if (t === 'diamond' && digitalShiftAddon) return DIAMOND_PRODUCT_SMART_LABEL_AR;
   if (t === 'gold') return 'ذهبي';
   if (t === 'diamond') return 'ماسي';
   return 'برونزي';
@@ -33,6 +35,8 @@ export type ProvisionGeospatialAssetInput = {
   tier: ListingLicenseTier;
   validUntil: string;
   registrationRequestId?: string | null;
+  /** إضافة المكتب الخاص / المناوب — تُظهر على الشهادة كـ «ماسي + مكتب خاص» */
+  digitalShiftAddon?: boolean;
 };
 
 export type ProvisionGeospatialAssetResult =
@@ -152,20 +156,20 @@ async function loadGeoSnapshot(
   if (barberId) {
     const { data } = await supabase
       .from('barbers')
-      .select('latitude, longitude, business_name, region_id, city_id, district_id')
+      .select('latitude, longitude, name, address, city')
       .eq('id', barberId)
       .maybeSingle();
     if (data) {
       const lat = parseCoord(data.latitude);
       const lng = parseCoord(data.longitude);
+      const businessName = String((data as { name?: unknown }).name ?? '').trim() || null;
       barberGeo = {
         latitude: lat,
         longitude: lng,
         snapshot: {
-          businessName: data.business_name ?? null,
-          regionId: data.region_id ?? null,
-          cityId: data.city_id ?? null,
-          districtId: data.district_id ?? null,
+          businessName,
+          address: String((data as { address?: unknown }).address ?? '').trim() || null,
+          city: String((data as { city?: unknown }).city ?? '').trim() || null,
           source: 'barber_record',
         },
       };
@@ -232,13 +236,100 @@ async function loadGeoSnapshot(
     if (!barberGeo) return regGeo;
   }
 
-  return (
-    barberGeo ?? {
-      latitude: null,
-      longitude: null,
-      snapshot: { source: 'unbound' },
+  if (barberGeo) return barberGeo;
+
+  return {
+    latitude: null,
+    longitude: null,
+    snapshot: { source: 'unbound' },
+  };
+}
+
+async function loadBarberDisplayName(
+  supabase: SupabaseClient,
+  barberId: string | null | undefined,
+): Promise<string | null> {
+  const id = String(barberId ?? '').trim();
+  if (!id) return null;
+  const { data } = await supabase.from('barbers').select('name').eq('id', id).maybeSingle();
+  const name = String((data as { name?: unknown } | null)?.name ?? '').trim();
+  return name || null;
+}
+
+async function orderHasDigitalShiftAddon(
+  supabase: SupabaseClient,
+  orderId: string | null | undefined,
+): Promise<boolean> {
+  const id = String(orderId ?? '').trim();
+  if (!id) return false;
+  const { data } = await supabase
+    .from('listing_license_orders')
+    .select('metadata')
+    .eq('id', id)
+    .maybeSingle();
+  const meta =
+    data?.metadata && typeof data.metadata === 'object' && !Array.isArray(data.metadata)
+      ? (data.metadata as Record<string, unknown>)
+      : null;
+  if (!meta) return false;
+  const raw = meta.digital_shift_addon ?? meta.digitalShiftAddon ?? meta.ai_addon;
+  return raw === true || raw === 'true' || raw === 1 || raw === '1';
+}
+
+async function barberHasDigitalShiftEnabled(
+  supabase: SupabaseClient,
+  barberId: string | null | undefined,
+): Promise<boolean> {
+  const id = String(barberId ?? '').trim();
+  if (!id) return false;
+  const { data } = await supabase
+    .from('barber_digital_shift_config')
+    .select('enabled')
+    .eq('barber_id', id)
+    .maybeSingle();
+  return (data as { enabled?: boolean | null } | null)?.enabled === true;
+}
+
+/** يملأ اسم الصالون ووصف الباقة (ماسي + مكتب خاص) إن نقصت في الشهادة المخزّنة. */
+async function enrichCertificatePayload(
+  supabase: SupabaseClient,
+  input: {
+    payload: DigitalActivationCertificatePayload;
+    barberId?: string | null;
+    orderId?: string | null;
+    digitalShiftAddon?: boolean;
+  },
+): Promise<{ certificate: DigitalActivationCertificatePayload; changed: boolean }> {
+  const payload = { ...input.payload };
+  let changed = false;
+
+  const snap =
+    payload.geoSnapshot && typeof payload.geoSnapshot === 'object' && !Array.isArray(payload.geoSnapshot)
+      ? { ...payload.geoSnapshot }
+      : {};
+  const existingName = String(snap.businessName ?? '').trim();
+  if (!existingName) {
+    const name = await loadBarberDisplayName(supabase, input.barberId);
+    if (name) {
+      snap.businessName = name;
+      if (!snap.source || snap.source === 'unbound') snap.source = 'barber_record';
+      payload.geoSnapshot = snap;
+      changed = true;
     }
-  );
+  }
+
+  const wantsAddon =
+    input.digitalShiftAddon === true ||
+    (await orderHasDigitalShiftAddon(supabase, input.orderId)) ||
+    (String(payload.tier).toLowerCase() === 'diamond' &&
+      (await barberHasDigitalShiftEnabled(supabase, input.barberId)));
+  const nextLabel = tierLabelAr(payload.tier, wantsAddon);
+  if (nextLabel && payload.tierLabelAr !== nextLabel) {
+    payload.tierLabelAr = nextLabel;
+    changed = true;
+  }
+
+  return { certificate: payload, changed };
 }
 
 function resolveMapStatuses(input: {
@@ -307,7 +398,7 @@ export async function provisionGeospatialLicenseAsset(
       isicCode: ISIC_ACTIVITY_CODE,
       productClass: GEOSPATIAL_LICENSE_ASSET_CLASS,
       tier: input.tier,
-      tierLabelAr: tierLabelAr(input.tier),
+      tierLabelAr: tierLabelAr(input.tier, input.digitalShiftAddon),
       issuedAt: now,
       validUntil: input.validUntil,
       mapIntegrationStatus: map.mapStatus,
@@ -316,7 +407,7 @@ export async function provisionGeospatialLicenseAsset(
       geoSnapshot: geo.snapshot,
       verifyPath: `/api/digital-activation-certificate?token=${publicToken}`,
       invoiceProductEn: invoiceLineDescriptionEn('Tier ' + input.tier),
-      invoiceProductAr: invoiceLineDescriptionAr(tierLabelAr(input.tier)),
+      invoiceProductAr: invoiceLineDescriptionAr(tierLabelAr(input.tier, input.digitalShiftAddon)),
       activationStatus:
         map.mapStatus === 'map_live' ? ACTIVATION_STATUS_TECHNICAL_LINK : 'Pending Geospatial Bind',
     };
@@ -395,7 +486,7 @@ export async function provisionGeospatialLicenseAsset(
     isicCode: ISIC_ACTIVITY_CODE,
     productClass: GEOSPATIAL_LICENSE_ASSET_CLASS,
     tier: input.tier,
-    tierLabelAr: tierLabelAr(input.tier),
+    tierLabelAr: tierLabelAr(input.tier, input.digitalShiftAddon),
     issuedAt: now,
     validUntil: input.validUntil,
     mapIntegrationStatus: map.mapStatus,
@@ -404,7 +495,7 @@ export async function provisionGeospatialLicenseAsset(
     geoSnapshot: geo.snapshot,
     verifyPath: `/api/digital-activation-certificate?token=${publicToken}`,
     invoiceProductEn: invoiceLineDescriptionEn('Tier ' + input.tier),
-    invoiceProductAr: invoiceLineDescriptionAr(tierLabelAr(input.tier)),
+    invoiceProductAr: invoiceLineDescriptionAr(tierLabelAr(input.tier, input.digitalShiftAddon)),
     activationStatus:
       map.mapStatus === 'map_live' ? ACTIVATION_STATUS_TECHNICAL_LINK : 'Pending Geospatial Bind',
   };
@@ -716,13 +807,24 @@ export async function fetchCertificateByOrderId(
 > {
   const { data, error } = await supabase
     .from('digital_activation_certificates')
-    .select('id, certificate_payload, revoked_at')
+    .select('id, certificate_payload, revoked_at, barber_id, order_id')
     .eq('order_id', orderId)
     .maybeSingle();
   if (error || !data?.id) return { ok: false, error: error?.message || 'certificate_not_found' };
   if (data.revoked_at) return { ok: false, error: 'certificate_revoked' };
   const payload = data.certificate_payload as DigitalActivationCertificatePayload;
-  return { ok: true, certificateId: data.id, certificate: payload };
+  const enriched = await enrichCertificatePayload(supabase, {
+    payload,
+    barberId: data.barber_id ? String(data.barber_id) : null,
+    orderId: data.order_id ? String(data.order_id) : orderId,
+  });
+  if (enriched.changed) {
+    await supabase
+      .from('digital_activation_certificates')
+      .update({ certificate_payload: enriched.certificate })
+      .eq('id', data.id);
+  }
+  return { ok: true, certificateId: data.id, certificate: enriched.certificate };
 }
 
 export async function fetchCertificateByMoyasarPaymentId(

@@ -34,9 +34,9 @@ export const DIGITAL_SHIFT_PRICING_ADDON_LABEL_AR =
   'إضافة برمجية متقدمة: المناوب الرقمي الذكي (+25 ر.س/حزمة نفاذ)';
 
 export const DIAMOND_PRODUCT_STANDARD_LABEL_AR = 'الماسية القياسية — رخصة نفاذ';
-export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المناوب (Add-on)';
+export const DIAMOND_PRODUCT_SMART_LABEL_AR = 'الماسية + إضافة المكتب الخاص';
 
-export const DIGITAL_SHIFT_PRODUCT_NAME_AR = 'المناوب الرقمي الذكي 🌙';
+export const DIGITAL_SHIFT_PRODUCT_NAME_AR = 'إضافة المكتب الخاص';
 
 export const DIGITAL_SHIFT_ONBOARDING_ACTIVATED_AR =
   'تم تفعيل إضافة «المناوب الرقمي الذكي» — إضافة برمجية متقدمة (Software Add-on) على رخصة النفاذ الماسية.';

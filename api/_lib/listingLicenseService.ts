@@ -587,6 +587,8 @@ export async function fulfillListingLicenseOrder(
     tier: product.tier,
     validUntil: (lastValidUntil || firstIssued.validUntil) ?? '',
     registrationRequestId: input.registrationRequestId ?? null,
+    digitalShiftAddon:
+      product.tier === 'diamond' && isDigitalShiftAddonInMetadata(input.metadata),
   });
 
   return {

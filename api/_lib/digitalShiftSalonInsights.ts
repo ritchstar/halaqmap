@@ -17,6 +17,7 @@ import {
   type DigitalShiftContext,
   type RecommendationInput,
 } from './digitalShiftAssistant.js';
+import { loadActiveServicesForPrompt } from './barberServicesCatalog.js';
 
 export type SalonInsightsOptions = {
   /** تشغيل Vision (مع cache 24h) — مكلف؛ يُستخدم عند refresh أو سؤال عن البنر */
@@ -152,6 +153,22 @@ export function formatCustomerSalonContextForPrompt(
     lines.push(`- معرض أعمال: ${gallery.length} صورة — يمكن الإشارة لجودة الأعمال دون وعود`);
   }
 
+  const services = input.services ?? [];
+  if (services.length > 0) {
+    lines.push('- قائمة الخدمات المعتمدة (أجب بها عند السؤال عن الخدمات/الأسعار):');
+    for (const s of services.slice(0, 40)) {
+      const price =
+        Number.isFinite(s.price) && s.price > 0 ? `${s.price} ر.س` : 'السعر عند الاستفسار';
+      lines.push(`  • ${s.name} — ${price}`);
+    }
+    lines.push('- لا تعد بخدمة غير موجودة في القائمة أعلاه');
+    lines.push('- إن سأل العميل عن خدمة غير مدرجة: قل بلطف إنها غير مدرجة حالياً واقترح التواصل مع الصالون للتأكيد');
+  } else {
+    lines.push(
+      '- لا توجد قائمة خدمات معتمدة في النظام بعد — لا تنفِ ولا تؤكد توفر خدمة محددة بالاسم؛ وجّه العميل للاستفسار مباشرة من الصالون',
+    );
+  }
+
   lines.push('- لا تذكر للعميل: رصيد المحفظة، أيام الحزمة، روابط معطّلة، أو تفاصيل فنية داخلية');
 
   return lines.join('\n');
@@ -185,6 +202,23 @@ export function parseRecommendationInputFromBody(body: Record<string, unknown>):
       createdAt: g.createdAt ? String(g.createdAt) : undefined,
       imageUrl: g.imageUrl ? String(g.imageUrl) : undefined,
     }));
+  }
+
+  if (Array.isArray(body.services)) {
+    input.services = (body.services as Array<{ name?: unknown; price?: unknown; durationMinutes?: unknown }>)
+      .map((s) => {
+        const name = String(s?.name ?? '').trim();
+        const price = Number(s?.price);
+        if (!name || !Number.isFinite(price)) return null;
+        const durationMinutes = Number(s?.durationMinutes);
+        return {
+          name,
+          price,
+          ...(Number.isFinite(durationMinutes) ? { durationMinutes: Math.floor(durationMinutes) } : {}),
+        };
+      })
+      .filter((s): s is { name: string; price: number; durationMinutes?: number } => Boolean(s))
+      .slice(0, 40);
   }
 
   return input;
@@ -226,6 +260,20 @@ export async function resolveRecommendationInput(
     galleryItems = await loadGalleryItemsFromDb(supabase, barberId);
   }
 
+  let services = fromBody.services;
+  if (!services) {
+    try {
+      const rows = await loadActiveServicesForPrompt(supabase, barberId);
+      services = rows.map((r) => ({
+        name: r.name,
+        price: r.price,
+        durationMinutes: r.durationMinutes,
+      }));
+    } catch {
+      services = [];
+    }
+  }
+
   return {
     bannerImageUrls:
       fromBody.bannerImageUrls ??
@@ -239,6 +287,7 @@ export async function resolveRecommendationInput(
         ? fromBody.discountPercent
         : (bannerSnap?.discountPercent ?? null),
     galleryItems,
+    services,
   };
 }
 

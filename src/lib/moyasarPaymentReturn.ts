@@ -275,8 +275,18 @@ export function moyasarReturnNeedsHydration(searchParams: URLSearchParams): bool
   const paymentId = searchParams.get('id')?.trim();
   if (!paymentId) return false;
   if ((searchParams.get('gateway') ?? '').trim().toLowerCase() === 'sab') return false;
-  if (searchParams.get('tier')) return false;
-  return readMoyasarPaymentContext() != null;
+  const ctx = readMoyasarPaymentContext();
+  if (!ctx) return false;
+  // لا تكتفِ بوجود tier — أعد دمج requestId/barberName/aiAddon إن فُقدت من رابط العودة
+  if (!searchParams.get('tier') && ctx.tier) return true;
+  if (!searchParams.get('qty') && ctx.qty) return true;
+  if (!searchParams.get('requestId') && ctx.requestId) return true;
+  if (!searchParams.get('linkedBarberId') && ctx.linkedBarberId) return true;
+  if (!searchParams.get('aiAddon') && ctx.aiAddon) return true;
+  if (!searchParams.get('barberName') && ctx.barberName) return true;
+  if (!searchParams.get('purpose') && ctx.purpose) return true;
+  if (!searchParams.get('walletSku') && ctx.walletSku) return true;
+  return false;
 }
 
 /** عودة فاشلة من ميسر عبر callback_url: ?status=failed&message=… */

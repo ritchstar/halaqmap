@@ -97,6 +97,7 @@ import {
   readMoyasarPaidReceipt,
 } from '@/lib/moyasarPaymentReturn';
 import { healIfStaleBuild, healIfStaleBuildFromServer } from '@/lib/platformBuildSync';
+import { readBarberAuthSession } from '@/lib/barberPortalSession';
 import { toast } from 'sonner';
 import { redeemBronzeTrialRemote, bronzeTrialErrorMessageAr } from '@/lib/bronzeTrialRedeemRemote';
 import { Input } from '@/components/ui/input';
@@ -138,7 +139,16 @@ export default function Payment() {
   const requestId = useMemo(() => requestIdParam.trim(), [requestIdParam]);
   /** يُمرَّر في metadata.linked_barber_id بعد اعتماد الإدارة أو عبر الرابط ?linkedBarberId= */
   const linkedBarberId = useMemo(() => searchParams.get('linkedBarberId')?.trim() ?? '', [searchParams]);
-  const barberName = useMemo(() => searchParams.get('barberName')?.trim() ?? '', [searchParams]);
+  const barberNameFromUrl = useMemo(() => searchParams.get('barberName')?.trim() ?? '', [searchParams]);
+  /** اسم الصالون من الرابط، أو جلسة اللوحة، أو شهادة التفعيل لاحقاً */
+  const barberName = useMemo(() => {
+    if (barberNameFromUrl) return barberNameFromUrl;
+    try {
+      return readBarberAuthSession()?.name?.trim() ?? '';
+    } catch {
+      return '';
+    }
+  }, [barberNameFromUrl]);
   /** purpose: 'new' (شراء أول لعميل جديد) | 'recharge' (شحن رخصة) | 'wallet_topup' (شحن محفظة المناوب) */
   const purchasePurpose = useMemo(() => {
     const p = searchParams.get('purpose')?.trim().toLowerCase();
@@ -1097,16 +1107,16 @@ export default function Payment() {
               {isWalletTopup
                 ? 'شحن محفظة المناوب الرقمي'
                 : purchasePurpose === 'recharge'
-                  ? 'شحن حزمة رخصة نفاذ جديدة'
-                  : 'شراء حزمة رخصة نفاذ — نظام الاستجابة الذكية'
+                  ? 'تجديد / شحن حزمة الرخصة'
+                  : 'إتمام شراء رخصة النفاذ'
               }
             </h1>
             <p className="text-sm sm:text-lg text-muted-foreground">
               {isWalletTopup
-                ? 'أضِف رصيد ردود للمناوب الآلي — يعمل فوراً بعد تأكيد الدفع، دون تجديد تلقائي'
+                ? 'أضِف رصيد ردود للمناوب — يُفعَّل فوراً بعد تأكيد الدفع'
                 : purchasePurpose === 'recharge'
-                  ? 'إضافة حزمة جديدة لحسابك — بياناتك محفوظة، لن نطلبها مجدداً'
-                  : 'منصة حلاق ماب — اختر طريقة السداد المناسبة لإتمام شراء حزمة رخصة النفاذ'
+                  ? 'اختر عدد الحزم وطريقة الدفع — الحزم تُضاف لحساب صالونك مباشرة بعد نجاح الدفع'
+                  : 'ثلاث خطوات: راجع الملخص ← أكّد الإقرارات ← ادفع بأمان عبر ميسر أو بنك الأول'
               }
             </p>
           </div>
@@ -1123,20 +1133,17 @@ export default function Payment() {
             </Alert>
           )}
 
-          {purchasePurpose === 'new' && !registrationRequestReady && (
+          {purchasePurpose === 'new' && !registrationRequestReady && !paymentReturnPaid && (
             <Alert className="mb-6 border-amber-500/40 bg-amber-500/10">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="text-sm leading-relaxed space-y-2">
+                <p className="font-semibold text-foreground">تنويه قبل الدفع</p>
                 <p>
-                  لا يمكن إتمام <strong>الشراء الأول</strong> من هذه الصفحة مباشرة دون رقم طلب تسجيل صالح (
-                  <span dir="ltr">HM-…</span>).
-                </p>
-                <p>
-                  أكمل{' '}
+                  للشراء الأول يلزم رقم طلب تسجيل صالح (<span dir="ltr">HM-…</span>). أكمل{' '}
                   <Link to={ROUTE_PATHS.REGISTER} className="font-semibold text-primary underline-offset-2 hover:underline">
                     نموذج التسجيل
                   </Link>{' '}
-                  أولاً — ثم انتقل للدفع من صفحة نجاح التسجيل.
+                  ثم افتح الدفع من صفحة نجاح التسجيل — أو استخدم «تجديد / شحن» من لوحة التحكم إن كان حسابك مفعّلاً.
                 </p>
               </AlertDescription>
             </Alert>
@@ -1220,6 +1227,7 @@ export default function Payment() {
             <div className="mb-6 space-y-4">
               <PaymentSuccessPanel
                 barberName={barberName}
+                packageLabelAr={tierDisplayLabel}
                 certificate={activationCertificate}
                 loading={activationCertificateLoading}
                 failed={Boolean(activationCertificateError) && !activationCertificateLoading && !activationCertificate}
@@ -1293,6 +1301,19 @@ export default function Payment() {
           )}
 
           <div className="mx-auto max-w-3xl space-y-6">
+              {paymentReturnPaid ? (
+                <Alert className="border-emerald-600/40 bg-emerald-500/10">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <AlertDescription className="text-sm leading-relaxed">
+                    الدفع مكتمل. إن لم تصلك رسالة التفعيل خلال دقائق، راجع البريد غير المرغوب أو افتح{' '}
+                    <Link to={ROUTE_PATHS.BARBER_LOGIN} className="font-semibold text-primary underline-offset-2 hover:underline">
+                      دخول لوحة الشريك
+                    </Link>
+                    .
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
               {bronzeTrialSuccess ? (
                 <Alert className="border-emerald-600/40 bg-emerald-500/10">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
@@ -1314,7 +1335,8 @@ export default function Payment() {
                 </Alert>
               ) : null}
 
-              {/* Subscription / Wallet Summary */}
+              {/* Subscription / Wallet Summary — يُخفى بعد نجاح الدفع */}
+              {!paymentReturnPaid ? (
               <Card>
                 <CardHeader>
                   <CardTitle>
@@ -1440,8 +1462,9 @@ export default function Payment() {
                   )}
                 </CardContent>
               </Card>
+              ) : null}
 
-              {showBronzeTrialField ? (
+              {showBronzeTrialField && !paymentReturnPaid ? (
                 <Card className="border-amber-500/35 bg-amber-500/5">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg">رمز تجربة برونزي (30 يوماً)</CardTitle>
@@ -1514,12 +1537,14 @@ export default function Payment() {
                 </Card>
               ) : null}
 
-              {/* Payment Methods */}
-              {!bronzeTrialSuccess ? (
+              {/* Payment Methods — تُخفى بعد نجاح الدفع لتفادي الارتباك */}
+              {!bronzeTrialSuccess && !paymentReturnPaid ? (
               <Card>
                 <CardHeader>
                   <CardTitle>اختر طريقة الدفع</CardTitle>
-                  <CardDescription>جميع المعاملات آمنة ومشفرة</CardDescription>
+                  <CardDescription>
+                    ادفع بأمان عبر بوابة سعودية. بعد النجاح تظهر شهادة التفعيل ورقم الرخصة أعلاه.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <RadioGroup
@@ -1620,7 +1645,7 @@ export default function Payment() {
                   {paymentMethod === 'moyasar' && showMoyasarCheckout && (
                     <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4">
                       <p className="text-sm font-medium text-primary">
-                        الخطوة التالية: فعّل الإقرارات أدناه لعرض نموذج الدفع الآمن من ميسر.
+                        خطوة أخيرة: فعّل الإقرارين أدناه ليظهر نموذج الدفع الآمن من ميسر، ثم أكمل الدفع.
                       </p>
                       <Alert>
                         <Shield className="h-4 w-4" />
