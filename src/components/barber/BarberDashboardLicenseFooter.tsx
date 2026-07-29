@@ -58,6 +58,7 @@ export function BarberDashboardLicenseFooter({
     tier: tierToBuyParam(activeTier),
     plan: 'monthly',
     licenseMonths: 1,
+    digitalShiftAddon: activeTier === SubscriptionTier.DIAMOND && Boolean(digitalShiftUnlocked),
   });
   const pricingUrl = `${ROUTE_PATHS.BARBERS_LANDING}#listing-license-pricing-heading`;
   const hasActiveListing = listingBalance?.hasActiveListing === true;

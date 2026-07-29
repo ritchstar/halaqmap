@@ -26,9 +26,19 @@ import { LEGAL_TRADE_NAME_AR } from '@/config/partnerLegal';
 import {
   clampListingLicenseQuantity,
   computeListingLicenseTotalSar,
+  formatListingLicenseQuantitySummaryAr,
   isDigitalShiftAddonAllowed,
+  LISTING_LICENSE_MAX_QUANTITY,
+  LISTING_LICENSE_MIN_QUANTITY,
   parseDigitalShiftAddonParam,
 } from '@/config/listingLicenseQuantity';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   DIGITAL_SHIFT_MONTHLY_ADDON_SAR,
   DIGITAL_SHIFT_PRODUCT_NAME_AR,
@@ -104,6 +114,16 @@ export default function Payment() {
   const licenseQuantity = useMemo(
     () => clampListingLicenseQuantity(searchParams.get('qty')),
     [searchParams],
+  );
+
+  const setLicenseQuantity = useCallback(
+    (nextRaw: number) => {
+      const next = clampListingLicenseQuantity(nextRaw);
+      const params = new URLSearchParams(searchParams);
+      params.set('qty', String(next));
+      setSearchParams(params, { replace: true });
+    },
+    [searchParams, setSearchParams],
   );
   const digitalShiftAddonSelected = useMemo(
     () => isDigitalShiftAddonAllowed(tier, parseDigitalShiftAddonParam(searchParams.get('aiAddon'))),
@@ -1340,42 +1360,81 @@ export default function Payment() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${tierColor} flex items-center justify-center text-white font-bold`}>
-                          {tierName === 'برونزي' && '🥉'}
-                          {tierName === 'ذهبي' && '🥇'}
-                          {tierName === 'ماسي' && '💎'}
+                    <div className="flex flex-col gap-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 p-4">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${tierColor} flex items-center justify-center text-white font-bold`}>
+                            {tierName === 'برونزي' && '🥉'}
+                            {tierName === 'ذهبي' && '🥇'}
+                            {tierName === 'ماسي' && '💎'}
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold">{tierDisplayLabel}</h3>
+                            <p className="text-sm text-muted-foreground">حزمة إدراج برمجية (30 يوماً لكل حزمة)</p>
+                            {digitalShiftAddonSelected ? (
+                              <p className="mt-1 text-xs font-medium text-primary">
+                                {DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR} · {DIGITAL_SHIFT_PRODUCT_NAME_AR} (
+                                {DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س × {licenseQuantity} حزمة)
+                              </p>
+                            ) : null}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-lg font-bold">{tierDisplayLabel}</h3>
-                          <p className="text-sm text-muted-foreground">حزمة إدراج برمجية (30 يوماً)</p>
-                          {digitalShiftAddonSelected ? (
-                            <p className="mt-1 text-xs font-medium text-primary">
-                              {DIGITAL_SHIFT_SOFTWARE_ADDON_BADGE_AR} · {DIGITAL_SHIFT_PRODUCT_NAME_AR} (
-                              {DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س × {licenseQuantity} بطاقة)
-                            </p>
-                          ) : null}
+                        <div className="space-y-1 text-right sm:text-left">
+                          {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
+                            <>
+                              <p className="text-xs text-muted-foreground">
+                                قيمة حزمة الرخصة الرقمية الموحد ({licenseQuantity} حزمة): {licenseBreakdown.subtotal} ر.س
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
+                              </p>
+                              <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
+                              <p className="text-xs text-muted-foreground">إجمالي قيمة حزمة الرخصة</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-2xl font-bold text-primary">{price} ر.س</p>
+                              <p className="text-xs text-muted-foreground">
+                                {licenseQuantity > 1
+                                  ? `${TIER_MONTHLY_SAR[tier] + (digitalShiftAddonSelected ? DIGITAL_SHIFT_MONTHLY_ADDON_SAR : 0)} ر.س × ${licenseQuantity} حزمة (دون ضريبة قيمة مضافة)`
+                                  : 'لحزمة الرخصة (دون ضريبة قيمة مضافة)'}
+                              </p>
+                            </>
+                          )}
                         </div>
                       </div>
-                      <div className="space-y-1 text-right sm:text-left">
-                        {vatSettings.enabled && licenseBreakdown.vat > 0 ? (
-                          <>
-                            <p className="text-xs text-muted-foreground">
-                              قيمة حزمة الرخصة الرقمية الموحد ({licenseQuantity} بطاقة): {licenseBreakdown.subtotal} ر.س
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              ضريبة القيمة المضافة ({vatSettings.ratePercent}%): {licenseBreakdown.vat} ر.س
-                            </p>
-                            <p className="text-2xl font-bold text-primary">{licenseBreakdown.total} ر.س</p>
-                            <p className="text-xs text-muted-foreground">إجمالي قيمة حزمة الرخصة</p>
-                          </>
-                        ) : (
-                          <>
-                            <p className="text-2xl font-bold text-primary">{price} ر.س</p>
-                            <p className="text-xs text-muted-foreground">لحزمة الرخصة (دون ضريبة قيمة مضافة)</p>
-                          </>
-                        )}
+
+                      <div className="grid gap-2 rounded-lg border border-border/70 bg-background/70 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="license-qty-select" className="text-sm font-semibold">
+                            عدد الحزم المشتراة
+                          </Label>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {formatListingLicenseQuantitySummaryAr(licenseQuantity)}
+                          </p>
+                        </div>
+                        <Select
+                          value={String(licenseQuantity)}
+                          onValueChange={(v) => setLicenseQuantity(Number(v))}
+                        >
+                          <SelectTrigger
+                            id="license-qty-select"
+                            className="w-full sm:w-[11rem]"
+                            aria-label="اختيار عدد الحزم"
+                          >
+                            <SelectValue placeholder="اختر العدد" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from(
+                              { length: LISTING_LICENSE_MAX_QUANTITY - LISTING_LICENSE_MIN_QUANTITY + 1 },
+                              (_, i) => LISTING_LICENSE_MIN_QUANTITY + i,
+                            ).map((n) => (
+                              <SelectItem key={n} value={String(n)}>
+                                {n === 1 ? '1 حزمة (30 يوماً)' : n === 12 ? '12 حزمة (سنة / 360 يوماً)' : `${n} حزم (${n * 30} يوماً)`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   )}
