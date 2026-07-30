@@ -86,7 +86,7 @@ export async function GET(request: Request): Promise<Response> {
   if (!ctx.ok) {
     return Response.json({ error: ctx.error }, { status: ctx.status, headers });
   }
-  return Response.json({ ok: true, ...ctx }, { headers });
+  return Response.json({ ok: true, salon: ctx.salon, team: ctx.team }, { headers });
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -157,7 +157,7 @@ export async function POST(request: Request): Promise<Response> {
     if (!ctx.ok) {
       return Response.json({ error: ctx.error }, { status: ctx.status, headers });
     }
-    return Response.json({ ok: true, ...ctx }, { headers });
+    return Response.json({ ok: true, salon: ctx.salon, team: ctx.team }, { headers });
   }
 
   return Response.json({ error: 'Unknown action' }, { status: 400, headers });
