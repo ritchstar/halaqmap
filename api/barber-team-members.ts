@@ -10,16 +10,20 @@ import { buildPublicApiCorsHeaders, publicApiOptionsResponse, rejectIfPublicApiC
 import { assertBarberPortalDiamondScheduling } from './_lib/diamondAppointmentBookingService.js';
 import {
   buildDaySlots,
+  countTeamPhotos,
   deleteTeamMember,
+  getBarberCardCta,
   listAvailableSlots,
   listBusyIntervalsForMember,
   listTeamBlocks,
   listTeamMembers,
-  normalizeContactMode,
+  MAX_TEAM_PHOTOS,
   setTeamSlotBlocked,
+  updateBarberCardCta,
   updateBarberContactMode,
+  uploadTeamMemberPhoto,
   upsertTeamMember,
-  getBarberContactMode,
+  normalizeContactMode,
 } from './_lib/namedBarberBookingService.js';
 
 export const config = {
@@ -44,6 +48,12 @@ function mapError(message: string): { status: number; error: string } {
   if (message === 'invalid_member_id') return { status: 400, error: 'معرّف الحلاق غير صالح.' };
   if (message === 'invalid_date' || message === 'invalid_time') {
     return { status: 400, error: 'التاريخ أو الوقت غير صالح.' };
+  }
+  if (message === 'team_photos_limit_reached') {
+    return { status: 409, error: `بلغت الحد الأقصى لصور الطاقم (${MAX_TEAM_PHOTOS}). احذف صورة ثم أعد المحاولة.` };
+  }
+  if (message === 'invalid_image' || message === 'image_too_large') {
+    return { status: 400, error: 'صورة غير صالحة أو كبيرة جداً. صغّرها ثم أعد المحاولة.' };
   }
   return { status: 500, error: message || 'تعذّر تنفيذ العملية.' };
 }
@@ -115,9 +125,24 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (action === 'list') {
-    const members = await listTeamMembers(supabase, barberId);
-    const contactMode = await getBarberContactMode(supabase, barberId);
-    return Response.json({ ok: true, members, contactMode }, { headers });
+    const [members, cardCta, photos] = await Promise.all([
+      listTeamMembers(supabase, barberId),
+      getBarberCardCta(supabase, barberId),
+      countTeamPhotos(supabase, barberId),
+    ]);
+    return Response.json(
+      {
+        ok: true,
+        members,
+        cardCta,
+        contactMode: cardCta.showBooking && !cardCta.showPhone && !cardCta.showWhatsApp
+          ? 'booking_only'
+          : 'classic',
+        photoCount: photos.ok ? photos.count : 0,
+        maxPhotos: MAX_TEAM_PHOTOS,
+      },
+      { headers },
+    );
   }
 
   if (action === 'upsert') {
@@ -132,6 +157,7 @@ export async function POST(request: Request): Promise<Response> {
         | number
         | undefined,
       internalNotes: (body as { internalNotes?: unknown }).internalNotes as string | null | undefined,
+      returnToWorkDate: (body as { returnToWorkDate?: unknown }).returnToWorkDate as string | null | undefined,
     });
     if (!result.ok) {
       const mapped = mapError(result.error);
@@ -150,13 +176,41 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: true }, { headers });
   }
 
+  if (action === 'update_card_cta') {
+    const result = await updateBarberCardCta(supabase, barberId, {
+      showPhone: (body as { showPhone?: unknown }).showPhone as boolean | undefined,
+      showWhatsApp: (body as { showWhatsApp?: unknown }).showWhatsApp as boolean | undefined,
+      showChat: (body as { showChat?: unknown }).showChat as boolean | undefined,
+      showBooking: (body as { showBooking?: unknown }).showBooking as boolean | undefined,
+    });
+    if (!result.ok) {
+      return Response.json({ error: result.error }, { status: 500, headers });
+    }
+    return Response.json({ ok: true, cardCta: result.cardCta }, { headers });
+  }
+
   if (action === 'update_contact_mode') {
     const contactMode = normalizeContactMode((body as { contactMode?: unknown }).contactMode);
     const result = await updateBarberContactMode(supabase, barberId, contactMode);
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: 500, headers });
     }
-    return Response.json({ ok: true, contactMode: result.contactMode }, { headers });
+    const cardCta = await getBarberCardCta(supabase, barberId);
+    return Response.json({ ok: true, contactMode: result.contactMode, cardCta }, { headers });
+  }
+
+  if (action === 'upload_photo') {
+    const memberId = String((body as { memberId?: unknown }).memberId ?? '').trim();
+    const imageBase64 = String((body as { imageBase64?: unknown }).imageBase64 ?? '').trim();
+    const result = await uploadTeamMemberPhoto(supabase, { barberId, memberId, imageBase64 });
+    if (!result.ok) {
+      const mapped = mapError(result.error);
+      return Response.json({ error: mapped.error }, { status: mapped.status, headers });
+    }
+    return Response.json(
+      { ok: true, publicUrl: result.publicUrl, objectPath: result.objectPath, member: result.member },
+      { headers },
+    );
   }
 
   if (action === 'list_day_schedule') {

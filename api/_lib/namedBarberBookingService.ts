@@ -10,12 +10,29 @@ const UUID_RE =
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/;
 
 export const MAX_TEAM_MEMBERS = 25;
+export const MAX_TEAM_PHOTOS = 10;
 export const MAX_DISPLAY_NAME_LEN = 60;
 export const SLOT_STEP_MIN = 30;
 export const DAY_START_MIN = 10 * 60;
 export const DAY_END_MIN = 23 * 60;
+export const TEAM_PHOTOS_BUCKET = 'barber-team';
 
 export type ContactMode = 'classic' | 'booking_only';
+
+/** ظواهر أيقونات بطاقة الماسي — مستقلة لكل أيقونة */
+export type CardCtaFlags = {
+  showPhone: boolean;
+  showWhatsApp: boolean;
+  showChat: boolean;
+  showBooking: boolean;
+};
+
+export const DEFAULT_CARD_CTA: CardCtaFlags = {
+  showPhone: true,
+  showWhatsApp: true,
+  showChat: true,
+  showBooking: false,
+};
 
 export type BarberTeamMemberRow = {
   id: string;
@@ -26,6 +43,7 @@ export type BarberTeamMemberRow = {
   is_active: boolean;
   default_duration_minutes: number;
   internal_notes: string | null;
+  return_to_work_date: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -42,6 +60,46 @@ export type TeamMemberBlockRow = {
 
 export function normalizeContactMode(raw: unknown): ContactMode {
   return String(raw ?? '').trim() === 'booking_only' ? 'booking_only' : 'classic';
+}
+
+export function normalizeCardCtaFlags(raw: {
+  card_show_phone?: unknown;
+  card_show_whatsapp?: unknown;
+  card_show_chat?: unknown;
+  card_show_booking?: unknown;
+  contact_mode?: unknown;
+}): CardCtaFlags {
+  const hasExplicit =
+    raw.card_show_phone != null ||
+    raw.card_show_whatsapp != null ||
+    raw.card_show_chat != null ||
+    raw.card_show_booking != null;
+  if (!hasExplicit && normalizeContactMode(raw.contact_mode) === 'booking_only') {
+    return {
+      showPhone: false,
+      showWhatsApp: false,
+      showChat: true,
+      showBooking: true,
+    };
+  }
+  return {
+    showPhone: raw.card_show_phone !== false,
+    showWhatsApp: raw.card_show_whatsapp !== false,
+    showChat: raw.card_show_chat !== false,
+    showBooking: raw.card_show_booking === true,
+  };
+}
+
+export function contactModeFromCardCta(flags: CardCtaFlags): ContactMode {
+  if (!flags.showPhone && !flags.showWhatsApp && flags.showBooking) return 'booking_only';
+  return 'classic';
+}
+
+function normalizeReturnDate(raw: unknown): string | null {
+  const s = String(raw ?? '').trim().slice(0, 10);
+  if (!s) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  return s;
 }
 
 export function normalizeDisplayName(raw: unknown): string {
@@ -75,6 +133,8 @@ function mapMember(row: Record<string, unknown>): BarberTeamMemberRow {
     is_active: row.is_active !== false,
     default_duration_minutes: Number(row.default_duration_minutes) || 30,
     internal_notes: row.internal_notes == null ? null : String(row.internal_notes),
+    return_to_work_date:
+      row.return_to_work_date == null ? null : String(row.return_to_work_date).slice(0, 10),
     ...(row.created_at ? { created_at: String(row.created_at) } : {}),
     ...(row.updated_at ? { updated_at: String(row.updated_at) } : {}),
   };
@@ -132,23 +192,83 @@ export async function getBarberContactMode(
   supabase: SupabaseClient,
   barberId: string,
 ): Promise<ContactMode> {
-  const { data } = await supabase.from('barbers').select('contact_mode').eq('id', barberId).maybeSingle();
-  return normalizeContactMode(data?.contact_mode);
+  const flags = await getBarberCardCta(supabase, barberId);
+  return contactModeFromCardCta(flags);
 }
 
+export async function getBarberCardCta(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<CardCtaFlags> {
+  const { data } = await supabase
+    .from('barbers')
+    .select(
+      'contact_mode, card_show_phone, card_show_whatsapp, card_show_chat, card_show_booking',
+    )
+    .eq('id', barberId)
+    .maybeSingle();
+  if (!data) return { ...DEFAULT_CARD_CTA };
+  return normalizeCardCtaFlags(data as Record<string, unknown>);
+}
+
+export async function loadCardCtaForBarbers(
+  supabase: SupabaseClient,
+  barberIds: string[],
+): Promise<Map<string, CardCtaFlags>> {
+  const map = new Map<string, CardCtaFlags>();
+  const ids = [...new Set(barberIds.map((id) => id.trim()).filter((id) => UUID_RE.test(id)))];
+  if (!ids.length) return map;
+  const { data, error } = await supabase
+    .from('barbers')
+    .select(
+      'id, contact_mode, card_show_phone, card_show_whatsapp, card_show_chat, card_show_booking',
+    )
+    .in('id', ids);
+  if (error || !data) return map;
+  for (const row of data) {
+    map.set(String(row.id), normalizeCardCtaFlags(row as Record<string, unknown>));
+  }
+  return map;
+}
+
+/** @deprecated استخدم loadCardCtaForBarbers */
 export async function loadContactModesForBarbers(
   supabase: SupabaseClient,
   barberIds: string[],
 ): Promise<Map<string, ContactMode>> {
+  const cta = await loadCardCtaForBarbers(supabase, barberIds);
   const map = new Map<string, ContactMode>();
-  const ids = [...new Set(barberIds.map((id) => id.trim()).filter((id) => UUID_RE.test(id)))];
-  if (!ids.length) return map;
-  const { data, error } = await supabase.from('barbers').select('id, contact_mode').in('id', ids);
-  if (error || !data) return map;
-  for (const row of data) {
-    map.set(String(row.id), normalizeContactMode(row.contact_mode));
+  for (const [id, flags] of cta) {
+    map.set(id, contactModeFromCardCta(flags));
   }
   return map;
+}
+
+export async function updateBarberCardCta(
+  supabase: SupabaseClient,
+  barberId: string,
+  patch: Partial<CardCtaFlags>,
+): Promise<{ ok: true; cardCta: CardCtaFlags } | { ok: false; error: string }> {
+  const current = await getBarberCardCta(supabase, barberId);
+  const next: CardCtaFlags = {
+    showPhone: patch.showPhone ?? current.showPhone,
+    showWhatsApp: patch.showWhatsApp ?? current.showWhatsApp,
+    showChat: patch.showChat ?? current.showChat,
+    showBooking: patch.showBooking ?? current.showBooking,
+  };
+  const contactMode = contactModeFromCardCta(next);
+  const { error } = await supabase
+    .from('barbers')
+    .update({
+      card_show_phone: next.showPhone,
+      card_show_whatsapp: next.showWhatsApp,
+      card_show_chat: next.showChat,
+      card_show_booking: next.showBooking,
+      contact_mode: contactMode,
+    })
+    .eq('id', barberId);
+  if (error) return { ok: false, error: error.message || 'update_failed' };
+  return { ok: true, cardCta: next };
 }
 
 export async function updateBarberContactMode(
@@ -157,8 +277,12 @@ export async function updateBarberContactMode(
   mode: ContactMode,
 ): Promise<{ ok: true; contactMode: ContactMode } | { ok: false; error: string }> {
   const contactMode = normalizeContactMode(mode);
-  const { error } = await supabase.from('barbers').update({ contact_mode: contactMode }).eq('id', barberId);
-  if (error) return { ok: false, error: error.message || 'update_failed' };
+  const flags: CardCtaFlags =
+    contactMode === 'booking_only'
+      ? { showPhone: false, showWhatsApp: false, showChat: true, showBooking: true }
+      : { ...DEFAULT_CARD_CTA };
+  const result = await updateBarberCardCta(supabase, barberId, flags);
+  if (!result.ok) return result;
   return { ok: true, contactMode };
 }
 
@@ -170,7 +294,7 @@ export async function listTeamMembers(
   let q = supabase
     .from('barber_team_members')
     .select(
-      'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, created_at, updated_at',
+      'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, return_to_work_date, created_at, updated_at',
     )
     .eq('barber_id', barberId)
     .order('sort_order', { ascending: true })
@@ -192,12 +316,19 @@ export async function upsertTeamMember(
     isActive?: boolean;
     defaultDurationMinutes?: number;
     internalNotes?: string | null;
+    returnToWorkDate?: string | null;
+    clearPhoto?: boolean;
   },
 ): Promise<{ ok: true; member: BarberTeamMemberRow } | { ok: false; error: string }> {
   const displayName = normalizeDisplayName(input.displayName);
   if (!displayName) return { ok: false, error: 'display_name_required' };
 
-  const photoUrl = normalizePhotoUrl(input.photoUrl);
+  const photoUrl =
+    input.clearPhoto === true
+      ? null
+      : input.photoUrl === undefined
+        ? undefined
+        : normalizePhotoUrl(input.photoUrl);
   const duration = parseDurationMinutes(input.defaultDurationMinutes, 30);
   const sortOrder =
     typeof input.sortOrder === 'number' && Number.isFinite(input.sortOrder)
@@ -207,21 +338,24 @@ export async function upsertTeamMember(
   const notes = String(input.internalNotes ?? '')
     .trim()
     .slice(0, 500);
+  const returnDate = isActive ? null : normalizeReturnDate(input.returnToWorkDate);
 
   const memberId = String(input.memberId ?? '').trim();
   if (memberId) {
     if (!UUID_RE.test(memberId)) return { ok: false, error: 'invalid_member_id' };
+    const patch: Record<string, unknown> = {
+      display_name: displayName,
+      sort_order: sortOrder,
+      is_active: isActive,
+      default_duration_minutes: duration,
+      internal_notes: notes || null,
+      return_to_work_date: returnDate,
+      updated_at: new Date().toISOString(),
+    };
+    if (photoUrl !== undefined) patch.photo_url = photoUrl;
     const { data, error } = await supabase
       .from('barber_team_members')
-      .update({
-        display_name: displayName,
-        photo_url: photoUrl,
-        sort_order: sortOrder,
-        is_active: isActive,
-        default_duration_minutes: duration,
-        internal_notes: notes || null,
-        updated_at: new Date().toISOString(),
-      })
+      .update(patch)
       .eq('id', memberId)
       .eq('barber_id', input.barberId)
       .select('*')
@@ -238,16 +372,83 @@ export async function upsertTeamMember(
     .insert({
       barber_id: input.barberId,
       display_name: displayName,
-      photo_url: photoUrl,
+      photo_url: photoUrl ?? null,
       sort_order: sortOrder,
       is_active: isActive,
       default_duration_minutes: duration,
       internal_notes: notes || null,
+      return_to_work_date: returnDate,
     })
     .select('*')
     .maybeSingle();
   if (error || !data) return { ok: false, error: error?.message || 'insert_failed' };
   return { ok: true, member: mapMember(data as Record<string, unknown>) };
+}
+
+export async function countTeamPhotos(
+  supabase: SupabaseClient,
+  barberId: string,
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  const { data, error } = await supabase.storage.from(TEAM_PHOTOS_BUCKET).list(barberId, {
+    limit: 200,
+  });
+  if (error) return { ok: false, error: error.message || 'list_failed' };
+  const count = (data ?? []).filter((o) => o.name && !o.name.endsWith('/')).length;
+  return { ok: true, count };
+}
+
+export async function uploadTeamMemberPhoto(
+  supabase: SupabaseClient,
+  input: { barberId: string; memberId: string; imageBase64: string },
+): Promise<{ ok: true; publicUrl: string; objectPath: string; member: BarberTeamMemberRow } | { ok: false; error: string }> {
+  if (!UUID_RE.test(input.memberId)) return { ok: false, error: 'invalid_member_id' };
+  const listed = await countTeamPhotos(supabase, input.barberId);
+  if (!listed.ok) return listed;
+  if (listed.count >= MAX_TEAM_PHOTOS) return { ok: false, error: 'team_photos_limit_reached' };
+
+  let buf: Buffer;
+  try {
+    buf = Buffer.from(String(input.imageBase64 ?? '').trim(), 'base64');
+  } catch {
+    return { ok: false, error: 'invalid_image' };
+  }
+  if (buf.length < 32) return { ok: false, error: 'invalid_image' };
+  if (buf.length > 2_500_000) return { ok: false, error: 'image_too_large' };
+
+  const { data: member } = await supabase
+    .from('barber_team_members')
+    .select('id, photo_url')
+    .eq('id', input.memberId)
+    .eq('barber_id', input.barberId)
+    .maybeSingle();
+  if (!member) return { ok: false, error: 'member_not_found' };
+
+  const path = `${input.barberId}/${input.memberId}-${Date.now()}.webp`;
+  const { error: upErr } = await supabase.storage.from(TEAM_PHOTOS_BUCKET).upload(path, buf, {
+    contentType: 'image/webp',
+    upsert: false,
+  });
+  if (upErr) return { ok: false, error: upErr.message || 'upload_failed' };
+
+  const { data: pub } = supabase.storage.from(TEAM_PHOTOS_BUCKET).getPublicUrl(path);
+  const publicUrl = pub?.publicUrl ? String(pub.publicUrl) : '';
+  if (!publicUrl) return { ok: false, error: 'public_url_unavailable' };
+
+  const { data: updated, error: updErr } = await supabase
+    .from('barber_team_members')
+    .update({ photo_url: publicUrl, updated_at: new Date().toISOString() })
+    .eq('id', input.memberId)
+    .eq('barber_id', input.barberId)
+    .select('*')
+    .maybeSingle();
+  if (updErr || !updated) return { ok: false, error: updErr?.message || 'member_update_failed' };
+
+  return {
+    ok: true,
+    publicUrl,
+    objectPath: path,
+    member: mapMember(updated as Record<string, unknown>),
+  };
 }
 
 export async function deleteTeamMember(
@@ -493,6 +694,7 @@ export async function getPublicBookingContext(
         id: string;
         name: string;
         contactMode: ContactMode;
+        cardCta: CardCtaFlags;
         address: string | null;
         tier: string | null;
       };
@@ -509,13 +711,16 @@ export async function getPublicBookingContext(
 
   const { data: barber, error } = await supabase
     .from('barbers')
-    .select('id, name, address, tier, is_active, contact_mode')
+    .select(
+      'id, name, address, tier, is_active, contact_mode, card_show_phone, card_show_whatsapp, card_show_chat, card_show_booking',
+    )
     .eq('id', barberId)
     .maybeSingle();
 
   if (error || !barber) return { ok: false, error: 'Barber not found', status: 404 };
   if (barber.is_active === false) return { ok: false, error: 'Barber inactive', status: 409 };
 
+  const cardCta = normalizeCardCtaFlags(barber as Record<string, unknown>);
   const members = await listTeamMembers(supabase, barberId, { activeOnly: true });
 
   return {
@@ -523,7 +728,8 @@ export async function getPublicBookingContext(
     salon: {
       id: String(barber.id),
       name: String(barber.name ?? ''),
-      contactMode: normalizeContactMode(barber.contact_mode),
+      contactMode: contactModeFromCardCta(cardCta),
+      cardCta,
       address: barber.address == null ? null : String(barber.address),
       tier: barber.tier == null ? null : String(barber.tier),
     },

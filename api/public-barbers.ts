@@ -53,10 +53,8 @@ function sanitizePublicBarberRows(rows: unknown): unknown[] {
         row.account_linked = Boolean(uidStr);
       }
       delete row.user_id;
-      const contactMode = String(row.contact_mode ?? '').trim() === 'booking_only' ? 'booking_only' : 'classic';
-      row.contact_mode = contactMode;
-      if (contactMode === 'booking_only') {
-        // إخفاء رقم الاتصال في الدليل العام عند وضع الحجز فقط
+      const showPhone = row.card_show_phone !== false;
+      if (!showPhone) {
         row.phone = '';
       } else if (typeof row.phone === 'string') {
         const n = normalizeSaudiMobileForWa(row.phone);
@@ -67,7 +65,7 @@ function sanitizePublicBarberRows(rows: unknown): unknown[] {
     .filter(Boolean);
 }
 
-async function attachContactModeToRows(
+async function attachCardCtaToRows(
   supabase: SupabaseClient,
   rows: unknown[],
 ): Promise<unknown[]> {
@@ -78,28 +76,34 @@ async function attachContactModeToRows(
     .filter(Boolean);
   if (ids.length === 0) return rows;
   try {
-    const { loadContactModesForBarbers } = await import('./_lib/namedBarberBookingService.js');
-    const map = await loadContactModesForBarbers(supabase, ids);
+    const { loadCardCtaForBarbers, contactModeFromCardCta } = await import(
+      './_lib/namedBarberBookingService.js'
+    );
+    const map = await loadCardCtaForBarbers(supabase, ids);
     return rows.map((raw) => {
       if (!raw || typeof raw !== 'object') return raw;
       const row = { ...(raw as Record<string, unknown>) };
       const id = String(row.id ?? '');
-      const mode = map.get(id) ?? 'classic';
-      row.contact_mode = mode;
-      if (mode === 'booking_only') {
-        row.phone = '';
-      }
+      const flags = map.get(id);
+      if (!flags) return row;
+      row.card_show_phone = flags.showPhone;
+      row.card_show_whatsapp = flags.showWhatsApp;
+      row.card_show_chat = flags.showChat;
+      row.card_show_booking = flags.showBooking;
+      row.contact_mode = contactModeFromCardCta(flags);
+      if (!flags.showPhone) row.phone = '';
       return row;
     });
   } catch (err) {
-    console.error('[public-barbers] attach_contact_mode_failed', err);
+    console.error('[public-barbers] attach_card_cta_failed', err);
     return rows;
   }
 }
 
 async function enrichPublicRows(supabase: SupabaseClient, rows: unknown[]): Promise<unknown[]> {
-  const withHours = await attachWorkingHoursToRows(supabase, sanitizePublicBarberRows(rows));
-  return attachContactModeToRows(supabase, withHours);
+  const withCta = await attachCardCtaToRows(supabase, rows);
+  const withHours = await attachWorkingHoursToRows(supabase, sanitizePublicBarberRows(withCta));
+  return withHours;
 }
 
 async function attachWorkingHoursToRows(

@@ -23,7 +23,7 @@ import { TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTermin
 import { getOrderedWeekHoursForDisplay, SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
-import { bookBarberPath, isBookingOnlyContact } from '@/lib/namedBarberBookingRemote';
+import { bookBarberPath, resolveCardCta } from '@/lib/namedBarberBookingRemote';
 import { CustomerBarberChatPreview } from '@/components/CustomerBarberChatPreview';
 import { HomeServiceContactRequestForm } from '@/components/HomeServiceContactRequestForm';
 import { GroomPrepContactRequestForm } from '@/components/GroomPrepContactRequestForm';
@@ -71,7 +71,8 @@ export function BarberDetailModal({
 }: BarberDetailModalProps) {
   const navigate = useNavigate();
   const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
-  const bookingOnly = isBookingOnlyContact(barber) && !barber.showcasePreview;
+  const isDiamond = barber.subscription === SubscriptionTier.DIAMOND;
+  const cardCta = resolveCardCta(barber);
   const previewSecretMarker = barber.previewListing ? (
     <span className="text-muted-foreground font-normal" title="إدراج معاينة">
       {' '}
@@ -243,8 +244,12 @@ export function BarberDetailModal({
   };
 
   const whatsappHref = buildWhatsAppChatHref(barber.whatsapp || barber.phone || '');
-  const canWhatsApp = Boolean(whatsappHref) && !barber.showcasePreview && !bookingOnly;
   const isShowcase = Boolean(barber.showcasePreview);
+  const showPhone = !isShowcase && (!isDiamond || cardCta.showPhone);
+  const canWhatsApp =
+    Boolean(whatsappHref) && !isShowcase && (!isDiamond || cardCta.showWhatsApp);
+  const showChat = !isShowcase && (!isDiamond || cardCta.showChat);
+  const showBooking = isDiamond && !isShowcase && cardCta.showBooking;
 
   const handleWhatsAppClick = () => {
     if (!whatsappHref) return;
@@ -389,22 +394,7 @@ export function BarberDetailModal({
                 {PLATFORM_CONCIERGE_CTA_EXPAND_RADIUS_AR}
               </BarberContactCtaButton>
             )}
-            {!isShowcase ? (
-              bookingOnly ? (
-                <BarberContactCtaButton
-                  onClick={handleBookingClick}
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                >
-                  <Calendar className="w-5 h-5 ml-2 shrink-0" />
-                  حجز موعد
-                </BarberContactCtaButton>
-              ) : (
-                <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
-                  <Phone className="w-5 h-5 ml-2 shrink-0" />
-                  <span dir="ltr">{barber.phone}</span>
-                </BarberContactCtaButton>
-              )
-            ) : (
+            {isShowcase ? (
               <BarberContactCtaButton
                 type="button"
                 variant="outline"
@@ -417,8 +407,32 @@ export function BarberDetailModal({
                 <MessageCircle className="w-5 h-5 ml-2 shrink-0" />
                 {PLATFORM_CONCIERGE_CTA_RETRY_SEARCH_AR}
               </BarberContactCtaButton>
+            ) : showBooking ? (
+              <BarberContactCtaButton
+                onClick={handleBookingClick}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground"
+              >
+                <Calendar className="w-5 h-5 ml-2 shrink-0" />
+                حجز موعد
+              </BarberContactCtaButton>
+            ) : showPhone ? (
+              <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
+                <Phone className="w-5 h-5 ml-2 shrink-0" />
+                <span dir="ltr">{barber.phone}</span>
+              </BarberContactCtaButton>
+            ) : (
+              <div />
             )}
           </div>
+
+          {showPhone && showBooking ? (
+            <div className="grid min-w-0 max-w-full grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+              <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
+                <Phone className="w-5 h-5 ml-2 shrink-0" />
+                <span dir="ltr">{barber.phone}</span>
+              </BarberContactCtaButton>
+            </div>
+          ) : null}
 
           {/* واتساب لكل الباقات — رقم مطبّع دولياً (966…) لتجنب رفض wa.me للصيغة 05 */}
           {canWhatsApp ? (
@@ -431,7 +445,8 @@ export function BarberDetailModal({
                 واتساب
               </BarberContactCtaButton>
               {(barber.subscription === SubscriptionTier.GOLD ||
-                barber.subscription === SubscriptionTier.DIAMOND) && (
+                barber.subscription === SubscriptionTier.DIAMOND) &&
+                showChat && (
                 <BarberContactCtaButton
                   type="button"
                   variant="outline"
@@ -578,7 +593,8 @@ export function BarberDetailModal({
           )}
 
           {(barber.subscription === SubscriptionTier.GOLD ||
-            barber.subscription === SubscriptionTier.DIAMOND) && (
+            barber.subscription === SubscriptionTier.DIAMOND) &&
+            (isShowcase || showChat) && (
             <div ref={chatPreviewRef} className="barber-contact-inner scroll-mt-4 min-w-0 max-w-full overflow-hidden">
               <CustomerBarberChatPreview
                 tier={
@@ -599,11 +615,11 @@ export function BarberDetailModal({
 
           {barber.subscription === SubscriptionTier.DIAMOND &&
             showDiamondScheduling &&
-            !isShowcase &&
-            !bookingOnly && (
+            showBooking &&
+            !isShowcase && (
             <DiamondAppointmentBooking barberId={barber.id} barberName={barber.name} />
           )}
-          {barber.subscription === SubscriptionTier.DIAMOND && bookingOnly && !isShowcase ? (
+          {showBooking && !showDiamondScheduling && !isShowcase ? (
             <div className="rounded-lg border border-accent/30 bg-accent/5 p-4">
               <p className="mb-3 text-sm text-muted-foreground">
                 هذا الصالون يستقبل الحجوزات عبر صفحة الحجز المرتبطة بالحساب.

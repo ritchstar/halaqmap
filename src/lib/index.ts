@@ -126,10 +126,17 @@ export interface Barber {
    */
   diamondAppointmentSchedulingEnabled?: boolean;
   /**
-   * وضع الظهور على البطاقة:
+   * وضع الظهور على البطاقة (قديم — للتوافق):
    * `classic` = هاتف/واتساب/موقع؛ `booking_only` = موقع + حجز فقط.
    */
   contactMode?: 'classic' | 'booking_only';
+  /** ظواهر أيقونات البطاقة (ماسي) — مستقلة لكل أيقونة */
+  cardCta?: {
+    showPhone: boolean;
+    showWhatsApp: boolean;
+    showChat: boolean;
+    showBooking: boolean;
+  };
   /** من بحث RPC: رخصة نشطة في subscriptions */
   hasActiveSubscription?: boolean;
   /** ISO — آخر تحديث لملف الصالون (لعامل النشاط في الترتيب) */

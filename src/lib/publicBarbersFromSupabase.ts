@@ -71,6 +71,10 @@ type BarberRow = {
   is_showcase_preview?: boolean | null;
   children_specialist?: boolean | null;
   contact_mode?: string | null;
+  card_show_phone?: boolean | null;
+  card_show_whatsapp?: boolean | null;
+  card_show_chat?: boolean | null;
+  card_show_booking?: boolean | null;
   home_service_offered?: boolean | null;
   home_service_price_sar?: number | string | null;
   home_service_radius_km?: number | null;
@@ -275,6 +279,44 @@ async function attachWeeklyHoursToBarberRows(
   });
 }
 
+/** يحقن ظواهر أيقونات البطاقة بعد RPC البحث عبر دالة SECURITY DEFINER. */
+async function attachCardCtaToBarberRows(
+  client: NonNullable<ReturnType<typeof getSupabaseClient>>,
+  rows: BarberRow[],
+): Promise<BarberRow[]> {
+  if (rows.length === 0) return rows;
+  const ids = rows.map((r) => r.id).filter(Boolean);
+  if (ids.length === 0) return rows;
+  try {
+    const { data, error } = await client.rpc('get_barber_card_cta_flags', { p_ids: ids });
+    if (error || !Array.isArray(data) || data.length === 0) return rows;
+    const byId = new Map<string, BarberRow>();
+    for (const r of data) {
+      const id = String((r as { id?: string }).id ?? '');
+      if (id) byId.set(id, r as BarberRow);
+    }
+    return rows.map((row) => {
+      const flags = byId.get(row.id);
+      if (!flags) return row;
+      const hidePhone =
+        flags.card_show_phone === false ||
+        (flags.card_show_phone == null &&
+          String(flags.contact_mode ?? '').trim() === 'booking_only');
+      return {
+        ...row,
+        contact_mode: flags.contact_mode ?? row.contact_mode,
+        card_show_phone: flags.card_show_phone,
+        card_show_whatsapp: flags.card_show_whatsapp,
+        card_show_chat: flags.card_show_chat,
+        card_show_booking: flags.card_show_booking,
+        ...(hidePhone ? { phone: '' } : {}),
+      };
+    });
+  } catch {
+    return rows;
+  }
+}
+
 function mapRow(row: BarberRow): Barber {
   const lat = row.latitude ?? 0;
   const lng = row.longitude ?? 0;
@@ -285,8 +327,24 @@ function mapRow(row: BarberRow): Barber {
   const images = mergePublicBarberImages(cardCover, profile, featured);
   const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
   const phoneRaw = row.phone?.trim() || '';
-  const bookingOnly = String(row.contact_mode ?? '').trim() === 'booking_only';
-  const phone = bookingOnly ? '' : (toSaudiE164Plus(phoneRaw) ?? phoneRaw);
+  const cardCta = {
+    showPhone: row.card_show_phone !== false,
+    showWhatsApp: row.card_show_whatsapp !== false,
+    showChat: row.card_show_chat !== false,
+    showBooking: row.card_show_booking === true,
+  };
+  // توافق قديم: booking_only بدون أعمدة جديدة
+  if (
+    row.card_show_phone == null &&
+    row.card_show_whatsapp == null &&
+    row.card_show_booking == null &&
+    String(row.contact_mode ?? '').trim() === 'booking_only'
+  ) {
+    cardCta.showPhone = false;
+    cardCta.showWhatsApp = false;
+    cardCta.showBooking = true;
+  }
+  const phone = !cardCta.showPhone ? '' : (toSaudiE164Plus(phoneRaw) ?? phoneRaw);
   const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];
   const acceptsChildren = barberAcceptsChildren(categories);
   const childrenSpecialist =
@@ -334,9 +392,11 @@ function mapRow(row: BarberRow): Barber {
     ...(featured.length > 0 ? { featuredImages: featured } : {}),
     ...(galleryCount > 0 ? { galleryCount } : {}),
     ...(row.is_showcase_preview === true ? { showcasePreview: true } : {}),
-    ...(String(row.contact_mode ?? '').trim() === 'booking_only'
-      ? { contactMode: 'booking_only' as const }
-      : { contactMode: 'classic' as const }),
+    contactMode:
+      !cardCta.showPhone && !cardCta.showWhatsApp && cardCta.showBooking
+        ? ('booking_only' as const)
+        : ('classic' as const),
+    cardCta,
   };
 }
 
@@ -481,7 +541,8 @@ export async function fetchNearbyPublicBarbersFromSupabase(
     });
 
     if (!error) {
-      const rows = await attachWeeklyHoursToBarberRows(client, (data ?? []) as BarberRow[]);
+      const withHours = await attachWeeklyHoursToBarberRows(client, (data ?? []) as BarberRow[]);
+      const rows = await attachCardCtaToBarberRows(client, withHours);
       if (rows.length > 0) {
         const mapped = rows.map(mapRow);
         const split = splitShowcaseFromBarbers(mapped);

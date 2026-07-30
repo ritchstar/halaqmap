@@ -9,6 +9,20 @@ const BOOKING_ENDPOINT = '/api/diamond-appointment-booking';
 
 export type ContactMode = 'classic' | 'booking_only';
 
+export type CardCtaFlags = {
+  showPhone: boolean;
+  showWhatsApp: boolean;
+  showChat: boolean;
+  showBooking: boolean;
+};
+
+export const DEFAULT_CARD_CTA: CardCtaFlags = {
+  showPhone: true,
+  showWhatsApp: true,
+  showChat: true,
+  showBooking: false,
+};
+
 export type TeamMemberRemote = {
   id: string;
   barber_id: string;
@@ -18,6 +32,7 @@ export type TeamMemberRemote = {
   is_active: boolean;
   default_duration_minutes: number;
   internal_notes: string | null;
+  return_to_work_date?: string | null;
 };
 
 export type PublicBookingTeamMember = {
@@ -32,6 +47,7 @@ export type PublicBookingContext = {
     id: string;
     name: string;
     contactMode: ContactMode;
+    cardCta?: CardCtaFlags;
     address: string | null;
     tier: string | null;
   };
@@ -102,8 +118,24 @@ async function postJson<T>(
   }
 }
 
-export function isBookingOnlyContact(barber: { contactMode?: ContactMode | string | null }): boolean {
-  return String(barber.contactMode ?? '') === 'booking_only';
+export function resolveCardCta(barber: {
+  cardCta?: CardCtaFlags | null;
+  contactMode?: ContactMode | string | null;
+}): CardCtaFlags {
+  if (barber.cardCta) return barber.cardCta;
+  if (String(barber.contactMode ?? '') === 'booking_only') {
+    return { showPhone: false, showWhatsApp: false, showChat: true, showBooking: true };
+  }
+  return { ...DEFAULT_CARD_CTA };
+}
+
+/** @deprecated استخدم resolveCardCta */
+export function isBookingOnlyContact(barber: {
+  contactMode?: ContactMode | string | null;
+  cardCta?: CardCtaFlags | null;
+}): boolean {
+  const cta = resolveCardCta(barber);
+  return cta.showBooking && !cta.showPhone && !cta.showWhatsApp;
 }
 
 export function bookBarberPath(barberId: string): string {
@@ -185,20 +217,34 @@ export async function createNamedBookingRemote(input: {
 }
 
 export async function listTeamMembersRemote(): Promise<
-  { ok: true; members: TeamMemberRemote[]; contactMode: ContactMode } | { ok: false; error: string }
+  | {
+      ok: true;
+      members: TeamMemberRemote[];
+      cardCta: CardCtaFlags;
+      contactMode: ContactMode;
+      photoCount: number;
+      maxPhotos: number;
+    }
+  | { ok: false; error: string }
 > {
   const creds = portalCreds();
   if (!creds) return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول.' };
-  const res = await postJson<{ members?: TeamMemberRemote[]; contactMode?: ContactMode }>(
-    TEAM_ENDPOINT,
-    { action: 'list', barberId: creds.barberId, email: creds.email },
-    'barber',
-  );
+  const res = await postJson<{
+    members?: TeamMemberRemote[];
+    cardCta?: CardCtaFlags;
+    contactMode?: ContactMode;
+    photoCount?: number;
+    maxPhotos?: number;
+  }>(TEAM_ENDPOINT, { action: 'list', barberId: creds.barberId, email: creds.email }, 'barber');
   if (!res.ok) return { ok: false, error: res.error };
+  const cardCta = res.json.cardCta ?? DEFAULT_CARD_CTA;
   return {
     ok: true,
     members: Array.isArray(res.json.members) ? res.json.members : [],
+    cardCta,
     contactMode: res.json.contactMode === 'booking_only' ? 'booking_only' : 'classic',
+    photoCount: Number(res.json.photoCount) || 0,
+    maxPhotos: Number(res.json.maxPhotos) || 10,
   };
 }
 
@@ -210,6 +256,7 @@ export async function upsertTeamMemberRemote(input: {
   isActive?: boolean;
   defaultDurationMinutes?: number;
   internalNotes?: string | null;
+  returnToWorkDate?: string | null;
 }): Promise<{ ok: true; member: TeamMemberRemote } | { ok: false; error: string }> {
   const creds = portalCreds();
   if (!creds) return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول.' };
@@ -247,6 +294,26 @@ export async function deleteTeamMemberRemote(
   return { ok: true };
 }
 
+export async function updateCardCtaRemote(
+  patch: Partial<CardCtaFlags>,
+): Promise<{ ok: true; cardCta: CardCtaFlags } | { ok: false; error: string }> {
+  const creds = portalCreds();
+  if (!creds) return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول.' };
+  const res = await postJson<{ cardCta?: CardCtaFlags }>(
+    TEAM_ENDPOINT,
+    {
+      action: 'update_card_cta',
+      barberId: creds.barberId,
+      email: creds.email,
+      ...patch,
+    },
+    'barber',
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true, cardCta: res.json.cardCta ?? DEFAULT_CARD_CTA };
+}
+
+/** @deprecated */
 export async function updateContactModeRemote(
   contactMode: ContactMode,
 ): Promise<{ ok: true; contactMode: ContactMode } | { ok: false; error: string }> {
@@ -267,6 +334,29 @@ export async function updateContactModeRemote(
     ok: true,
     contactMode: res.json.contactMode === 'booking_only' ? 'booking_only' : 'classic',
   };
+}
+
+export async function uploadTeamMemberPhotoRemote(input: {
+  memberId: string;
+  imageBase64: string;
+}): Promise<{ ok: true; publicUrl: string; member: TeamMemberRemote } | { ok: false; error: string }> {
+  const creds = portalCreds();
+  if (!creds) return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول.' };
+  const res = await postJson<{ publicUrl?: string; member?: TeamMemberRemote }>(
+    TEAM_ENDPOINT,
+    {
+      action: 'upload_photo',
+      barberId: creds.barberId,
+      email: creds.email,
+      memberId: input.memberId.trim(),
+      imageBase64: input.imageBase64,
+    },
+    'barber',
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  const publicUrl = String(res.json.publicUrl ?? '').trim();
+  if (!publicUrl || !res.json.member) return { ok: false, error: 'تعذّر رفع الصورة.' };
+  return { ok: true, publicUrl, member: res.json.member };
 }
 
 export async function listDayScheduleRemote(input: {

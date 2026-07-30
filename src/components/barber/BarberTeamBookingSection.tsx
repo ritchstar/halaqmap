@@ -2,7 +2,7 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useCallback, useEffect, useState } from 'react';
-import { CalendarDays, Loader2, Plus, Scissors, Trash2, UserRound } from 'lucide-react';
+import { CalendarDays, Loader2, Plus, Scissors, Trash2, UserRound, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,13 +14,16 @@ import {
   listDayScheduleRemote,
   listTeamMembersRemote,
   setTeamSlotBlockRemote,
-  updateContactModeRemote,
+  updateCardCtaRemote,
   upsertTeamMemberRemote,
+  uploadTeamMemberPhotoRemote,
   bookBarberPath,
-  type ContactMode,
+  type CardCtaFlags,
   type TeamMemberRemote,
+  DEFAULT_CARD_CTA,
 } from '@/lib/namedBarberBookingRemote';
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
+import { optimizeImageFileForBarberPortfolio } from '@/lib/portfolioImageOptimization';
 import { cn } from '@/lib/utils';
 
 function todayIso(): string {
@@ -30,10 +33,12 @@ function todayIso(): string {
 export function BarberTeamBookingSection() {
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<TeamMemberRemote[]>([]);
-  const [contactMode, setContactMode] = useState<ContactMode>('classic');
+  const [cardCta, setCardCta] = useState<CardCtaFlags>({ ...DEFAULT_CARD_CTA });
+  const [photoCount, setPhotoCount] = useState(0);
+  const [maxPhotos, setMaxPhotos] = useState(10);
   const [name, setName] = useState('');
-  const [photoUrl, setPhotoUrl] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [scheduleDate, setScheduleDate] = useState(todayIso());
   const [slots, setSlots] = useState<string[]>([]);
@@ -50,7 +55,9 @@ export function BarberTeamBookingSection() {
       return;
     }
     setMembers(res.members);
-    setContactMode(res.contactMode);
+    setCardCta(res.cardCta);
+    setPhotoCount(res.photoCount);
+    setMaxPhotos(res.maxPhotos);
     setSelectedId((prev) => {
       if (prev && res.members.some((m) => m.id === prev)) return prev;
       return res.members[0]?.id ?? null;
@@ -85,6 +92,20 @@ export function BarberTeamBookingSection() {
     void refreshSchedule();
   }, [refreshSchedule]);
 
+  const patchCta = async (key: keyof CardCtaFlags, value: boolean) => {
+    const prev = cardCta;
+    const next = { ...cardCta, [key]: value };
+    setCardCta(next);
+    const res = await updateCardCtaRemote({ [key]: value });
+    if (!res.ok) {
+      setCardCta(prev);
+      toast.error(res.error);
+      return;
+    }
+    setCardCta(res.cardCta);
+    toast.success('تم حفظ إعداد ظهور الأيقونات على البطاقة.');
+  };
+
   const addMember = async () => {
     if (!name.trim()) {
       toast.error('أدخل اسم الحلاق.');
@@ -93,7 +114,6 @@ export function BarberTeamBookingSection() {
     setSaving(true);
     const res = await upsertTeamMemberRemote({
       displayName: name.trim(),
-      photoUrl: photoUrl.trim() || null,
       sortOrder: members.length,
       isActive: true,
     });
@@ -104,7 +124,6 @@ export function BarberTeamBookingSection() {
     }
     toast.success('تمت إضافة الحلاق.');
     setName('');
-    setPhotoUrl('');
     void refresh();
   };
 
@@ -118,24 +137,71 @@ export function BarberTeamBookingSection() {
     void refresh();
   };
 
-  const toggleContactMode = async (checked: boolean) => {
-    const next: ContactMode = checked ? 'booking_only' : 'classic';
-    const res = await updateContactModeRemote(next);
+  const toggleActive = async (member: TeamMemberRemote, active: boolean) => {
+    const res = await upsertTeamMemberRemote({
+      memberId: member.id,
+      displayName: member.display_name,
+      photoUrl: member.photo_url,
+      sortOrder: member.sort_order,
+      isActive: active,
+      defaultDurationMinutes: member.default_duration_minutes,
+      internalNotes: member.internal_notes,
+      returnToWorkDate: active ? null : member.return_to_work_date ?? null,
+    });
     if (!res.ok) {
       toast.error(res.error);
       return;
     }
-    setContactMode(res.contactMode);
-    toast.success(
-      next === 'booking_only'
-        ? 'تم تفعيل وضع الحجز بالاسم — أُخفي الاتصال المباشر من البطاقة.'
-        : 'عاد وضع الاتصال الكلاسيكي (هاتف وواتساب).',
-    );
+    toast.success(active ? 'الحلاق متاح للحجز.' : 'الحلاق خارج الخدمة.');
+    void refresh();
+  };
+
+  const setReturnDate = async (member: TeamMemberRemote, date: string) => {
+    const res = await upsertTeamMemberRemote({
+      memberId: member.id,
+      displayName: member.display_name,
+      photoUrl: member.photo_url,
+      sortOrder: member.sort_order,
+      isActive: member.is_active,
+      defaultDurationMinutes: member.default_duration_minutes,
+      internalNotes: member.internal_notes,
+      returnToWorkDate: date || null,
+    });
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    void refresh();
+  };
+
+  const onPhotoSelected = async (member: TeamMemberRemote, file: File | null) => {
+    if (!file) return;
+    if (photoCount >= maxPhotos) {
+      toast.error(`بلغت الحد (${maxPhotos} صور). احذف صورة قديمة أولاً.`);
+      return;
+    }
+    setUploadingId(member.id);
+    const opt = await optimizeImageFileForBarberPortfolio(file, 'gallery');
+    if (!opt.ok) {
+      setUploadingId(null);
+      toast.error(opt.error);
+      return;
+    }
+    const up = await uploadTeamMemberPhotoRemote({
+      memberId: member.id,
+      imageBase64: opt.imageBase64,
+    });
+    setUploadingId(null);
+    if (!up.ok) {
+      toast.error(up.error);
+      return;
+    }
+    toast.success('تم رفع صورة الحلاق.');
+    void refresh();
   };
 
   const toggleSlot = async (slot: string, currentlyAvailable: boolean) => {
     if (!selectedId) return;
-    // إن كان متاحاً → احظره؛ إن كان محظوراً/مشغولاً ولا يظهر في المتاح → حاول فك الحظر فقط
     const blocked = currentlyAvailable;
     const res = await setTeamSlotBlockRemote({
       teamMemberId: selectedId,
@@ -180,33 +246,40 @@ export function BarberTeamBookingSection() {
       <div>
         <h2 className="text-xl font-bold sm:text-2xl">الحجز بالاسم والطاقم</h2>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          أدر حلاقي الصالون وجدول الإتاحة، وأخفِ الاتصال المباشر لصالح صفحة الحجز المرتبطة بحسابك.
+          تحكم بكل أيقونة على بطاقة الماسي بشكل مستقل، وأدر حضور الحلاقين وصورهم وجدول الإتاحة.
         </p>
       </div>
 
       <Card className="border-accent/30">
         <CardHeader>
-          <CardTitle className="text-base">وضع الظهور على البطاقة</CardTitle>
+          <CardTitle className="text-base">أيقونات البطاقة (ماسي)</CardTitle>
           <CardDescription>
-            عند التفعيل تُخفى أيقونات الهاتف والواتساب ويظهر زر الحجز والموقع فقط.
+            فعّل أو أخفِ كل أيقونة على حدة. يُطبَّق على البنر بعد البحث مباشرة.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">وضع الحجز بالاسم — إخفاء الاتصال</p>
-              <p className="text-xs text-muted-foreground">
-                الحالة الحالية: {contactMode === 'booking_only' ? 'حجز فقط' : 'كلاسيكي'}
-              </p>
+        <CardContent className="space-y-3">
+          {(
+            [
+              ['showPhone', 'الاتصال (هاتف)'],
+              ['showWhatsApp', 'واتساب'],
+              ['showChat', 'الشات الكتابي'],
+              ['showBooking', 'الحجز'],
+            ] as const
+          ).map(([key, label]) => (
+            <div
+              key={key}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2.5"
+            >
+              <p className="text-sm font-medium">{label}</p>
+              <Switch
+                checked={cardCta[key]}
+                onCheckedChange={(checked) => void patchCta(key, checked)}
+              />
             </div>
-            <Switch
-              checked={contactMode === 'booking_only'}
-              onCheckedChange={(checked) => void toggleContactMode(checked)}
-            />
-          </div>
-          {contactMode === 'booking_only' && members.filter((m) => m.is_active).length === 0 ? (
+          ))}
+          {cardCta.showBooking && members.filter((m) => m.is_active).length === 0 ? (
             <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-900 dark:text-amber-100">
-              وضع الحجز مفعّل لكن لا يوجد حلاقون نشطون. أضف طاقماً أو سيُحجز على مستوى الصالون فقط.
+              أيقونة الحجز مفعّلة لكن لا يوجد حلاقون نشطون. أضف طاقماً أو سيُحجز على مستوى الصالون.
             </p>
           ) : null}
           <Button type="button" variant="outline" size="sm" onClick={() => void copyBookingLink()}>
@@ -221,31 +294,24 @@ export function BarberTeamBookingSection() {
             <UserRound className="h-5 w-5" />
             طاقم الحلاقين
           </CardTitle>
-          <CardDescription>حتى 25 حلاقاً — صورة واسم ومدة جلسة افتراضية.</CardDescription>
+          <CardDescription>
+            حتى 25 حلاقاً — وصوّر الطاقم حتى {maxPhotos} صور مضغوطة على خوادم المنصة ({photoCount}/
+            {maxPhotos}).
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-1.5">
               <Label>اسم الحلاق</Label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: أحمد" />
             </div>
-            <div className="space-y-1.5">
-              <Label>رابط الصورة (اختياري)</Label>
-              <Input
-                value={photoUrl}
-                onChange={(e) => setPhotoUrl(e.target.value)}
-                placeholder="https://…"
-                dir="ltr"
-                className="text-left"
-              />
-            </div>
+            <Button type="button" onClick={() => void addMember()} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              إضافة
+            </Button>
           </div>
-          <Button type="button" onClick={() => void addMember()} disabled={saving} className="gap-2">
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            إضافة حلاق
-          </Button>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             {members.length === 0 ? (
               <p className="text-sm text-muted-foreground">لا يوجد حلاقون بعد.</p>
             ) : (
@@ -253,39 +319,85 @@ export function BarberTeamBookingSection() {
                 <div
                   key={m.id}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg border p-3',
+                    'space-y-3 rounded-lg border p-3',
                     selectedId === m.id ? 'border-accent bg-accent/5' : 'border-border',
+                    !m.is_active ? 'opacity-80' : '',
                   )}
                 >
-                  <button
-                    type="button"
-                    className="flex flex-1 items-center gap-3 text-right"
-                    onClick={() => setSelectedId(m.id)}
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-muted">
-                      {m.photo_url ? (
-                        <img src={m.photo_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <Scissors className="h-4 w-4 text-muted-foreground" />
-                      )}
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      className="flex flex-1 items-center gap-3 text-right"
+                      onClick={() => setSelectedId(m.id)}
+                    >
+                      <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-muted">
+                        {m.photo_url ? (
+                          <img src={m.photo_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <Scissors className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">{m.display_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {m.is_active ? 'متاح للحجز' : 'خارج الخدمة'}
+                          {!m.is_active && m.return_to_work_date
+                            ? ` · يعود ${m.return_to_work_date}`
+                            : ''}
+                        </p>
+                      </div>
+                    </button>
+                    <label className="inline-flex cursor-pointer items-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        disabled={uploadingId === m.id}
+                        onChange={(e) => {
+                          const f = e.target.files?.[0] ?? null;
+                          e.target.value = '';
+                          void onPhotoSelected(m, f);
+                        }}
+                      />
+                      <span className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border hover:bg-muted">
+                        {uploadingId === m.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <ImagePlus className="h-4 w-4" />
+                        )}
+                      </span>
+                    </label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive"
+                      onClick={() => void removeMember(m.id)}
+                      title="حذف"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={m.is_active}
+                        onCheckedChange={(checked) => void toggleActive(m, checked)}
+                      />
+                      <span className="text-xs text-muted-foreground">متاح للحجز</span>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold">{m.display_name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {m.default_duration_minutes} د · {m.is_active ? 'نشط' : 'موقوف'}
-                      </p>
-                    </div>
-                  </button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive"
-                    onClick={() => void removeMember(m.id)}
-                    title="حذف"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    {!m.is_active ? (
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs whitespace-nowrap">تاريخ العودة للعمل</Label>
+                        <Input
+                          type="date"
+                          className="h-8 w-40 text-xs"
+                          value={m.return_to_work_date ?? ''}
+                          onChange={(e) => void setReturnDate(m, e.target.value)}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               ))
             )}
