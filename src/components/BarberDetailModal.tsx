@@ -14,14 +14,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Phone, MapPin, MessageCircle, Shield, QrCode, Images, Loader2, Home } from 'lucide-react';
+import { Phone, MapPin, MessageCircle, Shield, QrCode, Images, Loader2, Home, Calendar } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CUSTOMER_MAP_CTA } from '@/config/subscriptionPlanHero';
 import { TERM_GEOSPATIAL_DIGITAL_ASSET_AR } from '@/config/softwareLicenseTerminology';
 import { getOrderedWeekHoursForDisplay, SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { useDiamondAppointmentSchedulingShown } from '@/lib/diamondSchedulingVisibility';
 import { DiamondAppointmentBooking } from '@/components/DiamondAppointmentBooking';
+import { bookBarberPath, isBookingOnlyContact } from '@/lib/namedBarberBookingRemote';
 import { CustomerBarberChatPreview } from '@/components/CustomerBarberChatPreview';
 import { HomeServiceContactRequestForm } from '@/components/HomeServiceContactRequestForm';
 import { GroomPrepContactRequestForm } from '@/components/GroomPrepContactRequestForm';
@@ -67,7 +69,9 @@ export function BarberDetailModal({
   onExpandSearchRadius,
   onRetrySearch,
 }: BarberDetailModalProps) {
+  const navigate = useNavigate();
   const showDiamondScheduling = useDiamondAppointmentSchedulingShown(barber);
+  const bookingOnly = isBookingOnlyContact(barber) && !barber.showcasePreview;
   const previewSecretMarker = barber.previewListing ? (
     <span className="text-muted-foreground font-normal" title="إدراج معاينة">
       {' '}
@@ -239,7 +243,7 @@ export function BarberDetailModal({
   };
 
   const whatsappHref = buildWhatsAppChatHref(barber.whatsapp || barber.phone || '');
-  const canWhatsApp = Boolean(whatsappHref) && !barber.showcasePreview;
+  const canWhatsApp = Boolean(whatsappHref) && !barber.showcasePreview && !bookingOnly;
   const isShowcase = Boolean(barber.showcasePreview);
 
   const handleWhatsAppClick = () => {
@@ -249,6 +253,11 @@ export function BarberDetailModal({
 
   const handlePhoneClick = () => {
     window.location.href = `tel:${barber.phone}`;
+  };
+
+  const handleBookingClick = () => {
+    onClose();
+    navigate(bookBarberPath(barber.id));
   };
 
   const openFullGallery = async () => {
@@ -381,10 +390,20 @@ export function BarberDetailModal({
               </BarberContactCtaButton>
             )}
             {!isShowcase ? (
-              <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
-                <Phone className="w-5 h-5 ml-2 shrink-0" />
-                <span dir="ltr">{barber.phone}</span>
-              </BarberContactCtaButton>
+              bookingOnly ? (
+                <BarberContactCtaButton
+                  onClick={handleBookingClick}
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                >
+                  <Calendar className="w-5 h-5 ml-2 shrink-0" />
+                  حجز موعد
+                </BarberContactCtaButton>
+              ) : (
+                <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
+                  <Phone className="w-5 h-5 ml-2 shrink-0" />
+                  <span dir="ltr">{barber.phone}</span>
+                </BarberContactCtaButton>
+              )
             ) : (
               <BarberContactCtaButton
                 type="button"
@@ -578,9 +597,26 @@ export function BarberDetailModal({
             </div>
           )}
 
-          {barber.subscription === SubscriptionTier.DIAMOND && showDiamondScheduling && !isShowcase && (
+          {barber.subscription === SubscriptionTier.DIAMOND &&
+            showDiamondScheduling &&
+            !isShowcase &&
+            !bookingOnly && (
             <DiamondAppointmentBooking barberId={barber.id} barberName={barber.name} />
           )}
+          {barber.subscription === SubscriptionTier.DIAMOND && bookingOnly && !isShowcase ? (
+            <div className="rounded-lg border border-accent/30 bg-accent/5 p-4">
+              <p className="mb-3 text-sm text-muted-foreground">
+                هذا الصالون يستقبل الحجوزات عبر صفحة الحجز المرتبطة بالحساب.
+              </p>
+              <BarberContactCtaButton
+                onClick={handleBookingClick}
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+              >
+                <Calendar className="w-5 h-5 ml-2 shrink-0" />
+                فتح صفحة الحجز
+              </BarberContactCtaButton>
+            </div>
+          ) : null}
 
           <Separator />
 

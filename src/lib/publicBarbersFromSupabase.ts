@@ -70,6 +70,7 @@ type BarberRow = {
   featured_images?: unknown;
   is_showcase_preview?: boolean | null;
   children_specialist?: boolean | null;
+  contact_mode?: string | null;
   home_service_offered?: boolean | null;
   home_service_price_sar?: number | string | null;
   home_service_radius_km?: number | null;
@@ -284,7 +285,8 @@ function mapRow(row: BarberRow): Barber {
   const images = mergePublicBarberImages(cardCover, profile, featured);
   const galleryCount = Math.max(0, Math.floor(Number(row.gallery_count) || 0));
   const phoneRaw = row.phone?.trim() || '';
-  const phone = toSaudiE164Plus(phoneRaw) ?? phoneRaw;
+  const bookingOnly = String(row.contact_mode ?? '').trim() === 'booking_only';
+  const phone = bookingOnly ? '' : (toSaudiE164Plus(phoneRaw) ?? phoneRaw);
   const categories = Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [];
   const acceptsChildren = barberAcceptsChildren(categories);
   const childrenSpecialist =
@@ -332,6 +334,9 @@ function mapRow(row: BarberRow): Barber {
     ...(featured.length > 0 ? { featuredImages: featured } : {}),
     ...(galleryCount > 0 ? { galleryCount } : {}),
     ...(row.is_showcase_preview === true ? { showcasePreview: true } : {}),
+    ...(String(row.contact_mode ?? '').trim() === 'booking_only'
+      ? { contactMode: 'booking_only' as const }
+      : { contactMode: 'classic' as const }),
   };
 }
 

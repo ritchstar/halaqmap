@@ -24,6 +24,7 @@ export type BookingRow = {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
   notes: string | null;
   cancellation_reason: string | null;
+  team_member_id?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -47,17 +48,26 @@ async function bookingSlotOverlaps(
   bookingDate: string,
   bookingTime: string,
   durationMinutes: number,
+  teamMemberId: string | null,
 ): Promise<boolean> {
   const newStart = parseBookingTimestamp(bookingDate, bookingTime);
   if (newStart == null) return true;
   const newEnd = newStart + durationMinutes * 60_000;
 
-  const { data: rows, error } = await service
+  let query = service
     .from('bookings')
-    .select('booking_time, duration_minutes')
+    .select('booking_time, duration_minutes, team_member_id')
     .eq('barber_id', barberId)
     .eq('booking_date', bookingDate)
     .in('status', ['pending', 'confirmed']);
+
+  if (teamMemberId) {
+    query = query.eq('team_member_id', teamMemberId);
+  } else {
+    query = query.is('team_member_id', null);
+  }
+
+  const { data: rows, error } = await query;
 
   if (error || !rows?.length) return false;
 
@@ -79,17 +89,44 @@ async function insertDiamondBookingViaService(
     bookingTime: string;
     customerPhone: string;
     durationMinutes: number;
+    teamMemberId?: string | null;
+    serviceName?: string;
+    notes?: string;
   },
 ): Promise<{ ok: true; booking: BookingRow } | { ok: false; error: string; status: number }> {
+  const teamMemberId = input.teamMemberId ? String(input.teamMemberId).trim() : null;
   const overlaps = await bookingSlotOverlaps(
     service,
     input.barberRowId,
     input.bookingDate,
     input.bookingTime,
     input.durationMinutes,
+    teamMemberId,
   );
   if (overlaps) {
     return { ok: false, error: 'slot overlaps existing booking', status: 409 };
+  }
+
+  // حظر يدوي لعضو الطاقم
+  if (teamMemberId) {
+    const newStart = parseBookingTimestamp(input.bookingDate, input.bookingTime);
+    if (newStart != null) {
+      const newEnd = newStart + input.durationMinutes * 60_000;
+      const { data: blocks } = await service
+        .from('barber_team_member_blocks')
+        .select('start_time, end_time')
+        .eq('barber_id', input.barberRowId)
+        .eq('team_member_id', teamMemberId)
+        .eq('block_date', input.bookingDate);
+      for (const block of blocks ?? []) {
+        const bs = parseBookingTimestamp(input.bookingDate, String(block.start_time ?? ''));
+        const be = parseBookingTimestamp(input.bookingDate, String(block.end_time ?? ''));
+        if (bs == null || be == null) continue;
+        if (newStart < be && bs < newEnd) {
+          return { ok: false, error: 'slot overlaps existing booking', status: 409 };
+        }
+      }
+    }
   }
 
   const { data: row, error } = await service
@@ -100,13 +137,14 @@ async function insertDiamondBookingViaService(
       customer_name: 'عميل حلاق ماب',
       customer_phone: input.customerPhone,
       customer_email: null,
-      service_name: 'طلب موعد — باقة ماسية',
+      service_name: input.serviceName || 'طلب موعد — باقة ماسية',
       service_price: null,
       booking_date: input.bookingDate,
       booking_time: input.bookingTime,
       duration_minutes: input.durationMinutes,
       status: 'pending',
-      notes: 'طلب موعد من واجهة الزائر (ماسي)',
+      notes: input.notes || 'طلب موعد من واجهة الزائر (ماسي)',
+      ...(teamMemberId ? { team_member_id: teamMemberId } : {}),
     })
     .select('*')
     .maybeSingle();
@@ -195,6 +233,7 @@ export async function createDiamondAppointmentRequest(input: {
   bookingTime: string;
   customerPhone: string;
   durationMinutes?: number;
+  teamMemberId?: string | null;
 }): Promise<
   | { ok: true; bookingId: string; booking: BookingRow }
   | { ok: false; error: string; status: number }
@@ -203,7 +242,7 @@ export async function createDiamondAppointmentRequest(input: {
   const bookingDate = input.bookingDate.trim();
   const bookingTime = normalizeBookingTime(input.bookingTime);
   const phone = input.customerPhone.trim();
-  const durationMinutes = input.durationMinutes ?? 30;
+  let durationMinutes = input.durationMinutes ?? 30;
 
   if (!isValidBookingDate(bookingDate)) {
     return { ok: false, error: 'Invalid booking date', status: 400 };
@@ -231,12 +270,29 @@ export async function createDiamondAppointmentRequest(input: {
   const barber = await resolveDiamondBarberForBooking(service, barberId);
   if (!barber.ok) return barber;
 
+  const { resolveTeamMemberForBooking } = await import('./namedBarberBookingService.js');
+  const member = await resolveTeamMemberForBooking(service, barber.barberRowId, input.teamMemberId);
+  if (!member.ok) return member;
+  if (input.durationMinutes == null && member.teamMemberId) {
+    durationMinutes = member.durationMinutes;
+  }
+
+  const serviceName = member.teamMemberId
+    ? 'طلب موعد — حجز بالاسم'
+    : 'طلب موعد — باقة ماسية';
+  const notes = member.teamMemberId
+    ? 'طلب موعد من صفحة الحجز بالاسم'
+    : 'طلب موعد من واجهة الزائر (ماسي)';
+
   const inserted = await insertDiamondBookingViaService(service, {
     barberRowId: barber.barberRowId,
     bookingDate,
     bookingTime,
     customerPhone: phone,
     durationMinutes,
+    teamMemberId: member.teamMemberId,
+    serviceName,
+    notes,
   });
   if (!inserted.ok) return inserted;
 

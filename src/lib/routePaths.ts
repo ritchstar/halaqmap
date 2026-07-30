@@ -82,6 +82,8 @@ export const ROUTE_PATHS = {
   HOSPITALITY_B2B_REQUEST: '/partners/hospitality-request',
   /** صفحة تقييم عبر دعوة QR: /rate/:barberId?t=token */
   RATE_BARBER: '/rate/:barberId',
+  /** صفحة الحجز بالاسم للصالون الماسي: /book/:barberId */
+  BOOK_BARBER: '/book/:barberId',
   /** صفحة الهبوط التصميمية التجريبية — معاينة فقط */
   LANDING_PREVIEW: '/preview',
   /** صفحة هبوط مسار الخدمات التسويقية للشركاء — معاينة تصميمية */

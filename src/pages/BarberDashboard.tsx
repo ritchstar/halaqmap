@@ -114,6 +114,7 @@ import { ChildrenServicesPartnerSettingsCard } from '@/components/barber/Childre
 import { ChildrenSpecialistDashboardPanel } from '@/components/barber/ChildrenSpecialistDashboardPanel';
 import { MensGroomingCenterDashboardPanel } from '@/components/barber/MensGroomingCenterDashboardPanel';
 import { BarberServicesPartnerSettingsCard } from '@/components/barber/BarberServicesPartnerSettingsCard';
+import { BarberTeamBookingSection } from '@/components/barber/BarberTeamBookingSection';
 import { SAUDI_WEEK_DAY_LABELS } from '@/lib/saudiWorkingWeek';
 import { formatBarberMemberNumber } from '@/lib/barberMemberNumber';
 import {
@@ -411,6 +412,7 @@ export default function BarberDashboard({
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: false,
+        showTeamBooking: true,
         isGoldLite: false,
         showChildrenSpecialistTab: true,
         showMensGroomingCenterTab: true,
@@ -426,6 +428,7 @@ export default function BarberDashboard({
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: false,
+        showTeamBooking: true,
         isGoldLite: false,
         showChildrenSpecialistTab: false,
         showMensGroomingCenterTab: false,
@@ -441,6 +444,7 @@ export default function BarberDashboard({
         showServicesMenu: false,
         showQrRatings: false,
         showDigitalShift: false,
+        showTeamBooking: false,
         isGoldLite: false,
         showChildrenSpecialistTab: false,
         showMensGroomingCenterTab: false,
@@ -456,6 +460,7 @@ export default function BarberDashboard({
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: true,
+        showTeamBooking: true,
         isGoldLite: false,
         showChildrenSpecialistTab: true,
         showMensGroomingCenterTab: digitalShiftUnlocked,
@@ -471,6 +476,7 @@ export default function BarberDashboard({
         showServicesMenu: true,
         showQrRatings: true,
         showDigitalShift: true,
+        showTeamBooking: false,
         isGoldLite: true,
         showChildrenSpecialistTab: false,
         showMensGroomingCenterTab: false,
@@ -485,6 +491,7 @@ export default function BarberDashboard({
       showServicesMenu: false,
       showQrRatings: false,
       showDigitalShift: false,
+      showTeamBooking: false,
       isGoldLite: false,
       showChildrenSpecialistTab: false,
       showMensGroomingCenterTab: false,
@@ -1211,6 +1218,12 @@ export default function BarberDashboard({
                 ) : null}
               </TabsTrigger>
             ) : null}
+            {tierTabs.showTeamBooking ? (
+              <TabsTrigger value="team-booking" className={DASHBOARD_VITAL_TAB_TRIGGER}>
+                <Users className="h-5 w-5 shrink-0" />
+                <span>الحجز بالاسم</span>
+              </TabsTrigger>
+            ) : null}
             {tierTabs.showDigitalShift ? (
               <TabsTrigger
                 value="digital-shift"
@@ -1438,6 +1451,12 @@ export default function BarberDashboard({
               onDeleteClosedBooking={handleDeleteClosedBooking}
               onRefresh={() => void refreshRemoteBookings()}
             />
+          </TabsContent>
+          ) : null}
+
+          {tierTabs.showTeamBooking ? (
+          <TabsContent value="team-booking" className="space-y-6">
+            <BarberTeamBookingSection />
           </TabsContent>
           ) : null}
 
@@ -3704,7 +3723,7 @@ function SettingsSection({
             </CardTitle>
             <CardDescription>
               تحكم بإظهار أو إخفاء كتلة الحجز على بطاقة صالونك في نظام الرصد الذكي لحلاق ماب. يُحفظ الإعداد في هذا المتصفح
-              كمعاينة.
+              كمعاينة. لإخفاء الاتصال المباشر وإدارة الطاقم استخدم تبويب «الحجز بالاسم».
             </CardDescription>
           </CardHeader>
           <CardContent>

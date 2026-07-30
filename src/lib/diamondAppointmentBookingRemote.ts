@@ -15,6 +15,7 @@ export type RemoteBookingRow = {
   booking_date: string;
   booking_time: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  team_member_id?: string | null;
 };
 
 function endpoint(): string {
@@ -108,6 +109,7 @@ function mapBookingStatus(
 }
 
 export function mapRemoteBookingToScheduleItem(row: RemoteBookingRow): BarberDashboardScheduleItem {
+  const memberHint = row.team_member_id ? ' · حجز بالاسم' : '';
   return {
     id: row.id,
     barberId: row.barber_id,
@@ -116,7 +118,7 @@ export function mapRemoteBookingToScheduleItem(row: RemoteBookingRow): BarberDas
     time: formatBookingTime(row.booking_time),
     customerName: row.customer_name,
     customerPhone: row.customer_phone,
-    service: row.service_name,
+    service: `${row.service_name}${memberHint}`,
     status: mapBookingStatus(row.status),
     visibleOnProfile: false,
   };
@@ -150,6 +152,7 @@ export async function createDiamondAppointmentBookingRemote(input: {
   bookingTime: string;
   customerPhone: string;
   durationMinutes?: number;
+  teamMemberId?: string | null;
 }): Promise<{ ok: true; bookingId: string } | { ok: false; error: string }> {
   const res = await postJson<{ bookingId?: string }>(
     {
@@ -159,6 +162,7 @@ export async function createDiamondAppointmentBookingRemote(input: {
       bookingTime: input.bookingTime.trim(),
       customerPhone: input.customerPhone.trim(),
       durationMinutes: input.durationMinutes ?? 30,
+      teamMemberId: input.teamMemberId || null,
     },
     'public',
   );

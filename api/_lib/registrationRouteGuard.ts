@@ -164,6 +164,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'diamond-appointment-booking') {
     return envInt('DIAMOND_APPOINTMENT_BOOKING_RATE_LIMIT_MAX', 20);
   }
+  if (routeId === 'named-barber-booking') {
+    return envInt('NAMED_BARBER_BOOKING_RATE_LIMIT_MAX', 40);
+  }
   if (routeId === 'public-barber-gallery') {
     return envInt('PUBLIC_BARBER_GALLERY_RATE_LIMIT_MAX', 120);
   }

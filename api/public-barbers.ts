@@ -53,13 +53,53 @@ function sanitizePublicBarberRows(rows: unknown): unknown[] {
         row.account_linked = Boolean(uidStr);
       }
       delete row.user_id;
-      if (typeof row.phone === 'string') {
+      const contactMode = String(row.contact_mode ?? '').trim() === 'booking_only' ? 'booking_only' : 'classic';
+      row.contact_mode = contactMode;
+      if (contactMode === 'booking_only') {
+        // إخفاء رقم الاتصال في الدليل العام عند وضع الحجز فقط
+        row.phone = '';
+      } else if (typeof row.phone === 'string') {
         const n = normalizeSaudiMobileForWa(row.phone);
         if (n) row.phone = `+${n}`;
       }
       return row;
     })
     .filter(Boolean);
+}
+
+async function attachContactModeToRows(
+  supabase: SupabaseClient,
+  rows: unknown[],
+): Promise<unknown[]> {
+  const ids = rows
+    .map((r) =>
+      r && typeof r === 'object' ? String((r as { id?: unknown }).id ?? '').trim() : '',
+    )
+    .filter(Boolean);
+  if (ids.length === 0) return rows;
+  try {
+    const { loadContactModesForBarbers } = await import('./_lib/namedBarberBookingService.js');
+    const map = await loadContactModesForBarbers(supabase, ids);
+    return rows.map((raw) => {
+      if (!raw || typeof raw !== 'object') return raw;
+      const row = { ...(raw as Record<string, unknown>) };
+      const id = String(row.id ?? '');
+      const mode = map.get(id) ?? 'classic';
+      row.contact_mode = mode;
+      if (mode === 'booking_only') {
+        row.phone = '';
+      }
+      return row;
+    });
+  } catch (err) {
+    console.error('[public-barbers] attach_contact_mode_failed', err);
+    return rows;
+  }
+}
+
+async function enrichPublicRows(supabase: SupabaseClient, rows: unknown[]): Promise<unknown[]> {
+  const withHours = await attachWorkingHoursToRows(supabase, sanitizePublicBarberRows(rows));
+  return attachContactModeToRows(supabase, withHours);
 }
 
 async function attachWorkingHoursToRows(
@@ -203,10 +243,7 @@ export async function GET(request: Request): Promise<Response> {
     if (error) {
       return Response.json({ error: error.message }, { status: 500, headers });
     }
-    const sanitized = await attachWorkingHoursToRows(
-      supabase,
-      sanitizePublicBarberRows(data ?? []),
-    );
+    const sanitized = await enrichPublicRows(supabase, data ?? []);
     if (sanitized.length === 0) {
       const fallback = await resolveShowcaseFallbackForPublic(supabase);
       if (fallback.ok) {
@@ -271,7 +308,7 @@ export async function GET(request: Request): Promise<Response> {
     {
       ok: true,
       mode: 'fallback_recent',
-      rows: await attachWorkingHoursToRows(supabase, sanitizePublicBarberRows(data ?? [])),
+      rows: await enrichPublicRows(supabase, data ?? []),
     },
     { headers },
   );

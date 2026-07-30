@@ -125,6 +125,11 @@ export interface Barber {
    * إذا وُضعت `false` تُخفى من البيانات؛ يمكن أيضاً الإخفاء من لوحة الحلاق (محلي في المتصفح للمعاينة).
    */
   diamondAppointmentSchedulingEnabled?: boolean;
+  /**
+   * وضع الظهور على البطاقة:
+   * `classic` = هاتف/واتساب/موقع؛ `booking_only` = موقع + حجز فقط.
+   */
+  contactMode?: 'classic' | 'booking_only';
   /** من بحث RPC: رخصة نشطة في subscriptions */
   hasActiveSubscription?: boolean;
   /** ISO — آخر تحديث لملف الصالون (لعامل النشاط في الترتيب) */

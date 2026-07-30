@@ -80,11 +80,12 @@ export async function POST(request: Request): Promise<Response> {
     const bookingDate = String((body as { bookingDate?: unknown }).bookingDate ?? '').trim();
     const bookingTime = String((body as { bookingTime?: unknown }).bookingTime ?? '').trim();
     const customerPhone = String((body as { customerPhone?: unknown }).customerPhone ?? '').trim();
+    const teamMemberIdRaw = String((body as { teamMemberId?: unknown }).teamMemberId ?? '').trim();
     const durationMinutesRaw = (body as { durationMinutes?: unknown }).durationMinutes;
     const durationMinutes =
       typeof durationMinutesRaw === 'number' && Number.isFinite(durationMinutesRaw)
         ? Math.floor(durationMinutesRaw)
-        : 30;
+        : undefined;
 
     const result = await createDiamondAppointmentRequest({
       barberId,
@@ -92,6 +93,7 @@ export async function POST(request: Request): Promise<Response> {
       bookingTime,
       customerPhone,
       durationMinutes,
+      teamMemberId: teamMemberIdRaw || null,
     });
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: result.status, headers });

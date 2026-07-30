@@ -95,6 +95,7 @@ const PartnerSubscriptionTutorials = lazy(() => import("@/pages/PartnerSubscript
 const MapCommunity = lazy(() => import("@/pages/MapCommunity"));
 const PartnerBannersPreviewLanding = lazy(() => import("@/pages/PartnerBannersPreviewLanding"));
 const RateBarber = lazy(() => import("@/pages/RateBarber"));
+const BookBarber = lazy(() => import("@/pages/BookBarber"));
 const AdminSentinelPage = lazy(() => import("@/pages/AdminSentinelPage"));
 const CosmicShowcase = lazy(() => import("@/pages/CosmicShowcase"));
 const DigitalShiftFeaturePage = lazy(() => import("@/pages/DigitalShiftFeaturePage"));
@@ -452,6 +453,7 @@ export function App() {
           <Route path="/admin/staff-hub" element={<LegacyAdminRedirect suffix="/staff-hub" />} />
           <Route path="/admin" element={<LegacyAdminRedirect suffix="/in" />} />
           <Route path={ROUTE_PATHS.RATE_BARBER} element={<LazyRoute><RateBarber /></LazyRoute>} />
+          <Route path={ROUTE_PATHS.BOOK_BARBER} element={<LazyRoute><BookBarber /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SEMAT_LEGAL} element={<LazyRoute><SematLegalHub /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SEMAT_SETUP} element={<LazyRoute><SematCardSetup /></LazyRoute>} />
           <Route path={ROUTE_PATHS.SEMAT_SCAN} element={<LazyRoute><SematScanPage /></LazyRoute>} />

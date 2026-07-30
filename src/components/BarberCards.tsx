@@ -2,9 +2,11 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { motion } from "framer-motion";
-import { Star, MapPin, Phone, MessageCircle, Shield, Sparkles, Images } from "lucide-react";
+import { Star, MapPin, Phone, MessageCircle, Shield, Sparkles, Images, Calendar } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
+import { useNavigate } from "react-router-dom";
 import { Barber, SubscriptionTier, calculateDistance } from "@/lib/index";
+import { bookBarberPath, isBookingOnlyContact } from "@/lib/namedBarberBookingRemote";
 import { SaudiBishtIcon } from "@/components/icons/SaudiBishtIcon";
 import {
   ChildrenSpecialistBadge,
@@ -200,8 +202,13 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
   };
 
   const whatsappHref = buildWhatsAppChatHref(barber.whatsapp || barber.phone || '');
-  const canWhatsApp = Boolean(whatsappHref) && !barber.showcasePreview;
+  const bookingOnly = isBookingOnlyContact(barber) && !barber.showcasePreview;
+  const canWhatsApp = Boolean(whatsappHref) && !barber.showcasePreview && !bookingOnly;
   const isShowcase = Boolean(barber.showcasePreview);
+  const navigate = useNavigate();
+  const openBookingPage = () => {
+    navigate(bookBarberPath(barber.id));
+  };
 
   const openWhatsApp = () => {
     if (!whatsappHref) return;
@@ -281,23 +288,36 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
                   <MapPin className="w-4 h-4 ml-2" />
                   الموقع
                 </Button>
-                {canWhatsApp ? (
+                {bookingOnly ? (
                   <Button
-                    onClick={openWhatsApp}
-                    className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                    onClick={openBookingPage}
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground"
                     size="icon"
-                    title="واتساب"
+                    title="حجز موعد"
                   >
-                    <SiWhatsapp className="w-4 h-4" />
+                    <Calendar className="w-4 h-4" />
                   </Button>
-                ) : null}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="border-primary text-primary hover:bg-primary/10"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                </Button>
+                ) : (
+                  <>
+                    {canWhatsApp ? (
+                      <Button
+                        onClick={openWhatsApp}
+                        className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                        size="icon"
+                        title="واتساب"
+                      >
+                        <SiWhatsapp className="w-4 h-4" />
+                      </Button>
+                    ) : null}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="border-primary text-primary hover:bg-primary/10"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </Card>
@@ -371,24 +391,37 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
                 <MapPin className="w-4 h-4 ml-2" />
                 الموقع
               </Button>
-              <Button
-                onClick={callPhone}
-                variant="outline"
-                size="icon"
-                className="border-border hover:bg-muted"
-              >
-                <Phone className="w-4 h-4" />
-              </Button>
-              {canWhatsApp ? (
+              {bookingOnly ? (
                 <Button
-                  onClick={openWhatsApp}
-                  className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                  onClick={openBookingPage}
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
                   size="icon"
-                  title="واتساب"
+                  title="حجز موعد"
                 >
-                  <SiWhatsapp className="w-4 h-4" />
+                  <Calendar className="w-4 h-4" />
                 </Button>
-              ) : null}
+              ) : (
+                <>
+                  <Button
+                    onClick={callPhone}
+                    variant="outline"
+                    size="icon"
+                    className="border-border hover:bg-muted"
+                  >
+                    <Phone className="w-4 h-4" />
+                  </Button>
+                  {canWhatsApp ? (
+                    <Button
+                      onClick={openWhatsApp}
+                      className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                      size="icon"
+                      title="واتساب"
+                    >
+                      <SiWhatsapp className="w-4 h-4" />
+                    </Button>
+                  ) : null}
+                </>
+              )}
             </div>
           </div>
         </Card>
@@ -471,23 +504,36 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
                 <MapPin className="w-4 h-4 ml-2" />
                 الموقع
               </Button>
-              {canWhatsApp ? (
+              {bookingOnly ? (
                 <Button
-                  onClick={openWhatsApp}
-                  className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                  onClick={openBookingPage}
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
                   size="icon"
-                  title="واتساب"
+                  title="حجز موعد"
                 >
-                  <SiWhatsapp className="w-4 h-4" />
+                  <Calendar className="w-4 h-4" />
                 </Button>
-              ) : null}
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-primary text-primary hover:bg-primary/10"
-              >
-                <MessageCircle className="w-4 h-4" />
-              </Button>
+              ) : (
+                <>
+                  {canWhatsApp ? (
+                    <Button
+                      onClick={openWhatsApp}
+                      className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                      size="icon"
+                      title="واتساب"
+                    >
+                      <SiWhatsapp className="w-4 h-4" />
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="border-primary text-primary hover:bg-primary/10"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
             </div>
             <div className="mt-4">
               <CustomerBarberChatPreview
@@ -591,23 +637,36 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               <MapPin className="w-4 h-4 ml-2" />
               الموقع
             </Button>
-            {canWhatsApp ? (
+            {bookingOnly ? (
               <Button
-                onClick={openWhatsApp}
-                className="bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg"
+                onClick={openBookingPage}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg"
                 size="icon"
-                title="واتساب"
+                title="حجز موعد"
               >
-                <SiWhatsapp className="w-5 h-5" />
+                <Calendar className="w-5 h-5" />
               </Button>
-            ) : null}
-            <Button
-              variant="outline"
-              size="icon"
-              className="border-primary text-primary hover:bg-primary/10 shadow-md"
-            >
-              <MessageCircle className="w-5 h-5" />
-            </Button>
+            ) : (
+              <>
+                {canWhatsApp ? (
+                  <Button
+                    onClick={openWhatsApp}
+                    className="bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg"
+                    size="icon"
+                    title="واتساب"
+                  >
+                    <SiWhatsapp className="w-5 h-5" />
+                  </Button>
+                ) : null}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-primary text-primary hover:bg-primary/10 shadow-md"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </Button>
+              </>
+            )}
           </div>
           <div className="mt-4">
             <CustomerBarberChatPreview
@@ -620,7 +679,7 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               compact
             />
           </div>
-          {showDiamondScheduling && !isShowcase ? (
+          {showDiamondScheduling && !isShowcase && !bookingOnly ? (
             <div className="mt-4">
               <DiamondAppointmentBooking barberId={barber.id} barberName={barber.name} compact />
             </div>
