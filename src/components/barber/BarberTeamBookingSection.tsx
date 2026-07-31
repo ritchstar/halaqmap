@@ -263,7 +263,7 @@ export function BarberTeamBookingSection() {
               ['showPhone', 'الاتصال (هاتف)'],
               ['showWhatsApp', 'واتساب'],
               ['showChat', 'الشات الكتابي'],
-              ['showBooking', 'الحجز'],
+              ['showBooking', 'الحجز المتقدم'],
             ] as const
           ).map(([key, label]) => (
             <div

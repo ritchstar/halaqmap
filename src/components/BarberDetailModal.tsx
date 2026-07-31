@@ -413,7 +413,7 @@ export function BarberDetailModal({
                 className="bg-accent hover:bg-accent/90 text-accent-foreground"
               >
                 <Calendar className="w-5 h-5 ml-2 shrink-0" />
-                حجز موعد
+                حجز متقدم
               </BarberContactCtaButton>
             ) : showPhone ? (
               <BarberContactCtaButton onClick={handlePhoneClick} variant="outline">
@@ -629,7 +629,7 @@ export function BarberDetailModal({
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
               >
                 <Calendar className="w-5 h-5 ml-2 shrink-0" />
-                فتح صفحة الحجز
+                حجز متقدم
               </BarberContactCtaButton>
             </div>
           ) : null}

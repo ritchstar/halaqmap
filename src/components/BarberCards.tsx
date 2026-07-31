@@ -296,11 +296,11 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
                 {showBooking ? (
                   <Button
                     onClick={openBookingPage}
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                    size="icon"
-                    title="حجز موعد"
+                    className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
+                    title="حجز متقدم"
                   >
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-4 h-4 ml-2" />
+                    حجز متقدم
                   </Button>
                 ) : null}
                 {canWhatsApp ? (
@@ -398,11 +398,11 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
               {showBooking ? (
                 <Button
                   onClick={openBookingPage}
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                  size="icon"
-                  title="حجز موعد"
+                  className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
+                  title="حجز متقدم"
                 >
-                  <Calendar className="w-4 h-4" />
+                  <Calendar className="w-4 h-4 ml-2" />
+                  حجز متقدم
                 </Button>
               ) : null}
               {showPhone ? (
@@ -632,11 +632,11 @@ export function BarberCard({ barber, userLocation, imagePriority = false }: Barb
             {showBooking ? (
               <Button
                 onClick={openBookingPage}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg"
-                size="icon"
-                title="حجز موعد"
+                className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg"
+                title="حجز متقدم"
               >
-                <Calendar className="w-5 h-5" />
+                <Calendar className="w-4 h-4 ml-2" />
+                حجز متقدم
               </Button>
             ) : null}
             {showPhone ? (
