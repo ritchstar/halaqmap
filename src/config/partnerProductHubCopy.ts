@@ -42,7 +42,7 @@ export type PartnerProductHubSection = {
 export const PARTNER_PRODUCT_HUB_SECTIONS: readonly PartnerProductHubSection[] = [
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.banners, label: 'البنرات', shortLabel: 'بنرات' },
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.dashboard, label: 'لوحة التحكم', shortLabel: 'لوحة' },
-  { id: PARTNER_PRODUCT_HUB_SECTION_IDS.ownerWatch, label: 'غرفة المراقبة', shortLabel: 'مراقبة' },
+  { id: PARTNER_PRODUCT_HUB_SECTION_IDS.ownerWatch, label: 'الرقابة الإدارية', shortLabel: 'رقابة' },
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.diamondCompare, label: 'مقارنة الماسي', shortLabel: 'مقارنة' },
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.digitalShift, label: 'المناوب الذكي', shortLabel: 'مناوب' },
   { id: PARTNER_PRODUCT_HUB_SECTION_IDS.privateOffice, label: 'المكتب الخاص', shortLabel: 'مكتب' },
@@ -57,7 +57,7 @@ export const PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE =
   `إضافة المكتب الخاص = مساعد داخلي 🏛️ + مناوب شات 🌙 — للماسي فقط (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة)`;
 
 export const PARTNER_PRODUCT_HUB_INTRO =
-  `${PARTNER_TECHNICAL_PARTNER_COMMITMENT} محاكاة البنرات، لوحة التشغيل، غرفة المراقبة للمالك، والمكتب الخاص — في صفحة واحدة مفهرسة.`;
+  `${PARTNER_TECHNICAL_PARTNER_COMMITMENT} محاكاة البنرات، لوحة التشغيل، الرقابة الإدارية، والمكتب الخاص — في صفحة واحدة مفهرسة.`;
 
 export type PartnerTierComparisonColumn = {
   id: string;
@@ -82,7 +82,7 @@ export const PARTNER_TIER_COMPARISON_COLUMNS: readonly PartnerTierComparisonColu
       '❌ المكتب الخاص غير متاح',
       '✅ ظهور جغرافي عند الطلب',
       '✅ بطاقة صالون كاملة على الرادار',
-      '✅ غرفة مراقبة أساسية للمالك (ذهبي)',
+      '✅ رقابة إدارية أساسية (ذهبي)',
     ],
     note: 'يمكن الترقية للماسي في أي وقت',
   },
@@ -98,7 +98,7 @@ export const PARTNER_TIER_COMPARISON_COLUMNS: readonly PartnerTierComparisonColu
       '✅ صدارة في الاستجابة المناسبة',
       '✅ معرض حتى 40 صورة',
       '✅ جدولة مواعيد (ماسي)',
-      '✅ غرفة مراقبة متقدمة للمالك',
+      '✅ رقابة إدارية متقدمة',
     ],
     note: `يمكن إضافة المكتب لاحقاً (+${DIGITAL_SHIFT_MONTHLY_ADDON_SAR} ر.س/حزمة)`,
   },
@@ -124,7 +124,7 @@ export const PARTNER_PRODUCT_HUB_SUMMARY_CARDS = [
   {
     id: 'owner-watch',
     emoji: '👁️',
-    title: 'غرفة المراقبة للمالك',
+    title: 'الرقابة الإدارية',
     desc: 'تابع المحل من جوالك — حالة، نشاط، تنبيهات — قراءة فقط بلا نصوص زبائن. رابط في بريد التفعيل.',
     sectionId: PARTNER_PRODUCT_HUB_SECTION_IDS.ownerWatch,
   },

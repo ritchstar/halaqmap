@@ -84,7 +84,7 @@ export type BarberPortalSession = {
   groomPrep?: BarberPortalGroomPrepSnapshot;
   /** توكن جلسة موقّع يستخدمه API لحماية مسارات البوابة الحساسة */
   barberSessionToken?: string;
-  /** دور العضو في الصالون — مالك أو مشغّل (لغرفة المراقبة) */
+  /** دور العضو في الصالون — إدارة المنشأة أو مشغّل (للرقابة الإدارية) */
   salonRole?: SalonMemberRole | null;
 };
 

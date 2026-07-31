@@ -764,7 +764,7 @@ export default function PartnerMarketingPreview() {
               >
                 <div className="flex flex-col gap-1">
                   {[
-                    { label: 'غرفة المراقبة', id: 'غرفة-المراقبة' },
+                    { label: 'الرقابة الإدارية', id: 'الرقابة-الإدارية' },
                     { label: 'حرية التشغيل', id: 'حرية-التشغيل' },
                     { label: 'كيف تنضم', id: 'كيف تنضم' },
                     { label: 'مزايا الباقات', id: 'مزايا الباقات' },
@@ -1300,7 +1300,7 @@ export default function PartnerMarketingPreview() {
               هكذا يظهر صالونك
             </motion.h2>
             <p className="mt-3 text-slate-600">
-              معاينة ثابتة للبنرات — للمحاكاة الحية وغرفة المراقبة انتقل لصفحة المعاينة الكاملة
+              معاينة ثابتة للبنرات — للمحاكاة الحية والرقابة الإدارية انتقل لصفحة المعاينة الكاملة
             </p>
             <p className="mx-auto mt-2 max-w-2xl text-xs leading-relaxed text-violet-700/80">{PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE}</p>
           </div>

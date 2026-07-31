@@ -13,7 +13,7 @@ type HalaqmapBrandMarkProps = {
 };
 
 /**
- * شعار حلاق ماب العام — أنيميشن CSS خفيف (نبض هادئ + لمعان) مع احترام prefers-reduced-motion.
+ * شعار حلاق ماب العام — زوايا ناعمة + لمعان زجاجي خفيف (مع احترام prefers-reduced-motion).
  */
 export function HalaqmapBrandMark({
   alt = 'حلاق ماب',
@@ -25,7 +25,10 @@ export function HalaqmapBrandMark({
       <img
         src={IMAGES.HALAQMAP_LOGO_20260409_073322_83}
         alt={alt}
-        className={cn('relative z-[1] block h-full w-full object-cover', imgClassName)}
+        className={cn(
+          'relative z-[1] block h-full w-full object-cover object-center',
+          imgClassName,
+        )}
         decoding="async"
       />
     </span>

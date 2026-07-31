@@ -131,7 +131,7 @@ export async function POST(request: Request): Promise<Response> {
   const role = await resolveSalonMemberRole(supabase, row.id, email);
   if (role !== 'owner') {
     return Response.json(
-      { error: 'تجديد الرابط متاح لصاحب الرخصة (المالك) فقط.' },
+      { error: 'تجديد الرابط متاح لحساب صاحب الرخصة فقط.' },
       { status: 403, headers },
     );
   }

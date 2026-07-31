@@ -66,7 +66,7 @@ export function buildBronzePartnerActivationEmailBodies(input: {
     'شهادة التفعيل / رخصة النفاذ:',
     ...certLines.map((line) => `- ${line}`),
     '',
-    'روابط التشغيل (احفظها للمالك أو المفوّض فقط):',
+    'روابط التشغيل (احفظها لإدارة المنشأة أو المفوّض فقط):',
     input.shopOpenToggleUrl
       ? `- مفتوح/مغلق: ${input.shopOpenToggleUrl}`
       : '- مفتوح/مغلق: يُكمَّل الرابط تلقائياً — راجع شهادة التفعيل أو تواصل مع الدعم.',

@@ -368,7 +368,7 @@ export default function PartnersB2BLanding() {
                     { ok: true, text: "واتساب + شات مباشر (60 دقيقة)" },
                     { ok: true, text: "لوحة تحكم: صور، أسعار، أوقات العمل" },
                     { ok: true, text: "يلزم آيباد أو لابتوب خاص بالصالون لإدارة اللوحة" },
-                    { ok: true, text: "غرفة المراقبة للمالك — تابع المحل من جوالك" },
+                    { ok: true, text: "الرقابة الإدارية — تابع المحل من جوالك" },
                     { ok: false, text: "جدولة المواعيد" },
                   ].map((f, i) => (
                     <li key={i} className={`flex items-start gap-2 ${!f.ok ? "opacity-40" : ""}`}>
@@ -402,7 +402,7 @@ export default function PartnersB2BLanding() {
                     { ok: true, text: "دعم متعدد اللغات" },
                     { ok: true, text: "لوحة تحكم كاملة" },
                     { ok: true, text: "يلزم آيباد أو لابتوب خاص بالصالون لإدارة اللوحة" },
-                    { ok: true, special: true, text: "غرفة مراقبة متقدمة — نبض + تنبيهات المناوب ✦" },
+                    { ok: true, special: true, text: "رقابة إدارية متقدمة — نبض + تنبيهات المناوب ✦" },
                     { ok: true, special: true, text: "جدولة المواعيد من اللوحة ✦" },
                     { ok: true, text: "خدمة منزلية + شات بوت (اختياري)" },
                   ].map((f, i) => (

@@ -1612,8 +1612,50 @@
   justify-content: center;
   isolation: isolate;
   overflow: hidden;
+  /* زوايا ناعمة افتراضياً — تُستبدل بـ rounded-* من المكوّن عند الحاجة */
+  border-radius: 1.15rem;
+  background:
+    radial-gradient(120% 90% at 28% 18%, rgba(255, 255, 255, 0.22), transparent 42%),
+    linear-gradient(160deg, #14b8a6 0%, #0f766e 55%, #0a4f4a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent);
   animation: halaqmap-brand-pulse 2.8s ease-in-out infinite;
   will-change: transform;
+}
+
+.halaqmap-brand-mark.rounded-full {
+  border-radius: 9999px;
+}
+
+.halaqmap-brand-mark.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.halaqmap-brand-mark.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+.halaqmap-brand-mark.rounded-2xl {
+  border-radius: 1rem;
+}
+
+.halaqmap-brand-mark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.08) 28%,
+    transparent 48%,
+    transparent 72%,
+    rgba(212, 175, 55, 0.12) 100%
+  );
 }
 
 .halaqmap-brand-mark::after {
@@ -1621,7 +1663,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  z-index: 2;
+  z-index: 3;
   pointer-events: none;
   mix-blend-mode: soft-light;
   background: linear-gradient(
@@ -1629,7 +1671,7 @@
     transparent 0%,
     transparent 38%,
     rgba(255, 255, 255, 0) 44%,
-    rgba(255, 255, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0.78) 50%,
     rgba(255, 255, 255, 0) 56%,
     transparent 62%,
     transparent 100%
@@ -1647,6 +1689,10 @@
 
   .halaqmap-brand-mark {
     filter: drop-shadow(0 0 0.25rem color-mix(in srgb, var(--primary) 22%, transparent));
+  }
+
+  .halaqmap-brand-mark::after {
+    opacity: 0;
   }
 }
 

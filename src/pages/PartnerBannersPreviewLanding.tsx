@@ -272,7 +272,7 @@ export default function PartnerBannersPreviewLanding() {
               ))}
             </div>
             <p className="mt-4 text-[0.68rem] leading-relaxed text-slate-500">
-              لا تُعرض نصوص رسائل الزبائن — إشراف تشغيلي للمالك فقط.
+              لا تُعرض نصوص رسائل الزبائن — إشراف تشغيلي للرقابة الإدارية فقط.
             </p>
           </div>
           <motion.div className="order-1 space-y-5 lg:order-2">

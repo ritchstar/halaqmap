@@ -50,11 +50,11 @@ type MailLinks = {
   privacyUrl: string;
   loginUrl: string;
   dashboardUrl: string;
-  /** دخول سريع لمرة واحدة → غرفة المراقبة (ذهبي/ماسي + magic secret) */
+  /** دخول سريع لمرة واحدة → الرقابة الإدارية (ذهبي/ماسي + magic secret) */
   ownerWatchMagicUrl: string | null;
   /** رابط دائم بعد تسجيل الدخول — للمفضلة */
   ownerWatchBookmarkUrl: string;
-  /** تسجيل دخول يوجّه إلى غرفة المراقبة */
+  /** تسجيل دخول يوجّه إلى الرقابة الإدارية */
   ownerWatchLoginUrl: string;
   policyUrl: string;
   /** ملاحظات / شكاوى للإدارة — من BARBER_ADMIN_FEEDBACK_URL أو بريد */
@@ -203,7 +203,7 @@ function linksWithMagicDashboardIfEligible(
 }
 
 function logoPublicUrl(links: MailLinks): string {
-  return `${links.siteBase}/images/halaqmap_logo_20260409_073322.png`;
+  return `${links.siteBase}/images/halaqmap_logo_refined.png`;
 }
 
 /** سطر مساعدة اختياري من متغيرات البيئة (Vercel) */
@@ -505,13 +505,13 @@ function ownerWatchPlainLines(links: MailLinks, tier: Tier | null | undefined): 
   if (tierKey(tier) === 'bronze') return [];
   const lines = [
     '',
-    'غرفة المراقبة — لصاحب الرخصة (قراءة فقط، بدون نصوص زبائن):',
+    'الرقابة الإدارية — لحساب صاحب الرخصة (قراءة فقط، بدون نصوص زبائن):',
   ];
   if (links.ownerWatchMagicUrl) {
-    lines.push(`- رابط دخول سريع لمرة واحدة (يفتح غرفة المراقبة مباشرة): ${links.ownerWatchMagicUrl}`);
+    lines.push(`- رابط دخول سريع لمرة واحدة (يفتح الرقابة الإدارية مباشرة): ${links.ownerWatchMagicUrl}`);
   }
   lines.push(`- رابط دائم (بعد تسجيل الدخول — احفظه في مفضلة جوالك): ${links.ownerWatchBookmarkUrl}`);
-  lines.push(`- أو سجّل الدخول ثم افتح المراقبة: ${links.ownerWatchLoginUrl}`);
+  lines.push(`- أو سجّل الدخول ثم افتح الرقابة الإدارية: ${links.ownerWatchLoginUrl}`);
   lines.push('- ترى: حالة المحل، عدد المحادثات، النبض التشغيلي، والتنبيهات — دون التدخل في شات الزبائن.');
   lines.push('- للتشغيل الكامل (رسائل، بنرات، إعدادات) استخدم «لوحة التحكم» أعلاه.');
   return lines;
@@ -521,11 +521,11 @@ function ownerWatchSectionHtml(links: MailLinks, tier: Tier | null | undefined):
   if (tierKey(tier) === 'bronze') return '';
   const h = (u: string) => escapeHtml(u);
   const magicBlock = links.ownerWatchMagicUrl
-    ? `<p style="margin:0 0 12px"><a href="${h(links.ownerWatchMagicUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#fff;font-weight:800;text-decoration:none;font-size:14px">دخول سريع — غرفة المراقبة</a></p><p style="margin:0 0 12px;font-size:12px;color:#92400e">يُستخدم مرة واحدة — للمراقبة من بعيد فوراً.</p>`
+    ? `<p style="margin:0 0 12px"><a href="${h(links.ownerWatchMagicUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#fff;font-weight:800;text-decoration:none;font-size:14px">دخول سريع — الرقابة الإدارية</a></p><p style="margin:0 0 12px;font-size:12px;color:#92400e">يُستخدم مرة واحدة — لفتح الرقابة الإدارية فوراً.</p>`
     : '';
   return emailCard(
-    'غرفة المراقبة — للمالك',
-    `${magicBlock}<p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">تابع تشغيل صالونك <strong>قراءة فقط</strong>: حالة «مفتوح/مغلق»، محادثات نشطة، نبض تشغيلي، وتنبيهات — <strong>بدون</strong> نصوص زبائن.</p><ul style="margin:0 0 12px;padding:0 20px 0 0;font-size:14px;color:#475569;line-height:1.85"><li style="margin:0 0 6px">احفظ الرابط الدائم في مفضلة جوالك بعد أول دخول.</li><li style="margin:0">لتشغيل المحل كاملاً استخدم زر «لوحة التحكم».</li></ul><p style="margin:0 0 8px;font-size:13px;color:#64748b"><strong>رابط دائم (مفضلة):</strong><br/><a href="${h(links.ownerWatchBookmarkUrl)}" style="color:#d97706;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchBookmarkUrl)}</a></p><p style="margin:0;font-size:13px;color:#64748b"><strong>دخول ثم مراقبة:</strong><br/><a href="${h(links.ownerWatchLoginUrl)}" style="color:#0d9488;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchLoginUrl)}</a></p>`,
+    'الرقابة الإدارية',
+    `${magicBlock}<p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">تابع تشغيل منشأتك <strong>قراءة فقط</strong>: حالة «مفتوح/مغلق»، محادثات نشطة، نبض تشغيلي، وتنبيهات — <strong>بدون</strong> نصوص زبائن.</p><ul style="margin:0 0 12px;padding:0 20px 0 0;font-size:14px;color:#475569;line-height:1.85"><li style="margin:0 0 6px">احفظ الرابط الدائم في مفضلة جوالك بعد أول دخول.</li><li style="margin:0">لتشغيل المحل كاملاً استخدم زر «لوحة التحكم».</li></ul><p style="margin:0 0 8px;font-size:13px;color:#64748b"><strong>رابط دائم (مفضلة):</strong><br/><a href="${h(links.ownerWatchBookmarkUrl)}" style="color:#d97706;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchBookmarkUrl)}</a></p><p style="margin:0;font-size:13px;color:#64748b"><strong>دخول ثم رقابة إدارية:</strong><br/><a href="${h(links.ownerWatchLoginUrl)}" style="color:#0d9488;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchLoginUrl)}</a></p>`,
   );
 }
 
@@ -544,7 +544,7 @@ function shopOpenStatusPlainLines(shopOpen: ShopOpenMailContext, tier: Tier | nu
   lines.push(
     '- صفحة تجديد الرابط: إذا غادر مناوب أو تسرّب الرابط، أدخل رقم رخصة التفعيل + البريد المسجّل → رسالة تأكيد → رابط جديد.',
     `  ${shopOpen.shopOpenRotateUrl}`,
-    '- احفظ هاتين الصفحتين للمالك أو المسؤول المفوّض من قبل المالك فقط — لا تشاركهما مع عامل سابق أو غير مخوّل.',
+    '- احفظ هاتين الصفحتين لإدارة المنشأة أو المسؤول المفوّض فقط — لا تشاركهما مع عامل سابق أو غير مخوّل.',
     '- إخلاء مسؤولية: تعتبر المنصة أن البريد الإلكتروني المسجّل لديها هو المرجع المعتمد لطلبات التجديد والتحقق؛ مسؤولية الحفاظ على الروابط وتوزيعها تقع على صاحب الحساب.',
   );
   return lines;
@@ -558,7 +558,7 @@ function shopOpenStatusSectionHtml(shopOpen: ShopOpenMailContext, tier: Tier | n
     : `<p style="margin:0 0 12px;font-size:13px;color:#64748b">يُكمَّل رابط التبديل تلقائياً بعد التفعيل — أو تواصل مع الدعم.</p>`;
   return emailCard(
     'مفتوح/مغلق + تجديد الرابط',
-    `<p style="margin:0 0 12px;font-size:14px;color:#475569;line-height:1.9">للباقة <strong>البرونزية</strong>: صفحتان خفيفتان دون لوحة تحكم كاملة — للمالك أو المفوّض من قبله.</p><p style="margin:0 0 8px;font-size:14px;color:#334155;font-weight:700">١ — التبديل اليومي (مفتوح/مغلق)</p>${toggleBlock}<p style="margin:0 0 8px;font-size:14px;color:#334155;font-weight:700">٢ — تجديد الرابط عند الحاجة</p><p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">إذا غادر مناوب أو تسرّب الرابط: أدخل <strong>رقم رخصة التفعيل</strong> + <strong>البريد المسجّل</strong> → رسالة تأكيد → رابط جديد (القديم يُبطَل).</p><p style="margin:0 0 10px"><a href="${h(shopOpen.shopOpenRotateUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;border:2px solid #0d9488;background:#ecfdf5;color:#0f766e;font-weight:800;text-decoration:none;font-size:14px">صفحة تجديد الرابط</a></p><p style="margin:0 0 14px;font-size:12px;color:#64748b;word-break:break-all" dir="ltr">${h(shopOpen.shopOpenRotateUrl)}</p><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;border-radius:12px;border:1px solid #fde68a;background:#fffbeb"><tr><td style="padding:12px 14px;font-size:12px;color:#92400e;line-height:1.85"><p style="margin:0 0 6px;font-weight:800">تنبيه حفظ واستخدام</p><p style="margin:0 0 6px">احفظ هاتين الصفحتين للمالك أو المسؤول المفوّض فقط — <strong>لا</strong> تشاركهما مع عامل سابق أو غير مخوّل.</p><p style="margin:0;font-size:11px;color:#78350f"><strong>إخلاء مسؤولية:</strong> تعتبر المنصة أن البريد الإلكتروني المسجّل لديها هو المرجع المعتمد لطلبات التجديد؛ مسؤولية الحفاظ على الروابط وتوزيعها على عاتق صاحب الحساب.</p></td></tr></table>`,
+    `<p style="margin:0 0 12px;font-size:14px;color:#475569;line-height:1.9">للباقة <strong>البرونزية</strong>: صفحتان خفيفتان دون لوحة تحكم كاملة — لإدارة المنشأة أو المفوّض من قبلها.</p><p style="margin:0 0 8px;font-size:14px;color:#334155;font-weight:700">١ — التبديل اليومي (مفتوح/مغلق)</p>${toggleBlock}<p style="margin:0 0 8px;font-size:14px;color:#334155;font-weight:700">٢ — تجديد الرابط عند الحاجة</p><p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">إذا غادر مناوب أو تسرّب الرابط: أدخل <strong>رقم رخصة التفعيل</strong> + <strong>البريد المسجّل</strong> → رسالة تأكيد → رابط جديد (القديم يُبطَل).</p><p style="margin:0 0 10px"><a href="${h(shopOpen.shopOpenRotateUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;border:2px solid #0d9488;background:#ecfdf5;color:#0f766e;font-weight:800;text-decoration:none;font-size:14px">صفحة تجديد الرابط</a></p><p style="margin:0 0 14px;font-size:12px;color:#64748b;word-break:break-all" dir="ltr">${h(shopOpen.shopOpenRotateUrl)}</p><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;border-radius:12px;border:1px solid #fde68a;background:#fffbeb"><tr><td style="padding:12px 14px;font-size:12px;color:#92400e;line-height:1.85"><p style="margin:0 0 6px;font-weight:800">تنبيه حفظ واستخدام</p><p style="margin:0 0 6px">احفظ هاتين الصفحتين لإدارة المنشأة أو المسؤول المفوّض فقط — <strong>لا</strong> تشاركهما مع عامل سابق أو غير مخوّل.</p><p style="margin:0;font-size:11px;color:#78350f"><strong>إخلاء مسؤولية:</strong> تعتبر المنصة أن البريد الإلكتروني المسجّل لديها هو المرجع المعتمد لطلبات التجديد؛ مسؤولية الحفاظ على الروابط وتوزيعها على عاتق صاحب الحساب.</p></td></tr></table>`,
   );
 }
 
@@ -585,7 +585,7 @@ function emailText(
     `- من نحن: ${links.aboutUrl}`,
     `- تسجيل دخول الحلاق: ${links.loginUrl}`,
     `- لوحة التحكم: ${links.dashboardUrl}`,
-    ...(tierKey(tier) !== 'bronze' ? [`- غرفة المراقبة (مفضلة): ${links.ownerWatchBookmarkUrl}`] : []),
+    ...(tierKey(tier) !== 'bronze' ? [`- الرقابة الإدارية (مفضلة): ${links.ownerWatchBookmarkUrl}`] : []),
     `- سياسة رخصة النفاذ الرقمية: ${links.policyUrl}`,
     `- الخصوصية: ${links.privacyUrl}`,
     `- طلب تفعيل الحزمة البرمجية (للمرجعية): ${links.registerUrl}`,
@@ -667,9 +667,9 @@ function emailHtml(
 
   const ownerWatchBtn =
     k !== 'bronze' && links.ownerWatchMagicUrl
-      ? btnAmber(links.ownerWatchMagicUrl, 'غرفة المراقبة — للمالك')
+      ? btnAmber(links.ownerWatchMagicUrl, 'فتح الرقابة الإدارية')
       : k !== 'bronze'
-        ? btnAmber(links.ownerWatchLoginUrl, 'دخول → غرفة المراقبة')
+        ? btnAmber(links.ownerWatchLoginUrl, 'دخول → الرقابة الإدارية')
         : '';
 
   return `<!DOCTYPE html>

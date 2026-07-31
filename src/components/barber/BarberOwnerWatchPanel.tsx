@@ -123,7 +123,7 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-amber-600" aria-hidden />
-        <span className="sr-only">جاري تحميل غرفة المراقبة…</span>
+        <span className="sr-only">جاري تحميل الرقابة الإدارية…</span>
       </div>
     );
   }
@@ -136,14 +136,14 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
     <div className="space-y-4 sm:space-y-6">
       <div className="rounded-xl border-2 border-amber-500/50 bg-amber-500/10 px-4 py-3 text-center">
         <p className="text-sm font-bold text-amber-950 dark:text-amber-100">
-          أنت في غرفة المراقبة — قراءة فقط · لا تعديل ولا شات زبائن
+          أنت في الرقابة الإدارية — قراءة فقط · لا تعديل ولا شات زبائن
         </p>
       </div>
       <Card className="border-amber-500/35 bg-gradient-to-l from-amber-500/10 via-violet-500/5 to-transparent">
         <CardHeader className="pb-2">
           <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
             <Eye className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            غرفة المراقبة — قراءة فقط
+            الرقابة الإدارية — قراءة فقط
           </CardTitle>
           <CardDescription className="text-sm leading-relaxed">
             {isDiamondTier
@@ -177,14 +177,14 @@ export function BarberOwnerWatchPanel({ barberData }: Props) {
                 }
                 try {
                   await navigator.clipboard.writeText(link);
-                  toast.success('تم نسخ رابط غرفة المراقبة — احفظه في مفضلة جوالك.');
+                  toast.success('تم نسخ رابط الرقابة الإدارية — احفظه في مفضلة جوالك.');
                 } catch {
                   toast.error('تعذر النسخ من المتصفح.');
                 }
               }}
             >
               <Copy className="h-4 w-4" />
-              نسخ رابط المراقبة
+              نسخ رابط الرقابة
             </Button>
             <Button
               type="button"

@@ -161,11 +161,11 @@ function tierBoxHtml(tier: 'gold' | 'diamond'): string {
 function ownerWatchSectionHtml(links: OnboardingMailLinks): string {
   const h = (u: string) => escapeHtml(u);
   const magicBlock = links.ownerWatchMagicUrl
-    ? `<p style="margin:0 0 12px"><a href="${h(links.ownerWatchMagicUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#fff;font-weight:800;text-decoration:none;font-size:14px">دخول سريع — غرفة المراقبة</a></p>`
+    ? `<p style="margin:0 0 12px"><a href="${h(links.ownerWatchMagicUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 18px;border-radius:10px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#fff;font-weight:800;text-decoration:none;font-size:14px">دخول سريع — الرقابة الإدارية</a></p>`
     : '';
   return emailCard(
-    'غرفة المراقبة — للمالك',
-    `${magicBlock}<p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">تابع تشغيل صالونك <strong>قراءة فقط</strong>: حالة «مفتوح/مغلق»، محادثات نشطة، وتنبيهات — <strong>بدون</strong> نصوص زبائن.</p><p style="margin:0;font-size:13px;color:#64748b"><strong>رابط الدخول:</strong> <a href="${h(links.ownerWatchLoginUrl)}" style="color:#d97706;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchLoginUrl)}</a></p>`,
+    'الرقابة الإدارية',
+    `${magicBlock}<p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.85">تابع تشغيل منشأتك <strong>قراءة فقط</strong>: حالة «مفتوح/مغلق»، محادثات نشطة، وتنبيهات — <strong>بدون</strong> نصوص زبائن.</p><p style="margin:0;font-size:13px;color:#64748b"><strong>رابط الدخول:</strong> <a href="${h(links.ownerWatchLoginUrl)}" style="color:#d97706;font-weight:700;word-break:break-all" dir="ltr">${h(links.ownerWatchLoginUrl)}</a></p>`,
   );
 }
 
@@ -219,7 +219,7 @@ export function buildDashboardSupplementForUnifiedMail(input: DashboardSupplemen
     `<a href="${h(href)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:6px 6px 6px 0;padding:12px 22px;border-radius:12px;background:linear-gradient(180deg,#14b8a6,#0d9488);color:#ffffff;font-weight:700;font-size:14px;text-decoration:none">${label}</a>`;
   const ownerWatchHref = input.links.ownerWatchMagicUrl || input.links.ownerWatchLoginUrl;
   const ownerWatchBtn = ownerWatchHref
-    ? `<a href="${h(ownerWatchHref)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:6px 6px 6px 0;padding:12px 22px;border-radius:12px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#ffffff;font-weight:700;font-size:14px;text-decoration:none">غرفة المراقبة</a>`
+    ? `<a href="${h(ownerWatchHref)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:6px 6px 6px 0;padding:12px 22px;border-radius:12px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#ffffff;font-weight:700;font-size:14px;text-decoration:none">فتح الرقابة الإدارية</a>`
     : '';
 
   const orderRef = input.registrationOrderId?.trim()
@@ -256,7 +256,7 @@ ${passwordHtml}
     '',
     `══ لوحة التحكم — باقة ${tierLabelAr(tier)} ══`,
     `لوحة التحكم (رابط سريع — دخول مباشر): ${input.links.dashboardUrl}`,
-    `غرفة المراقبة: ${input.links.ownerWatchBookmarkUrl}`,
+    `الرقابة الإدارية: ${input.links.ownerWatchBookmarkUrl}`,
   ];
   if (input.registrationOrderId?.trim()) {
     textParts.push(`مرجع الطلب: ${input.registrationOrderId.trim()}`);

@@ -175,7 +175,10 @@ import { BarberDashboardLicenseFooter } from '@/components/barber/BarberDashboar
 import { BarberShopOpenStatusCard } from '@/components/barber/BarberShopOpenStatusCard';
 import { BarberOwnerWatchPanel } from '@/components/barber/BarberOwnerWatchPanel';
 import { BarberPortfolioQuickStrip } from '@/components/barber/BarberPortfolioQuickStrip';
-import { OWNER_WATCH_FEATURE_TAGLINE_AR } from '@/config/ownerWatchFeatureCopy';
+import {
+  OWNER_WATCH_FEATURE_TAGLINE_AR,
+  OWNER_WATCH_OPEN_CTA_AR,
+} from '@/config/ownerWatchFeatureCopy';
 import { barberOwnerWatchHashPath } from '@/lib/ownerSalonWatchLinks';
 import {
   fetchListingLicenseBalanceRemote,
@@ -976,7 +979,7 @@ export default function BarberDashboard({
                   {ownerWatchMode ? (
                     <Badge className="text-[10px] sm:text-xs border-amber-500/40 bg-amber-500/15 text-amber-950 dark:text-amber-100 gap-1">
                       <Eye className="h-3 w-3" />
-                      غرفة المراقبة
+                      رقابة إدارية
                     </Badge>
                   ) : ownerCanWatch ? (
                     <Badge className="text-[10px] sm:text-xs border-emerald-500/40 bg-emerald-500/15 text-emerald-950 dark:text-emerald-100 gap-1">
@@ -1001,7 +1004,7 @@ export default function BarberDashboard({
                   onClick={() => setSearchParams({ view: 'watch' })}
                 >
                   <Eye className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline">مراقبة من بعيد</span>
+                  <span>{OWNER_WATCH_OPEN_CTA_AR}</span>
                 </Button>
               ) : null}
               {ownerWatchMode ? (
@@ -1045,8 +1048,8 @@ export default function BarberDashboard({
             <Eye className="h-4 w-4 text-amber-700 dark:text-amber-300" />
             <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span>
-                <strong className="font-semibold">غرفة المراقبة للمالك:</strong>{' '}
-                {OWNER_WATCH_FEATURE_TAGLINE_AR} تحقّق من بريد التفعيل لرابط المفضلة، أو افتح المراقبة الآن.
+                <strong className="font-semibold">الرقابة الإدارية:</strong>{' '}
+                {OWNER_WATCH_FEATURE_TAGLINE_AR} تحقّق من بريد التفعيل لرابط المفضلة، أو افتح الرقابة الآن.
               </span>
               <span className="flex shrink-0 flex-wrap items-center gap-2">
                 <Button
@@ -1056,7 +1059,7 @@ export default function BarberDashboard({
                   onClick={() => setSearchParams({ view: 'watch' })}
                 >
                   <Eye className="h-4 w-4" />
-                  فتح غرفة المراقبة
+                  {OWNER_WATCH_OPEN_CTA_AR}
                 </Button>
                 <Button
                   type="button"

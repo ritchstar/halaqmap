@@ -73,7 +73,7 @@ export async function fetchOwnerSalonWatchRemote(input: {
     return { ok: false, error: 'بيانات الجلسة ناقصة.' };
   }
   const ep = endpoint();
-  if (!ep) return { ok: false, error: 'مسار غرفة المراقبة غير مضبوط.' };
+  if (!ep) return { ok: false, error: 'مسار الرقابة الإدارية غير مضبوط.' };
 
   try {
     const response = await fetch(ep, {

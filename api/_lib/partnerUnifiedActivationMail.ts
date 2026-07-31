@@ -67,7 +67,7 @@ function buildBronzeOpsSectionHtml(input: {
   return `<div style="margin:18px 0;padding:14px 16px;border-radius:12px;background:#ecfdf5;border:1px solid #99f6e4">
 <p style="margin:0 0 10px;font-weight:800;color:#0f766e">روابط التشغيل — باقة برونزية</p>
 <p style="padding:10px 12px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;font-size:13px;color:#92400e;margin:0 0 12px">
-<strong>بدون لوحة تحكم كاملة.</strong> التشغيل اليومي عبر الروابط أدناه — احفظها للمالك أو المفوّض فقط.
+<strong>بدون لوحة تحكم كاملة.</strong> التشغيل اليومي عبر الروابط أدناه — احفظها لإدارة المنشأة أو المفوّض فقط.
 </p>
 ${toggleBlock}
 <p style="margin:0 0 10px"><a href="${h(input.shopOpenRotateUrl)}" style="display:inline-block;padding:10px 18px;border-radius:10px;border:2px solid #0d9488;background:#fff;color:#0f766e;font-weight:800;text-decoration:none">تجديد رابط مفتوح/مغلق</a></p>

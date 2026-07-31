@@ -73,7 +73,7 @@ export async function assertSalonOwnerWatchAccess(
     return { ok: false, status: 403, message: 'ليس لديك صلاحية مراقبة هذا الصالون.' };
   }
   if (role !== 'owner') {
-    return { ok: false, status: 403, message: 'غرفة المراقبة متاحة لصاحب الرخصة (المالك) فقط في هذه المرحلة.' };
+    return { ok: false, status: 403, message: 'الرقابة الإدارية متاحة لحساب صاحب الرخصة فقط في هذه المرحلة.' };
   }
   return { ok: true, role };
 }

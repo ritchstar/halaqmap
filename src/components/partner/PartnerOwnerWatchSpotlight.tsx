@@ -33,7 +33,7 @@ export function PartnerOwnerWatchSpotlight({
 
   return (
     <section
-      id="غرفة-المراقبة"
+      id="الرقابة-الإدارية"
       className={cn(
         'relative z-10 border-y py-16 md:py-20',
         isDark
@@ -114,7 +114,7 @@ export function PartnerOwnerWatchSpotlight({
                   : 'bg-amber-600 text-white hover:bg-amber-500',
               )}
             >
-              شاهد غرفة المراقبة في المعاينة
+              شاهد الرقابة الإدارية في المعاينة
             </Link>
           </div>
 

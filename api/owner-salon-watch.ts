@@ -94,7 +94,7 @@ export async function POST(request: Request): Promise<Response> {
   if (tierNorm !== 'gold' && tierNorm !== 'diamond') {
     return Response.json(
       {
-        error: 'غرفة المراقبة متاحة في باقتي الذهبي والماسي.',
+        error: 'الرقابة الإدارية متاحة في باقتي الذهبي والماسي.',
         code: 'TIER_NO_OWNER_WATCH',
       },
       { status: 403, headers },
