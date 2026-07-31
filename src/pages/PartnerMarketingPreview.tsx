@@ -57,6 +57,7 @@ import {
 } from '@/config/partnerFieldSalesCopy';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
 import { PartnerTechnicalPartnerCompare } from '@/components/partner/PartnerTechnicalPartnerCompare';
 import { PartnerFreedomPillars } from '@/components/partner/PartnerFreedomPillars';
 import { PartnerMallNarrativeSection } from '@/components/partner/PartnerMallNarrativeSection';
@@ -370,11 +371,11 @@ const CERTIFICATE_MOCK_DATA: Record<
   }
 > = {
   bronze: {
-    accentBorder: 'border-amber-400/60',
-    accentGlow: 'shadow-amber-500/25',
-    badgeTone: 'border border-amber-300/55 bg-amber-500/18 text-amber-50',
-    statusTone: 'text-amber-200',
-    footerTone: 'border-amber-300/30 bg-amber-500/14',
+    accentBorder: 'border-teal-300/50',
+    accentGlow: 'shadow-teal-500/25',
+    badgeTone: 'border border-emerald-300/45 bg-emerald-500/20 text-emerald-50',
+    statusTone: 'text-teal-50',
+    footerTone: 'border-teal-200/30 bg-teal-500/14',
     statusLabel: 'نشطة',
     salonName: 'صالون نموذجي — البرونزي',
     activationCode: 'HM-LIC-BRZ-2026-001',
@@ -383,11 +384,11 @@ const CERTIFICATE_MOCK_DATA: Record<
     validUntil: '30 يوم من تاريخ التفعيل',
   },
   gold: {
-    accentBorder: 'border-amber-300/70',
-    accentGlow: 'shadow-amber-400/30',
-    badgeTone: 'border border-amber-200/65 bg-amber-500/20 text-white',
-    statusTone: 'text-amber-50',
-    footerTone: 'border-amber-200/35 bg-amber-500/16',
+    accentBorder: 'border-teal-200/55',
+    accentGlow: 'shadow-teal-400/28',
+    badgeTone: 'border border-emerald-300/45 bg-emerald-500/20 text-emerald-50',
+    statusTone: 'text-teal-50',
+    footerTone: 'border-teal-200/35 bg-teal-500/16',
     statusLabel: 'نشطة',
     salonName: 'صالون نموذجي — الذهبي',
     activationCode: 'HM-LIC-GLD-2026-002',
@@ -396,9 +397,9 @@ const CERTIFICATE_MOCK_DATA: Record<
     validUntil: '30 يوم من تاريخ التفعيل',
   },
   diamond: {
-    accentBorder: 'border-cyan-300/65',
+    accentBorder: 'border-cyan-300/60',
     accentGlow: 'shadow-cyan-400/28',
-    badgeTone: 'border border-cyan-200/60 bg-cyan-500/18 text-white',
+    badgeTone: 'border border-cyan-200/50 bg-cyan-500/18 text-white',
     statusTone: 'text-cyan-50',
     footerTone: 'border-cyan-200/30 bg-cyan-500/14',
     statusLabel: 'نشطة',
@@ -416,39 +417,36 @@ function CertificateMockup({ tier }: { tier: CertificateMockTier }) {
 
   return (
     <div className="relative mx-auto max-w-md" dir="rtl">
-      {/* هالة خارجية */}
-      <div className="pointer-events-none absolute -inset-3 rounded-[1.75rem] bg-gradient-to-br from-amber-400/35 via-amber-600/16 to-emerald-500/20 blur-xl" />
+      <div className="pointer-events-none absolute -inset-3 rounded-[1.75rem] bg-gradient-to-br from-teal-400/30 via-cyan-500/14 to-emerald-500/18 blur-xl" />
 
-      <div className={cn(
-        'relative overflow-hidden rounded-3xl border-2 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.14),transparent_34%),linear-gradient(180deg,#1a1203_0%,#120c02_32%,#0b0b0d_100%)] p-6 shadow-2xl sm:p-7',
-        mock.accentBorder,
-        mock.accentGlow,
-        tier === 'diamond' ? 'shadow-cyan-500/10' : 'shadow-amber-500/15',
-      )}>
-        {/* زخرفة diagonal */}
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-3xl border-2 bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.18),transparent_36%),linear-gradient(165deg,#0f766e_0%,#115e59_38%,#0a4f4a_72%,#042f2e_100%)] p-6 shadow-2xl sm:p-7',
+          mock.accentBorder,
+          mock.accentGlow,
+        )}
+      >
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.1]"
+          className="pointer-events-none absolute inset-0 opacity-[0.09]"
           style={{
             backgroundImage:
-              'repeating-linear-gradient(45deg, #d4af37 0, #d4af37 1px, transparent 0, transparent 50%)',
-            backgroundSize: '10px 10px',
+              'repeating-linear-gradient(45deg, #5eead4 0, #5eead4 1px, transparent 0, transparent 50%)',
+            backgroundSize: '12px 12px',
           }}
         />
-        {/* توهج علوي */}
-        <div className="pointer-events-none absolute inset-x-8 top-0 h-24 rounded-full bg-amber-300/16 blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-24 rounded-full bg-cyan-300/18 blur-3xl" />
+        <div className="pointer-events-none absolute -left-8 bottom-8 h-24 w-24 rounded-full bg-amber-300/10 blur-2xl" />
 
         <div className="relative space-y-5">
-          {/* الرأس */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-800 shadow-lg shadow-amber-500/30 ring-2 ring-amber-200/30">
-                <Scissors className="h-7 w-7 text-black" />
-                <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full border-2 border-[#071007] bg-emerald-400" />
-              </div>
+              <HalaqmapBrandMark className="h-14 w-14 shrink-0 rounded-2xl ring-2 ring-teal-200/35 shadow-lg shadow-teal-500/25" />
               <div>
-                <p className="text-[0.65rem] font-bold tracking-[0.2em] text-amber-200">HALAQ MAP</p>
+                <p className="text-[0.65rem] font-bold tracking-[0.18em] text-teal-100/90" dir="ltr">
+                  HALAQ MAP
+                </p>
                 <h3 className="text-base font-black text-white sm:text-lg">شهادة تفعيل رقمية</h3>
-                <p className="mt-0.5 text-[0.68rem] leading-relaxed text-slate-200/80">
+                <p className="mt-0.5 text-[0.68rem] leading-relaxed text-teal-50/75">
                   وثيقة رسمية تُثبت ملكيتك لمنتج حلاق ماب الرقمي
                 </p>
               </div>
@@ -458,46 +456,51 @@ function CertificateMockup({ tier }: { tier: CertificateMockTier }) {
             </span>
           </div>
 
-          {/* صاحب الرخصة */}
-          <div className="rounded-2xl border border-white/14 bg-black/45 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <p className="text-[0.58rem] font-semibold tracking-wide text-slate-300">صاحب الرخصة · رخصة النفاذ الرقمية</p>
+          <div className="rounded-2xl border border-white/14 bg-black/30 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <p className="text-[0.58rem] font-semibold tracking-wide text-teal-100/70">
+              صاحب الرخصة · رخصة النفاذ الرقمية
+            </p>
             <p className="mt-1 text-base font-bold text-white sm:text-lg">{mock.salonName}</p>
           </div>
 
-          {/* كود التفعيل — البطل */}
           <motion.div
-            className="relative overflow-hidden rounded-2xl border border-amber-300/70 bg-[linear-gradient(180deg,rgba(55,33,2,0.96)_0%,rgba(24,15,2,0.98)_48%,rgba(8,8,9,0.98)_100%)] px-4 py-5 text-center shadow-[inset_0_1px_0_rgba(253,230,138,0.24),0_0_40px_rgba(245,158,11,0.18)]"
-            animate={{ boxShadow: ['0 0 34px rgba(245,158,11,0.14)', '0 0 56px rgba(245,158,11,0.28)', '0 0 34px rgba(245,158,11,0.14)'] }}
+            className="relative overflow-hidden rounded-2xl border border-teal-200/50 bg-[linear-gradient(180deg,rgba(13,148,136,0.45)_0%,rgba(6,78,59,0.72)_48%,rgba(2,44,34,0.92)_100%)] px-4 py-5 text-center shadow-[inset_0_1px_0_rgba(153,246,228,0.28),0_0_36px_rgba(20,184,166,0.22)]"
+            animate={{
+              boxShadow: [
+                '0 0 28px rgba(20,184,166,0.14)',
+                '0 0 48px rgba(45,212,191,0.28)',
+                '0 0 28px rgba(20,184,166,0.14)',
+              ],
+            }}
             transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
           >
             <motion.div
-              className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-amber-200/10 to-transparent"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-white/10 to-transparent"
               animate={{ x: ['-120%', '220%'] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'linear', repeatDelay: 2.5 }}
             />
             <div className="relative">
-              <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-amber-300/50 bg-amber-500/16 px-3 py-0.5">
-                <Sparkles className="h-3 w-3 text-amber-300" />
-                <span className="text-[0.62rem] font-bold text-amber-100">كود التفعيل — مفتاح رخصتك</span>
+              <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-teal-200/40 bg-teal-500/20 px-3 py-0.5">
+                <Sparkles className="h-3 w-3 text-teal-100" />
+                <span className="text-[0.62rem] font-bold text-teal-50">كود التفعيل — مفتاح رخصتك</span>
               </div>
               <p
                 className="font-mono text-[1.15rem] font-black tracking-[0.12em] text-transparent sm:text-[1.35rem]"
                 dir="ltr"
                 style={{
-                  backgroundImage: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 45%, #f59e0b 100%)',
+                  backgroundImage: 'linear-gradient(135deg, #ecfdf5 0%, #5eead4 42%, #d4af37 100%)',
                   WebkitBackgroundClip: 'text',
                   backgroundClip: 'text',
                 }}
               >
                 {mock.activationCode}
               </p>
-              <p className="mt-2 text-[0.62rem] leading-relaxed text-amber-100/80">
+              <p className="mt-2 text-[0.62rem] leading-relaxed text-teal-50/80">
                 احفظ هذا الرمز — مرجعك الوحيد للتحقق، الدعم، وربط لوحة التحكم
               </p>
             </div>
           </motion.div>
 
-          {/* التفاصيل */}
           <div className="grid grid-cols-2 gap-2.5 text-[0.62rem] sm:gap-3">
             {[
               { label: 'الباقة المختارة', value: `${tierConfig.badge} ${tierConfig.name}` },
@@ -507,22 +510,21 @@ function CertificateMockup({ tier }: { tier: CertificateMockTier }) {
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-xl border border-white/14 bg-white/[0.08] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-3"
+                className="rounded-xl border border-white/12 bg-white/[0.07] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-3"
               >
-                <p className="text-slate-300">{item.label}</p>
+                <p className="text-teal-100/65">{item.label}</p>
                 <p className="mt-1 font-bold text-white">{item.value}</p>
               </div>
             ))}
           </div>
 
-          {/* التذييل */}
           <div className={cn('flex items-start gap-2.5 rounded-xl border px-3 py-2.5', mock.footerTone)}>
             <FileCheck className={cn('mt-0.5 h-4 w-4 shrink-0', mock.statusTone)} />
             <div>
               <p className={cn('text-[0.68rem] font-bold', mock.statusTone)}>
                 مُصدَرة ومُسجَّلة على نظام حلاق ماب — {mock.statusLabel}
               </p>
-              <p className="mt-0.5 text-[0.58rem] leading-relaxed text-slate-100/80">
+              <p className="mt-0.5 text-[0.58rem] leading-relaxed text-teal-50/75">
                 منتج رقمي رسمي — تتبدل الشهادة منطقيًا بحسب الباقة، مدة النفاذ، ونظام الاستجابة المفعّل
               </p>
             </div>

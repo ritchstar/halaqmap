@@ -34,7 +34,7 @@ export const ECOMMERCE_AUTH_CANONICAL_REPLY_AR =
   `• الرقم الوطني الموحد (السجل التجاري): ${LEGAL_NATIONAL_UNIFIED_NUMBER}\n` +
   `• الحالة: ${LEGAL_ECOMMERCE_AUTH_STATUS_LINE_AR}\n` +
   `• للتحقق الذاتي: ${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR} — يظهر في تذييل الرئيسية ومسار الشركاء وصفحات الخصوصية.\n` +
-  `• بوابة الاستعلام: ${LEGAL_ECOMMERCE_INQUIRY_URL} — الرقم الوطني الموحد للنسخ: ${LEGAL_NATIONAL_UNIFIED_NUMBER}.`;
+  `• بوابة الاستعلام: ${LEGAL_ECOMMERCE_INQUIRY_URL} — رقم التوثيق للنسخ: ${LEGAL_ECOMMERCE_AUTH_NUMBER}.`;
 
 /** قواعد إلزامية — تُحقَن في prompts الوكلاء */
 export const ECOMMERCE_AUTH_DOCTRINE_AR = `

@@ -6,12 +6,12 @@ import { BadgeCheck, Check, Copy, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/components/ui/sonner';
 import {
+  LEGAL_ECOMMERCE_AUTH_NUMBER,
+  LEGAL_ECOMMERCE_AUTH_NUMBER_LABEL_AR,
   LEGAL_ECOMMERCE_INQUIRY_COPY_HINT_AR,
   LEGAL_ECOMMERCE_INQUIRY_URL,
   LEGAL_ECOMMERCE_VERIFIED_BADGE_AR,
-  LEGAL_NATIONAL_UNIFIED_NUMBER,
   LEGAL_SBC_LOGO_SRC,
-  LEGAL_UNIFIED_NUMBER_LABEL_AR,
 } from '@/config/partnerLegal';
 
 type Variant = 'light' | 'dark' | 'landing';
@@ -22,7 +22,7 @@ type EcommerceVerifiedFooterBadgeProps = {
 };
 
 /**
- * شارة توثيق التجارة الإلكترونية — شعار المركز السعودي للأعمال + رابط الاستعلام + رقم موحّد قابل للنسخ.
+ * شارة توثيق التجارة الإلكترونية — شعار المركز السعودي للأعمال + رابط الاستعلام + رقم التوثيق قابل للنسخ.
  */
 export function EcommerceVerifiedFooterBadge({
   variant = 'light',
@@ -30,11 +30,11 @@ export function EcommerceVerifiedFooterBadge({
 }: EcommerceVerifiedFooterBadgeProps) {
   const [copied, setCopied] = useState(false);
 
-  const copyUnifiedNumber = useCallback(async () => {
+  const copyAuthNumber = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(LEGAL_NATIONAL_UNIFIED_NUMBER);
+      await navigator.clipboard.writeText(LEGAL_ECOMMERCE_AUTH_NUMBER);
       setCopied(true);
-      toast.success('تم نسخ الرقم الوطني الموحد');
+      toast.success('تم نسخ رقم التوثيق');
       window.setTimeout(() => setCopied(false), 2200);
     } catch {
       toast.error('تعذّر النسخ — انسخ الرقم يدوياً');
@@ -109,7 +109,7 @@ export function EcommerceVerifiedFooterBadge({
 
         <div className="w-full space-y-2 text-center">
           <p className={cn('text-xs leading-relaxed sm:text-sm', labelClass)}>
-            {LEGAL_UNIFIED_NUMBER_LABEL_AR}
+            {LEGAL_ECOMMERCE_AUTH_NUMBER_LABEL_AR}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
             <code
@@ -122,16 +122,16 @@ export function EcommerceVerifiedFooterBadge({
                 numberClass,
               )}
             >
-              {LEGAL_NATIONAL_UNIFIED_NUMBER}
+              {LEGAL_ECOMMERCE_AUTH_NUMBER}
             </code>
             <button
               type="button"
-              onClick={() => void copyUnifiedNumber()}
+              onClick={() => void copyAuthNumber()}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 sm:text-sm',
                 copyBtnClass,
               )}
-              aria-label="نسخ الرقم الوطني الموحد"
+              aria-label="نسخ رقم التوثيق"
             >
               {copied ? (
                 <>

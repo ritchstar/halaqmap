@@ -31,7 +31,7 @@ export const REGULATORY_FRAMEWORK_CANONICAL_REPLY_AR =
   `• **${LEGAL_MEDIA_LICENSE_FOOTER_LINE_AR}**.\n` +
   `• **الرقم الوطني الموحد (السجل التجاري):** ${LEGAL_NATIONAL_UNIFIED_NUMBER}.\n\n` +
   `**للتحقق الذاتي:** ${LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR} — يظهر في تذييل الرئيسية ومسار الشركاء وصفحات الخصوصية.\n` +
-  `**بوابة استعلام التجارة الإلكترونية:** ${LEGAL_ECOMMERCE_INQUIRY_URL} — الرقم الوطني الموحد للنسخ: ${LEGAL_NATIONAL_UNIFIED_NUMBER}.`;
+  `**بوابة استعلام التجارة الإلكترونية:** ${LEGAL_ECOMMERCE_INQUIRY_URL} — رقم التوثيق للنسخ: ${LEGAL_ECOMMERCE_AUTH_NUMBER}.`;
 
 /** قواعد إلزامية — تُحقَن في prompts الوكلاء */
 export const REGULATORY_FRAMEWORK_DOCTRINE_AR = `

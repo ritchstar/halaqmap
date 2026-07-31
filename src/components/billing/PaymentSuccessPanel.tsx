@@ -93,11 +93,11 @@ export function PaymentSuccessPanel({
 
   return (
     <div className={cn('space-y-4', className)} dir="rtl">
-      <Card className="overflow-hidden border-emerald-500/35 bg-gradient-to-br from-emerald-950/40 via-slate-950 to-slate-900 text-slate-100 shadow-xl">
-        <CardHeader className="space-y-3 border-b border-white/10 pb-4">
+      <Card className="overflow-hidden border-teal-400/35 bg-gradient-to-br from-teal-950/50 via-slate-950 to-cyan-950/40 text-slate-100 shadow-xl">
+        <CardHeader className="space-y-3 border-b border-teal-200/10 pb-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold text-emerald-200/90">تم الدفع بنجاح — الحزمة أُضيفت لحسابك</p>
+              <p className="text-xs font-semibold text-teal-200/90">تم الدفع بنجاح — الحزمة أُضيفت لحسابك</p>
               <CardTitle className="mt-1 text-2xl font-extrabold text-white">{PLATFORM_NAME_AR}</CardTitle>
               <p className="text-sm text-slate-400 dir-ltr text-left" dir="ltr">
                 {PLATFORM_NAME_EN}
@@ -121,7 +121,7 @@ export function PaymentSuccessPanel({
           </div>
           <IdentityField label={BARBER_NAME_LABEL_AR} value={displayBarber} />
           <p className="text-[11px] leading-relaxed text-slate-400">
-            احفظ رقم الرخصة أعلاه. يمكنك فتح لوحة التحكم من بريد التفعيل أو من رابط الدخول المرسل لصالونك.
+            احفظ رقم الرخصة أعلاه، وحَمّل شهادة التفعيل ككرت للاحتفاظ بها على جهازك.
           </p>
         </CardContent>
       </Card>
@@ -130,6 +130,7 @@ export function PaymentSuccessPanel({
         <DigitalActivationCertificateCard
           certificate={certificate}
           compact
+          showDownload
           barberName={displayBarber}
           packageLabelAr={displayPackage}
         />

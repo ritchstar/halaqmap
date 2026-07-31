@@ -1,15 +1,27 @@
 /**
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
-import { BadgeCheck, MapPin, Radar, Shield, Store } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCallback, useRef, useState } from 'react';
+import {
+  BadgeCheck,
+  Download,
+  FileCheck,
+  Loader2,
+  MapPin,
+  Radar,
+  Sparkles,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
+import { toast } from '@/components/ui/sonner';
 import {
   BARBER_NAME_LABEL_AR,
   PLATFORM_NAME_AR,
-  SOFTWARE_LICENSE_MANAGER_LABEL_AR,
+  PLATFORM_NAME_EN,
   type DigitalActivationCertificateView,
 } from '@/config/geospatialLicenseDoctrine';
+import { downloadElementAsPngCard } from '@/lib/downloadElementAsPngCard';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -18,6 +30,8 @@ type Props = {
   packageLabelAr?: string;
   className?: string;
   compact?: boolean;
+  /** إظهار زر تحميل الكرت — يُفعّل عند صدور الشهادة */
+  showDownload?: boolean;
 };
 
 function formatDate(iso: string): string {
@@ -38,115 +52,188 @@ function resolveBarberName(explicit: string | undefined, certificate: DigitalAct
   return '—';
 }
 
+function safeFileToken(value: string): string {
+  return value.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/-+/g, '-').slice(0, 48);
+}
+
 export function DigitalActivationCertificateCard({
   certificate,
   barberName,
   packageLabelAr,
   className,
   compact,
+  showDownload = true,
 }: Props) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
   const mapLive = certificate.mapIntegrationStatus === 'map_live';
   const displayBarber = resolveBarberName(barberName, certificate);
   const displayPackage = packageLabelAr?.trim() || certificate.tierLabelAr?.trim() || '—';
 
+  const handleDownload = useCallback(async () => {
+    const el = cardRef.current;
+    if (!el || downloading) return;
+    setDownloading(true);
+    try {
+      const stamp = new Date().toISOString().slice(0, 10);
+      const file = `halaqmap-activation-${safeFileToken(certificate.certificateNumber)}-${stamp}.png`;
+      await downloadElementAsPngCard(el, file);
+      toast.success('تم تحميل الشهادة ككرت — احفظها في جهازك');
+    } catch {
+      toast.error('تعذّر تحميل الشهادة — أعد المحاولة');
+    } finally {
+      setDownloading(false);
+    }
+  }, [certificate.certificateNumber, downloading]);
+
   return (
-    <Card
-      className={cn(
-        'overflow-hidden border-cyan-400/40 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.10),transparent_28%),linear-gradient(180deg,#061018_0%,#0a1320_45%,#07131a_100%)] text-slate-100 shadow-xl',
-        className,
-      )}
-      dir="rtl"
-    >
-      <CardHeader className={cn('space-y-2', compact && 'pb-3')}>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge className="border-cyan-300/45 bg-cyan-500/18 text-cyan-50">
-            <Shield className="ml-1 h-3 w-3" />
-            شهادة تفعيل رقمية
-          </Badge>
-        </div>
-        <CardTitle className={cn('text-xl font-extrabold text-white', compact && 'text-lg')}>
-          شهادة تفعيل رقمية معتمدة — {PLATFORM_NAME_AR}
-        </CardTitle>
-        <CardDescription className="text-slate-200/85">
-          {SOFTWARE_LICENSE_MANAGER_LABEL_AR} — وثيقة تُثبت شراء رخصة النفاذ الرقمية لهذا الصالون
-        </CardDescription>
-      </CardHeader>
-      <CardContent className={cn('space-y-4', compact && 'pt-0')}>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="relative overflow-hidden rounded-2xl border border-amber-300/65 bg-[linear-gradient(180deg,rgba(55,33,2,0.96)_0%,rgba(22,16,5,0.98)_50%,rgba(5,10,16,0.98)_100%)] p-4 shadow-[inset_0_1px_0_rgba(253,230,138,0.22),0_0_38px_rgba(245,158,11,0.18)] sm:col-span-2">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-amber-200/10 to-transparent" />
-            <div className="relative text-center sm:text-right">
-              <p className="text-[10px] font-bold tracking-wide text-amber-100">
-                كود التفعيل — مفتاح رخصة النفاذ الرقمي
-              </p>
+    <div className={cn('space-y-3', className)} dir="rtl">
+      <div
+        ref={cardRef}
+        className={cn(
+          'relative overflow-hidden rounded-3xl border-2 border-teal-300/45 bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.18),transparent_36%),linear-gradient(165deg,#0f766e_0%,#115e59_38%,#0a4f4a_72%,#042f2e_100%)] p-5 text-slate-100 shadow-[0_0_40px_rgba(20,184,166,0.22)] sm:p-6',
+          compact && 'p-4 sm:p-5',
+        )}
+      >
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.09]"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, #5eead4 0, #5eead4 1px, transparent 0, transparent 50%)',
+            backgroundSize: '12px 12px',
+          }}
+        />
+        <div className="pointer-events-none absolute inset-x-10 top-0 h-28 rounded-full bg-cyan-300/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-8 bottom-8 h-24 w-24 rounded-full bg-amber-300/10 blur-2xl" />
+
+        <div className={cn('relative space-y-4', compact && 'space-y-3.5')}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <HalaqmapBrandMark className="h-14 w-14 shrink-0 rounded-2xl ring-2 ring-teal-200/35 shadow-lg shadow-teal-500/25" />
+              <div className="min-w-0">
+                <p className="text-[0.65rem] font-bold tracking-[0.18em] text-teal-100/90" dir="ltr">
+                  {PLATFORM_NAME_EN}
+                </p>
+                <h3 className={cn('text-base font-black text-white sm:text-lg', compact && 'text-base')}>
+                  شهادة تفعيل رقمية
+                </h3>
+                <p className="mt-0.5 text-[0.68rem] leading-relaxed text-teal-50/75">
+                  وثيقة رسمية تُثبت ملكيتك لمنتج {PLATFORM_NAME_AR} الرقمي
+                </p>
+              </div>
+            </div>
+            <Badge className="shrink-0 border border-emerald-300/45 bg-emerald-500/20 text-emerald-50">
+              نشطة
+            </Badge>
+          </div>
+
+          <div className="rounded-2xl border border-white/14 bg-black/30 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <p className="text-[0.58rem] font-semibold tracking-wide text-teal-100/70">
+              صاحب الرخصة · رخصة النفاذ الرقمية
+            </p>
+            <p className="mt-1 text-base font-bold text-white sm:text-lg">{displayBarber}</p>
+          </div>
+
+          <div className="relative overflow-hidden rounded-2xl border border-teal-200/50 bg-[linear-gradient(180deg,rgba(13,148,136,0.45)_0%,rgba(6,78,59,0.72)_48%,rgba(2,44,34,0.92)_100%)] px-4 py-5 text-center shadow-[inset_0_1px_0_rgba(153,246,228,0.28),0_0_36px_rgba(20,184,166,0.22)]">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-white/10 to-transparent" />
+            <div className="relative">
+              <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-teal-200/40 bg-teal-500/20 px-3 py-0.5">
+                <Sparkles className="h-3 w-3 text-teal-100" />
+                <span className="text-[0.62rem] font-bold text-teal-50">كود التفعيل — مفتاح رخصتك</span>
+              </div>
               <p
-                className="mt-2 font-mono text-xl font-black tracking-[0.1em] text-transparent sm:text-2xl"
+                className="font-mono text-[1.1rem] font-black tracking-[0.1em] text-transparent sm:text-[1.3rem]"
                 dir="ltr"
                 style={{
-                  backgroundImage: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%)',
+                  backgroundImage: 'linear-gradient(135deg, #ecfdf5 0%, #5eead4 42%, #d4af37 100%)',
                   WebkitBackgroundClip: 'text',
                   backgroundClip: 'text',
                 }}
               >
                 {certificate.certificateNumber}
               </p>
-              <p className="mt-2 text-[11px] leading-relaxed text-amber-100/80">
-                احفظ هذا الرمز — مرجعك للدعم وربط لوحة التحكم
+              <p className="mt-2 text-[0.62rem] leading-relaxed text-teal-50/80">
+                احفظ هذا الرمز — مرجعك للتحقق، الدعم، وربط لوحة التحكم
               </p>
             </div>
           </div>
-          <div className="rounded-lg border border-white/14 bg-white/[0.08] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <p className="text-[10px] text-slate-300">{BARBER_NAME_LABEL_AR}</p>
-            <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-white">
-              <Store className="h-3.5 w-3.5 shrink-0 text-cyan-300" />
-              {displayBarber}
-            </p>
-          </div>
-          <div className="rounded-lg border border-white/14 bg-white/[0.08] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <p className="text-[10px] text-slate-300">الباقة البرمجية</p>
-            <p className="mt-1 text-sm font-bold">{displayPackage}</p>
-          </div>
-        </div>
 
-        <div className="rounded-lg border border-white/14 bg-white/[0.08] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-          <p className="text-[10px] text-slate-300">صالحة حتى</p>
-          <p className="mt-1 text-sm font-bold">{formatDate(certificate.validUntil)}</p>
-        </div>
+          <div className="grid grid-cols-2 gap-2.5 text-[0.62rem] sm:gap-3">
+            {[
+              { label: 'الباقة المختارة', value: displayPackage },
+              { label: BARBER_NAME_LABEL_AR, value: displayBarber },
+              { label: 'تاريخ الإصدار', value: formatDate(certificate.issuedAt) },
+              { label: 'صالحة حتى', value: formatDate(certificate.validUntil) },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-white/12 bg-white/[0.07] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-3"
+              >
+                <p className="text-teal-100/65">{item.label}</p>
+                <p className="mt-1 font-bold text-white">{item.value}</p>
+              </div>
+            ))}
+          </div>
 
-        <div
-          className={cn(
-            'rounded-xl border p-3',
-            mapLive
-              ? 'border-emerald-300/40 bg-emerald-950/34'
-              : 'border-amber-300/35 bg-amber-950/24',
-          )}
-        >
-          <div className="flex items-start gap-2">
-            {mapLive ? (
-              <Radar className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-            ) : (
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+          <div
+            className={cn(
+              'rounded-xl border px-3 py-2.5',
+              mapLive
+                ? 'border-emerald-300/40 bg-emerald-950/35'
+                : 'border-amber-300/35 bg-amber-950/25',
             )}
-            <div className="space-y-1">
-              <p className="text-sm font-semibold">
-                {mapLive
-                  ? 'الظهور على الخريطة نشط'
-                  : 'بانتظار اكتمال ربط موقع الصالون على الخريطة'}
+          >
+            <div className="flex items-start gap-2">
+              {mapLive ? (
+                <Radar className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+              ) : (
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+              )}
+              <div className="space-y-1">
+                <p className="text-sm font-semibold">
+                  {mapLive
+                    ? 'الظهور على الخريطة نشط'
+                    : 'بانتظار اكتمال ربط موقع الصالون على الخريطة'}
+                </p>
+                <p className="text-[11px] text-teal-50/75">
+                  {mapLive
+                    ? 'صالونك ظاهر ضمن نظام الاستجابة الذكية حسب أيام الرخصة المتبقية.'
+                    : 'إن كان موقعك مسجّلاً مسبقاً سيكتمل الربط تلقائياً — وإلا راجع بيانات العنوان في لوحة التحكم أو مع الدعم.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2.5 rounded-xl border border-teal-200/30 bg-teal-500/12 px-3 py-2.5">
+            <FileCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-100" />
+            <div>
+              <p className="text-[0.68rem] font-bold text-teal-50">
+                مُصدَرة ومُسجَّلة على نظام {PLATFORM_NAME_AR} — نشطة
               </p>
-              <p className="text-[11px] text-slate-300">
-                {mapLive
-                  ? 'صالونك ظاهر ضمن نظام الاستجابة الذكية حسب أيام الرخصة المتبقية.'
-                  : 'إن كان موقعك مسجّلاً مسبقاً سيكتمل الربط تلقائياً — وإلا راجع بيانات العنوان في لوحة التحكم أو مع الدعم.'}
+              <p className="mt-0.5 flex items-center gap-1.5 text-[0.58rem] leading-relaxed text-teal-50/75">
+                <BadgeCheck className="h-3 w-3 shrink-0 text-cyan-200" />
+                صدرت: {formatDate(certificate.issuedAt)}
               </p>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-slate-300">
-          <BadgeCheck className="h-3.5 w-3.5 text-cyan-300" />
-          <span>صدرت: {formatDate(certificate.issuedAt)}</span>
-        </div>
-      </CardContent>
-    </Card>
+      {showDownload ? (
+        <Button
+          type="button"
+          onClick={() => void handleDownload()}
+          disabled={downloading}
+          className="w-full gap-2 border border-teal-300/35 bg-gradient-to-l from-teal-600 to-cyan-600 text-white shadow-lg shadow-teal-500/20 hover:from-teal-500 hover:to-cyan-500"
+        >
+          {downloading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+          {downloading ? 'جاري تجهيز الكرت…' : 'تحميل الشهادة ككرت'}
+        </Button>
+      ) : null}
+    </div>
   );
 }

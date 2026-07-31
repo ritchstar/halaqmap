@@ -31,9 +31,12 @@ export const LEGAL_SBC_LOGO_SRC = '/images/saudi-business-center-logo.png' as co
 /** شارة التوثيق في التذييل */
 export const LEGAL_ECOMMERCE_VERIFIED_BADGE_AR = 'موثق' as const;
 
-/** تلميح النسخ — الرقم الوطني الموحد لصفحة الاستعلام */
+/** تسمية العرض — رقم توثيق التجارة الإلكترونية (للاستعلام في بوابة المركز) */
+export const LEGAL_ECOMMERCE_AUTH_NUMBER_LABEL_AR = 'رقم التوثيق' as const;
+
+/** تلميح النسخ — رقم التوثيق لصفحة الاستعلام */
 export const LEGAL_ECOMMERCE_INQUIRY_COPY_HINT_AR =
-  'انسخ الرقم الوطني الموحد والصقه في بوابة الاستعلام للتحقق الفوري';
+  'انسخ رقم التوثيق والصقه في بوابة الاستعلام للتحقق الفوري';
 
 /** سطر التذييل — يُعرض في الواجهات العامة ومسار الشركاء وصفحات الخصوصية */
 export const LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR =
