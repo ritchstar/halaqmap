@@ -118,3 +118,12 @@ android-partner-twa/android.keystore
 android-partner-twa/*.keystore
 android-partner-twa/android-keys.env
 android-partner-twa/passwords.txt
+
+# --- Android TWA build artifacts ---
+android-partner-twa/.gradle/
+android-partner-twa/**/build/
+android-partner-twa/*.apk
+android-partner-twa/*.aab
+android-partner-twa/*.idsig
+android-partner-twa/manifest-checksum.txt
+android-partner-twa/app/src/main/res/raw/

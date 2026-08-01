@@ -19,7 +19,7 @@ export const COMMAND_CENTER_OUTREACH_DEFAULT_LENGTH: CommandCenterOutreachLength
 const UNKNOWN_LOCATION = 'غير محدد';
 
 export const COMMAND_CENTER_OUTREACH_DECK_LINK_INTRO_AR =
-  'عرض مختصر يشرح المنصة والباقات و`نظام الاستجابة الذكية`:';
+  'تفضلوا بالاطلاع على التفاصيل الكاملة وآلية تفعيل فترة التجربة عبر عرض النمو المخصص لكم:';
 
 /** رابط الإحالة المعتمد — مصدر واحد لغرفة القيادة وواتساب. */
 export function commandCenterGrowthPitchDeckUrl(variant: CommandCenterOutreachVariant = 'initial'): string {
@@ -29,14 +29,17 @@ export function commandCenterGrowthPitchDeckUrl(variant: CommandCenterOutreachVa
   });
 }
 
-/** ترحيب — عنوان الصالون بجانب الاسم، لا بجانب «فريق حلاق ماب». */
+/** ترحيب واتساب — اسم الصالون ثم المدينة/الحي في سطرين منفصلين. */
 export const COMMAND_CENTER_OUTREACH_SALUTATION_AR = (
   salonName: string,
   cityLabel?: string | null,
 ) => {
+  const name = salonName.trim() || 'الصالون';
   const loc = cityLabel?.trim();
-  if (loc) return `مرحباً ${salonName} — ${loc}،`;
-  return `مرحباً ${salonName}،`;
+  if (loc) {
+    return [`مرحباً بأسرة ${name} 👋`, '', `أهلاً بكم في ${loc} 📍`].join('\n');
+  }
+  return `مرحباً بأسرة ${name} 👋`;
 };
 
 export const COMMAND_CENTER_OUTREACH_TIER_LABELS: Record<CommandCenterOutreachTierFit, string> = {
@@ -73,16 +76,21 @@ export const COMMAND_CENTER_OUTREACH_BRONZE_BODY_AR = [
   'هل نرسل لكم ملخص البرونزي وخطوات التسجيل؟',
 ].join('\n');
 
-/** رسالة أول تواصل — صالونات ملائمة للذهبي. */
+/** رسالة أول تواصل — صالونات ملائمة للذهبي (تجربة 90 يوماً). */
 export const COMMAND_CENTER_OUTREACH_GOLD_BODY_AR = [
-  'السلام عليكم ورحمة الله وبركاته.',
-  'معكم فريق حلاق ماب — منصة ربط ذكية بين طالب الخدمة ومقدّمها.',
+  'السلام عليكم ورحمة الله وبركاته،',
   '',
-  'رصدنا صالونكم كخيار مناسب لباقة «ذهبي»: معرض أعمال، تقييمات `QR`، ورسائل العملاء — مع ظهور برمجي عند تنشّط الاستعلام المناسب ضمن `نظام الاستجابة الذكية`.',
+  'معكم فريق تطوير الأعمال في منصة حلاق ماب (`Halaq Map`) 💈',
   '',
-  'يمكنكم التسجيل على المنصة واختيار باقة «ذهبي»، ثم الدفع لاستكمال التفعيل. ننسّق معكم من غرفة القيادة للأسئلة والتوضيح — دون وساطة على الخدمة.',
+  'بعد متابعة تميزكم، تم ترشيح صالونكم للاستفادة من «الباقة الذهبية» مع عرض حصري ومقيد: تجربة مجانية كاملة لمدة 90 يوماً لمضاعفة حجوزاتكم وتنظيم عملياتكم بكل سهولة دون أي التزام مسبق 📈✨',
   '',
-  'هل نرسل لكم تفاصيل الباقة الذهبية وخطوات التسجيل؟',
+  'أبرز مزايا الباقة المخصصة لكم:',
+  '',
+  'معرض أعمال رقمي احترافي يعكس جودة خدماتكم 📸',
+  '',
+  'نظام تقييمات `QR` ذكي لتعزيز الثقة وكسب ولاء العملاء ⭐',
+  '',
+  'ظهور تفضيلي عند الطلب وفي نطاق البحث الجغرافي القريب 🚀',
 ].join('\n');
 
 /** رسالة أول تواصل — صالونات ملائمة للماسي. */
@@ -149,9 +157,10 @@ function buildShortInitialBody(tierFit: CommandCenterOutreachTierFit): string {
       ].join('\n');
     case 'gold':
       return [
-        'السلام عليكم ورحمة الله وبركاته.',
-        `معكم فريق حلاق ماب. باقة «ذهبي»: معرض أعمال + تقييمات \`QR\` + ظهور عند الطلب.`,
-        'التسجيل على المنصة متاح — نرسل ملخص الباقة وخطوات الدفع؟',
+        'السلام عليكم ورحمة الله وبركاته،',
+        'معكم فريق تطوير الأعمال في منصة حلاق ماب (`Halaq Map`) 💈',
+        'ترشيح لـ«الباقة الذهبية» مع تجربة مجانية 90 يوماً — معرض أعمال + تقييمات `QR` + ظهور تفضيلي عند الطلب.',
+        'نرسل رابط عرض النمو وآلية تفعيل التجربة؟',
       ].join('\n');
     case 'diamond':
       return [
@@ -181,7 +190,7 @@ function buildDeckTierLine(tierFit: CommandCenterOutreachTierFit): string {
     case 'bronze':
       return 'نُجهّز شركاء «برونزي» — ظهور عند الطلب ضمن `نظام الاستجابة الذكية`، دون وساطة حجز.';
     case 'gold':
-      return 'رصدنا صالونكم كخيار مناسب لباقة «ذهبي» — معرض أعمال وتقييمات `QR` وظهور عند الطلب.';
+      return 'بعد متابعة تميزكم، تم ترشيح صالونكم للاستفادة من «الباقة الذهبية» مع عرض حصري ومقيد: تجربة مجانية كاملة لمدة 90 يوماً.';
     case 'diamond':
       return 'رصدنا صالونكم كخيار قوي لباقة «ماسي» — أولوية أعلى ولوحة تحكم كاملة وظهور عند الطلب.';
     default:
@@ -189,14 +198,27 @@ function buildDeckTierLine(tierFit: CommandCenterOutreachTierFit): string {
   }
 }
 
+function buildGoldDeckInitialBody(variant: CommandCenterOutreachVariant): string {
+  const url = commandCenterGrowthPitchDeckUrl(variant);
+  return [
+    COMMAND_CENTER_OUTREACH_GOLD_BODY_AR,
+    '',
+    COMMAND_CENTER_OUTREACH_DECK_LINK_INTRO_AR,
+    url,
+  ].join('\n');
+}
+
 function buildDeckInitialBody(
   tierFit: CommandCenterOutreachTierFit,
   variant: CommandCenterOutreachVariant,
 ): string {
+  if (tierFit === 'gold') {
+    return buildGoldDeckInitialBody(variant);
+  }
   const url = commandCenterGrowthPitchDeckUrl(variant);
   return [
     'السلام عليكم ورحمة الله وبركاته.',
-    `معكم فريق حلاق ماب.`,
+    'معكم فريق حلاق ماب.',
     buildDeckTierLine(tierFit),
     '',
     COMMAND_CENTER_OUTREACH_DECK_LINK_INTRO_AR,
@@ -254,6 +276,10 @@ export function buildCommandCenterOutreachMessage(input: {
       variant === 'followup'
         ? applyCityToOutreachBody(COMMAND_CENTER_OUTREACH_FOLLOWUP_BODY_AR, cityLabel)
         : applyCityToOutreachBody(buildCommandCenterOutreachBody(tierFit), cityLabel);
+    if (variant === 'initial' && tierFit === 'gold' && length === 'full') {
+      const url = commandCenterGrowthPitchDeckUrl(variant);
+      body = `${body}\n\n${COMMAND_CENTER_OUTREACH_DECK_LINK_INTRO_AR}\n${url}`;
+    }
   }
 
   return `${COMMAND_CENTER_OUTREACH_SALUTATION_AR(input.salonName, cityLabel)}\n\n${body}`;

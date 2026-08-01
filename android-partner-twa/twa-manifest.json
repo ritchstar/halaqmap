@@ -8,6 +8,8 @@
   "themeColorDark": "#042F2E",
   "navigationColor": "#0D9488",
   "navigationColorDark": "#042F2E",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
   "backgroundColor": "#0A4F4A",
   "enableNotifications": true,
   "startUrl": "/#/partners/app",
@@ -19,7 +21,7 @@
     "alias": "halaqmap-key"
   },
   "appVersionName": "1.0.0",
-  "appVersionCode": 1,
+  "appVersionCode": 2,
   "shortcuts": [
     {
       "name": "لوحة التحكم",
@@ -34,7 +36,7 @@
       "chosenIconUrl": "https://www.halaqmap.com/icons/icon-192.png"
     }
   ],
-  "generatorApp": "bubblewrap",
+  "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://www.halaqmap.com/manifest-partner.json",
   "fallbackType": "customtabs",
   "features": {
@@ -45,6 +47,9 @@
   "alphaDependencies": {
     "enabled": false
   },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
   "fullScopeUrl": "https://www.halaqmap.com/",
   "minSdkVersion": 21,
   "orientation": "portrait",
@@ -55,5 +60,7 @@
   ],
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
-  "protocolHandlers": []
+  "protocolHandlers": [],
+  "displayOverride": [],
+  "appVersion": "1.0.0"
 }
