@@ -42,6 +42,12 @@ import {
   PARTNER_SOCIAL_VS_PLATFORM_ROWS_AR,
   PARTNER_TIER_MARKETING_HOOKS_AR,
 } from '@/config/partnerFieldSalesCopy';
+import {
+  PARTNER_JOIN_PATH_HERO_LEAD_AR,
+  PARTNER_JOIN_PATH_PRIMARY_CTA_AR,
+  PARTNER_JOIN_PATH_REGISTER_PAY_AFTER_COMMITMENTS_AR,
+  PARTNER_JOIN_PATH_STEPS,
+} from '@/config/partnerJoinPathCopy';
 
 export { PARTNER_EARLY_WAVE_TAGLINE_AR } from '@/config/partnerEarlyWaveCopy';
 export {
@@ -55,9 +61,9 @@ export {
 
 /** فقرات مختصرة لصفحة التسجيل — التفاصيل في FAQ */
 export const PARTNER_REGISTER_INTRO_PARAGRAPHS = [
+  PARTNER_JOIN_PATH_HERO_LEAD_AR,
+  PARTNER_JOIN_PATH_REGISTER_PAY_AFTER_COMMITMENTS_AR,
   PLATFORM_GROWTH_REGISTER_INTRO_AR.replace(/\*\*/g, ''),
-  PARTNER_HERO_LEAD_PRIMARY_AR,
-  PARTNER_FINAL_CTA_BODY_AR,
 ] as const;
 
 /** رحلة الزبون — مواءمة Pitch Deck (شريحة 3) */
@@ -236,28 +242,14 @@ export const PARTNER_LANDING_TESTIMONIALS_SECTION = {
 } as const;
 
 export const PARTNER_LANDING_HOW_SECTION = {
-  title: 'كيف يعمل؟',
-  lead: 'أربع خطوات بسيطة — من طلب الرخصة إلى الاستجابة البرمجية:',
+  title: PARTNER_JOIN_PATH_STEPS.title,
+  lead: PARTNER_JOIN_PATH_STEPS.lead,
 } as const;
 
-export const PARTNER_LANDING_PROCESS_STEPS = [
-  {
-    title: 'تضغط «ابدأ الآن» وتعبّي الطلب',
-    body: 'بيانات الصالون وحزمة رخصة النفاذ + تأشيرات إلزامية (التعهد القانوني، الالتزام المهني، إقرار المنتج، الشروط) — دون رفع وثائق حكومية.',
-  },
-  {
-    title: 'أكمل الدفع',
-    body: 'بعد تعبئة الطلب تنتقل لبوابة الدفع؛ عند نجاح المعاملة تُفعَّل استجابة صالونك ضمن نظام الاستجابة الذكية تلقائياً دون انتظار اعتماد يدوي للمسار الاعتيادي.',
-  },
-  {
-    title: 'يستجيب صالونك للطلبات المناسبة',
-    body: 'يُفعَّل ظهورك البرمجي حصراً عند وجود طلب نشط تنطبق عليه بياناتك المتاحة — كفاءة استهداف لا قائمة دائمة.',
-  },
-  {
-    title: 'تدير ملفك من لوحتك',
-    body: 'صور، أوقات، عروض، وتقييمات حسب حزمة رخصة النفاذ — تطوّر استجابتك مع نمو الطلب.',
-  },
-] as const;
+export const PARTNER_LANDING_PROCESS_STEPS = PARTNER_JOIN_PATH_STEPS.steps.map(({ title, body }) => ({
+  title,
+  body,
+}));
 
 export const PARTNER_LANDING_PLANS_SECTION = {
   title: 'حزم رخصة النفاذ — اختر ما يخدم مرحلة صالونك',
@@ -316,7 +308,7 @@ export const PARTNER_LANDING_CTA_SECTION = {
   title: PARTNER_HERO_CLOSING_TAGLINE_AR,
   lead: PARTNER_LANDING_CTA_LEAD_AR,
   chips: ['بدون لف تقني', 'مسار واضح', 'دعم فريق المنصة'],
-  primaryCta: 'شراء رخصة نفاذ',
+  primaryCta: PARTNER_JOIN_PATH_PRIMARY_CTA_AR,
   secondaryCta: 'تفعيل الآن',
 } as const;
 
@@ -341,6 +333,7 @@ export const PARTNER_REGISTER_FAQ_SECTION = {
 export const PARTNER_REGISTER_PAGE = {
   title: 'سجّل صالونك في منصة حلاق ماب',
   introParagraphs: PARTNER_REGISTER_INTRO_PARAGRAPHS,
+  payAfterCommitmentsLine: PARTNER_JOIN_PATH_REGISTER_PAY_AFTER_COMMITMENTS_AR,
   customerJourneyTitle: 'ماذا يحدث لصالونك بعد التفعيل؟',
   customerJourneyLead: 'مسار بسيط — من الاستعلام إلى اتصالك أنت.',
   customerJourney: PARTNER_REGISTER_CUSTOMER_JOURNEY_AR,
@@ -349,10 +342,10 @@ export const PARTNER_REGISTER_PAGE = {
     'لا عمولات',
     'لا وساطة حجز',
     'لا تجديد تلقائي',
+    'الدفع بعد التعهدات',
     'حزمة رقمية مسبقة الدفع',
-    'وفق سياسة رخصة النفاذ',
   ],
-  steps: ['اختر الحزمة', 'أكمل البيانات', 'ادفع الآن', 'إتمام التفعيل'],
+  steps: ['أكمل البيانات والتعهدات', 'ادفع بعد اكتمال الطلب', 'إتمام التفعيل'],
 } as const;
 
 /** صفحة «لماذا تنضم» — أقسام طويلة */

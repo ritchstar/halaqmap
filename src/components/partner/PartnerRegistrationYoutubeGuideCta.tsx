@@ -9,6 +9,7 @@ type Variant = 'header' | 'form';
 
 /**
  * رابط خارجي لفيديو شرح التعبئة — لا يمس حقول النموذج ولا مسار الإرسال.
+ * التلوين متناسق مع شريط الدليل/واتساب: خلفية داكنة + حدّ خفيف (بدون تعبئة حمراء صارخة).
  */
 export function PartnerRegistrationYoutubeGuideCta({
   variant = 'form',
@@ -28,34 +29,37 @@ export function PartnerRegistrationYoutubeGuideCta({
       title={`${labelAr} — ${onYoutubeAr}`}
       aria-label={`${labelAr} — ${onYoutubeAr}`}
       className={cn(
-        'group relative inline-flex items-center gap-2 overflow-hidden rounded-xl border font-bold transition',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020912]',
+        'group inline-flex items-center gap-2.5 rounded-xl border font-bold transition',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020912]',
         'active:scale-[0.98]',
         isHeader
-          ? 'max-w-[min(52vw,15.5rem)] border-red-400/45 bg-red-600/25 px-2 py-1.5 text-[0.62rem] text-red-50 shadow-[0_0_18px_rgba(239,68,68,0.45)] sm:max-w-none sm:px-2.5 sm:text-[0.68rem]'
-          : 'w-full justify-center border-red-400/50 bg-gradient-to-l from-red-600/35 via-red-500/20 to-red-600/35 px-3 py-2.5 text-xs text-red-50 shadow-[0_0_28px_rgba(239,68,68,0.4)] sm:text-sm',
+          ? 'max-w-[min(52vw,15.5rem)] border-rose-400/25 bg-rose-500/[0.08] px-2 py-1.5 text-[0.62rem] text-rose-100/95 hover:bg-rose-500/[0.12] sm:max-w-none sm:px-2.5 sm:text-[0.68rem]'
+          : 'w-full justify-between border-rose-400/22 bg-rose-500/[0.07] px-3 py-2.5 text-xs text-rose-100/95 hover:bg-rose-500/[0.11] sm:px-4 sm:text-sm',
         className,
       )}
     >
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-red-400/20 to-transparent"
-      />
-      <span
-        aria-hidden
-        className={cn(
-          'relative flex shrink-0 items-center justify-center rounded-lg bg-[#FF0000] text-white shadow-[0_0_12px_rgba(255,0,0,0.75)]',
-          isHeader ? 'h-6 w-6' : 'h-8 w-8',
-        )}
-      >
-        <SiYoutube className={isHeader ? 'h-3.5 w-3.5' : 'h-5 w-5'} />
-      </span>
-      <span className="relative min-w-0 text-right leading-snug">
-        <span className="block truncate drop-shadow-[0_0_8px_rgba(255,255,255,0.35)]">{labelAr}</span>
-        <span className="mt-0.5 block text-[0.55rem] font-semibold text-red-200/90 sm:text-[0.6rem]">
-          {onYoutubeAr}
+      <span className="flex min-w-0 items-center gap-2.5">
+        <span
+          aria-hidden
+          className={cn(
+            'flex shrink-0 items-center justify-center rounded-lg border border-rose-400/35 bg-rose-500/20 text-rose-100',
+            isHeader ? 'h-6 w-6' : 'h-8 w-8',
+          )}
+        >
+          <SiYoutube className={cn(isHeader ? 'h-3.5 w-3.5' : 'h-4 w-4', 'text-[#e11d48]/90')} />
+        </span>
+        <span className="min-w-0 text-right leading-snug">
+          <span className="block truncate font-bold text-rose-100/95">{labelAr}</span>
+          <span className="mt-0.5 block text-[0.55rem] font-semibold text-slate-400 sm:text-[0.65rem]">
+            {onYoutubeAr}
+          </span>
         </span>
       </span>
+      {!isHeader ? (
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-rose-400/30 bg-rose-500/15 px-2.5 py-1.5 text-[0.65rem] font-bold text-rose-100/90 sm:text-xs">
+          مشاهدة
+        </span>
+      ) : null}
     </a>
   );
 }

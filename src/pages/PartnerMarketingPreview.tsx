@@ -10,14 +10,14 @@
  * يعتمد نفس نظام التصميم الداكن لصفحة /preview مع محتوى موجَّه للشريك.
  */
 
-import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Scissors, Star, Shield, CheckCircle2, Clock, ArrowLeft,
-  Sparkles, ChevronDown, Globe2, Users, Award, BarChart3,
-  Crown, Zap, Navigation2, Phone, MessageCircle, Lock,
-  TrendingUp, QrCode, ImageIcon, Brain, Moon, FileCheck,
-  ChevronLeft, ArrowRight, Wifi, Menu, BriefcaseBusiness, Gift
+  Sparkles, ChevronDown, Globe2, Users, BarChart3,
+  Crown, Zap, Navigation2, Lock,
+  TrendingUp, QrCode, ImageIcon, Brain, FileCheck,
+  ArrowRight, Wifi, Menu, BriefcaseBusiness,
 } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/lib/index';
@@ -39,22 +39,28 @@ import { PARTNER_BANNERS_PREVIEW_TIERS } from '@/config/partnerBannersPreviewCop
 import {
   PARTNER_PRODUCT_HUB_OFFICE_ADDON_LINE,
   PARTNER_PRODUCT_HUB_SUMMARY_CARDS,
-  PARTNER_PRODUCT_HUB_TAGLINE,
 } from '@/config/partnerProductHubCopy';
-import {
-  PARTNER_TECHNICAL_PARTNER_HEADLINE,
-  PARTNER_TECHNICAL_PARTNER_LABEL_AR,
-  PARTNER_TECHNICAL_PARTNER_TAGLINE,
-} from '@/config/partnerTechnicalPartnerDoctrine';
+import { PARTNER_TECHNICAL_PARTNER_LABEL_AR } from '@/config/partnerTechnicalPartnerDoctrine';
 import { PLATFORM_B2B_TECHNICAL_PARTNER_ROLE_AR } from '@/config/platformIdentity';
 import {
   PARTNER_FINAL_CTA_BODY_AR,
   PARTNER_HERO_CLOSING_TAGLINE_AR,
-  PARTNER_HERO_LEAD_PRIMARY_AR,
   PARTNER_LANDING_FAQ_AR,
   PARTNER_SECTION_INTROS,
   PARTNER_SOCIAL_VS_PLATFORM_ROWS_AR,
 } from '@/config/partnerFieldSalesCopy';
+import {
+  PARTNER_JOIN_PATH_BADGE_AR,
+  PARTNER_JOIN_PATH_HERO_HEADLINE_AR,
+  PARTNER_JOIN_PATH_HERO_LEAD_AR,
+  PARTNER_JOIN_PATH_HERO_TITLE_AR,
+  PARTNER_JOIN_PATH_HOW_IT_WORKS,
+  PARTNER_JOIN_PATH_PAY_GATE,
+  PARTNER_JOIN_PATH_PRIMARY_CTA_AR,
+  PARTNER_JOIN_PATH_SECONDARY_LINKS,
+  PARTNER_JOIN_PATH_STEPS,
+  PARTNER_JOIN_PATH_WHY_NOW,
+} from '@/config/partnerJoinPathCopy';
 import { LEGAL_ECOMMERCE_AUTH_FOOTER_LINE_AR } from '@/config/partnerLegal';
 import { EcommerceVerifiedFooterBadge } from '@/components/EcommerceVerifiedFooterBadge';
 import { HalaqmapBrandMark } from '@/components/HalaqmapBrandMark';
@@ -72,47 +78,15 @@ import {
   OWNER_WATCH_LISTING_DIAMOND_HIGHLIGHT_AR,
   OWNER_WATCH_LISTING_GOLD_HIGHLIGHT_AR,
 } from '@/config/ownerWatchFeatureCopy';
-import {
-  PARTNER_MALL_HERO_BADGE_AR,
-  PARTNER_MALL_HERO_CHIPS_AR,
-  PARTNER_MALL_HERO_LEAD_DESKTOP_AR,
-  PARTNER_MALL_HERO_LEAD_MOBILE_AR,
-  PARTNER_MALL_TAGLINE_AR,
-} from '@/config/partnerMallNarrativeCopy';
-import {
-  PARTNER_FREEDOM_CLOSING_LINE_AR,
-  PARTNER_FREEDOM_FEATURES_LEAD_AR,
-  PARTNER_FREEDOM_HERO_BADGE_AR,
-  PARTNER_FREEDOM_HERO_CHIPS_AR,
-  PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR,
-  PARTNER_FREEDOM_HERO_TITLE_AR,
-} from '@/config/partnerFreedomNarrativeCopy';
+import { PARTNER_FREEDOM_FEATURES_LEAD_AR } from '@/config/partnerFreedomNarrativeCopy';
 import { routeToBuyPackage } from '@/lib/buyPackageRouter';
 import { PlatformAmbientToggle } from '@/components/PlatformAmbientToggle';
-import { PlatformTlsTrustBadge } from '@/components/PlatformTlsTrustBadge';
 import { PlatformTrustStrip } from '@/components/PlatformTrustStrip';
 import { usePlatformAmbient } from '@/context/PlatformAmbientContext';
 import { SOFTWARE_SERVICES_PORTAL_HEADING } from '@/config/partnerPortal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { cn } from '@/lib/utils';
 import { MOBILE_PARTNER_ACTION_DOCK_CLEARANCE } from '@/lib/mobilePageShell';
-
-// ─── Animated counter ──────────────────────────────────────────────────────
-function useCounter(end: number, duration = 1800, enabled = true) {
-  const [count, setCount] = useState(0);
-  const started = useRef(false);
-  if (enabled && !started.current) {
-    started.current = true;
-    let current = 0;
-    const step = end / (duration / 16);
-    const t = setInterval(() => {
-      current += step;
-      if (current >= end) { setCount(end); clearInterval(t); }
-      else setCount(Math.floor(current));
-    }, 16);
-  }
-  return count;
-}
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -548,11 +522,6 @@ export default function PartnerMarketingPreview() {
     () => typeof window === 'undefined' || window.innerWidth >= 768,
   );
 
-  const statsRef = useRef<HTMLDivElement>(null);
-  const statsInView = useInView(statsRef, { once: true });
-  const salons = useCounter(2300, 1800, statsInView);
-  const cities = useCounter(47, 1400, statsInView);
-  const searches = useCounter(18000, 2000, statsInView);
   const warmHomeRoute = useCallback(() => {
     void preloadLandingPreviewRoute();
   }, []);
@@ -681,12 +650,11 @@ export default function PartnerMarketingPreview() {
             </Link>
             <nav className="hidden items-center gap-1 md:flex" dir="rtl">
               {[
-                { label: 'كيف تنضم',      id: 'كيف تنضم',      icon: Navigation2 },
-                { label: 'حرية التشغيل', id: 'حرية-التشغيل', icon: Lock },
-                { label: 'مزايا الباقات', id: 'مزايا الباقات', icon: Sparkles },
-                { label: 'الأسعار',       id: 'الأسعار',       icon: Crown },
-                { label: 'منطق الشراكة', id: 'منطق-الشراكة', icon: Users },
-                { label: 'معاينة الباقات 🏛️', id: 'معاينة البنرات', icon: ImageIcon },
+                { label: 'لماذا الآن', id: PARTNER_JOIN_PATH_WHY_NOW.id, icon: TrendingUp },
+                { label: 'كيف تعمل', id: PARTNER_JOIN_PATH_HOW_IT_WORKS.id, icon: Sparkles },
+                { label: 'كيف تنضم', id: PARTNER_JOIN_PATH_STEPS.id, icon: Navigation2 },
+                { label: 'الأسعار', id: 'الأسعار', icon: Crown },
+                { label: 'اقرأ المزيد', id: 'منطق-الشراكة', icon: Users },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -732,9 +700,9 @@ export default function PartnerMarketingPreview() {
                   animate={{ x: ['-100%', '200%'] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 1.5 }}
                 />
-                <span className="relative flex items-center gap-1.5">
+                  <span className="relative flex items-center gap-1.5">
                   <Scissors className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">سجّل صالونك</span>
+                  <span className="hidden sm:inline">تعبئة الطلب</span>
                   <span className="sm:hidden">انضم</span>
                 </span>
               </motion.button>
@@ -763,12 +731,11 @@ export default function PartnerMarketingPreview() {
               >
                 <div className="flex flex-col gap-1">
                   {[
-                    { label: 'الرقابة الإدارية', id: 'الرقابة-الإدارية' },
-                    { label: 'حرية التشغيل', id: 'حرية-التشغيل' },
-                    { label: 'كيف تنضم', id: 'كيف تنضم' },
-                    { label: 'مزايا الباقات', id: 'مزايا الباقات' },
+                    { label: 'لماذا الآن', id: PARTNER_JOIN_PATH_WHY_NOW.id },
+                    { label: 'كيف تعمل', id: PARTNER_JOIN_PATH_HOW_IT_WORKS.id },
+                    { label: 'كيف تنضم', id: PARTNER_JOIN_PATH_STEPS.id },
                     { label: 'الأسعار', id: 'الأسعار' },
-                    { label: 'البنرات', id: 'معاينة البنرات' },
+                    { label: 'اقرأ المزيد', id: 'منطق-الشراكة' },
                   ].map(item => (
                     <button key={item.id} type="button"
                       onClick={() => { setMobileNavOpen(false); document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }); }}
@@ -783,7 +750,7 @@ export default function PartnerMarketingPreview() {
                     onTouchStart={warmRegisterRoute}
                     onClick={() => { setMobileNavOpen(false); handleRegisterNavigate(); }}
                     className="mt-1 w-full rounded-xl border border-amber-300/70 bg-amber-50 py-2.5 text-sm font-black text-amber-800">
-                    سجّل صالونك ←
+                    {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
                   </button>
                 </div>
               </motion.div>
@@ -813,163 +780,42 @@ export default function PartnerMarketingPreview() {
           {/* Text */}
           <motion.div initial={{ opacity: 0, x: isMobile ? 0 : 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
 
-            {isMobile ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-                className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-[0.68rem] font-semibold text-amber-800">
-                <Sparkles className="h-3 w-3 shrink-0" />
-                {PARTNER_MALL_HERO_BADGE_AR} · حرية التشغيل
-              </motion.div>
-            ) : (
-              <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
-              <Sparkles className="h-3 w-3" /> {PARTNER_MALL_HERO_BADGE_AR}
+              className="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-1.5 text-[0.68rem] font-semibold text-teal-800 sm:text-xs">
+              <Sparkles className="h-3 w-3 shrink-0" />
+              {PARTNER_JOIN_PATH_BADGE_AR}
             </motion.div>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
-              className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-[0.68rem] font-semibold text-emerald-700">
-              <Shield className="h-3 w-3" /> {PARTNER_FREEDOM_HERO_BADGE_AR}
-            </motion.div>
-              </>
-            )}
 
             <h1 className={cn(
-              'mb-4 font-black leading-[1.1] text-slate-950',
-              isMobile ? 'text-[clamp(1.85rem,7.5vw,2.35rem)]' : 'mb-6 text-[clamp(2.4rem,5.5vw,3.8rem)]',
+              'mb-3 font-black leading-[1.1] text-slate-950',
+              isMobile ? 'text-[clamp(2rem,8vw,2.6rem)]' : 'mb-4 text-[clamp(2.6rem,5.5vw,4rem)]',
             )}>
-              {PARTNER_FREEDOM_HERO_TITLE_AR}
-              <span className="block bg-gradient-to-l from-teal-600 via-cyan-600 to-emerald-500 bg-clip-text text-transparent">
-                {PARTNER_FREEDOM_HERO_TITLE_ACCENT_AR}
-              </span>
+              {PARTNER_JOIN_PATH_HERO_TITLE_AR}
             </h1>
 
-            {!isMobile ? (
-              <>
-            <p className="mb-4 text-lg font-bold leading-relaxed text-amber-800 md:text-xl">
-              {PARTNER_MALL_TAGLINE_AR}
+            <p className={cn(
+              'mb-3 font-bold leading-snug text-teal-800',
+              isMobile ? 'text-[1.05rem]' : 'mb-4 text-xl md:text-2xl',
+            )}>
+              {PARTNER_JOIN_PATH_HERO_HEADLINE_AR}
             </p>
 
-            <p className="mb-5 text-lg font-bold leading-relaxed text-teal-800 md:text-xl">
-              {PARTNER_HERO_LEAD_PRIMARY_AR}
+            <p className={cn(
+              'mb-5 max-w-xl leading-relaxed text-slate-600',
+              isMobile ? 'text-[0.95rem] leading-8' : 'mb-6 text-base',
+            )}>
+              {PARTNER_JOIN_PATH_HERO_LEAD_AR}
             </p>
-              </>
-            ) : null}
 
-            {/* ── بوابة مكتب مدير المبيعات — مباشرة تحت العنوان الرئيسي ── */}
-            {isStrictPartnerPath && !isMobile ? (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.5 }}
-                className="mb-6 w-full min-w-0"
-              >
-                <Link
-                  to={ROUTE_PATHS.PARTNER_SALES_OFFICE}
-                  className="group block overflow-hidden rounded-[1.5rem] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,251,243,0.98),rgba(255,255,255,0.96))] p-4 shadow-[0_16px_38px_rgba(245,158,11,0.10)] transition-all hover:border-amber-300 hover:shadow-[0_18px_42px_rgba(245,158,11,0.14)]"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex h-14 w-14 items-center justify-center rounded-[1.15rem] border border-amber-200 bg-[linear-gradient(145deg,#fffdf8,#f8efdb)] shadow-[0_10px_24px_rgba(245,158,11,0.12)]">
-                        <Scissors className="h-6 w-6 text-amber-700" />
-                        <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-cyan-200 bg-white text-[0.42rem] font-black text-cyan-700">
-                          B2B
-                        </div>
-                      </div>
-                      <div className="min-w-0">
-                        <div className="mb-1 inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50/80 px-2.5 py-1 text-[0.6rem] font-black text-cyan-800">
-                          <BriefcaseBusiness className="h-3.5 w-3.5" />
-                          تحدث مع مدير المبيعات
-                        </div>
-                        <p className="text-lg font-black text-slate-950">ادخل مكتب المبيعات التجاري</p>
-                        <p className="mt-1 max-w-xl text-[0.84rem] leading-6 text-slate-600">
-                          مكتب مستقل يشرح الباقات الحالية وآلية التفعيل بلغة أقرب للصالونات والمنشآت.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="hidden shrink-0 flex-col items-end gap-2 md:flex">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[0.68rem] font-bold text-emerald-700">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                        مجلس حيّ ومباشر
-                      </div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.68rem] font-bold text-slate-700">
-                        <ArrowLeft className="h-3.5 w-3.5" />
-                        افتح المكتب
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ) : null}
-
-            {isMobile ? (
-              <>
-                <p className="mb-2 max-w-lg text-[0.95rem] leading-8 text-slate-600">
-                  {PARTNER_MALL_HERO_LEAD_MOBILE_AR}
-                </p>
-                <p
-                  className="mb-2 text-center text-[1.12rem] font-extrabold tracking-wide text-amber-800"
-                  style={{
-                    textShadow:
-                      '0 0 12px rgba(251,191,36,0.9), 0 0 26px rgba(245,158,11,0.6), 0 0 40px rgba(251,191,36,0.4)',
-                  }}
-                >
-                  (يقتصر الاشتراك على المنشآت فقط)
-                </p>
-                <Link
-                  to={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
-                  className="mb-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/70 bg-gradient-to-l from-amber-100 to-orange-50 px-4 py-3 text-[0.9rem] font-black text-amber-950 shadow-sm"
-                  aria-label="اطلب فترة تجريبية 30 يوم برونزي"
-                >
-                  <Gift className="h-4 w-4 text-amber-700" aria-hidden />
-                  اطلب فترة تجريبية 30 يوم برونزي
-                </Link>
-              </>
-            ) : (
-              <>
-                <p className="mb-6 max-w-xl text-base leading-relaxed text-slate-600">
-                  {PARTNER_MALL_HERO_LEAD_DESKTOP_AR}
-                </p>
-                <p className="mb-8 max-w-xl text-base leading-relaxed text-slate-600">
-                  {PARTNER_TECHNICAL_PARTNER_HEADLINE}
-                  <span className="mt-2 block text-[0.9rem] leading-relaxed text-slate-500">
-                    {PARTNER_TECHNICAL_PARTNER_TAGLINE}
-                  </span>
-                  <span className="mt-2 block text-[0.85rem] text-amber-700/80">
-                    لا عمولة · لا وسيط · لا تجديد تلقائي
-                  </span>
-                </p>
-
-                <PlatformTrustStrip variant="strip" tone="light" className="mb-8 max-w-xl" />
-
-                <div className="mb-8 flex flex-wrap gap-3">
-                  {PARTNER_MALL_HERO_CHIPS_AR.map((text) => (
-                    <div key={text} className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[0.75rem] text-amber-900">
-                      <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                      {text}
-                    </div>
-                  ))}
-                  {PARTNER_FREEDOM_HERO_CHIPS_AR.map((text) => (
-                    <div key={text} className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[0.75rem] text-emerald-800">
-                      <Shield className="h-3.5 w-3.5 text-emerald-600" />
-                      {text}
-                    </div>
-                  ))}
-                  {[
-                    { icon: Globe2, text: '47+ مدينة سعودية' },
-                    { icon: Clock, text: 'حزمة 30 يوم مسبقة الدفع' },
-                  ].map((b) => (
-                    <div key={b.text} className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.75rem] text-slate-700 shadow-sm">
-                      <b.icon className="h-3.5 w-3.5 text-amber-600" />
-                      {b.text}
-                    </div>
-                  ))}
-                  <PlatformTlsTrustBadge variant="compact" tone="light" />
-                </div>
-              </>
-            )}
+            <p className="mb-5 text-sm font-semibold text-amber-800">
+              يقتصر الاشتراك على المنشآت فقط · بوابة الدفع بعد اكتمال التعهدات
+            </p>
 
             {!isMobile ? (
-            <div className={cn('flex flex-col gap-3 sm:flex-row')}>
+              <PlatformTrustStrip variant="strip" tone="light" className="mb-6 max-w-xl" />
+            ) : null}
+
+            <div className={cn('flex flex-col gap-3', !isMobile && 'sm:flex-row sm:flex-wrap')}>
               <button
                 onMouseEnter={warmRegisterRoute}
                 onFocus={warmRegisterRoute}
@@ -978,16 +824,24 @@ export default function PartnerMarketingPreview() {
                 onClick={handleRegisterNavigate}
                 className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-8 py-4 font-bold text-white shadow-xl shadow-cyan-500/15 hover:from-teal-400"
               >
-                <Scissors className="h-4 w-4" /> ابدأ رحلة الانضمام
+                <Scissors className="h-4 w-4" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
               </button>
               <button
                 onClick={() => navigate(ROUTE_PATHS.PARTNER_WHY)}
                 className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-4 font-semibold text-slate-800 shadow-sm hover:border-slate-300"
               >
-                لماذا نحن؟ <ArrowLeft className="h-4 w-4" />
+                {PARTNER_JOIN_PATH_SECONDARY_LINKS.why} <ArrowLeft className="h-4 w-4" />
               </button>
+              {isStrictPartnerPath && !isMobile ? (
+                <Link
+                  to={ROUTE_PATHS.PARTNER_SALES_OFFICE}
+                  className="flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 px-5 py-3 text-sm font-semibold text-amber-900 hover:bg-amber-50"
+                >
+                  <BriefcaseBusiness className="h-4 w-4" />
+                  مكتب المبيعات
+                </Link>
+              ) : null}
             </div>
-            ) : null}
 
           </motion.div>
 
@@ -999,28 +853,9 @@ export default function PartnerMarketingPreview() {
             transition={{ delay: 0.35, duration: 0.7 }}
             className="relative flex flex-col gap-4 overflow-visible"
           >
-            <p
-              className="mb-2 text-center text-[1.15rem] font-extrabold tracking-wide text-amber-800 sm:text-[1.26rem]"
-              style={{
-                textShadow:
-                  '0 0 12px rgba(251,191,36,0.9), 0 0 26px rgba(245,158,11,0.6), 0 0 40px rgba(251,191,36,0.4)',
-              }}
-            >
-              (يقتصر الاشتراك على المنشآت فقط)
+            <p className="mb-4 text-center text-sm font-semibold text-slate-600">
+              هكذا يظهر صالونك للمستعلم بعد التفعيل
             </p>
-            <div className="mb-1 flex justify-center">
-              <Link
-                to={ROUTE_PATHS.BRONZE_TRIAL_APPLY}
-                className="group inline-flex items-center gap-2 rounded-full border border-amber-400/70 bg-gradient-to-l from-amber-100 via-orange-50 to-amber-50 px-4 py-2.5 text-[0.82rem] font-black text-amber-950 shadow-[0_10px_28px_rgba(245,158,11,0.18)] transition-all hover:border-amber-500 hover:shadow-[0_14px_32px_rgba(245,158,11,0.26)]"
-                aria-label="اطلب فترة تجريبية 30 يوم برونزي"
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-amber-300/80 bg-white text-amber-700 shadow-sm transition group-hover:scale-105">
-                  <Gift className="h-4 w-4" aria-hidden />
-                </span>
-                <span>اطلب فترة تجريبية 30 يوم برونزي</span>
-                <ArrowLeft className="h-3.5 w-3.5 text-amber-700/80 transition group-hover:-translate-x-0.5" aria-hidden />
-              </Link>
-            </div>
             <div className="mb-4 flex items-center justify-center gap-2">
               {PARTNER_BANNERS_PREVIEW_TIERS.map((tier) => (
                 <button
@@ -1054,27 +889,8 @@ export default function PartnerMarketingPreview() {
               );
             })()}
             <p className="mt-3 text-center text-[0.65rem] text-slate-500">
-              معاينة ثابتة — اضغط التبويب لتغيير الباقة · للمحاكاة الحية انتقل لصفحة المعاينة
+              معاينة ثابتة — اختر الباقة · للتفاصيل انتقل لقسم الأسعار
             </p>
-
-            {/* Floating indicators */}
-            <motion.div
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="absolute -left-5 top-16 rounded-xl border border-emerald-200 bg-white/95 px-3 py-2 shadow-[0_14px_32px_rgba(16,185,129,0.12)] backdrop-blur-md"
-            >
-              <div className="text-[0.6rem] text-slate-500">طلبات اليوم</div>
-              <div className="text-sm font-black text-emerald-700">+١٢ زبون ↑</div>
-            </motion.div>
-
-            <motion.div
-              animate={{ y: [0, 5, 0] }}
-              transition={{ duration: 3.5, repeat: Infinity, delay: 0.8 }}
-              className="absolute -right-4 bottom-20 rounded-xl border border-amber-200 bg-white/95 px-3 py-2 shadow-[0_14px_32px_rgba(245,158,11,0.12)] backdrop-blur-md"
-            >
-              <div className="text-[0.6rem] text-slate-500">ظهرت في نتائج</div>
-              <div className="text-sm font-black text-amber-700">٤٧ بحث 📍</div>
-            </motion.div>
           </motion.div>
           ) : null}
         </div>
@@ -1087,118 +903,147 @@ export default function PartnerMarketingPreview() {
 
       {isMobile && !deferMobilePartnerContent ? null : (
       <>
-      {/* ── Stats ────────────────────────────────────────────────────────── */}
-      <section className="relative z-10 min-h-[13.5rem] border-y border-sky-100 bg-white/65 py-12 backdrop-blur-sm [contain:layout]">
-        <div ref={statsRef} className="mx-auto max-w-4xl px-5">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            {[
-              { value: salons, suffix: '+', label: 'صالون على المنصة', color: 'text-amber-600' },
-              { value: cities, suffix: '+', label: 'مدينة سعودية', color: 'text-teal-600' },
-              { value: searches, suffix: '+', label: 'بحث شهرياً', color: 'text-cyan-700' },
-            ].map((s, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0 }}
-                animate={statsInView ? { opacity: 1 } : {}}
-                transition={{ delay: i * 0.1 }}
-                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(148,163,184,0.08)]"
-              >
-                <div className={`text-3xl font-black tabular-nums ${s.color}`}>
-                  {s.value.toLocaleString('ar-SA')}{s.suffix}
-                </div>
-                <div className="mt-1 text-xs text-slate-500">{s.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <PartnerMallNarrativeSection compact={isMobile} />
-
-      <PartnerB2BVisualFeatureCards variant="light" />
-
-      <PartnerB2BUrgencyBand variant="light" />
-
-      <PartnerOwnerWatchSpotlight compact={isMobile} />
-
-      <PartnerFreedomPillars compact={isMobile} />
-
-      {/* ── Technical partner doctrine ───────────────────────────────────── */}
-      <section id="منطق-الشراكة" className="relative z-10 border-y border-slate-100 bg-slate-50/80 py-20">
-        <div className="mx-auto max-w-5xl px-5">
-          <PartnerTechnicalPartnerCompare variant="full" />
-        </div>
-      </section>
-
-      {/* ── How to join ──────────────────────────────────────────────────── */}
-      <section id="كيف تنضم" className="relative z-10 py-24">
-        <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-amber-300/10 blur-[72px]" />
-        <div className="mx-auto max-w-5xl px-5">
-          <div className="mb-14 text-center">
+      {/* ── لماذا الآن ──────────────────────────────────────────────────── */}
+      <section id={PARTNER_JOIN_PATH_WHY_NOW.id} className="relative z-10 border-y border-sky-100 bg-white/70 py-16 md:py-20">
+        <div className="mx-auto max-w-5xl px-5" dir="rtl">
+          <div className="mb-10 text-center">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
-              <Zap className="h-3 w-3" /> رحلة الانضمام
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-1.5 text-xs font-semibold text-teal-800">
+              <TrendingUp className="h-3 w-3" /> {PARTNER_JOIN_PATH_WHY_NOW.kicker}
             </motion.div>
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-3xl font-black text-slate-900 md:text-4xl">
-              ٤ خطوات — التسجيل ثم الدفع ثم التفعيل
+              className="text-2xl font-black text-slate-900 md:text-3xl">
+              {PARTNER_JOIN_PATH_WHY_NOW.title}
             </motion.h2>
-            <p className="mt-2 text-sm font-semibold text-emerald-700">✅ دفع رقمي واضح · تفعيل وفق حالة الطلب · لا عمولات على الخدمة</p>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
+              {PARTNER_JOIN_PATH_WHY_NOW.lead}
+            </p>
           </div>
-
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { step: '١', icon: Scissors, title: 'أكمل نموذج التسجيل', desc: 'بيانات صالونك الأساسية: الاسم، الموقع، الخدمات، صور الواجهة — في دقائق.', color: 'from-amber-500 to-yellow-500' },
-              { step: '٢', icon: Crown, title: 'اختر حزمتك', desc: 'برونزي (١٠٠ ر.س) · ذهبي (١٥٠ ر.س) · ماسي (٢٠٠ ر.س) — حزم شهرية مسبقة الدفع وفق السياسة الحالية.', color: 'from-violet-500 to-purple-500' },
-              { step: '٣', icon: Shield, title: 'ادفع بأمان', desc: 'عبر بوابتي دفع آمنتين ومعتمدتين: بنك الأول (SAB) ثم ميسر (مدى · فيزا · ماستركارد) — اتصال HTTPS/TLS، مسبقة الدفع، لا تجديد تلقائي.', color: 'from-teal-500 to-cyan-500' },
-              { step: '٤', icon: Wifi, title: 'يبدأ التفعيل', desc: 'بعد نجاح السداد يبدأ تفعيل صالونك وفق حالة الطلب داخل النظام.', color: 'from-emerald-500 to-green-500' },
-            ].map((step, i) => (
+          <div className="grid gap-4 md:grid-cols-3">
+            {PARTNER_JOIN_PATH_WHY_NOW.points.map((point, i) => (
               <motion.div
-                key={step.step}
-                initial={{ opacity: 0, y: 20 }}
+                key={point.title}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_16px_36px_rgba(148,163,184,0.08)]"
-                dir="rtl"
+                transition={{ delay: i * 0.08 }}
+                className="rounded-2xl border border-slate-200 bg-white p-5 text-right shadow-[0_14px_34px_rgba(148,163,184,0.08)]"
               >
-                <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${step.color} shadow-lg`}>
-                  <step.icon className="h-5 w-5 text-white" />
-                </div>
-                <div className={`absolute left-4 top-4 text-[3rem] font-black leading-none opacity-[0.06] bg-gradient-to-br ${step.color} bg-clip-text text-transparent`}>
-                  {step.step}
-                </div>
-                <div className="mb-1 text-[0.6rem] font-bold uppercase tracking-widest text-slate-500">الخطوة {step.step}</div>
-                <h3 className="mb-2 text-base font-bold text-slate-900">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-600">{step.desc}</p>
+                <h3 className="mb-2 text-base font-bold text-teal-800">{point.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-600">{point.body}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Features ─────────────────────────────────────────────────────── */}
-      <section id="مزايا الباقات" className="relative z-10 border-y border-slate-100 bg-slate-50/80 py-24">
-        <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-violet-300/8 blur-[84px]" />
-        <div className="mx-auto max-w-6xl px-5">
-          <div className="mb-14 text-center">
+      {/* ── كيف تعمل الفكرة ──────────────────────────────────────────────── */}
+      <section id={PARTNER_JOIN_PATH_HOW_IT_WORKS.id} className="relative z-10 py-16 md:py-20">
+        <div className="mx-auto max-w-5xl px-5" dir="rtl">
+          <div className="mb-10 text-center">
+            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-800">
+              <Sparkles className="h-3 w-3" /> {PARTNER_JOIN_PATH_HOW_IT_WORKS.kicker}
+            </motion.div>
             <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-3xl font-black text-slate-900 md:text-4xl">
-              أدوات تخدم حريتك
+              className="text-2xl font-black text-slate-900 md:text-3xl">
+              {PARTNER_JOIN_PATH_HOW_IT_WORKS.title}
             </motion.h2>
-            <p className="mt-3 text-slate-600">{PARTNER_FREEDOM_FEATURES_LEAD_AR}</p>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-slate-600">
+              {PARTNER_JOIN_PATH_HOW_IT_WORKS.lead}
+            </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <FeatureCard icon={Navigation2} title="ظهور عند الطلب" desc="تُفعَّل برمجياً فقط عند وجود طلب نشط تنطبق عليه البيانات المتاحة والفلترة — لا إشغال دائم للمساحة الرقمية." color="from-amber-500 to-yellow-500" delay={0} />
-            <FeatureCard icon={ImageIcon} title="بطاقة + بنر احترافي" desc="صفحة صالونك كاملة: صور واجهة، بنر تسويقي، خدمات، أسعار، وساعات العمل." color="from-teal-500 to-cyan-500" delay={0.08} />
-            <FeatureCard icon={Clock} title="مفتوح/مغلق لحظياً" desc="اضبط حالة صالونك في أي وقت عبر رابط سري — بدون دخول لوحة التحكم." color="from-emerald-500 to-green-500" delay={0.16} />
-            <FeatureCard icon={Star} title="تقييمات موثّقة + QR" desc="كود QR يُرسل لزبونك لتقييمك بعد الخدمة — تقييمات حقيقية لا وهمية." color="from-rose-500 to-pink-500" delay={0.08} badge="Gold +" />
-            <FeatureCard icon={BarChart3} title="متابعة داخلية منظّمة" desc="أدوات داخلية تساعد الصالون على إدارة حضوره الرقمي بهدوء ووضوح داخل حسابه." color="from-violet-500 to-purple-500" delay={0.16} badge="Gold +" />
-            <FeatureCard icon={Brain} title="إضافة المكتب الخاص 🏛️" desc="مساعد داخلي + مناوب شات مترابطان — أعطِ تعليماتك، المناوب ينفّذها، والتقارير تصلك داخل المسار التشغيلي." color="from-violet-600 to-indigo-600" delay={0.24} badge="Diamond Add-on" />
-            <FeatureCard icon={Users} title="خدمة كبار السن وذوي الاحتياجات" desc="إعلان موجَّه لشريحة لا تجدها في أي منصة أخرى — ميزة تنافسية حقيقية." color="from-sky-500 to-blue-400" delay={0.08} badge="Gold +" />
-            <FeatureCard icon={QrCode} title="بورتفوليو صور" desc="اعرض أعمالك الفعلية — المزيد من الصور = المزيد من الثقة قبل الزيارة." color="from-orange-500 to-red-500" delay={0.16} badge="Diamond +" />
-            <FeatureCard icon={FileCheck} title="شهادة تفعيل رقمية" desc="وثيقة رقمية صادرة من المنصة بعد كل دفعة — تتضمن كود التفعيل وبيانات الرخصة وفق الحالة الحالية في النظام." color="from-amber-600 to-orange-500" delay={0.24} />
+          <div className="grid gap-4 md:grid-cols-3">
+            {PARTNER_JOIN_PATH_HOW_IT_WORKS.points.map((point, i) => (
+              <motion.div
+                key={point.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 text-right"
+              >
+                <div className="mb-2 text-[0.65rem] font-bold text-amber-700">الخطوة {['١', '٢', '٣'][i]}</div>
+                <h3 className="mb-2 text-base font-bold text-slate-900">{point.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-600">{point.body}</p>
+              </motion.div>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── كيف تنضم + تنويه الدفع ───────────────────────────────────────── */}
+      <section id={PARTNER_JOIN_PATH_STEPS.id} className="relative z-10 border-y border-slate-100 bg-slate-50/80 py-16 md:py-24">
+        <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-amber-300/10 blur-[72px]" />
+        <div className="mx-auto max-w-5xl px-5" dir="rtl">
+          <div className="mb-10 text-center md:mb-14">
+            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-700">
+              <Zap className="h-3 w-3" /> {PARTNER_JOIN_PATH_STEPS.kicker}
+            </motion.div>
+            <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-2xl font-black text-slate-900 md:text-4xl">
+              {PARTNER_JOIN_PATH_STEPS.title}
+            </motion.h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-7 text-emerald-800">
+              {PARTNER_JOIN_PATH_STEPS.lead}
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {PARTNER_JOIN_PATH_STEPS.steps.map((step, i) => {
+              const icons = [FileCheck, Shield, Wifi] as const;
+              const colors = [
+                'from-amber-500 to-yellow-500',
+                'from-teal-500 to-cyan-500',
+                'from-emerald-500 to-green-500',
+              ] as const;
+              const Icon = icons[i] ?? FileCheck;
+              const color = colors[i] ?? colors[0];
+              return (
+                <motion.div
+                  key={step.step}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_16px_36px_rgba(148,163,184,0.08)]"
+                >
+                  <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${color} shadow-lg`}>
+                    <Icon className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="mb-1 text-[0.6rem] font-bold tracking-widest text-slate-500">الخطوة {step.step}</div>
+                  <h3 className="mb-2 text-base font-bold text-slate-900">{step.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-600">{step.body}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <motion.div
+            id={PARTNER_JOIN_PATH_PAY_GATE.id}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-8 rounded-2xl border border-teal-200 bg-teal-50/70 p-5 text-right md:p-6"
+          >
+            <div className="mb-2 flex items-center gap-2 text-teal-900">
+              <Lock className="h-4 w-4 shrink-0" />
+              <h3 className="text-base font-black">{PARTNER_JOIN_PATH_PAY_GATE.title}</h3>
+            </div>
+            <p className="text-sm leading-7 text-slate-700">{PARTNER_JOIN_PATH_PAY_GATE.body}</p>
+            <button
+              type="button"
+              onMouseEnter={warmRegisterRoute}
+              onFocus={warmRegisterRoute}
+              onPointerDown={warmRegisterRoute}
+              onTouchStart={warmRegisterRoute}
+              onClick={handleRegisterNavigate}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/15"
+            >
+              <Scissors className="h-4 w-4" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
+            </button>
+          </motion.div>
         </div>
       </section>
 
@@ -1287,6 +1132,68 @@ export default function PartnerMarketingPreview() {
           <p className="mt-5 text-center text-[0.68rem] text-slate-700">
             كل حزمة صالحة ٣٠ يوماً · لا وساطة تجارية · لا عمولة على الخدمة · لا بيانات حكومية مطلوبة للتسجيل
           </p>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onMouseEnter={warmRegisterRoute}
+              onFocus={warmRegisterRoute}
+              onPointerDown={warmRegisterRoute}
+              onTouchStart={warmRegisterRoute}
+              onClick={handleRegisterNavigate}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/15"
+            >
+              <Scissors className="h-4 w-4" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
+            </button>
+            <Link
+              to={ROUTE_PATHS.REGISTER_GUIDE}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300"
+            >
+              {PARTNER_JOIN_PATH_SECONDARY_LINKS.guide}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── اقرأ المزيد (ثانوي) ──────────────────────────────────────────── */}
+      <section id="منطق-الشراكة" className="relative z-10 border-y border-slate-100 bg-slate-50/80 py-16">
+        <div className="mx-auto max-w-5xl px-5 pb-10 text-center" dir="rtl">
+          <h2 className="text-2xl font-black text-slate-900">اقرأ المزيد عن المسار</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600">
+            تفاصيل أعمق لمن يريد فهم حرية التشغيل ومزايا الباقات قبل تعبئة الطلب.
+          </p>
+        </div>
+        <PartnerMallNarrativeSection compact={isMobile} />
+        <PartnerB2BVisualFeatureCards variant="light" />
+        <PartnerB2BUrgencyBand variant="light" />
+        <PartnerOwnerWatchSpotlight compact={isMobile} />
+        <PartnerFreedomPillars compact={isMobile} />
+        <div className="mx-auto max-w-5xl px-5 py-10">
+          <PartnerTechnicalPartnerCompare variant="full" />
+        </div>
+      </section>
+
+      {/* ── Features (ثانوي) ─────────────────────────────────────────────── */}
+      <section id="مزايا الباقات" className="relative z-10 border-y border-slate-100 bg-white py-24">
+        <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-violet-300/8 blur-[84px]" />
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="mb-14 text-center">
+            <motion.h2 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-3xl font-black text-slate-900 md:text-4xl">
+              أدوات تخدم حريتك
+            </motion.h2>
+            <p className="mt-3 text-slate-600">{PARTNER_FREEDOM_FEATURES_LEAD_AR}</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <FeatureCard icon={Navigation2} title="ظهور عند الطلب" desc="تُفعَّل برمجياً فقط عند وجود طلب نشط تنطبق عليه البيانات المتاحة والفلترة — لا إشغال دائم للمساحة الرقمية." color="from-amber-500 to-yellow-500" delay={0} />
+            <FeatureCard icon={ImageIcon} title="بطاقة + بنر احترافي" desc="صفحة صالونك كاملة: صور واجهة، بنر تسويقي، خدمات، أسعار، وساعات العمل." color="from-teal-500 to-cyan-500" delay={0.08} />
+            <FeatureCard icon={Clock} title="مفتوح/مغلق لحظياً" desc="اضبط حالة صالونك في أي وقت عبر رابط سري — بدون دخول لوحة التحكم." color="from-emerald-500 to-green-500" delay={0.16} />
+            <FeatureCard icon={Star} title="تقييمات موثّقة + QR" desc="كود QR يُرسل لزبونك لتقييمك بعد الخدمة — تقييمات حقيقية لا وهمية." color="from-rose-500 to-pink-500" delay={0.08} badge="Gold +" />
+            <FeatureCard icon={BarChart3} title="متابعة داخلية منظّمة" desc="أدوات داخلية تساعد الصالون على إدارة حضوره الرقمي بهدوء ووضوح داخل حسابه." color="from-violet-500 to-purple-500" delay={0.16} badge="Gold +" />
+            <FeatureCard icon={Brain} title="إضافة المكتب الخاص 🏛️" desc="مساعد داخلي + مناوب شات مترابطان — أعطِ تعليماتك، المناوب ينفّذها، والتقارير تصلك داخل المسار التشغيلي." color="from-violet-600 to-indigo-600" delay={0.24} badge="Diamond Add-on" />
+            <FeatureCard icon={Users} title="خدمة كبار السن وذوي الاحتياجات" desc="إعلان موجَّه لشريحة لا تجدها في أي منصة أخرى — ميزة تنافسية حقيقية." color="from-sky-500 to-blue-400" delay={0.08} badge="Gold +" />
+            <FeatureCard icon={QrCode} title="بورتفوليو صور" desc="اعرض أعمالك الفعلية — المزيد من الصور = المزيد من الثقة قبل الزيارة." color="from-orange-500 to-red-500" delay={0.16} badge="Diamond +" />
+            <FeatureCard icon={FileCheck} title="شهادة تفعيل رقمية" desc="وثيقة رقمية صادرة من المنصة بعد كل دفعة — تتضمن كود التفعيل وبيانات الرخصة وفق الحالة الحالية في النظام." color="from-amber-600 to-orange-500" delay={0.24} />
+          </div>
         </div>
       </section>
 
@@ -1361,7 +1268,7 @@ export default function PartnerMarketingPreview() {
               <h2 className="mb-5 text-3xl font-black text-slate-900">شهادة تفعيل تليق بشراكتك</h2>
               <p className="mb-6 text-base leading-relaxed text-slate-600">
                 حلاق ماب تُسلّمك وثيقة رقمية صادرة من المنصة تُثبت ملكيتك لرخصة النفاذ:
-                اسم منشأتك، باقتك، تواريخ الصلاحية، و**كود تفعيل فريد** يُبرز كمفتاح رخصتك الرسمي.
+                اسم منشأتك، باقتك، تواريخ الصلاحية، وكود تفعيل فريد يُبرز كمفتاح رخصتك الرسمي.
               </p>
               <div className="flex flex-col gap-2.5">
                 {[
@@ -1448,19 +1355,18 @@ export default function PartnerMarketingPreview() {
           <div className="absolute -right-40 top-0 h-[500px] w-[500px] rounded-full bg-amber-300/10 blur-[96px]" />
           <div className="absolute -left-40 bottom-0 h-[400px] w-[400px] rounded-full bg-teal-300/9 blur-[84px]" />
         </div>
-        <div className="relative mx-auto max-w-3xl px-5 text-center">
+        <div className="relative mx-auto max-w-3xl px-5 text-center" dir="rtl">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <div className="mb-6 text-6xl">✂️</div>
-            <h2 className="mb-5 text-3xl font-black leading-snug text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-3xl font-black leading-snug text-slate-900 md:text-4xl">
               {PARTNER_HERO_CLOSING_TAGLINE_AR}
             </h2>
-            <p className="mx-auto mb-4 max-w-xl text-base leading-relaxed text-slate-600">
-              {PARTNER_FINAL_CTA_BODY_AR}
+            <p className="mx-auto mb-3 max-w-xl text-base leading-relaxed text-slate-600">
+              {PARTNER_JOIN_PATH_HERO_LEAD_AR}
             </p>
-            <p className="mx-auto mb-10 max-w-xl text-sm font-semibold text-emerald-700">
-              {PARTNER_FREEDOM_CLOSING_LINE_AR}
+            <p className="mx-auto mb-8 max-w-xl text-sm font-semibold leading-7 text-emerald-800">
+              {PARTNER_JOIN_PATH_PAY_GATE.body}
             </p>
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <button
                 onMouseEnter={warmRegisterRoute}
                 onFocus={warmRegisterRoute}
@@ -1469,21 +1375,24 @@ export default function PartnerMarketingPreview() {
                 onClick={handleRegisterNavigate}
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-l from-teal-500 to-cyan-500 px-10 py-4 font-bold text-white shadow-2xl shadow-cyan-500/18 hover:from-teal-400 transition-all"
               >
-                <Scissors className="h-5 w-5" /> سجّل صالونك الآن
-              </button>
-              <button
-                onClick={() => navigate(ROUTE_PATHS.HOSPITALITY_B2B_REQUEST)}
-                className="flex items-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-8 py-4 font-semibold text-sky-800 hover:border-sky-300 hover:bg-sky-100 transition-all"
-              >
-                <QrCode className="h-4 w-4" /> طلب ضيافة B2B (فنادق/شقق)
+                <Scissors className="h-5 w-5" /> {PARTNER_JOIN_PATH_PRIMARY_CTA_AR}
               </button>
               <button
                 onClick={() => navigate(ROUTE_PATHS.PARTNER_WHY)}
                 className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-8 py-4 font-semibold text-slate-800 hover:border-slate-300 transition-all"
               >
-                اقرأ قصة المنصة <ArrowLeft className="h-4 w-4" />
+                {PARTNER_JOIN_PATH_SECONDARY_LINKS.why} <ArrowLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => navigate(ROUTE_PATHS.PARTNER_STORY)}
+                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-8 py-4 font-semibold text-slate-700 hover:border-slate-300 transition-all"
+              >
+                {PARTNER_JOIN_PATH_SECONDARY_LINKS.story} <ArrowLeft className="h-4 w-4" />
               </button>
             </div>
+            <p className="mx-auto mt-6 max-w-md text-xs text-slate-500">
+              {PARTNER_FINAL_CTA_BODY_AR}
+            </p>
           </motion.div>
         </div>
       </section>

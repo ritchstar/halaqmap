@@ -83,6 +83,9 @@ export default function Register() {
               <p key={paragraph.slice(0, 48)}>{paragraph}</p>
             ))}
           </div>
+          <p className="mx-auto mt-3 max-w-xl rounded-xl border border-teal-400/25 bg-teal-500/[0.08] px-3 py-2.5 text-xs font-semibold leading-6 text-teal-100/95">
+            {PARTNER_REGISTER_PAGE.payAfterCommitmentsLine}
+          </p>
           <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-slate-500">
             {`حزمة ${tierParam === 'bronze' ? 'برونزي' : tierParam === 'gold' ? 'ذهبي' : tierParam === 'diamond' ? 'ماسي' : 'مناسبة'} — رخصة نفاذ رقمية مسبقة الدفع تُفعَّل وفق الحزمة التي تختارها.`}
           </p>
@@ -93,7 +96,7 @@ export default function Register() {
               <div key={s} className="flex items-center">
                 <span className={`rounded-full px-2.5 py-1 text-[0.6rem] font-bold ${
                   i === 0 ? 'bg-amber-500/15 text-amber-300 border border-amber-400/30' :
-                  i === 3 ? 'bg-emerald-500/12 text-emerald-300 border border-emerald-400/25' :
+                  i === arr.length - 1 ? 'bg-emerald-500/12 text-emerald-300 border border-emerald-400/25' :
                   'bg-white/5 text-slate-500 border border-white/8'
                 }`}>{s}</span>
                 {i < arr.length - 1 && <ChevronRight className="h-3 w-3 text-slate-700 mx-0.5" />}
