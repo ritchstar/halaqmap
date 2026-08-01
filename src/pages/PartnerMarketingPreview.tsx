@@ -442,9 +442,6 @@ function CertificateMockup({ tier }: { tier: CertificateMockTier }) {
             <div className="flex items-center gap-3">
               <HalaqmapBrandMark className="h-14 w-14 shrink-0 rounded-2xl ring-2 ring-teal-200/35 shadow-lg shadow-teal-500/25" />
               <div>
-                <p className="text-[0.65rem] font-bold tracking-[0.18em] text-teal-100/90" dir="ltr">
-                  HALAQ MAP
-                </p>
                 <h3 className="text-base font-black text-white sm:text-lg">شهادة تفعيل رقمية</h3>
                 <p className="mt-0.5 text-[0.68rem] leading-relaxed text-teal-50/75">
                   وثيقة رسمية تُثبت ملكيتك لمنتج حلاق ماب الرقمي

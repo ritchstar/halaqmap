@@ -76,7 +76,7 @@ export default function PartnerAppInstall() {
           <HalaqmapBrandMark className="h-20 w-20 rounded-[1.35rem] ring-2 ring-teal-300/40 shadow-xl shadow-teal-500/25" />
           <div>
             <p className="text-xs font-bold tracking-[0.18em] text-teal-200/80" dir="ltr">
-              HALAQ MAP · SALON APP
+              HMap · SALON APP
             </p>
             <h1 className="mt-1 text-2xl font-black text-white sm:text-3xl">{PARTNER_APP_DISPLAY_NAME_AR}</h1>
             <p className="mt-2 text-sm leading-relaxed text-teal-50/80">{PARTNER_APP_TAGLINE_AR}</p>

@@ -69,7 +69,7 @@ function LaneBadge({
       )}
     >
       {lane === 'neutral' ? (
-        <HalaqmapBrandMark className="h-4 w-4 shrink-0 overflow-hidden rounded-full" />
+        <HalaqmapBrandMark showShortName={false} className="h-4 w-4 shrink-0 overflow-hidden rounded-full" />
       ) : (
         <Radio className="h-3 w-3 shrink-0 opacity-80" />
       )}
@@ -333,7 +333,7 @@ export function MarketingSlideDeck({ slides, headerTitle, headerHint, theme }: P
 
       <header className="relative z-10 flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <HalaqmapBrandMark className="h-9 w-9 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/15" />
+          <HalaqmapBrandMark showShortName={false} className="h-9 w-9 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/15" />
           <div className="min-w-0">
             <p className="text-[0.7rem] font-bold uppercase tracking-widest text-teal-400/80">
               {headerTitle}

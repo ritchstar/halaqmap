@@ -115,11 +115,10 @@ export function Layout({ children }: LayoutProps) {
                   imgClassName="[transform:translateZ(4px)]"
                 />
               </motion.div>
-              <div className="flex flex-col leading-tight">
+              <div className="flex flex-col justify-center leading-tight">
                 <span className="text-lg font-black bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
                   حلاق ماب
                 </span>
-                <span className="text-[0.55rem] tracking-widest text-teal-500/60">HALAQ MAP</span>
               </div>
             </NavLink>
 
@@ -224,11 +223,10 @@ export function Layout({ children }: LayoutProps) {
                 <HalaqmapBrandMark
                   className="h-11 w-11 shrink-0 rounded-2xl ring-2 ring-teal-400/25 ring-offset-1 ring-offset-[#020912] shadow-[0_0_20px_rgba(20,184,166,0.15)]"
                 />
-                <div className="flex flex-col leading-tight">
+                <div className="flex flex-col justify-center leading-tight">
                   <span className="text-base font-black bg-gradient-to-l from-teal-300 to-cyan-400 bg-clip-text text-transparent">
                     حلاق ماب
                   </span>
-                  <span className="text-[0.5rem] tracking-widest text-teal-500/60">HALAQ MAP</span>
                 </div>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed mb-4">{PLATFORM_FOOTER_TAGLINE}</p>

@@ -18,7 +18,6 @@ import { toast } from '@/components/ui/sonner';
 import {
   BARBER_NAME_LABEL_AR,
   PLATFORM_NAME_AR,
-  PLATFORM_NAME_EN,
   type DigitalActivationCertificateView,
 } from '@/config/geospatialLicenseDoctrine';
 import { downloadElementAsPngCard } from '@/lib/downloadElementAsPngCard';
@@ -111,9 +110,6 @@ export function DigitalActivationCertificateCard({
             <div className="flex min-w-0 items-center gap-3">
               <HalaqmapBrandMark className="h-14 w-14 shrink-0 rounded-2xl ring-2 ring-teal-200/35 shadow-lg shadow-teal-500/25" />
               <div className="min-w-0">
-                <p className="text-[0.65rem] font-bold tracking-[0.18em] text-teal-100/90" dir="ltr">
-                  {PLATFORM_NAME_EN}
-                </p>
                 <h3 className={cn('text-base font-black text-white sm:text-lg', compact && 'text-base')}>
                   شهادة تفعيل رقمية
                 </h3>

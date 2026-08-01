@@ -112,7 +112,7 @@ export default function AmbassadorTrainingDeck() {
 
       <header className="relative z-10 flex items-center justify-between gap-3 border-b border-white/10 px-3 py-2.5 sm:px-6">
         <div className="flex min-w-0 items-center gap-2.5">
-          <HalaqmapBrandMark className="h-8 w-8 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/15" />
+          <HalaqmapBrandMark showShortName={false} className="h-8 w-8 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/15" />
           <div className="min-w-0">
             <p className="text-[0.68rem] font-bold tracking-wide text-teal-400/90">تدريب السفراء الميداني</p>
             <p className="truncate text-[0.65rem] text-slate-500">{slide.titleAr}</p>

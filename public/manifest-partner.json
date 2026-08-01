@@ -1,6 +1,6 @@
 {
   "name": "Halaq Map Partner",
-  "short_name": "Halaq Partner",
+  "short_name": "HMap",
   "description": "تطبيق الشركاء — دخول سريع للوحة التحكم وإشعارات فورية من منصة حلاق ماب.",
   "start_url": "/#/partners/app",
   "scope": "/",

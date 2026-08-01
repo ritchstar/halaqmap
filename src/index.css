@@ -1605,6 +1605,28 @@
   }
 }
 
+.halaqmap-brand-lockup {
+  line-height: 1;
+}
+
+/* اختصار HMap تحت الشعار — خفيف، متناسق مع تيل/ذهب الهوية */
+.halaqmap-brand-shortname {
+  display: block;
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: none;
+  white-space: nowrap;
+  user-select: none;
+  background: linear-gradient(120deg, #99f6e4 0%, #2dd4bf 42%, #d4af37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 0.35rem color-mix(in srgb, #14b8a6 28%, transparent));
+}
+
 .halaqmap-brand-mark {
   position: relative;
   display: inline-flex;

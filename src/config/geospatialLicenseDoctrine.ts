@@ -51,6 +51,9 @@ export const SOFTWARE_LICENSE_MANAGER_LABEL_AR =
 export const PLATFORM_NAME_AR = 'حلاق ماب' as const;
 export const PLATFORM_NAME_EN = 'Halaq Map' as const;
 
+/** اختصار الهوية الإنجليزية — يُعرض تحت الشعار بهدوء */
+export const PLATFORM_SHORT_NAME_EN = 'HMap' as const;
+
 /** اسم الرخصة الرقمية الموحّدة في شهادة التفعيل ولوحة الحلاق. */
 export const DIGITAL_LICENSE_OFFICIAL_NAME_AR = ON_DEMAND_VISIBILITY_PRODUCT_NAME_AR;
 

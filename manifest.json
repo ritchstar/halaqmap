@@ -1,6 +1,6 @@
 {
   "name": "حلاق ماب | HALAQ MAP",
-  "short_name": "حلاق ماب",
+  "short_name": "HMap",
   "description": "منصة عربية تربط الحلاقين بالزبائن عبر خريطة وتصفية ذكية.",
   "start_url": "/",
   "scope": "/",
