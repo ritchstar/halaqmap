@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.halaqmap.partner",
+      "sha256_cert_fingerprints": [
+        "79:64:E5:1A:BF:5C:1E:9A:48:65:04:EF:E3:4E:C4:F7:47:E8:0C:13:CA:81:91:B4:91:1D:23:FC:31:86:5D:74"
+      ]
+    }
+  }
+]

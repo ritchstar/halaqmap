@@ -35,6 +35,7 @@ import {
   Loader2,
   Home,
   RefreshCw,
+  Smartphone,
 } from 'lucide-react';
 import { SaudiBishtIcon } from '@/components/icons/SaudiBishtIcon';
 import { ChildrenSpecialistIcon } from '@/components/icons/ChildrenSpecialistIcon';
@@ -1033,6 +1034,17 @@ export default function BarberDashboard({
                   <UserX className="h-5 w-5" />
                 </Button>
               )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="shrink-0 gap-1.5 text-sm"
+                onClick={() => navigate(ROUTE_PATHS.PARTNER_APP)}
+                title="تطبيق الصالون"
+              >
+                <Smartphone className="h-4 w-4" />
+                <span className="hidden sm:inline">تطبيق الصالون</span>
+              </Button>
               <Button variant="ghost" onClick={handleLogout} className="shrink-0 gap-2 text-sm">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">تسجيل الخروج</span>

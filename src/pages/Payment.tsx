@@ -60,6 +60,7 @@ import { pollMoyasarPaymentFulfillmentRemote } from '@/lib/moyasarPaymentFulfill
 import { loadSabPaymentWidgetScript, mountSabPaymentForm, setSabWidgetLocaleAr } from '@/lib/sabFormLoader';
 import { PaymentSuccessPanel } from '@/components/billing/PaymentSuccessPanel';
 import { PaymentMerchantCompliancePanel } from '@/components/billing/PaymentMerchantCompliancePanel';
+import { PartnerExternalCheckoutGate } from '@/components/partner/PartnerExternalCheckoutGate';
 import { MadaBadgeIcon, VisaMastercardBadgeIcon } from '@/components/billing/PaymentMethodBadgeIcons';
 import { REFUND_POLICY_PATH } from '@/config/moyasarMerchantCompliance';
 import { REGISTRATION_STORAGE_ORDER_ID_RE } from '@/lib/registrationFileUploads';
@@ -1064,6 +1065,11 @@ export default function Payment() {
     });
   }, [paymentReturnPaid, tier]);
 
+  const paymentPathWithSearch = useMemo(() => {
+    const q = searchParams.toString();
+    return q ? `${ROUTE_PATHS.PAYMENT}?${q}` : ROUTE_PATHS.PAYMENT;
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-background" dir="rtl">
       {/* Header */}
@@ -1077,6 +1083,9 @@ export default function Payment() {
           transition={{ duration: 0.6 }}
           className="container mx-auto px-4 relative z-10"
         >
+          <div className="mx-auto mb-4 max-w-4xl">
+            <PartnerExternalCheckoutGate pathWithSearch={paymentPathWithSearch} />
+          </div>
           <div className="max-w-4xl mx-auto text-center">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}

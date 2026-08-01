@@ -3,6 +3,12 @@
  */
 import type { ComponentProps } from 'react';
 import { Link, type LinkProps, type To } from 'react-router-dom';
+import { isPartnerAppFinancialPath } from '@/config/partnerAppShell';
+import {
+  buildAbsoluteAppHashUrl,
+  isPartnerAppShell,
+  openInExternalBrowser,
+} from '@/lib/partnerAppShell';
 
 export const BARBER_DASHBOARD_OUTBOUND_TARGET = {
   target: '_blank',
@@ -67,6 +73,11 @@ function absoluteHashRouteUrl(relativePath: string): string {
  */
 export function openHashRouteInNewTab(relativePath: string): boolean {
   if (typeof window === 'undefined') return false;
+  const pathOnly = relativePath.split('?')[0] || '';
+  // من غلاف التطبيق: الدفع/الرخص تُفتح في المتصفح الخارجي حصراً
+  if (isPartnerAppShell() && isPartnerAppFinancialPath(pathOnly)) {
+    return openInExternalBrowser(buildAbsoluteAppHashUrl(relativePath));
+  }
   const w = window.open(absoluteHashRouteUrl(relativePath), '_blank');
   if (!w) return false;
   w.opener = null;

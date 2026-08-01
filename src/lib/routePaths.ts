@@ -43,6 +43,8 @@ export const ROUTE_PATHS = {
   PARTNER_PRIVACY: '/partners/privacy',
   SUBSCRIPTION_POLICY: '/partners/subscription-policy',
   BARBER_LOGIN: '/partners/login',
+  /** تثبيت تطبيق الصالون (PWA) + جسر سريع للوحة التحكم */
+  PARTNER_APP: '/partners/app',
   /** دخول سريع من بريد الترحيب: ?m=رمز موقّع (مرة واحدة) */
   BARBER_PORTAL_ENTER: '/barber/enter',
   BARBER_DASHBOARD: '/barber/dashboard',

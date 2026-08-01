@@ -1,0 +1,59 @@
+{
+  "packageId": "com.halaqmap.partner",
+  "host": "www.halaqmap.com",
+  "name": "حلاق ماب — تطبيق الصالون",
+  "launcherName": "صالون ماب",
+  "display": "standalone",
+  "themeColor": "#0D9488",
+  "themeColorDark": "#042F2E",
+  "navigationColor": "#0D9488",
+  "navigationColorDark": "#042F2E",
+  "backgroundColor": "#0A4F4A",
+  "enableNotifications": true,
+  "startUrl": "/#/partners/app",
+  "iconUrl": "https://www.halaqmap.com/icons/icon-512.png",
+  "maskableIconUrl": "https://www.halaqmap.com/icons/icon-512-maskable.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "halaqmap-key"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "لوحة التحكم",
+      "shortName": "اللوحة",
+      "url": "/#/barber/dashboard",
+      "chosenIconUrl": "https://www.halaqmap.com/icons/icon-192.png"
+    },
+    {
+      "name": "تسجيل الدخول",
+      "shortName": "دخول",
+      "url": "/#/partners/login",
+      "chosenIconUrl": "https://www.halaqmap.com/icons/icon-192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap",
+  "webManifestUrl": "https://www.halaqmap.com/manifest-partner.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "fullScopeUrl": "https://www.halaqmap.com/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "value": "79:64:E5:1A:BF:5C:1E:9A:48:65:04:EF:E3:4E:C4:F7:47:E8:0C:13:CA:81:91:B4:91:1D:23:FC:31:86:5D:74"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": []
+}

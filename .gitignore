@@ -110,3 +110,11 @@ SECRET_*.md
 provision_agent.ps1.txt
 build-log.txt
 .vercel
+
+# --- Android signing (never commit private keys) ---
+*.keystore
+*.jks
+android-partner-twa/android.keystore
+android-partner-twa/*.keystore
+android-partner-twa/android-keys.env
+android-partner-twa/passwords.txt

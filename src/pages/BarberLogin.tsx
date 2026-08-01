@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Mail, LogIn } from 'lucide-react';
+import { Lock, Mail, LogIn, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -170,10 +170,19 @@ export default function BarberLogin() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <button type="button" onClick={() => navigate(ROUTE_PATHS.HOME)} className="text-sm text-primary hover:underline">
-              العودة للصفحة الرئيسية
-            </button>
+          <div className="mt-6 space-y-2 text-center">
+            <Link
+              to={ROUTE_PATHS.PARTNER_APP}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+            >
+              <Smartphone className="h-4 w-4" />
+              تثبيت تطبيق الصالون — دخول أسرع وإشعارات
+            </Link>
+            <div>
+              <button type="button" onClick={() => navigate(ROUTE_PATHS.HOME)} className="text-sm text-primary hover:underline">
+                العودة للصفحة الرئيسية
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>
