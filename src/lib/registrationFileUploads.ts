@@ -124,10 +124,27 @@ function shouldAttemptServerUpload(): boolean {
   return import.meta.env.PROD;
 }
 
-/** في الإنتاج: لا نستخدم storage.upload بمفتاح anon (403/RLS). التطوير المحلي: مسموح للتجربة. */
+/**
+ * رفع مباشر إلى Storage بمفتاح anon كمسار أخير.
+ * مفعّل دائماً كطوارئ عندما تفشل دوال Vercel (404/شبكة/حظر Cloudflare)،
+ * لأن حاوية `registration-uploads` تسمح بـ INSERT للـ anon وفق سياسات التخزين.
+ */
 function allowAnonDirectStorageUpload(): boolean {
-  if (import.meta.env.VITE_REGISTRATION_ALLOW_ANON_UPLOAD === 'true') return true;
-  return import.meta.env.DEV;
+  if (import.meta.env.VITE_REGISTRATION_ALLOW_ANON_UPLOAD === 'false') return false;
+  return true;
+}
+
+function looksLikeHtmlOrCloudflareBlock(raw: string): boolean {
+  const t = raw.trim().toLowerCase();
+  if (!t) return false;
+  return (
+    t.startsWith('<!doctype') ||
+    t.startsWith('<html') ||
+    t.includes('cf-error-details') ||
+    t.includes('cloudflare') ||
+    t.includes('attention required') ||
+    t.includes('sorry, you have been blocked')
+  );
 }
 
 /**
@@ -201,8 +218,12 @@ async function trySignedUrlUpload(
   if (res.status === 503) return { ok: false, fallback: true };
   if (res.status === 404) return { ok: false, fallback: true };
 
+  const rawText = await res.text();
   if (!res.ok) {
-    const rawText = await res.text();
+    if (looksLikeHtmlOrCloudflareBlock(rawText) || res.status === 403) {
+      /* حظر WAF/Cloudflare أو 403 عابر — نكمل لمسار الرفع البديل/المباشر */
+      return { ok: false, fallback: true };
+    }
     let parsed: { error?: string; hint?: string } = {};
     try {
       parsed = JSON.parse(rawText) as { error?: string; hint?: string };
@@ -226,7 +247,9 @@ async function trySignedUrlUpload(
         parsed.error ||
         `فشل إنشاء رابط الرفع الموقّع (${res.status}).`;
       const tail =
-        rawText && rawText.length < 800 && !parsed.error ? `\n${rawText}` : '';
+        rawText && rawText.length < 800 && !parsed.error && !looksLikeHtmlOrCloudflareBlock(rawText)
+          ? `\n${rawText}`
+          : '';
       return { ok: false, fallback: false, error: `${base}${tail}` };
     }
     return {
@@ -236,9 +259,13 @@ async function trySignedUrlUpload(
     };
   }
 
+  if (looksLikeHtmlOrCloudflareBlock(rawText)) {
+    return { ok: false, fallback: true };
+  }
+
   let mint: { path?: string; token?: string; signedUrl?: string };
   try {
-    mint = (await res.json()) as { path?: string; token?: string; signedUrl?: string };
+    mint = JSON.parse(rawText) as { path?: string; token?: string; signedUrl?: string };
   } catch {
     return {
       ok: false,
@@ -254,36 +281,39 @@ async function trySignedUrlUpload(
     };
   }
 
+  const bucket = client.storage.from(REGISTRATION_UPLOADS_BUCKET);
+  const uploadToSignedUrl = (
+    bucket as unknown as {
+      uploadToSignedUrl: (
+        path: string,
+        token: string,
+        body: File,
+        opts?: { contentType?: string; cacheControl?: string }
+      ) => Promise<{ data: { path: string } | null; error: { message: string } | null }>;
+    }
+  ).uploadToSignedUrl.bind(bucket);
+
+  let signedPutOk = false;
   if (mint.signedUrl) {
     const put = await putFileViaSignedUploadUrl(mint.signedUrl, file);
-    if (!put.ok) {
-      const msg = ('message' in put ? put.message : '').toLowerCase();
-      if (msg.includes('403') || msg.includes('forbidden')) {
-        return { ok: false, fallback: true };
-      }
-      return { ok: false, fallback: false, error: 'message' in put ? put.message : 'signed upload failed' };
-    }
-  } else {
-    const bucket = client.storage.from(REGISTRATION_UPLOADS_BUCKET);
-    const uploadToSignedUrl = (
-      bucket as unknown as {
-        uploadToSignedUrl: (
-          path: string,
-          token: string,
-          body: File,
-          opts?: { contentType?: string; cacheControl?: string }
-        ) => Promise<{ data: { path: string } | null; error: { message: string } | null }>;
-      }
-    ).uploadToSignedUrl.bind(bucket);
-
-    const { error: upErr } = await uploadToSignedUrl(mint.path, mint.token!, file, {
+    signedPutOk = put.ok === true;
+  }
+  if (!signedPutOk && mint.token) {
+    const { error: upErr } = await uploadToSignedUrl(mint.path, mint.token, file, {
       contentType: file.type || 'application/octet-stream',
       cacheControl: '3600',
     });
-
     if (upErr) {
+      const msg = upErr.message.toLowerCase();
+      if (msg.includes('403') || msg.includes('forbidden') || msg.includes('row-level')) {
+        return { ok: false, fallback: true };
+      }
       return { ok: false, fallback: false, error: upErr.message };
     }
+    signedPutOk = true;
+  }
+  if (!signedPutOk) {
+    return { ok: false, fallback: true };
   }
 
   const { data: pub } = client.storage.from(REGISTRATION_UPLOADS_BUCKET).getPublicUrl(mint.path);
@@ -339,9 +369,24 @@ async function tryServerUpload(
   }
 
   if (res.status === 503) return { ok: false, fallback: true };
+  if (res.status === 404) return { ok: false, fallback: true };
+
+  const rawText = await res.text();
+  if (looksLikeHtmlOrCloudflareBlock(rawText) || res.status === 403) {
+    return { ok: false, fallback: true };
+  }
 
   if (res.ok) {
-    const data = (await res.json()) as { publicUrl?: string };
+    let data: { publicUrl?: string } = {};
+    try {
+      data = JSON.parse(rawText) as { publicUrl?: string };
+    } catch {
+      return {
+        ok: false,
+        fallback: false,
+        error: 'استجابة غير متوقعة من سيرفر الرفع (JSON غير صالح).',
+      };
+    }
     if (data.publicUrl) return { ok: true, url: data.publicUrl };
     return {
       ok: false,
@@ -351,15 +396,12 @@ async function tryServerUpload(
     };
   }
 
-  const rawText = await res.text();
   let parsed: { error?: string; hint?: string } = {};
   try {
     parsed = JSON.parse(rawText) as { error?: string; hint?: string };
   } catch {
     /* ليست JSON */
   }
-
-  if (res.status === 404) return { ok: false, fallback: true };
 
   if (res.status === 400) {
     return { ok: false, fallback: false, error: parsed.error || 'طلب غير صالح' };
@@ -453,29 +495,30 @@ async function uploadOne(
     }
 
     if (!allowAnonDirectStorageUpload()) {
-      const splitDeployHint =
-        import.meta.env.PROD &&
-        !registrationApiOrigin() &&
-        !import.meta.env.VITE_REGISTRATION_SIGNED_URL?.trim() &&
-        !import.meta.env.VITE_REGISTRATION_UPLOAD_URL?.trim()
-          ? '\n\nتنبيه شائع: إذا كانت الواجهة على cPanel/استضافة ثابتة والدوال على Vercel فقط، فالمسار `/api/...` لا يصل إلى Vercel. أضف عند بناء الإنتاج `VITE_REGISTRATION_API_ORIGIN=https://مشروعك.vercel.app` ثم أعد `npm run build` وارفع `dist/` من جديد.'
-          : '';
       return {
         ok: false,
         error:
-          'تعذّر رفع الملفات عبر السيرفر (المسار الموقّع غير متاح، والمسار البديل غير جاهز). تحقق من: (1) حاوية `registration-uploads` في Supabase وسياساتها، (2) تطابق `VITE_SUPABASE_ANON_KEY` في الواجهة مع `SUPABASE_ANON_KEY` أو `VITE_SUPABASE_ANON_KEY` على Vercel، (3) سجلات الدالتين `register-signed-upload` و `register-upload-file`.' +
-          splitDeployHint,
+          'تعذّر رفع الملفات عبر السيرفر (المسار الموقّع غير متاح، والمسار البديل غير جاهز). حدّث الصفحة وأعد الإرسال، أو تواصل مع الدعم إن تكرر الأمر.',
       };
     }
   }
 
+  /* مسار طوارئ: رفع مباشر إلى Supabase Storage (يتجاوز حظر Cloudflare على /api إن وُجد) */
   const { error } = await client.storage.from(REGISTRATION_UPLOADS_BUCKET).upload(path, file, {
     cacheControl: '3600',
     upsert: false,
     contentType: file.type || undefined,
   });
   if (error) {
-    return { ok: false, error: error.message };
+    const msg = error.message || '';
+    if (looksLikeHtmlOrCloudflareBlock(msg) || /403|forbidden|row-level|rls/i.test(msg)) {
+      return {
+        ok: false,
+        error:
+          'تعذّر رفع الصور الآن. حدّث الصفحة بالكامل ثم أعد إرسال الطلب مرة واحدة. إن استمر الخطأ: جرّب شبكة أخرى أو أرسل صوراً أصغر حجماً.',
+      };
+    }
+    return { ok: false, error: msg };
   }
   const { data } = client.storage.from(REGISTRATION_UPLOADS_BUCKET).getPublicUrl(path);
   return { ok: true, url: data.publicUrl };

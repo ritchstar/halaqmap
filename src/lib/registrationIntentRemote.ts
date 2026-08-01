@@ -56,6 +56,17 @@ export async function mintRegistrationIntentTokenRemote(orderId: string): Promis
       if (import.meta.env.DEV && (resp.status === 404 || resp.status === 503)) {
         return { ok: true, intentToken: null };
       }
+      const rawHint = String(json.error || json.hint || '');
+      if (
+        resp.status === 403 ||
+        /cloudflare|cf-error|blocked|doctype|html/i.test(rawHint)
+      ) {
+        return {
+          ok: false,
+          error:
+            'حماية الموقع أوقفت طلب التوقيع مؤقتاً. حدّث الصفحة بالكامل ثم أعد الإرسال خلال دقيقة.',
+        };
+      }
       const parts = [json.error, json.hint].filter(Boolean);
       return { ok: false, error: parts.join('\n') || `HTTP ${resp.status}` };
     }
