@@ -20,7 +20,10 @@ import {
   PLATFORM_NAME_AR,
   type DigitalActivationCertificateView,
 } from '@/config/geospatialLicenseDoctrine';
-import { downloadElementAsPngCard } from '@/lib/downloadElementAsPngCard';
+import {
+  downloadActivationCertificateFallbackPng,
+  downloadElementAsPngCard,
+} from '@/lib/downloadElementAsPngCard';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -73,17 +76,40 @@ export function DigitalActivationCertificateCard({
     const el = cardRef.current;
     if (!el || downloading) return;
     setDownloading(true);
+    const stamp = new Date().toISOString().slice(0, 10);
+    const file = `halaqmap-activation-${safeFileToken(certificate.certificateNumber)}-${stamp}.png`;
+    const fallbackPayload = {
+      certificateNumber: certificate.certificateNumber,
+      salonName: displayBarber,
+      packageLabel: displayPackage,
+      issuedAtLabel: formatDate(certificate.issuedAt),
+      validUntilLabel: formatDate(certificate.validUntil),
+      mapLive,
+    };
     try {
-      const stamp = new Date().toISOString().slice(0, 10);
-      const file = `halaqmap-activation-${safeFileToken(certificate.certificateNumber)}-${stamp}.png`;
       await downloadElementAsPngCard(el, file);
       toast.success('تم تحميل الشهادة ككرت — احفظها في جهازك');
-    } catch {
-      toast.error('تعذّر تحميل الشهادة — أعد المحاولة');
+    } catch (primaryErr) {
+      console.warn('[activation-certificate] html2canvas failed, using canvas fallback', primaryErr);
+      try {
+        await downloadActivationCertificateFallbackPng(fallbackPayload, file);
+        toast.success('تم تحميل الشهادة ككرت — احفظها في جهازك');
+      } catch (fallbackErr) {
+        console.error('[activation-certificate] download failed', fallbackErr);
+        toast.error('تعذّر تحميل الشهادة — أعد المحاولة أو التقط لقطة شاشة للكرت');
+      }
     } finally {
       setDownloading(false);
     }
-  }, [certificate.certificateNumber, downloading]);
+  }, [
+    certificate.certificateNumber,
+    certificate.issuedAt,
+    certificate.validUntil,
+    displayBarber,
+    displayPackage,
+    downloading,
+    mapLive,
+  ]);
 
   return (
     <div className={cn('space-y-3', className)} dir="rtl">
@@ -138,13 +164,9 @@ export function DigitalActivationCertificateCard({
                 <span className="text-[0.62rem] font-bold text-teal-50">كود التفعيل — مفتاح رخصتك</span>
               </div>
               <p
-                className="font-mono text-[1.1rem] font-black tracking-[0.1em] text-transparent sm:text-[1.3rem]"
+                data-cert-code="1"
+                className="font-mono text-[1.1rem] font-black tracking-[0.1em] text-[#fde68a] sm:text-[1.3rem] sm:bg-gradient-to-l sm:from-[#ecfdf5] sm:via-[#5eead4] sm:to-[#d4af37] sm:bg-clip-text sm:text-transparent"
                 dir="ltr"
-                style={{
-                  backgroundImage: 'linear-gradient(135deg, #ecfdf5 0%, #5eead4 42%, #d4af37 100%)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                }}
               >
                 {certificate.certificateNumber}
               </p>
