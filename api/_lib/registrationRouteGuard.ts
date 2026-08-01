@@ -106,7 +106,11 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'register-upload-file' || routeId === 'register-signed-upload') {
     return envInt('REGISTER_UPLOAD_RATE_LIMIT_MAX', 10);
   }
-  if (routeId === 'bronze-trial-apply' || routeId === 'ambassador-apply') {
+  if (
+    routeId === 'bronze-trial-apply' ||
+    routeId === 'ambassador-apply' ||
+    routeId === 'coverage-salon-nominate'
+  ) {
     return envInt('PUBLIC_APPLY_RATE_LIMIT_MAX', 6);
   }
   if (

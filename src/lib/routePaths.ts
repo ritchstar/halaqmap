@@ -24,6 +24,11 @@ export const ROUTE_PATHS = {
   REGISTER_GUIDE: '/partners/register/guide',
   /** تسجيل اهتمام مسبق (بريد + موافقة) — ما قبل الإطلاق الرسمي */
   PARTNER_INTEREST: '/partners/interest',
+  /**
+   * ساعد المنصة تغطي منطقتك — ترشيح صالون من المستعلم عند فراغ التغطية.
+   * لا يظهر في نتائج البحث؛ يُحال لملف تسويقي في لوحة التحكم.
+   */
+  COVERAGE_SALON_NOMINATE: '/help-cover-area',
   /** طلب تجربة برونزي — طابور تقييم (ليس تسجيلاً رسمياً) */
   BRONZE_TRIAL_APPLY: '/partners/bronze-trial',
   /** تأكيد بريد طلب التجربة (?c=token) */

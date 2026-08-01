@@ -82,6 +82,7 @@ const InvoicePreviewSamples = lazy(() => import("@/pages/InvoicePreviewSamples")
 const GrowthPitchDeckPage = lazy(() => import("@/pages/GrowthPitchDeckPage"));
 const PlatformDiscoverLandingPage = lazy(() => import("@/pages/PlatformDiscoverLandingPage"));
 const PartnerInterestLanding = lazy(() => import("@/pages/PartnerInterestLanding"));
+const CoverageSalonNominatePage = lazy(() => import("@/pages/CoverageSalonNominatePage"));
 const BronzeTrialApplyLanding = lazy(() => import("@/pages/BronzeTrialApplyLanding"));
 const BronzeTrialConfirmLanding = lazy(() => import("@/pages/BronzeTrialConfirmLanding"));
 const PartnerWhyPage = lazy(() => import("@/pages/PartnerWhyPage"));
@@ -333,6 +334,10 @@ export function App() {
                 <LazyRoute><PartnerBannersPreviewLanding /></LazyRoute>
               </WithPartnerLayout>
             }
+          />
+          <Route
+            path={ROUTE_PATHS.COVERAGE_SALON_NOMINATE}
+            element={<LazyRoute><CoverageSalonNominatePage /></LazyRoute>}
           />
           <Route path={ROUTE_PATHS.ABOUT} element={<WithPublicLayout><LazyRoute><About /></LazyRoute></WithPublicLayout>} />
           <Route path={ROUTE_PATHS.TERMS_OF_SERVICE} element={<WithPublicLayout><LazyRoute><TermsOfService /></LazyRoute></WithPublicLayout>} />

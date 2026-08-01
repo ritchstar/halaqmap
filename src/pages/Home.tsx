@@ -17,6 +17,7 @@ import { fetchNearbyPublicBarbersFromSupabase } from '@/lib/publicBarbersFromSup
 import { resolveShowcaseForEmptyDisplay } from '@/lib/platformShowcaseRemote';
 import { useShowcaseWhenSearchEmpty } from '@/lib/useShowcaseWhenSearchEmpty';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
+import { CoverageNominateCta } from '@/components/CoverageNominateCta';
 import { toast } from '@/components/ui/sonner';
 import { getSiteOrigin } from '@/config/siteOrigin';
 import {
@@ -488,6 +489,7 @@ export default function Home() {
                         imagePriority
                       />
                     </motion.div>
+                    <CoverageNominateCta />
                   </div>
                 </div>
               </>

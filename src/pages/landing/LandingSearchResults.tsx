@@ -8,6 +8,7 @@ import { FilterBar } from '@/components/FilterBar';
 import { BarberMap } from '@/components/BarberMap';
 import { BarberCard } from '@/components/BarberCards';
 import { ShowcaseEducationBanner } from '@/components/ShowcaseEducationBanner';
+import { CoverageNominateCta } from '@/components/CoverageNominateCta';
 import { VisitorMobileQueryLens } from '@/components/landing/VisitorMobileQueryLens';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -83,6 +84,7 @@ export function LandingSearchResults({
                 imagePriority
               />
             </motion.div>
+            <CoverageNominateCta />
           </div>
         </>
       ) : (

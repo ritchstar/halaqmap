@@ -101,6 +101,7 @@ import { BronzeTrialApplicationsPanel } from '@/components/admin/BronzeTrialAppl
 import { EnterpriseAnchorCohortPanel } from '@/components/admin/EnterpriseAnchorCohortPanel';
 import { AmbassadorApplicationsPanel } from '@/components/admin/AmbassadorApplicationsPanel';
 import { GoogleAdsCampaignPanel } from '@/components/admin/GoogleAdsCampaignPanel';
+import { CoverageSalonNominationsPanel } from '@/components/admin/CoverageSalonNominationsPanel';
 import {
   listBarbersForAdmin,
   setBarberActiveRemote,
@@ -988,6 +989,7 @@ export default function AdminDashboard() {
           {(can('view_overview') || can('view_command_center')) && (
             <TabsContent value="google-ads" className="space-y-6">
               <GoogleAdsCampaignPanel />
+              <CoverageSalonNominationsPanel />
             </TabsContent>
           )}
 
