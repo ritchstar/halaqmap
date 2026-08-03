@@ -124,6 +124,8 @@ android-partner-twa/.gradle/
 android-partner-twa/**/build/
 android-partner-twa/*.apk
 android-partner-twa/*.aab
+play-store/delivery/*.aab
+play-store/delivery/*.apk
 android-partner-twa/*.idsig
 android-partner-twa/manifest-checksum.txt
 android-partner-twa/app/src/main/res/raw/
