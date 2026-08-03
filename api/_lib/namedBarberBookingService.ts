@@ -327,12 +327,10 @@ export async function listTeamMembers(
   opts?: { activeOnly?: boolean; includeStaffSecrets?: boolean },
 ): Promise<BarberTeamMemberRow[]> {
   const includeSecrets = opts?.includeStaffSecrets === true;
-  const selectCols = includeSecrets
-    ? 'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, return_to_work_date, staff_access_token, notify_phone, created_at, updated_at'
-    : 'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, return_to_work_date, created_at, updated_at';
+  // select('*') — تجنّب ParserError من supabase-js عند تمرير سلسلة select ديناميكية
   let q = supabase
     .from('barber_team_members')
-    .select(selectCols)
+    .select('*')
     .eq('barber_id', barberId)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true });
