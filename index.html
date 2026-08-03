@@ -421,6 +421,96 @@
         } catch (e) {}
       })();
     </script>
+    <!-- شاشة إقلاع: علامة مائية دوّارة — تُخفى بعد إقلاع React -->
+    <div id="hm-boot-splash" aria-hidden="true">
+      <style>
+        #hm-boot-splash {
+          position: fixed;
+          inset: 0;
+          z-index: 2147483000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #0a4f4a;
+          transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        #hm-boot-splash.hm-boot-splash--hide {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+        #hm-boot-splash .hm-boot-mark {
+          width: min(48vw, 196px);
+          height: min(48vw, 196px);
+          object-fit: contain;
+          opacity: 0.92;
+          animation: hm-boot-spin 5.2s linear infinite;
+          will-change: transform;
+        }
+        @keyframes hm-boot-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          #hm-boot-splash .hm-boot-mark { animation: none; }
+        }
+      </style>
+      <img
+        class="hm-boot-mark"
+        src="/images/halaqmap-youtube-watermark-source.png"
+        width="196"
+        height="196"
+        alt=""
+        decoding="async"
+        fetchpriority="high"
+      />
+    </div>
+    <script>
+      (function () {
+        try {
+          var splash = document.getElementById('hm-boot-splash');
+          if (!splash) return;
+          var hashPath = (window.location.hash || '').replace(/^#/, '').split('?')[0] || '/';
+          var standalone =
+            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+            !!window.navigator.standalone;
+          var twaOrPartner =
+            standalone ||
+            hashPath.indexOf('/partners/app') === 0 ||
+            hashPath.indexOf('/barber/') === 0 ||
+            hashPath.indexOf('/partners/login') === 0;
+          // على الموقع العام في المتصفح لا نعرض شاشة الإقلاع المتحركة
+          if (!twaOrPartner) {
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+            return;
+          }
+          var hide = function () {
+            splash.classList.add('hm-boot-splash--hide');
+            window.setTimeout(function () {
+              if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+            }, 420);
+          };
+          var root = document.getElementById('root');
+          var done = false;
+          var finish = function () {
+            if (done) return;
+            done = true;
+            hide();
+          };
+          if (root) {
+            var obs = new MutationObserver(function () {
+              if (root.childElementCount > 0) {
+                obs.disconnect();
+                finish();
+              }
+            });
+            obs.observe(root, { childList: true, subtree: true });
+          }
+          window.addEventListener('halaqmap:mounted', finish, { once: true });
+          window.setTimeout(finish, 4500);
+        } catch (e) {}
+      })();
+    </script>
     <div id="root"></div>
     <!-- استرداد تلقائي إذا فشل تحميل JS أو CSS بعد نشر جديد (كاش SW/CDN قديم) -->
     <script>
