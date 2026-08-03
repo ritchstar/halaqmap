@@ -34,6 +34,18 @@ keytool -list -v -keystore android.keystore -alias halaqmap-key
 
 `https://www.halaqmap.com/.well-known/assetlinks.json`
 
+## الشعار وشاشة التشغيل
+
+المصدر الرسمي: `public/images/halaqmap_logo_refined.png`  
+بعد تحديث الشعار شغّل من جذر المستودع:
+
+```bash
+npm run pwa:icons
+```
+
+يحدّث أيقونات PWA + `splash.png` + `ic_launcher` + `store_icon.png`.  
+ثم أعد بناء الحزمة (`bubblewrap build`) وارفع AAB جديداً حتى تظهر شاشة التشغيل الجديدة على الأجهزة المثبّتة.
+
 ## البناء عبر Bubblewrap
 
 ```bash
