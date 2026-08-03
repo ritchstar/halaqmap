@@ -16,6 +16,10 @@ export type BarberDashboardScheduleItem = {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   /** يخصّ نوع «أوقات متاحة»: إظهارها للعملاء على المنصة */
   visibleOnProfile: boolean;
+  /** حجز بالاسم: اسم عضو الطاقم المختار */
+  teamMemberName?: string | null;
+  /** حجز بالاسم: صورة مصغّرة لعضو الطاقم إن وُجدت */
+  teamMemberPhotoUrl?: string | null;
 };
 
 export type BarberChatThread = {

@@ -138,6 +138,9 @@ function rateLimitMaxForRoute(routeId: string): number {
   if (routeId === 'public-rate-barber-context') {
     return envInt('PUBLIC_RATE_BARBER_CONTEXT_RATE_LIMIT_MAX', 80);
   }
+  if (routeId === 'staff-team-bookings') {
+    return envInt('STAFF_TEAM_BOOKINGS_RATE_LIMIT_MAX', 60);
+  }
   if (routeId === 'submit-barber-qr-review') {
     return envInt('SUBMIT_BARBER_QR_REVIEW_RATE_LIMIT_MAX', 15);
   }

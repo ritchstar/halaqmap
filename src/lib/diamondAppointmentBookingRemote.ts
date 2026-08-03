@@ -16,6 +16,8 @@ export type RemoteBookingRow = {
   booking_time: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
   team_member_id?: string | null;
+  team_member_name?: string | null;
+  team_member_photo_url?: string | null;
 };
 
 function endpoint(): string {
@@ -109,7 +111,12 @@ function mapBookingStatus(
 }
 
 export function mapRemoteBookingToScheduleItem(row: RemoteBookingRow): BarberDashboardScheduleItem {
-  const memberHint = row.team_member_id ? ' · حجز بالاسم' : '';
+  const memberName = String(row.team_member_name ?? '').trim();
+  const memberHint = row.team_member_id
+    ? memberName
+      ? ` · حجز بالاسم · ${memberName}`
+      : ' · حجز بالاسم'
+    : '';
   return {
     id: row.id,
     barberId: row.barber_id,
@@ -121,6 +128,10 @@ export function mapRemoteBookingToScheduleItem(row: RemoteBookingRow): BarberDas
     service: `${row.service_name}${memberHint}`,
     status: mapBookingStatus(row.status),
     visibleOnProfile: false,
+    teamMemberName: memberName || null,
+    teamMemberPhotoUrl: row.team_member_photo_url
+      ? String(row.team_member_photo_url).trim() || null
+      : null,
   };
 }
 

@@ -3,11 +3,14 @@
  *
  * طاقم الحلاقين + وضع الاتصال + فترات الحظر + فتحات الإتاحة للحجز بالاسم.
  */
+import { randomBytes } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { normalizeSaudiMobileForWa } from './saudiWhatsAppPhone.js';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/;
+const STAFF_TOKEN_RE = /^[a-f0-9]{64}$/i;
 
 export const MAX_TEAM_MEMBERS = 25;
 export const MAX_TEAM_PHOTOS = 10;
@@ -44,8 +47,24 @@ export type BarberTeamMemberRow = {
   default_duration_minutes: number;
   internal_notes: string | null;
   return_to_work_date: string | null;
+  /** رمز صفحة الطاقم — يظهر لمالك الصالون فقط عبر API البوابة */
+  staff_access_token: string | null;
+  /** جوال واتساب اختياري للتنبيه اليدوي من المالك */
+  notify_phone: string | null;
   created_at?: string;
   updated_at?: string;
+};
+
+export type StaffTeamBookingRow = {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  service_name: string;
+  booking_date: string;
+  booking_time: string;
+  duration_minutes: number;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  created_at: string;
 };
 
 export type TeamMemberBlockRow = {
@@ -123,7 +142,21 @@ export function parseDurationMinutes(raw: unknown, fallback = 30): number {
   return Math.min(480, Math.max(5, Math.floor(n)));
 }
 
+export function generateStaffAccessToken(): string {
+  return randomBytes(32).toString('hex');
+}
+
+export function normalizeNotifyPhone(raw: unknown): string | null {
+  const s = String(raw ?? '').trim();
+  if (!s) return null;
+  const wa = normalizeSaudiMobileForWa(s);
+  if (!wa) return null;
+  // خزّن بصيغة محلية 05xxxxxxxx لسهولة العرض في لوحة المالك
+  return `0${wa.slice(3)}`;
+}
+
 function mapMember(row: Record<string, unknown>): BarberTeamMemberRow {
+  const tokenRaw = row.staff_access_token == null ? '' : String(row.staff_access_token).trim();
   return {
     id: String(row.id ?? ''),
     barber_id: String(row.barber_id ?? ''),
@@ -135,6 +168,8 @@ function mapMember(row: Record<string, unknown>): BarberTeamMemberRow {
     internal_notes: row.internal_notes == null ? null : String(row.internal_notes),
     return_to_work_date:
       row.return_to_work_date == null ? null : String(row.return_to_work_date).slice(0, 10),
+    staff_access_token: tokenRaw && STAFF_TOKEN_RE.test(tokenRaw) ? tokenRaw : null,
+    notify_phone: row.notify_phone == null ? null : String(row.notify_phone).trim() || null,
     ...(row.created_at ? { created_at: String(row.created_at) } : {}),
     ...(row.updated_at ? { updated_at: String(row.updated_at) } : {}),
   };
@@ -289,20 +324,45 @@ export async function updateBarberContactMode(
 export async function listTeamMembers(
   supabase: SupabaseClient,
   barberId: string,
-  opts?: { activeOnly?: boolean },
+  opts?: { activeOnly?: boolean; includeStaffSecrets?: boolean },
 ): Promise<BarberTeamMemberRow[]> {
+  const includeSecrets = opts?.includeStaffSecrets === true;
+  const selectCols = includeSecrets
+    ? 'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, return_to_work_date, staff_access_token, notify_phone, created_at, updated_at'
+    : 'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, return_to_work_date, created_at, updated_at';
   let q = supabase
     .from('barber_team_members')
-    .select(
-      'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, return_to_work_date, created_at, updated_at',
-    )
+    .select(selectCols)
     .eq('barber_id', barberId)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true });
   if (opts?.activeOnly) q = q.eq('is_active', true);
   const { data, error } = await q;
   if (error || !data) return [];
-  return data.map((r) => mapMember(r as Record<string, unknown>));
+  const members = data.map((r) => mapMember(r as Record<string, unknown>));
+  if (!includeSecrets) {
+    return members.map((m) => ({ ...m, staff_access_token: null, notify_phone: null }));
+  }
+  // أكمل التوكنات الناقصة عند أول قراءة من لوحة المالك
+  const missing = members.filter((m) => !m.staff_access_token);
+  if (missing.length) {
+    await Promise.all(
+      missing.map(async (m) => {
+        const token = generateStaffAccessToken();
+        const { data: updated } = await supabase
+          .from('barber_team_members')
+          .update({ staff_access_token: token, updated_at: new Date().toISOString() })
+          .eq('id', m.id)
+          .eq('barber_id', barberId)
+          .select('staff_access_token')
+          .maybeSingle();
+        m.staff_access_token = updated?.staff_access_token
+          ? String(updated.staff_access_token)
+          : token;
+      }),
+    );
+  }
+  return members;
 }
 
 export async function upsertTeamMember(
@@ -317,6 +377,7 @@ export async function upsertTeamMember(
     defaultDurationMinutes?: number;
     internalNotes?: string | null;
     returnToWorkDate?: string | null;
+    notifyPhone?: string | null;
     clearPhoto?: boolean;
   },
 ): Promise<{ ok: true; member: BarberTeamMemberRow } | { ok: false; error: string }> {
@@ -339,6 +400,17 @@ export async function upsertTeamMember(
     .trim()
     .slice(0, 500);
   const returnDate = isActive ? null : normalizeReturnDate(input.returnToWorkDate);
+  const notifyPhoneProvided = Object.prototype.hasOwnProperty.call(input, 'notifyPhone');
+  let notifyPhone: string | null | undefined;
+  if (notifyPhoneProvided) {
+    const raw = String(input.notifyPhone ?? '').trim();
+    if (!raw) {
+      notifyPhone = null;
+    } else {
+      notifyPhone = normalizeNotifyPhone(raw);
+      if (!notifyPhone) return { ok: false, error: 'invalid_notify_phone' };
+    }
+  }
 
   const memberId = String(input.memberId ?? '').trim();
   if (memberId) {
@@ -353,6 +425,7 @@ export async function upsertTeamMember(
       updated_at: new Date().toISOString(),
     };
     if (photoUrl !== undefined) patch.photo_url = photoUrl;
+    if (notifyPhone !== undefined) patch.notify_phone = notifyPhone;
     const { data, error } = await supabase
       .from('barber_team_members')
       .update(patch)
@@ -364,7 +437,7 @@ export async function upsertTeamMember(
     return { ok: true, member: mapMember(data as Record<string, unknown>) };
   }
 
-  const existing = await listTeamMembers(supabase, input.barberId);
+  const existing = await listTeamMembers(supabase, input.barberId, { includeStaffSecrets: true });
   if (existing.length >= MAX_TEAM_MEMBERS) return { ok: false, error: 'team_limit_reached' };
 
   const { data, error } = await supabase
@@ -378,11 +451,137 @@ export async function upsertTeamMember(
       default_duration_minutes: duration,
       internal_notes: notes || null,
       return_to_work_date: returnDate,
+      notify_phone: notifyPhone ?? null,
+      staff_access_token: generateStaffAccessToken(),
     })
     .select('*')
     .maybeSingle();
   if (error || !data) return { ok: false, error: error?.message || 'insert_failed' };
   return { ok: true, member: mapMember(data as Record<string, unknown>) };
+}
+
+export async function rotateStaffAccessToken(
+  supabase: SupabaseClient,
+  barberId: string,
+  memberId: string,
+): Promise<{ ok: true; member: BarberTeamMemberRow } | { ok: false; error: string }> {
+  if (!UUID_RE.test(memberId)) return { ok: false, error: 'invalid_member_id' };
+  const token = generateStaffAccessToken();
+  const { data, error } = await supabase
+    .from('barber_team_members')
+    .update({ staff_access_token: token, updated_at: new Date().toISOString() })
+    .eq('id', memberId)
+    .eq('barber_id', barberId)
+    .select('*')
+    .maybeSingle();
+  if (error || !data) return { ok: false, error: error?.message || 'member_not_found' };
+  return { ok: true, member: mapMember(data as Record<string, unknown>) };
+}
+
+export async function resolveTeamMemberByStaffToken(
+  supabase: SupabaseClient,
+  token: string,
+): Promise<
+  | {
+      ok: true;
+      member: BarberTeamMemberRow;
+      salonName: string;
+    }
+  | { ok: false; error: string; status: number }
+> {
+  const accessToken = String(token ?? '').trim();
+  if (!STAFF_TOKEN_RE.test(accessToken)) {
+    return { ok: false, error: 'invalid_token', status: 400 };
+  }
+  const { data, error } = await supabase
+    .from('barber_team_members')
+    .select(
+      'id, barber_id, display_name, photo_url, sort_order, is_active, default_duration_minutes, internal_notes, return_to_work_date, staff_access_token, notify_phone, created_at, updated_at',
+    )
+    .eq('staff_access_token', accessToken)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message || 'lookup_failed', status: 500 };
+  if (!data) return { ok: false, error: 'token_not_found', status: 404 };
+
+  const member = mapMember(data as Record<string, unknown>);
+  const { data: barber } = await supabase
+    .from('barbers')
+    .select('id, name, is_active')
+    .eq('id', member.barber_id)
+    .maybeSingle();
+  if (!barber || barber.is_active === false) {
+    return { ok: false, error: 'salon_inactive', status: 409 };
+  }
+  return {
+    ok: true,
+    member,
+    salonName: String(barber.name ?? ''),
+  };
+}
+
+export async function listStaffTeamBookings(
+  supabase: SupabaseClient,
+  teamMemberId: string,
+): Promise<{ ok: true; bookings: StaffTeamBookingRow[] } | { ok: false; error: string; status: number }> {
+  if (!UUID_RE.test(teamMemberId)) {
+    return { ok: false, error: 'invalid_member_id', status: 400 };
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from('bookings')
+    .select(
+      'id, customer_name, customer_phone, service_name, booking_date, booking_time, duration_minutes, status, created_at',
+    )
+    .eq('team_member_id', teamMemberId)
+    .in('status', ['pending', 'confirmed'])
+    .gte('booking_date', today)
+    .order('booking_date', { ascending: true })
+    .order('booking_time', { ascending: true })
+    .limit(100);
+  if (error) return { ok: false, error: error.message || 'list_failed', status: 500 };
+  const bookings: StaffTeamBookingRow[] = (data ?? []).map((row) => {
+    const r = row as Record<string, unknown>;
+    const status = String(r.status ?? 'pending');
+    return {
+      id: String(r.id ?? ''),
+      customer_name: String(r.customer_name ?? ''),
+      customer_phone: String(r.customer_phone ?? ''),
+      service_name: String(r.service_name ?? ''),
+      booking_date: String(r.booking_date ?? '').slice(0, 10),
+      booking_time: formatTimeHm(String(r.booking_time ?? '')),
+      duration_minutes: Number(r.duration_minutes) || 30,
+      status:
+        status === 'confirmed' ||
+        status === 'completed' ||
+        status === 'cancelled' ||
+        status === 'no_show'
+          ? status
+          : 'pending',
+      created_at: String(r.created_at ?? ''),
+    };
+  });
+  return { ok: true, bookings };
+}
+
+export async function loadTeamMemberDisplayMap(
+  supabase: SupabaseClient,
+  memberIds: string[],
+): Promise<Map<string, { displayName: string; photoUrl: string | null }>> {
+  const map = new Map<string, { displayName: string; photoUrl: string | null }>();
+  const ids = [...new Set(memberIds.map((id) => id.trim()).filter((id) => UUID_RE.test(id)))];
+  if (!ids.length) return map;
+  const { data, error } = await supabase
+    .from('barber_team_members')
+    .select('id, display_name, photo_url')
+    .in('id', ids);
+  if (error || !data) return map;
+  for (const row of data) {
+    map.set(String(row.id), {
+      displayName: String(row.display_name ?? ''),
+      photoUrl: row.photo_url == null ? null : String(row.photo_url),
+    });
+  }
+  return map;
 }
 
 export async function countTeamPhotos(

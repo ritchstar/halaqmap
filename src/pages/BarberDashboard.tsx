@@ -2002,6 +2002,8 @@ function ScheduleRow({ item, compact }: { item: BarberDashboardScheduleItem; com
   const config = statusConfig[item.status];
   const StatusIcon = config.icon;
   const kindLabel = item.kind === 'availability_slot' ? 'أوقات متاحة' : 'حجز عميل';
+  const teamName = String(item.teamMemberName ?? '').trim();
+  const teamPhoto = String(item.teamMemberPhotoUrl ?? '').trim();
 
   return (
     <div
@@ -2010,14 +2012,23 @@ function ScheduleRow({ item, compact }: { item: BarberDashboardScheduleItem; com
       }`}
     >
       <div className="flex min-w-0 flex-1 items-center gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
-          <Users className="h-6 w-6 text-primary" />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10">
+          {teamPhoto ? (
+            <img src={teamPhoto} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <Users className="h-6 w-6 text-primary" />
+          )}
         </div>
         <div className="min-w-0">
           <div className="mb-1 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="text-[10px]">
               {kindLabel}
             </Badge>
+            {teamName ? (
+              <Badge variant="secondary" className="text-[10px]">
+                الحلاق: {teamName}
+              </Badge>
+            ) : null}
             {item.kind === 'availability_slot' ? (
               <Badge variant={item.visibleOnProfile ? 'default' : 'secondary'} className="text-[10px]">
                 {item.visibleOnProfile ? 'ظاهر للعملاء' : 'مخفي'}

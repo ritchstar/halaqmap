@@ -6,6 +6,7 @@ import { readBarberAuthSession } from '@/lib/barberPortalSession';
 const TEAM_ENDPOINT = '/api/barber-team-members';
 const PUBLIC_ENDPOINT = '/api/named-barber-booking';
 const BOOKING_ENDPOINT = '/api/diamond-appointment-booking';
+const STAFF_BOOKINGS_ENDPOINT = '/api/staff-team-bookings';
 
 export type ContactMode = 'classic' | 'booking_only';
 
@@ -33,6 +34,35 @@ export type TeamMemberRemote = {
   default_duration_minutes: number;
   internal_notes: string | null;
   return_to_work_date?: string | null;
+  staff_access_token?: string | null;
+  notify_phone?: string | null;
+};
+
+export type StaffTeamBookingRemote = {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  service_name: string;
+  booking_date: string;
+  booking_time: string;
+  duration_minutes: number;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  created_at: string;
+};
+
+export type StaffTeamBookingsPayload = {
+  member: {
+    id: string;
+    displayName: string;
+    photoUrl: string | null;
+    isActive: boolean;
+  };
+  salon: {
+    id: string;
+    name: string;
+  };
+  bookings: StaffTeamBookingRemote[];
+  pendingCount: number;
 };
 
 export type PublicBookingTeamMember = {
@@ -140,6 +170,16 @@ export function isBookingOnlyContact(barber: {
 
 export function bookBarberPath(barberId: string): string {
   return `/book/${encodeURIComponent(barberId.trim())}`;
+}
+
+export function staffBookingsPath(token: string): string {
+  return `/staff-bookings/${encodeURIComponent(token.trim())}`;
+}
+
+export function staffBookingsAbsoluteUrl(token: string): string {
+  const path = staffBookingsPath(token);
+  if (typeof window === 'undefined') return path;
+  return `${window.location.origin}/#${path}`;
 }
 
 export async function fetchPublicBookingContextRemote(
@@ -257,6 +297,7 @@ export async function upsertTeamMemberRemote(input: {
   defaultDurationMinutes?: number;
   internalNotes?: string | null;
   returnToWorkDate?: string | null;
+  notifyPhone?: string | null;
 }): Promise<{ ok: true; member: TeamMemberRemote } | { ok: false; error: string }> {
   const creds = portalCreds();
   if (!creds) return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول.' };
@@ -273,6 +314,53 @@ export async function upsertTeamMemberRemote(input: {
   if (!res.ok) return { ok: false, error: res.error };
   if (!res.json.member) return { ok: false, error: 'تعذّر حفظ الحلاق.' };
   return { ok: true, member: res.json.member };
+}
+
+export async function rotateStaffAccessTokenRemote(
+  memberId: string,
+): Promise<{ ok: true; member: TeamMemberRemote } | { ok: false; error: string }> {
+  const creds = portalCreds();
+  if (!creds) return { ok: false, error: 'انتهت جلسة لوحة التحكم. أعد تسجيل الدخول.' };
+  const res = await postJson<{ member?: TeamMemberRemote }>(
+    TEAM_ENDPOINT,
+    {
+      action: 'rotate_staff_token',
+      barberId: creds.barberId,
+      email: creds.email,
+      memberId: memberId.trim(),
+    },
+    'barber',
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  if (!res.json.member) return { ok: false, error: 'تعذّر إعادة إصدار الرابط.' };
+  return { ok: true, member: res.json.member };
+}
+
+export async function fetchStaffTeamBookingsRemote(
+  token: string,
+): Promise<{ ok: true; data: StaffTeamBookingsPayload } | { ok: false; error: string }> {
+  const accessToken = token.trim();
+  if (!accessToken) return { ok: false, error: 'رابط المتابعة غير صالح.' };
+  const res = await postJson<{
+    member?: StaffTeamBookingsPayload['member'];
+    salon?: StaffTeamBookingsPayload['salon'];
+    bookings?: StaffTeamBookingRemote[];
+    pendingCount?: number;
+    error?: string;
+  }>(STAFF_BOOKINGS_ENDPOINT, { token: accessToken }, 'public');
+  if (!res.ok) return { ok: false, error: res.error };
+  if (!res.json.member || !res.json.salon) {
+    return { ok: false, error: normalizeError(res.json.error || 'تعذّر تحميل الحجوزات.') };
+  }
+  return {
+    ok: true,
+    data: {
+      member: res.json.member,
+      salon: res.json.salon,
+      bookings: Array.isArray(res.json.bookings) ? res.json.bookings : [],
+      pendingCount: Number(res.json.pendingCount) || 0,
+    },
+  };
 }
 
 export async function deleteTeamMemberRemote(

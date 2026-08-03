@@ -3,6 +3,7 @@
  */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { getBarberListingBalance } from './listingLicenseService.js';
+import { loadTeamMemberDisplayMap } from './namedBarberBookingService.js';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -25,6 +26,8 @@ export type BookingRow = {
   notes: string | null;
   cancellation_reason: string | null;
   team_member_id?: string | null;
+  team_member_name?: string | null;
+  team_member_photo_url?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -319,7 +322,22 @@ export async function listBarberBookings(
     return { ok: false, error: error.message || 'list_failed', status: 500 };
   }
 
-  return { ok: true, bookings: (data ?? []) as BookingRow[] };
+  const rows = (data ?? []) as BookingRow[];
+  const memberIds = rows
+    .map((r) => String(r.team_member_id ?? '').trim())
+    .filter(Boolean);
+  const displayMap = await loadTeamMemberDisplayMap(supabase, memberIds);
+  const bookings = rows.map((row) => {
+    const mid = String(row.team_member_id ?? '').trim();
+    const info = mid ? displayMap.get(mid) : undefined;
+    return {
+      ...row,
+      team_member_name: info?.displayName ?? null,
+      team_member_photo_url: info?.photoUrl ?? null,
+    };
+  });
+
+  return { ok: true, bookings };
 }
 
 export async function updateBarberBookingStatus(

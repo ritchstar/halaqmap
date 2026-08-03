@@ -2,7 +2,18 @@
  * Copyright © 2026 HalaqMap. All Rights Reserved.
  */
 import { useCallback, useEffect, useState } from 'react';
-import { CalendarDays, Loader2, Plus, Scissors, Trash2, UserRound, ImagePlus } from 'lucide-react';
+import {
+  CalendarDays,
+  Copy,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Scissors,
+  Trash2,
+  UserRound,
+  ImagePlus,
+  MessageCircle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,16 +24,19 @@ import {
   deleteTeamMemberRemote,
   listDayScheduleRemote,
   listTeamMembersRemote,
+  rotateStaffAccessTokenRemote,
   setTeamSlotBlockRemote,
   updateCardCtaRemote,
   upsertTeamMemberRemote,
   uploadTeamMemberPhotoRemote,
   bookBarberPath,
+  staffBookingsAbsoluteUrl,
   type CardCtaFlags,
   type TeamMemberRemote,
   DEFAULT_CARD_CTA,
 } from '@/lib/namedBarberBookingRemote';
 import { readBarberAuthSession } from '@/lib/barberPortalSession';
+import { buildWhatsAppChatHref } from '@/lib/saudiWhatsAppPhone';
 import { optimizeImageFileForBarberPortfolio } from '@/lib/portfolioImageOptimization';
 import { cn } from '@/lib/utils';
 
@@ -45,6 +59,10 @@ export function BarberTeamBookingSection() {
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [bookingLinkCopied, setBookingLinkCopied] = useState(false);
+  const [staffLinkCopiedId, setStaffLinkCopiedId] = useState<string | null>(null);
+  const [notifyDraft, setNotifyDraft] = useState<Record<string, string>>({});
+  const [savingNotifyId, setSavingNotifyId] = useState<string | null>(null);
+  const [rotatingId, setRotatingId] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -58,6 +76,9 @@ export function BarberTeamBookingSection() {
     setCardCta(res.cardCta);
     setPhotoCount(res.photoCount);
     setMaxPhotos(res.maxPhotos);
+    setNotifyDraft(
+      Object.fromEntries(res.members.map((m) => [m.id, String(m.notify_phone ?? '')])),
+    );
     setSelectedId((prev) => {
       if (prev && res.members.some((m) => m.id === prev)) return prev;
       return res.members[0]?.id ?? null;
@@ -233,6 +254,84 @@ export function BarberTeamBookingSection() {
     }
   };
 
+  const copyStaffLink = async (member: TeamMemberRemote) => {
+    const token = String(member.staff_access_token ?? '').trim();
+    if (!token) {
+      toast.error('لا يوجد رابط لهذا الحلاق بعد. حدّث الصفحة أو أعد إصدار الرابط.');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(staffBookingsAbsoluteUrl(token));
+      setStaffLinkCopiedId(member.id);
+      toast.success(`تم نسخ رابط متابعة حجوزات ${member.display_name}.`);
+      setTimeout(() => setStaffLinkCopiedId((prev) => (prev === member.id ? null : prev)), 2000);
+    } catch {
+      toast.error('تعذّر النسخ.');
+    }
+  };
+
+  const saveNotifyPhone = async (member: TeamMemberRemote) => {
+    const phone = String(notifyDraft[member.id] ?? '').trim();
+    setSavingNotifyId(member.id);
+    const res = await upsertTeamMemberRemote({
+      memberId: member.id,
+      displayName: member.display_name,
+      photoUrl: member.photo_url,
+      sortOrder: member.sort_order,
+      isActive: member.is_active,
+      defaultDurationMinutes: member.default_duration_minutes,
+      internalNotes: member.internal_notes,
+      returnToWorkDate: member.return_to_work_date ?? null,
+      notifyPhone: phone || null,
+    });
+    setSavingNotifyId(null);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success('تم حفظ رقم واتساب الحلاق.');
+    void refresh();
+  };
+
+  const pingStaffWhatsApp = (member: TeamMemberRemote) => {
+    const phone = String(member.notify_phone ?? notifyDraft[member.id] ?? '').trim();
+    if (!phone) {
+      toast.error('أدخل رقم واتساب الحلاق واحفظه أولاً.');
+      return;
+    }
+    const token = String(member.staff_access_token ?? '').trim();
+    if (!token) {
+      toast.error('لا يوجد رابط متابعة لهذا الحلاق.');
+      return;
+    }
+    const salonName = String(readBarberAuthSession()?.name ?? '').trim() || 'الصالون';
+    const pageUrl = staffBookingsAbsoluteUrl(token);
+    const message = [
+      `حجز بانتظارك في ${salonName}.`,
+      `الحلاق: ${member.display_name}`,
+      `افتح صفحة متابعة حجوزاتك:`,
+      pageUrl,
+    ].join('\n');
+    const href = buildWhatsAppChatHref(phone, message);
+    if (!href) {
+      toast.error('رقم واتساب غير صالح.');
+      return;
+    }
+    window.open(href, '_blank', 'noopener,noreferrer');
+  };
+
+  const rotateStaffLink = async (member: TeamMemberRemote) => {
+    setRotatingId(member.id);
+    const res = await rotateStaffAccessTokenRemote(member.id);
+    setRotatingId(null);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success('أُعيد إصدار الرابط. الرابط السابق لم يعد يعمل.');
+    void refresh();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -397,6 +496,77 @@ export function BarberTeamBookingSection() {
                         />
                       </div>
                     ) : null}
+                  </div>
+
+                  <div className="space-y-2 rounded-md border border-border/70 bg-muted/20 p-2.5">
+                    <p className="text-xs font-medium text-foreground">متابعة حجوزات الحلاق</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => void copyStaffLink(m)}
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                        {staffLinkCopiedId === m.id ? 'تم النسخ' : 'نسخ رابط متابعة الحجوزات'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1.5"
+                        disabled={rotatingId === m.id}
+                        onClick={() => void rotateStaffLink(m)}
+                        title="إبطال الرابط السابق وإصدار رابط جديد"
+                      >
+                        {rotatingId === m.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <RefreshCw className="h-3.5 w-3.5" />
+                        )}
+                        إعادة إصدار الرابط
+                      </Button>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                      <div className="flex-1 space-y-1">
+                        <Label className="text-xs">واتساب الحلاق (اختياري)</Label>
+                        <Input
+                          inputMode="tel"
+                          dir="ltr"
+                          className="h-8 text-xs"
+                          placeholder="05xxxxxxxx"
+                          value={notifyDraft[m.id] ?? ''}
+                          onChange={(e) =>
+                            setNotifyDraft((prev) => ({ ...prev, [m.id]: e.target.value }))
+                          }
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          disabled={savingNotifyId === m.id}
+                          onClick={() => void saveNotifyPhone(m)}
+                        >
+                          {savingNotifyId === m.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            'حفظ الرقم'
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="gap-1.5"
+                          onClick={() => pingStaffWhatsApp(m)}
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          نبّه الحلاق
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))

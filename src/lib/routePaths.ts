@@ -91,6 +91,8 @@ export const ROUTE_PATHS = {
   RATE_BARBER: '/rate/:barberId',
   /** صفحة الحجز بالاسم للصالون الماسي: /book/:barberId */
   BOOK_BARBER: '/book/:barberId',
+  /** صفحة متابعة حجوزات عضو الطاقم عبر رابط سري: /staff-bookings/:token */
+  STAFF_BOOKINGS: '/staff-bookings/:token',
   /** صفحة الهبوط التصميمية التجريبية — معاينة فقط */
   LANDING_PREVIEW: '/preview',
   /** صفحة هبوط مسار الخدمات التسويقية للشركاء — معاينة تصميمية */

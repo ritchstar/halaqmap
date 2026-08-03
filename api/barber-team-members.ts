@@ -18,6 +18,7 @@ import {
   listTeamBlocks,
   listTeamMembers,
   MAX_TEAM_PHOTOS,
+  rotateStaffAccessToken,
   setTeamSlotBlocked,
   updateBarberCardCta,
   updateBarberContactMode,
@@ -54,6 +55,9 @@ function mapError(message: string): { status: number; error: string } {
   }
   if (message === 'invalid_image' || message === 'image_too_large') {
     return { status: 400, error: 'صورة غير صالحة أو كبيرة جداً. صغّرها ثم أعد المحاولة.' };
+  }
+  if (message === 'invalid_notify_phone') {
+    return { status: 400, error: 'أدخل رقم جوال سعودي صحيح يبدأ بـ 05 (10 أرقام).' };
   }
   return { status: 500, error: message || 'تعذّر تنفيذ العملية.' };
 }
@@ -126,7 +130,7 @@ export async function POST(request: Request): Promise<Response> {
 
   if (action === 'list') {
     const [members, cardCta, photos] = await Promise.all([
-      listTeamMembers(supabase, barberId),
+      listTeamMembers(supabase, barberId, { includeStaffSecrets: true }),
       getBarberCardCta(supabase, barberId),
       countTeamPhotos(supabase, barberId),
     ]);
@@ -146,19 +150,41 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (action === 'upsert') {
+    const bodyRec = body as {
+      memberId?: unknown;
+      displayName?: unknown;
+      photoUrl?: unknown;
+      sortOrder?: unknown;
+      isActive?: unknown;
+      defaultDurationMinutes?: unknown;
+      internalNotes?: unknown;
+      returnToWorkDate?: unknown;
+      notifyPhone?: unknown;
+    };
     const result = await upsertTeamMember(supabase, {
       barberId,
-      memberId: String((body as { memberId?: unknown }).memberId ?? '').trim() || undefined,
-      displayName: String((body as { displayName?: unknown }).displayName ?? ''),
-      photoUrl: (body as { photoUrl?: unknown }).photoUrl as string | null | undefined,
-      sortOrder: (body as { sortOrder?: unknown }).sortOrder as number | undefined,
-      isActive: (body as { isActive?: unknown }).isActive as boolean | undefined,
-      defaultDurationMinutes: (body as { defaultDurationMinutes?: unknown }).defaultDurationMinutes as
-        | number
-        | undefined,
-      internalNotes: (body as { internalNotes?: unknown }).internalNotes as string | null | undefined,
-      returnToWorkDate: (body as { returnToWorkDate?: unknown }).returnToWorkDate as string | null | undefined,
+      memberId: String(bodyRec.memberId ?? '').trim() || undefined,
+      displayName: String(bodyRec.displayName ?? ''),
+      photoUrl: bodyRec.photoUrl as string | null | undefined,
+      sortOrder: bodyRec.sortOrder as number | undefined,
+      isActive: bodyRec.isActive as boolean | undefined,
+      defaultDurationMinutes: bodyRec.defaultDurationMinutes as number | undefined,
+      internalNotes: bodyRec.internalNotes as string | null | undefined,
+      returnToWorkDate: bodyRec.returnToWorkDate as string | null | undefined,
+      ...(Object.prototype.hasOwnProperty.call(bodyRec, 'notifyPhone')
+        ? { notifyPhone: bodyRec.notifyPhone as string | null | undefined }
+        : {}),
     });
+    if (!result.ok) {
+      const mapped = mapError(result.error);
+      return Response.json({ error: mapped.error }, { status: mapped.status, headers });
+    }
+    return Response.json({ ok: true, member: result.member }, { headers });
+  }
+
+  if (action === 'rotate_staff_token') {
+    const memberId = String((body as { memberId?: unknown }).memberId ?? '').trim();
+    const result = await rotateStaffAccessToken(supabase, barberId, memberId);
     if (!result.ok) {
       const mapped = mapError(result.error);
       return Response.json({ error: mapped.error }, { status: mapped.status, headers });
